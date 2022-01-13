@@ -1,0 +1,75 @@
+name: ubuntu-parallel
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: 
+      - master
+      - staged
+      - development
+    paths-ignore:
+      - '**.md'
+      - 'sites/**'
+      - 'docs/**'
+      - 'LICENSE'
+ 
+  #push:
+  #  branches: 
+  #    - master
+  #    - staged
+  #    - development      
+  #  paths-ignore:
+  #    - '**.md'
+  #    - 'sites/**'
+  #    - 'docs/**'
+  #    - 'LICENSE'
+      
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  ubuntu-latest:
+    name: "sod-sedov"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2      
+    - name: Dependencies1
+      run: |
+          mydir="$PWD"
+          sudo apt-get update
+          sudo apt-get install libhdf5-mpi-dev  
+    - name: Flash setup
+      run: |   
+          mydir="$PWD"
+          echo $mydir
+          cd $mydir/sites/hello
+          mv Makefile.h Makefile.h.hello
+          wget https://gist.githubusercontent.com/rajeeja/768b83c41c64563e81df84d4021b9bd4/raw/a883c1e6c6cb5ded3aaa895c104fbb1d0ae67fbd/Makefile.h
+          cd ../..
+          ./setup Sod -auto -debug +parallelIO -site=hello -objdir=sod-parallel
+          ./setup Sedov -auto -debug +parallelIO -site=hello -objdir=sedov-parallel          
+    - name: Flash parallel make
+      run: |
+          mydir="$PWD"
+          echo $mydir
+          cd sod-parallel
+          make           
+          echo "DONE: Sod parallel make"
+          cd ../sedov-parallel
+          make                     
+          echo "DONE: Sedov parallel make"          
+    - name: Flash parallel run
+      run: |          
+          mydir="$PWD"
+          echo $mydir
+          cd sod-parallel    
+          echo "RUNNING: Sod parallel"
+          mpiexec -np 2 ./flash5     
+          ls -ltrh *chk*
+          head -n 21 *.log
+          tail -n 200 *.log   
+          cd ../sedov-parallel
+          echo "RUNNING: Sedov parallel"
+          mpiexec -np 2 ./flash5     
+          ls -ltrh *chk*
+          head -n 21 *.log
+          tail -n 200 *.log          
