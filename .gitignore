@@ -1,0 +1,21 @@
+# file types
+*.pyc
+*.o
+*~
+# Dirs
+build/
+sites/ares/
+obj*
+sod_2d*
+__pycache__
+
+# Specific files
+lib/ma28/Makefile.h
+lib/ma28/build.csh
+lib/ma28/source/*__genmod.mod
+lib/ma28/source/*__genmod.f90
+lib/thornado/include
+lib/thornado/Makefile.h
+lib/thornado/build.csh
+tools/sfocu/sfocu
+source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/MesaNet/kernel/external_codes_with_mesa/min_net/run
