@@ -1,0 +1,61 @@
+# Name of the github-docker workflow
+name: maple-cli
+
+# Perform tests on pull request
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: 
+      - main
+      - staged
+      - development
+    paths-ignore:
+      - '**.md'
+      - 'sites/**'
+      - 'docs/**'
+      - 'LICENSE'
+    
+# Container jobs
+jobs:
+  rising-bubble:
+    name: "rising-bubble"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2      
+    - name: Dependencies1
+      run: |
+          mkdir -p $HOME/.local/bin
+          export PATH="PATH:$HOME/.local/bin"
+    - uses: actions/checkout@v2 # checkout root
+    - name: Checkout submodules # checkout rest
+      run: |
+          # If your submodules are configured to use SSH instead of HTTPS 
+          # please uncomment the following line
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule update --init tools/maple
+          cd tools/maple
+          ./setup develop
+          ./setup clean
+    - name: Setup Flash-X env
+      run: |   
+          maple build
+    - name: Run Flash-X tests
+      run: |
+          maple run "export OMPI_MCA_btl_vader_single_copy_mechanism=none && \
+                    \
+                    ./setup incompFlow/RisingBubble -auto -2d -site=/home/site \
+                    +amrex -maxblocks=100 && \
+                    cd object && make -j 1 && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
+                    mpirun -n 1 ./flashx && cat unitTest_0000 && cd .. && \
+                    \
+                    ./setup incompFlow/RisingBubble -auto -2d -site=/home/site \
+                    +pm4dev -gridinterpolation=native -maxblocks=100 && \
+                    cd object && make -j 1 && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
+                    mpirun -n 1 ./flashx && cat unitTest_0000 && cd .."
+
+    - name: Clean Flash-X env
+      run: |
+          maple clean
+          maple remove

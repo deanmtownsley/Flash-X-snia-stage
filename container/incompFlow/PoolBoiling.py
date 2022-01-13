@@ -26,13 +26,13 @@ if __name__ == "__main__":
     flashx.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
                     +amrex -maxblocks=100 && \
                     cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 1 ./flash5 && cat unitTest_0000")
+                    mpirun -n 1 ./flashx && cat unitTest_0000")
 
     # build an run paramesh simulation
     #flashx.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
     #                +pm4dev -gridinterpolation=native -maxblocks=100 && \
     #                cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-    #                mpirun -n 1 ./flash5 && cat unitTest_0000")
+    #                mpirun -n 1 ./flashx && cat unitTest_0000")
 
     # rinse (stop and delete) local container
     flashx.rinse()
