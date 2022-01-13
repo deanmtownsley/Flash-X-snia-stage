@@ -1,0 +1,23 @@
+SNIa_DoubleDetonation:
+Adapted from SnDet Simulation Unit Implementation by Townsley (2009)
+
+This simulation unit loads a 1D WD profile (wd_profile_rhoc_415e5_M_106_correct.dat
+by default), with the option of adding a shell or belt, and ignites a detonation by
+placing a matchhead at an arbitary location.
+
+Multiple initial 1D WD profiles are provided in the Profiles directory:
+* wd_profile_rhoc_415e5_M_106_correct.dat
+  Analytic 1.06 M_solar sub-Chandra model from Timmes' public_coldwd setup
+* cc_Tc_7e8_rhoc_22e8_C_50_Ne_00_linear_wd_plain.dat
+  Analytic 1.38 M_solar Chandrasekhar model from Townsley
+* helm_1e6d3e8tFLA_m1.036_shellm0.06.dat
+  Analytic 1.036 M_solar sub-Chandra model w/ 0.06 M_solar hot He-shell
+
+
+Example setup commands:
+
+* 2D, with default Aprox13 burner, centrally detonated analytic WD
+> ./setup SNIa_DoubleDetonation -auto -2d +Mode1 +cylindrical -nxb=16 -nyb=16 +newMpole +a13 -parfile=flash_centerDet_2d.par
+
+* 2D, with XNet SN231 network, edge-lit analytic WD w/ He-shell
+> ./setup SNIa_DoubleDetonation -auto -2d +Mode1 +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_SN231 -parfile=flash_shellDet_2d.par

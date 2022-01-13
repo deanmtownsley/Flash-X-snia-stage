@@ -1,0 +1,11 @@
+Setup syntax for 3D (CPU):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1
+
+Setup syntax for 3D (GPU):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 +thornadoACC
+
+For Paramesh test:
+./setup StreamingSineWave -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 -parfile=test_paramesh_3d.par
+
+For AMReX test:
+./setup StreamingSineWave -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 +Mode3 -parfile=test_amrex_3d.par

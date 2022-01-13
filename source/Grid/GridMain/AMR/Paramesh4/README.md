@@ -1,0 +1,11 @@
+# Load Distribution
+Paramesh enumerates blocks with a space-filling (morton) curve, and splits the list across processors after each refinement. By default, each block is assigned a load based on its nodetype (leaf or parent), and an algorithm is applied to assign each processor roughly equal load. If desired, the user can set custom values for load via the Grid\_setWork routine. This routine changes the work for a single block, so it should be called in a iterator loop (for example, in Hydro.F90 or Burn.F90). The user can also set the defaults and bounds with Grid\_setWorkDefault and Grid\_setWorkBounds, respectively.
+
+The behavior of the load array (internally named 'work\_block') is controlled by several runtime parameters:
+- `gr_btSortByWork` - Controls the distribution of blocks over processors. True (default) = blocks are weighted by a value stored 'work\_block'. False = blocks are distributed uniformly.
+- `gr_btCustomWork` - If the above is True, controls how the work array is determined. True = user sets physically-determined values for work via the Grid routine Grid\_setWork. False (default) = blocks are assigned a work weight based on nodetype.
+- `gr_btWorkChildScaling` - If gr\_btCustomWork =True, new children inherit their parent's work value, multiplied by this factor. Default = 1.0.
+- `gr_btExchangeWork` - True = work\_block is exchanged during refinement.False (default) = entire work\_block array is reset to default values after each refinement.
+- `gr_btDefaultWorkPar` - If gr\_btExchangeWork is False, every non-leaf entry in the work\_block array is reset to this value during regridding. Default=1.0. Can be updated after Paramesh is initialized by Grid\_setWorkDefault. Also, this controls the default work assigned if gr\_btCustomWork = False.
+- `gr_btDefaultWorkLeaf` - If gr\_btExchangeWork is False, every leaf entry in the work\_block array is reset to this value during regridding. Default = 2.0. Can be updated after Paramesh is initialized by Grid\_setWorkDefault. Also, this controls the default work assigned if gr\_btCustomWork = False.
+- `gr_btWork{LB,UB}{Leaf,Par}` - Set the bounds for the work array. Can be updated with Grid\_setWorkBounds.

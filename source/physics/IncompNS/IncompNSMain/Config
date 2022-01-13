@@ -1,0 +1,61 @@
+#       Config file for the Incompressible Navier Stoke solver.
+DEFAULT constdens
+
+#-----------------------------------------------------------------------
+REQUIRES physics/IncompNS/localAPI
+REQUIRES numericalTools/Stencils/StencilsAdvection
+REQUIRES numericalTools/Stencils/StencilsDiffusion
+REQUIRES numericalTools/Stencils/StencilsTemporal
+
+#-----------------------------------------------------------------------
+CHILDORDER constdens vardens
+EXCLUSIVE  constdens vardens
+
+#-----------------------------------------------------------------------
+D useIncompNS   Should the IncompNS unit be used?
+PARAMETER useIncompNS BOOLEAN TRUE
+
+#-----------------------------------------------------------------------
+# Runtime parameters
+D cfl                   Courant Number
+D ins_sigma		Viscous Condition Parameter
+D   ins_invReynolds  inverse Reynolds number
+D   ins_isgs   Subgrid scale model flag
+
+PARAMETER ins_invReynolds      REAL     1.
+PARAMETER ins_isgs             INTEGER  0
+PARAMETER ins_cflFlg           INTEGER  1                # if 1 run at constant CFL, if 0 constant timestep
+PARAMETER ins_cfl              REAL     0.35             # CFL number (for AB2 ~ 0.3, for RK3 ~ 1.2)
+PARAMETER ins_sigma            REAL     0.25             # viscous condition parameter
+PARAMETER ins_dtSpec           REAL     0.001            # Specified constant timestep
+PARAMETER ins_velProlongMethod INTEGER  1 [0,1,101,102]  # if 0 injection for prolongation in 
+                                                         # update refinement, 
+                                                         # if 1 divergence preserving prolongation.
+PARAMETER ins_pressureCorrect  BOOLEAN  TRUE             # if true does pressure correction time 
+                                                         # splitting scheme (solve Poisson for DP)
+                                                         # else fractional step method (solve Poisson for P).
+
+#---------------------------------------------------------------------------
+# Gravitational acceleration in the xi direction
+PARAMETER ins_gravX          REAL     0.
+PARAMETER ins_gravY          REAL     0.
+PARAMETER ins_gravZ          REAL     0.
+
+#---------------------------------------------------------------------------
+PARAMETER  ins_dpdx  REAL  0.00   # Value of constant dpdx.
+PARAMETER  ins_dpdy  REAL  0.00   # Value of constant dpdy.
+PARAMETER  ins_dpdz  REAL  0.00   # Value of constant dpdz.
+  
+#-----------------------------------------------------------------------------
+# Variables required by the INS module
+VARIABLE pres                  	# pressure
+VARIABLE dust                  	# divergence of ustar, poissons equation source term
+VARIABLE tvis 			# turbulent viscosity
+
+# Use FACEVAR for cell interface velocity fields
+FACEVAR velc     
+FACEVAR rhds
+FACEVAR pgn1                    # Variable to store pressure gradient at n-1
+
+# Fluxes
+FLUX velc

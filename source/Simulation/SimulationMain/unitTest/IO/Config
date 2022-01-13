@@ -1,0 +1,35 @@
+##python:genLines
+
+#  Configuration file for IO unit test
+#  [Simulation/SimulationMain/unitTest/IO]
+
+import os.path
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    ##
+    yield 'REQUIRES Driver'
+    yield 'REQUIRES IO'
+
+    ##
+    yield 'USESETUPVARS withParticles'
+    yield 'IF withParticles'
+    yield '   PARTICLETYPE passive INITMETHOD lattice MAPMETHOD quadratic ADVMETHOD rungekutta'
+    yield '   REQUIRES Particles/ParticlesMain'
+    yield '   REQUESTS Particles/ParticlesInitialization/Lattice'
+    yield '   REQUESTS Particles/ParticlesMapping/Quadratic'
+    yield '   VARIABLE velx TYPE: PER_MASS'
+    yield '   VARIABLE vely TYPE: PER_MASS'
+    yield '   VARIABLE velz TYPE: PER_MASS'
+    yield 'ENDIF'
+
+    ##
+    if 'nVars' in setupvars:
+        io_nVars = setupvars['nVars']
+    else:
+        io_nVars = 5
+
+    for iVar in range(0,io_nVars):
+        yield 'VARIABLE X%03d' % (iVar+1)

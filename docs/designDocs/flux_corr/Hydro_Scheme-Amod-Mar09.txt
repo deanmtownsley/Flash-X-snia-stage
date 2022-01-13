@@ -1,0 +1,46 @@
+With Spark, Level-Based: (Anshu-mod, Mar-09-2020)
+=======================
+Let level L=Lmax:
+
+   Iterate blocks:
+      Iterate stages s:
+         set RK coeffs
+         compute fluxes                                        ! Compute a "flux"
+         call addFlux(flux,fluxBuf,coeff,...)                  ! fluxBuf := coeff*flux or fluxBuf += coeff*flux
+         call hy_rk_updateSoln(desc,...)                       ! update hy_starState from "flux"
+         call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+         if (s==last_stage):
+            call updateState(desc)                             ! copies UNK <-- hy_starState
+            ! NOTE: No call hy_rk_correctFluxes() !
+
+      call Grid_putFluxData[_block](desc,fluxBuf)  (unless Lmax==Lmin)  ! AS_FINE: fluxBuf --> SPFS[L,L-1][fine]
+
+Iterate levels L (Lmax-1 downto Lmin):
+
+   global(L+1,L):
+      communicate fine fluxes               ! inside SPFS[L+1,L]:   SPFS[L+1,L][coarse] <~~ SPFS[L+1,L][fine]
+
+   Iterate blocks:
+      Iterate stages s:
+         set RK coeffs
+         compute fluxes                                           ! Compute a "flux"
+         if (s < last_stage):
+            call addFlux(flux,coeff,...)                          ! fluxBuf := coeff*flux or fluxBuf += coeff*flux
+            call hy_rk_updateSoln(desc,...)                       ! update hy_starState from "flux"
+            call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+         else: ! (s==last_stage)
+
+	    a.| call Grid_getFluxCorrData[_xtra](desc,fluxBuf,fluxCorr,...)           | fluxCorr |bb  =      ("communicated fine fluxes" - fluxBuf)|bb
+              | flux |bb := 1/coeff * fluxCorr|bb
+            OR
+	    b.| call Grid_correctFluxData[_xtra](desc,1/coeff,flux,-1/coeff,fluxBuf)  |  flux |bb  = 1/coeff*("communicated fine fluxes" - fluxBuf)|bb
+                          ^^^ PREFERRED variant!
+
+            call addFlux(flux,fluxBuf,coeff,...)                  ! fluxBuf += coeff*flux
+            call hy_rk_updateSoln(desc,...)                       ! update hy_starState from "flux"
+            call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+            call updateState(desc)                                ! copies UNK <-- hy_starState
+            ! NOTE: No call hy_rk_correctFluxes() !
+
+      call Grid_putFluxData(desc,fluxBuf)  (unless L==Lmin)       ! AS_FINE: fluxBuf --+> SPFS[L,L-1][fine]
+

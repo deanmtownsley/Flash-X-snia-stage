@@ -1,0 +1,1 @@
+./setup StreamingDopplerShift -auto -1d +cartesian -nxb=16 nE=16 swE=1 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=flash.par -objdir=doppler_MI_16E_OrderV_1D

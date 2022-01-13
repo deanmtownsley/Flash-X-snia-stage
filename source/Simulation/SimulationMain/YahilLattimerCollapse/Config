@@ -1,0 +1,45 @@
+#       Configuration file for the YahilLattimerCollapse problem
+
+# Unit Dependencies:
+USESETUPVARS Grid  # instructs setup that Grid must be defined by ./setup or flash.par
+                   # otherwise be set to the empty string
+
+REQUIRES Driver
+REQUIRES physics/Hydro
+REQUIRES physics/Eos/EosMain/Gamma
+REQUIRES physics/Gravity/GravityMain/Poisson/Multipole
+
+# Initial parameters:
+D sim_pCentral       Initial Central Pressure
+PARAMETER sim_pCentral     REAL    6.E27
+
+D sim_rhoCentral     Initial Central Density
+PARAMETER sim_rhoCentral   REAL    7.E9
+
+D sim_gammaInitial   Initial effective adiabatic index
+PARAMETER sim_gammaInitial REAL    1.33
+
+D sim_collapsetime   Initial collapse time
+PARAMETER sim_collapsetime REAL    1.5E-3 
+
+D sim_maxDens        Maximum Central Density (Ending Criteria)
+PARAMETER sim_maxDens REAL    1.0E14
+
+D sim_xctr           Explosion center coordinates
+PARAMETER sim_xctr          REAL    0.5
+
+D sim_yctr           Explosion center coordinates
+PARAMETER sim_yctr          REAL    0.5
+
+D sim_zctr           Explosion center coordinates
+PARAMETER sim_zctr          REAL    0.5
+
+D sim_profFileName   Name of file from which to read a 1D Yahil profile for the
+D &                  initial condition.
+PARAMETER sim_profFileName  STRING  "Yahil_Gam133.dat"
+
+D nsub               Number of sub-sampling points for mapping of 1D model
+PARAMETER nsub              INTEGER 1
+
+# Link the profile files:
+DATAFILES YahilProfile/Yahil_Gam*.dat

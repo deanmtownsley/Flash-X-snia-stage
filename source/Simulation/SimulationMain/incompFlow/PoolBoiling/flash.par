@@ -1,0 +1,110 @@
+# 	Runtime parameters for the Lid Driven Cavity problem.
+gr_pmRpDivergenceFree = 1
+gr_pmRpNfieldDivf = 2
+gr_pmRpConsvFluxes = .TRUE.
+gr_pmRpConsvFluxDensities = .FALSE.
+
+# Inverse of Reynolds Number
+ins_invReynolds   = .003
+
+# 1/Fr**2, Fr (Froude Number)
+ins_gravY           = -1.0
+
+# Gas density and viscosity scaled by liquid
+mph_rhoGas  = 0.005
+mph_muGas   = 0.02
+mph_iPropSmear = 1.0
+
+# Gas thermal conductivity and specific heat
+mph_thcoGas = 0.2
+mph_CpGas   = 0.7
+
+# Stefan number and saturation temperature
+mph_Stefan  = 0.15
+mph_Tsat    = 0.0
+
+# Inverse Weber Number
+mph_invWeber = 1.0
+
+# Prandtl number
+ht_Prandtl = 7.0
+
+# Heater parameters
+sim_nucSeedRadius =  0.1 # Re-nucleation seed size
+sim_numHeaters    =  2   # Number of heaters
+
+# Outflow parameters
+sim_lsSink        =  1.0 # Level set sink strength
+sim_outflowRegion =  2.0 # Outflow region 
+
+#       Grid dimensionality and geometry
+geometry	= "cartesian"
+
+#       Size of computational volume
+xmin		=  0.0
+xmax		=  3.0
+ymin		=  0.0
+ymax		=  3.0
+zmin            =  0.0
+zmax            =  3.0
+
+#       Boundary conditions
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
+yl_boundary_type = "noslip_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
+
+#       Simulation (grid, time, I/O) parameters
+run_comment	= "Pool Boiling problem"
+log_file	= "INS_Pool_Boiling.log"
+basenm		= "INS_Pool_Boiling_"
+restart         = .false.
+nend            = 200
+tmax            = 100. 
+ins_cflFlg      = 0
+ins_cfl         = 0.3
+ins_sigma	= 0.2
+ins_dtSpec      = 0.1d-2
+dtinit          = 0.1d-2
+tstep_change_factor = 1.0
+ins_pressureCorrect= .false.
+
+#Integration Scheme:
+ins_intSchm            = 2
+
+plot_var_1	= "pres"
+plot_var_2      = "velx"
+plot_var_3      = "vely"
+plot_var_4      = "dfun"
+  
+checkpointFileIntervalTime = 5.
+checkpointFileIntervalStep = 5
+
+plotFileIntervalTime = 5.
+plotFileIntervalStep = 5
+
+# AMR parameters
+nblockx	= 3
+nblocky	= 3
+nblockz = 3
+nfres   = 1000
+
+lrefine_min       = 1
+lrefine_max       = 1
+
+#	Flux Conservation for AMR
+flux_correct    = .true.
+
+# AMReX Poisson Solver Parameters
+gr_amrexMG_composite_solve = ".TRUE."
+gr_amrexMG_Tol = 1e-13
+gr_amrexMG_max_iter = 200
+
+# HYPRE Poisson Solver Parameters
+gr_hyprePrintSolveInfo = ".FALSE."
+gr_hyprePcType = "HYPRE_AMG"
+gr_hypreSolverType = "HYPRE_BICGSTAB"
+gr_hypreRelTol = 1.0e-12
+gr_hypreFloor  = 1.0e-16

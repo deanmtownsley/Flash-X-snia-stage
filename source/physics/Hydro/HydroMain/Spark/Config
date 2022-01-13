@@ -1,0 +1,115 @@
+# source/physics/Hydro/HydroMain/Spark
+
+# Config file for the Spark Hydro solvers
+# Note: It requires an unsplit driver which is different from
+#       the FLASH default split scheme.
+
+REQUIRES Driver/DriverMain/Unsplit
+REQUIRES physics/Eos
+
+EXCLUSIVE fog tvd2 lim03 mp5
+
+#Signal that the Hydro implementation is an unsplit implementation
+# (used for flux handlings in paramesh_preprocessor.fh)
+## PPDEFINE FLASH_HYDRO_UNSPLIT
+##PPDEFINE CHOMBO_COMPATIBLE_HYDRO
+
+PARAMETER cvisc         REAL    0.1
+PARAMETER lim_rad       REAL    0.1
+
+# Variables required by the unsplit solvers
+VARIABLE dens TYPE: PER_VOLUME 	EOSMAP:  DENS # density
+VARIABLE velx TYPE: PER_MASS   	EOSMAPIN:VELX # x-velocity
+VARIABLE vely TYPE: PER_MASS   	EOSMAPIN:VELY # y-velocity
+VARIABLE velz TYPE: PER_MASS   	EOSMAPIN:VELZ # z-velocity
+VARIABLE pres                  	EOSMAP:  PRES # pressure
+VARIABLE ener TYPE: PER_MASS   	EOSMAP:  ENER # specific total energy (T+U)
+VARIABLE gamc                  	EOSMAP:  GAMC # sound-speed gamma
+VARIABLE temp                  	EOSMAP:  TEMP # temperature
+VARIABLE eint TYPE: PER_MASS   	EOSMAP:  EINT # specific internal energy (U)
+VARIABLE shok # flag variable for shock detection
+
+# Uncomment the following if you want to see what FLAT_VAR is
+#VARIABLE flat
+
+# Runtime parameters for the Unsplit Hydro solver:
+D slopeLimiter		mc, vanLeer, minmod, hybrid, limited
+D EOSforRiemann         Turn on/off calls to Eos for thermo of reconstructed face states (MODE_DENS_PRES)
+D RiemannSolver		Roe, HLL, HLLC, Marquina, MarquinaModified, Hybrid or local Lax-Friedrichs, plus HLLD for MHD
+D use_hybridRiemann	Use the HLL solver inside shocks (flagged by SHOK_VAR)
+
+# Runtime Parameters
+PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
+PARAMETER use_hybridRiemann		 BOOLEAN FALSE
+
+# GLM-MHD damping factor
+PARAMETER alpha_glm			REAL 0.9
+PARAMETER killdivb   BOOLEAN TRUE
+PARAMETER unitsystem STRING "none"
+
+# Fluxes, these have to be prefixed by "F0*" because setup.py alphabetizes
+FLUX F01Dens
+FLUX F02Xmom
+FLUX F03Ymom
+FLUX F04Zmom
+FLUX F05Ener
+
+
+#Signal that the unsplit implementation is Spark Hydro
+PPDEFINE FLASH_SPARK_HYDRO
+
+USESETUPVARS Grid
+
+USESETUPVARS ParameshLibraryMode
+# Link in this file only if Paramesh LIBRARY mode or PM4DEV is requested
+IF ParameshLibraryMode or (Grid in ["","PM4DEV"])
+	DATAFILES amr_runtime_parameters.tpl
+ENDIF
+
+# Number of guard cells at each boundary
+USESETUPVARS useMP5
+USESETUPVARS useGLM
+USESETUPVARS useTVD
+USESETUPVARS useFog
+USESETUPVARS useLim03
+
+USESETUPVARS openMP_offloading
+IF openMP_offloading
+        PPDEFINE OMP_OL
+ENDIF
+
+
+IF useTVD or useLim03 or useFog
+  GUARDCELLS 4
+	PPDEFINE NSTENCIL 2
+ELSE
+  GUARDCELLS 6
+	PPDEFINE NSTENCIL 3
+ENDIF
+
+# Check for GLM-MHD
+IF useGLM
+	REQUIRES physics/Hydro/HydroMain/Spark/glm
+ENDIF
+
+# Check for lim03
+IF useLim03
+	REQUIRES physics/Hydro/HydroMain/Spark/lim03
+ENDIF
+
+# Check for MP5
+IF useMP5
+  REQUIRES physics/Hydro/HydroMain/Spark/mp5
+ENDIF
+
+# Check for second-order TVD
+IF useTVD
+	REQUIRES physics/Hydro/HydroMain/Spark/tvd2
+ENDIF
+
+# Check for first-order Godunov
+IF useFog
+	REQUIRES physics/Hydro/HydroMain/Spark/fog
+ENDIF
+
+VARIANTS Inhost Offload Null

@@ -1,0 +1,19 @@
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!!
+!!***
+subroutine Stencils_lsRedistance2d(phi,phi_orig,dt,dx,dy,ix1,ix2,jy1,jy2)
+     implicit none
+     integer, intent(in) :: ix1,ix2,jy1,jy2
+     real, dimension(:,:,:), intent(inout):: phi
+     real, intent(in) :: dx,dy,dt
+     real, dimension(:,:,:), intent(in):: phi_orig
+end subroutine Stencils_lsRedistance2d 

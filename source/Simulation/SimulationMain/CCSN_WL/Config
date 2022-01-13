@@ -1,0 +1,26 @@
+# Config file for Core Collapse SN setup.  This version does not use leakage.
+
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro/HydroMain 
+REQUIRES physics/Eos/EosMain/WeakLib
+REQUESTS physics/sourceTerms/Burn/BurnMain/nuclearBurn
+REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
+
+# params for 1D initialization
+D model_file 	Name of input file with 1D model
+PARAMETER model_file	STRING "file.dat"
+D nsub	  number of sub-sampling points for mapping of 1D model
+PARAMETER nsub		INTEGER 4
+D vel_mult	multiplier on initial 1D radial velocity
+PARAMETER vel_mult	REAL 1.0
+
+# Extra variables
+D ye_mscalar      Electron Fraction
+MASS_SCALAR YE    EOSMAPIN: YE
+D sumy_mscalar    Total Nucleon Fraction
+MASS_SCALAR SUMY  EOSMAPIN: SUMY
+
+# Link the profile files:
+DATAFILES s15s7b2_short
+DATAFILES ../../../physics/Eos/EosMain/WeakLib/tables/*.h5

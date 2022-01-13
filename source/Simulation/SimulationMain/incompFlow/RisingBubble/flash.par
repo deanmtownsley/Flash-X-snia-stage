@@ -1,0 +1,88 @@
+# 	Runtime parameters for the Lid Driven Cavity problem.
+gr_pmRpDivergenceFree = 1
+gr_pmRpNfieldDivf = 2
+gr_pmRpConsvFluxes = .TRUE.
+gr_pmRpConsvFluxDensities = .FALSE.
+
+# Inverse of Reynolds Number
+ins_invReynolds     = .01
+
+# 1/Fr**2, Fr (Froude Number)
+ins_gravY           = -1.0
+
+# Gas density and viscosity scaled by liquid
+mph_rhoGas = 0.005
+mph_muGas  = 0.1
+mph_iPropSmear = 1.0
+
+# Inverse Weber Number
+mph_invWeber = 0.01
+
+#       Grid dimensionality and geometry
+geometry	= "cartesian"
+
+#       Size of computational volume
+xmin		= -1.0
+xmax		=  1.0
+ymin		= -1.0
+ymax		=  3.0
+zmin            = -1.0
+zmax            =  1.0
+
+#       Boundary conditions
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
+yl_boundary_type = "noslip_ins"
+yr_boundary_type = "neumann_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
+
+#       Simulation (grid, time, I/O) parameters
+run_comment	= "Rising Bubble problem"
+log_file	= "INS_Rising_Bubble.log"
+basenm		= "INS_Rising_Bubble_"
+restart         = .false.
+nend            = 3000
+tmax            = 100. 
+ins_cflFlg      = 0
+ins_cfl         = 0.3
+ins_sigma	= 0.2
+ins_dtSpec      = 0.5d-3
+dtinit          = 0.5d-3
+tstep_change_factor = 1.0
+ins_pressureCorrect= .false.
+
+plot_var_1	= "pres"
+plot_var_2      = "velx"
+plot_var_3      = "vely"
+plot_var_4      = "dfun"
+  
+checkpointFileIntervalTime = 5.
+checkpointFileIntervalStep = 5
+
+plotFileIntervalTime = 5.
+plotFileIntervalStep = 5
+
+# AMR parameters
+nblockx	= 2
+nblocky	= 4
+nblockz = 2
+nfres   = 1000
+
+lrefine_min       = 1
+lrefine_max       = 1
+
+#	Flux Conservation for AMR
+flux_correct    = .true.
+
+# AMReX Poisson Solver Parameters
+gr_amrexMG_composite_solve = ".TRUE."
+gr_amrexMG_Tol = 1e-13
+gr_amrexMG_max_iter = 200
+
+# HYPRE Poisson Solver Parameters
+gr_hyprePrintSolveInfo = ".FALSE."
+gr_hyprePcType = "HYPRE_AMG"
+gr_hypreSolverType = "HYPRE_BICGSTAB"
+gr_hypreRelTol = 1.0e-12
+gr_hypreFloor  = 1.0e-16

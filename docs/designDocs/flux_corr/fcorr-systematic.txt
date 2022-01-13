@@ -1,0 +1,165 @@
+Systematic Table of Flux Correction Scheme Characteristics
+==========================================================
+==========================================================
+
+per-level iter | Apply Corr. to Soln | per-level fluxes | RK Stages | Status-P | Status-A | Remarks                                           | Scheme
+=======================================================================================================================================================
+ N             |  N                   |  N              |  N        |  +++       .        | Classic FLASH ..4                                   A
+ N             |  N                   |  Y              |  N        |  ++        .        | ExaFlash 2019 "Unsplit"                             A
+ N             |  Y                   |  N              |  N        |  +         .        | (possible but pointless)
+ N             |  Y                   |  Y              |  N        |  .         .        |
+ N             |  N                   |  N              |  Y        |  +         -        | Modified Spark like Classic FLASH ..4               A
+ N             |  N                   |  Y              |  Y        |  .         -        |
+ N             |  Y                   |  N              |  Y        |  +++       -        | Spark for FLASH 4 (mod. Grid_*Flux*), ExaFlash
+ N             |  Y                   |  Y              |  Y        |  +         -        | SparkMHD branch at some point?
+ Y             |  N                   |  N              |  N        |  ++        +++  D   | ExaFlash 2020 "Unsplit" AMReX best practice         B
+ Y             |  N                   |  Y              |  N        |  +         ++       | ExaFlash 2019 "Unsplit" AMReX                       C
+ Y             |  Y                   |  N              |  N        |  .         .    D   | ExaFlash 2020 "Unsplit" "Apply Corr."               D
+ Y             |  Y                   |  Y              |  N        |  +         +    /C  | Classic AMReX/Chombo.                               E/F
+ Y             |  N                   |  N              |  Y        |  ++        +++  D   | Spark for ExaFlash                                  G
+ Y             |  N                   |  Y              |  Y        |  .         .    C   | SparkMHD Jan 2020, more or less?                    H
+ Y             |  Y                   |  N              |  Y        |  +         +    D   | Spark for ExaFlash "Apply Corr."                    D''
+ Y             |  Y                   |  Y              |  Y        |  .         +    C   | SparkMHD Jan 2020, more or less?                    D'
+
+Status-P/A: Status for PARAMESH/AMReX
+ +++  best choice
+ ++   alternative choice
+ +    also should work
+ www  most wanted (but not implemented / not designed)
+ ww   also wanted (but not implemented / not designed)
+ .    don't care
+ -    unwanted and impossible
+Status-A:
+    D requires new feature "delayed get from comm", provided by AMReX in module amrex_flash_fluxregister_module
+    C requires new(?) feature "per-block addcoarse"
+
+
+Some Flux Correction Schemes
+============================
+============================
+
+A. Deferred Update (Not level-based)
+==================
+iterate blocks:
+   compute flux
+   apply   flux (interior cells)
+   save    flux (as both)
+communicate from finer
+iterate blocks:
+   correct flux (replace from finer)
+   apply   flux (boundary cells)
+
+B. Sort-of Deferred Update
+==========================
+iterate levels:
+   communicate from finer
+   iterate blocks:
+      compute flux
+      correct flux (replace from finer)
+      apply   flux (all cells)
+      save    flux (as fine or any)
+
+C. Deferred Update - ExaFlash 2019 AMReX
+==================
+iterate levels:
+   iterate blocks:
+      compute flux
+   save    flux    (as fine or any)
+   communicate from finer
+   correct flux (replace from finer)
+   iterate blocks:
+      apply   flux (all cells)
+
+D. Apply correction
+===================
+iterate levels:
+   communicate from finer
+   iterate blocks:
+      compute flux
+      apply   flux       (all cells)
+      compute correction (subtract from finer)
+      apply   correction (where needed)
+      save    flux       (as fine or any)
+
+D'. Apply correction (RK stages, 2019 SparkMHD AMReX, not properly implemented?)
+====================
+iterate levels:
+   iterate blocks:
+      iterate stages:
+         compute flux
+         save    flux       (as fine or any)
+         apply   flux       (all cells)
+
+   communicate from finer to current         \
+   compute correction (subtract from finer)  |---  Grid_conserveFluxes
+                       ?????                 /
+   iterate blocks:
+      apply   correction (where needed)       ---  hy_rk_updateSoln
+
+D''. Apply correction (RK stages)
+====================
+iterate levels:
+   communicate from finer
+   iterate blocks:
+      iterate stages:
+         compute flux
+         apply   flux       (all cells)
+      compute correction (subtract from finer)
+      apply   correction (where needed)
+      save    flux       (as fine or any)
+
+E. Apply correction - Classic AMReX/Chombo Style
+===================
+iterate levels:
+   iterate blocks:
+      compute flux
+      apply   flux       (all cells)
+   save    flux       (as coarse / current)
+
+   communicate from finer to current         \
+   compute correction (subtract from finer)  |---  reflux
+   apply   correction (where needed)         /
+
+   save    flux       (as fine or any)
+
+F. Apply correction - Classic AMReX/Chombo Style (w/ per-block save modification)
+===================
+iterate levels:
+   iterate blocks:
+      compute flux
+      apply   flux       (all cells)
+      save    flux       (as fine)
+      save    flux       (as coarse / current)
+
+   communicate from finer to current         \
+   compute correction (subtract from finer)  |---  reflux
+   apply   correction (where needed)         /
+
+G. New Deferred Update (RK stages)
+==================================
+iterate levels:
+   communicate from finer
+   iterate blocks:
+      iterate stages:
+         compute flux
+	 if not last stage:
+            apply   flux       (all cells)
+	 else:
+            correct flux       (replace from finer)
+            apply   flux       (all cells)
+            save    flux       (as fine or any)
+
+H. Deferred Update (RK stages)
+====================
+iterate levels:
+   iterate blocks:
+      iterate stages:
+         compute flux
+         save    flux       (as fine or any)
+
+   communicate from finer
+   correct flux (replace from finer)
+
+   iterate blocks:
+      apply   flux       (all cells)
+

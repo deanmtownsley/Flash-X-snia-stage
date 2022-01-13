@@ -1,0 +1,7 @@
+REQUESTS physics/Hydro/HydroMain/unsplit/OnlyHydro
+
+USESETUPVARS NoLevelwideFluxes
+IF NoLevelwideFluxes
+   # Configuration error: This directory should not be included!
+   SETUPERROR Code in the levelFlux directory canot be used with +nolwf or with NoLevelwideFluxes=True.
+ENDIF

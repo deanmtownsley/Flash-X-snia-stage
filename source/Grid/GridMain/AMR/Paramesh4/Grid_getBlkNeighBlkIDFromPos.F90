@@ -1,0 +1,91 @@
+!!****if* source/Grid/GridMain/paramesh/Grid_getBlkNeighBlkIDFromPos
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!! NAME
+!!
+!!  gr_findNeghID
+!!
+!! SYNOPSIS
+!!
+!!  call Grid_getBlkNeighBlkIDFromPos(
+!!                            integer(IN) :: blockID, 
+!!                            real(IN)    :: pos(MDIM), 
+!!                            integer(IN) :: neghDir(MDIM),
+!!                            integer(OUT) :: ansBlockID,
+!!                            integer(OUT) :: ansProcID)
+!!
+!!  call Grid_getBlkIDFromPos(integer(IN) :: blockID, 
+!!                            real(IN)    :: pos(MDIM), 
+!!                            integer(IN) :: neghDir(MDIM),
+!!                            integer(OUT) :: ansBlockID,
+!!                            integer(OUT) :: ansProcID)
+!!
+!! DESCRIPTION
+!!
+!!   Given the physical coordinates of a point outside the current
+!!   block but in its neighborhood, and the direction in which the
+!!   neighboring block lies, his routine finds the processor number and blockID
+!!   within that processor for the neighboring block that contains 
+!!   the point.
+!!
+!! ARGUMENTS
+!!
+!!   blockID : ID of block in current processor
+!!
+!!   pos :     coordinates of the point of interest
+!!
+!!   neghDir : the location of the neighbor with respect to the
+!!             current block, in other words specification on which
+!!             face/edge/point is common between the current block and
+!!             neighbor of interest. For example
+!!             negh(1:MDIM)=LEFT_EDGE indicates that the lowest
+!!             left hand corner of the current block is the same as
+!!             the highest right end corner of the neighbor. Similarly
+!!             negh(IAXIS)=LEFT_EDGE, negh(JAXIS:KAXIS) =
+!!             CENTER implies that the left face of current block is
+!!             common with the right face of the neighbor.
+!!             This array is in the form returned by Grid_outsideBoundBox.
+!!
+!!   ansBlockID : identity of the neighbor, the first number 
+!!                is the blocknumber within the processor
+!!   ansProcID :  identity of the neighbor, the second number is the processor
+!!                number where the neighbor is located
+!!
+!! NOTES
+!!
+!!   This is the implementation for for PARAMESH Grid implementations.
+!!
+!!   The specific subroutine Grid_getBlkNeighBlkIDFromPos is also available
+!!   under the generic name Grid_getBlkIDFromPos.
+!!
+!! SEE ALSO
+!!   Grid_outsideBoundBox
+!!***
+
+subroutine Grid_getBlkNeighBlkIDFromPos(block,pos,neghDir,ansBlockID,ansProcID)
+#include "constants.h"
+
+  use gr_interface, ONLY : gr_findNeghID
+  use Grid_tile, ONLY : Grid_tile_t
+  
+  implicit none
+  type(Grid_tile_t), intent(IN) :: block
+  real,dimension(MDIM),intent(IN) :: pos
+  integer,dimension(MDIM),intent(IN) :: neghDir
+  integer,intent(OUT) :: ansBlockID, ansProcID
+
+  integer,dimension(BLKNO:PROCNO) :: neghID
+
+  call gr_findNeghID(block,pos,neghDir,neghID)
+
+  ansBlockID = neghID(BLKNO)
+  ansProcID  = neghID(PROCNO)
+
+end subroutine Grid_getBlkNeighBlkIDFromPos

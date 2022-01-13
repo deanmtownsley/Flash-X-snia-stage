@@ -1,0 +1,13 @@
+#  Configuration file for helmholtz eos, with Species used
+#  [physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller]
+
+USESETUPVARS starkillerGPU
+IF starkillerGPU
+    LIBRARY OACC
+ENDIF
+
+D eos_useStarkiller     flag indicating whether to use Starkiller version of Helmholtz
+PARAMETER eos_useStarkiller     BOOLEAN         TRUE
+
+D eos_vecLenACC         minimum size of vecLen to use OpenACC call
+PARAMETER eos_vecLenACC         INTEGER         1024

@@ -1,0 +1,8 @@
+# [/lib/thornado]
+# Config for thornado submodule
+# INTERNAL means we distribute the source code
+
+TYPE INTERNAL
+
+LIBRARY HDF5
+LIBRARY LAPACK

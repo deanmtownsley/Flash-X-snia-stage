@@ -1,0 +1,13 @@
+PPDEFINE HY_RK3
+
+USESETUPVARS useTVD
+USESETUPVARS useFog
+USESETUPVARS useLim03
+
+IF useTVD or useLim03 or useFog
+  GUARDCELLS 6
+ELSE
+  GUARDCELLS 10
+ENDIF
+
+# NOTE: I think that FLASH can only handle EVEN numbers of guardzones...

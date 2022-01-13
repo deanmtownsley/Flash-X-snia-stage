@@ -1,0 +1,452 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/Hydro
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!!
+!! NAME
+!!
+!!  Hydro
+!!
+!!
+!! SYNOPSIS
+!!
+!!  Hydro(real(IN)    :: timeEndAdv,
+!!        real(IN)    :: dt,
+!!        real(IN)    :: dtOld,
+!!        integer(IN) :: sweepOrder)
+!!
+!!
+!! DESCRIPTION
+!!
+!!  Performs physics update in a directionally unsplit fashion.
+!!
+!!  dt gives the timestep through which this update should advance,
+!!  and timeEndAdv tells the time that this update will reach when
+!!  it finishes.  dtOld gives the previously taken timestep.
+!!
+!! ARGUMENTS
+!!
+!!  timeEndAdv - end time
+!!  dt         - timestep
+!!  dtOld      - old timestep
+!!  sweepOrder - dummy argument for the unsplit scheme, just a dummy
+!!               variable to be consistent with a toplayer stub function
+!!
+!!***
+!!Reorder(4): hy_fl[xyz]
+
+subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
+  use Hydro_data, ONLY : hy_useHydro, hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
+       hy_gcMask, hy_lChyp, hy_C_hyp, hy_globalComm,hy_geometry,hy_del, &
+       hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
+       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_mfrac, hy_eosData,hy_Vc
+  use Hydro_inhost_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
+  use hy_rk_interface, ONLY : hy_rk_eos, @M hy_rk_ff_name, hy_rk_getGravAccel, hy_rk_updateSoln,hy_rk_correctFluxes
+  use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Grid_interface, ONLY : Grid_communicateFluxes, &
+       Grid_fillGuardCells, Grid_getMaxRefinement, &
+       Grid_correctFluxData_xtra, Grid_putFluxData_block, &
+       Grid_getFluxCorrData_block,Grid_renormAbundance
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
+       Grid_getCellVolumes
+  
+  use Eos_interface, ONLY : Eos_wrapped
+  use IO_interface, ONLY : IO_setScalar
+  @M iter_use
+  
+  implicit none
+  
+#include "Simulation.h"
+#include "constants.h"
+#include "Eos.h"
+#include "Spark.h"
+  include "Flash_mpi.h"
+  
+#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
+  @M iter_declare(blkLimits, blkLimitsGC)
+
+  real,    intent(in) :: timeEndAdv, dt, dtOld
+  integer, intent(IN) :: sweepOrder
+  integer :: n, error, maxLev=-1
+  integer :: xLo,xHi,yLo,yHi,zLo,zHi
+  integer, dimension(LOW:HIGH,MDIM) :: limits
+  real :: hdt
+  integer :: stage, last_stage
+  real, dimension(3) :: coeffs, weights
+  integer, dimension(3) :: limits_array
+  real, dimension(3,3) :: coeff_array
+    logical, dimension (3) :: addFlux_array
+  integer :: i,j,k,v,maxcells
+  
+    real, pointer :: Utemp(:,:,:,:)
+  
+  integer, dimension(MDIM) :: lo, hi, loGC, hiGC
+  integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
+  integer :: pLo,pHi !low and high indices for pencil arrays
+  
+  if (.NOT. hy_useHydro) return
+  
+  call Timers_start("Hydro")
+  
+#ifdef OMP_OL
+  call check_if_on_GPU()
+#endif
+  
+  hdt = 0.5*dt
+  
+  !Array indicating whether to add flux into flux buffers (True)
+  !or overwrite them (False).
+  !This array will work for RK2 & RK3
+  addFlux_array = (/.false.,.true.,.true./)
+  
+  !set up quantities specific to RK scheme (lives in Hydro_funcs)
+  @M hy_rk_scheme
+  
+  ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
+#ifdef SPARK_GLM
+  call MPI_AllReduce (hy_lChyp, hy_C_hyp, 1, &
+       FLASH_REAL, MPI_MAX, hy_globalComm, error)
+  call IO_setScalar("C_hyp", hy_lChyp)
+#endif
+  
+#ifdef FLASH_GRID_UG
+  hy_fluxCorrect = .false.
+  maxLev = 1
+#else  
+  ! mode=1 means lrefine_max, which does not change during sim.
+  call Grid_getMaxRefinement(maxLev, mode=1)
+#endif
+  
+  call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+  !-------------------------------------------------------------------!
+  !***NO Flux correction    or   Flux correction but NOT per level****!
+  !-------------------------------------------------------------------!
+  if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
+     ! Loop over blocks and compute Hydro update block-by-block
+     nullify(Uin)
+     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)  
+     ! DivB will technically be lagged by 1 step, but we need ghost zones to
+     ! compute the gradients. I ain't doing more communication for a diagnostic...
+        @M hy_tmp_ind
+        call allocate_scr(blkLimits,blkLimitsGC)
+        @M hy_geomSpall_alloc
+        hy_del=deltas
+        call setLims(NGUARD-1,blkLimits,limits)
+     
+        !---JaredC--- Action 2 (no dependence within interation) 
+        nullify(Uin)
+        call tileDesc%getDataPtr(Uin,CENTER)
+     
+        call calcDivB(Uin,hy_del,blkLimits) !---JaredC--- This could be done on GPU or CPU and asynchronous to the rest of the sections
+        !---JaredC--- This could be pulled out of the loop and given its own loop.
+     
+        call shockDetect(Uin,limits,blkLimitsGC)
+        deallocate(hy_Vc)
+        ! Setup scratch storage of block data (grav included)
+        !---JaredC--- Send data to device and/or allocate arrays
+        call Timers_start("Offloaded Section")
+        call Timers_start("scratch")
+        ! U* = U0
+        !  The data is sent to the GPU at this point.
+        call saveState(Uin,blkLimits,blkLimitsGC)
+        
+        
+        call Timers_stop("scratch")
+        
+        !---JaredC--- Action 3 
+        !Begin loop over stages
+        do stage=1,last_stage
+           ! calculate gravitational acceleration based on current value of GPOT_VAR
+           ! This is stored in module-scope variable hy_grav
+           call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+           
+           !Set needed number of guard cells to update based on
+           !current stage for telescoping upda
+           call setLims(limits_array(stage), blkLimits, limits)
+           
+           call Timers_start("getFaceFlux")
+#ifdef OMP_OL
+           call @M hy_rk_ff_name(@M hy_rk_ff_args)
+#else
+           @M hy_setPencil
+           call @M hy_rk_ff_name(@M hy_rk_ff_args)
+           @M hy_releasePencil
+#endif
+           call Timers_stop("getFaceFlux")
+           !------- Add this in -----
+           if (hy_fluxCorrect) call addFluxes(level,blkLimits,weights(stage),addFlux_array(stage)) 
+           
+           ! Now update solution based on conservative fluxes
+           ! See select_RK_scheme() for explicit outline of C1, C2, & C3
+           ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+           
+           !Set proper coefficients for the given stage
+           coeffs = coeff_array(stage,:)
+           
+           call Timers_start("updateSoln")
+           call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+           call Timers_stop("updateSoln")
+           
+#if NSPECIES+NMASS_SCALARS>0
+           !Properly normalize species after the update
+#ifdef OMP_OL
+           call Driver_abortFlash("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+#endif /* OMP_OL */
+           nullify(Utemp)
+           Utemp => hy_starState
+           call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
+           nullify(Utemp)
+#endif 
+           
+           ! Update EOS based on intermediate solution
+           call Timers_start("eos")
+           maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
+           !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
+           !Simulation.h using preprocessors alone.  This may want to be changed for future.
+           !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
+           !amount of dynamic allocation but clutter the code.
+           !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
+           !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
+           
+           allocate(hy_mfrac(NSPECIES*maxcells))
+           allocate(hy_eosData(EOS_NUM*maxcells))
+           
+           
+#ifdef OMP_OL
+           call hy_rk_eos_offloaded(limits)
+#else
+           call hy_rk_eos(limits)
+#endif
+           deallocate(hy_mfrac)
+           deallocate(hy_eosData)
+           call Timers_stop("eos")
+           
+           !Finally update the state
+           if (stage == last_stage) then
+              call Timers_start("scratch")
+              call updateState(Uin,blkLimits,blkLimitsGC)
+              call Timers_stop("scratch")
+           endif
+           
+        enddo!stage loop
+        @M hy_geomSpall_dealloc
+        call deallocate_scr
+        !Store flux buffer in semipermanent flux storage (SPFS) 
+        if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
+             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
+        call Timers_stop("Offloaded Section")
+     @M iter_end
+        
+     
+     if (hy_fluxCorrect) then
+        !Communicate the fine fluxes
+        call Grid_communicateFluxes(ALLDIR,UNSPEC_LEVEL)
+        
+        !        call Timers_start("flux correct")
+        !        ! Loop over blocks and correct block-edge solution
+        
+        nullify(Uin)
+        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC) 
+           hy_del=deltas
+        
+           @M hy_tmp_ind
+           !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
+           !           !all other values are 0.
+           call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+                blkLimits(LOW,:))
+           
+           @M hy_geomSp_alloc
+        
+           maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
+           !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
+           !Simulation.h using preprocessors alone.  This may want to be changed for future.
+           !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
+           !amount of dynamic allocation but clutter the code.
+           !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
+           !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
+           
+           allocate(hy_mfrac(NSPECIES*maxcells))
+           allocate(hy_eosData(EOS_NUM*maxcells))
+           
+           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
+           @M hy_geomSp_dealloc
+           deallocate(hy_mfrac)
+           deallocate(hy_eosData)
+           
+           call tileDesc%releaseDataPtr(Uin,CENTER)
+           call itor%next()
+        end do
+     !        call Timers_stop("flux correct")
+        call Grid_releaseTileIterator(itor)
+     end if !Flux correction
+  
+  else !flux correct per level
+     print *, "Flux correct per level"
+     !----------------------------------------!
+     !*****Flux correction per level Occurs***!
+     !----------------------------------------!
+     do level=maxLev,1,-1
+        
+        !Once the finest level is completed, place averaged fine fluxes into
+        !current coarse semipermanent flux storage (SPFS)
+        if (level < maxLev) call Grid_communicateFluxes(ALLDIR,level)
+        ! Loop over blocks and compute Hydro update block-by-block
+        !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
+        nullify(Uin)
+        @M iter_level_begin(LEAF,.FALSE.,level,blkLimits,blkLimitsGC)
+           xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
+           yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
+           zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
+           
+           @M hy_tmp_ind
+           hy_del=deltas
+           call setLims(NGUARD-1,blkLimits,limits)
+           ! DivB will technically be lagged by 1 step, but we need ghost zones to
+           ! compute the gradients. I ain't doing more communication for a diagnostic...
+           call allocate_scr(blkLimits,blkLimitsGC)
+           call calcDivB(Uin,hy_del,blkLimits)
+           call shockDetect(Uin,limits,blkLimitsGC)
+           deallocate(hy_Vc)
+           ! Allocate storage of fluxes, flux buffers, & gravity info
+           call Timers_start("scratch")
+           ! U* = U0
+           call saveState(Uin,blkLimits,blkLimitsGC)
+           call Timers_stop("scratch")
+           
+           !Loop stages
+           do stage=1,last_stage
+              ! calculate gravitational acceleration based on current value of GPOT_VAR
+              ! This is stored in module-scope variable hy_grav
+              
+              call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+              
+              !Set needed number of guard cells to update based on
+              !current stage for telescoping update
+              call setLims(limits_array(stage), blkLimits, limits)
+              
+              ! Perform reconstruction and flux calculation
+              ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
+              call Timers_start("getFaceFlux")
+              
+              @M hy_setPencil
+              call @M hy_rk_ff_name (@M hy_rk_ff_args)
+              @M hy_releasePencil
+              
+              
+              call Timers_stop("getFaceFlux")
+              
+              !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
+              !This incorporates fluxes calculated in the last stage & the 'flux difference'
+              !introduced on fine coarse boundaries.
+              
+              if (stage == last_stage) then
+                 if (level < maxLev) then
+                    call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
+                         hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
+                         hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
+                         hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
+                         blkLimits(LOW,:),-1/weights(stage),&
+                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
+                 endif
+              endif
+              
+              call addFluxes(level,blkLimits,weights(stage),addFlux_array(stage)) 
+              
+              ! Now update solution based on conservative fluxes
+              ! See select_RK_scheme() for explicit outline of C1, C2, & C3
+              ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+              coeffs = coeff_array(stage,:)
+              call Timers_start("updateSoln")
+              @M hy_geomSpall_alloc
+              
+              call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+!!$              call tileDesc%releaseDataPtr(Uin,CENTER)
+              @M hy_geomSpall_dealloc
+              
+              ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
+              
+#if NSPECIES+NMASS_SCALARS>0
+              !Properly normalize species after the update
+#ifdef OMP_OL
+              call Driver_abortFlash("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+#endif /* OMP_OL */
+              nullify(Utemp)
+              Utemp => hy_starState
+              call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
+              nullify(Utemp)
+#endif 
+              
+              call Timers_stop("updateSoln")
+              ! Update EOS based on intermediate solution
+              
+              call Timers_start("eos")
+              maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
+              !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
+              !Simulation.h using preprocessors alone.  This may want to be changed for future.
+              !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
+              !amount of dynamic allocation but clutter the code.
+              !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
+              !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
+              
+              allocate(hy_mfrac(NSPECIES*maxcells))
+              allocate(hy_eosData(EOS_NUM*maxcells))
+              
+              call hy_rk_eos(limits)
+              deallocate(hy_mfrac)
+              deallocate(hy_eosData)
+              
+              call Timers_stop("eos")
+              
+              if (stage == last_stage) then
+                 ! Finally, store the output and free up the scratch array
+                 call Timers_start("scratch")
+                 call updateState(Uin,blkLimits,blkLimitsGC)
+                 call Timers_stop("scratch")
+              endif
+           end do!stage loop
+           call deallocate_scr()
+           !Put flux buffer information into SPFS
+           if (level > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+                blkLimits(LOW,:))
+        @M iter_end        
+     enddo!loop over levels
+  endif !Flux correct per Level
+
+! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
+  hy_lChyp = TINY(1.0)
+  
+  call Timers_stop("Hydro")
+  
+contains
+  
+#include "@M hy_funcs_name.F90"
+  
+  
+  subroutine check_if_on_GPU()
+!$  use omp_lib, ONLY : omp_is_initial_device
+    use Driver_interface, ONLY : Driver_abortFlash
+    implicit none
+    logical :: onCPU
+    
+    onCPU = .TRUE.
+    
+    !$omp target map(tofrom:onCPU)
+    !$  onCPU = omp_is_initial_device()
+    !$omp end target
+    
+    if (onCPU) then
+       print *, "---------------- Running on CPU --------------------------------"
+       ! call Driver_abortFlash("Unable to run on GPU")
+    else
+       print *, "---------------- Running on GPU --------------------------------"
+    end if
+    
+  end subroutine check_if_on_GPU
+  
+end subroutine Hydro

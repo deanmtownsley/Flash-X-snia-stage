@@ -1,0 +1,90 @@
+!!****if* source/Particles/ParticlesMain/pt_updateTypeDS_pc
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!! NAME
+!!
+!!  pt_updateTypeDS_pc
+!!
+!! SYNOPSIS
+!!
+!!  call pt_updateTypeDS_pc(particlesPerType)
+!!
+!! DESCRIPTION
+!!
+!!  Updates the pt_typeInfo data structure.
+!!
+!!  Part of the time advancement routine for the Particle Unit.
+!!  This routine will usually be called right after a call to Grid_countParticlesByType.
+!!  The particlesPerBlk argument should be the elementsPerType returned by
+!!  Grid_countParticlesByType.
+!!  Calculates the number of each type of particles in the sorted data structure,
+!!  and the index where particles of this type begin in the particles data.
+!!
+!! EXAMPLE
+!!
+!!    Assume that there are two classes of particles, 'active' and
+!!    passive, in that order.
+!!    Then particles of active particle type are located in positions 
+!!             totalPassive+1:totalPassive+1+totalActive
+!!
+!! ARGUMENTS
+!!
+!!  particlesPerType -- an array of size NPART_TYPES.  It is produced by
+!!    Grid_countParticlesByType and holds the number of each type of particle 
+!!
+!! SIDE EFFECTS
+!!
+!!  Updates the pt_typeInfo data structure.
+!!
+!! NOTES
+!!   The values are actually calculated already in Grid_sortParticles but
+!!   encapsulation rules make recalculating there here easier than passing them
+!!   back and forth in data, etc.
+!!
+!!   If there is only one particle type, the operation is trivial.
+!!   Otherwise, it is assumed that particles are sorted with the particle
+!!   type as the sort key of highest priority, as in
+!!
+!!      call Grid_countParticlesByType(NPART_PROPS,pt_numLocal,NPART_TYPES, &
+!!           pt_maxPerProc,particlesPerBlk,BLK_PART_PROP, TYPE_PART_PROP)
+!!
+!!
+!!***
+
+!===============================================================================
+
+subroutine pt_updateTypeDS_pc (particlesPerType)
+
+    use Particles_data, ONLY: pt_typeInfo
+    
+    implicit none
+  
+#include "constants.h"
+#include "Simulation.h"
+#include "Particles.h"
+    
+    integer, INTENT(in), dimension(NPART_TYPES) :: particlesPerType
+  
+    integer :: i,startPoint
+  
+    startPoint=1
+    do i=1,NPART_TYPES
+       pt_typeInfo(PART_TYPE_BEGIN,i)=startPoint
+       pt_typeInfo(PART_LOCAL,i) = particlesPerType(i)
+       startPoint=startPoint+pt_typeInfo(PART_LOCAL,i)
+    end do
+  
+    return
+    
+  end subroutine pt_updateTypeDS_pc
+  
+  !===============================================================================
+  
+  

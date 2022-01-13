@@ -1,0 +1,144 @@
+##python:genLines
+    
+# Configuration file for Thornado two moment IMEX
+# [physics/RadTrans/RadTransMain/TwoMoment/Thornado]
+
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    ##
+    yield 'USESETUPVARS thornadoGPU'
+    yield 'IF thornadoGPU'
+    yield '    LIBRARY CUDA'
+    yield 'ENDIF'
+
+    yield 'USESETUPVARS thornadoACC'
+    yield 'USESETUPVARS thornadoOMP_OL'
+    yield 'IF thornadoACC'
+    yield '    LIBRARY OACC'
+    yield 'ELSEIF thornadoOMP_OL'
+    yield '    LIBRARY OMP_OL'
+    yield 'ENDIF'
+
+    ##
+    yield 'LIBRARY THORNADO'
+    yield 'PPDEFINE THORNADO'
+
+    ##
+    yield 'REQUIRES physics/Eos'
+
+    ##
+    if "nE" in setupvars:
+        nE = int(setupvars["nE"])
+    else:
+        nE = 1
+
+    if "swE" in setupvars:
+        swE = int(setupvars["swE"])
+    else:
+        swE = 0
+
+    if "nSpecies" in setupvars:
+        nSpecies = int(setupvars["nSpecies"])
+    else:
+        nSpecies = 1
+
+    if "nMoments" in setupvars:
+        nMoments = int(setupvars["nMoments"])
+    else:
+        nMoments = 4
+
+    if "nNodes" in setupvars:
+        nNodes = int(setupvars["nNodes"])
+        nNodesE = nNodes
+        nNodesX = nNodes
+    else:
+        if "nNodesE" in setupvars:
+            nNodesE = int(setupvars["nNodesE"])
+        else:
+            nNodesE = 2
+
+        if "nNodesX" in setupvars:
+            nNodesX = int(setupvars["nNodesX"])
+        else:
+            nNodesX = 2
+
+        nNodes = nNodesE
+
+    nDOFE = nNodesE
+    nDOFX = nNodesX ** (GVars.dimension)
+    nDOF  = nDOFE * nDOFX
+    nComp = nSpecies * nMoments * nDOFE * ( nE + swE*2 )
+
+    yield 'PPDEFINE THORNADO_NE         %d' % nE
+    yield 'PPDEFINE THORNADO_SWE        %d' % swE
+    yield 'PPDEFINE THORNADO_NSPECIES   %d' % nSpecies
+    yield 'PPDEFINE THORNADO_NNODESE    %d' % nNodesE
+    yield 'PPDEFINE THORNADO_NNODESX    %d' % nNodesX
+    yield 'PPDEFINE THORNADO_NNODES     %d' % nNodes
+    yield 'PPDEFINE THORNADO_NMOMENTS   %d' % nMoments
+    yield 'PPDEFINE THORNADO_FLUID_NDOF %d' % nDOFX
+    yield 'PPDEFINE THORNADO_RAD_NDOF   %d' % nDOF
+
+    for iS in range(1, nSpecies+1):
+        for iM in range(1, nMoments+1):
+            for iE in range(1, nE+1+2*swE):
+                for iD in range(1, nDOFE+1):
+                    iN = (iS-1)*nMoments*(nE+2*swE)*nDOFE + (iM-1)*(nE+2*swE)*nDOFE + (iE-1)*nDOFE + iD
+                    yield 'VARIABLE T%.3d' % (iN)
+
+    yield 'PPDEFINE NTHORNADO %d' % nComp
+    yield 'PPDEFINE THORNADO_BEGIN T001_VAR'
+    yield 'PPDEFINE THORNADO_END T%.3d_VAR' % (nSpecies*nMoments*(nE+2*swE)*nDOFE)
+
+    ##
+    nguard = nNodesX * 2
+    yield 'GUARDCELLS %d' % nguard
+
+    ##
+    yield 'D rt_doExplicit  perform explicit advection in imex step'
+    yield 'PARAMETER rt_doExplicit  BOOLEAN   TRUE'
+    yield 'D rt_doImplicit  perform implicit collisions in imex step'
+    yield 'PARAMETER rt_doImplicit  BOOLEAN   TRUE'
+
+    ##
+    yield 'D rt_eL     minimum edge of radiation transport energy grid'
+    yield 'PARAMETER rt_eL       REAL     0.0    [0.0 to ]'
+    yield 'D rt_eR     maximum edge of radiation transport energy grid'
+    yield 'PARAMETER rt_eR       REAL     300.0  [0.0 to ]'
+    yield 'D rt_swE    energy grid stencil width'
+    yield 'PARAMETER rt_swE      INTEGER  0      [0 to ]'
+    yield 'D rt_zoomE  energy grid zoom factor for logarithmic grid'
+    yield 'PARAMETER rt_zoomE    REAL     1.0    [0.0 to ]'
+    yield 'D rt_bcE  energy grid boundary condition'
+    yield 'PARAMETER rt_bcE      INTEGER  0      [0 to ]'
+
+    ##
+    yield 'D rt_use_emab   flag to load emission/absorption opacity table'
+    yield 'D rt_use_iso    flag to load iso-energetic scattering opacity table'
+    yield 'D rt_use_nes    flag to load NES opacity table'
+    yield 'D rt_use_pair   flag to load pair opacity table'
+    yield 'PARAMETER rt_use_emab    BOOLEAN  FALSE'
+    yield 'PARAMETER rt_use_iso     BOOLEAN  FALSE'
+    yield 'PARAMETER rt_use_nes     BOOLEAN  FALSE'
+    yield 'PARAMETER rt_use_pair    BOOLEAN  FALSE'
+
+    yield 'D rt_emab_file  filename of emission/absorption opacity table'
+    yield 'D rt_iso_file   filename of iso-energetic scattering opacity table'
+    yield 'D rt_nes_file   filename of NES opacity table'
+    yield 'D rt_pair_file  filename of pair opacity table'
+    yield 'PARAMETER rt_emab_file   STRING   ""'
+    yield 'PARAMETER rt_iso_file    STRING   ""'
+    yield 'PARAMETER rt_nes_file    STRING   ""'
+    yield 'PARAMETER rt_pair_file   STRING   ""'
+
+    yield 'D rt_positivityLimiter   flag to use RadTrans positivity limiter'
+    yield 'PARAMETER rt_positivityLimiter    BOOLEAN  FALSE'
+    yield 'D rt_UpperBry1  Upper limiter for neutrino number density'
+    yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
+
+    ##
+    yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'
+    yield 'PARAMETER rt_writeTimers  BOOLEAN   FALSE'

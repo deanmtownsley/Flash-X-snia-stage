@@ -1,0 +1,374 @@
+!!****if* source/Grid/GridMain/AMR/Grid_markRefineDerefine
+!!
+!! NAME
+!!  Grid_markRefineDerefine
+!!
+!! SYNOPSIS
+!!
+!!  call Grid_markRefineDerefine()
+!!  
+!! DESCRIPTION 
+!!  Mark blocks for refinement or derefinement
+!!  This routine is used with AMR only where individual 
+!!  blocks are marked for refinement or derefinement based upon
+!!  some refinement criterion. The Uniform Grid does not need
+!!  this routine, and uses the stub. The AMReX-based Grid
+!!  currently does not understand this way of implementing
+!!  refinement criteria either, and uses callbacks instead,
+!!  which are implemented as private functions of the Grid unit.
+!!
+!!  With the PARAMESH-based Grid implementation,
+!!  this routine is normally called by the implementation of
+!!  Grid_updateRefinement. It may also get called repeatedly
+!!  during the initial construction of the Grid from
+!!  Grid_initDomain.
+!!
+!! ARGUMENTS
+!!
+!!  none
+!!
+!! SEE ALSO
+!!
+!!  Grid_updateRefinement
+!!  Grid_initDomain
+!!  gr_expandDomain
+!!
+!! NOTES
+!!
+!! Every unit uses a few unit scope variables that are
+!! accessible to all routines within the unit, but not to the
+!! routines outside the unit. For Grid unit these variables begin with "gr_"
+!! like, gr_meshMe or gr_eosMode, and are stored in fortran
+!! module Grid_data (in file Grid_data.F90). The other variables
+!! are local to the specific routines and do not have the prefix "gr_"
+!!
+!!
+!!***
+
+!!REORDER(4): solnData
+
+subroutine Grid_markRefineDerefine()
+
+  use Grid_iterator,  ONLY : Grid_iterator_t
+  use Grid_tile,      ONLY : Grid_tile_t
+  use Grid_interface, ONLY : Grid_fillGuardCells, &
+                             Grid_getTileIterator, &
+                             Grid_releaseTileIterator
+  use Logfile_interface, ONLY : Logfile_stampVarMask
+
+  use Grid_data, ONLY : gr_refine_cutoff, gr_derefine_cutoff,&
+                        gr_refine_filter,&
+                        gr_numRefineVars,gr_refine_var,gr_refineOnParticleCount,&
+                        gr_enforceMaxRefinement, gr_maxRefine,&
+                        gr_lrefineMaxByTime,&
+                        gr_lrefineMaxRedDoByTime,&
+                        gr_lrefineMaxRedDoByLogR,&
+                        gr_lrefineCenterI,gr_lrefineCenterJ,gr_lrefineCenterK,&
+                        gr_eosModeNow, &
+                        gr_meshMe, gr_meshComm
+  use Simulation_data, ONLY : sim_refFluffDensThresh, sim_refFluffMargin, &
+                              sim_refFluffLevel, sim_refNogenEnucThresh, &
+                              sim_refNogenMargin, sim_refNogenLevel
+
+  use gr_interface,   ONLY : gr_markRefineDerefine
+  use gr_ptInterface, ONLY : gr_ptMarkRefineDerefine
+
+  use tree, ONLY : newchild, refine, derefine, stay, nodetype, &
+                   lrefine, lrefine_max, lrefine_min, parent, nchild, child
+
+  implicit none
+
+#include "Flash_mpi.h"
+#include "constants.h"
+#include "Simulation.h"
+
+  real :: ref_cut,deref_cut,ref_filter
+  integer :: l,i,iref
+
+  integer,parameter :: maskSize = NUNK_VARS+NDIM*NFACE_VARS
+  logical :: gcMask(maskSize)
+  logical,save :: gcMaskArgsLogged = .FALSE.
+  integer,save :: eosModeLast = 0
+  real, dimension(MAXBLOCKS) :: err
+
+  type(Grid_iterator_t) :: itor
+  type(Grid_tile_t) :: tileDesc
+
+  integer, dimension(LOW:HIGH,MDIM) :: blkLimitsGC
+  integer ,dimension(MAXBLOCKS) :: blkList
+  integer :: lb, pb, cb, proc, j, k
+
+  real, dimension(:,:,:,:), pointer :: solnData
+
+  real :: maxdens, maxenuc
+
+  ! for reconciling parents and children
+  logical, dimension(MAXBLOCKS) :: refine_parent
+  integer :: nsend, nrecv, ierr
+  integer, dimension(MAXBLOCKS) :: reqr
+  integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS) :: statr
+  integer, dimension(MAXBLOCKS*nchild) :: reqs
+  integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS*nchild) :: stats
+
+  nullify(solnData)
+
+  if(gr_lrefineMaxRedDoByTime) then
+     call gr_markDerefineByTime()
+  end if
+
+  if(gr_lrefineMaxByTime) then
+     call gr_setMaxRefineByTime()
+  end if
+
+  if (gr_eosModeNow .NE. eosModeLast) then
+     gcMaskArgsLogged = .FALSE.
+     eosModeLast = gr_eosModeNow
+  end if
+
+  newchild(:) = .FALSE.
+  refine(:)   = .FALSE.
+  derefine(:) = .FALSE.
+  stay(:)     = .FALSE.
+
+  !----------------------------------------------------
+  !  1. Use standard routines to mark based on gradients
+  !----------------------------------------------------
+
+  gcMask = .FALSE.
+  do i = 1,gr_numRefineVars
+     iref = gr_refine_var(i)
+     if (iref > 0) gcMask(iref) = .TRUE.
+  end do
+
+  ! refinement max/min levels are based on these variables
+  gcMask(DENS_VAR) = .TRUE.
+  gcMask(ENUC_VAR) = .TRUE.
+
+  gcMask(NUNK_VARS+1:min(maskSize,NUNK_VARS+NDIM*NFACE_VARS)) = .TRUE.
+!!$  gcMask(NUNK_VARS+1:maskSize) = .TRUE.
+
+  if (.NOT.gcMaskArgsLogged) then
+     call Logfile_stampVarMask(gcMask, .true., '[Grid_markRefineDerefine]', 'gcArgs')
+  end if
+
+!!$  force_consistency = .FALSE.
+  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,doEos=.true.,&
+       maskSize=maskSize, mask=gcMask, makeMaskConsistent=.true.,doLogMask=.NOT.gcMaskArgsLogged,&
+       selectBlockType=ACTIVE_BLKS)
+  gcMaskArgsLogged = .TRUE.
+!!$  force_consistency = .TRUE.
+
+  do l = 1,gr_numRefineVars
+     iref = gr_refine_var(l)
+     ref_cut = gr_refine_cutoff(l)
+     deref_cut = gr_derefine_cutoff(l)
+     ref_filter = gr_refine_filter(l)
+     err(:)      = 0.0
+     call gr_estimateError(err, iref, ref_filter)
+     call gr_markRefineDerefine(err, ref_cut, deref_cut)
+  end do
+
+  !------------------------------------------------------------------------------
+  !
+  ! Apply problem-specific refinement criteria.
+  !
+  !------------------------------------------------------------------------------
+
+  !----------------------------------------------------
+  !  2. Impose additional limits on refinement level
+  !----------------------------------------------------
+  call Grid_getTileIterator(itor, ACTIVE_BLKS, tiling=.FALSE.)
+  do while (itor%isValid())
+     call itor%currentTile(tileDesc)
+
+     ! get info about block
+     lb = tileDesc%id
+     blkLimitsGC = tileDesc%blkLimitsGC
+     call tileDesc%getDataPtr(solnData, CENTER)
+
+     ! find maximum density and enuc in block + guardcells
+     maxdens = 0.0
+     maxenuc = 0.0
+     do k = blkLimitsGC(LOW,KAXIS), blkLimitsGC(HIGH,KAXIS)
+        do j = blkLimitsGC(LOW,JAXIS), blkLimitsGC(HIGH,JAXIS)
+           do i = blkLimitsGC(LOW,IAXIS), blkLimitsGC(HIGH,IAXIS)
+              maxdens = max(solnData(DENS_VAR,i,j,k),maxdens)
+              maxenuc = max(abs(solnData(ENUC_VAR,i,j,k)),maxenuc)
+           end do
+        end do
+     end do
+
+     !----------------------------------------------------
+     !  2.1. impose specified max refinement in fluff
+     !     where fluff is determined by a density threshold
+     !  regions with maxdens < threshold are derefined
+     !----------------------------------------------------
+
+     ! below threshold force derefinement to sim_refFluffLevel
+     if ( maxdens < sim_refFluffDensThresh ) then
+        if ( lrefine(lb) > sim_refFluffLevel ) then
+           refine(lb) = .false.
+           derefine(lb) = .true.
+        else if ( lrefine(lb) == sim_refFluffLevel ) then
+           refine(lb) = .false.
+        end if
+
+     ! above threshold but within margin prevent refinement past FluffLevel
+     ! but don't force derefinement
+     else if ( maxdens < sim_refFluffDensThresh*(1.0+sim_refFluffMargin) ) then
+        if ( lrefine(lb) >= sim_refFluffLevel ) then
+           refine(lb) = .false.
+        end if
+     end if
+     ! else allow refinement (lrefine_max is enforced below)
+
+     !----------------------------------------------------
+     !  2.2. impose specified max refinement outside energy-generating regions
+     !     regions are determined by an enuc threshold
+     !  note that the margin is on the other side of the
+     !  threshold compared to the Fluff threshold above
+     !   i.e. regions with enuc > threshold can fully refine
+     !----------------------------------------------------
+
+     ! below threshold and margin force derefinement to NegenLevel
+     if ( maxenuc < sim_refNogenEnucThresh*(1.0-sim_refNogenMargin) ) then
+        if ( lrefine(lb) > sim_refNogenLevel ) then
+           refine(lb) = .false.
+           derefine(lb) = .true.
+        else if ( lrefine(lb) == sim_refNogenLevel ) then
+           refine(lb) = .false.
+        end if
+
+     ! below threshold but within margin prevent refinement past NogenLevel
+     ! but don't force derefinement
+     else if ( maxenuc < sim_refNogenEnucThresh ) then
+        if ( lrefine(lb) >= sim_refNogenLevel ) then
+           refine(lb) = .false.
+        end if
+     end if
+     ! else allow refinement (lrefine_max is enforced below)
+
+     !----------------------------------------------------
+     !  2.3. standard refinement min and max
+     !----------------------------------------------------
+
+     if (lrefine(lb) < lrefine_min) then
+        refine(lb) = .true.
+        derefine(lb) = .false.
+     else if (lrefine(lb) == lrefine_min) then
+        derefine(lb) = .false.
+     end if
+     if (lrefine(lb) > lrefine_max) then
+        refine(lb) = .false.
+        derefine(lb) = .true.
+     else if (lrefine(lb) == lrefine_max) then
+        refine(lb) = .false.
+     end if
+
+     call tileDesc%releaseDataPtr(solnData, CENTER)
+
+     call itor%next()
+  end do
+  call Grid_releaseTileIterator(itor)
+
+  !---------------------------------------------------------------
+  ! 3. Do parent-child consistency
+  !
+  ! for children that are marked derefine, check if parent is
+  ! marked refine and if so unmark derefine
+  !---------------------------------------------------------------
+  refine_parent(:) = .false.
+  nrecv = 0
+  ! open (async) message recieve if parent is off-procssor
+  ! otherwise fill directly
+  !    message id is child block number on local processor
+  call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
+  do while (itor%isValid())
+     call itor%currentTile(tileDesc)
+     lb = tileDesc%id
+     pb = parent(BLKNO,lb)
+     proc = parent(PROCNO,lb)
+     if (pb > -1) then
+        if (proc /= gr_meshMe) then
+           nrecv = nrecv + 1
+           call MPI_IRecv(refine_parent(lb),1, &
+                FLASH_LOGICAL, &
+                proc, &
+                lb, &
+                gr_meshComm, &
+                reqr(nrecv), &
+                ierr)
+        else
+           refine_parent(lb) = refine(pb)
+        end if
+     end if
+     call itor%next()
+  end do
+  call Grid_releaseTileIterator(itor)
+
+  ! parents send refine flag to each off-processor child
+  nsend = 0
+  call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
+  do while (itor%isValid())
+     call itor%currentTile(tileDesc)
+     lb = tileDesc%id
+     do j = 1, nchild
+        cb = child(BLKNO,j,lb)
+        proc = child(PROCNO,j,lb)
+        if (cb > -1) then
+           if (proc /= gr_meshMe) then
+              nsend = nsend + 1
+              call MPI_ISend(refine(lb),1,&
+                   FLASH_LOGICAL, &
+                   proc, &
+                   cb, &
+                   gr_meshComm, &
+                   reqs(nsend), &
+                   ierr)
+           end if
+        end if
+     end do
+     call itor%next()
+  end do
+  call Grid_releaseTileIterator(itor)
+
+  ! wait until last to ask to have refine() buffer back under our control since
+  ! we are not modifying it
+  if (nsend > 0) then
+     call MPI_Waitall (nsend, reqs, stats, ierr)
+  end if
+  ! wait to recieve all parent info
+  if (nrecv > 0) then
+     call MPI_Waitall (nrecv, reqr, statr, ierr)
+  end if
+
+  ! now reconcile, deferring to parent marked for refine
+  call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
+  do while (itor%isValid())
+     call itor%currentTile(tileDesc)
+     lb = tileDesc%id
+     if (derefine(lb) .and. refine_parent(lb)) then
+        derefine(lb) = .false.
+     end if
+     call itor%next()
+  end do
+  call Grid_releaseTileIterator(itor)
+
+  if(gr_refineOnParticleCount) call gr_ptMarkRefineDerefine()
+
+  if(gr_enforceMaxRefinement) call gr_enforceMaxRefine(gr_maxRefine)
+
+  if(gr_lrefineMaxRedDoByLogR) &
+       call gr_unmarkRefineByLogRadius(gr_lrefineCenterI,&
+       gr_lrefineCenterJ,gr_lrefineCenterK)
+
+  ! When the flag arrays are passed to Paramesh for processing, only leaf
+  ! blocks should be marked. - KW
+  where (nodetype(:) .NE. LEAF)
+     refine(:)   = .false.
+     derefine(:) = .false.
+  end where
+  
+  return
+end subroutine Grid_markRefineDerefine
+

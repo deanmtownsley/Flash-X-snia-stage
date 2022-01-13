@@ -1,0 +1,4 @@
+#
+REQUIRES physics/HeatAD/HeatADMain
+REQUIRES physics/IncompNS/IncompNSMain
+REQUIRES numericalTools/Stencils/StencilsAdvection

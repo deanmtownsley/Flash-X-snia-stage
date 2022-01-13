@@ -1,0 +1,6 @@
+# Configuration file for TwoMoment
+# [physics/RadTrans/RadTransMain/TwoMoment]
+
+DEFAULT Thornado
+
+MASS_SCALAR YE EOSMAPIN:YE

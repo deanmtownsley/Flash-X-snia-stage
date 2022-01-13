@@ -1,0 +1,10 @@
+#	Config file for the Heat Advection Diffusion unit
+DEFAULT HeatADMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useHeatAD       Should the HeatAD unit be used?
+# Value is meant to be overridden if HeatADMain implementation gets included
+PARAMETER useHeatAD    BOOLEAN CONSTANT FALSE 

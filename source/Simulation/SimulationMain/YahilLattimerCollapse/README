@@ -1,0 +1,6 @@
+#  Setup syntax for 1D with paramesh (mode1) and debug mode:
+./setup YahilLattimerCollapse -auto -1d +spherical +hdf5 +mode1 -objdir=YahilLattimerCollapse1d -without-unit=Grid/GridSolvers/Multipole -with-unit=Grid/GridSolvers/Multipole_new -debug -parfile=yahil_1d.par
+
+#  Setup syntax for 2D with paramesh (mode1) and debug mode:
+./setup YahilLattimerCollapse -auto -2d +cylindrical +hdf5 +mode1 -objdir=YahilLattimerCollapse2d -without-unit=Grid/GridSolvers/Multipole -with-unit=Grid/GridSolvers/Multipole_new -debug -parfile=yahil_2d.par
+

@@ -1,0 +1,271 @@
+
+physics/Hydro
+    useHydro [BOOLEAN] CONSTANT [FALSE]
+        Whether Hydro calculations should be performed.
+
+physics/Hydro/HydroMain
+    UnitSystem [STRING] ["none"]
+        Valid Values: Unconstrained
+        System of Units
+    cfl [REAL] [0.8]
+        Valid Values: Unconstrained
+        Courant factor
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize the abundances before eos
+    threadHydroBlockList [BOOLEAN] [TRUE]
+
+    threadHydroWithinBlock [BOOLEAN] [TRUE]
+
+    updateHydroFluxes [BOOLEAN] [TRUE]
+        whether fluxes computed by Hydro should be used to update the solution
+        (currently, probably only used in split PPM Hydro)
+    useHydro [BOOLEAN] [TRUE]
+        Should any Hydro calculations be performed?
+    use_cma_advection [BOOLEAN] [FALSE]
+        Use the CMA advection with partial masses being primary variables; thos
+        parameter only affects the unsplit PPM hydro solver.
+    use_cma_flattening [BOOLEAN] [FALSE]
+        Use the flattening procedure for the abundances as described in the CMA
+        paper; this parameter only affects the unsplit PPM hydro solver.
+    use_steepening [BOOLEAN] [TRUE]
+
+
+physics/Hydro/HydroMain/simpleUnsplit
+    EOSforRiemann [BOOLEAN] [FALSE]
+        Call EOS to get gamc and game for the Riemann state calculations
+    LimitedSlopeBeta [REAL] [1.0]
+        Valid Values: Unconstrained
+        Any real value specific for the Limited Slope limiter
+    RiemannSolver [STRING] ["LLF"]
+        Valid Values: "LLF", "HLL"
+        HLL, or LLF for local Lax-Friedrichs, others unsupported in
+        simpleUnsplit.
+    UnitSystem [STRING] [" "]
+        Valid Values: Unconstrained
+        System of Units, must be "none" for simpleUnsplit Hydro solver
+    addThermalFlux [BOOLEAN] CONSTANT [FALSE]
+
+    charLimiting [BOOLEAN] [TRUE]
+        Apply limiting for characteristic variable
+    conserveAngMom [BOOLEAN] [FALSE]
+        Conservative formulation for cylindrical coordinates regarding the
+        toroidal momentum
+    cvisc [REAL] [0.1]
+        Valid Values: Unconstrained
+
+    entropy [BOOLEAN] [FALSE]
+        Entropy Fix routine for the Roe Riemann solver
+    entropyFixMethod [STRING] ["HARTENHYMAN"]
+        Valid Values: Unconstrained
+        Entropy fix method for the Roe Riemann solver: Harten or HartenHyman
+    hy_3Torder [INTEGER] [-1]
+        Valid Values: Unconstrained
+        Reconstruction order for eint, eele, eion, erad in HEDP simulations
+    hybridOrderKappa [REAL] [0.]
+        Valid Values: Unconstrained
+        A constant value to determine shock strengths for hybrid order
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize abundances
+    order [INTEGER] [2]
+        Valid Values: Unconstrained
+        1st order Godunov scheme, 2nd MUSCL-Hancock scheme, or 3rd PPM, 5th WENO
+    shockDetect [BOOLEAN] [FALSE]
+        Switch to use a strong compressive shock detection
+    slopeLimiter [STRING] ["vanLeer"]
+        Valid Values: Unconstrained
+        mc, vanLeer, minmod, hybrid, limited
+    tiny [REAL] [1.e-16]
+        Valid Values: Unconstrained
+        A threshold value for an arbitrarily small number
+    transOrder [INTEGER] [1]
+        Valid Values: Unconstrained
+        order of approximating transeverse flux derivative in data
+        reconstruction
+    use_3dFullCTU [BOOLEAN] [TRUE]
+        Turn on/off the full CTU scheme that gives CFL <= 1 for 3D
+    use_GravPotUpdate [BOOLEAN] [FALSE]
+        Parameter for half timestep update of gravitational potential
+    use_avisc [BOOLEAN] [FALSE]
+
+    use_flattening [BOOLEAN] [FALSE]
+        Switch for PPM flattening
+    use_gravConsv [BOOLEAN] [FALSE]
+        Use conservative variables for gravity coupling at n+1/2
+    use_gravHalfUpdate [BOOLEAN] [FALSE]
+        Include gravitational accelerations to hydro coupling at n+1/2
+    use_hybridOrder [BOOLEAN] [FALSE]
+        Apply RH jump condition to check monotonicity of reconstructed values
+    use_steepening [BOOLEAN] [FALSE]
+        Switch for steepening contact discontinuities for 3rd order PPM
+    use_upwindTVD [BOOLEAN] [FALSE]
+        Turn on/off upwinding TVD slopes
+
+physics/Hydro/HydroMain/unsplit
+    EOSforRiemann [BOOLEAN] [FALSE]
+        Turn on/off calls to Eos for thermo of reconstructed face states
+        (MODE_DENS_PRES)
+    LimitedSlopeBeta [REAL] [1.0]
+        Valid Values: Unconstrained
+        Any real value specific for the Limited Slope limiter
+    RiemannSolver [STRING] ["HLLC"]
+        Valid Values: Unconstrained
+        Roe, HLL, HLLC, Marquina, MarquinaModified, Hybrid or local
+        Lax-Friedrichs, plus HLLD for MHD
+    addThermalFlux [BOOLEAN] [TRUE]
+
+    charLimiting [BOOLEAN] [TRUE]
+        Apply limiting for characteristic variable
+    conserveAngMom [BOOLEAN] [FALSE]
+        Conservative formulation for cylindrical coordinates regarding the
+        toroidal momentum
+    cvisc [REAL] [0.1]
+        Valid Values: Unconstrained
+
+    entropy [BOOLEAN] [FALSE]
+        Entropy Fix routine for the Roe Riemann solver
+    entropyFixMethod [STRING] ["HARTENHYMAN"]
+        Valid Values: Unconstrained
+        Entropy fix method for the Roe Riemann solver: Harten or HartenHyman
+    hy_3Torder [INTEGER] [-1]
+        Valid Values: -1, 1, 2, 3, 5
+        Reconstruction order for eint, eele, eion, erad in HEDP simulations
+    hy_cflFallbackFactor [REAL] [0.9]
+        Valid Values: Unconstrained
+        factor for scaling CFL factor when it is lowered because of fallback in
+        problematic cells
+    hy_eosModeGc [STRING] ["see eosMode"]
+        Valid Values: "see eosMode", "eos_nop", "dens_ie_gather",
+        "dens_ie_recal_gather", "dens_ie_scatter", "dens_ie_all",
+        "dens_ie_sele_gather", "dens_temp_equi", "dens_temp_all",
+        "dens_temp_gather"
+        Eos mode that the Hydro unit should apply to guard cells before the
+        first major loop, i.e., before computing Riemann input states by
+        reconstruction etc. The special value "see eosMode" can be used to
+        indicate the mode set by the runtime parameter "eosMode". Other values
+        are as for "eosMode".
+    hy_fPresInMomFlux [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        Percentage of the pressure gradient (values range from 0 to 1) that is
+        treated as part of momentum fluxes
+    hy_fallbackLowerCFL [BOOLEAN] [FALSE]
+        Lower the simulation CFL if fallin back to a lower reconstruction order
+        in problematic cells
+    hy_fullSpecMsFluxHandling [BOOLEAN] [TRUE]
+        Are species and mass scalars updated with fluxes that have undergone the
+        full treatment applied to other fluxes, including fine-coarse-boundary
+        flux correction if that is done to fluxes of other conserved variables?
+    hybridOrderKappa [REAL] [0.]
+        Valid Values: Unconstrained
+        A constant value to determine shock strengths for hybrid order
+    hydroComputeDtOption [INTEGER] [-1]
+        Valid Values: -1, 0, 1
+        An option where to compute hydro dt. Choices are integer values [-1, 0,
+        1] as follows: -1: Hydro_computeDt.F90,  the old standard way that has
+        most extensive supports and well-tested; 0: hy_uhd_energyFix.F90, a
+        light weighted version without calling a global loop Hydro_computeDt; 1:
+        hy_getFaceFlux.F90,   another light weighted dt call during flux
+        calculations.
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize abundances
+    order [INTEGER] [2]
+        Valid Values: 1, 2, 3, 5, 6
+        1st order Godunov scheme, 2nd MUSCL-Hancock scheme, or 3rd PPM, 5th WENO
+    radiusGP [REAL] [2.]
+        Valid Values: Unconstrained
+
+    shockDetect [BOOLEAN] [FALSE]
+        Switch to use a strong compressive shock detection
+    shockLowerCFL [BOOLEAN] [FALSE]
+        Lower the simulation CFL if shocks are detected
+    sigmaGP [REAL] [3.]
+        Valid Values: Unconstrained
+
+    slopeLimiter [STRING] ["vanLeer"]
+        Valid Values: Unconstrained
+        mc, vanLeer, minmod, hybrid, limited
+    small [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value
+    smalle [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for energy
+    smallp [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for pressure
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+    smallu [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for velocity
+    smallx [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for abundances
+    smlrho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for density
+    tiny [REAL] [1.e-16]
+        Valid Values: Unconstrained
+        A threshold value for an arbitrarily small number
+    transOrder [INTEGER] [1]
+        Valid Values: 0, 1, 2, 3, 4
+        order of approximating transeverse flux derivative in data
+        reconstruction
+    use_3dFullCTU [BOOLEAN] [TRUE]
+        Turn on/off the full CTU scheme that gives CFL <= 1 for 3D
+    use_auxEintEqn [BOOLEAN] [TRUE]
+        Turn on/off solving the auxilary internal energy equation
+    use_avisc [BOOLEAN] [FALSE]
+
+    use_flattening [BOOLEAN] [FALSE]
+        Switch for PPM flattening
+    use_gravHalfUpdate [BOOLEAN] [TRUE]
+        Include gravitational accelerations to hydro coupling at n+1/2
+    use_hybridOrder [BOOLEAN] [FALSE]
+        Apply RH jump condition to check monotonicity of reconstructed values
+    use_steepening [BOOLEAN] [FALSE]
+        Switch for steepening contact discontinuities for 3rd order PPM
+    use_upwindTVD [BOOLEAN] [FALSE]
+        Turn on/off upwinding TVD slopes
+    wenoMethod [STRING] ["WENO5"]
+        Valid Values: Unconstrained
+
+
+physics/Hydro/HydroMain/unsplit/MHD
+    E_modification [BOOLEAN] [TRUE]
+        Switch for modified electric fields calculation from flux
+    E_upwind [BOOLEAN] [FALSE]
+        Switch for upwind update for induction equations
+    ForceHydroLimit [BOOLEAN] [FALSE]
+        Switch to force B=0 limit, i.e., the solver will not update B fields
+    conserveAngField [BOOLEAN] [FALSE]
+        Turn on/off alternate formulation for toroidal induction
+    energyFix [BOOLEAN] [FALSE]
+        Switch for an energy correction for CT scheme
+    hallVelocity [BOOLEAN] [FALSE]
+        Switch to use u_ele = u - J/(ne qe)
+    hy_bier1TA [REAL] [-1.0]
+        Valid Values: Unconstrained
+        Atomic number to use for 1T Biermann Battery term
+    hy_bier1TZ [REAL] [-1.0]
+        Valid Values: Unconstrained
+        Ionization number to use for 1T Biermann Battery term
+    hy_biermannCoef [REAL] [1.0]
+        Valid Values: Unconstrained
+        Coefficient of Biermann Battery flux
+    hy_biermannSource [BOOLEAN] [FALSE]
+        Switch to implement battery term as an external source
+    killdivb [BOOLEAN] [TRUE]
+        Switch for maintaing solenoidal field
+    killdivb8w [BOOLEAN] [FALSE]
+        Switch for maintaing solenoidal field using Powell's 8wave
+    prolMethod [STRING] ["INJECTION_PROL"]
+        Valid Values: Unconstrained
+        Injection or Balsara's method in prolongation
+    use_Biermann [BOOLEAN] [FALSE]
+        Switch to add the Battery term for B-field generation
+    use_Biermann1T [BOOLEAN] [FALSE]
+        Switch to add the 1T Battery term for B-field generation

@@ -1,0 +1,3 @@
+Setup syntax for 1D Couch Model:
+./setup CCSN_WL -auto -1d +spherical -objdir=ccsn1d_wl -nxb=16 threadBlockList=False +pm4dev +hdf5 threadWithinBlock=False +newMpole +uhd -debug +mode1 -parfile=ccsn1d.par
+

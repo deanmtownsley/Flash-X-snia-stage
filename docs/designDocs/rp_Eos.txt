@@ -1,0 +1,136 @@
+
+physics/Eos/EosMain
+    eintSwitch [REAL] [0.0]
+        Valid Values: Unconstrained
+        a rarely used switch which ensures that internal energy calculations
+        maintain sufficient precision. Important only if energyTotal is
+        dominated by energyKinetic. If (energyInternal <
+        eintSwitch*energyKinetic) then some routines (Eos/Helmholtz,
+        Hydro/hy_updateSoln) will NOT calculate energyInternal by subtraction,
+        but rather through direct calculation.
+    eos_entrEleScaleChoice [INTEGER] [6]
+        Valid Values: 1 to 8
+        selects a scale variant for representing electron entropy. See code in
+        eos_idealGamma for the meaning of the various choices. The choice that
+        corresponds most closely to the Sackur-Tetrode equation in physical
+        units should be 3, closely followed by 2.
+    eos_logLevel [INTEGER] [700]
+        Valid Values: 0 to INFTY
+        Control verbosity of messages from the Eos unit. See Eos.h for relevant
+        EOS_LOGLEVEL_* definitions.
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Nucleon number for the gas (available ONLY for Eos with single species)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Proton number for the gas (available ONLY for Eos with single species)
+    gamma [REAL] [1.6667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas (available ONLY for Eos/Gamma)
+    threadEosWithinBlock [BOOLEAN] [TRUE]
+
+
+physics/Eos/EosMain/Helmholtz
+    eos_coulombAbort [BOOLEAN] [true]
+        Abort if pressures become negative.  Otherwise, issue a warning message
+        and continue
+    eos_coulombMult [REAL] [1.0]
+        Valid Values: Unconstrained
+        coulomb correction multiplier
+    eos_fluffDens [REAL] [0.0]
+        Valid Values: Unconstrained
+        material below this density has its energy replaced if its temperature
+        falls below smallt. This should be a small density for enery
+        conservation reasons. Only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+    eos_forceConstantInput [BOOLEAN] [false]
+        Helmholtz routines can allow input EINT or PRES to change on output to
+        preserve equilibrium.  This switch forces a constant input of EINT or
+        PRES
+    eos_maxNewton [INTEGER] [50]
+        Valid Values: Unconstrained
+        maximum number of Newton-Raphson iterations to try.
+    eos_tolerance [REAL] [1.e-8]
+        Valid Values: Unconstrained
+        tolerance for the Newton-Raphson iterations
+    larget [REAL] [1.e20]
+        Valid Values: Unconstrained
+        default upper bracket bound and used to fake temperature if it tries to
+        go too high. Currently, only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+
+physics/Eos/EosMain/Helmholtz/SpeciesBased
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species nucleon number for the gas (only used by Eos/Helmholtz
+        when compiled w/o Multispecies)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species proton number for the gas (only used Eos/Helmholtz when
+        compiled w/o Multispecies)
+
+physics/Eos/EosMain/Helmholtz_starkiller
+    eos_coulombAbort [BOOLEAN] [true]
+        Abort if pressures become negative.  Otherwise, issue a warning message
+        and continue
+    eos_coulombMult [REAL] [1.0]
+        Valid Values: Unconstrained
+        coulomb correction multiplier
+    eos_fluffDens [REAL] [0.0]
+        Valid Values: Unconstrained
+        material below this density has its energy replaced if its temperature
+        falls below smallt. This should be a small density for enery
+        conservation reasons. Only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+    eos_forceConstantInput [BOOLEAN] [false]
+        Helmholtz routines can allow input EINT or PRES to change on output to
+        preserve equilibrium.  This switch forces a constant input of EINT or
+        PRES
+    eos_maxNewton [INTEGER] [50]
+        Valid Values: Unconstrained
+        maximum number of Newton-Raphson iterations to try.
+    eos_tolerance [REAL] [1.e-8]
+        Valid Values: Unconstrained
+        tolerance for the Newton-Raphson iterations
+    larget [REAL] [1.e20]
+        Valid Values: Unconstrained
+        default upper bracket bound and used to fake temperature if it tries to
+        go too high. Currently, only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+
+physics/Eos/EosMain/Helmholtz_starkiller/SpeciesBased
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species nucleon number for the gas (only used by Eos/Helmholtz
+        when compiled w/o Multispecies)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species proton number for the gas (only used Eos/Helmholtz when
+        compiled w/o Multispecies)
+
+physics/Eos/EosNuclear
+    bounceTime [REAL] [0.0]
+        Valid Values: Unconstrained
+        Time of bounce in seconds
+    eos_file [STRING]
+    ["myshen_test_220r_180t_50y_extT_analmu_20100322_SVNr28.h5"]
+        Valid Values: Unconstrained
+        Filename of the table.  Data may be found at
+        stellarcollapse.org/equationofstate.
+    postBounce [BOOLEAN] [FALSE]
+        Flag to specify that simulation is post-bounce
+
+physics/Eos/unitTest
+    eos_testEintMode [STRING] ["dens_ie"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a specific
+        internal energy.
+    eos_testPresMode [STRING] ["dens_pres"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a pressure.
+    eos_testTempMode [STRING] ["dens_temp"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a temperature.
+    eos_testTolerance [REAL] [1.e-9]
+        Valid Values: 0.0 to INFTY
+        Tolerance for relative errors in Eos results

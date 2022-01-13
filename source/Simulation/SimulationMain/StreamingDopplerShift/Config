@@ -1,0 +1,21 @@
+# Configuration file for streaming sine wave static radiation field problem
+
+REQUIRES Driver
+REQUIRES physics/Hydro
+REQUIRES physics/Eos/EosMain/Gamma
+REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
+REQUIRES Simulation/SimulationComposition
+REQUESTS IO
+
+# These would allow us to use different initial condition
+D sim_rad_spectrum                 Option of initalizing radiation field spectrum
+D sim_rad_direction                Option of initializing source direction
+D sim_velx                         Option of initializing fluid velocity in lightspeed unit
+D dens_i                           Initial density [g cm^{-3}]
+D temp_i                           Initial temperature [K]
+
+PARAMETER sim_rad_spectrum         STRING  "Fermi-Dirac"
+PARAMETER sim_rad_direction        STRING  "X"
+PARAMETER sim_velx                 REAL    0.0           [0.0 to 1.0 ]
+PARAMETER dens_i                   REAL    1.0e6         [0.0 to ]
+PARAMETER temp_i                   REAL    1.0e6         [0.0 to ]

@@ -1,0 +1,59 @@
+!!****if* source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_reInitGridVars
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!!
+!!
+!!REORDER(4): solnData
+
+#include "constants.h"
+#include "HeatAD.h"
+#include "Simulation.h"
+
+subroutine HeatAD_reInitGridVars()
+
+  use Grid_interface,   ONLY : Grid_getTileIterator,Grid_releaseTileIterator
+  use Grid_tile,        ONLY : Grid_tile_t
+  use Grid_iterator,    ONLY : Grid_iterator_t
+  use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Driver_interface, ONLY : Driver_getNStep
+  use HeatAD_data
+
+!------------------------------------------------------------------------------------------
+  implicit none
+  include "Flash_mpi.h"
+  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+  real, pointer, dimension(:,:,:,:) :: solnData
+  integer TA(2),count_rate
+  real*8  ET
+  type(Grid_tile_t) :: tileDesc
+  type(Grid_iterator_t) :: itor
+
+!------------------------------------------------------------------------------------------
+  nullify(solnData)
+  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Grid_getTileIterator(itor, nodetype=LEAF)
+  do while(itor%isValid())
+     call itor%currentTile(tileDesc)
+     call tileDesc%getDataPtr(solnData,  CENTER)
+     solnData(ALPH_VAR,:,:,:) = 1.
+     solnData(RHST_VAR,:,:,:) = 0.
+     solnData(TFRC_VAR,:,:,:) = 0.
+     ! Release pointers:
+     call tileDesc%releaseDataPtr(solnData,  CENTER)
+     call itor%next()
+  end do
+  call Grid_releaseTileIterator(itor)  
+
+  CALL SYSTEM_CLOCK(TA(2),count_rate)
+  ET=REAL(TA(2)-TA(1))/count_rate
+  if (ht_meshMe .eq. MASTER_PE)  write(*,*) 'Total HeatAD reInit Grid Vars Time =',ET
+
+  return
+end subroutine HeatAD_reInitGridVars

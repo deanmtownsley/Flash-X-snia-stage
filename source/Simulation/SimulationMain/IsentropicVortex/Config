@@ -1,0 +1,131 @@
+#		Configuration file for a spherical velocity field
+
+REQUIRES physics/Hydro
+REQUIRES physics/Eos
+REQUIRES Driver
+REQUIRES Grid
+
+USESETUPVARS withParticles
+USESETUPVARS Grid
+
+# if you want to include particles, add withParticles=TRUE to setup line
+IF withParticles
+    PARTICLETYPE passive INITMETHOD lattice MAPMETHOD quadratic ADVMETHOD rungekutta
+    REQUIRES Grid/GridMain
+    REQUIRES Particles/ParticlesMain
+ENDIF
+
+#LINKIF Particles_updateAttributes.F90 Particles/ParticlesMain
+
+#! rho_ambient       Ambient density
+#! p_ambient         Ambient pressure
+#! u_ambient         Ambient x-velocity
+#! v_ambient         Ambient y-velocity
+#! vortex_strength   Vortex strength
+#! xctr              Coordinates of the center of the vortex
+#! yctr
+#! nx_subint         number of subintervals for computing cell averages
+#! ny_subint
+
+USESETUPVARS nDim
+IF nDim != 2
+  SETUPERROR Isentropic Vortex can only be run in 2D.
+ENDIF
+
+
+D rho_ambient       Initial ambient density
+PARAMETER rho_ambient      REAL    1.0
+
+D p_ambient       Initial ambient pressure
+PARAMETER p_ambient        REAL    1.0
+
+D u_ambient       Initial ambient 
+PARAMETER u_ambient        REAL    1.0
+
+D u_ambient       Initial ambient velocity
+PARAMETER v_ambient        REAL    1.0
+
+D vortex_strength 
+PARAMETER vortex_strength  REAL    5.0
+
+D xctr x coordinate of the vortex center
+PARAMETER xctr             REAL    0.0
+
+D yctr y coordinate of the vortex center
+PARAMETER yctr             REAL    0.0
+
+D nx_subint number of subintervals along IAXIS
+PARAMETER nx_subint        INTEGER 10
+
+D ny_subint number of subintervals along JAXIS
+PARAMETER ny_subint        INTEGER 10
+
+D Four parameter to initialize the domain properly 
+PARAMETER diDomain             REAL    0.0
+PARAMETER djDomain             REAL    0.0
+PARAMETER imidDomain             REAL    0.0
+PARAMETER jmidDomain             REAL    0.0
+
+PARTICLEPROP pdens		REAL
+PARTICLEMAP TO pdens FROM VARIABLE dens
+#! To enable particle tracking of temperature, enable the
+#! next PARTICLEPROP line and PARTICLEMAP line,
+#! and make sure "pdens" is mentioned in a particle_attribute_N
+#! runtime parameter.
+#! See also comments in Particles_updateAttributes.F90.
+PARTICLEPROP ptemp		REAL
+PARTICLEMAP  TO ptemp  FROM VARIABLE   temp
+
+D particles_attribute_1 First requested mapped particle attribute for output.
+
+PARAMETER particle_attribute_1 STRING "pdens"
+D particles_attribute_2 Second requested mapped particle attribute for output.
+PARAMETER particle_attribute_2 STRING "ptemp"
+
+
+USESETUPVARS ParticlesTests
+
+IF "multitypes" in (v_.lower() for v_ in ParticlesTests.split(","))
+  D active_particletype ParticlesTests included "multitypes".
+  D & A dummy "custom" advance method is requested, so particle positions should
+  D & remain constant unless an actual pt_advanceCustom implementation is provided.
+  PARTICLETYPE active INITMETHOD lattice MAPMETHOD quadratic ADVMETHOD custom
+  D passive_particletype The default passive particle type.
+  D passive2_particletype ParticlesTests included "multitypes".
+  D & A dummy "custom" init method is requested, so no particles of this type should
+  D & get instantiated unless an actual pt_initPositions implementation is provided.
+  PARTICLETYPE passive2 INITMETHOD custom MAPMETHOD quadratic ADVMETHOD rungekutta
+  D passivedup_particletype ParticlesTests included "multitypes".
+  D & This type should duplicate the behavior of the default passive type, since
+  D & all the methods are defined the same way.
+  PARTICLETYPE passivedup INITMETHOD lattice MAPMETHOD quadratic ADVMETHOD rungekutta
+ENDIF
+
+IF "moreproperties" in (v.lower() for v in ParticlesTests.split(","))
+  #! Add new variable mass and charge (for testing dummy)
+  D mass_particleprop The usual mass particle property for massive particles
+  PARTICLEPROP mass		REAL
+  D pmass_particleprop Another particle property for testing, since
+  D & ParticlesTests included "moreproperties"
+  PARTICLEPROP pmass		REAL
+  D pcharge_particleprop Another particle property for testing, since
+  D & ParticlesTests included "moreproperties"
+  PARTICLEPROP pcharge		REAL
+ENDIF
+
+IF "moremappings" in (v.lower() for v in ParticlesTests.split(","))
+  #! Try some weird invalid stuff
+  #PARTICLEMAP  TO pmass  FROM VARIABLE   badvar  # This should fail
+  PARTICLEMAP  TO mass  FROM VARIABLE    eint
+  PARTICLEMAP  TO pmass   FROM VARIABLE   velz
+  PARTICLEMAP  TO pcharge   FROM VARIABLE   vely
+ENDIF
+
+IF "moremappedattributes" in (v.lower() for v in ParticlesTests.split(","))
+  D particle_attribute_5 ParticlesTests included "moremappedattributes".
+PARAMETER particle_attribute_5 STRING "mass"
+  D particle_attribute_6 ParticlesTests included "moremappedattributes".
+PARAMETER particle_attribute_6 STRING "pcharge"
+PARAMETER particle_attribute_7 STRING "proc"
+ENDIF
+

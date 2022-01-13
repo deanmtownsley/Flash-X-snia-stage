@@ -1,0 +1,127 @@
+______________________________________________________________________________
+IncompNS divergence free interpolation/extrapolation
+implementation within PARAMESH library
+______________________________________________________________________________
+
+-------------------------------------------------------
+Interpolation/Extrapolation between parent/child blocks
+-------------------------------------------------------
+
+call Grid_updateRefinement 
+
+--> call gr_updateRefinement <Eq 10. Vanella .et .al> 
+
+    --> call Simulation_customizeProlong
+        --> call prol_fc_divpres_init <PARAMESH> <now in AMR/Parmesh4/Incomp> <verify version with FLASH4>
+
+    --> call amr_prolong
+        --> call amr_1blk_fc_prol_divpres <PARAMESH> <now in AMR/Paramesh4/Incomp>
+
+----------------------------------------------------------
+Interpolation/Extrapolation at block boundaries
+----------------------------------------------------------
+call ins_ab2rk3
+
+--> <predictor_step>
+
+--> call Grid_fillGuardCells
+    --> Grid_bcApplyToRegion<physical BCs>
+
+--> call ins_fluxfix <calculate_fluxes_from_predicted_velocity> <Eq 14. Vanella .et .al>
+
+    --> call Grid_putFluxData
+        --> <PARAMESH_subroutines>
+
+    --> call Grid_conserveFluxes
+        --> call amr_flux_conseve <PARAMESH>
+
+    --> Grid_getFluxData
+        --> <PARAMESH_subroutines>
+
+    --> <make_changes_to_predicted_velocity_at_boundaries>
+
+--> <solve_pressure_poisson>
+
+--> call Grid_fillGuardCells
+
+--> call ins_fluxfix_p <calculate_fluxes_from_pressure_gradient> <Eq 15. Vanella .et. al>
+
+    --> call Grid_putFluxData
+        --> <PARAMESH_subroutines>
+
+    --> call Grid_conserveFluxes
+        --> call amr_flux_conseve <PARAMESH>
+
+--> call Grid_getFluxData
+    --> <PARAMESH_subroutines>
+
+--> <make_changes_to_corrected_velocity_at_boundaries>
+
+--> <corrector_step>
+
+--> call Grid_fillGuardCells
+    --> Grid_bcApplyToRegion<physical BCs>
+
+______________________________________________________________________________
+IncompNS divergence free interpolation/extrapolation
+implementation within AMReX library
+_____________________________________________________________________________
+
+-------------------------------------------------------
+Interpolation/Extrapolation between parent/child blocks
+-------------------------------------------------------
+
+call Grid_updateRefinement 
+
+--> call amrex_fillpatch <Eq 10. Vanella .et .al>
+    --> <AMReX>
+
+----------------------------------------------------------
+Interpolation/Extrapolation at block boundaries
+----------------------------------------------------------
+call ins_ab2rk3
+
+--> <predictor_step>
+
+--> call Grid_fillGuardCells
+    --> Grid_bcApplyToRegion<physical BCs>
+
+--> call ins_fluxfix <calculate_fluxes_from_predicted_velocity> <Eq 14. Vanella .et .al>
+
+    --> call Grid_putFluxData <per_block>
+        --> call Grid_addFineToFluxRegister
+            --> <opearte_on_AMReX_flux_registers>
+
+    --> call Grid_conserveFluxes <Grid_communicateFluxes>
+        --> <opearte_on_AMReX_flux_registers>
+
+    --> Grid_getFluxData <?--Does_not_interface_with_AMReX> <+nolwf> <per_block>
+
+    --> <make_changes_to_predicted_velocity_at_boundaries>
+
+--> <solve_pressure_poisson>
+
+--> call Grid_fillGuardCells
+
+--> call ins_fluxfix_p <calculate_fluxes_from_pressure_gradient> <Eq 15. Vanella .et .al>
+
+    --> call Grid_putFluxData
+        --> call Grid_addFineToFluxRegister
+            --> <opearte_on_AMReX_flux_registers>
+
+    --> call Grid_conserveFluxes
+        --> <opearte_on_AMReX_flux_registers>
+
+--> call Grid_getFluxData <?--Does_not_interface_with_AMReX>
+
+--> <make_changes_to_corrected_velocity_at_boundaries>
+
+--> <corrector_step>
+
+--> call Grid_fillGuardCells
+    --> Grid_bcApplyToRegion<physical BCs>
+________________________________________________________________
+
+Q - How Grid_bcApplyToRegion is being used?
+Q - AMReX callbacks?
+

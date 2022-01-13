@@ -1,0 +1,115 @@
+!----------------------------------------------------------------------
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+! PARAMESH - an adaptive mesh library.
+! Copyright (C) 2003
+!
+! Use of the PARAMESH software is governed by the terms of the
+! usage agreement which can be found in the file
+! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
+!----------------------------------------------------------------------
+
+!!REORDER(5): unk, facevar[xyz], tfacevar[xyz]
+!!REORDER(4): recvar[xyz]f
+#include "paramesh_preprocessor.fh"
+
+
+!!****f* source/amr_abort
+!! NAME
+!!   amr_abort
+!!
+!! SYNOPSIS
+!!
+!!   Call amr_abort()
+!!
+!! ARGUMENTS
+!! 
+!!   None
+!!
+!! INCLUDES
+!!
+!!   paramesh_preprocessor.fh
+!!   mpif.h
+!!
+!! USES
+!!
+!! CALLS
+!!
+!! RETURNS
+!!
+!! DESCRIPTION
+!!
+!!   A wrapper routine for the MPI_ABORT command.
+!!
+!! AUTHORS
+!!
+!!   Peter MacNeice
+!!
+!!***
+
+      Subroutine amr_abort()
+      Use Paramesh_comm_data, ONLY : amr_mpi_meshComm
+
+      Implicit None
+
+!-----Include statments.
+      Include 'mpif.h'
+
+!-----Local variables.
+      Integer :: ierrorcode,ierr
+
+!-----Begin executable code.
+      Call MPI_ABORT(amr_mpi_meshComm,ierrorcode,ierr)
+
+      Return
+      End Subroutine amr_abort
+
+
+!!****f* source/amr_flush
+!! NAME
+!!   amr_flush
+!!
+!! SYNOPSIS
+!!
+!!   Call amr_flush()
+!!
+!! ARGUMENTS
+!! 
+!!   Integer, Intent(in) :: iunit  The unit number to flush the io buffer.
+!!
+!! INCLUDES
+!!
+!!   paramesh_preprocessor.fh
+!!
+!! USES
+!!
+!! CALLS
+!!
+!! RETURNS
+!!
+!! DESCRIPTION
+!!
+!!   A stub routine for whatever flush call you have on your specific system.
+!!
+!! AUTHORS
+!!
+!!   Peter MacNeice
+!!
+!!***
+
+      Subroutine amr_flush(iunit)
+
+      Implicit None
+
+!-----Local variables
+      Integer, Intent(in) :: iunit
+
+      Return
+      End Subroutine amr_flush
+

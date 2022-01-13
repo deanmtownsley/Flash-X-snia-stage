@@ -1,0 +1,104 @@
+# [source/Simulation/SimulationMain/StreamingDopplerShift]
+
+# names of files
+basenm   = "streamingdopplershift_"
+log_file = "streamingdopplershift.log"
+
+# Initial Setting
+sim_rad_spectrum     = "Fermi-Dirac"
+sim_rad_direction    = "X"
+sim_velx             = 0.1e0 # lightspeed
+
+# physical domain
+geometry = "cartesian"
+xmin = 0.0 
+xmax = 1.0e3
+ymin = 0.0
+ymax = 1.0e2
+zmin = 0.0
+zmax = 1.0e2
+
+# boundary conditions
+xl_boundary_type = "user"   # fixed boundary
+xr_boundary_type = "outflow"
+
+# refinement
+nblockx = 12
+
+lrefine_max = 1
+lrefine_min = 1
+
+refine_var_1 = "dens"
+refine_var_2 = "pres"
+
+# go for nend steps or tmax seconds, whichever comes first
+nend = 2001
+tmax = 1.0e-7 #
+
+# timestep
+dtinit = 1.0e-10
+dtmax  = 1.0e-10
+dtmin  = 1.0e-10
+tstep_change_factor = 1.0e0
+dr_dtMinContinue = 5.0e-20
+dr_tstepSlowStartFactor = 1.0e0
+dr_shortenLastStepBeforeTMax = .true.
+cfl = 0.8
+
+# checkpoint/plot files
+restart = .ture.
+
+checkpointFileNumber = 5
+checkpointFileIntervalStep = 100
+plotFileNumber = 0
+
+ignoreForcedPlot = .false.
+
+plot_var_1 = "T001"
+plot_var_2 = "T0033"
+
+# eos options
+eintSwitch = 1.e-4
+
+# hydro options
+useHydro = .false.
+use_cma_advection = .false.
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#	I. INTERPOLATION SCHEME:
+order		 = 3         # Interpolation order (first/second/third/fifth order)
+slopeLimiter     = "vanLeer" # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta = 1.        # Slope parameter for the "limited" slope by Toro
+charLimiting	 = .true.    # Characteristic limiting vs. Primitive limiting
+use_flattening	 = .true.    # use flattening (dissipative) (originally for PPM)
+use_steepening	 = .true.    # use contact steepening (originally for PPM)
+
+#	II. RIEMANN SOLVERS:
+RiemannSolver	 = "HLLC"    # Roe, HLL, HLLC, LLF, Marquina
+EOSforRiemann    = .false.   # Call EoS for Riemann solves
+entropy          = .false.   # Entropy fix for the Roe solver
+
+#	III. STRONG SHOCK HANDELING SCHEME:
+shockDetect	 = .false.     # Shock Detect for numerical stability
+## -------------------------------------------------------------##
+
+# radiation transport
+useRadTrans = .true.
+
+rt_doExplicit = .true.
+rt_doImplicit = .false.
+
+rt_eL    = 0.0
+rt_eR    = 30.0
+rt_zoomE = 1.0
+rt_bcE   = 10
+rt_positivityLimiter = .true.
+rt_UpperBry1         = 1.0d100
+
+# thornado options
+dens_i = 1.0e0 # thornado unit 
+temp_i = 1.0e0 # 
+
+# other flags
+useParticles = .false.

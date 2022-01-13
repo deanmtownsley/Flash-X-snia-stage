@@ -1,0 +1,165 @@
+
+Particles
+    useParticles [BOOLEAN] [FALSE]
+        Whether to advance particles [TRUE] or not [FALSE]
+
+Particles/ParticlesInitialization
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/MeshOwned
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/MeshOwned/Lattice
+    __doc__
+        Lattice uniformly distributes the particles throughout physical domain
+    pt_initialRadius [REAL] [-1.0]
+        Valid Values: Unconstrained
+        maximum distance from center of domain for particle initialization -- by
+        default = -1.0 (i.e. no minimum)
+    pt_initialXMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in x for particle initialization -- by default = xmax
+    pt_initialXMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in x for particle initialization -- by default = xmin
+    pt_initialYMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in y for particle initialization -- by default = ymax
+    pt_initialYMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in y for particle initialization -- by default = ymin
+    pt_initialZMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in z for particle initialization -- by default = zmax
+    pt_initialZMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in z for particle initialization -- by default = zmin
+    pt_numX [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numY [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numZ [INTEGER] [1]
+        Valid Values: Unconstrained
+
+
+Particles/ParticlesInitialization/ParticlesOwned
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/ParticlesOwned/Lattice
+    __doc__
+        Lattice uniformly distributes the particles throughout physical domain
+    pt_initialRadius [REAL] [-1.0]
+        Valid Values: Unconstrained
+        maximum distance from center of domain for particle initialization -- by
+        default = -1.0 (i.e. no minimum)
+    pt_initialXMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in x for particle initialization -- by default = xmax
+    pt_initialXMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in x for particle initialization -- by default = xmin
+    pt_initialYMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in y for particle initialization -- by default = ymax
+    pt_initialYMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in y for particle initialization -- by default = ymin
+    pt_initialZMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in z for particle initialization -- by default = zmax
+    pt_initialZMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in z for particle initialization -- by default = zmin
+    pt_numX [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numY [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numZ [INTEGER] [1]
+        Valid Values: Unconstrained
+
+
+Particles/ParticlesInitialization/ParticlesOwned/WithDensity
+    pt_numParticlesWanted [INTEGER] [100]
+        Valid Values: Unconstrained
+        Number of tracer particles to use (not guaranteed to get exactly this
+        many)
+    pt_pRand [INTEGER] [1]
+        Valid Values: Unconstrained
+        A number which affects the initial seed for the random number generator.
+        We set the default value to 1 to make it more likely that the initial
+        seed is within the integer range given by the IBM XL documentation which
+        is "A valid seed must be a whole number between 1.0 and 2147483647.0
+        (2.0**31-1)", as long as the number of MPI tasks is less than that
+        value.
+
+Particles/ParticlesInitialization/ParticlesOwned/WithDensity/RejectionMethod
+    __doc__
+        This is completely untested, don't use without further work
+
+Particles/ParticlesMain
+    particle_attribute_1 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_10 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_2 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_3 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_4 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_5 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_6 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_7 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_8 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_9 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    pt_dtChangeTolerance [REAL] [0.4]
+        Valid Values: 0.0 to INFTY
+        EstiMidpoint does predictor step if time step change is less than this
+        percentage. Set to 0 to always do Euler, set to huge number to always
+        use estim. midpoints
+    pt_dtFactor [REAL] [0.5]
+        Valid Values: Unconstrained
+        Factor multiplying dx/|v| in setting particle timestep limit
+    pt_logLevel [INTEGER] [700]
+        Valid Values: 0 to INFTY
+        controls the level of logging for some conditions. See Particles.h for
+        relevant PT_LOGLEVEL_* definitions.
+    pt_maxPerProc [INTEGER] [1000]
+        Valid Values: Unconstrained
+        Maximum number of particles per processor -- too small will cause a
+        crash at reallocation
+    pt_numAtOnce [INTEGER] [1]
+        Valid Values: Unconstrained
+        To be used when reading the particles from some file
+    pt_small [REAL] [1.0E-10]
+        Valid Values: Unconstrained
+        If velocities are greater than this, then time stepping may be limited
+    useParticles [BOOLEAN] [TRUE]
+        Whether to advance particles [TRUE] or not [FALSE]
+
+Particles/ParticlesMapping/ParticlesOwned/meshWeighting/CIC
+    smearLen [INTEGER] [1]
+        Valid Values: Unconstrained
+

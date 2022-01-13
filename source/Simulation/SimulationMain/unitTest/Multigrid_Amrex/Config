@@ -1,0 +1,18 @@
+D This unit test is meant only for AMReX grid. Do not use any other grid type!
+
+REQUIRES Driver
+REQUIRES Grid/GridMain/AMR/Amrex
+REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+
+D rhs  : RHS of the Poisson Problem to be solved
+D nsol : Numerical Solution of Poisson Problem
+D asol : Analytical solution of Poisson problem
+D diff : Pointwise difference between nsol and asol
+ 
+VARIABLE rhs  TYPE: PER_VOLUME
+VARIABLE nsol TYPE: PER_VOLUME
+VARIABLE diff TYPE: PER_VOLUME
+VARIABLE asol TYPE: PER_VOLUME
+
+# Number of layers of Guardcells:
+GUARDCELLS 2

@@ -1,0 +1,7 @@
+# [/lib/weaklib]
+# Config for weaklib submodule
+# INTERNAL means we distribute the source code
+
+TYPE INTERNAL
+
+LIBRARY HDF5

@@ -1,0 +1,923 @@
+
+Simulation/SimulationMain
+    basenm [STRING] ["flash_"]
+        Valid Values: Unconstrained
+        Base name for output files
+
+Simulation/SimulationMain/Blast2
+    gamma [REAL] [1.6667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas - for initialization
+    refine_var_1 [STRING] ["pres"]
+        Valid Values: Unconstrained
+        first variable on which to refine
+    refine_var_2 [STRING] ["dens"]
+        Valid Values: Unconstrained
+        second variable on which to refine
+    sim_pLeft [REAL] [1000.]
+        Valid Values: Unconstrained
+        Pressure  in the left part of the grid
+    sim_pMid [REAL] [0.01]
+        Valid Values: Unconstrained
+        Pressure  in the middle of the grid
+    sim_pRight [REAL] [100.]
+        Valid Values: Unconstrained
+        Pressure  in the righ part of the grid
+    sim_posnL [REAL] [0.1]
+        Valid Values: Unconstrained
+        Point of intersection between the left shock plane and x-axis
+    sim_posnR [REAL] [0.9]
+        Valid Values: Unconstrained
+        Point of intersection between the right shock plane and the x-axis
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the left part of the grid
+    sim_rhoMid [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the middle of the grid
+    sim_rhoRight [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the right part of the grid
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uMid [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the middle of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: Unconstrained
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: Unconstrained
+        Angle made by diaphragm normal w/y-axis (deg)
+
+Simulation/SimulationMain/CCSN
+    model_file [STRING] ["file.dat"]
+        Valid Values: Unconstrained
+        Name of input file with 1D model
+    nsub [INTEGER] [4]
+        Valid Values: Unconstrained
+        number of sub-sampling points for mapping of 1D model
+    vel_mult [REAL] [1.0]
+        Valid Values: Unconstrained
+        multiplier on initial 1D radial velocity
+
+Simulation/SimulationMain/CCSN_Chimera
+    chimera_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with chimera model
+    do_quad [BOOLEAN] [FALSE]
+        flag for performing quadrature averages in mapping of model
+    max_r [REAL] [0.0]
+        Valid Values: Unconstrained
+        max radius to use chimera data
+    nquad [INTEGER] [2]
+        Valid Values: Unconstrained
+        number of quadrature points in each dimension for mapping of model
+    progenitor_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with 1D progenitor model
+    r_inner [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius boundary for chimera data
+    rho_inner [REAL] [1.0e11]
+        Valid Values: Unconstrained
+        inner density boundary for chimera data
+
+Simulation/SimulationMain/CCSN_Chimera_Split
+    chimera_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with chimera model
+    do_quad [BOOLEAN] [FALSE]
+        flag for performing quadrature averages in mapping of model
+    max_r [REAL] [0.0]
+        Valid Values: Unconstrained
+        max radius to use chimera data
+    nquad [INTEGER] [2]
+        Valid Values: Unconstrained
+        number of quadrature points in each dimension for mapping of model
+    progenitor_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with 1D progenitor model
+    r_inner [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius boundary for chimera data
+    rho_inner [REAL] [1.0e11]
+        Valid Values: Unconstrained
+        inner density boundary for chimera data
+
+Simulation/SimulationMain/Cellular
+    noiseAmplitude [REAL] [1.0e-2]
+        Valid Values: Unconstrained
+        amplitude of the white noise added to the perturbation
+    noiseDistance [REAL] [5.0]
+        Valid Values: Unconstrained
+        distances above and below r_init get noise added
+    radiusPerturb [REAL] [25.6]
+        Valid Values: Unconstrained
+        distance below which the perturbation is applied
+    rhoAmbient [REAL] [1.0e7]
+        Valid Values: 0 to INFTY
+        density of the cold upstream material
+    rhoPerturb [REAL] [4.236e7]
+        Valid Values: Unconstrained
+        density of the post shock material
+    tempAmbient [REAL] [2.0e8]
+        Valid Values: 0 to INFTY
+        temperature of the cold upstream material
+    tempPerturb [REAL] [4.423e9]
+        Valid Values: Unconstrained
+        temperature of the post shock material
+    usePseudo1d [BOOLEAN] [FALSE]
+        .true. for a 1d initial configuration, with the copied along the y and z
+        directions .false. for a spherical configuration
+    velxAmbient [REAL] [0.0]
+        Valid Values: Unconstrained
+        x-velocity of the cold upstream material
+    velxPerturb [REAL] [2.876E+08]
+        Valid Values: Unconstrained
+        x-velocity of the post shock material
+    xCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    xc12 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of c12
+    xhe4 [REAL] [0.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of he4
+    xo16 [REAL] [0.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of o16
+    yCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    zCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/DustCollapse
+    sim_ictr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_initDens [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial density of cloud
+    sim_initRad [REAL] [0.05]
+        Valid Values: Unconstrained
+        Initial radius of cloud
+    sim_jctr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_kctr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_tAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient temperature (everywhere)
+
+Simulation/SimulationMain/HydroStatic
+    sim_presRef [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    sim_tempRef [REAL] [300.0]
+        Valid Values: Unconstrained
+
+    sim_xyzRef [REAL] [0.5]
+        Valid Values: Unconstrained
+        reference coordinate value in X, Y, and/or X direction, where initial
+        density assumes the reference value given by sim_presRef and sim_tempRef
+        through a formula that also involves eos_singleSpeciesA and the ideal
+        gas constant
+
+Simulation/SimulationMain/IsentropicVortex
+    nx_subint [INTEGER] [10]
+        Valid Values: Unconstrained
+        number of subintervals along IAXIS
+    ny_subint [INTEGER] [10]
+        Valid Values: Unconstrained
+        number of subintervals along JAXIS
+    p_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    particle_attribute_1 [STRING] ["pdens"]
+        Valid Values: Unconstrained
+
+    particle_attribute_2 [STRING] ["ptemp"]
+        Valid Values: Unconstrained
+
+    rho_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient density
+    u_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient velocity
+    v_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    vortex_strength [REAL] [5.0]
+        Valid Values: Unconstrained
+
+    xctr [REAL] [0.0]
+        Valid Values: Unconstrained
+        x coordinate of the vortex center
+    yctr [REAL] [0.0]
+        Valid Values: Unconstrained
+        y coordinate of the vortex center
+
+Simulation/SimulationMain/MacLaurin
+    angular_velocity [REAL] [0.]
+        Valid Values: Unconstrained
+        Dimensionless angular velocity (Omega)
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho)): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorial_semimajor_axis [REAL] [1.]
+        Valid Values: 0.1 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/PoisTest
+    sim_smlRho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        smallest allowed value of density
+
+Simulation/SimulationMain/SNIa_DoubleDetonation
+    densShell [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Density of shell if exterior to profile
+    densShellMult [REAL] [1.e0]
+        Valid Values: 0.0 to INFTY
+        Density multiplier if shell is within profile
+    dens_fluff [REAL] [1.e-3]
+        Valid Values: Unconstrained
+        density of the fluff; use last zone in profile if <= 0.0
+    ignite [BOOLEAN] [FALSE]
+        flag to ignite a spherical region with matchhead
+    initialWDFile [STRING] ["wd_profile_rhoc_415e5_M_106_correct.dat"]
+        Valid Values: Unconstrained
+
+    r_match_inner [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Inner radius of spherical matchhead region
+    r_match_outer [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Outer radius of spherical matchhead region
+    radShellMax [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Outer radius of shell
+    radShellMin [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Inner radius of shell
+    t_ignite_inner [REAL] [4.e9]
+        Valid Values: 0.0 to INFTY
+        Temperature of matchhead at r_match_inner
+    t_ignite_outer [REAL] [4.e9]
+        Valid Values: 0.0 to INFTY
+        Temperature of matchhead at r_match_outer
+    tempShell [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Temperture of shell if exterior to profile
+    tempShellMult [REAL] [1.e0]
+        Valid Values: 0.0 to INFTY
+        Temperture multiplier if shell is within profile
+    temp_fluff [REAL] [3.e7]
+        Valid Values: Unconstrained
+        temperature of the fluff; use last zone in profile if <= 0.0
+    thtShellMax [REAL] [0.e0]
+        Valid Values: 0.0 to 180.0
+        Max angle of belt (180.0 for shell)
+    thtShellMin [REAL] [0.e0]
+        Valid Values: 0.0 to 180.0
+        Min angle of belt (0.0 for shell)
+    useShell [BOOLEAN] [FALSE]
+        flag to add a shell/belt to the profile
+    x_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        X-coordinate of center of matchhead
+    xc12_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        c12 mass fraction of the fluff
+    xc12_shell [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        Carbon mass fraction of shell
+    xhe4_fluff [REAL] [1.e0]
+        Valid Values: 0.0 to 1.0
+        he4 mass fraction of the fluff; use last zone in profile if all
+        (he4,c12,o16,ni56) fluff composition <= 0.0
+    xhe4_shell [REAL] [1.e0]
+        Valid Values: 0.0 to 1.0
+        Helium mass fraction of shell
+    xni56_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        ni56 mass fraction of the fluff
+    xni56_shell [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        Nickel mass fraction of shell (ash)
+    xo16_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        o16 mass fraction of the fluff
+    y_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        Y-coordinate of center of matchhead
+    z_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        Z-coordinate of center of matchhead
+
+Simulation/SimulationMain/Sedov
+    sim_bcSetBdryVar [BOOLEAN] [FALSE]
+        Whether to set the "bdry" variable in unk (if it exists) to 1 in guard
+        cells at reflecting boundaries. Doing this will entice Hydro
+        implementations to lower reconstruction order in adjacent cells, and
+        possibly lower the CFL factor applied to timestep computation as well.
+    sim_centerRefineLevel [INTEGER] [1]
+        Valid Values: -1, 1 to INFTY
+        Desired refinement level at center (if "forcing")
+    sim_derefineRadius [REAL] [0.0]
+        Valid Values: 0.0 to INFTY
+        Radius of center region to force derefinement
+    sim_earliestLSTime [REAL] [0.0]
+        Valid Values: Unconstrained
+        earliest time included in Largest-{Norm,Error} summaries
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over initial explosion region)
+    sim_forceCenterDerefine [BOOLEAN] [FALSE]
+        Try to force low refinement level around explosion center?
+    sim_integralsLevel [INTEGER] [-1]
+        Valid Values: -1, 1 to INFTY
+        if sim_oneLevelIntegralsOnly is TRUE, this gives the requested
+        refinement level, either explicitly as a positive integer or as -1 for
+        the largest currently realized level.
+    sim_largestNormRadius [REAL] [HUGE(1.0)]
+        Valid Values: Unconstrained
+        outer radius bound of region for norm computation
+    sim_latestLSTime [REAL] [HUGE(1.0)]
+        Valid Values: Unconstrained
+        latest time included in Largest-{Norm,Error} summaries
+    sim_minRhoInit [REAL] [1.E-20]
+        Valid Values: 0.0 to INFTY
+        Density floor for initial condition
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: 1 to INFTY
+        Number of subzones in cells for applying 1d profile
+    sim_oneLevelIntegralsOnly [BOOLEAN] [FALSE]
+        Whether to compute intgral quantities only on cells at one refinement
+        level, ignoring all finer or coarser cells
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_profFileName [STRING] ["sedovSolution.dat"]
+        Valid Values: Unconstrained
+        Name of file from which to read a 1D Sedov solution for the initial
+        condition. The data from the file will be rescaled, and a density floor
+        given by sim_minRhoInit will be applied, to construct the initial
+        condition. This file will only be used if tinitial > 0.
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radius of region into which explosion energy is dumped initially, used
+        only if tinitial <= 0.
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_smallestNormRadius [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius bound of region for norm computation
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/Sedov/WriteParticleSubset
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovChamber
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovChamber/WriteParticleSubset
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovSelfGravity
+    exp_energy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    p_ambient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    r_init [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of the inner edge of the grid
+    rho_ambient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' to break cells into for applying 1d profile
+    t_init [REAL] [0.]
+        Valid Values: Unconstrained
+        Initial time since explosion
+
+Simulation/SimulationMain/Sod
+    gamma [REAL] [1.6666666666666667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas - for initialization
+    gammaIon [REAL] [1.6666666666666667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for ion component, should be 5./3.
+    sim_abarLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion mean molecular weight of material on left
+    sim_abarRight [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion mean molecular weight of material on right
+    sim_pLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Pressure  in the left part of the grid
+    sim_pRight [REAL] [0.1]
+        Valid Values: 0 to INFTY
+        Pressure  in the righ part of the grid
+    sim_peleLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_peleRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pionLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pionRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_posn [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_pradLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pradRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Density in the left part of the grid
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: 0 to INFTY
+        Density in the right part of the grid
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: 0 to 360
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: 0 to 360
+
+    sim_zbarLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion average charge for material on left
+    sim_zbarRight [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion average charge for material on right
+
+Simulation/SimulationMain/SodSpherical
+    sim_idir [INTEGER] [1]
+        Valid Values: 1, 2
+        the direction along which to propagate the shock.  sim_idir = 1 is
+        horizontal.  sim_idir = 2 is vertical.
+    sim_pLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        initial pressure on the left side of the interface
+    sim_pRight [REAL] [0.1]
+        Valid Values: Unconstrained
+        initial pressure on the right side of the interface
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        initial density left of the interface
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: Unconstrained
+        initial density right of interface
+    sim_shockpos [REAL] [0.4]
+        Valid Values: Unconstrained
+        distance of the shock plane from y-axis (for sim_idir=1) or x-axis (for
+        sim_idir=2)
+
+Simulation/SimulationMain/SodStep
+    gr_pmrpNboundaries [INTEGER] CONSTANT [6]
+        Valid Values: Unconstrained
+        sets value for PARAMESH runtime parameter nboundaries
+    nblockx [INTEGER] [4]
+        Valid Values: Unconstrained
+        num initial blocks in x dir
+    nblocky [INTEGER] [4]
+        Valid Values: Unconstrained
+        num initial blocks in y dir
+    nblockz [INTEGER] [1]
+        Valid Values: Unconstrained
+        num initial blocks in z dir
+    sim_pLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Pressure  in the left part of the grid
+    sim_pRight [REAL] [0.1]
+        Valid Values: 0 to INFTY
+        Pressure  in the righ part of the grid
+    sim_posn [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Density in the left part of the grid
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: 0 to INFTY
+        Density in the right part of the grid
+    sim_stepInDomain [BOOLEAN] [false]
+        -- whether there is a missing block in the initial domain
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: 0 to 360
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: 0 to 360
+
+
+Simulation/SimulationMain/WindTunnel
+    gr_pmrpNboundaries [INTEGER] [16]
+        Valid Values: 16 to INFTY
+        sets value for PARAMESH runtime parameter nboundaries
+    sim_pAmbient [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    sim_rhoAmbient [REAL] [1.4]
+        Valid Values: Unconstrained
+
+    sim_windVel [REAL] [3.0]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Eos
+    eosMode [STRING] ["dens_temp"]
+        Valid Values: Unconstrained
+        The Mode for applying Eos
+    sim_debug [BOOLEAN] [FALSE]
+        Debug this units test?
+    sim_densMax [REAL] [1.e8]
+        Valid Values: Unconstrained
+        Initial distribution of density, maximum.  Even distribution between
+        logarithm of min/max.
+    sim_densMin [REAL] [1.e-2]
+        Valid Values: Unconstrained
+        Initial distribution of density, minimum.  Even distribution between
+        logarithm of min/max.
+    sim_initialMass [INTEGER] [-1]
+        Valid Values: -1 to INFTY
+        Distribution of initial mass.  -1 to put gradient in SPEC(1) and
+        SPEC(NSPECIES) 0 to divide evenly throughout SPECIES i to put all mass
+        on SPECIES i
+    sim_presMax [REAL] [1.e7]
+        Valid Values: Unconstrained
+        Initial distribution of pressure, maximum.  Even distribution between
+        logarithm of min/max
+    sim_presMin [REAL] [1.e-2]
+        Valid Values: Unconstrained
+        Initial distribution of pressure, minimum.  Even distribution between
+        logarithm of min/max
+    sim_tempMax [REAL] [1.e9]
+        Valid Values: Unconstrained
+        Initial distribution of temperature, maximum.  Even distribution between
+        logarithm of min/max
+    sim_tempMin [REAL] [1.e5]
+        Valid Values: Unconstrained
+        Initial distribution of temperature, minimum.  Even distribution between
+        logarithm of min/max
+    sim_xnMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial distribution of a single species, maximum.  Even distribution
+        between logarithm of min/max
+    sim_xnMin [REAL] [1.e-10]
+        Valid Values: Unconstrained
+        Initial distribution of a single species, minimum.  Even distribution
+        between logarithm of min/max
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+
+Simulation/SimulationMain/unitTest/Eos/timeEosUnitTest
+    num_eos_calls [INTEGER] [30000]
+        Valid Values: 1 to INFTY
+
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson
+    sim_subSample [INTEGER] [7]
+        Valid Values: 1 to 12
+        Reflects the subsampling philosophy of Multipole.  See
+        physics/Grid/GridSolvers/Multipole/Config/mpole_subSample
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson3
+    angular_velocity [REAL] [0.]
+        Valid Values: Unconstrained
+        Dimensionless angular velocity (Omega)
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorial_semimajor_axis [REAL] [1.]
+        Valid Values: 0.0 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    pass_tolerance [REAL] [0.015]
+        Valid Values: 0.00000000000001 to 1.0
+        Allowed error for testing.  0.015 = 1.5 percent error
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole
+    num_poisson_solves [INTEGER] [100]
+        Valid Values: 1 to INFTY
+
+
+Simulation/SimulationMain/unitTest/IO/IOMeshReplication
+    totalSharedVars [INTEGER] [12]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Multipole
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorialSemimajorAxis [REAL] [1.]
+        Valid Values: 0.0 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    passTolerance [REAL] [0.015]
+        Valid Values: 0.00000000000001 to 1.0
+        Allowed error for testing.  0.015 = 1.5 percent error
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/unitTest/ParticlesAdvance
+    sim_maxTolCoeff0 [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff1 [REAL] [0.0001]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff2 [REAL] [0.01]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff3 [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    sim_schemeOrder [INTEGER] [2]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/ParticlesAdvance/HomologousPassive
+    sim_a0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        constant component of velocity field factor a(t)
+    sim_a1 [REAL] [0.1]
+        Valid Values: Unconstrained
+        varying part of velocity field factor a(t)
+    sim_analyticParticlePositions [BOOLEAN] [FALSE]
+
+    sim_fakeMapMeshToParticles [BOOLEAN] [TRUE]
+
+    sim_p_amb [REAL] [8.e5]
+        Valid Values: Unconstrained
+        Gas Pressure: Entire domain receives this ambient parameter
+    sim_rho_amb [REAL] [0.95e-3]
+        Valid Values: Unconstrained
+        Gas Density:  Entire domain receives this ambient parameter
+    sim_seed [REAL] [1.0]
+        Valid Values: Unconstrained
+        Random number seed -- NOT USED please ignore
+    sim_vx_amb [REAL] [0.5]
+        Valid Values: Unconstrained
+        Gas x-velocity:  Dominant flow velocity throughout domain
+    sim_vx_multiplier [REAL] [1.0]
+        Valid Values: Unconstrained
+        Half of the domain in y has x-velocity multiplied by this value
+    sim_vx_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in x direction: set to zero for uniform flow
+    sim_vy_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in y direction: set to zero for uniform flow
+    sim_vz_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in z direction: set to zero for uniform flow
+
+Simulation/SimulationMain/unitTest/Poisson/BiCG/MgMCPfft
+    alpha_x [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    alpha_y [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    waven_x [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_y [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_z [REAL] [1.]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Poisson/MgMC
+    alpha_x [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    alpha_y [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    waven_x [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_y [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_z [REAL] [1.]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Roots/x3Polynomials
+    sim_printInfo [BOOLEAN] [false]
+        Should details about solving each polynomial be printed
+
+Simulation/SimulationMain/unitTest/Roots/x4Polynomials
+    sim_printInfo [BOOLEAN] [false]
+        Should details about solving each polynomial be printed
+
+Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse
+    sim_RungeKuttaMethod [STRING] ["CashKarp45"]
+        Valid Values: Unconstrained
+        The method for the Runge Kutta stepper
+    sim_ellipseAspectRatio [REAL] [2.0]
+        Valid Values: Unconstrained
+        The ellipse aspect ratio (major:minor axis)
+    sim_errorFraction [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+        The error fraction for the dependent variables
+    sim_numberOfEllipses [INTEGER] [1]
+        Valid Values: Unconstrained
+        The number of ellipses the particle has to sweep
+    sim_stepSize [REAL] [0.1]
+        Valid Values: Unconstrained
+        The step size
+    sim_x0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial x position of the particle
+    sim_y0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial y position of the particle
+
+Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle
+    sim_RungeKuttaMethod [STRING] ["Fehlberg45"]
+        Valid Values: Unconstrained
+        The method for the Runge Kutta stepper
+    sim_errorFraction [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+        The error fraction for the dependent variables
+    sim_numberOfCircles [INTEGER] [1]
+        Valid Values: Unconstrained
+        The number of circles the particle has to sweep
+    sim_numberOfRungeKuttaSteps [INTEGER] [10]
+        Valid Values: Unconstrained
+        The number of Runge Kutta steps to be performed
+    sim_rx0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial x position of the particle
+    sim_ry0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial y position of the particle
+    sim_rz0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial z position of the particle
+    sim_speed [REAL] [1.0]
+        Valid Values: Unconstrained
+        The speed of the particle
+    sim_stepSize [REAL] [0.1]
+        Valid Values: Unconstrained
+        The step size

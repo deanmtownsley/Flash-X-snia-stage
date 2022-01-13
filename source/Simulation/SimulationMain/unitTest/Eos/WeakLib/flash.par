@@ -1,0 +1,35 @@
+# parameter file for Eos unit test using Weaklib
+
+# AMR parameters
+lrefine_max = 1
+lrefine_min = 1
+
+sim_tempMin = 5.e9
+sim_tempMax = 1.e11
+sim_densMin = 1.e5
+sim_densMax = 1.e14
+sim_presMin = 1.e23
+sim_presMax = 1.e35
+sim_yeMin   = 0.1
+sim_yeMax   = 0.55
+
+refine_var_1 = "dens"
+refine_var_2 = "temp"
+
+smallt = 1.e-10
+
+xmin = 0.e0
+xmax = 1.e0
+ymin = 0.e0
+ymax = 1.e0
+zmin = 0.e0
+zmax = 1.e0
+
+geometry = "cartesian"
+
+nblockx = 1
+nblocky = 1
+nblockz = 1
+
+eosModeInit = "eos_nop"
+eosMode     = "eos_nop"

@@ -1,0 +1,71 @@
+LIBRARY amrex
+
+CONFLICTS IO/IOMain/hdf5/parallel/UG
+CONFLICTS IO/IOMain/hdf5/serial/UG
+CONFLICTS IO/IOMain/hdf5/parallel/PM
+CONFLICTS IO/IOMain/hdf5/serial/PM
+
+# add pre-processor symbol
+PPDEFINE FLASH_GRID_AMREX
+
+USESETUPVARS useAmrexFlashFluxreg, NoLevelwideFluxes
+IF useAmrexFlashFluxreg
+   PPDEFINE USE_AMREX_FLASHFLUXREGISTER
+ENDIF
+
+IF withHydro
+   REQUIRES physics/Hydro/HydroMain/amrexAux
+ENDIF
+
+# We need to use the Fortran 2003 module named iso_c_binding in
+# the FLASH I/O unit.  This is not an extra dependency
+# because the interoperability of pointers already
+# depends on this module.  We do not define USE_IO_C_INTERFACE
+# in any other Config file because non-Chombo FLASH applications
+# with I/O only optionally depend on the iso_c_binding module.
+#PPDEFINE USE_IO_C_INTERFACE
+
+IF not NoLevelwideFluxes
+   REQUIRES ./levelFlux
+ENDIF
+
+# The following overrides the default value of flux_correct_perLevel for AMReX.
+D flux_correct_perLevel Flux correction involves a global communication phase,
+D & in which all MPI ranks participate.  This flag determines whether an
+D & instance of this phase, as seen by client code like Hydro, involves blocks
+D & of all refinement levels (if FALSE), or (if TRUE) is invoked per level --
+D & actually, per pair of levels.  For the Amrex Grid implementation, only
+D & flux_correct_perLevel==TRUE is currently implemented.
+D & Client code like Hydro will typically have to organize its data flow, and
+D & thus the structure of its outer loops (in particular, whether there is an
+D & explicit outer loop over levels surrounding loops ober blocks),
+D & differently, depending on this flag.
+D & Note that this flag on its own does not turn flux correction on. It should
+D & only have an effect if flux_correct is also turned on and supported.
+PARAMETER flux_correct_perLevel BOOLEAN TRUE
+
+# !!! If you add a parameter, please add a description line
+# Format is D <parameter name> <description>
+
+D gr_amrex_verbosity How much output is written out. Higher number is more verbose.
+PARAMETER gr_amrex_verbosity INTEGER 1 [ 0 ... ]
+
+D gr_sanitizeDataMode What to do when some subroutines are called
+D & to check for acceptable values in the dens, ener, and eint cell-centered variables
+D & after a Grid operation may have resulted in grid interpolation.
+D & 0: Do nothing.
+D & 2: Check and report.
+D & 3: Check and fix (apply floor value).
+D & 4: Check and abort if cell is found below floor value.
+D & (A variable mask that may be in effect for guard cell filling is currently ignored.)
+PARAMETER gr_sanitizeDataMode	INTEGER	4	[0,2,3,4]
+
+D enableMaskedGCFill When enableMaskedGCFill is FALSE, Grid_fillGuardCells is forced
+D &                  to always ignore optional mask arguments when present in calls.
+D &                  This is the default behavior.
+D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
+PARAMETER enableMaskedGCFill BOOLEAN FALSE
+
+D amrexInterpolator Name of AMReX interpolator to use
+PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
+

@@ -1,0 +1,2 @@
+> For 1D Spherical 2 species paramesh:
+./setup DeleptonizationWave -auto -1d +spherical +mode1 -nxb=16 -maxblocks=100 nE=5 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoSolver=EMAB thornadoOrder=ORDER_1 -with-unit=source/physics/Eos/EosMain/WeakLib +uhd +pm4dev -parfile=test_sph_1d.par -objdir=dele1d_MI_5E

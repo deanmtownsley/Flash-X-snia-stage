@@ -1,0 +1,38 @@
+With Spark, Level-Based: (Anshu-mod Jan-30)
+=======================
+Let level L=Lmax:
+
+   Iterate blocks:
+      Iterate stages s:
+         compute fluxes                                        ! --> "flux"                      
+         save (accum.) fine flux  (1st stage Copy, 2nd.. Add)  ! "flux" --+> "fluxBuf"   
+         call hy_rk_updateSoln(desc,...)                       ! update hy_starState <-- "flux"
+         call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+         if (s==last_stage):
+            call updateState(desc)                                ! copies UNK <-- hy_starState
+            ! NOTE: No call hy_rk_correctFluxes() !
+
+      Grid_putFluxData(fluxBuf,AS_FINE) (unless Lmax==Lmin)    ! fluxBuf --> SPFS[L,L-1][fine]     || f_f1,f_f2 - fineadd_1fab
+
+Iterate levels L (Lmax-1 downto Lmin):
+
+   global(L+1,L):
+      communicate fine fluxes  ! inside SPFS[L+1,L]:            SPFS[L+1,L][coarse] <~~ SPFS[L+1,L][fine]
+
+   Iterate blocks:
+      Iterate stages s:
+         compute fluxes                                        ! --> "flux"                      
+         if (s < last_stage):
+            save (accum.) fine flux  (1st stage Copy, 2nd.. Add)  ! "flux" --+> "fluxBuf"   
+            call hy_rk_updateSoln(desc,...)                       ! update hy_starState <-- "flux"
+            call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+         else: ! (s==last_stage)
+            flux |bb  = ("communicated fine fluxes" - fluxBuf)|bb !  "|bb" means: at block boundaries (only)
+            save (accum.) fine flux  (Add)                        ! "flux" --+> "fluxBuf"   
+            call hy_rk_updateSoln(desc,...)                       ! update hy_starState <-- "flux"
+            call hy_rk_eos(..)                                    ! apply EOS to hy_starState
+            call updateState(desc)                                ! copies UNK <-- hy_starState
+            ! NOTE: No call hy_rk_correctFluxes() !
+
+         Grid_putFluxData(fluxBuf,AS_FINE )   (unless L==Lmin)  !     fluxBuf --+> SPFS[L,L-1][fine]   || next f_f1,f_f2 - fineadd_1fab
+

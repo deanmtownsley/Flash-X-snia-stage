@@ -1,0 +1,17 @@
+#       Config file for the ImBound unit
+REQUIRES physics/ImBound/localAPI
+REQUIRES numericalTools/Stencils/StencilsLevelset
+
+#--------------------------------------------------------------------------------
+D useImBound   Should the ImBound unit be used?
+PARAMETER useImBound BOOLEAN TRUE
+
+#---------------------------------------------------------------------------------
+PARAMETER ib_rhoSolid            REAL     1.0      # Density ratio of solid/liquid
+PARAMETER ib_muSolid             REAL     1.0      # Viscosity ratio of solid/liquid
+PARAMETER ib_thcoSolid           REAL     1.0      # Thermal conducitivity of solid/liquid
+PARAMETER ib_CpSolid             REAL     1.0      # Specific heat of solid/liquid
+PARAMETER ib_lsIt                INTEGER  2        # Level Set redistance iterations...
+
+#---------------------------------------------------------------------------------
+VARIABLE lmda          # Level set distance function for immersed boundary

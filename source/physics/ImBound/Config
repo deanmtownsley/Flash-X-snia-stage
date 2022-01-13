@@ -1,0 +1,10 @@
+#	Config file for the ImBound unit
+DEFAULT ImBoundMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useImBound       Should the ImBound unit be used?
+# Value is meant to be overridden if ImBoundMain implementation gets included
+PARAMETER useImBound    BOOLEAN CONSTANT FALSE 

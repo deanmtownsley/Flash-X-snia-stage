@@ -1,0 +1,9 @@
+# Maplefile for Flash-X
+
+# `maple` reads this file and passes variables declared here to Dockerfile during invocation
+# of `docker build` and mounts current directory to maple_target. 
+# Please refer to README in `../tools/maple/README.md` for details
+maple_container="flashx"
+maple_image="akashdhruv/flash:latest"
+maple_target="/home/mount/Flash-X"
+maple_port="1000"

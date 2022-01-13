@@ -1,0 +1,15 @@
+# Configuration script for the GLM-MHD variant of Spark
+
+PPDEFINE SPARK_GLM
+
+VARIABLE magx TYPE: PER_VOLUME 		      # x-magnetic field
+VARIABLE magy TYPE: PER_VOLUME 		      # y-magnetic field
+VARIABLE magz TYPE: PER_VOLUME 		      # z-magnetic field
+VARIABLE divb                  		      # divergence of B
+VARIABLE magp                	          # magnetic pressure
+VARIABLE psib                	          # psi variable in GLM-MHD
+
+FLUX F06Magx
+FLUX F07Magy
+FLUX F08Magz
+FLUX F09Psib

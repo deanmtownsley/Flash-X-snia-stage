@@ -1,0 +1,87 @@
+More Detailed Overview over Grid Subroutines Related to Flux Correction
+=======================================================================
+=======================================================================
+
+
+In the new, no-levelwide-fluxes world:
+
+PUT-SIDE INTERFACES:
+ Grid_...               |                INPUT                             | source         | OUTPUT        | Current Impl. status
+                        | cb         |  fb | obb | in_nb | in_nbt | in_o   |  of d          |  as           | P(aramesh), A(mrex)
+============================================================================================================|======================
+ putFluxData[_block]    |                                                  |                                |
+   - AS_FINE variant    | n/a        |  d  | n/a | n/a   | n/a    | n/a    | fluxBuf(IN)    | SPFS          | A
+   - AT_BB variant      | d          |  d  | d   | n/a   | n/a    | n/a    | fluxBuf(IN)    | SPFS          |
+   - NEAR_BB variant    | d          |  d  | d   | d     | d      | n/a    | fluxBuf(IN)    | SPFS          | P
+
+COMMUNICATION INTERFACES:
+ Grid_...
+================================================================================
+ communicateFluxes
+
+GET-SIDE INTERFACES:
+ Grid_...               |               OUTPUT                            | source | source         | source       | OUTPUT        | Current Impl. status
+                        | cb          | fb | obb | in_nb | in_nbt | in_o  |  of f~ |  of c          |  of co       |  as           | P(aramesh), A(mrex); Capitalized if tested
+===================================================================================================================================|======================
+ getFluxData[_block]    |   f~    **1 | c  | c   | c     | c      | undef | SPFS   | SPFS           |  n/a         | fluxBuf(OUT)  | P     for Paramesh non-perLevel, unimpl. for Amrex
+ correctFluxData        |   f~        | c  | c   | c     | c      | c     | SPFS   | fluxBuf(INOUT) |  n/a         | fluxBuf       | P,A   for "unsplit" perLevel
+ correctFluxData[_xtra] |sf*f~ + sc*co| c  | c   | c     | c      | c     | SPFS   | fluxBuf(INOUT) | fluxOld(IN)  | fluxBuf       | p,A   intended for Spark+perLevel
+ getFluxCorrData[_block]|   f~ -    c | 0  | 0   | 0     | 0      | undef?| SPFS   | SPFS           |  n/a         | fluxBuf(OUT)  | p     intended for Spark+Paramesh, impossible for Amrex
+ getFluxCorrData[_xtra] |   f~ -    c | 0  | 0   | 0     | 0      | undef?| SPFS   | fluxBuf(IN)    |  n/a         | fluxCorr(OUT) | p,a   for "unsplit"+"apply correction"
+
+Abbreviations used for fluxes, face locations, etc.:
+* c   : coarse flux data
+* co  : "old" coarse flux data (use: accumulated previous RK stages)
+* f~  : data derived from fine flux data (by averaging)
+* d   : any flux data
+* sf,sc : scaling factors for fine, course fluxes (additional arguments; defaults: 1,-1)
+
+* cb     : coarse cell face on boundary (where there is a finer neighbor)
+* fb     : fine cell face on boundary (where there is a coarser neighbor)
+* obb    : other cell face on block boundary (same-refinement neighbor or domain boundary)
+* in_nb  : inner near boundary (normal face direction)
+* in_nbt : inner near boundary (transverse face directions)
+* in_o   : inner other (far from any block boundary)
+
+Notes
+
+**1: Sequencing requirement: Grid_putFluxData inplemented as AS_FINE (only), or
+     no intervening call Grid_putFluxData for coarse data between
+     the relevant call Grid_communicateFluxes and this call.
+     (ACTUALLY APPLIES FOR ALL 5 ROWS.)
+
+==========================================================================================================================================================
+==========================================================================================================================================================
+==========================================================================================================================================================
+
+In the old, levelwide-fluxes (LW-Flux) world:
+
+PUT-SIDE INTERFACES:
+ Grid_...               |                INPUT                             | source         | OUTPUT        | Current Impl. status
+                        | cb         |  fb | obb | in_nb | in_nbt | in_o   |  of d          |  as           | P(aramesh), A(mrex)
+============================================================================================================|======================
+ putFluxData    (Amrex) | n/a        |  d  | n/a | n/a   | n/a    | n/a    | LW-Flux        | SPFS          | A        calls Grid_addFineToFluxRegister
+ putFluxData (paramesh) |  d         |  d  | d   | n/a   | n/a    | n/a    | LW-Flux        | SPFS          | P        levelwide operation
+ putFluxData[_1desc]    | n/a        |  d  | n/a | n/a   | n/a    | n/a    | LW-Flux        | SPFS          | A,p?     (in some git branch)
+ addFineToFluxRegister  | n/a        |  d  | n/a | n/a   | n/a    | n/a    | LW-Flux        | SPFS          | A,p?     levelwide operation
+ addCoarseToFluxRegister|  d         | n/a | n/a | n/a   | n/a    | n/a    | LW-Flux        | SPFS          | A,p?     levelwide operation
+
+COMBINED COMMUNICATION + PUT-SIDE INTERFACES:
+ Grid...                |               OUTPUT                            | source | source                        | OUTPUT        | Current Impl. status
+                        | cb          | fb | obb | in_nb | in_nbt | in_o  |  of f~ |  of c                         |  as           | P(aramesh), A(mrex)
+===================================================================================================================================|======================
+ _conserveFluxes        |   f~        | c  | c   | c     | c      | c     | SPFS   | LW-Flux                       | LW-Flux       | P,A   for "unsplit" perLevel, Paramesh non-perLevel
+ reflux                 |Apply f~ - c |(0) |(0)  |(0)    |(0)     | -     | SPFS   | SPFS                          | UNK           |   a   traditional AMReX way, unimpl. in FLASH
+
+Abbreviations used for fluxes, face locations, etc.:
+* c   : coarse flux data
+* f~  : data derived from fine flux data (by averaging)
+* d   : any flux data
+
+* cb     : coarse cell face on boundary (where there is a finer neighbor)
+* fb     : fine cell face on boundary (where there is a coarser neighbor)
+* obb    : other cell face on block boundary (same-refinement neighbor or domain boundary)
+* in_nb  : inner near boundary (normal face direction)
+* in_nbt : inner near boundary (transverse face directions)
+* in_o   : inner other (far from any block boundary)
+

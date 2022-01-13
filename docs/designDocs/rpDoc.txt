@@ -1,0 +1,3236 @@
+
+Driver/DriverMain
+    allowDtSTSDominate [BOOLEAN] [FALSE]
+        allow a situation in which dt_STS becomes larger than dt_Hydro
+        (dt_advection) (assuming that diffusion dt is smaller than advection dt)
+        upto advection one, but not faster than the advection advancement. This
+        will be useful in solving PDE systems that are hyperbolic + parabolic.
+        FALSE will use the STS algorithm to even accelerate advection time
+        advancement, which in turn, will use larger advection dt than advection
+        dt from CFL limits. This will be useful in solving only hyperbolic PDE
+        systems in general. When hyperbolic + parabolic PDE system is to be
+        solved, then we suggest that users use less agressive super time
+        stepping method by using useSTSforDiffusion = TRUE.
+    dr_abortPause [INTEGER] [2]
+        Valid Values: 0 to INFTY
+        When Driver_abortFlash is called to abnormally end execution, and
+        dr_abortPause is grater than zero, the FLASH Driver_abortFlash code will
+        sleep for dr_abortPause seconds after writing explanatory messages (to
+        standard output and, possibly, to log files) but before calling
+        MPI_ABORT. See also eachProcWritesOwnAbortLog for controlling the
+        generation of per-processor log files.
+    dr_dtMinBelowAction [INTEGER] [1]
+        Valid Values: 0, 1
+        Action to take when computed new timestep is below dr_dtMinContinue. Use
+        0 for none (abort immediately), 1 for "write checkpoint then abort"
+    dr_dtMinContinue [REAL] [0.0]
+        Valid Values: 0.0 to INFTY
+        Minimum computed timestep to continue the simulation
+    dr_printTStepLoc [BOOLEAN] [TRUE]
+
+    dr_shortenLastStepBeforeTMax [BOOLEAN] [FALSE]
+        If TRUE, make the dt for the last time step shorter if necassary so as
+        to avoid overshooting tmax.
+    dr_tstepSlowStartFactor [REAL] [0.1]
+        Valid Values: 0.0 to INFTY
+        The initial dt is set to be at most the timestep computed by CFL
+        conditions applied to certain operators multiplied with this factor.
+    drift_break_inst [INTEGER] [0]
+        Valid Values: Unconstrained
+
+    drift_trunc_mantissa [INTEGER] [2]
+        Valid Values: Unconstrained
+        number of mantissa bits to exclude from hash (3 bits ~ 1 sigdig)
+    drift_tuples [BOOLEAN] [FALSE]
+        should block data be written in python tuples format
+    drift_verbose_inst [INTEGER] [0]
+        Valid Values: Unconstrained
+
+    dtinit [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Initial timestep
+    dtmax [REAL] [1.E5]
+        Valid Values: Unconstrained
+        Maximum timestep
+    dtmin [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Minimum timestep
+    eachProcWritesOwnAbortLog [BOOLEAN] [FALSE]
+        Should each process writes messages to its own log file when
+        Driver_abortFlash gets called to abnormally end execution? If true, each
+        process in which Driver_abortFlash is called will attempt to write an
+        explanatory message to its own log file, whether that file already
+        existed or needs to be newly created.  If false, the Driver_abortFlash
+        message will appear only in the regular log file (if the Logfile code
+        unit is used), and normally only when Driver_abortFlash is called by the
+        process with PE 0.
+    iProcs [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of procs in the i dir
+    jProcs [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of procs in the j dir
+    kProcs [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of procs in the k dir
+    meshCopyCount [INTEGER] [1]
+        Valid Values: Unconstrained
+        The number of copies of full computational mesh that
+    nbegin [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        First timestep
+    nend [INTEGER] [100]
+        Valid Values: Unconstrained
+        Maximum number of timesteps to take
+    nstepTotalSTS [INTEGER] [5]
+        Valid Values: Unconstrained
+
+    nuSTS [REAL] [0.1]
+        Valid Values: Unconstrained
+        nu stability parameter for super time stepping algorithm
+    restart [BOOLEAN] [FALSE]
+        Is this a restart run?
+    sweepOrder [INTEGER] [123]
+        Valid Values: 123, 132, 213, 231, 312, 321
+        Determine the order of the directional sweeps
+    threadBlockListBuild [BOOLEAN] CONSTANT [TRUE]
+
+    threadDriverBlockList [BOOLEAN] [TRUE]
+
+    threadDriverWithinBlock [BOOLEAN] [TRUE]
+
+    threadRayTraceBuild [BOOLEAN] CONSTANT [TRUE]
+
+    threadWithinBlockBuild [BOOLEAN] CONSTANT [TRUE]
+
+    tinitial [REAL] [0.0]
+        Valid Values: Unconstrained
+        Initial simulation time
+    tmax [REAL] [0.2]
+        Valid Values: Unconstrained
+        Maximum simulation time
+    tstep_change_factor [REAL] [2.0]
+        Valid Values: 0.0+ to INFTY
+        The initial time step dt is multiplied with this factor at every
+        timestep, until it is limited by CFL condition, allowing users to
+        specify a very conservative initial dt and letting it grow by specifying
+        a tstep_change_factor > 1.0.
+    useSTS [BOOLEAN] [FALSE]
+        Do we want to use super time stepping (STS) algorithm?
+    useSTSforDiffusion [BOOLEAN] [FALSE]
+        TRUE will use the STS algorithm to accelerate diffusion time advancement
+    wall_clock_time_limit [REAL] [604800.]
+        Valid Values: -1.0, 0.0 to INFTY
+        Total wall clock time limit (seconds). Use -1.0 for no limit.
+    zFinal [REAL] [0.0]
+        Valid Values: Unconstrained
+        The final redshift in a simulation.  The simulation will stop
+    zInitial [REAL] [-1.0]
+        Valid Values: Unconstrained
+        The initial redshift in a simulation.  < 0 if not being used.
+
+Grid/GridMain
+    bndPriorityOne [INTEGER] [1]
+        Valid Values: 1, 2, 3
+        indicates which direction (IAXIS, JAXIS, or KAXIS) gets top priority
+        when applying boundary conditions in corner guardcells We define three
+        values for edges left, center, right, of which center represents
+        interior, while left and right represent the corresponding guardcells.
+        We define a corner where more than one dimension has its its guardcells,
+        so the application must determine which direction gets to fill them. In
+        2-D, there are four corners: (left,left), (left,right), (right,left) and
+        (right,right). In 3-D case, the following corners are possible :
+        (left,left,left),(left,left,center),
+        (left,left,right),(left,center,left),
+        (left,center,right),(left,right,left),
+        (left,right,center),(left,right,right)
+        (center,left,left),(center,left,right),
+        (center,right,left),(center,right,right),
+        (right,left,left),(right,left,center),
+        (right,left,right),(right,center,left),
+        (right,center,right),(right,right,left),
+        (right,right,center),(right,right,right)
+    bndPriorityThree [INTEGER] [3]
+        Valid Values: 1, 2, 3
+        the least priority dimension in applying boundary conditions
+    bndPriorityTwo [INTEGER] [2]
+        Valid Values: 1, 2, 3
+        the second priority dimension in applying boundary conditions
+    convertToConsvdForMeshCalls [BOOLEAN] [FALSE]
+        indicates if appropriate variables are converted from primitive to
+        conserved form during propagation before control is passed to Paramesh
+        for refinement, derefinement, or guardcell filling.  This is the old way
+        of ensuring that solution variables are in the correct form for
+        interpolation. It involves unnecessary conversions back and forth and
+        should be obsoleted by the newer mechanism enabled by runtime parameter
+        "convertToConsvdInMeshInterp".  The name is a replacement for the old
+        "conserved_var" which many people have found to be very confusing
+        terminology.
+    eosMode [STRING] ["dens_ie_recal_gather"]
+        Valid Values: "dens_ie", "dens_pres", "dens_temp", "dens_ie_all",
+        "dens_ie_scatter", "dens_ie_gather", "dens_ie_sele_gather",
+        "dens_temp_equi", "dens_temp_all", "dens_temp_gather",
+        "dens_ie_recal_gather", "dens_ie_mat_gather_pradscale"
+        determines how to operate on thermodynamic quantities. Possible values
+        are "dens_ie", where density and internal energy are supplied and
+        pressure and temperature are returned; "dens_pres", where density and
+        pressure are given and energy and temperature are computed;  and
+        "dens_temp", where density and temperature are given and pressure and
+        energy are computed. Other values may also be available as, depending on
+        whether a multiTemp Eos is used and on implementation of additional
+        physics. For 3T simulations, the best choice is "dens_ie_recal_gather",
+        since this mode will ensure that total energy is conserved when
+        refinement changes occur.
+    eosModeInit [STRING] ["dens_ie"]
+        Valid Values: "dens_ie", "dens_pres", "dens_temp", "dens_ie_all",
+        "dens_ie_scatter", "dens_ie_gather", "dens_temp_equi", "dens_temp_all",
+        "dens_temp_gather", "eos_nop"
+        determines how to operate on thermodynamic quantities for the initial
+        conditions.  A call to Simulation_initBlock sets initial conditions on
+        each block, and an eos call follows which ensures the initial values are
+        thermodynamically consistent.  The value of eosModeInit determines the
+        mode in which these eos calls operate.  Possible values are "dens_ie",
+        where density and internal energy are supplied and pressure and
+        temperature are returned; "dens_pres", where density and pressure are
+        given and energy and temperature are computed; and "dens_temp", where
+        density and temperature are given and pressure and energy are computed. 
+        Other values may also be available as, depending on whether a multiTemp
+        Eos is used and on implementation of additional physics.
+    geometry [STRING] ["cartesian"]
+        Valid Values: "cartesian", "polar", "cylindrical", "spherical"
+        Grid geometry
+    geometryOverride [BOOLEAN] [FALSE]
+        whether to bypass some geometry sanity checks - use at your own risk.
+    gr_bcEnableApplyMixedGds [BOOLEAN] [TRUE]
+        whether to enable the Grid_bcApplyToRegionMixedGds interface for
+        implementing boundary conditions with access to the variables of mixed
+        GDSs (in particlular, cell-centered UNK varsiables and face variables).
+        This only has an effect if the GridBoundaryConditions subunit is
+        included and the simulation actually supplies an implementation of
+        Grid_bcApplyToRegionMixedGds.
+    gr_useTiling [BOOLEAN] [FALSE]
+        Global switch to enable tiling where implemented or to turn off all
+        tiling
+    reduceGcellFills [BOOLEAN] [FALSE]
+
+    smalle [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for energy
+    smallx [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for abundances
+    unbiased_geometry [BOOLEAN] [FALSE]
+        attempt to remove floating point bias from geometry discretization. Not
+        implemented in FLASH3.
+    xl_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower (left) boundary condition in x dir
+    xmax [REAL] [1.]
+        Valid Values: Unconstrained
+        physical domain upper bound in x dir
+    xmin [REAL] [0.]
+        Valid Values: Unconstrained
+        physical domain lower bound in x dir
+    xr_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper (right) boundary condition in x dir
+    yl_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in y dir
+    ymax [REAL] [1.]
+        Valid Values: Unconstrained
+        physical domain upper bound in y dir
+    ymin [REAL] [0.]
+        Valid Values: Unconstrained
+        physical domain lower bound in y dir
+    yr_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in y dir
+    zl_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in z dir
+    zmax [REAL] [1.]
+        Valid Values: Unconstrained
+        physical domain lower bound in x dir
+    zmin [REAL] [0.]
+        Valid Values: Unconstrained
+        physical domain lower bound in z dir
+    zr_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in z dir
+
+Grid/GridMain/AMR
+    convertToConsvdInMeshInterp [BOOLEAN] [TRUE]
+        indicates if appropriate variables are converted to conserved form
+        during propagation within the interpolation routines invoked by
+        Paramesh. This applies to interpolation (both "prolongation" and
+        "restriction") in the course of refinement, derefinement, or guardcell
+        filling. This is the newer way of ensuring that solution variables are
+        interpolated in the correct form. It avoids unnecessary conversions back
+        and force and should replace the old mechanism enabled by runtime
+        parameter "convertToConsvdForMeshCalls". However, it is only available
+        with PARAMESH 3 or later.
+    derefine_cutoff_1 [REAL] [0.2]
+        Valid Values: Unconstrained
+        threshold value to trigger derefinement for refine_var_1
+    derefine_cutoff_2 [REAL] [0.2]
+        Valid Values: Unconstrained
+        threshold value to trigger derefinement for refine_var_2
+    derefine_cutoff_3 [REAL] [0.2]
+        Valid Values: Unconstrained
+        threshold value to trigger derefinement for refine_var_3
+    derefine_cutoff_4 [REAL] [0.2]
+        Valid Values: Unconstrained
+        threshold value to trigger derefinement for refine_var_4
+    earlyBlockDistAdjustment [BOOLEAN] [TRUE]
+        If true, let Paramesh redistribute blocks across processors early, so
+        that the block distribution chosen by Paramesh will be in effect when
+        time evolution begins after restart. If earlyBlockDistAdjustment is
+        false, the block distribution enacted by the IO unit when it read a
+        checkpoint file will normally still be in effect when time evolution
+        begins after a restart. This flag is ignored if not restarting from a
+        checkpoint.
+    flux_correct [BOOLEAN] [true]
+        per level is off by default, gets turned on in AMReX
+    flux_correct_perLevel [BOOLEAN] [false]
+
+    gr_lrefineMaxByTime [BOOLEAN] [FALSE]
+        This parameter activates the ability to manually specify values for
+        lrefine_max as a function of time. You can change the value of
+        lrefine_max a total of 20 times. The parameters gr_lrefmaxTime_N (where
+        N is a number from 1 to 20) tell FLASH the times at which lrefine_max
+        changes will occur. The analogous parameters gr_lrefmaxTimeValue_N
+        (where N is a number from 1 to 20) tell FLASH  the value of lrefine_max
+        to use at time gr_lrefmaxTime_N. For example, specifying the following
+        lines in your flash.par file tells FLASH to use an lrefine_max value of
+        10 at t = 1.0e-09 s and a value of 11 at t = 2.0e-09 s: 
+        gr_lrefmaxTime_1 = 1.0e-09 gr_lrefmaxTimeValue_1 = 10 gr_lrefmaxTime_2 =
+        2.0e-09 gr_lrefmaxTimeValue_2 = 10 . NOTE: the time values must be in
+        sequential order!
+    gr_lrefineMaxRedDoByLogR [BOOLEAN] [FALSE]
+        Softly force effectively a lower lrefine_max depending on distance from
+        center. See gr_lrefineMaxRedRadiusFact.
+    gr_lrefineMaxRedDoByTime [BOOLEAN] [FALSE]
+        Lower the effective lrefine_max as a function of time. See runtime
+        parameters gr_lrefineMaxRedTRef, gr_lrefineMaxRedTimeScale, and
+        gr_lrefineMaxRedLogBase.
+    gr_lrefineMaxRedLogBase [REAL] [10.0]
+        Valid Values: 1.0 to INFTY
+        Logarithm base for determining when repeated reductions in effective
+        lrefine_max should happen. The nth reduction will happen at
+        t=gr_lrefineMaxRedTRef+gr_lrefineMaxRedTimeScale*gr_lrefineMaxRedLogBase**(n-1).
+    gr_lrefineMaxRedRadiusFact [REAL] [0.0]
+        Valid Values: 0.0 to INFTY
+        factor that determines a minimum resolution (and thus maximum refinement
+        level) based on distance from a center. See x_refine_center,
+        y_refine_center, z_refine_center for the center coordinates.  This is
+        approximately (linearly) equivalent to requiring a minimum *angular*
+        resolution, within the limits set by the global lrefine_min and
+        lrefine_max.  Only used when gr_lrefineMaxRedDoByLogR is TRUE.
+    gr_lrefineMaxRedTRef [REAL] [0.0]
+        Valid Values: Unconstrained
+        reference time for time-based max level reduction. The effective
+        reduction of lrefine_max only kicks in for times greater than
+        gr_lrefineMaxRedTRef. The first time lrefine_max is effectively lowered
+        actually happens at t=gr_lrefineMaxRedTRef+gr_lrefineMaxRedTimeScale.
+    gr_lrefineMaxRedTimeScale [REAL] [1.0]
+        Valid Values: TINY to INFTY
+        the time scale for effectively lowering lrefine_max: The first reduction
+        takes place at t=gr_lrefineMaxRedTRef+gr_lrefineMaxRedTimeScale.
+    gr_lrefmaxTimeValue_1 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_10 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_11 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_12 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_13 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_14 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_15 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_16 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_17 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_18 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_19 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_2 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_20 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_3 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_4 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_5 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_6 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_7 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_8 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTimeValue_9 [INTEGER] [-1]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_1 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_10 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_11 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_12 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_13 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_14 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_15 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_16 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_17 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_18 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_19 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_2 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_20 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_3 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_4 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_5 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_6 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_7 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_8 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_lrefmaxTime_9 [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    gr_restrictAllMethod [INTEGER] [3]
+        Valid Values: 0 to 3
+        select a method to use for data restriction all the way up the tree of
+        blocks.  This this global data restriction is usually done when
+        IO_output is called, before the actual writing of plot or checkpoint
+        data, so that non-leaf blocks in plot and checkpoint files will have
+        meaningful data. Data restrictions that happen as part of guard cell
+        filling or within multigrid solvers are not affected by this setting.
+        For PARAMESH 2, this runtime parameter is currently ignored. With
+        PARAMESH 4, the following values are recognized:  0: No restriction is
+        done. 1: The original method, implemented in gr_restrictTree. 2: New
+        method, implemented using mpi_amr_restrict_fulltree. 3: New method,
+        implemented using Grid_restrictByLevels.
+    gr_tileSizeX [INTEGER] [NXB]
+        Valid Values: 1 to INFTY
+
+    gr_tileSizeY [INTEGER] [NYB]
+        Valid Values: 1 to INFTY
+
+    gr_tileSizeZ [INTEGER] [NZB]
+        Valid Values: 1 to INFTY
+
+    interpol_order [INTEGER] [2]
+        Valid Values: 0, 1, 2
+        the default interpolation order when using "monotonic" interpolation
+        routines
+    lrefine_del [INTEGER] [0]
+        Valid Values: 0 to INFTY
+        Try to reduce the maximum refinement level by this number of levels on a
+        restart.
+    lrefine_max [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        maximum AMR refinement level
+    lrefine_min [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        minimum AMR refinement level
+    max_particles_per_blk [INTEGER] [100]
+        Valid Values: Unconstrained
+        integer  if the number of particles in a block exceeds this, it must
+        refine  when particle count is a refinement criterion
+    min_particles_per_blk [INTEGER] [1]
+        Valid Values: Unconstrained
+        integer  if the number of particles in a block is below this, it may
+        derefine when particle count is a refinement criterion
+    nblockx [INTEGER] [1]
+        Valid Values: Unconstrained
+        num initial blocks in x dir
+    nblocky [INTEGER] [1]
+        Valid Values: Unconstrained
+        num initial blocks in y dir
+    nblockz [INTEGER] [1]
+        Valid Values: Unconstrained
+        num initial blocks in z dir
+    nrefs [INTEGER] [2]
+        Valid Values: Unconstrained
+        refine/derefine AMR grid every nrefs timesteps
+    refine_cutoff_1 [REAL] [0.8]
+        Valid Values: Unconstrained
+        threshold value to trigger refinement for refine_var_1
+    refine_cutoff_2 [REAL] [0.8]
+        Valid Values: Unconstrained
+        threshold value to trigger refinement for refine_var_2
+    refine_cutoff_3 [REAL] [0.8]
+        Valid Values: Unconstrained
+        threshold value to trigger refinement for refine_var_3
+    refine_cutoff_4 [REAL] [0.8]
+        Valid Values: Unconstrained
+        threshold value to trigger refinement for refine_var_4
+    refine_filter_1 [REAL] [0.01]
+        Valid Values: Unconstrained
+        prevents error calculations to determine refinement from diverging
+        numerically for refine_var_1
+    refine_filter_2 [REAL] [0.01]
+        Valid Values: Unconstrained
+        prevents error calculations to determine refinement from diverging
+        numerically for refine_var_1
+    refine_filter_3 [REAL] [0.01]
+        Valid Values: Unconstrained
+        prevents error calculations to determine refinement from diverging
+        numerically for refine_var_3
+    refine_filter_4 [REAL] [0.01]
+        Valid Values: Unconstrained
+        prevents error calculations to determine refinement from diverging
+        numerically for refine_var_4
+    refine_on_particle_count [BOOLEAN] [FALSE]
+        if true, the count of particles in blocks act as a refinement criterion
+    refine_var_1 [STRING] ["none"]
+        Valid Values: Unconstrained
+        indicates 1st variable on which to refine
+    refine_var_2 [STRING] ["none"]
+        Valid Values: Unconstrained
+        indicates 2nd variable on which to refine
+    refine_var_3 [STRING] ["none"]
+        Valid Values: Unconstrained
+        indicates 3rd variable on which to refine
+    refine_var_4 [STRING] ["none"]
+        Valid Values: Unconstrained
+        indicates 4th variable on which to refine
+    refine_var_count [INTEGER] [4]
+        Valid Values: Unconstrained
+        count of maximum allowed variable to be used
+    small [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value ... DEV: for what?
+    smallp [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for pressure
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+    smallu [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for velocity
+    smlrho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for density
+    x_refine_center [REAL] [0.0]
+        Valid Values: Unconstrained
+        First coordinate of center for distance-based refinement patterns
+    y_refine_center [REAL] [0.0]
+        Valid Values: Unconstrained
+        Second coordinate of center for distance-based refinement patterns
+    z_refine_center [REAL] [0.0]
+        Valid Values: Unconstrained
+        Third coordinate of center for distance-based refinement patterns
+
+Grid/GridMain/AMR/Amrex
+    amrexInterpolator [STRING] ["CELL_CONSERVATIVE_LINEAR"]
+        Valid Values: Unconstrained
+        Name of AMReX interpolator to use
+    enableMaskedGCFill [BOOLEAN] [FALSE]
+        When enableMaskedGCFill is FALSE, Grid_fillGuardCells is forced to
+        always ignore optional mask arguments when present in calls. This is the
+        default behavior. Set enableMaskedGCFill TRUE to enable masked guard
+        cell filling.
+    flux_correct_perLevel [BOOLEAN] [TRUE]
+
+    gr_amrex_verbosity [INTEGER] [1]
+        Valid Values: 0 to INFTY
+        How much output is written out. Higher number is more verbose.
+
+Grid/GridMain/AMR/paramesh
+    lrefine_min_init [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        minimum AMR refinement level for initialization
+
+Grid/GridMain/AMR/paramesh/paramesh4
+    enableMaskedGCFill [BOOLEAN] [FALSE]
+        When enableMaskedGCFill is FALSE, Grid_fillGuardCells is forced to
+        always ignore optional mask arguments when present in calls. This is the
+        default behavior. Set enableMaskedGCFill TRUE to enable masked guard
+        cell filling.
+    gr_sanitizeDataMode [INTEGER] [1]
+        Valid Values: 0, 1, 2, 3, 4
+        What to do when gr_sanitizeDataAfterInterp is called to check for
+        acceptable values in the dens, ener, and eint cell-centered variables
+        after a Grid operation may have resulted in grid interpolation. 0: Do
+        nothing. 1: Check (if variable is not masked out) and report (see
+        sanitizeVerbosity). 2: Check (ignoring variable mask) and report (see
+        sanitizeVerbosity). 3: Check (if variable is not masked out) and fix
+        (apply floor value). 4: Check (if variable is not masked out) and abort
+        if cell is found below floor value.
+    gr_sanitizeVerbosity [INTEGER] [5]
+        Valid Values: 0, 1, 4, 5
+        How to write information about unacceptable values in the dens, ener,
+        and eint cell-centered variables if gr_sanitizeDataAfterInterp finds
+        value that are below the acceptable floor. This reporting is in addition
+        to other actions selected with gr_sanitizeDataMode=3 or 4. 0: Be quiet.
+        1: Only write a log file message per block if unacceptable value found
+        on MASTER_PE. 4: As 1, and each proc writes a line to standard output
+        for each block with bad values. 5: As 4, and each proc writes lines
+        showing the values in all cells of the block (in 1D/2D) 5: or a 2D slice
+        (in 3D).
+
+Grid/GridMain/AMR/paramesh/paramesh4/Paramesh4dev
+    gr_pmrpAdvanceAllLevels [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter advance_all_levels
+    gr_pmrpAmrErrorChecking [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter amr_error_checking
+    gr_pmrpCartesianPm [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter cartesian_pm This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpConserve [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter conserve
+    gr_pmrpConsvFluxDensities [BOOLEAN] [TRUE]
+        sets value for PARAMESH runtime parameter consv_flux_densities This will
+        be adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpConsvFluxes [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter consv_fluxes This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpCurvilinear [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter curvilinear. This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpCurvilinearConserve [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter curvilinear_conserve. This
+        will be adjusted by FLASH at runtime if necessary, so don't worry much.
+        However, if you manually set gr_pmrpCurvilinear to TRUE, you probably
+        should also set gr_pmrpCurvilinearConserve TRUE.
+    gr_pmrpCylindricalPm [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter cylindrical_pm This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpDiagonals [BOOLEAN] [TRUE]
+        sets value for PARAMESH runtime parameter diagonals
+    gr_pmrpDivergenceFree [INTEGER] [1]
+        Valid Values: -1, 0, 1
+        sets value for PARAMESH runtime parameter divergence_free. 0 means
+        FALSE, 1 means TRUE. -1 means: let FLASH determine the value based on
+        how it has been set up; currently that means to check whether a
+        preprocessor symbol DIVERGENCE_FREE is defined.
+    gr_pmrpEdgeValue [BOOLEAN] [TRUE]
+        sets value for PARAMESH runtime parameter edge_value This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpEdgeValueInteg [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter edge_value_integ This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpEmptyCells [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter empty_cells
+    gr_pmrpForceConsistency [BOOLEAN] [TRUE]
+        sets value for PARAMESH runtime parameter force_consistency
+    gr_pmrpIfaceOff [INTEGER] [0]
+        Valid Values: 0 to INFTY
+        sets value for PARAMESH runtime parameter iface_off
+    gr_pmrpL2p5d [INTEGER] [0]
+        Valid Values: -1, 0, 1
+        sets value for PARAMESH runtime parameter l2p5d. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpLsingularLine [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter lsingular_line
+    gr_pmrpMaxblocks [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter maxblocks. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpMflags [INTEGER] [1]
+        Valid Values: Unconstrained
+        sets value for PARAMESH runtime parameter mflags
+    gr_pmrpNboundaries [INTEGER] [2]
+        Valid Values: 2 to INFTY
+        sets value for PARAMESH runtime parameter nboundaries
+    gr_pmrpNdim [INTEGER] CONSTANT [1]
+        Valid Values: Unconstrained
+        sets value for PARAMESH runtime parameter ndim.
+    gr_pmrpNedgevar1 [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nedgevar1. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNfacevar [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nfacevar
+    gr_pmrpNfieldDivf [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nfield_divf. -1 means: let
+        FLASH determine the value based on how it has been set up.
+    gr_pmrpNfluxvar [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nfluxvar. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNguard [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nguard. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNguardWork [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nguard_work. -1 means: let
+        FLASH determine the value based on how it has been set up.
+    gr_pmrpNoPermanentGuardcells [BOOLEAN] [TRUE]
+        sets value for PARAMESH runtime parameter no_permanent_guardcells
+    gr_pmrpNvar [INTEGER] [-1]
+        Valid Values: -1, 0 to INFTY
+        sets value for PARAMESH runtime parameter nvar. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNvarWork [INTEGER] [1]
+        Valid Values: 0 to INFTY
+        sets value for PARAMESH runtime parameter nvar_work
+    gr_pmrpNvarcorn [INTEGER] [0]
+        Valid Values: 0 to INFTY
+        sets value for PARAMESH runtime parameter nvarcorn
+    gr_pmrpNvaredge [INTEGER] [0]
+        Valid Values: 0 to INFTY
+        sets value for PARAMESH runtime parameter nvaredge
+    gr_pmrpNxb [INTEGER] [-1]
+        Valid Values: -1, 2, 4, 6, 8, 10, 12, 14, 16 to INFTY
+        sets value for PARAMESH runtime parameter nxb. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNyb [INTEGER] [1]
+        Valid Values: -1, 1, 2, 4, 6, 8, 10, 12, 14, 16 to INFTY
+        sets value for PARAMESH runtime parameter nyb. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpNzb [INTEGER] [-1]
+        Valid Values: -1, 2, 4, 6, 8, 10, 12, 14, 16 to INFTY
+        sets value for PARAMESH runtime parameter nzb. -1 means: let FLASH
+        determine the value based on how it has been set up.
+    gr_pmrpOutputDir [STRING] ["./"]
+        Valid Values: Unconstrained
+
+    gr_pmrpPolarPm [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter polar_pm This will be adjusted
+        by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpPredCorr [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter pred_corr
+    gr_pmrpSphericalPm [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter spherical_pm This will be
+        adjusted by FLASH at runtime if necessary, so don't worry much.
+    gr_pmrpTimingMpi [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter timing_mpi
+    gr_pmrpTimingMpix [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter timing_mpix
+    gr_pmrpVarDt [BOOLEAN] [FALSE]
+        sets value for PARAMESH runtime parameter var_dt
+
+Grid/GridMain/AMR/paramesh/paramesh4/Paramesh4dev/flash_avoid_orrery
+    use_flash_surr_blks_fill [BOOLEAN] [TRUE]
+
+    use_reduced_orrery [BOOLEAN] [TRUE]
+
+
+Grid/GridMain/UG
+    compute_grid_size [BOOLEAN] [true]
+        compute grid size in the case of non-fixed-block size, non fixed block
+        size mode means block dims are not specified at compile time
+    flux_correct [BOOLEAN] [false]
+        turns flux correction on or off in UG always false since all blocks on
+        same level
+    flux_correct_perLevel [BOOLEAN] [false]
+        not valid with UG
+    iGridSize [INTEGER] [1]
+        Valid Values: Unconstrained
+        Global number of interior cells in the i direction ONLY needed when
+        running in NON_FIXED_BLOCKSIZE mode (ie. don't need for Paramesh or
+        simple Uniform Grid)
+    iguard [INTEGER] [6]
+        Valid Values: Unconstrained
+        number of guardcells in i direction, not yet used. Meant for nofbs.
+    jGridSize [INTEGER] [1]
+        Valid Values: Unconstrained
+        Global number of interior cells in the j direction ONLY needed when
+        running in NON_FIXED_BLOCKSIZE mode (ie. don't need for Paramesh or
+        simple Uniform Grid)
+    jguard [INTEGER] [6]
+        Valid Values: Unconstrained
+        number of guardcells in j direction, not yet used. Meant for nofbs.
+    kGridSize [INTEGER] [1]
+        Valid Values: Unconstrained
+        Global number of interior cells in the k direction ONLY needed when
+        running in NON_FIXED_BLOCKSIZE mode (ie. don't need for Paramesh or
+        simple Uniform Grid)
+    kguard [INTEGER] [6]
+        Valid Values: Unconstrained
+        number of guardcells in k direction, not yet used. Meant for nofbs.
+    nblockx [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of blocks along X - ignored by UG Grid
+    nblocky [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of blocks along Y - ignored by UG Grid
+    nblockz [INTEGER] [1]
+        Valid Values: Unconstrained
+        number of blocks along Z - ignored by UG Grid
+    smallp [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for pressure
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+    smallu [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for velocity
+    smlrho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for density
+
+Grid/GridParticles
+    gr_ptNumToReduce [INTEGER] [10]
+        Valid Values: Unconstrained
+        integer  if particles are to be removed at runtime, how many
+    gr_ptRemove [BOOLEAN] [FALSE]
+        boolean.  This is a switch which determines the action if the number
+    gr_ptRemoveAlgo [INTEGER] [2]
+        Valid Values: Unconstrained
+        integer  The algorithm used in determining which particles to remove
+    keepLostParticles [BOOLEAN] [FALSE]
+
+
+Grid/GridParticles/GridParticlesMove
+    gr_ptMaxPerProcBlockFactor [REAL] [0.70]
+        Valid Values: 0.0 to 1.0
+        When the effective max_particles_per_blk is lowered on a processor
+        because refinement criteria based on the number of particles PER
+        PROCESSOR are used, then the new effective max_particles_per_blk is set
+        to (gr_ptMaxPerProcBlockFactor * pt_maxPerProc). In addition, when the
+        effective min_particles_per_blk is lowered on a processor because
+        refinement criteria based on the number of particles PER PROCESSOR are
+        used, then the new effective min_particles_per_blk is set to (0.5^NDIM *
+        gr_ptMaxPerProcBlockFactor * pt_maxPerProc).
+    gr_ptMaxPerProcBlockNoFuzz [INTEGER] [3]
+        Valid Values: 0 to INFTY
+        A safety margin for estimating the size of basically unpredictable
+        changes of the number of blocks on a processor when remeshing happens.
+    gr_ptMaxPerProcLowerThresh [REAL] [0.0625]
+        Valid Values: 0.0 to 1.0
+        A threshold. When the number of particles on a processor gets above
+        (ptMaxPerProcLowerThresh * number of blocks on the processor), the
+        effective min_particles_per_blk for blocks on this processor may be
+        lowered.
+    gr_ptMaxPerProcUpperThresh [REAL] [0.25]
+        Valid Values: 0.0 to 1.0
+        A threshold. When the number of particles on a processor gets above
+        (ptMaxPerProcUpperThresh * number of blocks on the processor), the
+        effective max_particles_per_blk for blocks on this processor may be
+        lowered.
+    gr_ptNumToReduce [INTEGER] [10]
+        Valid Values: Unconstrained
+        integer  if particles are to be removed at runtime, how many
+    gr_ptRefineOnPtMaxPerProc [BOOLEAN] [FALSE]
+        controls whether refinement criteria based on the number of particles
+        PER PROCESSOR are used. These work by strengthening refinement criteria
+        requested through the max_particles_per_blk and min_particles_per_blk
+        RPs.  Requires RP refine_on_particle_count to be TRUE.
+    gr_ptRemove [BOOLEAN] [FALSE]
+        boolean.  This is a switch which determines the action if the number
+    gr_ptRemoveAlgo [INTEGER] [2]
+        Valid Values: Unconstrained
+        integer  The algorithm used in determining which particles to remove
+    gr_ptSieveCheckFreq [INTEGER] [1]
+        Valid Values: Unconstrained
+        integer the frequency for checking the convergence of the
+
+Grid/GridParticles/GridParticlesMove/ParticlesOwned
+    gr_ptMaxPerProcBlockFactor [REAL] [0.70]
+        Valid Values: 0.0 to 1.0
+        When the effective max_particles_per_blk is lowered on a processor
+        because refinement criteria based on the number of particles PER
+        PROCESSOR are used, then the new effective max_particles_per_blk is set
+        to (gr_ptMaxPerProcBlockFactor * pt_maxPerProc). In addition, when the
+        effective min_particles_per_blk is lowered on a processor because
+        refinement criteria based on the number of particles PER PROCESSOR are
+        used, then the new effective min_particles_per_blk is set to (0.5^NDIM *
+        gr_ptMaxPerProcBlockFactor * pt_maxPerProc).
+    gr_ptMaxPerProcBlockNoFuzz [INTEGER] [3]
+        Valid Values: 0 to INFTY
+        A safety margin for estimating the size of basically unpredictable
+        changes of the number of blocks on a processor when remeshing happens.
+    gr_ptMaxPerProcLowerThresh [REAL] [0.0625]
+        Valid Values: 0.0 to 1.0
+        A threshold. When the number of particles on a processor gets above
+        (ptMaxPerProcLowerThresh * number of blocks on the processor), the
+        effective min_particles_per_blk for blocks on this processor may be
+        lowered.
+    gr_ptMaxPerProcUpperThresh [REAL] [0.25]
+        Valid Values: 0.0 to 1.0
+        A threshold. When the number of particles on a processor gets above
+        (ptMaxPerProcUpperThresh * number of blocks on the processor), the
+        effective max_particles_per_blk for blocks on this processor may be
+        lowered.
+    gr_ptNumToReduce [INTEGER] [10]
+        Valid Values: Unconstrained
+        integer  if particles are to be removed at runtime, how many
+    gr_ptRefineOnPtMaxPerProc [BOOLEAN] [FALSE]
+        controls whether refinement criteria based on the number of particles
+        PER PROCESSOR are used. These work by strengthening refinement criteria
+        requested through the max_particles_per_blk and min_particles_per_blk
+        RPs.  Requires RP refine_on_particle_count to be TRUE.
+    gr_ptRemove [BOOLEAN] [FALSE]
+        boolean.  This is a switch which determines the action if the number
+    gr_ptRemoveAlgo [INTEGER] [2]
+        Valid Values: Unconstrained
+        integer  The algorithm used in determining which particles to remove
+    gr_ptSieveCheckFreq [INTEGER] [1]
+        Valid Values: Unconstrained
+        integer the frequency for checking the convergence of the
+
+Grid/GridParticles/GridParticlesMove/ParticlesOwned/Paramesh
+    gr_ptNumToReduce [INTEGER] [10]
+        Valid Values: Unconstrained
+        integer  if particles are to be removed at runtime, how many
+    gr_ptRemove [BOOLEAN] [FALSE]
+        boolean.  This is a switch which determines the action if the number
+    gr_ptRemoveAlgo [INTEGER] [2]
+        Valid Values: Unconstrained
+        integer  The algorithm used in determining which particles to remove
+    keepLostParticles [BOOLEAN] [FALSE]
+
+
+Grid/GridSolvers/AmrexMultigridSolver
+    gr_amrexLs_agglomeration [BOOLEAN] [TRUE]
+
+    gr_amrexLs_cg_verbose [INTEGER] [0]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_composite_solve [BOOLEAN] [FALSE]
+
+    gr_amrexLs_consolidation [BOOLEAN] [TRUE]
+
+    gr_amrexLs_linop_maxorder [INTEGER] [2]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_max_fmg_iter [INTEGER] [0]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_max_grid_size [INTEGER] [16]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_max_iter [INTEGER] [100]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_max_level [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_n_cell [INTEGER] [32]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_prob_type [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_ref_ratio [INTEGER] [2]
+        Valid Values: Unconstrained
+
+    gr_amrexLs_verbose [INTEGER] [2]
+        Valid Values: Unconstrained
+
+
+Grid/GridSolvers/BHTree/Wunsch
+    gr_bhPhysMACComm [BOOLEAN] [FALSE]
+        - if true, physical MACs are used for calculation during communication
+        of block trees
+    gr_bhPhysMACTW [BOOLEAN] [FALSE]
+        - if true, physical MACs are used for calculation during tree walk
+    gr_bhTWMaxQueueSize [INTEGER] [10000]
+        Valid Values: 1 to INFTY
+        - maximum number of elements in the priority queue
+    gr_bhTreeLimAngle [REAL] [0.5]
+        Valid Values: 0 to INFTY
+        - limit opening angle (if only geometric MAC is used)
+    gr_bhTreeMaxcellmass [REAL] [1.0d99]
+        Valid Values: Unconstrained
+        For debugging: maximum mass allowed in a cell of block-trees
+    gr_bhTreeMincellmass [REAL] [1.0d-99]
+        Valid Values: Unconstrained
+        For debugging: minimum mass allowed in a cell of block-trees
+    gr_bhTreeSafeBox [REAL] [1.2]
+        Valid Values: -INFTY to INFTY
+        - relative (w.r.t. to the block size) size of a cube around each block
+        in which the target cell cannot be located in tree walk during
+        interaction of the target cell with this block
+    gr_bhUseUnifiedTW [BOOLEAN] [TRUE]
+        - if true, the unified tree walk (Barnes-Hut type) is used; otherwise,
+        MAC for long distance interaction (with non-leaf block) is evaluated
+        only once for all cells in the block
+
+Grid/GridSolvers/BiPCGStab
+    bipcgs_max_cycles [INTEGER] [1000]
+        Valid Values: Unconstrained
+
+    bipcgs_max_residual_norm [REAL] [1.E-6]
+        Valid Values: Unconstrained
+
+    bipcgs_print_norm [BOOLEAN] [FALSE]
+
+
+Grid/GridSolvers/IsoBndMultipole
+    mpole_lmax [INTEGER] [0]
+        Valid Values: Unconstrained
+        Maximum multipole moment to use
+    octant [BOOLEAN] [false]
+        In 3d cartesian geometry, assume symmetry about left-facing volume faces
+    quadrant [BOOLEAN] [false]
+        In 2d cylindrical coords, assume symmetry about grid bottom to evolve a
+        quadrant
+
+Grid/GridSolvers/Multigrid
+    mg_maxCorrections [INTEGER] [100]
+        Valid Values: Unconstrained
+        Maximum number of correction V-cycles to employ.
+    mg_maxResidualNorm [REAL] [1.E-6]
+        Valid Values: Unconstrained
+        Apply V-cycle corrections until this residual norm is reached or
+        mg_maxCorrections V-cycles have been performed.
+    mg_printNorm [BOOLEAN] [TRUE]
+        If .true., print the ratio of the residual norm to the source norm as
+        each V-cycle is completed.
+    quadrant [BOOLEAN] [false]
+        True if only one quadrant is being calculated in 2-d cylindrical
+        coordinates
+
+Grid/GridSolvers/Multigrid/PfftTopLevelSolve
+    maxDirectSolveLevel [INTEGER] [9999]
+        Valid Values: 1 to 9999
+        Level that will be used to perform direct FFT solve.
+    xl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower (left) boundary condition in x dir
+    xr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper (right) boundary condition in x dir
+    yl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in y dir
+    yr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in y dir
+    zl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in z dir
+    zr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in z dir
+
+Grid/GridSolvers/MultigridMC
+    gr_mgDiffOpDiscretize [INTEGER] [2]
+        Valid Values: 2, 4
+        Spatial Differential operator discretization: gr_mgDiffOpDiscretize=2
+        for 2nd order central; gr_mgDiffOpDiscretize=4 for 4th order central.
+
+Grid/GridSolvers/MultigridMC/poisson
+    mgrid_max_iter_change [REAL] [1.E-3]
+        Valid Values: Unconstrained
+        Maximum change in the norm of the residual from one iteration to the
+        next
+    mgrid_max_residual_norm [REAL] [1.E-6]
+        Valid Values: Unconstrained
+        Maximum ratio of the norm of the residual to that of the right-hand side
+    mgrid_max_vcycles [INTEGER] [100]
+        Valid Values: Unconstrained
+        Maximum number of V-cycles to take
+    mgrid_npossmooth [INTEGER] [8]
+        Valid Values: Unconstrained
+
+    mgrid_npresmooth [INTEGER] [2]
+        Valid Values: Unconstrained
+
+    mgrid_print_norm [BOOLEAN] [FALSE]
+        If .true., print residual norm to stdout after each V-cycle
+    mgrid_smooth_tol [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Convergence criterion for the smoother
+    mgrid_smoother [INTEGER] [1]
+        Valid Values: 1, 2
+        Type of smoother, either RBGS=1 or ZEBRA=2.
+    mgrid_solve_max_iter [INTEGER] [5000]
+        Valid Values: Unconstrained
+        Maximum number of iterations for solution on
+    quadrant [BOOLEAN] [FALSE]
+        In 2d cylindrical coords, assume symmetry about the y=0 axis to evolve a
+        quadrant
+
+Grid/GridSolvers/MultigridMC/poisson/PfftTopLevelSolve
+    maxDirectSolveLevel [INTEGER] [9999]
+        Valid Values: 1 to 9999
+        Level that will be used to perform direct FFT solve.
+    xl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower (left) boundary condition in x dir
+    xr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper (right) boundary condition in x dir
+    yl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in y dir
+    yr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in y dir
+    zl_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        lower boundary condition in z dir
+    zr_mg_boundary_type [STRING] ["periodic"]
+        Valid Values: Unconstrained
+        upper boundary condition in z dir
+
+Grid/GridSolvers/Multipole
+    mpole_3daxisymmetric [BOOLEAN] [false]
+        In 3d cartesian geometry, use only m=0 multipole moments
+    mpole_dumpMoments [BOOLEAN] [false]
+        Should the Moment array be dumped at each timestep?
+    mpole_lmax [INTEGER] [0]
+        Valid Values: Unconstrained
+        Maximum multipole moment to use
+    mpole_r12 [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    mpole_r23 [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    mpole_rscale1 [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    mpole_rscale2 [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    mpole_rscale3 [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    mpole_scaleType1 [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    mpole_scaleType2 [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    mpole_scaleType3 [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    mpole_subSample [INTEGER] [1]
+        Valid Values: 1 to 12
+        Integer which controls the sub-sampling in the mpole_potential routine
+        and mpole_moments routine.  Set to smaller numbers to make potential
+        calculations (slightly) less smooth and faster. Was hardcoded in Flash2
+        as Nint6 = 6 in mpole_potential and Nint=2 in mpole_moments Defines the
+        3 zones (r12,r23 are fractions of rMax) Scaling factor for each zones.
+        Scaling Type for each of the regions, can be Constant,  Logarthmic
+    mpole_useMatrixMPI [BOOLEAN] [false]
+        Switch added during the DAT to calculate MPI_allreduce in a matrix
+        fashion & Set to .false. to retain the previous behaviour
+    octant [BOOLEAN] [false]
+        In 3d cartesian geometry, assume symmetry about left-facing volume faces
+    quadrant [BOOLEAN] [false]
+        In 2d cylindrical coords, assume symmetry about grid bottom to evolve a
+        quadrant
+
+Grid/GridSolvers/Multipole_new
+    mpole_2DSymmetryPlane [BOOLEAN] [false]
+        In 2D coordinates, assume a plane of symmetry at the grid bottom. Can be
+        used for symmetrical problems to reduce computational domain.
+    mpole_3DAxisymmetry [BOOLEAN] [false]
+        Assumes rotational invariance around the main (z) axis in 3D cartesian
+        geometry domains, even if this holds only approximately. In effect it
+        uses only M=0 multipole moments.
+    mpole_DumpMoments [BOOLEAN] [false]
+        Should the Moment array be dumped at each timestep? Use this option only
+        with care, as the moments will be printed for each radial bin.
+    mpole_IgnoreInnerZone [BOOLEAN] [false]
+        If this is set .true., the inner zone will not be recognized and all
+        inner zone radii will be treated statistically. This can be used only if
+        Lmax is sufficiently low.
+    mpole_InnerZoneResolution [REAL] [0.1]
+        Valid Values: 0.0 to INFTY
+        The resolution spacing for the inner zone in units of the inner zone
+        atomic radius. Two inner zone radii will be considered different if they
+        are more than the resolution spacing apart. A very tiny number will
+        result in a complete separation of all inner zone radii into separate
+        bins. However, the resolution cannot be set to exactly zero, because its
+        inverse value needs to be calculated at some point in the code.
+    mpole_InnerZoneSize [INTEGER] [16]
+        Valid Values: 1 to INFTY
+        The size (radius) defining the inner zone in terms of the inner zone
+        atomic radius. This value needs to be an integer, as it will be used to
+        define dimensions of certain arrays.
+    mpole_Lmax [INTEGER] [0]
+        Valid Values: 0 to INFTY
+        Maximum multipole moment to use
+    mpole_MaxRadialZones [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        The maximum number of radial zones to be used
+    mpole_MultiThreading [BOOLEAN] [true]
+        If set .true., the code will run in multithreaded mode
+    mpole_PrintRadialInfo [BOOLEAN] [false]
+        Should the Multipole solver print out detailed radial bin information at
+        each timestep?
+    mpole_ZoneExponent_1 [REAL] [1.0]
+        Valid Values: -INFTY to INFTY
+        The exponent value 't' in the radial equation r(Q) = s * dr * Q^t or the
+        radial equation r(Q) = s * dr * (e^(Qt)-1)/(e^t-1), defining the maximum
+        radius of the Q-th radial bin for the 1st zone.
+    mpole_ZoneExponent_2 [REAL] [1.0]
+        Valid Values: -INFTY to INFTY
+        Idem for the 2nd radial zone.
+    mpole_ZoneExponent_3 [REAL] [1.0]
+        Valid Values: -INFTY to INFTY
+        Idem for the 3rd radial zone.
+    mpole_ZoneExponent_4 [REAL] [1.0]
+        Valid Values: -INFTY to INFTY
+        Idem for the 4th radial zone.
+    mpole_ZoneRadiusFraction_1 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        The fraction of the maximum radius defining the 1st radial zone limit.
+        The total number of fractions given must match the maximum number of
+        radial zones specified and the fractions must be in increasing order and
+        less than 1. as we move from the 1st zone upwards. The last zone must
+        always have a fraction of exactly 1. If not, the code will enforce it.
+    mpole_ZoneRadiusFraction_2 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        Idem for the 2nd radial zone.
+    mpole_ZoneRadiusFraction_3 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        Idem for the 3rd radial zone.
+    mpole_ZoneRadiusFraction_4 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        Idem for the 4th radial zone.
+    mpole_ZoneScalar_1 [REAL] [1.0]
+        Valid Values: 0.0 to INFTY
+        The scalar value 's' in the radial equation r(Q) = s * dr * Q^t or the
+        radial equation r(Q) = s * dr * (e^(Qt)-1)/(e^t-1), defining the maximum
+        radius of the Q-th radial bin for the 1st zone.
+    mpole_ZoneScalar_2 [REAL] [1.0]
+        Valid Values: 0.0 to INFTY
+        Idem for the 2nd radial zone.
+    mpole_ZoneScalar_3 [REAL] [1.0]
+        Valid Values: 0.0 to INFTY
+        Idem for the 3rd radial zone.
+    mpole_ZoneScalar_4 [REAL] [1.0]
+        Valid Values: 0.0 to INFTY
+        Idem for the 4th radial zone.
+    mpole_ZoneType_1 [STRING] ["exponential"]
+        Valid Values: Unconstrained
+        String value containing the zone type for the 1st zone. If set to
+        'exponential' then the radial equation r(Q) = s * dr * Q^t is used. If
+        set to 'logarithmic' the radial equation r(Q) = s * dr *
+        (e^(Qt)-1)/(e^t-1) is used.
+    mpole_ZoneType_2 [STRING] ["exponential"]
+        Valid Values: Unconstrained
+        Idem for the 2nd radial zone.
+    mpole_ZoneType_3 [STRING] ["exponential"]
+        Valid Values: Unconstrained
+        Idem for the 3rd radial zone.
+    mpole_ZoneType_4 [STRING] ["logarithmic"]
+        Valid Values: Unconstrained
+        Idem for the 4th radial zone.
+
+Grid/GridSolvers/Pfft
+    gr_pfftDiffOpDiscretize [INTEGER] [1]
+        Valid Values: 1, 2
+        specifies the approach for discretizing the Laplacian differential
+        operator: 2 for second-order finite difference approximation, 1 for
+        spectral.  This choice is ignored by solver implementations that have
+        one approach hardwired. Currently the HomBcTrigSolver and
+        SimplePeriodicSolver implementations honor this runtime parameter.
+    pfft_setupOnce [BOOLEAN] [TRUE]
+        This parameter tells Pfft whether it should retain trig tables and other
+        mapping information for the entire simulation or not
+
+Grid/GridSolvers/unitTest
+    gr_testTolL2 [REAL] [1.E-10]
+        Valid Values: 0.0 to INFTY
+        Maximum L2 error norm that is tolerable
+    gr_testTolLinf [REAL] [1.E-10]
+        Valid Values: 0.0 to INFTY
+        Maximum Linf error norm that is tolerable
+
+IO/IOMain
+    alwaysComputeUserVars [BOOLEAN] [true]
+        Allows the user to force the computation of user variables (i.e. those
+        computed by Grid_computeUserVars) for all checkpoint files.  Defaults to
+        true.  If set to false, lone calls to IO_writeCheckpoint will not call
+        Grid_computeUserVars.  Plotfiles always call Grid_computeUserVars.
+    alwaysRestrictCheckpoint [BOOLEAN] [true]
+        Allows the user to choose whether checkpoint file data is always
+        restricted, so all ancestor blocks have valid data. The default is true.
+        It can be set to false for debugging purposes, in which case only the
+        data from IO_output will be guaranteed to have fully restricted data. 
+        See the User's guide for more information.
+    basenm [STRING] ["flash_"]
+        Valid Values: Unconstrained
+        Base name for checkpoint files
+    checkpointFileIntervalStep [INTEGER] [0]
+        Valid Values: Unconstrained
+        Checkpoint after this many steps
+    checkpointFileIntervalTime [REAL] [1.]
+        Valid Values: Unconstrained
+        Checkpoint after this much time
+    checkpointFileIntervalZ [REAL] [HUGE(1.)]
+        Valid Values: Unconstrained
+
+    checkpointFileNumber [INTEGER] [0]
+        Valid Values: Unconstrained
+        Initial checkpoint file number (used for restarts as well)
+    chkGuardCellsInput [BOOLEAN] CONSTANT [FALSE]
+        if true guardcells are read from the checkpoint file. Default is false
+        where only interior cells are read. Currently only implemented with hdf5
+        parallel paramesh IO implementation
+    chkGuardCellsOutput [BOOLEAN] CONSTANT [FALSE]
+        if true guardcells are written the checkpoint file. Default is false
+        where only interior cells are written. Currently only implemented with
+        hdf5 parallel paramesh IO implementation
+    corners [BOOLEAN] [FALSE]
+        does nothing.  However, it is part of the checkpoint file specification,
+        so we retain the checkpoint entry, but force it to be .false.. It was
+        used in FLASH2 to interpolate the data to the zone corners before
+        storing the data in the plotfile (for creating improved iso-surfaces).
+    fileFormatVersion [INTEGER] [9]
+        Valid Values: Unconstrained
+        Integer value specifying the file format type
+    forcedPlotFileNumber [INTEGER] [0]
+        Valid Values: Unconstrained
+
+    ignoreForcedPlot [BOOLEAN] [false]
+
+    io_writeMscalarIntegrals [BOOLEAN] [FALSE]
+        Should density integrals for all mass scalars be written to the
+        stats_file (.dat file)?  This runtime parameter is handled in the
+        default IO_writeIntegralQuantities implementation in IOMain, and may
+        have no effect if a simulation overrides that implementation.
+    memory_stat_freq [INTEGER] [100000]
+        Valid Values: Unconstrained
+        Specify the number of timesteps between memory statistic dumps to
+        flash.log !!NOT Yet Implemented in F3
+    outputSplitNum [INTEGER] [1]
+        Valid Values: Unconstrained
+        Split checkpoint, plotfiles, particle plots into this many files per
+        dump Not fully implemented, only hdf5 parallel. use at own risk
+    output_directory [STRING] [""]
+        Valid Values: Unconstrained
+        output dir for checkpoint file, can be absolute or relative path
+    plotFileIntervalStep [INTEGER] [0]
+        Valid Values: Unconstrained
+        Write a plotfile after this many steps
+    plotFileIntervalTime [REAL] [1.]
+        Valid Values: Unconstrained
+        Write a plotfile after this much time
+    plotFileIntervalZ [REAL] [HUGE(1.)]
+        Valid Values: Unconstrained
+        Write a plotfile after this change in z
+    plotFileNumber [INTEGER] [0]
+        Valid Values: Unconstrained
+        Initial plot file number
+    plot_grid_var_1 [STRING] ["none"]
+        Valid Values: Unconstrained
+        Allows user to output specific scratch grid vars Up to 12 choices are
+        allowed.  If plot_grid_var_X is set to "none" then no variable will be
+        saved. The parameter should have the same name as the variable
+        corresponding to it. For exampe, if a variable is declared GRID_VAR
+        vrtz, to write that grid variable to a plotfile a parameter should be
+        declared as PARAMETER plot_grid_var_X STRING "vrtz"
+    plot_grid_var_10 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_11 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_12 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_2 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_3 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_4 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_5 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_6 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_7 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_8 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_grid_var_9 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_1 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_10 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_11 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_12 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_2 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_3 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_4 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_5 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_6 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_7 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_8 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_9 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    plot_var_<N>, for N=1..MAX_PLOT_VARS [STRING] ["none"]
+        Valid Values: Unconstrained
+        (automatically generated by setup)
+    plotfileGridQuantityDP [BOOLEAN] [false]
+        If true, this sets the grid variables (unk, facevars, etc.) to be output
+        in double precision in plotfiles. Default value is false.
+    plotfileMetadataDP [BOOLEAN] [false]
+        Sets the floating point grid metadata fields to be written in double
+        precision if true in plotfiles.  Default value is false
+    prof_file [STRING] ["profile.dat"]
+        Valid Values: Unconstrained
+        !!NOT yet implemented yet in F3
+    rolling_checkpoint [INTEGER] [10000]
+        Valid Values: Unconstrained
+        Checkpoint file number cycling span. Only the last rolling_checkpoint
+        files are kept.
+    rss_limit [REAL] [-1.0]
+        Valid Values: Unconstrained
+        Maximum value (in MB) of largest resident set size (rss) before we
+        checkpoint and exit. Negative for no limit.  Only active if memory
+        statistics are being kept.
+    stats_file [STRING] ["flash.dat"]
+        Valid Values: Unconstrained
+        Name of the file integral quantities are written to (.dat file)
+    summaryOutputOnly [BOOLEAN] [false]
+        Makes FLASH write integrated quantities, i.e. summary data, only. FLASH
+        will only write a checkpoint, plot, or particle file if the user creates
+        a .dump_plotfile, .dump_checkpoint, .dump_restart, or
+        .dump_particle_file file.  A .kill file will still kill FLASH.
+    typeMatchedXfer [BOOLEAN] [true]
+        Ensures that floating point data transfers are type matched when using
+        HDF5.  This prevents HDF5 reverting to independent parallel I/O.
+    useCollectiveHDF5 [BOOLEAN] [true]
+        If true, all non-header, non-list datasets will be written using HDF5's
+        collective output mode otherwise, the independent access mode is used. 
+        Default value is true.
+    useLegacyLabels [BOOLEAN] [true]
+        If true, this stores mesh labels e.g. 'dens', 'pres' in a IO library
+        dataspace of 4 characters.  We may want to set it to false to use larger
+        labels e.g. 'density'
+    wall_clock_checkpoint [REAL] [43200.]
+        Valid Values: Unconstrained
+        Checkpoint after XX seconds (wallclock time) This is useful to ensure
+        that the job outputs a restart file before a queue window closes.
+    wr_integrals_freq [INTEGER] [1]
+        Valid Values: Unconstrained
+        Number of timesteps between writing to flash.dat
+
+IO/IOMain/hdf5/parallel/PM
+    chkGuardCellsInput [BOOLEAN] [false]
+        if true guardcells are read from the checkpoint file. Default is false
+        where only interior cells are read. Currently only implemented with hdf5
+        parallel paramesh IO implementation.
+    chkGuardCellsOutput [BOOLEAN] [false]
+        if true guardcells are written the checkpoint file. Default is false
+        where only interior cells are written. Currently only implemented with
+        hdf5 parallel paramesh IO implementation.
+
+IO/IOMain/hdf5/parallel/PM_argonne
+    packMeshChkReadHDF5 [BOOLEAN] [false]
+
+    packMeshChkWriteHDF5 [BOOLEAN] [false]
+
+    packMeshPlotWriteHDF5 [BOOLEAN] [true]
+        If true, this specifies that we pack the
+
+IO/IOParticles
+    particleFileIntervalStep [INTEGER] [0]
+        Valid Values: Unconstrained
+        write a particle file after this many steps
+    particleFileIntervalTime [REAL] [1.]
+        Valid Values: Unconstrained
+        Write a particle plot after this much time
+    particleFileIntervalZ [REAL] [HUGE(1.)]
+        Valid Values: Unconstrained
+        write a particle file after this change in redshift
+    particleFileNumber [INTEGER] [0]
+        Valid Values: Unconstrained
+        Initial particle plot file number
+    writeParticleAll [BOOLEAN] [true]
+        Write the complete particles array to a particle file.
+    writeParticleSubset [BOOLEAN] [false]
+        Write user-defined subset(s) of the particles array to
+
+Particles
+    useParticles [BOOLEAN] [FALSE]
+        Whether to advance particles [TRUE] or not [FALSE]
+
+Particles/ParticlesInitialization
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/MeshOwned
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/MeshOwned/Lattice
+    __doc__
+        Lattice uniformly distributes the particles throughout physical domain
+    pt_initialRadius [REAL] [-1.0]
+        Valid Values: Unconstrained
+        maximum distance from center of domain for particle initialization -- by
+        default = -1.0 (i.e. no minimum)
+    pt_initialXMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in x for particle initialization -- by default = xmax
+    pt_initialXMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in x for particle initialization -- by default = xmin
+    pt_initialYMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in y for particle initialization -- by default = ymax
+    pt_initialYMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in y for particle initialization -- by default = ymin
+    pt_initialZMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in z for particle initialization -- by default = zmax
+    pt_initialZMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in z for particle initialization -- by default = zmin
+    pt_numX [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numY [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numZ [INTEGER] [1]
+        Valid Values: Unconstrained
+
+
+Particles/ParticlesInitialization/ParticlesOwned
+    pt_resetTag [BOOLEAN] [FALSE]
+
+
+Particles/ParticlesInitialization/ParticlesOwned/Lattice
+    __doc__
+        Lattice uniformly distributes the particles throughout physical domain
+    pt_initialRadius [REAL] [-1.0]
+        Valid Values: Unconstrained
+        maximum distance from center of domain for particle initialization -- by
+        default = -1.0 (i.e. no minimum)
+    pt_initialXMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in x for particle initialization -- by default = xmax
+    pt_initialXMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in x for particle initialization -- by default = xmin
+    pt_initialYMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in y for particle initialization -- by default = ymax
+    pt_initialYMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in y for particle initialization -- by default = ymin
+    pt_initialZMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        maximum value in z for particle initialization -- by default = zmax
+    pt_initialZMin [REAL] [0.0]
+        Valid Values: Unconstrained
+        minimum value in z for particle initialization -- by default = zmin
+    pt_numX [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numY [INTEGER] [1]
+        Valid Values: Unconstrained
+
+    pt_numZ [INTEGER] [1]
+        Valid Values: Unconstrained
+
+
+Particles/ParticlesInitialization/ParticlesOwned/WithDensity
+    pt_numParticlesWanted [INTEGER] [100]
+        Valid Values: Unconstrained
+        Number of tracer particles to use (not guaranteed to get exactly this
+        many)
+    pt_pRand [INTEGER] [1]
+        Valid Values: Unconstrained
+        A number which affects the initial seed for the random number generator.
+        We set the default value to 1 to make it more likely that the initial
+        seed is within the integer range given by the IBM XL documentation which
+        is "A valid seed must be a whole number between 1.0 and 2147483647.0
+        (2.0**31-1)", as long as the number of MPI tasks is less than that
+        value.
+
+Particles/ParticlesInitialization/ParticlesOwned/WithDensity/RejectionMethod
+    __doc__
+        This is completely untested, don't use without further work
+
+Particles/ParticlesMain
+    particle_attribute_1 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_10 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_2 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_3 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_4 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_5 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_6 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_7 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_8 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    particle_attribute_9 [STRING] ["none"]
+        Valid Values: Unconstrained
+
+    pt_dtChangeTolerance [REAL] [0.4]
+        Valid Values: 0.0 to INFTY
+        EstiMidpoint does predictor step if time step change is less than this
+        percentage. Set to 0 to always do Euler, set to huge number to always
+        use estim. midpoints
+    pt_dtFactor [REAL] [0.5]
+        Valid Values: Unconstrained
+        Factor multiplying dx/|v| in setting particle timestep limit
+    pt_logLevel [INTEGER] [700]
+        Valid Values: 0 to INFTY
+        controls the level of logging for some conditions. See Particles.h for
+        relevant PT_LOGLEVEL_* definitions.
+    pt_maxPerProc [INTEGER] [1000]
+        Valid Values: Unconstrained
+        Maximum number of particles per processor -- too small will cause a
+        crash at reallocation
+    pt_numAtOnce [INTEGER] [1]
+        Valid Values: Unconstrained
+        To be used when reading the particles from some file
+    pt_small [REAL] [1.0E-10]
+        Valid Values: Unconstrained
+        If velocities are greater than this, then time stepping may be limited
+    useParticles [BOOLEAN] [TRUE]
+        Whether to advance particles [TRUE] or not [FALSE]
+
+Particles/ParticlesMapping/ParticlesOwned/meshWeighting/CIC
+    smearLen [INTEGER] [1]
+        Valid Values: Unconstrained
+
+
+PhysicalConstants/PhysicalConstantsMain
+    pc_unitsBase [STRING] ["CGS"]
+        Valid Values: Unconstrained
+        Base Unit system for Physical Constants -- can be "CGS" or "MKS"
+
+Simulation/SimulationMain
+    basenm [STRING] ["flash_"]
+        Valid Values: Unconstrained
+        Base name for output files
+
+Simulation/SimulationMain/Blast2
+    gamma [REAL] [1.6667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas - for initialization
+    refine_var_1 [STRING] ["pres"]
+        Valid Values: Unconstrained
+        first variable on which to refine
+    refine_var_2 [STRING] ["dens"]
+        Valid Values: Unconstrained
+        second variable on which to refine
+    sim_pLeft [REAL] [1000.]
+        Valid Values: Unconstrained
+        Pressure  in the left part of the grid
+    sim_pMid [REAL] [0.01]
+        Valid Values: Unconstrained
+        Pressure  in the middle of the grid
+    sim_pRight [REAL] [100.]
+        Valid Values: Unconstrained
+        Pressure  in the righ part of the grid
+    sim_posnL [REAL] [0.1]
+        Valid Values: Unconstrained
+        Point of intersection between the left shock plane and x-axis
+    sim_posnR [REAL] [0.9]
+        Valid Values: Unconstrained
+        Point of intersection between the right shock plane and the x-axis
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the left part of the grid
+    sim_rhoMid [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the middle of the grid
+    sim_rhoRight [REAL] [1.]
+        Valid Values: Unconstrained
+        Density in the right part of the grid
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uMid [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the middle of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: Unconstrained
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: Unconstrained
+        Angle made by diaphragm normal w/y-axis (deg)
+
+Simulation/SimulationMain/CCSN
+    model_file [STRING] ["file.dat"]
+        Valid Values: Unconstrained
+        Name of input file with 1D model
+    nsub [INTEGER] [4]
+        Valid Values: Unconstrained
+        number of sub-sampling points for mapping of 1D model
+    vel_mult [REAL] [1.0]
+        Valid Values: Unconstrained
+        multiplier on initial 1D radial velocity
+
+Simulation/SimulationMain/CCSN_Chimera
+    chimera_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with chimera model
+    do_quad [BOOLEAN] [FALSE]
+        flag for performing quadrature averages in mapping of model
+    max_r [REAL] [0.0]
+        Valid Values: Unconstrained
+        max radius to use chimera data
+    nquad [INTEGER] [2]
+        Valid Values: Unconstrained
+        number of quadrature points in each dimension for mapping of model
+    progenitor_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with 1D progenitor model
+    r_inner [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius boundary for chimera data
+    rho_inner [REAL] [1.0e11]
+        Valid Values: Unconstrained
+        inner density boundary for chimera data
+
+Simulation/SimulationMain/CCSN_Chimera_Split
+    chimera_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with chimera model
+    do_quad [BOOLEAN] [FALSE]
+        flag for performing quadrature averages in mapping of model
+    max_r [REAL] [0.0]
+        Valid Values: Unconstrained
+        max radius to use chimera data
+    nquad [INTEGER] [2]
+        Valid Values: Unconstrained
+        number of quadrature points in each dimension for mapping of model
+    progenitor_model_file [STRING] [""]
+        Valid Values: Unconstrained
+        Name of input file with 1D progenitor model
+    r_inner [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius boundary for chimera data
+    rho_inner [REAL] [1.0e11]
+        Valid Values: Unconstrained
+        inner density boundary for chimera data
+
+Simulation/SimulationMain/Cellular
+    noiseAmplitude [REAL] [1.0e-2]
+        Valid Values: Unconstrained
+        amplitude of the white noise added to the perturbation
+    noiseDistance [REAL] [5.0]
+        Valid Values: Unconstrained
+        distances above and below r_init get noise added
+    radiusPerturb [REAL] [25.6]
+        Valid Values: Unconstrained
+        distance below which the perturbation is applied
+    rhoAmbient [REAL] [1.0e7]
+        Valid Values: 0 to INFTY
+        density of the cold upstream material
+    rhoPerturb [REAL] [4.236e7]
+        Valid Values: Unconstrained
+        density of the post shock material
+    tempAmbient [REAL] [2.0e8]
+        Valid Values: 0 to INFTY
+        temperature of the cold upstream material
+    tempPerturb [REAL] [4.423e9]
+        Valid Values: Unconstrained
+        temperature of the post shock material
+    usePseudo1d [BOOLEAN] [FALSE]
+        .true. for a 1d initial configuration, with the copied along the y and z
+        directions .false. for a spherical configuration
+    velxAmbient [REAL] [0.0]
+        Valid Values: Unconstrained
+        x-velocity of the cold upstream material
+    velxPerturb [REAL] [2.876E+08]
+        Valid Values: Unconstrained
+        x-velocity of the post shock material
+    xCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    xc12 [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of c12
+    xhe4 [REAL] [0.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of he4
+    xo16 [REAL] [0.0]
+        Valid Values: 0.0 to 1.0
+        mass fraction of o16
+    yCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    zCenterPerturb [REAL] [0.0]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/DustCollapse
+    sim_ictr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_initDens [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial density of cloud
+    sim_initRad [REAL] [0.05]
+        Valid Values: Unconstrained
+        Initial radius of cloud
+    sim_jctr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_kctr [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_tAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient temperature (everywhere)
+
+Simulation/SimulationMain/HydroStatic
+    sim_presRef [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    sim_tempRef [REAL] [300.0]
+        Valid Values: Unconstrained
+
+    sim_xyzRef [REAL] [0.5]
+        Valid Values: Unconstrained
+        reference coordinate value in X, Y, and/or X direction, where initial
+        density assumes the reference value given by sim_presRef and sim_tempRef
+        through a formula that also involves eos_singleSpeciesA and the ideal
+        gas constant
+
+Simulation/SimulationMain/IsentropicVortex
+    nx_subint [INTEGER] [10]
+        Valid Values: Unconstrained
+        number of subintervals along IAXIS
+    ny_subint [INTEGER] [10]
+        Valid Values: Unconstrained
+        number of subintervals along JAXIS
+    p_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    particle_attribute_1 [STRING] ["pdens"]
+        Valid Values: Unconstrained
+
+    particle_attribute_2 [STRING] ["ptemp"]
+        Valid Values: Unconstrained
+
+    rho_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient density
+    u_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial ambient velocity
+    v_ambient [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    vortex_strength [REAL] [5.0]
+        Valid Values: Unconstrained
+
+    xctr [REAL] [0.0]
+        Valid Values: Unconstrained
+        x coordinate of the vortex center
+    yctr [REAL] [0.0]
+        Valid Values: Unconstrained
+        y coordinate of the vortex center
+
+Simulation/SimulationMain/MacLaurin
+    angular_velocity [REAL] [0.]
+        Valid Values: Unconstrained
+        Dimensionless angular velocity (Omega)
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho)): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorial_semimajor_axis [REAL] [1.]
+        Valid Values: 0.1 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/PoisTest
+    sim_smlRho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        smallest allowed value of density
+
+Simulation/SimulationMain/SNIa_DoubleDetonation
+    densShell [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Density of shell if exterior to profile
+    densShellMult [REAL] [1.e0]
+        Valid Values: 0.0 to INFTY
+        Density multiplier if shell is within profile
+    dens_fluff [REAL] [1.e-3]
+        Valid Values: Unconstrained
+        density of the fluff; use last zone in profile if <= 0.0
+    ignite [BOOLEAN] [FALSE]
+        flag to ignite a spherical region with matchhead
+    initialWDFile [STRING] ["wd_profile_rhoc_415e5_M_106_correct.dat"]
+        Valid Values: Unconstrained
+
+    r_match_inner [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Inner radius of spherical matchhead region
+    r_match_outer [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Outer radius of spherical matchhead region
+    radShellMax [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Outer radius of shell
+    radShellMin [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Inner radius of shell
+    t_ignite_inner [REAL] [4.e9]
+        Valid Values: 0.0 to INFTY
+        Temperature of matchhead at r_match_inner
+    t_ignite_outer [REAL] [4.e9]
+        Valid Values: 0.0 to INFTY
+        Temperature of matchhead at r_match_outer
+    tempShell [REAL] [0.e0]
+        Valid Values: 0.0 to INFTY
+        Temperture of shell if exterior to profile
+    tempShellMult [REAL] [1.e0]
+        Valid Values: 0.0 to INFTY
+        Temperture multiplier if shell is within profile
+    temp_fluff [REAL] [3.e7]
+        Valid Values: Unconstrained
+        temperature of the fluff; use last zone in profile if <= 0.0
+    thtShellMax [REAL] [0.e0]
+        Valid Values: 0.0 to 180.0
+        Max angle of belt (180.0 for shell)
+    thtShellMin [REAL] [0.e0]
+        Valid Values: 0.0 to 180.0
+        Min angle of belt (0.0 for shell)
+    useShell [BOOLEAN] [FALSE]
+        flag to add a shell/belt to the profile
+    x_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        X-coordinate of center of matchhead
+    xc12_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        c12 mass fraction of the fluff
+    xc12_shell [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        Carbon mass fraction of shell
+    xhe4_fluff [REAL] [1.e0]
+        Valid Values: 0.0 to 1.0
+        he4 mass fraction of the fluff; use last zone in profile if all
+        (he4,c12,o16,ni56) fluff composition <= 0.0
+    xhe4_shell [REAL] [1.e0]
+        Valid Values: 0.0 to 1.0
+        Helium mass fraction of shell
+    xni56_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        ni56 mass fraction of the fluff
+    xni56_shell [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        Nickel mass fraction of shell (ash)
+    xo16_fluff [REAL] [0.e0]
+        Valid Values: 0.0 to 1.0
+        o16 mass fraction of the fluff
+    y_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        Y-coordinate of center of matchhead
+    z_match [REAL] [0.e0]
+        Valid Values: Unconstrained
+        Z-coordinate of center of matchhead
+
+Simulation/SimulationMain/Sedov
+    sim_bcSetBdryVar [BOOLEAN] [FALSE]
+        Whether to set the "bdry" variable in unk (if it exists) to 1 in guard
+        cells at reflecting boundaries. Doing this will entice Hydro
+        implementations to lower reconstruction order in adjacent cells, and
+        possibly lower the CFL factor applied to timestep computation as well.
+    sim_centerRefineLevel [INTEGER] [1]
+        Valid Values: -1, 1 to INFTY
+        Desired refinement level at center (if "forcing")
+    sim_derefineRadius [REAL] [0.0]
+        Valid Values: 0.0 to INFTY
+        Radius of center region to force derefinement
+    sim_earliestLSTime [REAL] [0.0]
+        Valid Values: Unconstrained
+        earliest time included in Largest-{Norm,Error} summaries
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over initial explosion region)
+    sim_forceCenterDerefine [BOOLEAN] [FALSE]
+        Try to force low refinement level around explosion center?
+    sim_integralsLevel [INTEGER] [-1]
+        Valid Values: -1, 1 to INFTY
+        if sim_oneLevelIntegralsOnly is TRUE, this gives the requested
+        refinement level, either explicitly as a positive integer or as -1 for
+        the largest currently realized level.
+    sim_largestNormRadius [REAL] [HUGE(1.0)]
+        Valid Values: Unconstrained
+        outer radius bound of region for norm computation
+    sim_latestLSTime [REAL] [HUGE(1.0)]
+        Valid Values: Unconstrained
+        latest time included in Largest-{Norm,Error} summaries
+    sim_minRhoInit [REAL] [1.E-20]
+        Valid Values: 0.0 to INFTY
+        Density floor for initial condition
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: 1 to INFTY
+        Number of subzones in cells for applying 1d profile
+    sim_oneLevelIntegralsOnly [BOOLEAN] [FALSE]
+        Whether to compute intgral quantities only on cells at one refinement
+        level, ignoring all finer or coarser cells
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_profFileName [STRING] ["sedovSolution.dat"]
+        Valid Values: Unconstrained
+        Name of file from which to read a 1D Sedov solution for the initial
+        condition. The data from the file will be rescaled, and a density floor
+        given by sim_minRhoInit will be applied, to construct the initial
+        condition. This file will only be used if tinitial > 0.
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radius of region into which explosion energy is dumped initially, used
+        only if tinitial <= 0.
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_smallestNormRadius [REAL] [0.0]
+        Valid Values: Unconstrained
+        inner radius bound of region for norm computation
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/Sedov/WriteParticleSubset
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovChamber
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovChamber/WriteParticleSubset
+    sim_expEnergy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' in cells for applying 1d profile
+    sim_pAmbient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    sim_rInit [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of inner edge of grid (for 1D)
+    sim_rhoAmbient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+    sim_zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Explosion center coordinates
+
+Simulation/SimulationMain/SedovSelfGravity
+    exp_energy [REAL] [1.]
+        Valid Values: Unconstrained
+        Explosion energy (distributed over 2^dimen central zones)
+    p_ambient [REAL] [1.E-5]
+        Valid Values: Unconstrained
+        Initial ambient pressure
+    r_init [REAL] [0.05]
+        Valid Values: Unconstrained
+        Radial position of the inner edge of the grid
+    rho_ambient [REAL] [1.]
+        Valid Values: Unconstrained
+        Initial ambient density
+    sim_nsubzones [INTEGER] [7]
+        Valid Values: Unconstrained
+        Number of `sub-zones' to break cells into for applying 1d profile
+    t_init [REAL] [0.]
+        Valid Values: Unconstrained
+        Initial time since explosion
+
+Simulation/SimulationMain/Sod
+    gamma [REAL] [1.6666666666666667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas - for initialization
+    gammaIon [REAL] [1.6666666666666667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for ion component, should be 5./3.
+    sim_abarLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion mean molecular weight of material on left
+    sim_abarRight [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion mean molecular weight of material on right
+    sim_pLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Pressure  in the left part of the grid
+    sim_pRight [REAL] [0.1]
+        Valid Values: 0 to INFTY
+        Pressure  in the righ part of the grid
+    sim_peleLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_peleRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pionLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pionRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_posn [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_pradLeft [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_pradRight [REAL] [-1.0]
+        Valid Values: Unconstrained
+
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Density in the left part of the grid
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: 0 to INFTY
+        Density in the right part of the grid
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: 0 to 360
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: 0 to 360
+
+    sim_zbarLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion average charge for material on left
+    sim_zbarRight [REAL] [1.]
+        Valid Values: 0 to INFTY
+        ion average charge for material on right
+
+Simulation/SimulationMain/SodSpherical
+    sim_idir [INTEGER] [1]
+        Valid Values: 1, 2
+        the direction along which to propagate the shock.  sim_idir = 1 is
+        horizontal.  sim_idir = 2 is vertical.
+    sim_pLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        initial pressure on the left side of the interface
+    sim_pRight [REAL] [0.1]
+        Valid Values: Unconstrained
+        initial pressure on the right side of the interface
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: Unconstrained
+        initial density left of the interface
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: Unconstrained
+        initial density right of interface
+    sim_shockpos [REAL] [0.4]
+        Valid Values: Unconstrained
+        distance of the shock plane from y-axis (for sim_idir=1) or x-axis (for
+        sim_idir=2)
+
+Simulation/SimulationMain/SodStep
+    gr_pmrpNboundaries [INTEGER] CONSTANT [6]
+        Valid Values: Unconstrained
+        sets value for PARAMESH runtime parameter nboundaries
+    nblockx [INTEGER] [4]
+        Valid Values: Unconstrained
+        num initial blocks in x dir
+    nblocky [INTEGER] [4]
+        Valid Values: Unconstrained
+        num initial blocks in y dir
+    nblockz [INTEGER] [1]
+        Valid Values: Unconstrained
+        num initial blocks in z dir
+    sim_pLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Pressure  in the left part of the grid
+    sim_pRight [REAL] [0.1]
+        Valid Values: 0 to INFTY
+        Pressure  in the righ part of the grid
+    sim_posn [REAL] [0.5]
+        Valid Values: Unconstrained
+
+    sim_rhoLeft [REAL] [1.]
+        Valid Values: 0 to INFTY
+        Density in the left part of the grid
+    sim_rhoRight [REAL] [0.125]
+        Valid Values: 0 to INFTY
+        Density in the right part of the grid
+    sim_stepInDomain [BOOLEAN] [false]
+        -- whether there is a missing block in the initial domain
+    sim_uLeft [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the left part of the grid
+    sim_uRight [REAL] [0.]
+        Valid Values: Unconstrained
+        fluid velocity in the right part of the grid
+    sim_xangle [REAL] [0.]
+        Valid Values: 0 to 360
+        Angle made by diaphragm normal w/x-axis (deg)
+    sim_yangle [REAL] [90.]
+        Valid Values: 0 to 360
+
+
+Simulation/SimulationMain/WindTunnel
+    gr_pmrpNboundaries [INTEGER] [16]
+        Valid Values: 16 to INFTY
+        sets value for PARAMESH runtime parameter nboundaries
+    sim_pAmbient [REAL] [1.0]
+        Valid Values: Unconstrained
+
+    sim_rhoAmbient [REAL] [1.4]
+        Valid Values: Unconstrained
+
+    sim_windVel [REAL] [3.0]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Eos
+    eosMode [STRING] ["dens_temp"]
+        Valid Values: Unconstrained
+        The Mode for applying Eos
+    sim_debug [BOOLEAN] [FALSE]
+        Debug this units test?
+    sim_densMax [REAL] [1.e8]
+        Valid Values: Unconstrained
+        Initial distribution of density, maximum.  Even distribution between
+        logarithm of min/max.
+    sim_densMin [REAL] [1.e-2]
+        Valid Values: Unconstrained
+        Initial distribution of density, minimum.  Even distribution between
+        logarithm of min/max.
+    sim_initialMass [INTEGER] [-1]
+        Valid Values: -1 to INFTY
+        Distribution of initial mass.  -1 to put gradient in SPEC(1) and
+        SPEC(NSPECIES) 0 to divide evenly throughout SPECIES i to put all mass
+        on SPECIES i
+    sim_presMax [REAL] [1.e7]
+        Valid Values: Unconstrained
+        Initial distribution of pressure, maximum.  Even distribution between
+        logarithm of min/max
+    sim_presMin [REAL] [1.e-2]
+        Valid Values: Unconstrained
+        Initial distribution of pressure, minimum.  Even distribution between
+        logarithm of min/max
+    sim_tempMax [REAL] [1.e9]
+        Valid Values: Unconstrained
+        Initial distribution of temperature, maximum.  Even distribution between
+        logarithm of min/max
+    sim_tempMin [REAL] [1.e5]
+        Valid Values: Unconstrained
+        Initial distribution of temperature, minimum.  Even distribution between
+        logarithm of min/max
+    sim_xnMax [REAL] [1.0]
+        Valid Values: Unconstrained
+        Initial distribution of a single species, maximum.  Even distribution
+        between logarithm of min/max
+    sim_xnMin [REAL] [1.e-10]
+        Valid Values: Unconstrained
+        Initial distribution of a single species, minimum.  Even distribution
+        between logarithm of min/max
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+
+Simulation/SimulationMain/unitTest/Eos/timeEosUnitTest
+    num_eos_calls [INTEGER] [30000]
+        Valid Values: 1 to INFTY
+
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson
+    sim_subSample [INTEGER] [7]
+        Valid Values: 1 to 12
+        Reflects the subsampling philosophy of Multipole.  See
+        physics/Grid/GridSolvers/Multipole/Config/mpole_subSample
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson3
+    angular_velocity [REAL] [0.]
+        Valid Values: Unconstrained
+        Dimensionless angular velocity (Omega)
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorial_semimajor_axis [REAL] [1.]
+        Valid Values: 0.0 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    pass_tolerance [REAL] [0.015]
+        Valid Values: 0.00000000000001 to 1.0
+        Allowed error for testing.  0.015 = 1.5 percent error
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole
+    num_poisson_solves [INTEGER] [100]
+        Valid Values: 1 to INFTY
+
+
+Simulation/SimulationMain/unitTest/IO/IOMeshReplication
+    totalSharedVars [INTEGER] [12]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Multipole
+    density [REAL] [1.]
+        Valid Values: -1.0 to INFTY
+        Spheroid density (rho): set to -1 to generate spheroid mass of 1.0
+    eccentricity [REAL] [0.]
+        Valid Values: 0.0 to 1.0
+        Eccentricity of the ellipsoid (e)
+    equatorialSemimajorAxis [REAL] [1.]
+        Valid Values: 0.0 to INFTY
+        Equatorial semimajor axis (a1)
+    nsubzones [INTEGER] [2]
+        Valid Values: 1 to INFTY
+        Number of sub-zones per dimension
+    passTolerance [REAL] [0.015]
+        Valid Values: 0.00000000000001 to 1.0
+        Allowed error for testing.  0.015 = 1.5 percent error
+    xctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        X-coordinate of center of spheroid
+    yctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Y-coordinate of center of spheroid
+    zctr [REAL] [0.5]
+        Valid Values: Unconstrained
+        Z-coordinate of center of spheroid
+
+Simulation/SimulationMain/unitTest/ParticlesAdvance
+    sim_maxTolCoeff0 [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff1 [REAL] [0.0001]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff2 [REAL] [0.01]
+        Valid Values: Unconstrained
+
+    sim_maxTolCoeff3 [REAL] [0.0]
+        Valid Values: Unconstrained
+
+    sim_schemeOrder [INTEGER] [2]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/ParticlesAdvance/HomologousPassive
+    sim_a0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        constant component of velocity field factor a(t)
+    sim_a1 [REAL] [0.1]
+        Valid Values: Unconstrained
+        varying part of velocity field factor a(t)
+    sim_analyticParticlePositions [BOOLEAN] [FALSE]
+
+    sim_fakeMapMeshToParticles [BOOLEAN] [TRUE]
+
+    sim_p_amb [REAL] [8.e5]
+        Valid Values: Unconstrained
+        Gas Pressure: Entire domain receives this ambient parameter
+    sim_rho_amb [REAL] [0.95e-3]
+        Valid Values: Unconstrained
+        Gas Density:  Entire domain receives this ambient parameter
+    sim_seed [REAL] [1.0]
+        Valid Values: Unconstrained
+        Random number seed -- NOT USED please ignore
+    sim_vx_amb [REAL] [0.5]
+        Valid Values: Unconstrained
+        Gas x-velocity:  Dominant flow velocity throughout domain
+    sim_vx_multiplier [REAL] [1.0]
+        Valid Values: Unconstrained
+        Half of the domain in y has x-velocity multiplied by this value
+    sim_vx_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in x direction: set to zero for uniform flow
+    sim_vy_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in y direction: set to zero for uniform flow
+    sim_vz_pert [REAL] [0.1]
+        Valid Values: Unconstrained
+        Scales [-1,1] random number in z direction: set to zero for uniform flow
+
+Simulation/SimulationMain/unitTest/Poisson/BiCG/MgMCPfft
+    alpha_x [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    alpha_y [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    waven_x [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_y [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_z [REAL] [1.]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Poisson/MgMC
+    alpha_x [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    alpha_y [REAL] [0.3141592653589793]
+        Valid Values: Unconstrained
+
+    waven_x [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_y [REAL] [1.]
+        Valid Values: Unconstrained
+
+    waven_z [REAL] [1.]
+        Valid Values: Unconstrained
+
+
+Simulation/SimulationMain/unitTest/Roots/x3Polynomials
+    sim_printInfo [BOOLEAN] [false]
+        Should details about solving each polynomial be printed
+
+Simulation/SimulationMain/unitTest/Roots/x4Polynomials
+    sim_printInfo [BOOLEAN] [false]
+        Should details about solving each polynomial be printed
+
+Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse
+    sim_RungeKuttaMethod [STRING] ["CashKarp45"]
+        Valid Values: Unconstrained
+        The method for the Runge Kutta stepper
+    sim_ellipseAspectRatio [REAL] [2.0]
+        Valid Values: Unconstrained
+        The ellipse aspect ratio (major:minor axis)
+    sim_errorFraction [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+        The error fraction for the dependent variables
+    sim_numberOfEllipses [INTEGER] [1]
+        Valid Values: Unconstrained
+        The number of ellipses the particle has to sweep
+    sim_stepSize [REAL] [0.1]
+        Valid Values: Unconstrained
+        The step size
+    sim_x0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial x position of the particle
+    sim_y0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial y position of the particle
+
+Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle
+    sim_RungeKuttaMethod [STRING] ["Fehlberg45"]
+        Valid Values: Unconstrained
+        The method for the Runge Kutta stepper
+    sim_errorFraction [REAL] [1.0e-8]
+        Valid Values: Unconstrained
+        The error fraction for the dependent variables
+    sim_numberOfCircles [INTEGER] [1]
+        Valid Values: Unconstrained
+        The number of circles the particle has to sweep
+    sim_numberOfRungeKuttaSteps [INTEGER] [10]
+        Valid Values: Unconstrained
+        The number of Runge Kutta steps to be performed
+    sim_rx0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial x position of the particle
+    sim_ry0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial y position of the particle
+    sim_rz0 [REAL] [1.0]
+        Valid Values: Unconstrained
+        The initial z position of the particle
+    sim_speed [REAL] [1.0]
+        Valid Values: Unconstrained
+        The speed of the particle
+    sim_stepSize [REAL] [0.1]
+        Valid Values: Unconstrained
+        The step size
+
+monitors/Debugger/DebuggerMain
+    doHeapCheck [BOOLEAN] [TRUE]
+
+
+monitors/Logfile/LogfileMain
+    log_file [STRING] ["flash.log"]
+        Valid Values: Unconstrained
+        Name of log file to create
+    run_comment [STRING] ["FLASH 3 run"]
+        Valid Values: Unconstrained
+        Comment for run
+    run_number [STRING] ["1"]
+        Valid Values: Unconstrained
+        Identification number for run
+
+monitors/Profiler/ProfilerMain
+    profileEvolutionOnly [BOOLEAN] [TRUE]
+
+
+monitors/Timers/TimersMain/MPINative
+    eachProcWritesSummary [BOOLEAN] [FALSE]
+        Should each process write its summary to its own file?  If true, each
+        process will write its summary to a file named timer_summary_<processor
+        id>
+    writeStatSummary [BOOLEAN] [TRUE]
+        Should timers write the max/min/avg values for timers?
+
+numericalTools/RungeKutta/RungeKuttaMain
+    rk_stepSizeConfinementFactor [REAL] [0.5]
+        Valid Values: 0.5 to 1.0
+        Reduction factor for step size reduction for confined RK runs
+    rk_stepSizeSafetyFactor [REAL] [0.9]
+        Valid Values: 0.5 to 1.0
+        The build in safety factor for new step size estimate
+
+physics/Eos/EosMain
+    eintSwitch [REAL] [0.0]
+        Valid Values: Unconstrained
+        a rarely used switch which ensures that internal energy calculations
+        maintain sufficient precision. Important only if energyTotal is
+        dominated by energyKinetic. If (energyInternal <
+        eintSwitch*energyKinetic) then some routines (Eos/Helmholtz,
+        Hydro/hy_updateSoln) will NOT calculate energyInternal by subtraction,
+        but rather through direct calculation.
+    eos_entrEleScaleChoice [INTEGER] [6]
+        Valid Values: 1 to 8
+        selects a scale variant for representing electron entropy. See code in
+        eos_idealGamma for the meaning of the various choices. The choice that
+        corresponds most closely to the Sackur-Tetrode equation in physical
+        units should be 3, closely followed by 2.
+    eos_logLevel [INTEGER] [700]
+        Valid Values: 0 to INFTY
+        Control verbosity of messages from the Eos unit. See Eos.h for relevant
+        EOS_LOGLEVEL_* definitions.
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Nucleon number for the gas (available ONLY for Eos with single species)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Proton number for the gas (available ONLY for Eos with single species)
+    gamma [REAL] [1.6667]
+        Valid Values: 0.0 to INFTY
+        Ratio of specific heats for gas (available ONLY for Eos/Gamma)
+    threadEosWithinBlock [BOOLEAN] [TRUE]
+
+
+physics/Eos/EosMain/Helmholtz
+    eos_coulombAbort [BOOLEAN] [true]
+        Abort if pressures become negative.  Otherwise, issue a warning message
+        and continue
+    eos_coulombMult [REAL] [1.0]
+        Valid Values: Unconstrained
+        coulomb correction multiplier
+    eos_fluffDens [REAL] [0.0]
+        Valid Values: Unconstrained
+        material below this density has its energy replaced if its temperature
+        falls below smallt. This should be a small density for enery
+        conservation reasons. Only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+    eos_forceConstantInput [BOOLEAN] [false]
+        Helmholtz routines can allow input EINT or PRES to change on output to
+        preserve equilibrium.  This switch forces a constant input of EINT or
+        PRES
+    eos_maxNewton [INTEGER] [50]
+        Valid Values: Unconstrained
+        maximum number of Newton-Raphson iterations to try.
+    eos_tolerance [REAL] [1.e-8]
+        Valid Values: Unconstrained
+        tolerance for the Newton-Raphson iterations
+    larget [REAL] [1.e20]
+        Valid Values: Unconstrained
+        default upper bracket bound and used to fake temperature if it tries to
+        go too high. Currently, only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+
+physics/Eos/EosMain/Helmholtz/SpeciesBased
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species nucleon number for the gas (only used by Eos/Helmholtz
+        when compiled w/o Multispecies)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species proton number for the gas (only used Eos/Helmholtz when
+        compiled w/o Multispecies)
+
+physics/Eos/EosMain/Helmholtz_starkiller
+    eos_coulombAbort [BOOLEAN] [true]
+        Abort if pressures become negative.  Otherwise, issue a warning message
+        and continue
+    eos_coulombMult [REAL] [1.0]
+        Valid Values: Unconstrained
+        coulomb correction multiplier
+    eos_fluffDens [REAL] [0.0]
+        Valid Values: Unconstrained
+        material below this density has its energy replaced if its temperature
+        falls below smallt. This should be a small density for enery
+        conservation reasons. Only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+    eos_forceConstantInput [BOOLEAN] [false]
+        Helmholtz routines can allow input EINT or PRES to change on output to
+        preserve equilibrium.  This switch forces a constant input of EINT or
+        PRES
+    eos_maxNewton [INTEGER] [50]
+        Valid Values: Unconstrained
+        maximum number of Newton-Raphson iterations to try.
+    eos_tolerance [REAL] [1.e-8]
+        Valid Values: Unconstrained
+        tolerance for the Newton-Raphson iterations
+    larget [REAL] [1.e20]
+        Valid Values: Unconstrained
+        default upper bracket bound and used to fake temperature if it tries to
+        go too high. Currently, only used in the Helmholtz/ExternalAbarZbar
+        implementation of Eos.
+
+physics/Eos/EosMain/Helmholtz_starkiller/SpeciesBased
+    eos_singleSpeciesA [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species nucleon number for the gas (only used by Eos/Helmholtz
+        when compiled w/o Multispecies)
+    eos_singleSpeciesZ [REAL] [1.00]
+        Valid Values: 0.0 to INFTY
+        Single-species proton number for the gas (only used Eos/Helmholtz when
+        compiled w/o Multispecies)
+
+physics/Eos/EosNuclear
+    bounceTime [REAL] [0.0]
+        Valid Values: Unconstrained
+        Time of bounce in seconds
+    eos_file [STRING]
+    ["myshen_test_220r_180t_50y_extT_analmu_20100322_SVNr28.h5"]
+        Valid Values: Unconstrained
+        Filename of the table.  Data may be found at
+        stellarcollapse.org/equationofstate.
+    postBounce [BOOLEAN] [FALSE]
+        Flag to specify that simulation is post-bounce
+
+physics/Eos/unitTest
+    eos_testEintMode [STRING] ["dens_ie"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a specific
+        internal energy.
+    eos_testPresMode [STRING] ["dens_pres"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a pressure.
+    eos_testTempMode [STRING] ["dens_temp"]
+        Valid Values: Unconstrained
+        The Eos mode for getting other variables from density and a temperature.
+    eos_testTolerance [REAL] [1.e-9]
+        Valid Values: 0.0 to INFTY
+        Tolerance for relative errors in Eos results
+
+physics/Gravity
+    grav_boundary_type [STRING] ["isolated"]
+        Valid Values: Unconstrained
+        Type of gravitational boundary condition if a Poisson solve is used for
+        Gravity; string-valued version of grav_boundary. Accepts: "isolated",
+        "periodic", "dirichlet", and maybe others, depending on the Poisson
+        solver used. This is declared in the stub level of the Gravity unit to
+        allow the Grid unit to refer to this runtime parameter even when no
+        Gravity implementation is included.
+    useGravity [BOOLEAN] [FALSE]
+        Whether gravity calculations should be performed.
+
+physics/Gravity/GravityMain
+    useGravity [BOOLEAN] [TRUE]
+        Should the gravity calculations be performed?
+
+physics/Gravity/GravityMain/Constant
+    gconst [REAL] [-981.]
+        Valid Values: Unconstrained
+        Gravitational acceleration constant
+    gdirec [STRING] ["x"]
+        Valid Values: Unconstrained
+        Direction of acceleration ("x", "y", "z")
+
+physics/Gravity/GravityMain/PointMass
+    gravsoft [REAL] [0.001]
+        Valid Values: Unconstrained
+
+    ptmass [REAL] [10000.]
+        Valid Values: Unconstrained
+
+    ptxpos [REAL] [1.]
+        Valid Values: Unconstrained
+
+    ptypos [REAL] [-10.]
+        Valid Values: Unconstrained
+
+    ptzpos [REAL] [0.]
+        Valid Values: Unconstrained
+
+
+physics/Gravity/GravityMain/Poisson
+    grav_temporal_extrp [BOOLEAN] [FALSE]
+        extrapolate or otherwise rescale
+    grav_unjunkPden [BOOLEAN] [TRUE]
+        controls whether Gravity_potentialListOfBlocks attempts to restore the
+        part of the "pden" ("particle density") UNK variable that is due to
+        particles, or leaves "pden" as it is, after a Poisson equation solve.
+        This only applies meaningfully when a "pden" variable is declared and
+        the gravitational potential is calculated by solving a Poisson equation
+        whose right-hand side includes a mass distribution to which both
+        hydrodynamic fluid density and massive particles contribute. The "pden"
+        variable will have been set to the sum of the fluid density ("dens"
+        variable) and the density resulting from mapping massive particles to
+        the mesh, so that is what remains in "pden" when grav_unjunkPden is set
+        to FALSE. Otherwise, "dens" will be subtraced from "pden" before
+        Gravity_potentialListOfBlocks returns, and "pden" will be left
+        containing only the mass density that is due to particles.
+    point_mass [REAL] [0.e0]
+        Valid Values: Unconstrained
+        mass of the central point-like object
+    point_mass_rsoft [REAL] [0.e0]
+        Valid Values: Unconstrained
+        softening radius for the point-like mass (in units of number of the
+        finest level cells)
+    updateGravity [BOOLEAN] [TRUE]
+        allow gravity value to be updated
+
+physics/Hydro
+    useHydro [BOOLEAN] CONSTANT [FALSE]
+        Whether Hydro calculations should be performed.
+
+physics/Hydro/HydroMain
+    UnitSystem [STRING] ["none"]
+        Valid Values: Unconstrained
+        System of Units
+    cfl [REAL] [0.8]
+        Valid Values: Unconstrained
+        Courant factor
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize the abundances before eos
+    threadHydroBlockList [BOOLEAN] [TRUE]
+
+    threadHydroWithinBlock [BOOLEAN] [TRUE]
+
+    updateHydroFluxes [BOOLEAN] [TRUE]
+        whether fluxes computed by Hydro should be used to update the solution
+        (currently, probably only used in split PPM Hydro)
+    useHydro [BOOLEAN] [TRUE]
+        Should any Hydro calculations be performed?
+    use_cma_advection [BOOLEAN] [FALSE]
+        Use the CMA advection with partial masses being primary variables; thos
+        parameter only affects the unsplit PPM hydro solver.
+    use_cma_flattening [BOOLEAN] [FALSE]
+        Use the flattening procedure for the abundances as described in the CMA
+        paper; this parameter only affects the unsplit PPM hydro solver.
+    use_steepening [BOOLEAN] [TRUE]
+
+
+physics/Hydro/HydroMain/simpleUnsplit
+    EOSforRiemann [BOOLEAN] [FALSE]
+        Call EOS to get gamc and game for the Riemann state calculations
+    LimitedSlopeBeta [REAL] [1.0]
+        Valid Values: Unconstrained
+        Any real value specific for the Limited Slope limiter
+    RiemannSolver [STRING] ["LLF"]
+        Valid Values: "LLF", "HLL"
+        HLL, or LLF for local Lax-Friedrichs, others unsupported in
+        simpleUnsplit.
+    UnitSystem [STRING] [" "]
+        Valid Values: Unconstrained
+        System of Units, must be "none" for simpleUnsplit Hydro solver
+    addThermalFlux [BOOLEAN] CONSTANT [FALSE]
+
+    charLimiting [BOOLEAN] [TRUE]
+        Apply limiting for characteristic variable
+    conserveAngMom [BOOLEAN] [FALSE]
+        Conservative formulation for cylindrical coordinates regarding the
+        toroidal momentum
+    cvisc [REAL] [0.1]
+        Valid Values: Unconstrained
+
+    entropy [BOOLEAN] [FALSE]
+        Entropy Fix routine for the Roe Riemann solver
+    entropyFixMethod [STRING] ["HARTENHYMAN"]
+        Valid Values: Unconstrained
+        Entropy fix method for the Roe Riemann solver: Harten or HartenHyman
+    hy_3Torder [INTEGER] [-1]
+        Valid Values: Unconstrained
+        Reconstruction order for eint, eele, eion, erad in HEDP simulations
+    hybridOrderKappa [REAL] [0.]
+        Valid Values: Unconstrained
+        A constant value to determine shock strengths for hybrid order
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize abundances
+    order [INTEGER] [2]
+        Valid Values: Unconstrained
+        1st order Godunov scheme, 2nd MUSCL-Hancock scheme, or 3rd PPM, 5th WENO
+    shockDetect [BOOLEAN] [FALSE]
+        Switch to use a strong compressive shock detection
+    slopeLimiter [STRING] ["vanLeer"]
+        Valid Values: Unconstrained
+        mc, vanLeer, minmod, hybrid, limited
+    tiny [REAL] [1.e-16]
+        Valid Values: Unconstrained
+        A threshold value for an arbitrarily small number
+    transOrder [INTEGER] [1]
+        Valid Values: Unconstrained
+        order of approximating transeverse flux derivative in data
+        reconstruction
+    use_3dFullCTU [BOOLEAN] [TRUE]
+        Turn on/off the full CTU scheme that gives CFL <= 1 for 3D
+    use_GravPotUpdate [BOOLEAN] [FALSE]
+        Parameter for half timestep update of gravitational potential
+    use_avisc [BOOLEAN] [FALSE]
+
+    use_flattening [BOOLEAN] [FALSE]
+        Switch for PPM flattening
+    use_gravConsv [BOOLEAN] [FALSE]
+        Use conservative variables for gravity coupling at n+1/2
+    use_gravHalfUpdate [BOOLEAN] [FALSE]
+        Include gravitational accelerations to hydro coupling at n+1/2
+    use_hybridOrder [BOOLEAN] [FALSE]
+        Apply RH jump condition to check monotonicity of reconstructed values
+    use_steepening [BOOLEAN] [FALSE]
+        Switch for steepening contact discontinuities for 3rd order PPM
+    use_upwindTVD [BOOLEAN] [FALSE]
+        Turn on/off upwinding TVD slopes
+
+physics/Hydro/HydroMain/unsplit
+    EOSforRiemann [BOOLEAN] [FALSE]
+        Turn on/off calls to Eos for thermo of reconstructed face states
+        (MODE_DENS_PRES)
+    LimitedSlopeBeta [REAL] [1.0]
+        Valid Values: Unconstrained
+        Any real value specific for the Limited Slope limiter
+    RiemannSolver [STRING] ["HLLC"]
+        Valid Values: Unconstrained
+        Roe, HLL, HLLC, Marquina, MarquinaModified, Hybrid or local
+        Lax-Friedrichs, plus HLLD for MHD
+    addThermalFlux [BOOLEAN] [TRUE]
+
+    charLimiting [BOOLEAN] [TRUE]
+        Apply limiting for characteristic variable
+    conserveAngMom [BOOLEAN] [FALSE]
+        Conservative formulation for cylindrical coordinates regarding the
+        toroidal momentum
+    cvisc [REAL] [0.1]
+        Valid Values: Unconstrained
+
+    entropy [BOOLEAN] [FALSE]
+        Entropy Fix routine for the Roe Riemann solver
+    entropyFixMethod [STRING] ["HARTENHYMAN"]
+        Valid Values: Unconstrained
+        Entropy fix method for the Roe Riemann solver: Harten or HartenHyman
+    hy_3Torder [INTEGER] [-1]
+        Valid Values: -1, 1, 2, 3, 5
+        Reconstruction order for eint, eele, eion, erad in HEDP simulations
+    hy_cflFallbackFactor [REAL] [0.9]
+        Valid Values: Unconstrained
+        factor for scaling CFL factor when it is lowered because of fallback in
+        problematic cells
+    hy_eosModeGc [STRING] ["see eosMode"]
+        Valid Values: "see eosMode", "eos_nop", "dens_ie_gather",
+        "dens_ie_recal_gather", "dens_ie_scatter", "dens_ie_all",
+        "dens_ie_sele_gather", "dens_temp_equi", "dens_temp_all",
+        "dens_temp_gather"
+        Eos mode that the Hydro unit should apply to guard cells before the
+        first major loop, i.e., before computing Riemann input states by
+        reconstruction etc. The special value "see eosMode" can be used to
+        indicate the mode set by the runtime parameter "eosMode". Other values
+        are as for "eosMode".
+    hy_fPresInMomFlux [REAL] [1.0]
+        Valid Values: 0.0 to 1.0
+        Percentage of the pressure gradient (values range from 0 to 1) that is
+        treated as part of momentum fluxes
+    hy_fallbackLowerCFL [BOOLEAN] [FALSE]
+        Lower the simulation CFL if fallin back to a lower reconstruction order
+        in problematic cells
+    hy_fullSpecMsFluxHandling [BOOLEAN] [TRUE]
+        Are species and mass scalars updated with fluxes that have undergone the
+        full treatment applied to other fluxes, including fine-coarse-boundary
+        flux correction if that is done to fluxes of other conserved variables?
+    hybridOrderKappa [REAL] [0.]
+        Valid Values: Unconstrained
+        A constant value to determine shock strengths for hybrid order
+    hydroComputeDtOption [INTEGER] [-1]
+        Valid Values: -1, 0, 1
+        An option where to compute hydro dt. Choices are integer values [-1, 0,
+        1] as follows: -1: Hydro_computeDt.F90,  the old standard way that has
+        most extensive supports and well-tested; 0: hy_uhd_energyFix.F90, a
+        light weighted version without calling a global loop Hydro_computeDt; 1:
+        hy_getFaceFlux.F90,   another light weighted dt call during flux
+        calculations.
+    irenorm [INTEGER] [0]
+        Valid Values: Unconstrained
+        Renormalize abundances
+    order [INTEGER] [2]
+        Valid Values: 1, 2, 3, 5, 6
+        1st order Godunov scheme, 2nd MUSCL-Hancock scheme, or 3rd PPM, 5th WENO
+    radiusGP [REAL] [2.]
+        Valid Values: Unconstrained
+
+    shockDetect [BOOLEAN] [FALSE]
+        Switch to use a strong compressive shock detection
+    shockLowerCFL [BOOLEAN] [FALSE]
+        Lower the simulation CFL if shocks are detected
+    sigmaGP [REAL] [3.]
+        Valid Values: Unconstrained
+
+    slopeLimiter [STRING] ["vanLeer"]
+        Valid Values: Unconstrained
+        mc, vanLeer, minmod, hybrid, limited
+    small [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value
+    smalle [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for energy
+    smallp [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for pressure
+    smallt [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for temperature
+    smallu [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for velocity
+    smallx [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for abundances
+    smlrho [REAL] [1.E-10]
+        Valid Values: Unconstrained
+        Cutoff value for density
+    tiny [REAL] [1.e-16]
+        Valid Values: Unconstrained
+        A threshold value for an arbitrarily small number
+    transOrder [INTEGER] [1]
+        Valid Values: 0, 1, 2, 3, 4
+        order of approximating transeverse flux derivative in data
+        reconstruction
+    use_3dFullCTU [BOOLEAN] [TRUE]
+        Turn on/off the full CTU scheme that gives CFL <= 1 for 3D
+    use_auxEintEqn [BOOLEAN] [TRUE]
+        Turn on/off solving the auxilary internal energy equation
+    use_avisc [BOOLEAN] [FALSE]
+
+    use_flattening [BOOLEAN] [FALSE]
+        Switch for PPM flattening
+    use_gravHalfUpdate [BOOLEAN] [TRUE]
+        Include gravitational accelerations to hydro coupling at n+1/2
+    use_hybridOrder [BOOLEAN] [FALSE]
+        Apply RH jump condition to check monotonicity of reconstructed values
+    use_steepening [BOOLEAN] [FALSE]
+        Switch for steepening contact discontinuities for 3rd order PPM
+    use_upwindTVD [BOOLEAN] [FALSE]
+        Turn on/off upwinding TVD slopes
+    wenoMethod [STRING] ["WENO5"]
+        Valid Values: Unconstrained
+
+
+physics/Hydro/HydroMain/unsplit/MHD
+    E_modification [BOOLEAN] [TRUE]
+        Switch for modified electric fields calculation from flux
+    E_upwind [BOOLEAN] [FALSE]
+        Switch for upwind update for induction equations
+    ForceHydroLimit [BOOLEAN] [FALSE]
+        Switch to force B=0 limit, i.e., the solver will not update B fields
+    conserveAngField [BOOLEAN] [FALSE]
+        Turn on/off alternate formulation for toroidal induction
+    energyFix [BOOLEAN] [FALSE]
+        Switch for an energy correction for CT scheme
+    hallVelocity [BOOLEAN] [FALSE]
+        Switch to use u_ele = u - J/(ne qe)
+    hy_bier1TA [REAL] [-1.0]
+        Valid Values: Unconstrained
+        Atomic number to use for 1T Biermann Battery term
+    hy_bier1TZ [REAL] [-1.0]
+        Valid Values: Unconstrained
+        Ionization number to use for 1T Biermann Battery term
+    hy_biermannCoef [REAL] [1.0]
+        Valid Values: Unconstrained
+        Coefficient of Biermann Battery flux
+    hy_biermannSource [BOOLEAN] [FALSE]
+        Switch to implement battery term as an external source
+    killdivb [BOOLEAN] [TRUE]
+        Switch for maintaing solenoidal field
+    killdivb8w [BOOLEAN] [FALSE]
+        Switch for maintaing solenoidal field using Powell's 8wave
+    prolMethod [STRING] ["INJECTION_PROL"]
+        Valid Values: Unconstrained
+        Injection or Balsara's method in prolongation
+    use_Biermann [BOOLEAN] [FALSE]
+        Switch to add the Battery term for B-field generation
+    use_Biermann1T [BOOLEAN] [FALSE]
+        Switch to add the 1T Battery term for B-field generation
+
+physics/sourceTerms/Burn
+    useBurn [BOOLEAN] [FALSE]
+        shall I burn?
+
+physics/sourceTerms/Burn/BurnMain
+    enucDtFactor [REAL] [1.e30]
+        Valid Values: Unconstrained
+        Limit timestep to limit total energy deposited by burning is kept
+        artificially high to effectively turn off limiting by default
+    useShockBurn [BOOLEAN] [FALSE]
+        Is burning allowed within shocks?
+
+physics/sourceTerms/Burn/BurnMain/nuclearBurn
+    algebra [INTEGER] [1]
+        Valid Values: 1 to 2
+        choice of linear algebra package & 1 = MA28 ;  2 = GIFT
+    nuclearDensMax [REAL] [1.0E14]
+        Valid Values: 0 to INFTY
+        Max burning density
+    nuclearDensMin [REAL] [1.0E-10]
+        Valid Values: 0 to INFTY
+        Min burning density
+    nuclearNI56Max [REAL] [1.0]
+        Valid Values: 0 to INFTY
+        Max Ni56 mass frac. for burning
+    nuclearTempMax [REAL] [1.0E12]
+        Valid Values: 0 to INFTY
+        Max burning temperature
+    nuclearTempMin [REAL] [1.1E8]
+        Valid Values: 0 to INFTY
+        Min burning temperature
+    odeStepper [INTEGER] [1]
+        Valid Values: 1 to 2
+        choice of ode time stepper 1 = Bader-Deuflhard variable order 2 =
+        Rosenbrock 4th order
+    useBurnTable [BOOLEAN] [FALSE]
+        choice of rate evaluation FALSE = analytic rates TRUE = table
+        interpolation
+
+physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+    xnet_changemx [REAL] [1.0e-1]
+        Valid Values: 0.0 to INFTY
+        allowed abundance change used to set the network timestep
+    xnet_changemxt [REAL] [1.0e-2]
+        Valid Values: 0.0 to INFTY
+        allowed temperature change used to set the network timestep
+    xnet_data_dir [STRING] ["Networks/Data_SN160"]
+        Valid Values: Unconstrained
+
+    xnet_iconvc [INTEGER] [3]
+        Valid Values: 0 to 3
+        determines which convergence condition is used
+    xnet_idiag [INTEGER] [-1]
+        Valid Values: -1 to 5
+        sets XNet diagnostic output level
+    xnet_iheat [INTEGER] [1]
+        Valid Values: 0 to 1
+        controls the treatment of self-heating
+    xnet_ijac [INTEGER] [1]
+        Valid Values: 1 to INFTY
+        rebuild jacobian every ijac iterations after the first
+    xnet_iprocess [INTEGER] [1]
+        Valid Values: 0 to 1
+        controls the runtime pre-processing of the network data
+    xnet_iscrn [INTEGER] [1]
+        Valid Values: 0 to 1
+        controls the treatment of nuclear screening
+    xnet_isolv [INTEGER] [3]
+        Valid Values: 1 to 3
+        choice of integration scheme
+    xnet_iweak [INTEGER] [1]
+        Valid Values: 0 to 1
+        controls the treatment of weak reactions
+    xnet_kitmx [INTEGER] [10]
+        Valid Values: 1 to INFTY
+        max Newton-Raphson iterations before retry
+    xnet_kstmx [INTEGER] [6000]
+        Valid Values: 1 to INFTY
+        max timesteps for each zone
+    xnet_nzbatchmx [INTEGER] [16]
+        Valid Values: 1 to INFTY
+        number of zones to batch and pass to burner
+    xnet_tdel_maxmult [REAL] [2.0e+0]
+        Valid Values: 1.0 to INFTY
+        max factor by which the network timestep is changed
+    xnet_tolc [REAL] [1.0e-4]
+        Valid Values: 0.0 to 1.0
+        convergence limit on the iterative abundance change (iconvc=1)
+    xnet_tolm [REAL] [1.0e-6]
+        Valid Values: 0.0 to 1.0
+        mass conservation convergence criterion (iconvc=0)
+    xnet_tolt9 [REAL] [1.0e-4]
+        Valid Values: 0.0 to 1.0
+        convergence limit on the iterative temperature change
+    xnet_writeTimers [BOOLEAN] [FALSE]
+        controls whether to write XNet internal timers to stdout
+    xnet_yacc [REAL] [1.0e-7]
+        Valid Values: 0.0 to 1.0
+        abundances > yacc used for timestep calculation
+    xnet_ymin [REAL] [1.0e-99]
+        Valid Values: 0.0 to 1.0
+        abundance < ymin is set to 0.0

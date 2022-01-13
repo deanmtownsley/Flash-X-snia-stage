@@ -1,0 +1,31 @@
+#       Config file for the Multiphase unit
+REQUIRES physics/Multiphase/localAPI
+REQUIRES physics/IncompNS/IncompNSMain/vardens
+REQUIRES numericalTools/Stencils/StencilsAdvection
+REQUIRES numericalTools/Stencils/StencilsLevelset
+REQUIRES numericalTools/Stencils/StencilsTemporal
+
+#-------------------------------------------------------------------------------
+D useMultiphase   Should the Multiphase unit be used?
+PARAMETER useMultiphase BOOLEAN TRUE
+
+#-------------------------------------------------------------------------------
+PARAMETER mph_rhoGas            REAL     1.0      # Density ratio of gas/liquid
+PARAMETER mph_muGas             REAL     1.0      # Viscosity ratio of gas/liquid
+PARAMETER mph_invWeber          REAL     1.0      # Inverse Weber Number
+PARAMETER mph_Tsat              REAL     0.0      # Saturation temperature for phase change
+PARAMETER mph_thcoGas           REAL     1.0      # Thermal conducitivity of gas/liquid
+PARAMETER mph_CpGas             REAL     1.0      # Specific heat of gas/liquid
+PARAMETER mph_Stefan            REAL     1.0      # Stefan number
+
+PARAMETER mph_extpIt            INTEGER  5        # Heat flux extrapolation iterations...
+PARAMETER mph_lsIt              INTEGER  2        # Level Set redistance iterations...
+                                                  # Over-written in Simulation flash.par 
+PARAMETER mph_iPropSmear        REAL     1.0      # Thickness of the smeared region 
+                                                  # (x grid_spacing)
+
+#-------------------------------------------------------------------------------
+# Variables required by the MPH module
+VARIABLE dfun                   # Level set distance function
+VARIABLE rdfn                   # RHS for level set advection
+VARIABLE dfrc                   # Level set forcing variable

@@ -1,0 +1,83 @@
+Clarification of Terms
+======================
+
+Note: for simplicity, assume 3D - 2D and 1D are analogous.
+Abbreviations:
+ FCRR - flux-correction-related routine
+
+Flux locations
+--------------
+A flux location identifies a cell face of a cell in a discretized Grid.
+A flux location can be labeled by, for example,
+ * an index triple together with an integer refinement level
+   (using half-integer index for the direction normal to the face);
+ * a triple of real coordinates of the face center position (refinement level
+   and size of the face being implied by positions);
+ * a combination of an integer triple for the position, a refinement
+ level, and a direction integer.
+
+Flux values
+-----------
+A Flux value is a real numerical value that is associated with a flux
+location.
+
+Multiflux values
+----------------
+An ordered tuple of flux values (usually corresponding to fluxes associated
+with a set of solution variables).
+
+Fluxes
+------
+For purposes of describing the interfaces of certain related routines, 
+"fluxes" are a collection of (flux location, multiflux value) pairs.
+
+In code, fluxes can be represented by
+
+(for the locations)
+ * an AMR block;
+ * an AMR level;
+ * all cell faces everywhere;
+ * for either one or several directions.
+(for the values)
+ * The multiflux values for one direction of the cell faces of a block, as a
+   multidimensional Fortran arrays.
+ * The multiflux values for one direction of all cell faces at a refimenment level, as a
+   collection of multidimensional Fortran arrays, one per block.
+ * The multiflux values for one direction of cells faces at all
+   refimenment levels, whether thoses cells are covered by finer cells
+   or not.
+ * The multiflux values for one direction of all uncovered (i.e.,
+   finest) cell faces at all refimenment levels.
+ * Same as above, but in a collection iterating over directions.
+
+Flux arguments
+--------------
+
+A flux argument identifies "fluxes" in the argument list of a FCRR.
+A flux argument can be realized as (examples)
+ * a Fortran array giving multiflux values;
+ * several arrays giving several sets (blocks, and/or levels) of
+   multiflux values;
+ * additional arguments identifying the corresponding flux locations.
+ * A Flux argument can be implied (not explicitly given) to refer to a
+   (sub)set of flux data held in global Grid-owned data arrays
+   specifically defined for this purpose.
+
+Semipermanent flux storage
+--------------------------
+
+SPFS provides storage for flux data.
+SPFS may be realized only for a (possibly small) subset of flux
+locations.
+SPFS is provided and owned by the Grid unit.
+Access to SPFS is provided (primarily) by FCCRs that take flux
+arguments.
+(Additionally, some programming modes may provide access routines that
+act directly on cell-centered solution storage).
+Both write access (data flow from fluxes to SPFS) and read access (data
+flow from SPFS to fluxes) is possible.
+
+In addition to the access routines, action routines may be provided.
+These can modify the abstract state of the SPFS and/or involve
+communication.
+

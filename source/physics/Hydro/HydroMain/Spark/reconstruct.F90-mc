@@ -1,0 +1,112 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/reconstruct
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!!  NAME
+!!
+!!  reconstruct
+!!
+!!  SYNOPSIS
+!!
+!!  call reconstruct (  )
+!!
+!!  DESCRIPTION
+!!
+!!  ARGUMENTS
+!!
+!!
+!!***
+!subroutine reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
+  subroutine @M hy_recon_name(@M hy_recon_call_args)
+  @M hy_recon_use
+  implicit none
+  
+#include "Simulation.h"
+#include "Spark.h"
+#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
+  @M hy_recon_declare
+  real :: invSumAlpha
+  real, dimension(NRECON,3) :: W5p, W5m, betaWeno, Alpha5, omega
+  integer :: g
+  real, dimension(NRECON) :: mags, betaSum
+  @M weno5_coeffs
+  
+  real, parameter :: epsilon = 1.e-36
+  real, parameter :: n13o12 = 13./12.
+  
+  @M hy_recon_loop 
+  ! Interpolation stencil for weno
+  !! Calculate interface values at i+1/2
+  W5p(v,1) = coeff1p1(1)*hy_snake(v,i1-2@M hy_i23) + coeff1p1(2)*hy_snake(v,i1-1@M hy_i23) + coeff1p1(3)*hy_snake(v,i1+0@M hy_i23)
+  W5p(v,2) = coeff1p2(1)*hy_snake(v,i1-1@M hy_i23) + coeff1p2(2)*hy_snake(v,i1+0@M hy_i23)   + coeff1p2(3)*hy_snake(v,i1+1@M hy_i23)
+  W5p(v,3) = coeff1p3(1)*hy_snake(v,i1+0@M hy_i23)   + coeff1p3(2)*hy_snake(v,i1+1@M hy_i23) + coeff1p3(3)*hy_snake(v,i1+2@M hy_i23)
+  
+  !! Calculate interface values at i-1/2
+  W5m(v,1) = coeff1m1(1)*hy_snake(v,i1-2@M hy_i23) + coeff1m1(2)*hy_snake(v,i1-1@M hy_i23) + coeff1m1(3)*hy_snake(v,i1+0@M hy_i23)
+  W5m(v,2) = coeff1m2(1)*hy_snake(v,i1-1@M hy_i23) + coeff1m2(2)*hy_snake(v,i1+0@M hy_i23)   + coeff1m2(3)*hy_snake(v,i1+1@M hy_i23)
+  W5m(v,3) = coeff1m3(1)*hy_snake(v,i1+0@M hy_i23)   + coeff1m3(2)*hy_snake(v,i1+1@M hy_i23) + coeff1m3(3)*hy_snake(v,i1+2@M hy_i23)
+  
+  !! Calculate smoothness indicators at i+1/2
+  betaWeno(v,1) = n13o12*(hy_snake(v,i1-2@M hy_i23) - 2.*hy_snake(v,i1-1@M hy_i23) +    hy_snake(v,i1+0@M hy_i23)  )**2 &
+       +            0.25*(hy_snake(v,i1-2@M hy_i23) - 4.*hy_snake(v,i1-1@M hy_i23) + 3.*hy_snake(v,i1@M hy_i23)  )**2
+  betaWeno(v,2) = n13o12*(hy_snake(v,i1-1@M hy_i23) - 2.*hy_snake(v,i1@M hy_i23)   +    hy_snake(v,i1+1@M hy_i23))**2 &
+       +            0.25*(hy_snake(v,i1-1@M hy_i23)                      -    hy_snake(v,i1+1@M hy_i23))**2
+  betaWeno(v,3) = n13o12*(hy_snake(v,i1@M hy_i23)   - 2.*hy_snake(v,i1+1@M hy_i23) +    hy_snake(v,i1+2@M hy_i23))**2 &
+       +            0.25*(3.*hy_snake(v,i1@M hy_i23)- 4.*hy_snake(v,i1+1@M hy_i23) +    hy_snake(v,i1+2@M hy_i23))**2
+  
+  !! Use problem-adaptive epsilong as in Tchekovskoy7, A3
+  ! This does not seem to work with the WENO-Z indicators of Borges+08
+  ! mags(v) = hy_snake(@M ind_m(2))**2 + hy_snake(@M ind_m(1))**2 + hy_snake(@M ind_p(0))**2 &
+  !      + hy_snake(@M ind_p(1))**2 + hy_snake(@M ind_p(2))**2
+  ! betaWeno(v,1) = betaWeno(v,1) + epsilon*mags(v) + TINY(1.0)
+  ! betaWeno(v,2) = betaWeno(v,2) + epsilon*mags(v) + TINY(1.0)
+  ! betaWeno(v,3) = betaWeno(v,3) + epsilon*mags(v) + TINY(1.0)
+  
+  !! This is WENO-Zv this is very similar to weno5 with wenoExp=1
+  Alpha5(v,1) = coeff2p(1)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,1)+epsilon)))
+  Alpha5(v,2) = coeff2p(2)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,2)+epsilon)))
+  Alpha5(v,3) = coeff2p(3)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,3)+epsilon)))
+  
+  !! Normalize weights at i+1/2
+  invSumAlpha = 1./(Alpha5(v,1)+Alpha5(v,2)+Alpha5(v,3))
+  omega(v,1)  = Alpha5(v,1)*invSumAlpha
+  omega(v,2)  = Alpha5(v,2)*invSumAlpha
+  omega(v,3)  = Alpha5(v,3)*invSumAlpha
+  
+  !! Compute interface value at i+1/2
+  hy_uPlus(v @M hy_i123)  = omega(v,1)*W5p(v,1) + omega(v,2)*W5p(v,2) + omega(v,3)*W5p(v,3)
+  !! Apply hy_flattening
+  hy_uPlus(v @M hy_i123) = hy_flat@M hy_123*hy_uPlus(v @M hy_i123) + (1.-hy_flat@M hy_123)*hy_snake(v,i1 @M hy_i23)
+  
+  !! Now move on to i-1/2
+  !! This is WENO-Z
+  Alpha5(v,1) = coeff2m(1)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,1)+epsilon)))
+  Alpha5(v,2) = coeff2m(2)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,2)+epsilon)))
+  Alpha5(v,3) = coeff2m(3)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,3)+epsilon)))
+  
+  !! Normalize weights at i-1/2
+  invSumAlpha = 1./(Alpha5(v,1)+Alpha5(v,2)+Alpha5(v,3))
+  omega(v,1)  = Alpha5(v,1)*invSumAlpha
+  omega(v,2)  = Alpha5(v,2)*invSumAlpha
+  omega(v,3)  = Alpha5(v,3)*invSumAlpha
+  
+  !! Compute interface value at i-1/2
+  hy_uMinus(v @M hy_i123) = omega(v,1)*W5m(v,1) + omega(v,2)*W5m(v,2) + omega(v,3)*W5m(v,3)
+  !! Apply hy_flattening
+  hy_uMinus(v @M hy_i123) = hy_flat@M hy_123*hy_uMinus(v @M hy_i123) + (1.-hy_flat@M hy_123)*hy_snake(v, i1 @M hy_i23)
+  !! Check for monotonicity
+  if ( (hy_uPlus(v @M hy_i123)-hy_snake(v, i1 @M hy_i23))*(hy_snake(v, i1 @M hy_i23)-hy_uMinus(v @M hy_i123)) <= 0. ) then
+     hy_uPlus(v @M hy_i123)  = hy_snake(v, i1 @M hy_i23)
+     hy_uMinus(v @M hy_i123) = hy_snake(v, i1 @M hy_i23)
+  end if
+  
+  @M hy_recon_loop_end
+end  subroutine @M hy_recon_name
+
+

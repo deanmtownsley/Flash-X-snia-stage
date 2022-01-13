@@ -1,0 +1,15 @@
+#  Configuration file for Eos test for WeakLib implementation
+#  Simulation/SimultationMain/unitTest/Eos/WeakLib
+#  Receives the Simulation_init from SimulationComposition
+
+REQUIRES physics/Eos/EosMain/WeakLib
+REQUIRES physics/Eos/unitTest/WeakLib
+
+# Extra variables
+D ye_mscalar      Electron Fraction
+MASS_SCALAR YE    EOSMAPIN: YE
+
+D sim_yeMin       Initial distribution of electron fraction, minimum.  Even distribution between min/max.
+D sim_yeMax       Initial distribution of electron fraction, maximum.  Even distribution between min/max.
+PARAMETER sim_yeMin  REAL 0.1
+PARAMETER sim_yeMax  REAL 0.5

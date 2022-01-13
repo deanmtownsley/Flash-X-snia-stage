@@ -1,0 +1,37 @@
+subroutine ImBound_getScalarProp(name, value)
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+
+  use ImBound_data
+  use Driver_interface, only: Driver_abortFlash
+
+  implicit none
+  character(len=*), intent(in)  :: name
+  real, intent(out)             :: value
+
+  character(len=100)            :: errorMessage
+
+  select case(name)
+     case("Solid_Density","solid_density","SOLID_DENSITY")
+       value = ib_rhoSolid
+     case("Solid_Viscosity","solid_viscosity","SOLID_VISCOSITY")
+       value = ib_muSolid
+     case("Solid_Conductivity","solid_conductivity","SOLID_CONDUCTIVITY")
+       value = ib_thcoSolid
+     case("Solid_Specific_Heat","solid_specific_heat","SOLID_SPECIFIC_HEAT")
+       value = ib_CpSolid
+     case default
+       value = 0.
+       write(errorMessage,*) '[ImBound_getScalarProp] Unknown scalar: ',name
+       call Driver_abortFlash(errorMessage)
+  end select  
+
+  return
+
+end subroutine ImBound_getScalarProp

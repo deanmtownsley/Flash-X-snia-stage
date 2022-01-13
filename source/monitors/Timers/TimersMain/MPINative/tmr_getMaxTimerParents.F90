@@ -1,0 +1,48 @@
+!!****if* source/monitors/Timers/TimersMain/MPINative/tmr_getMaxTimerParents
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!! NAME
+!!   tmr_getMaxTimerParents
+!!
+!! SYNOPSIS
+!!   tmr_getMaxTimerParents(integer(OUT) :: value)
+!!
+!! DESCRIPTION
+!!  Accessor function for how many places a timer can appear 
+!!  in various call stacks.  For instance, timers A, B, and C 
+!!  appear in a run, as follows:
+!!
+!!   /A
+!!   /B/A
+!!   /C/B/A
+!!   /B/C
+!!
+!!  then A has three parents, B has two, and C has two.  This number is 
+!!  in general statically limited.
+!!
+!! ARGUMENTS
+!!   value -- the number of places a timer can appear
+!!
+!! PARAMETERS
+!!
+!!***
+
+subroutine tmr_getMaxTimerParents(inmaxParents)
+
+  use Timers_data, ONLY: tmr_maxTimerParents
+
+  implicit none
+
+  integer, intent(OUT) :: inmaxParents
+
+  inmaxParents = tmr_maxTimerParents
+  return
+
+end subroutine tmr_getMaxTimerParents

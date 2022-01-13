@@ -1,0 +1,81 @@
+!!****f* source/Grid/Grid_putFluxData_block
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!! 
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!!
+!! NAME
+!!
+!!  Grid_putFluxData_block
+!!
+!! SYNOPSIS
+!!
+!!  call Grid_putFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
+!!                              real(in),dimension(:,lo(1): ,lo(2): ,lo(3): )  :: fluxBufx,
+!!                              real(in),dimension(:,lo(1): ,lo(2): ,lo(3): )  :: fluxBufy,
+!!                              real(in),dimension(:,lo(1): ,lo(2): ,lo(3): )  :: fluxBufz,
+!!                              integer(in) :: lo(3),
+!!                              logical, intent(IN), OPTIONAL,target  :: isFluxDensity)
+!!
+!! DESCRIPTION
+!!
+!!   Save fluxes passed in as arguments in semipermanent flux storage (SPFS).
+!!
+!!   A stub that does nothing is used for the Uniform Grid implementation.
+!!
+!! ARGUMENTS
+!!
+!!   blockdesc : describes the current block.
+!!               Note that this should be a full block, not a tile representing
+!!               a partial block.
+!!
+!!   fluxBufx :  fluxes in IAXIS-direction
+!!
+!!   fluxBufy :  fluxes in JAXIS-direction; ignored if NDIM < 2
+!!
+!!   fluxBufz :  fluxes in KAXIS-direction; ignored if NDIM < 3
+!!
+!!   lo :        lower bounds for the spatial indices of the flux buffers
+!!
+!!   isFluxDensity : indicates, for each flux component, whether the component
+!!                   is a flux proper (if TRUE) or a flux density (otherwise).
+!!                   This may be either removed, or changed into a scalar flag,
+!!                   later.
+!!
+!! NOTES
+!!
+!!   The arrays fluxBufX, fluxBufY, fluxBufZ are subject to index reordering.
+!!
+!!   This interface does not require level-wide fluxes to be allocated.
+!!
+!!   SPFS means semi-permanent flux storage. When using a Grid
+!!   implementation based on AMReX, SPFS is implemented by an AMReX
+!!   flux register class, such as FlashFluxRegister.
+!!
+!! SEE ALSO
+!!
+!!   Grid_communicateFluxes
+!!   Grid_correctFluxData
+!!***
+
+!!REORDER(4): fluxBuf[XYZ]
+
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFluxDensity)
+  use Grid_tile, ONLY : Grid_tile_t
+  implicit none
+#include "FortranLangFeatures.fh"
+  type(Grid_tile_t), intent(in) :: blockDesc
+  integer,intent(in) :: lo(3)
+  real,intent(in),dimension(:, lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX,fluxBufY,fluxBufZ
+  CONTIGUOUS_FSTMT(fluxBufX)
+  CONTIGUOUS_FSTMT(fluxBufY)
+  CONTIGUOUS_FSTMT(fluxBufZ)
+  logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
+
+  return
+
+end subroutine Grid_putFluxData_block

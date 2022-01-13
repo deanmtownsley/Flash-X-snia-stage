@@ -1,0 +1,125 @@
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro
+REQUIRES physics/Gravity/GravityMain/Poisson
+REQUIRES physics/Eos/EosMain/Helmholtz
+REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
+REQUIRES Simulation/SimulationComposition
+REQUIRES Multispecies
+REQUESTS IO
+REQUESTS IO/IOMain/hdf5
+
+## Do not refine fluff
+LINKIF Grid_markRefineDerefine.F90.pm4 Grid/GridMain/AMR/Paramesh4
+
+# Use more Timers-friendly variant if Hydro, if appropriate
+LINKIF Hydro.F90.levelFlux physics/Hydro/HydroMain/unsplit/levelFlux
+USESETUPVARS NoLevelwideFluxes
+IF NoLevelwideFluxes
+   LINKIF Hydro.F90 physics/Hydro/HydroMain/unsplit
+ENDIF
+
+#
+# progenitor
+#
+
+DATAFILES       Profiles
+PARAMETER       initialWDFile   STRING  "wd_profile_rhoc_415e5_M_106_correct.dat"
+
+#
+# ambient medium outside star
+#
+
+D dens_fluff            density of the fluff; use last zone in profile if <= 0.0
+D temp_fluff            temperature of the fluff; use last zone in profile if <= 0.0
+PARAMETER     dens_fluff         REAL     1.e-3
+PARAMETER     temp_fluff         REAL     3.e7
+
+D xhe4_fluff            he4 mass fraction of the fluff; use last zone in profile if all (he4,c12,o16,ni56) fluff composition <= 0.0
+D xc12_fluff            c12 mass fraction of the fluff
+D xo16_fluff            o16 mass fraction of the fluff
+D xni56_fluff           ni56 mass fraction of the fluff
+PARAMETER     xhe4_fluff         REAL     1.e0  [0.0 to 1.0]
+PARAMETER     xc12_fluff         REAL     0.e0  [0.0 to 1.0]
+PARAMETER     xo16_fluff         REAL     0.e0  [0.0 to 1.0]
+PARAMETER     xni56_fluff        REAL     0.e0  [0.0 to 1.0]
+
+#
+# ignition
+#
+
+D ignite                flag to ignite a spherical region with matchhead
+D x_match               X-coordinate of center of matchhead
+D y_match               Y-coordinate of center of matchhead
+D z_match               Z-coordinate of center of matchhead
+D r_match_inner         Inner radius of spherical matchhead region
+D r_match_outer         Outer radius of spherical matchhead region
+D t_ignite_inner        Temperature of matchhead at r_match_inner
+D t_ignite_outer        Temperature of matchhead at r_match_outer
+D xc12_match            c12 mass fraction of the matchhead region (remainder is filled with he4)
+D xo16_match            o16 mass fraction of the matchhead region (remainder is filled with he4)
+D xni56_match           ni56 mass fraction of the matchhead region (remainder is filled with he4)
+PARAMETER     ignite             BOOLEAN  FALSE
+PARAMETER     x_match            REAL     0.e0
+PARAMETER     y_match            REAL     0.e0
+PARAMETER     z_match            REAL     0.e0
+PARAMETER     r_match_inner      REAL     0.e0  [0.0 to ]
+PARAMETER     r_match_outer      REAL     0.e0  [0.0 to ]
+PARAMETER     t_ignite_inner     REAL     4.e9  [0.0 to ]
+PARAMETER     t_ignite_outer     REAL     4.e9  [0.0 to ]
+PARAMETER     xc12_match         REAL     0.e0  [0.0 to 1.0]
+PARAMETER     xo16_match         REAL     0.e0  [0.0 to 1.0]
+PARAMETER     xni56_match        REAL     0.e0  [0.0 to 1.0]
+
+D useShell              flag to add a shell/belt to the profile
+D radShellMin           Inner radius of shell
+D radShellMax           Outer radius of shell
+D thtShellMin           Min angle of belt (0.0 for shell)
+D thtShellMax           Max angle of belt (180.0 for shell)
+PARAMETER     useShell           BOOLEAN  FALSE
+PARAMETER     radShellMin        REAL     0.e0  [0.0 to ]
+PARAMETER     radShellMax        REAL     0.e0  [0.0 to ]
+PARAMETER     thtShellMin        REAL     0.e0  [0.0 to 180.0]
+PARAMETER     thtShellMax        REAL     0.e0  [0.0 to 180.0]
+
+D densShellMult         Density multiplier if shell is within profile
+D tempShellMult         Temperture multiplier if shell is within profile
+D densShell             Density of shell if exterior to profile
+D tempShell             Temperture of shell if exterior to profile
+PARAMETER     densShellMult      REAL     1.e0  [0.0 to ]
+PARAMETER     tempShellMult      REAL     1.e0  [0.0 to ]
+PARAMETER     densShell          REAL     0.e0  [0.0 to ]
+PARAMETER     tempShell          REAL     0.e0  [0.0 to ]
+
+D xhe4_shell            Helium mass fraction of shell
+D xc12_shell            Carbon mass fraction of shell
+D xni56_shell           Nickel mass fraction of shell (ash)
+PARAMETER     xhe4_shell         REAL     1.e0  [0.0 to 1.0]
+PARAMETER     xc12_shell         REAL     0.e0  [0.0 to 1.0]
+PARAMETER     xni56_shell        REAL     0.e0  [0.0 to 1.0]
+
+## custom refinement criteria
+
+D refFluffDensThresh refinement threshold for derefinement in fluff
+D & below this density a maximum refinement level of refFluffLevel is enforced
+D refFluffMargin     Padding margin for thresholding (in fractional units)
+D refFluffLevel      Maximum refinement level of fluff
+
+PARAMETER     refFluffDensThresh   REAL      1.e3
+PARAMETER     refFluffMargin       REAL      0.2
+PARAMETER     refFluffLevel        INTEGER   1
+
+D refNogenEnucThresh refinement threshold for derefinement outside energy-generating regions.
+D & below this enuc, maximum refinement level of refNogenLevel is enforced.
+D & regions with enuc > threshold ignore the fluff density derefinement threshold
+D refNogenMargin     Padding margin for thresholding (in fractional units)
+D refNogenLevel      Maximum refinement level outside energy-generating regions
+
+PARAMETER     refNogenEnucThresh   REAL      1.e18
+PARAMETER     refNogenMargin       REAL      0.5
+PARAMETER     refNogenLevel        INTEGER   9
+
+VARIABLE        entr    EOSMAP: ENTR
+
+MASS_SCALAR YE    EOSMAPIN: YE
+MASS_SCALAR SUMY  EOSMAPIN: SUMY

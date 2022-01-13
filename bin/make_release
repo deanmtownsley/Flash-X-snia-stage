@@ -1,0 +1,34 @@
+#!/bin/sh -f
+
+# script to create the FLASH release version function
+
+# this routine will return the major a minor version number as a 
+# string
+
+rm -f flash_release.F90
+echo function setup_flashRelease\(\)            >  setup_flashRelease.F90
+echo                                           >> setup_flashRelease.F90
+echo character \(len = 80\) \:\: setup_flashRelease >> setup_flashRelease.F90
+echo                                           >> setup_flashRelease.F90
+
+# read in the release number from the RELEASE file
+
+# NOTE: setup copies make_release into the objects directory, so RELEASE
+# lies one directory above
+rawrelease=`cat ../RELEASE 2>/dev/null`
+
+if grep -q "SVNBRIEF" ../RELEASE 2>/dev/null; then
+    export SVNBRIEF=`../bin/svnbrief.sh`
+fi
+
+if grep -q "GITDESCRIBE" ../RELEASE 2>/dev/null; then
+    export GITDESCRIBE=`git describe --all --always --abbrev=8 --candidates=30 --long --dirty`
+fi
+
+release=`eval echo ${rawrelease}`
+
+echo setup_flashRelease = \'FLASH-X $release\'    >> setup_flashRelease.F90
+echo                                           >> setup_flashRelease.F90
+echo end                                       >> setup_flashRelease.F90
+
+

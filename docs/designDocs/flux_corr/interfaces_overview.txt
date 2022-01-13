@@ -1,0 +1,46 @@
+New Interfaces to Support Flux Correction (without level-wide fluxes):
+=====================================================================
+
+   call Grid_putFluxData[_block] (desc,fluxBuf...)                               !! AMReX, PARAMESH
+
+   call Grid_communicateFluxes   (...,level)                                     !! AMReX, PARAMESH
+
+   call Grid_getFluxData[_block]     (desc,fluxBuf...)                           !! PARAMESH ONLY
+   call Grid_getFluxCorrData[_block] (desc,fluxBuf...)                           !! PARAMESH ONLY
+   call Grid_getFluxCorrData[_xtra]  (desc,fluxBuf...,fluxCorr...)               !! AMReX, PARAMESH
+   call Grid_correctFluxData         (desc,fluxBuf...)                           !! AMReX, PARAMESH
+   call Grid_correctFluxData[_xtra]  (desc,scaleF,fluxBuf...,scaleC,fluxOld...)  !! AMReX, PARAMESH
+
+
+Differences between the New "Get"-side subroutines:
+==================================================
+
+  call Grid_getFluxData[_block]     (desc,fluxBuf...)
+
+      fluxBuf  :=  "communicated fine fluxes"   AT           coarse side of f/c bdry;
+               :=  "saved coarse fluxes"        ELSEWHERE AT cells touching block bdry;
+               undef                            ELSEWHERE.
+
+
+  call Grid_getFluxCorrData[_block] (desc,fluxBuf...)
+
+      fluxBuf  :=  "communicated fine fluxes" - "saved coarse fluxes"  AT        coarse side of f/c bdry;
+               :=  0.0                                                 ELSEWHERE.
+
+
+  call Grid_getFluxCorrData[_xtra]  (desc,fluxBuf...,fluxCorr...)
+
+      fluxCorr :=  "communicated fine fluxes" - fluxBuf   AT        coarse side of f/c bdry;
+               :=  0.0                                    ELSEWHERE.
+
+
+  call Grid_correctFluxData         (desc,fluxBuf...)
+
+      fluxBuf  :=  "communicated fine fluxes"  AT        coarse side of f/c bdry;
+               unmodified                      ELSEWHERE.
+
+  call Grid_correctFluxData[_xtra]  (desc,scaleF,fluxBuf...,scaleC,fluxOld...)
+
+      fluxBuf  :=  scaleF * "communicated fine fluxes" + scaleC * fluxOld   AT        coarse side of f/c bdry;
+               unmodified                                                   ELSEWHERE.
+

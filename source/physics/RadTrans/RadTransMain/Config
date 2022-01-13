@@ -1,0 +1,6 @@
+# Configuration file for RadTransMain
+# [physics/RadTrans/RadTransMain]
+
+DEFAULT TwoMoment
+
+REQUIRES physics/RadTrans/localAPI

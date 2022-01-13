@@ -1,0 +1,29 @@
+#       Config file for the Heat Advection Diffusion solver.
+DEFAULT constdiffusion
+
+#-----------------------------------------------------------------------
+REQUIRES physics/HeatAD/localAPI
+REQUIRES numericalTools/Stencils/StencilsDiffusion
+REQUIRES numericalTools/Stencils/StencilsTemporal
+
+#-----------------------------------------------------------------------
+CHILDORDER constdiffusion vardiffusion
+EXCLUSIVE  constdiffusion vardiffusion
+
+#-----------------------------------------------------------------------
+D useHeatAD   Should the HeatAD unit be used?
+PARAMETER useHeatAD BOOLEAN TRUE
+
+#-----------------------------------------------------------------------
+# Runtime parameters
+PARAMETER ht_Prandtl            REAL     1.0
+PARAMETER ht_Nusselt            REAL     1.0
+PARAMETER ht_Twall_high         REAL     1.0
+PARAMETER ht_Twall_low          REAL     0.0
+PARAMETER ht_Tbulk              REAL     0.0
+
+#-----------------------------------------------------------------------
+# Variables
+VARIABLE temp TYPE: GENERIC # Temperature variable
+VARIABLE rhst TYPE: GENERIC # RHS variable
+VARIABLE tfrc TYPE: GENERIC # Forcing variable

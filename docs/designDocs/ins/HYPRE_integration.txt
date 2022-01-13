@@ -1,0 +1,59 @@
+---------------------------------------------------------------------
+CALL SEQUENCE HYPRE						     
+---------------------------------------------------------------------
+call Grid_solvePoisson(iSoln, iSrc, bcTypes, bcValues, poisfact)
+    |
+    call Grid_getListOfBlocks(LEAF, blockList, blockCount)
+    |
+    call gr_hypreGridStatus(blockCount, blockList, nvars)
+      |
+      call gr_hypreSetupGrid(blockCount, blockList, nvars)
+        |
+        <setup HYPRE grid and HYPRE parallel env using SStruct interfaces>
+        |
+        <block computations>
+        |
+        <mpi communications>
+        |
+        <allocate data from gr_hypreData using blockCount>
+        |
+        <call HYPRE subroutines using SStruct interfaces>
+    |
+    <block computations for RHS matrix B from solnData -- ? Move another level down to a separate subroutine ?>
+    |
+    <call HYPRE subroutines using SStruct interfaces>
+    |
+    call gr_hypreExchangeFacB (iFactorB, blockCount, blockList)
+      |
+      <conserve fluxes at fine/coarse boundaries>  
+    |
+    call gr_hypreSetIniGuess (iVar, blockCount, blockList)
+      |
+      <initial guess of the solution x - block computations>
+    |
+    call gr_hypreCreateMatrix(iSoln, iFactorB, iFactorA, localbcTypes, bcValues, dt, theta,blockCount, blockList, .TRUE.)
+      |
+      <create matrix A from solnData - apply BCs>
+    |
+    call gr_hypreSolve()
+      |
+      <solve Poisson equation using HYPRE - Calculate x - Ax=B>
+    |
+    call gr_hypreUpdateSoln (iVar, blockCount, blockList)
+      |
+      <save values of x to solnData>
+      |
+      <zero out RHS matrix B for next step>
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+QUESTIONS
+----------------------------------------------------------------------
+Q - Remove Grid_advanceDiffusion, Grid_advanceDiffusionFcB, and other subroutines that are not needed for Poisson Solve?
+Q - Remove multiScalar subunit for now? Not needed for Poisson solve
+Q - gr_hypreSetIniGuess is not defined in gr_hypreLocalInterface or gr_interface
+Q - gr_hypreUpdateSoln is not defined  in gr_hypreLocalInterface or gr_interface
+Q - How to get blockCount to allocate HYPRE related data
+Q - Many subroutines not in interface or declared at wrong place
+----------------------------------------------------------------------
+

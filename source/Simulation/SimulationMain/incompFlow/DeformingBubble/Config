@@ -1,0 +1,13 @@
+#	Config file for the INS module.
+#       Note: This is a staggered finite difference mesh algorithm.
+
+REQUIRES physics/IncompNS/IncompNSMain/vardens
+REQUIRES physics/Multiphase/MultiphaseMain
+
+USESETUPVARS Grid
+
+IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
+   REQUIRES Grid/GridSolvers/HYPRE
+ELSE
+   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+ENDIF
