@@ -63,13 +63,13 @@ jobs:
           echo $mydir
           cd sod-serial   
           echo "RUNNING: Sod serial"
-          ./flash5     
+          ./flashx     
           ls -ltrh *chk*
           head -n 21 *.log
           tail -n 200 *.log
           cd ../sedov-serial
           echo "RUNNING: Sedov serial"
-          ./flash5     
+          ./flashx     
           ls -ltrh *chk*
           head -n 21 *.log
           tail -n 200 *.log          

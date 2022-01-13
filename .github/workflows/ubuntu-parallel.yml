@@ -63,13 +63,13 @@ jobs:
           echo $mydir
           cd sod-parallel    
           echo "RUNNING: Sod parallel"
-          mpiexec -np 2 ./flash5     
+          mpiexec -np 2 ./flashx     
           ls -ltrh *chk*
           head -n 21 *.log
           tail -n 200 *.log   
           cd ../sedov-parallel
           echo "RUNNING: Sedov parallel"
-          mpiexec -np 2 ./flash5     
+          mpiexec -np 2 ./flashx     
           ls -ltrh *chk*
           head -n 21 *.log
           tail -n 200 *.log          

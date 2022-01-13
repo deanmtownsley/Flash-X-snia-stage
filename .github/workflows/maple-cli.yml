@@ -48,12 +48,12 @@ jobs:
                     ./setup incompFlow/RisingBubble -auto -2d -site=/home/site \
                     +amrex -maxblocks=100 && \
                     cd object && make -j 1 && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 1 ./flash5 && cat unitTest_0000 && cd .. && \
+                    mpirun -n 1 ./flashx && cat unitTest_0000 && cd .. && \
                     \
                     ./setup incompFlow/RisingBubble -auto -2d -site=/home/site \
                     +pm4dev -gridinterpolation=native -maxblocks=100 && \
                     cd object && make -j 1 && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 1 ./flash5 && cat unitTest_0000 && cd .."
+                    mpirun -n 1 ./flashx && cat unitTest_0000 && cd .."
 
     - name: Clean Flash-X env
       run: |
