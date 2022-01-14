@@ -6,4 +6,5 @@
 maple_container="flashx"
 maple_image="akashdhruv/flash:latest"
 maple_target="/home/mount/Flash-X"
-maple_port="1000"
+maple_backend="docker"
+maple_port="1200"
