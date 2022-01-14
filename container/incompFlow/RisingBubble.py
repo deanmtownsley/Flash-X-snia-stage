@@ -22,7 +22,7 @@ if __name__ == "__main__":
     flashx.execute("./setup incompFlow/RisingBubble -auto -2d -site=/home/site \
                     +amrex -maxblocks=100 && \
                     cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 4 ./flashx && cat unitTest_0000")
+                    mpirun -n 1 ./flashx && cat unitTest_0000")
 
     # clean (delete) local image
     flashx.clean()
