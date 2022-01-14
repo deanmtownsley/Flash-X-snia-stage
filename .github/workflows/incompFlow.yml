@@ -18,7 +18,9 @@ on:
     
 # Container jobs
 jobs:
-  incompFlow:
+
+  # 1
+  PoolBoiling:
     name: "PoolBoiling"
     runs-on: ubuntu-latest
     steps:
@@ -42,6 +44,8 @@ jobs:
       run: |   
           python3 container/incompFlow/PoolBoiling.py
 
+  # 2
+  RisingBubble:
     name: "RisingBubble"
     runs-on: ubuntu-latest
     steps:
