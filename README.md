@@ -55,7 +55,7 @@ We intend to develop MAPLE as a standalone application for multiple projects, an
 
 If you want to test this new feature please follow these steps:
 
-### Initialize ```maple``` submodule
+### Initialize maple submodule
 
   ```
   mkdir -p $HOME/.local/bin
