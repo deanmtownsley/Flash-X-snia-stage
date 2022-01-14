@@ -67,7 +67,7 @@ If you want to test this new feature please follow these steps:
   ./setup clean
   ```
 
-### Writing a ```Maplefile```
+### Writing a Maplefile
 
   ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables:
   
