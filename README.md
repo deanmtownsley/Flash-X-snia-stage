@@ -69,19 +69,19 @@ If you want to test this new feature please follow these steps:
 
 ### Writing a Maplefile
 
-  ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables-
+  ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables:
   
-  	```maple_image```: Name of the image in remote registry 
-  	
-  	```maple_container```: Name of the local container
-  	
-	```maple_target```: Name of the target dir to mount src dir
-	
-	```maple_port```: Port ID for jupyter notebooks
-
- 	```maple_backend```: Backend (docker/singularity)
-       	
-  ```maple``` passes these variables to its internal ```Dockerfile``` to build the images and containers.  
+  ```maple_image```: Name of the image in remote registry   	 
+  
+  ```maple_container```: Name of the local container  	
+  
+  ```maple_target```: Name of the target dir to mount src dir 
+  
+  ```maple_port```: Port ID for jupyter notebooks 
+  
+  ```maple_backend```: Backend (docker/singularity)
+  
+  ```maple``` passes these variables to its internal ```Dockerfile``` to build the images and containers. 
 
   Please refer to example ```Maplefile``` in ```Flash-X``` directory
 
@@ -188,7 +188,7 @@ The following are the setup commands of the tests that are currently included in
 - CCSN_WL -auto -1d +spherical -nxb=16 threadBlockList=False +pm4dev +hdf5 threadWithinBlock=False +newMpole +uhd -debug +mode1 -parfile=ccsn1d.par
 - YahilLattimerCollapse -debug -auto -1d +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf -parfile=yahil_1d.par
 - YahilLattimerCollapse -debug -auto -2d +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf -parfile=yahil_2d.par
-- YahilLattimerCollapse -debug -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +spark -parfile=yahil_1d.par
+- YahilLattimerCollapse -debug  	```maple_backend```: Backend (docker/singularity)-auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +spark -parfile=yahil_1d.par
 - YahilLattimerCollapse -debug -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +spark -parfile=yahil_2d.par
 - HydroStatic -auto -2d -test +Mode1 +nolwf useFortran2003=True -parfile=flash.par
 
