@@ -1110,7 +1110,7 @@ Module Grid_interface
   end interface
 
   interface
-     subroutine Grid_zeroFluxData
+     subroutine Grid_zeroFluxData()
        implicit none
      end subroutine Grid_zeroFluxData
   end interface
