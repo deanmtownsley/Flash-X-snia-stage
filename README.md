@@ -69,7 +69,7 @@ If you want to test this new feature please follow these steps:
 
 ### Writing a Maplefile
 
-  ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables:
+  ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables-
   
   	```maple_image```: Name of the image in remote registry 
   	
