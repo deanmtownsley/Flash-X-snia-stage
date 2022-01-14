@@ -18,7 +18,7 @@ on:
     
 # Container jobs
 jobs:
-  lid-driven-cavity:
+  incompFlow:
     name: "PoolBoiling"
     runs-on: ubuntu-latest
     steps:
@@ -42,8 +42,6 @@ jobs:
       run: |   
           python3 container/incompFlow/PoolBoiling.py
 
-jobs:
-  lid-driven-cavity:
     name: "RisingBubble"
     runs-on: ubuntu-latest
     steps:
