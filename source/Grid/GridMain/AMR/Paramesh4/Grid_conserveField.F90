@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_conserveField
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_conserveField
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -14,16 +14,21 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_conserveField ()
+!!  call Grid_conserveField ()
 !!
 !! ARGUMENTS
-!!
+!!  none
 !!
 !! DESCRIPTION
-!! 
+!!
 !!  Corrects electric fields at refinement jump boundaries to make 
 !!  sure electric fields at the common boundaries are consistent 
 !!  at both refined and coarse meshes.
+!!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4!
+!!  DEV: Currently forced abort for Paramesh4!
 !!
 !!***
 

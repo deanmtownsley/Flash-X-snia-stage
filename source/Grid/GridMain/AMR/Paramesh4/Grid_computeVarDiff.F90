@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_computeVarDiff
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_computeVarDiff
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -50,9 +50,7 @@ subroutine Grid_computeVarDiff(level, gr_iRefSoln, gr_iSoln, ires)
 #include "constants.h"
 
   use tree, ONLY : lnblocks,lrefine,nodetype
-  use Grid_interface, ONLY : Grid_getBlkType
   use physicaldata, ONLY : unk
-  use workspace, ONLY : work
 
   use Timers_interface, ONLY : Timers_start, Timers_stop
 

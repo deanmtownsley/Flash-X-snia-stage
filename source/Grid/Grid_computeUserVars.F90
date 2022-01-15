@@ -9,23 +9,25 @@
 !! limitations under the License.
 !!
 !! NAME
+!!
 !!  Grid_computeUserVars
 !!
 !!
 !! SYNOPSIS
 !!
-!!  Grid_computeUserVars() 
-!!                       
-!!  
-!! DESCRIPTION 
-!!  
-!!  This routine is always a stub unless the user adds this file to their simulations
-!!  directory.  Routine allows users to compute own variables.  Some examples are
-!!  vorticity, conductivity etc. 
+!!  call Grid_computeUserVars()
 !!
 !!
-!! ARGUMENTS 
-!!  
+!! DESCRIPTION
+!!
+!!  This routine is always a stub unless the user adds an overriding source file
+!!  file to their simulations directory.
+!!  The routine allows users to compute their own variables. Some
+!!  examples are vorticity, conductivity, etc.
+!!
+!!
+!! ARGUMENTS
+!!  none
 !!
 !! EXAMPLE
 !!

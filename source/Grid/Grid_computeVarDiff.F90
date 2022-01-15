@@ -39,6 +39,10 @@
 !!  (either selected by level, or all LEAF blocks)
 !!  is placed in the variable ires.
 !!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4 and UG!
+!!
 !!***
 
 subroutine Grid_computeVarDiff(level, gr_iRefSoln, gr_iSoln, ires)

@@ -14,16 +14,20 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_conserveField ()
+!!  call Grid_conserveField ()
 !!
 !! ARGUMENTS
-!!
+!!  none
 !!
 !! DESCRIPTION
-!! 
+!!
 !!  Corrects electric fields at refinement jump boundaries to make 
 !!  sure electric fields at the common boundaries are consistent 
 !!  at both refined and coarse meshes.
+!!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4!
 !!
 !!  On the uniform grid this routine is not needed.
 !!
