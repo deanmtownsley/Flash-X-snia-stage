@@ -1,8 +1,8 @@
 # python script to run a simulation inside flashx container using maple API - requires python3.8+
 # Refer to README.md for details
 
-# import pymaple (python API version of maple)
-import pymaple
+# import maple (python API version of maple)
+import maple
 
 if __name__ == "__main__":
 
@@ -11,8 +11,8 @@ if __name__ == "__main__":
     # container: name of the local container
     # source: basedir (Flash-X directory)
     # target: path of mount directory inside the container (mount source to target)
-    flashx = pymaple.Maple(image='akashdhruv/flash:latest',container='pool_boiling',
-                           target='/home/mount/Flash-X',backend='docker')
+    flashx = maple.Maple(image='akashdhruv/flash:latest',container='pool_boiling',
+                         target='/home/mount/Flash-X',backend='docker')
 
     # build local image from remote image
     flashx.build()
