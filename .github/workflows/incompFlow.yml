@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./.github/actions/maple
+    - uses: ./.github/actions/maple.yml
     - name: Run Maple API
       run: |   
           python3 container/incompFlow/PoolBoiling.py
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./.github/actions/maple
+    - uses: ./.github/actions/maple.yml
     - uses: eWaterCycle/setup-singularity@v7
       with:
         singularity-version: 3.8.3
