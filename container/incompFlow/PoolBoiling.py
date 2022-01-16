@@ -2,7 +2,7 @@
 # Refer to README.md for details
 
 # import maple (python API version of maple)
-import maple
+import maple.api as maple
 
 if __name__ == "__main__":
 
@@ -15,23 +15,23 @@ if __name__ == "__main__":
                          target='/home/mount/Flash-X',backend='docker')
 
     # build local image from remote image
-    flashx.build()
+    flashx.image.build()
     #
     # execute commands inside the container
     # build and run amrex simulation
-    flashx.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
-                    +amrex -maxblocks=100 && \
-                    cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 1 ./flashx && cat unitTest_0000")
+    flashx.container.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
+                              +amrex -maxblocks=100 && \
+                              cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
+                              mpirun -n 1 ./flashx && cat unitTest_0000")
 
     # build an run paramesh simulation
-    flashx.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
-                    +pm4dev -gridinterpolation=native -maxblocks=100 && \
-                    cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                    mpirun -n 1 ./flashx && cat unitTest_0000")
+    flashx.container.execute("./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
+                              +pm4dev -gridinterpolation=native -maxblocks=100 && \
+                              cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
+                              mpirun -n 1 ./flashx && cat unitTest_0000")
 
     # clean (delete) local image
-    flashx.clean()
+    flashx.image.clean()
     #
     # remove (delete) instance of remote image from local machine
-    flashx.remove()
+    flashx.image.remove()
