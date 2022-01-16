@@ -5,6 +5,9 @@ on:
   workflow_call:
    
 jobs:
+  maple:
+    name: "maple"
+    runs-on: ubuntu-latest
     - uses: actions/checkout@v2 
     - name: Install Maple
       run: |

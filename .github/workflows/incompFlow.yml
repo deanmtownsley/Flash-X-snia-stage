@@ -24,6 +24,7 @@ jobs:
     name: "PoolBoiling"
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - uses: ./.github/actions/maple
     - name: Run Maple API
       run: |   
@@ -34,6 +35,7 @@ jobs:
     name: "RisingBubble"
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - uses: ./.github/actions/maple
     - uses: eWaterCycle/setup-singularity@v7
       with:
