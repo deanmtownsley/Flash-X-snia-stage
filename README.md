@@ -61,8 +61,8 @@ If you want to test this new feature please follow these steps:
   mkdir -p $HOME/.local/bin
   export PATH="$PATH:$HOME/.local/bin"
 
-  git submodule update --init $Flash-X_HOME/tools/maple
-  cd $Flash-X_HOME/tools/maple
+  cd ~/. && git clone git@github.com:akashdhruv/Maple.git
+  cd ~/Maple
   ./setup develop
   ./setup clean
   ```
