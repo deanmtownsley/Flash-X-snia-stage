@@ -62,7 +62,7 @@ If you want to test this new feature please follow these steps:
   export PATH="$PATH:$HOME/.local/bin"
 
   cd ~/. && git clone git@github.com:akashdhruv/Maple.git
-  cd ~/Maple && ./setup install
+  cd ~/Maple && ./setup develop && ./setup install
   ```
 
 ### Writing a Maplefile
