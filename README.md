@@ -55,14 +55,14 @@ We intend to develop MAPLE as a standalone application for multiple projects, an
 
 If you want to test this new feature please follow these steps:
 
-### Initialize maple submodule
+### Install Maple
 
   ```
   mkdir -p $HOME/.local/bin
   export PATH="$PATH:$HOME/.local/bin"
 
-  git submodule update --init $Flash-X_HOME/tools/maple
-  cd $Flash-X_HOME/tools/maple
+  cd ~/. && git clone git@github.com:akashdhruv/Maple.git
+  cd ~/Maple
   ./setup develop
   ./setup clean
   ```
