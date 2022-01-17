@@ -62,9 +62,7 @@ If you want to test this new feature please follow these steps:
   export PATH="$PATH:$HOME/.local/bin"
 
   cd ~/. && git clone git@github.com:akashdhruv/Maple.git
-  cd ~/Maple
-  ./setup develop
-  ./setup clean
+  cd ~/Maple && ./setup install
   ```
 
 ### Writing a Maplefile
@@ -114,7 +112,7 @@ If you want to test this new feature please follow these steps:
 
   - Cleanup
 
-    ```maple image clean```: deletes the local image, if you want to update remote image with changes to local image run ```maple image push <remote_image_name:tag>``` before ```maple image clean```
+    ```maple container clean```: deletes the container environment, if you want to update remote image with local changes run ```maple image push <remote_image_name:tag>``` before ```maple container clean```
 
     ```maple image remove```: deletes the instance of remote image on local machine, doing this means that ```maple image build``` will have to perform the expensive task of pulling the remote image again if you decide to rebuild the local image.
 
