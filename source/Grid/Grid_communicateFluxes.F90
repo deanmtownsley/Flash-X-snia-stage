@@ -60,6 +60,10 @@
 !!   "communicate between all levels". It is not supported
 !!   by the AMReX implementation.
 !!
+!!  This routine should only get called when Flash-X is configured to
+!!  NOT use level-wide flux arrays, i.e., when levelFlux source directories
+!!  are not included and the NoLevelwideFluxes setup variable is False.
+!!
 !! SEE ALSO
 !!
 !!  Grid_putFluxData
