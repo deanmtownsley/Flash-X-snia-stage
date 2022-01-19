@@ -5,11 +5,9 @@
 # container           Name of the local container
 # target              Name of the target dir to mount source dir
 # source              Name of the source dir - usually $PWD
-# port                Port ID for the container (used when running jupyter notebooks)
 # backend             Container backend (docker/singularity)
 
 container="flashx"
 base="akashdhruv/flash:latest"
 target="/home/mount/Flash-X"
 backend="docker"
-port="1200"
