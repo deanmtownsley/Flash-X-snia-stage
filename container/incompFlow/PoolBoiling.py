@@ -35,5 +35,3 @@ if __name__ == "__main__":
     # clean local container
     flashx.container.rinse()
     #
-    # remove (delete) instance of remote image from local machine
-    flashx.image.delete('incomp_flow')

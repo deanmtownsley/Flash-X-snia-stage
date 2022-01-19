@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # container: name of the local container
     # source: basedir (Flash-X directory)
     # target: path of mount directory inside the container (mount source to target)
-    flashx = maple.Maple(base='akashdhruv/flash:latest',container='rising_bubble',
+    flashx = maple.Maple(base='docker://akashdhruv/flash:latest',container='rising_bubble',
                          target='/home/mount/Flash-X',backend="singularity")
 
     # build local image from remote image
@@ -29,5 +29,3 @@ if __name__ == "__main__":
     # clean local container
     flashx.container.rinse()
     #
-    # remove (delete) instance of remote image from local machine
-    flashx.image.delete('incomp_flow')
