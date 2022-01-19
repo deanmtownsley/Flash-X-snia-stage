@@ -21,8 +21,7 @@ ZLIB_PATH  =
 PAPI_PATH  =
 PAPI_FLAGS =
 LIB_NCMPI = /usr
-
-
+MA28_PATH = /nfs/gce/projects/FLASH5/software/ma28
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -122,6 +121,7 @@ LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
+  LIB_MA28 = -L$(MA28_PATH)/lib -lma28
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
