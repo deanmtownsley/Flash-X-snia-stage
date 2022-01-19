@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # build local image from remote image
     flashx.image.build('incomp_flow')
     #
-    flash.container.pour('incomp_flow')
+    flashx.container.pour('incomp_flow')
     #
     # execute commands inside the container
     # build and run amrex simulation
