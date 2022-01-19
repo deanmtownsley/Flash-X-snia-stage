@@ -12,7 +12,7 @@ The current rules for collaborating via git are as follows
 4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
 5.  Do not rebase a feature branch that has already been pushed to the GitHub
     repository.
-6. You can also set up github action workflows by create a subdirecty in ```container/``` and adding a corresponding workflow in ```.github/workflows/``` see ```container/incompFlow``` and ```.github/workflows/incompFlow.yml``` files for example
+6. You can also set up github action workflows by create a subdirecty in ```tests/``` and adding a corresponding workflow in ```.github/workflows/``` see ```tests/incompFlow``` and ```.github/workflows/incompFlow.yml``` files for example
 
 ## Libraries
 

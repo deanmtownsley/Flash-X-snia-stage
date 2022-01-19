@@ -1,5 +1,5 @@
 # Name of the github-docker workflow
-name: incompFlow
+name: Sod
 
 # Perform tests on pull request
 on:
@@ -18,21 +18,8 @@ on:
     
 # Container jobs
 jobs:
-
-  # 1
-  PoolBoiling:
-    name: "PoolBoiling"
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: akashdhruv/Maple/.github/actions/maple@v2
-    - name: Run Maple API
-      run: |   
-          python3 tests/incompFlow/PoolBoiling.py
-
-  # 2
-  RisingBubble:
-    name: "RisingBubble"
+  Sod:
+    name: ""
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -42,4 +29,4 @@ jobs:
         singularity-version: 3.8.3
     - name: Run tests
       run: |   
-          python3 tests/incompFlow/RisingBubble.py
+          python3 tests/Sod/Sod.py
