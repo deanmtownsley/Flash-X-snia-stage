@@ -1,5 +1,9 @@
 # Flash-X
 
+![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+
 
 ## Git/Testing Workflow
 
