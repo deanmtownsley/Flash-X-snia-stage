@@ -15,9 +15,9 @@ if __name__ == "__main__":
                          target='/home/mount/Flash-X',backend='docker')
 
     # build local image from remote image
-    flashx.image.build('incompFlow')
+    flashx.image.build('incomp_flow')
     #
-    flashx.container.pour('incompFlow')
+    flashx.container.pour('incomp_flow')
     #
     # execute commands inside the container
     # build and run amrex simulation
@@ -36,4 +36,4 @@ if __name__ == "__main__":
     flashx.container.rinse()
     #
     # remove (delete) instance of remote image from local machine
-    flashx.image.delete('incompFlow')
+    flashx.image.delete('incomp_flow')
