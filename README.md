@@ -1,5 +1,9 @@
 # Flash-X
 
+![incompFlow](https://github.com/akashdhruv/Maple/workflows/incompFlow/badge.svg)
+![Sod](https://github.com/akashdhruv/Maple/workflows/Sod/badge.svg)
+![Sedov](https://github.com/akashdhruv/Maple/workflows/Sedov/badge.svg)
+
 
 ## Git/Testing Workflow
 
