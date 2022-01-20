@@ -1,9 +1,13 @@
 # Maplefile for Flash-X
+# VARIABLE                                             DESCRIPTION
+# ----------------------------------------------------------------
+# base                Name of the base image in remote registry    
+# container           Name of the local container
+# target              Name of the target dir to mount source dir
+# source              Name of the source dir - usually $PWD
+# backend             Container backend (docker/singularity)
 
-# `maple` reads this file and passes variables declared here to Dockerfile during invocation
-# of `docker build` and mounts current directory to maple_target. 
-# Please refer to README in `../tools/maple/README.md` for details
-maple_container="flashx"
-maple_image="akashdhruv/flash:latest"
-maple_target="/home/mount/Flash-X"
-maple_port="1000"
+container="flashx"
+base="akashdhruv/flash:latest"
+target="/home/mount/Flash-X"
+backend="docker"
