@@ -23,10 +23,11 @@
 !!  one another. 
 !!  
 !!  This routine can perform flux conservation on the finest
-!!  blocks, the most typical usage for the Paramesh Grid or on
-!!  blocks of a certain level.
+!!  blocks eveywhere, the most typical usage for the Paramesh Grid,
+!!  or on blocks of a certain level.
 !!  
 !!  The routine overwrites the flux arrays maintained by the Grid
+!!  unit.
 !!  
 !! ARGUMENTS 
 !!
@@ -45,6 +46,21 @@
 !!  Some implementations might ignore the level arguments, and always
 !!  act as if it were UNSPEC_LEVEL.
 !!
+!!  This routine should only get called when Flash-X is configured to
+!!  use level-wide flux arrays, i.e., when levelFlux source directories
+!!  are included.
+!!
+!!  In comparison to Grid_communicateFluxes (which is to be used when
+!!  a setup is configured without level-wide fluxe), invoking this routine
+!!  triggers not only data communication within SPFS (like the latter),
+!!  but also (unlike the latter) the copying of flux data from SPFS back
+!!  to flux arrays.
+!!
+!!  SPFS means semi-permanent flux storage.
+!!
+!! SEE ALSO
+!!
+!!  Grid_communicateFluxes
 !!***
 
 subroutine Grid_conserveFluxes(axis, coarse_level)

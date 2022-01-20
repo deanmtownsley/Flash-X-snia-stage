@@ -10,7 +10,7 @@
 !!
 !! NAME
 !!
-!!  Grid_blockMatch
+!!  gr_blockMatch
 !!
 !! SYNOPSIS
 !!
@@ -20,7 +20,7 @@
 !!
 !! DESCRIPTION
 !!
-!!  Test whether a block matches a criterion.
+!!  Test whether a block matches a criterion.  Paramesh only.
 !!
 !! ARGUMENTS
 !!
@@ -62,7 +62,7 @@
 !!
 !! RETURN TYPE
 !!
-!!  LOGICAL
+!!  LOGICAL ans  - indicates whether the block matches the criterion
 !!
 !! SEE ALSO
 !!

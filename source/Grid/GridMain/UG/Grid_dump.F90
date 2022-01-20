@@ -15,7 +15,8 @@
 !!
 !!  call Grid_dump(integer(IN) :: var(num),
 !!                 integer(IN) :: num,
-!!                 integer(IN) :: blockID,
+!!                 real,dimension(:,:,:,:),POINTER :: solnData,
+!!                 Type(Grid_tile_t)(IN) :: blockDesc,
 !!                 logical(IN) :: gcell)
 !!
 !! DESCRIPTION
@@ -24,13 +25,23 @@
 !! done from anywhere in the code, and is useful for diagnostic
 !! purposes. It works only with single block per processor mapping.
 !!
+!! This is not an essential interface, only provided as a convenience
+!! for those who need to dump for debugging; test applications may
+!! want to override with a customized implementation.
+!!
 !! ARGUMENTS
 !!
-!!  var :: 1D integer array containing the names of the variables to
-!!         be dumped (as defined in Simulation.h)
+!!  var :: 1D integer array containing the indices of the variables
+!!         to be dumped (can be conveniently given using the variable
+!!         names defined in Simulation.h)
 !!  num :: number of variables being dumped.
-!!  blockID :: number of block to dump.  In UG always send in 1
-!!  gcell :: indicated whether to include guardcells in the dump.
+!!  solnData :: an associated pointer that should points to the block's
+!!              solution data; ignored in this UG implementation.
+!!  blockDesc :: Describes the  block to dump; holds the blockID
+!!               in some Grid implementations. In the UG Grid,
+!!               the blockID should always be 1.
+!!               This argument may be unused, especially in UG.
+!!  gcell :: indicates whether to include guardcells in the dump.
 !!           if gcell = .true. guardcells are included in the dump
 !!                      which means that at the edges, the values are
 !!                      duplicated.
@@ -100,8 +111,9 @@
 
 
 
-subroutine Grid_dump(var,num,blockID,gcell)
+subroutine Grid_dump(var,num, solnData,blockDesc, gcell)
   
+  use Grid_tile, ONLY : Grid_tile_t
   use physicalData, ONLY : unk
   use Grid_data, ONLY : gr_ilo,gr_ihi,gr_jlo,gr_jhi,gr_klo,gr_khi
   use Grid_data, ONLY : gr_iloGc,gr_ihiGc,gr_jloGc,gr_jhiGc,gr_kloGc,gr_khiGc
@@ -113,8 +125,10 @@ subroutine Grid_dump(var,num,blockID,gcell)
 #include "Simulation.h"
 #include "Flash_mpi.h"
 
-  integer, intent(IN) :: num, blockID
+  integer, intent(IN) :: num
   integer, dimension(num), intent(IN) :: var
+  real,dimension(:,:,:,:),pointer     :: solnData
+  type(Grid_tile_t), intent(in)  :: blockDesc
   logical, intent(IN) :: gcell
 
   character(len=80) :: ff1

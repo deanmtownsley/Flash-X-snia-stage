@@ -15,7 +15,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_conserveToPrimitive(integer(in) :: blkList(count),
+!!  call Grid_conserveToPrimitive(integer(in) :: blkList(count),
 !!                           integer(in) :: count,
 !!                           logical(in) :: allCells,
 !!                           logical(in) :: force)
@@ -37,10 +37,10 @@
 !!
 !!   force - whether to force conversion
 !!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4!
 !!***
-
-#include "constants.h"
-#include "Simulation.h"
 
 subroutine Grid_conserveToPrimitive(blkList,count,allCells,force)
   implicit none

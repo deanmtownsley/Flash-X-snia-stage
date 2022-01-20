@@ -15,19 +15,20 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_formatNonRep(integer(IN) :: nonrep,
+!!  call Grid_formatNonRep(integer(IN) :: nonrep,
 !!                    integer(IN) :: idx,
 !!                    character(out) :: str(*))
 !!
 !!
 !! DESCRIPTION
 !!
-!!  Given a nonreplicated variable array id and index into that array, returns a string name suitable for IO
+!!  Given the ID of a nonreplicated variable array and the index into that array,
+!!  returns a string name suitable for IO.
 !!
 !!
 !! ARGUMENTS
 !!  
-!!   nonrep - array id
+!!   nonrep - array ID
 !!   idx - index into array
 !!   str - receives string name
 !!

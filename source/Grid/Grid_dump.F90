@@ -15,22 +15,34 @@
 !!
 !!  call Grid_dump(integer(IN) :: var(num),
 !!                 integer(IN) :: num,
-!!                 integer(IN) :: blockID,
+!!                 real,dimension(:,:,:,:),POINTER :: solnData,
+!!                 Type(Grid_tile_t)(IN) :: blockDesc,
 !!                 logical(IN) :: gcell)
 !!
 !! DESCRIPTION 
 !!  
 !! Dumps the variables specified in integer array "var" to a file.
 !! This routine doesn't require special resources, so it can be done from   
-!! anywhere in the code, and is useful for diagnostic purposes
+!! anywhere in the code, and is useful for diagnostic purposes.
 !! This function can only be used on a single block per processor,
 !! and mostly works with Uniform Grid. 
-!!  
-!! ARGUMENTS 
 !!
-!!  var :: array containing the indices of the variables to be dumped
+!! This is not an essential interface, only provided as a convenience
+!! for those who need to dump for debugging; test applications may
+!! want to override with a customized implementation.
+!!
+!! ARGUMENTS
+!!
+!!  var :: 1D integer array containing the indices of the variables
+!!         to be dumped (can be conveniently given using the variable
+!!         names defined in Simulation.h)
 !!  num :: number of variables being dumped.
-!!  blockID :: local number of block to be dumped
+!!  solnData :: an associated pointer that points to the block's
+!!              solution data
+!!  blockDesc :: Describes the  block to dump; holds the blockID
+!!               in some Grid implementations. In the UG Grid,
+!!               the blockID should always be 1.
+!!               This argument may be unused, especially in UG.
 !!  gcell :: indicates whether to include guardcells in the dump.
 !!             
 !! EXAMPLE
@@ -40,9 +52,11 @@
 !!  var(2) = PRES_VAR
 !!  var(3) = TEMP_VAR
 !!  blockID = 1  ! local block number
+!!  blockDesk % id = blockID           ! This is something of a hack
+!!  solnData => NULL()
 !!  gcell = .false.
 !!
-!!  call Grid_dump(var, num, blockID, gcell)
+!!  call Grid_dump(var, num, solnData, blockDesc, gcell)
 !!  
 !!  will dump the interior cell values of density, pressure and temperature
 !!  for local block number 1.
@@ -105,7 +119,7 @@
 !! NOTES
 !!  DENS_VAR, PRES_VAR, TEMP_VAR etc are #defined values in Simulation.h
 !!  indicating the index in the physical data array.
-!!  The routine calling Grid_dump will need to include Simulation.h 
+!!  The routine calling Grid_dump will need to include Simulation.h .
 !!
 !!***
 

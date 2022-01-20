@@ -1,4 +1,4 @@
-!!****if* source/physics/HeatAD/HeatAD_reInitGridVars
+!!****f* source/physics/HeatAD/HeatAD_reInitGridVars
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,6 +10,7 @@
 !!
 !!
 !!
+!!***
 subroutine HeatAD_reInitGridVars()
   implicit none
   return
