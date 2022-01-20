@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNS_indicators
+!!****f* source/physics/IncompNS/IncompNS_indicators
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,7 +10,7 @@
 !!
 !!
 !!
-!!
+!!***
 subroutine IncompNS_indicators()
   implicit none
   return

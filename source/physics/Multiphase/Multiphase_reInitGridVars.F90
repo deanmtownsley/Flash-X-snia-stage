@@ -1,4 +1,4 @@
-!!****if* source/physics/Multiphase/Multiphase_reInitGridVars
+!!****f* source/physics/Multiphase/Multiphase_reInitGridVars
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -18,7 +18,8 @@
 !!
 !!
 !! DESCRIPTION
-!! 
+!!
+!!***
 subroutine Multiphase_reInitGridVars()
   implicit none
 end subroutine Multiphase_reInitGridVars

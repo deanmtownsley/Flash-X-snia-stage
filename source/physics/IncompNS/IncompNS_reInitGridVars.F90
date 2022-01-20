@@ -10,7 +10,7 @@
 !!
 !!
 !!
-!!
+!!***
 subroutine IncompNS_reInitGridVars()
   implicit none
   return
