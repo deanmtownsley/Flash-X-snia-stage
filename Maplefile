@@ -8,6 +8,6 @@
 # backend             Container backend (docker/singularity)
 
 container="flashx"
-base="akashdhruv/flash:latest"
+base="akashdhruv/flashx:latest"
 target="/home/mount/Flash-X"
 backend="docker"
