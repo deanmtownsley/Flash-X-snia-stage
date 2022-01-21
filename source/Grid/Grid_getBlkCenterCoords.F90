@@ -12,7 +12,7 @@
 !!  Grid_getBlkCenterCoords
 !!
 !! SYNOPSIS
-!!  Grid_getBlkCenterCoords(integer(IN) :: blockDesc
+!!  call Grid_getBlkCenterCoords(integer(IN) :: blockDesc
 !!                          real(OUT)   :: blockCenter(MDIM))
 !!  
 !! DESCRIPTION 
@@ -20,7 +20,8 @@
 !!   blockDesc.  Returns the coordinates in an array blockCenter
 !!
 !! ARGUMENTS
-!!  blockDesc - block_metadata_t of the block. for UG always 1
+!!  blockDesc - block sescriptor with metadata of the block.
+!!              (May be ignored for UG since there is only one block.)
 !!  blockCenter - returned array of size MDIM holding the blockCenter coords
 !!
 !! Example
@@ -43,9 +44,6 @@
 !!  blockCenter(KAXIS) = 0.0 since the dimension is not included  
 !!
 !!***
-
-#include "constants.h"
-#include "Simulation.h"
 
 subroutine Grid_getBlkCenterCoords(blockDesc, blockCenter)
   use Grid_tile,        ONLY : Grid_tile_t

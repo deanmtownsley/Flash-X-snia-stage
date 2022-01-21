@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_getDeltas
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_getDeltas
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -13,18 +13,19 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getDeltas(integer(IN) :: blockId,
+!!  call Grid_getDeltas(integer(IN) :: lev,
 !!                 real(OUT)   :: del(MDIM))
 !!  
 !! DESCRIPTION 
 !!  
-!!  Gets the grid spacing dx/dy/dz for a given blockId on the Grid.
+!!  Gets the grid spacing dx/dy/dz for a given level on the Grid.
 !!  dx is the size of one cell in the x direction of a block.
 !!  
 !!  
 !! ARGUMENTS 
 !!
-!!  blockId - local block number
+!!  lev - refinement level.
+!!        This is 1-based, i.e., the root level is numbered 1.
 !!  del - array of size MDIM returned holding the dx, dy, and dz values
 !!
 !!***

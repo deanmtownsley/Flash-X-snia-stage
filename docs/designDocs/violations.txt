@@ -313,6 +313,16 @@ Violations:
    source/Grid/Grid_fillGuardCells.F90
       Line 151 : !DEV: implementation with known failures.
 
+   source/Grid/Grid_getBlkCornerID.F90
+      Line  67 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
+
+   source/Grid/Grid_getBlkIndexLimits.F90
+      Line 102 : !   DEV: Currently only implemented correctly for Paramesh4 and UG!
+      Line 104 : !   DEV: The indices returned may be according to the "native" convention
+
+   source/Grid/Grid_getBlkNeighLevels.F90
+      Line  77 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
+
    source/Grid/Grid_primitiveToConserve.F90
       Line  38 : !  DEV: Currently only implemented for Paramesh4!
 
@@ -840,9 +850,6 @@ Violations:
        Subroutine getDataPtr
        Subroutine releaseDataPtr
 
-   source/Grid/GridMain/AMR/Paramesh4/block_metadata.F90
-       Subroutine getCellCoords
-
    source/Grid/GridMain/AMR/Paramesh4/gr_findAllNeghID.F90
        Subroutine print_info
 
@@ -958,10 +965,6 @@ Description: The INTENT (IN,OUT,INOUT) must be explicity declared
 
 
 Violations:
-   source/Grid/Grid_getDeltas.F90
-       Subroutine: Grid_getDeltas 
-       Variables: lev
-
    source/Grid/Grid_smoothVar.F90
        Subroutine: Grid_smoothVar 
        Variables: lbUI, lbUJ, lbUK
@@ -1597,10 +1600,10 @@ Violations:
       Line  70
 
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_cc_prol_work_mg.F90
-      Line  84
-      Line  85
-      Line  86
-      Line  87
+      Line  74
+      Line  75
+      Line  76
+      Line  77
 
    source/Grid/GridMain/AMR/Paramesh4/flash_convert_cc_hook.F90
       Line  78
@@ -1609,11 +1612,11 @@ Violations:
       Line  84
 
    source/Grid/GridMain/AMR/Paramesh4/gr_amr_dump_runtime_parameters.F90
-      Line  60
-      Line  61
-      Line  62
-      Line  63
-      Line  64
+      Line  48
+      Line  49
+      Line  50
+      Line  51
+      Line  52
 
    source/Grid/GridMain/AMR/Paramesh4/gr_checkGridState.F90
       Line  39
@@ -1639,40 +1642,40 @@ Violations:
       Line 112
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_check_refine.F90
-      Line  75
-      Line  76
-      Line  77
-      Line  80
+      Line  65
+      Line  66
+      Line  67
+      Line  70
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_initialize.F90
+      Line  80
+      Line  81
+      Line  82
+      Line  83
+      Line  84
+      Line  85
+      Line  86
+      Line  87
       Line  88
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_check_derefine.F90
+      Line  63
+      Line  64
+      Line  65
+      Line  68
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_redist_blk.F90
       Line  89
       Line  90
       Line  91
       Line  92
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_refine_derefine.F90
       Line  93
       Line  94
       Line  95
       Line  96
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_check_derefine.F90
-      Line  71
-      Line  72
-      Line  73
-      Line  76
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_redist_blk.F90
-      Line  97
-      Line  98
-      Line  99
-      Line 100
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_refine_derefine.F90
-      Line 101
       Line 102
-      Line 103
-      Line 104
-      Line 110
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_calculate_tree_data.F90
       Line  48
@@ -2397,8 +2400,6 @@ Violations:
    Function Grid_getDeltas has multiple declarations
       source/Grid/Grid_getDeltas.F90
          lev, del
-      source/Grid/GridMain/UG/Grid_getDeltas.F90
-         level, del
       source/flashUtilities/contourSurface/UnitTest/fakef.F90
          blockid, del
 
@@ -2537,12 +2538,6 @@ Violations:
          axis, pos, veclen, solndata, griddatastruct, eosdata
       source/physics/Eos/EosMain/Eos_putData.F90
          range, veclen, solndata, griddatastruct, eosdata
-
-   Function Grid_getBlkNeighLevels has multiple declarations
-      source/Grid/Grid_getBlkNeighLevels.F90
-         blockid, levels, trackbdry
-      source/Grid/GridMain/AMR/Paramesh4/UNUSED/Grid_getBlkNeighLevels.F90
-         blockid, levels
 
    Function gr_bcApplyToOneFace has multiple declarations
       source/Grid/GridBoundaryConditions/gr_bcApplyToOneFace.F90
@@ -2835,9 +2830,6 @@ Violations:
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCenterCoords.F90
        No ROBODOC header
 
-   source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCornerID.F90
-       Arguments found only in ARGUMENTS: inRegion
-
    source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxCorrData_block.F90
        Arguments found only in SYNOPSIS: blockDesc
        Arguments found only in ARGUMENTS: blockdesc
@@ -2878,10 +2870,6 @@ Violations:
 
    source/Grid/GridMain/AMR/Paramesh4/amr_sort_tools.F90
        No ROBODOC header
-
-   source/Grid/GridMain/AMR/Paramesh4/block_metadata.F90
-       Synopsis name is '', filename is 'block_metadata'
-       Did you forget to use `use' before module name in synopsis?
 
    source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
        Synopsis name is 'Grid_init', filename is 'gr_initSpecific'
@@ -2999,10 +2987,6 @@ Violations:
 
    source/Grid/GridMain/UG/Grid_getBlkCenterCoords.F90
        Arguments found only in SYNOPSIS: block
-       Arguments found only in ARGUMENTS: blockId
-
-   source/Grid/GridMain/UG/Grid_getDeltas.F90
-       Arguments found only in SYNOPSIS: level
        Arguments found only in ARGUMENTS: blockId
 
    source/Grid/GridMain/UG/Grid_iterator.F90
@@ -4552,7 +4536,7 @@ Violations:
       [116]
 
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_cc_prol_work_mg.F90
-      [133, 134, 135, 137, 138, 139, 141, 142, 143]
+      [123, 124, 125, 127, 128, 129, 131, 132, 133]
 
    source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
       [165, 220, 221, 223, 227, 231, 235, 239, 243, 247, 251, 255, 259, 263, 267, 271, 275, 280, 281, 282, 285, 286, 287, 291, 292, 294, 295, 296, 297]
@@ -4561,7 +4545,7 @@ Violations:
       [1023]
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_initialize.F90
-      [350, 351, 352, 353, 354, 355, 356, 366, 387, 388, 389, 390, 391, 392, 400, 401, 402, 428, 433, 438, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 522, 523, 524, 550, 555, 560, 609, 610, 611, 612, 613, 614, 620, 624, 630, 653, 654, 655, 656, 657, 658, 662, 663, 810, 811, 812, 813, 814, 815, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 846, 848, 850, 851, 853, 859, 860, 861, 865, 870, 871, 872, 873, 874, 875, 876, 877, 883, 884, 885, 886, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899, 900, 901, 902, 903, 904, 905, 906, 907, 911, 972, 975, 978, 981, 984, 987, 990, 993, 994, 995, 996, 999, 1000, 1085]
+      [342, 343, 344, 345, 346, 347, 348, 358, 379, 380, 381, 382, 383, 384, 392, 393, 394, 420, 425, 430, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 514, 515, 516, 542, 547, 552, 601, 602, 603, 604, 605, 606, 612, 616, 622, 645, 646, 647, 648, 649, 650, 654, 655, 802, 803, 804, 805, 806, 807, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 840, 842, 843, 845, 851, 852, 853, 857, 862, 863, 864, 865, 866, 867, 868, 869, 875, 876, 877, 878, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899, 903, 964, 967, 970, 973, 976, 979, 982, 985, 986, 987, 988, 991, 992, 1077]
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_build_bittree.F90
       [79]

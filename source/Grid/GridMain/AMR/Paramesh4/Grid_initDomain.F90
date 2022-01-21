@@ -63,7 +63,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
   use Grid_interface, ONLY : Grid_fillGuardCells, &
     Grid_getMaxRefinement, &
     Grid_sbCreateGroups, Grid_sbSelectMaster, &
-    Grid_sbBroadcastParticles, Grid_getBoundboxCentroids
+    Grid_sbBroadcastParticles
   use gr_interface, ONLY : gr_updateRefinement
   use gr_parameshInterface, ONLY : gr_pmGetListOfBlocks
   use Logfile_interface, ONLY : Logfile_stampMessage

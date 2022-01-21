@@ -98,6 +98,12 @@
 !!
 !!
 !! NOTES
+!!
+!!   DEV: Currently only implemented correctly for Paramesh4 and UG!
+!!
+!!   DEV: The indices returned may be according to the "native" convention
+!!   of the AMrex or UG Grid, rather than the regular Flash-X
+!!   level-wide convention!
 !!  
 !!   The #define constants IAXIS, JAXIS and KAXIS
 !!   are defined in constants.h and are

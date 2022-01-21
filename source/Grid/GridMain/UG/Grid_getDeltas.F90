@@ -13,18 +13,19 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Grid_getDeltas(integer(IN):: level, 
-!!                      real(OUT)::del(MDIM))
+!!  call Grid_getDeltas(integer(IN) :: lev,
+!!                 real(OUT)   :: del(MDIM))
 !!  
 !! DESCRIPTION 
 !!  
-!!  Gets the dx/dy/dz for a given blockId on the Grid
-!!  dx is the size of one zone in the x direction of a block
+!!  Gets the grid spacing dx/dy/dz for a given level on the Grid.
+!!  dx is the size of one cell in the x direction of a block, etc.
 !!
 !!  
 !! ARGUMENTS 
 !!
-!!  blockId - local block number
+!!  lev - refinement level.
+!!        This is 1-based, i.e., the root level is numbered 1.
 !!  del - array of size MDIM returned holding the dx, dy, and dz values
 !!
 !!  
@@ -33,16 +34,16 @@
 #define DEBUG_GRID
 #endif
 
-subroutine Grid_getDeltas(level,del)
+subroutine Grid_getDeltas(lev,del)
   use Grid_data, ONLY : gr_delta
   use Driver_interface, ONLY : Driver_abortFlash
   implicit none
 #include "constants.h"
 
-  integer, intent(IN) :: level
+  integer, intent(IN) :: lev
   real, dimension(MDIM),intent(OUT) :: del
 
-  if(level /= 1) call Driver_abortFlash("any value of level other than 1 is not valied")
+  if(lev /= 1) call Driver_abortFlash("Grid_getDeltas: any value of lev other than 1 is not valid")
   del = gr_delta(:,1)
   return
 end subroutine Grid_getDeltas

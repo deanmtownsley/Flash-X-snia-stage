@@ -62,6 +62,10 @@
 !!  inRegion :: if present and true, the corner ID is computed relative to the region
 !!              defined by the Grid scope variable gr_region in presence of AMR
 !!
+!! NOTES
+!!
+!!  DEV: Currently only implemented correctly for Paramesh4 and UG!
+!!
 !! EXAMPLE
 !!
 !! Example 1:
