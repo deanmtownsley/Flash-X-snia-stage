@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # name: name of the image
     # base: remote image of flashx environment
     # backend: docker/singularity
-    image = maple.Image(name='incomp_flow',base='docker://akashdhruv/flash:latest',backend='singularity')
+    image = maple.Image(name='incomp_flow',base='docker://akashdhruv/flashx:latest',backend='singularity')
     
     # create a container object
     # name: name of the local container
