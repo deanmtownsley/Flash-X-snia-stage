@@ -2724,9 +2724,6 @@ Violations:
    source/Grid/GridMain/Grid_getBlkIDFromPos.F90
        No ROBODOC header
 
-   source/Grid/GridMain/Grid_getCellCoords.F90
-       Arguments found only in SYNOPSIS: level, lo, hi
-
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
        Synopsis name is '', filename is 'Grid_getCellFaceAreas'
        Did you forget to use `use' before module name in synopsis?
