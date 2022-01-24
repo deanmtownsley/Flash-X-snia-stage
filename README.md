@@ -59,6 +59,10 @@ We intend to develop MAPLE as a standalone application for multiple projects, an
 
 If you want to test this new feature please follow these steps:
 
+### Tutorial
+
+[![Tutorial](http://img.youtube.com/vi/gNmVtj7-RBY/0.jpg)](http://www.youtube.com/watch?v=gNmVtj7-RBY "Containerization with Flash-X")
+
 ### Install Maple
 
   ```
@@ -73,13 +77,13 @@ If you want to test this new feature please follow these steps:
 
   ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables:
   
-  ```maple_base```: Name of the base image
+  ```base```: Name of the base image
   
-  ```maple_container```: Name of the local container  	
+  ```container```: Name of the local container  	
   
-  ```maple_target```: Name of the target dir to mount source dir
+  ```target```: Name of the target dir to mount source dir
   
-  ```maple_backend```: Backend (docker/singularity)
+  ```backend```: Backend (docker/singularity)
   
   ```maple``` passes these variables to its internal ```Dockerfile``` to build the images and containers.
 
@@ -120,10 +124,10 @@ If you want to test this new feature please follow these steps:
   - Remote interface
     ```maple pull <image>``` and ```maple push <image>```
 
-  - To compile ```Flash-X``` inside the container use ```/home/site``` as the site directory
+  - To compile ```Flash-X``` inside the container use ```sites/container``` as the site directory
 
     ```
-    ./setup incompFlow/PoolBoiling -auto -2d -site=/home/site +amrex -maxblocks=100
+    ./setup incompFlow/PoolBoiling -auto -2d -site=container +amrex -maxblocks=100
     ```
 
 ### API use:

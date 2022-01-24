@@ -1,4 +1,4 @@
-# 	Runtime parameters for the Lid Driven Cavity problem.
+# 	Runtime parameters for the Deforming Bubble problem.
 gr_pmRpDivergenceFree = 1
 gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
