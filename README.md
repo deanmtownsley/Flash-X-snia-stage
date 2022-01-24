@@ -120,10 +120,10 @@ If you want to test this new feature please follow these steps:
   - Remote interface
     ```maple pull <image>``` and ```maple push <image>```
 
-  - To compile ```Flash-X``` inside the container use ```/home/site``` as the site directory
+  - To compile ```Flash-X``` inside the container use ```sites/container``` as the site directory
 
     ```
-    ./setup incompFlow/PoolBoiling -auto -2d -site=/home/site +amrex -maxblocks=100
+    ./setup incompFlow/PoolBoiling -auto -2d -site=container +amrex -maxblocks=100
     ```
 
 ### API use:
