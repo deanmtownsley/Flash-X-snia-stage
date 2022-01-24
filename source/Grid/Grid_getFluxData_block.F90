@@ -67,6 +67,8 @@
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
 !!   flux register class, such as FlashFluxRegister.
 !!
+!!   DEV: This interface is currently only implemented for Paramesh4 !
+!!
 !! SEE ALSO
 !!
 !!   Grid_putFluxData_block
