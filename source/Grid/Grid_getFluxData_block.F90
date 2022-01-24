@@ -40,9 +40,9 @@
 !!
 !!   fluxBufX :  buffer for fluxes in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction; ignored if NDIM < 2
+!!   fluxBufY :  buffer for fluxes in JAXIS-direction; output undefined if NDIM < 2
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; ignored if NDIM < 3
+!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; output undefined if NDIM < 3
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
@@ -90,5 +90,5 @@ subroutine Grid_getFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, axis
 
   fluxBufX = 0.0
   fluxBufY = 0.0
-  fluxBufz = 0.0
+  fluxBufZ = 0.0
 end subroutine Grid_getFluxData_block

@@ -57,9 +57,11 @@
 !!
 !!   fluxCorrX : flux correction (difference) for IAXIS direction
 !!
-!!   fluxCorrY : flux correction (difference) for JAXIS direction
+!!   fluxCorrY : flux correction (difference) for JAXIS direction;
+!!               left undefined if NDIM < 2.
 !!
-!!   fluxCorrZ : flux correction (difference) for KAXIS direction
+!!   fluxCorrZ : flux correction (difference) for KAXIS direction;
+!!               left undefined if NDIM < 3.
 !!
 !!   isFluxDensity : indicates, for each flux component, whether the component
 !!                   is a flux proper (if TRUE) or a flux density (otherwise).

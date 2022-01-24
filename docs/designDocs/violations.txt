@@ -2792,9 +2792,6 @@ Violations:
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCenterCoords.F90
        No ROBODOC header
 
-   source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxData_block.F90
-       Synopsis name is 'Grid_getFluxCorrData_block', filename is 'Grid_getFluxData_block'
-
    source/Grid/GridMain/AMR/Paramesh4/Grid_iterator.F90
        Synopsis name is '', filename is 'Grid_iterator'
        Did you forget to use `use' before module name in synopsis?
