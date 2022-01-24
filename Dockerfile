@@ -16,5 +16,5 @@
 # but can be implemented if needed.
 # ---------------------------------------------------------------------------------------------
 
-# Install vim and git
-RUN apt-get install -y vim git
+# Install vim and git - comment this when building images for production runs
+ RUN apt-get install -y vim git
