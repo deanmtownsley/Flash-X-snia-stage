@@ -33,7 +33,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block (which is not implemented for the PARAMESH Grid
 !!               anyway).

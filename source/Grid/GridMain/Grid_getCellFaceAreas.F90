@@ -1,4 +1,4 @@
-!!****f* source/Grid/GridMain/Grid_getCellFaceAreas
+!!****if* source/Grid/GridMain/Grid_getCellFaceAreas
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -25,6 +25,7 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
                                 Grid_getCellCoords
    use Grid_data,        ONLY : gr_geometry
 
+   implicit none
    integer, intent(IN)  :: axis
    integer, intent(IN)  :: level
    integer, intent(IN)  :: lo(1:MDIM)

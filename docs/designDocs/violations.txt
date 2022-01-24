@@ -289,6 +289,16 @@ Violations:
    source/Driver/DriverMain/Unsplit/Driver_evolveFlash.F90
       Line  78 : ! DEV: Temporary ugliness for debugging
 
+   source/Grid/Grid_addFineToFluxRegister.F90
+      Line  50 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
+      Line  60 : !   DEV: This interface may be obsolete.
+      Line  61 : !   DEV: Currently only implemented for the Amrex Grid.
+
+   source/Grid/Grid_addFineToFluxRegister_block.F90
+      Line  52 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
+      Line  63 : !   DEV: This interface may be obsolete.
+      Line  64 : !   DEV: Currently only implemented for the Amrex Grid.
+
    source/Grid/Grid_bcApplyToRegionMixedGds.F90
       Line 111 : !DEV: This dummy arg is quite pointless and should go away. - KW
 
@@ -354,8 +364,8 @@ Violations:
       Line  86 : ! DEV: TODO Why no just set the destVar by overwriting rather than
 
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
-      Line  72 : ! DEV: TODO Should this set area to 1?
-      Line 137 : ! DEV: TODO These can be done more simply using
+      Line  73 : ! DEV: TODO Should this set area to 1?
+      Line 138 : ! DEV: TODO These can be done more simply using
 
    source/Grid/GridMain/gr_findMean.F90
       Line  88 : ! DEVNOTE: This appears to be for Cartesian only blocks/cells.
@@ -798,12 +808,6 @@ Violations:
        Subroutine Grid_ascAllocMem
        Subroutine Grid_ascDeallocMem
 
-   source/Grid/Grid_getCellFaceAreas.F90
-       Subroutine Grid_getCellFaceAreas
-
-   source/Grid/Grid_getCellVolumes.F90
-       Subroutine Grid_getCellVolumes
-
    source/Grid/Grid_getSingleCellVol.F90
        Subroutine Grid_getSingleCellVol
 
@@ -814,12 +818,6 @@ Violations:
        Subroutine Grid_ascStart
        Subroutine Grid_ascAllocMem
        Subroutine Grid_ascDeallocMem
-
-   source/Grid/GridMain/Grid_getCellFaceAreas.F90
-       Subroutine Grid_getCellFaceAreas
-
-   source/Grid/GridMain/Grid_getCellVolumes.F90
-       Subroutine Grid_getCellVolumes
 
    source/Grid/GridMain/AMR/Amrex/Grid_tile.F90
        Subroutine deltas
@@ -2545,12 +2543,6 @@ Violations:
       source/Grid/localAPI/gr_bcApplyToOneFace.F90
          axis, bctype, griddatastruct, varcount, regiontype, blockdesc, idest
 
-   Function Grid_addFineToFluxRegister has multiple declarations
-      source/Grid/Grid_addFineToFluxRegister.F90
-         fine_level, isdensity, coefficient
-      source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_addFineToFluxRegister.F90
-         fine_level, isdensity, coefficient, zerofullregister
-
    Function Grid_getMaxCommonRefinement has multiple declarations
       source/Grid/Grid_getMaxCommonRefinement.F90
          inputcomm, maxrefinement
@@ -2652,24 +2644,6 @@ Violations:
    source/Grid/Grid_fillGuardCells.F90
        Arguments found only in ARGUMENTS: GC
 
-   source/Grid/Grid_getCellFaceAreas.F90
-       Arguments found only in ARGUMENTS: lo/hi, level, areas, axis
-
-   source/Grid/Grid_getCellVolumes.F90
-       Arguments found only in ARGUMENTS: lo/hi, volumes, level
-
-   source/Grid/Grid_getFluxCorrData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
-   source/Grid/Grid_getFluxCorrData_xtra.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
-   source/Grid/Grid_getFluxData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
    source/Grid/Grid_getMaxRefinement.F90
        Arguments found only in ARGUMENTS: Default
 
@@ -2681,10 +2655,6 @@ Violations:
 
    source/Grid/Grid_ptDataTypes.F90
        No ROBODOC header
-
-   source/Grid/Grid_putFluxData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
 
    source/Grid/Grid_renormAbundance.F90
        Arguments found only in SYNOPSIS: blockID
@@ -2768,16 +2738,8 @@ Violations:
        Synopsis name is '', filename is 'Grid_addFineToFluxRegister_block'
        Did you forget to use `use' before module name in synopsis?
 
-   source/Grid/GridMain/AMR/Amrex/Grid_getFluxCorrData_xtra.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
    source/Grid/GridMain/AMR/Amrex/Grid_putFluxData.F90
        Arguments found only in SYNOPSIS: areaLeft
-
-   source/Grid/GridMain/AMR/Amrex/Grid_putFluxData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
 
    source/Grid/GridMain/AMR/Amrex/Grid_tile.F90
        Synopsis name is '', filename is 'Grid_tile'
@@ -2827,26 +2789,12 @@ Violations:
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCenterCoords.F90
        No ROBODOC header
 
-   source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxCorrData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxCorrData_xtra.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
-
    source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxData_block.F90
        Synopsis name is 'Grid_getFluxCorrData_block', filename is 'Grid_getFluxData_block'
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_iterator.F90
        Synopsis name is '', filename is 'Grid_iterator'
        Did you forget to use `use' before module name in synopsis?
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_putFluxData_block.F90
-       Arguments found only in SYNOPSIS: blockDesc
-       Arguments found only in ARGUMENTS: blockdesc
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_setInterpValsGcell.F90
        Found argument section with no arguments
@@ -4515,7 +4463,7 @@ Violations:
       [574, 582, 583, 584, 604, 622, 623, 624, 659, 667, 668, 669]
 
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
-      [239]
+      [240]
 
    source/Grid/GridMain/gr_GCAllocScratch.F90
       [115, 116, 117, 118, 124, 125, 126, 127, 133, 134, 135, 136, 142, 143, 144, 145]

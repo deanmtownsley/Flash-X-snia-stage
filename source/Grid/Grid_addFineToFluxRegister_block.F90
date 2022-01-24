@@ -1,4 +1,4 @@
-!!****if* source/Grid/Grid_addFineToFluxRegister_block
+!!****f* source/Grid/Grid_addFineToFluxRegister_block
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -49,12 +49,19 @@
 !!              actually stored in the Grid unit's flux data structures as
 !!              flux densities.  If no mask is given, it is assumed that data
 !!              is stored as flux.
+!!              !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
 !!  coefficient - a scaling parameter to apply to all flux data before applying
 !!                the data to the flux register.
+!!              CURRENTLY THE coefficient ARGUMENT IS IGNORED BY THE IMPLEMENTATION.
 !!  zeroFullRegister - zero the current fine and coarse data for the block
 !!                     in the register before adding the indicated flux data to
 !!                     the register.  If this parameter is not given, then the
 !!                     current data is not zeroed.
+!!
+!! NOTES
+!!
+!!   DEV: This interface may be obsolete.
+!!   DEV: Currently only implemented for the Amrex Grid.
 !!
 !! SEE ALSO
 !!   Grid_addCoarseToFluxRegister
