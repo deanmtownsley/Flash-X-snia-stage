@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # name: name of the image
     # base: remote image of flashx environment
     # backend: docker/singularity
-    image = maple.Image(name='incomp_flow',base='akashdhruv/flashx:latest',backend='docker')
+    image = maple.Image(name='incomp_flow',base='akashdhruv/hypre:2.22.0',backend='docker')
     
     # create a container object
     # name: name of the local container
@@ -21,15 +21,8 @@ if __name__ == "__main__":
     image.build()
 
     # execute commands inside the container
-    # build and run amrex simulation
-    container.run(image,"./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
-                         +amrex -maxblocks=100 && \
-                         cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
-                         mpirun -n 1 ./flashx && cat unitTest_0000")
-
-
     # build and run paramesh simulation
-    container.run(image,"./setup incompFlow/PoolBoiling -auto -2d -site=/home/site \
+    container.run(image,"./setup incompFlow/PoolBoiling -auto -2d -site=container \
                          +pm4dev -gridinterpolation=native -maxblocks=100 && \
                          cd object && make && grep 'setup_flashRelease =' setup_flashRelease.F90 && \
                          mpirun -n 1 ./flashx && cat unitTest_0000")
