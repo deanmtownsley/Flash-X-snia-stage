@@ -59,6 +59,10 @@ We intend to develop MAPLE as a standalone application for multiple projects, an
 
 If you want to test this new feature please follow these steps:
 
+### Tutorial
+
+[![Tutorial](http://img.youtube.com/vi/gNmVtj7-RBY/0.jpg)](http://www.youtube.com/watch?v=gNmVtj7-RBY "Containerization with Flash-X")
+
 ### Install Maple
 
   ```
