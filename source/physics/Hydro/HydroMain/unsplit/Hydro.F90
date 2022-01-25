@@ -1,4 +1,4 @@
-!!REORDER(4): fluxBuf[XYZ]
+!!****f* source/physics/Hydro/HydroMain/simpleUnsplit/Hydro
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -7,6 +7,22 @@
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
+!!
+!! NAME
+!!  Hydro
+!!
+!! DESCRIPTION
+!!  Please see stub version of this file for information about arguments.
+!!
+!!  This version implements directionally unsplit version derived from MHD
+!!  algorithm described in:
+!!  A solution accurate, efficient and stable unsplit staggered mesh scheme
+!!   for three dimensional magnetohydrodynamics, D Lee - Journal of Computational Physics, 2013
+!!
+!!***
+!!REORDER(4): fluxBuf[XYZ]
+
+
 
 #define DEBUG_GRID_GCMASK
 #define DEBUG_HYDRO
