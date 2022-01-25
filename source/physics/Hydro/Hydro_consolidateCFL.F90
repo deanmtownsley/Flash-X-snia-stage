@@ -38,10 +38,6 @@
 !!  This routine must be called collectively by all MPI tasks in the global
 !!  Hydro communicator.
 !!
-!!  For split Hydro implementations, there is only a stub implementation of
-!!  this interface which does not do any computation or communication.
-!!  That is okay since unsplit Hydro implementations are not expected to
-!!  modify the CFL factor that is given as a runtime parameter.
 !!***
 
 subroutine Hydro_consolidateCFL()
