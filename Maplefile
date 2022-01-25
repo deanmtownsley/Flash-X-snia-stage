@@ -1,13 +1,16 @@
 # Maplefile for Flash-X
-#
-# VARIABLE            DESCRIPTION
-# ----------------------------------------------------------------
-# base                Name of the base image
-# container           Name of the local container
-# target              Name of the target dir to mount source dir
-# backend             Container backend (docker/singularity)
 
+# Name of the base image
 base="akashdhruv/amrex:latest"
+
+# Name of the default image
+image="flashx"
+
+# Name of the local container
 container="flashx"
+
+# Name of the mount directory inside the container
 target="/home/mount/FlashX"
+
+# Container backend
 backend="docker"
