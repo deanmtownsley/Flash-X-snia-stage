@@ -11,6 +11,7 @@
 # Do not include CMD statement in this file
 # CMD is used to define commands to run inside the container which is done using
 # Maple CLI: ```maple container run --image=<image-name> "<your-command>"```
+# or by defining the ```run`` variable in ```Maplefile```
 #
 # Similar functionality for a singularity definition file is currently not available
 # but can be implemented if needed.
