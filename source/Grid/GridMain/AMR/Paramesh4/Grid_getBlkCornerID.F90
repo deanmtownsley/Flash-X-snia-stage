@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_getBlkCornerID
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCornerID
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -16,7 +16,8 @@
 !!  call Grid_getBlkCornerID(integer(IN)  :: blockId,
 !!                           integer(OUT) :: cornerID(MDIM),
 !!                           integer(OUT) :: stride(MDIM),
-!!                  optional,integer(OUT) :: cornerIDHigh(MDIM))
+!!                  optional,integer(OUT) :: cornerIDHigh(MDIM),
+!!                   optional,logical(IN) :: inRegion)
 !!  
 !! DESCRIPTION 
 !! 

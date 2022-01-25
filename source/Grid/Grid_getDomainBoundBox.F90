@@ -14,7 +14,7 @@
 !! SYNOPSIS
 !!
 !! 
-!!  Grid_getDomainBoundBox(real(OUT) :: boundBox(2, MDIM))
+!!  call Grid_getDomainBoundBox(real(OUT) :: boundBox(2, MDIM))
 !!  
 !! DESCRIPTION 
 !!

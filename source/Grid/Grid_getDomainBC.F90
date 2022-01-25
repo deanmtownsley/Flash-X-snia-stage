@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getDomainBC(integer(OUT) :: boundary(LOW:HIGH,MDIM),
+!!  call Grid_getDomainBC(integer(OUT) :: boundary(LOW:HIGH,MDIM))
 !!                    
 !! DESCRIPTION 
 !!  Returns the boundary condition for each face of the domain

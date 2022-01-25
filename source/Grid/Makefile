@@ -58,7 +58,6 @@ Grid += Grid_init.o \
 	Grid_addToVar.o Grid_smoothVar.o \
 	Grid_parseNonRep.o Grid_formatNonRep.o Grid_getVarNonRep.o \
 	Grid_sbSelectMaster.o Grid_sbBroadcastParticles.o Grid_updateSolidBodyForces.o Grid_solidBodyUnitTest.o \
-        Grid_getBoundboxCentroids.o \
 	Grid_receiveInputData.o \
 	Grid_getNeighProcList.o \
 	Grid_getBlkNeighLevels.o \

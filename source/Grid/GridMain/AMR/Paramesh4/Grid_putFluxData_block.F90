@@ -15,9 +15,9 @@
 !! SYNOPSIS
 !!
 !!  call Grid_putFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
-!!                              real(in)              :: fluxBufX(:,lo(1): ,lo(2): ,lo(3): ),
-!!                              real(in)              :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
-!!                              real(in)              :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufX(:,lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
 !!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!
@@ -33,7 +33,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block (which is not implemented for the PARAMESH Grid
 !!               anyway).
@@ -54,6 +54,15 @@
 !! NOTES
 !!
 !!   The arrays fluxBufX, fluxBufY, fluxBufZ are subject to index reordering.
+!!
+!!   This interface does not require level-wide fluxes to be allocated.
+!!
+!!   SPFS means semi-permanent flux storage. When using a Grid
+!!   implementation based on PARAMESH, SPFS is provided by arrays
+!!   flux_x, flux_y, flux_z private to PARAMESH in conjunction with
+!!   additional arrays like gr_[xyz]flx and gr_xflx_[yz]face,gr_yflx_[xz]face,
+!!   gr_zflx_[xy]face that are private to the Paramesh4 immplementation of
+!!   the Grid.
 !!
 !! SEE ALSO
 !!

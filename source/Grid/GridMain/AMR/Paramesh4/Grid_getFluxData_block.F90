@@ -14,7 +14,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Grid_getFluxCorrData_block(type(Grid_tile_t)(in) :: blockDesc,
+!!  call Grid_getFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
 !!                              real(OUT),TARGET      :: fluxBufX(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              real(OUT),TARGET      :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              real(OUT),TARGET      :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
@@ -34,15 +34,15 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
 !!   fluxBufX :  buffer for fluxes in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction; ignored if NDIM < 2
+!!   fluxBufY :  buffer for fluxes in JAXIS-direction; output undefined if NDIM < 2
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; ignored if NDIM < 3
+!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; output undefined if NDIM < 3
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
@@ -107,7 +107,6 @@ subroutine Grid_getFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, axis
   implicit none
 
 #include "constants.h"
-!#include "FortranLangFeatures.fh"
 
   type(Grid_tile_t), intent(in) :: blockDesc
   integer,intent(in) :: lo(3)
