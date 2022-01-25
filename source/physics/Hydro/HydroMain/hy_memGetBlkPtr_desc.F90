@@ -29,7 +29,7 @@
 !!
 !! ARGUMENTS
 !!
-!!  blockDesc : describes the local block
+!!  tileDesc : describes the local block
 !!
 !!  dataPtr : Pointer to the data block
 !!

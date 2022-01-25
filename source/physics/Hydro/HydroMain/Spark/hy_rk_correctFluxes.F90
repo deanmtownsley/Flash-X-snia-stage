@@ -14,8 +14,13 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_correctFluxes ( type(Grid_tile_t) :: blockDesc,
-!!                              real, intent(IN) :: dt )
+!!  call hy_rk_correctFluxes (real, pointer :: Uin(:,:,:,:),
+!!                            integer (IN)  :: blkLimits(:,:),
+!!                            integer (IN)  :: blkLimitsGC(:,:),
+!!                            integer (IN)  :: level,
+!!                            real (IN)     :: hy_del(:),
+!!                            real (IN)     :: dt)
+!!     
 !!
 !!  DESCRIPTION
 !!  Apply flux correction at fine/coarse boundaries. 
@@ -26,8 +31,13 @@
 !!
 !!
 !!  ARGUMENTS
-!!  blockDesc - block/tile descriptor
-!!  dt - time step
+!!    Uin -- pointer to solution data
+!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
+!!    level  -- the refine level of the block
+!!    hy_del  --- dx, dy, dz
+!!    dt - time step
+!!
+!!
 !!***
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)

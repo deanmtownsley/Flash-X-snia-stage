@@ -31,7 +31,7 @@
 !!
 !! ARGUMENTS 
 !!
-!!  blockID : the local blockid
+!!  blockID : id with which AMR will recognize the block
 !!
 !!  dataPtr : Pointer to the data block
 !!

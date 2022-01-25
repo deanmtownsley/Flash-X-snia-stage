@@ -14,12 +14,13 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_eos ( integer(IN) :: blockID )
+!!  call hy_rk_eos ( integer(IN) :: limits(:,: )
 !!
 !!  DESCRIPTION
 !!
 !!  ARGUMENTS
-!!
+!!   
+!!   limits :: range of indices along each dimension for applying eos 
 !!
 !!***
 subroutine hy_rk_eos(limits)
