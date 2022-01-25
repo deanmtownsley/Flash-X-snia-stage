@@ -59,9 +59,6 @@
 !!  The guard cells need to be filled before calling this routine.
 !!  The pressure needs to be updated before calling this routine
 !!  
-!!  SEE ALSO
-!!
-!!  Grid_getBlkIndexLimits
 !!
 !!***
 

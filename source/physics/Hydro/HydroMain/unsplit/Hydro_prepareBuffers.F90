@@ -1,4 +1,5 @@
-#include "Simulation.h"
+!!****if* source/physics/Hydro/HydroMain/unsplit/Hydro_prepareBuffers
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -7,7 +8,18 @@
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
+!!
+!!
+!! NAME
+!!
+!!  Hydro_prepareBuffers
+!!  For more details see the documentation of the NULL implementation
+!!
+!!***
 
+
+
+#include "Simulation.h"
 subroutine Hydro_prepareBuffers
   use hy_memInterface, ONLY :  hy_memAllocScratch
   use Hydro_data, ONLY : hy_fullRiemannStateArrays
