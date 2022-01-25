@@ -13,14 +13,17 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getLocalNumBlks(numBlocks)
-!!  Grid_getLocalNumBlks(int(out))
+!!  call Grid_getLocalNumBlks(integer(OUT) :: numBlocks)
 !!  
 !! DESCRIPTION 
 !!  Get the number of local blocks on a processor 
 !!
+!! ARGUMENTS
+!!  numBlocks : The number of blocks currently in use on myProcessor
 !!
-!! CREATED : 05/18/04, by AD
+!! HISTORY
+!!
+!!  CREATED  05/18/04, by AD
 !! 
 !! 
 !! 

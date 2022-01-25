@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getGeometry(integer (OUT)  :: geometry)
+!!  call Grid_getGeometry(integer (OUT)  :: geometry)
 !!               
 !!  
 !! DESCRIPTION 

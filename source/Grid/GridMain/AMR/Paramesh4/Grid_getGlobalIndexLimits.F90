@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_getGlobalIndexLimits
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_getGlobalIndexLimits
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getGlobalIndexLimits(integer :: globalIndexLimits(MDIM))
+!!  call Grid_getGlobalIndexLimits(integer(OUT) :: globalIndexLimits(MDIM))
 !!  
 !!
 !! DESCRIPTION 
@@ -36,7 +36,7 @@
 !! EXAMPLE
 !!   For a 2d problem with block size of (8x8) and 
 !!   maximum refinement level of 3, if the problem was
-!!   initialized with one block then
+!!   initialized with one root block then
 !! 
 !!   globalIndexLimits(IAXIS) = 32
 !!   globalIndexLimits(JAXIS) = 32

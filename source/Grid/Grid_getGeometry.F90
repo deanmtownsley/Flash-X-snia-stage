@@ -13,13 +13,13 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getGeometry(integer (OUT)  :: geometry)
+!!  call Grid_getGeometry(integer (OUT)  :: geometry)
 !!               
 !!  
 !! DESCRIPTION 
 !!
 !!  Returns the global grid geometry.
-!!  valid values are (CARTESIAN, POLAT, CYLINDRICAL, SPHERICAL) defined
+!!  valid values are (CARTESIAN, POLAR, CYLINDRICAL, SPHERICAL) defined
 !!  in file "constants.h"
 !!
 !!
@@ -33,7 +33,7 @@ subroutine Grid_getGeometry(geometry)
 
   implicit none
 
-  real, intent(OUT) :: geometry
+  integer, intent(OUT) :: geometry
 
   geometry = 0
 
