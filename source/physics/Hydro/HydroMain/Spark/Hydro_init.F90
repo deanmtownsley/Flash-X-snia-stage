@@ -13,18 +13,7 @@
 !!  Hydro_init
 !!
 !!
-!! SYNOPSIS
-!!
-!!  Hydro_init()
-!!
-!!
-!! DESCRIPTION
-!!
-!!  This routine initializes unit scope variables which are typically the runtime parameters.
-!!  The routine must be called once by Driver_initFlash.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
-!!
-!! ARGUMENTS
+!!  For more details see the documentation of the NULL implementation
 !!
 !!
 !!***

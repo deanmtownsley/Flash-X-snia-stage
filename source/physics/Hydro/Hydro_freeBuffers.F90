@@ -1,4 +1,4 @@
-subroutine Hydro_freeBuffers
+!!****if* source/physics/Hydro/Hydro_freeBuffers
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -7,4 +7,14 @@ subroutine Hydro_freeBuffers
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
+!! NAME
+!!
+!!  Hydro_freeBuffers
+!!
+!! DESCRIPTION
+!!  free buffers allocated for scratch use
+!!
+!!***
+
+subroutine Hydro_freeBuffers
 end subroutine Hydro_freeBuffers
