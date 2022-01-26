@@ -25,6 +25,6 @@
 #else
 
    implicit none
-   include "Flash_mpi.h"
+   include "Flashx_mpi.h"
 
 #endif
