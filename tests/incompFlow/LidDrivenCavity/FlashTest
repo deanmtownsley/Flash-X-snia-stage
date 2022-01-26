@@ -27,6 +27,8 @@
 # Where to write file to (in Jenkins-accessible workspace)
 # Build brand-spanking-new version of sfocu
 
+export FLASH_BASE="/home/mount/FlashX"
+
 FLASHTEST_OUTPUT=$FLASH_BASE/TestResults
 RESULTS_DIR=$FLASHTEST_OUTPUT
 
