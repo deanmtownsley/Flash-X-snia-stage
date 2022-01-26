@@ -20,19 +20,21 @@
 #-------------------------------------------------------------------------------
 
 # Check environment variables
-# FLASH_BASE        - defined inside container environment
-# FLASHTEST_BASE    - defined inside container environment
-# FLASHTEST_SITES   - defined inside container environment
+# FLASHX_BASE        - Path to Flash-X source inside container
+# FLASHTEST_BASE     - Path to FlashTest inside container
+# FLASHTEST_SITE     - Path to FlashTestSuite inside container
 
 # Where to write file to (in Jenkins-accessible workspace)
 # Build brand-spanking-new version of sfocu
 
-export FLASH_BASE="/home/mount/FlashX"
+export FLASHX_BASE="/home/mount/FlashX"
+export FLASHTEST_BASE="/home/FlashTest"
+export FLASHTEST_SITE="/home/FlashTestSuite"
 
-FLASHTEST_OUTPUT=$FLASH_BASE/TestResults
+FLASHTEST_OUTPUT=$FLASHX_BASE/TestResults
 RESULTS_DIR=$FLASHTEST_OUTPUT
 
-cd $FLASH_BASE/tools/sfocu
+cd $FLASHX_BASE/tools/sfocu
 make SITE=container NO_NCDF=True sfocu clean
 make SITE=container NO_NCDF=True sfocu
 
@@ -40,10 +42,10 @@ make SITE=container NO_NCDF=True sfocu
 mkdir -pv $FLASHTEST_OUTPUT
 
 $FLASHTEST_BASE/flashTest.py \
-                -z "$FLASH_BASE" \
+                -z "$FLASHX_BASE" \
                 -o $FLASHTEST_OUTPUT \
-                -c $FLASHTEST_SITES/config_main \
-                -i $FLASHTEST_SITES/test.info.xml \
+                -c $FLASHTEST_SITE/config \
+                -i $FLASHTEST_SITE/test.info.xml \
                 -v \
                 -L \
                 -s container \
