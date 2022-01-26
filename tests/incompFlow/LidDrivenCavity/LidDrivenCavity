@@ -24,9 +24,6 @@
 # FLASHTEST_BASE     - Path to FlashTest inside container
 # FLASHTEST_SITE     - Path to FlashTestSuite inside container
 
-# Where to write file to (in Jenkins-accessible workspace)
-# Build brand-spanking-new version of sfocu
-
 export LOGNAME="container"
 
 export FLASHX_BASE="/home/mount/FlashX"
