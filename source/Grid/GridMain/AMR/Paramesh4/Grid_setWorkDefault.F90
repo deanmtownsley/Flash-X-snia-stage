@@ -37,7 +37,7 @@
 
 #ifdef FLASH_DEBUG_AMR
       if(.NOT.gr_btCustomWork) &
-        call Driver_abortFlash( &
+        call Driver_abort( &
           "Grid_setWorkDefault: Trying to set default work, &
           &but simulation is not configured to sort via custom &
           &work values at regridding. Use `gr_btCustomWork &

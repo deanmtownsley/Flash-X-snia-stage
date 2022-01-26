@@ -3,7 +3,7 @@
 
 /* Quick implementation for serial unit tests */
 
-int Driver_abortFlashC(const char message[])
+int Driver_abortC(const char message[])
 {
   fprintf(stderr, "%s\n", message);
   exit(EXIT_FAILURE);

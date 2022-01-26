@@ -79,7 +79,7 @@ subroutine io_writeData (fileID)
        io_plotfileMetadataDP, io_plotfileGridQuantityDP, io_fileFormatVersion, &
        tree_data_t
  use io_intfTypesModule, ONLY : io_fileID_t
- use Driver_interface, ONLY : Driver_abortFlash
+ use Driver_interface, ONLY : Driver_abort
  use Grid_interface, ONLY : Grid_getLocalNumBlks, &
    Grid_getBlkBoundBox, Grid_getBlkCenterCoords, &
    Grid_getBlkPhysicalSize
@@ -95,7 +95,7 @@ subroutine io_writeData (fileID)
   implicit none
 
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"
@@ -182,7 +182,7 @@ subroutine io_writeData (fileID)
 
   call Grid_getLocalNumBlks(localNumBlocks)
   if (localNumBlocks /= 1) then
-     call Driver_abortFlash("Error: UG must have 1 block per proc")
+     call Driver_abort("Error: UG must have 1 block per proc")
   end if
 
 

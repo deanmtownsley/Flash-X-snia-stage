@@ -35,7 +35,7 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
                              threshold, mode)
 
   use Hydro_data, ONLY :  hy_smallu, hy_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -83,7 +83,7 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
 
 #ifdef DEBUG_HYDRO_GUARDCELLS
   if (guardCells .GE. NGUARD) then
-     call Driver_abortFlash("Hydro_shockStrength: too many guard cell layers requested")
+     call Driver_abort("Hydro_shockStrength: too many guard cell layers requested")
   end if
 #endif
 
@@ -104,11 +104,11 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
   if((hy_geometry /= CARTESIAN).and.&
      (hy_geometry /= CYLINDRICAL).and.&
      (hy_geometry /= SPHERICAL).and.&
-     (hy_geometry /= POLAR))call Driver_abortFlash("shockDetect:wrong geometry")
+     (hy_geometry /= POLAR))call Driver_abort("shockDetect:wrong geometry")
   if((NDIM ==1).and.(hy_geometry/=CARTESIAN).and.(hy_geometry/=SPHERICAL))&
-       call Driver_abortFlash("SHOCK DETECT : 1d cylindrical not supported")
+       call Driver_abort("SHOCK DETECT : 1d cylindrical not supported")
   if((NDIM ==3).and.(hy_geometry==POLAR))&
-       call Driver_abortFlash("SHOCK DETECT : 3d polar not supported")
+       call Driver_abort("SHOCK DETECT : 3d polar not supported")
 #endif
 
 #if NDIM == 1

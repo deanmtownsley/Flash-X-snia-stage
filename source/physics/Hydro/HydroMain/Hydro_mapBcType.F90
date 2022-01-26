@@ -28,7 +28,7 @@ subroutine Hydro_mapBcType(bcTypeToApply,bcTypeFromGrid,varIndex,gridDataStruct,
 
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Hydro_data, ONLY: hy_meshMe
   
 
@@ -56,13 +56,13 @@ subroutine Hydro_mapBcType(bcTypeToApply,bcTypeFromGrid,varIndex,gridDataStruct,
      if (hy_meshMe .EQ. MASTER_PE) print *, "Hydro_mapBcType: gridDataStruct set to improper value"
      if (hy_meshMe .EQ. MASTER_PE) print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ,WORK " // &
           " (defined in constants.h)"
-     call Driver_abortFlash("Hydro_mapBcType gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
+     call Driver_abort("Hydro_mapBcType gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
   end if
 
   if((gridDataStruct==WORK).and.(varIndex/=1)) &
-       call Driver_abortFlash("Hydro_mapBcType: varCount be 1 for work array")
+       call Driver_abort("Hydro_mapBcType: varCount be 1 for work array")
   if((gridDataStruct==CENTER).and.(varIndex > NUNK_VARS)) &
-       call Driver_abortFlash("Hydro_mapBcType: varIndex be <= NUNK_VARS for unk array")
+       call Driver_abort("Hydro_mapBcType: varIndex be <= NUNK_VARS for unk array")
        
 
 #endif

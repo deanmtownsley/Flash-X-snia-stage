@@ -35,10 +35,10 @@ subroutine amr_verify_bittree()
                   grid_xmin, grid_ymin, grid_zmin, &
                   grid_xmax, grid_ymax, grid_zmax
   use iso_c_binding, only: c_bool, c_int
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   implicit none
   
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer :: b, locb, lev, proc0, proc1, nprocs, ierr
   integer(c_int) :: nb
@@ -136,7 +136,7 @@ subroutine amr_verify_bittree()
       deallocate(all_recv)
       deallocate(all_disp)
       deallocate(all_coords)
-      call Driver_abortFlash('Bittree suicide, see bittree.misery.log for discrepancies.')
+      call Driver_abort('Bittree suicide, see bittree.misery.log for discrepancies.')
     end if
   end if
 end subroutine

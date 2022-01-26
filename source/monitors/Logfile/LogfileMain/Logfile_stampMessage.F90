@@ -32,7 +32,7 @@
 !!
 !!  NOTES
 !!
-!!   In general, force is .true. only when called from Driver_abortFlash
+!!   In general, force is .true. only when called from Driver_abort
 !!   Setting force=true can cause very bad performance in multi-processor runs.
 !!
 !!   MASTER_PE is defined in constants.h .

@@ -40,7 +40,7 @@ subroutine gr_ptApplyBCsOneBlk (blkLimits, blkLimitsGC, blockID)
   use Grid_interface, ONLY : Grid_getBlkBC
   use gr_ptData, ONLY : gr_ptBuf 
   use gr_ptMapData, ONLY : gr_ptSmearLen
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer,dimension(LOW:HIGH,MDIM), intent(IN)  :: blkLimits, blkLimitsGC
@@ -179,7 +179,7 @@ subroutine gr_ptApplyBCsOneBlk (blkLimits, blkLimitsGC, blockID)
                              else 
 
                                 print *, "Boundary Condition:", boundaryCondition(axis)
-                                call Driver_abortFlash("gr_ptApplyBCsOneBlk: Unrecognised boundary condition... exiting")
+                                call Driver_abort("gr_ptApplyBCsOneBlk: Unrecognised boundary condition... exiting")
 
                              end if
 

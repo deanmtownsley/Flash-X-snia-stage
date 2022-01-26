@@ -55,7 +55,7 @@ subroutine Driver_initFlash()
 
   use Driver_interface, ONLY : Driver_init, &
     Driver_initMaterialProperties, Driver_initSourceTerms, &
-    Driver_verifyInitDt, Driver_abortFlash, Driver_setupParallelEnv, &
+    Driver_verifyInitDt, Driver_abort, Driver_setupParallelEnv, &
     Driver_initNumericalTools
   use RuntimeParameters_interface, ONLY : RuntimeParameters_init, RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_init

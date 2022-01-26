@@ -1,4 +1,4 @@
-!!****f* source/Driver/Driver_evolveFlash
+!!****f* source/Driver/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!
@@ -42,7 +42,7 @@
 #define DEBUG_DRIVER
 #endif
 
-subroutine Driver_evolveFlash()
+subroutine Driver_evolveAll()
 
 
   implicit none
@@ -50,7 +50,7 @@ subroutine Driver_evolveFlash()
 
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Driver_evolveAll
 
 
 

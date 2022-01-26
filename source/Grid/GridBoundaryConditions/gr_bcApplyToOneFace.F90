@@ -66,7 +66,7 @@ subroutine gr_bcApplyToOneFace(axis,bcType,gridDataStruct,varCount,&
 
   use Grid_interface, ONLY : Grid_bcApplyToRegion, &
        Grid_bcApplyToRegionSpecialized
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_bcInterface, ONLY : gr_bcGetRegion, gr_bcPutRegion
   use gr_hgInterface, ONLY : gr_hgMapBcType !!, gr_hg_amr_1blk_bcset_work
   use Grid_tile, ONLY : Grid_tile_t
@@ -105,7 +105,7 @@ subroutine gr_bcApplyToOneFace(axis,bcType,gridDataStruct,varCount,&
   else if(regionType(axis)==HIGH) then
      face=HIGH
   else
-     call Driver_abortFlash("[gr_bcApplyToOneFace] type along BC dir must be LEFT_EDGE or RIGHT_EDGE")
+     call Driver_abort("[gr_bcApplyToOneFace] type along BC dir must be LEFT_EDGE or RIGHT_EDGE")
   end if
 
 #if !defined(FLASH_GRID_PARAMESH2) && !defined(FLASH_GRID_AMREX) && !defined(FLASH_GRID_UG)
@@ -188,9 +188,9 @@ subroutine gr_bcApplyToOneFace(axis,bcType,gridDataStruct,varCount,&
   if(.not.applied) then
      print*,'gr_bcApplyToOneFace: Unhandled boundary type',bcType, 'axis,regionType=',axis,regionType(axis)
      if (regionType(axis)==LEFT_EDGE) then
-        call Driver_abortFlash("unsupported boundary condition on Lower Face")
+        call Driver_abort("unsupported boundary condition on Lower Face")
      else if (regionType(axis)==RIGHT_EDGE) then
-         call Driver_abortFlash("unsupported boundary condition on Upper Face")
+         call Driver_abort("unsupported boundary condition on Upper Face")
      end if
   end if
   call gr_bcPutRegion(gridDataStruct,axis,endPoints,regionSize,mask,&

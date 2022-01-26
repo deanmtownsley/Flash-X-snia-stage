@@ -46,7 +46,7 @@ subroutine Pipeline_localGetItems (userArray, userCount)
                                 pl_procStatusLocal,  &
                                 pl_rank
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
 #include "Pipeline.h"
 
@@ -63,7 +63,7 @@ subroutine Pipeline_localGetItems (userArray, userCount)
 !
 !
   if (size (userArray,1) < pl_itemSize) then
-      call Driver_abortFlash ('[Pipeline_localGetItems] ERROR: User array cannot hold item elements!')
+      call Driver_abort ('[Pipeline_localGetItems] ERROR: User array cannot hold item elements!')
   end if
 !
 !

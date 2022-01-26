@@ -15,7 +15,7 @@
 
 subroutine IncompNS_getVectorProp(name, value)
 
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)         :: name
@@ -25,6 +25,6 @@ subroutine IncompNS_getVectorProp(name, value)
 
   value = 0.
   write(errorMessage,*) '[IncompNS_getVectorProp] Unknown scalar: ',name
-  call Driver_abortFlash(errorMessage)
+  call Driver_abort(errorMessage)
 
 end subroutine IncompNS_getVectorProp

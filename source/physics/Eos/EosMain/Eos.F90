@@ -195,7 +195,7 @@
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
 
 !==============================================================================
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
   use eos_localInterface, ONLY : eos_idealGamma, eos_mgamma, eos_helmholtz,&
       eos_tabulated, eos_nuclear, eos_weaklib
@@ -236,7 +236,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_weaklib(mode, vecLen, eosData, massFrac, mask)
      case default
         if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abortFlash('[Eos] unrecognized eos_type.')
+        call Driver_abort('[Eos] unrecognized eos_type.')
      end select
   elseif (pMassFrac) then
      select case(eos_type)
@@ -254,7 +254,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_weaklib(mode, vecLen, eosData, massFrac)
      case default
         if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abortFlash('[Eos] unrecognized eos_type.')
+        call Driver_abort('[Eos] unrecognized eos_type.')
      end select
   elseif (pMask) then
      select case(eos_type)
@@ -272,7 +272,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_weaklib(mode, vecLen, eosData, mask=mask)
      case default
         if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abortFlash('[Eos] unrecognized eos_type.')
+        call Driver_abort('[Eos] unrecognized eos_type.')
      end select
   else
      select case(eos_type)
@@ -290,7 +290,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_weaklib(mode, vecLen, eosData)
      case default
         if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abortFlash('[Eos] unrecognized eos_type.')
+        call Driver_abort('[Eos] unrecognized eos_type.')
      end select
   end if
   return

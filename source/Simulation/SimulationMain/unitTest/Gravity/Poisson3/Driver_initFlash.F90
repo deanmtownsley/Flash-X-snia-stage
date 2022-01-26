@@ -53,7 +53,7 @@ subroutine Driver_initFlash()
        dr_initialWCTime, dr_restart, dr_dtInit, dr_redshift,dr_particlesInitialized
 
   use Driver_interface, ONLY : Driver_init, &
-    Driver_verifyInitDt, Driver_abortFlash, Driver_setupParallelEnv
+    Driver_verifyInitDt, Driver_abort, Driver_setupParallelEnv
   use RuntimeParameters_interface, ONLY : RuntimeParameters_init, RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_init
   use PhysicalConstants_interface, ONLY : PhysicalConstants_init

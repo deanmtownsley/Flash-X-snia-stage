@@ -42,7 +42,7 @@
 subroutine IO_init()
 
   use IO_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getComm,&
+  use Driver_interface, ONLY : Driver_abort, Driver_getComm,&
        Driver_getMype, Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
     RuntimeParameters_getNumReal, RuntimeParameters_getNumInt, &
@@ -53,7 +53,7 @@ subroutine IO_init()
   use io_ptInterface, ONLY : io_ptInit
   use Logfile_interface, ONLY:  Logfile_stamp
   use Grid_interface, only: Grid_formatNonRep
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
 
@@ -195,12 +195,12 @@ subroutine IO_init()
         j = j + 1
      end do
   end do
-  if(j-1 .ne. ubound(io_unklabelsGlobal,1)) call Driver_abortFlash('BUG AT: ' // FILE_AT_LINE)
+  if(j-1 .ne. ubound(io_unklabelsGlobal,1)) call Driver_abort('BUG AT: ' // FILE_AT_LINE)
 
 #if defined(IO_HDF5_PARALLEL) || (defined(FLASH_IO_PNETCDF) && defined(FLASH_IO_EXPERIMENTAL))
 #else
   if(io_acrossNumProcs > 1) then
-     call Driver_abortFlash('[' // FILE_AT_LINE // '] ERROR: ' // &
+     call Driver_abort('[' // FILE_AT_LINE // '] ERROR: ' // &
         'mesh replication is only supported by parallel HDF5 ' //&
         'and derived datatype pnetCDF I/O units.')
   end if
@@ -218,7 +218,7 @@ subroutine IO_init()
      call Logfile_stamp('   meshCopyCount*{number of local MGDR NONREPs} This number comes from the MGDR ')
      call Logfile_stamp('   NONREP command in Config File')
 
-     call Driver_abortFlash('[' // FILE_AT_LINE // '] ERROR: Unused UNK ' // & 
+     call Driver_abort('[' // FILE_AT_LINE // '] ERROR: Unused UNK ' // & 
           'due to NONREP Config directive and IO unit. LOOK AT THE LOG FILE.')
   end if
 #endif
@@ -311,7 +311,7 @@ subroutine IO_init()
   call RuntimeParameters_get('outputSplitNum', io_outputSplitNum)
  
   if((mod(io_meshNumProcs, io_outputSplitNum) /= 0)) then
-     call Driver_abortFlash('mod(io_meshNumProcs, io_outputSplitNum) /= 0!')
+     call Driver_abort('mod(io_meshNumProcs, io_outputSplitNum) /= 0!')
   end if
 
   !set each files specific split number
@@ -409,7 +409,7 @@ subroutine IO_init()
         if(error == NOTFOUND) then
            currentRedshift = 0.0
         else
-           call Driver_abortFlash("ERROR: Error in lookup of 'redshift' scalar.")
+           call Driver_abort("ERROR: Error in lookup of 'redshift' scalar.")
         end if
      end if
      ! Values from the checkpoint file for next checkpoint and plot times
@@ -425,7 +425,7 @@ subroutine IO_init()
         if(error == NOTFOUND) then
            io_nextCheckpointZ = HUGE(1.)
         else
-           call Driver_abortFlash("ERROR: Error in lookup of nextCheckpointZ scalar.")
+           call Driver_abort("ERROR: Error in lookup of nextCheckpointZ scalar.")
         end if
      end if
      
@@ -436,7 +436,7 @@ subroutine IO_init()
         if(error == NOTFOUND) then
            io_nextPlotFileZ = HUGE(1.)
         else
-           call Driver_abortFlash("ERROR: Error in lookup of nextPlotFileZ scalar.")
+           call Driver_abort("ERROR: Error in lookup of nextPlotFileZ scalar.")
         end if
      end if
   else

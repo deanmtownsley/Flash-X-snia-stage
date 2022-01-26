@@ -42,7 +42,7 @@ subroutine io_prepareSimInfo()
        io_setupTimeStamp, io_buildTimeStamp
   
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   character(len=80)   :: setup_flashRelease

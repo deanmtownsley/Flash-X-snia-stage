@@ -56,7 +56,7 @@
 
 subroutine eos_lowdens(xDens,xTemp,xAbar,xZbar,xEner,xPres,xEntr,xGamc,mode,precision)
 
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   use Eos_data, ONLY : eos_smallt
 
   implicit none
@@ -149,14 +149,14 @@ subroutine eos_lowdens(xDens,xTemp,xAbar,xZbar,xEner,xPres,xEntr,xGamc,mode,prec
      print *, '  err = ', err
 
 
-     call Driver_abortFlash('[Eos] Error: too many iterations in Nuclear Eos')
+     call Driver_abort('[Eos] Error: too many iterations in Nuclear Eos')
 
 70   continue
      ! Crank it through one more time
      call idealGas_rad(xDens,xTemp,xAbar,xZbar,xEner,xPres,xEntr,xGamc,xdedt)
 
   else
-     call Driver_abortFlash('[Eos] Error: unknown input mode in routine Eos')
+     call Driver_abort('[Eos] Error: unknown input mode in routine Eos')
   endif
 
   return

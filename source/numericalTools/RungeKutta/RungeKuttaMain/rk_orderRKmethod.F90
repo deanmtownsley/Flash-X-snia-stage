@@ -30,7 +30,7 @@
 
 integer function rk_orderRKmethod (method)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -49,7 +49,7 @@ integer function rk_orderRKmethod (method)
   case ('CashKarp45'); rk_orderRKmethod = 4
 
   case default
-        call Driver_abortFlash ('[rk_orderRKmethod] ERROR: unknown RK method')
+        call Driver_abort ('[rk_orderRKmethod] ERROR: unknown RK method')
   end select
 !
 !

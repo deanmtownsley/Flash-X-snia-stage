@@ -48,7 +48,7 @@ subroutine Pipeline_localDeactivate (doAsyncReturn)
 
   implicit none
 
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical, optional, intent (in) :: doAsyncReturn
 

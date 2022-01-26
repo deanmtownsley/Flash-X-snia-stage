@@ -27,7 +27,7 @@
 !!  If we encounter non-MPI_SUCCESS we attempt to learn as much about 
 !!  the error as possible.  This includes translating error codes and 
 !!  error classes to strings describing the error.  After discovering 
-!!  an error we eventually call Driver_abortFlash.
+!!  an error we eventually call Driver_abort.
 !!
 !! NOTES
 !!   
@@ -52,10 +52,10 @@
 
 Subroutine Driver_checkMPIErrorCode( errorCode)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Driver_data, ONLY : dr_globalMe
 
-# include "Flash_mpi_implicitNone.fh"
+# include "Flashx_mpi_implicitNone.fh"
   
   integer, intent(IN) :: errorCode
   
@@ -103,7 +103,7 @@ Subroutine Driver_checkMPIErrorCode( errorCode)
   if ((errorCode < MPI_SUCCESS) .or. (errorCode > MPI_ERR_LASTCODE)) then
      msg = strPE // trim(sIntPE) // msgPart1 // trim(sInt)
      print *, msg
-     call Driver_abortFlash("[Driver_checkMPIErrorCode]: Invalid MPI error code.")
+     call Driver_abort("[Driver_checkMPIErrorCode]: Invalid MPI error code.")
   else !Print error code.
      msg = strPE // trim(sIntPE) // msgPart2 // trim(sInt)
      print *, msg
@@ -148,6 +148,6 @@ Subroutine Driver_checkMPIErrorCode( errorCode)
   
   
   !Don't attempt to recover from error, just crash.
-  call Driver_abortFlash("[Driver_checkMPIErrorCode]: MPI error encountered.")
+  call Driver_abort("[Driver_checkMPIErrorCode]: MPI error encountered.")
   
 End Subroutine Driver_checkMPIErrorCode

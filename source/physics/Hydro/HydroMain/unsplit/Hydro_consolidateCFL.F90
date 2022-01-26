@@ -22,7 +22,7 @@ subroutine Hydro_consolidateCFL()
   use Hydro_data, ONLY : hy_globalComm, hy_cfl, hy_useVaryingCFL
   use Hydro_data, ONLY : hy_cflStencil, hy_reduceGcellFills
   use Hydro_data, ONLY : hy_simTime, hy_simGeneration, hy_dtminValid
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
   integer :: error

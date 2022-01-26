@@ -40,7 +40,7 @@
 subroutine Gravity_init ()
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
    
@@ -53,7 +53,7 @@ subroutine Gravity_init ()
 
   call RuntimeParameters_get ("useGravity", testUseGravity)
   if (testUseGravity) then
-     call Driver_abortFlash("Gravity unit seems not to be compiled in, and the Gravity_init stub does not &
+     call Driver_abort("Gravity unit seems not to be compiled in, and the Gravity_init stub does not &
           &allow the value of useGravity to be TRUE.")
   end if
 

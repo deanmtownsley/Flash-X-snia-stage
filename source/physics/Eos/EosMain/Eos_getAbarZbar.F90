@@ -92,7 +92,7 @@ subroutine Eos_getAbarZbarArraySection(ifirstVar,solnVec,abar,zbar,sumY,Ye,massF
 #include "Multispecies.h"
 #else
 #if defined (SUMY_MSCALAR) && defined (YE_MSCALAR)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #else
   use Eos_data, ONLY: eos_singleSpeciesZ, eos_singleSpeciesA
 #endif
@@ -163,7 +163,7 @@ subroutine Eos_getAbarZbarArraySection(ifirstVar,solnVec,abar,zbar,sumY,Ye,massF
   if (.not. present(solnVec)) then
      ! If SUMY/YE used, the solution vector must be provided,
      ! otherwise there is no way to compute abar or zbar.
-     call Driver_abortFlash("[Eos_getAbarZbar] Cannot compute abar or zbar without solution data")
+     call Driver_abort("[Eos_getAbarZbar] Cannot compute abar or zbar without solution data")
   end if
   
   if (present(abar)) abar = 1.0/solnVec(SUMY_MSCALAR)

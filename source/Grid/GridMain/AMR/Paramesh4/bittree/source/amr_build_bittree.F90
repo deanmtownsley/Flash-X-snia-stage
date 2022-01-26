@@ -39,7 +39,7 @@ subroutine amr_build_bittree()
                   gr_btWorkDefaultLeaf,gr_btWorkDefaultPar, &
                   gr_btWorkBoundsPar, gr_btWorkBoundsLeaf
 
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Grid_interface, only : Grid_setWorkBounds
   use gr_specificData, ONLY : gr_gidIsValid
@@ -89,7 +89,7 @@ subroutine amr_build_bittree()
   call MPI_ALLREDUCE(MPI_IN_PLACE, topmask, product(top), MPI_LOGICAL, MPI_LOR, amr_mpi_meshComm, ierr)
   
   if(.NOT.all(topmask))     &
-    call Driver_abortFlash("Error in amr_build_bittree. All possible root blocks must exist.")
+    call Driver_abort("Error in amr_build_bittree. All possible root blocks must exist.")
 
 !-Set some runtime parameters needed for amr_sort_morton_bittree
   call RuntimeParameters_get("gr_btDistributedSort",gr_btDistributedSort)

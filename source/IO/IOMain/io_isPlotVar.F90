@@ -39,7 +39,7 @@
 subroutine io_isPlotVar(var, val, map)
 
   use IO_data, ONLY : io_plotVar, io_nPlotVars, io_plotGridVar, io_maxPlotGridVars
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -74,7 +74,7 @@ subroutine io_isPlotVar(var, val, map)
 
   else
 
-     call Driver_abortFlash("Error: io_isPlotVar, unknown map block")
+     call Driver_abort("Error: io_isPlotVar, unknown map block")
 
   end if
 

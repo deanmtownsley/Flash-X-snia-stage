@@ -139,7 +139,7 @@ subroutine Grid_init()
   use gr_ptInterface,              ONLY : gr_ptInit
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
                                           RuntimeParameters_mapStrToInt
-  use Driver_interface,            ONLY : Driver_abortFlash, &
+  use Driver_interface,            ONLY : Driver_abort, &
                                           Driver_getMype, &
                                           Driver_getNumProcs, &
                                           Driver_getComm, &
@@ -187,7 +187,7 @@ subroutine Grid_init()
         print*,' However, NGUARD is only ', NGUARD
         print*," Maybe you want to setup with '-gridinterpolation=native',"
         print*," or make sure that NGUARD is set correctly in Config file."
-        call Driver_abortFlash("Please setup with '-gridinterpolation=native', or change NGUARD.")
+        call Driver_abort("Please setup with '-gridinterpolation=native', or change NGUARD.")
      end if
   endif
 #endif
@@ -362,7 +362,7 @@ subroutine Grid_init()
   call RuntimeParameters_get("amrexInterpolator", interpolatorString)
   call RuntimeParameters_mapStrToInt(interpolatorString, gr_interpolator)
   if (gr_interpolator == NONEXISTENT) then
-    call Driver_abortFlash("[Grid_init] Unknown amrexInterpolator runtime parameter value")
+    call Driver_abort("[Grid_init] Unknown amrexInterpolator runtime parameter value")
   end if
 
 #ifdef GRID_WITH_MONOTONIC
@@ -490,13 +490,13 @@ subroutine Grid_init()
 !           if(gr_lrefmaxTimes(i) > 0.0 .and. &
 !                gr_lrefmaxTimes(i) < gr_lrefmaxTimes(i-1)) then
 !              if(gr_meshMe == MASTER_PE) then
-!                 call Driver_abortFlash('[Grid_init] Custom lrefine_max times must be in increasing order')
+!                 call Driver_abort('[Grid_init] Custom lrefine_max times must be in increasing order')
 !              end if
 !           end if
 !        end if
 !
 !        if(gr_lrefmaxTimes(i) > 0.0 .and. gr_lrefmaxTimeValues(i) < 0) then
-!           call Driver_abortFlash('[Grid_init] If custom lrefine_max time is set, the value must also be set')
+!           call Driver_abort('[Grid_init] If custom lrefine_max time is set, the value must also be set')
 !        end if
 !     end do
 !  end if
@@ -661,6 +661,6 @@ contains
 
   subroutine abo(msg)
     character(len=*) msg
-    call Driver_abortFlash("Failed assertion in Grid_init: "//msg)
+    call Driver_abort("Failed assertion in Grid_init: "//msg)
   end subroutine abo
 end subroutine Grid_init

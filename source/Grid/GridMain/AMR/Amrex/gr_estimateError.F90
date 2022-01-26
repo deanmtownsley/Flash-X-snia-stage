@@ -44,7 +44,7 @@
 !!***
 
 subroutine gr_estimateError(error, iref, refine_filter)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -52,6 +52,6 @@ subroutine gr_estimateError(error, iref, refine_filter)
   real,    intent(IN)    :: refine_filter
   real,    intent(INOUT) :: error(MAXBLOCKS)
  
-  call Driver_abortFlash("[gr_estimateError] Not implemented with AMReX")
+  call Driver_abort("[gr_estimateError] Not implemented with AMReX")
 end subroutine gr_estimateError
 

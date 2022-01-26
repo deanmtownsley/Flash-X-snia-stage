@@ -48,9 +48,9 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
                      io_meshNumProcs,    &
                      io_rayFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer, intent(in) :: numRays
@@ -66,7 +66,7 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
   allocate(procPos(io_meshNumProcs))
 
   if(.not. io_wrotePlot) then
-     call Driver_abortFlash("[IO_writeRays] IO_writeRays should only be called after a plot")
+     call Driver_abort("[IO_writeRays] IO_writeRays should only be called after a plot")
   end if
   
   ! Before writing the ray data, each processor has to compute the
@@ -122,7 +122,7 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
   call io_h5write_raydata(io_rayFileID, global_count, ierr, start_pos, &
        local_count, tags, xpos, ypos, zpos, power, io_meshMe)
   if(ierr < 0) then
-     call Driver_abortFlash("[IO_writeRays] Error in io_h5write_raydata")
+     call Driver_abort("[IO_writeRays] Error in io_h5write_raydata")
   end if
 
   deallocate(tags)

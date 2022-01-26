@@ -106,7 +106,7 @@
   use hy_interface,       ONLY : hy_getCurrents
 #endif
 #endif
-    use Driver_interface,     ONLY : Driver_abortFlash
+    use Driver_interface,     ONLY : Driver_abort
     use Grid_interface,       ONLY : Grid_getCellCoords, &
                                      Grid_getCellFaceAreas, &
                                      Grid_getCellVolumes, &
@@ -282,7 +282,7 @@
                                   faceAreas)
 #if NDIM > 1
        if (hy_geometry == SPHERICAL) then
-           call Driver_abortFlash("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
+           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
 !          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
 !            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
 !            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
@@ -306,7 +306,7 @@
 #if (NSPECIES+NMASS_SCALARS) > 0
     ! Use do loop nest to only set the portion of the tile
     ! that we are working on.
-!!    call Driver_abortFlash("[hy_unsplitUpdate] Update this to work with tiles")
+!!    call Driver_abort("[hy_unsplitUpdate] Update this to work with tiles")
     do ispu =  SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
        isph= ispu-NPROP_VARS
        SpOld(isph, blGC(LOW,IAXIS):blGC(HIGH,IAXIS),&
@@ -344,7 +344,7 @@
 #endif
 
 #ifdef DEBUG_HYDRO_POSITIVITY
-    call Driver_abortFlash("[hy_unsplitUpdate] This has not been tested")
+    call Driver_abort("[hy_unsplitUpdate] This has not been tested")
     call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                             blGC(LOW, :), blGC(HIGH, :), xCenter)
 #else
@@ -359,7 +359,7 @@
        call Grid_getCellCoords(IAXIS, RIGHT_EDGE, tileDesc%level, &
                                blGC(LOW, :), blGC(HIGH, :), xRight)
        if (NDIM == 3 .AND. hy_geometry == SPHERICAL) then
-          call Driver_abortFlash("[hy_unsplitUpdate] This has not been tested")
+          call Driver_abort("[hy_unsplitUpdate] This has not been tested")
           call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
                                   blkLimits(LOW, :), blkLimits(HIGH, :), &
                                   yCenter)
@@ -943,7 +943,7 @@
     !! ---------------------------------------------------------------
 #if defined(FLASH_USM_MHD) || defined(FLASH_UGLM_MHD)
     ! Set with explicit do loops over appropriate tile-based region
-    call Driver_abortFlash("[hy_unsplitUpdate] Update this to work with tiles")
+    call Driver_abort("[hy_unsplitUpdate] Update this to work with tiles")
     if (hy_forceHydroLimit) then
        Uout(MAGX_VAR:MAGZ_VAR,:,:,:) = 0.
     endif
@@ -1009,7 +1009,7 @@
     ! DEV: FIXME Include this again and see if we can use faceAreas and
     !            cellVolumes instead
        if (hy_geometry == SPHERICAL) then
-           call Driver_abortFlash("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
+           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
 !          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
 !            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
 !            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
@@ -1028,7 +1028,7 @@
 
     if (.NOT. hy_fullSpecMsFluxHandling) then
        ! Set these with explicit loop nests over a tile-based region
-       call Driver_abortFlash("[hy_unsplitUpdate] Update these to work with tiles")
+       call Driver_abort("[hy_unsplitUpdate] Update these to work with tiles")
        do ispu =  SPECIES_BEGIN, MASS_SCALARS_END
           isph= ispu-NPROP_VARS
           SpOld(isph,:,:,:) = Uout(ispu,:,:,:)
@@ -1047,7 +1047,7 @@
        call Grid_getCellCoords(IAXIS, RIGHT_EDGE, tileDesc%level, &
                                blGC(LOW, :), blGC(HIGH, :), xRight)
        if (NDIM == 3 .AND. hy_geometry == SPHERICAL) then
-          call Driver_abortFlash("[hy_unsplitUpdate] This has not been tested")
+          call Driver_abort("[hy_unsplitUpdate] This has not been tested")
           call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
                                   blkLimits(LOW, :), blkLimits(HIGH, :), &
                                   yCenter)

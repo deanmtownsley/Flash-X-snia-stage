@@ -46,7 +46,7 @@ subroutine gr_ptExchangePartialMap(blkLimits,blkLimitsGC,bufSize,axis,face,&
      sendBuf,recvBuf)
 
   use Grid_data, ONLY : gr_axisMe, gr_axisNumProcs, gr_axisComm, gr_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptData, ONLY : gr_ptBuf
   use gr_ptMapData, ONLY : gr_ptSmearLen
   use Grid_interface, ONLY : Grid_getBlkBC
@@ -56,7 +56,7 @@ subroutine gr_ptExchangePartialMap(blkLimits,blkLimitsGC,bufSize,axis,face,&
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits,blkLimitsGC
   integer,intent(IN) :: bufSize,axis,face
@@ -76,18 +76,18 @@ subroutine gr_ptExchangePartialMap(blkLimits,blkLimitsGC,bufSize,axis,face,&
 #ifdef DEBUG_GRIDMAPPARTICLES
   if((NDIM==1).and.(axis/=IAXIS))then
      print*,"[gr_ptExchangePartialMap]: Axis=",axis
-     call Driver_abortFlash("[gr_ptExchangePartialMap]: problem is one dimensional")
+     call Driver_abort("[gr_ptExchangePartialMap]: problem is one dimensional")
   end if
   if((NDIM==2).and.(axis==KAXIS))then
      print*,"[gr_ptExchangePartialMap]: Axis=",axis
-     call Driver_abortFlash("[gr_ptExchangePartialMap]: problem is two dimensional")
+     call Driver_abort("[gr_ptExchangePartialMap]: problem is two dimensional")
   end if
   print*,"The blocksize sent in and face is", blkSize, face
 #endif
 
 
   if (smearLength < 0) then
-     call Driver_abortFlash("[gr_ptExchangePartialMap]: smearLength is less than 0!")
+     call Driver_abort("[gr_ptExchangePartialMap]: smearLength is less than 0!")
   else if (smearLength == 0) then
      !Nothing to exchange.
      return

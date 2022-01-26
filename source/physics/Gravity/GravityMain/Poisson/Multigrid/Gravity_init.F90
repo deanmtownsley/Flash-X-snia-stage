@@ -34,7 +34,7 @@ subroutine Gravity_init()
 
   use Gravity_data 
 
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype,&
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype,&
        Driver_getComm, Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
     RuntimeParameters_mapStrToInt
@@ -78,7 +78,7 @@ subroutine Gravity_init()
     case ("periodic")
        grav_boundary = MG_BND_PERIODIC
     case default
-       call Driver_abortFlash('Gravity_init: unrecognized or unsupported gravity boundary type')
+       call Driver_abort('Gravity_init: unrecognized or unsupported gravity boundary type')
   end select
 
 
@@ -103,7 +103,7 @@ subroutine Gravity_init()
      if ( (iimg_mass .EQ. NONEXISTENT) .or. (iimg_pot .EQ. NONEXISTENT)) then
         call Logfile_stampMessage(&
              "[Gravity_init] must setup with unit implementation GravityMain/Poisson/Multigrid")
-        call Driver_abortFlash( &
+        call Driver_abort( &
              "[Gravity_init] must include isolated boundary subunit implementation IsoBndMultipole")
      end if
   endif

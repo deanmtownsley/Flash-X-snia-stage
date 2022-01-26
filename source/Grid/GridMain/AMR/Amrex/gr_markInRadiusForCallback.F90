@@ -58,7 +58,7 @@ subroutine gr_markInRadiusForCallback(ic, jc, kc, radius, lev, tags, tagval)
                                      amrex_mfiter_build, &
                                      amrex_mfiter_destroy
 
-  use Driver_interface,       ONLY : Driver_abortFlash
+  use Driver_interface,       ONLY : Driver_abort
   use Grid_data,              ONLY : gr_geometry
   use Grid_interface,         ONLY : Grid_getBlkCenterCoords
   use gr_physicalMultifabs,   ONLY : unk
@@ -164,7 +164,7 @@ subroutine gr_markInRadiusForCallback(ic, jc, kc, radius, lev, tags, tagval)
            dist2 = 0.
         endif
      else
-        call Driver_abortFlash("MarkRefine: geometry spec is wrong")
+        call Driver_abort("MarkRefine: geometry spec is wrong")
      endif
 
      tagData => tag%dataptr(mfi)

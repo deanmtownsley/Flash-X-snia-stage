@@ -98,7 +98,7 @@
 
 subroutine Driver_init()
   use Driver_data
-  use Driver_interface, ONLY:  Driver_putTimeStamp, Driver_abortFlash
+  use Driver_interface, ONLY:  Driver_putTimeStamp, Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use IO_interface, ONLY : IO_getScalar, IO_getPrevScalar
   use Logfile_interface, ONLY : Logfile_stamp
@@ -121,7 +121,7 @@ subroutine Driver_init()
   call RuntimeParameters_get("eachProcWritesOwnAbortLog", dr_eachProcWritesOwnAbortLog)
   call RuntimeParameters_get("dr_abortPause", dr_abortPause)
   !! hand dr_abortPause out to C routines to avoid architecture-dependent code
-  call driver_abortflashc_set_pause(dr_abortPause)
+  call driver_abortc_set_pause(dr_abortPause)
 
   call RuntimeParameters_get("nend", dr_nend)
 
@@ -151,14 +151,14 @@ subroutine Driver_init()
   if (dr_useSTS .and. dr_useSTSforDiffusion) then
      ! Check for proper use of super-time-stepping
      if (.not. dr_useDiffuse) then
-        call Driver_abortFlash("Driver_init : No diffusion used: useSTSforDiffusion should be FALSE")
+        call Driver_abort("Driver_init : No diffusion used: useSTSforDiffusion should be FALSE")
      endif
   endif
   call RuntimeParameters_get("nuSTS",    dr_nuSTS)
   call RuntimeParameters_get("nstepTotalSTS", dr_nstepTotalSTS)
   call RuntimeParameters_get("allowDtSTSDominate", dr_allowDtSTSDominate)
   if ((dr_useSTSforDiffusion) .and. (.not. dr_useSTS)) then
-     call Driver_abortFlash("Driver_init : useSTS should be TRUE")
+     call Driver_abort("Driver_init : useSTS should be TRUE")
   endif
   
   call RuntimeParameters_get("drift_trunc_mantissa", dr_driftTruncMantissa)
@@ -198,7 +198,7 @@ subroutine Driver_init()
      dr_fSweepDir=SWEEP_ZYX
      dr_rSWeepDir=SWEEP_XYZ
   else
-     call Driver_abortFlash("Driver_init : invalid SweepOrder for Hydro")
+     call Driver_abort("Driver_init : invalid SweepOrder for Hydro")
   end if
   
   
@@ -214,7 +214,7 @@ subroutine Driver_init()
         if(error == NOTFOUND) then
            dr_dtSTS = 0.0
         else
-           call Driver_abortFlash("ERROR: Error in lookup of 'dtSTS' scalar.")
+           call Driver_abort("ERROR: Error in lookup of 'dtSTS' scalar.")
         end if
      end if
      call IO_getPrevScalar("dtNew", dr_dtNew, error)
@@ -222,7 +222,7 @@ subroutine Driver_init()
         if(error == NOTFOUND) then
            dr_dtNew = dr_dt
         else
-           call Driver_abortFlash("ERROR: Error in lookup of 'dtNew' scalar.")
+           call Driver_abort("ERROR: Error in lookup of 'dtNew' scalar.")
         end if
      end if
 
@@ -265,12 +265,12 @@ subroutine Driver_init()
 
   if (dr_threadBlockList .and. .not. threadBlockListBuild) then
      call Logfile_stamp('WARNING! Turning off block list threading '//&
-          'because FLASH is not built appropriately','[Driver_init]')
+          'because Flash-X is not built appropriately','[Driver_init]')
      dr_threadBlockList = .false.
   end if
   if (dr_threadWithinBlock .and. .not. threadWithinBlockBuild) then
      call Logfile_stamp('WARNING! Turning off within-block threading '//&
-          'because FLASH is not built appropriately','[Driver_init]')
+          'because Flash-X is not built appropriately','[Driver_init]')
      dr_threadWithinBlock = .false.
   end if
 

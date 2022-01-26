@@ -64,7 +64,7 @@
 #include "Simulation.h"
 
 subroutine Grid_getSingleCellCoords(ind, level, edge, coords)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data,        ONLY : gr_iCoords, gr_jCoords, gr_kCoords, &
                                gr_guard
 
@@ -76,16 +76,16 @@ subroutine Grid_getSingleCellCoords(ind, level, edge, coords)
   real,    intent(out) :: coords(1:MDIM)
 
   coords(:) = 0.0
-  call Driver_abortFlash("[Grid_getSingleCellCoords] DEPRECATED")
+  call Driver_abort("[Grid_getSingleCellCoords] DEPRECATED")
 
 !#ifdef DEBUG_GRID
 !  print*,' inside Grid_getSingleCellCoords', ind, level, edge, coords
 !  if((level /= 1)) then
 !     print*,"Grid_getSingleCellCoords: invalid level"
-!     call Driver_abortFlash("[Grid_getSingleCellCoords] invalid level")
+!     call Driver_abort("[Grid_getSingleCellCoords] invalid level")
 !  end if
 !  if((edge/=LEFT_EDGE).and.(edge/=CENTER).and.(edge/=RIGHT_EDGE))&
-!       call Driver_abortFlash('Grid_getSingleCellCoords : invalid edge')
+!       call Driver_abort('Grid_getSingleCellCoords : invalid edge')
 !
 !  print*, 'leaving the DEBUG_GRID statement'
 !#endif

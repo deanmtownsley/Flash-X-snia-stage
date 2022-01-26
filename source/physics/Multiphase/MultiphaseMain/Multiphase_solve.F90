@@ -28,7 +28,7 @@ subroutine Multiphase_solve(dt)
   use Stencils_interface,  ONLY : Stencils_integrateEuler
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   !----------Arugments List---------------
   real,    INTENT(IN) :: dt
 

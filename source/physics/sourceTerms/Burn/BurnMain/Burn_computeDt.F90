@@ -85,7 +85,7 @@ subroutine Burn_computeDt(tileDesc,  &
                           dt_burn, dt_minloc)
 
   use Burn_data, ONLY: bn_enucDtFactor, bn_useBurn, bn_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 
@@ -164,7 +164,7 @@ subroutine Burn_computeDt(tileDesc,  &
      dt_minloc = temploc
   endif
 
-  if(dt_burn <= 0.0) call Driver_abortFlash("[Burn]: computed dt is not positive! Aborting!")
+  if(dt_burn <= 0.0) call Driver_abort("[Burn]: computed dt is not positive! Aborting!")
 
   return
 

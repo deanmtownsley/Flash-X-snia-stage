@@ -146,7 +146,7 @@
 
 function sim_distancePoint2Ellipse2Dxy (a, b, Rot, Cx, Cy, Px, Py)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Roots_interface,   ONLY : Roots_x4Polynomial
   use Simulation_data,   ONLY : sim_deg2rad
 
@@ -176,7 +176,7 @@ function sim_distancePoint2Ellipse2Dxy (a, b, Rot, Cx, Cy, Px, Py)
   U  = a * a - b * b
 
   if (U < 0.0) then
-      call Driver_abortFlash ('[sim_distancePoint2Ellipse2Dxy] ERROR: ellipse major axis < minor axis!')
+      call Driver_abort ('[sim_distancePoint2Ellipse2Dxy] ERROR: ellipse major axis < minor axis!')
   end if
 
   circle = (U == 0.0)
@@ -252,7 +252,7 @@ function sim_distancePoint2Ellipse2Dxy (a, b, Rot, Cx, Cy, Px, Py)
           sim_distancePoint2Ellipse2Dxy (2) = sqrt (maxval (p (1:k,1)))   ! maximum distance
 
       else
-          call Driver_abortFlash ('[sim_distancePoint2Ellipse2Dxy] ERROR: no/bad # of real quartic roots!')
+          call Driver_abort ('[sim_distancePoint2Ellipse2Dxy] ERROR: no/bad # of real quartic roots!')
       end if
 
   end if

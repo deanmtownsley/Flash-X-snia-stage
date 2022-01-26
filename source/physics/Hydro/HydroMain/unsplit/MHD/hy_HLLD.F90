@@ -60,7 +60,7 @@
 Subroutine hy_HLLD(dir,Vm,Vp,Fstar,speed,ierr)
   
   use hy_interface, ONLY : hy_prim2con,hy_prim2flx,hy_HLLC
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use hy_slopeLimiters, ONLY : signum
   use Hydro_data,       ONLY : hy_tiny
 

@@ -56,7 +56,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
     use amrex_fort_module, ONLY : wp => amrex_real
     use amrex_box_module,  ONLY : amrex_box
 
-    use Driver_interface,  ONLY : Driver_abortFlash
+    use Driver_interface,  ONLY : Driver_abort
 
     implicit none
 
@@ -84,7 +84,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
 
     if ((gds /= CENTER) .AND. &
         (gds /= FACEX)  .AND. (gds /= FACEY) .AND. (gds /= FACEZ)) then
-        call Driver_abortFlash("[gr_copyGuardcellRegionToFab] " // &
+        call Driver_abort("[gr_copyGuardcellRegionToFab] " // &
                                "GDS must be cell- or face-centered")
     end if
 
@@ -108,7 +108,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
 
 #ifdef DEBUG_GRID
         if (width > NGUARD) then
-            call Driver_abortFlash("[gr_copyGuardcellsToFab] Given patch is too wide")
+            call Driver_abort("[gr_copyGuardcellsToFab] Given patch is too wide")
         end if
 #endif
 

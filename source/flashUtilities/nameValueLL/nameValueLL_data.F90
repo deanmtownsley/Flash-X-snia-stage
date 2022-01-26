@@ -590,7 +590,7 @@ contains
 !!***
 
 subroutine nameValueLL_checkReal (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
   
 implicit none
 
@@ -613,7 +613,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkReal: invalid node given")
+     call Driver_abort("nameValue_checkReal: invalid node given")
   endif
   
   return    
@@ -643,7 +643,7 @@ end subroutine nameValueLL_checkReal
 !!***
 
 subroutine nameValueLL_checkInt (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 
 implicit none
 
@@ -665,7 +665,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkAdd: invalid node given")
+     call Driver_abort("nameValue_checkAdd: invalid node given")
   endif
   
   return    
@@ -696,7 +696,7 @@ end subroutine nameValueLL_checkInt
 !!***
 
 subroutine nameValueLL_checkStr (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 
 #include "constants.h"
 
@@ -723,7 +723,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkStr: invalid node given")
+     call Driver_abort("nameValue_checkStr: invalid node given")
   endif
   
   return    

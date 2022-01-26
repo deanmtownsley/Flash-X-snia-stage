@@ -60,7 +60,7 @@ subroutine Eos_nucDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   use IO_interface, ONLY : IO_setScalar
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical, intent(OUT) :: postBounce
   real, optional, intent(OUT) :: bounceTime, centralDens, centralEntr
@@ -99,7 +99,7 @@ subroutine Eos_nucDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   threadBlockList = .true.
 
 #ifdef ST_THREAD_WITHIN_BLOCK
-  call Driver_abortFlash("Cannot include both threading strategies")
+  call Driver_abort("Cannot include both threading strategies")
 #endif
 
 #else

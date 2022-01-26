@@ -40,7 +40,7 @@
 #include "Simulation.h"
 
 subroutine gr_findBlock(blkList,blkCount,pos,blockID)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   integer,intent(IN) :: blkCount
   integer,dimension(blkCount),intent(IN) :: blkList
@@ -48,6 +48,6 @@ subroutine gr_findBlock(blkList,blkCount,pos,blockID)
   integer,intent(INOUT) :: blockID
 
   ! DEV: TODO Implement this with blockDesc if needed
-  call Driver_abortFlash("[gr_findBlock] Not yet implemented for AMReX")
+  call Driver_abort("[gr_findBlock] Not yet implemented for AMReX")
 end subroutine gr_findBlock
 

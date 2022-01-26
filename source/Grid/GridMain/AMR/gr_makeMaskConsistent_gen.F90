@@ -83,7 +83,7 @@
 subroutine gr_makeMaskConsistent_gen(gridDataStruct,eosMode,needEos,gcell_on_cc,convertToConsvd)
 
   use Eos_interface, ONLY : Eos_getParameters
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,   ONLY : Grid_guardCellMaskHook
   use Grid_data, ONLY : gr_vartypes
 
@@ -171,7 +171,7 @@ subroutine gr_makeMaskConsistent_gen(gridDataStruct,eosMode,needEos,gcell_on_cc,
 
 #ifdef USE_EOS_YE
 #ifndef YE_MSCALAR
-  call Driver_abortFlash("gr_makeMaskConsistent_gen compiled in USE_EOS_YE mode, but no YE_MSCALAR is defined")
+  call Driver_abort("gr_makeMaskConsistent_gen compiled in USE_EOS_YE mode, but no YE_MSCALAR is defined")
 #endif
 
 #endif

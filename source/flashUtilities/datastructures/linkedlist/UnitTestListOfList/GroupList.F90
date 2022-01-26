@@ -8,7 +8,7 @@ module GroupList
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
   use GroupNode
-  use Driver, ONLY : Driver_abortFlash
+  use Driver, ONLY : Driver_abort
   implicit none
 
   type group_list

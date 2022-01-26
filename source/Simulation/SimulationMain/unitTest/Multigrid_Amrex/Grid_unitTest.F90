@@ -52,7 +52,7 @@ subroutine Grid_unitTest(fileUnit,perfect)
 
 
   implicit none
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer, intent(in)           :: fileUnit ! Output to file
   logical, intent(inout)        :: perfect  ! Flag to indicate errors

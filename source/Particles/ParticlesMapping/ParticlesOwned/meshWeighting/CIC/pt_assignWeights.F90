@@ -38,7 +38,7 @@ subroutine pt_assignWeights(fineCoarseBdry,h,wx,wy,wz)
 
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   logical,intent(IN) :: fineCoarseBdry
@@ -80,7 +80,7 @@ subroutine pt_assignWeights(fineCoarseBdry,h,wx,wy,wz)
      
   else
      
-     call Driver_abortFlash("pt_assignWeights: Haven't yet tested experimental fine-coarse boundary weights")
+     call Driver_abort("pt_assignWeights: Haven't yet tested experimental fine-coarse boundary weights")
 
      wx(CENTER) = 0.5
      wx(LEFT_EDGE) = 0.25-0.5*h(IAXIS)

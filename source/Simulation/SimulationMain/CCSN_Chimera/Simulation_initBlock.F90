@@ -39,7 +39,7 @@
 
 subroutine Simulation_initBlock(solnData, tileDesc)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
        Grid_getCellCoords, Grid_getDeltas, &
@@ -178,7 +178,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
            else
 
-              call Driver_abortFlash("Geometry not supported")
+              call Driver_abort("Geometry not supported")
 
            end if
 
@@ -285,7 +285,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  end if
               else
 
-                 call Driver_abortFlash("Beyond the Chimera data")
+                 call Driver_abort("Beyond the Chimera data")
 
               end if
 
@@ -335,7 +335,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
            else 
 
-              call Driver_abortFlash("Beyond the progenitor data")
+              call Driver_abort("Beyond the progenitor data")
 
            endif
 

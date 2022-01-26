@@ -65,7 +65,7 @@
 subroutine Grid_renormAbundance(tileDesc, tileLimits, solnData)
   use Grid_data,        ONLY : gr_smallx
   use Grid_interface,   ONLY : Grid_getCellCoords
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile,        ONLY : Grid_tile_t
 
   implicit none
@@ -138,7 +138,7 @@ subroutine Grid_renormAbundance(tileDesc, tileLimits, solnData)
 
                  ! bail if the error is exceptionally large -- something is seriously wrong
                  if (error > .10) then
-                    call Driver_abortFlash('Error too high in abundances')
+                    call Driver_abort('Error too high in abundances')
                  endif
                  
               endif

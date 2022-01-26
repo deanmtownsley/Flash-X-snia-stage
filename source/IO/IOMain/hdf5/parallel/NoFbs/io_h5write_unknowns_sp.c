@@ -7,7 +7,7 @@
 #include "io_flash.h"
 #include "io_h5_attribute.h"
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* 
    This function writes out a single unknown (passed from the checkpoint 
@@ -89,13 +89,13 @@ void FTOC(io_h5write_unknowns_sp)(
   dataspace = H5Screate_simple(rank, dimens_4d, NULL);
   if(dataspace < 0){
     printf("io_h5write_unknowns: dataspace error");
-    Driver_abortFlashC("io_h5write_unknowns: dataspace error");
+    Driver_abortC("io_h5write_unknowns: dataspace error");
   }
 
   dataset_plist = H5Pcreate(H5P_DATASET_CREATE);
   if(dataset_plist < 0){
     printf("io_h5write_unknowns: dataset_plist error");
-    Driver_abortFlashC("io_h5write_unknowns: dataset_plist error");
+    Driver_abortC("io_h5write_unknowns: dataset_plist error");
   }
 
     
@@ -103,7 +103,7 @@ void FTOC(io_h5write_unknowns_sp)(
   dataset = H5Dcreate(*file_identifier, record_label_new,
 	              H5T_NATIVE_FLOAT, dataspace, H5P_DEFAULT, dataset_plist, H5P_DEFAULT); 
   if(dataset < 0) {
-    Driver_abortFlashC("dataset Error: H5Dcreate io_h5write_unk\n");
+    Driver_abortC("dataset Error: H5Dcreate io_h5write_unk\n");
   }    
 
 
@@ -127,7 +127,7 @@ void FTOC(io_h5write_unknowns_sp)(
 
   if(ierr < 0){
      printf("%s\n", "Error: unable to select hyperslab for unknowns dataspace");
-     Driver_abortFlashC("Error: unable to select hyperslab for unknowns dataspace");
+     Driver_abortC("Error: unable to select hyperslab for unknowns dataspace");
   }
 
 
@@ -142,7 +142,7 @@ void FTOC(io_h5write_unknowns_sp)(
   memspace = H5Screate_simple(rank, dimens_5d, NULL);
   if(memspace < 0){
     printf("io_h5write_unknowns: memspace error");
-    Driver_abortFlashC("io_h5write_unknowns: memspace error");
+    Driver_abortC("io_h5write_unknowns: memspace error");
   }
 
   /* obtain a copy of the file transfer property list */ 
@@ -179,14 +179,14 @@ void FTOC(io_h5write_unknowns_sp)(
   /* write the data */
   if(!*dowrite) {
     ierr = H5Sselect_none(dataspace);
-    if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+    if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
     ierr = H5Sselect_none(memspace);
-    if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+    if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
   }
   status = H5Dwrite(dataset, H5T_NATIVE_FLOAT, memspace, dataspace, dxfer_template, unknowns);
   if(status < 0) {
     printf("io_h5write_unknowns: H5Dwrite error");
-    Driver_abortFlashC("io_h5write_unknowns: H5Dwrite error");
+    Driver_abortC("io_h5write_unknowns: H5Dwrite error");
   }
 #ifdef DEBUG_IO
   printf("UNKNOWNS: wrote unknowns, status = %d\n", (int) status);

@@ -168,7 +168,7 @@ contains
   end function init_iterator_mf
 
     function init_iterator(nodetype, level, tiling, tileSize, inactivePar) result(this)
-      use Driver_interface,      ONLY : Driver_abortFlash
+      use Driver_interface,      ONLY : Driver_abort
       use gr_physicalMultifabs,  ONLY : unk
       use amrex_amrcore_module,  ONLY : amrex_get_finest_level
 
@@ -196,7 +196,7 @@ contains
 
       ! Don't permit repeated calls to init without intermediate destroy call
       if (associated(this%mfi)) then
-        call Driver_abortFlash("[init_iterator] Destroy iterator before initializing again")
+        call Driver_abort("[init_iterator] Destroy iterator before initializing again")
       end if
 
       if (c_associated(this%mf%p)) then
@@ -293,7 +293,7 @@ contains
     !!****
     subroutine next(this)
         use amrex_box_module, ONLY : amrex_box
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
 
         class(block_1lev_iterator_t), intent(INOUT) :: this
 
@@ -314,12 +314,12 @@ contains
                     hasChildren = boxIsCovered(bx, this%level-1, this%finest_grid_level)
                     if (.NOT.hasChildren) exit
                  case default
-                    call Driver_abortFlash("[block_1lev_iterator]: Unsupported nodetype")
+                    call Driver_abort("[block_1lev_iterator]: Unsupported nodetype")
                  end select
               end if
            end do
         else
-           call Driver_abortFlash("[block_1lev_iterator]: attempting next() on invalid!")
+           call Driver_abort("[block_1lev_iterator]: attempting next() on invalid!")
         end if
 
     contains

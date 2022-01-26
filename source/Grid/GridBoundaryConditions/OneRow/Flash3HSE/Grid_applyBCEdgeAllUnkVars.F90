@@ -114,7 +114,7 @@ subroutine Grid_applyBCEdgeAllUnkVars(bcType,bcDir,guard,dataRow,face,&
      cellCenterSweepCoord, secondCoord,thirdCoord)
   use Grid_data, ONLY :gr_meshMe
   use Grid_interface, ONLY : Grid_applyBCEdge
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #include "Simulation.h"
 #ifdef FLASH_GRID_PARAMESH3OR4
   use physicaldata, ONLY : gcell_on_cc
@@ -139,7 +139,7 @@ subroutine Grid_applyBCEdgeAllUnkVars(bcType,bcDir,guard,dataRow,face,&
           cellCenterSweepCoord, secondCoord,thirdCoord)
 
   else if(bcType==HYDROSTATIC) then
-     call Driver_abortFlash("HYDROSTATIC boundary not implemented in Grid_applyBCEdgeAllUnkVars - pick a specific BC type!")
+     call Driver_abort("HYDROSTATIC boundary not implemented in Grid_applyBCEdgeAllUnkVars - pick a specific BC type!")
 
   else
 

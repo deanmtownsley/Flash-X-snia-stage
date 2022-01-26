@@ -53,7 +53,7 @@
 #include "Simulation.h"
 
 subroutine Grid_getBlkCenterCoords(block,blockCenter)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 !  use Grid_interface, ONLY : Grid_getBlkBoundBox
   use Grid_tile, ONLY : Grid_tile_t
 
@@ -63,7 +63,7 @@ subroutine Grid_getBlkCenterCoords(block,blockCenter)
   real,dimension(MDIM),intent(out) :: blockCenter
 
   blockCenter(:) = 0.0
-  call Driver_abortFlash("[Grid_getBlkCenterCoords] Implement for tiling")
+  call Driver_abort("[Grid_getBlkCenterCoords] Implement for tiling")
 
 !  real,dimension(2,MDIM) :: bndBox
 !  call Grid_getBlkBoundBox(block, bndBox)

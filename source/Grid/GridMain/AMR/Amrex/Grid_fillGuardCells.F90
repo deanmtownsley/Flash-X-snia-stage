@@ -113,7 +113,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                         gr_interpolator, &
                                         lo_bc_amrex, hi_bc_amrex
   use Eos_interface,             ONLY : Eos_guardCells
-  use Driver_interface,          ONLY : Driver_abortFlash
+  use Driver_interface,          ONLY : Driver_abort
   use Timers_interface,          ONLY : Timers_start, Timers_stop
   use Logfile_interface,         ONLY : Logfile_stampMessage, &
                                         Logfile_stampVarMask, &
@@ -134,7 +134,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   use Grid_iterator,             ONLY : Grid_iterator_t
   use Grid_tile,                 ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN)           :: gridDataStruct
   integer, intent(IN)           :: idir
@@ -180,7 +180,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                        (gridDataStruct==FACEZ).or.&
                        (gridDataStruct==CENTER_FACES)
   if (.not.validDataStructure) then
-     call Driver_abortFlash("[Grid_fillGuardcell] invalid data structure")
+     call Driver_abort("[Grid_fillGuardcell] invalid data structure")
   end if
 #endif
 
@@ -191,13 +191,13 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
        .AND. (gridDataStruct /= FACES)  .AND. (gridDataStruct /= FACEX) &
        .AND. (gridDataStruct /= FACEY)  .AND. (gridDataStruct /= FACEZ)) then
      write(*,*) "Unsupported gridDataStruct ", gridDataStruct 
-     call Driver_abortFlash("[Grid_fillGuardCells]: Unsupported gridDataStruct")
+     call Driver_abort("[Grid_fillGuardCells]: Unsupported gridDataStruct")
   else if (idir /= ALLDIR) then
-     call Driver_abortFlash("[Grid_fillGuardCells] idir must be ALLDIR with AMReX")
+     call Driver_abort("[Grid_fillGuardCells] idir must be ALLDIR with AMReX")
   !else if (present(selectBlockType)) then
-  !   call Driver_abortFlash("[Grid_fillGuardCells] selectBlockType *not* implemented for AMReX yet") 
+  !   call Driver_abort("[Grid_fillGuardCells] selectBlockType *not* implemented for AMReX yet") 
   else if (present(unitReadsMeshDataOnly)) then
-     call Driver_abortFlash("[Grid_fillGuardCells] unitReadsMeshDataOnly *not* implemented for AMReX yet") 
+     call Driver_abort("[Grid_fillGuardCells] unitReadsMeshDataOnly *not* implemented for AMReX yet") 
   end if
 
   skipThisGcellFill = .FALSE.   ! for now
@@ -242,7 +242,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
               end if
            end if
         else  !! if mask is present without the maskSize, abort
-           call Driver_abortFlash("gcfill :: maskSize must be present with mask")
+           call Driver_abort("gcfill :: maskSize must be present with mask")
         end if
      end if
   end if
@@ -575,7 +575,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 #else
   if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
       .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
-    call Driver_abortFlash("[Grid_fillGuardCells] No face data to work with")
+    call Driver_abort("[Grid_fillGuardCells] No face data to work with")
   end if
 #endif
 

@@ -29,7 +29,7 @@
 !!***
 integer function ut_getFreeFileUnit ()
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   
@@ -55,7 +55,7 @@ integer function ut_getFreeFileUnit ()
 !
 !
   if (ut_getFreeFileUnit == 0) then
-      call Driver_abortFlash ('[ut_getFreeFileUnit] ERROR: no free unit number < 1000 found')
+      call Driver_abort ('[ut_getFreeFileUnit] ERROR: no free unit number < 1000 found')
   end if
 !
 !

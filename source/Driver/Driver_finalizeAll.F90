@@ -1,4 +1,4 @@
-!!****f* source/Driver/Driver_finalizeFlash
+!!****f* source/Driver/Driver_finalizeAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -9,10 +9,10 @@
 !! limitations under the License.
 !!
 !! NAME
-!!  Driver_finalizeFlash
+!!  Driver_finalizeAll
 !!
 !! SYNOPSIS
-!!  Driver_finalizeFlash()
+!!  Driver_finalizeAll()
 !!
 !! DESCRIPTION
 !!
@@ -24,11 +24,11 @@
 !!***
 
 
-subroutine Driver_finalizeFlash()
+subroutine Driver_finalizeAll()
 
 implicit none
   return
-end subroutine Driver_finalizeFlash
+end subroutine Driver_finalizeAll
 
 
 

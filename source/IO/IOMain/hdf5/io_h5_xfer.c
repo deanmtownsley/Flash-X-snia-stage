@@ -54,7 +54,7 @@ int io_h5_xfer(const int myPE, const hid_t fileID, const int xferType,
     } else {
       printf("[%s]: Processor %d failed during H5Dopen on dataset %s.\n",
 	     __FILE__, myPE, datasetName);
-      ierr = Driver_abortFlashC("Error! H5Dopen failed");
+      ierr = Driver_abortC("Error! H5Dopen failed");
     }
 
   } else {

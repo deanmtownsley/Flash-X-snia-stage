@@ -30,7 +30,7 @@ subroutine IncompNS_indicators()
 
 !------------------------------------------------------------------------------------------
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   real :: vecminaux(5),vecmaxaux(5),vecmin(5),vecmax(5)
 #if NDIM < MDIM

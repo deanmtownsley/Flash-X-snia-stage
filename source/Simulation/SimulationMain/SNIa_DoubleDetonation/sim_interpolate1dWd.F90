@@ -32,7 +32,7 @@ subroutine sim_interpolate1dWd( volume, r_inner, r_outer, dens, temp, x )
                               sim_smallrho, sim_smallt, sim_xhe4Fluff, sim_xc12Fluff, sim_xo16Fluff, &
                               sim_xni56Fluff, sim_globalMe, sim_wd_unk2spec, sim_densFluff, sim_tempFluff
   use sim_local_interface, ONLY : interp1d_linear, locate
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -85,7 +85,7 @@ subroutine sim_interpolate1dWd( volume, r_inner, r_outer, dens, temp, x )
      write(*,'(a,30es15.7)') ' sim_wd_rad_tab(imin-1:imax) = ', sim_wd_rad_tab(imin-1:imax)
      write(*,'(a,1es15.7)')  '                      volume = ', volume
      write(*,'(a,4es15.7)')  '          dens,temp,mass,vol = ', dens, temp, mass, vol
-     call Driver_abortFlash("[sim_interpolate1dWd] Bad values in initialization")
+     call Driver_abort("[sim_interpolate1dWd] Bad values in initialization")
   end if
 
   return

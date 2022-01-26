@@ -28,7 +28,7 @@
 
 subroutine sim_setMaxRelativeAccuracies ()
 
-  use  Driver_interface, ONLY: Driver_abortFlash
+  use  Driver_interface, ONLY: Driver_abort
 
   use  Simulation_data,  ONLY: sim_maxRelativeAccuracy,   &
                                sim_numberOfx3Polynomials
@@ -39,7 +39,7 @@ subroutine sim_setMaxRelativeAccuracies ()
 !
 !
   if (sim_numberOfx3Polynomials > 9) then
-      call Driver_abortFlash ('[sim_setMaxRelativeAccuracies] ERROR: Not enough storage for max accuracies!')
+      call Driver_abort ('[sim_setMaxRelativeAccuracies] ERROR: Not enough storage for max accuracies!')
   end if
 !
 !

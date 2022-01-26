@@ -52,11 +52,11 @@ subroutine Grid_getMaxCommonRefinement(inputComm, maxCommonRefinement)
 #include "Simulation.h"
 #include "constants.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef FLASH_GRID_PARAMESH
   use tree, ONLY : lnblocks, nodetype, lrefine
 #endif
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   
   integer, intent(IN) :: inputComm
   integer, intent(OUT) :: maxCommonRefinement
@@ -83,7 +83,7 @@ subroutine Grid_getMaxCommonRefinement(inputComm, maxCommonRefinement)
 
 #else
   maxCommonRefinement = 1
-  call Driver_abortFlash("Not yet coded")
+  call Driver_abort("Not yet coded")
 
 #endif
 

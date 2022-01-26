@@ -30,7 +30,7 @@
 !!
 !!  NOTES
 !!
-!!    In general, only Driver_abortFlash should set force=true.
+!!    In general, only Driver_abort should set force=true.
 !!    Otherwise, extremely slow behaviour or fatal errors may occur in multi-
 !!    processor runs
 !!

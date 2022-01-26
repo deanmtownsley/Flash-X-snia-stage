@@ -47,7 +47,7 @@
 
 subroutine gr_createDomain()
   use tree, ONLY : lnblocks,neigh, mfaces,lrefine_max, bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_specificData, ONLY : gr_nBlockX, gr_nBlockY, gr_nBlockZ, &
                               gr_haveInternalBoundaryBlocks
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs,gr_domainBC,&
@@ -222,13 +222,13 @@ subroutine gr_createDomain()
               else
 #ifndef FLASH_GRID_PARAMESH2
                  if (bbox .gt. NBOUNDARIES) then
-                    call Driver_abortFlash('Too many boundary conditions - increase NBOUNDARIES!')
+                    call Driver_abort('Too many boundary conditions - increase NBOUNDARIES!')
                  end if
                  if (bbox .gt. nboundaries) then
-                    call Driver_abortFlash('Too many boundary conditions, found PARAMESH nboundaries < NBOUNDARIES!')
+                    call Driver_abort('Too many boundary conditions, found PARAMESH nboundaries < NBOUNDARIES!')
                  end if
                  if (bbox .gt. mboundaries) then
-                    call Driver_abortFlash('Too many boundary conditions, found PARAMESH mboundaries < NBOUNDARIES!')
+                    call Driver_abort('Too many boundary conditions, found PARAMESH mboundaries < NBOUNDARIES!')
                  end if
                  boundary_box(1,1,bbox)=coordI(i-1)
                  boundary_box(2,1,bbox)=coordI(i)

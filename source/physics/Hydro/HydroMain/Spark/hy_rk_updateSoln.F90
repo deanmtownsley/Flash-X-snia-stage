@@ -46,7 +46,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   use Hydro_offload_data, ONLY : hy_tmpState
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
 
@@ -84,7 +84,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
 #ifdef OMP_OL
   if (hy_geometry /= CARTESIAN) then
-    call Driver_abortFlash("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
+    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
   endif
   !$omp target teams distribute parallel do &
   !$omp default(none) &

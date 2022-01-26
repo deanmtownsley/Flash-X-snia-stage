@@ -54,7 +54,7 @@ subroutine Eos_nucOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdedt,xCs2,xXp,xXn,x
 #include "Simulation.h"
 #include "constants.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use eosmodule, ONLY : precision, temp_mev_to_kelvin, e_zeroPoint, alltables
 
   implicit none 
@@ -123,7 +123,7 @@ subroutine Eos_nucOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdedt,xCs2,xXp,xXn,x
   case(MODE_DENS_ENTR)
      xMode = 2
   case default
-     call Driver_abortFlash('[Eos] Error: unsupported mode for Nuclear Eos')
+     call Driver_abort('[Eos] Error: unsupported mode for Nuclear Eos')
   end select
 
   xTemp = xTemp * KtoMev
@@ -151,7 +151,7 @@ subroutine Eos_nucOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdedt,xCs2,xXp,xXn,x
   endif
 
 !  if (err /= 0) then
-!     call Driver_abortFlash('[Eos] Error in Eos_nucOneZone')
+!     call Driver_abort('[Eos] Error in Eos_nucOneZone')
 !  endif
 
   xTemp = xTemp * temp_mev_to_kelvin

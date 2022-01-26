@@ -1,4 +1,4 @@
-!!****f* source/Driver/Driver_initFlash
+!!****f* source/Driver/Driver_initAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -9,11 +9,11 @@
 !! limitations under the License.
 !!
 !! NAME
-!!  Driver_initFlash
+!!  Driver_initAll
 !!
 !! SYNOPSIS
 !!
-!!   Driver_initFlash()
+!!   Driver_initAll()
 !!
 !! DESCRIPTION
 !!
@@ -23,7 +23,7 @@
 !!  Order does matter, particularly when restarting from a 
 !!  checkpoint file.
 !!
-!!  For the most part, Driver_initFlash calls another units' init
+!!  For the most part, Driver_initAll calls another units' init
 !!  routines directly, like call IO_init or call Grid_init.  This
 !!  routine also makes calls to other Driver initialization routines
 !!  like Driver_initMaterialProperties or Driver_initSourceTerms.
@@ -46,9 +46,9 @@
 !! are local to the specific routine and do not have the prefix "dr_"
 
 
-subroutine Driver_initFlash()
+subroutine Driver_initAll()
 
   
 implicit none
   return
-end subroutine Driver_initFlash
+end subroutine Driver_initAll

@@ -67,7 +67,7 @@ subroutine gr_primitiveToConserve(tileDesc)
 
   use Grid_data, ONLY: gr_meshMe, gr_convertToConsvdForMeshCalls, &
                         gr_vartypes, gr_anyVarToConvert
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
 #ifdef FLASH_GRID_PARAMESH2
 #define INT_GCELL_ON_CC(IVAR) (.TRUE.)
@@ -111,7 +111,7 @@ subroutine gr_primitiveToConserve(tileDesc)
 99                           format ('[gr_primitiveToConserve] PE=',I7,', ivar=',I3,', block=',I8)
                           print 99,gr_meshMe,ivar,blockID
                           print*,'Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!'
-                          call Driver_abortFlash &
+                          call Driver_abort &
                                ('Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!')
                        end if
                     end if

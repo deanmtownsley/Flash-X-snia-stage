@@ -98,7 +98,7 @@
 
 !!$subroutine Eos_wrapped(mode,range,blockID, gridDataStruct)
 !!$
-!!$  use Driver_interface, ONLY : Driver_abortFlash
+!!$  use Driver_interface, ONLY : Driver_abort
 !!$  use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
 !!$  use Logfile_interface, ONLY: Logfile_stampMessage 
 !!$  use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData, Eos_arrayWrapped
@@ -234,7 +234,7 @@
 
 subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData
   use Eos_data, ONLY : eos_threadWithinBlock
@@ -282,7 +282,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_arrayWrapped] "//&
+     call Driver_abort("[Eos_arrayWrapped] "//&
           "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENS_EI, or variants thereof, or MODE_EOS_NOP")
   end if
 #endif

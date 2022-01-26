@@ -78,7 +78,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef FLASH_GRID_PARAMESH
   use tree, ONLY : lrefine
 #else
@@ -121,7 +121,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
      velPred=gr_ptVel2x
   elseif(axis==JAXIS) then
      if(NDIM<2)then
-        call Driver_abortFlash("gr_ptOneFaceBC, NDIM<2, axis is JAXIS")
+        call Driver_abort("gr_ptOneFaceBC, NDIM<2, axis is JAXIS")
      else
         corner(LOW)=gr_jmin
         corner(HIGH)=gr_jmax
@@ -132,7 +132,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
      end if
   elseif(axis==KAXIS) then
      if(NDIM<3)then
-        call Driver_abortFlash("gr_ptOneFaceBC, NDIM<3, axis is KAXIS")
+        call Driver_abort("gr_ptOneFaceBC, NDIM<3, axis is KAXIS")
      else
         corner(LOW)=gr_kmin
         corner(HIGH)=gr_kmax

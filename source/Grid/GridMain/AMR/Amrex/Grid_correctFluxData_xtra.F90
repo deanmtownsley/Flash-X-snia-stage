@@ -118,7 +118,7 @@
 subroutine Grid_correctFluxData_xtra(blockDesc, scaleF, fluxBufX,fluxBufY,fluxBufZ, lo, &
                                                 scaleC, fluxOldX,fluxOldY,fluxOldZ,     &
                                                 isFluxDensity)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellFaceAreas
 
   use Grid_tile, ONLY : Grid_tile_t
@@ -148,7 +148,7 @@ subroutine Grid_correctFluxData_xtra(blockDesc, scaleF, fluxBufX,fluxBufY,fluxBu
   real,allocatable :: faceAreas(:,:,:)
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
-  call Driver_abortFlash("Grid_correctFluxData_xtra.F90 requires amrex_flash_fluxregister,&
+  call Driver_abort("Grid_correctFluxData_xtra.F90 requires amrex_flash_fluxregister,&
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
@@ -169,7 +169,7 @@ subroutine Grid_correctFluxData_xtra(blockDesc, scaleF, fluxBufX,fluxBufY,fluxBu
 
      if (present(isFluxDensity)) then
         if (.NOT.ALL(isFluxDensity)) &
-             call Driver_abortFlash("Grid_correctFluxData_xtra: isFluxDensity is not yet supported")
+             call Driver_abort("Grid_correctFluxData_xtra: isFluxDensity is not yet supported")
      end if
 
      igrd = blockDesc % grid_index

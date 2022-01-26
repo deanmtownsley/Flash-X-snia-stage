@@ -79,7 +79,7 @@ subroutine IO_writeCheckpoint()
   use Simulation_interface, ONLY : Simulation_mapIntToStr
   use IO_interface, ONLY : IO_writeParticles,IO_writeUserArray,IO_updateScalars
   
-#include "Flash_mpi_implicitNone.fh"  
+#include "Flashx_mpi_implicitNone.fh"  
 #include "constants.h"
 #include "Simulation.h"  
 #include "io_flash.h"

@@ -30,7 +30,7 @@ subroutine IncompNS_diffusion()
 
 !------------------------------------------------------------------------------------------
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
 #if NDIM < MDIM
   real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData

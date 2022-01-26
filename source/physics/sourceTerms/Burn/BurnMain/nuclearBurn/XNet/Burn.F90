@@ -63,7 +63,7 @@ subroutine Burn (  dt  )
   use Burn_data, ONLY : bn_nuclearTempMin, bn_nuclearTempMax, bn_nuclearDensMin, &
        &   bn_nuclearDensMax, bn_nuclearNI56Max, bn_useShockBurn, &
        &   bn_useBurn, bn_enableTiling, bn_gcMaskSD
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped
   use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getCellCoords, &
        Grid_getTileIterator, Grid_releaseTileIterator

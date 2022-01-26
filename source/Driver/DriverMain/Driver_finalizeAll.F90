@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/Driver_finalizeFlash
+!!****if* source/Driver/DriverMain/Driver_finalizeAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -9,10 +9,10 @@
 !! limitations under the License.
 !!
 !! NAME
-!!  Driver_finalizeFlash
+!!  Driver_finalizeAll
 !!
 !! SYNOPSIS
-!!  Driver_finalizeFlash()
+!!  Driver_finalizeAll()
 !!
 !! DESCRIPTION
 !!
@@ -24,7 +24,7 @@
 !!***
 
 
-subroutine Driver_finalizeFlash()
+subroutine Driver_finalizeAll()
 
   use Eos_interface, ONLY : Eos_finalize
   use Driver_interface, ONLY : Driver_finalizeSourceTerms
@@ -86,7 +86,7 @@ implicit none
   call MPI_Finalize(ierr)
 
   return
-end subroutine Driver_finalizeFlash
+end subroutine Driver_finalizeAll
 
 
 

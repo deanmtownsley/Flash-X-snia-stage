@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/Driver_initFlash
+!!****if* source/Driver/DriverMain/Driver_initAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -9,20 +9,20 @@
 !! limitations under the License.
 !!
 !! NAME
-!!  Driver_initFlash
+!!  Driver_initAll
 !!
 !! SYNOPSIS
 !!
-!!   Driver_initFlash()
+!!   Driver_initAll()
 !!
 !! DESCRIPTION
 !!
-!!  Performs Flash initializations, which includes:
+!!  Performs Flash-X initializations, which includes:
 !!
 !!  Call all 'init' routines in units.  Order does matter,
 !!  particularly when restarting from a checkpoint file.
 !!
-!!  For the most part, Driver_initFlash calls other units' init
+!!  For the most part, Driver_initAll calls other units' init
 !!  routines directly, like call IO_init or call Grid_init.  This
 !!  routine also makes calls to other Driver initialization routines
 !!  like Driver_initMaterialProperties or Driver_initSourceTerms.
@@ -46,7 +46,7 @@
 !!***
 
 
-subroutine Driver_initFlash()
+subroutine Driver_initAll()
 
   use Driver_data, ONLY: dr_globalComm, dr_globalMe, dr_globalNumProcs, dr_nbegin, &
        dr_initialSimTime, dr_elapsedWCTime, &
@@ -55,7 +55,7 @@ subroutine Driver_initFlash()
 
   use Driver_interface, ONLY : Driver_init, &
     Driver_initSourceTerms, &
-    Driver_verifyInitDt, Driver_abortFlash, Driver_setupParallelEnv, &
+    Driver_verifyInitDt, Driver_abort, Driver_setupParallelEnv, &
     Driver_initNumericalTools
   use RuntimeParameters_interface, ONLY : RuntimeParameters_init, RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_init
@@ -89,7 +89,7 @@ subroutine Driver_initFlash()
   dr_elapsedWCTime = 0.0
 
   !! hand myPE out to C routines to avoid architecture-dependent code
-  call driver_abortflashc_set_mype(dr_globalMe)
+  call driver_abortc_set_mype(dr_globalMe)
 
   !! make sure our stack (and whatever other rlimits) are big enough.
   !! this should get around the 2Mb stack limit that pthreads
@@ -224,4 +224,4 @@ subroutine Driver_initFlash()
   call Eos_logDiagnostics(.TRUE.)
  
   return
-end subroutine Driver_initFlash
+end subroutine Driver_initAll

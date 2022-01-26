@@ -89,7 +89,7 @@ subroutine io_readRPsFromCheckpoint(myPE, filename, success, checkpointFileNumbe
        io_logToIntScalarValues, &
        io_logToIntParmValuesPrev, io_globalComm
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer,intent(INOUT) :: myPE
   character(len=*),intent(IN) :: filename
   logical,intent(OUT) :: success

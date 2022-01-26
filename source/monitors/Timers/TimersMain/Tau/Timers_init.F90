@@ -36,7 +36,7 @@ subroutine Timers_init(initialWCTime)
     write_tau_metadata_str, write_tau_metadata_log
   use Timers_data, ONLY : tmr_freeSlot, tmr_globalMe, tmr_globalNumProcs, &
        tmr_MAX_CUSTOM_TIMERS, tmr_customPrefix, tmr_prefixLen
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, Driver_getComm
   use RuntimeParameters_interface, ONLY : &
     RuntimeParameters_getNumReal, RuntimeParameters_getNumInt, &
@@ -94,7 +94,7 @@ subroutine Timers_init(initialWCTime)
 
   tmr_freeSlot = 1   !The first place in timer_tauList to store data.
   if (tmr_freeSlot > tmr_MAX_CUSTOM_TIMERS) then
-     call Driver_abortFlash("[Timers_init]: No space for timers")
+     call Driver_abort("[Timers_init]: No space for timers")
   end if
   tmr_prefixLen = len(tmr_customPrefix)
 

@@ -95,7 +95,7 @@
 subroutine Multispecies_getSumInv(property, value, weights, speciesMask)
 
   use Multispecies_data  !, ONLY:  ms_isZero
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getProperty
 
   implicit none
@@ -125,7 +125,7 @@ subroutine Multispecies_getSumInv(property, value, weights, speciesMask)
       else if (numWeights == 1) then
          weightsFull = weights(1)
       else
-         call Driver_abortFlash("Multispecies_getSumInv: invalid weights array")
+         call Driver_abort("Multispecies_getSumInv: invalid weights array")
       endif
    else
       weightsFull = 1.0
@@ -133,7 +133,7 @@ subroutine Multispecies_getSumInv(property, value, weights, speciesMask)
 
   if (present(speciesMask)) then
       if (size(speciesMask,1) /= NSPECIES ) then
-         call Driver_abortFlash("Multispecies_getSumInv: mask array wrong size")
+         call Driver_abort("Multispecies_getSumInv: mask array wrong size")
       endif
   endif
 
@@ -141,7 +141,7 @@ subroutine Multispecies_getSumInv(property, value, weights, speciesMask)
      do i=1, NSPECIES 
         call Multispecies_getProperty(SPECIES_BEGIN + (i-1), property, propVal)
         if (ms_isZero(propVal))                                                 &
-     &    call Driver_abortFlash("Multispecies_getSumInv: divide by ZERO property")
+     &    call Driver_abort("Multispecies_getSumInv: divide by ZERO property")
         invPropVal = 1.e0 / propVal
         value = value + weightsFull(i) * invPropVal
      end do
@@ -154,7 +154,7 @@ subroutine Multispecies_getSumInv(property, value, weights, speciesMask)
            call Multispecies_getProperty(iMask, property, propVal)
 
            if (ms_isZero(propVal))                                              &
-     &      call Driver_abortFlash("Multispecies_getSumInv: divide by ZERO property")
+     &      call Driver_abort("Multispecies_getSumInv: divide by ZERO property")
            invPropVal = 1.e0 / propVal       
            value = value + weightsFull(i) * invPropVal
         end if

@@ -106,7 +106,7 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
   use Hydro_data, ONLY : hy_E_upwind
 #endif
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Eos_interface, ONLY : Eos_wrapped
 
@@ -171,18 +171,18 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
   !! End of data declaration ***********************************************
 
 #ifdef FLASH_GRID_PARAMESH2
-  call Driver_abortFlash("The unsplit Hydro solver only works with PARAMESH 3 or 4!")
+  call Driver_abort("The unsplit Hydro solver only works with PARAMESH 3 or 4!")
 #endif
 
 
 #ifdef FLASH_GRID_PARAMESH3OR4
   if (hy_fluxCorrect) then
-     call Driver_abortFlash("hy_llfUnsplit: flux correction is not implemented!")
+     call Driver_abort("hy_llfUnsplit: flux correction is not implemented!")
   end if
 #endif
 
   if (hy_useGravity) then
-     call Driver_abortFlash("hy_llfUnsplit: support for gravity not implemented!")
+     call Driver_abort("hy_llfUnsplit: support for gravity not implemented!")
   end if
 
   if (.NOT.hy_updateHydroFluxes) then

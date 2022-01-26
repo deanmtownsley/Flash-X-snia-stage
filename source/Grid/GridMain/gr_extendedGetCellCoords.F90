@@ -110,7 +110,7 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
 
   use Grid_data, ONLY : gr_meshMe
   use Grid_interface, ONLY : Grid_getCellCoords
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
@@ -134,7 +134,7 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
   if (pe.EQ.gr_meshMe) then
      call Grid_getCellCoords(axis, edge, tileDesc%level, lo, hi, coordinates)
   else
-     call Driver_abortFlash('Calling gr_extendedGetCellCoords for'// & 
+     call Driver_abort('Calling gr_extendedGetCellCoords for'// & 
              &      ' remote blocks is not supported in this Grid implementation.')
   endif
 

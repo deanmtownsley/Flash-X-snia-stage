@@ -59,7 +59,7 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
 !  use Grid_interface, ONLY : Grid_getBlkBoundBox,Grid_outsideBoundBox, Grid_getBlkBC
 !  use Grid_data, ONLY : gr_globalDomain, gr_meshMe
 !  use tree, ONLY : surr_blks,parent,child, bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   
   implicit none
@@ -69,7 +69,7 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
   integer,dimension(BLKNO:PROCNO),intent(OUT) :: neghID
 
   neghID(:) = 0
-  call Driver_abortFlash("[gr_findNeighID] Update for tiling")
+  call Driver_abort("[gr_findNeighID] Update for tiling")
 
 !  integer,dimension(BLKNO:TYPENO) :: negh_prop
 !  integer :: blkHandle, childID, proc, blk, eachAxis

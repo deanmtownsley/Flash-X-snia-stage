@@ -56,7 +56,7 @@ subroutine gr_mpoleMoments (idensvar)
 
     case (GRID_3DCYLINDRICAL)
 
-          call  Driver_abortFlash("this geometry is not supported")
+          call  Driver_abort("this geometry is not supported")
 
     case (GRID_2DCYLINDRICAL)
 
@@ -64,7 +64,7 @@ subroutine gr_mpoleMoments (idensvar)
 
     case (GRID_2DSPHERICAL)
 
-          call  Driver_abortFlash("this geometry is not supported")
+          call  Driver_abort("this geometry is not supported")
 
     case (GRID_1DSPHERICAL)
 

@@ -63,7 +63,7 @@ subroutine Grid_sendOutputData()
 
   implicit none
 
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   integer :: localNumBlocks, i, ierr
 

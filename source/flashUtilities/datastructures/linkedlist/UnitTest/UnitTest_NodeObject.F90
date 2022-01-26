@@ -23,7 +23,7 @@ module UnitTest_NodeObject
     integer :: err    
     allocate(item, STAT=err)
     if (err /= 0) then
-       call Driver_abortFlash &
+       call Driver_abort &
             ("[create_node]: No more heap memory")
     end if
     item % SomeInt = -1
@@ -49,12 +49,12 @@ module UnitTest_NodeObject
 
 
   !Just whack this here, so we can test without FLASH.
-  subroutine Driver_abortFlash(msg)
+  subroutine Driver_abort(msg)
     implicit none
     character (len=*), intent(IN) :: msg
     print *, "ERROR!!!"
     print *, msg
     stop
-  end subroutine Driver_abortFlash
+  end subroutine Driver_abort
 
 end module UnitTest_NodeObject

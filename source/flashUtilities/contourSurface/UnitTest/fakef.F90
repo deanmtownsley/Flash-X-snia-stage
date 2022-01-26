@@ -35,13 +35,13 @@ module Driver_interface
 
   contains
 
-    subroutine Driver_abortFlash (errorMessage)
+    subroutine Driver_abort (errorMessage)
       implicit none
       character(len=*), intent(in) :: errorMessage
 
     print *, errorMessage
     stop
-    end subroutine Driver_abortFlash
+    end subroutine Driver_abort
 
 
 end module

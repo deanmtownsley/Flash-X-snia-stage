@@ -110,7 +110,7 @@ subroutine Grid_updateRefinement(nstep, time, gridChanged)
  
   implicit none
 
-include "Flash_mpi.h"
+include "Flashx_mpi.h"
 
   integer, intent(in)            :: nstep
   real,    intent(in)            :: time

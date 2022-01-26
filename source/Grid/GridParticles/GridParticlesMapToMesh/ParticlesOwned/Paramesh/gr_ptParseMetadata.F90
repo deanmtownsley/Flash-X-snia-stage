@@ -45,7 +45,7 @@
 subroutine gr_ptParseMetadata(bufferSize, dataBuffer, headerPtr, &
      negh, neghCornerID, sectionCoords, numbElements)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_meshMe
 
 #include "Simulation.h"
@@ -61,7 +61,7 @@ subroutine gr_ptParseMetadata(bufferSize, dataBuffer, headerPtr, &
   integer, intent(OUT) :: numbElements
 
   if ((headerPtr + SIZE_HEADER - 1) > bufferSize) then
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[gr_ptParseMetadata]: Metadata extends beyond buffer")
   end if
 
@@ -85,7 +85,7 @@ subroutine gr_ptParseMetadata(bufferSize, dataBuffer, headerPtr, &
 
   if ((headerPtr + SIZE_HEADER + numbElements - 1) > bufferSize) then
      print *, "Value:", headerPtr + SIZE_HEADER + numbElements, "size:", bufferSize
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[gr_ptParseMetadata]: Data extends beyond buffer")
   end if
 

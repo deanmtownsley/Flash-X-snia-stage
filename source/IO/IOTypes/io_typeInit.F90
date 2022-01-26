@@ -33,7 +33,7 @@
 
 subroutine io_typeInit(myPE, numProcs)
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use io_typeInterface, ONLY : io_getZeroBasedVarInfo, &
        io_getZeroBasedBlkSubarray
 #ifdef USE_IO_C_INTERFACE
@@ -47,7 +47,7 @@ subroutine io_typeInit(myPE, numProcs)
   use io_typeData
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   integer, intent(IN) :: myPE, numProcs
   integer, dimension(5) :: allGridDataStruct = &
@@ -62,7 +62,7 @@ subroutine io_typeInit(myPE, numProcs)
 
   if (ubound(io_unklabelsGlobal,1) > MAX_MESH_VAR) then
      !This check is needed to prevent overflowing many statically size arrays.
-     call Driver_abortFlash("Mesh replication support with type based I/O "//&
+     call Driver_abort("Mesh replication support with type based I/O "//&
           "is currently limited.  The I/O code has statically sized arrays "//&
           "that will overflow.  You can make these arrays bigger and get "//&
           "past this abort by increasing MAX_MESH_VAR in io_flash.h")
@@ -71,7 +71,7 @@ subroutine io_typeInit(myPE, numProcs)
   if (io_fileFormatVersion == 10) then
      call RuntimeParameters_get("meshCopyCount", meshCopyCount)
      if (meshCopyCount > 1) then
-        call Driver_abortFlash("Mesh replication not supported for fileFmt=10")
+        call Driver_abort("Mesh replication not supported for fileFmt=10")
      end if
   end if
 

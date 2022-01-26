@@ -50,7 +50,7 @@ double vmin,vmax,vstep;
 
 #ifdef DEBUG_IO
   if (comp_data == NULL)
-     Driver_abortFlashC("Unable to allocate space from compressed data");
+     Driver_abortC("Unable to allocate space from compressed data");
 #endif
 
   /* Populate the array */

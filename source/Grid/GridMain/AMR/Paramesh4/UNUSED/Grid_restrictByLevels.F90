@@ -164,7 +164,7 @@
 subroutine Grid_restrictByLevels( gridDataStruct, fromLevel, toLevel, checkFinestLevel,&
   maskSize,mask)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
   integer, intent(in) :: gridDataStruct
@@ -173,6 +173,6 @@ subroutine Grid_restrictByLevels( gridDataStruct, fromLevel, toLevel, checkFines
   integer, optional,intent(in) :: maskSize
   logical,dimension(*),optional,intent(in) :: mask
 
-  call Driver_abortFlash('Grid_restrictByLevel is currently not implemented &
+  call Driver_abort('Grid_restrictByLevel is currently not implemented &
        &for this version of the PARAMESH Grid.')
 end subroutine Grid_restrictByLevels

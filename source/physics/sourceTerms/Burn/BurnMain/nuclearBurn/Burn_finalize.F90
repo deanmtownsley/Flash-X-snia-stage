@@ -27,7 +27,7 @@
 !!  There is no implementation that does anything.
 !!
 !!  The NSE arrays used with parametricBurn are deallocated by
-!!  NSE_finalize, which should be called directly frm Driver_finalizeFlash.
+!!  NSE_finalize, which should be called directly frm Driver_finalizeAll.
 !!
 !!***
 

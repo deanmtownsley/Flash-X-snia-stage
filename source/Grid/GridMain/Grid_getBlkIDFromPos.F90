@@ -61,10 +61,10 @@ subroutine Grid_getBlkIDFromPos(pos,ansBlockID, ansProcID,comm)
   use Grid_data, ONLY : gr_minCellSizes, gr_globalDomain, gr_meshMe
   use Grid_interface, ONLY : Grid_getBlkCornerID
   use gr_parameshInterface, ONLY : gr_pmGetListOfBlocks
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #endif
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   real, dimension(1:MDIM), intent(IN) :: pos
   integer, intent(OUT) :: ansBlockID, ansProcID
   integer, optional, intent(IN) :: comm
@@ -86,7 +86,7 @@ subroutine Grid_getBlkIDFromPos(pos,ansBlockID, ansProcID,comm)
   if (ansProcID == NONEXISTENT) ansBlockID = NONEXISTENT
 #else
   if (.NOT.present(comm)) then
-     call Driver_abortFlash('The specific routine Grid_getBlkIDFromPos requires a communicator argument!')
+     call Driver_abort('The specific routine Grid_getBlkIDFromPos requires a communicator argument!')
   end if
   call gr_pmGetListOfBlocks(LEAF,blkList,blkCount)
   ansBlockID=NONEXISTENT

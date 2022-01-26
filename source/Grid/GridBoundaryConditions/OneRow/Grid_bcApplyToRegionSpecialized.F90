@@ -61,7 +61,7 @@
 !!   This routine is always called first when handling boundary conditions, and if it
 !!   finds a match with one of bcTypes that it implements, it sets "applied" to .true., otherwise
 !!   "applied" is set to .false. If applied is false, then Grid_bcApplyToRegion is called.
-!!   If that routine does not handle the given bcType either, Driver_abortFlash is called.
+!!   If that routine does not handle the given bcType either, Driver_abort is called.
 !!
 !!
 !! ARGUMENTS 
@@ -187,7 +187,7 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct,level,&
      applied,econdDir,thirdDir,endPoints,idest)
 
   use Grid_interface, ONLY : Grid_applyBCEdge, Grid_applyBCEdgeAllUnkVars
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

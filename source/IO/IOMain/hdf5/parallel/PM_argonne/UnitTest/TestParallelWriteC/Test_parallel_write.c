@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
 
   if (mpiSize != 4) {
-    Driver_abortFlashC("This is a 4-processor unit test");
+    Driver_abortC("This is a 4-processor unit test");
   }
   printf("Hello from processor %d\n", mpiRank);
 

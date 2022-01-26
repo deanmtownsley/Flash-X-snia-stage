@@ -31,7 +31,7 @@ subroutine sim_readProfile
        sim_rProf, sim_vProf, sim_rhoProf, sim_eProf, sim_pProf, &
        sim_mProf, model_1d
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -61,7 +61,7 @@ subroutine sim_readProfile
        write(*,'(A2,A)') '', 'Warning: File contains less than 2049 entries'
        exit
      else if ( iostat > 0 ) then
-       call Driver_abortFlash('Error: error reading file')
+       call Driver_abort('Error: error reading file')
      end if
   end do
   close(10)

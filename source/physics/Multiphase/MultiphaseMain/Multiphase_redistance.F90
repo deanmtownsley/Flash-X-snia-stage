@@ -29,7 +29,7 @@ subroutine Multiphase_redistance()
 
 !-----------------------------------------------------------------------------------------
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
   real, pointer, dimension(:,:,:,:) :: solnData

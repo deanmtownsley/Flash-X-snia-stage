@@ -48,7 +48,7 @@ subroutine Driver_getComm(communicatorType, communicator, axis)
 
   use Driver_data, ONLY : dr_meshComm, dr_meshAcrossComm, dr_globalComm,&
        dr_axisComm
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -73,9 +73,9 @@ subroutine Driver_getComm(communicatorType, communicator, axis)
      if(alright) then
         communicator=dr_axisComm(axis)
      else
-        call Driver_abortFlash("Driver_getComm : for directional comm, right axis value is needed")
+        call Driver_abort("Driver_getComm : for directional comm, right axis value is needed")
      end if
   case default
-     call Driver_abortFlash("Driver_getComm : unrecognized communicatorType")
+     call Driver_abort("Driver_getComm : unrecognized communicatorType")
   end select
 end subroutine Driver_getComm

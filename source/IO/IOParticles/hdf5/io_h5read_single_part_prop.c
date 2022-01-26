@@ -13,7 +13,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
@@ -52,7 +52,7 @@ void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
 #endif
 
   if(dataset < 0){
-    Driver_abortFlashC("[IO ERROR]: Could not open tracer particles for reading!\n");
+    Driver_abortC("[IO ERROR]: Could not open tracer particles for reading!\n");
   }
 
   dataspace = H5Dget_space(dataset);
@@ -73,7 +73,7 @@ void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to select hyperslab for particles dataspace\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for particles dataspace\n");
+    Driver_abortC("Error: Unable to select hyperslab for particles dataspace\n");
   }
 
 
@@ -97,7 +97,7 @@ void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
                                stride_2d,count_2d, NULL);
   if (status < 0){
     printf("Error: Unable to select hyperslab for particles memspace\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for particles memspace\n");
+    Driver_abortC("Error: Unable to select hyperslab for particles memspace\n");
   }
 #ifdef FLASH_IO_ASYNC_HDF5
   status = H5Dread_async(dataset, H5T_NATIVE_DOUBLE, memspace, dataspace, 
@@ -110,7 +110,7 @@ void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
   if (status < 0){
     H5Eprint(stdout, H5P_DEFAULT);
     printf("[io_h5read_single_part_prop] Error: Unable to read particles from dataset\n");
-    Driver_abortFlashC("[io_h5read_single_part_prop] Error: Unable to read particles from dataset\n");
+    Driver_abortC("[io_h5read_single_part_prop] Error: Unable to read particles from dataset\n");
   }
 
   H5Pclose(xfer_plist);

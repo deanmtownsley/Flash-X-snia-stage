@@ -60,7 +60,7 @@ subroutine io_readData()
 
   implicit none
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
 

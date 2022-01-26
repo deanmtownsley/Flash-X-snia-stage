@@ -19,7 +19,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Simulation_data
   use sim_local_interface, ONLY : sim_interpolate1dWd
   use Driver_data, ONLY : dr_dtInit
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_getGeometry, &
      Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped, Eos_getAbarZbar
@@ -174,7 +174,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               radMin = sqrt( x2Min + y2Min + z2Min )
               radMax = sqrt( x2Max + y2Max + z2Max )
            else
-              call Driver_abortFlash("Geometry not supported")
+              call Driver_abort("Geometry not supported")
            end if
 
            call sim_interpolate1dWd(radCenterVol, radMin, radMax, dens, temp, xinitial)
@@ -269,7 +269,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               write(*,'(a,3es15.7)') '        x,y,z  (right) = ', xRight(i),  yRight(j),  zRight(k)
               write(*,'(a,3es15.7)') '              dx,dy,dz = ', dx, dy, dz
               write(*,'(a,2es15.7)') '             dens,temp = ', dens, temp
-              call Driver_abortFlash("[Simulation_initBlock] Bad values BEFORE EOS call.")
+              call Driver_abort("[Simulation_initBlock] Bad values BEFORE EOS call.")
            end if
 
            !-----------------------------------------------
@@ -313,7 +313,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               write(*,'(a,3es15.7)') '        x,y,z  (right) = ', xRight(i),  yRight(j),  zRight(k)
               write(*,'(a,3es15.7)') '              dx,dy,dz = ', dx, dy, dz
               write(*,'(a,4es15.7)') '   dens,temp,pres,eint = ', dens, temp, pres, eint
-              call Driver_abortFlash("[Simulation_initBlock] Bad values AFTER EOS call.")
+              call Driver_abort("[Simulation_initBlock] Bad values AFTER EOS call.")
            end if
         end do
      end do

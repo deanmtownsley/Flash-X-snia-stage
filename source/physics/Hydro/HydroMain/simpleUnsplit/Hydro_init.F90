@@ -21,7 +21,7 @@
 Subroutine Hydro_init()
 
   use Hydro_data
-  use Driver_interface,            ONLY : Driver_abortFlash, Driver_getMype, &
+  use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
                                           Driver_getComm,                    &
                                           Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -59,7 +59,7 @@ Subroutine Hydro_init()
   if (hy_3Torder == -1) hy_3Torder = hy_order
   call RuntimeParameters_get("transOrder",          hy_transOrder)
   if ((NGUARD <= 4) .and. (hy_order > 3)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires more guardcells for the given hy_order method.")
   endif
   hy_useVaryingCFL = .false.
@@ -73,7 +73,7 @@ Subroutine Hydro_init()
 
 #ifdef FLASH_GRID_PARAMESH
   if ((NGUARD > 4) .and. (NXB < 2*NGUARD)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
@@ -121,7 +121,7 @@ Subroutine Hydro_init()
      endif
 
      if (hy_useGravPotUpdate .and. hy_gravConsv) then
-        call Driver_abortFlash&
+        call Driver_abort&
           ("[Hydro_init]: Gravity update using Poisson solver only support primitive update."//&
            "'Please use hy_gravConsv = .false.'")
      endif
@@ -174,7 +174,7 @@ Subroutine Hydro_init()
      hy_limiter = LIMITED
      call RuntimeParameters_get('LimitedSlopeBeta', hy_LimitedSlopeBeta)
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The hy_limter of unknown type! It should be one of" // &
            "'minmod','mc', 'vanLeer', 'hybrid' or 'limited'.")
   end if
@@ -214,7 +214,7 @@ Subroutine Hydro_init()
      endif
 #endif
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The Riemann Solver is of unknown type: " // &
            "Options are HLL or LLF.")
   endif

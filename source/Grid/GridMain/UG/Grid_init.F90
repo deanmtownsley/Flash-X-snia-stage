@@ -64,7 +64,7 @@
 subroutine Grid_init()
 
   use physicalData
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype, &
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype, &
     Driver_getNumProcs, Driver_getComm
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
     RuntimeParameters_mapStrToInt
@@ -206,12 +206,12 @@ subroutine Grid_init()
 !!  end do
 
 #ifdef FIXEDBLOCKSIZE
-  call Driver_abortFlash("Uniform Grid is not supported in fixedblocksize mode")
+  call Driver_abort("Uniform Grid is not supported in fixedblocksize mode")
 #else
 
   if (any((gr_gIndexSize / gr_axisNumProcs) <=  0)) then
      if(gr_meshMe == MASTER_PE) print*,'the local block size is:', gr_gIndexSize / gr_axisNumProcs
-     call Driver_abortFlash("[Grid_init] Must set runtime parameters iGridSize, jGridSize, kGridSize so that" //  &
+     call Driver_abort("[Grid_init] Must set runtime parameters iGridSize, jGridSize, kGridSize so that" //  &
           " a block contains at least one cell.")
   end if
 

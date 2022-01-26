@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/Unsplit/Driver_evolveFlash
+!!****if* source/Driver/DriverMain/Unsplit/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  call Driver_evolveFlash()
+!!  call Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!
@@ -43,7 +43,7 @@
 
 #define DEBUG_GRID_GCMASK
 
-subroutine Driver_evolveFlash()
+subroutine Driver_evolveAll()
 
   use Driver_data,         ONLY : dr_globalMe, dr_globalNumProcs, dr_nbegin, &
                                   dr_meshMe, dr_meshNumProcs,            &
@@ -129,7 +129,7 @@ subroutine Driver_evolveFlash()
   endRunPl = .false.
   endRun = .false.
 
-  call Logfile_stamp( 'Entering evolution loop' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Entering evolution loop' , '[Driver_evolveAll]')
   call Profiler_start("FLASH_evolution")
   call Timers_start("evolution")
 
@@ -345,7 +345,7 @@ subroutine Driver_evolveFlash()
   
   call Timers_stop("evolution")
   call Profiler_stop("FLASH_evolution")
-  call Logfile_stamp( 'Exiting evolution loop' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Exiting evolution loop' , '[Driver_evolveAll]')
   !if a file termination, this may already be done.
   if(.NOT.endRun) call IO_outputFinal()
   call Timers_getSummary( max(0,dr_nstep-dr_nbegin+1))
@@ -354,4 +354,4 @@ subroutine Driver_evolveFlash()
   
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Driver_evolveAll

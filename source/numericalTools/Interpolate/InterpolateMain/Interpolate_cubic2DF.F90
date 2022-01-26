@@ -54,7 +54,7 @@
 
 real function Interpolate_cubic2DF (a,x,y)
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use Logfile_interface,  ONLY : Logfile_stamp
 
   implicit none
@@ -76,7 +76,7 @@ real function Interpolate_cubic2DF (a,x,y)
   if (notRescaled) then
       call Logfile_stamp     (x, ' = rescaled x coordinate [Interpolate_cubic2DF]'    )
       call Logfile_stamp     (y, ' = rescaled y coordinate [Interpolate_cubic2DF]'    )
-      call Driver_abortFlash ('[Interpolate_cubic2DF] ERROR: [x,y] pair not rescaled!')
+      call Driver_abort ('[Interpolate_cubic2DF] ERROR: [x,y] pair not rescaled!')
   end if
 !
 !

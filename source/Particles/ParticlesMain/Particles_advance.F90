@@ -47,7 +47,7 @@ subroutine Particles_advance (dtOld,dtNew)
        pt_meshMe, pt_typeInfo,&
        pt_indexList, pt_indexCount
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use pt_interface, ONLY: pt_updateTypeDS, pt_advanceRK
   use Grid_interface, ONLY : Grid_moveParticles, Grid_fillGuardCells, &
@@ -133,7 +133,7 @@ subroutine Particles_advance (dtOld,dtNew)
         call pt_advanceCustom(dtOld,dtNew,particles(:,p_begin:p_end),&
              p_count, i)
      case default
-        call Driver_abortFlash("Particles_advance: Not a valid advance method. Please use RUNGEKUTTA method!")
+        call Driver_abort("Particles_advance: Not a valid advance method. Please use RUNGEKUTTA method!")
      end select
   end do
 

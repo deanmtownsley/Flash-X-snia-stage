@@ -71,7 +71,7 @@
 #include "Simulation.h"
 
 subroutine Grid_getSingleCellVol(point, level, cellvolume)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 !  use Grid_interface,   ONLY : Grid_getDeltas, &
 !                               Grid_getGeometry, &
 !                               Grid_getSingleCellCoords
@@ -83,7 +83,7 @@ subroutine Grid_getSingleCellVol(point, level, cellvolume)
   real,    intent(OUT) :: cellvolume
 
   cellvolume = 0.0
-  call Driver_abortFlash("[Grid_getSingleCellVol] DEPRECATED")
+  call Driver_abort("[Grid_getSingleCellVol] DEPRECATED")
 
 !  integer :: geometry
 !  real    :: del(1:MDIM)
@@ -97,7 +97,7 @@ subroutine Grid_getSingleCellVol(point, level, cellvolume)
 !  if (.NOT. ((geometry == CARTESIAN                  ) .OR. &
 !             (geometry == CYLINDRICAL .AND. NDIM == 2))  ) then
 !    cellvolume = 0.0
-!    call Driver_abortFlash("[Grid_getSingleCellVol] Not tested yet")
+!    call Driver_abort("[Grid_getSingleCellVol] Not tested yet")
 !  end if
 !
 !  select case (geometry)

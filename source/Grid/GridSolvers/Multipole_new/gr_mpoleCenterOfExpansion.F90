@@ -35,7 +35,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
   use gr_mpoleInterface, ONLY : gr_mpoleCen3Dcartesian,   &
                                 gr_mpoleCen2Dcylindrical, &
                                 gr_mpoleCen1Dspherical
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "gr_mpole.h"
@@ -54,7 +54,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
 
     case (GRID_3DCYLINDRICAL)
 
-          call Driver_abortFlash("this geometry is not supported")
+          call Driver_abort("this geometry is not supported")
 
     case (GRID_2DCYLINDRICAL)
 
@@ -62,7 +62,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
 
     case (GRID_2DSPHERICAL)
 
-          call Driver_abortFlash("this geometry is not supported")
+          call Driver_abort("this geometry is not supported")
 
     case (GRID_1DSPHERICAL)
 

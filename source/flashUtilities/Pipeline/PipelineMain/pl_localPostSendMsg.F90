@@ -46,7 +46,7 @@ subroutine pl_localPostSendMsg (channel)
   implicit none
 
 #include "Pipeline.h"
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   integer, intent (in) :: channel
 

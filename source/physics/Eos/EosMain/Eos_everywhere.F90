@@ -53,7 +53,7 @@
 
 subroutine Eos_everywhere(mode,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,ONLY : Grid_getTileIterator, &
                             Grid_releaseTileIterator
   use Grid_iterator, ONLY : Grid_iterator_t
@@ -110,7 +110,7 @@ subroutine Eos_everywhere(mode,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_everywhere] "//&
+     call Driver_abort("[Eos_everywhere] "//&
           "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENS_EI, or variants thereof, or MODE_EOS_NOP")
   end if
 #endif

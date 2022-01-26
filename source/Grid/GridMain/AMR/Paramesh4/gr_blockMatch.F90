@@ -134,14 +134,14 @@ function gr_blockMatch(blkID,ntype,refinementLevel) result(match)
         if (refinementLevel > 0) then
            match = .TRUE.          ! test for matching level is done below
         else
-           call Driver_abortFlash("[gr_blockMatch] With ntype=REFINEMENT, argument refinementlevel must be present and > 0.")
+           call Driver_abort("[gr_blockMatch] With ntype=REFINEMENT, argument refinementlevel must be present and > 0.")
         end if
      else
-        call Driver_abortFlash("[gr_blockMatch] With ntype=REFINEMENT, optional argument refinementlevel must be present.")
+        call Driver_abort("[gr_blockMatch] With ntype=REFINEMENT, optional argument refinementlevel must be present.")
      end if
   case default
      match = .FALSE.
-     call Driver_abortFlash("[gr_blockMatch] ntype argument not recognized")
+     call Driver_abort("[gr_blockMatch] ntype argument not recognized")
   end select
 
   if (match .AND. present(refinementLevel)) then

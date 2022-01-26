@@ -79,7 +79,7 @@
       Use paramesh_interfaces, only : fill_old_loc
       Use paramesh_mpi_interfaces, only : MPI_int_SSEND
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/Output variables.
       Integer, Intent(inout) :: new_loc(2,maxblocks_tr)
@@ -434,7 +434,7 @@ Subroutine amr_migrate_tree_data_flash (new_loc,nprocs,mype)
   Use paramesh_mpi_interfaces, only : MPI_int_SSEND
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   !-----Input/Output variables.
   Integer, Intent(inout) :: new_loc(2,maxblocks_tr)

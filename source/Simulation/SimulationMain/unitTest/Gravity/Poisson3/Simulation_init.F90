@@ -34,7 +34,7 @@ subroutine Simulation_init()
 
   use Simulation_data
   use Grid_interface, ONLY : Grid_getGeometry
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
        RuntimeParameters_set
   use PhysicalConstants_interface, ONLY : PhysicalConstants_get
@@ -135,7 +135,7 @@ subroutine Simulation_init()
      sim_initGeometry = geometry
 
   else            ! unsupported geometry
-     call Driver_abortFlash('Simulation_init:  unsupported geometry.  Needs CYLINDRICAL or 3D SPHERICAL')
+     call Driver_abort('Simulation_init:  unsupported geometry.  Needs CYLINDRICAL or 3D SPHERICAL')
   endif
 
 

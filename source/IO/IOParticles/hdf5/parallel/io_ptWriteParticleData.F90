@@ -92,7 +92,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
   use io_ptInterface, ONLY : io_ptCreateSubset
   use Particles_data, ONLY : particles,pt_maxPerProc
   use Logfile_interface, ONLY : Logfile_stamp
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef USE_IO_C_INTERFACE
   use iso_c_binding, ONLY : c_loc
   use io_c_interface, ONLY : io_create_dataset, io_xfer_cont_slab
@@ -110,7 +110,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
   use Grid_tile,        ONLY : Grid_tile_t
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   integer(io_fileID_t), intent(in) ::  fileID
   integer, intent(in) :: globalNumParticles, localNumParticles, particleOffset
@@ -265,14 +265,14 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
        1, &
        c_loc(particlesPerBlk(1,1)), (/io_splitNumBlks/), err)
   if (err /= 0) then
-     call Driver_abortFlash("Error writing localnp")
+     call Driver_abort("Error writing localnp")
   end if
 
   if (localNumParticles > 0) then
      !A subset is guaranteed to contain <= localNumParticles.
      allocate (particlest(NPART_PROPS, localNumParticles), STAT=err)
      if (err /= 0) then
-        call Driver_abortFlash &
+        call Driver_abort &
              ("[io_ptWriteParticleData]: particlest alloc fail")
      end if
   end if
@@ -324,7 +324,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
            !A subset is guaranteed to contain <= localNumParticles.
            allocate (particlest(NPART_PROPS, localNumParticles), STAT=err)
            if (err /= 0) then
-              call Driver_abortFlash &
+              call Driver_abort &
                    ("[io_ptWriteParticleData]: particlest alloc fail")
            end if
         end if
@@ -350,7 +350,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
            !Check user-returned subset size is sane.
            if (any (subsetSize(:) < 0)) then
               print *, "[io_ptWriteParticleData]: subset size:", subsetSize
-              call Driver_abortFlash &
+              call Driver_abort &
                    ("[io_ptWriteParticleData]: invalid subset size")
            end if
 
@@ -362,7 +362,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
            if (io_writeParticleAll .and. &
                 (subsetName == "tracer particles" .or. &
                 subsetLabelName == "particle names")) then
-              call Driver_abortFlash &
+              call Driver_abort &
                    ("[io_ptWriteParticleData]: Dataset naming conflict")
            end if
 
@@ -404,7 +404,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
                    dims+1, &
                    c_loc(subsetLabels(1)), (/io_splitNumBlks/), err)
               if (err /= 0) then
-                 call Driver_abortFlash("Error writing particle labels")
+                 call Driver_abort("Error writing particle labels")
               end if
 
 
@@ -435,7 +435,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
                    dims, &
                    c_loc(particlest(1,1)), (/io_splitNumBlks/), err)
               if (err /= 0) then
-                 call Driver_abortFlash("Error writing particle data")
+                 call Driver_abort("Error writing particle data")
               end if
            end if
 
@@ -446,7 +446,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
         if (localNumParticles > 0) then
            deallocate (particlest, STAT=err)
            if (err /= 0) then
-              call Driver_abortFlash &
+              call Driver_abort &
                    ("[io_ptWriteParticleData]: particlest dealloc fail")
            end if
         end if

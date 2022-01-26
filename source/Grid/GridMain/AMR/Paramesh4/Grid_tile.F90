@@ -53,14 +53,14 @@ contains
 
     subroutine boundBox(this, box)
         use tree,             ONLY : bnd_box
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
 
         class(Grid_tile_t), intent(IN)  :: this
         real,               intent(OUT) :: box(LOW:HIGH, 1:MDIM)
   
         if (this%id <= 0) then
            print *, "blockId = ", this%id
-           call Driver_abortFlash("[boundBox] blockId out of bounds")
+           call Driver_abort("[boundBox] blockId out of bounds")
         end if
   
         box = bnd_box(:, :, this%id)
@@ -186,18 +186,18 @@ contains
           print *, "Grid_getBlkPtr: gridDataStruct set to improper value"
           print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ," // &
                "WORK or SCRATCH (defined in constants.h)"
-          call Driver_abortFlash("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH (see constants.h)")
+          call Driver_abort("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH (see constants.h)")
        end if
 
        if ((this%id < 1) .OR. (this%id > MAXBLOCKS)) then
           print *, 'Grid_getBlkPtr:  invalid blockid ',this%id
-          call Driver_abortFlash("[getDataPtr] invalid blockid ")
+          call Driver_abort("[getDataPtr] invalid blockid ")
        end if
 #endif
 
        ! Avoid possible memory leaks
        if (associated(dataPtr)) then
-           call Driver_abortFlash("[getDataPtr] Given data pointer must be NULL")
+           call Driver_abort("[getDataPtr] Given data pointer must be NULL")
        end if
 
        lo = this%blkLimitsGC(LOW, :)
@@ -259,7 +259,7 @@ contains
        case DEFAULT
           print *, 'TRIED TO GET SOMETHING OTHER THAN UNK OR SCRATCH OR FACE[XYZ]. NOT YET.'
        case(WORK)
-          call Driver_abortFlash("work array cannot be got as pointer")
+          call Driver_abort("work array cannot be got as pointer")
        end select
     end subroutine getDataPtr
 

@@ -219,7 +219,7 @@ subroutine tmr_allProcsSameTimers(myPE, areSame)
   use Timers_data, ONLY: tmr_acctSegType, tmr_acctSegs, tmr_maxSegments, &
        tmr_numSegments, tmr_globalComm, tmr_globalMe
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(in)  :: myPE
   logical, intent(out) :: areSame
@@ -309,7 +309,7 @@ subroutine tmr_broadcastRootTimers(mype, numRootTimers, rootSegs)
        tmr_nameSize, tmr_maxTimerParents, tmr_maxCallStackDepth, &
        tmr_maxSegments,tmr_globalComm, tmr_globalMe
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(in) :: mype
   integer, intent(in) :: numRootTimers

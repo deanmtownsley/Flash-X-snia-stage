@@ -76,7 +76,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
                                        amrex_mfiter_build, &
                                        amrex_mfiter_destroy
 
-    use Driver_interface,       ONLY : Driver_abortFlash
+    use Driver_interface,       ONLY : Driver_abort
     use Grid_data,              ONLY : gr_maxRefine, &
                                        gr_domainBC
     use Grid_interface,         ONLY : Grid_bcApplyToRegion, &
@@ -151,7 +151,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     end do
 
     if (level == INVALID_LEVEL) then
-        call Driver_abortFlash("[gr_fillPhysicalBC] Could not reverse engineer level")
+        call Driver_abort("[gr_fillPhysicalBC] Could not reverse engineer level")
     end if
 
 #ifdef DEBUG_GRID
@@ -177,7 +177,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              .AND.        ntype(KAXIS)) then
         gds = FACEZ
     else
-        call Driver_abortFlash("[gr_fillPhysicalBC] " // &
+        call Driver_abort("[gr_fillPhysicalBC] " // &
                                "Given mfab must be cell- or face-centered")
     end if
    
@@ -364,7 +364,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              deallocate(regionData)
 
              if (.NOT. applied) then
-                call Driver_abortFlash("[gr_fillPhysicalBC] BC not applied")
+                call Driver_abort("[gr_fillPhysicalBC] BC not applied")
              end if
 
              goodData = nextGoodData

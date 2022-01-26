@@ -98,7 +98,7 @@ subroutine gr_applyFlash3HSEBC(bcType,bcDir,guard,dataRow,face,&
 #include "Eos.h"
 
   use Grid_data, ONLY :gr_meshMe,gr_domainBC
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_bcInterface, ONLY : gr_hseStep
   use gr_bcHseData, ONLY : gr_bcHseGravConst, HSE_FORWARD, HSE_BACKWARD, HSE_SETTEMP
   use Eos_interface, ONLY : Eos
@@ -130,7 +130,7 @@ subroutine gr_applyFlash3HSEBC(bcType,bcDir,guard,dataRow,face,&
 !=====================================================================
 
 #ifndef FLASH_EOS
-  call Driver_abortFlash('Cannot execute gr_applyFlash3HSEBC without the Eos unit!')
+  call Driver_abort('Cannot execute gr_applyFlash3HSEBC without the Eos unit!')
 #endif
 
   select case (bcDir)

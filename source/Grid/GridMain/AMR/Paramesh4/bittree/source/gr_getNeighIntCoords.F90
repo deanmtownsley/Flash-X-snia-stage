@@ -39,7 +39,7 @@
                        grid_ymin,grid_zmax,grid_zmin, &
                        bsize
 
-      use Driver_interface,only: Driver_abortFlash
+      use Driver_interface,only: Driver_abort
 
       implicit none
 
@@ -71,11 +71,11 @@
               if (force) then
                 neighCoord(i) = gr_domainBC(1,i)
               else
-                call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+                call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
               end if
             else
-              call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+              call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
             end if
           end if
@@ -89,11 +89,11 @@
               if (force) then
                 neighCoord(i) = gr_domainBC(2,i)
               else
-                call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+                call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
               end if
             else 
-              call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+              call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
             end if
           end if

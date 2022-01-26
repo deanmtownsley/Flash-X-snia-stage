@@ -49,7 +49,7 @@ subroutine io_readData()
 
   use Grid_data, ONLY : gr_globalNumBlocks, gr_nToLeft, &
        gr_globalOffset, gr_gid, gr_gidIsValid
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
   use Grid_interface, ONLY : Grid_putLocalNumBlks, Grid_getBlkIndexLimits, &
        Grid_receiveInputData
@@ -89,7 +89,7 @@ subroutine io_readData()
 #endif
 #endif
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type(tree_data_t) :: tree_data
 #ifndef USE_IO_C_INTERFACE
@@ -235,7 +235,7 @@ subroutine io_readData()
      print *,' globalNumBlocks, numProcs = ', gr_globalNumBlocks, io_meshNumProcs
      print *
      
-     call Driver_abortFlash('[io_readData] ERROR: num blocks per proc exceeds maxblocks')
+     call Driver_abort('[io_readData] ERROR: num blocks per proc exceeds maxblocks')
      
   end if
   

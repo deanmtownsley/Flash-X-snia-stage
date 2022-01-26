@@ -31,7 +31,7 @@ module network
   use bl_constants_module, only : ONE
   use actual_network
 ! use bl_error_module
-  use Driver_interface, ONLY : bl_error=>Driver_abortFlash
+  use Driver_interface, ONLY : bl_error=>Driver_abort
 
   implicit none
 

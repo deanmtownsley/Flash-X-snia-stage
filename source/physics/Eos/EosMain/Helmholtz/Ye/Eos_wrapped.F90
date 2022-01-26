@@ -106,7 +106,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe, &
        eos_threadWithinBlock
   use Logfile_interface, ONLY : Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   !$ use omp_lib    
   use Eos_interface, ONLY : Eos
@@ -154,7 +154,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
+     call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
   end if
 #endif
 
@@ -164,7 +164,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 ! section above if performance is a concern.
   if (present(gridDataStruct)) then
      if (gridDataStruct .NE. CENTER) then
-        call Driver_abortFlash("Eos_wrapped: This gridDataStruct is not implemented in this version!")
+        call Driver_abort("Eos_wrapped: This gridDataStruct is not implemented in this version!")
      end if
   end if
 
@@ -274,7 +274,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
              solnData(SUMY_MSCALAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k)
 #else
         !! yeah, yeah this should be done in initialization, but trying to avoid too much code duplication
-        call Driver_abortFlash("[Eos_wrapped] This routine was called in YE mode, but no YE_MSCALAR is defined")
+        call Driver_abort("[Eos_wrapped] This routine was called in YE mode, but no YE_MSCALAR is defined")
 #endif
 
         call Eos(mode,vecLen,eosData,massFraction)
@@ -314,7 +314,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
               write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
            endif
            call Logfile_stampMessage('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
-           call Driver_abortFlash('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+           call Driver_abort('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
         end if
 
         solnData(GAME_VAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k) = &

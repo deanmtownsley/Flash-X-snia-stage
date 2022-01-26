@@ -29,7 +29,7 @@ subroutine IncompNS_predictor(dt)
   use IncompNS_data
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   !-----Argument-List-----!
   real,    INTENT(IN) :: dt 
 

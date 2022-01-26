@@ -83,7 +83,7 @@
 subroutine IO_getPrevScalarReal (name, value, error)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
   character(len=*), intent(in)          :: name
@@ -100,7 +100,7 @@ implicit none
      error = retError
   else
      if(retError /= NORMAL) then
-        call Driver_abortFlash("[IO_getPrevScalar] ERROR: Could not find real scalar value!")
+        call Driver_abort("[IO_getPrevScalar] ERROR: Could not find real scalar value!")
      end if
   end if
 
@@ -113,7 +113,7 @@ end subroutine IO_getPrevScalarReal
 subroutine IO_getPrevScalarInt (name, value, error)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
   character(len=*), intent(in)          :: name
@@ -129,7 +129,7 @@ implicit none
      error = retError
   else
      if(retError /= NORMAL) then
-        call Driver_abortFlash("[IO_getPrevScalar] ERROR: Could not find integer scalar value!")
+        call Driver_abort("[IO_getPrevScalar] ERROR: Could not find integer scalar value!")
      end if
   end if
 
@@ -142,7 +142,7 @@ end subroutine IO_getPrevScalarInt
 subroutine IO_getPrevScalarStr (name, value, error)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
   character(len=*), intent(in)          :: name
@@ -158,7 +158,7 @@ implicit none
      error = retError
   else
      if(retError /= NORMAL) then
-        call Driver_abortFlash("[IO_getPrevScalar] ERROR: Could not find string scalar value!")
+        call Driver_abort("[IO_getPrevScalar] ERROR: Could not find string scalar value!")
      end if
   end if
 
@@ -171,7 +171,7 @@ end subroutine IO_getPrevScalarStr
 subroutine IO_getPrevScalarLog (name, value, error)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
   character(len=*), intent(in)          :: name
@@ -187,7 +187,7 @@ implicit none
      error = retError
   else
      if(retError /= NORMAL) then
-        call Driver_abortFlash("[IO_getPrevScalar] ERROR: Could not find logical scalar value!")
+        call Driver_abort("[IO_getPrevScalar] ERROR: Could not find logical scalar value!")
      end if
   end if
 

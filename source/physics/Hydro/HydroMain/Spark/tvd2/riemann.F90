@@ -59,7 +59,7 @@
 
 subroutine riemann(dir,VL,VR,inShock,Fstar,speed,ierr)
 
-    use Driver_interface, ONLY : Driver_abortFlash
+    use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

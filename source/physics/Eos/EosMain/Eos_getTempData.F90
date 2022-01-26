@@ -97,7 +97,7 @@
 subroutine Eos_getTempData(axis,pos,vecLen,solnData,gridDataStruct,eosData,mode)
 
   use Eos_data, ONLY: eos_smallT, eos_mapLookup
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   
 #include "Eos.h"
@@ -161,7 +161,7 @@ subroutine Eos_getTempData(axis,pos,vecLen,solnData,gridDataStruct,eosData,mode)
   end if
 
   if(gridDataStruct == SCRATCH) then
-     call Driver_abortFlash("Eos_getTempData : the use of SCRATCH is invalid here")
+     call Driver_abort("Eos_getTempData : the use of SCRATCH is invalid here")
   end if
 
   n = 0

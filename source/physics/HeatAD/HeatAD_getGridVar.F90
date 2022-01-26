@@ -8,7 +8,7 @@ subroutine HeatAD_getGridVar(name, value)
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -16,7 +16,7 @@ subroutine HeatAD_getGridVar(name, value)
 
   value = -1
   print *,"Error in setting grid var: ",name
-  call Driver_abortFlash("HeatAD_getGridVar: Unknown HeatAD Grid Variable")
+  call Driver_abort("HeatAD_getGridVar: Unknown HeatAD Grid Variable")
 
   return
 end subroutine HeatAD_getGridVar

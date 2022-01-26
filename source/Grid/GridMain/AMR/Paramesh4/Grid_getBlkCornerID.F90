@@ -95,7 +95,7 @@ subroutine Grid_getBlkCornerID(blockId, cornerID, stride,cornerIDHigh, inRegion)
   use Grid_data, ONLY : gr_globalDomain, gr_meshMe,gr_region, gr_delta
   use gr_specificData, ONLY : gr_oneBlock,gr_nBlockX, gr_nBlockY, gr_nBlockZ
   use tree, ONLY : lrefine, lrefine_max,bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_open, Logfile_close
   implicit none
 
@@ -133,7 +133,7 @@ subroutine Grid_getBlkCornerID(blockId, cornerID, stride,cornerIDHigh, inRegion)
         end if
      end do
      if (present(cornerIDHigh)) then
-        call Driver_abortFlash("Not clear what Anshu wants to do in this case")
+        call Driver_abort("Not clear what Anshu wants to do in this case")
      end if
   else
 
@@ -170,7 +170,7 @@ subroutine Grid_getBlkCornerID(blockId, cornerID, stride,cornerIDHigh, inRegion)
              "Original:", cornerID(1:NDIM), "verified:", cID(1:NDIM), &
              "bnd_box:", bnd_box(LOW:HIGH,1:NDIM,blockID)
         call Logfile_close(logUnitLocal)
-        call Driver_abortFlash("corner ID calculations inconsistent")    
+        call Driver_abort("corner ID calculations inconsistent")    
      end if
      if(present(cornerIDHigh)) then
         cornerIDHigh(IAXIS)=cornerID(IAXIS)+stride(IAXIS)*NXB-1

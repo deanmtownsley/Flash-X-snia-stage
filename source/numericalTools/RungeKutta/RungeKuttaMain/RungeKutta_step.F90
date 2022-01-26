@@ -93,7 +93,7 @@ subroutine RungeKutta_step (method,                      &
 
   use rk_interface,      ONLY : rk_stepEA
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -129,7 +129,7 @@ subroutine RungeKutta_step (method,                      &
   n = size (y)
 
   if (n > m) then
-      call Driver_abortFlash ('[RungeKutta_step] ERROR: too many dependent variables!')
+      call Driver_abort ('[RungeKutta_step] ERROR: too many dependent variables!')
   end if
 !
 !
@@ -193,7 +193,7 @@ subroutine RungeKutta_step (method,                      &
     call rk_stepEA (f,n,6,x,y,eMin,ePower,eFrac,eBase,htry,   hused,hnext,yout,eout)
 
   case default
-        call Driver_abortFlash ('[RungeKutta_step] ERROR: unknown RK method')
+        call Driver_abort ('[RungeKutta_step] ERROR: unknown RK method')
   end select
 !
 !

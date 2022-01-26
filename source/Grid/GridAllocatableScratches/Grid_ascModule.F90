@@ -76,7 +76,7 @@ Module Grid_ascModule
 contains
   subroutine Grid_ascStart()
     use Grid_getBlkIndexLimits_mod, ONLY: Grid_getBlkIndexLimits
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
 #ifdef DEBUG_ALL
     use Logfile_interface, ONLY: Logfile_stampMessage
 #endif
@@ -161,16 +161,16 @@ contains
 #ifdef DEBUG_ALL
     if (rankLoc < 4 .OR. rankLoc > 5) then
        print*,'Grid_ascAllocMem: arrayRank must be 4 or 5.'
-       call Driver_abortFlash('Grid_ascAllocMem: arrayRank musr be 4 or 5.')
+       call Driver_abort('Grid_ascAllocMem: arrayRank musr be 4 or 5.')
     end if
     if (rankLoc == 5 .AND. gds .NE. CENTER .AND. gds .NE. SCRATCH_CTR) then
        print*,'Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER or SCRATCH_CTR.'
-       call Driver_abortFlash('Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER.')
+       call Driver_abort('Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER.')
     end if
     if (rankLoc < 5 .AND. present(highSize)) then
        if (highSizeLoc .NE. 1) then
           print*,'Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER.'
-          call Driver_abortFlash('Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER.')
+          call Driver_abort('Grid_ascAllocMem: arrayRank of 5 is only supported for gds=CENTER.')
        else
           call Logfile_stampMessage('[Grid_ascAllocMem] The highSize argument is superfluous.')
        end if
@@ -189,7 +189,7 @@ contains
      case(SCRATCH)
         ubnd(1:NDIM) = ubnd(1:NDIM) + nGuardCtrLoc + 1
 !!$        print *, 'TRIED TO GET SOMETHING OTHER THAN SCRATCH_CTR OR FACE[XYZ].'
-!!$        call Driver_abortFlash("[Grid_ascModule] Unsupported gds=SCRATCH")
+!!$        call Driver_abort("[Grid_ascModule] Unsupported gds=SCRATCH")
      case(CENTER)
         lbnd(1:NDIM) = lbnd(1:NDIM) - nGuardCtrLoc
         ubnd(1:NDIM) = ubnd(1:NDIM) + nGuardCtrLoc
@@ -228,7 +228,7 @@ contains
         ubnd(3)      = ubnd(3)      + nGuardFaceNLoc + K3D
      case DEFAULT
         print *, 'TRIED TO GET SOMETHING OTHER THAN SCRATCH_CTR OR FACE[XYZ].'
-        call Driver_abortFlash("[Grid_ascModule] Unsupported gds")
+        call Driver_abort("[Grid_ascModule] Unsupported gds")
     end select
 
 
@@ -289,7 +289,7 @@ contains
              lbnd(3):ubnd(3), &
              nBlocks))
      case DEFAULT
-        call Driver_abortFlash("[Grid_ascAllocMem] Unsupported gds")
+        call Driver_abort("[Grid_ascAllocMem] Unsupported gds")
      end select
     else if (rankLoc==5) then
     select case (gds)
@@ -330,13 +330,13 @@ contains
 !!$             lbnd(3):ubnd(3), &
 !!$             highSizeLoc, nBlocks))
      case DEFAULT
-        call Driver_abortFlash("[Grid_ascAllocMem] Unsupported gds for arrayRank=5")
+        call Driver_abort("[Grid_ascAllocMem] Unsupported gds for arrayRank=5")
      end select
     end if
   end subroutine Grid_ascAllocMem
 
   subroutine Grid_ascDeallocMem(gds, arrayRank)
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
 
     integer, OPTIONAL, intent(IN) :: gds
     integer, OPTIONAL, intent(IN) :: arrayRank
@@ -371,7 +371,7 @@ contains
           case(FACEZ)
              deallocate(gr_ascArrayFacevarz)
           case DEFAULT
-             call Driver_abortFlash("[Grid_ascDeallocMem] Unsupported gds")
+             call Driver_abort("[Grid_ascDeallocMem] Unsupported gds")
           end select
        end if
        if (rankLoc==5) then
@@ -381,7 +381,7 @@ contains
           case(SCRATCH_CTR)
              deallocate(gr_ascArray5Scratch_ctr)
           case DEFAULT
-             call Driver_abortFlash("[Grid_ascDeallocMem] Unsupported gds for arrayRank=5")
+             call Driver_abort("[Grid_ascDeallocMem] Unsupported gds for arrayRank=5")
           end select
        else if (rankLoc==0) then
           select case (gds)

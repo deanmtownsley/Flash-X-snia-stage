@@ -98,7 +98,7 @@
 
 subroutine Eos_wrapped_blkid(mode,range,blockID, gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData, Eos_wrapped

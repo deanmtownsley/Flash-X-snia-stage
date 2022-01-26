@@ -110,7 +110,7 @@
 !!REORDER(4): scrchFace[XYZ]Ptr
 
 Subroutine hy_updateSolution(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOrder)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface,    ONLY : Eos_wrapped
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_tile,        ONLY : Grid_tile_t
@@ -345,7 +345,7 @@ Subroutine hy_updateSolution(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepO
 #endif
      if ( hy_units .NE. "none" .and. hy_units .NE. "NONE" ) then
         !! Convert unit
-        call Driver_abortFlash("Confirm that grownLimits is correct")
+        call Driver_abort("Confirm that grownLimits is correct")
         call hy_unitConvert(Uout, tileDesc%grownLimits, BWDCONVERT)
      endif
      

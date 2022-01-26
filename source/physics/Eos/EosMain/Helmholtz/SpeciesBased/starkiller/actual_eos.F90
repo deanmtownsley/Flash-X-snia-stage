@@ -166,7 +166,7 @@ contains
         !$acc routine seq
 
 !       use bl_error_module
-        use Driver_interface, ONLY : bl_error=>Driver_abortFlash
+        use Driver_interface, ONLY : bl_error=>Driver_abort
         use bl_types
         use bl_constants_module
 

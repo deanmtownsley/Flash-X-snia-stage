@@ -107,7 +107,7 @@ subroutine Eos_getData &
   (range,vecLen,solnData,gridDataStruct,eosData,massFrac, eosMask)
 
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_mapLookup
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   
 #include "Eos.h"
@@ -178,7 +178,7 @@ subroutine Eos_getData &
   entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_IN,gridDataStruct)
 
   if(gridDataStruct == SCRATCH) then
-     call Driver_abortFlash("Eos_getData : the use of SCRATCH is deprecated")
+     call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
   end if
 
   if(present(massFrac)) then

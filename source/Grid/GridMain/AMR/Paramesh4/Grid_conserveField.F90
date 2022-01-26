@@ -38,7 +38,7 @@ subroutine Grid_conserveField ()
                                   nguard, nxb, nyb, nzb, npgs
 
 !  use Grid_interface,      ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
-  use Driver_interface,    ONLY : Driver_abortFlash
+  use Driver_interface,    ONLY : Driver_abort
 
   use physicaldata,        ONLY :  bedge_facey_x,  bedge_facez_x, &
                                    bedge_facex_y,  bedge_facez_y, &
@@ -60,7 +60,7 @@ subroutine Grid_conserveField ()
 #include "Simulation.h"
 #include "constants.h"
 
-  call Driver_abortFlash("[Grid_conserveField] Update for tiling")
+  call Driver_abort("[Grid_conserveField] Update for tiling")
 
 !#if FLASH_NEDGE_VAR > 0
 !#include "UHD.h"

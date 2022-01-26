@@ -59,7 +59,7 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   use Grid_tile,                 ONLY : Grid_tile_t
   use gr_physicalMultifabs,      ONLY : unk, &
                                         facevarx, facevary, facevarz
-  use Driver_interface,          ONLY : Driver_abortFlash
+  use Driver_interface,          ONLY : Driver_abort
 
   implicit none
 
@@ -81,7 +81,7 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
        .AND. (gridDataStruct /= FACES)  .AND. (gridDataStruct /= FACEX) &
        .AND. (gridDataStruct /= FACEY)  .AND. (gridDataStruct /= FACEZ)) then
      write(*,*) "Unsupported gridDataStruct ", gridDataStruct 
-     call Driver_abortFlash("[gr_restrictAllLevels]: Unsupported gridDataStruct")
+     call Driver_abort("[gr_restrictAllLevels]: Unsupported gridDataStruct")
   end if
 
   ! Work in AMReX 0-based level indexing
@@ -187,7 +187,7 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
 #else
   if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
       .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
-    call Driver_abortFlash("[gr_restrictAllLevels] No face data to work with")
+    call Driver_abort("[gr_restrictAllLevels] No face data to work with")
   end if
 #endif
 

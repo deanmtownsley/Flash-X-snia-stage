@@ -10,10 +10,10 @@ module Driver
   implicit none
   contains
 
-  subroutine Driver_abortFlash(msg)
+  subroutine Driver_abort(msg)
     implicit none
     character (len=*), intent(IN) :: msg
     print *, "ERROR!!!", msg
     stop
-  end subroutine Driver_abortFlash
+  end subroutine Driver_abort
 end module Driver

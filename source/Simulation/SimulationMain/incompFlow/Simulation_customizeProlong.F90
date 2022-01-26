@@ -79,7 +79,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
 #endif
 #endif
 
-  use Driver_interface,ONLY : Driver_abortFlash
+  use Driver_interface,ONLY : Driver_abort
 
   implicit none
 #include "constants.h"
@@ -153,7 +153,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
         call prol_fc_divpres_init(tot_divpres_prol,totFaces, ins_divpres_fc_vars)
 
      else
-        call Driver_abortFlash&
+        call Driver_abort&
              ("[Grid_updateRefinement]: unknown prolongation algorithm for face-centered magnetic fields!")
      endif
 #endif  
@@ -172,7 +172,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
 
   else
         
-     call Driver_abortFlash("Simulation_customizeProlong: this is meaningless!")
+     call Driver_abort("Simulation_customizeProlong: this is meaningless!")
   end if
      
 

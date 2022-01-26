@@ -138,7 +138,7 @@ subroutine Grid_fillGuardCells( gridDataStruct,idir,minLayers,eosMode,doEos&
        gr_justExchangedGC,gr_domainBC, &
        gr_offset,gr_allPeriodic,gr_bndOrder, gr_meshMe
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_bcInterface, ONLY : gr_bcApplyToAllBlks
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_iterator, ONLY: Grid_iterator_t
@@ -191,27 +191,27 @@ subroutine Grid_fillGuardCells( gridDataStruct,idir,minLayers,eosMode,doEos&
 #ifdef DEBUG_GRID
 
   if((gr_domainBC(LOW,IAXIS) == PERIODIC).and.(gr_domainBC(HIGH,IAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
   if((gr_domainBC(LOW,JAXIS) == PERIODIC).and.(gr_domainBC(HIGH,JAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
   if((gr_domainBC(LOW,KAXIS) == PERIODIC).and.(gr_domainBC(HIGH,KAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
   if((gr_domainBC(LOW,IAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,IAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
   if((gr_domainBC(LOW,JAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,JAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
   if((gr_domainBC(LOW,KAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,KAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
   
 #endif

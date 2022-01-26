@@ -40,7 +40,7 @@
 !!***
 subroutine eos_nuclear(mode,vecLen,eosData,massFrac,mask)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
        Multispecies_getSumFrac
   use Logfile_interface, ONLY:  Logfile_stampMessage
@@ -142,7 +142,7 @@ subroutine eos_nuclear(mode,vecLen,eosData,massFrac,mask)
      case(MODE_DENS_PRES)
         xMode=4
      case default
-        call Driver_abortFlash('[Eos] Error: unsupported mode for Nuclear Eos')
+        call Driver_abort('[Eos] Error: unsupported mode for Nuclear Eos')
      end select
 
      ! Let's adjust the energy zero-point
@@ -167,7 +167,7 @@ subroutine eos_nuclear(mode,vecLen,eosData,massFrac,mask)
            ! change any in-coming eosData values.
            return
         else
-           call Driver_abortFlash("[EOS] problem with nuclear EOS")
+           call Driver_abort("[EOS] problem with nuclear EOS")
         endif
      endif
         

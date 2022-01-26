@@ -64,7 +64,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
   use gr_ptInterface, ONLY : gr_ptSearchBlk
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs
   use gr_interface, ONLY : gr_getBlkHandle
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use tree, ONLY : child
 
   implicit none
@@ -114,7 +114,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
   !We set REFLEVELDIF equal to TYPENO and BLKID to BLKNO in 
   !gr_ptMapToMesh.h, so the following is just a double-check.
   if ( (TYPENO /= REFLEVELDIF) .or. (BLKNO /= BLKID) ) then
-     call Driver_abortFlash("Preprocessor definitions must be the same")
+     call Driver_abort("Preprocessor definitions must be the same")
   end if
 
   negh = -200   !Random initial value for spotting errors.
@@ -134,7 +134,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
   validChildren = count(validChild(1:USABLE_CHILDREN) .eqv. .true.)
   if (validChildren /= numNegh) then
      print *, "Predicted:", numNegh, ", Calculated:", validChildren
-     call Driver_abortFlash("[gr_ptGetChildData]: Number of children mismatch")
+     call Driver_abort("[gr_ptGetChildData]: Number of children mismatch")
   end if
 
 
@@ -159,7 +159,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
   end do
 
   if (childCounter /= numNegh) then
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[gr_ptGetChildData]: Counter not equal to number of neighbors (1)")
   end if
 
@@ -208,7 +208,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
                    negh(BLKID,childCounter), "ProcID:", negh(BLKPROC,childCounter), &
                    "... reverting to cornerID."
               
-              call Driver_abortFlash("Invalid neighbor block/proc data 2")
+              call Driver_abort("Invalid neighbor block/proc data 2")
               !Another option is to rely on the cornerID (commented out).
               !negh(BLKID,childCounter) = NONEXISTENT
               !negh(BLKPROC,childCounter) = NONEXISTENT
@@ -221,7 +221,7 @@ subroutine gr_ptGetChildData(guardCellID, blkSize, parentCornerID, srcStride, &
      end do
 
      if (childCounter /= numNegh) then
-        call Driver_abortFlash &
+        call Driver_abort &
              ("[gr_ptGetChildData]: Counter not equal to number of neighbors (2)")
      end if
 

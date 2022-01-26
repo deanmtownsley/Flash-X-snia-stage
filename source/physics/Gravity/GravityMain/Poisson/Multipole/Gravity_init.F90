@@ -33,7 +33,7 @@
 subroutine Gravity_init()
 
   use Gravity_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype,&
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype,&
       Driver_getComm, Driver_getNumProcs
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -65,13 +65,13 @@ subroutine Gravity_init()
   ! Can't use periodic b.c. with Multipole
   select case (grav_boundary_type)
      case ("periodic")
-        call Driver_abortFlash('[Gravity_init] No periodic gravity boundary conditions with Multipole.')
+        call Driver_abort('[Gravity_init] No periodic gravity boundary conditions with Multipole.')
      case ("isolated")
         !! Life is good here.
         !! the following variable is not used in multipole implementations, setting it here anyway
         grav_boundary = ISOLATED
      case default
-        call Driver_abortFlash('[Gravity_init] Unsupported gravity boundary conditions, only isolated allowed.')
+        call Driver_abort('[Gravity_init] Unsupported gravity boundary conditions, only isolated allowed.')
   end select
 
   call RuntimeParameters_get("useGravity", useGravity)

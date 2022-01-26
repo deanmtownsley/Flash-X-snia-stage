@@ -62,7 +62,7 @@ subroutine Pipeline_localDestroy ()
 !
 !
   if (pl_pipelineActive) then
-      call Driver_abortFlash ('[Pipeline_localDestroy] ERROR: Cannot destroy an active pipeline!')
+      call Driver_abort ('[Pipeline_localDestroy] ERROR: Cannot destroy an active pipeline!')
   end if
 !
 !

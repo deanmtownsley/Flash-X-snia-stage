@@ -27,7 +27,7 @@ subroutine Simulation_init ()
   use  Simulation_data
   use  RuntimeParameters_interface, ONLY: RuntimeParameters_get
   use  Logfile_interface,           ONLY: Logfile_stamp
-  use  Driver_interface,            ONLY: Driver_abortFlash 
+  use  Driver_interface,            ONLY: Driver_abort 
   use  sim_interface,               ONLY: sim_calculateInitialData
 
   implicit none
@@ -48,11 +48,11 @@ subroutine Simulation_init ()
 !
 !
   if (sim_x0 /= 1.0 .or. sim_y0 /= 1.0) then
-      call Driver_abortFlash ('[Simulation_init] ERROR: Particle position not at (1,1)!')
+      call Driver_abort ('[Simulation_init] ERROR: Particle position not at (1,1)!')
   end if
 
   if (sim_stepSize <= 0.0) then
-      call Driver_abortFlash ('[Simulation_init] ERROR: Step size =< 0 !')
+      call Driver_abort ('[Simulation_init] ERROR: Step size =< 0 !')
   end if
 !
 !

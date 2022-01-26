@@ -64,7 +64,7 @@
 
 function Interpolate_cubic1DFd1d2 (a,x)
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use Logfile_interface,  ONLY : Logfile_stamp
 
   implicit none
@@ -85,7 +85,7 @@ function Interpolate_cubic1DFd1d2 (a,x)
 
   if (notRescaled) then
       call Logfile_stamp     (x, ' = rescaled x coordinate [Interpolate_cubic1DFd1d2]'        )
-      call Driver_abortFlash ('[Interpolate_cubic1DFd1d2] ERROR: [x] coordinate not rescaled!')
+      call Driver_abort ('[Interpolate_cubic1DFd1d2] ERROR: [x] coordinate not rescaled!')
   end if
 !
 !

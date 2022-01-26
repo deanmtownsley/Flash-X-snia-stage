@@ -10,7 +10,7 @@ subroutine IncompNS_getGridVar(name, value)
 
 #include"Simulation.h"
 
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -32,7 +32,7 @@ subroutine IncompNS_getGridVar(name, value)
      case default
        value = -1
        print *,"Error in setting grid var: ",name 
-       call Driver_abortFlash("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
+       call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
   end select  
 
   return

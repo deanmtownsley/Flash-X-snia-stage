@@ -63,7 +63,7 @@ subroutine gr_initParameshArrays(restart,&
    use gr_specificData, ONLY : gr_gidIsValid
    use gr_interface, ONLY : gr_pmIoTreeMetadataIsValid
    use Logfile_interface, ONLY : Logfile_stampMessage
-   use Driver_interface, only: Driver_abortFlash
+   use Driver_interface, only: Driver_abort
 
    implicit none
 #include "constants.h"
@@ -88,7 +88,7 @@ subroutine gr_initParameshArrays(restart,&
          call Logfile_stampMessage("Invalid Grid tree metadata after reading checkpoint;&
               & you may need to recompile with the Bittree feature if you want to restart&
               & from this checkpoint with a PARAMESH Grid.")
-         call Driver_abortFlash("The Grid tree metadata in the checkpoint is insufficient&
+         call Driver_abort("The Grid tree metadata in the checkpoint is insufficient&
               & for restarting with this Grid implementation.")
       end if
       call gr_initParameshDomainBboxes(xlboundary, xrboundary, &

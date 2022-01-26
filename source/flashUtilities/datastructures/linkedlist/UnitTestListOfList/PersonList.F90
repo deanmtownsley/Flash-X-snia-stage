@@ -8,7 +8,7 @@ module PersonList
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
   use PersonNode
-  use Driver, ONLY : Driver_abortFlash
+  use Driver, ONLY : Driver_abort
   implicit none
 
   type person_list

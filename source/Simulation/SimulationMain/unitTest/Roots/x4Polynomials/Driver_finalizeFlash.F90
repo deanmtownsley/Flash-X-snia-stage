@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Driver_finalizeFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Driver_finalizeAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,18 +10,18 @@
 !!
 !! NAME
 !!
-!!  Driver_finalizeFlash
+!!  Driver_finalizeAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_finalizeFlash ()
+!!  Driver_finalizeAll ()
 !!
 !! DESCRIPTION
 !!
 !!  Stripped down version from original for testing single units.
 !!
 !!***
-subroutine Driver_finalizeFlash ()
+subroutine Driver_finalizeAll ()
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_finalize
   use Simulation_interface,        ONLY : Simulation_finalize
@@ -39,4 +39,4 @@ subroutine Driver_finalizeFlash ()
   call MPI_Finalize (ierr)
 
   return
-end subroutine Driver_finalizeFlash
+end subroutine Driver_finalizeAll

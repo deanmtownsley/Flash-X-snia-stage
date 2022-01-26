@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/EosGraph/Flash
+!!****f* source/Simulation/main
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,7 +10,7 @@
 !!
 !! NAME
 !!
-!!  Flash
+!!  main
 !!
 !!
 !! SYNOPSIS
@@ -20,34 +20,37 @@
 !!
 !! DESCRIPTION
 !!
-!!  The source file Flash.F90 in the Simulation unit contains the Fortran
+!!  The source file main.F90 in the Simulation unit contains the Fortran
 !!  PROGRAM. As such it can be considered the top-level "driver" of an application.
 !!  By default it is set up to drive the simulation of a time-dependent
 !!  problem by calling:
-!!  - Driver_initFlash  for initializations,
-!!  - Driver_evolveFlash  for managing the computation, and
+!!  - Driver_initAll  for initializations,
+!!  - Driver_evolveAll  for managing the computation, and
 !!  - Driver_finalizeAll  for cleaning up.
 !!
 !! SEE ALSO
 !!
-!!  Driver_initFlash
-!!  Driver_evolveFlash
+!!  Driver_initAll
+!!  Driver_evolveAll
 !!  Driver_finalizeAll
+!!
 !!
 !!***
 
-program Flash
+program Flashx
 
-  use Driver_interface, ONLY : Driver_initParallel, Driver_initFlash,&
-       Driver_evolveFlash
+  use Driver_interface, ONLY : Driver_initParallel, Driver_initAll,&
+       Driver_evolveAll, Driver_finalizeAll
 
   implicit none
 
   call Driver_initParallel()
 
-  call Driver_initFlash()
+  call Driver_initAll()
 
-  call Driver_evolveFlash( )
+  call Driver_evolveAll( )
 
+  call Driver_finalizeAll ( )
+  
 
-end program Flash
+end program Flashx

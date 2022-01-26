@@ -28,7 +28,7 @@
 
 subroutine sim_setx3PolynomialCoeffs ()
 
-  use  Driver_interface, ONLY: Driver_abortFlash
+  use  Driver_interface, ONLY: Driver_abort
 
   use  Simulation_data,  ONLY: sim_numberOfx3Polynomials, &
                                sim_x3Polynomialx0Coeff,   &
@@ -42,7 +42,7 @@ subroutine sim_setx3PolynomialCoeffs ()
 !
 !
   if (sim_numberOfx3Polynomials > 9) then
-      call Driver_abortFlash ('[sim_setx3PolynomialCoeffs] ERROR: Not enough storage for coefficients!')
+      call Driver_abort ('[sim_setx3PolynomialCoeffs] ERROR: Not enough storage for coefficients!')
   end if
 !
 !

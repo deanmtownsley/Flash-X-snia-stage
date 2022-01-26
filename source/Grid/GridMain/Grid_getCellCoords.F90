@@ -127,7 +127,7 @@
 subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   use Grid_interface,   ONLY : Grid_getDeltas
   use Grid_data,        ONLY : gr_globalDomain
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -145,7 +145,7 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
 
 #ifdef DEBUG_GRID
   if((axis /= IAXIS) .AND. (axis /= JAXIS) .AND. (axis /= KAXIS)) then
-     call Driver_abortFlash("[Grid_getCellCoords] invalid axis, must be IAXIS, JAXIS or KAXIS ")
+     call Driver_abort("[Grid_getCellCoords] invalid axis, must be IAXIS, JAXIS or KAXIS ")
   end if
 #endif
  
@@ -162,11 +162,11 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   else if (edge == RIGHT_EDGE) then
       shift = 1.0
   else
-      call Driver_abortFlash('[Grid_getCellCoords] Invalid edge')
+      call Driver_abort('[Grid_getCellCoords] Invalid edge')
   end if
 
   if (SIZE(coordinates) < nElements) then
-      call Driver_abortFlash("[Grid_getCellCoords] coordinates is too small")
+      call Driver_abort("[Grid_getCellCoords] coordinates is too small")
   end if
 
   call Grid_getDeltas(level, deltas)

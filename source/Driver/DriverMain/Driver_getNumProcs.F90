@@ -49,7 +49,7 @@ subroutine Driver_getNumProcs(communicatorType, numProcs, axis)
   use Driver_data, ONLY : dr_meshNumProcs, dr_meshAcrossNumProcs, &
        dr_globalNumProcs,&
        dr_axisNumProcs
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -71,7 +71,7 @@ subroutine Driver_getNumProcs(communicatorType, numProcs, axis)
      if(alright) then
         numProcs=dr_axisNumProcs(axis)
      else
-        call Driver_abortFlash("Driver_getNumProcs : for directional comm, a valid axis value is needed")
+        call Driver_abort("Driver_getNumProcs : for directional comm, a valid axis value is needed")
      end if
   end select
 end subroutine Driver_getNumProcs

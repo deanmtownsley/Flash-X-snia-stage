@@ -82,7 +82,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
 #endif
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   integer, intent(in) :: fileID
   integer, intent(in) :: globalNumParticles, localNumParticles, particleOffset
@@ -167,7 +167,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
           1, &
           c_loc(particlesPerBlk(1,1)), err)
      if (err /= 0) then
-        call Driver_abortFlash("Error writing localnp")
+        call Driver_abort("Error writing localnp")
      end if
 
 
@@ -187,7 +187,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
           2, &
           c_loc(particles(1,1)), err)
      if (err /= 0) then
-        call Driver_abortFlash("Error writing particles")
+        call Driver_abort("Error writing particles")
      end if
 
 

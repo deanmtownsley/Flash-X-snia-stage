@@ -29,7 +29,7 @@
 #include "Simulation.h"
 
 subroutine Grid_getNumVars(gridStruct, nVar)  
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   implicit none
   integer, intent(in) :: gridStruct
   integer, intent(out) :: nVar
@@ -50,6 +50,6 @@ subroutine Grid_getNumVars(gridStruct, nVar)
   case(SCRATCH_FACEZ)
      nVar = NSCRATCH_FACEZ_VARS
   case DEFAULT
-     call Driver_abortFlash("[Grid_getNumVars]: Invalid data structure")
+     call Driver_abort("[Grid_getNumVars]: Invalid data structure")
   end select
 end subroutine Grid_getNumVars

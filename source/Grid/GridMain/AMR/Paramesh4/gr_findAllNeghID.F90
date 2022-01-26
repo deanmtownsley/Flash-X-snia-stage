@@ -66,7 +66,7 @@ subroutine gr_findAllNeghID(blockID, surrBlksSummary)
 #include "Simulation.h"
 
   use Grid_data, ONLY : gr_meshNumProcs, gr_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use tree, ONLY : surr_blks, parent, child, maxblocks_tr, bnd_box
   use paramesh_dimensions, only : maxblocks_alloc
   use gr_interface, ONLY : gr_findWhichChildren
@@ -160,7 +160,7 @@ subroutine gr_findAllNeghID(blockID, surrBlksSummary)
                    ) then
 
                  print *, gr_meshMe, negh_prop(:)
-                 call Driver_abortFlash("Unexpected surr_blks values")
+                 call Driver_abort("Unexpected surr_blks values")
                  
 
                  
@@ -184,13 +184,13 @@ subroutine gr_findAllNeghID(blockID, surrBlksSummary)
                  if (blkHandle == -1) then
                     call print_info(blk, proc, blockID, gr_meshMe, i, j, k)
                     print *, "(1) No block handle.... increase maxblocks_alloc"
-                    call Driver_abortFlash("Damn 1")
+                    call Driver_abort("Damn 1")
                  end if
 
                  if ((blkHandle < 1) .or. (blkHandle > maxblocks_alloc)) then                    
                     call print_info(blk, proc, blockID, gr_meshMe, i, j, k)
                     print *, "(1) Garbage block handle:", blkHandle
-                    call Driver_abortFlash("Damn 2")
+                    call Driver_abort("Damn 2")
                  end if
 
 
@@ -227,13 +227,13 @@ subroutine gr_findAllNeghID(blockID, surrBlksSummary)
                  if (blkHandle == -1) then
                     call print_info(blk, proc, blockID, gr_meshMe, i, j, k)
                     print *, "(2) No block handle.... increase maxblocks_tr"
-                    call Driver_abortFlash("Damn 3")
+                    call Driver_abort("Damn 3")
                  end if
 
                  if ((blkHandle < 1) .or. (blkHandle > maxblocks_tr)) then                    
                     call print_info(blk, proc, blockID, gr_meshMe, i, j, k)
                     print *, "(2) Garbage block handle:", blkHandle
-                    call Driver_abortFlash("Damn 4")
+                    call Driver_abort("Damn 4")
                  end if
 
 

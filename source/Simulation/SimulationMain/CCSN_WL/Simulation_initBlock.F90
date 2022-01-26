@@ -37,7 +37,7 @@
 subroutine Simulation_initBlock(solnData, tileDesc)
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
        Grid_getCellCoords, Grid_getDeltas, &
@@ -144,7 +144,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     solnData(ivar,i,j,k) = var_interp
                  end do
               else 
-                 call Driver_abortFlash("Beyond the 1D model data")
+                 call Driver_abort("Beyond the 1D model data")
               endif
               ! multiply initial radial velocity, if desired
               solnData(VELX_VAR,i,j,k) = sim_velMult*solnData(VELX_VAR,i,j,k) 
@@ -259,7 +259,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     enddo
                     
                  else 
-                    call Driver_abortFlash("Beyond the 1D model data")
+                    call Driver_abort("Beyond the 1D model data")
                  end if
                  
                  sumY = 1.0
@@ -287,7 +287,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
         enddo
 
      else ! Here we may add 2D spherical geometry
-        call Driver_abortFlash("incorrect geometry in Simulation_initBlock")
+        call Driver_abort("incorrect geometry in Simulation_initBlock")
      end if
 
   else if (NDIM == 3 .and. meshGeom == CARTESIAN) then

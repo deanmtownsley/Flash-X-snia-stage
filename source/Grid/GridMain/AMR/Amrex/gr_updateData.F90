@@ -118,7 +118,7 @@ subroutine gr_updateData()
   nBlocks = lb-1
   if (gr_ioLocalNumBlocks .NE. nBlocks) then
      print*,'gr_ioLocalNumBlocks,nBlocks=',gr_ioLocalNumBlocks,nBlocks,' @',gr_meshMe
-     call Driver_abortFlash("gr_ioLocalNumBlocks .NE. nBlocks")
+     call Driver_abort("gr_ioLocalNumBlocks .NE. nBlocks")
     end if
 
 

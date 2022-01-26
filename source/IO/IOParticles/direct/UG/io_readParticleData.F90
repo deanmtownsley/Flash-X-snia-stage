@@ -44,7 +44,7 @@
 subroutine io_ptReadParticleData()
 
   use IO_data, ONLY : io_chkptFileID
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Particles_interface, ONLY : Particles_putLocalNum
 
@@ -53,7 +53,7 @@ subroutine io_ptReadParticleData()
   implicit none
 
 #include "constants.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "Simulation.h"
 
   
@@ -70,7 +70,7 @@ subroutine io_ptReadParticleData()
 
   allocate (particles(NPART_PROPS,pt_maxPerProc), stat=ierr)
   if (ierr /= 0) then
-     call Driver_abortFlash("Particles_init:  could not allocate particle array")
+     call Driver_abort("Particles_init:  could not allocate particle array")
   endif
   
   if(localNumParticles > 0 ) then

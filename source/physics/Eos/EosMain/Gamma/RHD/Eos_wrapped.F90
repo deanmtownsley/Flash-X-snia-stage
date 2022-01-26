@@ -108,7 +108,7 @@
 
 subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   use Logfile_interface, ONLY:  Logfile_stampMessage 
     
@@ -148,7 +148,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
   if(present(gridDataStruct)) then
      if (gridDataStruct /= CENTER) then
-        call Driver_abortFlash("This implementation only works with cell centered data")
+        call Driver_abort("This implementation only works with cell centered data")
      end if
   end if
 
@@ -169,7 +169,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_wrapped] "//&
+     call Driver_abort("[Eos_wrapped] "//&
           "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENSE_EI, or MODE_EOS_NOP")
   end if
 #endif
@@ -179,7 +179,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
  !! RHD version must be run in DENS_EI mode
   if ( mode .NE. MODE_DENS_EI) then
      write(*,*) "[Eos_wrapped] RHD Gamma MUST be called in MODE_DENS_EI."
-     call Driver_abortFlash("[Eos_wrapped] RHD Gamma called with wrong MODE")
+     call Driver_abort("[Eos_wrapped] RHD Gamma called with wrong MODE")
   end if
   ! Initializations:   determine the length of the data being operated upon
   vecLen = range(HIGH,IAXIS)-range(LOW,IAXIS)+1
@@ -278,7 +278,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
               write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
            endif
            call Logfile_stampMessage('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
-           call Driver_abortFlash('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+           call Driver_abort('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
         end if
 
         solnData(GAME_VAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k) = &

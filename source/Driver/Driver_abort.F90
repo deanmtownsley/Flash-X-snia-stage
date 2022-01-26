@@ -1,4 +1,4 @@
-!!****f* source/Driver/Driver_abortFlash
+!!****f* source/Driver/Driver_abort
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,18 +10,18 @@
 !!
 !! NAME
 !!
-!!  Driver_abortFlash
+!!  Driver_abort
 !!
 !! SYNOPSIS
 !!
-!!  Driver_abortFlash(character(len=*)(IN) :: errorMessage)
+!!  Driver_abort(character(len=*)(IN) :: errorMessage)
 !!
 !! DESCRIPTION
 !!
 !!  Write an error message to the logfile and abort FLASH.
 !!  Attempts to shut down all processes (using MPI_Abort()).
-!!  If you wish to call Driver_abortFlash from a 'c' routine
-!!  use the API routine Driver_abortFlashC
+!!  If you wish to call Driver_abort from a 'c' routine
+!!  use the API routine Driver_abortC
 !!
 !! ARGUMENTS
 !!
@@ -35,11 +35,11 @@
 !!
 !!***
 
-subroutine Driver_abortFlash (errorMessage)
+subroutine Driver_abort (errorMessage)
   
   implicit none
 
   character(len=*), intent(in) :: errorMessage
 
   return
-end subroutine Driver_abortFlash
+end subroutine Driver_abort

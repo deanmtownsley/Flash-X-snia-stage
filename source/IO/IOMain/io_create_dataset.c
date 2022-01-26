@@ -37,6 +37,6 @@ void FTOC(io_create_dataset)(const int * const pMyPE,
 #endif
 
   } else {
-    Driver_abortFlashC("[io_create_dataset]: Unknown I/O");
+    Driver_abortC("[io_create_dataset]: Unknown I/O");
   }
 }

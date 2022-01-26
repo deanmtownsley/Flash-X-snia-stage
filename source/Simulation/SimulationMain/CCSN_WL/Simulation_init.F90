@@ -46,7 +46,7 @@ subroutine Simulation_init()
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer :: i
 

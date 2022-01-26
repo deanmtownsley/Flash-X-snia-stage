@@ -119,7 +119,7 @@
 
 subroutine Interpolate_cubic1Dcoeffs (numberOfLines, a)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 

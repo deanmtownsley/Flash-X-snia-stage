@@ -32,7 +32,7 @@
       subroutine Grid_setWorkBounds(pwork_bnd,lwork_bnd,bnd_type)
       use tree, only : gr_btCustomWork, gr_btWorkBoundsPar, &
                            gr_btWorkBoundsLeaf
-      use Driver_interface, only : Driver_abortFlash
+      use Driver_interface, only : Driver_abort
 
       implicit none
       real,intent(in)    :: pwork_bnd
@@ -41,7 +41,7 @@
 
 #ifdef FLASH_DEBUG_AMR
       if(.NOT.gr_btCustomWork) &
-        call Driver_abortFlash( &
+        call Driver_abort( &
             "Grid_setWorkBounds: Trying to set work bounds, &
             &but simulation is not configured to sort via custom &
             &work values at regridding. Use `gr_btCustomWork &

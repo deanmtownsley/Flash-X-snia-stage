@@ -56,7 +56,7 @@ Subroutine hy_eigenVector&
 
   use Hydro_data,           ONLY : hy_meshMe
   use Logfile_interface,    ONLY : Logfile_open,Logfile_close
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
 
   implicit none
 
@@ -143,7 +143,7 @@ Subroutine hy_eigenVector&
   a2=V(HY_GAMC)*V(HY_PRES)*dinv
 
   if (a2 .le. 0.) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[hy_eigenVector]: Imaginary sound speed has obtained! "//&
            "Please try other (more diffusive) slope limiter, flux, order, cfl, etc.")
   else

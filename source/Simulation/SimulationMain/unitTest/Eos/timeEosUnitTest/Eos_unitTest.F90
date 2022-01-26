@@ -90,7 +90,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
 # include "Eos.h"
 # include "constants.h"
 # include "Simulation.h"
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer, intent(in) :: fileUnit
   logical, intent(out) :: perfect
   integer :: localBlkCount, blockID

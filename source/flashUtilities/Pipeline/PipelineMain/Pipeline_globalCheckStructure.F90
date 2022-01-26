@@ -83,12 +83,12 @@ subroutine Pipeline_globalCheckStructure ()
                                 pl_rank,           &
                                 pl_size
                                 
-  use Driver_interface,  ONLY : Driver_abortFlash,       &
+  use Driver_interface,  ONLY : Driver_abort,       &
                                 Driver_checkMPIErrorCode
 
   implicit none
 
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical :: openStructure
 
@@ -116,7 +116,7 @@ subroutine Pipeline_globalCheckStructure ()
          if (pl_doLog) then
              write (pl_logUnit,'(a,i6,a)') ' Self channel to processor ',proc, 'detected!'
          end if
-         call Driver_abortFlash ('[Pipeline_globalCheckStructure] ERROR: Self channel present!')
+         call Driver_abort ('[Pipeline_globalCheckStructure] ERROR: Self channel present!')
      end if
      sendChannel (proc) = .true.
   end do
@@ -164,7 +164,7 @@ subroutine Pipeline_globalCheckStructure ()
 !
 !
   if (openStructure) then
-      call Driver_abortFlash ('[Pipeline_globalCheckStructure] ERROR: Open pipeline structure!')
+      call Driver_abort ('[Pipeline_globalCheckStructure] ERROR: Open pipeline structure!')
   end if
 !
 !

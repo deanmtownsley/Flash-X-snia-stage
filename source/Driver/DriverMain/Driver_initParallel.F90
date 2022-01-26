@@ -49,7 +49,7 @@ subroutine Driver_initParallel ()
        dr_mpiThreadSupport
   !$ use omp_lib
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 #include "Simulation.h"
   integer :: error, iprovided, errcode

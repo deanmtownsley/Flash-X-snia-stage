@@ -59,7 +59,7 @@ subroutine eos_initHelmholtz()
   use Eos_data, ONLY : eos_type, eos_meshMe, &
        eos_eintSwitch, eos_smallt
   use eos_helmData 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use actual_eos_module, ONLY : actual_eos_init
   use network, ONLY : network_init
@@ -71,7 +71,7 @@ subroutine eos_initHelmholtz()
 #include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
   integer:: unitEos =2
   integer :: i, j
   real :: tstp, dstp
@@ -97,13 +97,13 @@ subroutine eos_initHelmholtz()
 
 #ifndef EINT_VAR
   if (eos_eintSwitch > 0.0) then
-     call Driver_abortFlash("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
+     call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
   end if
 #endif
 
 #ifdef USE_EOS_YE
   write(*,*)"USE_EOS_YE should not be defined with Helmholtz/SpeciesBased EOS.  Use Helmholtz/Ye instead!"
-  call Driver_abortFlash("[Eos_init] Use Helmholtz/Ye with USE_EOS_YE mode")
+  call Driver_abort("[Eos_init] Use Helmholtz/Ye with USE_EOS_YE mode")
 #endif
 
   call RuntimeParameters_get("eos_forceConstantInput",eos_forceConstantInput)
@@ -121,7 +121,7 @@ subroutine eos_initHelmholtz()
 
         if (istat .ne. 0) then
            write(*,*) '[Eos_init] ERROR: opening helm_table.dat!'
-           call Driver_abortFlash("[Eos_init] ERROR: opening helm_table.dat")
+           call Driver_abort("[Eos_init] ERROR: opening helm_table.dat")
         endif
 
         !..read the helmholtz free energy table

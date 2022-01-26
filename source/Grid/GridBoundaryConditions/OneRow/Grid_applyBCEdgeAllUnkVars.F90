@@ -114,7 +114,7 @@ subroutine Grid_applyBCEdgeAllUnkVars(bcType,bcDir,guard,dataRow,face,&
      cellCenterSweepCoord, secondCoord,thirdCoord)
   use Grid_data, ONLY :gr_meshMe
   use Grid_interface, ONLY : Grid_applyBCEdge
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #include "Simulation.h"
 #ifdef FLASH_GRID_PARAMESH3OR4
   use physicaldata, ONLY : gcell_on_cc

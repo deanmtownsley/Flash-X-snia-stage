@@ -93,7 +93,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
 
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use pt_interface, ONLY : pt_initPositions,pt_createTag, &
                            pt_initLocal,                  &
                            pt_initPositionsLattice,       &
@@ -172,7 +172,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
         case(CUSTOM)
            call pt_initPositions(tileDesc,partPosInitialized)
         case default
-           call Driver_abortFlash("Particles_initPosition: no valid initialization method")
+           call Driver_abort("Particles_initPosition: no valid initialization method")
         end select
         numNewLocalThisType = pt_numLocal - numPreviousLocal
         pt_typeInfo(PART_LOCAL,i) = numNewLocalThisType + numLocalThisType

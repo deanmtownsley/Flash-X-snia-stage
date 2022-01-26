@@ -59,7 +59,7 @@ subroutine Grid_mapMeshToParticles_pc (ptContainerPos, part_props,part_blkID,&
                                     numAttrib, attrib,&
                                     mapType,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   ! this is an alias for pt_amrexParticle_t in pt_amrexParticleMod:
   use Grid_ptDataTypes, ONLY : Grid_particle_t
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
@@ -172,7 +172,7 @@ subroutine Grid_mapMeshToParticles_pc (ptContainerPos, part_props,part_blkID,&
                   end select
 #ifdef DEBUG_PARTICLES
                else
-                  call Driver_abortFlash("Grid_mapMeshToParticles_pc: prop_id is invalid, aborting.")
+                  call Driver_abort("Grid_mapMeshToParticles_pc: prop_id is invalid, aborting.")
 #endif
                end if
             enddo

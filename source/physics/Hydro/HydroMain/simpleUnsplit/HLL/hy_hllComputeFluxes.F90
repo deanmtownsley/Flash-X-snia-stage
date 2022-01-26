@@ -20,7 +20,7 @@ Subroutine hy_hllComputeFluxes ( tileLimits, Uin, plo, flX, flY, flZ, loFl, del,
   use Hydro_data,        ONLY : hy_fluxCorrect,      &
                                 hy_useGravity,       &
                                 hy_updateHydroFluxes
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampVarMask
 
   implicit none
@@ -66,11 +66,11 @@ Subroutine hy_hllComputeFluxes ( tileLimits, Uin, plo, flX, flY, flZ, loFl, del,
 #endif
 
   if (hy_fluxCorrect) then
-     call Driver_abortFlash("hy_hllUnsplit: flux correction is not implemented!")
+     call Driver_abort("hy_hllUnsplit: flux correction is not implemented!")
   end if
 
   if (hy_useGravity) then
-     call Driver_abortFlash("hy_hllUnsplit: support for gravity not implemented!")
+     call Driver_abort("hy_hllUnsplit: support for gravity not implemented!")
   end if
 
   if (.NOT.hy_updateHydroFluxes) then

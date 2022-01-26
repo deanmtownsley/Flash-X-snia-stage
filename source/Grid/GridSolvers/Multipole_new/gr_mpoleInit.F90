@@ -28,7 +28,7 @@ subroutine gr_mpoleInit ()
   use gr_mpoleData
 
   use Grid_data,                   ONLY : gr_geometry
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface,           ONLY : Logfile_stamp
   use PhysicalConstants_interface, ONLY : PhysicalConstants_get
@@ -87,19 +87,19 @@ subroutine gr_mpoleInit ()
   call RuntimeParameters_get  ("zmax",                       gr_mpoleDomainZmax         )
 
   if (gr_mpoleMaxRadialZones <= 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: no radial zones specified')
+      call Driver_abort ('[gr_mpoleInit] ERROR: no radial zones specified')
   end if
 
   if (gr_mpoleInnerZoneSize <= 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: no radial inner zone specified')
+      call Driver_abort ('[gr_mpoleInit] ERROR: no radial inner zone specified')
   end if
 
   if (gr_mpoleInnerZoneResolution <= ZERO) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial inner zone resolution value must be > 0')
+      call Driver_abort ('[gr_mpoleInit] ERROR: radial inner zone resolution value must be > 0')
   end if
 
   if (gr_mpoleInnerZoneResolution > 0.1) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial inner zone resolution value must be =< 0.1')
+      call Driver_abort ('[gr_mpoleInit] ERROR: radial inner zone resolution value must be =< 0.1')
   end if
 !
 !
@@ -162,17 +162,17 @@ subroutine gr_mpoleInit ()
       gr_mpoleGeometry == GRID_2DPOLAR       .or. &
       gr_mpoleGeometry == GRID_1DPOLAR) then
 
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: unsupported geometry')
+      call Driver_abort ('[gr_mpoleInit] ERROR: unsupported geometry')
   end if
 
   if (.not.grid2D .and. gr_mpoleSymmetryPlane2D) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: plane of symmetry only allowed in 2D geometry')
+      call Driver_abort ('[gr_mpoleInit] ERROR: plane of symmetry only allowed in 2D geometry')
   end if
 
   if (gr_mpoleGeometry == GRID_3DCYLINDRICAL .and. gr_mpoleSymmetryAxis3D) then
       call Logfile_stamp ('3D axis symmetry in 3D cylindrical geometry equivalent to 2D cylindrical run!', &
                           '[gr_mpoleInit]')
-      call Driver_abortFlash ('[gr_mpoleInit] SUGGESTION: 3D axis symmetry! -> Rerun in 2D cylindrical!')
+      call Driver_abort ('[gr_mpoleInit] SUGGESTION: 3D axis symmetry! -> Rerun in 2D cylindrical!')
   end if
 !
 !
@@ -209,25 +209,25 @@ subroutine gr_mpoleInit ()
 
   if (radialXGrid) then
       if (gr_mpoleDomainXmin /= ZERO) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial X-coord out of range')
+          call Driver_abort ('[gr_mpoleInit] ERROR: radial X-coord out of range')
       end if
   end if
 
   if (angularYGrid) then
       if (gr_mpoleDomainYmin /= ZERO .or. gr_mpoleDomainYmax /= angularYRange) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: angular Y-coord out of range')
+          call Driver_abort ('[gr_mpoleInit] ERROR: angular Y-coord out of range')
       end if
   end if
 
   if (angularZGrid) then
       if (gr_mpoleDomainZmin /= ZERO .or. gr_mpoleDomainZmax /= angularZRange) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: angular Z-coord out of range')
+          call Driver_abort ('[gr_mpoleInit] ERROR: angular Z-coord out of range')
       end if
   end if
 
   if (gr_mpoleSymmetryPlane2D) then
       if (gr_mpoleDomainXmin /= ZERO .or. gr_mpoleDomainYmin /= ZERO) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: 2D symmetry plane requires xmin,ymin = 0')
+          call Driver_abort ('[gr_mpoleInit] ERROR: 2D symmetry plane requires xmin,ymin = 0')
       end if
   end if
 !
@@ -333,7 +333,7 @@ subroutine gr_mpoleInit ()
            gr_mpoleTotalNrCosineMoments = 1
 
      case default
-           call Driver_abortFlash ('[gr_mpoleInit] PROGRAMMER ERROR 2: We should never be here!')
+           call Driver_abort ('[gr_mpoleInit] PROGRAMMER ERROR 2: We should never be here!')
   end select
 
   gr_mpoleMax2L = gr_mpoleMaxL + gr_mpoleMaxL
@@ -351,7 +351,7 @@ subroutine gr_mpoleInit ()
       allocate (gr_mpoleNumberInv (1:gr_mpoleMax2L), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleNumberInv allocate failed')
+          call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleNumberInv allocate failed')
       end if
 
   end if
@@ -363,61 +363,61 @@ subroutine gr_mpoleInit ()
   allocate (gr_mpoleZoneRmax (0:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneRmax allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneRmax allocate failed')
   end if
 
   allocate (gr_mpoleZoneQmax (0:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneQmax allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneQmax allocate failed')
   end if
 
   allocate (gr_mpoleZoneType (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneType allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneType allocate failed')
   end if
 
   allocate (gr_mpoleZoneScalar (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneScalar allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneScalar allocate failed')
   end if
 
   allocate (gr_mpoleZoneLogNorm (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneLogNorm allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneLogNorm allocate failed')
   end if
 
   allocate (gr_mpoleZoneExponent (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneExponent allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneExponent allocate failed')
   end if
 
   allocate (gr_mpoleZoneScalarInv (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneScalarInv allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneScalarInv allocate failed')
   end if
 
   allocate (gr_mpoleZoneLogNormInv (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneLogNormInv allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneLogNormInv allocate failed')
   end if
 
   allocate (gr_mpoleZoneExponentInv (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneExponentInv allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneExponentInv allocate failed')
   end if
 
   allocate (gr_mpoleZoneMaxRadiusFraction (1:gr_mpoleMaxRadialZones), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleInit] ERROR: gr_mpoleZoneMaxRadiusFraction allocate failed')
+      call Driver_abort ('[gr_mpoleInit] ERROR: gr_mpoleZoneMaxRadiusFraction allocate failed')
   end if
 !
 !
@@ -452,7 +452,7 @@ subroutine gr_mpoleInit ()
      else if (typeOfZone == 'logarithmic') then
          gr_mpoleZoneType (zone) = ZONE_LOGARITHMIC
      else
-         call Driver_abortFlash ('[gr_mpoleInit] ERROR: unvalid radial zone type')
+         call Driver_abort ('[gr_mpoleInit] ERROR: unvalid radial zone type')
      end if
 
   end do
@@ -470,19 +470,19 @@ subroutine gr_mpoleInit ()
 
   do zone = 2,gr_mpoleMaxRadialZones
      if ( gr_mpoleZoneMaxRadiusFraction (zone) < gr_mpoleZoneMaxRadiusFraction (zone-1) ) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial zone fractions out of order!')
+          call Driver_abort ('[gr_mpoleInit] ERROR: radial zone fractions out of order!')
      end if
   end do
 
   do zone = 1,gr_mpoleMaxRadialZones
      if ( gr_mpoleZoneScalar (zone) <= ZERO ) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial zone scalar =< 0 !')
+          call Driver_abort ('[gr_mpoleInit] ERROR: radial zone scalar =< 0 !')
      end if
   end do
 
   do zone = 1,gr_mpoleMaxRadialZones
      if ( gr_mpoleZoneExponent (zone) <= ZERO ) then
-          call Driver_abortFlash ('[gr_mpoleInit] ERROR: radial zone exponent =< 0 !')
+          call Driver_abort ('[gr_mpoleInit] ERROR: radial zone exponent =< 0 !')
      end if
   end do
 !

@@ -61,7 +61,7 @@
 subroutine gr_initGeometry()
 
   use Grid_data, ONLY : gr_dirGeom, gr_dirIsAngular, gr_domainBC, gr_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
                                           RuntimeParameters_mapStrToInt, &
                                           RuntimeParameters_setReal
@@ -96,7 +96,7 @@ subroutine gr_initGeometry()
         call Logfile_stamp('HIGH boundary condition type not recognized','[gr_initGeometry]')
      end if
      if (gr_domainBC(LOW,idir) .GE. NOT_BOUNDARY .OR. gr_domainBC(HIGH,idir) .GE. NOT_BOUNDARY) then
-        call Driver_abortFlash('A boundary condition type not recognized. &
+        call Driver_abort('A boundary condition type not recognized. &
              & Maybe [xyz][lr]_boundary_type runtime parameter specification was invalid.')
      end if
   end do
@@ -158,7 +158,7 @@ subroutine gr_initGeometry()
      gr_dirIsAngular(JAXIS) = .TRUE.
      gr_dirIsAngular(KAXIS) = .TRUE.
   else
-     call Driver_abortFlash("[Grid_init] unsupported geometry ")
+     call Driver_abort("[Grid_init] unsupported geometry ")
   end if
 
 
@@ -173,7 +173,7 @@ subroutine gr_initGeometry()
        (gr_geometry == POLAR .AND. NDIM == 3) ) then
      
      print *, "ERROR: geometry invalid"
-     call Driver_abortFlash("ERROR: geometry invalid")
+     call Driver_abort("ERROR: geometry invalid")
   endif
 #endif
 
@@ -190,7 +190,7 @@ subroutine gr_initGeometry()
 
      if (imin < 0.0) then
         if (.NOT. geometryOverride) &
-             call Driver_abortFlash("ERROR: radial coordinate cannot be < 0.0")
+             call Driver_abort("ERROR: radial coordinate cannot be < 0.0")
      endif
 
      if (imin == 0.0 .AND. &
@@ -198,7 +198,7 @@ subroutine gr_initGeometry()
         !! FUTURE: We could have some special treatment for a boundary at r=0.0,
         !! like using the singular_line code provided in Paramesh3 ff. - KW
         if (.NOT. geometryOverride) &
-             call Driver_abortFlash("ERROR: reflecting or axisymmetric boundary required at x = 0.0 for radial coords")
+             call Driver_abort("ERROR: reflecting or axisymmetric boundary required at x = 0.0 for radial coords")
      endif
 
   endif
@@ -215,7 +215,7 @@ subroutine gr_initGeometry()
            print *, 'ERROR: the theta coordinate in spherical geometry cannot be > pi.'
            print *, '       Check ymin and ymax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
-           call Driver_abortFlash("ERROR: theta coordinate range invalid")
+           call Driver_abort("ERROR: theta coordinate range invalid")
         endif
 #endif
 
@@ -228,13 +228,13 @@ subroutine gr_initGeometry()
            print *, 'ERROR: the phi coordinate in polar geometry cannot be > 2 pi.'
            print *, '       Check ymin and ymax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
-           call Driver_abortFlash("ERROR: phi coordinate range invalid")
+           call Driver_abort("ERROR: phi coordinate range invalid")
         endif
 #endif
 
      else
         
-        call Driver_abortFlash("ERROR: y cannot be an angular coordinate in this geometry")
+        call Driver_abort("ERROR: y cannot be an angular coordinate in this geometry")
         
      endif
         
@@ -259,13 +259,13 @@ subroutine gr_initGeometry()
            print *, 'ERROR: the phi coordinate in the current geometry cannot be > 2 pi.'
            print *, '       Check zmin and zmax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
-           call Driver_abortFlash("ERROR: phi coordinate range invalid")
+           call Driver_abort("ERROR: phi coordinate range invalid")
         endif
 #endif
 
      else
         
-        call Driver_abortFlash("ERROR: z cannot be an angular coordinate in this geometry")
+        call Driver_abort("ERROR: z cannot be an angular coordinate in this geometry")
         
      endif
 

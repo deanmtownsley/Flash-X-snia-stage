@@ -43,7 +43,7 @@ subroutine gr_markWithRadius(ic, jc, kc, radius, lref)
 
 !-------------------------------------------------------------------------------
   use tree, ONLY : refine, derefine, lrefine, nodetype, lnblocks, coord, bsize
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_geometry
   implicit none
 #include "constants.h"
@@ -179,7 +179,7 @@ subroutine gr_markWithRadius(ic, jc, kc, radius, lref)
         endif
      end do
   else
-     call Driver_abortFlash("gr_markWithRadius : wrong geometry")
+     call Driver_abort("gr_markWithRadius : wrong geometry")
   end if
   !-------------------------------------------------------------------------------
   

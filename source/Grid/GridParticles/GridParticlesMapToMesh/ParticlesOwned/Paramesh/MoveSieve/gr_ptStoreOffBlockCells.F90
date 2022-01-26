@@ -55,7 +55,7 @@
 subroutine gr_ptStoreOffBlockCells(particlesPerBlk, blockList, blockCount, blkLimitsGC, blkSize, guard, BufferSize)
 
   use gr_ptMapData, ONLY : gr_ptDomain
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkCornerID, Grid_getBlkBoundBox, Grid_getDeltas
   use gr_ptInterface, ONLY : gr_ptFindNegh, gr_ptGetSrcDestCoords
   use Grid_data, ONLY : gr_meshMe, gr_meshComm
@@ -67,7 +67,7 @@ subroutine gr_ptStoreOffBlockCells(particlesPerBlk, blockList, blockCount, blkLi
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "gr_ptMapToMesh.h"
 
   integer,dimension(MAXBLOCKS), intent(IN) :: particlesPerBlk, blockList
@@ -147,7 +147,7 @@ subroutine gr_ptStoreOffBlockCells(particlesPerBlk, blockList, blockCount, blkLi
                     !that they return is the same.
                     !----------------------------- START ----------------------------
                     if (numNegh /= surrBlksSummary % regionInfo(i,j,k) % numNegh) then
-                       call Driver_abortFlash("Number of neighbors mismatch")
+                       call Driver_abort("Number of neighbors mismatch")
                     end if
 
                     if (numNegh > 0) then
@@ -174,7 +174,7 @@ subroutine gr_ptStoreOffBlockCells(particlesPerBlk, blockList, blockCount, blkLi
                        end do A_gr_ptFindNegh
 
                        if (any(matchArray(1:numNegh) .eqv. .false.)) then
-                          call Driver_abortFlash("Actual neighbor mismatch!")
+                          call Driver_abort("Actual neighbor mismatch!")
                        end if
 
                     end if

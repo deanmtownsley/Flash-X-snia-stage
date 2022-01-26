@@ -68,7 +68,7 @@ subroutine gr_createDomain()
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
 
   integer :: ierr

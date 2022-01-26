@@ -187,7 +187,7 @@
 subroutine Grid_sortParticles(dataBuf,props, localCount,elementTypes,maxCount,&
                               elementsPerBlk,attrib1, attrib2)
   use gr_ptData, ONLY : gr_ptSourceBuf, gr_ptLogLevel, gr_ptBlk, gr_ptKeepLostParticles
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getLocalNumBlks
 
   implicit none
@@ -249,7 +249,7 @@ subroutine Grid_sortParticles(dataBuf,props, localCount,elementTypes,maxCount,&
      j = int(dataBuf(attrib1,i))
 #ifdef DEBUG_PARTICLES
      if((j>localNumBlocks).or.(j==0).or.(j<LOST)) then
-        call Driver_abortFlash("Grid_sortParticles : undefined block number")
+        call Driver_abort("Grid_sortParticles : undefined block number")
      end if
 #endif
      validPointer=validPointer+1

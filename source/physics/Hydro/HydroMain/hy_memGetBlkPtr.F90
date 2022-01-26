@@ -66,7 +66,7 @@ subroutine hy_memGetBlkPtr(blockID,dataPtr, gridDataStruct)
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use hy_memScratchData, ONLY : hy_memArrayScratch,hy_memArrayCenter,hy_memArrayScratch_ctr,&
        hy_memArrayScratch_facevarx,hy_memArrayScratch_facevary,hy_memArrayScratch_facevarz, &
        bIdToLeafNo
@@ -102,12 +102,12 @@ subroutine hy_memGetBlkPtr(blockID,dataPtr, gridDataStruct)
         print *, "hy_memGetBlkPtr: gridDataStruct set to improper value"
         print *, "gridDataStruct must = SCRATCH_CTR,SCRATCH_FACEX,_FACEY,_FACEZ," // &
              "or SCRATCH (defined in constants.h)"
-        call Driver_abortFlash("gridDataStruct must be SCRATCH or SCRATCH_* (see constants.h)")
+        call Driver_abort("gridDataStruct must be SCRATCH or SCRATCH_* (see constants.h)")
      end if
   end if
   if((blockid<1).or.(blockid>MAXBLOCKS)) then
      print *, 'hy_memGetBlkPtr:  invalid blockid ',blockid
-     call Driver_abortFlash("[hy_memGetBlkPtr] invalid blockid ")
+     call Driver_abort("[hy_memGetBlkPtr] invalid blockid ")
   end if
 #endif
 
@@ -121,7 +121,7 @@ subroutine hy_memGetBlkPtr(blockID,dataPtr, gridDataStruct)
 #ifdef DEBUG_GRID
   if (.NOT.(leafNo > 0 .AND. leafNo .LE. MAXBLOCKS)) then
      print*, "hy_memGetBlkPtr: blockID",blockID," -> invalid leafNo",leafNo
-     call Driver_abortFlash("hy_memGetBlkPtr: invalid leafNo!")
+     call Driver_abort("hy_memGetBlkPtr: invalid leafNo!")
   end if
 #endif
 
@@ -171,7 +171,7 @@ subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use hy_memScratchData, ONLY : hy_memArray5Center, &
        hy_memArray5Scratch_ctr, &
        bIdToLeafNo
@@ -200,12 +200,12 @@ subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
         print *, "hy_memGetBlk5Ptr: gridDataStruct set to improper value"
         print *, "gridDataStruct must be CENTER or SCRATCH_CTR," // &
              "or SCRATCH (defined in constants.h)"
-        call Driver_abortFlash("gridDataStruct must be CENTER or SCRATCH_CTR(see constants.h)")
+        call Driver_abort("gridDataStruct must be CENTER or SCRATCH_CTR(see constants.h)")
      end if
   end if
   if((blockid<1).or.(blockid>MAXBLOCKS)) then
      print *, 'hy_memGetBlk5Ptr:  invalid blockid ',blockid
-     call Driver_abortFlash("[hy_memGetBlk5Ptr] invalid blockid ")
+     call Driver_abort("[hy_memGetBlk5Ptr] invalid blockid ")
   end if
 #endif
 
@@ -219,7 +219,7 @@ subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
 #ifdef DEBUG_GRID
   if (.NOT.(leafNo > 0 .AND. leafNo .LE. MAXBLOCKS)) then
      print*, "hy_memGetBlk5Ptr: blockID",blockID," -> invalid leafNo",leafNo
-     call Driver_abortFlash("hy_memGetBlk5Ptr: invalid leafNo!")
+     call Driver_abort("hy_memGetBlk5Ptr: invalid leafNo!")
   end if
 #endif
 
@@ -233,7 +233,7 @@ subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
      SETDATA5PTR(hy_memArray5Scratch_ctr)           
   case DEFAULT
      print *, 'TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.'
-     call Driver_abortFlash('hy_memGetBlk5Ptr: TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.')
+     call Driver_abort('hy_memGetBlk5Ptr: TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.')
   end select
 
   return

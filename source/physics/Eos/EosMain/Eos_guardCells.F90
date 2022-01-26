@@ -108,7 +108,7 @@ subroutine Eos_guardCells(eosMode, solnData,corners,layers,skipSrl,blockDesc)
      ! Test whether neighbors are at same refinement level, and
      ! set the appropriate elements of nlayers to 0 when applicable.
      ! However, this currently only works with PARAMESH.
-     if (.NOT.present(blockDesc)) call Driver_abortFlash('Eos_guardCells requires a blockDesc !')
+     if (.NOT.present(blockDesc)) call Driver_abort('Eos_guardCells requires a blockDesc !')
      blockID = blockDesc % id
      call Grid_getBlkNeighLevels(blockID,neighLev,trackBdry=corners)
      myRefine = neighLev(0,0,0)

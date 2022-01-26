@@ -44,7 +44,7 @@
 subroutine io_initFile( filenum, fileID, filename, outputType, forced)
 
   use IO_data, ONLY : io_comm, io_outputSplitNum, io_globalMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use io_intfTypesModule, ONLY : io_fileID_t
 
   implicit none
@@ -71,7 +71,7 @@ subroutine io_initFile( filenum, fileID, filename, outputType, forced)
      call io_h5init_file(fileID, filename)
      if(fileID == -1) then
         print *, "Error: unable to initialize file"
-        call Driver_abortFlash("unable to initialize hdf5 file")
+        call Driver_abort("unable to initialize hdf5 file")
      end if
   end if
 

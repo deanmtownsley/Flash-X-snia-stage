@@ -16,7 +16,7 @@
 subroutine IncompNS_setVectorProp(name, value)
 
   use IncompNS_data
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)         :: name
@@ -31,7 +31,7 @@ subroutine IncompNS_setVectorProp(name, value)
        ins_outflowVel(HIGH,:) = value
      case default
        write(errorMessage,*) '[IncompNS_setVectorProp] Unknown vector: ',name
-       call Driver_abortFlash(errorMessage)
+       call Driver_abort(errorMessage)
   end select  
 
 end subroutine IncompNS_setVectorProp

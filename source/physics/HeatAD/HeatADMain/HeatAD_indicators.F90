@@ -29,7 +29,7 @@ subroutine HeatAD_indicators()
 
 !--------------------------------------------------------------------------------------------
    implicit none
-   include"Flash_mpi.h"
+   include"Flashx_mpi.h"
    real ::  del(MDIM)
    integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:,:,:,:) :: solnData

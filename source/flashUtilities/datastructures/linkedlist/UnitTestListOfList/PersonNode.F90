@@ -7,7 +7,7 @@ module PersonNode
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
-  use Driver, ONLY : Driver_abortFlash
+  use Driver, ONLY : Driver_abort
   implicit none
 
   type person_node
@@ -25,7 +25,7 @@ contains
     integer :: err    
     allocate(item, STAT=err)
     if (err /= 0) then
-       call Driver_abortFlash ("[PersonNode::create_node]: "//&
+       call Driver_abort ("[PersonNode::create_node]: "//&
             "Memory cannot be allocated")
     end if
     item % name = "NULL"
@@ -41,7 +41,7 @@ contains
 
     deallocate(item, STAT=err)
     if (err /= 0) then
-       call Driver_abortFlash ("[PersonNode::destroy_node]: "//&
+       call Driver_abort ("[PersonNode::destroy_node]: "//&
             "Memory cannot be deallocated")
     end if
     nullify(item)

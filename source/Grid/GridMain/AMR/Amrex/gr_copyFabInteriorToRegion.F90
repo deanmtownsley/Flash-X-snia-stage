@@ -60,7 +60,7 @@ subroutine gr_copyFabInteriorToRegion(fab, gds, face, axis, interior, &
     use amrex_fort_module, ONLY : wp => amrex_real
     use amrex_box_module,  ONLY : amrex_box
 
-    use Driver_interface,  ONLY : Driver_abortFlash
+    use Driver_interface,  ONLY : Driver_abort
 
     implicit none
 
@@ -89,7 +89,7 @@ subroutine gr_copyFabInteriorToRegion(fab, gds, face, axis, interior, &
 
     if ((gds /= CENTER) .AND. &
         (gds /= FACEX)  .AND. (gds /= FACEY) .AND. (gds /= FACEZ)) then
-        call Driver_abortFlash("[gr_copyFabInteriorToRegion] " // &
+        call Driver_abort("[gr_copyFabInteriorToRegion] " // &
                                "GDS must be cell- or face-centered")
     end if
 

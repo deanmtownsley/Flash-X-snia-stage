@@ -190,7 +190,7 @@
 
 subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY:  Logfile_stampMessage
 
   use eos_helmInterface, ONLY : eos_helm
@@ -483,7 +483,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' pres = ', ptotRow(k)
         print *, ' ewant= ', ewantRow(k)
 
-        call Driver_abortFlash('[Eos] Error: too many iterations in Helmholtz Eos')
+        call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
 
 
         ! Land here if the Newton iteration converged
@@ -620,7 +620,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' dens = ', denRow(k)
         print *, ' pres = ', ptotRow(k)
 
-        call Driver_abortFlash('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
+        call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
 
 
         ! Land here if the Newton iteration converged
@@ -654,7 +654,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   else if (mode .NE. MODE_EOS_NOP) then
      if (eos_meshMe .EQ. MASTER_PE) print*, '[eos_helmholtz] Error: unknown input mode', mode
-     call Driver_abortFlash('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
+     call Driver_abort('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
   end if
 
 
@@ -715,7 +715,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
 
@@ -724,7 +724,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
   end if

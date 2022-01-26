@@ -84,7 +84,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
 
   use Grid_data,        ONLY : gr_meshMe, gr_meshcomm
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_hypreLocalinterface,  ONLY : gr_hypreCreateMatrix, gr_hypreComputeB,    &
                                gr_hypreGridStatus, gr_hypreSetIniGuess, &
                                gr_hypreUpdateSoln, gr_hypreSolve

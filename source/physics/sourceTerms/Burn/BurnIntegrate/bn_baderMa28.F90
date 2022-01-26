@@ -76,7 +76,7 @@ subroutine bn_baderMa28(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, &
 
 
   use Burn_data, ONLY: aion
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   ! can't use jakob interface; see notes in bnNetwork_interface for the mystery.
   use bnIntegrate_interface, ONLY: bn_baderStepMa28, bn_pzExtr
 
@@ -157,7 +157,7 @@ subroutine bn_baderMa28(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, &
      if (flag .lt. 0) then
         write(*,*) 'error in ma28ad flag',flag
         write(*,*) 'more than stpmax steps required in bn_netInt'  
-        call Driver_abortFlash('ERROR in bn_netInt: too many steps required')
+        call Driver_abort('ERROR in bn_netInt: too many steps required')
      end if
 
      !       call Timers_stop ("algebra (burn)")
@@ -234,7 +234,7 @@ subroutine bn_baderMa28(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, &
 111        format(1x,3e11.3,i6)
         enddo
 
-        call Driver_abortFlash('ERROR in bn_baderMa28: stepsize too small')
+        call Driver_abort('ERROR in bn_baderMa28: stepsize too small')
      end if
 
      call bn_baderStepMa28(ysav,dydx,dfdy,nmax,nv,x,h,nseq(k),yseq, & 
@@ -327,7 +327,7 @@ subroutine bn_baderStepMa28(y,dydx,dfdy,nmax,n,xs,htot,nnstep,yout,  &
      &                  nzo,a,naij,ivect,jvect,jloc,ikeep,iw,w,flag,  & 
      &                  derivs) 
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 !  use bnIntegrate_interface, ONLY: derivs
 
   implicit none
@@ -370,7 +370,7 @@ subroutine bn_baderStepMa28(y,dydx,dfdy,nmax,n,xs,htot,nnstep,yout,  &
 
   if (flag .lt. 0) then 
      write(*,*) 'error in ma28bd flag',flag 
-     call Driver_abortFlash('ERROR in return from ma28bd')
+     call Driver_abort('ERROR in return from ma28bd')
   end if
 
 !!  use yout as temporary storage; the first step 
@@ -447,7 +447,7 @@ subroutine bn_baderGift(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, &
      &                       derivs,jakob,bjakob)
 
   use Burn_data, ONLY: aion
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   !  Ummm.... bit of a mystery why I can use the interfaces in bn_netIntRosen but not here.
   use bnIntegrate_interface, ONLY: bn_baderStepGift, bn_pzExtr
 
@@ -577,7 +577,7 @@ subroutine bn_baderGift(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, &
 111        format(1x,3e11.3,i6)
         enddo
 
-        call Driver_abortFlash('ERROR in baderGift: stepsize too small')
+        call Driver_abort('ERROR in baderGift: stepsize too small')
      end if
 
    !!  the semi implicit midpoint rules for this sequence

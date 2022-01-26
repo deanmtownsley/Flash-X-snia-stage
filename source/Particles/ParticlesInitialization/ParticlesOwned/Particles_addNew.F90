@@ -61,7 +61,7 @@ subroutine Particles_addNew (count, pos, success)
 #include "constants.h"
 #include "Simulation.h"
 #include "Particles.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer, INTENT(in) :: count
   real, optional, dimension(MDIM,count), intent(IN)::pos

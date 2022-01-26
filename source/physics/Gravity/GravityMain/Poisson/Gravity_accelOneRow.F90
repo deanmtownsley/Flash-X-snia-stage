@@ -150,7 +150,7 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   endif
 !!$  if ((potVar .ne. GPOT_VAR) .and. (potVar .ne. GPOL_VAR)) then
 !!$     print *, "Gravity_accelOneRow called with neither GPOT_VAR nor GPOL_VAR."
-!!$     call Driver_abortFlash("Gravity_accelOneRow called with neither GPOT_VAR nor GPOL_VAR.")
+!!$     call Driver_abort("Gravity_accelOneRow called with neither GPOT_VAR nor GPOL_VAR.")
 !!$  endif
 
   grav(lo:hi) = 0.0

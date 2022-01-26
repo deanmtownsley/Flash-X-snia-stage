@@ -37,7 +37,7 @@ subroutine pt_assignWeights(fineCoarseBdry,h,wx,wy,wz)
 
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   logical,intent(IN) :: fineCoarseBdry

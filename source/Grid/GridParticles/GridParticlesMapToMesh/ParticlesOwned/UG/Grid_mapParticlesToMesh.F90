@@ -69,12 +69,12 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   use Grid_data, ONLY :  gr_axisNumProcs, gr_meshMe
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Logfile_interface, ONLY: Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptInterface, ONLY : gr_ptApplyBCsOneBlk,gr_ptExchangePartialMap
 
   implicit none
  
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,intent(IN) :: numParticles, part_props,maxParticlesPerProc
   real,dimension(part_props,maxParticlesPerProc),intent(INOUT) :: particles

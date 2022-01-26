@@ -43,7 +43,7 @@
 
 subroutine IO_initRPsFromCheckpoint( filename, ierr)
   use RuntimeParameters_interface, ONLY : RuntimeParameters_set, RuntimeParameters_add
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use IO_data, ONLY : io_baseName, io_checkpointFileNumber, &
        io_maxParms, &
        io_realParmNames, io_realParmValues, io_numRealParms, &
@@ -163,7 +163,7 @@ subroutine IO_initRPsFromCheckpoint( filename, ierr)
         else if (io_logToIntParmValues(i) == -1) then   
            !!This was a dummy value do nothing
         else
-           call Driver_abortFlash("Error reading LogParmValues")
+           call Driver_abort("Error reading LogParmValues")
         end if
 
      end do

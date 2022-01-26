@@ -40,7 +40,7 @@ subroutine gr_ptParticleAtFcBdry(partID, fcBdry)
   use tree, ONLY : lnblocks, nodetype
   use Particles_data, ONLY : particles
   use gr_ptMapData, ONLY : gr_ptDomain, gr_ptSmearLen
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer, intent(IN) :: partID
@@ -78,7 +78,7 @@ subroutine gr_ptParticleAtFcBdry(partID, fcBdry)
   end do
 
   if (blockIDMatch.eqv..false.) then
-     call Driver_abortFlash("gr_ptParticleAtFcBdry error. block ID not found!!!!")
+     call Driver_abort("gr_ptParticleAtFcBdry error. block ID not found!!!!")
   end if
 
 

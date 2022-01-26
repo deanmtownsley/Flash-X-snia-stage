@@ -75,6 +75,6 @@ void FTOC(io_xfer_mesh_dataset)(const int * const pMyPE,
 #endif
     } 
   } else {
-    Driver_abortFlashC("[io_xfer_mesh_dataset]: Unknown I/O");
+    Driver_abortC("[io_xfer_mesh_dataset]: Unknown I/O");
   }
 }

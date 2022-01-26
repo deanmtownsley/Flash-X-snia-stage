@@ -53,7 +53,7 @@
 subroutine RuntimeParameters_getPrevReal (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -67,7 +67,7 @@ implicit none
   call nameValueLL_getReal(parameter, name, value, current_val,error)
 
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate previous real runtime parameter.")
+     call Driver_abort("ERROR: cannot locate previous real runtime parameter.")
   end if
 
   return
@@ -79,7 +79,7 @@ end subroutine RuntimeParameters_getPrevReal
 subroutine RuntimeParameters_getPrevInt (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -92,7 +92,7 @@ implicit none
   call nameValueLL_getInt(parameter, name, value, current_val,error)
   
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate previous integer runtime parameter.")
+     call Driver_abort("ERROR: cannot locate previous integer runtime parameter.")
   end if
 
   return
@@ -104,7 +104,7 @@ end subroutine RuntimeParameters_getPrevInt
 subroutine RuntimeParameters_getPrevStr (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -117,7 +117,7 @@ implicit none
   call nameValueLL_getStr(parameter, name, value, current_val, error)
   
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate previous string runtime parameter.")
+     call Driver_abort("ERROR: cannot locate previous string runtime parameter.")
   end if
 
   return
@@ -129,7 +129,7 @@ end subroutine RuntimeParameters_getPrevStr
 subroutine RuntimeParameters_getPrevLog (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -143,7 +143,7 @@ implicit none
   call nameValueLL_getLog(parameter, name, value, current_val, error)
   
   if(error /= NORMAL)then
-    call  Driver_abortFlash("ERROR: cannot locate previous logical runtime parameter.")
+    call  Driver_abort("ERROR: cannot locate previous logical runtime parameter.")
   end if
 
   return

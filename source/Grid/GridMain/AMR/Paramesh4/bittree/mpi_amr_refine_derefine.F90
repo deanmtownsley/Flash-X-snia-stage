@@ -108,7 +108,7 @@
       use Logfile_interface, ONLY:  Logfile_stamp, Logfile_stampMessage 
       Use Paramesh_comm_data, ONLY : amr_mpi_meshComm
       use bittree
-      use Driver_interface, only: Driver_abortFlash
+      use Driver_interface, only: Driver_abort
       use iso_c_binding, only: c_int,c_bool
       
       Implicit None

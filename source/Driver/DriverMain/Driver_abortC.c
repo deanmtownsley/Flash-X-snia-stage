@@ -1,18 +1,18 @@
-/****if* source/Driver/DriverMain/Driver_abortFlashC
+/****if* source/Driver/DriverMain/Driver_abortC
 *
 * NAME
 *
-*  Driver_abortFlashC
+*  Driver_abortC
 *
 * SYNOPSIS
 *
-*  Driver_abortFlashC(char* :: errorMessage)
+*  Driver_abortC(char* :: errorMessage)
 *
 * DESCRIPTION
 *
-*  C specific function that writes an error message int Driver_abortFlashC_myPE;
+*  C specific function that writes an error message int Driver_abortC_myPE;
 
-*  to the logfile and aborts FLASH.
+*  to the logfile and aborts FLASHX.
 *  Attempts to shut down all processes (using MPI_Abort()).
 *  
 *  Use this function to abort the FLASH code from a C routine
@@ -42,15 +42,15 @@
 #include "constants.h"
 #include "mangle_names.h"
 
-int Driver_abortFlashC_myPE;
-int Driver_abortFlashC_abortPause = 0;
+int Driver_abortC_myPE;
+int Driver_abortC_abortPause = 0;
 
-int Driver_abortFlashC(char* message){
+int Driver_abortC(char* message){
 
   int errorcode = 1;
   int ierr, myPE;
 
-  myPE = Driver_abortFlashC_myPE;
+  myPE = Driver_abortC_myPE;
 
   if(myPE == MASTER_PE){
       fflush(stderr);
@@ -63,8 +63,8 @@ int Driver_abortFlashC(char* message){
       fflush(stderr);
   }
 
-  if (Driver_abortFlashC_abortPause > 0) {
-      sleep(Driver_abortFlashC_abortPause);
+  if (Driver_abortC_abortPause > 0) {
+      sleep(Driver_abortC_abortPause);
   }
 
   ierr = MPI_Abort(MPI_COMM_WORLD, errorcode);
@@ -77,11 +77,11 @@ int Driver_abortFlashC(char* message){
 
 }
 
-void FTOC(driver_abortflashc_set_mype)(int* myPE){
-  Driver_abortFlashC_myPE = *myPE;
+void FTOC(driver_abortc_set_mype)(int* myPE){
+  Driver_abortC_myPE = *myPE;
   return;
 }
-void FTOC(driver_abortflashc_set_pause)(int* abortPause){
-  Driver_abortFlashC_abortPause = *abortPause;
+void FTOC(driver_abortc_set_pause)(int* abortPause){
+  Driver_abortC_abortPause = *abortPause;
   return;
 }

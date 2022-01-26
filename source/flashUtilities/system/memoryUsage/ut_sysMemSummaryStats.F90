@@ -65,7 +65,7 @@ subroutine ut_sysMemSummaryStats(comm, verbosity, memorySampler, &
      memsummary, numStats)
   use ut_sysMemInterface, ONLY : ut_sysMemStats
   use ut_sysMemData, ONLY : memsummary_t, meminfo_t
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, intent(IN) :: comm, verbosity, memorySampler
   type(memsummary_t), dimension(:), intent(OUT) :: memsummary
   integer, intent(OUT) :: numStats

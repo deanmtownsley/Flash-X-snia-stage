@@ -56,7 +56,7 @@
 
 
 subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -77,7 +77,7 @@ subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
      write(6,*) 'nterm > np2 in routine mcord'
      write(6,*) 'check np2 dimensioning in calling routine'
      write(6,*) 
-     call Driver_abortFlash('ERROR in bn_mcord: check np2 dimensioning in caller')
+     call Driver_abort('ERROR in bn_mcord: check np2 dimensioning in caller')
      stop
   end if
 
@@ -97,7 +97,7 @@ subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
      write(6,*) 'nzo > np in routine mcord'
      write(6,*) 'check np dimensioning in calling routine'
      write(6,*) 
-     call Driver_abortFlash('ERROR in bn_mcord: check np dimensioning in caller')
+     call Driver_abort('ERROR in bn_mcord: check np dimensioning in caller')
      stop
   end if
   eloc(nterm) = nzo

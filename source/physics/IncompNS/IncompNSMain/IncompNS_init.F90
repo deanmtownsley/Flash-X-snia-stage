@@ -31,7 +31,7 @@ subroutine IncompNS_init(restart)
   use IncompNS_data
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Driver_interface,            ONLY : Driver_getMype, Driver_getNumProcs, &
-                                          Driver_getComm, Driver_getNstep, Driver_abortFlash
+                                          Driver_getComm, Driver_getNstep, Driver_abort
   use ins_interface,               ONLY : ins_init
 
   implicit none

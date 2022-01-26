@@ -46,7 +46,7 @@ subroutine RuntimeParameters_init( restart)
     RuntimeParameters_get, RuntimeParameters_set, RuntimeParameters_bcast
   use Driver_interface, ONLY : Driver_getMype, Driver_getComm
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
 

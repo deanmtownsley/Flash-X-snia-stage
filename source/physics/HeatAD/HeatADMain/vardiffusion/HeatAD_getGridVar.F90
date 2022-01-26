@@ -10,7 +10,7 @@ subroutine HeatAD_getGridVar(name, value)
 
 #include"Simulation.h"
 
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -26,7 +26,7 @@ subroutine HeatAD_getGridVar(name, value)
      case default
        value = -1
        print *,"Error in setting grid var: ",name 
-       call Driver_abortFlash("HeatAD_getGridVar: Unknown HeatAD Grid Variable")
+       call Driver_abort("HeatAD_getGridVar: Unknown HeatAD Grid Variable")
   end select  
 
   return

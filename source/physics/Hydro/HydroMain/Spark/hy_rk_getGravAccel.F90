@@ -38,7 +38,7 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "Simulation.h"
@@ -84,7 +84,7 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
 #else
 #ifdef OMP_OL
         ! We have not implemented the gravity function on the GPU so for now this option is not allowed
-        call Driver_abortFlash("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
+        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
 #endif /* OMP_OL */
         ! For time-independent gravity, just call the regular Gravity routine.
         !! call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&

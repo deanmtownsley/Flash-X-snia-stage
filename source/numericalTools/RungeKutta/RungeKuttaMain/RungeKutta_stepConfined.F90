@@ -115,7 +115,7 @@ subroutine RungeKutta_stepConfined (method,                      &
 
   use rk_interface,      ONLY : rk_stepEAC
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -172,11 +172,11 @@ subroutine RungeKutta_stepConfined (method,                      &
   n = size (y)
 
   if (n > m) then
-      call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: too many dependent variables!')
+      call Driver_abort ('[RungeKutta_stepConfined] ERROR: too many dependent variables!')
   end if
 
   if (nc > n) then
-      call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: too many confined variables!')
+      call Driver_abort ('[RungeKutta_stepConfined] ERROR: too many confined variables!')
   end if
 !
 !
@@ -240,7 +240,7 @@ subroutine RungeKutta_stepConfined (method,                      &
     call rk_stepEAC (f,n,nc,6,x,y,ymin,ymax,eMin,ePower,eFrac,eBase,htry,   hused,hnext,yout,eout)
 
   case default
-        call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: unknown RK method')
+        call Driver_abort ('[RungeKutta_stepConfined] ERROR: unknown RK method')
   end select
 !
 !

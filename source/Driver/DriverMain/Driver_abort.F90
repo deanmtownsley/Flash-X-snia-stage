@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/Driver_abortFlash
+!!****if* source/Driver/DriverMain/Driver_abort
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,18 +10,18 @@
 !!
 !! NAME
 !!
-!!  Driver_abortFlash
+!!  Driver_abort
 !!
 !! SYNOPSIS
 !!
-!!  Driver_abortFlash(character(len=*)(IN) :: errorMessage)
+!!  Driver_abort(character(len=*)(IN) :: errorMessage)
 !!
 !! DESCRIPTION
 !!
 !!  Write an error message to the logfile and abort FLASH.
 !!  Attempts to shut down all processes (using MPI_Abort()).
-!!  If you wish to call Driver_abortFlash from a 'c' routine
-!!  use the API function Driver_abortFlashC
+!!  If you wish to call Driver_abort from a 'c' routine
+!!  use the API function Driver_abortC
 !!
 !!
 !! ARGUMENTS
@@ -31,13 +31,13 @@
 !!
 !!***
 
-subroutine Driver_abortFlash (errorMessage)
+subroutine Driver_abort (errorMessage)
   
   use Driver_data, ONLY : dr_globalMe,dr_globalComm, dr_eachProcWritesOwnAbortLog, &
        dr_abortPause
   use Logfile_interface, ONLY : Logfile_stampMessage, Logfile_stamp, Logfile_open, Logfile_close, &
        Logfile_getDateTimeStr
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"          
 #include "Simulation.h"
 
@@ -116,4 +116,4 @@ subroutine Driver_abortFlash (errorMessage)
   stop            ! should not make it here
 
   return
-end subroutine Driver_abortFlash
+end subroutine Driver_abort

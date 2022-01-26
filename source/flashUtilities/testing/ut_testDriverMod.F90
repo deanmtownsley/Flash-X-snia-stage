@@ -71,10 +71,10 @@ module ut_testDriverMod
 contains
 
     subroutine start_test_run()
-        use Driver_Interface, ONLY : Driver_abortFlash
+        use Driver_Interface, ONLY : Driver_abort
 
         if (is_testing) then
-            call Driver_abortFlash("[start_test_run] Already testing")
+            call Driver_abort("[start_test_run] Already testing")
         end if
 
         is_testing = .TRUE.
@@ -85,7 +85,7 @@ contains
 
     subroutine finish_test_run
         use Driver_data,      ONLY : dr_globalMe
-        use Driver_Interface, ONLY : Driver_abortFlash
+        use Driver_Interface, ONLY : Driver_abort
 
         real :: my_t_end
         real :: my_walltime
@@ -97,7 +97,7 @@ contains
         character(MAX_STRING_LENGTH) :: fileName
 
         if (.NOT. is_testing) then
-            call Driver_abortFlash("[finish_test_run] Not testing yet")
+            call Driver_abort("[finish_test_run] Not testing yet")
         end if
 
         is_testing = .FALSE.

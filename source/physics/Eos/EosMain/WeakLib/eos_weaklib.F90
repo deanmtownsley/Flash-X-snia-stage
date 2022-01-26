@@ -27,7 +27,7 @@
 !!***
 SUBROUTINE eos_weaklib(mode,vecLen,eosData,massFrac,mask)
 
-  USE Driver_interface, ONLY : Driver_abortFlash
+  USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
 
   IMPLICIT NONE
@@ -74,7 +74,7 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,massFrac,mask)
     CASE(MODE_DENS_PRES)
        xMode = 4
     CASE default
-       CALL Driver_abortFlash&
+       CALL Driver_abort&
                ('[Eos] Error: unsupported mode for Nuclear Eos')
   END SELECT
 
@@ -99,7 +99,7 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,massFrac,mask)
   IF( MAXVAL(xDens) < TINY(1.d0) ) THEN
     PRINT*, ' eos_weaklib.F90 line 90 : xDens = zero '
     PRINT*, ' MAXVAL(xDens) ', MAXVAL(xDens), 'MINVAL(xDens) ',MINVAL(xDens) 
-    CALL Driver_abortFlash("[EOS] problem with weaklib EOS")
+    CALL Driver_abort("[EOS] problem with weaklib EOS")
   END IF
 
   CALL eos_weaklib_short&
@@ -108,13 +108,13 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,massFrac,mask)
 
       IF (err /= 0) THEN
         PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
-        CALL Driver_abortFlash("[EOS] problem with weaklib EOS")
+        CALL Driver_abort("[EOS] problem with weaklib EOS")
       ENDIF
 
 !!$  IF( MINVAL(xEner) < TINY(1.d0) ) THEN
 !!$    PRINT*, ' eos_weaklib.F90 line 118 : xEner = zero '
 !!$    PRINT*, ' MAXVAL(xEner) ', MAXVAL(xEner), 'MINVAL(xEner) ',MINVAL(xEner)
-!!$    CALL Driver_abortFlash("[EOS] problem with weaklib EOS")
+!!$    CALL Driver_abort("[EOS] problem with weaklib EOS")
 !!$  END IF
  
       eosData(dens+1:dens+vecLen) = xDens

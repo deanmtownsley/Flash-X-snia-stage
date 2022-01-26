@@ -107,7 +107,7 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
   use gr_specificData, ONLY:  gr_oneBlock
   use tree, ONLY: bnd_box, laddress, strt_buffer, last_buffer, lnblocks, lrefine, lrefine_max
   use Grid_interface, ONLY : Grid_getCellCoords
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
 
 #include "constants.h"
@@ -150,7 +150,7 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
         iblk = iblk+1
      enddo
      if(.not.lfound) then
-        call Driver_abortFlash('Paramesh error: gr_extendedGetCellCoords: '// & 
+        call Driver_abort('Paramesh error: gr_extendedGetCellCoords: '// & 
              &      ' remote block is not in list received on this pe')
      endif
   endif
@@ -185,22 +185,22 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
   if (edge==FACES) calcSize = calcSize+1
   print*,' get coordinates', axis, blockID, edge, guardcell,size
   if((blockID<1).or.(blockID>MAXBLOCKS)) then
-     call Driver_abortFlash("gr_extendedGetCellCoords :invalid blockID ")
+     call Driver_abort("gr_extendedGetCellCoords :invalid blockID ")
   end if
   if(.not.((edge==LEFT_EDGE).or.(edge==RIGHT_EDGE).or.&
        &(edge==CENTER) .or. (edge==FACES))) then
-     call Driver_abortFlash("Get Coords : invalid edge specification, must be CENTER, &
+     call Driver_abort("Get Coords : invalid edge specification, must be CENTER, &
           LEFT_EDGE, RIGHT_EDGE, or FACES")
   end if
 
 !!!  This can be refined further to make it geometry specific
 
   if(.not.((axis==IAXIS).or.(axis==JAXIS).or.(axis==KAXIS))) then
-     call Driver_abortFlash("Get Coords : invalid axis, must be IAXIS, JAXIS or KAXIS ")
+     call Driver_abort("Get Coords : invalid axis, must be IAXIS, JAXIS or KAXIS ")
   end if
   
   if(size < calcSize)then
-     call Driver_abortFlash("Get Coords : size of output array too small")
+     call Driver_abort("Get Coords : size of output array too small")
   end if
 #endif
 
@@ -265,7 +265,7 @@ subroutine gr_extendedGetCellCoords(axis, tileDesc, pe, edge, guardcell, coordin
                    &',(domain_left + gr_delta(axis,lrefine_max)*indCenter),&
                    coordDeviation,spacing(coordinates(j-boffset))
               if (abs(coordDeviation) .GT. spacing(coordinates(j-boffset))) &
-                   call Driver_abortFlash &
+                   call Driver_abort &
                    &('[gr_extendedGetCellCoords] Two ways to calculate cell coordinates give significantly different answers!')
            end if
         endif

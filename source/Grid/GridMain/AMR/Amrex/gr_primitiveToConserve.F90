@@ -72,7 +72,7 @@
 subroutine gr_primitiveToConserve(lo, hi, &
                                   d, dlo, dhi, nd, &
                                   scomp, ncomp)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data,        ONLY : gr_vartypes
 
   implicit none
@@ -93,7 +93,7 @@ subroutine gr_primitiveToConserve(lo, hi, &
 
 #ifdef DENS_VAR
   if (gr_vartypes(DENS_VAR) == VARTYPE_PER_MASS) then
-    call Driver_abortFlash('[gr_primitiveToConserve] density is PER_MASS')
+    call Driver_abort('[gr_primitiveToConserve] density is PER_MASS')
   end if
 
   ! Zero density is non-physical for FLASH simulations and is 
@@ -106,7 +106,7 @@ subroutine gr_primitiveToConserve(lo, hi, &
     do   j = lo(JAXIS), hi(JAXIS) 
       do i = lo(IAXIS), hi(IAXIS)
         if (d(i,j,k,DENS_VAR) == 0.0) then
-          call Driver_abortFlash("[gr_primitiveToConserve] Density is zero")
+          call Driver_abort("[gr_primitiveToConserve] Density is zero")
         end if
       end do
     end do

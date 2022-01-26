@@ -36,7 +36,7 @@ subroutine Pipeline_init ()
   use Pipeline_data
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
 
 #include "Simulation.h"
 #include "constants.h"

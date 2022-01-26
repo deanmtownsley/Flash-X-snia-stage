@@ -26,7 +26,7 @@
 !!  number of particles allowed in any MPI task given by runtime
 !!  parameter pr_maxPerProc. In that case, an impementation of this
 !!  interface may:
-!!    o abort the simulation (by calling Driver_abortFlash); or
+!!    o abort the simulation (by calling Driver_abort); or
 !!    o return with success set to FALSE.
 !!  If returning with success=FALSE, pt_numLocal may have been
 !!  reset to 0.

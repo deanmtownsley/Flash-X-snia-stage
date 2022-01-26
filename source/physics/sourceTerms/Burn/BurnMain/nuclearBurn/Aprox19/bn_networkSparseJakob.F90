@@ -43,7 +43,7 @@ subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
 
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Burn_dataEOS, ONLY:  btemp
   use Burn_data
@@ -1005,7 +1005,7 @@ subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
   if (nt .ne. nterms) then
      write(6,*) 'nt =',nt,'  nterms =',nterms
      write(6,*) 'error in routine bn_networkSparseJakob: nt .ne. nterms'
-     call Driver_abortFlash('ERROR in bn_networkSparseJakob: nt /= nterms')
+     call Driver_abort('ERROR in bn_networkSparseJakob: nt /= nterms')
   end if
   return
 end subroutine bn_networkSparseJakob

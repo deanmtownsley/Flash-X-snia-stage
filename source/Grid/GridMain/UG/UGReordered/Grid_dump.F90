@@ -66,7 +66,7 @@ subroutine Grid_dump(var,num,blockID,gcell)
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer, intent(IN) :: num, blockID
   integer, dimension(num), intent(IN) :: var

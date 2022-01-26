@@ -107,7 +107,7 @@ subroutine io_writeData(fileID)
   
   implicit none
   
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"

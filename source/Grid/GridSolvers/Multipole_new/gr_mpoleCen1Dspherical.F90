@@ -35,7 +35,7 @@
 !!REORDER(4): solnData
 
 subroutine gr_mpoleCen1Dspherical (idensvar)
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Grid_data,         ONLY : gr_meshMe,   &
                                 gr_meshComm
 
@@ -52,7 +52,7 @@ subroutine gr_mpoleCen1Dspherical (idensvar)
   use Grid_tile,         ONLY : Grid_tile_t
   use Grid_iterator,     ONLY : Grid_iterator_t
 
-#include "Flash_mpi_implicitNone.fh"  
+#include "Flashx_mpi_implicitNone.fh"  
 #include "Simulation.h"
 #include "constants.h"
 #include "gr_mpole.h"
@@ -160,7 +160,7 @@ subroutine gr_mpoleCen1Dspherical (idensvar)
   gr_mpoleTotalMass = totalMsum
      
   if (abs (gr_mpoleTotalMass) < tiny (gr_mpoleTotalMass)) then
-      call Driver_abortFlash ('[gr_mpoleCen1Dspherical] ERROR:  gr_mpoleTotalMass <= 0')
+      call Driver_abort ('[gr_mpoleCen1Dspherical] ERROR:  gr_mpoleTotalMass <= 0')
   end if
 !
 !

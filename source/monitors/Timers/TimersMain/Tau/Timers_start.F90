@@ -64,14 +64,14 @@ end subroutine Timers_startString
 
 subroutine Timers_startIndex (i)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_data, ONLY : tmr_freeSlot, tmr_tauList, tmr_globalMe
 
   implicit none
   integer, intent(in) :: i
 
   if ( (i < 1) .or. (i > tmr_freeSlot) ) then
-     call Driver_abortFlash("[Timer_startIndex]: Timer index not valid!")
+     call Driver_abort("[Timer_startIndex]: Timer index not valid!")
   end if
 
 

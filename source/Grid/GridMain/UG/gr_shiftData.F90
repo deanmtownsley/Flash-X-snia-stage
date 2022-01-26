@@ -62,7 +62,7 @@ subroutine gr_shiftData(comm, dataType, sendRight, sendLeft, &
 
   use physicalData, ONLY : unk, facevarx, facevary, facevarz
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 #include "Simulation.h"
 

@@ -220,7 +220,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_bcInterface, ONLY : gr_bcMapBcType
   use Grid_interface, ONLY : Grid_getGeometry
   use Grid_data, ONLY : gr_dirGeom, &
@@ -478,7 +478,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(AXISYMMETRIC)
-              if (geometry == CARTESIAN) call Driver_abortFlash("AXISYMMETRIC boundary only works with curvilinear coordinates")
+              if (geometry == CARTESIAN) call Driver_abort("AXISYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -486,7 +486,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(EQTSYMMETRIC)
-              if (geometry == CARTESIAN) call Driver_abortFlash("EQTSYMMETRIC boundary only works with curvilinear coordinates")
+              if (geometry == CARTESIAN) call Driver_abort("EQTSYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -557,7 +557,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
            case default
 !!              print*,'boundary is',bcType
-!!              call Driver_abortFlash("unsupported boundary condition on Lower Face")
+!!              call Driver_abort("unsupported boundary condition on Lower Face")
            end select
            
         else  !(face==HIGH)
@@ -571,7 +571,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(AXISYMMETRIC)
-              if (geometry == CARTESIAN) call Driver_abortFlash("AXISYMMETRIC boundary only works with curvilinear coordinates")
+              if (geometry == CARTESIAN) call Driver_abort("AXISYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -579,7 +579,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(EQTSYMMETRIC)
-              if (geometry == CARTESIAN) call Driver_abortFlash("EQTSYMMETRIC boundary only works with curvilinear coordinates")
+              if (geometry == CARTESIAN) call Driver_abort("EQTSYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -661,7 +661,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
            case default
 !!              print*,'boundary is',bcType
-!!              call Driver_abortFlash("unsupported boundary condition on Upper Face")
+!!              call Driver_abort("unsupported boundary condition on Upper Face")
            end select
         end if
      end if

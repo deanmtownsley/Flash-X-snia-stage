@@ -23,5 +23,5 @@
 #else
 #define FTOC(x) x##_
 #endif
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 void free(void *ptr);

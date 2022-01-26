@@ -1,12 +1,12 @@
-/****f* source/Driver/Driver_abortFlashC
+/****f* source/Driver/Driver_abortC
 *
 * NAME
 *
-*  Driver_abortFlashC
+*  Driver_abortC
 *
 * SYNOPSIS
 *
-*  Driver_abortFlashC(char* :: errorMessage)
+*  Driver_abortC(char* :: errorMessage)
 *
 * DESCRIPTION
 *
@@ -39,7 +39,7 @@
 #include "mpi.h"
 #include "constants.h"
 
-int Driver_abortFlashC(char* message){
+int Driver_abortC(char* message){
 
 
   int ierr;

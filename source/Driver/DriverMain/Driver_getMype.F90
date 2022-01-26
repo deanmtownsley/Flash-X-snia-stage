@@ -46,7 +46,7 @@ subroutine Driver_getMype(communicatorType, mype, axis)
 
   use Driver_data, ONLY : dr_meshMe, dr_meshAcrossMe, dr_globalMe,&
        dr_axisMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -68,7 +68,7 @@ subroutine Driver_getMype(communicatorType, mype, axis)
      if(alright) then
         mype=dr_axisMe(axis)
      else
-        call Driver_abortFlash("Driver_getMype : for directional comm, a valid axis value is needed")
+        call Driver_abort("Driver_getMype : for directional comm, a valid axis value is needed")
      end if
   end select
 end subroutine Driver_getMype

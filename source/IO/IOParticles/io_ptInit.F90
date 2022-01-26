@@ -39,7 +39,7 @@ subroutine io_ptInit()
 
   use IOParticles_data
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use IO_data, ONLY : io_restart, io_summaryOutputOnly
   use IO_interface, ONLY : IO_getPrevScalar
@@ -68,15 +68,15 @@ subroutine io_ptInit()
  
   if(io_restart) then
      call IO_getPrevScalar("nstep", step, error)
-     if (error /= NORMAL) call Driver_abortFlash("ERROR: Can't find nstep.")
+     if (error /= NORMAL) call Driver_abort("ERROR: Can't find nstep.")
      call IO_getPrevScalar("time", simTime, error)
-     if (error /= NORMAL) call Driver_abortFlash("ERROR: Can't find time.")
+     if (error /= NORMAL) call Driver_abort("ERROR: Can't find time.")
      call IO_getPrevScalar('nextParticleFileZ', io_nextParticleFileZ, error)
      if(error /= NORMAL) then
         if(error == NOTFOUND) then
            io_nextParticleFileZ = HUGE(1.)
         else
-           call Driver_abortFlash("ERROR: Error in looking up nextParticleFileZ scalar!")
+           call Driver_abort("ERROR: Error in looking up nextParticleFileZ scalar!")
         end if
      end if
      call IO_getPrevScalar('nextParticleFileTime', io_nextParticleFileTime, error)
@@ -90,7 +90,7 @@ subroutine io_ptInit()
               io_nextParticleFileTime = 0.e0
            endif
         else
-           call Driver_abortFlash("ERROR: Error in looking up nextParticleFileTime scalar!")
+           call Driver_abort("ERROR: Error in looking up nextParticleFileTime scalar!")
         end if
      end if
   else

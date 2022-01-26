@@ -101,7 +101,7 @@
 
 subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_data, ONLY : eos_mapLookup, eos_meshMe
 
@@ -181,7 +181,7 @@ subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
         write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
      endif
      call Logfile_stampMessage('[Eos_putData] ERROR Density or Internal Energy are zero after a call to EOS!')
-     call Driver_abortFlash('[Eos_putData] ERROR Density or Internal Energy are zero after a call to EOS!')
+     call Driver_abort('[Eos_putData] ERROR Density or Internal Energy are zero after a call to EOS!')
   end if
   deallocate(iFlag)
 #endif
@@ -198,7 +198,7 @@ subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
   entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,gridDataStruct)
 
   if(gridDataStruct == SCRATCH) then
-     call Driver_abortFlash("Eos_getData : the use of SCRATCH is deprecated")
+     call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
   end if
   
   n=0
@@ -226,7 +226,7 @@ end subroutine Eos_putData
 ! For testing: a variant of Eos_putData where eosData is declard as an array of rank 2.
 subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage
   use Eos_data, ONLY : eos_mapLookup, eos_meshMe
 
@@ -292,7 +292,7 @@ subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
         write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
      endif
      call Logfile_stampMessage('[Eos_putDataR2] ERROR Density or Internal Energy are zero after a call to EOS!')
-     call Driver_abortFlash('[Eos_putDataR2] ERROR Density or Internal Energy are zero after a call to EOS!')
+     call Driver_abort('[Eos_putDataR2] ERROR Density or Internal Energy are zero after a call to EOS!')
   end if
   deallocate(iFlag)
 #endif
@@ -309,7 +309,7 @@ subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
   entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,gridDataStruct)
 
   if(gridDataStruct == SCRATCH) then
-     call Driver_abortFlash("Eos_getData : the use of SCRATCH is deprecated")
+     call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
   end if
 
   n=0

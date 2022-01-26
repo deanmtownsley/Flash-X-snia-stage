@@ -201,7 +201,7 @@
 
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
     Multispecies_getSumFrac
   use Logfile_interface, ONLY:  Logfile_stampMessage
@@ -251,7 +251,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
   !  if you are working with electron abundance mass scalars, then you don't
   !  necessarily have to have mass fractions.
   if(.not.present(massFrac)) then
-     call Driver_abortFlash("[Eos] Helmholtz needs mass fractions")
+     call Driver_abort("[Eos] Helmholtz needs mass fractions")
   end if
 
    ! warn user if mask is used. Helmholtz EOS doesn't use it
@@ -277,11 +277,11 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
 #ifdef DEBUG_EOS
   if (ilo < 1 .OR. ilo > vecLen) then
      print*,'[Eos vectorBased] ilo is',ilo
-     call Driver_abortFlash("[Eos vectorBased] invalid ilo")
+     call Driver_abort("[Eos vectorBased] invalid ilo")
   end if
   if (ihi < 1 .OR. ihi > vecLen) then
      print*,'[Eos vectorBased] ihi is',ihi
-     call Driver_abortFlash("[Eos vectorBased] invalid ihi")
+     call Driver_abort("[Eos vectorBased] invalid ihi")
   end if
 #endif
 
@@ -436,7 +436,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
         write(*,*) ' temp = ', tempRow(k)
         write(*,*) ' dens = ', denRow(k)
         write(*,*) ' pres = ', ptotRow(k)
-        call Driver_abortFlash('[Eos] Error: too many iterations in Helmholtz Eos')
+        call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
 
 
         ! Land here if the Newton iteration converged
@@ -545,7 +545,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
      write(*,*) ' dens = ', denRow(k)
      write(*,*) ' pres = ', ptotRow(k)
 
-     call Driver_abortFlash('[Eos] Error: too many iteration in Eos')
+     call Driver_abort('[Eos] Error: too many iteration in Eos')
 
      ! Land here if the Newton iteration converged
 
@@ -573,7 +573,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
      ! Unknown EOS mode selected
 
   else
-     call Driver_abortFlash('[Eos] Error: unknown input in routine eos')
+     call Driver_abort('[Eos] Error: unknown input in routine eos')
   end if
 
   ! Get the optional values
@@ -624,7 +624,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
      
@@ -633,7 +633,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd)
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
   end if

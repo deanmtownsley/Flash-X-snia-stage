@@ -53,7 +53,7 @@ subroutine gr_markDerefineByLogRadius(xc, yc, zc)
 
 !-------------------------------------------------------------------------------
   use tree, ONLY : refine, derefine, lrefine, bsize, coord, lnblocks, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_geometry, gr_lrefineMaxRedRadiusSq
 #include "constants.h"
 #include "Simulation.h"
@@ -72,7 +72,7 @@ subroutine gr_markDerefineByLogRadius(xc, yc, zc)
   real :: bxl, bxr 
 
   if((NDIM == 3).and.(gr_geometry == CYLINDRICAL)) then
-     call Driver_abortFlash("gr_markDerefineByLogRadius: 3D Cylindrical not supported")
+     call Driver_abort("gr_markDerefineByLogRadius: 3D Cylindrical not supported")
   end if
 
   if((gr_geometry == CARTESIAN).or.(gr_geometry == CYLINDRICAL)) then
@@ -167,7 +167,7 @@ subroutine gr_markDerefineByLogRadius(xc, yc, zc)
      end do
 
   else
-     call Driver_abortFlash("MarkRefine: geometry spec is wrong")
+     call Driver_abort("MarkRefine: geometry spec is wrong")
      !-------------------------------------------------------------------------------
   end if
   return

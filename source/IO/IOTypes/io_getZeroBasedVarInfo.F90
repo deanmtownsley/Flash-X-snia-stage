@@ -56,7 +56,7 @@
 subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
      numOutputGridVars, gridVarOffsets, gridVarLabels)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use IO_data, ONLY : io_unkLabels, io_faceXVarLabels, io_faceYVarLabels, &
        io_faceZVarLabels, io_scratchGridVarlabels, io_nPlotVars, &
        io_nPlotGridVars, io_plotVar, io_plotGridVar, io_unkLabelsGlobal, io_plotVarStr
@@ -154,7 +154,7 @@ subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
 
 
      case DEFAULT
-        call Driver_abortFlash ("Checkpoint file data structure not recognised")
+        call Driver_abort ("Checkpoint file data structure not recognised")
      end select
 
 
@@ -218,12 +218,12 @@ subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
       
   
      case DEFAULT
-        call Driver_abortFlash("Plot file data structure not recognised")
+        call Driver_abort("Plot file data structure not recognised")
      end select
 
 
   case DEFAULT
-     call Driver_abortFlash("File type not recognised")
+     call Driver_abort("File type not recognised")
   end select
 
 end subroutine io_getZeroBasedVarInfo

@@ -28,7 +28,7 @@
 
 subroutine sim_setx2PolynomialExactRoots ()
 
-  use  Driver_interface, ONLY: Driver_abortFlash
+  use  Driver_interface, ONLY: Driver_abort
 
   use  Simulation_data,  ONLY: sim_LPN,                   &
                                sim_numberOfx2Polynomials, &
@@ -46,7 +46,7 @@ subroutine sim_setx2PolynomialExactRoots ()
 !
 !
   if (sim_numberOfx2Polynomials > 16) then
-      call Driver_abortFlash ('[sim_setx2PolynomialExactRoots] ERROR: Not enough storage for exact roots!')
+      call Driver_abort ('[sim_setx2PolynomialExactRoots] ERROR: Not enough storage for exact roots!')
   end if
 !
 !

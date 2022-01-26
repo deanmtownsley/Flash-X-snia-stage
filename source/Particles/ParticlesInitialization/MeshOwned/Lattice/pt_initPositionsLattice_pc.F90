@@ -50,7 +50,7 @@ subroutine pt_initPositionsLattice_pc (ind, tileDesc,success)
        pt_xmin, pt_ymin, pt_zmin,pt_xmax, pt_ymax, pt_zmax,&
        pt_containers, &
        pt_posAttrib,pt_velNumAttrib, pt_velAttrib,pt_typeInfo, pt_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
        
   use Particles_data, ONLY : pt_numX, pt_numY, pt_numZ,&
        pt_initialZMin, pt_initialZMax, &

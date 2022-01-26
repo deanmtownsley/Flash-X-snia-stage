@@ -66,7 +66,7 @@ subroutine Grid_ascGetBlkPtr(blockID,dataPtr, gridDataStruct)
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_ascModule, ONLY : gr_ascArrayScratch,gr_ascArrayCenter,gr_ascArrayScratch_ctr,&
        gr_ascArrayScratch_facevarx,gr_ascArrayScratch_facevary,gr_ascArrayScratch_facevarz, &
        gr_ascArrayFacevarx,gr_ascArrayFacevary,gr_ascArrayFacevarz, &
@@ -106,12 +106,12 @@ subroutine Grid_ascGetBlkPtr(blockID,dataPtr, gridDataStruct)
         print *, "Grid_ascGetBlkPtr: gridDataStruct set to improper value"
         print *, "gridDataStruct must = SCRATCH_CTR,SCRATCH_FACEX,_FACEY,_FACEZ," // &
              "or SCRATCH, etc. (defined in constants.h)"
-        call Driver_abortFlash("gridDataStruct must be SCRATCH or SCRATCH_*, etc. (see constants.h)")
+        call Driver_abort("gridDataStruct must be SCRATCH or SCRATCH_*, etc. (see constants.h)")
      end if
   end if
   if((blockid<1).or.(blockid>MAXBLOCKS)) then
      print *, 'Grid_ascGetBlkPtr:  invalid blockid ',blockid
-     call Driver_abortFlash("[Grid_ascGetBlkPtr] invalid blockid ")
+     call Driver_abort("[Grid_ascGetBlkPtr] invalid blockid ")
   end if
 #endif
 
@@ -125,7 +125,7 @@ subroutine Grid_ascGetBlkPtr(blockID,dataPtr, gridDataStruct)
 #ifdef DEBUG_GRID
   if (.NOT.(leafNo > 0 .AND. leafNo .LE. MAXBLOCKS)) then
      print*, "Grid_ascGetBlkPtr: blockID",blockID," -> invalid leafNo",leafNo
-     call Driver_abortFlash("Grid_ascGetBlkPtr: invalid leafNo!")
+     call Driver_abort("Grid_ascGetBlkPtr: invalid leafNo!")
   end if
 #endif
 
@@ -181,7 +181,7 @@ subroutine Grid_ascGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_ascModule, ONLY : gr_ascArray5Center, &
        gr_ascArray5Scratch_ctr, &
        bIdToLeafNo
@@ -210,12 +210,12 @@ subroutine Grid_ascGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
         print *, "Grid_ascGetBlk5Ptr: gridDataStruct set to improper value"
         print *, "gridDataStruct must be CENTER or SCRATCH_CTR," // &
              "or SCRATCH (defined in constants.h)"
-        call Driver_abortFlash("gridDataStruct must be CENTER or SCRATCH_CTR(see constants.h)")
+        call Driver_abort("gridDataStruct must be CENTER or SCRATCH_CTR(see constants.h)")
      end if
   end if
   if((blockid<1).or.(blockid>MAXBLOCKS)) then
      print *, 'Grid_ascGetBlk5Ptr:  invalid blockid ',blockid
-     call Driver_abortFlash("[Grid_ascGetBlk5Ptr] invalid blockid ")
+     call Driver_abort("[Grid_ascGetBlk5Ptr] invalid blockid ")
   end if
 #endif
 
@@ -229,7 +229,7 @@ subroutine Grid_ascGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
 #ifdef DEBUG_GRID
   if (.NOT.(leafNo > 0 .AND. leafNo .LE. MAXBLOCKS)) then
      print*, "Grid_ascGetBlk5Ptr: blockID",blockID," -> invalid leafNo",leafNo
-     call Driver_abortFlash("Grid_ascGetBlk5Ptr: invalid leafNo!")
+     call Driver_abort("Grid_ascGetBlk5Ptr: invalid leafNo!")
   end if
 #endif
 
@@ -243,7 +243,7 @@ subroutine Grid_ascGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
      SETDATA5PTR(gr_ascArray5Scratch_ctr)           
   case DEFAULT
      print *, 'TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.'
-     call Driver_abortFlash('Grid_ascGetBlk5Ptr: TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.')
+     call Driver_abort('Grid_ascGetBlk5Ptr: TRIED TO GET SOMETHING OTHER THAN CENTER OR SCRATCH_CTR. NOT VALID.')
   end select
 
   return

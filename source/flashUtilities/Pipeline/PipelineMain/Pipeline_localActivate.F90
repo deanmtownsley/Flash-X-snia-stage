@@ -48,7 +48,7 @@ subroutine Pipeline_localActivate ()
                                 pl_recvCount,       &
                                 pl_sendCount
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use pl_interface,      ONLY : pl_localPostRecvMsg
 
@@ -56,7 +56,7 @@ subroutine Pipeline_localActivate ()
 
 #include "Simulation.h"
 #include "constants.h"
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   integer :: channel
 !
@@ -65,7 +65,7 @@ subroutine Pipeline_localActivate ()
 !
 !    
   if (.not. pl_pipelineCreated) then
-      call Driver_abortFlash ('[Pipeline_localActivate] ERROR: No pipeline created!')
+      call Driver_abort ('[Pipeline_localActivate] ERROR: No pipeline created!')
   end if
 !
 !
@@ -77,7 +77,7 @@ subroutine Pipeline_localActivate ()
 !
 !    
   if (pl_pipelineActive) then
-      call Driver_abortFlash ('[Pipeline_localActivate] ERROR: Only 1 active pipeline possible!')
+      call Driver_abort ('[Pipeline_localActivate] ERROR: Only 1 active pipeline possible!')
   end if
 !
 !

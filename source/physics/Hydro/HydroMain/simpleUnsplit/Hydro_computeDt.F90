@@ -39,7 +39,7 @@ Subroutine Hydro_computeDt(tileDesc, &
                                hy_pref, hy_vref, hy_meshMe,           &
                                hy_useHydro, hy_updateHydroFluxes,     &
                                hy_useVaryingCFL
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile,        ONLY : Grid_tile_t
   implicit none
 
@@ -262,7 +262,7 @@ Subroutine Hydro_computeDt(tileDesc, &
         enddo
 
      else ! Polar in 3D (that's a no no)
-        call Driver_abortFlash("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
+        call Driver_abort("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
      endif
 
   endif
@@ -298,7 +298,7 @@ Subroutine Hydro_computeDt(tileDesc, &
      end do
   end associate
   !! ---------------------------------------------------------------------------
-  if(dtCheck <= 0.0) call Driver_abortFlash("[Hydro]: Computed dt is not positive! Aborting!")
+  if(dtCheck <= 0.0) call Driver_abort("[Hydro]: Computed dt is not positive! Aborting!")
   return
 
 End Subroutine Hydro_computeDt

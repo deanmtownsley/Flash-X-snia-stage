@@ -33,7 +33,7 @@ subroutine Simulation_init()
                               sim_densMax, sim_tempMax, sim_xnMax, sim_presMax, &
                               sim_initialMass
   use Simulation_data, ONLY : sim_meshMe, sim_debug
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   implicit none
@@ -65,7 +65,7 @@ subroutine Simulation_init()
 ! sim_initialMass must be less than NSPECIES
   call RuntimeParameters_get( 'sim_initialMass', sim_initialMass)
   if (sim_initialMass .GT. NSPECIES)                        &
-       call Driver_abortFlash('[Simulation_init] sim_initialMass must be less than NSPECIES')
+       call Driver_abort('[Simulation_init] sim_initialMass must be less than NSPECIES')
 
 
   call RuntimeParameters_get( 'sim_densMin', sim_densMin)
