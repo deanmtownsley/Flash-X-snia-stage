@@ -85,7 +85,6 @@ subroutine Driver_evolveAll()
   use Gravity_interface,   ONLY : Gravity_potential
   use IO_interface,        ONLY : IO_output,IO_outputFinal
   use RadTrans_interface,  ONLY : RadTrans
-  use Eos_interface,       ONLY : Eos_logDiagnostics
   use Simulation_interface, ONLY: Simulation_adjustEvolution
   use Profiler_interface, ONLY : Profiler_start, Profiler_stop
 
@@ -295,7 +294,6 @@ subroutine Driver_evolveAll()
      call Timers_stop("IO_output")
      endRun = (endRunPl .OR. endRun)
      
-     call Eos_logDiagnostics(.FALSE.)
      
      
      !!*****************************************************************************

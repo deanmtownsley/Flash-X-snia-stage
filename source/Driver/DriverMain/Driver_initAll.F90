@@ -70,7 +70,7 @@ subroutine Driver_initAll()
   use Multispecies_interface, ONLY : Multispecies_init
   use Particles_interface, ONLY : Particles_init,Particles_initData,Particles_initForces
 
-  use Eos_interface, ONLY : Eos_init, Eos_logDiagnostics
+  use Eos_interface, ONLY : Eos_init
   use Hydro_interface, ONLY : Hydro_init
   use Burn_interface, ONLY : Burn_init
   use Simulation_interface, ONLY : Simulation_init, Simulation_freeUserArrays
@@ -221,7 +221,6 @@ subroutine Driver_initAll()
   !!Done with initialization.
   call Timers_stop ("initialization")
 
-  call Eos_logDiagnostics(.TRUE.)
  
   return
 end subroutine Driver_initAll
