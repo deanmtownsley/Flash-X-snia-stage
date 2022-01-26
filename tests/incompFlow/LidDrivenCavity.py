@@ -20,8 +20,7 @@ if __name__ == "__main__":
     # build local image
     image.build()
 
-    # execute commands inside the container
-    # build and run paramesh simulation
+    # Run FlashTest suite inside the container
     container.run(image,'FlashTest -z /home/mount/FlashX -s container \
                                    UnitTest/LidDrivenCavity/AMReX/2d')
 
