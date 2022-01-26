@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getGlobalIndexLimits(integer(OUT) :: globalIndexLimits(MDIM))
+!!  call Grid_getGlobalIndexLimits(integer(OUT) :: globalIndexLimits(MDIM))
 !!  
 !! DESCRIPTION 
 !!  Gets the integer index dimensions of the entire grid 
@@ -44,7 +44,7 @@
 !!   Example 2. Paramesh
 !!   For a 2d problem with block size of (8x8) and 
 !!   maximum refinement level of 3, if the problem was
-!!   initialized with one block then
+!!   initialized with one root block then
 !! 
 !!   globalIndexLimits(IAXIS) = 32
 !!   globalIndexLimits(JAXIS) = 32

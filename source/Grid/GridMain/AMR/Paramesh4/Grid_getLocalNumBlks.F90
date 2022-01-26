@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_getLocalNumBlks
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_getLocalNumBlks
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getLocalNumBlks(integer(OUT) :: numBlocks)
+!!  call Grid_getLocalNumBlks(integer(OUT) :: numBlocks)
 !!  
 !! DESCRIPTION 
 !!  Get the number of local blocks on a processor 
