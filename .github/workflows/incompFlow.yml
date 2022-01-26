@@ -56,4 +56,4 @@ jobs:
         singularity-version: 3.8.3
     - name: Run tests
       run: |   
-          python3 tests/incompFlow/LidDrivenCavity
+          python3 tests/incompFlow/LidDrivenCavity.py
