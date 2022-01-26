@@ -22,7 +22,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
   use eos_localInterface, ONLY : eos_idealGamma, eos_mgamma, eos_helmholtz,&
-      eos_tabulated, eos_nuclear, eos_weaklib
+      eos_weaklib
   implicit none
 #include "constants.h"
 #include "Eos.h"
@@ -52,10 +52,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac, mask=mask)
      case(EOS_HLM)
         call eos_helmholtz(mode, vecLen, eosData, massFrac=massFrac, mask=mask)
-     case(EOS_TAB)
-        call eos_tabulated(mode, vecLen, eosData, massFrac=massFrac, mask=mask)
-     case(EOS_NUC)
-        call eos_nuclear(mode, vecLen, eosData, massFrac, mask=mask)
      case(EOS_WL)
         call eos_weaklib(mode, vecLen, eosData, massFrac, mask)
      case default
@@ -70,10 +66,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac)
      case(EOS_HLM)
         call eos_helmholtz(mode, vecLen, eosData, massFrac=massFrac)
-     case(EOS_TAB)
-        call eos_tabulated(mode, vecLen, eosData, massFrac=massFrac)
-     case(EOS_NUC)
-        call eos_nuclear(mode, vecLen, eosData, massFrac=massFrac)
      case(EOS_WL)
         call eos_weaklib(mode, vecLen, eosData, massFrac)
      case default
@@ -88,10 +80,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, mask=mask)
      case(EOS_HLM)
         call eos_helmholtz(mode, vecLen, eosData, mask=mask)
-     case(EOS_TAB)
-        call eos_tabulated(mode, vecLen, eosData, mask=mask)
-     case(EOS_NUC)
-        call eos_nuclear(mode, vecLen, eosData, mask=mask)
      case(EOS_WL)
         call eos_weaklib(mode, vecLen, eosData, mask=mask)
      case default
@@ -106,10 +94,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
         call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd)
      case(EOS_HLM)
         call eos_helmholtz(mode, vecLen, eosData)
-     case(EOS_TAB)
-        call eos_tabulated(mode, vecLen, eosData)
-     case(EOS_NUC)
-        call eos_nuclear(mode, vecLen, eosData)
      case(EOS_WL)
         call eos_weaklib(mode, vecLen, eosData)
      case default

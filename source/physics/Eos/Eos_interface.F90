@@ -39,12 +39,6 @@ Module Eos_interface
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
        integer,optional,intent(IN) :: gridDataStruct
      end subroutine Eos_wrapped
-     subroutine Eos_wrapped_blkid(mode,range,blockNum,gridDataStruct)
-       integer, intent(in) :: mode
-       integer, dimension(2,MDIM), intent(in) :: range
-       integer,intent(IN) :: blockNum
-       integer,optional,intent(IN) :: gridDataStruct
-     end subroutine Eos_wrapped_blkid
   end interface
 
   interface

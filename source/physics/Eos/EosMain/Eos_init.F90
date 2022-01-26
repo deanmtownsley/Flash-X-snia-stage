@@ -56,8 +56,7 @@ subroutine Eos_init()
   use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz,&
-       eos_initMtemp,eos_initTabulated, eos_initGamma, eos_initNuclear
+  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz, eos_initGamma
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -93,9 +92,6 @@ subroutine Eos_init()
   call eos_initGamma()
   call eos_initMgamma()
   call eos_initHelmholtz()
-  call eos_initMtemp()
-  call eos_initTabulated()
-  call eos_initNuclear()
   call eos_initWeaklib()
 
 
