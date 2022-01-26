@@ -20,28 +20,19 @@
 #-------------------------------------------------------------------------------
 
 # Check environment variables
-# FLASH_BASE        - full path to root of FLASH directory tree
+# FLASH_BASE        - defined inside container environment
 # FLASHTEST_BASE    - defined inside container environment
 # FLASHTEST_SITES   - defined inside container environment
 
-export FLASH_BASE="/home/mount/FlashX"
-export FLASHTEST_BASE="/home/FlashTest"
-export FLASHTEST_SITES="/home/FlashTestSuite/container"
-export LOGNAME="container"
-
-[ -z "$FLASH_BASE" ]      && { echo "Need to set FLASH_BASE";      exit 1; }
-
 # Where to write file to (in Jenkins-accessible workspace)
-FLASHTEST_OUTPUT=$FLASH_BASE/TestResults
-
-export OMP_NUM_THREADS=1
-
 # Build brand-spanking-new version of sfocu
+
+FLASHTEST_OUTPUT=$FLASH_BASE/TestResults
+RESULTS_DIR=$FLASHTEST_OUTPUT
+
 cd $FLASH_BASE/tools/sfocu
 make SITE=container NO_NCDF=True sfocu clean
 make SITE=container NO_NCDF=True sfocu
-
-RESULTS_DIR=$FLASHTEST_OUTPUT
 
 # Run all tests in one execution
 mkdir -pv $FLASHTEST_OUTPUT
