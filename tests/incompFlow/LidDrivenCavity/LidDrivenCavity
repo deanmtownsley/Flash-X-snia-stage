@@ -27,6 +27,8 @@
 # Where to write file to (in Jenkins-accessible workspace)
 # Build brand-spanking-new version of sfocu
 
+export LOGNAME="container"
+
 export FLASHX_BASE="/home/mount/FlashX"
 export FLASHTEST_BASE="/home/FlashTest"
 export FLASHTEST_SITE="/home/FlashTestSuite"
