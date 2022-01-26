@@ -102,59 +102,6 @@
 !!     eos_singleSpeciesA       :  Mass of nucleus for the simulated gas
 !!     eos_singleSpeciesZ       :  Proton number for the simulated gas
 !!
-!! EXAMPLE
-!!
-!!
-!! ------------------ Row at a time example, with derivates (based on Eos_unitTest) --------
-!!
-!!  #include "constants.h"   ! for MODE_DENS_TEMP
-!!  #include "Simulation.h"       ! for NSPECIES, EOS_NUM
-!!  #include "Eos.h"         ! for EOS_VAR order
-!!  integer veclen, isize, jsize, ksize, i,j,k, e
-!!  real, dimension(:), allocatable :: eosData
-!!  real, dimension(:), allocatable :: massFrac
-!!  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
-!!  real, allocatable, dimension(:,:,:,:) :: derivedVariables
-!!  integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
-!!
-!!   ! in the Eos_unitTest, this loops over all blocks.... here is a snippet from inside
-!!
-!!    !  Allocate the necessary arrays for an entire block of data
-!!    isize = (blkLimits(HIGH,IAXIS) - blkLimits(LOW,IAXIS) + 1)
-!!    jsize = (blkLimits(HIGH,JAXIS) - blkLimits(LOW,JAXIS) + 1)
-!!    ksize = (blkLimits(HIGH,KAXIS) - blkLimits(LOW,KAXIS) + 1)
-!!    vecLen=isize
-!!    allocate(derivedVariables(isize,jsize,ksize,EOS_NUM))
-!!    allocate(eosData(vecLen*EOS_NUM))
-!!    allocate(massFrac(vecLen*NSPECIES))
-!!    mask = .true.
-!!
-!!    ! indices into the first location for these variables
-!!    pres = (EOS_PRES-1)*vecLen
-!!    dens = (EOS_DENS-1)*vecLen
-!!    temp = (EOS_TEMP-1)*vecLen
-!!
-!!
-!!    do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-!!        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
-!!           do i = 1,vecLen
-!!              massFrac((i-1)*NSPECIES+1:i*NSPECIES) = &
-!!                   solnData(SPECIES_BEGIN:SPECIES_END,ib+i-1,j,k)
-!!           end do
-!!
-!!           eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
-!!           eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
-!!           ! Eos Helmholtz needs a good initial estimate of temperature no matter what the mode
-!!           eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
-!!
-!!           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
-!!
-!!           do e=EOS_VARS+1,EOS_NUM
-!!              m = (e-1)*vecLen
-!!              derivedVariables(1:vecLen,j-NGUARD,k-NGUARD,e) =  eosData(m+1:m+vecLen)
-!!           end do
-!!        end do
-!!     end do
 !!
 !! NOTES
 !!
@@ -187,6 +134,8 @@
 !!  Eos_wrapped  sets up the data structure.
 !!
 !!***
+
+
 !#ifdef DEBUG_ALL
 #define DEBUG_EOS
 !#endif
