@@ -80,7 +80,7 @@
 subroutine Grid_correctFluxData(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, isFluxDensity)
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
-#include "Simulation.h"
+
 #include "FortranLangFeatures.fh"
   type(Grid_tile_t), intent(in) :: blockDesc
   integer,intent(in) :: lo(3)

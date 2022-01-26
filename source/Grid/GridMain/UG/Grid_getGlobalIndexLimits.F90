@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getGlobalIndexLimits(integer(OUT) :: globalIndexLimits(MDIM))
+!!  call Grid_getGlobalIndexLimits(integer(OUT) :: globalIndexLimits(MDIM))
 !!  
 !!
 !! DESCRIPTION 

@@ -1,4 +1,4 @@
-!!****iff* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Grid_bcApplyToRegionSpecialized
+!!****if* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Grid_bcApplyToRegionSpecialized
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -150,6 +150,7 @@
 !!            all the all-caps token (other than IN and OUT)) are
 !!            defined in constants.h.
 !!
+!!***
 
 subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct, level, &
           guard,axis,face,regionData,regionSize,mask,applied,&

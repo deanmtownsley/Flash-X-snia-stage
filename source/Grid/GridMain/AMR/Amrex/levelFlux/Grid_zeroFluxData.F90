@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/AMR/Amrex/Grid_zeroFluxData
+!!****if* source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_zeroFluxData
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -12,11 +12,16 @@
 !!  Grid_zeroFluxData
 !!
 !! SYNOPSIS
-!!  call Grid_zeroFluxData
+!!  call Grid_zeroFluxData()
 !!
 !! DESCRIPTION 
 !!  Request that the Grid unit zero all flux data managed by the unit.
 !!
+!!  This is only implemented, and should only be used, when the following
+!!  two conditions apply:
+!!  1. The Grid implementation is Amrex;
+!!  2. level-wide fluxes are in use.
+!!  Otherwise, a stub version that does nothing is in effect.
 !!***
 
 #include "Simulation.h"

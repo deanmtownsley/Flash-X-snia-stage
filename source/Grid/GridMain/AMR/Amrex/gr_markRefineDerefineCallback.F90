@@ -25,7 +25,7 @@
 !!  AMR Core layer at initialization.  AMReX may call this subroutine many times
 !!  during the process of grid refinement so that FLASH may communicate which
 !!  blocks in the given level require refinement.  The final refinement
-!   decisions are made by AMReX based on the information gathered with this
+!!  decisions are made by AMReX based on the information gathered with this
 !!  callback.
 !!
 !!  This routine iterates across all blocks in the given level and determines if

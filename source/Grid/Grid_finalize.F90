@@ -14,12 +14,12 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_finalize()
+!!  call Grid_finalize()
 !!
 !! DESCRIPTION
 !!
-!!  Deallocates any memory that has been allocated in the Grid Unit
-!!  Calls finalize for the underlying mesh package.
+!!  Deallocates any memory that has been allocated in the Grid Unit,
+!!  and calls any finalization routines of the underlying mesh package.
 !!
 !!
 !!***

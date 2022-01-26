@@ -40,19 +40,7 @@
 !!   required in order to use the resulting file (after renaming)
 !!   for initialization.
 !!***
-!
-! Function added to FLASH by KW, modeled on amr_set_runtime_parameters
-! from PARAMESH 3.4. This file should be kept in synch with
-! that file!
-!
-!----------------------------------------------------------------------
-! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
-!
-! Use of the PARAMESH software is governed by the terms of the
-! usage agreement which can be found in the file
-! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
-!----------------------------------------------------------------------
+
 
 #include "paramesh_preprocessor.fh"
         subroutine gr_amr_dump_runtime_parameters()

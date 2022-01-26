@@ -1,4 +1,4 @@
-!!****f* source/Grid/GridMain/Grid_getCellVolumes
+!!****if* source/Grid/GridMain/Grid_getCellVolumes
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -26,6 +26,7 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
                                 Grid_getCellCoords
    use Grid_data,        ONLY : gr_geometry
  
+   implicit none
    integer, intent(IN)  :: level
    integer, intent(IN)  :: lo(1:MDIM)
    integer, intent(IN)  :: hi(1:MDIM)

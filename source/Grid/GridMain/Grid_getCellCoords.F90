@@ -18,15 +18,9 @@
 !!                      integer(IN):: level,
 !!                      integer(IN):: lo(1:MDIM),
 !!                      integer(IN):: hi(1:MDIM),
-!!                      real(OUT)  :: coordinates(1:))
-!!  call Grid_getCellCoords_blk(integer(IN)  :: axis,
-!!                      block_metadata_t(IN) :: block
-!!                      integer(IN):: edge, 
-!!                      logical(IN):: guardcell, 
-!!                      real(OUT)  :: coordinates(size),
-!!                      integer(IN):: size)
-!!  
-!!  
+!!                      real(OUT)  :: coordinates(:))
+!!
+!!
 !! DESCRIPTION
 !!
 !!    This subroutine is an accessor function that gets the coordinates of
@@ -48,8 +42,6 @@
 !!          axis can have one of three different values, IAXIS, JAXIS or KAXIS 
 !!          (defined in constants.h as 1,2 and 3)
 !!
-!!   block - derived type containing metadata of block of interest
-!!
 !!   edge - integer value with one of four values, 
 !!          LEFT_EDGE, RIGHT_EDGE, CENTER or FACES
 !!          The edge argument specifies what side of the zone to get, 
@@ -58,21 +50,29 @@
 !!          two adjacent cells have a common face, there are only N+1
 !!          unique values if N is the number of cells.
 !!
-!!   guardcell - logical input. If true coordinates for guardcells are returned
-!!          along with the interior cells, if false, only the interior coordinates 
-!!          are returned.
-!!
+!!   level - refinement level.
+!!           This is 1-based, i.e., the root level is numbered 1.
 !!          
-!!   coordinates - The array holding the data returning the coordinate values
-!!                 coordinates must be at least as big as "size" (see below)
+!!   lo   - Indices of a low point, in the level-wide integer index space.
+!!          Only the component indicated by the axis argument is used.
+!!          The coordinates returned pertain to cells in the range
+!!          lo(axis) ... hi(axis).
+!!
+!!   hi   - Indices of a high point, in the level-wide integer index space.
+!!          Only the component indicated by the axis argument is used.
+!!          The coordinates returned pertain to cells in the range
+!!          lo(axis) ... hi(axis).
+!!
+!!   coordinates - The array holding the data returning the coordinate values.
+!!                 The array must be at large enough to hold the number of
+!!                 coordinate values that are requested occording to lo and hi
+!!                 arguments. That is, the following must be true:
 !!           
-!!   size - integer specifying the size of the coordinates array.
 !!          if edge = CENTER/LEFT_EDGE/RIGHT_EDGE then
-!!                If guardcell true then size =  interior cells + 2*guardcells
-!!                otherwise size = number of interior cells
-!!          If edge=FACES 
-!!                If guardcell true then size =  interior cells + 2*guardcells+1
-!!                otherwise size = number of interior cells+1
+!!                size(coordinates)  >=  hi(axis) - lo(axis) + 1 ;
+!!
+!!          If edge=FACES then
+!!                size(coordinates)  >=  hi(axis) - lo(axis) + 2 .
 !!
 !!               
 !!  EXAMPLE 
@@ -80,39 +80,57 @@
 !!  1. Getting cell centered values
 !!
 !!   #include "constants.h"
-!!   #include "Simulation.h"
 !!
 !!      
-!!      integer :: coordSize
-!!      integer :: xCoord(coordSize) !sized to be number of coords returned
+!!      integer             :: coordSize
+!!      integer,allocatable :: xCoord(:)
+!!      integer             :: level,lo(3),hi(3)
+!!      .....
 !!      
-!!      
-!!          !holds the number of cells returned in idir
-!!          coordSize = blkLimitsGC(HIGH, IAXIS)
-!!          call Grid_getCellCoords(IAXIS, cid, stride, CENTER, .true., xCoord, coordSize) 
+!!      do while(itor%isValid())
+!!          call itor%currentTile(tileDesc)
+!!          level = tileDesc % level
+!!          lo    = tileDesc % limits(LOW ,:)
+!!          hi    = tileDesc % limits(HIGH,:)
 !!
+!!          coordSize = hi(IAXIS) - lo(IAXIS) + 1
+!!          allocate(xCoord(coordSize)) !sized to be number of coords returned
+!!
+!!          call Grid_getCellCoords(IAXIS, CENTER, level, lo, hi, xCoord)
+!!          .....
+!!          deallocate(xCoord)
+!!          call itor%next()
 !!     end do    
 !!
 !!  2. Getting face values
 !! 
 !!   #include "constants.h"
-!!   #include "Simulation.h"
 !!
 !!      
-!!      integer :: coordSize
-!!      integer :: xCoord(coordSize) !sized to be number of coords returned
+!!      integer             :: coordSize
+!!      integer,allocatable :: xCoord(:)
+!!      integer             :: level,lo(3),hi(3)
 !!      
-!!          !holds the number of cells returned in idir
-!!          coordSize = blkLimitsGC(HIGH, IAXIS)+1
-!!          call Grid_getCellCoords(IAXIS, cid, stride, FACES, .true., xCoord, coordSize) 
+!!      do while(itor%isValid())
+!!          call itor%currentTile(tileDesc)
+!!          level = tileDesc % level
+!!          lo    = tileDesc % limits(LOW ,:)
+!!          hi    = tileDesc % limits(HIGH,:)
 !!
+!!          coordSize = hi(IAXIS) - lo(IAXIS) + 2
+!!          allocate(xCoord(coordSize)) !sized to be number of coords returned
+!!
+!!          call Grid_getCellCoords(IAXIS, FACES, level, lo, hi, xCoord)
+!!          .....
+!!          deallocate(xCoord)
+!!          call itor%next()
 !!     end do    
 !!
 !!
 !!  NOTES
-!!   variables that start with "gr_" are variables of Grid unit scope
-!!   and are stored in the FORTRAN module Grid_data. Variables that are not
-!!   starting with gr_ are local variables or arguments passed to the 
+!!   Variables that start with "gr_" are variables of Grid unit scope
+!!   and are stored in the Fortran module Grid_data. Variables that are not
+!!   starting with gr_ are local variables or arguments passed to the
 !!   routine.
 !!
 !!***

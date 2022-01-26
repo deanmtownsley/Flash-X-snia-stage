@@ -10,7 +10,7 @@
 !!
 !! NAME
 !!
-!!  Grid_blockMatch
+!!  gr_blockMatch
 !!
 !! SYNOPSIS
 !!
@@ -40,7 +40,6 @@
 !!              ACTIVE_BLKS all currently active blocks; in the paramesh
 !!                          context this means parent and leaf blocks.
 !!
-!!              values that have meaning only for paramesh are :
 !!              LEAF, PARENT_BLK or ANCESTOR  representing
 !!                          the type of node in the oct-tree managing the blocks.
 !!              REFINEMENT refinement level, the optional refinementlevel
@@ -63,11 +62,7 @@
 !!
 !! RETURN TYPE
 !!
-!!  LOGICAL
-!!
-!! SEE ALSO
-!!
-!!   Grid_getListOfBlocks
+!!  LOGICAL ans  - indicates whether the block matches the criterion
 !!
 !!***
 

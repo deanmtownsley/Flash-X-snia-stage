@@ -1,4 +1,4 @@
-!!****if* source/Particles/ParticlesMapping/MeshOwned/Particles_copyToMeshOwned.F90
+!!****f* source/Particles/Particles_copyToMeshOwned
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -30,6 +30,8 @@
 !!  particles2D : 2D particles with property values
 !!
 !!  particleType : Type of particle : passive, active, star etc.
+!!
+!!***
 !===============================================================================
 
 subroutine Particles_copyToMeshOwned(particles2D, nprops, np, filePropNames)

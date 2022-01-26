@@ -38,15 +38,19 @@
 !!
 !!  The norm of ivar is in norm.
 !!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4 and UG!
+!!
 !! EXAMPLE
 !!  
-!!  gr_restrictTree()
+!!  call gr_restrictTree()
 !!  do i = 1, lrefine_max
 !!    call Grid_computeVarNorm(i, 1, pdens, norm(i), 0)
 !!  enddo
 !!  do i = 1, lrefine_max
 !!    if (norm(0) - norm(i) > 0.0000001) then
-!!    driver_abortFlash("restriction is highly nonconservatory!")
+!!    call Driver_abortFlash("restriction is highly nonconservatory!")
 !!    endif
 !!  enddo
 !!

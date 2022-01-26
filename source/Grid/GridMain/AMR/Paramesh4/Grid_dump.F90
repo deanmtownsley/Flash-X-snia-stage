@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_dump
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_dump
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -15,21 +15,35 @@
 !!
 !!  call Grid_dump(integer(IN) :: var(num),
 !!                 integer(IN) :: num,
-!!  type(Grid_tile_t)(IN) :: block,
+!!                 real,dimension(:,:,:,:),POINTER :: solnData,
+!!                 Type(Grid_tile_t)(IN) :: blockDesc,
 !!                 logical(IN) :: gcell)
 !!
 !! DESCRIPTION 
 !!  
 !! Dumps the variables specified in "var" to a file. Can be done from 
-!! anywhere in the code, and is useful for diagnostic purposes
+!! anywhere in the code, and is useful for diagnostic purposes.
 !! With paramesh this function doesn not work in parallel, but works
 !! only with a single block
 !!  
 !! ARGUMENTS 
 !!
-!!  var :: array containing the indices of the variables to be dumped
+!! This is not an essential interface, only provided as a convenience
+!! for those who need to dump for debugging; test applications may
+!! want to override with a customized implementation.
+!!
+!! ARGUMENTS
+!!
+!!  var :: 1D integer array containing the indices of the variables
+!!         to be dumped (can be conveniently given using the variable
+!!         names defined in Simulation.h)
 !!  num :: number of variables being dumped.
-!!  blockID :: local number of block to be dumped
+!!  solnData :: an associated pointer that points to the block's
+!!              solution data.
+!!              This argument may be unused in some Grid implementations.
+!!  blockDesc :: Describes the  block to dump; holds the blockID
+!!               (local number of the block) in some Grid
+!!               implementations.
 !!  gcell :: indicates whether to include guardcells in the dump.
 !!             
 !! EXAMPLE
@@ -49,7 +63,7 @@
 !! NOTES
 !!  DENS_VAR, PRES_VAR, TEMP_VAR etc are #defined values in Simulation.h
 !!  indicating the index in the physical data array.
-!!  The routine calling Grid_dump will need to include Simulation.h 
+!!  The routine calling Grid_dump will need to include Simulation.h .
 !! 
 !!  This routine works with Paramesh only under very special circumstances
 !!***

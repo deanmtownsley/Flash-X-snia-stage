@@ -34,15 +34,15 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
 !!   fluxBufX :  buffer for fluxes in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction; ignored if NDIM < 2
+!!   fluxBufY :  buffer for fluxes in JAXIS-direction; output undefined if NDIM < 2
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; ignored if NDIM < 3
+!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; output undefined if NDIM < 3
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
@@ -67,6 +67,8 @@
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
 !!   flux register class, such as FlashFluxRegister.
 !!
+!!   DEV: This interface is currently only implemented for Paramesh4 !
+!!
 !! SEE ALSO
 !!
 !!   Grid_putFluxData_block
@@ -88,5 +90,5 @@ subroutine Grid_getFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, axis
 
   fluxBufX = 0.0
   fluxBufY = 0.0
-  fluxBufz = 0.0
+  fluxBufZ = 0.0
 end subroutine Grid_getFluxData_block

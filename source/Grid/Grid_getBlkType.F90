@@ -14,7 +14,7 @@
 !! SYNOPSIS
 !!
 !!
-!!  Grid_getBlkType(integer(IN)  :: blockID,
+!!  call Grid_getBlkType(integer(IN)  :: blockID,
 !!                  integer(OUT) :: blkType)
 !!  
 !! DESCRIPTION 
@@ -25,6 +25,11 @@
 !! ARGUMENTS
 !!  blockID - the local block number
 !!  blkType - returned value
+!!
+!! NOTES
+!!
+!!  For UG and Amrex Grid implementations, blkType is always returned
+!!  as LEAF, and the blockID argument is ignored.
 !!
 !!***
 

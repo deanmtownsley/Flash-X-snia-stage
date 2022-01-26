@@ -13,6 +13,12 @@
 !!
 !!  Prepare user variables for output.
 !!
+!!  This routine is always a stub unless the user adds a source file
+!!  to their simulations directory.
+!!  The routine allows users to compute their own variables. Some
+!!  examples are vorticity, conductivity, etc.
+!!
+!!
 !! ARGUMENTS
 !!  none
 !!

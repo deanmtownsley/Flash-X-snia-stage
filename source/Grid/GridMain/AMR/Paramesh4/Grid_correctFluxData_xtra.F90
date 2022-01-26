@@ -219,8 +219,8 @@ subroutine Grid_correctFluxData_xtra(blockDesc, scaleF, fluxBufX,fluxBufY,fluxBu
 
   if (nfluxes > 0) then
      fluxx(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufX ! fluxx,fluxy,fluxz use local (Paramesh) index counting
-     fluxy(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufY ! fluxBuf[XYZ] use the global index convention (for the level)
-     fluxz(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufZ
+     fluxy(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufY ! Actual arguments for fluxBuf[XYZ] effectively use the same index convention
+     fluxz(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufZ ! as fluxOld[XYZ].
 
      prevCoarseX(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxOldX ! prevCoarseX,prevCoarseY,prevCoarseZ use local (Paramesh) index counting
      prevCoarseY(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxOldY ! fluxOld[XYZ] use the global index convention (for the level)
