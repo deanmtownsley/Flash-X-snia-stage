@@ -8,9 +8,9 @@ if __name__ == "__main__":
     # create an image object
     # name: name of the image
     # base: remote image of flashx environment
-    # backend: docker/singularity
-    image = maple.Image(name='incomp_flow',base='docker://akashdhruv/flashtest:latest',backend='singularity')
-    
+    # backend: singularity/docker
+    image = maple.Image(name='incomp_flow',base='docker://akashdhruv/flashx:latest',backend='singularity')    
+
     # create a container object
     # name: name of the local container
     # source: basedir (Flash-X directory)
@@ -21,8 +21,10 @@ if __name__ == "__main__":
     image.build()
 
     # Run FlashTest suite inside the container
-    container.run(image,'FlashTest -z /home/mount/FlashX -s container \
-                                   UnitTest/LidDrivenCavity/AMReX/2d')
+    container.run(image,'FlashTestSuite -z /home/mount/FlashX \
+                                        -o /home/mount/FlashX/TestResults \
+                                        -s container \
+                                        UnitTest/LidDrivenCavity/AMReX/2d')
 
     # delete image
     image.delete()
