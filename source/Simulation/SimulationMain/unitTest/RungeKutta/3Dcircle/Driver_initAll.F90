@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/Driver_initFlash
+!!****if* source/Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle/Drive_initAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_initFlash
+!!  Drive_initAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_initFlash ()
+!!  Drive_initAll ()
 !!
 !! DESCRIPTION
 !!
@@ -24,14 +24,14 @@
 !!
 !!***
 
-subroutine Driver_initFlash ()
+subroutine Drive_initAll ()
   
-  use Driver_data,                 ONLY : dr_elapsedWCTime,        &
-                                          dr_globalComm,           &
-                                          dr_globalMe,             &
-                                          dr_globalNumProcs,       &
-                                          dr_initialWCTime,        &
-                                          dr_particlesInitialized, &
+  use Driver_data,                 ONLY : dr_elapsedWCTime,          &
+                                          dr_globalComm,             &
+                                          dr_globalMe,               &
+                                          dr_globalNumProcs,         &
+                                          dr_initialWCTime,          &
+                                          dr_particlesInitialized,   &
                                           dr_restart
   use Driver_interface,            ONLY : Driver_init,               &
                                           Driver_initNumericalTools, &
@@ -52,4 +52,4 @@ subroutine Driver_initFlash ()
   call Simulation_init           ()
 
   return
-end subroutine Driver_initFlash
+end subroutine Drive_initAll

@@ -37,7 +37,7 @@
 !!            was globally successful.
 !!            When AMR is not being used, or when refinement based upon
 !!            Particles is turned off, this routine is called directly 
-!!            from Driver_initFlash with partPosInitialized set to .false. so that
+!!            from Drive_initAll with partPosInitialized set to .false. so that
 !!            particles are initialized. In such instances, the value
 !!            at output has no meaning.          
 !! updateRefine : is set to true if the implementation wishes to

@@ -20,7 +20,7 @@
 !!
 !!  A module that encapsulates common routines and variables that can be used in
 !!  unittests.  Typically,  this module is used in the unittests version of 
-!!  Driver_evolveFlash as follows
+!!  Drive_evolveAll as follows
 !!
 !!      <declare variables and setup for test>
 !!      ...

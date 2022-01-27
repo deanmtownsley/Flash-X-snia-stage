@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Roots/x3Polynomials/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash ()
+!!  Drive_evolveAll ()
 !!
 !! DESCRIPTION
 !!
@@ -24,7 +24,7 @@
 !!
 !!***
 
-subroutine Driver_evolveFlash ()
+subroutine Drive_evolveAll ()
 
   use Driver_data,  ONLY : dr_globalMe
 
@@ -54,10 +54,10 @@ subroutine Driver_evolveFlash ()
   open (fileUnit, file = fileName)
 !
 !
-!   ...Do the x3 polynomials root test.
+!   ...Do the x4 polynomials root test.
 !
 !  
-  call sim_x3PolynomialsRootsTest (perfect)
+  call sim_x4PolynomialsRootsTest (perfect)
 !
 !
 !   ...Final chores. The exact phrase 'all results conformed with expected values.' must
@@ -72,4 +72,4 @@ subroutine Driver_evolveFlash ()
   end if
 
   return
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll

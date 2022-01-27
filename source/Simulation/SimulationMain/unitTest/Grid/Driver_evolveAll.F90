@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Grid/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
@@ -23,14 +23,14 @@
 !!  on and call the Grid_unitTest with the file unit. The Grid_unitTest
 !!  functions carries out the testing of the unit, and reports success or
 !!  failure through a logical argument "perfect". Upon return from 
-!!  Grid_unitTest, the Driver_evolveFlash function makes appropriate notification 
+!!  Grid_unitTest, the Drive_evolveAll function makes appropriate notification 
 !!  in the file which the test suite can parse to determine if the test was
 !!  successful.
 !!
 !!
 !!***
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
 
 #include "constants.h"
 
@@ -82,4 +82,4 @@ subroutine Driver_evolveFlash()
 
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll

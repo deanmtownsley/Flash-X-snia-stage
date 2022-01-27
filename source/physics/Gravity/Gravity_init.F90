@@ -19,7 +19,7 @@
 !! DESCRIPTION
 !!
 !!  Initialize unit scope variables in the Gravity unit, which are typically the 
-!!  runtime parameters.  This routine must be called once by Driver_initFlash.F90. 
+!!  runtime parameters.  This routine must be called once by Drive_initAll.F90. 
 !!  Calling multiple times will not cause any harm but is unnecessary.
 !!
 !! ARGUMENTS

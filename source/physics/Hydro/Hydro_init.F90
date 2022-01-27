@@ -22,7 +22,7 @@
 !! 
 !!  Initialize unit scope variables which are typically the runtime parameters.
 !!  A specific implementation may also allocate scratch space to be used
-!!  This must be called once by Driver_initFlash.F90 first. Calling multiple
+!!  This must be called once by Drive_initAll.F90 first. Calling multiple
 !!  times will not cause any harm but is unnecessary.
 !!
 !! ARGUMENTS

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/IO/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/IO/IOMeshReplication/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,15 +10,15 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!! This is a very simple version of the Driver_evolveFlash routine,
+!! This is a very simple version of the Drive_evolveAll routine,
 !! that is meant to be used exclusively with IO Unit
 !! testing. There is no time advancement involved here.
 !!
@@ -36,7 +36,7 @@
 !!
 !!***
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
 
   use Driver_data, ONLY:   dr_nbegin,  dr_restart, dr_initialSimTime
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
@@ -57,13 +57,14 @@ subroutine Driver_evolveFlash()
 
   open(iOut,file='unitTest_0000')
 
-  !initialize the fake grid variable with dummy values
-  do var = 1, NUNK_VARS
-     
-     unk(var, :,:,:,:) = var*1.0
+  if (.not.dr_restart) then
+     !initialize the fake grid variable with dummy values
+     do var = 1, NUNK_VARS
+        unk(var,:,:,:,:) = var*1.0
+     end do
+     call init_nonrep_vars()
+  end if
 
-  end do
-     
   call Timers_start("IO_writeCheckpoint")
   call IO_writeCheckpoint()
   call Timers_stop("IO_writeCheckpoint")
@@ -90,5 +91,35 @@ subroutine Driver_evolveFlash()
 
   return
 
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 
+
+subroutine init_nonrep_vars
+  use physicaldata, ONLY : unk
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+  use Driver_data, ONLY : dr_meshAcrossMe, dr_meshCopyCount, dr_meshMe, &
+        dr_meshNumProcs
+  implicit none
+  integer :: totalSharedVars, sharedVarsInMyMesh, n, &
+       globalUnkIndex, localUnkIndex
+
+  call RuntimeParameters_get("totalSharedVars", totalSharedVars)
+  sharedVarsInMyMesh = &
+       NONREP_NLOCS(dr_meshAcrossMe, dr_meshCopyCount, totalSharedVars)
+
+  !We have already done a generic initialization of the variables in unk.
+  !Now we will re-initialize the shared unk variables with a global index
+  !rather than a local index.  This will allow us to obtain the same data
+  !in the checkpoint file irrespective of the number of meshes.
+  do n = 1, sharedVarsInMyMesh
+     globalUnkIndex = NONREP_LOC2GLOB(n, dr_meshAcrossMe, dr_meshCopyCount)
+     localUnkIndex = X_NONREP_LOC2UNK(n)
+     if (dr_meshMe == MASTER_PE) then
+        write(6,'(4(a,i5))') " Mesh master:", dr_meshAcrossMe, &
+             " - my team of size", dr_meshNumProcs, &
+             " will write to unk index", localUnkIndex, &
+             " which is non-replicated variable", globalUnkIndex
+     end if
+     unk(localUnkIndex,:,:,:,:) = globalUnkIndex*1.0
+  end do
+end subroutine init_nonrep_vars

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!  The driver for a toy version of a full FLASH simulation that allows users
@@ -41,7 +41,7 @@
 #include "constants.h"
 #include "sim_constants.h"
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
     use amrex_fort_module,     ONLY : amrex_spacedim
 
     use Grid_interface,        ONLY : Grid_getDomainBoundBox, &
@@ -568,5 +568,5 @@ subroutine Driver_evolveFlash()
 
     call finish_test_run
 
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 

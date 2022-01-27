@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/IO/IOTypes/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/IO/IOTypes/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,15 +10,15 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!! This is a very simple version of the Driver_evolveFlash routine,
+!! This is a very simple version of the Drive_evolveAll routine,
 !! that is meant to be used exclusively with IO Unit
 !! testing. There is no time advancement involved here.
 !!
@@ -36,7 +36,7 @@
 !!
 !!***
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
 
   use Driver_data, ONLY:   dr_nbegin,  dr_restart, dr_initialSimTime, &
        dr_globalMe, dr_globalNumProcs
@@ -105,7 +105,7 @@ subroutine Driver_evolveFlash()
      close(iOut)
   end if
 
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 
 
 subroutine check_mesh_values(me, fail)

@@ -81,7 +81,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Driver_initFlash
+!!  Drive_initAll
 !!  Grid_initDomain
 !!  Particles_initData
 !!***

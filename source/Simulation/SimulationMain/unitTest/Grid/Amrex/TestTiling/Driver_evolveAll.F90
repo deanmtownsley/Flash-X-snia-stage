@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Driver_evolveFlash()
+!!  Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!  This unit test exercises the Grid_iterator and Grid_tile objects both with
@@ -34,7 +34,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
     use amrex_box_module, ONLY : amrex_box
 
     use Grid_iterator,    ONLY : Grid_iterator_t
@@ -351,5 +351,5 @@ subroutine Driver_evolveFlash()
 
     call finish_test_run
 
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 

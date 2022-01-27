@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/EosGraph/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/EosGraph/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  call Driver_evolveFlash()
+!!  call Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
@@ -30,7 +30,7 @@
 #define DEBUG_DRIVER
 #endif
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
 
   use Eos_interface
 #include "Eos.h"
@@ -128,7 +128,7 @@ subroutine Driver_evolveFlash()
 
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 
 
 

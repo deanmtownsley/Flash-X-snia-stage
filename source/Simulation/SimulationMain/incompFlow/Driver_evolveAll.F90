@@ -10,17 +10,17 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  call Driver_evolveFlash()
+!!  call Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!!  Driver_evolveFlash for incompFlow Simulations
+!!  Drive_evolveAll for incompFlow Simulations
 !!
-!!  DOC: Driver_evolveFlash needs more explanation 
+!!  DOC: Drive_evolveAll needs more explanation 
 !!
 !! NOTES
 !!
@@ -37,7 +37,7 @@
 #define DEBUG_DRIVER
 #endif
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
 
   use Driver_data,          ONLY : dr_globalMe, dr_globalNumProcs, dr_nbegin,&
                                    dr_nend, dr_dt,                           &
@@ -98,7 +98,7 @@ subroutine Driver_evolveFlash()
   endRunPl = .false.
   endRun = .false.
 
-  call Logfile_stamp( 'Entering evolution loop' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Entering evolution loop' , '[Drive_evolveAll]')
   call Timers_start("evolution")
 
   ! Initial Timestep:
@@ -261,7 +261,7 @@ subroutine Driver_evolveFlash()
   !!******************************************************************************
 
   call Timers_stop("evolution")
-  call Logfile_stamp( 'Exiting evolution loop' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Exiting evolution loop' , '[Drive_evolveAll]')
   if(.NOT.endRun) call IO_outputFinal( )
   call Timers_getSummary( max(0,dr_nstep-dr_nbegin+1))
   call Logfile_stamp( "FLASH run complete.", "LOGFILE_END")
@@ -291,4 +291,4 @@ subroutine Driver_evolveFlash()
 
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll

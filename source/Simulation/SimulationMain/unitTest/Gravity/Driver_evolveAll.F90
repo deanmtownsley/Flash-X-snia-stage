@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Driver_evolveFlash
+!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Drive_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,21 +10,21 @@
 !!
 !! NAME
 !!
-!!  Driver_evolveFlash
+!!  Drive_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  call Driver_evolveFlash()
+!!  call Drive_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!!  This is a modification of the standard Driver_evolveFlash for the unitTest for 
+!!  This is a modification of the standard Drive_evolveAll for the unitTest for 
 !!  the Gravity unit.
 !!
 !! NOTES
 !!
-!!  Some Gravity tests include a more specific implementation of Driver_evolveFlash.
-!!  If an implementation Driver_evolveFlash.F90 exists in a subdirectory of
+!!  Some Gravity tests include a more specific implementation of Drive_evolveAll.
+!!  If an implementation Drive_evolveAll.F90 exists in a subdirectory of
 !!  SimulationMain/unitTest/Gravity, that one will normally be used in preference
 !!  over this less specifc implementation.
 !!
@@ -35,7 +35,7 @@
 #define DEBUG_DRIVER
 #endif
 
-subroutine Driver_evolveFlash()
+subroutine Drive_evolveAll()
        
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
   use Timers_interface, ONLY : Timers_start, Timers_stop, &
@@ -84,7 +84,7 @@ subroutine Driver_evolveFlash()
 
 
 
-  call Logfile_stamp( 'Starting Calculation' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Starting Calculation' , '[Drive_evolveAll]')
   print*,'started calculation'
   call Timers_start("calculation")
 
@@ -96,7 +96,7 @@ subroutine Driver_evolveFlash()
 
   call Timers_stop("calculation")
 
-  call Logfile_stamp( 'Ending Calculation' , '[Driver_evolveFlash]')
+  call Logfile_stamp( 'Ending Calculation' , '[Drive_evolveAll]')
 
   call IO_writeCheckpoint()
 
@@ -122,7 +122,7 @@ subroutine Driver_evolveFlash()
 
   return
   
-end subroutine Driver_evolveFlash
+end subroutine Drive_evolveAll
 
 
 
