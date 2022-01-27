@@ -1,5 +1,5 @@
 # python script to run a simulation inside flashx container using maple API - requires python3.8+
-# Refer to README.md for details
+# Refer to README.md for details.
 
 # import maple (python API version of maple)
 import maple.api as maple
