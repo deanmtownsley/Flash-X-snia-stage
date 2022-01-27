@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # name: name of the local container
     # source: basedir (Flash-X directory)
     # target: path of mount directory inside the container (mount source to target)
-    container = maple.Container(name='sod',target='/home/mount/Flash-X')
+    container = maple.Container(name='sod',target='/home/mount/FlashX')
 
     # build local image
     image.build()
