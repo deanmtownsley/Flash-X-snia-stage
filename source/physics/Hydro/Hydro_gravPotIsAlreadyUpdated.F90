@@ -28,7 +28,7 @@
 !!   recent solution of the Poisson equation for gravity
 !!   (typically by calling Gravity_potential
 !!   at the end of each time advance iteration in
-!!   Drive_evolveAll) MAY use this function to avoid
+!!   Driver_evolveAll) MAY use this function to avoid
 !!   an unnecessary additional call to the Poisson solver.
 !!
 !!   An implementation of this interface should only return
@@ -45,7 +45,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!  Hydro
 !!  Gravity_potential
 !!  Particles_advance

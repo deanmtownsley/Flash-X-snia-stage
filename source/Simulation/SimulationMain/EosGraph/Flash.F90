@@ -24,30 +24,30 @@
 !!  PROGRAM. As such it can be considered the top-level "driver" of an application.
 !!  By default it is set up to drive the simulation of a time-dependent
 !!  problem by calling:
-!!  - Drive_initAll  for initializations,
-!!  - Drive_evolveAll  for managing the computation, and
+!!  - Driver_initAll  for initializations,
+!!  - Driver_evolveAll  for managing the computation, and
 !!  - Driver_finalizeAll  for cleaning up.
 !!
 !! SEE ALSO
 !!
-!!  Drive_initAll
-!!  Drive_evolveAll
+!!  Driver_initAll
+!!  Driver_evolveAll
 !!  Driver_finalizeAll
 !!
 !!***
 
 program Flash
 
-  use Driver_interface, ONLY : Driver_initParallel, Drive_initAll,&
-       Drive_evolveAll
+  use Driver_interface, ONLY : Driver_initParallel, Driver_initAll,&
+       Driver_evolveAll
 
   implicit none
 
   call Driver_initParallel()
 
-  call Drive_initAll()
+  call Driver_initAll()
 
-  call Drive_evolveAll( )
+  call Driver_evolveAll( )
 
 
 end program Flash

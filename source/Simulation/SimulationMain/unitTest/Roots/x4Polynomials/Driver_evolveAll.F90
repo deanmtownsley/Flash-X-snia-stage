@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_evolveAll ()
+!!  Driver_evolveAll ()
 !!
 !! DESCRIPTION
 !!
@@ -24,7 +24,7 @@
 !!
 !!***
 
-subroutine Drive_evolveAll ()
+subroutine Driver_evolveAll ()
 
   use Driver_data,  ONLY : dr_globalMe
 
@@ -72,4 +72,4 @@ subroutine Drive_evolveAll ()
   end if
 
   return
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll

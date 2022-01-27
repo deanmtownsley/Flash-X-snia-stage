@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_evolveAll()
+!!  Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!  The driver for a toy version of a full FLASH simulation that tests if the
@@ -38,7 +38,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Drive_evolveAll()
+subroutine Driver_evolveAll()
     use amrex_fort_module,     ONLY : amrex_spacedim
 
     use Grid_interface,        ONLY : Grid_addFineToFluxRegister, &
@@ -417,5 +417,5 @@ subroutine Drive_evolveAll()
 
     call finish_test_run
 
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll
 

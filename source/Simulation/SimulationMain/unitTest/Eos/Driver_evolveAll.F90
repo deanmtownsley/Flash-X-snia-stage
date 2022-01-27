@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Eos/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/Eos/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_evolveAll()
+!!  Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!
@@ -22,7 +22,7 @@
 !!
 !!***
 
-subroutine Drive_evolveAll()
+subroutine Driver_evolveAll()
 
 #include "constants.h"
 
@@ -71,4 +71,4 @@ subroutine Drive_evolveAll()
 
   return
   
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll

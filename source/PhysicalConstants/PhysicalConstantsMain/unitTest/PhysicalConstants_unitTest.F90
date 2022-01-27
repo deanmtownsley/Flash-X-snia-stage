@@ -20,7 +20,7 @@
 !! DESCRIPTION
 !!
 !!  This is a unitTest setup for testing the PhysicalConstants
-!!      unit.  Normally called from Drive_evolveAll within a Simulation unitTest
+!!      unit.  Normally called from Driver_evolveAll within a Simulation unitTest
 !!  See, for example, source/Simulation/SimulationMain/unitTest/PhysConst
 !!
 !! ARGUMENTS

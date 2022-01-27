@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_evolveAll()
+!!  Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!  A subset of simulation configuration data is loaded into AMReX at
@@ -44,7 +44,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Drive_evolveAll()
+subroutine Driver_evolveAll()
     use amrex_fort_module,     ONLY : amrex_spacedim
     use amrex_parallel_module, ONLY : amrex_parallel_myproc
 
@@ -642,5 +642,5 @@ subroutine Drive_evolveAll()
 
     call finish_test_run
 
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll
 

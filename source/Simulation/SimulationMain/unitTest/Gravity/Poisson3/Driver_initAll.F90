@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/Drive_initAll
+!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/Driver_initAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -9,11 +9,11 @@
 !! limitations under the License.
 !!
 !! NAME
-!!  Drive_initAll
+!!  Driver_initAll
 !!
 !! SYNOPSIS
 !!
-!!   Drive_initAll()
+!!   Driver_initAll()
 !!
 !! DESCRIPTION
 !!
@@ -22,7 +22,7 @@
 !!  Call all 'init' routines in units.  Order does matter,
 !!  particularly when restarting from a checkpoint file.
 !!
-!!  For the most part, Drive_initAll calls other units' init
+!!  For the most part, Driver_initAll calls other units' init
 !!  routines directly, like call IO_init or call Grid_init.  This
 !!  routine also makes calls to other Driver initialization routines
 !!  like Driver_initMaterialProperties or Driver_initSourceTerms.
@@ -46,7 +46,7 @@
 !!***
 
 
-subroutine Drive_initAll()
+subroutine Driver_initAll()
   
   use Driver_data, ONLY: dr_globalMe, dr_globalNumProcs, dr_globalComm, dr_nbegin, &
        dr_initialSimTime, dr_elapsedWCTime, &
@@ -184,4 +184,4 @@ subroutine Drive_initAll()
 
 
   return
-end subroutine Drive_initAll
+end subroutine Driver_initAll

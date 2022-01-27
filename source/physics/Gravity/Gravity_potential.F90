@@ -46,7 +46,7 @@
 !!  Gravity_potential can operate in one of two modes:
 !!  * automatic mode  - when called without the optional potentialIndex.
 !!    Such a call will usually be made once per time step, usually
-!!    from the main time advancement loop in Drive_evolveAll.
+!!    from the main time advancement loop in Driver_evolveAll.
 !!    Various side effects are enabled in this mode, see SIDE EFFECT below.
 !!
 !!  * explicit mode  - when called with the optional potentialIndex.

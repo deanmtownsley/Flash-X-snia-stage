@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/Gravity/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,21 +10,21 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  call Drive_evolveAll()
+!!  call Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!!  This is a modification of the standard Drive_evolveAll for the unitTest for 
+!!  This is a modification of the standard Driver_evolveAll for the unitTest for 
 !!  the Gravity unit.
 !!
 !! NOTES
 !!
-!!  Some Gravity tests include a more specific implementation of Drive_evolveAll.
-!!  If an implementation Drive_evolveAll.F90 exists in a subdirectory of
+!!  Some Gravity tests include a more specific implementation of Driver_evolveAll.
+!!  If an implementation Driver_evolveAll.F90 exists in a subdirectory of
 !!  SimulationMain/unitTest/Gravity, that one will normally be used in preference
 !!  over this less specifc implementation.
 !!
@@ -35,7 +35,7 @@
 #define DEBUG_DRIVER
 #endif
 
-subroutine Drive_evolveAll()
+subroutine Driver_evolveAll()
        
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
   use Timers_interface, ONLY : Timers_start, Timers_stop, &
@@ -84,7 +84,7 @@ subroutine Drive_evolveAll()
 
 
 
-  call Logfile_stamp( 'Starting Calculation' , '[Drive_evolveAll]')
+  call Logfile_stamp( 'Starting Calculation' , '[Driver_evolveAll]')
   print*,'started calculation'
   call Timers_start("calculation")
 
@@ -96,7 +96,7 @@ subroutine Drive_evolveAll()
 
   call Timers_stop("calculation")
 
-  call Logfile_stamp( 'Ending Calculation' , '[Drive_evolveAll]')
+  call Logfile_stamp( 'Ending Calculation' , '[Driver_evolveAll]')
 
   call IO_writeCheckpoint()
 
@@ -122,7 +122,7 @@ subroutine Drive_evolveAll()
 
   return
   
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll
 
 
 

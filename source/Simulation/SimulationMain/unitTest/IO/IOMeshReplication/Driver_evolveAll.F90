@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/IO/IOMeshReplication/Drive_evolveAll
+!!****if* source/Simulation/SimulationMain/unitTest/IO/IOMeshReplication/Driver_evolveAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,15 +10,15 @@
 !!
 !! NAME
 !!
-!!  Drive_evolveAll
+!!  Driver_evolveAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_evolveAll()
+!!  Driver_evolveAll()
 !!
 !! DESCRIPTION
 !!
-!! This is a very simple version of the Drive_evolveAll routine,
+!! This is a very simple version of the Driver_evolveAll routine,
 !! that is meant to be used exclusively with IO Unit
 !! testing. There is no time advancement involved here.
 !!
@@ -36,7 +36,7 @@
 !!
 !!***
 
-subroutine Drive_evolveAll()
+subroutine Driver_evolveAll()
 
   use Driver_data, ONLY:   dr_nbegin,  dr_restart, dr_initialSimTime
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
@@ -91,7 +91,7 @@ subroutine Drive_evolveAll()
 
   return
 
-end subroutine Drive_evolveAll
+end subroutine Driver_evolveAll
 
 
 subroutine init_nonrep_vars

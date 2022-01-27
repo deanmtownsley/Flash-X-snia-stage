@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/Drive_initAll
+!!****if* source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/Driver_initAll
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -10,11 +10,11 @@
 !!
 !! NAME
 !!
-!!  Drive_initAll
+!!  Driver_initAll
 !!
 !! SYNOPSIS
 !!
-!!  Drive_initAll ()
+!!  Driver_initAll ()
 !!
 !! DESCRIPTION
 !!
@@ -24,7 +24,7 @@
 !!
 !!***
 
-subroutine Drive_initAll ()
+subroutine Driver_initAll ()
   
   use Driver_data,                 ONLY : dr_elapsedWCTime,        &
                                           dr_globalComm,           &
@@ -52,4 +52,4 @@ subroutine Drive_initAll ()
   call Simulation_init           ()
 
   return
-end subroutine Drive_initAll
+end subroutine Driver_initAll
