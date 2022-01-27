@@ -336,6 +336,9 @@ Violations:
    source/Grid/Grid_getFluxData_block.F90
       Line  70 : !   DEV: This interface is currently only implemented for Paramesh4 !
 
+   source/Grid/Grid_getMaxCommonRefinement.F90
+      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
+
    source/Grid/Grid_primitiveToConserve.F90
       Line  38 : !  DEV: Currently only implemented for Paramesh4!
 
@@ -369,6 +372,9 @@ Violations:
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
       Line  73 : ! DEV: TODO Should this set area to 1?
       Line 138 : ! DEV: TODO These can be done more simply using
+
+   source/Grid/GridMain/Grid_getMaxCommonRefinement.F90
+      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
 
    source/Grid/GridMain/gr_findMean.F90
       Line  88 : ! DEVNOTE: This appears to be for Cartesian only blocks/cells.

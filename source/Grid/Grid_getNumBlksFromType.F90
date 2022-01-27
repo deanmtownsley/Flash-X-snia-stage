@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getNumBlksFromType(integet(IN) :: blockType, integer(OUT) :: numBlocks)
+!!  call Grid_getNumBlksFromType(integer(IN) :: blockType, integer(OUT) :: numBlocks)
 !!  
 !! DESCRIPTION 
 !!  Get the number of local blocks on a processor based on type 

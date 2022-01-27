@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getMinCellSizes(real (OUT)  :: minCellSizes(MDIM))
+!!  call Grid_getMinCellSizes(real (OUT)  :: minCellSizes(MDIM))
 !!               
 !!  
 !! DESCRIPTION 
