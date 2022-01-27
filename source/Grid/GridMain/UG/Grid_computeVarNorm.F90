@@ -50,7 +50,7 @@
 !!  enddo
 !!  do i = 1, lrefine_max
 !!    if (norm(0) - norm(i) > 0.0000001) then
-!!    call Driver_abortFlash("restriction is highly nonconservatory!")
+!!    call Driver_abort("restriction is highly nonconservatory!")
 !!    endif
 !!  enddo
 !!

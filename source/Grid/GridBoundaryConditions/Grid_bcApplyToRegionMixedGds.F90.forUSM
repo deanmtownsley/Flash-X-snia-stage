@@ -197,7 +197,7 @@ subroutine Grid_bcApplyToRegionMixedGds(bcType,gridDataStruct,&
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getDeltas
   use gr_bcInterface, ONLY : gr_bcMapBcType
   use Grid_data, ONLY : gr_geometry, gr_dirGeom
@@ -387,7 +387,7 @@ subroutine Grid_bcApplyToRegionMixedGds(bcType,gridDataStruct,&
 contains
   subroutine abo(msg)
     character(len=*) msg
-    call Driver_abortFlash("Failed assertion in Grid_bcApplyToRegionMixedGds:"//msg)
+    call Driver_abort("Failed assertion in Grid_bcApplyToRegionMixedGds:"//msg)
   end subroutine abo
 
 end subroutine Grid_bcApplyToRegionMixedGds

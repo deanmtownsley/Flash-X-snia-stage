@@ -43,7 +43,7 @@ subroutine Grid_getDeltas(lev,del)
   integer, intent(IN) :: lev
   real, dimension(MDIM),intent(OUT) :: del
 
-  if(level /= 1) call Driver_abort("any value of level other than 1 is not valied")
+  if(lev /= 1) call Driver_abort("any value of level other than 1 is not valied")
   del = gr_delta(:,1)
   return
 end subroutine Grid_getDeltas

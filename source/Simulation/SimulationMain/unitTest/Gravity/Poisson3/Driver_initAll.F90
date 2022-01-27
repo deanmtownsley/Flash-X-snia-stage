@@ -83,7 +83,7 @@ subroutine Driver_initAll()
   !! have not yet been initialized.
 
   !! hand process ID out to C routines to avoid architecture-dependent code
-  call driver_abortflashc_set_mype(dr_globalMe)
+  call driver_abortc_set_mype(dr_globalMe)
 
   !! make sure our stack (and whatever other rlimits) are big enough.  
   !! this should get around the 2Mb stack limit that pthreads

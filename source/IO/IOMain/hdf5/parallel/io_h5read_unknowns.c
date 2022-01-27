@@ -172,7 +172,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
 
     if (ierr < 0){
       printf("Error: Unable to select hyperslab for coordinates memspace\n");
-      Driver_abortFlash("Error: Unable to select hyperslab for coordinates memspace\n");
+      Driver_abort("Error: Unable to select hyperslab for coordinates memspace\n");
     }*/
 
 

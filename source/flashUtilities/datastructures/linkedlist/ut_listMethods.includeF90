@@ -70,7 +70,7 @@
        else
           !Check that H & T are pointing to the same target.
           if (.not. (associated(L % H, L % T))) then
-             call Driver_abortFlash & 
+             call Driver_abort & 
                   ("Error in pop_front: H & T point to different targets?")
           end if
 
@@ -118,7 +118,7 @@
        else
           !Check that H & T are pointing to the same target.
           if (.not. (associated(L % H, L % T))) then
-             call Driver_abortFlash & 
+             call Driver_abort & 
                   ("Error in pop_back: H & T point to different targets?")
           end if
 
@@ -260,7 +260,7 @@
     !$omp end parallel
 
     if (bErrAll .eqv. .true.) then
-       call Driver_abortFlash("[map_impure_fn]: Error applying functions")
+       call Driver_abort("[map_impure_fn]: Error applying functions")
     end if
   end subroutine map_impure_fn
 
@@ -287,21 +287,21 @@
 
     if (.not.(associated(L % H)) .or. .not.(associated(L % T))) then
        !Commented out: Now a NULL operation when the list is empty.
-       !call Driver_abortFlash("[apply_fn_to_nodes]: List is empty")
+       !call Driver_abort("[apply_fn_to_nodes]: List is empty")
     else
        X => L % H
 
        do while (.not. (associated(X, L % T)))
           ierr = fnToApply(X)
           if (ierr /= 0) then
-             call Driver_abortFlash("[apply_fn_to_nodes]: Error in function")
+             call Driver_abort("[apply_fn_to_nodes]: Error in function")
           end if
           X => X % next
        end do
 
        ierr = fnToApply(L % T)
        if (ierr /= 0) then
-          call Driver_abortFlash("[apply_fn_to_nodes]: Error in function")
+          call Driver_abort("[apply_fn_to_nodes]: Error in function")
        end if
     end if
   end subroutine apply_fn_to_nodes

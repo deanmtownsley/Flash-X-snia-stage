@@ -55,7 +55,7 @@ subroutine gr_expandDomain (particlesInitialized)
   use Particles_interface, ONLY : Particles_accumCount, &
     Particles_initPositions, &
     Particles_updateRefinement
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RadTrans_interface, ONLY: RadTrans_sumEnergy
   use block_metadata, ONLY : block_metadata_t
 
@@ -63,7 +63,7 @@ subroutine gr_expandDomain (particlesInitialized)
 
 #include "constants.h"
 
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
 
   real, pointer:: solnData(:,:,:,:)
   logical, intent(out) :: particlesInitialized
@@ -238,7 +238,7 @@ subroutine gr_expandDomain (particlesInitialized)
   grid_changed = max(grid_changed, grid_changed_anytime) !leave global flag true if grid changed in ANY iteration
 
   if(gr_refineOnParticleCount) then
-     if(.not.particlesPosnsDone) call Driver_abortFlash(&
+     if(.not.particlesPosnsDone) call Driver_abort(&
        "This distribution of particles will not fit on the grid. Increase pt_maxPerProc, or decrease the particle count.")
      particlesInitialized=.true.
   end if
