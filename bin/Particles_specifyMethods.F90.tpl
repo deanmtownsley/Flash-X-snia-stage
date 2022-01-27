@@ -16,7 +16,7 @@ subroutine Particles_specifyMethods()
 #include "Particles.h"
 
   use Particles_data, ONLY : pt_typeInfo
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer :: n
@@ -38,7 +38,7 @@ subroutine Particles_specifyMethods()
   !! Include a failsafe mechanism in case the user includes 
   !! particle units, but does not specify a PARTICLETYPE line.
   if (NPART_TYPES == 0) then
-    call Driver_abortFlash("[Particles_specifyMethods]: No PARTICLETYPE Config line")
+    call Driver_abort("[Particles_specifyMethods]: No PARTICLETYPE Config line")
   end if
 
 
