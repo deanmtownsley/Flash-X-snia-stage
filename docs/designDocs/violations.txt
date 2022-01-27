@@ -156,7 +156,6 @@ The following API-Level stub-files
 are not represented in "source/Grid/Grid_interface.F90":
 --------------------------------------------------------
 Grid_getBlkIndexLimits
-Grid_getBlkNeighBlkIDFromPos
 Grid_properTilingWanted
 Grid_ascModule
 Grid_overwriteFluxes
@@ -329,6 +328,9 @@ Violations:
    source/Grid/Grid_getBlkIndexLimits.F90
       Line 102 : !   DEV: Currently only implemented correctly for Paramesh4 and UG!
       Line 104 : !   DEV: The indices returned may be according to the "native" convention
+
+   source/Grid/Grid_getBlkNeighBlkIDFromPos.F90
+      Line  68 : !DEV: There is no proper implementation, Paramesh4 implementation will abort if called.
 
    source/Grid/Grid_getBlkNeighLevels.F90
       Line  77 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
@@ -506,6 +508,9 @@ Violations:
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkIndexLimits.F90
       Line 112 : ! DEV: FIXME This no longer needs to be a module.  Revert to normal 
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkNeighBlkIDFromPos.F90
+      Line  68 : !DEV: There is no proper implementation, will abort if called.
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_makeVector.F90
       Line  88 : ! DEVNOTE: This should be made generic and moved to GridMain/AMR

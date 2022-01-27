@@ -87,10 +87,9 @@ module gr_interface
   end interface
 
   interface gr_findNeghID
-     subroutine gr_findNeghID(block,pos,negh,neghID)
-       use Grid_tile, ONLY : Grid_tile_t
+     subroutine gr_findNeghID(blockID,pos,negh,neghID)
        implicit none
-       type(Grid_tile_t), intent(IN) :: block
+       integer, intent(IN) :: blockID
        real,dimension(MDIM), intent(IN) :: pos
        integer,dimension(MDIM),intent(IN) :: negh
        integer,dimension(BLKNO:PROCNO),intent(OUT) :: neghID
