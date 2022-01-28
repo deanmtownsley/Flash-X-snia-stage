@@ -1,4 +1,5 @@
-#
+# Config file for source/physics/HeatAD/HeatADAdvection
+
 REQUIRES physics/HeatAD/HeatADMain
 REQUIRES physics/IncompNS/IncompNSMain
 REQUIRES numericalTools/Stencils/StencilsAdvection
