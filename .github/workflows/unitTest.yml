@@ -1,5 +1,5 @@
 # Name of the github-docker workflow
-name: Grid
+name: unitTest
 
 # Perform tests on pull request
 on:
@@ -28,4 +28,17 @@ jobs:
         singularity-version: 3.8.3
     - name: Run tests
       run: |   
-          python3 tests/Grid/Grid.py
+          python3 tests/unitTest/Grid.py
+
+  Multigrid:
+    name: "Multigrid"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: akashdhruv/Maple/.github/actions/maple@main
+      with:
+        singularity-version: 3.8.3
+    - name: Run tests
+      run: |   
+          python3 tests/unitTest/Multigrid.py
+
