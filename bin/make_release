@@ -27,7 +27,7 @@ fi
 
 release=`eval echo ${rawrelease}`
 
-echo setup_flashRelease = \'FLASH-X $release\'    >> setup_flashRelease.F90
+echo setup_flashRelease = \'Flash-X $release\'    >> setup_flashRelease.F90
 echo                                           >> setup_flashRelease.F90
 echo end                                       >> setup_flashRelease.F90
 
