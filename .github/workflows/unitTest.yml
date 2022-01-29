@@ -1,7 +1,7 @@
 # Name of the github-docker workflow
 name: unitTest
 
-# Perform tests on pull request
+# Perform container on pull request
 on:
   workflow_dispatch:
 
@@ -26,9 +26,9 @@ jobs:
     - uses: akashdhruv/Maple/.github/actions/maple@main
       with:
         singularity-version: 3.8.3
-    - name: Run tests
+    - name: Run container
       run: |   
-          python3 tests/unitTest/Grid.py
+          python3 container/unitTest/Grid.py
 
   Multigrid:
     name: "Multigrid"
@@ -38,7 +38,7 @@ jobs:
     - uses: akashdhruv/Maple/.github/actions/maple@main
       with:
         singularity-version: 3.8.3
-    - name: Run tests
+    - name: Run container
       run: |   
-          python3 tests/unitTest/Multigrid.py
+          python3 container/unitTest/Multigrid.py
 

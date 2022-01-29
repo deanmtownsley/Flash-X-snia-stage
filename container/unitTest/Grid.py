@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # name: name of the image
     # base: remote image of flashx environment
     # backend: docker/singularity
-    image = maple.Image(name='grid',base='akashdhruv/flashx:amrex.22.01',backend='docker')
+    image = maple.Image(name='grid',base='akashdhruv/flashx:latest',backend='docker')
     
     # create a container object
     # name: name of the local container
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     # execute commands inside the container
     # build and run amrex simulation
     container.run(image,'FlashTest -z /home/mount/FlashX \
-                                   -o /home/mount/FlashX/tests/unitTest/TestResults \
-                                   -i /home/mount/FlashX/tests/unitTest/unitTest.xml \
+                                   -o /home/mount/FlashX/container/unitTest/TestResults \
+                                   -i /home/mount/FlashX/container/unitTest/unitTest.xml \
                                    UnitTest/Grid/AMR/AMReX/2d/Init \
                                    UnitTest/Grid/AMR/AMReX/2d/Refine \
                                    UnitTest/Grid/AMR/AMReX/2d/FluxCorrection \
