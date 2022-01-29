@@ -1,10 +1,13 @@
 # Flash-X
 
+## Containerization Workflows
+
 ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
 ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
 ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
-![Grid](https://github.com/Flash-X/Flash-X/workflows/Grid/badge.svg)
+![unitTest](https://github.com/Flash-X/Flash-X/workflows/unitTest/badge.svg)
 
+These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
 ## Git/Testing Workflow
 
@@ -17,7 +20,6 @@ The current rules for collaborating via git are as follows
 4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
 5.  Do not rebase a feature branch that has already been pushed to the GitHub
     repository.
-6. You can also set up github action workflows by create a subdirecty in ```tests/``` and adding a corresponding workflow in ```.github/workflows/``` see ```tests/incompFlow``` and ```.github/workflows/incompFlow.yml``` files for example
 
 ## Libraries
 
@@ -51,92 +53,6 @@ from a separate git repository, the following modified `git` commands can be use
 
 - `git pull --recurse-submodules=yes` (in place of the usual `git pull`)
 - `git submodule update --init` (additionally, after `git pull`)
-
-## Using MAPLE Container
-
-MAPLE is a Python API and CLI that acts as a wrapper around ```docker```/```singularity``` to implement containerization of HPC applications and their developer environment. With MAPLE, one can run, compile, and develop ```Flash-X``` inside a container without having to install external libraries on a new machine. The only dependency for MAPLE is ```docker``` and ```singularity```.
-
-We intend to develop MAPLE as a standalone application for multiple projects, and therefore provide it as a submodule within ```Flash-X```
-
-If you want to test this new feature please follow these steps:
-
-### Tutorial
-
-[![Tutorial](http://img.youtube.com/vi/gNmVtj7-RBY/0.jpg)](http://www.youtube.com/watch?v=gNmVtj7-RBY "Containerization with Flash-X")
-
-### Install Maple
-
-  ```
-  mkdir -p $HOME/.local/bin
-  export PATH="$PATH:$HOME/.local/bin"
-
-  cd ~/. && git clone git@github.com:akashdhruv/Maple.git
-  cd ~/Maple && ./setup develop && ./setup install
-  ```
-
-### Writing a Maplefile
-
-  ```Maplefile``` is used to define environment variables required by ```maple```. Following is a list of variables:
-  
-  ```base```: Name of the base image
-  
-  ```container```: Name of the local container  	
-  
-  ```target```: Name of the target dir to mount source dir
-  
-  ```backend```: Backend (docker/singularity)
-  
-  ```maple``` passes these variables to its internal ```Dockerfile``` to build the images and containers.
-
-  Please refer to example ```Maplefile``` in ```Flash-X``` directory
-
-### CLI use:
-
-  - Building an image
-
-    ```maple image build <image-name>```: Build local image from remote image
-
-  - Getting shell access:
-
-    ```maple container pour --image=<image>```: Pour local image into a container
-
-    ```maple container shell```: Provides shell access to the container
-
-    ```maple container commit --image=<image>```: Save changes from local container to local image (only available with docker backend)
-
-    ```maple container rinse```: This commands stops and deletes the local container (only available with docker backend)
-
-    ```maple image squash --image=<image>```: Prune redundant layers from a local image (do this to reduce size of an image after ```maple container commit```, only available with docker backend)
-
-  - Launch an ipython notebook inside the 
-
-    ```maple container notebook --image=<image> --port=<port>```: launches the notebook server
-
-  - Run commands inside the container
-
-    ```maple container run --image=<image> "echo Hello World!"```: example to launch specific command inside the container, use --comit to save changes to the image
-
-  - Cleanup
-
-    ```maple container rinse <container1> <container2> <container3>```: deletes containers
-
-    ```maple image delete <image1> <image2> <image3>```: deletes images
-
-  - Remote interface
-    ```maple pull <image>``` and ```maple push <image>```
-
-  - To compile ```Flash-X``` inside the container use ```sites/container``` as the site directory
-
-    ```
-    ./setup incompFlow/PoolBoiling -auto -2d -site=container +amrex -maxblocks=100
-    ```
-
-### API use:
-
-  Python API provides a way to package ```Flash-X``` simulations for deployment within cloud computing environments and machine learning workflows. Example scripts are located in ```tests``` sub-directory, which is designed to match ```Simulation/SimulationMain``` directory structure.
-
-  Run ```python3 tests/incompFlow/PoolBoiling.py``` and ```python3 tests/incompFlow/RisingBubble.py``` to see how it works.
-uitilty
 
 ## Tests 
 
