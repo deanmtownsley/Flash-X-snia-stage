@@ -1,4 +1,4 @@
-!!****f* source/Grid/GridMain/UG/Grid_getNumBlksFromType
+!!****if* source/Grid/GridMain/UG/Grid_getNumBlksFromType
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -13,14 +13,14 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getNumBlksFromType(integet(IN) :: blockType, integer(OUT) :: numBlocks)
+!!  call Grid_getNumBlksFromType(integer(IN) :: blockType, integer(OUT) :: numBlocks)
 !!  
 !! DESCRIPTION 
 !!  Get the number of local blocks on a processor based on type 
 !!
 !! ARGUMENTS
 !!  blockType : The nodetype of blocks for which numBlocks is requested
-!!  numBlocks : The number of blocks currently in use on myProcessor
+!!  numBlocks : The number of blocks of the requested type currently on myProcessor.
 !!
 !!***
 

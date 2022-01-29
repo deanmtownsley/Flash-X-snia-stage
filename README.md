@@ -38,7 +38,7 @@ On the other hand, some applications and tests use INTERNAL libraries. Such libr
 
    An example is the sqrt3 library, whose source code is included in lib/sqrt/ .
 
- **Library source code must be retrieved from a separate repository.**
+2. **Library source code must be retrieved from a separate repository.**
 
    Examples are the THORNADO and WEAKLIB libraries.
    Follow the instructions on submodules to automatically put the source code for these two

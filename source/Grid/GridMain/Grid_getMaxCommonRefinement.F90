@@ -14,7 +14,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
+!!  call Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
 !!                              integer(OUT) :: maxRefinement)
 !!
 !! DESCRIPTION
@@ -32,7 +32,9 @@
 !!                  inputComm communicator.
 !!
 !! NOTES
-!! 
+!!
+!!  DEV: Not yet implemented for Amrex, will abort if called.
+!!
 !!  Communicator argument allows us to compare a subset of processes.
 !!  It also makes it explicit to the user that this routine must be 
 !!  called by all processes in the passed communicator ...otherwise
