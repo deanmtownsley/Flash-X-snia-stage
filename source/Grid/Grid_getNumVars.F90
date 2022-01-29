@@ -12,17 +12,23 @@
 !!  Grid_getNumVars
 !! 
 !! SYNOPSIS
-!!  Grid_getNumVars(integer, intent(in)  :: gridStruct,
-!!                  integer, intent(out) :: nVar)
+!!  call Grid_getNumVars(integer(in)  :: gridStruct,
+!!                       integer(out) :: nVar)
 !!
 !! DESCRIPTION
 !!  Returns the number of variables in each mesh data
 !!  structure.  Allows us to write more flexible code that
-!!  is not dependent on NUNK_VARS and NFACE_VARS e.t.c.
+!!  is not dependent on NUNK_VARS and NFACE_VARS, etc.
 !!
 !! ARGUMENTS
-!!  gridStruct -- Integer value representing mesh data structure
+!!  gridStruct -- Integer value representing mesh data structure;
+!!                one of CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR,etc.
 !!  nVar -- Number of mesh variables in gridStruct
+!!
+!! NOTES
+!!
+!!  The symbols CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR, etc., for use in
+!!  in the gridStruct argument, are defined in header file constants.h .
 !!
 !!***
 subroutine Grid_getNumVars(gridStruct, nVar)  

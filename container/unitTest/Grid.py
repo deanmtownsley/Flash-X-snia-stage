@@ -22,16 +22,16 @@ if __name__ == "__main__":
 
     # execute commands inside the container
     # build and run amrex simulation
-    container.run(image,"FlashTestSuite -z /home/mount/FlashX \
-                                        -o /home/mount/FlashX/TestResults \
-                                        -s container \
-                                        UnitTest/Grid/AMR/AMReX/2d/Init \
-                                        UnitTest/Grid/AMR/AMReX/2d/Refine \
-                                        UnitTest/Grid/AMR/AMReX/2d/FluxCorrection \
-                                        UnitTest/Grid/AMR/AMReX/2d/FluxCorrection2 \
-                                        UnitTest/Grid/AMR/AMReX/2d/TestCyl \
-                                        UnitTest/GridAnomalousRefine/2d/Paramesh \
-                                        UnitTest/GridAnomalousRefine/2d/AMReX")
+    container.run(image,'FlashTest -z /home/mount/FlashX \
+                                   -o /home/mount/FlashX/container/unitTest/TestResults \
+                                   -i /home/mount/FlashX/container/unitTest/unitTest.xml \
+                                   UnitTest/Grid/AMR/AMReX/2d/Init \
+                                   UnitTest/Grid/AMR/AMReX/2d/Refine \
+                                   UnitTest/Grid/AMR/AMReX/2d/FluxCorrection \
+                                   UnitTest/Grid/AMR/AMReX/2d/FluxCorrection2 \
+                                   UnitTest/Grid/AMR/AMReX/2d/TestCyl \
+                                   UnitTest/GridAnomalousRefine/2d/Paramesh \
+                                   UnitTest/GridAnomalousRefine/2d/AMReX')
 
     # delete image
     image.delete()

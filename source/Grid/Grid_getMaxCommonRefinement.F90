@@ -14,7 +14,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
+!!  call Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
 !!                              integer(OUT) :: maxRefinement)
 !!
 !! DESCRIPTION
@@ -32,12 +32,21 @@
 !!                  inputComm communicator.
 !!
 !! NOTES
-!! 
+!!
+!!  DEV: Not yet implemented for Amrex, will abort if called.
+!!
 !!  Communicator argument allows us to compare a subset of processes.
 !!  It also makes it explicit to the user that this routine must be 
 !!  called by all processes in the passed communicator ...otherwise
 !!  deadlock.
 !!
+!!  This routine differs from Grid_getMaxRefinement is several ways:
+!!   1. Grid_getMaxCommonRefinement looks for existing LEAF blocks with the
+!!      smallest refinement level (actual), while
+!!      Grid_getMaxRefinement looks for blocks with the highest
+!!      refinement level (either actual or potential).
+!!   2. Grid_getMaxRefinement has additional optional arguments to select
+!!      modes and task subsets.
 !!***
 
 subroutine Grid_getMaxCommonRefinement(inputComm, maxRefinement)

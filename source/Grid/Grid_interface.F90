@@ -991,6 +991,15 @@ Module Grid_interface
 
   interface Grid_getBlkIDFromPos
 
+     subroutine Grid_getBlkNeighBlkIDFromPos(blockDesc, pos, neghDir, ansBlockID, ansProcID)
+       use Grid_tile, ONLY : Grid_tile_t
+       implicit none
+       type(Grid_tile_t), intent(IN) :: blockDesc
+       real, dimension(MDIM), intent(IN) :: pos
+       integer, dimension(MDIM), intent(IN) :: neghDir
+       integer, intent(OUT) :: ansBlockID, ansProcID
+     end subroutine Grid_getBlkNeighBlkIDFromPos
+
      subroutine Grid_getBlkIDFromPos(pos, ansBlockID, ansProcID, comm)
        implicit none
        real, dimension(1:MDIM), intent(IN) :: pos

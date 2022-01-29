@@ -35,8 +35,8 @@
 !!
 !! ARGUMENTS
 !!
-!!  maxRefinement - Max common refinement level of blocks in the 
-!!                  inputComm communicator.
+!!  maxRefinement - Maximum refinement level returned.
+!!
 !!  inputComm - Input MPI communicator, only used if mode=4 and scope=2.
 !!              Default - none.
 !!  mode      - 1 for lrefine_max,
@@ -69,6 +69,17 @@
 !!   2. Grid_getMaxRefinement has additional optional arguments to select
 !!      modes and task subsets.
 !!
+!!   For the Amrex implementation, not all values for scope are supported.
+!!   In the case mode=4 it is up to the AMReX function amrex_get_finest_level()
+!!   whether actual communication takes place.
+!!
+!!   In the Paramesh4 implementation, for the common case mode=4,scope=3
+!!   a value from the module variable gr_finestExistingLevel may be
+!!   returned rather than performing actual MPI communication; this
+!!   value is assumed to be a valid cached value set to the finest
+!!   existing level if it is > 0. However, this subroutine does not
+!!   modify gr_finestExistingLevel; such modification should be done
+!!   outside of this routine whenever the refinement pattern changes.
 !!***
 
 subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
@@ -86,12 +97,6 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
 #ifdef FLASH_GRID_AMREX
   use amrex_amrcore_module, ONLY : amrex_max_level, amrex_get_finest_level
   use Grid_data, ONLY :  gr_maxRefine, gr_enforceMaxRefinement
-#endif
-#ifdef FLASH_GRID_CHOMBO
-#ifndef FLASH_GRID_UG
-  use Grid_data, ONLY : gr_maxRefine, gr_enforceMaxRefinement
-  use Grid_data, ONLY : lnblocks, lrefine_min,lrefine_max, lrefine
-#endif
 #endif
 
 #include "Flashx_mpi_implicitNone.fh"
@@ -197,7 +202,7 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
      return
   end if
 
-!#if defined(FLASH_GRID_PARAMESH)
+! The following code should be reached only if defined(FLASH_GRID_PARAMESH)
 
   call MPI_Allreduce(localOutLevel, outLevel, 1, MPI_INTEGER, &
        MPI_MAX, comm, ierr)

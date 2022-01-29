@@ -14,7 +14,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call gr_findNeghID(integer(IN)  :: blockid,
+!!  call gr_findNeghID(integer(IN)  :: blockID,
 !!                     real(IN)     :: pos(MDIM),
 !!                     integer(IN)  :: negh(MDIM),
 !!                     integer(OUT) :: neghid(BLKNO:PROCNO))
@@ -28,7 +28,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockid : ID of block in current processor
+!!   blockID : ID of block in current processor
 !!
 !!   pos :     coordinates of the point of interest
 !!
@@ -51,7 +51,7 @@
 !!
 !!***
 
-subroutine gr_findNeghID(block,pos,negh,neghID)
+subroutine gr_findNeghID(blockID,pos,negh,neghID)
 #include "constants.h"
 #include "Simulation.h"
 
@@ -59,11 +59,12 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
 !  use Grid_interface, ONLY : Grid_getBlkBoundBox,Grid_outsideBoundBox, Grid_getBlkBC
 !  use Grid_data, ONLY : gr_globalDomain, gr_meshMe
 !  use tree, ONLY : surr_blks,parent,child, bnd_box
+
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   
   implicit none
-  type(Grid_tile_t), intent(IN) :: block
+  integer,intent(IN) :: blockID
   real,dimension(MDIM),intent(IN) :: pos
   integer,dimension(MDIM),intent(IN) :: negh
   integer,dimension(BLKNO:PROCNO),intent(OUT) :: neghID
@@ -78,7 +79,6 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
 !  logical :: outside
 !  real, dimension(MDIM) :: wpos, deltaDomain
 !  integer, dimension(LOW:HIGH, MDIM) :: faces, ignoreMe
-!  integer :: blockID
 !
 !  !It is possible that unused dimensions of neghInput are
 !  !uninitialized in the calling code.  We make gr_findNeghID more
@@ -94,8 +94,6 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
 !#if NDIM == 3 
 !  negh_prop(:)=surr_blks(:,negh(IAXIS),negh(JAXIS),negh(KAXIS),blockID)
 !#endif
-!
-!  blockID = block%id
 !
 !  if (negh_prop(PROCNO)==NONEXISTENT) then
 !

@@ -156,7 +156,6 @@ The following API-Level stub-files
 are not represented in "source/Grid/Grid_interface.F90":
 --------------------------------------------------------
 Grid_getBlkIndexLimits
-Grid_getBlkNeighBlkIDFromPos
 Grid_properTilingWanted
 Grid_ascModule
 Grid_overwriteFluxes
@@ -330,11 +329,17 @@ Violations:
       Line 102 : !   DEV: Currently only implemented correctly for Paramesh4 and UG!
       Line 104 : !   DEV: The indices returned may be according to the "native" convention
 
+   source/Grid/Grid_getBlkNeighBlkIDFromPos.F90
+      Line  68 : !DEV: There is no proper implementation, Paramesh4 implementation will abort if called.
+
    source/Grid/Grid_getBlkNeighLevels.F90
       Line  77 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
 
    source/Grid/Grid_getFluxData_block.F90
       Line  70 : !   DEV: This interface is currently only implemented for Paramesh4 !
+
+   source/Grid/Grid_getMaxCommonRefinement.F90
+      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
 
    source/Grid/Grid_primitiveToConserve.F90
       Line  38 : !  DEV: Currently only implemented for Paramesh4!
@@ -369,6 +374,9 @@ Violations:
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
       Line  73 : ! DEV: TODO Should this set area to 1?
       Line 138 : ! DEV: TODO These can be done more simply using
+
+   source/Grid/GridMain/Grid_getMaxCommonRefinement.F90
+      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
 
    source/Grid/GridMain/gr_findMean.F90
       Line  88 : ! DEVNOTE: This appears to be for Cartesian only blocks/cells.
@@ -500,6 +508,9 @@ Violations:
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkIndexLimits.F90
       Line 112 : ! DEV: FIXME This no longer needs to be a module.  Revert to normal 
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkNeighBlkIDFromPos.F90
+      Line  68 : !DEV: There is no proper implementation, will abort if called.
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_makeVector.F90
       Line  88 : ! DEVNOTE: This should be made generic and moved to GridMain/AMR

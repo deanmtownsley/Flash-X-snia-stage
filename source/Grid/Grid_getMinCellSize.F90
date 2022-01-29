@@ -13,7 +13,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getMinCellSize(real (OUT)  :: minCellSize)
+!!  call Grid_getMinCellSize(real (OUT)  :: minCellSize)
 !!               
 !!  
 !! DESCRIPTION 
