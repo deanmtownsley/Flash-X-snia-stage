@@ -62,7 +62,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockList, nvars)
 
   use Grid_data,        ONLY : gr_meshComm, gr_meshMe
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
@@ -77,7 +77,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockList, nvars)
 #include "Simulation.h"
 #include "constants.h"
 #include "HYPREf.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,                      intent(IN) :: blockCount
   integer,dimension(blockCount),intent(IN) :: blockList
@@ -404,7 +404,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockList, nvars)
                                 !! very simply found.
                                 level = lrefine(lb)
                              else
-                                call Driver_abortFlash("unable to find negh")
+                                call Driver_abort("unable to find negh")
                              end if
                           else
                              !! information is locally cached.

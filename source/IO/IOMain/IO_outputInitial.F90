@@ -54,7 +54,7 @@ subroutine IO_outputInitial( nbegin, initialSimTime)
     IO_writeCheckpoint, IO_writePlotfile, IO_writeParticles
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, intent(in) :: nbegin
   real, intent(in) :: initialSimTime
   logical :: forcePlotfile

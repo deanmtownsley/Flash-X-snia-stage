@@ -49,7 +49,7 @@ subroutine gr_ptSameProcMap (srcCoords, destCoords, negh, varGrid)
   use gr_ptData, ONLY : gr_ptBuf
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   use gr_ptInterface, ONLY : gr_ptProlongSmear
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "constants.h"
@@ -102,7 +102,7 @@ subroutine gr_ptSameProcMap (srcCoords, destCoords, negh, varGrid)
   else if(refLevelDif == -1) then
      upperLimit(:) = destEnd(1:MDIM)-destStart(1:MDIM)+1
   else
-     call Driver_abortFlash("[gr_ptFromNegh]: Unrecognised refinement difference between source and dest blocks")
+     call Driver_abort("[gr_ptFromNegh]: Unrecognised refinement difference between source and dest blocks")
   end if
 
 

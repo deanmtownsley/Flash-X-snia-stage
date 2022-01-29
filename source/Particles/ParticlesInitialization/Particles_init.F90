@@ -47,7 +47,7 @@ subroutine Particles_init ( restart)
   
   use Particles_data
 
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getComm, Driver_getMype,&
+  use Driver_interface, ONLY : Driver_abort, Driver_getComm, Driver_getMype,&
        Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
     RuntimeParameters_mapStrToInt
@@ -143,7 +143,7 @@ subroutine Particles_init ( restart)
 
   if(isLattice) then
 #ifndef PART_INITMETHOD_LATTICE
-     call Driver_abortFlash("Particles are set up to use a Lattice initialization method,"// &
+     call Driver_abort("Particles are set up to use a Lattice initialization method,"// &
           " but a unit to implement that method has not been compiled in!")
 #endif
      call RuntimeParameters_get ("pt_numX", pt_numX)
@@ -160,7 +160,7 @@ subroutine Particles_init ( restart)
 
   if(isWithDensity) then
 #ifndef PART_INITMETHOD_WITHDENSITY
-     call Driver_abortFlash("Particles are set up to use a density-based initialization method,"// &
+     call Driver_abort("Particles are set up to use a density-based initialization method,"// &
           " but a unit to implement that method has not been compiled in!")
 #endif
      call RuntimeParameters_get ("pt_pRand", pt_pRand)
@@ -189,7 +189,7 @@ subroutine Particles_init ( restart)
      if (.not. allocated(particles)) &
           allocate (particles(NPART_PROPS,pt_maxPerProc), stat=ierr)
      if (ierr /= 0) then
-        call Driver_abortFlash("Particles_init:  could not allocate particle array")
+        call Driver_abort("Particles_init:  could not allocate particle array")
      endif
           
      !initialize all particles to NONEXISTENT
@@ -228,7 +228,7 @@ subroutine Particles_init ( restart)
   !! temporary values that need to have boundary conditions
   !! applied to them
 #ifdef POSPREDX_PART_PROP
-  call Driver_abortFlash(&
+  call Driver_abort(&
        "Particles_init: two types of temporary position attributes are not supported yet (TMPX_PART_PROP / POSPREDX_PART_PROP)")
 #endif
   pt_indexList(GRPT_POSXTMP_IND)=TMPX_PART_PROP

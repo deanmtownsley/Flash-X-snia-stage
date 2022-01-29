@@ -26,7 +26,7 @@
 subroutine IO_endProtonWrite ()
 
   use IO_data,          ONLY: io_protonFileID
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
   implicit none
 !

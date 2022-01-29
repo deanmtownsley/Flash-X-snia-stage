@@ -42,7 +42,7 @@ subroutine Eos_getInnerMostDensity(postBounce)
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical, intent(OUT) :: postBounce
 

@@ -37,7 +37,7 @@ subroutine gr_restrictTree()
   
   use Grid_data, ONLY:  gr_meshComm, gr_meshMe
   
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
   integer :: gridDataStruct
   

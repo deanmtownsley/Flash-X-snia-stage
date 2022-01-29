@@ -37,14 +37,14 @@
 #include "Simulation.h"
 
 subroutine gr_findMean(iSrc, iType, bGuardcell, mean)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,   ONLY : Grid_getTileIterator, &
                                Grid_releaseTileIterator
   use Grid_data,        ONLY : gr_meshComm
   use Grid_iterator,    ONLY : Grid_iterator_t
   use Grid_tile,        ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, intent(in)  :: iSrc
   integer, intent(in)  :: iType
   logical, intent(in)  :: bGuardcell
@@ -70,9 +70,9 @@ subroutine gr_findMean(iSrc, iType, bGuardcell, mean)
   mean = 0.0
 
   if (iType /= 2) then
-     call Driver_abortFlash("[gr_findMean] Can only do arithmetic mean with iType=1")
+     call Driver_abort("[gr_findMean] Can only do arithmetic mean with iType=1")
   else if (bGuardCell) then
-     call Driver_abortFlash("[gr_findMean] Inclusion of guardcells not yet coded")
+     call Driver_abort("[gr_findMean] Inclusion of guardcells not yet coded")
   end if
 
   localVolume = 0.

@@ -82,7 +82,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
      sim_noiseAmplitude, sim_noiseDistance, &
      sim_xCenterPerturb, sim_yCenterPerturb, sim_zCenterPerturb, &
      sim_xmin, sim_xmax, sim_ymin, sim_ymax, sim_zmin, sim_zmax  
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
     Multispecies_getSumFrac
   use Grid_interface, ONLY : Grid_getCellCoords

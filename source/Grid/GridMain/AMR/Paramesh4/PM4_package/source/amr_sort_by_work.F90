@@ -85,7 +85,7 @@
       Use io
       Use paramesh_comm_data
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/Output arguments.
       integer, intent(inout) :: new_loc(:,:)

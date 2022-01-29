@@ -54,7 +54,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     use amrex_fort_module,    ONLY : wp => amrex_real
     use amrex_amrcore_module, ONLY : amrex_get_finest_level
 
-    use Driver_interface,     ONLY : Driver_abortFlash
+    use Driver_interface,     ONLY : Driver_abort
     use Grid_interface,       ONLY : Grid_getGeometry, &
                                      Grid_getTileIterator, &
                                      Grid_releaseTileIterator, &
@@ -87,7 +87,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     nullify(fluxData)
 
     if (axis /= ALLDIR) then
-        call Driver_abortFlash("[Grid_conserveFluxes] AMReX requires axis==ALLDIR")
+        call Driver_abort("[Grid_conserveFluxes] AMReX requires axis==ALLDIR")
     end if
 
     ! FLASH uses 1-based level index / AMReX uses 0-based index
@@ -354,7 +354,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     case default
        ! DEV: TODO This routine should take an isFluxDensity array as an argument
        ! so that the routine can determine which need to be scaled and which do not
-       call Driver_abortFlash("[Grid_conserveFluxes] Only works with Cartesian")
+       call Driver_abort("[Grid_conserveFluxes] Only works with Cartesian")
     end select
 end subroutine Grid_conserveFluxes
 

@@ -12,7 +12,7 @@
 !!***
 subroutine IncompNS_getGridVar(name, value)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -20,7 +20,7 @@ subroutine IncompNS_getGridVar(name, value)
 
   value = -1
   print *,"Error in setting grid var: ",name
-  call Driver_abortFlash("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
+  call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
 
   return
 end subroutine IncompNS_getGridVar

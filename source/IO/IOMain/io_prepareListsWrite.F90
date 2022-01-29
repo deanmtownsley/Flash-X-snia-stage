@@ -56,7 +56,7 @@ subroutine io_prepareListsWrite()
     RuntimeParameters_getAllStr, RuntimeParameters_getAllLog
   
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer             :: i, maxNumParms

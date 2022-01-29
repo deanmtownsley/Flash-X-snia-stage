@@ -92,70 +92,6 @@
 !!  eos_tol    Controls the accuracy of the Newton Rhapson iterations for MODE_DENS_EI and 
 !!             MODE_DENS_PRES.
 !!
-!! EXAMPLE
-!!
-!! --- A single-point at a time example, does not calculate derivatives (based on Cellular Simulation)---
-!!
-!!  use Eos_interface, ONLY:  Eos
-!!  use Grid_interface ! ....
-!!
-!!  #include "constants.h"   ! for MODE_DENS_TEMP
-!!  #include "Simulation.h"       ! for SPECIES_BEGIN,SPECIES_END, TEMP_VAR, etc.
-!!  #include "Eos.h"         ! for EOS_NUM, EOS_TEMP, etc.
-!!
-!!  real  :: temp_zone, rho_zone, ptot, eint, entr, gamma
-!!  real, dimension(EOS_NUM)  :: eosData
-!!  real, dimension(SPECIES_BEGIN:SPECIES_END) ::  massFraction  
-!!  integer, dimension(2,MDIM)                 :: blockRange,blockExtent
-!!
-!!
-!!  massFraction(:) = 1.0e-12        
-!!  massFraction(C12_SPEC) = 1.0
-!!
-!!  .... initiale temp_zone, rho_zone
-!!
-!! ------------------ Row at a time example, with derivates (based on Eos_unitTest) --------
-!!
-!!  use Eos_interface, ONLY:  Eos
-!!  use Grid_interface ! ....
-!!  #include "constants.h"   ! for MODE_DENS_TEMP, LOW,HIGH,IAXIS,JAXIS,KAXIS
-!!  #include "Simulation.h"       ! for NSPECIES, SPECIES_BEGIN,SPECIES_END, DENS_VAR,TEMP_VAR, etc.
-!!  #include "Eos.h"         ! for EOS_NUM, EOS_DENS, EOS_TEMP, etc.
-!!  integer veclen, isize, jsize, ksize, i,j,k, e
-!!  real, dimension(:), allocatable :: eosData
-!!  real, dimension(:), allocatable :: massFrac
-!!  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
-!!  real, allocatable, dimension(:,:,:,:) :: derivedVariables
-!!  integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
-!!
-!!  ...
-!!    ! indices into the first location for these variables
-!!    pres = (EOS_PRES-1)*vecLen
-!!    dens = (EOS_DENS-1)*vecLen
-!!    temp = (EOS_TEMP-1)*vecLen
-!!
-!!
-!!    do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-!!        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
-!!           do i = 1,vecLen
-!!              massFrac((i-1)*NSPECIES+1:i*NSPECIES) = &
-!!                   solnData(SPECIES_BEGIN:SPECIES_END,ib+i-1,j,k)
-!!           end do
-!!
-!!           eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
-!!           eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
-!!           ! Eos Helmholtz needs a good initial estimate of temperature no matter what the mode
-!!           eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
-!!
-!!           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
-!!
-!!           do e=EOS_VARS+1,EOS_NUM
-!!              m = (e-1)*vecLen
-!!              derivedVariables(1:vecLen,j-NGUARD,k-NGUARD,e) =  eosData(m+1:m+vecLen)
-!!           end do
-!!        end do
-!!     end do
-!!
 !! NOTES
 !!
 !!  NSPECIES is defined in Simulation.h.
@@ -212,7 +148,7 @@
 
 subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
        Multispecies_getSumFrac
   use Logfile_interface, ONLY:  Logfile_stampMessage
@@ -264,7 +200,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
   !  if you are working with electron abundance mass scalars, then you don't
   !  necessarily have to have mass fractions.
   if(.not.present(massFrac)) then
-     call Driver_abortFlash("[Eos] Helmholtz needs mass fractions")
+     call Driver_abort("[Eos] Helmholtz needs mass fractions")
   end if
 
   if (present(diagFlag)) then
@@ -434,7 +370,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' ewant= ', ewantRow(k)
 
 
-        call Driver_abortFlash('[eos_helmholtz] Error: too many iterations in Helmholtz Eos')
+        call Driver_abort('[eos_helmholtz] Error: too many iterations in Helmholtz Eos')
 
 
         ! Land here if the Newton iteration converged
@@ -559,7 +495,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' pres = ', ptotRow(k)
         print *, ' pwant= ', pwantRow(k)
 
-        call Driver_abortFlash('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
+        call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
 
 
         ! Land here if the Newton iteration converged
@@ -593,7 +529,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   else if (mode .NE. MODE_EOS_NOP) then
      if (eos_meshMe .EQ. MASTER_PE) print*, '[eos_helmholtz] Error: unknown input mode', mode
-     call Driver_abortFlash('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
+     call Driver_abort('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
   end if
 
 
@@ -654,7 +590,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
         else
-           call Driver_abortFlash("[eos_helmholtz] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[eos_helmholtz] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
 
@@ -663,7 +599,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
         else
-           call Driver_abortFlash("[eos_helmholtz] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[eos_helmholtz] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
   end if

@@ -45,7 +45,7 @@ subroutine gr_markInRadius(ic, jc, kc, radius, lref)
 
 !-------------------------------------------------------------------------------
   use tree, ONLY : refine, derefine, lrefine, bsize, coord, lnblocks, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_geometry
 #include "constants.h"
 #include "Simulation.h"
@@ -166,7 +166,7 @@ subroutine gr_markInRadius(ic, jc, kc, radius, lref)
         endif
      end do
   else
-     call Driver_abortFlash("MarkRefine: geometry spec is wrong")
+     call Driver_abort("MarkRefine: geometry spec is wrong")
      !-------------------------------------------------------------------------------
   end if
   return

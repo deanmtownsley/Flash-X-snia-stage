@@ -43,7 +43,7 @@ subroutine pt_initLocal ()
        pt_totalMass, pt_totalVolume, pt_averageDensity, pt_numParticlesWanted,&
        pt_meshComm
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator,&
                              Grid_getCellVolumes
@@ -54,7 +54,7 @@ subroutine pt_initLocal ()
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
 
 
@@ -81,7 +81,7 @@ subroutine pt_initLocal ()
   nullify(solnData)
   if ( (pt_geometry /= CARTESIAN) .and. &
        (.not. ((pt_geometry == CYLINDRICAL) .and. (NDIM == 2))) ) &
-       call Driver_abortFlash ("pt_initLocal:  unsupported geometry for with density particle initialization!")
+       call Driver_abort ("pt_initLocal:  unsupported geometry for with density particle initialization!")
 
   ! In this routine, we determine the total volume and average density on the
   ! grid and save it.  Note that this will only work correctly if pt_initPositions

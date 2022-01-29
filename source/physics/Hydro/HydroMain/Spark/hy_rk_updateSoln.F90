@@ -14,14 +14,27 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_updateSoln ( type(Grid_tile_t) :: blockDesc )
-!!
+!!  call hy_rk_updateSoln ( real, pointer :: Uin(:,:,:,:),
+!!                            integer (IN)  :: blkLimits(:,:),
+!!                            integer (IN)  :: blkLimitsGC(:,:),
+!!                            integer (IN)  :: level,
+!!                            real (IN)     :: hy_del(:),
+!!                            real (IN)     :: dt,
+!!                            real (IN)     :: dtOld,)
+!!                            real (IN)     :: coeffs(:))
+!!     
 !!  DESCRIPTION
 !!  Update solution based on conservative fluxes previously calculated.  Then convert
 !!  conservative to primitive variables.
 !!
 !!  ARGUMENTS
-!!  blockDesc-block descriptor
+!!    Uin -- pointer to solution data
+!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
+!!    level  -- the refine level of the block
+!!    hy_del  --- dx, dy, dz
+!!    dt - current time step
+!!    dtOld - old time step
+!!    coeff - coefficients for updating
 !!
 !!***
 !!Reorder(4): hy_starState, Uin, hy_fl[xyz]
@@ -33,9 +46,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   use Hydro_offload_data, ONLY : hy_tmpState
-  use Driver_interface, ONLY : Driver_abortFlash
-!!$  use Grid_interface, ONLY : Grid_getCellCoords,Grid_getCellFaceAreas,&
-!!$                             Grid_getCellVolumes
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
 
@@ -73,7 +84,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
 #ifdef OMP_OL
   if (hy_geometry /= CARTESIAN) then
-    call Driver_abortFlash("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
+    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
   endif
   !$omp target teams distribute parallel do &
   !$omp default(none) &

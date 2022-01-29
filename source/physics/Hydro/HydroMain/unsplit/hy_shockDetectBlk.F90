@@ -57,7 +57,7 @@ Subroutine hy_shockDetectBlk(Uin,loI,blkLimitsGC,Uout,loO,blkLimits,del )
                                 hy_shockLowerCFL
   use Driver_data,       ONLY : dr_nStep
   use Logfile_interface, ONLY : Logfile_open,Logfile_close
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -125,7 +125,7 @@ Subroutine hy_shockDetectBlk(Uin,loI,blkLimitsGC,Uout,loO,blkLimits,del )
      Uout(SHOK_VAR,ib:ie,jb:je,kb:ke)=0.
 #else
   if (hy_RiemannSolver == HYBR) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[hy_shockDetectBlk]: SHOK_VAR has not been defined for shock detection")
   endif
 #endif

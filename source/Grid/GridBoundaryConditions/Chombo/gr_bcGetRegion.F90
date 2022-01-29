@@ -140,7 +140,7 @@ subroutine gr_bcGetRegion(gridDataStruct,axis,endPoints,regionSize,mask,&
   
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   implicit none
   
@@ -269,7 +269,7 @@ subroutine gr_bcGetRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
      regionC,regionFN,regionFT1,regionFT2,&
      blockID,idest)
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   
@@ -291,7 +291,7 @@ subroutine gr_bcGetRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 #endif
 
   if (doCenter .OR. doFaces) then
-     call Driver_abortFlash('gr_gcGetRegionsMixedGds: invalid call when using Chombo as Grid.')
+     call Driver_abort('gr_gcGetRegionsMixedGds: invalid call when using Chombo as Grid.')
   end if
 
   ! Should not be reached - may pacify compiler warnings.

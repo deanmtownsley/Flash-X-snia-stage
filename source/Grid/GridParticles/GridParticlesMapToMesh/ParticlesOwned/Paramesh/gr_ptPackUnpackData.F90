@@ -58,13 +58,13 @@ subroutine gr_ptPackUnpackData(varGrid, bufferSize, sendBuf, sendCount, recvBuf,
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr, Grid_getBlkIndexLimits
   use gr_ptInterface, ONLY : gr_ptSearchBlk, gr_ptParseMetadata
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs,gr_meshComm
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "gr_ptMapToMesh.h"
 
   integer,intent(IN) :: varGrid
@@ -138,13 +138,13 @@ subroutine gr_ptPackUnpackData(varGrid, bufferSize, sendBuf, sendCount, recvBuf,
                     !Assert that the i, j, k coordinate maps to a central section.
                     if( (iCoord < NGUARD+1) .or. (iCoord > NXB + NGUARD) ) then
                        print *, "[gr_ptPackUnpackData]: iCoord is out of range = ", iCoord
-                       call Driver_abortFlash("[gr_ptPackUnpackData]: Error, i not mapping to central region")
+                       call Driver_abort("[gr_ptPackUnpackData]: Error, i not mapping to central region")
                     else if ( (K2D == 1) .and. ((jCoord < NGUARD+1) .or. (jCoord > NYB + NGUARD)) ) then
                        print *, "[gr_ptPackUnpackData]: jCoord is out of range = ", jCoord
-                       call Driver_abortFlash("[gr_ptPackUnpackData]: Error, j not mapping to central region")
+                       call Driver_abort("[gr_ptPackUnpackData]: Error, j not mapping to central region")
                     else if ( (K3D == 1) .and. ((kCoord < NGUARD+1) .or. (kCoord > NZB + NGUARD)) ) then
                        print *, "[gr_ptPackUnpackData]: kCoord is out of range = ", kCoord
-                       call Driver_abortFlash("[gr_ptPackUnpackData]: Error, k not mapping to central region")
+                       call Driver_abort("[gr_ptPackUnpackData]: Error, k not mapping to central region")
                     end if
 
 
@@ -179,7 +179,7 @@ subroutine gr_ptPackUnpackData(varGrid, bufferSize, sendBuf, sendCount, recvBuf,
         if((headerPtr-1) == recvCount) then
            exit 
         else if((headerPtr-1) > recvCount) then
-           call Driver_abortFlash("[gr_ptPackUnpackData] Metadata loop will not exit cleanly!") 
+           call Driver_abort("[gr_ptPackUnpackData] Metadata loop will not exit cleanly!") 
         end if
 
      end do EachHeader

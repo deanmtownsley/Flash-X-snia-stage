@@ -53,11 +53,10 @@ subroutine Eos_init()
   use Eos_data
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use PhysicalConstants_interface, ONLY:  PhysicalConstants_get
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz,&
-       eos_initMtemp,eos_initTabulated, eos_initGamma, eos_initNuclear
+  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz, eos_initGamma
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -83,7 +82,7 @@ subroutine Eos_init()
   call RuntimeParameters_get("eintSwitch",eos_eintSwitch)
 #ifndef EINT_VAR
   if (eos_eintSwitch > 0.0) then
-     call Driver_abortFlash("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
+     call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
   end if
 #endif
 
@@ -93,9 +92,6 @@ subroutine Eos_init()
   call eos_initGamma()
   call eos_initMgamma()
   call eos_initHelmholtz()
-  call eos_initMtemp()
-  call eos_initTabulated()
-  call eos_initNuclear()
   call eos_initWeaklib()
 
 

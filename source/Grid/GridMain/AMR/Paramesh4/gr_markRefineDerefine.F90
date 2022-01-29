@@ -57,7 +57,7 @@ subroutine gr_markRefineDerefine(error, refine_cutoff,derefine_cutoff)
 
   use Grid_data, ONLY: gr_meshComm, gr_meshMe, gr_maxRefine
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"  
   real, intent(IN) :: refine_cutoff, derefine_cutoff

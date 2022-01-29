@@ -31,7 +31,7 @@ subroutine IO_startProtonWrite ()
                               io_outputSplitNum,  &
                               io_protonFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
   implicit none
 
@@ -40,7 +40,7 @@ subroutine IO_startProtonWrite ()
   integer :: existing
 
   if (.not. io_wrotePlot) then
-       call Driver_abortFlash("[IO_startProtonWrite] Protons can only be written after a plot")
+       call Driver_abort("[IO_startProtonWrite] Protons can only be written after a plot")
   end if
 !
 !
@@ -57,7 +57,7 @@ subroutine IO_startProtonWrite ()
                        existing            )  ! -1 means 'open' the file, not 'create'
 
   if (io_protonFileID == -1) then
-      call Driver_abortFlash("[IO_startProtonWrite] unable to open hdf5 file: " // &
+      call Driver_abort("[IO_startProtonWrite] unable to open hdf5 file: " // &
                               trim (io_oldPlotFileName))
   end if
 !

@@ -55,7 +55,7 @@ subroutine io_readData()
        io_ilo, io_ihi, io_jlo, io_jhi, io_klo, io_khi, &
        io_checkpointFileNumber, io_baseName, io_outputSplitNum, io_comm, &
        io_chkptFileID, io_faceXVarLabels, io_faceYVarLabels, io_faceZVarLabels
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_bcast
   use Logfile_interface, ONLY : Logfile_stamp
   use Grid_interface, ONLY : Grid_putLocalNumBlks
@@ -65,7 +65,7 @@ subroutine io_readData()
 
   implicit none
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
 
@@ -181,7 +181,7 @@ subroutine io_readData()
   call IO_getScalar("globalNumBlocks", globalNumBlocks)
 
   if (globalNumBlocks /= io_globalNumProcs) then
-     call Driver_abortFlash("globalNumBlocks does not equal io_globalNumProcs &
+     call Driver_abort("globalNumBlocks does not equal io_globalNumProcs &
         &  UG requires 1 block per proc in fixedblocksize mode")
   end if
 

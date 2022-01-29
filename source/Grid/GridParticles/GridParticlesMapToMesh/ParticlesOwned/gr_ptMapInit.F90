@@ -29,7 +29,7 @@ subroutine gr_ptMapInit()
 
   use gr_ptMapData, ONLY : gr_ptSmearLen
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none 
 
 
@@ -37,7 +37,7 @@ subroutine gr_ptMapInit()
 
 
   if (gr_ptSmearLen < 0) then
-     call Driver_abortFlash("Variable smearLen must be at least 0")
+     call Driver_abort("Variable smearLen must be at least 0")
   end if
 
 end subroutine gr_ptMapInit

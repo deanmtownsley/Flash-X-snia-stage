@@ -29,7 +29,7 @@
 !!***
 subroutine amr_bittree_get_derefine(lev, ijk, derefine)
   use bittree, only: amr_bittree_get_bitid, bittree_is_parent, bittree_check_refine_bit
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   use iso_c_binding, only: c_int,c_bool
   implicit none
   
@@ -54,7 +54,7 @@ subroutine amr_bittree_get_derefine(lev, ijk, derefine)
 
 !-Check to make sure parent was IDed correctly
   if ((lev /= lev_par+1).OR.any(ijk/=(ijk_par*2+mod(ijk,2))))  &
-     call Driver_abortFlash("Error identifying block in amr_bittree_get_derefine. &
+     call Driver_abort("Error identifying block in amr_bittree_get_derefine. &
      &Routine can only be called on existing blocks.")
 
 !-Make sure parent is both marked as a parent and for nodetype change

@@ -28,7 +28,7 @@ subroutine RadTrans_init()
   ! Stub implementation
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -38,7 +38,7 @@ subroutine RadTrans_init()
 
   call RuntimeParameters_get ("useRadTrans", testUseRadTrans)
   if (testUseRadTrans) then
-     call Driver_abortFlash("RadTrans unit seems not to be compiled in, and the RadTrans_init stub does not &
+     call Driver_abort("RadTrans unit seems not to be compiled in, and the RadTrans_init stub does not &
           &allow the value of useRadTrans to be TRUE.")
   end if
 

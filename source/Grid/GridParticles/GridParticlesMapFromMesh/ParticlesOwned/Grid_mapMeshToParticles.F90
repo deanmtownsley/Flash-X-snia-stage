@@ -55,7 +55,7 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
                                     numAttrib, attrib,&
                                     mapType,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Particles_interface, ONLY : Particles_mapFromMesh
   use Grid_data, ONLY : gr_delta
   use physicaldata, ONLY : unk
@@ -108,7 +108,7 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
 
 #ifdef DEBUG_GRIDPARTICLES
         if((particles(part_blkID, i) < 0) .or. (particles(part_blkID, i) > blkCount)) then
-           call Driver_abortFlash("BLK_PART_PROP out of bounds")
+           call Driver_abort("BLK_PART_PROP out of bounds")
         end if
 #endif
         blk = int(particles(part_blkID,i))

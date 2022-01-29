@@ -67,7 +67,7 @@
 subroutine gr_cleanEnergyData(smallE, &
                               lo, hi, &
                               d, dlo, dhi, nd)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data,        ONLY : gr_sanitizeDataMode
 
   implicit none
@@ -109,7 +109,7 @@ subroutine gr_cleanEnergyData(smallE, &
             write(*,900)         i, j, k, smallE
             d(i,j,k,ENER_VAR) = max(d(i,j,k,ENER_VAR), smallE)
           else if (gr_sanitizeDataMode == 4) then
-            call Driver_abortFlash("[gr_cleanEnergyData] ENER data less than smallE")
+            call Driver_abort("[gr_cleanEnergyData] ENER data less than smallE")
           end if
         end if
       end do
@@ -130,7 +130,7 @@ subroutine gr_cleanEnergyData(smallE, &
             write(*,900)         i, j, k, smallE
             d(i,j,k,EINT_VAR) = max(d(i,j,k,EINT_VAR), smallE)
           else if (gr_sanitizeDataMode == 4) then
-            call Driver_abortFlash("[gr_cleanEnergyData] EINT data less than smallE")
+            call Driver_abort("[gr_cleanEnergyData] EINT data less than smallE")
           end if
         end if
       end do

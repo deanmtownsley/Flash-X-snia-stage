@@ -67,7 +67,7 @@ subroutine gr_initParameshArrays(restart,&
    use paramesh_interfaces, ONLY : amr_refine_derefine
    use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs
    use gr_interface, ONLY : gr_pmIoTreeMetadataIsValid
-   use Driver_interface, only: Driver_abortFlash
+   use Driver_interface, only: Driver_abort
 
    implicit none
 
@@ -79,10 +79,10 @@ subroutine gr_initParameshArrays(restart,&
    call mpi_amr_global_domain_limits()
 
    if(.NOT.use_flash_surr_blks_fill) &
-     call Driver_abortFlash("Error in initializing Bittree. Bittree is &
+     call Driver_abort("Error in initializing Bittree. Bittree is &
                        &only appropriate if use_flash_surr_blks_fill=True")
    if(lsingular_line .and. ndim > 1 .and. (spherical_pm .or. polar_pm)) &
-     call Driver_abortFlash("Error in initializing Bittree. Bittree is &
+     call Driver_abort("Error in initializing Bittree. Bittree is &
                        &not appropriate for spherical_pm, polar_pm")
    newchild(:) = .FALSE.
    call gr_initParameshDomainBboxes(xlboundary, xrboundary, &

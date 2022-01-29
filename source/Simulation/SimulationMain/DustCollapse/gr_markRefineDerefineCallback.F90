@@ -83,7 +83,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
    use gr_amrexInterface,      ONLY : gr_markInRadiusForCallback
    use gr_physicalMultifabs,   ONLY : unk
    use Grid_tile,              ONLY : Grid_tile_t
-  use Driver_interface,        ONLY : Driver_abortFlash
+  use Driver_interface,        ONLY : Driver_abort
 
   use Simulation_data, ONLY : sim_initDens, sim_ictr,sim_jctr,&
        sim_kctr, sim_initRad
@@ -210,7 +210,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
             .OR. ((hi_tag(IAXIS) + 1)   < hi(IAXIS)) &
             .OR. ((hi_tag(JAXIS) + K2D) < hi(JAXIS)) &
             .OR. ((hi_tag(KAXIS) + K3D) < hi(KAXIS))) then
-            call Driver_abortFlash("[gr_markRefineDerefineCallback] " // &
+            call Driver_abort("[gr_markRefineDerefineCallback] " // &
                                    "Tagbox is smaller than associated block")
         end if
 #endif

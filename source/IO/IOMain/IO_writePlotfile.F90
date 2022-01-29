@@ -89,7 +89,7 @@ subroutine IO_writePlotfile( forced)
     Grid_restrictAllLevels
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use IO_interface, ONLY : IO_updateScalars
-#include "Flash_mpi_implicitNone.fh"  
+#include "Flashx_mpi_implicitNone.fh"  
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"

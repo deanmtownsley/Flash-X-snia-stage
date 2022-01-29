@@ -39,8 +39,8 @@
 !! NOTES
 !!
 !!  Typically, Particles_unitTest will be called from a modified
-!!  version of Driver_evolveFlash. That implementation of
-!!  Driver_evolveFlash will typically
+!!  version of Driver_evolveAll. That implementation of
+!!  Driver_evolveAll will typically
 !!
 !!   * initialize the actual argument associated with the dummy argument 'perfect'
 !!     to TRUE, and
@@ -62,7 +62,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Driver_evolveFlash
+!!  Driver_evolveAll
 !!
 !!***
 

@@ -71,9 +71,11 @@
 !!
 !!***
 
+
 subroutine Grid_addFineToFluxRegister(fine_level, isDensity, coefficient, &
                                       zeroFullRegister)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
+
   
   implicit none
 
@@ -82,6 +84,6 @@ subroutine Grid_addFineToFluxRegister(fine_level, isDensity, coefficient, &
   real,    intent(IN), optional :: coefficient
   logical, intent(IN), optional :: zeroFullRegister
 
-  call Driver_abortFlash("[Grid_addFineToFluxRegister] Prototype stub.  Do NOT use!")
+  call Driver_abort("[Grid_addFineToFluxRegister] Prototype stub.  Do NOT use!")
 end subroutine Grid_addFineToFluxRegister
 

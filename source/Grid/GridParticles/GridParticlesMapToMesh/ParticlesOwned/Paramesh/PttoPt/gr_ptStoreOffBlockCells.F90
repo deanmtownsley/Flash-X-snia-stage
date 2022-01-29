@@ -60,7 +60,7 @@ subroutine gr_ptStoreOffBlockCells(particlesPerBlk, blockList, blockCount, blkLi
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "gr_ptMapToMesh.h"
 
   integer,dimension(MAXBLOCKS), intent(IN) :: particlesPerBlk, blockList

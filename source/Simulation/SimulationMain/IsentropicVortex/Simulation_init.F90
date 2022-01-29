@@ -35,7 +35,7 @@ subroutine Simulation_init()
        sim_imidDomain, sim_jmidDomain, sim_diDomain, sim_djDomain,&
        sim_tStarAmbient, sim_rbar, sim_constAmbient, sim_smlrho, sim_smallx,&
        sim_eosData, sim_eosMassFr, sim_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Eos_interface, ONLY : Eos
 
@@ -89,14 +89,14 @@ subroutine Simulation_init()
 !   Some checking of the inputs:
   if ( NDIM == 1 ) then
      print *, 'Error: ndim = 1. Problem is designed for 2d or 3d.' 
-     call Driver_abortFlash('Error: ndim = 1; require ndim = 2 or 3.')
+     call Driver_abort('Error: ndim = 1; require ndim = 2 or 3.')
   endif
   
   if (rhoAmbient .LT. 1.e4*sim_smlrho) then
      print *, 'Error: ambient density is close to ', & 
           'cutoff density'
      print *, 'reset smlrho to be less than ', 1.e-4*rhoAmbient
-     call Driver_abortFlash('Error: ambient density too close to smlrho!')
+     call Driver_abort('Error: ambient density too close to smlrho!')
   endif
 !   Done checking.
 

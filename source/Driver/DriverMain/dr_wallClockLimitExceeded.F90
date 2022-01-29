@@ -30,7 +30,7 @@
 !!  The elapsed time is determiend on the master PE and then
 !!  broadcast to all tasks.
 !!
-!!  This routines is usually called from Driver_evolveFlash.
+!!  This routines is usually called from Driver_evolveAll.
 !!
 !!***
 
@@ -38,7 +38,7 @@ subroutine dr_wallClockLimitExceeded(endRunWallClock)
   use Driver_interface, ONLY: Driver_getElapsedWCTime
   use Driver_data, ONLY: dr_globalMe, dr_globalComm, &
                          dr_elapsedWCTime, dr_wallClockTimeLimit
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   logical, intent(OUT) :: endRunWallClock
 
 #include "constants.h"

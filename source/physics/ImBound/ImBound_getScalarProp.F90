@@ -14,7 +14,7 @@
 
 subroutine ImBound_getScalarProp(name, value)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -24,6 +24,6 @@ subroutine ImBound_getScalarProp(name, value)
 
   value = 0.
   write(errorMessage,*) '[ImBound_getScalarProp] Unknown scalar: ',name
-  call Driver_abortFlash(errorMessage)
+  call Driver_abort(errorMessage)
 
 end subroutine ImBound_getScalarProp

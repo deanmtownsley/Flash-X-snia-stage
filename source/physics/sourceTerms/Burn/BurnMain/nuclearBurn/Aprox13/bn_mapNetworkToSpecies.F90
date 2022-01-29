@@ -31,7 +31,7 @@
 
 subroutine bn_mapNetworkToSpecies(networkIn,specieOut)
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage
 
   implicit none
@@ -79,7 +79,7 @@ subroutine bn_mapNetworkToSpecies(networkIn,specieOut)
      write(internalFile,*) &
           '[bn_mapNetworkToSpecies] Index ',networkIn,' cannot be mapped to a Simulation.h species'
      call Logfile_stampMessage(internalFile)
-     call Driver_abortFlash(internalFile)
+     call Driver_abort(internalFile)
   end select
 
 

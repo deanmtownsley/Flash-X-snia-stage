@@ -93,7 +93,7 @@ void io_h5_xfer_mesh_dataset(const int myPE,
 	       __FILE__, datasetName);
       }
     } else {
-      ierr = Driver_abortFlashC("Error! H5Dopen failed");
+      ierr = Driver_abortC("Error! H5Dopen failed");
     }
 
   } else {

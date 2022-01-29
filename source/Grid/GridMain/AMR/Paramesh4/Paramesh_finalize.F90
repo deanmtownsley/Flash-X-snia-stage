@@ -19,7 +19,7 @@
 !!  Each mesh package will have a different copy of this function.
 !!
 !! USED BY
-!!  Driver_finalizeFlash via Grid_finalize
+!!  Driver_finalizeAll via Grid_finalize
 !!***
 subroutine Paramesh_finalize()
   use paramesh_interfaces, ONLY : amr_close

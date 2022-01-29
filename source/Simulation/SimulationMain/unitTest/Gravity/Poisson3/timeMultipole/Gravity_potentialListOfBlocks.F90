@@ -69,7 +69,7 @@ subroutine Gravity_potential( potentialIndex)
        useGravity, updateGravity, grv_meshComm, grv_meshMe
   use Cosmology_interface, ONLY : Cosmology_getRedshift, &
        Cosmology_getOldRedshift
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Particles_interface, ONLY: Particles_updateGridVar
   use Grid_interface, ONLY : GRID_PDE_BND_PERIODIC, GRID_PDE_BND_NEUMANN, &
@@ -81,7 +81,7 @@ subroutine Gravity_potential( potentialIndex)
 
 #include "Simulation.h"
 #include "constants.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,intent(IN) :: blockCount
   integer,dimension(blockCount),intent(IN) :: blockList
@@ -150,7 +150,7 @@ subroutine Gravity_potential( potentialIndex)
      
   if (grav_temporal_extrp) then
      
-     call Driver_abortFlash("shouldn't be here right now")
+     call Driver_abort("shouldn't be here right now")
      !call extrp_initial_guess( igpot, igpol, igpot )
      
   else 

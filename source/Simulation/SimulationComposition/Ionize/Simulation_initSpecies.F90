@@ -37,7 +37,7 @@ subroutine Simulation_initSpecies()
   use Simulation_speciesData, ONLY : SPEC_NUM,sim_specEpRatio, sim_specNumElect,&
        sim_specElement,sim_specSelected,sim_specAtomElem,sim_specAbundance,&
        sim_specElementSymbol, sim_singleGamma
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_setProperty
   use Simulation_interface, ONLY : Simulation_mapStrToInt
   use PhysicalConstants_interface, ONLY : PhysicalConstants_get
@@ -118,7 +118,7 @@ subroutine Simulation_initSpecies()
 
   close(unit=SPEC_UNIT)
 
-  if(numSpec/=NSPECIES)call Driver_abortFlash("Simulation_initSpecies:number of species does not match specifications")
+  if(numSpec/=NSPECIES)call Driver_abort("Simulation_initSpecies:number of species does not match specifications")
 
   ave_hmass = 2.0*(1.0+sim_specEpRatio*e_abar+ave2)/(1.0+sim_specEpRatio+ave1)
 

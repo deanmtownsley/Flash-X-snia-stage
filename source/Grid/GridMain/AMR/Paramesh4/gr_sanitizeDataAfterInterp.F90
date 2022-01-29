@@ -174,7 +174,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(DENS_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smallrho,unk(DENS_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("DENS var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("DENS var below acceptable minimum")
         end if
      end if
      
@@ -222,7 +222,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(ENER_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smalle,unk(ENER_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("ENER var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("ENER var below acceptable minimum")
         end if
      end if
 #endif
@@ -267,7 +267,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(EINT_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smalle,unk(EINT_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("EINT var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("EINT var below acceptable minimum")
         end if
      end if
 #endif

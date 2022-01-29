@@ -35,7 +35,7 @@ subroutine gr_writeBlockInfo
   use Logfile_interface, ONLY : Logfile_open, Logfile_close
   use Driver_interface,  ONLY : Driver_getSimTime, &
                                 Driver_getNStep, &
-                                Driver_abortFlash
+                                Driver_abort
 
   implicit none
 
@@ -106,7 +106,7 @@ subroutine gr_writeBlockInfo
   call Logfile_close(localLogFile)
 
   ! DEV: TODO Implement this with iterator if needed
-  call Driver_abortFlash("[gr_writeBlockInfo] not implemented for AMReX yet")
+  call Driver_abort("[gr_writeBlockInfo] not implemented for AMReX yet")
 
 end subroutine gr_writeBlockInfo
 

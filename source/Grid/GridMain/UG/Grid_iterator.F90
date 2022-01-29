@@ -154,7 +154,7 @@ contains
         end if
 
         if ((nodetype /= LEAF) .AND. (nodetype /= ALL_BLKS) .AND. (nodetype /= ACTIVE_BLKS)) then
-            call Driver_abortFlash("[Grid_iterator]: Unsupported nodetype")
+            call Driver_abort("[Grid_iterator]: Unsupported nodetype")
         end if
         if (itor%tiling .AND. itor%curBlk == 1) then
            itor%nxt = max(1,(gr_ihi-gr_ilo+itor%tileSize(IAXIS))/itor%tileSize(IAXIS))
@@ -342,7 +342,7 @@ contains
                                      gr_iloGc, gr_ihiGc, &
                                      gr_jloGc, gr_jhiGc, &
                                      gr_kloGc, gr_khiGc
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
 
         class(Grid_iterator_t), intent(IN)  :: this
         type(Grid_tile_t),      intent(OUT) :: tileDesc
@@ -350,7 +350,7 @@ contains
         integer :: loBnd(1:MDIM), hiBnd(1:MDIM)
         integer :: tx,ty,tz
         if (.NOT. this%isValid()) then
-            call Driver_abortFlash("[currentTile] No current tile")
+            call Driver_abort("[currentTile] No current tile")
         end if
 
         tileDesc%id = this%curBlk

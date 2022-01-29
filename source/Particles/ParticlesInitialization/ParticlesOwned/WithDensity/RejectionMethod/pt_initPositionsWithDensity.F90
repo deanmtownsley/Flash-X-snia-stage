@@ -47,7 +47,7 @@ subroutine pt_initPositionsWithDensity (tileDesc,success)
 
   use Grid_interface, ONLY : Grid_getCellVolumes
   use Grid_tile, ONLY : Grid_tile_t
-  use Driver_interface, ONLY:  Driver_abortFlash
+  use Driver_interface, ONLY:  Driver_abort
   use Logfile_interface, ONLY:  Logfile_stamp
   use Particles_interface, ONLY : Particles_mapFromMesh
   use pt_interface, ONLY : pt_initLocal

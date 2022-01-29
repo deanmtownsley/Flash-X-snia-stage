@@ -36,14 +36,14 @@
 
 subroutine Grid_getDeltas(lev,del)
   use Grid_data, ONLY : gr_delta
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 #include "constants.h"
 
   integer, intent(IN) :: lev
   real, dimension(MDIM),intent(OUT) :: del
 
-  if(lev /= 1) call Driver_abortFlash("Grid_getDeltas: any value of lev other than 1 is not valid")
+  if(lev /= 1) call Driver_abort("any value of level other than 1 is not valied")
   del = gr_delta(:,1)
   return
 end subroutine Grid_getDeltas

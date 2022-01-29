@@ -18,7 +18,7 @@
 subroutine ins_init()
 
    use IncompNS_data
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    use Grid_interface,   ONLY : GRID_PDE_BND_NEUMANN,GRID_PDE_BND_DIRICHLET,&
                                 Grid_getDomainBoundBox,Grid_getDomainBC  
 
@@ -52,7 +52,7 @@ subroutine ins_init()
             write(*,*) 'IncompNS Error: LOW-HIGH,AXIS=',ibound,idimn
             write(*,*) 'IncompNS Error: ins_domainBC(ibound,idimn) =',ins_domainBC(ibound,idimn)
             endif
-            call Driver_abortFlash('IncompNS Error: BCs do not have matching Poisson solver BCs')
+            call Driver_abort('IncompNS Error: BCs do not have matching Poisson solver BCs')
         end select
       enddo
     enddo

@@ -23,7 +23,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 

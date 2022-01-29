@@ -111,7 +111,7 @@
 subroutine Multispecies_getSumFrac(property, value, weights, speciesMask)
   
   use Multispecies_data !, ONLY   : ms_isZero
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getProperty
   implicit none
   
@@ -140,7 +140,7 @@ subroutine Multispecies_getSumFrac(property, value, weights, speciesMask)
       else if (numWeights == 1) then
          weightsFull = weights(1)
       else
-         call Driver_abortFlash("Multispecies_getSumFrac: invalid weights array")
+         call Driver_abort("Multispecies_getSumFrac: invalid weights array")
       endif
    else
       weightsFull = 1.0
@@ -148,7 +148,7 @@ subroutine Multispecies_getSumFrac(property, value, weights, speciesMask)
 
   if (present(speciesMask)) then
       if (size(speciesMask,1) /= NSPECIES ) then
-         call Driver_abortFlash("Multispecies_getSumFrac: mask array wrong size")
+         call Driver_abort("Multispecies_getSumFrac: mask array wrong size")
       endif
   endif
 
@@ -158,7 +158,7 @@ subroutine Multispecies_getSumFrac(property, value, weights, speciesMask)
         !First get the A value (num total) for each species
         call Multispecies_getProperty(SPECIES_BEGIN + (i-1), A, numTot)
         if (ms_isZero(numTot))                                                  &
-     &    call Driver_abortFlash("Multispecies_getSumFrac: divide by ZERO property")
+     &    call Driver_abort("Multispecies_getSumFrac: divide by ZERO property")
         call Multispecies_getProperty(SPECIES_BEGIN + (i-1), property, propVal)
 
         value = value + weightsFull(i) * propVal/numTot
@@ -173,7 +173,7 @@ subroutine Multispecies_getSumFrac(property, value, weights, speciesMask)
 
            call Multispecies_getProperty(iMask, A, numTot)
            if (ms_isZero(numTot))                                               &
-         &  call Driver_abortFlash("Multispecies_getSumFrac: divide by ZERO property")
+         &  call Driver_abort("Multispecies_getSumFrac: divide by ZERO property")
            call Multispecies_getProperty(iMask, property, propVal)
            value = value + weightsFull(i) * propVal/numTot
         end if

@@ -47,7 +47,7 @@ subroutine pt_createTag()
 
   use Particles_data, ONLY : pt_numLocal,particles,pt_meshMe,pt_meshNumProcs,&
        pt_meshComm
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getLocalNumBlks
   use pt_interface, ONLY : pt_findTagOffset
   implicit none

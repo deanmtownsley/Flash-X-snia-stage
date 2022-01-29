@@ -51,7 +51,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                              Grid_subcellGeometry, &
                              Grid_getDeltas
   use Grid_tile, ONLY : Grid_tile_t 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use ut_interpolationInterface
   use model_interp_module
  
@@ -88,7 +88,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   real :: deltas(1:MDIM)
 
   if (sim_tinitial > 0.0) &
-     call Driver_abortFlash('EORROR: not able to take tinitial > 0')
+     call Driver_abort('EORROR: not able to take tinitial > 0')
 
   if (sim_useProfileFromFile) then
    

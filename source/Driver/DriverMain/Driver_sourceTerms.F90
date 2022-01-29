@@ -19,7 +19,7 @@
 !! DESCRIPTION
 !!
 !!  Driver for source terms. Instead of calling all these routines 
-!!  from Driver_evolveFlash we call Driver_sourceTerms which then
+!!  from Driver_evolveAll we call Driver_sourceTerms which then
 !!  makes the calls to Cool, Burn, Heat and Stir.  If a unit is not
 !!  included in the simulation, the routine will be a stub and return
 !!  without doing anything.

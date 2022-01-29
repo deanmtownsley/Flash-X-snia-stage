@@ -78,9 +78,9 @@ subroutine Grid_getLocalBlkIDFromPos(pos,blkList, blkCount,ansBlockID, ansProcID
   use Grid_data, ONLY : gr_minCellSizes, gr_globalDomain, gr_meshMe, gr_meshComm
   use Grid_data, ONLY : gr_boxContainingLeafNodes
   use Grid_interface, ONLY : Grid_getBlkCornerID
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   real, dimension(1:MDIM), intent(IN) :: pos
   integer,intent(IN)  :: blkCount
   integer,dimension(blkCount),intent(IN) :: blkList

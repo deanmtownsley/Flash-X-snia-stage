@@ -89,7 +89,7 @@ Print debugging information - Need to move DEBUG_IO definition.
 #endif
 
 #define IO_CHECK_XFER(rtn,dataset) \
-if (rtn/=0) call Driver_abortFlash \
+if (rtn/=0) call Driver_abort \
 ('[' // FILE_AT_LINE // '] Transfer error: ' // dataset)
 
 #endif

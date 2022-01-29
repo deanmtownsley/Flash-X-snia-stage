@@ -35,7 +35,7 @@ subroutine Grid_unitTest(fileUnit,perfect)
   use Grid_data,   ONLY: gr_meshComm, gr_meshMe
   use Driver_data, ONLY: dr_nstep, dr_simTime, dr_dt
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 #include "Simulation.h"
 #include "constants.h"

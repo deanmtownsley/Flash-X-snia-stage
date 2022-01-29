@@ -82,7 +82,7 @@
 !!REORDER(4): scrch_Ptr, scrchFace[XYZ]Ptr, fl[xyz]
 
 Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOrder)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_tile,    ONLY : Grid_tile_t 
@@ -179,7 +179,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
 #if defined(GPRO_VAR)||defined(VOLX_VAR)||defined(VOLY_VAR)||defined(VOLZ_VAR)||defined(CFL_VAR)
      if (hy_updateHydroFluxes) then
         ! Set with explicit loop nests over a tile-based region
-        call Driver_abortFlash("Update this to work with tiles")
+        call Driver_abort("Update this to work with tiles")
 #ifdef GPRO_VAR
         ! A tagging variable for Gaussian Process (GP) method.
         Uin(GPRO_VAR,:,:,:) = 0.
@@ -213,7 +213,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
 #endif
 
      if ( hy_units .NE. "NONE" .and. hy_units .NE. "none" ) then
-        call Driver_abortFlash("Confirm that grownLimits is correct")
+        call Driver_abort("Confirm that grownLimits is correct")
         call hy_unitConvert(Uin, tileDesc%grownLimits, FWDCONVERT)
      endif
 
@@ -362,7 +362,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
 #endif
         if ( hy_units .NE. "none" .and. hy_units .NE. "NONE" ) then
            !! Convert unit
-           call Driver_abortFlash("Confirm that grownLimits is correct")
+           call Driver_abort("Confirm that grownLimits is correct")
            call hy_unitConvert(Uout, tileDesc%grownLimits, BWDCONVERT)
         endif
 

@@ -44,7 +44,7 @@ subroutine io_ptReadParticleData()
 
   use IO_data, ONLY : io_chkptFileID, &
        io_outputSplitNum, io_globalMe, io_meshNumProcs, io_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Particles_interface, ONLY : Particles_putLocalNum
   use Grid_interface, ONLY : Grid_getLocalNumBlks
@@ -61,7 +61,7 @@ subroutine io_ptReadParticleData()
 #endif
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   integer :: reLocalNumParticles, ierr, particleOffset
   integer, save :: globalNumParticles !must be saved for IBM compilers
@@ -96,7 +96,7 @@ subroutine io_ptReadParticleData()
   !allocate particles data structure
   allocate (particles(NPART_PROPS,pt_maxPerProc), stat=ierr)
   if (ierr /= 0) then
-     call Driver_abortFlash("io_ptReadParticleData:  could not allocate particle array")
+     call Driver_abort("io_ptReadParticleData:  could not allocate particle array")
   endif
 
   !particles must be initialized or the entire particles algorithm will fail
@@ -132,7 +132,7 @@ subroutine io_ptReadParticleData()
           1, &
           c_loc(particlesPerBlk(1)), err)
      if (err /= 0) then
-        call Driver_abortFlash("Error reading localnp")
+        call Driver_abort("Error reading localnp")
      end if
 
      !now find the new reLocalNumParticles
@@ -146,7 +146,7 @@ subroutine io_ptReadParticleData()
 #endif
      
      if (reLocalNumParticles > pt_maxPerProc) then
-        call Driver_abortFlash &
+        call Driver_abort &
              ('[io_ptReadParticleData] ERROR: too many particles on this proc; increase pt_maxPerProc')
      end if
      
@@ -171,7 +171,7 @@ subroutine io_ptReadParticleData()
           2, &
           c_loc(particles(1,1)), err)
      if (err /= 0) then
-        call Driver_abortFlash("Error reading particles")
+        call Driver_abort("Error reading particles")
      end if
      
 

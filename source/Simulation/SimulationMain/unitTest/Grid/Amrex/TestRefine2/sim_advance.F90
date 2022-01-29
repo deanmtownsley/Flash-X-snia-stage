@@ -13,7 +13,7 @@ subroutine sim_advance(step, points, values, set_msg, leaf_msg)
                                      gr_restrictAllLevels
     use block_iterator,       ONLY : block_iterator_t 
     use Grid_tile,       ONLY : Grid_tile_t 
-    use Driver_interface,     ONLY : Driver_abortFlash
+    use Driver_interface,     ONLY : Driver_abort
     use sim_interface,        ONLY : sim_writeDataPoints, &
                                      sim_collectLeaves, &
                                      sim_printLeaves
@@ -72,12 +72,12 @@ subroutine sim_advance(step, points, values, set_msg, leaf_msg)
     gridChanged = .FALSE.
     call Grid_updateRefinement(step,   DBLE(step  ), gridChanged) 
     if (gridChanged) then
-        call Driver_abortFlash("[sim_advance] Should not refine on odd steps")
+        call Driver_abort("[sim_advance] Should not refine on odd steps")
     end if
 
     call Grid_updateRefinement(step+1, DBLE(step+1), gridChanged) 
     if (.NOT. gridChanged) then
-        call Driver_abortFlash("[sim_advance] Should refine on even steps")
+        call Driver_abort("[sim_advance] Should refine on even steps")
     end if
 
     call sim_collectLeaves

@@ -108,7 +108,7 @@ subroutine rk_stepEAC (f, n, nc, s,                  &
                                 rk_stepSizeConfinementFactor, &
                                 rk_stepSizeSafetyFactor
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -232,7 +232,7 @@ subroutine rk_stepEAC (f, n, nc, s,                  &
   stagnation = (maxval (abs (y (1:n) - yout (1:n))) == 0.0)
 
   if (stagnation) then
-      call Driver_abortFlash ('[rk_stepEAC] ERROR: no advancement of dependent variables!')
+      call Driver_abort ('[rk_stepEAC] ERROR: no advancement of dependent variables!')
   end if
 !
 !

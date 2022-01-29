@@ -67,7 +67,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
                       lo_bc_amrex, hi_bc_amrex, gr_eosModeInit, &
                       gr_maxRefine, gr_doFluxCorrection
 
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
   use Grid_iterator,             ONLY : Grid_iterator_t
   use Grid_tile,                 ONLY : Grid_tile_t
   use Grid_interface,            ONLY : Grid_getTileIterator, &
@@ -91,7 +91,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
   !   => all code dealing with multifabs arrays must consider the need for 
   !      index translation
 #if NFACE_VARS > 0
-  !call Driver_abortFlash("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
+  !call Driver_abort("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
   allocate(facevarx(0:amrex_max_level))
 #if NDIM >= 2
   allocate(facevary(0:amrex_max_level))

@@ -46,7 +46,7 @@ subroutine Pipeline_localPrintSnapshot (printItemDetails)
 
   implicit none
 
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   interface
     subroutine printItemDetails (item, itemDescription)

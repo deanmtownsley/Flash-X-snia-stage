@@ -13,18 +13,7 @@
 !!  Hydro_init
 !!
 !!
-!! SYNOPSIS
-!!
-!!  Hydro_init()
-!!
-!!
-!! DESCRIPTION
-!!
-!!  This routine initializes unit scope variables which are typically the runtime parameters.
-!!  The routine must be called once by Driver_initFlash.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
-!!
-!! ARGUMENTS
+!!  For more details see the documentation of the NULL implementation
 !!
 !!
 !!***
@@ -32,7 +21,7 @@
 subroutine Hydro_init()
 
   use Hydro_data
-  use Driver_interface,            ONLY : Driver_abortFlash, Driver_getMype, &
+  use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
        Driver_getNumProcs,    &
        Driver_getComm
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -81,7 +70,7 @@ subroutine Hydro_init()
 
 #ifdef FLASH_GRID_PARAMESH
   if ((NGUARD > 4) .and. (NXB < 2*NGUARD)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
@@ -173,7 +162,7 @@ subroutine Hydro_init()
   end if
 
   if (hy_geometry == POLAR) & !Polar in 3D (that's a no no)
-       call Driver_abortFlash("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
+       call Driver_abort("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
 
   call PhysicalConstants_get("Newton", hy_gravConst)
   hy_4piGinv = (4.*PI*hy_gravConst)**(-1)

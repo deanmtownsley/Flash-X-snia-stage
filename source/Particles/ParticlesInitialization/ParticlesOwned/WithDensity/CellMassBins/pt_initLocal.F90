@@ -43,7 +43,7 @@ subroutine pt_initLocal ()
        pt_totalMass, pt_totalVolume, pt_averageDensity, pt_numParticlesWanted,&
        pt_meshComm
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator,&
                              Grid_getCellVolumes
@@ -55,7 +55,7 @@ subroutine pt_initLocal ()
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
 
 

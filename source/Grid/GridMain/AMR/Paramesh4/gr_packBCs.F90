@@ -88,7 +88,7 @@ integer function gr_packBCs(bcILeft, bcIRight, bcJLeft, bcJRight, bcKLeft, bcKRi
 end function gr_packBCs
 
 integer function gr_extractBCForDirection(packedBCs,axis,leftOrRight)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   integer,intent(IN) :: packedBCs,axis,leftOrRight
   integer :: p,b
@@ -103,7 +103,7 @@ integer function gr_extractBCForDirection(packedBCs,axis,leftOrRight)
      else if (axis == KAXIS) then
         b = p / 1024 / 1024
      else
-        call Driver_abortFlash('invalid axis in gr_extractBCForDirection!')
+        call Driver_abort('invalid axis in gr_extractBCForDirection!')
      end if
 
      if (leftOrRight == LOW) then

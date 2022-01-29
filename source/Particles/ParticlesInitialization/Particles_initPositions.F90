@@ -81,7 +81,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Driver_initFlash
+!!  Driver_initAll
 !!  Grid_initDomain
 !!  Particles_initData
 !!***
@@ -92,7 +92,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
 
 
   use Grid_interface, ONLY : Grid_getListOfBlocks
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use pt_interface, ONLY : pt_initPositions,pt_createTag
   use Particles_data, ONLY : pt_posInitialized,pt_numLocal,useParticles,&
        pt_typeInfo, particles, pt_meshNumProcs, pt_meshMe
@@ -175,7 +175,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
         case(CUSTOM)
            call pt_initPositions(blockID,partPosInitialized)
         case default
-           call Driver_abortFlash("Particles_initPosition: no valid initialization method")
+           call Driver_abort("Particles_initPosition: no valid initialization method")
         end select
         numNewLocalThisType = pt_numLocal - numPreviousLocal
         pt_typeInfo(PART_LOCAL,i) = numNewLocalThisType + numLocalThisType

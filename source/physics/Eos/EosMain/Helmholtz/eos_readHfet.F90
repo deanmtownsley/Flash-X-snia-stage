@@ -77,7 +77,7 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
      &     fdt, fddt, fdtt, fddtt, dpdf, dpdfd,  &
      &   dpdft, dpdfdt, ef, efd, eft, efdt,      &
      &   xf, xfd, xft, xfdt)
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    
    implicit none
 
@@ -97,13 +97,13 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
 
 #ifdef DEBUG
   if (n .lt. 0) then
-     call Driver_abortFlash("[eos_readHfet]  n must be positive")
+     call Driver_abort("[eos_readHfet]  n must be positive")
   endif
 #endif
 
   !! Open the file
   open (fileUnit,FILE='helm_table.bdat',ACTION='READ',STATUS='OLD',FORM='UNFORMATTED',IOSTAT=ioStat)
-  if (ioStat .NE. 0)  call Driver_abortFlash("[eos_readHfet]  file open failure!")
+  if (ioStat .NE. 0)  call Driver_abort("[eos_readHfet]  file open failure!")
 
   read(fileUnit,END=101) f
   read(fileUnit,END=102) fd
@@ -130,33 +130,33 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
 
   !! close up and return
   close(fileUnit,IOSTAT=ioStat)
-  if (ioStat .NE. 0)  call Driver_abortFlash("[eos_readHfet]  couldn't close file!")
+  if (ioStat .NE. 0)  call Driver_abort("[eos_readHfet]  couldn't close file!")
 
   return
 
   !! Error messages on insufficient data
 
-101 call Driver_abortFlash("[eos_readHfet]  failed read on f!")
-102 call Driver_abortFlash("[eos_readHfet]  failed read on fd!")
-103 call Driver_abortFlash("[eos_readHfet]  failed read on ft!")
-104 call Driver_abortFlash("[eos_readHfet]  failed read on fdd!")
-105 call Driver_abortFlash("[eos_readHfet]  failed read on ftt!")
-106 call Driver_abortFlash("[eos_readHfet]  failed read on fdt!")
-107 call Driver_abortFlash("[eos_readHfet]  failed read on fddt!")
-108 call Driver_abortFlash("[eos_readHfet]  failed read on fdtt!")
-109 call Driver_abortFlash("[eos_readHfet]  failed read on fddtt!")
-110 call Driver_abortFlash("[eos_readHfet]  failed read on dpdf!")
-111 call Driver_abortFlash("[eos_readHfet]  failed read on dpdfd!")
-112 call Driver_abortFlash("[eos_readHfet]  failed read on dpdft!")
-113 call Driver_abortFlash("[eos_readHfet]  failed read on dpdfdt!")
-114 call Driver_abortFlash("[eos_readHfet]  failed read on ef!")
-115 call Driver_abortFlash("[eos_readHfet]  failed read on efd!")
-116 call Driver_abortFlash("[eos_readHfet]  failed read on eft!")
-117 call Driver_abortFlash("[eos_readHfet]  failed read on efdt!")
-118 call Driver_abortFlash("[eos_readHfet]  failed read on xf!")
-119 call Driver_abortFlash("[eos_readHfet]  failed read on xfd!")
-120 call Driver_abortFlash("[eos_readHfet]  failed read on xft!")
-121 call Driver_abortFlash("[eos_readHfet]  failed read on xfdt!")
+101 call Driver_abort("[eos_readHfet]  failed read on f!")
+102 call Driver_abort("[eos_readHfet]  failed read on fd!")
+103 call Driver_abort("[eos_readHfet]  failed read on ft!")
+104 call Driver_abort("[eos_readHfet]  failed read on fdd!")
+105 call Driver_abort("[eos_readHfet]  failed read on ftt!")
+106 call Driver_abort("[eos_readHfet]  failed read on fdt!")
+107 call Driver_abort("[eos_readHfet]  failed read on fddt!")
+108 call Driver_abort("[eos_readHfet]  failed read on fdtt!")
+109 call Driver_abort("[eos_readHfet]  failed read on fddtt!")
+110 call Driver_abort("[eos_readHfet]  failed read on dpdf!")
+111 call Driver_abort("[eos_readHfet]  failed read on dpdfd!")
+112 call Driver_abort("[eos_readHfet]  failed read on dpdft!")
+113 call Driver_abort("[eos_readHfet]  failed read on dpdfdt!")
+114 call Driver_abort("[eos_readHfet]  failed read on ef!")
+115 call Driver_abort("[eos_readHfet]  failed read on efd!")
+116 call Driver_abort("[eos_readHfet]  failed read on eft!")
+117 call Driver_abort("[eos_readHfet]  failed read on efdt!")
+118 call Driver_abort("[eos_readHfet]  failed read on xf!")
+119 call Driver_abort("[eos_readHfet]  failed read on xfd!")
+120 call Driver_abort("[eos_readHfet]  failed read on xft!")
+121 call Driver_abort("[eos_readHfet]  failed read on xfdt!")
 
 
 
@@ -173,7 +173,7 @@ end subroutine eos_readHfet
 
 !#ifdef DEBUG
 !  if (*nn<0)
-!    call Driver_abortFlash("[temp] byte_reverse() :: n must be positive")
+!    call Driver_abort("[temp] byte_reverse() :: n must be positive")
 !#endif
   
 !  for (ptr=(char *)buf,n=*nn; n--; ptr+=4)

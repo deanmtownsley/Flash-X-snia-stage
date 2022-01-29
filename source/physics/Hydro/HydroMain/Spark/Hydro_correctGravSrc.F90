@@ -26,8 +26,6 @@
 !!
 !! ARGUMENTS
 !!
-!!  blockCount - the number of blocks in blockList
-!!  blockList  - array holding local IDs of blocks on which to advance
 !!  dt         - timestep
 !!
 !!***

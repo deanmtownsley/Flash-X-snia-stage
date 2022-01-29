@@ -57,7 +57,7 @@
 !!***
 
 subroutine Grid_putFluxData(level, axis, pressureSlots)
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
   use Grid_interface,       ONLY : Grid_addFineToFluxRegister
 
   implicit none
@@ -71,7 +71,7 @@ subroutine Grid_putFluxData(level, axis, pressureSlots)
   integer :: i
 
   if (present(axis)) then
-    call Driver_abortFlash("[Grid_putFluxData] axis not accepted with AMReX")
+    call Driver_abort("[Grid_putFluxData] axis not accepted with AMReX")
   end if
 
   if (present(pressureSlots)) then

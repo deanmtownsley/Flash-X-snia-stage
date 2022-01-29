@@ -44,7 +44,7 @@ subroutine Driver_sendOutputData()
 
   if (dr_nstep == dr_nbegin  &
        .AND. dr_simTime == dr_initialSimTime) then
-     ! should only be true if we are BEFORE the Driver_evolveFlash loop - KW
+     ! should only be true if we are BEFORE the Driver_evolveAll loop - KW
      call IO_setScalar("nstep", dr_nstep)
   else
      call IO_setScalar("nstep", dr_nstep+1)

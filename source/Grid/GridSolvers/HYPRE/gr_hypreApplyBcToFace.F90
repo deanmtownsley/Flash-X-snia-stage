@@ -187,7 +187,7 @@ subroutine gr_hypreApplyBcToFace(blkLimits,blkLimitsGC,part,var,bcType,direction
      if (gr_meshMe == MASTER_PE) then
         print*,'gr_hypreApplyBcToFace: Invalid BC type',bcType,' for direction',direction,', var',var
      end if
-     call Driver_abortFlash("gr_hypreApplyBcToFace: Invalid boundary condition type")
+     call Driver_abort("gr_hypreApplyBcToFace: Invalid boundary condition type")
 
   end select
      
@@ -326,7 +326,7 @@ subroutine gr_hypreApplyBcToFace_VecB(blkLimits,blkLimitsGC,part,var,bcType,dire
      if (gr_meshMe == MASTER_PE) then
         print*,'gr_hypreApplyBcToFace_VecB: Invalid BC type',bcType,' for direction',direction,', var',var
      end if
-     call Driver_abortFlash("gr_hypreApplyBcToFace_VecB: Invalid boundary condition type")
+     call Driver_abort("gr_hypreApplyBcToFace_VecB: Invalid boundary condition type")
 
   end select
      

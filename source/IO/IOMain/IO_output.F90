@@ -131,7 +131,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
        io_nextCheckpointZ, io_nextPlotFileZ, io_checkpointFileIntervalZ, io_plotfileIntervalZ, &
        io_alwaysComputeUserVars, io_outputInStack,io_globalMe, io_globalComm, &
        io_wrotePlot, io_maxRSS, io_measRSS
-  use Driver_interface, ONLY : Driver_abortFlash,Driver_finalizeFlash
+  use Driver_interface, ONLY : Driver_abort,Driver_finalizeAll
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
   use Timers_interface, ONLY : Timers_start, Timers_stop, &
     Timers_getSummary
@@ -142,7 +142,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
   use io_ptInterface, ONLY : io_ptCorrectNextPartTime, io_ptResetNextFile
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer, intent(in) ::  nbegin, nstep

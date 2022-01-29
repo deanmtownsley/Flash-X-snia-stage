@@ -51,7 +51,7 @@ Subroutine hy_eigenParameters(V,dir,U_normal,C_fast,C_alfn,C_slow,A_f,A_s,B_beta
 
   use Hydro_data!,        ONLY : hy_meshMe,hy_forceHydroLimit
   use Driver_data,       ONLY : dr_nStep 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage,Logfile_open,Logfile_close
 
   implicit none
@@ -89,7 +89,7 @@ Subroutine hy_eigenParameters(V,dir,U_normal,C_fast,C_alfn,C_slow,A_f,A_s,B_beta
   !C_fast = sqrt(a2)
 
   if (a2 .le. 0.) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[hy_eigenParameters-A]: Zero or imaginary sound speed has obtained! "//&
            "Please try other (more diffusive) slope limiter, flux, order, cfl, etc.")
   else
@@ -128,7 +128,7 @@ Subroutine hy_eigenParameters(V,dir,U_normal,C_fast,C_alfn,C_slow,A_f,A_s,B_beta
 
 
   if ((a2 .le. 0.) .or. (C_fast2 < C_slow2)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[hy_eigenParameters-B]: Zero or imaginary sound speed has obtained! "//&
            "Please try other (more diffusive) slope limiter, flux, order, cfl, etc.")
   else
@@ -220,27 +220,27 @@ Subroutine hy_eigenParameters(V,dir,U_normal,C_fast,C_alfn,C_slow,A_f,A_s,B_beta
 !!$     call Logfile_open(logUnit,logUnitLocal)
 !!$     write(logUnit,*)'[hy_eigenParameters] ERROR: negative pressure at nstep=',V(HY_PRES),dr_nStep
 !!$     call Logfile_close(logUnitLocal)
-!!$     call Driver_abortFlash&
+!!$     call Driver_abort&
 !!$          ("[hy_eigenParameters] Negative pressure: Please lower CFL or try different limiter.")
 !!$  endif
 !!$  if (V(HY_DENS)<0. ) then
 !!$     call Logfile_open(logUnit,logUnitLocal)
 !!$     write(logUnit,*)'[hy_eigenParameters] ERROR: negative density at nstep=',V(HY_DENS),dr_nStep
 !!$     call Logfile_close(logUnitLocal)
-!!$     call Driver_abortFlash&
+!!$     call Driver_abort&
 !!$          ("[hy_eigenParameters] Negative density: Please lower CFL or try different limiter.")
 !!$  endif
 !!$  if (V(HY_GAMC)<0. ) then
 !!$     call Logfile_open(logUnit,logUnitLocal)
 !!$     write(logUnit,*)'[hy_eigenParameters] ERROR: negative gamc at nstep=',V(HY_GAMC),dr_nStep
 !!$     call Logfile_close(logUnitLocal)
-!!$     call Driver_abortFlash&
+!!$     call Driver_abort&
 !!$          ("[hy_eigenParameters] Negative gamc: Please lower CFL or try different limiter.")
 !!$  endif
 
 
 !!$  if (a2 .le. 0.) then
-!!$     call Driver_abortFlash&
+!!$     call Driver_abort&
 !!$          ("[hy_eigenParameters]: Zero or imaginary sound speed has obtained! "//&
 !!$           "Please try other (more diffusive) slope limiter, flux, order, cfl, etc.")
 !!$  else
@@ -250,7 +250,7 @@ Subroutine hy_eigenParameters(V,dir,U_normal,C_fast,C_alfn,C_slow,A_f,A_s,B_beta
   !! Sound speed and magneto-acoustic speeds
   !a2      = V(HY_GAMC)*V(HY_PRES)/V(HY_DENS)
 !!$  if (a2 .le. 0.) then
-!!$     call Driver_abortFlash&
+!!$     call Driver_abort&
 !!$          ("[hy_eigenParameters]: Zero or imaginary sound speed has obtained! "//&
 !!$           "Please try other (more diffusive) slope limiter, flux, order, cfl, etc.")
 !!$  else

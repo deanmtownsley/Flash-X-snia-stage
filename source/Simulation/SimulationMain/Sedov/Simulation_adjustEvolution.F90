@@ -54,9 +54,9 @@ subroutine Simulation_adjustEvolution(blkcnt, blklst, nstep, dt, stime)
 
 
 !!$  ! We want the NEW time that we are advancing TO.
-!!$  ! This is based on where Simulation_adjustEvolution is called from Driver_evolveFlash:
+!!$  ! This is based on where Simulation_adjustEvolution is called from Driver_evolveAll:
 !!$  ! dr_simTime has not been updated yet at this point.
-!!$  !!DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveFlash.F90 !
+!!$  !!DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveAll.F90 !
 !!$  !!DEV: Check whether this needs adjustments for when STS is used!
 !!$  tnew = stime+dt
 !!$

@@ -30,7 +30,7 @@ subroutine Grid_getNumBlksFromType(blockType,numBlocks)
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
   use Grid_iterator,  ONLY : Grid_iterator_t
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
 
   implicit none
@@ -41,7 +41,7 @@ subroutine Grid_getNumBlksFromType(blockType,numBlocks)
   type(Grid_iterator_t) :: itor
 
   if ( (blockType.ne.ALL_BLKS) .and. (blockType.ne.LEAF)) then
-    call Driver_abortFlash("Invalid nodetype passed to Grid_getNumBlksFromType. Valid options: ALL_BLKS, LEAF.")
+    call Driver_abort("Invalid nodetype passed to Grid_getNumBlksFromType. Valid options: ALL_BLKS, LEAF.")
   endif
 
   numBlocks = 0

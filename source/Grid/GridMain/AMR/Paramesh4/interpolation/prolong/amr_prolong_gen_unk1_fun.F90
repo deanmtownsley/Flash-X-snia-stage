@@ -42,7 +42,7 @@ subroutine amr_prolong_gen_unk1_fun &
   
   
   use physicaldata, ONLY : unk1, gcell_on_cc
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Grid_data,ONLY: gr_convertToConsvdForMeshCalls, gr_convertToConsvdInMeshInterp, &
        gr_vartypes, gr_dirGeom, gr_smallx, gr_intpol
@@ -135,15 +135,15 @@ subroutine amr_prolong_gen_unk1_fun &
   !=====================================================================
 #ifdef DEBUG_GRID
   if ( max(NXB,NYB,NZB) + 2*NGUARD > mvx_m ) then
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: umap.h workspace too small; mvx_m < max(NXB,NYB,NZB) + 2*NGUARD")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: umap.h workspace too small; mvx_m < max(NXB,NYB,NZB) + 2*NGUARD")
   end if
   
   if ( mui_m < NUNK_VARS ) then
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: umap.h workspace too small; mui_m < FLASH_NUMBER_OF_VARIABLES ")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: umap.h workspace too small; mui_m < FLASH_NUMBER_OF_VARIABLES ")
   end if
   
   if(NGUARD<twice_iguard) then
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: not enough guardcells to support asked for interpolation")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: not enough guardcells to support asked for interpolation")
   end if
   
 #endif
@@ -400,28 +400,28 @@ subroutine amr_prolong_gen_unk1_fun &
 
   if ( size(pu,1) < inxu ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: pu size too small along dim 1: ',size(pu,1),' < ',numVarsPacked*xiend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 1")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 1")
   end if
   if ( size(pu,2) < yiend ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: pu size too small along dim 2: ',size(pu,2),' < ',yiend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 2")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 2")
   end if
   if ( size(pu,3) < ziend ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: pu size too small along dim 3: ',size(pu,3),' < ',ziend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 3")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: pu too small along dim 3")
   end if
 
   if ( size(qu,1) < onxu ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: qu size too small along dim 1: ',size(qu,1),' < ',numVarsPacked*xoend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 1")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 1")
   end if
   if ( size(qu,2) < yoend ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: qu size too small along dim 2: ',size(qu,2),' < ',yoend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 2")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 2")
   end if
   if ( size(qu,3) < zoend ) then
      write(*,*) '[amr_prolong_gen_unk1_fun] ERROR: qu size too small along dim 3: ',size(qu,3),' < ',zoend
-     call Driver_abortFlash("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 3")
+     call Driver_abort("[amr_prolong_gen_unk1_fun] ERROR: qu too small along dim 3")
   end if
 #endif
 
@@ -450,7 +450,7 @@ subroutine amr_prolong_gen_unk1_fun &
                           print 99,mype,ivar,recv(ivar,i1,j1,k1)
                           print*,'Trying to convert non-zero mass-specific variable to per-volume form in monotonic&
                                & mesh interpolation, but dens is zero!'
-                          call Driver_abortFlash &
+                          call Driver_abort &
                                ('Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!')
                        end if
                     end if
@@ -496,7 +496,7 @@ subroutine amr_prolong_gen_unk1_fun &
   ! and abort if that is the case. - KW
   if (ierr .ne. 0) then
      print*,'**ERROR** - ierr from UMAPn is ', ierr, ', isg=', isg
-     call Driver_abortFlash('ERROR - ierr from UMAPn is not 0')
+     call Driver_abort('ERROR - ierr from UMAPn is not 0')
   end if
 
   do k = 1,zoend

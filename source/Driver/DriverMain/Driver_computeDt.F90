@@ -73,7 +73,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
                           dr_dtSTS, dr_useSTS, dr_globalMe, dr_globalComm,&
                           dr_dtAdvect, dr_dtDiffuse,dr_meshComm,     &
                           dr_dtMinContinue, dr_dtMinBelowAction
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface,ONLY : Logfile_stamp
   use IO_interface,     ONLY : IO_writeCheckpoint
   use Grid_interface,   ONLY : Grid_getCellCoords, &
@@ -89,7 +89,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t 
 
-# include "Flash_mpi_implicitNone.fh"
+# include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN) :: nbegin, nstep
   real,    intent(IN) :: simTime    !! current simulation time
@@ -672,7 +672,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
         call IO_writeCheckpoint()
      end if
      call Logfile_stamp( 'Exiting simulation because dr_dtNew < dr_dtMinContinue' , '[Driver_computeDt]')
-     call Driver_abortFlash('Computed new time step smaller than dr_dtMinContinue!')
+     call Driver_abort('Computed new time step smaller than dr_dtMinContinue!')
   end if
 
   firstCall = .FALSE.

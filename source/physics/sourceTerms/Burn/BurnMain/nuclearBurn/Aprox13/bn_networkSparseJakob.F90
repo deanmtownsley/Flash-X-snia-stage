@@ -44,7 +44,7 @@
 subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
 
   use Burn_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   ! for communication with networkSparsePointers
   use bn_dataNetworkSize, ONLY : neloc, eloc, nterms
   use bn_dataAprox13
@@ -654,7 +654,7 @@ subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
   if (nt .ne. nterms) then
      write(6,*) 'nt =',nt,'  nterms =',nterms
      write(6,*) 'error in routine networkSparseJakob: nt .ne. nterms'
-     call Driver_abortFlash('ERROR in networkSparseJakob: nt /= nterms')
+     call Driver_abort('ERROR in networkSparseJakob: nt /= nterms')
   end if
   return
 

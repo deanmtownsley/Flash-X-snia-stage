@@ -60,7 +60,7 @@ subroutine gr_markInRectangleForCallback(ilb, irb, jlb, jrb, klb, krb, contained
                                      amrex_mfiter_build, &
                                      amrex_mfiter_destroy
 
-  use Driver_interface,       ONLY : Driver_abortFlash
+  use Driver_interface,       ONLY : Driver_abort
   use Grid_data,              ONLY : gr_geometry
   use Grid_interface,         ONLY : Grid_getBlkCenterCoords
   use gr_physicalMultifabs,   ONLY : unk
@@ -95,9 +95,9 @@ subroutine gr_markInRectangleForCallback(ilb, irb, jlb, jrb, klb, krb, contained
 
 #ifdef DEBUG
   if((gr_geometry==POLAR).or.(gr_geometry==SPHERICAL))&
-       call Driver_abortFlash("markRefineInRectangle : wrong geometry")
+       call Driver_abort("markRefineInRectangle : wrong geometry")
   if((gr_geometry==CYLINDRICAL).and.(NDIM==3))&
-       call Driver_abortFlash("markRefineInRectangle : not valid in 3d for cylindrical")
+       call Driver_abort("markRefineInRectangle : not valid in 3d for cylindrical")
 #endif
   tag = tags
 

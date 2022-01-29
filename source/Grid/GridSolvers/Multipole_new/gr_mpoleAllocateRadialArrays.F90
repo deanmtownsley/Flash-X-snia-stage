@@ -36,7 +36,7 @@ subroutine gr_mpoleAllocateRadialArrays ()
                                 gr_mpoleQused,     &
                                 gr_mpoleScratch
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
  
   implicit none
 
@@ -52,19 +52,19 @@ subroutine gr_mpoleAllocateRadialArrays ()
   allocate (gr_mpoleMomentR (1:gr_mpoleMaxLM,0:gr_mpoleMaxQ  ), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleMomentR allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleMomentR allocate failed')
   end if
 
   allocate (gr_mpoleMomentI (1:gr_mpoleMaxLM,1:gr_mpoleMaxQ+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleMomentI allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleMomentI allocate failed')
   end if
 
   allocate (gr_mpoleScratch (1:gr_mpoleMaxLM,1:gr_mpoleMaxQ  ), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleScratch allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleScratch allocate failed')
   end if
 !
 !
@@ -74,7 +74,7 @@ subroutine gr_mpoleAllocateRadialArrays ()
   allocate (gr_mpoleQRadii (0:gr_mpoleMaxQ), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQRadii allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQRadii allocate failed')
   end if
 !
 !
@@ -84,13 +84,13 @@ subroutine gr_mpoleAllocateRadialArrays ()
   allocate (gr_mpoleQDampingR (0:gr_mpoleMaxQ  ), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQDampingR allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQDampingR allocate failed')
   end if
 
   allocate (gr_mpoleQDampingI (1:gr_mpoleMaxQ+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQDampingI allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQDampingI allocate failed')
   end if
 !
 !
@@ -100,7 +100,7 @@ subroutine gr_mpoleAllocateRadialArrays ()
   allocate (gr_mpoleQused (1:gr_mpoleMaxQ), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQused allocate failed')
+      call Driver_abort ('[gr_mpoleAllocateRadialArrays] ERROR: gr_mpoleQused allocate failed')
   end if
 !
 !

@@ -85,7 +85,7 @@ subroutine io_ptWRiteParticleData( fileID, globalNumParticles, &
   implicit none
 
 #include "constants.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "Simulation.h"
 
   integer, intent(in) ::  fileID

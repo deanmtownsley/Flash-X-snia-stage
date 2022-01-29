@@ -30,7 +30,7 @@ subroutine Multiphase_velForcing(dt)
 
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   real, intent(in) :: dt
 
 !------------------------------------------------------------------------------------------------

@@ -97,7 +97,7 @@ subroutine IO_writePlotfile( forced)
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical, optional, intent(in) :: forced
   

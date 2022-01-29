@@ -33,8 +33,6 @@
 !!
 !!  This implementation actually just nullifies the pointer.
 !!
-!! SEE ALSO
-!!  Grid_getBlkPtr
 !!***
 
 subroutine hy_memReleaseBlkPtr_desc(tileDesc, dataPtr, gridDataStruct)

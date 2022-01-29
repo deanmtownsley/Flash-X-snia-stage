@@ -39,7 +39,7 @@ subroutine gr_mpoleSetInnerZoneGrid (nRlocal,     &
                                      nPinnerZone, &
                                      RinnerZone   )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Grid_data,         ONLY : gr_meshMe,  &
                                 gr_meshComm
@@ -63,7 +63,7 @@ subroutine gr_mpoleSetInnerZoneGrid (nRlocal,     &
 #include "Simulation.h"
 #include "constants.h"
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent (in)    :: nRlocal
   integer, intent (in)    :: nRinnerZone
@@ -199,7 +199,7 @@ subroutine gr_mpoleSetInnerZoneGrid (nRlocal,     &
       end do
 
       if (nRgrid == 0) then
-          call Driver_abortFlash ('[gr_mpoleRad3Dcartesian] ERROR: no inner zone grid radii found')
+          call Driver_abort ('[gr_mpoleRad3Dcartesian] ERROR: no inner zone grid radii found')
       end if
 !
 !

@@ -102,7 +102,7 @@ contains
        do i = 1, numItems
           call UTPipeline_sendItem(items(:,1), rneigh, isHandled)
           if (.not.isHandled) then
-             call Driver_abortFlash('Test arranged so sends always handled')
+             call Driver_abort('Test arranged so sends always handled')
           end if
        end do
 

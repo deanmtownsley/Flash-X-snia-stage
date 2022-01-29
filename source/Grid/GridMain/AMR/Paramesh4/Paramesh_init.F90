@@ -48,7 +48,7 @@
 
 subroutine Paramesh_init()
   use paramesh_interfaces , ONLY : amr_initialize
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use paramesh_dimensions, ONLY: ndim, l2p5d, nxb, nyb, nzb
   use physicaldata, ONLY: curvilinear, cartesian_pm, cylindrical_pm, &
        spherical_pm, polar_pm, gcell_on_fc, lsingular_line
@@ -84,7 +84,7 @@ subroutine Paramesh_init()
         print*,'FLASH NXB,NYB,NZB are ',NXB, NYB, NZB
      end if
      
-     call Driver_abortFlash('[Paramesh_init] The value of the nxb, nyb, nzb runtime parameter is  &
+     call Driver_abort('[Paramesh_init] The value of the nxb, nyb, nzb runtime parameter is  &
           & incompatible with the NXB, NYB, NZB compiled into FLASH.')
   end if
 #endif
@@ -132,7 +132,7 @@ subroutine Paramesh_init()
         testvar = .false.
      end select
      if (.not. testvar) then
-        call Driver_abortFlash('[Paramesh_init] The value of the geometry runtime parameter is incompatible    &
+        call Driver_abort('[Paramesh_init] The value of the geometry runtime parameter is incompatible    &
              & with the geometry compiled into the AMR code.')
      end if
 #endif
@@ -140,7 +140,7 @@ subroutine Paramesh_init()
 
   if (cylindrical_pm .or. spherical_pm .or. polar_pm) then
      if (.not. curvilinear) then
-        call Driver_abortFlash('[Paramesh_init] Curvilinear support must be enabled in order to use the requested geometry!')
+        call Driver_abort('[Paramesh_init] Curvilinear support must be enabled in order to use the requested geometry!')
      end if
   end if
 

@@ -37,10 +37,10 @@ subroutine Driver_setupParallelEnv ()
        dr_meshAcrossComm, dr_meshAcrossMe, dr_meshAcrossNumProcs, &
        dr_axisComm, dr_axisMe, dr_axisNumProcs,&
        dr_meshCopyCount
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, parameter :: nonrep_maxlocs(0:NONREP_COUNT) = NONREP_MAXLOCS
   integer, parameter :: nonrep_rpcount_start(1:NONREP_COUNT+1) = NONREP_RPCOUNT_START
   character(len=*), parameter :: nonrep_rpcount_flat = NONREP_RPCOUNT_FLAT
@@ -63,7 +63,7 @@ subroutine Driver_setupParallelEnv ()
        dr_meshCopyCount * dr_axisNumProcs(IAXIS) * &
        dr_axisNumProcs(JAXIS) * dr_axisNumProcs(KAXIS)) then
      if(dr_globalMe == MASTER_PE)print*,'the processors are ',dr_axisNumProcs,dr_globalnumProcs
-     call Driver_abortFlash("[Driver_init] Must set runtime parameters iProcs, jProcs, kProcs, " // &
+     call Driver_abort("[Driver_init] Must set runtime parameters iProcs, jProcs, kProcs, " // &
         "and meshCopyCount so that iProcs*jProcs*kProcs*meshCopyCount equals number of processors")
   end if
 #else
@@ -73,7 +73,7 @@ subroutine Driver_setupParallelEnv ()
   do i=1, NONREP_COUNT
      call RuntimeParameters_get(nonrep_rpcount_flat(nonrep_rpcount_start(i):nonrep_rpcount_start(i+1)-1), n)
      if(dr_meshCopyCount*nonrep_maxlocs(i) < n) then
-        call Driver_abortFlash("["//FILE_AT_LINE//"] the parameter " // &
+        call Driver_abort("["//FILE_AT_LINE//"] the parameter " // &
            nonrep_rpcount_flat(nonrep_rpcount_start(i):nonrep_rpcount_start(i+1)-1) // &
            " must not be greater than the number of local unks " // &
            nonrep_namef_flat(nonrep_namef_start(i):nonrep_namef_start(i+1)-1) // &
@@ -87,7 +87,7 @@ subroutine Driver_setupParallelEnv ()
   countInComm=dr_globalNumProcs/dr_meshCopyCount
 
   if((countInComm*dr_meshCopyCount) /= dr_globalNumProcs)&
-       call Driver_abortFlash("when duplicating mesh, numProcs should be a multiple of meshCopyCount")
+       call Driver_abort("when duplicating mesh, numProcs should be a multiple of meshCopyCount")
   
   color = dr_globalMe/countInComm
   key = mod(dr_globalMe,countInComm)

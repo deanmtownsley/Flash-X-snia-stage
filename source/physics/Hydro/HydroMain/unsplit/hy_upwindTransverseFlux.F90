@@ -53,7 +53,7 @@ Subroutine hy_upwindTransverseFlux&
 
   use Hydro_data,           ONLY : hy_transOrder, hy_useAuxEintEqn
   use hy_slopeLimiters, ONLY : minmod, mc, vanLeer, signum
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
 
   implicit none
 
@@ -124,7 +124,7 @@ Subroutine hy_upwindTransverseFlux&
 
 
   if (order > 1) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[hy_upwindTransverseFlux]: No high-order transFlux support! Please set transOrder=1.")
   endif
 

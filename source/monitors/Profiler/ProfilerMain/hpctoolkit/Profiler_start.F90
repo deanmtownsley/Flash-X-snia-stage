@@ -39,8 +39,8 @@ subroutine Profiler_startName(name)
 end subroutine Profiler_startName
 
 subroutine Profiler_startId(id)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   integer, intent(in) :: id
-  call Driver_abortFlash("Not yet implemented")
+  call Driver_abort("Not yet implemented")
 end subroutine Profiler_startId

@@ -87,7 +87,7 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
 #include "Simulation.h"
 #include "constants.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_meshComm, gr_meshMe
 #ifdef FLASH_GRID_PARAMESH
   use Grid_data, ONLY : gr_maxRefine, gr_enforceMaxRefinement
@@ -99,7 +99,7 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
   use Grid_data, ONLY :  gr_maxRefine, gr_enforceMaxRefinement
 #endif
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN), OPTIONAL :: mode, scope
   integer, intent(IN), OPTIONAL :: inputComm
@@ -127,7 +127,7 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
   if (present(inputComm) .AND. myScope==2) then
      comm = inputComm
   else if (myScope==2 .AND. myMode==4) then
-     call Driver_abortFlash('Grid_getMaxRefinement: MPI communicator not specified!')
+     call Driver_abort('Grid_getMaxRefinement: MPI communicator not specified!')
   else if (myScope==3) then
      comm = gr_meshComm
   else if (myScope==4) then
@@ -158,10 +158,10 @@ subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)
 
   if (present(scope)) then
      if (myMode == 4 .AND.  myScope .NE. 3) then
-        call Driver_abortFlash("[Grid_getMaxRefinement] scope not coded yet for AMReX")
+        call Driver_abort("[Grid_getMaxRefinement] scope not coded yet for AMReX")
      end if
   else if (present(inputComm)) then
-    call Driver_abortFlash("[Grid_getMaxRefinement] inputComm not coded yet for AMReX")
+    call Driver_abort("[Grid_getMaxRefinement] inputComm not coded yet for AMReX")
   end if
 
 #else

@@ -52,7 +52,7 @@
 !!***
 subroutine ut_polint(xa, ya, n, x, y, dy)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use ut_interpolationInterface, ONLY : ut_quadraticInterpol
 
   implicit none
@@ -73,7 +73,7 @@ subroutine ut_polint(xa, ya, n, x, y, dy)
         y = ya(2)  +  (ya(2) - ya(1)) / (xa(2) - xa(1))  *  (x - xa(2))
      end if
   case default
-     call Driver_abortFlash('ut_polint only implements linear and parabolic interpolation!')
+     call Driver_abort('ut_polint only implements linear and parabolic interpolation!')
   end select
 
   return

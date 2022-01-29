@@ -56,13 +56,13 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
   use Grid_data, ONLY : gr_globalMe, gr_meshNumProcs, gr_meshComm
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Logfile_interface, ONLY: Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptInterface, ONLY : gr_ptPackUnpackData, gr_ptDumpState
 
   implicit none
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "gr_ptMapToMesh.h"
 
   integer,intent(IN) :: varGrid
@@ -79,7 +79,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
   character (len=MPI_MAX_ERROR_STRING) :: errStr
 
   if(gr_meshNumProcs==1) then
-     if(sendCount/=0) call Driver_abortFlash("gr_ptMoveMappedData: sendSize>0 for 1 proc")
+     if(sendCount/=0) call Driver_abort("gr_ptMoveMappedData: sendSize>0 for 1 proc")
   else
 
      !All processors must participate!!!
@@ -99,7 +99,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 #ifdef DEBUG_GRIDMAPPARTICLES
      if(ierr /= MPI_SUCCESS) then
         call MPI_ERROR_STRING(ierr,errStr,errLen,ierr2)
-        call Driver_abortFlash("gr_ptMoveMappedData MPI_ALLREDUCE: " // errStr(1:errLen))
+        call Driver_abort("gr_ptMoveMappedData MPI_ALLREDUCE: " // errStr(1:errLen))
      end if
 #endif
 
@@ -134,7 +134,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
            !have the same value in "mustCommunicate" variable.
            call MPI_Barrier(gr_meshComm, ierr)
            call Logfile_stampMessage("[gr_ptMoveMappedData]: timesInLoop >= gr_meshNumProcs")
-           call Driver_abortFlash &
+           call Driver_abort &
                 ("[gr_ptMoveMappedData]: particles should have been processed by now (see log files)")
         end if
 
@@ -162,27 +162,27 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 
 #ifdef DEBUG_GRIDMAPPARTICLES
         if(dest < 0) then
-           call Driver_abortFlash("gr_ptMoveMappedData: dest < 0")
+           call Driver_abort("gr_ptMoveMappedData: dest < 0")
         end if
 
         if(dest >= gr_meshNumProcs) then
-           call Driver_abortFlash("gr_ptMoveMappedData: dest >= gr_meshNumProcs")
+           call Driver_abort("gr_ptMoveMappedData: dest >= gr_meshNumProcs")
         end if
 
         if(src < 0) then
-           call Driver_abortFlash("gr_ptMoveMappedData: src < 0")
+           call Driver_abort("gr_ptMoveMappedData: src < 0")
         end if
 
         if(src >= gr_meshNumProcs) then
-           call Driver_abortFlash("gr_ptMoveMappedData: scr >= gr_meshNumProcs")
+           call Driver_abort("gr_ptMoveMappedData: scr >= gr_meshNumProcs")
         end if
 
         if(src == gr_globalMe) then
-           call Driver_abortFlash("src == gr_globalMe, and we still have unmatched particles, bad")
+           call Driver_abort("src == gr_globalMe, and we still have unmatched particles, bad")
         end if
 
         if(dest == gr_globalMe) then
-           call Driver_abortFlash("dest == gr_globalMe, and we still have unmatched particles, bad")
+           call Driver_abort("dest == gr_globalMe, and we still have unmatched particles, bad")
         end if
 #endif
 
@@ -201,7 +201,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 #ifdef DEBUG_GRIDMAPPARTICLES
         if(ierr /= MPI_SUCCESS) then
            call MPI_ERROR_STRING(ierr,errStr,errLen,ierr2)
-           call Driver_abortFlash("gr_ptMoveMappedData SEND_RECV: " // errStr(1:errLen))
+           call Driver_abort("gr_ptMoveMappedData SEND_RECV: " // errStr(1:errLen))
         end if
 #endif
 
@@ -211,7 +211,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 #ifdef DEBUG_GRIDMAPPARTICLES
         if(ierr /= MPI_SUCCESS) then
            call MPI_ERROR_STRING(ierr,errStr,errLen,ierr2)
-           call Driver_abortFlash("gr_ptMoveMappedData GET_COUNT: " // errStr(1:errLen))
+           call Driver_abort("gr_ptMoveMappedData GET_COUNT: " // errStr(1:errLen))
         end if
 #endif
 
@@ -238,7 +238,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 #ifdef DEBUG_GRIDMAPPARTICLES
         if(ierr /= MPI_SUCCESS) then
            call MPI_ERROR_STRING(ierr,errStr,errLen,ierr2)
-           call Driver_abortFlash("gr_ptMoveMappedData MPI_ALLREDUCE: " // errStr(1:errLen))
+           call Driver_abort("gr_ptMoveMappedData MPI_ALLREDUCE: " // errStr(1:errLen))
         end if
 #endif
 

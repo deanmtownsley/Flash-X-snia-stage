@@ -10,7 +10,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 
@@ -72,7 +72,7 @@ void FTOC(get_numparticles)(hid_t *file_identifier,
     status = H5Sget_simple_extent_dims(dataspace, dataspace_dims, maximum_dims);
     if(status < 0){
       printf("No particles found in particle tracers dataset!\n");
-      Driver_abortFlashC("No particles found in particle tracers dataset!\n");
+      Driver_abortC("No particles found in particle tracers dataset!\n");
     }
 
     *numParticles = dataspace_dims[0];
@@ -122,7 +122,7 @@ void FTOC(io_h5read_particles)(hid_t* file_identifier,
   dataset = H5Dopen(*file_identifier, "tracer particles", H5P_DEFAULT);
 #endif  
   if(dataset < 0){
-    Driver_abortFlashC("tracer particles not found\n");
+    Driver_abortC("tracer particles not found\n");
   }
 
   /* get the particle data space */
@@ -143,7 +143,7 @@ void FTOC(io_h5read_particles)(hid_t* file_identifier,
                                    stride_2d, count_2d, NULL);
   if (status < 0){
     printf("Error: Unable to select hyperslab for particles dataspace\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for particles dataspace\n");
+    Driver_abortC("Error: Unable to select hyperslab for particles dataspace\n");
   }
 
   if(*localnp > 0){
@@ -166,7 +166,7 @@ void FTOC(io_h5read_particles)(hid_t* file_identifier,
     
     if (status < 0){
       printf("Error: Unable to read particles from dataset\n");
-      Driver_abortFlashC("Error: Unable to read particles from dataset\n");
+      Driver_abortC("Error: Unable to read particles from dataset\n");
     }
 
 

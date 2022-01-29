@@ -45,12 +45,12 @@
 subroutine io_getVarExtrema(nvars, globalVarMin, globalVarMax, gridDataStruct)
       use Grid_interface, ONLY : Grid_getTileIterator, &
                                  Grid_releaseTileIterator
-      use Driver_interface, ONLY : Driver_abortFlash
+      use Driver_interface, ONLY : Driver_abort
       use IO_data, only: io_unkToGlobal, io_globalComm
       use Grid_iterator, ONLY : Grid_iterator_t
       use Grid_tile,     ONLY : Grid_tile_t 
       
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 #include "Simulation.h"
 #ifdef Grid_releaseBlkPtr
@@ -116,7 +116,7 @@ subroutine io_getVarExtrema(nvars, globalVarMin, globalVarMax, gridDataStruct)
                               enddo
                         enddo
                   case default
-                        call Driver_abortFlash("io_getVarExtrema: dataStruct not implemented")
+                        call Driver_abort("io_getVarExtrema: dataStruct not implemented")
                   end select
                   
                   ! doing Grid_releaseBlkPtr expansion by hand, see: drift

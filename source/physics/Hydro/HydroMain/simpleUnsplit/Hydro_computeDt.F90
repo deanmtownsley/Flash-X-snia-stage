@@ -13,56 +13,11 @@
 !!  Hydro_computeDt
 !!
 !!
-!! SYNOPSIS
-!!
-!!  Hydro_computeDt(integer(IN)    :: blockID,
-!!                  real(IN)       :: x(GRID_ILO_GC:GRID_IHI_GC),
-!!                  real(IN)       :: dx(GRID_ILO_GC:GRID_IHI_GC),
-!!                  real(IN)       :: uxgrid(GRID_ILO_GC:GRID_IHI_GC),
-!!                  real(IN)       :: y(GRID_JLO_GC:GRID_JHI_GC),
-!!                  real(IN)       :: dy(GRID_JLO_GC:GRID_JHI_GC),
-!!                  real(IN)       :: uygrid(GRID_JLO_GC:GRID_JHI_GC),
-!!                  real(IN)       :: z(GRID_KLO_GC:GRID_KHI_GC),
-!!                  real(IN)       :: dz(GRID_KLO_GC:GRID_KHI_GC),
-!!                  real(IN)       :: uzgrid(GRID_KLO_GC:GRID_KHI_GC),
-!!                  integer(IN)    :: blkLimits(2,MDIM)
-!!                  integer(IN)    :: blkLimitsGC(2,MDIM)
-!!                  real,pointer   :: U(:,:,:,:),
-!!                  real(INOUT)    :: dtCheck,
-!!                  integer(INOUT) :: dtMinLoc(5),
-!!                  real(INOUT), optional :: extraInfo)
-!!  
-!!
+!! 
 !! DESCRIPTION
 !!
-!!  This routine computes the timestep limiter for the Unsplit Hydro solver.
-!!  The Courant-Fredrichs-Lewy criterion is used.  The sound
-!!  speed is computed and together with the velocities, is used to constrain
-!!  the timestep such that no information can propagate more than one zone
-!!  per timestep.
-!!  Note that this routine only accounts for computing advection time step in hyperbolic
-!!  system of equations.
-!!
-!! ARGUMENTS
-!!
-!!  blockID       -  local block ID
-!!  x, y, z       -  three, directional coordinates
-!!  dx,dy,dz      -  distances in each {*=x, y z} directions
-!!  uxgrid        -  velocity of grid expansion in x directions
-!!  uygrid        -  velocity of grid expansion in y directions
-!!  uzgrid        -  velocity of grid expansion in z directions
-!!  blkLimits     -  the indices for the interior endpoints of the block
-!!  blkLimitsGC   -  the indices for endpoints including the guardcells
-!!  U             -  the physical, solution data from grid
-!!  dtCheck       -  variable to hold timestep constraint
-!!  dtMinLoc(5)   -  array to hold location of cell responsible for minimum dt:
-!!                   dtMinLoc(1) = i index
-!!                   dtMinLoc(2) = j index
-!!                   dtMinLoc(3) = k index
-!!                   dtMinLoc(4) = refinement level
-!!                   dtMinLoc(5) = hy_meshMe
-!!  extraInfo     -  Driver_computeDt can provide extra info to the caller
-!!                   using this argument.
+!!  This routine computes the timestep limiter for the simplified  Hydro solver.
+!!  For more details see the documentation of the NULL implementation
 !!
 !!***
 
@@ -84,7 +39,7 @@ Subroutine Hydro_computeDt(tileDesc, &
                                hy_pref, hy_vref, hy_meshMe,           &
                                hy_useHydro, hy_updateHydroFluxes,     &
                                hy_useVaryingCFL
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile,        ONLY : Grid_tile_t
   implicit none
 
@@ -307,7 +262,7 @@ Subroutine Hydro_computeDt(tileDesc, &
         enddo
 
      else ! Polar in 3D (that's a no no)
-        call Driver_abortFlash("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
+        call Driver_abort("[Hydro_computeDt] ERROR: Polar geometry not supported in 3D")
      endif
 
   endif
@@ -343,7 +298,7 @@ Subroutine Hydro_computeDt(tileDesc, &
      end do
   end associate
   !! ---------------------------------------------------------------------------
-  if(dtCheck <= 0.0) call Driver_abortFlash("[Hydro]: Computed dt is not positive! Aborting!")
+  if(dtCheck <= 0.0) call Driver_abort("[Hydro]: Computed dt is not positive! Aborting!")
   return
 
 End Subroutine Hydro_computeDt

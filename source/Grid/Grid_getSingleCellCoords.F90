@@ -42,7 +42,7 @@
 #include "constants.h"
 
 subroutine Grid_getSingleCellCoords(ind, level, edge, coords)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -53,5 +53,5 @@ subroutine Grid_getSingleCellCoords(ind, level, edge, coords)
 
   coords(:) = 0.0
 
-  call Driver_abortFlash("[Grid_getSingleCellCoords] DEPRECATED")
+  call Driver_abort("[Grid_getSingleCellCoords] DEPRECATED")
 end subroutine Grid_getSingleCellCoords

@@ -14,7 +14,7 @@
 !***************************************************************************************************
 
 Module xnet_eos
-  Use Driver_interface, Only: Driver_abortFlash
+  Use Driver_interface, Only: Driver_abort
   Use Eos_interface, Only: Eos
   Use Simulation_interface, Only: Simulation_mapStrToInt
   Use xnet_types, Only: dp
@@ -102,7 +102,7 @@ Contains
 #endif
       if ( ierr > 0 ) then
         Write(lun_stdout,"(a,6es23.15)") 'EOS',t9,rho,ye,cv,etae,detaedt9
-        call Driver_abortFlash('[xnet_eos] Error: too many Newton-Raphson iterations in Eos')
+        call Driver_abort('[xnet_eos] Error: too many Newton-Raphson iterations in Eos')
       endif
     Else
       etae = 0.0

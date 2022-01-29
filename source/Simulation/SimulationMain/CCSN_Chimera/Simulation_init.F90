@@ -39,7 +39,7 @@
 !!***
 subroutine Simulation_init()
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Grid_interface, ONLY : Grid_getGeometry, Grid_getDomainBoundBox
   !use gr_mpoleData, ONLY : gr_point_mass=>point_mass

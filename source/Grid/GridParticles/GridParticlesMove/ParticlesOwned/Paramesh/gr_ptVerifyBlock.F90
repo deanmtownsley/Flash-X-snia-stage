@@ -45,7 +45,7 @@
 subroutine gr_ptVerifyBlock(particles,propCount,localNumParticles,maxParticlesPerProc)
 
   use Grid_interface, ONLY : Grid_outsideBoundBox
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_meshMe
   use gr_ptData, ONLY : gr_ptBlk, gr_ptTag, gr_ptPosx, gr_ptPosy, gr_ptPosz
   use Logfile_interface, ONLY : Logfile_open, Logfile_close
@@ -108,7 +108,7 @@ subroutine gr_ptVerifyBlock(particles,propCount,localNumParticles,maxParticlesPe
   end do
 
   if (inErrorState) then
-     call Driver_abortFlash("Particle on wrong block.  See local error logfiles.")
+     call Driver_abort("Particle on wrong block.  See local error logfiles.")
   end if
 
 end Subroutine gr_ptVerifyBlock

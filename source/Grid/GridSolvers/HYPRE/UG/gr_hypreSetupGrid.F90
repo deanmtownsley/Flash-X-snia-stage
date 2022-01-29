@@ -54,7 +54,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockType, nvars)
                                gr_hypreAnisoDiffusion, gr_hypreMatrixIsSetup
 
   use Grid_data,        ONLY : gr_meshComm, gr_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
   
@@ -197,7 +197,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockType, nvars)
      ! HYPRE for anisotropic diffusion only supports 2D and 3D.
      ! This is meant to be used with multidimensional MHD.
      if (NDIM == 1) then
-        call Driver_abortFlash&
+        call Driver_abort&
           ('The HYPRE GridSolver for anisotropic diffusion is only available for multidimensional setups')
      elseif (NDIM == 2) then
         nentries = 9

@@ -30,7 +30,7 @@ subroutine Simulation_init()
   use Logfile_interface, only : Logfile_stampMessage
   use Logfile_interface, only : Logfile_stampMessage
   use Grid_interface, only : Grid_getGeometry, Grid_getDomainBoundBox
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use Simulation_interface, ONLY : Simulation_mapStrToInt
 
   implicit none
@@ -113,7 +113,7 @@ subroutine Simulation_init()
 
   call Logfile_stampMessage('[Simulation_init] Reading initial 1-d WD profile')
   open(unit=2,file=initialWDFileName,status='OLD',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash('Unable to open initial WD profile')
+  if (istat /= 0) call Driver_abort('Unable to open initial WD profile')
 
   ! parse the header to get isotope names
   read(2,"(a)") header_line
@@ -219,7 +219,7 @@ subroutine Simulation_init()
   else if ( meshGeom == CARTESIAN ) then
      sim_wd_rad_tab(sim_wd_npnts+1)  = sqrt( sum( maxval(boundBox**2,dim=1) ) )
   else
-     call Driver_abortFlash("Geometry not supported")
+     call Driver_abort("Geometry not supported")
   end if
 
   sim_wd_vol_tab(sim_wd_npnts+1)  = 4.0*PI/3.0 * sim_wd_rad_tab(sim_wd_npnts+1)**3

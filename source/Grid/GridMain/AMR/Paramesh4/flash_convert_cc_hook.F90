@@ -71,7 +71,7 @@
 
 subroutine flash_convert_cc_hook(datainout, nvars, i1,i2,j1,j2,k1,k2, why)
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Grid_data, ONLY: gr_convertToConsvdInMeshInterp, gr_vartypes, gr_anyVarToConvert, &
        gr_meshMe
   use physicaldata, ONLY : int_gcell_on_cc
@@ -128,7 +128,7 @@ subroutine flash_convert_cc_hook(datainout, nvars, i1,i2,j1,j2,k1,k2, why)
 99                     format ('[flash_convert_cc_hook] PE=',I7,', ivar=',I3,', why=',I1,', i,j,k=',3I5)
                        print 99,gr_meshMe,ivar,why,i,j,k
                        print*,'Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!'
-                       call Driver_abortFlash &
+                       call Driver_abort &
                             ('Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!')
                     end if
                  end if

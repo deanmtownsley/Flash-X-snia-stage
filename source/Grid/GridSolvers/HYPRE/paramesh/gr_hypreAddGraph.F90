@@ -72,7 +72,7 @@ subroutine gr_hypreAddGraph (blockHandle, blockID, blkPartNo, direction, datasiz
 #include "Simulation.h"
 #include "constants.h"   
 #include "HYPREf.h"   
-#include "Flash_mpi.h"  
+#include "Flashx_mpi.h"  
   
   integer, intent(IN) :: blockHandle
   integer, intent(IN) :: direction

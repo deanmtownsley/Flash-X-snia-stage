@@ -125,7 +125,7 @@ void io_h5_xfer_packed_mesh_dataset(const int myPE,
     pHdf5Buf = pTmpFltBuf;
   }
   else {
-    Driver_abortFlashC("File datatype is neither float nor double\n");
+    Driver_abortC("File datatype is neither float nor double\n");
   }
 
 

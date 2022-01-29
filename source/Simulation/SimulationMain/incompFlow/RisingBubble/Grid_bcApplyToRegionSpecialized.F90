@@ -159,7 +159,7 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct, level, &
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface,         ONLY : Driver_abortFlash
+  use Driver_interface,         ONLY : Driver_abort
   use gr_bcInterface,           ONLY : gr_bcMapBcType
   use Grid_interface,           ONLY : Grid_getGeometry,Grid_getDeltas
   use Grid_data,                ONLY : gr_dirGeom,gr_smallrho,gr_smallE

@@ -60,7 +60,7 @@ module UTCounter_sharedCounter
 #else
   !Include Simulation.h to obtain FLASH_LIB_NBC macro
 # include "Simulation.h"
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_checkMPIErrorCode
+  use Driver_interface, ONLY : Driver_abort, Driver_checkMPIErrorCode
 #endif
 
   implicit none
@@ -72,7 +72,7 @@ module UTCounter_sharedCounter
   integer, parameter :: FLASH_INTEGER = MPI_INTEGER
   integer, parameter :: FLASH_LOGICAL = MPI_LOGICAL
 #else
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
 #endif
 
   integer, save :: utcnt_localCount
@@ -136,7 +136,7 @@ contains
     integer :: ierr
 
 #ifndef FLASH_MPI3
-    call Driver_abortFlash("This counter implementation requires MPI-3")
+    call Driver_abort("This counter implementation requires MPI-3")
 #endif
 
     if (utcnt_isInitialized) call UTCounter_finalize()
@@ -152,7 +152,7 @@ contains
        utcnt_masterRank = masterRank
     end if
     if (utcnt_masterRank < 0 .or. utcnt_masterRank >= utcnt_size) then
-       call Driver_abortFlash('Invalid Master')
+       call Driver_abort('Invalid Master')
     end if
 
     utcnt_doLog = .false.
@@ -189,10 +189,10 @@ contains
     integer, intent(IN) :: targetCount
 
     if (.not.utcnt_isInitialized) then
-       call Driver_abortFlash("Must intialize the counter first")
+       call Driver_abort("Must intialize the counter first")
     end if
     if (.not.utcnt_isDone) then
-       call Driver_abortFlash("A counter invocation is already running")
+       call Driver_abort("A counter invocation is already running")
     end if
 
     utcnt_targetCount = targetCount
@@ -230,7 +230,7 @@ contains
              !sizeof(MPI_INT) == sizeof(MPI_INTEGER) == sizeof(FLASH_INTEGER).
              call NBC_Iallreduce(utcnt_localCountMsg, utcnt_sharedCountMsg, &
                   1, MPI_INT, MPI_SUM, utcnt_comm, utcnt_request, ierr)
-             if (ierr /= NBC_OK) call Driver_abortFlash("NBC_Iallreduce error")
+             if (ierr /= NBC_OK) call Driver_abort("NBC_Iallreduce error")
 # else
              call MPI_Iallreduce(utcnt_localCountMsg, utcnt_sharedCountMsg, &
                   1, FLASH_INTEGER, MPI_SUM, utcnt_comm, utcnt_request, ierr)
@@ -245,7 +245,7 @@ contains
              !initialize the error code for NBC_REQUEST_NULL requests.
              call NBC_Test(utcnt_request, ierr)
              if (ierr /= NBC_OK .and. ierr /= NBC_CONTINUE) &
-                  call Driver_abortFlash("NBC_Test error")             
+                  call Driver_abort("NBC_Test error")             
              testIfTargetMet = (utcnt_request == FLASH_REQUEST_NULL)
 #else
              call MPI_Test(utcnt_request, testIfTargetMet, &
@@ -334,7 +334,7 @@ contains
        end if
 
        if (.not.utcnt_isCounterTargetMet) then
-          call Driver_abortFlash("Counter does not support early termination")
+          call Driver_abort("Counter does not support early termination")
        end if
 
        if (doSyncReturn) then
@@ -364,15 +364,15 @@ contains
   subroutine Driver_checkMPIErrorCode(errorCode)
     implicit none
     integer, intent(IN) :: errorCode
-    if (errorCode /= MPI_SUCCESS) call Driver_abortFlash('Error in MPI')
+    if (errorCode /= MPI_SUCCESS) call Driver_abort('Error in MPI')
   end subroutine Driver_checkMPIErrorCode
 
-  subroutine Driver_abortFlash(msg)
+  subroutine Driver_abort(msg)
     implicit none
     character (len=*), intent(IN) :: msg
     print *, "ERROR!!! ", msg
     stop
-  end subroutine Driver_abortFlash
+  end subroutine Driver_abort
 #endif
 
 end module UTCounter_sharedCounter

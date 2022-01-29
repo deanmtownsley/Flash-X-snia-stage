@@ -16,7 +16,7 @@
 subroutine IncompNS_getScalarPropReal(name, value)
 
   use IncompNS_data
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -34,7 +34,7 @@ subroutine IncompNS_getScalarPropReal(name, value)
      case default
        value = 0.
        write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-       call Driver_abortFlash(errorMessage)
+       call Driver_abort(errorMessage)
   end select  
 
 end subroutine IncompNS_getScalarPropReal
@@ -42,7 +42,7 @@ end subroutine IncompNS_getScalarPropReal
 subroutine IncompNS_getScalarPropLogical(name, value)
 
   use IncompNS_data
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -56,7 +56,7 @@ subroutine IncompNS_getScalarPropLogical(name, value)
      case default
        value = .false.
        write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-       call Driver_abortFlash(errorMessage)
+       call Driver_abort(errorMessage)
   end select  
 
 end subroutine IncompNS_getScalarPropLogical

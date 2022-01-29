@@ -58,7 +58,7 @@
 !!***
 
 subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -66,6 +66,6 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient)
   logical, intent(IN), optional :: isDensity(:)
   real,    intent(IN), optional :: coefficient
 
-  call Driver_abortFlash("[Grid_addCoarseToFluxRegister] Prototype stub.  Do NOT use!")
+  call Driver_abort("[Grid_addCoarseToFluxRegister] Prototype stub.  Do NOT use!")
 end subroutine Grid_addCoarseToFluxRegister
 

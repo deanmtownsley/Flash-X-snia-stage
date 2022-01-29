@@ -16,7 +16,7 @@
 subroutine user_bnd( guard, axis, regionData, regionSize )
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use KindModule, ONLY : DP, Zero, One, Three
   use MeshModule, ONLY : NodeCoordinate, MeshE
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3

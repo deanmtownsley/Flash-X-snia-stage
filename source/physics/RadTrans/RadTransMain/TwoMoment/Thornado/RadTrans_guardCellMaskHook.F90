@@ -32,7 +32,7 @@
 
 subroutine RadTrans_guardCellMaskHook(ccMask, needEos)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RadTrans_data, ONLY : rt_eosModeGc
 
   implicit none
@@ -43,7 +43,7 @@ subroutine RadTrans_guardCellMaskHook(ccMask, needEos)
   logical,intent(IN)    :: needEos
 
 #ifndef YE_MSCALAR
-  call Driver_abortFlash("RadTrans_guardCellMaskHook: YE_MSCALAR not defined.")
+  call Driver_abort("RadTrans_guardCellMaskHook: YE_MSCALAR not defined.")
 #else
   ccMask(YE_MSCALAR) = .TRUE.
 #ifdef FLASH_EOS_WEAKLIB

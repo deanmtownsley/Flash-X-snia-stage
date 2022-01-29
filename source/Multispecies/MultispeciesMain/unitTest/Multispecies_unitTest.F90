@@ -20,7 +20,7 @@
 !! DESCRIPTION
 !!
 !!  This is a unitTest setup for testing the Multispecies
-!!  unit.  Normally called from Driver_evolveFlash within a Simulation unitTest
+!!  unit.  Normally called from Driver_evolveAll within a Simulation unitTest
 !!  See, for example, source/Simulation/SimulationMain/unitTest/Multispecies
 !!
 !!  Performs testing by calculating and outputting values using all possible

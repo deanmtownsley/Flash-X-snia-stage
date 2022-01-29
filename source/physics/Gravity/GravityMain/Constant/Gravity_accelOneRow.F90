@@ -88,7 +88,7 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   use Grid_tile,    ONLY : Grid_tile_t
 
   use Gravity_data, ONLY : useGravity, grv_vector
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

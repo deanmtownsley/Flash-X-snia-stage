@@ -97,7 +97,7 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
      &                  nok,nbad,kount,odescal,iprint,  & 
      &                  derivs,jakob,bjakob,steper)
    
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -178,12 +178,12 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
   !!   initialize    
   if (ylogi .gt. yphys) then
      write(*,*) 'ylogi > yphys in routine bn_netIntegrate' 
-     call Driver_abortFlash('ERROR in bn_netIntegrate: ylogi > yphys')
+     call Driver_abort('ERROR in bn_netIntegrate: ylogi > yphys')
   end if
 
   if (yphys .gt. nmax)  then
      write(*,*) 'yphys > nmax in routine bn_netIntegrate' 
-     call Driver_abortFlash('ERROR in bn_netIntegrate: yphys > nmax')
+     call Driver_abort('ERROR in bn_netIntegrate: yphys > nmax')
   end if
 
   x     = start    
@@ -283,7 +283,7 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
         write(*,102) 'hnext=',hnext,' stpmin=',stpmin
         write(*,*) 'hnext < stpmin in bn_netIntegrate' 
         write(*,*)' '
-        call Driver_abortFlash('ERROR in bn_netIntegrate: hnext < stpmin')
+        call Driver_abort('ERROR in bn_netIntegrate: hnext < stpmin')
      end if
 
      !!   back for another iteration or death 
@@ -294,6 +294,6 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
   write(*,103)'stpmax=',stpmax
   write(*,*)'more than stpmax steps required in bn_netIntegrate'  
   write(*,*) 
-  call Driver_abortFlash('ERROR in bn_netIntegrate: too many steps required')
+  call Driver_abort('ERROR in bn_netIntegrate: too many steps required')
 
 end subroutine bn_netIntegrate

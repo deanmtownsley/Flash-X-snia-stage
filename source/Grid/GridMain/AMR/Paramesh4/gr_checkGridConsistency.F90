@@ -32,12 +32,12 @@
 
 subroutine gr_checkGridConsistency()
   use IO_interface, ONLY : IO_writePlotfile
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Logfile_interface, ONLY: Logfile_stamp
   use paramesh_mpi_interfaces, ONLY: mpi_amr_local_surr_blks_lkup
   use tree, ONLY : nodetype, lnblocks
   use Grid_data, ONLY: gr_meshMe, gr_meshNumProcs, gr_meshComm
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   logical, parameter :: mayAttemptFix = .TRUE.
   logical :: attemptedFix
@@ -94,7 +94,7 @@ subroutine gr_checkGridConsistency()
      call IO_writePlotfile( .true.)     
      call MPI_BARRIER(gr_meshComm, ierr)
      call dr_sleep(5)
-     if (linconsistent) call Driver_abortFlash("missing neighbor!")
+     if (linconsistent) call Driver_abort("missing neighbor!")
   end if
 
 end subroutine gr_checkGridConsistency

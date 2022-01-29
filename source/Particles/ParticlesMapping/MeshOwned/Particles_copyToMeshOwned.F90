@@ -112,7 +112,7 @@ subroutine Particles_copyToMeshOwned(particles2D, nprops, np, filePropNames)
                         (particleType <= PART_TYPES_END)) then
                      ind = particleType ! Change the slot in pt_containers where this particle goes
                   else
-                     call Driver_abortFlash("Particles_copyToMeshOwned: encountered invalid particle type")
+                     call Driver_abort("Particles_copyToMeshOwned: encountered invalid particle type")
                   end if
                case default
                   ! we should get here for pdens, ptemp etc.

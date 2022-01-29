@@ -1146,7 +1146,7 @@ subroutine hy_getFaceFlux (tileDesc,blkLimits,blkLimitsGC,del,&
 contains
 
   subroutine do_error(solver, VL, VR, i,j,k, dir)
-    use Driver_interface, ONLY : Driver_abortFlash
+    use Driver_interface, ONLY : Driver_abort
     use Grid_interface,   ONLY : Grid_getCellCoords
 
     implicit none
@@ -1222,7 +1222,7 @@ contains
     deallocate(zcent)
 
 
-    call Driver_abortFlash( &
+    call Driver_abort( &
          "[hy_getFaceFlux]: Imaginary sound speed has obtained in " // &
          trim(solver) // " solver. " // &
          "Please try other (more diffusive) slope limiter, flux, order, cfl, etc. "//&

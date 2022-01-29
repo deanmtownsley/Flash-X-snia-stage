@@ -61,7 +61,7 @@
 
 subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind(c)
   use Driver_interface,       ONLY : Driver_getSimTime
-  use Driver_interface,       ONLY : Driver_abortFlash
+  use Driver_interface,       ONLY : Driver_abort
   use Grid_tile,              ONLY : Grid_tile_t
 
   use Grid_data,              ONLY : gr_numRefineVars, &
@@ -209,7 +209,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
             .OR. ((hi_tag(IAXIS) + 1)   < hi(IAXIS)) &
             .OR. ((hi_tag(JAXIS) + K2D) < hi(JAXIS)) &
             .OR. ((hi_tag(KAXIS) + K3D) < hi(KAXIS))) then
-            call Driver_abortFlash("[gr_markRefineDerefineCallback] " // &
+            call Driver_abort("[gr_markRefineDerefineCallback] " // &
                                    "Tagbox is smaller than associated block")
         end if
 #endif

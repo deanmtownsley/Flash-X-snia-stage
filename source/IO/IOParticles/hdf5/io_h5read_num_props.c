@@ -12,7 +12,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 void FTOC(io_h5read_num_props)(hid_t* file_identifier,

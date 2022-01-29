@@ -1,4 +1,5 @@
-subroutine Hydro_prepareBuffers
+!!****if* source/physics/Hydro/Hydro_prepareBuffers
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -7,4 +8,16 @@ subroutine Hydro_prepareBuffers
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
+!!
+!!
+!! NAME
+!!
+!!  Hydro_prepareBuffers
+!!
+!! DESCRIPTION
+!!  free buffers allocated for scratch use
+!!
+!!***
+
+subroutine Hydro_prepareBuffers
 end subroutine Hydro_prepareBuffers

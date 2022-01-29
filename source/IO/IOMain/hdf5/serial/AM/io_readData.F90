@@ -59,7 +59,7 @@ use IO_data, ONLY : io_globalMe, io_globalNumProcs,io_globalComm,&
     io_faceXVarLabels, io_faceYVarLabels, io_faceZVarLabels, &
     tree_data_t
 
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 use RuntimeParameters_interface, ONLY : RuntimeParameters_bcast
 use Logfile_interface, ONLY : Logfile_stamp
 use Grid_interface, ONLY : Grid_putLocalNumBlks, Grid_receiveInputData
@@ -99,7 +99,7 @@ use amrex_plotfile_module, ONLY : amrex_write_plotfile
 use iso_c_binding,         ONLY : c_associated
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 type(amrex_box) :: domain
 type(amrex_boxarray) :: ba

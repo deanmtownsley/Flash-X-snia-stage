@@ -25,7 +25,7 @@
 
 subroutine gr_mpoleRad1Dspherical ()
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Grid_data,         ONLY : gr_meshMe,   &
                                 gr_meshComm
@@ -57,7 +57,7 @@ subroutine gr_mpoleRad1Dspherical ()
   use Grid_iterator,     ONLY : Grid_iterator_t
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
 #include "gr_mpole.h"
@@ -212,7 +212,7 @@ subroutine gr_mpoleRad1Dspherical ()
       nRinnerZone = globalData (2)
 
       if (nRinnerZone == 0) then
-          call Driver_abortFlash ('[gr_mpoleRad1Dspherical] ERROR: no inner zone radii found')
+          call Driver_abort ('[gr_mpoleRad1Dspherical] ERROR: no inner zone radii found')
       end if
 
       allocate (RinnerZone (1:nRinnerZone))

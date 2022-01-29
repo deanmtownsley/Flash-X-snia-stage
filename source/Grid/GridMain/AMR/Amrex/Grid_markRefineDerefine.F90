@@ -29,10 +29,10 @@
 !!***
 
 subroutine Grid_markRefineDerefine()
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
   
-  call Driver_abortFlash("[Grid_markRefineDerefine] Not implemented in AMReX")
+  call Driver_abort("[Grid_markRefineDerefine] Not implemented in AMReX")
 end subroutine Grid_markRefineDerefine
 

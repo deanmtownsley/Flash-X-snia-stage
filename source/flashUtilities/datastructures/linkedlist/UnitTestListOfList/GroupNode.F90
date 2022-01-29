@@ -10,7 +10,7 @@ module GroupNode
   use PersonList, ONLY : person_initialise_list => initialise_list, &
        person_finalise_list => finalise_list, &
        person_print_list => print_list, person_list
-  use Driver, ONLY : Driver_abortFlash
+  use Driver, ONLY : Driver_abort
   implicit none
 
   type group_node
@@ -29,7 +29,7 @@ contains
 
     allocate(item, STAT=err)
     if (err /= 0) then
-       call Driver_abortFlash ("[GroupNode::create_node]: "//&
+       call Driver_abort ("[GroupNode::create_node]: "//&
             "Memory cannot be allocated")
     end if
     item % category = "NULL"
@@ -48,7 +48,7 @@ contains
     nullify(item % next, item % prev)
     deallocate(item, STAT=err)
     if (err /= 0) then
-       call Driver_abortFlash ("[GroupNode::destroy_node]: "//&
+       call Driver_abort ("[GroupNode::destroy_node]: "//&
             "Memory cannot be deallocated")
     end if
     nullify(item)

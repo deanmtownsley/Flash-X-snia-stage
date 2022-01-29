@@ -28,7 +28,7 @@
 
 subroutine sim_setx3PolynomialExactRoots ()
 
-  use  Driver_interface, ONLY: Driver_abortFlash
+  use  Driver_interface, ONLY: Driver_abort
 
   use  Simulation_data,  ONLY: sim_numberOfx3Polynomials, &
                                sim_rootsAnalytical
@@ -43,7 +43,7 @@ subroutine sim_setx3PolynomialExactRoots ()
 !
 !
   if (sim_numberOfx3Polynomials > 9) then
-      call Driver_abortFlash ('[sim_setx3PolynomialExactRoots] ERROR: Not enough storage for exact roots!')
+      call Driver_abort ('[sim_setx3PolynomialExactRoots] ERROR: Not enough storage for exact roots!')
   end if
 !
 !

@@ -45,7 +45,7 @@ subroutine gr_mpoleCollectMoments ()
                                 gr_mpoleScratch
 
   
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "gr_mpole.h"
 

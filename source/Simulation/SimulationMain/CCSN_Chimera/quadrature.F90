@@ -129,7 +129,7 @@ contains
 
   subroutine gquad( nquad, x, wt )
 
-    use Driver_interface, ONLY : Driver_abortFlash
+    use Driver_interface, ONLY : Driver_abort
 
     ! input variables
     integer, intent(in) :: nquad  ! number of points of the quadrature
@@ -478,7 +478,7 @@ contains
 
     else
 
-      call Driver_abortFlash("invalid value for nquad")
+      call Driver_abort("invalid value for nquad")
 
     end if
 

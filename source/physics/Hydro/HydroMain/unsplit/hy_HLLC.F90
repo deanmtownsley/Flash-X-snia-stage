@@ -61,7 +61,7 @@
 Subroutine hy_HLLC(dir,Vm,Vp,Fstar,speed,ierr)
 
   use hy_uhdInterface,  ONLY : hy_prim2con,hy_prim2flx
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Hydro_data,       ONLY : hy_tiny, fP => hy_fPresInMomFlux
 
   implicit none

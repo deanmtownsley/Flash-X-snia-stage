@@ -103,7 +103,7 @@
 
 subroutine Multispecies_getSum(property, value, weights, speciesMask)
   use Multispecies_interface, ONLY : Multispecies_getProperty
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -132,7 +132,7 @@ subroutine Multispecies_getSum(property, value, weights, speciesMask)
       else if (numWeights == 1) then
          weightsFull = weights(1)
       else
-         call Driver_abortFlash("Multispecies_getSum: invalid weights array")
+         call Driver_abort("Multispecies_getSum: invalid weights array")
       endif
    else
       weightsFull = 1.0
@@ -141,7 +141,7 @@ subroutine Multispecies_getSum(property, value, weights, speciesMask)
   if (present(speciesMask)) then
      sizeMask = size(speciesMask,1)
       if (sizeMask .NE. NSPECIES ) then
-         call Driver_abortFlash("Multispecies_getSum: mask array must be sized equal to NSPECIES")
+         call Driver_abort("Multispecies_getSum: mask array must be sized equal to NSPECIES")
       endif
   endif
 

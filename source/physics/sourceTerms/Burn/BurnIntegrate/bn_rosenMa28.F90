@@ -73,7 +73,7 @@
 subroutine bn_rosenMa28(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  & 
      &                      derivs,jakob,bjakob) 
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage
   ! can't use jakob interface; see notes in bnNetwork_interface for the mystery.
 !!  use bnIntegrate_interface, ONLY: derivs, bjakob
@@ -173,7 +173,7 @@ subroutine bn_rosenMa28(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
         if (bn_meshMe .EQ. MASTER_PE) print *, 'more than stpmax steps required in bn_roseMa28'
         call Logfile_stampMessage( '[bn_rosenMa28] negative flag returned from ma28ad')
         call Logfile_stampMessage( '[bn_rosenMa28] more than stpmax steps required')
-        call Driver_abortFlash('ERROR: more than stpmax steps required in bn_rosenMa28')
+        call Driver_abort('ERROR: more than stpmax steps required in bn_rosenMa28')
      end if
 
   end if  ! of firstCall =.false.
@@ -206,7 +206,7 @@ subroutine bn_rosenMa28(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
      if (flag .lt. 0) then 
         if (bn_meshMe .EQ. MASTER_PE) print *, 'ERROR negative flag in ma28bd flag',flag
         call Logfile_stampMessage( '[bn_rosenMa28] negative flag returned from ma28bd')
-        call Driver_abortFlash('ERROR: negative return flag in ma28bd')
+        call Driver_abort('ERROR: negative return flag in ma28bd')
      end if
 
 
@@ -262,7 +262,7 @@ subroutine bn_rosenMa28(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
      if (x .eq. xsav) then 
         if (bn_meshMe .EQ. MASTER_PE) print *, 'step size not significant in bn_rosenMa28'
         call Logfile_stampMessage( '[bn_rosenMa28] Step size not significant!')
-        call Driver_abortFlash('ERROR: step size not significant in bn_rosenMa28')
+        call Driver_abort('ERROR: step size not significant in bn_rosenMa28')
      end if
 
 
@@ -293,7 +293,7 @@ subroutine bn_rosenMa28(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
 !!  too many tries
   if (bn_meshMe .EQ. MASTER_PE) print *, 'ERROR exceeded maxtry in routine bn_rosenMa28' 
   call Logfile_stampMessage('[bn_rosenMa28] ERROR exceeded maxtry')
-  call Driver_abortFlash('ERROR: exceeded maxtry in bn_rosenMa28')
+  call Driver_abort('ERROR: exceeded maxtry in bn_rosenMa28')
 
 end subroutine bn_rosenMa28
 
@@ -365,7 +365,7 @@ end subroutine bn_rosenMa28
 subroutine bn_rosenGift(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  & 
      &                      derivs,jakob,bjakob) 
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage
   use bn_interface, ONLY: bn_gift
   use Burn_data, ONLY : bn_meshMe
@@ -556,7 +556,7 @@ subroutine bn_rosenGift(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
      if (x .eq. xsav) then 
         if (bn_meshMe .EQ. MASTER_PE) print *, 'step size not significant in bn_rosenGift' 
         call Logfile_stampMessage('[bn_rosenGift] step size not significant')
-        call Driver_abortFlash('ERROR: step size not significant in bn_rosenGift')
+        call Driver_abort('ERROR: step size not significant in bn_rosenGift')
      end if
 
 
@@ -587,7 +587,7 @@ subroutine bn_rosenGift(y,dydx,n,x,htry,eps,yscal,hdid,hnext,  &
 !!  too many tries
   if (bn_meshMe .EQ. MASTER_PE) print *, 'ERROR exceeded maxtry in routine bn_rosenGift' 
   call Logfile_stampMessage('[bn_rosenGift] ERROR exceeded maxtry')
-  call Driver_abortFlash('ERROR: exceeded maxtry in bn_rosenGift')
+  call Driver_abort('ERROR: exceeded maxtry in bn_rosenGift')
 
 end subroutine  bn_rosenGift
 !!---------------------------------------------------------------------------------

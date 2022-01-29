@@ -114,7 +114,7 @@
 module Grid_getBlkIndexLimits_mod
 contains
 subroutine Grid_getBlkIndexLimits(blockId, blkLimits, blkLimitsGC,gridDataStruct)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
  
   implicit none
 
@@ -150,7 +150,7 @@ subroutine Grid_getBlkIndexLimits(blockId, blkLimits, blkLimitsGC,gridDataStruct
         faces = 1
      elseif((gridDataStruct/=CENTER).and.(gridDataStruct/=SCRATCH_CTR) .and. &
             (gridDataStruct/=CENTER_FACES)) then
-        call Driver_abortFlash("called index limits with invalid gridDataStruct")
+        call Driver_abort("called index limits with invalid gridDataStruct")
      end if
      blkLimitsGC(HIGH,:)=blkLimitsGC(HIGH,:)+faces
      blkLimits(HIGH,:)=blkLimits(HIGH,:)+faces

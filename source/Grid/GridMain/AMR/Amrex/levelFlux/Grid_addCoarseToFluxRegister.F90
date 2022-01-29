@@ -71,7 +71,7 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient, &
     use amrex_amrcore_module, ONLY : amrex_get_finest_level, &
                                      amrex_ref_ratio
 
-    use Driver_interface,     ONLY : Driver_abortFlash
+    use Driver_interface,     ONLY : Driver_abort
     use Grid_interface,       ONLY : Grid_getGeometry
     use gr_physicalMultifabs, ONLY : flux_registers, &
                                      fluxes
@@ -98,7 +98,7 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient, &
 
     ! The finest refinement level is never the coarse level of a flux register
     if ((coarse < 0) .OR. (coarse >= amrex_get_finest_level())) then
-        call Driver_abortFlash("[Grid_addCoarseToFluxRegister] Invalid level")
+        call Driver_abort("[Grid_addCoarseToFluxRegister] Invalid level")
     end if
 
     if (present(coefficient)) then
@@ -108,7 +108,7 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient, &
     end if
 
     if (present(isDensity)) then
-        call Driver_abortFlash("[Grid_addFineToFluxRegister] isDensity not implemented")
+        call Driver_abort("[Grid_addFineToFluxRegister] isDensity not implemented")
     end if
 
     if (present(zeroFullRegister)) then
@@ -124,7 +124,7 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient, &
       ! The scaling factor=1/r^(NDIM-1) used here assumes that the refinement
       ! ratio, r, between levels is always 2
       if (amrex_ref_ratio(coarse) /= 2) then
-        call Driver_abortFlash("[Grid_addFineToFluxRegister] refinement ratio not 2")
+        call Driver_abort("[Grid_addFineToFluxRegister] refinement ratio not 2")
       end if
 
 #if   NDIM == 2
@@ -138,7 +138,7 @@ subroutine Grid_addCoarseToFluxRegister(coarse_level, isDensity, coefficient, &
         ! setval call above.
         call flux_registers(fine)%crseadd(fluxes(coarse, 1:NDIM), coef)
     case default
-        call Driver_abortFlash("[Grid_addFineToFluxRegister] Only works with Cartesian")
+        call Driver_abort("[Grid_addFineToFluxRegister] Only works with Cartesian")
     end select
 end subroutine Grid_addCoarseToFluxRegister
 

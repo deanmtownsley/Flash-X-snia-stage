@@ -14,54 +14,7 @@
 !!  Hydro_shockStrength
 !!
 !!
-!! SYNOPSIS
-!!  call Hydro_shockStrength(real(IN),pointer :: solnData(:,:,:,:), 
-!!                     real(INOUT)          :: shock(:,:,:), 
-!!                     integer(IN)          :: blkLimits(2,MDIM),
-!!                     integer(IN)          :: blkLimitsGC(2,MDIM),
-!!                     integer(IN)          :: guardCells(MDIM),
-!!                     real(IN)             :: primaryCoord(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)),
-!!                     real(IN)             :: secondCoord(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)),
-!!                     real(IN)             :: thirdCoord(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)),
-!!                     real(IN)             :: threshold,
-!!                     integer(IN)          :: mode)
-!!
-!! DESCRIPTION
-!!
-!!  Hydro_shockStrength computes a measure of shock strength for each cell
-!!  in a block. 
-!!
-!!  Hydro_shockStrength includes the same multidimensional shock detection algorithm as
-!!  Hydro_detectShhock, from which it is derived. 
-!!
-!!
-!! ARGUMENTS
-!!
-!!  solnData --     pointer to a block of solution data to inspect
-!!  shock --        an array returning a measure of shock strenght for cells where a shock (of sufficient
-!!                  strength, see threshold) is detected.
-!!                  A combination of current shock strenght with the previous value may be returned
-!!                  if mode > 1, see mode below.
-!!  blkLimits  --   index limits of block, interior cells only; see Grid_getBlkIndexLimits 
-!!  blkLimitsGC --  index limits of block, including guard cells.   
-!!  guardCells  --  number of layers of guard cells which output is requested in addition
-!!                  to interior cells
-!!  primaryCoord -- x coordinate of solnData, i.e., coordinate in IAXIS direction, including guardcells
-!!  secondCoord --  y coordinate of solnData, i.e., coordinate in JAXIS direction, including guardcells
-!!  thirdCoord --   z coordinate of solnData, i.e., coordinate in KAXIS direction, including guardcells
-!!  threshold -     threshold value for shock strength
-!!  mode      -     1 to forget previous values in shock array, 2 to add to prev value,
-!!                  3 for max of previous and current value
-!!  
-!!
-!!  NOTES
-!!
-!!  The guard cells need to be filled before calling this routine.
-!!  The pressure needs to be updated before calling this routine.
-!!  
-!!  SEE ALSO
-!!
-!!  Grid_getBlkIndexLimits
+!!  For more details see the documentation of the NULL implementation
 !!
 !!***
 
@@ -82,7 +35,7 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
                              threshold, mode)
 
   use Hydro_data, ONLY :  hy_smallu, hy_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -130,7 +83,7 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
 
 #ifdef DEBUG_HYDRO_GUARDCELLS
   if (guardCells .GE. NGUARD) then
-     call Driver_abortFlash("Hydro_shockStrength: too many guard cell layers requested")
+     call Driver_abort("Hydro_shockStrength: too many guard cell layers requested")
   end if
 #endif
 
@@ -151,11 +104,11 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
   if((hy_geometry /= CARTESIAN).and.&
      (hy_geometry /= CYLINDRICAL).and.&
      (hy_geometry /= SPHERICAL).and.&
-     (hy_geometry /= POLAR))call Driver_abortFlash("shockDetect:wrong geometry")
+     (hy_geometry /= POLAR))call Driver_abort("shockDetect:wrong geometry")
   if((NDIM ==1).and.(hy_geometry/=CARTESIAN).and.(hy_geometry/=SPHERICAL))&
-       call Driver_abortFlash("SHOCK DETECT : 1d cylindrical not supported")
+       call Driver_abort("SHOCK DETECT : 1d cylindrical not supported")
   if((NDIM ==3).and.(hy_geometry==POLAR))&
-       call Driver_abortFlash("SHOCK DETECT : 3d polar not supported")
+       call Driver_abort("SHOCK DETECT : 3d polar not supported")
 #endif
 
 #if NDIM == 1

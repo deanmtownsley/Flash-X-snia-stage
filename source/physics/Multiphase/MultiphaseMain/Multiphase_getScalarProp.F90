@@ -9,7 +9,7 @@ subroutine Multiphase_getScalarProp(name, value)
 !! limitations under the License.
 
   use Multiphase_data
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -29,7 +29,7 @@ subroutine Multiphase_getScalarProp(name, value)
      case default
        value = 0.
        write(errorMessage,*) '[Multiphase_getScalarProp] Unknown scalar: ',name
-       call Driver_abortFlash(errorMessage)
+       call Driver_abort(errorMessage)
   end select  
 
   return

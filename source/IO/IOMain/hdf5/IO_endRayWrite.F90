@@ -28,11 +28,11 @@ subroutine IO_endRayWrite()
                      io_outputSplitNum,  &
                      io_rayFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   implicit none
 
   if(.not. io_wrotePlot) then
-     call Driver_abortFlash("[IO_endRayWrite] Rays can only be written after a plot")
+     call Driver_abort("[IO_endRayWrite] Rays can only be written after a plot")
   end if
 
   ! Close the HDF5 plot file:

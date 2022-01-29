@@ -67,7 +67,7 @@ subroutine Particles_mapToMeshOneBlk(blkLimitsGC,guard,blockID,&
 #include "Simulation.h"
 
   use Grid_interface, ONLY : Grid_getDeltas, Grid_getBlkBoundBox
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 !!$#ifdef FLASH_GRID_PARAMESH
 !!$  use gr_ptParameshInterface, ONLY : gr_ptParticleAtFcBdry
@@ -157,7 +157,7 @@ subroutine pt_validateParticleState(particleID, blockID)
 
   use Particles_data, ONLY : pt_meshMe, particles
   use Grid_interface, ONLY : Grid_getBlkBoundBox, Grid_outsideBoundBox
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer, intent(IN) :: particleID, blockID
@@ -178,7 +178,7 @@ subroutine pt_validateParticleState(particleID, blockID)
           "valid range.  Index ", particleID, &
           ", lower bound ", lbound(particles,2), &
           ", upper bound ", ubound(particles,2)
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[pt_validateParticleState]: Particle index is outside valid range")
   end if
 
@@ -193,7 +193,7 @@ subroutine pt_validateParticleState(particleID, blockID)
           ", tag ", int(particles(TAG_PART_PROP,particleID)), &
           ", intended block ", blockID, &
           ", actual block ", int(particles(BLK_PART_PROP,particleID))
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[pt_validateParticleState]: Particle is on the wrong block")
   end if
 
@@ -216,7 +216,7 @@ subroutine pt_validateParticleState(particleID, blockID)
           ", in direction ", negh(1:NDIM), &
           ", particle coords ", particles(posIndStrt:posIndEnd,particleID), &
           ", block coords ", boundBox(LOW:HIGH,1:NDIM)
-     call Driver_abortFlash &
+     call Driver_abort &
           ("[pt_validateParticleState]: Particle is outside of block")
   end if
 

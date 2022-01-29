@@ -56,7 +56,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
   implicit none
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
   

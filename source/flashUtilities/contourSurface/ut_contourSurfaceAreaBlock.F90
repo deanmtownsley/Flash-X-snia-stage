@@ -38,7 +38,7 @@
 subroutine ut_contourSurfaceAreaBlock(nlevels,isolevels,ctrData, blkLimits, blkIndex, areas)
 
 use Grid_interface, ONLY : Grid_getDeltas, Grid_getBlkBoundBox
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 
   implicit none
 #include "Simulation.h"
@@ -85,7 +85,7 @@ use Driver_interface, ONLY : Driver_abortFlash
   mcdataSize(2) = blkLimits(HIGH,JAXIS)-blkLimits(LOW,JAXIS)+3
   mcdataSize(3) = blkLimits(HIGH,KAXIS)-blkLimits(LOW,KAXIS)+3
   allocate(mcData(mcdataSize(1), mcdataSize(2), mcdataSize(3)),STAT=istat)
-   if (istat /= 0) call Driver_abortFlash("Cannot allocate celldata in ut_contourSurfaceAreaBlock")
+   if (istat /= 0) call Driver_abort("Cannot allocate celldata in ut_contourSurfaceAreaBlock")
 
   datamax = -HUGE(1.0)
   datamin = HUGE(1.0)
@@ -124,7 +124,7 @@ use Driver_interface, ONLY : Driver_abortFlash
 
   else
 
-     call Driver_abortFlash("Surface area measurement only works in 2 or 3 dimensions")
+     call Driver_abort("Surface area measurement only works in 2 or 3 dimensions")
 
   endif
 

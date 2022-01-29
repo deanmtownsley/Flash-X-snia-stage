@@ -63,7 +63,7 @@ subroutine Grid_sendOutputData()
   use IO_interface, ONLY : IO_setScalar
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer :: localNumBlocks, i, ierr, blockID, j, ngid, k
 
   !Put NXB, NYB and NZB into a saved variable to prevent problems with

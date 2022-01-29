@@ -29,7 +29,7 @@ subroutine IO_startRayWrite()
                      io_outputSplitNum,  &
                      io_rayFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   implicit none
 
 #include "constants.h"
@@ -37,7 +37,7 @@ subroutine IO_startRayWrite()
   integer :: existing
 
   if(.not. io_wrotePlot) then
-     call Driver_abortFlash("[IO_startRayWrite] Rays can only be written after a plot")
+     call Driver_abort("[IO_startRayWrite] Rays can only be written after a plot")
   end if
 
   ! Re-open the HDF5 plot file:
@@ -45,7 +45,7 @@ subroutine IO_startRayWrite()
   io_rayFileID = -1
   call io_h5init_file(io_rayFileID, io_oldPlotFileName, io_meshComm, io_outputSplitNum, existing)
   if(io_rayFileID == -1) then
-     call Driver_abortFlash("[IO_writeRays] unable to open hdf5 file: " // &
+     call Driver_abort("[IO_writeRays] unable to open hdf5 file: " // &
           trim(io_oldPlotFileName))
   end if
 

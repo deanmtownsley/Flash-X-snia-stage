@@ -99,7 +99,7 @@ end subroutine Multispecies_getProperty
 !!***  
 
 subroutine Multispecies_getIntegerProperty(name, property, value)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -149,7 +149,7 @@ end subroutine Multispecies_getIntegerProperty
 !!
 !!***  
 subroutine Multispecies_getStringProperty(name, property, value)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -161,7 +161,7 @@ end subroutine Multispecies_getStringProperty
 
 
 subroutine Multispecies_getRealArrProperty(name, property, value)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -173,7 +173,7 @@ end subroutine Multispecies_getRealArrProperty
 
 
 subroutine Multispecies_getIntArrProperty(name, property, value)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

@@ -144,7 +144,7 @@ subroutine Grid_subcellGeometry(nsubI,nsubJ,nsubK, &
 
 
      case default
-        call Driver_abortFlash('[Grid_subcellGeometry] Not implemented for current geometry')
+        call Driver_abort('[Grid_subcellGeometry] Not implemented for current geometry')
   end select
 
 

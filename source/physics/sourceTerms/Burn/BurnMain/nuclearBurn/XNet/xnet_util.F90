@@ -349,7 +349,7 @@ Contains
     !-----------------------------------------------------------------------------------------------
     ! This routine gracefully exits XNet with a diagnostic statement in the event of an error.
     !-----------------------------------------------------------------------------------------------
-    Use Driver_interface, Only: Driver_abortFlash
+    Use Driver_interface, Only: Driver_abort
     Implicit None
 
     ! Input variables
@@ -357,7 +357,7 @@ Contains
     Integer, Intent(in), Optional :: i_diagnostic
 
     ! Print the diagnostic statement
-    Call Driver_abortFlash(c_diagnostic)
+    Call Driver_abort(c_diagnostic)
 
     Return
   End Subroutine xnet_terminate

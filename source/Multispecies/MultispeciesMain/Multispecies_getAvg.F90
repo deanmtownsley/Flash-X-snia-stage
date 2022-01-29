@@ -106,7 +106,7 @@
 subroutine Multispecies_getAvg(property, value, weights, speciesMask)
 
   use Multispecies_interface, ONLY : Multispecies_getProperty
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stamp
 
   implicit none
@@ -137,7 +137,7 @@ subroutine Multispecies_getAvg(property, value, weights, speciesMask)
       else if (numWeights == 1) then
          weightsFull = weights(1)
       else
-         call Driver_abortFlash("Multispecies_getAvg: invalid weights array")
+         call Driver_abort("Multispecies_getAvg: invalid weights array")
       endif
    else
       weightsFull = 1.0
@@ -145,7 +145,7 @@ subroutine Multispecies_getAvg(property, value, weights, speciesMask)
 
   if (present(speciesMask)) then
       if (size(speciesMask,1) /= NSPECIES ) then
-         call Driver_abortFlash("Multispecies_getAvg: mask array wrong size")
+         call Driver_abort("Multispecies_getAvg: mask array wrong size")
       endif
   endif
 

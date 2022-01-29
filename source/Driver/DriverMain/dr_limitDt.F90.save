@@ -137,7 +137,7 @@ subroutine dr_limitDt(blockID, blkLimits, blkLimitsGC, solnData, dt_check, dt_mi
   dt_check = dt_temp
   dt_minloc = temploc
   
-  if(dt_check <= 0.0) call Driver_abortFlash("[Diffuse]: computed dt is not positive! Aborting!")  
+  if(dt_check <= 0.0) call Driver_abort("[Diffuse]: computed dt is not positive! Aborting!")  
 
 #endif
 

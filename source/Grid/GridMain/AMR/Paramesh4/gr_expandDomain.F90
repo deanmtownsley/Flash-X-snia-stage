@@ -62,11 +62,11 @@ subroutine gr_expandDomain (particlesInitialized)
   use Simulation_interface, ONLY : Simulation_initBlock
   use Particles_interface, ONLY : Particles_accumCount, &
     Particles_initPositions
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
 
@@ -241,7 +241,7 @@ subroutine gr_expandDomain (particlesInitialized)
   gr_finestExistingLevel = cur_treedepth
 
   if(gr_refineOnParticleCount) then
-     if(.not.particlesPosnsDone) call Driver_abortFlash(&
+     if(.not.particlesPosnsDone) call Driver_abort(&
        "This distribution of particles will not fit on the grid. Increase pt_maxPerProc, or decrease the particle count.")
      particlesInitialized=.true.
   end if

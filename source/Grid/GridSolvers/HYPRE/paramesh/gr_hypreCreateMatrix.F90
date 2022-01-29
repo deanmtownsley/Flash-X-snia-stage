@@ -94,7 +94,7 @@ subroutine gr_hypreCreateMatrix(blockCount, blockType, bcTypes, bcValues)
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
  
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
 #include "Simulation.h"  

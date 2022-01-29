@@ -40,7 +40,7 @@ subroutine PhysicalConstants_init()
 
   use PhysicalConstants_data, ONLY: pc_sizeConstant, pc_sizeUnit,         &
        &              pc_initialized, pc_globalMe, pc_globalNumProcs
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use pc_interface, ONLY: pc_checkCGSMKS, pc_addUnit, pc_addConstant
 
@@ -80,7 +80,7 @@ subroutine PhysicalConstants_init()
   call pc_checkCGSMKS(cgsORmks,isError)
   if (isError /= 0) then
      write(errorString,900)cgsORmks
-     call Driver_abortFlash(errorString)
+     call Driver_abort(errorString)
      return
   endif
 

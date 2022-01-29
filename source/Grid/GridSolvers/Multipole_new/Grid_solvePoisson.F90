@@ -46,7 +46,7 @@ subroutine Grid_solvePoisson (iSoln,                   &
 
   use Grid_interface,    ONLY : GRID_PDE_BND_ISOLATED
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Timers_interface,  ONLY : Timers_start,                  &
                                 Timers_stop
@@ -81,7 +81,7 @@ subroutine Grid_solvePoisson (iSoln,                   &
 !
 !
   if (any (bcTypes (1:2*NDIM) /= GRID_PDE_BND_ISOLATED) ) then
-      call Driver_abortFlash ("FATAL: Multipole Poisson solver requires isolated boundaries")
+      call Driver_abort ("FATAL: Multipole Poisson solver requires isolated boundaries")
   end if
 !  
 !

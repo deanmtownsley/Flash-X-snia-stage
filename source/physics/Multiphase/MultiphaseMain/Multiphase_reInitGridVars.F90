@@ -37,7 +37,7 @@ subroutine Multiphase_reInitGridVars()
 
 !------------------------------------------------------------------------------------------
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   real, pointer, dimension(:,:,:,:) :: solnData
   integer TA(2),count_rate

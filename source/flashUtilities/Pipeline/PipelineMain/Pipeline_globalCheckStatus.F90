@@ -62,7 +62,7 @@ subroutine Pipeline_globalCheckStatus (finishedComm, emptyRecvBuffers, emptyItem
   implicit none
 
 #include "Pipeline.h"
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   logical, intent (out) :: finishedComm
   logical, intent (out) :: emptyRecvBuffers

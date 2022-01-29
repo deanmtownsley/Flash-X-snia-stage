@@ -94,7 +94,7 @@ Module hy_memScratchData
 contains
   subroutine hy_memScratchInitialize()
     use Grid_interface, ONLY: Grid_getBlkIndexLimits
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
 #ifdef DEBUG_ALL
     use Logfile_interface, ONLY: Logfile_stampMessage
 #endif
@@ -182,16 +182,16 @@ contains
 #ifdef DEBUG_ALL
     if (rankLoc < 4 .OR. rankLoc > 5) then
        print*,'hy_memAllocScratch: arrayRank must be 4 or 5.'
-       call Driver_abortFlash('hy_memAllocScratch: arrayRank musr be 4 or 5.')
+       call Driver_abort('hy_memAllocScratch: arrayRank musr be 4 or 5.')
     end if
     if (rankLoc == 5 .AND. gds .NE. CENTER .AND. gds .NE. SCRATCH_CTR) then
        print*,'hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER or SCRATCH_CTR.'
-       call Driver_abortFlash('hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER.')
+       call Driver_abort('hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER.')
     end if
     if (rankLoc < 5 .AND. present(highSize)) then
        if (highSizeLoc .NE. 1) then
           print*,'hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER.'
-          call Driver_abortFlash('hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER.')
+          call Driver_abort('hy_memAllocScratch: arrayRank of 5 is only supported for gds=CENTER.')
        else
           call Logfile_stampMessage('[hy_memAllocScratch] The highSize arguemnt is superfluous.')
        end if
@@ -210,7 +210,7 @@ contains
      case(SCRATCH)
         ubnd(1:NDIM) = ubnd(1:NDIM) + nGuardCtrLoc + 1
 !!$        print *, 'TRIED TO GET SOMETHING OTHER THAN SCRATCH_CTR OR FACE[XYZ].'
-!!$        call Driver_abortFlash("[hy_memScratchData] Unsupported gds=SCRATCH")
+!!$        call Driver_abort("[hy_memScratchData] Unsupported gds=SCRATCH")
      case(CENTER)
         lbnd(1:NDIM) = lbnd(1:NDIM) - nGuardCtrLoc
         ubnd(1:NDIM) = ubnd(1:NDIM) + nGuardCtrLoc
@@ -234,7 +234,7 @@ contains
         ubnd(3)      = ubnd(3)      + nGuardFaceNLoc !!+ K3D
      case DEFAULT
         print *, 'TRIED TO GET SOMETHING OTHER THAN SCRATCH_CTR OR FACE[XYZ].'
-        call Driver_abortFlash("[hy_memScratchData] Unsupported gds")
+        call Driver_abort("[hy_memScratchData] Unsupported gds")
     end select
 
 
@@ -277,7 +277,7 @@ contains
              lbnd(3):ubnd(3), &
              nBlocks))
      case DEFAULT
-        call Driver_abortFlash("[hy_memAllocScratch] Unsupported gds")
+        call Driver_abort("[hy_memAllocScratch] Unsupported gds")
      end select
     else if (rankLoc==5) then
     select case (gds)
@@ -318,13 +318,13 @@ contains
 !!$             lbnd(3):ubnd(3), &
 !!$             highSizeLoc, nBlocks))
      case DEFAULT
-        call Driver_abortFlash("[hy_memAllocScratch] Unsupported gds for arrayRank=5")
+        call Driver_abort("[hy_memAllocScratch] Unsupported gds for arrayRank=5")
      end select
     end if
   end subroutine hy_memAllocScratch
 
   subroutine hy_memDeallocScratch(gds, arrayRank)
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
 
     integer, OPTIONAL, intent(IN) :: gds
     integer, OPTIONAL, intent(IN) :: arrayRank
@@ -353,7 +353,7 @@ contains
           case(SCRATCH_FACEZ)
              if (allocated(hy_memArrayScratch_facevarz))deallocate(hy_memArrayScratch_facevarz)
           case DEFAULT
-             call Driver_abortFlash("[hy_memDeallocScratch] Unsupported gds")
+             call Driver_abort("[hy_memDeallocScratch] Unsupported gds")
           end select
        end if
        if (rankLoc==5) then
@@ -363,7 +363,7 @@ contains
           case(SCRATCH_CTR)
              deallocate(hy_memArray5Scratch_ctr)
           case DEFAULT
-             call Driver_abortFlash("[hy_memDeallocScratch] Unsupported gds for arrayRank=5")
+             call Driver_abort("[hy_memDeallocScratch] Unsupported gds for arrayRank=5")
           end select
        else if (rankLoc==0) then
           select case (gds)

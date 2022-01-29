@@ -22,7 +22,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 /* This function writes lists of the runtime parameters and the scalars.

@@ -35,7 +35,7 @@
 subroutine Simulation_init()
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use Eos_interface, ONLY : Eos, Eos_getAbarZbar
   use Logfile_interface, ONLY : Logfile_stamp
   use ProgramHeaderModule, ONLY : nE, nDOF

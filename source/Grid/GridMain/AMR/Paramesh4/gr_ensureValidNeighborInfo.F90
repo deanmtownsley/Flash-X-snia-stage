@@ -70,7 +70,7 @@
 #include "constants.h"
 
 subroutine gr_ensureValidNeighborInfo(requiredPattern)
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   use Logfile_interface, only: Logfile_stamp
   use Timers_interface, only: Timers_start, Timers_stop
 
@@ -86,7 +86,7 @@ subroutine gr_ensureValidNeighborInfo(requiredPattern)
      ! This routine should not get called in a state were Paramesh
      ! is not initialized at all.
      if (gr_meshMe==MASTER_PE) print*,'gr_ensureValidNeighborInfo: grid_analysed_mpi is', grid_analysed_mpi
-     call Driver_abortFlash("gr_ensureValidNeighborInfo found grid_analysed_mpi different from 1!")
+     call Driver_abort("gr_ensureValidNeighborInfo found grid_analysed_mpi different from 1!")
   endif
 
 
@@ -97,7 +97,7 @@ subroutine gr_ensureValidNeighborInfo(requiredPattern)
      case(10)
         call gr_commSetUp(-1)
      case default
-        call Driver_abortFlash("gr_ensureValidNeighborInfo: requiredPattern not implemented.")   
+        call Driver_abort("gr_ensureValidNeighborInfo: requiredPattern not implemented.")   
      end select
      call Timers_stop('no-data comm_setup')
   else if ((requiredPattern>0 .AND. mpi_pattern_id .EQ. requiredPattern)) then

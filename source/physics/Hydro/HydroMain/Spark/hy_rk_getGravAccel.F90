@@ -1,4 +1,4 @@
-!!Reorder(4):hy_starState
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -7,11 +7,38 @@
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
+!!
+!!
+!!  NAME
+!!
+!!  hy_rk_getGravAccel
+!!
+!!  SYNOPSIS
+!!
+!!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
+!!                         integer(IN) :: limits(:,:),
+!!                         integer(IN) :: blkLimitsGC(:,:))
+!!
+!!  DESCRIPTION
+!! 
+!!  Get gravitational acceleration for the part of block/tile defined by limits
+!!   where blkLimitsGC define full block
+!!
+!!  ARGUMENTS
+!!     blklimits,blkLimitsGC are the bounds of the block/tile
+!!     hy_del are dx,dy,dz
+!!     limits   sets limits of the fluxes.
+!!
+!!***
+
+
+!!Reorder(4):hy_starState
+
 subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "Simulation.h"
@@ -57,7 +84,7 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
 #else
 #ifdef OMP_OL
         ! We have not implemented the gravity function on the GPU so for now this option is not allowed
-        call Driver_abortFlash("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
+        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
 #endif /* OMP_OL */
         ! For time-independent gravity, just call the regular Gravity routine.
         !! call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&

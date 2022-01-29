@@ -67,7 +67,7 @@
 !!***
 
 subroutine gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_intpolStencilWidth
 
 #include "Simulation.h"
@@ -121,7 +121,7 @@ subroutine gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
         layers(KAXIS)=nlayers_transverse
      case default
         print*,"[gr_setGcFillNLayers] Wrong direction specification in Grid_fillGuardCells: idir=",idir
-        call Driver_abortFlash("[gr_setGcFillNLayers] Wrong direction specification in Grid_fillGuardCells")
+        call Driver_abort("[gr_setGcFillNLayers] Wrong direction specification in Grid_fillGuardCells")
      end select
 
      if (present(returnLayers)) then

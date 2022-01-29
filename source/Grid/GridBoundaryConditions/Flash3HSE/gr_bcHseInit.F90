@@ -30,7 +30,7 @@ subroutine gr_bcHseInit()
   use gr_bcHseData, ONLY : gr_bcHseGravDirec, gr_bcHseDirection, gr_bcHseGravConst
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 #include "constants.h"
   implicit none 
@@ -45,7 +45,7 @@ subroutine gr_bcHseInit()
   case('z','Z')
      gr_bcHseDirection = KAXIS
   case default
-     call Driver_abortFlash('Runtime parameter "gdirec" only allows "x", "y", and "z".')
+     call Driver_abort('Runtime parameter "gdirec" only allows "x", "y", and "z".')
   end select
 
   return

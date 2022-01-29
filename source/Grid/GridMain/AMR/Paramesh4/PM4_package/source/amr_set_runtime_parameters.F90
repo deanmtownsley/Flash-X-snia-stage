@@ -85,7 +85,7 @@
         use Grid_data, ONLY: gr_geometry, gr_globalMe
         use Logfile_interface, ONLY: Logfile_stamp
 #ifndef LIBRARY
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
 #endif
 #ifndef USE_AMR_RUNTIME_PARAMETERS_FILE
         use RuntimeParameters_interface, ONLY: RuntimeParameters_get
@@ -406,7 +406,7 @@ SET_OR_CHECK(nguard_work,IntParms(13))
           
           print  9,var,filevalue
           print 10,codevalue
-          call Driver_abortFlash("Bad value of "//var)
+          call Driver_abort("Bad value of "//var)
         end subroutine die
 
 #ifndef USE_AMR_RUNTIME_PARAMETERS_FILE

@@ -63,7 +63,7 @@ subroutine Grid_smoothVar(ivar, ivarOut, &
      smoothCoeff )
 
 !!$  use Grid_interface, ONLY: Grid_getBlkIndexLimits, Grid_getDeltas, Grid_getCellCoords
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   implicit none
 
 #include "Simulation.h"
@@ -258,7 +258,7 @@ subroutine Grid_smoothVar(ivar, ivarOut, &
               sval = 1.0 / sval
 
            case DEFAULT
-              call Driver_abortFlash("Invalid Smoothing method")
+              call Driver_abort("Invalid Smoothing method")
            end select
 
            s(i, j, k) = sval

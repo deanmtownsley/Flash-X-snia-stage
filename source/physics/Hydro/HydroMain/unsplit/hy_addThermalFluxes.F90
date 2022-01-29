@@ -48,7 +48,7 @@ Subroutine hy_addThermalFluxes(tileDesc,blkLimitsGC,ix,iy,iz,Flux,kappa,sweepDir
   use Hydro_data,       ONLY : hy_qref
 !  use Grid_interface,   ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr, Grid_getDeltas
   use Grid_tile,        ONLY : Grid_tile_t
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "constants.h"
@@ -77,7 +77,7 @@ Subroutine hy_addThermalFluxes(tileDesc,blkLimitsGC,ix,iy,iz,Flux,kappa,sweepDir
 !  real, dimension(MDIM) :: del
 !  real, pointer, dimension(:,:,:,:) :: U
 
-  call Driver_abortFlash("[hy_addThermalFluxes] Implement for tiling")
+  call Driver_abort("[hy_addThermalFluxes] Implement for tiling")
 
 !  !! Get deltas
 !  call Grid_getDeltas(block%level,del)

@@ -27,7 +27,7 @@
 !!  If we encounter non-MPI_SUCCESS we attempt to learn as much about 
 !!  the error as possible.  This includes translating error codes and 
 !!  error classes to strings describing the error.  After discovering 
-!!  an error we eventually call Driver_abortFlash.
+!!  an error we eventually call Driver_abort.
 !!
 !! NOTES
 !!   

@@ -39,7 +39,7 @@ subroutine io_getZeroBasedBlkSubarray(gridDataStruct, blockInnerSize, &
      blockOuterSize, blockInnerOffset)
 
 #include "constants.h"
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkIndexLimits
 
   implicit none

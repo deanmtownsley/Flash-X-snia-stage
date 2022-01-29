@@ -119,7 +119,7 @@ subroutine Grid_getBlkIndexLimits(blockID, blkLimits, blkLimitsGC, gridDataStruc
   use Grid_data, ONLY : gr_ilo,gr_ihi,gr_jlo,gr_jhi,gr_klo,gr_khi,&
                         gr_iloGc,gr_ihiGc,gr_jloGc,gr_jhiGc,gr_kloGc,gr_khiGc,&
                         gr_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "constants.h"
@@ -156,7 +156,7 @@ subroutine Grid_getBlkIndexLimits(blockID, blkLimits, blkLimitsGC, gridDataStruc
      elseif((gridDataStruct/=CENTER).and.(gridDataStruct/=SCRATCH_CTR) .and. &
             (gridDataStruct/=CENTER_FACES)) then
         if(gr_meshMe == MASTER_PE)print*,'In BlkIndexLimits the provided data structure is',gridDataStruct
-        call Driver_abortFlash("called index limits with invalid gridDataStruct")
+        call Driver_abort("called index limits with invalid gridDataStruct")
      end if
      blkLimitsGC(HIGH,:)=blkLimitsGC(HIGH,:)+faces
      blkLimits(HIGH,:)=blkLimits(HIGH,:)+faces

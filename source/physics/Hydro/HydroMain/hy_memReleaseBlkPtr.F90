@@ -33,8 +33,6 @@
 !!
 !!  This implementation actually does more than just releasing the pointer.
 !!
-!! SEE ALSO
-!!  Grid_getBlkPtr
 !!***
 
 subroutine hy_memReleaseBlkPtr(blockId, dataPtr, gridDataStruct)

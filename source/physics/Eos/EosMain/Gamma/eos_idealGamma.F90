@@ -102,59 +102,6 @@
 !!     eos_singleSpeciesA       :  Mass of nucleus for the simulated gas
 !!     eos_singleSpeciesZ       :  Proton number for the simulated gas
 !!
-!! EXAMPLE
-!!
-!!
-!! ------------------ Row at a time example, with derivates (based on Eos_unitTest) --------
-!!
-!!  #include "constants.h"   ! for MODE_DENS_TEMP
-!!  #include "Simulation.h"       ! for NSPECIES, EOS_NUM
-!!  #include "Eos.h"         ! for EOS_VAR order
-!!  integer veclen, isize, jsize, ksize, i,j,k, e
-!!  real, dimension(:), allocatable :: eosData
-!!  real, dimension(:), allocatable :: massFrac
-!!  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
-!!  real, allocatable, dimension(:,:,:,:) :: derivedVariables
-!!  integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
-!!
-!!   ! in the Eos_unitTest, this loops over all blocks.... here is a snippet from inside
-!!
-!!    !  Allocate the necessary arrays for an entire block of data
-!!    isize = (blkLimits(HIGH,IAXIS) - blkLimits(LOW,IAXIS) + 1)
-!!    jsize = (blkLimits(HIGH,JAXIS) - blkLimits(LOW,JAXIS) + 1)
-!!    ksize = (blkLimits(HIGH,KAXIS) - blkLimits(LOW,KAXIS) + 1)
-!!    vecLen=isize
-!!    allocate(derivedVariables(isize,jsize,ksize,EOS_NUM))
-!!    allocate(eosData(vecLen*EOS_NUM))
-!!    allocate(massFrac(vecLen*NSPECIES))
-!!    mask = .true.
-!!
-!!    ! indices into the first location for these variables
-!!    pres = (EOS_PRES-1)*vecLen
-!!    dens = (EOS_DENS-1)*vecLen
-!!    temp = (EOS_TEMP-1)*vecLen
-!!
-!!
-!!    do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-!!        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
-!!           do i = 1,vecLen
-!!              massFrac((i-1)*NSPECIES+1:i*NSPECIES) = &
-!!                   solnData(SPECIES_BEGIN:SPECIES_END,ib+i-1,j,k)
-!!           end do
-!!
-!!           eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
-!!           eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
-!!           ! Eos Helmholtz needs a good initial estimate of temperature no matter what the mode
-!!           eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
-!!
-!!           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
-!!
-!!           do e=EOS_VARS+1,EOS_NUM
-!!              m = (e-1)*vecLen
-!!              derivedVariables(1:vecLen,j-NGUARD,k-NGUARD,e) =  eosData(m+1:m+vecLen)
-!!           end do
-!!        end do
-!!     end do
 !!
 !! NOTES
 !!
@@ -187,6 +134,8 @@
 !!  Eos_wrapped  sets up the data structure.
 !!
 !!***
+
+
 !#ifdef DEBUG_ALL
 #define DEBUG_EOS
 !#endif
@@ -197,7 +146,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
        eos_singleSpeciesA, eos_singleSpeciesZ
   use eos_idealGammaData, ONLY: eos_gammam1
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 
   implicit none
@@ -249,11 +198,11 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
 #ifdef DEBUG_EOS
   if (ilo < 1 .OR. ilo > vecLen) then
      print*,'[eos_idealGammaData] ilo is',ilo
-     call Driver_abortFlash("[eos_idealGammaData] invalid ilo")
+     call Driver_abort("[eos_idealGammaData] invalid ilo")
   end if
   if (ihi < 1 .OR. ihi > vecLen) then
      print*,'[eos_idealGammaData] ihi is',ihi
-     call Driver_abortFlash("[eos_idealGammaData] invalid ihi")
+     call Driver_abort("[eos_idealGammaData] invalid ihi")
   end if
 #endif
   
@@ -309,7 +258,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
 
   ! unrecognized value for mode
   else 
-     call Driver_abortFlash("[Eos] Unrecognized input mode given to Eos")
+     call Driver_abort("[Eos] Unrecognized input mode given to Eos")
   endif
 
 
@@ -342,7 +291,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
                 &                      (eosData(pres+ilo:pres+ihi)/ eosData(dens+ilo:dens+ihi) + eosData(eint+ilo:eint+ihi))/ &
                 &                      eosData(temp+ilo:temp+ihi) ) / eosData(temp+ilo:temp+ihi)
         else
-           call Driver_abortFlash("[Eos] Cannot calculate EOS_DST without EOS_DET and EOS_DPT")
+           call Driver_abort("[Eos] Cannot calculate EOS_DST without EOS_DET and EOS_DPT")
         end if
      end if
      if (mask(EOS_DSD)) then
@@ -354,7 +303,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
                ( ((eosData(dpd+ilo:dpd+ihi) - eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi)) / &
         &          eosData(dens+ilo:dens+ihi)) + eosData(ded+ilo:ded+ihi)) / eosData(temp+ilo:temp+ihi)
         else
-           call Driver_abortFlash("[Eos] Cannot calculate EOS_DSD without EOS_DED and EOS_DPD")
+           call Driver_abort("[Eos] Cannot calculate EOS_DSD without EOS_DED and EOS_DPD")
         end if
      end if
 
@@ -377,7 +326,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+ilo:c_v+ihi) = eosData(det+ilo:det+ihi)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
      ! ideal gas -- all gammas are equal
@@ -386,7 +335,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+ilo:c_p+ihi) = eos_gamma*eosData(c_v+ilo:c_v+ihi)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
 
@@ -397,7 +346,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask
            eosData(c_v+ilo:c_v+ihi) = eosData(det+ilo:det+ihi) * &
                 eosData(zbar+ilo:zbar+ihi) / (eosData(zbar+ilo:zbar+ihi) + 1)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_{V,ele} without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_{V,ele} without DET.  Set mask appropriately.")
         end if
      end if
 #endif

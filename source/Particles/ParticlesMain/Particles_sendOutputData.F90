@@ -40,7 +40,7 @@ subroutine Particles_sendOutputData()
   use IO_interface, ONLY : IO_setScalar
   implicit none
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer :: globalNumParticles
 

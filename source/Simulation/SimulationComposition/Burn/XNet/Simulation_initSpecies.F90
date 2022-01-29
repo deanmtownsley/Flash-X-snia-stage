@@ -55,7 +55,7 @@
 !!***
 
 subroutine Simulation_initSpecies()
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_setProperty
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Simulation_interface, ONLY : Simulation_mapStrToInt
@@ -80,7 +80,7 @@ subroutine Simulation_initSpecies()
   open(newunit=lun_winv, file=trim(data_dir)//"/netwinv", status='old')
   read(lun_winv,"(i5)") ny
   if ( ny /= NSPECIES ) then
-     call Driver_abortFlash("[Simulation_initSpecies] ny /= NSPECIES")
+     call Driver_abort("[Simulation_initSpecies] ny /= NSPECIES")
   end if
 
   ! Skip the header information
@@ -127,7 +127,7 @@ subroutine Simulation_initSpecies()
         call Multispecies_setProperty(isotope, E, zz(i))
         call Multispecies_setProperty(isotope, EB, be(i))
      else
-        call Driver_abortFlash("[Simulation_initSpecies] Isotope missing from UNK: "//isotopeName)
+        call Driver_abort("[Simulation_initSpecies] Isotope missing from UNK: "//isotopeName)
      end if
   end do
 #endif

@@ -73,7 +73,7 @@ subroutine pt_mapFromMeshWeighted (numAttrib, attrib, pos, bndBox,&
      deltaCell,solnVec, partAttribVec)
   
   use Particles_data, ONLY : pt_geometry, pt_str_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

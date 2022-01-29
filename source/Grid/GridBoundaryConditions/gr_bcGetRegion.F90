@@ -167,7 +167,7 @@ subroutine gr_bcGetRegion(gridDataStruct,axis,endPoints,regionSize,mask,&
   
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile,   ONLY : Grid_tile_t
   
 #ifdef FLASH_GRID_UG
@@ -234,14 +234,14 @@ subroutine gr_bcGetRegion(gridDataStruct,axis,endPoints,regionSize,mask,&
      print *, "gr_bcGetRegion: gridDataStruct set to improper value"
      print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ,WORK " // &
           " (defined in constants.h)"
-     call Driver_abortFlash("gr_bcGetRegion gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
+     call Driver_abort("gr_bcGetRegion gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
   end if
 
   if((gridDataStruct==WORK).and.(varCount/=1)) &
-       call Driver_abortFlash("gr_bcGetRegion: varCount must be 1 for work array")
+       call Driver_abort("gr_bcGetRegion: varCount must be 1 for work array")
 
   if((fin-strt+1)/=bcVecEnd)&
-       call Driver_abortFlash("gr_bcGetRegion: mismatch between rowSize and the region size")
+       call Driver_abort("gr_bcGetRegion: mismatch between rowSize and the region size")
        
 
 #endif
@@ -465,7 +465,7 @@ subroutine gr_bcGetRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
      regionC,regionFN,regionFT1,regionFT2,&
      tileDesc,idest)
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile,   ONLY : Grid_tile_t
   
 #ifdef FLASH_GRID_UG
@@ -519,11 +519,11 @@ subroutine gr_bcGetRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
      print *, "gr_bcGetRegionsMixedGds: gridDataStruct set to improper value"
      print *, "gridDataStruct must be CENTER_FACES or FACES " // &
           " (defined in constants.h)"
-     call Driver_abortFlash("gr_bcGetRegionsMixedGds gridDataStruct must be one of CENTER_FACES or FACES (see constants.h)")
+     call Driver_abort("gr_bcGetRegionsMixedGds gridDataStruct must be one of CENTER_FACES or FACES (see constants.h)")
   end if
 
   if((fin-strt+1)/=bcVecEnd)&
-       call Driver_abortFlash("gr_bcGetRegionsMixedGds: mismatch between rowSize and the region size")
+       call Driver_abort("gr_bcGetRegionsMixedGds: mismatch between rowSize and the region size")
        
 
 #endif

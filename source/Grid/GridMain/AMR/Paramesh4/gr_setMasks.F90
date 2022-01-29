@@ -77,7 +77,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
 !!$#endif
 !!$#endif
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use physicaldata, ONLY : gcell_on_cc,gcell_on_fc, no_permanent_guardcells
 
   implicit none
@@ -100,7 +100,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
                        (gridDataStruct==WORK).or.&
                        (gridDataStruct==CENTER_FACES)
   if(.not.validDataStructure)then
-     call Driver_abortFlash("GCfill: invalid data structure")
+     call Driver_abort("GCfill: invalid data structure")
   end if
   select case(gridDataStruct) 
   case(CENTER)
@@ -119,7 +119,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
      validMaskSize= ((maskSize.GE.(NUNK_VARS+NDIM*NFACE_VARS)) .AND. (maskSize.LE.(NUNK_VARS+MDIM*NFACE_VARS)))
   end select
   if(.not.validMaskSize)then
-     call Driver_abortFlash("GCfill : mask size mismatch")
+     call Driver_abort("GCfill : mask size mismatch")
   end if
 #endif
   

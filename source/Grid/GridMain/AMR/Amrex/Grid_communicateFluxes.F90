@@ -86,16 +86,16 @@ subroutine Grid_communicateFluxes(axis, coarse_level)
     integer :: coarse
 
     if (axis /= ALLDIR) then
-        call Driver_abortFlash("[Grid_conserveFluxes] AMReX currently requires axis==ALLDIR")
+        call Driver_abort("[Grid_conserveFluxes] AMReX currently requires axis==ALLDIR")
     end if
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
-    call Driver_abortFlash("Grid_communicateFluxes.F90 requires amrex_flash_fluxregister,&
+    call Driver_abort("Grid_communicateFluxes.F90 requires amrex_flash_fluxregister,&
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
     if (coarse_level == UNSPEC_LEVEL) then
-       call Driver_abortFlash("This Grid_communicateFluxes.F90 does not support UNSPEC_LEVEL!")
+       call Driver_abort("This Grid_communicateFluxes.F90 does not support UNSPEC_LEVEL!")
     end if
 
     ! FLASH uses 1-based level index / AMReX uses 0-based index

@@ -30,10 +30,10 @@
 
 subroutine Timers_reset()
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
-  call Driver_abortFlash &
+  call Driver_abort &
        ("[Timers_reset]: Not appropriate in this timer implementation")
 
   return

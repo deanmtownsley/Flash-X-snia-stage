@@ -108,7 +108,7 @@ contains
   subroutine sim_readProfile
 
      use, intrinsic :: iso_fortran_env, only: iostat_end
-     use Driver_interface, ONLY : Driver_abortFlash
+     use Driver_interface, ONLY : Driver_abort
      use Simulation_interface, ONLY : Simulation_mapStrToInt
      use Simulation_data, ONLY: nvar_stored, sim_model_file
 
@@ -126,7 +126,7 @@ contains
 
      ! open the file and read in the header
      open(newunit=fileUnit,file=trim(sim_model_file),status='old',iostat=ierr)
-     if (ierr /= 0) call Driver_abortFlash('Unable to open initial model file')
+     if (ierr /= 0) call Driver_abort('Unable to open initial model file')
      if (sim_meshMe == MASTER_PE) &
      print *, 'Profile ', trim(sim_model_file), ' opened'
      read(fileUnit,'(A80)') current_line
@@ -220,7 +220,7 @@ contains
     allocate( model_1d_rad(nE,nX,nM,nS) )
 
     open(newunit=fileUnit,file=trim(radfilename),status='old',iostat=ierr)
-    if (ierr /= 0) call Driver_abortFlash('Unable to open initial model file')
+    if (ierr /= 0) call Driver_abort('Unable to open initial model file')
     if (sim_meshMe == MASTER_PE) &
     print*, 'Profile ', trim(radfilename), ' opened'
 
@@ -288,7 +288,7 @@ contains
 
   subroutine sim_readChimeraProfile_rad
 
-     use Driver_interface, ONLY : Driver_abortFlash
+     use Driver_interface, ONLY : Driver_abort
      use Simulation_data, ONLY : n1d_max, n1d_nE, ezn, model_1d_rad, &
                                  sim_model_file, xznrad, xzn
 
@@ -311,7 +311,7 @@ contains
      filename0 = sim_model_file(1:nlength-1)//'rPsi0_1'
      open(newunit=fileUnit,file=trim(filename0),status='old',iostat=ierr)
      if (ierr /= 0) &
-       call Driver_abortFlash('Unable to open initial model file: '//trim(filename0))
+       call Driver_abort('Unable to open initial model file: '//trim(filename0))
      read (fileUnit,'(A)') current_line
      read(fileUnit,'(A)') current_line
      ipos = index(current_line,'=') + 1
@@ -326,7 +326,7 @@ contains
      read(fileUnit,*,iostat=ierr) (ezn(iE),iE=1,n1d_nE)
      close(fileUnit, status = 'keep')
 
-     if( nline /= n1d_max ) call Driver_abortFlash('Profiles mismatching.')
+     if( nline /= n1d_max ) call Driver_abort('Profiles mismatching.')
      allocate( model_1d_rad(n1d_nE,n1d_max,2,THORNADO_NSPECIES) )
 
      do iS = 1, THORNADO_NSPECIES
@@ -334,7 +334,7 @@ contains
        write(filename1,'(A,I1)') sim_model_file(1:nlength-1)//'rPsi1_',iS
 
        open(newunit=fileUnit,file=trim(filename0),status='old',iostat=ierr)
-       if (ierr /= 0) call Driver_abortFlash('Unable to open initial model file:'//trim(filename0))
+       if (ierr /= 0) call Driver_abort('Unable to open initial model file:'//trim(filename0))
        if (sim_meshMe == MASTER_PE) print *, 'Profile ', trim(fileName0), ' opened'
        do il = 1, 7
          read(fileUnit,'(A)') current_line
@@ -346,7 +346,7 @@ contains
 
      ! open the file and read in the header
        open(newunit=fileUnit,file=trim(filename1),status='old',iostat=ierr)
-       if (ierr /= 0) call Driver_abortFlash('Unable to open initial model file:'//trim(filename1))
+       if (ierr /= 0) call Driver_abort('Unable to open initial model file:'//trim(filename1))
        if (sim_meshMe == MASTER_PE) print *, 'Profile ', trim(fileName1), ' opened'
        do il = 1, 7
          read(fileUnit,'(A)') current_line

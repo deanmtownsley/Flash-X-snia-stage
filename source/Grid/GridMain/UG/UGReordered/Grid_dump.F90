@@ -80,7 +80,7 @@ subroutine Grid_dump(var,num, solnData,blockDesc, gcell)
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer, intent(IN) :: num
   integer, dimension(num), intent(IN) :: var

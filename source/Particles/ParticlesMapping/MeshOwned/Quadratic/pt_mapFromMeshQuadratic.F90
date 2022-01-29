@@ -79,7 +79,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      deltaCell, blkLimits, solnVec, partAttribVec)
   
   use Particles_data, ONLY : pt_geometry, pt_str_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -119,7 +119,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
 
   if ( (pt_geometry /= CARTESIAN) .and. &
        (.not. ((pt_geometry == CYLINDRICAL) .and. (NDIM == 2))) ) &
-    call Driver_abortFlash ("pt_mapFromMeshQuadratic:  unsupported geometry!")
+    call Driver_abort ("pt_mapFromMeshQuadratic:  unsupported geometry!")
 
 !-------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      !print *, "newBlockID = ", blockID
      print *, "xp = ", xp
      print *, "ip = ", ip, ' not between', lbound(solnVec,1), ' and', ubound(solnVec,1)
-     call Driver_abortFlash("we have a problem in pt_mapFromMeshQuadratic")
+     call Driver_abort("we have a problem in pt_mapFromMeshQuadratic")
   end if
 #endif
 
@@ -160,7 +160,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      !print *, "newBlockID = ", blockID
      print *, "yp = ", yp
      print *, "jp = ", jp, ' not between', lbound(solnVec,2), ' and', ubound(solnVec,2)
-     call Driver_abortFlash("we have a problem in pt_mapFromMeshQuadratic")
+     call Driver_abort("we have a problem in pt_mapFromMeshQuadratic")
   end if
 #endif
 

@@ -70,7 +70,7 @@ subroutine IO_readUserArray ()
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
   integer :: offset, datasetNameLen,ierr
 
   offset = 0

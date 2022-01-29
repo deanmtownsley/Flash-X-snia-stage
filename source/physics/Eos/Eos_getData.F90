@@ -84,12 +84,6 @@
 !!      a statement like
 !!      use Eos_interface, ONLY : Eos_putData
 !!
-!!      This routine cannot use "INTERIOR" mode of indexing the range.  In the
-!!      second example given above, although only the interior cells are being
-!!      calculated with EOS, the range indices still must include the guard cells.
-!!      See, for example, IsentropicVortex/Simulation_initBlock where the data is
-!!      generated on INTERIOR cells with Grid_putRowData, but the same indices can't
-!!      be used for the EOS call.
 !!
 !!  SEE ALSO
 !!

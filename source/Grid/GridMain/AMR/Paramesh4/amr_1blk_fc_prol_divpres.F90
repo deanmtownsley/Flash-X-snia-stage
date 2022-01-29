@@ -16,12 +16,12 @@ Module gr_pmDivpres_mod
 Contains
 
   subroutine prol_fc_divpres_init(n,tf,i_divf_fc_vars)
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
     implicit none
       
     integer, intent(in) :: n, tf, i_divf_fc_vars(tf,n)
 
-    call Driver_abortFlash(&
+    call Driver_abort(&
            "Attempting to initialize divpres module, not comfigured in!")
 
   end subroutine prol_fc_divpres_init

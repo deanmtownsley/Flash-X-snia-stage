@@ -45,7 +45,7 @@ subroutine gr_createBlock(xBlkmin, xBlkmax, &
 !==============================================================================
   use tree, ONLY : lnblocks,lrefine,nodetype,parent,child,bsize,bnd_box,coord,&
                    work_block,gr_btWorkDefaultLeaf
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 # include "Simulation.h"
 
@@ -57,7 +57,7 @@ subroutine gr_createBlock(xBlkmin, xBlkmax, &
   
   
   if (lnblocks .eq. MAXBLOCKS) then
-     call Driver_abortFlash ("createBlock:  cannot add another block")
+     call Driver_abort ("createBlock:  cannot add another block")
   endif
   
   !            Increment the local block # counter and set tree information.

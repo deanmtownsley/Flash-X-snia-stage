@@ -29,7 +29,7 @@
 !!***
 
 subroutine Grid_primitiveToConserve(blkList, count, force)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -38,6 +38,6 @@ subroutine Grid_primitiveToConserve(blkList, count, force)
   logical, intent(IN) :: force
 
   ! DEV: TODO This needs to be rethought or modernized to work with iterators
-  call Driver_abortFlash("[Grid_primitiveToConserve] Not implemented for AMReX")
+  call Driver_abort("[Grid_primitiveToConserve] Not implemented for AMReX")
 end subroutine Grid_primitiveToConserve
 

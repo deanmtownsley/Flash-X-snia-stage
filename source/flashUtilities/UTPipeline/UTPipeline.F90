@@ -7,7 +7,7 @@
 !! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
-  if (.not.x) call Driver_abortFlash("Assertion fail")
+  if (.not.x) call Driver_abort("Assertion fail")
 #define ASSERT_MPI_SUCCESS(ierr) \
   call Driver_checkMPIErrorCode(ierr)
 
@@ -16,7 +16,7 @@ module UTPipeline
 #ifdef UTPIPELINE_UNIT_TEST
   use mpi
 #else
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_checkMPIErrorCode
+  use Driver_interface, ONLY : Driver_abort, Driver_checkMPIErrorCode
 #endif
 
   implicit none
@@ -25,7 +25,7 @@ module UTPipeline
   integer, parameter :: FLASH_INTEGER = MPI_INTEGER
   integer, parameter :: FLASH_REAL = MPI_DOUBLE_PRECISION !WARNING MUST PROMOTE REALS TO DP
 #else
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
 #endif
 
   real, allocatable, save, dimension(:,:,:) :: utpipe_sendBuf
@@ -127,7 +127,7 @@ contains
     implicit none
     integer :: i
     if (.not.utpipe_isInitialized) then
-       call Driver_abortFlash("Must intialize the pipeline first")
+       call Driver_abort("Must intialize the pipeline first")
     end if
 
     utpipe_itemCount = 0
@@ -244,7 +244,7 @@ contains
           index = utpipe_recvIndex(i)
           procID = utpipe_recvStatus(MPI_SOURCE,i)
           if (procID /= utpipe_procList(index)) then
-             call Driver_abortFlash("ProcID mismatch")
+             call Driver_abort("ProcID mismatch")
           end if
 
           call MPI_Get_count(utpipe_recvStatus(:,i), FLASH_REAL, msgLen, ierr)
@@ -399,7 +399,7 @@ contains
        if (utpipe_isSendCommDone .and. &
             any(utpipe_sendRequest /= MPI_REQUEST_NULL .or. &
             utpipe_sendCount /= 0)) then
-          call Driver_abortFlash('Bad shutdown')
+          call Driver_abort('Bad shutdown')
        end if
     end if
   end subroutine UTPipeline_progressSendComm
@@ -566,7 +566,7 @@ contains
           exit
        end if
     end do
-    if (channel == notFound) call Driver_abortFlash("Msg channel not found")
+    if (channel == notFound) call Driver_abort("Msg channel not found")
 
     !If there is a pending send in our desired channel we test all
     !send channels.  Request values are reset to MPI_REQUEST_NULL when
@@ -579,7 +579,7 @@ contains
     if ( utpipe_sendState(channel) == OPEN_STATE .and. &
          utpipe_sendRequest(channel) == MPI_REQUEST_NULL ) then
        ptr = utpipe_sendCount(channel) + 1
-       if (ptr > utpipe_channelSize) call Driver_abortFlash("Counting error")
+       if (ptr > utpipe_channelSize) call Driver_abort("Counting error")
        utpipe_sendBuf(:,ptr,channel) = item(:)
        utpipe_sendCount(channel) = ptr !Array is needed in utpipe_postSendMsg
           
@@ -648,15 +648,15 @@ contains
   subroutine Driver_checkMPIErrorCode(errorCode)
     implicit none
     integer, intent(IN) :: errorCode
-    if (errorCode /= MPI_SUCCESS) call Driver_abortFlash('Error in MPI')
+    if (errorCode /= MPI_SUCCESS) call Driver_abort('Error in MPI')
   end subroutine Driver_checkMPIErrorCode
 
-  subroutine Driver_abortFlash(msg)
+  subroutine Driver_abort(msg)
     implicit none
     character (len=*), intent(IN) :: msg
     print *, "ERROR!!! ", msg
     stop
-  end subroutine Driver_abortFlash
+  end subroutine Driver_abort
 #endif
 
 end module UTPipeline

@@ -48,7 +48,7 @@
 
 subroutine Grid_countParticles(props, localCount,elementTypes,maxCount)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getLocalNumBlks, Grid_getTileIterator, Grid_releaseTileIterator, Grid_mapMeshToParticles
 
   use Particles_data, ONLY : pt_containers

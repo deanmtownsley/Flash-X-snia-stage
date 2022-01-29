@@ -11,7 +11,7 @@ subroutine HeatAD_getScalarProp(name, value)
 #include "constants.h"
 
   use HeatAD_data
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
   implicit none
   character(len=*), intent(in)  :: name
@@ -27,7 +27,7 @@ subroutine HeatAD_getScalarProp(name, value)
      case default
        value = 0.
        write(errorMessage,*) '[HeatAD_getScalarProp] Unknown scalar: ',name
-       call Driver_abortFlash(errorMessage)
+       call Driver_abort(errorMessage)
   end select  
 
   return

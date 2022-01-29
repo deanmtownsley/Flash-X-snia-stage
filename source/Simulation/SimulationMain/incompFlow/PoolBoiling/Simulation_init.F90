@@ -34,7 +34,7 @@
 subroutine Simulation_init()
 
   use Simulation_data
-  use Driver_interface,            ONLY : Driver_getMype,Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_getMype,Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use sim_heaterInterface,         ONLY : sim_heaterInit
   use sim_outflowInterface,        ONLY : sim_outflowInit

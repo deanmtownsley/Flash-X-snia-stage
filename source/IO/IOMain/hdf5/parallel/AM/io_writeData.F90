@@ -97,7 +97,7 @@ subroutine io_writeData( fileID)
   use io_intfTypesModule, ONLY : io_fileID_t
 
   use Simulation_interface, ONLY : Simulation_mapStrToInt
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
   use Grid_interface, ONLY : Grid_getLocalNumBlks, Grid_getBlkIndexLimits
      
@@ -127,7 +127,7 @@ subroutine io_writeData( fileID)
   integer, parameter :: c_char = KIND('A')
 #endif
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t)     :: tileDesc

@@ -80,7 +80,7 @@
 
 Subroutine amr_restrict_fc_ins(recv,temp,icoord,order,ivar)
 
-    use Driver_interface, ONLY: Driver_abortFlash
+    use Driver_interface, ONLY: Driver_abort
 
     Implicit None
 
@@ -90,7 +90,7 @@ Subroutine amr_restrict_fc_ins(recv,temp,icoord,order,ivar)
     Integer, Intent(in)    :: icoord, order, ivar
 
 
-    call Driver_abortFlash(&
+    call Driver_abort(&
            "Attempting to use amr_restrict_fc_ins, not comfigured in!")
 
 

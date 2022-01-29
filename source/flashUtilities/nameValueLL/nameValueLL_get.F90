@@ -49,11 +49,11 @@ subroutine nameValueLL_getReal (context, name, value, current_val, error)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_find, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type (context_type),intent(in)        :: context
   character(len=*), intent(in)          :: name
@@ -77,14 +77,14 @@ subroutine nameValueLL_getReal (context, name, value, current_val, error)
         value = node%initValue
      else
         
-        call Driver_abortFlash("nameValueLL_getReal: logical value current_val has improper value")
+        call Driver_abort("nameValueLL_getReal: logical value current_val has improper value")
      end if
   else
      buff1 = "WARNING: requested real parameter '" // trim(name) // "' not found"
      call Logfile_stampMessage(buff1)
      if (myPE == MASTER_PE) print *,buff1
      error = NOTFOUND
-     !call Driver_abortFlash(buff1)
+     !call Driver_abort(buff1)
   endif
   
   return
@@ -98,11 +98,11 @@ subroutine nameValueLL_getInt (context, name, value, current_val, error)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_find, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type (context_type),intent(in)        :: context
   character(len=*), intent(in)           :: name
@@ -125,14 +125,14 @@ subroutine nameValueLL_getInt (context, name, value, current_val, error)
      else if(.NOT. current_val) then
         value = node%initValue
      else
-        call Driver_abortFlash("nameValueLL_getInt: logical value current_val has improper value")
+        call Driver_abort("nameValueLL_getInt: logical value current_val has improper value")
      end if
   else
      buff1 = "WARNING: requested integer parameter '" // trim(name) // "' not found"
      call Logfile_stampMessage(buff1)
      if(myPE == MASTER_PE) print *, buff1
      error = NOTFOUND
-     !call Driver_abortFlash(buff1)
+     !call Driver_abort(buff1)
   endif
   
   return
@@ -145,11 +145,11 @@ subroutine nameValueLL_getStr (context, name, value, current_val, error)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_find, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type (context_type),intent(in)        :: context
   character(len=*),intent(in)             :: name
@@ -171,14 +171,14 @@ subroutine nameValueLL_getStr (context, name, value, current_val, error)
      else if(.NOT. current_val) then
         value = node%initValue
      else
-        call Driver_abortFlash("nameValueLL_getStr: logical value current_val has improper value")
+        call Driver_abort("nameValueLL_getStr: logical value current_val has improper value")
      end if
   else
      buff1 = "WARNING: requested string parameter '" // trim(name) // "' not found"
      call Logfile_stampMessage(buff1)
      if(myPE == MASTER_PE) print *, buff1
      error = NOTFOUND
-     !call Driver_abortFlash(buff1)
+     !call Driver_abort(buff1)
   endif
   
   return
@@ -195,11 +195,11 @@ subroutine nameValueLL_getLog (context, name, value, current_val, error)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_find, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type (context_type),intent(in)        :: context
   character(len=*),intent(in)            :: name
@@ -222,14 +222,14 @@ subroutine nameValueLL_getLog (context, name, value, current_val, error)
      else if(.NOT. current_val) then
         value = node%initValue
      else
-        call Driver_abortFlash("nameValueLL_getLog: logical value current_val has improper value")
+        call Driver_abort("nameValueLL_getLog: logical value current_val has improper value")
      end if
   else
      buff1 = "WARNING: requested logical parameter '" // trim(name) // "' not found"
      call Logfile_stampMessage(buff1)
      if(myPE == MASTER_PE) print *, buff1
      error = NOTFOUND
-     !call Driver_abortFlash(buff1)
+     !call Driver_abort(buff1)
   endif
   
   return

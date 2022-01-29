@@ -1,4 +1,4 @@
-Module Eos_interface
+
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !! 
@@ -8,7 +8,9 @@ Module Eos_interface
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 
-  use Eos_nucInterface, ONLY: Eos_nucOneZone, Eos_nucDetectBounce
+
+
+Module Eos_interface
 
   implicit none
 
@@ -37,12 +39,6 @@ Module Eos_interface
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
        integer,optional,intent(IN) :: gridDataStruct
      end subroutine Eos_wrapped
-     subroutine Eos_wrapped_blkid(mode,range,blockNum,gridDataStruct)
-       integer, intent(in) :: mode
-       integer, dimension(2,MDIM), intent(in) :: range
-       integer,intent(IN) :: blockNum
-       integer,optional,intent(IN) :: gridDataStruct
-     end subroutine Eos_wrapped_blkid
   end interface
 
   interface

@@ -62,7 +62,7 @@
 subroutine gr_ptGetSrcDestCoords(blkSize, guard, guardCellID, srcCornerID, srcStride, destCornerID, &
      guardCoords, negh, srcCoords, destCoords)     
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptMapData, ONLY : gr_ptSmearLen
   implicit none
 
@@ -153,7 +153,7 @@ subroutine gr_ptGetSrcDestCoords(blkSize, guard, guardCellID, srcCornerID, srcSt
 
         else
 
-           call Driver_abortFlash("[gr_ptGetSrcDestCoords]: Unrecognised guard cell region identifier.")
+           call Driver_abort("[gr_ptGetSrcDestCoords]: Unrecognised guard cell region identifier.")
 
         end if
      end do
@@ -198,14 +198,14 @@ subroutine gr_ptGetSrcDestCoords(blkSize, guard, guardCellID, srcCornerID, srcSt
 
         else
 
-           call Driver_abortFlash("[gr_ptGetSrcDestCoords]: Unrecognised guard cell region identifier.")
+           call Driver_abort("[gr_ptGetSrcDestCoords]: Unrecognised guard cell region identifier.")
 
         end if
      end do
 
   else
 
-     call Driver_abortFlash("[gr_ptGetSrcDestCoords]: Unexpected refinement.")
+     call Driver_abort("[gr_ptGetSrcDestCoords]: Unexpected refinement.")
 
   end if
 

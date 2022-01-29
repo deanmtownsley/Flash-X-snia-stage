@@ -40,7 +40,7 @@
       use tree, only : work_block, nodetype, &
                        gr_btCustomWork, gr_btWorkBoundsPar, &
                        gr_btWorkBoundsLeaf
-      use Driver_interface, only : Driver_abortFlash
+      use Driver_interface, only : Driver_abort
 
       implicit none
       type(Grid_tile_t),intent(in) :: tileDesc
@@ -54,7 +54,7 @@
 
 #ifdef FLASH_DEBUG_AMR
       if(.NOT.gr_btCustomWork) &
-        call Driver_abortFlash( &
+        call Driver_abort( &
                 "Grid_setWork: Trying to set work array, &
                 &but simulation is not configured to sort via custom &
                 &work values at regridding. Use `gr_btCustomWork &
@@ -80,7 +80,7 @@
           work_new = work_block(blkid) * work
         case (GRIDOP_DIV)
           if (abs(work).lt.eps) then
-            call Driver_abortFlash("Grid_setWork: &
+            call Driver_abort("Grid_setWork: &
                     &tried to divide current work by zero")
           else
             work_new = work_block(blkid) / work
@@ -92,7 +92,7 @@
         case (GRIDOP_MIN)
           work_new = min(work_block(blkid),work)
         case default
-          call Driver_abortFlash("Unknown mode passed to Grid_setWork.")
+          call Driver_abort("Unknown mode passed to Grid_setWork.")
       end select
 
 !-----Enforce bounds on work

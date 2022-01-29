@@ -46,7 +46,7 @@ subroutine io_getParticleOffset( localNumParticles, globalNumParticles, particle
 
   implicit none
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 
 

@@ -72,7 +72,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockType, nvars)
 
   use Grid_data,        ONLY : gr_meshComm, gr_meshMe
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
@@ -87,7 +87,7 @@ subroutine gr_hypreSetupGrid (blockCount, blockType, nvars)
 #include "Simulation.h"
 #include "constants.h"
 #include "HYPREf.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,                      intent(IN) :: blockCount
   integer,                      intent(IN) :: blockType

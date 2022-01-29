@@ -34,7 +34,7 @@ subroutine ImBound_init(restart)
                                           Driver_getComm
 
   implicit none
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
   logical, intent(in) :: restart
 
   call RuntimeParameters_get("useImBound", ib_useImBound)

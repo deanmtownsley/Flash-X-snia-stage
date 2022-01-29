@@ -8,20 +8,11 @@
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 !!
-!!  NAME
-!!
-!!  reconstruct
-!!
-!!  SYNOPSIS
-!!
-!!  call reconstruct (  )
-!!
-!!  DESCRIPTION
-!!
-!!  ARGUMENTS
+!!  For this function the name and argument lists depend upon the variants used.
 !!
 !!
 !!***
+
 !subroutine reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
   subroutine @M hy_recon_name(@M hy_recon_call_args)
   @M hy_recon_use

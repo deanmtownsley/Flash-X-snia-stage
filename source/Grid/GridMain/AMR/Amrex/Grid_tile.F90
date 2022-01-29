@@ -277,14 +277,14 @@ contains
           print *, "Grid_getBlkPtr: gridDataStruct set to improper value"
           print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ," // &
                " or SCRATCH_CTR (defined in constants.h)"
-          call Driver_abortFlash("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR (see constants.h)")
+          call Driver_abort("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR (see constants.h)")
        end if
 
 #endif
 
         ! Avoid possible memory leaks
         if (associated(dataPtr)) then
-            call Driver_abortFlash("[getDataPtr] Given data pointer must be NULL")
+            call Driver_abort("[getDataPtr] Given data pointer must be NULL")
         end if
 
         lo = this%blkLimitsGC(LOW, :)
@@ -365,7 +365,7 @@ contains
           case(SCRATCH_CTR)
              dataPtr(lo(1):, lo(2):, lo(3):, 1:) => gr_scratchCtr(ilev)%dataptr(igrd)
           case DEFAULT
-              call Driver_abortFlash("[getDataPtr] Unknown grid data structure")
+              call Driver_abort("[getDataPtr] Unknown grid data structure")
           end select
         end associate
     end subroutine getDataPtr

@@ -14,7 +14,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 

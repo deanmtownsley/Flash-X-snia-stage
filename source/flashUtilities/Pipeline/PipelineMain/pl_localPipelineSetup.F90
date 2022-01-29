@@ -67,7 +67,7 @@ subroutine pl_localPipelineSetup ()
 
   if (numNeighbors > 0) then
       if (.not. associated (tmpNeighborsProcList)) then
-           call Driver_abortFlash ("[pl_localPipelineSetup] Neighbor processor list not associated.?")
+           call Driver_abort ("[pl_localPipelineSetup] Neighbor processor list not associated.?")
       end if
 
       pl_numChannels = numNeighbors

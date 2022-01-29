@@ -171,7 +171,7 @@ subroutine Grid_restrictByLevels( gridDataStruct, fromLevel, toLevel, checkFines
   use tree,ONLY: maxblocks_tr,nodetype,lrefine,lrefine_max,lnblocks
   use Grid_data, ONLY : gr_meshNumProcs,gr_meshComm, gr_meshMe
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
 

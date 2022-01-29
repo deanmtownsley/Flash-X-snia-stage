@@ -44,7 +44,7 @@
 !!  Gravity_potential can operate in one of two modes:
 !!  * automatic mode  - when called without the optional potentialIndex.
 !!    Such a call will usually be made once per time step, usually
-!!    from the main time advancement loop in Driver_evolveFlash.
+!!    from the main time advancement loop in Driver_evolveAll.
 !!    Various side effects are enabled in this mode, see SIDE EFFECT below.
 !!
 !!  * explicit mode  - when called with the optional potentialIndex.
@@ -94,7 +94,7 @@ subroutine Gravity_potential( potentialIndex)
   use Gravity_data, ONLY : grav_poisfact, grav_temporal_extrp, grav_boundary, &
        grav_unjunkPden, &
        useGravity, updateGravity, grv_meshComm
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Particles_interface, ONLY: Particles_updateGridVar
   use Grid_interface, ONLY : GRID_PDE_BND_PERIODIC, GRID_PDE_BND_NEUMANN, &
@@ -105,7 +105,7 @@ subroutine Gravity_potential( potentialIndex)
   use Grid_tile,     ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
   
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
 #include "constants.h"
 
@@ -184,7 +184,7 @@ subroutine Gravity_potential( potentialIndex)
  
   if (grav_temporal_extrp) then
      
-     call Driver_abortFlash("shouldn't be here right now")
+     call Driver_abort("shouldn't be here right now")
      !call extrp_initial_guess( igpot, igpol, igpot )
      
   else
@@ -225,7 +225,7 @@ subroutine Gravity_potential( potentialIndex)
 
 #if defined(SGXO_VAR) && defined(SGYO_VAR) && defined(SGZO_VAR)
         if (saveLastPot) then   !... but only if we are saving the old potential - kW
-           call Driver_abortFlash("[Gravity_potential] Not tested third!")
+           call Driver_abort("[Gravity_potential] Not tested third!")
            ! If tiling is used here, we probably need to write this as an
            ! explicit loop nest over the tile's indices
            solnVec(SGXO_VAR,:,:,:) = solnVec(SGAX_VAR,:,:,:)
@@ -237,7 +237,7 @@ subroutine Gravity_potential( potentialIndex)
         ! for direct acceleration calculation by tree solver, added by R. Wunsch
 #if defined(GAOX_VAR) && defined(GAOY_VAR) && defined(GAOZ_VAR)
         if (saveLastPot) then 
-           call Driver_abortFlash("[Gravity_potential] Not tested fourth!")
+           call Driver_abort("[Gravity_potential] Not tested fourth!")
            ! If tiling is used here, we probably need to write this as an
            ! explicit loop nest over the tile's indices
            solnVec(GAOX_VAR,:,:,:) = solnVec(GACX_VAR,:,:,:)
@@ -269,7 +269,7 @@ subroutine Gravity_potential( potentialIndex)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
      call tileDesc%getDataPtr(solnVec, CENTER)
-     call Driver_abortFlash("[Gravity_potential] Not tested either!")
+     call Driver_abort("[Gravity_potential] Not tested either!")
      ! If tiling is used here, we probably need to write this as an
      ! explicit loop nest over the tile's indices
      solnVec(density,:,:,:) = solnVec(density,:,:,:) + &
@@ -293,7 +293,7 @@ subroutine Gravity_potential( potentialIndex)
   if (grav_unjunkPden) then
      density = PDEN_VAR
 #ifdef DENS_VAR           
-     call Driver_abortFlash("[Gravity_potential] Not tested I guess!")
+     call Driver_abort("[Gravity_potential] Not tested I guess!")
      ! I (JO) added this line to create the iterator.  I don't know if it is
      ! correct or if this code has ever been called.
      call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)

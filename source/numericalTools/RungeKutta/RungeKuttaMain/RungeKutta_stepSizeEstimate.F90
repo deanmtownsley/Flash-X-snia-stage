@@ -123,7 +123,7 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 
   use rk_interface,      ONLY : rk_orderRKmethod
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use RungeKutta_data,   ONLY : rk_cubeRootMacheps
 
@@ -152,11 +152,11 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 !
 !
   if (eFrac >= 1.0) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: eFrac >= 1!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: eFrac >= 1!')
   end if
 
   if (any (abs (eBase) == 0.0)) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: eBase has zero values!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: eBase has zero values!')
   end if
 !
 !
@@ -164,7 +164,7 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 !
 !
   if (size (y) /= size (eBase)) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: y/eBase size mismatch!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: y/eBase size mismatch!')
   end if
 !
 !

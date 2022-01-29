@@ -10,7 +10,7 @@
 #include "constants.h"
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -88,7 +88,7 @@ void FTOC(io_h5read_facevars)(hid_t* file_identifier,
   
     if (status < 0){
       printf("Error: Unable to select hyperslab for unknowns dataspace\n");
-      Driver_abortFlashC("Error: Unable to select hyperslab for unknowns dataspace\n");
+      Driver_abortC("Error: Unable to select hyperslab for unknowns dataspace\n");
     }
 
     /* create the memory space */
@@ -126,7 +126,7 @@ void FTOC(io_h5read_facevars)(hid_t* file_identifier,
 
     if (ierr < 0){
       printf("Error: Unable to select hyperslab for coordinates memspace\n");
-      Driver_abortFlash("Error: Unable to select hyperslab for coordinates memspace\n");
+      Driver_abort("Error: Unable to select hyperslab for coordinates memspace\n");
     }*/
 
 
@@ -136,7 +136,7 @@ void FTOC(io_h5read_facevars)(hid_t* file_identifier,
                
     if (status < 0){
       printf("Error: Unable to read unknowns\n %d\n",status );
-      Driver_abortFlashC("Error: Unable to read unknowns\n");
+      Driver_abortC("Error: Unable to read unknowns\n");
     }
 
     H5Sclose(memspace); 

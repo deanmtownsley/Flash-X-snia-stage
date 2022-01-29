@@ -51,7 +51,7 @@
 
 subroutine io_rescaleCellBoxes()
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
 
   use IO_data, ONLY : io_globalMe

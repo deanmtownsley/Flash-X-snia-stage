@@ -179,7 +179,7 @@ Index: source/IO/IOTypes/io_getZeroBasedVarInfo.F90
  
  #include "constants.h"
 @@ -45,7 +53,7 @@
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    use IO_data, ONLY : io_unkLabels, io_faceXVarLabels, io_faceYVarLabels, &
         io_faceZVarLabels, io_scratchGridVarlabels, io_nPlotVars, &
 -       io_nPlotGridVars, io_plotVar, io_plotGridVar
@@ -256,14 +256,14 @@ Index: source/IO/IOTypes/io_typeInit.F90
  
 +  if (ubound(io_unklabelsGlobal,1) > MAX_MESH_VAR) then
 +     !This check is needed to prevent overflowing many statically size arrays.
-+     call Driver_abortFlash("Mesh replication support with type based I/O "//&
++     call Driver_abort("Mesh replication support with type based I/O "//&
 +          "is currently limited.  The I/O code has statically sized arrays "//&
 +          "that will overflow.  You can make these arrays bigger and get "//&
 +          "past this abort by increasing MAX_MESH_VAR in io_flash.h")
 +  end if
  
 +  if (io_fileFormatVersion == 10 .and. NONREP_COUNT > 0) then
-+     call Driver_abortFlash("Mesh replication not supported for fileFmt=10")
++     call Driver_abort("Mesh replication not supported for fileFmt=10")
 +  end if
 +
 +
@@ -284,7 +284,7 @@ Index: source/IO/IOTypes/io_xfer_mesh_data.F90
 +++ source/IO/IOTypes/io_xfer_mesh_data.F90	(working copy)
 @@ -68,6 +68,8 @@
    use Grid_interface, ONLY : Grid_getBlkCornerID
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    use Timers_interface, ONLY : Timers_start, Timers_stop
 +  use Simulation_interface, ONLY : Simulation_mapStrToInt
 +  use IO_data, ONLY : io_acrossMe, io_unkNonRep, io_globalMe, io_unklabelsGlobal
@@ -404,7 +404,7 @@ Index: source/IO/IOTypes/io_xfer_mesh_data.F90
 -           !WARNING, WARNING, WARNING!
 -           j = memVarOffsets(i) + 1
 -           if (j < lbound(gridData,1) .or. j > ubound(gridData,1)) then
--              call Driver_abortFlash &
+-              call Driver_abort &
 -                   ("[io_xfer_mesh_data]: Unexpected index")
 -           end if
  
@@ -417,7 +417,7 @@ Index: source/IO/IOTypes/io_xfer_mesh_data.F90
 +                 j = localVarOffsets(i) + 1 !gridData element (unit-based).
 +                 array_of_subsizes_arg = array_of_subsizes
 +                 if (j < lbound(gridData,1) .or. j > ubound(gridData,1)) then
-+                    call Driver_abortFlash("Local index out of bounds")
++                    call Driver_abort("Local index out of bounds")
 +                 end if
 +                 if (debugIO) then
 +                    if (myPE == MASTER_PE) then
@@ -507,13 +507,13 @@ Index: source/IO/IOMain/IO_init.F90
 +++ source/IO/IOMain/IO_init.F90	(working copy)
 @@ -189,11 +189,12 @@
    end do
-   if(j-1 .ne. ubound(io_unklabelsGlobal,1)) call Driver_abortFlash('BUG AT: ' // FILE_AT_LINE)
+   if(j-1 .ne. ubound(io_unklabelsGlobal,1)) call Driver_abort('BUG AT: ' // FILE_AT_LINE)
  
 -#if defined(IO_HDF5_PARALLEL_NOFBS) || defined(IO_HDF5_PARALLEL_UG) || defined(IO_HDF5_PARALLEL_PM)
 +#if defined(IO_HDF5_PARALLEL) || (defined(FLASH_IO_PNETCDF) && defined(FLASH_IO_EXPERIMENTAL))
  #else
    if(io_acrossNumProcs > 1) then
-      call Driver_abortFlash('[' // FILE_AT_LINE // '] ERROR: ' // &
+      call Driver_abort('[' // FILE_AT_LINE // '] ERROR: ' // &
 -        'mesh replication is only supported for the PM, UG, and NOFBS units of IO/hdf5/parallel.')
 +        'mesh replication is only supported by parallel HDF5 ' //&
 +        'and derived datatype pnetCDF I/O units.')

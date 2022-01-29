@@ -9,7 +9,7 @@
 !! limitations under the License.
 
 subroutine hy_shockDetect
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_iterator,  ONLY : Grid_iterator_t
   use Grid_tile,      ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator

@@ -100,7 +100,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,error,mask)
        eos_ef, eos_eft, eos_efd, eos_efdt, &
        eos_xf, eos_xft, eos_xfd, eos_xfdt, &
        EOSJMAX, EOSIMAX, eos_coulombAbort, eos_tol, eos_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
   use Grid_interface, ONLY : 
@@ -731,14 +731,14 @@ subroutine eos_helm(eos_jlo,eos_jhi,error,mask)
               if (eos_meshMe == MASTER_PE) print *, internalFile
               call Logfile_stampMessage('  It is likely that the mesh is of low quality.')
               if (eos_meshMe == MASTER_PE) print *, '      It is likely that the mesh is of low quality.'
-              if ( eos_coulombAbort) call Driver_abortFlash &
+              if ( eos_coulombAbort) call Driver_abort &
                    ('[eos_helm] ERROR: abar is negative.')
            else
               if ( eos_coulombMult > 0.e0 ) then
                  call Logfile_stampMessage('  set runtime parameter eos_coulombMult to zero')
                  if (eos_meshMe == MASTER_PE) print *, '  set runtime parameter eos_coulombMult to zero'
               end if
-              if ( eos_coulombAbort) call Driver_abortFlash &
+              if ( eos_coulombAbort) call Driver_abort &
                    ('[eos_helm] ERROR: coulomb correction causing negative total pressure.')
            end if
         else
@@ -755,7 +755,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,error,mask)
                 ' df_d   ',df_d
            call Logfile_stampMessage(internalFile)
            if (eos_meshMe == MASTER_PE) print *, internalFile
-           call Driver_abortFlash('[eos_helm] ERROR: negative total pressure.')
+           call Driver_abort('[eos_helm] ERROR: negative total pressure.')
         end if
 
      end if

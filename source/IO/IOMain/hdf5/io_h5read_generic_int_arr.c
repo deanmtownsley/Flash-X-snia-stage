@@ -13,7 +13,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
@@ -114,7 +114,7 @@ void FTOC(io_h5read_generic_int_arr)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to select hyperslab for generic_int_arr dataspace\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for generic_int_arr dataspace\n");
+    Driver_abortC("Error: Unable to select hyperslab for generic_int_arr dataspace\n");
   }
 
   /* create the memory space */
@@ -133,7 +133,7 @@ void FTOC(io_h5read_generic_int_arr)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to read data for generic_int_arr\n");
-    Driver_abortFlashC("Error: Unable to read data for generic_int_arr\n");
+    Driver_abortC("Error: Unable to read data for generic_int_arr\n");
   }
 
   

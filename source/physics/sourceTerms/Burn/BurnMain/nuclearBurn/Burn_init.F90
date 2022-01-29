@@ -60,7 +60,7 @@ subroutine Burn_init()
      &    bn_useShockBurn, bn_smallx, &
      &    bn_nuclearTempMin, bn_nuclearTempMax, bn_nuclearDensMin, bn_nuclearDensMax, &
      &    bn_nuclearNI56Max, bn_enucDtFactor, bn_meshMe, bn_enableTiling, bn_gcMaskSD
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   implicit none
@@ -90,7 +90,7 @@ subroutine Burn_init()
      write(6,*) 'and  algebra=2 = gift are valid'
      write(6,*) 'and you have specified algebra=',bn_algebra
      write(6,*) 'error in routine Burn'
-     call Driver_abortFlash('ERROR in Burn, wrong algebra')
+     call Driver_abort('ERROR in Burn, wrong algebra')
   end if
   if ((bn_odeStepper .lt. 1) .or. (bn_odeStepper .gt. 2)) then
      write(6,*) 
@@ -98,7 +98,7 @@ subroutine Burn_init()
      write(6,*) 'and  odeStepper=2 = rosenbrock integration are valid'    
      write(6,*) 'and you have specified odeStepper=',bn_odeStepper
      write(6,*) 'error in routine Burn'
-     call Driver_abortFlash('ERROR in Burn, wrong integration type')
+     call Driver_abort('ERROR in Burn, wrong integration type')
   end if
 #endif
 

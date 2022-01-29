@@ -51,12 +51,12 @@
 subroutine Grid_overwriteFluxes(axis, level, isDensity)
     implicit none
 
-    use Driver_interface, ONLY : Driver_abortFlash
+    use Driver_interface, ONLY : Driver_abort
 
     integer, intent(IN)           :: axis
     integer, intent(IN)           :: level
     logical, intent(IN), optional :: isDensity(:)
 
-    call Driver_abortFlash("[Grid_overwriteFluxes] Prototype stub.  Do NOT use!")
+    call Driver_abort("[Grid_overwriteFluxes] Prototype stub.  Do NOT use!")
 end subroutine Grid_overwriteFluxes
 

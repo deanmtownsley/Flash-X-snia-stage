@@ -91,7 +91,7 @@ contains
     !!  constants.h
     !!****
     subroutine build_iterator(itor, nodetype, level, tiling, tileSize, nthreads)
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
         !$ use omp_lib
         type(Grid_iterator_t), intent(OUT) :: itor
         integer,               intent(IN)  :: nodetype

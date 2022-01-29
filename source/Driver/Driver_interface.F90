@@ -28,10 +28,10 @@ Module Driver_interface
 # include "constants.h"
 
   interface
-    subroutine Driver_abortFlash (errorMessage)
+    subroutine Driver_abort(errorMessage)
       implicit none
       character(len=*), intent(in) :: errorMessage
-    end subroutine Driver_abortFlash
+    end subroutine Driver_abort
   end interface
   
   interface
@@ -71,15 +71,15 @@ Module Driver_interface
   end interface
   
   interface
-    subroutine Driver_evolveFlash()
+    subroutine Driver_evolveAll()
       implicit none
-    end subroutine Driver_evolveFlash
+    end subroutine Driver_evolveAll
   end interface
 
   interface
-    subroutine Driver_finalizeFlash()
+    subroutine Driver_finalizeAll()
       implicit none
-    end subroutine Driver_finalizeFlash
+    end subroutine Driver_finalizeAll
   end interface
 
   interface
@@ -125,9 +125,9 @@ Module Driver_interface
   end interface
 
   interface
-    subroutine Driver_initFlash()
+    subroutine Driver_initAll()
       implicit none
-    end subroutine Driver_initFlash
+    end subroutine Driver_initAll
   end interface
 
   interface

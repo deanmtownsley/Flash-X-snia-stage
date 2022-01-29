@@ -38,7 +38,7 @@
 #include "Simulation.h"
   
 subroutine gr_bcApplyToAllBlks(axis,isWork)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
   use gr_bcInterface, ONLY : gr_bcApplyToOneFace
@@ -64,7 +64,7 @@ subroutine gr_bcApplyToAllBlks(axis,isWork)
   type(Grid_tile_t)     :: tileDesc
 
 #ifdef FLASH_GRID_AMREX
-  call Driver_abortFlash("[gr_bcApplyToAllBlks] not implemented for AMReX")
+  call Driver_abort("[gr_bcApplyToAllBlks] not implemented for AMReX")
 #else
   if(isWork) then
      localNum=1

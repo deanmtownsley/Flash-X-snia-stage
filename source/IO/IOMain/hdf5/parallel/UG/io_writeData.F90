@@ -105,7 +105,7 @@ subroutine io_writeData(fileID)
   use io_typeInterface, ONLY : io_xfer_tree_data
   implicit none
   
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"

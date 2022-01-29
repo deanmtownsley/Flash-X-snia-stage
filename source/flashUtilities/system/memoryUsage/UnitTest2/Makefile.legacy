@@ -27,7 +27,7 @@ CFLAGS = $(CFLAGS_OPT) $(CFLAGS_MPI)
 LIBS = $(LIB_MPI)
 LFLAGS = $(LFLAGS_OPT)
 
-SUPPORT_HEADERS = constants.h mangle_names.h Flash_mpi.h ut_sysMem.h
+SUPPORT_HEADERS = constants.h mangle_names.h Flashx_mpi.h ut_sysMem.h
 SUPPORT_CFILES = ut_sys_mem_usage.c
 SUPPORT_FFILES = ut_sysMemData.F90 ut_sysMemInterface.F90 ut_sysMemStats.F90 \
 	       ut_sysMemSummaryStats.F90
@@ -45,7 +45,7 @@ $(EXE): unlink_files link_files $(COBJ) $(FOBJ)
 
 link_files:
 	ln -s ../../../../Simulation/constants.h
-	ln -s ../../../../Simulation/Flash_mpi.h
+	ln -s ../../../../Simulation/Flashx_mpi.h
 	ln -s ../../../../flashUtilities/general/mangle_names.h
 	ln -s ../ut_sysMem.h
 	ln -s ../ut_sysMemData.F90

@@ -59,7 +59,7 @@ subroutine gr_markInRectangle(ilb, irb, jlb, jrb, klb, krb, lref, contained)
 !-------------------------------------------------------------------------------
 
   use tree, ONLY: refine, derefine, lrefine, bsize, coord, nodetype, lnblocks
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Grid_data, ONLY : gr_geometry
 
@@ -83,9 +83,9 @@ subroutine gr_markInRectangle(ilb, irb, jlb, jrb, klb, krb, lref, contained)
 
 #ifdef DEBUG
   if((gr_geometry==POLAR).or.(gr_geometry==SPHERICAL))&
-       call Driver_abortFlash("markRefineInRectangle : wrong geometry")
+       call Driver_abort("markRefineInRectangle : wrong geometry")
   if((gr_geometry==CYLINDRICAL).and.(NDIM==3))&
-       call Driver_abortFlash("markRefineInRectangle : not valid in 3d for cylindrical")
+       call Driver_abort("markRefineInRectangle : not valid in 3d for cylindrical")
 #endif
 
   do b = 1, lnblocks

@@ -35,11 +35,11 @@ subroutine gr_checkGridState()
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs, gr_meshComm
   use gr_parameshInterface, ONLY : gr_pmGetListOfBlocks
   use Grid_interface, ONLY : Grid_getBlkIndexLimits
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_interfaceTypeDecl
   use gr_interface, ONLY : gr_findAllNeghID
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, dimension(MAXBLOCKS) :: listofBlocks
   integer :: blkCount, blk, blockID, allCenters
   integer :: ib, ie, jb, je, kb, ke, i, j, k, numNegh, ierr, eachNegh
@@ -118,7 +118,7 @@ subroutine gr_checkGridState()
 
   call MPI_Barrier(gr_meshComm, ierr)
   if (allNeghValid .eqv. .false.) then
-     call Driver_abortFlash("Invalid neighbors found!")
+     call Driver_abort("Invalid neighbors found!")
   end if
 
   !So we only reach success message when all processors are valid.

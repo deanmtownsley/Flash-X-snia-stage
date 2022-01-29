@@ -50,7 +50,7 @@ subroutine gr_ptDumpState(bufferSize, dataBuffer, bufferContentSize)
   use gr_ptInterface, ONLY : gr_ptParseMetadata
   use Grid_data, ONLY : gr_meshMe
   use Grid_interface, ONLY : Grid_getListOfBlocks, Grid_getBlkCornerID
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_open, Logfile_close
   use tree, ONLY : lrefine
 
@@ -127,7 +127,7 @@ subroutine gr_ptDumpState(bufferSize, dataBuffer, bufferContentSize)
            if((headerPtr-1) == bufferContentSize) then
               exit 
            else if((headerPtr-1) > bufferContentSize) then
-              call Driver_abortFlash("[gr_ptDumpState]: Metadata loop will not exit cleanly!") 
+              call Driver_abort("[gr_ptDumpState]: Metadata loop will not exit cleanly!") 
            end if
            
         end do EachHeader

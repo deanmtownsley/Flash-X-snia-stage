@@ -96,7 +96,7 @@
 
 subroutine Particles_initData(restart, partPosInitialized)
   use Simulation_interface,ONLY : Simulation_initParticleAttrib
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,ONLY : Grid_mapMeshToParticles, Grid_countParticles
   use Particles_data,ONLY : particles, pt_numLocal, pt_maxPerProc, &
        pt_posAttrib, pt_velNumAttrib, pt_velAttrib, pt_velInitialized,&
@@ -138,7 +138,7 @@ subroutine Particles_initData(restart, partPosInitialized)
      call pt_updateTypeDS_pc(particlesPerType)
 
      if(.not.partPosInitialized)&
-          call Driver_abortFlash("initialization of Particles positions failed")
+          call Driver_abort("initialization of Particles positions failed")
      if (.NOT. pt_velInitialized) then
         do i = 1,NPART_TYPES
            needVel=(pt_typeInfo(PART_ADVMETHOD,i)==RUNGEKUTTA)

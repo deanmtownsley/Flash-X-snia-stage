@@ -91,7 +91,7 @@ subroutine gr_hypreCreateMatrix(iVar, iFactorB, iFactorA, bcTypes, bcValues, dt,
  
 #include "Simulation.h" 
 #include "constants.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "HYPREf.h"    
   
   !!-----------------------------------------------------------------------

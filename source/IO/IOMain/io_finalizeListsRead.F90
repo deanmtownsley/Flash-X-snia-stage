@@ -46,7 +46,7 @@ subroutine io_finalizeListsRead()
        io_logScalarNames, io_logScalarValues, io_numLogScalars, &
        io_strScalarNames, io_strScalarValues, io_numStrScalars, &
        io_logToIntScalarValues, io_logToIntParmValuesPrev
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_setPrev
   
   
@@ -84,7 +84,7 @@ subroutine io_finalizeListsRead()
      else if (io_logToIntParmValuesPrev(i) == -1) then   
         !!This was a dummy value do nothing
      else
-        call Driver_abortFlash("Error reading LogParmValues")
+        call Driver_abort("Error reading LogParmValues")
      end if
 
   end do
@@ -142,7 +142,7 @@ subroutine io_finalizeListsRead()
      else if(io_logToIntScalarValues(i) == -1) then
         !! Do nothing this is a dummy value
      else
-        call Driver_abortFlash("Error reading LogScalarValues")
+        call Driver_abort("Error reading LogScalarValues")
      end if
 
   end do

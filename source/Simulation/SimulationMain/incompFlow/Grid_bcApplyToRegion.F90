@@ -160,7 +160,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface,         ONLY : Driver_abortFlash
+  use Driver_interface,         ONLY : Driver_abort
   use gr_bcInterface,           ONLY : gr_bcMapBcType
   use Grid_interface,           ONLY : Grid_getGeometry,Grid_getDeltas
   use Grid_data,                ONLY : gr_dirGeom,gr_smallrho,gr_smallE
@@ -590,10 +590,10 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
            end if
          !--------------------------------------------------------------------------------------------------
          case(OUTFLOW_INS) ! face == LOW
-           call Driver_abortFlash("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
+           call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
          !--------------------------------------------------------------------------------------------------
          case default ! face == LOW
-           call Driver_abortFlash("Boundary Condition Not Implemented for Incompressible Flow")
+           call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
          end select
 
        else ! face == HIGH
@@ -1042,7 +1042,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
            end if
          !--------------------------------------------------------------------------------------------------
          case default ! face == HIGH
-           call Driver_abortFlash("Boundary Condition Not Implemented for Incompressible Flow")
+           call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
          end select
 
        end if ! face 

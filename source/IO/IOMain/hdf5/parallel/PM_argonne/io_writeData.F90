@@ -92,7 +92,7 @@ subroutine io_writeData(fileID)
   use io_intfTypesModule, ONLY : io_fileID_t
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
   use Grid_interface, ONLY : Grid_getLocalNumBlks, Grid_getBlkIndexLimits, &
        Grid_getGlobalIndexLimits, Grid_getBlkBoundBox, &
@@ -114,7 +114,7 @@ subroutine io_writeData(fileID)
   implicit none
 
 
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
 
   integer(io_fileID_t), intent(in) :: fileID

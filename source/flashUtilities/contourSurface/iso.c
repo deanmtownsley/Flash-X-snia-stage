@@ -48,7 +48,7 @@ typedef struct {
     } Poly_list;
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* prototypes */
 void add_polygon(double *vert1, double *vert2, double *vert3, Poly_list *polydata );
@@ -515,7 +515,7 @@ void add_polygon(double *vert1, double *vert2, double *vert3, Poly_list *polydat
 {
 
   if (polydata->numpolys==80) {
-    Driver_abortFlashC("Not enough space for polygons for surface area\n");
+    Driver_abortC("Not enough space for polygons for surface area\n");
   }
   memcpy( &(polydata->verts)[polydata->numpolys][0][0], vert1, 3*sizeof(double));
   memcpy( &(polydata->verts)[polydata->numpolys][1][0], vert2, 3*sizeof(double));

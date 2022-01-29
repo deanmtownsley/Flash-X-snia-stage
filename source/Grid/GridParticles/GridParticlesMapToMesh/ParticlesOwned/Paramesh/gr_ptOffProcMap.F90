@@ -51,7 +51,7 @@ subroutine gr_ptOffProcMap(srcCoords, destCoords, bufferSize, sendBuf, &
 
   use Grid_data, ONLY : gr_meshNumProcs, gr_meshMe
   use gr_ptData, ONLY : gr_ptBuf
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptInterface, ONLY : gr_ptProlongSmear
   use ut_conversionInterface, ONLY : ut_ConvertToMemoryOffset
 
@@ -78,7 +78,7 @@ subroutine gr_ptOffProcMap(srcCoords, destCoords, bufferSize, sendBuf, &
 
 
   if (gr_meshNumProcs==1) then
-     call Driver_abortFlash("[gr_ptOffProcMap]: Shouldn't be here when using 1 processor!")
+     call Driver_abort("[gr_ptOffProcMap]: Shouldn't be here when using 1 processor!")
   end if
 
 
@@ -152,7 +152,7 @@ subroutine gr_ptOffProcMap(srcCoords, destCoords, bufferSize, sendBuf, &
      else if(negh(REFLEVELDIF) == -1) then
         upperLimit(:) = destEnd(1:MDIM)-destStart(1:MDIM)+1
      else
-        call Driver_abortFlash("[gr_ptOffProcMap]: Unrecognised refinement difference between source and dest blocks")
+        call Driver_abort("[gr_ptOffProcMap]: Unrecognised refinement difference between source and dest blocks")
      end if
 
 

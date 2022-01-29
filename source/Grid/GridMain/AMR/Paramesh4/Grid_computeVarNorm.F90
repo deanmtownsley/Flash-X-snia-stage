@@ -50,7 +50,7 @@
 !!  enddo
 !!  do i = 1, lrefine_max
 !!    if (norm(0) - norm(i) > 0.0000001) then
-!!    call Driver_abortFlash("restriction is highly nonconservatory!")
+!!    call Driver_abort("restriction is highly nonconservatory!")
 !!    endif
 !!  enddo
 !!
@@ -67,10 +67,10 @@ subroutine Grid_computeVarNorm (level, normType, ivar, norm, leafOnly)
   use physicaldata, ONLY : unk
   use workspace, ONLY : work
   use tree, ONLY : lnblocks,lrefine,bsize, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_data, ONLY : gr_meshComm
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN)  :: normType, level, ivar, leafOnly
   real, intent(OUT)    :: norm
@@ -93,7 +93,7 @@ subroutine Grid_computeVarNorm (level, normType, ivar, norm, leafOnly)
   totalblockshere = 0
 
   if (normType /= 1 .and. normType /= 2) then
-    call Driver_abortFlash('only L1 and L2 norms supported in Grid_computeVarNorm!')
+    call Driver_abort('only L1 and L2 norms supported in Grid_computeVarNorm!')
   endif
 
   do lb = 1, lnblocks

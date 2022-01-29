@@ -21,7 +21,7 @@
 #include "constants.h"
 
 subroutine Grid_getCellVolumes(level, lo, hi, volumes)
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    use Grid_interface,   ONLY : Grid_getDeltas, &
                                 Grid_getCellCoords
    use Grid_data,        ONLY : gr_geometry
@@ -48,7 +48,7 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
              .OR. (gr_geometry == CYLINDRICAL .AND. NDIM == 2) &
              )     ) then
      volumes(:, :, :) = 0.0
-     call Driver_abortFlash("[Grid_getCellVolumes] Not tested yet")
+     call Driver_abort("[Grid_getCellVolumes] Not tested yet")
    end if
 
    call Grid_getDeltas(level, deltas)

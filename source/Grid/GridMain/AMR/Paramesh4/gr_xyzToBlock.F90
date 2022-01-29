@@ -41,7 +41,7 @@
 Subroutine gr_xyzToBlock(xyz, procID, blkID)
   use gr_interface, ONLY : gr_xyzToBlockLevel
   use Grid_data, ONLY : gr_meshNumProcs
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use tree, ONLY : lrefine_max
 #ifdef BITTREE
   use bittree, only : amr_identify_block
@@ -68,7 +68,7 @@ Subroutine gr_xyzToBlock(xyz, procID, blkID)
   end if
 #else
   proc = -size(xyz); blk= -1  !avoid compiler warnings about uninitialized variables below
-  call Driver_abortFlash("gr_xyzToBlock works only when bittree is enabled")
+  call Driver_abort("gr_xyzToBlock works only when bittree is enabled")
 #endif
 
   procID=proc

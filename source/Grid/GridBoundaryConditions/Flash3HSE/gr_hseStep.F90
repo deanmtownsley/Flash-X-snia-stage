@@ -145,7 +145,7 @@
 subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, mode, massFrac)
 
   use gr_bcHseData, ONLY : HSE_FORWARD, HSE_BACKWARD, HSE_CONSTENTR, HSE_CONSTTEMP, HSE_SETTEMP
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY: Eos
 
   implicit none
@@ -265,7 +265,7 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   ! handle non-convergence
   if (iter >= max_iter) then
      write (6,*) 'HSE did not converge, dens, temp = ', densp1, tempp1
-     call Driver_abortFlash("HSE did not converge")
+     call Driver_abort("HSE did not converge")
   endif
 
   ! last update to temperature if adiabatic gradient is seleceted

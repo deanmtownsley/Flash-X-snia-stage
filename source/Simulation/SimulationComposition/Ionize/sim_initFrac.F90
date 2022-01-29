@@ -34,7 +34,7 @@ subroutine sim_initFrac()
   use Simulation_speciesData, ONLY : SPEC_NUM, SPEC_NIMAX, sim_specSelected,&
        sim_specEpRatio,sim_specAbundance, sim_specNumElect, sim_specXfrac, &
        sim_ELEC, sim_HYD
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getProperty
 
   implicit none
@@ -98,7 +98,7 @@ subroutine sim_initFrac()
   if (abs(ck_sum-1.0).gt.epscheck) then
      write(error_message,'(''Error in routine sim_initFrac: wrong sum of fluid mass fraction. ck_sum = '',f10.5)') ck_sum
      write(*,*) error_message
-     call Driver_abortFlash(error_message)
+     call Driver_abort(error_message)
   endif
   
   !

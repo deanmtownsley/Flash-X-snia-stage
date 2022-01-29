@@ -18,7 +18,7 @@ subroutine sim_heaterTagSites(stime)
    use sim_heaterData
 
    implicit none
-   include "Flash_mpi.h"
+   include "Flashx_mpi.h"
    real, intent(in) :: stime
 
    integer :: htr,ierr,isite

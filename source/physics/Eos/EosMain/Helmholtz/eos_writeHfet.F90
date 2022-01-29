@@ -77,7 +77,7 @@ subroutine eos_writeHfet(n, f, fd, ft, fdd, ftt,  &
      &   fdt, fddt, fdtt, fddtt, dpdf, dpdfd,      &
      &   dpdft, dpdfdt, ef, efd, eft, efdt,        &
      &   xf, xfd, xft, xfdt)
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
 
    implicit none
 
@@ -97,13 +97,13 @@ subroutine eos_writeHfet(n, f, fd, ft, fdd, ftt,  &
 
 #ifdef DEBUG
   if (n<0) then
-    call Driver_abortFlash("[eos_writeHfet]  n must be positive")
+    call Driver_abort("[eos_writeHfet]  n must be positive")
   endif 
 #endif
 
 !! Open the file
   open (fileUnit,FILE='helm_table.bdat',ACTION='WRITE',STATUS='REPLACE',FORM='UNFORMATTED',IOSTAT=ioStat)
-    if (ioStat .NE. 0)     call Driver_abortFlash("[eos_writeHfet]  file open failure!")
+    if (ioStat .NE. 0)     call Driver_abort("[eos_writeHfet]  file open failure!")
 
 !! Start writing
 
@@ -131,33 +131,33 @@ subroutine eos_writeHfet(n, f, fd, ft, fdd, ftt,  &
   
 !! close up and return
   close (fileUnit,IOSTAT=ioStat)
-   if (ioStat .NE. 0)  call Driver_abortFlash("[eos_writeHfet]  couldn't close file!")
+   if (ioStat .NE. 0)  call Driver_abort("[eos_writeHfet]  couldn't close file!")
   
   return
 
 !!  Abort statements
 
-101    call Driver_abortFlash("[eos_writeHfet]  failed write on f!")
-102    call Driver_abortFlash("[eos_writeHfet]  failed write on fd!")
-103    call Driver_abortFlash("[eos_writeHfet]  failed write on ft!")
-104    call Driver_abortFlash("[eos_writeHfet]  failed write on fdd!")
-105    call Driver_abortFlash("[eos_writeHfet]  failed write on ftt!")
-106    call Driver_abortFlash("[eos_writeHfet]  failed write on fdt!")
-107    call Driver_abortFlash("[eos_writeHfet]  failed write on fddt!")
-108    call Driver_abortFlash("[eos_writeHfet]  failed write on fdtt!")
-109    call Driver_abortFlash("[eos_writeHfet]  failed write on fddtt!")
-110    call Driver_abortFlash("[eos_writeHfet]  failed write on dpdf!")
-111    call Driver_abortFlash("[eos_writeHfet]  failed write on dpdfd!")
-112    call Driver_abortFlash("[eos_writeHfet]  failed write on dpdft!")
-113    call Driver_abortFlash("[eos_writeHfet]  failed write on dpdfdt!")
-114    call Driver_abortFlash("[eos_writeHfet]  failed write on ef!")
-115    call Driver_abortFlash("[eos_writeHfet]  failed write on efd!")
-116    call Driver_abortFlash("[eos_writeHfet]  failed write on eft!")
-117    call Driver_abortFlash("[eos_writeHfet]  failed write on efdt!") 
-118    call Driver_abortFlash("[eos_writeHfet]  failed write on xf!") 
-119    call Driver_abortFlash("[eos_writeHfet]  failed write on xfd!") 
-120    call Driver_abortFlash("[eos_writeHfet]  failed write on xft!") 
-121    call Driver_abortFlash("[eos_writeHfet]  failed write on xfdt!") 
+101    call Driver_abort("[eos_writeHfet]  failed write on f!")
+102    call Driver_abort("[eos_writeHfet]  failed write on fd!")
+103    call Driver_abort("[eos_writeHfet]  failed write on ft!")
+104    call Driver_abort("[eos_writeHfet]  failed write on fdd!")
+105    call Driver_abort("[eos_writeHfet]  failed write on ftt!")
+106    call Driver_abort("[eos_writeHfet]  failed write on fdt!")
+107    call Driver_abort("[eos_writeHfet]  failed write on fddt!")
+108    call Driver_abort("[eos_writeHfet]  failed write on fdtt!")
+109    call Driver_abort("[eos_writeHfet]  failed write on fddtt!")
+110    call Driver_abort("[eos_writeHfet]  failed write on dpdf!")
+111    call Driver_abort("[eos_writeHfet]  failed write on dpdfd!")
+112    call Driver_abort("[eos_writeHfet]  failed write on dpdft!")
+113    call Driver_abort("[eos_writeHfet]  failed write on dpdfdt!")
+114    call Driver_abort("[eos_writeHfet]  failed write on ef!")
+115    call Driver_abort("[eos_writeHfet]  failed write on efd!")
+116    call Driver_abort("[eos_writeHfet]  failed write on eft!")
+117    call Driver_abort("[eos_writeHfet]  failed write on efdt!") 
+118    call Driver_abort("[eos_writeHfet]  failed write on xf!") 
+119    call Driver_abort("[eos_writeHfet]  failed write on xfd!") 
+120    call Driver_abort("[eos_writeHfet]  failed write on xft!") 
+121    call Driver_abort("[eos_writeHfet]  failed write on xfdt!") 
 
 end subroutine eos_writeHfet
 

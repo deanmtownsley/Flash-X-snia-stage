@@ -27,9 +27,6 @@
 
 subroutine Eos_finalize()
 
-  use eos_localInterface, ONLY: eos_tabFinalize
   implicit none
-
-  call eos_tabFinalize
 
 end subroutine Eos_finalize

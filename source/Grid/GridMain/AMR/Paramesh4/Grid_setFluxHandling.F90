@@ -42,7 +42,7 @@
 #include "Simulation.h"
 
 subroutine Grid_setFluxHandling(handling, status)
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
 #ifdef FLASH_GRID_PARAMESH2
 #define consv_fluxes .FALSE.
@@ -68,7 +68,7 @@ subroutine Grid_setFluxHandling(handling, status)
         return
      end if
   else
-     call Driver_abortFlash('Grid_setFluxHandling: unrecognized handling requested: ' // handling)
+     call Driver_abort('Grid_setFluxHandling: unrecognized handling requested: ' // handling)
   end if
 
 #ifdef LIBRARY
@@ -85,7 +85,7 @@ subroutine Grid_setFluxHandling(handling, status)
      status = 1                 !indicates failure
      return
   else
-     call Driver_abortFlash('Grid_setFluxHandling: Handling by Grid is compiled in, cannot change at run-time to '&
+     call Driver_abort('Grid_setFluxHandling: Handling by Grid is compiled in, cannot change at run-time to '&
           // handling)
   end if
 #endif

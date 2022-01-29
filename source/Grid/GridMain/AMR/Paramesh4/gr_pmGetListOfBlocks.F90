@@ -99,7 +99,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
      region_bndBox, includePartialBlocks)
 
   use tree, ONLY : nodetype,lnblocks,neigh,lrefine,bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_specificData, ONLY : gr_oneBlock
 
 #include "constants.h"
@@ -209,7 +209,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
            end if
         end do
      else
-        call Driver_abortFlash("[gr_pmGetListofBlocks] with blockType REFINEMENT optional argument refinementlevel must be present")
+        call Driver_abort("[gr_pmGetListofBlocks] with blockType REFINEMENT optional argument refinementlevel must be present")
      end if
 
   case(INREGION)
@@ -246,7 +246,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
            end if
         end do
      else
-        call Driver_abortFlash("[gr_pmGetListofBlocks] with blockType INREGION optional argument region_bndBox must be present")
+        call Driver_abort("[gr_pmGetListofBlocks] with blockType INREGION optional argument region_bndBox must be present")
      end if
   case default
      do i = 1,lnblocks

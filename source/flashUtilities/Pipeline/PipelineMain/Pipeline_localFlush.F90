@@ -43,7 +43,7 @@ subroutine Pipeline_localFlush (fullestChannelOnly)
 
   implicit none
 
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   logical, intent (in) :: fullestChannelOnly
 

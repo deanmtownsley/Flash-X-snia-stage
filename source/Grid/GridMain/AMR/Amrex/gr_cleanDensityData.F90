@@ -66,7 +66,7 @@
 subroutine gr_cleanDensityData(smallRho, &
                                lo, hi, &
                                d, dlo, dhi, nd)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data,        ONLY : gr_sanitizeDataMode
 
   implicit none
@@ -102,7 +102,7 @@ subroutine gr_cleanDensityData(smallRho, &
             write(*,900)         i, j, k, smallRho
             d(i,j,k,DENS_VAR) = max(d(i,j,k,DENS_VAR), smallRho)
           else if (gr_sanitizeDataMode == 4) then
-            call Driver_abortFlash("[gr_cleanDensityData] Density data less than smlrho")
+            call Driver_abort("[gr_cleanDensityData] Density data less than smlrho")
           end if
         end if
       end do

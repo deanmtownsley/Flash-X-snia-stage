@@ -120,7 +120,7 @@
 subroutine Grid_applyBCEdge(bcType,bcDir,guard,var,dataRow,face,&
      gridDataStruct, secondCoord, thirdCoord)
   use Grid_data, ONLY :gr_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 #include "constants.h"
 #include "Simulation.h"
@@ -141,7 +141,7 @@ subroutine Grid_applyBCEdge(bcType,bcDir,guard,var,dataRow,face,&
 
   if((gridDataStruct/=CENTER).and.(bcType==REFLECTING .OR. face==HIGH)&
        .and.(size(dataRow)<2*guard+1)) then
-     call Driver_abortFlash("Grid_applyBCEgde : buffer too small")
+     call Driver_abort("Grid_applyBCEgde : buffer too small")
   end if
   
 #endif
@@ -184,7 +184,7 @@ subroutine Grid_applyBCEdge(bcType,bcDir,guard,var,dataRow,face,&
            if (sign == -1) dataRow(i) = min(dataRow(i),0.0)
         end do
      case default
-        call Driver_abortFlash("unsupported boundary condition on Lower Face")
+        call Driver_abort("unsupported boundary condition on Lower Face")
      end select
 
   else
@@ -212,7 +212,7 @@ subroutine Grid_applyBCEdge(bcType,bcDir,guard,var,dataRow,face,&
         end do
      case default
         print*,'boundary is',bcType,gr_meshMe
-        call Driver_abortFlash("unsupported boundary condition on Upper Face")
+        call Driver_abort("unsupported boundary condition on Upper Face")
      end select
   end if
   return

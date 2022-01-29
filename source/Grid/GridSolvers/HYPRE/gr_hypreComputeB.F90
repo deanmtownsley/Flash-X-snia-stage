@@ -60,7 +60,7 @@
 
 subroutine gr_hypreComputeB (iVar, blockCount, blockType, bcTypes, bcValues)
  
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Grid_interface,   ONLY : Grid_fillGuardCells, Grid_getTileIterator, &
                                Grid_releaseTileIterator, Grid_getNumBlksFromType, &

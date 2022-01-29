@@ -51,7 +51,7 @@
 
 subroutine Grid_coordTransfm(x,y,z, xout,yout,zout, geometryIn,geometryOut, ndimArg, &
      velI,velJ,velK,velIOut,velJOut,velKOut)
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Grid_interface, ONLY : Grid_getGeometry
   use Grid_data, ONLY: gr_meshMe
   implicit none
@@ -112,16 +112,16 @@ subroutine Grid_coordTransfm(x,y,z, xout,yout,zout, geometryIn,geometryOut, ndim
      else if (geoOut==CYLINDRICAL) then
         call gr_coordTransfmCyl(x,y,z, xout,yout,zout, ndim, velI,velJ,velK,velIOut,velJOut,velKOut)
      else
-        call Driver_abortFlash("[Grid_coordTransfm] invalid input geometry")
+        call Driver_abort("[Grid_coordTransfm] invalid input geometry")
      end if
   else if (geoOut==CARTESIAN) then
      if (geoIn==CYLINDRICAL) then
         call gr_coordTransfmFromCyl(x,y,z, xout,yout,zout, ndim, velI,velJ,velK,velIOut,velJOut,velKOut)
      else
-        call Driver_abortFlash("[Grid_coordTransfm] invalid output geometry")
+        call Driver_abort("[Grid_coordTransfm] invalid output geometry")
      end if
   else
-     call Driver_abortFlash("[Grid_coordTransfm] invalid geometry")
+     call Driver_abort("[Grid_coordTransfm] invalid geometry")
   end if
 
   first_call = .FALSE.
