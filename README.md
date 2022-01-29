@@ -1,14 +1,5 @@
 # Flash-X
 
-## Containerization Workflows
-
-![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
-![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
-![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
-![unitTest](https://github.com/Flash-X/Flash-X/workflows/unitTest/badge.svg)
-
-These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
-
 ## Git/Testing Workflow
 
 The current rules for collaborating via git are as follows
@@ -20,6 +11,15 @@ The current rules for collaborating via git are as follows
 4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
 5.  Do not rebase a feature branch that has already been pushed to the GitHub
     repository.
+
+## Containerization Workflows
+
+![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+![unitTest](https://github.com/Flash-X/Flash-X/workflows/unitTest/badge.svg)
+
+These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
 ## Libraries
 
