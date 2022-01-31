@@ -17,7 +17,6 @@ The current rules for collaborating via git are as follows
 ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
 ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
 ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
-![unitTest](https://github.com/Flash-X/Flash-X/workflows/unitTest/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
