@@ -1,4 +1,3 @@
-#define DEBUG_GRID_GCMASK
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,6 +9,7 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+#define DEBUG_GRID_GCMASK
 !#ifdef DEBUG_ALL
 #define DEBUG_HYDRO
 !#endif

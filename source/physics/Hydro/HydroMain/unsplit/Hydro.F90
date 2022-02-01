@@ -1,4 +1,4 @@
-!!****f* source/physics/Hydro/HydroMain/simpleUnsplit/Hydro
+!!****if* source/physics/Hydro/HydroMain/unsplit/Hydro
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -17,7 +17,7 @@
 !! DESCRIPTION
 !!  Please see stub version of this file for information about arguments.
 !!
-!!  This version implements directionally unsplit version derived from MHD
+!!  This version implements directionally unsplit Hydro derived from the MHD
 !!  algorithm described in:
 !!  A solution accurate, efficient and stable unsplit staggered mesh scheme
 !!   for three dimensional magnetohydrodynamics, D Lee - Journal of Computational Physics, 2013

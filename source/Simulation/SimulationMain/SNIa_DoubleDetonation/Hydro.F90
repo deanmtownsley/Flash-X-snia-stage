@@ -1,4 +1,3 @@
-!!REORDER(4): fluxBuf[XYZ]
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,6 +9,8 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+
+!!REORDER(4): fluxBuf[XYZ]
 
 #define DEBUG_GRID_GCMASK
 #define DEBUG_HYDRO
