@@ -14,12 +14,7 @@ IF withParticles
     REQUIRES Particles/ParticlesMain
 ENDIF
 
-USESETUPVARS FlashAmrexMode
-
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
-IF FlashAmrexMode == 2
-   LINKIF gr_expandDomain.F90.M2      Grid/GridMain/AMR/Paramesh4/AmrexTransition
-ENDIF
 
 USESETUPVARS threadBlockList
 IF threadBlockList and withHydro
