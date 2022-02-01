@@ -11,6 +11,7 @@ The current rules for collaborating via git are as follows
 4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
 5.  Do not rebase a feature branch that has already been pushed to the GitHub
     repository.
+6.  When you are ready, create a PR from feature branch to merge branch. If no conflict occur in the merge branch you are done. If conflicts occur, then depending on the extent and type of conflicts the resolution will be done on a case by case basis. 
 
 ## Containerization Workflows
 
