@@ -1,10 +1,12 @@
 #if N_DIM > 1
-!! 
 #define DEBUG_DAT
 #endif
 !----------------------------------------------------------------------
 ! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
+! Copyright (C) 2003, 2004 United States Government as represented by the
+! National Aeronautics and Space Administration, Goddard Space Flight
+! Center.  All Rights Reserved.
+! Copyright (C) 2021 The University of Chicago
 !
 ! Use of the PARAMESH software is governed by the terms of the
 ! usage agreement which can be found in the file

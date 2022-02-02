@@ -1,7 +1,6 @@
 !----------------------------------------------------------------------
-!! 
 ! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
+! Copyright (C) 2003, 2007
 !
 ! Use of the PARAMESH software is governed by the terms of the
 ! usage agreement which can be found in the file
