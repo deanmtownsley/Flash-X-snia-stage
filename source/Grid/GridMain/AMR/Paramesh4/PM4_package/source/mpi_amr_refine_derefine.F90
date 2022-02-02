@@ -1,5 +1,4 @@
 #define FLASH_DEBUG_AMR
-!! 
 !----------------------------------------------------------------------
 ! PARAMESH - an adaptive mesh library.
 ! Copyright (C) 2003

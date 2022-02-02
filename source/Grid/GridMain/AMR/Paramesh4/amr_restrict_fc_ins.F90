@@ -1,4 +1,24 @@
-!!****if* source/Grid/GridMain/paramesh/amr_restrict_fc_ins
+!!****if* source/Grid/GridMain/AMR/Paramesh4/amr_restrict_fc_ins
+!! NOTICE
+!!  This file derived from PARAMESH - an adaptive mesh library.
+!!  Copyright (C) 2003, 2004 United States Government as represented by the
+!!  National Aeronautics and Space Administration, Goddard Space Flight
+!!  Center.  All Rights Reserved.
+!!  Copyright (C) 2016 The University of Chicago
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Use of the PARAMESH software is governed by the terms of the
+!!  usage agreement which can be found in the file
+!!  'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -11,42 +31,6 @@
 !!                           Integer, Intent(in)  :: icoord,
 !!                           Integer, Intent(in)  :: order,
 !!                           Integer, Intent(in)  :: ivar)
-!!
-!! DESCRIPTION
-!!
-!!
-!! ARGUMENTS
-!!
-!!   recv : 
-!!
-!!   temp : 
-!!
-!!   icoord : 
-!!
-!!   order : 
-!!
-!!   ivar : 
-!!
-!! AUTOGENROBODOC
-!!
-!!
-!!***
-
-!----------------------------------------------------------------------
-! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
-!
-! Use of the PARAMESH software is governed by the terms of the
-! usage agreement which can be found in the file
-! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
-!----------------------------------------------------------------------
-
-!!****if* source/amr_restrict_fc_ins.F90
-!! NAME
-!!   amr_restrict_fc_ins
-!!
-!! SYNOPSIS
-!!
 !!   Call amr_restrict_fc_ins(recv,temp,icoord,order,ivar)
 !!   Call amr_restrict_fc_ins(real array,real array,integer,integer,integer)
 !!
