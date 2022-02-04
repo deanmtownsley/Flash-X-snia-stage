@@ -43,3 +43,16 @@ directories:
  - source/Grid/GridMain/AMR/Paramesh4/interpolation
  - source/Grid/GridMain/AMR/Paramesh4/Incomp
  - source/Grid/GridMain/AMR/Paramesh4
+
+PARAMESH was developed under NASA Contracts/Grants NAG5-2652 with
+George Mason University; NAS5-32350 with Raytheon/STX; NAG5-6029 and
+NAG5-10026 with Drexel University; NAG5-9016 with the University of
+Chicago; and NCC5-494 with the GEST Institute.
+The PARAMESH software is now hosted using SourceForge.  You can
+download the files for PARAMESH 4.1 by going to
+https://sourceforge.net/projects/paramesh/ and clicking on the
+'Download' link. You can also find earlier versions of PARAMESH there.
+A detailed description of the PARAMESH package distribution and
+compilation instructions can be found in the PARAMESH User's manual,
+for this and more information on PARAMESH please see the website
+https://web.archive.org/web/20160421055017/http://www.physics.drexel.edu/~olson/paramesh-doc/Users_manual/amr.html .
