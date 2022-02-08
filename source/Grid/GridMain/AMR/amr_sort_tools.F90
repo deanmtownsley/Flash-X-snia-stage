@@ -97,10 +97,7 @@
 !-----Use statements
       use Grid_data, ONLY : gr_meshComm
 
-      implicit none
-
-!-----Include statements
-      include "mpif.h"
+#include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/output statements
       integer,intent(in)    :: nprocs, mype, lnblockst
@@ -126,7 +123,7 @@
 
 !-----Sum total work across procs
       locwork = sum(worktemp(1:lnblockst))
-      call MPI_ALLREDUCE(locwork,totwork,1,MPI_REAL, &
+      call MPI_ALLREDUCE(locwork,totwork,1,FLASH_REAL, &
                          MPI_SUM,gr_meshComm,ierr)
 
 
@@ -140,7 +137,7 @@
       do j=0,nprocs-1
 !-------Proc-by-proc broadcast work list from worktempbuf
         if (j.eq.mype) worktempbuf = worktemp
-        call MPI_BCAST(worktempbuf,lnblockst_arr(j),MPI_REAL,  &
+        call MPI_BCAST(worktempbuf,lnblockst_arr(j),FLASH_REAL,  &
                        j,gr_meshComm,ierr)
 
 !-------Apply algorithm to update mort_cutoffs
