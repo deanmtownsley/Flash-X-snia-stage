@@ -5,13 +5,13 @@
 The current rules for collaborating via git are as follows
 
 1.  Base all feature branches off of the main branch.
-2.  When development on a feature branch is finished, merge main branch on to the feature branch and run full test-suite on the feature branch. 
+2.  When development on a feature branch is finished, merge the main branch onto the feature branch and run a test-suite on the feature branch.
 3.  If at any point during the previous steps errors are discovered that need to
     be fixed, fix code in the feature branch, then go back to point 2 above. Repeat until no test errors.
-4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
+4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.
 5.  Do not rebase a feature branch that has already been pushed to the GitHub
     repository.
-6.  When you are ready, create a PR from feature branch to merge branch. If no conflict occur in the merge branch you are done. If conflicts occur, then depending on the extent and type of conflicts the resolution will be done on a case by case basis. 
+6.  When you are ready, create a PR from the feature branch to the **staged** branch. If no conflicts occur in the **staged** branch, you are done. If conflicts occur, then depending on the extent and type of conflicts the resolution will be done on a case by case basis.
 
 ## Containerization Workflows
 
