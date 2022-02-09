@@ -16,7 +16,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  gr_estimateError(real(INOUT) :: error(MAXBLOCKS),
+!!  call gr_estimateError(real(INOUT) :: error(MAXBLOCKS),
 !!                   integer(IN) :: iref,
 !!                   real(IN)    :: refine_filter)
 !!  
@@ -40,9 +40,13 @@
 !!  
 !!    See Grid_markRefineDerefine
 !!
+!!    DEV: Not usable with the Amrex Grid implementation, will abort;
+!!    however, gr_estimateBlkError is available with the Amrex Grid.
+!!
 !!  SEE ALSO
 !!  
 !!    Grid_markRefineDerefine
+!!    gr_estimateBlkError
 !!
 !!***
 

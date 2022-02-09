@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/AMR/gr_estimateError
+!!****if* source/Grid/GridMain/AMR/Paramesh4/gr_estimateError
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -16,7 +16,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  gr_estimateError(real(INOUT) :: error(MAXBLOCKS),
+!!  call gr_estimateError(real(INOUT) :: error(MAXBLOCKS),
 !!                   integer(IN) :: iref,
 !!                   real(IN)    :: refine_filter)
 !!  
@@ -43,6 +43,7 @@
 !!  SEE ALSO
 !!  
 !!    Grid_markRefineDerefine
+!!    gr_estimateBlkError
 !!
 !!***
 
