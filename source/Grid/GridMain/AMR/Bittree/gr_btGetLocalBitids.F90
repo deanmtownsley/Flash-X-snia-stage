@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_get_local_bitids.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btGetLocalBitids.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_locate
+!!  gr_btGetLocalBitids
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_get_local_bitids(mype,bitid_list,updated)
+!!  call gr_btGetLocalBitids(mype,bitid_list,updated)
 !!
 !! DESCRIPTION
 !!  Get list of bitids of local blocks.
@@ -29,7 +29,7 @@
 !!  updated: (in,optional) true=updated tree, false=original tree (treated as false if not present)
 !!
 !!***
-subroutine amr_bittree_get_local_bitids(mype, nblks, bitid_list, updated)
+subroutine gr_btGetLocalBitids(mype, nblks, bitid_list, updated)
   use bittree, only: bittree_get_bitid_list, localMortUB, bittree_print_2d, old_localMortUB
   use iso_c_binding, only: c_int,c_bool
   

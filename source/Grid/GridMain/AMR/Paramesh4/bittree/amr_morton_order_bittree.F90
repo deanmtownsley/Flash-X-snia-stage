@@ -49,9 +49,9 @@
       use physicaldata
       use tree
       use io
-      use bittree, only: amr_sort_morton_bittree, old_localMortUB, &
+      use bittree, only: gr_btSortMortonBittree, old_localMortUB, &
                          localMortUB, old_localMortUB, gr_getIntCoords,&
-                         amr_calculate_tree_data, amr_identify_block, &
+                         amr_calculate_tree_data, gr_btIdentify, &
                          amr_exchange_work_bflags
 
       implicit none
@@ -82,7 +82,7 @@
 
 !-----Adjust localMortUB (this sorts by work if applicable)
       if(ref_count.ne.0.OR..NOT.first) then
-        call amr_sort_morton_bittree(nprocs, mype)
+        call gr_btSortMortonBittree(nprocs, mype)
       end if
       first = .FALSE.
 
@@ -100,7 +100,7 @@
         if(.NOT.derefine(i)) then
           lev = lrefine(i)
           call gr_getIntCoords(i,lcoord)
-          call amr_identify_block(nprocs,lev,lcoord,   &
+          call gr_btIdentify(nprocs,lev,lcoord,   &
                                   proc,locblk,updated=.TRUE.)
           new_loc(1,i) = locblk
           new_loc(2,i) = proc
@@ -111,7 +111,7 @@
               childCoord = lcoord*2 + (/ mod((j-1),2),       &
                                        mod((j-1)/2,2),       &
                                        mod((j-1)/4,2) /)
-              call amr_identify_block(nprocs,lev,childCoord,proc,&
+              call gr_btIdentify(nprocs,lev,childCoord,proc,&
                                       locblk,updated = .TRUE.)
               new_child(1,j,i) = locblk
               new_child(2,j,i) = proc
@@ -136,7 +136,7 @@
           call gr_getIntCoords(i,lcoord)
           lcoord = lcoord/2
         end if
-        call amr_identify_block(nprocs,lev,lcoord, &
+        call gr_btIdentify(nprocs,lev,lcoord, &
                                 proc,locblk,updated=.FALSE.)
         old_loc(1,i) = locblk
         old_loc(2,i) = proc

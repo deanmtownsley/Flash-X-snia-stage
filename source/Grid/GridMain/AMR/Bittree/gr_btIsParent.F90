@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_is_parent.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btIsParent.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_is_parent
+!!  gr_btIsParent
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_is_parent(lev,ijk,is_par,updated)
+!!  call gr_btIsParent(lev,ijk,is_par,updated)
 !!
 !! DESCRIPTION
 !!
@@ -31,8 +31,8 @@
 !!  updated: (in,optional) true=updated tree, false=original (default=false)
 !!
 !!***
-subroutine amr_bittree_is_parent(lev, ijk, is_par, updated)
-  use bittree, only: amr_bittree_get_bitid, bittree_is_parent
+subroutine gr_btIsParent(lev, ijk, is_par, updated)
+  use bittree, only: gr_btGetBitid, bittree_is_parent
   use Driver_interface, only: Driver_abort
   use iso_c_binding, only: c_int,c_bool
 
@@ -56,14 +56,14 @@ subroutine amr_bittree_is_parent(lev, ijk, is_par, updated)
   lev1 = lev
   ijk1 = ijk
   if(present(updated)) then
-    call amr_bittree_get_bitid(lev1, ijk1, id, updated)
+    call gr_btGetBitid(lev1, ijk1, id, updated)
   else
-    call amr_bittree_get_bitid(lev1, ijk1, id )
+    call gr_btGetBitid(lev1, ijk1, id )
   end if
 
 !-Check to make sure block was IDed correctly
   if ((lev/=lev1).OR.any(ijk/=ijk1))    then
-    call Driver_abort("Error identifying block in amr_bittree_is_parent. &
+    call Driver_abort("Error identifying block in gr_btIsParent. &
      &Routine can only be called on existing blocks.")
   end if
 

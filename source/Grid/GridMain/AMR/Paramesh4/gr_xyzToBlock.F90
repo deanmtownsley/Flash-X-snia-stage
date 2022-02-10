@@ -47,7 +47,7 @@ Subroutine gr_xyzToBlock(xyz, procID, blkID)
   use Driver_interface, ONLY : Driver_abort
   use tree, ONLY : lrefine_max
 #ifdef BITTREE
-  use bittree, only : amr_identify_block
+  use bittree, only : gr_btIdentify
 #endif
 
   implicit none
@@ -65,7 +65,7 @@ Subroutine gr_xyzToBlock(xyz, procID, blkID)
 
 #ifdef BITTREE  
   call gr_xyzToBlockLevel(lev, xyz, ijk)
-  call amr_identify_block(gr_meshNumProcs, lev, ijk, proc, blk)
+  call gr_btIdentify(gr_meshNumProcs, lev, ijk, proc, blk)
   if (lev < 1) then       !if the point was outside of the domain...
      proc = NONEXISTENT         !make sure we communicate nonexistence to the caller.
   end if

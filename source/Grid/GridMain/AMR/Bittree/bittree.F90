@@ -22,6 +22,102 @@ module bittree
   integer, allocatable, save :: old_localMortUB(:)
     !!Old version of localMortUB, which disagrees during refinement
 
+  !!!!
+  ! General Bittree routines
+  !!!!
+  
+  interface
+    subroutine gr_btIdentify(procs, lev, ijk, proc, locblk,updated,bitid)
+      integer, intent(in) :: procs
+      integer, intent(inout) :: lev
+      integer, intent(inout) :: ijk(*)
+      integer, intent(out) :: proc
+      integer, intent(out) :: locblk
+      logical, intent(in), optional :: updated
+      integer, intent(out), optional :: bitid
+    end subroutine
+  end interface
+  
+  interface
+    subroutine gr_btLocate(bitid, lev, ijk, updated)
+      integer, intent(in) :: bitid
+      integer, intent(out) :: lev
+      integer, intent(out) :: ijk(*)
+      logical, intent(in), optional :: updated
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btGetBitid(lev, ijk, bitid, updated)
+      integer, intent(inout) :: lev
+      integer, intent(inout) :: ijk(*)
+      integer, intent(out) :: bitid
+      logical, intent(in), optional :: updated
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btIsParent(lev, ijk, is_par, updated)
+      integer, intent(in) :: lev
+      integer, intent(in) :: ijk(*)
+      logical, intent(out) :: is_par
+      logical, intent(in), optional :: updated
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btRefineMark(lev, ijk, val)
+      integer, intent(in) :: lev
+      integer, intent(in) :: ijk(*)
+      logical, intent(in), optional :: val
+    end subroutine
+  end interface
+  
+  interface
+    subroutine gr_btDerefineMark(lev, ijk, val)
+      integer, intent(in) :: lev
+      integer, intent(in) :: ijk(*)
+      logical, intent(in), optional :: val
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btGetRefine(lev, ijk, refine)
+      integer, intent(in) :: lev
+      integer, intent(in) :: ijk(*)
+      logical, intent(out) :: refine
+    end subroutine
+  end interface
+  
+  interface
+    subroutine gr_btGetDerefine(lev, ijk, derefine)
+      integer, intent(in) :: lev
+      integer, intent(in) :: ijk(*)
+      logical, intent(out) :: derefine
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btGetLocalBitids(mype, nblks, bitid_list,updated)
+      integer, intent(in) :: mype
+      integer, intent(in) :: nblks
+      integer, intent(out) :: bitid_list(*)
+      logical, intent(in), optional :: updated
+    end subroutine
+  end interface
+
+  interface
+    subroutine gr_btSortMortonBittree(nprocs,mype,sort_by_work)
+      integer, intent(in) :: nprocs
+      integer, intent(in) :: mype
+      logical, intent(in),optional :: sort_by_work
+    end subroutine
+  end interface
+
+  !!!!!!!
+  ! These need to be implemented by the Amr package, currently only done for PM
+  !!!!!!!
+
   interface
     subroutine gr_getIntCoords(lblock,lcoord)
       integer, intent(in) :: lblock
@@ -42,80 +138,9 @@ module bittree
     subroutine amr_build_bittree
     end subroutine amr_build_bittree
   end interface
-  
-  interface
-    subroutine amr_identify_block(procs, lev, ijk, proc, locblk,updated,bitid)
-      integer, intent(in) :: procs
-      integer, intent(inout) :: lev
-      integer, intent(inout) :: ijk(*)
-      integer, intent(out) :: proc
-      integer, intent(out) :: locblk
-      logical, intent(in), optional :: updated
-      integer, intent(out), optional :: bitid
-    end subroutine
-  end interface
-  
-  interface
-    subroutine amr_bittree_locate(bitid, lev, ijk, updated)
-      integer, intent(in) :: bitid
-      integer, intent(out) :: lev
-      integer, intent(out) :: ijk(*)
-      logical, intent(in), optional :: updated
-    end subroutine
-  end interface
 
   interface
     subroutine amr_verify_bittree
-    end subroutine
-  end interface
-
-  interface
-    subroutine amr_bittree_get_bitid(lev, ijk, bitid, updated)
-      integer, intent(inout) :: lev
-      integer, intent(inout) :: ijk(*)
-      integer, intent(out) :: bitid
-      logical, intent(in), optional :: updated
-    end subroutine
-  end interface
-
-  interface
-    subroutine amr_bittree_is_parent(lev, ijk, is_par, updated)
-      integer, intent(in) :: lev
-      integer, intent(in) :: ijk(*)
-      logical, intent(out) :: is_par
-      logical, intent(in), optional :: updated
-    end subroutine
-  end interface
-
-  interface
-    subroutine amr_bittree_refine_mark(lev, ijk, val)
-      integer, intent(in) :: lev
-      integer, intent(in) :: ijk(*)
-      logical, intent(in), optional :: val
-    end subroutine
-  end interface
-  
-  interface
-    subroutine amr_bittree_derefine_mark(lev, ijk, val)
-      integer, intent(in) :: lev
-      integer, intent(in) :: ijk(*)
-      logical, intent(in), optional :: val
-    end subroutine
-  end interface
-
-  interface
-    subroutine amr_bittree_get_refine(lev, ijk, refine)
-      integer, intent(in) :: lev
-      integer, intent(in) :: ijk(*)
-      logical, intent(out) :: refine
-    end subroutine
-  end interface
-  
-  interface
-    subroutine amr_bittree_get_derefine(lev, ijk, derefine)
-      integer, intent(in) :: lev
-      integer, intent(in) :: ijk(*)
-      logical, intent(out) :: derefine
     end subroutine
   end interface
 
@@ -124,14 +149,6 @@ module bittree
      integer, intent(in) :: nprocs
      integer, intent(in) :: mype
      integer, intent(in) :: lnblocks_old
-    end subroutine
-  end interface
-
-  interface
-    subroutine amr_sort_morton_bittree(nprocs,mype,sort_by_work)
-      integer, intent(in) :: nprocs
-      integer, intent(in) :: mype
-      logical, intent(in),optional :: sort_by_work
     end subroutine
   end interface
 
@@ -153,14 +170,9 @@ module bittree
     end subroutine
   end interface
 
-  interface
-    subroutine amr_bittree_get_local_bitids(mype, nblks, bitid_list,updated)
-      integer, intent(in) :: mype
-      integer, intent(in) :: nblks
-      integer, intent(out) :: bitid_list(*)
-      logical, intent(in), optional :: updated
-    end subroutine
-  end interface
+  !!!!!
+  ! Fortran C Interfaces
+  !!!!!
  
   interface
     function bittree_initialized() result(yep) bind(c,name='bittree_initialized')

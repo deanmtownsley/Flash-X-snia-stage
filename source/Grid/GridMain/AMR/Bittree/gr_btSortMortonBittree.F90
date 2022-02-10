@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_sort_morton_bittree.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btSortMortonBittree.F90
 !! NOTICE
 !!  Copyright (C) 2003, 2004 United States Government as represented by the
 !!  National Aeronautics and Space Administration, Goddard Space Flight
@@ -20,11 +20,11 @@
 !!
 !! NAME
 !!
-!!  amr_sort_morton_bittree
+!!  gr_btSortMortonBittree
 !!
 !! SYNOPSIS
 !!
-!!  call amr_sort_morton_bittree(nprocs, mype)
+!!  call gr_btSortMortonBittree(nprocs, mype)
 !!
 !! DESCRIPTION
 !!
@@ -42,7 +42,7 @@
 
 #include "paramesh_preprocessor.fh"
 
-      subroutine amr_sort_morton_bittree(nprocs,mype,sort_by_work)
+      subroutine gr_btSortMortonBittree(nprocs,mype,sort_by_work)
 
 !-----Use statements
       use tree
@@ -98,7 +98,7 @@
       end if !.not.lworksort
 
       return
-      end subroutine amr_sort_morton_bittree
+      end subroutine gr_btSortMortonBittree
 
 !!****
 !!
@@ -200,7 +200,7 @@
       use bittree, only: bittree_block_count,localMortUB, &
                          bittree_identify, gr_getIntCoords, &
                          bittree_is_parent, &
-                         amr_bittree_get_refine,amr_bittree_is_parent
+                         gr_btGetRefine,gr_btIsParent
       use paramesh_comm_data, ONLY : amr_mpi_meshComm, amr_mpi_real
       use iso_c_binding, only: c_int,c_bool
 
@@ -315,7 +315,7 @@
 !-----Use statements
       use tree
       use bittree, only: localMortUB, bittree_block_count, &
-                         amr_bittree_is_parent
+                         gr_btIsParent
       use paramesh_comm_data, ONLY : amr_mpi_meshComm, amr_mpi_real
       use iso_c_binding, only: c_int,c_bool
 
@@ -364,7 +364,7 @@
 #endif
 
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_is_parent(lrefine(i),lcoord, &
+          call gr_btIsParent(lrefine(i),lcoord, &
                                      is_par,updated=.TRUE.)
           if(is_par) then
             worktemp(ii) = gr_btWorkDefaultPar

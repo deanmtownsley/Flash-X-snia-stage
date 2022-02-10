@@ -2,7 +2,6 @@ Grid += \
   amr_build_bittree.o \
   amr_verify_bittree.o \
   amr_morton_order_bittree.o \
-  amr_sort_morton_bittree.o \
   amr_calculate_tree_data.o \
   amr_exchange_work_bflags.o \
   gr_getIntCoords.o \

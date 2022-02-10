@@ -136,7 +136,7 @@
       current_block = 1
       do j=0,nprocs-1
 !-------Proc-by-proc broadcast work list from worktempbuf
-        if (j.eq.mype)
+        if (j.eq.mype) then
           worktempbuf(1:lnblockst_arr(j)) = worktemp(1:lnblockst_arr(j))
         end if
 

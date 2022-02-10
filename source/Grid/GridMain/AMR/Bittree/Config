@@ -3,8 +3,6 @@ PPDEFINE BITTREE
 
 REQUIRES ./c_source
 
-CHILDORDER localAPI
-
 
 D gr_btDistributedSort If both gr_btSortByWork and gr_btCustomWork are True,
 D & controls behavior of the sorting algorithm. True = Uses less local

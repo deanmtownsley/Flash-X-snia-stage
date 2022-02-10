@@ -7,16 +7,16 @@ bittree_core.o: bittree_core.cxx bittree_bitarray.hxx \
 Grid += \
   bittree_core.o \
   bittree.o \
-  amr_identify_block.o \
-  amr_bittree_locate.o \
-  amr_bittree_get_bitid.o \
-  amr_bittree_is_parent.o \
-  amr_bittree_refine_mark.o \
-  amr_bittree_derefine_mark.o \
-  amr_bittree_get_refine.o \
-  amr_bittree_get_derefine.o \
-  amr_sort_morton_bittree.o \
-  amr_bittree_get_local_bitids.o
+  gr_btIdentify.o \
+  gr_btLocate.o \
+  gr_btGetBitid.o \
+  gr_btIsParent.o \
+  gr_btRefineMark.o \
+  gr_btDerefineMark.o \
+  gr_btGetRefine.o \
+  gr_btGetDerefine.o \
+  gr_btSortMortonBittree.o \
+  gr_btGetLocalBitids.o
 
 
 # The following GNU make special prevents that apparent dependencies
