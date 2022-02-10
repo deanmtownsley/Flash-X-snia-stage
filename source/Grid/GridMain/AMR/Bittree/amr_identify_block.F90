@@ -77,9 +77,9 @@ subroutine amr_identify_block(procs, lev, ijk, proc, locblk, updated, bitid)
 
 !-Calculate proc and locblk.
   if (check_updated .OR. .NOT.allocated(old_localMortUB)) then
-    call calc_proc_locblk(procs,localMortUB,mort1,proc,locblk)
+    call gr_calcProcLocblk(procs,localMortUB,mort1,proc,locblk)
   else
-    call calc_proc_locblk(procs,old_localMortUB,mort1,proc,locblk)
+    call gr_calcProcLocblk(procs,old_localMortUB,mort1,proc,locblk)
   end if
   
   return

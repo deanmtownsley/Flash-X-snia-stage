@@ -169,7 +169,7 @@
       End Do 
 
 #ifdef IMPROVED_SORT
-      call amr_sort_by_work_distributed(nprocs,mype,work,&
+      call gr_sortByWorkDistributed(nprocs,mype,work,&
                                     lnblocks2,mort_cutoffs)
 
       rdatainint(1) = lnblocks2
@@ -180,7 +180,7 @@
 
       do i=1,lnblocks2
         mort = i+mortLB
-        call calc_proc_locblk(nprocs,mort_cutoffs,mort,proc,locblk)
+        call gr_calcProcLocblk(nprocs,mort_cutoffs,mort,proc,locblk)
         lid(i) = locblk
         pid(i) = proc
       end do

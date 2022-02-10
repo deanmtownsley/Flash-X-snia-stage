@@ -163,7 +163,7 @@
       deallocate(bitids)
 
 !-----Call consolidated sort-by-work routine
-      call amr_sort_by_work_consolidated(nprocs,mype,work,&
+      call gr_sortByWorkConsolidated(nprocs,mype,work,&
                                          totblocks,localMortUB)
 
       deallocate(work)
@@ -275,7 +275,7 @@
 
 
 !-----Call consolidated sort-by-work routine
-      call amr_sort_by_work_consolidated(nprocs,mype,work,&
+      call gr_sortByWorkConsolidated(nprocs,mype,work,&
                                          totblocks,localMortUB)
       deallocate(work)
       end subroutine
@@ -386,7 +386,7 @@
 
 
 !-----Call distributed sort-by-work routine
-      call amr_sort_by_work_distributed(nprocs,mype,worktemp,&
+      call gr_sortByWorkDistributed(nprocs,mype,worktemp,&
                                         lnblockst,localMortUB)
 
       end subroutine

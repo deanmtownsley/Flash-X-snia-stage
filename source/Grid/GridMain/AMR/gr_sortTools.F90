@@ -11,15 +11,15 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 
-!!****if* source/Grid/GridMain/paramesh/PM4_package/source/amr_sort_tools.F90
+!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortTools.F90
 !!
 !! NAME
 !!
-!!  amr_sort_by_work_consolidated
+!!  gr_sortByWorkConsolidated
 !!
 !! SYNOPSIS
 !!
-!!  call amr_sort_by_work_consolidated(nprocs,mype,work,&
+!!  call gr_sortByWorkConsolidated(nprocs,mype,work,&
 !!                                 totblocks,mort_cutoffs)
 !!
 !! DESCRIPTION
@@ -33,7 +33,7 @@
 !!
 !!***
 
-      subroutine amr_sort_by_work_consolidated(nprocs,mype,work,&
+      subroutine gr_sortByWorkConsolidated(nprocs,mype,work,&
                                            totblocks,mort_cutoffs)
 
       implicit none
@@ -57,22 +57,22 @@
       current_block = 1
 
 !-----Apply algorithm to update mort_cutoffs
-      call sort_algorithm(nprocs,work_per_proc,&
+      call gr_sortAlgorithm(nprocs,work_per_proc,&
                           work_so_far,current_proc,&
                           current_block,totblocks,totblocks,&
                           work,mort_cutoffs)
 
       end subroutine
 
-!!****if* source/Grid/GridMain/paramesh/PM4_package/source/amr_sort_tools.F90
+!!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortTools.F90
 !!
 !! NAME
 !!
-!!  amr_sort_by_work_distributed
+!!  gr_sortByWorkDistributed
 !!
 !! SYNOPSIS
 !!
-!!  call amr_sort_by_work_distributed(nprocs,mype,worktemp,&
+!!  call gr_sortByWorkDistributed(nprocs,mype,worktemp,&
 !!                                lnblockst,mort_cutoffs)
 !!
 !! DESCRIPTION
@@ -91,7 +91,7 @@
 !!
 !!***
 
-      subroutine amr_sort_by_work_distributed(nprocs,mype,worktemp,&
+      subroutine gr_sortByWorkDistributed(nprocs,mype,worktemp,&
                                           lnblockst,mort_cutoffs)
 
 !-----Use statements
@@ -141,7 +141,7 @@
                        j,gr_meshComm,ierr)
 
 !-------Apply algorithm to update mort_cutoffs
-        call sort_algorithm(nprocs,work_per_proc,&
+        call gr_sortAlgorithm(nprocs,work_per_proc,&
                             work_so_far,current_proc,&
                             current_block,totblocks,&
                             lnblockst_arr(j),worktempbuf,&
@@ -155,11 +155,11 @@
 !!
 !! NAME
 !!
-!!  sort_algorithm
+!!  gr_sortAlgorithm
 !!
 !! SYNOPSIS
 !!
-!!  call sort_algorithm(nprocs,work_per_proc,work_so_far,
+!!  call gr_sortAlgorithm(nprocs,work_per_proc,work_so_far,
 !!                      current_proc,current_block,totblocks,
 !!                      nblocks,workbuf,mort_cutoffs)
 !!
@@ -178,7 +178,7 @@
 !!
 !!***
 
-      subroutine sort_algorithm(nprocs,work_per_proc,&
+      subroutine gr_sortAlgorithm(nprocs,work_per_proc,&
                                 work_so_far,current_proc,&
                                 current_block,totblocks,&
                                 nblocks,workbuf,mort_cutoffs)
@@ -232,11 +232,11 @@
 !!
 !! NAME
 !!
-!!  calc_proc_locblk
+!!  gr_calcProcLocblk
 !!
 !! SYNOPSIS
 !!
-!!  call calc_proc_locblk(nprocs, cutoffs, mort, proc, locblk)
+!!  call gr_calcProcLocblk(nprocs, cutoffs, mort, proc, locblk)
 !!
 !! DESCRIPTION
 !!
@@ -253,7 +253,7 @@
 !!
 !!***
 
-      subroutine calc_proc_locblk(nprocs, cutoffs, mort, proc, locblk)
+      subroutine gr_calcProcLocblk(nprocs, cutoffs, mort, proc, locblk)
       
       implicit none
 
