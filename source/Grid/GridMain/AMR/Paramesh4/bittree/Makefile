@@ -4,6 +4,7 @@ Grid += \
   amr_morton_order_bittree.o \
   amr_calculate_tree_data.o \
   amr_exchange_work_bflags.o \
+  gr_btSortMortonBittree.o \
   gr_getIntCoords.o \
   gr_getNeighIntCoords.o
 

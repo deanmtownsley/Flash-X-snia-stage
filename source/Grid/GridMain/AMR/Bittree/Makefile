@@ -15,7 +15,6 @@ Grid += \
   gr_btDerefineMark.o \
   gr_btGetRefine.o \
   gr_btGetDerefine.o \
-  gr_btSortMortonBittree.o \
   gr_btGetLocalBitids.o
 
 

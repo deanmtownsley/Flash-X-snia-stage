@@ -106,6 +106,11 @@ module bittree
     end subroutine
   end interface
 
+
+  !!!!!!!
+  ! These need to be implemented by the Amr package, currently only done for PM
+  !!!!!!!
+
   interface
     subroutine gr_btSortMortonBittree(nprocs,mype,sort_by_work)
       integer, intent(in) :: nprocs
@@ -113,10 +118,6 @@ module bittree
       logical, intent(in),optional :: sort_by_work
     end subroutine
   end interface
-
-  !!!!!!!
-  ! These need to be implemented by the Amr package, currently only done for PM
-  !!!!!!!
 
   interface
     subroutine gr_getIntCoords(lblock,lcoord)

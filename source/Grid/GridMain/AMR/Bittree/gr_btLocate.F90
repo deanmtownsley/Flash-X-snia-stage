@@ -29,9 +29,9 @@
 !!  updated: (in,optional) true=updated tree, false=original tree (treated as false if not present)
 !!
 !!***
+#include "Simulation.h"
 subroutine gr_btLocate(bitid, lev, ijk, updated)
   use bittree, only: bittree_block_count, bittree_locate
-  use paramesh_dimensions, only: ndim
   use iso_c_binding, only: c_int,c_bool
   
   implicit none
@@ -55,7 +55,7 @@ subroutine gr_btLocate(bitid, lev, ijk, updated)
   ijk(:) = 0
   call bittree_locate(check_updated, int(bitid,c_int), levc, ijkc, mort)
   lev = levc + 1
-  ijk(1:ndim) = ijkc(1:ndim)
+  ijk(1:NDIM) = ijkc(1:NDIM)
 
   return
 end subroutine
