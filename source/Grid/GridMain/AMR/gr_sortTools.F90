@@ -136,7 +136,10 @@
       current_block = 1
       do j=0,nprocs-1
 !-------Proc-by-proc broadcast work list from worktempbuf
-        if (j.eq.mype) worktempbuf = worktemp
+        if (j.eq.mype)
+          worktempbuf(1:lnblockst_arr(j)) = worktemp(1:lnblockst_arr(j))
+        end if
+
         call MPI_BCAST(worktempbuf,lnblockst_arr(j),FLASH_REAL,  &
                        j,gr_meshComm,ierr)
 
