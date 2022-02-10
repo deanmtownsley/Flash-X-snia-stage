@@ -32,7 +32,7 @@ subroutine amr_build_bittree()
                   bittree_refine_update,bittree_refine_reduce,&
                   bittree_refine_apply,amr_verify_bittree,&
                   amr_sort_morton_bittree, gr_getIntCoords, &
-                  gr_btDistributedSort, gr_btExchangeBflags
+                  gr_btDistributedSort
   use paramesh_dimensions, only: ndim
   use Paramesh_comm_data, only: amr_mpi_meshComm
   use tree, only: lnblocks, coord, bsize, lrefine, nodetype, &
@@ -40,7 +40,8 @@ subroutine amr_build_bittree()
                   grid_xmax, grid_ymax, grid_zmax, &
                   gr_btSortByWork,gr_btCustomWork,&
                   gr_btWorkDefaultLeaf,gr_btWorkDefaultPar, &
-                  gr_btWorkBoundsPar, gr_btWorkBoundsLeaf
+                  gr_btWorkBoundsPar, gr_btWorkBoundsLeaf, &
+                  gr_btExchangeBflags
 
   use Driver_interface, only: Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get

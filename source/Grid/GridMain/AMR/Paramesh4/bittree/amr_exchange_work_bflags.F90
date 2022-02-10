@@ -22,7 +22,6 @@
                                       new_loc,old_loc,new_child)
 
 !-----Use statements
-      use bittree, only : gr_btExchangeBflags
       use tree
       use paramesh_dimensions, only : maxblocks
       use paramesh_comm_data, ONLY : amr_mpi_meshComm, amr_mpi_real

@@ -13,9 +13,9 @@ module bittree
   implicit none
   
   public :: localMortUB,old_localMortUB
-  public :: gr_btDistributedSort, gr_btExchangeBflags
+  public :: gr_btDistributedSort
 
-  logical, save :: gr_btDistributedSort, gr_btExchangeBflags
+  logical, save :: gr_btDistributedSort
 
   integer, allocatable, save :: localMortUB(:)
     !!Highest global morton index for blocks on the specified proc
