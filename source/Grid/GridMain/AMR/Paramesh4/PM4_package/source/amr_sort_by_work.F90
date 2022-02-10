@@ -170,7 +170,7 @@
 
 #ifdef IMPROVED_SORT
       call gr_sortByWorkDistributed(nprocs,mype,work,&
-                                    lnblocks2,mort_cutoffs)
+                                    lnblocks2,mort_cutoffs,maxblocks_tr)
 
       rdatainint(1) = lnblocks2
       Call MPI_SCAN (rdatainint(1),rdataoutint(1),1,                   &

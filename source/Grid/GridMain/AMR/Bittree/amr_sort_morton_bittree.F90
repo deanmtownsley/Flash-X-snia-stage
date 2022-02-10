@@ -387,6 +387,6 @@
 
 !-----Call distributed sort-by-work routine
       call gr_sortByWorkDistributed(nprocs,mype,worktemp,&
-                                        lnblockst,localMortUB)
+                                    lnblockst,localMortUB,maxblocks_tr)
 
       end subroutine

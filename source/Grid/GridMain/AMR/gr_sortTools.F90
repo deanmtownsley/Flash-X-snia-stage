@@ -28,7 +28,7 @@
 !! ARGUMENTS
 !!
 !!  integer,intent(in) :: nprocs, mype, totblocks
-!!  real,intent(in) :: work(10*MAXBLOCKS)
+!!  real,intent(in) :: work(totblocks)
 !!  integer,intent(inout) :: mort_cutoffs(nprocs)
 !!
 !!***
@@ -41,7 +41,7 @@
 !-----Input/output statements
       integer,intent(in)     :: nprocs, mype, totblocks
       real,intent(in)        :: work(totblocks)
-      integer,intent(inout) :: mort_cutoffs(nprocs)
+      integer,intent(inout)  :: mort_cutoffs(nprocs)
 
 !-----Local variables and arrays
       real    :: tot_work, work_per_proc, work_so_far
@@ -85,14 +85,14 @@
 !!
 !! ARGUMENTS
 !!
-!!  integer,intent(in) :: nprocs, mype, lnblockst
-!!  real,intent(in) :: worktemp(10*MAXBLOCKS)
+!!  integer,intent(in) :: nprocs, mype, lnblockst, buflen
+!!  real,intent(in) :: worktemp(buflen)
 !!  integer,intent(inout) :: mort_cutoffs(nprocs)
 !!
 !!***
 
       subroutine gr_sortByWorkDistributed(nprocs,mype,worktemp,&
-                                          lnblockst,mort_cutoffs)
+                                          lnblockst,mort_cutoffs,buflen)
 
 !-----Use statements
       use Grid_data, ONLY : gr_meshComm
@@ -100,15 +100,15 @@
 #include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/output statements
-      integer,intent(in)    :: nprocs, mype, lnblockst
-      real,intent(in)       :: worktemp(10*MAXBLOCKS)
+      integer,intent(in)    :: nprocs, mype, lnblockst, buflen
+      real,intent(in)       :: worktemp(buflen)
       integer,intent(inout) :: mort_cutoffs(nprocs)
 
 !-----Local variables and arrays
       integer :: j,ierr
       integer :: totblocks
       integer :: lnblockst_arr(0:nprocs-1)
-      real    :: worktempbuf(10*MAXBLOCKS)
+      real    :: worktempbuf(buflen)
       real    :: locwork, totwork
       real    :: work_so_far, work_per_proc
       integer :: current_proc, current_block
