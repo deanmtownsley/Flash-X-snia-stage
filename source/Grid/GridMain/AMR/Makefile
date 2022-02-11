@@ -2,4 +2,4 @@
 
 Grid += Grid_data.o \
 		gr_setGcFillNLayers.o gr_setMasks_gen.o gr_makeMaskConsistent_gen.o \
-		gr_estimateError.o gr_sortTools.o
+		gr_estimateError.o gr_sortByWorkTools.o
