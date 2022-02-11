@@ -1,4 +1,4 @@
-#include "Simulation.h"
+!!****if* source/Grid/GridMain/AMR/gr_sortByWorkTools.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,8 +10,6 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-
-!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortTools.F90
 !!
 !! NAME
 !!
@@ -33,7 +31,12 @@
 !!
 !!***
 
-      subroutine gr_sortByWorkConsolidated(nprocs,mype,work,&
+module gr_sortByWorkTools
+  implicit none
+
+contains
+
+    subroutine gr_sortByWorkConsolidated(nprocs,mype,work,&
                                            totblocks,mort_cutoffs)
 
       implicit none
@@ -62,9 +65,9 @@
                           current_block,totblocks,totblocks,&
                           work,mort_cutoffs)
 
-      end subroutine
+    end subroutine gr_sortByWorkConsolidated
 
-!!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortTools.F90
+!!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortByWorkTools.F90
 !!
 !! NAME
 !!
@@ -91,7 +94,7 @@
 !!
 !!***
 
-      subroutine gr_sortByWorkDistributed(nprocs,mype,worktemp,&
+    subroutine gr_sortByWorkDistributed(nprocs,mype,worktemp,&
                                           lnblockst,mort_cutoffs,buflen)
 
 !-----Use statements
@@ -152,7 +155,7 @@
 
       end do !0,nprocs-1
 
-      end subroutine
+    end subroutine gr_sortByWorkDistributed
 
 !!****
 !!
@@ -181,7 +184,7 @@
 !!
 !!***
 
-      subroutine gr_sortAlgorithm(nprocs,work_per_proc,&
+    subroutine gr_sortAlgorithm(nprocs,work_per_proc,&
                                 work_so_far,current_proc,&
                                 current_block,totblocks,&
                                 nblocks,workbuf,mort_cutoffs)
@@ -229,7 +232,7 @@
       end do
 #endif
 
-      end subroutine
+    end subroutine gr_sortAlgorithm
 
 !!****
 !!
@@ -256,7 +259,7 @@
 !!
 !!***
 
-      subroutine gr_calcProcLocblk(nprocs, cutoffs, mort, proc, locblk)
+    subroutine gr_calcProcLocblk(nprocs, cutoffs, mort, proc, locblk)
       
       implicit none
 
@@ -287,4 +290,5 @@
       end do procloop
 
       return
-      end subroutine
+    end subroutine gr_calcProcLocblk
+end module gr_sortByWorkTools

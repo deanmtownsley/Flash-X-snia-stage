@@ -41,6 +41,7 @@
 !!
 !!***
 subroutine gr_btIdentify(procs, lev, ijk, proc, locblk, updated, bitid)
+  use gr_sortByWorkTools, only: gr_calcProcLocblk
   use bittree, only: bittree_block_count, bittree_identify, localMortUB,old_localMortUB
   use iso_c_binding, only: c_int,c_bool
   

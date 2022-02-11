@@ -77,6 +77,9 @@
       Subroutine amr_sort_by_work (new_loc,nprocs,mype)
 
 !-----Use statements.
+#ifdef IMPROVED_SORT
+      use gr_sortByWorkTools, only: gr_sortByWorkConsolidated,gr_calcProcLocblk
+#endif
       use paramesh_dimensions
       Use physicaldata
       Use tree
