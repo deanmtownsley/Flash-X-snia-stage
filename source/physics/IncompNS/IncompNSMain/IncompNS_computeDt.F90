@@ -52,8 +52,6 @@ subroutine IncompNS_computeDt(ins_mindt,ins_minloc)
   real, PARAMETER :: MAX_TSTEP = huge(1.0)
   real    :: dtLocal
   integer :: lminloc(5)
-  integer, dimension(MAXBLOCKS) :: blockList
-  integer :: numLeafBlocks
 
   !!prepatory data structures for passing coords to timestep routines
   real, dimension(MDIM) :: del
