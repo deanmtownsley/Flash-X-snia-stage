@@ -124,6 +124,7 @@
       subroutine bittree_sort_nodetype(nprocs,mype)
 
 !-----Use statements
+      use gr_sortByWorkTools, only: gr_sortByWorkConsolidated
       use tree
       use bittree, only: bittree_block_count,localMortUB, &
                          bittree_get_bitid_list,&
@@ -196,6 +197,7 @@
       subroutine bittree_sort_custom_consolidated(nprocs,mype)
 
 !-----Use statements
+      use gr_sortByWorkTools, only: gr_sortByWorkConsolidated
       use tree
       use bittree, only: bittree_block_count,localMortUB, &
                          bittree_identify, gr_getIntCoords, &
@@ -313,6 +315,7 @@
       subroutine bittree_sort_custom_distributed(nprocs,mype)
 
 !-----Use statements
+      use gr_sortByWorkTools, only: gr_sortByWorkDistributed
       use tree
       use bittree, only: localMortUB, bittree_block_count, &
                          gr_btIsParent
