@@ -53,9 +53,9 @@
       use physicaldata
       use tree
       use io
-      use bittree, only:amr_identify_block, amr_bittree_locate, &
-                 amr_bittree_get_local_bitids, amr_bittree_get_refine, &
-                 bittree_is_parent, amr_bittree_is_parent, &
+      use bittree, only:gr_btIdentify, gr_btLocate, &
+                 gr_btGetLocalBitids, gr_btGetRefine, &
+                 bittree_is_parent, gr_btIsParent, &
                  gr_getIntCoords, gr_getNeighIntCoords
       use iso_c_binding, only: c_int,c_bool
 
@@ -87,13 +87,13 @@
       cfalse = logical(.FALSE.,c_bool)
      
 !-----Get new list of local blocks
-      call amr_bittree_get_local_bitids(mype,new_lnblocks, &
+      call gr_btGetLocalBitids(mype,new_lnblocks, &
                                         bitid_list,updated=.TRUE.)
      
 !-----Loop over new blocks
       do i=1,new_lnblocks
         
-        call amr_bittree_locate(bitid_list(i), lev, lcoord, updated=.TRUE.)
+        call gr_btLocate(bitid_list(i), lev, lcoord, updated=.TRUE.)
         
         refine(i) = .FALSE.
         derefine(i) = .FALSE.
@@ -132,7 +132,7 @@
         if (lrefine(i).gt.1) then
           lev = lrefine(i)-1
           parCoord = lcoord/2
-          call amr_identify_block(nprocs,lev,parCoord,proc, &
+          call gr_btIdentify(nprocs,lev,parCoord,proc, &
                                   locblk,updated=.TRUE.)
           parent(1,i) = locblk
           parent(2,i) = proc
@@ -143,7 +143,7 @@
 !--------------------------------------------------------------------
 !-------Set newchild by checking if parent WAS marked for refine.
         if(parent(1,i).gt.0) then
-          call amr_bittree_get_refine(lrefine(i)-1,lcoord/2,marked)
+          call gr_btGetRefine(lrefine(i)-1,lcoord/2,marked)
           newchild(i) = marked
         else
           newchild(i) = .FALSE.
@@ -167,7 +167,7 @@
             childCoord = lcoord*2 + (/ mod((j-1),2),         &
                                        mod((j-1)/2,2),       &
                                        mod((j-1)/4,2) /)
-            call amr_identify_block(nprocs,lev,childCoord,proc,&
+            call gr_btIdentify(nprocs,lev,childCoord,proc,&
                                       locblk,updated = .TRUE.,bitid=cid)
             child(1,j,i) = locblk
             child(2,j,i) = proc
@@ -224,7 +224,7 @@
 
 !---------------Else try to identify neighbor
                 else
-                  call amr_identify_block(nprocs,lev,neighCoord,proc,&
+                  call gr_btIdentify(nprocs,lev,neighCoord,proc,&
                                         locblk,updated=.TRUE.,bitid=nid)
                 
 !-----------------If valid neighbor, set surr_blks accordingly
@@ -250,7 +250,7 @@
                                        mod((j-1)/2,2),         &
                                        mod((j-1)/4,2) /)
                           if(allChildRefine) then
-                            call amr_bittree_is_parent(lrefine(i)+1, &
+                            call gr_btIsParent(lrefine(i)+1, &
                                                        childCoord, &
                                                        logpar,.TRUE.)
                             if (.NOT.logpar) allChildRefine=.FALSE.

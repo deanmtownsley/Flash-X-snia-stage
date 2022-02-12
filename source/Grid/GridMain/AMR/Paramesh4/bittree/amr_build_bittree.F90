@@ -27,12 +27,12 @@
 #include "constants.h"
 
 subroutine amr_build_bittree()
-  use bittree, only: bittree_init,amr_bittree_refine_mark, &
+  use bittree, only: bittree_init,gr_btRefineMark, &
                   bittree_block_count, bittree_refine_init,&
                   bittree_refine_update,bittree_refine_reduce,&
                   bittree_refine_apply,amr_verify_bittree,&
-                  amr_sort_morton_bittree, gr_getIntCoords, &
-                  gr_btDistributedSort, gr_btExchangeBflags
+                  gr_btSortMortonBittree, gr_getIntCoords, &
+                  gr_btDistributedSort
   use paramesh_dimensions, only: ndim
   use Paramesh_comm_data, only: amr_mpi_meshComm
   use tree, only: lnblocks, coord, bsize, lrefine, nodetype, &
@@ -40,7 +40,8 @@ subroutine amr_build_bittree()
                   grid_xmax, grid_ymax, grid_zmax, &
                   gr_btSortByWork,gr_btCustomWork,&
                   gr_btWorkDefaultLeaf,gr_btWorkDefaultPar, &
-                  gr_btWorkBoundsPar, gr_btWorkBoundsLeaf
+                  gr_btWorkBoundsPar, gr_btWorkBoundsLeaf, &
+                  gr_btExchangeBflags
 
   use Driver_interface, only: Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
@@ -94,7 +95,7 @@ subroutine amr_build_bittree()
   if(.NOT.all(topmask))     &
     call Driver_abort("Error in amr_build_bittree. All possible root blocks must exist.")
 
-!-Set some runtime parameters needed for amr_sort_morton_bittree
+!-Set some runtime parameters needed for gr_btSortMortonBittree
   call RuntimeParameters_get("gr_btDistributedSort",gr_btDistributedSort)
   call RuntimeParameters_get("gr_btExchangeBflags",gr_btExchangeBflags)
   if(gr_btDistributedSort.AND..NOT.(gr_btSortByWork.AND.gr_btCustomWork)) &
@@ -117,7 +118,7 @@ subroutine amr_build_bittree()
     do b=1, lnblocks
       if(lrefine(b) == lev .and. nodetype(b) > 1) then
         call gr_getIntCoords(b,ijk)
-        call amr_bittree_refine_mark(lev, ijk)
+        call gr_btRefineMark(lev, ijk)
       end if
     end do
 !---Apply refinement to bittree
@@ -129,7 +130,7 @@ subroutine amr_build_bittree()
     lev = lev + 1
   end do
 
-  call amr_sort_morton_bittree(nprocs,mype,sort_by_work=.FALSE.)
+  call gr_btSortMortonBittree(nprocs,mype,sort_by_work=.FALSE.)
   if (.NOT. gr_gidIsValid) then
     ! bittree check fails as restart file is a AMReX file
   else

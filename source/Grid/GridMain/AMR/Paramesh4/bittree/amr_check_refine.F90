@@ -133,7 +133,7 @@
 
 !-----------Calculate lcoord of neighbor and check parentage
             call gr_getNeighIntCoords(i,gCell,neighCoord)
-            call amr_bittree_is_parent(lrefine(i),neighCoord,neigh_par)
+            call gr_btIsParent(lrefine(i),neighCoord,neigh_par)
 
 !-----------Then if that neighbor is a parent, check its children 
             if (neigh_par) then
@@ -150,7 +150,7 @@
 !---------------------Calculate child's coordinates
                       childCoord = neighCoord*2 + (/ix-1,iy-1,iz-1/)
 
-                      call amr_bittree_get_refine(lrefine(i)+1,   &
+                      call gr_btGetRefine(lrefine(i)+1,   &
                                                   childCoord,marked)
 
 !---------------------Set ref_test to TRUE if any of the children are marked
@@ -194,7 +194,7 @@
           derefine(i) = .FALSE.
 
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_refine_mark(lrefine(i),lcoord)
+          call gr_btRefineMark(lrefine(i),lcoord)
         end if !if bittree needs to be updated
       end do !i=1,lnblocks
 

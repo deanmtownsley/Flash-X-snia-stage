@@ -91,7 +91,7 @@
       Use tree
       Use paramesh_comm_data
       Use paramesh_interfaces, only : fill_old_loc
-      use bittree, only: amr_identify_block
+      use bittree, only: gr_btIdentify
 
       Implicit None
 
@@ -492,7 +492,7 @@
         if(.NOT.newchild(i)) then
           lev = lrefine(i)
           call gr_getIntCoords(i,lcoord)
-          call amr_identify_block(nprocs,lev,lcoord, &
+          call gr_btIdentify(nprocs,lev,lcoord, &
                                   proc,locblk,updated=.FALSE.)
           old_loc(1,i) = locblk
           old_loc(2,i) = proc

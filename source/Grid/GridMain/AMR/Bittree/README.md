@@ -14,53 +14,38 @@ Here is a useful setup configuration from the test suite that can be used to tes
 Note: Bittree's C++ source code requires a standard library that may not be automatically linked by your compiler. If you run into problems with the stanard libray not linking correctly, try putting the following line in your Makefile:
 `LIB_STDCXX = -lc++ -lstdc++`
 # Runtime Parameters
-The user can control the behavior of Bittree with two runtime parameters. 
-- `gr_btDistributedSort` - If using Paramesh's custom sort-by-work (i.e. gr\_btCustomWork=True), this controls behavior of the sorting algorithm. True = Uses less local storage but increases communication. False (default) = Uses less communication but high memory consumption.
-- `gr_btExchangeBflags` - True = bflags is exchanged during refinement. Increases communication. False (default) = entire bflags array is reset to -1 during each refinement.
+The user can control the behavior of Bittree with a runtime parameter. 
+- `gr_btDistributedSort` - If using custom sort-by-work (i.e. gr\_btCustomWork=True), this controls behavior of the sorting algorithm. True = Uses less local storage but increases communication. False (default) = Uses less communication but high memory consumption.
 # Implementation
-First initialize the tree with the root block configuration in gr\_initParameshArrays. From there, each call of amr\_refine\_derefine updates the Bittree and uses it to calculate tree data, reducing MPI calls and hopefully speeding up the refinement process.
+First initialize the tree with the root block configuration. From there, at each refinement step update the Bittree and use it to calculate tree data, reducing MPI calls and hopefully speeding up the refinement process.
 
 Outside of refinement, Bittree is accessed to locate a block (identify its proc ID and local block number) given its xyz coordinates and refinement level. Specifically, the gr\_xyzToBlock routine, (usually called from Grid\_getBlkIDFromPos), uses Bittree if possible and inter-processor communication if not. 
 ### How to refine/derefine the tree:
    1. `call bittree_refine_init`
-   2. `call amr_bittree_refine_mark`  for every local block thats going to be refined.
+   2. `call gr_btRefineMark`  for every local block thats going to be refined.
    3. `call bittree_refine_reduce`  once all processors have marked local blocks. This propagates local refinement patterns across all processors.
    4. `call bittree_refine_update`  once refinement pattern is settled. This creates a new tree alongside the old tree.
    5. `call bittree_refine_apply` once new tree data is calculated. This replaces the old tree with the new.
-   6. `call amr_sort_morton_bittree`  to update localMortUB, allowing for blocks to be identified.
+   6. `call gr_btSortMortonBittree`  to update localMortUB, allowing for blocks to be identified.
 
 After that the tree corresponds to the new domain. (This is more complicated if any blocks need to be derefined. See amr\_refine\_derefine and amr\_check\_derefine for details.)
 
 # Contents of Bittree package
-### Paramesh Routine Replacements
-These routines are replacements for core Paramesh routines with Bittree implemented.
-- amr\_check\_refine
-- amr\_initialize
-- gr\_initParameshArrays
-- mpi\_amr\_check\_derefine
-- mpi\_amr\_redist\_blk
-- mpi\_amr\_refine\_derefine
-### Wrapper routines (in source/)
+### Wrapper routines
 The follow routines each have their own file, and mostly serve as Fortran wrapper routines that take standard Fotran types (integer, logical) as input/output.
-- amr\_bittree\_derefine\_mark - marks a leaf block for derefinement (technially marks *parent* for nodetype change).
-- amr\_bittree\_get\_bitid - returns a block's bitid (its location in the Bittree's array of blocks).
-- amr\_bittree\_get\_derefine - returns whether a leaf block is marked for derefinement (technially whether *parent* is marked for nodetype change).
-- amr\_bittree\_get\_local\_bitids - given a range of global morton indices, returns an array of bitids blocks in that range
-- amr\_bittree\_get\_refine - returns whether a leaf block is marked for refinement.
-- amr\_bittree\_is\_parent - returns whether a block is a parent or a leaf
-- amr\_bittree\_locate - given a block's bitid, return its location and refinement level
-- amr\_bittree\_refine\_mark - marks a leaf block for refinement
-- amr\_identify\_block - routine that identifies a block's proc ID and local block number based on its location. Must be run after amr\_sort\_morton\_bittree updates morton index cutoffs.
-### Management of Bittree (in source/)
-These are routines that create and verify Bittree.
+- gr\_btDerefineMark - marks a leaf block for derefinement (technially marks *parent* for nodetype change).
+- gr\_btGetBitid - returns a block's bitid (its location in the Bittree's array of blocks).
+- gr\_btGetDerefinee - returns whether a leaf block is marked for derefinement (technially whether *parent* is marked for nodetype change).
+- gr\_btGetLocalBitids - given a range of global morton indices, returns an array of bitids blocks in that range
+- gr\_btGetRefine - returns whether a leaf block is marked for refinement.
+- gr\_btIsParent - returns whether a block is a parent or a leaf
+- gr\_btLocate - given a block's bitid, return its location and refinement level
+- gr\_btRefineMark - marks a leaf block for refinement
+- gr\_btIdentify - routine that identifies a block's proc ID and local block number based on its location. Must be run after amr\_sort\_morton\_bittree updates morton index cutoffs.
+### Management of Bittree
+These are routines that create and verify Bittree. Need to be implemented by the Amr package.
 - amr\_build\_bittree
 - amr\_verify\_bittree
-### Refinement routines (in source/)
-These routines should only be called by amr\_refine\_derefine.
-- amr\_calculate\_tree\_data
-- amr\_morton\_order\_bittree
-- amr\_sort\_morton\_bittree
-- amr\_exchange\_work\_bflags
 ### Core Bittree functions (in c\_source/)
 Most of the core functions that interact with Bittree's C++ source code are defined in `bittree_core.cxx` and interfaced in `bittree.F90`. `bittree_core.cxx` also defines all of the functions that actually create, modify, and access the Bittree-related arrays, bitmaps, variables, etc.
 ### C++ source code (in c\_source/)

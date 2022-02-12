@@ -27,7 +27,7 @@ Grid += prolong_arrays.o  \
         mpi_amr_global_domain_limits.o \
         mpi_amr_guardcell.o mpi_amr_local_surr_blks_lkup.o \
         morton_sort.o amr_morton_order.o amr_compute_morton.o amr_sort_morton.o amr_sort_morton_reorder_grid.o \
-        amr_sort_by_work.o amr_sort_tools.o amr_migrate_tree_data.o fill_old_loc.o \
+        amr_sort_by_work.o amr_migrate_tree_data.o fill_old_loc.o \
         mpi_amr_prolong.o	\
         mpi_amr_prolong_fc_divbconsist.o mpi_amr_redist_blk.o send_block_data.o	\
         mpi_amr_refine_blocks.o amr_check_refine.o mpi_amr_refine_derefine.o amr_morton_process.o \

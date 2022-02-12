@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_identify_block
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btIdentify
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_identify_block
+!!  gr_btIdentify
 !!
 !! SYNOPSIS
 !!
-!!  call amr_identify_block(procs,lev,ijk,proc,locblk,updated,bitid)
+!!  call gr_btIdentify(procs,lev,ijk,proc,locblk,updated,bitid)
 !!
 !! DESCRIPTION
 !!
@@ -40,7 +40,8 @@
 !!  bitid: (out,optional) output of the bitid of desired bloc 
 !!
 !!***
-subroutine amr_identify_block(procs, lev, ijk, proc, locblk, updated, bitid)
+subroutine gr_btIdentify(procs, lev, ijk, proc, locblk, updated, bitid)
+  use gr_sortByWorkTools, only: gr_calcProcLocblk
   use bittree, only: bittree_block_count, bittree_identify, localMortUB,old_localMortUB
   use iso_c_binding, only: c_int,c_bool
   
@@ -77,9 +78,9 @@ subroutine amr_identify_block(procs, lev, ijk, proc, locblk, updated, bitid)
 
 !-Calculate proc and locblk.
   if (check_updated .OR. .NOT.allocated(old_localMortUB)) then
-    call calc_proc_locblk(procs,localMortUB,mort1,proc,locblk)
+    call gr_calcProcLocblk(procs,localMortUB,mort1,proc,locblk)
   else
-    call calc_proc_locblk(procs,old_localMortUB,mort1,proc,locblk)
+    call gr_calcProcLocblk(procs,old_localMortUB,mort1,proc,locblk)
   end if
   
   return
