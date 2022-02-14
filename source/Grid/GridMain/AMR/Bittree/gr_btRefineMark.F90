@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_refine_mark.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btRefineMark.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,12 +13,12 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_refine_mark
+!!  gr_btRefineMark
 !!
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_refine_mark(lev,ijk,val)
+!!  call gr_btRefineMark(lev,ijk,val)
 !!
 !! DESCRIPTION
 !!
@@ -33,8 +33,8 @@
 !!  val: (in,optional) value to set block in delta tree, default = True
 !!
 !!***
-subroutine amr_bittree_refine_mark(lev, ijk, val)
-  use bittree, only: amr_bittree_get_bitid, bittree_refine_mark, bittree_is_parent
+subroutine gr_btRefineMark(lev, ijk, val)
+  use bittree, only: gr_btGetBitid, bittree_refine_mark, bittree_is_parent
   use Driver_interface, only: Driver_abort
   use iso_c_binding, only: c_int,c_bool
 
@@ -56,16 +56,16 @@ subroutine amr_bittree_refine_mark(lev, ijk, val)
 !-Get bittree ID of block.
   lev1 = lev
   ijk1 = ijk
-  call amr_bittree_get_bitid(lev1, ijk1, id)
+  call gr_btGetBitid(lev1, ijk1, id)
 
 !-Check to make sure block was IDed correctly.
   if ((lev /= lev1).OR.any(ijk /= ijk1)) &
-   call Driver_abort("Error identifying block in amr_bittree_refine_mark. &
+   call Driver_abort("Error identifying block in gr_btRefineMark. &
      &Routine can only be called on existing blocks.")
 
 !-Abort if trying to mark parent.
   call bittree_is_parent(logical(.FALSE.,c_bool),int(id,c_int),is_par)
-  if (is_par) call Driver_abort("Error in amr_bittree_refine_mark. &
+  if (is_par) call Driver_abort("Error in gr_btRefineMark. &
     &Trying to mark parent block for refinement")
 
 !-Updated block on bittree's refine delta.

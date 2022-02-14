@@ -109,7 +109,7 @@
       do i=1,lnblocks
         if (refine(i).AND.nodetype(i).gt.1) then
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_derefine_mark(lrefine(i)+1,lcoord*2,.FALSE.)
+          call gr_btDerefineMark(lrefine(i)+1,lcoord*2,.FALSE.)
           refine(i) = .FALSE.
         end if
       end do !i=1,lnblocks
@@ -148,8 +148,8 @@
 
 !-----------Calculate lcoord of neighbor and check parentage
             call gr_getNeighIntCoords(i,gCell,neighCoord)
-            call amr_bittree_is_parent(lrefine(i),neighCoord, is_parent)
-            call amr_bittree_get_refine(lrefine(i), neighCoord,ref_mark)
+            call gr_btIsParent(lrefine(i),neighCoord, is_parent)
+            call gr_btGetRefine(lrefine(i), neighCoord,ref_mark)
 
 !-----------Dont derefine if neighbor is marked for refine
             if (ref_mark) then
@@ -162,7 +162,7 @@
             if (is_parent) then
               call gr_getIntCoords(i,lcoord)
               if (any((lcoord/2).ne.(neighCoord/2))) then
-                call amr_bittree_get_derefine(lrefine(i)+1,  &
+                call gr_btGetDerefine(lrefine(i)+1,  &
                                               neighCoord*2,  &
                                               deref_mark)
                 if(.NOT.deref_mark) then
@@ -204,7 +204,7 @@
         if (.NOT.deref_test(i).AND.nodetype(i).eq.1 &
              .AND. parent(1,i).ge.1 ) then
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_derefine_mark(lrefine(i), lcoord, .FALSE.)
+          call gr_btDerefineMark(lrefine(i), lcoord, .FALSE.)
         end if
       end do !i=1,lnblocks
 
@@ -217,7 +217,7 @@
       do i = 1,lnblocks
         if (derefine(i)) then
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_get_derefine(lrefine(i),lcoord,deref_mark)
+          call gr_btGetDerefine(lrefine(i),lcoord,deref_mark)
  
 !---------If (parent) not marked, change status and request a loop repeat
           if (.NOT.deref_mark) then

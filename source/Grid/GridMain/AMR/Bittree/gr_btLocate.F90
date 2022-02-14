@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_locate.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btLocate.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_locate
+!!  gr_btLocate
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_locate(bitid,lev,ijk,updated)
+!!  call gr_btLocate(bitid,lev,ijk,updated)
 !!
 !! DESCRIPTION
 !!  Locate a block (get its lrefine and integer coordinates) from its bittree id.
@@ -29,9 +29,9 @@
 !!  updated: (in,optional) true=updated tree, false=original tree (treated as false if not present)
 !!
 !!***
-subroutine amr_bittree_locate(bitid, lev, ijk, updated)
+#include "Simulation.h"
+subroutine gr_btLocate(bitid, lev, ijk, updated)
   use bittree, only: bittree_block_count, bittree_locate
-  use paramesh_dimensions, only: ndim
   use iso_c_binding, only: c_int,c_bool
   
   implicit none
@@ -55,7 +55,7 @@ subroutine amr_bittree_locate(bitid, lev, ijk, updated)
   ijk(:) = 0
   call bittree_locate(check_updated, int(bitid,c_int), levc, ijkc, mort)
   lev = levc + 1
-  ijk(1:ndim) = ijkc(1:ndim)
+  ijk(1:NDIM) = ijkc(1:NDIM)
 
   return
 end subroutine

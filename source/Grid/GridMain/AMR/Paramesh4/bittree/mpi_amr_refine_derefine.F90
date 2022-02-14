@@ -180,7 +180,7 @@
       do i=1,lnblocks
         if(refine(i).AND.nodetype(i).eq.1) then
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_refine_mark(lrefine(i), lcoord)
+          call gr_btRefineMark(lrefine(i), lcoord)
         end if
       end do !l=1,blocks
       call bittree_refine_reduce(amr_mpi_meshComm)
@@ -195,7 +195,7 @@
       do i=1,lnblocks
         if(derefine(i).AND.nodetype(i).eq.1) then
           call gr_getIntCoords(i,lcoord)
-          call amr_bittree_derefine_mark(lrefine(i), lcoord )
+          call gr_btDerefineMark(lrefine(i), lcoord )
         end if
       end do !l=1,blocks 
       call bittree_refine_reduce(amr_mpi_meshComm) 
