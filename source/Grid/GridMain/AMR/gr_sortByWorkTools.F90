@@ -13,6 +13,33 @@
 !!
 !! NAME
 !!
+!!  gr_sortByWorkTools
+!!
+!! SYNOPSIS
+!!
+!!  USE gr_sortByWorkTools, ONLY: gr_sortByWorkConsolidated, &
+!!                                gr_sortByWorkDistributed,  &
+!!                                gr_calcProcLocblk
+!!
+!! DESCRIPTION
+!!
+!!  This module contains some tools for assigning subsequences of
+!!  blocks ordered by Morton numbers to procs.
+!!
+!!  The idea is to "sort" blocks into buckets in such a way that work,
+!!  represented by a weight factor assigned to each block, gets
+!!  distributed approximately evenly across buckets.
+!!***
+
+module gr_sortByWorkTools
+  implicit none
+
+contains
+
+!!****if* source/Grid/GridMain/AMR/gr_sortByWorkTools.F90
+!!
+!! NAME
+!!
 !!  gr_sortByWorkConsolidated
 !!
 !! SYNOPSIS
@@ -30,11 +57,6 @@
 !!  integer,intent(inout) :: mort_cutoffs(nprocs)
 !!
 !!***
-
-module gr_sortByWorkTools
-  implicit none
-
-contains
 
     subroutine gr_sortByWorkConsolidated(nprocs,mype,work,&
                                            totblocks,mort_cutoffs)
@@ -67,7 +89,7 @@ contains
 
     end subroutine gr_sortByWorkConsolidated
 
-!!****if* source/Grid/GridMain/paramesh/PM4_package/source/gr_sortByWorkTools.F90
+!!****if* source/Grid/GridMain/AMR/gr_sortByWorkTools.F90
 !!
 !! NAME
 !!
@@ -234,7 +256,7 @@ contains
 
     end subroutine gr_sortAlgorithm
 
-!!****
+!!****if* source/Grid/GridMain/AMR/gr_sortByWorkTools.F90
 !!
 !! NAME
 !!
