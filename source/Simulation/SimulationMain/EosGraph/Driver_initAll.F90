@@ -16,7 +16,7 @@
 !!
 !! SYNOPSIS
 !!
-!!   Driver_initAll()
+!!   call Driver_initAll()
 !!
 !! DESCRIPTION
 !!
@@ -79,10 +79,6 @@ subroutine Driver_initAll()
   
 #include "constants.h"
 #include "Simulation.h"
-
-  integer :: blockCount
-  integer :: blockList(MAXBLOCKS)
-  logical :: updateRefine
 
   dr_elapsedWCTime = 0.0
 
