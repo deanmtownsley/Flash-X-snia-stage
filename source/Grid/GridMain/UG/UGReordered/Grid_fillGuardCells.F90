@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/UG/UGReordered/Grid_fillGuardCells
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_fillGuardCells
@@ -171,7 +174,7 @@ subroutine Grid_fillGuardCells( gridDataStruct,idir,minLayers,eosMode,doEos&
 
   use Grid_interface, ONLY : Grid_getBlkIndexLimits
   use gr_bcInterface, ONLY : gr_bcApplyToAllBlks
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_axisComm, gr_exch, &
         gr_numDataStruct, gr_gridDataStruct, &
         gr_offset, gr_justExchangedGC,gr_bndOrder,gr_allPeriodic, gr_meshMe
@@ -214,28 +217,28 @@ subroutine Grid_fillGuardCells( gridDataStruct,idir,minLayers,eosMode,doEos&
 
 #ifdef DEBUG_GRID
   if((gr_domainBC(LOW,IAXIS) == PERIODIC).and.(gr_domainBC(HIGH,IAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
   if((gr_domainBC(LOW,JAXIS) == PERIODIC).and.(gr_domainBC(HIGH,JAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
   if((gr_domainBC(LOW,KAXIS) == PERIODIC).and.(gr_domainBC(HIGH,KAXIS) /= PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
   if((gr_domainBC(LOW,IAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,IAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
   if((gr_domainBC(LOW,JAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,JAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
 
   if((gr_domainBC(LOW,KAXIS) /= PERIODIC).and.(gr_domainBC(HIGH,KAXIS) == PERIODIC)) then
-     call Driver_abortFlash("Gaurd Cell fill : one edge is periodic, one is not")
+     call Driver_abort("Gaurd Cell fill : one edge is periodic, one is not")
   end if
 
 #endif

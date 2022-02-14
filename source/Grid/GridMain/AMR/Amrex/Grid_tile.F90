@@ -1,12 +1,15 @@
 !!****ih* source/Grid/GridMain/AMR/Amrex/Grid_tile
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NOTES
 !!    It is generally expected that these objects will never be created directly
@@ -277,14 +280,14 @@ contains
           print *, "Grid_getBlkPtr: gridDataStruct set to improper value"
           print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ," // &
                " or SCRATCH_CTR (defined in constants.h)"
-          call Driver_abortFlash("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR (see constants.h)")
+          call Driver_abort("gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,SCRATCH_CTR (see constants.h)")
        end if
 
 #endif
 
         ! Avoid possible memory leaks
         if (associated(dataPtr)) then
-            call Driver_abortFlash("[getDataPtr] Given data pointer must be NULL")
+            call Driver_abort("[getDataPtr] Given data pointer must be NULL")
         end if
 
         lo = this%blkLimitsGC(LOW, :)
@@ -365,7 +368,7 @@ contains
           case(SCRATCH_CTR)
              dataPtr(lo(1):, lo(2):, lo(3):, 1:) => gr_scratchCtr(ilev)%dataptr(igrd)
           case DEFAULT
-              call Driver_abortFlash("[getDataPtr] Unknown grid data structure")
+              call Driver_abort("[getDataPtr] Unknown grid data structure")
           end select
         end associate
     end subroutine getDataPtr

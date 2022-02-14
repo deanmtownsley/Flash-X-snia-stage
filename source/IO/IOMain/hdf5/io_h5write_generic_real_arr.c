@@ -10,7 +10,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
@@ -56,7 +56,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
  
   dataspace = H5Screate_simple(rank, &dimens_1d, NULL);
   if(dataspace < 0) {
-     Driver_abortFlashC("Error: H5Screate_simple io_h5write_generic_arr\n");
+     Driver_abortC("Error: H5Screate_simple io_h5write_generic_arr\n");
   }
 
 
@@ -64,7 +64,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
   /*DEV: this line was only in the serial version */
   dataset_plist = H5Pcreate(H5P_DATASET_CREATE);
   if(dataset_plist < 0) {
-    Driver_abortFlashC("Error: dataset_plist io_h5write_generic_arr\n");
+    Driver_abortC("Error: dataset_plist io_h5write_generic_arr\n");
   }
   
 
@@ -79,7 +79,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
      dataset = H5Dopen(*file_identifier, dataset_name_new,H5P_DEFAULT); 
 #endif    
     if(dataset < 0) {
-       Driver_abortFlashC("Error: H5Dopen io_h5write_generic_arr\n");
+       Driver_abortC("Error: H5Dopen io_h5write_generic_arr\n");
     }
    
   }else {
@@ -93,7 +93,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
 #endif
 
     if(dataset < 0) {
-       Driver_abortFlashC("Error: H5Dcreate io_h5write_generic_arr\n");
+       Driver_abortC("Error: H5Dcreate io_h5write_generic_arr\n");
     }
 
     /*dataset_plist was H5P_DEFAULT*/
@@ -109,7 +109,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
 				 &stride_1d, &count_1d, NULL);
     
     if(status < 0) {
-      Driver_abortFlashC("Error: H5Sselect_hyperslab io_h5write_generic_arr\n");
+      Driver_abortC("Error: H5Sselect_hyperslab io_h5write_generic_arr\n");
     }
     
     
@@ -117,7 +117,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
     dimens_1d = *local_size;
     memspace = H5Screate_simple(rank, &dimens_1d, NULL);
     if(memspace < 0) {
-      Driver_abortFlashC("Error: H5Screate_simple mem io_h5write_generic_arr\n");
+      Driver_abortC("Error: H5Screate_simple mem io_h5write_generic_arr\n");
     }
   
 
@@ -148,7 +148,7 @@ void FTOC(io_h5write_generic_real_arr)(int* myPE,
     }
  
     if(status < 0) {
-      Driver_abortFlashC("Error: H5Dwrite io_h5write_generic_real_arr\n");
+      Driver_abortC("Error: H5Dwrite io_h5write_generic_real_arr\n");
     }
     
 

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/Grid_extendedGetBlkBC
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_extendedGetBlkBC
@@ -62,7 +65,7 @@ subroutine Grid_extendedGetBlkBC(blockid, faces)
   use paramesh_dimensions, ONLY : ndim
   use Grid_data,ONLY : gr_meshMe,gr_anyPeriodic
   use gr_interface,ONLY : gr_extractBCForDirection
-  use Driver_interface,ONLY : Driver_abortFlash
+  use Driver_interface,ONLY : Driver_abort
 implicit none
 #include "constants.h"
   integer, intent(in) :: blockid
@@ -119,7 +122,7 @@ implicit none
                  iblk = iblk+1
               enddo
               if(.not.lfound) then
-                 call Driver_abortFlash('Paramesh error: Grid_extendedGetBlkBC: '// & 
+                 call Driver_abort('Paramesh error: Grid_extendedGetBlkBC: '// & 
                       & 'Low neighbor remote block is not in list received on this pe')
               endif
            end if
@@ -128,7 +131,7 @@ implicit none
            if (neighborCenter(idir) > coord(idir,blockid)) faces(LOW,idir) = PERIODIC
         else if (neigh(1,2*idir,blockid) == -1) then
            print*,'Grid_extendedGetBlkBC: LOW neighbor is -1!',2*idir,gr_meshMe,neigh(:,2*idir-1,blockid)
-           call Driver_abortFlash('Grid_extendedGetBlkBC: '// & 
+           call Driver_abort('Grid_extendedGetBlkBC: '// & 
                 & 'Low neighbor blockid is -1')
         end if
 
@@ -149,7 +152,7 @@ implicit none
                  iblk = iblk+1
               enddo
               if(.not.lfound) then
-                 call Driver_abortFlash('Paramesh error: Grid_extendedGetBlkBC: '// & 
+                 call Driver_abort('Paramesh error: Grid_extendedGetBlkBC: '// & 
                       & 'High neighbor remote block is not in list received on this pe')
               endif
            end if
@@ -157,7 +160,7 @@ implicit none
            if (neighborCenter(idir) < coord(idir,blockid)) faces(HIGH,idir) = PERIODIC
         else if (neigh(1,2*idir,blockid) == -1) then
            print*,'Grid_extendedGetBlkBC: HIGH neighbor is -1!',2*idir,gr_meshMe,neigh(:,2*idir,blockid)
-           call Driver_abortFlash('Grid_extendedGetBlkBC: '// & 
+           call Driver_abort('Grid_extendedGetBlkBC: '// & 
                 & 'High neighbor blockid is -1')
         end if
      end if

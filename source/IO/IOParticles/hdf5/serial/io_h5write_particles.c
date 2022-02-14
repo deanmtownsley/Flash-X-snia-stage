@@ -5,7 +5,7 @@
 #include "constants.h"
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -51,12 +51,12 @@ void FTOC(io_h5write_particles)(int* myPE,
     string_type = H5Tcopy(H5T_C_S1);
     status = H5Tset_size(string_type, string_size);
     if(status < 0){
-      Driver_abortFlashC("Error: string\n");
+      Driver_abortC("Error: string\n");
     }
     
     dataspace = H5Screate_simple(rank, dimens_2d, NULL);
     if(dataspace < 0){
-      Driver_abortFlashC("Error: H5Screate_simple io_h5write_particles\n");
+      Driver_abortC("Error: H5Screate_simple io_h5write_particles\n");
     }
     
     
@@ -67,14 +67,14 @@ void FTOC(io_h5write_particles)(int* myPE,
       dataset   = H5Dcreate(*file_identifier, "particle names", 
 			    string_type, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
       if(dataset < 0){
-	Driver_abortFlashC("Error: H5Dcreate particle names, io_h5write_particles\n");
+	Driver_abortC("Error: H5Dcreate particle names, io_h5write_particles\n");
       }     
       
       
       status    = H5Dwrite(dataset, string_type, H5S_ALL, H5S_ALL, 
 			   H5P_DEFAULT, particle_labels);
       if(status < 0){
-	Driver_abortFlashC("Error io_h5write_particle: H5Dwrite particle labels\n");
+	Driver_abortC("Error io_h5write_particle: H5Dwrite particle labels\n");
       }
       H5Dclose(dataset);  
     }
@@ -98,7 +98,7 @@ void FTOC(io_h5write_particles)(int* myPE,
   
   dataspace  = H5Screate_simple(rank, dimens_2d, NULL);
   if(dataspace < 0) {
-    Driver_abortFlashC("Error io_h5write_particles: H5Screate_simple tracer particles\n");
+    Driver_abortC("Error io_h5write_particles: H5Screate_simple tracer particles\n");
   }
   
 
@@ -108,7 +108,7 @@ void FTOC(io_h5write_particles)(int* myPE,
     if ((*particle_offset != 0)) {
       dataset = H5Dopen(*file_identifier, "tracer particles", H5P_DEFAULT); 
       if(dataset < 0) {
-	Driver_abortFlashC("Error: H5Dopen io_h5write_particles\n");
+	Driver_abortC("Error: H5Dopen io_h5write_particles\n");
       }
       
     }else {
@@ -116,7 +116,7 @@ void FTOC(io_h5write_particles)(int* myPE,
       dataset = H5Dcreate(*file_identifier, "tracer particles", H5T_NATIVE_DOUBLE,
 			  dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
       if(dataset < 0) {
-	Driver_abortFlashC("Error io_h5write_particles: H5Dcreate tracer particles\n");
+	Driver_abortC("Error io_h5write_particles: H5Dcreate tracer particles\n");
       }
       
     }
@@ -137,7 +137,7 @@ void FTOC(io_h5write_particles)(int* myPE,
     
     if(ierr < 0){
       printf("%s\n", "Error: unable to select hyperslab for particles dataspace");
-      Driver_abortFlashC("Error: unable to select hyperslab for particles dataspace");
+      Driver_abortC("Error: unable to select hyperslab for particles dataspace");
     }
     
     
@@ -163,7 +163,7 @@ void FTOC(io_h5write_particles)(int* myPE,
     
     if(status < 0) {
       printf("%s\n","Unable to write tracer particles");
-      Driver_abortFlashC("Unable to write tracer particles");
+      Driver_abortC("Unable to write tracer particles");
     }
     
     
@@ -175,7 +175,7 @@ void FTOC(io_h5write_particles)(int* myPE,
     
     if(status < 0) {
       printf("%s\n","Unable to write tracer particles");
-      Driver_abortFlashC("Unable to write tracer particles");
+      Driver_abortC("Unable to write tracer particles");
     }
     /* release resources */
     status = H5Sclose(memspace);

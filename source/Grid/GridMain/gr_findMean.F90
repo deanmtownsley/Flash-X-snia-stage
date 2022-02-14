@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/gr_findMean
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_findMean
@@ -37,14 +40,14 @@
 #include "Simulation.h"
 
 subroutine gr_findMean(iSrc, iType, bGuardcell, mean)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,   ONLY : Grid_getTileIterator, &
                                Grid_releaseTileIterator
   use Grid_data,        ONLY : gr_meshComm
   use Grid_iterator,    ONLY : Grid_iterator_t
   use Grid_tile,        ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, intent(in)  :: iSrc
   integer, intent(in)  :: iType
   logical, intent(in)  :: bGuardcell
@@ -70,9 +73,9 @@ subroutine gr_findMean(iSrc, iType, bGuardcell, mean)
   mean = 0.0
 
   if (iType /= 2) then
-     call Driver_abortFlash("[gr_findMean] Can only do arithmetic mean with iType=1")
+     call Driver_abort("[gr_findMean] Can only do arithmetic mean with iType=1")
   else if (bGuardCell) then
-     call Driver_abortFlash("[gr_findMean] Inclusion of guardcells not yet coded")
+     call Driver_abort("[gr_findMean] Inclusion of guardcells not yet coded")
   end if
 
   localVolume = 0.

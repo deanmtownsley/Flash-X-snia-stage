@@ -1,12 +1,15 @@
 !!
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !! Adapted from Dean M. Townsley (2009) SNIa_ddt setup
 !!
 !! This initializes the white dwarf and flame for Type Ia simulation
@@ -19,7 +22,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Simulation_data
   use sim_local_interface, ONLY : sim_interpolate1dWd
   use Driver_data, ONLY : dr_dtInit
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_getGeometry, &
      Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped, Eos_getAbarZbar
@@ -174,7 +177,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               radMin = sqrt( x2Min + y2Min + z2Min )
               radMax = sqrt( x2Max + y2Max + z2Max )
            else
-              call Driver_abortFlash("Geometry not supported")
+              call Driver_abort("Geometry not supported")
            end if
 
            call sim_interpolate1dWd(radCenterVol, radMin, radMax, dens, temp, xinitial)
@@ -269,7 +272,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               write(*,'(a,3es15.7)') '        x,y,z  (right) = ', xRight(i),  yRight(j),  zRight(k)
               write(*,'(a,3es15.7)') '              dx,dy,dz = ', dx, dy, dz
               write(*,'(a,2es15.7)') '             dens,temp = ', dens, temp
-              call Driver_abortFlash("[Simulation_initBlock] Bad values BEFORE EOS call.")
+              call Driver_abort("[Simulation_initBlock] Bad values BEFORE EOS call.")
            end if
 
            !-----------------------------------------------
@@ -313,7 +316,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               write(*,'(a,3es15.7)') '        x,y,z  (right) = ', xRight(i),  yRight(j),  zRight(k)
               write(*,'(a,3es15.7)') '              dx,dy,dz = ', dx, dy, dz
               write(*,'(a,4es15.7)') '   dens,temp,pres,eint = ', dens, temp, pres, eint
-              call Driver_abortFlash("[Simulation_initBlock] Bad values AFTER EOS call.")
+              call Driver_abort("[Simulation_initBlock] Bad values AFTER EOS call.")
            end if
         end do
      end do

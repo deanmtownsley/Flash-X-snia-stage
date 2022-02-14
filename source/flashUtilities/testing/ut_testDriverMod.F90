@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/testing/ut_testDriverMod
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -20,7 +23,7 @@
 !!
 !!  A module that encapsulates common routines and variables that can be used in
 !!  unittests.  Typically,  this module is used in the unittests version of 
-!!  Driver_evolveFlash as follows
+!!  Driver_evolveAll as follows
 !!
 !!      <declare variables and setup for test>
 !!      ...
@@ -71,10 +74,10 @@ module ut_testDriverMod
 contains
 
     subroutine start_test_run()
-        use Driver_Interface, ONLY : Driver_abortFlash
+        use Driver_Interface, ONLY : Driver_abort
 
         if (is_testing) then
-            call Driver_abortFlash("[start_test_run] Already testing")
+            call Driver_abort("[start_test_run] Already testing")
         end if
 
         is_testing = .TRUE.
@@ -85,7 +88,7 @@ contains
 
     subroutine finish_test_run
         use Driver_data,      ONLY : dr_globalMe
-        use Driver_Interface, ONLY : Driver_abortFlash
+        use Driver_Interface, ONLY : Driver_abort
 
         real :: my_t_end
         real :: my_walltime
@@ -97,7 +100,7 @@ contains
         character(MAX_STRING_LENGTH) :: fileName
 
         if (.NOT. is_testing) then
-            call Driver_abortFlash("[finish_test_run] Not testing yet")
+            call Driver_abort("[finish_test_run] Not testing yet")
         end if
 
         is_testing = .FALSE.

@@ -1,12 +1,15 @@
 !***************************************************************************************************
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 ! xnet_util.f90 10/18/17
 ! This file contains various utility routines that are common throughout XNet.
 !***************************************************************************************************
@@ -349,7 +352,7 @@ Contains
     !-----------------------------------------------------------------------------------------------
     ! This routine gracefully exits XNet with a diagnostic statement in the event of an error.
     !-----------------------------------------------------------------------------------------------
-    Use Driver_interface, Only: Driver_abortFlash
+    Use Driver_interface, Only: Driver_abort
     Implicit None
 
     ! Input variables
@@ -357,7 +360,7 @@ Contains
     Integer, Intent(in), Optional :: i_diagnostic
 
     ! Print the diagnostic statement
-    Call Driver_abortFlash(c_diagnostic)
+    Call Driver_abort(c_diagnostic)
 
     Return
   End Subroutine xnet_terminate

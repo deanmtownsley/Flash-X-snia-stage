@@ -9,7 +9,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -42,13 +42,13 @@ void FTOC(io_h5read_localnp)(hid_t* file_identifier,
 #endif
 
   if(dataset < 0){
-    Driver_abortFlashC("Error, unable to read dataset localnp");
+    Driver_abortC("Error, unable to read dataset localnp");
   }
 
 
   dataspace = H5Dget_space(dataset);
   if(dataspace < 0){
-    Driver_abortFlashC("Error, unable to read dataset localnp");
+    Driver_abortC("Error, unable to read dataset localnp");
   }
 
 
@@ -63,7 +63,7 @@ void FTOC(io_h5read_localnp)(hid_t* file_identifier,
   
   if (status < 0){
     printf("Error: Unable to select hyperslab for localnp dataspace\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for localnp dataspace\n");
+    Driver_abortC("Error: Unable to select hyperslab for localnp dataspace\n");
   }
   
 
@@ -73,7 +73,7 @@ void FTOC(io_h5read_localnp)(hid_t* file_identifier,
   
   memspace = H5Screate_simple(rank, &dimens_1d, NULL);
   if(memspace < 0){
-    Driver_abortFlashC("Error: Unable to create memspace\n");
+    Driver_abortC("Error: Unable to create memspace\n");
   }
 
 
@@ -88,7 +88,7 @@ void FTOC(io_h5read_localnp)(hid_t* file_identifier,
   
   if (status < 0){
     printf("Error: Unable to read localnp\n");
-    Driver_abortFlashC("Error: Unable to read localnp\n");
+    Driver_abortC("Error: Unable to read localnp\n");
   }
 
   

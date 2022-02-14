@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapFromMesh/Grid_mapMeshToParticles
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -55,7 +58,7 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
                                     numAttrib, attrib,&
                                     mapType,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Particles_interface, ONLY : Particles_mapFromMesh
   use Grid_data, ONLY : gr_delta
   use physicaldata, ONLY : unk
@@ -108,7 +111,7 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
 
 #ifdef DEBUG_GRIDPARTICLES
         if((particles(part_blkID, i) < 0) .or. (particles(part_blkID, i) > blkCount)) then
-           call Driver_abortFlash("BLK_PART_PROP out of bounds")
+           call Driver_abort("BLK_PART_PROP out of bounds")
         end if
 #endif
         blk = int(particles(part_blkID,i))

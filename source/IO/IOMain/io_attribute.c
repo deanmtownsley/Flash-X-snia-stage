@@ -62,7 +62,7 @@ void FTOC(io_attribute_create)(const int * const pMyPE,
 #endif
 
   } else {
-    Driver_abortFlashC("[io_attribute_create]: Unknown I/O");
+    Driver_abortC("[io_attribute_create]: Unknown I/O");
   }
 }
 
@@ -109,6 +109,6 @@ void FTOC(io_attribute_write)(const int * const pMyPE,
 #endif
 
   } else {
-    Driver_abortFlashC("[io_attribute_write]: Unknown I/O");
+    Driver_abortC("[io_attribute_write]: Unknown I/O");
   }
 }

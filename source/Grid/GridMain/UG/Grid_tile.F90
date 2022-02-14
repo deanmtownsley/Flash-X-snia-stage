@@ -1,12 +1,15 @@
 !!****ih* source/Grid/GridMain/UG/Grid_tile
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!
 !!****
@@ -167,15 +170,15 @@ contains
 
         ! Avoid possible memory leaks
         if (associated(dataPtr)) then
-            call Driver_abortFlash("[getDataPtr] Given data pointer must be NULL")
+            call Driver_abort("[getDataPtr] Given data pointer must be NULL")
         end if
 
         if (present(localFlag)) then
-            call Driver_abortFlash("[getDataPtr] localFlag not implemented")
+            call Driver_abort("[getDataPtr] localFlag not implemented")
         end if
 
         if (this%level /= 1) then
-            call Driver_abortFlash("[getDataPtr] Level must be one")
+            call Driver_abort("[getDataPtr] Level must be one")
         end if
 
         select case (gridDataStruct)
@@ -196,7 +199,7 @@ contains
        case(SCRATCH_CTR)
           dataPtr(1:, gr_ilo:, gr_jlo:, gr_klo:) => scratch_ctr(:,:,:,:,this%id)
         case DEFAULT
-            call Driver_abortFlash("[getDataPtr] Unknown grid data structure")
+            call Driver_abort("[getDataPtr] Unknown grid data structure")
         end select
     end subroutine getDataPtr
 

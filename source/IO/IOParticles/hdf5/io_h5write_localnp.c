@@ -10,7 +10,7 @@
 #endif
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
@@ -40,7 +40,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
  
   dataspace = H5Screate_simple(rank, &dimens_1d, NULL);
   if(dataspace < 0) {
-     Driver_abortFlashC("Error: H5Screate_simple io_h5write_localnp\n");
+     Driver_abortC("Error: H5Screate_simple io_h5write_localnp\n");
   }
 
 
@@ -48,7 +48,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
   status = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, &start_1d, 
                         &stride_1d, &count_1d, NULL);
   if(status < 0) {
-     Driver_abortFlashC("Error: H5Sselect_hyperslab io_h5write_localnp\n");
+     Driver_abortC("Error: H5Sselect_hyperslab io_h5write_localnp\n");
   }
 
  
@@ -56,7 +56,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
   dimens_1d = *local_blocks;
   memspace = H5Screate_simple(rank, &dimens_1d, NULL);
   if(memspace < 0) {
-     Driver_abortFlashC("Error: H5Screate_simple mem io_h5write_localnp\n");
+     Driver_abortC("Error: H5Screate_simple mem io_h5write_localnp\n");
   }
   
 
@@ -64,7 +64,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
   /*DEV: this line was only in the serial version */
   dataset_plist = H5Pcreate(H5P_DATASET_CREATE);
   if(dataset_plist < 0) {
-     Driver_abortFlashC("Error: dataset_plist io_h5write_localnp\n");
+     Driver_abortC("Error: dataset_plist io_h5write_localnp\n");
   }
 
 
@@ -79,7 +79,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
      dataset = H5Dopen(*file_identifier, "localnp", H5P_DEFAULT); 
 #endif     
     if(dataset < 0) {
-       Driver_abortFlashC("Error: H5Dopen io_h5write_localnp\n");
+       Driver_abortC("Error: H5Dopen io_h5write_localnp\n");
     }
    
   }else {
@@ -94,7 +94,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
 #endif     
 
     if(dataset < 0) {
-       Driver_abortFlashC("Error: H5Dcreate io_h5write_localnp\n");
+       Driver_abortC("Error: H5Dcreate io_h5write_localnp\n");
     }
 
     /*dataset_plist was H5P_DEFAULT*/
@@ -115,7 +115,7 @@ void FTOC(io_h5write_localnp)(int* myPE,
 #endif  
 
   if(status < 0) {
-     Driver_abortFlashC("Error: H5Dwrite io_h5write_localnp\n");
+     Driver_abortC("Error: H5Dwrite io_h5write_localnp\n");
   }
 
 

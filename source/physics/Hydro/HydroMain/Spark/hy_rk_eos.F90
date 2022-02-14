@@ -1,12 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_eos
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!
@@ -14,12 +17,13 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_eos ( integer(IN) :: blockID )
+!!  call hy_rk_eos ( integer(IN) :: limits(:,: )
 !!
 !!  DESCRIPTION
 !!
 !!  ARGUMENTS
-!!
+!!   
+!!   limits :: range of indices along each dimension for applying eos 
 !!
 !!***
 subroutine hy_rk_eos(limits)
@@ -112,7 +116,7 @@ subroutine hy_rk_eos_offloaded(limits)
   use Hydro_data, ONLY : hy_threadWithinBlock
   ! use Eos_interface, ONLY : Eos_putData, Eos_getData, Eos
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_mapLookup, eos_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef OMP_OL
   use eos_idealGammaData, ONLY: eos_gammam1
 #endif
@@ -128,7 +132,7 @@ subroutine hy_rk_eos_offloaded(limits)
   integer :: i,j,k,vecLen
 
   if(CENTER == SCRATCH) then
-    call Driver_abortFlash("Eos_getData : the use of SCRATCH is deprecated")
+    call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
   end if
 
   vecLen     = limits(HIGH,IAXIS)-limits(LOW,IAXIS)+1
@@ -171,7 +175,7 @@ subroutine eos_idealGamma_offloaded(vecLen,i, j, k, eos_gammam1, &
     ! use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
     !      eos_singleSpeciesA, eos_singleSpeciesZ
     ! use eos_idealGammaData, ONLY: eos_gammam1
-    ! use Driver_interface, ONLY : Driver_abortFlash
+    ! use Driver_interface, ONLY : Driver_abort
   use Hydro_data, only : hy_starState
 
   implicit none

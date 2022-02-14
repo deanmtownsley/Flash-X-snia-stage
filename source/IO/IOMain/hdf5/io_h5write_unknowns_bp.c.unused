@@ -6,7 +6,7 @@
 #include "constants.h"
 #include "io_comp_decomp.h"
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* 
    This function writes out a single unknown (passed from the checkpoint 
@@ -126,14 +126,14 @@ void FTOC(io_h5write_unknowns_bp)(int* myPE,
   if ((*myPE == MASTER_PE) && (*global_offset != 0)) {
     dataset = H5Dopen(*file_identifier, record_label_new); 
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dopen io_h5write_unk\n");
+      Driver_abortC("Error: H5Dopen io_h5write_unk\n");
     }
   }else {
     
     dataset = H5Dcreate(*file_identifier, record_label_new,
                   H5T_NATIVE_INT, dataspace, dataset_plist); 
     if(x_dataset < 0) {
-      Driver_abortFlashC("Error: H5Dcreate io_h5write_unk\n");
+      Driver_abortC("Error: H5Dcreate io_h5write_unk\n");
     }    
   }
 
@@ -150,7 +150,7 @@ void FTOC(io_h5write_unknowns_bp)(int* myPE,
 
  if(ierr < 0){
     printf("%s\n", "Error: unable to select hyperslab for unknowns dataspace");
-    Driver_abortFlashC("Error: unable to select hyperslab for unknowns dataspace");
+    Driver_abortC("Error: unable to select hyperslab for unknowns dataspace");
  }
 
 

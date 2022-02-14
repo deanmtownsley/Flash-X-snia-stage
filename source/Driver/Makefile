@@ -1,15 +1,15 @@
-Driver += Flash.o \
-	Driver_abortFlash.o \
-	Driver_abortFlashC.o \
-	Driver_finalizeFlash.o \
+Driver += main.o \
+	Driver_abort.o \
+	Driver_abortC.o \
+	Driver_finalizeAll.o \
 	Driver_getSimTime.o \
 	Driver_getElapsedWCTime.o \
 	Driver_getTimeStamp.o \
 	Driver_putTimeStamp.o \
-	Driver_evolveFlash.o \
+	Driver_evolveAll.o \
 	Driver_finalizeSourceTerms.o \
 	Driver_init.o \
-	Driver_initFlash.o \
+	Driver_initAll.o \
 	Driver_initNumericalTools.o \
 	Driver_initParallel.o \
 	Driver_sendOutputData.o \

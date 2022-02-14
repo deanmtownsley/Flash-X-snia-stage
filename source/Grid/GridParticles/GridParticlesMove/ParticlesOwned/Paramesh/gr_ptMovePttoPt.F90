@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMove/gr_ptMovePttoPt
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -100,13 +103,13 @@ subroutine gr_ptMovePttoPt (dataBuf, propCount, maxCount, localCount, numDest)
 
   use ut_sortInterface, ONLY : ut_sortOnProcs
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer, intent (inout) :: localCount
   integer, intent (in)    :: propCount, maxCount, numDest
@@ -185,7 +188,7 @@ subroutine gr_ptMovePttoPt (dataBuf, propCount, maxCount, localCount, numDest)
       print *, "Overflow! Mesh PE", gr_meshMe, &
                ", receive particles count", recvParticles, &
                ", max particles for gr_ptSourceBuf", ubound (gr_ptSourceBuf,2)
-      call Driver_abortFlash("[gr_ptMovePttoPt]: Insufficient space "//&
+      call Driver_abort("[gr_ptMovePttoPt]: Insufficient space "//&
                              "in particles communication buffer: "//&
                              "increase pt_maxPerProc if you are using the Particles unit "//&
                              "or ed_maxRayCount if you are using the EnergyDeposition unit.")
@@ -195,7 +198,7 @@ subroutine gr_ptMovePttoPt (dataBuf, propCount, maxCount, localCount, numDest)
       print *, "Overflow! Mesh PE", gr_meshMe, &
                ", receive particles total count", localCount + recvParticles, &
                ", max particle storage for dataBuf", maxCount
-      call Driver_abortFlash("[gr_ptMovePttoPt]: Insufficient space in particles data buffer.")
+      call Driver_abort("[gr_ptMovePttoPt]: Insufficient space in particles data buffer.")
   end if
 !
 !

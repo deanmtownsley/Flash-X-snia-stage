@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/nameValueLL/nameValueLL_set
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  nameValueLL_set
@@ -40,7 +43,7 @@ subroutine nameValueLL_setReal (context, name, value, current_val)
  !     &  nameValueLL_find, nameValueLL_check, nameValueLL_addReal, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type, TYPE_VAR
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
   
 #include "constants.h"
@@ -66,7 +69,7 @@ implicit none
         if (.not. valid) then
            call nameValueLL_logRulesReal(name,node%numValues,node%minValues,node%maxValues)
            write (buf,'(F8.3)') value
-           call Driver_abortFlash("nameValue_set: Trying to set '"// trim(name) //"' to invalid value "// trim(buf))
+           call Driver_abort("nameValue_set: Trying to set '"// trim(name) //"' to invalid value "// trim(buf))
         endif
         if (current_val) then
            node%value = value
@@ -88,7 +91,7 @@ implicit none
         end if
      else
         write(*,*) "set : Can not change parameter with constant attribute:", name
-        call Driver_abortFlash('ERROR: unable to change constant parameter')
+        call Driver_abort('ERROR: unable to change constant parameter')
      endif
   else
      ! name is not found - add it to list 
@@ -108,7 +111,7 @@ subroutine nameValueLL_setInt (context, name, value, current_val)
  !     &  nameValueLL_find, nameValueLL_check, nameValueLL_addInt, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !      &  real_list_type, int_list_type, str_list_type, log_list_type, TYPE_VAR
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
 
 #include "constants.h"
@@ -133,7 +136,7 @@ implicit none
         if (.not. valid) then
            call nameValueLL_logRulesInt(name,node%numValues,node%minValues,node%maxValues)
            write (buf,'(I12)') value
-           call Driver_abortFlash("Trying to set '"// trim(name) // "' to invalid value " // trim(buf))
+           call Driver_abort("Trying to set '"// trim(name) // "' to invalid value " // trim(buf))
         endif
         if (current_val) then
            node%value = value
@@ -155,7 +158,7 @@ implicit none
         end if
      else
         write(*,*) "set : Can not change name with constant attribute:", name
-        call Driver_abortFlash('ERROR: unable to change constant name')
+        call Driver_abort('ERROR: unable to change constant name')
      end if
   else
      ! could not find name so we are adding it to list
@@ -175,7 +178,7 @@ subroutine nameValueLL_setStr (context, name, value, current_val)
  !     &  nameValueLL_find, nameValueLL_check, nameValueLL_addStr, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type, TYPE_VAR
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
 
 #include "constants.h"
@@ -196,7 +199,7 @@ implicit none
         call nameValueLL_check(node,value,valid)
         if (.not. valid) then
            call nameValueLL_logRulesStr(name,node%numValues,node%validValues)
-           call Driver_abortFlash("nameValue_set: Trying to set '"// trim(name) // "' to invalid value '"// trim(value) //"'")
+           call Driver_abort("nameValue_set: Trying to set '"// trim(name) // "' to invalid value '"// trim(value) //"'")
         endif
         if (current_val) then
            node%value = value
@@ -216,7 +219,7 @@ implicit none
         end if
      else
         write(*,*) "set : Can not change name with constant attribute:", name
-        call Driver_abortFlash('ERROR: unable to change constant name')
+        call Driver_abort('ERROR: unable to change constant name')
      end if
   else
      ! could not find name so we are adding it to list 
@@ -238,7 +241,7 @@ subroutine nameValueLL_setLog (context, name, value, current_val)
  !     &  nameValueLL_find, nameValueLL_check, nameValueLL_addLog, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type, TYPE_VAR
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stamp
 
 #include "constants.h"
@@ -276,7 +279,7 @@ implicit none
         end if
      else
         write(*,*) "set: Can not change name with constant attribute:", name
-        call Driver_abortFlash('ERROR: unable to change constant name')
+        call Driver_abort('ERROR: unable to change constant name')
      end if
   else
      ! could not find name so we are adding it to list 

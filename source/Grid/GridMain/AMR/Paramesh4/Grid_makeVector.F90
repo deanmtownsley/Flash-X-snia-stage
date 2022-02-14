@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/Grid_makeVector
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_makeVector
@@ -93,7 +96,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
 
   use physicaldata, ONLY : unk, facevarx, facevary, facevarz
   use tree,         ONLY : gr_blkCount => lnblocks ! there is no FLASH-owned reliable gr_blkCount...
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_getData, Eos_putDataR2
   use Grid_interface, ONLY: GRID_COPYDIR_TO_VECT, GRID_COPYDIR_FROM_VECT
   use Grid_data, ONLY :  gr_meshMe
@@ -122,7 +125,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
   integer :: axis, carryAxis
   integer,parameter :: hiAxis = IAXIS+NDIM-1
 
-#define ASSERT(condition) if (.NOT.(condition)) call Driver_abortFlash("Grid_makeVector: ASSERT failed! Not true: condition")
+#define ASSERT(condition) if (.NOT.(condition)) call Driver_abort("Grid_makeVector: ASSERT failed! Not true: condition")
 
   if (present(copyDirection)) then
      copyDir = copyDirection
@@ -335,7 +338,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
   else if (associated(dataPtr)) then !vecFree SHOULD always be 0 in this case.
 99   format('PE',I6,': newVec(',I4,',:,',I4,') not large enough for',I6,' blocks, vecFree=',I5)
      print 99,gr_meshMe,vecLen,numVecIn,gr_blkCount,vecFree
-     call Driver_abortFlash("Grid_makeVector: newVec not large enough for block data")
+     call Driver_abort("Grid_makeVector: newVec not large enough for block data")
   end if
 
   return
@@ -354,7 +357,7 @@ contains
     else if (copyDir==GRID_COPYDIR_FROM_VECT) then
        call Eos_putDataR2(eosRange,subBlkSize,dataPtr,gridDataStruct,newVec(ptr:ptr+subBlkSize-1,:,ivec))
     else
-       call Driver_abortFlash("Grid_makeVector: Invalid copyDirection!")
+       call Driver_abort("Grid_makeVector: Invalid copyDirection!")
     end if
 
 

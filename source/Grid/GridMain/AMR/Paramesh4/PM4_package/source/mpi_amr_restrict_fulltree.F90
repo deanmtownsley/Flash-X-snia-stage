@@ -1,5 +1,4 @@
 !----------------------------------------------------------------------
-!! 
 ! PARAMESH - an adaptive mesh library.
 ! Copyright (C) 2003
 !
@@ -60,7 +59,7 @@
 !
 ! Written :     Peter MacNeice          February 1999
 !------------------------------------------------------------------------
-#include "Flash_mpi_implicitNone.fh"      
+#include "Flashx_mpi_implicitNone.fh"      
       integer, intent(in)  :: mype,iopt
       logical, intent(in)  :: lcc,lfc,lec,lnc
 

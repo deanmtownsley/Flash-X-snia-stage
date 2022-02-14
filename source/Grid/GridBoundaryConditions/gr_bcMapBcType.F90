@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridBoundaryConditions/gr_bcMapBcType
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_bcMapBcType
@@ -92,7 +95,7 @@ subroutine gr_bcMapBcType(bcTypeToApply,bcTypeFromGrid,varIndex,gridDataStruct, 
 
 #include "constants.h"
   
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Hydro_interface, ONLY : Hydro_mapBcType
   use gr_hgInterface, ONLY : gr_hgMapBcType
   use gr_mgInterface, ONLY : gr_mgMapBcType
@@ -122,13 +125,13 @@ subroutine gr_bcMapBcType(bcTypeToApply,bcTypeFromGrid,varIndex,gridDataStruct, 
      print *, "gr_bcMapBcType: gridDataStruct set to improper value"
      print *, "gridDataStruct must = CENTER,FACEX,FACEY,FACEZ,WORK " // &
           " (defined in constants.h)"
-     call Driver_abortFlash("gr_bcMapBcType gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
+     call Driver_abort("gr_bcMapBcType gridDataStruct must be one of CENTER,FACEX,FACEY,FACEZ,WORK(see constants.h)")
   end if
 
   if((gridDataStruct==WORK).and.(varIndex/=1)) &
-       call Driver_abortFlash("gr_bcMapBcType: varCount be 1 for work array")
+       call Driver_abort("gr_bcMapBcType: varCount be 1 for work array")
   if((gridDataStruct==CENTER).and.(varIndex > NUNK_VARS)) &
-       call Driver_abortFlash("gr_bcMapBcType: varIndex be <= NUNK_VARS for unk array")
+       call Driver_abort("gr_bcMapBcType: varIndex be <= NUNK_VARS for unk array")
        
 #endif
 

@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/IO_getScalar
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  IO_getScalar
@@ -68,7 +71,7 @@
 subroutine IO_getScalarReal (name, value)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -82,7 +85,7 @@ implicit none
 
   call NameValueLL_getReal(io_scalar, name, value, current_val, error)
   if(error /= NORMAL) then
-     call Driver_abortFlash("ERROR: cannot find real scalar value.")
+     call Driver_abort("ERROR: cannot find real scalar value.")
   end if
 
   return
@@ -94,7 +97,7 @@ end subroutine IO_getScalarReal
 subroutine IO_getScalarInt (name, value)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -106,7 +109,7 @@ implicit none
   
   call NameValueLL_getInt(io_scalar, name, value, current_val, error)
   if(error /= NORMAL) then
-     call Driver_abortFlash("ERROR: cannot find integer scalar value.")
+     call Driver_abort("ERROR: cannot find integer scalar value.")
   end if
 
   return
@@ -118,7 +121,7 @@ end subroutine IO_getScalarInt
 subroutine IO_getScalarStr (name, value)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -130,7 +133,7 @@ implicit none
 
   call NameValueLL_getStr(io_scalar, name, value, current_val, error)
   if(error /= NORMAL) then
-     call Driver_abortFlash("ERROR: cannot find string scalar value.")
+     call Driver_abort("ERROR: cannot find string scalar value.")
   end if
 
   return
@@ -142,7 +145,7 @@ end subroutine IO_getScalarStr
 subroutine IO_getScalarLog (name, value)
 
   use IO_data, ONLY : io_scalar
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -154,7 +157,7 @@ implicit none
 
   call NameValueLL_getLog(io_scalar, name, value, current_val, error)
   if(error /= NORMAL) then
-     call Driver_abortFlash("ERROR: cannot find logical scalar value.")
+     call Driver_abort("ERROR: cannot find logical scalar value.")
   end if
 
   return

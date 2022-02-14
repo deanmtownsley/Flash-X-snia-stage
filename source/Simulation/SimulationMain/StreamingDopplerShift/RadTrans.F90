@@ -1,4 +1,15 @@
 !!****cr* source/Simulation/SimulationMain/StreamingDopplerShift/RadTrans
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME 
 !!
@@ -28,7 +39,7 @@
 
 subroutine RadTrans( dt, pass )
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_everywhere
   use FluidFieldsModule, ONLY : uCF, nCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne
   use GeometryFieldsModule, ONLY : uGF, iGF_h_1, iGF_h_2, iGF_h_3
@@ -93,9 +104,9 @@ subroutine RadTrans( dt, pass )
   if (.NOT. rt_useRadTrans) return
 
   if ( my_ngrow /= 2 ) then
-     call Driver_abortFlash("Need two ghost cells in call_to_thornado!")
+     call Driver_abort("Need two ghost cells in call_to_thornado!")
   else if ( my_ngrow*THORNADO_NNODESX > NGUARD ) then
-     call Driver_abortFlash("NGUARD must be at least my_ngrow*THORNADO_NNODESX")
+     call Driver_abort("NGUARD must be at least my_ngrow*THORNADO_NNODESX")
   end if
 
   call Timers_start("RadTrans")
@@ -123,7 +134,7 @@ subroutine RadTrans( dt, pass )
      do while ( t_sub < dt )
         if ( t_sub + dt_sub > dt ) then
           dt_sub = dt - t_sub
-          call Driver_abortFlash("No substep in this problem.") 
+          call Driver_abort("No substep in this problem.") 
         end if
 
         call Grid_getTileIterator(itor, LEAF, level=level, tiling=rt_enableTiling)

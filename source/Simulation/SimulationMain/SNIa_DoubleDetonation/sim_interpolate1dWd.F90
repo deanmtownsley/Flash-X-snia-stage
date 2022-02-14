@@ -1,12 +1,15 @@
 !!
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !! Dean M. Townsley 2009
 !!
 !! This subroutine interpolates within a 1-dimensional WD profile
@@ -32,7 +35,7 @@ subroutine sim_interpolate1dWd( volume, r_inner, r_outer, dens, temp, x )
                               sim_smallrho, sim_smallt, sim_xhe4Fluff, sim_xc12Fluff, sim_xo16Fluff, &
                               sim_xni56Fluff, sim_globalMe, sim_wd_unk2spec, sim_densFluff, sim_tempFluff
   use sim_local_interface, ONLY : interp1d_linear, locate
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -85,7 +88,7 @@ subroutine sim_interpolate1dWd( volume, r_inner, r_outer, dens, temp, x )
      write(*,'(a,30es15.7)') ' sim_wd_rad_tab(imin-1:imax) = ', sim_wd_rad_tab(imin-1:imax)
      write(*,'(a,1es15.7)')  '                      volume = ', volume
      write(*,'(a,4es15.7)')  '          dens,temp,mass,vol = ', dens, temp, mass, vol
-     call Driver_abortFlash("[sim_interpolate1dWd] Bad values in initialization")
+     call Driver_abort("[sim_interpolate1dWd] Bad values in initialization")
   end if
 
   return

@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Sod/Simulation_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -44,7 +47,7 @@
 subroutine Simulation_init()
   
   use Simulation_data
-  use Driver_interface, ONLY : Driver_getMype, Driver_abortFlash
+  use Driver_interface, ONLY : Driver_getMype, Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_stamp
   use Multispecies_interface, ONLY : Multispecies_setProperty
@@ -101,12 +104,12 @@ subroutine Simulation_init()
   call RuntimeParameters_get('sim_pradLeft' , sim_pradLeft )
   call RuntimeParameters_get('sim_pradRight', sim_pradRight)
 
-  if (sim_pionLeft  < 0.0) call Driver_abortFlash("Must specify sim_pionLeft" )
-  if (sim_pionRight < 0.0) call Driver_abortFlash("Must specify sim_pionRight")
-  if (sim_peleLeft  < 0.0) call Driver_abortFlash("Must specify sim_peleLeft" )
-  if (sim_peleRight < 0.0) call Driver_abortFlash("Must specify sim_peleRight")
-  if (sim_pradLeft  < 0.0) call Driver_abortFlash("Must specify sim_pradLeft" )
-  if (sim_pradRight < 0.0) call Driver_abortFlash("Must specify sim_pradRight")
+  if (sim_pionLeft  < 0.0) call Driver_abort("Must specify sim_pionLeft" )
+  if (sim_pionRight < 0.0) call Driver_abort("Must specify sim_pionRight")
+  if (sim_peleLeft  < 0.0) call Driver_abort("Must specify sim_peleLeft" )
+  if (sim_peleRight < 0.0) call Driver_abort("Must specify sim_peleRight")
+  if (sim_pradLeft  < 0.0) call Driver_abort("Must specify sim_pradLeft" )
+  if (sim_pradRight < 0.0) call Driver_abort("Must specify sim_pradRight")
   
   call RuntimeParameters_get('gammaEle', sim_gammaEle)
   call RuntimeParameters_get('gammaIon', sim_gammaIon) !This may have to be 5./3 when using multiTemp/Gamma - KW

@@ -1,30 +1,22 @@
 !!****if* source/physics/Hydro/HydroMain/unsplit/Hydro_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
 !!  Hydro_init
 !!
 !!
-!! SYNOPSIS
-!!
-!!  Hydro_init()
-!!  
-!!
-!! DESCRIPTION
-!! 
-!!  This routine initializes unit scope variables which are typically the runtime parameters.
-!!  The routine must be called once by Driver_initFlash.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
-!!
-!! ARGUMENTS
+!!  For more details see the documentation of the NULL implementation
 !!
 !!
 !!***
@@ -32,7 +24,7 @@
 Subroutine Hydro_init()
 
   use Hydro_data
-  use Driver_interface,            ONLY : Driver_abortFlash, Driver_getMype, &
+  use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
                                           Driver_getNumProcs,    &
                                           Driver_getComm
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -106,7 +98,7 @@ Subroutine Hydro_init()
 
 #ifdef FLASH_GRID_PARAMESH
   if ((NGUARD > 4) .and. (NXB < 2*NGUARD)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
@@ -201,7 +193,7 @@ Subroutine Hydro_init()
           trim(hy_prol_method_str) == "BALSARA_PROL" ) then
      hy_prol_method = BALSARA_PROL
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The prolongation method is of unknown type: " // &
            "Please choose one of 'injection_prol(2D & 3D)' or 'balsara_prol(3D)'.")
   endif
@@ -358,7 +350,7 @@ print*,'C_hyp & C_par=',hy_C_hyp,hy_C_par
      hy_limiter = LIMITED
      call RuntimeParameters_get('LimitedSlopeBeta', hy_LimitedSlopeBeta)
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The hy_limter of unknown type! It should be one of" // &
            "'minmod','mc', 'vanLeer', 'hybrid' or 'limited'.")
   end if
@@ -402,7 +394,7 @@ print*,'C_hyp & C_par=',hy_C_hyp,hy_C_par
         hy_shockDetectOn = .true.
      endif
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The Riemann Solver is of unknown type: " // &
            "Options are LLF, HLL, HLLC, HLLD (only for MHD), Roe, "//& 
            "hybrid, Marquina, or MarquinaModified.")
@@ -673,7 +665,7 @@ print*,'C_hyp & C_par=',hy_C_hyp,hy_C_par
   if (hy_order == 7) then
 
      if (NDIM < 2) then
-        call Driver_abortFlash("[Hydro_init]: GP is designed to support 2D and 3D.")
+        call Driver_abort("[Hydro_init]: GP is designed to support 2D and 3D.")
      endif
 
      ! get runtime parameters

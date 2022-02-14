@@ -1,12 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/unsplit/Hydro_Unsplit/hy_llfUnsplit
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -106,7 +109,7 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
   use Hydro_data, ONLY : hy_E_upwind
 #endif
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use Eos_interface, ONLY : Eos_wrapped
 
@@ -171,18 +174,18 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
   !! End of data declaration ***********************************************
 
 #ifdef FLASH_GRID_PARAMESH2
-  call Driver_abortFlash("The unsplit Hydro solver only works with PARAMESH 3 or 4!")
+  call Driver_abort("The unsplit Hydro solver only works with PARAMESH 3 or 4!")
 #endif
 
 
 #ifdef FLASH_GRID_PARAMESH3OR4
   if (hy_fluxCorrect) then
-     call Driver_abortFlash("hy_llfUnsplit: flux correction is not implemented!")
+     call Driver_abort("hy_llfUnsplit: flux correction is not implemented!")
   end if
 #endif
 
   if (hy_useGravity) then
-     call Driver_abortFlash("hy_llfUnsplit: support for gravity not implemented!")
+     call Driver_abort("hy_llfUnsplit: support for gravity not implemented!")
   end if
 
   if (.NOT.hy_updateHydroFluxes) then

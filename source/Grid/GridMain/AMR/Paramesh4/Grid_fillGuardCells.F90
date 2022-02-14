@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/Grid_fillGuardCells
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_fillGuardCells
@@ -257,7 +260,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
        gr_gcellsUpToDate,gr_convertToConsvdInMeshInterp
   use gr_specificData, ONLY : gr_enableMaskedGCFill
   use Logfile_interface, ONLY : Logfile_stampMessage, Logfile_stampVarMask
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
@@ -270,7 +273,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(in) :: gridDataStruct
   integer, intent(in) :: idir
@@ -313,7 +316,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                        (gridDataStruct==WORK).or.&
                        (gridDataStruct==CENTER_FACES)
   if(.not.validDataStructure)then
-     call Driver_abortFlash("GCfill: invalid data structure")
+     call Driver_abort("GCfill: invalid data structure")
   end if
 
 #endif
@@ -370,7 +373,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
               end if
            end if
         else  !! if mask is present without the maskSize, abort
-           call Driver_abortFlash("gcfill :: maskSize must be present with mask")
+           call Driver_abort("gcfill :: maskSize must be present with mask")
         end if
      end if
   end if
@@ -452,10 +455,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         case(ACTIVE_BLKS)
            maxNodetype_gcWanted = 2
         case(ALL_BLKS)
-           call Driver_abortFlash('Grid_fillGuardCells: unsupported value ALL_BLKS for selectBlockType!')
+           call Driver_abort('Grid_fillGuardCells: unsupported value ALL_BLKS for selectBlockType!')
 #ifdef DEBUG_GRID
         case default
-           call Driver_abortFlash('Grid_fillGuardCells: unrecognized value for selectBlockType!')
+           call Driver_abort('Grid_fillGuardCells: unrecognized value for selectBlockType!')
 #endif
         end select
      else

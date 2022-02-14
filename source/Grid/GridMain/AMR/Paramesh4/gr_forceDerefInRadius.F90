@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_forceDerefInRadius
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_forceDerefInRadius
@@ -51,7 +54,7 @@ subroutine gr_forceDerefInRadius(ic, jc, kc, radius, lref)
 
 !-------------------------------------------------------------------------------
   use tree, ONLY : refine, derefine, lrefine, bsize, coord, lnblocks, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_geometry
 #include "constants.h"
 #include "Simulation.h"
@@ -155,7 +158,7 @@ subroutine gr_forceDerefInRadius(ic, jc, kc, radius, lref)
         endif
      end do
   else
-     call Driver_abortFlash("gr_forceDerefInRadius: geometry spec is wrong")
+     call Driver_abort("gr_forceDerefInRadius: geometry spec is wrong")
      !-------------------------------------------------------------------------------
   end if
   return

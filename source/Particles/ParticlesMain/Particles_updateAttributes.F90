@@ -1,12 +1,15 @@
 !!****if* source/Particles/ParticlesMain/Particles_updateAttributes
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -50,11 +53,11 @@ subroutine Particles_updateAttributes()
        pt_gcMaskForWrite,pt_gcMaskSizeForWrite,pt_mappedAttributes,&
        pt_meshVar,pt_numMappedAttributes, pt_meshMe, useParticles, pt_posAttrib,&
        pt_typeInfo, pt_numLost, pt_keepLostParticles, pt_reduceGcellFills
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_fillGuardCells,Grid_mapMeshToParticles,&
        Grid_sortParticles
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "constants.h"
@@ -85,10 +88,10 @@ subroutine Particles_updateAttributes()
         pt_numLocal=pt_numLocal-pt_numLost
         if(particles(BLK_PART_PROP,pt_numLocal+1)/=LOST)then
            print*,'the value is ', particles(BLK_PART_PROP,pt_numLocal+1),pt_numLocal,pt_numLost,savePtNumLocal
-           call Driver_abortFlash("at update of particles counting is wrong")
+           call Driver_abort("at update of particles counting is wrong")
         end if
         if(particles(BLK_PART_PROP,pt_numLocal)==LOST)call &
-             Driver_abortFlash("at update too many particles lost")
+             Driver_abort("at update too many particles lost")
      end if
   end if
 
@@ -135,7 +138,7 @@ subroutine Particles_updateAttributes()
 
   !! If no valid data structures were found, something is very wrong
   if(numGridDataStruct==0)&
-       call Driver_abortFlash("Particles_updateAttributes: no data structures")
+       call Driver_abort("Particles_updateAttributes: no data structures")
 
   !! We reach here only if at least one valid data structure was found.
   !! The number of attributes to be output is greater than 0,
@@ -171,7 +174,7 @@ subroutine Particles_updateAttributes()
      end do
      lostNow=pfor-pt_numLocal
      pbak=pt_maxPerProc-pt_numLost
-     if(pbak<pt_numLocal)call Driver_abortFlash("no more space for lost particles")
+     if(pbak<pt_numLocal)call Driver_abort("no more space for lost particles")
      particles(:,pbak-lostNow:pbak)=particles(:,pt_numLocal+1:pt_numLocal+lostNow)
      pt_numLost=pt_numLost+lostNow
   end if

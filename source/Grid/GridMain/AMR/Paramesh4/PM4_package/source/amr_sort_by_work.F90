@@ -1,5 +1,4 @@
 !----------------------------------------------------------------------
-!! 
 ! PARAMESH - an adaptive mesh library.
 ! Copyright (C) 2003
 !
@@ -78,6 +77,9 @@
       Subroutine amr_sort_by_work (new_loc,nprocs,mype)
 
 !-----Use statements.
+#ifdef IMPROVED_SORT
+      use gr_sortByWorkTools, only: gr_sortByWorkConsolidated,gr_calcProcLocblk
+#endif
       use paramesh_dimensions
       Use physicaldata
       Use tree
@@ -85,7 +87,7 @@
       Use io
       Use paramesh_comm_data
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/Output arguments.
       integer, intent(inout) :: new_loc(:,:)
@@ -170,8 +172,8 @@
       End Do 
 
 #ifdef IMPROVED_SORT
-      call amr_sort_by_work_distributed(nprocs,mype,work,&
-                                    lnblocks2,mort_cutoffs)
+      call gr_sortByWorkDistributed(nprocs,mype,work,&
+                                    lnblocks2,mort_cutoffs,maxblocks_tr)
 
       rdatainint(1) = lnblocks2
       Call MPI_SCAN (rdatainint(1),rdataoutint(1),1,                   &
@@ -181,7 +183,7 @@
 
       do i=1,lnblocks2
         mort = i+mortLB
-        call calc_proc_locblk(nprocs,mort_cutoffs,mort,proc,locblk)
+        call gr_calcProcLocblk(nprocs,mort_cutoffs,mort,proc,locblk)
         lid(i) = locblk
         pid(i) = proc
       end do

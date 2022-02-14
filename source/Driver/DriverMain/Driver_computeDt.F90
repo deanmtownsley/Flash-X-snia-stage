@@ -1,12 +1,15 @@
 !!****if* source/Driver/DriverMain/Driver_computeDt
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -73,7 +76,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
                           dr_dtSTS, dr_useSTS, dr_globalMe, dr_globalComm,&
                           dr_dtAdvect, dr_dtDiffuse,dr_meshComm,     &
                           dr_dtMinContinue, dr_dtMinBelowAction
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface,ONLY : Logfile_stamp
   use IO_interface,     ONLY : IO_writeCheckpoint
   use Grid_interface,   ONLY : Grid_getCellCoords, &
@@ -89,7 +92,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t 
 
-# include "Flash_mpi_implicitNone.fh"
+# include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN) :: nbegin, nstep
   real,    intent(IN) :: simTime    !! current simulation time
@@ -672,7 +675,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
         call IO_writeCheckpoint()
      end if
      call Logfile_stamp( 'Exiting simulation because dr_dtNew < dr_dtMinContinue' , '[Driver_computeDt]')
-     call Driver_abortFlash('Computed new time step smaller than dr_dtMinContinue!')
+     call Driver_abort('Computed new time step smaller than dr_dtMinContinue!')
   end if
 
   firstCall = .FALSE.

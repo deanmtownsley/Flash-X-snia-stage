@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_packBCs
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_packBCs
@@ -88,7 +91,7 @@ integer function gr_packBCs(bcILeft, bcIRight, bcJLeft, bcJRight, bcKLeft, bcKRi
 end function gr_packBCs
 
 integer function gr_extractBCForDirection(packedBCs,axis,leftOrRight)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
   integer,intent(IN) :: packedBCs,axis,leftOrRight
   integer :: p,b
@@ -103,7 +106,7 @@ integer function gr_extractBCForDirection(packedBCs,axis,leftOrRight)
      else if (axis == KAXIS) then
         b = p / 1024 / 1024
      else
-        call Driver_abortFlash('invalid axis in gr_extractBCForDirection!')
+        call Driver_abort('invalid axis in gr_extractBCForDirection!')
      end if
 
      if (leftOrRight == LOW) then

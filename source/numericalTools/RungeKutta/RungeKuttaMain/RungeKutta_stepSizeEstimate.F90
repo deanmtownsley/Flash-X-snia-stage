@@ -1,12 +1,15 @@
 !!****if* source/numericalTools/RungeKutta/RungeKuttaMain/RungeKutta_stepSizeEstimate
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -123,7 +126,7 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 
   use rk_interface,      ONLY : rk_orderRKmethod
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use RungeKutta_data,   ONLY : rk_cubeRootMacheps
 
@@ -152,11 +155,11 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 !
 !
   if (eFrac >= 1.0) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: eFrac >= 1!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: eFrac >= 1!')
   end if
 
   if (any (abs (eBase) == 0.0)) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: eBase has zero values!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: eBase has zero values!')
   end if
 !
 !
@@ -164,7 +167,7 @@ real function RungeKutta_stepSizeEstimate (method,f,x,y,eFrac,eBase,hmax)
 !
 !
   if (size (y) /= size (eBase)) then
-      call Driver_abortFlash ('[RungeKutta_stepSizeEstimate] ERROR: y/eBase size mismatch!')
+      call Driver_abort ('[RungeKutta_stepSizeEstimate] ERROR: y/eBase size mismatch!')
   end if
 !
 !

@@ -1,12 +1,15 @@
 !!****f* source/Grid/GridMain/AMR/Amrex/Grid_conserveFluxes
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_conserveFluxes
@@ -54,7 +57,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     use amrex_fort_module,    ONLY : wp => amrex_real
     use amrex_amrcore_module, ONLY : amrex_get_finest_level
 
-    use Driver_interface,     ONLY : Driver_abortFlash
+    use Driver_interface,     ONLY : Driver_abort
     use Grid_interface,       ONLY : Grid_getGeometry, &
                                      Grid_getTileIterator, &
                                      Grid_releaseTileIterator, &
@@ -87,7 +90,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     nullify(fluxData)
 
     if (axis /= ALLDIR) then
-        call Driver_abortFlash("[Grid_conserveFluxes] AMReX requires axis==ALLDIR")
+        call Driver_abort("[Grid_conserveFluxes] AMReX requires axis==ALLDIR")
     end if
 
     ! FLASH uses 1-based level index / AMReX uses 0-based index
@@ -354,7 +357,7 @@ subroutine Grid_conserveFluxes(axis, coarse_level)
     case default
        ! DEV: TODO This routine should take an isFluxDensity array as an argument
        ! so that the routine can determine which need to be scaled and which do not
-       call Driver_abortFlash("[Grid_conserveFluxes] Only works with Cartesian")
+       call Driver_abort("[Grid_conserveFluxes] Only works with Cartesian")
     end select
 end subroutine Grid_conserveFluxes
 

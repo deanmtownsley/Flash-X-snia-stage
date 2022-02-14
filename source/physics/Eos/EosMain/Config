@@ -11,26 +11,12 @@
 
 DEFAULT Gamma
 PPDEFINE FLASH_EOS
-EXCLUSIVE Gamma multiTemp Degenerate
-EXCLUSIVE Multigamma multiTemp Degenerate
-EXCLUSIVE Helmholtz multiTemp Degenerate
 
 USESETUPVARS threadBlockList, threadWithinBlock, UseKeys
-IF UseKeys
-   REQUIRES physics/Eos/EosMain/UseKeys
-ENDIF
 
-#It is possible the following EOSs are not thread safe and so we
-#CONFLICT for now.
-IF threadBlockList
-   CONFLICTS physics/Eos/EosMain/Gamma/RHD
-ENDIF
 
 IF threadWithinBlock
    CONFLICTS physics/Eos/EosMain/WeakLib
-   CONFLICTS physics/Eos/EosMain/Tabulated
-   CONFLICTS physics/Eos/EosMain/multiTemp
-   CONFLICTS physics/Eos/EosMain/Gamma/RHD
 ENDIF
 
 #We only provide a runtime parameter for threading within the block.

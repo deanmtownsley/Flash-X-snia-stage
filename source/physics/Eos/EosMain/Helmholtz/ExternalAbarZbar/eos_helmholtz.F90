@@ -1,12 +1,15 @@
 !!****if* source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/eos_helmholtz
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -90,74 +93,6 @@
 !!  eos_tol    Controls the accuracy of the Newton Rhapson iterations for MODE_DENS_EI and 
 !!             MODE_DENS_PRES.
 !!
-!! ------------------ Row at a time example, with derivates (based on Eos_unitTest) --------
-!!
-!!  use Eos_interface, ONLY:  Eos
-!!  use Grid_interface ! ....
-!!  #include "constants.h"   ! for MODE_DENS_TEMP, LOW,HIGH,IAXIS,JAXIS,KAXIS
-!!  #include "Simulation.h"       ! for DENS_VAR, TEMP_VAR, etc.
-!!  #include "Eos.h"         ! for EOS_NUM, EOS_DENS, EOS_TEMP, etc.
-!!  integer veclen, isize, jsize, ksize, i,j,k, e
-!!  real, dimension(:), allocatable :: eosData
-!!  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
-!!  real, allocatable, dimension(:,:,:,:) :: derivedVariables
-!!  integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
-!!   .
-!!   .
-!!    ! indices into the first location for these variables
-!!    pres = (EOS_PRES-1)*vecLen
-!!    dens = (EOS_DENS-1)*vecLen
-!!    temp = (EOS_TEMP-1)*vecLen
-!!    abar = (EOS_ABAR-1)*vecLen
-!!    zbar = (EOS_ZBAR-1)*vecLen
-!!
-!!
-!!    do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-!!        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
-!!
-!!           eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
-!!           eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
-!!           ! Eos Helmholtz needs a good initial estimate of temperature no matter what the mode
-!!           eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
-!!
-!!           ! ... also initialize the Abar and Zbar elements of eosData:
-!!
-!!           call eos_externalComputeAbarZbar(solnData(SPECIES_BEGIN:UNK_VARS_END,ib:ie,j,k), &
-!!                                            eosData(abar+1:abar+vecLen), &
-!!                                            eosData(zbar+1:zbar+vecLen))
-!!           call Eos(MODE_DENS_PRES,vecLen,eosData,mask=mask)
-!!
-!!           do e=EOS_VARS+1,EOS_NUM
-!!              m = (e-1)*vecLen
-!!              derivedVariables(1:vecLen,j-NGUARD,k-NGUARD,e) =  eosData(m+1:m+vecLen)
-!!           end do
-!!        end do
-!!     end do
-!!
-!! NOTES
-!!
-!!  NSPECIES is defined in Simulation.h.
-!!
-!!  EOS_VARS and EOS_NUM  are defined in Eos.h.
-!!  Calling funtions should included Eos.h, in order to get the definitions of
-!!  Eos-specific constants to be able to populate the eosData and mask arrays.
-!!  
-!!  MODE_DENS_TEMP, MODE_DENS_EI, and MODE_DENS_PRES are defined in constants.h.
-!!
-!!  This routine is private to the Eos unit and should be called directly only
-!!  from routines that are part of the Eos unit.
-!!  All routines calling this routine directly must include a 
-!!     use eos_localInterface
-!!  statement, preferable with "ONLY" attribute, e.g.,
-!!     use eos_localInterface, ONLY:  eos_helmholtz
-!!
-!!  Code outside of the Eos unit should call this Helmholtz implementation only
-!!  indirectly, for example, by invoking the public Eos routine.
-!!  Code calling the Eos routine routine must include a 
-!!     use Eos_interface 
-!!  statement, preferable with "ONLY" attribute, e.g.,
-!!     use Eos_interface, ONLY:  Eos
-!!
 !!  The Helmholtz equation of state calculations are iterative for any mode other
 !!  than MODE_DENS_TEMP.  Therefore, the intial estimates for temperature and density
 !!  must be pretty good upon entering Eos with any other MODE_....or the calculations will
@@ -190,7 +125,7 @@
 
 subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY:  Logfile_stampMessage
 
   use eos_helmInterface, ONLY : eos_helm
@@ -483,7 +418,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' pres = ', ptotRow(k)
         print *, ' ewant= ', ewantRow(k)
 
-        call Driver_abortFlash('[Eos] Error: too many iterations in Helmholtz Eos')
+        call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
 
 
         ! Land here if the Newton iteration converged
@@ -620,7 +555,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         print *, ' dens = ', denRow(k)
         print *, ' pres = ', ptotRow(k)
 
-        call Driver_abortFlash('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
+        call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in eos_helmholtz')
 
 
         ! Land here if the Newton iteration converged
@@ -654,7 +589,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   else if (mode .NE. MODE_EOS_NOP) then
      if (eos_meshMe .EQ. MASTER_PE) print*, '[eos_helmholtz] Error: unknown input mode', mode
-     call Driver_abortFlash('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
+     call Driver_abort('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
   end if
 
 
@@ -715,7 +650,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
 
@@ -724,7 +659,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
   end if

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/Paramesh/PttoPt/Grid_mapParticlesToMesh
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_mapParticlesToMesh
@@ -87,7 +90,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   use gr_ptMapData, ONLY : gr_ptDomain, NUMBGUARDREGIONS, gr_ptSmearLen
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Logfile_interface, ONLY: Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_meshMe
   use gr_ptInterface, ONLY :  gr_ptStoreOffBlockCells, gr_ptSameProcMap, &
        gr_ptOffProcMap, gr_ptMoveMappedData,gr_ptApplyBCsOneBlk
@@ -189,7 +192,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   if (gr_ptSmearLen > 0) then
      allocate(gr_ptDomain(gr_ptBlkCount), STAT=error)
      if (error /= 0) then
-        call Driver_abortFlash("Severe error. Memory cannot be allocated!")
+        call Driver_abort("Severe error. Memory cannot be allocated!")
      end if
 
      !Subroutine modifies module data structure named gr_ptDomain.
@@ -211,7 +214,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
 
      allocate(sendBuf(BufferSize), recvBuf(BufferSize), STAT=error)
      if (error /= 0) then
-        call Driver_abortFlash("Severe error. Memory cannot be allocated!")
+        call Driver_abort("Severe error. Memory cannot be allocated!")
      end if
   end if
 
@@ -222,7 +225,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   ! ---------------------------------------------------------------------------------
   allocate(gr_ptBuf(blkSizeGC(IAXIS),blkSizeGC(JAXIS),blkSizeGC(KAXIS)), STAT=error)
   if (error /= 0) then
-     call Driver_abortFlash("Severe error. Memory cannot be allocated!")
+     call Driver_abort("Severe error. Memory cannot be allocated!")
   end if
 
 
@@ -352,7 +355,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   if (gr_ptSmearLen > 0) then
 
      if(sendCount > BufferSize) then
-        call Driver_abortFlash("Severe error. Communication buffer too small!!!!")
+        call Driver_abort("Severe error. Communication buffer too small!!!!")
      end if
      
      call gr_ptMoveMappedData(varGrid,BufferSize,sendBuf,sendCount,recvBuf)

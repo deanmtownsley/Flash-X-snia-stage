@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/nameValueLL/nameValueLL_bcast
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  nameValueLL_bcast
@@ -37,11 +40,11 @@ subroutine nameValueLL_bcast(context, myPE)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_add, &
 !     &  name_invalid, name_real, name_int, name_str, name_log, &
 !     &  real_list_type, int_list_type, str_list_type, log_list_type, TYPE_VAR
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   type (context_type), intent(inout)          :: context    
   integer, intent(in)                         :: myPE
@@ -85,7 +88,7 @@ subroutine nameValueLL_bcast(context, myPE)
      allocate (real_names(n_real), real_vals(n_real), stat=istat)
      if (istat /= 0) then
         write (*,*) 'nameValueLL_bcast :  allocate failed in real bcast'
-        call Driver_abortFlash("Error: nameValueLL_bcast :  allocate failed in real bcast")            
+        call Driver_abort("Error: nameValueLL_bcast :  allocate failed in real bcast")            
      endif
 
      if (myPE == MASTER_PE) then
@@ -127,7 +130,7 @@ subroutine nameValueLL_bcast(context, myPE)
      allocate (int_names(n_int), int_vals(n_int), stat=istat)
      if (istat /= 0) then
         write (*,*) 'nameValueLL_bcast:  allocate failed'
-        call Driver_abortFlash("Error: nameValueLL_bcast :  allocate failed")
+        call Driver_abort("Error: nameValueLL_bcast :  allocate failed")
      endif
 
      if (myPE == MASTER_PE) then
@@ -168,7 +171,7 @@ subroutine nameValueLL_bcast(context, myPE)
      allocate (str_names(n_str), str_vals(n_str), stat=istat)
      if (istat /= 0) then
         write (*,*) 'nameValueLL_bcast :  allocate failed'
-        call Driver_abortFlash("Error: nameValueLL_bcast :  allocate failed");
+        call Driver_abort("Error: nameValueLL_bcast :  allocate failed");
      endif
 
      if (myPE == MASTER_PE) then
@@ -208,7 +211,7 @@ subroutine nameValueLL_bcast(context, myPE)
      allocate (log_names(n_log), log_vals(n_log), stat=istat)
      if (istat /= 0) then
         write (*,*) 'nameValueLL_bcast :  allocate failed'
-        call Driver_abortFlash("nameValueLL_bcast :  allocate failed")
+        call Driver_abort("nameValueLL_bcast :  allocate failed")
      endif
 
      if (myPE == MASTER_PE) then

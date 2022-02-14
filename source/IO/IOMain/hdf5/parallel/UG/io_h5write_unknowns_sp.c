@@ -12,7 +12,7 @@
 #include "io_h5_attribute.h"
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -112,7 +112,7 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
 
   if (ierr < 0){
     printf("Error: Unable to set layout for dataset_plist\n");
-    Driver_abortFlashC("Error: Unable to set layout for dataset_plist\n");
+    Driver_abortC("Error: Unable to set layout for dataset_plist\n");
   }
 
   
@@ -126,7 +126,7 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
 
   if (ierr < 0){
     printf("Error: Unable to set chunk for dataset_plist\n");
-    Driver_abortFlashC("Error: Unable to set chunk for dataset_plist\n");
+    Driver_abortC("Error: Unable to set chunk for dataset_plist\n");
   }
 
 #endif
@@ -135,14 +135,14 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
   if ((*myPE == MASTER_PE) && (*global_offset != 0)) {
     dataset = H5Dopen(*file_identifier, record_label_new); 
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dopen io_h5write_unknowns_sp\n");
+      Driver_abortC("Error: H5Dopen io_h5write_unknowns_sp\n");
     }
   }else {
     
     dataset = H5Dcreate(*file_identifier, record_label_new,
                   H5T_NATIVE_FLOAT, dataspace, dataset_plist); 
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dcreate io_h5write_unknowns_sp\n");
+      Driver_abortC("Error: H5Dcreate io_h5write_unknowns_sp\n");
     }    
   }
 
@@ -169,7 +169,7 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
     
     if (status < 0){
       printf("Error: Unable to select hyperslab for unknowns dataspace\n");
-      Driver_abortFlashC("Error: Unable to select hyperslab for unknown dataspace\n");
+      Driver_abortC("Error: Unable to select hyperslab for unknown dataspace\n");
     }
 
 
@@ -239,9 +239,9 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
 #endif
     if(!*dowrite) {
       status = H5Sselect_none(dataspace);
-      if(status < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+      if(status < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
       status = H5Sselect_none(memspace);
-      if(status < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+      if(status < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
     }
     /* write the data */
     status = H5Dwrite(dataset, H5T_NATIVE_FLOAT, memspace, dataspace, 
@@ -249,7 +249,7 @@ void FTOC(io_h5write_unknowns_sp)(int* myPE,
     
     if (status < 0){
       printf("Error: Unable to write unknowns\n");
-      Driver_abortFlashC("Error: Unable to write unknowns\n");
+      Driver_abortC("Error: Unable to write unknowns\n");
     }
 
 #ifdef DEBUG_IO

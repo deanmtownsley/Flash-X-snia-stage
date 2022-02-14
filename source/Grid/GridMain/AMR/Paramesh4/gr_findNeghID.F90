@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_findNeghID
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -59,7 +62,9 @@ subroutine gr_findNeghID(blockID,pos,negh,neghID)
 !  use Grid_interface, ONLY : Grid_getBlkBoundBox,Grid_outsideBoundBox, Grid_getBlkBC
 !  use Grid_data, ONLY : gr_globalDomain, gr_meshMe
 !  use tree, ONLY : surr_blks,parent,child, bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+
+  use Driver_interface, ONLY : Driver_abort
+  use Grid_tile, ONLY : Grid_tile_t
   
   implicit none
   integer,intent(IN) :: blockID
@@ -68,7 +73,7 @@ subroutine gr_findNeghID(blockID,pos,negh,neghID)
   integer,dimension(BLKNO:PROCNO),intent(OUT) :: neghID
 
   neghID(:) = 0
-  call Driver_abortFlash("[gr_findNeighID] Update for tiling")
+  call Driver_abort("[gr_findNeighID] Update for tiling")
 
 !  integer,dimension(BLKNO:TYPENO) :: negh_prop
 !  integer :: blkHandle, childID, proc, blk, eachAxis

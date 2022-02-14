@@ -1,7 +1,10 @@
 !----------------------------------------------------------------------
-!! 
 ! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
+! Copyright (C) 2003, 2004 United States Government as represented by the
+! National Aeronautics and Space Administration, Goddard Space Flight
+! Center.  All Rights Reserved.
+! Copyright (C) 2017 The University of Chicago
+! Copyright (C) 2022 UChicago Argonne, LLC and contributors
 !
 ! Use of the PARAMESH software is governed by the terms of the
 ! usage agreement which can be found in the file
@@ -85,7 +88,7 @@
         use Grid_data, ONLY: gr_geometry, gr_globalMe
         use Logfile_interface, ONLY: Logfile_stamp
 #ifndef LIBRARY
-        use Driver_interface, ONLY : Driver_abortFlash
+        use Driver_interface, ONLY : Driver_abort
 #endif
 #ifndef USE_AMR_RUNTIME_PARAMETERS_FILE
         use RuntimeParameters_interface, ONLY: RuntimeParameters_get
@@ -406,7 +409,7 @@ SET_OR_CHECK(nguard_work,IntParms(13))
           
           print  9,var,filevalue
           print 10,codevalue
-          call Driver_abortFlash("Bad value of "//var)
+          call Driver_abort("Bad value of "//var)
         end subroutine die
 
 #ifndef USE_AMR_RUNTIME_PARAMETERS_FILE

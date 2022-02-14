@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/Pipeline/PipelineMain/Pipeline_localSendItem
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  
@@ -72,13 +75,13 @@ subroutine Pipeline_localSendItem (userItem, userProcID,   isHandled)
                                 pl_sendStatus
 
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use pl_interface,      ONLY : pl_localPostSendMsg
 
   implicit none
 
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
   real,    intent (in)  :: userItem (:)
   integer, intent (in)  :: userProcID
@@ -95,7 +98,7 @@ subroutine Pipeline_localSendItem (userItem, userProcID,   isHandled)
 !
 !
   if (size (userItem) > pl_itemSize) then
-      call Driver_abortFlash ('[Pipeline_localSendItem] ERROR: Size of user supplied item to large!')
+      call Driver_abort ('[Pipeline_localSendItem] ERROR: Size of user supplied item to large!')
   end if
 !
 !
@@ -113,7 +116,7 @@ subroutine Pipeline_localSendItem (userItem, userProcID,   isHandled)
   end do
 
   if (channel == notFound) then
-      call Driver_abortFlash ('[Pipeline_localSendItem] ERROR: channel for item not found!')
+      call Driver_abort ('[Pipeline_localSendItem] ERROR: channel for item not found!')
   end if
 !
 !
@@ -143,7 +146,7 @@ subroutine Pipeline_localSendItem (userItem, userProcID,   isHandled)
   itemsCount = pl_sendCount (channel) + 1
 
   if (itemsCount > pl_channelSize) then
-      call Driver_abortFlash ('[Pipeline_localSendItem] ERROR: channel overflow!')
+      call Driver_abort ('[Pipeline_localSendItem] ERROR: channel overflow!')
   end if
 
   pl_sendBuf   (:, itemsCount , channel) = userItem (:)

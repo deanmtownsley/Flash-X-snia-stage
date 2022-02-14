@@ -12,7 +12,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -96,7 +96,7 @@ void FTOC(io_h5read_blk_particle_info)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to select hyperslab for blk particle info\n");
-    Driver_abortFlashC("Error: Unable to select hyperslab for blk particle info\n");
+    Driver_abortC("Error: Unable to select hyperslab for blk particle info\n");
   }
 
 
@@ -118,7 +118,7 @@ void FTOC(io_h5read_blk_particle_info)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to read dataset for blk_particle_info\n");
-    Driver_abortFlashC("Error: Unable to read dataset for blk_particle_info\n");
+    Driver_abortC("Error: Unable to read dataset for blk_particle_info\n");
   }
 
   H5Sclose(memspace); 

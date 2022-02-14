@@ -1,12 +1,15 @@
 !!****ih* source/Grid/GridMain/AMR/Amrex/Grid_iterator
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_iterator
@@ -136,7 +139,7 @@ contains
     !!****
     subroutine init_iterator(itor, nodetype, level, tiling, tileSize, nthreads)
       use Logfile_interface, ONLY : Logfile_stamp
-      use Driver_interface, ONLY : Driver_abortFlash
+      use Driver_interface, ONLY : Driver_abort
       use amrex_amrcore_module, ONLY : amrex_get_finest_level
       use Grid_data, ONLY: gr_envOmpNumThreads
       !$ use omp_lib
@@ -181,13 +184,13 @@ contains
       if (myNthreads .NE. theirNthreads) then
          if (myNthreads == 1 .AND. theirNthreads == -999) then
             call Logfile_stamp('Maybe you should set environment variable OMP_NUM_THREADS=1.')
-            call Driver_abortFlash('The AMReX library supports OpenMP, so FLASH should be configured for threading!')
+            call Driver_abort('The AMReX library supports OpenMP, so FLASH should be configured for threading!')
 #ifdef _OPENMP
          else if (myNthreads == 1) then
             inactivePar = .TRUE.
 #endif
          else
-            call Driver_abortFlash('Grid_iterator: nthreads value not supported.')
+            call Driver_abort('Grid_iterator: nthreads value not supported.')
          end if
       end if
 

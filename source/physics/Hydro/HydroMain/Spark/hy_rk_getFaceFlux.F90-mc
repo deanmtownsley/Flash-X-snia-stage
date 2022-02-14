@@ -1,12 +1,15 @@
-!!****if* source/physics/Hydro/HydroMain/M1/hy_rk_getFaceFlux
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getFaceFlux
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!
@@ -14,7 +17,10 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_getFaceFlux ( blklimits,blkLimitsGC,hy_del, limits) 
+!!  call hy_rk_getFaceFlux ( integer(IN) :: blklimits(:,:),
+!!                           integer(IN) :: blklimitsGC(:,:),
+!!                           real(IN)    :: hy_del(:),
+!!                           integer(IN) :: limits(:,:))
 !!
 !!  DESCRIPTION
 !!  Initially stores grid data by 'pencils' (see subroutine setPencil() below),
@@ -23,15 +29,17 @@
 !!  saved to the grid multifabs (AMReX) for later access.
 !!
 !!  ARGUMENTS
-!!  blklimits,blkLimitsGC are the bounds of the block/tile
-!!  hy_del are dx,dy,dz
-!!  limits-sets limits of the fluxes.  Note this is a modified form typically yielded
-!!         by blockDesc%limits b/c stage 1 of RK integration accounts for NSTENCIL 
-!!         number of guard cells beyond the block interior.  Stage 2 only updates the 
-!!         interior cells.
+!!     blklimits,blkLimitsGC are the bounds of the block/tile
+!!     hy_del are dx,dy,dz
+!!     limits   sets limits of the fluxes.
+!!
+!!     Note this is a modified form typically yielded
+!!     by blockDesc%limits b/c stage 1 of RK integration accounts for NSTENCIL 
+!!     number of guard cells beyond the block interior.  Stage 2 only updates the 
+!!    interior cells.
 !!
 !!***
-!!!*** Already written in form of small function calls, so no need to insert kernel delimiters
+
 !!Reorder(4):hy_starState,hy_fl[xyz] 
 subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
 

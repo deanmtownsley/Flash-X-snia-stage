@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_createBlock
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_createBlock
@@ -45,7 +48,7 @@ subroutine gr_createBlock(xBlkmin, xBlkmax, &
 !==============================================================================
   use tree, ONLY : lnblocks,lrefine,nodetype,parent,child,bsize,bnd_box,coord,&
                    work_block,gr_btWorkDefaultLeaf
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 # include "Simulation.h"
 
@@ -57,7 +60,7 @@ subroutine gr_createBlock(xBlkmin, xBlkmax, &
   
   
   if (lnblocks .eq. MAXBLOCKS) then
-     call Driver_abortFlash ("createBlock:  cannot add another block")
+     call Driver_abort ("createBlock:  cannot add another block")
   endif
   
   !            Increment the local block # counter and set tree information.

@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/hdf5/IO_writeRays
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -48,9 +51,9 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
                      io_meshNumProcs,    &
                      io_rayFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer, intent(in) :: numRays
@@ -66,7 +69,7 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
   allocate(procPos(io_meshNumProcs))
 
   if(.not. io_wrotePlot) then
-     call Driver_abortFlash("[IO_writeRays] IO_writeRays should only be called after a plot")
+     call Driver_abort("[IO_writeRays] IO_writeRays should only be called after a plot")
   end if
   
   ! Before writing the ray data, each processor has to compute the
@@ -122,7 +125,7 @@ subroutine IO_writeRays(numRays, rayTags, posBuffer, powerBuffer, numPos)
   call io_h5write_raydata(io_rayFileID, global_count, ierr, start_pos, &
        local_count, tags, xpos, ypos, zpos, power, io_meshMe)
   if(ierr < 0) then
-     call Driver_abortFlash("[IO_writeRays] Error in io_h5write_raydata")
+     call Driver_abort("[IO_writeRays] Error in io_h5write_raydata")
   end if
 
   deallocate(tags)

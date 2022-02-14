@@ -1,12 +1,15 @@
 !!****if* source/physics/Eos/EosMain/Helmholtz/eos_helm
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -100,7 +103,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
        eos_ef, eos_eft, eos_efd, eos_efdt, &
        eos_xf, eos_xft, eos_xfd, eos_xfdt, &
        EOSJMAX, EOSIMAX, eos_coulombAbort
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
   use eos_vecData, ONLY: tempRow , denRow, abarRow, zbarRow, &
@@ -748,7 +751,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
         !! Equations for decoulda and decouldz can be added here....
 
         if (bAprox13t) then
-           call Driver_abortFlash('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
+           call Driver_abort('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
         end if
 
         s3       = -kavoy*plasg_inv*(1.5e0*c2*x5 - a2*(b2 - 1.0e0)*y3)
@@ -783,7 +786,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
            call Logfile_stampMessage('  It is possible that the mesh is of low quality.')
            print *, '      It is possible that the mesh is of low quality.'
            ! always abort if abar is negative as that is physically invalid
-           call Driver_abortFlash('[eos_helm] ERROR: abar is negative.')
+           call Driver_abort('[eos_helm] ERROR: abar is negative.')
         endif
 
         if ( s4 > 0.e0 ) then
@@ -798,7 +801,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
               print *, '  set runtime parameter eos_coulombMult to zero if plasma Coulomb corrections not important'
            end if
            if ( eos_coulombAbort) then
-              call Driver_abortFlash('[eos_helm] ERROR: coulomb correction causing negative total pressure.')
+              call Driver_abort('[eos_helm] ERROR: coulomb correction causing negative total pressure.')
            else
               call Logfile_stampMessage('Setting coulombMult to zero for this call, eos_coulombAbort=false.')
               print *, '  Setting coulombMult to zero for this call, eos_coulombAbort=false'
@@ -818,7 +821,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
            call Logfile_stampMessage(internalFile)
            print *, internalFile
 
-           call Driver_abortFlash('[eos_helm] ERROR: negative total pressure.')
+           call Driver_abort('[eos_helm] ERROR: negative total pressure.')
         end if
 
      end if

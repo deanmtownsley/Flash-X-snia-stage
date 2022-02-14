@@ -1,12 +1,15 @@
 
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!****if* source/Grid/GridMain/Grid_getBlkIDFromPos
 !!
 !! NAME
@@ -61,10 +64,10 @@ subroutine Grid_getBlkIDFromPos(pos,ansBlockID, ansProcID,comm)
   use Grid_data, ONLY : gr_minCellSizes, gr_globalDomain, gr_meshMe
   use Grid_interface, ONLY : Grid_getBlkCornerID
   use gr_parameshInterface, ONLY : gr_pmGetListOfBlocks
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #endif
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   real, dimension(1:MDIM), intent(IN) :: pos
   integer, intent(OUT) :: ansBlockID, ansProcID
   integer, optional, intent(IN) :: comm
@@ -86,7 +89,7 @@ subroutine Grid_getBlkIDFromPos(pos,ansBlockID, ansProcID,comm)
   if (ansProcID == NONEXISTENT) ansBlockID = NONEXISTENT
 #else
   if (.NOT.present(comm)) then
-     call Driver_abortFlash('The specific routine Grid_getBlkIDFromPos requires a communicator argument!')
+     call Driver_abort('The specific routine Grid_getBlkIDFromPos requires a communicator argument!')
   end if
   call gr_pmGetListOfBlocks(LEAF,blkList,blkCount)
   ansBlockID=NONEXISTENT

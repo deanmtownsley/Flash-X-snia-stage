@@ -1,12 +1,15 @@
 !!****if* source/IO/IOTypes/io_getZeroBasedVarInfo
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  io_getZeroBasedVarInfo
@@ -56,7 +59,7 @@
 subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
      numOutputGridVars, gridVarOffsets, gridVarLabels)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use IO_data, ONLY : io_unkLabels, io_faceXVarLabels, io_faceYVarLabels, &
        io_faceZVarLabels, io_scratchGridVarlabels, io_nPlotVars, &
        io_nPlotGridVars, io_plotVar, io_plotGridVar, io_unkLabelsGlobal, io_plotVarStr
@@ -154,7 +157,7 @@ subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
 
 
      case DEFAULT
-        call Driver_abortFlash ("Checkpoint file data structure not recognised")
+        call Driver_abort ("Checkpoint file data structure not recognised")
      end select
 
 
@@ -218,12 +221,12 @@ subroutine io_getZeroBasedVarInfo(fileType, gridDataStruct, numGridVars, &
       
   
      case DEFAULT
-        call Driver_abortFlash("Plot file data structure not recognised")
+        call Driver_abort("Plot file data structure not recognised")
      end select
 
 
   case DEFAULT
-     call Driver_abortFlash("File type not recognised")
+     call Driver_abort("File type not recognised")
   end select
 
 end subroutine io_getZeroBasedVarInfo

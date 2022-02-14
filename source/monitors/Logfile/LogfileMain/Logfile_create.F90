@@ -1,12 +1,15 @@
 !!****if* source/monitors/Logfile/LogfileMain/Logfile_create
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!     Logfile_create
@@ -47,7 +50,7 @@ subroutine Logfile_create ()
   !$ use omp_lib
   use Logfile_data, ONLY : log_fileOpen, log_lun, log_fileName, &
        log_runComment, log_runNum, log_globalMe, log_globalNumProcs
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_putTimeStamp, &
+  use Driver_interface, ONLY : Driver_abort, Driver_putTimeStamp, &
        Driver_mpiThreadSupport
   use RuntimeParameters_interface, ONLY : &
     RuntimeParameters_getNumReal, RuntimeParameters_getNumInt, &
@@ -59,7 +62,7 @@ subroutine Logfile_create ()
     PhysicalConstants_listUnits, PhysicalConstants_list
   use Multispecies_interface, ONLY : Multispecies_list
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 #include "constants.h"
 #include "Simulation.h"
@@ -419,7 +422,7 @@ subroutine Logfile_create ()
      else
         
         write (*,*) 'Logfile_create:  could not create log file'
-        call Driver_abortFlash("Logfile_create : could not create logfile")
+        call Driver_abort("Logfile_create : could not create logfile")
 
      endif
 

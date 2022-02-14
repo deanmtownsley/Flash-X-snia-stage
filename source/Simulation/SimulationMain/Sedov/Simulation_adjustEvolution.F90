@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Sedov/Simulation_adjustEvolution
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Simulation_adjustEvolution
@@ -54,9 +57,9 @@ subroutine Simulation_adjustEvolution(blkcnt, blklst, nstep, dt, stime)
 
 
 !!$  ! We want the NEW time that we are advancing TO.
-!!$  ! This is based on where Simulation_adjustEvolution is called from Driver_evolveFlash:
+!!$  ! This is based on where Simulation_adjustEvolution is called from Driver_evolveAll:
 !!$  ! dr_simTime has not been updated yet at this point.
-!!$  !!DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveFlash.F90 !
+!!$  !!DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveAll.F90 !
 !!$  !!DEV: Check whether this needs adjustments for when STS is used!
 !!$  tnew = stime+dt
 !!$

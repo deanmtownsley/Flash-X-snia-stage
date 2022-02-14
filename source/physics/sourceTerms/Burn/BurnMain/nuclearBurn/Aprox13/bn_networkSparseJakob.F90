@@ -1,12 +1,15 @@
 !!****ih* source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkSparseJakob
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -44,7 +47,7 @@
 subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
 
   use Burn_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   ! for communication with networkSparsePointers
   use bn_dataNetworkSize, ONLY : neloc, eloc, nterms
   use bn_dataAprox13
@@ -654,7 +657,7 @@ subroutine bn_networkSparseJakob(tt,y,dfdy,nzo,nDummy)
   if (nt .ne. nterms) then
      write(6,*) 'nt =',nt,'  nterms =',nterms
      write(6,*) 'error in routine networkSparseJakob: nt .ne. nterms'
-     call Driver_abortFlash('ERROR in networkSparseJakob: nt /= nterms')
+     call Driver_abort('ERROR in networkSparseJakob: nt /= nterms')
   end if
   return
 

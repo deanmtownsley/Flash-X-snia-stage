@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/io_xfer_tree_data
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  io_xfer_tree_data
@@ -75,7 +78,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
 # endif
 #endif
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use IO_data, ONLY : io_type_matched_xfer, io_globalMe, tree_data_t
   use io_intfTypesModule, ONLY : io_fileID_t
@@ -112,7 +115,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
   else if (xferType == IO_READ_XFER .or. xferType == IO_READ_XFER_MASTER_PE) then
      tree_str = "read tree data"
   else
-     call Driver_abortFlash("Invalid transfer type")
+     call Driver_abort("Invalid transfer type")
   end if
 
 
@@ -157,14 +160,14 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
         bnd_box_str = "bndbox"
         bsize_str = "blocksize"
      else
-        call Driver_abortFlash("[io_xfer_tree_data]: Unrecognized file type")
+        call Driver_abort("[io_xfer_tree_data]: Unrecognized file type")
      end if
 
 
 
      IO_TIMERS_START(nodetype_str)
      if (.not.associated(tree_data % nodetype)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: nodetype not associated")
+        call Driver_abort("[io_xfer_tree_data]: nodetype not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -178,7 +181,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
 
      IO_TIMERS_START(lrefine_str)
      if (.not.associated(tree_data % lrefine)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: lrefine not associated")
+        call Driver_abort("[io_xfer_tree_data]: lrefine not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -197,7 +200,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
                 " Max block refinement level in the checkpoint file ", &
                 maxval(tree_data % lrefine(1:localNumBlocks)), &
                 ", lrefine_max ", lrefine_max
-           call Driver_abortFlash("At least 1 block in the checkpoint "// &
+           call Driver_abort("At least 1 block in the checkpoint "// &
                 "file has a refinement level > lrefine_max. "// &
                 "Increase lrefine_max in your flash.par!")
         end if
@@ -209,7 +212,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
      !needed for restart. Adding bflags for completeness.
      IO_TIMERS_START(which_child_str)
      if (.not.associated(tree_data % which_child)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: which_child not associated")
+        call Driver_abort("[io_xfer_tree_data]: which_child not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -235,7 +238,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
      if (libType == IO_FILE_HDF5) then
         IO_TIMERS_START(bflags_str)
         if (.not.associated(tree_data % bflags)) then
-           call Driver_abortFlash("[io_xfer_tree_data]: bflags not associated")
+           call Driver_abort("[io_xfer_tree_data]: bflags not associated")
         end if
         !Paramesh memory size: (/maxblocks_tr,MFLAGS/)
         call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -263,7 +266,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
           do_gsurr_blks_read)) then
         IO_TIMERS_START(gr_gsurr_blks_str)
         if (.not.associated(tree_data % gsurr_blks)) then
-           call Driver_abortFlash("[io_xfer_tree_data]: gsurr_blks not associated")
+           call Driver_abort("[io_xfer_tree_data]: gsurr_blks not associated")
         end if
         call io_xfer_cont_slab(io_globalMe, fileID, libType, &
              xferType, typeMatchedXfer, &
@@ -291,7 +294,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
 
      IO_TIMERS_START(gr_gid_str)
      if (.not.associated(tree_data % gid)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: gid not associated")
+        call Driver_abort("[io_xfer_tree_data]: gid not associated")
      end if
      !Paramesh memory size: (/MAXBLOCKS,nfaces+nchild+1/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -308,7 +311,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
      if (xferType == IO_WRITE_XFER .or. xferType == IO_WRITE_XFER_MASTER_PE) then
         IO_TIMERS_START(procnumber_str)
         if (.not.associated(tree_data % procnumber)) then
-           call Driver_abortFlash("[io_xfer_tree_data]: procnumber not associated")
+           call Driver_abort("[io_xfer_tree_data]: procnumber not associated")
         end if
         !Paramesh memory size: (/localNumBlocks/)
         call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -325,7 +328,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
 
      IO_TIMERS_START(bnd_box_str)
      if (.not.associated(tree_data % bnd_box)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: bnd_box not associated")
+        call Driver_abort("[io_xfer_tree_data]: bnd_box not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr,MDIM,2/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -342,7 +345,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
      !Block center coordinates (not to be confused with the cell coordinates)
      IO_TIMERS_START(coord_str)
      if (.not.associated(tree_data % coord)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: coord not associated")
+        call Driver_abort("[io_xfer_tree_data]: coord not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr,MDIM/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &
@@ -358,7 +361,7 @@ subroutine io_xfer_tree_data(tree_data, fileID, &
 
      IO_TIMERS_START(bsize_str)
      if (.not.associated(tree_data % bsize)) then
-        call Driver_abortFlash("[io_xfer_tree_data]: bsize not associated")
+        call Driver_abort("[io_xfer_tree_data]: bsize not associated")
      end if
      !Paramesh memory size: (/maxblocks_tr,MDIM/)
      call io_xfer_cont_slab(io_globalMe, fileID, libType, &

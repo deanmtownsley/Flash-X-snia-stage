@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_getNumBlksFromType
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_getNumBlksFromType
@@ -30,7 +33,7 @@ subroutine Grid_getNumBlksFromType(blockType,numBlocks)
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
   use Grid_iterator,  ONLY : Grid_iterator_t
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
 
 
   implicit none
@@ -41,7 +44,7 @@ subroutine Grid_getNumBlksFromType(blockType,numBlocks)
   type(Grid_iterator_t) :: itor
 
   if ( (blockType.ne.ALL_BLKS) .and. (blockType.ne.LEAF)) then
-    call Driver_abortFlash("Invalid nodetype passed to Grid_getNumBlksFromType. Valid options: ALL_BLKS, LEAF.")
+    call Driver_abort("Invalid nodetype passed to Grid_getNumBlksFromType. Valid options: ALL_BLKS, LEAF.")
   endif
 
   numBlocks = 0

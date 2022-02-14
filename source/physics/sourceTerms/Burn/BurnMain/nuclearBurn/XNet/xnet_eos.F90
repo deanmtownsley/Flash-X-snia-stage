@@ -1,12 +1,15 @@
 !***************************************************************************************************
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 ! eos_helm.f90 10/18/17
 ! Interface to FLASH EoS.
 ! This file contains routines which calculate EoS quantites needed to calculate screening
@@ -14,7 +17,7 @@
 !***************************************************************************************************
 
 Module xnet_eos
-  Use Driver_interface, Only: Driver_abortFlash
+  Use Driver_interface, Only: Driver_abort
   Use Eos_interface, Only: Eos
   Use Simulation_interface, Only: Simulation_mapStrToInt
   Use xnet_types, Only: dp
@@ -102,7 +105,7 @@ Contains
 #endif
       if ( ierr > 0 ) then
         Write(lun_stdout,"(a,6es23.15)") 'EOS',t9,rho,ye,cv,etae,detaedt9
-        call Driver_abortFlash('[xnet_eos] Error: too many Newton-Raphson iterations in Eos')
+        call Driver_abort('[xnet_eos] Error: too many Newton-Raphson iterations in Eos')
       endif
     Else
       etae = 0.0

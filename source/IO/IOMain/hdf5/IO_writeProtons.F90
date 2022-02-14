@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/hdf5/IO_writeProtons
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -41,9 +44,9 @@ subroutine IO_writeProtons (numberOfProtons, tags, points, pointCount)
                               io_meshNumProcs,    &
                               io_protonFileID
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer, intent (in) :: numberOfProtons
@@ -63,7 +66,7 @@ subroutine IO_writeProtons (numberOfProtons, tags, points, pointCount)
   real,    allocatable :: t (:), x (:), y (:), z (:)
 
   if (.not. io_wrotePlot) then
-       call Driver_abortFlash ("[IO_writeProtons] IO_writeProtons should only be called after a plot")
+       call Driver_abort ("[IO_writeProtons] IO_writeProtons should only be called after a plot")
   end if
   
   allocate (procPoints (1:io_meshNumProcs))
@@ -128,7 +131,7 @@ subroutine IO_writeProtons (numberOfProtons, tags, points, pointCount)
                               t, x, y, z       )
 
   if (error < 0) then
-      call Driver_abortFlash ("[IO_writeProtons] Error in io_h5write_protonData")
+      call Driver_abort ("[IO_writeProtons] Error in io_h5write_protonData")
   end if
 
   deallocate (t,x,y,z)

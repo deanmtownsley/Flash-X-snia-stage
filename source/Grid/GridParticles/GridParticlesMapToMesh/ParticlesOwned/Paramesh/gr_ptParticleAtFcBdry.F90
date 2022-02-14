@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/Paramesh/gr_ptParticleAtFcBdry
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_ptParticleAtFcBdry
@@ -40,7 +43,7 @@ subroutine gr_ptParticleAtFcBdry(partID, fcBdry)
   use tree, ONLY : lnblocks, nodetype
   use Particles_data, ONLY : particles
   use gr_ptMapData, ONLY : gr_ptDomain, gr_ptSmearLen
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer, intent(IN) :: partID
@@ -78,7 +81,7 @@ subroutine gr_ptParticleAtFcBdry(partID, fcBdry)
   end do
 
   if (blockIDMatch.eqv..false.) then
-     call Driver_abortFlash("gr_ptParticleAtFcBdry error. block ID not found!!!!")
+     call Driver_abort("gr_ptParticleAtFcBdry error. block ID not found!!!!")
   end if
 
 

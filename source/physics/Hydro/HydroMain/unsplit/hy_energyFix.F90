@@ -1,12 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/unsplit/hy_energyFix
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -71,7 +74,7 @@
 #include "UHD.h"
 
 Subroutine hy_energyFix(tileDesc,U,blkLimits,dt,dtOld,del,eosMode)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Hydro_data,     ONLY : hy_eswitch, hy_irenorm, hy_geometry,&
                              hy_dtmin, hy_dtminloc, hy_dtminValid, hy_dtminCfl, hy_meshMe, &
                              hy_useAuxEintEqn, hy_smallE,     &
@@ -448,7 +451,7 @@ Subroutine hy_energyFix(tileDesc,U,blkLimits,dt,dtOld,del,eosMode)
 
   if (eosMode==MODE_DENS_PRES) then
      ! Set with explicit loop nest of tile-based region
-     call Driver_abortFlash("Update to work with tiling")
+     call Driver_abort("Update to work with tiling")
      U(PRES_VAR,:,:,:) = U(EINT_VAR,:,:,:)*U(DENS_VAR,:,:,:)*(U(GAME_VAR,:,:,:)-1.)
   endif
 

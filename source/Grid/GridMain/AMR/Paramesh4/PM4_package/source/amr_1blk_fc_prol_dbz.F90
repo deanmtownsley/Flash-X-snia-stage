@@ -1,5 +1,15 @@
+!----------------------------------------------------------------------
+! PARAMESH - an adaptive mesh library.
+! Copyright (C) 2003, 2004 United States Government as represented by the
+! National Aeronautics and Space Administration, Goddard Space Flight
+! Center.  All Rights Reserved.
+! Copyright (C) 2012, 2013, 2016 The University of Chicago
+!
+! Use of the PARAMESH software is governed by the terms of the
+! usage agreement which can be found in the file
+! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
+!----------------------------------------------------------------------
 !!
-!! 
 ! Modification history:
 !     Michael L. Rilee, November 2002, *dbz*
 !        Initial support for divergenceless prolongation

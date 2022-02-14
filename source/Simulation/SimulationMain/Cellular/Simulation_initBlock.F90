@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Cellular/Simulation_initBlock
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -82,7 +85,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
      sim_noiseAmplitude, sim_noiseDistance, &
      sim_xCenterPerturb, sim_yCenterPerturb, sim_zCenterPerturb, &
      sim_xmin, sim_xmax, sim_ymin, sim_ymax, sim_zmin, sim_zmax  
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
     Multispecies_getSumFrac
   use Grid_interface, ONLY : Grid_getCellCoords

@@ -1,12 +1,15 @@
 !!****if* source/monitors/Timers/TimersMain/Tau/tmr_findTimerIndex
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!   tmr_findTimerIndex - find a timer with a given name
@@ -36,7 +39,7 @@ subroutine tmr_findTimerIndex (name, createIfNone, index)
 
   use Timers_data, ONLY : tmr_prefixLen, &
        tmr_tauList, tmr_freeSlot, tmr_customPrefix, tmr_MAX_CUSTOM_TIMERS
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none  
 
@@ -51,7 +54,7 @@ subroutine tmr_findTimerIndex (name, createIfNone, index)
 
   argStringLen = len(name)
   if (argStringLen + tmr_prefixLen > MAX_STRING_LENGTH) then
-     call Driver_abortFlash("Following string name is too long:"//name)
+     call Driver_abort("Following string name is too long:"//name)
   end if
 
 
@@ -77,7 +80,7 @@ subroutine tmr_findTimerIndex (name, createIfNone, index)
   if (createIfNone .eqv. .true.) then
 
      if ( tmr_freeSlot > tmr_MAX_CUSTOM_TIMERS) then
-        call Driver_abortFlash("[tmr_findTimerIndex]: No space to add another timer!")
+        call Driver_abort("[tmr_findTimerIndex]: No space to add another timer!")
      end if
      
      iTmr = tmr_freeSlot

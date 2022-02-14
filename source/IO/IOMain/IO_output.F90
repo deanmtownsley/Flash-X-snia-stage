@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/IO_output
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -131,7 +134,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
        io_nextCheckpointZ, io_nextPlotFileZ, io_checkpointFileIntervalZ, io_plotfileIntervalZ, &
        io_alwaysComputeUserVars, io_outputInStack,io_globalMe, io_globalComm, &
        io_wrotePlot, io_maxRSS, io_measRSS
-  use Driver_interface, ONLY : Driver_abortFlash,Driver_finalizeFlash
+  use Driver_interface, ONLY : Driver_abort,Driver_finalizeAll
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
   use Timers_interface, ONLY : Timers_start, Timers_stop, &
     Timers_getSummary
@@ -142,7 +145,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
   use io_ptInterface, ONLY : io_ptCorrectNextPartTime, io_ptResetNextFile
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
   integer, intent(in) ::  nbegin, nstep

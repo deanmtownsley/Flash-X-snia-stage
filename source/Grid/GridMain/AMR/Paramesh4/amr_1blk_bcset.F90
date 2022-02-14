@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/amr_1blk_bcset
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -125,7 +128,7 @@ subroutine amr_1blk_bcset(mype,ibc,lb,pe,idest,&
      iopt,ibnd,jbnd,kbnd,surrblks)
   
 !!$  use paramesh_dimensions
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkIndexLimits
   use Grid_data, ONLY : gr_bndOrder,gr_numDataStruct,gr_gridDataStruct,&
        gr_gridDataStructSize
@@ -220,7 +223,7 @@ subroutine amr_1blk_bcset(mype,ibc,lb,pe,idest,&
 
   if (regionType(bcDir).NE.leftOrRight) then
      print*,'Internal Error in amr_1blk_bcset',regionType(bcDir),leftOrRight
-     call Driver_abortFlash('Internal Error in amr_1blk_bcset')
+     call Driver_abort('Internal Error in amr_1blk_bcset')
   end if
   regionType(bcDir)=leftOrRight
 
@@ -297,7 +300,7 @@ contains
           iblk = iblk+1
        enddo
        if(.not.lfound) then
-          call Driver_abortFlash('Paramesh error: amr_1blk_bcset : '// & 
+          call Driver_abort('Paramesh error: amr_1blk_bcset : '// & 
                &      ' remote block is not in list received on this pe')
        endif
     endif
@@ -320,7 +323,7 @@ contains
 
 
     subroutine prioselector(bcTypeToApply,directionToApply,leftOrRight,bcTypeFromParamesh)
-      use Driver_interface, ONLY : Driver_abortFlash
+      use Driver_interface, ONLY : Driver_abort
       integer,intent(OUT) :: bcTypeToApply,directionToApply,leftOrRight
       integer,intent(IN) :: bcTypeFromParamesh !could be used for debugging - KW
       integer :: celery(2,2,2) !for faster(?) access to relevant surrblks info - KW
@@ -355,7 +358,7 @@ contains
 
 #ifdef DEBUG_GRID
       if (ANY(celery .NE. celery0)) then
-         call Driver_abortFlash('Something is wrong with initialization of celery array!')
+         call Driver_abort('Something is wrong with initialization of celery array!')
       end if
 #endif
 
@@ -365,7 +368,7 @@ contains
       dirSet(3) = kbnd
       select case (dimendiff)
       case(0)
-         call Driver_abortFlash('amr_1blk_bcset should not have been called with all of i/j/kbnd zero!');
+         call Driver_abort('amr_1blk_bcset should not have been called with all of i/j/kbnd zero!');
       case(1)
          if (isBCNumber(celery(2,1,1))) then
             directionToApply = IAXIS
@@ -467,7 +470,7 @@ contains
                call setLowOrHigh(lowOrHigh, directionToApply, dirSetToOrder)
                bcTypeToApply = bbbc(directionToApply,lowOrHigh,dirSetToOrder,celery,surrblks)
             case default
-               call Driver_abortFlash('Impossible nf in amr_1blk_bcset!')
+               call Driver_abort('Impossible nf in amr_1blk_bcset!')
             end select
          else
             dirSetToOrder = 0
@@ -481,7 +484,7 @@ contains
          end if
 !!#endif
       case default
-         call Driver_abortFlash('Impossible dimendiff in amr_1blk_bcset!');
+         call Driver_abort('Impossible dimendiff in amr_1blk_bcset!');
       end select
 
       leftOrRight = LEFT_EDGE

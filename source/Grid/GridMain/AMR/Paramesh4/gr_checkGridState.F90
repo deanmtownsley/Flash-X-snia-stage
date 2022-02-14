@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_checkGridState
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_checkGridState
@@ -35,11 +38,11 @@ subroutine gr_checkGridState()
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs, gr_meshComm
   use gr_parameshInterface, ONLY : gr_pmGetListOfBlocks
   use Grid_interface, ONLY : Grid_getBlkIndexLimits
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_interfaceTypeDecl
   use gr_interface, ONLY : gr_findAllNeghID
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   integer, dimension(MAXBLOCKS) :: listofBlocks
   integer :: blkCount, blk, blockID, allCenters
   integer :: ib, ie, jb, je, kb, ke, i, j, k, numNegh, ierr, eachNegh
@@ -118,7 +121,7 @@ subroutine gr_checkGridState()
 
   call MPI_Barrier(gr_meshComm, ierr)
   if (allNeghValid .eqv. .false.) then
-     call Driver_abortFlash("Invalid neighbors found!")
+     call Driver_abort("Invalid neighbors found!")
   end if
 
   !So we only reach success message when all processors are valid.

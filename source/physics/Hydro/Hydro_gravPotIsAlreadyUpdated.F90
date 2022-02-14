@@ -1,12 +1,15 @@
 !!****f* source/physics/Hydro/Hydro_gravPotIsAlreadyUpdated
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -28,7 +31,7 @@
 !!   recent solution of the Poisson equation for gravity
 !!   (typically by calling Gravity_potential
 !!   at the end of each time advance iteration in
-!!   Driver_evolveFlash) MAY use this function to avoid
+!!   Driver_evolveAll) MAY use this function to avoid
 !!   an unnecessary additional call to the Poisson solver.
 !!
 !!   An implementation of this interface should only return
@@ -45,7 +48,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Driver_evolveFlash
+!!  Driver_evolveAll
 !!  Hydro
 !!  Gravity_potential
 !!  Particles_advance

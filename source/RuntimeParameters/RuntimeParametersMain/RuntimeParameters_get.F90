@@ -1,12 +1,15 @@
 !!****if* source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_get
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  RuntimeParameters_get
@@ -59,7 +62,7 @@
 subroutine RuntimeParameters_getReal (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   
   implicit none
 #include "constants.h"
@@ -73,7 +76,7 @@ subroutine RuntimeParameters_getReal (name, value)
   call nameValueLL_getReal(parameter, name, value, current_val, error)
 
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate real runtime parameter.")
+     call Driver_abort("ERROR: cannot locate real runtime parameter.")
   end if
 
   return
@@ -85,7 +88,7 @@ end subroutine RuntimeParameters_getReal
 subroutine RuntimeParameters_getInt (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -100,7 +103,7 @@ implicit none
   call nameValueLL_getInt(parameter, name, value, current_val, error)
 
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate integer runtime parameter.")
+     call Driver_abort("ERROR: cannot locate integer runtime parameter.")
   end if
 
 
@@ -113,7 +116,7 @@ end subroutine RuntimeParameters_getInt
 subroutine RuntimeParameters_getStr (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -128,7 +131,7 @@ implicit none
 
 
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate string runtime parameter.")
+     call Driver_abort("ERROR: cannot locate string runtime parameter.")
   end if
   
 
@@ -141,7 +144,7 @@ end subroutine RuntimeParameters_getStr
 subroutine RuntimeParameters_getLog (name, value)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 implicit none
 #include "constants.h"
@@ -154,7 +157,7 @@ implicit none
   call nameValueLL_getLog(parameter, name, value, current_val, error)
 
   if(error /= NORMAL)then
-     call Driver_abortFlash("ERROR: cannot locate logical runtime parameter.")
+     call Driver_abort("ERROR: cannot locate logical runtime parameter.")
   end if
 
 

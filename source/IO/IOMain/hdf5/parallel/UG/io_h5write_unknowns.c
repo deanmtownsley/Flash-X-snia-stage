@@ -8,7 +8,7 @@
 #include "io_flash.h"
 #include "io_h5_attribute.h"
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* 
    This function writes out a single unknown (passed from the checkpoint 
@@ -91,17 +91,17 @@ void FTOC(io_h5write_unknowns)(int* myPE,
   dimens_4d[3] = *nxb;
 
   dataspace = H5Screate_simple(rank, dimens_4d, NULL);
-  if(dataspace < 0) Driver_abortFlashC("Error: negative return from dataspace H5Screate_simple");
+  if(dataspace < 0) Driver_abortC("Error: negative return from dataspace H5Screate_simple");
 
   dataset_plist = H5Pcreate(H5P_DATASET_CREATE);
-  if(dataset_plist < 0) Driver_abortFlashC("Error: negative return from dataset_plist H5Pcreate");
+  if(dataset_plist < 0) Driver_abortC("Error: negative return from dataset_plist H5Pcreate");
 
   if ((*myPE == MASTER_PE) && (*global_offset != 0)) {
     
     /* open a parallel hdf5 dataset */
     dataset = H5Dopen(*file_identifier, record_label_new); 
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dopen io_h5write_unk\n");
+      Driver_abortC("Error: H5Dopen io_h5write_unk\n");
     }
   }else {
     
@@ -109,7 +109,7 @@ void FTOC(io_h5write_unknowns)(int* myPE,
     dataset = H5Dcreate(*file_identifier, record_label_new,
                   H5T_NATIVE_DOUBLE, dataspace, dataset_plist); 
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dcreate io_h5write_unk\n");
+      Driver_abortC("Error: H5Dcreate io_h5write_unk\n");
     }    
   }
 
@@ -133,7 +133,7 @@ void FTOC(io_h5write_unknowns)(int* myPE,
 
  if(ierr < 0){
     printf("%s\n", "Error: unable to select hyperslab for unknowns dataspace");
-    Driver_abortFlashC("Error: unable to select hyperslab for unknowns dataspace");
+    Driver_abortC("Error: unable to select hyperslab for unknowns dataspace");
  }
 
 
@@ -147,11 +147,11 @@ void FTOC(io_h5write_unknowns)(int* myPE,
 
 
   memspace = H5Screate_simple(rank, dimens_5d, NULL);
-  if(memspace < 0) Driver_abortFlashC("Error: negative return from memspace H5Screate_simple");
+  if(memspace < 0) Driver_abortC("Error: negative return from memspace H5Screate_simple");
 
   /* obtain a copy of the file transfer property list */ 
   dxfer_template = H5Pcreate(H5P_DATASET_XFER);
-  if(dxfer_template < 0) Driver_abortFlashC("Error: negative return from dxfer_template H5Pcreate");
+  if(dxfer_template < 0) Driver_abortC("Error: negative return from dxfer_template H5Pcreate");
 #ifdef IO_HDF5_PARALLEL
   if (HDF5_MODE == COLLECTIVE) {
     herr = H5Pset_dxpl_mpio(dxfer_template, H5FD_MPIO_COLLECTIVE);
@@ -188,9 +188,9 @@ void FTOC(io_h5write_unknowns)(int* myPE,
   /* write the data */
   if(!*dowrite) {
     ierr = H5Sselect_none(dataspace);
-    if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+    if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
     ierr = H5Sselect_none(memspace);
-    if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
+    if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "] H5Sselect_none invalid return.");
   }
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, memspace, dataspace, 
                 dxfer_template, unknowns);
@@ -198,7 +198,7 @@ void FTOC(io_h5write_unknowns)(int* myPE,
   printf("UNKNOWNS: wrote unknowns, status = %d\n", (int) status);
 #endif
   if (status < 0){
-      Driver_abortFlashC("Error: Unable to write unknowns\n");
+      Driver_abortC("Error: Unable to write unknowns\n");
   }
 
   

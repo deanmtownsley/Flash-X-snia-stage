@@ -23,7 +23,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 void io_h5readLists
   (hid_t* file_identifier,    /* file handle */
@@ -91,7 +91,7 @@ void io_h5readLists
   
   if (dataset < 0){
     snprintf(s, errbufsize,"couldn't open the dataset %s\n", dataset_names[2]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
 
   dataspace = H5Dget_space(dataset);
@@ -100,7 +100,7 @@ void io_h5readLists
   H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
   if (dimens_1d > *num_real) {
     snprintf(s,errbufsize,"Error reading: more than %d %s in checkpoint file!\n", *num_real, dataset_names[2]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   *num_real = dimens_1d;
 
@@ -139,7 +139,7 @@ void io_h5readLists
 
   if (status < 0) {
     snprintf(s,errbufsize,"Error reading %s from data file\n", dataset_names[2]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
 
   for (i = 0; i < dimens_1d; i++) {
@@ -177,7 +177,7 @@ void io_h5readLists
     
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[0]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
 
   dataspace = H5Dget_space(dataset);
@@ -186,7 +186,7 @@ void io_h5readLists
   H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
   if (dimens_1d > *num_int) {
     snprintf(s,errbufsize,"Error reading: more than %d %s in checkpoint file!\n", *num_int, dataset_names[0]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   *num_int = dimens_1d;
 
@@ -221,7 +221,7 @@ void io_h5readLists
 
   if (status < 0) {
     snprintf(s,errbufsize,"Error reading %s from data file\n", dataset_names[0]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   
   for (i = 0; i < dimens_1d; i++) {
@@ -259,7 +259,7 @@ void io_h5readLists
   
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[1]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
 
   dataspace = H5Dget_space(dataset);
@@ -268,7 +268,7 @@ void io_h5readLists
   H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
   if (dimens_1d > *num_str) {
     snprintf(s,errbufsize,"Error reading: more than %d %s in checkpoint file!\n", *num_str, dataset_names[1]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   *num_str = dimens_1d;
 
@@ -304,7 +304,7 @@ void io_h5readLists
 
   if (status < 0) {
     snprintf(s,errbufsize,"Error reading %s from data file\n", dataset_names[1]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   
   for (i = 0; i < dimens_1d; i++) {
@@ -342,7 +342,7 @@ void io_h5readLists
   
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[3]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
 
   dataspace = H5Dget_space(dataset);
@@ -351,7 +351,7 @@ void io_h5readLists
   H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
   if (dimens_1d > *num_log) {
     snprintf(s,errbufsize,"Error reading: more than %d %s in checkpoint file!\n", *num_log, dataset_names[3]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   *num_log = dimens_1d;
 
@@ -387,7 +387,7 @@ void io_h5readLists
 
   if (status < 0) {
     snprintf(s,errbufsize,"Error reading %s from data file\n", dataset_names[3]);
-    Driver_abortFlashC(s);
+    Driver_abortC(s);
   }
   
   for (i = 0; i < dimens_1d; i++) {

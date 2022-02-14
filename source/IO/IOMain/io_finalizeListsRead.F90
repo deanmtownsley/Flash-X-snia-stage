@@ -1,12 +1,15 @@
 !!****if* source/IO/IOMain/io_finalizeListsRead
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -46,7 +49,7 @@ subroutine io_finalizeListsRead()
        io_logScalarNames, io_logScalarValues, io_numLogScalars, &
        io_strScalarNames, io_strScalarValues, io_numStrScalars, &
        io_logToIntScalarValues, io_logToIntParmValuesPrev
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_setPrev
   
   
@@ -84,7 +87,7 @@ subroutine io_finalizeListsRead()
      else if (io_logToIntParmValuesPrev(i) == -1) then   
         !!This was a dummy value do nothing
      else
-        call Driver_abortFlash("Error reading LogParmValues")
+        call Driver_abort("Error reading LogParmValues")
      end if
 
   end do
@@ -142,7 +145,7 @@ subroutine io_finalizeListsRead()
      else if(io_logToIntScalarValues(i) == -1) then
         !! Do nothing this is a dummy value
      else
-        call Driver_abortFlash("Error reading LogScalarValues")
+        call Driver_abort("Error reading LogScalarValues")
      end if
 
   end do

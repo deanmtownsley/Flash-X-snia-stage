@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridBoundaryConditions/gr_bcApplyToOneFaceAllGds
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_bcApplyToOneFaceAllGds
@@ -67,7 +70,7 @@ subroutine gr_bcApplyToOneFaceAllGds(axis,bcType,gridDataStruct,varCount,&
   use Grid_interface, ONLY : Grid_bcApplyToRegion, &
        Grid_bcApplyToRegionSpecialized, &
        Grid_bcApplyToRegionMixedGds
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_bcInterface, ONLY : gr_bcGetRegion, gr_bcPutRegion, &
                              gr_bcGetRegionsMixedGds, gr_bcPutRegionsMixedGds
   use Grid_tile, ONLY : Grid_tile_t
@@ -193,11 +196,11 @@ subroutine gr_bcApplyToOneFaceAllGds(axis,bcType,gridDataStruct,varCount,&
   if(.not.applied) then
      print*,'gr_bcApplyToOneFace: Unhandled boundary type',bcType, 'axis,regionType=',axis,regionType(axis)
      if (regionType(axis)==LEFT_EDGE) then
-        call Driver_abortFlash("unsupported boundary condition on Lower Face")
+        call Driver_abort("unsupported boundary condition on Lower Face")
      else if (regionType(axis)==RIGHT_EDGE) then
-         call Driver_abortFlash("unsupported boundary condition on Upper Face")
+         call Driver_abort("unsupported boundary condition on Upper Face")
      else
-        call Driver_abortFlash("unexpected regionType!")
+        call Driver_abort("unexpected regionType!")
      end if
   end if
   call gr_bcPutRegionsMixedGds(gridDataStruct,axis,nextDir(1),nextDir(2),endpointsCtr,regionSizeCtr,&
@@ -208,6 +211,6 @@ subroutine gr_bcApplyToOneFaceAllGds(axis,bcType,gridDataStruct,varCount,&
 contains
   subroutine abo(msg)
     character(len=*) msg
-    call Driver_abortFlash("Failed assertion in gr_bcApplyToOneFaceAllGds:"//msg)
+    call Driver_abort("Failed assertion in gr_bcApplyToOneFaceAllGds:"//msg)
   end subroutine abo
 end subroutine gr_bcApplyToOneFaceAllGds

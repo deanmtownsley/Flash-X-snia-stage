@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleCen1Dspherical
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -35,7 +38,7 @@
 !!REORDER(4): solnData
 
 subroutine gr_mpoleCen1Dspherical (idensvar)
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Grid_data,         ONLY : gr_meshMe,   &
                                 gr_meshComm
 
@@ -52,7 +55,7 @@ subroutine gr_mpoleCen1Dspherical (idensvar)
   use Grid_tile,         ONLY : Grid_tile_t
   use Grid_iterator,     ONLY : Grid_iterator_t
 
-#include "Flash_mpi_implicitNone.fh"  
+#include "Flashx_mpi_implicitNone.fh"  
 #include "Simulation.h"
 #include "constants.h"
 #include "gr_mpole.h"
@@ -160,7 +163,7 @@ subroutine gr_mpoleCen1Dspherical (idensvar)
   gr_mpoleTotalMass = totalMsum
      
   if (abs (gr_mpoleTotalMass) < tiny (gr_mpoleTotalMass)) then
-      call Driver_abortFlash ('[gr_mpoleCen1Dspherical] ERROR:  gr_mpoleTotalMass <= 0')
+      call Driver_abort ('[gr_mpoleCen1Dspherical] ERROR:  gr_mpoleTotalMass <= 0')
   end if
 !
 !

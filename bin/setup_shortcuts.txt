@@ -85,9 +85,9 @@ cube64:-nxb=64:-nyb=64:-nzb=64:
 cube16:-nxb=16:-nyb=16:-nzb=16:
 cube32:-nxb=32:-nyb=32:-nzb=32:
 
-sqr64:-nxb=64:-nyb=64:-nzb=1:
-sqr16:-nxb=16:-nyb=16:-nzb=1:
-sqr32:-nxb=32:-nyb=32:-nzb=1:
+sqr64:-nxb=64:-nyb=64
+sqr16:-nxb=16:-nyb=16
+sqr32:-nxb=32:-nyb=32
 
 # include Particles and IO for uniform grid
 ptio:+ug:-with-unit=Particles:

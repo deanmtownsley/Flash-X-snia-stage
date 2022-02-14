@@ -25,7 +25,7 @@ MPI_Datatype * io_get_grid_mpi_type(const int fileFmt,
       pMPI_DataType = &G_mesh_subset_var_type[gridDataStruct-1];
       break;
     default:
-      Driver_abortFlashC("Unexpected filetype");
+      Driver_abortC("Unexpected filetype");
     }
   }
 

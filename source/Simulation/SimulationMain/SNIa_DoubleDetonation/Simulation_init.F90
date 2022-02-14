@@ -1,12 +1,15 @@
 !!
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !! Dean M. Townsley 2009
 !!
 !! Initialization of Simulation Unit for SNIa_ddt.
@@ -30,7 +33,7 @@ subroutine Simulation_init()
   use Logfile_interface, only : Logfile_stampMessage
   use Logfile_interface, only : Logfile_stampMessage
   use Grid_interface, only : Grid_getGeometry, Grid_getDomainBoundBox
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use Simulation_interface, ONLY : Simulation_mapStrToInt
 
   implicit none
@@ -113,7 +116,7 @@ subroutine Simulation_init()
 
   call Logfile_stampMessage('[Simulation_init] Reading initial 1-d WD profile')
   open(unit=2,file=initialWDFileName,status='OLD',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash('Unable to open initial WD profile')
+  if (istat /= 0) call Driver_abort('Unable to open initial WD profile')
 
   ! parse the header to get isotope names
   read(2,"(a)") header_line
@@ -219,7 +222,7 @@ subroutine Simulation_init()
   else if ( meshGeom == CARTESIAN ) then
      sim_wd_rad_tab(sim_wd_npnts+1)  = sqrt( sum( maxval(boundBox**2,dim=1) ) )
   else
-     call Driver_abortFlash("Geometry not supported")
+     call Driver_abort("Geometry not supported")
   end if
 
   sim_wd_vol_tab(sim_wd_npnts+1)  = 4.0*PI/3.0 * sim_wd_rad_tab(sim_wd_npnts+1)**3

@@ -1,12 +1,15 @@
 !!****if* source/PhysicalConstants/PhysicalConstantsMain/unitTest/PhysicalConstants_unitTest
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -20,7 +23,7 @@
 !! DESCRIPTION
 !!
 !!  This is a unitTest setup for testing the PhysicalConstants
-!!      unit.  Normally called from Driver_evolveFlash within a Simulation unitTest
+!!      unit.  Normally called from Driver_evolveAll within a Simulation unitTest
 !!  See, for example, source/Simulation/SimulationMain/unitTest/PhysConst
 !!
 !! ARGUMENTS
@@ -35,7 +38,7 @@
 subroutine PhysicalConstants_unitTest(fileUnit,perfect)
 
   use PhysicalConstants_data, ONLY:   pc_nameSISystem, pc_SISystem, pc_globalMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use PhysicalConstants_interface, ONLY:  PhysicalConstants_get, &
        PhysicalConstants_list, PhysicalConstants_listUnits
   implicit none
@@ -95,7 +98,7 @@ subroutine PhysicalConstants_unitTest(fileUnit,perfect)
   if (value .NE. PI) perfect = .FALSE.
 
   ! test retrieval of invariant with wrong  units
-  !! WORKS!  as does Driver_abortFlash.
+  !! WORKS!  as does Driver_abort.
   !        call PhysicalConstants_get("Pi", value,unitLength="m",temp_unit="C")
   !        write(fileUnit,921)"Pi",value,"m","-","-","C","-"
   ! test retrieval of variable constant in default units
@@ -128,7 +131,7 @@ subroutine PhysicalConstants_unitTest(fileUnit,perfect)
   call pc_checkCGSMKS("mKS",isError)
   if (isError /= 0) then
      write(errorString,980)"mKS"
-     call Driver_abortFlash(errorString)
+     call Driver_abort(errorString)
      return
   endif
 !!!!!!!!

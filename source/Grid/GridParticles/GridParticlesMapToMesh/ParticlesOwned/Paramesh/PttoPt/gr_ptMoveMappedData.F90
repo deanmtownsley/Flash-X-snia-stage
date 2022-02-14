@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/Paramesh/PttoPt/gr_ptMoveMappedData
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_ptMoveMappedData
@@ -49,7 +52,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
   use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs, gr_meshComm
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Logfile_interface, ONLY: Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptInterface, ONLY : gr_ptPackUnpackData  
   use gr_ptMapData, ONLY : gr_ptRecvSpecifier, gr_ptNumMessagesToSend
 
@@ -57,7 +60,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 #include "gr_ptMapToMesh.h"
 
   integer,intent(IN) :: varGrid
@@ -108,7 +111,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
      allocate(statusArray(MPI_STATUS_SIZE, totMsgInvolvingMyPE), &
           requestArray(totMsgInvolvingMyPE), STAT=error)
      if (error /= 0) then
-        call Driver_abortFlash("[gr_ptMoveMappedData]: status/request arrays cannot be allocated!")
+        call Driver_abort("[gr_ptMoveMappedData]: status/request arrays cannot be allocated!")
      end if
 
      !Necessary initialisations:
@@ -159,7 +162,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
               if (srcMsgSizeCheck /= srcMsgSize) then
                  print *, "We have somehow received a 2nd message from processor:", &
                       srcProc, "before receiving the 1st message from the same processor"
-                 call Driver_abortFlash & 
+                 call Driver_abort & 
                       ("[gr_ptMoveMappedData]: Message ordering problem - MPI issue!")
               endif
 #endif THROTTLE_TO_ONE_RECV
@@ -202,7 +205,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
               else
                  lastMsgSentAndDelivered = lastMsgSentAndDelivered + 1
                  if (lastMsgSentAndDelivered /= numMsgSent) & 
-                      call Driver_abortFlash("[gr_ptMoveMappedData]: Problem with message counters!")
+                      call Driver_abort("[gr_ptMoveMappedData]: Problem with message counters!")
               end if
            end if
 #endif THROTTLE_TO_ONE_SEND
@@ -226,7 +229,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
            if (destProc == NONEXISTENT) then
               !This should not happen as gr_ptFindNegh now uses gr_getBlkHandle() 
               !which queries PARAMESH cached data to find all neighbors (block & processor).
-              call Driver_abortFlash("[gr_ptMoveMappedData]: Destination processor unknown!")
+              call Driver_abort("[gr_ptMoveMappedData]: Destination processor unknown!")
            end if
            elementsInMessage = SIZE_HEADER + numbElements
            msgID = numMsgRegistered + 1
@@ -248,7 +251,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 
            !Ensure we stay within the bounds of valid data in the send buffer.
            if((sendBufPtr-1) > sendCount) then
-              call Driver_abortFlash("[gr_ptPackUnpackData] Overrun send buffer.") 
+              call Driver_abort("[gr_ptPackUnpackData] Overrun send buffer.") 
            end if
 
         end if   !Testing for messages to send.
@@ -269,7 +272,7 @@ subroutine gr_ptMoveMappedData(varGrid,bufferSize,sendBuf,sendCount,recvBuf)
 
      deallocate(statusArray, requestArray, STAT=error)
      if (error /= 0) then
-        call Driver_abortFlash("[gr_ptMoveMappedData]: status/request arrays cannot be deallocated!")
+        call Driver_abort("[gr_ptMoveMappedData]: status/request arrays cannot be deallocated!")
      end if
 
   end if

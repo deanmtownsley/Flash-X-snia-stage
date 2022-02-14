@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_markEllipsoid
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!  
 !! NAME 
 !!  gr_markEllipsoid 
@@ -49,7 +52,7 @@ subroutine gr_markEllipsoid(ic, jc, kc, a1, a2, a3, lref)
 
 !-------------------------------------------------------------------------------
   use tree, ONLY : refine, derefine, lrefine, coord, bsize, lnblocks, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_geometry
 
   implicit none
@@ -73,9 +76,9 @@ subroutine gr_markEllipsoid(ic, jc, kc, a1, a2, a3, lref)
 
 !-------------------------------------------------------------------------------
   if((gr_geometry /= CARTESIAN).and.(gr_geometry /= CYLINDRICAL)) &
-       call Driver_abortFlash("markrefineEllipsoid : wrong geometry")
+       call Driver_abort("markrefineEllipsoid : wrong geometry")
   if((gr_geometry == CYLINDRICAL).and.(NDIM==3))&
-       call Driver_abortFlash("markrefineEllipsoid : 3d not supported in cylindrical")
+       call Driver_abort("markrefineEllipsoid : 3d not supported in cylindrical")
 ! Compute squared inverses of semi-major axes
 
   a1inv2 = 1./a1**2

@@ -1,12 +1,15 @@
 !!****if* source/Grid/Grid_addFineToFluxRegister_block
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! DESCRIPTION 
 !!  Please refer to the documentation in the null implementation of this routine
@@ -31,7 +34,7 @@ subroutine Grid_addFineToFluxRegister_block(blockDesc, isDensity, coefficient, &
     use amrex_amrcore_module,      ONLY : amrex_get_finest_level, &
                                           amrex_ref_ratio
 
-    use Driver_interface,          ONLY : Driver_abortFlash
+    use Driver_interface,          ONLY : Driver_abort
     use Grid_interface,            ONLY : Grid_getGeometry
     use gr_physicalMultifabs,      ONLY : flux_registers
     use Grid_tile,                 ONLY : Grid_tile_t
@@ -77,7 +80,7 @@ subroutine Grid_addFineToFluxRegister_block(blockDesc, isDensity, coefficient, &
     if ((fine <= 0) .OR. (fine > amrex_get_finest_level())) then
 #ifdef DEBUG_GRID
         print*,'fine=',fine,', but amrex_get_finest_level() returns',amrex_get_finest_level(),'.'
-        call Driver_abortFlash("[Grid_addFineToFluxRegister_block] Invalid level")
+        call Driver_abort("[Grid_addFineToFluxRegister_block] Invalid level")
 #else
         RETURN
 #endif
@@ -91,7 +94,7 @@ subroutine Grid_addFineToFluxRegister_block(blockDesc, isDensity, coefficient, &
 
     ! DEV: Determine if this is needed for FLASH5 and implement if necessary. 
     if (present(isDensity)) then
-        call Driver_abortFlash("[Grid_addFineToFluxRegister_block] isDensity not implemented")
+        call Driver_abort("[Grid_addFineToFluxRegister_block] isDensity not implemented")
     end if
 
     myZeroFullRegister = .FALSE.
@@ -106,7 +109,7 @@ subroutine Grid_addFineToFluxRegister_block(blockDesc, isDensity, coefficient, &
        ! The scaling factor=1/r^(NDIM-1) used here assumes that the refinement
        ! ratio, r, between levels is always 2
        if (amrex_ref_ratio(coarse) /= 2) then
-         call Driver_abortFlash("[Grid_addFineToFluxRegister_block] refinement ratio not 2")
+         call Driver_abort("[Grid_addFineToFluxRegister_block] refinement ratio not 2")
        end if
 
 #if   NDIM == 2
@@ -172,7 +175,7 @@ subroutine Grid_addFineToFluxRegister_block(blockDesc, isDensity, coefficient, &
           call amrex_fab_destroy(fluxFabs(axis))
        end do
     case default
-        call Driver_abortFlash("[Grid_addFineToFluxRegister_block] Unsupported geometry")
+        call Driver_abort("[Grid_addFineToFluxRegister_block] Unsupported geometry")
     end select
 end subroutine Grid_addFineToFluxRegister_block
 

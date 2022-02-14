@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_recreateDomain
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -61,7 +64,7 @@
 
 
 subroutine gr_recreateDomain
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_specificData, ONLY : gr_nBlockX, gr_nBlockY, gr_nBlockZ, &
                               gr_haveInternalBoundaryBlocks
   use Grid_data,ONLY: gr_imin,gr_imax,gr_jmin,gr_jmax,gr_kmin,gr_kmax
@@ -131,13 +134,13 @@ subroutine gr_recreateDomain
         do i = 1,gr_nBlockX
            if(.NOT. initialDomain(i,j,k)) then
               if (bbox .gt. NBOUNDARIES) then
-                 call Driver_abortFlash('Too many boundary conditions - increase NBOUNDARIES!')
+                 call Driver_abort('Too many boundary conditions - increase NBOUNDARIES!')
               end if
               if (bbox .gt. nboundaries) then
-                 call Driver_abortFlash('Too many boundary conditions, found PARAMESH nboundaries < NBOUNDARIES!')
+                 call Driver_abort('Too many boundary conditions, found PARAMESH nboundaries < NBOUNDARIES!')
               end if
               if (bbox .gt. mboundaries) then
-                 call Driver_abortFlash('Too many boundary conditions, found PARAMESH mboundaries < NBOUNDARIES!')
+                 call Driver_abort('Too many boundary conditions, found PARAMESH mboundaries < NBOUNDARIES!')
               end if
               boundary_box(1,1,bbox)=gr_imin+(i-1)*dx
               boundary_box(2,1,bbox)=gr_imin+i*dx

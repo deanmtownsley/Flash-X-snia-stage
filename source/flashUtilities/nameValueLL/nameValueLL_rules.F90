@@ -1,12 +1,15 @@
 !!****ih* source/flashUtilities/nameValueLL/nameValueLL_rules
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!    nameValueLL_rules
@@ -37,7 +40,7 @@ subroutine nameValueLL_rulesInt ( context, name, numValues, minValues, maxValues
   use nameValueLL_data !, ONLY: context_type, nameValueLL_findInt, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -51,7 +54,7 @@ subroutine nameValueLL_rulesInt ( context, name, numValues, minValues, maxValues
    call nameValueLL_findInt(context,name,node)
 
    if (.not. associated(node)) then
-      call Driver_abortFlash("rules: add parameter and then the rules")
+      call Driver_abort("rules: add parameter and then the rules")
    endif
 
    node%numValues = 0
@@ -59,11 +62,11 @@ subroutine nameValueLL_rulesInt ( context, name, numValues, minValues, maxValues
    nullify(node%minValues)
    allocate(node%minValues(numValues),stat=istat)
    if (istat /= 0) then
-      call Driver_abortFlash("rules: unable to allocate")
+      call Driver_abort("rules: unable to allocate")
    endif
    allocate(node%maxValues(numValues),stat=istat)
    if (istat /= 0) then
-      call Driver_abortFlash("rules: unable to allocate")
+      call Driver_abort("rules: unable to allocate")
    endif
    node%minValues = minValues
    node%maxValues = maxValues
@@ -100,7 +103,7 @@ subroutine nameValueLL_rulesReal ( context, name, numValues, minValues, maxValue
   use nameValueLL_data !, ONLY: context_type, nameValueLL_findReal, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -114,7 +117,7 @@ subroutine nameValueLL_rulesReal ( context, name, numValues, minValues, maxValue
    call nameValueLL_findReal(context,name,node)
 
    if (.not. associated(node)) then
-      call Driver_abortFlash("rules: add parameter and then the rules")
+      call Driver_abort("rules: add parameter and then the rules")
    endif
 
    node%numValues = 0
@@ -122,11 +125,11 @@ subroutine nameValueLL_rulesReal ( context, name, numValues, minValues, maxValue
    nullify(node%maxValues)
    allocate(node%minValues(numValues),stat=istat)
    if (istat /= 0) then
-      call Driver_abortFlash("rules: unable to allocate")
+      call Driver_abort("rules: unable to allocate")
    endif
    allocate(node%maxValues(numValues),stat=istat)
    if (istat /= 0) then
-      call Driver_abortFlash("rules: unable to allocate")
+      call Driver_abort("rules: unable to allocate")
    endif
    node%minValues = minValues
    node%maxValues = maxValues
@@ -162,7 +165,7 @@ subroutine nameValueLL_rulesStr ( context, name, numValues, validValues)
   use nameValueLL_data !, ONLY: context_type, nameValueLL_findStr, &
  !     &  name_invalid, name_real, name_int, name_str, name_log, &
  !     &  real_list_type, int_list_type, str_list_type, log_list_type
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -176,14 +179,14 @@ subroutine nameValueLL_rulesStr ( context, name, numValues, validValues)
    call nameValueLL_findStr(context,name,node)
 
    if (.not. associated(node)) then
-      call Driver_abortFlash("rules: add parameter and then the rules")
+      call Driver_abort("rules: add parameter and then the rules")
    endif
 
    node%numValues = 0
    nullify(node%validValues)
    allocate(node%validValues(numValues),stat=istat)
    if (istat /= 0) then
-      call Driver_abortFlash("rules: unable to allocate")
+      call Driver_abort("rules: unable to allocate")
    endif
    node%validValues = validValues
    node%numValues = numValues

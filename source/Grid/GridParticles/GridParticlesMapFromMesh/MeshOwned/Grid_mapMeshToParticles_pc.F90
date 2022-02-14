@@ -1,12 +1,15 @@
 !!****f* source/Grid/GridParticles/GridParticlesMapFromMesh/Amrex
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -59,7 +62,7 @@ subroutine Grid_mapMeshToParticles_pc (ptContainerPos, part_props,part_blkID,&
                                     numAttrib, attrib,&
                                     mapType,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   ! this is an alias for pt_amrexParticle_t in pt_amrexParticleMod:
   use Grid_ptDataTypes, ONLY : Grid_particle_t
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
@@ -172,7 +175,7 @@ subroutine Grid_mapMeshToParticles_pc (ptContainerPos, part_props,part_blkID,&
                   end select
 #ifdef DEBUG_PARTICLES
                else
-                  call Driver_abortFlash("Grid_mapMeshToParticles_pc: prop_id is invalid, aborting.")
+                  call Driver_abort("Grid_mapMeshToParticles_pc: prop_id is invalid, aborting.")
 #endif
                end if
             enddo

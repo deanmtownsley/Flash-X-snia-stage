@@ -150,6 +150,10 @@
       real, save :: gr_btWorkBoundsPar(2),gr_btWorkBoundsLeaf(2)
       real, save :: gr_btWorkChildScaling
 
+! Bittree-specific flag
+      public :: gr_btExchangeBflags
+      logical, save :: gr_btExchangeBflags
+
 ! flag to record grid change
       Public :: grid_changed, grid_analysed_mpi
       Integer, Save :: grid_changed, grid_analysed_mpi

@@ -1,12 +1,15 @@
 !!****h* source/Driver/Driver_interface
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Driver_interface
@@ -28,10 +31,10 @@ Module Driver_interface
 # include "constants.h"
 
   interface
-    subroutine Driver_abortFlash (errorMessage)
+    subroutine Driver_abort(errorMessage)
       implicit none
       character(len=*), intent(in) :: errorMessage
-    end subroutine Driver_abortFlash
+    end subroutine Driver_abort
   end interface
   
   interface
@@ -71,15 +74,15 @@ Module Driver_interface
   end interface
   
   interface
-    subroutine Driver_evolveFlash()
+    subroutine Driver_evolveAll()
       implicit none
-    end subroutine Driver_evolveFlash
+    end subroutine Driver_evolveAll
   end interface
 
   interface
-    subroutine Driver_finalizeFlash()
+    subroutine Driver_finalizeAll()
       implicit none
-    end subroutine Driver_finalizeFlash
+    end subroutine Driver_finalizeAll
   end interface
 
   interface
@@ -125,9 +128,9 @@ Module Driver_interface
   end interface
 
   interface
-    subroutine Driver_initFlash()
+    subroutine Driver_initAll()
       implicit none
-    end subroutine Driver_initFlash
+    end subroutine Driver_initAll
   end interface
 
   interface
