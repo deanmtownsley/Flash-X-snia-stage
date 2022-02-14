@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_get_bitid.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btGetBitid.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_get_bitid
+!!  gr_btGetBitid
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_get_bitid(lev,ijk,bitid,updated)
+!!  call gr_btGetBitid(lev,ijk,bitid,updated)
 !!
 !! DESCRIPTION
 !!
@@ -35,7 +35,7 @@
 !!  updated: (in,optional) true=updated tree, false=original (default=false)
 !!
 !!***
-subroutine amr_bittree_get_bitid(lev, ijk, bitid, updated)
+subroutine gr_btGetBitid(lev, ijk, bitid, updated)
   use bittree, only: bittree_identify
   use iso_c_binding, only: c_int,c_bool
   
@@ -59,7 +59,7 @@ subroutine amr_bittree_get_bitid(lev, ijk, bitid, updated)
   levc = lev - 1
   ijkc = ijk
 
-!-ID block. The mort output is not used here (use amr_identify_block
+!-ID block. The mort output is not used here (use gr_btIdentify
 !-to return morton number)
   call bittree_identify(check_updated, levc, ijkc, mort, id)
 

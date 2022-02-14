@@ -30,7 +30,7 @@
 
 subroutine amr_verify_bittree()
   
-  use bittree, only : amr_identify_block, bittree_block_count, &
+  use bittree, only : gr_btIdentify, bittree_block_count, &
                       gr_getIntCoords
   use Paramesh_comm_data, only: amr_mpi_meshComm
   use paramesh_dimensions, only: ndim
@@ -61,7 +61,7 @@ subroutine amr_verify_bittree()
   do b=1, lnblocks
     call gr_getIntCoords(b,lcoord)
     lev = lrefine(b)
-    call amr_identify_block(nprocs,lev,lcoord,proc1,locb)
+    call gr_btIdentify(nprocs,lev,lcoord,proc1,locb)
 
     if(lrefine(b) /= lev .or. proc0 /= proc1 .or. b /= locb) then
       if(proc0 .eq. 0) then
@@ -119,7 +119,7 @@ subroutine amr_verify_bittree()
           end if
         end if
         lev = all_coords(1,b)
-        call amr_identify_block(nprocs, lev, all_coords(2:,b), proc1, locb)
+        call gr_btIdentify(nprocs, lev, all_coords(2:,b), proc1, locb)
         if(lev /= all_coords(1,b) .or. proc0 /= proc1 .or. b-all_disp(proc0+1) /= locb) then
           write(1349,*) 'lev=', all_coords(1,b), ' ijk=', all_coords(2:,b), &
             ' proc=',proc0, ' lblk=', b-all_disp(proc0+1), &

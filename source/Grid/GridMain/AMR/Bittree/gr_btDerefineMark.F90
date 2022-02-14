@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_derefine_mark.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btDerefineMark.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_derefine_mark
+!!  gr_btDerefineMark
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_derefine_mark(lev,ijk,val)
+!!  call gr_btDerefineMark(lev,ijk,val)
 !!
 !! DESCRIPTION
 !!
@@ -32,8 +32,8 @@
 !!  val: (in,optional) value to set block in delta tree, default = True
 !!
 !!***
-subroutine amr_bittree_derefine_mark(lev, ijk, val)
-  use bittree, only: amr_bittree_get_bitid, bittree_refine_mark,bittree_is_parent
+subroutine gr_btDerefineMark(lev, ijk, val)
+  use bittree, only: gr_btGetBitid, bittree_refine_mark,bittree_is_parent
   use iso_c_binding, only: c_int,c_bool
   use Driver_interface, ONLY : Driver_abort
 
@@ -57,17 +57,17 @@ subroutine amr_bittree_derefine_mark(lev, ijk, val)
   ijk_par = ijk/2
 
 !-Get bittree ID of parent
-  call amr_bittree_get_bitid(lev_par, ijk_par, id)
+  call gr_btGetBitid(lev_par, ijk_par, id)
   
 !-Make sure bittree identified correct block
   if ((lev /= lev_par + 1).OR.any(ijk /= ijk_par*2 + mod(ijk,2))) &
-   call Driver_abort("Error identifying block in amr_bittree_derefine_mark. &
+   call Driver_abort("Error identifying block in gr_btDerefineMark. &
      &Routine can only be called on existing blocks.")
 
 !-Abort if trying to mark leaf
   call bittree_is_parent(logical(.FALSE.,c_bool),int(id,c_int),is_par)
   if (.NOT.is_par) &
-    call Driver_abort("Error in amr_bittree_derefine_mark. &
+    call Driver_abort("Error in gr_btDerefineMark. &
     &Trying to mark leaf block for derefinement (bittree marks parents for derefinement).")
  
 !-Mark parent on Bittree's refine delta

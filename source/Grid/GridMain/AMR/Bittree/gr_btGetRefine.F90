@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_get_refine.F90
+!!****if* source/Grid/GridMain/paramesh/bittree/source/gr_btGetRefine.F90
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  amr_bittree_get_refine
+!!  gr_btGetRefine
 !!
 !! SYNOPSIS
 !!
-!!  call amr_bittree_get_refine(lev,ijk,refine)
+!!  call gr_btGetRefine(lev,ijk,refine)
 !!
 !! DESCRIPTION
 !!
@@ -30,8 +30,8 @@
 !!  derefine: (out) whether block is marked for refine
 !!
 !!***
-subroutine amr_bittree_get_refine(lev, ijk, refine)
-  use bittree, only: amr_bittree_get_bitid, bittree_is_parent, bittree_check_refine_bit
+subroutine gr_btGetRefine(lev, ijk, refine)
+  use bittree, only: gr_btGetBitid, bittree_is_parent, bittree_check_refine_bit
   use Driver_interface, only: Driver_abort
   use iso_c_binding, only: c_int,c_bool
 
@@ -47,11 +47,11 @@ subroutine amr_bittree_get_refine(lev, ijk, refine)
 !-Get Bittree ID of block
   lev1 = lev
   ijk1 = ijk
-  call amr_bittree_get_bitid(lev1, ijk1, id)
+  call gr_btGetBitid(lev1, ijk1, id)
 
 !-Check to make sure block was IDed correctly.
   if ((lev /= lev1).OR.any(ijk/=ijk1))     &
-     call Driver_abort("Error identifying block in amr_bittree_get_refine. &
+     call Driver_abort("Error identifying block in gr_btGetRefine. &
      &Routine can only be called on existing blocks.")
 
 !-Check to see if block is leaf and marked for nodetype change
