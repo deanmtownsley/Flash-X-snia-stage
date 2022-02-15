@@ -22,11 +22,11 @@
 !!                            real(INOUT),TARGET :: fluxBufX(size(fluxOldX,1),size(fluxOldX,2),size(fluxOldX,3),size(fluxOldX,4)),
 !!                            real(INOUT),TARGET :: fluxBufY(size(fluxOldY,1),size(fluxOldY,2),size(fluxOldY,3),size(fluxOldY,4)),
 !!                            real(INOUT),TARGET :: fluxBufZ(size(fluxOldZ,1),size(fluxOldZ,2),size(fluxOldZ,3),size(fluxOldZ,4)),
+!!                            integer(in)           :: lo(MDIM),
 !!                            real(IN)              :: scaleC,
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldX (: ,lo(1): ,lo(2): ,lo(3): ),
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldY (: ,lo(1): ,lo(2): ,lo(3): ),
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldZ (: ,lo(1): ,lo(2): ,lo(3): ),
-!!                            integer(in)            :: lo(MDIM),
 !!                            logical(IN), OPTIONAL  :: isFluxDensity)
 !!
 !!  call Grid_correctFluxData(type(Grid_tile_t)(in) :: blockDesc,
@@ -34,11 +34,11 @@
 !!                            real(INOUT),TARGET :: fluxBufX(size(fluxOldX,1),size(fluxOldX,2),size(fluxOldX,3),size(fluxOldX,4)),
 !!                            real(INOUT),TARGET :: fluxBufY(size(fluxOldY,1),size(fluxOldY,2),size(fluxOldY,3),size(fluxOldY,4)),
 !!                            real(INOUT),TARGET :: fluxBufZ(size(fluxOldZ,1),size(fluxOldZ,2),size(fluxOldZ,3),size(fluxOldZ,4)),
+!!                            integer(in)           :: lo(MDIM),
 !!                            real(IN)              :: scaleC,
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldX (: ,lo(1): ,lo(2): ,lo(3): ),
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldY (: ,lo(1): ,lo(2): ,lo(3): ),
 !!                            real(in),   TARGET,CONTIGUOUS :: fluxOldZ (: ,lo(1): ,lo(2): ,lo(3): ),
-!!                            integer(in)            :: lo(MDIM),
 !!                            logical(IN), OPTIONAL  :: isFluxDensity)
 !!
 !! DESCRIPTION
