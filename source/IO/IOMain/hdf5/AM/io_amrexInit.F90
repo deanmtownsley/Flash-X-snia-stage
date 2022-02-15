@@ -40,11 +40,7 @@ subroutine io_amrexInit()
     use RuntimeParameters_interface, ONLY : RuntimeParameters_get
     use io_amrexData
 
-#include "Flashx_mpi_implicitNone.fh"
-#include "Simulation.h"
-#include "constants.h"
-
-    call RuntimeParameters_get('plotFileAmrexFormat', io_plotFileAmrexFormat)
+    call RuntimeParameters_get('io_plotFileAmrexFormat', io_plotFileAmrexFormat)
 
     if (.not. io_plotFileAmrexFormat) io_plotfileGridQuantityDP = .TRUE.
 
