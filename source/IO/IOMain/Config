@@ -29,7 +29,7 @@ ELSEIF IO != ""
    SETUPERROR Setup Variable 'IO' must be something I know about
 ENDIF
 
-# define a variable in Flash.h to show that SOME sort of IO is included
+# define a variable in Simulation.h to show that SOME sort of IO is included
 PPDEFINE FLASH_IO 
 
 

@@ -40,7 +40,7 @@ SUPPORT_HEADERS = Simulation.h constants.h io_flash.h hdf5_flash.h \
 	io_h5_xfer_wrapper.h io_h5_type_matched_xfer.h io_h5_xfer.h \
 	io_attribute.h io_create_dataset.h io_xfer_cont_slab.h \
 	mangle_names.h
-SUPPORT_FILES = Driver_abortFlashC.c io_h5_type.c io_h5create_dataset.c \
+SUPPORT_FILES = Driver_abortC.c io_h5_type.c io_h5create_dataset.c \
 	io_h5_attribute.c io_h5_type_matched_xfer.c \
 	io_h5_xfer_wrapper.c io_h5_xfer.c \
 	io_attribute.c io_create_dataset.c \
@@ -56,7 +56,7 @@ $(EXE): link_files $(COBJ) $(FOBJ)
 	$(FCOMP) $(LFLAGS) $(EXE) $(COBJ) $(FOBJ) $(LIBS)
 
 link_files:
-	ln -s ../Driver_abortFlashC.c
+	ln -s ../Driver_abortC.c
 	ln -s ../Simulation.h
 	ln -s ../constants.h
 	ln -s ../../../../../io_flash.h
