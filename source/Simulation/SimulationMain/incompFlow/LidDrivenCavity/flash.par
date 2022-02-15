@@ -50,7 +50,7 @@ checkpointFileIntervalStep = 5
 
 plotFileIntervalTime = 1.
 plotFileIntervalStep = 5
-plotFileAmrexFormat  = ".TRUE."
+io_plotFileAmrexFormat  = .true.
 
 # AMR parameters
 nblockx	= 4
@@ -64,12 +64,12 @@ lrefine_max       = 2
 flux_correct    = .true.
 
 # AMReX Poisson Solver Parameters
-gr_amrexMG_composite_solve = ".TRUE."
+gr_amrexMG_composite_solve = .true.
 gr_amrexMG_Tol = 1e-13
 gr_amrexMG_max_iter = 200
 
 # HYPRE Poisson Solver Parameters
-gr_hyprePrintSolveInfo = ".FALSE."
+gr_hyprePrintSolveInfo = .false.
 gr_hyprePcType = "HYPRE_AMG"
 gr_hypreSolverType = "HYPRE_BICGSTAB"
 gr_hypreRelTol = 1.0e-12

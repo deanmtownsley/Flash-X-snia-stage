@@ -82,7 +82,7 @@
 
 subroutine IO_writePlotfile( forced)
 
-  use io_amrexData
+  use io_amrexData, ONLY: io_plotFileAmrexFormat
   use IO_data, ONLY : io_plotFileNumber, io_unklabels, &
        io_doublePrecision, io_nPlotVars, io_forcedPlotFileNumber, &
        io_ignoreForcedPlot, io_flashRelease, io_globalMe, io_wrotePlot, &
@@ -169,7 +169,7 @@ subroutine IO_writePlotfile( forced)
   call Driver_getNStep(nstep)
   call Driver_getSimTime(simTime)
 
-  ! Only create hdf5_plt_cnt if plotting using
+  ! Only populate hdf5_plt_cnt if plotting using
   ! native format
   if (.not. io_plotFileAmrexFormat) then  
       call io_writeData(fileID)
