@@ -8,7 +8,7 @@ USESETUPVARS Grid
 # We need to communicate to the other units, such as the Grid unit, how
 # many flux variables will be needed by simpleUnsplit.  Therefore, then
 # number of variables declared here must match the number in UHD.h.
-# The names of these variables as they appear here and therefore in Flash.h
+# The names of these variables as they appear here and therefore in Simulation.h
 # are not important as Hydro code should use the names in UHD.h.
 FLUX dummyFlux1
 FLUX dummyFlux2

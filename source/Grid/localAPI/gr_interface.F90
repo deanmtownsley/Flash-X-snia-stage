@@ -100,17 +100,6 @@ module gr_interface
   end interface gr_findNeghID
 
   interface
-     subroutine gr_getCellVol(xb,xe,yb,ye,zb,ze,blockDesc,dataBlock,indexing)
-       use Grid_tile, ONLY : Grid_tile_t
-       implicit none
-       type(Grid_tile_t),intent(IN) :: blockDesc
-       integer,intent(IN) :: xb,xe,yb,ye,zb,ze
-       real,dimension(xb:xe,yb:ye,zb:ze),intent(OUT)::dataBlock
-       integer,intent(IN) :: indexing
-     end subroutine gr_getCellVol
-  end interface
-
-  interface
      subroutine gr_getBlkHandle(remoteBlockID, pe, blockHandle)
      ! implementation in GridMain/paramesh
        implicit none

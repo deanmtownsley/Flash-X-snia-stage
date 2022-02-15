@@ -175,7 +175,7 @@ fftpack.o : %.o : %.f90
 
 FFLAGS_WO_CHKU0 = $(patsubst --chk[%ux],--chk[%x],$(FFLAGS))
 FFLAGS_WO_CHKU = $(patsubst --chk[%u],--chk[%],$(FFLAGS_WO_CHKU0))
-gr_bcGetRegion.o : %.o : %.F90 physicaldata.o Driver_interface.o constants.h Flash.h
+gr_bcGetRegion.o : %.o : %.F90 physicaldata.o Driver_interface.o constants.h Simulation.h
 	$(FCOMP) $(FFLAGS_WO_CHKU) $(F90FLAGS) $(FDEFINES) $<
 endif
 

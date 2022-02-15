@@ -35,7 +35,7 @@ LFLAGS = $(LFLAGS_OPT)
 SUPPORT_HEADERS = Simulation.h constants.h io_flash.h hdf5_flash.h \
 	io_h5create_dataset.h io_h5_attribute.h io_h5_type.h \
 	io_h5_xfer_wrapper.h io_h5_type_matched_xfer.h io_h5_xfer.h
-SUPPORT_FILES = Driver_abortFlashC.c io_h5_type.c io_h5create_dataset.c \
+SUPPORT_FILES = Driver_abortC.c io_h5_type.c io_h5create_dataset.c \
 	io_h5_attribute.c io_h5_type_matched_xfer.c \
 	io_h5_xfer_wrapper.c io_h5_xfer.c
 CSRC = $(SUPPORT_FILES) Test_parallel_write.c
@@ -46,7 +46,7 @@ $(EXE): link_files $(COBJ)
 	$(CCOMP) $(LFLAGS) $(EXE) $(COBJ) $(LIBS)
 
 link_files:
-	ln -s ../Driver_abortFlashC.c
+	ln -s ../Driver_abortC.c
 	ln -s ../Simulation.h
 	ln -s ../constants.h
 	ln -s ../../../../../io_flash.h
