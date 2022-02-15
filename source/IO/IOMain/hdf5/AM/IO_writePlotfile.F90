@@ -197,6 +197,8 @@ subroutine IO_writePlotfile( forced)
      io_forcedPlotFileNumber = io_forcedPlotFileNumber + 1
   end if
 
+  call Timers_stop("writePlotfile")
+
   if (io_globalMe == MASTER_PE) then
      write (strBuff(1,1), "(A)") "type"
      write (strBuff(1,2), "(A)") "plotfile"
@@ -205,8 +207,6 @@ subroutine IO_writePlotfile( forced)
      print *, '*** Wrote plotfile ****' 
      call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would close")
   end if
-
-  call Timers_stop("writePlotfile")
 
   io_oldPlotFileName = filename
   io_wrotePlot = .true.
