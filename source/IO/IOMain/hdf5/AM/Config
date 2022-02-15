@@ -2,6 +2,6 @@
 
 D plotfileAmrexFormat If true, this sets plotfile format
 D to one provided by AMReX otherwise uses native hdf5 format
-D Default is true
+D Default is false
 
-PARAMETER plotFileAmrexFormat BOOLEAN true
+PARAMETER plotFileAmrexFormat BOOLEAN false

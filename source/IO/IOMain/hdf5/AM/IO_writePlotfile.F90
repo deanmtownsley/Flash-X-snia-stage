@@ -142,62 +142,37 @@ subroutine IO_writePlotfile( forced)
   
   call IO_updateScalars()
 
+  call Timers_start("writePlotfile")
+
+  !-----------------------------------------------------------------------------
+  ! open the file
+  !-----------------------------------------------------------------------------
+  IO_TIMERS_START("create file")
+  if(fileIsForced) then
+     call io_initFile( io_forcedPlotFileNumber, fileID, filename, '_plt_cnt_', fileIsForced)
+  else
+     call io_initFile( io_plotFileNumber, fileID, filename, '_plt_cnt_', fileIsForced)
+  end if
+  IO_TIMERS_STOP("create file")
+ 
+  if (io_globalMe == MASTER_PE) then
+     write (strBuff(1,1), "(A)") "type"
+     write (strBuff(1,2), "(A)") "plotfile"
+     write (strBuff(2,1), "(A)") "name"
+     write (strBuff(2,2), "(A)") trim(filename)
+     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would open")
+  end if
+
   ! Ensure that user variables always get computed for plotfile output.
   call Grid_computeUserVars()
 
   call Driver_getNStep(nstep)
   call Driver_getSimTime(simTime)
 
-  call Timers_start("writePlotfile")
-
   ! Only create hdf5_plt_cnt if plotting using
   ! native format
   if (.not. io_plotFileAmrexFormat) then  
-      !-----------------------------------------------------------------------------
-      ! open the file
-      !-----------------------------------------------------------------------------
-      IO_TIMERS_START("create file")
-      if(fileIsForced) then
-         call io_initFile( io_forcedPlotFileNumber, fileID, filename, '_plt_cnt_', fileIsForced)
-      else
-         call io_initFile( io_plotFileNumber, fileID, filename, '_plt_cnt_', fileIsForced)
-      end if
-      IO_TIMERS_STOP("create file")
- 
-      if (io_globalMe == MASTER_PE) then
-         write (strBuff(1,1), "(A)") "type"
-         write (strBuff(1,2), "(A)") "plotfile"
-         write (strBuff(2,1), "(A)") "name"
-         write (strBuff(2,2), "(A)") trim(filename)
-         call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would open")
-      end if
-
       call io_writeData(fileID)
-      !----------------------------------------------------------------------
-      ! close the file
-      !----------------------------------------------------------------------
-      IO_TIMERS_START("close file")
-      call io_closeFile( fileID)
-      IO_TIMERS_STOP("close file")
-
-      !increment the checkpoint number unless it is a dump checkpoint file
-      !DUMP_IOFILE_NUM typically 9999 or some large number, located in constants.h 
-      if((.not.fileIsForced) .and. io_plotFileNumber /= DUMP_IOFILE_NUM) then
-         io_plotFileNumber = io_plotFileNumber + 1
-      else
-         io_forcedPlotFileNumber = io_forcedPlotFileNumber + 1
-      end if
-
-      if (io_globalMe == MASTER_PE) then
-         write (strBuff(1,1), "(A)") "type"
-         write (strBuff(1,2), "(A)") "plotfile"
-         write (strBuff(2,1), "(A)") "name"
-         write (strBuff(2,2), "(A)") trim(filename)
-         print *, '*** Wrote plotfile ****' 
-         call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would close")
-      end if
-
-      io_oldPlotFileName = filename
 
   ! if io_plotFileAmrexFromat is .true. then pass neccessary information to
   ! Amrex to plot using its default format
@@ -205,12 +180,37 @@ subroutine IO_writePlotfile( forced)
       call gr_writeData(nstep, simTime, io_baseName)
   end if
 
-  io_wrotePlot = .true.
+
+  !----------------------------------------------------------------------
+  ! close the file
+  !----------------------------------------------------------------------
+  IO_TIMERS_START("close file")
+  call io_closeFile( fileID)
+  IO_TIMERS_STOP("close file")
+
+
+  !increment the plotfile number unless it is a dump plotfile
+  !DUMP_IOFILE_NUM typically 9999 or some large number, located in constants.h 
+  if((.not.fileIsForced) .and. io_plotFileNumber /= DUMP_IOFILE_NUM) then
+     io_plotFileNumber = io_plotFileNumber + 1
+  else
+     io_forcedPlotFileNumber = io_forcedPlotFileNumber + 1
+  end if
+
+  if (io_globalMe == MASTER_PE) then
+     write (strBuff(1,1), "(A)") "type"
+     write (strBuff(1,2), "(A)") "plotfile"
+     write (strBuff(2,1), "(A)") "name"
+     write (strBuff(2,2), "(A)") trim(filename)
+     print *, '*** Wrote plotfile ****' 
+     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would close")
+  end if
+
   call Timers_stop("writePlotfile")
 
+  io_oldPlotFileName = filename
+  io_wrotePlot = .true.
+
   return
+
 end subroutine IO_writePlotfile
-
-
-
-

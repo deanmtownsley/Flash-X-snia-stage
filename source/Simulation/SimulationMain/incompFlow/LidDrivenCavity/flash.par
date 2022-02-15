@@ -50,7 +50,7 @@ checkpointFileIntervalStep = 5
 
 plotFileIntervalTime = 1.
 plotFileIntervalStep = 5
-
+plotFileAmrexFormat  = ".TRUE."
 
 # AMR parameters
 nblockx	= 4
