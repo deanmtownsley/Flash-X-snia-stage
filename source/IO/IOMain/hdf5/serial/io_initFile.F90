@@ -70,12 +70,10 @@ subroutine io_initFile( filenum, fileID, filename, outputType, forced)
 
   fileID = -1
 
-#ifndef FLASH_GRID_AMREX
   call io_h5init_file(fileID, filename)
   if(fileID == -1) then
      print *, "Error: unable to initialize file"
      call Driver_abort("unable to initialize hdf5 file")
   end if
-#endif
 
 end subroutine io_initFile

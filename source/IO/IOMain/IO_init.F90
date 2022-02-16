@@ -545,4 +545,7 @@ subroutine IO_init()
      io_maxRSS = -1.0
   end if
 
+  ! Initialize IO related for AMReX
+  call io_amrexInit()
+
 end subroutine IO_init

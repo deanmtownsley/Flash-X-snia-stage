@@ -196,7 +196,7 @@ ENDIF
 # We need to communicate to the other units, such as the Grid unit, how
 # many of these variables will be needed by unsplit.  Therefore, the
 # number of variables declared here must match the number in UHD.h.
-# The names of these variables as they appear here and therefore in Flash.h
+# The names of these variables as they appear here and therefore in Simulation.h
 # are not important as Hydro code should use the names in UHD.h.
 IF Grid in ['', 'Amrex']
 SCRATCHCENTERVAR dummySCtr1

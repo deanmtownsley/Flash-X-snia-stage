@@ -142,16 +142,16 @@ D & limit in the computation of the size of the next time step?
 PARAMETER dr_printTStepLoc	     BOOLEAN TRUE
 
 D eachProcWritesOwnAbortLog    Should each process writes messages to its own log file when 
-D & Driver_abortFlash gets called to abnormally end execution?
-D & If true, each process in which Driver_abortFlash is
+D & Driver_abort gets called to abnormally end execution?
+D & If true, each process in which Driver_abort is
 D & called will attempt to write an explanatory message to its own log file, whether that
-D & file already existed or needs to be newly created.  If false, the Driver_abortFlash
+D & file already existed or needs to be newly created.  If false, the Driver_abort
 D & message will appear only in the regular log file (if the Logfile code unit is used),
-D & and normally only when Driver_abortFlash is called by the process with PE 0.
+D & and normally only when Driver_abort is called by the process with PE 0.
 PARAMETER eachProcWritesOwnAbortLog       BOOLEAN FALSE
 
-D dr_abortPause    When Driver_abortFlash is called to abnormally end execution,
-D & and dr_abortPause is grater than zero, the FLASH Driver_abortFlash code will sleep
+D dr_abortPause    When Driver_abort is called to abnormally end execution,
+D & and dr_abortPause is grater than zero, the Flash-X Driver_abort code will sleep
 D & for dr_abortPause seconds after writing explanatory messages (to standard output
 D & and, possibly, to log files) but before calling MPI_ABORT.
 D & See also eachProcWritesOwnAbortLog for controlling the generation of per-processor

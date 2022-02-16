@@ -1,4 +1,4 @@
-!!****if* source/IO/IOMain/IO_writePlotfile
+!!****if* source/IO/IOMain/hdf5/AM/IO_writePlotfile
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -82,6 +82,7 @@
 
 subroutine IO_writePlotfile( forced)
 
+  use io_amrexData, ONLY: io_plotFileAmrexFormat
   use IO_data, ONLY : io_plotFileNumber, io_unklabels, &
        io_doublePrecision, io_nPlotVars, io_forcedPlotFileNumber, &
        io_ignoreForcedPlot, io_flashRelease, io_globalMe, io_wrotePlot, &
@@ -129,8 +130,7 @@ subroutine IO_writePlotfile( forced)
   if (restrictNeeded .eqv. .true.) then
      call Grid_restrictAllLevels()
   end if
-  
-  
+    
   io_doublePrecision = .false.
 
   if((io_nPlotVars == 0) .and. (io_globalMe == MASTER_PE)) then
@@ -139,12 +139,11 @@ subroutine IO_writePlotfile( forced)
      call Logfile_stampMessage("WARNING you have called IO_writePlotfile but no plot_vars are defined.")
      call Logfile_stampMessage('put the vars you want in the plotfile in your flash.par (plot_var_1 = "dens")')
   end if
-
   
   call IO_updateScalars()
 
   call Timers_start("writePlotfile")
-  
+
   !-----------------------------------------------------------------------------
   ! open the file
   !-----------------------------------------------------------------------------
@@ -155,7 +154,7 @@ subroutine IO_writePlotfile( forced)
      call io_initFile( io_plotFileNumber, fileID, filename, '_plt_cnt_', fileIsForced)
   end if
   IO_TIMERS_STOP("create file")
-
+ 
   if (io_globalMe == MASTER_PE) then
      write (strBuff(1,1), "(A)") "type"
      write (strBuff(1,2), "(A)") "plotfile"
@@ -164,26 +163,33 @@ subroutine IO_writePlotfile( forced)
      call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would open")
   end if
 
-
-
   ! Ensure that user variables always get computed for plotfile output.
   call Grid_computeUserVars()
 
   call Driver_getNStep(nstep)
   call Driver_getSimTime(simTime)
-  call gr_writeData(nstep, simTime, io_baseName)
+
+  ! Only populate hdf5_plt_cnt if plotting using
+  ! native format
+  if (.not. io_plotFileAmrexFormat) then  
+      call io_writeData(fileID)
+
+  ! if io_plotFileAmrexFromat is .true. then pass neccessary information to
+  ! Amrex to plot using its default format
+  else
+      call gr_writeData(nstep, simTime, io_baseName)
+  end if
 
 
+  !----------------------------------------------------------------------
+  ! close the file
+  !----------------------------------------------------------------------
+  IO_TIMERS_START("close file")
+  call io_closeFile( fileID)
+  IO_TIMERS_STOP("close file")
 
-!!$  !----------------------------------------------------------------------
-!!$  ! close the file
-!!$  !----------------------------------------------------------------------
-!!$  IO_TIMERS_START("close file")
-!!$  call io_closeFile( fileID)
-!!$  IO_TIMERS_STOP("close file")
 
-
-  !increment the checkpoint number unless it is a dump checkpoint file
+  !increment the plotfile number unless it is a dump plotfile
   !DUMP_IOFILE_NUM typically 9999 or some large number, located in constants.h 
   if((.not.fileIsForced) .and. io_plotFileNumber /= DUMP_IOFILE_NUM) then
      io_plotFileNumber = io_plotFileNumber + 1
@@ -202,12 +208,9 @@ subroutine IO_writePlotfile( forced)
      call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would close")
   end if
 
-  io_wrotePlot = .true.
   io_oldPlotFileName = filename
+  io_wrotePlot = .true.
 
   return
+
 end subroutine IO_writePlotfile
-
-
-
-
