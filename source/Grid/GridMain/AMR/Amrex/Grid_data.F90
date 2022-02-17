@@ -169,4 +169,7 @@ Module Grid_data
 !  real,allocatable,dimension(:) :: gr_error
 
   integer, save :: gr_envOmpNumThreads
+
+  logical, save :: gr_gridChanged = .true.
+
 end Module Grid_data

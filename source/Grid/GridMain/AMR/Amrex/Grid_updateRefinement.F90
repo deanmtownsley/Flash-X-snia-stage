@@ -94,7 +94,7 @@ subroutine Grid_updateRefinement(nstep, time, gridChanged)
                                         gr_amrexDidRefinement, &
                                         gr_interpolator, &
                                         lo_bc_amrex, hi_bc_amrex, &
-                                        gr_meshComm
+                                        gr_meshComm, gr_gridChanged
   use gr_amrexInterface,         ONLY : gr_preinterpolationWork, &
                                         gr_postinterpolationWork, &
                                         gr_conserveToPrimitive, &
@@ -378,6 +378,8 @@ include "Flashx_mpi.h"
         gridChanged = .FALSE.
      end if
   end if
+
+  gr_gridChanged = gr_amrexDidRefinement
 
 end subroutine Grid_updateRefinement
 
