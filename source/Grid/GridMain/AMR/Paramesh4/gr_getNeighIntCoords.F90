@@ -18,7 +18,7 @@
 !!
 !!   gr_getNeighIntCoords(integer(IN)    :: lblock,
 !!                        integer(IN)(3) :: gCell,
-!!                        integer(OUT)   :: neighCoord(MDIM)
+!!                        integer(OUT)   :: neighCoord(MDIM),
 !!                        logical(in)    :: force (optional) )
 !!
 !! DESCRIPTION
@@ -32,6 +32,13 @@
 !!   neighCoord - integer coordinates of neighbor block
 !!   force - logical that determines whether to return out-of-bounds case
 !!
+!! NOTES
+!!
+!!   This subroutine is used in the Paramesh4 Grid implementation with
+!!   Bittree. It should also be usable, and may be useful, when using
+!!   the Paramesh4 Grid implementation without Bittree, and does not
+!!   rely on any data items that are specific to Bittree; therefore
+!!   it was moved to a more general directory level. - KW 2022-02-17
 !!***
 #include "constants.h"
       subroutine gr_getNeighIntCoords(lblock,gCell,neighCoord,force)

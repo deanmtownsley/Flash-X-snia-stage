@@ -1,5 +1,6 @@
 !!****if* source/Grid/GridMain/paramesh/gr_blockMatch
 !! NOTICE
+!!  Copyright 2020 The University of Chicago
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
