@@ -1,22 +1,88 @@
-!----------------------------------------------------------------------
+!!****if* source/Grid/GridMain/AMR/Paramesh4/interpolation/prolong/amr_1blk_cc_prol_gen_work_fun
 !! NOTICE
+!!  This file derived from PARAMESH - an adaptive mesh library.
+!!  Copyright (C) 2003, 2004 United States Government as represented by the
+!!  National Aeronautics and Space Administration, Goddard Space Flight
+!!  Center.  All Rights Reserved.
+!!  Copyright (C) 2016 The University of Chicago
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!!  Use of the PARAMESH software is governed by the terms of the
+!!  usage agreement which can be found in the file
+!!  'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
-!
-! Use of the PARAMESH software is governed by the terms of the
-! usage agreement which can be found in the file
-! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
-!----------------------------------------------------------------------
+!! NAME
+!!
+!!  amr_1blk_cc_prol_gen_work_fun
+!!
+!! SYNOPSIS
+!!
+!!  call amr_1blk_cc_prol_gen_work_fun(real(inout) :: recvt,
+!!                                     integer(in) :: ia,
+!!                                     integer(in) :: ib,
+!!                                     integer(in) :: ja,
+!!                                     integer(in) :: jb,
+!!                                     integer(in) :: ka,
+!!                                     integer(in) :: kb,
+!!                                     integer(in) :: idest,
+!!                                     integer(in) :: ioff,
+!!                                     integer(in) :: joff,
+!!                                     integer(in) :: koff,
+!!                                     integer(in) :: mype,
+!!                                     integer(in) :: lb,
+!!                                     integer(in) :: pe_p,
+!!                                     integer(in) :: lb_p,
+!!                                     integer(in) :: interp)
+!!
+!! DESCRIPTION
+!!
+!!  This routine is a wrapper routine which calls the functions
+!!  which prolong data for WORK. The argument idest selects the layer
+!!  within WORK on which prolongation is required.
+!!  The argument interp should select the actual interpolation function to be
+!!  called, but is ignored here.
+!!
+!! ARGUMENTS
+!!
+!!   recvt : 
+!!
+!!   ia : 
+!!
+!!   ib : 
+!!
+!!   ja : 
+!!
+!!   jb : 
+!!
+!!   ka : 
+!!
+!!   kb : 
+!!
+!!   idest : 
+!!
+!!   ioff : 
+!!
+!!   joff : 
+!!
+!!   koff : 
+!!
+!!   mype : my Processor Number
+!!
+!!   lb : 
+!!
+!!   pe_p : 
+!!
+!!   lb_p : 
+!!
+!!   interp : 
+!!
+!! HISTORY
+!!
+!!  Original:     Peter MacNeice          January 2002
+!!  Modified:     Klaus Weide             September 2006
+!!  Modified:     Klaus Weide             September 2016 - handle interp=30..32
+!!
+!!***
 
 #include "paramesh_preprocessor.fh"
 
@@ -27,20 +93,6 @@
 
 
 
-!
-!------------------------------------------------------------------------
-!
-! This routine is a wrapper routine which calls the functions
-! which prolong data for WORK. The argument idest selects the layer
-! within WORK on which prolongation is required.
-! The argument interp should select the actual interpolation function to be
-! called, but is ignored here.
-!
-!
-! Original:     Peter MacNeice          January 2002
-! Modified:     Klaus Weide             September 2006
-! Modified:     Klaus Weide             September 2016 - handle interp=30..32
-!------------------------------------------------------------------------
 
       Use paramesh_interfaces, Only :                  & 
                         amr_1blk_cc_prol_work_mg
