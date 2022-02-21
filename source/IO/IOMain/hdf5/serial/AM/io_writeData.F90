@@ -188,9 +188,9 @@ subroutine io_writeData (fileID)
   nullify(solnData)
 
   if (io_globalMe == MASTER_PE) then
-     print*,'fileID=',fileID
+     !print*,'fileID=',fileID
      print*,'gr_globalNumBlocks=',gr_globalNumBlocks
-     print*,'presentDims=',presentDims
+     !print*,'presentDims=',presentDims
      call io_createDatasets(fileID, gr_globalNumBlocks, presentDims)
   end if
 
