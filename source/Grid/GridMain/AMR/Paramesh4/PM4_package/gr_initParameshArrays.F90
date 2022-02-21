@@ -1,15 +1,14 @@
-!!****if* source/Grid/GridMain/paramesh/flash_avoid_orrery/gr_initParameshArrays
+!!****if* source/Grid/GridMain/AMR/Paramesh4/PM4_package/gr_initParameshArrays
 !! NOTICE
+!!  This file derived from PARAMESH - an adaptive mesh library.
+!!  Copyright (C) 2003, 2004 United States Government as represented by the
+!!  National Aeronautics and Space Administration, Goddard Space Flight
+!!  Center.  All Rights Reserved.
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!  Use of the PARAMESH software is governed by the terms of the
+!!  usage agreement which can be found in the file
+!!  'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
 !!
 !! NAME
 !!
@@ -44,10 +43,11 @@
 !!   zlboundary - boundary condition type of outer domain boundary in lower Z direction.
 !!   zrboundary - boundary condition type of outer domain boundary in upper Z direction.
 !!
-!! SEE ALSO
 !!
-!!  gr_initParameshDomainBboxes
 !!
+!! HISTORY
+!!
+!!  2003 - 2022 Adapted for FLASH and Flash-X    U of Chicago
 !!***
 subroutine gr_initParameshArrays(restart,&
                                      &  xlboundary, xrboundary, &
@@ -76,11 +76,18 @@ subroutine gr_initParameshArrays(restart,&
    integer,intent(IN) :: ylboundary, yrboundary
    integer,intent(IN) :: zlboundary, zrboundary
 
-   call mpi_amr_global_domain_limits()
-
+#if defined(BITTREE)
+   call mpi_amr_global_domain_limits
+   call amr_build_bittree()
+   if(.not. restart) then
+      call amr_reorder_grid()
+      call amr_refine_derefine()
+   end if
+#else
 ! Make sure that blocks produced by divide_domain are in strict
 ! morton order
    if(restart) then
+      call mpi_amr_global_domain_limits()
       if (.NOT. (gr_pmIoTreeMetadataIsValid() .OR. gr_gidIsValid)) then
          ! This will happen in particular if we are restarting from a
          ! checkpoint that was written by a run that used the Amrex
@@ -94,25 +101,24 @@ subroutine gr_initParameshArrays(restart,&
          call Driver_abort("The Grid tree metadata in the checkpoint is insufficient&
               & for restarting with this Grid implementation.")
       end if
-      call gr_initParameshDomainBboxes(xlboundary, xrboundary, &
-                                    &  ylboundary, yrboundary, &
-                                    &  zlboundary, zrboundary)
-      call amr_morton_process()
    else
-      call gr_initParameshDomainBboxes(xlboundary, xrboundary, &
-                                    &  ylboundary, yrboundary, &
-                                    &  zlboundary, zrboundary)
       call amr_refine_derefine()
+
+      call mpi_amr_global_domain_limits
+      call amr_reorder_grid()
    end if
+#endif   
 
-    !CD: Inform PARAMESH that we no longer need orrery.
-    surr_blks_valid = .true.
+   call gr_initParameshDomainBboxes(xlboundary, xrboundary, &
+                                 &  ylboundary, yrboundary, &
+                                 &  zlboundary, zrboundary)
 
-
+  
+    call amr_morton_process()
     if(restart) then
        grid_analysed_mpi=1
 #ifdef CALL_BOUNDARY_BLOCK_INFO
-       call mpi_amr_boundary_block_info(gr_meshMe, gr_meshNumProcs)
+       call mpi_amr_boundary_block_info(gr_meshMe,gr_meshNumProcs)
 #endif
     end if
   ! reset for quadratic interpolation
