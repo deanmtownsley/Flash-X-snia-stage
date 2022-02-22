@@ -76,6 +76,7 @@ from a separate git repository, the following modified `git` commands can be use
 
 - `git pull --recurse-submodules=yes` (in place of the usual `git pull`)
 - `git submodule update --init` (additionally, after `git pull`)
+- `git sumbodule update --init source/Grid/GridMain/AMR/Paramesh4/PM4_package` (to only get Paramesh pacakage)
 
 ## Tests 
 You can obtain the source code for flashtest and a full set of tests from the 
