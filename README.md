@@ -46,8 +46,12 @@ These workflows are located in `.github/workflows` and are not part of default t
 
 ## Libraries
 
-The code of the PARMESH library is currently integrated into the GridMain implementation as a
-subtree and not organized or built as a separate library.
+The code of the PARAMESH library for Flash-X is provided as a git submodule by a separate code
+repository named PARAMESH-for-Flash-X.  After successful initialization of the submodule
+--- see further below ---
+the code will appear as a subtree under `Grid/GridMain/AMR` in the `PM4_package` directory.
+The Flash-X `setup` and build mechanisms will take care of compiling this code (if needed
+for a simulation configuration); PARAMESH code is not organized or built as a separate library.
 
 Some applications and tests use external libraries that are expected to be already installed on the
 system where Flash-X is being built and run. The directory locations of such library installations
@@ -76,9 +80,10 @@ from a separate git repository, the following modified `git` commands can be use
 
 - `git pull --recurse-submodules=yes` (in place of the usual `git pull`)
 - `git submodule update --init` (additionally, after `git pull`)
-- `git sumbodule update --init source/Grid/GridMain/AMR/Paramesh4/PM4_package` (to only get Paramesh pacakage)
+- `git submodule update --init source/Grid/GridMain/AMR/Paramesh4/PM4_package`
+  (variant of the previous item, if you wanrt to only get the Paramesh package submodule)
 
 ## Tests 
-You can obtain the source code for flashtest and a full set of tests from the 
-Flash-X-test repository. The repository also has tools to help you setup your local testsuite.
+The source code for flashtest and a full set of tests are available from the
+Flash-X-Test repository. The repository also has tools to help you setup your local testsuite.
 
