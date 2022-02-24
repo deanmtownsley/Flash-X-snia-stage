@@ -48,11 +48,14 @@ subroutine io_writeGrid()
    use IO_data, ONLY: io_plotFileNumber, io_meshMe, io_meshComm
 
    ! TODO: Fix this for AMReX
-   !use tree, ONLY: lrefine, lnblocks
+   !use tree, ONLY: lrefine
    !use gr_specificData, ONLY: gr_oneBlock, gr_ilo, gr_ihi, gr_jlo, gr_jhi, gr_klo, gr_khi
    !use Grid_data, ONLY: gr_delta
 
    use Grid_data, ONLY: gr_globalNumBlocks, gr_globalNumProcs, gr_gridChanged
+   use Grid_interface, ONLY: Grid_getNumBlksFromType,Grid_getTileIterator,Grid_releaseTileIterator
+   use Grid_tile, ONLY: Grid_tile_t
+   use Grid_iterator, ONLY: Grid_iterator_t
 
    use Timers_interface, ONLY: Timers_start, Timers_stop
 
@@ -68,6 +71,9 @@ subroutine io_writeGrid()
    real, allocatable, dimension(:, :) :: fCoord
    real, allocatable, dimension(:, :, :, :) :: Coords
    real, allocatable, dimension(:, :) :: Deltas
+   integer :: lnblocks
+   type(Grid_tile_t) :: tileDesc
+   type(Grid_iterator_t) :: itor
 
    ! locals necessary to read hdf5 file
    integer :: error
@@ -76,6 +82,8 @@ subroutine io_writeGrid()
    integer(HSIZE_T), dimension(1) :: dset_sngl
    character(len=32) :: dsetname, attrname
    character(len=MAX_STRING_LENGTH) :: filename
+
+   call Grid_getNumBlksFromType(ALL_BLKS, lnblocks)
 
 #ifdef FLASH_IO_HDF5
 
@@ -112,6 +120,108 @@ subroutine io_writeGrid()
          allocate (Deltas(gr_globalNumBlocks, MDIM))
 
       end if
+
+      offset = 0
+      do jproc = 0, gr_globalNumProcs - 1
+
+         if (io_meshMe == MASTER_PE .and. jproc == MASTER_PE) then
+
+            if (lnblocks > 0) then
+               allocate (iBuff(NXB*lnblocks*3), jBuff(NYB*lnblocks*3), kBuff(NZB*lnblocks*3), dBuff(lnblocks*MDIM))
+               do fc = 1, 3
+                  lb = 1
+                  call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
+                  do while (itor%isValid())
+                     !iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
+                     !    gr_oneBlock(lb)%firstAxisCoords(fc, gr_ilo:gr_ihi)
+
+                     ! jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
+                     !    gr_oneBlock(lb)%secondAxisCoords(fc, gr_jlo:gr_jhi)
+
+                     !kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
+                     !   gr_oneBlock(lb)%thirdAxisCoords(fc, gr_klo:gr_khi)
+
+                     !dBuff(lnblocks*(fc - 1) + lb) = gr_delta(fc, lrefine(lb))
+                     lb = lb + 1
+                     call itor%next()
+                  end do
+                  call Grid_releaseTileIterator(itor)
+               end do
+               Coords(1:NXB, offset + 1:offset + lnblocks, 1:3, IAXIS) = reshape(iBuff, (/NXB, lnblocks, 3/))
+               Coords(1:NYB, offset + 1:offset + lnblocks, 1:3, JAXIS) = reshape(jBuff, (/NYB, lnblocks, 3/))
+               Coords(1:NZB, offset + 1:offset + lnblocks, 1:3, KAXIS) = reshape(kBuff, (/NZB, lnblocks, 3/))
+               Deltas(offset + 1:offset + lnblocks, 1:MDIM) = reshape(dBuff, (/lnblocks, MDIM/))
+               deallocate (iBuff, jBuff, kBuff, dBuff)
+               offset = offset + lnblocks
+            end if
+
+         end if
+
+         if (io_meshMe == MASTER_PE .and. jproc /= MASTER_PE) then
+
+            call MPI_Recv(localNumBlocks, 1, FLASH_INTEGER, jproc, 1, io_meshComm, status, ierr)
+            if (localNumBlocks > 0) then
+               allocate (iBuff(NXB*localNumBlocks*3), &
+                         jBuff(NYB*localNumBlocks*3), &
+                         kBuff(NZB*localNumBlocks*3), &
+                         dBuff(localNumBlocks*MDIM))
+
+               call MPI_Recv(iBuff, NXB*localNumBlocks*3, FLASH_REAL, jproc, 1 + IAXIS, io_meshComm, status, ierr)
+               call MPI_Recv(jBuff, NYB*localNumBlocks*3, FLASH_REAL, jproc, 1 + JAXIS, io_meshComm, status, ierr)
+               call MPI_Recv(kBuff, NZB*localNumBlocks*3, FLASH_REAL, jproc, 1 + KAXIS, io_meshComm, status, ierr)
+               call MPI_Recv(dBuff, localNumBlocks*3, FLASH_REAL, jproc, 2 + MDIM, io_meshComm, status, ierr)
+
+               Coords(1:NXB, offset + 1:offset + localNumBlocks, 1:3, IAXIS) = &
+                  reshape(iBuff, (/NXB, localNumBlocks, 3/))
+
+               Coords(1:NYB, offset + 1:offset + localNumBlocks, 1:3, JAXIS) = &
+                  reshape(jBuff, (/NYB, localNumBlocks, 3/))
+
+               Coords(1:NZB, offset + 1:offset + localNumBlocks, 1:3, KAXIS) = &
+                  reshape(kBuff, (/NZB, localNumBlocks, 3/))
+
+               Deltas(offset + 1:offset + localNumBlocks, 1:MDIM) = reshape(dBuff, (/localNumBlocks, MDIM/))
+
+               deallocate (iBuff, jBuff, kBuff, dBuff)
+
+               offset = offset + localNumBlocks
+            end if
+         end if
+
+         if (io_meshMe /= MASTER_PE .and. jproc == io_meshMe) then
+
+            call MPI_Send(lnblocks, 1, FLASH_INTEGER, MASTER_PE, 1, io_meshComm, ierr)
+            if (lnblocks > 0) then
+               allocate (iBuff(NXB*lnblocks*3), jBuff(NYB*lnblocks*3), kBuff(NZB*lnblocks*3), dBuff(lnblocks*MDIM))
+               do fc = 1, 3
+                  lb = 1
+                  call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
+                  do while (itor%isValid())
+                     !   iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
+                     !      gr_oneBlock(lb)%firstAxisCoords(fc, gr_ilo:gr_ihi)
+                     !
+                     !   jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
+                     !      gr_oneBlock(lb)%secondAxisCoords(fc, gr_jlo:gr_jhi)
+                     !
+                     !   kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
+                     !      gr_oneBlock(lb)%thirdAxisCoords(fc, gr_klo:gr_khi)
+                     !
+                     !   dBuff(lnblocks*(fc - 1) + lb) = gr_delta(fc, lrefine(lb))
+                     lb = lb + 1
+                     call itor%next()
+                  end do
+                  call Grid_releaseTileIterator(itor)
+               end do
+               call MPI_Send(iBuff, NXB*lnblocks*3, FLASH_REAL, MASTER_PE, 1 + IAXIS, io_meshComm, ierr)
+               call MPI_Send(jBuff, NYB*lnblocks*3, FLASH_REAL, MASTER_PE, 1 + JAXIS, io_meshComm, ierr)
+               call MPI_Send(kBuff, NZB*lnblocks*3, FLASH_REAL, MASTER_PE, 1 + KAXIS, io_meshComm, ierr)
+               call MPI_Send(dBuff, lnblocks*3, FLASH_REAL, MASTER_PE, 2 + MDIM, io_meshComm, ierr)
+               deallocate (iBuff, jBuff, kBuff, dBuff)
+            end if
+
+         end if
+
+      end do
 
       if (io_meshMe == MASTER_PE) then
 
