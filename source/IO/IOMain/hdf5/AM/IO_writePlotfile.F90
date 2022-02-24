@@ -160,7 +160,7 @@ subroutine IO_writePlotfile( forced)
      write (strBuff(1,2), "(A)") "plotfile"
      write (strBuff(2,1), "(A)") "name"
      write (strBuff(2,2), "(A)") trim(filename)
-     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would open")
+     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] open")
   end if
 
   ! Ensure that user variables always get computed for plotfile output.
@@ -205,8 +205,8 @@ subroutine IO_writePlotfile( forced)
      write (strBuff(1,2), "(A)") "plotfile"
      write (strBuff(2,1), "(A)") "name"
      write (strBuff(2,2), "(A)") trim(filename)
-     print *, '*** Wrote plotfile ****' 
-     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] would close")
+     print *, '*** Wrote plotfile to ', trim(filename),  ' ****' 
+     call Logfile_stamp( strBuff, 2, 2, "[IO_writePlotfile] close")
   end if
 
   io_oldPlotFileName = filename
