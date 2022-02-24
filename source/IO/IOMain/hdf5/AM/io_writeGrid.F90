@@ -1,4 +1,4 @@
-!!****if* source/IO/IOMain/hdf5
+!!****if* source/IO/IOMain/hdf5/AM
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -47,13 +47,11 @@ subroutine io_writeGrid()
    use Driver_interface, ONLY: Driver_abort
    use IO_data, ONLY: io_plotFileNumber, io_meshMe, io_meshComm
 
-   ! TODO: Fix this for AMReX
-   !use tree, ONLY: lrefine
-   !use gr_specificData, ONLY: gr_oneBlock, gr_ilo, gr_ihi, gr_jlo, gr_jhi, gr_klo, gr_khi
-   !use Grid_data, ONLY: gr_delta
-
    use Grid_data, ONLY: gr_globalNumBlocks, gr_globalNumProcs, gr_gridChanged
-   use Grid_interface, ONLY: Grid_getNumBlksFromType,Grid_getTileIterator,Grid_releaseTileIterator
+
+   use Grid_interface, ONLY: Grid_getNumBlksFromType, Grid_getTileIterator, &
+                             Grid_releaseTileIterator, Grid_getCellCoords
+
    use Grid_tile, ONLY: Grid_tile_t
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -74,6 +72,9 @@ subroutine io_writeGrid()
    integer :: lnblocks
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
+   integer, dimension(MDIM) :: lo, hi
+   real, allocatable, dimension(:) :: xCoord, yCoord, zCoord
+   real :: del(MDIM)
 
    ! locals necessary to read hdf5 file
    integer :: error
@@ -132,16 +133,38 @@ subroutine io_writeGrid()
                   lb = 1
                   call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
                   do while (itor%isValid())
-                     !iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
-                     !    gr_oneBlock(lb)%firstAxisCoords(fc, gr_ilo:gr_ihi)
+                     call itor%currentTile(tileDesc)
 
-                     ! jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
-                     !    gr_oneBlock(lb)%secondAxisCoords(fc, gr_jlo:gr_jhi)
+                     lo = tileDesc%limits(LOW, :)
+                     hi = tileDesc%limits(HIGH, :)
 
-                     !kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
-                     !   gr_oneBlock(lb)%thirdAxisCoords(fc, gr_klo:gr_khi)
+                     allocate (xCoord(lo(IAXIS):hi(IAXIS)))
+                     allocate (yCoord(lo(JAXIS):hi(JAXIS)))
+                     allocate (zCoord(lo(KAXIS):hi(KAXIS)))
 
-                     !dBuff(lnblocks*(fc - 1) + lb) = gr_delta(fc, lrefine(lb))
+                     xCoord = 0.0
+                     yCoord = 0.0
+                     zCoord = 0.0
+
+                     call Grid_getCellCoords(IAXIS, fc, tileDesc%level, lo, hi, xCoord)
+                     call Grid_getCellCoords(JAXIS, fc, tileDesc%level, lo, hi, yCoord)
+                     call Grid_getCellCoords(KAXIS, fc, tileDesc%level, lo, hi, zCoord)
+
+                     call tileDesc%deltas(del)
+
+                     iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
+                        xCoord(lo(IAXIS):hi(IAXIS))
+
+                     jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
+                        yCoord(lo(JAXIS):hi(JAXIS))
+
+                     kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
+                        zCoord(lo(KAXIS):hi(KAXIS))
+
+                     dBuff(lnblocks*(fc - 1) + lb) = del(fc)
+
+                     deallocate (xCoord,yCoord,zCoord)
+
                      lb = lb + 1
                      call itor%next()
                   end do
@@ -197,16 +220,38 @@ subroutine io_writeGrid()
                   lb = 1
                   call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
                   do while (itor%isValid())
-                     !   iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
-                     !      gr_oneBlock(lb)%firstAxisCoords(fc, gr_ilo:gr_ihi)
-                     !
-                     !   jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
-                     !      gr_oneBlock(lb)%secondAxisCoords(fc, gr_jlo:gr_jhi)
-                     !
-                     !   kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
-                     !      gr_oneBlock(lb)%thirdAxisCoords(fc, gr_klo:gr_khi)
-                     !
-                     !   dBuff(lnblocks*(fc - 1) + lb) = gr_delta(fc, lrefine(lb))
+                     call itor%currentTile(tileDesc)
+
+                     lo = tileDesc%limits(LOW, :)
+                     hi = tileDesc%limits(HIGH, :)
+
+                     allocate (xCoord(lo(IAXIS):hi(IAXIS)))
+                     allocate (yCoord(lo(JAXIS):hi(JAXIS)))
+                     allocate (zCoord(lo(KAXIS):hi(KAXIS)))
+
+                     xCoord = 0.0
+                     yCoord = 0.0
+                     zCoord = 0.0
+
+                     call Grid_getCellCoords(IAXIS, fc, tileDesc%level, lo, hi, xCoord)
+                     call Grid_getCellCoords(JAXIS, fc, tileDesc%level, lo, hi, yCoord)
+                     call Grid_getCellCoords(KAXIS, fc, tileDesc%level, lo, hi, zCoord)
+
+                     call tileDesc%deltas(del)
+
+                     iBuff(NXB*lnblocks*(fc - 1) + NXB*(lb - 1) + 1:NXB*lnblocks*(fc - 1) + NXB*lb) = &
+                        xCoord(lo(IAXIS):hi(IAXIS))
+
+                     jBuff(NYB*lnblocks*(fc - 1) + NYB*(lb - 1) + 1:NYB*lnblocks*(fc - 1) + NYB*lb) = &
+                        yCoord(lo(JAXIS):hi(JAXIS))
+
+                     kBuff(NZB*lnblocks*(fc - 1) + NZB*(lb - 1) + 1:NZB*lnblocks*(fc - 1) + NZB*lb) = &
+                        zCoord(lo(KAXIS):hi(KAXIS))
+
+                     dBuff(lnblocks*(fc - 1) + lb) = del(fc)
+
+                     deallocate (xCoord,yCoord,zCoord)
+
                      lb = lb + 1
                      call itor%next()
                   end do
