@@ -30,6 +30,7 @@ module sim_heaterData
 
   real, save        :: sim_nucSeedRadius
   integer, save     :: sim_numHeaters
+  character(len=20) :: sim_heaterName
 
   type sim_heaterType
      
