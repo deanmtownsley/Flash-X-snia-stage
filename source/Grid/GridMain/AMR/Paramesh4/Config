@@ -29,21 +29,11 @@ IF ParameshLibraryMode
     PPDEFINE LIBRARY
 ENDIF
 
-IF FlashAvoidOrrery
-  REQUIRES ./flash_avoid_orrery
-  CHILDORDER PM4_package flash_avoid_orrery
+IF FlashAvoidOrrery or Bittree
+  # Configuration in ./PM4_package/Config applies
+  REQUIRES ./PM4_package
 ENDIF
 
-IF Bittree
-  REQUIRES ./bittree
-  CHILDORDER PM4_package flash_avoid_orrery bittree
-
-D gr_btExchangeBflags True = bflags is exchanged during
-D & refinement. Increases communication. False (default) = entire bflags array
-D & is reset to -1 during each refinement.
-PARAMETER gr_btExchangeBflags BOOLEAN False
-
-ENDIF
 
 USESETUPVARS NoLevelwideFluxes
 IF not NoLevelwideFluxes

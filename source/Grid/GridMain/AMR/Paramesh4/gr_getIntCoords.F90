@@ -26,6 +26,13 @@
 !!   lblock - local block number
 !!   lcoord - stores output
 !!
+!! NOTES
+!!
+!!   This subroutine is used in the Paramesh4 Grid implementation with
+!!   Bittree. It should also be usable, and may be useful, when using
+!!   the Paramesh4 Grid implementation without Bittree, and does not
+!!   rely on any data items that are specific to Bittree; therefore
+!!   it was moved to a more general directory level. - KW 2022-02-17
 !!***
 #include "constants.h"
       subroutine gr_getIntCoords(lblock,lcoord)
