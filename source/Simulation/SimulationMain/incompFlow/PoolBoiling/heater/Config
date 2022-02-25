@@ -8,6 +8,6 @@ D total number of heaters
 PARAMETER sim_numHeaters     INTEGER  1   # Number of heaters
 
 D heater name
-PARAMETER sim_heaterName     STRING  "flash"
+PARAMETER sim_heaterName     STRING  "pool_boiling"
 
 DATAFILES *_hdf5_htr_*
