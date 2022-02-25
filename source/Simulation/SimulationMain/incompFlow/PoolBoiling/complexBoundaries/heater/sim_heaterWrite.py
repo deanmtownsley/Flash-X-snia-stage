@@ -25,7 +25,7 @@ def write_heater_info():
     nuc_advAngle   = 90.0
     nuc_rcdAngle   = 45.0
     nuc_velContact = 0.2
-    nuc_waitTime   = 0.1
+    nuc_waitTime   = 0.25
 
     nuc_numSites   = 1
 
@@ -44,7 +44,7 @@ def write_heater_info():
     #nuc_ySite[1] =  1e-13
     #nuc_zSite[1] =  0.0
 
-    filename_write = h5py.File('sim_heater.0001.h5','w')
+    filename_write = h5py.File('flash_hdf5_htr_0001','w')
 
     filename_write.create_dataset('heater/xMin', data=htr_xMin, shape=(1), dtype='float32')
     filename_write.create_dataset('heater/xMax', data=htr_xMax, shape=(1), dtype='float32')

@@ -19,3 +19,4 @@ ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
+DATAFILES *.par

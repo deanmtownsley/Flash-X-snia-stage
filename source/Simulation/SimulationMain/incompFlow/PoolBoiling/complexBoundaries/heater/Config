@@ -1,6 +1,13 @@
 #   Config file for heater API
 #
+
+D seedRadius for re-nucleation
 PARAMETER sim_nucSeedRadius  REAL     0.1 # Re-nucleation seed radius
+
+D total number of heaters
 PARAMETER sim_numHeaters     INTEGER  1   # Number of heaters
 
-DATAFILES *.h5
+D heater name
+PARAMETER sim_heaterName     STRING  "flash"
+
+DATAFILES *_hdf5_htr_*

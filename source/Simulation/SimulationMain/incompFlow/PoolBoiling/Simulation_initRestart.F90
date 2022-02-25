@@ -28,15 +28,32 @@
 
 subroutine Simulation_initRestart()
 
+
   use Simulation_data
+  use Driver_interface,            ONLY : Driver_getMype,Driver_abort
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+  use sim_heaterInterface,         ONLY : sim_heaterInit
+  use sim_outflowInterface,        ONLY : sim_outflowInit
+
+#include "constants.h"
 
   implicit none
+
+  call Driver_getMype(MESH_COMM, sim_meshMe)
+
+  call RuntimeParameters_get('xmin',    sim_xMin)
+  call RuntimeParameters_get('ymin',    sim_yMin)
+  call RuntimeParameters_get('xmax',    sim_xMax)
+  call RuntimeParameters_get('ymax',    sim_yMax)
+  call RuntimeParameters_get('zmin',    sim_zmin)
+  call RuntimeParameters_get('zmax',    sim_zmax)
+
+  call sim_heaterInit()
+  call sim_outflowInit()
 
   !if(sim_chkptSiteNum .le. sim_nucSiteNum) sim_nucTimeStampAll(1:sim_chkptSiteNum) = sim_chkptTimeStampAll
   !if(sim_chkptSiteNum .gt. sim_nucSiteNum) sim_nucTimeStampAll = sim_chkptTimeStampAll(1:sim_nucSiteNum)
   !
   !deallocate(sim_chkptTimeStampAll)
-
-  return
 
 end subroutine Simulation_initRestart
