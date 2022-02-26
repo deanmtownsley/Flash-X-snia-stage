@@ -43,11 +43,12 @@ subroutine sim_heaterTagSites(stime)
        if(heater%siteIsAttachedPrev(isite) .eqv. .true.  .and. &
           heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
 
-       if (sim_meshMe .eq. MASTER_PE) write(*,'(A,I1,A,I1,A,L1,A,2g14.6)')&
-                                      ' Heater:',htr,&
-                                      ' Site:',isite,&
-                                      ' IsAttached:',heater%siteIsAttachedCurr(isite),&
-                                      ' TimeStamp:',heater%siteTimeStamp(isite)
+       if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
+           write(*,'(A,I2,A,I3,A,L1,A,2g14.6)')&
+                   ' Heater:',htr,&
+                   ' Site:',isite,&
+                   ' IsAttached:',heater%siteIsAttachedCurr(isite),&
+                   ' TimeStamp:',heater%siteTimeStamp(isite)
 
     end do
 

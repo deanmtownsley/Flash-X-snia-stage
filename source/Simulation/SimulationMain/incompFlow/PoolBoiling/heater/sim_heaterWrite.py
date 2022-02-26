@@ -10,16 +10,18 @@ DESCRIPTION:
 
 import numpy
 import h5py
-
+from scipy.stats import qmc
 
 def write_heater_info():
 
-    filename_write = h5py.File("flash_hdf5_htr_0001", "w")
+    filename = "multiple_bubbles_hdf5_htr_0001"
 
-    htr_xMin = -1.0
-    htr_xMax = 1.0
-    htr_zMin = -1.0
-    htr_zMax = 1.0
+    filename_write = h5py.File(filename, "w")
+
+    htr_xMin = -3.0
+    htr_xMax = 3.0
+    htr_zMin = -3.0
+    htr_zMax = 3.0
     htr_yMin = 0.0
     htr_yMax = 1e-13
 
@@ -28,24 +30,36 @@ def write_heater_info():
     nuc_advAngle = 90.0
     nuc_rcdAngle = 45.0
     nuc_velContact = 0.2
-    nuc_waitTime = 0.25
+    nuc_waitTime = 0.2
 
-    nuc_numSites = 1
+    nuc_numSites = 600
 
     nuc_xSite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_ySite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_zSite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_radii = numpy.ndarray([nuc_numSites], dtype=float)
 
-    nuc_radii[0] = 0.3
-    nuc_xSite[0] = 0.0
-    nuc_ySite[0] = 1e-13
-    nuc_zSite[0] = 0.0
+    # Manually specify nucleation sites
+    # TODO improve this interface
+    #nuc_radii[0] = 0.3
+    #nuc_xSite[0] = 0.0
+    #nuc_ySite[0] = 1e-13
+    #nuc_zSite[0] = 0.0
 
     # nuc_radii[1] =  0.0
     # nuc_xSite[1] =  0.5
     # nuc_ySite[1] =  1e-13
     # nuc_zSite[1] =  0.0
+
+    # Generate using halton sequence
+    # TODO improve this interface
+    halton = qmc.Halton(d=2, seed=1)
+    haltonSample = halton.random(nuc_numSites)
+
+    nuc_xSite[:] = htr_xMin + haltonSample[:,0]*(htr_xMax-htr_xMin)
+    nuc_zSite[:] = htr_zMin + haltonSample[:,1]*(htr_zMax-htr_zMin)
+    nuc_ySite[:] = 1e-13
+    nuc_radii[:] = 0.2
 
     filename_write.create_dataset(
         "heater/xMin", data=htr_xMin, shape=(1), dtype="float32"
@@ -102,7 +116,7 @@ def write_heater_info():
 
     filename_write.close()
 
-    print("Wrote heater information to file sim_heater.0001.h5")
+    print(f"Wrote heater information to file {filename}")
 
 
 def main():

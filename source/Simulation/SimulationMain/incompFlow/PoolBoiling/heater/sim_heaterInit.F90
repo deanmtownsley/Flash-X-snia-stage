@@ -30,6 +30,7 @@ subroutine sim_heaterInit()
   call RuntimeParameters_get('sim_numHeaters',sim_numHeaters)
   call RuntimeParameters_get('sim_nucSeedRadius', sim_nucSeedRadius)
   call RuntimeParameters_get('sim_heaterName', sim_heaterName)
+  call RuntimeParameters_get('sim_heaterShowInfo', sim_heaterShowInfo)
 
   if (sim_meshMe .eq. MASTER_PE) then
      write(*,*) 'sim_numHeaters=',sim_numHeaters

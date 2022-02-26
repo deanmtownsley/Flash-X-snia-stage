@@ -10,4 +10,7 @@ PARAMETER sim_numHeaters     INTEGER  1   # Number of heaters
 D heater name
 PARAMETER sim_heaterName     STRING  "pool_boiling"
 
+D display site info 
+PARAMETER sim_heaterShowInfo BOOLEAN FALSE
+
 DATAFILES *_hdf5_htr_*
