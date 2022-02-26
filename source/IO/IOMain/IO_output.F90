@@ -133,7 +133,8 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
        io_justCheckpointed, io_memoryStatFreq, &
        io_nextCheckpointZ, io_nextPlotFileZ, io_checkpointFileIntervalZ, io_plotfileIntervalZ, &
        io_alwaysComputeUserVars, io_outputInStack,io_globalMe, io_globalComm, &
-       io_wrotePlot, io_maxRSS, io_measRSS
+       io_wrotePlot, io_maxRSS, io_measRSS, io_gridChanged
+  use Grid_data, ONLY: gr_gridChanged
   use Driver_interface, ONLY : Driver_abort,Driver_finalizeAll
   use Logfile_interface, ONLY : Logfile_stamp, Logfile_close
   use Timers_interface, ONLY : Timers_start, Timers_stop, &
@@ -167,6 +168,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
   logical :: rssMaxExceeded
   logical , intent(OUT) :: endRun 
 
+  if (gr_gridChanged) io_gridChanged = gr_gridChanged
 
   if(present(outputType)) then
      

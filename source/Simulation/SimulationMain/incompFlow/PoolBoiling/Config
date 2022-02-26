@@ -20,4 +20,4 @@ ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
-DATAFILES single_bubble.par
+DATAFILES single_bubble.par multiple_bubbles.par

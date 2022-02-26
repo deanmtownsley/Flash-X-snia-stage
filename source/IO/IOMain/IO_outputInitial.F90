@@ -50,18 +50,20 @@ subroutine IO_outputInitial( nbegin, initialSimTime)
 #include "constants.h"
   use IO_data, ONLY : io_integralFreq, io_memoryStatFreq, &
        io_redshift, io_justCheckpointed, io_restart, &
-       io_alwaysComputeUserVars, io_outputInStack, io_summaryOutputOnly
+       io_alwaysComputeUserVars, io_outputInStack, io_summaryOutputOnly, io_gridChanged
   use Grid_interface, ONLY : Grid_restrictAllLevels, &
     Grid_computeUserVars
   use IO_interface, ONLY : IO_writeIntegralQuantities, &
     IO_writeCheckpoint, IO_writePlotfile, IO_writeParticles
-
+  use Grid_data, ONLY: gr_gridChanged
 
 #include "Flashx_mpi_implicitNone.fh"
   integer, intent(in) :: nbegin
   real, intent(in) :: initialSimTime
   logical :: forcePlotfile
-  
+ 
+  if (gr_gridChanged) io_gridChanged = gr_gridChanged
+ 
   forcePlotfile = .false.
 
   !This setting is used to ensure valid data throughout grid and ancestor blocks

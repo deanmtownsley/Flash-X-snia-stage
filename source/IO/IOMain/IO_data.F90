@@ -248,6 +248,8 @@ module IO_data
 
    logical, save :: io_writeGridInfo
 
+   logical, save :: io_gridChanged
+
    type tree_data_t
       real, dimension(:,:,:), pointer :: bnd_box
       real, dimension(:,:), pointer :: coord

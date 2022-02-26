@@ -45,9 +45,9 @@ subroutine io_writeGrid()
 #include "io_flash.h"
 
    use Driver_interface, ONLY: Driver_abort
-   use IO_data, ONLY: io_plotFileNumber, io_meshMe, io_meshComm
+   use IO_data, ONLY: io_plotFileNumber, io_meshMe, io_meshComm, io_gridChanged
 
-   use Grid_data, ONLY: gr_globalNumBlocks, gr_globalNumProcs, gr_gridChanged
+   use Grid_data, ONLY: gr_globalNumBlocks, gr_globalNumProcs
 
    use Grid_interface, ONLY: Grid_getNumBlksFromType, Grid_getTileIterator, &
                              Grid_releaseTileIterator, Grid_getCellCoords
@@ -90,7 +90,7 @@ subroutine io_writeGrid()
 
    call Timers_start("io_writeGrid")
 
-   if (gr_gridChanged) then
+   if (io_gridChanged) then
 
       ! Open an hdf5 file for writing grid information
       if (io_meshMe == MASTER_PE) then
@@ -393,6 +393,8 @@ subroutine io_writeGrid()
          call h5close_f(error)
 
       end if
+
+   io_gridChanged = .false.
 
    end if
 
