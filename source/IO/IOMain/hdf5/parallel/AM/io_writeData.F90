@@ -1,4 +1,3 @@
-!!****if* source/IO/IOMain/hdf5/parallel/PM/io_writeData
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -196,6 +195,8 @@ subroutine io_writeData( fileID)
 
   real, dimension(:,:,:,:), POINTER :: solnData
   real, dimension(:,:,:,:,:), POINTER :: scratch
+  integer, dimension(MDIM) :: lo, hi
+
   nullify(solnData)
   nullify(scratch)
 
@@ -508,6 +509,241 @@ subroutine io_writeData( fileID)
   deallocate(globalVarMin)
   deallocate(globalVarMax)
 
+#if(NFACE_VARS>0)    
+    if(io_doublePrecision) then     
+       
+       allocate(globalFaceXMin(NFACE_VARS))
+       allocate(globalFaceXMax(NFACE_VARS))
+       call io_getVarExtrema(NFACE_VARS,globalFaceXMin,globalFaceXMax,FACEX)
+
+#if NDIM >= 2        
+       allocate(globalFaceYMin(NFACE_VARS))
+       allocate(globalFaceYMax(NFACE_VARS))
+       call io_getVarExtrema(NFACE_VARS,globalFaceYMin,globalFaceYMax,FACEY)
+#endif
+
+#if NDIM == 3
+       allocate(globalFaceZMin(NFACE_VARS))
+       allocate(globalFaceZMax(NFACE_VARS))
+       call io_getVarExtrema(NFACE_VARS,globalFaceZMin,globalFaceZMax,FACEZ)
+#endif
+
+       if (.NOT. io_chkGuardCellsOutput) then               
+       allocate(faceXBuf(1,NXB+1, NYB, NZB, localNumBlocks))
+
+#if NDIM >= 2
+       allocate(faceYBuf(1,NXB, NYB+1, NZB, localNumBlocks))
+#endif
+
+#if NDIM == 3
+       allocate(faceZBuf(1,NXB, NYB, NZB+1, localNumBlocks))
+#endif
+       do i = 1,NFACE_VARS
+          call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+          do while (itor%isValid())
+               call itor%currentTile(tileDesc)
+               call tileDesc%getDataPtr(solnData, FACEX)
+               lo = tileDesc%limits(LOW, :)
+               hi = tileDesc%limits(HIGH, :)
+               faceXBuf(1,1:NXB+1,1:NYB,1:NZB,lb) = solnData(lo(IAXIS):hi(IAXIS)+1, &
+                                                             lo(JAXIS):hi(JAXIS), &
+                                                             lo(KAXIS):hi(KAXIS),i)
+               call tileDesc%releaseDataPtr(solnData, FACEX)
+               call itor%next();              lb = lb+1
+          enddo
+          call Grid_releaseTileIterator(itor)
+          nullify(solnData)
+ 
+          call io_h5write_unknowns(io_globalMe, &
+               fileID, &
+               NXB+1, &
+               NYB, &
+               NZB, &
+               faceXBuf, &
+               globalFaceXMin(i), &
+               globalFaceXMax(i), &
+               io_faceXVarLabels(i), &
+               localNumBlocks, &
+               io_splitNumBlks, &
+               localOffset, &
+               dowrite)
+
+#if NDIM >= 2              
+            call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+            do while (itor%isValid())
+               call itor%currentTile(tileDesc)
+               call tileDesc%getDataPtr(solnData, FACEY)
+               lo = tileDesc%limits(LOW, :)
+               hi = tileDesc%limits(HIGH, :)
+               faceYBuf(1,1:NXB,1:NYB+1,1:NZB,lb) = solnData(lo(IAXIS):hi(IAXIS), &
+                                                             lo(JAXIS):hi(JAXIS)+1, &
+                                                             lo(KAXIS):hi(KAXIS),i)
+               call tileDesc%releaseDataPtr(solnData, FACEY)
+               call itor%next();              lb = lb+1
+            enddo
+            call Grid_releaseTileIterator(itor)
+            nullify(solnData)
+ 
+            call io_h5write_unknowns(io_globalMe, &
+                 fileID, &
+                 NXB, &
+                 NYB+1, &
+                 NZB, &
+                 faceYBuf, &
+                 globalFaceYMin(i), &
+                 globalFaceYMax(i), &
+                 io_faceYVarLabels(i), &
+                 localNumBlocks, &
+                 io_splitNumBlks, &
+                 localOffset, &
+                 dowrite)
+#endif
+
+#if NDIM == 3
+              call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+              do while (itor%isValid())
+                 call itor%currentTile(tileDesc)
+                 call tileDesc%getDataPtr(solnData, FACEZ)
+                 lo = tileDesc%limits(LOW, :)
+                 hi = tileDesc%limits(HIGH, :)
+                 faceZBuf(1,1:NXB,1:NYB,1:NZB+1,lb) = solnData(lo(IAXIS):hi(IAXIS), &
+                                                               lo(JAXIS):hi(JAXIS), &
+                                                               lo(KAXIS):hi(KAXIS)+1,i)
+                 call tileDesc%releaseDataPtr(solnData, FACEZ)
+                 call itor%next();              lb = lb+1
+              enddo
+              call Grid_releaseTileIterator(itor)
+              nullify(solnData)
+ 
+              call io_h5write_unknowns(io_globalMe, &
+                fileID, &
+                NXB, &
+                NYB, &
+                NZB+1, &
+                faceZBuf, &
+                globalFaceZMin(i), &
+                globalFaceZMax(i), &
+                io_faceZVarLabels(i), &
+                localNumBlocks, &
+                io_splitNumBlks, &
+                localOffset, &
+                dowrite)
+#endif    
+       end do
+       else ! if (.NOT. io_chkGuardCellsOutput)
+          allocate(faceXBuf(1,GRID_IHI_GC+1,GRID_JHI_GC,GRID_KHI_GC,localNumBlocks))
+          faceXBuf = 0.0
+          do i = 1,NFACE_VARS
+
+             call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+             do while (itor%isValid())
+               call itor%currentTile(tileDesc)
+               call tileDesc%getDataPtr(solnData, FACEX)
+               faceXBuf(1,:,:,:,lb) = solnData(:,:,:,i)
+               call tileDesc%releaseDataPtr(solnData, FACEX)
+               call itor%next();              lb = lb+1
+             enddo
+             call Grid_releaseTileIterator(itor)
+             nullify(solnData)
+ 
+             call io_h5write_unknowns(io_globalMe, &
+                  fileID, &
+                  GRID_IHI_GC+1, &
+                  GRID_JHI_GC, &
+                  GRID_KHI_GC, &
+                  faceXBuf, &
+                  globalFaceXMin(i), &
+                  globalFaceXMax(i), &
+                  io_faceXVarLabels(i), &
+                  localNumBlocks, &
+                  io_splitNumBlks, &
+                  localOffset, &
+                  dowrite)
+          end do
+
+#if NDIM >= 2
+             allocate(faceYBuf(1,GRID_IHI_GC,GRID_JHI_GC+1,GRID_KHI_GC,localNumBlocks))
+             faceYBuf = 0.0
+             do i = 1,NFACE_VARS
+
+                call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+                do while (itor%isValid())
+                  call itor%currentTile(tileDesc)
+                  call tileDesc%getDataPtr(solnData, FACEY)
+                  faceYBuf(1,:,:,:,lb) = solnData(:,:,:,i)
+                  call tileDesc%releaseDataPtr(solnData, FACEY)
+                  call itor%next();              lb = lb+1
+                enddo
+                call Grid_releaseTileIterator(itor)
+                nullify(solnData)
+ 
+                call io_h5write_unknowns(io_globalMe, &
+                     fileID, &
+                     GRID_IHI_GC, &
+                     GRID_JHI_GC+1, &
+                     GRID_KHI_GC, &
+                     faceYBuf, &
+                     globalFaceYMin(i), &
+                     globalFaceYMax(i), &
+                     io_faceYVarLabels(i), &
+                     localNumBlocks, &
+                     io_splitNumBlks, &
+                     localOffset, &
+                     dowrite)
+             end do
+#endif
+
+#if NDIM == 3
+                allocate(faceZBuf(1,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC+1,localNumBlocks))
+                faceZBuf = 0.0
+                do i = 1,NFACE_VARS
+
+                   call Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.);  lb = 1
+                   do while (itor%isValid())
+                     call itor%currentTile(tileDesc)
+                     call tileDesc%getDataPtr(solnData, FACEZ)
+                     faceZBuf(1,:,:,:,lb) = solnData(:,:,:,i)
+                     call tileDesc%releaseDataPtr(solnData, FACEZ)
+                     call itor%next();              lb = lb+1
+                   enddo
+                   call Grid_releaseTileIterator(itor)
+                   nullify(solnData)
+ 
+                   call io_h5write_unknowns(io_globalMe, &
+                        fileID, &
+                        GRID_IHI_GC, &
+                        GRID_JHI_GC, &
+                        GRID_KHI_GC+1, &
+                        faceZBuf, &
+                        globalFaceZMin(i), &
+                        globalFaceZMax(i), &
+                        io_faceZVarLabels(i), &
+                        localNumBlocks, &
+                        io_splitNumBlks, &
+                        localOffset, &
+                        dowrite)
+                end do
+#endif
+
+       end if                   !if (.NOT. io_chkGuardCellsOutput)
+
+       deallocate(faceXBuf)
+       deallocate(globalFaceXMin)
+       deallocate(globalFaceXMax)
+       
+#if NDIM >= 2
+         deallocate(faceYBuf)
+         deallocate(globalFaceYMin)
+         deallocate(globalFaceYMax)
+#endif
+      
+#if NDIM == 3
+         deallocate(faceZBuf)
+         deallocate(globalFaceZMin)
+         deallocate(globalFaceZMax)
+#endif
+    end if
+#endif
 
   if (io_globalMe .EQ. MASTER_PE) then
      write (numToStr, "(I7)") gr_globalNumBlocks

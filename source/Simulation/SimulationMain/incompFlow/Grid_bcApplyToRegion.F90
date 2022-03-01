@@ -982,34 +982,35 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
            else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
                if(ivar == VELC_FACE_VAR) then
-                  if(predcorrflg) then
-                     k = 2*guard +1
+                   if(predcorrflg) then
                      regionData(guard+1,1:je,1:ke,ivar) = regionData(guard+1,1:je,1:ke,ivar) - &
                                                          (dt/del(axis))*outflowVel(HIGH,axis)*&
                                                          (regionData(guard+1,1:je,1:ke,ivar)-&
                                                           regionData(guard,1:je,1:ke,ivar))
+                   end if
 
-                     if(isFace) k = k + 1
-                     do i = guard,1,-1
+                   k = 2*guard +1
+                   if(isFace) k = k + 1
+                   do i = guard,1,-1
                         regionData(k-i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar) - &
                                                         (dt/del(axis))*outflowVel(HIGH,axis)*&
                                                         (regionData(k-i,1:je,1:ke,ivar)-&
                                                          regionData(k-i-1,1:je,1:ke,ivar))
-                     end do
-                  else
-                     if (isFace) then
-                        k = 2*guard+2
-                        do i = 1,guard
-                           regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                        end do
-              
-                     else          
-                        k = 2*guard+1
-                        do i = 1,guard
-                           regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                        end do
-                     endif
-                  end if
+                   end do
+                  !else
+                  !   if (isFace) then
+                  !      k = 2*guard+2
+                  !      do i = 1,guard
+                  !         regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
+                  !      end do
+                  !
+                  !   else          
+                  !      k = 2*guard+1
+                  !      do i = 1,guard
+                  !         regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
+                  !      end do
+                  !   endif
+                  !end if
 #ifdef SIGM_FACE_VAR 
                else if(ivar == SIGM_FACE_VAR) then
                   if (isFace) then

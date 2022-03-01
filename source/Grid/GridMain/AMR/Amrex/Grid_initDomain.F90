@@ -93,17 +93,6 @@ subroutine Grid_initDomain(restart,particlesInitialized)
   ! AMReX instead of the 1-based level indexing scheme of FLASH.
   !   => all code dealing with multifabs arrays must consider the need for 
   !      index translation
-#if NFACE_VARS > 0
-  !call Driver_abort("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
-  allocate(facevarx(0:amrex_max_level))
-#if NDIM >= 2
-  allocate(facevary(0:amrex_max_level))
-#endif
-#if NDIM == 3
-  allocate(facevarz(0:amrex_max_level))
-#endif
-#endif
-
 
   ! DEV: TODO Implement parameters
   if (.NOT. restart) then
@@ -134,6 +123,18 @@ subroutine Grid_initDomain(restart,particlesInitialized)
     ! It might be useful to pass non-zero T_INT for time-dependent refinement criteria;
     ! this might be time a part of \FlashOfTheFuture with simulated time passed as T_INT
     ! that is read from checkpoint file. Useful with user-defined callbacks
+
+#if NFACE_VARS > 0
+    !call Driver_abort("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
+    allocate(facevarx(0:amrex_max_level))
+#if NDIM >= 2
+    allocate(facevary(0:amrex_max_level))
+#endif
+#if NDIM == 3
+    allocate(facevarz(0:amrex_max_level))
+#endif
+#endif
+
     call amrex_init_from_scratch(T_INIT)
   else ! this is a restart 
     call Simulation_initRestart()

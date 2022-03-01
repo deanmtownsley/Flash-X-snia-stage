@@ -85,7 +85,7 @@ use Grid_interface,            ONLY : Grid_getTileIterator, &
 use gr_physicalMultifabs, ONLY : unk, &
                                  gr_scratchCtr, &
                                  fluxes, &
-                                 flux_registers
+                                 flux_registers,facevarx,facevary,facevarz
 use amrex_amrcore_module, ONLY:  amrex_set_boxarray, amrex_get_numlevels, amrex_get_boxarray, &
                                  amrex_set_distromap, amrex_set_finest_level, amrex_geom, &
                                  amrex_ref_ratio, amrex_get_distromap
@@ -168,7 +168,7 @@ logical :: nodal(1:MDIM)
 type(Grid_iterator_t) :: itor
 type(Grid_tile_t)     :: tileDesc
 
-real(wp), contiguous, pointer :: dp(:,:,:,:)
+real(wp), contiguous, pointer, dimension(:,:,:,:) :: dp, facexData, faceyData, facezData
 
 myGlobalComm = io_globalComm
 
@@ -271,6 +271,17 @@ max_lev_used = MIN(max_lev, gr_maxRefine)
 
 ! allocate physical multifabs
 allocate(unk(0:gr_maxRefine-1))
+
+#if NFACE_VARS > 0
+allocate(facevarx(0:gr_maxRefine-1))
+#if NDIM >= 2
+allocate(facevary(0:gr_maxRefine-1))
+#endif
+#if NDIM == 3
+allocate(facevarz(0:gr_maxRefine-1))
+#endif
+#endif
+
 #if 1
 allocate(gr_scratchCtr(0:gr_maxRefine-1))
 #if NFLUXES > 0
@@ -285,7 +296,7 @@ allocate(gr_scratchCtr(0:gr_maxRefine-1))
 
 ! Store the relative index of a block on its own level
 allocate(id_on_lev(max_lev_used,gr_globalNumBlocks))
-nullify(dp)
+nullify(dp,facexData,faceyData,facezData)
 
 lblock = 0
 allocate(localBlockList(gr_globalNumBlocks))
@@ -346,6 +357,23 @@ do i=min_lev, max_lev_used
 
   ! Build multifabs
   call amrex_multifab_build(unk(i-1), ba, dm, NUNK_VARS, NGUARD)
+
+#if NFACE_VARS > 0
+  ! Face variables
+  nodal(:)     = .FALSE.
+  nodal(IAXIS) = .TRUE.
+  call amrex_multifab_build(facevarx(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+#if NDIM >= 2
+  nodal(:)     = .FALSE.
+  nodal(JAXIS) = .TRUE.
+  call amrex_multifab_build(facevary(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+#endif
+#if NDIM == 3
+  nodal(:)     = .FALSE.
+  nodal(KAXIS) = .TRUE.
+  call amrex_multifab_build(facevarz(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+#endif
+#endif
 
 #if 1
 #if NSCRATCH_CENTER_VARS > 0
@@ -417,6 +445,20 @@ END DO
 
 ! unkBuf variable is available to all procs
 allocate(unkBuf(NUNK_VARS,NXB, NYB, NZB, localNumBlocks))
+
+#if NFACE_VARS > 0
+allocate(faceXBuf(NFACE_VARS,NXB+1,NYB,NZB,localNumBlocks))
+faceXBuf = 0.0
+#if NDIM >= 2
+allocate(faceYBuf(NFACE_VARS,NXB,NYB+1,NZB,localNumBlocks))
+faceYBuf = 0.0
+#endif
+#if NDIM == 3
+allocate(faceZBuf(NFACE_VARS,NXB,NYB,NZB+1,localNumBlocks))
+faceZBuf = 0.0
+#endif
+#endif
+
 allocate(numCB(localNumBlocks))
 allocate(startOffset(localNumBlocks))
 allocate(localBIds(localNumBlocks))
@@ -521,6 +563,74 @@ do k=1, maxBlockChunks
     endif
     deallocate(unkTemp)
   enddo
+
+  do ii = 1,NFACE_VARS
+    recordLabel = io_faceXVarLabels(ii)
+    allocate(unkTemp(1,NXB+1, NYB, NZB, numContinuousBlocks))
+    unkTemp = 0.0
+    
+    call io_h5read_unknowns(io_chkptFileID, & 
+                            NXB+1, & 
+                            NYB, & 
+                            NZB, & 
+                            unkTemp(1,:,:,:,:), &
+                            recordLabel,      &
+                            numContinuousBlocks, &
+                            io_splitNumBlks,  &
+                            localOffset, &
+                            doread)
+    ! set unkBuf if something was read
+    if (numContinuousBlocks > 0) then
+        faceXBuf(ii,:,:,:,startIndex:startIndex+numContinuousBlocks-1) = unkTemp(1,:,:,:,1:numContinuousBlocks)
+    endif
+    deallocate(unkTemp)
+
+#if NDIM >=2
+    recordLabel = io_faceYVarLabels(ii)
+    allocate(unkTemp(1,NXB, NYB+1, NZB, numContinuousBlocks))
+    unkTemp = 0.0
+    
+    call io_h5read_unknowns(io_chkptFileID, & 
+                            NXB, & 
+                            NYB+1, & 
+                            NZB, & 
+                            unkTemp(1,:,:,:,:), &
+                            recordLabel,      &
+                            numContinuousBlocks, &
+                            io_splitNumBlks,  &
+                            localOffset, &
+                            doread)
+    ! set unkBuf if something was read
+    if (numContinuousBlocks > 0) then
+        faceYBuf(ii,:,:,:,startIndex:startIndex+numContinuousBlocks-1) = unkTemp(1,:,:,:,1:numContinuousBlocks)
+    endif
+    deallocate(unkTemp)
+#endif
+
+#if NDIM == 3
+    recordLabel = io_faceZVarLabels(ii)
+    allocate(unkTemp(1,NXB, NYB, NZB+1, numContinuousBlocks))
+    unkTemp = 0.0
+    
+    call io_h5read_unknowns(io_chkptFileID, & 
+                            NXB, & 
+                            NYB, & 
+                            NZB+1, & 
+                            unkTemp(1,:,:,:,:), &
+                            recordLabel,      &
+                            numContinuousBlocks, &
+                            io_splitNumBlks,  &
+                            localOffset, &
+                            doread)
+    ! set unkBuf if something was read
+    if (numContinuousBlocks > 0) then
+        faceZBuf(ii,:,:,:,startIndex:startIndex+numContinuousBlocks-1) = unkTemp(1,:,:,:,1:numContinuousBlocks)
+    endif
+    deallocate(unkTemp)
+#endif
+
+  enddo
+
 enddo
 
 ! Loop over levels to set actual unk
@@ -555,6 +665,36 @@ call itor%currentTile(tileDesc)
               unkbuf(var,1:NXB,1:NYB,1:NZB,blockLocation)
          end do
          call tileDesc%releaseDataPtr(dp, CENTER)
+
+         call tileDesc%getDataPtr(facexData, FACEX)
+#if NDIM >= 2
+         call tileDesc%getDataPtr(faceyData, FACEY)
+#endif
+#if NDIM == 3
+         call tileDesc%getDataPtr(facezData, FACEZ)
+#endif
+
+         do var = 1, NFACE_VARS
+            facexData(lo(1):hi(1)+1,lo(2):hi(2),lo(3):hi(3),var) = &
+              faceXBuf(var,1:NXB+1,1:NYB,1:NZB,blockLocation)
+#if NDIM >=2
+            faceyData(lo(1):hi(1),lo(2):hi(2)+1,lo(3):hi(3),var) = &
+              faceYBuf(var,1:NXB,1:NYB+1,1:NZB,blockLocation)
+#endif
+#if NDIM == 3
+            facezData(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3)+1,var) = &
+              faceZBuf(var,1:NXB,1:NYB,1:NZB+1,blockLocation)
+#endif
+         end do
+
+         call tileDesc%releaseDataPtr(facexData, FACEX)
+#if NDIM >= 2
+         call tileDesc%releaseDataPtr(faceyData, FACEY)
+#endif
+#if NDIM == 3
+         call tileDesc%releaseDataPtr(facezData, FACEZ)
+#endif
+
    end associate
    
    call itor%next()
@@ -563,6 +703,13 @@ call Grid_releaseTileIterator(itor)
 end do
 
 deallocate(unkBuf)
+deallocate(faceXBuf)
+#if NDIM >=2
+deallocate(faceyBuf)
+#endif
+#if NDIM == 3
+deallocate(faceZBuf)
+#endif
 
 if (io_globalMe == MASTER_PE) &
 print *, 'read_data:  read ', gr_globalNumBlocks, ' blocks.'
