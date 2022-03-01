@@ -35,12 +35,10 @@ subroutine ImBound_init(restart)
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Driver_interface,            ONLY : Driver_getMype, Driver_getNumProcs, &
                                           Driver_getComm
-  use Grid_interrace,              ONLY : Grid_fillGuardCells
 
   implicit none
   include 'Flashx_mpi.h'
   logical, intent(in) :: restart
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
   call RuntimeParameters_get("useImBound", ib_useImBound)
 
@@ -63,12 +61,5 @@ subroutine ImBound_init(restart)
      write(*,*) 'ib_CpSolid=',ib_CpSolid
      write(*,*) 'ib_lsIt=',ib_lsIt
   endif
-
-  if (restart) then
-      gcMask = .FALSE.
-      gcMask(LMDA_VAR) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-   end if
 
 end subroutine ImBound_init

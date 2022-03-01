@@ -25,7 +25,8 @@ subroutine HeatAD_diffusion()
    use HeatAD_data
    use Timers_interface,    ONLY : Timers_start, Timers_stop
    use Driver_interface,    ONLY : Driver_getNStep
-   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
+   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator,&
+                                   Grid_fillGuardCells
    use Grid_tile,           ONLY : Grid_tile_t
    use Grid_iterator,       ONLY : Grid_iterator_t
    use Stencils_interface,  ONLY : Stencils_diffusion2d,Stencils_diffusion3d
@@ -42,12 +43,17 @@ subroutine HeatAD_diffusion()
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
    real :: diffusion_coeff
-
+   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
 !---------------------------------------------------------------------------------------------
    CALL SYSTEM_CLOCK(TA(1),count_rate)
 
    nullify(solnData)
+
+   gcMask = .FALSE.
+   gcMask(TEMP_VAR)=.TRUE.
+   call Grid_fillGuardCells(CENTER,ALLDIR,&
+        maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 

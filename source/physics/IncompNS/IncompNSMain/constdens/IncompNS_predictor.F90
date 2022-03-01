@@ -60,6 +60,17 @@ subroutine IncompNS_predictor(dt)
 #endif
   !
   CALL SYSTEM_CLOCK(TA(1),count_rate)
+  !------------------------------------------------------------------------------------------------------
+  ! Update GuardCells:
+  ! ---- ---------- --- ----- ---------- --- --------
+  gcMask = .FALSE.
+  gcMask(NUNK_VARS+VELC_FACE_VAR) = .TRUE.                 ! u
+  gcMask(NUNK_VARS+1*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! v
+#if NDIM == 3
+  gcMask(NUNK_VARS+2*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! w
+#endif
+  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
+       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
   !
   !------------------------------------------------------------------------------------------------------
   ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:

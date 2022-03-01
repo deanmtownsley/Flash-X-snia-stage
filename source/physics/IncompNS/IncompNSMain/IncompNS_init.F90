@@ -36,7 +36,6 @@ subroutine IncompNS_init(restart)
    use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, &
                                Driver_getComm, Driver_getNstep, Driver_abort
    use ins_interface, ONLY: ins_init
-   use Grid_interface, ONLY: Grid_fillGuardCells
 
    implicit none
 
@@ -47,7 +46,6 @@ subroutine IncompNS_init(restart)
    logical, intent(IN) :: restart
 
    logical :: useMultiphase
-   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
    call Driver_getMype(MESH_COMM, ins_meshMe)
    call Driver_getNumProcs(MESH_COMM, ins_meshNumProcs)
@@ -99,17 +97,5 @@ subroutine IncompNS_init(restart)
    call RuntimeParameters_get("ins_dpdz", ins_dpdz)
 
    call ins_init()
-
-   if (restart) then
-      gcMask = .FALSE.
-      gcMask(PRES_VAR) = .TRUE.
-      gcMask(NUNK_VARS + VELC_FACE_VAR) = .TRUE.                 ! u
-      gcMask(NUNK_VARS + 1*NFACE_VARS + VELC_FACE_VAR) = .TRUE.    ! v
-#if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + VELC_FACE_VAR) = .TRUE.    ! w
-#endif
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-   end if
 
 end subroutine IncompNS_init

@@ -36,7 +36,6 @@ subroutine Multiphase_init(restart)
    use mph_evapInterface, ONLY: mph_evapInit
    use IncompNS_interface, ONLY: IncompNS_getGridVar, IncompNS_getScalarProp
    use HeatAD_interface, ONLY: HeatAD_getGridVar, HeatAD_getScalarProp
-   use Grid_interface, ONLY: Grid_fillGuardCells
 
    implicit none
    include 'Flashx_mpi.h'
@@ -48,7 +47,6 @@ subroutine Multiphase_init(restart)
    logical, intent(in) :: restart
 
    logical :: useIncompNS, useHeatAD
-   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
    call RuntimeParameters_get("useMultiphase", mph_useMultiphase)
 
@@ -99,11 +97,4 @@ subroutine Multiphase_init(restart)
    call mph_evapInit()
    call mph_init()
 
-   if (restart) then
-      gcMask = .FALSE.
-      gcMask(DFUN_VAR) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-
-   end if
 end subroutine Multiphase_init

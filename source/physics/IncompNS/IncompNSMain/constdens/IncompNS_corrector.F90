@@ -108,21 +108,6 @@ subroutine IncompNS_corrector(dt)
   end do
   call Grid_releaseTileIterator(itor)  
 
-  !------------------------------------------------------------------------------------------------------
-  ! FILL GUARDCELLS FOR FINAL VELOCITIES AND PRESSURE:
-  ! ---- ---------- --- ----- ---------- --- --------
-  ! The pressure fill is used to compute distributed forces on
-  ! immersed bodies.
-  gcMask = .FALSE.
-  gcMask(PRES_VAR) = .TRUE.
-  gcMask(NUNK_VARS+VELC_FACE_VAR) = .TRUE.                 ! u
-  gcMask(NUNK_VARS+1*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! v
-#if NDIM == 3
-  gcMask(NUNK_VARS+2*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! w
-#endif
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
-
   CALL SYSTEM_CLOCK(TA(2),count_rate)
   ET=REAL(TA(2)-TA(1))/count_rate
   if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total IncompNS Corrector Time =',ET

@@ -69,14 +69,6 @@ subroutine Multiphase_solve(dt)
   end do
   call Grid_releaseTileIterator(itor)  
 
-  !-------------------------------------------------------------------------------------------------
-  ! Fill distance function guard cells before re-initialization to
-  ! communicate updates
-  gcMask = .FALSE.
-  gcMask(DFUN_VAR) = .TRUE.
-  call Grid_fillGuardCells(CENTER,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
-  !--------------------------------------------------------------------------------------------------
   CALL SYSTEM_CLOCK(TA(2),count_rate)
   ET=REAL(TA(2)-TA(1))/count_rate
   if (mph_meshMe .eq. MASTER_PE)  write(*,*) 'Multiphase Solve Time =',ET

@@ -13,7 +13,6 @@ subroutine HeatAD_init(restart)
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, Driver_getComm
-   use Grid_interface, ONLY: Grid_fillGuardCells
    use ht_advectionInterface, ONLY: ht_advectionInit
    use HeatAD_data
 
@@ -24,7 +23,6 @@ subroutine HeatAD_init(restart)
    implicit none
    logical, INTENT(IN) :: restart
    logical :: useIncompNS, useMultiphase
-   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
    call RuntimeParameters_get("useHeatAD", ht_useHeatAD)
    if (.NOT. ht_useHeatAD) RETURN
@@ -64,12 +62,5 @@ subroutine HeatAD_init(restart)
    end if
 
    call ht_advectionInit()
-
-   if (restart) then
-      gcMask = .FALSE.
-      gcMask(TEMP_VAR) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-   end if
 
 end subroutine HeatAD_init

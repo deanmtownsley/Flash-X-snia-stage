@@ -71,11 +71,6 @@ subroutine HeatAD_solve(dt)
   end do
   call Grid_releaseTileIterator(itor)  
 
-  gcMask = .FALSE.
-  gcMask(TEMP_VAR)=.TRUE.
-  call Grid_fillGuardCells(CENTER,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
-
   CALL SYSTEM_CLOCK(TA(2),count_rate)
   ET=REAL(TA(2)-TA(1))/count_rate
   if (ht_meshMe .eq. MASTER_PE)  write(*,*) 'Total Heat AD Solve Time =',ET
