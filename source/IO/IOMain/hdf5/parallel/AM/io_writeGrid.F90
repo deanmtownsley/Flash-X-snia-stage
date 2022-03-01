@@ -163,7 +163,7 @@ subroutine io_writeGrid()
 
                      dBuff(lnblocks*(fc - 1) + lb) = del(fc)
 
-                     deallocate (xCoord,yCoord,zCoord)
+                     deallocate (xCoord, yCoord, zCoord)
 
                      lb = lb + 1
                      call itor%next()
@@ -250,7 +250,7 @@ subroutine io_writeGrid()
 
                      dBuff(lnblocks*(fc - 1) + lb) = del(fc)
 
-                     deallocate (xCoord,yCoord,zCoord)
+                     deallocate (xCoord, yCoord, zCoord)
 
                      lb = lb + 1
                      call itor%next()
@@ -394,7 +394,7 @@ subroutine io_writeGrid()
 
       end if
 
-   io_gridChanged = .false.
+      io_gridChanged = .false.
 
    end if
 

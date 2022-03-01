@@ -328,7 +328,7 @@ subroutine io_writeGrid()
 
       end if
 
-   io_gridChanged = .false.
+      io_gridChanged = .false.
 
    end if
 

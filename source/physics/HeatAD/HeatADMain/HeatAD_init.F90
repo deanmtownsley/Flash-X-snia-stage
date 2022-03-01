@@ -11,17 +11,20 @@ subroutine HeatAD_init(restart)
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 
-   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, Driver_getComm
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, Driver_getComm
+   use Grid_interface, ONLY: Grid_fillGuardCells
    use ht_advectionInterface, ONLY: ht_advectionInit
    use HeatAD_data
 
 #include "constants.h"
 #include "Simulation.h"
+#include "HeatAD.h"
 
    implicit none
    logical, INTENT(IN) :: restart
    logical :: useIncompNS, useMultiphase
+   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
    call RuntimeParameters_get("useHeatAD", ht_useHeatAD)
    if (.NOT. ht_useHeatAD) RETURN
@@ -32,34 +35,41 @@ subroutine HeatAD_init(restart)
 
    call RuntimeParameters_get('ht_Twall_high', ht_Twall_high)
    call RuntimeParameters_get('ht_Twall_low', ht_Twall_low)
-   call RuntimeParameters_get('ht_Prandtl',ht_Prandtl)
-   call RuntimeParameters_get('ht_Tbulk',ht_Tbulk)
+   call RuntimeParameters_get('ht_Prandtl', ht_Prandtl)
+   call RuntimeParameters_get('ht_Tbulk', ht_Tbulk)
 
    ht_invReynolds = 1.
 
-   call RuntimeParameters_get('useIncompNS',useIncompNS)
-   if(useIncompNS) call RuntimeParameters_get('ins_invReynolds',ht_invReynolds)
+   call RuntimeParameters_get('useIncompNS', useIncompNS)
+   if (useIncompNS) call RuntimeParameters_get('ins_invReynolds', ht_invReynolds)
 
    ht_thcoGas = 1.
-   ht_CpGas   = 1.
+   ht_CpGas = 1.
 
-   call RuntimeParameters_get('useMultiphase',useMultiphase)
-   if(useMultiphase) then
-      call RuntimeParameters_get('mph_thcoGas',ht_thcoGas)
-      call RuntimeParameters_get('mph_cpGas',ht_CpGas)
+   call RuntimeParameters_get('useMultiphase', useMultiphase)
+   if (useMultiphase) then
+      call RuntimeParameters_get('mph_thcoGas', ht_thcoGas)
+      call RuntimeParameters_get('mph_cpGas', ht_CpGas)
    end if
 
    if (ht_meshMe .eq. MASTER_PE) then
-     write(*,*) 'ht_Twall_high   =',ht_Twall_high
-     write(*,*) 'ht_Twall_low    =',ht_Twall_low
-     write(*,*) 'ht_Prandtl      =',ht_Prandtl
-     write(*,*) 'ht_Tsat         =',ht_Tsat
-     write(*,*) 'ht_Tbulk        =',ht_Tbulk
-     write(*,*) 'ht_invReynolds  =',ht_invReynolds
-     write(*,*) 'ht_thcoGas      =',ht_thcoGas
-     write(*,*) 'ht_CpGas        =',ht_CpGas
-   endif
+      write (*, *) 'ht_Twall_high   =', ht_Twall_high
+      write (*, *) 'ht_Twall_low    =', ht_Twall_low
+      write (*, *) 'ht_Prandtl      =', ht_Prandtl
+      write (*, *) 'ht_Tsat         =', ht_Tsat
+      write (*, *) 'ht_Tbulk        =', ht_Tbulk
+      write (*, *) 'ht_invReynolds  =', ht_invReynolds
+      write (*, *) 'ht_thcoGas      =', ht_thcoGas
+      write (*, *) 'ht_CpGas        =', ht_CpGas
+   end if
 
    call ht_advectionInit()
+
+   if (restart) then
+      gcMask = .FALSE.
+      gcMask(TEMP_VAR) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+   end if
 
 end subroutine HeatAD_init
