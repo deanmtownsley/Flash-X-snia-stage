@@ -107,6 +107,11 @@ subroutine Multiphase_redistance()
       call Grid_releaseTileIterator(itor)
    end do  ! End do: ii=1,lsit
 
+   gcMask = .FALSE.
+   gcMask(DFUN_VAR) = .TRUE.
+   call Grid_fillGuardCells(CENTER, ALLDIR, &
+                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
    !-----------------------------------------------------------------------!
    !-------STEP 3. CALCULATE GAS VOLUME------------------------------------!
    !-----------------------------------------------------------------------!
