@@ -22,7 +22,7 @@
 
 subroutine IncompNS_solvePoisson(dt)
 
-  use Grid_interface,   ONLY : Grid_fillGuardCells,Grid_getTileIterator,&
+  use Grid_interface,   ONLY : Grid_getTileIterator,&
                                Grid_releaseTileIterator,Grid_solvePoisson
   use Grid_tile,        ONLY : Grid_tile_t
   use Grid_iterator,    ONLY : Grid_iterator_t
@@ -38,10 +38,7 @@ subroutine IncompNS_solvePoisson(dt)
 
 !------------------------------------------------------------------------------------------
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
   real, pointer, dimension(:,:,:,:) :: solnData
-  integer TA(2),count_rate
-  real*8  ET
   real del(MDIM)
   integer :: NStep
   type(Grid_tile_t) :: tileDesc
@@ -50,7 +47,7 @@ subroutine IncompNS_solvePoisson(dt)
 !------------------------------------------------------------------------------------------
   nullify(solnData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("IncompNS_solvePoisson")
 
   !---POISSON RHS:-------------------------------------------------------------------------------------
   call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -83,15 +80,7 @@ subroutine IncompNS_solvePoisson(dt)
                           poisfact=ins_poisfact)
   call Timers_stop("Grid_solvePoisson")
 
-  gcMask = .FALSE.
-  gcMask(PRES_VAR) = .TRUE.
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,  &
-      maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask, &
-      selectBlockType=ACTIVE_BLKS)
-
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total IncompNS Poisson Solve Time =',ET
+  call Timers_stop("IncompNS_solvePoisson")
 
   return
 end subroutine IncompNS_solvePoisson

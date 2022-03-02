@@ -24,8 +24,7 @@
 
 subroutine IncompNS_corrector(dt)
 
-  use Grid_interface,   ONLY : Grid_fillGuardCells, Grid_getTileIterator, &
-                               Grid_releaseTileIterator
+  use Grid_interface,   ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,        ONLY : Grid_tile_t
   use Grid_iterator,    ONLY : Grid_iterator_t
   use ins_interface,    ONLY : ins_corrector_vardens
@@ -40,15 +39,12 @@ subroutine IncompNS_corrector(dt)
 
 !------------------------------------------------------------------------------------------
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 #if NDIM < MDIM
   real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData
   real, dimension(NFACE_VARS,1,1,1) :: facezData
 #else
   real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData,facezData
 #endif
-  integer TA(2),count_rate
-  real*8  ET
   real del(MDIM)
   integer :: NStep
   type(Grid_tile_t) :: tileDesc
@@ -61,7 +57,7 @@ subroutine IncompNS_corrector(dt)
   nullify(solnData,facexData,faceyData,facezData)
 #endif
  
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("IncompNS_corrector")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   do while(itor%isValid())
@@ -123,9 +119,7 @@ subroutine IncompNS_corrector(dt)
   end do
   call Grid_releaseTileIterator(itor)  
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total IncompNS Corrector Time =',ET
+  call Timers_stop("IncompNS_corrector")
 
   return
 end subroutine IncompNS_corrector

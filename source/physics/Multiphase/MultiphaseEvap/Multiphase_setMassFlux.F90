@@ -1,4 +1,4 @@
-!!***if* source/physics/Multiphase/MultiphaseEvap/Multiphase_setThermalProps
+!!***if* source/physics/Multiphase/MultiphaseEvap/Multiphase_setMassFlux
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -20,32 +20,30 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_setThermalProps()
+subroutine Multiphase_setMassFlux()
 
   use Multiphase_data
-  use Stencils_interface, ONLY : Stencils_lsCenterProps
-  use Timers_interface,   ONLY : Timers_start,Timers_stop
+  use Timers_interface,   ONLY : Timers_start, Timers_stop
   use Driver_interface,   ONLY : Driver_getNStep
   use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,          ONLY : Grid_tile_t
   use Grid_iterator,      ONLY : Grid_iterator_t
+  use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
+  use mph_evapInterface,  ONLY : mph_phasedFluxes
 
-
-!------------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------------
   implicit none
   include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   real, pointer, dimension(:,:,:,:) :: solnData
-  integer :: ierr,i,j,k
   real del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
-  real minCellDiag
 
-!------------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------------
   nullify(solnData)
 
-  call Timers_start("Multiphase_setThermalProps")
+  call Timers_start("Multiphase_setMassFlux")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   do while(itor%isValid())
@@ -53,23 +51,15 @@ subroutine Multiphase_setThermalProps()
      call tileDesc%getDataPtr(solnData,  CENTER)
      call tileDesc%deltas(del)
 
-     minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
-
-     call Stencils_lsCenterProps(solnData(DFUN_VAR,:,:,:),&
-                                  solnData(mph_iAlphaCVar,:,:,:),&
-                                  mph_thcoGas/(mph_rhoGas*mph_CpGas), &
-                                  GRID_ILO_GC,GRID_IHI_GC, &
-                                  GRID_JLO_GC,GRID_JHI_GC, &
-                                  GRID_KLO_GC,GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
-
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call itor%next()
+     solnData(MFLX_VAR,:,:,:) = (mph_Stefan*mph_invReynolds/mph_Prandtl)*&
+                                (solnData(HFLQ_VAR,:,:,:)+mph_thcoGas*solnData(HFGS_VAR,:,:,:))  
+ 
+     ! Release pointers:
+     call tileDesc%releaseDataPtr(solnData, CENTER)
+     call itor%next()
    end do
    call Grid_releaseTileIterator(itor)  
+ 
+   call Timers_stop("Multiphase_setMassFlux")
 
-   call Timers_stop("Multiphase_setThermalProps")
-
-   return
-
-end subroutine Multiphase_setThermalProps
+end subroutine Multiphase_setMassFlux

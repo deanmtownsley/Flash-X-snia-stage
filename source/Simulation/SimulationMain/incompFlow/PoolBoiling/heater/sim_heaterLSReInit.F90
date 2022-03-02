@@ -24,6 +24,7 @@ subroutine sim_heaterLSReInit(stime)
   use Grid_tile,           ONLY : Grid_tile_t
   use Grid_iterator,       ONLY : Grid_iterator_t
   use sim_heaterInterface, ONLY : sim_heaterLSReInitBlk
+  use Timers_interface,    ONLY : Timers_start, Timers_stop
 
   implicit none
   real, intent(in) :: stime
@@ -35,8 +36,6 @@ subroutine sim_heaterLSReInit(stime)
   real, dimension(GRID_IHI_GC)      :: xCenter
   real, dimension(GRID_JHI_GC)      :: yCenter
   real, dimension(GRID_KHI_GC)      :: zCenter
-  integer :: TA(2),count_rate
-  real*8  :: ET
   real    :: del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
@@ -45,7 +44,7 @@ subroutine sim_heaterLSReInit(stime)
 !----------------------------------------------------------------------------------------
   nullify(solnData,facexData,faceyData,facezData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("sim_heaterLSReInit")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   !
@@ -79,10 +78,8 @@ subroutine sim_heaterLSReInit(stime)
      call itor%next()
   end do
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (sim_meshMe .eq. MASTER_PE)  write(*,*) 'Total sim_heater LSReInit Time =',ET
-
   call Grid_releaseTileIterator(itor)
+
+  call Timers_stop("sim_heaterLSReInit")
 
 end subroutine sim_heaterLSReInit

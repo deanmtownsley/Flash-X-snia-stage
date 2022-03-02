@@ -25,7 +25,7 @@ subroutine Multiphase_velForcing(dt)
   use Multiphase_data
   use Timers_interface,   ONLY : Timers_start, Timers_stop
   use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator,Grid_fillGuardCells
+  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,          ONLY : Grid_tile_t
   use Grid_iterator,      ONLY : Grid_iterator_t
   use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
@@ -38,7 +38,6 @@ subroutine Multiphase_velForcing(dt)
 
 !------------------------------------------------------------------------------------------------
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
   real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
   integer :: ierr,i,j,k
   real del(MDIM)
@@ -100,19 +99,6 @@ subroutine Multiphase_velForcing(dt)
       call itor%next()
    end do
    call Grid_releaseTileIterator(itor)  
-
-  !------------------------------------------------------------------------------------------------------
-  ! APPLY BC AND FILL GUARDCELLS FOR INTERMEDIATE VELOCITIES:
-  ! ----- -- --- ---- ---------- --- ------------ ----------
-  !------------------------------------------------------------------------------------------------------
-  gcMask = .FALSE.
-  gcMask(NUNK_VARS+mph_iVelFVar) = .TRUE.                 ! ustar
-  gcMask(NUNK_VARS+1*NFACE_VARS+mph_iVelFVar) = .TRUE.    ! vstar
-#if NDIM == 3
-  gcMask(NUNK_VARS+2*NFACE_VARS+mph_iVelFVar) = .TRUE.    ! wstar
-#endif
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
 
    return
 

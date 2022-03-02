@@ -1,4 +1,4 @@
-!!***if* source/physics/Multiphase/MultiphaseMain/Multiphase_redistance
+!!***if* source/physics/Multiphase/Multiphase_setMassFlux
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,8 +14,6 @@
 !!
 !!
 !!***
-subroutine Multiphase_redistance(iteration)
+subroutine Multiphase_setMassFlux()
   implicit none
-  integer, intent(in) :: iteration
-  return
-end subroutine Multiphase_redistance
+end subroutine Multiphase_setMassFlux

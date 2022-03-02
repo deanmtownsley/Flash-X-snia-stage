@@ -5,6 +5,9 @@ REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
+
+PPDEFINE MULTIPHASE_MAIN
+
 #-------------------------------------------------------------------------------
 D useMultiphase   Should the Multiphase unit be used?
 PARAMETER useMultiphase BOOLEAN TRUE

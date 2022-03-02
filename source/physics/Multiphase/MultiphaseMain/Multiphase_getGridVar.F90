@@ -27,6 +27,10 @@ subroutine Multiphase_getGridVar(name, value)
 #ifdef MULTIPHASE_EVAPORATION
      case("Center_Massflux","center_massflux","CENTER_MASSFLUX")
        value = MFLX_VAR
+     case("Center_Hflux_Liquid","center_hflux_liquid","CENTER_HFLUX_LIQUID")
+       value = HFLQ_VAR
+     case("Center_Hflux_Gas","center_hflux_gas","CENTER_HFLUX_GAS")
+       value = HFGS_VAR
 #endif
      case default
        value = -1

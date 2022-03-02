@@ -18,19 +18,18 @@
 subroutine sim_heaterTagSites(stime)
 
    use Simulation_data, ONLY: sim_meshMe
+   use Timers_interface, ONLY : Timers_start, Timers_stop
    use sim_heaterData
-
+ 
    implicit none
    include "Flashx_mpi.h"
    real, intent(in) :: stime
 
    integer :: htr,ierr,isite
    type(sim_heaterType), pointer :: heater
-   integer :: TA(2),count_rate
-   real*8  :: ET
 
-   CALL SYSTEM_CLOCK(TA(1),count_rate)
- 
+   call Timers_start("sim_heaterTagSites")
+
    do htr=1,sim_numHeaters
 
     heater => sim_heaterInfo(htr)
@@ -57,9 +56,7 @@ subroutine sim_heaterTagSites(stime)
 
    end do
 
-   CALL SYSTEM_CLOCK(TA(2),count_rate)
-   ET=REAL(TA(2)-TA(1))/count_rate
-   if (sim_meshMe .eq. MASTER_PE)  write(*,*) 'Total sim_heater TagSites Time =',ET
+   call Timers_stop("sim_heaterTagSites")
 
    return
 

@@ -25,8 +25,7 @@ subroutine HeatAD_diffusion()
    use HeatAD_data
    use Timers_interface,    ONLY : Timers_start, Timers_stop
    use Driver_interface,    ONLY : Driver_getNStep
-   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator,&
-                                   Grid_fillGuardCells
+   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
    use Grid_tile,           ONLY : Grid_tile_t
    use Grid_iterator,       ONLY : Grid_iterator_t
    use Stencils_interface,  ONLY : Stencils_diffusion2d,Stencils_diffusion3d
@@ -38,22 +37,14 @@ subroutine HeatAD_diffusion()
    real ::  del(MDIM)
    integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:,:,:,:) :: solnData
-   integer TA(2),count_rate,ierr
-   real*8  ET
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
    real :: diffusion_coeff
-   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 
 !---------------------------------------------------------------------------------------------
-   CALL SYSTEM_CLOCK(TA(1),count_rate)
-
    nullify(solnData)
 
-   gcMask = .FALSE.
-   gcMask(TEMP_VAR)=.TRUE.
-   call Grid_fillGuardCells(CENTER,ALLDIR,&
-        maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
+   call Timers_start("HeatAD_diffusion")
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
@@ -85,8 +76,6 @@ subroutine HeatAD_diffusion()
   end do
   call Grid_releaseTileIterator(itor)  
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ht_meshMe .eq. MASTER_PE)  write(*,*) 'Total Heat AD Diffusion Time =',ET
+  call Timers_stop("HeatAD_diffusion")
 
 end subroutine HeatAD_diffusion

@@ -24,6 +24,7 @@ subroutine sim_heaterCheckSites()
   use Grid_tile,           ONLY : Grid_tile_t
   use Grid_iterator,       ONLY : Grid_iterator_t
   use sim_heaterInterface, ONLY : sim_heaterCheckSitesBlk2d,sim_heaterCheckSitesBlk3d
+  use Timers_interface,    ONLY : Timers_start, Timers_stop
 
 !----------------------------------------------------------------------------------------
   implicit none
@@ -33,8 +34,6 @@ subroutine sim_heaterCheckSites()
   real, dimension(GRID_IHI_GC)      :: xCenter
   real, dimension(GRID_JHI_GC)      :: yCenter
   real, dimension(GRID_KHI_GC)      :: zCenter
-  integer :: TA(2),count_rate
-  real*8  :: ET
   real    :: del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
@@ -43,7 +42,7 @@ subroutine sim_heaterCheckSites()
 !----------------------------------------------------------------------------------------
   nullify(solnData,facexData,faceyData,facezData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("sim_heaterCheckSites") 
  
   call Grid_getTileIterator(itor, nodetype=LEAF)
   !
@@ -84,9 +83,7 @@ subroutine sim_heaterCheckSites()
   end do
   call Grid_releaseTileIterator(itor)
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (sim_meshMe .eq. MASTER_PE)  write(*,*) 'Total sim_heater CheckSites Time =',ET
-
+  call Timers_stop("sim_heaterCheckSites") 
+  
   return
 end subroutine sim_heaterCheckSites

@@ -21,24 +21,22 @@ subroutine sim_heaterApplyBC(dt)
 
   use Simulation_data,     ONLY : sim_meshMe
   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator,&
-                                  Grid_fillGuardCells,Grid_getCellCoords
+                                  Grid_getCellCoords
   use Grid_tile,           ONLY : Grid_tile_t
   use Grid_iterator,       ONLY : Grid_iterator_t
   use sim_heaterInterface, ONLY : sim_heaterApplyBCToBlk2d
+  use Timers_interface,    ONLY : Timers_start, Timers_stop
 
   implicit none
   real, intent(in) :: dt
 
 !----------------------------------------------------------------------------------------
   real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
   integer, dimension(2,MDIM)        :: blkLimits, blkLimitsGC
   integer, dimension(MDIM)          :: lo, hi
   real, dimension(GRID_IHI_GC)      :: xCenter
   real, dimension(GRID_JHI_GC)      :: yCenter
   real, dimension(GRID_KHI_GC)      :: zCenter
-  integer :: TA(2),count_rate
-  real*8  :: ET
   real    :: del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
@@ -47,7 +45,7 @@ subroutine sim_heaterApplyBC(dt)
 !----------------------------------------------------------------------------------------
   nullify(solnData,facexData,faceyData,facezData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("sim_heaterApplyBC")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   !
@@ -94,15 +92,7 @@ subroutine sim_heaterApplyBC(dt)
   end do
   call Grid_releaseTileIterator(itor)
 
-   gcMask = .false.
-   gcMask(DFUN_VAR) = .true.
-   gcMask(TEMP_VAR) = .true.
-   call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-        maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
-
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (sim_meshMe .eq. MASTER_PE)  write(*,*) 'Total sim_heater ApplyBC Time =',ET
+  call Timers_stop("sim_heaterApplyBC")
 
   return
 

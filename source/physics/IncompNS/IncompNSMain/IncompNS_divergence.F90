@@ -24,7 +24,7 @@
 
 subroutine IncompNS_divergence()
 
-  use Grid_interface,   ONLY : Grid_fillGuardCells, Grid_getTileIterator,Grid_releaseTileIterator
+  use Grid_interface,   ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,        ONLY : Grid_tile_t
   use Grid_iterator,    ONLY : Grid_iterator_t
   use ins_interface,    ONLY : ins_divergence
@@ -53,6 +53,8 @@ subroutine IncompNS_divergence()
 #else
   nullify(solnData,facexData,faceyData,facezData)
 #endif
+
+  call Timers_start("IncompNS_divergence")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   do while(itor%isValid())
@@ -95,6 +97,8 @@ subroutine IncompNS_divergence()
 
   end do
   call Grid_releaseTileIterator(itor)  
+
+  call Timers_stop("IncompNS_divergence")
 
   return
 end subroutine IncompNS_divergence

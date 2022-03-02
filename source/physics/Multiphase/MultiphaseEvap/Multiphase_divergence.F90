@@ -25,7 +25,7 @@ subroutine Multiphase_divergence()
   use Multiphase_data
   use Timers_interface,   ONLY : Timers_start, Timers_stop
   use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator,Grid_fillGuardCells
+  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,          ONLY : Grid_tile_t
   use Grid_iterator,      ONLY : Grid_iterator_t
   use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
@@ -35,17 +35,16 @@ subroutine Multiphase_divergence()
   implicit none
   include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
   real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
   integer :: ierr,i,j,k
   real del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
-  integer TA(2),count_rate
-  real*8  ET
 
 !------------------------------------------------------------------------------------------------
   nullify(solnData,facexData,faceyData,facezData)
+
+  call Timers_start("Multiphase_divergence")
 
   call Grid_getTileIterator(itor, nodetype=LEAF)
   do while(itor%isValid())
@@ -94,6 +93,8 @@ subroutine Multiphase_divergence()
       call itor%next()
    end do
    call Grid_releaseTileIterator(itor)  
+
+   call Timers_stop("Multiphase_divergence")
 
   return
 

@@ -1,4 +1,4 @@
-!!***if* source/physics/Multiphase/Multiphase_thermalFluxes
+!!***if* source/physics/Multiphase/Multiphase_extrapFluxes
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,6 +14,7 @@
 !!
 !!
 !!***
-subroutine Multiphase_thermalFluxes()
+subroutine Multiphase_extrapFluxes(iteration)
   implicit none
-end subroutine Multiphase_thermalFluxes
+  integer, intent(in) :: iteration
+end subroutine Multiphase_extrapFluxes

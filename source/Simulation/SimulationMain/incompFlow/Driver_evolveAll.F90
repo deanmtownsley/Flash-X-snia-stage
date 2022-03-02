@@ -23,7 +23,7 @@
 !!
 !!  Driver_evolveAll for incompFlow Simulations
 !!
-!!  DOC: Driver_evolveAll needs more explanation 
+!!  DOC: Driver_evolveAll needs more explanation
 !!
 !! NOTES
 !!
@@ -35,6 +35,8 @@
 !!
 !!***
 
+#include "constants.h"
+#include "Simulation.h"
 
 #ifdef DEBUG_ALL
 #define DEBUG_DRIVER
@@ -42,250 +44,444 @@
 
 subroutine Driver_evolveAll()
 
-  use Driver_data,          ONLY : dr_globalMe, dr_globalNumProcs, dr_nbegin,&
-                                   dr_nend, dr_dt,                           &
-                                   dr_tmax, dr_simTime, dr_redshift,         &
-                                   dr_nstep, dr_dtOld, dr_dtNew,             &
-                                   dr_simGeneration,                         &
-                                   dr_restart
-  use Driver_interface,     ONLY : Driver_sourceTerms, Driver_computeDt
-  use Logfile_interface,    ONLY : Logfile_stamp, Logfile_close
-  use Timers_interface,     ONLY : Timers_start, Timers_stop, &
-                                   Timers_getSummary
-  use Particles_interface,  ONLY : Particles_advance, Particles_dump
-  use Grid_interface,       ONLY : Grid_updateRefinement,Grid_setInterpValsGcell
-  use IO_interface,         ONLY : IO_output,IO_outputFinal
+   use Driver_data, ONLY: dr_globalMe, dr_globalNumProcs, dr_nbegin, &
+                          dr_nend, dr_dt, &
+                          dr_tmax, dr_simTime, dr_redshift, &
+                          dr_nstep, dr_dtOld, dr_dtNew, &
+                          dr_simGeneration, &
+                          dr_restart
+   use Driver_interface, ONLY: Driver_sourceTerms, Driver_computeDt
+   use Logfile_interface, ONLY: Logfile_stamp, Logfile_close
+   use Timers_interface, ONLY: Timers_start, Timers_stop, &
+                               Timers_getSummary
+   use Particles_interface, ONLY: Particles_advance, Particles_dump
+   use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
+                             Grid_fillGuardCells
 
-  use IncompNS_interface,   ONLY : IncompNS_predictor, IncompNS_divergence,&
-                                   IncompNS_solvePoisson, IncompNS_corrector,&
-                                   IncompNS_indicators, IncompNS_reInitGridVars,&
-                                   IncompNS_advection, IncompNS_diffusion, IncompNS_getScalarProp
+   use IO_interface, ONLY: IO_output, IO_outputFinal
 
-  use Multiphase_interface, ONLY : Multiphase_setFluidProps, Multiphase_setPressureJumps,&
-                                   Multiphase_advection, Multiphase_redistance,Multiphase_solve,&
-                                   Multiphase_setThermalProps, Multiphase_thermalForcing, Multiphase_velForcing,&
-                                   Multiphase_divergence, Multiphase_thermalFluxes,Multiphase_reInitGridVars
+   use IncompNS_interface, ONLY: IncompNS_predictor, IncompNS_divergence, &
+                                 IncompNS_solvePoisson, IncompNS_corrector, &
+                                 IncompNS_indicators, IncompNS_reInitGridVars, &
+                                 IncompNS_advection, IncompNS_diffusion, IncompNS_getScalarProp, &
+                                 IncompNS_getGridVar
 
-  use HeatAD_interface,     ONLY : HeatAD_diffusion, HeatAD_advection, HeatAD_solve, HeatAD_reInitGridVars,&
-                                   HeatAD_indicators
+   use Multiphase_interface, ONLY: Multiphase_setFluidProps, Multiphase_setPressureJumps, &
+                                   Multiphase_advection, Multiphase_redistance, Multiphase_solve, &
+                                   Multiphase_setThermalProps, Multiphase_thermalForcing, Multiphase_velForcing, &
+                                   Multiphase_divergence, Multiphase_extrapFluxes, Multiphase_reInitGridVars, &
+                                   Multiphase_indicators, Multiphase_setMassFlux, Multiphase_getGridVar
 
-  use Simulation_interface, ONLY : Simulation_adjustEvolution
+   use HeatAD_interface, ONLY: HeatAD_diffusion, HeatAD_advection, HeatAD_solve, HeatAD_reInitGridVars, &
+                               HeatAD_indicators, HeatAD_getGridVar
 
-  implicit none
+   use Simulation_interface, ONLY: Simulation_adjustEvolution
 
-#include "constants.h"
-#include "Simulation.h"
+   use IncompNS_data, ONLY: ins_predcorrflg
 
-  ! for logfile output
-  character(len=MAX_STRING_LENGTH), dimension(3,2) :: strBuff
-  character(len=15) :: numToStr
+#ifdef MULTIPHASE_MAIN
+   use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
+#endif
 
-  logical :: gridChanged
-  logical :: endRunPl !Should we end our run on this iteration, based on conditions detected by the IO unit?
-  logical :: endRun !Should we end our run on this iteration, based on conditions detected by the IO unit?
-  logical :: endRunWallClock !Should we end our run on this iteration, based on wall clock time?
+   implicit none
 
-  !---------Variables for unitTest-----------
-  character(len=20) :: fileName
-  integer, parameter        :: fileUnit = 2
-  integer,dimension(4) :: prNum
-  integer :: temp,i
-  real :: mindiv, maxdiv
+   ! for logfile output
+   character(len=MAX_STRING_LENGTH), dimension(3, 2) :: strBuff
+   character(len=15) :: numToStr
 
-  endRunPl = .false.
-  endRun = .false.
+   logical :: gridChanged
+   logical :: endRunPl !Should we end our run on this iteration, based on conditions detected by the IO unit?
+   logical :: endRun !Should we end our run on this iteration, based on conditions detected by the IO unit?
+   logical :: endRunWallClock !Should we end our run on this iteration, based on wall clock time?
 
-  call Logfile_stamp( 'Entering evolution loop' , '[Driver_evolveAll]')
-  call Timers_start("evolution")
+   !---------Variables for unitTest-----------
+   character(len=20) :: fileName
+   integer, parameter        :: fileUnit = 2
+   integer, dimension(4) :: prNum
+   integer :: temp, i
+   real :: mindiv, maxdiv
+   logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
+   integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, iHliqVar, iHgasVar, iTempVar
+   integer :: iteration
 
-  ! Initial Timestep:
-  ! backup needed old
-  dr_dtOld = dr_dt
+   ! Get grid variables for incompressible Naiver-Stokes
+   ! if IncompNS unit is available
+   call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
+   call IncompNS_getGridVAR("CENTER_PRESSURE", iPresVar)
 
-  ! calculate new
-  call Driver_computeDt(dr_nbegin,  dr_nstep,      &
-                        dr_simTime, dr_dtOld, dr_dtNew)
-  ! store new
-  dr_dt = dr_dtNew
+#ifdef HEATAD_MAIN
+   ! Get grid variables for heat advection diffusion if
+   ! if HeatAD unit is available
+   call HeatAD_getGridVar("CENTER_TEMPERATURE", iTempVar)
+#endif
 
-  do dr_nstep = dr_nBegin, dr_nend
-     
-     if (dr_globalMe == MASTER_PE) then
+#ifdef MULTIPHASE_MAIN
+   ! Get grid variables for level set distance function
+   ! if Multiphase unit is available
+   call Multiphase_getGridVar("CENTER_LEVELSET", iDfunVar)
 
-        write (numToStr(1:), '(I10)') dr_nstep
-        write (strBuff(1,1), "(A)") "n"
-        write (strBuff(1,2), "(A)") trim(adjustl(numToStr))
-        
-        write (numToStr(1:), "(1PE12.6)") dr_simTime
-        write (strBuff(2,1), "(A)") "t"
-        write (strBuff(2,2), "(A)") trim(adjustl(numToStr))
-        
-        write (numToStr(1:), "(1PE12.6)") dr_dt
-        write (strBuff(3,1), "(A)") "dt"
-        write (strBuff(3,2), "(A)") trim(adjustl(NumToStr))
-        
-        call Logfile_stamp( strBuff, 3, 2, "step")
-     end if
+   ! Fill GuardCells for level set function
+   ! This is done for book-keeping purposes during
+   ! restart
+   gcMask = .FALSE.
+   gcMask(iDfunVar) = .TRUE.
+   call Grid_fillGuardCells(CENTER, ALLDIR, &
+                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+#endif
 
-     !------------------------------------------------------------
-     !- Start Physics Sequence
-     !------------------------------------------------------------
-     dr_simTime = dr_simTime + dr_dt
-     dr_simGeneration = 0
-     !------------------------------------------------------------
-     call Multiphase_reInitGridVars()
-     call IncompNS_reInitGridVars()
-     call HeatAD_reInitGridVars()
-     !------------------------------------------------------------
-     call Simulation_adjustEvolution(dr_nstep,dr_dt,dr_simTime)
-     !------------------------------------------------------------
-     call Multiphase_advection()
-     call Multiphase_solve(dr_dt)
-     !------------------------------------------------------------
-     call Multiphase_redistance()
-     !------------------------------------------------------------
-     call Multiphase_setFluidProps()
-     call Multiphase_setPressureJumps()
-     call Multiphase_setThermalProps()
-     call Multiphase_thermalForcing()
-     !------------------------------------------------------------
-     call Multiphase_thermalFluxes()
-     !------------------------------------------------------------
-     call Grid_setInterpValsGcell(.true.)
-     call IncompNS_advection()
-     call IncompNS_diffusion()
-     call IncompNS_predictor(dr_dt)
-     !------------------------------------------------------------
-     call Multiphase_velForcing(dr_dt)
-     !------------------------------------------------------------
-     call IncompNS_divergence()
-     call Multiphase_divergence()
-     !------------------------------------------------------------
-     call IncompNS_solvePoisson(dr_dt)
-     !------------------------------------------------------------
-     call IncompNS_corrector(dr_dt)
-     call Grid_setInterpValsGcell(.false.)
-     !------------------------------------------------------------
-     call IncompNS_divergence()
-     call Multiphase_divergence()
-     !------------------------------------------------------------
-     call IncompNS_indicators()
-     !------------------------------------------------------------
-     call HeatAD_diffusion()
-     call HeatAD_advection()
-     call HeatAD_solve(dr_dt)
-     !------------------------------------------------------------
-     call HeatAD_indicators()
-     !------------------------------------------------------------
-     !- End Physics Sequence
-     !------------------------------------------------------------
-     call Grid_updateRefinement(dr_nstep,dr_simTime,gridChanged)
+#ifdef MULTIPHASE_EVAPORATION
+   ! Get grid variables for heat flux and mass flux if
+   ! Multiphase evaporation is present
+   call Multiphase_getGridVar("CENTER_MASSFLUX", iMfluxVar)
+   call Multiphase_getGridVar("CENTER_HFLUX_LIQUID", iHliqVar)
+   call Multiphase_getGridVar("CENTER_HFLUX_GAS", iHgasVar)
+#endif
 
-     ! Velocities and Omg to Center variables
-     ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
-     ! Note this will add velocity and vorticity variables to your CENTER data structure. 
-     ! Average Velocities and Vorticity to cell-centers
-     call IncompNS_velomgToCenter()
-   
-     !output a plotfile before the grid changes
-     call Timers_start("IO_output")
+   endRunPl = .false.
+   endRun = .false.
 
-     call IO_output(dr_simTime, &
-             dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
-     call Timers_stop("IO_output")
+   call Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
+   call Timers_start("evolution")
 
-     if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+   ! Initial Timestep:
+   ! backup needed old
+   dr_dtOld = dr_dt
 
-     if (dr_globalMe .eq. MASTER_PE) then
-        write(*,*) ' '
-        write(*,'(I6,A,g16.8,A,g16.8)') dr_nstep,&
-                ', TimeStep= ',dr_dt,', SimTime= ', dr_simTime
-     endif
+   ! calculate new
+   call Driver_computeDt(dr_nbegin, dr_nstep, &
+                         dr_simTime, dr_dtOld, dr_dtNew)
+   ! store new
+   dr_dt = dr_dtNew
 
-     if (dr_globalMe .eq. MASTER_PE) &
-     write(*,*) '###############################################################################'
+   do dr_nstep = dr_nBegin, dr_nend
 
-     ! Compute next step dt:
-     ! backup needed old
-     dr_dtOld = dr_dt
+      if (dr_globalMe == MASTER_PE) then
 
-     ! calculate new
-     call Driver_computeDt(dr_nbegin,  dr_nstep,      &
-                           dr_simTime, dr_dtOld, dr_dtNew)
-     ! store new
-     dr_dt = dr_dtNew
+         write (numToStr(1:), '(I10)') dr_nstep
+         write (strBuff(1, 1), "(A)") "n"
+         write (strBuff(1, 2), "(A)") trim(adjustl(numToStr))
 
-     call Timers_start("io")
-     call IO_output(dr_simTime,dr_dt,dr_nstep+1,dr_nbegin,endRun,&
-             CHECKPOINT_FILE_ONLY)
-     call Timers_stop("io")
-     endRun = (endRunPl .OR. endRun)
+         write (numToStr(1:), "(1PE12.6)") dr_simTime
+         write (strBuff(2, 1), "(A)") "t"
+         write (strBuff(2, 2), "(A)") trim(adjustl(numToStr))
+
+         write (numToStr(1:), "(1PE12.6)") dr_dt
+         write (strBuff(3, 1), "(A)") "dt"
+         write (strBuff(3, 2), "(A)") trim(adjustl(NumToStr))
+
+         call Logfile_stamp(strBuff, 3, 2, "step")
+      end if
+
+      !------------------------------------------------------------
+      !- Start Physics Sequence
+      !------------------------------------------------------------
+      dr_simTime = dr_simTime + dr_dt
+      dr_simGeneration = 0
+      !------------------------------------------------------------
+
+      ! Call methods to reset specific grid variables
+      ! at the start of every time-setp
+      !------------------------------------------------------------
+      call Multiphase_reInitGridVars()
+      call IncompNS_reInitGridVars()
+      call HeatAD_reInitGridVars()
+      !------------------------------------------------------------
+
+      ! Apply simulation specific modifications
+      !------------------------------------------------------------
+      call Simulation_adjustEvolution(dr_nstep, dr_dt, dr_simTime)
+      !------------------------------------------------------------
+
+#ifdef MULTIPHASE_MAIN
+      ! Multiphase advection diffusion procedure
+      !------------------------------------------------------------
+      call Multiphase_advection()
+      call Multiphase_solve(dr_dt)
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for level set function
+      gcMask = .FALSE.
+      gcMask(iDfunVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
+      ! Apply redistancing procedure
+      !------------------------------------------------------------
+      do iteration = 1, mph_lsIt
+         call Multiphase_redistance(iteration)
+
+         ! Fill GuardCells for level set function
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      end do
+      !------------------------------------------------------------
+
+      ! Call indicators to show information
+      !------------------------------------------------------------
+      call Multiphase_indicators()
+      !------------------------------------------------------------
+
+      ! Update fluid properties and pressure jumps
+      !------------------------------------------------------------
+      call Multiphase_setFluidProps()
+      call Multiphase_setPressureJumps()
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for Pressure Jump
+      gcMask = .FALSE.
+      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#endif
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
+#ifdef MULTIPHASE_EVAPORATION
+      ! Update thermal properties and apply thermal
+      ! forcing for evaporation
+      !------------------------------------------------------------
+      call Multiphase_setThermalProps()
+      call Multiphase_thermalForcing()
+      !------------------------------------------------------------
+
+      ! Perform extrapolation iterations for
+      ! heat flux
+      !------------------------------------------------------------
+      do iteration = 1, mph_extpIt
+         call Multiphase_extrapFluxes(iteration)
+
+         ! Fill GuardCells for heat fluxes
+         gcMask = .FALSE.
+         gcMask(iHliqVar) = .TRUE.
+         gcMask(iHGasVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      end do
+      !------------------------------------------------------------
+
+      ! Set mass flux from extrapolated heat fluxes
+      !------------------------------------------------------------
+      call Multiphase_setMassFlux()
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for mass flux
+      gcMask = .FALSE.
+      gcMask(iMfluxVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+#endif
+
+#endif
+
+      !------------------------------------------------------------
+      call Grid_setInterpValsGcell(.true.)
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for velocity
+      gcMask = .FALSE.
+      gcMask(NUNK_VARS + iVelVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+#endif
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
+      ! Start of fractional-step velocity procedure
+      ! Calculate predicted velocity and apply
+      ! necessary forcing
+      !------------------------------------------------------------
+      call IncompNS_advection()
+      call IncompNS_diffusion()
+      call IncompNS_predictor(dr_dt)
+      call Multiphase_velForcing(dr_dt)
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for velocity
+      gcMask = .FALSE.
+      gcMask(NUNK_VARS + iVelVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+#endif
+      ins_predcorrflg = .true.
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      ins_predcorrflg = .false.
+
+      ! Calculate divergence of predicted velocity
+      !------------------------------------------------------------
+      call IncompNS_divergence()
+      call Multiphase_divergence()
+      !------------------------------------------------------------
+
+      ! Solve pressure Poisson equation
+      !------------------------------------------------------------
+      call IncompNS_solvePoisson(dr_dt)
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for pressure
+      gcMask = .FALSE.
+      gcMask(iPresVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask, &
+                               selectBlockType=ACTIVE_BLKS)
+
+      ! Final step of fractional step velocity 
+      ! formulation - calculate corrected velocity
+      !------------------------------------------------------------
+      call IncompNS_corrector(dr_dt)
+      !------------------------------------------------------------
+
+      ! Calculate divergence for corrected velocity
+      ! This should be machine-zero
+      !------------------------------------------------------------
+      call IncompNS_divergence()
+      call Multiphase_divergence()
+      !------------------------------------------------------------
+
+      ! Call indicators method to show information
+      !------------------------------------------------------------
+      call IncompNS_indicators()
+      !------------------------------------------------------------
+
+      !------------------------------------------------------------
+      call Grid_setInterpValsGcell(.false.)
+      !------------------------------------------------------------
+
+#ifdef HEATAD_MAIN
+      ! Fill GuardCells for temperature
+      gcMask = .FALSE.
+      gcMask(iTempVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
+      ! Heat advection diffusion procedure
+      !------------------------------------------------------------
+      call HeatAD_diffusion()
+      call HeatAD_advection()
+      call HeatAD_solve(dr_dt)
+      !------------------------------------------------------------
+
+      ! Call indicators
+      !------------------------------------------------------------
+      call HeatAD_indicators()
+      !------------------------------------------------------------
+#endif
+
+      !------------------------------------------------------------
+      !- End Physics Sequence
+      !------------------------------------------------------------
+      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
+
+      ! Velocities and Omg to Center variables
+      ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
+      ! Note this will add velocity and vorticity variables to your CENTER data structure.
+      ! Average Velocities and Vorticity to cell-centers
+      call IncompNS_velomgToCenter()
+
+      !output a plotfile before the grid changes
+      call Timers_start("IO_output")
+
+      call IO_output(dr_simTime, &
+                     dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
+      call Timers_stop("IO_output")
+
+      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+
+      if (dr_globalMe .eq. MASTER_PE) then
+         write (*, *) ' '
+         write (*, '(I6,A,g16.8,A,g16.8)') dr_nstep, &
+            ', TimeStep= ', dr_dt, ', SimTime= ', dr_simTime
+      end if
+
+      if (dr_globalMe .eq. MASTER_PE) &
+         write (*, *) '###############################################################################'
+
+      ! Compute next step dt:
+      ! backup needed old
+      dr_dtOld = dr_dt
+
+      ! calculate new
+      call Driver_computeDt(dr_nbegin, dr_nstep, &
+                            dr_simTime, dr_dtOld, dr_dtNew)
+      ! store new
+      dr_dt = dr_dtNew
+
+      call Timers_start("io")
+      call IO_output(dr_simTime, dr_dt, dr_nstep + 1, dr_nbegin, endRun, &
+                     CHECKPOINT_FILE_ONLY)
+      call Timers_stop("io")
+      endRun = (endRunPl .OR. endRun)
 
      !!*****************************************************************************
      !!  Evolution Loop -- check termination conditions
      !!*****************************************************************************
 
-     !Exit if a .dump_restart or .kill was found during the last step
-     if(endRun) exit
+      !Exit if a .dump_restart or .kill was found during the last step
+      if (endRun) exit
 
      !! the simulation ends before nend iterations if
      !!  (i)   the simulation time is greater than the maximum time (tmax)
-     !!  (ii)  the redshift falls below the minimum redshift  
+     !!  (ii)  the redshift falls below the minimum redshift
      !!        (also called zfinal)
-     !!  (iii) the wall clock time is greater than the maximum 
+     !!  (iii) the wall clock time is greater than the maximum
      !!        (wall_clock_time_max)
 
-     if (dr_simTime >= dr_tmax) then
-        if(dr_globalMe == MASTER_PE) then
-           print *, "exiting: reached max SimTime"
-        endif
-        exit
-     end if
+      if (dr_simTime >= dr_tmax) then
+         if (dr_globalMe == MASTER_PE) then
+            print *, "exiting: reached max SimTime"
+         end if
+         exit
+      end if
 
-     call dr_wallClockLimitExceeded(endRunWallClock)
-     if (endRunWallClock) then
-        if(dr_globalMe == MASTER_PE) then
-           print *, "exiting: reached max wall clock time"
-        endif
-        exit
-     end if
+      call dr_wallClockLimitExceeded(endRunWallClock)
+      if (endRunWallClock) then
+         if (dr_globalMe == MASTER_PE) then
+            print *, "exiting: reached max wall clock time"
+         end if
+         exit
+      end if
 
-  enddo
-  dr_nstep = min(dr_nstep,dr_nend)
+   end do
+   dr_nstep = min(dr_nstep, dr_nend)
 
   !!******************************************************************************
   !! End of Evolution Loop
   !!******************************************************************************
 
-  call Timers_stop("evolution")
-  call Logfile_stamp( 'Exiting evolution loop' , '[Driver_evolveAll]')
-  if(.NOT.endRun) call IO_outputFinal( )
-  call Timers_getSummary( max(0,dr_nstep-dr_nbegin+1))
-  call Logfile_stamp( "FLASH run complete.", "LOGFILE_END")
-  call Logfile_close()
+   call Timers_stop("evolution")
+   call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
+   if (.NOT. endRun) call IO_outputFinal()
+   call Timers_getSummary(max(0, dr_nstep - dr_nbegin + 1))
+   call Logfile_stamp("FLASH run complete.", "LOGFILE_END")
+   call Logfile_close()
 
-  !-------------------------------------------------------------------------------
-  !--uniTest procedures------
-  call IncompNS_getScalarProp("Min_Divergence", mindiv)
-  call IncompNS_getScalarProp("Max_Divergence", maxdiv)
+   !-------------------------------------------------------------------------------
+   !--uniTest procedures------
+   call IncompNS_getScalarProp("Min_Divergence", mindiv)
+   call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-  temp = dr_globalMe
-  do i = 1,4
-     prNum(i)= mod(temp,10)
-     temp = temp/10
-  end do
-  filename = "unitTest_"//char(48+prNum(4))//char(48+prNum(3))//&
-                                 char(48+prNum(2))//char(48+prNum(1))
-  open(fileUnit,file=fileName)
-  write(fileUnit,'("P",I0)') dr_globalMe
-  if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then
-    write(fileUnit,'(A)') 'SUCCESS all results conformed with expected values.'
-  else
-    write(fileUnit,'(A)') 'FAILURE'
-  endif
-  close(fileUnit)
-  !-------------------------------------------------------------------------------
+   temp = dr_globalMe
+   do i = 1, 4
+      prNum(i) = mod(temp, 10)
+      temp = temp/10
+   end do
+   filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
+              char(48 + prNum(2))//char(48 + prNum(1))
+   open (fileUnit, file=fileName)
+   write (fileUnit, '("P",I0)') dr_globalMe
+   if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then
+      write (fileUnit, '(A)') 'SUCCESS all results conformed with expected values.'
+   else
+      write (fileUnit, '(A)') 'FAILURE'
+   end if
+   close (fileUnit)
+   !-------------------------------------------------------------------------------
 
-  return
-  
+   return
+
 end subroutine Driver_evolveAll

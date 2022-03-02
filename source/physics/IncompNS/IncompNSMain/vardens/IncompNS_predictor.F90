@@ -22,8 +22,7 @@
 
 subroutine IncompNS_predictor(dt)
 
-  use Grid_interface,      ONLY : Grid_fillGuardCells,Grid_getTileIterator,&
-                                  Grid_releaseTileIterator
+  use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,           ONLY : Grid_tile_t
   use Grid_iterator,       ONLY : Grid_iterator_t
   use Timers_interface,    ONLY : Timers_start, Timers_stop
@@ -38,15 +37,12 @@ subroutine IncompNS_predictor(dt)
 
 !------------------------------------------------------------------------------------------
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
 #if NDIM < MDIM
   real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData
   real, dimension(NFACE_VARS,1,1,1) :: facezData
 #else
   real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
 #endif
-  integer TA(2),count_rate
-  real*8  ET
   real del(MDIM)
   integer :: NStep
   type(Grid_tile_t) :: tileDesc
@@ -59,18 +55,7 @@ subroutine IncompNS_predictor(dt)
   nullify(solnData,facexData,faceyData,facezData)
 #endif
   !
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
-  !------------------------------------------------------------------------------------------------------
-  ! FILL GUARDCELLS:
-  ! ---- ---------- --- ----- ---------- --- --------
-  gcMask = .FALSE.
-  gcMask(NUNK_VARS+VELC_FACE_VAR) = .TRUE.                 ! u
-  gcMask(NUNK_VARS+1*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! v
-#if NDIM == 3
-  gcMask(NUNK_VARS+2*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! w
-#endif
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
+  call Timers_start("IncompNS_predictor")
   !
   !------------------------------------------------------------------------------------------------------
   ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:
@@ -124,24 +109,8 @@ subroutine IncompNS_predictor(dt)
      call itor%next()
   end do
   call Grid_releaseTileIterator(itor)
-  !------------------------------------------------------------------------------------------------------
-  ! APPLY BC AND FILL GUARDCELLS FOR INTERMEDIATE VELOCITIES:
-  ! ----- -- --- ---- ---------- --- ------------ ----------
-  !------------------------------------------------------------------------------------------------------
-  gcMask = .FALSE.
-  gcMask(NUNK_VARS+VELC_FACE_VAR) = .TRUE.                 ! ustar
-  gcMask(NUNK_VARS+1*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! vstar
-#if NDIM == 3
-  gcMask(NUNK_VARS+2*NFACE_VARS+VELC_FACE_VAR) = .TRUE.    ! wstar
-#endif
-  ins_predcorrflg = .true.
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
-  ins_predcorrflg = .false.
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total IncompNS Predictor Time =',ET
+  call Timers_stop("IncompNS_predictor")
 
   return
 end subroutine IncompNS_predictor

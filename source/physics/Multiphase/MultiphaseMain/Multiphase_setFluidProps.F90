@@ -22,76 +22,71 @@
 
 subroutine Multiphase_setFluidProps()
 
-
-  use Multiphase_data
-  use Stencils_interface, ONLY : Stencils_lsCenterProps, &
+   use Multiphase_data
+   use Stencils_interface, ONLY: Stencils_lsCenterProps, &
                                  Stencils_lsFaceProps2d, &
                                  Stencils_lsFaceProps3d
-  use Timers_interface,   ONLY : Timers_start, Timers_stop
-  use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator,&
-                                 Grid_fillGuardCells
-  use Grid_tile,          ONLY : Grid_tile_t
-  use Grid_iterator,      ONLY : Grid_iterator_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_interface, ONLY: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_tile, ONLY: Grid_tile_t
+   use Grid_iterator, ONLY: Grid_iterator_t
 
 !---------------------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
-  real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
-  integer :: ierr,i,j,k
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
-  integer TA(2),count_rate
-  real*8  ET
-  real minCellDiag
+   implicit none
+   include "Flashx_mpi.h"
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   integer :: ierr, i, j, k
+   real del(MDIM)
+   type(Grid_tile_t) :: tileDesc
+   type(Grid_iterator_t) :: itor
+   real minCellDiag
 
 !----------------------------------------------------------------------------------------------------------
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+   nullify (solnData, facexData, faceyData, facezData)
 
-  nullify(solnData,facexData,faceyData,facezData)
+   call Timers_start("Multiphase_setFluidProps")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%getDataPtr(facexData,  FACEX)
-     call tileDesc%getDataPtr(faceyData,  FACEY)
+   call Grid_getTileIterator(itor, nodetype=LEAF)
+   do while (itor%isValid())
+      call itor%currentTile(tileDesc)
+      call tileDesc%getDataPtr(solnData, CENTER)
+      call tileDesc%getDataPtr(facexData, FACEX)
+      call tileDesc%getDataPtr(faceyData, FACEY)
 #if NDIM == MDIM
-     call tileDesc%getDataPtr(facezData,  FACEZ)
+      call tileDesc%getDataPtr(facezData, FACEZ)
 #endif
-     call tileDesc%deltas(del)
+      call tileDesc%deltas(del)
 
-     minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
+      minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
 
 #if NDIM < MDIM
-     call Stencils_lsFaceProps2d(solnData(DFUN_VAR,:,:,:),&
-                                  facexData(mph_iRhoFVar,:,:,:),&
-                                  faceyData(mph_iRhoFVar,:,:,:),&
+      call Stencils_lsFaceProps2d(solnData(DFUN_VAR, :, :, :), &
+                                  facexData(mph_iRhoFVar, :, :, :), &
+                                  faceyData(mph_iRhoFVar, :, :, :), &
                                   1./mph_rhoGas, &
-                                  GRID_ILO_GC,GRID_IHI_GC, &
-                                  GRID_JLO_GC,GRID_JHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+                                  GRID_ILO_GC, GRID_IHI_GC, &
+                                  GRID_JLO_GC, GRID_JHI_GC, iSmear=mph_iPropSmear*minCellDiag)
 
-#else   
-     call Stencils_lsFaceProps3d(solnData(DFUN_VAR,:,:,:),&
-                                  facexData(mph_iRhoFVar,:,:,:),&
-                                  faceyData(mph_iRhoFVar,:,:,:),&
-                                  facezData(mph_iRhoFVar,:,:,:),&
+#else
+      call Stencils_lsFaceProps3d(solnData(DFUN_VAR, :, :, :), &
+                                  facexData(mph_iRhoFVar, :, :, :), &
+                                  faceyData(mph_iRhoFVar, :, :, :), &
+                                  facezData(mph_iRhoFVar, :, :, :), &
                                   1./mph_rhoGas, &
-                                  GRID_ILO_GC,GRID_IHI_GC, &
-                                  GRID_JLO_GC,GRID_JHI_GC, &
-                                  GRID_KLO_GC,GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+                                  GRID_ILO_GC, GRID_IHI_GC, &
+                                  GRID_JLO_GC, GRID_JHI_GC, &
+                                  GRID_KLO_GC, GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
 #endif
 
-    call Stencils_lsCenterProps(solnData(DFUN_VAR,:,:,:),&
-                                 solnData(mph_iMuCVar,:,:,:),&
-                                 mph_muGas, &
-                                 GRID_ILO_GC,GRID_IHI_GC, &
-                                 GRID_JLO_GC,GRID_JHI_GC, &
-                                 GRID_KLO_GC,GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag) 
-
+      call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
+                                  solnData(mph_iMuCVar, :, :, :), &
+                                  mph_muGas, &
+                                  GRID_ILO_GC, GRID_IHI_GC, &
+                                  GRID_JLO_GC, GRID_JHI_GC, &
+                                  GRID_KLO_GC, GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
 
       ! Release pointers:
       call tileDesc%releaseDataPtr(solnData, CENTER)
@@ -102,11 +97,9 @@ subroutine Multiphase_setFluidProps()
 #endif
       call itor%next()
    end do
-   call Grid_releaseTileIterator(itor)  
+   call Grid_releaseTileIterator(itor)
 
-   CALL SYSTEM_CLOCK(TA(2),count_rate)
-   ET=REAL(TA(2)-TA(1))/count_rate
-   if (mph_meshMe .eq. MASTER_PE)  write(*,*) 'Multiphase setFluidProps Time =',ET
+   call Timers_stop("Multiphase_setFluidProps")
 
    return
 end subroutine Multiphase_setFluidProps

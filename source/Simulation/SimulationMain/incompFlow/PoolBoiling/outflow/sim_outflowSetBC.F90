@@ -27,6 +27,7 @@ subroutine sim_outflowSetBC(dt)
   use sim_outflowInterface, ONLY : sim_outflowLSDampingBlk2d,sim_outflowLSDampingBlk3d,&
                                    sim_outflowVelBlk2d,sim_outflowVelBlk3d
   use IncompNS_interface,   ONLY : IncompNS_setVectorProp
+  use Timers_interface,    ONLY : Timers_start, Timers_stop
 
   implicit none
   include "Flashx_mpi.h"
@@ -39,8 +40,6 @@ subroutine sim_outflowSetBC(dt)
   real, dimension(GRID_IHI_GC)      :: xCenter
   real, dimension(GRID_JHI_GC)      :: yCenter
   real, dimension(GRID_KHI_GC)      :: zCenter
-  integer :: TA(2),count_rate
-  real*8  :: ET
   real    :: del(MDIM)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
@@ -51,7 +50,7 @@ subroutine sim_outflowSetBC(dt)
 !----------------------------------------------------------------------------------------
   nullify(solnData,facexData,faceyData,facezData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("sim_outflowSetBC")
 
   velOut = 1.
   sim_outflowVel = 0.
@@ -137,9 +136,7 @@ subroutine sim_outflowSetBC(dt)
   call IncompNS_setVectorProp("Outflow_Vel_Low",sim_outflowVel(LOW,:))
   call IncompNS_setVectorProp("Outflow_Vel_High",sim_outflowVel(HIGH,:))
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (sim_meshMe .eq. MASTER_PE)  write(*,*) 'Total sim_outflow SetBC Time =',ET
+  call Timers_stop("sim_outflowSetBC")
 
   return
 

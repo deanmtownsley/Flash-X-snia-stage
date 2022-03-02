@@ -35,14 +35,12 @@ subroutine HeatAD_reInitGridVars()
   include "Flashx_mpi.h"
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   real, pointer, dimension(:,:,:,:) :: solnData
-  integer TA(2),count_rate
-  real*8  ET
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
 
 !------------------------------------------------------------------------------------------
   nullify(solnData)
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("HeatAD_reInitGridVars")
   call Grid_getTileIterator(itor, nodetype=LEAF)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
@@ -55,9 +53,7 @@ subroutine HeatAD_reInitGridVars()
   end do
   call Grid_releaseTileIterator(itor)  
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ht_meshMe .eq. MASTER_PE)  write(*,*) 'Total HeatAD reInit Grid Vars Time =',ET
+  call Timers_stop("HeatAD_reInitGridVars")
 
   return
 end subroutine HeatAD_reInitGridVars

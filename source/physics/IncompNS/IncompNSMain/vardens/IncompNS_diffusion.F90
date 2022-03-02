@@ -40,8 +40,6 @@ subroutine IncompNS_diffusion()
 #else
   real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData,facezData
 #endif
-  integer TA(2),count_rate
-  real*8  ET
   real del(MDIM)
   integer :: NStep
   type(Grid_tile_t) :: tileDesc
@@ -54,7 +52,7 @@ subroutine IncompNS_diffusion()
   nullify(solnData,facexData,faceyData,facezData)
 #endif
   !
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+  call Timers_start("IncompNS_diffusion")
   !
   call Grid_getTileIterator(itor, nodetype=LEAF)
   !
@@ -114,9 +112,7 @@ subroutine IncompNS_diffusion()
   end do
   call Grid_releaseTileIterator(itor)
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total IncompNS Diffusion Time =',ET
+  call Timers_stop("IncompNS_diffusion")
 
   return
 end subroutine IncompNS_diffusion

@@ -1,4 +1,4 @@
-!!***if* source/physics/Multiphase/MultiphaseMain/Multiphase_redistance
+!!***if* source/physics/Multiphase/MultiphaseMain/Multiphase_indicators
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -20,7 +20,7 @@
 #include "constants.h"
 #include "Multiphase.h"
 
-subroutine Multiphase_redistance(iteration)
+subroutine Multiphase_indicators()
 
    use Multiphase_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -33,58 +33,50 @@ subroutine Multiphase_redistance(iteration)
 !-----------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
-   integer, intent(in) :: iteration
-
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-   integer :: ierr
+   integer :: ierr, i, j, k
    real del(MDIM)
-   real :: lsDT, minCellDiag
+   real :: volSum, volSumAll
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
 
 !-----------------------------------------------------------------------------------------
    nullify (solnData)
 
-   call Timers_start("Multiphase_redistance")
+   volSum = 0.0
+   volSumAll = 0.0
 
    call Grid_getTileIterator(itor, nodetype=LEAF)
    do while (itor%isValid())
       call itor%currentTile(tileDesc)
       call tileDesc%getDataPtr(solnData, CENTER)
-
-      if (iteration .eq. 1) then
-         solnData(RDFN_VAR, :, :, :) = solnData(DFUN_VAR, :, :, :)
-      end if
-
+      blkLimits = tileDesc%limits
       call tileDesc%deltas(del)
-      minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2)
-      lsDT = minCellDiag/5.0d0
+      do k = blkLimits(LOW, KAXIS), blkLimits(HIGH, KAXIS)
+         do i = blkLimits(LOW, IAXIS), blkLimits(HIGH, IAXIS)
+            do j = blkLimits(LOW, JAXIS), blkLimits(HIGH, JAXIS)
+               if (solnData(DFUN_VAR, i, j, k) .gt. 0) then
 #if NDIM < MDIM
-      !--------------------------------------------
-      ! Call DFUN re-initialization routine for 2D:
-      !--------------------------------------------
-      call Stencils_lsRedistance2d(solnData(DFUN_VAR, :, :, :), &
-                                   solnData(RDFN_VAR, :, :, :), &
-                                   lsDT, del(DIR_X), del(DIR_Y), &
-                                   GRID_ILO, GRID_IHI, &
-                                   GRID_JLO, GRID_JHI)
-
+                  volSum = volSum + del(DIR_X)*del(DIR_Y)
 #else
-      call Stencils_lsRedistance3d(solnData(DFUN_VAR, :, :, :), &
-                                   solnData(RDFN_VAR, :, :, :), &
-                                   lsDT, del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                   GRID_ILO, GRID_IHI, &
-                                   GRID_JLO, GRID_JHI, &
-                                   GRID_KLO, GRID_KHI)
+                  volSum = volSum + del(DIR_X)*del(DIR_Y)*del(DIR_Z)
 #endif
+               end if
+            end do
+         end do
+      end do
       call tileDesc%releaseDataPtr(solnData, CENTER)
       call itor%next()
    end do
    call Grid_releaseTileIterator(itor)
 
-   call Timers_stop("Multiphase_redistance")
+   call MPI_Allreduce(volSum, volSumAll, 1, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+   if (mph_meshMe .eq. 0) print *, "----------------------------------------"
+   if (mph_meshMe .eq. 0) print *, "Total Gas Volume: ", volSumAll
+   if (mph_meshMe .eq. 0) print *, "----------------------------------------"
 
    return
 
-end subroutine Multiphase_redistance
+end subroutine Multiphase_indicators

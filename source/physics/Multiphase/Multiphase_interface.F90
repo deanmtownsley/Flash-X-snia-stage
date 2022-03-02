@@ -59,9 +59,16 @@ Module Multiphase_interface
   end interface
 
   interface
-  subroutine Multiphase_redistance()
+  subroutine Multiphase_redistance(iteration)
   implicit none
+  integer, INTENT(IN) :: iteration
   end subroutine Multiphase_redistance
+  end interface
+
+  interface
+  subroutine Multiphase_indicators()
+  implicit none
+  end subroutine Multiphase_indicators
   end interface
 
   interface
@@ -109,9 +116,16 @@ Module Multiphase_interface
   end interface
 
   interface
-  subroutine Multiphase_thermalFluxes()
+  subroutine Multiphase_extrapFluxes(iteration)
   implicit none
-  end subroutine Multiphase_thermalFluxes
+  integer, INTENT(IN) :: iteration
+  end subroutine Multiphase_extrapFluxes
+  end interface
+
+  interface
+  subroutine Multiphase_setMassFlux()
+  implicit none
+  end subroutine Multiphase_setMassFlux
   end interface
 
   interface
