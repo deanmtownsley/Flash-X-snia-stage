@@ -38,14 +38,6 @@ Module Multiphase_interface
   end interface
 
   interface
-  subroutine Multiphase(timeEndAdv,dt,dtOld,sweepOrder)
-  implicit none
-  integer, INTENT(IN) :: sweepOrder
-  real,    INTENT(IN) :: timeEndAdv,dt,dtOld
-  end subroutine Multiphase
-  end interface
-
-  interface
   subroutine Multiphase_advection()
   implicit none
   end subroutine Multiphase_advection

@@ -26,14 +26,6 @@ module HeatAD_interface
     end interface
 
     interface
-       subroutine HeatAD(timeEndAdv,dt,dtOld,sweepOrder)
-         implicit none
-         integer, INTENT(IN) :: sweepOrder
-         real,    INTENT(IN) :: timeEndAdv, dt, dtOld
-       end subroutine HeatAD
-    end interface 
-
-    interface
        subroutine HeatAD_solve(dt)
         implicit none
         real,    INTENT(IN) :: dt

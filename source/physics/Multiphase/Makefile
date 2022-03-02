@@ -1,6 +1,5 @@
 Multiphase += Multiphase_init.o \
               Multiphase_interface.o \
-              Multiphase.o \
               Multiphase_advection.o \
               Multiphase_solve.o \
               Multiphase_redistance.o \

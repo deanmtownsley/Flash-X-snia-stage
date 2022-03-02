@@ -44,15 +44,6 @@ Module IncompNS_interface
   end interface
 
 
-  interface !IncompNS
-    subroutine IncompNS (timeEndAdv,  dt, dtOld, sweepOrder)
-      implicit none 
-      integer, INTENT(IN) :: sweepOrder
-      real,    INTENT(IN) :: timeEndAdv, dt, dtOld  
-    end subroutine IncompNS
-  end interface
-
-
   interface !IncompNS_init
     subroutine IncompNS_init (restart)
       implicit none
