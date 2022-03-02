@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/gr_makeMaskConsistent_gen
+!!****if* source/Grid/GridMain/AMR/gr_makeMaskConsistent_gen
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -19,7 +19,9 @@
 !!
 !!  call gr_makeMaskConsistent_gen(integer,intent(IN)  :: gridDataStruct,
 !!                             integer,intent(IN)  :: eosMode,
-!!                             logical,intent(OUT)  :: needEos)
+!!                             logical,intent(INOUT):: needEos,
+!!                             logical,intent(INOUT):: gcell_on_cc(NUNK_VARS),
+!!                    optional,logical,intent(IN)   :: convertToConsvd)
 !!
 !! DESCRIPTION
 !!
