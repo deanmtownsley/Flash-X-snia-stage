@@ -17,65 +17,65 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outflowLSDampingBlk2d(pfrc,phi,xcell,ycell,boundBox,dt,dx,dy,ix1,ix2,jy1,jy2)
+subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
 
    use Simulation_data
    use sim_outflowData
 
    implicit none
-   real, dimension(:,:,:), intent(inout)   :: pfrc
-   real, dimension(:,:,:), intent(in)      :: phi
-   real, dimension(:), intent(in)          :: xcell,ycell
-   real, dimension(:,:), intent(in)        :: boundBox
-   real, intent(in)                        :: dt,dx,dy
-   integer, intent (in)                    :: ix1,ix2,jy1,jy2
+   real, dimension(:, :, :), intent(inout)   :: pfrc
+   real, dimension(:, :, :), intent(in)      :: phi
+   real, dimension(:), intent(in)          :: xcell, ycell
+   real, dimension(:, :), intent(in)        :: boundBox
+   real, intent(in)                        :: dt, dx, dy
+   integer, intent(in)                    :: ix1, ix2, jy1, jy2
 
-   integer :: i,j,k
-   real    :: xi,yi
+   integer :: i, j, k
+   real    :: xi, yi
 
    k = 1
 
-   do j=jy1,jy2
-    do i=ix1,ix2   
-      xi = xcell(i)
-      yi = ycell(j)
+   do j = jy1, jy2
+      do i = ix1, ix2
+         xi = xcell(i)
+         yi = ycell(j)
 
-      if(yi .ge. sim_outflowRegion) &
-      pfrc(i,j,k) = pfrc(i,j,k) - sim_lsSink*(yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
+         if (yi .ge. sim_outflowRegion) &
+            pfrc(i, j, k) = pfrc(i, j, k) - sim_lsSink*(yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
 
-     end do
+      end do
    end do
-   
+
 end subroutine sim_outflowLSDampingBlk2d
 
-subroutine sim_outflowLSDampingBlk3d(pfrc,phi,xcell,ycell,zcell,boundBox,dt,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2)
+subroutine sim_outflowLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 
    use Simulation_data
    use sim_outflowData
 
    implicit none
-   real, dimension(:,:,:), intent(inout) :: pfrc
-   real, dimension(:,:,:), intent(in)    :: phi
-   real, dimension(:), intent(in)        :: xcell,ycell,zcell
-   real, dimension(:,:), intent(in)      :: boundBox
-   real, intent(in)                      :: dt,dx,dy,dz
-   integer, intent (in)                  :: ix1,ix2,jy1,jy2,kz1,kz2
+   real, dimension(:, :, :), intent(inout) :: pfrc
+   real, dimension(:, :, :), intent(in)    :: phi
+   real, dimension(:), intent(in)        :: xcell, ycell, zcell
+   real, dimension(:, :), intent(in)      :: boundBox
+   real, intent(in)                      :: dt, dx, dy, dz
+   integer, intent(in)                  :: ix1, ix2, jy1, jy2, kz1, kz2
 
-   integer :: i,j,k
-   real    :: xi,yi,zi
+   integer :: i, j, k
+   real    :: xi, yi, zi
 
-   do k=kz1,kz2
-     do j=jy1,jy2
-       do i=ix1,ix2
-        xi = xcell(i)
-        yi = ycell(j)
-        zi = zcell(k)
+   do k = kz1, kz2
+      do j = jy1, jy2
+         do i = ix1, ix2
+            xi = xcell(i)
+            yi = ycell(j)
+            zi = zcell(k)
 
-        if(yi .ge. sim_outflowRegion) &
-        pfrc(i,j,k) = pfrc(i,j,k) - sim_lsSink*(yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
+            if (yi .ge. sim_outflowRegion) &
+               pfrc(i, j, k) = pfrc(i, j, k) - sim_lsSink*(yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
 
-       end do
-     end do
+         end do
+      end do
    end do
 
 end subroutine sim_outflowLSDampingBlk3d

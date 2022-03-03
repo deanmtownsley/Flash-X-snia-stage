@@ -13,47 +13,47 @@
 !!
 !!
 !!***
-subroutine sim_heaterInitBlk(phi,temp,xcell,ycell,zcell,ix1,ix2,jy1,jy2,kz1,kz2)
+subroutine sim_heaterInitBlk(phi, temp, xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2)
 
-  use sim_heaterData
+   use sim_heaterData
 
-  implicit none
-  real, dimension(:,:,:),intent(inout) :: phi,temp
-  real, dimension(:), intent(in) :: xcell,ycell,zcell
-  integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+   implicit none
+   real, dimension(:, :, :), intent(inout) :: phi, temp
+   real, dimension(:), intent(in) :: xcell, ycell, zcell
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
 
-  type(sim_heaterType), pointer  :: heater
-  integer :: i,j,k,htr,isite
-  real    :: idfun,iseedY,iseedX,iseedZ,iradius,iheight
+   type(sim_heaterType), pointer  :: heater
+   integer :: i, j, k, htr, isite
+   real    :: idfun, iseedY, iseedX, iseedZ, iradius, iheight
 
-  do k=kz1,kz2
-   do j=jy1,jy2
-    do i=ix1,ix2
-     do htr=1,sim_numHeaters
+   do k = kz1, kz2
+      do j = jy1, jy2
+         do i = ix1, ix2
+            do htr = 1, sim_numHeaters
 
-      heater => sim_heaterInfo(htr)
+               heater => sim_heaterInfo(htr)
 
-      do isite=1,heater%numSites
-        iheight    = heater%siteRadii(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
-        iradius    = heater%siteRadii(isite)  
-        iseedX     = heater%xSite(isite)
-        iseedZ     = heater%zSite(isite)
-        iseedY     = heater%ySite(isite)+iheight
-        idfun      = iradius-sqrt((xcell(i)-iseedX)**2+(ycell(j)-iseedY)**2+(zcell(k)-iseedZ)**2)
-        phi(i,j,k) = max(phi(i,j,k),idfun)
+               do isite = 1, heater%numSites
+                  iheight = heater%siteRadii(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
+                  iradius = heater%siteRadii(isite)
+                  iseedX = heater%xSite(isite)
+                  iseedZ = heater%zSite(isite)
+                  iseedY = heater%ySite(isite) + iheight
+                  idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
+                  phi(i, j, k) = max(phi(i, j, k), idfun)
+               end do
+
+               if (xcell(i) .ge. heater%xMin .and. &
+                   xcell(i) .le. heater%xMax .and. &
+                   ycell(j) .le. 0.2 .and. &
+                   zcell(k) .ge. heater%zMin .and. &
+                   zcell(k) .le. heater%zMax) temp(i, j, k) = (0.2 - ycell(j))/0.2
+
+            end do
+         end do
       end do
-
-      if(xcell(i) .ge. heater%xMin .and. &
-         xcell(i) .le. heater%xMax .and. &
-         ycell(j) .le. 0.2         .and. &
-         zcell(k) .ge. heater%zMin .and. &
-         zcell(k) .le. heater%zMax) temp(i,j,k) = (0.2 - ycell(j))/0.2
-
-     end do
-    end do
    end do
-  end do
 
-  return
+   return
 
 end subroutine sim_heaterInitBlk

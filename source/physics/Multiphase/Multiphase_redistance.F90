@@ -14,8 +14,9 @@
 !!
 !!
 !!***
-subroutine Multiphase_redistance(iteration)
-  implicit none
-  integer, intent(in) :: iteration
-  return
+subroutine Multiphase_redistance(tileDesc, iteration)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
+   integer, intent(in) :: iteration
 end subroutine Multiphase_redistance

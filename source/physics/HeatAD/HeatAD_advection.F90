@@ -14,6 +14,8 @@
 !!
 !!
 !!***
-subroutine HeatAD_advection()
-  implicit none
+subroutine HeatAD_advection(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine HeatAD_advection

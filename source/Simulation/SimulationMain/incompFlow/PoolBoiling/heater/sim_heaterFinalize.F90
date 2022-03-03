@@ -15,11 +15,11 @@
 !!***
 subroutine sim_heaterFinalize()
 
-   use sim_heaterData, ONLY : sim_heaterInfo
+   use sim_heaterData, ONLY: sim_heaterInfo
 
    implicit none
 
-   deallocate(sim_heaterInfo)
+   deallocate (sim_heaterInfo)
 
    return
 

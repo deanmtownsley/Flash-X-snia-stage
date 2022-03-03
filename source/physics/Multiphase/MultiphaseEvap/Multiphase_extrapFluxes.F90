@@ -20,127 +20,116 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_extrapFluxes(iteration)
+subroutine Multiphase_extrapFluxes(tileDesc, iteration)
 
-  use Multiphase_data
-  use Timers_interface,   ONLY : Timers_start, Timers_stop
-  use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,          ONLY : Grid_tile_t
-  use Grid_iterator,      ONLY : Grid_iterator_t
-  use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
-  use mph_evapInterface,  ONLY : mph_phasedFluxes
+   use Multiphase_data
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
+   use mph_evapInterface, ONLY: mph_phasedFluxes
 
 !------------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, intent(in) :: iteration
+   implicit none
+   include "Flashx_mpi.h"
+   integer, intent(in) :: iteration
+   type(Grid_tile_t), intent(in) :: tileDesc
 
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer, dimension(:,:,:,:) :: solnData
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
-
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
+   real del(MDIM)
 !------------------------------------------------------------------------------------------------
-  nullify(solnData)
+   nullify (solnData)
 
-  call Timers_start("Multiphase_extrapFluxes")
+   call Timers_start("Multiphase_extrapFluxes")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
 
-     solnData(MFLX_VAR,:,:,:) = 0.0
+   solnData(MFLX_VAR, :, :, :) = 0.0
 
-     call Stencils_cnt_advectUpwind2d(solnData(MFLX_VAR,:,:,:),&
-                                      solnData(HFLQ_VAR,:,:,:),&
-                                      solnData(NRMX_VAR,:,:,:),&
-                                      solnData(NRMY_VAR,:,:,:),&
-                                      del(IAXIS),del(JAXIS),&
-                                      GRID_ILO,GRID_IHI,&
-                                      GRID_JLO,GRID_JHI)
+   call Stencils_cnt_advectUpwind2d(solnData(MFLX_VAR, :, :, :), &
+                                    solnData(HFLQ_VAR, :, :, :), &
+                                    solnData(NRMX_VAR, :, :, :), &
+                                    solnData(NRMY_VAR, :, :, :), &
+                                    del(IAXIS), del(JAXIS), &
+                                    GRID_ILO, GRID_IHI, &
+                                    GRID_JLO, GRID_JHI)
 
-     call mph_phasedFluxes(solnData(HFLQ_VAR,:,:,:),&
-                           solnData(MFLX_VAR,:,:,:),&
-                           solnData(DFUN_VAR,:,:,:),&
-                           0.5*del(IAXIS),&
-                           GRID_ILO,GRID_IHI,&
-                           GRID_JLO,GRID_JHI,&
-                           GRID_KLO,GRID_KHI)
+   call mph_phasedFluxes(solnData(HFLQ_VAR, :, :, :), &
+                         solnData(MFLX_VAR, :, :, :), &
+                         solnData(DFUN_VAR, :, :, :), &
+                         0.5*del(IAXIS), &
+                         GRID_ILO, GRID_IHI, &
+                         GRID_JLO, GRID_JHI, &
+                         GRID_KLO, GRID_KHI)
 
-     solnData(MFLX_VAR,:,:,:) = 0.0
+   solnData(MFLX_VAR, :, :, :) = 0.0
 
-     call Stencils_cnt_advectUpwind2d(solnData(MFLX_VAR,:,:,:),&
-                                      solnData(HFGS_VAR,:,:,:),&
-                                     -solnData(NRMX_VAR,:,:,:),&
-                                     -solnData(NRMY_VAR,:,:,:),&
-                                      del(IAXIS),del(JAXIS),&
-                                      GRID_ILO,GRID_IHI,&
-                                      GRID_JLO,GRID_JHI)
+   call Stencils_cnt_advectUpwind2d(solnData(MFLX_VAR, :, :, :), &
+                                    solnData(HFGS_VAR, :, :, :), &
+                                    -solnData(NRMX_VAR, :, :, :), &
+                                    -solnData(NRMY_VAR, :, :, :), &
+                                    del(IAXIS), del(JAXIS), &
+                                    GRID_ILO, GRID_IHI, &
+                                    GRID_JLO, GRID_JHI)
 
-     call mph_phasedFluxes(solnData(HFGS_VAR,:,:,:),&
-                           solnData(MFLX_VAR,:,:,:),&
-                          -solnData(DFUN_VAR,:,:,:),&
-                           0.5*del(IAXIS),&
-                           GRID_ILO,GRID_IHI,&
-                           GRID_JLO,GRID_JHI,&
-                           GRID_KLO,GRID_KHI)
+   call mph_phasedFluxes(solnData(HFGS_VAR, :, :, :), &
+                         solnData(MFLX_VAR, :, :, :), &
+                         -solnData(DFUN_VAR, :, :, :), &
+                         0.5*del(IAXIS), &
+                         GRID_ILO, GRID_IHI, &
+                         GRID_JLO, GRID_JHI, &
+                         GRID_KLO, GRID_KHI)
 
 #else
- 
-     solnData(MFLX_VAR,:,:,:) = 0.0
 
-     call Stencils_cnt_advectUpwind3d(solnData(MFLX_VAR,:,:,:),&
-                                      solnData(HFLQ_VAR,:,:,:),&
-                                      solnData(NRMX_VAR,:,:,:),&
-                                      solnData(NRMY_VAR,:,:,:),&
-                                      solnData(NRMZ_VAR,:,:,:),&
-                                      del(IAXIS),del(JAXIS),del(KAXIS),&
-                                      GRID_ILO,GRID_IHI,&
-                                      GRID_JLO,GRID_JHI,&
-                                      GRID_KLO,GRID_KHI)
+   solnData(MFLX_VAR, :, :, :) = 0.0
 
-     call mph_phasedFluxes(solnData(HFLQ_VAR,:,:,:),&
-                           solnData(MFLX_VAR,:,:,:),&
-                           solnData(DFUN_VAR,:,:,:),&
-                           0.5*del(IAXIS),&
-                           GRID_ILO,GRID_IHI,&
-                           GRID_JLO,GRID_JHI,&
-                           GRID_KLO,GRID_KHI)
+   call Stencils_cnt_advectUpwind3d(solnData(MFLX_VAR, :, :, :), &
+                                    solnData(HFLQ_VAR, :, :, :), &
+                                    solnData(NRMX_VAR, :, :, :), &
+                                    solnData(NRMY_VAR, :, :, :), &
+                                    solnData(NRMZ_VAR, :, :, :), &
+                                    del(IAXIS), del(JAXIS), del(KAXIS), &
+                                    GRID_ILO, GRID_IHI, &
+                                    GRID_JLO, GRID_JHI, &
+                                    GRID_KLO, GRID_KHI)
 
-     solnData(MFLX_VAR,:,:,:) = 0.0
+   call mph_phasedFluxes(solnData(HFLQ_VAR, :, :, :), &
+                         solnData(MFLX_VAR, :, :, :), &
+                         solnData(DFUN_VAR, :, :, :), &
+                         0.5*del(IAXIS), &
+                         GRID_ILO, GRID_IHI, &
+                         GRID_JLO, GRID_JHI, &
+                         GRID_KLO, GRID_KHI)
 
-      call Stencils_cnt_advectUpwind3d(solnData(MFLX_VAR,:,:,:),&
-                                       solnData(HFGS_VAR,:,:,:),&
-                                      -solnData(NRMX_VAR,:,:,:),&
-                                      -solnData(NRMY_VAR,:,:,:),&
-                                      -solnData(NRMZ_VAR,:,:,:),&
-                                       del(IAXIS),del(JAXIS),del(KAXIS),&
-                                       GRID_ILO,GRID_IHI,&
-                                       GRID_JLO,GRID_JHI,&
-                                       GRID_KLO,GRID_KHI)
+   solnData(MFLX_VAR, :, :, :) = 0.0
 
-     call mph_phasedFluxes(solnData(HFGS_VAR,:,:,:),&
-                           solnData(MFLX_VAR,:,:,:),&
-                          -solnData(DFUN_VAR,:,:,:),&
-                           0.5*del(IAXIS),&
-                           GRID_ILO,GRID_IHI,&
-                           GRID_JLO,GRID_JHI,&
-                           GRID_KLO,GRID_KHI)
+   call Stencils_cnt_advectUpwind3d(solnData(MFLX_VAR, :, :, :), &
+                                    solnData(HFGS_VAR, :, :, :), &
+                                    -solnData(NRMX_VAR, :, :, :), &
+                                    -solnData(NRMY_VAR, :, :, :), &
+                                    -solnData(NRMZ_VAR, :, :, :), &
+                                    del(IAXIS), del(JAXIS), del(KAXIS), &
+                                    GRID_ILO, GRID_IHI, &
+                                    GRID_JLO, GRID_JHI, &
+                                    GRID_KLO, GRID_KHI)
 
-     
+   call mph_phasedFluxes(solnData(HFGS_VAR, :, :, :), &
+                         solnData(MFLX_VAR, :, :, :), &
+                         -solnData(DFUN_VAR, :, :, :), &
+                         0.5*del(IAXIS), &
+                         GRID_ILO, GRID_IHI, &
+                         GRID_JLO, GRID_JHI, &
+                         GRID_KLO, GRID_KHI)
+
 #endif
-    
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)  
+
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
 
    call Timers_stop("Multiphase_extrapFluxes")
 

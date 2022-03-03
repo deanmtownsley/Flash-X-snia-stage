@@ -26,13 +26,13 @@
 
 module sim_outflowData
 
-    implicit none
+   implicit none
 
-    real, save :: sim_outflowVel(LOW:HIGH,MDIM)
-    real, save :: sim_gravX
-    real, save :: sim_gravY
-    real, save :: sim_gravZ
-    real, save :: sim_lsSink
-    real, save :: sim_outflowRegion
+   real, save :: sim_outflowVel(LOW:HIGH, MDIM)
+   real, save :: sim_gravX
+   real, save :: sim_gravY
+   real, save :: sim_gravZ
+   real, save :: sim_lsSink
+   real, save :: sim_outflowRegion
 
 end module sim_outflowData

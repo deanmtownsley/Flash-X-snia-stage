@@ -29,11 +29,9 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_reInitGridVars()
+subroutine Multiphase_reInitGridVars(tileDesc)
 
-   use Grid_interface, ONLY: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, ONLY: Grid_tile_t
-   use Grid_iterator, ONLY: Grid_iterator_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use Multiphase_data, ONLY: mph_meshMe
@@ -41,41 +39,33 @@ subroutine Multiphase_reInitGridVars()
 !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
+
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-   type(Grid_tile_t) :: tileDesc
-   type(Grid_iterator_t) :: itor
-
 !------------------------------------------------------------------------------------------
    nullify (solnData)
 
    call Timers_start("Multiphase_reInitGridVars")
 
-   call Grid_getTileIterator(itor, nodetype=LEAF)
-   do while (itor%isValid())
-      call itor%currentTile(tileDesc)
-      call tileDesc%getDataPtr(solnData, CENTER)
-      solnData(DFRC_VAR, :, :, :) = 0.
-      solnData(RDFN_VAR, :, :, :) = 0.
+   call tileDesc%getDataPtr(solnData, CENTER)
+   solnData(DFRC_VAR, :, :, :) = 0.
+   solnData(RDFN_VAR, :, :, :) = 0.
 
 #ifdef MULTIPHASE_EVAPORATION
-      solnData(HFLQ_VAR, :, :, :) = 0.
-      solnData(HFGS_VAR, :, :, :) = 0.
-      solnData(NRMX_VAR, :, :, :) = 0.
-      solnData(NRMY_VAR, :, :, :) = 0.
+   solnData(HFLQ_VAR, :, :, :) = 0.
+   solnData(HFGS_VAR, :, :, :) = 0.
+   solnData(NRMX_VAR, :, :, :) = 0.
+   solnData(NRMY_VAR, :, :, :) = 0.
 
 #if NDIM == MDIM
-      solnData(NRMZ_VAR, :, :, :) = 0.
+   solnData(NRMZ_VAR, :, :, :) = 0.
 #endif
 
 #endif
 
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)
-
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
    call Timers_stop("Multiphase_reInitGridVars")
 
    return

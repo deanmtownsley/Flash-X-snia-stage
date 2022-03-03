@@ -1,4 +1,3 @@
-subroutine Multiphase_setFluidProps()
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,5 +9,8 @@ subroutine Multiphase_setFluidProps()
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-  implicit none
+subroutine Multiphase_setFluidProps(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine Multiphase_setFluidProps

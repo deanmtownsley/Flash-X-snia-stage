@@ -18,41 +18,41 @@
 subroutine sim_heaterTagSites(stime)
 
    use Simulation_data, ONLY: sim_meshMe
-   use Timers_interface, ONLY : Timers_start, Timers_stop
+   use Timers_interface, ONLY: Timers_start, Timers_stop
    use sim_heaterData
- 
+
    implicit none
    include "Flashx_mpi.h"
    real, intent(in) :: stime
 
-   integer :: htr,ierr,isite
+   integer :: htr, ierr, isite
    type(sim_heaterType), pointer :: heater
 
    call Timers_start("sim_heaterTagSites")
 
-   do htr=1,sim_numHeaters
+   do htr = 1, sim_numHeaters
 
-    heater => sim_heaterInfo(htr)
+      heater => sim_heaterInfo(htr)
 
-    do isite=1,heater%numSites
+      do isite = 1, heater%numSites
 
-       call MPI_Allreduce(heater%siteIsAttachedCurr(isite), heater%siteIsAttachedCurr(isite), &
-                          1, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
+         call MPI_Allreduce(heater%siteIsAttachedCurr(isite), heater%siteIsAttachedCurr(isite), &
+                            1, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
 
-       if(heater%siteIsAttachedPrev(isite) .eqv. .true.  .and. &
-          heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
+         if (heater%siteIsAttachedPrev(isite) .eqv. .true. .and. &
+             heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
 
-       if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
-           write(*,'(A,I2,A,I3,A,L1,A,2g14.6)')&
-                   ' Heater:',htr,&
-                   ' Site:',isite,&
-                   ' IsAttached:',heater%siteIsAttachedCurr(isite),&
-                   ' TimeStamp:',heater%siteTimeStamp(isite)
+         if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
+            write (*, '(A,I2,A,I3,A,L1,A,2g14.6)') &
+            ' Heater:', htr, &
+            ' Site:', isite, &
+            ' IsAttached:', heater%siteIsAttachedCurr(isite), &
+            ' TimeStamp:', heater%siteTimeStamp(isite)
 
-    end do
+      end do
 
-    heater%siteIsAttachedPrev = heater%siteIsAttachedCurr
-    heater%siteIsAttachedCurr = .false.
+      heater%siteIsAttachedPrev = heater%siteIsAttachedCurr
+      heater%siteIsAttachedCurr = .false.
 
    end do
 

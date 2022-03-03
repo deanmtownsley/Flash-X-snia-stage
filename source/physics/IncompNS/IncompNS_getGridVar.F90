@@ -15,15 +15,15 @@
 !!***
 subroutine IncompNS_getGridVar(name, value)
 
-  use Driver_interface, ONLY : Driver_abort
+   use Driver_interface, ONLY: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
 
-  value = -1
-  print *,"Error in setting grid var: ",name
-  call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
+   value = -1
+   print *, "Error in setting grid var: ", name
+   call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
 
-  return
+   return
 end subroutine IncompNS_getGridVar

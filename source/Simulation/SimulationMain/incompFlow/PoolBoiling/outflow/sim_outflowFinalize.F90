@@ -14,5 +14,5 @@
 !!
 !!***
 subroutine sim_outflowFinalize()
-  implicit none
+   implicit none
 end subroutine sim_outflowFinalize

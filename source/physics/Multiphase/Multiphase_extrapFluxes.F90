@@ -14,7 +14,9 @@
 !!
 !!
 !!***
-subroutine Multiphase_extrapFluxes(iteration)
-  implicit none
-  integer, intent(in) :: iteration
+subroutine Multiphase_extrapFluxes(tileDesc, iteration)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
+   integer, intent(in) :: iteration
 end subroutine Multiphase_extrapFluxes

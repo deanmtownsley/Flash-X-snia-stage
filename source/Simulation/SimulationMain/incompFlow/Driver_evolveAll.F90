@@ -55,13 +55,19 @@ subroutine Driver_evolveAll()
    use Timers_interface, ONLY: Timers_start, Timers_stop, &
                                Timers_getSummary
    use Particles_interface, ONLY: Particles_advance, Particles_dump
+
    use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
-                             Grid_fillGuardCells
+                             Grid_fillGuardCells, Grid_getTileIterator, &
+                             Grid_releaseTileIterator, Grid_solvePoisson
+
+   use Grid_iterator, ONLY: Grid_iterator_t
+
+   use Grid_tile, ONLY: Grid_tile_t
 
    use IO_interface, ONLY: IO_output, IO_outputFinal
 
    use IncompNS_interface, ONLY: IncompNS_predictor, IncompNS_divergence, &
-                                 IncompNS_solvePoisson, IncompNS_corrector, &
+                                 IncompNS_setupPoisson, IncompNS_corrector, &
                                  IncompNS_indicators, IncompNS_reInitGridVars, &
                                  IncompNS_advection, IncompNS_diffusion, IncompNS_getScalarProp, &
                                  IncompNS_getGridVar
@@ -77,7 +83,8 @@ subroutine Driver_evolveAll()
 
    use Simulation_interface, ONLY: Simulation_adjustEvolution
 
-   use IncompNS_data, ONLY: ins_predcorrflg
+   use IncompNS_data, ONLY: ins_predcorrflg, ins_pressureBC_types, ins_pressureBC_values, &
+                            ins_poisfact
 
 #ifdef MULTIPHASE_MAIN
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
@@ -101,13 +108,17 @@ subroutine Driver_evolveAll()
    integer :: temp, i
    real :: mindiv, maxdiv
    logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
-   integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, iHliqVar, iHgasVar, iTempVar
+   integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
+              iHliqVar, iHgasVar, iTempVar, iDivVar
    integer :: iteration
+   type(Grid_iterator_t) :: itor
+   type(Grid_tile_t) :: tileDesc
 
    ! Get grid variables for incompressible Naiver-Stokes
    ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
-   call IncompNS_getGridVAR("CENTER_PRESSURE", iPresVar)
+   call IncompNS_getGridVar("CENTER_PRESSURE", iPresVar)
+   call IncompNS_getGridVar("CENTER_DIVERGENCE", iDivVar)
 
 #ifdef HEATAD_MAIN
    ! Get grid variables for heat advection diffusion if
@@ -182,9 +193,17 @@ subroutine Driver_evolveAll()
       ! Call methods to reset specific grid variables
       ! at the start of every time-setp
       !------------------------------------------------------------
-      call Multiphase_reInitGridVars()
-      call IncompNS_reInitGridVars()
-      call HeatAD_reInitGridVars()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_reInitGridVars(tileDesc)
+         call IncompNS_reInitGridVars(tileDesc)
+         call HeatAD_reInitGridVars(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Apply simulation specific modifications
@@ -194,9 +213,19 @@ subroutine Driver_evolveAll()
 
 #ifdef MULTIPHASE_MAIN
       ! Multiphase advection diffusion procedure
+      ! Loop over blocks (tiles) and call Multiphase
+      ! routines
       !------------------------------------------------------------
-      call Multiphase_advection()
-      call Multiphase_solve(dr_dt)
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_advection(tileDesc)
+         call Multiphase_solve(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Fill GuardCells for level set function
@@ -208,7 +237,18 @@ subroutine Driver_evolveAll()
       ! Apply redistancing procedure
       !------------------------------------------------------------
       do iteration = 1, mph_lsIt
-         call Multiphase_redistance(iteration)
+
+         ! Loop over blocks (tiles) and call Multiphase
+         ! routines
+         call Grid_getTileIterator(itor, nodetype=LEAF)
+         do while (itor%isValid())
+            call itor%currentTile(tileDesc)
+            !------------------------------------------------------
+            call Multiphase_redistance(tileDesc, iteration)
+            !------------------------------------------------------
+            call itor%next()
+         end do
+         call Grid_releaseTileIterator(itor)
 
          ! Fill GuardCells for level set function
          gcMask = .FALSE.
@@ -224,9 +264,18 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Update fluid properties and pressure jumps
+      ! Loop over blocks (tiles)
       !------------------------------------------------------------
-      call Multiphase_setFluidProps()
-      call Multiphase_setPressureJumps()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_setFluidProps(tileDesc)
+         call Multiphase_setPressureJumps(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Fill GuardCells for Pressure Jump
@@ -243,15 +292,32 @@ subroutine Driver_evolveAll()
       ! Update thermal properties and apply thermal
       ! forcing for evaporation
       !------------------------------------------------------------
-      call Multiphase_setThermalProps()
-      call Multiphase_thermalForcing()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_setThermalProps(tileDesc)
+         call Multiphase_thermalForcing(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Perform extrapolation iterations for
       ! heat flux
       !------------------------------------------------------------
       do iteration = 1, mph_extpIt
-         call Multiphase_extrapFluxes(iteration)
+
+         call Grid_getTileIterator(itor, nodetype=LEAF)
+         do while (itor%isValid())
+            call itor%currentTile(tileDesc)
+            !------------------------------------------------------
+            call Multiphase_extrapFluxes(tileDesc, iteration)
+            !------------------------------------------------------
+            call itor%next()
+         end do
+         call Grid_releaseTileIterator(itor)
 
          ! Fill GuardCells for heat fluxes
          gcMask = .FALSE.
@@ -264,7 +330,15 @@ subroutine Driver_evolveAll()
 
       ! Set mass flux from extrapolated heat fluxes
       !------------------------------------------------------------
-      call Multiphase_setMassFlux()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_setMassFlux(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Fill GuardCells for mass flux
@@ -294,10 +368,18 @@ subroutine Driver_evolveAll()
       ! Calculate predicted velocity and apply
       ! necessary forcing
       !------------------------------------------------------------
-      call IncompNS_advection()
-      call IncompNS_diffusion()
-      call IncompNS_predictor(dr_dt)
-      call Multiphase_velForcing(dr_dt)
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call IncompNS_advection(tileDesc)
+         call IncompNS_diffusion(tileDesc)
+         call IncompNS_predictor(tileDesc, dr_dt)
+         call Multiphase_velForcing(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Fill GuardCells for velocity
@@ -314,13 +396,27 @@ subroutine Driver_evolveAll()
 
       ! Calculate divergence of predicted velocity
       !------------------------------------------------------------
-      call IncompNS_divergence()
-      call Multiphase_divergence()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call IncompNS_divergence(tileDesc)
+         call Multiphase_divergence(tileDesc)
+         call IncompNS_setupPoisson(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
-      call IncompNS_solvePoisson(dr_dt)
+      call Timers_start("Grid_solvePoisson")
+      call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
+                             bcTypes=ins_pressureBC_types, &
+                             bcValues=ins_pressureBC_values, &
+                             poisfact=ins_poisfact)
+      call Timers_stop("Grid_solvePoisson")
       !------------------------------------------------------------
 
       ! Fill GuardCells for pressure
@@ -330,17 +426,21 @@ subroutine Driver_evolveAll()
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask, &
                                selectBlockType=ACTIVE_BLKS)
 
-      ! Final step of fractional step velocity 
+      ! Final step of fractional step velocity
       ! formulation - calculate corrected velocity
+      ! and updated divergence (this should be machine-zero)
       !------------------------------------------------------------
-      call IncompNS_corrector(dr_dt)
-      !------------------------------------------------------------
-
-      ! Calculate divergence for corrected velocity
-      ! This should be machine-zero
-      !------------------------------------------------------------
-      call IncompNS_divergence()
-      call Multiphase_divergence()
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call IncompNS_corrector(tileDesc, dr_dt)
+         call IncompNS_divergence(tileDesc)
+         call Multiphase_divergence(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Call indicators method to show information
@@ -361,9 +461,17 @@ subroutine Driver_evolveAll()
 
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
-      call HeatAD_diffusion()
-      call HeatAD_advection()
-      call HeatAD_solve(dr_dt)
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call HeatAD_diffusion(tileDesc)
+         call HeatAD_advection(tileDesc)
+         call HeatAD_solve(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
       ! Call indicators

@@ -13,31 +13,31 @@ subroutine Multiphase_getGridVar(name, value)
 
 #include"Simulation.h"
 
-  use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
 
-  select case(name)
-     case("Center_Levelset","center_levelset","CENTER_LEVELSET")
-       value = DFUN_VAR
-     case("Center_Levelset_Forcing","center_Levelset_forcing","CENTER_LEVELSET_FORCING")
-       value = DFRC_VAR
+   select case (name)
+   case ("Center_Levelset", "center_levelset", "CENTER_LEVELSET")
+      value = DFUN_VAR
+   case ("Center_Levelset_Forcing", "center_Levelset_forcing", "CENTER_LEVELSET_FORCING")
+      value = DFRC_VAR
 #ifdef MULTIPHASE_EVAPORATION
-     case("Center_Massflux","center_massflux","CENTER_MASSFLUX")
-       value = MFLX_VAR
-     case("Center_Hflux_Liquid","center_hflux_liquid","CENTER_HFLUX_LIQUID")
-       value = HFLQ_VAR
-     case("Center_Hflux_Gas","center_hflux_gas","CENTER_HFLUX_GAS")
-       value = HFGS_VAR
+   case ("Center_Massflux", "center_massflux", "CENTER_MASSFLUX")
+      value = MFLX_VAR
+   case ("Center_Hflux_Liquid", "center_hflux_liquid", "CENTER_HFLUX_LIQUID")
+      value = HFLQ_VAR
+   case ("Center_Hflux_Gas", "center_hflux_gas", "CENTER_HFLUX_GAS")
+      value = HFGS_VAR
 #endif
-     case default
-       value = -1
-       print *,"Error in setting grid var: ",name 
-       call Driver_abort("Multiphase_getGridVar: Unknown Multiphase Grid Variable")
-  end select  
+   case default
+      value = -1
+      print *, "Error in setting grid var: ", name
+      call Driver_abort("Multiphase_getGridVar: Unknown Multiphase Grid Variable")
+   end select
 
-  return
+   return
 
 end subroutine Multiphase_getGridVar

@@ -18,7 +18,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  
+!!
 !!
 !! DESCRIPTION
 !!
@@ -28,9 +28,8 @@
 !!
 !!***
 
-
-subroutine IncompNS_computeDt(ins_mindt,ins_minloc)
-  implicit none
-  real,    intent(INOUT) :: ins_mindt
-  integer, intent(INOUT) :: ins_minloc(5)
+subroutine IncompNS_computeDt(ins_mindt, ins_minloc)
+   implicit none
+   real, intent(INOUT) :: ins_mindt
+   integer, intent(INOUT) :: ins_minloc(5)
 end subroutine IncompNS_computeDt
