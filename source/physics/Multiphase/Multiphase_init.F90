@@ -19,19 +19,18 @@
 !! SYNOPSIS
 !!
 !!  call Multiphase_init
-!!  
+!!
 !! ARGUMENTS
 !!
 !!  none
 !!
 !! DESCRIPTION
-!! 
+!!
 !!
 !!***
 
 subroutine Multiphase_init(restart)
-  implicit none
-  logical, intent(in) :: restart
+   implicit none
+   logical, intent(in) :: restart
 end subroutine Multiphase_init
-
 

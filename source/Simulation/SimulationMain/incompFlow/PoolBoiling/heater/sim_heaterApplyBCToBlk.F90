@@ -17,38 +17,38 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToBlk2d(pfrc,tfrc,phi,temp,xcell,ycell,boundBox,dt,dx,dy,ix1,ix2,jy1,jy2)
+subroutine sim_heaterApplyBCToBlk2d(pfrc, tfrc, phi, temp, xcell, ycell, boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
 
    use Simulation_data
    use sim_heaterData
 
    implicit none
-   real, dimension(:,:,:), intent(inout)   :: pfrc,tfrc
-   real, dimension(:,:,:), intent(in)      :: phi,temp
-   real, dimension(:), intent(in)          :: xcell,ycell
-   real, dimension(:,:), intent(in)        :: boundBox
-   real, intent(in)                        :: dt,dx,dy
-   integer, intent (in)                    :: ix1,ix2,jy1,jy2
+   real, dimension(:, :, :), intent(inout)   :: pfrc, tfrc
+   real, dimension(:, :, :), intent(in)      :: phi, temp
+   real, dimension(:), intent(in)          :: xcell, ycell
+   real, dimension(:, :), intent(in)        :: boundBox
+   real, intent(in)                        :: dt, dx, dy
+   integer, intent(in)                    :: ix1, ix2, jy1, jy2
 
-   integer :: i,j,k,htr
-   real    :: xi,yi
-   real    :: dynamicAngle,phiWall
+   integer :: i, j, k, htr
+   real    :: xi, yi
+   real    :: dynamicAngle, phiWall
    type(sim_heaterType), pointer :: heater
 
    k = 1
 
-   do j=jy1,jy2
-    do i=ix1,ix2   
+   do j = jy1, jy2
+      do i = ix1, ix2
 
-      xi = xcell(i)
-      yi = ycell(j)
+         xi = xcell(i)
+         yi = ycell(j)
 
-      do htr=1,sim_numHeaters
-         heater => sim_heaterInfo(htr)
+         do htr = 1, sim_numHeaters
+            heater => sim_heaterInfo(htr)
 
+         end do
       end do
-     end do
    end do
-   
+
    return
 end subroutine sim_heaterApplyBCToBlk2d

@@ -18,56 +18,47 @@
 
 #include "constants.h"
 #include "HeatAD.h"
-#include "Simulation.h"   
+#include "Simulation.h"
 
-subroutine HeatAD_solve(dt)
+subroutine HeatAD_solve(tileDesc, dt)
 
    use HeatAD_data
-   use Timers_interface,    ONLY : Timers_start, Timers_stop
-   use Driver_interface,    ONLY : Driver_getNStep
-   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-   use Grid_tile,           ONLY : Grid_tile_t
-   use Grid_iterator,       ONLY : Grid_iterator_t
-   use Stencils_interface,  ONLY : Stencils_integrateEuler
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_integrateEuler
 
    implicit none
    include"Flashx_mpi.h"
-   real,    INTENT(IN) :: dt
+   real, INTENT(IN) :: dt
+   type(Grid_tile_t), INTENT(IN) :: tileDesc
 
 !--------------------------------------------------------------------------------------------
    real ::  del(MDIM)
-   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-   real, pointer, dimension(:,:,:,:) :: solnData
-   type(Grid_tile_t) :: tileDesc
-   type(Grid_iterator_t) :: itor
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
    real :: diffusion_coeff
 
 !---------------------------------------------------------------------------------------------
    call Timers_start("HeatAD_solve")
 
-   nullify(solnData)
+   nullify (solnData)
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
-   call Grid_getTileIterator(itor, nodetype=LEAF)
-   do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%deltas(del)
 
-     call Stencils_integrateEuler(solnData(TEMP_VAR,:,:,:),&
-                                  solnData(RHST_VAR,:,:,:),&
-                                  dt,&
-                                  GRID_ILO,GRID_IHI,&
-                                  GRID_JLO,GRID_JHI,&
-                                  GRID_KLO,GRID_KHI,&
-                                  iSource=solnData(TFRC_VAR,:,:,:))
+   call Stencils_integrateEuler(solnData(TEMP_VAR, :, :, :), &
+                                solnData(RHST_VAR, :, :, :), &
+                                dt, &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI, &
+                                GRID_KLO, GRID_KHI, &
+                                iSource=solnData(TFRC_VAR, :, :, :))
 
-     call tileDesc%releaseDataPtr(solnData, CENTER)
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)  
+   call tileDesc%releaseDataPtr(solnData, CENTER)
 
-  call Timers_stop("HeatAD_solve")
+   call Timers_stop("HeatAD_solve")
 
 end subroutine HeatAD_solve

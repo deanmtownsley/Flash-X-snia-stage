@@ -1,4 +1,4 @@
-!!****f* source/physics/IncompNS/IncompNS_statsIOExport
+!!****if* source/physics/IncompNS/IncompNS_setupPoisson
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,34 +11,13 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! NAME
-!!
-!!  IncompNS_statsIOExport
-!!
-!! SYNOPSIS
-!!
-!!  call IncompNS_statsIOExport(logical(in) :: expt_flag)
-!!
-!! DESCRIPTION
-!!
-!!
-!! ARGUMENTS
-!!
-!!   expt_flag : 
-!!
-!! AUTOGENROBODOC
 !!
 !!
 !!***
-
-
-
-subroutine IncompNS_statsIOExport(expt_flag)
-
-  implicit none
-
-  logical, intent(in) :: expt_flag
-
-
-end subroutine
-
+subroutine IncompNS_setupPoisson(tileDesc, dt)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, INTENT(IN) :: dt
+   return
+end subroutine IncompNS_setupPoisson

@@ -26,42 +26,42 @@
 
 module sim_heaterData
 
-  implicit none
+   implicit none
 
-  real, save        :: sim_nucSeedRadius
-  integer, save     :: sim_numHeaters
-  character(len=20),save :: sim_heaterName
-  logical, save :: sim_heaterShowInfo
+   real, save        :: sim_nucSeedRadius
+   integer, save     :: sim_numHeaters
+   character(len=20), save :: sim_heaterName
+   logical, save :: sim_heaterShowInfo
 
-  type sim_heaterType
-     
-     real    :: xMin
-     real    :: xMax
-     real    :: zMin
-     real    :: zMax
-     real    :: yMin
-     real    :: yMax
+   type sim_heaterType
 
-     real    :: wallTemp
-     real    :: nucWaitTime
-     real    :: advAngle
-     real    :: rcdAngle
-     real    :: seedRadius
-     real    :: seedHeight
-     real    :: velContact
+      real    :: xMin
+      real    :: xMax
+      real    :: zMin
+      real    :: zMax
+      real    :: yMin
+      real    :: yMax
 
-     integer :: numSites
- 
-     real,    dimension(:), allocatable :: xSite
-     real,    dimension(:), allocatable :: zSite
-     real,    dimension(:), allocatable :: ySite
-     real,    dimension(:), allocatable :: siteRadii
-     real,    dimension(:), allocatable :: siteTimeStamp
-     logical, dimension(:), allocatable :: siteIsAttachedCurr
-     logical, dimension(:), allocatable :: siteIsAttachedPrev
+      real    :: wallTemp
+      real    :: nucWaitTime
+      real    :: advAngle
+      real    :: rcdAngle
+      real    :: seedRadius
+      real    :: seedHeight
+      real    :: velContact
 
-  end type sim_heaterType
+      integer :: numSites
 
-  type(sim_heaterType), save, dimension(:), pointer :: sim_heaterInfo
+      real, dimension(:), allocatable :: xSite
+      real, dimension(:), allocatable :: zSite
+      real, dimension(:), allocatable :: ySite
+      real, dimension(:), allocatable :: siteRadii
+      real, dimension(:), allocatable :: siteTimeStamp
+      logical, dimension(:), allocatable :: siteIsAttachedCurr
+      logical, dimension(:), allocatable :: siteIsAttachedPrev
+
+   end type sim_heaterType
+
+   type(sim_heaterType), save, dimension(:), pointer :: sim_heaterInfo
 
 end module sim_heaterData

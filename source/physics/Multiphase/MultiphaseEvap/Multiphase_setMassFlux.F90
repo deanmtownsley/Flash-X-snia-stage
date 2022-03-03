@@ -20,46 +20,38 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_setMassFlux()
+subroutine Multiphase_setMassFlux(tileDesc)
 
-  use Multiphase_data
-  use Timers_interface,   ONLY : Timers_start, Timers_stop
-  use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,          ONLY : Grid_tile_t
-  use Grid_iterator,      ONLY : Grid_iterator_t
-  use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
-  use mph_evapInterface,  ONLY : mph_phasedFluxes
+   use Multiphase_data
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
+   use mph_evapInterface, ONLY: mph_phasedFluxes
 
 !------------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer, dimension(:,:,:,:) :: solnData
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
+
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
+   real del(MDIM)
 
 !------------------------------------------------------------------------------------------------
-  nullify(solnData)
+   nullify (solnData)
 
-  call Timers_start("Multiphase_setMassFlux")
+   call Timers_start("Multiphase_setMassFlux")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%deltas(del)
 
-     solnData(MFLX_VAR,:,:,:) = (mph_Stefan*mph_invReynolds/mph_Prandtl)*&
-                                (solnData(HFLQ_VAR,:,:,:)+mph_thcoGas*solnData(HFGS_VAR,:,:,:))  
- 
-     ! Release pointers:
-     call tileDesc%releaseDataPtr(solnData, CENTER)
-     call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)  
- 
+   solnData(MFLX_VAR, :, :, :) = (mph_Stefan*mph_invReynolds/mph_Prandtl)* &
+                                 (solnData(HFLQ_VAR, :, :, :) + mph_thcoGas*solnData(HFGS_VAR, :, :, :))
+
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+
    call Timers_stop("Multiphase_setMassFlux")
 
 end subroutine Multiphase_setMassFlux

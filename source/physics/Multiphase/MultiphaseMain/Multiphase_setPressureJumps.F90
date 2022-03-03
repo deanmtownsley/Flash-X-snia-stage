@@ -20,95 +20,87 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_setPressureJumps()
+subroutine Multiphase_setPressureJumps(tileDesc)
 
    use Multiphase_data
    use mph_interface, ONLY: mph_setWeberJumps2d, mph_setWeberJumps3d
    use mph_evapInterface, ONLY: mph_setEvapJumps2d, mph_setEvapJumps3d
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
-   use Grid_interface, ONLY: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, ONLY: Grid_tile_t
-   use Grid_iterator, ONLY: Grid_iterator_t
 
 !----------------------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
+
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    integer :: ierr, i, j, k
    real del(MDIM)
-   type(Grid_tile_t) :: tileDesc
-   type(Grid_iterator_t) :: itor
 !---------------------------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
    call Timers_start("Multiphase_setPressureJumps")
 
    !-------------------------------------------------
-   call Grid_getTileIterator(itor, nodetype=LEAF)
-   do while (itor%isValid())
-      call itor%currentTile(tileDesc)
-      call tileDesc%getDataPtr(solnData, CENTER)
-      call tileDesc%getDataPtr(facexData, FACEX)
-      call tileDesc%getDataPtr(faceyData, FACEY)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
 #if NDIM == MDIM
-      call tileDesc%getDataPtr(facezData, FACEZ)
+   call tileDesc%getDataPtr(facezData, FACEZ)
 #endif
-      call tileDesc%deltas(del)
+   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
-      call mph_setWeberJumps2d(solnData(DFUN_VAR, :, :, :), &
-                               facexData(mph_iJumpVar, :, :, :), &
-                               faceyData(mph_iJumpVar, :, :, :), &
-                               del(DIR_X), del(DIR_Y), &
-                               mph_invWeber, &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC)
+   call mph_setWeberJumps2d(solnData(DFUN_VAR, :, :, :), &
+                            facexData(mph_iJumpVar, :, :, :), &
+                            faceyData(mph_iJumpVar, :, :, :), &
+                            del(DIR_X), del(DIR_Y), &
+                            mph_invWeber, &
+                            GRID_ILO_GC, GRID_IHI_GC, &
+                            GRID_JLO_GC, GRID_JHI_GC)
 
 #ifdef MULTIPHASE_EVAPORATION
-      call mph_setEvapJumps2d(solnData(DFUN_VAR, :, :, :), &
-                              facexData(mph_iJumpVar, :, :, :), &
-                              faceyData(mph_iJumpVar, :, :, :), &
-                              solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
-                              del(DIR_X), del(DIR_Y), &
-                              GRID_ILO_GC, GRID_IHI_GC, &
-                              GRID_JLO_GC, GRID_JHI_GC)
+   call mph_setEvapJumps2d(solnData(DFUN_VAR, :, :, :), &
+                           facexData(mph_iJumpVar, :, :, :), &
+                           faceyData(mph_iJumpVar, :, :, :), &
+                           solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
+                           del(DIR_X), del(DIR_Y), &
+                           GRID_ILO_GC, GRID_IHI_GC, &
+                           GRID_JLO_GC, GRID_JHI_GC)
 #endif
 
 #else
-      call mph_setWeberJumps3d(solnData(DFUN_VAR, :, :, :), &
-                               facexData(mph_iJumpVar, :, :, :), &
-                               faceyData(mph_iJumpVar, :, :, :), &
-                               facezData(mph_iJumpVar, :, :, :), &
-                               del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                               mph_invWeber, &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, &
-                               GRID_KLO_GC, GRID_KHI_GC)
+   call mph_setWeberJumps3d(solnData(DFUN_VAR, :, :, :), &
+                            facexData(mph_iJumpVar, :, :, :), &
+                            faceyData(mph_iJumpVar, :, :, :), &
+                            facezData(mph_iJumpVar, :, :, :), &
+                            del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                            mph_invWeber, &
+                            GRID_ILO_GC, GRID_IHI_GC, &
+                            GRID_JLO_GC, GRID_JHI_GC, &
+                            GRID_KLO_GC, GRID_KHI_GC)
 #ifdef MULTIPHASE_EVAPORATION
-      call mph_setEvapJumps3d(solnData(DFUN_VAR, :, :, :), &
-                              facexData(mph_iJumpVar, :, :, :), &
-                              faceyData(mph_iJumpVar, :, :, :), &
-                              facezData(mph_iJumpVar, :, :, :), &
-                              solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
-                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                              GRID_ILO_GC, GRID_IHI_GC, &
-                              GRID_JLO_GC, GRID_JHI_GC, &
-                              GRID_KLO_GC, GRID_KHI_GC)
+   call mph_setEvapJumps3d(solnData(DFUN_VAR, :, :, :), &
+                           facexData(mph_iJumpVar, :, :, :), &
+                           faceyData(mph_iJumpVar, :, :, :), &
+                           facezData(mph_iJumpVar, :, :, :), &
+                           solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
+                           del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                           GRID_ILO_GC, GRID_IHI_GC, &
+                           GRID_JLO_GC, GRID_JHI_GC, &
+                           GRID_KLO_GC, GRID_KHI_GC)
 #endif
 
 #endif
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call tileDesc%releaseDataPtr(facexData, FACEX)
-      call tileDesc%releaseDataPtr(faceyData, FACEY)
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
 #if NDIM == MDIM
-      call tileDesc%releaseDataPtr(facezData, FACEZ)
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)
 
    call Timers_stop("Multiphase_setPressureJumps")
 

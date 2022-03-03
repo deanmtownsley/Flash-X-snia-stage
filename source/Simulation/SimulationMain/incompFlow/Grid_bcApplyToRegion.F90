@@ -33,11 +33,11 @@
 !!
 !!
 !!
-!! DESCRIPTION 
+!! DESCRIPTION
 !!
 !!  Applies the boundary conditions to the specified data structure.
 !!  The routine is handed a region that has been extracted from the
-!!  data structure, on which it should apply the boundary conditions. 
+!!  data structure, on which it should apply the boundary conditions.
 !!  The direction along which the BC are to be applied is always the first
 !!  dimension in the given region, and the last dimension contains the
 !!  the variables in the data structure. The middle two dimension contain
@@ -46,17 +46,17 @@
 !!
 !!  This routine applies the boundary conditions on a given face (lowerface
 !!  or upperface) along a given axis, by using and setting values
-!!  for all variables in the gridDataStruct that are not masked out. The 
+!!  for all variables in the gridDataStruct that are not masked out. The
 !!  argument "mask" has the information about the masked variables.
-!! 
+!!
 !!   Where masked(variables)
-!!     If (face=LOW)  
+!!     If (face=LOW)
 !!       regionData(1:guard,:,:,variables) =  boundary values
-!!     If (face=HIGH) 
+!!     If (face=HIGH)
 !!       regionData(regionSize(BC_DIR)-guard+1:regionSize(BC_DIR),:,:,variables) =  boundary values
 !!
 !!
-!! ARGUMENTS 
+!! ARGUMENTS
 !!
 !!  bcType - the type of boundary condition being applied.
 !!  gridDataStruct - the Grid dataStructure, should be given as
@@ -67,9 +67,9 @@
 !!  axis  - the direction along which to apply boundary conditions,
 !!          can take values of IAXIS, JAXIS and KAXIS
 !!  face    -  can take values LOW and HIGH, defined in constants.h,
-!!             to indicate whether to apply boundary on lowerface or 
+!!             to indicate whether to apply boundary on lowerface or
 !!             upperface
-!!  regionData     : the extracted region from a block of permanent storage of the 
+!!  regionData     : the extracted region from a block of permanent storage of the
 !!                   specified data structure. Its size is given by regionSize.
 !!                     NOTE that the first three dimensions of this array do not necessarily
 !!                     correspond to the (IAXIS, JAXIS, KAXIS) directions in this order;
@@ -93,7 +93,7 @@
 !!         an implementation may ignore.
 !!         Specifying a mask does not mean that previous values of other variables in
 !!         guard cells will be left undisturbed.
-!!  applied - is set true if this routine has handled the given bcType, otherwise it is 
+!!  applied - is set true if this routine has handled the given bcType, otherwise it is
 !!            set to false.
 !!
 !!  secondDir,thirdDir -   Second and third coordinate directions.
@@ -137,7 +137,7 @@
 !!          argument.  As of FLASH 3.1, it is only used internally within the
 !!          Grid unit by a Multigrid GridSolver implementation.
 !!
-!!  NOTES 
+!!  NOTES
 !!
 !!   (1)      NOTE that the second index of the endPoints
 !!            array counts the (IAXIS, JAXIS, KAXIS)
@@ -151,922 +151,920 @@
 !!
 !!   (3)      This routine is common to all the mesh packages supported.
 !!            The mesh packages extract the small arrays relevant to
-!!            boundary condition calculations from their Grid data 
-!!            structures. 
+!!            boundary condition calculations from their Grid data
+!!            structures.
 !!
 !!***
 
-subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
-          guard,axis,face,regionData,regionSize,mask,applied,&
-          secondDir,thirdDir,endPoints,idest)
+subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
+                                guard, axis, face, regionData, regionSize, mask, applied, &
+                                secondDir, thirdDir, endPoints, idest)
 
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface,         ONLY : Driver_abort
-  use gr_bcInterface,           ONLY : gr_bcMapBcType
-  use Grid_interface,           ONLY : Grid_getGeometry,Grid_getDeltas
-  use Grid_data,                ONLY : gr_dirGeom,gr_smallrho,gr_smallE
-  use Grid_tile,                ONLY : Grid_tile_t
-  use Driver_interface,         ONLY : Driver_getDt
-  use IncompNS_interface,       ONLY : IncompNS_getScalarProp
+   use Driver_interface, ONLY: Driver_abort
+   use gr_bcInterface, ONLY: gr_bcMapBcType
+   use Grid_interface, ONLY: Grid_getGeometry, Grid_getDeltas
+   use Grid_data, ONLY: gr_dirGeom, gr_smallrho, gr_smallE
+   use Grid_tile, ONLY: Grid_tile_t
+   use Driver_interface, ONLY: Driver_getDt
+   use IncompNS_interface, ONLY: IncompNS_getScalarProp
 
-  implicit none
- 
-  integer, intent(IN) :: bcType,axis,face,guard,gridDataStruct, level
-  integer,dimension(REGION_DIM),intent(IN) :: regionSize
-  real,dimension(regionSize(BC_DIR),&
-       regionSize(SECOND_DIR),&
-       regionSize(THIRD_DIR),&
-       regionSize(STRUCTSIZE)),intent(INOUT)::regionData
-  logical,intent(IN),dimension(regionSize(STRUCTSIZE)):: mask
-  logical, intent(OUT) :: applied
-  integer,intent(IN) :: secondDir,thirdDir
-  integer,intent(IN),dimension(LOW:HIGH,MDIM) :: endPoints
-  integer,intent(IN),OPTIONAL:: idest
+   implicit none
 
-  integer :: geometry
-  integer :: i,j, k,ivar,je,ke,n,varCount,bcTypeActual
-  logical :: isFace
-  integer :: sign
-  integer :: ia,ib,ja,jb,ka,kb,jd,kd
-  real, dimension(MDIM)  :: del
-  real :: dt
-  real,dimension(regionSize(BC_DIR),&
-                 regionSize(SECOND_DIR),&
-                 regionSize(THIRD_DIR),&
-                 MDIM) :: coordinates
-  logical :: predcorrflg
-  real, dimension(LOW:HIGH,MDIM) :: outflowVel
-  real :: invReynolds
+   integer, intent(IN) :: bcType, axis, face, guard, gridDataStruct, level
+   integer, dimension(REGION_DIM), intent(IN) :: regionSize
+   real, dimension(regionSize(BC_DIR), &
+                   regionSize(SECOND_DIR), &
+                   regionSize(THIRD_DIR), &
+                   regionSize(STRUCTSIZE)), intent(INOUT)::regionData
+   logical, intent(IN), dimension(regionSize(STRUCTSIZE)):: mask
+   logical, intent(OUT) :: applied
+   integer, intent(IN) :: secondDir, thirdDir
+   integer, intent(IN), dimension(LOW:HIGH, MDIM) :: endPoints
+   integer, intent(IN), OPTIONAL:: idest
 
-  ! Following implementations are written by Akash
+   integer :: geometry
+   integer :: i, j, k, ivar, je, ke, n, varCount, bcTypeActual
+   logical :: isFace
+   integer :: sign
+   integer :: ia, ib, ja, jb, ka, kb, jd, kd
+   real, dimension(MDIM)  :: del
+   real :: dt
+   real, dimension(regionSize(BC_DIR), &
+                   regionSize(SECOND_DIR), &
+                   regionSize(THIRD_DIR), &
+                   MDIM) :: coordinates
+   logical :: predcorrflg
+   real, dimension(LOW:HIGH, MDIM) :: outflowVel
+   real :: invReynolds
 
-  select case (bcType)
-  case(NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS) ! Incompressible solver BCs
-     applied = .TRUE.           !will handle these types of BCs below
-  case default
-     applied = .FALSE.
-     return                     !RETURN immediately!
-  end select
+   ! Following implementations are written by Akash
 
-  je=regionSize(SECOND_DIR)
-  ke=regionSize(THIRD_DIR)
-  varCount=regionSize(STRUCTSIZE)
+   select case (bcType)
+   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS) ! Incompressible solver BCs
+      applied = .TRUE.           !will handle these types of BCs below
+   case default
+      applied = .FALSE.
+      return                     !RETURN immediately!
+   end select
 
-  isFace = (gridDataStruct==FACEX).and.(axis==IAXIS)
-  isFace = isFace.or.((gridDataStruct==FACEY).and.(axis==JAXIS))
-  isFace = isFace.or.((gridDataStruct==FACEZ).and.(axis==KAXIS))
+   je = regionSize(SECOND_DIR)
+   ke = regionSize(THIRD_DIR)
+   varCount = regionSize(STRUCTSIZE)
 
-  call Driver_getDt(dt)
-  call Grid_getDeltas(level,del)
-  call IncompNS_getScalarProp("Reynolds_Number",invReynolds)
-  call IncompNS_getScalarProp("Pred_Corr_Flag",predcorrflg)
-  call IncompNS_getVectorProp("Outflow_Vel_Low",outflowVel(LOW,:))
-  call IncompNS_getVectorProp("Outflow_Vel_High",outflowVel(HIGH,:))
-  call gr_bcGetCoords_internal
+   isFace = (gridDataStruct == FACEX) .and. (axis == IAXIS)
+   isFace = isFace .or. ((gridDataStruct == FACEY) .and. (axis == JAXIS))
+   isFace = isFace .or. ((gridDataStruct == FACEZ) .and. (axis == KAXIS))
 
-  do ivar = 1,varCount
+   call Driver_getDt(dt)
+   call Grid_getDeltas(level, del)
+   call IncompNS_getScalarProp("Reynolds_Number", invReynolds)
+   call IncompNS_getScalarProp("Pred_Corr_Flag", predcorrflg)
+   call IncompNS_getVectorProp("Outflow_Vel_Low", outflowVel(LOW, :))
+   call IncompNS_getVectorProp("Outflow_Vel_High", outflowVel(HIGH, :))
+   call gr_bcGetCoords_internal
+
+   do ivar = 1, varCount
 #ifdef TEMP_VAR
-    if(gridDataStruct == CENTER .and. ivar == TEMP_VAR) cycle
+      if (gridDataStruct == CENTER .and. ivar == TEMP_VAR) cycle
 #endif
 #ifdef DFUN_VAR
-    if(gridDataStruct == CENTER .and. ivar == DFUN_VAR) cycle
+      if (gridDataStruct == CENTER .and. ivar == DFUN_VAR) cycle
 #endif
-    if(mask(ivar)) then
-       call gr_bcMapBcType(bcTypeActual,bcType,ivar,gridDataStruct,axis,face,idest)
+      if (mask(ivar)) then
+         call gr_bcMapBcType(bcTypeActual, bcType, ivar, gridDataStruct, axis, face, idest)
 
-       if(face == LOW) then
-         select case(bcTypeActual)
-         !--------------------------------------------------------------------------------------------------
-         case(NEUMANN_INS) ! face == LOW
+         if (face == LOW) then
+            select case (bcTypeActual)
+               !--------------------------------------------------------------------------------------------------
+            case (NEUMANN_INS) ! face == LOW
 
-           if(gridDataStruct == CENTER) then
-      
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
-                 end do
+               if (gridDataStruct == CENTER) then
+
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+
+                  end if
+
                end if
-    
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (NOSLIP_INS) ! face == LOW
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                      end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif               
-               else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-
-                endif 
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(NOSLIP_INS) ! face == LOW
-           if(gridDataStruct == CENTER) then
- 
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (SLIP_INS) ! face == LOW
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                      end do
-                 else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                          
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(SLIP_INS) ! face == LOW
-           if(gridDataStruct == CENTER) then
-             
-                if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (MOVLID_INS) ! face == LOW
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                      end do
-                 else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                           
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(MOVLID_INS) ! face == LOW
-           if(gridDataStruct == CENTER) then
-             
-                if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 2.-regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (INFLOW_INS) ! face == LOW
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
-                     end do                           
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 2. -regionData(k-i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                      end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif               
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(INFLOW_INS) ! face == LOW
-           if(gridDataStruct == CENTER) then
-             
-                if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 1.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 2.-regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (OUTFLOW_INS) ! face == LOW
+               call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
+               !--------------------------------------------------------------------------------------------------
+            case default ! face == LOW
+               call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
+            end select
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 1.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 2. - regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = -regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                             
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
+         else ! face == HIGH
 
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(OUTFLOW_INS) ! face == LOW
-           call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
-         !--------------------------------------------------------------------------------------------------
-         case default ! face == LOW
-           call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
-         end select
+            select case (bcTypeActual)
+               !--------------------------------------------------------------------------------------------------
+            case (NEUMANN_INS) ! face == HIGH
 
-       else ! face == HIGH
+               if (gridDataStruct == CENTER) then
 
-         select case(bcTypeActual)
-         !--------------------------------------------------------------------------------------------------
-         case(NEUMANN_INS) ! face == HIGH
-
-           if(gridDataStruct == CENTER) then
-      
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
-                 end do
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                     end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+
+                  end if
+
                end if
-    
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (NOSLIP_INS) ! face == HIGH
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif               
-               else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-
-                endif 
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(NOSLIP_INS) ! face == HIGH
-           if(gridDataStruct == CENTER) then
-             
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (SLIP_INS) ! face == HIGH
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
-                 else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                          
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(SLIP_INS) ! face == HIGH
-           if(gridDataStruct == CENTER) then
- 
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-               
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (MOVLID_INS) ! face == HIGH
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
-                 else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                          
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(MOVLID_INS) ! face == HIGH
-           if(gridDataStruct == CENTER) then
- 
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
-               end if            
-   
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
-                     end do
-                 else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 2. -regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                          
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
-           end if
-         !-------------------------------------------------------------------------------------------------- 
-         case(INFLOW_INS) ! face == HIGH
-           if(gridDataStruct == CENTER) then
- 
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
-#ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 2.-regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-               
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (INFLOW_INS) ! face == HIGH
+               if (gridDataStruct == CENTER) then
 
-               if(ivar == VELC_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = -1.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -2. - regionData(i,1:je,1:ke,ivar)
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
-                     end do
-                  endif
-#endif                                          
-                else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
-                end if
-
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case(OUTFLOW_INS) ! face == HIGH
-
-           if(gridDataStruct == CENTER) then
-      
-               if (ivar == PRES_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = -regionData(i,1:je,1:ke,ivar)
-                 end do
 #ifdef MFLX_VAR
-               else if (ivar == MFLX_VAR) then
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = 0.0
-                 end do
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
+                     end do
 #endif
-               else       
-                 k = 2*guard+1
-                 do i = 1,guard
-                    regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                 end do
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = -1.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -2.-regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
                end if
-    
-           else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+               !--------------------------------------------------------------------------------------------------
+            case (OUTFLOW_INS) ! face == HIGH
 
-               if(ivar == VELC_FACE_VAR) then
-                   if(predcorrflg) then
-                     regionData(guard+1,1:je,1:ke,ivar) = regionData(guard+1,1:je,1:ke,ivar) - &
-                                                         (dt/del(axis))*outflowVel(HIGH,axis)*&
-                                                         (regionData(guard+1,1:je,1:ke,ivar)-&
-                                                          regionData(guard,1:je,1:ke,ivar))
-                   end if
+               if (gridDataStruct == CENTER) then
 
-                   k = 2*guard +1
-                   if(isFace) k = k + 1
-                   do i = guard,1,-1
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(k-i,1:je,1:ke,ivar) - &
-                                                        (dt/del(axis))*outflowVel(HIGH,axis)*&
-                                                        (regionData(k-i,1:je,1:ke,ivar)-&
-                                                         regionData(k-i-1,1:je,1:ke,ivar))
-                   end do
-                  !else
-                  !   if (isFace) then
-                  !      k = 2*guard+2
-                  !      do i = 1,guard
-                  !         regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                  !      end do
-                  !
-                  !   else          
-                  !      k = 2*guard+1
-                  !      do i = 1,guard
-                  !         regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                  !      end do
-                  !   endif
-                  !end if
-#ifdef SIGM_FACE_VAR 
-               else if(ivar == SIGM_FACE_VAR) then
-                  if (isFace) then
-                     regionData(guard+1,1:je,1:ke,ivar) = 0.
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
                      end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = 0.
+#ifdef MFLX_VAR
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = 0.0
                      end do
-                  endif
-#endif               
-               else
-                  if (isFace) then
-                     k = 2*guard+2
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
+#endif
+                  else
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
-              
-                  else          
-                     k = 2*guard+1
-                     do i = 1,guard
-                        regionData(k-i,1:je,1:ke,ivar) = regionData(i,1:je,1:ke,ivar)
-                     end do
-                  endif
+                  end if
 
-                endif 
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
-           end if
-         !--------------------------------------------------------------------------------------------------
-         case default ! face == HIGH
-           call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
-         end select
+                  if (ivar == VELC_FACE_VAR) then
+                     if (predcorrflg) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = regionData(guard + 1, 1:je, 1:ke, ivar) - &
+                                                                  (dt/del(axis))*outflowVel(HIGH, axis)* &
+                                                                  (regionData(guard + 1, 1:je, 1:ke, ivar) - &
+                                                                   regionData(guard, 1:je, 1:ke, ivar))
+                        k = 2*guard + 1
+                        if (isFace) k = k + 1
+                        do i = guard, 1, -1
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar) - &
+                                                                 (dt/del(axis))*outflowVel(HIGH, axis)* &
+                                                                 (regionData(k - i, 1:je, 1:ke, ivar) - &
+                                                                  regionData(k - i - 1, 1:je, 1:ke, ivar))
+                        end do
+                     else
+                        if (isFace) then
+                           k = 2*guard + 2
+                           do i = 1, guard
+                              regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                           end do
 
-       end if ! face 
+                        else
+                           k = 2*guard + 1
+                           do i = 1, guard
+                              regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                           end do
+                        end if
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
 
-    end if ! mask(ivar)
-  end do ! End varCount loop
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+
+                  end if
+
+               end if
+               !--------------------------------------------------------------------------------------------------
+            case default ! face == HIGH
+               call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
+            end select
+
+         end if ! face
+
+      end if ! mask(ivar)
+   end do ! End varCount loop
 
 contains
-  subroutine gr_bcGetCoords_internal
-    use gr_interface, ONLY : gr_getRegionDataCoordinates
+   subroutine gr_bcGetCoords_internal
+      use gr_interface, ONLY: gr_getRegionDataCoordinates
 
-    call gr_getRegionDataCoordinates(level, gridDataStruct, &
-                                     axis, secondDir, thirdDir, &
-                                     regionSize, endPoints, &
-                                     coordinates)
+      call gr_getRegionDataCoordinates(level, gridDataStruct, &
+                                       axis, secondDir, thirdDir, &
+                                       regionSize, endPoints, &
+                                       coordinates)
 
-    if (NDIM .NE. 3) then
-       coordinates(:,:,:,KAXIS) = 0.0
-    end if
+      if (NDIM .NE. 3) then
+         coordinates(:, :, :, KAXIS) = 0.0
+      end if
 
-  end subroutine gr_bcGetCoords_internal
+   end subroutine gr_bcGetCoords_internal
 
 end subroutine Grid_bcApplyToRegion

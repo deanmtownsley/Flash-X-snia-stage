@@ -19,16 +19,16 @@
 !! SYNOPSIS
 !!
 !!  IncompNS_finalize()
-!!  
+!!
 !!
 !! DESCRIPTION
-!! 
+!!
 !!  Finalize unit scope variables which are typically the runtime parameters.
 !!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
 !!  times will not cause any harm but is unnecessary.
 !!
 !!***
 subroutine IncompNS_finalize()
-  implicit none
+   implicit none
 end subroutine IncompNS_finalize
 

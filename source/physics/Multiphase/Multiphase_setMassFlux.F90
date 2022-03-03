@@ -14,6 +14,8 @@
 !!
 !!
 !!***
-subroutine Multiphase_setMassFlux()
-  implicit none
+subroutine Multiphase_setMassFlux(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine Multiphase_setMassFlux

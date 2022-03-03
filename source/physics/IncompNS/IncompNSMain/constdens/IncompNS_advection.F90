@@ -20,122 +20,110 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_advection()
+subroutine IncompNS_advection(tileDesc)
 
-  use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,           ONLY : Grid_tile_t
-  use Grid_iterator,       ONLY : Grid_iterator_t
-  use Timers_interface,    ONLY : Timers_start, Timers_stop
-  use Driver_interface,    ONLY : Driver_getNstep
-  use Stencils_interface,  ONLY : Stencils_advectCentral2d, Stencils_advectCentral3d
-  use IncompNS_data
+   use Grid_tile, ONLY: Grid_tile_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNstep
+   use Stencils_interface, ONLY: Stencils_advectCentral2d, Stencils_advectCentral3d
+   use IncompNS_data
 
 !------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-#if NDIM < MDIM
-  real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData
-  real, dimension(NFACE_VARS,1,1,1) :: facezData
-#else
-  real, pointer, dimension(:,:,:,:) :: solnData, facexData,faceyData,facezData
-#endif
-  real del(MDIM)
-  integer :: NStep
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
 
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+#if NDIM < MDIM
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
+   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
+#else
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+#endif
+   real del(MDIM)
+   integer :: NStep
 
 !------------------------------------------------------------------------------------------
 #if NDIM < MDIM
-  nullify(solnData,facexData,faceyData)
+   nullify (solnData, facexData, faceyData)
 #else
-  nullify(solnData,facexData,faceyData,facezData)
+   nullify (solnData, facexData, faceyData, facezData)
 #endif
-  !
-  call Timers_start("IncompNS_advection")
-  !
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  !
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     blkLimits   = tileDesc%limits
-     blkLimitsGC = tileDesc%blkLimitsGC
-     call tileDesc%deltas(del)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%getDataPtr(facexData, FACEX)
-     call tileDesc%getDataPtr(faceyData, FACEY)
+   !
+   call Timers_start("IncompNS_advection")
+   !
+   blkLimits = tileDesc%limits
+   blkLimitsGC = tileDesc%blkLimitsGC
+   call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
 #if NDIM == 3
-     call tileDesc%getDataPtr(facezData, FACEZ)
-     ! compute RHS of momentum equation
-     call Stencils_advectCentral3d(facexData(RHDS_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
-                                 facezData(VELC_FACE_VAR,:,:,:), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z),&
-                                 GRID_ILO, GRID_IHI+1,&
-                                 GRID_JLO, GRID_JHI,& 
-                                 GRID_KLO, GRID_KHI,&
-                                 center=.false.,facex=.true.,facey=.false.,facez=.false.)
+   call tileDesc%getDataPtr(facezData, FACEZ)
+   ! compute RHS of momentum equation
+   call Stencils_advectCentral3d(facexData(RHDS_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                                 GRID_ILO, GRID_IHI + 1, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI, &
+                                 center=.false., facex=.true., facey=.false., facez=.false.)
 
-     call Stencils_advectCentral3d(faceyData(RHDS_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
-                                 facezData(VELC_FACE_VAR,:,:,:), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z),&
-                                 GRID_ILO, GRID_IHI,&
-                                 GRID_JLO, GRID_JHI+1,& 
-                                 GRID_KLO, GRID_KHI,&
-                                 center=.false.,facex=.false.,facey=.true.,facez=.false.)
+   call Stencils_advectCentral3d(faceyData(RHDS_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI + 1, &
+                                 GRID_KLO, GRID_KHI, &
+                                 center=.false., facex=.false., facey=.true., facez=.false.)
 
-     call Stencils_advectCentral3d(facezData(RHDS_FACE_VAR,:,:,:), &
-                                 facezData(VELC_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
-                                 facezData(VELC_FACE_VAR,:,:,:), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z),&
-                                 GRID_ILO, GRID_IHI,&
-                                 GRID_JLO, GRID_JHI,& 
-                                 GRID_KLO, GRID_KHI+1,&
-                                 center=.false.,facex=.false.,facey=.false.,facez=.true.)
+   call Stencils_advectCentral3d(facezData(RHDS_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI + 1, &
+                                 center=.false., facex=.false., facey=.false., facez=.true.)
 #elif NDIM ==2
-     ! compute RHS of momentum equation
-     call Stencils_advectCentral2d(facexData(RHDS_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
+   ! compute RHS of momentum equation
+   call Stencils_advectCentral2d(facexData(RHDS_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
                                  del(DIR_X), &
                                  del(DIR_Y), &
-                                 GRID_ILO, GRID_IHI+1,&
-                                 GRID_JLO, GRID_JHI,& 
-                                 center=.false.,facex=.true.,facey=.false.)
+                                 GRID_ILO, GRID_IHI + 1, &
+                                 GRID_JLO, GRID_JHI, &
+                                 center=.false., facex=.true., facey=.false.)
 
-     call Stencils_advectCentral2d(faceyData(RHDS_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
-                                 facexData(VELC_FACE_VAR,:,:,:), &
-                                 faceyData(VELC_FACE_VAR,:,:,:), &
+   call Stencils_advectCentral2d(faceyData(RHDS_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
                                  del(DIR_X), &
                                  del(DIR_Y), &
-                                 GRID_ILO, GRID_IHI,&
-                                 GRID_JLO, GRID_JHI+1,& 
-                                 center=.false.,facex=.false.,facey=.true.)
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI + 1, &
+                                 center=.false., facex=.false., facey=.true.)
 
 #endif
-     ! Release pointers:
-     call tileDesc%releaseDataPtr(solnData,  CENTER)
-     call tileDesc%releaseDataPtr(facexData, FACEX)
-     call tileDesc%releaseDataPtr(faceyData, FACEY)
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
 
 #if NDIM ==3
-     call tileDesc%releaseDataPtr(facezData, FACEZ)
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)
 
-  call Timers_stop("IncompNS_advection")
+   call Timers_stop("IncompNS_advection")
 
-  return
+   return
 end subroutine IncompNS_advection

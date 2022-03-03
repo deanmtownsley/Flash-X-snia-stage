@@ -18,32 +18,32 @@
 
 subroutine sim_heaterInit()
 
-  use Simulation_data,             ONLY : sim_meshMe
-  use sim_heaterData
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use sim_heaterInterface,         ONLY : sim_heaterRead
+   use Simulation_data, ONLY: sim_meshMe
+   use sim_heaterData
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use sim_heaterInterface, ONLY: sim_heaterRead
 
-  implicit none
-  character(len=30) :: heaterFile
-  integer           :: htr
+   implicit none
+   character(len=30) :: heaterFile
+   integer           :: htr
 
-  call RuntimeParameters_get('sim_numHeaters',sim_numHeaters)
-  call RuntimeParameters_get('sim_nucSeedRadius', sim_nucSeedRadius)
-  call RuntimeParameters_get('sim_heaterName', sim_heaterName)
-  call RuntimeParameters_get('sim_heaterShowInfo', sim_heaterShowInfo)
+   call RuntimeParameters_get('sim_numHeaters', sim_numHeaters)
+   call RuntimeParameters_get('sim_nucSeedRadius', sim_nucSeedRadius)
+   call RuntimeParameters_get('sim_heaterName', sim_heaterName)
+   call RuntimeParameters_get('sim_heaterShowInfo', sim_heaterShowInfo)
 
-  if (sim_meshMe .eq. MASTER_PE) then
-     write(*,*) 'sim_numHeaters=',sim_numHeaters
-     write(*,*) 'sim_nucSeedRadius=',sim_nucSeedRadius
-  end if
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_numHeaters=', sim_numHeaters
+      write (*, *) 'sim_nucSeedRadius=', sim_nucSeedRadius
+   end if
 
-  allocate(sim_heaterInfo(sim_numHeaters))
+   allocate (sim_heaterInfo(sim_numHeaters))
 
-  do htr=1,sim_numHeaters
-     write(heaterFile,"(A,A,I4.4)") trim(sim_heaterName),'_hdf5_htr_',htr
-     call sim_heaterRead(htr,heaterFile)
-  end do
+   do htr = 1, sim_numHeaters
+      write (heaterFile, "(A,A,I4.4)") trim(sim_heaterName), '_hdf5_htr_', htr
+      call sim_heaterRead(htr, heaterFile)
+   end do
 
-  return
+   return
 
 end subroutine sim_heaterInit

@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/vardens/IncompNS_corrector
+!!****if* source/physics/IncompNS/IncompNSMain/vardens/IncompNS_setupPoisson
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,7 +13,6 @@
 !!
 !!
 !!
-!!
 !!***
 !!REORDER(4): face[xyz]Data
 !!REORDER(4): solnData
@@ -22,17 +21,17 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_corrector(tileDesc, dt)
+subroutine IncompNS_setupPoisson(tileDesc, dt)
 
    use Grid_tile, ONLY: Grid_tile_t
-   use ins_interface, ONLY: ins_corrector_vardens
+   use ins_interface, ONLY: ins_setupPoissonRhs_vardens
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use IncompNS_data
 
    implicit none
    include "Flashx_mpi.h"
-   !-----Argument List-----
+   !---Argument List-------
    real, INTENT(IN) :: dt
    type(Grid_tile_t), INTENT(IN) :: tileDesc
 
@@ -54,15 +53,14 @@ subroutine IncompNS_corrector(tileDesc, dt)
    nullify (solnData, facexData, faceyData, facezData)
 #endif
 
-   call Timers_start("IncompNS_corrector")
+   call Timers_start("IncompNS_setupPoisson")
 
-   call tileDesc%deltas(del)
-
-   ! Get Index Limits:
+   !---POISSON RHS:-------------------------------------------------------------------------------------
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
 
-   ! Point to blocks center and face vars:
+   call tileDesc%deltas(del)
+
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
@@ -71,43 +69,38 @@ subroutine IncompNS_corrector(tileDesc, dt)
    call tileDesc%getDataPtr(facezData, FACEZ)
 #endif
 
-   ! update divergence-free velocities (not on block boundary)
-   call ins_corrector_vardens(facexData(VELC_FACE_VAR, :, :, :), &
-                              faceyData(VELC_FACE_VAR, :, :, :), &
-                              facezData(VELC_FACE_VAR, :, :, :), &
-                              !------------------------------!
-                              facexData(SIGM_FACE_VAR, :, :, :), &
-                              faceyData(SIGM_FACE_VAR, :, :, :), &
-                              facezData(SIGM_FACE_VAR, :, :, :), &
-                              !------------------------------!
-                              facexData(PGN1_FACE_VAR, :, :, :), &
-                              faceyData(PGN1_FACE_VAR, :, :, :), &
-                              facezData(PGN1_FACE_VAR, :, :, :), &
-                              !------------------------------!
-                              facexData(PGN2_FACE_VAR, :, :, :), &
-                              faceyData(PGN2_FACE_VAR, :, :, :), &
-                              facezData(PGN2_FACE_VAR, :, :, :), &
-                              !------------------------------!
-                              facexData(RHOF_FACE_VAR, :, :, :), &
-                              faceyData(RHOF_FACE_VAR, :, :, :), &
-                              facezData(RHOF_FACE_VAR, :, :, :), &
-                              !------------------------------!
-                              solnData(PRES_VAR, :, :, :), &
-                              ins_rhoGas, dt, del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI)
+   call ins_setupPoissonRhs_vardens(solnData(DUST_VAR, :, :, :), &
+                                    facexData(SIGM_FACE_VAR, :, :, :), &
+                                    faceyData(SIGM_FACE_VAR, :, :, :), &
+                                    facezData(SIGM_FACE_VAR, :, :, :), &
+                                    !------------------------------!
+                                    facexData(PGN1_FACE_VAR, :, :, :), &
+                                    faceyData(PGN1_FACE_VAR, :, :, :), &
+                                    facezData(PGN1_FACE_VAR, :, :, :), &
+                                    !------------------------------!
+                                    facexData(PGN2_FACE_VAR, :, :, :), &
+                                    faceyData(PGN2_FACE_VAR, :, :, :), &
+                                    facezData(PGN2_FACE_VAR, :, :, :), &
+                                    !------------------------------!
+                                    facexData(RHOF_FACE_VAR, :, :, :), &
+                                    faceyData(RHOF_FACE_VAR, :, :, :), &
+                                    facezData(RHOF_FACE_VAR, :, :, :), &
+                                    !------------------------------!
+                                    ins_rhoGas, dt, &
+                                    del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                                    GRID_ILO, GRID_IHI, &
+                                    GRID_JLO, GRID_JHI, &
+                                    GRID_KLO, GRID_KHI)
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
-
 #if NDIM ==3
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
-   call Timers_stop("IncompNS_corrector")
+   call Timers_stop("IncompNS_setupPoisson")
 
    return
-end subroutine IncompNS_corrector
+end subroutine IncompNS_setupPoisson

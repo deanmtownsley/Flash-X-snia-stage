@@ -17,98 +17,98 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToFace(level,ivar,gridDataStruct,regionData,coordinates,regionSize,&
-                                   guard,face,axis,secondDir,thirdDir)
+subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                   guard, face, axis, secondDir, thirdDir)
 
-  use sim_heaterData
-  use Grid_interface, ONLY : Grid_getDeltas
+   use sim_heaterData
+   use Grid_interface, ONLY: Grid_getDeltas
 
-  implicit none
-  integer, intent(IN) :: level,ivar,gridDataStruct
-  integer,dimension(REGION_DIM),intent(IN) :: regionSize
-  real,dimension(regionSize(BC_DIR),&
-       regionSize(SECOND_DIR),&
-       regionSize(THIRD_DIR),&
-       regionSize(STRUCTSIZE)),intent(INOUT) :: regionData
-  real,dimension(regionSize(BC_DIR),&
-                 regionSize(SECOND_DIR),&
-                 regionSize(THIRD_DIR),&
-                 MDIM), intent(IN) :: coordinates
-  integer, intent(IN) :: guard,face,axis,secondDir,thirdDir
+   implicit none
+   integer, intent(IN) :: level, ivar, gridDataStruct
+   integer, dimension(REGION_DIM), intent(IN) :: regionSize
+   real, dimension(regionSize(BC_DIR), &
+                   regionSize(SECOND_DIR), &
+                   regionSize(THIRD_DIR), &
+                   regionSize(STRUCTSIZE)), intent(INOUT) :: regionData
+   real, dimension(regionSize(BC_DIR), &
+                   regionSize(SECOND_DIR), &
+                   regionSize(THIRD_DIR), &
+                   MDIM), intent(IN) :: coordinates
+   integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
 !-------------------------------------------------------------------------------------------
-  integer :: je,ke
-  integer :: i,j,k,htr,offset
-  type(sim_heaterType), pointer :: heater
-  real, dimension(MDIM)  :: del
-  real :: dynamicAngle,veli
+   integer :: je, ke
+   integer :: i, j, k, htr, offset
+   type(sim_heaterType), pointer :: heater
+   real, dimension(MDIM)  :: del
+   real :: dynamicAngle, veli
 
-  call Grid_getDeltas(level,del)
+   call Grid_getDeltas(level, del)
 
-  je=regionSize(SECOND_DIR)
-  ke=regionSize(THIRD_DIR)
+   je = regionSize(SECOND_DIR)
+   ke = regionSize(THIRD_DIR)
 
-  offset = 2*guard+1
+   offset = 2*guard + 1
 
-  if (ivar == TEMP_VAR) then
-     do k=1,ke
-      do j=1,je
-       do i=1,guard
-        do htr=1,sim_numHeaters
+   if (ivar == TEMP_VAR) then
+      do k = 1, ke
+         do j = 1, je
+            do i = 1, guard
+               do htr = 1, sim_numHeaters
 
-           heater => sim_heaterInfo(htr)
+                  heater => sim_heaterInfo(htr)
 
-           if(coordinates(i,j,k,IAXIS) .gt. heater%xMin .and. &
-              coordinates(i,j,k,IAXIS) .lt. heater%xMax .and. &
-              coordinates(i,j,k,KAXIS) .gt. heater%zMin .and. &
-              coordinates(i,j,k,KAXIS) .lt. heater%zMax) then
+                  if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
+                      coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
+                      coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
+                      coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
-              regionData(i,j,k,ivar) = 2*heater%wallTemp - regionData(offset-i,j,k,ivar)
+                     regionData(i, j, k, ivar) = 2*heater%wallTemp - regionData(offset - i, j, k, ivar)
 
-           end if
+                  end if
 
-        end do
-       end do
+               end do
+            end do
+         end do
       end do
-     end do
-  
+
    else if (ivar == DFUN_VAR) then
-     do k=1,ke
-      do j=1,je
-       do i=1,guard
-        do htr=1,sim_numHeaters
+      do k = 1, ke
+         do j = 1, je
+            do i = 1, guard
+               do htr = 1, sim_numHeaters
 
-           heater => sim_heaterInfo(htr)
+                  heater => sim_heaterInfo(htr)
 
-           if(coordinates(i,j,k,IAXIS) .gt. heater%xMin .and. &
-              coordinates(i,j,k,IAXIS) .lt. heater%xMax .and. &
-              coordinates(i,j,k,KAXIS) .gt. heater%zMin .and. &
-              coordinates(i,j,k,KAXIS) .lt. heater%zMax) then
+                  if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
+                      coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
+                      coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
+                      coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
-              dynamicAngle = heater%rcdAngle
+                     dynamicAngle = heater%rcdAngle
 
-              veli = regionData(guard+1,j,k,VELX_VAR)*regionData(guard+1,j,k,NRMX_VAR)
+                     veli = regionData(guard + 1, j, k, VELX_VAR)*regionData(guard + 1, j, k, NRMX_VAR)
 #if NDIM == MDIM
-              veli = veli + regionData(guard+1,j,k,VELZ_VAR)*regionData(guard+1,j,k,NRMZ_VAR)
+                     veli = veli + regionData(guard + 1, j, k, VELZ_VAR)*regionData(guard + 1, j, k, NRMZ_VAR)
 #endif
-              if(veli .ge. 0.0) then
-               if(abs(veli) .le. heater%velContact) then
-                   dynamicAngle = ((heater%advAngle - heater%rcdAngle)/(2*heater%velContact))*abs(veli) + &
-                                   (heater%advAngle + heater%rcdAngle)/2.0d0
-                else
-                   dynamicAngle = heater%advAngle
-                end if
-              end if
-             
-              regionData(i,j,k,ivar) = regionData(offset-i,j,k,ivar) - del(axis)*cos(dynamicAngle*acos(-1.0)/180)
+                     if (veli .ge. 0.0) then
+                        if (abs(veli) .le. heater%velContact) then
+                           dynamicAngle = ((heater%advAngle - heater%rcdAngle)/(2*heater%velContact))*abs(veli) + &
+                                          (heater%advAngle + heater%rcdAngle)/2.0d0
+                        else
+                           dynamicAngle = heater%advAngle
+                        end if
+                     end if
 
-           end if
+                     regionData(i, j, k, ivar) = regionData(offset - i, j, k, ivar) - del(axis)*cos(dynamicAngle*acos(-1.0)/180)
 
-        end do
-       end do
+                  end if
+
+               end do
+            end do
+         end do
       end do
-     end do
-  
-  end if
+
+   end if
 
 end subroutine sim_heaterApplyBCToFace

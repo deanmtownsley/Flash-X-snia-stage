@@ -21,42 +21,36 @@
 #include "HeatAD.h"
 #include "Simulation.h"
 
-subroutine HeatAD_reInitGridVars()
+subroutine HeatAD_reInitGridVars(tileDesc)
 
-  use Grid_interface,   ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,        ONLY : Grid_tile_t
-  use Grid_iterator,    ONLY : Grid_iterator_t
-  use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Driver_interface, ONLY : Driver_getNStep
-  use HeatAD_data
+   use Grid_tile, ONLY: Grid_tile_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use HeatAD_data
 
 !------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer, dimension(:,:,:,:) :: solnData
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
+
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
 
 !------------------------------------------------------------------------------------------
-  nullify(solnData)
+   nullify (solnData)
 
-  call Timers_start("HeatAD_reInitGridVars")
+   call Timers_start("HeatAD_reInitGridVars")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     solnData(ALPH_VAR,:,:,:) = 1.
-     solnData(RHST_VAR,:,:,:) = 0.
-     solnData(TFRC_VAR,:,:,:) = 0.
-     ! Release pointers:
-     call tileDesc%releaseDataPtr(solnData,  CENTER)
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)  
+   call tileDesc%getDataPtr(solnData, CENTER)
 
-  call Timers_stop("HeatAD_reInitGridVars")
+   solnData(ALPH_VAR, :, :, :) = 1.
+   solnData(RHST_VAR, :, :, :) = 0.
+   solnData(TFRC_VAR, :, :, :) = 0.
 
-  return
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+
+   call Timers_stop("HeatAD_reInitGridVars")
+
+   return
 end subroutine HeatAD_reInitGridVars

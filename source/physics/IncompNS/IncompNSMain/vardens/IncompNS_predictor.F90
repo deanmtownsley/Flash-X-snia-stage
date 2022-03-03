@@ -20,97 +20,88 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_predictor(dt)
+subroutine IncompNS_predictor(tileDesc, dt)
 
-  use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,           ONLY : Grid_tile_t
-  use Grid_iterator,       ONLY : Grid_iterator_t
-  use Timers_interface,    ONLY : Timers_start, Timers_stop
-  use Driver_interface,    ONLY : Driver_getNStep
-  use Stencils_interface,  ONLY : Stencils_integrateEuler
-  use IncompNS_data
+   use Grid_tile, ONLY: Grid_tile_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Stencils_interface, ONLY: Stencils_integrateEuler
+   use IncompNS_data
 
-  implicit none
-  include "Flashx_mpi.h"
-  !-----Argument-List-----!
-  real,    INTENT(IN) :: dt 
+   implicit none
+   include "Flashx_mpi.h"
+   !-----Argument-List-----!
+   real, INTENT(IN) :: dt
+   type(Grid_tile_t), INTENT(IN) :: tileDesc
 
 !------------------------------------------------------------------------------------------
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
 #if NDIM < MDIM
-  real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData
-  real, dimension(NFACE_VARS,1,1,1) :: facezData
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
+   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
 #else
-  real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
 #endif
-  real del(MDIM)
-  integer :: NStep
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
+   real del(MDIM)
+   integer :: NStep
 
 !------------------------------------------------------------------------------------------
 #if NDIM < MDIM
-  nullify(solnData,facexData,faceyData)
+   nullify (solnData, facexData, faceyData)
 #else
-  nullify(solnData,facexData,faceyData,facezData)
+   nullify (solnData, facexData, faceyData, facezData)
 #endif
-  !
-  call Timers_start("IncompNS_predictor")
-  !
-  !------------------------------------------------------------------------------------------------------
-  ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:
-  ! ------- ----- ---- ---- --- --------- ----
-  !------------------------------------------------------------------------------------------------------
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  !
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     blkLimits   = tileDesc%limits
-     blkLimitsGC = tileDesc%blkLimitsGC
-     call tileDesc%deltas(del)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%getDataPtr(facexData, FACEX)
-     call tileDesc%getDataPtr(faceyData, FACEY)
+   !
+   call Timers_start("IncompNS_predictor")
+   !
+   !------------------------------------------------------------------------------------------------------
+   ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:
+   ! ------- ----- ---- ---- --- --------- ----
+   !------------------------------------------------------------------------------------------------------
+   blkLimits = tileDesc%limits
+   blkLimitsGC = tileDesc%blkLimitsGC
 
-     call Stencils_integrateEuler(facexData(VELC_FACE_VAR,:,:,:),&
-                                  facexData(RHDS_FACE_VAR,:,:,:),&
-                                  dt,&
-                                  GRID_ILO,GRID_IHI+1,&
-                                  GRID_JLO,GRID_JHI,&
-                                  GRID_KLO,GRID_KHI,&
-                                  iSource=-ins_dpdx+ins_gravX)
+   call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
 
-     call Stencils_integrateEuler(faceyData(VELC_FACE_VAR,:,:,:),&
-                                  faceyData(RHDS_FACE_VAR,:,:,:),&
-                                  dt,&
-                                  GRID_ILO,GRID_IHI,&
-                                  GRID_JLO,GRID_JHI+1,&
-                                  GRID_KLO,GRID_KHI,&
-                                  iSource=-ins_dpdy+ins_gravY)
+   call Stencils_integrateEuler(facexData(VELC_FACE_VAR, :, :, :), &
+                                facexData(RHDS_FACE_VAR, :, :, :), &
+                                dt, &
+                                GRID_ILO, GRID_IHI + 1, &
+                                GRID_JLO, GRID_JHI, &
+                                GRID_KLO, GRID_KHI, &
+                                iSource=-ins_dpdx + ins_gravX)
 
-     ! Release pointers:
-     call tileDesc%releaseDataPtr(solnData,  CENTER)
-     call tileDesc%releaseDataPtr(facexData, FACEX)
-     call tileDesc%releaseDataPtr(faceyData, FACEY)
+   call Stencils_integrateEuler(faceyData(VELC_FACE_VAR, :, :, :), &
+                                faceyData(RHDS_FACE_VAR, :, :, :), &
+                                dt, &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI + 1, &
+                                GRID_KLO, GRID_KHI, &
+                                iSource=-ins_dpdy + ins_gravY)
+
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
 
 #if NDIM ==3
-     call tileDesc%getDataPtr(facezData, FACEZ)
+   call tileDesc%getDataPtr(facezData, FACEZ)
 
-     call Stencils_integrateEuler(facezData(VELC_FACE_VAR,:,:,:),&
-                                  facezData(RHDS_FACE_VAR,:,:,:),&
-                                  dt,&
-                                  GRID_ILO,GRID_IHI,&
-                                  GRID_JLO,GRID_JHI,&
-                                  GRID_KLO,GRID_KHI+1,&
-                                  iSource=-ins_dpdz+ins_gravZ)
+   call Stencils_integrateEuler(facezData(VELC_FACE_VAR, :, :, :), &
+                                facezData(RHDS_FACE_VAR, :, :, :), &
+                                dt, &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI, &
+                                GRID_KLO, GRID_KHI + 1, &
+                                iSource=-ins_dpdz + ins_gravZ)
 
-     call tileDesc%releaseDataPtr(facezData, FACEZ)
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)
 
-  call Timers_stop("IncompNS_predictor")
+   call Timers_stop("IncompNS_predictor")
 
-  return
+   return
 end subroutine IncompNS_predictor

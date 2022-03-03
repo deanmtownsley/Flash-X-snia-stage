@@ -15,6 +15,6 @@
 !!
 !!***
 subroutine IncompNS_indicators()
-  implicit none
-  return
+   implicit none
+   return
 end subroutine IncompNS_indicators

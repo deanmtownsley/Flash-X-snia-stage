@@ -12,25 +12,25 @@
 !!  limitations under the License.
 !!
 !!**
-subroutine ins_setupPoissonRhs_constdens(divu,dt)
-        implicit none
-        real, dimension(:,:,:), intent(inout) :: divu
-        real, intent(in) :: dt
+subroutine ins_setupPoissonRhs_constdens(divu, dt)
+   implicit none
+   real, dimension(:, :, :), intent(inout) :: divu
+   real, intent(in) :: dt
 end subroutine ins_setupPoissonRhs_constdens
 
-subroutine ins_setupPoissonRhs_vardens(divu,&
-                                  sigx,sigy,sigz,&
-                                  pxn1,pyn1,pzn1,&
-                                  pxn2,pyn2,pzn2,&
-                                  rhox,rhoy,rhoz,&
-                                  rhoGas,dt,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2)
+subroutine ins_setupPoissonRhs_vardens(divu, &
+                                       sigx, sigy, sigz, &
+                                       pxn1, pyn1, pzn1, &
+                                       pxn2, pyn2, pzn2, &
+                                       rhox, rhoy, rhoz, &
+                                       rhoGas, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 
-        implicit none
-        real, dimension(:,:,:), intent(inout) :: divu
-        real, dimension(:,:,:), intent(in) :: sigx,sigy,sigz
-        real, dimension(:,:,:), intent(in) :: rhox,rhoy,rhoz,pxn1,pyn1,pzn1,&
-                                              pxn2,pyn2,pzn2        
-        integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-        real, intent(in) :: dt,dx,dy,dz,rhoGas
+   implicit none
+   real, dimension(:, :, :), intent(inout) :: divu
+   real, dimension(:, :, :), intent(in) :: sigx, sigy, sigz
+   real, dimension(:, :, :), intent(in) :: rhox, rhoy, rhoz, pxn1, pyn1, pzn1, &
+                                           pxn2, pyn2, pzn2
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, intent(in) :: dt, dx, dy, dz, rhoGas
 end subroutine ins_setupPoissonRhs_vardens
 

@@ -29,43 +29,42 @@
 !!  This stores data and limiter functions that are specific to the Multiphase module.
 !!
 !!***
- 
- 
+
 module Multiphase_data
 
 #include "Simulation.h"
 #include "constants.h"
 
-  logical, save :: mph_useMultiphase
+   logical, save :: mph_useMultiphase
 
-  real, save :: mph_rhoGas
-  real, save :: mph_muGas
-  real, save :: mph_invWeber
-  real, save :: mph_Tsat
-  real, save :: mph_thcoGas
-  real, save :: mph_CpGas
+   real, save :: mph_rhoGas
+   real, save :: mph_muGas
+   real, save :: mph_invWeber
+   real, save :: mph_Tsat
+   real, save :: mph_thcoGas
+   real, save :: mph_CpGas
 
-  real, save :: mph_crmx, mph_crmn
+   real, save :: mph_crmx, mph_crmn
 
-  integer, save :: mph_lsIt,mph_extpIt
+   integer, save :: mph_lsIt, mph_extpIt
 
-  integer, save :: mph_meshMe
-  integer, save :: mph_meshNumProcs
-  integer, save :: mph_meshComm
-  integer, save :: mph_nstep
+   integer, save :: mph_meshMe
+   integer, save :: mph_meshNumProcs
+   integer, save :: mph_meshComm
+   integer, save :: mph_nstep
 
-  real, save :: mph_alfa
-  real, save :: mph_rhoa
-  real, save :: mph_gama
+   real, save :: mph_alfa
+   real, save :: mph_rhoa
+   real, save :: mph_gama
 
-  integer, save :: mph_iVelFVar,mph_iMuCVar,mph_iRhoFVar,& 
-                   mph_iJumpVar,mph_iAlphaCVar
+   integer, save :: mph_iVelFVar, mph_iMuCVar, mph_iRhoFVar, &
+                    mph_iJumpVar, mph_iAlphaCVar
 
-  integer, save :: mph_iTempVar,mph_iGfmVar,mph_iMdotVar,&
-                   mph_iDivCVar
+   integer, save :: mph_iTempVar, mph_iGfmVar, mph_iMdotVar, &
+                    mph_iDivCVar
 
-  real, save :: mph_Stefan, mph_invReynolds, mph_Prandtl
+   real, save :: mph_Stefan, mph_invReynolds, mph_Prandtl
 
-  real, save :: mph_iPropSmear
+   real, save :: mph_iPropSmear
 
 end module Multiphase_data

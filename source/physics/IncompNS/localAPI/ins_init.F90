@@ -15,5 +15,5 @@
 !!
 !!*****
 subroutine ins_init()
-  implicit none
+   implicit none
 end subroutine ins_init
