@@ -72,9 +72,9 @@ subroutine IncompNS_diffusion(tileDesc)
                                 GRID_JLO, GRID_JHI, &
                                 GRID_KLO, GRID_KHI, &
                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                facexData(RHDS_FACE_VAR, :, :, :), &
-                                faceyData(RHDS_FACE_VAR, :, :, :), &
-                                facezData(RHDS_FACE_VAR, :, :, :), &
+                                facexData(HVN0_FACE_VAR, :, :, :), &
+                                faceyData(HVN0_FACE_VAR, :, :, :), &
+                                facezData(HVN0_FACE_VAR, :, :, :), &
                                 solnData(VISC_VAR, :, :, :), &
                                 facexData(RHOF_FACE_VAR, :, :, :), &
                                 faceyData(RHOF_FACE_VAR, :, :, :), &
@@ -88,8 +88,8 @@ subroutine IncompNS_diffusion(tileDesc)
                                 GRID_ILO, GRID_IHI, &
                                 GRID_JLO, GRID_JHI, &
                                 del(DIR_X), del(DIR_Y), &
-                                facexData(RHDS_FACE_VAR, :, :, :), &
-                                faceyData(RHDS_FACE_VAR, :, :, :), &
+                                facexData(HVN0_FACE_VAR, :, :, :), &
+                                faceyData(HVN0_FACE_VAR, :, :, :), &
                                 solnData(VISC_VAR, :, :, :), &
                                 facexData(RHOF_FACE_VAR, :, :, :), &
                                 faceyData(RHOF_FACE_VAR, :, :, :))

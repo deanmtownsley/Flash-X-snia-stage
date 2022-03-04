@@ -47,7 +47,7 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    call tileDesc%getDataPtr(solnData, CENTER)
 
    if (iteration .eq. 1) then
-      solnData(RDFN_VAR, :, :, :) = solnData(DFUN_VAR, :, :, :)
+      solnData(HDN0_VAR, :, :, :) = solnData(DFUN_VAR, :, :, :)
    end if
 
    call tileDesc%deltas(del)
@@ -58,14 +58,14 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    ! Call DFUN re-initialization routine for 2D:
    !--------------------------------------------
    call Stencils_lsRedistance2d(solnData(DFUN_VAR, :, :, :), &
-                                solnData(RDFN_VAR, :, :, :), &
+                                solnData(HDN0_VAR, :, :, :), &
                                 lsDT, del(DIR_X), del(DIR_Y), &
                                 GRID_ILO, GRID_IHI, &
                                 GRID_JLO, GRID_JHI)
 
 #else
    call Stencils_lsRedistance3d(solnData(DFUN_VAR, :, :, :), &
-                                solnData(RDFN_VAR, :, :, :), &
+                                solnData(HDN0_VAR, :, :, :), &
                                 lsDT, del(DIR_X), del(DIR_Y), del(DIR_Z), &
                                 GRID_ILO, GRID_IHI, &
                                 GRID_JLO, GRID_JHI, &

@@ -49,7 +49,7 @@ subroutine HeatAD_advection(tileDesc)
    call tileDesc%getDataPtr(faceyData, FACEY)
    call tileDesc%getDataPtr(facezData, FACEZ)
 
-   call Stencils_advectWeno3d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_advectWeno3d(solnData(HTN0_VAR, :, :, :), &
                               solnData(TEMP_VAR, :, :, :), &
                               facexData(ht_iVelFVar, :, :, :), &
                               faceyData(ht_iVelFVar, :, :, :), &
@@ -69,7 +69,7 @@ subroutine HeatAD_advection(tileDesc)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
 
-   call Stencils_advectWeno2d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_advectWeno2d(solnData(HTN0_VAR, :, :, :), &
                               solnData(TEMP_VAR, :, :, :), &
                               facexData(ht_iVelFVar, :, :, :), &
                               faceyData(ht_iVelFVar, :, :, :), &

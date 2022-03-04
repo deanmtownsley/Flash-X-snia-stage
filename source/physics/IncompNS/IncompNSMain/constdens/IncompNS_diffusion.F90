@@ -63,7 +63,7 @@ subroutine IncompNS_diffusion(tileDesc)
 #if NDIM == 3
    call tileDesc%getDataPtr(facezData, FACEZ)
    ! compute RHS of momentum equation
-   call Stencils_diffusion3d(facexData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_diffusion3d(facexData(HVN0_FACE_VAR, :, :, :), &
                              facexData(VELC_FACE_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
                              ins_invReynolds, &
@@ -71,7 +71,7 @@ subroutine IncompNS_diffusion(tileDesc)
                              GRID_JLO, GRID_JHI, &
                              GRID_KLO, GRID_KHI)
 
-   call Stencils_diffusion3d(faceyData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_diffusion3d(faceyData(HVN0_FACE_VAR, :, :, :), &
                              faceyData(VELC_FACE_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
                              ins_invReynolds, &
@@ -79,7 +79,7 @@ subroutine IncompNS_diffusion(tileDesc)
                              GRID_JLO, GRID_JHI + 1, &
                              GRID_KLO, GRID_KHI)
 
-   call Stencils_diffusion3d(facezData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_diffusion3d(facezData(HVN0_FACE_VAR, :, :, :), &
                              facezData(VELC_FACE_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
                              ins_invReynolds, &
@@ -89,14 +89,14 @@ subroutine IncompNS_diffusion(tileDesc)
 
 #elif NDIM ==2
    ! compute RHS of momentum equation
-   call Stencils_diffusion2d(facexData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_diffusion2d(facexData(HVN0_FACE_VAR, :, :, :), &
                              facexData(VELC_FACE_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
                              ins_invReynolds, &
                              GRID_ILO, GRID_IHI + 1, &
                              GRID_JLO, GRID_JHI)
 
-   call Stencils_diffusion2d(faceyData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_diffusion2d(faceyData(HVN0_FACE_VAR, :, :, :), &
                              faceyData(VELC_FACE_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
                              ins_invReynolds, &

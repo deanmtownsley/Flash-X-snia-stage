@@ -57,8 +57,10 @@ subroutine IncompNS_reInitGridVars(tileDesc)
    faceyData(RHOF_FACE_VAR, :, :, :) = 1.
    facexData(SIGM_FACE_VAR, :, :, :) = 0.
    faceyData(SIGM_FACE_VAR, :, :, :) = 0.
-   facexData(RHDS_FACE_VAR, :, :, :) = 0.
-   faceyData(RHDS_FACE_VAR, :, :, :) = 0.
+   facexData(HVN0_FACE_VAR, :, :, :) = 0.
+   faceyData(HVN0_FACE_VAR, :, :, :) = 0.
+   facexData(VFRC_FACE_VAR, :, :, :) = 0.
+   faceyData(VFRC_FACE_VAR, :, :, :) = 0.
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call tileDesc%releaseDataPtr(facexData, FACEX)
@@ -67,7 +69,8 @@ subroutine IncompNS_reInitGridVars(tileDesc)
    call tileDesc%getDataPtr(facezData, FACEZ)
    facezData(RHOF_FACE_VAR, :, :, :) = 1.
    facezData(SIGM_FACE_VAR, :, :, :) = 0.
-   facezData(RHDS_FACE_VAR, :, :, :) = 0.
+   facezData(HVN0_FACE_VAR, :, :, :) = 0.
+   facezData(VFRC_FACE_VAR, :, :, :) = 0.
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 

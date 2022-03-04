@@ -411,12 +411,10 @@ subroutine Driver_evolveAll()
 
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
-      call Timers_start("Grid_solvePoisson")
       call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
                              bcTypes=ins_pressureBC_types, &
                              bcValues=ins_pressureBC_values, &
                              poisfact=ins_poisfact)
-      call Timers_stop("Grid_solvePoisson")
       !------------------------------------------------------------
 
       ! Fill GuardCells for pressure

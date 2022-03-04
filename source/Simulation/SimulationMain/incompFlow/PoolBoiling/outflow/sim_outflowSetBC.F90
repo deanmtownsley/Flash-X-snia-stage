@@ -53,7 +53,6 @@ subroutine sim_outflowSetBC(dt)
    call Timers_start("sim_outflowSetBC")
 
    velOut = 1.
-   sim_outflowVel = 0.
 
    call Grid_getTileIterator(itor, nodetype=LEAF)
    !
@@ -87,6 +86,8 @@ subroutine sim_outflowSetBC(dt)
       call sim_outflowVelBlk2d(velOut, &
                                facexData(VELC_FACE_VAR, :, :, :), &
                                faceyData(VELC_FACE_VAR, :, :, :), &
+                               facexData(VFRC_FACE_VAR, :, :, :), &
+                               faceyData(VFRC_FACE_VAR, :, :, :), &
                                xCenter, yCenter, boundBox, &
                                dt, del(IAXIS), del(JAXIS), &
                                GRID_ILO_GC, GRID_IHI_GC, &
@@ -107,6 +108,9 @@ subroutine sim_outflowSetBC(dt)
                                facexData(VELC_FACE_VAR, :, :, :), &
                                faceyData(VELC_FACE_VAR, :, :, :), &
                                facezData(VELC_FACE_VAR, :, :, :), &
+                               facexData(VFRC_FACE_VAR, :, :, :), &
+                               faceyData(VFRC_FACE_VAR, :, :, :), &
+                               facezData(VFRC_FACE_VAR, :, :, :), &
                                xCenter, yCenter, zCenter, boundBox, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
                                GRID_ILO_GC, GRID_IHI_GC, &
@@ -123,6 +127,8 @@ subroutine sim_outflowSetBC(dt)
       call itor%next()
    end do
    call Grid_releaseTileIterator(itor)
+
+   sim_outflowVel = 0.
 
    call MPI_Allreduce(velOut, sim_outflowVel(HIGH, JAXIS), 1, FLASH_REAL, &
                       MPI_MAX, MPI_COMM_WORLD, ierr)

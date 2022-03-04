@@ -64,7 +64,7 @@ subroutine Multiphase_advection(tileDesc)
                            GRID_JLO, GRID_JHI)
 #endif
 
-   call Stencils_advectWeno2d(solnData(RDFN_VAR, :, :, :), &
+   call Stencils_advectWeno2d(solnData(HDN0_VAR, :, :, :), &
                               solnData(DFUN_VAR, :, :, :), &
                               facexData(mph_iVelFVar, :, :, :), &
                               faceyData(mph_iVelFVar, :, :, :), &
@@ -104,7 +104,7 @@ subroutine Multiphase_advection(tileDesc)
                            GRID_KLO, GRID_KHI)
 #endif
 
-   call Stencils_advectWeno3d(solnData(RDFN_VAR, :, :, :), &
+   call Stencils_advectWeno3d(solnData(HDN0_VAR, :, :, :), &
                               solnData(DFUN_VAR, :, :, :), &
                               facexData(mph_iVelFVar, :, :, :), &
                               faceyData(mph_iVelFVar, :, :, :), &

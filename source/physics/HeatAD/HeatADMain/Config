@@ -27,5 +27,6 @@ PARAMETER ht_Tbulk              REAL     0.0
 #-----------------------------------------------------------------------
 # Variables
 VARIABLE temp TYPE: GENERIC # Temperature variable
-VARIABLE rhst TYPE: GENERIC # RHS variable
+VARIABLE htn0 TYPE: GENERIC # RHS variable
+VARIABLE htn1 TYPE: GENERIC # RHS at n-1 
 VARIABLE tfrc TYPE: GENERIC # Forcing variable

@@ -41,8 +41,8 @@ subroutine Stencils_diffusion2dVar(rhs, phi, dx, dy, Coeff, ix1, ix2, jy1, jy2)
   implicit none
   !---Argument List -----
   real, dimension(:,:,:), intent(inout) :: rhs
-  real, dimension(:,:,:), intent(in)  :: phi
-  real, dimension(:,:,:), intent(in)  :: Coeff
+  real, dimension(:,:,:), intent(in)    :: phi
+  real, dimension(:,:,:), intent(in)    :: Coeff
   real, intent(in) :: dx, dy
   integer, intent(in) :: ix1, ix2, jy1, jy2
 
