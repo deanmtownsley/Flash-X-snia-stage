@@ -35,7 +35,7 @@ subroutine IncompNS_indicators()
 !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
-   integer, dimension(2, MDIM) :: stnLimits
+   integer, dimension(2, MDIM) :: stnLimits = 1
    real :: vecminaux(5), vecmaxaux(5), vecmin(5), vecmax(5)
 #if NDIM < MDIM
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
@@ -60,8 +60,8 @@ subroutine IncompNS_indicators()
    do while (itor%isValid())
       call itor%currentTile(tileDesc)
 
-      stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
-      stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+      stnLimits(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
+      stnLimits(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
 
       call tileDesc%getDataPtr(solnData, CENTER)
       call tileDesc%getDataPtr(facexData, FACEX)

@@ -35,7 +35,7 @@ subroutine IncompNS_divergence(tileDesc)
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: stnLimits
+   integer, dimension(2, MDIM) :: stnLimits = 1
 #if NDIM < MDIM
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
    real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
@@ -53,8 +53,8 @@ subroutine IncompNS_divergence(tileDesc)
 
    call Timers_start("IncompNS_divergence")
 
-   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
-   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+   stnLimits(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
+   stnLimits(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
 
    call tileDesc%deltas(del)
 

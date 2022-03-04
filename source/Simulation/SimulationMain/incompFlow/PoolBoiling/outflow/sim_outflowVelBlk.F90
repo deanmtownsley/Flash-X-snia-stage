@@ -38,8 +38,8 @@ subroutine sim_outflowVelBlk2d(velOut, u, v, ru, rv, xcell, ycell, &
 
    k = 1
 
-   do j = jy1 - 1, jy2 - 1
-      do i = ix1 - 1, ix2
+   do j = jy1 + 1, jy2 - 1
+      do i = ix1 + 1, ix2
          xi = xcell(i)
          yi = ycell(j)
 
@@ -51,8 +51,8 @@ subroutine sim_outflowVelBlk2d(velOut, u, v, ru, rv, xcell, ycell, &
       end do
    end do
 
-   do j = jy1 - 1, jy2
-      do i = ix1 - 1, ix2 - 1
+   do j = jy1 + 1, jy2
+      do i = ix1 + 1, ix2 - 1
          xi = xcell(i)
          yi = ycell(j)
 
@@ -88,9 +88,9 @@ subroutine sim_outflowVelBlk3d(velOut, u, v, w, ru, rv, rw, xcell, ycell, zcell,
    real    :: xi, yi, zi
    real    :: uyplus, uymins, vyplus, vymins, wyplus, wymins
 
-   do k = kz1 - 1, kz2 - 1
-      do j = jy1 - 1, jy2 - 1
-         do i = ix1 - 1, ix2
+   do k = kz1 + 1, kz2 - 1
+      do j = jy1 + 1, jy2 - 1
+         do i = ix1 + 1, ix2
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)
@@ -104,9 +104,9 @@ subroutine sim_outflowVelBlk3d(velOut, u, v, w, ru, rv, rw, xcell, ycell, zcell,
       end do
    end do
 
-   do k = kz1 - 1, kz2 - 1
-      do j = jy1 - 1, jy2
-         do i = ix1 - 1, ix2 - 1
+   do k = kz1 + 1, kz2 - 1
+      do j = jy1 + 1, jy2
+         do i = ix1 + 1, ix2 - 1
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)
@@ -123,9 +123,9 @@ subroutine sim_outflowVelBlk3d(velOut, u, v, w, ru, rv, rw, xcell, ycell, zcell,
       end do
    end do
 
-   do k = kz1 - 1, kz2
-      do j = jy1 - 1, jy2 - 1
-         do i = ix1 - 1, ix2 - 1
+   do k = kz1 + 1, kz2
+      do j = jy1 + 1, jy2 - 1
+         do i = ix1 + 1, ix2 - 1
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)

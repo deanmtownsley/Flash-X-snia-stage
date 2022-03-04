@@ -34,7 +34,7 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    integer, intent(in) :: iteration
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: stnLimits
+   integer, dimension(2, MDIM) :: stnLimits = 1
    real, pointer, dimension(:, :, :, :) :: solnData
    integer :: ierr
    real del(MDIM)
@@ -46,8 +46,8 @@ subroutine Multiphase_redistance(tileDesc, iteration)
 
    call tileDesc%getDataPtr(solnData, CENTER)
 
-   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
-   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+   stnLimits(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
+   stnLimits(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
 
    if (iteration .eq. 1) then
       solnData(HDN0_VAR, :, :, :) = solnData(DFUN_VAR, :, :, :)
