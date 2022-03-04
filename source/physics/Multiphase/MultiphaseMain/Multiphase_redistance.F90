@@ -34,7 +34,7 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    integer, intent(in) :: iteration
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: stnLimits
    real, pointer, dimension(:, :, :, :) :: solnData
    integer :: ierr
    real del(MDIM)
@@ -45,6 +45,9 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    call Timers_start("Multiphase_redistance")
 
    call tileDesc%getDataPtr(solnData, CENTER)
+
+   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
 
    if (iteration .eq. 1) then
       solnData(HDN0_VAR, :, :, :) = solnData(DFUN_VAR, :, :, :)
@@ -60,16 +63,15 @@ subroutine Multiphase_redistance(tileDesc, iteration)
    call Stencils_lsRedistance2d(solnData(DFUN_VAR, :, :, :), &
                                 solnData(HDN0_VAR, :, :, :), &
                                 lsDT, del(DIR_X), del(DIR_Y), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI)
-
+                                stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                                stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #else
    call Stencils_lsRedistance3d(solnData(DFUN_VAR, :, :, :), &
                                 solnData(HDN0_VAR, :, :, :), &
                                 lsDT, del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI, &
-                                GRID_KLO, GRID_KHI)
+                                stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                                stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                                stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
 #endif
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call Timers_stop("Multiphase_redistance")

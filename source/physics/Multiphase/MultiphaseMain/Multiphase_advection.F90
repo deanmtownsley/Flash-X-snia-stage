@@ -34,13 +34,16 @@ subroutine Multiphase_advection(tileDesc)
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: stnLimits
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    real del(MDIM)
 !-----------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
    call Timers_start("Multiphase_advection")
+
+   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
@@ -60,18 +63,17 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #endif
 
    call Stencils_advectWeno2d(solnData(HDN0_VAR, :, :, :), &
                               solnData(DFUN_VAR, :, :, :), &
                               facexData(mph_iVelFVar, :, :, :), &
                               faceyData(mph_iVelFVar, :, :, :), &
-                              del(DIR_X), &
-                              del(DIR_Y), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
+                              del(DIR_X), del(DIR_Y), &
+                              stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                              stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
                               center=.true., facex=.false., facey=.false.)
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -82,8 +84,8 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            -solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #endif
 
 #else
@@ -99,9 +101,9 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI, &
-                           GRID_KLO, GRID_KHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                           stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
 #endif
 
    call Stencils_advectWeno3d(solnData(HDN0_VAR, :, :, :), &
@@ -112,9 +114,9 @@ subroutine Multiphase_advection(tileDesc)
                               del(DIR_X), &
                               del(DIR_Y), &
                               del(DIR_Z), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI, &
+                              stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                              stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                              stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS), &
                               center=.true., facex=.false., facey=.false., facez=.false.)
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -128,9 +130,9 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
                            -solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI, &
-                           GRID_KLO, GRID_KHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                           stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
 #endif
 
 #endif
