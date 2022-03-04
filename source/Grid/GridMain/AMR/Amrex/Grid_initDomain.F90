@@ -119,10 +119,6 @@ subroutine Grid_initDomain(restart,particlesInitialized)
     !  runs EoS on interiors, fills GCs, and runs EoS on GCs.
     !  All this is done through the callback functions.
     allocate(unk     (0:amrex_max_level))
-    ! DEV: T_INT is set to zero now as AMReX does not care about this value.
-    ! It might be useful to pass non-zero T_INT for time-dependent refinement criteria;
-    ! this might be time a part of \FlashOfTheFuture with simulated time passed as T_INT
-    ! that is read from checkpoint file. Useful with user-defined callbacks
 
 #if NFACE_VARS > 0
     !call Driver_abort("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
@@ -135,6 +131,10 @@ subroutine Grid_initDomain(restart,particlesInitialized)
 #endif
 #endif
 
+    ! DEV: T_INIT is set to zero now as AMReX does not care about this value.
+    ! It might be useful to pass non-zero T_INIT for time-dependent refinement criteria;
+    ! this might be time a part of \FlashOfTheFuture with simulated time passed as T_INIT
+    ! that is read from checkpoint file. Useful with user-defined callbacks
     call amrex_init_from_scratch(T_INIT)
   else ! this is a restart 
     call Simulation_initRestart()
