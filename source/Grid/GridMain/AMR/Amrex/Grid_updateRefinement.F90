@@ -370,9 +370,10 @@ include "Flashx_mpi.h"
 
      ! Only log on the first call
 !     gcMaskArgsLogged = .TRUE.
+     gr_gridChanged = gr_amrexDidRefinement
 
      if (present(gridChanged)) then
-        gridChanged = gr_amrexDidRefinement
+        gridChanged = gr_gridChanged
      end if
   else
      if (present(gridChanged)) then
@@ -380,6 +381,6 @@ include "Flashx_mpi.h"
      end if
   end if
 
-  call Driver_notifyGridChange(gridChanged)
+  call Driver_notifyGridChange(gr_gridChanged)
 
 end subroutine Grid_updateRefinement

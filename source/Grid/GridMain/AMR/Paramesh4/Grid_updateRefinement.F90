@@ -59,7 +59,6 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
   use paramesh_interfaces, ONLY : amr_restrict
   use Logfile_interface, ONLY : Logfile_open,Logfile_close
   use Simulation_interface, ONLY : Simulation_wantsRebalance
-  use Driver_interface, ONLY: Driver_notifyGridChange
   use tree, ONLY: grid_changed
  
 !!$  use tree, ONLY : newchild, lnblocks
@@ -123,8 +122,6 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
   else
      if (present(gridChanged)) gridChanged = .FALSE.
   end if
-
-  call Driver_notifyGridChange(gridChanged)
 
   return
 end subroutine Grid_updateRefinement
