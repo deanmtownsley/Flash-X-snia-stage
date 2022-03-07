@@ -72,7 +72,7 @@ subroutine Multiphase_advection(tileDesc)
                               del(DIR_Y), &
                               GRID_ILO, GRID_IHI, &
                               GRID_JLO, GRID_JHI, &
-                              center=.true., facex=.false., facey=.false.)
+                              center=1, facex=0, facey=0)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
@@ -115,7 +115,7 @@ subroutine Multiphase_advection(tileDesc)
                               GRID_ILO, GRID_IHI, &
                               GRID_JLO, GRID_JHI, &
                               GRID_KLO, GRID_KHI, &
-                              center=.true., facex=.false., facey=.false., facez=.false.)
+                              center=1, facex=0, facey=0, facez=0)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
