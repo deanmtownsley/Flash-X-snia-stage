@@ -12,8 +12,8 @@ pathmungeany () {
 #  WHERE :- "after" means: append unless present anywhere
 #           "first" means: prepend unless already present at beginning
 #           anything else means: prepend unless already present anywhere
-#  WHERE :- the name of the environment variable to test and (maybe) modify
-#           if empty, defaults to PATH
+#  VARNAME :- the name of the environment variable to test and (maybe) modify
+#             if empty, defaults to PATH
 # Examples:
 #    pathmungeany ${MPI}/bin
 #    pathmungeany ${MPI}/lib first LD_LIBRARY_PATH
@@ -32,13 +32,15 @@ pathmungeany () {
     else
 	EGREP=/usr/bin/egrep
     fi
+
+    eval 'previous_pathstring="${'"${varname}"'}"'
     # ${!var}: indirect variable expansion, requires bash-2.0 or later
-    if [ -z "${!varname+set}" ] ; then
+    if [ -z "${previous_pathstring+set}" ] ; then
         eval "export ${varname}"'=$1'
     elif [ "$2" = "first" ] && 
-	! echo "${!varname}" |($EGREP -q  "^$1($|:)") ; then
+	! echo "${previous_pathstring}" |($EGREP -q  "^$1($|:)") ; then
         eval "export ${varname}"'=$1:${'"${varname}"'}'
-    elif ! echo "${!varname}" |($EGREP -q "(^|:)$1($|:)") ; then
+    elif ! echo "${previous_pathstring}" |($EGREP -q "(^|:)$1($|:)") ; then
         if [ "$2" = "after" ] ; then
             eval "export ${varname}"'=${'"${varname}"'}:$1'
         else

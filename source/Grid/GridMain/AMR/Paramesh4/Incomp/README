@@ -1,2 +1,6 @@
-Auxiliary routines at PARAMESH level, primarily
+Auxiliary routines at Paramesh4 level, primarily
 for use by Incompressible-Navier-Stokes solver.
+Source files here are used in place of files with
+the same name a higher directory levels if and
+only if this source directory is REQUIRED
+or REQEUSTED.
