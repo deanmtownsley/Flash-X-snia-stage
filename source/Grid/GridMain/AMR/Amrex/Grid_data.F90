@@ -170,6 +170,4 @@ Module Grid_data
 
   integer, save :: gr_envOmpNumThreads
 
-  logical, save :: gr_gridChanged = .true.
-
 end Module Grid_data

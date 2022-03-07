@@ -42,15 +42,11 @@ subroutine IO_outputFinal()
 #include "constants.h"  
   use IO_data, ONLY : io_justCheckpointed, io_outputInStack, &
        io_memoryStatFreq,  &
-       io_summaryOutputOnly, io_gridChanged
+       io_summaryOutputOnly
   use IO_interface, ONLY : IO_writeCheckpoint, IO_writePlotfile, &
     IO_writeParticles
 
-  use Grid_data, ONLY: gr_gridChanged
-
   implicit none
-
-  if (gr_gridChanged) io_gridChanged = gr_gridChanged
 
   !This setting is used to ensure valid data throughout grid and ancestor blocks
   io_outputInStack = .true.
