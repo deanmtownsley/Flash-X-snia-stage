@@ -248,7 +248,7 @@ module IO_data
 
    logical, save :: io_writeGridInfo
 
-   logical, save :: io_gridChanged
+   logical, save :: io_gridChangedSincePlot = .TRUE.
 
    type tree_data_t
       real, dimension(:,:,:), pointer :: bnd_box

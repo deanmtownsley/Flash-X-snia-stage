@@ -52,7 +52,7 @@
 
 subroutine Grid_updateRefinement( nstep,time, gridChanged)
 
-  use Grid_data, ONLY : gr_nrefs, gr_meshMe, gr_gridChanged
+  use Grid_data, ONLY : gr_nrefs, gr_meshMe
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_markRefineDerefine
   use gr_interface, ONLY : gr_updateRefinement
@@ -122,8 +122,6 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
   else
      if (present(gridChanged)) gridChanged = .FALSE.
   end if
-
-  gr_gridChanged = grid_changed .NE. 0
 
   return
 end subroutine Grid_updateRefinement

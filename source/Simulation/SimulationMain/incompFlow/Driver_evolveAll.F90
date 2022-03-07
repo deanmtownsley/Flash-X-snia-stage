@@ -50,7 +50,7 @@ subroutine Driver_evolveAll()
                           dr_nstep, dr_dtOld, dr_dtNew, &
                           dr_simGeneration, &
                           dr_restart
-   use Driver_interface, ONLY: Driver_sourceTerms, Driver_computeDt
+   use Driver_interface, ONLY: Driver_sourceTerms, Driver_computeDt, Driver_notifyGridChange
    use Logfile_interface, ONLY: Logfile_stamp, Logfile_close
    use Timers_interface, ONLY: Timers_start, Timers_stop, &
                                Timers_getSummary
@@ -483,7 +483,13 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- End Physics Sequence
       !------------------------------------------------------------
+      ! Update grid and notify changed to other units
       call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
+
+      print *,dr_nstep,gridChanged
+
+      ! Notify grid change
+      call Driver_notifyGridChange(gridChanged)
 
       ! Velocities and Omg to Center variables
       ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
