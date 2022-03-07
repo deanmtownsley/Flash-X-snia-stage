@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridMain/paramesh/gr_setMasks_gen
+!!****if* source/Grid/GridMain/AMR/gr_setMasks_gen
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -18,10 +18,12 @@
 !!
 !!  call gr_setMasks_gen(integer(IN) :: gridDataStruct, 
 !!                      integer(IN) :: maskSize,
-!!                      logical(IN) :: mask(maskSize))
-!!  
-!! DESCRIPTION 
-!!  
+!!                      logical(IN)    :: mask(maskSize),
+!!                      logical(INOUT) :: gcell_on_cc(NUNK_VARS),
+!!             optional,logical(INOUT) :: gcell_on_fc(MDIM,NUNK_VARS),
+!!             optional,logical(IN)    :: enableMaskedGCFill)
+!! DESCRIPTION
+!!
 !!  This routine takes the mask supplied by the calling routine
 !!  and sets the FLASH masks for cell centered and face centered
 !!  variables as specified.
