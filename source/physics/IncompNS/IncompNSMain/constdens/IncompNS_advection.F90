@@ -69,7 +69,7 @@ subroutine IncompNS_advection(tileDesc)
                                  GRID_ILO, GRID_IHI + 1, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI, &
-                                 center=.false., facex=.true., facey=.false., facez=.false.)
+                                 center=0, facex=1, facey=0, facez=0)
 
    call Stencils_advectCentral3d(faceyData(HVN0_FACE_VAR, :, :, :), &
                                  faceyData(VELC_FACE_VAR, :, :, :), &
@@ -80,7 +80,7 @@ subroutine IncompNS_advection(tileDesc)
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI + 1, &
                                  GRID_KLO, GRID_KHI, &
-                                 center=.false., facex=.false., facey=.true., facez=.false.)
+                                 center=0, facex=0, facey=1, facez=0)
 
    call Stencils_advectCentral3d(facezData(HVN0_FACE_VAR, :, :, :), &
                                  facezData(VELC_FACE_VAR, :, :, :), &
@@ -91,7 +91,7 @@ subroutine IncompNS_advection(tileDesc)
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI + 1, &
-                                 center=.false., facex=.false., facey=.false., facez=.true.)
+                                 center=0, facex=0, facey=0, facez=1)
 #elif NDIM ==2
    ! compute RHS of momentum equation
    call Stencils_advectCentral2d(facexData(HVN0_FACE_VAR, :, :, :), &
@@ -102,7 +102,7 @@ subroutine IncompNS_advection(tileDesc)
                                  del(DIR_Y), &
                                  GRID_ILO, GRID_IHI + 1, &
                                  GRID_JLO, GRID_JHI, &
-                                 center=.false., facex=.true., facey=.false.)
+                                 center=0, facex=1, facey=0)
 
    call Stencils_advectCentral2d(faceyData(HVN0_FACE_VAR, :, :, :), &
                                  faceyData(VELC_FACE_VAR, :, :, :), &
@@ -112,7 +112,7 @@ subroutine IncompNS_advection(tileDesc)
                                  del(DIR_Y), &
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI + 1, &
-                                 center=.false., facex=.false., facey=.true.)
+                                 center=0, facex=0, facey=1)
 
 #endif
    ! Release pointers:

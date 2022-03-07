@@ -58,7 +58,7 @@ subroutine HeatAD_advection(tileDesc)
                               GRID_ILO, GRID_IHI, &
                               GRID_JLO, GRID_JHI, &
                               GRID_KLO, GRID_KHI, &
-                              center=.true., facex=.false., facey=.false., facez=.false.)
+                              center=1, facex=0, facey=0, facez=0)
 
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
@@ -76,7 +76,7 @@ subroutine HeatAD_advection(tileDesc)
                               del(DIR_X), del(DIR_Y), &
                               GRID_ILO, GRID_IHI, &
                               GRID_JLO, GRID_JHI, &
-                              center=.true., facex=.false., facey=.false.)
+                              center=1, facex=0, facey=0)
 
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)

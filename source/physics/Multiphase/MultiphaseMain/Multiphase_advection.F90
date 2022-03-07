@@ -74,7 +74,9 @@ subroutine Multiphase_advection(tileDesc)
                               del(DIR_X), del(DIR_Y), &
                               stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
                               stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
-                              center=.true., facex=.false., facey=.false.)
+                              del(DIR_X), &
+                              del(DIR_Y), &
+                              center=1, facex=0, facey=0)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
@@ -117,7 +119,7 @@ subroutine Multiphase_advection(tileDesc)
                               stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
                               stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
                               stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS), &
-                              center=.true., facex=.false., facey=.false., facez=.false.)
+                              center=1, facex=0, facey=0, facez=0)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
