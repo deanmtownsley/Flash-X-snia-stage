@@ -74,8 +74,6 @@ subroutine Multiphase_advection(tileDesc)
                               del(DIR_X), del(DIR_Y), &
                               stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
                               stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
-                              del(DIR_X), &
-                              del(DIR_Y), &
                               center=1, facex=0, facey=0)
 
 #ifdef MULTIPHASE_EVAPORATION

@@ -481,9 +481,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- End Physics Sequence
       !------------------------------------------------------------
-      ! Update grid and notify changes to other units
-      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
-
       ! Velocities and Omg to Center variables
       ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
       ! Note this will add velocity and vorticity variables to your CENTER data structure.
@@ -496,6 +493,9 @@ subroutine Driver_evolveAll()
       call IO_output(dr_simTime, &
                      dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
       call Timers_stop("IO_output")
+
+      ! Update grid and notify changes to other units
+      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
       if (gridChanged) dr_simGeneration = dr_simGeneration + 1
 
