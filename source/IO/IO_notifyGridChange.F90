@@ -16,10 +16,10 @@
 !!
 !! SYNOPSIS
 !!
-!!  IO_notifyGridChange(gridChanged)
+!!  IO_notifyGridChange()
 !!
 !! ARGUMENTS
-!!  gridChanged (logical) - .TRUE. if grid is changed .FALSE. otherwise
+!!  None
 !!
 !! DESCRIPTION
 !!
@@ -28,7 +28,6 @@
 !!
 !!***
 
-subroutine IO_notifyGridChange(gridChanged)
+subroutine IO_notifyGridChange()
    implicit none
-   logical, intent(in) :: gridChanged
 end subroutine IO_notifyGridChange

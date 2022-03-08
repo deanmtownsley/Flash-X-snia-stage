@@ -75,8 +75,7 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
 
 #include "Simulation.h"
   use Grid_data, ONLY :  gr_convertToConsvdForMeshCalls,&
-       gr_convertToConsvdInMeshInterp, gr_eosMode, gr_meshMe, gr_gcellsUpToDate,&
-       gr_gridChanged
+       gr_convertToConsvdInMeshInterp, gr_eosMode, gr_meshMe, gr_gcellsUpToDate
   use gr_specificData, ONLY : gr_finestExistingLevel
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator, &
@@ -273,9 +272,9 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
   ! Make sure the particles get moved to the correct block.
   ! If particles are not included this will simply be a stub (empty) routine.
   
-  
-  gr_gridChanged = (grid_changed .NE. 0)
-  if (present(gridChanged)) gridChanged = gr_gridChanged
+   if (grid_changed .NE. 0) call Driver_notifyGridChange()
+ 
+  if (present(gridChanged)) gridChanged = (grid_changed .NE. 0)
 
   if (gr_gcellsUpToDate) then
      !The guard cells will no longer be up to date if the grid has changed.
@@ -283,8 +282,6 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
         gr_gcellsUpToDate = .false.
      end if
   end if
-
-  call Driver_notifyGridChange(gr_gridChanged)
 
   return
 end subroutine gr_updateRefinement

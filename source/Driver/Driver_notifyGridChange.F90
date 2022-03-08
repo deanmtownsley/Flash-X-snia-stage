@@ -16,10 +16,10 @@
 !!
 !! SYNOPSIS
 !!
-!!  Driver_notifyGridChange(gridChanged)
+!!  Driver_notifyGridChange()
 !!
 !! ARGUMENTS
-!!  gridChanged (logical) - .TRUE. if grid is changed .FALSE. otherwise
+!!  None
 !!
 !! DESCRIPTION
 !!
@@ -38,7 +38,6 @@
 !! module Driver_data (in file Driver_data.F90). The other variables
 !! are local to the specific routine and do not have the prefix "dr_"
 
-subroutine Driver_notifyGridChange(gridChanged)
+subroutine Driver_notifyGridChange()
    implicit none
-   logical, intent(in) :: gridChanged
 end subroutine Driver_notifyGridChange

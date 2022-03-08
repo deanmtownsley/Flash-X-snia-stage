@@ -145,6 +145,5 @@ Module Grid_data
   logical, save :: gr_bcEnableApplyMixedGds
   real,allocatable,dimension(:) :: gr_error
 
-  logical, save :: gr_gridChanged = .TRUE.
 
 end Module Grid_data

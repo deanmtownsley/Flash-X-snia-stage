@@ -245,9 +245,8 @@ Module IO_interface
    end interface
 
    interface
-      subroutine IO_notifyGridChange(gridChanged)
+      subroutine IO_notifyGridChange()
          implicit none
-         logical, intent(in) :: gridChanged
       end subroutine IO_notifyGridChange
    end interface
 
