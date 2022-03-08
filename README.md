@@ -36,6 +36,9 @@ guidelines to create a pull request:
 Contributors with write permission should create a feature branch
 instead of a fork. The remainder of the workflow remains the same.
 
+## Code Formatting
+Use [fprettify](https://github.com/pseewald/fprettify) to format your source code and enforce consistency with indentation and whitespacing.
+
 ## Containerization Workflows
 
 ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
