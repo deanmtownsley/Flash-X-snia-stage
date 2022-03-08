@@ -9,9 +9,6 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-SUBROUTINE ins_diffusion2d_vardens(uni,vni,ru1,ix1,ix2,jy1,jy2,dx,dy,ru,rv, &
-                           visc,rhox,rhoy)
-
   !***************************************************************
   ! This subroutine computes the discretization of the diffusion RHS of the 
   ! Helmholtz equation on a staggered uniform grid.
@@ -24,7 +21,8 @@ SUBROUTINE ins_diffusion2d_vardens(uni,vni,ru1,ix1,ix2,jy1,jy2,dx,dy,ru,rv, &
   !
   ! Output: ru,rv    = u and v momentum for Helmholtz RHS
   !**************************************************************
-
+SUBROUTINE ins_diffusion2d_vardens(uni,vni,ru1,ix1,ix2,jy1,jy2,dx,dy,ru,rv, &
+                           visc,rhox,rhoy)
       implicit none
       INTEGER, INTENT(IN):: ix1, ix2, jy1, jy2
       REAL, INTENT(IN):: ru1, dx, dy
