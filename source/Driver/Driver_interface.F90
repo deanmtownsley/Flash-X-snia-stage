@@ -128,9 +128,8 @@ Module Driver_interface
    end interface
 
    interface
-      subroutine Driver_notifyGridChange(gridChanged)
+      subroutine Driver_notifyGridChange()
          implicit none
-         logical, intent(in) :: gridChanged
       end subroutine Driver_notifyGridChange
    end interface
 
