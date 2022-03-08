@@ -14,10 +14,10 @@
 !!
 !!
 !!*****
-subroutine ins_indicators(u,v,w,pres,divv,ix1,ix2,jy1,jy2,kz1,kz2,vecminaux,vecmaxaux)
-  implicit none
-  real, dimension(:,:,:), intent(in) :: u,v,w
-  real, dimension(:,:,:), intent(in) :: pres,divv
-  integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-  real, dimension(5), intent(inout) :: vecminaux, vecmaxaux
+subroutine ins_indicators(u, v, w, pres, divv, ix1, ix2, jy1, jy2, kz1, kz2, vecminaux, vecmaxaux)
+   implicit none
+   real, dimension(:, :, :), intent(in) :: u, v, w
+   real, dimension(:, :, :), intent(in) :: pres, divv
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, dimension(5), intent(inout) :: vecminaux, vecmaxaux
 end subroutine ins_indicators

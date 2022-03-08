@@ -16,16 +16,16 @@
 
 subroutine Multiphase_getScalarProp(name, value)
 
-  use Driver_interface, ONLY : Driver_abort
+   use Driver_interface, ONLY: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  real, intent(out)             :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   real, intent(out)             :: value
 
-  character(len=100)            :: errorMessage
+   character(len=100)            :: errorMessage
 
-  value = 0.
-  write(errorMessage,*) '[Multiphase_getScalarProp] Unknown scalar: ',name
-  call Driver_abort(errorMessage)
+   value = 0.
+   write (errorMessage, *) '[Multiphase_getScalarProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine Multiphase_getScalarProp

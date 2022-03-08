@@ -1,4 +1,7 @@
 #
+PPDEFINE INCOMPNS_VARDENS
+
+#
 VARIABLE visc   # Viscosity variable cell centered
 FACEVAR  rhof   # Inverse density variable face centered
 FACEVAR  sigm   # Pressure jump variable at face center

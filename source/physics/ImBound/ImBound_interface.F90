@@ -40,26 +40,18 @@ Module ImBound_interface
      end subroutine ImBound_init
   end interface
 
-  interface !ImBound 
-     subroutine ImBound (timeEndAdv,  dt, dtOld, sweepOrder)
-     implicit none
-     integer, INTENT(IN) :: sweepOrder
-     real,    INTENT(IN) :: timeEndAdv, dt, dtOld
-     end subroutine ImBound
-  end interface 
-
- interface  !ImBound_finalize
+  interface  !ImBound_finalize
      subroutine ImBound_finalize()
      implicit none
      end subroutine ImBound_finalize
- end interface 
+  end interface 
 
- interface
+  interface
      subroutine ImBound_getScalarProp(name, value)
      implicit none
      character(len=*), intent(in)  :: name
      real, intent(out)             :: value
      end subroutine ImBound_getScalarProp
- end interface
+  end interface
 
 end Module ImBound_interface

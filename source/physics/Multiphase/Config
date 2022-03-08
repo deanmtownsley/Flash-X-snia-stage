@@ -1,10 +1,10 @@
-#	Config file for the Mutliphase unit
+#        Config file for the Mutliphase unit
 DEFAULT MultiphaseMain
 
 # localAPI comes earlier while linking source files into the object directory,
 # so it can be overriden easily by non-stub implementations elsewhere
 CHILDORDER localAPI
 
-D useMultiphase       Should the Mutliphase unit be used?
+D useMultiphase Should the Mutliphase unit be used?
 # Value is meant to be overridden if MultiphaseMain implementation gets included
-PARAMETER useMultiphase    BOOLEAN CONSTANT FALSE 
+PARAMETER useMultiphase BOOLEAN CONSTANT FALSE

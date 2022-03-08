@@ -1,5 +1,7 @@
 # Config file for source/physics/HeatAD/HeatADAdvection
 
+PPDEFINE HEATAD_ADVECTION
+
 REQUIRES physics/HeatAD/HeatADMain
 REQUIRES physics/IncompNS/IncompNSMain
 REQUIRES numericalTools/Stencils/StencilsAdvection

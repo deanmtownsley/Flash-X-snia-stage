@@ -20,102 +20,86 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_thermalForcing()
+subroutine Multiphase_thermalForcing(tileDesc)
 
-  use Multiphase_data
-  use Timers_interface,   ONLY : Timers_start, Timers_stop
-  use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator,&
-                                 Grid_fillGuardCells
-  use Grid_tile,          ONLY : Grid_tile_t
-  use Grid_iterator,      ONLY : Grid_iterator_t
-  use Stencils_interface, ONLY : Stencils_lsNormals2d,Stencils_lsNormals3d
-  use mph_evapInterface,  ONLY : mph_tempGfm2d,mph_tempGfm3d
+   use Multiphase_data
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_lsNormals2d, Stencils_lsNormals3d
+   use mph_evapInterface, ONLY: mph_tempGfm2d, mph_tempGfm3d
 
 !------------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
-  real, pointer, dimension(:,:,:,:) :: solnData
-  integer :: ierr,i,j,k
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
-  integer TA(2),count_rate
-  real*8  ET
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
 
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
+   integer :: ierr, i, j, k
+   real del(MDIM)
 !------------------------------------------------------------------------------------------------
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+   nullify (solnData)
 
-  nullify(solnData)
+   call Timers_start("Multiphase_thermalForcing")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
 
-     call Stencils_lsNormals2d(solnData(DFUN_VAR,:,:,:),&
-                               solnData(NRMX_VAR,:,:,:),&
-                               solnData(NRMY_VAR,:,:,:),&
-                               del(DIR_X),del(DIR_Y),&
-                               GRID_ILO_GC,GRID_IHI_GC,&
-                               GRID_JLO_GC,GRID_JHI_GC)
+   call Stencils_lsNormals2d(solnData(DFUN_VAR, :, :, :), &
+                             solnData(NRMX_VAR, :, :, :), &
+                             solnData(NRMY_VAR, :, :, :), &
+                             del(DIR_X), del(DIR_Y), &
+                             GRID_ILO_GC, GRID_IHI_GC, &
+                             GRID_JLO_GC, GRID_JHI_GC)
 
-     call mph_tempGfm2d(solnData(DFUN_VAR,:,:,:),&
-                        solnData(NRMX_VAR,:,:,:),&
-                        solnData(NRMY_VAR,:,:,:),&
-                        (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar,:,:,:),&
-                        solnData(mph_iTempVar,:,:,:),&
-                        solnData(mph_iGfmVar,:,:,:),&
-                        solnData(HFLQ_VAR,:,:,:),&
-                        solnData(HFGS_VAR,:,:,:),&
-                        mph_Tsat,&
-                        del(DIR_X),del(DIR_Y),&
-                        GRID_ILO_GC,GRID_IHI_GC,&
-                        GRID_JLO_GC,GRID_JHI_GC)
+   call mph_tempGfm2d(solnData(DFUN_VAR, :, :, :), &
+                      solnData(NRMX_VAR, :, :, :), &
+                      solnData(NRMY_VAR, :, :, :), &
+                      (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar, :, :, :), &
+                      solnData(mph_iTempVar, :, :, :), &
+                      solnData(mph_iGfmVar, :, :, :), &
+                      solnData(HFLQ_VAR, :, :, :), &
+                      solnData(HFGS_VAR, :, :, :), &
+                      mph_Tsat, &
+                      del(DIR_X), del(DIR_Y), &
+                      GRID_ILO_GC, GRID_IHI_GC, &
+                      GRID_JLO_GC, GRID_JHI_GC)
 
 #else
- 
-     call Stencils_lsNormals3d(solnData(DFUN_VAR,:,:,:),&
-                               solnData(NRMX_VAR,:,:,:),&
-                               solnData(NRMY_VAR,:,:,:),&
-                               solnData(NRMZ_VAR,:,:,:),&
-                               del(DIR_X),del(DIR_Y),del(DIR_Z),&
-                               GRID_ILO_GC,GRID_IHI_GC,&
-                               GRID_JLO_GC,GRID_JHI_GC,&
-                               GRID_KLO_GC,GRID_KHI_GC)
 
-     call mph_tempGfm3d(solnData(DFUN_VAR,:,:,:),&
-                        solnData(NRMX_VAR,:,:,:),&
-                        solnData(NRMY_VAR,:,:,:),&
-                        solnData(NRMZ_VAR,:,:,:),&
-                        (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar,:,:,:),&
-                        solnData(mph_iTempVar,:,:,:),&
-                        solnData(mph_iGfmVar,:,:,:),&
-                        solnData(HFLQ_VAR,:,:,:),&
-                        solnData(HFGS_VAR,:,:,:),&
-                        mph_Tsat,&
-                        del(DIR_X),del(DIR_Y),del(DIR_Z),&
-                        GRID_ILO_GC,GRID_IHI_GC,&
-                        GRID_JLO_GC,GRID_JHI_GC,&
-                        GRID_KLO_GC,GRID_KHI_GC)
-      
+   call Stencils_lsNormals3d(solnData(DFUN_VAR, :, :, :), &
+                             solnData(NRMX_VAR, :, :, :), &
+                             solnData(NRMY_VAR, :, :, :), &
+                             solnData(NRMZ_VAR, :, :, :), &
+                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             GRID_ILO_GC, GRID_IHI_GC, &
+                             GRID_JLO_GC, GRID_JHI_GC, &
+                             GRID_KLO_GC, GRID_KHI_GC)
+
+   call mph_tempGfm3d(solnData(DFUN_VAR, :, :, :), &
+                      solnData(NRMX_VAR, :, :, :), &
+                      solnData(NRMY_VAR, :, :, :), &
+                      solnData(NRMZ_VAR, :, :, :), &
+                      (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar, :, :, :), &
+                      solnData(mph_iTempVar, :, :, :), &
+                      solnData(mph_iGfmVar, :, :, :), &
+                      solnData(HFLQ_VAR, :, :, :), &
+                      solnData(HFGS_VAR, :, :, :), &
+                      mph_Tsat, &
+                      del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                      GRID_ILO_GC, GRID_IHI_GC, &
+                      GRID_JLO_GC, GRID_JHI_GC, &
+                      GRID_KLO_GC, GRID_KHI_GC)
+
 #endif
-    
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)  
 
-   CALL SYSTEM_CLOCK(TA(2),count_rate)
-   ET=REAL(TA(2)-TA(1))/count_rate
-   if (mph_meshMe .eq. MASTER_PE)  write(*,*) 'Multiphase thermalForcing Time =',ET
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+
+   call Timers_stop("Multiphase_thermalForcing")
 
    return
 

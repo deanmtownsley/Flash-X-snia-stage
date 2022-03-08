@@ -18,15 +18,15 @@
 
 subroutine IncompNS_setVectorProp(name, value)
 
-  use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)         :: name
-  real, dimension(MDIM), intent(in)    :: value
+   implicit none
+   character(len=*), intent(in)         :: name
+   real, dimension(MDIM), intent(in)    :: value
 
-  character(len=100)                   :: errorMessage
+   character(len=100)                   :: errorMessage
 
-  write(errorMessage,*) '[IncompNS_setVectorProp] Unknown vector: ',name
-  call Driver_abort(errorMessage)
+   write (errorMessage, *) '[IncompNS_setVectorProp] Unknown vector: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine IncompNS_setVectorProp
