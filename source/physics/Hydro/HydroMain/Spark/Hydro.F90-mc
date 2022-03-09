@@ -167,7 +167,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            coeffs = coeff_array(stage,:)
            
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+           call @M hy_update_name(@M hy_update_call_args)
            call Timers_stop("updateSoln")
            
 #if NSPECIES+NMASS_SCALARS>0
@@ -317,7 +317,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("updateSoln")
               @M hy_geomSpall_alloc
               
-              call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+              call @M hy_update_name(@M hy_update_call_args)
 !!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               @M hy_geomSpall_dealloc
               
