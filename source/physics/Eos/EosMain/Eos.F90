@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Eos
+ !!****if* source/physics/Eos/EosMain/Eos
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
