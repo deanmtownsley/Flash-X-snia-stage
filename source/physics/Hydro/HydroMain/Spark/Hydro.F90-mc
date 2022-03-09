@@ -74,9 +74,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   call Timers_start("Hydro")
   
-#ifdef OMP_OL
-  call check_if_on_GPU()
-#endif
+  @M hy_check_device
+
   
   hdt = 0.5*dt
   
@@ -172,13 +171,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
 #if NSPECIES+NMASS_SCALARS>0
            !Properly normalize species after the update
-#ifdef OMP_OL
-           call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
-#endif /* OMP_OL */
-           nullify(Utemp)
-           Utemp => hy_starState
-           call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
-           nullify(Utemp)
+           @M hy_renormAbundance
 #endif 
            
            ! Update EOS based on intermediate solution
@@ -324,14 +317,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
 #if NSPECIES+NMASS_SCALARS>0
-              !Properly normalize species after the update
-#ifdef OMP_OL
-              call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
-#endif /* OMP_OL */
-              nullify(Utemp)
-              Utemp => hy_starState
-              call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
-              nullify(Utemp)
+              @M hy_renormAbundance
 #endif 
               
               call Timers_stop("updateSoln")

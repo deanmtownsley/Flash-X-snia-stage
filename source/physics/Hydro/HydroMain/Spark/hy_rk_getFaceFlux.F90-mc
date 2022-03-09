@@ -127,14 +127,13 @@ subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
 
            @M hy_rk_ff_aomp6
            @M hy_rk_loop
-#ifdef OMP_OL           
-             @M hy_ensurePhysicalState(hy_uPlus)
-             @M hy_ensurePhysicalState(hy_uMinus)
-#else
-             @M hy_ensurePhysicalState(leftState)
-             @M hy_ensurePhysicalState(rightState)
-#endif             
-          @M hy_rk_loop_end 
+
+           @M hy_rk_ff_setpointers
+           @M hy_ensurePhysicalState(leftState)
+           @M hy_ensurePhysicalState(rightState)
+           @M hy_rk_ff_resetpointers
+
+           @M hy_rk_loop_end 
 
            
            @M hy_rk_ff_aomp7
@@ -158,11 +157,9 @@ subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
            ! fluxes based on the density flux and the reconstructed
            ! mass scalar interface values
            
-#ifdef OMP_OL           
-           @M hy_mscalarFluxes(hy_flux,hy_uPlus,hy_uMinus)
-#else
+           @M hy_rk_ff_setpointers
            @M hy_mscalarFluxes(hy_flux,leftState,rightState)
-#endif           
+           @M hy_rk_ff_resetpointers
            @M hy_rk_loop_end
            ! ***************
            ! Fluxes computed for one face of this zone

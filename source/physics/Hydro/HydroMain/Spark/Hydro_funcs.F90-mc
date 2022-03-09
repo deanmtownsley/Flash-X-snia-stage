@@ -78,40 +78,6 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   end if
   
   
-#ifdef OMP_OL  
-  if (.not. scratch_allocated) then 
-     scratch_allocated = .true.
-     if (.NOT. allocated(hy_uPlus)) then
-        allocate(hy_uPlus(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_uPlus = 0.
-     endif
-     if (.NOT. allocated(hy_uMinus)) then
-        allocate(hy_uMinus(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_uMinus = 0.
-     endif
-     if (.NOT. allocated(hy_shck)) then
-        allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
-        hy_shck = 0.
-     endif
-     if (.NOT. allocated(hy_snake)) then
-        allocate(hy_snake(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_snake = 0.
-     endif
-     if (.NOT. allocated(hy_flat)) then
-        allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
-        hy_flat = 0.
-     endif
-     if (.NOT. allocated(hy_grv)) then
-        allocate(hy_grv(max_edge,max_edge_y,max_edge_z))
-        hy_grv = 0.
-     endif
-     if (.NOT. allocated(hy_flux)) then
-        allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
-        hy_flux = 0.
-     endif
-     !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
-  endif
-#endif
   
   !Gravity 
   if (.NOT. allocated(hy_grav)) then
@@ -125,6 +91,9 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   if (.NOT. allocated(hy_tmpState)) then
      allocate(hy_tmpState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
   endif
+
+  @M hy_snake_allocate
+
   call allocate_fxscr(blkLimits,blkLimitsGC)
   
 end subroutine allocate_scr
@@ -262,18 +231,8 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
   
   ! update temp vars with solution data
   
-#ifdef OMP_OL
-  ! move data to GPU
-  !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
-  !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
-  ! distribute work throughout GPU
-  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
-  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
-#else 
-  !$omp parallel do collapse(4) if(hy_threadWithinBlock) &
-  !$omp default(none) &
-  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC,hy_tmpState)
-#endif
+  @M hy_saveState_omp
+  
   @M loop_3d_alt(blkLimitsGC,i1,i2,i3)
            do v=1,NUNK_VARS
               hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
@@ -294,12 +253,7 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   implicit none
   real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-#ifdef OMP_OL
-  !hy_uPlus,hy_uMinus,hy_shck,hy_snake,hy_flat,hy_grv,hy_flux
-  !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
-  !$omp target exit data map(DELETE:hy_grav)
-  !$omp target update from(hy_starState)
-#endif
+  @M hy_update_omp
 
 #ifndef FIXEDBLOCKSIZE
 !!$  if (hy_fluxCorrect) then
@@ -322,9 +276,8 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   
   !$omp end workshare
   !$omp end parallel
-#ifdef OMP_OL
-  !$omp target exit data map(DELETE:hy_starState)
-#endif
+  @M hy_update_omp2
+
 !!$  deallocate(hy_starState)
 end subroutine updateState
 
