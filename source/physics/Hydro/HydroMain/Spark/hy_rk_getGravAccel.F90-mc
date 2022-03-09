@@ -37,7 +37,7 @@
 
 !!Reorder(4):hy_starState
 
-subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+subroutine @M hy_grav_name(@M hy_grav_call_args)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
@@ -57,9 +57,9 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
 
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(4) shared(blkLimitsGC,hy_grav) private(d,i,j,k) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
-#endif
+
+  @M hy_grv_omp1
+  
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -71,10 +71,7 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
   enddo
 
 #ifdef GRAVITY
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
-#endif /* OMP_OL */
+  @M hy_grv_omp2
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
 #ifdef FLASH_GRAVITY_TIMEDEP
@@ -85,51 +82,33 @@ subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
         call accelOneRow((/j,k/),IAXIS,&
              hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
 #else
-#ifdef OMP_OL
-        ! We have not implemented the gravity function on the GPU so for now this option is not allowed
-        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
-#endif /* OMP_OL */
-        ! For time-independent gravity, just call the regular Gravity routine.
-        !! call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&
-        !!     loGC(IAXIS),hiGC(IAXIS),hy_grav(IAXIS,:,j,k))
+        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
      enddo
   enddo
 #if NDIM>1
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
-#endif /* OMP_OL */
+  @M hy_grv_omp3  
+
+#ifdef FLASH_GRAVITY_TIMEDEP
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-#ifdef FLASH_GRAVITY_TIMEDEP
         call accelOneRow((/i,k/),JAXIS,&
              hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
-#else
-        !!call Gravity_accelOneRow((/i,k/),JAXIS,blockDesc,&
-        !!     loGC(JAXIS),hiGC(JAXIS),hy_grav(JAXIS,i,:,k))
-#endif
      enddo
   enddo
+#endif
 #if NDIM==3
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
-#endif /* OMP_OL */
+
+  @M hy_grv_omp4
+
+#ifdef FLASH_GRAVITY_TIMEDEP
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-#ifdef FLASH_GRAVITY_TIMEDEP
         call accelOneRow((/i,j/),KAXIS,&
              hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
-#else
-!!$        !Used to be the commented part.  I'm not sure why...
-!!$        !call accelOneRow((/i,j/),KAXIS,blockDesc,&
-!!$        !     GRID_KHI_GC,hy_grav(KAXIS,i,j,:))
-!!$        !!call Gravity_accelOneRow((/i,j/),KAXIS,blockDesc,&
-!!$             loGC(KAXIS),hiGC(KAXIS),hy_grav(KAXIS,i,j,:))
-#endif
      enddo
   enddo
+#endif
 #endif
 #endif
 #endif /* GRAVITY */
@@ -187,4 +166,4 @@ contains
 #endif /* GPOT_VAR */
   end subroutine accelOneRow
 
-end subroutine hy_rk_getGravAccel
+end subroutine @M hy_grav_name

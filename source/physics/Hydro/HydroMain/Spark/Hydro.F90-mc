@@ -27,7 +27,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc
   use Hydro_inhost_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
-  use hy_rk_interface, ONLY : @M hy_rk_ff_name, hy_rk_getGravAccel, hy_rk_updateSoln,hy_rk_correctFluxes
+  use hy_rk_interface, ONLY : @M hy_rk_ff_name, @M hy_grav_name, @M hy_update_name, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -144,7 +144,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         do stage=1,last_stage
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
-           call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+           call  @M hy_grav_name (@M hy_grav_call_args)
            
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
@@ -276,7 +276,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               
-              call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+              call  @M hy_grav_name (@M hy_grav_call_args)
               
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
