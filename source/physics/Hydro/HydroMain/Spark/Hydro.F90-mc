@@ -342,20 +342,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! Update EOS based on intermediate solution
               
               call Timers_start("eos")
-              maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
-              !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
-              !Simulation.h using preprocessors alone.  This may want to be changed for future.
-              !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
-              !amount of dynamic allocation but clutter the code.
-              !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
-              !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
-              
-              allocate(hy_mfrac(NSPECIES*maxcells))
-              allocate(hy_eosData(EOS_NUM*maxcells))
               
               call hy_rk_eos(limits)
-              deallocate(hy_mfrac)
-              deallocate(hy_eosData)
+
               
               call Timers_stop("eos")
               
@@ -366,10 +355,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  call Timers_stop("scratch")
               endif
            end do!stage loop
-           call deallocate_scr()
            !Put flux buffer information into SPFS
            if (level > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
+           call deallocate_scr()
         @M iter_end        
      enddo!loop over levels
   endif !Flux correct per Level
