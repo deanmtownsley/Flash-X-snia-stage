@@ -46,10 +46,10 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_eos(limits)
+     subroutine @M hy_eos_name(@M hy_eos_call_args)
        implicit none
        integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-     end subroutine hy_rk_eos
+     end subroutine @M hy_eos_name
   end interface
 
   interface

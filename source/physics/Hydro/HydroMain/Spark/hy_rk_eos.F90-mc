@@ -1,0 +1,77 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_eos
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!  NAME
+!!
+!!  hy_rk_eos
+!!
+!!  SYNOPSIS
+!!
+!!  call hy_rk_eos ( integer(IN) :: limits(:,: )
+!!
+!!  DESCRIPTION
+!!
+!!  ARGUMENTS
+!!   
+!!   limits :: range of indices along each dimension for applying eos 
+!!
+!!***
+subroutine @M hy_eos_name(@M hy_eos_call_args)
+
+  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock,hy_eosData, hy_mfrac
+  use Eos_interface, ONLY : Eos_putData, Eos_getData, Eos
+  use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_mapLookup, eos_meshMe
+  use eos_idealGammaData, ONLY: eos_gammam1
+  use Eos_data, ONLY : eos_gasConstant, eos_gamma, eos_singleSpeciesA, eos_singleSpeciesZ
+
+  implicit none
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+#include "Eos.h"
+#include "Eos_map.h"
+  
+
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+  integer :: i,j,k
+  real ::  ggprod, ggprodinv, gam1inv
+  integer :: m, n
+  integer :: pres_map,entr_map,gamc_map,temp_map
+  integer :: eint_map,ener_map,game_map, dens_map
+  integer :: velx_map, vely_map, velz_map, sumy_map, ye_map
+  real :: kineticEnergy, internalEnergy
+  integer :: gridDataStruct=CENTER
+
+  @M hy_rk_eomp
+  do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
+     do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
+        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
+
+           m = 1
+           do n = SPECIES_BEGIN,SPECIES_END
+              hy_mfrac(m) = hy_starState(n,i,j,k)
+              m=m+1
+           end do
+
+           @M eos_inmap
+           @M eos_corr(hy_starState)
+           @M eos_outmap
+           @M eos_gamma(hy_starState)
+        end do
+     end do
+  end do
+ @M hy_rk_eomp2  
+end subroutine @M hy_eos_name
+
+

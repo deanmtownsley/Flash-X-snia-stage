@@ -27,7 +27,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_mfrac, hy_eosData,hy_Vc
   use Hydro_inhost_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
-  use hy_rk_interface, ONLY : hy_rk_eos, @M hy_rk_ff_name, hy_rk_getGravAccel, hy_rk_updateSoln,hy_rk_correctFluxes
+  use hy_rk_interface, ONLY : @M hy_eos_name, @M hy_rk_ff_name, hy_rk_getGravAccel, hy_rk_updateSoln,hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -127,7 +127,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !---JaredC--- This could be pulled out of the loop and given its own loop.
      
         call shockDetect(Uin,limits,blkLimitsGC)
-        deallocate(hy_Vc)
+
         ! Setup scratch storage of block data (grav included)
         !---JaredC--- Send data to device and/or allocate arrays
         call Timers_start("Offloaded Section")
@@ -184,11 +184,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
            
-#ifdef OMP_OL
-           call hy_rk_eos_offloaded(limits)
-#else
-           call hy_rk_eos(limits)
-#endif
+           call @M hy_eos_name(@M hy_eos_call_args)
            call Timers_stop("eos")
            
            !Finally update the state
@@ -343,7 +339,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               call Timers_start("eos")
               
-              call hy_rk_eos(limits)
+              call @M hy_eos_name(@M hy_eos_call_args)
 
               
               call Timers_stop("eos")

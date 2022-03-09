@@ -143,18 +143,6 @@ subroutine deallocate_scr()
   if(allocated(hy_flz))deallocate(hy_flz)
   if(allocated(hy_flat3d))deallocate(hy_flat3d)
   if(allocated(hy_Vc))deallocate(hy_Vc)
-#ifdef OMP_OL  
-  if (scratch_allocated) then 
-!!$      deallocate(hy_uPlus)
-!!$      deallocate(hy_uMinus)
-!!$      deallocate(hy_shck)
-!!$      deallocate(hy_snake)
-!!$      deallocate(hy_flat)
-!!$      deallocate(hy_grv)
-!!$      deallocate(hy_flux)
-  endif
-#endif
-  
   if(allocated(hy_grav))deallocate(hy_grav)
   if(allocated(hy_starState))deallocate(hy_starState)
   if(allocated(hy_tmpState))deallocate(hy_tmpState)
@@ -357,40 +345,6 @@ subroutine setLims(ngcell,blkLimits,limits)
   end do
 end subroutine setLims
 
-!!****if* source/physics/Hydro/HydroMain/Spark/Hydro_funcs
-!!
-!! NAME
-!!
-!!  shockDetect
-!!
-!! SYNOPSIS
-!!
-!!  shockDetect( real,pointer      :: Uin(:,:,:,:)
-!!               integer (IN)      :: limits
-!!               integer (IN)      :: blkLimits )
-!!
-!! DESCRIPTION
-!!
-!!  This routine detects strongly compressive motions in simulation
-!!  by calculating undivided pressure gradients and divergence of
-!!  velocity fields. Two parameters beta and delta have been set
-!!  to detect strong shocks. If such shocks exist then the unsplit
-!!  scheme applies its robust flux differencings using limited slopes
-!!  in data reconstruction step (see hy_rk_dataReconstruct.F90).
-!!  Different shock strengths can also be detected by lowering/increasing
-!!  beta and delta values.
-!!
-!! ARGUMENTS
-!!
-!!  Uin        - solution data
-!!  limits     - region of the block in which to detect shocks
-!!  blkLimits  - all interior points of the block/tile
-!!
-!! REFERENCE
-!!
-!!  Balsara and Spicer, JCP, 149:270--292, 1999.
-!!
-!!***
 subroutine shockDetect(Uin,limits,blkLimitsGC)
 
   use Hydro_data,        only : hy_geometry, hy_tiny, hy_Vc
