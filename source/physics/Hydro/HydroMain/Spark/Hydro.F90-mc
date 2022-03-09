@@ -339,8 +339,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               call Timers_start("eos")
               
-              call @M hy_eos_name(@M hy_eos_call_args)
-
+!!$              call @M hy_eos_name(@M hy_eos_call_args)
+              call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
               
               call Timers_stop("eos")
               
