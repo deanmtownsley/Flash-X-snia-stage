@@ -629,12 +629,14 @@ subroutine io_readData()
    end do
 
    deallocate (unkBuf)
+#if NFACE_VARS > 0
    deallocate (faceXBuf)
 #if NDIM >=2
    deallocate (faceYBuf)
 #endif
 #if NDIM == 3
    deallocate (faceZBuf)
+#endif
 #endif
 
    if (io_globalMe == MASTER_PE) &
