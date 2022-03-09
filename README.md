@@ -41,7 +41,7 @@ Use [fprettify](https://github.com/pseewald/fprettify) to format your source cod
 
 ## Special Syntax Highlighting
 
-#### VIM
+### VIM
 To enable syntax for **Flash-X** specific keywords in your `vim` editor do the following:
 
 1. Create `$HOME/.vim/after/syntax/fortran.vim` and add:
