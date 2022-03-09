@@ -116,9 +116,7 @@ subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
            @M hy_snake_loop_end  
 
            @M hy_rk_ff_aomp4
-!!$           @M hy_rk_loop
-!!$                @M hy_setHSE
-!!$           @M hy_rk_loop_end
+
            ! call Timers_start("recon"//dir_str)
            @M hy_rk_1
            @M hy_rk_ff_aomp5
@@ -126,7 +124,7 @@ subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
                @M hy_recon_call
            @M hy_rk_loop_end
            @M hy_rk_2    
-          !   call reconstructOffloaded_split_inlined(hy_dlim,gCells)
+
            @M hy_rk_ff_aomp6
            @M hy_rk_loop
 #ifdef OMP_OL           
@@ -137,15 +135,10 @@ subroutine @M hy_rk_ff_name (@M hy_rk_ff_args)
              @M hy_ensurePhysicalState(rightState)
 #endif             
           @M hy_rk_loop_end 
-      ! call Timers_stop("recon"//dir_str)
-     ! call Timers_start("resetHSE"//dir_str)
 
            
            @M hy_rk_ff_aomp7
            
-!!$           @M hy_rk_loop      
-!!$                @M hy_resetHSE
-!!$           @M hy_rk_loop_end
               
            ! Check for shocks in the zones involved in flux calculation
            @M hy_inShock
