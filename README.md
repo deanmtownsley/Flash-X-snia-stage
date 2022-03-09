@@ -41,10 +41,11 @@ Use [fprettify](https://github.com/pseewald/fprettify) to format your source cod
 
 ## Special Syntax Highlighting
 
-### VIM
-To enable syntax for **Flash-X** specific keywords in your `vim` editor do the following:
+To enable syntax for **Flash-X** specific keywords implement following settings based on the editor:
 
-1. Create `$HOME/.vim/after/syntax/fortran.vim` and add:
+### **VIM**
+
+- Create `$HOME/.vim/after/syntax/fortran.vim` and add:
 
 ```
 " Custom FORTRAN keywords
@@ -57,7 +58,7 @@ syn match customKeyword '\<*\zs!!NOVARIANTS\>'
 hi def link customKeyword Keyword
 ```
 
-2. Create `$HOME/.vimrc` and add:
+- Create `$HOME/.vimrc` and add:
 ```
 " Turn on syntax
 syntax on
