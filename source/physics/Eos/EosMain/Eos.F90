@@ -48,61 +48,13 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   pMassFrac_and_mask = pMassFrac.and.pMask
   
   if(pMassFrac_and_mask) then
-     select case(eos_type)
-     case(EOS_GAM)
-        call eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac, mask=mask, diagFlag=diagFlag)
-     case(EOS_MGAM)
-        call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac, mask=mask)
-     case(EOS_HLM)
-        call eos_helmholtz(mode, vecLen, eosData, massFrac=massFrac, mask=mask)
-     case(EOS_WL)
-        call eos_weaklib(mode, vecLen, eosData, massFrac, mask)
-     case default
-        if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abort('[Eos] unrecognized eos_type.')
-     end select
+     call eos_weaklib(mode, vecLen, eosData, massFrac, mask)
   elseif (pMassFrac) then
-     select case(eos_type)
-     case(EOS_GAM)
-        call eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac, diagFlag=diagFlag)
-     case(EOS_MGAM)
-        call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac=massFrac)
-     case(EOS_HLM)
-        call eos_helmholtz(mode, vecLen, eosData, massFrac=massFrac)
-     case(EOS_WL)
-        call eos_weaklib(mode, vecLen, eosData, massFrac)
-     case default
-        if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abort('[Eos] unrecognized eos_type.')
-     end select
+     call eos_weaklib(mode, vecLen, eosData, massFrac)
   elseif (pMask) then
-     select case(eos_type)
-     case(EOS_GAM)
-        call eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, mask=mask, diagFlag=diagFlag)
-     case(EOS_MGAM)
-        call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, mask=mask)
-     case(EOS_HLM)
-        call eos_helmholtz(mode, vecLen, eosData, mask=mask)
-     case(EOS_WL)
-        call eos_weaklib(mode, vecLen, eosData, mask=mask)
-     case default
-        if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abort('[Eos] unrecognized eos_type.')
-     end select
+     call eos_weaklib(mode, vecLen, eosData, mask=mask)
   else
-     select case(eos_type)
-     case(EOS_GAM)
-        call eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, diagFlag=diagFlag)
-     case(EOS_MGAM)
-        call eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd)
-     case(EOS_HLM)
-        call eos_helmholtz(mode, vecLen, eosData)
-     case(EOS_WL)
-        call eos_weaklib(mode, vecLen, eosData)
-     case default
-        if (eos_meshMe==MASTER_PE) print*,'[Eos] unrecognized eos_type',eos_type
-        call Driver_abort('[Eos] unrecognized eos_type.')
-     end select
+     call eos_weaklib(mode, vecLen, eosData)
   end if
   return
 end subroutine Eos

@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_helmholtz
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/Eos
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!! eos_helmholtz
+!! Eos
 !!
 !! SYNOPSIS
 !!
-!!  call eos_helmholtz(integer(IN) :: mode,
+!!  call Eos(integer(IN) :: mode,
 !!                     integer(IN) :: vecLen,
 !!                     real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!           optional, real(IN)    :: massFrac(vecLen*NSPECIES),
@@ -76,7 +76,7 @@
 !!             the simulation. The array is sized as NSPECIES*vecLen.
 !!             Although this is declared as an optional dummy argument, an
 !!             actual argument MUST be provided when calling THIS implementation
-!!             of eos_helmholtz.
+!!             of Eos.
 !!
 !!  mask     : Mask is a logical array the size of EOS_DERIVS (number
 !!              of partial derivatives that can be computed, defined in
@@ -105,7 +105,7 @@
 !!*** 
 
 
-subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
+subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -137,6 +137,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   !     Arguments
   integer, INTENT(in) :: mode, vecLen
+  integer, optional, INTENT(in) :: vecB,vecE
   real, INTENT(inout), dimension(vecLen*EOS_NUM) :: eosData
   real, optional,INTENT(in), dimension(vecLen*NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_wrapped
@@ -144,7 +145,6 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
   integer, optional, INTENT(out) :: diagFlag
 
   integer :: i, k
-  integer :: vecBegin,vecEnd
   integer :: pres, temp, dens, gamc, eint
   integer :: abar, zbar
   integer :: entr, dst, dsd
@@ -162,7 +162,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   type(eos_tp) :: local_eos_state(vecLen)
   type(comp_tp) :: comp_state
-
+  integer :: vecBegin, vecEnd
   logical :: in_par, do_acc
 
   !      Fill the pipe with the initial temperature, density, and composition.
@@ -328,7 +328,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            ! Land here if too many iterations are needed -- failure
 
            print *, ' '
-           print *, 'Newton-Raphson failed in subroutine eos_helmholtz'
+           print *, 'Newton-Raphson failed in subroutine Eos'
            print *, '(e and rho as input):'
            print *, ' '
            print *, 'too many iterations', eos_maxNewton
@@ -342,7 +342,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               diagFlag = k
               return
            else
-              call Driver_abort('[eos_helmholtz] Error: too many iterations in Helmholtz Eos.')
+              call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos.')
            endif
 
 
@@ -471,7 +471,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               diagFlag = k
               return
            else
-              call Driver_abort('[eos_helmholtz] Error: too many iterations in Helmholtz Eos.')
+              call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos.')
            endif
 
 
@@ -505,8 +505,8 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         ! Unknown EOS mode selected
 
      else if (mode .NE. MODE_EOS_NOP) then
-        if (eos_meshMe .EQ. MASTER_PE) print*, '[eos_helmholtz] Error: unknown input mode', mode
-        call Driver_abort('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
+        if (eos_meshMe .EQ. MASTER_PE) print*, '[Eos] Error: unknown input mode', mode
+        call Driver_abort('[Eos] Error: unknown input mode in subroutine Eos')
      end if
 
      ! Get the optional values
@@ -566,7 +566,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               c_v = (EOS_CV-1)*vecLen
               eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
            else
-              call Driver_abort("[eos_helmholtz] cannot calculate C_V without DET.  Set mask appropriately.")
+              call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
            end if
         end if
 
@@ -575,7 +575,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               c_p = (EOS_CP-1)*vecLen
               eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
            else
-              call Driver_abort("[eos_helmholtz] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+              call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
            end if
         end if
      end if
@@ -712,7 +712,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
         if (present(diagFlag)) then
            return
         else
-           call Driver_abort('[eos_helmholtz] Error: too many iterations in Helmholtz Eos.')
+           call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos.')
         endif
      end if
 
@@ -742,8 +742,8 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
            eosData(pres+1:pres+vecLen) = local_eos_state(1:vecLen) % p
         end if
      else if (mode .NE. MODE_EOS_NOP) then
-        if (eos_meshMe .EQ. MASTER_PE) print*, '[eos_helmholtz] Error: unknown input mode', mode
-        call Driver_abort('[Eos] Error: unknown input mode in subroutine eos_helmholtz')
+        if (eos_meshMe .EQ. MASTER_PE) print*, '[Eos] Error: unknown input mode', mode
+        call Driver_abort('[Eos] Error: unknown input mode in subroutine Eos')
      end if
 
      ! Get the optional values
@@ -804,7 +804,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               c_v = (EOS_CV-1)*vecLen
               eosData(c_v+1:c_v+vecLen) = local_eos_state(1:vecLen) % cv
            else
-              call Driver_abort("[eos_helmholtz] cannot calculate C_V without DET.  Set mask appropriately.")
+              call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
            end if
         end if
 
@@ -813,7 +813,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
               c_p = (EOS_CP-1)*vecLen
               eosData(c_p+1:c_p+vecLen) = local_eos_state(1:vecLen) % cp
            else
-              call Driver_abort("[eos_helmholtz] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+              call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
            end if
         end if
      end if
@@ -826,6 +826,6 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask,diagFlag)
 
   return
 
-end subroutine eos_helmholtz
+end subroutine Eos
 
 
