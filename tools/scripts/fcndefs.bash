@@ -33,8 +33,11 @@ pathmungeany () {
 	EGREP=/usr/bin/egrep
     fi
 
-    eval 'previous_pathstring="${'"${varname}"'}"'
-    # ${!var}: indirect variable expansion, requires bash-2.0 or later
+    unset previous_pathstring
+    eval "declare -p '${varname}'>/dev/null 2>&1" \
+	 "&&previous_pathstring="'"${'"${varname}"'}"'
+    eval 'test -z "${'"${varname}"'+set}"' && unset previous_pathstring
+
     if [ -z "${previous_pathstring+set}" ] ; then
         eval "export ${varname}"'=$1'
     elif [ "$2" = "first" ] && 
