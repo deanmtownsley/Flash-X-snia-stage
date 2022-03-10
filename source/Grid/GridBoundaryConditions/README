@@ -1,5 +1,6 @@
-Current state of boundary condition handling in the FLASH3 code (Sept. 2007)
-===============================================================
+Current state of boundary condition handling in the Flash-X code (Feb. 2022)
+================================================================
+This is largely the same as for FLASH 3.
 
 NOTE: "Boundary condition handling" here only refers to the implementation
 of boundary conditions on fluid variables - for example, UNK variables -
@@ -114,7 +115,7 @@ You may be used to call certain Grid functions that take a blockID argument,
 like Grid_getBlkIndexLimits, Grid_getBlkCenterCoords, Grid_getBlkRefineLevel,
 ..., in order to get metainformation that is associated with a block.
 This will not necessarily work within code that implements BC handling!
-The reason is that Paramesh3, when it passes control back to FLASH3's
+The reason is that Paramesh4, when it passes control back to Flash-X's
 code requesting that guard cells be filled at a domain boundary, may
 sometimes request guard cells for a block that does not actually reside
 on the processor executing the code.  In these cases, the block handle
@@ -127,19 +128,20 @@ pass on a blockHandle dummy argument as a blockID to the listed call):
 
    If you want to use ...,  | then ...
    ========================================================================
-   Grid_getCellCoords       | use gr_extendedGetCellCoords instead
-   Grid_getDeltas           | use gr_extendedGetDeltas instead
-   Grid_getBlkIndexLimits   | go right ahead, should not require change
-   Grid_getBlkIndexSize     | go right ahead, should not require change
-   Grid_getBlkCenterCoords  | go right ahead, should not require change
-   Grid_getBlkRefineLevel   | go right ahead, should not require change
-   Grid_getBlkBoundBox      | go right ahead, should not require change
-   Grid_getSingelCellCoords | don't use it, it won't work right!
-   Grid_getSingelCellVol    | don't use it, it won't work right!
+   Grid_getCellCoords       | use gr_extendedGetCellCoords instead, or 
+   Grid_getDeltas           | use type-bound subroutine DELTAS on Grid_tile_t object instead
+   Grid_getBlkIndexLimits   | go right ahead, should not require change  status sp-u (still blockID)
+   Grid_getBlkPhysicalSize  | use type-bound subroutine PHYSICALSIZE on Grid_tile_t object instead
+   Grid_getBlkCenterCoords  | go right ahead, should not require change  status spAu (Grid_tile_t arg)
+   Grid_getBlkRefineLevel   | use level member of Grid_tile_t object instead
+   Grid_getBlkBoundBox      | use type-bound subroutine boundBox on Grid_tile_t object instead
+   Grid_getSingleCellCoords | don't use it, it won't work right!  aborts SPAU
+   Grid_getSingleCellVol    | don't use it, it won't work right!  aborts SPAU
    others                   | check or ask
 
 
 Klaus Weide    September 4, 2007
   updated      October 1, 2008:  reflect reorg of code so Flash2HSE can work w/o OneRow
+  updated      February 21, 2022:  minor updates for Flash-X;  still WIP
 
 NEEDS UPDATING for Flash3-style HSE BCs: HYDROSTATIC_NV{OUT,REFL,DIODE} !

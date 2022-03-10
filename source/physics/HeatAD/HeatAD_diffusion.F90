@@ -14,6 +14,8 @@
 !!
 !!
 !!***
-subroutine HeatAD_diffusion()
-  implicit none
+subroutine HeatAD_diffusion(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine HeatAD_diffusion

@@ -18,7 +18,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  
+!!
 !!
 !! DESCRIPTION
 !!
@@ -27,19 +27,19 @@
 !!
 !!
 !!***
-subroutine ins_computeDtLocal(blockID,   & 
-                              isize, jsize, ksize,  &
-                              dx, dy, dz,           &
-                              blkLimits,blkLimitsGC,&
-                              facexData,faceyData,  &
-                              facezData,            &
-                              dtLocal, lminloc )
-  implicit none
-  integer, intent(IN) :: blockID
-  integer,dimension(2,MDIM), intent(IN) :: blkLimits,blkLimitsGC
-  integer, intent(IN) :: isize,jsize,ksize
-  real, intent(IN) :: dx, dy, dz
-  real, pointer,dimension(:,:,:,:)  :: facexData,faceyData,facezData
-  real, intent(INOUT) :: dtLocal
-  integer, intent(INOUT) :: lminloc(5)
+subroutine ins_computeDtLocal(blockID, &
+                              isize, jsize, ksize, &
+                              dx, dy, dz, &
+                              blkLimits, blkLimitsGC, &
+                              facexData, faceyData, &
+                              facezData, &
+                              dtLocal, lminloc)
+   implicit none
+   integer, intent(IN) :: blockID
+   integer, dimension(2, MDIM), intent(IN) :: blkLimits, blkLimitsGC
+   integer, intent(IN) :: isize, jsize, ksize
+   real, intent(IN) :: dx, dy, dz
+   real, pointer, dimension(:, :, :, :)  :: facexData, faceyData, facezData
+   real, intent(INOUT) :: dtLocal
+   integer, intent(INOUT) :: lminloc(5)
 end subroutine ins_computeDtLocal

@@ -1,4 +1,0 @@
-# Config file for PoolBoiling complexBoundaries
-
-REQUIRES ./heater
-REQUIRES ./outflow

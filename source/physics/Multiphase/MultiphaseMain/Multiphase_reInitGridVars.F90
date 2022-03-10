@@ -21,7 +21,7 @@
 !!
 !!
 !! DESCRIPTION
-!! 
+!!
 !!***
 !!REORDER(4): solnData
 
@@ -29,58 +29,44 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_reInitGridVars()
+subroutine Multiphase_reInitGridVars(tileDesc)
 
-  use Grid_interface,   ONLY : Grid_getTileIterator, Grid_releaseTileIterator
-  use Grid_tile,        ONLY : Grid_tile_t
-  use Grid_iterator,    ONLY : Grid_iterator_t
-  use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Driver_interface, ONLY : Driver_getNStep
-  use IncompNS_data
+   use Grid_tile, ONLY: Grid_tile_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Multiphase_data, ONLY: mph_meshMe
 
 !------------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer, dimension(:,:,:,:) :: solnData
-  integer TA(2),count_rate
-  real*8  ET
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
 
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
 !------------------------------------------------------------------------------------------
-  nullify(solnData)
+   nullify (solnData)
 
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+   call Timers_start("Multiphase_reInitGridVars")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     solnData(DFRC_VAR,:,:,:) = 0.
-     solnData(RDFN_VAR,:,:,:) = 0.
+   call tileDesc%getDataPtr(solnData, CENTER)
+   solnData(DFRC_VAR, :, :, :) = 0.
+   solnData(RDFN_VAR, :, :, :) = 0.
 
 #ifdef MULTIPHASE_EVAPORATION
-     solnData(HFLQ_VAR,:,:,:) = 0.
-     solnData(HFGS_VAR,:,:,:) = 0.
-     solnData(NRMX_VAR,:,:,:) = 0.
-     solnData(NRMY_VAR,:,:,:) = 0.
+   solnData(HFLQ_VAR, :, :, :) = 0.
+   solnData(HFGS_VAR, :, :, :) = 0.
+   solnData(NRMX_VAR, :, :, :) = 0.
+   solnData(NRMY_VAR, :, :, :) = 0.
 
 #if NDIM == MDIM
-     solnData(NRMZ_VAR,:,:,:) = 0.
+   solnData(NRMZ_VAR, :, :, :) = 0.
 #endif
 
 #endif
 
-     ! Release pointers:
-     call tileDesc%releaseDataPtr(solnData,  CENTER)
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)  
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+   call Timers_stop("Multiphase_reInitGridVars")
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ins_meshMe .eq. MASTER_PE)  write(*,*) 'Total Multiphase reInit Grid Vars Time =',ET
-
-  return
+   return
 end subroutine Multiphase_reInitGridVars

@@ -23,6 +23,8 @@
 !! DESCRIPTION
 !!
 !!***
-subroutine Multiphase_reInitGridVars()
-  implicit none
+subroutine Multiphase_reInitGridVars(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine Multiphase_reInitGridVars

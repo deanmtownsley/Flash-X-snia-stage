@@ -90,6 +90,7 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
   use Eos_interface, ONLY : Eos_wrapped
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
+  use Driver_interface, ONLY: Driver_notifyGridChange
 
   implicit none
 
@@ -271,8 +272,8 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
   ! Make sure the particles get moved to the correct block.
   ! If particles are not included this will simply be a stub (empty) routine.
   
-  
-  
+   if (grid_changed .NE. 0) call Driver_notifyGridChange()
+ 
   if (present(gridChanged)) gridChanged = (grid_changed .NE. 0)
 
   if (gr_gcellsUpToDate) then

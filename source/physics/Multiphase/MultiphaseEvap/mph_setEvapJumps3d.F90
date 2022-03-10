@@ -1,4 +1,4 @@
-subroutine mph_setEvapJumps3d(phi,sigx,sigy,sigz,mflux,rhoGas,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2)
+subroutine mph_setEvapJumps3d(phi, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,103 +10,103 @@ subroutine mph_setEvapJumps3d(phi,sigx,sigy,sigz,mflux,rhoGas,dx,dy,dz,ix1,ix2,j
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-    ! 
-    implicit none
+   !
+   implicit none
 
-    !-----Argument list-------------------
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    real, intent(in) :: dx,dy,dz,rhoGas
-    real, dimension(:,:,:), intent(in) :: phi,mflux
-    real, dimension(:,:,:), intent(inout) :: sigx,sigy,sigz
+   !-----Argument list-------------------
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, intent(in) :: dx, dy, dz, rhoGas
+   real, dimension(:, :, :), intent(in) :: phi, mflux
+   real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
 
-    !-------Local variables---------------
-    real, dimension(ix1:ix2,jy1:jy2,kz1:kz2) :: pf
-    real :: th,xijl,xijr,xij,yij,yijl,yijr,zijl,zijr,zij
-    integer :: i,j,k
-    real :: bb
+   !-------Local variables---------------
+   real, dimension(ix1:ix2, jy1:jy2, kz1:kz2) :: pf
+   real :: th, xijl, xijr, xij, yij, yijl, yijr, zijl, zijr, zij
+   integer :: i, j, k
+   real :: bb
 
-    bb = (1./rhoGas) - 1
-    pf(ix1:ix2,jy1:jy2,kz1:kz2) = (sign(1.0,phi(ix1:ix2,jy1:jy2,kz1:kz2))+1.0)/2.0
+   bb = (1./rhoGas) - 1
+   pf(ix1:ix2, jy1:jy2, kz1:kz2) = (sign(1.0, phi(ix1:ix2, jy1:jy2, kz1:kz2)) + 1.0)/2.0
 
-    !--Need to loop through one guard cell on each side to set jumps 
-    !---when they cross block boundaries
-    do k = kz1+1,kz2-2
-     do j = jy1+1,jy2-2
-       do i = ix1+1,ix2-2
-          !--------------------------------------------------------------
-          !- kpd - pf=0 (water) in current cell and pf=1 (air) in cell to right
-          !--------------------------------------------------------------
-          if(pf(i,j,k).eq.0..and.pf(i+1,j,k).eq.1.) then
-                 !          = (+)            = (+)           = (-)
-                 th = abs(phi(i+1,j,k))/(abs(phi(i+1,j,k))+abs(phi(i,j,k)))
-                 xijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 xijr = -bb*mflux(i+1,j,k)*mflux(i+1,j,k)
-                 xij = xijl*th + xijr*(1.-th) 
-                 sigx(i+1,j,k) = sigx(i+1,j,k) - xij/dx
-           end if
+   !--Need to loop through one guard cell on each side to set jumps
+   !---when they cross block boundaries
+   do k = kz1 + 1, kz2 - 2
+      do j = jy1 + 1, jy2 - 2
+         do i = ix1 + 1, ix2 - 2
+            !--------------------------------------------------------------
+            !- kpd - pf=0 (water) in current cell and pf=1 (air) in cell to right
+            !--------------------------------------------------------------
+            if (pf(i, j, k) .eq. 0. .and. pf(i + 1, j, k) .eq. 1.) then
+               !          = (+)            = (+)           = (-)
+               th = abs(phi(i + 1, j, k))/(abs(phi(i + 1, j, k)) + abs(phi(i, j, k)))
+               xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
+               xij = xijl*th + xijr*(1.-th)
+               sigx(i + 1, j, k) = sigx(i + 1, j, k) - xij/dx
+            end if
 
-           !--------------------------------------------------------------
-           !- kpd - pf=1 in current cell and pf=0 in cell to right
-           !--------------------------------------------------------------
-           if(pf(i,j,k).eq.1..and.pf(i+1,j,k).eq.0.) then
-                 !
-                 th = abs(phi(i,j,k))/(abs(phi(i,j,k))+abs(phi(i+1,j,k)))
-                 xijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 xijr = -bb*mflux(i+1,j,k)*mflux(i+1,j,k)
-                 xij = xijl*(1.-th) + xijr*th
-                 sigx(i+1,j,k) = sigx(i+1,j,k) + xij/dx
- 
+            !--------------------------------------------------------------
+            !- kpd - pf=1 in current cell and pf=0 in cell to right
+            !--------------------------------------------------------------
+            if (pf(i, j, k) .eq. 1. .and. pf(i + 1, j, k) .eq. 0.) then
+               !
+               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i + 1, j, k)))
+               xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
+               xij = xijl*(1.-th) + xijr*th
+               sigx(i + 1, j, k) = sigx(i + 1, j, k) + xij/dx
+
             end if
 
             !--------------------------------------------------------------
             !- kpd - pf=0 in current cell and pf=1 in cell above
             !--------------------------------------------------------------
-            if(pf(i,j,k).eq.0..and.pf(i,j+1,k).eq.1.) then
-                 !
-                 th = abs(phi(i,j+1,k))/(abs(phi(i,j+1,k))+abs(phi(i,j,k)))
-                 yijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 yijr = -bb*mflux(i,j+1,k)*mflux(i,j+1,k)
-                 yij = yijl*th + yijr*(1.-th)
-                 sigy(i,j+1,k) = sigy(i,j+1,k) - yij/dy
-             end if
+            if (pf(i, j, k) .eq. 0. .and. pf(i, j + 1, k) .eq. 1.) then
+               !
+               th = abs(phi(i, j + 1, k))/(abs(phi(i, j + 1, k)) + abs(phi(i, j, k)))
+               yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
+               yij = yijl*th + yijr*(1.-th)
+               sigy(i, j + 1, k) = sigy(i, j + 1, k) - yij/dy
+            end if
 
             !--------------------------------------------------------------
             !- kpd - pf=1 in current cell and pf=0 in cell above
             !--------------------------------------------------------------
-            if(pf(i,j,k).eq.1..and.pf(i,j+1,k).eq.0.) then
-                 !
-                 th = abs(phi(i,j,k))/(abs(phi(i,j,k))+abs(phi(i,j+1,k))) 
-                 yijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 yijr = -bb*mflux(i,j+1,k)*mflux(i,j+1,k)
-                 yij = yijl*(1.-th) + yijr*th
-                 sigy(i,j+1,k) = sigy(i,j+1,k) + yij/dy 
-          end if
+            if (pf(i, j, k) .eq. 1. .and. pf(i, j + 1, k) .eq. 0.) then
+               !
+               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j + 1, k)))
+               yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
+               yij = yijl*(1.-th) + yijr*th
+               sigy(i, j + 1, k) = sigy(i, j + 1, k) + yij/dy
+            end if
             !--------------------------------------------------------------
             !- kpd - pf=0 in current cell and pf=1 in cell above
             !--------------------------------------------------------------
-            if(pf(i,j,k).eq.0..and.pf(i,j,k+1).eq.1.) then
-                 !
-                 th = abs(phi(i,j,k+1))/(abs(phi(i,j,k+1))+abs(phi(i,j,k)))
-                 zijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 zijr = -bb*mflux(i,j,k+1)*mflux(i,j,k+1)
-                 zij = zijl*th + zijr*(1.-th)
-                 sigz(i,j,k+1) = sigz(i,j,k+1) - zij/dz
+            if (pf(i, j, k) .eq. 0. .and. pf(i, j, k + 1) .eq. 1.) then
+               !
+               th = abs(phi(i, j, k + 1))/(abs(phi(i, j, k + 1)) + abs(phi(i, j, k)))
+               zijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               zijr = -bb*mflux(i, j, k + 1)*mflux(i, j, k + 1)
+               zij = zijl*th + zijr*(1.-th)
+               sigz(i, j, k + 1) = sigz(i, j, k + 1) - zij/dz
             end if
 
             !--------------------------------------------------------------
             !- kpd - pf=1 in current cell and pf=0 in cell above
             !--------------------------------------------------------------
-            if(pf(i,j,k).eq.1..and.pf(i,j,k+1).eq.0.) then
-                 !
-                 th = abs(phi(i,j,k))/(abs(phi(i,j,k))+abs(phi(i,j,k+1))) 
-                 zijl = -bb*mflux(i,j,k)*mflux(i,j,k)
-                 zijr = -bb*mflux(i,j,k+1)*mflux(i,j,k+1)
-                 zij = zijl*(1.-th) + zijr*th
-                 sigz(i,j,k+1) = sigz(i,j,k+1) + zij/dz
+            if (pf(i, j, k) .eq. 1. .and. pf(i, j, k + 1) .eq. 0.) then
+               !
+               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j, k + 1)))
+               zijl = -bb*mflux(i, j, k)*mflux(i, j, k)
+               zijr = -bb*mflux(i, j, k + 1)*mflux(i, j, k + 1)
+               zij = zijl*(1.-th) + zijr*th
+               sigz(i, j, k + 1) = sigz(i, j, k + 1) + zij/dz
             end if
             !--------------------------------------------------------------
-            !-------------------------------------------------------------- 
-       end do
+            !--------------------------------------------------------------
+         end do
       end do
-     end do
+   end do
 end subroutine mph_setEvapJumps3d

@@ -24,115 +24,144 @@
 
 Module Multiphase_interface
 
-  implicit none
+   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
 
+   interface
+      subroutine Multiphase_init(restart)
+         implicit none
+         logical, intent(in) :: restart
+      end subroutine Multiphase_init
+   end interface
 
-  interface
-  subroutine Multiphase_init(restart)
-  implicit none
-  logical, intent(in) :: restart
-  end subroutine Multiphase_init
-  end interface
+   interface
+      subroutine Multiphase_advection(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_advection
+   end interface
 
-  interface
-  subroutine Multiphase(timeEndAdv,dt,dtOld,sweepOrder)
-  implicit none
-  integer, INTENT(IN) :: sweepOrder
-  real,    INTENT(IN) :: timeEndAdv,dt,dtOld
-  end subroutine Multiphase
-  end interface
+   interface
+      subroutine Multiphase_solve(tileDesc, dt)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         real, INTENT(IN) :: dt
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_solve
+   end interface
 
-  interface
-  subroutine Multiphase_advection()
-  implicit none
-  end subroutine Multiphase_advection
-  end interface
+   interface
+      subroutine Multiphase_redistance(tileDesc, iteration)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         integer, INTENT(IN) :: iteration
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_redistance
+   end interface
 
-  interface
-  subroutine Multiphase_solve(dt)
-  implicit none
-  real,    INTENT(IN) :: dt
-  end subroutine Multiphase_solve
-  end interface
+   interface
+      subroutine Multiphase_indicators()
+         implicit none
+      end subroutine Multiphase_indicators
+   end interface
 
-  interface
-  subroutine Multiphase_redistance()
-  implicit none
-  end subroutine Multiphase_redistance
-  end interface
+   interface
+      subroutine Multiphase_finalize()
+         implicit none
+      end subroutine Multiphase_finalize
+   end interface
 
-  interface
-  subroutine Multiphase_finalize()
-  implicit none
-  end subroutine Multiphase_finalize
-  end interface
+   interface
+      subroutine Multiphase_setFluidProps(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_setFluidProps
+   end interface
 
-  interface
-  subroutine Multiphase_setFluidProps()
-  implicit none
-  end subroutine Multiphase_setFluidProps
-  end interface
+   interface
+      subroutine Multiphase_setThermalProps(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_setThermalProps
+   end interface
 
-  interface
-  subroutine Multiphase_setThermalProps()
-  implicit none
-  end subroutine Multiphase_setThermalProps
-  end interface
+   interface
+      subroutine Multiphase_setPressureJumps(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_setPressureJumps
+   end interface
 
-  interface
-  subroutine Multiphase_setPressureJumps()
-  implicit none
-  end subroutine Multiphase_setPressureJumps
-  end interface
+   interface
+      subroutine Multiphase_getScalarProp(name, value)
+         implicit none
+         character(len=*), intent(in)  :: name
+         real, intent(out)             :: value
+      end subroutine Multiphase_getScalarProp
+   end interface
 
-  interface
-  subroutine Multiphase_getScalarProp(name, value)
-  implicit none
-  character(len=*), intent(in)  :: name
-  real, intent(out)             :: value
-  end subroutine Multiphase_getScalarProp
-  end interface
+   interface
+      subroutine Multiphase_thermalForcing(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_thermalForcing
+   end interface
 
-  interface
-  subroutine Multiphase_thermalForcing()
-  implicit none
-  end subroutine Multiphase_thermalForcing
-  end interface
+   interface
+      subroutine Multiphase_divergence(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_divergence
+   end interface
 
-  interface
-  subroutine Multiphase_divergence()
-  implicit none
-  end subroutine Multiphase_divergence
-  end interface
+   interface
+      subroutine Multiphase_extrapFluxes(tileDesc, iteration)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         integer, INTENT(IN) :: iteration
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_extrapFluxes
+   end interface
 
-  interface
-  subroutine Multiphase_thermalFluxes()
-  implicit none
-  end subroutine Multiphase_thermalFluxes
-  end interface
+   interface
+      subroutine Multiphase_setMassFlux(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_setMassFlux
+   end interface
 
-  interface
-  subroutine Multiphase_velForcing(dt)
-  implicit none
-  real, intent(in) :: dt
-  end subroutine Multiphase_velForcing
-  end interface
+   interface
+      subroutine Multiphase_velForcing(tileDesc, dt)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         real, intent(in) :: dt
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_velForcing
+   end interface
 
-  interface
-  subroutine Multiphase_reInitGridVars()
-  implicit none
-  end subroutine Multiphase_reInitGridVars
-  end interface
+   interface
+      subroutine Multiphase_reInitGridVars(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      end subroutine Multiphase_reInitGridVars
+   end interface
 
-  interface
-  subroutine Multiphase_getGridVar(name, value)
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
-  end subroutine Multiphase_getGridVar
-  end interface
+   interface
+      subroutine Multiphase_getGridVar(name, value)
+         implicit none
+         character(len=*), intent(in)  :: name
+         integer, intent(out)          :: value
+      end subroutine Multiphase_getGridVar
+   end interface
 
 end module Multiphase_interface

@@ -20,144 +20,129 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_advection()
+subroutine Multiphase_advection(tileDesc)
 
-  use Multiphase_data
-  use Timers_interface,    ONLY : Timers_start, Timers_stop
-  use Driver_interface,    ONLY : Driver_getNStep
-  use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-  use Grid_tile,           ONLY : Grid_tile_t
-  use Grid_iterator,       ONLY : Grid_iterator_t
-  use Stencils_interface,  ONLY : Stencils_advectWeno2d,Stencils_advectWeno3d
-  use mph_evapInterface,   ONLY : mph_evapVelocity2d,mph_evapVelocity3d
+   use Multiphase_data
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_advectWeno2d, Stencils_advectWeno3d
+   use mph_evapInterface, ONLY: mph_evapVelocity2d, mph_evapVelocity3d
 
 !-----------------------------------------------------------------------------------------
-  implicit none
-  include "Flashx_mpi.h"
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer, dimension(:,:,:,:) :: solnData, facexData, faceyData, facezData
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
-  integer TA(2),count_rate
-  real*8  ET
+   implicit none
+   include "Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
 
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real del(MDIM)
 !-----------------------------------------------------------------------------------------
-  CALL SYSTEM_CLOCK(TA(1),count_rate)
+   nullify (solnData, facexData, faceyData, facezData)
 
-  nullify(solnData,facexData,faceyData,facezData)
+   call Timers_start("Multiphase_advection")
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-       call itor%currentTile(tileDesc)
-       call tileDesc%getDataPtr(solnData,  CENTER)
-       call tileDesc%getDataPtr(facexData,  FACEX)
-       call tileDesc%getDataPtr(faceyData,  FACEY)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
 #if NDIM == MDIM
-       call tileDesc%getDataPtr(facezData,  FACEZ)
+   call tileDesc%getDataPtr(facezData, FACEZ)
 #endif
-       call tileDesc%deltas(del)
+   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
 
 #ifdef MULTIPHASE_EVAPORATION
-        call mph_evapVelocity2d(facexData(mph_iVelFVar,:,:,:), &
-                                faceyData(mph_iVelFVar,:,:,:), &
-                                facexData(mph_iRhoFVar,:,:,:), &
-                                faceyData(mph_iRhoFVar,:,:,:), &
-                                solnData(NRMX_VAR,:,:,:), &
-                                solnData(NRMY_VAR,:,:,:), &
-                                solnData(MFLX_VAR,:,:,:), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI)
+   call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
+                           faceyData(mph_iVelFVar, :, :, :), &
+                           facexData(mph_iRhoFVar, :, :, :), &
+                           faceyData(mph_iRhoFVar, :, :, :), &
+                           solnData(NRMX_VAR, :, :, :), &
+                           solnData(NRMY_VAR, :, :, :), &
+                           solnData(MFLX_VAR, :, :, :), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI)
 #endif
 
-        call Stencils_advectWeno2d(solnData(RDFN_VAR,:,:,:), &
-                                   solnData(DFUN_VAR,:,:,:), &
-                                   facexData(mph_iVelFVar,:,:,:), &
-                                   faceyData(mph_iVelFVar,:,:,:), &
-                                   del(DIR_X), &
-                                   del(DIR_Y), &
-                                   GRID_ILO, GRID_IHI,&
-                                   GRID_JLO, GRID_JHI,& 
-                                   center=.true.,facex=.false.,facey=.false.)
+   call Stencils_advectWeno2d(solnData(RDFN_VAR, :, :, :), &
+                              solnData(DFUN_VAR, :, :, :), &
+                              facexData(mph_iVelFVar, :, :, :), &
+                              faceyData(mph_iVelFVar, :, :, :), &
+                              del(DIR_X), &
+                              del(DIR_Y), &
+                              GRID_ILO, GRID_IHI, &
+                              GRID_JLO, GRID_JHI, &
+                              center=1, facex=0, facey=0)
 
 #ifdef MULTIPHASE_EVAPORATION
-        call mph_evapVelocity2d(facexData(mph_iVelFVar,:,:,:), &
-                                faceyData(mph_iVelFVar,:,:,:), &
-                                facexData(mph_iRhoFVar,:,:,:), &
-                                faceyData(mph_iRhoFVar,:,:,:), &
-                                solnData(NRMX_VAR,:,:,:), &
-                                solnData(NRMY_VAR,:,:,:), &
-                               -solnData(MFLX_VAR,:,:,:), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI)
+   call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
+                           faceyData(mph_iVelFVar, :, :, :), &
+                           facexData(mph_iRhoFVar, :, :, :), &
+                           faceyData(mph_iRhoFVar, :, :, :), &
+                           solnData(NRMX_VAR, :, :, :), &
+                           solnData(NRMY_VAR, :, :, :), &
+                           -solnData(MFLX_VAR, :, :, :), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI)
 #endif
-
 
 #else
 
 #ifdef MULTIPHASE_EVAPORATION
-        call mph_evapVelocity3d(facexData(mph_iVelFVar,:,:,:), &
-                                faceyData(mph_iVelFVar,:,:,:), &
-                                facezData(mph_iVelFVar,:,:,:), &
-                                facexData(mph_iRhoFVar,:,:,:), &
-                                faceyData(mph_iRhoFVar,:,:,:), &
-                                facezData(mph_iRhoFVar,:,:,:), &
-                                solnData(NRMX_VAR,:,:,:), &
-                                solnData(NRMY_VAR,:,:,:), &
-                                solnData(NRMZ_VAR,:,:,:), &
-                                solnData(MFLX_VAR,:,:,:), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI, &
-                                GRID_KLO, GRID_KHI)
+   call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
+                           faceyData(mph_iVelFVar, :, :, :), &
+                           facezData(mph_iVelFVar, :, :, :), &
+                           facexData(mph_iRhoFVar, :, :, :), &
+                           faceyData(mph_iRhoFVar, :, :, :), &
+                           facezData(mph_iRhoFVar, :, :, :), &
+                           solnData(NRMX_VAR, :, :, :), &
+                           solnData(NRMY_VAR, :, :, :), &
+                           solnData(NRMZ_VAR, :, :, :), &
+                           solnData(MFLX_VAR, :, :, :), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           GRID_KLO, GRID_KHI)
 #endif
 
-        call Stencils_advectWeno3d(solnData(RDFN_VAR,:,:,:), &
-                                   solnData(DFUN_VAR,:,:,:), &
-                                   facexData(mph_iVelFVar,:,:,:), &
-                                   faceyData(mph_iVelFVar,:,:,:), &
-                                   facezData(mph_iVelFVar,:,:,:), &
-                                   del(DIR_X), &
-                                   del(DIR_Y), &
-                                   del(DIR_Z), &
-                                   GRID_ILO, GRID_IHI,&
-                                   GRID_JLO, GRID_JHI,&
-                                   GRID_KLO, GRID_KHI,&
-                      center=.true.,facex=.false.,facey=.false.,facez=.false.)
+   call Stencils_advectWeno3d(solnData(RDFN_VAR, :, :, :), &
+                              solnData(DFUN_VAR, :, :, :), &
+                              facexData(mph_iVelFVar, :, :, :), &
+                              faceyData(mph_iVelFVar, :, :, :), &
+                              facezData(mph_iVelFVar, :, :, :), &
+                              del(DIR_X), &
+                              del(DIR_Y), &
+                              del(DIR_Z), &
+                              GRID_ILO, GRID_IHI, &
+                              GRID_JLO, GRID_JHI, &
+                              GRID_KLO, GRID_KHI, &
+                              center=1, facex=0, facey=0, facez=0)
 
 #ifdef MULTIPHASE_EVAPORATION
-        call mph_evapVelocity3d(facexData(mph_iVelFVar,:,:,:), &
-                                faceyData(mph_iVelFVar,:,:,:), &
-                                facezData(mph_iVelFVar,:,:,:), &
-                                facexData(mph_iRhoFVar,:,:,:), &
-                                faceyData(mph_iRhoFVar,:,:,:), &
-                                facezData(mph_iRhoFVar,:,:,:), &
-                                solnData(NRMX_VAR,:,:,:), &
-                                solnData(NRMY_VAR,:,:,:), &
-                                solnData(NRMZ_VAR,:,:,:), &
-                               -solnData(MFLX_VAR,:,:,:), &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI, &
-                                GRID_KLO, GRID_KHI)
+   call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
+                           faceyData(mph_iVelFVar, :, :, :), &
+                           facezData(mph_iVelFVar, :, :, :), &
+                           facexData(mph_iRhoFVar, :, :, :), &
+                           faceyData(mph_iRhoFVar, :, :, :), &
+                           facezData(mph_iRhoFVar, :, :, :), &
+                           solnData(NRMX_VAR, :, :, :), &
+                           solnData(NRMY_VAR, :, :, :), &
+                           solnData(NRMZ_VAR, :, :, :), &
+                           -solnData(MFLX_VAR, :, :, :), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           GRID_KLO, GRID_KHI)
 #endif
 
 #endif
 
-        ! Release pointers:
-        call tileDesc%releaseDataPtr(solnData, CENTER)
-        call tileDesc%releaseDataPtr(facexData, FACEX)
-        call tileDesc%releaseDataPtr(faceyData, FACEY)
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
 #if NDIM == MDIM
-       call tileDesc%releaseDataPtr(facezData,  FACEZ)
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
-        call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)  
+   call Timers_stop("Multiphase_advection")
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (mph_meshMe .eq. MASTER_PE)  write(*,*) 'Multiphase Advection Time =',ET
-
-  return
+   return
 end subroutine Multiphase_advection
