@@ -34,7 +34,7 @@ subroutine HeatAD_diffusion(tileDesc)
    type(Grid_tile_t), intent(in) :: tileDesc
 
    real ::  del(MDIM)
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: stnLimits
    real, pointer, dimension(:, :, :, :) :: solnData
    real :: diffusion_coeff
 
@@ -46,23 +46,28 @@ subroutine HeatAD_diffusion(tileDesc)
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
    call tileDesc%getDataPtr(solnData, CENTER)
+
    call tileDesc%deltas(del)
 
+   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
+  
 #if NDIM == MDIM
-   call Stencils_diffusion3d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_diffusion3d(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
                              diffusion_coeff*solnData(ALPH_VAR, :, :, :), &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI, &
-                             GRID_KLO, GRID_KHI)
+                             stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                             stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                             stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
+
 #else
-   call Stencils_diffusion2d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_diffusion2d(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
                              diffusion_coeff*solnData(ALPH_VAR, :, :, :), &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI)
+                             stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                             stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #endif
 
    call tileDesc%releaseDataPtr(solnData, CENTER)

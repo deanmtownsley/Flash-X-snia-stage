@@ -34,13 +34,16 @@ subroutine Multiphase_advection(tileDesc)
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: stnLimits = 1
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    real del(MDIM)
 !-----------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
    call Timers_start("Multiphase_advection")
+
+   stnLimits(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
+   stnLimits(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
@@ -60,18 +63,17 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #endif
 
-   call Stencils_advectWeno2d(solnData(RDFN_VAR, :, :, :), &
+   call Stencils_advectWeno2d(solnData(HDN0_VAR, :, :, :), &
                               solnData(DFUN_VAR, :, :, :), &
                               facexData(mph_iVelFVar, :, :, :), &
                               faceyData(mph_iVelFVar, :, :, :), &
-                              del(DIR_X), &
-                              del(DIR_Y), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
+                              del(DIR_X), del(DIR_Y), &
+                              stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                              stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
                               center=1, facex=0, facey=0)
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -82,8 +84,8 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            -solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
 #endif
 
 #else
@@ -99,12 +101,12 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI, &
-                           GRID_KLO, GRID_KHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                           stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
 #endif
 
-   call Stencils_advectWeno3d(solnData(RDFN_VAR, :, :, :), &
+   call Stencils_advectWeno3d(solnData(HDN0_VAR, :, :, :), &
                               solnData(DFUN_VAR, :, :, :), &
                               facexData(mph_iVelFVar, :, :, :), &
                               faceyData(mph_iVelFVar, :, :, :), &
@@ -112,9 +114,9 @@ subroutine Multiphase_advection(tileDesc)
                               del(DIR_X), &
                               del(DIR_Y), &
                               del(DIR_Z), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI, &
+                              stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                              stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                              stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS), &
                               center=1, facex=0, facey=0, facez=0)
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -128,9 +130,9 @@ subroutine Multiphase_advection(tileDesc)
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
                            -solnData(MFLX_VAR, :, :, :), &
-                           GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI, &
-                           GRID_KLO, GRID_KHI)
+                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
+                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
+                           stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
 #endif
 
 #endif

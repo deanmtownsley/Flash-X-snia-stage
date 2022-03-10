@@ -63,7 +63,7 @@ subroutine IncompNS_advection(tileDesc)
 #if NDIM == 3
    call tileDesc%getDataPtr(facezData, FACEZ)
    ! compute RHS of momentum equation
-   call Stencils_advectWeno3d(facexData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_advectWeno3d(facexData(HVN0_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
@@ -74,7 +74,7 @@ subroutine IncompNS_advection(tileDesc)
                               GRID_KLO, GRID_KHI, &
                               center=0, facex=1, facey=0, facez=0)
 
-   call Stencils_advectWeno3d(faceyData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_advectWeno3d(faceyData(HVN0_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
@@ -85,7 +85,7 @@ subroutine IncompNS_advection(tileDesc)
                               GRID_KLO, GRID_KHI, &
                               center=0, facex=0, facey=1, facez=0)
 
-   call Stencils_advectWeno3d(facezData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_advectWeno3d(facezData(HVN0_FACE_VAR, :, :, :), &
                               facezData(VELC_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
@@ -97,7 +97,7 @@ subroutine IncompNS_advection(tileDesc)
                               center=0, facex=0, facey=0, facez=1)
 #elif NDIM ==2
    ! compute RHS of momentum equation
-   call Stencils_advectWeno2d(facexData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_advectWeno2d(facexData(HVN0_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
@@ -107,7 +107,7 @@ subroutine IncompNS_advection(tileDesc)
                               GRID_JLO, GRID_JHI, &
                               center=0, facex=1, facey=0)
 
-   call Stencils_advectWeno2d(faceyData(RHDS_FACE_VAR, :, :, :), &
+   call Stencils_advectWeno2d(faceyData(HVN0_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &
                               facexData(VELC_FACE_VAR, :, :, :), &
                               faceyData(VELC_FACE_VAR, :, :, :), &

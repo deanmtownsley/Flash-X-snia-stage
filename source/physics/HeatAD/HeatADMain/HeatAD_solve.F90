@@ -26,7 +26,7 @@ subroutine HeatAD_solve(tileDesc, dt)
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use Grid_tile, ONLY: Grid_tile_t
-   use Stencils_interface, ONLY: Stencils_integrateEuler
+   use Stencils_interface, ONLY: Stencils_integrateEuler, Stencils_integrateAB2
 
    implicit none
    include"Flashx_mpi.h"
@@ -49,13 +49,16 @@ subroutine HeatAD_solve(tileDesc, dt)
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%deltas(del)
 
-   call Stencils_integrateEuler(solnData(TEMP_VAR, :, :, :), &
-                                solnData(RHST_VAR, :, :, :), &
-                                dt, &
-                                GRID_ILO, GRID_IHI, &
-                                GRID_JLO, GRID_JHI, &
-                                GRID_KLO, GRID_KHI, &
-                                iSource=solnData(TFRC_VAR, :, :, :))
+   call Stencils_integrateAB2(solnData(TEMP_VAR, :, :, :), &
+                              solnData(HTN0_VAR, :, :, :), &
+                              solnData(HTN1_VAR, :, :, :), &
+                              dt, &
+                              GRID_ILO, GRID_IHI, &
+                              GRID_JLO, GRID_JHI, &
+                              GRID_KLO, GRID_KHI, &
+                              iSource=solnData(TFRC_VAR, :, :, :))
+
+   solnData(HTN1_VAR, :, :, :) = solnData(HTN0_VAR, :, :, :)
 
    call tileDesc%releaseDataPtr(solnData, CENTER)
 

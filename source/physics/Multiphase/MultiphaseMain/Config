@@ -29,5 +29,5 @@ PARAMETER mph_iPropSmear REAL 1.0      # Thickness of the smeared region
 #-------------------------------------------------------------------------------
 # Variables required by the MPH module
 VARIABLE dfun                   # Level set distance function
-VARIABLE rdfn                   # RHS for level set advection
+VARIABLE hdn0                   # RHS for level set advection
 VARIABLE dfrc                   # Level set forcing variable

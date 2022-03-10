@@ -49,7 +49,7 @@ subroutine HeatAD_diffusion(tileDesc)
    call tileDesc%deltas(del)
 
 #if NDIM == MDIM
-   call Stencils_diffusion3d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_diffusion3d(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
                              diffusion_coeff, &
@@ -57,7 +57,7 @@ subroutine HeatAD_diffusion(tileDesc)
                              GRID_JLO, GRID_JHI, &
                              GRID_KLO, GRID_KHI)
 #else
-   call Stencils_diffusion2d(solnData(RHST_VAR, :, :, :), &
+   call Stencils_diffusion2d(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
                              diffusion_coeff, &

@@ -65,22 +65,26 @@ Module sim_outflowInterface
    end interface
 
    interface sim_outflowVelBlk
-      subroutine sim_outflowVelBlk2d(velOut, u, v, xcell, ycell, boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
-         real, intent(inout)                    :: velOut
-         real, dimension(:, :, :), intent(in)     :: u, v
-         real, dimension(:), intent(in)         :: xcell, ycell
+      subroutine sim_outflowVelBlk2d(velOut, u, v, ru, rv, xcell, ycell, &
+                                     boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
+         real, intent(inout)                     :: velOut
+         real, dimension(:, :, :), intent(in)    :: u, v
+         real, dimension(:, :, :), intent(inout) :: ru, rv
+         real, dimension(:), intent(in)          :: xcell, ycell
          real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                       :: dt, dx, dy
-         integer, intent(in)                    :: ix1, ix2, jy1, jy2
+         real, intent(in)                        :: dt, dx, dy
+         integer, intent(in)                     :: ix1, ix2, jy1, jy2
       end subroutine sim_outflowVelBlk2d
 
-      subroutine sim_outflowVelBlk3d(velOut, u, v, w, xcell, ycell, zcell, boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
-         real, intent(inout)                    :: velOut
-         real, dimension(:, :, :), intent(in)     :: u, v, w
-         real, dimension(:), intent(in)         :: xcell, ycell, zcell
+      subroutine sim_outflowVelBlk3d(velOut, u, v, w, ru, rv, rw, xcell, ycell, zcell, &
+                                     boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+         real, intent(inout)                     :: velOut
+         real, dimension(:, :, :), intent(in)    :: u, v, w
+         real, dimension(:, :, :), intent(inout) :: ru, rv, rw
+         real, dimension(:), intent(in)          :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                       :: dt, dx, dy, dz
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in)                        :: dt, dx, dy, dz
+         integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
       end subroutine sim_outflowVelBlk3d
    end interface
 

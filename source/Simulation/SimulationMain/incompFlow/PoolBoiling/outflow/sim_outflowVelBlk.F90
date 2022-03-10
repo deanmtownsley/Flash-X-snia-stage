@@ -17,67 +17,127 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outflowVelBlk2d(velOut, u, v, xcell, ycell, boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
+subroutine sim_outflowVelBlk2d(velOut, u, v, ru, rv, xcell, ycell, &
+                               boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
 
    use Simulation_data
    use sim_outflowData
 
    implicit none
    real, intent(inout)                     :: velOut
-   real, dimension(:, :, :), intent(in)      :: u, v
+   real, dimension(:, :, :), intent(in)    :: u, v
+   real, dimension(:, :, :), intent(inout) :: ru, rv
    real, dimension(:), intent(in)          :: xcell, ycell
-   real, dimension(:, :), intent(in)        :: boundBox
+   real, dimension(:, :), intent(in)       :: boundBox
    real, intent(in)                        :: dt, dx, dy
-   integer, intent(in)                    :: ix1, ix2, jy1, jy2
+   integer, intent(in)                     :: ix1, ix2, jy1, jy2
 
    integer :: i, j, k
    real    :: xi, yi
+   real    :: uyplus, uymins, vyplus, vymins
 
    k = 1
 
-   do j = jy1, jy2
-      do i = ix1, ix2
+   do j = jy1 + 1, jy2 - 1
+      do i = ix1 + 1, ix2
          xi = xcell(i)
          yi = ycell(j)
 
-         if (yi .le. sim_yMax .and. yi .ge. sim_yMax - dy) then
-            velOut = max(velOut, v(i, j + 1, k))
-         end if
+         uyplus = (u(i, j + 1, k) + u(i, j, k))*0.5
+         uymins = (u(i, j, k) + u(i, j - 1, k))*0.5
 
+         if (yi .ge. sim_outflowRegion) &
+            ru(i, j, k) = -sim_outflowVel(HIGH, JAXIS)*(uyplus - uymins)/dy
+      end do
+   end do
+
+   do j = jy1 + 1, jy2
+      do i = ix1 + 1, ix2 - 1
+         xi = xcell(i)
+         yi = ycell(j)
+
+         vyplus = (v(i, j + 1, k) + v(i, j, k))*0.5
+         vymins = (v(i, j, k) + v(i, j - 1, k))*0.5
+
+         if (yi .ge. sim_outflowRegion) &
+            rv(i, j, k) = -sim_outflowVel(HIGH, JAXIS)*(vyplus - vymins)/dy
+
+         if (yi .le. sim_yMax .and. yi .ge. sim_yMax - dy) &
+            velOut = max(velOut, v(i, j + 1, k))
       end do
    end do
 
 end subroutine sim_outflowVelBlk2d
 
-subroutine sim_outflowVelBlk3d(velOut, u, v, w, xcell, ycell, zcell, boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine sim_outflowVelBlk3d(velOut, u, v, w, ru, rv, rw, xcell, ycell, zcell, &
+                               boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 
    use Simulation_data
    use sim_outflowData
 
    implicit none
    real, intent(inout)                   :: velOut
-   real, dimension(:, :, :), intent(in)    :: u, v, w
+   real, dimension(:, :, :), intent(in)  :: u, v, w
+   real, dimension(:, :, :), intent(inout) :: ru, rv, rw
    real, dimension(:), intent(in)        :: xcell, ycell, zcell
-   real, dimension(:, :), intent(in)      :: boundBox
+   real, dimension(:, :), intent(in)     :: boundBox
    real, intent(in)                      :: dt, dx, dy, dz
-   integer, intent(in)                  :: ix1, ix2, jy1, jy2, kz1, kz2
+   integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
 
    integer :: i, j, k
    real    :: xi, yi, zi
+   real    :: uyplus, uymins, vyplus, vymins, wyplus, wymins
 
-   do k = kz1, kz2
-      do j = jy1, jy2
-         do i = ix1, ix2
+   do k = kz1 + 1, kz2 - 1
+      do j = jy1 + 1, jy2 - 1
+         do i = ix1 + 1, ix2
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)
 
-            if (yi .le. sim_yMax .and. yi .ge. sim_yMax - dy) then
-               velOut = max(velOut, v(i, j + 1, k))
-            end if
+            uyplus = (u(i, j + 1, k) + u(i, j, k))*0.5
+            uymins = (u(i, j, k) + u(i, j - 1, k))*0.5
 
+            if (yi .ge. sim_outflowRegion) &
+               ru(i, j, k) = -sim_outflowVel(HIGH, JAXIS)*(uyplus - uymins)/dy
          end do
       end do
    end do
+
+   do k = kz1 + 1, kz2 - 1
+      do j = jy1 + 1, jy2
+         do i = ix1 + 1, ix2 - 1
+            xi = xcell(i)
+            yi = ycell(j)
+            zi = zcell(k)
+
+            vyplus = (v(i, j + 1, k) + v(i, j, k))*0.5
+            vymins = (v(i, j, k) + v(i, j - 1, k))*0.5
+
+            if (yi .ge. sim_outflowRegion) &
+               rv(i, j, k) = -sim_outflowVel(HIGH, JAXIS)*(vyplus - vymins)/dy
+
+            if (yi .le. sim_yMax .and. yi .ge. sim_yMax - dy) &
+               velOut = max(velOut, v(i, j + 1, k))
+         end do
+      end do
+   end do
+
+   do k = kz1 + 1, kz2
+      do j = jy1 + 1, jy2 - 1
+         do i = ix1 + 1, ix2 - 1
+            xi = xcell(i)
+            yi = ycell(j)
+            zi = zcell(k)
+
+            wyplus = (w(i, j + 1, k) + w(i, j, k))*0.5
+            wymins = (w(i, j, k) + w(i, j - 1, k))*0.5
+
+            if (yi .ge. sim_outflowRegion) &
+               rw(i, j, k) = -sim_outflowVel(HIGH, JAXIS)*(wyplus - wymins)/dy
+         end do
+      end do
+   end do
+
 
 end subroutine sim_outflowVelBlk3d
