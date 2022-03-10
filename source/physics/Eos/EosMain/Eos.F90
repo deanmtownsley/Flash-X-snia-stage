@@ -24,8 +24,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  use eos_localInterface, ONLY : eos_idealGamma, eos_mgamma, eos_helmholtz,&
-      eos_weaklib
+  use eos_localInterface, ONLY : eos_weaklib
   implicit none
 #include "constants.h"
 #include "Eos.h"
