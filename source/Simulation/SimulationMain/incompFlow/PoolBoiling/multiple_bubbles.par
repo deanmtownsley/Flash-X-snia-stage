@@ -36,18 +36,18 @@ sim_heaterName    = "multiple_bubbles"
 sim_heaterShowInfo = .FALSE.
 
 # Outflow parameters
-sim_lsSink        =  1.0 # Level set sink strength
-sim_outflowRegion = 10.0 # Outflow region 
+sim_lsSink        =  2.0 # Level set sink strength
+sim_outflowRegion = 12.0 # Outflow region 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
 #       Size of computational volume
-xmin		= -6.0
-xmax		=  6.0
+xmin		= -8.0
+xmax		=  8.0
 ymin		=  0.0
-ymax		= 12.0
-zmin            = -6.0
-zmax            =  6.0
+ymax		= 16.0
+zmin            = -8.0
+zmax            =  8.0
 
 #       Boundary conditions
 xl_boundary_type = "slip_ins"
@@ -62,14 +62,14 @@ run_comment	= "Pool Boiling problem"
 log_file	= "INS_Pool_Boiling.log"
 basenm		= "INS_Pool_Boiling_"
 restart         = .false.
-nend            = 200000000
-tmax            = 1000. 
-ins_cflFlg      = 0
-ins_cfl         = 0.3
-ins_sigma	= 0.2
+nend            = 10000000
+tmax            = 60.
+ins_cflFlg      = 1
+ins_cfl         = 0.05
+ins_sigma	= 0.05
 ins_dtSpec      = 0.1d-3
 dtinit          = 0.1d-3
-tstep_change_factor = 1.0
+tstep_change_factor = 1.01
 ins_pressureCorrect= .false.
 
 #Integration Scheme:
@@ -81,17 +81,20 @@ plot_var_3      = "vely"
 plot_var_4      = "dfun"
 plot_var_5      = "temp"  
 
-checkpointFileIntervalTime = 5.
+checkpointFileNumber = 0
+checkpointFileIntervalTime = 0.5
 checkpointFileIntervalStep = 5000
 
-plotFileIntervalTime = 5.
+plotFileNumber = 0
+plotFileIntervalTime = 0.1
 plotFileIntervalStep = 1000
 io_writeGridInfo = .TRUE.
+ignoreForcedPlot = .FALSE.
 
 # AMR parameters
-nblockx	= 24
-nblocky	= 24
-nblockz = 24
+nblockx	= 32
+nblocky	= 32
+nblockz = 32
 nfres   = 10000000
 
 lrefine_min       = 1
