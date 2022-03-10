@@ -41,7 +41,6 @@ Hydro += Hydro_data.o\
 	hy_computeFluxes_fluxbuf.o\
 	hy_updateSolution.o\
 	hy_updateSolution_fluxbuf.o\
-	hy_updateBoundaries.o\
 	hy_unsplitUpdate.o\
 	hy_gravityStep.o\
 	hy_gravityStepBlk.o\
