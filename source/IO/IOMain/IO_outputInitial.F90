@@ -56,12 +56,11 @@ subroutine IO_outputInitial( nbegin, initialSimTime)
   use IO_interface, ONLY : IO_writeIntegralQuantities, &
     IO_writeCheckpoint, IO_writePlotfile, IO_writeParticles
 
-
 #include "Flashx_mpi_implicitNone.fh"
   integer, intent(in) :: nbegin
   real, intent(in) :: initialSimTime
   logical :: forcePlotfile
-  
+ 
   forcePlotfile = .false.
 
   !This setting is used to ensure valid data throughout grid and ancestor blocks

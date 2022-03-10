@@ -1,6 +1,8 @@
 #       Config file for the Heat Advection Diffusion solver.
 DEFAULT constdiffusion
 
+PPDEFINE HEATAD_MAIN
+
 #-----------------------------------------------------------------------
 REQUIRES physics/HeatAD/localAPI
 REQUIRES numericalTools/Stencils/StencilsDiffusion

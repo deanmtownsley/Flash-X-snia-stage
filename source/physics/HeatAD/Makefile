@@ -1,7 +1,6 @@
 HeatAD += HeatAD_interface.o \
           HeatAD_init.o \
           HeatAD_finalize.o \
-          HeatAD.o \
           HeatAD_solve.o \
           HeatAD_advection.o \
           HeatAD_diffusion.o \

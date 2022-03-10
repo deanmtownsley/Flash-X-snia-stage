@@ -1,6 +1,8 @@
 #       Config file for the Incompressible Navier Stoke solver.
 DEFAULT constdens
 
+PPDEFINE INCOMPNS_MAIN
+
 #-----------------------------------------------------------------------
 REQUIRES physics/IncompNS/localAPI
 REQUIRES numericalTools/Stencils/StencilsAdvection

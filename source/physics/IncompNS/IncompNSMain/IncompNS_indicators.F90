@@ -24,7 +24,7 @@
 
 subroutine IncompNS_indicators()
 
-  use Grid_interface,   ONLY : Grid_fillGuardCells, Grid_getTileIterator,Grid_releaseTileIterator
+  use Grid_interface,   ONLY : Grid_getTileIterator,Grid_releaseTileIterator
   use Grid_tile,        ONLY : Grid_tile_t
   use Grid_iterator,    ONLY : Grid_iterator_t
   use ins_interface,    ONLY : ins_indicators

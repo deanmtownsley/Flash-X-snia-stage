@@ -31,7 +31,5 @@ Driver += main.o \
 	Driver_envGetScalar.o \
 	Driver_driftBlock.o \
 	Driver_driftUnk.o \
-	Driver_driftSetSrcLoc.o
-
-
-
+	Driver_driftSetSrcLoc.o \
+        Driver_notifyGridChange.o

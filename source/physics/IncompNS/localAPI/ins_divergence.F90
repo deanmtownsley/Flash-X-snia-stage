@@ -13,11 +13,11 @@
 !!
 !!
 !!***
-SUBROUTINE ins_divergence(uni,vni,wni,ix1,ix2,jy1,jy2,kz1,kz2,&
-         dx,dy,dz,divv)
-      implicit none
-      INTEGER, INTENT(IN) :: ix1,ix2,jy1,jy2,kz1,kz2
-      REAL, INTENT(IN) :: dx,dy,dz
-      REAL, DIMENSION(:,:,:), INTENT(IN) :: uni,vni,wni
-      REAL, DIMENSION(:,:,:), INTENT(OUT) :: divv
+SUBROUTINE ins_divergence(uni, vni, wni, ix1, ix2, jy1, jy2, kz1, kz2, &
+                          dx, dy, dz, divv)
+   implicit none
+   INTEGER, INTENT(IN) :: ix1, ix2, jy1, jy2, kz1, kz2
+   REAL, INTENT(IN) :: dx, dy, dz
+   REAL, DIMENSION(:, :, :), INTENT(IN) :: uni, vni, wni
+   REAL, DIMENSION(:, :, :), INTENT(OUT) :: divv
 END SUBROUTINE ins_divergence

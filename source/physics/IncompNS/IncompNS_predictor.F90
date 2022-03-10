@@ -13,8 +13,10 @@
 !!
 !!
 !!***
-subroutine IncompNS_predictor(dt)
-  implicit none
-  real,    INTENT(IN) :: dt 
-  return
+subroutine IncompNS_predictor(tileDesc, dt)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, INTENT(IN) :: dt
+   return
 end subroutine IncompNS_predictor
