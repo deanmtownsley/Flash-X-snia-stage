@@ -58,7 +58,7 @@ FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
 	-ffpe-trap=invalid,zero,overflow -check bounds \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
-FFLAGS_TEST = -ggdb -c -r8 -real_size 64
+FFLAGS_TEST = -O1 -c -r8 -real_size 64
 
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
@@ -76,9 +76,6 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wundef \
 	-Winit-self -Wfloat-equal \
 	-fp-stack-check
 CFLAGS_TEST = -c
-
-# Platform symbol
-CDEFINES += -DDarwin
 
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
