@@ -247,7 +247,7 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
 
         call Particles_mapToMeshOneBlk(blkLimitsGC,guard,blockID,&
              particles(:,pStart:pEnd),pEnd-pStart+1,propPart,gr_ptBuf,&
-	     particleOffset=ptInfo+pStart-1)
+             particleOffset=ptInfo+pStart-1)
 
         !Apply boundary conditions (BCs) to the guard cells of this block.
         !If for example, reflecting BCs are in place, a mass accumulated 

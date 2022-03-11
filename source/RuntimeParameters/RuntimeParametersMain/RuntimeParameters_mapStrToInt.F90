@@ -50,6 +50,9 @@
 !!     .... code for non-rectangular
 !!  endif
 !!
+!! HISTORY
+!!
+!!  2018-09-18 Jared O'Neal   Added support for amrex_interpolater values
 !!***
 
 #include "Simulation.h"
@@ -505,7 +508,7 @@ case ("HYPRE_HYBRID", "hypre_hybrid")
     constKey = amrex_interp_quartic
 #endif
 
-! DEV: FIXME This interpolator is not working with FLASH (Issue 138)
+! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
 !  case ("NODE_BILINEAR", "node_bilinear")
 !#ifdef FLASH_GRID_AMREX
 !    constKey = amrex_interp_node_bilinear
@@ -521,7 +524,7 @@ case ("HYPRE_HYBRID", "hypre_hybrid")
     constKey = amrex_interp_quadratic
 #endif
 
-! DEV: FIXME This interpolator is not working with FLASH (Issue 138)
+! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
 !  case ("PC_INTERP", "pc_interp")
 !#ifdef FLASH_GRID_AMREX
 !    constKey = amrex_interp_pc

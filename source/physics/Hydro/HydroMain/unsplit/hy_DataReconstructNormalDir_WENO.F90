@@ -71,8 +71,8 @@
 !! REFERENCES
 !!
 !!  * G. Jiang and C.-W. Shu, Efficient implementation of weighted ENO schemes, JCP, 126:202-228, 1996.
-!!  * R. Borges, M. Carmona, B. Costa, W.S. Don,  JCP, 227 (2008) 3101–3211.
-!!  * Don & Borges, JCP, 250 (2013) 347–372 (Table 3)
+!!  * R. Borges, M. Carmona, B. Costa, W.S. Don,  JCP, 227 (2008) 3101-3211.
+!!  * Don & Borges, JCP, 250 (2013) 347-372 (Table 3)
 !!  * Colella and Woodward, 54, 174 (1984), JCP
 !!  * Toro, Riemann Solvers and Numerical Methods for Fluid Dynamics, Springer, 1997
 !!  * Lee, D., Ph.D. Dissertation, Univ. of MD, 2006
@@ -183,9 +183,9 @@ Subroutine hy_DataReconstructNormalDir_WENO&
 
 !! NOTE on WENO:
 !!$  !! Two methods of WENO:
-!!$  !! (1) wenoMethod = 1 ==> weno5 by Jiang and Shu, JCP, 126, 202–228 (1996)
-!!$  !! (2) wenoMethod = 2 ==> weno-Z by Borges et al. JCP, 227 (2008) 3101–3211.
-!!$  !!     See also paper by Don & Borges, JCP, 250 (2013) 347–372 (Table 3)
+!!$  !! (1) wenoMethod = 1 ==> weno5 by Jiang and Shu, JCP, 126, 202-228 (1996)
+!!$  !! (2) wenoMethod = 2 ==> weno-Z by Borges et al. JCP, 227 (2008) 3101-3211.
+!!$  !!     See also paper by Don & Borges, JCP, 250 (2013) 347-372 (Table 3)
 !!$
 !!$  if (wenoMethod == 1) then
 !!$     ! weno5 by JS
