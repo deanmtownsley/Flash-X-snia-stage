@@ -9,7 +9,8 @@ REQUIRES physics/Multiphase/MultiphaseEvap
 REQUIRES physics/HeatAD/HeatADMain/vardiffusion
 REQUIRES physics/HeatAD/HeatADAdvection
 
-REQUIRES ./complexBoundaries
+REQUIRES ./heater
+REQUIRES ./outflow
 
 USESETUPVARS Grid
 
@@ -19,3 +20,4 @@ ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
+DATAFILES single_bubble.par multiple_bubbles.par

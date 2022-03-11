@@ -14,7 +14,9 @@
 !!
 !!
 !!***
-subroutine Multiphase_solve(dt)
-  implicit none
-  real,    INTENT(IN) :: dt
+subroutine Multiphase_solve(tileDesc, dt)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
+   real, INTENT(IN) :: dt
 end subroutine Multiphase_solve

@@ -17,33 +17,33 @@
 #include "constants.h"
 
 subroutine IncompNS_getScalarPropReal(name, value)
- 
-  use Driver_interface, ONLY : Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  real, intent(out)             :: value
+   use Driver_interface, ONLY: Driver_abort
 
-  character(len=100)            :: errorMessage
+   implicit none
+   character(len=*), intent(in)  :: name
+   real, intent(out)             :: value
 
-  value = 0.
-  write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-  call Driver_abort(errorMessage)
+   character(len=100)            :: errorMessage
+
+   value = 0.
+   write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine IncompNS_getScalarPropReal
 
 subroutine IncompNS_getScalarPropLogical(name, value)
 
-  use Driver_interface, ONLY : Driver_abort
+   use Driver_interface, ONLY: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  logical, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   logical, intent(out)          :: value
 
-  character(len=100)            :: errorMessage
+   character(len=100)            :: errorMessage
 
-  value = .false.
-  write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-  call Driver_abort(errorMessage)
+   value = .false.
+   write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine IncompNS_getScalarPropLogical

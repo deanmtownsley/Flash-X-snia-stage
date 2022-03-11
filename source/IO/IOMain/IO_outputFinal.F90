@@ -48,7 +48,6 @@ subroutine IO_outputFinal()
 
   implicit none
 
-
   !This setting is used to ensure valid data throughout grid and ancestor blocks
   io_outputInStack = .true.
 

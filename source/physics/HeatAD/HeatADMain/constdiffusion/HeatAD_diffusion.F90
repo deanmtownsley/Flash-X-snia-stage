@@ -18,69 +18,55 @@
 
 #include "constants.h"
 #include "HeatAD.h"
-#include "Simulation.h"   
+#include "Simulation.h"
 
-subroutine HeatAD_diffusion()
+subroutine HeatAD_diffusion(tileDesc)
 
    use HeatAD_data
-   use Timers_interface,    ONLY : Timers_start, Timers_stop
-   use Driver_interface,    ONLY : Driver_getNStep
-   use Grid_interface,      ONLY : Grid_getTileIterator,Grid_releaseTileIterator
-   use Grid_tile,           ONLY : Grid_tile_t
-   use Grid_iterator,       ONLY : Grid_iterator_t
-   use Stencils_interface,  ONLY : Stencils_diffusion2d,Stencils_diffusion3d
-
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_diffusion2d, Stencils_diffusion3d
 
 !--------------------------------------------------------------------------------------------
    implicit none
    include"Flashx_mpi.h"
+   type(Grid_tile_t), intent(in) :: tileDesc
+
    real ::  del(MDIM)
-   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-   real, pointer, dimension(:,:,:,:) :: solnData
-   integer TA(2),count_rate,ierr
-   real*8  ET
-   type(Grid_tile_t) :: tileDesc
-   type(Grid_iterator_t) :: itor
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData
    real :: diffusion_coeff
 
-
 !---------------------------------------------------------------------------------------------
-   CALL SYSTEM_CLOCK(TA(1),count_rate)
+   nullify (solnData)
 
-   nullify(solnData)
+   call Timers_start("HeatAD_diffusion")
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
-   call Grid_getTileIterator(itor, nodetype=LEAF)
-   do while(itor%isValid())
-       call itor%currentTile(tileDesc)
-       call tileDesc%getDataPtr(solnData,  CENTER)
-       call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%deltas(del)
 
 #if NDIM == MDIM
-       call Stencils_diffusion3d(solnData(RHST_VAR,:,:,:),&
-                                 solnData(TEMP_VAR,:,:,:),&
-                                 del(DIR_X),del(DIR_Y),del(DIR_Z),&
-                                 diffusion_coeff, &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI)
+   call Stencils_diffusion3d(solnData(RHST_VAR, :, :, :), &
+                             solnData(TEMP_VAR, :, :, :), &
+                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             diffusion_coeff, &
+                             GRID_ILO, GRID_IHI, &
+                             GRID_JLO, GRID_JHI, &
+                             GRID_KLO, GRID_KHI)
 #else
-       call Stencils_diffusion2d(solnData(RHST_VAR,:,:,:),&
-                                 solnData(TEMP_VAR,:,:,:),&
-                                 del(DIR_X),del(DIR_Y),&
-                                 diffusion_coeff, &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI)
+   call Stencils_diffusion2d(solnData(RHST_VAR, :, :, :), &
+                             solnData(TEMP_VAR, :, :, :), &
+                             del(DIR_X), del(DIR_Y), &
+                             diffusion_coeff, &
+                             GRID_ILO, GRID_IHI, &
+                             GRID_JLO, GRID_JHI)
 #endif
 
-       call tileDesc%releaseDataPtr(solnData, CENTER)
-       call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)  
+   call tileDesc%releaseDataPtr(solnData, CENTER)
 
-  CALL SYSTEM_CLOCK(TA(2),count_rate)
-  ET=REAL(TA(2)-TA(1))/count_rate
-  if (ht_meshMe .eq. MASTER_PE)  write(*,*) 'Total Heat AD Diffusion Time =',ET
+   call Timers_stop("HeatAD_diffusion")
 
 end subroutine HeatAD_diffusion
