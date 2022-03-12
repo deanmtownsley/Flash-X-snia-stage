@@ -33,11 +33,10 @@
 !!
 !!***
 !!Reorder(4):solnData
+
 subroutine Hydro_correctGravSrc(dt)
-  use Grid_interface, ONLY: Grid_getTileIterator,Grid_releaseTileIterator
-  use Hydro_data, ONLY : hy_grav, hy_useTiling
-  use Grid_iterator, ONLY : Grid_iterator_t
-  use Grid_tile, ONLY : Grid_tile_t
+  @M iter_use
+  use Hydro_data, ONLY : hy_grav, hy_useTiling, hy_del
   
   implicit none
 
@@ -45,44 +44,33 @@ subroutine Hydro_correctGravSrc(dt)
 #include "constants.h"
 #include "Spark.h"
 
-  type(Grid_iterator_t) :: itor
-  type(Grid_tile_t)   :: blockDesc
-
+  @M iter_declare(blkLimits,blkLimitsGC)
   real,    intent(in) :: dt
 
   integer :: n, i, j, k
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer :: solnData(:,:,:,:)
+
   real, dimension(MDIM) :: momOld, momNew
   real :: ekin
+  integer,dimension(LOW:HIGH,MDIM)::limits
 
-  call Grid_getTileIterator(itor, LEAF, tiling=hy_useTiling)
-  do while(itor%isValid())
-     call itor%currentTile(blockDesc)
-
-     blkLimits(:,:)   = blockDesc%limits
-     blkLimitsGC(:,:) = blockDesc%blkLimitsGC
-     call blockDesc%getDataPtr(solnData,CENTER)
-     call hy_rk_getGravAccel(blockDesc,blkLimitsGC)
+  @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)
+     limits=blkLimits
+     call @M hy_grav_name(@M hy_grav_call_args)
 
      do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
         do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
            do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
-              momOld = solnData(DENS_VAR,i,j,k)*solnData(VELX_VAR:VELZ_VAR,i,j,k)
-              momNew = momOld + 0.5*dt*solnData(DENS_VAR,i,j,k)*hy_grav(:,i,j,k)
-              solnData(ENER_VAR,i,j,k) = solnData(ENER_VAR,i,j,k) &
-                   + 0.5*dt*dot_product(momNew, hy_grav(:,i,j,k))/solnData(DENS_VAR,i,j,k)
-              solnData(VELX_VAR:VELZ_VAR,i,j,k) = momNew/solnData(DENS_VAR,i,j,k)
-              ! ekin = 0.5*dot_product(solnData(VELX_VAR:VELZ_VAR,i,j,k), &
-              !      solnData(VELX_VAR:VELZ_VAR,i,j,k))
-              ! print *, (solnData(EINT_VAR,i,j,k) - (solnData(ENER_VAR,i,j,k)-ekin))/solnData(EINT_VAR,i,j,k)
+              momOld = Uin(DENS_VAR,i,j,k)*Uin(VELX_VAR:VELZ_VAR,i,j,k)
+              momNew = momOld + 0.5*dt*Uin(DENS_VAR,i,j,k)*hy_grav(:,i,j,k)
+              Uin(ENER_VAR,i,j,k) = Uin(ENER_VAR,i,j,k) &
+                   + 0.5*dt*dot_product(momNew, hy_grav(:,i,j,k))/Uin(DENS_VAR,i,j,k)
+              Uin(VELX_VAR:VELZ_VAR,i,j,k) = momNew/Uin(DENS_VAR,i,j,k)
+              ! ekin = 0.5*dot_product(Uin(VELX_VAR:VELZ_VAR,i,j,k), &
+              !      Uin(VELX_VAR:VELZ_VAR,i,j,k))
+              ! print *, (Uin(EINT_VAR,i,j,k) - (Uin(ENER_VAR,i,j,k)-ekin))/Uin(EINT_VAR,i,j,k)
            end do
         end do
      end do
-     call blockDesc%releaseDataPtr(solnData,CENTER)
-     call itor%next()
-  end do
-  call Grid_releaseTileIterator(itor)
-
+  @M iter_end
   return
 end subroutine Hydro_correctGravSrc

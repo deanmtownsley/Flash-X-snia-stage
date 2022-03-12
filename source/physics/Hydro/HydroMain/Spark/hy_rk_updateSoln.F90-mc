@@ -41,7 +41,7 @@
 !!
 !!***
 !!Reorder(4): hy_starState, Uin, hy_fl[xyz]
-subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+subroutine @M hy_update_name (@M hy_update_call_args)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
@@ -84,24 +84,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
-
-#ifdef OMP_OL
-  if (hy_geometry /= CARTESIAN) then
-    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
-  endif
-  !$omp target teams distribute parallel do &
-  !$omp default(none) &
-  !$omp private(i,j,k)&
-  !$omp shared(dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
-  !$omp map(to:dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
- !$omp schedule(guided) collapse(3)
-#else
-   !$omp parallel do &
-   !$omp default(none) &
-  !$omp private(i,j,k)&
-  !$omp shared(dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
- !$omp schedule(guided) collapse(3)
-#endif
+  @M hy_update_omp1
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -261,13 +244,8 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
 #endif
 
   ! Get geometric factors and sources
-#ifdef OMP_OL
    facM = 1.0; facP = 1.0; Sgeo = 0.0
-#else
-   facM = 1.0; facP = 1.0; Sgeo = 0.0
-   !TODO: This needs to be put back in
-   call geoFacs(i,j,k,facM,facP,Sgeo,Ustar,Vstar,dx)
-#endif
+   @M hy_geofacs
   ! Get gravitational source terms
   call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
 
@@ -324,4 +302,4 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
 
 end subroutine update_solution
 
-end subroutine hy_rk_updateSoln
+end subroutine @M hy_update_name

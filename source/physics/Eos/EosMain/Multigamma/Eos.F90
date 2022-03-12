@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Multigamma/eos_mgamma
+!!****if* source/physics/Eos/EosMain/Multigamma/Eos
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  eos_mgamma
+!!  Eos
 !!
 !! SYNOPSIS
 !!
-!!  call eos_mgamma(integer(IN) :: mode,
+!!  call Eos(integer(IN) :: mode,
 !!                  integer(IN) :: vecLen,
 !!                  real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!        optional, integer(IN) :: vecBegin,
@@ -127,7 +127,7 @@
 !!  All routines calling this routine directly should include a 
 !!    use eos_localInterface
 !!  statement, preferable with "ONLY" attribute, e.g.,
-!!    use eos_localInterface, ONLY:  eos_mgamma
+!!    use eos_localInterface, ONLY:  Eos
 !!
 !!  For Gamma and Multigamma routines, the entropy and entropy derivatives 
 !!  calculations have not been confirmed to be correct.  Use with caution.
@@ -141,7 +141,7 @@
 
 #define ORIGINAL_GAMC_AVERAGE
 
-subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
+subroutine Eos(mode, vecLen, eosData,massFrac, mask ,vecBegin,vecEnd, diag)
 
 !==============================================================================
   use eos_mgammaData, ONLY: eos_gammam1j,  eos_ggprodj, eos_gc
@@ -162,7 +162,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
   integer,optional,INTENT(in) :: vecBegin,vecEnd
   real, optional, INTENT(in),dimension(vecLen*NSPECIES)    :: massFrac
   logical,  optional, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
-  
+  logical, optional, INTENT(in) :: diag
   real,dimension(NSPECIES) :: weight
   real :: rt,abarValue, abarInv, zbarValue, zbarFrac
   real :: gmc ! avg these instead of rt - KW
@@ -187,20 +187,20 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
   rowLen = ihi - ilo + 1
 #ifdef DEBUG_EOS
   if (ilo < 1 .OR. ilo > vecLen) then
-     print*,'[eos_mgamma] ilo is',ilo
-     call Driver_abort("[eos_mgamma] invalid ilo")
+     print*,'[Eos] ilo is',ilo
+     call Driver_abort("[Eos] invalid ilo")
   end if
   if (ihi < 1 .OR. ihi > vecLen) then
-     print*,'[eos_mgamma] ihi is',ihi
-     call Driver_abort("[eos_mgamma] invalid ihi")
+     print*,'[Eos] ihi is',ihi
+     call Driver_abort("[Eos] invalid ihi")
   end if
   if (rowLen < 0 .OR. rowLen > vecLen) then
-     print*,'[eos_mgamma] rowLen is',rowLen
-     call Driver_abort("[eos_mgamma] invalid rowLen")
+     print*,'[Eos] rowLen is',rowLen
+     call Driver_abort("[Eos] invalid rowLen")
   end if
 #endif
   if (rowLen == 0) then
-     print*,'[eos_mgamma] rowLen is 0.'
+     print*,'[Eos] rowLen is 0.'
   end if
 
   pres = (EOS_PRES-1)*vecLen
@@ -356,7 +356,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
      end if
   end if
   return
-end subroutine eos_mgamma
+end subroutine Eos
 
 !!..no matter what the input mode compute the entropy
 !!..ignore the -chemical_potential*number_density part for now
