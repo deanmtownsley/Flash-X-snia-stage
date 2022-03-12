@@ -51,7 +51,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_putData, Eos_getData, Eos
+  use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
 
   implicit none
@@ -150,6 +150,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
         !call Eos_putData(range,vecLen,tempData,CENTER,hy_eosData)
         call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+!!$        call Eos_wrapped(MODE_DENS_EI,range,Uin)
         ! if (dFlux(HY_ENER) /= 0.) print *, 'a', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         ! Release pointers
         nullify(Vstar)

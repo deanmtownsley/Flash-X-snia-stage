@@ -64,13 +64,8 @@ module Hydro_data
   real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
   
   !Flux buffers
-#ifdef FIXEDBLOCKSIZE  
-  real, dimension(NFLUXES,HY_MAXXPLUS,HY_MAXY,HY_MAXZ  ),target :: hy_fluxBufX
-  real, dimension(NFLUXES, HY_MAXX,HY_MAXYPLUS,HY_MAXZ ),target :: hy_fluxBufY
-  real, dimension(NFLUXES, HY_MAXX,HY_MAXY,HY_MAXZPLUS),target :: hy_fluxBufZ
-#else
   real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
-#endif
+
   real, allocatable :: hy_grav(:,:,:,:)  
 
   logical :: hy_useHydro
