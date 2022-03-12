@@ -286,7 +286,7 @@ subroutine Grid_init()
   call RuntimeParameters_get("bndPriorityTwo",gr_bndOrder(2))
   call RuntimeParameters_get("bndPriorityThree",gr_bndOrder(3))
 
-  !Store computational domain limits in a convenient array.  Used later in Grid_getBlkBC.
+  !Store computational domain limits in a convenient array.  Used later in Grid_getDomainBC.
   gr_globalDomain(LOW,IAXIS) = gr_imin
   gr_globalDomain(LOW,JAXIS) = gr_jmin
   gr_globalDomain(LOW,KAXIS) = gr_kmin

@@ -26,14 +26,15 @@
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
+#include "Eos.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
 subroutine allocate_scr(blkLimits,blkLimitsGC)
   
   use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_tiny,hy_hybridRiemann,hy_C_hyp, &
+       hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc, scratch_allocated
+       hy_alphaGLM,hy_Vc,scratch_allocated
   use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
        hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
   implicit none
@@ -77,42 +78,55 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   end if
   
   
-#ifdef OMP_OL  
-  if (.not. scratch_allocated) then 
-     scratch_allocated = .true.
-     if (.NOT. allocated(hy_uPlus)) then
-        allocate(hy_uPlus(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_uPlus = 0.
-     endif
-     if (.NOT. allocated(hy_uMinus)) then
-        allocate(hy_uMinus(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_uMinus = 0.
-     endif
-     if (.NOT. allocated(hy_shck)) then
-        allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
-        hy_shck = 0.
-     endif
-     if (.NOT. allocated(hy_snake)) then
-        allocate(hy_snake(NRECON,max_edge,max_edge_y,max_edge_z))
-        hy_snake = 0.
-     endif
-     if (.NOT. allocated(hy_flat)) then
-        allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
-        hy_flat = 0.
-     endif
-     if (.NOT. allocated(hy_grv)) then
-        allocate(hy_grv(max_edge,max_edge_y,max_edge_z))
-        hy_grv = 0.
-     endif
-     if (.NOT. allocated(hy_flux)) then
-        allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
-        hy_flux = 0.
-     endif
-     !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
-  endif
-#endif
   
-#ifndef FIXEDBLOCKSIZE
+  !Gravity 
+  if (.NOT. allocated(hy_grav)) then
+     allocate(hy_grav(MDIM,@M bounds_3d(blkLimitsGC)))
+  endif
+  
+  if (.NOT. allocated(hy_starState)) then
+     allocate(hy_starState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
+  endif
+  
+  if (.NOT. allocated(hy_tmpState)) then
+     allocate(hy_tmpState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
+  endif
+
+  @M hy_snake_allocate
+
+  call allocate_fxscr(blkLimits,blkLimitsGC)
+  
+end subroutine allocate_scr
+
+subroutine deallocate_scr()
+  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+       hy_del,hy_geometry, &
+       hy_alphaGLM,hy_Vc, scratch_allocated
+  
+  use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
+  
+  if(allocated(hy_flx))deallocate(hy_flx)
+  if(allocated(hy_fly))deallocate(hy_fly)
+  if(allocated(hy_flz))deallocate(hy_flz)
+  if(allocated(hy_flat3d))deallocate(hy_flat3d)
+  if(allocated(hy_Vc))deallocate(hy_Vc)
+  if(allocated(hy_grav))deallocate(hy_grav)
+  if(allocated(hy_starState))deallocate(hy_starState)
+  if(allocated(hy_tmpState))deallocate(hy_tmpState)
+  call deallocate_fxscr()
+end subroutine deallocate_scr
+
+subroutine allocate_fxscr(blkLimits,blkLimitsGC)
+  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+       hy_eosData, hy_mfrac, hy_fluxCorrect
+  integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+  integer :: max_edge
+
+  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
+       blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
+
   !Allocate size of flux buffers used for flux correction
   if (hy_fluxCorrect) then
      !allocate buffers here
@@ -132,49 +146,23 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
      endif
   endif
   !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
-#endif
-  !Gravity 
-  if (.NOT. allocated(hy_grav)) then
-     allocate(hy_grav(MDIM,@M bounds_3d(blkLimitsGC)))
-  endif
-  
-  if (.NOT. allocated(hy_starState)) then
-     allocate(hy_starState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
-  endif
-  
-  if (.NOT. allocated(hy_tmpState)) then
-     allocate(hy_tmpState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
-  endif
-  
-end subroutine allocate_scr
 
-subroutine deallocate_scr()
-  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-       hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc, scratch_allocated
-  
-  use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
-  
-  if(allocated(hy_flx))deallocate(hy_flx)
-  if(allocated(hy_fly))deallocate(hy_fly)
-  if(allocated(hy_flz))deallocate(hy_flz)
-  if(allocated(hy_flat3d))deallocate(hy_flat3d)
-  if(allocated(hy_Vc))deallocate(hy_Vc)
-#ifdef OMP_OL  
-  if (scratch_allocated) then 
-!!$      deallocate(hy_uPlus)
-!!$      deallocate(hy_uMinus)
-!!$      deallocate(hy_shck)
-!!$      deallocate(hy_snake)
-!!$      deallocate(hy_flat)
-!!$      deallocate(hy_grv)
-!!$      deallocate(hy_flux)
+  if (.NOT. allocated(hy_eosData)) then
+     allocate(hy_eosData(EOS_NUM*max_edge))
+     hy_eosData = 0.
   endif
-#endif
   
-#ifndef FIXEDBLOCKSIZE
+  if (.NOT. allocated(hy_mfrac)) then
+     allocate(hy_mfrac(NSPECIES*max_edge))
+     hy_mfrac = 0.
+  endif
+end subroutine allocate_fxscr
+
+
+subroutine deallocate_fxscr()
+  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+       hy_eosData, hy_mfrac, hy_fluxCorrect
+
   !Allocate size of flux buffers used for flux correction
   if (hy_fluxCorrect) then
      !allocate buffers here
@@ -182,12 +170,10 @@ subroutine deallocate_scr()
      if(allocated(hy_fluxBufY))deallocate(hy_fluxBufY)
      if(allocated(hy_fluxBufZ))deallocate(hy_fluxBufZ)
   end if
-#endif
-  if(allocated(hy_grav))deallocate(hy_grav)
-  if(allocated(hy_starState))deallocate(hy_starState)
-  if(allocated(hy_tmpState))deallocate(hy_tmpState)
-end subroutine deallocate_scr
 
+  if(allocated(hy_mfrac))deallocate(hy_mfrac)
+  if(allocated(hy_eosData))deallocate(hy_eosData)
+end subroutine deallocate_fxscr
 
 subroutine addFluxes(lev,blkLimits,weight,addFlux)
   !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
@@ -245,18 +231,8 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
   
   ! update temp vars with solution data
   
-#ifdef OMP_OL
-  ! move data to GPU
-  !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
-  !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
-  ! distribute work throughout GPU
-  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
-  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
-#else 
-  !$omp parallel do collapse(4) if(hy_threadWithinBlock) &
-  !$omp default(none) &
-  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC,hy_tmpState)
-#endif
+  @M hy_saveState_omp
+  
   @M loop_3d_alt(blkLimitsGC,i1,i2,i3)
            do v=1,NUNK_VARS
               hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
@@ -277,12 +253,7 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   implicit none
   real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-#ifdef OMP_OL
-  !hy_uPlus,hy_uMinus,hy_shck,hy_snake,hy_flat,hy_grv,hy_flux
-  !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
-  !$omp target exit data map(DELETE:hy_grav)
-  !$omp target update from(hy_starState)
-#endif
+  @M hy_update_omp
 
 #ifndef FIXEDBLOCKSIZE
 !!$  if (hy_fluxCorrect) then
@@ -305,9 +276,8 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   
   !$omp end workshare
   !$omp end parallel
-#ifdef OMP_OL
-  !$omp target exit data map(DELETE:hy_starState)
-#endif
+  @M hy_update_omp2
+
 !!$  deallocate(hy_starState)
 end subroutine updateState
 
@@ -328,40 +298,6 @@ subroutine setLims(ngcell,blkLimits,limits)
   end do
 end subroutine setLims
 
-!!****if* source/physics/Hydro/HydroMain/Spark/Hydro_funcs
-!!
-!! NAME
-!!
-!!  shockDetect
-!!
-!! SYNOPSIS
-!!
-!!  shockDetect( real,pointer      :: Uin(:,:,:,:)
-!!               integer (IN)      :: limits
-!!               integer (IN)      :: blkLimits )
-!!
-!! DESCRIPTION
-!!
-!!  This routine detects strongly compressive motions in simulation
-!!  by calculating undivided pressure gradients and divergence of
-!!  velocity fields. Two parameters beta and delta have been set
-!!  to detect strong shocks. If such shocks exist then the unsplit
-!!  scheme applies its robust flux differencings using limited slopes
-!!  in data reconstruction step (see hy_rk_dataReconstruct.F90).
-!!  Different shock strengths can also be detected by lowering/increasing
-!!  beta and delta values.
-!!
-!! ARGUMENTS
-!!
-!!  Uin        - solution data
-!!  limits     - region of the block in which to detect shocks
-!!  blkLimits  - all interior points of the block/tile
-!!
-!! REFERENCE
-!!
-!!  Balsara and Spicer, JCP, 149:270--292, 1999.
-!!
-!!***
 subroutine shockDetect(Uin,limits,blkLimitsGC)
 
   use Hydro_data,        only : hy_geometry, hy_tiny, hy_Vc
