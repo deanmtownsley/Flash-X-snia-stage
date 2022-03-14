@@ -1,5 +1,5 @@
 #       Config file for the Heat Advection Diffusion solver.
-DEFAULT constdiffusion
+DEFAULT ConstDiffusion
 
 PPDEFINE HEATAD_MAIN
 
@@ -9,8 +9,8 @@ REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
 #-----------------------------------------------------------------------
-CHILDORDER constdiffusion vardiffusion
-EXCLUSIVE  constdiffusion vardiffusion
+CHILDORDER ConstDiffusion VarDiffusion
+EXCLUSIVE  ConstDiffusion VarDiffusion
 
 #-----------------------------------------------------------------------
 D useHeatAD   Should the HeatAD unit be used?

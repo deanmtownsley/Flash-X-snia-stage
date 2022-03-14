@@ -1,5 +1,5 @@
 #       Config file for the Incompressible Navier Stoke solver.
-DEFAULT constdens
+DEFAULT ConstDens
 
 PPDEFINE INCOMPNS_MAIN
 
@@ -10,8 +10,8 @@ REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
 #-----------------------------------------------------------------------
-CHILDORDER constdens vardens
-EXCLUSIVE  constdens vardens
+CHILDORDER ConstDens VarDens
+EXCLUSIVE  ConstDens VarDens
 
 #-----------------------------------------------------------------------
 D useIncompNS   Should the IncompNS unit be used?

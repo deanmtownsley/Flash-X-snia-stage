@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/vardens/IncompNS_corrector
+!!****if* source/physics/IncompNS/IncompNSMain/VarDens/IncompNS_diffusion
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,8 +12,6 @@
 !!  limitations under the License.
 !!
 !!
-!!
-!!
 !!***
 !!REORDER(4): face[xyz]Data
 !!REORDER(4): solnData
@@ -22,21 +20,19 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_corrector(tileDesc, dt)
+subroutine IncompNS_diffusion(tileDesc)
 
    use Grid_tile, ONLY: Grid_tile_t
-   use ins_interface, ONLY: ins_corrector_constdens
+   use ins_interface, ONLY: ins_diffusion2d_vardens, ins_diffusion3d_vardens
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use IncompNS_data
 
+!------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
-   !-----Argument List-----
-   real, INTENT(IN) :: dt
    type(Grid_tile_t), intent(in) :: tileDesc
 
-!------------------------------------------------------------------------------------------
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
 #if NDIM < MDIM
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
@@ -53,36 +49,52 @@ subroutine IncompNS_corrector(tileDesc, dt)
 #else
    nullify (solnData, facexData, faceyData, facezData)
 #endif
-
-   call Timers_start("IncompNS_corrector")
-
-   call tileDesc%deltas(del)
-
-   ! Get Index Limits:
+   !
+   call Timers_start("IncompNS_diffusion")
+   !
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
 
-   ! Point to blocks center and face vars:
+   call tileDesc%deltas(del)
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
 
 #if NDIM == 3
    call tileDesc%getDataPtr(facezData, FACEZ)
-#endif
-   ! update divergence-free velocities (not on block boundary)
-   call ins_corrector_constdens(facexData(VELC_FACE_VAR, :, :, :), &
+   ! compute RHS of momentum equation
+   call ins_diffusion3d_vardens(facexData(VELC_FACE_VAR, :, :, :), &
                                 faceyData(VELC_FACE_VAR, :, :, :), &
                                 facezData(VELC_FACE_VAR, :, :, :), &
-                                facexData(PGN1_FACE_VAR, :, :, :), &
-                                faceyData(PGN1_FACE_VAR, :, :, :), &
-                                facezData(PGN1_FACE_VAR, :, :, :), &
-                                solnData(PRES_VAR, :, :, :), &
+                                solnData(TVIS_VAR, :, :, :), &
+                                ins_invReynolds, &
                                 GRID_ILO, GRID_IHI, &
                                 GRID_JLO, GRID_JHI, &
                                 GRID_KLO, GRID_KHI, &
-                                dt, del(DIR_X), del(DIR_Y), del(DIR_Z))
+                                del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                                facexData(HVN0_FACE_VAR, :, :, :), &
+                                faceyData(HVN0_FACE_VAR, :, :, :), &
+                                facezData(HVN0_FACE_VAR, :, :, :), &
+                                solnData(VISC_VAR, :, :, :), &
+                                facexData(RHOF_FACE_VAR, :, :, :), &
+                                faceyData(RHOF_FACE_VAR, :, :, :), &
+                                facezData(RHOF_FACE_VAR, :, :, :))
 
+#elif NDIM ==2
+   ! compute RHS of momentum equation
+   call ins_diffusion2d_vardens(facexData(VELC_FACE_VAR, :, :, :), &
+                                faceyData(VELC_FACE_VAR, :, :, :), &
+                                ins_invReynolds, &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI, &
+                                del(DIR_X), del(DIR_Y), &
+                                facexData(HVN0_FACE_VAR, :, :, :), &
+                                faceyData(HVN0_FACE_VAR, :, :, :), &
+                                solnData(VISC_VAR, :, :, :), &
+                                facexData(RHOF_FACE_VAR, :, :, :), &
+                                faceyData(RHOF_FACE_VAR, :, :, :))
+
+#endif
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call tileDesc%releaseDataPtr(facexData, FACEX)
@@ -92,7 +104,7 @@ subroutine IncompNS_corrector(tileDesc, dt)
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
-   call Timers_stop("IncompNS_corrector")
+   call Timers_stop("IncompNS_diffusion")
 
    return
-end subroutine IncompNS_corrector
+end subroutine IncompNS_diffusion

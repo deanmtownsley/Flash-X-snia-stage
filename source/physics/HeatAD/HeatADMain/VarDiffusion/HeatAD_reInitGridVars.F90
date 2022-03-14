@@ -1,4 +1,4 @@
-!!****if* source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_reInitGridVars
+!!****if* source/physics/HeatAD/HeatADMain/VarDiffusion/HeatAD_reInitGridVars
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

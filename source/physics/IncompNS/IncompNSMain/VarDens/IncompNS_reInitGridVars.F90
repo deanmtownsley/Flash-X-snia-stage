@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/vardens/IncompNS_reInitGridVars
+!!****if* source/physics/IncompNS/IncompNSMain/VarDens/IncompNS_reInitGridVars
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

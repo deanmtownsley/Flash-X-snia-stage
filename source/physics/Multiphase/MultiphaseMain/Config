@@ -1,6 +1,6 @@
 #       Config file for the Multiphase unit
 REQUIRES physics/Multiphase/localAPI
-REQUIRES physics/IncompNS/IncompNSMain/vardens
+REQUIRES physics/IncompNS/IncompNSMain/VarDens
 REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal

@@ -1,7 +1,7 @@
 #	Config file for the INS module.
 #       Note: This is a staggered finite difference mesh algorithm.
 
-REQUIRES physics/IncompNS/IncompNSMain/vardens
+REQUIRES physics/IncompNS/IncompNSMain/VarDens
 REQUIRES physics/Multiphase/MultiphaseMain
 
 USESETUPVARS Grid
