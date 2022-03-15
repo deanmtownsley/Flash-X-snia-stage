@@ -74,6 +74,9 @@ subroutine io_writeGrid()
    character(len=32) :: dsetname, attrname
    character(len=MAX_STRING_LENGTH) :: filename
 
+#ifdef SUPPRESS_HDF5_FORTRAN_CALLS
+   call Driver_abort("Use of HDF5 Fortran interface is explicitly suppressed!")
+#else
 #ifdef FLASH_IO_HDF5
 
    call Timers_start("io_writeGrid")
@@ -328,6 +331,7 @@ subroutine io_writeGrid()
 
    call Timers_stop("io_writeGrid")
 
+#endif
 #endif
 
    return
