@@ -46,14 +46,24 @@ subroutine Simulation_init()
 
   call Driver_getMype(MESH_COMM, sim_meshMe)
 
-  call RuntimeParameters_get('xmin',    sim_xMin)
-  call RuntimeParameters_get('ymin',    sim_yMin)
-  call RuntimeParameters_get('xmax',    sim_xMax)
-  call RuntimeParameters_get('ymax',    sim_yMax)
-  call RuntimeParameters_get('zmin',    sim_zmin)
-  call RuntimeParameters_get('zmax',    sim_zmax)
+  call RuntimeParameters_get('xmin', sim_xMin)
+  call RuntimeParameters_get('ymin', sim_yMin)
+  call RuntimeParameters_get('xmax', sim_xMax)
+  call RuntimeParameters_get('ymax', sim_yMax)
+  call RuntimeParameters_get('zmin', sim_zmin)
+  call RuntimeParameters_get('zmax', sim_zmax)
+  call RuntimeParameters_get('ins_gravX', sim_gravX)
+  call RuntimeParameters_get('ins_gravY', sim_gravY)
+  call RuntimeParameters_get('ins_gravZ', sim_gravZ)
+
+  if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_gravX=', sim_gravX
+      write (*, *) 'sim_gravY=', sim_gravY
+      write (*, *) 'sim_gravZ=', sim_gravZ
+   end if
 
   call sim_heaterInit()
+
   call sim_outflowInit()
 
 end subroutine Simulation_init

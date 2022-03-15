@@ -9,8 +9,8 @@ REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
 #-----------------------------------------------------------------------
-CHILDORDER ConstDiffusion VarDiffusion
-EXCLUSIVE  ConstDiffusion VarDiffusion
+CHILDORDER constDiffusion varDiffusion
+EXCLUSIVE  constDiffusion varDiffusion
 
 #-----------------------------------------------------------------------
 D useHeatAD   Should the HeatAD unit be used?

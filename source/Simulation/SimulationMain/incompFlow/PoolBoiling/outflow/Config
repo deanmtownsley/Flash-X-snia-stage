@@ -1,4 +1,0 @@
-#   Config file for outflow API
-#
-PARAMETER sim_lsSink          REAL     0.0 # Level set sink strength
-PARAMETER sim_outflowRegion   REAL     0.0 # outflow region height

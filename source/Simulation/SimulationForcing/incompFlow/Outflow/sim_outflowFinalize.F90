@@ -1,4 +1,5 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_data
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowFinalize
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,31 +12,8 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! NAME
-!!
-!!  Simulation_data
-!!
-!! SYNOPSIS
-!!
-!!  use Simulation_data
-!!
-!! DESCRIPTION
-!!
-!!  Stores the local data for Simulation setup: Pool Boiling
 !!
 !!***
-
-module Simulation_data
-
-  implicit none
-
-#include "constants.h"
-#include "Simulation.h"
-
-  real, save :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
-  integer, save :: sim_meshMe
-  real, save :: sim_gravX
-  real, save :: sim_gravY
-  real, save :: sim_gravZ
-
-end module Simulation_data
+subroutine sim_outflowFinalize()
+   implicit none
+end subroutine sim_outflowFinalize

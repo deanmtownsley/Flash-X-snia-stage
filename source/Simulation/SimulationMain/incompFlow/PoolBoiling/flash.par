@@ -32,6 +32,7 @@ ht_Prandtl = 7.0
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  2   # Number of heaters
+sim_heaterName    = "pool_boiling"
 
 # Outflow parameters
 sim_lsSink        =  1.0 # Level set sink strength

@@ -1,0 +1,13 @@
+#   Config file for SimulationForcing/incompFlow/Outflow
+#
+PPDEFINE SIMULATION_FORCE_OUTFLOW
+
+# Level set sink strength
+PARAMETER sim_lsSink              REAL  0.0
+
+# Outflow region height
+PARAMETER sim_outflowRegion       REAL  0.0
+
+# Outfow growth rate, k in logistic function
+# f = 1/(1 + exp(-k*(x-xo)))
+PARAMETER sim_outflowGrowthRate   REAL  8.0

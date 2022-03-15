@@ -10,8 +10,8 @@ REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
 #-----------------------------------------------------------------------
-CHILDORDER ConstDens VarDens
-EXCLUSIVE  ConstDens VarDens
+CHILDORDER constDens varDens
+EXCLUSIVE  constDens varDens
 
 #-----------------------------------------------------------------------
 D useIncompNS   Should the IncompNS unit be used?
