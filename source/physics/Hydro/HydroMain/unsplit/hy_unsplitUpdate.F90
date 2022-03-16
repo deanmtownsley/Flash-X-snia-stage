@@ -310,7 +310,7 @@
     ! Use do loop nest to only set the portion of the tile
     ! that we are working on.
 !!    call Driver_abort("[hy_unsplitUpdate] Update this to work with tiles")
-    do ispu =  SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
+    do ispu =  SPECIES_BEGIN, MASS_SCALARS_END
        isph= ispu-NPROP_VARS
        SpOld(isph, blGC(LOW,IAXIS):blGC(HIGH,IAXIS),&
              blGC(LOW,JAXIS):blGC(HIGH,JAXIS),&
@@ -496,7 +496,7 @@
                    HL(:) = 0.0; HR(:) = 0.0
                 end if
 #if (NSPECIES+NMASS_SCALARS) > 0
-                do ispu = SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
+                do ispu = SPECIES_BEGIN, MASS_SCALARS_END
                    isph= ispu-NPROP_VARS
                    FL(HY_END_FLUX+isph) = xflux(HY_END_FLUX+isph,i,  j,   k   )
                    FR(HY_END_FLUX+isph) = xflux(HY_END_FLUX+isph,i+1,j,   k   )
@@ -854,7 +854,7 @@
                       specialForInterior = .FALSE.
                    end if
                    sumSpecies = 0.
-                   do ispu = SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
+                   do ispu = SPECIES_BEGIN, MASS_SCALARS_END
                       if (specialForInterior) then
                          Uout(ispu,i,j,k) = Uin(ispu,i,j,k) / newDens
                       else
@@ -1069,7 +1069,7 @@
                 rghtFac = 1.
 
                 !! Fluxes at each local cell 
-                do ispu = SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
+                do ispu = SPECIES_BEGIN, MASS_SCALARS_END
                    isph= ispu-NPROP_VARS
                    FL(HY_END_FLUX+isph) = xflux(HY_END_FLUX+isph,i,  j,   k   )
                    FR(HY_END_FLUX+isph) = xflux(HY_END_FLUX+isph,i+1,j,   k   )
@@ -1143,7 +1143,7 @@
 
 
                 if (hy_fullSpecMsFluxHandling) then
-                   do ispu = SPECIES_BEGIN, MASS_SCALARS_END !SPECIES_END
+                   do ispu = SPECIES_BEGIN, MASS_SCALARS_END
                       isph= ispu-NPROP_VARS
                       call updateSpeciesMassScalar&
                                  (Uout(ispu,i,j,k),Uout(DENS_VAR,i,j,k), 1.0,&
