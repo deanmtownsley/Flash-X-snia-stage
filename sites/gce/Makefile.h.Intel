@@ -16,8 +16,6 @@ endif
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
-MPI_PATH = /nfs/gce/software/custom/linux-ubuntu20.04-x86_64/mpich/3.4.2-intel
-HDF5_PATH = /nfs/gce/software/custom/linux-ubuntu20.04-x86_64/hdf5/hdf5-1.12.1-mpich-3.4.2-parallel-fortran/hdf5
 HYPRE_PATH = /nfs/gce/projects/FLASH5/software/hypre_install/
 ZLIB_PATH  =
 PAPI_PATH  =
@@ -58,13 +56,19 @@ FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
 	-ffpe-trap=invalid,zero,overflow -check bounds \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
-FFLAGS_TEST = -O1 -c -r8 -real_size 64
-
+FFLAGS_TEST = -O1 -c -r8 -real_size 64 \
+	 -qsimd-honor-fp-model -qsimd-serialize-fp-reduction \
+	 -fp-model precise -prec-div \
+	 -no-fma \
+	 -ffinite-math-only \
+	 -init=snan \
+	 -stand f18 -no-wrap-margin \
+	 -fminshared -assume buffered_stdout
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 
-F90FLAGS = -I ${HDF5_PATH}/include -DH5_USE_18_API
+F90FLAGS = -DHAVE_MPI_MODULE -DH5_USE_18_API
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
@@ -77,7 +81,7 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wundef \
 	-fp-stack-check
 CFLAGS_TEST = -c
 
-CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
+CFLAGS_HDF5 = -DH5_USE_18_API
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
 
@@ -111,10 +115,10 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_HDF5  = -L$(HDF5_PATH)/lib -lhdf5_fortran -lhdf5
+LIB_HDF5  =
 LIB_PAPI  =
 LIB_MATH  =
-LIB_MPI   = -L$(MPI_PATH)/lib -lmpi
+LIB_MPI   =
 LIB_MPE   =
 LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
