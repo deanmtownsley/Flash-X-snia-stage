@@ -1,5 +1,6 @@
 !!***if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowLSDampingBlk
 !!
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -19,18 +20,21 @@
 #include "Simulation.h"
 
 subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
-                                     dt, dx, dy, ix1, ix2, jy1, jy2)
-
-   use Simulation_data
-   use sim_outflowData
+                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                     domainBC, lsSink, outflowRegion, outflowGrowthRate, &
+                                     xMin, xMax, yMin, yMax)
 
    implicit none
-   real, dimension(:, :, :), intent(inout)   :: pfrc
-   real, dimension(:, :, :), intent(in)      :: phi
-   real, dimension(:), intent(in)          :: xcell, ycell
-   real, dimension(:, :), intent(in)        :: boundBox
-   real, intent(in)                        :: dt, dx, dy
-   integer, intent(in)                    :: ix1, ix2, jy1, jy2
+
+   real, dimension(:, :, :), intent(inout) :: pfrc
+   real, dimension(:, :, :), intent(in) :: phi
+   real, dimension(:), intent(in) :: xcell, ycell
+   real, dimension(:, :), intent(in) :: boundBox
+   real, intent(in) :: dt, dx, dy
+   integer, intent(in) :: ix1, ix2, jy1, jy2
+   integer, dimension(2, MDIM), intent(in) :: domainBC
+   real, intent(in) :: lsSink, outflowRegion, outflowGrowthRate
+   real, intent(in) :: xMin, xMax, yMin, yMax
 
    integer :: i, j, k
    real    :: xi, yi
@@ -42,9 +46,23 @@ subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
          xi = xcell(i)
          yi = ycell(j)
 
-         pfrc(i, j, k) = pfrc(i, j, k) - sim_lsSink* &
-                         (1/(1 + exp(-sim_outflowGrowthRate*(yi - sim_outflowRegion))))* &
-                         (yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
+         if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
+             domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
+             domainBC(HIGH, JAXIS) == EXTRAP_INS) then
+
+            pfrc(i, j, k) = pfrc(i, j, k) - lsSink* &
+                            (1/(1 + exp(-outflowGrowthRate*(yi - outflowRegion))))* &
+                            (yi - outflowRegion)/(yMax - outflowRegion)
+
+         else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
+                  domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
+                  domainBC(HIGH, IAXIS) == EXTRAP_INS) then
+
+            pfrc(i, j, k) = pfrc(i, j, k) - lsSink* &
+                            (1/(1 + exp(-outflowGrowthRate*(xi - outflowRegion))))* &
+                            (xi - outflowRegion)/(xMax - outflowRegion)
+
+         end if
 
       end do
    end do
@@ -52,18 +70,21 @@ subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
 end subroutine sim_outflowLSDampingBlk2d
 
 subroutine sim_outflowLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
-                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
-
-   use Simulation_data
-   use sim_outflowData
+                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                     domainBC, lsSink, outflowRegion, outflowGrowthRate, &
+                                     xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
+
    real, dimension(:, :, :), intent(inout) :: pfrc
-   real, dimension(:, :, :), intent(in)    :: phi
-   real, dimension(:), intent(in)        :: xcell, ycell, zcell
-   real, dimension(:, :), intent(in)      :: boundBox
-   real, intent(in)                      :: dt, dx, dy, dz
-   integer, intent(in)                  :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, dimension(:, :, :), intent(in) :: phi
+   real, dimension(:), intent(in) :: xcell, ycell, zcell
+   real, dimension(:, :), intent(in) :: boundBox
+   real, intent(in) :: dt, dx, dy, dz
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   integer, dimension(2, MDIM), intent(in) :: domainBC
+   real, intent(in) :: lsSink, outflowRegion, outflowGrowthRate
+   real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 
    integer :: i, j, k
    real    :: xi, yi, zi
@@ -75,9 +96,31 @@ subroutine sim_outflowLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
             yi = ycell(j)
             zi = zcell(k)
 
-            pfrc(i, j, k) = pfrc(i, j, k) - sim_lsSink* &
-                            (1/(1 + exp(-sim_outflowGrowthRate*(yi - sim_outflowRegion))))* &
-                            (yi - sim_outflowRegion)/(sim_yMax - sim_outflowRegion)
+            if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
+                domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
+                domainBC(HIGH, JAXIS) == EXTRAP_INS) then
+
+               pfrc(i, j, k) = pfrc(i, j, k) - lsSink* &
+                               (1/(1 + exp(-outflowGrowthRate*(yi - outflowRegion))))* &
+                               (yi - outflowRegion)/(yMax - outflowRegion)
+
+            else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
+                     domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
+                     domainBC(HIGH, IAXIS) == EXTRAP_INS) then
+
+               pfrc(i, j, k) = pfrc(i, j, k) - lsSink* &
+                               (1/(1 + exp(-outflowGrowthRate*(xi - outflowRegion))))* &
+                               (xi - outflowRegion)/(xMax - outflowRegion)
+
+            else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
+                     domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
+                     domainBC(HIGH, KAXIS) == EXTRAP_INS) then
+
+               pfrc(i, j, k) = pfrc(i, j, k) - lsSink* &
+                               (1/(1 + exp(-outflowGrowthRate*(zi - outflowRegion))))* &
+                               (zi - outflowRegion)/(zMax - outflowRegion)
+
+            end if
 
          end do
       end do
