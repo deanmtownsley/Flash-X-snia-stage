@@ -57,9 +57,6 @@ FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
 FFLAGS_TEST = -O1 -c -r8 -real_size 64 \
-	 -qsimd-honor-fp-model -qsimd-serialize-fp-reduction \
-	 -fp-model precise -prec-div \
-	 -no-fma \
 	 -ffinite-math-only \
 	 -init=snan \
 	 -stand f18 -no-wrap-margin \
