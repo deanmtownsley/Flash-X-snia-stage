@@ -30,7 +30,8 @@ mph_invWeber = 1.0
 ht_Prandtl = 8.0
 
 # Outflow parameters
-sim_outflowSink    =  1.0  # Outflow sink strength
+sim_outflowSink   =  1.0  # Outflow sink strength
+sim_outflowBuffer =  2.0  # Outflow buffer
 
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
@@ -80,7 +81,7 @@ plot_var_2      = "velx"
 plot_var_3      = "vely"
 plot_var_4      = "dfun"
 plot_var_5      = "temp"  
-plot_var_6      = "omgm"
+plot_var_6      = "dust"
 
 checkpointFileNumber = 0
 checkpointFileIntervalTime = 0.5
@@ -107,7 +108,7 @@ flux_correct    = .true.
 # AMReX Poisson Solver Parameters
 gr_amrexMG_composite_solve = ".TRUE."
 gr_amrexMG_Tol = 1e-13
-gr_amrexMG_max_iter = 200
+gr_amrexMG_max_iter = 1000
 
 # HYPRE Poisson Solver Parameters
 gr_hyprePrintSolveInfo = ".FALSE."

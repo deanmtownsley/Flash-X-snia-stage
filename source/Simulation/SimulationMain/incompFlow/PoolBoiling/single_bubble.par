@@ -36,7 +36,7 @@ sim_heaterName    = "single_bubble"
 
 # Outflow parameters
 sim_outflowSink   =  1.0 # Outflow sink strength
-sim_outflowBuffer =  4.0 # Outflow buffer
+sim_outflowBuffer =  2.0 # Outflow buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -53,7 +53,7 @@ zmax            =  1.5
 xl_boundary_type = "slip_ins"
 xr_boundary_type = "slip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "outflow_ins"
+yr_boundary_type = "neumann_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 

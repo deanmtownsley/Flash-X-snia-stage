@@ -49,12 +49,14 @@ subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
          if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
              domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
              domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-            pfrc(i, j, k) = pfrc(i, j, k) - outflowSink*(2/(1 + exp(-(yi - yMax))))
+            pfrc(i, j, k) = pfrc(i, j, k) - outflowSink* &
+                            (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
          else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                   domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                   domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-            pfrc(i, j, k) = pfrc(i, j, k) - outflowSink*(2/(1 + exp(-(xi - xMax))))
+            pfrc(i, j, k) = pfrc(i, j, k) - outflowSink* &
+                            (2/(1 + exp(-outflowGrowthRate*(xi - yMax)/outflowBuffer)))
 
          end if
 
@@ -93,17 +95,20 @@ subroutine sim_outflowLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
             if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
                 domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
                 domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink*(2/(1 + exp(-(yi - yMax))))
+               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink* &
+                               (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink*(2/(1 + exp(-(xi - xMax))))
+               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink* &
+                               (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, KAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink*(2/(1 + exp(-(zi - zMax))))
+               pfrc(i, j, k) = pfrc(i, j, k) - outflowSink* &
+                               (2/(1 + exp(-outflowGrowthRate*(zi - zMax)/outflowBuffer)))
 
             end if
 

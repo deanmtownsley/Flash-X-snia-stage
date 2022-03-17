@@ -36,7 +36,7 @@ sim_heaterName    = "pool_boiling"
 
 # Outflow parameters
 sim_outflowSink   =  1.0 # Outflow sink strength
-sim_outflowBuffer =  2.0 # Outflow Buffer
+sim_outflowBuffer =  1.0 # Outflow Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -53,7 +53,7 @@ zmax            =  3.0
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "outflow_ins"
+yr_boundary_type = "neumann_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 

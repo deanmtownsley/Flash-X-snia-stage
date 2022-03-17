@@ -48,16 +48,16 @@ subroutine sim_outflowVelBlk2d(u, v, ru, rv, xcell, ycell, &
          if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
              domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
              domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-            ru(i, j, k) = ru(i, j, k) + ((velOut(HIGH, IAXIS) - u(i, j, k))/dt)* &
-                          (2/(1 + exp(-outflowGrowthRate*(yi - yMax))))
+            ru(i, j, k) = ru(i, j, k) + (velOut(HIGH, IAXIS)/dt - u(i, j, k)/dt)* &
+                          (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
          else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                   domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                   domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-            ru(i, j, k) = ru(i, j, k) + ((velOut(HIGH, IAXIS) - u(i, j, k))/dt)* &
-                          (2/(1 + exp(-outflowGrowthRate*(xi - xMax))))
+            ru(i, j, k) = ru(i, j, k) + (velOut(HIGH, IAXIS)/dt - u(i, j, k)/dt)* &
+                          (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
-            if (xi .le. xMax .and. xi .ge. xMax - dx) velOutAux(HIGH, IAXIS) = max(1., u(i + 1, j, k))
+            if (xi .le. xMax .and. xi .ge. xMax - dx) velOutAux(HIGH, IAXIS) = max(velOutAux(HIGH, IAXIS), u(i, j, k))
 
          end if
 
@@ -72,16 +72,16 @@ subroutine sim_outflowVelBlk2d(u, v, ru, rv, xcell, ycell, &
          if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
              domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
              domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-            rv(i, j, k) = rv(i, j, k) + ((velOut(HIGH, JAXIS) - v(i, j, k))/dt)* &
-                          (2/(1 + exp(-outflowGrowthRate*(yi - yMax))))
+            rv(i, j, k) = rv(i, j, k) + (velOut(HIGH, JAXIS)/dt - v(i, j, k)/dt)* &
+                          (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
-            if (yi .le. yMax .and. yi .ge. yMax - dy) velOutAux(HIGH, JAXIS) = max(1., v(i, j + 1, k))
+            if (yi .le. yMax .and. yi .ge. yMax - dy) velOutAux(HIGH, JAXIS) = max(velOutAux(HIGH, JAXIS), v(i, j, k))
 
          else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                   domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                   domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-            rv(i, j, k) = rv(i, j, k) + ((velOut(HIGH, JAXIS) - v(i, j, k))/dt)* &
-                          (2/(1 + exp(-outflowGrowthRate*(xi - xMax))))
+            rv(i, j, k) = rv(i, j, k) + (velOut(HIGH, JAXIS)/dt - v(i, j, k)/dt)* &
+                          (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
          end if
 
@@ -121,22 +121,22 @@ subroutine sim_outflowVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
                 domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
                 domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-               ru(i, j, k) = ru(i, j, k) + ((velOut(HIGH, IAXIS) - u(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax))))
+               ru(i, j, k) = ru(i, j, k) + (velOut(HIGH, IAXIS)/dt - u(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-               ru(i, j, k) = ru(i, j, k) + ((velOut(HIGH, IAXIS) - u(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax))))
+               ru(i, j, k) = ru(i, j, k) + (velOut(HIGH, IAXIS)/dt - u(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
-               if (xi .le. xMax .and. xi .ge. xMax - dx) velOutAux(HIGH, IAXIS) = max(1., u(i + 1, j, k))
+               if (xi .le. xMax .and. xi .ge. xMax - dx) velOutAux(HIGH, IAXIS) = max(velOutAux(HIGH, IAXIS), u(i, j, k))
 
             else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, KAXIS) == EXTRAP_INS) then
-               ru(i, j, k) = ru(i, j, k) + ((velOut(HIGH, IAXIS) - u(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax))))
+               ru(i, j, k) = ru(i, j, k) + (velOut(HIGH, IAXIS)/dt - u(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax)/outflowBuffer)))
 
             end if
 
@@ -154,22 +154,22 @@ subroutine sim_outflowVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
                 domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
                 domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-               rv(i, j, k) = rv(i, j, k) + ((velOut(HIGH, JAXIS) - v(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax))))
+               rv(i, j, k) = rv(i, j, k) + (velOut(HIGH, JAXIS)/dt - v(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
-               if (yi .le. yMax .and. yi .ge. yMax - dy) velOutAux(HIGH, JAXIS) = max(1., v(i, j + 1, k))
+               if (yi .le. yMax .and. yi .ge. yMax - dy) velOutAux(HIGH, JAXIS) = max(velOutAux(HIGH, JAXIS), v(i, j, k))
 
             else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-               rv(i, j, k) = rv(i, j, k) + ((velOut(HIGH, JAXIS) - v(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax))))
+               rv(i, j, k) = rv(i, j, k) + (velOut(HIGH, JAXIS)/dt - v(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, KAXIS) == EXTRAP_INS) then
-               rv(i, j, k) = rv(i, j, k) + ((velOut(HIGH, JAXIS) - v(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax))))
+               rv(i, j, k) = rv(i, j, k) + (velOut(HIGH, JAXIS)/dt - v(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax)/outflowBuffer)))
 
             end if
 
@@ -187,22 +187,22 @@ subroutine sim_outflowVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
                 domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
                 domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-               rw(i, j, k) = rw(i, j, k) + ((velOut(HIGH, KAXIS) - w(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax))))
+               rw(i, j, k) = rw(i, j, k) + (velOut(HIGH, KAXIS)/dt - w(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(yi - yMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-               rw(i, j, k) = rw(i, j, k) + ((velOut(HIGH, KAXIS) - w(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax))))
+               rw(i, j, k) = rw(i, j, k) + (velOut(HIGH, KAXIS)/dt - w(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(xi - xMax)/outflowBuffer)))
 
             else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
                      domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
                      domainBC(HIGH, KAXIS) == EXTRAP_INS) then
-               rw(i, j, k) = rw(i, j, k) + ((velOut(HIGH, KAXIS) - w(i, j, k))/dt)* &
-                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax))))
+               rw(i, j, k) = rw(i, j, k) + (velOut(HIGH, KAXIS)/dt - w(i, j, k)/dt)* &
+                             (2/(1 + exp(-outflowGrowthRate*(zi - zMax)/outflowBuffer)))
 
-               if (zi .le. zMax .and. zi .ge. zMax - dz) velOutAux(HIGH, KAXIS) = max(1., w(i, j, k + 1))
+               if (zi .le. zMax .and. zi .ge. zMax - dz) velOutAux(HIGH, KAXIS) = max(velOutAux(HIGH, KAXIS), w(i, j, k))
 
             end if
 

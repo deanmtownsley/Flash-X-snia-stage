@@ -37,6 +37,7 @@ sim_heaterShowInfo = .FALSE.
 
 # Outflow parameters
 sim_outflowSink   =  2.0 # Outflow sink strength
+sim_outflowBuffer =  4.0 # Outflow buffer region
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -63,7 +64,7 @@ log_file	= "INS_Pool_Boiling.log"
 basenm		= "INS_Pool_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 40.
+tmax            = 30.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05
@@ -80,7 +81,7 @@ plot_var_2      = "velx"
 plot_var_3      = "vely"
 plot_var_4      = "dfun"
 plot_var_5      = "temp"  
-plot_var_6      = "omgm"
+plot_var_6      = "dust"
 
 checkpointFileNumber = 0
 checkpointFileIntervalTime = 0.5

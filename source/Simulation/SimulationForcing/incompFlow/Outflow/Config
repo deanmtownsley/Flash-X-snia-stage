@@ -8,7 +8,7 @@ PPDEFINE SIMULATION_FORCE_OUTFLOW
 PARAMETER sim_outflowSink       REAL  1.0
 
 # Outflow region Buffer
-PARAMETER sim_outflowBuffer     REAL  0.0
+PARAMETER sim_outflowBuffer     REAL  1.0
 
 # Outfow growth rate, k in logistic function
 # f = 1/(1 + exp(-k*(x-xo)))
