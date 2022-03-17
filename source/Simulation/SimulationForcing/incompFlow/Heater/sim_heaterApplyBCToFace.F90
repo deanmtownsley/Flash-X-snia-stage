@@ -73,6 +73,7 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
          end do
       end do
 
+#ifdef MULTIPHASE_MAIN
    else if (ivar == DFUN_VAR) then
       do k = 1, ke
          do j = 1, je
@@ -101,15 +102,15 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
                         end if
                      end if
 
-                     regionData(i, j, k, ivar) = regionData(offset - i, j, k, ivar) - del(axis)*cos(dynamicAngle*acos(-1.0)/180)
-
+                     regionData(i, j, k, ivar) = regionData(offset - i, j, k, ivar) - &
+                                                 del(axis)*cos(dynamicAngle*acos(-1.0)/180)
                   end if
 
                end do
             end do
          end do
       end do
-
+#endif
    end if
 
 end subroutine sim_heaterApplyBCToFace

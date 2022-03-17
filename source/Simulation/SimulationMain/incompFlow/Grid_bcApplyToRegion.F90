@@ -203,7 +203,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    ! Following implementations are written by Akash
 
    select case (bcType)
-   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS) ! Incompressible solver BCs
+   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS, EXTRAP_INS) ! Incompressible solver BCs
       applied = .TRUE.           !will handle these types of BCs below
    case default
       applied = .FALSE.
@@ -311,6 +311,43 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
                !--------------------------------------------------------------------------------------------------
+            case (EXTRAP_INS) ! face == LOW
+
+               if (gridDataStruct == CENTER) then
+
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+                  else
+                     k = 2*guard + 1
+                     do i = guard, 1, -1
+                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                          regionData(i + 2, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+                  if (isFace) then
+                     k = 2*guard + 2
+                     do i = guard, 1, -1
+                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                          regionData(i + 2, 1:je, 1:ke, ivar)
+                     end do
+
+                  else
+                     k = 2*guard + 1
+                     do i = guard, 1, -1
+                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                          regionData(i + 2, 1:je, 1:ke, ivar)
+
+                     end do
+                  end if
+
+               end if
+               !--------------------------------------------------------------------------------------------------
+
             case (NOSLIP_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
 
@@ -675,6 +712,43 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
                !--------------------------------------------------------------------------------------------------
+            case (EXTRAP_INS) ! face == LOW
+
+               if (gridDataStruct == CENTER) then
+
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                     end do
+                  else
+                     k = 2*guard + 1
+                     do i = guard, 1, -1
+                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
+                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+                  if (isFace) then
+                     k = 2*guard + 2
+                     do i = guard, 1, -1
+                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
+                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
+                     end do
+
+                  else
+                     k = 2*guard + 1
+                     do i = guard, 1, -1
+                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
+                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
+
+                     end do
+                  end if
+
+               end if
+               !--------------------------------------------------------------------------------------------------
+
             case (NOSLIP_INS) ! face == HIGH
                if (gridDataStruct == CENTER) then
 

@@ -1,5 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowData
-!!
+!!****f* source/Simulation/SimulationMain/incompFlow/FlowBoiling/Simulation_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +12,31 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!
-!!  sim_outflowData
+!!  Simulation_finalize
 !!
 !! SYNOPSIS
 !!
-!!  use sim_outflowData
+!!  Simulation_finalize()
+!!
+!! DESCRIPTION
+!!
+!!  This dummy function cleans up the Simulation unit, deallocates memory, etc.
+!!  However, as nothing needs to be done, only this stub is included.
+!!
+!! ARGUMENTS
+!!
+!!
 !!
 !!***
 
-#include "constants.h"
-#include "Simulation.h"
+subroutine Simulation_finalize()
 
-module sim_outflowData
+  use sim_heaterInterface,  ONLY : sim_heaterFinalize
+  use sim_outflowInterface, ONLY : sim_outflowFinalize
 
-   implicit none
+  implicit none
 
-   real, save :: sim_outflowVel(LOW:HIGH, MDIM)
+  call sim_heaterFinalize()
+  call sim_outflowFinalize()
 
-   real, save :: sim_outflowSink
-
-   real, save :: sim_outflowBuffer
-   real, save :: sim_outflowGrowthRate
-
-   integer, save :: sim_domainBC(LOW:HIGH, MDIM)
-
-end module sim_outflowData
+end subroutine Simulation_finalize

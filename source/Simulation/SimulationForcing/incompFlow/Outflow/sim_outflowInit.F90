@@ -19,19 +19,22 @@
 
 subroutine sim_outflowInit()
 
+   use Grid_interface, ONLY: Grid_getDomainBC
    use Simulation_data, ONLY: sim_meshMe
    use sim_outflowData
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
 
-   call RuntimeParameters_get('sim_lsSink', sim_lsSink)
-   call RuntimeParameters_get('sim_outflowRegion', sim_outflowRegion)
+   call Grid_getDomainBC(sim_domainBC)
+
+   call RuntimeParameters_get('sim_outflowSink', sim_outflowSink)
+   call RuntimeParameters_get('sim_outflowBuffer', sim_outflowBuffer)
    call RuntimeParameters_get('sim_outflowGrowthRate', sim_outflowGrowthRate)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_lsSink=', sim_lsSink
-      write (*, *) 'sim_outflowRegion=', sim_outflowRegion
+      write (*, *) 'sim_outflowSink=', sim_outflowSink
+      write (*, *) 'sim_outflowBuffer=', sim_outflowBuffer
       write (*, *) 'sim_outflowGrowthRate=', sim_outflowGrowthRate
    end if
 

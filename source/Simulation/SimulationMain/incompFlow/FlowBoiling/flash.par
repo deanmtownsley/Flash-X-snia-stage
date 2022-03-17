@@ -1,4 +1,4 @@
-# 	Runtime parameters for the Pool Boiling problem.
+# 	Runtime parameters for the Flow Boiling problem.
 gr_pmRpDivergenceFree = 1
 gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
@@ -29,41 +29,41 @@ mph_invWeber = 1.0
 # Prandtl number
 ht_Prandtl = 8.0
 
+# Outflow parameters
+sim_outflowSink    =  1.0  # Outflow sink strength
+
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  1   # Number of heaters
-sim_heaterName    = "multiple_bubbles"
+sim_heaterName    = "flow_boiling"
 sim_heaterShowInfo = .FALSE.
-
-# Outflow parameters
-sim_outflowSink   =  2.0 # Outflow sink strength
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
 #       Size of computational volume
-xmin		= -7.0
-xmax		=  7.0
+xmin		= -8.0
+xmax		=  8.0
 ymin		=  0.0
-ymax		= 14.0
-zmin            = -7.0
-zmax            =  7.0
+ymax		=  5.0
+zmin            = -2.5
+zmax            =  2.5
 
 #       Boundary conditions
-xl_boundary_type = "slip_ins"
-xr_boundary_type = "slip_ins"
+xl_boundary_type = "inflow_ins"
+xr_boundary_type = "neumann_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "neumann_ins"
+yr_boundary_type = "slip_ins"
 zl_boundary_type = "slip_ins"
 zr_boundary_type = "slip_ins"
 
 #       Simulation (grid, time, I/O) parameters
-run_comment	= "Pool Boiling problem"
-log_file	= "INS_Pool_Boiling.log"
-basenm		= "INS_Pool_Boiling_"
+run_comment	= "Flow Boiling problem"
+log_file	= "INS_Flow_Boiling.log"
+basenm		= "INS_Flow_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 40.
+tmax            = 20.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05
@@ -93,9 +93,9 @@ io_writeGridInfo = .TRUE.
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 28
-nblocky	= 28
-nblockz = 28
+nblockx	= 36
+nblocky	= 10
+nblockz = 10
 nfres   = 10000000
 
 lrefine_min       = 1

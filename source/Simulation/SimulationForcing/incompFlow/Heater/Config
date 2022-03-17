@@ -1,6 +1,8 @@
 #   Config file for heater API
 #
 
+REQUIRES physics/HeatAD/HeatADMain
+
 PPDEFINE SIMULATION_FORCE_HEATER
 
 D seedRadius for re-nucleation

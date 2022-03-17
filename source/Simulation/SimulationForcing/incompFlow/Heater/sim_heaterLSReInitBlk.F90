@@ -32,13 +32,17 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
    integer :: i, j, k, htr, isite
    real    :: idfun, iseedY, iseedX, iseedZ, iradius
 
-   do k = kz1, kz2
-      do j = jy1, jy2
-         do i = ix1, ix2
-            do htr = 1, sim_numHeaters
+   do htr = 1, sim_numHeaters
 
-               heater => sim_heaterInfo(htr)
+      heater => sim_heaterInfo(htr)
 
+      if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
+          boundBox(HIGH, JAXIS) .le. heater%yMin .or. boundBox(LOW, JAXIS) .ge. heater%yMax .or. &
+          boundBox(HIGH, KAXIS) .le. heater%zMin .or. boundBox(LOW, KAXIS) .ge. heater%zMax) cycle
+
+      do k = kz1, kz2
+         do j = jy1, jy2
+            do i = ix1, ix2
                do isite = 1, heater%numSites
 
                   if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
@@ -52,10 +56,10 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
                   end if
 
                end do
-
             end do
          end do
       end do
+
    end do
 
    return

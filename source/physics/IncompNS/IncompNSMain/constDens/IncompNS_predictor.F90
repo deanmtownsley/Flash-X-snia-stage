@@ -65,16 +65,16 @@ subroutine IncompNS_predictor(tileDesc, dt)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
 
-   call Stencils_integrateEuler(facexData(VELC_FACE_VAR, :, :, :), &
-                                facexData(HVN0_FACE_VAR, :, :, :), &
-                                facexData(HVN1_FACE_VAR, :, :, :), &
-                                dt, &
-                                GRID_ILO, GRID_IHI + 1, &
-                                GRID_JLO, GRID_JHI, &
-                                GRID_KLO, GRID_KHI, &
-                                iSource=ins_prescoeff*facexData(PGN1_FACE_VAR, :, :, :) &
-                                + facexData(VFRC_FACE_VAR, :, :, :) &
-                                - ins_dpdx + ins_gravX)
+   call Stencils_integrateAB2(facexData(VELC_FACE_VAR, :, :, :), &
+                              facexData(HVN0_FACE_VAR, :, :, :), &
+                              facexData(HVN1_FACE_VAR, :, :, :), &
+                              dt, &
+                              GRID_ILO, GRID_IHI + 1, &
+                              GRID_JLO, GRID_JHI, &
+                              GRID_KLO, GRID_KHI, &
+                              iSource=ins_prescoeff*facexData(PGN1_FACE_VAR, :, :, :) &
+                              + facexData(VFRC_FACE_VAR, :, :, :) &
+                              - ins_dpdx + ins_gravX)
 
    facexData(HVN1_FACE_VAR, :, :, :) = facexData(HVN0_FACE_VAR, :, :, :)
 

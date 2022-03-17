@@ -35,8 +35,8 @@ sim_numHeaters    =  2   # Number of heaters
 sim_heaterName    = "pool_boiling"
 
 # Outflow parameters
-sim_lsSink        =  1.0 # Level set sink strength
-sim_outflowRegion =  2.0 # Outflow region 
+sim_outflowSink   =  1.0 # Outflow sink strength
+sim_outflowBuffer =  2.0 # Outflow Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

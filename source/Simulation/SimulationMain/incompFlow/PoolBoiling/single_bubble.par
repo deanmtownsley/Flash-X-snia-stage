@@ -35,8 +35,8 @@ sim_numHeaters    =  1   # Number of heaters
 sim_heaterName    = "single_bubble"
 
 # Outflow parameters
-sim_lsSink        =  1.0 # Level set sink strength
-sim_outflowRegion =  4.0 # Outflow region 
+sim_outflowSink   =  1.0 # Outflow sink strength
+sim_outflowBuffer =  4.0 # Outflow buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

@@ -40,18 +40,27 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterCheckSites()
+      subroutine sim_heaterCheckSites(tileDesc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), intent(in) :: tileDesc
       end subroutine sim_heaterCheckSites
    end interface
 
    interface
-      subroutine sim_heaterLSReInit(stime)
+      subroutine sim_heaterLSReInit(tileDesc, stime)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: stime
       end subroutine sim_heaterLSReInit
    end interface
 
    interface
-      subroutine sim_heaterApplyBC(dt)
+      subroutine sim_heaterApplyBC(tileDesc, dt)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: dt
       end subroutine sim_heaterApplyBC
    end interface
