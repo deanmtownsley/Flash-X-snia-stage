@@ -347,9 +347,6 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
      end do
   end if
   
-  if(.not.hy_fluxCorrectPerLevel)then
-     call hy_updateBoundaries()
-  end if
 
   call Hydro_freeBuffers()
 

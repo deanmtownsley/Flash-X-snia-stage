@@ -51,10 +51,10 @@ Skipped Complex Files
    Complex: check- or fix-specific criteria
 
    source/Grid/GridMain/AMR/Amrex/gr_amrexInterface.F90 (skip implicitNone check)
+   source/Grid/GridMain/AMR/Bittree/bittree.F90 (skip implicitNone check)
    source/Grid/GridMain/AMR/Paramesh4/gr_flashHook_interfaces.F90 (skip implicitNone check)
    source/Grid/GridMain/AMR/Paramesh4/gr_parameshInterface.F90 (skip implicitNone check)
    source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_1blk_fc_prol_divpres.F90 (skip implicitNone check)
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/bittree.F90 (skip implicitNone check)
    source/Grid/GridSolvers/HYPRE/gr_hypreLocalInterface.F90 (skip implicitNone check)
    source/Grid/localAPI/gr_amrexMultigridInterface.F90 (skip implicitNone check)
    source/Grid/localAPI/gr_bcInterface.F90 (skip implicitNone check)
@@ -95,11 +95,8 @@ Skipped Complex Files
    source/numericalTools/Roots/Roots_interface.F90 (skip implicitNone check)
    source/numericalTools/RungeKutta/RungeKutta_interface.F90 (skip implicitNone check)
    source/numericalTools/RungeKutta/localAPI/rk_interface.F90 (skip implicitNone check)
-   source/physics/Eos/Eos_nucInterface.F90 (skip implicitNone check)
    source/physics/Eos/EosMain/Helmholtz/eos_helmInterface.F90 (skip implicitNone check)
    source/physics/Eos/localAPI/eos_localInterface.F90 (skip implicitNone check)
-   source/physics/Eos/localAPI/eos_mtInterface.F90 (skip implicitNone check)
-   source/physics/Eos/localAPI/eos_tabInterface.F90 (skip implicitNone check)
    source/physics/HeatAD/HeatAD_interface.F90 (skip implicitNone check)
    source/physics/HeatAD/localAPI/ht_advectionInterface.F90 (skip implicitNone check)
    source/physics/HeatAD/localAPI/ht_interface.F90 (skip implicitNone check)
@@ -243,22 +240,19 @@ The following API-Level stub-files
 are not represented in "source/physics/Hydro/Hydro_interface.F90":
 ------------------------------------------------------------------
 Hydro_gravPotIsAlreadyUpdated
-Hydro_computeFluxLoop
-Hydro_shockDetectLoop
 Hydro_consolidateCFL
 
-The following API-Level stub-files
-are not represented in "source/physics/Eos/Eos_interface.F90":
---------------------------------------------------------------
-Eos_nucInterface
-Eos_nucOneZone
-Eos_nucDetectBounce
+The following subroutine interfaces from "source/physics/Hydro/Hydro_interface.F90"
+do not correspond to any API-level stub-file:
+-----------------------------------------------------------------------------------
+Hydro_detectShock
 
 The following subroutine interfaces from "source/physics/Eos/Eos_interface.F90"
 do not correspond to any API-level stub-file:
 -------------------------------------------------------------------------------
 Eos_putDataR2
 Eos_getTempDataF
+Eos_logDiagnostics
 
 The following API-Level stub-files
 are not represented in "source/physics/IncompNS/IncompNS_interface.F90":
@@ -283,531 +277,527 @@ Description: flag developer comments in source code
 
 Violations:
    source/Driver/DriverMain/Driver_verifyInitDt.F90
-      Line 124 : ! DEV: Do we really need to get the data for the GC as well?
+      Line 127 : ! DEV: Do we really need to get the data for the GC as well?
 
-   source/Driver/DriverMain/Unsplit/Driver_evolveFlash.F90
-      Line  78 : ! DEV: Temporary ugliness for debugging
+   source/Driver/DriverMain/Unsplit/Driver_evolveAll.F90
+      Line  81 : ! DEV: Temporary ugliness for debugging
 
    source/Grid/Grid_addFineToFluxRegister.F90
-      Line  50 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
-      Line  60 : !   DEV: This interface may be obsolete.
-      Line  61 : !   DEV: Currently only implemented for the Amrex Grid.
-
-   source/Grid/Grid_addFineToFluxRegister_block.F90
-      Line  52 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
+      Line  53 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
       Line  63 : !   DEV: This interface may be obsolete.
       Line  64 : !   DEV: Currently only implemented for the Amrex Grid.
 
+   source/Grid/Grid_addFineToFluxRegister_block.F90
+      Line  55 : !DEV: CURRENTLY THE isDensity ARGUMENT IS NOT SUPPORTED.
+      Line  66 : !   DEV: This interface may be obsolete.
+      Line  67 : !   DEV: Currently only implemented for the Amrex Grid.
+
    source/Grid/Grid_bcApplyToRegionMixedGds.F90
-      Line 111 : !DEV: This dummy arg is quite pointless and should go away. - KW
+      Line 114 : !DEV: This dummy arg is quite pointless and should go away. - KW
 
    source/Grid/Grid_computeVarDiff.F90
-      Line  44 : !  DEV: Currently only implemented for Paramesh4 and UG!
+      Line  47 : !  DEV: Currently only implemented for Paramesh4 and UG!
 
    source/Grid/Grid_computeVarNorm.F90
-      Line  43 : !  DEV: Currently only implemented for Paramesh4 and UG!
+      Line  46 : !  DEV: Currently only implemented for Paramesh4 and UG!
 
    source/Grid/Grid_conserveField.F90
-      Line  30 : !  DEV: Currently only implemented for Paramesh4!
+      Line  33 : !  DEV: Currently only implemented for Paramesh4!
 
    source/Grid/Grid_conserveToPrimitive.F90
-      Line  42 : !  DEV: Currently only implemented for Paramesh4!
+      Line  45 : !  DEV: Currently only implemented for Paramesh4!
 
    source/Grid/Grid_correctFluxData.F90
-      Line  44 : !DEV: can it be a proper tile?
+      Line  47 : !DEV: can it be a proper tile?
 
    source/Grid/Grid_correctFluxData_xtra.F90
-      Line  66 : !DEV: can it be a proper tile?
+      Line  69 : !DEV: can it be a proper tile?
 
    source/Grid/Grid_fillGuardCells.F90
-      Line 151 : !DEV: implementation with known failures.
+      Line 154 : !DEV: implementation with known failures.
 
    source/Grid/Grid_getBlkCornerID.F90
-      Line  67 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
+      Line  70 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
 
    source/Grid/Grid_getBlkIndexLimits.F90
-      Line 102 : !   DEV: Currently only implemented correctly for Paramesh4 and UG!
-      Line 104 : !   DEV: The indices returned may be according to the "native" convention
+      Line 105 : !   DEV: Currently only implemented correctly for Paramesh4 and UG!
+      Line 107 : !   DEV: The indices returned may be according to the "native" convention
 
    source/Grid/Grid_getBlkNeighBlkIDFromPos.F90
-      Line  68 : !DEV: There is no proper implementation, Paramesh4 implementation will abort if called.
+      Line  71 : !DEV: There is no proper implementation, Paramesh4 implementation will abort if called.
 
    source/Grid/Grid_getBlkNeighLevels.F90
-      Line  77 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
+      Line  80 : !  DEV: Currently only implemented correctly for Paramesh4 and UG!
 
    source/Grid/Grid_getFluxData_block.F90
-      Line  70 : !   DEV: This interface is currently only implemented for Paramesh4 !
+      Line  73 : !   DEV: This interface is currently only implemented for Paramesh4 !
 
    source/Grid/Grid_getMaxCommonRefinement.F90
-      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
+      Line  39 : !  DEV: Not yet implemented for Amrex, will abort if called.
 
    source/Grid/Grid_primitiveToConserve.F90
-      Line  38 : !  DEV: Currently only implemented for Paramesh4!
+      Line  41 : !  DEV: Currently only implemented for Paramesh4!
 
    source/Grid/Grid_restrictByLevels.F90
-      Line  36 : !  DEV: Face variables not tested / not expected to work.
+      Line  39 : !  DEV: Face variables not tested / not expected to work.
 
    source/Grid/Grid_setInterpValsGcell.F90
-      Line  39 : ! DEV: This should be generalized, to be useful for other code than IncompNS!
+      Line  42 : ! DEV: This should be generalized, to be useful for other code than IncompNS!
 
    source/Grid/Grid_solvePoisson.F90
-      Line 111 : !DEV: NOT intent(IN) because some implementation actually changes it? - KW
+      Line 114 : !DEV: NOT intent(IN) because some implementation actually changes it? - KW
 
    source/Grid/GridBoundaryConditions/Grid_bcApplyToRegionMixedGds.F90.forUSM
-      Line 103 : !DEV: This dummy arg is quite pointless and should go away. - KW
+      Line 114 : !DEV: This dummy arg is quite pointless and should go away. - KW
 
    source/Grid/GridBoundaryConditions/gr_bcGetRegion.F90
-      Line 185 : ! DEV: TODO How to manage casting from multifab real to FLASH real?
-      Line 226 : ! DEV: FIXME once face[xyz] implemented for AMReX
-      Line 261 : !DEV: TODO Code up mask portion
-      Line 544 : ! DEVNOTE: Code this once the data structures are fixed
+      Line 188 : ! DEV: TODO How to manage casting from multifab real to FLASH real?
+      Line 229 : ! DEV: FIXME once face[xyz] implemented for AMReX
+      Line 264 : !DEV: TODO Code up mask portion
+      Line 547 : ! DEVNOTE: Code this once the data structures are fixed
 
    source/Grid/GridBoundaryConditions/gr_bcPutRegion.F90
-      Line 118 : ! DEV: TODO How to manage casting from multifab real to FLASH real?
-      Line 159 : ! DEV: FIXME once face[xyz] implemented for AMReX
-      Line 474 : ! DEVNOTE: Code this once data structures fixed
-      Line 481 : ! DEVNOTE: Code once data structures fixed
+      Line 121 : ! DEV: TODO How to manage casting from multifab real to FLASH real?
+      Line 162 : ! DEV: FIXME once face[xyz] implemented for AMReX
+      Line 477 : ! DEVNOTE: Code this once data structures fixed
+      Line 484 : ! DEVNOTE: Code once data structures fixed
 
    source/Grid/GridMain/Grid_addToVar.F90
-      Line  86 : ! DEV: TODO Why no just set the destVar by overwriting rather than
+      Line  89 : ! DEV: TODO Why no just set the destVar by overwriting rather than
 
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
-      Line  73 : ! DEV: TODO Should this set area to 1?
-      Line 138 : ! DEV: TODO These can be done more simply using
+      Line  76 : ! DEV: TODO Should this set area to 1?
+      Line 141 : ! DEV: TODO These can be done more simply using
 
    source/Grid/GridMain/Grid_getMaxCommonRefinement.F90
-      Line  36 : !  DEV: Not yet implemented for Amrex, will abort if called.
+      Line  39 : !  DEV: Not yet implemented for Amrex, will abort if called.
 
    source/Grid/GridMain/gr_findMean.F90
-      Line  88 : ! DEVNOTE: This appears to be for Cartesian only blocks/cells.
+      Line  91 : ! DEVNOTE: This appears to be for Cartesian only blocks/cells.
 
    source/Grid/GridMain/gr_initGeometry.F90
-      Line 155 : ! DEV: The following was taken from init_mesh.F90 FLASH2, but
+      Line 158 : ! DEV: The following was taken from init_mesh.F90 FLASH2, but
 
    source/Grid/GridMain/gr_tilePolicyData.F90
       Line   1 : ! DEV: This module is currently not useful. - KW
 
    source/Grid/GridMain/AMR/Amrex/Grid_addFineToFluxRegister_block.F90
-      Line  92 : ! DEV: Determine if this is needed for FLASH5 and implement if necessary. 
+      Line  95 : ! DEV: Determine if this is needed for FLASH5 and implement if necessary. 
 
    source/Grid/GridMain/AMR/Amrex/Grid_conserveToPrimitive.F90
-      Line  42 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
+      Line  45 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
 
    source/Grid/GridMain/AMR/Amrex/Grid_correctFluxData.F90
-      Line  41 : !DEV: can it be a proper tile?
-
-   source/Grid/GridMain/AMR/Amrex/Grid_correctFluxData_xtra.F90
-      Line  66 : !DEV: can it be a proper tile?
-
-   source/Grid/GridMain/AMR/Amrex/Grid_fillGuardCells.F90
-      Line 189 : ! DEV: TODO Implement this functionality?
-      Line 508 : ! DEV: TODO Do we need C-to-P conversion here for face vars?
-
-   source/Grid/GridMain/AMR/Amrex/Grid_getBlkCenterCoords.F90
-      Line  66 : ! DEV: FIXME How to manage matching amrex_real to FLASH real
-
-   source/Grid/GridMain/AMR/Amrex/Grid_init.F90
-      Line 239 : ! DEV: Unable to set an upper limit on these runtime parameters using
-      Line 326 : ! DEV: TODO: Is there a FLASH Grid_*/gr_* interface function to get this?  If
-      Line 353 : ! DEV: FIXME Temporarily disabled until the logic is fully implemented
-      Line 419 : ! DEV: FIXME This is segfaulting, but isn't needed right now
-      Line 552 : ! DEVNOTE: Is this Paramesh-specific.  Defined in paramesh
-      Line 571 : ! DEVNOTE: What to do with these?
-
-   source/Grid/GridMain/AMR/Amrex/Grid_initDomain.F90
-      Line 105 : ! DEV: TODO Implement parameters
-      Line 130 : ! DEV: T_INT is set to zero now as AMReX does not care about this value.
-
-   source/Grid/GridMain/AMR/Amrex/Grid_primitiveToConserve.F90
-      Line  40 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
-
-   source/Grid/GridMain/AMR/Amrex/Grid_tile.F90
-      Line  18 : !    DEV: TODO Fix this documentation.
-      Line 124 : ! DEV: FIXME How to manage matching amrex_real to FLASH real
-      Line 137 : ! DEV: FIXME What should the size be for the dimensions > NDIM?
-      Line 239 : ! DEV: If the client code requests a pointer to data that is not 
-      Line 247 : ! DEV: For now, the localFlag parameter might be useful as we pull in more
-
-   source/Grid/GridMain/AMR/Amrex/Grid_updateRefinement.F90
-      Line 147 : ! DEV: TODO Allow for updates to gr_maxRefine here?
-      Line 166 : !        DEV: Does this mean that iref could be below the array's lbound?
-      Line 194 : ! DEV: TODO Confirm with AMReX team if non-parent ancestor blocks can
-      Line 197 : ! DEV: TODO Should we restrict GC fill to only refinement variables?
-      Line 236 : ! DEV: TODO Confirm with AMReX team if non-parent ancestor blocks can
-      Line 239 : ! DEV: TODO Add masking as in Grid_fillGuardCell?
-      Line 332 : !Devnote: call Particles_update refinement in case particle-block association changed
-      Line 339 : ! DEVNOTE: Determine whether the more efficient MPI_Reduce should be used here. (See PR 1149)
-
-   source/Grid/GridMain/AMR/Amrex/gr_amrexInit.F90
-      Line  54 : ! DEVNOTE: These should be define in AMReX interface.  Name must 
-      Line  95 : ! DEVNOTE: FIXME
-      Line 173 : ! DEV: TODO Let FLASH driver construct communicators and then configure AMReX
-
-   source/Grid/GridMain/AMR/Amrex/gr_cleanDensityData.F90
-      Line  91 : ! DEV: TODO Determine how to implement all modes and all levels of 
-
-   source/Grid/GridMain/AMR/Amrex/gr_cleanEnergyData.F90
-      Line  90 : ! DEV: TODO Determine how to implement all modes and all levels of 
-
-   source/Grid/GridMain/AMR/Amrex/gr_findBlock.F90
-      Line  50 : ! DEV: TODO Implement this with blockDesc if needed
-
-   source/Grid/GridMain/AMR/Amrex/gr_initGeometry.F90
-      Line  58 : ! DEVNOTE: Make GridMain/gr_initGeometry indepedent of Grid_data variables
-      Line 166 : ! DEV: The following was taken from init_mesh.F90 FLASH2, but
-
-   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90
-      Line 167 : !DEVNOTE:  Can test with tiling later - KW
-      Line 173 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
-
-   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90.alt
-      Line 150 : !DEVNOTE:  Can test with tiling later - KW
-      Line 154 : ! DEV: or %tilebox()
-      Line 156 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
-      Line 159 : ! DEVNOTE: We can use this in AMREX or AMREXTRANSITION mode
-      Line 278 : ! DEV: The following relies on gr_maxRefine being properly set, which appears to be not
-
-   source/Grid/GridMain/AMR/Amrex/gr_updateData.F90
-      Line  91 : ! DEV: NOT ALWAYS TRUE!!!
-      Line 105 : ! DEV: Do we need to distinguish ANCESTOR?
-
-   source/Grid/GridMain/AMR/Amrex/gr_writeBlockInfo.F90
-      Line  83 : ! DEV: TODO Implement for AMReX
-      Line 108 : ! DEV: TODO Implement this with iterator if needed
-
-   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_addCoarseToFluxRegister.F90
-      Line 137 : ! DEV: TODO We should be able to use crseinit here instead of using the
-
-   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_addFineToFluxRegister.F90
-      Line  81 : ! DEV: See note below related to Intel ICE
-      Line 147 : ! DEV: Determine if this is needed for FLASH5 and implement if necessary. 
-      Line 181 : ! DEV: TODO This is a first brute force implementation that was made to
-
-   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_conserveFluxes.F90
-      Line 112 : ! DEV: TODO This is a first brute force implementation that was made to
-      Line 355 : ! DEV: TODO This routine should take an isFluxDensity array as an argument
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_communicateFluxes.F90
-      Line  90 : ! Dev:  Disabled immediate return for now, let the caller control this. - KW
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_computeVarNorm.F90
-      Line  43 : !  DEV: Currently only implemented for Paramesh4 and UG!
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_conserveField.F90
-      Line  30 : !  DEV: Currently only implemented for Paramesh4!
-      Line  31 : !  DEV: Currently forced abort for Paramesh4!
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_conserveToPrimitive.F90
-      Line  62 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_correctFluxData.F90
       Line  44 : !DEV: can it be a proper tile?
 
+   source/Grid/GridMain/AMR/Amrex/Grid_correctFluxData_xtra.F90
+      Line  69 : !DEV: can it be a proper tile?
+
+   source/Grid/GridMain/AMR/Amrex/Grid_fillGuardCells.F90
+      Line 192 : ! DEV: TODO Implement this functionality?
+      Line 511 : ! DEV: TODO Do we need C-to-P conversion here for face vars?
+
+   source/Grid/GridMain/AMR/Amrex/Grid_getBlkCenterCoords.F90
+      Line  69 : ! DEV: FIXME How to manage matching amrex_real to FLASH real
+
+   source/Grid/GridMain/AMR/Amrex/Grid_init.F90
+      Line 242 : ! DEV: Unable to set an upper limit on these runtime parameters using
+      Line 329 : ! DEV: TODO: Is there a FLASH Grid_*/gr_* interface function to get this?  If
+      Line 356 : ! DEV: FIXME Temporarily disabled until the logic is fully implemented
+      Line 422 : ! DEV: FIXME This is segfaulting, but isn't needed right now
+      Line 555 : ! DEVNOTE: Is this Paramesh-specific.  Defined in paramesh
+      Line 574 : ! DEVNOTE: What to do with these?
+
+   source/Grid/GridMain/AMR/Amrex/Grid_initDomain.F90
+      Line 108 : ! DEV: TODO Implement parameters
+      Line 133 : ! DEV: T_INT is set to zero now as AMReX does not care about this value.
+
+   source/Grid/GridMain/AMR/Amrex/Grid_primitiveToConserve.F90
+      Line  43 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
+
+   source/Grid/GridMain/AMR/Amrex/Grid_tile.F90
+      Line  21 : !    DEV: TODO Fix this documentation.
+      Line 127 : ! DEV: FIXME How to manage matching amrex_real to FLASH real
+      Line 140 : ! DEV: FIXME What should the size be for the dimensions > NDIM?
+      Line 242 : ! DEV: If the client code requests a pointer to data that is not 
+      Line 250 : ! DEV: For now, the localFlag parameter might be useful as we pull in more
+
+   source/Grid/GridMain/AMR/Amrex/Grid_updateRefinement.F90
+      Line 150 : ! DEV: TODO Allow for updates to gr_maxRefine here?
+      Line 169 : !        DEV: Does this mean that iref could be below the array's lbound?
+      Line 197 : ! DEV: TODO Confirm with AMReX team if non-parent ancestor blocks can
+      Line 200 : ! DEV: TODO Should we restrict GC fill to only refinement variables?
+      Line 239 : ! DEV: TODO Confirm with AMReX team if non-parent ancestor blocks can
+      Line 242 : ! DEV: TODO Add masking as in Grid_fillGuardCell?
+      Line 335 : !Devnote: call Particles_update refinement in case particle-block association changed
+      Line 342 : ! DEVNOTE: Determine whether the more efficient MPI_Reduce should be used here. (See PR 1149)
+
+   source/Grid/GridMain/AMR/Amrex/gr_amrexInit.F90
+      Line  57 : ! DEVNOTE: These should be define in AMReX interface.  Name must 
+      Line  98 : ! DEVNOTE: FIXME
+      Line 176 : ! DEV: TODO Let FLASH driver construct communicators and then configure AMReX
+
+   source/Grid/GridMain/AMR/Amrex/gr_cleanDensityData.F90
+      Line  94 : ! DEV: TODO Determine how to implement all modes and all levels of 
+
+   source/Grid/GridMain/AMR/Amrex/gr_cleanEnergyData.F90
+      Line  93 : ! DEV: TODO Determine how to implement all modes and all levels of 
+
+   source/Grid/GridMain/AMR/Amrex/gr_estimateError.F90
+      Line  43 : !    DEV: Not usable with the Amrex Grid implementation, will abort;
+
+   source/Grid/GridMain/AMR/Amrex/gr_findBlock.F90
+      Line  53 : ! DEV: TODO Implement this with blockDesc if needed
+
+   source/Grid/GridMain/AMR/Amrex/gr_initGeometry.F90
+      Line  61 : ! DEVNOTE: Make GridMain/gr_initGeometry indepedent of Grid_data variables
+      Line 169 : ! DEV: The following was taken from init_mesh.F90 FLASH2, but
+
+   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90
+      Line 170 : !DEVNOTE:  Can test with tiling later - KW
+      Line 176 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
+
+   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90.alt
+      Line 161 : !DEVNOTE:  Can test with tiling later - KW
+      Line 165 : ! DEV: or %tilebox()
+      Line 167 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
+      Line 170 : ! DEVNOTE: We can use this in AMREX or AMREXTRANSITION mode
+      Line 289 : ! DEV: The following relies on gr_maxRefine being properly set, which appears to be not
+
+   source/Grid/GridMain/AMR/Amrex/gr_updateData.F90
+      Line  94 : ! DEV: NOT ALWAYS TRUE!!!
+      Line 108 : ! DEV: Do we need to distinguish ANCESTOR?
+
+   source/Grid/GridMain/AMR/Amrex/gr_writeBlockInfo.F90
+      Line  86 : ! DEV: TODO Implement for AMReX
+      Line 111 : ! DEV: TODO Implement this with iterator if needed
+
+   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_addCoarseToFluxRegister.F90
+      Line 140 : ! DEV: TODO We should be able to use crseinit here instead of using the
+
+   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_addFineToFluxRegister.F90
+      Line  84 : ! DEV: See note below related to Intel ICE
+      Line 150 : ! DEV: Determine if this is needed for FLASH5 and implement if necessary. 
+      Line 184 : ! DEV: TODO This is a first brute force implementation that was made to
+
+   source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_conserveFluxes.F90
+      Line 115 : ! DEV: TODO This is a first brute force implementation that was made to
+      Line 358 : ! DEV: TODO This routine should take an isFluxDensity array as an argument
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_communicateFluxes.F90
+      Line  93 : ! Dev:  Disabled immediate return for now, let the caller control this. - KW
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_computeVarNorm.F90
+      Line  46 : !  DEV: Currently only implemented for Paramesh4 and UG!
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_conserveField.F90
+      Line  33 : !  DEV: Currently only implemented for Paramesh4!
+      Line  34 : !  DEV: Currently forced abort for Paramesh4!
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_conserveToPrimitive.F90
+      Line  65 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_correctFluxData.F90
+      Line  47 : !DEV: can it be a proper tile?
+
    source/Grid/GridMain/AMR/Paramesh4/Grid_correctFluxData_xtra.F90
-      Line  66 : !DEV: can it be a proper tile?
+      Line  69 : !DEV: can it be a proper tile?
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkIndexLimits.F90
-      Line 112 : ! DEV: FIXME This no longer needs to be a module.  Revert to normal 
+      Line 115 : ! DEV: FIXME This no longer needs to be a module.  Revert to normal 
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkNeighBlkIDFromPos.F90
-      Line  68 : !DEV: There is no proper implementation, will abort if called.
+      Line  71 : !DEV: There is no proper implementation, will abort if called.
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_makeVector.F90
-      Line  88 : ! DEVNOTE: This should be made generic and moved to GridMain/AMR
+      Line  91 : ! DEVNOTE: This should be made generic and moved to GridMain/AMR
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_primitiveToConserve.F90
-      Line  58 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
+      Line  61 : ! DEV: TODO This needs to be rethought or modernized to work with iterators
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_setInterpValsGcell.F90
-      Line  37 : ! DEV: This should be generalized, to be useful for other code than IncompNS!
+      Line  40 : ! DEV: This should be generalized, to be useful for other code than IncompNS!
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_tile.F90
-      Line 152 : ! DEV: For now, the localFlag parameter might be useful for code that
+      Line 155 : ! DEV: For now, the localFlag parameter might be useful for code that
 
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_bcset.F90
-      Line  52 : !DEV: except in the case of prolongation?
+      Line  55 : !DEV: except in the case of prolongation?
 
    source/Grid/GridMain/AMR/Paramesh4/gr_blockMatch.F90
-      Line 129 : !DEV: What does this mean?
-      Line 131 : !DEV: What does this mean?
+      Line 133 : !DEV: What does this mean?
+      Line 135 : !DEV: What does this mean?
 
    source/Grid/GridMain/AMR/Paramesh4/gr_updateRefinement.F90
-      Line 206 : ! DEV: Should this be a single loop over ALL_BLKS then?
+      Line 209 : ! DEV: Should this be a single loop over ALL_BLKS then?
 
    source/Grid/GridMain/AMR/Paramesh4/levelFlux/Grid_conserveFluxes.F90
-      Line 105 : ! Dev:  Disabled immediate return for now, let the caller control this. - KW
+      Line 108 : ! Dev:  Disabled immediate return for now, let the caller control this. - KW
 
    source/Grid/GridMain/AMR/Paramesh4/levelFlux/Grid_putFluxData.F90
-      Line 149 : ! Dev - AD for AMReX, it should be if((level==1).or.(NFLUXES<1))return
+      Line 152 : ! Dev - AD for AMReX, it should be if((level==1).or.(NFLUXES<1))return
 
    source/Grid/GridMain/UG/Grid_computeVarNorm.F90
-      Line  43 : !  DEV: Currently only implemented for Paramesh4 and UG!
-      Line 129 : ! DEV: Issue warning?
+      Line  46 : !  DEV: Currently only implemented for Paramesh4 and UG!
+      Line 132 : ! DEV: Issue warning?
 
    source/Grid/GridMain/UG/Grid_fillGuardCells.F90
-      Line 164 : !DEV: unused - KW 2010-09-22
-      Line 256 : ! DEV: FIXME Should this be moved inside the loop?
+      Line 167 : !DEV: unused - KW 2010-09-22
+      Line 259 : ! DEV: FIXME Should this be moved inside the loop?
 
    source/Grid/GridMain/UG/Grid_init.F90
-      Line 282 : ! DEV: TODO Should we print this to the log as well?
+      Line 285 : ! DEV: TODO Should we print this to the log as well?
 
    source/Grid/GridMain/UG/Grid_tile.F90
-      Line 145 : ! DEV: If the client code requests a pointer to data that is not 
-      Line 153 : ! DEV: For now, the localFlag parameter might be useful as we pull in more
+      Line 148 : ! DEV: If the client code requests a pointer to data that is not 
+      Line 156 : ! DEV: For now, the localFlag parameter might be useful as we pull in more
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/MoveSieve/gr_ptStoreOffBlockCells.F90
-      Line 165 : !DEV: Type is known to be different.  I need to convert it
+      Line 168 : !DEV: Type is known to be different.  I need to convert it
 
    source/Grid/GridParticles/GridParticlesMove/ParticlesOwned/Paramesh/Grid_sortParticles.F90
-      Line 180 : ! DEV:Missing error handling for various cases of invalid inputs.
-      Line 248 : !DEV: Should protect against attrib > elementTypes here! - KW
-      Line 289 : !DEV: Should protect against attrib > elementTypes here! - KW
+      Line 183 : ! DEV:Missing error handling for various cases of invalid inputs.
+      Line 251 : !DEV: Should protect against attrib > elementTypes here! - KW
+      Line 292 : !DEV: Should protect against attrib > elementTypes here! - KW
 
    source/Grid/GridSolvers/HYPRE/Grid_solvePoisson.F90
-      Line  40 : !DEV: requested bcTypes ignored, always uses GRID_PDE_BND_NEUMANN
-      Line 115 : !DEV: NOT intent(IN) because some implementation actually changes it? - KW  
+      Line  43 : !DEV: requested bcTypes ignored, always uses GRID_PDE_BND_NEUMANN
+      Line 118 : !DEV: NOT intent(IN) because some implementation actually changes it? - KW  
 
    source/Grid/GridSolvers/HYPRE/gr_hypreUpdateSoln.F90
-      Line 131 : ! DEV: + ...
+      Line 134 : ! DEV: + ...
 
    source/Grid/GridSolvers/HYPRE/UG/gr_hypreCreateMatrix.F90
-      Line  49 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
+      Line  52 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreCreateMatrix.F90
-      Line  49 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
+      Line  52 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreCreateMatrix.F90.save
-      Line  41 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
+      Line  52 : !DEV: ??) on boundary (currently used for DIRICHLET and GIVENGRAD BCs).                        
 
    source/IO/IOMain/IO_output.F90
-      Line 404 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
+      Line 407 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
 
    source/IO/IOMain/IO_outputFinal.F90
-      Line  59 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
+      Line  62 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
 
    source/IO/IOMain/IO_outputInitial.F90
-      Line  90 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
+      Line  93 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
 
    source/IO/IOMain/IO_writeCheckpoint.F90
-      Line 142 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
+      Line 145 : ! Devnote :: preprocessors because amrex particles are being handled through amrex grid
 
    source/IO/IOMain/io_getVarExtrema.F90
-      Line  90 : !DEV: Add one for FACE-centered data?
+      Line  93 : !DEV: Add one for FACE-centered data?
 
    source/IO/IOMain/hdf5/AM/IO_writePlotfile.F90
-      Line  91 : ! DEV: Temporary ugliness for debugging
+      Line  95 : ! DEV: Temporary ugliness for debugging
 
    source/IO/IOMain/hdf5/parallel/NoFbs/io_writeData.F90
-      Line 425 : !DEV: Face-centered variables are not sent to plot files.
+      Line 428 : !DEV: Face-centered variables are not sent to plot files.
 
    source/IO/IOMain/hdf5/parallel/PM/io_writeData.F90
-      Line 346 : !DEV: The above works for permanent guardcells, though it leaves the 
+      Line 349 : !DEV: The above works for permanent guardcells, though it leaves the 
 
    source/IO/IOParticles/io_getParticleOffset.F90
-      Line  38 : !DEV: Old comment said: currently only implemented with the uniform grid!
+      Line  41 : !DEV: Old comment said: currently only implemented with the uniform grid!
 
    source/IO/IOParticles/hdf5/parallel/io_ptReadParticleData.F90
-      Line 219 : !DEV: Changes begin here.  --PR
-      Line 386 : !DEV: MAKE SURE THIS IS RIGHT! vvvv -PR
+      Line 222 : !DEV: Changes begin here.  --PR
+      Line 389 : !DEV: MAKE SURE THIS IS RIGHT! vvvv -PR
 
    source/IO/IOParticles/hdf5/serial/io_ptReadParticleData.F90
-      Line 226 : !DEV: Hold onto this for time being if reads need to be sped up --PR         
+      Line 229 : !DEV: Hold onto this for time being if reads need to be sped up --PR         
 
    source/Particles/Particles_getLocalNum.F90
-      Line  27 : !DEV: IGNORED!
+      Line  30 : !DEV: IGNORED!
 
    source/Particles/ParticlesInitialization/MeshOwned/Particles_initPositions.F90
-      Line 177 : !DevNote :: Following two options to be implemented later
+      Line 180 : !DevNote :: Following two options to be implemented later
 
    source/Particles/ParticlesInitialization/MeshOwned/Lattice/pt_initPositionsLattice_pc.F90
-      Line 201 : !DevNote :: or = pt_meshMe
+      Line 204 : !DevNote :: or = pt_meshMe
 
    source/Particles/ParticlesMain/Particles_advance.F90
-      Line  95 : ! DEV: Do we need to call countParticlesByType here? 
-      Line  96 : ! Dev: Do we need to call pt_updateTypeDS_pc here?
-      Line 127 : !DevNote :: Following two options to be implemented later
+      Line  98 : ! DEV: Do we need to call countParticlesByType here? 
+      Line  99 : ! Dev: Do we need to call pt_updateTypeDS_pc here?
+      Line 130 : !DevNote :: Following two options to be implemented later
 
    source/Particles/ParticlesMain/Particles_getLocalNum.F90
-      Line  27 : !DEV: IGNORED!
+      Line  30 : !DEV: IGNORED!
 
    source/Particles/ParticlesMain/Particles_updateRefinement.F90
-      Line  39 : ! DEV: oldLocalNumBlocks argument is unused.
+      Line  42 : ! DEV: oldLocalNumBlocks argument is unused.
 
    source/Particles/ParticlesMapping/ParticlesOwned/meshWeighting/MapToMesh/Particles_mapToMeshOneBlk.F90
-      Line 111 : ! DEVNOTE : May be if the block is on fine coarse boundary, and this is the 
-      Line 137 : ! DEV : AD -- if we ever need to use this interface, we will
+      Line 114 : ! DEVNOTE : May be if the block is on fine coarse boundary, and this is the 
+      Line 140 : ! DEV : AD -- if we ever need to use this interface, we will
 
    source/Particles/localAPI/pt_initPositions.F90
-      Line  79 : ! DEV: returns true because this stub creates no particles,
+      Line  82 : ! DEV: returns true because this stub creates no particles,
 
    source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_init.F90
-      Line  79 : ! DEV: Implemention in process: -chk_file checkpointFile on the command line
+      Line  82 : ! DEV: Implemention in process: -chk_file checkpointFile on the command line
 
    source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_mapStrToInt.F90
-      Line 505 : ! DEV: FIXME This interpolator is not working with FLASH (Issue 138)
-      Line 521 : ! DEV: FIXME This interpolator is not working with FLASH (Issue 138)
+      Line 511 : ! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
+      Line 527 : ! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
 
    source/Simulation/SimulationComposition/Ionize/Simulation_initSpecies.F90
-      Line 101 : ! DEV: Expect this call to return the number correponding 
+      Line 104 : ! DEV: Expect this call to return the number correponding 
 
    source/Simulation/SimulationComposition/Ionize/Simulation_speciesData.F90
-      Line  50 : !DEV : The appropriate type is commented out.  This is because our only 
-      Line  59 : !DEV : The Neitest config file in FLASH2 is hardcoded to use the single 
+      Line  53 : !DEV : The appropriate type is commented out.  This is because our only 
+      Line  62 : !DEV : The Neitest config file in FLASH2 is hardcoded to use the single 
 
    source/Simulation/SimulationMain/DustCollapse/gr_markRefineDerefineCallback.F90
-      Line 178 : !DEVNOTE:  Can test with tiling later - KW
-      Line 184 : ! DEVNOTE: TODO Fake descriptor until we have a natural iterator for FLASH
+      Line 181 : !DEVNOTE:  Can test with tiling later - KW
+      Line 187 : ! DEVNOTE: TODO Fake descriptor until we have a natural iterator for FLASH
 
    source/Simulation/SimulationMain/SNIa_DoubleDetonation/Hydro.F90.levelFlux
-      Line 355 : ! DEV: Determine if we need to allow for the flexibility of storing
+      Line 367 : ! DEV: Determine if we need to allow for the flexibility of storing
 
    source/Simulation/SimulationMain/Sedov/Simulation_adjustEvolution.F90
-      Line  59 : !DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveFlash.F90 !
-      Line  60 : !DEV: Check whether this needs adjustments for when STS is used!
+      Line  62 : !DEV: Check whether this needs adjustments for non-"Unsplit" Driver_evolveAll.F90 !
+      Line  63 : !DEV: Check whether this needs adjustments for when STS is used!
 
    source/Simulation/SimulationMain/Sedov/Simulation_computeAnalytical.F90.analytical
-      Line  32 : !DEV : changed UNK variables - to be documented.
-      Line 110 : ! DEV: Is tcurr right time?
-
-   source/Simulation/SimulationMain/Sedov/gr_expandDomain.F90.M2
-      Line 182 : ! DEVNOTE: The interface of this function has not yet been changed
+      Line  43 : !DEV : changed UNK variables - to be documented.
+      Line 121 : ! DEV: Is tcurr right time?
 
    source/Simulation/SimulationMain/Sod/hy_computeFluxes.F90.staticArrays
-      Line 313 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
+      Line 323 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
 
    source/Simulation/SimulationMain/Sod/hy_computeFluxes_fluxbuf.F90.staticArrays
-      Line 309 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
+      Line 319 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
 
    source/Simulation/SimulationMain/Sod/hy_getRiemannState.F90.staticArrays
-      Line 598 : ! DEV: THE FIRST ORDER SHOULD GO INTO THE DATA RECONSTRUCT ONE STEP TO GET
+      Line 609 : ! DEV: THE FIRST ORDER SHOULD GO INTO THE DATA RECONSTRUCT ONE STEP TO GET
 
-   source/Simulation/SimulationMain/YahilLattimerCollapse/Driver_evolveFlash.F90
-      Line  78 : ! DEV: Temporary ugliness for debugging
+   source/Simulation/SimulationMain/YahilLattimerCollapse/Driver_evolveAll.F90
+      Line  81 : ! DEV: Temporary ugliness for debugging
 
    source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole/Gravity_potentialListOfBlocks.F90
-      Line 196 : !DEV CD: We want to ensure we are synchronized on entry to Grid_solvePoisson.
-      Line 200 : !DEV CD: The time in Grid_solvePoisson is the actual time to perform the
+      Line 199 : !DEV CD: We want to ensure we are synchronized on entry to Grid_solvePoisson.
+      Line 203 : !DEV CD: The time in Grid_solvePoisson is the actual time to perform the
 
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestCyl2d/Driver_evolveFlash.F90
-      Line 164 : ! DEV: TODO Do better than this
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestCyl2d/Driver_evolveAll.F90
+      Line 167 : ! DEV: TODO Do better than this
 
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveFlash.F90
-      Line 211 : ! DEV: TODO Once unittest is refining mesh, check Grid_getMaxRefinement
-      Line 229 : ! DEV: TODO Do better than this
-      Line 248 : ! DEVNOTE: Should we leave this unittest with simple data
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveAll.F90
+      Line 214 : ! DEV: TODO Once unittest is refining mesh, check Grid_getMaxRefinement
+      Line 232 : ! DEV: TODO Do better than this
+      Line 251 : ! DEVNOTE: Should we leave this unittest with simple data
 
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveFlash.F90
-      Line  76 : ! DEV: TODO Get rid of hardcoded max levels here and elsewhere
-      Line 310 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveAll.F90
+      Line  79 : ! DEV: TODO Get rid of hardcoded max levels here and elsewhere
+      Line 313 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
 
    source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/gr_markRefineDerefineCallback.F90
-      Line  56 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
+      Line  59 : ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
 
    source/Simulation/SimulationMain/unitTest/Grid/AnomalousRefine/gr_markRefineDerefineCallback.F90
-      Line 177 : !DEVNOTE:  Can test with tiling later - KW
-      Line 183 : ! DEVNOTE: TODO Fake descriptor until we have a natural iterator for FLASH
+      Line 180 : !DEVNOTE:  Can test with tiling later - KW
+      Line 186 : ! DEVNOTE: TODO Fake descriptor until we have a natural iterator for FLASH
 
    source/monitors/Logfile/Logfile_stamp.F90
-      Line  42 : !DEV! optional argument, not currently implemented.
+      Line  45 : !DEV! optional argument, not currently implemented.
 
    source/monitors/Logfile/LogfileMain/Logfile_data.F90
-      Line  47 : !DEV: may want this eventually for restart with only flash.par
+      Line  50 : !DEV: may want this eventually for restart with only flash.par
 
    source/monitors/Logfile/LogfileMain/Logfile_stamp.F90
-      Line  43 : !DEV! optional argument, not currently implemented.
+      Line  46 : !DEV! optional argument, not currently implemented.
 
    source/physics/Eos/EosMain/Eos_getData.F90
-      Line 195 : ! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
+      Line 115 : ! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
 
    source/physics/Eos/EosMain/Helmholtz/eos_helmVectorBased.F90
-      Line  73 : !  DEV This routine is IN DEVELOPMENT.  Attempting to speed up Eos usage through vectorization.
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/Eos_vectorBased.F90
-      Line 310 : ! DEV should we even be filling in this data instead of pulling it out of the eosData array?
-      Line 311 : ! DEV in Eos.F90, we assume the user knows what he's doing.  Eos_wrapped does not.
+      Line  76 : !  DEV This routine is IN DEVELOPMENT.  Attempting to speed up Eos usage through vectorization.
 
    source/physics/Eos/unitTest/Helmholtz/Eos_unitTest.F90
-      Line 496 : ! DEV: I (JO) have converted putRowData calls to these explicit
-      Line 505 : ! DEV: I (JO) have converted putRowData calls to these explicit
+      Line 499 : ! DEV: I (JO) have converted putRowData calls to these explicit
+      Line 508 : ! DEV: I (JO) have converted putRowData calls to these explicit
 
    source/physics/Gravity/GravityMain/Poisson/Gravity_accelOneBlock.F90
-      Line 104 : ! DEV: FIXME Should this be tile and halo or grown tile?
-      Line 113 : ! DEV: TODO For tiling, we might need to write this as an explicit
+      Line 107 : ! DEV: FIXME Should this be tile and halo or grown tile?
+      Line 116 : ! DEV: TODO For tiling, we might need to write this as an explicit
 
    source/physics/Gravity/GravityMain/Poisson/Gravity_accelOneRow.F90
-      Line  96 : ! DEV:  For this implementation, grav could be changed to IN only
-      Line 216 : ! DEV: TODO We should probably error check the indices to check that
-      Line 222 : ! DEV: We cannot compute the values at these locations.  If someone needs
+      Line  99 : ! DEV:  For this implementation, grav could be changed to IN only
+      Line 219 : ! DEV: TODO We should probably error check the indices to check that
+      Line 225 : ! DEV: We cannot compute the values at these locations.  If someone needs
 
    source/physics/Gravity/GravityMain/Poisson/Gravity_potential.F90
-      Line 191 : ! DEV: Do not enable tiling unless you have figured out the correct
-      Line 200 : ! DEV: The previous implementation was computing the data on the GC as
-      Line 213 : ! DEV: The previous implementation was computing the data on the GC as
+      Line 194 : ! DEV: Do not enable tiling unless you have figured out the correct
+      Line 203 : ! DEV: The previous implementation was computing the data on the GC as
+      Line 216 : ! DEV: The previous implementation was computing the data on the GC as
 
    source/physics/Gravity/GravityMain/Poisson/Multipole/Gravity_init.F90
-      Line  60 : ! DEV testing for invalid gravity geometries?  Perhaps it is done in Grid
+      Line  63 : ! DEV testing for invalid gravity geometries?  Perhaps it is done in Grid
 
    source/physics/Hydro/HydroMain/hy_memGetBlkPtr_desc.F90
-      Line  84 : ! DEV: How to set this if we eventually have tiling with Paramesh?
+      Line  87 : ! DEV: How to set this if we eventually have tiling with Paramesh?
 
    source/physics/Hydro/HydroMain/Spark/Hydro_init.F90
-      Line  66 : !DEV: not yet systematically honored
+      Line  58 : !DEV: not yet systematically honored
 
    source/physics/Hydro/HydroMain/simpleUnsplit/Hydro.F90
-      Line 127 : ! DEV: Should shock detection be done here?
+      Line 130 : ! DEV: Should shock detection be done here?
 
    source/physics/Hydro/HydroMain/simpleUnsplit/Hydro_computeDt.F90
-      Line  96 : ! DEV: FIXME This should not be here.  blkLimitsGC should have the correct
+      Line  54 : ! DEV: FIXME This should not be here.  blkLimitsGC should have the correct
 
    source/physics/Hydro/HydroMain/simpleUnsplit/LLF/hy_llfUnsplit.F90
-      Line  30 : !DEV: only if/where necessary?)
+      Line  33 : !DEV: only if/where necessary?)
 
    source/physics/Hydro/HydroMain/simpleUnsplit/levelFlux/Hydro.F90
-      Line 104 : ! DEV: Should shock detection be done here?
+      Line 107 : ! DEV: Should shock detection be done here?
 
    source/physics/Hydro/HydroMain/unsplit/Hydro_init.F90
-      Line  68 : !DEV: not yet systematically honored
+      Line  60 : !DEV: not yet systematically honored
 
    source/physics/Hydro/HydroMain/unsplit/hy_DataReconstructNormalDir_PPM.F90
-      Line 863 : ! DEV-DL: SLOW SHOCK EXPERIMENTS IN THE BELOW ============== 
+      Line 866 : ! DEV-DL: SLOW SHOCK EXPERIMENTS IN THE BELOW ============== 
 
    source/physics/Hydro/HydroMain/unsplit/hy_Marquina.F90
-      Line  32 : !DEV: currently set to 0.0 !)
-      Line 185 : !DEV: What to do here instead?  - KW
+      Line  35 : !DEV: currently set to 0.0 !)
+      Line 188 : !DEV: What to do here instead?  - KW
 
    source/physics/Hydro/HydroMain/unsplit/hy_computeFluxes.F90
-      Line 308 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
+      Line 311 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
 
    source/physics/Hydro/HydroMain/unsplit/hy_computeFluxes_fluxbuf.F90
-      Line 304 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
+      Line 307 : ! DEV: DL-This note seems to be outdated and wrong for the optimized code.
 
    source/physics/Hydro/HydroMain/unsplit/hy_dataReconstOneStep.F90
-      Line 255 : ! DEV: Gravity with HEDP does not work.     !!
-      Line 334 : ! DEVNOTE: No, DO NOT!
+      Line 258 : ! DEV: Gravity with HEDP does not work.     !!
+      Line 337 : ! DEVNOTE: No, DO NOT!
 
    source/physics/Hydro/HydroMain/unsplit/hy_getRiemannState.F90
-      Line 602 : ! DEV: THE FIRST ORDER SHOULD GO INTO THE DATA RECONSTRUCT ONE STEP TO GET
+      Line 605 : ! DEV: THE FIRST ORDER SHOULD GO INTO THE DATA RECONSTRUCT ONE STEP TO GET
 
    source/physics/Hydro/HydroMain/unsplit/hy_shockDetect.F90
-      Line  33 : ! DEV: All executabe statements that follow could be skipped
+      Line  36 : ! DEV: All executabe statements that follow could be skipped
 
    source/physics/Hydro/HydroMain/unsplit/hy_unsplitUpdate.F90
-      Line 1009 : ! DEV: FIXME Include this again and see if we can use faceAreas and
+      Line 1012 : ! DEV: FIXME Include this again and see if we can use faceAreas and
 
    source/physics/Hydro/HydroMain/unsplit/hy_updateSolution.F90
-      Line  90 : !DEV: TBD
+      Line  93 : !DEV: TBD
 
    source/physics/Hydro/HydroMain/unsplit/hy_updateSolution_fluxbuf.F90
-      Line  89 : !DEV: TBD
+      Line  92 : !DEV: TBD
 
    source/physics/Hydro/HydroMain/unsplit/levelFlux/Hydro.F90
-      Line 304 : ! DEV: Determine if we need to allow for the flexibility of storing
+      Line 307 : ! DEV: Determine if we need to allow for the flexibility of storing
 
    source/physics/Hydro/HydroMain/unsplit/levelFlux/Hydro.F90.timersFix
-      Line 355 : ! DEV: Determine if we need to allow for the flexibility of storing
+      Line 366 : ! DEV: Determine if we need to allow for the flexibility of storing
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/xnet_jacobian_dense.F90
-      Line  38 : ! Device pointers for arrays
+      Line  41 : ! Device pointers for arrays
 
 
 -------------
@@ -898,6 +888,9 @@ Violations:
    source/Grid/localAPI/gr_ptMoveSieve.F90
        Subroutine gr_ptMoveSieve
 
+   source/IO/IOMain/hdf5/AM/io_amrexInit.F90
+       Subroutine io_amrexInit
+
    source/Simulation/SimulationMain/CCSN_Chimera/chimera_model.F90
        Subroutine open_chimera_file
        Subroutine grid_bc
@@ -964,9 +957,6 @@ Violations:
        Subroutine hy_memScratchInitialize
        Subroutine hy_memAllocScratch
        Subroutine hy_memDeallocScratch
-
-   source/physics/Hydro/HydroMain/hy_updateBoundaries.F90
-       Subroutine hy_updateBoundaries
 
 
 ----------------------------------------
@@ -1283,10 +1273,6 @@ Violations:
        Subroutine: hy_unsplitUpdate 
        Variables: xflux, yflux, zflux
 
-   source/physics/IncompNS/localAPI/ins_diffusion_vardens.F90
-       Subroutine: ins_diffusion2d_vardens 
-       Variables: !!  Licensed under the Apache License, Version 2.0 (the "License"
-
    source/physics/Multiphase/MultiphaseEvap/mph_evapVelForcing2d.F90
        Subroutine: mph_evapVelForcing2d 
        Variables: ru1, dt, dx, dy
@@ -1369,13 +1355,13 @@ Description: Using save by itself without specifying variables to save
 
 Violations:
    source/physics/Hydro/HydroMain/Spark/Hydro_data.F90
-      Line  32
+      Line  35
 
    source/physics/Hydro/HydroMain/Spark/Hydro_inhost_data.F90
-      Line  15
+      Line  18
 
    source/physics/Hydro/HydroMain/Spark/Hydro_offload_data.F90
-      Line  16
+      Line  19
 
 
 -------
@@ -1386,9 +1372,6 @@ Description: Using TABS in Fortran source makes code non-portable. Consider repl
 
 
 Violations:
-   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/Grid_mapParticlesToMesh.F90
-      Line 247 Position 0
-
 
 ----------------------------------------------------
 Source code which is 8bit clean and no control chars
@@ -1398,29 +1381,9 @@ Description: Allow only ascii chars between 32 and 126 (and \r\n)
 
 
 Violations:
-   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/Grid_mapParticlesToMesh.F90
-      Line 247 Position 1 Char 	(9)
-
-   source/physics/Hydro/HydroMain/unsplit/hy_DataReconstructNormalDir_WENO.F90
-      Line  71 Position 71 Char â(226)
-      Line  71 Position 72 Char €(128)
-      Line  71 Position 73 Char “(147)
-      Line  72 Position 40 Char â(226)
-      Line  72 Position 41 Char €(128)
-      Line  72 Position 42 Char “(147)
-      Line 183 Position 69 Char â(226)
-      Line 183 Position 70 Char €(128)
-      Line 183 Position 71 Char “(147)
-      Line 184 Position 76 Char â(226)
-      Line 184 Position 77 Char €(128)
-      Line 184 Position 78 Char “(147)
-      Line 185 Position 64 Char â(226)
-      Line 185 Position 65 Char €(128)
-      Line 185 Position 66 Char “(147)
-
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_integrate_bdf.F90
-      Line  20 Position 38 Char Ã(195)
-      Line  20 Position 39 Char ©(169)
+      Line  23 Position 38 Char Ã(195)
+      Line  23 Position 39 Char ©(169)
 
 
 ---------------------
@@ -1442,9 +1405,6 @@ Description: name of source file must be name of the "main" subroutine or module
 Violations:
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_fc_prol_divpres.F90
        subroutine (or module or C function) starting with amr_1blk_fc_prol_divpres not found
-
-   source/Grid/GridMain/AMR/Paramesh4/amr_sort_tools.F90
-       subroutine (or module or C function) starting with amr_sort_tools not found
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_check_derefine.F90
        subroutine (or module or C function) starting with mpi_amr_check_derefine not found
@@ -1476,6 +1436,9 @@ Violations:
    source/IO/IOMain/hdf5/parallel/io_h5file_interface.c
        subroutine (or module or C function) starting with io_h5file_interface not found
 
+   source/IO/IOMain/hdf5/parallel/PM_argonne/UnitTest/Driver_abortFlashC.c
+       subroutine (or module or C function) starting with Driver_abortFlashC not found
+
    source/IO/IOMain/hdf5/parallel/PM_argonne/UnitTest/TestParallelWriteC/Test_parallel_write.c
        subroutine (or module or C function) starting with Test_parallel_write not found
 
@@ -1500,8 +1463,26 @@ Violations:
    source/PhysicalConstants/PhysicalConstantsMain/pc_utilities.F90
        subroutine (or module or C function) starting with pc_utilities not found
 
+   source/Simulation/main.F90
+       subroutine (or module or C function) starting with main not found
+
    source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole/Gravity_potentialListOfBlocks.F90
        subroutine (or module or C function) starting with Gravity_potentialListOfBlocks not found
+
+   source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/Driver_finalizeFlash.F90
+       subroutine (or module or C function) starting with Driver_finalizeFlash not found
+
+   source/Simulation/SimulationMain/unitTest/Roots/x3Polynomials/Driver_finalizeFlash.F90
+       subroutine (or module or C function) starting with Driver_finalizeFlash not found
+
+   source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Driver_finalizeFlash.F90
+       subroutine (or module or C function) starting with Driver_finalizeFlash not found
+
+   source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/Driver_finalizeFlash.F90
+       subroutine (or module or C function) starting with Driver_finalizeFlash not found
+
+   source/Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle/Driver_finalizeFlash.F90
+       subroutine (or module or C function) starting with Driver_finalizeFlash not found
 
    source/flashUtilities/contourSurface/iso.c
        subroutine (or module or C function) starting with iso not found
@@ -1536,9 +1517,6 @@ Violations:
    source/physics/Eos/EosMain/Helmholtz/eos_tools.c
        subroutine (or module or C function) starting with eos_tools not found
 
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/Eos_vectorBased.F90
-       subroutine (or module or C function) starting with Eos_vectorBased not found
-
    source/physics/Hydro/HydroMain/Spark/glm/riemann_HLLD.F90
        subroutine (or module or C function) starting with riemann_HLLD not found
 
@@ -1570,94 +1548,103 @@ Description: Use of USE (for data) without ONLY qualifier makes things harder to
 
 Violations:
    source/Grid/GridMain/Grid_GCTransferOneBlk.F90
-      Line  67
-
-   source/Grid/GridMain/gr_GCAllocScratch.F90
-      Line  80
-
-   source/Grid/GridMain/gr_GCReleaseScratch.F90
-      Line  52
-
-   source/Grid/GridMain/AMR/Amrex/gr_amrexFinalize.F90
-      Line  24
-
-   source/Grid/GridMain/AMR/Amrex/gr_amrexInit.F90
-      Line  26
-
-   source/Grid/GridMain/AMR/Amrex/gr_fillPhysicalBC.F90
-      Line  66
-
-   source/Grid/GridMain/AMR/Amrex/gr_initNewLevelCallback.F90
-      Line  62
-
-   source/Grid/GridMain/AMR/Amrex/gr_makeFineLevelFromCoarseCallback.F90
-      Line  67
-
-   source/Grid/GridMain/AMR/Amrex/gr_markInRadiusForCallback.F90
-      Line  53
-
-   source/Grid/GridMain/AMR/Amrex/gr_markInRectangleForCallback.F90
-      Line  55
-
-   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90
-      Line  67
-
-   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90.alt
-      Line  59
-
-   source/Grid/GridMain/AMR/Amrex/gr_remakeLevelCallback.F90
-      Line  78
-
-   source/Grid/GridMain/AMR/Paramesh4/Grid_initDomain.F90
       Line  70
 
+   source/Grid/GridMain/gr_GCAllocScratch.F90
+      Line  83
+
+   source/Grid/GridMain/gr_GCReleaseScratch.F90
+      Line  55
+
+   source/Grid/GridMain/AMR/Amrex/gr_amrexFinalize.F90
+      Line  27
+
+   source/Grid/GridMain/AMR/Amrex/gr_amrexInit.F90
+      Line  29
+
+   source/Grid/GridMain/AMR/Amrex/gr_fillPhysicalBC.F90
+      Line  69
+
+   source/Grid/GridMain/AMR/Amrex/gr_initNewLevelCallback.F90
+      Line  65
+
+   source/Grid/GridMain/AMR/Amrex/gr_makeFineLevelFromCoarseCallback.F90
+      Line  70
+
+   source/Grid/GridMain/AMR/Amrex/gr_markInRadiusForCallback.F90
+      Line  56
+
+   source/Grid/GridMain/AMR/Amrex/gr_markInRectangleForCallback.F90
+      Line  58
+
+   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90
+      Line  70
+
+   source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90.alt
+      Line  70
+
+   source/Grid/GridMain/AMR/Amrex/gr_remakeLevelCallback.F90
+      Line  81
+
+   source/Grid/GridMain/AMR/Paramesh4/Grid_initDomain.F90
+      Line  73
+
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_cc_prol_work_mg.F90
-      Line  74
-      Line  75
-      Line  76
-      Line  77
+      Line  80
+      Line  81
+      Line  82
+      Line  83
 
    source/Grid/GridMain/AMR/Paramesh4/flash_convert_cc_hook.F90
-      Line  78
+      Line  81
 
    source/Grid/GridMain/AMR/Paramesh4/flash_unconvert_cc_hook.F90
-      Line  84
+      Line  87
 
    source/Grid/GridMain/AMR/Paramesh4/gr_amr_dump_runtime_parameters.F90
-      Line  48
-      Line  49
-      Line  50
-      Line  51
-      Line  52
+      Line  55
+      Line  56
+      Line  57
+      Line  58
+      Line  59
 
    source/Grid/GridMain/AMR/Paramesh4/gr_checkGridState.F90
-      Line  39
+      Line  42
 
    source/Grid/GridMain/AMR/Paramesh4/gr_initParameshArrays.F90
-      Line  52
+      Line  55
+      Line  56
+      Line  57
+      Line  58
+
+   source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
+      Line 135
+      Line 136
+
+   source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_1blk_fc_prol_divpres.F90
+      Line  63
+      Line  64
+      Line  65
+      Line  66
+
+   source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_restrict_fc_ins.F90
+      Line  78
+      Line  79
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_calculate_tree_data.F90
+      Line  51
       Line  53
       Line  54
       Line  55
 
-   source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
-      Line 132
-      Line 133
-
-   source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_1blk_fc_prol_divpres.F90
-      Line  66
-      Line  67
-      Line  68
-      Line  69
-
-   source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_restrict_fc_ins.F90
-      Line 111
-      Line 112
-
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_check_refine.F90
-      Line  65
-      Line  66
-      Line  67
-      Line  70
+      Line  71
+      Line  72
+      Line  73
+      Line  76
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_exchange_work_bflags.F90
+      Line  29
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_initialize.F90
       Line  80
@@ -1669,6 +1656,18 @@ Violations:
       Line  86
       Line  87
       Line  88
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_morton_order_bittree.F90
+      Line  40
+      Line  41
+      Line  42
+      Line  43
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/gr_btSortMortonBittree.F90
+      Line  40
+      Line 120
+      Line 193
+      Line 311
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_check_derefine.F90
       Line  63
@@ -1689,559 +1688,540 @@ Violations:
       Line  96
       Line 102
 
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_calculate_tree_data.F90
-      Line  48
-      Line  50
-      Line  51
-      Line  52
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_exchange_work_bflags.F90
-      Line  16
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_morton_order_bittree.F90
-      Line  38
-      Line  39
-      Line  40
-      Line  41
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_sort_morton_bittree.F90
-      Line  38
-      Line 117
-      Line 189
-      Line 306
-
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_initialize.F90
-      Line  88
-      Line  89
-      Line  90
-      Line  91
-      Line  92
-      Line  93
-      Line  94
-      Line  95
-      Line  96
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_migrate_tree_data.F90
-      Line  74
-      Line  75
-      Line  76
-      Line  77
-      Line  78
-      Line 428
-      Line 429
-      Line 430
-      Line 431
-      Line 432
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_morton_process.F90
-      Line  75
-      Line  76
-      Line  77
-      Line  78
-      Line  79
-      Line 148
-      Line 149
-      Line 150
-      Line 151
-      Line 152
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/gr_initParameshArrays.F90
-      Line  54
-      Line  55
-      Line  56
-      Line  57
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/local_tree_build.F90
-      Line  74
-      Line  75
-      Line  76
-      Line  77
-      Line  78
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_derefine_blocks.F90
-      Line  71
-      Line  72
-      Line  73
-      Line  74
-      Line 459
-      Line 460
-      Line 461
-      Line 462
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_exchange_nodetype.F90
-      Line  67
-      Line  68
-      Line  69
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_refine_blocks.F90
+      Line  82
+      Line  83
+      Line  84
+      Line  85
+      Line  86
       Line  87
       Line  88
       Line  89
       Line  90
-      Line  91
-      Line  92
-      Line 982
-      Line 983
-      Line 984
-      Line 985
-      Line 986
-      Line 987
 
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/physicaldata.F90
-      Line  64
-
-   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/UNIT_TEST.F90
-      Line 192
-
-   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/MoveSieve/gr_ptStoreOffBlockCells.F90
-      Line  62
-
-   source/Grid/GridSolvers/AmrexMultigridSolver/Grid_solvePoisson.F90
-      Line  69
-
-   source/Grid/GridSolvers/AmrexMultigridSolver/gr_amrexMultigridFinalize.F90
-      Line  12
-
-   source/Grid/GridSolvers/AmrexMultigridSolver/gr_amrexMultigridInit.F90
-      Line  14
-
-   source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreAddGraph.F90
-      Line  65
-
-   source/Grid/GridSolvers/Multipole_new/gr_mpoleInit.F90
-      Line  28
-
-   source/IO/IOMain/IO_data.F90
-      Line  34
-      Line  38
-
-   source/IO/IOParticles/io_ptInit.F90
-      Line  40
-
-   source/IO/IOTypes/io_typeInit.F90
-      Line  47
-
-   source/Particles/ParticlesMapping/MeshOwned/pt_amrexParticleMod.F90
-      Line  15
-      Line  16
-      Line  17
-
-   source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_data.F90
-      Line  39
-
-   source/Simulation/SimulationMain/CCSN_Chimera/Gravity_init.F90.pointmass
-      Line  23
-
-   source/Simulation/SimulationMain/CCSN_Chimera/Simulation_finalize.F90
-      Line  30
-
-   source/Simulation/SimulationMain/CCSN_Chimera/Simulation_initBlock.F90
-      Line  50
-      Line  51
-      Line  52
-
-   source/Simulation/SimulationMain/CCSN_Chimera/chimera_model.F90
-      Line  21
-      Line  22
-
-   source/Simulation/SimulationMain/CCSN_WL/Simulation_initBlock.F90
-      Line  39
-
-   source/Simulation/SimulationMain/DeleptonizationWave/Simulation_initBlock.F90
-      Line  40
-      Line 381
-      Line 618
-
-   source/Simulation/SimulationMain/SNIa_DoubleDetonation/Simulation_initBlock.F90
-      Line  19
-
-   source/Simulation/SimulationMain/Sedov/Simulation_computeAnalytical.F90.analytical
-      Line  56
-
-   source/Simulation/SimulationMain/Sedov/Simulation_initBlock.F90
-      Line  75
-
-   source/Simulation/SimulationMain/StreamingDopplerShift/Simulation_initBlock.F90
-      Line  32
-
-   source/Simulation/SimulationMain/StreamingDopplerShift/user_bnd.F90
-      Line  18
-
-   source/Simulation/SimulationMain/StreamingSineWave/Simulation_initBlock.F90
-      Line  41
-
-   source/Simulation/SimulationMain/YahilLattimerCollapse/Simulation_initBlock.F90
-      Line  48
-      Line  55
-      Line  56
-
-   source/Simulation/SimulationMain/incompFlow/DeformingBubble/Simulation_initBlock.F90
-      Line  46
-
-   source/Simulation/SimulationMain/incompFlow/EvaporatingBubble/Simulation_initBlock.F90
-      Line  46
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_initBlock.F90
-      Line  46
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_initRestart.F90
-      Line  28
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterApplyBCToBlk.F90
-      Line  19
-      Line  20
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterApplyBCToFace.F90
-      Line  20
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterCheckSitesBlk.F90
-      Line  18
-      Line  78
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterInit.F90
-      Line  19
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterInitBlk.F90
-      Line  15
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterLSReInitBlk.F90
-      Line  18
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterRead.F90
-      Line  17
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterTagSites.F90
-      Line  18
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowInit.F90
-      Line  19
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowLSDampingBlk.F90
-      Line  19
-      Line  20
-      Line  50
-      Line  51
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowVelBlk.F90
-      Line  19
-      Line  20
-      Line  49
-      Line  50
-
-   source/Simulation/SimulationMain/incompFlow/RisingBubble/Simulation_initBlock.F90
-      Line  46
-
-   source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/Driver_evolveFlash.F90
-      Line  66
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestCyl2d/Driver_evolveFlash.F90
-      Line  53
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/Driver_evolveFlash.F90
-      Line  51
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/gr_markRefineDerefineCallback.F90
-      Line  45
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection2/Driver_evolveFlash.F90
-      Line  51
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection2/gr_markRefineDerefineCallback.F90
-      Line  45
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveFlash.F90
-      Line  68
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/gr_markRefineDerefineCallback.F90
-      Line  10
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveFlash.F90
-      Line  61
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/gr_markRefineDerefineCallback.F90
-      Line  13
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveFlash.F90
-      Line  65
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/gr_markRefineDerefineCallback.F90
-      Line  10
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/Driver_evolveFlash.F90
-      Line  46
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/gr_markRefineDerefineCallback.F90
-      Line  13
-
-   source/flashUtilities/UTCounter/Distributed/UTCounter_sharedCounter.F90
-      Line  59
-
-   source/flashUtilities/UTCounter/MasterSlave/UTCounter_sharedCounter.F90
-      Line  59
-
-   source/flashUtilities/UTCounter/UnitTest/test_shared_counter.F90
-      Line  15
-      Line  16
-
-   source/flashUtilities/UTPipeline/UTPipeline.F90
-      Line  17
-
-   source/flashUtilities/UTPipeline/UnitTest/test_pipeline.F90
-      Line  15
-      Line  16
-
-   source/flashUtilities/contourSurface/UnitTest/UnitTest_contourSurface.F90
-      Line  23
-
-   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest.F90
-      Line  11
-
-   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest_ListObject.F90
-      Line  10
-      Line  24
-
-   source/flashUtilities/datastructures/linkedlist/UnitTestListOfList/GroupList.F90
-      Line  10
-
-   source/flashUtilities/datastructures/linkedlist/UnitTestListOfList/PersonList.F90
-      Line  10
-
-   source/flashUtilities/nameValueLL/nameValueLL_getNum.F90
-      Line  34
-      Line  47
-      Line  61
-      Line  75
-      Line  89
-
-   source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/eos_initHelmholtz.F90
-      Line  59
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_initHelmholtz.F90
-      Line  59
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/actual_eos.F90
-      Line  11
-      Line  12
-      Line 170
-      Line 171
-      Line 1220
-      Line 1222
-      Line 1378
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/actual_network.F90
-      Line  27
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/bl_constants.F90
-      Line  13
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_initHelmholtz.F90
-      Line  61
-
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/network.F90
-      Line  30
-      Line  32
-
-   source/physics/Eos/EosMain/Helmholtz/Ye/eos_initHelmholtz.F90
-      Line  56
-
-   source/physics/Eos/EosMain/WeakLib/eos_initWeaklib.F90
-      Line  35
-
-   source/physics/Eos/EosMain/WeakLib/eos_wlData.F90
-      Line  31
-
-   source/physics/Eos/EosNuclear/eos_initNuclear.F90
-      Line  47
-      Line  48
-
-   source/physics/HeatAD/HeatADAdvection/HeatAD_advection.F90
-      Line  22
-
-   source/physics/HeatAD/HeatADAdvection/ht_advectionInit.F90
-      Line  15
-
-   source/physics/HeatAD/HeatADMain/HeatAD_getScalarProp.F90
-      Line  13
-
-   source/physics/HeatAD/HeatADMain/HeatAD_indicators.F90
-      Line  22
-
-   source/physics/HeatAD/HeatADMain/HeatAD_reInitGridVars.F90
-      Line  28
-
-   source/physics/HeatAD/HeatADMain/HeatAD_solve.F90
-      Line  22
-
-   source/physics/HeatAD/HeatADMain/constdiffusion/HeatAD_diffusion.F90
-      Line  22
-
-   source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_diffusion.F90
-      Line  22
-
-   source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_reInitGridVars.F90
-      Line  28
-
-   source/physics/Hydro/HydroMain/unsplit/hy_unsplitUpdate.F90
-      Line  96
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_divergence.F90
-      Line  30
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_getScalarProp.F90
-      Line  18
-      Line  44
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_getVectorProp.F90
-      Line  18
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_indicators.F90
-      Line  30
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_reInitGridVars.F90
-      Line  37
-
-   source/physics/IncompNS/IncompNSMain/IncompNS_setVectorProp.F90
-      Line  18
-
-   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_advection.F90
-      Line  28
-
-   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_corrector.F90
-      Line  31
-
-   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_diffusion.F90
-      Line  29
-
-   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_predictor.F90
-      Line  29
-
-   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_solvePoisson.F90
-      Line  29
-
-   source/physics/Multiphase/MultiphaseEvap/Multiphase_divergence.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseEvap/Multiphase_setThermalProps.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseEvap/Multiphase_thermalFluxes.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseEvap/Multiphase_thermalForcing.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseEvap/Multiphase_velForcing.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseEvap/mph_evapInit.F90
-      Line  16
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_advection.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_getScalarProp.F90
-      Line  11
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_reInitGridVars.F90
-      Line  36
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_redistance.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_setFluidProps.F90
-      Line  23
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_setPressureJumps.F90
-      Line  22
-
-   source/physics/Multiphase/MultiphaseMain/Multiphase_solve.F90
-      Line  22
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_initNetwork.F90
-      Line  36
-      Line  37
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_network.F90
-      Line  40
-      Line  41
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkRates.F90
-      Line  71
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkScreen.F90
-      Line  39
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkSparseJakob.F90
-      Line  46
-      Line  50
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkSparsePointers.F90
-      Line  43
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkTable.F90
-      Line  34
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_initNetwork.F90
-      Line  35
-      Line  36
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_network.F90
-      Line  44
-      Line  45
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkDenseJakob.F90
-      Line  46
-      Line  47
-      Line  48
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkRates.F90
-      Line  61
-      Line  62
-      Line  63
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkScreen.F90
-      Line  47
-      Line  48
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkSparseJakob.F90
-      Line  49
-      Line  51
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkSparsePointers.F90
-      Line  48
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkTable.F90
-      Line  35
-      Line  36
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkWeak.F90
-      Line  60
-      Line  61
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/bn_xnetFinalize.F90
-      Line  35
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_integrate.F90
-      Line 484
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/bn_xnetFinalize.F90
-      Line  36
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/xnet_gpu.F90
-      Line  29
-      Line  30
-      Line  84
-      Line  85
-
-   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/xnet_jacobian_dense.F90
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_migrate_tree_data.F90
+      Line  70
       Line  71
       Line  72
-      Line 148
-      Line 415
-      Line 416
-      Line 496
-      Line 550
-      Line 551
+      Line  73
+      Line  74
+      Line 424
+      Line 425
+      Line 426
+      Line 427
+      Line 428
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_morton_process.F90
+      Line  69
+      Line  70
+      Line  71
+      Line  72
+      Line  73
+      Line 142
+      Line 143
+      Line 144
+      Line 145
+      Line 146
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/gr_initParameshArrays.F90
+      Line  57
+      Line  58
+      Line  59
+      Line  60
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/local_tree_build.F90
+      Line  70
+      Line  71
+      Line  72
+      Line  73
+      Line  74
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_derefine_blocks.F90
+      Line  65
+      Line  66
+      Line  67
+      Line  68
+      Line 453
+      Line 454
+      Line 455
+      Line 456
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_exchange_nodetype.F90
+      Line  62
+      Line  63
+      Line  64
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_refine_blocks.F90
+      Line  81
+      Line  82
+      Line  83
+      Line  84
+      Line  85
+      Line  86
+      Line 976
+      Line 977
+      Line 978
+      Line 979
+      Line 980
+      Line 981
+
+   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/physicaldata.F90
+      Line  57
+
+   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/UNIT_TEST.F90
+      Line 195
+
+   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/MoveSieve/gr_ptStoreOffBlockCells.F90
+      Line  65
+
+   source/Grid/GridSolvers/AmrexMultigridSolver/Grid_solvePoisson.F90
+      Line  72
+
+   source/Grid/GridSolvers/AmrexMultigridSolver/gr_amrexMultigridFinalize.F90
+      Line  15
+
+   source/Grid/GridSolvers/AmrexMultigridSolver/gr_amrexMultigridInit.F90
+      Line  17
+
+   source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreAddGraph.F90
+      Line  68
+
+   source/Grid/GridSolvers/Multipole_new/gr_mpoleInit.F90
+      Line  31
+
+   source/IO/IOMain/IO_data.F90
+      Line  37
+      Line  41
+
+   source/IO/IOMain/hdf5/AM/io_amrexData.F90
+      Line  38
+
+   source/IO/IOMain/hdf5/AM/io_amrexInit.F90
+      Line  41
+
+   source/IO/IOParticles/io_ptInit.F90
+      Line  43
+
+   source/IO/IOTypes/io_typeInit.F90
+      Line  50
+
+   source/Particles/ParticlesMapping/MeshOwned/pt_amrexParticleMod.F90
+      Line  18
+      Line  19
+      Line  20
+
+   source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_data.F90
+      Line  42
+
+   source/Simulation/SimulationMain/CCSN_Chimera/Gravity_init.F90.pointmass
+      Line  34
+
+   source/Simulation/SimulationMain/CCSN_Chimera/Simulation_finalize.F90
+      Line  33
+
+   source/Simulation/SimulationMain/CCSN_Chimera/Simulation_initBlock.F90
+      Line  53
+      Line  54
+      Line  55
+
+   source/Simulation/SimulationMain/CCSN_Chimera/chimera_model.F90
+      Line  24
+      Line  25
+
+   source/Simulation/SimulationMain/CCSN_WL/Simulation_initBlock.F90
+      Line  42
+
+   source/Simulation/SimulationMain/DeleptonizationWave/Simulation_initBlock.F90
+      Line  43
+      Line 384
+      Line 621
+
+   source/Simulation/SimulationMain/SNIa_DoubleDetonation/Simulation_initBlock.F90
+      Line  22
+
+   source/Simulation/SimulationMain/Sedov/Simulation_computeAnalytical.F90.analytical
+      Line  67
+
+   source/Simulation/SimulationMain/Sedov/Simulation_initBlock.F90
+      Line  78
+
+   source/Simulation/SimulationMain/StreamingDopplerShift/Simulation_initBlock.F90
+      Line  43
+
+   source/Simulation/SimulationMain/StreamingDopplerShift/user_bnd.F90
+      Line  29
+
+   source/Simulation/SimulationMain/StreamingSineWave/Simulation_initBlock.F90
+      Line  44
+
+   source/Simulation/SimulationMain/YahilLattimerCollapse/Simulation_initBlock.F90
+      Line  51
+      Line  58
+      Line  59
+
+   source/Simulation/SimulationMain/incompFlow/DeformingBubble/Simulation_initBlock.F90
+      Line  49
+
+   source/Simulation/SimulationMain/incompFlow/EvaporatingBubble/Simulation_initBlock.F90
+      Line  49
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_initBlock.F90
+      Line  49
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_initRestart.F90
+      Line  31
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterApplyBCToBlk.F90
+      Line  22
+      Line  23
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterApplyBCToFace.F90
+      Line  23
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterCheckSitesBlk.F90
+      Line  21
+      Line  81
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterInit.F90
+      Line  22
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterInitBlk.F90
+      Line  18
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterLSReInitBlk.F90
+      Line  21
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterRead.F90
+      Line  20
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterTagSites.F90
+      Line  21
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowInit.F90
+      Line  22
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowLSDampingBlk.F90
+      Line  22
+      Line  23
+      Line  53
+      Line  54
+
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/outflow/sim_outflowVelBlk.F90
+      Line  22
+      Line  23
+      Line  52
+      Line  53
+
+   source/Simulation/SimulationMain/incompFlow/RisingBubble/Simulation_initBlock.F90
+      Line  49
+
+   source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/Driver_evolveAll.F90
+      Line  69
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestCyl2d/Driver_evolveAll.F90
+      Line  56
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/Driver_evolveAll.F90
+      Line  54
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection/gr_markRefineDerefineCallback.F90
+      Line  48
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection2/Driver_evolveAll.F90
+      Line  54
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection2/gr_markRefineDerefineCallback.F90
+      Line  48
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveAll.F90
+      Line  71
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/gr_markRefineDerefineCallback.F90
+      Line  13
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveAll.F90
+      Line  64
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/gr_markRefineDerefineCallback.F90
+      Line  16
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveAll.F90
+      Line  68
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/gr_markRefineDerefineCallback.F90
+      Line  13
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/Driver_evolveAll.F90
+      Line  49
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestTiling/gr_markRefineDerefineCallback.F90
+      Line  16
+
+   source/flashUtilities/UTCounter/Distributed/UTCounter_sharedCounter.F90
+      Line  62
+
+   source/flashUtilities/UTCounter/MasterSlave/UTCounter_sharedCounter.F90
+      Line  62
+
+   source/flashUtilities/UTCounter/UnitTest/test_shared_counter.F90
+      Line  18
+      Line  19
+
+   source/flashUtilities/UTPipeline/UTPipeline.F90
+      Line  21
+
+   source/flashUtilities/UTPipeline/UnitTest/test_pipeline.F90
+      Line  18
+      Line  19
+
+   source/flashUtilities/contourSurface/UnitTest/UnitTest_contourSurface.F90
+      Line  26
+
+   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest.F90
+      Line  14
+
+   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest_ListObject.F90
+      Line  13
+      Line  27
+
+   source/flashUtilities/datastructures/linkedlist/UnitTestListOfList/GroupList.F90
+      Line  13
+
+   source/flashUtilities/datastructures/linkedlist/UnitTestListOfList/PersonList.F90
+      Line  13
+
+   source/flashUtilities/nameValueLL/nameValueLL_getNum.F90
+      Line  37
+      Line  50
+      Line  64
+      Line  78
+      Line  92
+
+   source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/eos_initHelmholtz.F90
+      Line  62
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_initHelmholtz.F90
+      Line  62
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/actual_eos.F90
+      Line  14
+      Line  15
+      Line 173
+      Line 174
+      Line 1223
+      Line 1225
+      Line 1381
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/actual_network.F90
+      Line  30
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/bl_constants.F90
+      Line  16
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_initHelmholtz.F90
+      Line  64
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/network.F90
+      Line  33
+      Line  35
+
+   source/physics/Eos/EosMain/Helmholtz/Ye/eos_initHelmholtz.F90
+      Line  59
+
+   source/physics/Eos/EosMain/WeakLib/eos_initWeaklib.F90
+      Line  38
+
+   source/physics/Eos/EosMain/WeakLib/eos_wlData.F90
+      Line  34
+
+   source/physics/HeatAD/HeatADAdvection/HeatAD_advection.F90
+      Line  25
+
+   source/physics/HeatAD/HeatADAdvection/ht_advectionInit.F90
+      Line  18
+
+   source/physics/HeatAD/HeatADMain/HeatAD_getScalarProp.F90
+      Line  16
+
+   source/physics/HeatAD/HeatADMain/HeatAD_indicators.F90
+      Line  25
+
+   source/physics/HeatAD/HeatADMain/HeatAD_reInitGridVars.F90
+      Line  31
+
+   source/physics/HeatAD/HeatADMain/HeatAD_solve.F90
+      Line  25
+
+   source/physics/HeatAD/HeatADMain/constdiffusion/HeatAD_diffusion.F90
+      Line  25
+
+   source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_diffusion.F90
+      Line  25
+
+   source/physics/HeatAD/HeatADMain/vardiffusion/HeatAD_reInitGridVars.F90
+      Line  31
+
+   source/physics/Hydro/HydroMain/unsplit/hy_unsplitUpdate.F90
+      Line  99
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_divergence.F90
+      Line  33
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_getScalarProp.F90
+      Line  21
+      Line  47
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_getVectorProp.F90
+      Line  21
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_indicators.F90
+      Line  33
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_reInitGridVars.F90
+      Line  40
+
+   source/physics/IncompNS/IncompNSMain/IncompNS_setVectorProp.F90
+      Line  21
+
+   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_advection.F90
+      Line  31
+
+   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_corrector.F90
+      Line  34
+
+   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_diffusion.F90
+      Line  32
+
+   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_predictor.F90
+      Line  32
+
+   source/physics/IncompNS/IncompNSMain/constdens/IncompNS_solvePoisson.F90
+      Line  32
+
+   source/physics/Multiphase/MultiphaseEvap/Multiphase_divergence.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseEvap/Multiphase_setThermalProps.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseEvap/Multiphase_thermalFluxes.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseEvap/Multiphase_thermalForcing.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseEvap/Multiphase_velForcing.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseEvap/mph_evapInit.F90
+      Line  19
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_advection.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_getScalarProp.F90
+      Line  14
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_reInitGridVars.F90
+      Line  39
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_redistance.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_setFluidProps.F90
+      Line  26
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_setPressureJumps.F90
+      Line  25
+
+   source/physics/Multiphase/MultiphaseMain/Multiphase_solve.F90
+      Line  25
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_initNetwork.F90
+      Line  39
+      Line  40
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_network.F90
+      Line  43
+      Line  44
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkRates.F90
+      Line  74
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkScreen.F90
+      Line  42
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkSparseJakob.F90
+      Line  49
+      Line  53
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkSparsePointers.F90
+      Line  46
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13/bn_networkTable.F90
+      Line  37
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_initNetwork.F90
+      Line  38
+      Line  39
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_network.F90
+      Line  47
+      Line  48
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkDenseJakob.F90
+      Line  49
+      Line  50
+      Line  51
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkRates.F90
+      Line  64
+      Line  65
+      Line  66
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkScreen.F90
+      Line  50
+      Line  51
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkSparseJakob.F90
+      Line  52
+      Line  54
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkSparsePointers.F90
+      Line  51
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkTable.F90
+      Line  38
+      Line  39
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19/bn_networkWeak.F90
+      Line  63
+      Line  64
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/bn_xnetFinalize.F90
+      Line  38
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_integrate.F90
+      Line 487
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/bn_xnetFinalize.F90
+      Line  39
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/xnet_gpu.F90
+      Line  32
+      Line  33
+      Line  87
+      Line  88
+
+   source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/xnet_jacobian_dense.F90
+      Line  74
+      Line  75
+      Line 151
+      Line 418
+      Line 419
+      Line 499
+      Line 553
+      Line 554
 
 
 ------------------------------------------
@@ -2332,7 +2312,7 @@ Violations:
    Function hy_addBiermannBatteryTerms has multiple declarations
       source/physics/Hydro/HydroMain/unsplit/hy_uhdInterface.F90
          tiledesc, blklimitsgc, ix, iy, iz, flux, sweepdir
-      source/physics/Hydro/HydroMain/unsplit/MHD/hy_addBiermannBatteryTerms.F90
+      source/physics/Hydro/localAPI/hy_addBiermannBatteryTerms.F90
          blockid, blklimitsgc, ix, iy, iz, flux, sweepdir
 
    Function Simulation_initBlock has multiple declarations
@@ -2400,7 +2380,7 @@ Violations:
    Function Eos_wrapped has multiple declarations
       source/physics/Eos/Eos_wrapped.F90
          mode, range, solndata, griddatastruct
-      source/physics/Eos/EosMain/Gamma/RHD/Eos_wrapped.F90
+      source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/Eos_wrapped.F90
          mode, range, blockid, griddatastruct
 
    Function pt_initPositionsLattice has multiple declarations
@@ -2426,12 +2406,6 @@ Violations:
          eosmode, uin, corners, layers, skipsrl
       source/physics/Eos/EosMain/Eos_guardCells.F90
          eosmode, solndata, corners, layers, skipsrl, blockdesc
-
-   Function Eos has multiple declarations
-      source/physics/Eos/Eos.F90
-         mode, veclen, eosdata, massfrac, mask, vecbegin, vecend, diagflag
-      source/physics/Eos/EosMain/Helmholtz/SpeciesBased/Eos_vectorBased.F90
-         mode, veclen, eosdata, massfrac, mask, vecbegin, vecend
 
    Function sim_ODEfunction has multiple declarations
       source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/sim_ODEfunction.F90
@@ -2464,12 +2438,6 @@ Violations:
          maptype, numattrib, attrib, pos, bndbox, deltacell, blklimits, solnvec, partattribvec
       source/Particles/ParticlesMapping/Particles_mapFromMesh.F90
          maptype, numattrib, attrib, pos, bndbox, deltacell, solnvec, partattribvec
-
-   Function Driver_abortFlash has multiple declarations
-      source/Driver/Driver_abortFlash.F90
-         errormessage
-      source/flashUtilities/UTCounter/Distributed/UTCounter_sharedCounter.F90
-         msg
 
    Function gr_bcPutRegion has multiple declarations
       source/Grid/GridBoundaryConditions/gr_bcPutRegion.F90
@@ -2563,12 +2531,6 @@ Violations:
       source/Grid/GridMain/Grid_getMaxCommonRefinement.F90
          inputcomm, maxcommonrefinement
 
-   Function get_upwind has multiple declarations
-      source/physics/Hydro/HydroMain/unsplit/hy_slopeLimiters.F90
-         vel, left, right
-      source/physics/Hydro/HydroMain/unsplit/MHD/hy_addBiermannBatteryTerms.F90
-         vel, pe_l, pe_r, pe_up
-
    Function Eos_putDataR2 has multiple declarations
       source/physics/Eos/Eos_putData.F90
          axis, pos, veclen, solndata, griddatastruct, eosdata
@@ -2586,6 +2548,12 @@ Violations:
          fname, ischeckpoint
       source/Grid/localAPI/gr_ptWritePCs.F90
          filename, is_checkpoint
+
+   Function Driver_abort has multiple declarations
+      source/Driver/Driver_abort.F90
+         errormessage
+      source/flashUtilities/UTCounter/Distributed/UTCounter_sharedCounter.F90
+         msg
 
 -------------
 RoboDoc check
@@ -2748,6 +2716,12 @@ Violations:
    source/Grid/GridMain/AMR/gr_estimateBlkError.F90
        Arguments found only in ARGUMENTS: blockDesc
 
+   source/Grid/GridMain/AMR/gr_makeMaskConsistent_gen.F90
+       Arguments found only in SYNOPSIS: gcell_on_cc, convertToConsvd
+
+   source/Grid/GridMain/AMR/gr_setMasks_gen.F90
+       Arguments found only in SYNOPSIS: gcell_on_fc, gcell_on_cc, enableMaskedGCFill
+
    source/Grid/GridMain/AMR/Amrex/Grid_addFineToFluxRegister_block.F90
        Synopsis name is '', filename is 'Grid_addFineToFluxRegister_block'
        Did you forget to use `use' before module name in synopsis?
@@ -2800,6 +2774,36 @@ Violations:
    source/Grid/GridMain/AMR/Amrex/gr_writeData.F90
        No ROBODOC header
 
+   source/Grid/GridMain/AMR/Bittree/bittree.F90
+       No ROBODOC header
+
+   source/Grid/GridMain/AMR/Bittree/gr_btDerefineMark.F90
+       Arguments found only in ARGUMENTS: ijk, val, lev
+
+   source/Grid/GridMain/AMR/Bittree/gr_btGetBitid.F90
+       Arguments found only in ARGUMENTS: updated, ijk, lev, bitid
+
+   source/Grid/GridMain/AMR/Bittree/gr_btGetDerefine.F90
+       Arguments found only in ARGUMENTS: ijk, derefine, lev
+
+   source/Grid/GridMain/AMR/Bittree/gr_btGetLocalBitids.F90
+       Arguments found only in ARGUMENTS: updated, nblks, bitid_list, mype
+
+   source/Grid/GridMain/AMR/Bittree/gr_btGetRefine.F90
+       Arguments found only in ARGUMENTS: ijk, derefine, lev
+
+   source/Grid/GridMain/AMR/Bittree/gr_btIdentify.F90
+       Arguments found only in ARGUMENTS: updated, bitid, locblk, lev, ijk, proc, procs
+
+   source/Grid/GridMain/AMR/Bittree/gr_btIsParent.F90
+       Arguments found only in ARGUMENTS: updated, ijk, is_par, lev
+
+   source/Grid/GridMain/AMR/Bittree/gr_btLocate.F90
+       Arguments found only in ARGUMENTS: updated, ijk, lev, bitid
+
+   source/Grid/GridMain/AMR/Bittree/gr_btRefineMark.F90
+       Arguments found only in ARGUMENTS: ijk, val, lev
+
    source/Grid/GridMain/AMR/Paramesh4/Grid_getBlkCenterCoords.F90
        No ROBODOC header
 
@@ -2822,10 +2826,8 @@ Violations:
        No ROBODOC header
 
    source/Grid/GridMain/AMR/Paramesh4/amr_restrict_fc_ins.F90
-       fix robodoc header descriptions and remove the AUTOGENROBODOC field
-
-   source/Grid/GridMain/AMR/Paramesh4/amr_sort_tools.F90
-       No ROBODOC header
+       Arguments found only in SYNOPSIS: ivar, recv, icoord, temp, order
+       Arguments found only in ARGUMENTS: Real, Integer, Intent
 
    source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
        Synopsis name is 'Grid_init', filename is 'gr_initSpecific'
@@ -2849,13 +2851,30 @@ Violations:
        No ROBODOC header
 
    source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_restrict_fc_ins.F90
-       fix robodoc header descriptions and remove the AUTOGENROBODOC field
+       Arguments found only in SYNOPSIS: ivar, recv, icoord, temp, order
+       Arguments found only in ARGUMENTS: Real, Integer, Intent
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_build_bittree.F90
+       No ROBODOC header
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_calculate_tree_data.F90
+       Arguments found only in ARGUMENTS: integer, intent
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_check_refine.F90
        No ROBODOC header
 
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_exchange_work_bflags.F90
+       Synopsis name is '', filename is 'amr_exchange_work_bflags'
+       Did you forget to use `use' before module name in synopsis?
+
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_initialize.F90
        No ROBODOC header
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_morton_order_bittree.F90
+       Arguments found only in ARGUMENTS: integer, intent
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/gr_btSortMortonBittree.F90
+       Arguments found only in ARGUMENTS: integer, intent, optional, logical
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_check_derefine.F90
        No ROBODOC header
@@ -2866,74 +2885,21 @@ Violations:
    source/Grid/GridMain/AMR/Paramesh4/bittree/mpi_amr_refine_derefine.F90
        No ROBODOC header
 
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_derefine_mark.F90
-       Arguments found only in ARGUMENTS: ijk, val, lev
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_get_bitid.F90
-       Arguments found only in ARGUMENTS: updated, ijk, lev, bitid
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_get_derefine.F90
-       Arguments found only in ARGUMENTS: ijk, derefine, lev
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_get_local_bitids.F90
-       Arguments found only in ARGUMENTS: updated, nblks, bitid_list, mype
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_get_refine.F90
-       Arguments found only in ARGUMENTS: ijk, derefine, lev
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_is_parent.F90
-       Arguments found only in ARGUMENTS: updated, ijk, is_par, lev
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_locate.F90
-       Arguments found only in ARGUMENTS: updated, ijk, lev, bitid
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_bittree_refine_mark.F90
-       Arguments found only in ARGUMENTS: ijk, val, lev
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_build_bittree.F90
-       No ROBODOC header
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_calculate_tree_data.F90
-       Arguments found only in ARGUMENTS: integer, intent
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_exchange_work_bflags.F90
-       No ROBODOC header
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_identify_block.F90
-       Arguments found only in ARGUMENTS: updated, bitid, locblk, lev, ijk, proc, procs
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_morton_order_bittree.F90
-       Arguments found only in ARGUMENTS: integer, intent
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_sort_morton_bittree.F90
-       Arguments found only in ARGUMENTS: integer, intent, optional, logical
-
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/bittree.F90
-       No ROBODOC header
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_initialize.F90
-       No ROBODOC header
-
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_migrate_tree_data.F90
        No ROBODOC header
 
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_morton_process.F90
-       No ROBODOC header
-
-   source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/local_tree_build.F90
-       No ROBODOC header
-
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_derefine_blocks.F90
-       No ROBODOC header
+       Arguments found only in ARGUMENTS: integer, lnbllocks_old, intent, mype
 
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_exchange_nodetype.F90
        No ROBODOC header
 
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/mpi_amr_refine_blocks.F90
-       No ROBODOC header
+       Synopsis name is 'amr_refine_blocks', filename is 'mpi_amr_refine_blocks'
+       Arguments found only in ARGUMENTS: integer, intent
 
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/physicaldata.F90
-       No ROBODOC header
+       Synopsis name is 'S', filename is 'physicaldata'
 
    source/Grid/GridMain/AMR/Paramesh4/levelFlux/Grid_putFluxData.F90
        Arguments found only in SYNOPSIS: areaLeft
@@ -2991,12 +2957,6 @@ Violations:
    source/Grid/localAPI/gr_amrexMultigridInterface.F90
        No ROBODOC header
 
-   source/Grid/localAPI/gr_amrextAmrexFinalize.F90
-       No ROBODOC header
-
-   source/Grid/localAPI/gr_amrextAmrexInit.F90
-       No ROBODOC header
-
    source/Grid/localAPI/gr_estimateBlkError.F90
        Arguments found only in ARGUMENTS: blockDesc
 
@@ -3032,6 +2992,9 @@ Violations:
    source/IO/IOMain/io_xfer_tree_data.F90
        Arguments found only in ARGUMENTS: numFileBlks
 
+   source/IO/IOMain/hdf5/AM/io_amrexInit.F90
+       Found RoboDoc line not starting with !!
+
    source/IO/IOMain/hdf5/AM/io_xfer_tree_data.F90
        Arguments found only in ARGUMENTS: numFileBlks
 
@@ -3043,6 +3006,9 @@ Violations:
 
    source/IO/IOTypes/io_do_xfer.F90
        Arguments found only in ARGUMENTS: IO_WRITE_XFER
+
+   source/IO/localAPI/io_amrexInit.F90
+       Found RoboDoc line not starting with !!
 
    source/Multispecies/MultispeciesMain/Multispecies_getPropertyVector.F90
        Arguments found only in SYNOPSIS: values
@@ -3129,12 +3095,12 @@ Violations:
    source/PhysicalConstants/PhysicalConstantsMain/pc_utilities.F90
        Synopsis name is 'pc_makeLowercase', filename is 'pc_utilities'
 
-   source/Simulation/Flash.F90
-       Synopsis name is '', filename is 'Flash'
-       Did you forget to use `use' before module name in synopsis?
-
    source/Simulation/Simulation_interface.F90
        Synopsis name is '', filename is 'Simulation_interface'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/Simulation/main.F90
+       Synopsis name is '', filename is 'main'
        Did you forget to use `use' before module name in synopsis?
 
    source/Simulation/SimulationMain/CCSN_Chimera/chimera_model.F90
@@ -3370,6 +3336,9 @@ Violations:
        Arguments found only in SYNOPSIS: blockID
        Arguments found only in ARGUMENTS: tile
 
+   source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/Driver_finalizeFlash.F90
+       Synopsis name is 'Driver_finalizeAll', filename is 'Driver_finalizeFlash'
+
    source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/sim_setMaxRelativeAccuracies.F90
        Synopsis name is '', filename is 'sim_setMaxRelativeAccuracies'
        Did you forget to use `use' before module name in synopsis?
@@ -3381,6 +3350,9 @@ Violations:
    source/Simulation/SimulationMain/unitTest/Roots/x2Polynomials/sim_setx2PolynomialExactRoots.F90
        Synopsis name is '', filename is 'sim_setx2PolynomialExactRoots'
        Did you forget to use `use' before module name in synopsis?
+
+   source/Simulation/SimulationMain/unitTest/Roots/x3Polynomials/Driver_finalizeFlash.F90
+       Synopsis name is 'Driver_finalizeAll', filename is 'Driver_finalizeFlash'
 
    source/Simulation/SimulationMain/unitTest/Roots/x3Polynomials/sim_setMaxRelativeAccuracies.F90
        Synopsis name is '', filename is 'sim_setMaxRelativeAccuracies'
@@ -3394,6 +3366,9 @@ Violations:
        Synopsis name is '', filename is 'sim_setx3PolynomialExactRoots'
        Did you forget to use `use' before module name in synopsis?
 
+   source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/Driver_finalizeFlash.F90
+       Synopsis name is 'Driver_finalizeAll', filename is 'Driver_finalizeFlash'
+
    source/Simulation/SimulationMain/unitTest/Roots/x4Polynomials/sim_setMaxRelativeAccuracies.F90
        Synopsis name is '', filename is 'sim_setMaxRelativeAccuracies'
        Did you forget to use `use' before module name in synopsis?
@@ -3406,6 +3381,9 @@ Violations:
        Synopsis name is '', filename is 'sim_setx4PolynomialExactRoots'
        Did you forget to use `use' before module name in synopsis?
 
+   source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/Driver_finalizeFlash.F90
+       Synopsis name is 'Driver_finalizeAll', filename is 'Driver_finalizeFlash'
+
    source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/sim_RungeKuttaTest.F90
        Synopsis name is '', filename is 'sim_RungeKuttaTest'
        Did you forget to use `use' before module name in synopsis?
@@ -3413,6 +3391,9 @@ Violations:
    source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/sim_calculateInitialData.F90
        Synopsis name is '', filename is 'sim_calculateInitialData'
        Did you forget to use `use' before module name in synopsis?
+
+   source/Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle/Driver_finalizeFlash.F90
+       Synopsis name is 'Driver_finalizeAll', filename is 'Driver_finalizeFlash'
 
    source/Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle/sim_ODEfunction.F90
        Arguments found only in SYNOPSIS: y, t
@@ -3625,20 +3606,51 @@ Violations:
    source/numericalTools/Stencils/StencilsTemporal/Stencils_integrateEuler.F90
        No ROBODOC header
 
-   source/physics/Eos/Eos_nucDetectBounce.F90
-       fix robodoc header descriptions and remove the AUTOGENROBODOC field
+   source/physics/Eos/EosMain/Eos.F90
+       Synopsis name is '', filename is 'Eos'
+       Did you forget to use `use' before module name in synopsis?
 
-   source/physics/Eos/Eos_nucInterface.F90
-       No ROBODOC header
+   source/physics/Eos/EosMain/Eos_everywhere.F90
+       Synopsis name is '', filename is 'Eos_everywhere'
+       Did you forget to use `use' before module name in synopsis?
 
-   source/physics/Eos/Eos_wrapped_blkid.F90
-       Synopsis name is 'Eos_wrapped', filename is 'Eos_wrapped_blkid'
+   source/physics/Eos/EosMain/Eos_getAbarZbar.F90
+       Synopsis name is '', filename is 'Eos_getAbarZbar'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Eos_getData.F90
+       Synopsis name is '', filename is 'Eos_getData'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Eos_getTempData.F90
+       Synopsis name is '', filename is 'Eos_getTempData'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Eos_guardCells.F90
+       Synopsis name is '', filename is 'Eos_guardCells'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Eos_wrapped.F90
+       Synopsis name is 'Eos_Wrapped', filename is 'Eos_wrapped'
+
+   source/physics/Eos/EosMain/Gamma/Eos_getParameters.F90
+       Synopsis name is '', filename is 'Eos_getParameters'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Eos/EosMain/Helmholtz/eos_helmVectorBased.F90
        Synopsis name is 'eos_helm', filename is 'eos_helmVectorBased'
 
-   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/Eos_vectorBased.F90
-       Synopsis name is 'Eos', filename is 'Eos_vectorBased'
+   source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/Eos_getParameters.F90
+       Synopsis name is '', filename is 'Eos_getParameters'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/Eos_wrapped.F90
+       Synopsis name is '', filename is 'Eos_wrapped'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Helmholtz/SpeciesBased/Eos_getParameters.F90
+       Synopsis name is '', filename is 'Eos_getParameters'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/actual_eos.F90
        No ROBODOC header
@@ -3658,6 +3670,22 @@ Violations:
    source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/network.F90
        No ROBODOC header
 
+   source/physics/Eos/EosMain/Helmholtz/Ye/Eos_getParameters.F90
+       Synopsis name is '', filename is 'Eos_getParameters'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Helmholtz/Ye/Eos_wrapped.F90
+       Synopsis name is '', filename is 'Eos_wrapped'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/Multigamma/Eos_getParameters.F90
+       Synopsis name is '', filename is 'Eos_getParameters'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Eos/EosMain/WeakLib/Eos_getData.F90
+       Synopsis name is '', filename is 'Eos_getData'
+       Did you forget to use `use' before module name in synopsis?
+
    source/physics/Eos/EosMain/WeakLib/eos_initWeaklib.F90
        Synopsis name is '', filename is 'eos_initWeaklib'
        Did you forget to use `use' before module name in synopsis?
@@ -3673,24 +3701,9 @@ Violations:
    source/physics/Eos/EosMain/WeakLib/eos_wlData.F90
        Synopsis name is 'eos_helmData', filename is 'eos_wlData'
 
-   source/physics/Eos/EosNuclear/Eos_nucDetectBounce.F90
-       fix robodoc header descriptions and remove the AUTOGENROBODOC field
-
-   source/physics/Eos/EosNuclear/Eos_nucOneZone.F90
-       Arguments found only in SYNOPSIS: xVar, xener, xtemp, xdens, xye, xpres, xentr
-
    source/physics/Eos/localAPI/eos_idealGamma.F90
        Arguments found only in SYNOPSIS: vecEnd, vecBegin
        Arguments found only in ARGUMENTS: eosType
-
-   source/physics/Eos/localAPI/eos_idealGamma3T.F90
-       Arguments found only in SYNOPSIS: vecEnd, componentMask, vecBegin
-
-   source/physics/Eos/localAPI/eos_nuclear.F90
-       Arguments found only in ARGUMENTS: eosType
-
-   source/physics/Eos/localAPI/eos_tabIonmix.F90
-       Arguments found only in SYNOPSIS: material, subtype, vecEnd, vecBegin
 
    source/physics/Eos/localAPI/eos_weaklib.F90
        Synopsis name is 'eos_helmholtz', filename is 'eos_weaklib'
@@ -3806,32 +3819,28 @@ Violations:
        Synopsis name is '', filename is 'ht_indicators'
        Did you forget to use `use' before module name in synopsis?
 
-   source/physics/Hydro/Hydro_computeFluxLoop.F90
-       No ROBODOC header
-
    source/physics/Hydro/Hydro_freeBuffers.F90
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro_freeBuffers'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/Hydro_interface.F90
        Synopsis name is '', filename is 'Hydro_interface'
        Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/Hydro_prepareBuffers.F90
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro_prepareBuffers'
+       Did you forget to use `use' before module name in synopsis?
 
-   source/physics/Hydro/Hydro_shockDetectLoop.F90
-       No ROBODOC header
+   source/physics/Hydro/HydroMain/Hydro_mapBcType.F90
+       Synopsis name is '', filename is 'Hydro_mapBcType'
+       Did you forget to use `use' before module name in synopsis?
 
-   source/physics/Hydro/HydroMain/Hydro_freeBuffers.F90
-       No ROBODOC header
-
-   source/physics/Hydro/HydroMain/Hydro_prepareBuffers.F90
-       No ROBODOC header
+   source/physics/Hydro/HydroMain/Hydro_shockStrength.F90
+       Synopsis name is '', filename is 'Hydro_shockStrength'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/hy_memGetBlkPtr_desc.F90
        Synopsis name is 'hy_memGetBlkPtr', filename is 'hy_memGetBlkPtr_desc'
-       Arguments found only in SYNOPSIS: tileDesc
-       Arguments found only in ARGUMENTS: blockDesc
 
    source/physics/Hydro/HydroMain/hy_memReleaseBlkPtr_desc.F90
        Synopsis name is 'hy_memReleaseBlkPtr', filename is 'hy_memReleaseBlkPtr_desc'
@@ -3843,23 +3852,26 @@ Violations:
        No ROBODOC header
 
    source/physics/Hydro/HydroMain/Spark/Hydro_computeDt.F90
-       Arguments found only in SYNOPSIS: tileDesc
-       Arguments found only in ARGUMENTS: blockDesc
-
-   source/physics/Hydro/HydroMain/Spark/Hydro_correctGravSrc.F90
-       Arguments found only in ARGUMENTS: blockCount, blockList
+       Synopsis name is '', filename is 'Hydro_computeDt'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/Spark/Hydro_inhost_data.F90
        No ROBODOC header
 
+   source/physics/Hydro/HydroMain/Spark/Hydro_init.F90
+       Synopsis name is '', filename is 'Hydro_init'
+       Did you forget to use `use' before module name in synopsis?
+
    source/physics/Hydro/HydroMain/Spark/Hydro_offload_data.F90
        No ROBODOC header
 
-   source/physics/Hydro/HydroMain/Spark/hy_rk_eos.F90
-       Arguments found only in SYNOPSIS: blockID
-
    source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel.F90
-       No ROBODOC header
+       Found argument section with no arguments
+       Arguments found only in SYNOPSIS: blkLimitsGC, hy_del, limits
+
+   source/physics/Hydro/HydroMain/Spark/hy_rk_updateSoln.F90
+       Arguments found only in SYNOPSIS: coeffs
+       Arguments found only in ARGUMENTS: coeff
 
    source/physics/Hydro/HydroMain/Spark/prim2con.F90
        Synopsis name is 'hy_rk_prim2con', filename is 'prim2con'
@@ -3892,6 +3904,14 @@ Violations:
        Synopsis name is '', filename is 'Hydro'
        Did you forget to use `use' before module name in synopsis?
 
+   source/physics/Hydro/HydroMain/simpleUnsplit/Hydro_computeDt.F90
+       Synopsis name is '', filename is 'Hydro_computeDt'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Hydro/HydroMain/simpleUnsplit/Hydro_init.F90
+       Synopsis name is '', filename is 'Hydro_init'
+       Did you forget to use `use' before module name in synopsis?
+
    source/physics/Hydro/HydroMain/simpleUnsplit/HLL/hy_hllComputeFluxes.F90
        No ROBODOC header
 
@@ -3903,16 +3923,36 @@ Violations:
        Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/unsplit/Hydro.F90
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/unsplit/Hydro.F90.timersFix
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Hydro/HydroMain/unsplit/Hydro_computeDt.F90
+       Synopsis name is '', filename is 'Hydro_computeDt'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Hydro/HydroMain/unsplit/Hydro_consolidateCFL.F90
+       Synopsis name is '', filename is 'Hydro_consolidateCFL'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/unsplit/Hydro_freeBuffers.F90
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro_freeBuffers'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Hydro/HydroMain/unsplit/Hydro_gravPotIsAlreadyUpdated.F90
+       Synopsis name is '', filename is 'Hydro_gravPotIsAlreadyUpdated'
+       Did you forget to use `use' before module name in synopsis?
+
+   source/physics/Hydro/HydroMain/unsplit/Hydro_init.F90
+       Synopsis name is '', filename is 'Hydro_init'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/unsplit/Hydro_prepareBuffers.F90
-       No ROBODOC header
+       Synopsis name is '', filename is 'Hydro_prepareBuffers'
+       Did you forget to use `use' before module name in synopsis?
 
    source/physics/Hydro/HydroMain/unsplit/hy_DataReconstructNormalDir_MH.F90
        Arguments found only in SYNOPSIS: reig0, leig0, lambda0
@@ -4471,238 +4511,238 @@ Description: Checks that anything for which memory is explicitly allocated is al
 
 Violations:
    source/Grid/GridBoundaryConditions/gr_bcGetRegion.F90
-      [574, 582, 583, 584, 604, 622, 623, 624, 659, 667, 668, 669]
+      [577, 585, 586, 587, 607, 625, 626, 627, 662, 670, 671, 672]
 
    source/Grid/GridMain/Grid_getCellFaceAreas.F90
-      [240]
+      [243]
 
    source/Grid/GridMain/gr_GCAllocScratch.F90
-      [115, 116, 117, 118, 124, 125, 126, 127, 133, 134, 135, 136, 142, 143, 144, 145]
+      [118, 119, 120, 121, 127, 128, 129, 130, 136, 137, 138, 139, 145, 146, 147, 148]
 
    source/Grid/GridMain/AMR/Amrex/Grid_initDomain.F90
-      [95, 97, 100, 107, 111, 123, 129]
+      [98, 100, 103, 110, 114, 126, 132]
 
    source/Grid/GridMain/AMR/Amrex/gr_initSpecific.F90
-      [40]
+      [43]
 
    source/Grid/GridMain/AMR/Amrex/gr_updateData.F90
-      [82, 83, 84, 85, 86]
+      [85, 86, 87, 88, 89]
 
    source/Grid/GridMain/AMR/Paramesh4/Grid_getNeighProcList.F90
-      [116]
+      [119]
 
    source/Grid/GridMain/AMR/Paramesh4/amr_1blk_cc_prol_work_mg.F90
-      [123, 124, 125, 127, 128, 129, 131, 132, 133]
+      [129, 130, 131, 133, 134, 135, 137, 138, 139]
 
    source/Grid/GridMain/AMR/Paramesh4/gr_initSpecific.F90
-      [165, 220, 221, 223, 227, 231, 235, 239, 243, 247, 251, 255, 259, 263, 267, 271, 275, 280, 281, 282, 285, 286, 287, 291, 292, 294, 295, 296, 297]
+      [168, 223, 224, 226, 230, 234, 238, 242, 246, 250, 254, 258, 262, 266, 270, 274, 278, 283, 284, 285, 288, 289, 290, 294, 295, 297, 298, 299, 300]
 
    source/Grid/GridMain/AMR/Paramesh4/Incomp/amr_1blk_fc_prol_divpres.F90
-      [1023]
+      [1020]
+
+   source/Grid/GridMain/AMR/Paramesh4/bittree/amr_build_bittree.F90
+      [83]
 
    source/Grid/GridMain/AMR/Paramesh4/bittree/amr_initialize.F90
       [342, 343, 344, 345, 346, 347, 348, 358, 379, 380, 381, 382, 383, 384, 392, 393, 394, 420, 425, 430, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 514, 515, 516, 542, 547, 552, 601, 602, 603, 604, 605, 606, 612, 616, 622, 645, 646, 647, 648, 649, 650, 654, 655, 802, 803, 804, 805, 806, 807, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 840, 842, 843, 845, 851, 852, 853, 857, 862, 863, 864, 865, 866, 867, 868, 869, 875, 876, 877, 878, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899, 903, 964, 967, 970, 973, 976, 979, 982, 985, 986, 987, 988, 991, 992, 1077]
 
-   source/Grid/GridMain/AMR/Paramesh4/bittree/source/amr_build_bittree.F90
-      [79]
-
    source/Grid/GridMain/AMR/Paramesh4/flash_avoid_orrery/amr_initialize.F90
-      [349, 350, 351, 352, 353, 354, 355, 365, 386, 387, 388, 389, 390, 391, 399, 400, 401, 427, 432, 437, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 521, 522, 523, 549, 554, 559, 608, 609, 610, 611, 612, 613, 619, 623, 629, 652, 653, 654, 655, 656, 657, 661, 662, 809, 810, 811, 812, 813, 814, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 847, 849, 850, 856, 857, 858, 862, 867, 868, 869, 870, 871, 872, 873, 874, 880, 881, 882, 883, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899, 900, 901, 902, 903, 904, 908, 969, 972, 975, 978, 981, 984, 987, 990, 991, 992, 993, 996, 997, 1081]
+      [343, 344, 345, 346, 347, 348, 349, 359, 380, 381, 382, 383, 384, 385, 393, 394, 395, 421, 426, 431, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 515, 516, 517, 543, 548, 553, 602, 603, 604, 605, 606, 607, 613, 617, 623, 646, 647, 648, 649, 650, 651, 655, 656, 803, 804, 805, 806, 807, 808, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 841, 843, 844, 850, 851, 852, 856, 861, 862, 863, 864, 865, 866, 867, 868, 874, 875, 876, 877, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 902, 963, 966, 969, 972, 975, 978, 981, 984, 985, 986, 987, 990, 991, 1075]
 
    source/Grid/GridMain/UG/Grid_initDomain.F90
-      [80]
+      [83]
 
    source/Grid/GridMain/UG/gr_createDomain.F90
-      [135, 136, 137, 141, 145, 148, 151, 157, 161, 165, 170, 171, 172, 175, 179, 183, 187, 191, 195, 199, 203, 207, 211]
+      [138, 139, 140, 144, 148, 151, 154, 160, 164, 168, 173, 174, 175, 178, 182, 186, 190, 194, 198, 202, 206, 210, 214]
 
    source/Grid/GridMain/UG/UGReordered/gr_createDomain.F90
-      [130, 131, 132, 135, 138, 141, 144, 147, 148, 149, 153, 157, 164, 168, 172, 175, 179, 182, 186, 189]
+      [133, 134, 135, 138, 141, 144, 147, 150, 151, 152, 156, 160, 167, 171, 175, 178, 182, 185, 189, 192]
 
    source/Grid/GridParticles/gr_ptInit.F90
-      [158, 159]
+      [161, 162]
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/UNIT_TEST.F90
-      [211, 244, 345]
+      [214, 247, 348]
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/gr_ptMapInit.F90
-      [46]
+      [49]
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/gr_ptMoveMappedData.F90
-      [108]
+      [111]
 
    source/Grid/GridSolvers/AmrexMultigridSolver/gr_amrexMultigridInit.F90
-      [37, 38, 39, 40]
+      [40, 41, 42, 43]
 
    source/Grid/GridSolvers/HYPRE/UG/gr_hypreSetupGrid.F90
-      [101, 102, 400]
+      [104, 105, 403]
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreSetupGrid.F90
-      [139, 140, 143, 145, 335]
+      [142, 143, 146, 148, 338]
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreSetupGrid.F90.save
-      [126, 127, 130, 132, 313]
+      [137, 138, 141, 143, 324]
 
    source/Grid/GridSolvers/Multipole_new/gr_mpoleAllocateRadialArrays.F90
-      [52, 58, 64, 74, 84, 90, 100]
+      [55, 61, 67, 77, 87, 93, 103]
 
    source/Grid/GridSolvers/Multipole_new/gr_mpoleInit.F90
-      [351, 363, 369, 375, 381, 387, 393, 399, 405, 411, 417]
+      [354, 366, 372, 378, 384, 390, 396, 402, 408, 414, 420]
 
    source/Grid/GridSolvers/Multipole_new/gr_mpoleSetInnerZoneGrid.F90
-      [214, 262, 277, 278]
+      [217, 265, 280, 281]
 
    source/IO/IOMain/IO_init.F90
-      [177]
+      [180]
 
    source/IO/IOMain/io_prepareListsRead.F90
-      [59, 60, 62, 64, 66, 67, 69, 70, 71, 75, 76, 78, 79, 81, 82, 84, 85, 86]
+      [62, 63, 65, 67, 69, 70, 72, 73, 74, 78, 79, 81, 82, 84, 85, 87, 88, 89]
 
    source/IO/IOMain/io_prepareListsWrite.F90
-      [82, 83, 85, 86, 88, 89, 91, 92, 93, 177, 178, 182, 183, 191, 192, 196, 197, 205, 206, 210, 211, 219, 220, 221, 233, 234, 235]
+      [85, 86, 88, 89, 91, 92, 94, 95, 96, 180, 181, 185, 186, 194, 195, 199, 200, 208, 209, 213, 214, 222, 223, 224, 236, 237, 238]
 
    source/IO/IOMain/hdf5/IO_writeProtons.F90
-      [106, 107, 108, 109]
+      [109, 110, 111, 112]
 
    source/IO/IOMain/hdf5/parallel/AM/io_readData.F90
-      [232, 234, 235, 236, 237, 238, 239, 241, 270, 272, 275, 278, 284, 289, 390, 417, 418, 419]
+      [235, 237, 238, 239, 240, 241, 242, 244, 273, 275, 278, 281, 287, 292, 393, 420, 421, 422]
 
    source/IO/IOMain/hdf5/serial/AM/io_readData.F90
-      [232, 233, 234, 235, 236, 237, 239, 240, 268, 270, 273, 276, 282]
+      [235, 236, 237, 238, 239, 240, 242, 243, 271, 273, 276, 279, 285]
 
    source/IO/IOParticles/direct/UG/io_readParticleData.F90
-      [71]
+      [74]
 
    source/IO/IOParticles/hdf5/parallel/io_ptReadParticleData.F90
-      [140]
+      [143]
 
    source/IO/IOParticles/hdf5/parallel/io_ptWriteParticleData.F90
-      [273, 282, 325]
+      [276, 285, 328]
 
    source/IO/IOParticles/hdf5/serial/io_ptReadParticleData.F90
-      [109]
+      [112]
 
    source/IO/IOParticles/pnetcdf/io_ptReadParticleData.F90
-      [97]
+      [100]
 
    source/Particles/ParticlesInitialization/Particles_init.F90
-      [190]
+      [193]
 
    source/Simulation/SimulationMain/CCSN_Chimera/chimera_model.F90
-      [478]
+      [481]
 
    source/Simulation/SimulationMain/DeleptonizationWave/Simulation_init.F90
-      [168, 169, 218, 219, 220, 306, 324, 330, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396]
+      [171, 172, 221, 222, 223, 309, 327, 333, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399]
 
-   source/Simulation/SimulationMain/EosGraph/Driver_evolveFlash.F90
-      [70]
+   source/Simulation/SimulationMain/EosGraph/Driver_evolveAll.F90
+      [73]
 
    source/Simulation/SimulationMain/SNIa_DoubleDetonation/Simulation_init.F90
-      [142, 147, 148, 165, 166, 167, 168, 169, 170]
+      [145, 150, 151, 168, 169, 170, 171, 172, 173]
 
    source/Simulation/SimulationMain/StreamingSineWave/Simulation_initBlock.F90
-      [93, 94, 95, 96, 97, 98, 99, 100, 101]
+      [96, 97, 98, 99, 100, 101, 102, 103, 104]
 
    source/Simulation/SimulationMain/incompFlow/DeformingBubble/Simulation_initBlock.F90
-      [67, 68, 69]
+      [70, 71, 72]
 
    source/Simulation/SimulationMain/incompFlow/EvaporatingBubble/Simulation_initBlock.F90
-      [67, 68, 69]
+      [70, 71, 72]
 
    source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_initBlock.F90
-      [69, 70, 71]
+      [72, 73, 74]
 
    source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterInit.F90
-      [35]
-
-   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterRead.F90
-      [99, 100, 101, 102, 103, 104, 105]
-
-   source/Simulation/SimulationMain/incompFlow/RisingBubble/Simulation_initBlock.F90
-      [66, 67, 68]
-
-   source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/IO_writeIntegralQuantities.F90
-      [106, 107, 108, 109]
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveFlash.F90
-      [120, 156, 179, 190, 206, 226, 240, 276, 343, 416, 441, 516, 545, 567]
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/sim_collectLeaves.F90
-      [43, 47]
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/sim_writeDataPoints.F90
-      [35]
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveFlash.F90
-      [126, 155, 178, 189, 205, 224, 240, 260, 274, 300, 382, 434, 452, 492, 503, 568]
-
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/sim_collectLeaves.F90
-      [40, 44]
-
-   source/Simulation/SimulationMain/unitTest/Multigrid_Amrex/Simulation_initBlock.F90
-      [85, 86, 87]
-
-   source/Simulation/SimulationMain/unitTest/Poisson_HYPRE/Simulation_initBlock.F90
-      [85, 86, 87]
-
-   source/flashUtilities/Pipeline/PipelineMain/Pipeline_localCreate.F90
-      [164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 198, 199]
-
-   source/flashUtilities/Pipeline/PipelineMain/pl_localPipelineSetup.F90
-      [74, 78]
-
-   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest_NodeObject.F90
       [38]
 
-   source/flashUtilities/nameValueLL/nameValueLL_bcast.F90
-      [85, 127, 168, 208]
+   source/Simulation/SimulationMain/incompFlow/PoolBoiling/complexBoundaries/heater/sim_heaterRead.F90
+      [102, 103, 104, 105, 106, 107, 108]
 
-   source/flashUtilities/nameValueLL/nameValueLL_rules.F90
-      [60, 64, 123, 127, 184]
+   source/Simulation/SimulationMain/incompFlow/RisingBubble/Simulation_initBlock.F90
+      [69, 70, 71]
 
-   source/monitors/Logfile/LogfileMain/log_allocateStrArr.F90
+   source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/IO_writeIntegralQuantities.F90
+      [109, 110, 111, 112]
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveAll.F90
+      [123, 159, 182, 193, 209, 229, 243, 279, 346, 419, 444, 519, 548, 570]
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/sim_collectLeaves.F90
+      [46, 50]
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/sim_writeDataPoints.F90
+      [38]
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveAll.F90
+      [129, 158, 181, 192, 208, 227, 243, 263, 277, 303, 385, 437, 455, 495, 506, 571]
+
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/sim_collectLeaves.F90
+      [43, 47]
+
+   source/Simulation/SimulationMain/unitTest/Multigrid_Amrex/Simulation_initBlock.F90
+      [88, 89, 90]
+
+   source/Simulation/SimulationMain/unitTest/Poisson_HYPRE/Simulation_initBlock.F90
+      [88, 89, 90]
+
+   source/flashUtilities/Pipeline/PipelineMain/Pipeline_localCreate.F90
+      [167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 201, 202]
+
+   source/flashUtilities/Pipeline/PipelineMain/pl_localPipelineSetup.F90
+      [77, 81]
+
+   source/flashUtilities/datastructures/linkedlist/UnitTest/UnitTest_NodeObject.F90
       [41]
 
+   source/flashUtilities/nameValueLL/nameValueLL_bcast.F90
+      [88, 130, 171, 211]
+
+   source/flashUtilities/nameValueLL/nameValueLL_rules.F90
+      [63, 67, 126, 130, 187]
+
+   source/monitors/Logfile/LogfileMain/log_allocateStrArr.F90
+      [44]
+
    source/physics/Eos/EosMain/Helmholtz/eos_vecAlloc.F90
-      [46, 47, 48, 49, 52, 53, 54, 57, 58, 59, 60, 61, 64, 65, 66, 85, 86, 87, 88, 96, 97, 98]
+      [49, 50, 51, 52, 55, 56, 57, 60, 61, 62, 63, 64, 67, 68, 69, 88, 89, 90, 91, 99, 100, 101]
 
    source/physics/Hydro/HydroMain/unsplit/Hydro_init.F90
-      [688, 689, 690]
+      [680, 681, 682]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/bn_xnetInit.F90
-      [95, 96, 97, 98, 101, 132, 135, 145]
+      [98, 99, 100, 101, 104, 135, 138, 148]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_controls.F90
-      [205, 206, 207, 208, 307, 322]
+      [208, 209, 210, 211, 310, 325]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_data.F90
-      [217, 262, 271, 272, 273, 274, 275, 276, 337, 338, 339, 340, 363, 396, 397, 431, 447, 568, 595, 600, 621, 641, 660, 679, 697, 711, 712, 713, 714, 766, 767, 768, 769, 770, 771, 772, 773, 775, 776, 777, 778]
+      [220, 265, 274, 275, 276, 277, 278, 279, 340, 341, 342, 343, 366, 399, 400, 434, 450, 571, 598, 603, 624, 644, 663, 682, 700, 714, 715, 716, 717, 769, 770, 771, 772, 773, 774, 775, 776, 778, 779, 780, 781]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_ffn.F90
-      [45]
+      [48]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_flux.F90
-      [42, 61]
+      [45, 64]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_integrate_bdf.F90
-      [276, 277, 289, 290, 300, 301, 302, 307, 308, 309, 310, 311, 312, 313, 322, 323, 324, 325, 326, 327, 335, 338, 339, 340, 345, 346, 347, 348, 349, 350, 351, 352, 353, 364, 365, 366, 367, 368, 369, 370, 379, 380]
+      [279, 280, 292, 293, 303, 304, 305, 310, 311, 312, 313, 314, 315, 316, 325, 326, 327, 328, 329, 330, 338, 341, 342, 343, 348, 349, 350, 351, 352, 353, 354, 355, 356, 367, 368, 369, 370, 371, 372, 373, 382, 383]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_jacobian_dense.F90
-      [52]
+      [55]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_match.F90
-      [57, 58]
+      [60, 61]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_nse.F90
-      [155, 157, 159, 169, 172]
+      [158, 160, 162, 172, 175]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_preprocess.F90
-      [867]
+      [870]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/xnet_screening.F90
-      [69, 70, 71, 82, 83, 84, 97, 98, 99, 115, 116, 117, 118, 124, 125, 126, 127]
+      [72, 73, 74, 85, 86, 87, 100, 101, 102, 118, 119, 120, 121, 127, 128, 129, 130]
 
    source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/bn_xnetInit.F90
-      [98, 99, 100, 103, 134, 137, 147]
+      [101, 102, 103, 106, 137, 140, 150]
 
 
 -------------------------------------------------------------------------
@@ -4714,233 +4754,188 @@ Description: Calls to API-level subroutines must be present in appropriate inter
 
 Violations:
    source/Grid/GridBoundaryConditions/Chombo/gr_bcGetRegion.F90
-line 167: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 203: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 170: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 206: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridBoundaryConditions/Chombo/gr_bcPutRegion.F90
-line 117: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 152: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 120: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 155: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridMain/AMR/Amrex/gr_markRefineDerefineCallback.F90.alt
-line 315: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 326: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/gr_ptApplyBCsOneBlk.F90
-line 64: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
-line 66: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
+line 67: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
+line 69: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/gr_ptFindNegh.F90
-line 156: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
+line 159: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/gr_ptPackUnpackData.F90
-line 107: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 158: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 110: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 161: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/gr_ptSameProcMap.F90
-line 91: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 175: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 94: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 178: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/MoveSieve/Grid_mapParticlesToMesh.F90
-line 152: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 169: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 240: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 275: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 155: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 172: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 243: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 278: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/MoveSieve/gr_ptStoreOffBlockCells.F90
-line 114: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 117: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/Grid_mapParticlesToMesh.F90
-line 153: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 170: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 238: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 273: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 156: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 173: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 241: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 276: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/Paramesh/PttoPt/gr_ptStoreOffBlockCells.F90
-line 105: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 108: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/UG/Grid_mapParticlesToMesh.F90
-line 109: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 172: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/Grid/GridParticles/GridParticlesMapToMesh/ParticlesOwned/UG/gr_ptExchangePartialMap.F90
-line 147: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
+line 112: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 175: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMove/ParticlesOwned/Paramesh/VirtualParticles/gr_ptVPMatchCondition.F90
-line 77: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 80: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridParticles/GridParticlesMove/ParticlesOwned/UG/Directional/Grid_moveParticles.F90
-line 110: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 113: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreCreateMatrix.F90.save
-line 180: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 182: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
-line 183: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
-line 198: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 203: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 208: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 252: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 254: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 256: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
-line 528: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 191: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 193: The called subroutine "Grid_getBlkBC" is missing from interface file "source/Grid/Grid_interface.F90".
+line 194: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
+line 209: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 214: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 219: The called subroutine "Grid_getBlkData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 263: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 265: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 267: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 539: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Grid/GridSolvers/HYPRE/paramesh/gr_hypreSetupGrid.F90.save
-line 158: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
-line 381: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
-line 410: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
+line 169: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
+line 392: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
+line 421: The called subroutine "Grid_getBlkRefineLevel" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/IO/IOMain/hdf5/parallel/PM_argonne/io_writeData.F90
-line 309: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
-line 315: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
+line 312: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 318: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/IO/IOMain/hdf5/parallel/UG/io_writeData.F90
-line 235: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
-line 239: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
+line 238: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 242: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/IO/IOMain/hdf5/serial/UG/io_writeData.F90
-line 191: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
-line 195: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
+line 194: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 198: The called subroutine "Grid_getBlkPhysicalSize" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Particles/ParticlesMain/passive/ParticlesOwned/RungeKutta/Particles_advance.F90.noalloc
-line 114: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 141: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 125: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 152: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Particles/ParticlesMain/unitTest/Particles_dump.F90
-line 67: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 70: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Particles/ParticlesMain/unitTest/Particles_unitTest.F90
-line 58: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 61: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Particles/ParticlesMapping/ParticlesOwned/meshWeighting/MapToMesh/Particles_mapToMeshOneBlk.F90
-line 99: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
-line 203: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 102: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 206: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/SNIa_DoubleDetonation/Hydro.F90
-line 383: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/Simulation/SimulationMain/Sedov/gr_expandDomain.F90.M2
-line 168: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 174: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 221: The called subroutine "Grid_copyF4DataToMultiFabs" is missing from interface file "source/Grid/Grid_interface.F90".
-line 250: The called subroutine "Grid_copyF4DataToMultiFabs" is missing from interface file "source/Grid/Grid_interface.F90".
+line 387: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/Sedov/hy_advance.F90.tryOMP
-line 47: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 56: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 62: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 66: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 81: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 89: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 98: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 102: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 111: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 124: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 129: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 133: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 158: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 165: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 173: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 176: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 196: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
-line 204: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 208: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 212: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 59: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 68: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 74: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 78: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 93: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 101: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 110: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 114: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 123: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 136: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 141: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 145: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 170: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 177: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 185: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 188: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 208: The called subroutine "Grid_getLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
+line 216: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 220: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 224: The called subroutine "Grid_releaseLeafIterator" is missing from interface file "source/Grid/Grid_interface.F90".
 
-   source/Simulation/SimulationMain/YahilLattimerCollapse/Driver_evolveFlash.F90
-line 297: The called subroutine "Eos_getInnerMostDensity" is missing from interface file "source/physics/Eos/Eos_interface.F90".
+   source/Simulation/SimulationMain/YahilLattimerCollapse/Driver_evolveAll.F90
+line 298: The called subroutine "Eos_getInnerMostDensity" is missing from interface file "source/physics/Eos/Eos_interface.F90".
 
    source/Simulation/SimulationMain/unitTest/Eos/timeEosUnitTest/Eos_unitTest.F90
-line 108: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 143: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 111: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 146: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole/Gravity_potentialListOfBlocks.F90
-line 158: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 163: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 177: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 180: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 230: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 232: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 161: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 166: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 180: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 183: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 233: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 235: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
-   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveFlash.F90
-line 322: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 367: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+   source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/Driver_evolveAll.F90
+line 325: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 370: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/sim_advance.F90
-line 52: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 57: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 55: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 60: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine2/sim_writeDataPoints.F90
-line 35: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
+line 38: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/Simulation/SimulationMain/unitTest/RungeKutta/2Dellipse/sim_RungeKuttaTest.F90
-line 153: The capitalization pattern of called subroutine "RungeKutta_Step"
+line 156: The capitalization pattern of called subroutine "RungeKutta_Step"
 does not match the corresponding subroutine in the interface file "source/numericalTools/RungeKutta/RungeKutta_interface.F90",
 where it appears as "RungeKutta_step".
 
 
    source/Simulation/SimulationMain/unitTest/RungeKutta/3Dcircle/sim_RungeKuttaTest.F90
-line 138: The capitalization pattern of called subroutine "RungeKutta_Step"
+line 141: The capitalization pattern of called subroutine "RungeKutta_Step"
 does not match the corresponding subroutine in the interface file "source/numericalTools/RungeKutta/RungeKutta_interface.F90",
 where it appears as "RungeKutta_step".
 
 
    source/flashUtilities/contourSurface/ut_contourSurfaceAreaBlock.F90
-line 64: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Eos/EosMain/Eos_wrapped_blkid.F90
-line 134: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 137: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Eos/EosMain/Gamma/RHD/Eos_wrapped.F90
-line 188: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 289: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 67: The called subroutine "Grid_getBlkBoundBox" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/Eos_wrapped.F90
-line 171: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 287: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 98: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 214: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/physics/Eos/EosMain/Helmholtz/Ye/Eos_wrapped.F90
-line 172: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 343: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Eos/EosNuclear/Eos_nucDetectBounce.F90
-line 155: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 210: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 102: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 273: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/physics/Hydro/HydroMain/simpleUnsplit/LLF/hy_llfUnsplit.F90
-line 260: The called subroutine "Grid_getTileVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
-line 268: The called subroutine "Grid_getBlkVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
-line 270: The called subroutine "Grid_getBlkVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
+line 263: The called subroutine "Grid_getTileVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
+line 271: The called subroutine "Grid_getBlkVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
 line 273: The called subroutine "Grid_getBlkVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
-line 508: The called subroutine "Grid_releaseTileVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
-line 520: The called subroutine "Grid_endLoopTiling" is missing from interface file "source/Grid/Grid_interface.F90".
+line 276: The called subroutine "Grid_getBlkVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
+line 511: The called subroutine "Grid_releaseTileVarPtrs" is missing from interface file "source/Grid/Grid_interface.F90".
+line 523: The called subroutine "Grid_endLoopTiling" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/physics/Hydro/HydroMain/unsplit/Hydro.F90
-line 329: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
+line 348: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
 
    source/physics/Hydro/HydroMain/unsplit/Hydro.F90.timersFix
-line 375: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Hydro/HydroMain/unsplit/MHD/hy_addOhmicHeating.F90
-line 93: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 162: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Hydro/HydroMain/unsplit/MHD/hy_addResistiveFluxes.F90
-line 111: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 349: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Hydro/HydroMain/unsplit/MHD/hy_getElectricFields.F90
-line 148: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 149: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 499: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 500: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-
-   source/physics/Hydro/HydroMain/unsplit/MHD/hy_staggeredDivb.F90
-line 111: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 112: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 113: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 114: The called subroutine "Grid_getBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 218: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 219: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 220: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
-line 221: The called subroutine "Grid_releaseBlkPtr" is missing from interface file "source/Grid/Grid_interface.F90".
+line 400: The called subroutine "Grid_getFluxData" is missing from interface file "source/Grid/Grid_interface.F90".
 
 

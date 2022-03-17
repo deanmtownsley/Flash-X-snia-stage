@@ -49,10 +49,10 @@ subroutine gr_ptExchangePartialMap(blkLimits,blkLimitsGC,bufSize,axis,face,&
      sendBuf,recvBuf)
 
   use Grid_data, ONLY : gr_axisMe, gr_axisNumProcs, gr_axisComm, gr_meshMe
+  use Grid_data, ONLY : gr_blkBC
   use Driver_interface, ONLY : Driver_abort
   use gr_ptData, ONLY : gr_ptBuf
   use gr_ptMapData, ONLY : gr_ptSmearLen
-  use Grid_interface, ONLY : Grid_getBlkBC
   use ut_conversionInterface, ONLY : ut_convertToMemoryOffset, ut_convertToArrayIndicies
 
   implicit none  
@@ -148,7 +148,7 @@ subroutine gr_ptExchangePartialMap(blkLimits,blkLimitsGC,bufSize,axis,face,&
   !-----------------------------------------------------------------------
   n=0
 
-  call Grid_getBlkBC(1, faces)
+  faces = gr_blkBC(:,:)
 
   !There is only a valid neighbor under the following circumstances.
   if( (faces(face,axis)==NOT_BOUNDARY) .or. (faces(face,axis)==PERIODIC) ) then

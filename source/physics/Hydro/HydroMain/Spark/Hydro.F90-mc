@@ -25,9 +25,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Hydro_data, ONLY : hy_useHydro, hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
        hy_gcMask, hy_lChyp, hy_C_hyp, hy_globalComm,hy_geometry,hy_del, &
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
-       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_mfrac, hy_eosData,hy_Vc
+       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc
   use Hydro_inhost_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
-  use hy_rk_interface, ONLY : hy_rk_eos, @M hy_rk_ff_name, hy_rk_getGravAccel, hy_rk_updateSoln,hy_rk_correctFluxes
+  use hy_rk_interface, ONLY : @M hy_rk_ff_name, @M hy_grav_name, @M hy_update_name, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -74,9 +74,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   call Timers_start("Hydro")
   
-#ifdef OMP_OL
-  call check_if_on_GPU()
-#endif
+  @M hy_check_device
+
   
   hdt = 0.5*dt
   
@@ -127,7 +126,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !---JaredC--- This could be pulled out of the loop and given its own loop.
      
         call shockDetect(Uin,limits,blkLimitsGC)
-        deallocate(hy_Vc)
+
         ! Setup scratch storage of block data (grav included)
         !---JaredC--- Send data to device and/or allocate arrays
         call Timers_start("Offloaded Section")
@@ -144,20 +143,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         do stage=1,last_stage
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
-           call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+           call  @M hy_grav_name (@M hy_grav_call_args)
            
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
            call setLims(limits_array(stage), blkLimits, limits)
            
            call Timers_start("getFaceFlux")
-#ifdef OMP_OL
-           call @M hy_rk_ff_name(@M hy_rk_ff_args)
-#else
            @M hy_setPencil
            call @M hy_rk_ff_name(@M hy_rk_ff_args)
            @M hy_releasePencil
-#endif
+
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
            if (hy_fluxCorrect) call addFluxes(level,blkLimits,weights(stage),addFlux_array(stage)) 
@@ -170,41 +166,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            coeffs = coeff_array(stage,:)
            
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+           call @M hy_update_name(@M hy_update_call_args)
            call Timers_stop("updateSoln")
            
 #if NSPECIES+NMASS_SCALARS>0
            !Properly normalize species after the update
-#ifdef OMP_OL
-           call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
-#endif /* OMP_OL */
-           nullify(Utemp)
-           Utemp => hy_starState
-           call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
-           nullify(Utemp)
+           @M hy_renormAbundance
 #endif 
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
-           maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
-           !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
-           !Simulation.h using preprocessors alone.  This may want to be changed for future.
-           !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
-           !amount of dynamic allocation but clutter the code.
-           !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
-           !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
            
-           allocate(hy_mfrac(NSPECIES*maxcells))
-           allocate(hy_eosData(EOS_NUM*maxcells))
-           
-           
-#ifdef OMP_OL
-           call hy_rk_eos_offloaded(limits)
-#else
-           call hy_rk_eos(limits)
-#endif
-           deallocate(hy_mfrac)
-           deallocate(hy_eosData)
+           call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            call Timers_stop("eos")
            
            !Finally update the state
@@ -216,11 +189,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
         enddo!stage loop
         @M hy_geomSpall_dealloc
-        call deallocate_scr
         !Store flux buffer in semipermanent flux storage (SPFS) 
         if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
         call Timers_stop("Offloaded Section")
+        call deallocate_scr
+
      @M iter_end
         
      
@@ -238,26 +212,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_tmp_ind
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
+           call allocate_fxscr(blkLimits,blkLimitsGC)
+           
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
            
            @M hy_geomSp_alloc
         
-           maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
-           !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
-           !Simulation.h using preprocessors alone.  This may want to be changed for future.
-           !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
-           !amount of dynamic allocation but clutter the code.
-           !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
-           !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
-           
-           allocate(hy_mfrac(NSPECIES*maxcells))
-           allocate(hy_eosData(EOS_NUM*maxcells))
            
            call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
            @M hy_geomSp_dealloc
-           deallocate(hy_mfrac)
-           deallocate(hy_eosData)
+           call deallocate_fxscr()
            
            call tileDesc%releaseDataPtr(Uin,CENTER)
            call itor%next()
@@ -304,7 +269,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               
-              call hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+              call  @M hy_grav_name (@M hy_grav_call_args)
               
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
@@ -345,41 +310,22 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("updateSoln")
               @M hy_geomSpall_alloc
               
-              call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del,dt,dtOld,limits,coeffs)
+              call @M hy_update_name(@M hy_update_call_args)
 !!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               @M hy_geomSpall_dealloc
               
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
 #if NSPECIES+NMASS_SCALARS>0
-              !Properly normalize species after the update
-#ifdef OMP_OL
-              call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
-#endif /* OMP_OL */
-              nullify(Utemp)
-              Utemp => hy_starState
-              call Grid_renormAbundance(tileDesc,blkLimitsGC,Utemp)
-              nullify(Utemp)
+              @M hy_renormAbundance
 #endif 
               
               call Timers_stop("updateSoln")
               ! Update EOS based on intermediate solution
               
               call Timers_start("eos")
-              maxcells=max((zHiGC-zloGC),(yHiGC-yLoGC),(xHiGC-xLoGC))+1
-              !Note this allocation works around the inability of Flash-X to produce MAXCELLS constant in 
-              !Simulation.h using preprocessors alone.  This may want to be changed for future.
-              !For example the blkLimitsGC could be passed in as arguments.  This would reduce the 
-              !amount of dynamic allocation but clutter the code.
-              !real, dimension(NSPECIES*MAXCELLS) :: hy_mfrac
-              !real, dimension(EOS_NUM*MAXCELLS) :: hy_eosData
               
-              allocate(hy_mfrac(NSPECIES*maxcells))
-              allocate(hy_eosData(EOS_NUM*maxcells))
-              
-              call hy_rk_eos(limits)
-              deallocate(hy_mfrac)
-              deallocate(hy_eosData)
+              call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
               
               call Timers_stop("eos")
               
@@ -390,10 +336,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  call Timers_stop("scratch")
               endif
            end do!stage loop
-           call deallocate_scr()
            !Put flux buffer information into SPFS
            if (level > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
+           call deallocate_scr()
         @M iter_end        
      enddo!loop over levels
   endif !Flux correct per Level
