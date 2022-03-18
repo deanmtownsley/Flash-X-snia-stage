@@ -44,7 +44,7 @@ subroutine sim_heaterLSReInit(tileDesc, stime)
 
    call Timers_start("sim_heaterLSReInit")
 
-#ifdef MULTIPHASE_MAIN
+#ifdef MULTIPHASE_EVAPORATION
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
 

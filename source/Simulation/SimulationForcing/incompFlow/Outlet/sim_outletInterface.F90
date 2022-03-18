@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowInterface
+!!****if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletInterface
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -16,44 +16,44 @@
 !!
 !!
 !! SYNOPSIS
-!!  sim_outflowInterface()
+!!  sim_outletInterface()
 !!
 !! DESCRIPTION
-!!  This is an interface specific for outflow boundary conditions
+!!  This is an interface specific for outlet boundary conditions
 !!
 !!***
 
 #include "constants.h"
 #include "Simulation.h"
 
-Module sim_outflowInterface
+Module sim_outletInterface
 
    implicit none
 
    interface
-      subroutine sim_outflowInit()
-      end subroutine sim_outflowInit
+      subroutine sim_outletInit()
+      end subroutine sim_outletInit
    end interface
 
    interface
-      subroutine sim_outflowFinalize()
-      end subroutine sim_outflowFinalize
+      subroutine sim_outletFinalize()
+      end subroutine sim_outletFinalize
    end interface
 
    interface
-      subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
+      subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(inout) :: velOutAux(LOW:HIGH, MDIM)
          real, intent(in) :: dt
-      end subroutine sim_outflowSetForcing
+      end subroutine sim_outletSetForcing
    end interface
 
-   interface sim_outflowLSDampingBlk
-      subroutine sim_outflowLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
+   interface sim_outletLSDampingBlk
+      subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
                                            dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                           domainBC, outflowSink, outflowBuffer, outflowGrowthRate, &
+                                           domainBC, outletSink, outletBuffer, outletGrowthRate, &
                                            xMin, xMax, yMin, yMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
@@ -62,13 +62,13 @@ Module sim_outflowInterface
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
          integer, dimension(2, MDIM), intent(in) :: domainBC
-         real, intent(in) :: outflowSink, outflowBuffer, outflowGrowthRate
+         real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax
-      end subroutine sim_outflowLSDampingBlk2d
+      end subroutine sim_outletLSDampingBlk2d
 
-      subroutine sim_outflowLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
+      subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
                                            dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                           domainBC, outflowSink, outflowBuffer, outflowGrowthRate, &
+                                           domainBC, outletSink, outletBuffer, outletGrowthRate, &
                                            xMin, xMax, yMin, yMax, zMin, zMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
@@ -77,15 +77,15 @@ Module sim_outflowInterface
          real, intent(in)                        :: dt, dx, dy, dz
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
          integer, dimension(2, MDIM), intent(in) :: domainBC
-         real, intent(in) :: outflowSink, outflowBuffer, outflowGrowthRate
+         real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
-      end subroutine sim_outflowLSDampingBlk3d
+      end subroutine sim_outletLSDampingBlk3d
    end interface
 
-   interface sim_outflowVelBlk
-      subroutine sim_outflowVelBlk2d(u, v, ru, rv, xcell, ycell, &
+   interface sim_outletVelBlk
+      subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
                                      boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                     domainBC, velOutAux, velOut, outflowBuffer, outflowGrowthRate,&
+                                     domainBC, velOutAux, velOut, outletBuffer, outletGrowthRate,&
                                      xMin, xMax, yMin, yMax)
 
          real, dimension(:, :, :), intent(in)    :: u, v
@@ -96,13 +96,13 @@ Module sim_outflowInterface
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
          integer, dimension(2, MDIM), intent(in) :: domainBC
          real, intent(inout) :: velOutAux(2,MDIM)
-         real, intent(in) :: velOut(2,MDIM), outflowBuffer, outflowGrowthRate
+         real, intent(in) :: velOut(2,MDIM), outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax
-      end subroutine sim_outflowVelBlk2d
+      end subroutine sim_outletVelBlk2d
 
-      subroutine sim_outflowVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
+      subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
                                      boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                     domainBC, velOutAux, velOut, outflowBuffer, outflowGrowthRate,&
+                                     domainBC, velOutAux, velOut, outletBuffer, outletGrowthRate,&
                                      xMin, xMax, yMin, yMax, zMin, zMax)
 
          real, dimension(:, :, :), intent(in)    :: u, v, w
@@ -113,9 +113,9 @@ Module sim_outflowInterface
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
          integer, dimension(2, MDIM), intent(in) :: domainBC
          real, intent(inout) :: velOutAux(2,MDIM)
-         real, intent(in) :: velOut(2,MDIM), outflowBuffer, outflowGrowthRate
+         real, intent(in) :: velOut(2,MDIM), outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
-      end subroutine sim_outflowVelBlk3d
+      end subroutine sim_outletVelBlk3d
    end interface
 
-End module sim_outflowInterface
+End module sim_outletInterface

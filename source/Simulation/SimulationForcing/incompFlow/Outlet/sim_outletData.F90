@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowData
+!!****if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletData
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -14,28 +14,28 @@
 !!
 !! NAME
 !!
-!!  sim_outflowData
+!!  sim_outletData
 !!
 !! SYNOPSIS
 !!
-!!  use sim_outflowData
+!!  use sim_outletData
 !!
 !!***
 
 #include "constants.h"
 #include "Simulation.h"
 
-module sim_outflowData
+module sim_outletData
 
    implicit none
 
-   real, save :: sim_outflowVel(LOW:HIGH, MDIM)
+   real, save :: sim_outletVel(LOW:HIGH, MDIM)
 
-   real, save :: sim_outflowSink
+   real, save :: sim_outletSink
 
-   real, save :: sim_outflowBuffer
-   real, save :: sim_outflowGrowthRate
+   real, save :: sim_outletBuffer
+   real, save :: sim_outletGrowthRate
 
    integer, save :: sim_domainBC(LOW:HIGH, MDIM)
 
-end module sim_outflowData
+end module sim_outletData

@@ -32,11 +32,11 @@
 subroutine Simulation_finalize()
 
   use sim_heaterInterface,  ONLY : sim_heaterFinalize
-  use sim_outflowInterface, ONLY : sim_outflowFinalize
+  use sim_outletInterface, ONLY : sim_outletFinalize
 
   implicit none
 
   call sim_heaterFinalize()
-  call sim_outflowFinalize()
+  call sim_outletFinalize()
 
 end subroutine Simulation_finalize

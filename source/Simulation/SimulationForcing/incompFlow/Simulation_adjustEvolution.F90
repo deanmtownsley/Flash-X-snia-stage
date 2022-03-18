@@ -47,9 +47,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
                                   sim_heaterTagSites
 #endif
 
-#ifdef SIMULATION_FORCE_OUTFLOW
-   use sim_outflowInterface, ONLY: sim_outflowSetForcing
-   use sim_outflowData, ONLY: sim_outflowVel
+#ifdef SIMULATION_FORCE_OUTLET
+   use sim_outletInterface, ONLY: sim_outletSetForcing
+   use sim_outletData, ONLY: sim_outletVel
 #endif
 
    implicit none
@@ -96,16 +96,16 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    call Grid_releaseTileIterator(itor)
 #endif
 
-#ifdef SIMULATION_FORCE_OUTFLOW
+#ifdef SIMULATION_FORCE_OUTLET
    velOutAux = 0.
 
-   ! Set Outflow Forcing
+   ! Set Outlet Forcing
    !-------------------------------------------------------------
    call Grid_getTileIterator(itor, nodetype=LEAF)
    do while (itor%isValid())
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_outflowSetForcing(tileDesc, velOutAux, dt)
+      call sim_outletSetForcing(tileDesc, velOutAux, dt)
       !---------------------------------------------------------
       call itor%next()
    end do
@@ -113,18 +113,18 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
    ! Consolidate data
    !-------------------------------------------------------------
-   sim_outflowVel = 0.
+   sim_outletVel = 0.
 
-   call MPI_Allreduce(velOutAux, sim_outflowVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(velOutAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_MAX, MPI_COMM_WORLD, ierr)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outflow Velocity Low  =', sim_outflowVel(LOW, :)
-      write (*, *) 'Outflow Velocity High =', sim_outflowVel(HIGH, :)
+      write (*, *) 'Outlet Velocity Low  =', sim_outletVel(LOW, :)
+      write (*, *) 'Outlet Velocity High =', sim_outletVel(HIGH, :)
    end if
 
-   call IncompNS_setVectorProp("Outflow_Vel_Low", sim_outflowVel(LOW, :))
-   call IncompNS_setVectorProp("Outflow_Vel_High", sim_outflowVel(HIGH, :))
+   call IncompNS_setVectorProp("Outflow_Vel_Low", sim_outletVel(LOW, :))
+   call IncompNS_setVectorProp("Outflow_Vel_High", sim_outletVel(HIGH, :))
 #endif
 
 end subroutine Simulation_adjustEvolution

@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowFinalize
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletFinalize
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -14,6 +14,6 @@
 !!
 !!
 !!***
-subroutine sim_outflowFinalize()
+subroutine sim_outletFinalize()
    implicit none
-end subroutine sim_outflowFinalize
+end subroutine sim_outletFinalize

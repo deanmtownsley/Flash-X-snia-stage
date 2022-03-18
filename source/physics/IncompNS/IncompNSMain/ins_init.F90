@@ -43,7 +43,7 @@ subroutine ins_init()
          case (PERIODIC)
             ins_pressureBC_types(eachBoundary) = GRID_PDE_BND_NEUMANN
 
-         case (SLIP_INS,NOSLIP_INS,INFLOW_INS,MOVLID_INS)
+         case (SLIP_INS,NOSLIP_INS,INFLOW_INS,MOVLID_INS,MIXED_INS)
             ins_pressureBC_types(eachBoundary) = GRID_PDE_BND_NEUMANN
 
          case (NEUMANN_INS, OUTFLOW_INS, EXTRAP_INS)

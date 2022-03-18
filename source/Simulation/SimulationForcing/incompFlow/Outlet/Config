@@ -1,0 +1,15 @@
+#   Config file for SimulationForcing/incompFlow/Outlet
+#
+REQUIRES physics/IncompNS/IncompNSMain
+
+PPDEFINE SIMULATION_FORCE_OUTLET
+
+# Outlet sink strength
+PARAMETER sim_outletSink       REAL  1.0
+
+# Outlet region Buffer
+PARAMETER sim_outletBuffer     REAL  1.0
+
+# Outfow growth rate, k in logistic function
+# f = 1/(1 + exp(-k*(x-xo)))
+PARAMETER sim_outletGrowthRate   REAL  4.0

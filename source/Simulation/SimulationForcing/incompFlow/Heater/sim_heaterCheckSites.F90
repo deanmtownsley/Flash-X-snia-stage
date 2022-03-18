@@ -43,7 +43,7 @@ subroutine sim_heaterCheckSites(tileDesc)
 
    call Timers_start("sim_heaterCheckSites")
 
-#ifdef MULTIPHASE_MAIN
+#ifdef MULTIPHASE_EVAPORATION
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
    call tileDesc%deltas(del)

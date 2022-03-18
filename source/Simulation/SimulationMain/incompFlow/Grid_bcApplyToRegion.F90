@@ -200,10 +200,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    real, dimension(LOW:HIGH, MDIM) :: outflowVel
    real :: invReynolds
 
-   ! Following implementations are written by Akash
-
    select case (bcType)
-   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS, EXTRAP_INS) ! Incompressible solver BCs
+   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS, EXTRAP_INS, MIXED_INS) ! Incompressible solver BCs
       applied = .TRUE.           !will handle these types of BCs below
    case default
       applied = .FALSE.
@@ -630,7 +628,10 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                end if
                !--------------------------------------------------------------------------------------------------
             case (OUTFLOW_INS) ! face == LOW
-               call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
+               call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow") 
+               !--------------------------------------------------------------------------------------------------
+            case (MIXED_INS) ! face == LOW
+               call Driver_abort("Mixed Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
                !--------------------------------------------------------------------------------------------------
             case default ! face == LOW
                call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
@@ -1031,7 +1032,10 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                end if
                !--------------------------------------------------------------------------------------------------
             case (OUTFLOW_INS) ! face == HIGH
-               call Driver_abort("Boundary Condition Not Implemented for Upper Boundary in Incompressible Flow")
+               call Driver_abort("Outflow Boundary Condition Not Implemented for Upper Boundary in Incompressible Flow")
+               !--------------------------------------------------------------------------------------------------
+            case (MIXED_INS) ! face == HIGH
+               call Driver_abort("Mixed Boundary Condition Not Implemented for Upper Boundary in Incompressible Flow")
                !--------------------------------------------------------------------------------------------------
             case default ! face == HIGH
                call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")

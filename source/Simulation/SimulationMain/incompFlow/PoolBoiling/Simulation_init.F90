@@ -40,7 +40,7 @@ subroutine Simulation_init()
   use Driver_interface,            ONLY : Driver_getMype,Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use sim_heaterInterface,         ONLY : sim_heaterInit
-  use sim_outflowInterface,        ONLY : sim_outflowInit
+  use sim_outletInterface,        ONLY : sim_outletInit
 
   implicit none
 
@@ -64,6 +64,6 @@ subroutine Simulation_init()
 
   call sim_heaterInit()
 
-  call sim_outflowInit()
+  call sim_outletInit()
 
 end subroutine Simulation_init

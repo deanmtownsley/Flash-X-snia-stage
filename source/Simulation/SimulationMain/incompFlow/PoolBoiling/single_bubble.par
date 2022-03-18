@@ -34,9 +34,9 @@ sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  1   # Number of heaters
 sim_heaterName    = "single_bubble"
 
-# Outflow parameters
-sim_outflowSink   =  1.0 # Outflow sink strength
-sim_outflowBuffer =  2.0 # Outflow buffer
+# Outlet parameters
+sim_outletSink   =  1.0 # Outlet sink strength
+sim_outletBuffer =  2.0 # Outlet buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

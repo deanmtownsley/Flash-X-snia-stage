@@ -31,6 +31,7 @@ subroutine sim_heaterTagSites(stime)
 
    call Timers_start("sim_heaterTagSites")
 
+#ifdef MULTIPHASE_EVAPORATION
    do htr = 1, sim_numHeaters
 
       heater => sim_heaterInfo(htr)
@@ -56,6 +57,7 @@ subroutine sim_heaterTagSites(stime)
       heater%siteIsAttachedCurr = .false.
 
    end do
+#endif
 
    call Timers_stop("sim_heaterTagSites")
 

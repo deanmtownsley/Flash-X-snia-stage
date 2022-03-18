@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Outflow/sim_outflowSetForcing
+!!****f* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletSetForcing
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,10 +18,10 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
+subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
 
-   use sim_outflowData, ONLY: sim_outflowVel, sim_outflowSink, sim_domainBC, &
-                              sim_outflowBuffer, sim_outflowGrowthRate
+   use sim_outletData, ONLY: sim_outletVel, sim_outletSink, sim_domainBC, &
+                              sim_outletBuffer, sim_outletGrowthRate
 
    use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
 #if NDIM == MDIM
@@ -31,8 +31,8 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
    use Grid_interface, ONLY: Grid_getDomainBC, Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
-   use sim_outflowInterface, ONLY: sim_outflowLSDampingBlk2d, sim_outflowLSDampingBlk3d, &
-                                   sim_outflowVelBlk2d, sim_outflowVelBlk3d
+   use sim_outletInterface, ONLY: sim_outletLSDampingBlk2d, sim_outletLSDampingBlk3d, &
+                                   sim_outletVelBlk2d, sim_outletVelBlk3d
 
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -57,7 +57,7 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
 !----------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
-   call Timers_start("sim_outflowSetForcing")
+   call Timers_start("sim_outletSetForcing")
 
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
@@ -81,18 +81,18 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
    if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
 #ifdef MULTIPHASE_MAIN
-   call sim_outflowLSDampingBlk2d(solnData(DFRC_VAR, :, :, :), &
+   call sim_outletLSDampingBlk2d(solnData(DFRC_VAR, :, :, :), &
                                   solnData(DFUN_VAR, :, :, :), &
                                   xCenter, yCenter, boundBox, &
                                   dt, del(IAXIS), del(JAXIS), &
                                   GRID_ILO, GRID_IHI, &
                                   GRID_JLO, GRID_JHI, &
-                                  sim_domainBC, sim_outflowSink, sim_outflowBuffer, &
-                                  sim_outflowGrowthRate, &
+                                  sim_domainBC, sim_outletSink, sim_outletBuffer, &
+                                  sim_outletGrowthRate, &
                                   sim_xMin, sim_xMax, sim_yMin, sim_yMax)
 #endif
 
-   call sim_outflowVelBlk2d(facexData(VELC_FACE_VAR, :, :, :), &
+   call sim_outletVelBlk2d(facexData(VELC_FACE_VAR, :, :, :), &
                             faceyData(VELC_FACE_VAR, :, :, :), &
                             facexData(VFRC_FACE_VAR, :, :, :), &
                             faceyData(VFRC_FACE_VAR, :, :, :), &
@@ -100,27 +100,27 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
                             dt, del(IAXIS), del(JAXIS), &
                             GRID_ILO, GRID_IHI, &
                             GRID_JLO, GRID_JHI, &
-                            sim_domainBC, velOutAux, sim_outflowVel, &
-                            sim_outflowBuffer, sim_outflowGrowthRate, &
+                            sim_domainBC, velOutAux, sim_outletVel, &
+                            sim_outletBuffer, sim_outletGrowthRate, &
                             sim_xMin, sim_xMax, sim_yMin, sim_yMax)
 
 #if NDIM == MDIM
    call tileDesc%getDataPtr(facezData, FACEZ)
 
 #ifdef MULTIPHASE_MAIN
-   call sim_outflowLSDampingBlk3d(solnData(DFRC_VAR, :, :, :), &
+   call sim_outletLSDampingBlk3d(solnData(DFRC_VAR, :, :, :), &
                                   solnData(DFUN_VAR, :, :, :), &
                                   xCenter, yCenter, zCenter, boundBox, &
                                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
                                   GRID_ILO, GRID_IHI, &
                                   GRID_JLO, GRID_JHI, &
                                   GRID_KLO, GRID_KHI, &
-                                  sim_domainBC, sim_outflowSink, sim_outflowBuffer, &
-                                  sim_outflowGrowthRate, &
+                                  sim_domainBC, sim_outletSink, sim_outletBuffer, &
+                                  sim_outletGrowthRate, &
                                   sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
 #endif
 
-   call sim_outflowVelBlk3d(facexData(VELC_FACE_VAR, :, :, :), &
+   call sim_outletVelBlk3d(facexData(VELC_FACE_VAR, :, :, :), &
                             faceyData(VELC_FACE_VAR, :, :, :), &
                             facezData(VELC_FACE_VAR, :, :, :), &
                             facexData(VFRC_FACE_VAR, :, :, :), &
@@ -131,8 +131,8 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
                             GRID_ILO, GRID_IHI, &
                             GRID_JLO, GRID_JHI, &
                             GRID_KLO, GRID_KHI, &
-                            sim_domainBC, velOutAux, sim_outflowVel, &
-                            sim_outflowBuffer, sim_outflowGrowthRate, &
+                            sim_domainBC, velOutAux, sim_outletVel, &
+                            sim_outletBuffer, sim_outletGrowthRate, &
                             sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
 
    call tileDesc%releaseDataPtr(facezData, FACEZ)
@@ -143,8 +143,8 @@ subroutine sim_outflowSetForcing(tileDesc, velOutAux, dt)
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
 
-   call Timers_stop("sim_outflowSetForcing")
+   call Timers_stop("sim_outletSetForcing")
 
    return
 
-end subroutine sim_outflowSetForcing
+end subroutine sim_outletSetForcing
