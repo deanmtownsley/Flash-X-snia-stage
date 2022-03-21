@@ -37,7 +37,6 @@ pnetcdf:IO=pnetcdf:
 hdf5TypeIO:+io:+parallelIO:+hdf5:typeIO=True
 hdf5AsyncIO:+parallelIO:+asynchdf5
 pnetTypeIO:+io:+parallelIO:+pnetcdf:typeIO=True
-gridIO:IO=hdf5:WriteGrid=True
 
 # other optional but useful stuff
 nolog:-without-unit=monitors/Logfile:

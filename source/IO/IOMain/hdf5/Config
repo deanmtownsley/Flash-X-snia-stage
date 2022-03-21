@@ -2,9 +2,9 @@ LIBRARY HDF5
 
 DEFAULT serial
 
-USESETUPVARS parallelIO, IO, WriteGrid
+USESETUPVARS parallelIO, IO, IOWriteGridFiles
 
-IF WriteGrid
+IF IOWriteGridFiles
   REQUIRES IO/IOMain/hdf5/writeGrid
 ENDIF
 

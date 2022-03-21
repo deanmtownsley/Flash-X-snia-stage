@@ -37,7 +37,7 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
    integer :: i, j, k
    real    :: xi, yi
    real    :: uplus, umins, vplus, vmins
-   real    :: xforce, yforce
+   real    :: uforce, vforce
 
    k = 1
 
@@ -46,12 +46,11 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         xforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
-         yforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
+         uforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
 
          ru(i, j, k) = ru(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
          velOutAux(HIGH, IAXIS) = velOutAux(HIGH, IAXIS) + &
                                   outletFlag(HIGH, IAXIS)*u(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))
@@ -64,12 +63,11 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         xforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
-         yforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
+         vforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
 
          rv(i, j, k) = rv(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
          velOutAux(HIGH, JAXIS) = velOutAux(HIGH, JAXIS) + &
                                   outletFlag(HIGH, JAXIS)*v(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))
@@ -99,6 +97,7 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
    integer :: i, j, k
    real    :: xi, yi, zi
    real    :: uplus, umins, vplus, vmins, wplus, wmins
+   real    :: uforce, vforce, wforce
 
    do k = kz1, kz2
       do j = jy1, jy2
@@ -106,6 +105,16 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)
+
+            uforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
+
+            ru(i, j, k) = ru(i, j, k) &
+                          + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+
+            velOutAux(HIGH, IAXIS) = velOutAux(HIGH, IAXIS) + &
+                                     outletFlag(HIGH, IAXIS)*u(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
 
          end do
       end do
@@ -118,6 +127,16 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             yi = ycell(j)
             zi = zcell(k)
 
+            vforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
+
+            rv(i, j, k) = rv(i, j, k) &
+                          + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+
+            velOutAux(HIGH, JAXIS) = velOutAux(HIGH, JAXIS) + &
+                                     outletFlag(HIGH, JAXIS)*v(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+
          end do
       end do
    end do
@@ -128,6 +147,16 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             xi = xcell(i)
             yi = ycell(j)
             zi = zcell(k)
+
+            wforce = (velOut(HIGH, KAXIS) - w(i, j, k))/dt
+
+            rw(i, j, k) = rw(i, j, k) &
+                          + outletFlag(HIGH, IAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+
+            velOutAux(HIGH, KAXIS) = velOutAux(HIGH, KAXIS) + &
+                                     outletFlag(HIGH, KAXIS)*w(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
 
          end do
       end do
