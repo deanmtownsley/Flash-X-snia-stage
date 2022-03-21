@@ -75,9 +75,6 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all 
 CFLAGS_TEST = -c
 
-# Platform symbol
-CDEFINES += -DDarwin
-
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
@@ -121,7 +118,7 @@ LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
-  LIB_MA28 = -L$(MA28_PATH)/lib -lma28
+LIB_MA28 = -L$(MA28_PATH)/lib -lma28
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
