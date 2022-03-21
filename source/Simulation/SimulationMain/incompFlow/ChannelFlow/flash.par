@@ -50,7 +50,6 @@ checkpointFileIntervalStep = 5
 
 plotFileIntervalTime = 1.
 plotFileIntervalStep = 5
-io_writeGridInfo  = .true.
 
 # AMR parameters
 nblockx	= 20

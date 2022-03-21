@@ -86,7 +86,6 @@ checkpointFileIntervalStep = 5000
 plotFileNumber = 0
 plotFileIntervalTime = 0.1
 plotFileIntervalStep = 1000
-io_writeGridInfo = .TRUE.
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
