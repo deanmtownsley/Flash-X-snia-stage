@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletInit
+!!***if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletInit
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,9 +18,9 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletInit()
+subroutine sim_inletInit()
 
-   use sim_outletData
+   use sim_inletData
    use Grid_interface, ONLY: Grid_getDomainBC
    use Simulation_data, ONLY: sim_meshMe
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
@@ -29,19 +29,8 @@ subroutine sim_outletInit()
    implicit none
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
 
-   call RuntimeParameters_get('sim_outletSink', sim_outletSink)
-   call RuntimeParameters_get('sim_outletBuffer', sim_outletBuffer)
-   call RuntimeParameters_get('sim_outletGrowthRate', sim_outletGrowthRate)
-
-   if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_outletSink=', sim_outletSink
-      write (*, *) 'sim_outletBuffer=', sim_outletBuffer
-      write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate
-   end if
-
-   sim_outletVel = 0.
-   sim_outletFlag = 0
-
+   sim_inletFlag = 0
+ 
    call Grid_getDomainBC(domainBC)
 
    do idimn = 1, NDIM
@@ -50,22 +39,21 @@ subroutine sim_outletInit()
          select case (domainBC(ibound, idimn))
 
          case (SLIP_INS, NOSLIP_INS, MOVLID_INS)
-            sim_outletFlag(ibound, idimn) = 0
+            sim_inletFlag(ibound, idimn) = 0
 
          case (INFLOW_INS, EXTRAP_INS)
-            sim_outletFlag(ibound, idimn) = 0
+            sim_inletFlag(ibound, idimn) = 1
 
          case (NEUMANN_INS)
-            sim_outletFlag(ibound, idimn) = 1
-            sim_outletVel(ibound, idimn) = 1
+            sim_inletFlag(ibound, idimn) = 0
 
          end select
       end do
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Flag Low  =', sim_outletFlag(LOW, :)
-      write (*, *) 'Outlet Flag High =', sim_outletFlag(HIGH, :)
+      write (*, *) 'Inlet Flag Low  =', sim_inletFlag(LOW, :)
+      write (*, *) 'Inlet Flag High =', sim_inletFlag(HIGH, :)
    end if
 
-end subroutine sim_outletInit
+end subroutine sim_inletInit

@@ -129,11 +129,6 @@ constKey = DIRICHLET
      constKey = EXTRAP_INS
 #endif
 
-  case("MIXED_INS","Mixed_ins","mixed_ins")
-#ifdef MIXED_INS
-     constKey = MIXED_INS
-#endif
-
   case("NOSLIP_INS","Noslip_ins","noslip_ins")
 #ifdef NOSLIP_INS
      constKey = NOSLIP_INS

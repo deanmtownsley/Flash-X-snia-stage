@@ -21,7 +21,7 @@
 
 subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                    domainBC, outletSink, outletBuffer, outletGrowthRate, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                     xMin, xMax, yMin, yMax)
 
    implicit none
@@ -32,7 +32,7 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: domainBC
+   integer, dimension(2, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax
 
@@ -46,21 +46,9 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
          xi = xcell(i)
          yi = ycell(j)
 
-         if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
-             domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
-             domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-
-            pfrc(i, j, k) = pfrc(i, j, k) - outletSink* &
-                            (2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
-
-         else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
-                  domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
-                  domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-
-            pfrc(i, j, k) = pfrc(i, j, k) - outletSink* &
-                            (2/(1 + exp(-outletGrowthRate*(xi - yMax)/outletBuffer)))
-
-         end if
+         pfrc(i, j, k) = pfrc(i, j, k) &
+                         + outletSink*outletFlag(HIGH, IAXIS)*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                         + outletSink*outletFlag(HIGH, JAXIS)*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
       end do
    end do
@@ -69,7 +57,7 @@ end subroutine sim_outletLSDampingBlk2d
 
 subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                    domainBC, outletSink, outletBuffer, outletGrowthRate, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                     xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
@@ -80,7 +68,7 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: domainBC
+   integer, dimension(2, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 
@@ -94,25 +82,10 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
             yi = ycell(j)
             zi = zcell(k)
 
-            if (domainBC(HIGH, JAXIS) == NEUMANN_INS .or. &
-                domainBC(HIGH, JAXIS) == OUTFLOW_INS .or. &
-                domainBC(HIGH, JAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outletSink* &
-                               (2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
-
-            else if (domainBC(HIGH, IAXIS) == NEUMANN_INS .or. &
-                     domainBC(HIGH, IAXIS) == OUTFLOW_INS .or. &
-                     domainBC(HIGH, IAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outletSink* &
-                               (2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer)))
-
-            else if (domainBC(HIGH, KAXIS) == NEUMANN_INS .or. &
-                     domainBC(HIGH, KAXIS) == OUTFLOW_INS .or. &
-                     domainBC(HIGH, KAXIS) == EXTRAP_INS) then
-               pfrc(i, j, k) = pfrc(i, j, k) - outletSink* &
-                               (2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
-
-            end if
+            pfrc(i, j, k) = pfrc(i, j, k) &
+                            + outletSink*outletFlag(HIGH, IAXIS)*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                            + outletSink*outletFlag(HIGH, JAXIS)*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                            + outletSink*outletFlag(HIGH, KAXIS)*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
          end do
       end do

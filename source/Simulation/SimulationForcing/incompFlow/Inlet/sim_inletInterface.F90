@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletData
+!!****if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletInterface
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -14,26 +14,30 @@
 !!
 !! NAME
 !!
-!!  sim_outletData
 !!
 !! SYNOPSIS
+!!  sim_inletInterface()
 !!
-!!  use sim_outletData
+!! DESCRIPTION
+!!  This is an interface specific for inlet boundary conditions
 !!
 !!***
 
 #include "constants.h"
 #include "Simulation.h"
 
-module sim_outletData
+Module sim_inletInterface
 
    implicit none
 
-   real, save :: sim_outletSink
-   real, save :: sim_outletBuffer
-   real, save :: sim_outletGrowthRate
+   interface
+      subroutine sim_inletInit()
+      end subroutine sim_inletInit
+   end interface
 
-   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
-   real, save    :: sim_outletVel(LOW:HIGH, MDIM)
+   interface
+      subroutine sim_inletFinalize()
+      end subroutine sim_inletFinalize
+   end interface
 
-end module sim_outletData
+End module sim_inletInterface

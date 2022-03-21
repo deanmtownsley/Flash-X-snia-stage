@@ -29,10 +29,6 @@ mph_invWeber = 1.0
 # Prandtl number
 ht_Prandtl = 8.0
 
-# Outlet parameters
-sim_outletSink   =  1.0  # Outlet sink strength
-sim_outletBuffer =  2.0  # Outlet buffer
-
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  1   # Number of heaters
@@ -64,7 +60,7 @@ log_file	= "INS_Flow_Boiling.log"
 basenm		= "INS_Flow_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 20.
+tmax            = 5.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05

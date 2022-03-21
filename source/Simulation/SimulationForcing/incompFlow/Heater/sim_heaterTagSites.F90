@@ -15,6 +15,7 @@
 !!
 !!***
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine sim_heaterTagSites(stime)
 

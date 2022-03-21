@@ -5,7 +5,7 @@ gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
 # Inverse of Reynolds Number
-ins_invReynolds      = .01
+ins_invReynolds      = .002
 
 # Subgrid Scale model flag (0 no sgs model, 1 sgs model)
 ins_isgs            = 0
@@ -35,22 +35,22 @@ tmax            = 100.
 ins_cflFlg      = 1
 ins_cfl         = 0.3
 ins_sigma	= 0.2
-ins_dtSpec      = 1.0
-dtinit          = 1.0
+ins_dtSpec      = 1.0d-2
+dtinit          = 1.0d-2
 tstep_change_factor = 1.1
-ins_pressureCorrect= .true.
+ins_pressureCorrect= .false.
 
 plot_var_1	= "pres"
 plot_var_2      = "velx"
 plot_var_3      = "vely"
-plot_var_4      = "omgm"
+plot_var_4      = "dust"
   
 checkpointFileIntervalTime = 1.
 checkpointFileIntervalStep = 5
 
 plotFileIntervalTime = 1.
 plotFileIntervalStep = 5
-io_plotFileAmrexFormat  = .true.
+io_writeGridInfo  = .true.
 
 # AMR parameters
 nblockx	= 20

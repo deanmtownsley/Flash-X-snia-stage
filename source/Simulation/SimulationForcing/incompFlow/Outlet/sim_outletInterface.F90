@@ -52,31 +52,31 @@ Module sim_outletInterface
 
    interface sim_outletLSDampingBlk
       subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
-                                           dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                           domainBC, outletSink, outletBuffer, outletGrowthRate, &
-                                           xMin, xMax, yMin, yMax)
+                                          dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                          outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                          xMin, xMax, yMin, yMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
          real, dimension(:), intent(in)          :: xcell, ycell
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: domainBC
+         integer, dimension(2, MDIM), intent(in) :: outletFlag
          real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax
       end subroutine sim_outletLSDampingBlk2d
 
       subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
-                                           dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                           domainBC, outletSink, outletBuffer, outletGrowthRate, &
-                                           xMin, xMax, yMin, yMax, zMin, zMax)
+                                          dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                          outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                          xMin, xMax, yMin, yMax, zMin, zMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
          real, dimension(:), intent(in)          :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy, dz
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: domainBC
+         integer, dimension(2, MDIM), intent(in) :: outletFlag
          real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
       end subroutine sim_outletLSDampingBlk3d
@@ -84,9 +84,9 @@ Module sim_outletInterface
 
    interface sim_outletVelBlk
       subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
-                                     boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                     domainBC, velOutAux, velOut, outletBuffer, outletGrowthRate,&
-                                     xMin, xMax, yMin, yMax)
+                                    boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
+                                    outletFlag, velOutAux, velOut, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, gravX, gravY)
 
          real, dimension(:, :, :), intent(in)    :: u, v
          real, dimension(:, :, :), intent(inout) :: ru, rv
@@ -94,16 +94,16 @@ Module sim_outletInterface
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: domainBC
-         real, intent(inout) :: velOutAux(2,MDIM)
-         real, intent(in) :: velOut(2,MDIM), outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax
+         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         real, intent(inout) :: velOutAux(2, MDIM)
+         real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
+         real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
       end subroutine sim_outletVelBlk2d
 
       subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
-                                     boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                     domainBC, velOutAux, velOut, outletBuffer, outletGrowthRate,&
-                                     xMin, xMax, yMin, yMax, zMin, zMax)
+                                    boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
+                                    outletFlag, velOutAux, velOut, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
          real, dimension(:, :, :), intent(in)    :: u, v, w
          real, dimension(:, :, :), intent(inout) :: ru, rv, rw
@@ -111,10 +111,10 @@ Module sim_outletInterface
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy, dz
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: domainBC
-         real, intent(inout) :: velOutAux(2,MDIM)
-         real, intent(in) :: velOut(2,MDIM), outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
+         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         real, intent(inout) :: velOutAux(2, MDIM)
+         real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
+         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
       end subroutine sim_outletVelBlk3d
    end interface
 

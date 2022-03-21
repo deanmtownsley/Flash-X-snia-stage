@@ -201,7 +201,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    real :: invReynolds
 
    select case (bcType)
-   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, OUTFLOW_INS, EXTRAP_INS, MIXED_INS) ! Incompressible solver BCs
+   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
       applied = .TRUE.           !will handle these types of BCs below
    case default
       applied = .FALSE.
@@ -309,43 +309,6 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
                !--------------------------------------------------------------------------------------------------
-            case (EXTRAP_INS) ! face == LOW
-
-               if (gridDataStruct == CENTER) then
-
-                  if (ivar == PRES_VAR) then
-                     k = 2*guard + 1
-                     do i = 1, guard
-                        regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
-                     end do
-                  else
-                     k = 2*guard + 1
-                     do i = guard, 1, -1
-                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
-                                                          regionData(i + 2, 1:je, 1:ke, ivar)
-                     end do
-                  end if
-
-               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
-                  if (isFace) then
-                     k = 2*guard + 2
-                     do i = guard, 1, -1
-                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
-                                                          regionData(i + 2, 1:je, 1:ke, ivar)
-                     end do
-
-                  else
-                     k = 2*guard + 1
-                     do i = guard, 1, -1
-                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
-                                                          regionData(i + 2, 1:je, 1:ke, ivar)
-
-                     end do
-                  end if
-
-               end if
-               !--------------------------------------------------------------------------------------------------
-
             case (NOSLIP_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
 
@@ -627,12 +590,85 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
                !--------------------------------------------------------------------------------------------------
-            case (OUTFLOW_INS) ! face == LOW
-               call Driver_abort("Outflow Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow") 
-               !--------------------------------------------------------------------------------------------------
-            case (MIXED_INS) ! face == LOW
-               call Driver_abort("Mixed Boundary Condition Not Implemented for Lower Boundary in Incompressible Flow")
-               !--------------------------------------------------------------------------------------------------
+            case (EXTRAP_INS) ! face == LOW
+               if (gridDataStruct == CENTER) then
+
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                     end do
+#ifdef MFLX_VAR
+                  else if (ivar == MFLX_VAR) then
+                     k = 2*guard + 1
+                     do i = 1, guard
+                        regionData(i, 1:je, 1:ke, ivar) = 0.
+                     end do
+#endif
+                  else
+                     k = 2*guard + 1
+                     do i = guard, 1, -1
+                        regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                          regionData(i + 2, 1:je, 1:ke, ivar)
+                     end do
+                  end if
+
+               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
+
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
+                        if (predcorrflg) regionData(guard + 1, 1:je, 1:ke, ivar) = 2*regionData(guard + 2, 1:je, 1:ke, ivar) - &
+                                                                                   regionData(guard + 3, 1:je, 1:ke, ivar)
+                        k = 2*guard + 2
+                        do i = guard, 1, -1
+                           regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                             regionData(i + 2, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = guard, 1, -1
+                           regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                             regionData(i + 2, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+#ifdef SIGM_FACE_VAR
+                  else if (ivar == SIGM_FACE_VAR) then
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                        k = 2*guard + 2
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = 1, guard
+                           regionData(i, 1:je, 1:ke, ivar) = 0.
+                        end do
+                     end if
+#endif
+                  else
+                     if (isFace) then
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 2*regionData(guard + 2, 1:je, 1:ke, ivar) - &
+                                                                  regionData(guard + 3, 1:je, 1:ke, ivar)
+                        k = 2*guard + 2
+                        do i = guard, 1, -1
+                           regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                             regionData(i + 2, 1:je, 1:ke, ivar)
+                        end do
+
+                     else
+                        k = 2*guard + 1
+                        do i = guard, 1, -1
+                           regionData(i, 1:je, 1:ke, ivar) = 2*regionData(i + 1, 1:je, 1:ke, ivar) - &
+                                                             regionData(i + 2, 1:je, 1:ke, ivar)
+                        end do
+                     end if
+                  end if
+
+               end if
+
             case default ! face == LOW
                call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
             end select
@@ -709,42 +745,6 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 
-                  end if
-
-               end if
-               !--------------------------------------------------------------------------------------------------
-            case (EXTRAP_INS) ! face == LOW
-
-               if (gridDataStruct == CENTER) then
-
-                  if (ivar == PRES_VAR) then
-                     k = 2*guard + 1
-                     do i = 1, guard
-                        regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
-                     end do
-                  else
-                     k = 2*guard + 1
-                     do i = guard, 1, -1
-                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
-                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
-                     end do
-                  end if
-
-               else ! if gridDataStruct == FACEX, FACEY, or FACEZ
-                  if (isFace) then
-                     k = 2*guard + 2
-                     do i = guard, 1, -1
-                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
-                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
-                     end do
-
-                  else
-                     k = 2*guard + 1
-                     do i = guard, 1, -1
-                        regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &
-                                                              regionData(k - i - 2, 1:je, 1:ke, ivar)
-
-                     end do
                   end if
 
                end if
@@ -1030,13 +1030,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                   end if
 
                end if
-               !--------------------------------------------------------------------------------------------------
-            case (OUTFLOW_INS) ! face == HIGH
-               call Driver_abort("Outflow Boundary Condition Not Implemented for Upper Boundary in Incompressible Flow")
-               !--------------------------------------------------------------------------------------------------
-            case (MIXED_INS) ! face == HIGH
-               call Driver_abort("Mixed Boundary Condition Not Implemented for Upper Boundary in Incompressible Flow")
-               !--------------------------------------------------------------------------------------------------
+            case (EXTRAP_INS) ! face == HIGH
+               call Driver_abort("HIGH Extrapolation Boundary Condition Not Implemented for Incompressible Flow")
             case default ! face == HIGH
                call Driver_abort("Boundary Condition Not Implemented for Incompressible Flow")
             end select

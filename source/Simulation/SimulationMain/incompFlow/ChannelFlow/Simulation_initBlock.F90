@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/FlowBoiling/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/incompFlow/ChannelFlow/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -47,9 +47,7 @@
 subroutine Simulation_initBlock(solnData, tileDesc)
 
    use Simulation_data
-   use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterInterface, ONLY: sim_heaterInitBlk
 
    implicit none
 
@@ -59,45 +57,15 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    integer :: tileDescID
 
    !-------------------------------------------------------------------------------------
-   integer, dimension(MDIM)       :: lo, hi
-   real, allocatable, dimension(:) :: xCenter, yCenter, zCenter
-   integer :: i, j, k
-   real    :: xi, yi, zi
-   real    :: del(MDIM)
-   logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
 
-   !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
-   lo = tileDesc%blkLimitsGC(LOW, :)
-   hi = tileDesc%blkLimitsGC(HIGH, :)
+   call tileDesc%getDataPtr(facexData, FACEX)
 
-   allocate (xCenter(lo(IAXIS):hi(IAXIS)))
-   allocate (yCenter(lo(JAXIS):hi(JAXIS)))
-   allocate (zCenter(lo(KAXIS):hi(KAXIS)))
+   facexData(VELC_FACE_VAR, :, :, :) = 1.0
 
-   xCenter = 0.0
-   yCenter = 0.0
-   zCenter = 0.0
-
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-   if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
-
-   call tileDesc%deltas(del)
-
-   solnData(DFUN_VAR, :, :, :) = -1e13
-   solnData(TEMP_VAR, :, :, :) = 0.
-
-   call sim_heaterInitBlk(solnData(DFUN_VAR, :, :, :), &
-                          solnData(TEMP_VAR, :, :, :), &
-                          xCenter, yCenter, zCenter, &
-                          GRID_ILO_GC, GRID_IHI_GC, &
-                          GRID_JLO_GC, GRID_JHI_GC, &
-                          GRID_KLO_GC, GRID_KHI_GC)
-
-   deallocate (xCenter, yCenter, zCenter)
+   call tileDesc%releaseDataPtr(facexData, FACEX)
 
    return
 

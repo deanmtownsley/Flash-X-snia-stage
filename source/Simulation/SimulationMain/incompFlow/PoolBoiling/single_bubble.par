@@ -35,8 +35,7 @@ sim_numHeaters    =  1   # Number of heaters
 sim_heaterName    = "single_bubble"
 
 # Outlet parameters
-sim_outletSink   =  1.0 # Outlet sink strength
-sim_outletBuffer =  2.0 # Outlet buffer
+sim_outletBuffer =  1.0 # Outlet buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

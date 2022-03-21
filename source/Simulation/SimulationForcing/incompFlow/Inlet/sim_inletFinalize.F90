@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletData
+!!***if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletFinalize
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -12,28 +12,8 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! NAME
-!!
-!!  sim_outletData
-!!
-!! SYNOPSIS
-!!
-!!  use sim_outletData
 !!
 !!***
-
-#include "constants.h"
-#include "Simulation.h"
-
-module sim_outletData
-
+subroutine sim_inletFinalize()
    implicit none
-
-   real, save :: sim_outletSink
-   real, save :: sim_outletBuffer
-   real, save :: sim_outletGrowthRate
-
-   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
-   real, save    :: sim_outletVel(LOW:HIGH, MDIM)
-
-end module sim_outletData
+end subroutine sim_inletFinalize

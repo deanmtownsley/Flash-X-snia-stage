@@ -4,7 +4,8 @@
 REQUIRES physics/IncompNS/IncompNSMain/constDens
 REQUIRES physics/IncompNS/IncompNSExtras
 
-REQUIRES Simulation/SimulationForcing/incompFlow/Outflow
+REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
 
 USESETUPVARS Grid
 

@@ -36,8 +36,7 @@ sim_heaterName    = "multiple_bubbles"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletSink   =  2.0 # Outlet sink strength
-sim_outletBuffer =  4.0 # Outlet buffer region
+sim_outletBuffer =  1.0 # Outlet buffer region
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

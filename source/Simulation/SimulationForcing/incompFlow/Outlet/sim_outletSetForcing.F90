@@ -20,20 +20,23 @@
 
 subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
 
-   use sim_outletData, ONLY: sim_outletVel, sim_outletSink, sim_domainBC, &
+   use sim_outletData, ONLY: sim_outletVel, sim_outletSink, sim_outletFlag, &
                               sim_outletBuffer, sim_outletGrowthRate
+
+   use sim_inletData, ONLY: sim_inletFlag
 
    use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
 #if NDIM == MDIM
    use Simulation_data, ONLY: sim_zMin, sim_zMax
 #endif
 
-   use Grid_interface, ONLY: Grid_getDomainBC, Grid_getCellCoords
+   use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
    use sim_outletInterface, ONLY: sim_outletLSDampingBlk2d, sim_outletLSDampingBlk3d, &
                                    sim_outletVelBlk2d, sim_outletVelBlk3d
 
+   use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
    use Timers_interface, ONLY: Timers_start, Timers_stop
 
@@ -87,7 +90,7 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
                                   dt, del(IAXIS), del(JAXIS), &
                                   GRID_ILO, GRID_IHI, &
                                   GRID_JLO, GRID_JHI, &
-                                  sim_domainBC, sim_outletSink, sim_outletBuffer, &
+                                  sim_outletFlag, sim_outletSink, sim_outletBuffer, &
                                   sim_outletGrowthRate, &
                                   sim_xMin, sim_xMax, sim_yMin, sim_yMax)
 #endif
@@ -100,9 +103,11 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
                             dt, del(IAXIS), del(JAXIS), &
                             GRID_ILO, GRID_IHI, &
                             GRID_JLO, GRID_JHI, &
-                            sim_domainBC, velOutAux, sim_outletVel, &
+                            sim_inletFlag, &
+                            sim_outletFlag, velOutAux, sim_outletVel, &
                             sim_outletBuffer, sim_outletGrowthRate, &
-                            sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
+                            ins_gravX, ins_gravY)
 
 #if NDIM == MDIM
    call tileDesc%getDataPtr(facezData, FACEZ)
@@ -115,7 +120,7 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
                                   GRID_ILO, GRID_IHI, &
                                   GRID_JLO, GRID_JHI, &
                                   GRID_KLO, GRID_KHI, &
-                                  sim_domainBC, sim_outletSink, sim_outletBuffer, &
+                                  sim_outletFlag, sim_outletSink, sim_outletBuffer, &
                                   sim_outletGrowthRate, &
                                   sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
 #endif
@@ -131,9 +136,11 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
                             GRID_ILO, GRID_IHI, &
                             GRID_JLO, GRID_JHI, &
                             GRID_KLO, GRID_KHI, &
-                            sim_domainBC, velOutAux, sim_outletVel, &
+                            sim_inletFlag, &
+                            sim_outletFlag, velOutAux, sim_outletVel, &
                             sim_outletBuffer, sim_outletGrowthRate, &
-                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
+                            ins_gravX, ins_gravY, ins_gravZ)
 
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif

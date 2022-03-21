@@ -35,7 +35,6 @@ sim_numHeaters    =  2   # Number of heaters
 sim_heaterName    = "pool_boiling"
 
 # Outlet parameters
-sim_outletSink   =  1.0 # Outlet sink strength
 sim_outletBuffer =  1.0 # Outlet Buffer
 
 #       Grid dimensionality and geometry

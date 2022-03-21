@@ -116,7 +116,7 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    sim_outletVel = 0.
 
    call MPI_Allreduce(velOutAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
-                      MPI_MAX, MPI_COMM_WORLD, ierr)
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'Outlet Velocity Low  =', sim_outletVel(LOW, :)

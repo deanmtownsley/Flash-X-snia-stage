@@ -1,5 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletData
-!!
+!!****f* source/Simulation/SimulationMain/incompFlow/ChannelFlow/Simulation_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,27 +12,31 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!
-!!  sim_outletData
+!!  Simulation_finalize
 !!
 !! SYNOPSIS
 !!
-!!  use sim_outletData
+!!  Simulation_finalize()
+!!
+!! DESCRIPTION
+!!
+!!  This dummy function cleans up the Simulation unit, deallocates memory, etc.
+!!  However, as nothing needs to be done, only this stub is included.
+!!
+!! ARGUMENTS
+!!
+!!
 !!
 !!***
 
-#include "constants.h"
-#include "Simulation.h"
+subroutine Simulation_finalize()
 
-module sim_outletData
+   use sim_outletInterface, ONLY: sim_outletFinalize
+   use sim_inletInterface, ONLY: sim_inletFinalize
 
    implicit none
 
-   real, save :: sim_outletSink
-   real, save :: sim_outletBuffer
-   real, save :: sim_outletGrowthRate
+   call sim_inletFinalize()
+   call sim_outletFinalize()
 
-   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
-   real, save    :: sim_outletVel(LOW:HIGH, MDIM)
-
-end module sim_outletData
+end subroutine Simulation_finalize
