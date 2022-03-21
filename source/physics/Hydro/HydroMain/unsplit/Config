@@ -185,19 +185,30 @@ ELSE
 PARAMETER hy_eosModeGc STRING "see eosMode"["see eosMode","eos_nop","dens_ie","dens_pres","dens_temp"]
 ENDIF
 
-# Use SCRATCHVAR for tmporary storages
 
-# DO NOT Use SCRATCHVAR array for interface states and fluxes
-# - We now use scratch buffers privately allocated from hy_uhd_unsplit instead
+### DO NOT Use SCRATCHVAR array for (logically face-centered)
+### interface states and fluxes.
+# - We now use scratch buffers privately allocated from Hydro code
+#   instead, if necessary.
 #
-# Several scratch center variables are used in unsplit and they are formally
-# declared in the file UHD.h.
+
+### HOWEVER, DO Use SCRATCHCENTERVAR in case of using Amrex.
+# Several scratch center variables are used in unsplit Hydro, and they
+# are formally declared in the file UHD.h.
 #
 # We need to communicate to the other units, such as the Grid unit, how
 # many of these variables will be needed by unsplit.  Therefore, the
-# number of variables declared here must match the number in UHD.h.
+# number of variables declared here must match the number of symbols
+# with names HY_*_SCRATCHCTR_VAR defined in UHD.h.
 # The names of these variables as they appear here and therefore in Simulation.h
 # are not important as Hydro code should use the names in UHD.h.
+# - In case of PARAMESH, we use buffers privately allocated from
+#   within Hydro code instead (for gridDataStruct=SCRATCH_CTR, see
+#   Hydro_prepareBuffers). They are accessed via hy_memGetBlkPtr.
+#   SCRATCHCENTERVAR declarations in this Config file are then not needed.
+# - In case of Amrex, we also use calls to hy_memGetBlkPtr, but these
+#   fall through to type-bound getDataPtr calls on the Grid_tile
+#   descriptor. SCRATCHCENTERVAR declarations are needed in this case.
 IF Grid in ['', 'Amrex']
 SCRATCHCENTERVAR dummySCtr1
 SCRATCHCENTERVAR dummySCtr2
