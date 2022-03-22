@@ -29,11 +29,24 @@ module sim_outletData
 
    implicit none
 
+   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
+
    real, save :: sim_outletSink
    real, save :: sim_outletBuffer
    real, save :: sim_outletGrowthRate
 
-   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
-   real, save    :: sim_outletVel(LOW:HIGH, MDIM)
+   real, save :: sim_outletVel(LOW:HIGH, MDIM)
+   real, save :: sim_outletVelLiq(LOW:HIGH, MDIM)
+   real, save :: sim_outletVelGas(LOW:HIGH, MDIM)
+
+   real, save :: sim_velAux(LOW:HIGH, MDIM)
+   real, save :: sim_velAuxLiq(LOW:HIGH, MDIM)
+   real, save :: sim_velAuxGas(LOW:HIGH, MDIM)
+
+   real, save :: sim_outletPhaseLiq(LOW:HIGH, MDIM)
+   real, save :: sim_outletPhaseGas(LOW:HIGH, MDIM)
+
+   real, save :: sim_phaseAuxLiq(LOW:HIGH, MDIM)
+   real, save :: sim_phaseAuxGas(LOW:HIGH, MDIM)
 
 end module sim_outletData

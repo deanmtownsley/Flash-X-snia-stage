@@ -18,10 +18,10 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
+subroutine sim_outletSetForcing(tileDesc, dt)
 
    use sim_outletData, ONLY: sim_outletVel, sim_outletSink, sim_outletFlag, &
-                              sim_outletBuffer, sim_outletGrowthRate
+                             sim_outletBuffer, sim_outletGrowthRate, sim_velAux
 
    use sim_inletData, ONLY: sim_inletFlag
 
@@ -34,7 +34,7 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
    use Grid_tile, ONLY: Grid_tile_t
 
    use sim_outletInterface, ONLY: sim_outletLSDampingBlk2d, sim_outletLSDampingBlk3d, &
-                                   sim_outletVelBlk2d, sim_outletVelBlk3d
+                                  sim_outletVelBlk2d, sim_outletVelBlk3d
 
    use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
@@ -44,7 +44,6 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
    include "Flashx_mpi.h"
    real, intent(in) :: dt
    type(Grid_tile_t), intent(in) :: tileDesc
-   real, intent(inout) :: velOutAux(LOW:HIGH, MDIM)
 
 !----------------------------------------------------------------------------------------
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
@@ -85,62 +84,62 @@ subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
 
 #ifdef MULTIPHASE_MAIN
    call sim_outletLSDampingBlk2d(solnData(DFRC_VAR, :, :, :), &
-                                  solnData(DFUN_VAR, :, :, :), &
-                                  xCenter, yCenter, boundBox, &
-                                  dt, del(IAXIS), del(JAXIS), &
-                                  GRID_ILO, GRID_IHI, &
-                                  GRID_JLO, GRID_JHI, &
-                                  sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                                  sim_outletGrowthRate, &
-                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+                                 solnData(DFUN_VAR, :, :, :), &
+                                 xCenter, yCenter, boundBox, &
+                                 dt, del(IAXIS), del(JAXIS), &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI, &
+                                 sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                                 sim_outletGrowthRate, &
+                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax)
 #endif
 
    call sim_outletVelBlk2d(facexData(VELC_FACE_VAR, :, :, :), &
-                            faceyData(VELC_FACE_VAR, :, :, :), &
-                            facexData(VFRC_FACE_VAR, :, :, :), &
-                            faceyData(VFRC_FACE_VAR, :, :, :), &
-                            xCenter, yCenter, boundBox, &
-                            dt, del(IAXIS), del(JAXIS), &
-                            GRID_ILO, GRID_IHI, &
-                            GRID_JLO, GRID_JHI, &
-                            sim_inletFlag, &
-                            sim_outletFlag, velOutAux, sim_outletVel, &
-                            sim_outletBuffer, sim_outletGrowthRate, &
-                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
-                            ins_gravX, ins_gravY)
+                           faceyData(VELC_FACE_VAR, :, :, :), &
+                           facexData(VFRC_FACE_VAR, :, :, :), &
+                           faceyData(VFRC_FACE_VAR, :, :, :), &
+                           xCenter, yCenter, boundBox, &
+                           dt, del(IAXIS), del(JAXIS), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           sim_inletFlag, &
+                           sim_outletFlag, sim_velAux, sim_outletVel, &
+                           sim_outletBuffer, sim_outletGrowthRate, &
+                           sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
+                           ins_gravX, ins_gravY)
 
 #if NDIM == MDIM
    call tileDesc%getDataPtr(facezData, FACEZ)
 
 #ifdef MULTIPHASE_MAIN
    call sim_outletLSDampingBlk3d(solnData(DFRC_VAR, :, :, :), &
-                                  solnData(DFUN_VAR, :, :, :), &
-                                  xCenter, yCenter, zCenter, boundBox, &
-                                  dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                                  GRID_ILO, GRID_IHI, &
-                                  GRID_JLO, GRID_JHI, &
-                                  GRID_KLO, GRID_KHI, &
-                                  sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                                  sim_outletGrowthRate, &
-                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+                                 solnData(DFUN_VAR, :, :, :), &
+                                 xCenter, yCenter, zCenter, boundBox, &
+                                 dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI, &
+                                 sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                                 sim_outletGrowthRate, &
+                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
 #endif
 
    call sim_outletVelBlk3d(facexData(VELC_FACE_VAR, :, :, :), &
-                            faceyData(VELC_FACE_VAR, :, :, :), &
-                            facezData(VELC_FACE_VAR, :, :, :), &
-                            facexData(VFRC_FACE_VAR, :, :, :), &
-                            faceyData(VFRC_FACE_VAR, :, :, :), &
-                            facezData(VFRC_FACE_VAR, :, :, :), &
-                            xCenter, yCenter, zCenter, boundBox, &
-                            dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                            GRID_ILO, GRID_IHI, &
-                            GRID_JLO, GRID_JHI, &
-                            GRID_KLO, GRID_KHI, &
-                            sim_inletFlag, &
-                            sim_outletFlag, velOutAux, sim_outletVel, &
-                            sim_outletBuffer, sim_outletGrowthRate, &
-                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
-                            ins_gravX, ins_gravY, ins_gravZ)
+                           faceyData(VELC_FACE_VAR, :, :, :), &
+                           facezData(VELC_FACE_VAR, :, :, :), &
+                           facexData(VFRC_FACE_VAR, :, :, :), &
+                           faceyData(VFRC_FACE_VAR, :, :, :), &
+                           facezData(VFRC_FACE_VAR, :, :, :), &
+                           xCenter, yCenter, zCenter, boundBox, &
+                           dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           GRID_KLO, GRID_KHI, &
+                           sim_inletFlag, &
+                           sim_outletFlag, sim_velAux, sim_outletVel, &
+                           sim_outletBuffer, sim_outletGrowthRate, &
+                           sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
+                           ins_gravX, ins_gravY, ins_gravZ)
 
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif

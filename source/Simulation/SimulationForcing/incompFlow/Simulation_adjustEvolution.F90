@@ -49,7 +49,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
 #ifdef SIMULATION_FORCE_OUTLET
    use sim_outletInterface, ONLY: sim_outletSetForcing
-   use sim_outletData, ONLY: sim_outletVel
+   use sim_outletData, ONLY: sim_outletVel, sim_velAux, & 
+                             sim_outletVelLiq, sim_outletVelGas, sim_velAuxLiq, sim_velAuxGas, &
+                             sim_outletPhaseLiq, sim_outletPhaseGas, sim_phaseAuxLiq, sim_phaseAuxGas
 #endif
 
    implicit none
@@ -62,8 +64,6 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    type(Grid_tile_t) :: tileDesc
 
    integer :: ierr
-   integer :: htr, isite
-   real :: velOutAux(LOW:HIGH, MDIM)
 
 #ifdef SIMULATION_FORCE_HEATER
 
@@ -97,7 +97,11 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 #endif
 
 #ifdef SIMULATION_FORCE_OUTLET
-   velOutAux = 0.
+   sim_velAux = 0.
+   sim_velAuxLiq = 0.
+   sim_velAuxGas = 0.
+   sim_phaseAuxLiq = 0.
+   sim_phaseAuxGas = 0.
 
    ! Set Outlet Forcing
    !-------------------------------------------------------------
@@ -105,7 +109,7 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    do while (itor%isValid())
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_outletSetForcing(tileDesc, velOutAux, dt)
+      call sim_outletSetForcing(tileDesc, dt)
       !---------------------------------------------------------
       call itor%next()
    end do
@@ -114,8 +118,16 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    ! Consolidate data
    !-------------------------------------------------------------
    sim_outletVel = 0.
+   sim_outletVelLiq = 0.
+   sim_outletVelGas = 0.
+   sim_outletPhaseLiq = 0.
+   sim_outletPhaseGas = 0.
 
-   call MPI_Allreduce(velOutAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+#ifdef SIMULATION_OUTLET_PHASED
+
+#else
+
+   call MPI_Allreduce(sim_velAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
    if (sim_meshMe .eq. MASTER_PE) then
@@ -125,6 +137,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
    call IncompNS_setVectorProp("Outflow_Vel_Low", sim_outletVel(LOW, :))
    call IncompNS_setVectorProp("Outflow_Vel_High", sim_outletVel(HIGH, :))
+
+#endif
+
 #endif
 
 end subroutine Simulation_adjustEvolution
