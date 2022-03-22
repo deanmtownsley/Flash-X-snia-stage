@@ -420,9 +420,12 @@ class UnitList:
     def getVariants(self,unitName):
       varList = []
       for var in self.units[unitName]['VARIANTS']:
-        varUnit = unitName + "/" + var
-        if self.hasUnit(varUnit):
+        if(var.lower()=='null'):
           varList.append(var)
+        else:
+          varUnit = unitName + "/" + var
+          if self.hasUnit(varUnit):
+            varList.append(var)
       return varList
 
     def generateUnitsfile(self):

@@ -223,8 +223,11 @@ def generateVariants(unitDir, objDir, defsList, varList):
         m = macroProcessor()
         if(var != ''):
             varDir = os.path.join(unitDir,var)
-            varDefs = [os.path.join(varDir,f) for f in os.listdir(varDir) if ((os.path.splitext(f)[-1]==".ini"))]
-            m.loadDefsList(defsList + varDefs)
+            if(os.path.isdir(varDir)):
+                varDefs = [os.path.join(varDir,f) for f in os.listdir(varDir) if ((os.path.splitext(f)[-1]==".ini"))]
+                m.loadDefsList(defsList + varDefs)
+            else:
+                m.loadDefsList(defsList)
         else:
             m.loadDefsList(defsList)
         for f in mcList:
