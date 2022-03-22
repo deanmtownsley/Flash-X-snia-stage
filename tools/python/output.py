@@ -1,7 +1,7 @@
 """Helper functions for reading and modifying flash output files. For more 
 infromation on using this module to make figures with matplotlib and yt, please
 refer to the following presentation:
-http://flash.uchicago.edu/site/flashcode/user_support/yt_flash_informal.pdf
+http://flash-x.org/yt_flash_informal.pdf
 """
 
 import collections

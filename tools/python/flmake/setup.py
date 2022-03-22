@@ -288,7 +288,7 @@ def script_main(ns, rc):
             print '\nUser Error!!!\n{0}'.format(e.message)
         else:
             print '\nA setup internal error has occured, if possible please email the following'
-            print 'debugging info to flash-bugs@flash.uchicago.edu'
+            print 'debugging info to flashx-users@lists.cels.anl.gov'
             print 'Arguments:', sys.argv
             print 'Python Version: {0}.{1}.{2}'.format(*sys.version_info[:3])
             print 'Platform Details: {0}'.format(sys.platform)

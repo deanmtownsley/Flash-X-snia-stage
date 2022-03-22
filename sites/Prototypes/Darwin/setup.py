@@ -2012,7 +2012,7 @@ if __name__=='__main__':
         print '\nuser abort'
         sys.exit(1)
     except:
-        print '\nA setup internal error has occured, if possible please email the following\ndebugging info to flash-bugs@flash.uchicago.edu'
+        print '\nA setup internal error has occured, if possible please email the following\ndebugging info to flashx-users@lists.cels.anl.gov'
         print 'Arguments:', sys.argv
         #FIXME print out machine/python info too.
         raise

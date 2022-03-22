@@ -6,10 +6,16 @@ files. The only customization is needed in the Makefile.h file for
 specific target machines. Documentation for the use of compact/mini
 applications in the repository is also included.
 
-Users desirous of downloading the repository should sign a licensing
-agreement available from http://flash.uchicago.edu/Code-request. The
-same licensing agreement also holds for the download of the FLASH
-code. Users can opt for code alone, compact/mini apps alone, or both. 
+The source code is hosted at https://github.com/Flash-X/Flash-X
+
+It is distributed under Apache 2.0 license. The repository is not 
+public, however, because we are required by our funders to maintain a 
+list of users who obtain the code from the repository. 
+Therefore you must be a GitHub user and become a collaborator of the 
+repository to obtain the code from us. Please email 
+flash-x@lists.cels.anl.gov with your github ID to get access.
+
+
 
 The compact/mini applications included in the current release are :
   GuardCell - unit test

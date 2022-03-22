@@ -310,7 +310,7 @@ if __name__=='__main__':
         if hasattr(e, 'dumbuser'):
             print('\nUser Error!!!\n%s' % e.message)
         else:
-            print('\nA setup internal error has occured, if possible please email the following\ndebugging info to flash-bugs@flash.uchicago.edu')
+            print('\nA setup internal error has occured, if possible please email the following\ndebugging info to flashx-users@lists.cels.anl.gov')
             print('Arguments:', sys.argv)
             print('Python Version: %d.%d.%d' % sys.version_info[:3])
             print('Platform Details: %s' % sys.platform)
