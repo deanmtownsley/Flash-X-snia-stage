@@ -70,16 +70,16 @@ subroutine ins_corrector_vardens(uni,vni,wni,sigx,sigy,sigz,pxn1,pyn1,pzn1,&
         real, dimension(:,:,:), intent(inout) :: uni,vni,wni
 
 
-        real :: irhoGas,Mdens
+        real :: inv_rhoGas,Mdens
         integer :: i,j,k
 
-        irhoGas = 1.0/rhoGas
+        inv_rhoGas = 1.0/rhoGas
        
         do k=kz1,kz2
            do j=jy1,jy2
               do i=ix1,ix2+1
-              Mdens = rhox(i,j,k)-irhoGas
-              uni(i,j,k) = uni(i,j,k) - dt*irhoGas*((p(i,j,k)  - p(i-1,j,k))/dx  - sigx(i,j,k)) - &
+              Mdens = rhox(i,j,k)-inv_rhoGas
+              uni(i,j,k) = uni(i,j,k) - dt*inv_rhoGas*((p(i,j,k)  - p(i-1,j,k))/dx  - sigx(i,j,k)) - &
                                         dt*Mdens*  (2*pxn1(i,j,k)-pxn2(i,j,k))
 
               pxn2(i,j,k) = pxn1(i,j,k)
@@ -91,8 +91,8 @@ subroutine ins_corrector_vardens(uni,vni,wni,sigx,sigy,sigz,pxn1,pyn1,pzn1,&
          do k=kz1,kz2
            do j=jy1,jy2+1
               do i=ix1,ix2
-              Mdens = rhoy(i,j,k)-irhoGas
-              vni(i,j,k) = vni(i,j,k) - dt*irhoGas*((p(i,j,k)  - p(i,j-1,k))/dy  - sigy(i,j,k)) - &
+              Mdens = rhoy(i,j,k)-inv_rhoGas
+              vni(i,j,k) = vni(i,j,k) - dt*inv_rhoGas*((p(i,j,k)  - p(i,j-1,k))/dy  - sigy(i,j,k)) - &
                                         dt*Mdens*  (2*pyn1(i,j,k)-pyn2(i,j,k)) 
 
               pyn2(i,j,k) = pyn1(i,j,k)
@@ -105,8 +105,8 @@ subroutine ins_corrector_vardens(uni,vni,wni,sigx,sigy,sigz,pxn1,pyn1,pzn1,&
         do k=kz1,kz2+1
            do j=jy1,jy2
               do i=ix1,ix2
-              Mdens = rhoz(i,j,k)-irhoGas
-              wni(i,j,k) = wni(i,j,k) - dt*irhoGas*((p(i,j,k)  - p(i,j,k-1))/dz  - sigz(i,j,k)) - &
+              Mdens = rhoz(i,j,k)-inv_rhoGas
+              wni(i,j,k) = wni(i,j,k) - dt*inv_rhoGas*((p(i,j,k)  - p(i,j,k-1))/dz  - sigz(i,j,k)) - &
                                         dt*Mdens*  (2*pzn1(i,j,k)-pzn2(i,j,k)) 
 
               pzn2(i,j,k) = pzn1(i,j,k)

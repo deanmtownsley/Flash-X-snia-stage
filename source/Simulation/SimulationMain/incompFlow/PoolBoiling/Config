@@ -1,16 +1,17 @@
 #	Config file for the INS module.
 #       Note: This is a staggered finite difference mesh algorithm.
 
-REQUIRES physics/IncompNS/IncompNSMain/vardens
+REQUIRES physics/IncompNS/IncompNSMain/varDens
 REQUIRES physics/IncompNS/IncompNSExtras
 
 REQUIRES physics/Multiphase/MultiphaseEvap
 
-REQUIRES physics/HeatAD/HeatADMain/vardiffusion
+REQUIRES physics/HeatAD/HeatADMain/varDiffusion
 REQUIRES physics/HeatAD/HeatADAdvection
 
-REQUIRES ./heater
-REQUIRES ./outflow
+REQUIRES Simulation/SimulationForcing/incompFlow/Heater
+REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+REQUESTS Simulation/SimulationForcing/incompFlow/Outlet
 
 USESETUPVARS Grid
 
@@ -19,5 +20,7 @@ IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
 ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
+
+DATAFILES *_hdf5_htr_*
 
 DATAFILES single_bubble.par multiple_bubbles.par

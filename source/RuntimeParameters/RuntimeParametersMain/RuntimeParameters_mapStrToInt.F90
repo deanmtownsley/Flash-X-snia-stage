@@ -124,6 +124,11 @@ constKey = DIRICHLET
      constKey = OUTFLOW_INS
 #endif
 
+  case("EXTRAP_INS","Extrap_ins","extrap_ins")
+#ifdef EXTRAP_INS
+     constKey = EXTRAP_INS
+#endif
+
   case("NOSLIP_INS","Noslip_ins","noslip_ins")
 #ifdef NOSLIP_INS
      constKey = NOSLIP_INS
