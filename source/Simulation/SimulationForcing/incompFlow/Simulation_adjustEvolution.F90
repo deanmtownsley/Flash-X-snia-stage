@@ -125,6 +125,29 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
 #ifdef SIMULATION_OUTLET_PHASED
 
+   call MPI_Allreduce(sim_velAuxLiq, sim_outletVelLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_velAuxGas, sim_outletVelGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_phaseAuxLiq, sim_outletPhaseLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_phaseAuxGas, sim_outletPhaseGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   sim_outletVelLiq = sim_outletVelLiq/(sim_outletPhaseLiq + 1e-13)
+   sim_outletVelGas = sim_outletVelGas/(sim_outletVelGas + 1e-13)
+
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'Outlet Liq Velocity Low  =', sim_outletVelLiq(LOW, :)
+      write (*, *) 'Outlet Liq Velocity High =', sim_outletVelLiq(HIGH, :)
+      write (*, *) '--------------------------------------------------------'
+      write (*, *) 'Outlet Gas Velocity Low  =', sim_outletVelGas(LOW, :)
+      write (*, *) 'Outlet Gas Velocity High =', sim_outletVelGas(HIGH, :)    
+   end if
+
 #else
 
    call MPI_Allreduce(sim_velAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &

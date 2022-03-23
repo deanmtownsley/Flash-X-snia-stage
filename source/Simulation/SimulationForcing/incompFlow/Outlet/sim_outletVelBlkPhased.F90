@@ -18,11 +18,11 @@
 #include "Simulation.h"
 
 subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
-                              boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
-                              outletFlag, phaseAuxLiq, phaseAuxGas, &
-                              velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
-                              outletBuffer, outletGrowthRate, &
-                              xMin, xMax, yMin, yMax, gravX, gravY)
+                                    boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
+                                    outletFlag, phaseAuxLiq, phaseAuxGas, &
+                                    velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
+                                    outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, gravX, gravY)
 
    implicit none
    real, dimension(:, :, :), intent(in)    :: u, v
@@ -34,7 +34,7 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
    integer, intent(in)                     :: ix1, ix2, jy1, jy2
    integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
    real, intent(inout) :: velAuxLiq(2, MDIM), velAuxGas(2, MDIM), phaseAuxLiq(2, MDIM), phaseAuxGas(2, MDIM)
-   real, intent(in) :: velOutLiq(2, MDIM), velOutGas(2, MDIM),outletBuffer, outletGrowthRate
+   real, intent(in) :: velOutLiq(2, MDIM), velOutGas(2, MDIM), outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
    integer :: i, j, k
@@ -46,11 +46,11 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
 end subroutine sim_outletVelBlk2dPhased
 
 subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcell, &
-                              boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
-                              outletFlag, phaseAuxLiq, phaseAuxGas, &
-                              velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
-                              outletBuffer, outletGrowthRate, &
-                              xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
+                                    boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
+                                    outletFlag, phaseAuxLiq, phaseAuxGas, &
+                                    velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
+                                    outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
    implicit none
    real, dimension(:, :, :), intent(in)  :: u, v, w

@@ -36,7 +36,7 @@ sim_heaterName    = "multiple_bubbles"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer =  1.0 # Outlet buffer region
+sim_outletBuffer =  3.0 # Outlet buffer region
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -63,7 +63,7 @@ log_file	= "INS_Pool_Boiling.log"
 basenm		= "INS_Pool_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 30.
+tmax            = 20.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05

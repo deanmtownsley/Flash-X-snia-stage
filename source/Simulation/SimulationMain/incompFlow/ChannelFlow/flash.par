@@ -18,12 +18,16 @@ xmin		=  0.0
 xmax		=  5.0
 ymin		=  0.0
 ymax		=  1.0
+zmin            =  0.0
+zmax            =  1.0
 
 #       Boundary conditions
 xl_boundary_type = "inflow_ins"
 xr_boundary_type = "neumann_ins"
 yl_boundary_type = "noslip_ins"
 yr_boundary_type = "noslip_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "2D Channel Flow problem"
@@ -54,6 +58,7 @@ plotFileIntervalStep = 5
 # AMR parameters
 nblockx	= 20
 nblocky	= 4
+nblockz = 4
 nfres   = 1000
 
 lrefine_min       = 2
