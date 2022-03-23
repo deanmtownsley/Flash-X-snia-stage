@@ -149,7 +149,7 @@ def main():
         # If unit has -mc files, run the macroProcessor to generate variants
         # in the object dir.
         unitDir = os.path.join(GVars.sourceDir, unitname)
-        if any([ (".F90-mc" in f) for f in os.listdir(unitDir)] ):
+        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
           simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
           binDir = os.path.join(GVars.flashHomeDir,'bin')
           defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
@@ -191,7 +191,7 @@ def main():
                 continue
         makefileName = 'Makefile.' + lowestBase
         makefilePath = os.path.join(GVars.flashHomeDir,GVars.objectDir,makefileName)
-        if any([ (".F90-mc" in f) for f in os.listdir(unitDir)] ):
+        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
           varList = unitList.getRequestedVariants(unitname)
           modifyMakefile(unitDir,
                          makefilePath,

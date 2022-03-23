@@ -165,11 +165,12 @@ class macroProcessor:
         f.write(self.processLine(line))
 
 ###########################################################
+# Assuming ext starts with `.`
 def makeVariantName(base, var, ext):
     if(var == '' or var.lower()=='null'):
-        outfile = base + "." + ext
+        outfile = base +  ext
     else:
-        outfile = base + "_" + var + "." + ext
+        outfile = base + "_" + var + ext
     return outfile
 
 

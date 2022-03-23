@@ -11,7 +11,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
     mcListNoVariants = []
     baseList = []
     for f in os.listdir(unitDir):
-        if os.path.splitext(f)[-1]==".F90-mc" :
+        if "-mc" in os.path.splitext(f)[-1]:
             mcPath = os.path.join(unitDir,f)
             with open(mcPath) as mcFile:
                 lines = mcFile.read()
@@ -19,7 +19,8 @@ def generateVariants(unitDir, objDir, defsList, varList):
                     mcListNoVariants.append(mcPath)
                 else:
                     mcList.append(mcPath)
-                    baseList.append( os.path.splitext(f)[0]+".F90" )
+                    base, ext = os.path.splitext(f)
+                    baseList.append( base + ext.removesuffix("-mc") )
     for var in varList:
         m = macroProcessor()
         if(var != ''):
@@ -32,8 +33,8 @@ def generateVariants(unitDir, objDir, defsList, varList):
         else:
             m.loadDefsList(defsList[0] + defsList[1])
         for f in mcList:
-            filebase,_ = os.path.splitext( os.path.basename(f) )
-            outfile = makeVariantName(filebase,var,"F90")
+            filebase,ext = os.path.splitext( os.path.basename(f) )
+            outfile = makeVariantName(filebase,var,ext.removesuffix("-mc"))
             outpath = os.path.join(objDir, outfile)
             if(os.path.islink(outpath)):
                 os.unlink(outpath)
@@ -44,8 +45,8 @@ def generateVariants(unitDir, objDir, defsList, varList):
     m = macroProcessor()
     m.loadDefsList(defsList[0] + defsList[1])
     for f in mcListNoVariants:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
-        outfile = makeVariantName(filebase,'',"F90")
+        filebase,ext = os.path.splitext( os.path.basename(f) )
+        outfile = makeVariantName(filebase,'',ext.removesuffix("-mc"))
         outpath = os.path.join(objDir, outfile)
         if(os.path.islink(outpath)):
             os.unlink(outpath)
@@ -62,60 +63,69 @@ def modifyMakefile(unitDir, makefile, varList):
     mcList = []
     mcListNoVariants = []
     for f in os.listdir(unitDir):
-        if os.path.splitext(f)[-1]==".F90-mc" :
+        if "-mc" in os.path.splitext(f)[-1]:
             mcPath = os.path.join(unitDir,f)
             with open(mcPath) as mcFile:
                 lines = mcFile.read()
-                if '!!Novariants' in lines:
+                if '!!NOVARIANTS' in lines:
                     mcListNoVariants.append(mcPath)
                 else:
                     mcList.append(mcPath)
     for f in mcList:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
+        filename = os.path.basename(f)
+        filebase,ext = os.path.splitext(filename)
         baseObj = filebase + '.o'
         varObjs = []
+        varFiles = []
         for var in varList:
-            varObjs.append( makeVariantName(filebase,var,'o') )
+            varObjs.append( makeVariantName(filebase,var,'.o') )
+            varFiles.append( makeVariantName(filebase,var,ext.removesuffix("-mc")))
 
         with open(makefile,'r') as f:
             lines = f.read()
         lines = lines.replace(baseObj,' '.join(varObjs))
+        lines = lines.replace(filename.removesuffix("-mc"),' '.join(varFiles))
         with open(makefile,'w') as f:
             f.write(lines)
 
     for f in mcListNoVariants:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
+        filename = os.path.basename(f)
+        filebase,ext = os.path.splitext( os.path.basename(f) )
         baseObj = filebase + '.o'
         varObjs = []
-        varObjs.append( makeVariantName(filebase,'','o') )
+        varFiles = []
+        varObjs.append( makeVariantName(filebase,'','.o') )
+        varFiles.append( makeVariantName(filebase,'',ext.removesuffix("-mc")))
 
         with open(makefile,'r') as f:
             lines = f.read()
         lines = lines.replace(baseObj,' '.join(varObjs))
+        lines = lines.replace(filename.removesuffix("-mc"),' '.join(varFiles))
         with open(makefile,'w') as f:
             f.write(lines)
 
 
+# DEPRECATED
 # Add definitions from all files in passed list, then
 # perform macro preprocessing on all files in current dir.
-def processFilesInCurrentDir( macroProc = None, defsList=[] ):
-    if macroProc is None:
-        m = macroProcessor()
-        for defs in defsList:
-            m.loadDefs(defsList)
-    else:
-        m = macroProc
-
-    # Get all .ini files from current directory
-    defs_in_dir = [f for f in os.listdir('.') if (os.path.isfile(f) and (os.path.splitext(f)[-1]==".ini"))]
-    # The following command will trigger a NameError exception if 'import ConfigParser' has failed:
-    m.loadDefs(defs_in_dir)
-
-    # Search current directory and convert all .F90-mc files
-    files = [f for f in os.listdir('.') if (os.path.isfile(f) and (".F90-mc" in f) and os.path.splitext(f)[-1]==".F90-mc")]
-    for f in files:
-        outfile = f.replace(".F90-mc",".F90")
-        print("Macro processor running on "+f)
-        m.convertFile(f,outfile)
+#def processFilesInCurrentDir( macroProc = None, defsList=[] ):
+#    if macroProc is None:
+#        m = macroProcessor()
+#        for defs in defsList:
+#            m.loadDefs(defsList)
+#    else:
+#        m = macroProc
+#
+#    # Get all .ini files from current directory
+#    defs_in_dir = [f for f in os.listdir('.') if (os.path.isfile(f) and (os.path.splitext(f)[-1]==".ini"))]
+#    # The following command will trigger a NameError exception if 'import ConfigParser' has failed:
+#    m.loadDefs(defs_in_dir)
+#
+#    # Search current directory and convert all .F90-mc files
+#    files = [f for f in os.listdir('.') if (os.path.isfile(f) and (".F90-mc" in f) and os.path.splitext(f)[-1]==".F90-mc")]
+#    for f in files:
+#        outfile = f.replace(".F90-mc",".F90")
+#        print("Macro processor running on "+f)
+#        m.convertFile(f,outfile)
 
 
