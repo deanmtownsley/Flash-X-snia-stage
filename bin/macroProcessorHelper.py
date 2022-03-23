@@ -1,5 +1,14 @@
 from unitUtils import *
 from macroProcessor import *
+import subprocess,shutil
+
+fortran_exts = ['.F90','.f90','.F','.f']
+
+def formatOutput(outpath):
+    _,ext = os.path.splitext(outpath)
+    if(ext in fortran_exts):
+        if shutil.which('fprettify'):
+            subprocess.run('fprettify {}'.format(outpath), shell=True, check=True)
 
 # unitDir: path to unit directory with mc files
 # objDir: path to object directory
@@ -40,6 +49,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
                 os.unlink(outpath)
 
             m.convertFile(f,outpath)
+            formatOutput(outpath)
 
     #convert files with no variants
     m = macroProcessor()
@@ -52,6 +62,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
             os.unlink(outpath)
 
         m.convertFile(f,outpath)
+        formatOutput(outpath)
 
     if 'null' in [ v.lower() for v in varList]:
         baseList = []
