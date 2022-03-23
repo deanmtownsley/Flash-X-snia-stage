@@ -19,6 +19,7 @@ class macroProcessor:
     self.argdict = {}
     self.typedict = {}
     self.indentdict = {}
+    self.sourcedict = {}
     self.keylist = []
     #self.loadDefsList(standardMacroDefLibrary)
 
@@ -29,9 +30,18 @@ class macroProcessor:
     parser = ConfigParser(comment_prefixes=('#!','#!!'))
     parser.optionxform = lambda option: option # read keys case sensitively
     if filename is not None:
+      dirName = os.path.dirname(os.path.abspath(filename))
       parser.read(filename)
       for section in parser.sections():
-        self.keylist.append(section)
+        if(section not in self.keylist):
+            self.keylist.append(section)
+            self.sourcedict[section] = dirName
+        else:
+            previousPath = self.sourcedict[section]
+            if not (previousPath.startswith(dirName) or dirName.startswith(previousPath)):
+                if not ('source/Simulation' in dirName or '/bin' in previousPath):
+                    raise SyntaxError('{} defined in parellel directories, can\'t inherit properly'.format(section))
+            self.sourcedict[section] = dirName #overwrite keyword with def from new location
 
         self.mdict[section] = parser.get(section,'definition').strip()
 
@@ -117,7 +127,8 @@ class macroProcessor:
         break
 
     # if expansion has a recursive macro, process lines again
-    if (expansion.count(macro_keyword)>0 and keymatch):
+    recursion = len(re.findall(macro_regex,expansion)) >0;
+    if (recursion and keymatch):
       macroStack.append(macroName)
       expansionLines = expansion.split('\n')
       for i,line in enumerate(expansionLines):
