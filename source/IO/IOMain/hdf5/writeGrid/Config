@@ -1,0 +1,9 @@
+# Config file for IO/IOMain/hdf5/writeGrid
+
+DEFAULT PM
+
+USESETUPVARS Grid
+
+IF Grid=='Amrex'
+   DEFAULT AM
+ENDIF

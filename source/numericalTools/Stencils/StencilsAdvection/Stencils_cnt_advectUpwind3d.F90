@@ -56,7 +56,7 @@ subroutine Stencils_cnt_advectUpwind3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz
      phiz_plus = phi(i,j,k+1)-phi(i,j,k)
      phiz_mins = phi(i,j,k)-phi(i,j,k-1)
 
-     rhs(i,j,k) = rhs(i,j,k) + &
+     rhs(i,j,k) = rhs(i,j,k) &
                              - (1./dx) * (u_plus*phix_mins + u_mins*phix_plus)&
                              - (1./dy) * (v_plus*phiy_mins + v_mins*phiy_plus)&
                              - (1./dz) * (w_plus*phiz_mins + w_mins*phiz_plus)

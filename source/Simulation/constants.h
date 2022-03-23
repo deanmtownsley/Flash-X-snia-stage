@@ -72,6 +72,7 @@ MASTER_PE is the designated master processor in a run.
 #define INFLOW_INS -24
 #define MOVLID_INS -25
 #define OUTFLOW_INS -26
+#define EXTRAP_INS -27
 
 #define DIODE -39
 #define GRIDBC_MG_EXTRAPOLATE -40
