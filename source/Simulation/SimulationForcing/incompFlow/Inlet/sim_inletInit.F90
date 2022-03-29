@@ -30,7 +30,7 @@ subroutine sim_inletInit()
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
 
    sim_inletFlag = 0
- 
+
    call Grid_getDomainBC(domainBC)
 
    do idimn = 1, NDIM

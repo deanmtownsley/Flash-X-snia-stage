@@ -21,7 +21,7 @@
 subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                    guard, face, axis, secondDir, thirdDir)
 
-   use sim_heaterData
+   use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
    use Grid_interface, ONLY: Grid_getDeltas
 
    implicit none
@@ -50,5 +50,68 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
    ke = regionSize(THIRD_DIR)
 
    offset = 2*guard + 1
+
+   if (ivar == TEMP_VAR) then
+      do k = 1, ke
+         do j = 1, je
+            do i = 1, guard
+               do htr = 1, sim_numHeaters
+
+                  heater => sim_heaterInfo(htr)
+
+                  if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
+                      coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
+                      coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
+                      coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
+
+                     regionData(i, j, k, ivar) = 2*heater%wallTemp - regionData(offset - i, j, k, ivar)
+
+                  end if
+
+               end do
+            end do
+         end do
+      end do
+
+#ifdef MULTIPHASE_EVAPORATION
+   else if (ivar == DFUN_VAR) then
+      do k = 1, ke
+         do j = 1, je
+            do i = 1, guard
+               do htr = 1, sim_numHeaters
+
+                  heater => sim_heaterInfo(htr)
+
+                  if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
+                      coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
+                      coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
+                      coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
+
+                     dynamicAngle = heater%rcdAngle
+
+                     veli = regionData(guard + 1, j, k, VELX_VAR)*regionData(guard + 1, j, k, NRMX_VAR)
+#if NDIM == MDIM
+                     veli = veli + regionData(guard + 1, j, k, VELZ_VAR)*regionData(guard + 1, j, k, NRMZ_VAR)
+#endif
+                     if (veli .ge. 0.0) then
+                        if (abs(veli) .le. heater%velContact) then
+                           dynamicAngle = ((heater%advAngle - heater%rcdAngle)/(2*heater%velContact))*abs(veli) + &
+                                          (heater%advAngle + heater%rcdAngle)/2.0d0
+                        else
+                           dynamicAngle = heater%advAngle
+                        end if
+                     end if
+
+                     regionData(i, j, k, ivar) = regionData(offset - i, j, k, ivar) - &
+                                                 del(axis)*cos(dynamicAngle*acos(-1.0)/180)
+                  end if
+
+               end do
+            end do
+         end do
+      end do
+#endif
+
+   end if
 
 end subroutine sim_heaterApplyBCToFace

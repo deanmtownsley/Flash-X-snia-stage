@@ -1,4 +1,5 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBC
+!!****f* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletSetForcing
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -17,15 +18,28 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_heaterApplyBC(tileDesc, dt)
+subroutine sim_inletSetForcing(tileDesc, dt)
 
-   use Simulation_data, ONLY: sim_meshMe
+   use sim_outletData, ONLY: sim_outletFlag
+
+   use sim_inletData, ONLY: sim_inletFlag
+
+   use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
+#if NDIM == MDIM
+   use Simulation_data, ONLY: sim_zMin, sim_zMax
+#endif
+
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterInterface, ONLY: sim_heaterApplyBCToBlk2d
+
+   use sim_inletInterface, ONLY: sim_inletVelBlk2d, sim_inletVelBlk3d
+
+   use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
+   use IncompNS_interface, ONLY: IncompNS_setVectorProp
    use Timers_interface, ONLY: Timers_start, Timers_stop
 
    implicit none
+   include "Flashx_mpi.h"
    real, intent(in) :: dt
    type(Grid_tile_t), intent(in) :: tileDesc
 
@@ -38,13 +52,13 @@ subroutine sim_heaterApplyBC(tileDesc, dt)
    real, dimension(GRID_KHI_GC)      :: zCenter
    real    :: del(MDIM)
    real    :: boundBox(LOW:HIGH, 1:MDIM)
+   integer :: ierr
 
 !----------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
-   call Timers_start("sim_heaterApplyBC")
+   call Timers_start("sim_inletSetForcing")
 
-#ifdef MULTIPHASE_EVAPORATION
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
 
@@ -60,20 +74,44 @@ subroutine sim_heaterApplyBC(tileDesc, dt)
    xCenter = 0.0
    yCenter = 0.0
    zCenter = 0.0
+
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
    call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
+
    if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
-   call sim_heaterApplyBCToBlk2d(solnData(DFRC_VAR, :, :, :), &
-                                 solnData(TFRC_VAR, :, :, :), &
-                                 solnData(DFUN_VAR, :, :, :), &
-                                 solnData(TEMP_VAR, :, :, :), &
-                                 xCenter, yCenter, boundBox, &
-                                 dt, del(IAXIS), del(JAXIS), &
-                                 GRID_ILO_GC, GRID_IHI_GC, &
-                                 GRID_JLO_GC, GRID_JHI_GC)
-#if NDIM == MDIM
+#if NDIM < MDIM
+
+   call sim_inletVelBlk2d(facexData(VELC_FACE_VAR, :, :, :), &
+                          faceyData(VELC_FACE_VAR, :, :, :), &
+                          facexData(VFRC_FACE_VAR, :, :, :), &
+                          faceyData(VFRC_FACE_VAR, :, :, :), &
+                          xCenter, yCenter, boundBox, &
+                          dt, del(IAXIS), del(JAXIS), &
+                          GRID_ILO, GRID_IHI, &
+                          GRID_JLO, GRID_JHI, &
+                          sim_inletFlag, sim_outletFlag, &
+                          sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
+                          ins_gravX, ins_gravY)
+
+#else
    call tileDesc%getDataPtr(facezData, FACEZ)
+
+   call sim_inletVelBlk3d(facexData(VELC_FACE_VAR, :, :, :), &
+                          faceyData(VELC_FACE_VAR, :, :, :), &
+                          facezData(VELC_FACE_VAR, :, :, :), &
+                          facexData(VFRC_FACE_VAR, :, :, :), &
+                          faceyData(VFRC_FACE_VAR, :, :, :), &
+                          facezData(VFRC_FACE_VAR, :, :, :), &
+                          xCenter, yCenter, zCenter, boundBox, &
+                          dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                          GRID_ILO, GRID_IHI, &
+                          GRID_JLO, GRID_JHI, &
+                          GRID_KLO, GRID_KHI, &
+                          sim_inletFlag, sim_outletFlag, &
+                          sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
+                          ins_gravX, ins_gravY, ins_gravZ)
+
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
@@ -81,10 +119,9 @@ subroutine sim_heaterApplyBC(tileDesc, dt)
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
-#endif
 
-   call Timers_stop("sim_heaterApplyBC")
+   call Timers_stop("sim_inletSetForcing")
 
    return
 
-end subroutine sim_heaterApplyBC
+end subroutine sim_inletSetForcing

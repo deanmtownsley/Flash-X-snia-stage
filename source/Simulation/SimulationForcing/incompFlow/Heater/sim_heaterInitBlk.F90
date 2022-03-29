@@ -14,12 +14,13 @@
 !!
 !!
 !!***
-subroutine sim_heaterInitBlk(phi, temp, xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
 
-   use sim_heaterData
+   use sim_heaterData, ONLY: sim_heaterType, sim_numHeaters, sim_heaterInfo
 
    implicit none
-   real, dimension(:, :, :), intent(inout) :: phi, temp
+   real, dimension(:, :, :), intent(inout) :: temp
+   real, dimension(:, :, :), intent(inout), optional :: phi
    real, dimension(:), intent(in) :: xcell, ycell, zcell
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
 
@@ -34,15 +35,18 @@ subroutine sim_heaterInitBlk(phi, temp, xcell, ycell, zcell, ix1, ix2, jy1, jy2,
 
                heater => sim_heaterInfo(htr)
 
-               do isite = 1, heater%numSites
-                  iheight = heater%siteRadii(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
-                  iradius = heater%siteRadii(isite)
-                  iseedX = heater%xSite(isite)
-                  iseedZ = heater%zSite(isite)
-                  iseedY = heater%ySite(isite) + iheight
-                  idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
-                  phi(i, j, k) = max(phi(i, j, k), idfun)
-               end do
+               if (present(phi)) then
+                  do isite = 1, heater%numSites
+                     iheight = heater%siteRadii(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
+                     iradius = heater%siteRadii(isite)
+                     iseedX = heater%xSite(isite)
+                     iseedZ = heater%zSite(isite)
+                     iseedY = heater%ySite(isite) + iheight
+                     idfun = iradius - sqrt((xcell(i) - iseedX)**2 + &
+                                            (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
+                     phi(i, j, k) = max(phi(i, j, k), idfun)
+                  end do
+               end if
 
                if (xcell(i) .ge. heater%xMin .and. &
                    xcell(i) .le. heater%xMax .and. &

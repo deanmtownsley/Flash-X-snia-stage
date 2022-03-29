@@ -40,4 +40,107 @@ Module sim_inletInterface
       end subroutine sim_inletFinalize
    end interface
 
+   interface
+      subroutine sim_inletSetForcing(tileDesc, dt)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), intent(in) :: tileDesc
+         real, intent(in) :: dt
+      end subroutine sim_inletSetForcing
+   end interface
+
+   interface
+      subroutine sim_inletVelBlk2d(u, v, ru, rv, xcell, ycell, &
+                                   boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                   inletFlag, outletFlag, &
+                                   xMin, xMax, yMin, yMax, gravX, gravY)
+
+         implicit none
+         real, dimension(:, :, :), intent(in)    :: u, v
+         real, dimension(:, :, :), intent(inout) :: ru, rv
+         real, dimension(:), intent(in)          :: xcell, ycell
+         real, dimension(:, :), intent(in)       :: boundBox
+         real, intent(in)                        :: dt, dx, dy
+         integer, intent(in)                     :: ix1, ix2, jy1, jy2
+         integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+         real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
+
+      end subroutine sim_inletVelBlk2d
+
+      subroutine sim_inletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
+                                   boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                   inletFlag, outletFlag, &
+                                   xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
+
+         implicit none
+         real, dimension(:, :, :), intent(in)  :: u, v, w
+         real, dimension(:, :, :), intent(inout) :: ru, rv, rw
+         real, dimension(:), intent(in)        :: xcell, ycell, zcell
+         real, dimension(:, :), intent(in)     :: boundBox
+         real, intent(in)                      :: dt, dx, dy, dz
+         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
+
+      end subroutine sim_inletVelBlk3d
+   end interface
+
+   interface
+      subroutine sim_inletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
+                                         boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                         inletFlag, outletFlag, &
+                                         xMin, xMax, yMin, yMax, gravX, gravY)
+
+         implicit none
+         real, dimension(:, :, :), intent(in)    :: u, v
+         real, dimension(:, :, :), intent(inout) :: ru, rv
+         real, dimension(:, :, :), intent(in) :: phi
+         real, dimension(:), intent(in)          :: xcell, ycell
+         real, dimension(:, :), intent(in)       :: boundBox
+         real, intent(in)                        :: dt, dx, dy
+         integer, intent(in)                     :: ix1, ix2, jy1, jy2
+         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
+
+      end subroutine sim_inletVelBlk2dPhased
+
+      subroutine sim_inletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcell, &
+                                         boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                         inletFlag, outletFlag, &
+                                         xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
+
+         implicit none
+         real, dimension(:, :, :), intent(in)  :: u, v, w
+         real, dimension(:, :, :), intent(inout) :: ru, rv, rw
+         real, dimension(:, :, :), intent(in) :: phi
+         real, dimension(:), intent(in)        :: xcell, ycell, zcell
+         real, dimension(:, :), intent(in)     :: boundBox
+         real, intent(in)                      :: dt, dx, dy, dz
+         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
+
+      end subroutine sim_inletVelBlk3dPhased
+   end interface
+
+   interface
+      subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                        guard, face, axis, secondDir, thirdDir)
+
+         implicit none
+         integer, intent(IN) :: level, ivar, gridDataStruct
+         integer, dimension(REGION_DIM), intent(IN) :: regionSize
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         regionSize(STRUCTSIZE)), intent(INOUT) :: regionData
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         MDIM), intent(IN) :: coordinates
+         integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
+
+      end subroutine sim_inletApplyBCToFace
+   end interface
+
 End module sim_inletInterface

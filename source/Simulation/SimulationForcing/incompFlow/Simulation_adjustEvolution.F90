@@ -54,6 +54,10 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
                              sim_outletPhaseLiq, sim_outletPhaseGas, sim_phaseAuxLiq, sim_phaseAuxGas
 #endif
 
+#ifdef SIMULATION_FORCE_INLET
+   use sim_inletInterface, ONLY: sim_inletSetForcing
+#endif
+
    implicit none
    include "Flashx_mpi.h"
    integer, intent(in) :: nstep
@@ -90,6 +94,20 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
       call sim_heaterLSReInit(tileDesc, stime)
+      !---------------------------------------------------------
+      call itor%next()
+   end do
+   call Grid_releaseTileIterator(itor)
+#endif
+
+#ifdef SIMULATION_FORCE_INLET
+   ! Set Inlet Forcing
+   !-------------------------------------------------------------
+   call Grid_getTileIterator(itor, nodetype=LEAF)
+   do while (itor%isValid())
+      call itor%currentTile(tileDesc)
+      !---------------------------------------------------------
+      call sim_inletSetForcing(tileDesc, dt)
       !---------------------------------------------------------
       call itor%next()
    end do

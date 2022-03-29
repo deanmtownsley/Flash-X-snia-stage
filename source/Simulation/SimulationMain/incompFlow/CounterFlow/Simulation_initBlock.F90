@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/FlowBoiling/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/incompFlow/CounterFlow/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -49,7 +49,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Simulation_data
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterInterface, ONLY: sim_heaterInitBlk
 
    implicit none
 
@@ -66,6 +65,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real    :: del(MDIM)
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   real :: bcVal, phicell
 
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
@@ -87,15 +87,37 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    call tileDesc%deltas(del)
 
-   solnData(DFUN_VAR, :, :, :) = -1e13
-   solnData(TEMP_VAR, :, :, :) = 0.
+   call tileDesc%getDataPtr(facexData, FACEX)
 
-   call sim_heaterInitBlk(xCenter, yCenter, zCenter, &
-                          GRID_ILO_GC, GRID_IHI_GC, &
-                          GRID_JLO_GC, GRID_JHI_GC, &
-                          GRID_KLO_GC, GRID_KHI_GC, &
-                          solnData(TEMP_VAR, :, :, :), &
-                          solnData(DFUN_VAR, :, :, :))
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xCenter(i)
+            yi = yCenter(j)
+            zi = zCenter(k)
+
+            bcVal = yi - sim_yMin - sim_channelDepth
+
+            solnData(DFUN_VAR, i, j, k) = bcVal
+         end do
+      end do
+   end do
+
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)+1
+
+         phicell = (solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i - 1, j, k))*.5
+
+         facexData(VELC_FACE_VAR, i, j, k) = ((1 - sign(1., phicell))/2)*-1.0 &
+                                           + ((1 + sign(1., phicell))/2)*1.0
+
+         end do
+      end do
+   end do
+
+
+   call tileDesc%releaseDataPtr(facexData, FACEX)
 
    deallocate (xCenter, yCenter, zCenter)
 
