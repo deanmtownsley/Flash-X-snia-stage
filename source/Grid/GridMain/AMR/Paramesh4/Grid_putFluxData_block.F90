@@ -18,9 +18,9 @@
 !! SYNOPSIS
 !!
 !!  call Grid_putFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
-!!                              real(in),Contiguous,TARGET :: fluxBufX(:,lo(1): ,lo(2): ,lo(3): ),
-!!                              real(in),Contiguous,TARGET :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
-!!                              real(in),Contiguous,TARGET :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufX(:, lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufY(:, lo(1): ,lo(2): ,lo(3): ),
+!!                              real(in),Contiguous,TARGET :: fluxBufZ(:, lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
 !!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!
@@ -107,7 +107,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
 
   type(Grid_tile_t), intent(in) :: blockDesc
   integer,intent(in) :: lo(3)
-  real,intent(in),dimension(:,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX,fluxBufY,fluxBufZ
+  real,intent(in),dimension(:, lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX,fluxBufY,fluxBufZ
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
