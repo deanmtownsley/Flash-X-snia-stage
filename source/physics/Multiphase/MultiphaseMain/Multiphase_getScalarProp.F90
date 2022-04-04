@@ -29,6 +29,8 @@ subroutine Multiphase_getScalarProp(name, value)
       value = mph_thcoGas
    case ("Gas_Specific_Heat", "gas_specific_heat", "GAS_SPECIFIC_HEAT")
       value = mph_CpGas
+   case ("Saturation_Temperature", "saturation_temperature", "SATURATION_TEMPERATURE")
+      value = mph_Tsat
    case default
       value = 0.
       write (errorMessage, *) '[Multiphase_getScalarProp] Unknown scalar: ', name

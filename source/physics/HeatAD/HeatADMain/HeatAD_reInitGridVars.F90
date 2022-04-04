@@ -42,7 +42,7 @@ subroutine HeatAD_reInitGridVars(tileDesc)
 
    call tileDesc%getDataPtr(solnData, CENTER)
 
-   solnData(RHST_VAR, :, :, :) = 0.
+   solnData(HTN0_VAR, :, :, :) = 0.
    solnData(TFRC_VAR, :, :, :) = 0.
 
    ! Release pointers:

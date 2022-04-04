@@ -32,10 +32,10 @@ ht_Prandtl = 7.0
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  2   # Number of heaters
+sim_heaterName    = "pool_boiling"
 
-# Outflow parameters
-sim_lsSink        =  1.0 # Level set sink strength
-sim_outflowRegion =  2.0 # Outflow region 
+# Outlet parameters
+sim_outletBuffer =  1.0 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -52,7 +52,7 @@ zmax            =  3.0
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "outflow_ins"
+yr_boundary_type = "neumann_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 

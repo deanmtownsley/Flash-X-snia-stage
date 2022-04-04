@@ -50,7 +50,7 @@ subroutine Multiphase_reInitGridVars(tileDesc)
 
    call tileDesc%getDataPtr(solnData, CENTER)
    solnData(DFRC_VAR, :, :, :) = 0.
-   solnData(RDFN_VAR, :, :, :) = 0.
+   solnData(HDN0_VAR, :, :, :) = 0.
 
 #ifdef MULTIPHASE_EVAPORATION
    solnData(HFLQ_VAR, :, :, :) = 0.

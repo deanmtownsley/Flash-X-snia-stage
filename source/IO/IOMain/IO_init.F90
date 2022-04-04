@@ -108,8 +108,6 @@ subroutine IO_init()
   call RuntimeParameters_get('checkpointFileIntervalTime',   io_checkpointFileIntervalTime)
   call RuntimeParameters_get('checkpointFileIntervalStep',   io_checkpointFileIntervalStep)
   call RuntimeParameters_get('checkpointFileIntervalZ', io_checkpointFileIntervalZ)
-
-  call RuntimeParameters_get('io_writeGridInfo', io_writeGridInfo)
   
   call RuntimeParameters_get('tinitial', io_tinitial)
   

@@ -31,13 +31,13 @@
 !!REORDER(4): solnData
 
 
-subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
+subroutine Eos_wrapped(mode,range,solnData,gridDataStruct)
 
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe, &
        eos_threadWithinBlock
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Driver_interface, ONLY : Driver_abort
-  use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
+
   !$ use omp_lib    
   use Eos_interface, ONLY : Eos
 
@@ -49,10 +49,10 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
-  integer,intent(in) :: blockID
+  real, pointer:: solnData(:,:,:,:)
+
   integer,optional,intent(in) :: gridDataStruct
 
-  real, pointer:: solnData(:,:,:,:)
 
 #ifndef FIXEDBLOCKSIZE
   real, allocatable, dimension(:):: energyKinetic,energyInternal
@@ -100,7 +100,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
   ! Initializations:   grab the solution data from UNK and determine
   !   the length of the data being operated upon
-  call Grid_getBlkPtr(blockID,solnData)
+
   vecLen = range(HIGH,IAXIS)-range(LOW,IAXIS)+1
 
   ! These integers are indexes into the location in eosData just before the storage area for the appropriate variable.
@@ -270,8 +270,6 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 #endif
 
   !$omp end parallel
-
-  call Grid_releaseBlkPtr(blockID,solnData)
 
   return
 end subroutine Eos_wrapped
