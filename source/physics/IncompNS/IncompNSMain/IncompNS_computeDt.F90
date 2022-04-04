@@ -30,7 +30,7 @@
 
 subroutine IncompNS_computeDt(ins_mindt,ins_minloc)
 
-  use Grid_interface,   ONLY : Grid_fillGuardCells, Grid_getTileIterator, &
+  use Grid_interface,   ONLY : Grid_getTileIterator, &
                                Grid_releaseTileIterator, Grid_getNumBlksFromType, &
                                Grid_getCellVolumes
 

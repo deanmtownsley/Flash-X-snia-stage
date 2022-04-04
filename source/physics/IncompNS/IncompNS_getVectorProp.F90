@@ -18,16 +18,16 @@
 
 subroutine IncompNS_getVectorProp(name, value)
 
-  use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)         :: name
-  real, dimension(MDIM), intent(out)   :: value
+   implicit none
+   character(len=*), intent(in)         :: name
+   real, dimension(MDIM), intent(out)   :: value
 
-  character(len=100)                   :: errorMessage
+   character(len=100)                   :: errorMessage
 
-  value = 0.
-  write(errorMessage,*) '[IncompNS_getVectorProp] Unknown scalar: ',name
-  call Driver_abort(errorMessage)
+   value = 0.
+   write (errorMessage, *) '[IncompNS_getVectorProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine IncompNS_getVectorProp

@@ -13,20 +13,20 @@
 !!
 !!
 !!***
-subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,gama,rhoa,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
-    real, intent(in) :: dt, rhoa, gama
+    real, intent(in) :: dt
     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
     real, intent(in) :: iSource
 end subroutine Stencils_integrateAB2Scalar
 
-subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,gama,rhoa,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
-    real, intent(in) :: dt, rhoa, gama
+    real, intent(in) :: dt
     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
     real, dimension(:,:,:), intent(in) :: iSource
 end subroutine Stencils_integrateAB2Array

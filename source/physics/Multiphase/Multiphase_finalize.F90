@@ -19,20 +19,19 @@
 !! SYNOPSIS
 !!
 !!  call Multiphase_finalize
-!!  
+!!
 !! ARGUMENTS
 !!
 !!  none
 !!
 !! DESCRIPTION
-!! 
+!!
 !!
 !!***
 
 subroutine Multiphase_finalize()
 
-  implicit none
+   implicit none
 
 end subroutine Multiphase_finalize
-
 

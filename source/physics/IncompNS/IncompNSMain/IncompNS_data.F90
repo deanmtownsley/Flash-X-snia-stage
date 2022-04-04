@@ -70,7 +70,7 @@ module IncompNS_data
   real, save, dimension(LOW:HIGH,MDIM) :: ins_globalDomain
   integer,save,dimension(2,MDIM) :: ins_domainBC
 
-  logical, save :: ins_predcorrflg
+  logical, save :: ins_predcorrflg = .FALSE.
 
   integer, save :: ins_prol_method
 

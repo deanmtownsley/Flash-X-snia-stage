@@ -85,6 +85,37 @@ guidelines to create a pull request:
 Contributors with write permission should create a feature branch
 instead of a fork. The remainder of the workflow remains the same.
 
+## Code Formatting
+Use [fprettify](https://github.com/pseewald/fprettify) to format your source code and enforce consistency with indentation and whitespacing. Works for both `.F90` and `.F90-mc` files
+
+## Special Syntax Highlighting
+
+To enable syntax for **Flash-X** specific keywords implement following settings based on the editor:
+
+### **VIM**
+
+- Create `$HOME/.vim/after/syntax/fortran.vim` and add:
+
+```
+" Custom FORTRAN keywords
+syn match customKeyword '\<*\zs@MACRO\>'
+syn match customKeyword '\<*\zs@M\>'
+syn match customKeyword '\<*\zs!!REORDER\>'
+syn match customKeyword '\<*\zs!!NOVARIANTS\>'
+
+" Definitions
+hi def link customKeyword Keyword
+```
+
+- Create `$HOME/.vimrc` and add:
+```
+" Turn on syntax
+syntax on
+
+" Set file type
+autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
+```
+
 ## Containerization Workflows
 
 ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)

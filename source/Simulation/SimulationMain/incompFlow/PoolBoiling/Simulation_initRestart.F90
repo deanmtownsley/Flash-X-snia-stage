@@ -28,15 +28,9 @@
 
 subroutine Simulation_initRestart()
 
-  use Simulation_data
-
-  implicit none
-
   !if(sim_chkptSiteNum .le. sim_nucSiteNum) sim_nucTimeStampAll(1:sim_chkptSiteNum) = sim_chkptTimeStampAll
   !if(sim_chkptSiteNum .gt. sim_nucSiteNum) sim_nucTimeStampAll = sim_chkptTimeStampAll(1:sim_nucSiteNum)
   !
   !deallocate(sim_chkptTimeStampAll)
-
-  return
 
 end subroutine Simulation_initRestart

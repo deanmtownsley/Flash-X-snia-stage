@@ -18,7 +18,7 @@
 !!  Hydro_prepareBuffers
 !!
 !! DESCRIPTION
-!!  free buffers allocated for scratch use
+!!  Allocate buffers for temporary use during a Hydro step
 !!
 !!***
 

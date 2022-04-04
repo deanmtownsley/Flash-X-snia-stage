@@ -1,4 +1,3 @@
-subroutine mph_setEvapJumps3d(phi,sigx,sigy,sigz,mflux,rhoGas,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,9 +9,10 @@ subroutine mph_setEvapJumps3d(phi,sigx,sigy,sigz,mflux,rhoGas,dx,dy,dz,ix1,ix2,j
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-    implicit none
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    real, intent(in) :: dx,dy,dz,rhoGas
-    real, dimension(:,:,:), intent(in) :: phi,mflux
-    real, dimension(:,:,:), intent(inout) :: sigx,sigy,sigz
+subroutine mph_setEvapJumps3d(phi, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+   implicit none
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, intent(in) :: dx, dy, dz, rhoGas
+   real, dimension(:, :, :), intent(in) :: phi, mflux
+   real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
 end subroutine mph_setEvapJumps3d

@@ -33,32 +33,25 @@ module hy_rk_interface
      end subroutine  @M hy_rk_ff_name
   end interface
 
-  
   interface
-     subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+     subroutine @M hy_update_name (@M hy_update_call_args)
        real, pointer :: Uin(:,:,:,:)
        integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
        integer,intent(IN) :: level
        real,dimension(MDIM) :: hy_del
        real, intent(IN) :: dt, dtOld
        real, dimension(3), intent(IN) :: coeffs
-     end subroutine hy_rk_updateSoln
+     end subroutine @M hy_update_name
   end interface
 
   interface
-     subroutine hy_rk_eos(limits)
-       implicit none
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-     end subroutine hy_rk_eos
-  end interface
-
-  interface
-     subroutine hy_rk_getGravAccel(hy_del,limits,blkLimitsGC)
+     subroutine @M hy_grav_name (@M hy_grav_call_args)
        real,dimension(MDIM),intent(IN)  :: hy_del
        integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-     end subroutine hy_rk_getGravAccel
+     end subroutine @M hy_grav_name
   end interface
-
+  
+  
   interface
      subroutine hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
        real, pointer :: Uin(:,:,:,:)

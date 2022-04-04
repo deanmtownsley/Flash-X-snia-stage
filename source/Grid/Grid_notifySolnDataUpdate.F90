@@ -29,6 +29,12 @@
 !!  Notify the Grid unit that the calling unit intends to update
 !!  (or has updated) some solution variables.
 !!
+!!  This is only necessary, and only makes sense, when a promise has been
+!!  made that solution variables would *not* be changed. Such promises are
+!!  made when Grid_fillGuardCells is called with unitReadsMeshDataOnly=.TRUE.,
+!!  and are valid until either this interface is called, or
+!!  Grid_fillGuardCells is called without unitReadsMeshDataOnly=.TRUE. .
+!!
 !!  As an effect of this notification, skipping of the next guard fill (the
 !!  next time Grid_fillGuardCells is called, usually from a different unit) is
 !!  canceled.  (Such skipping may have been enabled by an earlier call to
@@ -58,23 +64,23 @@
 !!
 !! NOTES
 !!  
-!!  All arguments are currently ignored. (2013-02-13)
+!!  All arguments are currently ignored. (2022-03-04)
 !!
-!!  This call has an effect only with PARAMESH 4 (4.0 or 4dev), since only the
-!!  PARAMESH 4 implementation of Grid_fillGuardCells recognizes the internal
+!!  This call has an effect only with PARAMESH, since only the
+!!  Paramesh4 implementation of Grid_fillGuardCells recognizes the internal
 !!  gr_gcellsUpToDate flag.
 !!
 !!  Grid_notifySolnDataUpdate is only relevant when there are code units that
 !!  call Grid_fillGuardCells with the dummy argument unitReadsMeshDataOnly=
-!!  .TRUE.; currently (2013-02-13), this is controlled with the
+!!  .TRUE.; currently (2022-03-04), this is controlled with the
 !!  "reduceGcellFills" runtime parameter in all unit implementations included
-!!  with FLASH.
+!!  with Flash-X.
 !!
 !!  A unit that updates solution data should either call Grid_fillGuardCells
 !!  (without unitReadsMeshDataOnly=.TRUE., of course) or
 !!  Grid_notifySolnDataUpdate; it need not do both, since an intent to update
 !!  solution variables is considered implied by a call to Grid_fillGuardCells
-!!  (without unitReadsMeshDataOnly=.TRUE.
+!!  without unitReadsMeshDataOnly=.TRUE.
 !!
 !!  If a unit only updates variables that it considers "private" to itself,
 !!  it may skip calling Grid_notifySolnDataUpdate. A variable can only be

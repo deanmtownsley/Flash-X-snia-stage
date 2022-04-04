@@ -1,6 +1,0 @@
-#   Config file for heater API
-#
-PARAMETER sim_nucSeedRadius  REAL     0.1 # Re-nucleation seed radius
-PARAMETER sim_numHeaters     INTEGER  1   # Number of heaters
-
-DATAFILES *.h5

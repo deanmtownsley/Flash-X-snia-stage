@@ -61,20 +61,20 @@ Module Stencils_interface
   end interface
 
   interface Stencils_integrateAB2
-     subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,gama,rhoa,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
-     real, intent(in) :: dt, rhoa, gama
+     real, intent(in) :: dt
      integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
      real, intent(in) :: iSource
      end subroutine Stencils_integrateAB2Scalar
 
-     subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,gama,rhoa,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
-     real, intent(in) :: dt, rhoa, gama
+     real, intent(in) :: dt
      integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
      real, dimension(:,:,:), intent(in) :: iSource
      end subroutine Stencils_integrateAB2Array
@@ -110,7 +110,7 @@ Module Stencils_interface
     real, dimension(:,:,:), intent(in) :: phi,u,v
     real, intent(in) :: dx,dy
     integer, intent(in) :: ix1,ix2,jy1,jy2
-    logical, intent(in) :: center,facex,facey
+    integer, intent(in) :: center,facex,facey
     end subroutine Stencils_advectWeno2d
   end interface
  
@@ -122,7 +122,7 @@ Module Stencils_interface
     real, dimension(:,:,:), intent(in) :: phi,u,v,w
     real, intent(in) :: dx,dy,dz
     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    logical, intent(in) :: center,facex,facey,facez
+    integer, intent(in) :: center,facex,facey,facez
     end subroutine Stencils_advectWeno3d
   end interface
 
@@ -133,7 +133,7 @@ Module Stencils_interface
     real, dimension(:,:,:), intent(in) :: phi,u,v
     real, intent(in) :: dx,dy
     integer, intent(in) :: ix1,ix2,jy1,jy2
-    logical, intent(in) :: center,facex,facey
+    integer, intent(in) :: center,facex,facey
     end subroutine Stencils_advectCentral2d
   end interface
 
@@ -145,7 +145,7 @@ Module Stencils_interface
     real, dimension(:,:,:), intent(in) :: phi,u,v,w
     real, intent(in) :: dx,dy,dz
     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    logical, intent(in) :: center,facex,facey,facez
+    integer, intent(in) :: center,facex,facey,facez
     end subroutine Stencils_advectCentral3d
   end interface
 

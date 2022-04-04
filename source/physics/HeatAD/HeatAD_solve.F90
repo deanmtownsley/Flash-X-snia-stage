@@ -13,7 +13,9 @@
 !!
 !!
 !!***
-subroutine HeatAD_solve(dt)
+subroutine HeatAD_solve(tileDesc, dt)
+   use Grid_tile, ONLY: Grid_tile_t
    implicit none
-   real,    INTENT(IN) :: dt
+   type(Grid_tile_t), intent(in) :: tileDesc
+   real, INTENT(IN) :: dt
 end subroutine HeatAD_solve

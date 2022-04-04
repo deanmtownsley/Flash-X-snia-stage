@@ -20,99 +20,75 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_velForcing(dt)
+subroutine Multiphase_velForcing(tileDesc, dt)
 
-  use Multiphase_data
-  use Timers_interface,   ONLY : Timers_start, Timers_stop
-  use Driver_interface,   ONLY : Driver_getNStep
-  use Grid_interface,     ONLY : Grid_getTileIterator,Grid_releaseTileIterator,Grid_fillGuardCells
-  use Grid_tile,          ONLY : Grid_tile_t
-  use Grid_iterator,      ONLY : Grid_iterator_t
-  use Stencils_interface, ONLY : Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
-  use mph_evapInterface,  ONLY : mph_evapVelForcing2d,mph_evapVelForcing3d
+   use Multiphase_data
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Driver_interface, ONLY: Driver_getNStep
+   use Grid_tile, ONLY: Grid_tile_t
+   use Stencils_interface, ONLY: Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
+   use mph_evapInterface, ONLY: mph_evapVelForcing2d, mph_evapVelForcing3d
 
-
-  implicit none
-  include "Flashx_mpi.h"
-  real, intent(in) :: dt
+   implicit none
+   include "Flashx_mpi.h"
+   real, intent(in) :: dt
+   type(Grid_tile_t), intent(in) :: tileDesc
 
 !------------------------------------------------------------------------------------------------
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
-  real, pointer, dimension(:,:,:,:) :: solnData,facexData,faceyData,facezData
-  integer :: ierr,i,j,k
-  real del(MDIM)
-  type(Grid_tile_t) :: tileDesc
-  type(Grid_iterator_t) :: itor
-  integer TA(2),count_rate
-  real*8  ET
+   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   integer :: ierr, i, j, k
+   real del(MDIM)
+   integer TA(2), count_rate
+   real*8 ET
 
 !------------------------------------------------------------------------------------------------
-  nullify(solnData,facexData,faceyData,facezData)
+   nullify (solnData, facexData, faceyData, facezData)
 
-  call Grid_getTileIterator(itor, nodetype=LEAF)
-  do while(itor%isValid())
-     call itor%currentTile(tileDesc)
-     call tileDesc%getDataPtr(solnData,  CENTER)
-     call tileDesc%getDataPtr(facexData,  FACEX)
-     call tileDesc%getDataPtr(faceyData,  FACEY)
-     call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(solnData, CENTER)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
+   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
-     call mph_evapVelForcing2d(facexData(mph_iVelFVar,:,:,:), &
-                               faceyData(mph_iVelFVar,:,:,:), &
-                               facexData(mph_iRhoFVar,:,:,:), &
-                               faceyData(mph_iRhoFVar,:,:,:), &
-                               solnData(mph_iMuCVar,:,:,:),&
-                               solnData(NRMX_VAR,:,:,:), &
-                               solnData(NRMY_VAR,:,:,:), &
-                               solnData(MFLX_VAR,:,:,:), &
-                               mph_invReynolds,dt,del(DIR_X),del(DIR_Y),&
-                               GRID_ILO, GRID_IHI, &
-                               GRID_JLO, GRID_JHI)
+   call mph_evapVelForcing2d(facexData(mph_iVelFVar, :, :, :), &
+                             faceyData(mph_iVelFVar, :, :, :), &
+                             facexData(mph_iRhoFVar, :, :, :), &
+                             faceyData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iMuCVar, :, :, :), &
+                             solnData(NRMX_VAR, :, :, :), &
+                             solnData(NRMY_VAR, :, :, :), &
+                             solnData(MFLX_VAR, :, :, :), &
+                             mph_invReynolds, dt, del(DIR_X), del(DIR_Y), &
+                             GRID_ILO, GRID_IHI, &
+                             GRID_JLO, GRID_JHI)
 
 #else
-     call tileDesc%getDataPtr(facezData,  FACEZ)
- 
-     call mph_evapVelForcing3d(facexData(mph_iVelFVar,:,:,:), &
-                               faceyData(mph_iVelFVar,:,:,:), &
-                               facezData(mph_iVelFVar,:,:,:), &
-                               facexData(mph_iRhoFVar,:,:,:), &
-                               faceyData(mph_iRhoFVar,:,:,:), &
-                               facezData(mph_iRhoFVar,:,:,:), &
-                               solnData(mph_iMuCVar,:,:,:),&
-                               solnData(NRMX_VAR,:,:,:), &
-                               solnData(NRMY_VAR,:,:,:), &
-                               solnData(NRMZ_VAR,:,:,:), &
-                               solnData(MFLX_VAR,:,:,:), &
-                               mph_invReynolds,dt,del(DIR_X),del(DIR_Y),del(DIR_Z),&
-                               GRID_ILO, GRID_IHI, &
-                               GRID_JLO, GRID_JHI, &
-                               GRID_KLO, GRID_KHI)
-     
-     call tileDesc%releaseDataPtr(facezData,  FACEZ)
-#endif
-    
-      ! Release pointers:
-      call tileDesc%releaseDataPtr(solnData, CENTER)
-      call tileDesc%releaseDataPtr(facexData, FACEX)
-      call tileDesc%releaseDataPtr(faceyData, FACEY)
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)  
+   call tileDesc%getDataPtr(facezData, FACEZ)
 
-  !------------------------------------------------------------------------------------------------------
-  ! APPLY BC AND FILL GUARDCELLS FOR INTERMEDIATE VELOCITIES:
-  ! ----- -- --- ---- ---------- --- ------------ ----------
-  !------------------------------------------------------------------------------------------------------
-  gcMask = .FALSE.
-  gcMask(NUNK_VARS+mph_iVelFVar) = .TRUE.                 ! ustar
-  gcMask(NUNK_VARS+1*NFACE_VARS+mph_iVelFVar) = .TRUE.    ! vstar
-#if NDIM == 3
-  gcMask(NUNK_VARS+2*NFACE_VARS+mph_iVelFVar) = .TRUE.    ! wstar
+   call mph_evapVelForcing3d(facexData(mph_iVelFVar, :, :, :), &
+                             faceyData(mph_iVelFVar, :, :, :), &
+                             facezData(mph_iVelFVar, :, :, :), &
+                             facexData(mph_iRhoFVar, :, :, :), &
+                             faceyData(mph_iRhoFVar, :, :, :), &
+                             facezData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iMuCVar, :, :, :), &
+                             solnData(NRMX_VAR, :, :, :), &
+                             solnData(NRMY_VAR, :, :, :), &
+                             solnData(NRMZ_VAR, :, :, :), &
+                             solnData(MFLX_VAR, :, :, :), &
+                             mph_invReynolds, dt, del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             GRID_ILO, GRID_IHI, &
+                             GRID_JLO, GRID_JHI, &
+                             GRID_KLO, GRID_KHI)
+
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
-  call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask)
+
+   ! Release pointers:
+   call tileDesc%releaseDataPtr(solnData, CENTER)
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
 
    return
 

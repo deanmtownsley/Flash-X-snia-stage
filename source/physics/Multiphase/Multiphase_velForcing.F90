@@ -14,7 +14,9 @@
 !!
 !!
 !!***
-subroutine Multiphase_velForcing(dt)
-  implicit none
-  real, intent(in) :: dt
+subroutine Multiphase_velForcing(tileDesc, dt)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
+   real, intent(in) :: dt
 end subroutine Multiphase_velForcing

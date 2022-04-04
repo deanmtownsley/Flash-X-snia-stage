@@ -167,7 +167,6 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
   logical :: rssMaxExceeded
   logical , intent(OUT) :: endRun 
 
-
   if(present(outputType)) then
      
      outputCheckpoint = IAND(outputType, CHECKPOINT_FILE_ONLY) /= 0

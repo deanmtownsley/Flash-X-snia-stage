@@ -131,7 +131,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
         ! io_readData.  If we do not do it here, the block rebalancing takes
         ! place the first time that gr_updateRefinement is called, usually
         ! after from 1 to gr_nrefs steps of time evolution.
-        ! The if(...) skips the block rebalancing here  in cases were calls
+        ! The if(...) skips the block rebalancing here in cases where calls
         ! to amr_refine_derefine are made below anyway. - KW
         if (gr_lrefineDel == 0) then
            if (gr_useParticles) then

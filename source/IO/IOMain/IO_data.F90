@@ -246,6 +246,7 @@ module IO_data
    logical, save :: io_reduceGcellFills
    logical, save :: io_summaryOutputOnly
 
+   logical, save :: io_gridChangedSincePlot = .TRUE.
 
    type tree_data_t
       real, dimension(:,:,:), pointer :: bnd_box
