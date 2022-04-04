@@ -44,10 +44,10 @@ Semipermanent flux storage (SPFS):
    flux-shaped arrays, but in a form specific and private to a Grid
    implementation.
    This is a generalization of the term 'flux register'.
-   * With the the Amrex Grid implementation, SPFS is implemented as data
-     items of TYPE(flashfluxregister).
-   * With the Paramesh Grid implementation, SPFS is implemented arrays
-     in a form native to PARAMESH.
+   * With the the Amrex Grid implementation, SPFS is implemented as
+     data items of TYPE(flashfluxregister).
+   * With the Paramesh Grid implementation, SPFS is implemented as
+     arrays in a form native to PARAMESH.
    In either case, the higher level code does not need to know how
    SPFS is organized. It is not defined whether flux data located
    at interior faces of a block or at non-f/c faces of a block are
@@ -62,7 +62,7 @@ Semipermanent flux storage (SPFS):
    can span several block-iterator loops.
 
 Flux communication [might also be called Flux exchange]:
-   Grid-implementation specifc action that implements flux correction
+   Grid-implementation specific action that implements flux correction
    acting on flux data in SPFS.
    May involve MPI communication (or not - depending on how blocks
    with f/c interfaces are distributed).
@@ -106,7 +106,7 @@ Grid_conserveFluxes, may belong to the NoLevelwideFluxes=False code
 variant and should be considered obsolete here.]
 
 The subroutine names marked [PM] are ONLY available with the Paramesh Grid!
-This limitation is a result of what, exactly is stored in (and can be
+This limitation is a result of what exactly is stored in (and can be
 retrieved from) the SPFS implementation: With PARAMESH, it is possible
 to retrieve "saved coarse fluxes" at Grid_get* time, but not with AMReX.
 
@@ -164,7 +164,7 @@ over levels or not -- are primarily dictated by which kind of flux
 communication is possible (or natural and efficient) for each Grid
 implementation: PARAMESH - all levels; AMReX - level by level.
 The unavailability of some subroutine interfaces in the Amrex case --
-see annotiations [PM] above -- also plays a role.
+see annotations [PM] above -- also plays a role.
 
 Comparing the 4 cases, the following can be observed:
 All variants call Grid_putFluxData_block and Grid_communicateFluxes.
@@ -196,3 +196,58 @@ latter corresponds to a (levelpair-specific) combination of
    for all affected blocks:
        call Grid_getFluxCorrData
        call [a routine that applies flux correction data to UNK]
+
+
+"Deferred Correction" vs "Apply Update" schemes
+-----------------------------------------------
+
+There are two quite different approaches to "doing flux correction".
+These differ in particular when we consider what operations are done
+to those cells that are affected by flux correction:
+
+* Deferred Update:
+
+  Each cell of the solution (UNK) gets updated only once.
+  The fluxes that are applied to a cell in that update can be
+  corrected fluxes.
+
+  Flash-X code that applies this kind of scheme typically calls
+  routines of the Grid_getFluxData* or Grid_correctFluxData* family.
+
+  This is the style of flux correction traditionally used in FLASH.
+
+* Apply Correction:
+
+  A cell of the solution may be modified twice:
+  1. An update with original (i.e., uncorrected) fluxes;
+  2. A later modification of the cell contents, i.e, applying
+     corrections.
+
+  Flash-X code that applies this kind of scheme typically calls
+  routines of the Grid_getFluxCorrData* family.
+
+  This is the style of flux correction traditionally used in AMReX
+  applications and, I think, much other AMR sofware.
+
+NOTE: The "once" above applies for unsplit, single stage solvers;
+in the case of directionally split or Runge-Kutta algorithms, the
+statements about how often cell contents are modified need to be
+modified in an obvious way (or flux changes need to be accumulated in
+a flux buffer before that buffer takes on the role of "original
+fluxes").
+
+Other things being equal, we prefer to use the "Deferred Update" style
+in Flash-X. In several variants of Hydro solvers, both are possible.
+Three out of the 4 example cases considered above used the "Deferred
+Update" style.
+
+However, a solver algorithm can become more complex with this choice,
+especially when one considers what happens at the level of blocks
+rather than individual cells. It can be advantageous to handle blocks
+that contain no cells that are affected by flux correction differently
+from those that do contain such cells; and to update cells for which
+fluxes may affected by f.c. at a different time from other cells.
+(Thus the existence of variants of hy_updateSolution* routines that
+update only some cells, cf. optional argument with possible values
+UPDATE_ALL / UPDATE_INTERIOR / UPDATE_BOUND in
+hy_updateSolution_fluxbuf.)
