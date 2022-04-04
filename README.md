@@ -1,6 +1,4 @@
-# Flash-X
-
-A Multiphysics Scientific Software System
+# Flash-X, a Multiphysics Scientific Software System
 
 Flash-X is a highly composable multiphysics software system that can
 be used to simulate physical phenomena in several scientific
