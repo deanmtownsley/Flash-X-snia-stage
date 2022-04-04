@@ -1,5 +1,54 @@
 # Flash-X
 
+A Multiphysics Scientific Software System
+
+Flash-X is a highly composable multiphysics software system that can
+be used to simulate physical phenomena in several scientific
+domains. It is derived from FLASH, which has a history of being a
+community code for several communities. The Flash-X architecture has
+been redesigned to be compatible with increasingly heterogeneous
+hardware platforms. Part of the redesign is a newly designed
+performance portability layer that is language agnostic.
+
+## Libraries
+
+The code of the PARAMESH library for Flash-X is provided as a git submodule by a separate code
+repository named PARAMESH-for-Flash-X.  After successful initialization of the submodule
+--- see further below ---
+the code will appear as a subtree under `Grid/GridMain/AMR` in the `PM4_package` directory.
+The Flash-X `setup` and build mechanisms will take care of compiling this code (if needed
+for a simulation configuration); PARAMESH code is not organized or built as a separate library.
+
+Some applications and tests use external libraries that are expected to be already installed on the
+system where Flash-X is being built and run. The directory locations of such library installations
+should be made know to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
+Makefile.h file. See the subdirectories under sites/ .
+
+This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
+should be installed, and the appropriate locations mentioned in Makefile.h .
+
+On the other hand, some applications and tests use INTERNAL libraries. Such libraries are built, as part of the Flash-X setup process, from source code that is located in subdirectories under lib/ . There are two cases for such libraries:
+
+1. **Library source code is included as part of the Flash-X git respository.**
+
+   An example is the sqrt3 library, whose source code is included in lib/sqrt/ .
+
+2. **Library source code must be retrieved from a separate repository.**
+
+   Examples are the THORNADO and WEAKLIB libraries.
+   Follow the instructions on submodules to automatically put the source code for these two
+   in the right places in subdirectories under lib/.
+
+## Git with Submodules
+
+To prepare for building simulations that use libraries whose code must be retrieved
+from a separate git repository, the following modified `git` commands can be used:
+
+- `git pull --recurse-submodules=yes` (in place of the usual `git pull`)
+- `git submodule update --init` (additionally, after `git pull`)
+- `git submodule update --init source/Grid/GridMain/AMR/Paramesh4/PM4_package`
+  (variant of the previous item, in case you want to only get the Paramesh package submodule)
+
 ## Git/Testing Workflow
 
 The current rules for collaborating via GitHub are as follows:
@@ -43,45 +92,6 @@ instead of a fork. The remainder of the workflow remains the same.
 ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
-
-## Libraries
-
-The code of the PARAMESH library for Flash-X is provided as a git submodule by a separate code
-repository named PARAMESH-for-Flash-X.  After successful initialization of the submodule
---- see further below ---
-the code will appear as a subtree under `Grid/GridMain/AMR` in the `PM4_package` directory.
-The Flash-X `setup` and build mechanisms will take care of compiling this code (if needed
-for a simulation configuration); PARAMESH code is not organized or built as a separate library.
-
-Some applications and tests use external libraries that are expected to be already installed on the
-system where Flash-X is being built and run. The directory locations of such library installations
-should be made know to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
-Makefile.h file. See the subdirectories under sites/ .
-
-This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
-should be installed, and the appropriate locations mentioned in Makefile.h .
-
-On the other hand, some applications and tests use INTERNAL libraries. Such libraries are built, as part of the Flash-X setup process, from source code that is located in subdirectories under lib/ . There are two cases for such libraries:
-
-1. **Library source code is included as part of the Flash-X git respository.**
-
-   An example is the sqrt3 library, whose source code is included in lib/sqrt/ .
-
-2. **Library source code must be retrieved from a separate repository.**
-
-   Examples are the THORNADO and WEAKLIB libraries.
-   Follow the instructions on submodules to automatically put the source code for these two
-   in the right places in subdirectories under lib/.
-   
-## Git with Submodules
-
-To prepare for building simulations that use libraries whose code must be retrieved
-from a separate git repository, the following modified `git` commands can be used:
-
-- `git pull --recurse-submodules=yes` (in place of the usual `git pull`)
-- `git submodule update --init` (additionally, after `git pull`)
-- `git submodule update --init source/Grid/GridMain/AMR/Paramesh4/PM4_package`
-  (variant of the previous item, in case you want to only get the Paramesh package submodule)
 
 ## Tests 
 The source code for flashtest and a full set of tests are available from the
