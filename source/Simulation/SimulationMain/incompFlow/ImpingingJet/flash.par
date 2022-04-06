@@ -24,23 +24,23 @@ geometry	= "cartesian"
 # Simulation parameters
 sim_inletBuffer = 1.0
 sim_outletBuffer = 1.0
-sim_freeSurface = 10.0
+sim_freeSurface = 15.0
 
 #       Size of computational volume
-xmin		= -20.0
-xmax		=  20.0
+xmin		= -30.0
+xmax		=  30.0
 ymin		=  0.0
-ymax		=  30.0
-zmin            = -20.0
-zmax            =  20.0
+ymax		=  40.0
+zmin            = -30.0
+zmax            =  30.0
 
 #       Boundary conditions
-xl_boundary_type = "noslip_ins"
-xr_boundary_type = "noslip_ins"
+xl_boundary_type = "extrap_ins"
+xr_boundary_type = "extrap_ins"
 yl_boundary_type = "inflow_ins"
 yr_boundary_type = "neumann_ins"
-zl_boundary_type = "noslip_ins"
-zr_boundary_type = "noslip_ins"
+zl_boundary_type = "extrap_ins"
+zr_boundary_type = "extrap_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "Impinging Jet problem"
@@ -74,9 +74,9 @@ plotFileIntervalTime = 1.0
 plotFileIntervalStep = 100000
 
 # AMR parameters
-nblockx	= 20
-nblocky	= 15
-nblockz = 20
+nblockx	= 24
+nblocky	= 16
+nblockz = 24
 nfres   = 10000000
 
 lrefine_min       = 1

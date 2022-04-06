@@ -1105,8 +1105,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 #endif
                   else
                      if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 2*regionData(guard + 2, 1:je, 1:ke, ivar) - &
-                                                                  regionData(guard + 3, 1:je, 1:ke, ivar)
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = 2*regionData(guard, 1:je, 1:ke, ivar) - &
+                                                                  regionData(guard - 1, 1:je, 1:ke, ivar)
                         k = 2*guard + 2
                         do i = guard, 1, -1
                            regionData(k - i, 1:je, 1:ke, ivar) = 2*regionData(k - i - 1, 1:je, 1:ke, ivar) - &

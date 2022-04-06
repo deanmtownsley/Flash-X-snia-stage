@@ -41,14 +41,8 @@ subroutine sim_inletInit()
 
          select case (domainBC(ibound, idimn))
 
-         case (SLIP_INS, NOSLIP_INS, MOVLID_INS)
-            sim_inletFlag(ibound, idimn) = 0
-
-         case (INFLOW_INS, EXTRAP_INS)
+         case (INFLOW_INS)
             sim_inletFlag(ibound, idimn) = 1
-
-         case (NEUMANN_INS)
-            sim_inletFlag(ibound, idimn) = 0
 
          end select
       end do

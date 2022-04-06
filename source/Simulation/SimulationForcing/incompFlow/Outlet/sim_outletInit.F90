@@ -45,12 +45,6 @@ subroutine sim_outletInit()
 
          select case (domainBC(ibound, idimn))
 
-         case (SLIP_INS, NOSLIP_INS, MOVLID_INS)
-            sim_outletFlag(ibound, idimn) = 0
-
-         case (INFLOW_INS, EXTRAP_INS)
-            sim_outletFlag(ibound, idimn) = 0
-
          case (NEUMANN_INS)
             sim_outletFlag(ibound, idimn) = 1
             sim_outletVel(ibound, idimn) = 1
