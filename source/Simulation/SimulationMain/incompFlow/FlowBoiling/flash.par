@@ -92,7 +92,7 @@ plotFileIntervalStep = 1000
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 36
+nblockx	= 32
 nblocky	= 10
 nblockz = 10
 nfres   = 10000000
