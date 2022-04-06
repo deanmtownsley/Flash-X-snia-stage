@@ -2,7 +2,11 @@
 #
 REQUIRES physics/IncompNS/IncompNSMain
 
+# Directives
 PPDEFINE SIMULATION_FORCE_OUTLET
+
+# Constants
+PPDEFINE OUTLET 2
 
 # Outlet sink strength
 PARAMETER sim_outletSink       REAL  -1.0

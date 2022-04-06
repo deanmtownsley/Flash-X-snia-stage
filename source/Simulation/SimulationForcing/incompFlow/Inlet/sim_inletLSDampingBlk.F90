@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletLSDampingBlk
+!!***if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletLSDampingBlk
 !!
 !!
 !! NOTICE
@@ -19,10 +19,10 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
-                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax)
+subroutine sim_inletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
+                                   dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                   inletFlag, inletSink, inletBuffer, inletGrowthRate, &
+                                   xMin, xMax, yMin, yMax)
 
    implicit none
 
@@ -32,19 +32,16 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag
-   real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
+   integer, dimension(2, MDIM), intent(in) :: inletFlag
+   real, intent(in) :: inletSink, inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax
 
-   integer :: i, j, k
-   real    :: xi, yi
+end subroutine sim_inletLSDampingBlk2d
 
-end subroutine sim_outletLSDampingBlk2d
-
-subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
-                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax, zMin, zMax)
+subroutine sim_inletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
+                                   dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                   inletFlag, inletSink, inletBuffer, inletGrowthRate, &
+                                   xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
 
@@ -54,11 +51,8 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag
-   real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
+   integer, dimension(2, MDIM), intent(in) :: inletFlag
+   real, intent(in) :: inletSink, inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 
-   integer :: i, j, k
-   real    :: xi, yi, zi
-
-end subroutine sim_outletLSDampingBlk3d
+end subroutine sim_inletLSDampingBlk3d

@@ -22,7 +22,8 @@ subroutine sim_inletSetForcing(tileDesc, dt)
 
    use sim_outletData, ONLY: sim_outletFlag
 
-   use sim_inletData, ONLY: sim_inletFlag
+   use sim_inletData, ONLY: sim_inletFlag, sim_inletGrowthRate, sim_inletBuffer, &
+                            sim_inletSink
 
    use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
 #if NDIM == MDIM
@@ -32,7 +33,8 @@ subroutine sim_inletSetForcing(tileDesc, dt)
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
-   use sim_inletInterface, ONLY: sim_inletVelBlk2d, sim_inletVelBlk3d
+   use sim_inletInterface, ONLY: sim_inletLSDampingBlk2d, sim_inletLSDampingBlk3d, &
+                                 sim_inletVelBlk2d, sim_inletVelBlk3d
 
    use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
@@ -82,6 +84,18 @@ subroutine sim_inletSetForcing(tileDesc, dt)
 
 #if NDIM < MDIM
 
+#ifdef MULTIPHASE_MAIN
+   call sim_inletLSDampingBlk2d(solnData(DFRC_VAR, :, :, :), &
+                                solnData(DFUN_VAR, :, :, :), &
+                                xCenter, yCenter, boundBox, &
+                                dt, del(IAXIS), del(JAXIS), &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI, &
+                                sim_inletFlag, sim_inletSink, sim_inletBuffer, &
+                                sim_inletGrowthRate, &
+                                sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+#endif
+
    call sim_inletVelBlk2d(facexData(VELC_FACE_VAR, :, :, :), &
                           faceyData(VELC_FACE_VAR, :, :, :), &
                           facexData(VFRC_FACE_VAR, :, :, :), &
@@ -90,12 +104,25 @@ subroutine sim_inletSetForcing(tileDesc, dt)
                           dt, del(IAXIS), del(JAXIS), &
                           GRID_ILO, GRID_IHI, &
                           GRID_JLO, GRID_JHI, &
-                          sim_inletFlag, sim_outletFlag, &
+                          sim_inletFlag, sim_outletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                           sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
                           ins_gravX, ins_gravY)
 
 #else
    call tileDesc%getDataPtr(facezData, FACEZ)
+
+#ifdef MULTIPHASE_MAIN
+   call sim_inletLSDampingBlk3d(solnData(DFRC_VAR, :, :, :), &
+                                solnData(DFUN_VAR, :, :, :), &
+                                xCenter, yCenter, zCenter, boundBox, &
+                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                                GRID_ILO, GRID_IHI, &
+                                GRID_JLO, GRID_JHI, &
+                                GRID_KLO, GRID_KHI, &
+                                sim_inletFlag, sim_inletSink, sim_inletBuffer, &
+                                sim_inletGrowthRate, &
+                                sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+#endif
 
    call sim_inletVelBlk3d(facexData(VELC_FACE_VAR, :, :, :), &
                           faceyData(VELC_FACE_VAR, :, :, :), &
@@ -108,7 +135,7 @@ subroutine sim_inletSetForcing(tileDesc, dt)
                           GRID_ILO, GRID_IHI, &
                           GRID_JLO, GRID_JHI, &
                           GRID_KLO, GRID_KHI, &
-                          sim_inletFlag, sim_outletFlag, &
+                          sim_inletFlag, sim_outletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                           sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
                           ins_gravX, ins_gravY, ins_gravZ)
 

@@ -1,5 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletData
-!!
+!!****if* source/Simulation/SimulationMain/incompFlow/ImpingingJet/Simulation_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,25 +13,34 @@
 !!
 !! NAME
 !!
-!!  sim_inletData
+!!  Simulation_data
 !!
 !! SYNOPSIS
 !!
-!!  use sim_inletData
+!!  use Simulation_data
+!!
+!! DESCRIPTION
+!!
+!!  Stores the local data for Simulation setup: Pool Boiling
 !!
 !!***
+
+module Simulation_data
+
+   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
 
-module sim_inletData
+   real, save :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
+   integer, save :: sim_meshMe
 
-   implicit none
+   real, save :: sim_gravX
+   real, save :: sim_gravY
+   real, save :: sim_gravZ
 
-   integer, save :: sim_inletFlag(LOW:HIGH, MDIM)
+   real, save :: sim_freeSurface
+   real, save :: sim_jetCoords(MDIM) = (/0, 0, 0/), sim_jetRadius = 0.5
+   real, save :: sim_jetVel = 1.0
 
-   real, save :: sim_inletBuffer
-   real, save :: sim_inletGrowthRate
-   real, save :: sim_inletSink
-
-end module sim_inletData
+end module Simulation_data

@@ -4,12 +4,8 @@
 REQUIRES physics/IncompNS/IncompNSMain/varDens
 REQUIRES physics/IncompNS/IncompNSExtras
 
-REQUIRES physics/Multiphase/MultiphaseEvap
+REQUIRES physics/Multiphase/MultiphaseMain
 
-REQUIRES physics/HeatAD/HeatADMain/varDiffusion
-REQUIRES physics/HeatAD/HeatADAdvection
-
-REQUIRES Simulation/SimulationForcing/incompFlow/Heater
 REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
 REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
 
@@ -21,6 +17,4 @@ ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
-DATAFILES *_hdf5_htr_*
-
-DATAFILES single_bubble.par multiple_bubbles.par
+PARAMETER sim_freeSurface   REAL  1.0

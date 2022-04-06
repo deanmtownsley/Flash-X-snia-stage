@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletLSDampingBlk
+!!***if* source/Simulation/SimulationMain/incompFlow/ImpingingJet/sim_outletLSDampingBlk
 !!
 !!
 !! NOTICE
@@ -20,9 +20,11 @@
 #include "Simulation.h"
 
 subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
-                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax)
+                                    dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax)
+
+   use Simulation_data, ONLY: sim_freeSurface
 
    implicit none
 
@@ -37,14 +39,30 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
    real, intent(in) :: xMin, xMax, yMin, yMax
 
    integer :: i, j, k
-   real    :: xi, yi
+   real    :: xi, yi, phiforce
+
+   k = 1
+
+   do j = jy1, jy2
+      do i = ix1, ix2
+         xi = xcell(i)
+         yi = ycell(j)
+
+         phiforce = (sim_freeSurface -yi - phi(i, j, k))/dt
+
+         pfrc(i, j, k) = pfrc(i, j, k) + &
+                         phiforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) + &
+                         phiforce*(2/(1 + exp(outletGrowthRate*(xi - xMin)/outletBuffer)))
+                           
+      end do
+   end do
 
 end subroutine sim_outletLSDampingBlk2d
 
 subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
-                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax, zMin, zMax)
+                                    dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
 

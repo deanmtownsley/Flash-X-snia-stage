@@ -32,17 +32,13 @@ subroutine sim_outletInit()
    call RuntimeParameters_get('sim_outletSink', sim_outletSink)
    call RuntimeParameters_get('sim_outletBuffer', sim_outletBuffer)
    call RuntimeParameters_get('sim_outletGrowthRate', sim_outletGrowthRate)
+   call Grid_getDomainBC(domainBC)
 
-   if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_outletSink=', sim_outletSink
-      write (*, *) 'sim_outletBuffer=', sim_outletBuffer
-      write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate
-   end if
-
-   sim_outletVel = 0.
    sim_outletFlag = 0
 
-   call Grid_getDomainBC(domainBC)
+   sim_outletVel = 0.
+   sim_outletVelLiq = 0.
+   sim_outletVelGas = 0.
 
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
@@ -64,6 +60,9 @@ subroutine sim_outletInit()
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_outletSink=', sim_outletSink
+      write (*, *) 'sim_outletBuffer=', sim_outletBuffer
+      write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate
       write (*, *) 'Outlet Flag Low  =', sim_outletFlag(LOW, :)
       write (*, *) 'Outlet Flag High =', sim_outletFlag(HIGH, :)
    end if

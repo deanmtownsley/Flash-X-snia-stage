@@ -11,7 +11,7 @@ REQUIRES physics/HeatAD/HeatADAdvection
 
 REQUIRES Simulation/SimulationForcing/incompFlow/Heater
 REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg
+REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
 
 USESETUPVARS Grid
 

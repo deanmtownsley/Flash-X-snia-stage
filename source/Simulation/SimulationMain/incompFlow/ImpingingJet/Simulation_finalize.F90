@@ -1,5 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletData
-!!
+!!****f* source/Simulation/SimulationMain/incompFlow/ImpingingJet/Simulation_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,26 +12,31 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!
-!!  sim_inletData
+!!  Simulation_finalize
 !!
 !! SYNOPSIS
 !!
-!!  use sim_inletData
+!!  Simulation_finalize()
+!!
+!! DESCRIPTION
+!!
+!!  This dummy function cleans up the Simulation unit, deallocates memory, etc.
+!!  However, as nothing needs to be done, only this stub is included.
+!!
+!! ARGUMENTS
+!!
+!!
 !!
 !!***
 
-#include "constants.h"
-#include "Simulation.h"
+subroutine Simulation_finalize()
 
-module sim_inletData
+   use sim_outletInterface, ONLY: sim_outletFinalize
+   use sim_inletInterface, ONLY: sim_inletFinalize
 
    implicit none
 
-   integer, save :: sim_inletFlag(LOW:HIGH, MDIM)
+   call sim_inletFinalize()
+   call sim_outletFinalize()
 
-   real, save :: sim_inletBuffer
-   real, save :: sim_inletGrowthRate
-   real, save :: sim_inletSink
-
-end module sim_inletData
+end subroutine Simulation_finalize

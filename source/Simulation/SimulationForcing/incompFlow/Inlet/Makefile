@@ -5,4 +5,5 @@ Simulation += sim_inletData.o \
               sim_inletApplyBCToFace.o \
               sim_inletSetForcing.o \
               sim_inletVelBlk.o \
-              sim_inletVelBlkPhased.o 
+              sim_inletVelBlkPhased.o \
+              sim_inletLSDampingBlk.o 

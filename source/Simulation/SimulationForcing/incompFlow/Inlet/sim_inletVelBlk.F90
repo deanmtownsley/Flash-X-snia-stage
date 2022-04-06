@@ -19,7 +19,7 @@
 
 subroutine sim_inletVelBlk2d(u, v, ru, rv, xcell, ycell, &
                              boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
-                             inletFlag, outletFlag, &
+                             inletFlag, outletFlag, inletBuffer, inletGrowthRate, &
                              xMin, xMax, yMin, yMax, gravX, gravY)
 
    implicit none
@@ -30,13 +30,14 @@ subroutine sim_inletVelBlk2d(u, v, ru, rv, xcell, ycell, &
    real, intent(in)                        :: dt, dx, dy
    integer, intent(in)                     :: ix1, ix2, jy1, jy2
    integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
 end subroutine sim_inletVelBlk2d
 
 subroutine sim_inletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
                              boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                             inletFlag, outletFlag, &
+                             inletFlag, outletFlag, inletBuffer, inletGrowthRate, &
                              xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
    implicit none
@@ -47,6 +48,7 @@ subroutine sim_inletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
    real, intent(in)                      :: dt, dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
    integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 
 end subroutine sim_inletVelBlk3d

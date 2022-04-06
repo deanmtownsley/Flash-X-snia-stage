@@ -156,7 +156,7 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
    sim_outletVelLiq = sim_outletVelLiq/(sim_outletPhaseLiq + 1e-13)
-   sim_outletVelGas = sim_outletVelGas/(sim_outletVelGas + 1e-13)
+   sim_outletVelGas = sim_outletVelGas/(sim_outletPhaseGas + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'Outlet Liq Velocity Low  =', sim_outletVelLiq(LOW, :)

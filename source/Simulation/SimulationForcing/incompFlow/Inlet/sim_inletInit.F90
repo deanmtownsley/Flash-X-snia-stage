@@ -29,9 +29,12 @@ subroutine sim_inletInit()
    implicit none
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
 
-   sim_inletFlag = 0
-
+   call RuntimeParameters_get('sim_inletSink', sim_inletSink)
+   call RuntimeParameters_get('sim_inletBuffer', sim_inletBuffer)
+   call RuntimeParameters_get('sim_inletGrowthRate', sim_inletGrowthRate)
    call Grid_getDomainBC(domainBC)
+
+   sim_inletFlag = 0
 
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
@@ -52,6 +55,9 @@ subroutine sim_inletInit()
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_inletSink = ', sim_inletSink
+      write (*, *) 'sim_inletBuffer =', sim_inletBuffer
+      write (*, *) 'sim_inletGrowthRate =', sim_inletGrowthRate
       write (*, *) 'Inlet Flag Low  =', sim_inletFlag(LOW, :)
       write (*, *) 'Inlet Flag High =', sim_inletFlag(HIGH, :)
    end if
