@@ -18,7 +18,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletInit()
+subroutine sim_outletInit(outletType)
 
    use sim_outletData
    use Grid_interface, ONLY: Grid_getDomainBC
@@ -27,33 +27,58 @@ subroutine sim_outletInit()
    use Driver_interface, ONLY: Driver_abort
 
    implicit none
+   character(len=*), intent(in), optional  :: outletType
+
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
+   character(len=100) :: errorMessage
 
    call RuntimeParameters_get('sim_outletSink', sim_outletSink)
    call RuntimeParameters_get('sim_outletBuffer', sim_outletBuffer)
    call RuntimeParameters_get('sim_outletGrowthRate', sim_outletGrowthRate)
    call Grid_getDomainBC(domainBC)
 
-   sim_outletFlag = 0
+   sim_outletIsLiq = 1
+   sim_outletIsGas = 1
 
-   sim_outletVel = 0.
-   sim_outletVelLiq = 0.
-   sim_outletVelGas = 0.
+   if (present(outletType)) then
+#ifdef SIMULATION_OUTLET_PHASED
+      select case (outletType)
+      case ("Liquid", "liquid", "LIQUID")
+         sim_outletIsGas = 0
+      case ("Gas", "gas", "GAS")
+         sim_outletIsLiq = 0
+      case default
+         write (errorMessage, *) '[sim_outletInit] Unknown outlet type: ', outletType
+         call Driver_abort(errorMessage)
+      end select
+#else
+      write (errorMessage, *) '[sim_outletInit] use Outlet/phaseAvg to set outlet type: ', outletType
+      call Driver_abort(errorMessage)
+#endif
+   end if
+
+   sim_outletFlag = 0
+   sim_QMean = 0.
+   sim_QMeanLiq = 0.
+   sim_QMeanGas = 0.
 
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
-
          select case (domainBC(ibound, idimn))
-
          case (NEUMANN_INS)
-            sim_outletFlag(ibound, idimn) = 1
-            sim_outletVel(ibound, idimn) = 1
-
+            if (ibound == LOW) then
+               call Driver_abort("Outlet not implemented for NEUMANN_INS at face = LOW")
+            else
+               sim_outletFlag(ibound, idimn) = 1
+               sim_QMean(idimn) = 1
+            end if
          end select
       end do
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_outletIsGas=', sim_outletIsGas
+      write (*, *) 'sim_outletIsLiq=', sim_outletIsLiq
       write (*, *) 'sim_outletSink=', sim_outletSink
       write (*, *) 'sim_outletBuffer=', sim_outletBuffer
       write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate

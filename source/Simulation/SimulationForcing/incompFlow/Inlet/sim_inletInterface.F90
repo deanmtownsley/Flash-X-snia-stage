@@ -62,7 +62,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: inletFlag, outletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
@@ -80,7 +80,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in)     :: boundBox
          real, intent(in)                      :: dt, dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: inletFlag, outletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: inletFlag, outletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 
@@ -101,7 +101,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
@@ -120,7 +120,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in)     :: boundBox
          real, intent(in)                      :: dt, dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 
@@ -161,7 +161,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in) :: boundBox
          real, intent(in) :: dt, dx, dy
          integer, intent(in) :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: inletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: inletFlag
          real, intent(in) :: inletSink, inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax
 
@@ -180,7 +180,7 @@ Module sim_inletInterface
          real, dimension(:, :), intent(in) :: boundBox
          real, intent(in) :: dt, dx, dy, dz
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: inletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: inletFlag
          real, intent(in) :: inletSink, inletBuffer, inletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 

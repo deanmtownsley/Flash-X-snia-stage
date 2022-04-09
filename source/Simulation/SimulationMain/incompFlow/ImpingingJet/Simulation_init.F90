@@ -67,6 +67,6 @@ subroutine Simulation_init()
    end if
 
    call sim_inletInit()
-   call sim_outletInit()
+   call sim_outletInit("Gas")
 
 end subroutine Simulation_init

@@ -32,7 +32,7 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax
 
@@ -54,7 +54,7 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 

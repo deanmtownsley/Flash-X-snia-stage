@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_init
+!!****if* source/Simulation/SimulationMain/incompFlow/CounterFlow/Simulation_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -33,22 +33,14 @@
 !!***
 
 #include "constants.h"
-#include "Simulation.h"
 
 subroutine Simulation_init()
 
    use Simulation_data
    use Driver_interface, ONLY: Driver_getMype, Driver_abort
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-   use sim_heaterInterface, ONLY: sim_heaterInit
-
-#ifdef SIMULATION_FORCE_INLET
    use sim_outletInterface, ONLY: sim_outletInit
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
    use sim_inletInterface, ONLY: sim_inletInit
-#endif
 
    implicit none
 
@@ -60,24 +52,21 @@ subroutine Simulation_init()
    call RuntimeParameters_get('ymax', sim_yMax)
    call RuntimeParameters_get('zmin', sim_zmin)
    call RuntimeParameters_get('zmax', sim_zmax)
+
+   call RuntimeParameters_get('sim_channelDepth', sim_channelDepth)
+
    call RuntimeParameters_get('ins_gravX', sim_gravX)
    call RuntimeParameters_get('ins_gravY', sim_gravY)
    call RuntimeParameters_get('ins_gravZ', sim_gravZ)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_gravX=', sim_gravX
-      write (*, *) 'sim_gravY=', sim_gravY
-      write (*, *) 'sim_gravZ=', sim_gravZ
+      write (*, *) 'sim_gravX =', sim_gravX
+      write (*, *) 'sim_gravY =', sim_gravY
+      write (*, *) 'sim_gravZ =', sim_gravZ
+      write (*, *) 'sim_channelDepth =', sim_channelDepth
    end if
 
-   call sim_heaterInit()
-
-#ifdef SIMULATION_FORCE_INLET
    call sim_inletInit()
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   call sim_outletInit("Gas")
-#endif
+   call sim_outletInit()
 
 end subroutine Simulation_init

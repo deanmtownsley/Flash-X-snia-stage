@@ -10,15 +10,12 @@ REQUIRES physics/HeatAD/HeatADMain/varDiffusion
 REQUIRES physics/HeatAD/HeatADAdvection
 
 REQUIRES Simulation/SimulationForcing/incompFlow/Heater
-REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
 
-USESETUPVARS Grid
+USESETUPVARS SimForceInOut
 
-IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
-   REQUIRES Grid/GridSolvers/HYPRE
-ELSE
-   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+IF SimForceInOut
+    REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+    REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg
 ENDIF
 
 DATAFILES *_hdf5_htr_*

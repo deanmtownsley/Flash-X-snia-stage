@@ -30,7 +30,7 @@ subroutine sim_inletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
    real, dimension(:, :), intent(in)       :: boundBox
    real, intent(in)                        :: dt, dx, dy
    integer, intent(in)                     :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
    real, intent(in) :: inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
@@ -49,7 +49,7 @@ subroutine sim_inletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcell
    real, dimension(:, :), intent(in)     :: boundBox
    real, intent(in)                      :: dt, dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
    real, intent(in) :: inletBuffer, inletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 

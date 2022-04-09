@@ -22,11 +22,12 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    use sim_outletData, ONLY: sim_outletSink, sim_outletFlag, &
                              sim_outletBuffer, sim_outletGrowthRate, &
-                             sim_outletVelLiq, sim_outletVelGas, &
-                             sim_velAuxLiq, sim_velAuxGas, &
-                             sim_phaseAuxLiq, sim_phaseAuxGas
+                             sim_QMeanLiq, sim_QMeanGas, &
+                             sim_QAuxLiq, sim_QAuxGas, &
+                             sim_volAuxLiq, sim_volAuxGas, &
+                             sim_outletIsLiq, sim_outletIsGas
 
-   use sim_inletData, ONLY: sim_inletFlag
+   use sim_inletData, ONLY: sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate
 
    use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
 #if NDIM == MDIM
@@ -106,11 +107,12 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                                  dt, del(IAXIS), del(JAXIS), &
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI, &
-                                 sim_inletFlag, &
-                                 sim_outletFlag, sim_phaseAuxLiq, sim_phaseAuxGas, &
-                                 sim_velAuxLiq, sim_velAuxGas, &
-                                 sim_outletVelLiq, sim_outletVelGas, &
-                                 sim_outletBuffer, sim_outletGrowthRate, &
+                                 sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 sim_outletIsLiq, sim_outletIsGas, &
+                                 sim_volAuxLiq, sim_volAuxGas, &
+                                 sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QMeanLiq, sim_QMeanGas, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
                                  ins_gravX, ins_gravY)
 
@@ -140,11 +142,12 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI, &
-                                 sim_inletFlag, &
-                                 sim_outletFlag, sim_phaseAuxLiq, sim_phaseAuxGas, &
-                                 sim_velAuxLiq, sim_velAuxGas, &
-                                 sim_outletVelLiq, sim_outletVelGas, &
-                                 sim_outletBuffer, sim_outletGrowthRate, &
+                                 sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 sim_outletIsLiq, sim_outletIsGas, &
+                                 sim_volAuxLiq, sim_volAuxGas, &
+                                 sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QMeanLiq, sim_QMeanGas, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
                                  ins_gravX, ins_gravY, ins_gravZ)
 

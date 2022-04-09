@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/ImpingingJet/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/incompFlow/CounterFlow/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -65,7 +65,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real    :: del(MDIM)
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
-   real :: Rcell, jetProfile
+   real :: channelDepth
 
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
@@ -96,12 +96,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             yi = yCenter(j)
             zi = zCenter(k)
 
-            !Rcell = 0.6*sim_jetRadius + 0.4*sim_jetRadius*(sim_freeSurface - yi)/sim_freeSurface
-            Rcell = sim_jetRadius
+            !channelDepth = sim_channelDepth*(sim_yMax - yi)/sim_yMax
+            channelDepth = sim_channelDepth
 
-            jetProfile = sqrt((xi - sim_jetCoords(IAXIS))**2 + (zi - sim_jetCoords(KAXIS))**2) - Rcell
-
-            solnData(DFUN_VAR, i, j, k) = min(jetProfile, sim_freeSurface - yi)
+            solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
 
          end do
       end do
@@ -113,9 +111,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
             yi = yCenter(j)
 
-            if (yi .lt. sim_freeSurface .and. &
-                0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .lt. 0.0) &
+            if (0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .gt. 0.0) then
+               faceyData(VELC_FACE_VAR, i, j, k) = -1.0
+            else
                faceyData(VELC_FACE_VAR, i, j, k) = 1.0
+            end if
 
          end do
       end do

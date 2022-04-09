@@ -18,10 +18,11 @@
 #include "Simulation.h"
 
 subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
-                                    boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
-                                    outletFlag, phaseAuxLiq, phaseAuxGas, &
-                                    velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
-                                    outletBuffer, outletGrowthRate, &
+                                    boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                    inletFlag, inletBuffer, inletGrowthRate, &
+                                    outletFlag, outletBuffer, outletGrowthRate, &
+                                    outletIsLiq, outletIsGas, &
+                                    volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QMeanLiq, QMeanGas, &
                                     xMin, xMax, yMin, yMax, gravX, gravY)
 
    implicit none
@@ -32,16 +33,22 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
    real, dimension(:, :), intent(in)       :: boundBox
    real, intent(in)                        :: dt, dx, dy
    integer, intent(in)                     :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-   real, intent(inout) :: velAuxLiq(2, MDIM), velAuxGas(2, MDIM), phaseAuxLiq(2, MDIM), phaseAuxGas(2, MDIM)
-   real, intent(in) :: velOutLiq(2, MDIM), velOutGas(2, MDIM), outletBuffer, outletGrowthRate
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
+   integer, intent(in) :: outletIsLiq, outletIsGas
+   real, intent(inout) :: QAuxLiq(MDIM), QAuxGas(MDIM)
+   real, intent(inout) :: volAuxLiq(MDIM), volAuxGas(MDIM)
+   real, intent(in) :: QMeanLiq(MDIM), QMeanGas(MDIM)
    real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
    integer :: i, j, k
-   real    :: xi, yi
-   real    :: uplus, umins, vplus, vmins
-   real    :: uforce, vforce
-   real    :: phicell
+   real :: xi, yi
+   real :: uplus, umins, vplus, vmins
+   real :: xforce, yforce
+   real :: cellphi, cellvol
+   integer :: iGas, iLiq
+
+   cellvol = (dx/(xMax - xMin))*(dy/(yMax - yMin))
 
    k = 1
 
@@ -50,31 +57,29 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         phicell = (phi(i, j, k) + phi(i - 1, j, k))*.5
+         cellphi = (phi(i, j, k) + phi(i - 1, j, k))*.5
 
-         uforce = ((1 - sign(1., phicell))/2)*(velOutLiq(HIGH, IAXIS) - u(i, j, k))/dt &
-                  + ((1 + sign(1., phicell))/2)*(velOutGas(HIGH, IAXIS) - u(i, j, k))/dt
+         uplus = (u(i, j, k) + u(i + 1, j, k))*0.5
+         umins = (u(i, j, k) + u(i - 1, j, k))*0.5
+
+         iLiq = (1 - int(sign(1., cellphi)))/2
+         iGas = (1 + int(sign(1., cellphi)))/2
+
+         xforce = iLiq*outletIsLiq*(QMeanLiq(IAXIS) - u(i, j, k))/dt + &
+                  iGas*outletIsGas*(QMeanGas(IAXIS) - u(i, j, k))/dt + &
+                  iLiq*QMeanLiq(IAXIS)*(uplus - umins)/dx + iGas*QMeanGas(IAXIS)*(uplus - umins)/dx
+         !
+         yforce = -iLiq*outletIsLiq*u(i, j, k)/dt - iGas*outletIsGas*u(i, j, k)/dt
 
          ru(i, j, k) = ru(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         velAuxLiq(HIGH, IAXIS) = velAuxLiq(HIGH, IAXIS) &
-                                  + outletFlag(HIGH, IAXIS)*u(i, j, k)*((1 - sign(1., phicell))/2) &
-                                  *(dx/(xMax - xMin))*(dy/(yMax - yMin))
+         QAuxLiq(IAXIS) = QAuxLiq(IAXIS) + iLiq*outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+         volAuxLiq(IAXIS) = volAuxLiq(IAXIS) + iLiq*outletFlag(HIGH, IAXIS)*cellvol
 
-         phaseAuxLiq(HIGH, IAXIS) = phaseAuxLiq(HIGH, IAXIS) &
-                                    + outletFlag(HIGH, IAXIS)*((1 - sign(1., phicell))/2) &
-                                    *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
-         velAuxGas(HIGH, IAXIS) = velAuxGas(HIGH, IAXIS) &
-                                  + outletFlag(HIGH, IAXIS)*u(i, j, k)*((1 + sign(1., phicell))/2) &
-                                  *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
-         phaseAuxGas(HIGH, IAXIS) = phaseAuxGas(HIGH, IAXIS) &
-                                    + outletFlag(HIGH, IAXIS)*((1 + sign(1., phicell))/2) &
-                                    *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
+         QAuxGas(IAXIS) = QAuxGas(IAXIS) + iGas*outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+         volAuxGas(IAXIS) = volAuxGas(IAXIS) + iGas*outletFlag(HIGH, IAXIS)*cellvol
       end do
    end do
 
@@ -83,41 +88,40 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         phicell = (phi(i, j, k) + phi(i, j - 1, k))*.5
+         cellphi = (phi(i, j, k) + phi(i, j - 1, k))*.5
 
-         vforce = ((1 - sign(1., phicell))/2)*(velOutLiq(HIGH, JAXIS) - v(i, j, k))/dt &
-                  + ((1 + sign(1., phicell))/2)*(velOutGas(HIGH, JAXIS) - v(i, j, k))/dt
+         vplus = (v(i, j, k) + v(i, j + 1, k))*0.5
+         vmins = (v(i, j, k) + v(i, j - 1, k))*0.5
+
+         iLiq = (1 - int(sign(1., cellphi)))/2
+         iGas = (1 + int(sign(1., cellphi)))/2
+
+         xforce = -iLiq*outletIsLiq*v(i, j, k)/dt - iGas*outletIsGas*v(i, j, k)/dt
+         !
+         yforce = iLiq*outletIsLiq*(QMeanLiq(JAXIS) - v(i, j, k))/dt + &
+                  iGas*outletIsGas*(QMeanGas(JAXIS) - v(i, j, k))/dt + &
+                  iLiq*QMeanLiq(JAXIS)*(vplus - vmins)/dy + iGas*QMeanGas(JAXIS)*(vplus - vmins)/dy
 
          rv(i, j, k) = rv(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         velAuxLiq(HIGH, JAXIS) = velAuxLiq(HIGH, JAXIS) &
-                                  + outletFlag(HIGH, JAXIS)*v(i, j, k)*((1 - sign(1., phicell))/2) &
-                                  *(dx/(xMax - xMin))*(dy/(yMax - yMin))
+         QAuxLiq(JAXIS) = QAuxLiq(JAXIS) + iLiq*outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+         volAuxLiq(JAXIS) = volAuxLiq(JAXIS) + iLiq*outletFlag(HIGH, JAXIS)*cellvol
 
-         phaseAuxLiq(HIGH, JAXIS) = phaseAuxLiq(HIGH, JAXIS) &
-                                    + outletFlag(HIGH, JAXIS)*((1 - sign(1., phicell))/2) &
-                                    *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
-         velAuxGas(HIGH, JAXIS) = velAuxGas(HIGH, JAXIS) &
-                                  + outletFlag(HIGH, JAXIS)*v(i, j, k)*((1 + sign(1., phicell))/2) &
-                                  *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
-         phaseAuxGas(HIGH, JAXIS) = phaseAuxGas(HIGH, JAXIS) &
-                                    + outletFlag(HIGH, JAXIS)*((1 + sign(1., phicell))/2) &
-                                    *(dx/(xMax - xMin))*(dy/(yMax - yMin))
-
+         QAuxGas(JAXIS) = QAuxGas(JAXIS) + iGas*outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+         volAuxGas(JAXIS) = volAuxGas(JAXIS) + iGas*outletFlag(HIGH, JAXIS)*cellvol
       end do
    end do
 
 end subroutine sim_outletVelBlk2dPhased
 
 subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcell, &
-                                    boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
-                                    outletFlag, phaseAuxLiq, phaseAuxGas, &
-                                    velAuxLiq, velAuxGas, velOutLiq, velOutGas, &
-                                    outletBuffer, outletGrowthRate, &
+                                    boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                    inletFlag, inletBuffer, inletGrowthRate, &
+                                    outletFlag, outletBuffer, outletGrowthRate, &
+                                    outletIsLiq, outletIsGas, &
+                                    volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QMeanLiq, QMeanGas, &
                                     xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
    implicit none
@@ -128,16 +132,22 @@ subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcel
    real, dimension(:, :), intent(in)     :: boundBox
    real, intent(in)                      :: dt, dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-   real, intent(inout) :: velAuxLiq(2, MDIM), velAuxGas(2, MDIM), phaseAuxLiq(2, MDIM), phaseAuxGas(2, MDIM)
-   real, intent(in) :: velOutLiq(2, MDIM), velOutGas(2, MDIM), outletBuffer, outletGrowthRate
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
+   integer, intent(in) :: outletIsLiq, outletIsGas
+   real, intent(inout) :: QAuxLiq(MDIM), QAuxGas(MDIM)
+   real, intent(inout) :: volAuxLiq(MDIM), volAuxGas(MDIM)
+   real, intent(in) :: QMeanLiq(MDIM), QMeanGas(MDIM)
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 
    integer :: i, j, k
    real    :: xi, yi, zi
    real    :: uplus, umins, vplus, vmins, wplus, wmins
-   real    :: uforce, vforce, wforce
-   real    :: phicell
+   real    :: xforce, yforce, zforce
+   real    :: cellphi, cellvol
+   integer :: iLiq, iGas
+
+   cellvol = (dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
 
    do k = kz1, kz2
       do j = jy1, jy2
@@ -146,32 +156,27 @@ subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcel
             yi = ycell(j)
             zi = zcell(k)
 
-            phicell = (phi(i, j, k) + phi(i - 1, j, k))*.5
+            cellphi = (phi(i, j, k) + phi(i - 1, j, k))*.5
 
-            uforce = ((1 - sign(1., phicell))/2)*(velOutLiq(HIGH, IAXIS) - u(i, j, k))/dt &
-                     + ((1 + sign(1., phicell))/2)*(velOutGas(HIGH, IAXIS) - u(i, j, k))/dt
+            iLiq = (1 - int(sign(1., cellphi)))/2
+            iGas = (1 + int(sign(1., cellphi)))/2
+
+            xforce = iLiq*outletIsLiq*(QMeanLiq(IAXIS) - u(i, j, k))/dt + &
+                     iGas*outletIsGas*(QMeanGas(IAXIS) - u(i, j, k))/dt
+            !
+            yforce = -iLiq*outletIsLiq*u(i, j, k)/dt - iGas*outletIsGas*u(i, j, k)/dt
+            zforce = -iLiq*outletIsLiq*u(i, j, k)/dt - iGas*outletIsGas*u(i, j, k)/dt
 
             ru(i, j, k) = ru(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAuxLiq(HIGH, IAXIS) = velAuxLiq(HIGH, IAXIS) &
-                                     + outletFlag(HIGH, IAXIS)*u(i, j, k)*((1 - sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAuxLiq(IAXIS) = QAuxLiq(IAXIS) + iLiq*outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+            volAuxLiq(IAXIS) = volAuxLiq(IAXIS) + iLiq*outletFlag(HIGH, IAXIS)*cellvol
 
-            phaseAuxLiq(HIGH, IAXIS) = phaseAuxLiq(HIGH, IAXIS) &
-                                       + outletFlag(HIGH, IAXIS)*((1 - sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            velAuxGas(HIGH, IAXIS) = velAuxGas(HIGH, IAXIS) &
-                                     + outletFlag(HIGH, IAXIS)*u(i, j, k)*((1 + sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            phaseAuxGas(HIGH, IAXIS) = phaseAuxGas(HIGH, IAXIS) &
-                                       + outletFlag(HIGH, IAXIS)*((1 + sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
+            QAuxGas(IAXIS) = QAuxGas(IAXIS) + iGas*outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+            volAuxGas(IAXIS) = volAuxGas(IAXIS) + iGas*outletFlag(HIGH, IAXIS)*cellvol
          end do
       end do
    end do
@@ -183,32 +188,28 @@ subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcel
             yi = ycell(j)
             zi = zcell(k)
 
-            phicell = (phi(i, j, k) + phi(i, j - 1, k))*.5
+            cellphi = (phi(i, j, k) + phi(i, j - 1, k))*.5
 
-            vforce = ((1 - sign(1., phicell))/2)*(velOutLiq(HIGH, JAXIS) - v(i, j, k))/dt &
-                     + ((1 + sign(1., phicell))/2)*(velOutGas(HIGH, JAXIS) - v(i, j, k))/dt
+            iLiq = (1 - int(sign(1., cellphi)))/2
+            iGas = (1 + int(sign(1., cellphi)))/2
+
+            xforce = -iLiq*outletIsLiq*v(i, j, k)/dt - iGas*outletIsGas*v(i, j, k)/dt
+            !
+            yforce = iLiq*outletIsLiq*(QMeanLiq(JAXIS) - v(i, j, k))/dt + &
+                     iGas*outletIsGas*(QMeanGas(JAXIS) - v(i, j, k))/dt
+            !
+            zforce = -iLiq*outletIsLiq*v(i, j, k)/dt - iGas*outletIsGas*v(i, j, k)/dt
 
             rv(i, j, k) = rv(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAuxLiq(HIGH, JAXIS) = velAuxLiq(HIGH, JAXIS) &
-                                     + outletFlag(HIGH, JAXIS)*v(i, j, k)*((1 - sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAuxLiq(JAXIS) = QAuxLiq(JAXIS) + iLiq*outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+            volAuxLiq(JAXIS) = volAuxLiq(JAXIS) + iLiq*outletFlag(HIGH, JAXIS)*cellvol
 
-            phaseAuxLiq(HIGH, JAXIS) = phaseAuxLiq(HIGH, JAXIS) &
-                                       + outletFlag(HIGH, JAXIS)*((1 - sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            velAuxGas(HIGH, JAXIS) = velAuxGas(HIGH, JAXIS) &
-                                     + outletFlag(HIGH, JAXIS)*v(i, j, k)*((1 + sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            phaseAuxGas(HIGH, JAXIS) = phaseAuxGas(HIGH, JAXIS) &
-                                       + outletFlag(HIGH, JAXIS)*((1 + sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
+            QAuxGas(JAXIS) = QAuxGas(JAXIS) + iGas*outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+            volAuxGas(JAXIS) = volAuxGas(JAXIS) + iGas*outletFlag(HIGH, JAXIS)*cellvol
          end do
       end do
    end do
@@ -220,32 +221,27 @@ subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcel
             yi = ycell(j)
             zi = zcell(k)
 
-            phicell = (phi(i, j, k) + phi(i, j, k - 1))*.5
+            cellphi = (phi(i, j, k) + phi(i, j, k - 1))*.5
 
-            wforce = ((1 - sign(1., phicell))/2)*(velOutLiq(HIGH, KAXIS) - w(i, j, k))/dt &
-                     + ((1 + sign(1., phicell))/2)*(velOutGas(HIGH, KAXIS) - w(i, j, k))/dt
+            iLiq = (1 - int(sign(1., cellphi)))/2
+            iGas = (1 + int(sign(1., cellphi)))/2
+
+            xforce = -iLiq*outletIsLiq*w(i, j, k)/dt - iGas*outletIsGas*w(i, j, k)/dt
+            yforce = -iLiq*outletIsLiq*w(i, j, k)/dt - iGas*outletIsGas*w(i, j, k)/dt
+            !
+            zforce = iLiq*outletIsLiq*(QMeanLiq(KAXIS) - w(i, j, k))/dt + &
+                     iGas*outletIsGas*(QMeanGas(KAXIS) - w(i, j, k))/dt
 
             rw(i, j, k) = rw(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAuxLiq(HIGH, KAXIS) = velAuxLiq(HIGH, KAXIS) &
-                                     + outletFlag(HIGH, KAXIS)*w(i, j, k)*((1 - sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAuxLiq(KAXIS) = QAuxLiq(KAXIS) + iLiq*outletFlag(HIGH, KAXIS)*w(i, j, k)*cellvol
+            volAuxLiq(KAXIS) = volAuxLiq(KAXIS) + iLiq*outletFlag(HIGH, KAXIS)*cellvol
 
-            phaseAuxLiq(HIGH, KAXIS) = phaseAuxLiq(HIGH, KAXIS) &
-                                       + outletFlag(HIGH, KAXIS)*((1 - sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            velAuxGas(HIGH, KAXIS) = velAuxGas(HIGH, KAXIS) &
-                                     + outletFlag(HIGH, KAXIS)*w(i, j, k)*((1 + sign(1., phicell))/2) &
-                                     *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
-            phaseAuxGas(HIGH, KAXIS) = phaseAuxGas(HIGH, KAXIS) &
-                                       + outletFlag(HIGH, KAXIS)*((1 + sign(1., phicell))/2) &
-                                       *(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
-
+            QAuxGas(KAXIS) = QAuxGas(KAXIS) + iGas*outletFlag(HIGH, KAXIS)*w(i, j, k)*cellvol
+            volAuxGas(KAXIS) = volAuxGas(KAXIS) + iGas*outletFlag(HIGH, KAXIS)*cellvol
          end do
       end do
    end do

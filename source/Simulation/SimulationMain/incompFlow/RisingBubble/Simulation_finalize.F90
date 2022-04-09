@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/incompFlow/PoolBoiling/Simulation_finalize
+!!****f* source/Simulation/SimulationMain/incompFlow/RisingBubble/Simulation_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -33,19 +33,15 @@
 
 subroutine Simulation_finalize()
 
-   use sim_heaterInterface, ONLY: sim_heaterFinalize
-
 #ifdef SIMULATION_FORCE_INLET
-   use sim_outletInterface, ONLY: sim_outletFinalize
+  use sim_inletInterface, ONLY: sim_inletInit
 #endif
 
 #ifdef SIMULATION_FORCE_OUTLET
-   use sim_inletInterface, ONLY: sim_inletFinalize
+  use sim_outletInterface, ONLY: sim_outletInit
 #endif
 
    implicit none
-
-   call sim_heaterFinalize()
 
 #ifdef SIMULATION_FORCE_INLET
    call sim_inletFinalize()

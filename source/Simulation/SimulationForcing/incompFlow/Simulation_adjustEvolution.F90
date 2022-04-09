@@ -49,9 +49,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
 #ifdef SIMULATION_FORCE_OUTLET
    use sim_outletInterface, ONLY: sim_outletSetForcing
-   use sim_outletData, ONLY: sim_outletVel, sim_velAux, & 
-                             sim_outletVelLiq, sim_outletVelGas, sim_velAuxLiq, sim_velAuxGas, &
-                             sim_outletPhaseLiq, sim_outletPhaseGas, sim_phaseAuxLiq, sim_phaseAuxGas
+   use sim_outletData, ONLY: sim_QMean, sim_QAux, sim_volMean, sim_volAux, &
+                             sim_QMeanLiq, sim_QMeanGas, sim_QAuxLiq, sim_QAuxGas, &
+                             sim_volMeanLiq, sim_volMeanGas, sim_volAuxLiq, sim_volAuxGas
 #endif
 
 #ifdef SIMULATION_FORCE_INLET
@@ -115,11 +115,13 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 #endif
 
 #ifdef SIMULATION_FORCE_OUTLET
-   sim_velAux = 0.
-   sim_velAuxLiq = 0.
-   sim_velAuxGas = 0.
-   sim_phaseAuxLiq = 0.
-   sim_phaseAuxGas = 0.
+   sim_QAux = 0.
+   sim_QAuxLiq = 0.
+   sim_QAuxGas = 0.
+
+   sim_volAux = 0.
+   sim_volAuxLiq = 0.
+   sim_volAuxGas = 0.
 
    ! Set Outlet Forcing
    !-------------------------------------------------------------
@@ -135,49 +137,50 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
    ! Consolidate data
    !-------------------------------------------------------------
-   sim_outletVel = 0.
-   sim_outletVelLiq = 0.
-   sim_outletVelGas = 0.
-   sim_outletPhaseLiq = 0.
-   sim_outletPhaseGas = 0.
+   sim_QMean = 0.
+   sim_QMeanLiq = 0.
+   sim_QMeanGas = 0.
+
+   sim_volMean = 0.
+   sim_volMeanLiq = 0.
+   sim_volMeanGas = 0.
 
 #ifdef SIMULATION_OUTLET_PHASED
 
-   call MPI_Allreduce(sim_velAuxLiq, sim_outletVelLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAuxLiq, sim_QMeanLiq, MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_velAuxGas, sim_outletVelGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAuxGas, sim_QMeanGas, MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_phaseAuxLiq, sim_outletPhaseLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_volAuxLiq, sim_volMeanLiq, MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_phaseAuxGas, sim_outletPhaseGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_volAuxGas, sim_volMeanGas, MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   sim_outletVelLiq = sim_outletVelLiq/(sim_outletPhaseLiq + 1e-13)
-   sim_outletVelGas = sim_outletVelGas/(sim_outletPhaseGas + 1e-13)
+   sim_QMeanLiq = sim_QMeanLiq/(sim_volMeanLiq + 1e-13)
+   sim_QMeanGas = sim_QMeanGas/(sim_volMeanGas + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Liq Velocity Low  =', sim_outletVelLiq(LOW, :)
-      write (*, *) 'Outlet Liq Velocity High =', sim_outletVelLiq(HIGH, :)
+      write (*, *) 'Mean Liq Velocity =', sim_QMeanLiq
       write (*, *) '--------------------------------------------------------'
-      write (*, *) 'Outlet Gas Velocity Low  =', sim_outletVelGas(LOW, :)
-      write (*, *) 'Outlet Gas Velocity High =', sim_outletVelGas(HIGH, :)    
+      write (*, *) 'Mean Gas Velocity =', sim_QMeanGas
    end if
 
 #else
 
-   call MPI_Allreduce(sim_velAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAux, sim_QMean, MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Velocity Low  =', sim_outletVel(LOW, :)
-      write (*, *) 'Outlet Velocity High =', sim_outletVel(HIGH, :)
-   end if
+   call MPI_Allreduce(sim_volAux, sim_volMean, MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call IncompNS_setVectorProp("Outflow_Vel_Low", sim_outletVel(LOW, :))
-   call IncompNS_setVectorProp("Outflow_Vel_High", sim_outletVel(HIGH, :))
+   sim_QMean = sim_QMean/(sim_volMean + 1e-13)
+
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'Mean Velocity =', sim_QMean
+   end if
 
 #endif
 

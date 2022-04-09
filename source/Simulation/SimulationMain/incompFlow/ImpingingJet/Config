@@ -7,14 +7,6 @@ REQUIRES physics/IncompNS/IncompNSExtras
 REQUIRES physics/Multiphase/MultiphaseMain
 
 REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
-
-USESETUPVARS Grid
-
-IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
-   REQUIRES Grid/GridSolvers/HYPRE
-ELSE
-   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
-ENDIF
+REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg
 
 PARAMETER sim_freeSurface   REAL  1.0

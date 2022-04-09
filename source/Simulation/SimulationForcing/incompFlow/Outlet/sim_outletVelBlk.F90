@@ -18,8 +18,10 @@
 #include "Simulation.h"
 
 subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
-                              boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
-                              outletFlag, velAux, velOut, outletBuffer, outletGrowthRate, &
+                              boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
+                              inletFlag, inletBuffer, inletGrowthRate, &
+                              outletFlag, outletBuffer, outletGrowthRate, &
+                              volAux, QAux, QMean, &
                               xMin, xMax, yMin, yMax, gravX, gravY)
 
    implicit none
@@ -29,15 +31,18 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
    real, dimension(:, :), intent(in)       :: boundBox
    real, intent(in)                        :: dt, dx, dy
    integer, intent(in)                     :: ix1, ix2, jy1, jy2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-   real, intent(inout) :: velAux(2, MDIM)
-   real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
+   real, intent(inout) :: QAux(MDIM), volAux(MDIM)
+   real, intent(in) :: QMean(MDIM)
    real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
 
    integer :: i, j, k
    real    :: xi, yi
    real    :: uplus, umins, vplus, vmins
-   real    :: uforce, vforce
+   real    :: xforce, yforce, cellvol
+
+   cellvol = (dx/(xMax - xMin))*(dy/(yMax - yMin))
 
    k = 1
 
@@ -46,15 +51,18 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         uforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
+         xforce = (QMean(IAXIS) - u(i, j, k))/dt
+         yforce = -u(i, j, k)/dt
 
          ru(i, j, k) = ru(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         velAux(HIGH, IAXIS) = velAux(HIGH, IAXIS) + &
-                               outletFlag(HIGH, IAXIS)*u(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))
+         QAux(IAXIS) = QAux(IAXIS) + &
+                       outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
 
+         volAux(IAXIS) = volAux(IAXIS) + &
+                         outletFlag(HIGH, IAXIS)*cellvol
       end do
    end do
 
@@ -63,14 +71,18 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
          xi = xcell(i)
          yi = ycell(j)
 
-         vforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
+         xforce = -v(i, j, k)/dt
+         yforce = (QMean(JAXIS) - v(i, j, k))/dt
 
          rv(i, j, k) = rv(i, j, k) &
-                       + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                       + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
+                       + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                       + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         velAux(HIGH, JAXIS) = velAux(HIGH, JAXIS) + &
-                               outletFlag(HIGH, JAXIS)*v(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))
+         QAux(JAXIS) = QAux(JAXIS) + &
+                       outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+
+         volAux(JAXIS) = volAux(JAXIS) + &
+                         outletFlag(HIGH, JAXIS)*cellvol
 
       end do
    end do
@@ -78,8 +90,10 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
 end subroutine sim_outletVelBlk2d
 
 subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
-                              boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
-                              outletFlag, velAux, velOut, outletBuffer, outletGrowthRate, &
+                              boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                              inletFlag, inletBuffer, inletGrowthRate, &
+                              outletFlag, outletBuffer, outletGrowthRate, &
+                              volAux, QAux, QMean, &
                               xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
    implicit none
@@ -89,15 +103,18 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
    real, dimension(:, :), intent(in)     :: boundBox
    real, intent(in)                      :: dt, dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-   real, intent(inout) :: velAux(2, MDIM)
-   real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
+   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
+   real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
+   real, intent(inout) :: QAux(MDIM), volAux(MDIM)
+   real, intent(in) :: QMean(MDIM)
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
 
    integer :: i, j, k
    real    :: xi, yi, zi
    real    :: uplus, umins, vplus, vmins, wplus, wmins
-   real    :: uforce, vforce, wforce
+   real    :: xforce, yforce, zforce, cellvol
+
+   cellvol = (dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
 
    do k = kz1, kz2
       do j = jy1, jy2
@@ -106,15 +123,20 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             yi = ycell(j)
             zi = zcell(k)
 
-            uforce = (velOut(HIGH, IAXIS) - u(i, j, k))/dt
+            xforce = (QMean(IAXIS) - u(i, j, k))/dt
+            yforce = -u(i, j, k)/dt
+            zforce = -u(i, j, k)/dt
 
             ru(i, j, k) = ru(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*uforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAux(HIGH, IAXIS) = velAux(HIGH, IAXIS) + &
-                                  outletFlag(HIGH, IAXIS)*u(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAux(IAXIS) = QAux(IAXIS) + &
+                          outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+
+            volAux(IAXIS) = volAux(IAXIS) + &
+                            outletFlag(HIGH, IAXIS)*cellvol
 
          end do
       end do
@@ -127,15 +149,20 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             yi = ycell(j)
             zi = zcell(k)
 
-            vforce = (velOut(HIGH, JAXIS) - v(i, j, k))/dt
+            xforce = -v(i, j, k)/dt
+            yforce = (QMean(JAXIS) - v(i, j, k))/dt
+            zforce = -v(i, j, k)/dt
 
             rv(i, j, k) = rv(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*vforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAux(HIGH, JAXIS) = velAux(HIGH, JAXIS) + &
-                                  outletFlag(HIGH, JAXIS)*v(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAux(JAXIS) = QAux(JAXIS) + &
+                          outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+
+            volAux(JAXIS) = volAux(JAXIS) + &
+                            outletFlag(HIGH, JAXIS)*cellvol
 
          end do
       end do
@@ -148,15 +175,20 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
             yi = ycell(j)
             zi = zcell(k)
 
-            wforce = (velOut(HIGH, KAXIS) - w(i, j, k))/dt
+            xforce = -w(i, j, k)/dt
+            yforce = -w(i, j, k)/dt
+            zforce = (QMean(KAXIS) - w(i, j, k))/dt
 
             rw(i, j, k) = rw(i, j, k) &
-                          + outletFlag(HIGH, IAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
-                          + outletFlag(HIGH, JAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
-                          + outletFlag(HIGH, KAXIS)*wforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
+                          + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
+                          + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
+                          + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            velAux(HIGH, KAXIS) = velAux(HIGH, KAXIS) + &
-                                  outletFlag(HIGH, KAXIS)*w(i, j, k)*(dx/(xMax - xMin))*(dy/(yMax - yMin))*(dz/(zMax - zMin))
+            QAux(KAXIS) = QAux(KAXIS) + &
+                          outletFlag(HIGH, KAXIS)*w(i, j, k)*cellvol
+
+            volAux(KAXIS) = volAux(KAXIS) + &
+                            outletFlag(HIGH, KAXIS)*cellvol
 
          end do
       end do
