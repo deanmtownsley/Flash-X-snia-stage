@@ -22,8 +22,7 @@ mph_invWeber = 0.004
 geometry	= "cartesian"
 
 # Simulation parameters
-sim_inletBuffer = 1.0
-sim_outletBuffer = 1.0
+sim_outletBuffer = 0.1
 sim_freeSurface = 15.0
 
 #       Size of computational volume
@@ -48,7 +47,7 @@ log_file	= "INS_Impinging_Jet.log"
 basenm		= "INS_Impinging_Jet_"
 restart         = .false.
 nend            = 10000000
-tmax            = 40.
+tmax            = 80.
 ins_cflFlg      = 1
 ins_cfl         = 0.001
 ins_sigma	= 0.001
@@ -74,9 +73,9 @@ plotFileIntervalTime = 1.0
 plotFileIntervalStep = 100000
 
 # AMR parameters
-nblockx	= 24
-nblocky	= 16
-nblockz = 24
+nblockx	= 15
+nblocky	= 10
+nblockz = 15
 nfres   = 10000000
 
 lrefine_min       = 1

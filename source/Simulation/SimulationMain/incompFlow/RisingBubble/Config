@@ -11,3 +11,5 @@ IF SimForceInOut
     REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
     REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg
 ENDIF
+
+DATAFILES test_amr.par

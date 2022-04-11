@@ -1,85 +1,84 @@
-# 	Runtime parameters for the Counter Flow problem.
+# 	Runtime parameters for the Rising Bubble problem.
 gr_pmRpDivergenceFree = 1
 gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
 # Inverse of Reynolds Number
-ins_invReynolds   = 0.0001
+ins_invReynolds     = .01
 
 # 1/Fr**2, Fr (Froude Number)
-ins_gravY           = 0.01
+ins_gravY           = -1.0
 
 # Gas density and viscosity scaled by liquid
-mph_rhoGas  = 0.001
-mph_muGas   = 0.02
+mph_rhoGas = 0.005
+mph_muGas  = 0.1
 mph_iPropSmear = 1.0
 
 # Inverse Weber Number
-mph_invWeber = 0.004
+mph_invWeber = 0.01
+
+# outlfow parameter
+sim_outletBuffer = 0.1
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
-# Simulation parameters
-sim_outletBuffer = 0.1
-sim_channelDepth = 1.0
-
 #       Size of computational volume
-xmin		= -5.0
-xmax		=  5.0
-ymin		=  0.0
-ymax		=  20.0
-zmin            = -5.0
-zmax            =  5.0
+xmin		= -1.0
+xmax		=  1.0
+ymin		= -1.0
+ymax		=  2.0
+zmin            = -1.0
+zmax            =  1.0
 
 #       Boundary conditions
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
-yl_boundary_type = "inflow_ins"
+yl_boundary_type = "noslip_ins"
 yr_boundary_type = "neumann_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
-run_comment	= "Counter Flow problem"
-log_file	= "INS_Counter_Flow.log"
-basenm		= "INS_Counter_Flow_"
+run_comment	= "Rising Bubble problem"
+log_file	= "INS_Rising_Bubble.log"
+basenm		= "INS_Rising_Bubble_"
 restart         = .false.
-nend            = 10000000
-tmax            = 40.
+nend            = 3000
+tmax            = 100. 
 ins_cflFlg      = 1
-ins_cfl         = 0.05
-ins_sigma	= 0.05
-ins_dtSpec      = 0.1d-3
-dtinit          = 0.1d-3
-tstep_change_factor = 1.01
-ins_pressureCorrect = .false.
-
-#Integration Scheme:
-ins_intSchm            = 2
+ins_cfl         = 0.02
+ins_sigma	= 0.02
+ins_dtSpec      = 0.5d-3
+dtinit          = 0.5d-3
+tstep_change_factor = 1.0
+ins_pressureCorrect= .false.
 
 plot_var_1	= "pres"
 plot_var_2      = "velx"
 plot_var_3      = "vely"
 plot_var_4      = "dfun"
-plot_var_5      = "dust"
-plot_var_6      = "omgm"
+  
+checkpointFileIntervalTime = 5
+checkpointFileIntervalStep = 5000
 
-checkpointFileIntervalTime = 5.0
-checkpointFileIntervalStep = 500000
-
-plotFileIntervalTime = 1.0
-plotFileIntervalStep = 100000
+plotFileIntervalTime = 0.5
+plotFileIntervalStep = 1000
 
 # AMR parameters
-nblockx	= 10
-nblocky	= 20
-nblockz = 10
-nfres   = 10000000
+nblockx	= 2
+nblocky	= 3
+nblockz = 2
+nfres   = 1000
 
-lrefine_min       = 1
-lrefine_max       = 1
+lrefine_min        = 1
+lrefine_max        = 3
+refine_var_count   = 1
+
+refine_var_1       = "dfun"
+refine_cutoff_1    = "0"
+derefine_cuttoff_1 = "-0.1"
 
 #	Flux Conservation for AMR
 flux_correct    = .true.
@@ -87,7 +86,7 @@ flux_correct    = .true.
 # AMReX Poisson Solver Parameters
 gr_amrexMG_composite_solve = ".TRUE."
 gr_amrexMG_Tol = 1e-13
-gr_amrexMG_max_iter = 1000
+gr_amrexMG_max_iter = 200
 
 # HYPRE Poisson Solver Parameters
 gr_hyprePrintSolveInfo = ".FALSE."

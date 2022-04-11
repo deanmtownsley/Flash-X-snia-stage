@@ -50,12 +50,12 @@ zmin            = -7.0
 zmax            =  7.0
 
 #       Boundary conditions
-xl_boundary_type = "slip_ins"
-xr_boundary_type = "slip_ins"
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
 yr_boundary_type = "neumann_ins"
-zl_boundary_type = "slip_ins"
-zr_boundary_type = "slip_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "Pool Boiling problem"

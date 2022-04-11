@@ -67,6 +67,6 @@ subroutine Simulation_init()
    call sim_heaterInit()
 
    call sim_inletInit()
-   call sim_outletInit("Gas")
+   call sim_outletInit()
 
 end subroutine Simulation_init

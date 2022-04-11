@@ -4,7 +4,11 @@
 REQUIRES physics/IncompNS/IncompNSMain/constDens
 REQUIRES physics/IncompNS/IncompNSExtras
 
-REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
+USESETUPVARS SimForceInOut
+
+IF SimForceInOut
+    REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+    REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
+ENDIF
 
 GUARDCELLS 2

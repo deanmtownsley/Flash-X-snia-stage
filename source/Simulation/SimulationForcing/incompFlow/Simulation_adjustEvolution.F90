@@ -163,9 +163,15 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    sim_QMeanGas = sim_QMeanGas/(sim_volMeanGas + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Mean Liq Velocity =', sim_QMeanLiq
+      write (*, *) 'Outlet Liq Velocity,', &
+         ' IAXIS=', sim_QMeanLiq(IAXIS), &
+         ' JAXIS=', sim_QMeanLiq(JAXIS), &
+         ' KAXIS=', sim_QMeanLiq(KAXIS)
       write (*, *) '--------------------------------------------------------'
-      write (*, *) 'Mean Gas Velocity =', sim_QMeanGas
+      write (*, *) 'Outlet Gas Velocity,', &
+         ' IAXIS=', sim_QMeanGas(IAXIS), &
+         ' JAXIS=', sim_QMeanGas(JAXIS), &
+         ' KAXIS=', sim_QMeanGas(KAXIS)
    end if
 
 #else
@@ -179,7 +185,10 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    sim_QMean = sim_QMean/(sim_volMean + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Mean Velocity =', sim_QMean
+      write (*, *) 'Outlet Velocity,', &
+         ' IAXIS=', sim_QMean(IAXIS), &
+         ' JAXIS=', sim_QMean(JAXIS), &
+         ' KAXIS=', sim_QMean(KAXIS)
    end if
 
 #endif

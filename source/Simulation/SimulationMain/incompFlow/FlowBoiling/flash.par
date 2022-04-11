@@ -36,7 +36,7 @@ sim_heaterName    = "flow_boiling"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 2.0 # Outlet Buffer
+sim_outletBuffer = 0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

@@ -58,11 +58,9 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
                        + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
                        + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         QAux(IAXIS) = QAux(IAXIS) + &
-                       outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+         QAux(IAXIS) = QAux(IAXIS) + outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+         volAux(IAXIS) = volAux(IAXIS) + outletFlag(HIGH, IAXIS)*cellvol
 
-         volAux(IAXIS) = volAux(IAXIS) + &
-                         outletFlag(HIGH, IAXIS)*cellvol
       end do
    end do
 
@@ -78,11 +76,8 @@ subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
                        + outletFlag(HIGH, IAXIS)*xforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
                        + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
-         QAux(JAXIS) = QAux(JAXIS) + &
-                       outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
-
-         volAux(JAXIS) = volAux(JAXIS) + &
-                         outletFlag(HIGH, JAXIS)*cellvol
+         QAux(JAXIS) = QAux(JAXIS) + outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+         volAux(JAXIS) = volAux(JAXIS) + outletFlag(HIGH, JAXIS)*cellvol
 
       end do
    end do
@@ -132,11 +127,8 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
                           + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
                           + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            QAux(IAXIS) = QAux(IAXIS) + &
-                          outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
-
-            volAux(IAXIS) = volAux(IAXIS) + &
-                            outletFlag(HIGH, IAXIS)*cellvol
+            QAux(IAXIS) = QAux(IAXIS) + outletFlag(HIGH, IAXIS)*u(i, j, k)*cellvol
+            volAux(IAXIS) = volAux(IAXIS) + outletFlag(HIGH, IAXIS)*cellvol
 
          end do
       end do
@@ -158,11 +150,8 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
                           + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
                           + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            QAux(JAXIS) = QAux(JAXIS) + &
-                          outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
-
-            volAux(JAXIS) = volAux(JAXIS) + &
-                            outletFlag(HIGH, JAXIS)*cellvol
+            QAux(JAXIS) = QAux(JAXIS) + outletFlag(HIGH, JAXIS)*v(i, j, k)*cellvol
+            volAux(JAXIS) = volAux(JAXIS) + outletFlag(HIGH, JAXIS)*cellvol
 
          end do
       end do
@@ -184,11 +173,8 @@ subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
                           + outletFlag(HIGH, JAXIS)*yforce*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer))) &
                           + outletFlag(HIGH, KAXIS)*zforce*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 
-            QAux(KAXIS) = QAux(KAXIS) + &
-                          outletFlag(HIGH, KAXIS)*w(i, j, k)*cellvol
-
-            volAux(KAXIS) = volAux(KAXIS) + &
-                            outletFlag(HIGH, KAXIS)*cellvol
+            QAux(KAXIS) = QAux(KAXIS) + outletFlag(HIGH, KAXIS)*w(i, j, k)*cellvol
+            volAux(KAXIS) = volAux(KAXIS) + outletFlag(HIGH, KAXIS)*cellvol
 
          end do
       end do

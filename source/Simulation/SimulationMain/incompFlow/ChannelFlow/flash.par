@@ -21,6 +21,9 @@ ymax		=  1.0
 zmin            =  0.0
 zmax            =  1.0
 
+# Outlet parameters
+sim_outletBuffer = 0.1
+
 #       Boundary conditions
 xl_boundary_type = "inflow_ins"
 xr_boundary_type = "neumann_ins"
