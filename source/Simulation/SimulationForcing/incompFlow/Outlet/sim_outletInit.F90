@@ -52,7 +52,7 @@ subroutine sim_outletInit(outletType)
          call Driver_abort(errorMessage)
       end select
 #else
-      write (errorMessage, *) '[sim_outletInit] use Outlet/phaseAvg to set outlet type: ', outletType
+      write (errorMessage, *) '[sim_outletInit] use Outlet/phaseForcing to set outlet type: ', outletType
       call Driver_abort(errorMessage)
 #endif
    end if

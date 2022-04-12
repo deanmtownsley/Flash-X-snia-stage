@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg/sim_outletSetForcing
+!!****f* source/Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing/sim_outletSetForcing
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors

@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Inlet/phaseAvg/sim_inletSetForcing
+!!****f* source/Simulation/SimulationForcing/incompFlow/Inlet/phaseForcing/sim_inletSetForcing
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors

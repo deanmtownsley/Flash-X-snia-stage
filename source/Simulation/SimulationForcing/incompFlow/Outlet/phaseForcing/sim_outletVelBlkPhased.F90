@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg/sim_outletVelBlkPhased
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing/sim_outletVelBlkPhased
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
