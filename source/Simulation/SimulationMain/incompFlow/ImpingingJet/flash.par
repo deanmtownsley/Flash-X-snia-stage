@@ -34,12 +34,12 @@ zmin            = -30.0
 zmax            =  30.0
 
 #       Boundary conditions
-xl_boundary_type = "extrap_ins"
-xr_boundary_type = "extrap_ins"
+xl_boundary_type = "outflow_ins"
+xr_boundary_type = "outflow_ins"
 yl_boundary_type = "inflow_ins"
-yr_boundary_type = "neumann_ins"
-zl_boundary_type = "extrap_ins"
-zr_boundary_type = "extrap_ins"
+yr_boundary_type = "noslip_ins"
+zl_boundary_type = "outflow_ins"
+zr_boundary_type = "outflow_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "Impinging Jet problem"

@@ -18,16 +18,13 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletInit(outletType)
+subroutine sim_outletInit()
 
    use sim_outletData
    use Grid_interface, ONLY: Grid_getDomainBC
    use Simulation_data, ONLY: sim_meshMe
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_abort
-
-   implicit none
-   character(len=*), intent(in), optional  :: outletType
 
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
    character(len=100) :: errorMessage
@@ -37,48 +34,21 @@ subroutine sim_outletInit(outletType)
    call RuntimeParameters_get('sim_outletGrowthRate', sim_outletGrowthRate)
    call Grid_getDomainBC(domainBC)
 
-   sim_outletIsLiq = 1
-   sim_outletIsGas = 1
-
-   if (present(outletType)) then
-#ifdef SIMULATION_OUTLET_PHASED
-      select case (outletType)
-      case ("Liquid", "liquid", "LIQUID")
-         sim_outletIsGas = 0
-      case ("Gas", "gas", "GAS")
-         sim_outletIsLiq = 0
-      case default
-         write (errorMessage, *) '[sim_outletInit] Unknown outlet type: ', outletType
-         call Driver_abort(errorMessage)
-      end select
-#else
-      write (errorMessage, *) '[sim_outletInit] use Outlet/phaseForcing to set outlet type: ', outletType
-      call Driver_abort(errorMessage)
-#endif
-   end if
-
    sim_outletFlag = 0
-   sim_QMean = 0.
-   sim_QMeanLiq = 0.
-   sim_QMeanGas = 0.
+   sim_QOut = 0.
+   sim_QOutLiq = 0.
+   sim_QOutGas = 0.
 
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
          select case (domainBC(ibound, idimn))
-         case (NEUMANN_INS)
-            if (ibound == LOW) then
-               call Driver_abort("Outlet not implemented for NEUMANN_INS at face = LOW")
-            else
-               sim_outletFlag(ibound, idimn) = 1
-               sim_QMean(idimn) = 1
-            end if
+         case (OUTFLOW_INS)
+            sim_outletFlag(ibound, idimn) = 1
          end select
       end do
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_outletIsGas=', sim_outletIsGas
-      write (*, *) 'sim_outletIsLiq=', sim_outletIsLiq
       write (*, *) 'sim_outletSink=', sim_outletSink
       write (*, *) 'sim_outletBuffer=', sim_outletBuffer
       write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate

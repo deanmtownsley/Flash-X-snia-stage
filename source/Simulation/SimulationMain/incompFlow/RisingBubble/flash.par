@@ -36,7 +36,7 @@ zmax            =  1.0
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "neumann_ins"
+yr_boundary_type = "outflow_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 

@@ -19,7 +19,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
+subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                     xMin, xMax, yMin, yMax)
@@ -28,7 +28,7 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
 
    real, dimension(:, :, :), intent(inout) :: pfrc
    real, dimension(:, :, :), intent(in) :: phi
-   real, dimension(:), intent(in) :: xcell, ycell
+   real, dimension(:), intent(in) :: xcenter, ycenter
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
@@ -43,8 +43,8 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
 
    do j = jy1, jy2
       do i = ix1, ix2
-         xi = xcell(i)
-         yi = ycell(j)
+         xi = xcenter(i)
+         yi = ycenter(j)
 
          pfrc(i, j, k) = pfrc(i, j, k) &
                          + outletSink*outletFlag(HIGH, IAXIS)*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &
@@ -55,7 +55,7 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
 
 end subroutine sim_outletLSDampingBlk2d
 
-subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
+subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                     xMin, xMax, yMin, yMax, zMin, zMax)
@@ -64,7 +64,7 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
 
    real, dimension(:, :, :), intent(inout) :: pfrc
    real, dimension(:, :, :), intent(in) :: phi
-   real, dimension(:), intent(in) :: xcell, ycell, zcell
+   real, dimension(:), intent(in) :: xcenter, ycenter, zcenter
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -78,9 +78,9 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
    do k = kz1, kz2
       do j = jy1, jy2
          do i = ix1, ix2
-            xi = xcell(i)
-            yi = ycell(j)
-            zi = zcell(k)
+            xi = xcenter(i)
+            yi = ycenter(j)
+            zi = zcenter(k)
 
             pfrc(i, j, k) = pfrc(i, j, k) &
                             + outletSink*outletFlag(HIGH, IAXIS)*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) &

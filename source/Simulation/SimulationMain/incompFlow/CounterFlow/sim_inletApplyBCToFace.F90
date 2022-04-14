@@ -21,6 +21,7 @@
 subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                   guard, face, axis, secondDir, thirdDir)
 
+   use Driver_interface, ONLY: Driver_getSimTime
    use Simulation_data, ONLY: sim_channelDepth, sim_xMin, sim_xMax
 
    implicit none
@@ -39,10 +40,12 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
    integer :: je, ke
    integer :: i, j, k, offset
    real, dimension(MDIM)  :: del
-   real :: channelProfile
+   real :: channelProfile, time
    logical :: isFace
+   real, parameter :: pi = acos(-1.0)
 
    call Grid_getDeltas(level, del)
+   call Driver_getSimTime(time)
 
    je = regionSize(SECOND_DIR)
    ke = regionSize(THIRD_DIR)
@@ -59,8 +62,13 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                do j = 1, je
                   do i = 1, guard
 
-                     channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
-                                          (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
+                     !channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
+                     !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
+
+                     channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
+                                          0.2*cos(time*pi/2), &
+                                          (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
+                                          0.2*cos(time*pi/2 + pi))
 
                      regionData(i, j, k, ivar) = 2*channelProfile - regionData(offset - i, j, k, ivar)
 
@@ -76,8 +84,13 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                   do j = 1, je
                      do i = 1, guard + 1
 
-                        channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
-                                             (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
+                        !channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
+                        !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
+
+                        channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
+                                             0.2*cos(time*pi/2), &
+                                             (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
+                                             0.2*cos(time*pi/2 + pi))
 
                         regionData(i, j, k, ivar) = ((1 + sign(1., channelProfile))/2)*(-1.0) + &
                                                     ((1 - sign(1., channelProfile))/2)*(1.0)

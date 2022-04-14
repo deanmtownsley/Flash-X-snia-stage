@@ -110,12 +110,12 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
      interp_mask_facez_res(VELC_FACE_VAR) = 1
 
 
-     interp_mask_facex(RHDS_FACE_VAR) = 2
-     interp_mask_facex_res(RHDS_FACE_VAR) = 1
-     interp_mask_facey(RHDS_FACE_VAR) = 2
-     interp_mask_facey_res(RHDS_FACE_VAR) = 1
-     interp_mask_facez(RHDS_FACE_VAR) = 2
-     interp_mask_facez_res(RHDS_FACE_VAR) = 1     
+     interp_mask_facex(HVN1_FACE_VAR) = 2
+     interp_mask_facex_res(HVN1_FACE_VAR) = 1
+     interp_mask_facey(HVN1_FACE_VAR) = 2
+     interp_mask_facey_res(HVN1_FACE_VAR) = 1
+     interp_mask_facez(HVN1_FACE_VAR) = 2
+     interp_mask_facez_res(HVN1_FACE_VAR) = 1     
 
      iopt=1; iempty=1
      call amr_restrict(gr_meshMe,iopt,iempty)

@@ -20,7 +20,7 @@
 
 subroutine sim_outletSetForcing(tileDesc, dt)
 
-   use sim_outletData, ONLY: sim_QMean, sim_outletSink, sim_outletFlag, &
+   use sim_outletData, ONLY: sim_QOut, sim_outletSink, sim_outletFlag, &
                              sim_outletBuffer, sim_outletGrowthRate, sim_QAux, &
                              sim_volAux
 
@@ -107,7 +107,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                            GRID_JLO, GRID_JHI, &
                            sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                            sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                           sim_volAux, sim_QAux, sim_QMean, &
+                           sim_volAux, sim_QAux, sim_QOut, &
                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
                            ins_gravX, ins_gravY)
 
@@ -140,7 +140,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                            GRID_KLO, GRID_KHI, &
                            sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                            sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                           sim_volAux, sim_QAux, sim_QMean, &
+                           sim_volAux, sim_QAux, sim_QOut, &
                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
                            ins_gravX, ins_gravY, ins_gravZ)
 

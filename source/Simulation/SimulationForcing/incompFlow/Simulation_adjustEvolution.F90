@@ -49,13 +49,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
 #ifdef SIMULATION_FORCE_OUTLET
    use sim_outletInterface, ONLY: sim_outletSetForcing
-   use sim_outletData, ONLY: sim_QMean, sim_QAux, sim_volMean, sim_volAux, &
-                             sim_QMeanLiq, sim_QMeanGas, sim_QAuxLiq, sim_QAuxGas, &
-                             sim_volMeanLiq, sim_volMeanGas, sim_volAuxLiq, sim_volAuxGas
-#endif
-
-#ifdef SIMULATION_FORCE_INLET
-   use sim_inletInterface, ONLY: sim_inletSetForcing
+   use sim_outletData, ONLY: sim_QOut, sim_QAux, sim_volOut, sim_volAux, &
+                             sim_QOutLiq, sim_QOutGas, sim_QAuxLiq, sim_QAuxGas, &
+                             sim_volOutLiq, sim_volOutGas, sim_volAuxLiq, sim_volAuxGas
 #endif
 
    implicit none
@@ -100,20 +96,6 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    call Grid_releaseTileIterator(itor)
 #endif
 
-#ifdef SIMULATION_FORCE_INLET
-   ! Set Inlet Forcing
-   !-------------------------------------------------------------
-   call Grid_getTileIterator(itor, nodetype=LEAF)
-   do while (itor%isValid())
-      call itor%currentTile(tileDesc)
-      !---------------------------------------------------------
-      call sim_inletSetForcing(tileDesc, dt)
-      !---------------------------------------------------------
-      call itor%next()
-   end do
-   call Grid_releaseTileIterator(itor)
-#endif
-
 #ifdef SIMULATION_FORCE_OUTLET
    sim_QAux = 0.
    sim_QAuxLiq = 0.
@@ -137,58 +119,52 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
    ! Consolidate data
    !-------------------------------------------------------------
-   sim_QMean = 0.
-   sim_QMeanLiq = 0.
-   sim_QMeanGas = 0.
+   sim_QOut = 0.
+   sim_QOutLiq = 0.
+   sim_QOutGas = 0.
 
-   sim_volMean = 0.
-   sim_volMeanLiq = 0.
-   sim_volMeanGas = 0.
+   sim_volOut = 0.
+   sim_volOutLiq = 0.
+   sim_volOutGas = 0.
 
 #ifdef SIMULATION_OUTLET_PHASED
 
-   call MPI_Allreduce(sim_QAuxLiq, sim_QMeanLiq, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAuxLiq, sim_QOutLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_QAuxGas, sim_QMeanGas, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAuxGas, sim_QOutGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_volAuxLiq, sim_volMeanLiq, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_volAuxLiq, sim_volOutLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_volAuxGas, sim_volMeanGas, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_volAuxGas, sim_volOutGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   sim_QMeanLiq = sim_QMeanLiq/(sim_volMeanLiq + 1e-13)
-   sim_QMeanGas = sim_QMeanGas/(sim_volMeanGas + 1e-13)
+   sim_QOutLiq = sim_QOutLiq/(sim_volOutLiq + 1e-13)
+   sim_QOutGas = sim_QOutGas/(sim_volOutGas + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Liq Velocity,', &
-         ' IAXIS=', sim_QMeanLiq(IAXIS), &
-         ' JAXIS=', sim_QMeanLiq(JAXIS), &
-         ' KAXIS=', sim_QMeanLiq(KAXIS)
+      write (*, *) 'Outlet Liq Velocity LOW,', sim_QOutLiq(LOW, :)
+      write (*, *) 'Outlet Liq Velocity HIGH,', sim_QOutLiq(HIGH, :)
       write (*, *) '--------------------------------------------------------'
-      write (*, *) 'Outlet Gas Velocity,', &
-         ' IAXIS=', sim_QMeanGas(IAXIS), &
-         ' JAXIS=', sim_QMeanGas(JAXIS), &
-         ' KAXIS=', sim_QMeanGas(KAXIS)
+      write (*, *) 'Outlet Gas Velocity LOW,', sim_QOutGas(LOW, :)
+      write (*, *) 'Outlet Gas Velocity HIGH,', sim_QOutGas(HIGH, :)
    end if
 
 #else
 
-   call MPI_Allreduce(sim_QAux, sim_QMean, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_QAux, sim_QOut, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   call MPI_Allreduce(sim_volAux, sim_volMean, MDIM, FLASH_REAL, &
+   call MPI_Allreduce(sim_volAux, sim_volOut, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
-   sim_QMean = sim_QMean/(sim_volMean + 1e-13)
+   sim_QOut = sim_QOut/(sim_volOut + 1e-13)
 
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Velocity,', &
-         ' IAXIS=', sim_QMean(IAXIS), &
-         ' JAXIS=', sim_QMean(JAXIS), &
-         ' KAXIS=', sim_QMean(KAXIS)
+      write (*, *) 'Outlet Velocity LOW,', sim_QOut(LOW, :)
+      write (*, *) 'Outlet Velocity HIGH,', sim_QOut(HIGH, :)
    end if
 
 #endif

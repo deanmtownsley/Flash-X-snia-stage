@@ -22,10 +22,9 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    use sim_outletData, ONLY: sim_outletSink, sim_outletFlag, &
                              sim_outletBuffer, sim_outletGrowthRate, &
-                             sim_QMeanLiq, sim_QMeanGas, &
+                             sim_QOutLiq, sim_QOutGas, &
                              sim_QAuxLiq, sim_QAuxGas, &
-                             sim_volAuxLiq, sim_volAuxGas, &
-                             sim_outletIsLiq, sim_outletIsGas
+                             sim_volAuxLiq, sim_volAuxGas
 
    use sim_inletData, ONLY: sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate
 
@@ -109,10 +108,9 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                                  GRID_JLO, GRID_JHI, &
                                  sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                                  sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                                 sim_outletIsLiq, sim_outletIsGas, &
                                  sim_volAuxLiq, sim_volAuxGas, &
                                  sim_QAuxLiq, sim_QAuxGas, &
-                                 sim_QMeanLiq, sim_QMeanGas, &
+                                 sim_QOutLiq, sim_QOutGas, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
                                  ins_gravX, ins_gravY)
 
@@ -144,10 +142,8 @@ subroutine sim_outletSetForcing(tileDesc, dt)
                                  GRID_KLO, GRID_KHI, &
                                  sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
                                  sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                                 sim_outletIsLiq, sim_outletIsGas, &
-                                 sim_volAuxLiq, sim_volAuxGas, &
                                  sim_QAuxLiq, sim_QAuxGas, &
-                                 sim_QMeanLiq, sim_QMeanGas, &
+                                 sim_QOutLiq, sim_QOutGas, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
                                  ins_gravX, ins_gravY, ins_gravZ)
 

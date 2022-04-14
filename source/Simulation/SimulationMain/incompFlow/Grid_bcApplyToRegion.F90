@@ -205,7 +205,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    real :: invReynolds
 
    select case (bcType)
-   case (NEUMANN_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
+   case (OUTFLOW_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
       applied = .TRUE.           !will handle these types of BCs below
    case default
       applied = .FALSE.
@@ -241,7 +241,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
          if (face == LOW) then
             select case (bcTypeActual)
                !--------------------------------------------------------------------------------------------------
-            case (NEUMANN_INS) ! face == LOW
+            case (OUTFLOW_INS) ! face == LOW
 
                if (gridDataStruct == CENTER) then
 
@@ -276,7 +276,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                      else
                         k = 2*guard + 1
                         do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                           regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
@@ -686,7 +686,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
             select case (bcTypeActual)
                !--------------------------------------------------------------------------------------------------
-            case (NEUMANN_INS) ! face == HIGH
+            case (OUTFLOW_INS) ! face == HIGH
 
                if (gridDataStruct == CENTER) then
 
@@ -721,7 +721,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                      else
                         k = 2*guard + 1
                         do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                           regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
                         end do
                      end if
 #ifdef SIGM_FACE_VAR

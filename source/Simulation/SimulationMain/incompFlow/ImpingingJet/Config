@@ -7,6 +7,6 @@ REQUIRES physics/IncompNS/IncompNSExtras
 REQUIRES physics/Multiphase/MultiphaseMain
 
 REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseAvg
+REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
 
 PARAMETER sim_freeSurface   REAL  1.0

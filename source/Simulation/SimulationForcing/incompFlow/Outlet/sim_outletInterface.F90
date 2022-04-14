@@ -31,9 +31,7 @@ Module sim_outletInterface
    implicit none
 
    interface
-      subroutine sim_outletInit(outletType)
-         implicit none
-         character(len=*), intent(in), optional  :: outletType
+      subroutine sim_outletInit()
       end subroutine sim_outletInit
    end interface
 
@@ -52,13 +50,13 @@ Module sim_outletInterface
    end interface
 
    interface sim_outletLSDampingBlk
-      subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
+      subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
                                           dt, dx, dy, ix1, ix2, jy1, jy2, &
                                           outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                           xMin, xMax, yMin, yMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
-         real, dimension(:), intent(in)          :: xcell, ycell
+         real, dimension(:), intent(in)          :: xcenter, ycenter
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
@@ -67,13 +65,13 @@ Module sim_outletInterface
          real, intent(in) :: xMin, xMax, yMin, yMax
       end subroutine sim_outletLSDampingBlk2d
 
-      subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
+      subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
                                           dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                           outletFlag, outletSink, outletBuffer, outletGrowthRate, &
                                           xMin, xMax, yMin, yMax, zMin, zMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
-         real, dimension(:), intent(in)          :: xcell, ycell, zcell
+         real, dimension(:), intent(in)          :: xcenter, ycenter, zcenter
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy, dz
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -84,95 +82,93 @@ Module sim_outletInterface
    end interface
 
    interface sim_outletVelBlk
-      subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
+      subroutine sim_outletVelBlk2d(u, v, ru, rv, xcenter, ycenter, &
                                     boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
                                     inletFlag, inletBuffer, inletGrowthRate, &
                                     outletFlag, outletBuffer, outletGrowthRate, &
-                                    volAux, QAux, QMean, &
+                                    volAux, QAux, QOut, &
                                     xMin, xMax, yMin, yMax, gravX, gravY)
+
          implicit none
          real, dimension(:, :, :), intent(in)    :: u, v
          real, dimension(:, :, :), intent(inout) :: ru, rv
-         real, dimension(:), intent(in)          :: xcell, ycell
+         real, dimension(:), intent(in)          :: xcenter, ycenter
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
          integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
-         real, intent(inout) :: QAux(MDIM), volAux(MDIM)
-         real, intent(in) :: QMean(MDIM)
+         real, intent(inout) :: QAux(LOW:HIGH, MDIM), volAux(LOW:HIGH, MDIM)
+         real, intent(in) :: QOut(LOW:HIGH, MDIM)
          real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
       end subroutine sim_outletVelBlk2d
 
-      subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
+      subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcenter, ycenter, zcenter, &
                                     boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                     inletFlag, inletBuffer, inletGrowthRate, &
                                     outletFlag, outletBuffer, outletGrowthRate, &
-                                    volAux, QAux, QMean, &
+                                    volAux, QAux, QOut, &
                                     xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
+
          implicit none
          real, dimension(:, :, :), intent(in)  :: u, v, w
          real, dimension(:, :, :), intent(inout) :: ru, rv, rw
-         real, dimension(:), intent(in)        :: xcell, ycell, zcell
+         real, dimension(:), intent(in)        :: xcenter, ycenter, zcenter
          real, dimension(:, :), intent(in)     :: boundBox
          real, intent(in)                      :: dt, dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
          integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
-         real, intent(inout) :: QAux(MDIM), volAux(MDIM)
-         real, intent(in) :: QMean(MDIM)
+         real, intent(inout) :: QAux(LOW:HIGH, MDIM), volAux(LOW:HIGH, MDIM)
+         real, intent(in) :: QOut(LOW:HIGH, MDIM)
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
       end subroutine sim_outletVelBlk3d
    end interface
 
    interface sim_outletVelBlkPhased
-      subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcell, ycell, &
+      subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcenter, ycenter, &
                                           boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, &
                                           inletFlag, inletBuffer, inletGrowthRate, &
                                           outletFlag, outletBuffer, outletGrowthRate, &
-                                          outletIsLiq, outletIsGas, &
-                                          volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QMeanLiq, QMeanGas, &
+                                          volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QOutLiq, QOutGas, &
                                           xMin, xMax, yMin, yMax, gravX, gravY)
 
          implicit none
          real, dimension(:, :, :), intent(in)    :: u, v
          real, dimension(:, :, :), intent(inout) :: ru, rv
          real, dimension(:, :, :), intent(in) :: phi
-         real, dimension(:), intent(in)          :: xcell, ycell
+         real, dimension(:), intent(in)          :: xcenter, ycenter
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy
          integer, intent(in)                     :: ix1, ix2, jy1, jy2
          integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
-         integer, intent(in) :: outletIsLiq, outletIsGas
-         real, intent(inout) :: QAuxLiq(MDIM), QAuxGas(MDIM)
-         real, intent(inout) :: volAuxLiq(MDIM), volAuxGas(MDIM)
-         real, intent(in) :: QMeanLiq(MDIM), QMeanGas(MDIM)
+         real, intent(inout) :: QAuxLiq(LOW:HIGH, MDIM), QAuxGas(LOW:HIGH, MDIM)
+         real, intent(inout) :: volAuxLiq(LOW:HIGH, MDIM), volAuxGas(LOW:HIGH, MDIM)
+         real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
          real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
       end subroutine sim_outletVelBlk2dPhased
 
-      subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcell, ycell, zcell, &
+      subroutine sim_outletVelBlk3dPhased(u, v, w, ru, rv, rw, phi, xcenter, ycenter, zcenter, &
                                           boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                           inletFlag, inletBuffer, inletGrowthRate, &
                                           outletFlag, outletBuffer, outletGrowthRate, &
-                                          outletIsLiq, outletIsGas, &
-                                          volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QMeanLiq, QMeanGas, &
+                                          volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, QOutLiq, QOutGas, &
                                           xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
 
          implicit none
          real, dimension(:, :, :), intent(in)  :: u, v, w
          real, dimension(:, :, :), intent(inout) :: ru, rv, rw
          real, dimension(:, :, :), intent(in) :: phi
-         real, dimension(:), intent(in)        :: xcell, ycell, zcell
+         real, dimension(:), intent(in)        :: xcenter, ycenter, zcenter
          real, dimension(:, :), intent(in)     :: boundBox
          real, intent(in)                      :: dt, dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
          integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag, inletFlag
          real, intent(in) :: inletBuffer, inletGrowthRate, outletBuffer, outletGrowthRate
-         integer, intent(in) :: outletIsLiq, outletIsGas
-         real, intent(inout) :: QAuxLiq(MDIM), QAuxGas(MDIM)
-         real, intent(inout) :: volAuxLiq(MDIM), volAuxGas(MDIM)
-         real, intent(in) :: QMeanLiq(MDIM), QMeanGas(MDIM)
+         real, intent(inout) :: QAuxLiq(LOW:HIGH, MDIM), QAuxGas(LOW:HIGH, MDIM)
+         real, intent(inout) :: volAuxLiq(LOW:HIGH, MDIM), volAuxGas(LOW:HIGH, MDIM)
+         real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
       end subroutine sim_outletVelBlk3dPhased
    end interface

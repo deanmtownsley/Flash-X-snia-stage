@@ -65,7 +65,6 @@ subroutine Simulation_init()
    end if
 
    call sim_heaterInit()
-
    call sim_inletInit()
    call sim_outletInit()
 

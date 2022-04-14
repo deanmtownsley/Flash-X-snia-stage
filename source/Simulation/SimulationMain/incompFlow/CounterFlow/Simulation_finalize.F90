@@ -31,8 +31,8 @@
 
 subroutine Simulation_finalize()
 
-   use sim_outletInterface, ONLY: sim_outletFinalize
    use sim_inletInterface, ONLY: sim_inletFinalize
+   use sim_outletInterface, ONLY: sim_outletFinalize
 
    implicit none
 

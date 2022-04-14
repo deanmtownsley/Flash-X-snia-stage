@@ -39,8 +39,8 @@ subroutine Simulation_init()
    use Simulation_data
    use Driver_interface, ONLY: Driver_getMype, Driver_abort
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-   use sim_outletInterface, ONLY: sim_outletInit
    use sim_inletInterface, ONLY: sim_inletInit
+   use sim_outletInterface, ONLY: sim_outletInit
 
    implicit none
 

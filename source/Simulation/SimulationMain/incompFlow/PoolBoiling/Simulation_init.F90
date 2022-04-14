@@ -70,6 +70,8 @@ subroutine Simulation_init()
       write (*, *) 'sim_gravZ=', sim_gravZ
    end if
 
+   call sim_heaterInit()
+
 #ifdef SIMULATION_FORCE_INLET
    call sim_inletInit()
 #endif

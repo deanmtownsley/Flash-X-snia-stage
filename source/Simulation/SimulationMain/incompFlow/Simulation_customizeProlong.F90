@@ -93,7 +93,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
 #ifdef FLASH_GRID_PARAMESH
 #if NFACE_VARS > 0
   integer, parameter :: totFaces = 3
-  integer, parameter  :: tot_divpres_prol = 2 !(VELC and HVN0)
+  integer, parameter  :: tot_divpres_prol = 2 !(VELC and HVN1)
   integer, dimension(NFACE_VARS),save :: interp_mask_facex_old,&
        interp_mask_facey_old,&
        interp_mask_facez_old
@@ -116,9 +116,9 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
         interp_mask_facey(VELC_FACE_VAR)=0
         interp_mask_facez(VELC_FACE_VAR)=0
 
-        interp_mask_facex(HVN0_FACE_VAR)=0
-        interp_mask_facey(HVN0_FACE_VAR)=0
-        interp_mask_facez(HVN0_FACE_VAR)=0
+        interp_mask_facex(HVN1_FACE_VAR)=0
+        interp_mask_facey(HVN1_FACE_VAR)=0
+        interp_mask_facez(HVN1_FACE_VAR)=0
 
 
      elseif (ins_prol_method == LINEAR_PROL) then
@@ -127,9 +127,9 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
         interp_mask_facey(VELC_FACE_VAR)=1
         interp_mask_facez(VELC_FACE_VAR)=1
 
-        interp_mask_facex(HVN0_FACE_VAR)=1
-        interp_mask_facey(HVN0_FACE_VAR)=1
-        interp_mask_facez(HVN0_FACE_VAR)=1
+        interp_mask_facex(HVN1_FACE_VAR)=1
+        interp_mask_facey(HVN1_FACE_VAR)=1
+        interp_mask_facez(HVN1_FACE_VAR)=1
 
 
      elseif (ins_prol_method == QUADRATIC_PROL) then
@@ -138,20 +138,20 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
         interp_mask_facey(VELC_FACE_VAR)=2
         interp_mask_facez(VELC_FACE_VAR)=2
 
-        interp_mask_facex(HVN0_FACE_VAR)=2
-        interp_mask_facey(HVN0_FACE_VAR)=2
-        interp_mask_facez(HVN0_FACE_VAR)=2
+        interp_mask_facex(HVN1_FACE_VAR)=2
+        interp_mask_facey(HVN1_FACE_VAR)=2
+        interp_mask_facez(HVN1_FACE_VAR)=2
 
 
      elseif (ins_prol_method == DIVPRES_PROL) then
 
         ! Divergence preserving prolongation: 
         ins_divpres_fc_vars(1:totFaces,1) = VELC_FACE_VAR
-        ins_divpres_fc_vars(1:totFaces,2) = HVN0_FACE_VAR
+        ins_divpres_fc_vars(1:totFaces,2) = HVN1_FACE_VAR
 
         !Divergence cleaning in block boundaries neighboring old blocks:
         i_divf_fc_vars(1:totFaces,1) = VELC_FACE_VAR
-        i_divf_fc_vars(1:totFaces,2) = HVN0_FACE_VAR
+        i_divf_fc_vars(1:totFaces,2) = HVN1_FACE_VAR
 
         call prol_fc_divpres_init(tot_divpres_prol,totFaces, ins_divpres_fc_vars)
 

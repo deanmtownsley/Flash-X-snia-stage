@@ -66,6 +66,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real :: channelDepth
+   real, parameter :: pi = acos(-1.0)
 
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
@@ -99,7 +100,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             !channelDepth = sim_channelDepth*(sim_yMax - yi)/sim_yMax
             channelDepth = sim_channelDepth
 
-            solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
+            !solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
+            !
+            solnData(DFUN_VAR, i, j, k) = min(xi - sim_xMin - channelDepth - 0.2*cos(yi*pi/2), &
+                                              sim_xMax - channelDepth - xi + 0.2*cos(yi*pi/2 + pi))
 
          end do
       end do

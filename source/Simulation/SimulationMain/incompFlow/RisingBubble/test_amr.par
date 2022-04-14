@@ -36,7 +36,7 @@ zmax            =  1.0
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "neumann_ins"
+yr_boundary_type = "outflow_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 
@@ -73,12 +73,12 @@ nblockz = 2
 nfres   = 1000
 
 lrefine_min        = 1
-lrefine_max        = 3
+lrefine_max        = 5
 refine_var_count   = 1
 
 refine_var_1       = "dfun"
-refine_cutoff_1    = "0"
-derefine_cuttoff_1 = "-0.1"
+#refine_cutoff_1    = "0"
+#derefine_cuttoff_1 = "-0.01"
 
 #	Flux Conservation for AMR
 flux_correct    = .true.
