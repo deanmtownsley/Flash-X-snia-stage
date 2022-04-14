@@ -71,9 +71,12 @@ guidelines to create a pull request:
 7. Remove "DRAFT" from your pull request name. If no further problems
    are found, this will cause the PR
    to be merged. The test suite is run at night if one of more
-   PRs have been merged into the **staged** branch.
+   PRs have been merged into the **staged** branch. PRs that come in 
+   before 6PM CST are more likely to be included in that night's test.
+   Monitor the repo to see whether your PR was merged and testsuite passed.
 8. If the test suite passes, a composite PR will be created from
-   **staged** into **main**, and you won't have to do anything more.
+   **staged** into **main**, and you won't have to do anything more. This will 
+   likely happen the day the testsuite passed.
 9. If the test suite fails, it is expected that you will resolve the
    failures immediately. If the failures continue over several
    iterations, or if the conflicts prove to be non-trivial, the
