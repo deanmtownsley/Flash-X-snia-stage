@@ -80,7 +80,7 @@ guidelines to create a pull request:
    resolution will involve someone designated by the Council to work
    with you.
 
-Contributors with write permission should create a feature branch
+Contributors with write permission should create a feature branch from main branch
 instead of a fork. The remainder of the workflow remains the same.
 
 ## Code Formatting
