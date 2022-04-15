@@ -69,8 +69,11 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcenter, ycenter, &
          iforce(LOW) = abs(u(i, j, k)) > max(velref, velout(LOW))
          iforce(HIGH) = abs(u(i, j, k)) > max(velref, velout(HIGH))
 
-         velforce(LOW:HIGH, IAXIS) = (/iforce(LOW)*(velout(LOW)*u(i, j, k)/(abs(u(i, j, k)) + 1e-13) - u(i, j, k))/dt, &
-                                       iforce(HIGH)*(velout(HIGH)*u(i, j, k)/(abs(u(i, j, k)) + 1e-13) - u(i, j, k))/dt/)
+         velforce(LOW:HIGH, IAXIS) = (/iforce(LOW)*(velout(LOW)*u(i, j, k)/(abs(u(i, j, k)) + 1e-13) - u(i, j, k))/dt + &
+                                       velref*(u(i + 1, j, k) - u(i - 1, j, k))/(2*dx), &
+                                       !
+                                       iforce(HIGH)*(velout(HIGH)*u(i, j, k)/(abs(u(i, j, k)) + 1e-13) - u(i, j, k))/dt - &
+                                       velref*(u(i + 1, j, k) - u(i - 1, j, k))/(2*dx)/)
          !
          velforce(LOW:HIGH, JAXIS) = -u(i, j, k)/dt
 
@@ -120,8 +123,11 @@ subroutine sim_outletVelBlk2dPhased(u, v, ru, rv, phi, xcenter, ycenter, &
 
          velforce(LOW:HIGH, IAXIS) = -v(i, j, k)/dt
          !
-         velforce(LOW:HIGH, JAXIS) = (/iforce(LOW)*(velout(LOW)*v(i, j, k)/(abs(v(i, j, k)) + 1e-13) - v(i, j, k))/dt, &
-                                       iforce(HIGH)*(velout(HIGH)*v(i, j, k)/(abs(v(i, j, k)) + 1e-13) - v(i, j, k))/dt/)
+         velforce(LOW:HIGH, JAXIS) = (/iforce(LOW)*(velout(LOW)*v(i, j, k)/(abs(v(i, j, k)) + 1e-13) - v(i, j, k))/dt + &
+                                       velref*(v(i, j + 1, k) - v(i, j - 1, k))/(2*dy), &
+                                       !
+                                       iforce(HIGH)*(velout(HIGH)*v(i, j, k)/(abs(v(i, j, k)) + 1e-13) - v(i, j, k))/dt - &
+                                       velref*(v(i, j + 1, k) - v(i, j - 1, k))/(2*dy)/)
 
          do idimn = 1, NDIM
             do ibound = LOW, HIGH

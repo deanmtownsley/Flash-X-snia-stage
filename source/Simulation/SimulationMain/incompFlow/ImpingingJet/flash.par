@@ -22,7 +22,7 @@ mph_invWeber = 0.004
 geometry	= "cartesian"
 
 # Simulation parameters
-sim_outletBuffer = 0.1
+sim_outletBuffer = 1.0
 sim_freeSurface = 15.0
 
 #       Size of computational volume
@@ -37,7 +37,7 @@ zmax            =  30.0
 xl_boundary_type = "outflow_ins"
 xr_boundary_type = "outflow_ins"
 yl_boundary_type = "inflow_ins"
-yr_boundary_type = "noslip_ins"
+yr_boundary_type = "outflow_ins"
 zl_boundary_type = "outflow_ins"
 zr_boundary_type = "outflow_ins"
 

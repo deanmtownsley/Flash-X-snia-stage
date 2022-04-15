@@ -66,6 +66,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real :: Rcell, jetProfile
+   real, parameter :: pi = acos(-1.0)
 
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
@@ -101,7 +102,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
             jetProfile = sqrt((xi - sim_jetCoords(IAXIS))**2 + (zi - sim_jetCoords(KAXIS))**2) - Rcell
 
-            solnData(DFUN_VAR, i, j, k) = min(jetProfile, sim_freeSurface - yi)
+            !solnData(DFUN_VAR, i, j, k) = min(jetProfile, sim_freeSurface - yi)
+            solnData(DFUN_VAR, i, j, k) = min(jetProfile - 0.1*cos(yi*pi/2), sim_freeSurface - yi)
 
          end do
       end do

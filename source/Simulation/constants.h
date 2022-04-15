@@ -66,7 +66,6 @@ MASTER_PE is the designated master processor in a run.
 #define DIRICHLET -36
 #define PNEUMAN  -37
 
-#define OUTFLOW_INS -23
 #define NOSLIP_INS -21
 #define SLIP_INS -22
 #define INFLOW_INS -24
