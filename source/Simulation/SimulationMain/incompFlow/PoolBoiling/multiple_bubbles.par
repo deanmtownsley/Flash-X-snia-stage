@@ -5,7 +5,7 @@ gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
 # Inverse of Reynolds Number
-ins_invReynolds   = .003
+ins_invReynolds   = .004
 
 # 1/Fr**2, Fr (Froude Number)
 ins_gravY           = -1.0
@@ -17,17 +17,17 @@ mph_iPropSmear = 1.0
 
 # Gas thermal conductivity and specific heat
 mph_thcoGas = 0.2
-mph_CpGas   = 0.7
+mph_CpGas   = 0.8
 
 # Stefan number and saturation temperature
-mph_Stefan  = 0.15
-mph_Tsat    = 0.10
+mph_Stefan  = 0.50
+mph_Tsat    = 0.20
 
 # Inverse Weber Number
 mph_invWeber = 1.0
 
 # Prandtl number
-ht_Prandtl = 7.0
+ht_Prandtl = 8.0
 
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
@@ -35,25 +35,25 @@ sim_numHeaters    =  1   # Number of heaters
 sim_heaterName    = "multiple_bubbles"
 sim_heaterShowInfo = .FALSE.
 
-# Outflow parameters
-sim_lsSink        =  1.0 # Level set sink strength
-sim_outflowRegion = 10.0 # Outflow region 
+# Outlet parameters
+sim_outletBuffer =  1.0 # Outlet buffer region
+
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
 #       Size of computational volume
-xmin		= -6.0
-xmax		=  6.0
+xmin		= -7.0
+xmax		=  7.0
 ymin		=  0.0
-ymax		= 12.0
-zmin            = -6.0
-zmax            =  6.0
+ymax		= 14.0
+zmin            = -7.0
+zmax            =  7.0
 
 #       Boundary conditions
 xl_boundary_type = "slip_ins"
 xr_boundary_type = "slip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "outflow_ins"
+yr_boundary_type = "neumann_ins"
 zl_boundary_type = "slip_ins"
 zr_boundary_type = "slip_ins"
 
@@ -62,15 +62,15 @@ run_comment	= "Pool Boiling problem"
 log_file	= "INS_Pool_Boiling.log"
 basenm		= "INS_Pool_Boiling_"
 restart         = .false.
-nend            = 200000000
-tmax            = 1000. 
-ins_cflFlg      = 0
-ins_cfl         = 0.3
-ins_sigma	= 0.2
+nend            = 10000000
+tmax            = 30.
+ins_cflFlg      = 1
+ins_cfl         = 0.05
+ins_sigma	= 0.05
 ins_dtSpec      = 0.1d-3
 dtinit          = 0.1d-3
-tstep_change_factor = 1.0
-ins_pressureCorrect= .false.
+tstep_change_factor = 1.01
+ins_pressureCorrect = .false.
 
 #Integration Scheme:
 ins_intSchm            = 2
@@ -80,18 +80,21 @@ plot_var_2      = "velx"
 plot_var_3      = "vely"
 plot_var_4      = "dfun"
 plot_var_5      = "temp"  
+plot_var_6      = "dust"
 
-checkpointFileIntervalTime = 5.
+checkpointFileNumber = 0
+checkpointFileIntervalTime = 0.5
 checkpointFileIntervalStep = 5000
 
-plotFileIntervalTime = 5.
+plotFileNumber = 0
+plotFileIntervalTime = 0.1
 plotFileIntervalStep = 1000
-io_writeGridInfo = .TRUE.
+ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 24
-nblocky	= 24
-nblockz = 24
+nblockx	= 28
+nblocky	= 28
+nblockz = 28
 nfres   = 10000000
 
 lrefine_min       = 1

@@ -48,6 +48,7 @@ subroutine HeatAD_init(restart)
    if (useMultiphase) then
       call RuntimeParameters_get('mph_thcoGas', ht_thcoGas)
       call RuntimeParameters_get('mph_cpGas', ht_CpGas)
+      call RuntimeParameters_get('mph_Tsat', ht_Tsat)
    end if
 
    if (ht_meshMe .eq. MASTER_PE) then

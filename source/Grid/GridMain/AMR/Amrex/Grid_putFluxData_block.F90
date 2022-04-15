@@ -18,9 +18,9 @@
 !! SYNOPSIS
 !!
 !!  call Grid_putFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
-!!                              real(in),dimension(lo(1): ,lo(2): ,lo(3): ,1: )  :: fluxBufX,
-!!                              real(in),dimension(lo(1): ,lo(2): ,lo(3): ,1: )  :: fluxBufY,
-!!                              real(in),dimension(lo(1): ,lo(2): ,lo(3): ,1: )  :: fluxBufZ,
+!!                              real(in),Contiguous,TARGET :: fluxBufX(lo(1): ,lo(2): ,lo(3): ,: ),
+!!                              real(in),Contiguous,TARGET :: fluxBufY(lo(1): ,lo(2): ,lo(3): ,: ),
+!!                              real(in),Contiguous,TARGET :: fluxBufZ(lo(1): ,lo(2): ,lo(3): ,: ),
 !!                              integer(in) :: lo(3),
 !!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!

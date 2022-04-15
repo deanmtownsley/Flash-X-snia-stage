@@ -72,6 +72,7 @@ MASTER_PE is the designated master processor in a run.
 #define INFLOW_INS -24
 #define MOVLID_INS -25
 #define OUTFLOW_INS -26
+#define EXTRAP_INS -27
 
 #define DIODE -39
 #define GRIDBC_MG_EXTRAPOLATE -40
@@ -154,20 +155,6 @@ MASTER_PE is the designated master processor in a run.
 #define BEFORE 1
 #define AFTER 2
 
-
-#if 0
-  The next two constants are used to indicate whether variables need to
-  change from one form to another around guard cell exchange. If using
-  conservative variables with some Grid implementations, it may be necessary to
-  convert them to per-mass form before filling guard cells at fine-coarse boundaries
-  to get the interpolation right. If NO_MAPPER is specified no conversions
-  are done.
-  These symbols are obsolete and not used in any code that is currently supported
-  by the FLASH Center. They should not be used by new code.
-#endif
-
-#define NO_MAPPER 0
-#define CONS_TO_PRIM 1
 
 #if 0
   This group of constants defines options for getting a list of blocks. The 

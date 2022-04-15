@@ -85,7 +85,7 @@ subroutine IO_writePlotfile(forced)
    use IO_data, ONLY: io_plotFileNumber, io_unklabels, &
                       io_doublePrecision, io_nPlotVars, io_forcedPlotFileNumber, &
                       io_ignoreForcedPlot, io_flashRelease, io_globalMe, io_wrotePlot, &
-                      io_oldPlotFileName, io_baseName, io_writeGridInfo, io_gridChangedSincePlot
+                      io_oldPlotFileName, io_baseName, io_gridChangedSincePlot
    use io_intfTypesModule, ONLY: io_fileID_t
    use Driver_interface, ONLY: Driver_getNStep, Driver_getSimTime
    use Logfile_interface, ONLY: Logfile_stampMessage, Logfile_stamp
@@ -172,7 +172,7 @@ subroutine IO_writePlotfile(forced)
    if (.not. io_plotFileAmrexFormat) then
       call io_writeData(fileID)
 
-      if (io_writeGridInfo .and. io_gridChangedSincePlot) then
+      if (io_gridChangedSincePlot) then
          call io_writeGrid()
          io_gridChangedSincePlot = .FALSE.
       end if

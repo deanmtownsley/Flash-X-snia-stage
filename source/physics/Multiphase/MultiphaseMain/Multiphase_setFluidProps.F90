@@ -35,7 +35,7 @@ subroutine Multiphase_setFluidProps(tileDesc)
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
+   integer, dimension(2, MDIM) :: stnLimits = 1, stnLimitsGC = 1
    logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    integer :: ierr, i, j, k
@@ -46,6 +46,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
    nullify (solnData, facexData, faceyData, facezData)
 
    call Timers_start("Multiphase_setFluidProps")
+
+   stnLimitsGC(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1 - NGUARD
+   stnLimitsGC(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1 + NGUARD
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
@@ -62,8 +65,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                facexData(mph_iRhoFVar, :, :, :), &
                                faceyData(mph_iRhoFVar, :, :, :), &
                                1./mph_rhoGas, &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               iSmear=mph_iPropSmear*minCellDiag)
 
 #else
    call Stencils_lsFaceProps3d(solnData(DFUN_VAR, :, :, :), &
@@ -71,17 +75,19 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                faceyData(mph_iRhoFVar, :, :, :), &
                                facezData(mph_iRhoFVar, :, :, :), &
                                1./mph_rhoGas, &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, &
-                               GRID_KLO_GC, GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
+                               iSmear=mph_iPropSmear*minCellDiag)
 #endif
 
    call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
                                solnData(mph_iMuCVar, :, :, :), &
                                mph_muGas, &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, &
-                               GRID_KLO_GC, GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
+                               iSmear=mph_iPropSmear*minCellDiag)
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)

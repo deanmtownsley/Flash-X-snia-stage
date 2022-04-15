@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow
+!!****if* source/Simulation/SimulationMain/incompFlow/Driver_evolveAll
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -411,12 +411,10 @@ subroutine Driver_evolveAll()
 
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
-      call Timers_start("Grid_solvePoisson")
       call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
                              bcTypes=ins_pressureBC_types, &
                              bcValues=ins_pressureBC_values, &
                              poisfact=ins_poisfact)
-      call Timers_stop("Grid_solvePoisson")
       !------------------------------------------------------------
 
       ! Fill GuardCells for pressure
@@ -483,9 +481,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- End Physics Sequence
       !------------------------------------------------------------
-      ! Update grid and notify changes to other units
-      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
-
       ! Velocities and Omg to Center variables
       ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
       ! Note this will add velocity and vorticity variables to your CENTER data structure.
@@ -498,6 +493,9 @@ subroutine Driver_evolveAll()
       call IO_output(dr_simTime, &
                      dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
       call Timers_stop("IO_output")
+
+      ! Update grid and notify changes to other units
+      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
       if (gridChanged) dr_simGeneration = dr_simGeneration + 1
 

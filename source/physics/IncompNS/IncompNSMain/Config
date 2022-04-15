@@ -1,5 +1,5 @@
 #       Config file for the Incompressible Navier Stoke solver.
-DEFAULT constdens
+DEFAULT ConstDens
 
 PPDEFINE INCOMPNS_MAIN
 
@@ -10,8 +10,8 @@ REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
 #-----------------------------------------------------------------------
-CHILDORDER constdens vardens
-EXCLUSIVE  constdens vardens
+CHILDORDER constDens varDens
+EXCLUSIVE  constDens varDens
 
 #-----------------------------------------------------------------------
 D useIncompNS   Should the IncompNS unit be used?
@@ -55,9 +55,11 @@ VARIABLE dust                  	# divergence of ustar, poissons equation source 
 VARIABLE tvis 			# turbulent viscosity
 
 # Use FACEVAR for cell interface velocity fields
-FACEVAR velc     
-FACEVAR rhds
+FACEVAR velc                    # Variable to store velocity
+FACEVAR hvn0                    # Variable to store right hand side at n
+FACEVAR hvn1                    # Variable to store right hand side at n-1
 FACEVAR pgn1                    # Variable to store pressure gradient at n-1
+FACEVAR vfrc                    # Velocity forcing variable for external use
 
 # Fluxes
 FLUX velc
