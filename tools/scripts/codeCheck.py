@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os.path, sys, string, re, getopt
+import os, sys, string, re, getopt
 try:
    import subprocess  # use this when available to avoid a DeprecationWarning
 except ImportError:
@@ -793,7 +793,7 @@ simply prevents this violation / fix from being applied to any file.
 
        if os.path.isdir(dirOrFileName):
           flist = []
-          os.path.walk(bn,vfunc,flist)
+          os.walk(bn,vfunc,flist)
           # now we have the list of all files to process
        else:
           # We assume 'dirOrFileName' refers to a file
