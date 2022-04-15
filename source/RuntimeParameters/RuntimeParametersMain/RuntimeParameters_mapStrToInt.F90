@@ -114,6 +114,11 @@ subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
       constKey = DIRICHLET
 #endif
 
+   case ("NEUMANN_INS", "Neumann_ins", "neumann_ins")
+#ifdef NEUMANN_INS
+      constKey = NEUMANN_INS
+#endif
+
    case ("OUTFLOW_INS", "Outflow_ins", "outflow_ins")
 #ifdef OUTFLOW_INS
       constKey = OUTFLOW_INS
