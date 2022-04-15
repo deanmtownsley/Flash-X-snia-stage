@@ -126,7 +126,7 @@ class InterfacesDict(dict):
           APIStubFilenames.append(m.group(1))
 
       for APIStubFilename in APIStubFilenames:
-        if APIStubFilename not in subnamesDict.keys():
+        if APIStubFilename not in list(subnamesDict.keys()):
           correctlyCasedSubname = self.getCorrectlyCasedSubname(APIStubFilename)
           if correctlyCasedSubname:
             # There is a subroutine in this Unit that corresponds to
@@ -136,7 +136,7 @@ class InterfacesDict(dict):
             subnamesDict[APIStubFilename] = INTERFACE_DECL_MISSING
           self.errorsFound = True
 
-      for declaredInterface in subnamesDict.keys():
+      for declaredInterface in list(subnamesDict.keys()):
         # The interface could actually be a subroutine inside an interface
         # like "Timers_stopIndex" under "Timers_stop". If that's the case,
         # we don't need to look for a corresponding stubfile.
@@ -161,7 +161,7 @@ class InterfacesDict(dict):
     and the dictionary representing the contents of that file.
     """
     unitname = self.getCorrectlyCasedUnitname(unitname)
-    if self.unitToInterfaceMap.has_key(unitname):
+    if unitname in self.unitToInterfaceMap:
       pathToAPILevelDir = self.unitToInterfaceMap[unitname]
       return (pathToAPILevelDir, self[pathToAPILevelDir])
     return (None, None)
@@ -172,7 +172,7 @@ class InterfacesDict(dict):
     file exists. These can be used to retrieve other information from
     getPathAndInterfaceForUnit().
     """
-    return self.unitToInterfaceMap.keys()
+    return list(self.unitToInterfaceMap.keys())
 
   def getCorrectlyCasedUnitname(self, unitname):
     """
