@@ -62,7 +62,7 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
   use physicaldata, only : interp_mask_facex,interp_mask_facey,interp_mask_facez, &
                            interp_mask_facex_res,interp_mask_facey_res,interp_mask_facez_res  
 
-  use IncompNS_data, ONLY : ins_predcorrflg,ins_outflowgridChanged
+  use IncompNS_data, ONLY : ins_predcorrflg
 
 !!$  use tree, ONLY : newchild, lnblocks
 !!$  use paramesh_interfaces, ONLY : amr_refine_derefine, &
@@ -132,20 +132,8 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
 
      call gr_updateRefinement(gridChanged)
 
-     !write(*,*) 'Before Guardcell fill in updateref'
-
-     ! apply BC and fill guardcells for turbulent viscosity
-     ins_outflowgridChanged = gridChanged
-     gcMask = .TRUE.
-     call Grid_fillGuardCells(CENTER_FACES,ALLDIR,&
-       maskSize=NUNK_VARS+NDIM*NFACE_VARS,mask=gcMask,selectBlockType=ACTIVE_BLKS)
-     ins_outflowgridChanged = .false.
-
-     !write(*,*) 'Done with Guardcell fill in updateref'
-
   else
      if (present(gridChanged)) gridChanged = .FALSE.
-     ins_outflowgridChanged = gridChanged
   end if
   end if 
  

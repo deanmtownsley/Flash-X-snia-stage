@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletLSDampingBlk
+!!***if* source/Simulation/SimulationMain/incompFlow/ImpingingJet/sim_outletLSDamping
 !!
 !!
 !! NOTICE
@@ -19,10 +19,12 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
-                                     dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax)
+subroutine sim_outletLSDamping2d(pfrc, phi, xcenter, ycenter, boundBox, &
+                                    dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax)
+
+   use Simulation_data, ONLY: sim_freeSurface
 
    implicit none
 
@@ -32,19 +34,35 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
+   integer, dimension(2, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax
 
    integer :: i, j, k
-   real    :: xi, yi
+   real    :: xi, yi, phiforce
 
-end subroutine sim_outletLSDampingBlk2d
+   k = 1
 
-subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
-                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                     xMin, xMax, yMin, yMax, zMin, zMax)
+   do j = jy1, jy2
+      do i = ix1, ix2
+         xi = xcenter(i)
+         yi = ycenter(j)
+
+         phiforce = 0.1*(sim_freeSurface -yi - phi(i, j, k))/dt
+
+         pfrc(i, j, k) = pfrc(i, j, k) + &
+                         phiforce*(2/(1 + exp(-outletGrowthRate*(xi - xMax)/outletBuffer))) + &
+                         phiforce*(2/(1 + exp(outletGrowthRate*(xi - xMin)/outletBuffer)))
+                           
+      end do
+   end do
+
+end subroutine sim_outletLSDamping2d
+
+subroutine sim_outletLSDamping3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
+                                    dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                    xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
 
@@ -54,11 +72,11 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundB
    real, dimension(:, :), intent(in) :: boundBox
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-   integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
+   integer, dimension(2, MDIM), intent(in) :: outletFlag
    real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
    real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
 
    integer :: i, j, k
    real    :: xi, yi, zi
 
-end subroutine sim_outletLSDampingBlk3d
+end subroutine sim_outletLSDamping3d

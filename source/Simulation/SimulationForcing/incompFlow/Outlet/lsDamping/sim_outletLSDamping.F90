@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/lsDamping/sim_outletLSDampingBlk
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/lsDamping/sim_outletLSDamping
 !!
 !!
 !! NOTICE
@@ -19,10 +19,10 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
-                                    dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                    xMin, xMax, yMin, yMax)
+subroutine sim_outletLSDamping2d(pfrc, phi, xcenter, ycenter, boundBox, &
+                                 dt, dx, dy, ix1, ix2, jy1, jy2, &
+                                 outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                 xMin, xMax, yMin, yMax)
 
    implicit none
 
@@ -53,12 +53,12 @@ subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcenter, ycenter, boundBox, &
       end do
    end do
 
-end subroutine sim_outletLSDampingBlk2d
+end subroutine sim_outletLSDamping2d
 
-subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
-                                    dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                    outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                    xMin, xMax, yMin, yMax, zMin, zMax)
+subroutine sim_outletLSDamping3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
+                                 dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                 outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                 xMin, xMax, yMin, yMax, zMin, zMax)
 
    implicit none
 
@@ -91,4 +91,4 @@ subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcenter, ycenter, zcenter, boundB
       end do
    end do
 
-end subroutine sim_outletLSDampingBlk3d
+end subroutine sim_outletLSDamping3d

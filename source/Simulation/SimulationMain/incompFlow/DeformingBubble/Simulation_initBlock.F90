@@ -18,8 +18,8 @@
 !!
 !! SYNOPSIS
 !!
-!!  Simulation_initBlock(integer(in) :: blockID) 
-!!                       
+!!  Simulation_initBlock(integer(in) :: blockID)
+!!
 !!
 !!
 !!
@@ -30,65 +30,100 @@
 !!
 !!  Reference:
 !!
-!! 
+!!
 !! ARGUMENTS
 !!
 !!  tile -          the tile to update
-!!  
 !!
-!! 
+!!
+!!
 !!
 !!***
-!!REORDER(4): solnData
+!!REORDER(4): solnData, face[xyz]Data
 
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine Simulation_initBlock(solnData,tileDesc)
+subroutine Simulation_initBlock(solnData, tileDesc)
 
-  use Simulation_data
-  use Grid_interface, ONLY : Grid_getCellCoords
-  use Grid_tile, ONLY : Grid_tile_t
+   use Simulation_data
+   use Grid_interface, ONLY: Grid_getCellCoords
+   use Grid_tile, ONLY: Grid_tile_t
 
-  implicit none
+   implicit none
 
   !!$ Arguments -----------------------
-  real,dimension(:,:,:,:),pointer :: solnData
-  type(Grid_tile_t), intent(in) :: tileDesc
-  integer :: tileDescID
+   real, dimension(:, :, :, :), pointer :: solnData
+   type(Grid_tile_t), intent(in) :: tileDesc
+   integer :: tileDescID
   !!$ ---------------------------------
- 
-  integer :: i, j, k
-  integer, dimension(MDIM) :: lo, hi
-  real,allocatable, dimension(:) ::xCenter,yCenter,zCenter
-  real :: xi, yi, zi
-  logical :: gcell = .true.
 
-  !----------------------------------------------------------------------
-  lo=tileDesc%limits(LOW,:)
-  hi=tileDesc%limits(HIGH,:)
-  allocate(xCenter(lo(IAXIS):hi(IAXIS)))
-  allocate(yCenter(lo(JAXIS):hi(JAXIS)))
-  allocate(zCenter(lo(KAXIS):hi(KAXIS)))
-  xCenter = 0.0
-  yCenter = 0.0
-  zCenter = 0.0
- 
-  call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-  if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-  if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
+   integer :: i, j, k
+   integer, dimension(MDIM) :: lo, hi
+   real, allocatable, dimension(:) ::xCenter, yCenter, zCenter
+   real :: xi, yi, zi
+   logical :: gcell = .true.
+   real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   real, parameter :: pi = acos(-1.0)
+   real :: del(MDIM)
+   !----------------------------------------------------------------------
+   nullify (facexData, faceyData, facezData)
 
-  do       k = lo(KAXIS), hi(KAXIS)
-     do    j = lo(JAXIS), hi(JAXIS)
-        do i = lo(IAXIS), hi(IAXIS)
-          xi=xCenter(i)
-          yi=yCenter(j)
+   lo = tileDesc%blkLimitsGC(LOW, :)
+   hi = tileDesc%blkLimitsGC(HIGH, :)
 
-          solnData(DFUN_VAR,i,j,k) = 0.25-sqrt((xi-0.25)**2+(yi-0.25)**2)
-        enddo
-     enddo
-  enddo
+   allocate (xCenter(lo(IAXIS):hi(IAXIS)))
+   allocate (yCenter(lo(JAXIS):hi(JAXIS)))
+   allocate (zCenter(lo(KAXIS):hi(KAXIS)))
 
-  deallocate(xCenter,yCenter,zCenter)
+   xCenter = 0.0
+   yCenter = 0.0
+   zCenter = 0.0
+
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
+   if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
+   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
+
+   call tileDesc%deltas(del)
+   call tileDesc%getDataPtr(facexData, FACEX)
+   call tileDesc%getDataPtr(faceyData, FACEY)
+
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xCenter(i)
+            yi = yCenter(j)
+
+            solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi-0.75)**2 + (yi-0.75)**2)
+         end do
+      end do
+   end do
+
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS) + 1
+            xi = xCenter(i) - del(IAXIS)/2
+            yi = yCenter(j)
+
+            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+         end do
+      end do
+   end do
+
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xCenter(i)
+            yi = yCenter(j) - del(JAXIS)/2
+
+            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+         end do
+      end do
+   end do
+
+
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
+   deallocate (xCenter, yCenter, zCenter)
 
 end subroutine Simulation_initBlock

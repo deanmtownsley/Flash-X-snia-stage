@@ -12,4 +12,4 @@ ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
-#LINKIF Grid_updateRefinement.F90 Grid/GridMain/paramesh
+LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4

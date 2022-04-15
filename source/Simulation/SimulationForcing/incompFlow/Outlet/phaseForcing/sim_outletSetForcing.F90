@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing/sim_outletSetForcing
+!!****f* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletSetForcing
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -22,11 +22,8 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    use sim_outletData, ONLY: sim_outletSink, sim_outletFlag, &
                              sim_outletBuffer, sim_outletGrowthRate, &
-                             sim_QOutLiq, sim_QOutGas, &
-                             sim_QAuxLiq, sim_QAuxGas, &
-                             sim_volAuxLiq, sim_volAuxGas
-
-   use sim_inletData, ONLY: sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate
+                             sim_QAuxLiq, sim_QAuxGas, sim_volAuxLiq, &
+                             sim_volAuxGas, sim_QOutLiq, sim_QOutGas
 
    use Simulation_data, ONLY: sim_meshMe, sim_xMin, sim_xMax, sim_yMin, sim_yMax
 #if NDIM == MDIM
@@ -36,8 +33,8 @@ subroutine sim_outletSetForcing(tileDesc, dt)
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
-   use sim_outletInterface, ONLY: sim_outletLSDampingBlk2d, sim_outletLSDampingBlk3d, &
-                                  sim_outletVelBlk2dPhased, sim_outletVelBlk3dPhased
+   use sim_outletInterface, ONLY: sim_outletLSDamping2d, sim_outletLSDamping3d, &
+                                  sim_outletVelFrc2dPhased, sim_outletVelFrc3dPhased
 
    use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
@@ -87,65 +84,96 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
 #if NDIM < MDIM
 
-   call sim_outletLSDampingBlk2d(solnData(DFRC_VAR, :, :, :), &
-                                 solnData(DFUN_VAR, :, :, :), &
-                                 xCenter, yCenter, boundBox, &
-                                 dt, del(IAXIS), del(JAXIS), &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI, &
-                                 sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                                 sim_outletGrowthRate, &
-                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+#ifdef MULTIPHASE_MAIN
+   call sim_outletLSDamping2d(solnData(DFRC_VAR, :, :, :), &
+                              solnData(DFUN_VAR, :, :, :), &
+                              xCenter, yCenter, boundBox, &
+                              dt, del(IAXIS), del(JAXIS), &
+                              GRID_ILO, GRID_IHI, &
+                              GRID_JLO, GRID_JHI, &
+                              sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                              sim_outletGrowthRate, &
+                              sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+#endif
 
-   call sim_outletVelBlk2dPhased(facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
+   call sim_outletVelFrc2dPhased(facexData(VELC_FACE_VAR, :, :, :), &
                                  facexData(VFRC_FACE_VAR, :, :, :), &
+                                 solnData(DFUN_VAR, :, :, :), &
+                                 xCenter - del(IAXIS)/2, yCenter, &
+                                 dt, del(IAXIS), del(JAXIS), &
+                                 GRID_ILO, GRID_IHI + 1, &
+                                 GRID_JLO, GRID_JHI, &
+                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 IAXIS, sim_volAuxLiq, sim_volAuxGas, sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QOutLiq, sim_QOutGas)
+
+   call sim_outletVelFrc2dPhased(faceyData(VELC_FACE_VAR, :, :, :), &
                                  faceyData(VFRC_FACE_VAR, :, :, :), &
                                  solnData(DFUN_VAR, :, :, :), &
-                                 xCenter, yCenter, boundBox, &
+                                 xCenter, yCenter - del(JAXIS)/2, &
                                  dt, del(IAXIS), del(JAXIS), &
                                  GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI, &
-                                 sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
-                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                                 sim_volAuxLiq, sim_volAuxGas, &
-                                 sim_QAuxLiq, sim_QAuxGas, &
-                                 sim_QOutLiq, sim_QOutGas, &
+                                 GRID_JLO, GRID_JHI + 1, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, &
-                                 ins_gravX, ins_gravY)
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 JAXIS, sim_volAuxLiq, sim_volAuxGas, sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QOutLiq, sim_QOutGas)
 
 #else
    call tileDesc%getDataPtr(facezData, FACEZ)
 
-   call sim_outletLSDampingBlk3d(solnData(DFRC_VAR, :, :, :), &
+#ifdef MULTIPHASE_MAIN
+   call sim_outletLSDamping3d(solnData(DFRC_VAR, :, :, :), &
+                              solnData(DFUN_VAR, :, :, :), &
+                              xCenter, yCenter, zCenter, boundBox, &
+                              dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                              GRID_ILO, GRID_IHI, &
+                              GRID_JLO, GRID_JHI, &
+                              GRID_KLO, GRID_KHI, &
+                              sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                              sim_outletGrowthRate, &
+                              sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+#endif
+
+   call sim_outletVelFrc3dPhased(facexData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VFRC_FACE_VAR, :, :, :), &
                                  solnData(DFUN_VAR, :, :, :), &
-                                 xCenter, yCenter, zCenter, boundBox, &
+                                 xCenter - del(IAXIS)/2, yCenter, zCenter, &
                                  dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                                 GRID_ILO, GRID_IHI, &
+                                 GRID_ILO, GRID_IHI + 1, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI, &
-                                 sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                                 sim_outletGrowthRate, &
-                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 IAXIS, sim_volAuxLiq, sim_volAuxGas, sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QOutLiq, sim_QOutGas)
 
-   call sim_outletVelBlk3dPhased(facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 facezData(VELC_FACE_VAR, :, :, :), &
-                                 facexData(VFRC_FACE_VAR, :, :, :), &
+   call sim_outletVelFrc3dPhased(faceyData(VELC_FACE_VAR, :, :, :), &
                                  faceyData(VFRC_FACE_VAR, :, :, :), &
+                                 solnData(DFUN_VAR, :, :, :), &
+                                 xCenter, yCenter - del(JAXIS)/2, zCenter, &
+                                 dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI + 1, &
+                                 GRID_KLO, GRID_KHI, &
+                                 sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 JAXIS, sim_volAuxLiq, sim_volAuxGas, sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QOutLiq, sim_QOutGas)
+
+   call sim_outletVelFrc3dPhased(facezData(VELC_FACE_VAR, :, :, :), &
                                  facezData(VFRC_FACE_VAR, :, :, :), &
                                  solnData(DFUN_VAR, :, :, :), &
-                                 xCenter, yCenter, zCenter, boundBox, &
+                                 xCenter, yCenter, zCenter - del(KAXIS)/2, &
                                  dt, del(IAXIS), del(JAXIS), del(KAXIS), &
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI, &
-                                 sim_inletFlag, sim_inletBuffer, sim_inletGrowthRate, &
-                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
-                                 sim_QAuxLiq, sim_QAuxGas, &
-                                 sim_QOutLiq, sim_QOutGas, &
+                                 GRID_KLO, GRID_KHI + 1, &
                                  sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax, &
-                                 ins_gravX, ins_gravY, ins_gravZ)
+                                 sim_outletFlag, sim_outletBuffer, sim_outletGrowthRate, &
+                                 KAXIS, sim_volAuxLiq, sim_volAuxGas, sim_QAuxLiq, sim_QAuxGas, &
+                                 sim_QOutLiq, sim_QOutGas)
 
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
