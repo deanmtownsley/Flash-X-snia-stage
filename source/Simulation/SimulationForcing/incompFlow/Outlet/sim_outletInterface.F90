@@ -81,31 +81,12 @@ Module sim_outletInterface
       end subroutine sim_outletLSDamping3d
    end interface
 
-   interface sim_outletVelFrc
-      subroutine sim_outletVelFrc2d(vel, rhs, xgrid, ygrid, &
-                                    dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                    xMin, xMax, yMin, yMax, &
-                                    outletFlag, outletBuffer, outletGrowthRate, &
-                                    axis, volAux, QAux, QOut)
-         implicit none
-         real, dimension(:, :, :), intent(in) :: vel
-         real, dimension(:, :, :), intent(inout) :: rhs
-         real, dimension(:), intent(in) :: xgrid, ygrid
-         real, intent(in) :: dt, dx, dy
-         integer, intent(in) :: ix1, ix2, jy1, jy2
-         real, intent(in) :: xMin, xMax, yMin, yMax
-         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
-         real, intent(in) :: outletBuffer, outletGrowthRate
-         integer, intent(in) :: axis
-         real, intent(inout) :: QAux(LOW:HIGH, MDIM), volAux(LOW:HIGH, MDIM)
-         real, intent(in) :: QOut(LOW:HIGH, MDIM)
-      end subroutine sim_outletVelFrc2d
-
-      subroutine sim_outletVelFrc3d(vel, rhs, xgrid, ygrid, zgrid, &
-                                    dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                    xMin, xMax, yMin, yMax, zMin, zMax, &
-                                    outletFlag, outletBuffer, outletGrowthRate, &
-                                    axis, volAux, QAux, QOut)
+   interface
+      subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
+                                  dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                  xMin, xMax, yMin, yMax, zMin, zMax, &
+                                  outletFlag, outletBuffer, outletGrowthRate, &
+                                  axis, volAux, QAux, QOut)
          implicit none
          real, dimension(:, :, :), intent(in) :: vel
          real, dimension(:, :, :), intent(inout) :: rhs
@@ -118,41 +99,20 @@ Module sim_outletInterface
          integer, intent(in) :: axis
          real, intent(inout) :: QAux(LOW:HIGH, MDIM), volAux(LOW:HIGH, MDIM)
          real, intent(in) :: QOut(LOW:HIGH, MDIM)
-      end subroutine sim_outletVelFrc3d
+      end subroutine sim_outletVelFrc
    end interface
 
-   interface sim_outletVelFrcPhased
-      subroutine sim_outletVelFrc2dPhased(vel, rhs, phi, xgrid, ygrid, &
-                                          dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                          xMin, xMax, yMin, yMax, &
-                                          outletFlag, outletBuffer, outletGrowthRate, &
-                                          axis, volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, &
-                                          QOutLiq, QOutGas)
+   interface
+      subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
+                                        dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                        xMin, xMax, yMin, yMax, zMin, zMax, &
+                                        outletFlag, outletBuffer, outletGrowthRate, &
+                                        axis, volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, &
+                                        QOutLiq, QOutGas)
+
          implicit none
          real, dimension(:, :, :), intent(in) :: vel, phi
          real, dimension(:, :, :), intent(inout) :: rhs
-         real, dimension(:), intent(in) :: xgrid, ygrid
-         real, intent(in) :: dt, dx, dy
-         integer, intent(in) :: ix1, ix2, jy1, jy2
-         real, intent(in) :: xMin, xMax, yMin, yMax
-         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
-         real, intent(in) :: outletBuffer, outletGrowthRate
-         integer, intent(in) :: axis
-         real, intent(inout) :: QAuxLiq(LOW:HIGH, MDIM), QAuxGas(LOW:HIGH, MDIM)
-         real, intent(inout) :: volAuxLiq(LOW:HIGH, MDIM), volAuxGas(LOW:HIGH, MDIM)
-         real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
-      end subroutine sim_outletVelFrc2dPhased
-
-      subroutine sim_outletVelFrc3dPhased(vel, rhs, xgrid, ygrid, zgrid, &
-                                          dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                          xMin, xMax, yMin, yMax, zMin, zMax, &
-                                          outletFlag, outletBuffer, outletGrowthRate, &
-                                          axis, volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, &
-                                          QOutLiq, QOutGas)
-
-         implicit none
-         real, dimension(:, :, :), intent(in) :: vel
-         real, dimension(:, :, :), intent(inout) :: rhs
          real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
          real, intent(in) :: dt, dx, dy, dz
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -163,7 +123,7 @@ Module sim_outletInterface
          real, intent(inout) :: QAuxLiq(LOW:HIGH, MDIM), QAuxGas(LOW:HIGH, MDIM)
          real, intent(inout) :: volAuxLiq(LOW:HIGH, MDIM), volAuxGas(LOW:HIGH, MDIM)
          real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
-      end subroutine sim_outletVelFrc3dPhased
+      end subroutine sim_outletVelFrcPhased
    end interface
 
    interface
