@@ -32,8 +32,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
-   use sim_outletInterface, ONLY: sim_outletLSDamping2d, sim_outletLSDamping3d, &
-                                  sim_outletVelFrc
+   use sim_outletInterface, ONLY: sim_outletLSDamping, sim_outletVelFrc
 
    use IncompNS_data, ONLY: ins_gravX, ins_gravY, ins_gravZ
    use IncompNS_interface, ONLY: IncompNS_setVectorProp
@@ -84,15 +83,16 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 #if NDIM < MDIM
 
 #ifdef MULTIPHASE_MAIN
-   call sim_outletLSDamping2d(solnData(DFRC_VAR, :, :, :), &
-                              solnData(DFUN_VAR, :, :, :), &
-                              xCenter, yCenter, boundBox, &
-                              dt, del(IAXIS), del(JAXIS), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                              sim_outletGrowthRate, &
-                              sim_xMin, sim_xMax, sim_yMin, sim_yMax)
+   call sim_outletLSDamping(solnData(DFRC_VAR, :, :, :), &
+                            solnData(DFUN_VAR, :, :, :), &
+                            xCenter, yCenter, zCenter, boundBox, &
+                            dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI, &
+                            GRID_KLO, GRID_KHI, &
+                            sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                            sim_outletGrowthRate, &
+                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, 0., 0.)
 #endif
 
    call sim_outletVelFrc(facexData(VELC_FACE_VAR, :, :, :), &
@@ -121,16 +121,16 @@ subroutine sim_outletSetForcing(tileDesc, dt)
    call tileDesc%getDataPtr(facezData, FACEZ)
 
 #ifdef MULTIPHASE_MAIN
-   call sim_outletLSDamping3d(solnData(DFRC_VAR, :, :, :), &
-                              solnData(DFUN_VAR, :, :, :), &
-                              xCenter, yCenter, zCenter, boundBox, &
-                              dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI, &
-                              sim_outletFlag, sim_outletSink, sim_outletBuffer, &
-                              sim_outletGrowthRate, &
-                              sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
+   call sim_outletLSDamping(solnData(DFRC_VAR, :, :, :), &
+                            solnData(DFUN_VAR, :, :, :), &
+                            xCenter, yCenter, zCenter, boundBox, &
+                            dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI, &
+                            GRID_KLO, GRID_KHI, &
+                            sim_outletFlag, sim_outletSink, sim_outletBuffer, &
+                            sim_outletGrowthRate, &
+                            sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax)
 #endif
 
    call sim_outletVelFrc(facexData(VELC_FACE_VAR, :, :, :), &

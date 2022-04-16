@@ -49,26 +49,11 @@ Module sim_outletInterface
       end subroutine sim_outletSetForcing
    end interface
 
-   interface sim_outletLSDamping
-      subroutine sim_outletLSDamping2d(pfrc, phi, xcenter, ycenter, boundBox, &
-                                       dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                       outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                       xMin, xMax, yMin, yMax)
-         real, dimension(:, :, :), intent(inout) :: pfrc
-         real, dimension(:, :, :), intent(in)    :: phi
-         real, dimension(:), intent(in)          :: xcenter, ycenter
-         real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                        :: dt, dx, dy
-         integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
-         real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax
-      end subroutine sim_outletLSDamping2d
-
-      subroutine sim_outletLSDamping3d(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
-                                       dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                       outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                       xMin, xMax, yMin, yMax, zMin, zMax)
+   interface
+      subroutine sim_outletLSDamping(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
+                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                     xMin, xMax, yMin, yMax, zMin, zMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
          real, dimension(:), intent(in)          :: xcenter, ycenter, zcenter
@@ -78,7 +63,7 @@ Module sim_outletInterface
          integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
          real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
-      end subroutine sim_outletLSDamping3d
+      end subroutine sim_outletLSDamping
    end interface
 
    interface
