@@ -50,7 +50,7 @@ nblocky	= 8
 nfres   = 1000
 
 lrefine_min        = 1
-lrefine_max        = 3
+lrefine_max        = 1
 refine_var_count   = 1
 
 refine_var_1       = "dfun"

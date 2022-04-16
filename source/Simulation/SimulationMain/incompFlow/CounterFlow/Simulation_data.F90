@@ -40,5 +40,8 @@ module Simulation_data
    real, save :: sim_gravZ
 
    real, save :: sim_channelDepth
+   real, save :: sim_nozzleFreq
+   real, save :: sim_nozzleAmp
+   real, save :: sim_liqFlowRate, sim_gasFlowRate
 
 end module Simulation_data

@@ -24,6 +24,10 @@ geometry	= "cartesian"
 # Simulation parameters
 sim_outletBuffer = 0.1
 sim_channelDepth = 1.0
+sim_nozzleFreq = 1.0
+sim_nozzleAmp = 0.5
+sim_liqFlowRate = 1.0
+sim_gasFlowRate = -1.0
 
 #       Size of computational volume
 xmin		= -5.0
@@ -69,7 +73,7 @@ plot_var_6      = "omgm"
 checkpointFileIntervalTime = 5.0
 checkpointFileIntervalStep = 500000
 
-plotFileIntervalTime = 1.0
+plotFileIntervalTime = 0.1
 plotFileIntervalStep = 100000
 
 # AMR parameters

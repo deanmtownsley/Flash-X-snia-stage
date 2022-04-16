@@ -98,12 +98,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             zi = zCenter(k)
 
             !channelDepth = sim_channelDepth*(sim_yMax - yi)/sim_yMax
-            channelDepth = sim_channelDepth
-
-            !solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
+            !channelDepth = sim_channelDepth
             !
-            solnData(DFUN_VAR, i, j, k) = min(xi - sim_xMin - channelDepth - 0.2*cos(yi*pi/2), &
-                                              sim_xMax - channelDepth - xi + 0.2*cos(yi*pi/2 + pi))
+            !solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
+    
+            solnData(DFUN_VAR, i, j, k) = min(xi - sim_xMin - sim_channelDepth - sim_nozzleAmp*cos(yi*pi/2), &
+                                              sim_xMax - sim_channelDepth - xi + sim_nozzleAmp*cos(yi*pi/2 + pi))
 
          end do
       end do
@@ -116,9 +116,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             yi = yCenter(j)
 
             if (0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .gt. 0.0) then
-               faceyData(VELC_FACE_VAR, i, j, k) = -1.0
+               faceyData(VELC_FACE_VAR, i, j, k) = sim_gasFlowRate
             else
-               faceyData(VELC_FACE_VAR, i, j, k) = 1.0
+               faceyData(VELC_FACE_VAR, i, j, k) = sim_liqFlowRate
             end if
 
          end do

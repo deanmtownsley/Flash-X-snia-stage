@@ -54,6 +54,10 @@ subroutine Simulation_init()
    call RuntimeParameters_get('zmax', sim_zmax)
 
    call RuntimeParameters_get('sim_channelDepth', sim_channelDepth)
+   call RuntimeParameters_get('sim_nozzleFreq', sim_nozzleFreq)
+   call RuntimeParameters_get('sim_nozzleAmp', sim_nozzleAmp)
+   call RuntimeParameters_get('sim_liqFlowRate', sim_liqFlowRate)
+   call RuntimeParameters_get('sim_gasFlowRate', sim_gasFlowRate)
 
    call RuntimeParameters_get('ins_gravX', sim_gravX)
    call RuntimeParameters_get('ins_gravY', sim_gravY)
@@ -64,6 +68,10 @@ subroutine Simulation_init()
       write (*, *) 'sim_gravY =', sim_gravY
       write (*, *) 'sim_gravZ =', sim_gravZ
       write (*, *) 'sim_channelDepth =', sim_channelDepth
+      write (*, *) 'sim_nozzleFreq =', sim_nozzleFreq
+      write (*, *) 'sim_nozzleAmp = ', sim_nozzleAmp
+      write (*, *) 'sim_liqFlowRate =', sim_liqFlowRate
+      write (*, *) 'sim_gasFlowRate =', sim_gasFlowRate
    end if
 
    call sim_inletInit()

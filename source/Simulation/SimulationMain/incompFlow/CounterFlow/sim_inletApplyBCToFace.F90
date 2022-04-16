@@ -22,7 +22,10 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                                   guard, face, axis, secondDir, thirdDir)
 
    use Driver_interface, ONLY: Driver_getSimTime
-   use Simulation_data, ONLY: sim_channelDepth, sim_xMin, sim_xMax
+
+   use Simulation_data, ONLY: sim_channelDepth, sim_xMin, sim_xMax, &
+                              sim_nozzleAmp, sim_nozzleFreq, sim_liqFlowRate, &
+                              sim_gasFlowRate
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
@@ -66,9 +69,9 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                      !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
 
                      channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
-                                          0.2*cos(time*pi/2), &
+                                          sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi), &
                                           (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
-                                          0.2*cos(time*pi/2 + pi))
+                                          sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi + pi))
 
                      regionData(i, j, k, ivar) = 2*channelProfile - regionData(offset - i, j, k, ivar)
 
@@ -88,12 +91,12 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                         !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
 
                         channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
-                                             0.2*cos(time*pi/2), &
+                                             sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi), &
                                              (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
-                                             0.2*cos(time*pi/2 + pi))
+                                             sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi + pi))
 
-                        regionData(i, j, k, ivar) = ((1 + sign(1., channelProfile))/2)*(-1.0) + &
-                                                    ((1 - sign(1., channelProfile))/2)*(1.0)
+                        regionData(i, j, k, ivar) = ((1 + sign(1., channelProfile))/2)*(sim_gasFlowRate) + &
+                                                    ((1 - sign(1., channelProfile))/2)*(sim_liqFlowRate)
 
                      end do
                   end do
