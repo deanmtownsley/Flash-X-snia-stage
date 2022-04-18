@@ -27,6 +27,11 @@
 !!***
 
 #include "AMReX_Config.H"
+
+#ifndef AMREX_GIT_VERSION
+#include "AMReX_Version.H"
+#endif
+
 #if N_DIM != AMREX_SPACEDIM
 # error AMREX_SPACEDIM of the AMReX library does not match the NDIM of FLASH!
 #endif
