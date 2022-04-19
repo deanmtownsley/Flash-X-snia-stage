@@ -75,7 +75,8 @@
 !!  Calls to gr_bcGetRegion are therefore only meaningful in certain
 !!  contexts.  The idest argument is then taken as an index into these
 !!  one-block arrays. It distinguishes between the slots available and
-!!  must match the slot that is actually being used by PARAMESH.
+!!  must match the slot that has actually been filled by PARAMESH.
+!!
 !!
 !! SEE ALSO
 !!   gr_bcApplyToOneFace
@@ -429,6 +430,7 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
   integer,intent(IN) :: idest
 
   integer,parameter :: ndim=NDIM
+  integer,dimension(LOW:HIGH,MDIM) :: epLoc ! local version of endPoints
   integer :: var,i,j,k,n,m,strt,fin, varCount,bcVecEnd
   integer :: i1,imax,j1,jmax,k1,kmax, nmax,mmax
   logical :: validGridDataStruct
@@ -437,8 +439,14 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
   real,pointer,dimension(:,:,:,:) :: regFN, regFT1, regFT2, regC
   real,pointer,dimension(:,:,:,:) :: pUnk, pFaceVarX,pFaceVarY,pFaceVarZ
 
-  strt = endPoints(LOW,axis)
-  fin  = endPoints(HIGH,axis)
+  epLoc(:,:) = endPoints
+#if !defined(FLASH_GRID_AMREX) && defined(FIXEDBLOCKSIZE)
+  epLoc(LOW,1:NDIM)  = epLoc(LOW,1:NDIM)  - tileDesc%blkLimitsGC(LOW,1:NDIM) + 1
+  epLoc(HIGH,1:NDIM) = epLoc(HIGH,1:NDIM) - tileDesc%blkLimitsGC(LOW,1:NDIM) + 1
+#endif
+
+  strt = epLoc(LOW,axis)
+  fin  = epLoc(HIGH,axis)
   varCount=regionSize(STRUCTSIZE)
   bcVecEnd=regionSize(BC_DIR)
 
@@ -474,30 +482,35 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 #else
   doFaces = .FALSE.
 #endif
-  ! DEVNOTE: Code this once data structures fixed
+
 #ifdef FLASH_GRID_PARAMESH3OR4
   pUnk => unk1(:,:,:,:,idest)
   pFaceVarX => facevarx1(:,:,:,:,idest)
   pFaceVarY => facevary1(:,:,:,:,idest)
   pFaceVarZ => facevarz1(:,:,:,:,idest)
 #elif defined FLASH_GRID_AMREX
-  ! DEVNOTE: Code once data structures fixed
+  if (doCenter) call tileDesc%getDataPtr(pUnk, CENTER)
+#   if NFACE_VARS>0
+    call tileDesc%getDataPtr(pFaceVarX, FACEX)
+    call tileDesc%getDataPtr(pFaceVarY, FACEY)
+    call tileDesc%getDataPtr(pFaceVarZ, FACEZ)
+#   endif
 #else
   pUnk => unk(:,:,:,:,tileDesc%id)
-#if NFACE_VARS>0
-  pFaceVarX => facevarx(:,:,:,:,tileDesc%id)
-  pFaceVarY => facevary(:,:,:,:,tileDesc%id)
-  pFaceVarZ => facevarz(:,:,:,:,tileDesc%id)
-#endif
+#   if NFACE_VARS>0
+    pFaceVarX => facevarx(:,:,:,:,tileDesc%id)
+    pFaceVarY => facevary(:,:,:,:,tileDesc%id)
+    pFaceVarZ => facevarz(:,:,:,:,tileDesc%id)
+#   endif
 #endif
 
   if(axis==IAXIS) then
-     k1  = endPoints(LOW,KAXIS)
-     kmax= endPoints(HIGH,KAXIS)
+     k1  = epLoc(LOW,KAXIS)
+     kmax= epLoc(HIGH,KAXIS)
 !     m1  = 1
      mmax=kmax-k1+1
-     j1  = endPoints(LOW,JAXIS)
-     jmax= endPoints(HIGH,JAXIS)
+     j1  = epLoc(LOW,JAXIS)
+     jmax= epLoc(HIGH,JAXIS)
 !     n1  = 1
      nmax=jmax-j1+1
      
@@ -509,7 +522,7 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 !!$        print*,'Now will copy var=',var
            pUnk(var,strt:fin,  j1:jmax,k1:kmax)=regC  (1:bcVecEnd,1:nmax,1:mmax,var)
         end do
-!!$     print*,'Now will allo regC'
+!!$     print*,'Now will deallo regC'
         deallocate( regC )
      end if
      if (doFaces) then
@@ -526,12 +539,12 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 
 
   elseif(axis==JAXIS) then
-     k1  = endPoints(LOW,thirdDir)
-     kmax= endPoints(HIGH,thirdDir)
+     k1  = epLoc(LOW,thirdDir)
+     kmax= epLoc(HIGH,thirdDir)
 !     m1  = 1
      mmax=kmax-k1+1
-     i1  = endPoints(LOW,secondDir)
-     imax= endPoints(HIGH,secondDir)
+     i1  = epLoc(LOW,secondDir)
+     imax= epLoc(HIGH,secondDir)
 !     n1  = 1
      nmax=imax-i1+1
      
@@ -581,12 +594,12 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
      end if
 
   elseif(axis==KAXIS) then
-     j1  = endPoints(LOW,thirdDir)
-     jmax= endPoints(HIGH,thirdDir)
+     j1  = epLoc(LOW,thirdDir)
+     jmax= epLoc(HIGH,thirdDir)
 !     m1  = 1
      mmax=jmax-j1+1
-     i1  = endPoints(LOW,secondDir)
-     imax= endPoints(HIGH,secondDir)
+     i1  = epLoc(LOW,secondDir)
+     imax= epLoc(HIGH,secondDir)
 !     n1  = 1
      nmax=imax-i1+1
 
@@ -614,6 +627,14 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 
   end if
 
+#ifdef FLASH_GRID_AMREX
+  if (doCenter) call tileDesc%releaseDataPtr(pUnk, CENTER)
+#   if NFACE_VARS>0
+    call tileDesc%releaseDataPtr(pFaceVarX, FACEX)
+    call tileDesc%releaseDataPtr(pFaceVarY, FACEY)
+    call tileDesc%releaseDataPtr(pFaceVarZ, FACEZ)
+#   endif
+#endif
 
 end subroutine gr_bcPutRegionsMixedGds
 
