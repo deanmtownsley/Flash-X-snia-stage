@@ -71,23 +71,23 @@ guidelines to create a pull request:
 7. Remove "DRAFT" from your pull request name. If no further problems
    are found, this will cause the PR
    to be merged. The test suite is run at night if one of more
-   PRs have been merged into the **staged** branch. PRs that come in 
+   PRs have been merged into the **staged** branch. PRs that come in
    before 6PM CST are more likely to be included in that night's test.
-   Monitor the repo to see whether your PR was merged and testsuite passed.
-   A comment will be added to your PR if the testsuite failed.
+   Monitor the repo to see whether your PR was merged and the test suite passed.
+   A comment will be added to your PR if the test suite failed.
 8. If the test suite passes, a composite PR will be created from
-   **staged** into **main**, and you won't have to do anything more. This will 
-   likely happen the day the testsuite passed.
+   **staged** into **main**, and you won't have to do anything more. This will
+   likely happen the day the test suite passed.
 9. If the test suite fails, it is expected that you will prioritize resolving the
-   failure. Note that the merged and colliding code will be available in the staged branch. 
-   You can copy that code into a local working copy to resolve the issue. **Please note that you 
-   should never make any commit into the staged** 
-   If the testsuite passes you can reissue a PR and ask for a test suite run by leaving a comment in the PR.
-   If the failures continue, we abandon the stage branch at the end of the day. and PRs have to recreated.
-   If we determine that the interoperability is compromised someone from the core team might have 
+   failure. Note that the merged and colliding code will be available in the staged branch.
+   You can copy that code into a local working copy to resolve the issue. **Please note that you
+   should never make any commit into the staged branch.**
+   If the test suite passes, you can reissue a PR and ask for a test suite run by leaving a comment in the PR.
+   If the failures continue, we abandon the stage branch at the end of the day, and PRs have to be created again.
+   If we determine that the interoperability is compromised, someone from the core team might have
    to get involved to help resolve.
 
-Contributors with write permission should create a feature branch from main branch
+Contributors with write permission should create a feature branch from the main branch
 instead of a fork. The remainder of the workflow remains the same.
 
 ## Code Formatting
@@ -129,7 +129,7 @@ autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
-## Tests 
+## Tests
 The source code for flashtest and a full set of tests are available from the
-Flash-X-Test repository. The repository also has tools to help you setup your local testsuite.
+Flash-X-Test repository. The repository also has tools to help you setup your local test suite.
 
