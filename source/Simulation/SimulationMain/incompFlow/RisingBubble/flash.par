@@ -74,11 +74,6 @@ nfres   = 10
 
 lrefine_min        = 1
 lrefine_max        = 1
-refine_var_count   = 1
-
-refine_var_1       = "dfun"
-refine_cutoff_1    = "0"
-derefine_cuttoff_1 = "-0.1"
 
 #	Flux Conservation for AMR
 flux_correct    = .true.

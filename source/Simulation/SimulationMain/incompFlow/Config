@@ -13,3 +13,6 @@ ELSE
 ENDIF
 
 LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
+LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
+
+LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex

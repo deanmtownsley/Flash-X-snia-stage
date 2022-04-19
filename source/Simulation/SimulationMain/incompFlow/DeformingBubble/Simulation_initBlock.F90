@@ -60,7 +60,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    integer :: i, j, k
    integer, dimension(MDIM) :: lo, hi
-   real, allocatable, dimension(:) ::xCenter, yCenter, zCenter
+   real, allocatable, dimension(:) ::xGrid, yGrid, zGrid
    real :: xi, yi, zi
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
@@ -69,61 +69,92 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    !----------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
+
+   call tileDesc%deltas(del)
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
 
-   allocate (xCenter(lo(IAXIS):hi(IAXIS)))
-   allocate (yCenter(lo(JAXIS):hi(JAXIS)))
-   allocate (zCenter(lo(KAXIS):hi(KAXIS)))
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
-   xCenter = 0.0
-   yCenter = 0.0
-   zCenter = 0.0
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
 
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-   if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
-
-   call tileDesc%deltas(del)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
 
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS)
          do i = lo(IAXIS), hi(IAXIS)
-            xi = xCenter(i)
-            yi = yCenter(j)
+            xi = xGrid(i)
+            yi = yGrid(j)
+            zi = zGrid(k)
 
-            solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi-0.75)**2 + (yi-0.75)**2)
+            solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi - 0.75)**2 + (yi - 0.75)**2 + zi**2)
          end do
       end do
    end do
+   deallocate(xGrid, yGrid, zGrid)
 
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
+
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, FACES, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   call tileDesc%getDataPtr(facexData, FACEX)
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS)
          do i = lo(IAXIS), hi(IAXIS) + 1
-            xi = xCenter(i) - del(IAXIS)/2
-            yi = yCenter(j)
+            xi = xGrid(i)
+            yi = yGrid(j)
 
             facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
          end do
       end do
    end do
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   deallocate(xGrid, yGrid, zGrid)
 
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
+
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, FACES, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   call tileDesc%getDataPtr(faceyData, FACEY)
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS) + 1
          do i = lo(IAXIS), hi(IAXIS)
-            xi = xCenter(i)
-            yi = yCenter(j) - del(JAXIS)/2
+            xi = xGrid(i)
+            yi = yGrid(j)
 
             faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
          end do
       end do
    end do
-
-
-   call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
-   deallocate (xCenter, yCenter, zCenter)
+   deallocate (xGrid, yGrid, zGrid)
 
 end subroutine Simulation_initBlock

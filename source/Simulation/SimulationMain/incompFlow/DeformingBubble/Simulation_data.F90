@@ -35,5 +35,6 @@ module Simulation_data
   real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax
 
   integer, save :: sim_meshMe
+  logical, save :: sim_reInitFlow
 
 end module Simulation_data

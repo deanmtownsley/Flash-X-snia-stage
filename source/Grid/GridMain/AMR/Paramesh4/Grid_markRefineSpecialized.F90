@@ -87,6 +87,9 @@ subroutine Grid_markRefineSpecialized (criterion,size,specs,lref)
   integer :: contained, var, icmp
 
   select case (criterion)
+     case(BOUNDS)
+        var = int(specs(1))
+        call gr_markVarBounds(var,specs(2),specs(3),lref)
      case(THRESHOLD)
         var = int(specs(1))
         icmp = int(specs(3))

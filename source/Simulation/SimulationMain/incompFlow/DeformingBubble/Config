@@ -4,3 +4,5 @@
 REQUIRES physics/IncompNS/IncompNSMain
 REQUIRES physics/IncompNS/IncompNSExtras
 REQUIRES physics/Multiphase/MultiphaseMain
+
+PARAMETER sim_reInitFlow  BOOLEAN FALSE

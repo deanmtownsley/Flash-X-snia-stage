@@ -497,7 +497,16 @@ subroutine Driver_evolveAll()
       ! Update grid and notify changes to other units
       call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
-      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+      ! Perform housekeeping after gridChanges
+      ! Fill guard cells for new grid
+      if (gridChanged) then
+         dr_simGeneration = dr_simGeneration + 1
+
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      end if
 
       if (dr_globalMe .eq. MASTER_PE) then
          write (*, *) ' '

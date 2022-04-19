@@ -34,6 +34,7 @@
 !!
 !!
 !!***
+!!REORDER(4): face[xyz]Data
 
 #include "constants.h"
 #include "Simulation.h"
@@ -58,7 +59,7 @@ subroutine Driver_evolveAll()
 
    use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
                              Grid_fillGuardCells, Grid_getTileIterator, &
-                             Grid_releaseTileIterator, Grid_solvePoisson
+                             Grid_releaseTileIterator, Grid_getCellCoords
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -71,9 +72,9 @@ subroutine Driver_evolveAll()
    use Multiphase_interface, ONLY: Multiphase_advection, Multiphase_redistance, Multiphase_solve, &
                                    Multiphase_reInitGridVars, Multiphase_indicators, Multiphase_getGridVar
 
-#ifdef MULTIPHASE_MAIN
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt
-#endif
+
+   use Simulation_data, ONLY: sim_reInitFlow
 
    implicit none
 
@@ -99,11 +100,22 @@ subroutine Driver_evolveAll()
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
 
+   integer :: ii, jj, kk
+   integer, dimension(MDIM) :: lo, hi
+   real, allocatable, dimension(:) ::xGrid, yGrid, zGrid
+   real :: xi, yi, zi
+   logical :: gcell = .true.
+   real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   real, parameter :: pi = acos(-1.0)
+   real :: del(MDIM)
+
+   ! Set interpolation values for guard cell
+   call Grid_setInterpValsGcell(.TRUE.)
+
    ! Get grid variables for incompressible Naiver-Stokes
    ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
 
-#ifdef MULTIPHASE_MAIN
    ! Get grid variables for level set distance function
    ! if Multiphase unit is available
    call Multiphase_getGridVar("CENTER_LEVELSET", iDfunVar)
@@ -115,8 +127,6 @@ subroutine Driver_evolveAll()
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
                             maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-#endif
-
    endRunPl = .false.
    endRun = .false.
 
@@ -159,6 +169,98 @@ subroutine Driver_evolveAll()
       dr_simGeneration = 0
       !------------------------------------------------------------
 
+      !------------------------------------------------------------
+      ! Set analytical values for fluid flow
+      ! sim_reInitFlow is a runtime parameter to force computation 
+      ! of the velocity field every time step
+      !
+      ! This is done to test the divergence free interpolation of velocity
+      ! If sim_reInitFlow = .FALSE. the divergence should be machine zero
+      ! after implemneation
+      if (sim_reInitFlow) then
+
+         ! Loop over iterator
+         call Grid_getTileIterator(itor, nodetype=LEAF)
+         do while (itor%isValid())
+            call itor%currentTile(tileDesc)
+
+            ! Logic to compute analytical solution of velocity 
+            !---------------------------------------------------------
+            nullify (facexData, faceyData, facezData)
+
+            lo = tileDesc%blkLimitsGC(LOW, :)
+            hi = tileDesc%blkLimitsGC(HIGH, :)
+
+            allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
+            allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+
+            xGrid = 0.0
+            yGrid = 0.0
+
+            call Grid_getCellCoords(IAXIS, FACES, tileDesc%level, lo, hi, xGrid)
+            call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+
+            call tileDesc%getDataPtr(facexData, FACEX)
+            do kk = lo(KAXIS), hi(KAXIS)
+               do jj = lo(JAXIS), hi(JAXIS)
+                  do ii = lo(IAXIS), hi(IAXIS) + 1
+                     xi = xGrid(ii)
+                     yi = yGrid(jj)
+
+                     facexData(iVelVar, ii, jj, kk) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+                  end do
+               end do
+            end do
+            call tileDesc%releaseDataPtr(facexData, FACEX)
+            deallocate (xGrid, yGrid)
+
+            allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+            allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+
+            xGrid = 0.0
+            yGrid = 0.0
+
+            call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+            call Grid_getCellCoords(JAXIS, FACES, tileDesc%level, lo, hi, yGrid)
+
+            call tileDesc%getDataPtr(faceyData, FACEY)
+            do kk = lo(KAXIS), hi(KAXIS)
+               do jj = lo(JAXIS), hi(JAXIS) + 1
+                  do ii = lo(IAXIS), hi(IAXIS)
+                     xi = xGrid(ii)
+                     yi = yGrid(jj)
+
+                     faceyData(iVelVar, ii, jj, kk) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+                  end do
+               end do
+            end do
+            call tileDesc%releaseDataPtr(faceyData, FACEY)
+            deallocate (xGrid, yGrid)
+            !---------------------------------------------------------
+
+            call itor%next()
+         end do
+         call Grid_releaseTileIterator(itor)
+      end if
+      !------------------------------------------------------------
+
+      ! Compute divergences for velocities
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call IncompNS_divergence(tileDesc)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
+      !------------------------------------------------------------
+
+      ! Call indicators method to show information
+      !------------------------------------------------------------
+      call IncompNS_indicators()
+      !------------------------------------------------------------
+
       ! Call methods to reset specific grid variables
       ! at the start of every time-setp
       !------------------------------------------------------------
@@ -173,7 +275,6 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-#ifdef MULTIPHASE_MAIN
       ! Multiphase advection diffusion procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
@@ -224,33 +325,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Multiphase_indicators()
       !------------------------------------------------------------
-#endif
-
-      ! Fill GuardCells for velocity 
-      gcMask = .FALSE.
-      gcMask(NUNK_VARS + iVelVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
-#if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
-#endif
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-
-      call Grid_getTileIterator(itor, nodetype=LEAF)
-      do while (itor%isValid())
-         call itor%currentTile(tileDesc)
-         !---------------------------------------------------------
-         call IncompNS_divergence(tileDesc)
-         !---------------------------------------------------------
-         call itor%next()
-      end do
-      call Grid_releaseTileIterator(itor)
-      !------------------------------------------------------------
-
-      ! Call indicators method to show information
-      !------------------------------------------------------------
-      call IncompNS_indicators()
-      !------------------------------------------------------------
 
       !------------------------------------------------------------
       !- End Physics Sequence
@@ -271,7 +345,14 @@ subroutine Driver_evolveAll()
       ! Update grid and notify changes to other units
       call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
-      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+      if (gridChanged) then
+         dr_simGeneration = dr_simGeneration + 1
+
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      end if
 
       if (dr_globalMe .eq. MASTER_PE) then
          write (*, *) ' '

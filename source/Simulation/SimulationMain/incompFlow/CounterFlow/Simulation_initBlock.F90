@@ -59,7 +59,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    !-------------------------------------------------------------------------------------
    integer, dimension(MDIM)       :: lo, hi
-   real, allocatable, dimension(:) :: xCenter, yCenter, zCenter
+   real, allocatable, dimension(:) :: xGrid, yGrid, zGrid
    integer :: i, j, k
    real    :: xi, yi, zi
    real    :: del(MDIM)
@@ -71,37 +71,36 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
+   call tileDesc%deltas(del)
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
 
-   allocate (xCenter(lo(IAXIS):hi(IAXIS)))
-   allocate (yCenter(lo(JAXIS):hi(JAXIS)))
-   allocate (zCenter(lo(KAXIS):hi(KAXIS)))
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
-   xCenter = 0.0
-   yCenter = 0.0
-   zCenter = 0.0
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
 
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-   if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
-
-   call tileDesc%deltas(del)
-
-   call tileDesc%getDataPtr(faceyData, FACEY)
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
 
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS)
          do i = lo(IAXIS), hi(IAXIS)
-            xi = xCenter(i)
-            yi = yCenter(j)
-            zi = zCenter(k)
+            xi = xGrid(i)
+            yi = yGrid(j)
+            zi = zGrid(k)
 
             !channelDepth = sim_channelDepth*(sim_yMax - yi)/sim_yMax
             !channelDepth = sim_channelDepth
             !
             !solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
-    
+
             solnData(DFUN_VAR, i, j, k) = min(xi - sim_xMin - sim_channelDepth - sim_nozzleAmp*cos(yi*pi/2), &
                                               sim_xMax - sim_channelDepth - xi + sim_nozzleAmp*cos(yi*pi/2 + pi))
 
@@ -109,11 +108,29 @@ subroutine Simulation_initBlock(solnData, tileDesc)
       end do
    end do
 
+   deallocate (xGrid, yGrid, zGrid)
+
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
+
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, FACES, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   call tileDesc%getDataPtr(faceyData, FACEY)
+
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS) + 1
          do i = lo(IAXIS), hi(IAXIS)
 
-            yi = yCenter(j)
+            yi = yGrid(j)
 
             if (0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .gt. 0.0) then
                faceyData(VELC_FACE_VAR, i, j, k) = sim_gasFlowRate
@@ -127,7 +144,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    call tileDesc%releaseDataPtr(faceyData, FACEY)
 
-   deallocate (xCenter, yCenter, zCenter)
+   deallocate (xGrid, yGrid, zGrid)
 
    return
 
