@@ -171,7 +171,7 @@ subroutine Driver_evolveAll()
 
       !------------------------------------------------------------
       ! Set analytical values for fluid flow
-      ! sim_reInitFlow is a runtime parameter to force computation 
+      ! sim_reInitFlow is a runtime parameter to force computation
       ! of the velocity field every time step
       !
       ! This is done to test the divergence free interpolation of velocity
@@ -184,7 +184,7 @@ subroutine Driver_evolveAll()
          do while (itor%isValid())
             call itor%currentTile(tileDesc)
 
-            ! Logic to compute analytical solution of velocity 
+            ! Logic to compute analytical solution of velocity
             !---------------------------------------------------------
             nullify (facexData, faceyData, facezData)
 
@@ -236,6 +236,12 @@ subroutine Driver_evolveAll()
             end do
             call tileDesc%releaseDataPtr(faceyData, FACEY)
             deallocate (xGrid, yGrid)
+
+#if NDIM == MDIM
+            call tileDesc%getDataPtr(facezData, FACEZ)
+            facezData(VELC_FACE_VAR, :, :, :) = 0.
+            call tileDesc%releaseDataPtr(facezData, FACEZ)
+#endif
             !---------------------------------------------------------
 
             call itor%next()

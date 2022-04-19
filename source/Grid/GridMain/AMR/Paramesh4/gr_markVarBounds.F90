@@ -87,9 +87,9 @@ subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
          else
 
             if (lrefine(b) > lrefine_min) then
-               !if (lrefine(b) == lref) then
+               if (lrefine(b) == lref) then
                   derefine(b) = .true.
-               !end if
+               end if
             end if
 
          end if

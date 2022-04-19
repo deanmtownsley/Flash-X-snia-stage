@@ -3,6 +3,7 @@ gr_pmRpDivergenceFree = 1
 gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
+gr_bcEnableApplyMixedGds = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds   = 0.0001

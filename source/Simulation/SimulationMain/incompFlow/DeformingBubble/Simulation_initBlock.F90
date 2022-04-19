@@ -69,7 +69,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    !----------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
-
    call tileDesc%deltas(del)
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
@@ -99,9 +98,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
          end do
       end do
    end do
-   deallocate(xGrid, yGrid, zGrid)
+   deallocate (xGrid, yGrid, zGrid)
 
-   allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
+   allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
@@ -127,10 +126,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
       end do
    end do
    call tileDesc%releaseDataPtr(facexData, FACEX)
-   deallocate(xGrid, yGrid, zGrid)
+   deallocate (xGrid, yGrid, zGrid)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
    xGrid = 0.0
@@ -156,5 +155,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    end do
    call tileDesc%releaseDataPtr(faceyData, FACEY)
    deallocate (xGrid, yGrid, zGrid)
+
+#if NDIM == MDIM
+   call tileDesc%getDataPtr(facezData, FACEZ)
+   facezData(VELC_FACE_VAR, :, :, :) = 0.
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
+#endif
 
 end subroutine Simulation_initBlock
