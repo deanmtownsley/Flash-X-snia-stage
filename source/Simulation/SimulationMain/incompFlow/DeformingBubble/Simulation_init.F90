@@ -36,20 +36,25 @@
 
 subroutine Simulation_init()
 
-  use Driver_interface, ONLY : Driver_getMype
-  use Simulation_data, ONLY : sim_xMin, sim_yMin, &
+   use Driver_interface, ONLY: Driver_getMype
+   use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
-                              sim_meshMe
+                              sim_meshMe, sim_reInitFlow
 
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
-  implicit none
+   implicit none
 
-  call Driver_getMype(MESH_COMM, sim_meshMe)
+   call Driver_getMype(MESH_COMM, sim_meshMe)
 
-  call RuntimeParameters_get('xmin',    sim_xMin)
-  call RuntimeParameters_get('ymin',    sim_yMin)
-  call RuntimeParameters_get('xmax',    sim_xMax)
-  call RuntimeParameters_get('ymax',    sim_yMax)
+   call RuntimeParameters_get('xmin', sim_xMin)
+   call RuntimeParameters_get('ymin', sim_yMin)
+   call RuntimeParameters_get('xmax', sim_xMax)
+   call RuntimeParameters_get('ymax', sim_yMax)
+   call RuntimeParameters_get('sim_reInitFlow', sim_reInitFlow)
+
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_reInitFlow =', sim_reInitFlow
+   end if
 
 end subroutine Simulation_init

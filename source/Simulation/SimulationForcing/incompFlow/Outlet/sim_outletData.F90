@@ -35,18 +35,10 @@ module sim_outletData
    real, save :: sim_outletBuffer
    real, save :: sim_outletGrowthRate
 
-   real, save :: sim_outletVel(LOW:HIGH, MDIM)
-   real, save :: sim_outletVelLiq(LOW:HIGH, MDIM)
-   real, save :: sim_outletVelGas(LOW:HIGH, MDIM)
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_QOut, sim_QOutLiq, sim_QOutGas
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_QAux, sim_QAuxLiq, sim_QAuxGas
 
-   real, save :: sim_velAux(LOW:HIGH, MDIM)
-   real, save :: sim_velAuxLiq(LOW:HIGH, MDIM)
-   real, save :: sim_velAuxGas(LOW:HIGH, MDIM)
-
-   real, save :: sim_outletPhaseLiq(LOW:HIGH, MDIM)
-   real, save :: sim_outletPhaseGas(LOW:HIGH, MDIM)
-
-   real, save :: sim_phaseAuxLiq(LOW:HIGH, MDIM)
-   real, save :: sim_phaseAuxGas(LOW:HIGH, MDIM)
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_volOut, sim_volOutLiq, sim_volOutGas
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_volAux, sim_volAuxLiq, sim_volAuxGas
 
 end module sim_outletData

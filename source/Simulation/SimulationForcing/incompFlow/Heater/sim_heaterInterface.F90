@@ -57,15 +57,6 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterApplyBC(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), intent(in) :: tileDesc
-         real, intent(in) :: dt
-      end subroutine sim_heaterApplyBC
-   end interface
-
-   interface
       subroutine sim_heaterRead(heaterID, heaterFile)
          integer, intent(in)          :: heaterID
          character(len=*), intent(in) :: heaterFile
@@ -73,8 +64,9 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterInitBlk(phi, temp, xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2)
-         real, dimension(:, :, :), intent(inout) :: phi, temp
+      subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
+         real, dimension(:, :, :), intent(inout) :: temp
+         real, dimension(:, :, :), intent(inout), optional :: phi
          real, dimension(:), intent(in)        :: xcell, ycell, zcell
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
       end subroutine sim_heaterInitBlk
@@ -104,17 +96,6 @@ Module sim_heaterInterface
          real, dimension(:, :), intent(in)    :: boundBox
          integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2
       end subroutine sim_heaterCheckSitesBlk3d
-   end interface
-
-   interface sim_heaterApplyBCToBlk
-      subroutine sim_heaterApplyBCToBlk2d(pfrc, tfrc, phi, temp, xcell, ycell, boundBox, dt, dx, dy, ix1, ix2, jy1, jy2)
-         real, dimension(:, :, :), intent(inout)  :: pfrc, tfrc
-         real, dimension(:, :, :), intent(in)     :: phi, temp
-         real, dimension(:), intent(in)         :: xcell, ycell
-         real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                       :: dt, dx, dy
-         integer, intent(in)                    :: ix1, ix2, jy1, jy2
-      end subroutine sim_heaterApplyBCToBlk2d
    end interface
 
    interface

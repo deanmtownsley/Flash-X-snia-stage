@@ -3,6 +3,7 @@ Simulation += sim_outletData.o \
               sim_outletInit.o \
               sim_outletFinalize.o \
               sim_outletSetForcing.o \
-              sim_outletLSDampingBlk.o \
-              sim_outletVelBlk.o \
-              sim_outletVelBlkPhased.o
+              sim_outletLSDamping.o \
+              sim_outletVelFrc.o \
+              sim_outletVelFrcPhased.o \
+              sim_outletApplyBCToFace.o

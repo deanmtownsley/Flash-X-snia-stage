@@ -36,7 +36,7 @@ sim_heaterName    = "flow_boiling"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 2.0 # Outlet Buffer
+sim_outletBuffer = 0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -51,7 +51,7 @@ zmax            =  2.5
 
 #       Boundary conditions
 xl_boundary_type = "inflow_ins"
-xr_boundary_type = "neumann_ins"
+xr_boundary_type = "outflow_ins"
 yl_boundary_type = "noslip_ins"
 yr_boundary_type = "slip_ins"
 zl_boundary_type = "slip_ins"
@@ -92,7 +92,7 @@ plotFileIntervalStep = 1000
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 36
+nblockx	= 32
 nblocky	= 10
 nblockz = 10
 nfres   = 10000000

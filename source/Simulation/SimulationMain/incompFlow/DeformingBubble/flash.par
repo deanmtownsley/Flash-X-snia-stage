@@ -4,12 +4,6 @@ gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
-# Inverse of Reynolds Number
-ins_invReynolds     = .01
-
-# Inverse Weber Number
-mph_invWeber = 0.
-
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
@@ -18,46 +12,57 @@ xmin		=  0.0
 xmax		=  1.0
 ymin		=  0.0
 ymax		=  1.0
+zmin            = -0.5
+zmax            =  0.5
 
 #       Boundary conditions
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "movlid_ins"
+yr_boundary_type = "noslip_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
-run_comment	= "2D Deforming Bubble problem"
+run_comment	= "Deforming Bubble problem"
 log_file	= "INS_Deforming_Bubble.log"
 basenm		= "INS_Deforming_Bubble_"
 restart         = .false.
-nend            = 1000
-tmax            = 100. 
-ins_cflFlg      = 1
-ins_cfl         = 0.3
-ins_sigma	= 0.2
-ins_dtSpec      = 1.0
-dtinit          = 1.0
-tstep_change_factor = 1.1
+nend            = 1000000000
+tmax            = 2. 
+ins_cflFlg      = 0
+ins_cfl         = 1.0
+ins_sigma	= 1.0
+ins_dtSpec      = 1.0d-5
+dtinit          = 1.0d-5
+tstep_change_factor = 1.0
 ins_pressureCorrect= .true.
 
-plot_var_1	= "pres"
 plot_var_2      = "velx"
 plot_var_3      = "vely"
-plot_var_4      = "omgm"
-  
-checkpointFileIntervalTime = 1.
-checkpointFileIntervalStep = 5
+plot_var_4      = "dfun"
+
+checkpointFileIntervalTime = 10.
+checkpointFileIntervalStep = 5000
 
 plotFileIntervalTime = 1.
-plotFileIntervalStep = 5
+plotFileIntervalStep = 1000
+
+sim_reInitFlow = .true.
 
 # AMR parameters
 nblockx	= 4
 nblocky	= 4
+nblockz = 4
 nfres   = 1000
 
-lrefine_min       = 2
-lrefine_max       = 2
+lrefine_min        = 1
+lrefine_max        = 5
+
+refine_var_count   = 1
+refine_var_1       = "dfun"
+refine_cutoff_1    =  0.0d0
+derefine_cutoff_1  = -0.01d0
 
 #	Flux Conservation for AMR
 flux_correct    = .true.

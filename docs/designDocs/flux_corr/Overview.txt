@@ -1,0 +1,253 @@
+Flux Correction in Flash-X
+==========================
+
+The following describes Flash-X mechanisms for flux correction in case
+Flash-X is built in "NoLevelwideFluxes mode" (NoLevelwideFluxes=True
+or shortcut +nolwf in the setup command, automatic when using +spark
+and similar). This mode is recommended, is optional when using
+HydroMain/unsplit, and is mandatory when using HydroMain/Spark.
+
+Some definitions:
+
+Fluxes: face-centered real data, usually representing physical fluxes
+   (or flux densities) at interfaces between cells.
+
+Flux-shaped arrays: a canonical way for representing fluxes for a
+   single block in higher-level (~ physics solver) Flash-X code.
+   A Fortran declaration could look like this:
+     real, dimension(NFLUXES,NXB+1,NYB,NZB) :: fluxBufX
+     real, dimension(NFLUXES,NXB,NYB+1,NZB) :: fluxBufY
+     ...
+   NOTES
+   * These arrays should be contiguous.
+   * No space reserved for guard cells.
+   * There are NDIM directional buffers that matter.
+   * The indices are reordered (so that NFLUXES comes last) when index
+     reordering is in effect; that means always when the Grid is Amrex.
+
+Original fluxes: Fluxes before correction. For Hydro, fluxes as they
+   come out of hy_computeFluxes or a similar subroutine.
+
+Flux correction:
+   The act of replacing certain flux values with "better" values that
+   come from original fluxes computed at higher resolution.
+
+Corrected fluxes: Fluxes after flux correction.
+
+Flux Correction data: (sometimes just called flux corrections):
+   That which needs to be added to the original fluxes in order to get
+   corrected fluxes.  In other words,
+      <Flux Corr. data> = <Corrected fluxes> - <Original fluxes> .
+
+Semipermanent flux storage (SPFS):
+   Storage for flux data that is (probably) not in the form of
+   flux-shaped arrays, but in a form specific and private to a Grid
+   implementation.
+   This is a generalization of the term 'flux register'.
+   * With the the Amrex Grid implementation, SPFS is implemented as
+     data items of TYPE(flashfluxregister).
+   * With the Paramesh Grid implementation, SPFS is implemented as
+     arrays in a form native to PARAMESH.
+   In either case, the higher level code does not need to know how
+   SPFS is organized. It is not defined whether flux data located
+   at interior faces of a block or at non-f/c faces of a block are
+   actually stored; this is up to Grid implementations, as long as the
+   subroutine interfaces claimed to be supported (below) work correctly.
+
+   The main purpose of SPFS is to hold flux data temporarily, in the
+   form required for flux communication.
+
+   SPFS can hold flux data for more than one block. It is
+   "(semi)permanent" in the sense that the lifetime of stored data
+   can span several block-iterator loops.
+
+Flux communication [might also be called Flux exchange]:
+   Grid-implementation specific action that implements flux correction
+   acting on flux data in SPFS.
+   May involve MPI communication (or not - depending on how blocks
+   with f/c interfaces are distributed).
+
+Subroutine Interfaces
+---------------------
+
+Note: flux buffers, fluxCorr buffers below refers to appropriate
+flux-shaped arrays that occur as subroutine arguments.
+
+There are 5 groups:
+
+1. Grid_putFluxData
+   (specific name: Grid_putFluxData_block, NOT Grid_putFluxData)
+
+   Copy flux data from flux buffers to the proper location in SPFS.
+
+2. Grid_communicateFluxes
+
+   Invocation triggers flux communication.
+
+3. Grid_getFluxData[PM]
+   (specific name: Grid_getFluxData_block[PM])
+
+   Copy flux data (corrected where necessary) from SPFS to flux buffers.
+
+4. Grid_getFluxCorrData
+   (specific names: Grid_getFluxCorrData_block[PM], Grid_getFluxCorrData_xtra)
+
+   Return flux correction data (computed from SPFS and - in the _xtra
+   variant - from input flux buffers) in fluxCorr buffers.
+
+5. Grid_correctFluxData
+   (specific names: Grid_correctFluxData, Grid_correctFluxData_xtra)
+
+   Using SPFS, take flux buffers holding original fluxes and return
+   corrected fluxes.
+
+[Note: Subroutines with similar names that are not listed above, e.g.,
+Grid_conserveFluxes, may belong to the NoLevelwideFluxes=False code
+variant and should be considered obsolete here.]
+
+The subroutine names marked [PM] are ONLY available with the Paramesh Grid!
+This limitation is a result of what exactly is stored in (and can be
+retrieved from) the SPFS implementation: With PARAMESH, it is possible
+to retrieve "saved coarse fluxes" at Grid_get* time, but not with AMReX.
+
+
+Typically a physics solver that needs to apply flux correction will
+call subroutines from group 1, from group 2, and from one of the
+groups 3,4,5 only.
+
+Subroutines in groups 1,3,4,5 all apply one block at a time.
+
+In contrast, the group 2 routine (Grid_communicateFluxes) is a global
+procedure and needs to be invoked collectively on all MPI ranks in the
+default MPI Grid communicator. It may be called in one invocation
+either for a specific pair or refinement levels (dummy argument
+'level') or for all levels. The former is obligatory for Amrex (!!!),
+while the latter is normally the case for Paramesh Grid.
+
+Ordering requirements (put before communicate, communicate before get)
+should be obvious. They do not need to be satisfied globally, but
+separately for each block affected.
+
+
+For more details, please see the documentation headers in the
+individual Grid_*tFlux*Data*.F90 files. Preferably (for overview)
+look at the ones directly in the Grid/GridMain directory.
+
+How To Use
+----------
+
+The source file physics/unsplit/Hydro.F90 demonstrates two forms of
+use:
+
+1. With PARAMESH: See the code that follows the line
+     ! ***** SECOND VARIANT: FOR hy_fluxCorrectPerLevel==.FALSE. *****
+
+2. With AMReX: See the code that follows the line
+     ! ***** THIRD VARIANT: FOR hy_fluxCorrectPerLevel==.TRUE. *****
+
+If that is not enough, see also the file physics/Spark/Hydro.F90-mc:
+
+3. With PARAMESH: See code after
+  !-------------------------------------------------------------------!
+  !***NO Flux correction    or   Flux correction but NOT per level****!
+  !-------------------------------------------------------------------!
+  if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
+
+4. With AMReX: see code after
+     !----------------------------------------!
+     !*****Flux correction per level Occurs***!
+     !----------------------------------------!
+
+The quite significant differences betweeen PARAMESH and AMReX cases in
+the code organization -- starting with whether there is an outer loop
+over levels or not -- are primarily dictated by which kind of flux
+communication is possible (or natural and efficient) for each Grid
+implementation: PARAMESH - all levels; AMReX - level by level.
+The unavailability of some subroutine interfaces in the Amrex case --
+see annotations [PM] above -- also plays a role.
+
+Comparing the 4 cases, the following can be observed:
+All variants call Grid_putFluxData_block and Grid_communicateFluxes.
+The following implementations are then used after flux communication,
+demonstrating use of 4 out of the 5 described Grid_get* interfaces:
+
+1. Grid_getFluxData_block     + hy_updateSolution_fluxbuf(...,UPDATE_BOUND)
+2. Grid_correctFluxData       + hy_updateSolution_fluxbuf
+3. Grid_getFluxCorrData_block + hy_rk_correctFluxes
+4. Grid_correctFluxData_xtra  + addFluxes
+
+
+Comparison with AMReX-style flux correction
+-------------------------------------------
+
+Note that the Flash-X Grid provides no single subroutine that
+applies either fluxes or flux corrections to the cell-centered
+solution (UNK). The Grid does manipulations with fluxes as described,
+but how they are applied to UNK (or other cell-centered variables)
+is complete left to the physics solver (like the
+hy_updateSolution_fluxbuf / hy_rk_correctFluxes / addFluxes
+implementations in the Hydro examples above).
+
+Note that the Flash-X Grid provides no single subroutine that
+corresponds to an AMReX reflux() method. The functionality of the
+latter corresponds to a (levelpair-specific) combination of
+
+   call Grid_communicateFluxes
+   for all affected blocks:
+       call Grid_getFluxCorrData
+       call [a routine that applies flux correction data to UNK]
+
+
+"Deferred Correction" vs "Apply Update" schemes
+-----------------------------------------------
+
+There are two quite different approaches to "doing flux correction".
+These differ in particular when we consider what operations are done
+to those cells that are affected by flux correction:
+
+* Deferred Update:
+
+  Each cell of the solution (UNK) gets updated only once.
+  The fluxes that are applied to a cell in that update can be
+  corrected fluxes.
+
+  Flash-X code that applies this kind of scheme typically calls
+  routines of the Grid_getFluxData* or Grid_correctFluxData* family.
+
+  This is the style of flux correction traditionally used in FLASH.
+
+* Apply Correction:
+
+  A cell of the solution may be modified twice:
+  1. An update with original (i.e., uncorrected) fluxes;
+  2. A later modification of the cell contents, i.e, applying
+     corrections.
+
+  Flash-X code that applies this kind of scheme typically calls
+  routines of the Grid_getFluxCorrData* family.
+
+  This is the style of flux correction traditionally used in AMReX
+  applications and, I think, much other AMR sofware.
+
+NOTE: The "once" above applies for unsplit, single stage solvers;
+in the case of directionally split or Runge-Kutta algorithms, the
+statements about how often cell contents are modified need to be
+modified in an obvious way (or flux changes need to be accumulated in
+a flux buffer before that buffer takes on the role of "original
+fluxes").
+
+Other things being equal, we prefer to use the "Deferred Update" style
+in Flash-X. In several variants of Hydro solvers, both are possible.
+Three out of the 4 example cases considered above used the "Deferred
+Update" style.
+
+However, a solver algorithm can become more complex with this choice,
+especially when one considers what happens at the level of blocks
+rather than individual cells. It can be advantageous to handle blocks
+that contain no cells that are affected by flux correction differently
+from those that do contain such cells; and to update cells for which
+fluxes may affected by f.c. at a different time from other cells.
+(Thus the existence of variants of hy_updateSolution* routines that
+update only some cells, cf. optional argument with possible values
+UPDATE_ALL / UPDATE_INTERIOR / UPDATE_BOUND in
+hy_updateSolution_fluxbuf.)
