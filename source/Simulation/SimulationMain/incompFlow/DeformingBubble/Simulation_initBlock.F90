@@ -58,7 +58,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    integer :: tileDescID
   !!$ ---------------------------------
 
-   integer :: i, j, k
+   integer :: i, j, k, ibubble
    integer, dimension(MDIM) :: lo, hi
    real, allocatable, dimension(:) ::xGrid, yGrid, zGrid
    real :: xi, yi, zi
@@ -94,9 +94,22 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             yi = yGrid(j)
             zi = zGrid(k)
 
-            solnData(DFUN_VAR, i, j, k) = 0.1/sim_bubbleScale - sqrt((xi - sim_bubbleLoc(IAXIS))**2 + &
-                                                                     (yi - sim_bubbleLoc(IAXIS))**2 + &
-                                                                     (zi - sim_bubbleLoc(KAXIS))**2)
+            do ibubble = 1, product(sim_numBubbles)
+
+               if (ibubble == 1) then
+                  solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
+                                                           (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
+                                                           (zi - sim_bubbleLoc(KAXIS, ibubble))**2)
+               else
+                  solnData(DFUN_VAR, i, j, k) = max(solnData(DFUN_VAR, i, j, k), &
+                                                    0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
+                                                               (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
+                                                               (zi - sim_bubbleLoc(KAXIS, ibubble))**2))
+
+               end if
+
+            end do
+
          end do
       end do
    end do
@@ -123,8 +136,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*sim_velScale(IAXIS)*xi))**2)* &
-                                                sin(2*pi*sim_velScale(JAXIS)*yi)
+            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
          end do
       end do
    end do
@@ -152,8 +164,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*sim_velScale(JAXIS)*yi))**2)* &
-                                                sin(2*pi*sim_velScale(IAXIS)*xi)
+            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
          end do
       end do
    end do

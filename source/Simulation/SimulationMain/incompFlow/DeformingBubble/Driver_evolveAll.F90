@@ -74,7 +74,7 @@ subroutine Driver_evolveAll()
 
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt
 
-   use Simulation_data, ONLY: sim_reInitFlow, sim_velScale
+   use Simulation_data, ONLY: sim_reInitFlow
 
    implicit none
 
@@ -205,8 +205,7 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     facexData(iVelVar, ii, jj, kk) = ((sin(pi*sim_velScale(IAXIS)*xi))**2)*&
-                                                      sin(2*sim_velScale(JAXIS)*pi*yi)
+                     facexData(iVelVar, ii, jj, kk) = ((sin(pi*xi))**2)*sin(2*pi*yi)
                   end do
                end do
             end do
@@ -229,8 +228,7 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     faceyData(iVelVar, ii, jj, kk) = -((sin(pi*sim_velScale(JAXIS)*yi))**2)*&
-                                                       sin(2*pi*sim_velScale(IAXIS)*xi)
+                     faceyData(iVelVar, ii, jj, kk) = -((sin(pi*yi))**2)*sin(2*pi*xi)
                   end do
                end do
             end do

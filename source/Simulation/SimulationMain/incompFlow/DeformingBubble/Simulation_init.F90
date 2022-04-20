@@ -41,13 +41,13 @@ subroutine Simulation_init()
    use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
-                              sim_meshMe, sim_reInitFlow,&
-                              sim_bubbleLoc, sim_velScale, &
-                              sim_bubbleScale
+                              sim_meshMe, sim_reInitFlow, &
+                              sim_numBubbles, sim_bubbleLoc
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
+   integer :: ib, jb, kb, ibubble
 
    call Driver_getMype(MESH_COMM, sim_meshMe)
 
@@ -66,27 +66,39 @@ subroutine Simulation_init()
 
    ! Initialize dimensional scales
 #if NDIM < MDIM
-   sim_bubbleLoc(:) = (/sim_xMin + 0.75*(sim_xMax - sim_xMin), &
-                        sim_yMin + 0.75*(sim_yMax - sim_yMin), &
-                        0./)
-
-   sim_velScale(:) = (/1./(sim_xMax - sim_xMin), &
-                       1./(sim_yMax - sim_yMin), &
-                       0./)
-
-   sim_bubbleScale = maxval(sim_velScale(IAXIS:JAXIS))
+   sim_numBubbles(IAXIS) = int(sim_xMax - sim_xMin)
+   sim_numBubbles(JAXIS) = int(sim_yMax - sim_yMin)
+   sim_numBubbles(KAXIS) = 1
 
 #else
-   sim_bubbleLoc(:) = (/sim_xMin + 0.75*(sim_xMax - sim_xMin), &
-                        sim_yMin + 0.75*(sim_yMax - sim_yMin), &
-                        sim_zMin + 0.50*(sim_zMax - sim_zMin)/)
-
-   sim_velScale(:) = (/1./(sim_xMax - sim_xMin), &
-                       1./(sim_yMax - sim_yMin), &
-                       1./(sim_zMax - sim_zMin)/)
-
-   sim_bubbleScale = maxval(sim_velScale)
+   sim_numBubbles(IAXIS) = int(sim_xMax - sim_xMin)
+   sim_numBubbles(JAXIS) = int(sim_yMax - sim_yMin)
+   sim_numBubbles(KAXIS) = int(sim_zMax - sim_zMin)
 
 #endif
+
+   allocate (sim_bubbleLoc(MDIM, product(sim_numBubbles)))
+
+   ibubble = 0
+
+   do kb = 1, sim_numBubbles(KAXIS)
+      do jb = 1, sim_numBubbles(JAXIS)
+         do ib = 1, sim_numBubbles(IAXIS)
+
+            ibubble = ibubble + 1
+
+#if NDIM < MDIM
+            sim_bubbleLoc(:, ibubble) = (/(ib - 1) + 0.75, &
+                                          (jb - 1) + 0.75, &
+                                          0./)
+#else
+            sim_bubbleLoc(:, ibubble) = (/(ib - 1) + 0.75, &
+                                          (jb - 1) + 0.75, &
+                                          (kb - 1) + 0.50/)
+#endif
+
+         end do
+      end do
+   end do
 
 end subroutine Simulation_init
