@@ -27,14 +27,19 @@
 
 module Simulation_data
 
-  implicit none
+   implicit none
 
 #include "constants.h"
+#include "Simulation.h"
 
   !! *** Runtime Parameters *** !!
-  real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax
+   real, save    :: sim_xMin, sim_xMax, &
+                    sim_yMin, sim_yMax, &
+                    sim_zMin, sim_zMax
 
-  integer, save :: sim_meshMe
-  logical, save :: sim_reInitFlow
+   integer, save :: sim_meshMe
+   logical, save :: sim_reInitFlow
+
+   real, save :: sim_bubbleScale, sim_bubbleLoc(MDIM), sim_velScale(MDIM)
 
 end module Simulation_data

@@ -76,6 +76,7 @@ lrefine_min        = 1
 lrefine_max        = 5
 refine_var_count   = 1
 
+refine_var_count   = 1
 refine_var_1       = "dfun"
 refine_cutoff_1    =  0.0d0
 derefine_cuttoff_1 = -0.01d0

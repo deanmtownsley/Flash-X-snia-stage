@@ -33,13 +33,17 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine Simulation_init()
 
    use Driver_interface, ONLY: Driver_getMype
    use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
-                              sim_meshMe, sim_reInitFlow
+                              sim_zMin, sim_zMax, &
+                              sim_meshMe, sim_reInitFlow,&
+                              sim_bubbleLoc, sim_velScale, &
+                              sim_bubbleScale
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
@@ -51,10 +55,38 @@ subroutine Simulation_init()
    call RuntimeParameters_get('ymin', sim_yMin)
    call RuntimeParameters_get('xmax', sim_xMax)
    call RuntimeParameters_get('ymax', sim_yMax)
+   call RuntimeParameters_get('zmin', sim_zMin)
+   call RuntimeParameters_get('zmax', sim_zMax)
+
    call RuntimeParameters_get('sim_reInitFlow', sim_reInitFlow)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'sim_reInitFlow =', sim_reInitFlow
    end if
+
+   ! Initialize dimensional scales
+#if NDIM < MDIM
+   sim_bubbleLoc(:) = (/sim_xMin + 0.75*(sim_xMax - sim_xMin), &
+                        sim_yMin + 0.75*(sim_yMax - sim_yMin), &
+                        0./)
+
+   sim_velScale(:) = (/1./(sim_xMax - sim_xMin), &
+                       1./(sim_yMax - sim_yMin), &
+                       0./)
+
+   sim_bubbleScale = maxval(sim_velScale(IAXIS:JAXIS))
+
+#else
+   sim_bubbleLoc(:) = (/sim_xMin + 0.75*(sim_xMax - sim_xMin), &
+                        sim_yMin + 0.75*(sim_yMax - sim_yMin), &
+                        sim_zMin + 0.50*(sim_zMax - sim_zMin)/)
+
+   sim_velScale(:) = (/1./(sim_xMax - sim_xMin), &
+                       1./(sim_yMax - sim_yMin), &
+                       1./(sim_zMax - sim_zMin)/)
+
+   sim_bubbleScale = maxval(sim_velScale)
+
+#endif
 
 end subroutine Simulation_init
