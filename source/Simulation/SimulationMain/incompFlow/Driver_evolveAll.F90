@@ -115,7 +115,6 @@ subroutine Driver_evolveAll()
    type(Grid_tile_t) :: tileDesc
 
    ! Get grid variables for incompressible Naiver-Stokes
-   ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
    call IncompNS_getGridVar("CENTER_PRESSURE", iPresVar)
    call IncompNS_getGridVar("CENTER_DIVERGENCE", iDivVar)
@@ -212,7 +211,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
 #ifdef MULTIPHASE_MAIN
-      ! Multiphase advection diffusion procedure
+      ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
       !------------------------------------------------------------

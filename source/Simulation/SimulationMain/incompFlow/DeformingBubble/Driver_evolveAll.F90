@@ -113,11 +113,9 @@ subroutine Driver_evolveAll()
    call Grid_setInterpValsGcell(.TRUE.)
 
    ! Get grid variables for incompressible Naiver-Stokes
-   ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
 
    ! Get grid variables for level set distance function
-   ! if Multiphase unit is available
    call Multiphase_getGridVar("CENTER_LEVELSET", iDfunVar)
 
    ! Fill GuardCells for level set function
@@ -176,7 +174,7 @@ subroutine Driver_evolveAll()
       !
       ! This is done to test the divergence free interpolation of velocity
       ! If sim_reInitFlow = .FALSE. the divergence should be machine zero
-      ! after implemneation
+      ! after refinement
       if (sim_reInitFlow) then
 
          ! Loop over iterator
@@ -268,7 +266,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Call methods to reset specific grid variables
-      ! at the start of every time-setp
+      ! for Multiphase unit
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
@@ -281,7 +279,7 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Multiphase advection diffusion procedure
+      ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
       !------------------------------------------------------------

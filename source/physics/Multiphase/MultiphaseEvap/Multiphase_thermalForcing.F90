@@ -26,7 +26,6 @@ subroutine Multiphase_thermalForcing(tileDesc)
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use Grid_tile, ONLY: Grid_tile_t
-   use Stencils_interface, ONLY: Stencils_lsNormals2d, Stencils_lsNormals3d
    use mph_evapInterface, ONLY: mph_tempGfm2d, mph_tempGfm3d
 
 !------------------------------------------------------------------------------------------------
@@ -48,13 +47,6 @@ subroutine Multiphase_thermalForcing(tileDesc)
 
 #if NDIM < MDIM
 
-   call Stencils_lsNormals2d(solnData(DFUN_VAR, :, :, :), &
-                             solnData(NRMX_VAR, :, :, :), &
-                             solnData(NRMY_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC)
-
    call mph_tempGfm2d(solnData(DFUN_VAR, :, :, :), &
                       solnData(NRMX_VAR, :, :, :), &
                       solnData(NRMY_VAR, :, :, :), &
@@ -69,15 +61,6 @@ subroutine Multiphase_thermalForcing(tileDesc)
                       GRID_JLO_GC, GRID_JHI_GC)
 
 #else
-
-   call Stencils_lsNormals3d(solnData(DFUN_VAR, :, :, :), &
-                             solnData(NRMX_VAR, :, :, :), &
-                             solnData(NRMY_VAR, :, :, :), &
-                             solnData(NRMZ_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC, &
-                             GRID_KLO_GC, GRID_KHI_GC)
 
    call mph_tempGfm3d(solnData(DFUN_VAR, :, :, :), &
                       solnData(NRMX_VAR, :, :, :), &
