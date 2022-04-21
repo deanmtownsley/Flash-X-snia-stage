@@ -361,7 +361,6 @@ They are also used in other directionally split solvers as well.
 #define THRESHOLD 336
 #define INRADIUS 337
 #define WITHRADIUS 338
-#define BOUNDS 339
 
 #if 0
   These constants are used by the utilities that convert strings to 

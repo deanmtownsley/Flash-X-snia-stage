@@ -69,7 +69,7 @@ subroutine Grid_markRefineDerefine()
                         gr_eosModeNow
    use tree, ONLY: newchild, refine, derefine, stay, nodetype, lrefine_max
    use Logfile_interface, ONLY: Logfile_stampVarMask
-   use Grid_interface, ONLY: Grid_fillGuardCells, Grid_markRefineSpecialized
+   use Grid_interface, ONLY: Grid_fillGuardCells
    use gr_interface, ONLY: gr_markRefineDerefine
    implicit none
 
@@ -84,8 +84,6 @@ subroutine Grid_markRefineDerefine()
    integer, parameter :: maskSize = NUNK_VARS + NDIM*NFACE_VARS
    logical, dimension(maskSize) :: gcMask
    real, dimension(MAXBLOCKS) :: err
-   real, dimension(7) :: specs
-   integer :: lref, specsSize
 
    if (gr_lrefineMaxRedDoByTime) then
       call gr_markDerefineByTime()
@@ -136,12 +134,7 @@ subroutine Grid_markRefineDerefine()
 
 #ifdef DFUN_VAR
       if (iref == DFUN_VAR) then
-         specsSize = 3
-         specs(1) = real(iref)
-         specs(2) = min(ref_cut, deref_cut)
-         specs(3) = max(ref_cut, deref_cut)
-         lref = lrefine_max
-         call Grid_markRefineSpecialized(BOUNDS, specsSize, specs, lref)
+         call gr_markVarBounds(iref, min(ref_cut, deref_cut), max(ref_cut, deref_cut), lrefine_max)
 
       else
 #endif

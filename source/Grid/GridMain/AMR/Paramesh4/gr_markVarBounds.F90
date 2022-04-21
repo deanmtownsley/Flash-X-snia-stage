@@ -22,7 +22,7 @@
 !!
 !! PURPOSE
 !!  Refine all blocks for which a given variable (Var) exceeds or falls
-!!  between bounds defined by var_bnd_min and var_bnd_max.  
+!!  between bounds defined by var_bnd_min and var_bnd_max.
 !!
 !! ARGUMENTS
 !!  Var -    the variable of interest
@@ -46,7 +46,7 @@
 
 subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
 
-   use tree, ONLY: refine, derefine, lrefine, lnblocks, nodetype, lrefine_min
+   use tree, ONLY: refine, derefine, lrefine, lnblocks, nodetype, lrefine_min, stay
    use physicaldata, ONLY: unk
    implicit none
 #include "constants.h"
@@ -66,7 +66,7 @@ subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
 ! Loop over all leaf-node blocks.
 
    do b = 1, lnblocks
-      if (nodetype(b) == LEAF) then
+      if (nodetype(b) == LEAF .or. nodetype(b) == PARENT_BLK) then
 
 ! Compare the variable against bounds
 
@@ -86,10 +86,11 @@ subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
 
          else
 
-            if (lrefine(b) > lrefine_min + 1) then
-               !if (lrefine(b) == lref) then
+            if (lrefine(b) > lrefine_min) then
+               if (.not. stay(b) .and. nodetype(b) /= PARENT_BLK) then
                   derefine(b) = .true.
-               !end if
+                  stay(b) = .true.
+               end if
             end if
 
          end if
