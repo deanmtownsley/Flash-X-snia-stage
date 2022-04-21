@@ -1,7 +1,4 @@
-"""***if* source/Simulation/SimulationMain/incompFlow/PoolBoiling/sim_heaterWrite
-
-
-
+"""
 DESCRIPTION:
 
 	Script to create hdf5 file for heater
@@ -14,16 +11,16 @@ from scipy.stats import qmc
 
 def write_heater_info():
 
-    filename = "multiple_bubbles_hdf5_htr_0001"
+    filename = "flow_boiling_hdf5_htr_0001"
 
     filename_write = h5py.File(filename, "w")
 
-    htr_xMin = -3.0
-    htr_xMax = 3.0
-    htr_zMin = -3.0
-    htr_zMax = 3.0
-    htr_yMin = 0.0
-    htr_yMax = 1e-13
+    htr_xMin = -6.0
+    htr_xMax =  6.0
+    htr_zMin = -2.5
+    htr_zMax =  2.5
+    htr_yMin =  0.0
+    htr_yMax =  1e-13
 
     htr_wallTemp = 1.0
 
@@ -32,24 +29,12 @@ def write_heater_info():
     nuc_velContact = 0.2
     nuc_waitTime = 0.2
 
-    nuc_numSites = 600
+    nuc_numSites = 900
 
     nuc_xSite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_ySite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_zSite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_radii = numpy.ndarray([nuc_numSites], dtype=float)
-
-    # Manually specify nucleation sites
-    # TODO improve this interface
-    #nuc_radii[0] = 0.3
-    #nuc_xSite[0] = 0.0
-    #nuc_ySite[0] = 1e-13
-    #nuc_zSite[0] = 0.0
-
-    # nuc_radii[1] =  0.0
-    # nuc_xSite[1] =  0.5
-    # nuc_ySite[1] =  1e-13
-    # nuc_zSite[1] =  0.0
 
     # Generate using halton sequence
     # TODO improve this interface
