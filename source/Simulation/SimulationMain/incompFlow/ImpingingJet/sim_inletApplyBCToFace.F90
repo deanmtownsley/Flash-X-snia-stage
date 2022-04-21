@@ -21,7 +21,7 @@
 subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                   guard, face, axis, secondDir, thirdDir)
 
-   use Driver_interface, ONLY: Driver_getSimTime
+   use Driver_interface, ONLY: Driver_getSimTime, Driver_abort
    use Simulation_data, ONLY: sim_jetCoords, sim_jetRadius, sim_jetVel
 
    implicit none
@@ -42,7 +42,7 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
    real, dimension(MDIM)  :: del
    real :: jetProfile, jetVelocity, time
    logical :: isFace
-   real, parameter :: pi=acos(-1.0)
+   real, parameter :: pi = acos(-1.0)
 
    call Grid_getDeltas(level, del)
    call Driver_getSimTime(time)
@@ -93,6 +93,9 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
 
          end if
       end if
+   else
+      call Driver_abort('[sim_inletApplyBCToRegion] not configured for face == HIGH')
+
    end if
 
 end subroutine sim_inletApplyBCToFace

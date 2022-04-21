@@ -21,6 +21,7 @@
 subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                    guard, face, axis, secondDir, thirdDir)
 
+   use Driver_interface, ONLY: Driver_abort
    use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
    use Grid_interface, ONLY: Grid_getDeltas
 
@@ -50,6 +51,8 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
    ke = regionSize(THIRD_DIR)
 
    offset = 2*guard + 1
+
+   if (face == HIGH) call Driver_abort('[sim_heaterApplyBCToRegion] not configured for face == HIGH')
 
    if (ivar == TEMP_VAR) then
       do k = 1, ke
