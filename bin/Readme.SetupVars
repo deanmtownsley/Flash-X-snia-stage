@@ -279,7 +279,7 @@ Harder to introduce now because we have multiple particle types)
 
   Defaults to False. If True, IO unit will write _hdf5_grd_ files which
   can be used to generate xmf hyperslabs to visualize data in ParaView.
-  The logic of create the xmf files is implemented via the command line
+  The logic of creating xmf files is implemented via the command line
   tool - FlashKit: https://github.com/akashdhruv/FlashKit
 
 * Name  : SimForceInOut
