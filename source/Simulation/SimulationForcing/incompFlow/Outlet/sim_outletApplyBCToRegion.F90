@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletApplyBCToFace
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,8 +18,8 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                  guard, face, axis, secondDir, thirdDir)
+subroutine sim_outletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                   guard, face, axis, secondDir, thirdDir)
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
@@ -34,4 +34,4 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                    MDIM), intent(IN) :: coordinates
    integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
-end subroutine sim_inletApplyBCToFace
+end subroutine sim_outletApplyBCToRegion

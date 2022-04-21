@@ -99,7 +99,7 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+      subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                          guard, face, axis, secondDir, thirdDir)
          integer, intent(IN) :: level, ivar, gridDataStruct
          integer, dimension(REGION_DIM), intent(IN) :: regionSize

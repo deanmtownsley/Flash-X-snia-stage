@@ -41,7 +41,7 @@ Module sim_inletInterface
    end interface
 
    interface
-      subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+      subroutine sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                         guard, face, axis, secondDir, thirdDir)
 
          implicit none
@@ -57,7 +57,7 @@ Module sim_inletInterface
                          MDIM), intent(IN) :: coordinates
          integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
-      end subroutine sim_inletApplyBCToFace
+      end subroutine sim_inletApplyBCToRegion
    end interface
 
 End module sim_inletInterface

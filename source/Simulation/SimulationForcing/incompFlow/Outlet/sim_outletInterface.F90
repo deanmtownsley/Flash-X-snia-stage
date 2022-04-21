@@ -112,7 +112,7 @@ Module sim_outletInterface
    end interface
 
    interface
-      subroutine sim_outletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+      subroutine sim_outletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                          guard, face, axis, secondDir, thirdDir)
 
          implicit none
@@ -128,7 +128,7 @@ Module sim_outletInterface
                          MDIM), intent(IN) :: coordinates
          integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
-      end subroutine sim_outletApplyBCToFace
+      end subroutine sim_outletApplyBCToRegion
    end interface
 
 End module sim_outletInterface

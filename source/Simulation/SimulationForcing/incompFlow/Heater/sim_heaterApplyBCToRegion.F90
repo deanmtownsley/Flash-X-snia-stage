@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBCToFace
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,7 +18,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                    guard, face, axis, secondDir, thirdDir)
 
    use Driver_interface, ONLY: Driver_abort
@@ -117,4 +117,4 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
 
    end if
 
-end subroutine sim_heaterApplyBCToFace
+end subroutine sim_heaterApplyBCToRegion

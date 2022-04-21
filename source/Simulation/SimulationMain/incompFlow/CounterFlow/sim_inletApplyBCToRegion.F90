@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationMain/incompFlow/ImpingingJet/sim_inletApplyBCToFace
+!!***if* source/Simulation/SimulationMain/incompFlow/CounterFlow/sim_inletApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,11 +18,14 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+subroutine sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                   guard, face, axis, secondDir, thirdDir)
 
    use Driver_interface, ONLY: Driver_getSimTime, Driver_abort
-   use Simulation_data, ONLY: sim_jetCoords, sim_jetRadius, sim_jetVel
+
+   use Simulation_data, ONLY: sim_channelDepth, sim_xMin, sim_xMax, &
+                              sim_nozzleAmp, sim_nozzleFreq, sim_liqFlowRate, &
+                              sim_gasFlowRate
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
@@ -40,7 +43,7 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
    integer :: je, ke
    integer :: i, j, k, offset
    real, dimension(MDIM)  :: del
-   real :: jetProfile, jetVelocity, time
+   real :: channelProfile, time
    logical :: isFace
    real, parameter :: pi = acos(-1.0)
 
@@ -62,10 +65,15 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                do j = 1, je
                   do i = 1, guard
 
-                     jetProfile = sqrt((coordinates(i, j, k, IAXIS) - sim_jetCoords(IAXIS))**2 + &
-                                       (coordinates(i, j, k, KAXIS) - sim_jetCoords(KAXIS))**2) - sim_jetRadius
+                     !channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
+                     !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
 
-                     regionData(i, j, k, ivar) = 2*(jetProfile - 0.1*cos(time*pi/2)) - regionData(offset - i, j, k, ivar)
+                     channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
+                                          sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi), &
+                                          (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
+                                          sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi + pi))
+
+                     regionData(i, j, k, ivar) = 2*channelProfile - regionData(offset - i, j, k, ivar)
 
                   end do
                end do
@@ -79,12 +87,16 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
                   do j = 1, je
                      do i = 1, guard + 1
 
-                        jetProfile = sqrt((coordinates(i, j, k, IAXIS) - sim_jetCoords(IAXIS))**2 + &
-                                          (coordinates(i, j, k, KAXIS) - sim_jetCoords(KAXIS))**2) - sim_jetRadius
+                        !channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth), &
+                        !                     (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS))
 
-                        jetVelocity = ((1 - sign(1., jetProfile - 0.1*cos(time*pi/2)))/2)*sim_jetVel
+                        channelProfile = min(coordinates(i, j, k, IAXIS) - (sim_xMin + sim_channelDepth) - &
+                                             sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi), &
+                                             (sim_xMax - sim_channelDepth) - coordinates(i, j, k, IAXIS) + &
+                                             sim_nozzleAmp*cos(sim_nozzleFreq*time*2*pi + pi))
 
-                        regionData(i, j, k, ivar) = jetVelocity
+                        regionData(i, j, k, ivar) = ((1 + sign(1., channelProfile))/2)*(sim_gasFlowRate) + &
+                                                    ((1 - sign(1., channelProfile))/2)*(sim_liqFlowRate)
 
                      end do
                   end do
@@ -98,4 +110,4 @@ subroutine sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coord
 
    end if
 
-end subroutine sim_inletApplyBCToFace
+end subroutine sim_inletApplyBCToRegion

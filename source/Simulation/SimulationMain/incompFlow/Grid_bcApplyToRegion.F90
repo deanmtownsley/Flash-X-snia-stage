@@ -172,7 +172,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    use IncompNS_interface, ONLY: IncompNS_getScalarProp
 
 #ifdef SIMULATION_FORCE_INLET
-   use sim_inletInterface, ONLY: sim_inletApplyBCToFace
+   use sim_inletInterface, ONLY: sim_inletApplyBCToRegion
 #endif
 
    implicit none
@@ -595,7 +595,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                end if
 
 #ifdef SIMULATION_FORCE_INLET
-               call sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+               call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                            guard, face, axis, secondDir, thirdDir)
 #endif
                !--------------------------------------------------------------------------------------------------
@@ -1041,7 +1041,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                end if
 
 #ifdef SIMULATION_FORCE_INLET
-               call sim_inletApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+               call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                            guard, face, axis, secondDir, thirdDir)
 #endif
 
