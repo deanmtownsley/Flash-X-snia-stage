@@ -136,7 +136,7 @@ subroutine Driver_evolveAll()
    gcMask = .FALSE.
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                            maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -231,7 +231,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Apply redistancing procedure
       !------------------------------------------------------------
@@ -253,7 +253,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -323,7 +323,7 @@ subroutine Driver_evolveAll()
          gcMask(iHliqVar) = .TRUE.
          gcMask(iHGasVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -344,7 +344,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iMfluxVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #endif
@@ -420,7 +420,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iPresVar) = .TRUE.
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask, &
+                               maskSize=NUNK_VARS, mask=gcMask, &
                                selectBlockType=ACTIVE_BLKS)
 
       ! Final step of fractional step velocity
@@ -454,7 +454,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iTempVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
@@ -504,7 +504,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then

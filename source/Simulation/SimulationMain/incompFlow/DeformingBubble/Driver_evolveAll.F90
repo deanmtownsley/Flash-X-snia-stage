@@ -124,7 +124,7 @@ subroutine Driver_evolveAll()
    gcMask = .FALSE.
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                            maskSize=NUNK_VARS, mask=gcMask)
    endRunPl = .false.
    endRun = .false.
 
@@ -299,7 +299,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Apply redistancing procedure
       !------------------------------------------------------------
@@ -321,7 +321,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -355,7 +355,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then

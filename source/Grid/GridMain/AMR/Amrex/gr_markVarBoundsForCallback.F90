@@ -94,6 +94,7 @@ subroutine gr_markVarBoundsForCallback(Var, var_bnd_min, var_bnd_max, lev, tags,
    logical               :: x_in_rect, y_in_rect, z_in_rect
 
    integer :: i, j, k
+   integer, dimension(MDIM) :: lo, hi
 
    tag = tags
 
@@ -117,6 +118,9 @@ subroutine gr_markVarBoundsForCallback(Var, var_bnd_min, var_bnd_max, lev, tags,
       call blockDesc%physicalSize(blockSize)
       blockSize(:) = 0.5*blockSize(:)
 
+      lo = blockDesc%limits(LOW, :)
+      hi = blockDesc%limits(HIGH, :)
+
       tagData => tag%dataptr(mfi)
       solnData => unk(lev)%dataPtr(mfi)
 
@@ -125,7 +129,14 @@ subroutine gr_markVarBoundsForCallback(Var, var_bnd_min, var_bnd_max, lev, tags,
                  lo_tag => lbound(tagData), &
                  hi_tag => ubound(tagData))
 
-         if (maxval(solnData(:, :, :, var)) > var_bnd_min .AND. minval(solnData(:, :, :, var)) < var_bnd_max) then
+         if (maxval(solnData(lo(IAXIS):hi(IAXIS), &
+                             lo(JAXIS):hi(JAXIS), &
+                             lo(KAXIS):hi(KAXIS), var)) > var_bnd_min .AND. &
+             !
+             minval(solnData(lo(IAXIS):hi(IAXIS), &
+                             lo(JAXIS):hi(JAXIS), &
+                             lo(KAXIS):hi(KAXIS), var)) < var_bnd_max) then
+
             i = INT(0.5d0*DBLE(lo_tag(IAXIS) + hi_tag(IAXIS)))
             j = INT(0.5d0*DBLE(lo_tag(JAXIS) + hi_tag(JAXIS)))
             k = INT(0.5d0*DBLE(lo_tag(KAXIS) + hi_tag(KAXIS)))

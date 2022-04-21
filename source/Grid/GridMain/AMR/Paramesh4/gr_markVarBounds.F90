@@ -50,6 +50,7 @@ subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
    use physicaldata, ONLY: unk
    implicit none
 #include "constants.h"
+#include "Simulation.h"
 ! Arguments
 
    integer, intent(IN) :: Var
@@ -70,7 +71,11 @@ subroutine gr_markVarBounds(Var, var_bnd_min, var_bnd_max, lref)
 
 ! Compare the variable against bounds
 
-         Grid_mark = maxval(unk(var, :, :, :, b)) > var_bnd_min .AND. minval(unk(var, :, :, :, b)) < var_bnd_max
+         Grid_mark = maxval(unk(var, GRID_ILO:GRID_IHI, GRID_JLO:GRID_JHI, GRID_KLO:GRID_KHI, b)) > &
+                     var_bnd_min &
+                     .AND. &
+                     minval(unk(var, GRID_ILO:GRID_IHI, GRID_JLO:GRID_JHI, GRID_KLO:GRID_KHI, b)) < &
+                     var_bnd_max
 
 ! If the test passed, Grid_mark the block for refinement.
          if (Grid_mark) then
