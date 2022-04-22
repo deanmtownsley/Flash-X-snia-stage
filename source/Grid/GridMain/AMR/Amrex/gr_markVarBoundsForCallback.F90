@@ -132,7 +132,6 @@ subroutine gr_markVarBoundsForCallback(Var, var_bnd_min, var_bnd_max, lev, tags,
          if (maxval(solnData(lo(IAXIS):hi(IAXIS), &
                              lo(JAXIS):hi(JAXIS), &
                              lo(KAXIS):hi(KAXIS), var)) > var_bnd_min .AND. &
-             !
              minval(solnData(lo(IAXIS):hi(IAXIS), &
                              lo(JAXIS):hi(JAXIS), &
                              lo(KAXIS):hi(KAXIS), var)) < var_bnd_max) then

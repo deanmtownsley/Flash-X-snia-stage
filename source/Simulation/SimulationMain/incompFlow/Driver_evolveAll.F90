@@ -419,7 +419,7 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for pressure
       gcMask = .FALSE.
       gcMask(iPresVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask, &
                                selectBlockType=ACTIVE_BLKS)
 
