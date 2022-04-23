@@ -33,6 +33,7 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine Simulation_init()
 
@@ -40,8 +41,14 @@ subroutine Simulation_init()
    use Driver_interface, ONLY: Driver_getMype, Driver_abort
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use sim_heaterInterface, ONLY: sim_heaterInit
+
+#ifdef SIMULATION_FORCE_INLET
    use sim_outletInterface, ONLY: sim_outletInit
+#endif
+
+#ifdef SIMULATION_FORCE_OUTLET
    use sim_inletInterface, ONLY: sim_inletInit
+#endif
 
    implicit none
 
@@ -64,7 +71,13 @@ subroutine Simulation_init()
    end if
 
    call sim_heaterInit()
+
+#ifdef SIMULATION_FORCE_INLET
    call sim_inletInit()
+#endif
+
+#ifdef SIMULATION_FORCE_OUTLET
    call sim_outletInit()
+#endif
 
 end subroutine Simulation_init

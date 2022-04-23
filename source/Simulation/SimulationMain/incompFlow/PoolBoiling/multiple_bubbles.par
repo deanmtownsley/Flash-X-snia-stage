@@ -4,6 +4,12 @@ gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
+# Settings for guard cell filling
+gr_bcEnableApplyMixedGds = .FALSE.
+convertToConsvdForMeshCalls = .FALSE.
+convertToConsvdInMeshInterp = .FALSE.
+enableMaskedGCFill = .FALSE.
+
 # Inverse of Reynolds Number
 ins_invReynolds   = .004
 
@@ -36,7 +42,7 @@ sim_heaterName    = "multiple_bubbles"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer =  1.0 # Outlet buffer region
+sim_outletBuffer =  3.0 # Outlet buffer region
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -50,12 +56,12 @@ zmin            = -7.0
 zmax            =  7.0
 
 #       Boundary conditions
-xl_boundary_type = "slip_ins"
-xr_boundary_type = "slip_ins"
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "neumann_ins"
-zl_boundary_type = "slip_ins"
-zr_boundary_type = "slip_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "Pool Boiling problem"
@@ -63,7 +69,7 @@ log_file	= "INS_Pool_Boiling.log"
 basenm		= "INS_Pool_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 30.
+tmax            = 20.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05

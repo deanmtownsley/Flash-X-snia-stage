@@ -33,3 +33,11 @@ PARAMETER mph_iPropSmear REAL 1.0      # Thickness of the smeared region
 VARIABLE dfun                   # Level set distance function
 VARIABLE hdn0                   # RHS for level set advection
 VARIABLE dfrc                   # Level set forcing variable
+
+VARIABLE nrmx TYPE:GENERIC      # level set normal (x - direction)
+VARIABLE nrmy TYPE:GENERIC      # level set normal (y - direction)
+
+USESETUPVARS nDim
+IF nDim == 3
+VARIABLE nrmz TYPE:GENERIC      # level set normal (z - direction)
+END IF

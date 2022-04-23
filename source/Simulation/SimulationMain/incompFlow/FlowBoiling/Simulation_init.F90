@@ -33,6 +33,7 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine Simulation_init()
 

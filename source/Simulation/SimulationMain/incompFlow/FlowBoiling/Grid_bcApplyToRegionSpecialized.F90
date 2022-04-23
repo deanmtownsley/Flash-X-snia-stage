@@ -169,7 +169,7 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType, gridDataStruct, level, &
    use Grid_tile, ONLY: Grid_tile_t
    use Driver_interface, ONLY: Driver_getDt
    use HeatAD_interface, ONLY: HeatAD_getScalarProp
-   use sim_heaterInterface, ONLY: sim_heaterApplyBCToFace
+   use sim_heaterInterface, ONLY: sim_heaterApplyBCToRegion
 
    implicit none
 
@@ -244,7 +244,7 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType, gridDataStruct, level, &
                do i = 1, guard
                   regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                end do
-               call sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+               call sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                             guard, face, axis, secondDir, thirdDir)
 
             else if (axis == KAXIS) then ! Level 3a

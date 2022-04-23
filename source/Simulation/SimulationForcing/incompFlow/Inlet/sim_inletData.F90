@@ -31,4 +31,8 @@ module sim_inletData
 
    integer, save :: sim_inletFlag(LOW:HIGH, MDIM)
 
+   real, save :: sim_inletBuffer
+   real, save :: sim_inletGrowthRate
+   real, save :: sim_inletSink
+
 end module sim_inletData

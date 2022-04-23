@@ -1,0 +1,103 @@
+# 	Runtime parameters for the Impinging Jet problem.
+gr_pmRpDivergenceFree = 1
+gr_pmRpNfieldDivf = 2
+gr_pmRpConsvFluxes = .TRUE.
+gr_pmRpConsvFluxDensities = .FALSE.
+
+# Settings for guard cell filling
+gr_bcEnableApplyMixedGds = .FALSE.
+convertToConsvdForMeshCalls = .FALSE.
+convertToConsvdInMeshInterp = .FALSE.
+enableMaskedGCFill = .FALSE.
+
+# Inverse of Reynolds Number
+ins_invReynolds   = 0.0001
+
+# 1/Fr**2, Fr (Froude Number)
+ins_gravY           = 0.01
+
+# Gas density and viscosity scaled by liquid
+mph_rhoGas  = 0.001
+mph_muGas   = 0.02
+mph_iPropSmear = 1.0
+
+# Inverse Weber Number
+mph_invWeber = 0.004
+
+#       Grid dimensionality and geometry
+geometry	= "cartesian"
+
+# Simulation parameters
+sim_outletBuffer = 1.0
+sim_freeSurface = 15.0
+
+#       Size of computational volume
+xmin		= -30.0
+xmax		=  30.0
+ymin		=  0.0
+ymax		=  40.0
+zmin            = -30.0
+zmax            =  30.0
+
+#       Boundary conditions
+xl_boundary_type = "outflow_ins"
+xr_boundary_type = "outflow_ins"
+yl_boundary_type = "inflow_ins"
+yr_boundary_type = "noslip_ins"
+zl_boundary_type = "outflow_ins"
+zr_boundary_type = "outflow_ins"
+
+#       Simulation (grid, time, I/O) parameters
+run_comment	= "Impinging Jet problem"
+log_file	= "INS_Impinging_Jet.log"
+basenm		= "INS_Impinging_Jet_"
+restart         = .false.
+nend            = 10000000
+tmax            = 80.
+ins_cflFlg      = 1
+ins_cfl         = 0.001
+ins_sigma	= 0.001
+ins_dtSpec      = 0.1d-4
+dtinit          = 0.1d-4
+tstep_change_factor = 1.01
+ins_pressureCorrect = .false.
+
+#Integration Scheme:
+ins_intSchm            = 2
+
+plot_var_1	= "pres"
+plot_var_2      = "velx"
+plot_var_3      = "vely"
+plot_var_4      = "dfun"
+plot_var_5      = "dust"
+plot_var_6      = "omgm"
+
+checkpointFileIntervalTime = 5.0
+checkpointFileIntervalStep = 500000
+
+plotFileIntervalTime = 1.0
+plotFileIntervalStep = 100000
+
+# AMR parameters
+nblockx	= 15
+nblocky	= 10
+nblockz = 15
+nfres   = 10000000
+
+lrefine_min       = 1
+lrefine_max       = 1
+
+#	Flux Conservation for AMR
+flux_correct    = .true.
+
+# AMReX Poisson Solver Parameters
+gr_amrexMG_composite_solve = ".TRUE."
+gr_amrexMG_Tol = 1e-13
+gr_amrexMG_max_iter = 1000
+
+# HYPRE Poisson Solver Parameters
+gr_hyprePrintSolveInfo = ".FALSE."
+gr_hyprePcType = "HYPRE_AMG"
+gr_hypreSolverType = "HYPRE_BICGSTAB"
+gr_hypreRelTol = 1.0e-12
+gr_hypreFloor  = 1.0e-16
