@@ -1,0 +1,16 @@
+#	Config file for the INS module.
+#       Note: This is a staggered finite difference mesh algorithm.
+
+REQUIRES physics/IncompNS/IncompNSMain/varDens
+REQUIRES physics/IncompNS/IncompNSExtras
+
+REQUIRES physics/Multiphase/MultiphaseMain
+
+REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
+
+PARAMETER sim_channelDepth    REAL  1.0
+PARAMETER sim_nozzleFreq      REAL  1.0
+PARAMETER sim_nozzleAmp       REAL  0.2
+PARAMETER sim_liqFlowRate     REAL  1.0
+PARAMETER sim_gasFlowRate     REAL -1.0

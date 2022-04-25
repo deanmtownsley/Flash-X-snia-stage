@@ -18,8 +18,8 @@
 !!
 !! SYNOPSIS
 !!
-!!  Simulation_initBlock(integer(in) :: blockID) 
-!!                       
+!!  Simulation_initBlock(integer(in) :: blockID)
+!!
 !!
 !!
 !!
@@ -30,65 +30,151 @@
 !!
 !!  Reference:
 !!
-!! 
+!!
 !! ARGUMENTS
 !!
 !!  tile -          the tile to update
-!!  
 !!
-!! 
+!!
+!!
 !!
 !!***
-!!REORDER(4): solnData
+!!REORDER(4): solnData, face[xyz]Data
 
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine Simulation_initBlock(solnData,tileDesc)
+subroutine Simulation_initBlock(solnData, tileDesc)
 
-  use Simulation_data
-  use Grid_interface, ONLY : Grid_getCellCoords
-  use Grid_tile, ONLY : Grid_tile_t
+   use Simulation_data
+   use Grid_interface, ONLY: Grid_getCellCoords
+   use Grid_tile, ONLY: Grid_tile_t
 
-  implicit none
+   implicit none
 
   !!$ Arguments -----------------------
-  real,dimension(:,:,:,:),pointer :: solnData
-  type(Grid_tile_t), intent(in) :: tileDesc
-  integer :: tileDescID
+   real, dimension(:, :, :, :), pointer :: solnData
+   type(Grid_tile_t), intent(in) :: tileDesc
+   integer :: tileDescID
   !!$ ---------------------------------
- 
-  integer :: i, j, k
-  integer, dimension(MDIM) :: lo, hi
-  real,allocatable, dimension(:) ::xCenter,yCenter,zCenter
-  real :: xi, yi, zi
-  logical :: gcell = .true.
 
-  !----------------------------------------------------------------------
-  lo=tileDesc%limits(LOW,:)
-  hi=tileDesc%limits(HIGH,:)
-  allocate(xCenter(lo(IAXIS):hi(IAXIS)))
-  allocate(yCenter(lo(JAXIS):hi(JAXIS)))
-  allocate(zCenter(lo(KAXIS):hi(KAXIS)))
-  xCenter = 0.0
-  yCenter = 0.0
-  zCenter = 0.0
- 
-  call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-  if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-  if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
+   integer :: i, j, k, ibubble
+   integer, dimension(MDIM) :: lo, hi
+   real, allocatable, dimension(:) ::xGrid, yGrid, zGrid
+   real :: xi, yi, zi
+   logical :: gcell = .true.
+   real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   real, parameter :: pi = acos(-1.0)
+   real :: del(MDIM)
+   !----------------------------------------------------------------------
+   nullify (facexData, faceyData, facezData)
 
-  do       k = lo(KAXIS), hi(KAXIS)
-     do    j = lo(JAXIS), hi(JAXIS)
-        do i = lo(IAXIS), hi(IAXIS)
-          xi=xCenter(i)
-          yi=yCenter(j)
+   call tileDesc%deltas(del)
+   lo = tileDesc%blkLimitsGC(LOW, :)
+   hi = tileDesc%blkLimitsGC(HIGH, :)
 
-          solnData(DFUN_VAR,i,j,k) = 0.25-sqrt((xi-0.25)**2+(yi-0.25)**2)
-        enddo
-     enddo
-  enddo
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
-  deallocate(xCenter,yCenter,zCenter)
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xGrid(i)
+            yi = yGrid(j)
+            zi = zGrid(k)
+
+            do ibubble = 1, product(sim_numBubbles)
+
+               if (ibubble == 1) then
+                  solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
+                                                           (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
+                                                           (zi - sim_bubbleLoc(KAXIS, ibubble))**2)
+               else
+                  solnData(DFUN_VAR, i, j, k) = max(solnData(DFUN_VAR, i, j, k), &
+                                                    0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
+                                                               (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
+                                                               (zi - sim_bubbleLoc(KAXIS, ibubble))**2))
+
+               end if
+
+            end do
+
+         end do
+      end do
+   end do
+   deallocate (xGrid, yGrid, zGrid)
+
+   allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
+
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, FACES, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   call tileDesc%getDataPtr(facexData, FACEX)
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS) + 1
+            xi = xGrid(i)
+            yi = yGrid(j)
+
+            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+         end do
+      end do
+   end do
+   call tileDesc%releaseDataPtr(facexData, FACEX)
+   deallocate (xGrid, yGrid, zGrid)
+
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (zGrid(lo(KAXIS):hi(KAXIS)))
+
+   xGrid = 0.0
+   yGrid = 0.0
+   zGrid = 0.0
+
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xGrid)
+   call Grid_getCellCoords(JAXIS, FACES, tileDesc%level, lo, hi, yGrid)
+#if NDIM == MDIM
+   call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zGrid)
+#endif
+
+   call tileDesc%getDataPtr(faceyData, FACEY)
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xGrid(i)
+            yi = yGrid(j)
+
+            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+         end do
+      end do
+   end do
+   call tileDesc%releaseDataPtr(faceyData, FACEY)
+   deallocate (xGrid, yGrid, zGrid)
+
+#if NDIM == MDIM
+   call tileDesc%getDataPtr(facezData, FACEZ)
+   facezData(VELC_FACE_VAR, :, :, :) = 0.
+   call tileDesc%releaseDataPtr(facezData, FACEZ)
+#endif
 
 end subroutine Simulation_initBlock

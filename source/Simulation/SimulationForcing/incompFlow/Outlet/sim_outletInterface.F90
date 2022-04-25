@@ -41,81 +41,94 @@ Module sim_outletInterface
    end interface
 
    interface
-      subroutine sim_outletSetForcing(tileDesc, velOutAux, dt)
+      subroutine sim_outletSetForcing(tileDesc, dt)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
-         real, intent(inout) :: velOutAux(LOW:HIGH, MDIM)
          real, intent(in) :: dt
       end subroutine sim_outletSetForcing
    end interface
 
-   interface sim_outletLSDampingBlk
-      subroutine sim_outletLSDampingBlk2d(pfrc, phi, xcell, ycell, boundBox, &
-                                          dt, dx, dy, ix1, ix2, jy1, jy2, &
-                                          outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                          xMin, xMax, yMin, yMax)
+   interface
+      subroutine sim_outletLSDamping(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
+                                     dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                     outletFlag, outletSink, outletBuffer, outletGrowthRate, &
+                                     xMin, xMax, yMin, yMax, zMin, zMax)
          real, dimension(:, :, :), intent(inout) :: pfrc
          real, dimension(:, :, :), intent(in)    :: phi
-         real, dimension(:), intent(in)          :: xcell, ycell
-         real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                        :: dt, dx, dy
-         integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag
-         real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax
-      end subroutine sim_outletLSDampingBlk2d
-
-      subroutine sim_outletLSDampingBlk3d(pfrc, phi, xcell, ycell, zcell, boundBox, &
-                                          dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
-                                          outletFlag, outletSink, outletBuffer, outletGrowthRate, &
-                                          xMin, xMax, yMin, yMax, zMin, zMax)
-         real, dimension(:, :, :), intent(inout) :: pfrc
-         real, dimension(:, :, :), intent(in)    :: phi
-         real, dimension(:), intent(in)          :: xcell, ycell, zcell
+         real, dimension(:), intent(in)          :: xcenter, ycenter, zcenter
          real, dimension(:, :), intent(in)       :: boundBox
          real, intent(in)                        :: dt, dx, dy, dz
          integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
          real, intent(in) :: outletSink, outletBuffer, outletGrowthRate
          real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
-      end subroutine sim_outletLSDampingBlk3d
+      end subroutine sim_outletLSDamping
    end interface
 
-   interface sim_outletVelBlk
-      subroutine sim_outletVelBlk2d(u, v, ru, rv, xcell, ycell, &
-                                    boundBox, dt, dx, dy, ix1, ix2, jy1, jy2, inletFlag, &
-                                    outletFlag, velOutAux, velOut, outletBuffer, outletGrowthRate, &
-                                    xMin, xMax, yMin, yMax, gravX, gravY)
+   interface
+      subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
+                                  dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                  xMin, xMax, yMin, yMax, zMin, zMax, &
+                                  outletFlag, outletBuffer, outletGrowthRate, &
+                                  axis, volAux, QAux, QOut)
+         implicit none
+         real, dimension(:, :, :), intent(in) :: vel
+         real, dimension(:, :, :), intent(inout) :: rhs
+         real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
+         real, intent(in) :: dt, dx, dy, dz
+         integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
+         real, intent(in) :: outletBuffer, outletGrowthRate
+         integer, intent(in) :: axis
+         real, intent(inout) :: QAux(LOW:HIGH, MDIM), volAux(LOW:HIGH, MDIM)
+         real, intent(in) :: QOut(LOW:HIGH, MDIM)
+      end subroutine sim_outletVelFrc
+   end interface
 
-         real, dimension(:, :, :), intent(in)    :: u, v
-         real, dimension(:, :, :), intent(inout) :: ru, rv
-         real, dimension(:), intent(in)          :: xcell, ycell
-         real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                        :: dt, dx, dy
-         integer, intent(in)                     :: ix1, ix2, jy1, jy2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-         real, intent(inout) :: velOutAux(2, MDIM)
-         real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax, gravX, gravY
-      end subroutine sim_outletVelBlk2d
+   interface
+      subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
+                                        dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
+                                        xMin, xMax, yMin, yMax, zMin, zMax, &
+                                        outletFlag, outletBuffer, outletGrowthRate, &
+                                        axis, volAuxLiq, volAuxGas, QAuxLiq, QAuxGas, &
+                                        QOutLiq, QOutGas)
 
-      subroutine sim_outletVelBlk3d(u, v, w, ru, rv, rw, xcell, ycell, zcell, &
-                                    boundBox, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, inletFlag, &
-                                    outletFlag, velOutAux, velOut, outletBuffer, outletGrowthRate, &
-                                    xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ)
+         implicit none
+         real, dimension(:, :, :), intent(in) :: vel, phi
+         real, dimension(:, :, :), intent(inout) :: rhs
+         real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
+         real, intent(in) :: dt, dx, dy, dz
+         integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax
+         integer, dimension(LOW:HIGH, MDIM), intent(in) :: outletFlag
+         real, intent(in) :: outletBuffer, outletGrowthRate
+         integer, intent(in) :: axis
+         real, intent(inout) :: QAuxLiq(LOW:HIGH, MDIM), QAuxGas(LOW:HIGH, MDIM)
+         real, intent(inout) :: volAuxLiq(LOW:HIGH, MDIM), volAuxGas(LOW:HIGH, MDIM)
+         real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
+      end subroutine sim_outletVelFrcPhased
+   end interface
 
-         real, dimension(:, :, :), intent(in)    :: u, v, w
-         real, dimension(:, :, :), intent(inout) :: ru, rv, rw
-         real, dimension(:), intent(in)          :: xcell, ycell, zcell
-         real, dimension(:, :), intent(in)       :: boundBox
-         real, intent(in)                        :: dt, dx, dy, dz
-         integer, intent(in)                     :: ix1, ix2, jy1, jy2, kz1, kz2
-         integer, dimension(2, MDIM), intent(in) :: outletFlag, inletFlag
-         real, intent(inout) :: velOutAux(2, MDIM)
-         real, intent(in) :: velOut(2, MDIM), outletBuffer, outletGrowthRate
-         real, intent(in) :: xMin, xMax, yMin, yMax, zMin, zMax, gravX, gravY, gravZ
-      end subroutine sim_outletVelBlk3d
+   interface
+      subroutine sim_outletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                         guard, face, axis, secondDir, thirdDir)
+
+         implicit none
+         integer, intent(IN) :: level, ivar, gridDataStruct
+         integer, dimension(REGION_DIM), intent(IN) :: regionSize
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         regionSize(STRUCTSIZE)), intent(INOUT) :: regionData
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         MDIM), intent(IN) :: coordinates
+         integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
+
+      end subroutine sim_outletApplyBCToRegion
    end interface
 
 End module sim_outletInterface

@@ -4,16 +4,11 @@
 REQUIRES physics/IncompNS/IncompNSMain/constDens
 REQUIRES physics/IncompNS/IncompNSExtras
 
-REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
+USESETUPVARS SimForceInOut
 
-USESETUPVARS Grid
-
-IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
-   REQUIRES Grid/GridSolvers/HYPRE
-ELSE
-   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+IF SimForceInOut
+    REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+    REQUIRES Simulation/SimulationForcing/incompFlow/Outlet
 ENDIF
 
-## Number of guardcells at each boundary
 GUARDCELLS 2

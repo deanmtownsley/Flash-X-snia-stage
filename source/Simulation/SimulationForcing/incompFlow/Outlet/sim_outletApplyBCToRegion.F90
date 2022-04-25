@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBCToFace
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,11 +18,8 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+subroutine sim_outletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                    guard, face, axis, secondDir, thirdDir)
-
-   use sim_heaterData
-   use Grid_interface, ONLY: Grid_getDeltas
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
@@ -37,18 +34,4 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
                    MDIM), intent(IN) :: coordinates
    integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
-!-------------------------------------------------------------------------------------------
-   integer :: je, ke
-   integer :: i, j, k, htr, offset
-   type(sim_heaterType), pointer :: heater
-   real, dimension(MDIM)  :: del
-   real :: dynamicAngle, veli
-
-   call Grid_getDeltas(level, del)
-
-   je = regionSize(SECOND_DIR)
-   ke = regionSize(THIRD_DIR)
-
-   offset = 2*guard + 1
-
-end subroutine sim_heaterApplyBCToFace
+end subroutine sim_outletApplyBCToRegion

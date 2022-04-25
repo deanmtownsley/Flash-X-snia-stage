@@ -49,7 +49,9 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
 #ifdef SIMULATION_FORCE_OUTLET
    use sim_outletInterface, ONLY: sim_outletSetForcing
-   use sim_outletData, ONLY: sim_outletVel
+   use sim_outletData, ONLY: sim_QOut, sim_QAux, sim_volOut, sim_volAux, &
+                             sim_QOutLiq, sim_QOutGas, sim_QAuxLiq, sim_QAuxGas, &
+                             sim_volOutLiq, sim_volOutGas, sim_volAuxLiq, sim_volAuxGas
 #endif
 
    implicit none
@@ -62,8 +64,6 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    type(Grid_tile_t) :: tileDesc
 
    integer :: ierr
-   integer :: htr, isite
-   real :: velOutAux(LOW:HIGH, MDIM)
 
 #ifdef SIMULATION_FORCE_HEATER
 
@@ -97,7 +97,13 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 #endif
 
 #ifdef SIMULATION_FORCE_OUTLET
-   velOutAux = 0.
+   sim_QAux = 0.
+   sim_QAuxLiq = 0.
+   sim_QAuxGas = 0.
+
+   sim_volAux = 0.
+   sim_volAuxLiq = 0.
+   sim_volAuxGas = 0.
 
    ! Set Outlet Forcing
    !-------------------------------------------------------------
@@ -105,7 +111,7 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
    do while (itor%isValid())
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_outletSetForcing(tileDesc, velOutAux, dt)
+      call sim_outletSetForcing(tileDesc, dt)
       !---------------------------------------------------------
       call itor%next()
    end do
@@ -113,18 +119,56 @@ subroutine Simulation_adjustEvolution(nstep, dt, stime)
 
    ! Consolidate data
    !-------------------------------------------------------------
-   sim_outletVel = 0.
+   sim_QOut = 0.
+   sim_QOutLiq = 0.
+   sim_QOutGas = 0.
 
-   call MPI_Allreduce(velOutAux, sim_outletVel, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+   sim_volOut = 0.
+   sim_volOutLiq = 0.
+   sim_volOutGas = 0.
+
+#ifdef SIMULATION_OUTLET_PHASED
+
+   call MPI_Allreduce(sim_QAuxLiq, sim_QOutLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
                       MPI_SUM, MPI_COMM_WORLD, ierr)
 
+   call MPI_Allreduce(sim_QAuxGas, sim_QOutGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_volAuxLiq, sim_volOutLiq, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_volAuxGas, sim_volOutGas, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   sim_QOutLiq = sim_QOutLiq/(sim_volOutLiq + 1e-13)
+   sim_QOutGas = sim_QOutGas/(sim_volOutGas + 1e-13)
+
    if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'Outlet Velocity Low  =', sim_outletVel(LOW, :)
-      write (*, *) 'Outlet Velocity High =', sim_outletVel(HIGH, :)
+      write (*, *) 'Outlet Liq Velocity LOW,', sim_QOutLiq(LOW, :)
+      write (*, *) 'Outlet Liq Velocity HIGH,', sim_QOutLiq(HIGH, :)
+      write (*, *) '--------------------------------------------------------'
+      write (*, *) 'Outlet Gas Velocity LOW,', sim_QOutGas(LOW, :)
+      write (*, *) 'Outlet Gas Velocity HIGH,', sim_QOutGas(HIGH, :)
    end if
 
-   call IncompNS_setVectorProp("Outflow_Vel_Low", sim_outletVel(LOW, :))
-   call IncompNS_setVectorProp("Outflow_Vel_High", sim_outletVel(HIGH, :))
+#else
+
+   call MPI_Allreduce(sim_QAux, sim_QOut, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   call MPI_Allreduce(sim_volAux, sim_volOut, (HIGH - LOW + 1)*MDIM, FLASH_REAL, &
+                      MPI_SUM, MPI_COMM_WORLD, ierr)
+
+   sim_QOut = sim_QOut/(sim_volOut + 1e-13)
+
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'Outlet Velocity LOW,', sim_QOut(LOW, :)
+      write (*, *) 'Outlet Velocity HIGH,', sim_QOut(HIGH, :)
+   end if
+
+#endif
+
 #endif
 
 end subroutine Simulation_adjustEvolution

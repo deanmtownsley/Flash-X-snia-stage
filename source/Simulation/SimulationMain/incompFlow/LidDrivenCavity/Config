@@ -6,11 +6,5 @@ REQUIRES physics/IncompNS/IncompNSExtras
 
 USESETUPVARS Grid
 
-IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
-   REQUIRES Grid/GridSolvers/HYPRE
-ELSE
-   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
-ENDIF
-
 ## Number of guardcells at each boundary
 GUARDCELLS 2

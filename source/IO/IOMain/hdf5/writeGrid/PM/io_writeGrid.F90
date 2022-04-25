@@ -1,4 +1,4 @@
-!!****if* source/IO/IOMain/hdf5/serial/PM/io_writeGrid
+!!****if* source/IO/IOMain/hdf5/writeGrid/PM/io_writeGrid
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
