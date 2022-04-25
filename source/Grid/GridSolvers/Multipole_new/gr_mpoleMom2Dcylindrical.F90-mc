@@ -32,7 +32,7 @@
 !!  idensvar : the index of the density variable
 !!
 !!***
-!!Novariants
+!!NOVARIANTS
 !!REORDER(4): Uin
 
 subroutine gr_mpoleMom2Dcylindrical (idensvar)

@@ -10,7 +10,7 @@ from libUtils import *  # for libUnion
 from linkFiles import * # for LinkFileList class
 from genFiles import *  # code to generate files (Makefiles, Simulation.h, etc)
 from unitUtils import * # for UnitList class
-from macroProcessor import generateVariants, recursiveGetDefs,modifyMakefile
+from macroProcessorHelper import generateVariants, modifyMakefile
 from unitUtils import getLowestBase
 
 ########################### START SCRIPT ################################
@@ -149,11 +149,11 @@ def main():
         # If unit has -mc files, run the macroProcessor to generate variants
         # in the object dir.
         unitDir = os.path.join(GVars.sourceDir, unitname)
-        if any([ (".F90-mc" in f) for f in os.listdir(unitDir)] ):
+        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
           simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
           binDir = os.path.join(GVars.flashHomeDir,'bin')
-          defList = recursiveGetDefs(GVars.sourceDir, unitname, binDir, simDir)
-          varList = unitList.getVariants(unitname)
+          defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
+          varList = unitList.getRequestedVariants(unitname)
           if not varList:
             varList = ['']
           baseList = generateVariants(unitDir,
@@ -191,8 +191,8 @@ def main():
                 continue
         makefileName = 'Makefile.' + lowestBase
         makefilePath = os.path.join(GVars.flashHomeDir,GVars.objectDir,makefileName)
-        if any([ (".F90-mc" in f) for f in os.listdir(unitDir)] ):
-          varList = unitList.getVariants(unitname)
+        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
+          varList = unitList.getRequestedVariants(unitname)
           modifyMakefile(unitDir,
                          makefilePath,
                          varList)

@@ -417,13 +417,62 @@ class UnitList:
         cInfo.unitNames = self.getList()
         return cInfo
 
-    def getVariants(self,unitName):
+    def getAllVariants(self,unitName):
       varList = []
       for var in self.units[unitName]['VARIANTS']:
         varUnit = unitName + "/" + var
-        if self.hasUnit(varUnit):
-          varList.append(var)
+        varList.append(varUnit)
       return varList
+
+    def getRequestedVariants(self,unitName):
+      varList = []
+      for var in self.units[unitName]['VARIANTS']:
+        if(var.lower()=='null'):
+          varList.append(var)
+        else:
+          varUnit = unitName + "/" + var
+          if self.hasUnit(varUnit):
+            varList.append(var)
+      return varList
+
+    def recursiveGetDefs(self,sourceDir,targetUnit):
+        defsList = []
+        # Since this list has been sorted, the children should be
+        # checked in the proper order
+        for unit in self.getLinkOrder():
+            if(targetUnit.startswith(unit) or unit.startswith(targetUnit)):
+                isVariant = False
+                for varUnit in self.getAllVariants(targetUnit):
+                    if(unit.startswith(varUnit)):
+                        isVariant = True
+
+                if(not isVariant):
+                    unitDir = os.path.join(sourceDir,unit)
+                    defsList += getDefs(unitDir)
+        return defsList
+
+    # A unit needs definitions from itself as well as any unit it REQUIRES.
+    # Units that are either direct parents or direct children of a target Unit
+    # should be crawled (unless they are a variant).
+    def collectDefs(self,sourceDir,unitName,binDir,simDir):
+        defsList = [[],[]] # two lists, variant-specific definitions should be inbetween
+
+        # get common defs from bin dir
+        defsList[0] += getDefs(binDir)
+
+        # get all defs from required units
+        requiredList = self.units[unitName]["REQUIRES"]
+        for requiredSet in requiredList:
+            for requiredUnit in requiredSet:
+                defsList[0] += self.recursiveGetDefs(sourceDir,requiredUnit)
+
+        # get defs for the unit itself
+        defsList[0] += self.recursiveGetDefs(sourceDir,unitName)
+
+        # defs in simulation directory should overwrite others
+        defsList[1] += getDefs(simDir)
+
+        return defsList
 
     def generateUnitsfile(self):
       # called only when '-auto' flag is passed
@@ -747,3 +796,10 @@ def getLowestBase(base):
     except IndexError:
        return base
 
+def getDefs(dirName):
+    defsList = []
+    for f in os.listdir(dirName):
+        fpath = os.path.join(dirName,f)
+        if os.path.isfile(fpath) and os.path.splitext(fpath)[-1]==".ini":
+            defsList.append(fpath )
+    return defsList
