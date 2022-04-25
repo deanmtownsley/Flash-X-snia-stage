@@ -4,6 +4,11 @@ import subprocess,shutil
 
 fortran_exts = ['.F90','.f90','.F','.f']
 
+def remove_suffix(input_string, suffix):
+    if suffix and input_string.endswith(suffix):
+        return input_string[:-len(suffix)]
+    return input_string
+
 def formatOutput(outpath):
     _,ext = os.path.splitext(outpath)
     if(ext in fortran_exts):
@@ -29,7 +34,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
                 else:
                     mcList.append(mcPath)
                     base, ext = os.path.splitext(f)
-                    baseList.append( base + ext.removesuffix("-mc") )
+                    baseList.append( base + remove_suffix(ext, "-mc") )
     for var in varList:
         m = macroProcessor()
         if(var != ''):
@@ -43,7 +48,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
             m.loadDefsList(defsList[0] + defsList[1])
         for f in mcList:
             filebase,ext = os.path.splitext( os.path.basename(f) )
-            outfile = makeVariantName(filebase,var,ext.removesuffix("-mc"))
+            outfile = makeVariantName(filebase,var,remove_suffix(ext, "-mc"))
             outpath = os.path.join(objDir, outfile)
             if(os.path.islink(outpath)):
                 os.unlink(outpath)
@@ -56,7 +61,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
     m.loadDefsList(defsList[0] + defsList[1])
     for f in mcListNoVariants:
         filebase,ext = os.path.splitext( os.path.basename(f) )
-        outfile = makeVariantName(filebase,'',ext.removesuffix("-mc"))
+        outfile = makeVariantName(filebase,'',remove_suffix(ext, "-mc"))
         outpath = os.path.join(objDir, outfile)
         if(os.path.islink(outpath)):
             os.unlink(outpath)
@@ -90,12 +95,12 @@ def modifyMakefile(unitDir, makefile, varList):
         varFiles = []
         for var in varList:
             varObjs.append( makeVariantName(filebase,var,'.o') )
-            varFiles.append( makeVariantName(filebase,var,ext.removesuffix("-mc")))
+            varFiles.append( makeVariantName(filebase,var,remove_suffix(ext, "-mc")))
 
         with open(makefile,'r') as f:
             lines = f.read()
         lines = lines.replace(baseObj,' '.join(varObjs))
-        lines = lines.replace(filename.removesuffix("-mc"),' '.join(varFiles))
+        lines = lines.replace(remove_suffix(filename, "-mc"),' '.join(varFiles))
         with open(makefile,'w') as f:
             f.write(lines)
 
@@ -106,12 +111,12 @@ def modifyMakefile(unitDir, makefile, varList):
         varObjs = []
         varFiles = []
         varObjs.append( makeVariantName(filebase,'','.o') )
-        varFiles.append( makeVariantName(filebase,'',ext.removesuffix("-mc")))
+        varFiles.append( makeVariantName(filebase,'',remove_suffix(ext, "-mc")))
 
         with open(makefile,'r') as f:
             lines = f.read()
         lines = lines.replace(baseObj,' '.join(varObjs))
-        lines = lines.replace(filename.removesuffix("-mc"),' '.join(varFiles))
+        lines = lines.replace(remove_suffix(filename, "-mc"),' '.join(varFiles))
         with open(makefile,'w') as f:
             f.write(lines)
 
