@@ -29,11 +29,16 @@ module sim_outletData
 
    implicit none
 
+   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
+
    real, save :: sim_outletSink
    real, save :: sim_outletBuffer
    real, save :: sim_outletGrowthRate
 
-   integer, save :: sim_outletFlag(LOW:HIGH, MDIM)
-   real, save    :: sim_outletVel(LOW:HIGH, MDIM)
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_QOut, sim_QOutLiq, sim_QOutGas
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_QAux, sim_QAuxLiq, sim_QAuxGas
+
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_volOut, sim_volOutLiq, sim_volOutGas
+   real, save, dimension(LOW:HIGH, MDIM) :: sim_volAux, sim_volAuxLiq, sim_volAuxGas
 
 end module sim_outletData

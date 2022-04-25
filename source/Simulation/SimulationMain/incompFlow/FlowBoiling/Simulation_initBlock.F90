@@ -90,12 +90,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    solnData(DFUN_VAR, :, :, :) = -1e13
    solnData(TEMP_VAR, :, :, :) = 0.
 
-   call sim_heaterInitBlk(solnData(DFUN_VAR, :, :, :), &
-                          solnData(TEMP_VAR, :, :, :), &
-                          xCenter, yCenter, zCenter, &
+   call sim_heaterInitBlk(xCenter, yCenter, zCenter, &
                           GRID_ILO_GC, GRID_IHI_GC, &
                           GRID_JLO_GC, GRID_JHI_GC, &
-                          GRID_KLO_GC, GRID_KHI_GC)
+                          GRID_KLO_GC, GRID_KHI_GC, &
+                          solnData(TEMP_VAR, :, :, :), &
+                          solnData(DFUN_VAR, :, :, :))
 
    deallocate (xCenter, yCenter, zCenter)
 

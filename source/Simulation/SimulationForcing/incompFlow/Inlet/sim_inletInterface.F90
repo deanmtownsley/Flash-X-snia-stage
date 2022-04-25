@@ -40,4 +40,24 @@ Module sim_inletInterface
       end subroutine sim_inletFinalize
    end interface
 
+   interface
+      subroutine sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                        guard, face, axis, secondDir, thirdDir)
+
+         implicit none
+         integer, intent(IN) :: level, ivar, gridDataStruct
+         integer, dimension(REGION_DIM), intent(IN) :: regionSize
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         regionSize(STRUCTSIZE)), intent(INOUT) :: regionData
+         real, dimension(regionSize(BC_DIR), &
+                         regionSize(SECOND_DIR), &
+                         regionSize(THIRD_DIR), &
+                         MDIM), intent(IN) :: coordinates
+         integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
+
+      end subroutine sim_inletApplyBCToRegion
+   end interface
+
 End module sim_inletInterface

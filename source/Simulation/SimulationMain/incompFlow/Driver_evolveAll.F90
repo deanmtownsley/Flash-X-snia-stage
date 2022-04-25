@@ -115,7 +115,6 @@ subroutine Driver_evolveAll()
    type(Grid_tile_t) :: tileDesc
 
    ! Get grid variables for incompressible Naiver-Stokes
-   ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
    call IncompNS_getGridVar("CENTER_PRESSURE", iPresVar)
    call IncompNS_getGridVar("CENTER_DIVERGENCE", iDivVar)
@@ -137,7 +136,7 @@ subroutine Driver_evolveAll()
    gcMask = .FALSE.
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                            maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -212,7 +211,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
 #ifdef MULTIPHASE_MAIN
-      ! Multiphase advection diffusion procedure
+      ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
       !------------------------------------------------------------
@@ -232,7 +231,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Apply redistancing procedure
       !------------------------------------------------------------
@@ -254,7 +253,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -324,7 +323,7 @@ subroutine Driver_evolveAll()
          gcMask(iHliqVar) = .TRUE.
          gcMask(iHGasVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -345,7 +344,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iMfluxVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #endif
@@ -420,8 +419,8 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for pressure
       gcMask = .FALSE.
       gcMask(iPresVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask, &
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask, &
                                selectBlockType=ACTIVE_BLKS)
 
       ! Final step of fractional step velocity
@@ -455,7 +454,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iTempVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
@@ -497,7 +496,16 @@ subroutine Driver_evolveAll()
       ! Update grid and notify changes to other units
       call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
-      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+      ! Perform housekeeping after gridChanges
+      ! Fill guard cells for new grid
+      if (gridChanged) then
+         dr_simGeneration = dr_simGeneration + 1
+
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS, mask=gcMask)
+      end if
 
       if (dr_globalMe .eq. MASTER_PE) then
          write (*, *) ' '

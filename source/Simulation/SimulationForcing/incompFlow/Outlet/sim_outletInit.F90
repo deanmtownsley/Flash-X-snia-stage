@@ -26,44 +26,32 @@ subroutine sim_outletInit()
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_abort
 
-   implicit none
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
+   character(len=100) :: errorMessage
 
    call RuntimeParameters_get('sim_outletSink', sim_outletSink)
    call RuntimeParameters_get('sim_outletBuffer', sim_outletBuffer)
    call RuntimeParameters_get('sim_outletGrowthRate', sim_outletGrowthRate)
-
-   if (sim_meshMe .eq. MASTER_PE) then
-      write (*, *) 'sim_outletSink=', sim_outletSink
-      write (*, *) 'sim_outletBuffer=', sim_outletBuffer
-      write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate
-   end if
-
-   sim_outletVel = 0.
-   sim_outletFlag = 0
-
    call Grid_getDomainBC(domainBC)
+
+   sim_outletFlag = 0
+   sim_QOut = 0.
+   sim_QOutLiq = 0.
+   sim_QOutGas = 0.
 
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
-
          select case (domainBC(ibound, idimn))
-
-         case (SLIP_INS, NOSLIP_INS, MOVLID_INS)
-            sim_outletFlag(ibound, idimn) = 0
-
-         case (INFLOW_INS, EXTRAP_INS)
-            sim_outletFlag(ibound, idimn) = 0
-
-         case (NEUMANN_INS)
+         case (OUTFLOW_INS)
             sim_outletFlag(ibound, idimn) = 1
-            sim_outletVel(ibound, idimn) = 1
-
          end select
       end do
    end do
 
    if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_outletSink=', sim_outletSink
+      write (*, *) 'sim_outletBuffer=', sim_outletBuffer
+      write (*, *) 'sim_outletGrowthRate=', sim_outletGrowthRate
       write (*, *) 'Outlet Flag Low  =', sim_outletFlag(LOW, :)
       write (*, *) 'Outlet Flag High =', sim_outletFlag(HIGH, :)
    end if

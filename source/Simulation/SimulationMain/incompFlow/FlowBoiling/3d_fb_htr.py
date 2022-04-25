@@ -1,6 +1,4 @@
-"""***if* source/Simulation/SimulationMain/incompFlow/FlowBoiling/sim_heaterWrite
-
-
+"""
 
 DESCRIPTION:
 
@@ -14,14 +12,14 @@ from scipy.stats import qmc
 
 def write_heater_info():
 
-    filename = "flow_boiling_hdf5_htr_0001"
+    filename = "3d_fb_hdf5_htr_0001"
 
     filename_write = h5py.File(filename, "w")
 
-    htr_xMin = -6.0
-    htr_xMax =  6.0
-    htr_zMin = -2.5
-    htr_zMax =  2.5
+    htr_xMin = -18.0
+    htr_xMax =  18.0
+    htr_zMin = -7.5
+    htr_zMax =  7.5
     htr_yMin =  0.0
     htr_yMax =  1e-13
 
@@ -32,7 +30,7 @@ def write_heater_info():
     nuc_velContact = 0.2
     nuc_waitTime = 0.2
 
-    nuc_numSites = 900
+    nuc_numSites = 2700
 
     nuc_xSite = numpy.ndarray([nuc_numSites], dtype=float)
     nuc_ySite = numpy.ndarray([nuc_numSites], dtype=float)

@@ -4,6 +4,12 @@ gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
+# Settings for guard cell filling
+gr_bcEnableApplyMixedGds = .FALSE.
+convertToConsvdForMeshCalls = .FALSE.
+convertToConsvdInMeshInterp = .FALSE.
+enableMaskedGCFill = .FALSE.
+
 # Inverse of Reynolds Number
 ins_invReynolds   = .003
 
@@ -35,7 +41,7 @@ sim_numHeaters    =  2   # Number of heaters
 sim_heaterName    = "pool_boiling"
 
 # Outlet parameters
-sim_outletBuffer =  1.0 # Outlet Buffer
+sim_outletBuffer =  0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -52,7 +58,7 @@ zmax            =  3.0
 xl_boundary_type = "noslip_ins"
 xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "neumann_ins"
+yr_boundary_type = "outflow_ins"
 zl_boundary_type = "noslip_ins"
 zr_boundary_type = "noslip_ins"
 

@@ -7,7 +7,7 @@ Grid += gr_updateData.o gr_createDomain.o gr_recreateDomain.o \
         Paramesh_finalize.o  gr_initParameshArrays.o \
 	gr_restrictTree.o \
 	gr_markVarThreshold.o gr_markInRadius.o gr_markWithRadius.o \
-        gr_markInRectangle.o gr_markEllipsoid.o \
+        gr_markInRectangle.o gr_markEllipsoid.o gr_markVarBounds.o \
         gr_updateRefinement.o gr_findWhichChild.o gr_getBlkHandle.o \
 	gr_findWhichChildren.o \
 	gr_unmarkRefineByLogRadius.o gr_markDerefineByLogRadius.o gr_markDerefineByTime.o gr_enforceMaxRefine.o \

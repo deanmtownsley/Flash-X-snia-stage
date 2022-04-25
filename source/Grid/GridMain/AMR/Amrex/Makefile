@@ -21,7 +21,8 @@ Grid += gr_amrexInterface.o \
         block_1lev_iterator.o \
         gr_writeData.o \
         gr_markInRectangleForCallback.o \
-        gr_markInRadiusForCallback.o
+        gr_markInRadiusForCallback.o \
+        gr_markVarBoundsForCallback.o
 
 Grid += gr_specificData.o gr_initSpecific.o \
         gr_updateData.o

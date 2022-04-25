@@ -1,7 +1,4 @@
-"""***if* source/Simulation/SimulationMain/incompFlow/PoolBoiling/sim_heaterWrite
-
-
-
+"""
 DESCRIPTION:
 
 	Script to create hdf5 file for heater

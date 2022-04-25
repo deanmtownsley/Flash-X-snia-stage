@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationMain/incompFlow/FlowBoiling/sim_heaterApplyBCToFace
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,9 +18,10 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                    guard, face, axis, secondDir, thirdDir)
 
+   use Driver_interface, ONLY: Driver_abort
    use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
    use Grid_interface, ONLY: Grid_getDeltas
 
@@ -51,6 +52,8 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
 
    offset = 2*guard + 1
 
+   if (face == HIGH) call Driver_abort('[sim_heaterApplyBCToRegion] not configured for face == HIGH')
+
    if (ivar == TEMP_VAR) then
       do k = 1, ke
          do j = 1, je
@@ -73,6 +76,7 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
          end do
       end do
 
+#ifdef MULTIPHASE_EVAPORATION
    else if (ivar == DFUN_VAR) then
       do k = 1, ke
          do j = 1, je
@@ -109,6 +113,8 @@ subroutine sim_heaterApplyBCToFace(level, ivar, gridDataStruct, regionData, coor
             end do
          end do
       end do
+#endif
+
    end if
 
-end subroutine sim_heaterApplyBCToFace
+end subroutine sim_heaterApplyBCToRegion

@@ -4,6 +4,12 @@ gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
+# Settings for guard cell filling
+gr_bcEnableApplyMixedGds = .FALSE.
+convertToConsvdForMeshCalls = .FALSE.
+convertToConsvdInMeshInterp = .FALSE.
+enableMaskedGCFill = .FALSE.
+
 # Inverse of Reynolds Number
 ins_invReynolds   = .004
 
@@ -35,6 +41,9 @@ sim_numHeaters    =  1   # Number of heaters
 sim_heaterName    = "flow_boiling"
 sim_heaterShowInfo = .FALSE.
 
+# Outlet parameters
+sim_outletBuffer = 0.1 # Outlet Buffer
+
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
@@ -48,7 +57,7 @@ zmax            =  2.5
 
 #       Boundary conditions
 xl_boundary_type = "inflow_ins"
-xr_boundary_type = "neumann_ins"
+xr_boundary_type = "outflow_ins"
 yl_boundary_type = "noslip_ins"
 yr_boundary_type = "slip_ins"
 zl_boundary_type = "slip_ins"
@@ -60,7 +69,7 @@ log_file	= "INS_Flow_Boiling.log"
 basenm		= "INS_Flow_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 5.
+tmax            = 40.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05
@@ -89,7 +98,7 @@ plotFileIntervalStep = 1000
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 36
+nblockx	= 32
 nblocky	= 10
 nblockz = 10
 nfres   = 10000000

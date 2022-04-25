@@ -37,10 +37,12 @@ subroutine sim_heaterTagSites(stime)
 
       heater => sim_heaterInfo(htr)
 
-      do isite = 1, heater%numSites
+      call Timers_start("consolidate site status")
+      call MPI_Allreduce(MPI_IN_PLACE, heater%siteIsAttachedCurr, &
+                         heater%numSites, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
+      call Timers_stop("consolidate site status")
 
-         call MPI_Allreduce(heater%siteIsAttachedCurr(isite), heater%siteIsAttachedCurr(isite), &
-                            1, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
+      do isite = 1, heater%numSites
 
          if (heater%siteIsAttachedPrev(isite) .eqv. .true. .and. &
              heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
