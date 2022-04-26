@@ -12,8 +12,9 @@ def removeSuffix(input_string, suffix):
 def formatOutput(outpath):
     _,ext = os.path.splitext(outpath)
     if(ext in fortran_exts):
-        if shutil.which('fprettify'):
-            subprocess.run('fprettify {}'.format(outpath), shell=True, check=True)
+        if hasattr(shutil, 'which'):
+            if shutil.which('fprettify'):
+                subprocess.run('fprettify {}'.format(outpath), shell=True, check=True)
 
 # unitDir: path to unit directory with mc files
 # objDir: path to object directory
