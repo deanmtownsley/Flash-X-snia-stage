@@ -427,12 +427,12 @@ class UnitList:
     def getRequestedVariants(self,unitName):
       varList = []
       for var in self.units[unitName]['VARIANTS']:
-        if(var.lower()=='null'):
+        varUnit = unitName + "/" + var
+        if self.hasUnit(varUnit):
           varList.append(var)
-        else:
-          varUnit = unitName + "/" + var
-          if self.hasUnit(varUnit):
-            varList.append(var)
+      isNull = [ var.lower() == 'null' for var in self.units[unitName]['VARIANTS'] ]
+      if (len(varList)==0 and any(isNull) ):
+        varList.append('NULL')
       return varList
 
     def recursiveGetDefs(self,sourceDir,targetUnit):
