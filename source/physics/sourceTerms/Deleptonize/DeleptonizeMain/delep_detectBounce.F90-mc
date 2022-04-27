@@ -48,7 +48,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
   real,intent(IN) :: dt,time
   logical,intent(IN) :: dotiling
   
-  @M iter_declare
+  @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
   integer,dimension(MDIM)  :: dimSize
   real,allocatable, dimension(:) :: xCenter, yCenter, zCenter
 
