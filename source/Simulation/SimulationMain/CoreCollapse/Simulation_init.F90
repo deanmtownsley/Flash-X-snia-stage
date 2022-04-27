@@ -83,73 +83,16 @@ subroutine Simulation_init()
   call RuntimeParameters_get( 'vel_mult', sim_velMult)
   call RuntimeParameters_get( 'nsub', nsub)
   call RuntimeParameters_get( 'restart', sim_restart)
-  call RuntimeParameters_get( 'burnUpdateEint', sim_burnUpdateEint)
-  call RuntimeParameters_get( 'ener_exp', sim_expEner)
-
-  call RuntimeParameters_get( 'point_mass', sim_pointMass)
-
-  call RuntimeParameters_get( 'hole_radius', sim_holeRadius)
 
   call RuntimeParameters_get( 'rot_omega', sim_rotOmega)
   call RuntimeParameters_get( 'rot_a', sim_rotA)
-  call RuntimeParameters_get( 'mag_e', sim_mage)
-
-  call RuntimeParameters_get( 'mri_refine', sim_mriRefine)
-  call RuntimeParameters_get( 'mri_time', sim_mriTime)
 
   call RuntimeParameters_get( 'mag_B0', sim_magB0)
   call RuntimeParameters_get( 'mag_R0', sim_magR0)
 
-  call RuntimeParameters_get( 'hole_radius', sim_holeRad)
-
-!!$  call RuntimeParameters_get("delep_Enu", sim_Enu)
-!!$  call RuntimeParameters_get("delep_rhoOne", sim_rhoOne)
-!!$  call RuntimeParameters_get("delep_rhoTwo", sim_rhoTwo)
-!!$  call RuntimeParameters_get("delep_rhoThree", sim_rhoThree)
-!!$  call RuntimeParameters_get("delep_yOne", sim_yOne)
-!!$  call RuntimeParameters_get("delep_yTwo", sim_yTwo)
-!!$  call RuntimeParameters_get("delep_yThree", sim_yThree)
-!!$  call RuntimeParameters_get("delep_yc", sim_yc)
-
-  call RuntimeParameters_get("use_PnotT", sim_usePnotT)
-
-!!$  call RuntimeParameters_get('xmin',sim_xMin)
-!!$  call RuntimeParameters_get('ymin',sim_yMin)
-!!$  call RuntimeParameters_get('zmin',sim_zMin)
-!!$  call RuntimeParameters_get('xmax',sim_xMax)
-!!$  call RuntimeParameters_get('ymax',sim_yMax)
-!!$  call RuntimeParameters_get('zmax',sim_zMax)
-
-  !! Grab perturbation parameters
-  call RuntimeParameters_get("use_perturb", sim_usePerturb)
-  call RuntimeParameters_get("perturb_radMin0", sim_perturbRadMin0)
-  call RuntimeParameters_get("perturb_radMax0", sim_perturbRadMax0)
-  call RuntimeParameters_get("perturb_mag0", sim_perturbMag0)
-  call RuntimeParameters_get("perturb_n0", sim_perturbN0)
-  call RuntimeParameters_get("perturb_l0", sim_perturbL0)
-  call RuntimeParameters_get("perturb_m0", sim_perturbM0)
-  call RuntimeParameters_get("perturb_radMin1", sim_perturbRadMin1)
-  call RuntimeParameters_get("perturb_radMax1", sim_perturbRadMax1)
-  call RuntimeParameters_get("perturb_mag1", sim_perturbMag1)
-  call RuntimeParameters_get("perturb_n1", sim_perturbN1)
-  call RuntimeParameters_get("perturb_l1", sim_perturbL1)
-  call RuntimeParameters_get("perturb_m1", sim_perturbM1)
-
-  call RuntimeParameters_get("lrefine_center", sim_lrefCenter)
-  if (sim_lrefCenter == 0) sim_lrefCenter = lrefine_max
-
   call RuntimeParameters_get("velRotFac", sim_velRotFac)
 
-  call RuntimeParameters_get("bdryRad", sim_bdryRad)
-  call RuntimeParameters_get("fullAngRefRad", sim_fullAngRefRad)
-
   call RuntimeParameters_get("tinitial", sim_tinitial)
-
-  call RuntimeParameters_get("alwaysRefineShock", sim_alwaysRefineShock)
-  sim_massLoss = sim_massLoss * 2.0e33 / 31556926.
-
-  ! MRI Refinement flag
-  sim_doMRIrefine = .FALSE.
 
   ! Random perturbation stuff
   call RuntimeParameters_get('use_randomperts', use_randomperts)
