@@ -29,5 +29,6 @@ module Hydro_offload_data
   real,  allocatable :: hy_flat3d(:,:,:)
   real,  allocatable :: hy_grv(:,:,:)
   real,  allocatable :: hy_shck(:,:,:)
+  real, allocatable, target :: hy_tmpState(:,:,:,:)
   logical :: hydro_GPU_scratch = .False.
 end module Hydro_offload_data

@@ -38,18 +38,45 @@ module Hydro_data
   !$omp declare target (hy_C_hyp,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_cvisc,hy_del)
   !$omp declare target (hy_flx,hy_fly,hy_flz,hy_alphaGLM,hy_grav)
 
+  ! Added for GPU
   real, dimension(MDIM) :: hy_del
-  
+  logical :: scratch_allocated
+  real,allocatable :: hy_Vc(:,:,:)
+
+  integer,  dimension(LOW:HIGH,MDIM) :: hy_dlim, hy_dlimGC
   integer :: hy_meshMe
+  real :: hy_cfl
+  logical :: hy_hydroComputeDtFirstCall
+  logical :: hy_updateHydroFluxes
+  real :: hy_dt, hy_dtmin
   integer :: hy_gcMaskSize
   integer :: hy_globalComm
   integer :: hy_meshNumProcs
+  logical :: hy_restart
+  logical :: hy_shockDetectOn
+  logical :: hy_useTiling 
+  real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
+  real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
+  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
+  real, allocatable :: hy_mfrac(:), hy_eosData(:)
+ 
+  !One block's worth of fluxes defined generally (not assuming fixed block size mode)
+  real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
+  
+  !Flux buffers
+  real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
+
+  real, allocatable :: hy_grav(:,:,:,:)  
+
+  logical :: hy_useHydro
+  logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
+  integer, dimension(NFLUXES) :: hy_fluxCorVars
   integer :: hy_geometry
 
-  
-  real :: hy_cfl
-  real :: hy_dt, hy_dtmin
-  real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
+  logical :: hy_threadWithinBlock
+  logical, dimension(NUNK_VARS) :: hy_gcMask
+  ! Additional scratch storage for RK time stepping
+  real, allocatable, target :: hy_starState(:,:,:,:)
 
   ! Limiter info
   real :: hy_limRad
@@ -64,41 +91,6 @@ module Hydro_data
   real :: hy_bref
   ! System of units used
   character(4) :: hy_units
-
-  logical :: hy_restart
-  logical :: hy_shockDetectOn
-  logical :: hy_useTiling 
-  logical :: hy_useHydro
-  logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
-  logical :: hy_hydroComputeDtFirstCall
-  logical :: hy_updateHydroFluxes
-  logical :: hy_threadWithinBlock
-  logical :: hy_useTelescoping
-  logical :: scratch_allocated    ! Added for GPU
-
-  integer,  dimension(LOW:HIGH,MDIM) :: hy_dlim, hy_dlimGC
-  integer, dimension(NFLUXES) :: hy_fluxCorVars
-
-
-
-  logical, dimension(NUNK_VARS) :: hy_gcMask
-
-  !One block's worth of fluxes defined generally (not assuming fixed block size mode)
-  real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)  
-  !Flux buffers
-  real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
-
-  real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
-  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
-  real, allocatable :: hy_Vc(:,:,:)
-  real, allocatable :: hy_grav(:,:,:,:)  
-  real, allocatable, target :: hy_sState(:,:,:,:),hy_tState(:,:,:,:)
-  real, allocatable, target :: hy_scratch(:,:)
-  
-  ! Additional scratch storage for RK time stepping
-  real, pointer :: hy_starState(:,:,:,:),hy_tmpState(:,:,:,:)
-  
-  
 
 end module Hydro_data
 

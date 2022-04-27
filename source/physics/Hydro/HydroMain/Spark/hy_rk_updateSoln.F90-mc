@@ -40,14 +40,15 @@
 !!    coeff - coefficients for updating
 !!
 !!***
-!!Reorder(4): hy_starState, hy_tState, Uin, hy_fl[xyz]
+!!Reorder(4): hy_starState, Uin, hy_fl[xyz]
 subroutine @M hy_update_name (@M hy_update_call_args)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState,hy_tState, &
+  use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
        hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_offload_data, ONLY : hy_tmpState
   use Driver_interface, ONLY : Driver_abort
   
   implicit none
@@ -62,15 +63,24 @@ subroutine @M hy_update_name (@M hy_update_call_args)
   real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt, dtOld
   real, dimension(3), intent(IN) :: coeffs
-  real, dimension(NFLUXES) :: tmpState
+
 
   integer :: i,j,k,n,g
 
+  real, pointer :: V0(:), Vstar(:)
+
+  real, dimension(NFLUXES) :: U0, Ustar
 
   real :: dx, dy, dz
+  real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
+  real :: flx_weight1, flx_weight2
+  real :: eint, ekin, emag
+  ! Geometry factors
+  real :: facM, facP
+  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
+  integer ::  ind
   real :: dhdt
 
-  
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
@@ -78,9 +88,7 @@ subroutine @M hy_update_name (@M hy_update_call_args)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-           @M hy_rk_retrieveState
-           call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt,&
-               hy_starState(:,i,j,k),tmpState)
+          call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
         enddo !i
      enddo !j
   enddo !k
@@ -97,7 +105,7 @@ contains
      real, intent(OUT) :: facM, facP
      real, dimension(NFLUXES), intent(out) :: Sgeo
      real, intent(IN) :: U(:),dx
-     real, intent(IN) :: V(:)
+     real, pointer, intent(IN) :: V(:)
      real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
      real    :: pmagStar, xmagStar, zmagStar
      integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
@@ -182,21 +190,25 @@ contains
 
 
 
-subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt, Vstar, V0)
-  use Hydro_data, only : hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
+subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
+  use Hydro_data, only : hy_starState, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
        hy_smalldens, hy_smallE
+  use Hydro_offload_data, only : hy_tmpState
   implicit none
   integer, intent(in) :: i,j,k
   real, dimension(3), intent(IN) :: coeffs
-  real, dimension(:), intent(INOUT) :: Vstar, V0
   real, intent(in) :: dx, dy, dz
   real, intent(IN) :: dt, dtOld, dhdt
   real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
   real :: facM, facP
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   real :: eint, ekin, emag
+  real, pointer :: V0(:), Vstar(:)
   real, dimension(NFLUXES) :: U0, Ustar
   !$omp declare target
+
+  V0    => hy_tmpState(:,i,j,k)
+  Vstar => hy_starState(:,i,j,k)
 
   ! Point to the correct fluxes
   Fm => hy_flx(:,i  ,j  ,k  )
@@ -211,21 +223,20 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt, Vstar, V0)
 #endif
 
   ! Construct vectors of conserved variables
-!!$  U0(HY_MASS)            = V0(DENS_VAR)
-!!$  U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
-!!$  U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
-!!$  U0(HY_NUM_FLUX+1:NFLUXES) = V0(SPECIES_BEGIN:MASS_SCALARS_END)*V0(DENS_VAR)
-  U0(:) = V0(1:NFLUXES)
+  U0(HY_MASS)            = V0(DENS_VAR)
+  U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
+  U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
+  U0(HY_NUM_FLUX+1:NFLUXES) = V0(SPECIES_BEGIN:MASS_SCALARS_END)*V0(DENS_VAR)
   Ustar(HY_MASS)         = Vstar(DENS_VAR)
   Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
   Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
   Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
 
 #ifdef SPARK_GLM
-!!$  U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
-!!$  U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
-!!$        V0(MAGX_VAR:MAGZ_VAR))
-!!$  U0(HY_FPSI) = V0(PSIB_VAR)
+  U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
+  U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
+        V0(MAGX_VAR:MAGZ_VAR))
+  U0(HY_FPSI) = V0(PSIB_VAR)
   Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
   Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
         Vstar(MAGX_VAR:MAGZ_VAR))
@@ -280,8 +291,8 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt, Vstar, V0)
         + coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
 #endif
   ! Release pointers
-!!$  nullify(V0)
-!!$  nullify(Vstar)
+  nullify(V0)
+  nullify(Vstar)
   nullify(Fm)
   nullify(Fp)
   nullify(Gm)

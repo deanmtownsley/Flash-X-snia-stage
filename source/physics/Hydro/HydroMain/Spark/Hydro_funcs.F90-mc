@@ -21,7 +21,7 @@
 !! 
 !! *** 
 !!Reorder directive used by FLASH with --index-reorder flag at setup
-!!Reorder(4): hy_starState, hy_sState, hy_tState, hy_tmpState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
+!!Reorder(4): hy_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
 
 #include "Simulation.h"
 #include "constants.h"
@@ -31,19 +31,16 @@
 
 subroutine allocate_scr(blkLimits,blkLimitsGC)
   
-  use Hydro_data, ONLY : hy_starState, hy_tmpState, hy_sState, hy_tState, &
-       hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc,hy_useTelescoping, scratch_allocated
+       hy_alphaGLM,hy_Vc,scratch_allocated
   use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d
-  use Grid_tile,         ONLY : Grid_tile_t
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   
   integer :: max_edge, max_edge_y, max_edge_z
-  real,pointer ::temp(:,:,:,:)
   
   max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
        blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
@@ -86,41 +83,29 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   if (.NOT. allocated(hy_grav)) then
      allocate(hy_grav(MDIM,@M bounds_3d(blkLimitsGC)))
   endif
-
-  if (.NOT. allocated(hy_sState)) then
-     allocate(hy_sState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
+  
+  if (.NOT. allocated(hy_starState)) then
+     allocate(hy_starState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
+  endif
+  
+  if (.NOT. allocated(hy_tmpState)) then
+     allocate(hy_tmpState(NUNK_VARS,@M bounds_3d(blkLimitsGC)))
   endif
 
-  if (.NOT. allocated(hy_tState)) then
-     allocate(hy_tState(NFLUXES,@M bounds_3d(blkLimitsGC)))
-        nullify(hy_tmpState)
-        hy_tmpState=>hy_tState
-  end if
-     
-  if(hy_useTelescoping) then
-     nullify(hy_starState)
-     hy_starState=>hy_sState
-  else
-     nullify(hy_starState)
-     hy_starState=>Uin
-  end if
-  
   @M hy_snake_allocate
 
   call allocate_fxscr(blkLimits,blkLimitsGC)
   
-  @M hy_geomSpall_alloc
 end subroutine allocate_scr
 
 subroutine deallocate_scr()
-  use Hydro_data, ONLY : hy_starState ,hy_tmpState, hy_sState, hy_tState,  hy_fluxCorrect, &
-       hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
        hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc, hy_useTelescoping, scratch_allocated
+       hy_alphaGLM,hy_Vc, scratch_allocated
   
   use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
   
   if(allocated(hy_flx))deallocate(hy_flx)
   if(allocated(hy_fly))deallocate(hy_fly)
@@ -128,26 +113,14 @@ subroutine deallocate_scr()
   if(allocated(hy_flat3d))deallocate(hy_flat3d)
   if(allocated(hy_Vc))deallocate(hy_Vc)
   if(allocated(hy_grav))deallocate(hy_grav)
-  if(hy_useTelescoping) then
-     if(allocated(hy_sState)) then
-        nullify(hy_starState)
-        deallocate(hy_sState)
-     end if
-     if(allocated(hy_tState)) then
-        nullify(hy_tmpState)
-        deallocate(hy_tState)
-     end if
-  else
-     nullify(hy_starState)
-     nullify(hy_tmpState)
-  end if
+  if(allocated(hy_starState))deallocate(hy_starState)
+  if(allocated(hy_tmpState))deallocate(hy_tmpState)
   call deallocate_fxscr()
-  @M hy_geomSpall_dealloc
 end subroutine deallocate_scr
 
 subroutine allocate_fxscr(blkLimits,blkLimitsGC)
   use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-        hy_fluxCorrect
+       hy_eosData, hy_mfrac, hy_fluxCorrect
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   integer :: max_edge
 
@@ -174,13 +147,21 @@ subroutine allocate_fxscr(blkLimits,blkLimitsGC)
   endif
   !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
 
+  if (.NOT. allocated(hy_eosData)) then
+     allocate(hy_eosData(EOS_NUM*max_edge))
+     hy_eosData = 0.
+  endif
   
+  if (.NOT. allocated(hy_mfrac)) then
+     allocate(hy_mfrac(NSPECIES*max_edge))
+     hy_mfrac = 0.
+  endif
 end subroutine allocate_fxscr
 
 
 subroutine deallocate_fxscr()
   use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-       hy_fluxCorrect
+       hy_eosData, hy_mfrac, hy_fluxCorrect
 
   !Allocate size of flux buffers used for flux correction
   if (hy_fluxCorrect) then
@@ -190,6 +171,8 @@ subroutine deallocate_fxscr()
      if(allocated(hy_fluxBufZ))deallocate(hy_fluxBufZ)
   end if
 
+  if(allocated(hy_mfrac))deallocate(hy_mfrac)
+  if(allocated(hy_eosData))deallocate(hy_eosData)
 end subroutine deallocate_fxscr
 
 subroutine addFluxes(lev,blkLimits,weight,addFlux)
@@ -229,13 +212,12 @@ end subroutine addFluxes
 !! If offloading to a device, send data and allocate on device only.
 subroutine saveState(Uin,blkLimits,blklimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hy_starState,hy_tmpState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, &
-       hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
-       hy_alphaGLM, hy_useTelescoping, scratch_allocated
+       hy_alphaGLM, scratch_allocated
   use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_flat3d, hy_grv
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d, hy_grv
   implicit none
   
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
@@ -250,29 +232,35 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
   ! update temp vars with solution data
   
   @M hy_saveState_omp
-  if(hy_useTelescoping) then
-     @M loop_3d_alt(blkLimitsGC,i1,i2,i3)
-         do v=1,NUNK_VARS
-            hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-         enddo
-         hy_tmpState(HY_MASS,i1,i2,i3)=Uin(DENS_VAR,i1,i2,i3)
-         hy_tmpState(HY_ENER,i1,i2,i3)=Uin(ENER_VAR,i1,i2,i3)*Uin(DENS_VAR,i1,i2,i3)
-         hy_tmpState(HY_XMOM,i1,i2,i3)=Uin(VELX_VAR,i1,i2,i3)*Uin(DENS_VAR,i1,i2,i3)
-         hy_tmpState(HY_YMOM,i1,i2,i3)=Uin(VELY_VAR,i1,i2,i3)*Uin(DENS_VAR,i1,i2,i3)
-         hy_tmpState(HY_ZMOM,i1,i2,i3)=Uin(VELZ_VAR,i1,i2,i3)*Uin(DENS_VAR,i1,i2,i3)
-     @M loop_end_3d
-  end if
+  
+  @M loop_3d_alt(blkLimitsGC,i1,i2,i3)
+           do v=1,NUNK_VARS
+              hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+              hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+           enddo
+  @M loop_end_3d
 end subroutine saveState
 
 
 subroutine updateState(Uin,blkLimits,blkLimitsGC)
-  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock
+  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
+                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, &
+                         hy_smalldens, hy_smallE, hy_smallpres, &
+                         hy_smallX, hy_cvisc, hy_del
+  use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d
   
   implicit none
   real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   @M hy_update_omp
 
+#ifndef FIXEDBLOCKSIZE
+!!$  if (hy_fluxCorrect) then
+!!$    deallocate(hy_fluxBufX);deallocate(hy_fluxBufY);deallocate(hy_fluxBufZ)
+!!$  endif
+#endif
+ 
 
   !$omp parallel if(hy_threadWithinBlock) &
   !$omp default(none) &
