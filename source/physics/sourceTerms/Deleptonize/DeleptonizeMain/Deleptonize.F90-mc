@@ -55,7 +55,7 @@ subroutine Deleptonize(dotiling, dt, time)
     real, intent(IN) :: dt, time
     logical, intent(IN) :: dotiling
 
-    @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
+    @M iter_declare(blkLimits, blkLimitsGC, grownLimits)
     integer :: i, j, k, n
     integer :: err
     real :: xDens, xTemp, xEner, xEntr, xYe, outYe
@@ -117,6 +117,7 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp xPres,xEntr,xYe,del_ye,outYe,mu_nu,xXp,xXn,xXa,xXh,del_entr,ek,&
     !$omp xdedt,xdpderho)
 
+    nullify (Uin)
     @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC)
 
     !$omp do schedule(static) reduction(+:flag)
@@ -174,6 +175,8 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp end single
     @M iter_end
     !$omp end parallel
+
+    call Timers_stop("delep")
 
     return
 end subroutine Deleptonize

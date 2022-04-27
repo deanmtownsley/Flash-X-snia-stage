@@ -98,6 +98,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
   localMaxDens = 0.
 
   !$omp do schedule(static) 
+  nullify(Uin)
   @M iter_all_begin(LEAF,dotiling,blkLimits,blkLimitsGC)
 
      imin = blkLimits(LOW,IAXIS)
