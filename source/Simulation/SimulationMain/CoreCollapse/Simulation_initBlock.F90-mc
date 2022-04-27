@@ -47,16 +47,16 @@ subroutine Simulation_initBlock(Uin,tileDesc)
 
     implicit none
 
-    real,              pointer    :: Uin(:,:,:,:)
     @M tileDesc_arg
-
+    real,pointer :: Uin(:,:,:,:)
+    
     real, allocatable, dimension(:) :: xCenter, xLeft, xRight
     real, allocatable, dimension(:) :: yCenter, yLeft, yRight
     real, allocatable, dimension(:) :: zCenter, zLeft, zRight
     real, allocatable, dimension(:, :, :) :: Ax, Ay, Az
     real :: dx, dy, dz
 
-    @M tileDesc_declare(blkLimits,blkLimitsGC,tileLimits,grownTileLimits)
+    @M tileDesc_declare(blkLimits,blkLimitsGC,grownTileLimits)
     integer, dimension(LOW:HIGH, MDIM)::limits
 
     integer :: meshGeom
@@ -81,28 +81,28 @@ subroutine Simulation_initBlock(Uin,tileDesc)
 
     call Timers_start("initBlock")
     
-    @M tileDesc_get(blkLimits,blkLimitsGC,tileLimits,grownTileLimits)
+    @M tileDesc_get(blkLimits,blkLimitsGC,grownTileLimits)
     
   !! allocate all needed space
-    allocate (xCenter(@M bounds_i(grownTileLimits), STAT=istat)
-    allocate (xLeft(@M bounds_i(grownTileLimits), STAT=istat)
-    allocate (xRight(@M bounds_i(grownTileLimits), STAT=istat)
-    allocate (yCenter(@M bounds_j(grownTileLimits), STAT=istat)
-    allocate (yLeft(@M bounds_j(grownTileLimits), STAT=istat)
-    allocate (yRight(@M bounds_j(grownTileLimits), STAT=istat)
-    allocate (zCenter(@M bounds_k(grownTileLimits), STAT=istat)
-    allocate (zLeft(@M bounds_k(grownTileLimits), STAT=istat)
-    allocate (zRight(@M bounds_k(grownTileLimits), STAT=istat)
+    allocate (xCenter(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (xLeft(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (xRight(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (yCenter(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (yLeft(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (yRight(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (zCenter(@M bounds_k(grownTileLimits)), STAT=istat)
+    allocate (zLeft(@M bounds_k(grownTileLimits)), STAT=istat)
+    allocate (zRight(@M bounds_k(grownTileLimits)), STAT=istat)
 
 #ifdef MAGX_VAR
-    allocate (Ax(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
-    allocate (Ay(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
-    allocate (Az(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
+    allocate (Ax(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
+    allocate (Ay(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
+    allocate (Az(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
 #endif
 
     xCenter(:) = 0.e0
     yCenter(:) = 0.e0
-    zCenter(:) = 0.e
+    zCenter(:) = 0.e0
     dx = deltas(IAXIS)
     dy = deltas(JAXIS)
     dz = deltas(KAXIS)

@@ -49,7 +49,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   include "Flashx_mpi.h"
   
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
-  @M iter_declare(blkLimits, blkLimitsGC)
+  @M iter_declare(blkLimits, blkLimitsGC,grownLimits)
 
   real,    intent(in) :: timeEndAdv, dt, dtOld
   integer, intent(IN) :: sweepOrder
@@ -69,6 +69,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
   integer :: pLo,pHi !low and high indices for pencil arrays
+  integer :: lev
   
   if (.NOT. hy_useHydro) return
   
@@ -236,7 +237,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
-     do level=maxLev,1,-1
+     do lev=maxLev,1,-1
         
         !Once the finest level is completed, place averaged fine fluxes into
         !current coarse semipermanent flux storage (SPFS)

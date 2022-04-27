@@ -82,7 +82,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   real    :: z
   real    :: bndBox (LOW:HIGH,1:MDIM)
 
-   @M iter_declare(tileLimits   ,tileLimitsGC)
+   @M iter_declare(tileLimits   ,tileLimitsGC, grownTileLimits)
 
 !
 !
