@@ -7,10 +7,9 @@ Module delep_interface
 #include "constants.h"
 
   interface
-     subroutine delep_detectBounce (blockCount,blockList,dt,time)
-       integer,intent(IN) :: blockCount
-       integer,dimension(blockCount),intent(IN)::blockList
+     subroutine delep_detectBounce (dotiling,dt,time)
        real,intent(IN) :: dt,time
+       logical, intent(IN) :: dotiling
      end subroutine delep_detectBounce
   end interface
 

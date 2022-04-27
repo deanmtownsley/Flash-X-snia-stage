@@ -29,7 +29,7 @@ subroutine Deleptonize_init()
   use Logfile_interface, ONLY : Logfile_stampMessage, Logfile_stamp
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   implicit none
   logical :: threadBlockListBuild, threadWithinBlockBuild

@@ -1,4 +1,4 @@
-!!****if* source/physics/sourceTerms/Deleptonize/DeleptonizeMain/threadBlockList/delep_detectBounce
+!!****if* source/physics/sourceTerms/Deleptonize/DeleptonizeMain/delep_detectBounce
 !!
 !! NAME
 !!  
@@ -25,37 +25,33 @@
 !!  time       : current time
 !!
 !!***
+!!Novariants
+!!REORDER(4): Uin
 
-subroutine delep_detectBounce (blockCount,blockList,dt,time)
+subroutine delep_detectBounce (dotiling, dt,time)
 !
 !==============================================================================
 !
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   use Deleptonize_data, ONLY : delep_postBounce, delep_meshComm, delep_meshMe, &
        delep_bounceTime, delep_maxDens, delep_centralDens, delep_anteSonic, &
        delep_centralEntr
-  use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr, &
-       Grid_getBlkIndexLimits, Grid_getCellCoords
   use Logfile_interface, ONLY : Logfile_stampMessage
   !$ use omp_lib 
   use Timers_interface, ONLY : Timers_start, Timers_stop
-
+  @M iter_use
+  
   implicit none
-  include "Flash_mpi.h"
-  
-  integer,intent(IN) :: blockCount
-  integer,dimension(blockCount),intent(IN)::blockList
+  include "Flashx_mpi_implicitNone.fh"
   real,intent(IN) :: dt,time
+  logical,intent(IN) :: dotiling
   
-  real, pointer, dimension(:,:,:,:) :: solnData
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-
+  @M iter_declare
   integer,dimension(MDIM)  :: dimSize
   real,allocatable, dimension(:) :: xCenter, yCenter, zCenter
 
-  integer :: blockID
   integer :: i,j,k,n
   integer :: ierr
   logical :: threadBlockList
@@ -85,15 +81,15 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
 #endif
 
 
-!!$  if (delep_postBounce) return !bounce already detected
+  if (delep_postBounce) return !bounce already detected
 
   localMaxAnteS = 0.
 
   !$omp parallel if(threadBlockList) &
   !$omp default(none) &
-  !$omp private(n,i,j,k,blockID,blkLimits,blkLimitsGC,solnData,dimsize,xCenter,yCenter,zCenter,&
+  !$omp private(n,i,j,k,blkLimits,blkLimitsGC,Uin,dimsize,xCenter,yCenter,zCenter,&
   !$omp radius,imin,imax,jmin,jmax,kmin,kmax,sndSpd,velEsc,factor) &
-  !$omp shared(blockCount,blockList,localMaxDens,blkMaxDens,blkMaxEntr,blkMinEntr,blkAnteS,localMaxEntr,delep_postBounce,gcell)
+  !$omp shared(localMaxDens,blkMaxDens,blkMaxEntr,blkMinEntr,blkAnteS,localMaxEntr,delep_postBounce,gcell)
 
   blkMaxDens = 0.
   blkAnteS = 0.
@@ -103,11 +99,7 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
   localMaxDens = 0.
 
   !$omp do schedule(static) 
-  do n = 1, blockCount
-     blockID = blockList(n)
-
-     call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
-     call Grid_getBlkPtr(blockID,solnData)
+  @M iter_all_begin(LEAF,dotiling,blkLimits,blkLimitsGC)
 
      imin = blkLimits(LOW,IAXIS)
      imax = blkLimits(HIGH,IAXIS)
@@ -116,45 +108,37 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
      kmin = blkLimits(LOW,KAXIS)
      kmax = blkLimits(HIGH,KAXIS)
 
-     allocate(sndSpd(imax-imin+1,jmax-jmin+1,kmax-kmin+1))
-     allocate(velEsc(imax-imin+1,jmax-jmin+1,kmax-kmin+1))
-     allocate(factor(imax-imin+1,jmax-jmin+1,kmax-kmin+1))
+     allocate(sndSpd(@M bounds_3d(blkLimits)))
+     allocate(velEsc(@M bounds_3d(blkLimits)))
+     allocate(factor(@M bounds_3d(blkLimits)))
 
-     blkMaxDens(n) = maxval(solnData(DENS_VAR,imin:imax,&
-                               jmin:jmax,&
-                               kmin:kmax))
+     blkMaxDens(n) = maxval(Uin(DENS_VAR,(@M bounds_3d(blkLimits))))
 
 !!     localMaxDens = max(localMaxDens, blkMaxDens)
      if (delep_postBounce) then
 
-        factor = min(1.,max(0.,(solnData(DENS_VAR,imin:imax,jmin:jmax,kmin:kmax) - 1.0e7)))
+        factor = min(1.,max(0.,(Uin(DENS_VAR,@M bounds_3d(blkLimits)) - 1.0e7)))
         
-        sndSpd = sqrt(solnData(GAMC_VAR,imin:imax,jmin:jmax,kmin:kmax)*solnData(PRES_VAR,imin:imax,jmin:jmax,kmin:kmax) &
-                      /solnData(DENS_VAR,imin:imax,jmin:jmax,kmin:kmax)) * factor
-        velEsc = sqrt(-2.*solnData(GPOT_VAR,imin:imax,jmin:jmax,kmin:kmax))
+        sndSpd = sqrt(Uin(GAMC_VAR,@M bounds_3d(blkLimits))*Uin(PRES_VAR,@M bounds_3d(blkLimits)) &
+                      /Uin(DENS_VAR,@M bounds_3d(blkLimits))) * factor
+        velEsc = sqrt(-2.*Uin(GPOT_VAR,imin:imax,jmin:jmax,kmin:kmax))
 
-        blkAnteS(n) = maxval( (sndSpd/velEsc)**2 / solnData(GAMC_VAR,imin:imax,jmin:jmax,kmin:kmax) )
+        blkAnteS(n) = maxval( (sndSpd/velEsc)**2 / 0.19 / Uin(GAMC_VAR,@M bounds_3d(blkLimits)) )
 
      else
-        dimSize(:)=blkLimitsGC(HIGH,:)-blkLimitsGC(LOW,:)+1
         if (NDIM > 2)then
-           allocate(zCenter(dimSize(KAXIS)))
-           call Grid_getCellCoords(KAXIS,blockID,&
-                CENTER,gcell,zCenter,dimSize(KAXIS))
+           allocate(zCenter(@M bounds_k)))
+           call Grid_getCellCoords(KAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),zCenter)
         end if
         if (NDIM > 1)then
-           allocate(yCenter(dimSize(JAXIS)))
-           call Grid_getCellCoords(JAXIS,blockID,&
-                CENTER,gcell,yCenter,dimSize(JAXIS))
+           allocate(yCenter((@M bounds_j)))
+           call Grid_getCellCoords(JAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),yCenter)
         end if
         
-        allocate(xCenter(dimSize(IAXIS)))
-        call Grid_getCellCoords(IAXIS,blockID,&
-             CENTER,gcell,xCenter,dimSize(IAXIS))
+        allocate(xCenter(@M bounds_i)))
+        call Grid_getCellCoords(IAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),xCenter)
 
-        do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-           do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-              do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+        @M loop_3d(blkLimits)
                  
                  radius = xCenter(i)**2
 #if NDIM > 1
@@ -164,12 +148,12 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
 #endif
 #endif
                  radius = sqrt(radius)
-                 if (radius < 3.e6) blkMaxEntr(n) = max(blkMaxEntr(n), solnData(ENTR_VAR,i,j,k))
-                 if (radius < 3.e6) blkMinEntr(n) = min(blkMinEntr(n), solnData(ENTR_VAR,i,j,k))
+                 if (radius < 3.e6) blkMaxEntr(n) = max(blkMaxEntr(n), Uin(ENTR_VAR,i,j,k))
+                 if (radius < 3.e6) blkMinEntr(n) = min(blkMinEntr(n), Uin(ENTR_VAR,i,j,k))
               enddo
            enddo
         enddo
-
+        @M loop_end_3d
 !!        localMaxEntr = max(localMaxEntr, blkMaxEntr)
 
      deallocate(xCenter)
@@ -181,11 +165,10 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
 #endif
 
      endif
-     call Grid_releaseBlkPtr(blockID,solndata)
      deallocate(velEsc)
      deallocate(sndSpd)
      deallocate(factor)
-  enddo
+  @M iter_end   
   !$omp enddo
   !$omp end parallel
 
