@@ -7,19 +7,23 @@
 !!
 !! SYNOPSIS
 !!
-!!  Simulation_initBlock(integer(IN) :: blockID)
+!!  call Simulation_initBlock(real,pointer :: solnData(:,:,:,:),
+!!                            Grid_tile_t(IN)  :: tileDesc  )
 !!
 !!
-!! DESCRIPTION
 !!
-!! Initial conditions for Core Collapse SN problem
-!!
-!! ARGUMENTS
-!!
-!!  blockID - my block number
 !!
 !!***
-subroutine Simulation_initBlock(blockId)
+!!Novariants
+!!REORDER(4): Uin
+
+
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+#include "Multispecies.h"
+
+subroutine Simulation_initBlock(Uin,tileDesc)
 
     use Simulation_data
     use Driver_interface, ONLY: Driver_abort
@@ -27,12 +31,11 @@ subroutine Simulation_initBlock(blockId)
     use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar, Eos
     use Multispecies_interface, ONLY: Multispecies_getSumFrac, Multispecies_getSumInv, Multispecies_getSum 
     use Timers_interface, ONLY: Timers_start, Timers_stop
-    @M iter_use
+    use Grid_interface, ONLY : Grid_getCellCoords, &
+                             Grid_getCellVolumes, &
+                             Grid_subcellGeometry
+    @M tileDesc_use
 
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
-#include "Multispecies.h"
 
 #ifdef FLASH_M1
     use rt_m1_interface, ONLY: rt_m1_setinitial, rt_m1_getVarIndices
@@ -44,18 +47,17 @@ subroutine Simulation_initBlock(blockId)
 
     implicit none
 
-    integer, intent(IN) :: blockID
+    real,              pointer    :: Uin(:,:,:,:)
+    @M tileDesc_arg
 
     real, allocatable, dimension(:) :: xCenter, xLeft, xRight
     real, allocatable, dimension(:) :: yCenter, yLeft, yRight
     real, allocatable, dimension(:) :: zCenter, zLeft, zRight
     real, allocatable, dimension(:, :, :) :: Ax, Ay, Az
-    real, dimension(MDIM) :: delta
     real :: dx, dy, dz
 
-    integer, dimension(LOW:HIGH, MDIM)::blkLimits, blkLimitsGC, limits
-    integer :: iSize, jSize, kSize
-    integer :: iSizeGC, jSizeGC, kSizeGC
+    @M tileDesc_declare(blkLimits,blkLimitsGC,tileLimits,grownTileLimits)
+    integer, dimension(LOW:HIGH, MDIM)::limits
 
     integer :: meshGeom
 
@@ -78,68 +80,53 @@ subroutine Simulation_initBlock(blockId)
     real :: abar, zbar, sumY, Ye, zbarFrac
 
     call Timers_start("initBlock")
-
-    call Grid_getBlkIndexLimits(blockID, blkLimits, blkLimitsGC)
-    iSizeGC = blkLimitsGC(HIGH, IAXIS) - blkLimitsGC(LOW, IAXIS) + 1
-    jSizeGC = blkLimitsGC(HIGH, JAXIS) - blkLimitsGC(LOW, JAXIS) + 1
-    kSizeGC = blkLimitsGC(HIGH, KAXIS) - blkLimitsGC(LOW, KAXIS) + 1
-
-    iSize = blkLimits(HIGH, IAXIS) - blkLimits(LOW, IAXIS) + 1
-    jSize = blkLimits(HIGH, JAXIS) - blkLimits(LOW, JAXIS) + 1
-    kSize = blkLimits(HIGH, KAXIS) - blkLimits(LOW, KAXIS) + 1
-
+    
+    @M tileDesc_get(blkLimits,blkLimitsGC,tileLimits,grownTileLimits)
+    
   !! allocate all needed space
-    allocate (xCenter(iSizeGC), STAT=istat)
-    allocate (xLeft(iSizeGC), STAT=istat)
-    allocate (xRight(iSizeGC), STAT=istat)
-    allocate (yCenter(jSizeGC), STAT=istat)
-    allocate (yLeft(jSizeGC), STAT=istat)
-    allocate (yRight(jSizeGC), STAT=istat)
-    allocate (zCenter(kSizeGC), STAT=istat)
-    allocate (zLeft(kSizeGC), STAT=istat)
-    allocate (zRight(kSizeGC), STAT=istat)
+    allocate (xCenter(@M bounds_i(grownTileLimits), STAT=istat)
+    allocate (xLeft(@M bounds_i(grownTileLimits), STAT=istat)
+    allocate (xRight(@M bounds_i(grownTileLimits), STAT=istat)
+    allocate (yCenter(@M bounds_j(grownTileLimits), STAT=istat)
+    allocate (yLeft(@M bounds_j(grownTileLimits), STAT=istat)
+    allocate (yRight(@M bounds_j(grownTileLimits), STAT=istat)
+    allocate (zCenter(@M bounds_k(grownTileLimits), STAT=istat)
+    allocate (zLeft(@M bounds_k(grownTileLimits), STAT=istat)
+    allocate (zRight(@M bounds_k(grownTileLimits), STAT=istat)
 
 #ifdef MAGX_VAR
-    allocate (Ax(iSizeGC + 1, jSizeGC + 1, kSizeGc + 1), STAT=istat)
-    allocate (Ay(iSizeGC + 1, jSizeGC + 1, kSizeGC + 1), STAT=istat)
-    allocate (Az(iSizeGC + 1, jSizeGC + 1, kSizeGC + 1), STAT=istat)
+    allocate (Ax(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
+    allocate (Ay(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
+    allocate (Az(@M bounds_3d_plus(grownTileLimits,1,1,1), STAT=istat)
 #endif
 
     xCenter(:) = 0.e0
     yCenter(:) = 0.e0
-    zCenter(:) = 0.e0
+    zCenter(:) = 0.e
+    dx = deltas(IAXIS)
+    dy = deltas(JAXIS)
+    dz = deltas(KAXIS)
 
-    call Grid_getDeltas(blockId, delta)
-    dx = delta(IAXIS)
-    dy = delta(JAXIS)
-    dz = delta(KAXIS)
-
-    call Grid_getBlkPtr(blockID, solnData, CENTER)
     call Grid_getGeometry(meshGeom)
 
     !we need to test for initial rad data.
     haveInitialRadData = .false.
 
     ! setup random seed
-    call srand(rnd_seed + blockID)
+    call srand(rnd_seed + tileDesc%id)
 
-#if NFACE_VARS>0
-    call Grid_getBlkPtr(blockID, facexData, FACEX)
-    call Grid_getBlkPtr(blockID, faceyData, FACEY)
-    if (NDIM == 3) call Grid_getBlkPtr(blockID, facezData, FACEZ)
-#endif
 
-    call Grid_getCellCoords(IAXIS, blockID, CENTER, .true., xCenter, iSizeGC)
-    call Grid_getCellCoords(IAXIS, blockID, LEFT_EDGE, .true., xLeft, iSizeGC)
-    call Grid_getCellCoords(IAXIS, blockID, RIGHT_EDGE, .true., xRight, iSizeGC)
+    call Grid_getCellCoords(IAXIS,  CENTER, level, grownTileLimits(LOW,  :),grownTileLimits(HIGH, :),xCenter)
+    call Grid_getCellCoords(IAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), xLeft)
+    call Grid_getCellCoords(IAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), xRight)
 #if NDIM>1
-    call Grid_getCellCoords(JAXIS, blockID, CENTER, .true., yCenter, jSizeGC)
-    call Grid_getCellCoords(JAXIS, blockID, LEFT_EDGE, .true., yLeft, jSizeGC)
-    call Grid_getCellCoords(JAXIS, blockID, RIGHT_EDGE, .true., yRight, jSizeGC)
+    call Grid_getCellCoords(JAXIS,  CENTER, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yCenter)
+    call Grid_getCellCoords(JAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yLeft)
+    call Grid_getCellCoords(JAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yRight)
 #if NDIM==3
-    call Grid_getCellCoords(KAXIS, blockID, CENTER, .true., zCenter, kSizeGC)
-    call Grid_getCellCoords(KAXIS, blockID, LEFT_EDGE, .true., zLeft, kSizeGC)
-    call Grid_getCellCoords(KAXIS, blockID, RIGHT_EDGE, .true., zRight, kSizeGC)
+    call Grid_getCellCoords(KAXIS,  CENTER, level, grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zCenter)
+    call Grid_getCellCoords(KAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zLeft)
+    call Grid_getCellCoords(KAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zRight)
 #endif
 #endif
 
@@ -151,10 +138,10 @@ subroutine Simulation_initBlock(blockId)
 #endif
 
 #ifdef BDRY_VAR
-    solnData(BDRY_VAR, :, :, :) = -1.0
+    Uin(BDRY_VAR, :, :, :) = -1.0
 #endif
 #ifdef SHOK_VAR
-    solnData(SHOK_VAR, :, :, :) = 0.
+    Uin(SHOK_VAR, :, :, :) = 0.
 #endif
 
     ! Limits for the i,j,k loop based on dimensionality
@@ -168,9 +155,7 @@ subroutine Simulation_initBlock(blockId)
     !$omp private(i,j,k,rcc)
 
     !$omp do schedule(guided) collapse(3)
-    do k = limits(LOW, KAXIS), limits(HIGH, KAXIS)
-        do j = limits(LOW, JAXIS), limits(HIGH, JAXIS)
-            do i = limits(LOW, IAXIS), limits(HIGH, IAXIS)
+    @M loop_3d(limits)
 
                 ! Computing radius is geometry dependent
                 ! Note that at present this routines assumes that ALL 1D sims
@@ -195,55 +180,48 @@ subroutine Simulation_initBlock(blockId)
 
                     ! Apply random perturbations
                     if (use_randomperts) then
-                        solnData(DENS_VAR, i, j, k) = solnData(DENS_VAR, i, j, k) &
+                        Uin(DENS_VAR, i, j, k) = Uin(DENS_VAR, i, j, k) &
                                                       *(1.0d0 + rnd_scale*(rand()*2.0d0 - 1.0d0))
                     end if
 
                 else
                     ! Out in the wind
-                    solnData(:, i, j, k) = model_1d(n1d_total, :)
+                    Uin(:, i, j, k) = model_1d(n1d_total, :)
                 end if
 
 #ifdef SUMY_MSCALAR
                 !if SUMY_MSCALAR exists, need to make sure it is non-zero.
                 !But don't want to overwrite values from file.
-                if (solnData(SUMY_MSCALAR, i, j, k) == 0.0d0) then
-                    solnData(SUMY_MSCALAR, i, j, k) = 1.0
+                if (Uin(SUMY_MSCALAR, i, j, k) == 0.0d0) then
+                    Uin(SUMY_MSCALAR, i, j, k) = 1.0
                 end if
 #endif
-            end do
-        end do
-    end do
+    @M loop_end_3d
     !$omp end do
     !$omp end parallel
 
     ! renormalize the abundances -- interpolation can do wacky things to them
 #if NSPECIES>0
-    call Grid_renormAbundance(blockID, limits, solnData)
-    do k = limits(LOW, KAXIS), limits(HIGH, KAXIS)
-        do j = limits(LOW, JAXIS), limits(HIGH, JAXIS)
-            do i = limits(LOW, IAXIS), limits(HIGH, IAXIS)
+    call Grid_renormAbundance(blockID, limits, Uin)
+    @M loop_3d(limits)
                 ! put all H1 in protons. The redundancy confuses me....
-                solnData(PROT_SPEC, i, j, k) = solnData(PROT_SPEC, i, j, k) + solnData(H1_SPEC, i, j, k)
-                solnData(H1_SPEC, i, j, k) = 0.0
+                Uin(PROT_SPEC, i, j, k) = Uin(PROT_SPEC, i, j, k) + Uin(H1_SPEC, i, j, k)
+                Uin(H1_SPEC, i, j, k) = 0.0
 #ifdef SUMY_MSCALAR
-                call Multispecies_getSumInv(A, sumY, solnData(SPECIES_BEGIN:SPECIES_END, i, j, k))
-                call Multispecies_getSumFrac(Z, zbarFrac, solnData(SPECIES_BEGIN:SPECIES_END, i, j, k))
+                call Multispecies_getSumInv(A, sumY, Uin(SPECIES_BEGIN:SPECIES_END, i, j, k))
+                call Multispecies_getSumFrac(Z, zbarFrac, Uin(SPECIES_BEGIN:SPECIES_END, i, j, k))
                 zbar = zbarFrac/sumY
                 Ye = zbar*sumY
-                solnData(SUMY_MSCALAR, i, j, k) = sumY
-                solnData(YE_MSCALAR, i, j, k) = Ye
+                Uin(SUMY_MSCALAR, i, j, k) = sumY
+                Uin(YE_MSCALAR, i, j, k) = Ye
 #endif
 #ifdef EBIN_VAR
-                call Burn_computeEbin(solnData(SPECIES_BEGIN:SPECIES_END, i, j, k), solnData(EBIN_VAR, i, j, k))
+                call Burn_computeEbin(Uin(SPECIES_BEGIN:SPECIES_END, i, j, k), Uin(EBIN_VAR, i, j, k))
 #endif
-            end do
-        end do
-    end do
+    @M loop_end_3d            
 #endif
     ! now make the thermodynamics of this zone consistent !! Don't need this here; done after init_block
 !   call Eos_wrapped(MODE_DENS_PRES,limits,blockID)
-    call Grid_releaseBlkPtr(blockID, solnData, CENTER)
 
     deallocate (xLeft)
     deallocate (xRight)
@@ -273,9 +251,9 @@ contains
 #ifdef FLASH_M1
 
         ! Save the velocities into the previous step data arrays
-        solnData(PVLX_VAR, i, j, k) = solnData(VELX_VAR, i, j, k)
-        solnData(PVLY_VAR, i, j, k) = solnData(VELY_VAR, i, j, k)
-        solnData(PVLZ_VAR, i, j, k) = solnData(VELZ_VAR, i, j, k)
+        Uin(PVLX_VAR, i, j, k) = Uin(VELX_VAR, i, j, k)
+        Uin(PVLY_VAR, i, j, k) = Uin(VELY_VAR, i, j, k)
+        Uin(PVLZ_VAR, i, j, k) = Uin(VELZ_VAR, i, j, k)
 
         ! Initialize Ynu
         ynu = 0.
@@ -283,11 +261,11 @@ contains
         do ivar = 1, NUNK_VARS
             ! First, set ynu
             if (ivar .ge. eeStart .and. ivar .le. eeStart + NGROUPS - 1) then
-                ynu = ynu + 4.0d0*PI*solnData(ivar, i, j, k)/ &
+                ynu = ynu + 4.0d0*PI*Uin(ivar, i, j, k)/ &
                       nulibtable_energies(ivar - eeStart + 1)*(amu_cgs*mass_gf)
             end if
             if (ivar .ge. eaStart .and. ivar .le. eaStart + NGROUPS - 1) then
-                ynu = ynu - 4.0d0*PI*solnData(ivar, i, j, k)/ &
+                ynu = ynu - 4.0d0*PI*Uin(ivar, i, j, k)/ &
                       nulibtable_energies(ivar - eaStart + 1)*(amu_cgs*mass_gf)
             end if
 
@@ -295,7 +273,7 @@ contains
             !total flux, partition appropiately, like the
             !velocities, but first we need to figure out if
             !the variable is a f* or a g* variable.
-            var_sum = solnData(ivar, i, j, k)
+            var_sum = Uin(ivar, i, j, k)
 
             if (NDIM == 1) then
                 ! this check should be moved to Simulation_init...
@@ -314,8 +292,8 @@ contains
                 if (ivar .ge. fieStart .and. ivar .le. fieStart + NGROUPS - 1) then
                     !ivar is an x momentum for electron neutrinos
                     !do both x and y mom when ivar is an x momentum
-                    solnData(ivar, i, j, k) = var_sum*cos(angle)
-                    solnData(fjeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle)
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle)
 
                     ! this check should be moved to Simulation_init...
                     if (var_sum .gt. 1.0d-100) then
@@ -326,13 +304,13 @@ contains
                 else if (ivar .ge. fiaStart .and. ivar .le. fiaStart + NGROUPS - 1) then
                     !ivar is an x momentum for electron anti neutrinos
                     !do both x and y mom when ivar is an x momentum
-                    solnData(ivar, i, j, k) = var_sum*cos(angle)
-                    solnData(fjaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle)
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle)
                 else if (ivar .ge. fixStart .and. ivar .le. fixStart + NGROUPS - 1) then
                     !ivar is an x momentum for x neutrinos
                     !do both x and y mom when ivar is an x momentum
-                    solnData(ivar, i, j, k) = var_sum*cos(angle)
-                    solnData(fjxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle)
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle)
                 end if
             elseif (NDIM == 3) then
                 ! first decompose the vectors into a z component and an 'xy' component
@@ -353,9 +331,9 @@ contains
                     !ivar is an x momentum for electron neutrinos
                     !do x, y, and z mom when ivar is an x momentum
                     v_xy = var_sum*cos(angle_z)
-                    solnData(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
-                    solnData(fjeStart + (ivar - fieStart), i, j, k) = sign*v_xy*sin(angle_xy)
-                    solnData(fkeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjeStart + (ivar - fieStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle_z)
 
                     !$omp critical
                     if (var_sum .gt. 1.0d-100) then
@@ -368,73 +346,73 @@ contains
                     !ivar is an x momentum for electron anti neutrinos
                     !do x, y, and z mom when ivar is an x momentum
                     v_xy = var_sum*cos(angle_z)
-                    solnData(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
-                    solnData(fjaStart + (ivar - fiaStart), i, j, k) = sign*v_xy*sin(angle_xy)
-                    solnData(fkaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjaStart + (ivar - fiaStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle_z)
 
                 else if (ivar .ge. fixStart .and. ivar .le. fixStart + NGROUPS - 1) then
                     !ivar is an x momentum for x neutrinos
                     !do x, y, and z mom when ivar is an x momentum
                     v_xy = var_sum*cos(angle_z)
-                    solnData(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
-                    solnData(fjxStart + (ivar - fixStart), i, j, k) = sign*v_xy*sin(angle_xy)
-                    solnData(fkxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjxStart + (ivar - fixStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle_z)
                 end if
             end if
         end do
         if (haveInitialRadData) then
 #ifdef YNU_VAR
-            solnData(YNU_VAR, i, j, k) = ynu/(solnData(DENS_VAR, i, j, k)*rho_gf)
+            Uin(YNU_VAR, i, j, k) = ynu/(Uin(DENS_VAR, i, j, k)*rho_gf)
 #endif
 #ifdef NNUE_VAR
             !number of neutrino per cm^3 / 1e-51
-            solnData(NNUE_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
-                                          sum(solnData(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+            Uin(NNUE_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
 #endif
 #ifdef NNUA_VAR
             !number of neutrino per cm^3 / 1e-51
-            solnData(NNUA_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
-                                          sum(solnData(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+            Uin(NNUA_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
 #endif
 #ifdef NNUX_VAR
             !number of neutrino per cm^3 / 1e-51
-            solnData(NNUX_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
-                                          sum(solnData(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+            Uin(NNUX_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
 #endif
 
 #ifdef ENUE_VAR
             !ave energy in Mev
-            solnData(ENUE_VAR, i, j, k) = sum(solnData(eeStart:eestart + NGROUPS - 1, i, j, k))/ &
-                                      (nulib_energy_gf*sum(solnData(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+            Uin(ENUE_VAR, i, j, k) = sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
 #endif
 #ifdef ENUA_VAR
             !ave energy in Mev
-            solnData(ENUA_VAR, i, j, k) = sum(solnData(eaStart:eastart + NGROUPS - 1, i, j, k))/ &
-                                      (nulib_energy_gf*sum(solnData(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+            Uin(ENUA_VAR, i, j, k) = sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
 #endif
 #ifdef ENUX_VAR
             !ave energy in Mev
-            solnData(ENUX_VAR, i, j, k) = sum(solnData(exStart:exstart + NGROUPS - 1, i, j, k))/ &
-                                      (nulib_energy_gf*sum(solnData(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+            Uin(ENUX_VAR, i, j, k) = sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
 #endif
 
 #ifdef RNUE_VAR
             !rms energy in Mev
-            solnData(RNUE_VAR, i, j, k) = sqrt(sum(solnData(eeStart:eestart + NGROUPS - 1, i, j, k)* &
+            Uin(RNUE_VAR, i, j, k) = sqrt(sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)* &
                                                    nulibtable_energies(:))/(nulib_energy_gf**2* &
-                                                      sum(solnData(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+                                                      sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
 #endif
 #ifdef RNUA_VAR
             !rms energy in Mev
-            solnData(RNUA_VAR, i, j, k) = sqrt(sum(solnData(eaStart:eastart + NGROUPS - 1, i, j, k)* &
+            Uin(RNUA_VAR, i, j, k) = sqrt(sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)* &
                                                    nulibtable_energies(:))/(nulib_energy_gf**2* &
-                                                      sum(solnData(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+                                                      sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
 #endif
 #ifdef RNUX_VAR
             !rms energy in Mev
-            solnData(RNUX_VAR, i, j, k) = sqrt(sum(solnData(exStart:exstart + NGROUPS - 1, i, j, k)* &
+            Uin(RNUX_VAR, i, j, k) = sqrt(sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)* &
                                                    nulibtable_energies(:))/(nulib_energy_gf**2* &
-                                                      sum(solnData(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+                                                      sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
 #endif
         end if
 #endif
@@ -445,20 +423,20 @@ contains
         integer, intent(IN) :: i, j, k
 #if NDIM>1
 #ifdef SPARK_GLM
-        solnData(MAGX_VAR, i, j, k) = (Az(i, j + 1, k) - Az(i, j - 1, k))/(2.*dy)
+        Uin(MAGX_VAR, i, j, k) = (Az(i, j + 1, k) - Az(i, j - 1, k))/(2.*dy)
 #if NDIM==3
-        solnData(MAGY_VAR, i, j, k) = (Ax(i, j, k + 1) - Ax(i, j, k - 1))/(2.*dz) &
+        Uin(MAGY_VAR, i, j, k) = (Ax(i, j, k + 1) - Ax(i, j, k - 1))/(2.*dz) &
                                       - (Az(i + 1, j, k) - Az(i - 1, j, k))/(2.*dx)
-        solnData(MAGZ_VAR, i, j, k) = -(Ax(i, j + 1, k) - Ax(i, j - 1, k))/(2.*dy)
+        Uin(MAGZ_VAR, i, j, k) = -(Ax(i, j + 1, k) - Ax(i, j - 1, k))/(2.*dy)
 #else
-        solnData(MAGY_VAR, i, j, k) = (xCenter(i + 1)*Az(i + 1, j, k) &
+        Uin(MAGY_VAR, i, j, k) = (xCenter(i + 1)*Az(i + 1, j, k) &
                                        - xCenter(i - 1)*Az(i - 1, j, k))/(2.*dx*xCenter(i))
-        solnData(MAGZ_VAR, i, j, k) = 0.
+        Uin(MAGZ_VAR, i, j, k) = 0.
 #endif
         ! Compute magnetic pressure assuming Gaussian CGS units.
-        solnData(MAGP_VAR, i, j, k) = (solnData(MAGX_VAR, i, j, k)**2 + &
-                                       solnData(MAGY_VAR, i, j, k)**2 + solnData(MAGZ_VAR, i, j, k)**2)/(8.*PI)
-        solnData(DIVB_VAR, i, j, k) = 0.0
+        Uin(MAGP_VAR, i, j, k) = (Uin(MAGX_VAR, i, j, k)**2 + &
+                                       Uin(MAGY_VAR, i, j, k)**2 + Uin(MAGZ_VAR, i, j, k)**2)/(8.*PI)
+        Uin(DIVB_VAR, i, j, k) = 0.0
 #endif
 #endif
     end subroutine initBfield
@@ -473,9 +451,7 @@ contains
         Ay = 0.
         Az = 0.
         zLoc = 0.
-        do k = blkLimitsGC(LOW, KAXIS), blkLimitsGC(HIGH, KAXIS)
-            do j = blkLimitsGC(LOW, JAXIS), blkLimitsGC(HIGH, JAXIS)
-                do i = blkLimitsGC(LOW, IAXIS), blkLimitsGC(HIGH, IAXIS)
+        @M loop_3d(blkLimitsGC)
 
                     ! TODO: think about units of B....
                     ! Ax, Az will be defined at cell centers
@@ -500,9 +476,7 @@ contains
 
                     ! Ay is zero for this potential
                     Ay(i, j, k) = 0.0
-                end do
-            end do
-        end do
+        @M loop_end_3d
 #endif
     end subroutine computeVecPot
 
@@ -533,11 +507,11 @@ contains
         ! Angular velocity from 1D model stored in VELZ_VAR
         ! Fix the velocities. Compute the angle from xCenter and yCenter
         ! and find the x and y compontents of the velocity
-        vtot = sim_velMult*solnData(VELX_VAR, i, j, k)
-        vrot = sim_velRotFac*solnData(VELZ_VAR, i, j, k)
+        vtot = sim_velMult*Uin(VELX_VAR, i, j, k)
+        vrot = sim_velRotFac*Uin(VELZ_VAR, i, j, k)
         if (NDIM == 1) then
-            solnData(VELX_VAR, i, j, k) = vtot
-            solnData(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
+            Uin(VELX_VAR, i, j, k) = vtot
+            Uin(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
                                                       sim_rotOmega/(1.+(xCenter(i)/sim_rotA)**2))
         elseif (NDIM == 2) then
             if (xCenter(i) .NE. 0) then
@@ -545,9 +519,9 @@ contains
             else
                 angle = PI/2.
             end if
-            solnData(VELX_VAR, i, j, k) = vtot*cos(angle)
-            solnData(VELY_VAR, i, j, k) = vtot*sin(angle)
-            solnData(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
+            Uin(VELX_VAR, i, j, k) = vtot*cos(angle)
+            Uin(VELY_VAR, i, j, k) = vtot*sin(angle)
+            Uin(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
                                                       sim_rotOmega/(1.+(rcc/sim_rotA)**2))
         elseif (NDIM == 3) then
             ! first decompose the velocity into a z component and an 'xy' component
@@ -557,7 +531,7 @@ contains
             else
                 angle = PI/2.
             end if
-            solnData(VELZ_VAR, i, j, k) = vtot*sin(angle)*sim_velMult
+            Uin(VELZ_VAR, i, j, k) = vtot*sin(angle)*sim_velMult
             v_xy = vtot*cos(angle)
             if (xCenter(i) /= 0.0) then
                 angle = atan(yCenter(j)/xCenter(i))
@@ -565,8 +539,8 @@ contains
                 angle = PI/2.0
             end if
             sign = xCenter(i)/abs(xCenter(i))
-            solnData(VELX_VAR, i, j, k) = sign*v_xy*cos(angle)*sim_velMult
-            solnData(VELY_VAR, i, j, k) = sign*v_xy*sin(angle)*sim_velMult
+            Uin(VELX_VAR, i, j, k) = sign*v_xy*cos(angle)*sim_velMult
+            Uin(VELY_VAR, i, j, k) = sign*v_xy*sin(angle)*sim_velMult
             ! Add some rotation.
             if (xCenter(i) /= 0.0) then
                 phi = atan(zCenter(k)/xCenter(i))
@@ -575,8 +549,8 @@ contains
             end if
             r_xz = sqrt(xCenter(i)**2 + zCenter(k)**2)
             vphi = r_xz*(vrot + sim_rotOmega/(1.+(rcc/sim_rotA)**2))
-            solnData(VELX_VAR, i, j, k) = solnData(VELX_VAR, i, j, k) - sign*sin(phi)*vphi
-            solnData(VELZ_VAR, i, j, k) = solnData(VELZ_VAR, i, j, k) + sign*cos(phi)*vphi
+            Uin(VELX_VAR, i, j, k) = Uin(VELX_VAR, i, j, k) - sign*sin(phi)*vphi
+            Uin(VELZ_VAR, i, j, k) = Uin(VELZ_VAR, i, j, k) + sign*cos(phi)*vphi
         end if
     end subroutine fixVelocity
 
@@ -646,7 +620,7 @@ contains
 #endif
                         ! add the subzone's contribution to entire zone's total -- taking into
                         ! account the geometrical weighting
-                        solnData(ivar, i, j, k) = solnData(ivar, i, j, k) + var_interp*dvol
+                        Uin(ivar, i, j, k) = Uin(ivar, i, j, k) + var_interp*dvol
                     end do
 
                 end do
@@ -667,7 +641,7 @@ contains
             vol = float(nsub**NDIM) !4.0*PI*xCenter(i)**2*dx
         end if
         ! divide by the volume of the entire zone to get the average
-        solnData(:, i, j, k) = solnData(:, i, j, k)/vol
+        Uin(:, i, j, k) = Uin(:, i, j, k)/vol
     end subroutine interpVars
 
     subroutine computeRadius(i, j, k, rcc)
