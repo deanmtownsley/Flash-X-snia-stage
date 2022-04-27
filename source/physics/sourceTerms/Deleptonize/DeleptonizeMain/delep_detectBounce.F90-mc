@@ -127,15 +127,15 @@ subroutine delep_detectBounce (dotiling, dt,time)
 
      else
         if (NDIM > 2)then
-           allocate(zCenter(@M bounds_k)))
+           allocate(zCenter(@M bounds_k(grownLimits)))
            call Grid_getCellCoords(KAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),zCenter)
         end if
         if (NDIM > 1)then
-           allocate(yCenter((@M bounds_j)))
+           allocate(yCenter(@M bounds_j(grownLimits)))
            call Grid_getCellCoords(JAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),yCenter)
         end if
         
-        allocate(xCenter(@M bounds_i)))
+        allocate(xCenter(@M bounds_i(grownLimits))))
         call Grid_getCellCoords(IAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),xCenter)
 
         @M loop_3d(blkLimits)
