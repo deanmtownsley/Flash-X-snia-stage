@@ -175,5 +175,6 @@ subroutine Hydro_init()
   if (hy_units /= "NONE" .AND. hy_units /= "none") then
     hy_bref = sqrt(4.0*PI)
   end if
-
+  call RuntimeParameters_get("telescoping",hy_useTelescoping)  
+  
 end subroutine Hydro_init

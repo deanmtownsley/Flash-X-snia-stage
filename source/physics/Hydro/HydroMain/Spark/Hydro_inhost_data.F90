@@ -24,5 +24,4 @@ module Hydro_inhost_data
   real,  allocatable,target :: hy_flat3d(:,:,:)
   real,  allocatable,target :: hy_pgrv(:)
   real,  allocatable,target :: hy_pshck(:)
-  real, allocatable, target :: hy_tmpState(:,:,:,:)
 end module Hydro_inhost_data
