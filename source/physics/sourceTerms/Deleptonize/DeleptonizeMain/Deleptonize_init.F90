@@ -50,7 +50,7 @@ subroutine Deleptonize_init()
   call RuntimeParameters_get("delep_yTwo", delep_yTwo)
   call RuntimeParameters_get("delep_yc", delep_yc)
 
-  call RuntimeParameters_get("useHeat", delep_useCool)
+!   call RuntimeParameters_get("useHeat", delep_useCool)
   call RuntimeParameters_get("useEntr", delep_useEntr)
 
   delep_minDens = 1.0e6
