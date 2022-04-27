@@ -3,6 +3,7 @@
 *.o
 *~
 *.sif
+*.mod
 # Dirs
 build/
 sites/ares/
