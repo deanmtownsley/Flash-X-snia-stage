@@ -56,7 +56,7 @@ subroutine Deleptonize(dotiling, dt, time)
     logical, intent(IN) :: dotiling
 
     real, pointer, dimension(:, :, :, :) :: Uin
-    @M iter_declare
+    @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
     integer :: i, j, k, n
     integer :: err
     real :: xDens, xTemp, xEner, xEntr, xYe, outYe
