@@ -9,6 +9,7 @@ REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
 REQUESTS flashUtilities/model1D
 REQUESTS Simulation/SimulationComposition
 REQUESTS Multispecies
+REQUESTS flashUtilities/interpolation/oneDim 
 
 D nsub	  number of sub-sampling points for mapping of 1D model
 PARAMETER nsub		INTEGER 4

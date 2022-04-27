@@ -83,7 +83,7 @@ subroutine gr_mpoleMom3Dcartesian (idensvar)
 
   real    :: bndBox (LOW:HIGH,1:MDIM)
 
-  @M iter_declare(tileLimits,tileLimitsGC)
+  @M iter_declare(tileLimits,tileLimitsGC,grownLimits)
 !
 !
 !     ...The first pass over all tiles on the current processor will get us information
