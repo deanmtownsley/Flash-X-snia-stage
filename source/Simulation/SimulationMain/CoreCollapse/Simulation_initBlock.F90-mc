@@ -169,8 +169,8 @@ subroutine Simulation_initBlock(Uin,tileDesc)
                     call fixVelocity(i, j, k, rcc)
 
                     ! Add some perturbations
-                    if (sim_usePerturb) &
-                        call addPerturb(i, j, k, rcc)
+!!$                    if (sim_usePerturb) &
+!!$                        call addPerturb(i, j, k, rcc)
 
                     ! Compute initial B field from curl of vector potential
                     call initBfield(i, j, k)
