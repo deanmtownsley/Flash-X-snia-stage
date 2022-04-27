@@ -53,7 +53,7 @@ PP      = -D
 #OPENMP = -fopenmp
 
 FFLAGS_OPT = -c -g -O3 -fdefault-real-8 -fdefault-double-8 -ffree-line-length-none \
--Wuninitialized -march=native 
+-Wuninitialized -march=native -I ${HDF5_PATH}/include  -DH5_USE_18_API -I/usr/local/opt/lapack/include
 
 #FFLAGS_DEBUG = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 #-ffree-line-length-none -pedantic -Wall -Wextra -Waliasing \
@@ -72,7 +72,7 @@ FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 FFLAGS_TEST = -c -fdefault-real-8 -fdefault-double-8 -ffree-line-length-none
 
-F90FLAGS = -I ${HDF5_PATH}/include  -I/usr/local/opt/lapack/include
+F90FLAGS = -I ${HDF5_PATH}/include  -DH5_USE_18_API -I/usr/local/opt/lapack/include
 
 CFLAGS_OPT = -O3  -c -DDarwin
 CFLAGS_DEBUG = -ggdb -c -Wno-div-by-zero -Wundef  \

@@ -25,7 +25,7 @@ subroutine Deleptonize_init()
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Deleptonize_data
-  use Driver_interface, ONLY : Driver_getComm, Driver_getMype, Driver_abortFlash
+  use Driver_interface, ONLY : Driver_getComm, Driver_getMype, Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage, Logfile_stamp
 
 #include "constants.h"

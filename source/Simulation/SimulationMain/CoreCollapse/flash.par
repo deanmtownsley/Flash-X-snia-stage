@@ -124,7 +124,7 @@ mpole_useEffectivePot          = False
 mpole_EffPotNum 	       = 1000
 
 # EOS
-eos_file = "SFHo.h5"
+eos_file                       = "wl-EOS-SFHo-15-25-50-noBCK.h5"
 eosMode                        = "dens_ie"
 eosModeInit                    = "dens_temp"
 
@@ -136,7 +136,7 @@ delep_rhoTwo		       = 2.0e13 #2.0e13
 delep_yOne		       = 0.5
 delep_yTwo		       = 0.278 #0.278
 delep_yc		       = 0.035 #0.035
-useEntr 		       = .true.
+useEntr 		       = False
 delep_fromFile		       = .false.
 delep_file		       = "yeOfRho.dat"
 

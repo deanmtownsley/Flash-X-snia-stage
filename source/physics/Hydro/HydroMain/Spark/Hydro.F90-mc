@@ -170,7 +170,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call @M hy_update_name(@M hy_update_call_args)
            call Timers_stop("updateSoln")
            
-#if NSPECIES+NMASS_SCALARS>0
+#if NSPECIES>0
            !Properly normalize species after the update
            @M hy_renormAbundance
 #endif 
@@ -317,7 +317,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
-#if NSPECIES+NMASS_SCALARS>0
+#if NSPECIES>0
               @M hy_renormAbundance
 #endif 
               

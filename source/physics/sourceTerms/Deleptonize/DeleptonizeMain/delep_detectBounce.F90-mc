@@ -43,8 +43,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
   use Timers_interface, ONLY : Timers_start, Timers_stop
   @M iter_use
   
-  implicit none
-  include "Flashx_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   real,intent(IN) :: dt,time
   logical,intent(IN) :: dotiling
   
@@ -112,7 +111,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
      allocate(velEsc(@M bounds_3d(blkLimits)))
      allocate(factor(@M bounds_3d(blkLimits)))
 
-     blkMaxDens(n) = maxval(Uin(DENS_VAR,(@M bounds_3d(blkLimits))))
+     blkMaxDens(n) = maxval(Uin(DENS_VAR,@M bounds_3d(blkLimits)))
 
 !!     localMaxDens = max(localMaxDens, blkMaxDens)
      if (delep_postBounce) then
@@ -135,7 +134,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
            call Grid_getCellCoords(JAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),yCenter)
         end if
         
-        allocate(xCenter(@M bounds_i(grownLimits))))
+        allocate(xCenter(@M bounds_i(grownLimits)))
         call Grid_getCellCoords(IAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),xCenter)
 
         @M loop_3d(blkLimits)
@@ -150,9 +149,6 @@ subroutine delep_detectBounce (dotiling, dt,time)
                  radius = sqrt(radius)
                  if (radius < 3.e6) blkMaxEntr(n) = max(blkMaxEntr(n), Uin(ENTR_VAR,i,j,k))
                  if (radius < 3.e6) blkMinEntr(n) = min(blkMinEntr(n), Uin(ENTR_VAR,i,j,k))
-              enddo
-           enddo
-        enddo
         @M loop_end_3d
 !!        localMaxEntr = max(localMaxEntr, blkMaxEntr)
 

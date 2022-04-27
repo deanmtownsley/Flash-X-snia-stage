@@ -48,3 +48,6 @@ PARAMETER rnd_scale REAL 0.000
 
 D velRotFac     Multiplicative factor on rotational velocity
 PARAMETER velRotFac     REAL 1.0
+
+DATAFILES ../../../physics/Eos/EosMain/WeakLib/tables/*.h5
+DATAFILES s20.1d

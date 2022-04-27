@@ -41,7 +41,7 @@ subroutine Deleptonize(dotiling, dt, time)
                                 delep_threadWithinBlock, delep_fromFile
     use delep_interface, ONLY: delep_detectBounce
     use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar
-    use Eos_nucInterface, ONLY: Eos_nucDetectBounce, Eos_nucOneZone
+    ! use Eos_nucInterface, ONLY: Eos_nucDetectBounce, Eos_nucOneZone
     use Timers_interface, ONLY: Timers_start, Timers_stop
     @M iter_use
 
@@ -55,7 +55,6 @@ subroutine Deleptonize(dotiling, dt, time)
     real, intent(IN) :: dt, time
     logical, intent(IN) :: dotiling
 
-    real, pointer, dimension(:, :, :, :) :: Uin
     @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
     integer :: i, j, k, n
     integer :: err
