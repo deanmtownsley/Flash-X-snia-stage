@@ -1,5 +1,5 @@
 # Config file for the Deleptonize unit
-REQUIRES physics/Eos/EosMain/Nuclear
+REQUIRES physics/Eos/EosMain/WeakLib
 REQUIRES physics/sourceTerms/Deleptonize/localAPI
 
 #VARIABLE DYE
