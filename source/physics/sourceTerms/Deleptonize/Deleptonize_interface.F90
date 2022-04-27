@@ -8,10 +8,9 @@ Module Deleptonize_interface
 #include "Flash.h"
 
   interface Deleptonize
-     subroutine Deleptonize (blockCount,blockList,dt,time)
-       integer,intent(IN) :: blockCount
-       integer,dimension(blockCount),intent(IN)::blockList
+     subroutine Deleptonize (dotiling,dt,time)
        real,intent(IN) :: dt,time
+       logical, intent(IN) :: dotiling
      end subroutine Deleptonize
   end interface
 
