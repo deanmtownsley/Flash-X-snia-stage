@@ -41,6 +41,7 @@ D use_hybridRiemann	Use the HLL solver inside shocks (flagged by SHOK_VAR)
 # Runtime Parameters
 PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
 PARAMETER use_hybridRiemann		 BOOLEAN FALSE
+PARAMETER telescoping          BOOLEAN  TRUE
 
 # GLM-MHD damping factor
 PARAMETER alpha_glm			REAL 0.9
@@ -72,6 +73,7 @@ USESETUPVARS useGLM
 USESETUPVARS useTVD
 USESETUPVARS useFog
 USESETUPVARS useLim03
+USESETUPVARS nonTelescoping
 
 USESETUPVARS openMP_offloading
 IF openMP_offloading
@@ -83,8 +85,13 @@ IF useTVD or useLim03 or useFog
   GUARDCELLS 4
 	PPDEFINE NSTENCIL 2
 ELSE
+       PPDEFINE NSTENCIL 3
+ENDIF
+
+IF nonTelescoping
+  GUARDCELLS 4
+ELSE
   GUARDCELLS 6
-	PPDEFINE NSTENCIL 3
 ENDIF
 
 # Check for GLM-MHD

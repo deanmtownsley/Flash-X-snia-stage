@@ -49,9 +49,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
-       hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
+       hy_xCenter,hy_xLeft,hy_xRight !!,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
+  use Eos_interface, ONLY : Eos_wrapped !!,Eos_getData,Eos_putData,Eos
 
 
   implicit none
@@ -145,12 +145,12 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,JAXIS) = j
         range(LOW:HIGH,KAXIS) = k
         !call Eos_getData(range,vecLen,tempData,CENTER,hy_eosData,hy_mfrac)
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        !call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        !call Eos_putData(range,vecLen,tempData,CENTER,hy_eosData)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
-!!$        call Eos_wrapped(MODE_DENS_EI,range,Uin)
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        !call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        !call Eos_putData(range,vecLen,tempData,CENTER,hy_eosData)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
         ! if (dFlux(HY_ENER) /= 0.) print *, 'a', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         ! Release pointers
         nullify(Vstar)
@@ -173,10 +173,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,JAXIS) = j 
         range(LOW:HIGH,KAXIS) = k
        
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
-
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -201,10 +201,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,IAXIS) = i 
         range(LOW:HIGH,JAXIS) = j 
         range(LOW:HIGH,KAXIS) = k
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
 
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
         ! Release pointers
         nullify(Vstar)
 
@@ -223,10 +224,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,IAXIS) = i 
         range(LOW:HIGH,JAXIS) = j 
         range(LOW:HIGH,KAXIS) = k
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
        
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -251,10 +253,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,IAXIS) = i
         range(LOW:HIGH,JAXIS) = j
         range(LOW:HIGH,KAXIS) = k
-        
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
+!!$        
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
         
         !release pointers
         nullify(Vstar)
@@ -273,10 +276,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         range(LOW:HIGH,IAXIS) = i
         range(LOW:HIGH,JAXIS) = j
         range(LOW:HIGH,KAXIS) = k
-       
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData) 
+        call Eos_wrapped(MODE_DENS_EI,range,Uin)
+!!$       
+!!$        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
+!!$        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
+!!$        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData) 
         ! Release pointers
         nullify(Vstar)
      enddo !j
