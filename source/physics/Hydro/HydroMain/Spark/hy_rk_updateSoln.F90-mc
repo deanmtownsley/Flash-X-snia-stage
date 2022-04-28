@@ -1,0 +1,305 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_updateSoln
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!  NAME
+!!
+!!  hy_rk_updateSoln
+!!
+!!  SYNOPSIS
+!!
+!!  call hy_rk_updateSoln ( real, pointer :: Uin(:,:,:,:),
+!!                            integer (IN)  :: blkLimits(:,:),
+!!                            integer (IN)  :: blkLimitsGC(:,:),
+!!                            integer (IN)  :: level,
+!!                            real (IN)     :: hy_del(:),
+!!                            real (IN)     :: dt,
+!!                            real (IN)     :: dtOld,)
+!!                            real (IN)     :: coeffs(:))
+!!     
+!!  DESCRIPTION
+!!  Update solution based on conservative fluxes previously calculated.  Then convert
+!!  conservative to primitive variables.
+!!
+!!  ARGUMENTS
+!!    Uin -- pointer to solution data
+!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
+!!    level  -- the refine level of the block
+!!    hy_del  --- dx, dy, dz
+!!    dt - current time step
+!!    dtOld - old time step
+!!    coeff - coefficients for updating
+!!
+!!***
+!!Reorder(4): hy_starState, Uin, hy_fl[xyz]
+subroutine @M hy_update_name (@M hy_update_call_args)
+
+  use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
+       hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
+       hy_fluxCorrect, hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
+       hy_flx, hy_fly, hy_flz
+  use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_offload_data, ONLY : hy_tmpState
+  use Driver_interface, ONLY : Driver_abort
+  
+  implicit none
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+
+  real, pointer :: Uin(:,:,:,:)
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
+  integer,intent(IN) :: level
+  real,dimension(MDIM) :: hy_del
+  real, intent(IN) :: dt, dtOld
+  real, dimension(3), intent(IN) :: coeffs
+
+
+  integer :: i,j,k,n,g
+
+  real, pointer :: V0(:), Vstar(:)
+
+  real, dimension(NFLUXES) :: U0, Ustar
+
+  real :: dx, dy, dz
+  real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
+  real :: flx_weight1, flx_weight2
+  real :: eint, ekin, emag
+  ! Geometry factors
+  real :: facM, facP
+  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
+  integer ::  ind
+  real :: dhdt
+
+
+  dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
+  dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
+  @M hy_update_omp1
+  do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
+     do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
+        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
+          call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
+        enddo !i
+     enddo !j
+  enddo !k
+
+
+
+
+contains
+  !!Account for multiplicative factors at each cell face to account for different 
+ !!geometries.
+   subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V,dx)
+     implicit none
+     integer, intent(IN) :: i,j,k
+     real, intent(OUT) :: facM, facP
+     real, dimension(NFLUXES), intent(out) :: Sgeo
+     real, intent(IN) :: U(:),dx
+     real, pointer, intent(IN) :: V(:)
+     real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
+     real    :: pmagStar, xmagStar, zmagStar
+     integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
+     integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
+     integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
+     real    :: alpha, dx_sph
+     if (hy_geometry == CARTESIAN) then
+        facM = 1.0; facP = 1.0; Sgeo = 0.0
+        return
+     endif
+     select case(hy_geometry) ! First, select whether y or z is phi-direction
+     case(CYLINDRICAL)
+        MOM_PHI = HY_ZMOM
+        MOM_PHI_FLUX = HY_ZMOM
+        MOM_ZI       = HY_YMOM
+        MOM_ZI_FLUX  = HY_YMOM
+#ifdef SPARK_GLM
+        MAG_PHI      = HY_MAGZ
+#endif
+        alpha = 1.
+     case(POLAR)
+        MOM_PHI      = HY_YMOM
+        MOM_PHI_FLUX = HY_YMOM
+        MOM_ZI       = HY_ZMOM
+        MOM_ZI_FLUX  = HY_ZMOM
+#ifdef SPARK_GLM
+        MAG_PHI      = HY_MAGY
+#endif
+        alpha = 1.
+     case(SPHERICAL)
+        MOM_PHI      = HY_ZMOM
+        MOM_PHI_FLUX = HY_ZMOM
+        MOM_THT      = HY_YMOM
+        MOM_THT_FLUX = HY_YMOM
+        dx_sph = (hy_xRight(i)**3 - hy_xLeft(i)**3) / (3.*hy_xCenter(i)**2)
+        alpha  = 2.
+     end select
+   
+     facM = hy_farea(i  ,j,k)*dx/hy_cvol(i,j,k)
+     facP = hy_farea(i+1,j,k)*dx/hy_cvol(i,j,k)
+
+     Sgeo = 0.
+     !! Calculate geometrical source terms.  See S&O 75.
+     Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / hy_xCenter(i)!T phi,phi
+     Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / hy_xCenter(i)!T phi,r
+
+#ifdef SPARK_GLM
+     ! P* is the total Pressure
+     ! This presently does not work for POLAR coordinates
+     Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ hy_xCenter(i)
+     Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / hy_xCenter(i)
+
+     Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / hy_xCenter(i) !O phi,r
+#endif
+     Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
+
+     if (hy_geometry == SPHERICAL) then
+        Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / hy_xCenter(i)
+        Sgeo = Sgeo*dx/dx_sph
+     endif
+     if (hy_xCenter(i) < 0.0) then
+        facM = 0.
+        facP = 0.
+        Sgeo = 0.
+     end if
+   end subroutine geoFacs
+
+
+  !!Calculate source terms due to gravity.
+  subroutine gravSources(U,g,S)
+    implicit none
+    real, intent(IN) :: U(NFLUXES)
+    real, intent(IN) :: g(MDIM)
+    real, intent(OUT) :: S(NFLUXES)
+    !$omp declare target
+    S = 0.
+#ifdef GRAVITY
+    S(HY_XMOM:HY_ZMOM) = U(HY_MASS)*g(:)
+    S(HY_ENER) = dot_product(U(HY_XMOM:HY_ZMOM),g(:))
+#endif
+  end subroutine gravSources
+
+
+
+subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
+  use Hydro_data, only : hy_starState, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
+       hy_smalldens, hy_smallE
+  use Hydro_offload_data, only : hy_tmpState
+  implicit none
+  integer, intent(in) :: i,j,k
+  real, dimension(3), intent(IN) :: coeffs
+  real, intent(in) :: dx, dy, dz
+  real, intent(IN) :: dt, dtOld, dhdt
+  real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
+  real :: facM, facP
+  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
+  real :: eint, ekin, emag
+  real, pointer :: V0(:), Vstar(:)
+  real, dimension(NFLUXES) :: U0, Ustar
+  !$omp declare target
+
+  V0    => hy_tmpState(:,i,j,k)
+  Vstar => hy_starState(:,i,j,k)
+
+  ! Point to the correct fluxes
+  Fm => hy_flx(:,i  ,j  ,k  )
+  Fp => hy_flx(:,i+1,j  ,k  )
+#if NDIM > 1
+  Gm => hy_fly(:,i  ,j  ,k  )
+  Gp => hy_fly(:,i  ,j+1,k  )
+#endif
+#if NDIM ==3
+  Hm => hy_flz(:,i  ,j  ,k  )
+  Hp => hy_flz(:,i  ,j  ,k+1)
+#endif
+
+  ! Construct vectors of conserved variables
+  U0(HY_MASS)            = V0(DENS_VAR)
+  U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
+  U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
+  U0(HY_NUM_FLUX+1:NFLUXES) = V0(SPECIES_BEGIN:MASS_SCALARS_END)*V0(DENS_VAR)
+  Ustar(HY_MASS)         = Vstar(DENS_VAR)
+  Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
+  Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
+  Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
+
+#ifdef SPARK_GLM
+  U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
+  U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
+        V0(MAGX_VAR:MAGZ_VAR))
+  U0(HY_FPSI) = V0(PSIB_VAR)
+  Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
+  Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
+        Vstar(MAGX_VAR:MAGZ_VAR))
+  Ustar(HY_FPSI) = Vstar(PSIB_VAR)
+#endif
+
+  ! Get geometric factors and sources
+   facM = 1.0; facP = 1.0; Sgeo = 0.0
+   @M hy_geofacs
+  ! Get gravitational source terms
+  call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
+
+  ! Sum total source terms
+  Stot = Sgeo + Shy_grv
+
+  ! Now update conserved vector with flux gradients
+  Ustar = coeffs(1)*U0 + coeffs(2)*Ustar +coeffs(3)*( &
+        -dt/dx*(facP*Fp-facM*Fm) &
+#if NDIM > 1
+        -dt/dy*(Gp-Gm) &
+#if NDIM ==3
+        -dt/dz*(Hp-Hm) &
+#endif
+#endif
+        +dt*Stot)
+! print *, "Ustar" , "(",i,j,k,") ",Ustar
+  ! Update primitive variables
+  emag = 0.0
+#ifdef SPARK_GLM
+  !print *, coeffs(1)*U0(HY_FPSI), coeffs(2)*Ustar(HY_FPSI), Fp(HY_FPSI)-Fm(HY_FPSI)
+  Vstar(MAGX_VAR:MAGZ_VAR) = Ustar(HY_FMGX:HY_FMGZ)
+  Vstar(PSIB_VAR) = Ustar(HY_FPSI)*exp(-hy_alphaGLM*hy_C_hyp/dhdt)
+  emag = 0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),Vstar(MAGX_VAR:MAGZ_VAR))
+  Vstar(MAGP_VAR) = emag
+  Ustar(HY_ENER) = Ustar(HY_ENER) - emag
+#endif
+
+  Vstar(DENS_VAR)          = max(Ustar(HY_MASS),hy_smalldens)
+  Vstar(VELX_VAR:VELZ_VAR) = Ustar(HY_XMOM:HY_ZMOM)/Vstar(DENS_VAR)
+  Vstar(ENER_VAR)          = max(hy_smallE,Ustar(HY_ENER)/Vstar(DENS_VAR))
+
+  ekin = .5*dot_product(Vstar(VELX_VAR:VELZ_VAR),Vstar(VELX_VAR:VELZ_VAR))
+  Vstar(EINT_VAR) = max(hy_smallE,Vstar(ENER_VAR)-ekin)
+
+  ! Divide partial densities by new mass densities to finalize
+  ! update of new mass fractions.
+  Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
+#ifdef GPOT_VAR
+  ! Now extrapolate gravity to intermediate time state
+  ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up
+  Vstar(GPOT_VAR) = coeffs(1)*V0(GPOT_VAR) + coeffs(2)*Vstar(GPOT_VAR) &
+        + coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
+#endif
+  ! Release pointers
+  nullify(V0)
+  nullify(Vstar)
+  nullify(Fm)
+  nullify(Fp)
+  nullify(Gm)
+  nullify(Gp)
+  nullify(Hm)
+  nullify(Hp)
+
+end subroutine update_solution
+
+end subroutine @M hy_update_name

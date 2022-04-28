@@ -97,7 +97,7 @@ module Driver_data
   integer, save :: dr_driftTruncMantissa
   integer, save :: dr_driftVerboseInst
   logical, save :: dr_driftTuples
-  
+ 
   integer, parameter :: dr_driftFd = 1349 ! open(unit=dr_driftFd)
   integer(kind=selected_int_kind(18)), save :: &
 #if DRIFT_ENABLE

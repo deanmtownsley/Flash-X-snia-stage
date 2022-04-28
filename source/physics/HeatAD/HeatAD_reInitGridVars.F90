@@ -14,7 +14,8 @@
 !!
 !!
 !!***
-subroutine HeatAD_reInitGridVars()
-  implicit none
-  return
+subroutine HeatAD_reInitGridVars(tileDesc)
+   use Grid_tile, ONLY: Grid_tile_t
+   implicit none
+   type(Grid_tile_t), intent(in) :: tileDesc
 end subroutine HeatAD_reInitGridVars

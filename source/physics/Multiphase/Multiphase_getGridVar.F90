@@ -11,15 +11,15 @@ subroutine Multiphase_getGridVar(name, value)
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 
-  use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
 
-  value = -1
-  print *,"Error in setting grid var: ",name 
-  call Driver_abort("Multiphase_getGridVar: Unknown Multiphase Grid Variable")
+   value = -1
+   print *, "Error in setting grid var: ", name
+   call Driver_abort("Multiphase_getGridVar: Unknown Multiphase Grid Variable")
 
-  return
+   return
 end subroutine Multiphase_getGridVar

@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - uses: akashdhruv/Maple/.github/actions/maple@main
     - uses: eWaterCycle/setup-singularity@v7
       with:

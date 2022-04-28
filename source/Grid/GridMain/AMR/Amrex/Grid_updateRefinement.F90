@@ -110,6 +110,7 @@ subroutine Grid_updateRefinement(nstep, time, gridChanged)
   use Timers_interface,          ONLY : Timers_start, Timers_stop
   use Particles_interface,       ONLY : Particles_updateRefinement
   use Logfile_interface, ONLY:  Logfile_stampMessage
+  use Driver_interface, ONLY: Driver_notifyGridChange
  
   implicit none
 
@@ -369,6 +370,7 @@ include "Flashx_mpi.h"
 
      ! Only log on the first call
 !     gcMaskArgsLogged = .TRUE.
+     if (gr_amrexDidRefinement) call Driver_notifyGridChange()
 
      if (present(gridChanged)) then
         gridChanged = gr_amrexDidRefinement
@@ -380,4 +382,3 @@ include "Flashx_mpi.h"
   end if
 
 end subroutine Grid_updateRefinement
-

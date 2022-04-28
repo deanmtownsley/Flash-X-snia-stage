@@ -122,6 +122,6 @@ subroutine Grid_updateRefinement( nstep,time, gridChanged)
   else
      if (present(gridChanged)) gridChanged = .FALSE.
   end if
-  
+
   return
 end subroutine Grid_updateRefinement

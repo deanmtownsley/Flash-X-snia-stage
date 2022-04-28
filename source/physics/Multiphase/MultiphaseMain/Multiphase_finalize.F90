@@ -19,24 +19,23 @@
 !! SYNOPSIS
 !!
 !!  call Multiphase_finalize
-!!  
+!!
 !! ARGUMENTS
 !!
 !!  none
 !!
 !! DESCRIPTION
-!! 
+!!
 !!
 !!***
 
 subroutine Multiphase_finalize()
 
-  use mph_evapInterface, ONLY : mph_evapFinalize
+   use mph_evapInterface, ONLY: mph_evapFinalize
 
-  implicit none
+   implicit none
 
-  call mph_evapFinalize()
+   call mph_evapFinalize()
 
 end subroutine Multiphase_finalize
-
 
