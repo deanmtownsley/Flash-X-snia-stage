@@ -178,6 +178,7 @@ a19:--with-unit=physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19
 
 #Shortcut for thornado with GPUs
 thornado:--with-unit=physics/RadTrans/RadTransMain/TwoMoment/Thornado
+thornadoOMP:+thornado:thornadoOMP=True:-defines=THORNADO_OMP
 thornadoGPU:+thornado:thornadoGPU=True:-defines=THORNADO_GPU,THORNADO_LA_CUBLAS
 thornadoACC:+thornadoGPU:thornadoACC=True:-defines=THORNADO_OACC
 

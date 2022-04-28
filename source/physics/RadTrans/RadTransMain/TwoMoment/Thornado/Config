@@ -14,12 +14,18 @@ def genLines(setupvars):
     yield '    LIBRARY CUDA'
     yield 'ENDIF'
 
+    yield 'VARIANTS OACC OMP_OL OMP'
+
     yield 'USESETUPVARS thornadoACC'
     yield 'USESETUPVARS thornadoOMP_OL'
     yield 'IF thornadoACC'
     yield '    LIBRARY OACC'
+    yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OACC'
     yield 'ELSEIF thornadoOMP_OL'
     yield '    LIBRARY OMP_OL'
+    yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OMP_OL'
+    yield 'ELSE'
+    yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OMP'
     yield 'ENDIF'
 
     ##

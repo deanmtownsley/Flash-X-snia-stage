@@ -17,16 +17,16 @@ module rt_tm_interface
 #include "constants.h"
 
   interface
-     subroutine rt_tm_reconstruction(solnData,nX,lo,hi,u_lo,u_hi)
-        real, pointer, dimension(:,:,:,:) :: solnData
+     subroutine rt_tm_reconstruction(Uin,nX,lo,hi,u_lo,u_hi)
+        real, pointer, dimension(:,:,:,:) :: Uin
         integer, dimension(3), intent(in) :: nX
         integer, dimension(MDIM), intent(in) :: lo,hi,u_lo,u_hi
      end subroutine rt_tm_reconstruction
   end interface
 
   interface
-     subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
-        real, pointer, dimension(:,:,:,:) :: solnData
+     subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
+        real, pointer, dimension(:,:,:,:) :: Uin
         integer, dimension(3), intent(in) :: nX
         integer, dimension(MDIM), intent(in) :: lo,hi,u_lo,u_hi
      end subroutine rt_tm_projection
