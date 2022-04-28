@@ -42,7 +42,7 @@ subroutine pt_advanceMC (dtNew, iSpecies)
 
   
   real, INTENT(in)  :: dtNew
-  integer, INTENT(in) :: ind
+  integer, INTENT(in) :: iSpecies
 
   
 end subroutine pt_advanceMC
