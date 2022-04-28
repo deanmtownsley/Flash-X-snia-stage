@@ -64,7 +64,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
   integer :: iMe_T, iMp_T, iMn_T, iXp_T, iXn_T, iXa_T, iXh_T, iAh_T, iGm_T
 
   real :: OS_P, OS_E, OS_S
-  real :: OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Ah, OS_Gm
+  real :: OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Ah, OS_Gm, OS_Var
 
   integer :: error_flag
 
