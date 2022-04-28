@@ -87,7 +87,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   if ( meshGeom == CARTESIAN ) then
      xR = 1.0
   else
-     call Driver_abortFlash("Geometry not supported")
+     call Driver_abort("Geometry not supported")
   end if
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX

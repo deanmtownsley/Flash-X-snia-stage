@@ -31,7 +31,7 @@
 
 subroutine rt_tm_reconstruction(solnData,nX,lo,hi,u_lo,u_hi)
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   use FluidFieldsModule, ONLY : uCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne

@@ -31,7 +31,7 @@
 subroutine Simulation_initBlock(solnData, tileDesc)
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getGeometry
@@ -45,7 +45,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
   
   real, dimension(:,:,:,:), pointer :: solnData
@@ -81,7 +81,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   if ( meshGeom == CARTESIAN ) then
      xR = 1.0
   else
-     call Driver_abortFlash("Geometry not supported")
+     call Driver_abort("Geometry not supported")
   end if
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
