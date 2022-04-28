@@ -124,6 +124,15 @@ Module pt_interface
 
   end interface
 
+  interface pt_advanceMC
+     subroutine pt_advanceMC (dtNew,iSpecies)
+       
+       real, INTENT(in)  :: dtNew
+       integer, INTENT(in) :: iSpecies
+     end subroutine pt_advanceMC
+
+  end interface
+
   interface
      subroutine pt_advanceEuler_passive (dtOld,dtNew,sp,ep,ind)
        real, INTENT(in)  :: dtOld, dtNew

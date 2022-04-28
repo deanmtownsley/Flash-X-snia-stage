@@ -108,8 +108,6 @@ def genLines(setupvars):
     yield 'PARAMETER rt_eL       REAL     0.0    [0.0 to ]'
     yield 'D rt_eR     maximum edge of radiation transport energy grid'
     yield 'PARAMETER rt_eR       REAL     300.0  [0.0 to ]'
-    yield 'D rt_swE    energy grid stencil width'
-    yield 'PARAMETER rt_swE      INTEGER  0      [0 to ]'
     yield 'D rt_zoomE  energy grid zoom factor for logarithmic grid'
     yield 'PARAMETER rt_zoomE    REAL     1.0    [0.0 to ]'
     yield 'D rt_bcE  energy grid boundary condition'
@@ -138,6 +136,8 @@ def genLines(setupvars):
     yield 'PARAMETER rt_positivityLimiter    BOOLEAN  FALSE'
     yield 'D rt_UpperBry1  Upper limiter for neutrino number density'
     yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
+    yield 'D rt_slopeLimiter   flag to use RadTrans slope limiter'
+    yield 'PARAMETER rt_slopeLimiter    BOOLEAN  FALSE'
 
     ##
     yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'

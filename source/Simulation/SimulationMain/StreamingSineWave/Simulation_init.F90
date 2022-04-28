@@ -55,8 +55,6 @@ subroutine Simulation_init()
   call Driver_getMype(MESH_COMM, sim_meshMe)
   call Driver_getMype(GLOBAL_COMM, sim_globalMe)
 
-  call RuntimeParameters_get('dens_i', sim_dens_i)
-  call RuntimeParameters_get('temp_i', sim_temp_i)
   sim_xn_i(:) = 0.0e0
   sim_xn_i(SPECIES_BEGIN) = 1.0e0
 
@@ -72,7 +70,13 @@ subroutine Simulation_init()
   sim_velz_i = 0.0e0
   sim_pres_i = eosData(EOS_PRES)
   sim_eint_i = eosData(EOS_EINT)
-  sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2 + sim_vely_i**2 + sim_velz_i**2)
+  IF( NDIM == 3 ) THEN
+    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2 + sim_vely_i**2 + sim_velz_i**2)
+  ELSE IF( NDIM == 2 ) THEN
+    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2 + sim_vely_i**2)
+  ELSE
+    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2)
+  END IF
   sim_gamc_i = eosData(EOS_GAMC)
   sim_game_i = sim_pres_i/(sim_eint_i*sim_dens_i) + 1.0e0
   call Eos_getAbarZbar(Ye=sim_ye_i,massFrac=massfraction)

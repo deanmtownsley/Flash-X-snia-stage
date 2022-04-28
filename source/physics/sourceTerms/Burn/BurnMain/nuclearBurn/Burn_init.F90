@@ -126,6 +126,8 @@ subroutine Burn_init()
   if (.not. bn_useShockBurn) then
      bn_gcMaskSD(PRES_VAR) = .true.
      bn_gcMaskSD(VELX_VAR:VELZ_VAR) = .true.
+     bn_gcMaskSD(DENS_VAR) = .true.
+     bn_gcMaskSD(SPECIES_BEGIN:SPECIES_END) = .true.
   end if
 
   !!  Now initialize the network things

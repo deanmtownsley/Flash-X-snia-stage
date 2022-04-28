@@ -1,0 +1,5 @@
+Setup syntax for 3D (CPU):
+./setup prol_restr_StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 -gridinterpolation=native nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
+
+Setup syntax for 3D (GPU):
+./setup prol_restr_StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 -gridinterpolation=native nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +thornadoACC

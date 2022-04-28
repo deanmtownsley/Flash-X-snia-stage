@@ -1,0 +1,5 @@
+# photon version
+python3 bin/setup.py CartRadEqm -auto -3d -maxblocks=200 -debug -objdir=cartradeqm-photon Bittree=True FlashAvoidOrrery=True -with-unit=source/physics/RadTrans/RadTransMain/MonteCarlo/PhotonRad
+
+# neutrino version
+python3 bin/setup.py CartRadEqm -auto -3d -maxblocks=200 -debug -objdir=cartradeqm-neutrino Bittree=True FlashAvoidOrrery=True -with-unit=source/physics/Eos/EosMain/WeakLib -with-unit=source/physics/RadTrans/RadTransMain/MonteCarlo/NeutrinoRad

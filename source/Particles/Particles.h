@@ -68,6 +68,7 @@
 
 #define EULER_TRA       398
 #define RUNGEKUTTA      395
+#define MONTECARLO      396
 #define MIDPOINT        385
 #define ESTI            381
 #define CHARGED         382
@@ -83,6 +84,7 @@
 #define WITH_DENSITY 685
 #define FROMFILE   690
 #define CUSTOM     691
+#define NONE       692
 #define DPD        867
 
 #define PT_LOGLEVEL_WARN_OPER 200

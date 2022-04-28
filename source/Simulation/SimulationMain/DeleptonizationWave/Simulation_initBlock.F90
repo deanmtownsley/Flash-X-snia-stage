@@ -67,7 +67,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   real, dimension(LOW:HIGH,MDIM) :: boundBox
   real :: rcc, tcc, pcc, velr, velt, velp
 
-  integer, dimension(1:MDIM) :: lo, hi, u_lo, u_hi
+  integer, dimension(1:MDIM)   :: lo, hi
+  integer, dimension(1:MDIM+1) :: u_lo, u_hi
   integer :: i, j, k, n, ii, jj, kk, ic, jc, kc
   integer :: iX1, iX2, iX3, iNodeX1, iNodeX2, iNodeX3
   integer :: iS, iCR, iE, iNode, iNodeX, iNodeE, ioff, ivar
@@ -117,8 +118,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
   swX(1:NDIM) = 2
-  u_lo = 1 - swX
-  u_hi = nX + swX
+  u_lo(2:4) = 1 - swX
+  u_hi(2:4) = nX + swX
+  u_lo(1)   = 1 - THORNADO_SWE
+  u_hi(1)   = THORNADO_NE + THORNADO_SWE
 
   call tileDesc%boundBox(boundBox)
   xL(1:NDIM) = boundBox(LOW, 1:NDIM)
@@ -185,12 +188,13 @@ subroutine Simulation_initBlock(solnData, tileDesc)
            end do
 
            ! Initialize neutrino data
-           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = 1, THORNADO_NE
+           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = u_lo(1), u_hi(1)
 
               ioff = THORNADO_BEGIN &
-                 + (iS -1)*(THORNADO_NNODESE*THORNADO_NE*THORNADO_NMOMENTS) &
-                 + (iCR-1)*(THORNADO_NNODESE*THORNADO_NE) &
-                 + (iE -1)*(THORNADO_NNODESE)
+                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE) &
+                           *THORNADO_NMOMENTS) &
+                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
 
               do iNode = 1, THORNADO_RAD_NDOF
 
@@ -247,7 +251,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  select case ( sim_rad_option )
                    case ( -1 ) ! Zero Distribution
 
-                     Psi0 = 1.0e-100
+                     Psi0 = 1.0e-20
                      Psi1 = 0.0e0
 
                    case ( 0 ) ! FD with sim_rintSwitch
@@ -268,7 +272,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                             ( enode, sim_dens_i, sim_temp_i, sim_ye_i, Psi0, iS )
                      end if
 
-                       Psi1 = 0.0e0
+                     Psi1 = 0.0e0
 
                    case ( 1 ) ! approximate neutrino spher
 
@@ -277,38 +281,40 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                    case ( 2 ) ! Chimera Profile radiation
 
                      call sim_interpProfile_rad( enode/MeV, rcc, iS, Psi0, Psi1 )
+
                    case ( 3 ) ! BoltzTran Profile radiation
 
                      call sim_interpProfile_rad( enode/MeV, rcc, iS, Psi0, Psi1 )
 
-                     ! realizability check
-                     ! --- non-negative zeroth moment
-                     if( Psi0 > rt_UpperBry1 ) then
-                       !!$write(*,'(A,2ES12.3)') &
-                       !!$  ' Triggered realizability check in Simulation_initBlock.F90 J=', Psi0
-                       Psi0 = max( 0.0e0, min(Psi0,rt_UpperBry1) )
-                       if( Psi1 < 0.0 ) then
-                         Psi1 = -(1.0d0-Psi0)*Psi0
-                       else
-                         Psi1 = (1.0d0-Psi0)*Psi0
-                       end if
-                     end if
-                     ! --- (1-J)*J >= abs(H)
-                     if( abs(Psi1) > (1.0d0-Psi0)*Psi0 ) then
-                       !!$write(*,'(A,2ES12.3)') &
-                       !!$  ' Triggered realizability check in Simulation_initBlock.F90 gamma',&
-                       !!$  Psi0, Psi1
-                       !!$write(*,'(A,2ES12.3)') '       @ (E,X)', enode/MeV, rcc
-                       if( Psi1 < 0.0 ) then
-                         Psi1 = -(1.0d0-Psi0)*Psi0
-                       else
-                         Psi1 = (1.0d0-Psi0)*Psi0
-                       end if
-                       if( abs(Psi1) > (1.0d0-Psi0)*Psi0 )&
-                         stop 'not preserve realizability in initializing radiation'
-                     end if
-
                  end select
+
+                 ! realizability check
+                 ! --- non-negative zeroth moment
+                 if( Psi0 > rt_UpperBry1 ) then
+                   !!$write(*,'(A,2ES12.3)') &
+                   !!$  ' Triggered realizability check in Simulation_initBlock.F90 J=', Psi0
+                   Psi0 = max( 0.0e0, min(Psi0,rt_UpperBry1) )
+                   if( Psi1 < 0.0 ) then
+                     Psi1 = -(1.0d0-Psi0)*Psi0
+                   else
+                     Psi1 = (1.0d0-Psi0)*Psi0
+                   end if
+                 end if
+                 ! --- (1-J)*J >= abs(H)
+                 if( abs(Psi1) > (1.0d0-Psi0)*Psi0 ) then
+                   !!$write(*,'(A,2ES12.3)') &
+                   !!$  ' Triggered realizability check in Simulation_initBlock.F90 gamma',&
+                   !!$  Psi0, Psi1
+                   !!$write(*,'(A,2ES12.3)') '       @ (E,X)', enode/MeV, rcc
+                   if( Psi1 < 0.0 ) then
+                     Psi1 = -(1.0d0-Psi0)*Psi0
+                   else
+                     Psi1 = (1.0d0-Psi0)*Psi0
+                   end if
+                   if( abs(Psi1) > (1.0d0-Psi0)*Psi0 )&
+                     stop 'not preserve realizability in initializing radiation'
+                 end if
+
 
                  ! J moment, iCR = 1
                  if (iCR == iCR_N) solnData(ivar,ii,jj,kk) = Psi0

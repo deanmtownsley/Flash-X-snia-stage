@@ -1,0 +1,202 @@
+##python:genLines
+
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    ### Default to the standard non-ionizing radiation module
+    yield 'DEFAULT PhotonRad'
+
+    yield 'REQUIRES IO/IOParticles/hdf5/serial'
+
+    # PARAMESH-ONLY
+    yield' REQUIRES Grid/GridMain/AMR/Paramesh4/bittree'
+    #yield 'REQUIRES Particles'
+
+    # AMREX-ONLY (doesn't work)
+    #yield 'REQUIRES Grid/GridMain/AMR/Amrex'
+    #yield 'REQUIRES IO/IOMain/hdf5/serial/AM'
+    #yield 'REQUIRES Particles/ParticlesMain/passive/MeshOwned'
+    #yield 'REQUIRES Particles/ParticlesMapping/MeshOwned'
+
+    ### Generic attributes for MCPs
+    yield 'PARTICLEPROP iscp     REAL'
+    yield 'PARTICLEPROP ener     REAL'   # particle energy (erg)
+    yield 'PARTICLEPROP trem     REAL'   # remaining time
+    yield 'PARTICLEPROP isab     REAL'   # is the particle absorbed?
+    yield 'PARTICLEPROP isnw     REAL'
+    yield 'PARTICLEPROP npin     REAL'   # initial particle weight
+    yield 'PARTICLEPROP nump     REAL'   # particle weight
+    yield 'PARTICLEPROP active   REAL'   # is the particle active?
+
+    ### Grid Variables for MCPs
+    yield 'VARIABLE FLEC TYPE: GENERIC'
+    yield 'VARIABLE ABSE TYPE: PER_MASS'    # Energy absorbed to gas 
+    yield 'VARIABLE ABSL TYPE: PER_MASS'    # Lepton number absorbed to gas 
+    yield 'VARIABLE EMIE TYPE: PER_MASS'    # Thermal energy emitted as radiation
+    yield 'VARIABLE EMIL TYPE: PER_MASS'    # Lepton number emitted as radiation
+    yield 'VARIABLE ABMX TYPE: PER_MASS'    # absorbed momentum x
+    yield 'VARIABLE ABMY TYPE: PER_MASS'    # absorbed momentum y
+    yield 'VARIABLE ABMZ TYPE: PER_MASS'    # absorbed momentum z
+    yield 'VARIABLE SCMX TYPE: PER_MASS'    # scattered momentum x
+    yield 'VARIABLE SCMY TYPE: PER_MASS'    # scattered momentum y
+    yield 'VARIABLE SCMZ TYPE: PER_MASS'    # scattered momentum z
+    yield 'VARIABLE URAD TYPE: PER_MASS'    # radiation energy density
+
+    ### energy grid setup
+    ### follows the example of thornado for future interoperability with thornado
+    # set number of energy bins
+    if "nE" in setupvars:
+        nE = int(setupvars["nE"])
+    else:
+        nE = 1
+    yield 'PPDEFINE THORNADO_NE         %d' % nE
+
+    # set number of species
+    if "nSpecies" in setupvars:
+        nSpecies = int(setupvars["nSpecies"])
+    else:
+        nSpecies = 1
+    yield 'PPDEFINE THORNADO_NSPECIES   %d' % nSpecies
+    for si in range(nSpecies):
+        yield 'PARTICLETYPE montecarlo_species'+str(si+1)+' INITMETHOD CUSTOM MAPMETHOD WEIGHTED ADVMETHOD MONTECARLO'
+
+    ### Runtime parameters for **both** ionizing and non-ionizing radiation
+    yield 'D pt_is_eff_scattering   Whether or not to use fleck factor'
+    yield 'PARAMETER pt_is_eff_scattering    BOOLEAN TRUE'
+
+    yield 'D pt_maxnewnum       Maximum number of new MCPs'
+    yield 'PARAMETER pt_maxnewnum  INTEGER    10000'
+
+    yield 'D pt_max_rt_iterations    Maximum number of RT passes'
+    yield 'PARAMETER pt_max_rt_iterations   INTEGER 1000'
+
+    yield 'D pt_half_rt_timesteps    Whether or not to half the RT steps for the split Hydro solver'
+    yield 'PARAMETER pt_half_rt_timesteps   BOOLEAN FALSE'
+
+    yield 'D pt_es_alpha        alpha for the IMC fleck factor'
+    yield 'PARAMETER pt_es_alpha    REAL 1.0'
+
+    yield 'D pt_smlpush         small value to guarantee MCPs get through boundaries'
+    yield 'PARAMETER pt_smlpush         REAL 1.0e-10'
+
+    yield 'D pt_initradfield_num      Number of MCPs per cell as the initial radiation field'
+    yield 'PARAMETER pt_initradfield_num      INTEGER 0'
+
+    yield 'D pt_ThermalEmission       Whether to turn on thermal emission'
+    yield 'PARAMETER pt_ThermalEmission BOOLEAN FALSE'
+
+    yield 'D pt_marshak_eos           Whether to apply the Marshak EOS'
+    yield 'PARAMETER pt_marshak_eos     BOOLEAN FALSE'
+
+    yield 'D pt_is_grey         Whether to use grey opacity for thermal rad.'
+    yield 'PARAMETER pt_is_grey BOOLEAN TRUE'
+
+    yield 'D pt_grey_abs_opac        Constant gas absorption opacity for thermal rad.'
+    yield 'PARAMETER pt_grey_abs_opac    REAL 1.0'
+
+    yield 'D pt_grey_sca_opac        Constant gas scattering opacity for thermal rad.'
+    yield 'PARAMETER pt_grey_sca_opac    REAL 0.0'
+
+    yield 'D pt_grey_eps            Constant monochromatic photon energy'
+    yield 'PARAMETER pt_grey_eps        REAL 1.0e-10'
+
+    yield 'D pt_dens_threshold      Threshold gas density for absorption/emission'
+    yield 'PARAMETER pt_dens_threshold     REAL  1.0e-10'
+
+    yield 'D pt_abs_threshold       Threshold weight for MCP to be considered absorbed'
+    yield 'PARAMETER pt_abs_threshold         REAL  1.0e-8'
+
+    yield 'D pt_num_tmcps_tstep      Number of thermal MCPs per cell per timestep'
+    yield 'PARAMETER pt_num_tmcps_tstep     INTEGER 2'
+
+    yield 'D pt_FaceEmission           Whether or not turning on face emission'
+    yield 'PARAMETER pt_FaceEmission        BOOLEAN FALSE'
+
+    yield 'D pt_is_FacePlanck          Whether face emission is from a blackbody'
+    yield 'PARAMETER pt_is_FacePlanck        BOOLEAN TRUE'
+
+    yield 'D pt_FaceEmissionSide       inner or outer boundary for face emission'
+    yield 'PARAMETER pt_FaceEmissionSide    INTEGER 1'
+
+    yield 'D pt_FaceEmissionAxis       Dimension for face emission'
+    yield 'PARAMETER pt_FaceEmissionAxis    INTEGER 1'
+
+    yield 'D pt_FacePlanckTemp       Blackbody temperature for face emission'
+    yield 'PARAMETER pt_FacePlanckTemp    REAL   5700.0'
+
+    yield 'D pt_constFaceFlux        Constant flux value for face emission'
+    yield 'PARAMETER pt_constFaceFlux    REAL   1.0'
+
+    yield 'D pt_is_therm_face_vel    Whether to use planck function directions'
+    yield 'PARAMETER pt_is_therm_face_vel   BOOLEAN FALSE'
+
+    yield 'D pt_is_iso_face_vel    Whether to sample velocity vectors isotropically'
+    yield 'PARAMETER pt_is_iso_face_vel   BOOLEAN FALSE'
+
+    yield 'D pt_is_radial_face_vel    Whether to point velocities radially out'
+    yield 'PARAMETER pt_is_radial_face_vel   BOOLEAN  TRUE'
+
+    yield 'D pt_num_fmcps_tstep      Number of face MCP per block per timestep'
+    yield 'PARAMETER pt_num_fmcps_tstep     INTEGER 10'
+
+    yield 'D pt_PointEmission        Whether or not to emit radiation from a point'
+    yield 'PARAMETER pt_PointEmission        BOOLEAN FALSE'
+
+    yield 'D pt_PointPulse           Whether the point source is a pulse or continuous'
+    yield 'PARAMETER pt_PointPulse      BOOLEAN TRUE'
+
+    yield 'D pt_PointPulseErad       Total radiation energy in the initial pulse'
+    yield 'PARAMETER pt_PointPulseErad  REAL 1.0e40'
+
+    yield 'D pt_PointLuminosity      Constant Luminosity (in cgs) of the point source'
+    yield 'PARAMETER pt_PointLuminosity      REAL 4.0e33'
+
+    yield 'D pt_PointSrcPosOffset    Positional offset (in all xyz, units of dx) for the point source'
+    yield 'PARAMETER pt_PointSrcPosOffset    REAL 1.0e-3'
+
+    yield 'D pt_num_pmcps_tstep      Number of MCP per point source per timestep'
+    yield 'PARAMETER pt_num_pmcps_tstep     INTEGER 10'
+
+    yield 'D pt_energy_min_eV        Minimum photon energy for non-grey application'
+    yield 'PARAMETER pt_energy_min_eV     REAL 1.0'
+
+    yield 'D pt_energy_max_eV        Maximum photon energy for non-grey application'
+    yield 'PARAMETER pt_energy_max_eV     REAL 20.0'
+
+    yield 'D pt_is_corrdl            Whether to correct for energy absorbed within dt'
+    yield 'PARAMETER pt_is_corrdl         BOOLEAN TRUE'
+
+    yield 'D pt_is_deposit_urad      Whether to deposit radiation energy density'
+    yield 'PARAMETER pt_is_deposit_urad         BOOLEAN TRUE'
+
+    yield 'D pt_is_deposit_energy    Whether to deposit absorbed energy on the grid'
+    yield 'PARAMETER pt_is_deposit_energy         BOOLEAN TRUE'
+
+    yield 'D pt_is_deposit_momentum  Whether to deposit radiation momentum on the grid'
+    yield 'PARAMETER pt_is_deposit_momentum         BOOLEAN TRUE'
+
+    yield 'D pt_is_thermally_coupled  Whether to apply radiation energy source term'
+    yield 'PARAMETER pt_is_thermally_coupled         BOOLEAN FALSE'
+
+    yield 'D pt_is_dynamically_coupled  Whether to apply radiation momentum source term'
+    yield 'PARAMETER pt_is_dynamically_coupled         BOOLEAN FALSE'
+
+    yield 'D pt_is_scat_elastic        Whether physical scattering is elastic'
+    yield 'PARAMETER pt_is_scat_elastic              BOOLEAN TRUE'
+
+    yield 'D pt_is_escat_elastic       Whether effective scattering is elastic'
+    yield 'PARAMETER pt_is_escat_elastic             BOOLEAN TRUE'
+
+    yield 'D pt_is_scat_iso            Whether physical scattering is isotropic'
+    yield 'PARAMETER pt_is_scat_iso                  BOOLEAN TRUE'
+
+    yield 'D pt_is_escat_iso           Whether effective scattering is isotropic'
+    yield 'PARAMETER pt_is_escat_iso                 BOOLEAN TRUE'
+
+    yield 'D pt_temp_floor           Temperature floor after applying source terms'
+    yield 'PARAMETER pt_temp_floor           REAL  0.0'
+
+    yield 'D pt_is_veldp             Whether to turn on velocity-dependent correction'
+    yield 'PARAMETER pt_is_veldp                BOOLEAN FALSE'

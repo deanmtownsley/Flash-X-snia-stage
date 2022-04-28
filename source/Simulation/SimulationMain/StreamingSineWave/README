@@ -9,3 +9,10 @@ For Paramesh test:
 
 For AMReX test:
 ./setup StreamingSineWave -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 +Mode3 -parfile=test_amrex_3d.par
+
+For 1D O(1) CPU:
+./setup StreamingSineWave -auto -1d +cartesian -nxb=256 nE=1 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 -parfile=test_1d_256.par
+
+For 1D O(v) CPU:
+./setup StreamingSineWave -auto -1d +cartesian -nxb=256 nE=1 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_1d_256.par -objdir=sine1d_256x2e_Ov
+

@@ -1,0 +1,2 @@
+./setup Relaxation -auto -1d +spherical -nxb=16  nE=5 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoSolver=EMAB thornadoOrder=ORDER_1 -with-unit=source/physics/Eos/EosMain/WeakLib -parfile=test_sph_1d.par -objdir=relax_MI_5E_O1_1Sph
+#./setup Relaxation -auto -1d +cartesian -nxb=16 nE=5 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 thornadoSolver=EMAB -with-unit=source/physics/Eos/EosMain/WeakLib -parfile=test_car_1d.par -objdir=relax_MI_5E_O1_1Car

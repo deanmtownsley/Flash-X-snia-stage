@@ -103,6 +103,7 @@ rt_use_pair   = .false.
 rt_pair_file  = ""
 rt_positivityLimiter = .true.
 rt_UpperBry1  = 1.0e100  # 1.0e0 for CB closure, 1.0e100 for MI closure
+rt_slopeLimiter = .false.
 
 # other flags
 useParticles  = .false.

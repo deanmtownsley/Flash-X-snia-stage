@@ -49,7 +49,7 @@ subroutine Particles_advance (dtOld,dtNew)
 
   use Driver_interface, ONLY : Driver_abortFlash
 
-  use pt_interface, ONLY: pt_updateTypeDS, pt_advanceRK
+  use pt_interface, ONLY: pt_updateTypeDS, pt_advanceRK, pt_advanceMC
   use Grid_interface, ONLY : Grid_moveParticles, Grid_fillGuardCells, &
                              Grid_mapMeshToParticles, Grid_sortParticles
   implicit none
@@ -116,7 +116,6 @@ subroutine Particles_advance (dtOld,dtNew)
   !! Now do actual movement, advance particles in time.
   !! This implements the option of picking different
   !! integration methods for different particle types.
-
   do i = 1, NPART_TYPES
      p_begin=pt_typeInfo(PART_TYPE_BEGIN,i)
      p_count=pt_typeInfo(PART_LOCAL,i)
@@ -124,6 +123,8 @@ subroutine Particles_advance (dtOld,dtNew)
      select case(pt_typeInfo(PART_ADVMETHOD,i))
      case(RUNGEKUTTA)
         call pt_advanceRK(dtOld,dtNew, p_begin,p_end,i)
+     case(MONTECARLO)
+        CALL pt_advanceMC(dtNew,i)
 !DevNote :: Following two options to be implemented later
 !  case(MIDPOINT)
 !     call pt_advanceMidpoint(dtOld,dtNew,p_begin,p_end,i)

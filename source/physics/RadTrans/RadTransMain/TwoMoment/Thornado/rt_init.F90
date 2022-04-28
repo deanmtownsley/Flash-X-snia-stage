@@ -69,6 +69,7 @@ subroutine rt_init()
 
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
+  call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
 
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
@@ -82,6 +83,7 @@ subroutine rt_init()
      External_EOS = eos_pointer, &
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
+     SlopeLimiter_Option = rt_slopeLimiter, &
      OpacityTableName_EmAb_Option = rt_emab_file, &
      OpacityTableName_Iso_Option = rt_iso_file, &
      OpacityTableName_NES_Option = rt_nes_file, &
@@ -91,9 +93,12 @@ subroutine rt_init()
   call RuntimeParameters_get("gamma", eos_gamma)
   call InitThornado( THORNADO_NNODES, NDIM, THORNADO_NE, &
      THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, &
+     EquationOfStateTableName_Option = '', &
+     External_EOS = 0, &
      Gamma_IDEAL_Option = eos_gamma, &
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
+     SlopeLimiter_Option = rt_slopeLimiter, &
      Verbose_Option = Verbose )
 #endif
 

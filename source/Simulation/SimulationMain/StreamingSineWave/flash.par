@@ -75,7 +75,7 @@ eintSwitch = 1.e-4
 eos_coulombMult = 1.0
 
 # hydro options
-useHydro = .true.
+useHydro = .false.
 use_cma_advection = .true.
 
 ## -------------------------------------------------------------##

@@ -1,0 +1,216 @@
+!!****if* source/Particles/localAPI/pt_initPositions
+!!
+!! NAME
+!!    pt_initPositions
+!!
+!! SYNOPSIS
+!!
+!!    call pt_initPositions(integer(in)  :: blockID,
+!!                          logical(out) :: success)
+!!
+!! DESCRIPTION
+!!
+!!  Initializes particle locations for one block in the grid.
+!!
+!!  The initialization of locations may fail, if adding the
+!!  number of particles requested (by the choice of initialization
+!!  method and runtime parameters) would exceed the maximum allowed
+!!  number of particles allowed in any MPI task given by runtime
+!!  parameter pr_maxPerProc. In that case, an impementation of this
+!!  interface may:
+!!    o abort the simulation (by calling Driver_abortFlash); or
+!!    o return with success set to FALSE.
+!!  If returning with success=FALSE, pt_numLocal may have been
+!!  reset to 0.
+!!
+!! ARGUMENTS
+!!
+!!  blockID:        local block ID containing particles to create
+!!
+!!  success:        returns .TRUE. if positions for all particles
+!!                  that should be assigned to this block have been
+!!                  successfully initialized.
+!!
+!! SIDE EFFECTS
+!!
+!!  Updates the variable pt_numLocal (in Particles_data), but adding
+!!  to the previous value (if successful) the number of particles that
+!!  were placed in the block given by blockID. If unsuccessful, pt_numLocal
+!!  may be reset to 0.
+!!
+!!  The values of position attributes of the newly initialized particles
+!!  will be updated.
+!!
+!!  The values of blk and proc attributes of newly initialized particles
+!!  will also be updated appropriately.
+!!
+!!  The values of velocity attributes of particles MAY also be updated
+!!  by some implementations of this interface.
+!!
+!! NOTES
+!!
+!!  The values of the tag attribute of particles will not be initialize
+!!  here, that is left for later and typically done later in the same
+!!  invocation of particles_initpositions that calls this interface.
+!!
+!! SEE ALSO
+!!
+!!  Particles_data
+!!  Particles_initPositions
+!!***
+
+
+subroutine pt_initPositions_pc (iSpecies,tileDesc,success)
+  use Particles_data, only : pt_numLocal, pt_initradfield_num, pt_is_veldp,&
+                             pt_maxPerProc, particles, pt_meshMe
+  use Grid_interface, only : Grid_getCellVolumes
+  use Grid_tile, only : Grid_tile_t
+  use Particles_data, only : a_rad
+  use new_mcp, only : sample_cell_position, sample_iso_velocity,&
+                      sample_time
+  use opacity, only : sample_energy_blackbody
+  use relativity, only : transform_comoving_to_lab
+  use Driver_interface, only : Driver_abortFlash
+
+  implicit none
+#include "constants.h"
+#include "Flash.h"
+
+  type(Grid_tile_t), INTENT(in) :: tileDesc
+  logical,intent(OUT) :: success
+  integer, intent(in) :: iSpecies
+
+  ! aux variables
+  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+  real, dimension(2,MDIM) :: bndBox
+  real, dimension(MDIM) :: deltaCell
+  integer, dimension(MDIM) :: cellID
+  real, pointer :: solnVec(:,:,:,:)
+  real :: Tgas, dV, totalE, weight, mcpweight
+  integer :: ii, p, i, j, k
+  real, dimension(MDIM) :: newxyz, newvel
+  real :: newenergy, dshift
+  real, allocatable, dimension(:,:,:) :: cellVolumes
+  integer :: lo(MDIM), hi(MDIM)
+  integer :: icid(MDIM)
+  integer, dimension(MDIM) :: local_cellID
+  
+  ! Commenting out stub code
+  !success = .true. ! DEV: returns true because this stub creates no particles,
+                   ! therefore all of those zero particles were created successfully
+  !return
+
+  ! Implementation for MCRHD's initial thermal radiation field
+  success = .false. ! default
+  p = pt_numLocal
+
+  if (pt_initradfield_num <= 0) then
+    success = .true.    ! successfully create no particles
+    return
+  end if
+
+  ! Non-zero initial radiation field MCP number starts
+
+  ! Gather cell indicies in current block
+  blkLimits = tileDesc%limits
+  blkLimitsGC = tileDesc%blkLimitsGC
+
+  ! Get the grid geometry of this block
+  call tileDesc%boundBox(bndBox)
+  call tileDesc%deltas(deltaCell)
+  lo(:) = blkLimits(LOW,:)
+  hi(:) = blkLimits(HIGH,:)
+  icid = tileDesc%cid
+
+  ! get pointer to solution data
+  call tileDesc%getDataPtr(solnVec, CENTER)
+
+  ! get cell volumes
+  allocate(cellVolumes(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))
+  call Grid_getCellVolumes(tileDesc%level,lo,hi,cellVolumes)
+  
+        local_cellID = (/ i - icid(IAXIS) + 1,&
+                          j - icid(JAXIS) + 1,&
+                          k - icid(KAXIS) + 1 /)
+  
+  ! Do the loop over cells
+  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+    cellID(KAXIS) = k
+    local_cellID(KAXIS) = k - icid(KAXIS) + 1
+
+    do j = blkLimits(LOW, JAXIS), blkLimits(HIGH, JAXIS)
+      cellID(JAXIS) = j
+      local_cellID(JAXIS) = j - icid(JAXIS) + 1
+
+      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH, IAXIS)
+        cellID(IAXIS) = i
+        local_cellID(IAXIS) = i - icid(IAXIS) + 1
+
+        dV = cellVolumes(i,j,k)
+
+        Tgas = solnVec(TEMP_VAR, i, j, k)
+        totalE = a_rad * (Tgas**4) * dV
+        weight = totalE / pt_initradfield_num
+
+        ! Start loop to sample MCPs
+        do ii = 1, pt_initradfield_num
+          p = p + 1
+
+          call sample_cell_position(bndBox, deltaCell, local_cellID, newxyz)
+
+          call sample_iso_velocity(newvel)
+
+          call sample_energy_blackbody(solnVec, cellID, iSpecies, newenergy)
+
+          ! initialize the particle
+          ! Directly edit particles array
+          ! HACK - tileDesc%id is paramesh-specific
+          particles(BLK_PART_PROP,p) = real(tileDesc%id)
+          particles(PROC_PART_PROP,p) = real(pt_meshMe)
+
+          ! TREM should be -1.0 because it's an initial field
+          particles(TREM_PART_PROP,p) = -1.0
+
+          particles(POSX_PART_PROP:POSZ_PART_PROP,p) = newxyz
+          particles(VELX_PART_PROP:VELZ_PART_PROP,p) = newvel
+
+          particles(ENER_PART_PROP,p) = newenergy
+
+          mcpweight = weight / newenergy
+
+          particles(NPIN_PART_PROP,p) = mcpweight
+          particles(NUMP_PART_PROP,p) = mcpweight
+
+          ! Both TYPE and TAG are taken care of in Particles_initPositions
+
+          ! transform back to lab frame if needed
+          if (pt_is_veldp) then
+            ! call some conversion function to convert
+            call transform_comoving_to_lab(cellID, solnVec,&
+                          particles(:,p), dshift)
+          end if
+
+        end do ! done MCP sampling
+
+      end do
+    end do
+  end do
+  call tileDesc%releaseDataPtr(solnVec, CENTER)
+  deallocate(cellVolumes)
+
+  ! Update final particle count
+  pt_numLocal = p
+
+  ! success check
+  if (pt_numLocal > pt_maxPerProc) then
+    call Driver_abortFlash("pt_initPositions: initial radiation field exceeds&
+                            maximum allowed number pt_maxPerProc.")
+  else
+    success = .true.
+  end if
+
+!----------------------------------------------------------------------
+  
+end subroutine pt_initPositions_pc
+
+

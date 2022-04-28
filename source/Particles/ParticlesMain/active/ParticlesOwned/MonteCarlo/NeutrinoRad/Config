@@ -1,0 +1,11 @@
+##python:genLines
+
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    ### Define preprocessor parameter
+    yield 'PPDEFINE FLASH_MCRHD_NEUTRINO'
+    yield 'REQUIRES physics/Eos/EosMain/WeakLib'
+    yield 'REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado'
