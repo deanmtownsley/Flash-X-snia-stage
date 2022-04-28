@@ -1,9 +1,21 @@
 
 DEFAULT Paramesh4
 
-USESETUPVARS NoLevelwideFluxes
+USESETUPVARS NoLevelwideFluxes, Bittree, AltMorton, ImprovedSort
 IF not NoLevelwideFluxes
    PPDEFINE USE_LEVELWIDE_FLUXES
+ENDIF
+
+IF AltMorton
+  PPDEFINE ALT_MORTON_ORDER
+ENDIF
+
+IF ImprovedSort
+  PPDEFINE IMPROVED_SORT
+ENDIF
+
+IF Bittree
+  REQUIRES ./Bittree
 ENDIF
 
 # !!! If you add a parameter, please add a description line
@@ -295,3 +307,44 @@ PARAMETER gr_lrefmaxTimeValue_18 INTEGER -1
 PARAMETER gr_lrefmaxTimeValue_19 INTEGER -1
 PARAMETER gr_lrefmaxTimeValue_20 INTEGER -1
 
+# Runtime parameters controlling sort-by-work functionality
+D gr_btSortByWork Controls the distribution of blocks over processors.
+D & True (default) = blocks are weighted by a work value stored in an
+D & internal paramesh array. False = blocks are distributed uniformly.
+PARAMETER gr_btSortByWork BOOLEAN True
+
+D gr_btCustomWork If gr_btSortByWork is True, controls how the work
+D & array is determined. True = user sets physically-determined values
+D & for work via the Grid routine Grid_setWork. False (default) =
+D & blocks are assigned a work weight based on nodetype.
+PARAMETER gr_btCustomWork BOOLEAN False
+
+D gr_btWorkDefaultPar If gr_btExchangeWork is False, every non-leaf entry in the
+D & work_block array is reset to this value during regridding. Also, this
+D & controls the default work assigned if gr_btCustomWork = False. Can be
+D & updated by Grid_setWorkDefault.
+PARAMETER gr_btWorkDefaultPar REAL 1.
+
+D gr_btWorkDefaultLeaf If gr_btExchangeWork is False, every leaf entry in the
+D & work_block array is reset to this value during regridding. Also, this
+D & controls the default work assigned if gr_btCustomWork = False. Can be
+D & updated by Grid_setWorkDefault.
+PARAMETER gr_btWorkDefaultLeaf REAL 2.
+
+D gr_btWorkLBLeaf Lower bound for work (for leaf blocks)
+PARAMETER gr_btWorkLBLeaf REAL 0.
+D gr_btWorkLBPar Lower bound for work (for non-leaf blocks)
+PARAMETER gr_btWorkLBPar REAL 0.
+D gr_btWorkUBLeaf Upper bound for work (for leaf blocks)
+PARAMETER gr_btWorkUBLeaf REAL 1000000.
+D gr_btWorkUBPar Upper bound for work (for non-leaf blocks)
+PARAMETER gr_btWorkUBPar REAL 1000000.
+
+D gr_btWorkChildScaling If gr_btCustomWork is True, new children are assigned
+D & the work of their parent times this factor.
+PARAMETER gr_btWorkChildScaling REAL 1.
+
+D gr_btExchangeWork True = work_block is exchanged during refinement.
+D & False (default) = entire work_block array is reset to defaults
+D & during each refinement (after sorting).
+PARAMETER gr_btExchangeWork BOOLEAN False
