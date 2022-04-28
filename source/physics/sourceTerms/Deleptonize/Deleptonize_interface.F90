@@ -5,7 +5,7 @@
 !!***
 Module Deleptonize_interface
 #include "constants.h"
-#include "simulation.h"
+#include "Simulation.h"
 
   interface Deleptonize
      subroutine Deleptonize (dotiling,dt,time)
