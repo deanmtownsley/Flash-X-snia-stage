@@ -20,7 +20,7 @@ module Simulation_data
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   !! *** Variables pertaining to this Simulation *** !!
 

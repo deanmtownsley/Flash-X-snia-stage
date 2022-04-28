@@ -20,7 +20,7 @@ module Simulation_data
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   !! *** Runtime Parameters *** !!
   real, save :: sim_dens_lo_i

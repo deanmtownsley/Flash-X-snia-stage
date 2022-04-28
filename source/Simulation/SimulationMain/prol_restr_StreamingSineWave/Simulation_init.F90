@@ -27,7 +27,7 @@
 subroutine Simulation_init()
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use Eos_interface, ONLY : Eos_getAbarZbar
   use Logfile_interface, ONLY : Logfile_stamp
   use ProgramHeaderModule, ONLY : nE, nDOF
@@ -39,7 +39,7 @@ subroutine Simulation_init()
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 #include "Multispecies.h"
 
