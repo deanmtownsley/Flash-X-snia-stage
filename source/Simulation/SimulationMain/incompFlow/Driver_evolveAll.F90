@@ -76,12 +76,6 @@ subroutine Driver_evolveAll()
 #include "constants.h"
 #include "Simulation.h"
 
-  integer   :: localNumBlocks
-
-  integer :: blockCount
-  integer :: blockList(MAXBLOCKS)
-  integer :: sweepDummy
-  
   ! for logfile output
   character(len=MAX_STRING_LENGTH), dimension(3,2) :: strBuff
   character(len=15) :: numToStr

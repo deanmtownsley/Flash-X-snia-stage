@@ -7,5 +7,5 @@ IO += io_ptCorrectNextPartTime.o \
       io_ptInterface.o \
       io_typeInterface.o \
       io_intfTypesModule.o \
-      io_rescaleCellBoxes.o
-
+      io_rescaleCellBoxes.o \
+      io_amrexInit.o

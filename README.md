@@ -2,16 +2,39 @@
 
 ## Git/Testing Workflow
 
-The current rules for collaborating via git are as follows
+The current rules for collaborating via GitHub are as follows:
 
-1.  Base all feature branches off of the main branch.
-2.  When development on a feature branch is finished, merge main branch on to the feature branch and run full test-suite on the feature branch. 
-3.  If at any point during the previous steps errors are discovered that need to
-    be fixed, fix code in the feature branch, then go back to point 2 above. Repeat until no test errors.
-4. If a merge conflict occurs when merging main into the feature branch _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge.	
-5.  Do not rebase a feature branch that has already been pushed to the GitHub
-    repository.
-6.  When you are ready, create a PR from feature branch to merge branch. If no conflict occur in the merge branch you are done. If conflicts occur, then depending on the extent and type of conflicts the resolution will be done on a case by case basis. 
+Contributors with
+read only permission to the Flash-X code repository should use the following
+guidelines to create a pull request:
+
+1. Create a fork.
+2. Make your changes.
+3. Create a PR to the **staged** branch whenever you wish.
+   Give your PR a title that begins with the word "DRAFT".
+   This will allow any discussion about the pull
+   request to be conducted on github.
+4. When you are ready for the pull request to be accepted, merge from **main**
+   into your forked code, to ensure that your fork is not out of sync.
+4. If a merge conflict occurs when merging **main** into the feature branch,
+   _do not_ attempt to resolve conflicts using the  GitHub web interface - such an attempt can results in an unintended merge to **main**.
+5. Run a local version of your test suite and make sure everything
+   passes.
+6. Make sure your latest commit has been pushed.
+7. Remove "DRAFT" from your pull request name. If no further problems
+   are found, this will cause the PR
+   to be merged. The test suite is run at night if one of more
+   PRs have been merged into the **staged** branch.
+8. If the test suite passes, a composite PR will be created from
+   **staged** into **main**, and you won't have to do anything more.
+9. If the test suite fails, it is expected that you will resolve the
+   failures immediately. If the failures continue over several
+   iterations, or if the conflicts prove to be non-trivial, the
+   resolution will involve someone designated by the Council to work
+   with you.
+
+Contributors with write permission should create a feature branch
+instead of a fork. The remainder of the workflow remains the same.
 
 ## Containerization Workflows
 

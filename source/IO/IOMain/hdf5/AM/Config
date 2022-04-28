@@ -1,0 +1,7 @@
+# Config file for source/IO/IOMain/hdf5/AM
+
+D io_plotfileAmrexFormat If true, this sets plotfile format
+D to one provided by AMReX otherwise uses native hdf5 format
+D Default is false
+
+PARAMETER io_plotFileAmrexFormat BOOLEAN false

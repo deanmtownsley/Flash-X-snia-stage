@@ -7,9 +7,7 @@ on:
 
   pull_request:
     branches: 
-      - main
-      - staged
-      - development
+      - Fluid-Dynamics
     paths-ignore:
       - '**.md'
       - 'sites/**'

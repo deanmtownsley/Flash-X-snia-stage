@@ -3,16 +3,9 @@ PPDEFINE BITTREE
 
 REQUIRES ./c_source
 
-CHILDORDER localAPI
-
 
 D gr_btDistributedSort If both gr_btSortByWork and gr_btCustomWork are True,
 D & controls behavior of the sorting algorithm. True = Uses less local
 D & storage but increases communication. False (default) = Uses less
 D & communication but high memory consumption.
 PARAMETER gr_btDistributedSort BOOLEAN False
-
-D gr_btExchangeBflags True = PM-specific array bflags is exchanged during
-D & refinement. Increases communication. False (default) = entire bflags array
-D & is reset to -1 during each refinement.
-PARAMETER gr_btExchangeBflags BOOLEAN False

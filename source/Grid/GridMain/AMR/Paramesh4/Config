@@ -29,15 +29,11 @@ IF ParameshLibraryMode
     PPDEFINE LIBRARY
 ENDIF
 
-IF FlashAvoidOrrery
-  REQUIRES ./flash_avoid_orrery
-  CHILDORDER PM4_package flash_avoid_orrery
+IF FlashAvoidOrrery or Bittree
+  # Configuration in ./PM4_package/Config applies
+  REQUIRES ./PM4_package
 ENDIF
 
-IF Bittree
-  REQUIRES ./bittree
-  CHILDORDER PM4_package flash_avoid_orrery bittree
-ENDIF
 
 USESETUPVARS NoLevelwideFluxes
 IF not NoLevelwideFluxes
