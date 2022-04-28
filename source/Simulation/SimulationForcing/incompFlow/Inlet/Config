@@ -1,0 +1,19 @@
+#   Config file for Simulation/SimulationForcing/incompFlow/Inlet
+#
+REQUIRES physics/IncompNS/IncompNSMain
+
+# Directives
+PPDEFINE SIMULATION_FORCE_INLET
+
+# Constants
+PPDEFINE INLET 1
+
+# Inlet Sink
+PARAMETER sim_inletSink       REAL  -1.0
+
+# Inlet region Buffer
+PARAMETER sim_inletBuffer     REAL   1.0
+
+# Outfow growth rate, k in logistic function
+# f = 1/(1 + exp(-k*(x-xo)))
+PARAMETER sim_inletGrowthRate   REAL  4.0

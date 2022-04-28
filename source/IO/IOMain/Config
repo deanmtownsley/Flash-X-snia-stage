@@ -242,9 +242,3 @@ D & FLASH will only write a checkpoint, plot, or particle file if the user
 D & creates a .dump_plotfile, .dump_checkpoint, .dump_restart, or
 D & .dump_particle_file file.  A .kill file will still kill FLASH.
 PARAMETER summaryOutputOnly BOOLEAN false
-
-D io_writeGridInfo If true, this writes Gridfile for post 
-D processing 
-D Default is false
-
-PARAMETER io_writeGridInfo BOOLEAN false

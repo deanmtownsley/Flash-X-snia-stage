@@ -33,27 +33,51 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine Simulation_init()
 
-  use Simulation_data
-  use Driver_interface,            ONLY : Driver_getMype,Driver_abort
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use sim_heaterInterface,         ONLY : sim_heaterInit
-  use sim_outflowInterface,        ONLY : sim_outflowInit
+   use Simulation_data
+   use Driver_interface, ONLY: Driver_getMype, Driver_abort
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use sim_heaterInterface, ONLY: sim_heaterInit
 
-  implicit none
+#ifdef SIMULATION_FORCE_INLET
+   use sim_outletInterface, ONLY: sim_outletInit
+#endif
 
-  call Driver_getMype(MESH_COMM, sim_meshMe)
+#ifdef SIMULATION_FORCE_OUTLET
+   use sim_inletInterface, ONLY: sim_inletInit
+#endif
 
-  call RuntimeParameters_get('xmin',    sim_xMin)
-  call RuntimeParameters_get('ymin',    sim_yMin)
-  call RuntimeParameters_get('xmax',    sim_xMax)
-  call RuntimeParameters_get('ymax',    sim_yMax)
-  call RuntimeParameters_get('zmin',    sim_zmin)
-  call RuntimeParameters_get('zmax',    sim_zmax)
+   implicit none
 
-  call sim_heaterInit()
-  call sim_outflowInit()
+   call Driver_getMype(MESH_COMM, sim_meshMe)
+
+   call RuntimeParameters_get('xmin', sim_xMin)
+   call RuntimeParameters_get('ymin', sim_yMin)
+   call RuntimeParameters_get('xmax', sim_xMax)
+   call RuntimeParameters_get('ymax', sim_yMax)
+   call RuntimeParameters_get('zmin', sim_zmin)
+   call RuntimeParameters_get('zmax', sim_zmax)
+   call RuntimeParameters_get('ins_gravX', sim_gravX)
+   call RuntimeParameters_get('ins_gravY', sim_gravY)
+   call RuntimeParameters_get('ins_gravZ', sim_gravZ)
+
+   if (sim_meshMe .eq. MASTER_PE) then
+      write (*, *) 'sim_gravX=', sim_gravX
+      write (*, *) 'sim_gravY=', sim_gravY
+      write (*, *) 'sim_gravZ=', sim_gravZ
+   end if
+
+   call sim_heaterInit()
+
+#ifdef SIMULATION_FORCE_INLET
+   call sim_inletInit()
+#endif
+
+#ifdef SIMULATION_FORCE_OUTLET
+   call sim_outletInit()
+#endif
 
 end subroutine Simulation_init

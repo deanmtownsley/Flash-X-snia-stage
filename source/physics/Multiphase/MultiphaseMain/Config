@@ -1,6 +1,8 @@
 #       Config file for the Multiphase unit
 REQUIRES physics/Multiphase/localAPI
-REQUIRES physics/IncompNS/IncompNSMain/vardens
+
+REQUIRES physics/IncompNS/IncompNSMain/varDens
+
 REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal
@@ -29,5 +31,13 @@ PARAMETER mph_iPropSmear REAL 1.0      # Thickness of the smeared region
 #-------------------------------------------------------------------------------
 # Variables required by the MPH module
 VARIABLE dfun                   # Level set distance function
-VARIABLE rdfn                   # RHS for level set advection
+VARIABLE hdn0                   # RHS for level set advection
 VARIABLE dfrc                   # Level set forcing variable
+
+VARIABLE nrmx TYPE:GENERIC      # level set normal (x - direction)
+VARIABLE nrmy TYPE:GENERIC      # level set normal (y - direction)
+
+USESETUPVARS nDim
+IF nDim == 3
+VARIABLE nrmz TYPE:GENERIC      # level set normal (z - direction)
+END IF

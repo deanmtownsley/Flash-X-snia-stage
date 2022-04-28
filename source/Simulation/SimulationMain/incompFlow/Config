@@ -6,4 +6,13 @@ IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
    REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
 ENDIF
 
-#LINKIF Grid_updateRefinement.F90 Grid/GridMain/paramesh
+IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
+   REQUESTS Grid/GridSolvers/HYPRE
+ELSE
+   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+ENDIF
+
+LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
+LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
+
+LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex

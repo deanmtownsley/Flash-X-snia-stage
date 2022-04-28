@@ -3,17 +3,9 @@ PPDEFINE MULTIPHASE_EVAPORATION
 
 #---------------------------------------------------------------
 REQUIRES physics/Multiphase/MultiphaseMain
-REQUIRES physics/HeatAD/HeatADMain/vardiffusion
+REQUIRES physics/HeatAD/HeatADMain/varDiffusion
 
 #---------------------------------------------------------------
-VARIABLE nrmx TYPE:GENERIC # level set normal (x - direction)
-VARIABLE nrmy TYPE:GENERIC # level set normal (y - direction)
-
-USESETUPVARS nDim
-IF nDim == 3
-VARIABLE nrmz TYPE:GENERIC # level set normal (z - direction)
-END IF
-
 VARIABLE hflq TYPE:GENERIC # liquid heat flux
 VARIABLE hfgs TYPE:GENERIC # vapor heat flux
 VARIABLE mflx TYPE:GENERIC # mass flux

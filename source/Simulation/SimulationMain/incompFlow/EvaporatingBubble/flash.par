@@ -4,6 +4,12 @@ gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
 gr_pmRpConsvFluxDensities = .FALSE.
 
+# Settings for guard cell filling
+gr_bcEnableApplyMixedGds = .FALSE.
+convertToConsvdForMeshCalls = .FALSE.
+convertToConsvdInMeshInterp = .FALSE.
+enableMaskedGCFill = .FALSE.
+
 # Inverse of Reynolds Number
 ins_invReynolds   = .003
 
@@ -40,12 +46,12 @@ zmin            = -1.0
 zmax            =  1.0
 
 #       Boundary conditions
-xl_boundary_type = "neumann_ins"
-xr_boundary_type = "neumann_ins"
-yl_boundary_type = "neumann_ins"
-yr_boundary_type = "neumann_ins"
-zl_boundary_type = "neumann_ins"
-zr_boundary_type = "neumann_ins"
+xl_boundary_type = "outflow_ins"
+xr_boundary_type = "outflow_ins"
+yl_boundary_type = "outflow_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "outflow_ins"
+zr_boundary_type = "outflow_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "Evaporating Bubble problem"

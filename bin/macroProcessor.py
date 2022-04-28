@@ -19,6 +19,7 @@ class macroProcessor:
     self.argdict = {}
     self.typedict = {}
     self.indentdict = {}
+    self.sourcedict = {}
     self.keylist = []
     #self.loadDefsList(standardMacroDefLibrary)
 
@@ -29,9 +30,18 @@ class macroProcessor:
     parser = ConfigParser(comment_prefixes=('#!','#!!'))
     parser.optionxform = lambda option: option # read keys case sensitively
     if filename is not None:
+      dirName = os.path.dirname(os.path.abspath(filename))
       parser.read(filename)
       for section in parser.sections():
-        self.keylist.append(section)
+        if(section not in self.keylist):
+            self.keylist.append(section)
+            self.sourcedict[section] = dirName
+        else:
+            previousPath = self.sourcedict[section]
+            if not (previousPath.startswith(dirName) or dirName.startswith(previousPath)):
+                if not ('source/Simulation' in dirName or '/bin' in previousPath):
+                    raise SyntaxError('{} defined in parellel directories, can\'t inherit properly'.format(section))
+            self.sourcedict[section] = dirName #overwrite keyword with def from new location
 
         self.mdict[section] = parser.get(section,'definition').strip()
 
@@ -117,7 +127,8 @@ class macroProcessor:
         break
 
     # if expansion has a recursive macro, process lines again
-    if (expansion.count(macro_keyword)>0 and keymatch):
+    recursion = len(re.findall(macro_regex,expansion)) >0;
+    if (recursion and keymatch):
       macroStack.append(macroName)
       expansionLines = expansion.split('\n')
       for i,line in enumerate(expansionLines):
@@ -165,154 +176,14 @@ class macroProcessor:
         f.write(self.processLine(line))
 
 ###########################################################
+# Assuming ext starts with `.`
 def makeVariantName(base, var, ext):
     if(var == '' or var.lower()=='null'):
-        outfile = base + "." + ext
+        outfile = base +  ext
     else:
-        outfile = base + "_" + var + "." + ext
+        outfile = base + "_" + var + ext
     return outfile
 
-# sourceDir - absolute path to source directory
-# subDir - such that os.path.join(sourceDir,subDir) is absolute path to unit dir
-def recursiveGetDefs(sourceDir,subDir,binDir,simDir):
-    defsList = []
-    unitList = subDir.split("/")
-    currentUnit = sourceDir
-
-    # get common defs from bin dir
-    for f in os.listdir(binDir):
-        fpath = os.path.join(binDir,f)
-        if os.path.isfile(fpath) and os.path.splitext(fpath)[-1]==".ini":
-            defsList.append(fpath )
-
-    for unit in unitList:
-        currentUnit = os.path.join(currentUnit,unit)
-        for f in os.listdir(currentUnit):
-            fpath = os.path.join(currentUnit,f)
-            if os.path.isfile(fpath) and os.path.splitext(fpath)[-1]==".ini":
-                defsList.append(fpath )
-
-    # defs in simulation directory should overwrite others
-    for f in os.listdir(simDir):
-        fpath = os.path.join(simDir,f)
-        if os.path.isfile(fpath) and os.path.splitext(fpath)[-1]==".ini":
-            defsList.append(fpath )
-
-    return defsList
-
-# unitDir: path to unit directory with mc files
-# objDir: path to object directory
-# defsList: list of common defs and unit defs
-# varList: list of variant names (unit has variants/varName.ini files)
-def generateVariants(unitDir, objDir, defsList, varList):
-    print("Generating variants {} for unit: {}".format(varList,unitDir))
-    mcList = []
-    mcListNoVariants = []
-    baseList = []
-    for f in os.listdir(unitDir):
-        if os.path.splitext(f)[-1]==".F90-mc" :
-            mcPath = os.path.join(unitDir,f)
-            with open(mcPath) as mcFile:
-                lines = mcFile.read()
-                if '!!Novariants' in lines:
-                    mcListNoVariants.append(mcPath)
-                else:
-                    mcList.append(mcPath)
-                    baseList.append( os.path.splitext(f)[0]+".F90" )
-    for var in varList:
-        m = macroProcessor()
-        if(var != ''):
-            varDir = os.path.join(unitDir,var)
-            varDefs = [os.path.join(varDir,f) for f in os.listdir(varDir) if ((os.path.splitext(f)[-1]==".ini"))]
-            m.loadDefsList(defsList + varDefs)
-        else:
-            m.loadDefsList(defsList)
-        for f in mcList:
-            filebase,_ = os.path.splitext( os.path.basename(f) )
-            outfile = makeVariantName(filebase,var,"F90")
-            outpath = os.path.join(objDir, outfile)
-            if(os.path.islink(outpath)):
-                os.unlink(outpath)
-
-            m.convertFile(f,outpath)
-
-    #convert files with no variants
-    m = macroProcessor()
-    m.loadDefsList(defsList)
-    for f in mcListNoVariants:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
-        outfile = makeVariantName(filebase,'',"F90")
-        outpath = os.path.join(objDir, outfile)
-        if(os.path.islink(outpath)):
-            os.unlink(outpath)
-
-        m.convertFile(f,outpath)
-
-    if 'null' in [ v.lower() for v in varList]:
-        baseList = []
-    return baseList
-
-# unitDir: path to unit directory with mc files
-# varList: list of variant names (unit has variants/varName.ini files)
-def modifyMakefile(unitDir, makefile, varList):
-    mcList = []
-    mcListNoVariants = []
-    for f in os.listdir(unitDir):
-        if os.path.splitext(f)[-1]==".F90-mc" :
-            mcPath = os.path.join(unitDir,f)
-            with open(mcPath) as mcFile:
-                lines = mcFile.read()
-                if '!!Novariants' in lines:
-                    mcListNoVariants.append(mcPath)
-                else:
-                    mcList.append(mcPath)
-    for f in mcList:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
-        baseObj = filebase + '.o'
-        varObjs = []
-        for var in varList:
-            varObjs.append( makeVariantName(filebase,var,'o') )
-
-        with open(makefile,'r') as f:
-            lines = f.read()
-        lines = lines.replace(baseObj,' '.join(varObjs))
-        with open(makefile,'w') as f:
-            f.write(lines)
-
-    for f in mcListNoVariants:
-        filebase,_ = os.path.splitext( os.path.basename(f) )
-        baseObj = filebase + '.o'
-        varObjs = []
-        varObjs.append( makeVariantName(filebase,'','o') )
-
-        with open(makefile,'r') as f:
-            lines = f.read()
-        lines = lines.replace(baseObj,' '.join(varObjs))
-        with open(makefile,'w') as f:
-            f.write(lines)
-
-
-# Add definitions from all files in passed list, then
-# perform macro preprocessing on all files in current dir.
-def processFilesInCurrentDir( macroProc = None, defsList=[] ):
-    if macroProc is None:
-        m = macroProcessor()
-        for defs in defsList:
-            m.loadDefs(defsList)
-    else:
-        m = macroProc
-
-    # Get all .ini files from current directory
-    defs_in_dir = [f for f in os.listdir('.') if (os.path.isfile(f) and (os.path.splitext(f)[-1]==".ini"))]
-    # The following command will trigger a NameError exception if 'import ConfigParser' has failed:
-    m.loadDefs(defs_in_dir)
-
-    # Search current directory and convert all .F90-mc files
-    files = [f for f in os.listdir('.') if (os.path.isfile(f) and (".F90-mc" in f) and os.path.splitext(f)[-1]==".F90-mc")]
-    for f in files:
-        outfile = f.replace(".F90-mc",".F90")
-        print("Macro processor running on "+f)
-        m.convertFile(f,outfile)
 
 
 # Can run directly to process some file.

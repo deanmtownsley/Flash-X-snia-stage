@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow
+!!****if* source/Simulation/SimulationMain/incompFlow/Driver_evolveAll
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -115,7 +115,6 @@ subroutine Driver_evolveAll()
    type(Grid_tile_t) :: tileDesc
 
    ! Get grid variables for incompressible Naiver-Stokes
-   ! if IncompNS unit is available
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
    call IncompNS_getGridVar("CENTER_PRESSURE", iPresVar)
    call IncompNS_getGridVar("CENTER_DIVERGENCE", iDivVar)
@@ -137,7 +136,7 @@ subroutine Driver_evolveAll()
    gcMask = .FALSE.
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                            maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -212,7 +211,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
 #ifdef MULTIPHASE_MAIN
-      ! Multiphase advection diffusion procedure
+      ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
       !------------------------------------------------------------
@@ -232,7 +231,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Apply redistancing procedure
       !------------------------------------------------------------
@@ -254,7 +253,7 @@ subroutine Driver_evolveAll()
          gcMask = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -324,7 +323,7 @@ subroutine Driver_evolveAll()
          gcMask(iHliqVar) = .TRUE.
          gcMask(iHGasVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -345,7 +344,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iMfluxVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #endif
@@ -411,19 +410,17 @@ subroutine Driver_evolveAll()
 
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
-      call Timers_start("Grid_solvePoisson")
       call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
                              bcTypes=ins_pressureBC_types, &
                              bcValues=ins_pressureBC_values, &
                              poisfact=ins_poisfact)
-      call Timers_stop("Grid_solvePoisson")
       !------------------------------------------------------------
 
       ! Fill GuardCells for pressure
       gcMask = .FALSE.
       gcMask(iPresVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask, &
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask, &
                                selectBlockType=ACTIVE_BLKS)
 
       ! Final step of fractional step velocity
@@ -457,7 +454,7 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iTempVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
@@ -483,9 +480,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- End Physics Sequence
       !------------------------------------------------------------
-      ! Update grid and notify changes to other units
-      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
-
       ! Velocities and Omg to Center variables
       ! In your Simulation Config set REQUIRES physics/IncompNS/IncompNSExtras
       ! Note this will add velocity and vorticity variables to your CENTER data structure.
@@ -499,7 +493,19 @@ subroutine Driver_evolveAll()
                      dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
       call Timers_stop("IO_output")
 
-      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
+      ! Update grid and notify changes to other units
+      call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
+
+      ! Perform housekeeping after gridChanges
+      ! Fill guard cells for new grid
+      if (gridChanged) then
+         dr_simGeneration = dr_simGeneration + 1
+
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS, mask=gcMask)
+      end if
 
       if (dr_globalMe .eq. MASTER_PE) then
          write (*, *) ' '

@@ -1,0 +1,18 @@
+#   Config file for heater API
+#
+
+REQUIRES physics/HeatAD/HeatADMain
+
+PPDEFINE SIMULATION_FORCE_HEATER
+
+D seedRadius for re-nucleation
+PARAMETER sim_nucSeedRadius  REAL     0.1 # Re-nucleation seed radius
+
+D total number of heaters
+PARAMETER sim_numHeaters     INTEGER  1   # Number of heaters
+
+D heater name
+PARAMETER sim_heaterName     STRING  "incomp_flow"
+
+D display site info 
+PARAMETER sim_heaterShowInfo BOOLEAN FALSE

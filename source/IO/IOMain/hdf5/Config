@@ -2,7 +2,11 @@ LIBRARY HDF5
 
 DEFAULT serial
 
-USESETUPVARS parallelIO, IO
+USESETUPVARS parallelIO, IO, IOWriteGridFiles
+
+IF IOWriteGridFiles
+  REQUIRES IO/IOMain/hdf5/writeGrid
+ENDIF
 
 IF IO not in ["","hdf5"]
    SETUPERROR The variable 'IO' is set to something other than 'hdf5'
