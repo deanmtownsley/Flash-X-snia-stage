@@ -1,12 +1,15 @@
 !!****if* source/physics/Eos/EosMain/Helmholtz/Ye/eos_initHelmholtz
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -55,7 +58,7 @@ subroutine eos_initHelmholtz()
   use Eos_data, ONLY : eos_type, eos_meshMe, eos_smallt
   use eos_helmData 
   use Logfile_interface, ONLY : Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   implicit none
 
@@ -65,7 +68,7 @@ subroutine eos_initHelmholtz()
 #include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
   integer:: unitEos =2
   integer :: i, j
   real :: tstp, dstp
@@ -101,7 +104,7 @@ subroutine eos_initHelmholtz()
 
         if (istat .ne. 0) then
            write(*,*) '[Eos_init] ERROR: opening helm_table.dat!'
-           call Driver_abortFlash("[Eos_init] ERROR: opening helm_table.dat")
+           call Driver_abort("[Eos_init] ERROR: opening helm_table.dat")
         endif
 
         !..read the helmholtz free energy table

@@ -1,12 +1,15 @@
 !!****ih* source/flashUtilities/UTCounter/MasterSlave/UTCounter_sharedCounter
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!    UTCounter_sharedCounter
@@ -58,7 +61,7 @@ module UTCounter_sharedCounter
 #ifdef UTCOUNTER_UNIT_TEST
   use mpi
 #else
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_checkMPIErrorCode
+  use Driver_interface, ONLY : Driver_abort, Driver_checkMPIErrorCode
 #endif
 
   implicit none
@@ -69,7 +72,7 @@ module UTCounter_sharedCounter
 #ifdef UTCOUNTER_UNIT_TEST
   integer, parameter :: FLASH_INTEGER = MPI_INTEGER
 #else
-  include 'Flash_mpi.h'
+  include 'Flashx_mpi.h'
 #endif
 
   integer, save :: utcnt_counterTarget
@@ -161,7 +164,7 @@ contains
        utcnt_masterRank = masterRank
     end if
     if (utcnt_masterRank < 0 .or. utcnt_masterRank >= utcnt_size) then
-       call Driver_abortFlash('Invalid Master')
+       call Driver_abort('Invalid Master')
     end if
 
     utcnt_logUnit = -1
@@ -219,7 +222,7 @@ contains
     integer :: index, procID, ierr
 
     if (.not.utcnt_isInitialized) then
-       call Driver_abortFlash("Must intialize the counter first")
+       call Driver_abort("Must intialize the counter first")
     end if
 
     utcnt_counterTarget = counterTarget
@@ -272,7 +275,7 @@ contains
     !sizeof(MPI_INT) == sizeof(MPI_INTEGER) == sizeof(FLASH_INTEGER).
     call NBC_Ibcast(utcnt_sharedCountMsg, 1, MPI_INT, utcnt_masterRank, &
          utcnt_comm, utcnt_sharedCountRequest, ierr)
-    if (ierr /= NBC_OK) call Driver_abortFlash("NBC_Ibcast error")
+    if (ierr /= NBC_OK) call Driver_abort("NBC_Ibcast error")
 # else
     call MPI_Ibcast(utcnt_sharedCountMsg, 1, FLASH_INTEGER, utcnt_masterRank, &
          utcnt_comm, utcnt_sharedCountRequest, ierr)
@@ -291,7 +294,7 @@ contains
     !initialize the error code for NBC_REQUEST_NULL requests.
     if (utcnt_sharedCountRequest(1) /= FLASH_REQUEST_NULL) then
        call NBC_Wait(utcnt_sharedCountRequest(1), ierr)
-       if (ierr /= NBC_OK) call Driver_abortFlash("NBC_Wait error")
+       if (ierr /= NBC_OK) call Driver_abort("NBC_Wait error")
     end if
 #else
     call MPI_Wait(utcnt_sharedCountRequest(1), &
@@ -308,14 +311,14 @@ contains
 
     isDone = .false.
     if (utcnt_sharedCountRequest(1) == FLASH_REQUEST_NULL) then
-       call Driver_abortFlash("Should not be null - test")
+       call Driver_abort("Should not be null - test")
     end if
 #ifdef FLASH_LIBNBC
     !LibNBC NOTE: The Fortran versions of NBC_Test / NBC_Wait do *not*
     !initialize the error code for NBC_REQUEST_NULL requests.
     call NBC_Test(utcnt_sharedCountRequest(1), ierr)
     if (ierr /= NBC_OK .and. ierr /= NBC_CONTINUE) &
-         call Driver_abortFlash("NBC_Test error")
+         call Driver_abort("NBC_Test error")
     isDone = (utcnt_sharedCountRequest(1) == FLASH_REQUEST_NULL)
 #else
     call MPI_Test(utcnt_sharedCountRequest(1), isDone, &
@@ -343,7 +346,7 @@ contains
     end if
 
     if (isTargetMet .and. .not.utcnt_isDone) &
-         call Driver_abortFlash("Progress error")
+         call Driver_abort("Progress error")
 
     if (present(finalCount)) then
        if (isTargetMet) then
@@ -506,7 +509,7 @@ contains
           else if (utcnt_rank == toRank) then
              write(msg2,'(a,i6)') ' received from', fromRank
           else
-             call Driver_abortFlash('Invalid arguments')
+             call Driver_abort('Invalid arguments')
           end if
        end if
 
@@ -632,15 +635,15 @@ contains
   subroutine Driver_checkMPIErrorCode(errorCode)
     implicit none
     integer, intent(IN) :: errorCode
-    if (errorCode /= MPI_SUCCESS) call Driver_abortFlash('Error in MPI')
+    if (errorCode /= MPI_SUCCESS) call Driver_abort('Error in MPI')
   end subroutine Driver_checkMPIErrorCode
 
-  subroutine Driver_abortFlash(msg)
+  subroutine Driver_abort(msg)
     implicit none
     character (len=*), intent(IN) :: msg
     print *, "ERROR!!! ", msg
     stop
-  end subroutine Driver_abortFlash
+  end subroutine Driver_abort
 #endif
 
 end module UTCounter_sharedCounter

@@ -1,12 +1,15 @@
 !!****if* source/numericalTools/RungeKutta/RungeKuttaMain/RungeKutta_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  
@@ -29,7 +32,7 @@ subroutine RungeKutta_init ()
   use RungeKutta_data
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
   use rk_interface,                ONLY : rk_setButcherTableauRepository
 
   implicit none
@@ -46,19 +49,19 @@ subroutine RungeKutta_init ()
 !
 !
   if (rk_maxButcherTableauDimension < 1) then
-      call Driver_abortFlash ('[RungeKutta_init] ERROR: Bad dimension for Butcher tableaus!')
+      call Driver_abort ('[RungeKutta_init] ERROR: Bad dimension for Butcher tableaus!')
   end if
 
   if (rk_maxNumberDependentVariables < 1) then
-      call Driver_abortFlash ('[RungeKutta_init] ERROR: No place for dependent variables!')
+      call Driver_abort ('[RungeKutta_init] ERROR: No place for dependent variables!')
   end if
 
   if (rk_stepSizeConfinementFactor < 0.5 .or. rk_stepSizeConfinementFactor > 1.0) then
-      call Driver_abortFlash ('[RungeKutta_init] ERROR: Confinement reduction factor out of range [0.5 to 1.0]!')
+      call Driver_abort ('[RungeKutta_init] ERROR: Confinement reduction factor out of range [0.5 to 1.0]!')
   end if
 
   if (rk_stepSizeSafetyFactor < 0.5 .or. rk_stepSizeSafetyFactor > 1.0) then
-      call Driver_abortFlash ('[RungeKutta_init] ERROR: Step size safety factor out of range [0.5 to 1.0]!')
+      call Driver_abort ('[RungeKutta_init] ERROR: Step size safety factor out of range [0.5 to 1.0]!')
   end if
 !
 !

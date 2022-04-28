@@ -1,12 +1,15 @@
 !!****if* source/Multispecies/MultispeciesMain/Multispecies_setProperty
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -53,7 +56,7 @@ subroutine Multispecies_setProperty(name, property, value)
 
 
   use Multispecies_data  !, ONLY : ms_Array
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -88,7 +91,7 @@ subroutine Multispecies_setProperty(name, property, value)
   else if (property == MS_EOSSUBTYPE) then
      ms_Array(msindex)%eosSubType = value
   else
-     call Driver_abortFlash("Error: Species property not found")
+     call Driver_abort("Error: Species property not found")
   end if
 
 
@@ -136,7 +139,7 @@ subroutine Multispecies_setIntegerProperty(name, property, value)
 
 
   use Multispecies_data  !, ONLY : ms_Array
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -171,7 +174,7 @@ subroutine Multispecies_setIntegerProperty(name, property, value)
   else if (property == MS_NUMELEMS) then
      ms_Array(msindex)%numElems = value
   else
-     call Driver_abortFlash("Error: Species property not found")
+     call Driver_abort("Error: Species property not found")
   end if
 
 
@@ -222,7 +225,7 @@ subroutine Multispecies_setStringProperty(name, property, value)
 
 
   use Multispecies_data  !, ONLY : ms_Array
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -251,7 +254,7 @@ subroutine Multispecies_setStringProperty(name, property, value)
      print*,'WARNING: MS_EOISELEFILE is not valid in Multispecies_setStringProperty ',&
           'calls any more, IGNORED, pleade adjust your Simulatele_initSpecies.'
   else
-     call Driver_abortFlash("Error: String species property not found")
+     call Driver_abort("Error: String species property not found")
   end if
 
 
@@ -263,7 +266,7 @@ end subroutine Multispecies_setStringProperty
 
 subroutine Multispecies_setRealArrProperty(name, property, value)
   use Multispecies_data  !, ONLY : ms_Array
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -282,7 +285,7 @@ subroutine Multispecies_setRealArrProperty(name, property, value)
   elseif (property == MS_FRACTIONS) then
      ms_Array(msindex)%fractions = value
   else
-     call Driver_abortFlash("Error: Species property not found")
+     call Driver_abort("Error: Species property not found")
   end if
 
 end subroutine Multispecies_setRealArrProperty
@@ -290,7 +293,7 @@ end subroutine Multispecies_setRealArrProperty
 
 subroutine Multispecies_setIntArrProperty(name, property, value)
   use Multispecies_data  !, ONLY : ms_Array
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -305,7 +308,7 @@ subroutine Multispecies_setIntArrProperty(name, property, value)
   if (property == MS_ZELEMS) then
      ms_Array(msindex)%zElems = value
   else
-     call Driver_abortFlash("Error: Species property not found")
+     call Driver_abort("Error: Species property not found")
   end if
 
 end subroutine Multispecies_setIntArrProperty

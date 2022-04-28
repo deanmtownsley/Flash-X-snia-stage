@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleCenterOfExpansion
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -35,7 +38,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
   use gr_mpoleInterface, ONLY : gr_mpoleCen3Dcartesian,   &
                                 gr_mpoleCen2Dcylindrical, &
                                 gr_mpoleCen1Dspherical
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "gr_mpole.h"
@@ -54,7 +57,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
 
     case (GRID_3DCYLINDRICAL)
 
-          call Driver_abortFlash("this geometry is not supported")
+          call Driver_abort("this geometry is not supported")
 
     case (GRID_2DCYLINDRICAL)
 
@@ -62,7 +65,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
 
     case (GRID_2DSPHERICAL)
 
-          call Driver_abortFlash("this geometry is not supported")
+          call Driver_abort("this geometry is not supported")
 
     case (GRID_1DSPHERICAL)
 

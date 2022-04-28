@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/gr_updateData
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -118,7 +121,7 @@ subroutine gr_updateData()
   nBlocks = lb-1
   if (gr_ioLocalNumBlocks .NE. nBlocks) then
      print*,'gr_ioLocalNumBlocks,nBlocks=',gr_ioLocalNumBlocks,nBlocks,' @',gr_meshMe
-     call Driver_abortFlash("gr_ioLocalNumBlocks .NE. nBlocks")
+     call Driver_abort("gr_ioLocalNumBlocks .NE. nBlocks")
     end if
 
 

@@ -1,12 +1,15 @@
 !!****if* source/Particles/ParticlesInitialization/WithDensity/CellMassBins/pt_initPositionsWithDensity
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -47,7 +50,7 @@ subroutine pt_initPositionsWithDensity (tileDesc,success)
   use Grid_interface, ONLY : Grid_getCellVolumes, Grid_getCellCoords
 !!$    Grid_getBlkIndexLimits, Grid_getSingleCellVol, Grid_getDeltas, &
 !!$    Grid_getBlkBoundBox
-  use Driver_interface, ONLY:  Driver_abortFlash
+  use Driver_interface, ONLY:  Driver_abort
   use Logfile_interface, ONLY:  Logfile_stamp
   use Particles_interface, ONLY : Particles_mapFromMesh
   use pt_interface, ONLY : pt_initLocal
@@ -174,7 +177,7 @@ subroutine pt_initPositionsWithDensity (tileDesc,success)
      end do
   end do
   if (icell .NE. numCells) then
-     call Driver_abortFlash('pt_initPositionsWithDensity: Garbage icell after accumulation loop!')
+     call Driver_abort('pt_initPositionsWithDensity: Garbage icell after accumulation loop!')
   end if
   deallocate(cellVol)
 
@@ -189,7 +192,7 @@ subroutine pt_initPositionsWithDensity (tileDesc,success)
      call ut_hunt(cumuMass,numCells,urp,icell)
      icell = icell + 1
      if (icell > numCells) then
-        call Driver_abortFlash('pt_initPositionsWithDensity: Garbage after ut_hunt call!')
+        call Driver_abort('pt_initPositionsWithDensity: Garbage after ut_hunt call!')
      end if
 
 

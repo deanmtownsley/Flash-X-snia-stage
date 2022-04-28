@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/incompFlow/Simulation_customizeProlong
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -79,7 +82,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
 #endif
 #endif
 
-  use Driver_interface,ONLY : Driver_abortFlash
+  use Driver_interface,ONLY : Driver_abort
 
   implicit none
 #include "constants.h"
@@ -153,7 +156,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
         call prol_fc_divpres_init(tot_divpres_prol,totFaces, ins_divpres_fc_vars)
 
      else
-        call Driver_abortFlash&
+        call Driver_abort&
              ("[Grid_updateRefinement]: unknown prolongation algorithm for face-centered magnetic fields!")
      endif
 #endif  
@@ -172,7 +175,7 @@ subroutine Simulation_customizeProlong(beforeOrAfter)
 
   else
         
-     call Driver_abortFlash("Simulation_customizeProlong: this is meaningless!")
+     call Driver_abort("Simulation_customizeProlong: this is meaningless!")
   end if
      
 

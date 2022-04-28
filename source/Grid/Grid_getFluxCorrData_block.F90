@@ -1,12 +1,15 @@
 !!****f* source/Grid/Grid_getFluxCorrData_block
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -19,7 +22,7 @@
 !!                              real(OUT),TARGET      :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              real(OUT),TARGET      :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
-!!                              logical, intent(IN), OPTIONAL :: isFluxDensity)
+!!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!
 !! DESCRIPTION
 !!
@@ -36,15 +39,17 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
 !!   fluxBufX :  buffer for fluxes in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction; ignored if NDIM < 2
+!!   fluxBufY :  buffer for fluxes in JAXIS-direction;
+!!               output should be considered undefined if NDIM < 2.
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; ignored if NDIM < 3
+!!   fluxBufZ :  buffer for fluxes in KAXIS-direction;
+!!               output should be considered undefined if NDIM < 3.
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
@@ -66,6 +71,8 @@
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
 !!   flux register class, such as FlashFluxRegister.
 !!
+!!   This interface is currently only implemented for Paramesh4 !
+!!
 !! SEE ALSO
 !!
 !!   Grid_putFluxData_block
@@ -76,15 +83,10 @@
 
 !!REORDER(4): fluxBuf[XYZ]
 
-#include "Simulation.h"
-
 subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, isFluxDensity)
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
-
-#include "constants.h"
-!#include "FortranLangFeatures.fh"
 
   type(Grid_tile_t), intent(in) :: blockDesc
   integer,intent(in) :: lo(3)

@@ -1,3 +1,6 @@
-[submodule "tools/maple"]
-	path = tools/maple
-	url = git@github.com:akashdhruv/Maple.git
+[submodule "lib/weaklib/source"]
+	path = lib/weaklib/source
+	url = git@github.com:starkiller-astro/weaklib.git
+[submodule "lib/thornado/source"]
+	path = lib/thornado/source
+	url = git@github.com:endeve/thornado.git

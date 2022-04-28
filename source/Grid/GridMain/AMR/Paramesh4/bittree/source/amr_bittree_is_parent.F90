@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/bittree/source/amr_bittree_is_parent.F90
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -30,7 +33,7 @@
 !!***
 subroutine amr_bittree_is_parent(lev, ijk, is_par, updated)
   use bittree, only: amr_bittree_get_bitid, bittree_is_parent
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   use iso_c_binding, only: c_int,c_bool
 
   implicit none
@@ -60,7 +63,7 @@ subroutine amr_bittree_is_parent(lev, ijk, is_par, updated)
 
 !-Check to make sure block was IDed correctly
   if ((lev/=lev1).OR.any(ijk/=ijk1))    then
-    call Driver_abortFlash("Error identifying block in amr_bittree_is_parent. &
+    call Driver_abort("Error identifying block in amr_bittree_is_parent. &
      &Routine can only be called on existing blocks.")
   end if
 

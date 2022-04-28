@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/bittree/source/gr_getNeighIntCoords.F90
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!   gr_getNeighIntCoords.F90
@@ -39,7 +42,7 @@
                        grid_ymin,grid_zmax,grid_zmin, &
                        bsize
 
-      use Driver_interface,only: Driver_abortFlash
+      use Driver_interface,only: Driver_abort
 
       implicit none
 
@@ -71,11 +74,11 @@
               if (force) then
                 neighCoord(i) = gr_domainBC(1,i)
               else
-                call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+                call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
               end if
             else
-              call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+              call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
             end if
           end if
@@ -89,11 +92,11 @@
               if (force) then
                 neighCoord(i) = gr_domainBC(2,i)
               else
-                call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+                call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
               end if
             else 
-              call Driver_abortFlash('Error in gr_getNeighIntCoords, &
+              call Driver_abort('Error in gr_getNeighIntCoords, &
                  &trying to compute out-of-bounds integer coordinates.')
             end if
           end if

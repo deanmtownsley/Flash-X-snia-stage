@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridBoundaryConditions/Flash3HSE/gr_hseStep
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -145,7 +148,7 @@
 subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, mode, massFrac)
 
   use gr_bcHseData, ONLY : HSE_FORWARD, HSE_BACKWARD, HSE_CONSTENTR, HSE_CONSTTEMP, HSE_SETTEMP
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY: Eos
 
   implicit none
@@ -265,7 +268,7 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   ! handle non-convergence
   if (iter >= max_iter) then
      write (6,*) 'HSE did not converge, dens, temp = ', densp1, tempp1
-     call Driver_abortFlash("HSE did not converge")
+     call Driver_abort("HSE did not converge")
   endif
 
   ! last update to temperature if adiabatic gradient is seleceted

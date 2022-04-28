@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/gr_copyGuardcellRegionToFab
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_copyGuardcellRegionToFab
@@ -56,7 +59,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
     use amrex_fort_module, ONLY : wp => amrex_real
     use amrex_box_module,  ONLY : amrex_box
 
-    use Driver_interface,  ONLY : Driver_abortFlash
+    use Driver_interface,  ONLY : Driver_abort
 
     implicit none
 
@@ -84,7 +87,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
 
     if ((gds /= CENTER) .AND. &
         (gds /= FACEX)  .AND. (gds /= FACEY) .AND. (gds /= FACEZ)) then
-        call Driver_abortFlash("[gr_copyGuardcellRegionToFab] " // &
+        call Driver_abort("[gr_copyGuardcellRegionToFab] " // &
                                "GDS must be cell- or face-centered")
     end if
 
@@ -108,7 +111,7 @@ subroutine gr_copyGuardcellRegionToFab(region, gds, face, axis, guardcells, &
 
 #ifdef DEBUG_GRID
         if (width > NGUARD) then
-            call Driver_abortFlash("[gr_copyGuardcellsToFab] Given patch is too wide")
+            call Driver_abort("[gr_copyGuardcellsToFab] Given patch is too wide")
         end if
 #endif
 

@@ -76,7 +76,7 @@ void FTOC(io_xfer_cont_slab)(const int * const pMyPE,
 #endif
 
   } else {
-    Driver_abortFlashC("[io_xfer_cont_slab]: Unknown I/O");
+    Driver_abortC("[io_xfer_cont_slab]: Unknown I/O");
   }
   *pErr = err;
 }

@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/Pipeline/PipelineMain/Pipeline_localProgress
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  
@@ -52,7 +55,7 @@ subroutine Pipeline_localProgress ()
                                 pl_sendRequest,        &
                                 pl_sendStatus
 
-  use Driver_interface,  ONLY : Driver_abortFlash,       &
+  use Driver_interface,  ONLY : Driver_abort,       &
                                 Driver_checkMPIErrorCode
 
   use pl_interface,      ONLY : pl_localPostRecvMsg,  &
@@ -61,7 +64,7 @@ subroutine Pipeline_localProgress ()
   implicit none
 
 #include "Pipeline.h"
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   logical :: isSaved
 
@@ -116,7 +119,7 @@ subroutine Pipeline_localProgress ()
          procID  = pl_recvStatus (MPI_SOURCE,n)   ! get the procID from the source handle in status field
 
          if (procID /= pl_procList (channel)) then
-             call Driver_abortFlash ('[Pipeline_localProgress] ERROR: procID mismatch!')
+             call Driver_abort ('[Pipeline_localProgress] ERROR: procID mismatch!')
          end if
 
          pl_procStatusLocal (procID, PL_STATUS_COMM) = pl_procStatusLocal (procID, PL_STATUS_COMM) - 1
@@ -129,7 +132,7 @@ subroutine Pipeline_localProgress ()
          call Driver_checkMPIErrorCode (error)
 
          if (mod (nReals, pl_itemSize) > 0) then
-             call Driver_abortFlash ('[Pipeline_localProgress] ERROR: # reals / item size mismatch!')
+             call Driver_abort ('[Pipeline_localProgress] ERROR: # reals / item size mismatch!')
          end if
 
          nItems = nReals / pl_itemSize                ! each item can contains many elements (reals)

@@ -102,7 +102,7 @@ void FTOC(io_ncmpi_retrieve_dimids)(const int * const pMyPE,
     }
     break;
   default:
-    Driver_abortFlashC("[io_ncmpi_retrieve_dimids] Unknown Grid structure");
+    Driver_abortC("[io_ncmpi_retrieve_dimids] Unknown Grid structure");
   }
 
 

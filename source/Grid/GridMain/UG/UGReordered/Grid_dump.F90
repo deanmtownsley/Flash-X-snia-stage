@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/UG/UGReordered/Grid_dump
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_dump
@@ -15,20 +18,32 @@
 !!
 !!  call Grid_dump(integer(IN) :: var(num),
 !!                 integer(IN) :: num,
-!!                 integer(IN) :: blockID,
+!!                 real,dimension(:,:,:,:),POINTER :: solnData,
+!!                 Type(Grid_tile_t)(IN) :: blockDesc,
 !!                 logical(IN) :: gcell)
 !!  
-!! DESCRIPTION 
+!! DESCRIPTION
 !!  
 !! Dumps the variables specified in "var" to a file. Can be done from 
 !! anywhere in the code, and is useful for diagnostic purposes
 !! This function can only be used on a single block at a time
 !!  
-!! ARGUMENTS 
+!! This is not an essential interface, only provided as a convenience
+!! for those who need to dump for debugging; test applications may
+!! want to override with a customized implementation.
 !!
-!!  var :: array containing the indices of the variables to be dumped
+!! ARGUMENTS
+!!
+!!  var :: 1D integer array containing the indices of the variables
+!!         to be dumped (can be conveniently given using the variable
+!!         names defined in Simulation.h)
 !!  num :: number of variables being dumped.
-!!  blockID :: local number of block to be dumped
+!!  solnData :: an associated pointer that should points to the block's
+!!              solution data; ignored in this UG implementation.
+!!  blockDesc :: Describes the  block to dump; holds the blockID
+!!               in some Grid implementations. In the UG Grid,
+!!               the blockID should always be 1.
+!!               This argument may be unused, especially in UG.
 !!  gcell :: indicates whether to include guardcells in the dump.
 !!             
 !! EXAMPLE
@@ -53,8 +68,10 @@
 !!***
 
 
-subroutine Grid_dump(var,num,blockID,gcell)
+
+subroutine Grid_dump(var,num, solnData,blockDesc, gcell)
   
+  use Grid_tile, ONLY : Grid_tile_t
   use physicalData, ONLY : unk
   use Grid_data, ONLY : gr_lIndexSize,gr_axisMe,gr_axisNumProcs,gr_guard, gr_meshComm
   use Grid_data, ONLY : gr_ilo,gr_ihi,gr_jlo,gr_jhi,gr_klo,gr_khi, &
@@ -66,10 +83,12 @@ subroutine Grid_dump(var,num,blockID,gcell)
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
-  integer, intent(IN) :: num, blockID
+  integer, intent(IN) :: num
   integer, dimension(num), intent(IN) :: var
+  real,dimension(:,:,:,:),pointer     :: solnData
+  type(Grid_tile_t), intent(in)  :: blockDesc
   logical, intent(IN) :: gcell
 
   character(len=80) :: ff1

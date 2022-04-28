@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/flash_convert_cc_hook
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -71,7 +74,7 @@
 
 subroutine flash_convert_cc_hook(datainout, nvars, i1,i2,j1,j2,k1,k2, why)
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Grid_data, ONLY: gr_convertToConsvdInMeshInterp, gr_vartypes, gr_anyVarToConvert, &
        gr_meshMe
   use physicaldata, ONLY : int_gcell_on_cc
@@ -128,7 +131,7 @@ subroutine flash_convert_cc_hook(datainout, nvars, i1,i2,j1,j2,k1,k2, why)
 99                     format ('[flash_convert_cc_hook] PE=',I7,', ivar=',I3,', why=',I1,', i,j,k=',3I5)
                        print 99,gr_meshMe,ivar,why,i,j,k
                        print*,'Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!'
-                       call Driver_abortFlash &
+                       call Driver_abort &
                             ('Trying to convert non-zero mass-specific variable to per-volume form, but dens is zero!')
                     end if
                  end if

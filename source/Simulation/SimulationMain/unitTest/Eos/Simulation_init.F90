@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/unitTest/Eos/Simulation_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Simulation_init
@@ -33,7 +36,7 @@ subroutine Simulation_init()
                               sim_densMax, sim_tempMax, sim_xnMax, sim_presMax, &
                               sim_initialMass
   use Simulation_data, ONLY : sim_meshMe, sim_debug
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   implicit none
@@ -65,7 +68,7 @@ subroutine Simulation_init()
 ! sim_initialMass must be less than NSPECIES
   call RuntimeParameters_get( 'sim_initialMass', sim_initialMass)
   if (sim_initialMass .GT. NSPECIES)                        &
-       call Driver_abortFlash('[Simulation_init] sim_initialMass must be less than NSPECIES')
+       call Driver_abort('[Simulation_init] sim_initialMass must be less than NSPECIES')
 
 
   call RuntimeParameters_get( 'sim_densMin', sim_densMin)

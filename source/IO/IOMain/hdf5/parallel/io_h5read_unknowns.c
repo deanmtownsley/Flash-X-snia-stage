@@ -14,7 +14,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -100,7 +100,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
     printf("couldn't find variable '%s' in the file, so skipping it\n", record_label_new);
   } else {
     dataspace = H5Dget_space(dataset);
-    if(dataspace < 0) Driver_abortFlashC("Error: negative return from dataspace H5Dget_space");
+    if(dataspace < 0) Driver_abortC("Error: negative return from dataspace H5Dget_space");
 
     if (*local_blocks > 0) {
       /* create the hyperslab -- this will differ on the different processors */
@@ -124,7 +124,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
   
       if (status < 0){
 	printf("Error: Unable to select hyperslab for unknowns dataspace\n");
-	Driver_abortFlashC("Error: Unable to select hyperslab for unknowns dataspace\n");
+	Driver_abortC("Error: Unable to select hyperslab for unknowns dataspace\n");
       }
 
       /* create the memory space */
@@ -145,7 +145,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
       dimens_5d[4] = 1;
     }
     memspace = H5Screate_simple(rank, dimens_5d, NULL);
-    if(memspace < 0) Driver_abortFlashC("Error: negative return from memspace H5Screate_simple");
+    if(memspace < 0) Driver_abortC("Error: negative return from memspace H5Screate_simple");
 
     /*
     start_5d[0] = 0;
@@ -172,16 +172,16 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
 
     if (ierr < 0){
       printf("Error: Unable to select hyperslab for coordinates memspace\n");
-      Driver_abortFlash("Error: Unable to select hyperslab for coordinates memspace\n");
+      Driver_abort("Error: Unable to select hyperslab for coordinates memspace\n");
     }*/
 
 
     /* read the data */
     if(!*doread || *local_blocks <= 0) {
       ierr = H5Sselect_none(dataspace);
-      if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "]: hdf5 error.");
+      if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "]: hdf5 error.");
       ierr = H5Sselect_none(memspace);
-      if(ierr < 0) Driver_abortFlashC("[" FILE_AT_LINE_C "]: hdf5 error.");
+      if(ierr < 0) Driver_abortC("[" FILE_AT_LINE_C "]: hdf5 error.");
     }
 #ifdef FLASH_IO_ASYNC_HDF5
     status = H5Dread_async(dataset, H5T_NATIVE_DOUBLE, memspace, dataspace, 
@@ -193,7 +193,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
                
     if (status < 0){
       printf("Error: Unable to read unknowns\n");
-      Driver_abortFlashC("Error: Unable to read unknowns\n");
+      Driver_abortC("Error: Unable to read unknowns\n");
     }
 
     H5Pclose(dxfer_template);

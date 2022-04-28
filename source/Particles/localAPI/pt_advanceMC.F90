@@ -40,7 +40,6 @@ subroutine pt_advanceMC (dtNew, iSpecies)
   
   implicit none
 
-#include "Flash.h"
   
   real, INTENT(in)  :: dtNew
   integer, INTENT(in) :: ind

@@ -1,12 +1,15 @@
 !----------------------------------------------------------------------
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 ! PARAMESH - an adaptive mesh library.
 ! Copyright (C) 2003
 !
@@ -79,7 +82,7 @@
       Use paramesh_interfaces, only : fill_old_loc
       Use paramesh_mpi_interfaces, only : MPI_int_SSEND
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
 !-----Input/Output variables.
       Integer, Intent(inout) :: new_loc(2,maxblocks_tr)
@@ -434,7 +437,7 @@ Subroutine amr_migrate_tree_data_flash (new_loc,nprocs,mype)
   Use paramesh_mpi_interfaces, only : MPI_int_SSEND
 
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   !-----Input/Output variables.
   Integer, Intent(inout) :: new_loc(2,maxblocks_tr)

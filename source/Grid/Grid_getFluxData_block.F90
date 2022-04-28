@@ -1,12 +1,15 @@
 !!****f* source/Grid/Grid_getFluxData_block
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -34,15 +37,15 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
 !!   fluxBufX :  buffer for fluxes in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction; ignored if NDIM < 2
+!!   fluxBufY :  buffer for fluxes in JAXIS-direction; output undefined if NDIM < 2
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; ignored if NDIM < 3
+!!   fluxBufZ :  buffer for fluxes in KAXIS-direction; output undefined if NDIM < 3
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
@@ -67,6 +70,8 @@
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
 !!   flux register class, such as FlashFluxRegister.
 !!
+!!   DEV: This interface is currently only implemented for Paramesh4 !
+!!
 !! SEE ALSO
 !!
 !!   Grid_putFluxData_block
@@ -88,5 +93,5 @@ subroutine Grid_getFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, axis
 
   fluxBufX = 0.0
   fluxBufY = 0.0
-  fluxBufz = 0.0
+  fluxBufZ = 0.0
 end subroutine Grid_getFluxData_block

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_pmGetListOfBlocks
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_pmGetListOfBlocks
@@ -99,7 +102,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
      region_bndBox, includePartialBlocks)
 
   use tree, ONLY : nodetype,lnblocks,neigh,lrefine,bnd_box
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_specificData, ONLY : gr_oneBlock
 
 #include "constants.h"
@@ -209,7 +212,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
            end if
         end do
      else
-        call Driver_abortFlash("[gr_pmGetListofBlocks] with blockType REFINEMENT optional argument refinementlevel must be present")
+        call Driver_abort("[gr_pmGetListofBlocks] with blockType REFINEMENT optional argument refinementlevel must be present")
      end if
 
   case(INREGION)
@@ -246,7 +249,7 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
            end if
         end do
      else
-        call Driver_abortFlash("[gr_pmGetListofBlocks] with blockType INREGION optional argument region_bndBox must be present")
+        call Driver_abort("[gr_pmGetListofBlocks] with blockType INREGION optional argument region_bndBox must be present")
      end if
   case default
      do i = 1,lnblocks

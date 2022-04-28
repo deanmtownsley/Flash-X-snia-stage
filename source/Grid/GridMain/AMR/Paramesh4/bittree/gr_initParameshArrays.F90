@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/bittree/gr_initParameshArrays
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -55,7 +58,7 @@ subroutine gr_initParameshArrays(restart,&
                                      &  ylboundary, yrboundary, &
                                      &  zlboundary, zrboundary)
 
-   use paramesh_dimensions, ONLY: ndim
+   use paramesh_dimensions, ONLY: ndim, nvar
    use physicaldata, ONLY : surr_blks_valid, interp_mask_unk,&
                             lsingular_line, spherical_pm, polar_pm,&
                             use_flash_surr_blks_fill
@@ -68,7 +71,7 @@ subroutine gr_initParameshArrays(restart,&
    use Grid_data, ONLY : gr_meshMe, gr_meshNumProcs
    use gr_interface, ONLY : gr_pmIoTreeMetadataIsValid
    use Logfile_interface, ONLY : Logfile_stampMessage
-   use Driver_interface, only: Driver_abortFlash
+   use Driver_interface, only: Driver_abort
    use Simulation_interface, ONLY : Simulation_mapIntToStr
 
    implicit none
@@ -85,10 +88,10 @@ subroutine gr_initParameshArrays(restart,&
    call mpi_amr_global_domain_limits()
 
    if(.NOT.use_flash_surr_blks_fill) &
-     call Driver_abortFlash("Error in initializing Bittree. Bittree is &
+     call Driver_abort("Error in initializing Bittree. Bittree is &
                        &only appropriate if use_flash_surr_blks_fill=True")
    if(lsingular_line .and. ndim > 1 .and. (spherical_pm .or. polar_pm)) &
-     call Driver_abortFlash("Error in initializing Bittree. Bittree is &
+     call Driver_abort("Error in initializing Bittree. Bittree is &
                        &not appropriate for spherical_pm, polar_pm")
    newchild(:) = .FALSE.
    call gr_initParameshDomainBboxes(xlboundary, xrboundary, &

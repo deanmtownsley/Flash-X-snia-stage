@@ -1,12 +1,15 @@
-!!****iff* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Grid_bcApplyToRegionSpecialized
+!!****if* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Grid_bcApplyToRegionSpecialized
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_bcApplyToRegionSpecialized
@@ -150,6 +153,7 @@
 !!            all the all-caps token (other than IN and OUT)) are
 !!            defined in constants.h.
 !!
+!!***
 
 subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct, level, &
           guard,axis,face,regionData,regionSize,mask,applied,&
@@ -158,7 +162,7 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct, level, &
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface,         ONLY : Driver_abortFlash
+  use Driver_interface,         ONLY : Driver_abort
   use gr_bcInterface,           ONLY : gr_bcMapBcType
   use Grid_interface,           ONLY : Grid_getGeometry,Grid_getDeltas
   use Grid_data,                ONLY : gr_dirGeom,gr_smallrho,gr_smallE

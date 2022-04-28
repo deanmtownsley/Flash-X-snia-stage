@@ -1,12 +1,15 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_computeVarNorm
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_computeVarNorm
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_computeVarNorm
@@ -38,15 +41,19 @@
 !!
 !!  The norm of ivar is in norm.
 !!
+!! NOTES
+!!
+!!  DEV: Currently only implemented for Paramesh4 and UG!
+!!
 !! EXAMPLE
 !!  
-!!  gr_restrictTree()
+!!  call gr_restrictTree()
 !!  do i = 1, lrefine_max
 !!    call Grid_computeVarNorm(i, 1, pdens, norm(i), 0)
 !!  enddo
 !!  do i = 1, lrefine_max
 !!    if (norm(0) - norm(i) > 0.0000001) then
-!!    driver_abortFlash("restriction is highly nonconservatory!")
+!!    call Driver_abort("restriction is highly nonconservatory!")
 !!    endif
 !!  enddo
 !!
@@ -63,10 +70,10 @@ subroutine Grid_computeVarNorm (level, normType, ivar, norm, leafOnly)
   use physicaldata, ONLY : unk
   use workspace, ONLY : work
   use tree, ONLY : lnblocks,lrefine,bsize, nodetype
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_data, ONLY : gr_meshComm
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(IN)  :: normType, level, ivar, leafOnly
   real, intent(OUT)    :: norm
@@ -89,7 +96,7 @@ subroutine Grid_computeVarNorm (level, normType, ivar, norm, leafOnly)
   totalblockshere = 0
 
   if (normType /= 1 .and. normType /= 2) then
-    call Driver_abortFlash('only L1 and L2 norms supported in Grid_computeVarNorm!')
+    call Driver_abort('only L1 and L2 norms supported in Grid_computeVarNorm!')
   endif
 
   do lb = 1, lnblocks

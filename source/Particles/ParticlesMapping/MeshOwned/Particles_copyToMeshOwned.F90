@@ -1,12 +1,15 @@
-!!****if* source/Particles/ParticlesMapping/MeshOwned/Particles_copyToMeshOwned.F90
+!!****if* source/Particles/ParticlesMapping/MeshOwned/Particles_copyToMeshOwned
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_copyFromMeshOwned
@@ -30,6 +33,8 @@
 !!  particles2D : 2D particles with property values
 !!
 !!  particleType : Type of particle : passive, active, star etc.
+!!
+!!***
 !===============================================================================
 
 subroutine Particles_copyToMeshOwned(particles2D, nprops, np, filePropNames)
@@ -110,7 +115,7 @@ subroutine Particles_copyToMeshOwned(particles2D, nprops, np, filePropNames)
                         (particleType <= PART_TYPES_END)) then
                      ind = particleType ! Change the slot in pt_containers where this particle goes
                   else
-                     call Driver_abortFlash("Particles_copyToMeshOwned: encountered invalid particle type")
+                     call Driver_abort("Particles_copyToMeshOwned: encountered invalid particle type")
                   end if
                case default
                   ! we should get here for pdens, ptemp etc.

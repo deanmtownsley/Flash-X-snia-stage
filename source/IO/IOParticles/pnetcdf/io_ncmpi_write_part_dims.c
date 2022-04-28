@@ -10,7 +10,7 @@
 #include "constants.h"
 
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
@@ -54,7 +54,7 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
       status = ncmpi_def_dim(ncid, "dim_tot_blocks", (MPI_Offset)(*total_blocks), &dim_tot_blocks);
       if (status < 0){
       printf("Error: Unable to define dim_tot_blocks in write part dims\n");
-      Driver_abortFlashC("Error: Unable to define dim_tot_blocks in write part dims\n");
+      Driver_abortC("Error: Unable to define dim_tot_blocks in write part dims\n");
       }    
     }
   }
@@ -65,13 +65,13 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
     status = ncmpi_def_dim(ncid, "dim_particles", (MPI_Offset)(*totalparticles), &dim_particles);
     if (status < 0){
       printf("Error: Unable to define dim_particles\n");
-      Driver_abortFlashC("Error: Unable to define dim_particles\n");
+      Driver_abortC("Error: Unable to define dim_particles\n");
     }    
     
     status = ncmpi_def_dim(ncid, "dim_npart_props", (MPI_Offset)(*npart_props), &dim_npart_props);
     if (status < 0){
       printf("Error: Unable to define dim_npart_props\n");
-      Driver_abortFlashC("Error: Unable to define dim_npart_props\n");
+      Driver_abortC("Error: Unable to define dim_npart_props\n");
     }    
 
 
@@ -83,7 +83,7 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
     
     if (status < 0){
       printf("Error: Unable to define local np var\n");
-      Driver_abortFlashC("Error: Unable to define localnp var\n");
+      Driver_abortC("Error: Unable to define localnp var\n");
     }  
 
 
@@ -99,7 +99,7 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
     
     if (status < 0){
       printf("Error: Unable to define particles\n");
-      Driver_abortFlashC("Error: Unable to define particles\n");
+      Driver_abortC("Error: Unable to define particles\n");
     }  
     
     
@@ -122,7 +122,7 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
       status = ncmpi_put_att_text(ncid, NC_GLOBAL, mkeys, string_size, p);
       if (status < 0){
       printf("Error: Unable to write particle_props_name\n");
-      Driver_abortFlashC("Error: Unable to write particle_props_name\n");
+      Driver_abortC("Error: Unable to write particle_props_name\n");
       }
     }
     
@@ -139,7 +139,7 @@ void FTOC(io_ncmpi_write_part_dims)(int* file_identifier,
   
     if (status < 0){
       printf("Error io_ncmpi_write_part_dims: can not enddef\n");
-      Driver_abortFlashC("Error io_ncmpi_write_part_dims: enddef\n");
+      Driver_abortC("Error io_ncmpi_write_part_dims: enddef\n");
     }
 
 }

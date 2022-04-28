@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridSolvers/AmrexMultigridSolver/Grid_solvePoisson
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME 
 !!
@@ -51,7 +54,7 @@
 
 subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
     use Timers_interface, ONLY : Timers_start, Timers_stop
-    use Driver_interface, ONLY : Driver_abortFlash
+    use Driver_interface, ONLY : Driver_abort
     use Grid_interface,   ONLY : GRID_PDE_BND_PERIODIC,  &
          GRID_PDE_BND_NEUMANN,   &
          GRID_PDE_BND_DIRICHLET
@@ -120,7 +123,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
          case (GRID_PDE_BND_DIRICHLET)
             amrexPoissonBcTypes(i)=amrex_lo_dirichlet
          case default
-            call Driver_abortFlash('BC not implemented for AMReX poisson solver!')
+            call Driver_abort('BC not implemented for AMReX poisson solver!')
          end select
        end do
        call gr_amrexMG_poisson % set_domain_bc([amrexPoissonBcTypes(1),amrexPoissonBcTypes(3),amrexPoissonBcTypes(5)], &
@@ -157,7 +160,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
           case (GRID_PDE_BND_DIRICHLET)
            amrexPoissonBcTypes(i)=amrex_lo_dirichlet
           case default
-           call Driver_abortFlash('Only periodic BC implemented for AMReX poissonsolver!')
+           call Driver_abort('Only periodic BC implemented for AMReX poissonsolver!')
           end select
          end do
          call gr_amrexMG_poisson %set_domain_bc([amrexPoissonBcTypes(1),amrexPoissonBcTypes(3),amrexPoissonBcTypes(5)],&

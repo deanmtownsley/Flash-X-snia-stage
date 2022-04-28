@@ -1,19 +1,22 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_getLocalNumBlks
+!!****if* source/Grid/GridMain/AMR/Amrex/Grid_getLocalNumBlks
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_getLocalNumBlks
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getLocalNumBlks(integer(OUT) :: numBlocks)
+!!  call Grid_getLocalNumBlks(integer(OUT) :: numBlocks)
 !!
 !! DESCRIPTION
 !!  Get the number of local blocks on a processor
@@ -32,7 +35,7 @@
 !!  in this way in the friendly IO unit.
 !!
 !!  An alternative version Grid_getLocalNumLeafBlks is coded below,
-!!  but currently (2018-02-26) not yet made public via Grid_interface.
+!!  but currently (2022-01-25) not yet made public via Grid_interface.
 !!***
 
 #include "constants.h"

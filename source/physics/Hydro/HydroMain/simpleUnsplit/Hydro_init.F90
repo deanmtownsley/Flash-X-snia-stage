@@ -1,30 +1,22 @@
 !!****if* source/physics/Hydro/HydroMain/simpleUnsplit/HLL/Hydro_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
 !!  Hydro_init
 !!
 !!
-!! SYNOPSIS
-!!
-!!  Hydro_init()
-!!  
-!!
-!! DESCRIPTION
-!! 
-!!  This routine initializes unit scope variables which are typically the runtime parameters.
-!!  The routine must be called once by Driver_initFlash.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
-!!
-!! ARGUMENTS
+!!  For more details see the documentation of the NULL implementation
 !!
 !!
 !!***
@@ -32,7 +24,7 @@
 Subroutine Hydro_init()
 
   use Hydro_data
-  use Driver_interface,            ONLY : Driver_abortFlash, Driver_getMype, &
+  use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
                                           Driver_getComm,                    &
                                           Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -70,7 +62,7 @@ Subroutine Hydro_init()
   if (hy_3Torder == -1) hy_3Torder = hy_order
   call RuntimeParameters_get("transOrder",          hy_transOrder)
   if ((NGUARD <= 4) .and. (hy_order > 3)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires more guardcells for the given hy_order method.")
   endif
   hy_useVaryingCFL = .false.
@@ -84,7 +76,7 @@ Subroutine Hydro_init()
 
 #ifdef FLASH_GRID_PARAMESH
   if ((NGUARD > 4) .and. (NXB < 2*NGUARD)) then
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
@@ -132,7 +124,7 @@ Subroutine Hydro_init()
      endif
 
      if (hy_useGravPotUpdate .and. hy_gravConsv) then
-        call Driver_abortFlash&
+        call Driver_abort&
           ("[Hydro_init]: Gravity update using Poisson solver only support primitive update."//&
            "'Please use hy_gravConsv = .false.'")
      endif
@@ -185,7 +177,7 @@ Subroutine Hydro_init()
      hy_limiter = LIMITED
      call RuntimeParameters_get('LimitedSlopeBeta', hy_LimitedSlopeBeta)
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The hy_limter of unknown type! It should be one of" // &
            "'minmod','mc', 'vanLeer', 'hybrid' or 'limited'.")
   end if
@@ -225,7 +217,7 @@ Subroutine Hydro_init()
      endif
 #endif
   else
-     call Driver_abortFlash&
+     call Driver_abort&
           ("[Hydro_init]: The Riemann Solver is of unknown type: " // &
            "Options are HLL or LLF.")
   endif

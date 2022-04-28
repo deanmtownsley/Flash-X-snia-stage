@@ -1,12 +1,15 @@
 !!****f* source/Grid/GridMain/AMR/Paramesh4/bittree/Grid_setWork
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_setWork
@@ -40,7 +43,7 @@
       use tree, only : work_block, nodetype, &
                        gr_btCustomWork, gr_btWorkBoundsPar, &
                        gr_btWorkBoundsLeaf
-      use Driver_interface, only : Driver_abortFlash
+      use Driver_interface, only : Driver_abort
 
       implicit none
       type(Grid_tile_t),intent(in) :: tileDesc
@@ -54,7 +57,7 @@
 
 #ifdef FLASH_DEBUG_AMR
       if(.NOT.gr_btCustomWork) &
-        call Driver_abortFlash( &
+        call Driver_abort( &
                 "Grid_setWork: Trying to set work array, &
                 &but simulation is not configured to sort via custom &
                 &work values at regridding. Use `gr_btCustomWork &
@@ -80,7 +83,7 @@
           work_new = work_block(blkid) * work
         case (GRIDOP_DIV)
           if (abs(work).lt.eps) then
-            call Driver_abortFlash("Grid_setWork: &
+            call Driver_abort("Grid_setWork: &
                     &tried to divide current work by zero")
           else
             work_new = work_block(blkid) / work
@@ -92,7 +95,7 @@
         case (GRIDOP_MIN)
           work_new = min(work_block(blkid),work)
         case default
-          call Driver_abortFlash("Unknown mode passed to Grid_setWork.")
+          call Driver_abort("Unknown mode passed to Grid_setWork.")
       end select
 
 !-----Enforce bounds on work

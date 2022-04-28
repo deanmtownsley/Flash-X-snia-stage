@@ -367,7 +367,7 @@ simply prevents this violation / fix from being applied to any file.
        "intentLine"  : r"^[^!]*\b((INTENT\s*[(].*[)])|(pointer)).*$",
        "fullintLine" : r"^\s*(?P<typedecl>[^!]*\b((INTENT\s*[(].*[)])|(pointer)).*)\s*::(?P<ilist>[^!]*)(?:!.*)?$",
        "externalLine": r"^\s*external\s*(::)?\s*(?P<ilist>[^!]*)",
-       "implNone"    : r"^\s*\bimplicit\s+none",
+       "implNone"    : r"""^(\s*\bimplicit\s+none|\s*#\s*include\s*['"]Flash_mpi_implicitNone[.])""",
        "blankLine"   : r"^\s*(!.*)?$",
        "contLine"    : r"^\s*(&)?(?P<code>.*)[&]\s*(!.*)?$",
        "lastCLine"   : r"^\s*(&)?(?P<code>.*)\s*(!.*)?$",

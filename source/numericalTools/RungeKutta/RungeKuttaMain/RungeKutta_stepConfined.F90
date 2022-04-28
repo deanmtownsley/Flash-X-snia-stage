@@ -1,12 +1,15 @@
 !!****if* source/numericalTools/RungeKutta/RungeKuttaMain/RungeKutta_stepConfined
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -115,7 +118,7 @@ subroutine RungeKutta_stepConfined (method,                      &
 
   use rk_interface,      ONLY : rk_stepEAC
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -172,11 +175,11 @@ subroutine RungeKutta_stepConfined (method,                      &
   n = size (y)
 
   if (n > m) then
-      call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: too many dependent variables!')
+      call Driver_abort ('[RungeKutta_stepConfined] ERROR: too many dependent variables!')
   end if
 
   if (nc > n) then
-      call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: too many confined variables!')
+      call Driver_abort ('[RungeKutta_stepConfined] ERROR: too many confined variables!')
   end if
 !
 !
@@ -240,7 +243,7 @@ subroutine RungeKutta_stepConfined (method,                      &
     call rk_stepEAC (f,n,nc,6,x,y,ymin,ymax,eMin,ePower,eFrac,eBase,htry,   hused,hnext,yout,eout)
 
   case default
-        call Driver_abortFlash ('[RungeKutta_stepConfined] ERROR: unknown RK method')
+        call Driver_abort ('[RungeKutta_stepConfined] ERROR: unknown RK method')
   end select
 !
 !

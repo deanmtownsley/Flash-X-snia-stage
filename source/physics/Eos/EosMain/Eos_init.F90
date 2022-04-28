@@ -1,12 +1,15 @@
 !!****if* source/physics/Eos/EosMain/Eos_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -53,11 +56,10 @@ subroutine Eos_init()
   use Eos_data
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use PhysicalConstants_interface, ONLY:  PhysicalConstants_get
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz,&
-       eos_initMtemp,eos_initTabulated, eos_initGamma, eos_initNuclear
+  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz, eos_initGamma
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -83,7 +85,7 @@ subroutine Eos_init()
   call RuntimeParameters_get("eintSwitch",eos_eintSwitch)
 #ifndef EINT_VAR
   if (eos_eintSwitch > 0.0) then
-     call Driver_abortFlash("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
+     call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
   end if
 #endif
 
@@ -93,9 +95,6 @@ subroutine Eos_init()
   call eos_initGamma()
   call eos_initMgamma()
   call eos_initHelmholtz()
-  call eos_initMtemp()
-  call eos_initTabulated()
-  call eos_initNuclear()
   call eos_initWeaklib()
 
 

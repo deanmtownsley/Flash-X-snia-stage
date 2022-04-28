@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/DeleptonizationWave/Simulation_initBlock
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -38,7 +41,7 @@
 subroutine Simulation_initBlock(solnData, tileDesc)
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_coordTransfm
   use Eos_interface, ONLY : Eos_wrapped
@@ -113,7 +116,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   else if ( sim_geometry == SPHERICAL ) then
      xR = [ 1.0, PI, 2.0*PI ]
   else
-     call Driver_abortFlash("Geometry not supported")
+     call Driver_abort("Geometry not supported")
   end if
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
@@ -385,7 +388,7 @@ contains
   subroutine sim_interpProfile( rcc, dens, temp, ye, velr )
 
      use Simulation_data
-     use Driver_interface, ONLY : Driver_abortFlash
+     use Driver_interface, ONLY : Driver_abort
      use ut_interpolationInterface, ONLY : ut_hunt, ut_polint
 
      implicit none
@@ -400,7 +403,7 @@ contains
 
      if ( rcc > xzn(n1d_max) ) then
         write(*,'(A,ES15.3)') ' location not covered by profile : r = ', rcc
-        call Driver_abortFlash('Profile mismatching.') 
+        call Driver_abort('Profile mismatching.') 
      else
 
         call ut_hunt(xzn, n1d_max, rcc, idx)
@@ -424,7 +427,7 @@ contains
   subroutine sim_interpProfile_rad( e_MeV, rcc, iS, Psi0, Psi1 )
 
      use Simulation_data, ONLY : xznrad, ezn, model_1d_rad, n1d_nE
-     use Driver_interface, ONLY : Driver_abortFlash
+     use Driver_interface, ONLY : Driver_abort
      use ut_interpolationInterface, ONLY : ut_hunt
 
      implicit none
@@ -443,12 +446,12 @@ contains
      !! not able to handle region that out of the profile
      if ( rcc > xznrad(nX) ) then
         write(*,'(A,ES15.3)') ' location not covered by profile : r = ', rcc
-        call Driver_abortFlash('Profile mismatching.')
+        call Driver_abort('Profile mismatching.')
      end if
      !! not able to handle spectrum that exceeds the profile's coverage
      if ( e_MeV > ezn(size(ezn)) ) then
         write(*,'(A,ES15.3)') ' energy not covered by profile : e = ', e_MeV
-        call Driver_abortFlash('Profile mismatching.')
+        call Driver_abort('Profile mismatching.')
      end if
      !! if rcc < the inner most point in the profile
      !! use constant extrapolation
@@ -528,7 +531,7 @@ contains
             Psi0 = min(min(p00,p10),min(p01,p11))
             if( Psi0 < 0.0 )then
               write(*,'(A,ES15.6)') 'Psi0 = ', Psi0
-              call Driver_abortFlash('Fail to enforce J > 0')
+              call Driver_abort('Fail to enforce J > 0')
             end if
           end if
           !!$if( Psi0 > 1.0 ) then
@@ -540,7 +543,7 @@ contains
           !!$  Psi0 = min(Psi0,1.0e0)
           if( Psi0 > 1.0e0 )then
             write(*,'(A,ES15.6)') 'Psi0 = ', Psi0
-            call Driver_abortFlash('Fail to enforce J < 1.0')
+            call Driver_abort('Fail to enforce J < 1.0')
           end if
 
           gamma = ( 1.0e0 - Psi0 ) * Psi0
@@ -585,7 +588,7 @@ contains
 
     if ( rcc > xzn(n1d_max) ) then
         write(*,'(A,ES15.3)') ' location not covered by profile : r = ', rcc, 'cm'
-        call Driver_abortFlash('Profile mismatching.')
+        call Driver_abort('Profile mismatching.')
     end if
 
     call ut_hunt(xzn, n1d_max, rcc, idx)

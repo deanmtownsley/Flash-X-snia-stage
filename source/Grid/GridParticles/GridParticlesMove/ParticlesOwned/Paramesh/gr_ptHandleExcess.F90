@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/gr_ptHandleExcess
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -49,7 +52,7 @@ subroutine gr_ptHandleExcess(particles,propCount,localNum,maxPerProc)
        gr_ptBlk, gr_ptTag
 !!$  use Grid_interface, ONLY : Grid_getListOfBlocks,Grid_getBlkPtr,Grid_releaseBlkPtr,&
 !!$       Grid_getBlkIndexLimits
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "Simulation.h"
@@ -164,7 +167,7 @@ subroutine gr_ptHandleExcess(particles,propCount,localNum,maxPerProc)
 !!$        print*,'started with ',localNumIn,' now have ',i-1,'.'
 !!$     end select
 !!$  else
-!!$     call Driver_abortFlash("The number of particles exceeded maximum allowed")
+!!$     call Driver_abort("The number of particles exceeded maximum allowed")
   end if
   return
 end subroutine gr_ptHandleExcess

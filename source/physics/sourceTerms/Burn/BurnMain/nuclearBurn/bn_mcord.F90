@@ -1,12 +1,15 @@
 !!****if* source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/bn_mcord
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!   bn_mcord
@@ -56,7 +59,7 @@
 
 
 subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -77,7 +80,7 @@ subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
      write(6,*) 'nterm > np2 in routine mcord'
      write(6,*) 'check np2 dimensioning in calling routine'
      write(6,*) 
-     call Driver_abortFlash('ERROR in bn_mcord: check np2 dimensioning in caller')
+     call Driver_abort('ERROR in bn_mcord: check np2 dimensioning in caller')
      stop
   end if
 
@@ -97,7 +100,7 @@ subroutine bn_mcord(i,j,iloc,jloc,nzo,np,eloc,nterm,np2)
      write(6,*) 'nzo > np in routine mcord'
      write(6,*) 'check np dimensioning in calling routine'
      write(6,*) 
-     call Driver_abortFlash('ERROR in bn_mcord: check np dimensioning in caller')
+     call Driver_abort('ERROR in bn_mcord: check np dimensioning in caller')
      stop
   end if
   eloc(nterm) = nzo

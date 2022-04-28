@@ -1,37 +1,17 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/riemann
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
 !!
-!! NAME
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
-!!  hy_rk_riemann
-!!
-!! SYNOPSIS
-!!
-!!  hy_rk_riemann( integer(IN) :: dir,
-!!               real(IN)    :: VL(HY_VARINUMMAX),
-!!               real(IN)    :: VR(HY_VARINUMMAX),
-!!               real(OUT)   :: Fstar(HY_VARINUM1),
-!!               real(OUT)   :: speed,
-!!               integer(OUT):: ierr)
-!!
-!! ARGUMENTS
-!!
-!!  dir    - a spatial direction for which the flux is being considered and computed
-!!  VL     - primitive variable for left state
-!!            (DENS,VELX,VELY,VELZ,PRES,MAGX,MAGY,MAGZ + GAMC,GAME,EINT,TEMP)
-!!  VR     - primitive variable for right state
-!!            (DENS,VELX,VELY,VELZ,PRES,MAGX,MAGY,MAGZ + GAMC,GAME,EINT,TEMP)
-!!  Fstar  - computed flux data
-!!            (includes face pressure at the end)
-!!  speed  - fastest signal velocity to compute dt
-!!  ierr   - a flag to check unphysical negative state (0 is ok; 1 is bad)
+!!  For this function the name and argument lists depend upon the variants used.
 !!
 !! DESCRIPTION
 !!
@@ -58,9 +38,10 @@
 !!
 !!***
 !!! A note: the speed dummy var seems to be unused. Might be deleted?
+
 subroutine @M hy_riemann_name (@M hy_riemann_call_args)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Hydro_data,       ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
   @M hy_riemann_use
   implicit none

@@ -2,12 +2,14 @@
 *.pyc
 *.o
 *~
+*.sif
 # Dirs
 build/
 sites/ares/
 obj*
 sod_2d*
 __pycache__
+*TestResults/
 
 # Specific files
 lib/ma28/Makefile.h

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/Paramesh/gr_ptFindNegh
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_ptFindNegh
@@ -98,7 +101,7 @@ subroutine gr_ptFindNegh(srcBlkID,guardCellID,negh,neghCornerID,numNegh)
        Grid_getBlkIndexLimits, Grid_getBlkBC
   use gr_ptInterface, ONLY : gr_ptSearchBlk, gr_ptGetChildData
   use gr_interface, ONLY : gr_getBlkHandle
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   interface 
@@ -146,7 +149,7 @@ subroutine gr_ptFindNegh(srcBlkID,guardCellID,negh,neghCornerID,numNegh)
   if (nodetype(srcBlkID) /= LEAF) then
      print *, "Processor:", gr_meshMe, "ERROR! source block is type:", &
           nodetype(srcBlkID)
-     call Driver_abortFlash("[gr_ptFindNegh]: Source block is not a LEAF")
+     call Driver_abort("[gr_ptFindNegh]: Source block is not a LEAF")
   end if
 #endif !DEBUG_GRIDMAPPARTICLES
 
@@ -304,7 +307,7 @@ subroutine gr_ptFindNegh(srcBlkID,guardCellID,negh,neghCornerID,numNegh)
                    ", blkSize:", blkSize(1:NDIM), ", which_child:", which_child(srcBlkID), &
                    ", predicted src corner ID:", srcCornerIDCalculated(1:NDIM)        
 
-              call Driver_abortFlash("Invalid neighbor block/proc data 1")
+              call Driver_abort("Invalid neighbor block/proc data 1")
               !Another option is to rely on the cornerID (commented out).
               !negh(BLKID,1) = NONEXISTENT
               !negh(BLKPROC,1) = NONEXISTENT
@@ -433,7 +436,7 @@ end subroutine gr_ptApparentCornerID
 !-----------------------------------------------------------------------
 subroutine gr_ptCheckNeighborsSensible(numNegh, negh, neghCornerID)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkCornerID
   use Grid_data, ONLY : gr_meshMe
 
@@ -459,7 +462,7 @@ subroutine gr_ptCheckNeighborsSensible(numNegh, negh, neghCornerID)
         if (any(neghCornerID(1:NDIM,n) /= neghCornerIDCHECK(1:NDIM))) then
            print *, "Processor:", gr_meshMe, ", CornerID: predicted=", &
                 neghCornerID(1:NDIM,n), ", actual=", neghCornerIDCHECK(1:NDIM)            
-           call Driver_abortFlash &
+           call Driver_abort &
                 ("[gr_ptCheckNeighborsSensible]: Incorrect Corner ID prediction (1)")
         end if
 
@@ -469,7 +472,7 @@ subroutine gr_ptCheckNeighborsSensible(numNegh, negh, neghCornerID)
         if (any(neghCornerID(1:NDIM,n) < 0)) then
            print *, "Processor:", gr_meshMe, ", CornerID: predicted=", &
                 neghCornerID(1:NDIM,n)
-           call Driver_abortFlash &
+           call Driver_abort &
                 ("[gr_ptCheckNeighborsSensible]: Incorrect Corner ID prediction (2)")
         end if
 
@@ -478,7 +481,7 @@ subroutine gr_ptCheckNeighborsSensible(numNegh, negh, neghCornerID)
      !Possible refinement levels are -1, 0, +1.
      if ( (negh(REFLEVELDIF,n) < -1) .or. (negh(REFLEVELDIF,n) > 1) ) then
         print *, "Refinement level not possible:", negh(REFLEVELDIF,n)
-        call Driver_abortFlash &
+        call Driver_abort &
              ("[gr_ptCheckNeighborsSensible]: Incorrect refinement level")
      end if
 

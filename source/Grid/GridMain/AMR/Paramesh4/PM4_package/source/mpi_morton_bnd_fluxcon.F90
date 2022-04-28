@@ -1,14 +1,6 @@
 !----------------------------------------------------------------------
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
 ! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
+! Copyright (C) 2003, 2007
 !
 ! Use of the PARAMESH software is governed by the terms of the
 ! usage agreement which can be found in the file
@@ -83,7 +75,7 @@
       Use paramesh_interfaces, only : amr_abort
       Use paramesh_mpi_interfaces, only : mpi_amr_write_guard_comm,    & 
                                           process_fetch_list
-      use Driver_interface, ONLY : Driver_abortFlash
+      use Driver_interface, ONLY : Driver_abort
       Use Paramesh_comm_data, ONLY : amr_mpi_meshComm
 
       Implicit None
@@ -318,7 +310,7 @@
                    surr_blks(3,if2,jf2,kf2,lb) == 1) Then                       
                   if (no_of_diagonal_edges >= npts_neigh) then
                      print*,'mype',mype,' already has', no_of_diagonal_edges,' diagonal edges.'
-                     call Driver_abortFlash("Too many diagonal edges - maybe you should increase npts_neigh.")
+                     call Driver_abort("Too many diagonal edges - maybe you should increase npts_neigh.")
                   end if
                   no_of_diagonal_edges = no_of_diagonal_edges + 1
 #if 0

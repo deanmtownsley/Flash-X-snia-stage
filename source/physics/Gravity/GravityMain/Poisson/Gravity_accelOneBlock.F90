@@ -1,12 +1,15 @@
 !!****if* source/physics/Gravity/GravityMain/Poisson/Gravity_accelOneBlock
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -59,7 +62,7 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
 
 
   use Grid_interface, ONLY : Grid_getGeometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
@@ -81,7 +84,7 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
   real, dimension(:), allocatable     :: inv_r, inv_sintheta
   integer :: i,j,k
   
-  call Driver_abortFlash("[Gravity_accelOneBlock] Implement for tiling")
+  call Driver_abort("[Gravity_accelOneBlock] Implement for tiling")
 
   !==================================================
 
@@ -102,14 +105,14 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
   call Grid_getGeometry(geom)
 
   ! DEV: FIXME Should this be tile and halo or grown tile?
-  call Driver_abortFlash("[Gravity_accelOneBlock] Implement for tiling")
+  call Driver_abort("[Gravity_accelOneBlock] Implement for tiling")
   sizeI = blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1
   sizeJ = blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
   sizeK = blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
 
   ! pull out potential for better cache locality
   allocate( gpot(sizeI,sizeJ,sizeK), STAT=istat)
-  if (istat/=0) call Driver_abortFlash("unable to allocate gpot in Gravity_accelOneBlock")
+  if (istat/=0) call Driver_abort("unable to allocate gpot in Gravity_accelOneBlock")
   ! DEV: TODO For tiling, we might need to write this as an explicit
   !           loop nest
   gpot(:,:,:) = solnData(potVar, :,:,:)
@@ -137,7 +140,7 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
      ! need radius if theta axis is included
      if (NDIM==3) then
         allocate(inv_r(sizeI), STAT=istat)
-        if (istat/=0) call Driver_abortFlash("unable to allocate inv_r in Gravity_accelOneBlock")
+        if (istat/=0) call Driver_abort("unable to allocate inv_r in Gravity_accelOneBlock")
         inv_r(:) = 1.0/inv_r(:)
      endif
      do k = blkLimits(LOW,KAXIS)-K3D*ngcellcomp, blkLimits(HIGH,KAXIS)+K3D*ngcellcomp
@@ -158,13 +161,13 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
      ! need radius if 2d or 3d
      if (NDIM>=2) then
         allocate(inv_r(sizeI), STAT=istat)
-        if (istat/=0) call Driver_abortFlash("unable to allocate inv_r in Gravity_accelOneBlock")
+        if (istat/=0) call Driver_abort("unable to allocate inv_r in Gravity_accelOneBlock")
         inv_r(:) = 1.0/inv_r(:)
      endif
      ! need sin_theta if 3d
      if (NDIM==3) then
         allocate(inv_sintheta(sizeJ), STAT=istat)
-        if (istat/=0) call Driver_abortFlash("unable to allocate inv_sintheta in Gravity_accelOneBlock")
+        if (istat/=0) call Driver_abort("unable to allocate inv_sintheta in Gravity_accelOneBlock")
         inv_sintheta(:) = 1.0/inv_sintheta(:)
      endif
      do k = blkLimits(LOW,KAXIS)-K3D*ngcellcomp, blkLimits(HIGH,KAXIS)+K3D*ngcellcomp
@@ -183,7 +186,7 @@ subroutine Gravity_accelOneBlock ( tileDesc, ngcellcomp, gvec, potentialIndex)
      if (NDIM>=2) deallocate(inv_r)
 
   case default
-     call Driver_abortFlash("unhandled geometry in Gravity_accelOneBlock")
+     call Driver_abort("unhandled geometry in Gravity_accelOneBlock")
   end select
 
   deallocate(gpot)

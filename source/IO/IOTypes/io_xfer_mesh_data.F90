@@ -1,12 +1,15 @@
 !!****if* source/IO/IOTypes/io_xfer_mesh_data
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  io_xfer_mesh_data
@@ -71,7 +74,7 @@ subroutine io_xfer_mesh_data(fileID, fileFmt, fileType, &
        io_packMeshChkReadHDF5, io_asyncMeshPlotWritePnet, &
        io_asyncMeshChkWritePnet, io_asyncMeshChkReadPnet
   use Grid_interface, ONLY : Grid_getBlkCornerID, Grid_getNumVars
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Simulation_interface, ONLY : Simulation_mapStrToInt
   use IO_data, ONLY : io_globalMe
@@ -126,7 +129,7 @@ subroutine io_xfer_mesh_data(fileID, fileFmt, fileType, &
   else if (xferType == IO_READ_XFER) then
      xfer_str = "read mesh data"
   else
-     call Driver_abortFlash("Invalid transfer type")
+     call Driver_abort("Invalid transfer type")
   end if
   IO_TIMERS_START(xfer_str)
   nullify(gridData)
@@ -191,7 +194,7 @@ subroutine io_xfer_mesh_data(fileID, fileFmt, fileType, &
      case (SCRATCH)
         gridData => scratch
      case DEFAULT
-        call Driver_abortFlash("Data structure not recognised")
+        call Driver_abort("Data structure not recognised")
      end select
 
      call Grid_getNumVars(gridDataStructs(d), extentVarDim)
@@ -326,7 +329,7 @@ subroutine io_xfer_mesh_data(fileID, fileFmt, fileType, &
            numFileDatasets = 1
            numDataDims = 5
         else
-           call Driver_abortFlash("File format not recognised")
+           call Driver_abort("File format not recognised")
         end if
 
 
@@ -345,7 +348,7 @@ subroutine io_xfer_mesh_data(fileID, fileFmt, fileType, &
               if (doXfer) then
                  j = localVarOffsets(i) + 1 !gridData element (unit-based).
                  if (j < lbound(gridData,1) .or. j > ubound(gridData,1)) then
-                    call Driver_abortFlash("Local index out of bounds")
+                    call Driver_abort("Local index out of bounds")
                  end if
                  if (debugIO) then
                     if (io_globalMe == MASTER_PE) then

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/Grid_setFluxHandling
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -42,7 +45,7 @@
 #include "Simulation.h"
 
 subroutine Grid_setFluxHandling(handling, status)
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
 
 #ifdef FLASH_GRID_PARAMESH2
 #define consv_fluxes .FALSE.
@@ -68,7 +71,7 @@ subroutine Grid_setFluxHandling(handling, status)
         return
      end if
   else
-     call Driver_abortFlash('Grid_setFluxHandling: unrecognized handling requested: ' // handling)
+     call Driver_abort('Grid_setFluxHandling: unrecognized handling requested: ' // handling)
   end if
 
 #ifdef LIBRARY
@@ -85,7 +88,7 @@ subroutine Grid_setFluxHandling(handling, status)
      status = 1                 !indicates failure
      return
   else
-     call Driver_abortFlash('Grid_setFluxHandling: Handling by Grid is compiled in, cannot change at run-time to '&
+     call Driver_abort('Grid_setFluxHandling: Handling by Grid is compiled in, cannot change at run-time to '&
           // handling)
   end if
 #endif

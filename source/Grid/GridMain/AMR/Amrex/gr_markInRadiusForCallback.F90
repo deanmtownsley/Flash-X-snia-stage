@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/gr_markInRadiusForCallback
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_markInRadius
@@ -58,7 +61,7 @@ subroutine gr_markInRadiusForCallback(ic, jc, kc, radius, lev, tags, tagval)
                                      amrex_mfiter_build, &
                                      amrex_mfiter_destroy
 
-  use Driver_interface,       ONLY : Driver_abortFlash
+  use Driver_interface,       ONLY : Driver_abort
   use Grid_data,              ONLY : gr_geometry
   use Grid_interface,         ONLY : Grid_getBlkCenterCoords
   use gr_physicalMultifabs,   ONLY : unk
@@ -164,7 +167,7 @@ subroutine gr_markInRadiusForCallback(ic, jc, kc, radius, lev, tags, tagval)
            dist2 = 0.
         endif
      else
-        call Driver_abortFlash("MarkRefine: geometry spec is wrong")
+        call Driver_abort("MarkRefine: geometry spec is wrong")
      endif
 
      tagData => tag%dataptr(mfi)

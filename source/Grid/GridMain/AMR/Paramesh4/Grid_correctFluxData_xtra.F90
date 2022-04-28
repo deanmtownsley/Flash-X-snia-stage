@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_correctFluxData_xtra
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -219,8 +222,8 @@ subroutine Grid_correctFluxData_xtra(blockDesc, scaleF, fluxBufX,fluxBufY,fluxBu
 
   if (nfluxes > 0) then
      fluxx(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufX ! fluxx,fluxy,fluxz use local (Paramesh) index counting
-     fluxy(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufY ! fluxBuf[XYZ] use the global index convention (for the level)
-     fluxz(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufZ
+     fluxy(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufY ! Actual arguments for fluxBuf[XYZ] effectively use the same index convention
+     fluxz(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufZ ! as fluxOld[XYZ].
 
      prevCoarseX(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxOldX ! prevCoarseX,prevCoarseY,prevCoarseZ use local (Paramesh) index counting
      prevCoarseY(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxOldY ! fluxOld[XYZ] use the global index convention (for the level)

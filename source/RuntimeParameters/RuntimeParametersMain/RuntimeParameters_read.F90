@@ -1,12 +1,15 @@
 !!****if* source/RuntimeParameters/RuntimeParametersMain/RuntimeParameters_read
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!
 !! NAME
@@ -57,7 +60,7 @@
 subroutine RuntimeParameters_read (parmfile)
 
   use RuntimeParameters_data, ONLY : parameter
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_set, &
     RuntimeParameters_mapStrToInt
 
@@ -101,7 +104,7 @@ subroutine RuntimeParameters_read (parmfile)
      write (*,*) 'read :  unable to open parameter file', & 
           &              ' "', parmfile(1:max(len_trim(parmfile),1)), '"'
      abortMessage = "Error: unable to open parameter file " // parmfile(1:max(len_trim(parmfile),1))
-     call Driver_abortFlash(abortMessage)
+     call Driver_abort(abortMessage)
      stop
   endif
   
@@ -112,7 +115,7 @@ subroutine RuntimeParameters_read (parmfile)
         write (*,*) 'read_parameters:  I/O error ', ioStatus, & 
              &                'while reading parameter file'
         abortMessage = "Error: I/O error while reading parameter file"
-        call Driver_abortFlash(abortMessage)
+        call Driver_abort(abortMessage)
         stop
      endif
      if (ioStatus < 0) exit
@@ -220,7 +223,7 @@ subroutine RuntimeParameters_read (parmfile)
                      // trim(value), '",',' aborting...'
                 abortMessage = 'RuntimeParameters_read: "' &
                      // name(1:len_trim(name)) // '" with unrecognized value.'
-                call Driver_abortFlash(abortMessage)
+                call Driver_abort(abortMessage)
              endif
              call RuntimeParameters_set (name, tempInt)
           endif
@@ -246,7 +249,7 @@ subroutine RuntimeParameters_read (parmfile)
           if (STRICT_PARAMS.ne.0) then
             abortMessage = 'RuntimeParameters_read:  encountered unknown parameter "' &
                                       // name(1:len_trim(name)) // '" aborting...'
-            call Driver_abortFlash(abortMessage)
+            call Driver_abort(abortMessage)
           else
             write (*,*) 'RuntimeParameters_read:  ignoring unknown parameter ' & 
                  &                    ,'"', name(1:len_trim(name)), '"...'

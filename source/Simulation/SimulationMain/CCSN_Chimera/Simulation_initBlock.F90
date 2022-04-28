@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/CCSN/Simulation_initBlock
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !! 
@@ -39,7 +42,7 @@
 
 subroutine Simulation_initBlock(solnData, tileDesc)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
        Grid_getCellCoords, Grid_getDeltas, &
@@ -178,7 +181,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
            else
 
-              call Driver_abortFlash("Geometry not supported")
+              call Driver_abort("Geometry not supported")
 
            end if
 
@@ -285,7 +288,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  end if
               else
 
-                 call Driver_abortFlash("Beyond the Chimera data")
+                 call Driver_abort("Beyond the Chimera data")
 
               end if
 
@@ -335,7 +338,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
            else 
 
-              call Driver_abortFlash("Beyond the progenitor data")
+              call Driver_abort("Beyond the progenitor data")
 
            endif
 

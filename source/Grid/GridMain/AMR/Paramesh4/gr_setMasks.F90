@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_setMasks
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_setMasks
@@ -77,7 +80,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
 !!$#endif
 !!$#endif
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use physicaldata, ONLY : gcell_on_cc,gcell_on_fc, no_permanent_guardcells
 
   implicit none
@@ -100,7 +103,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
                        (gridDataStruct==WORK).or.&
                        (gridDataStruct==CENTER_FACES)
   if(.not.validDataStructure)then
-     call Driver_abortFlash("GCfill: invalid data structure")
+     call Driver_abort("GCfill: invalid data structure")
   end if
   select case(gridDataStruct) 
   case(CENTER)
@@ -119,7 +122,7 @@ subroutine gr_setMasks(gridDataStruct,maskSize,mask)
      validMaskSize= ((maskSize.GE.(NUNK_VARS+NDIM*NFACE_VARS)) .AND. (maskSize.LE.(NUNK_VARS+MDIM*NFACE_VARS)))
   end select
   if(.not.validMaskSize)then
-     call Driver_abortFlash("GCfill : mask size mismatch")
+     call Driver_abort("GCfill : mask size mismatch")
   end if
 #endif
   

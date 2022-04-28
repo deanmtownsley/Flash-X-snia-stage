@@ -1,46 +1,22 @@
 !!****if* source/physics/Eos/EosMain/Eos_everywhere
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
 !! NAME
 !!
 !!  Eos_everywhere
 !!
-!! SYNOPSIS
-!!
-!!  call Eos_everywhere(  integer(IN) :: mode,
-!!               optional,integer(IN) :: gridDataStruct )
-!!
-!! DESCRIPTION
-!!
-!! Apply Eos() to all blocks.
-!!
-!!  ARGUMENTS
-!!
-!!   mode : determines which variables are used as Eos input.
-!!          The valid values are MODE_DENS_EI (where density and internal
-!!          energy are inputs), MODE_DENS_PRES (density and pressure as inputs)
-!!          MODE_DENS_TEMP (density and temperature are inputs).
-!!          These quantities are defined in constants.h, the argument is
-!!          forwarded unchanged to the Eos function call.
-!!
-!!   gridDataStruct : the grid data structure on whose data Eos is to be applied
-!!
-!!
-!!  EXAMPLE
-!!
-!!  NOTES
-!!
-!!  SEE ALSO
-!!
-!!     Eos
-!!     Eos_wrapped
-!!     Grid_makeVector
+!!  For more details see the documentation of the NULL implementation
+!! 
 !!
 !!***
 
@@ -53,7 +29,7 @@
 
 subroutine Eos_everywhere(mode,gridDataStruct)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface,ONLY : Grid_getTileIterator, &
                             Grid_releaseTileIterator
   use Grid_iterator, ONLY : Grid_iterator_t
@@ -110,7 +86,7 @@ subroutine Eos_everywhere(mode,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_everywhere] "//&
+     call Driver_abort("[Eos_everywhere] "//&
           "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENS_EI, or variants thereof, or MODE_EOS_NOP")
   end if
 #endif

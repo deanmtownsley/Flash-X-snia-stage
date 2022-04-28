@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/Grid_getMaxCommonRefinement
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -14,7 +17,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
+!!  call Grid_getMaxCommonRefinement(integer(IN) :: inputComm, &
 !!                              integer(OUT) :: maxRefinement)
 !!
 !! DESCRIPTION
@@ -32,7 +35,9 @@
 !!                  inputComm communicator.
 !!
 !! NOTES
-!! 
+!!
+!!  DEV: Not yet implemented for Amrex, will abort if called.
+!!
 !!  Communicator argument allows us to compare a subset of processes.
 !!  It also makes it explicit to the user that this routine must be 
 !!  called by all processes in the passed communicator ...otherwise
@@ -52,11 +57,11 @@ subroutine Grid_getMaxCommonRefinement(inputComm, maxCommonRefinement)
 #include "Simulation.h"
 #include "constants.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef FLASH_GRID_PARAMESH
   use tree, ONLY : lnblocks, nodetype, lrefine
 #endif
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   
   integer, intent(IN) :: inputComm
   integer, intent(OUT) :: maxCommonRefinement
@@ -83,7 +88,7 @@ subroutine Grid_getMaxCommonRefinement(inputComm, maxCommonRefinement)
 
 #else
   maxCommonRefinement = 1
-  call Driver_abortFlash("Not yet coded")
+  call Driver_abort("Not yet coded")
 
 #endif
 

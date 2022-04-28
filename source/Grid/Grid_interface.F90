@@ -1,12 +1,15 @@
 !!****h* source/Grid/Grid_interface
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! This is the header file for the Grid unit that defines its
 !! public interfaces.
@@ -201,10 +204,17 @@ Module Grid_interface
   end interface
 
   interface Grid_getBlkCornerID
-     subroutine Grid_getBlkCornerID(block, cornerID, stride,cornerIDHigh,inRegion)
+     subroutine Grid_getBlkCornerID_desc(blockDesc, cornerID, stride,cornerIDHigh,inRegion)
        use Grid_tile, ONLY : Grid_tile_t
        implicit none
-       type(Grid_tile_t), intent(in) :: block
+       type(Grid_tile_t), intent(in) :: blockDesc
+       integer,dimension(MDIM), intent(OUT) :: cornerID, stride
+       integer,dimension(MDIM),optional,intent(OUT) :: cornerIDHigh
+       logical, optional, intent(IN) :: inRegion
+     end subroutine Grid_getBlkCornerID_desc
+     subroutine Grid_getBlkCornerID(blockID, cornerID, stride,cornerIDHigh,inRegion)
+       implicit none
+       integer, intent(in) :: blockID
        integer,dimension(MDIM), intent(OUT) :: cornerID, stride
        integer,dimension(MDIM),optional,intent(OUT) :: cornerIDHigh
        logical, optional, intent(IN) :: inRegion
@@ -984,6 +994,15 @@ Module Grid_interface
 
   interface Grid_getBlkIDFromPos
 
+     subroutine Grid_getBlkNeighBlkIDFromPos(blockDesc, pos, neghDir, ansBlockID, ansProcID)
+       use Grid_tile, ONLY : Grid_tile_t
+       implicit none
+       type(Grid_tile_t), intent(IN) :: blockDesc
+       real, dimension(MDIM), intent(IN) :: pos
+       integer, dimension(MDIM), intent(IN) :: neghDir
+       integer, intent(OUT) :: ansBlockID, ansProcID
+     end subroutine Grid_getBlkNeighBlkIDFromPos
+
      subroutine Grid_getBlkIDFromPos(pos, ansBlockID, ansProcID, comm)
        implicit none
        real, dimension(1:MDIM), intent(IN) :: pos
@@ -1037,11 +1056,6 @@ Module Grid_interface
        integer, intent(IN) :: fileUnit 
        logical, intent(INOUT) :: perfect
      end subroutine Grid_solidBodyUnitTest
-  end interface
-
-  interface
-     subroutine Grid_getBoundboxCentroids()
-     end subroutine Grid_getBoundboxCentroids
   end interface
 
   interface
@@ -1110,7 +1124,7 @@ Module Grid_interface
   end interface
 
   interface
-     subroutine Grid_zeroFluxData
+     subroutine Grid_zeroFluxData()
        implicit none
      end subroutine Grid_zeroFluxData
   end interface

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_findNeghID
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -14,7 +17,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call gr_findNeghID(integer(IN)  :: blockid,
+!!  call gr_findNeghID(integer(IN)  :: blockID,
 !!                     real(IN)     :: pos(MDIM),
 !!                     integer(IN)  :: negh(MDIM),
 !!                     integer(OUT) :: neghid(BLKNO:PROCNO))
@@ -28,7 +31,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockid : ID of block in current processor
+!!   blockID : ID of block in current processor
 !!
 !!   pos :     coordinates of the point of interest
 !!
@@ -51,7 +54,7 @@
 !!
 !!***
 
-subroutine gr_findNeghID(block,pos,negh,neghID)
+subroutine gr_findNeghID(blockID,pos,negh,neghID)
 #include "constants.h"
 #include "Simulation.h"
 
@@ -63,7 +66,7 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
   use Grid_tile,        ONLY : Grid_tile_t
   
   implicit none
-  type(Grid_tile_t), intent(IN) :: block
+  integer,intent(IN) :: blockID
   real,dimension(MDIM),intent(IN) :: pos
   integer,dimension(MDIM),intent(IN) :: negh
   integer,dimension(BLKNO:PROCNO),intent(OUT) :: neghID
@@ -81,7 +84,7 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
   type(Grid_tile_t)    :: tileDesc
 
   ! HACK - itor%curBlk is paramesh-specific
-  itor%curBlk = block%id
+  itor%curBlk = blockID
   call itor%currentTile(tileDesc)
   
   !It is possible that unused dimensions of neghInput are
@@ -90,21 +93,21 @@ subroutine gr_findNeghID(block,pos,negh,neghID)
 
 #ifndef BITTREE
 #if NDIM == 1 
-  negh_prop(:)=surr_blks(:,negh(IAXIS), 1         , 1         ,block%id)
+  negh_prop(:)=surr_blks(:,negh(IAXIS), 1         , 1         ,blockID)
 #endif
 #if NDIM == 2 
-  negh_prop(:)=surr_blks(:,negh(IAXIS),negh(JAXIS), 1         ,block%id)
+  negh_prop(:)=surr_blks(:,negh(IAXIS),negh(JAXIS), 1         ,blockID)
 #endif
 #if NDIM == 3 
-  negh_prop(:)=surr_blks(:,negh(IAXIS),negh(JAXIS),negh(KAXIS),block%id)
+  negh_prop(:)=surr_blks(:,negh(IAXIS),negh(JAXIS),negh(KAXIS),blockID)
 #endif
 
 
 
   if (negh_prop(PROCNO)==NONEXISTENT) then
 
-     proc=parent(PROCNO,block%id)
-     blk=parent(BLKNO,block%id)
+     proc=parent(PROCNO,blockID)
+     blk=parent(BLKNO,blockID)
      call gr_getBlkHandle(blk,proc,blkHandle)
      call tileDesc%boundBox(bndBox)
      call Grid_outsideBoundBox(pos,bndBox,outside,lnegh)

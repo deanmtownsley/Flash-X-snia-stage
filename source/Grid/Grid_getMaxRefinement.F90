@@ -1,12 +1,15 @@
 !!****f* source/Grid/Grid_getMaxRefinement
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -35,8 +38,8 @@
 !!
 !! ARGUMENTS
 !!
-!!  maxRefinement - Max common refinement level of blocks in the 
-!!                  inputComm communicator.
+!!  maxRefinement - Maximum refinement level returned.
+!!
 !!  inputComm - Input MPI communicator, only used if mode=4 and scope=2.
 !!              Default - none.
 !!  mode      - 1 for lrefine_max,
@@ -69,6 +72,17 @@
 !!   2. Grid_getMaxRefinement has additional optional arguments to select
 !!      modes and task subsets.
 !!
+!!   For the Amrex implementation, not all values for scope are supported.
+!!   In the case mode=4 it is up to the AMReX function amrex_get_finest_level()
+!!   whether actual communication takes place.
+!!
+!!   In the Paramesh4 implementation, for the common case mode=4,scope=3
+!!   a value from the module variable gr_finestExistingLevel may be
+!!   returned rather than performing actual MPI communication; this
+!!   value is assumed to be a valid cached value set to the finest
+!!   existing level if it is > 0. However, this subroutine does not
+!!   modify gr_finestExistingLevel; such modification should be done
+!!   outside of this routine whenever the refinement pattern changes.
 !!***
 
 subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)

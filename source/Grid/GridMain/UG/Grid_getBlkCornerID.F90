@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/UG/Grid_getBlkCornerID
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! SYNOPSIS
 !!
@@ -77,3 +80,18 @@ subroutine Grid_getBlkCornerID(blockID, cornerID, stride, cornerIDHigh, inRegion
 
 end subroutine Grid_getBlkCornerID
 
+! A _desc implementation that simply translates to the older blockID-based interface.
+! This works for UG (as needed here), and the same code should also for for Paramesh4.
+subroutine Grid_getBlkCornerID_desc(blockDesc, cornerID, stride, cornerIDHigh, inRegion)
+  use Grid_tile, ONLY : Grid_tile_t
+  use Grid_interface, ONLY : Grid_getBlkCornerID
+  implicit none
+
+  type(Grid_tile_t), intent(in) :: blockDesc
+  integer,dimension(MDIM), intent(OUT) :: cornerID, stride
+  integer, optional, dimension(MDIM),intent(OUT) :: cornerIDHigh
+  logical, optional, intent(IN) :: inRegion
+
+  call Grid_getBlkCornerID(blockDesc%id, cornerID, stride, cornerIDHigh, inRegion)
+
+end subroutine Grid_getBlkCornerID_desc

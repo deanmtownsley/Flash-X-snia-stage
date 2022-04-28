@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Cellular/Simulation_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -76,7 +79,7 @@ subroutine Simulation_init()
      sim_noiseAmplitude, sim_noiseDistance, &
      sim_xCenterPerturb, sim_yCenterPerturb, sim_zCenterPerturb, &
      sim_xmin, sim_xmax, sim_ymin, sim_ymax, sim_zmin, sim_zmax , sim_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_stamp
 
@@ -128,23 +131,23 @@ subroutine Simulation_init()
                 &              'cutoff density'
            print *, 'reset smlrho to be less than ',  & 
                 &               1.e-4*sim_rhoAmbient
-           call Driver_abortFlash('ERROR Simulation_init: smlrho is too high')
+           call Driver_abort('ERROR Simulation_init: smlrho is too high')
         endif
 
         if (sim_xCenterPerturb .GT. sim_xmax .OR. sim_xCenterPerturb .LT. sim_xmin) then
            print *, 'Error: xCenterPerturb must fall between xmin and xmax'
-           call Driver_abortFlash('ERROR Simulation_init: xCenterPerturb must fall between xmin and xmax')
+           call Driver_abort('ERROR Simulation_init: xCenterPerturb must fall between xmin and xmax')
         endif
 
         if (sim_yCenterPerturb .GT. sim_ymax .OR. sim_yCenterPerturb .LT. sim_ymin) then
            print *, 'Error: yCenterPerturb must fall between ymin and ymax'
-           call Driver_abortFlash('ERROR Simulation_init: yCenterPerturb must fall between ymin and ymax')
+           call Driver_abort('ERROR Simulation_init: yCenterPerturb must fall between ymin and ymax')
         endif
 
         if ((sim_zCenterPerturb .GT. sim_zmax .OR. sim_zCenterPerturb .LT. sim_zmin)  & 
              &              .AND. NDIM .EQ. 3) then
            print *, 'Error: zCenterPerturb must fall between zmin and zmax'
-           call Driver_abortFlash('ERROR Simulation_init: zCenterPerturb must fall between zmin and zmax')
+           call Driver_abort('ERROR Simulation_init: zCenterPerturb must fall between zmin and zmax')
         endif
 
         call Logfile_stamp( "initializing for cellular detonation", &

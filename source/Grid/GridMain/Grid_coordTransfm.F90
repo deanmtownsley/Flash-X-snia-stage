@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/Grid_coordTransfm
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -51,7 +54,7 @@
 
 subroutine Grid_coordTransfm(x,y,z, xout,yout,zout, geometryIn,geometryOut, ndimArg, &
      velI,velJ,velK,velIOut,velJOut,velKOut)
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use Grid_interface, ONLY : Grid_getGeometry
   use Grid_data, ONLY: gr_meshMe
   implicit none
@@ -112,16 +115,16 @@ subroutine Grid_coordTransfm(x,y,z, xout,yout,zout, geometryIn,geometryOut, ndim
      else if (geoOut==CYLINDRICAL) then
         call gr_coordTransfmCyl(x,y,z, xout,yout,zout, ndim, velI,velJ,velK,velIOut,velJOut,velKOut)
      else
-        call Driver_abortFlash("[Grid_coordTransfm] invalid input geometry")
+        call Driver_abort("[Grid_coordTransfm] invalid input geometry")
      end if
   else if (geoOut==CARTESIAN) then
      if (geoIn==CYLINDRICAL) then
         call gr_coordTransfmFromCyl(x,y,z, xout,yout,zout, ndim, velI,velJ,velK,velIOut,velJOut,velKOut)
      else
-        call Driver_abortFlash("[Grid_coordTransfm] invalid output geometry")
+        call Driver_abort("[Grid_coordTransfm] invalid output geometry")
      end if
   else
-     call Driver_abortFlash("[Grid_coordTransfm] invalid geometry")
+     call Driver_abort("[Grid_coordTransfm] invalid geometry")
   end if
 
   first_call = .FALSE.

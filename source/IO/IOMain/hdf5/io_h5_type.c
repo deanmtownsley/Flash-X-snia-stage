@@ -20,7 +20,7 @@ hid_t io_h5_type_hid_primitive(const int flashType)
     hType = H5T_NATIVE_CHAR;
     break;
   default:
-    Driver_abortFlashC("[io_h5_type]: unknown type");
+    Driver_abortC("[io_h5_type]: unknown type");
   }
   return hType;
 }
@@ -48,7 +48,7 @@ int io_h5_type_flash_primitive(const hid_t hType)
       return fPrimitiveTypes[i];
     }
   }
-  Driver_abortFlashC("[io_h5_type]: unknown type");
+  Driver_abortC("[io_h5_type]: unknown type");
   return -1;
 }
 

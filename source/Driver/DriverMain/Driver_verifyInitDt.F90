@@ -1,12 +1,15 @@
 !!****if* source/Driver/DriverMain/Driver_verifyInitDt
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Driver_verifyInitDt
@@ -52,7 +55,7 @@ subroutine Driver_verifyInitDt()
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh" 
+#include "Flashx_mpi_implicitNone.fh" 
 
   real,dimension(3) :: dtCheck  ,dtCFL
 
@@ -86,8 +89,8 @@ subroutine Driver_verifyInitDt()
 
   nullify(solnData)
 
-!!$  dr_dtSTS = 0.0     !First use is in a max(dr_dtSTS,...), see Driver_evolveFlash. - KW
-!!$  dr_dtNew = 0.0     !First use is in a max(dr_dtSTS,...), see Driver_evolveFlash. - KW
+!!$  dr_dtSTS = 0.0     !First use is in a max(dr_dtSTS,...), see Driver_evolveAll. - KW
+!!$  dr_dtNew = 0.0     !First use is in a max(dr_dtSTS,...), see Driver_evolveAll. - KW
 
   !! Need to run this routine when the super time stepping algorithm is used.
   if (dr_useSTS) then

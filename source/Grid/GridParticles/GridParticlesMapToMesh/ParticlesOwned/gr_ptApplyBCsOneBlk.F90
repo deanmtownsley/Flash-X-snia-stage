@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/gr_ptApplyBCsOneBlk
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_ptApplyBCsOneBlk
@@ -40,7 +43,7 @@ subroutine gr_ptApplyBCsOneBlk (blkLimits, blkLimitsGC, blockID)
   use Grid_interface, ONLY : Grid_getBlkBC
   use gr_ptData, ONLY : gr_ptBuf 
   use gr_ptMapData, ONLY : gr_ptSmearLen
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
   integer,dimension(LOW:HIGH,MDIM), intent(IN)  :: blkLimits, blkLimitsGC
@@ -179,7 +182,7 @@ subroutine gr_ptApplyBCsOneBlk (blkLimits, blkLimitsGC, blockID)
                              else 
 
                                 print *, "Boundary Condition:", boundaryCondition(axis)
-                                call Driver_abortFlash("gr_ptApplyBCsOneBlk: Unrecognised boundary condition... exiting")
+                                call Driver_abort("gr_ptApplyBCsOneBlk: Unrecognised boundary condition... exiting")
 
                              end if
 

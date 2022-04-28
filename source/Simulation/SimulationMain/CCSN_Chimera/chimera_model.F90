@@ -1,12 +1,15 @@
 module chimera_model_module
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 
   ! we read in the number of variables and their order and use this to
   ! map them into the model_state array.  We ignore anything other than
@@ -15,7 +18,7 @@ module chimera_model_module
   ! composition is assumed to be in terms of mass fractions     
 
   use, intrinsic :: iso_fortran_env, ONLY : dp=>real64
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use Multispecies_interface, ONLY : Multispecies_getProperty
   use PhysicalConstants_interface, ONLY : PhysicalConstants_get
   use hdf5
@@ -161,11 +164,11 @@ contains
 
     if (ierr /= 0) then
       if (meshMe == MASTER_PE) print *,'Could not open file: ',fname
-      call Driver_abortFlash('Aborting now -- please supply filename')
+      call Driver_abort('Aborting now -- please supply filename')
     end if
 
     call h5gopen_f(file_id, '/mesh', group_id, ierr)
-    if (ierr /= 0) call Driver_abortFlash('Could not open /mesh group')
+    if (ierr /= 0) call Driver_abort('Could not open /mesh group')
 
     datasize1d(1) = 1
     call read_1d_slab('nz_hyperslabs', i_read, group_id, datasize1d)
@@ -199,7 +202,7 @@ contains
 
     ! open mesh group
     call h5gopen_f(file_id, '/mesh', group_id, ierr)
-    if (ierr /= 0) call Driver_abortFlash('Could not open /mesh group')
+    if (ierr /= 0) call Driver_abort('Could not open /mesh group')
 
     ! read array dimensions
     datasize1d(1) = 3
@@ -220,7 +223,7 @@ contains
     jmax_chim = index_bounds(2)
     if ( jmin_chim /= 1 .or. jmax_chim /= ny_chim ) then
        if (meshMe == MASTER_PE) print *,'Error: inner theta bounds /= (1,ny_chim), (',jmin_chim,',',jmax_chim,')'
-       call Driver_abortFlash('Aborting now -- check theta bounds in model file')
+       call Driver_abort('Aborting now -- check theta bounds in model file')
      end if
 
     ! read phi index bounds
@@ -229,7 +232,7 @@ contains
     kmax_chim = index_bounds(2)
     if ( kmin_chim /= 1 .or. kmax_chim /= nz_chim ) then
        if (meshMe == MASTER_PE) print *,'Error: inner phi bounds /= (1,nz_chim), (',kmin_chim,',',kmax_chim,')'
-       call Driver_abortFlash('Aborting now -- check phi bounds in model file')
+       call Driver_abort('Aborting now -- check phi bounds in model file')
      end if
 
     ! allocate grid variables
@@ -350,7 +353,7 @@ contains
 
     ! open fluid group
     call h5gopen_f(file_id, '/fluid', group_id, ierr)
-    if (ierr /= 0) call Driver_abortFlash('Could not open /fluid group')
+    if (ierr /= 0) call Driver_abort('Could not open /fluid group')
 
     ! allocate fluid variables
     allocate (u_c_chim(nx_chim,ny_chim,nz_chim))
@@ -418,7 +421,7 @@ contains
 
     ! open abundance group
     call h5gopen_f(file_id, '/abundance', group_id, ierr)
-    if (ierr /= 0) call Driver_abortFlash('Could not open /abundance group')
+    if (ierr /= 0) call Driver_abort('Could not open /abundance group')
 
     ! allocate composition variables
     allocate (a_nuc_chim(nnc_chim-1))
@@ -478,7 +481,7 @@ contains
       allocate (net_in_flash(k))
       net_in_flash(:) = itmp(1:k)
     else
-      call Driver_abortFlash("no species in chimera net in FLASH net")
+      call Driver_abort("no species in chimera net in FLASH net")
     end if
 
     xn_c_chim(net_in_flash,:,:,:) = xn_read(net_to_flash(net_in_flash),:,:,:)
@@ -523,7 +526,7 @@ contains
     ! open particle group
     call h5gopen_f(file_id, '/particle', group_id, ierr)
     if (ierr /= 0) then
-      call Driver_abortFlash('Could not open /particle group')
+      call Driver_abort('Could not open /particle group')
     else
       ! read particle dimensions
       datasize1d(1) = 2
@@ -670,7 +673,7 @@ contains
 
     case default
 
-      call Driver_abortFlash("invalid value for boundary condition, nleft")
+      call Driver_abort("invalid value for boundary condition, nleft")
 
     end select
 
@@ -695,7 +698,7 @@ contains
 
     case default
 
-      call Driver_abortFlash("invalid value for boundary condition, nright")
+      call Driver_abort("invalid value for boundary condition, nright")
 
     end select
 

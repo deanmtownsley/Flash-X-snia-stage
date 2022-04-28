@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/Grid_addToVar
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -57,7 +60,7 @@ subroutine Grid_addToVar(srcVar, destVar, multFactor, reset)
                                Grid_releaseTileIterator
   use Grid_tile,        ONLY : Grid_tile_t
   use Grid_iterator,    ONLY : Grid_iterator_t
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -74,7 +77,7 @@ subroutine Grid_addToVar(srcVar, destVar, multFactor, reset)
  
   nullify(solnData)
 
-  call Driver_abortFlash("[Grid_addToVar] This update has not been tested")
+  call Driver_abort("[Grid_addToVar] This update has not been tested")
 
   call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
   do while(itor%isValid())

@@ -1,12 +1,15 @@
 !!****if* source/flashUtilities/Pipeline/PipelineMain/Pipeline_localCreate
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  
@@ -97,7 +100,7 @@ subroutine Pipeline_localCreate (itemSize, maxItems, channelSize, logName)
                                 pl_sendStatus,         &
                                 pl_size
 
-  use Driver_interface,  ONLY : Driver_abortFlash,       &
+  use Driver_interface,  ONLY : Driver_abort,       &
                                 Driver_checkMPIErrorCode
 
   use pl_interface,      ONLY : pl_localPipelineSetup
@@ -107,7 +110,7 @@ subroutine Pipeline_localCreate (itemSize, maxItems, channelSize, logName)
 #include "Simulation.h"
 #include "Pipeline.h"
 #include "constants.h"
- include "Flash_mpi.h"
+ include "Flashx_mpi.h"
 
   character (len=*), intent (in), optional :: logName
   integer,           intent (in)           :: itemSize
@@ -125,7 +128,7 @@ subroutine Pipeline_localCreate (itemSize, maxItems, channelSize, logName)
 !
 !    
   if (pl_pipelineCreated) then
-      call Driver_abortFlash ('[Pipeline_localCreate] ERROR: Only 1 pipeline at a time possible!')
+      call Driver_abort ('[Pipeline_localCreate] ERROR: Only 1 pipeline at a time possible!')
   end if
 !
 !

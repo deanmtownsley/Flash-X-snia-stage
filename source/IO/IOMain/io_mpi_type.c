@@ -19,7 +19,7 @@ MPI_Datatype io_mpi_type_primitive(const int flashType)
     mpiType = MPI_CHAR;
     break;
   default:
-    Driver_abortFlashC("[io_mpi_type]: unknown type");
+    Driver_abortC("[io_mpi_type]: unknown type");
   }
   return mpiType;
 }

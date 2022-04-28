@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_getFluxCorrData_xtra
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -43,7 +46,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
@@ -57,9 +60,11 @@
 !!
 !!   fluxCorrX : flux correction (difference) for IAXIS direction
 !!
-!!   fluxCorrY : flux correction (difference) for JAXIS direction
+!!   fluxCorrY : flux correction (difference) for JAXIS direction;
+!!               left undefined if NDIM < 2.
 !!
-!!   fluxCorrZ : flux correction (difference) for KAXIS direction
+!!   fluxCorrZ : flux correction (difference) for KAXIS direction;
+!!               left undefined if NDIM < 3.
 !!
 !!   isFluxDensity : indicates, for each flux component, whether the component
 !!                   is a flux proper (if TRUE) or a flux density (otherwise).

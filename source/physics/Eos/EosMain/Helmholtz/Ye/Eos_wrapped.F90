@@ -1,41 +1,19 @@
 !!****if* source/physics/Eos/EosMain/Helmholtz/Ye/Eos_wrapped
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
 !! NAME
 !!
 !!  Eos_wrapped
-!! 
-!! SYNOPSIS
-!!
-!!  call Eos_wrapped(  integer(IN) :: mode,
-!!                     integer(IN) :: range(HIGH, MDIM),
-!!                     integer(IN) :: blockID,
-!!            optional,integer(IN) :: gridDataStruct )
-!!
-!! DESCRIPTION
-!!
-!! This function is provided for the user's convenience and acts as a simple
-!! wrapper to the Eos interface. The Eos interface uses a single, flexible data
-!! structure "eosData" to pass the thermodynamic quantities in and out of the
-!! funtion (see Eos). The wrapper hides formation and use of eosData
-!! from the users.
-!!
-!! While Eos does not know anything about blocks, Eos_wrapped takes its
-!! input thermodynamic state variables from a given block's storage area.
-!! It works by taking a selected section of a block described by array
-!! "range" and translating it to eosData before calling the Eos routine.
-!! Upon return from Eos, Eos_wrapper updates certain state variables in
-!! the same section of the block's storage area. Which variables are taken
-!! as input, and which are updated, depends on the "mode" argument.
-!!
-!! If you want to return the derived quantities defined from EOS_VAR+1:EOS_NUM
-!! in Eos.h, then you must use the direct interface Eos().
 !!
 !! This version works in EOS_YE mode.  Here, abar is calculated from
 !! the Ye mass scalar and zbar from the Ye and SumY mass scalars,
@@ -45,55 +23,7 @@
 !! Code can check for EOS_YE mode by testing whether the preprocessor
 !! symbol USE_EOS_YE is defined.
 !!
-!!  ARGUMENTS 
-!!
-!!   
-!!   mode : determines which variables are used as Eos input.
-!!          The valid values are MODE_DENS_EI (where density and internal
-!!          energy are inputs), MODE_DENS_PRES (density and pressure as inputs)
-!!          MODE_DENS_TEMP (density and temperature are inputs).
-!!          These quantities are defined in constants.h, the argument is 
-!!          forwarded unchanged to the Eos function call.
-!!
-!! 
-!!   range: an array that holds the lower and upper indices of the section
-!!          of block on which Eos is to be applies. The example shows how
-!!          the array describes the block section.
-!!
-!!   blockID: current block number
-!!
-!!   gridDataStruct : the grid data structure (cell centered / face centered etc)
-!!
-!!  EXAMPLE 
-!!      if range(LOW,IAXIS)=1,range(HIGH,IAXIS)=iguard,
-!!         range(LOW,JAXIS)=1,range(HIGH,JAXIS)=jguard,
-!!         range(LOW,KAXIS)=1,range(HIGH,KAXIS)=kguard,
-!!      then Eos is applied to the lower left hand corner of the guard
-!!      cells in the block. 
-!!
-!!      However, if the value were
-!!         range(LOW,IAXIS)=iguard+1,range(HIGH,IAXIS)=iguard+nxb,
-!!         range(LOW,JAXIS)=jguard+1,range(HIGH,JAXIS)=jguard+nyb,
-!!         range(LOW,KAXIS)=kguard+1,range(HIGH,KAXIS)=kguard+nzb,
-!!      then Eos is applied to all the interior cells in the block.
-!!
-!!  NOTES
-!!      This interface is defined in Fortran Module 
-!!      Eos_interface. All functions calling this routine should include
-!!      a statement like
-!!      use Eos_interface, ONLY : Eos_wrapped
-!!
-!!      This routine cannot use "INTERIOR" mode of indexing the range.  In the
-!!      second example given above, although only the interior cells are being
-!!      calculated with EOS, the range indices still must include the guard cells.
-!!      See, for example, IsentropicVortex/Simulation_initBlock where the data is
-!!      generated on INTERIOR cells with Grid_putRowData, but the same indices can't
-!!      be used for the EOS call.
-!!
-!!  SEE ALSO
-!!
-!!     Eos
-!!     Eos.h
+!!  For more details see the documentation of the NULL implementation
 !!
 !!***
 
@@ -106,7 +36,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe, &
        eos_threadWithinBlock
   use Logfile_interface, ONLY : Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   !$ use omp_lib    
   use Eos_interface, ONLY : Eos
@@ -154,7 +84,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
+     call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
   end if
 #endif
 
@@ -164,7 +94,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 ! section above if performance is a concern.
   if (present(gridDataStruct)) then
      if (gridDataStruct .NE. CENTER) then
-        call Driver_abortFlash("Eos_wrapped: This gridDataStruct is not implemented in this version!")
+        call Driver_abort("Eos_wrapped: This gridDataStruct is not implemented in this version!")
      end if
   end if
 
@@ -274,7 +204,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
              solnData(SUMY_MSCALAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k)
 #else
         !! yeah, yeah this should be done in initialization, but trying to avoid too much code duplication
-        call Driver_abortFlash("[Eos_wrapped] This routine was called in YE mode, but no YE_MSCALAR is defined")
+        call Driver_abort("[Eos_wrapped] This routine was called in YE mode, but no YE_MSCALAR is defined")
 #endif
 
         call Eos(mode,vecLen,eosData,massFraction)
@@ -314,7 +244,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
               write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
            endif
            call Logfile_stampMessage('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
-           call Driver_abortFlash('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+           call Driver_abort('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
         end if
 
         solnData(GAME_VAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k) = &

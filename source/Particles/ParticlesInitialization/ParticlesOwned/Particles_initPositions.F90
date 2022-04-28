@@ -1,12 +1,15 @@
 !!****if* source/Particles/ParticlesInitialization/Particles_initPositions
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!    Particles_initPositions
@@ -81,7 +84,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Driver_initFlash
+!!  Driver_initAll
 !!  Grid_initDomain
 !!  Particles_initData
 !!***
@@ -93,7 +96,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
 
   use Grid_interface, ONLY : Grid_getTileIterator, &
                              Grid_releaseTileIterator
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use pt_interface, ONLY : pt_initPositions,pt_createTag, &
                            pt_initLocal,                  &
                            pt_initPositionsLattice,       &
@@ -174,7 +177,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
         case(NONE)
            ! do nothing
         case default
-           call Driver_abortFlash("Particles_initPosition: no valid initialization method")
+           call Driver_abort("Particles_initPosition: no valid initialization method")
         end select
         numNewLocalThisType = pt_numLocal - numPreviousLocal
         pt_typeInfo(PART_LOCAL,i) = numNewLocalThisType + numLocalThisType

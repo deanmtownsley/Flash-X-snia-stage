@@ -1,12 +1,15 @@
 !!****if* source/physics/Eos/EosMain/Multigamma/eos_mgamma
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -143,7 +146,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
 !==============================================================================
   use eos_mgammaData, ONLY: eos_gammam1j,  eos_ggprodj, eos_gc
   use Eos_data, ONLY : eos_gasConstant
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
     Multispecies_getSumFrac
 
@@ -185,15 +188,15 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
 #ifdef DEBUG_EOS
   if (ilo < 1 .OR. ilo > vecLen) then
      print*,'[eos_mgamma] ilo is',ilo
-     call Driver_abortFlash("[eos_mgamma] invalid ilo")
+     call Driver_abort("[eos_mgamma] invalid ilo")
   end if
   if (ihi < 1 .OR. ihi > vecLen) then
      print*,'[eos_mgamma] ihi is',ihi
-     call Driver_abortFlash("[eos_mgamma] invalid ihi")
+     call Driver_abort("[eos_mgamma] invalid ihi")
   end if
   if (rowLen < 0 .OR. rowLen > vecLen) then
      print*,'[eos_mgamma] rowLen is',rowLen
-     call Driver_abortFlash("[eos_mgamma] invalid rowLen")
+     call Driver_abort("[eos_mgamma] invalid rowLen")
   end if
 #endif
   if (rowLen == 0) then
@@ -210,7 +213,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
   entr = (EOS_ENTR-1)*vecLen
 
   if(.not.present(massFrac)) then
-     call Driver_abortFlash("[Eos] Multigamma needs mass fractions")
+     call Driver_abort("[Eos] Multigamma needs mass fractions")
   end if
 
 
@@ -269,7 +272,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
      end do
 
   else 
-     call Driver_abortFlash("[Eos] Unrecognized input mode given to Eos")     
+     call Driver_abort("[Eos] Unrecognized input mode given to Eos")     
   endif
   
   if(present(mask)) then
@@ -304,7 +307,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
          &       (eosData(pres+ilo:pres+ihi) / eosData(dens+ilo:dens+ihi) + eosData(eint+ilo:eint+ihi)) / &
          &       eosData(temp+ilo:temp+ihi) ) / eosData(temp+ilo:temp+ihi)
         else
-           call Driver_abortFlash("[Eos] Cannot calculate EOS_DST without EOS_DET and EOS_DPT")
+           call Driver_abort("[Eos] Cannot calculate EOS_DST without EOS_DET and EOS_DPT")
         end if
      end if
      if (mask(EOS_DSD)) then
@@ -316,7 +319,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
         &       ( ((eosData(dpd+ilo:dpd+ihi) - eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi)) / &
         &          eosData(dens+ilo:dens+ihi)) + eosData(ded+ilo:ded+ihi)) / eosData(temp+ilo:temp+ihi)
          else
-           call Driver_abortFlash("[Eos] Cannot calculate EOS_DSD without EOS_DED and EOS_DPD")
+           call Driver_abort("[Eos] Cannot calculate EOS_DSD without EOS_DED and EOS_DPD")
         end if
      end if
 
@@ -339,7 +342,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
            c_v = (EOS_CV-1)*vecLen
            eosData(c_v+ilo:c_v+ihi) = eosData(det+ilo:det+ihi)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
      
@@ -348,7 +351,7 @@ subroutine eos_mgamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
            c_p = (EOS_CP-1)*vecLen
            eosData(c_p+ilo:c_p+ihi) = eosData(gamc+ilo:gamc+ihi)*eosData(c_v+ilo:c_v+ihi)
         else
-           call Driver_abortFlash("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
      end if
   end if

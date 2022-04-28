@@ -1,12 +1,15 @@
 !!****if* source/numericalTools/RungeKutta/RungeKuttaMain/rk_stepEAC
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -108,7 +111,7 @@ subroutine rk_stepEAC (f, n, nc, s,                  &
                                 rk_stepSizeConfinementFactor, &
                                 rk_stepSizeSafetyFactor
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -232,7 +235,7 @@ subroutine rk_stepEAC (f, n, nc, s,                  &
   stagnation = (maxval (abs (y (1:n) - yout (1:n))) == 0.0)
 
   if (stagnation) then
-      call Driver_abortFlash ('[rk_stepEAC] ERROR: no advancement of dependent variables!')
+      call Driver_abort ('[rk_stepEAC] ERROR: no advancement of dependent variables!')
   end if
 !
 !

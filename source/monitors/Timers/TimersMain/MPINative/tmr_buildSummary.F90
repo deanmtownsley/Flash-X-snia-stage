@@ -1,12 +1,15 @@
 !!****if* source/monitors/Timers/TimersMain/MPINative/tmr_buildSummary
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -81,10 +84,10 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
 
   use Timers_data, ONLY: tmr_stack, tmr_numSegments, tmr_acctSegs, tmr_numSegments,&
        tmr_globalNumProcs, tmr_globalComm
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
 #include "constants.h"
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
   
   integer, intent(in) :: length
   integer, intent(in) :: columns
@@ -145,7 +148,7 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
         call tmr_stackAssign(currentStack, tmr_acctSegs(i)%stacks%stacks(indicies(i)))
         call tmr_stackPush(currentStack, i, pushResult)
         if (pushResult < 0) then
-           call Driver_abortFlash("tmr_buildSummary: ran out of space building summary")
+           call Driver_abort("tmr_buildSummary: ran out of space building summary")
         end if
         call tmr_buildSummary(summaryArray, length, columns, currentIndex, indentation+1, currentStack, doreduced)
      end if

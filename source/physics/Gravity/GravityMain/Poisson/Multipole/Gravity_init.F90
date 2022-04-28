@@ -1,12 +1,15 @@
 !!****if* source/physics/Gravity/GravityMain/Poisson/Multipole/Gravity_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -33,7 +36,7 @@
 subroutine Gravity_init()
 
   use Gravity_data
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype,&
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype,&
       Driver_getComm, Driver_getNumProcs
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
@@ -65,13 +68,13 @@ subroutine Gravity_init()
   ! Can't use periodic b.c. with Multipole
   select case (grav_boundary_type)
      case ("periodic")
-        call Driver_abortFlash('[Gravity_init] No periodic gravity boundary conditions with Multipole.')
+        call Driver_abort('[Gravity_init] No periodic gravity boundary conditions with Multipole.')
      case ("isolated")
         !! Life is good here.
         !! the following variable is not used in multipole implementations, setting it here anyway
         grav_boundary = ISOLATED
      case default
-        call Driver_abortFlash('[Gravity_init] Unsupported gravity boundary conditions, only isolated allowed.')
+        call Driver_abort('[Gravity_init] Unsupported gravity boundary conditions, only isolated allowed.')
   end select
 
   call RuntimeParameters_get("useGravity", useGravity)

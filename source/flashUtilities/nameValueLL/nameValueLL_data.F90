@@ -1,12 +1,15 @@
 !!****ih* source/flashUtilities/nameValueLL/nameValueLL_data
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!    nameValueLL_data
@@ -590,7 +593,7 @@ contains
 !!***
 
 subroutine nameValueLL_checkReal (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
   
 implicit none
 
@@ -613,7 +616,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkReal: invalid node given")
+     call Driver_abort("nameValue_checkReal: invalid node given")
   endif
   
   return    
@@ -643,7 +646,7 @@ end subroutine nameValueLL_checkReal
 !!***
 
 subroutine nameValueLL_checkInt (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 
 implicit none
 
@@ -665,7 +668,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkAdd: invalid node given")
+     call Driver_abort("nameValue_checkAdd: invalid node given")
   endif
   
   return    
@@ -696,7 +699,7 @@ end subroutine nameValueLL_checkInt
 !!***
 
 subroutine nameValueLL_checkStr (node, value, valid)
-use Driver_interface, ONLY : Driver_abortFlash
+use Driver_interface, ONLY : Driver_abort
 
 #include "constants.h"
 
@@ -723,7 +726,7 @@ implicit none
      endif
   else
      !! name is not found - add it to list 
-     call Driver_abortFlash("nameValue_checkStr: invalid node given")
+     call Driver_abort("nameValue_checkStr: invalid node given")
   endif
   
   return    

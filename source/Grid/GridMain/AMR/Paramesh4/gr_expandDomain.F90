@@ -1,12 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Sedov/gr_expandDomain
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!     gr_expandDomain
@@ -62,11 +65,11 @@ subroutine gr_expandDomain (particlesInitialized)
   use Simulation_interface, ONLY : Simulation_initBlock
   use Particles_interface, ONLY : Particles_accumCount, &
     Particles_initPositions
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
 
-#include "Flash_mpi_implicitNone.fh"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 
 
@@ -241,7 +244,7 @@ subroutine gr_expandDomain (particlesInitialized)
   gr_finestExistingLevel = cur_treedepth
 
   if(gr_refineOnParticleCount) then
-     if(.not.particlesPosnsDone) call Driver_abortFlash(&
+     if(.not.particlesPosnsDone) call Driver_abort(&
        "This distribution of particles will not fit on the grid. Increase pt_maxPerProc, or decrease the particle count.")
      particlesInitialized=.true.
   end if

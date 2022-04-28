@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMapToMesh/UG/Grid_mapParticlesToMesh
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !! NAME
 !!  Grid_mapParticlesToMesh
 !!
@@ -69,12 +72,12 @@ subroutine Grid_mapParticlesToMesh (particles,part_props,numParticles,&
   use Grid_data, ONLY :  gr_axisNumProcs, gr_meshMe
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Logfile_interface, ONLY: Logfile_stampMessage
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use gr_ptInterface, ONLY : gr_ptApplyBCsOneBlk,gr_ptExchangePartialMap
 
   implicit none
  
-#include "Flash_mpi.h"
+#include "Flashx_mpi.h"
 
   integer,intent(IN) :: numParticles, part_props,maxParticlesPerProc
   real,dimension(part_props,maxParticlesPerProc),intent(INOUT) :: particles

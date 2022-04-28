@@ -1,12 +1,15 @@
-!!****f* source/Grid/GridMain/Grid_getCellVolumes
+!!****if* source/Grid/GridMain/Grid_getCellVolumes
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_getCellVolumes
@@ -21,11 +24,12 @@
 #include "constants.h"
 
 subroutine Grid_getCellVolumes(level, lo, hi, volumes)
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    use Grid_interface,   ONLY : Grid_getDeltas, &
                                 Grid_getCellCoords
    use Grid_data,        ONLY : gr_geometry
  
+   implicit none
    integer, intent(IN)  :: level
    integer, intent(IN)  :: lo(1:MDIM)
    integer, intent(IN)  :: hi(1:MDIM)
@@ -47,7 +51,7 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
              .OR. (gr_geometry == CYLINDRICAL .AND. NDIM == 2) &
              )     ) then
      volumes(:, :, :) = 0.0
-     call Driver_abortFlash("[Grid_getCellVolumes] Not tested yet")
+     call Driver_abort("[Grid_getCellVolumes] Not tested yet")
    end if
 
    call Grid_getDeltas(level, deltas)

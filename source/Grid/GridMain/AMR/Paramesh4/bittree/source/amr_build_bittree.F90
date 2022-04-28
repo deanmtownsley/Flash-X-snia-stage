@@ -1,12 +1,15 @@
 !> \file
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !! @brief call amr_build_bittree()
 !! NAME
 !!
@@ -39,7 +42,7 @@ subroutine amr_build_bittree()
                   gr_btWorkDefaultLeaf,gr_btWorkDefaultPar, &
                   gr_btWorkBoundsPar, gr_btWorkBoundsLeaf
 
-  use Driver_interface, only: Driver_abortFlash
+  use Driver_interface, only: Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Grid_interface, only : Grid_setWorkBounds
   use gr_specificData, ONLY : gr_gidIsValid
@@ -89,7 +92,7 @@ subroutine amr_build_bittree()
   call MPI_ALLREDUCE(MPI_IN_PLACE, topmask, product(top), MPI_LOGICAL, MPI_LOR, amr_mpi_meshComm, ierr)
   
   if(.NOT.all(topmask))     &
-    call Driver_abortFlash("Error in amr_build_bittree. All possible root blocks must exist.")
+    call Driver_abort("Error in amr_build_bittree. All possible root blocks must exist.")
 
 !-Set some runtime parameters needed for amr_sort_morton_bittree
   call RuntimeParameters_get("gr_btDistributedSort",gr_btDistributedSort)

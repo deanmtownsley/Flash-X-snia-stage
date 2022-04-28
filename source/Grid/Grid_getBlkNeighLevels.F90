@@ -1,12 +1,15 @@
 !!****f* source/Grid/Grid_getBlkNeighLevels
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -74,12 +77,11 @@
 !!
 !! NOTES
 !!
-!!  With a PARAMESH 4 Grid implementation, refinement level information
+!!  DEV: Currently only implemented correctly for Paramesh4 and UG!
+!!
+!!  With a Paramesh4 Grid implementation, refinement level information
 !!  is taken from the PARAMESH private array surr_blks and is always
 !!  available for all directions.
-!!  With the PARAMESH 2 Grid implementation, refinement level information
-!!  is taken from the PARAMESH private array neigh and is currently only
-!!  available for face directions, not diagonal directions.
 !!  With a uniform Grid implementation, refinement level 1 is returned
 !!  for all directions since all blocks are considered to be at refinement
 !!  level 1.

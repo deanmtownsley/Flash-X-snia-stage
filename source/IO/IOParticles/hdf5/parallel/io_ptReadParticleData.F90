@@ -1,12 +1,15 @@
 !!****if* source/IO/IOParticles/hdf5/parallel/io_ptReadParticleData
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -67,7 +70,7 @@ subroutine io_ptReadParticleData()
        io_chkptFileID, io_comm, io_splitNumBlks, io_splitParts, io_globalMe,&
        io_meshNumProcs, io_meshMe
   use Simulation_interface, ONLY : Simulation_mapIntToStr
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Particles_interface, ONLY : Particles_putLocalNum
   use Grid_interface, ONLY : Grid_getLocalNumBlks
@@ -83,7 +86,7 @@ subroutine io_ptReadParticleData()
 #endif
 
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
 
   integer :: ierr, i, particleOffset
@@ -139,7 +142,7 @@ subroutine io_ptReadParticleData()
   if (.NOT.allocated(particles)) &
        allocate (particles(NPART_PROPS,pt_maxPerProc), stat=ierr)
   if (ierr /= 0) &
-     call Driver_abortFlash("io_ptReadParticleData:  could not allocate particle array")
+     call Driver_abort("io_ptReadParticleData:  could not allocate particle array")
 
   !particles must be initialized or the entire particles algorithm will fail
   particles = NONEXISTENT
@@ -187,7 +190,7 @@ subroutine io_ptReadParticleData()
           1, &
           c_loc(particlesPerBlk(1)), io_comm, err)
      if (err /= 0) then
-        call Driver_abortFlash("Error reading localnp")
+        call Driver_abort("Error reading localnp")
      end if
 
      !now find the newLocalNumParticles
@@ -202,7 +205,7 @@ subroutine io_ptReadParticleData()
 #endif
 
      if (reLocalNumParticles > pt_maxPerProc) then
-        call Driver_abortFlash &
+        call Driver_abort &
              ('[io_ptReadParticleData] ERROR: too many particles on this proc; increase pt_maxPerProc')
      end if
 
@@ -294,7 +297,7 @@ subroutine io_ptReadParticleData()
              partArrayDims, &
              c_loc(particles(1,1)), io_comm, err)
         if (err /= 0) then
-           call Driver_abortFlash("Error reading particles")
+           call Driver_abort("Error reading particles")
         end if
 
         !The commented out function is no longer used because it deadlocks           
@@ -350,7 +353,7 @@ subroutine io_ptReadParticleData()
                 partArrayDims, &
                 c_loc(particles(1,1)), io_comm, err)
            if (err /= 0) then
-              call Driver_abortFlash("Error reading particles")
+              call Driver_abort("Error reading particles")
            end if
 
            !The commented out function is no longer used because it deadlocks           
@@ -416,7 +419,7 @@ subroutine io_ptReadParticleData()
      blkid = int(particles(BLK_PART_PROP,i))
 
      if((blkid < 0) .or. (blkid > localNumBlocks)) then
-        call Driver_abortFlash("io_pteadParticleData, blkid out of bounds")
+        call Driver_abort("io_pteadParticleData, blkid out of bounds")
      end if
 
 !!$     !do an expensive check here to see if all particles are within
@@ -424,7 +427,7 @@ subroutine io_ptReadParticleData()
 !!$     call gr_particleOutsideBndBox(bndBox, particles(POSX_PART_PROP:POSZ_PART_PROP, i), outside)
 !!$     if(outside) then
 !!$        print *, "particle outside bndbox ", i
-!!$        call Driver_abortFlash("Error: io_ptReadParticleData, particle outside bndBox")
+!!$        call Driver_abort("Error: io_ptReadParticleData, particle outside bndBox")
 !!$     end if
 
   end do

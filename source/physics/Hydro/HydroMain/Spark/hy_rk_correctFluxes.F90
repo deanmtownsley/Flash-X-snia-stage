@@ -1,12 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_correctFluxes
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!
@@ -14,8 +17,13 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_correctFluxes ( type(Grid_tile_t) :: blockDesc,
-!!                              real, intent(IN) :: dt )
+!!  call hy_rk_correctFluxes (real, pointer :: Uin(:,:,:,:),
+!!                            integer (IN)  :: blkLimits(:,:),
+!!                            integer (IN)  :: blkLimitsGC(:,:),
+!!                            integer (IN)  :: level,
+!!                            real (IN)     :: hy_del(:),
+!!                            real (IN)     :: dt)
+!!     
 !!
 !!  DESCRIPTION
 !!  Apply flux correction at fine/coarse boundaries. 
@@ -26,8 +34,13 @@
 !!
 !!
 !!  ARGUMENTS
-!!  blockDesc - block/tile descriptor
-!!  dt - time step
+!!    Uin -- pointer to solution data
+!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
+!!    level  -- the refine level of the block
+!!    hy_del  --- dx, dy, dz
+!!    dt - time step
+!!
+!!
 !!***
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
@@ -37,7 +50,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
        hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_putData, Eos_getData, Eos
 
 

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/gr_cleanEnergyData
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -67,7 +70,7 @@
 subroutine gr_cleanEnergyData(smallE, &
                               lo, hi, &
                               d, dlo, dhi, nd)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data,        ONLY : gr_sanitizeDataMode
 
   implicit none
@@ -109,7 +112,7 @@ subroutine gr_cleanEnergyData(smallE, &
             write(*,900)         i, j, k, smallE
             d(i,j,k,ENER_VAR) = max(d(i,j,k,ENER_VAR), smallE)
           else if (gr_sanitizeDataMode == 4) then
-            call Driver_abortFlash("[gr_cleanEnergyData] ENER data less than smallE")
+            call Driver_abort("[gr_cleanEnergyData] ENER data less than smallE")
           end if
         end if
       end do
@@ -130,7 +133,7 @@ subroutine gr_cleanEnergyData(smallE, &
             write(*,900)         i, j, k, smallE
             d(i,j,k,EINT_VAR) = max(d(i,j,k,EINT_VAR), smallE)
           else if (gr_sanitizeDataMode == 4) then
-            call Driver_abortFlash("[gr_cleanEnergyData] EINT data less than smallE")
+            call Driver_abort("[gr_cleanEnergyData] EINT data less than smallE")
           end if
         end if
       end do

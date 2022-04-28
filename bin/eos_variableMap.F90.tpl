@@ -28,7 +28,7 @@
 #define EOSOUT 1
 
 integer function eos_variableMap(gridDataStruct, eosRole, direction)
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
    implicit none
    integer, intent(IN) :: gridDataStruct, eosRole
    integer, intent(IN) :: direction ! 0 for IN, 1 for OUT
@@ -44,10 +44,10 @@ integer function eos_variableMap(gridDataStruct, eosRole, direction)
 
    !Check input arguments are sensible.
    if (eosRole < 1 .or. eosRole > EOSMAP_NUM_ROLES) then
-      call Driver_abortFlash("[eos_variableMap]: EOS index out of bounds")
+      call Driver_abort("[eos_variableMap]: EOS index out of bounds")
    end if
    if ((direction /= EOSIN) .and. (direction /= EOSOUT)) then
-      call Driver_abortFlash ("[eos_variableMap]: " //&
+      call Driver_abort ("[eos_variableMap]: " //&
            "Direction is neither 0 (for IN) nor 1 (for OUT).")
    end if
 
@@ -57,7 +57,7 @@ integer function eos_variableMap(gridDataStruct, eosRole, direction)
 
       templateEosSize = %(len_eos_lists|1)s
       if (templateEosSize /= EOSMAP_NUM_ROLES) then
-         call Driver_abortFlash &
+         call Driver_abort &
               ("[eos_variableMap]: Eos_map.h inconsistent with setup script")
       end if
 
@@ -102,11 +102,11 @@ integer function eos_variableMap(gridDataStruct, eosRole, direction)
       eosIndex = eosmap_scratch_facezvar(eosRole,direction)
 #ifdef FLASH_GRID_PARAMESH
    case (WORK)
-      call Driver_abortFlash &
+      call Driver_abort &
         ("[eos_variableMap]: work structure not implemented")
 #endif
    case default
-      call Driver_abortFlash &
+      call Driver_abort &
          ("[eos_variableMap]: gridDataStruct not recognised")
    end select
    eos_variableMap = eosIndex

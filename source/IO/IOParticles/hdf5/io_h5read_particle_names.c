@@ -15,7 +15,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 void FTOC(io_h5read_particle_names)(hid_t* file_identifier,
@@ -38,7 +38,7 @@ void FTOC(io_h5read_particle_names)(hid_t* file_identifier,
   string_type = H5Tcopy(H5T_C_S1);
   status = H5Tset_size(string_type, string_size);
   if(status < 0){
-    Driver_abortFlashC("Error: string\n");
+    Driver_abortC("Error: string\n");
   }
 
 #ifdef FLASH_IO_ASYNC_HDF5
@@ -48,7 +48,7 @@ void FTOC(io_h5read_particle_names)(hid_t* file_identifier,
 #endif
   if (status < 0){
     printf("Error: Unable to open dataset for particle names %d\n", status);
-    Driver_abortFlashC("Error: Unable to open dataset for particle names\n");
+    Driver_abortC("Error: Unable to open dataset for particle names\n");
   }
 
   
@@ -57,7 +57,7 @@ void FTOC(io_h5read_particle_names)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to read dataset for particle names %d\n", status);
-    Driver_abortFlashC("Error: Unable to read dataset for particle names\n");
+    Driver_abortC("Error: Unable to read dataset for particle names\n");
   }
 
 #ifdef FLASH_IO_ASYNC_HDF5
@@ -67,12 +67,12 @@ void FTOC(io_h5read_particle_names)(hid_t* file_identifier,
 #endif
 
   if(status < 0){
-    Driver_abortFlashC("Error: Close dataset\n");
+    Driver_abortC("Error: Close dataset\n");
   }
 
   status = H5Tclose(string_type);
   if(status < 0){
-    Driver_abortFlashC("Error: Free string type\n");
+    Driver_abortC("Error: Free string type\n");
   }
 
   return;

@@ -1,12 +1,15 @@
 !!****if* source/Particles/ParticlesMapping/Quadratic/pt_mapFromMeshQuadratic
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -78,7 +81,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      deltaCell,blkLimits,solnVec, partAttribVec)
   
   use Particles_data, ONLY : pt_geometry, pt_str_geometry
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -124,7 +127,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
 
   if ( (pt_geometry /= CARTESIAN) .and. &
        (.not. ((pt_geometry == CYLINDRICAL) .and. (NDIM == 2))) ) &
-    call Driver_abortFlash ("pt_mapFromMeshQuadratic:  unsupported geometry!")
+    call Driver_abort ("pt_mapFromMeshQuadratic:  unsupported geometry!")
 
 !-------------------------------------------------------------------------------
 
@@ -142,7 +145,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      !print *, "newBlockID = ", blockID
      print *, "xp = ", xp
      print *, "ip = ", ip, ' not between', lbound(solnVec,iX), ' and', ubound(solnVec,iX)
-     call Driver_abortFlash("we have a problem in pt_mapFromMeshQuadratic")
+     call Driver_abort("we have a problem in pt_mapFromMeshQuadratic")
   end if
 #endif
 
@@ -166,7 +169,7 @@ subroutine pt_mapFromMeshQuadratic (numAttrib, attrib, pos, bndBox,&
      !print *, "newBlockID = ", blockID
      print *, "yp = ", yp
      print *, "jp = ", jp, ' not between', lbound(solnVec,iX+1), ' and', ubound(solnVec,iX+1)
-     call Driver_abortFlash("we have a problem in pt_mapFromMeshQuadratic")
+     call Driver_abort("we have a problem in pt_mapFromMeshQuadratic")
   end if
 #endif
 

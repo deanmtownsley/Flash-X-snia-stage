@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/paramesh/gr_sanitizeDataAfterInterp
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -174,7 +177,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(DENS_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smallrho,unk(DENS_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("DENS var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("DENS var below acceptable minimum")
         end if
      end if
      
@@ -222,7 +225,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(ENER_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smalle,unk(ENER_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("ENER var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("ENER var below acceptable minimum")
         end if
      end if
 #endif
@@ -267,7 +270,7 @@ subroutine gr_sanitizeDataAfterInterp(ntype, info, layers)
            if (gr_sanitizeDataMode == 3) then
               unk(EINT_VAR,il:iu,jl:ju,kl:ku,blockID) = max(gr_smalle,unk(EINT_VAR,il:iu,jl:ju,kl:ku,blockID))
            end if
-           if (gr_sanitizeDataMode == 4) call Driver_abortFlash("EINT var below acceptable minimum")
+           if (gr_sanitizeDataMode == 4) call Driver_abort("EINT var below acceptable minimum")
         end if
      end if
 #endif

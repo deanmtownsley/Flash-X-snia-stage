@@ -15,7 +15,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 
 void FTOC(io_h5read_globalstrvect)(hid_t* file_identifier,
@@ -40,7 +40,7 @@ void FTOC(io_h5read_globalstrvect)(hid_t* file_identifier,
   string_type = H5Tcopy(H5T_C_S1);
   status = H5Tset_size(string_type, string_size);
   if(status < 0){
-    Driver_abortFlashC("Error: string\n");
+    Driver_abortC("Error: string\n");
   }
 
 #ifdef FLASH_IO_ASYNC_HDF5
@@ -56,7 +56,7 @@ void FTOC(io_h5read_globalstrvect)(hid_t* file_identifier,
 
   if (dimens_2d[0] > *num_elts) {
     printf("Error: Integer vector in dataset \"%s\" in the file appears too long: %d > %d\n", dataset_name, dimens_2d[0], *num_elts);
-    Driver_abortFlashC("Error: Integer vector in the file appears too long\n");
+    Driver_abortC("Error: Integer vector in the file appears too long\n");
   }
   *num_elts = dimens_2d[0];
 
@@ -76,7 +76,7 @@ void FTOC(io_h5read_globalstrvect)(hid_t* file_identifier,
   
   if (status < 0){
     printf("Error: Unable to select hyperslab for global string vector \"%s\"\n", dataset_name);
-    Driver_abortFlashC("Error: Unable to select hyperslab for particle names\n");
+    Driver_abortC("Error: Unable to select hyperslab for particle names\n");
   }
   
 #ifdef FLASH_IO_ASYNC_HDF5
@@ -90,7 +90,7 @@ void FTOC(io_h5read_globalstrvect)(hid_t* file_identifier,
 
   if (status < 0){
     printf("Error: Unable to read dataset for global string vector %d\n", status);
-    Driver_abortFlashC("Error: Unable to read dataset for global string vector\n");
+    Driver_abortC("Error: Unable to read dataset for global string vector\n");
   }
 
   H5Sclose(dataspace);

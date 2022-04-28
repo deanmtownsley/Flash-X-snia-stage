@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/gr_fillPhysicalBC
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  gr_fillPhysicalBC
@@ -76,7 +79,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
                                        amrex_mfiter_build, &
                                        amrex_mfiter_destroy
 
-    use Driver_interface,       ONLY : Driver_abortFlash
+    use Driver_interface,       ONLY : Driver_abort
     use Grid_data,              ONLY : gr_maxRefine, &
                                        gr_domainBC
     use Grid_interface,         ONLY : Grid_bcApplyToRegion, &
@@ -151,7 +154,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     end do
 
     if (level == INVALID_LEVEL) then
-        call Driver_abortFlash("[gr_fillPhysicalBC] Could not reverse engineer level")
+        call Driver_abort("[gr_fillPhysicalBC] Could not reverse engineer level")
     end if
 
 #ifdef DEBUG_GRID
@@ -177,7 +180,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              .AND.        ntype(KAXIS)) then
         gds = FACEZ
     else
-        call Driver_abortFlash("[gr_fillPhysicalBC] " // &
+        call Driver_abort("[gr_fillPhysicalBC] " // &
                                "Given mfab must be cell- or face-centered")
     end if
    
@@ -364,7 +367,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              deallocate(regionData)
 
              if (.NOT. applied) then
-                call Driver_abortFlash("[gr_fillPhysicalBC] BC not applied")
+                call Driver_abort("[gr_fillPhysicalBC] BC not applied")
              end if
 
              goodData = nextGoodData

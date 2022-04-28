@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/GridParticlesMove/UG/Directional/gr_ptMoveOffProc
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -70,9 +73,9 @@ subroutine gr_ptMoveOffProc(face,axis,index, propCount, maxPerProc,boundary,&
   use Grid_data, ONLY : gr_axisComm,gr_domainBC
   use gr_ptData, ONLY : gr_ptDestBuf, gr_ptSourceBuf,gr_ptBlk
   use gr_ptInterface, ONLY : gr_ptOneFaceBC
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   implicit none
-  include "Flash_mpi.h"
+  include "Flashx_mpi.h"
 
 
   integer, intent(IN) :: face, axis, index, propCount, maxPerProc
@@ -97,7 +100,7 @@ subroutine gr_ptMoveOffProc(face,axis,index, propCount, maxPerProc,boundary,&
   count=0
   tag=20*axis
   nothing = 0.0
-  if(face>HIGH)call Driver_abortFlash("Grid_moveParticles: face value is not LOW/HIGH")
+  if(face>HIGH)call Driver_abort("Grid_moveParticles: face value is not LOW/HIGH")
   
   pend=localNum
   j=1

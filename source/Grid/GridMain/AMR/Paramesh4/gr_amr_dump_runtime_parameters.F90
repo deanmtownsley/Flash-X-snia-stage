@@ -1,12 +1,23 @@
 !!****if* source/Grid/GridMain/paramesh/gr_amr_dump_runtime_parameters
+!! NOTICE
+!!  Copyright (C) 2003, 2004 United States Government as represented by the
+!!  National Aeronautics and Space Administration, Goddard Space Flight
+!!  Center.  All Rights Reserved.
+!!  Copyright (C) 2017 The University of Chicago
+!!  Copyright (C) 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Use of the PARAMESH software is governed by the terms of the
+!!  usage agreement which can be found in the file
+!!  'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -39,20 +50,12 @@
 !!   this subroutine and dump AMR runtime parameters; this is only
 !!   required in order to use the resulting file (after renaming)
 !!   for initialization.
+!!
+!!   Subroutine added to FLASH by KW, modeled on amr_set_runtime_parameters
+!!   from PARAMESH 3.4. This file should be kept in synch with
+!!   the PARAMESH subroutine amr_set_runtime_parameters.
+!!
 !!***
-!
-! Function added to FLASH by KW, modeled on amr_set_runtime_parameters
-! from PARAMESH 3.4. This file should be kept in synch with
-! that file!
-!
-!----------------------------------------------------------------------
-! PARAMESH - an adaptive mesh library.
-! Copyright (C) 2003
-!
-! Use of the PARAMESH software is governed by the terms of the
-! usage agreement which can be found in the file
-! 'PARAMESH_USERS_AGREEMENT' in the main paramesh directory.
-!----------------------------------------------------------------------
 
 #include "paramesh_preprocessor.fh"
         subroutine gr_amr_dump_runtime_parameters()

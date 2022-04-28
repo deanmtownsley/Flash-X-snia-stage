@@ -13,7 +13,7 @@
   extern hid_t io_es_id;
 #endif
 
-int Driver_abortFlashC(char* message);
+int Driver_abortC(char* message);
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
@@ -41,7 +41,7 @@ void FTOC(io_h5write_blk_particle_info)(int* myPE,
  
   dataspace = H5Screate_simple(rank, dimens_2d, NULL);
   if(dataspace < 0) {
-    Driver_abortFlashC("io_h5write_blk_particle_info: error can't create dataspace");
+    Driver_abortC("io_h5write_blk_particle_info: error can't create dataspace");
   }
 
 
@@ -52,7 +52,7 @@ void FTOC(io_h5write_blk_particle_info)(int* myPE,
     dataset = H5Dopen(*file_identifier, "blk unique id", H5P_DEFAULT); 
 #endif    
     if(dataset < 0) {
-      Driver_abortFlashC("Error: H5Dopen io_h5write_blk_unique_id\n");
+      Driver_abortC("Error: H5Dopen io_h5write_blk_unique_id\n");
     }
   }else {
     /* create the dataset */
@@ -79,7 +79,7 @@ void FTOC(io_h5write_blk_particle_info)(int* myPE,
                         stride_2d, count_2d, NULL);
   if(status < 0) {
     printf("%s\n","Error: Unable to select hyperslab for blk particle info dataspace");
-    Driver_abortFlashC("Error: Unable to select hyperslab for blk particle info dataspace");
+    Driver_abortC("Error: Unable to select hyperslab for blk particle info dataspace");
   }
 
 
@@ -108,7 +108,7 @@ void FTOC(io_h5write_blk_particle_info)(int* myPE,
 
   if(status < 0) {
     printf("%s\n","Unable to write blk_particle_info");
-    Driver_abortFlashC("Unable to write blk_particle_info");
+    Driver_abortC("Unable to write blk_particle_info");
   }
  
 

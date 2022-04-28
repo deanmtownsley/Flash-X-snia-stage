@@ -33,7 +33,7 @@ subroutine pt_advanceMC(dtNew, iSpecies)
   implicit none
 
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
  
   ! Input/Output 

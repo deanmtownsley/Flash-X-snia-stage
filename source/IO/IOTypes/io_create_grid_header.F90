@@ -1,12 +1,15 @@
 !!****if* source/IO/IOTypes/io_create_grid_header
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  io_create_grid_header
@@ -65,7 +68,7 @@ subroutine io_create_grid_header(myPE, fileID, fileFmt, fileType, &
 #endif
   use io_intfTypesModule, ONLY : io_fileID_t
   use Grid_interface, ONLY : Grid_getGlobalIndexLimits
-  use Driver_interface, ONLY : Driver_abortFlash  
+  use Driver_interface, ONLY : Driver_abort  
   use io_typeInterface, ONLY : io_getZeroBasedVarInfo, &
        io_getZeroBasedBlkSubarray
   use IO_data, ONLY : io_splitNumBlks
@@ -159,11 +162,11 @@ subroutine io_create_grid_header(myPE, fileID, fileFmt, fileType, &
   else if (fileFmt == 10) then
      meshDims = 5
   else
-     call Driver_abortFlash("[io_create_grid_header]: Unknown file format")
+     call Driver_abort("[io_create_grid_header]: Unknown file format")
   end if
 
   if (libType /= IO_FILE_PNETCDF .and. libType /= IO_FILE_HDF5) then
-     call Driver_abortFlash("[io_create_grid_header]: Unknown library type")
+     call Driver_abort("[io_create_grid_header]: Unknown library type")
   end if
 
   if (io_useLegacyLabels) then
@@ -352,7 +355,7 @@ end subroutine pack_grid_labels
 
 subroutine create_null_char_array(a, b)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef USE_IO_C_INTERFACE
   use iso_c_binding, ONLY : c_char
 #endif
@@ -368,7 +371,7 @@ subroutine create_null_char_array(a, b)
 
   !We assume a simple unit based character array.
   if (lbound(b,1) /= 1) then
-     call Driver_abortFlash("[create_null_char_array]: Array not unit based")
+     call Driver_abort("[create_null_char_array]: Array not unit based")
   end if
 
   !aLen contains the number of characters excluding trailing blanks in a.

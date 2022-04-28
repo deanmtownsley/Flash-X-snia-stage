@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_getFluxCorrData_xtra
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -38,7 +41,7 @@
 !!
 !! ARGUMENTS
 !!
-!!   blockdesc : describes the current block.
+!!   blockDesc : describes the current block.
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
@@ -88,7 +91,7 @@
 #include "Simulation.h"
 
 subroutine Grid_getFluxCorrData_xtra(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, fluxCorrX,fluxCorrY,fluxCorrZ, isFluxDensity)
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellFaceAreas
 
   use Grid_tile, ONLY : Grid_tile_t
@@ -120,7 +123,7 @@ subroutine Grid_getFluxCorrData_xtra(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, f
   real,allocatable :: faceAreas(:,:,:)
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
-  call Driver_abortFlash("Grid_getFluxCorrData_xtra.F90 requires amrex_flash_fluxregister,&
+  call Driver_abort("Grid_getFluxCorrData_xtra.F90 requires amrex_flash_fluxregister,&
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
@@ -141,7 +144,7 @@ subroutine Grid_getFluxCorrData_xtra(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, f
 
      if (present(isFluxDensity)) then
         if (.NOT.ALL(isFluxDensity)) &
-             call Driver_abortFlash("Grid_getFluxCorrData_xtra: isFluxDensity is not yet supported")
+             call Driver_abort("Grid_getFluxCorrData_xtra: isFluxDensity is not yet supported")
      end if
 
      igrd = blockDesc % grid_index

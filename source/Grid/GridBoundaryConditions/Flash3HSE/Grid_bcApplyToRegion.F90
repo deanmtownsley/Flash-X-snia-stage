@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridBoundaryConditions/Flash3HSE/Grid_bcApplyToRegion
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_bcApplyToRegion
@@ -210,7 +213,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
 #include "Simulation.h"
 #include "Eos.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos
   use Grid_interface, ONLY : Grid_getDeltas
   use gr_bcInterface, ONLY : gr_bcMapBcType, gr_hseStep
@@ -451,7 +454,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(AXISYMMETRIC)
-              if (gr_geometry == CARTESIAN) call Driver_abortFlash("AXISYMMETRIC boundary only works with curvilinear coordinates")
+              if (gr_geometry == CARTESIAN) call Driver_abort("AXISYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -459,7 +462,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(EQTSYMMETRIC)
-              if (gr_geometry == CARTESIAN) call Driver_abortFlash("EQTSYMMETRIC boundary only works with curvilinear coordinates")
+              if (gr_geometry == CARTESIAN) call Driver_abort("EQTSYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -530,7 +533,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
            case default
               print*,'boundary is',bcType
-              call Driver_abortFlash("unsupported boundary condition on Lower Face")
+              call Driver_abort("unsupported boundary condition on Lower Face")
            end select
            
         else  !(face==HIGH)
@@ -544,7 +547,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(AXISYMMETRIC)
-              if (gr_geometry == CARTESIAN) call Driver_abortFlash("AXISYMMETRIC boundary only works with curvilinear coordinates")
+              if (gr_geometry == CARTESIAN) call Driver_abort("AXISYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -552,7 +555,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
 
            case(EQTSYMMETRIC)
-              if (gr_geometry == CARTESIAN) call Driver_abortFlash("EQTSYMMETRIC boundary only works with curvilinear coordinates")
+              if (gr_geometry == CARTESIAN) call Driver_abort("EQTSYMMETRIC boundary only works with curvilinear coordinates")
               k = 2*guard+1
               if(isFace)k=k+1
               do i = 1,guard
@@ -634,7 +637,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
               end do
            case default
               print*,'boundary is',bcType
-              call Driver_abortFlash("unsupported boundary condition on Upper Face")
+              call Driver_abort("unsupported boundary condition on Upper Face")
            end select
         end if
      end if

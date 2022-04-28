@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/gr_ptInit
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -65,7 +68,7 @@ subroutine gr_ptInit()
 #endif  
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_stampMessage, Logfile_stamp
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none 
   integer, save :: maxPerProc, propCount
@@ -121,7 +124,7 @@ subroutine gr_ptInit()
       call Logfile_stamp (NPART_PROPS,"[gr_ptInit]: Value of NPART_PROPS is = ")
       call Logfile_stamp (propCount,"[gr_ptInit]: Value of propCount is = ")
       call Logfile_stampMessage ("Different 1st dimensions for Destination and Source Buffer!")
-      call Driver_abortFlash ("[gr_ptInit]: NPART_PROPS must match propCount (see Logfile).")
+      call Driver_abort ("[gr_ptInit]: NPART_PROPS must match propCount (see Logfile).")
   endif
 #endif
 
@@ -130,7 +133,7 @@ subroutine gr_ptInit()
       call Logfile_stamp (RAY_ATTR_COUNT,"[gr_ptInit]: Value of RAY_ATTR_COUNT is = ")
       call Logfile_stamp (propCount,"[gr_ptInit]: Value of propCount is = ")
       call Logfile_stampMessage ("Different 1st dimensions for Destination and Source Buffer!")
-      call Driver_abortFlash ("[gr_ptInit]: RAY_ATTR_COUNT must match propCount (see Logfile).")
+      call Driver_abort ("[gr_ptInit]: RAY_ATTR_COUNT must match propCount (see Logfile).")
   endif
 #endif
 
@@ -139,7 +142,7 @@ subroutine gr_ptInit()
       call Logfile_stamp (PROTON_ATTRCOUNT,"[gr_ptInit]: Value of PROTON_ATTRCOUNT is = ")
       call Logfile_stamp (propCount,"[gr_ptInit]: Value of propCount is = ")
       call Logfile_stampMessage ("Different 1st dimensions for Destination and Source Buffer!")
-      call Driver_abortFlash ("[gr_ptInit]: PROTON_ATTRCOUNT must match propCount (see Logfile).")
+      call Driver_abort ("[gr_ptInit]: PROTON_ATTRCOUNT must match propCount (see Logfile).")
   endif
 #endif
 
@@ -149,7 +152,7 @@ subroutine gr_ptInit()
       call Logfile_stamp (EMPROTON_ATTRCOUNT,"[gr_ptInit]: Value of EMPROTON_ATTRCOUNT is = ")
       call Logfile_stamp (propCount,"[gr_ptInit]: Value of propCount is = ")
       call Logfile_stampMessage ("Different 1st dimensions for Destination and Source Buffer!")
-      call Driver_abortFlash ("[gr_ptInit]: EMPROTON_ATTRCOUNT must match propCount (see Logfile).")
+      call Driver_abort ("[gr_ptInit]: EMPROTON_ATTRCOUNT must match propCount (see Logfile).")
   endif
 #endif
 

@@ -1,12 +1,15 @@
 !!****if* source/Grid/GridParticles/gr_ptOneFaceBC
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
-!! 
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -78,7 +81,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
 #include "constants.h"
 #include "Simulation.h"
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #ifdef FLASH_GRID_PARAMESH
   use tree, ONLY : lrefine
 #else
@@ -121,7 +124,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
      velPred=gr_ptVel2x
   elseif(axis==JAXIS) then
      if(NDIM<2)then
-        call Driver_abortFlash("gr_ptOneFaceBC, NDIM<2, axis is JAXIS")
+        call Driver_abort("gr_ptOneFaceBC, NDIM<2, axis is JAXIS")
      else
         corner(LOW)=gr_jmin
         corner(HIGH)=gr_jmax
@@ -132,7 +135,7 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
      end if
   elseif(axis==KAXIS) then
      if(NDIM<3)then
-        call Driver_abortFlash("gr_ptOneFaceBC, NDIM<3, axis is KAXIS")
+        call Driver_abort("gr_ptOneFaceBC, NDIM<3, axis is KAXIS")
      else
         corner(LOW)=gr_kmin
         corner(HIGH)=gr_kmax
