@@ -25,6 +25,11 @@ def create_build_script(absLibDir,buildFlag,args):
     else:
         USE_OMP_OL = "FALSE"
 
+    if "weaklibOMP" in setupVars:
+        USE_OMP = str(setupVars["weaklibOMP"]).upper()
+    else:
+        USE_OMP = "FALSE"
+
     fd = os.open(buildScript, os.O_WRONLY|os.O_CREAT|os.O_EXCL, 0x1e4) # 0x1e4 == 0o744
     fileObj = os.fdopen(fd, 'w')
     fileObj.write('#!/bin/sh\n')

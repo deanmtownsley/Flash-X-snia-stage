@@ -30,6 +30,11 @@ def create_build_script(absLibDir,buildFlag,args):
     else:
         USE_OMP_OL = "FALSE"
 
+    if "thornadoOMP" in setupVars:
+        USE_OMP = str(setupVars["thornadoOMP"]).upper()
+    else:
+        USE_OMP = "FALSE"
+
     if "momentClosure" in setupVars:
         momentClosure = str(setupVars["momentClosure"]).upper()
     else:
