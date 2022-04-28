@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/PFFT_PoissonFD/Simulation_init
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/Amrex/Simulation_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
