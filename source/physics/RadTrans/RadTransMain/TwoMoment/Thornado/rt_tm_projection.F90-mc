@@ -6,7 +6,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call rt_tm_projection ( real(IN),pointer :: solnData(:,:,:,:), 
+!!  call rt_tm_projection ( real(IN),pointer :: Uin(:,:,:,:), 
 !!                              integer(IN) :: nX(3),
 !!                              integer(IN) :: lo(MDIM),hi(MDIM),
 !!                              integer(IN) :: u_lo(MDIM),u_hi(MDIM) )
@@ -18,7 +18,7 @@
 !!  Copy radiation varibles from internal Thornado data structures.
 !!
 !! ARGUMENTS
-!! solnData - pointer to cell-centered Flash data
+!! Uin - pointer to cell-centered Flash data
 !! nX - number of cells
 !! lo - lower index limits (excluding guard cells)
 !! hi - upper index limits (excluding guard cells)
@@ -27,9 +27,9 @@
 !!
 !!***
 
-!!REORDER(4): solnData
+!!REORDER(4): Uin
 
-subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
+subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -42,7 +42,7 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
 
   implicit none
 
-  real, pointer, dimension(:,:,:,:) :: solnData
+  real, pointer, dimension(:,:,:,:) :: Uin
   integer, dimension(3), intent(in) :: nX
   integer, dimension(MDIM), intent(in) :: lo,hi,u_lo,u_hi
 
@@ -59,15 +59,12 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
   real, parameter :: conv_H    = Gram/Second**3
 
   ! Interpolate fluid vars from Thornado arrays into Flash arrays
-#if defined(THORNADO_OMP_OL)
-  !$OMP TARGET TEAMS DISTRIBUTE COLLAPSE(4)
-#elif defined(THORNADO_OACC)
-  !$ACC PARALLEL LOOP GANG COLLAPSE(4) &
-  !$ACC PRIVATE( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin ) &
-  !$ACC PRESENT( ProjectionMatrix, solnData, uCF, uGF, nX )
-#elif defined(THORNADO_OMP)
-  !$OMP PARALLEL DO COLLAPSE(4)
-#endif
+
+  @M dir_loop_outer(4) &
+  @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin ) &
+  @M dir_present()( ProjectionMatrix, Uin, uCF, uGF, nX ) &
+  @M dir_end
+
   do kc = 1, nX(3)
      do jc = 1, nX(2)
         do ic = 1, nX(1)
@@ -88,13 +85,10 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
               E   = 0.0
               Nel = 0.0
 
-#if defined(THORNADO_OMP_OL)
-              !$OMP PARALLEL DO SIMD &
-              !$OMP REDUCTION( +: D, S1, S2, S3, E, Nel )
-#elif defined(THORNADO_OACC)
-              !$ACC LOOP VECTOR &
-              !$ACC REDUCTION( +: D, S1, S2, S3, E, Nel )
-#endif
+              @M dir_loop_inner(1) &
+              @M dir_reduction()( +: D, S1, S2, S3, E, Nel ) &
+              @M dir_end
+
               do n = 1, THORNADO_FLUID_NDOF
                  D   = D   + ProjectionMatrix(iNodeX,n)*uCF(n,ic,jc,kc,iCF_D )
                  S1  = S1  + ProjectionMatrix(iNodeX,n)*uCF(n,ic,jc,kc,iCF_S1) &
@@ -107,18 +101,18 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
                  Nel = Nel + ProjectionMatrix(iNodeX,n)*uCF(n,ic,jc,kc,iCF_Ne)
               end do
 
-              solnData(DENS_VAR,  ii,jj,kk) = D   / conv_dens
-              solnData(VELX_VAR,  ii,jj,kk) = S1  / conv_mom  / solnData(DENS_VAR,ii,jj,kk)
-              solnData(VELY_VAR,  ii,jj,kk) = S2  / conv_mom  / solnData(DENS_VAR,ii,jj,kk)
-              solnData(VELZ_VAR,  ii,jj,kk) = S3  / conv_mom  / solnData(DENS_VAR,ii,jj,kk)
-              solnData(ENER_VAR,  ii,jj,kk) = E   / conv_enr  / solnData(DENS_VAR,ii,jj,kk)
-              solnData(YE_MSCALAR,ii,jj,kk) = Nel / conv_ne   / solnData(DENS_VAR,ii,jj,kk)
+              Uin(DENS_VAR,  ii,jj,kk) = D   / conv_dens
+              Uin(VELX_VAR,  ii,jj,kk) = S1  / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(VELY_VAR,  ii,jj,kk) = S2  / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(VELZ_VAR,  ii,jj,kk) = S3  / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(ENER_VAR,  ii,jj,kk) = E   / conv_enr  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(YE_MSCALAR,ii,jj,kk) = Nel / conv_ne   / Uin(DENS_VAR,ii,jj,kk)
 #ifdef EINT_VAR
               ekin = 0.0
               do n = VELX_VAR, VELZ_VAR
-                ekin = ekin + 0.5*solnData(n,ii,jj,kk)**2
+                ekin = ekin + 0.5*Uin(n,ii,jj,kk)**2
               end do
-              solnData(EINT_VAR,ii,jj,kk) = solnData(ENER_VAR,ii,jj,kk) - ekin
+              Uin(EINT_VAR,ii,jj,kk) = Uin(ENER_VAR,ii,jj,kk) - ekin
 #endif
            end do
         end do
@@ -126,15 +120,12 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
   end do
 
   ! Copy radiation vars from Thornado arrays into Flash arrays
-#if defined(THORNADO_OMP_OL)
-  !$OMP TARGET TEAMS DISTRIBUTE COLLAPSE(7)
-#elif defined(THORNADO_OACC)
-  !$ACC PARALLEL LOOP GANG COLLAPSE(7) &
-  !$ACC PRIVATE( i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX ) &
-  !$ACC PRESENT( solnData, uCR, nX, lo )
-#elif defined(THORNADO_OMP)
-  !$OMP PARALLEL DO COLLAPSE(7)
-#endif
+
+  @M dir_loop(7) &
+  @M dir_private()( i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX ) &
+  @M dir_present()( Uin, uCR, nX, lo ) &
+  @M dir_end
+
   do kc = 1, nX(3)
      do jc = 1, nX(2)
         do ic = 1, nX(1)
@@ -160,7 +151,7 @@ subroutine rt_tm_projection(solnData,nX,lo,hi,u_lo,u_hi)
 
                  ivar = ioff + iNodeE - 1
 
-                 solnData(ivar,ii,jj,kk) = uCR(iNode,iE,ic,jc,kc,iCR,iS)
+                 Uin(ivar,ii,jj,kk) = uCR(iNode,iE,ic,jc,kc,iCR,iS)
 
               end do
            end do ; end do ; end do
