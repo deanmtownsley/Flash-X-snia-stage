@@ -1,0 +1,128 @@
+!!****if* source/physics/Eos/EosMain/WeakLib/Eos_getData
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!! AUTHOR & DATE 
+!!   S.M. Couch
+!!   April 2022
+!!
+!! NAME
+!!
+!!  Eos_wlOneZone
+!!
+!! DESCRIPTION
+!!
+!!  Routine to access arbitrary EOS data from WeakLib for one zone only
+!!
+!! ARGUMENTS
+!!
+!! All of them. All the arguments.
+!!
+!! NOTES
+!!
+!!***
+
+subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdedt,xCs2,xXp,xXn,xXa,xXh,xAbar,xVar,varID,mode)
+
+#include "Flash.h"
+#include "constants.h"
+
+  use Driver_interface, ONLY : Driver_abortFlash
+  use eosmodule, ONLY : precision, temp_mev_to_kelvin, e_zeroPoint, alltables
+
+  implicit none
+
+  real, intent(INOUT) :: xDens, xYe
+  real, intent(INOUT) :: xTemp, xEner, xEntr, xPres
+  integer, intent(IN) :: mode, varID
+  real, intent(OUT) :: xXp, xXn, xXa,xXh,xdedt,xCs2,xVar,xAbar
+
+  real :: xZbar,xMu_e,xMu_n,xMu_p,xMuhat
+
+  real, parameter :: KtoMev = 1./temp_mev_to_kelvin
+
+  integer :: xMode, err
+  real :: xdpderho, xGamc
+  real :: xdpdrhoe,xGame
+
+  real :: d1,d2,d3
+  real :: lr, lt
+
+  ! index var mapping:
+  !  0 -> full eos call
+  !  1 -> logpress
+  !  2 -> logenergy
+  !  3 -> entropy
+  !  4 -> munu
+  !  5 -> cs2
+  !  6 -> dedT
+  !  7 -> dpdrhoe
+  !  8 -> dpderho
+  !  9 -> muhat
+  ! 10 -> mu_e
+  ! 11 -> mu_p
+  ! 12 -> mu_n
+  ! 13 -> xa
+  ! 14 -> xh
+  ! 15 -> xn
+  ! 16 -> xp
+  ! 17 -> abar
+  ! 18 -> zbar
+  ! 19 -> gamma
+  ! 20 -> mu_nu
+
+  select case(mode)
+  case(MODE_DENS_EI)
+     xMode = 0
+  case(MODE_DENS_TEMP)
+     xMode = 1
+  case(MODE_DENS_ENTR)
+     xMode = 2
+  case(MODE_DENS_PRES)
+     xMode=4
+  case default
+     call Driver_abortFlash('[Eos] Error: unsupported mode for Nuclear Eos')
+  end select
+
+  xTemp = xTemp * KtoMev
+!   xEner = xEner - e_zeroPoint
+
+  if (varID == 0) then
+     call nuc_eos_full(xDens,xTemp,xYe,xEner,xPres,xEntr,xCs2,xdedt,&
+          xdpderho,xdpdrhoe,xXa,xXh,xXn,xXp,xAbar,xZbar,xMu_e,xMu_n,xMu_p, &
+          xMuhat,xMode,err,precision)
+  elseif (varID == 20) then
+     ! this mode should only be used when grabbing variables for an already
+     ! consistent thermodynamics.  Don't call this if thermo state has changed!
+     lr = log10(xDens)
+     lt = log10(xTemp)
+     call findthis(lr,lt,xYe,xMu_e,alltables(:,:,:,10),d1,d2,d3)
+     call findthis(lr,lt,xYe,xMu_p,alltables(:,:,:,11),d1,d2,d3)
+     call findthis(lr,lt,xYe,xMu_n,alltables(:,:,:,12),d1,d2,d3)
+
+     xVar = xMu_e - xMu_n + xMu_p
+
+  else
+     lr = log10(xDens)
+     lt = log10(xTemp)
+     call findthis(lr,lt,xYe,xVar,alltables(:,:,:,varID),d1,d2,d3)
+  endif
+
+  if (err /= 0) then
+!     call Driver_abortFlash('[Eos] Error in Eos_nucOneZone')
+  endif
+
+  xTemp = xTemp * temp_mev_to_kelvin
+!   xEner = xEner + e_zeroPoint
+
+  return
+end subroutine Eos_wlOneZone
