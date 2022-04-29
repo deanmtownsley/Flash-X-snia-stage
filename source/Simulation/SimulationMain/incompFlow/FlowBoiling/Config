@@ -13,4 +13,6 @@ REQUIRES Simulation/SimulationForcing/incompFlow/Heater
 REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
 REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
 
-DATAFILES *_hdf5_htr_*
+DATAFILES *_hdf5_htr_* 
+
+DATAFILES 3d_fb.par weak_scaling.par
