@@ -227,7 +227,8 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
             error = 0.0
 
-#ifdef ASOL_VAR
+!#ifdef ASOL_VAR
+#if 0
             if (iref == ASOL_VAR) then
                call gr_markVarBoundsForCallback(iref, &
                                                 min(gr_refine_cutoff(l), gr_derefine_cutoff(l)), &
@@ -276,7 +277,8 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 #endif
                   EXIT rloop
                end if
-#ifdef ASOL_VAR
+!#ifdef ASOL_VAR
+#if 0
             end if
 #endif
          end do rloop

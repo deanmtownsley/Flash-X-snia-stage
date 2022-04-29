@@ -7,18 +7,18 @@ plot_var_1 = "rhds"
 plot_var_2 = "nsol"
 plot_var_3 = "diff"
 plot_var_4 = "asol"
-
+plot_var_5 = "rfin"
 
 # HYPRE solver parameters for PARAMESH Grid
 gr_hyprePrintSolveInfo = ".TRUE."
 gr_hyprePcType = "HYPRE_AMG"
 gr_hypreSolverType = "HYPRE_BICGSTAB"
-gr_hypreRelTol = 1.0e-12
+gr_hypreRelTol = 1.0e-11
 gr_hypreFloor  = 1.0e-16
 
 # AMReX sovler parameters for AMReX Grid
 gr_amrexMG_composite_solve = ".TRUE."
-gr_amrexMG_Tol = 1e-12
+gr_amrexMG_Tol = 1e-11
 gr_amrexMG_max_iter = 1000
 
 nblockx = 4
@@ -27,9 +27,7 @@ nblockz = 4
 
 lrefine_min       = 1
 lrefine_max       = 1
-refine_var_1      = "asol"
-refine_cutoff_1   = 1.0
-derfine_cutoff_1  = 0.5
+refine_var_1      = "rfin"
 
 xmin = 0.
 xmax = 1.

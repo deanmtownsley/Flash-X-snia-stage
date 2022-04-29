@@ -132,7 +132,8 @@ subroutine Grid_markRefineDerefine()
       ref_filter = gr_refine_filter(l)
       err(:) = 0.0
 
-#ifdef ASOL_VAR
+!#ifdef ASOL_VAR
+#if 0
       if (iref == ASOL_VAR) then
          call gr_markVarBounds(iref, min(ref_cut, deref_cut), max(ref_cut, deref_cut), lrefine_max)
 
@@ -141,7 +142,8 @@ subroutine Grid_markRefineDerefine()
          call gr_estimateError(err, iref, ref_filter)
          call gr_markRefineDerefine(err, ref_cut, deref_cut)
 
-#ifdef ASOL_VAR
+!#ifdef ASOL_VAR
+#if 0
       end if
 #endif
 

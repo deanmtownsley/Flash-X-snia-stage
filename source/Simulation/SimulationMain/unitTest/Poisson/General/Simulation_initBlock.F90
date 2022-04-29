@@ -46,7 +46,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
 !  use Simulation_data
    use Simulation_data, ONLY: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
-   use Grid_interface, ONLY: Grid_getCellCoords
+   use Grid_interface, ONLY: Grid_getCellCoords, Grid_getDomainBC
    use Grid_tile, ONLY: Grid_tile_t
 
    implicit none
@@ -64,8 +64,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real, allocatable, dimension(:) ::xCenter, yCenter, zCenter
    real :: Lx, Ly, Lz, xi, yi, zi, Phi_ijk, F_ijk
    logical :: gcell = .true.
+   integer :: domainBC(LOW:HIGH, 1:MDIM)
 
    !----------------------------------------------------------------------
+   call Grid_getDomainBC(domainBC)
+
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
 
@@ -76,7 +79,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    xCenter = 0.0
    yCenter = 0.0
    zCenter = 0.0
-   
+
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
    if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
    if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
@@ -101,16 +104,27 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             zi = zCenter(k)
 
 #if NDIM == 2
-            Phi_ijk = sin(2.*PI*xi)*sin(2.*PI*yi)
+            if (domainBC(LOW, IAXIS) == DIRICHLET) then
+               Phi_ijk = sin(2.*PI*xi)*sin(2.*PI*yi)
+            else
+               Phi_ijk = cos(2.*PI*xi)*cos(2.*PI*yi)
+            end if
+
             F_ijk = -8*PI*PI*Phi_ijk
 
 #else
-            Phi_ijk = sin(2.*PI*xi)*sin(2.*PI*yi)*sin(2.*PI*zi)
+            if (domainBC(LOW, IAXIS) == DIRICHLET) then
+               Phi_ijk = sin(2.*PI*xi)*sin(2.*PI*yi)*sin(2.*PI*zi)
+            else
+               Phi_ijk = cos(2.*PI*xi)*cos(2.*PI*yi)*cos(2.*PI*zi)
+            end if
+
             F_ijk = -12*PI*PI*Phi_ijk
 #endif
 
             solnData(ASOL_VAR, i, j, k) = Phi_ijk
             solnData(RHDS_VAR, i, j, k) = F_ijk
+            solnData(RFIN_VAR, i, j, k) = 1 - abs(Phi_ijk)
 
          end do
       end do

@@ -18,10 +18,11 @@ D nsol : Numerical Solution of Poisson Problem
 D asol : Analytical solution of Poisson problem
 D diff : Pointwise difference between nsol and asol
  
-VARIABLE rhds TYPE: PER_VOLUME
-VARIABLE nsol TYPE: PER_VOLUME
-VARIABLE diff TYPE: PER_VOLUME
-VARIABLE asol TYPE: PER_VOLUME
+VARIABLE rhds TYPE: GENERIC
+VARIABLE nsol TYPE: GENERIC
+VARIABLE diff TYPE: GENERIC
+VARIABLE asol TYPE: GENERIC
+VARIABLE rfin TYPE: GENERIC
 
 # Number of layers of Guardcells:
 GUARDCELLS 2
