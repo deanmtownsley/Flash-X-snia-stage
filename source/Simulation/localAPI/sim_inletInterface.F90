@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletInterface
+!!****if* source/Simulation/localAPI/sim_inletInterface
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors

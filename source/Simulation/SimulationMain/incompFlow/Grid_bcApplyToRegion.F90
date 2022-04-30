@@ -170,10 +170,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    use Grid_tile, ONLY: Grid_tile_t
    use Driver_interface, ONLY: Driver_getDt
    use IncompNS_interface, ONLY: IncompNS_getScalarProp
-
-#ifdef SIMULATION_FORCE_INLET
    use sim_inletInterface, ONLY: sim_inletApplyBCToRegion
-#endif
 
    implicit none
 
@@ -594,10 +591,9 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
 
-#ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
-#endif
+                                             guard, face, axis, secondDir, thirdDir)
+
                !--------------------------------------------------------------------------------------------------
             case (EXTRAP_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
@@ -1040,10 +1036,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                end if
 
-#ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
-#endif
+                                             guard, face, axis, secondDir, thirdDir)
 
             case (EXTRAP_INS) ! face == HIGH
                if (gridDataStruct == CENTER) then
