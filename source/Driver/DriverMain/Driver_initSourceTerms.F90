@@ -12,7 +12,7 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!   
+!!
 !!  Driver_initSourceTerms
 !!
 !! SYNOPSIS
@@ -21,9 +21,9 @@
 !!
 !! DESCRIPTION
 !!
-!!   Initializes all source terms Units by 
+!!   Initializes all source terms Units by
 !!   calling their respective initialization routines
-!!  
+!!
 !! ARGUMENTS
 !!   myPE - current processor number
 !!   restart - indicates if run is starting from scratch (.false.)
@@ -31,16 +31,18 @@
 !!
 !!***
 
-subroutine Driver_initSourceTerms( restart )
+subroutine Driver_initSourceTerms(restart)
 
-  use Burn_interface, ONLY:  Burn_init
-  use RadTrans_interface, ONLY : RadTrans_init
+    use Burn_interface, ONLY: Burn_init
+    use RadTrans_interface, ONLY: RadTrans_init
+    use Deleptonize_interface, ONLY: Deleptonize_init
 
-  implicit none
-  
-  logical, intent(in) :: restart
+    implicit none
 
-  call Burn_init()
-  call RadTrans_init()
+    logical, intent(in) :: restart
+
+    call Burn_init()
+    call RadTrans_init()
+    call Deleptonize_init()
 
 end subroutine Driver_initSourceTerms

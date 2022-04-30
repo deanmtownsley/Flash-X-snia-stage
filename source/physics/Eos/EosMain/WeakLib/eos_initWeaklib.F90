@@ -116,6 +116,7 @@ SUBROUTINE eos_initWeaklib()
         iXntab => EosNewTable % DV % Indices % iNeutronMassFraction, &
         iXatab => EosNewTable % DV % Indices % iAlphaMassFraction, &
         iXhtab => EosNewTable % DV % Indices % iHeavyMassFraction, &
+        iAhtab => EosNewTable % DV % Indices % iHeavyMassNumber, &
         iGmtab => EosNewTable % DV % Indices % iGamma1 )
 
   ASSOCIATE &
@@ -132,6 +133,7 @@ SUBROUTINE eos_initWeaklib()
         Xntab => EosNewTable % DV % Variables(iXntab) % Values, &
         Xatab => EosNewTable % DV % Variables(iXatab) % Values, &
         Xhtab => EosNewTable % DV % Variables(iXhtab) % Values, &
+        Ahtab => EosNewTable % DV % Variables(iAhtab) % Values, &
         Gmtab => EosNewTable % DV % Variables(iGmtab) % Values, &
         OS_P  => EosNewTable % DV % Offsets(iPtab), &
         OS_S  => EosNewTable % DV % Offsets(iStab), &
@@ -143,6 +145,7 @@ SUBROUTINE eos_initWeaklib()
         OS_Xn => EosNewTable % DV % Offsets(iXntab), &
         OS_Xa => EosNewTable % DV % Offsets(iXatab), &
         OS_Xh => EosNewTable % DV % Offsets(iXhtab), &
+        OS_Ah => EosNewTable % DV % Offsets(iAhtab), &
         OS_Gm => EosNewTable % DV % Offsets(iGmtab) )
 
   Verbose = ( eos_meshMe == MASTER_PE )
@@ -156,13 +159,13 @@ SUBROUTINE eos_initWeaklib()
 #if defined(WEAKLIB_OMP_OL)
     !$OMP TARGET ENTER DATA &
     !$OMP MAP( to: Dtab, Ttab, Ytab, &
-    !$OMP          OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm, &
-    !$OMP          Ptab, Stab, Etab, Metab, Mptab, Mntab, Xptab, Xntab, Xatab, Xhtab, Gmtab )
+    !$OMP          OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Ah, OS_Gm, &
+    !$OMP          Ptab, Stab, Etab, Metab, Mptab, Mntab, Xptab, Xntab, Xatab, Xhtab, Ahtab, Gmtab )
 #elif defined(WEAKLIB_OACC)
     !$ACC ENTER DATA &
     !$ACC COPYIN( Dtab, Ttab, Ytab, &
-    !$ACC         OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm, &
-    !$ACC         Ptab, Stab, Etab, Metab, Mptab, Mntab, Xptab, Xntab, Xatab, Xhtab, Gmtab )
+    !$ACC         OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Ah, OS_Gm, &
+    !$ACC         Ptab, Stab, Etab, Metab, Mptab, Mntab, Xptab, Xntab, Xatab, Xhtab, Ahtab, Gmtab )
 #endif
 
   END ASSOCIATE

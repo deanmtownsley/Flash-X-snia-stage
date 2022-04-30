@@ -1,0 +1,53 @@
+# Config file for Core Collapse SN setup.
+
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro/HydroMain
+REQUIRES physics/Eos/EosMain
+#REQUESTS physics/sourceTerms/Deleptonize
+REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
+REQUESTS flashUtilities/model1D
+REQUESTS Simulation/SimulationComposition
+REQUESTS Multispecies
+REQUESTS flashUtilities/interpolation/oneDim 
+
+D nsub	  number of sub-sampling points for mapping of 1D model
+PARAMETER nsub		INTEGER 4
+
+D vel_mult	multiplier on initial 1D radial velocity
+PARAMETER vel_mult	REAL 1.0
+
+D rot_omega	max angular velocity in rad/s
+PARAMETER rot_omega	REAL 0.0
+
+D rot_a	  characteristic scale of rotation profile in cm
+PARAMETER rot_a		REAL 1.0
+
+D mag_B0  initial magnetic field strength in G
+PARAMETER mag_B0	REAL 0.0
+
+D mag_R0  characteristic B-field scale for poloidal field in cm
+PARAMETER mag_R0	REAL 1.0
+
+# params for 1D initialization
+
+D model_file 	Name of input file with 1D model
+PARAMETER model_file	STRING "file.dat"
+
+
+#params for multi-D initialization with small perts
+
+D use_randomperts Apply random perturbations to density field?
+PARAMETER use_randomperts BOOLEAN FALSE 
+
+D rnd_seed      Seed = rnd_seed+blockID for using rnd perts on density
+PARAMETER rnd_seed INTEGER 1
+
+D rnd_scale    scale of random perts
+PARAMETER rnd_scale REAL 0.000
+
+D velRotFac     Multiplicative factor on rotational velocity
+PARAMETER velRotFac     REAL 1.0
+
+DATAFILES ../../../physics/Eos/EosMain/WeakLib/tables/*.h5
+DATAFILES s20.1d
