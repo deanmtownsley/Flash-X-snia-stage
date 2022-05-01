@@ -1,4 +1,4 @@
-!!***if* source/Simulation/localAPI/sim_outletLSDamping
+!!***if* source/Simulation/SimulationForcing/incompFlow/Outlet/sim_outletLSDamping
 !!
 !!
 !! NOTICE

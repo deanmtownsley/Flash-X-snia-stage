@@ -1,4 +1,4 @@
-!!***if* source/Simulation/localAPI/sim_inletApplyBCToRegion
+!!***if* source/Simulation/SimulationForcing/incompFlow/Inlet/sim_inletApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors

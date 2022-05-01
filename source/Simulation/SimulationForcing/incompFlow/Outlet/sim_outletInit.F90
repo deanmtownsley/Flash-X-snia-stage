@@ -26,7 +26,6 @@ subroutine sim_outletInit()
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_abort
 
-   implicit none
    integer :: idimn, ibound, domainBC(LOW:HIGH, MDIM)
    character(len=100) :: errorMessage
 

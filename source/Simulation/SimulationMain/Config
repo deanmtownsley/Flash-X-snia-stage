@@ -7,8 +7,6 @@ REQUESTS flashUtilities/contiguousConversion
 REQUIRES Driver
 REQUESTS IO
 
-REQUIRES Simulation/localAPI
-
 USESETUPVARS AllowAlternativeFiles
 IF not AllowAlternativeFiles
    EXCLUSIVE *
