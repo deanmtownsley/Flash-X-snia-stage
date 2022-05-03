@@ -51,7 +51,7 @@ PP      = -D
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
-	-Wall -Wextra -Wno-do-subscript -Wno-unused -Waliasing \
+	-Wall -Wextra -Wno-unused -Waliasing \
 	-Wsurprising -Wconversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -fbounds-check \
 	-fimplicit-none -fstack-protector-all \

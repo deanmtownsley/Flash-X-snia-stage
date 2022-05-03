@@ -39,6 +39,7 @@ subroutine Driver_sourceTerms(dt, pass)
 
   use Driver_data, ONLY: dr_simTime
   use Burn_interface, ONLY : Burn
+  use Deleptonize_interface, ONLY: Deleptonize
 
   implicit none
 
@@ -46,6 +47,7 @@ subroutine Driver_sourceTerms(dt, pass)
   integer, OPTIONAL, intent(IN):: pass
 
   call Burn(dt)
+  call Deleptonize(.false., dt, dr_simTime)
 
   return
 end subroutine Driver_sourceTerms
