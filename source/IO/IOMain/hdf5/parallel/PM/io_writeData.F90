@@ -406,7 +406,6 @@ subroutine io_writeData(fileID)
          end if
       end if
 
-      call MPI_BARRIER(io_globalComm, ierr)
    end do
 
    if (io_doublePrecision .or. io_plotfileGridQuantityDP) then
