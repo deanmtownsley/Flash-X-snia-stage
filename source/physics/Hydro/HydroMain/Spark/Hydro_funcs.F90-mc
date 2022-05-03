@@ -1,4 +1,4 @@
-
+!!****i** source/physics/Hydro/HydroMain/Spark/Hydro_funcs
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,16 +10,15 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-!! *** source/physics/Hydro/HydroMain/Spark
 !!
 !! NAME
-!! Hydro_funcs
+!!  Hydro_funcs
 !!
 !! DESCRIPTION
 !!
-!! Holds functions frequently accessed by Hydro.F90 for Spark hydrodynamic solver.
+!!  Holds functions frequently accessed by Hydro.F90 for Spark hydrodynamic solver.
 !! 
-!! *** 
+!!***
 !!Reorder directive used by FLASH with --index-reorder flag at setup
 !!Reorder(4): hy_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
 
