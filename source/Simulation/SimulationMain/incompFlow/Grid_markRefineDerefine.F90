@@ -114,7 +114,7 @@ subroutine Grid_markRefineDerefine()
    end if
 
 !!$  force_consistency = .FALSE.
-   call Grid_fillGuardCells(CENTER_FACES, ALLDIR, doEos=.true., &
+   call Grid_fillGuardCells(CENTER, ALLDIR, doEos=.true., &
                             maskSize=maskSize, mask=gcMask, makeMaskConsistent=.true., doLogMask=.NOT. gcMaskArgsLogged, &
                             selectBlockType=ACTIVE_BLKS)
    gcMaskArgsLogged = .TRUE.
