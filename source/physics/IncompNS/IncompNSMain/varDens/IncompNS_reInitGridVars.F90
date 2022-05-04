@@ -12,9 +12,9 @@
 !!  limitations under the License.
 !!
 !!
+!! NAME
 !!
-!!
-!! IncompNS_reInitGridVars
+!!  IncompNS_reInitGridVars
 !!
 !!
 !! SYNOPSIS
@@ -22,6 +22,8 @@
 !!
 !! DESCRIPTION
 !!
+!!***
+
 !!REORDER(4): face[xyz]Data
 !!REORDER(4): solnData
 

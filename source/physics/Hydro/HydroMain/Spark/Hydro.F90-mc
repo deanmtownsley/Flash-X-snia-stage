@@ -49,7 +49,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   include "Flashx_mpi.h"
   
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
-  @M iter_declare(blkLimits, blkLimitsGC)
+  @M iter_declare(blkLimits, blkLimitsGC,grownLimits)
 
   real,    intent(in) :: timeEndAdv, dt, dtOld
   integer, intent(IN) :: sweepOrder
@@ -69,6 +69,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
   integer :: pLo,pHi !low and high indices for pencil arrays
+  integer :: lev
   
   if (.NOT. hy_useHydro) return
   
@@ -169,7 +170,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call @M hy_update_name(@M hy_update_call_args)
            call Timers_stop("updateSoln")
            
-#if NSPECIES+NMASS_SCALARS>0
+#if NSPECIES>0
            !Properly normalize species after the update
            @M hy_renormAbundance
 #endif 
@@ -236,15 +237,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
-     do level=maxLev,1,-1
+     do lev=maxLev,1,-1
         
         !Once the finest level is completed, place averaged fine fluxes into
         !current coarse semipermanent flux storage (SPFS)
-        if (level < maxLev) call Grid_communicateFluxes(ALLDIR,level)
+        if (lev < maxLev) call Grid_communicateFluxes(ALLDIR,lev)
         ! Loop over blocks and compute Hydro update block-by-block
         !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
         nullify(Uin)
-        @M iter_level_begin(LEAF,.FALSE.,level,blkLimits,blkLimitsGC)
+        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC)
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
            zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
@@ -291,7 +292,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               !introduced on fine coarse boundaries.
               
               if (stage == last_stage) then
-                 if (level < maxLev) then
+                 if (lev < maxLev) then
                     call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
                          hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
@@ -301,7 +302,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  endif
               endif
               
-              call addFluxes(level,blkLimits,weights(stage),addFlux_array(stage)) 
+              call addFluxes(lev,blkLimits,weights(stage),addFlux_array(stage)) 
               
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
@@ -316,7 +317,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
-#if NSPECIES+NMASS_SCALARS>0
+#if NSPECIES>0
               @M hy_renormAbundance
 #endif 
               
@@ -337,7 +338,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
            end do!stage loop
            !Put flux buffer information into SPFS
-           if (level > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+           if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
            call deallocate_scr()
         @M iter_end        
