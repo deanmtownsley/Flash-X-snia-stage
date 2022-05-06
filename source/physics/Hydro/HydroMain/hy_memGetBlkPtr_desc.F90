@@ -66,7 +66,7 @@ subroutine hy_memGetBlkPtr_desc(tileDesc,dataPtr, gridDataStruct)
 #include "Simulation.h"
 #include "FortranLangFeatures.fh"
 
-  use hy_memInterface, ONLY : hy_memGetBlkPtr
+  use hy_memInterface, ONLY : hy_memGetBlkPtr_blkid
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 
@@ -82,7 +82,7 @@ subroutine hy_memGetBlkPtr_desc(tileDesc,dataPtr, gridDataStruct)
   integer, parameter :: iX = 2
 #endif
 
-  call hy_memGetBlkPtr(tileDesc%id, medPtr, gridDataStruct)
+  call hy_memGetBlkPtr_blkid(tileDesc%id, medPtr, gridDataStruct)
 
   ! DEV: How to set this if we eventually have tiling with Paramesh?
   lo = lbound(medPtr)
