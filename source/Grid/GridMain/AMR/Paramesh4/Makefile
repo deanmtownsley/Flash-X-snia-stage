@@ -58,10 +58,12 @@ Grid += prolong_arrays.o  \
         amr_prolong_cc_fun_init.o amr_prolong_face_fun_init.o	\
         amr_prolong_fun_init.o amr_restrict_ec_fun.o amr_restrict_edge.o \
         amr_restrict_fc_fun.o amr_restrict_red.o amr_restrict_unk_fun.o	\
+	amr_restrict_unk_dg.o \
         amr_restrict_work_fun.o	\
         amr_restrict_work_fun_recip.o amr_q_sort_real.o amr_q_sort.o \
         amr_system_calls.o amr_1blk_cc_prol_genorder.o	\
         amr_1blk_cc_prol_inject.o amr_1blk_cc_prol_linear.o	\
+        amr_1blk_cc_prol_dg.o \
         amr_1blk_cc_prol_work_genorder.o \
         amr_1blk_cc_prol_work_mg.o \
         amr_1blk_cc_prol_work_inject.o amr_1blk_cc_prol_work_linear.o	\
@@ -119,6 +121,7 @@ mpi_amr_1blk_guardcell_c_to_f.o \
 	mpi_amr_morton.o \
 	mpi_amr_prolong.o \
 	mpi_amr_prolong_fc_divbconsist.o \
+        amr_1blk_cc_prol_gen_unk_fun.o \
 	mpi_amr_redist_blk.o \
 	mpi_amr_refine_blocks.o \
 	mpi_amr_refine_derefine.o \
