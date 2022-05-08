@@ -49,14 +49,14 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
-FFLAGS_OPT = -c -O2 -r8 -real_size 64 -check uninit
-FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
+FFLAGS_OPT = -c -O2 -r8 -real-size 64 -check uninit
+FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 	-warn all -diag-disable 10120 \
 	-check output_conversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -check bounds \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
-FFLAGS_TEST = -O1 -c -r8 -real_size 64 \
+FFLAGS_TEST = -O1 -c -r8 -real-size 64 \
 	 -stand f18 -no-wrap-margin \
 	 -fminshared -assume buffered_stdout
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
