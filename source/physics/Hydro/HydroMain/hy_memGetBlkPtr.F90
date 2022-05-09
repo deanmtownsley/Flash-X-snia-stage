@@ -19,6 +19,9 @@
 !!  call hy_memGetBlkPtr(integer(IN)            :: blockID,
 !!                 real(pointer)(:,:,:,:) :: dataPtr,
 !!                 integer(IN),optional   :: gridDataStruct)
+!!  call hy_memGetBlkPtr_blkid(integer(IN)      :: blockID,
+!!                 real(pointer)(:,:,:,:) :: dataPtr,
+!!                 integer(IN),optional   :: gridDataStruct)
 !!  
 !! DESCRIPTION 
 !!  
@@ -53,7 +56,11 @@
 !!  hy_memGetBlkPtr is an accessor function that passes a pointer
 !!  as an argument and requires an explicit interface for most compilers.
 !!
-!!  Don't forget to call hy_memReleaseBlkPtr when you are finished with it!
+!!  This subroutine is available under the generic name hy_memGetBlkPtr
+!!  as well as under the specifc name hy_memGetBlkPtr_blkid.
+!!
+!!  Don't forget to call hy_memReleaseBlkPtr when you are done with
+!!  using the pointer!
 !!
 !!***
 
@@ -64,7 +71,7 @@
 #define DEBUG_GRID
 #endif
 
-subroutine hy_memGetBlkPtr(blockID,dataPtr, gridDataStruct)
+subroutine hy_memGetBlkPtr_blkid(blockID,dataPtr, gridDataStruct)
 
 #include "constants.h"
 #include "Simulation.h"
@@ -166,7 +173,7 @@ contains
     pp => dd
   end subroutine AssoFin
 
-end subroutine hy_memGetBlkPtr
+end subroutine hy_memGetBlkPtr_blkid
 
 
 subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
