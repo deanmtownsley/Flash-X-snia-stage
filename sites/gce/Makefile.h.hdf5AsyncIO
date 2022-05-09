@@ -1,5 +1,9 @@
-# FLASH makefile definitions for GCE must be loaded before starting to run on GCE
-# use file sites/gce/env-gce-hdf5AsyncIO
+# Flash-X makefile definitions for GCE.
+
+# To build with aynchronous HDF5 I/O, proper environment variables
+# must be set before building Flash-X, perhaps by sourcing a file like
+# sites/gce/env-gce-hdf5AsyncIO .
+
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
@@ -14,7 +18,7 @@ AMREX_PATH=
 endif
 
 #----------------------------------------------------------------------------
-# Set the HDF5/MPI library paths -- managed by loading with Spack 
+# Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
 HDF5_PATH = /nfs/gce/projects/FLASH5/software/hdf5/install/
 HYPRE_PATH = /nfs/gce/projects/FLASH5/software/hypre_install/
@@ -22,8 +26,7 @@ ZLIB_PATH  =
 PAPI_PATH  =
 PAPI_FLAGS =
 LIB_NCMPI = /usr
-
-
+MA28_PATH = /nfs/gce/projects/FLASH5/software/ma28
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -53,7 +56,8 @@ PP      = -D
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
-	-pedantic -Wall -Wextra -Wno-do-subscript -Wno-unused -Waliasing \
+	-Wall -Wextra -Wno-unused -Waliasing \
+	-Wno-unused-dummy-argument \
 	-Wsurprising -Wconversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -fbounds-check \
 	-fimplicit-none -fstack-protector-all \
@@ -61,6 +65,7 @@ FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
 FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 	-ffree-line-length-none
 
+FFLAGS_MPI = -DHAVE_MPI_MODULE
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
@@ -73,15 +78,11 @@ F90FLAGS =
 CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
 CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 	-Wconversion -Wstrict-prototypes -Wunreachable-code \
-	-pedantic -Wall -Wextra -Winit-self -ftree-vrp -Wfloat-equal \
-	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all
+	-Wall -Wextra -Winit-self -ftree-vrp -Wfloat-equal \
+	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all 
 CFLAGS_TEST = -c
 
-# Platform symbol
-CDEFINES += -DDarwin
-
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
-#CFLAGS_HDF5 = -DH5_USE_18_API -I/nfs/gce/projects/FLASH5/software/vol-async/src -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
 
@@ -101,12 +102,12 @@ LFLAGS_TEST  = -o
 #----------------------------------------------------------------------------
 # Library specific linking
 #
-#  If a FLASH module has a 'LIBRARY xxx' line in its Config file, we need to
+#  If a Flash-X source directory has a 'LIBRARY xxx' line in its Config file, we need to
 #  create a macro in this Makefile.h for LIB_xxx, which will be added to the
-#  link line when FLASH is built.  This allows us to switch between different
+#  link line when Flash-X is built.  This allows us to switch between different
 #  (incompatible) libraries.  We also create a _OPT, _DEBUG, and _TEST
 #  library macro to add any performance-minded libraries (like fast math),
-#  depending on how FLASH was setup.
+#  depending on how Flash-X was setup.
 #
 #  Mostly handled by loading modules with Spack and h5pXX wrappers.
 #----------------------------------------------------------------------------
@@ -115,7 +116,6 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_HDF5  = -L/nfs/gce/projects/FLASH5/software/vol-async/src -lh5async -lasynchdf5
 LIB_HDF5  = 
 LIB_PAPI  =
 LIB_MATH  =
@@ -125,6 +125,7 @@ LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
+LIB_MA28 = -L$(MA28_PATH)/lib -lma28
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
@@ -135,7 +136,7 @@ LIB_LAPACK= -llapack -lblas
 # Additional machine-dependent object files
 #
 #  Add any machine specific files here -- they will be compiled and linked
-#  when FLASH is built.
+#  when Flash-X is built.
 #----------------------------------------------------------------------------
 
 MACHOBJ =
