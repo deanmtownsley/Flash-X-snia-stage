@@ -1,0 +1,709 @@
+!!****if* source/Simulation/SimulationMain/CoreCollapse/Simulation_initBlock
+!!
+!! NAME
+!!
+!!  Simulation_initBlock
+!!
+!!
+!! SYNOPSIS
+!!
+!!  call Simulation_initBlock(real,pointer :: solnData(:,:,:,:),
+!!                            Grid_tile_t(IN)  :: tileDesc  )
+!!
+!!
+!!
+!!
+!!***
+!!Novariants
+!!REORDER(4): Uin
+
+
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+#include "Multispecies.h"
+
+subroutine Simulation_initBlock(Uin,tileDesc)
+
+    use Simulation_data
+    use Driver_interface, ONLY: Driver_abort
+    use Grid_interface, ONLY: Grid_getGeometry, Grid_renormAbundance
+    use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar, Eos
+    use Multispecies_interface, ONLY: Multispecies_getSumFrac, Multispecies_getSumInv, Multispecies_getSum 
+    use Timers_interface, ONLY: Timers_start, Timers_stop
+    use Grid_interface, ONLY : Grid_getCellCoords, &
+                             Grid_getCellVolumes, &
+                             Grid_subcellGeometry
+    @M tileDesc_use
+
+
+#ifdef FLASH_M1
+    use rt_m1_interface, ONLY: rt_m1_setinitial, rt_m1_getVarIndices
+    use nulibtable, ONLY: nulibtable_energies, nulib_energy_gf
+#endif
+#ifdef __INTEL_COMPILER
+    use IFPORT
+#endif
+
+    implicit none
+
+    @M tileDesc_arg
+    real,pointer :: Uin(:,:,:,:)
+    
+    real, allocatable, dimension(:) :: xCenter, xLeft, xRight
+    real, allocatable, dimension(:) :: yCenter, yLeft, yRight
+    real, allocatable, dimension(:) :: zCenter, zLeft, zRight
+    real, allocatable, dimension(:, :, :) :: Ax, Ay, Az
+    real :: dx, dy, dz
+
+    @M tileDesc_declare(blkLimits,blkLimitsGC,grownTileLimits)
+    integer, dimension(LOW:HIGH, MDIM)::limits
+
+    integer :: meshGeom
+
+    integer :: i, j, k
+    integer :: istat
+
+    real :: rcc
+
+    integer :: eeStart, fieStart, fjeStart, fkeStart
+    integer :: eaStart, fiaStart, fjaStart, fkaStart
+    integer :: exStart, fixStart, fjxStart, fkxStart
+
+    logical :: haveInitialRadData
+
+    real, parameter :: rho_gf = 1.61930347d-18 !1 g/cm^3 is 1.61e-18 solar masses/volume of solar mass black hole
+    real, parameter :: mass_gf = 5.02765209d-34 !1 g is this many solar masses
+    real, parameter :: amu_cgs = 1.66053873d-24 !mass of baryon
+    real, parameter :: length_gf = 6.77140812d-06 !1cm = 6.77e-6 schwarzschild radii of 1 solar mass
+
+    real :: abar, zbar, sumY, Ye, zbarFrac
+
+    call Timers_start("initBlock")
+    
+    @M tileDesc_get(blkLimits,blkLimitsGC,grownTileLimits)
+    
+  !! allocate all needed space
+    allocate (xCenter(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (xLeft(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (xRight(@M bounds_i(grownTileLimits)), STAT=istat)
+    allocate (yCenter(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (yLeft(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (yRight(@M bounds_j(grownTileLimits)), STAT=istat)
+    allocate (zCenter(@M bounds_k(grownTileLimits)), STAT=istat)
+    allocate (zLeft(@M bounds_k(grownTileLimits)), STAT=istat)
+    allocate (zRight(@M bounds_k(grownTileLimits)), STAT=istat)
+
+#ifdef MAGX_VAR
+    allocate (Ax(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
+    allocate (Ay(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
+    allocate (Az(@M bounds_3d_plus(grownTileLimits,1,1,1)), STAT=istat)
+#endif
+
+    xCenter(:) = 0.e0
+    yCenter(:) = 0.e0
+    zCenter(:) = 0.e0
+    dx = deltas(IAXIS)
+    dy = deltas(JAXIS)
+    dz = deltas(KAXIS)
+
+    call Grid_getGeometry(meshGeom)
+
+    !we need to test for initial rad data.
+    haveInitialRadData = .false.
+
+    ! setup random seed
+    call srand(rnd_seed + tileDesc%id)
+
+
+    call Grid_getCellCoords(IAXIS,  CENTER, level, grownTileLimits(LOW,  :),grownTileLimits(HIGH, :),xCenter)
+    call Grid_getCellCoords(IAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), xLeft)
+    call Grid_getCellCoords(IAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), xRight)
+#if NDIM>1
+    call Grid_getCellCoords(JAXIS,  CENTER, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yCenter)
+    call Grid_getCellCoords(JAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yLeft)
+    call Grid_getCellCoords(JAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), yRight)
+#if NDIM==3
+    call Grid_getCellCoords(KAXIS,  CENTER, level, grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zCenter)
+    call Grid_getCellCoords(KAXIS,  LEFT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zLeft)
+    call Grid_getCellCoords(KAXIS,  RIGHT_EDGE, level,grownTileLimits(LOW,  :),grownTileLimits(HIGH, :), zRight)
+#endif
+#endif
+
+#ifdef FLASH_M1
+    !get the index of the radiation variables
+    call rt_m1_getVarIndices(1, eeStart, fieStart, fjeStart, fkeStart)
+    call rt_m1_getVarIndices(2, eaStart, fiaStart, fjaStart, fkaStart)
+    call rt_m1_getVarIndices(3, exStart, fixStart, fjxStart, fkxStart)
+#endif
+
+#ifdef BDRY_VAR
+    Uin(BDRY_VAR, :, :, :) = -1.0
+#endif
+#ifdef SHOK_VAR
+    Uin(SHOK_VAR, :, :, :) = 0.
+#endif
+
+    ! Limits for the i,j,k loop based on dimensionality
+    call setLimits(limits)
+
+    ! Precompute vector potential.
+    call computeVecPot()
+
+    !$omp parallel &
+    !$omp default(shared) &
+    !$omp private(i,j,k,rcc)
+
+    !$omp do schedule(guided) collapse(3)
+    @M loop_3d(limits)
+
+                ! Computing radius is geometry dependent
+                ! Note that at present this routines assumes that ALL 1D sims
+                ! are SPHERICAL, 2D sims are CYLINDRICAL, and 3D sims are CARTESIAN
+                call computeRadius(i, j, k, rcc)
+                if (rcc <= xzn(n1d_total)) then
+                    ! Break up zones into sub zones and do linear interpolation
+                    call interpVars(i, j, k)
+
+                    ! Acount for velocity and rotation in different geometries
+                    call fixVelocity(i, j, k, rcc)
+
+                    ! Add some perturbations
+!!$                    if (sim_usePerturb) &
+!!$                        call addPerturb(i, j, k, rcc)
+
+                    ! Compute initial B field from curl of vector potential
+                    call initBfield(i, j, k)
+
+                    ! Set the radiation M1 moment variables
+                    call setRadVars(i, j, k)
+
+                    ! Apply random perturbations
+                    if (use_randomperts) then
+                        Uin(DENS_VAR, i, j, k) = Uin(DENS_VAR, i, j, k) &
+                                                      *(1.0d0 + rnd_scale*(rand()*2.0d0 - 1.0d0))
+                    end if
+
+                else
+                    ! Out in the wind
+                    Uin(:, i, j, k) = model_1d(n1d_total, :)
+                end if
+
+#ifdef SUMY_MSCALAR
+                !if SUMY_MSCALAR exists, need to make sure it is non-zero.
+                !But don't want to overwrite values from file.
+                if (Uin(SUMY_MSCALAR, i, j, k) == 0.0d0) then
+                    Uin(SUMY_MSCALAR, i, j, k) = 1.0
+                end if
+#endif
+    @M loop_end_3d
+    !$omp end do
+    !$omp end parallel
+
+    ! renormalize the abundances -- interpolation can do wacky things to them
+#if NSPECIES>0
+    call Grid_renormAbundance(blockID, limits, Uin)
+    @M loop_3d(limits)
+                ! put all H1 in protons. The redundancy confuses me....
+                Uin(PROT_SPEC, i, j, k) = Uin(PROT_SPEC, i, j, k) + Uin(H1_SPEC, i, j, k)
+                Uin(H1_SPEC, i, j, k) = 0.0
+#ifdef SUMY_MSCALAR
+                call Multispecies_getSumInv(A, sumY, Uin(SPECIES_BEGIN:SPECIES_END, i, j, k))
+                call Multispecies_getSumFrac(Z, zbarFrac, Uin(SPECIES_BEGIN:SPECIES_END, i, j, k))
+                zbar = zbarFrac/sumY
+                Ye = zbar*sumY
+                Uin(SUMY_MSCALAR, i, j, k) = sumY
+                Uin(YE_MSCALAR, i, j, k) = Ye
+#endif
+#ifdef EBIN_VAR
+                call Burn_computeEbin(Uin(SPECIES_BEGIN:SPECIES_END, i, j, k), Uin(EBIN_VAR, i, j, k))
+#endif
+    @M loop_end_3d            
+#endif
+    ! now make the thermodynamics of this zone consistent !! Don't need this here; done after init_block
+!   call Eos_wrapped(MODE_DENS_PRES,limits,blockID)
+
+    deallocate (xLeft)
+    deallocate (xRight)
+    deallocate (xCenter)
+    deallocate (yLeft)
+    deallocate (yRight)
+    deallocate (yCenter)
+    deallocate (zLeft)
+    deallocate (zRight)
+    deallocate (zCenter)
+
+#ifdef FLASH_M1
+    if (.not. haveInitialRadData) then
+        call rt_m1_setinitial(blockID)
+    end if
+#endif
+
+    call Timers_stop("initBlock")
+
+contains
+
+    subroutine setRadVars(i, j, k)
+        implicit none
+        integer, intent(IN) :: i, j, k
+        real :: sign, ynu, var_sum, angle, angle_z, angle_xy, r_xy, v_xy
+        integer :: ivar
+#ifdef FLASH_M1
+
+        ! Save the velocities into the previous step data arrays
+        Uin(PVLX_VAR, i, j, k) = Uin(VELX_VAR, i, j, k)
+        Uin(PVLY_VAR, i, j, k) = Uin(VELY_VAR, i, j, k)
+        Uin(PVLZ_VAR, i, j, k) = Uin(VELZ_VAR, i, j, k)
+
+        ! Initialize Ynu
+        ynu = 0.
+
+        do ivar = 1, NUNK_VARS
+            ! First, set ynu
+            if (ivar .ge. eeStart .and. ivar .le. eeStart + NGROUPS - 1) then
+                ynu = ynu + 4.0d0*PI*Uin(ivar, i, j, k)/ &
+                      nulibtable_energies(ivar - eeStart + 1)*(amu_cgs*mass_gf)
+            end if
+            if (ivar .ge. eaStart .and. ivar .le. eaStart + NGROUPS - 1) then
+                ynu = ynu - 4.0d0*PI*Uin(ivar, i, j, k)/ &
+                      nulibtable_energies(ivar - eaStart + 1)*(amu_cgs*mass_gf)
+            end if
+
+            !for the radiation, assume fe,fa,fx are the
+            !total flux, partition appropiately, like the
+            !velocities, but first we need to figure out if
+            !the variable is a f* or a g* variable.
+            var_sum = Uin(ivar, i, j, k)
+
+            if (NDIM == 1) then
+                ! this check should be moved to Simulation_init...
+                if (ivar .ge. fieStart .and. ivar .le. fieStart + NGROUPS - 1) then
+                    if (var_sum .gt. 1.0d-100) then
+                        !we have initial radiation data in the model file
+                        haveInitialRadData = .true.
+                    end if
+                end if
+            elseif (NDIM == 2) then
+                if (xCenter(i) .NE. 0) then
+                    angle = atan(yCenter(j)/xCenter(i))
+                else
+                    angle = PI/2.
+                end if
+                if (ivar .ge. fieStart .and. ivar .le. fieStart + NGROUPS - 1) then
+                    !ivar is an x momentum for electron neutrinos
+                    !do both x and y mom when ivar is an x momentum
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle)
+
+                    ! this check should be moved to Simulation_init...
+                    if (var_sum .gt. 1.0d-100) then
+                        !we have initial radiation data in the model file
+                        haveInitialRadData = .true.
+                    end if
+
+                else if (ivar .ge. fiaStart .and. ivar .le. fiaStart + NGROUPS - 1) then
+                    !ivar is an x momentum for electron anti neutrinos
+                    !do both x and y mom when ivar is an x momentum
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle)
+                else if (ivar .ge. fixStart .and. ivar .le. fixStart + NGROUPS - 1) then
+                    !ivar is an x momentum for x neutrinos
+                    !do both x and y mom when ivar is an x momentum
+                    Uin(ivar, i, j, k) = var_sum*cos(angle)
+                    Uin(fjxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle)
+                end if
+            elseif (NDIM == 3) then
+                ! first decompose the vectors into a z component and an 'xy' component
+                r_xy = sqrt(xCenter(i)**2 + yCenter(j)**2)
+                if (r_xy /= 0.0) then
+                    angle_z = atan(zCenter(k)/r_xy)
+                else
+                    angle_z = PI/2.
+                end if
+                if (xCenter(i) /= 0.0) then
+                    angle_xy = atan(yCenter(j)/xCenter(i))
+                else
+                    angle_xy = PI/2.0
+                end if
+                sign = xCenter(i)/abs(xCenter(i))
+
+                if (ivar .ge. fieStart .and. ivar .le. fieStart + NGROUPS - 1) then
+                    !ivar is an x momentum for electron neutrinos
+                    !do x, y, and z mom when ivar is an x momentum
+                    v_xy = var_sum*cos(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjeStart + (ivar - fieStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkeStart + (ivar - fieStart), i, j, k) = var_sum*sin(angle_z)
+
+                    !$omp critical
+                    if (var_sum .gt. 1.0d-100) then
+                        !we have initial radiation data in the model file
+                        haveInitialRadData = .true.
+                    end if
+                    !$omp end critical
+
+                else if (ivar .ge. fiaStart .and. ivar .le. fiaStart + NGROUPS - 1) then
+                    !ivar is an x momentum for electron anti neutrinos
+                    !do x, y, and z mom when ivar is an x momentum
+                    v_xy = var_sum*cos(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjaStart + (ivar - fiaStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkaStart + (ivar - fiaStart), i, j, k) = var_sum*sin(angle_z)
+
+                else if (ivar .ge. fixStart .and. ivar .le. fixStart + NGROUPS - 1) then
+                    !ivar is an x momentum for x neutrinos
+                    !do x, y, and z mom when ivar is an x momentum
+                    v_xy = var_sum*cos(angle_z)
+                    Uin(ivar, i, j, k) = sign*v_xy*cos(angle_xy)
+                    Uin(fjxStart + (ivar - fixStart), i, j, k) = sign*v_xy*sin(angle_xy)
+                    Uin(fkxStart + (ivar - fixStart), i, j, k) = var_sum*sin(angle_z)
+                end if
+            end if
+        end do
+        if (haveInitialRadData) then
+#ifdef YNU_VAR
+            Uin(YNU_VAR, i, j, k) = ynu/(Uin(DENS_VAR, i, j, k)*rho_gf)
+#endif
+#ifdef NNUE_VAR
+            !number of neutrino per cm^3 / 1e-51
+            Uin(NNUE_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+#endif
+#ifdef NNUA_VAR
+            !number of neutrino per cm^3 / 1e-51
+            Uin(NNUA_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+#endif
+#ifdef NNUX_VAR
+            !number of neutrino per cm^3 / 1e-51
+            Uin(NNUX_VAR, i, j, k) = 1.0d-51*length_gf**3*4.0d0*PI* &
+                                          sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))
+#endif
+
+#ifdef ENUE_VAR
+            !ave energy in Mev
+            Uin(ENUE_VAR, i, j, k) = sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+#endif
+#ifdef ENUA_VAR
+            !ave energy in Mev
+            Uin(ENUA_VAR, i, j, k) = sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+#endif
+#ifdef ENUX_VAR
+            !ave energy in Mev
+            Uin(ENUX_VAR, i, j, k) = sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k))/ &
+                                      (nulib_energy_gf*sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:)))
+#endif
+
+#ifdef RNUE_VAR
+            !rms energy in Mev
+            Uin(RNUE_VAR, i, j, k) = sqrt(sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)* &
+                                                   nulibtable_energies(:))/(nulib_energy_gf**2* &
+                                                      sum(Uin(eeStart:eestart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+#endif
+#ifdef RNUA_VAR
+            !rms energy in Mev
+            Uin(RNUA_VAR, i, j, k) = sqrt(sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)* &
+                                                   nulibtable_energies(:))/(nulib_energy_gf**2* &
+                                                      sum(Uin(eaStart:eastart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+#endif
+#ifdef RNUX_VAR
+            !rms energy in Mev
+            Uin(RNUX_VAR, i, j, k) = sqrt(sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)* &
+                                                   nulibtable_energies(:))/(nulib_energy_gf**2* &
+                                                      sum(Uin(exStart:exstart + NGROUPS - 1, i, j, k)/nulibtable_energies(:))))
+#endif
+        end if
+#endif
+    end subroutine setRadVars
+
+    subroutine initBfield(i, j, k)
+        implicit none
+        integer, intent(IN) :: i, j, k
+#if NDIM>1
+#ifdef SPARK_GLM
+        Uin(MAGX_VAR, i, j, k) = (Az(i, j + 1, k) - Az(i, j - 1, k))/(2.*dy)
+#if NDIM==3
+        Uin(MAGY_VAR, i, j, k) = (Ax(i, j, k + 1) - Ax(i, j, k - 1))/(2.*dz) &
+                                      - (Az(i + 1, j, k) - Az(i - 1, j, k))/(2.*dx)
+        Uin(MAGZ_VAR, i, j, k) = -(Ax(i, j + 1, k) - Ax(i, j - 1, k))/(2.*dy)
+#else
+        Uin(MAGY_VAR, i, j, k) = (xCenter(i + 1)*Az(i + 1, j, k) &
+                                       - xCenter(i - 1)*Az(i - 1, j, k))/(2.*dx*xCenter(i))
+        Uin(MAGZ_VAR, i, j, k) = 0.
+#endif
+        ! Compute magnetic pressure assuming Gaussian CGS units.
+        Uin(MAGP_VAR, i, j, k) = (Uin(MAGX_VAR, i, j, k)**2 + &
+                                       Uin(MAGY_VAR, i, j, k)**2 + Uin(MAGZ_VAR, i, j, k)**2)/(8.*PI)
+        Uin(DIVB_VAR, i, j, k) = 0.0
+#endif
+#endif
+    end subroutine initBfield
+
+    subroutine computeVecPot()
+        implicit none
+        integer :: i, j, k
+        real :: phi, theta, rcc
+        real :: xLoc, yLoc, zLoc
+#ifdef SPARK_GLM
+        Ax = 0.
+        Ay = 0.
+        Az = 0.
+        zLoc = 0.
+        @M loop_3d(blkLimitsGC)
+
+                    ! TODO: think about units of B....
+                    ! Ax, Az will be defined at cell centers
+                    xLoc = xCenter(i)
+                    yLoc = yCenter(j)
+#if NDIM==3
+                    zLoc = zCenter(k)
+#endif
+                    rcc = sqrt(xLoc**2 + yLoc**2 + zLoc**2)
+                    if (xLoc /= 0.0) then
+                        phi = atan2(zLoc, xLoc)
+                    else
+                        phi = PI/2.0
+                    end if
+                    if (rcc /= 0.0) then
+                        theta = acos(yLoc/rcc)
+                    else
+                        theta = PI/2.0
+                    end if
+                    Ax(i, j, k) = -Aphi(rcc, theta)*sin(phi)
+                    Az(i, j, k) = Aphi(rcc, theta)*cos(phi)
+
+                    ! Ay is zero for this potential
+                    Ay(i, j, k) = 0.0
+        @M loop_end_3d
+#endif
+    end subroutine computeVecPot
+
+    real function Aphi(rad, tht)
+        implicit none
+        real, intent(IN) :: rad, tht
+        Aphi = 0.5*sim_magB0*sim_magR0**3*rad/(rad**3 + sim_magR0**3)*sin(tht)
+    end function Aphi
+
+    subroutine computeAngles(rcc, tht, phi)
+        implicit none
+        real, INTENT(OUT) :: tht, phi
+        real, intent(IN) :: rcc
+        tht = acos(yCenter(j)/rcc)
+        if (NDIM == 3) then
+            phi = atan2(zCenter(k), xCenter(i))
+        else
+            phi = 0.
+        end if
+    end subroutine computeAngles
+
+    subroutine fixVelocity(i, j, k, rcc)
+        implicit none
+        integer, intent(IN) :: i, j, k
+        real, intent(IN) :: rcc
+        real :: vtot, vrot, r_xz, sign, angle, r_xy, v_xy, phi, vphi
+        ! Radial velocity from 1D model stored in VELX_VAR
+        ! Angular velocity from 1D model stored in VELZ_VAR
+        ! Fix the velocities. Compute the angle from xCenter and yCenter
+        ! and find the x and y compontents of the velocity
+        vtot = sim_velMult*Uin(VELX_VAR, i, j, k)
+        vrot = sim_velRotFac*Uin(VELZ_VAR, i, j, k)
+        if (NDIM == 1) then
+            Uin(VELX_VAR, i, j, k) = vtot
+            Uin(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
+                                                      sim_rotOmega/(1.+(xCenter(i)/sim_rotA)**2))
+        elseif (NDIM == 2) then
+            if (xCenter(i) .NE. 0) then
+                angle = atan(yCenter(j)/xCenter(i))
+            else
+                angle = PI/2.
+            end if
+            Uin(VELX_VAR, i, j, k) = vtot*cos(angle)
+            Uin(VELY_VAR, i, j, k) = vtot*sin(angle)
+            Uin(VELZ_VAR, i, j, k) = xCenter(i)*(vrot + &
+                                                      sim_rotOmega/(1.+(rcc/sim_rotA)**2))
+        elseif (NDIM == 3) then
+            ! first decompose the velocity into a z component and an 'xy' component
+            r_xy = sqrt(xCenter(i)**2 + yCenter(j)**2)
+            if (r_xy /= 0.0) then
+                angle = atan(zCenter(k)/r_xy)
+            else
+                angle = PI/2.
+            end if
+            Uin(VELZ_VAR, i, j, k) = vtot*sin(angle)*sim_velMult
+            v_xy = vtot*cos(angle)
+            if (xCenter(i) /= 0.0) then
+                angle = atan(yCenter(j)/xCenter(i))
+            else
+                angle = PI/2.0
+            end if
+            sign = xCenter(i)/abs(xCenter(i))
+            Uin(VELX_VAR, i, j, k) = sign*v_xy*cos(angle)*sim_velMult
+            Uin(VELY_VAR, i, j, k) = sign*v_xy*sin(angle)*sim_velMult
+            ! Add some rotation.
+            if (xCenter(i) /= 0.0) then
+                phi = atan(zCenter(k)/xCenter(i))
+            else
+                phi = PI/2.0
+            end if
+            r_xz = sqrt(xCenter(i)**2 + zCenter(k)**2)
+            vphi = r_xz*(vrot + sim_rotOmega/(1.+(rcc/sim_rotA)**2))
+            Uin(VELX_VAR, i, j, k) = Uin(VELX_VAR, i, j, k) - sign*sin(phi)*vphi
+            Uin(VELZ_VAR, i, j, k) = Uin(VELZ_VAR, i, j, k) + sign*cos(phi)*vphi
+        end if
+    end subroutine fixVelocity
+
+    subroutine interpVars(i, j, k)
+        use ut_interpolationInterface, ONLY: ut_parabolicInterpol
+        implicit none
+        integer, intent(IN) :: i, j, k
+        real :: dxx_sub, dyy_sub, dzz_sub, dvol, vol
+        real :: rcc_sub, xcc_sub, ycc_sub, zcc_sub
+        integer :: ii, jj, kk, ivar
+        real :: var_interp
+        ! subsample in each zone to get a more accurate zone average -- note,
+        ! this is geometry dependent, so be careful
+        dxx_sub = dx/float(nsub)
+        dyy_sub = dy/float(nsub)
+        dzz_sub = dz/float(nsub)
+
+        do ii = 1, nsub
+            xcc_sub = xLeft(i) + (ii - 0.5)*dxx_sub
+#if NDIM>1
+            do jj = 1, nsub
+                ycc_sub = yLeft(j) + (jj - 0.5)*dyy_sub
+#if NDIM==3
+                do kk = 1, nsub
+                    zcc_sub = zLeft(k) + (kk - 0.5)*dzz_sub
+#endif
+#endif
+                    rcc_sub = sqrt(xcc_sub**2 &
+#if NDIM>1
+                                   + ycc_sub**2 &
+#if NDIM==3
+                                   + zcc_sub**2 &
+#endif
+#endif
+                                   )
+                    ! Compute the volume for averaging
+                    if (meshGeom == CARTESIAN) then
+                        dvol = 1.0
+                    elseif (meshGeom == CYLINDRICAL) then
+                        ! the 'x' coordinate is the cylindrical radial coord, the 'y' coordinate
+                        ! is the cylindrical z coord
+                        dvol = 2.0*PI*2.0*xcc_sub*dxx_sub*dyy_sub
+                    elseif (meshGeom == SPHERICAL) then
+                        dvol = 1.0 !4.0*PI*rcc_sub**2*dxx_sub
+                    end if
+                    ! since it is difficult to do the parabolic interpolation, send
+                    ! rcc as the left, center, and right positions -- this will do
+                    ! a linear interpolation
+                    do ivar = 1, NUNK_VARS
+                        call ut_parabolicInterpol(xzn, model_1d(:, ivar), &
+                                                  n1d_total, rcc_sub, rcc_sub, rcc_sub, &
+                                                  var_interp)
+#ifdef FLASH_M1
+                        ! At large radius assume free-streaming condition for radiation vars
+                        if (rcc_sub .gt. 5.0e7) then
+                            if ((ivar .ge. eeStart .and. ivar .le. eeStart + NGROUPS - 1) .or. &
+                                (ivar .ge. eaStart .and. ivar .le. eaStart + NGROUPS - 1) .or. &
+                                (ivar .ge. exStart .and. ivar .le. exStart + NGROUPS - 1) .or. &
+                                (ivar .ge. fieStart .and. ivar .le. fieStart + NGROUPS - 1) .or. &
+                                (ivar .ge. fiaStart .and. ivar .le. fiaStart + NGROUPS - 1) .or. &
+                                (ivar .ge. fixStart .and. ivar .le. fixStart + NGROUPS - 1)) then
+                                call ut_parabolicInterpol(xzn, model_1d(:, ivar), &
+                                                          n1d_total, 5.0e7, 5.0e7, 5.0e7, var_interp)
+                                var_interp = var_interp*(5.0e7/rcc_sub)**2
+                            end if
+                        end if
+#endif
+                        ! add the subzone's contribution to entire zone's total -- taking into
+                        ! account the geometrical weighting
+                        Uin(ivar, i, j, k) = Uin(ivar, i, j, k) + var_interp*dvol
+                    end do
+
+                end do
+#if NDIM>1
+            end do
+#if NDIM==3
+        end do
+#endif
+#endif
+        ! Compute the total volume of zone
+        if (meshGeom == CARTESIAN) then
+            vol = float(nsub**NDIM)
+        elseif (meshGeom == CYLINDRICAL) then
+            ! the 'x' coordinate is the cylindrical radial coord, the 'y' coordinate
+            ! is the cylindrical z coord
+            vol = 2.0*PI*2.0*xCenter(i)*dx*dy
+        elseif (meshGeom == SPHERICAL) then
+            vol = float(nsub**NDIM) !4.0*PI*xCenter(i)**2*dx
+        end if
+        ! divide by the volume of the entire zone to get the average
+        Uin(:, i, j, k) = Uin(:, i, j, k)/vol
+    end subroutine interpVars
+
+    subroutine computeRadius(i, j, k, rcc)
+        implicit none
+        integer, intent(IN) :: i, j, k
+        real, intent(OUT) :: rcc
+        rcc = xCenter(i)**2
+#if NDIM>1
+        rcc = rcc + yCenter(j)**2
+#if NDIM==3
+        rcc = rcc + zCenter(k)**2
+#endif
+#endif
+        rcc = sqrt(rcc)
+    end subroutine computeRadius
+
+    subroutine setLimits(limits)
+        implicit none
+        integer, intent(OUT), dimension(LOW:HIGH, MDIM) :: limits
+        integer :: nghost = 1
+        ! Set loop limits.  We include nghost layers of guard zones
+        limits = blkLimits
+        limits(LOW, IAXIS) = limits(LOW, IAXIS) - nghost
+        limits(HIGH, IAXIS) = limits(HIGH, IAXIS) + nghost
+#if NDIM > 1
+        limits(LOW, JAXIS) = limits(LOW, JAXIS) - nghost
+        limits(HIGH, JAXIS) = limits(HIGH, JAXIS) + nghost
+#if NDIM == 3
+        limits(LOW, KAXIS) = limits(LOW, KAXIS) - nghost
+        limits(HIGH, KAXIS) = limits(HIGH, KAXIS) + nghost
+#endif /* NDIM == 3 */
+#endif /* NDIM > 1 */
+    end subroutine setLimits
+
+end subroutine Simulation_initBlock
+
+subroutine ye_ofRho_init(xDens, outYe)
+
+    use Simulation_data, ONLY: sim_rhoOne, sim_rhoTwo, &
+                               sim_yOne, sim_yTwo, sim_yc, &
+                               sim_yThree, sim_rhoThree
+
+    implicit none
+
+    real, intent(IN) :: xDens
+    real, intent(OUT) :: outYe
+
+    real :: xofrho, xofrho2
+
+    xofrho = 2.0*log10(xDens) - log10(sim_rhoTwo) - log10(sim_rhoOne)
+    xofrho = xofrho/(log10(sim_rhoTwo) - log10(sim_rhoOne))
+
+    xofrho = max(-1.0, min(1.0, xofrho))
+
+    xofrho2 = log10(xDens) - log10(sim_rhoThree)
+    xofrho2 = xofrho2/(log10(sim_rhoThree) - log10(sim_rhoTwo))
+    xofrho2 = max(-1., min(1., xofrho2))
+
+    outYe = 0.5*(sim_yTwo + sim_yOne) + 0.5*xofrho*(sim_yTwo - sim_yOne) &
+            + sim_yc*(1.-abs(xofrho) &
+                      + 4.*abs(xofrho)*(abs(xofrho) - 0.5)*(abs(xofrho) - 1.)) &
+            + max(0., (sim_yThree - sim_yTwo)*xofrho2)
+
+    return
+end subroutine ye_ofRho_init

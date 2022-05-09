@@ -628,16 +628,27 @@ class UnitUnion(dict):
             
             for name,(group,eos1,eos2) in list(unit["MASS_SCALAR"].items()):
                 try:
-                  currval = self["MASS_SCALARS"][name]
+                  prevTriple = self["MASS_SCALARS"][name]
+                  prevgrp    = prevTriple[0]
                   gotval = True
                 except KeyError:
                   self["MASS_SCALARS"][name] = (group, eos1, eos2)
                   gotval = False
 
-                if gotval and (currval != group): # different groups specified
-                   msg = ['MASS SCALAR [%s] has two groups ' % name]
-                   msg.append('    %s in %s' % (currval,unit.name))
+                if gotval and (prevgrp != group): # different groups specified
+                   msg = ['MASS SCALAR [%s] has two groups: ' % name]
+                   msg.append('    %s in %s' % (prevgrp,unit.name))
                    msg.append('    %s in %s' % (group,mscalarlocs[name]))
+                   raise SetupError("\n".join(msg))
+                if gotval and (prevTriple[1] != eos1): # different EOS IN mappings specified
+                   msg = ['MASS SCALAR [%s] has two mappings to EOS input:' % name]
+                   msg.append('    %s in %s' % (prevTriple[1],unit.name))
+                   msg.append('    %s in %s' % (eos1,mscalarlocs[name]))
+                   raise SetupError("\n".join(msg))
+                if gotval and (prevTriple[2] != eos2): # different EOS OUT mappings specified
+                   msg = ['MASS SCALAR [%s] has two mappings from EOS output:' % name]
+                   msg.append('    %s in %s' % (prevTriple[2],unit.name))
+                   msg.append('    %s in %s' % (eos2,mscalarlocs[name]))
                    raise SetupError("\n".join(msg))
                 # everything is fine now
                 mscalarlocs[name] = unit.name # store where it was defined

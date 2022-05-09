@@ -1,3 +1,4 @@
+# Prepare GCE-UB18 machine for compiling and running Flash-X - GCC
 module savelist
 
 export H5_DIR=/nfs/gce/projects/FLASH5/software/hdf5

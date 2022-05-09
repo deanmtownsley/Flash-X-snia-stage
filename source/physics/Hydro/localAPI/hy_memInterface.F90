@@ -32,12 +32,12 @@ Module hy_memInterface
 #include "FortranLangFeatures.fh"
 
   interface hy_memGetBlkPtr
-     subroutine hy_memGetBlkPtr(blockID,dataPtr, gridDataStruct)
+     subroutine hy_memGetBlkPtr_blkid(blockID,dataPtr, gridDataStruct)
        implicit none
        integer,intent(in) :: blockId
        real, pointer :: dataPtr(:,:,:,:)
        integer,optional, intent(in) :: gridDataStruct
-     end subroutine hy_memGetBlkPtr
+     end subroutine hy_memGetBlkPtr_blkid
      subroutine hy_memGetBlk5Ptr(blockID,data5Ptr, gridDataStruct)
        implicit none
        integer,intent(in) :: blockId

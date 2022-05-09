@@ -44,7 +44,7 @@ subroutine Hydro_correctGravSrc(dt)
 #include "constants.h"
 #include "Spark.h"
 
-  @M iter_declare(blkLimits,blkLimitsGC)
+  @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
   real,    intent(in) :: dt
 
   integer :: n, i, j, k
