@@ -1,4 +1,4 @@
-!!****f* source/Grid/Grid_bcApplyToRegionSpecialized
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/General/Grid_bcApplyToRegionSpecialized
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -31,13 +31,13 @@
 !!                                       integer(IN)           :: thirdDir,
 !!                                       integer(IN)           :: endPoints(LOW:HIGH,MDIM),
 !!                              OPTIONAL,integer(IN)           :: idest )
-!!                    
-!!  
-!! DESCRIPTION 
+!!
+!!
+!! DESCRIPTION
 !!
 !!  Applies the boundary conditions to the specified data structure.
 !!  The routine is handed a region that has been extracted from the
-!!  data structure, on which it should apply the boundary conditions. 
+!!  data structure, on which it should apply the boundary conditions.
 !!  The direction along which the BC are to be applied is always the first
 !!  dimension in the given region, and the last dimension contains the
 !!  the variables in the data structure. The middle two dimension contain
@@ -46,17 +46,17 @@
 !!
 !!  This routine applies the boundary conditions on a given face (lowerface
 !!  or upperface) along a given axis, by using and setting values
-!!  for all variables in the gridDataStruct that are not masked out. The 
+!!  for all variables in the gridDataStruct that are not masked out. The
 !!  argument "mask" has the information about the masked variables.
-!! 
+!!
 !!   Where masked(variables)
-!!     If (face=LOW)  
+!!     If (face=LOW)
 !!       regionData(1:guard,:,:,variables) =  boundary values
-!!     If (face=HIGH) 
+!!     If (face=HIGH)
 !!       regionData(regionSize(BC_DIR)-guard+1:regionSize(BC_DIR),:,:,variables) =  boundary values
 !!
 !!
-!! ARGUMENTS 
+!! ARGUMENTS
 !!
 !! 1. BASIC ARGUMENTS
 !!
@@ -68,9 +68,9 @@
 !!    axis  - the direction along which to apply boundary conditions,
 !!            can take values of IAXIS, JAXIS and KAXIS
 !!    face    -  can take values LOW and HIGH, defined in constants.h,
-!!               to indicate whether to apply boundary on lowerface or 
+!!               to indicate whether to apply boundary on lowerface or
 !!               upperface
-!!    regionData     : the extracted region from a block of permanent storage of the 
+!!    regionData     : the extracted region from a block of permanent storage of the
 !!                     specified data structure. Its size is given by regionSize.
 !!                     NOTE that the first three dimensions of this array do not necessarily
 !!                     correspond to the (IAXIS, JAXIS, KAXIS) directions in this order;
@@ -96,7 +96,7 @@
 !!         an implementation may ignore.
 !!         Specifying a mask does not mean that previous values of other variables in
 !!         guard cells will be left undisturbed.
-!!    applied - is set true if this routine has handled the given bcType, otherwise it is 
+!!    applied - is set true if this routine has handled the given bcType, otherwise it is
 !!              set to false.
 !!
 !!
@@ -162,108 +162,107 @@
 !!
 !! (3)        This routine is common to all the mesh packages supported.
 !!            The mesh packages extract the small vectors relevant to
-!!            boundary conditions calculations from their Grid data 
-!!            structures. 
+!!            boundary conditions calculations from their Grid data
+!!            structures.
 !!
 !! SEE ALSO
 !!
-!!   Grid_bcApplyToRegion            
+!!   Grid_bcApplyToRegion
 !!
 !!***
-
 
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine Grid_bcApplyToRegionSpecialized(bcType,gridDataStruct, level, &
-     guard,axis,face,regionData,regionSize,mask,applied,&
-     secondDir,thirdDir,endPoints,idest)
+subroutine Grid_bcApplyToRegionSpecialized(bcType, gridDataStruct, level, &
+                                           guard, axis, face, regionData, regionSize, mask, applied, &
+                                           secondDir, thirdDir, endPoints, idest)
 
-  use gr_bcInterface, ONLY : gr_bcMapBcType
- 
-  implicit none
+   use gr_bcInterface, ONLY: gr_bcMapBcType
 
-  integer, intent(IN) :: bcType,axis,face,guard,gridDataStruct, level
-  integer,dimension(REGION_DIM),intent(IN) :: regionSize
-  real,dimension(regionSize(BC_DIR),&
-       regionSize(SECOND_DIR),&
-       regionSize(THIRD_DIR),&
-       regionSize(STRUCTSIZE)),intent(INOUT)::regionData
-  logical,intent(IN),dimension(regionSize(STRUCTSIZE)):: mask
-  logical, intent(OUT) :: applied
-  integer,intent(IN) :: secondDir,thirdDir
-  integer,intent(IN),dimension(LOW:HIGH,MDIM) :: endPoints
-  integer,intent(IN),OPTIONAL:: idest
+   implicit none
 
-  integer :: i,j, k,ivar,je,ke,n,varCount,bcTypeActual
-  logical :: isFace
- 
-  applied=.true.
+   integer, intent(IN) :: bcType, axis, face, guard, gridDataStruct, level
+   integer, dimension(REGION_DIM), intent(IN) :: regionSize
+   real, dimension(regionSize(BC_DIR), &
+                   regionSize(SECOND_DIR), &
+                   regionSize(THIRD_DIR), &
+                   regionSize(STRUCTSIZE)), intent(INOUT)::regionData
+   logical, intent(IN), dimension(regionSize(STRUCTSIZE)):: mask
+   logical, intent(OUT) :: applied
+   integer, intent(IN) :: secondDir, thirdDir
+   integer, intent(IN), dimension(LOW:HIGH, MDIM) :: endPoints
+   integer, intent(IN), OPTIONAL:: idest
 
-  je=regionSize(SECOND_DIR)
-  ke=regionSize(THIRD_DIR)
-  varCount=regionSize(STRUCTSIZE)
-  isFace = (gridDataStruct==FACEX).and.(axis==IAXIS)
-  isFace = isFace.or.((gridDataStruct==FACEY).and.(axis==JAXIS))
-  isFace = isFace.or.((gridDataStruct==FACEZ).and.(axis==KAXIS))
+   integer :: i, j, k, ivar, je, ke, n, varCount, bcTypeActual
+   logical :: isFace
 
-  do ivar = 1,varCount
+   applied = .true.
 
-     if(mask(ivar)) then
+   je = regionSize(SECOND_DIR)
+   ke = regionSize(THIRD_DIR)
+   varCount = regionSize(STRUCTSIZE)
+   isFace = (gridDataStruct == FACEX) .and. (axis == IAXIS)
+   isFace = isFace .or. ((gridDataStruct == FACEY) .and. (axis == JAXIS))
+   isFace = isFace .or. ((gridDataStruct == FACEZ) .and. (axis == KAXIS))
 
-     if(face==LOW) then
-           select case (ivar)
-           case (NSOL_VAR)
-              k = 2*guard+1
-              if(isFace)k=k+1
-              if(bcType == DIRICHLET) then
-                do i = 1,guard
-                   regionData(i,1:je,1:ke,ivar)= -regionData(k-i,1:je,1:ke,ivar)
-                end do
-              else
-                do i = 1,guard
-                   regionData(i,1:je,1:ke,ivar)= regionData(k-i,1:je,1:ke,ivar)
-                end do            
-              endif
+   do ivar = 1, varCount
 
-           case default
-              k = 2*guard+1
-              if(isFace)k=k+1
-              do i = 1,guard
-                 regionData(i,1:je,1:ke,ivar)= regionData(k-i,1:je,1:ke,ivar)
-              end do
- 
-           end select 
-     end if 
+      if (mask(ivar)) then
 
-    if(face==HIGH) then
-           select case (ivar)
-           case(NSOL_VAR)
-              k = 2*guard+1
-              if(isFace)k=k+1
-              if(bcType == DIRICHLET) then
-                do i = 1,guard
-                   regionData(k-i,1:je,1:ke,ivar)= -regionData(i,1:je,1:ke,ivar)
-                end do
-              else
-                do i = 1,guard
-                   regionData(k-i,1:je,1:ke,ivar)= regionData(i,1:je,1:ke,ivar)
-                end do 
-              endif
+         if (face == LOW) then
+            select case (ivar)
+            case (NSOL_VAR)
+               k = 2*guard + 1
+               if (isFace) k = k + 1
+               if (bcType == DIRICHLET) then
+                  do i = 1, guard
+                     regionData(i, 1:je, 1:ke, ivar) = -regionData(k - i, 1:je, 1:ke, ivar)
+                  end do
+               else
+                  do i = 1, guard
+                     regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
+                  end do
+               end if
 
-           case default
-              k = 2*guard+1
-               if(isFace)k=k+1
-              do i = 1,guard
-                 regionData(k-i,1:je,1:ke,ivar)= regionData(i,1:je,1:ke,ivar)
+            case default
+               k = 2*guard + 1
+               if (isFace) k = k + 1
+               do i = 1, guard
+                  regionData(i, 1:je, 1:ke, ivar) = regionData(k - i, 1:je, 1:ke, ivar)
                end do
 
-           end select 
-     end if 
+            end select
+         end if
 
-     end if
-  end do
+         if (face == HIGH) then
+            select case (ivar)
+            case (NSOL_VAR)
+               k = 2*guard + 1
+               if (isFace) k = k + 1
+               if (bcType == DIRICHLET) then
+                  do i = 1, guard
+                     regionData(k - i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
+                  end do
+               else
+                  do i = 1, guard
+                     regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+                  end do
+               end if
 
-  return
+            case default
+               k = 2*guard + 1
+               if (isFace) k = k + 1
+               do i = 1, guard
+                  regionData(k - i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
+               end do
+
+            end select
+         end if
+
+      end if
+   end do
+
+   return
 
 end subroutine Grid_bcApplyToRegionSpecialized
