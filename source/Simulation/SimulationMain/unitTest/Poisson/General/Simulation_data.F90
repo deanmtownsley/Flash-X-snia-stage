@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/PFFT_PoissonFD/Simulation_data
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/General/Simulation_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -17,22 +17,21 @@
 !!
 !! SYNOPSIS
 !!
-!!  use Simulation_data 
+!!  use Simulation_data
 !!
 !!  DESCRIPTION
 !!
 !!  Stores the local data for Simulation setup: PFFT_PoissonFD
-!!  
+!!
 !!***
 
 module Simulation_data
 
-  implicit none
+   implicit none
+
 #include "constants.h"
 
-  !! *** Runtime Parameters *** !!
+   real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
+   integer, save :: sim_meshMe
 
-  real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
-
-integer, save :: sim_meshMe
 end module Simulation_data

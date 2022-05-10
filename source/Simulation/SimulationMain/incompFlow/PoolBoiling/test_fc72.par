@@ -1,4 +1,4 @@
-# 	Runtime parameters for the Flow Boiling problem.
+# 	Runtime parameters for the Pool Boiling problem.
 gr_pmRpDivergenceFree = 1
 gr_pmRpNfieldDivf = 2
 gr_pmRpConsvFluxes = .TRUE.
@@ -11,66 +11,65 @@ convertToConsvdInMeshInterp = .FALSE.
 enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
-ins_invReynolds   = .004
+ins_invReynolds   = .0042
 
 # 1/Fr**2, Fr (Froude Number)
 ins_gravY           = -1.0
 
 # Gas density and viscosity scaled by liquid
-mph_rhoGas  = 0.005
-mph_muGas   = 0.02
+mph_rhoGas  = 0.0083
+mph_muGas   = 1.0
 mph_iPropSmear = 1.0
 
 # Gas thermal conductivity and specific heat
-mph_thcoGas = 0.2
-mph_CpGas   = 0.8
+mph_thcoGas = 0.25
+mph_CpGas   = 0.83
 
 # Stefan number and saturation temperature
-mph_Stefan  = 0.50
-mph_Tsat    = 0.20
+mph_Stefan  = 0.5298
+mph_Tsat    = 0.15
 
 # Inverse Weber Number
 mph_invWeber = 1.0
 
 # Prandtl number
-ht_Prandtl = 8.0
+ht_Prandtl = 8.4
 
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  1   # Number of heaters
-sim_heaterName    = "3d_fb"
+sim_heaterName    = "test_fc72"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 2.0 # Outlet Buffer
+sim_outletBuffer =  0.1 # Outlet buffer region
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
 #       Size of computational volume
-#       Size of computational volume
-xmin		= -24.0
-xmax		=  24.0
+xmin		= -6.0
+xmax		=  6.0
 ymin		=  0.0
-ymax		=  15.0
-zmin            = -7.5
-zmax            =  7.5
+ymax		= 12.0
+zmin            = -6.0
+zmax            =  6.0
 
 #       Boundary conditions
-xl_boundary_type = "inflow_ins"
-xr_boundary_type = "outflow_ins"
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
 yl_boundary_type = "noslip_ins"
-yr_boundary_type = "slip_ins"
-zl_boundary_type = "slip_ins"
-zr_boundary_type = "slip_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
-run_comment	= "Flow Boiling problem"
-log_file	= "INS_Flow_Boiling.log"
-basenm		= "INS_Flow_Boiling_"
+run_comment	= "Pool Boiling problem"
+log_file	= "INS_Pool_Boiling.log"
+basenm		= "INS_Pool_Boiling_"
 restart         = .false.
 nend            = 10000000
-tmax            = 40.
+tmax            = 20.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05
@@ -99,9 +98,9 @@ plotFileIntervalStep = 1000
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 96
-nblocky	= 30
-nblockz = 30
+nblockx	= 24
+nblocky	= 24
+nblockz = 24
 nfres   = 10000000
 
 lrefine_min       = 1
@@ -112,8 +111,8 @@ flux_correct    = .true.
 
 # AMReX Poisson Solver Parameters
 gr_amrexMG_composite_solve = ".TRUE."
-gr_amrexMG_Tol = 1e-13
-gr_amrexMG_max_iter = 1000
+gr_amrexMG_Tol = 1e-12
+gr_amrexMG_max_iter = 200
 
 # HYPRE Poisson Solver Parameters
 gr_hyprePrintSolveInfo = ".FALSE."

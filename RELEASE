@@ -1,1 +1,1 @@
-alpha \("${GITDESCRIBE}"\)
+1.0 \("${GITDESCRIBE}"\)
