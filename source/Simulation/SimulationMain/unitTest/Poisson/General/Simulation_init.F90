@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/PFFT_PoissonFD/Simulation_init
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/General/Simulation_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -36,8 +36,6 @@ subroutine Simulation_init()
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   implicit none
-
-  
 
   call RuntimeParameters_get('xmin', sim_xMin)
   call RuntimeParameters_get('xmax', sim_xMax)

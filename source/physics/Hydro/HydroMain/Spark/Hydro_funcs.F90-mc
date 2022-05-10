@@ -98,14 +98,12 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
 end subroutine allocate_scr
 
 subroutine deallocate_scr()
-  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-       hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc, scratch_allocated
+  use Hydro_data, ONLY : hy_starState,  hy_grav, hy_flx, hy_fly, hy_flz,&
+       hy_Vc
   
-  use Hydro_offload_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
-  
+  use Hydro_offload_data, ONLY : &
+       hy_flat3d,hy_tmpState
+
   if(allocated(hy_flx))deallocate(hy_flx)
   if(allocated(hy_fly))deallocate(hy_fly)
   if(allocated(hy_flz))deallocate(hy_flz)
@@ -184,10 +182,6 @@ subroutine addFluxes(lev,blkLimits,weight,addFlux)
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits
   real, intent(IN) :: weight
   logical, intent(IN) :: addFlux
-  integer, dimension(MDIM) :: datasize
-  integer :: coarse, fine
-  integer :: axis, geometry
-  logical :: zeroFullRegister 
   
   
   if (addFlux) then

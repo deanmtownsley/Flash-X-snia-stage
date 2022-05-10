@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Multigrid_Amrex
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/Amrex/Grid_unitTest
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -34,19 +34,21 @@
 !!
 !!***
 
-!!REORDER(4): solnData
+!!------!! Do not REORDER(4): solnData
 
 subroutine Grid_unitTest(fileUnit,perfect)
 
   use Grid_interface, ONLY : GRID_PDE_BND_PERIODIC, GRID_PDE_BND_DIRICHLET, GRID_PDE_BND_NEUMANN,&
-                             Grid_solvePoisson, &
-                             Grid_getDeltas, Grid_fillGuardCells, &
-                             Grid_getTileIterator, Grid_releaseTileIterator
-
+!       Grid_getBlkIndexLimits, &
+       Grid_solvePoisson, &
+       Grid_getDeltas, Grid_fillGuardCells, &
+       Grid_getTileIterator, Grid_releaseTileIterator
   use gr_interface ,ONLY : gr_findMean
   use Grid_data, ONLY : gr_meshMe, gr_meshComm
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
+  use amrex_amr_module,     ONLY : amrex_init_from_scratch, &
+                                   amrex_max_level
 
 #include "Simulation.h"
 #include "constants.h"
@@ -86,7 +88,8 @@ subroutine Grid_unitTest(fileUnit,perfect)
 
   ! -------------------------------------------------------------------
   nullify(solnData)
-  bcTypes(:)=GRID_PDE_BND_DIRICHLET 
+  bcTypes(:)=GRID_PDE_BND_NEUMANN  
+  bcTypes(3:4)=GRID_PDE_BND_DIRICHLET
   bcValues(:,:)=0.
 
   call mpi_barrier(gr_meshComm,ierr)
@@ -101,10 +104,7 @@ subroutine Grid_unitTest(fileUnit,perfect)
      write(*,*) '3 PERIODIC Poisson Solver time = ',ET,' sec.'
   endif
 
-  gcMask = .false.  
-  gcMask(NSOL_VAR) = .true.  
- 
-  call Grid_fillGuardCells(CENTER,ALLDIR,masksize=NUNK_VARS, mask=gcMask)  
+
 
   ! Check error in the solution:
   L2_err = 0.
@@ -141,25 +141,25 @@ subroutine Grid_unitTest(fileUnit,perfect)
           (tileLimits(HIGH,JAXIS) - tileLimits(LOW,JAXIS) + 1) * &
           (tileLimits(HIGH,KAXIS) - tileLimits(LOW,KAXIS) + 1))
 
-     solnData(DIFF_VAR,tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),           &
+     solnData(tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),           &
           tileLimits(LOW,JAXIS):tileLimits(HIGH,JAXIS),           & 
-          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS))   =       &
-          abs(  solnData(NSOL_VAR,tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),     &
+          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS),DIFF_VAR)   =       &
+          abs(  solnData(tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),     &
           tileLimits(LOW,JAXIS):tileLimits(HIGH,JAXIS),     & 
-          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS))   - &
-          solnData(ASOL_VAR,tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),     &
+          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS),NSOL_VAR)   - &
+          solnData(tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),     &
           tileLimits(LOW,JAXIS):tileLimits(HIGH,JAXIS),     & 
-          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS))   )
+          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS),ASOL_VAR)   )
 
      ! L2 norm of error:
-     L2_err = L2_err + sum( vcell*solnData(DIFF_VAR,tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),           &
+     L2_err = L2_err + sum( vcell*solnData(tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),           &
           tileLimits(LOW,JAXIS):tileLimits(HIGH,JAXIS),           & 
-          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS))**2.)
+          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS),DIFF_VAR)**2.)
 
      ! Linf norm of error:
-     Linf_err = max(Linf_err,maxval(solnData(DIFF_VAR,tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),   &
+     Linf_err = max(Linf_err,maxval(solnData(tileLimits(LOW,IAXIS):tileLimits(HIGH,IAXIS),   &
           tileLimits(LOW,JAXIS):tileLimits(HIGH,JAXIS),           & 
-          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS)) ))
+          tileLimits(LOW,KAXIS):tileLimits(HIGH,KAXIS),DIFF_VAR) ))
 
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
