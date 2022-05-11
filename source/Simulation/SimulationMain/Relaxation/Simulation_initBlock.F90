@@ -35,7 +35,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_coordTransfm
   use Eos_interface, ONLY : Eos_wrapped
 
-  use KindModule, ONLY : SqrtTiny
+  use KindModule, ONLY : DP, SqrtTiny
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
   use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
   use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
@@ -157,22 +157,28 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               if ( sim_use_model ) then
                  call sim_interpProfile &
                     ( rcc, sim_dens_i, sim_temp_i, sim_ye_i, velr )
-              else
+              elseif ( sim_rad_option /= 4 ) then
                  call sim_analyticProfile &
                     ( rcc, sim_dens_i, sim_temp_i, sim_ye_i, velr )
+              elseif( sim_rad_option == 4 ) then ! uniform field
+                    sim_dens_i = dens_i
+                    sim_temp_i = temp_i
+                    sim_ye_i = ye_i
               end if
+
               velt = 0.0
               velp = 0.0
               call sim_velFromSph &
                  ( rcc, tcc, pcc, velr, velt, velp, &
                    sim_geometry, sim_velx_i, sim_vely_i, sim_velz_i )
 
-              solnData(DENS_VAR,ii,jj,kk) = sim_dens_i
-              solnData(TEMP_VAR,ii,jj,kk) = sim_temp_i
-              solnData(VELX_VAR,ii,jj,kk) = sim_velx_i
-              solnData(VELY_VAR,ii,jj,kk) = sim_vely_i
-              solnData(VELZ_VAR,ii,jj,kk) = sim_velz_i
+              solnData(DENS_VAR,ii,jj,kk)   = sim_dens_i
+              solnData(TEMP_VAR,ii,jj,kk)   = sim_temp_i
+              solnData(VELX_VAR,ii,jj,kk)   = sim_velx_i
+              solnData(VELY_VAR,ii,jj,kk)   = sim_vely_i
+              solnData(VELZ_VAR,ii,jj,kk)   = sim_velz_i
               solnData(YE_MSCALAR,ii,jj,kk) = sim_ye_i
+
               do n = SPECIES_BEGIN,SPECIES_END
                  solnData(n,ii,jj,kk) = sim_xn_i(n)
               end do
@@ -223,10 +229,15 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  if ( sim_use_model ) then
                     call sim_interpProfile &
                        ( rcc, sim_dens_i, sim_temp_i, sim_ye_i, velr )
-                 else
+                 elseif( sim_rad_option /= 4 ) then ! analytical approx
                     call sim_analyticProfile &
                        ( rcc, sim_dens_i, sim_temp_i, sim_ye_i, velr )
+                 elseif( sim_rad_option == 4 ) then ! uniform field
+                    sim_dens_i = dens_i
+                    sim_temp_i = temp_i
+                    sim_ye_i   = ye_i
                  end if
+
                  velt = 0.0
                  velp = 0.0
                  call sim_velFromSph &
@@ -277,6 +288,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                    case ( 3 ) ! BoltzTran Profile radiation
 
                      call sim_interpProfile_rad( enode/MeV, rcc, iS, Psi0, Psi1 )
+
+                   case ( 4 ) ! Thornado Spectrum radiation
+
+                     Psi0 = MAX( 0.99_DP * EXP( - ( enode - 2.0e0 * ( sim_temp_i / MeV ) )**2 &
+                                 / ( 2.0e0 * (1.0e1*MeV)**2 ) ), 1.0e-99 )
+                     Psi1 = 0.0e0
 
                  end select
 

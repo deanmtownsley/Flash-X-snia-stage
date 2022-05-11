@@ -62,11 +62,16 @@ module Simulation_data
   real, parameter :: R_Y  = 4.5d06 !* centimeter
   real, parameter :: H_Y  = 1.0d06 !* centimeter  
 
+  ! --- Uniform Fluid Field ---
+  real, save      :: dens_i
+  real, save      :: temp_i
+  real, save      :: ye_i
+
   ! profile use
   logical, save :: sim_use_model
   character(len=MAX_STRING_LENGTH), save :: sim_model_file
   integer, save :: sim_rad_option ! 0:FD, 1:Analytic, 2:chimera profile
-                                  ! 3:boltztran profile
+                                  ! 3:boltztran profile, 4:Spectrum
   real, save :: sim_rintSwitch
 
   integer, save :: nvar_stored

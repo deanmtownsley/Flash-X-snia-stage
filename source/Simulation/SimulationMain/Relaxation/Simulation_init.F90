@@ -52,6 +52,10 @@ subroutine Simulation_init()
   call RuntimeParameters_get("sim_model_file", sim_model_file)
   call RuntimeParameters_get("sim_rintSwitch", sim_rintSwitch)
 
+  call RuntimeParameters_get('dens_i', dens_i)
+  call RuntimeParameters_get('temp_i', temp_i)
+  call RuntimeParameters_get('ye_i',   ye_i)
+
   sim_xn_i = 0.0e0
   if( NSPECIES > 0 ) sim_xn_i(SPECIES_BEGIN) = 1.0e0
 
@@ -66,6 +70,7 @@ subroutine Simulation_init()
 
     ! fluid field
     if ( sim_use_model ) call sim_readProfile
+
     ! radiation field
     select case ( sim_rad_option )
       case ( -1 )
@@ -86,6 +91,10 @@ subroutine Simulation_init()
         if (sim_meshMe == MASTER_PE) &
         print*, 'Looking into profile for initializing radiation field ...'
         call sim_readBoltzTranProfile_rad
+      case ( 4 )
+        if (sim_meshMe == MASTER_PE) &
+        print*, 'Using Thornado Relaxation setting to initial radiation field ...'
+        write(*,'(A14,3ES12.3)') '[rho, T, Ye]:', sim_dens_i, sim_temp_i, sim_ye_i
       case default
         if (sim_meshMe == MASTER_PE) &
         print*, 'Using default radtion field initialization: no neutrino ...'
@@ -357,9 +366,9 @@ contains
     use MeshModule, ONLY : NodeCoordinate, MeshE
     use UnitsModule, ONLY : MeV, Gram, Centimeter, Kelvin, Kilometer
     use Simulation_data, ONLY : n1d_max, xzn, D_Nu_P, I1_Nu_P
-    use NeutrinoOpacitiesComputationModule, ONLY: &
-        ComputeEquilibriumDistributions_Points, &
-        ComputeNeutrinoOpacities_EC_Points
+    !use NeutrinoOpacitiesComputationModule, ONLY: &
+    !    ComputeEquilibriumDistributions_Points, &
+    !    ComputeNeutrinoOpacities_EC_Points
     use ut_interpolationInterface, ONLY : ut_hunt
 
 #include "Simulation.h"
@@ -406,12 +415,12 @@ contains
       end do
     end do
     ! compute neutrino absorption opacities
-    do iS = 1, THORNADO_NSPECIES
-      call ComputeNeutrinoOpacities_EC_Points &
-             ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, iS, Chi(:,:,iS) )
-      call ComputeEquilibriumDistributions_Points &
-             ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ(:,:,iS), iS )
-    end do
+    !do iS = 1, THORNADO_NSPECIES
+    !  call ComputeNeutrinoOpacities_EC_Points &
+    !         ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, iS, Chi(:,:,iS) )
+    !  call ComputeEquilibriumDistributions_Points &
+    !         ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ(:,:,iS), iS )
+    !end do
     ! compute approximate neutrino sphere radii
     do iS = 1, THORNADO_NSPECIES; do iE = 1, nE
       Tau = 0.0e0
