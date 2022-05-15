@@ -16,11 +16,9 @@ module hy_rk_interface
 #include "constants.h"
 
   interface
-     subroutine hy_rk_getFaceFlux (blockDesc,limits)
-       use Grid_tile, ONLY : Grid_tile_t
+     subroutine hy_rk_getFaceFlux (limits,blkLimits,blkLimitsGC)
        implicit none
-       type(Grid_tile_t) :: blockDesc
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
      end subroutine hy_rk_getFaceFlux
   end interface
 
@@ -43,11 +41,10 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getGravAccel(blockDesc,limits)
-       use Grid_tile, ONLY : Grid_tile_t
+     subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
        implicit none
-       type(Grid_tile_t)   :: blockDesc
-       integer, intent(IN) :: limits(LOW:HIGH,MDIM)
+       integer, dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+       real,dimension(MDIM), intent(in):: deltas
      end subroutine hy_rk_getGravAccel
   end interface
 

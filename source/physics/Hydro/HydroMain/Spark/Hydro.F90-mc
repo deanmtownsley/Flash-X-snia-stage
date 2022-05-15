@@ -114,7 +114,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         ! compute the gradients. I ain't doing more communication for a diagnostic...
         mapLims=blkLimits
         mapLimsGC=blkLimitsGC
-        call setLims(limits, NGUARD-1,tileDesc)
+        call setLims(limits, NGUARD-1,mapLims)
 
        !---JaredC--- Action 2 (no dependence within interation) 
        call calcDivB(tileDesc) !---JaredC--- This could be done on GPU or CPU and asynchronous to the rest of the sections
@@ -136,17 +136,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        do stage=1,last_stage
          ! calculate gravitational acceleration based on current value of GPOT_VAR
          ! This is stored in module-scope variable hy_grav
-
-         call hy_rk_getGravAccel(tileDesc,limits)
+         hy_del=deltas
+         
+         call hy_rk_getGravAccel(limits,mapLimsGC,hy_del)
 
          !Set needed number of guard cells to update based on
          !current stage for telescoping update
-         hy_del=deltas
-         call setLims(limits,limits_array(stage), tileDesc)
+         call setLims(limits,limits_array(stage), mapLims)
        
          call Timers_start("getFaceFlux")
 
-          call hy_rk_getFaceFlux(tileDesc, limits)
+          call hy_rk_getFaceFlux(limits, mapLims, mapLimsGC)
 
          call Timers_stop("getFaceFlux")
 !------- Add this in -----
@@ -226,7 +226,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
           yLo = mapLims(LOW,JAXIS); yHi = mapLims(HIGH,JAXIS)
           zLo = mapLims(LOW,KAXIS); zHi = mapLims(HIGH,KAXIS)
           
-          call setLims(limits, NGUARD-1, tileDesc)
+          call setLims(limits, NGUARD-1, mapLims)
           
           ! DivB will technically be lagged by 1 step, but we need ghost zones to
           ! compute the gradients. I ain't doing more communication for a diagnostic...         
@@ -244,18 +244,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
           do stage=1,last_stage
              ! calculate gravitational acceleration based on current value of GPOT_VAR
              ! This is stored in module-scope variable hy_grav
-             
-             call hy_rk_getGravAccel(tileDesc,limits)
+             hy_del=deltas
+             call hy_rk_getGravAccel(limits,mapLimsGC,hy_del)
              
              !Set needed number of guard cells to update based on
              !current stage for telescoping update
-             call setLims(limits,limits_array(stage),tileDesc)
+             call setLims(limits,limits_array(stage),mapLims)
              
              ! Perform reconstruction and flux calculation
              ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
              call Timers_start("getFaceFlux")
              
-             call hy_rk_getFaceFlux(tileDesc, limits)
+             call hy_rk_getFaceFlux(limits,mapLims,mapLimsGC)
              call Timers_stop("getFaceFlux")
              
              !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.

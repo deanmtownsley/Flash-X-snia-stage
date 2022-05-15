@@ -372,24 +372,19 @@ subroutine updateState(tileDesc)
 end subroutine updateState
 
 !! Set loop limits.  We include ngcell layers of guard zones
-subroutine setLims(limits,ngcell,tileDesc)
+subroutine setLims(limits,ngcell,blkLimits)
   implicit none
 #include "constants.h"
   integer, intent(IN):: ngcell
+  integer, intent(IN),dimension(LOW:HIGH,MDIM) :: blkLimits
   integer, intent(OUT), dimension(LOW:HIGH,MDIM) :: limits
-  type(Grid_tile_t), intent(IN) :: tileDesc
+  integer :: ilim
 
-  limits = tileDesc%limits
-  limits(LOW ,IAXIS) = tileDesc%limits(LOW ,IAXIS) - ngcell
-  limits(HIGH,IAXIS) = tileDesc%limits(HIGH,IAXIS) + ngcell
-#if NDIM > 1
-  limits(LOW ,JAXIS) = tileDesc%limits(LOW ,JAXIS) - ngcell
-  limits(HIGH,JAXIS) = tileDesc%limits(HIGH,JAXIS) + ngcell
-#if NDIM == 3
-  limits(LOW ,KAXIS) = tileDesc%limits(LOW ,KAXIS) - ngcell
-  limits(HIGH,KAXIS) = tileDesc%limits(HIGH,KAXIS) + ngcell
-#endif /* NDIM == 3 */
-#endif /* NDIM > 1 */
+  limits=blkLimits
+  do ilim=1,NDIM
+     limits(LOW ,ilim) = blkLimits(LOW ,ilim) - ngcell
+     limits(HIGH,ilim) = blkLimits(HIGH,ilim) + ngcell
+  end do
 end subroutine setLims
 
 !!****if* source/physics/Hydro/HydroMain/Spark/Hydro_funcs

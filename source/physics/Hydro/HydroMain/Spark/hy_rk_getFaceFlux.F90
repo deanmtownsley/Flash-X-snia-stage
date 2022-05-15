@@ -591,9 +591,8 @@
 !!***
 !!!*** Already written in form of small function calls, so no need to insert kernel delimiters
 !!Reorder(4):hy_starState,hy_fl[xyz]
-subroutine hy_rk_getFaceFlux(blockDesc, limits)
+subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
 
-   use Grid_tile, ONLY : Grid_tile_t
    use Hydro_data, ONLY : hy_threadWithinBlock, &
                           hy_starState, hy_grav, hy_flattening, hy_flx, hy_fly, hy_flz, &
                           snake, uPlusArray, uMinusArray, flat, grv, shck, flux, &
@@ -608,9 +607,7 @@ subroutine hy_rk_getFaceFlux(blockDesc, limits)
 #include "Spark.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
  
-   type(Grid_tile_t)   :: blockDesc
-   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits, blkLimitsGC
  
    integer :: i1,i2,i3, n, g, dir, ierr
    integer, dimension(3) :: guardCells
@@ -619,9 +616,6 @@ subroutine hy_rk_getFaceFlux(blockDesc, limits)
    character(len = 2) :: dir_str
 
     
-   blkLimits(:,:)   = blockDesc%limits
-   blkLimitsGC(:,:) = blockDesc%blkLimitsGC
-   
    !$omp target data map(to: dir, dirLims, guardCells)
 
    if (hy_flattening) then

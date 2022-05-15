@@ -1,24 +1,19 @@
 !!Reorder(4):hy_starState
-subroutine hy_rk_getGravAccel(blockDesc,limits)
+subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
   ! *** This has not been tested with OMP offloading *** !
   use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
-  use Grid_tile, ONLY : Grid_tile_t
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "Simulation.h"
 #include "constants.h"
 
-  type(Grid_tile_t)   :: blockDesc
-  integer, intent(IN) :: limits(LOW:HIGH,MDIM)
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimitsGC
+  integer, dimension(LOW:HIGH,MDIM), intent(in) :: limits,blkLimitsGC
+  real,dimension(MDIM), intent(in) :: deltas
   integer, dimension(MDIM) :: loGC, hiGC
   integer :: dir, i,j,k,d
-  real :: deltas(MDIM)
 
-  call blockDesc%deltas(deltas)
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)
 #ifdef OMP_OL
@@ -54,8 +49,8 @@ subroutine hy_rk_getGravAccel(blockDesc,limits)
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
 #endif /* OMP_OL */
         ! For time-independent gravity, just call the regular Gravity routine.
-        call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&
-             loGC(IAXIS),hiGC(IAXIS),hy_grav(IAXIS,:,j,k))
+!!$        call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&
+!!$             loGC(IAXIS),hiGC(IAXIS),hy_grav(IAXIS,:,j,k))
 #endif
      enddo
   enddo
@@ -70,8 +65,8 @@ subroutine hy_rk_getGravAccel(blockDesc,limits)
         call accelOneRow((/i,k/),JAXIS,&
              hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),deltas)
 #else
-        call Gravity_accelOneRow((/i,k/),JAXIS,blockDesc,&
-             loGC(JAXIS),hiGC(JAXIS),hy_grav(JAXIS,i,:,k))
+!!$        call Gravity_accelOneRow((/i,k/),JAXIS,blockDesc,&
+!!$             loGC(JAXIS),hiGC(JAXIS),hy_grav(JAXIS,i,:,k))
 #endif
      enddo
   enddo
@@ -89,8 +84,8 @@ subroutine hy_rk_getGravAccel(blockDesc,limits)
         !Used to be the commented part.  I'm not sure why...
         !call accelOneRow((/i,j/),KAXIS,blockDesc,&
         !     GRID_KHI_GC,hy_grav(KAXIS,i,j,:))
-        call Gravity_accelOneRow((/i,j/),KAXIS,blockDesc,&
-             loGC(KAXIS),hiGC(KAXIS),hy_grav(KAXIS,i,j,:))
+!!$        call Gravity_accelOneRow((/i,j/),KAXIS,blockDesc,&
+!!$             loGC(KAXIS),hiGC(KAXIS),hy_grav(KAXIS,i,j,:))
 #endif
      enddo
   enddo
