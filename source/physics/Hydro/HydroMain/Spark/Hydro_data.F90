@@ -1,15 +1,4 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/Hydro_data
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
 !!
 !!  NAME
 !!    Hydro_data
@@ -25,25 +14,35 @@
 !!***
 !!REORDER(4): hy_fluxBuf[XYZ]
 
+module Hydro_data
 #include "constants.h"
 #include "Simulation.h"
 #include "Spark.h"
 
-module Hydro_data
-
   implicit none
   save
-  !$omp declare target (hy_dlim,hy_starState)
-  !$omp declare target (hy_tiny,hy_hybridRiemann,hy_geometry)
-  !$omp declare target (hy_C_hyp,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_cvisc,hy_del)
+  !$omp declare target (dirLims,flat3d,hy_starState,uPlusArray,uMinusArray,snake,solState_tmp)
+  !$omp declare target (flat,grv,shck,xsize,ysize,zsize,hy_tiny,hy_hybridRiemann,hy_geometry)
+  !$omp declare target (hy_C_hyp,flux,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_cvisc,del)
   !$omp declare target (hy_flx,hy_fly,hy_flz,hy_alphaGLM,hy_grav)
 
   ! Added for GPU
-  real, dimension(MDIM) :: hy_del
+  real, allocatable, target :: flux(:,:,:,:)
+  real, save, allocatable, target :: snake(:,:,:,:)
+  real, save, target, allocatable :: uPlusArray(:,:,:,:)
+  real, save, target, allocatable :: uMinusArray(:,:,:,:)
+  real, save, allocatable :: flat(:,:,:)
+  real, save, allocatable :: flat3d(:,:,:)
+  integer :: xsize,ysize,zsize
+  real, save, allocatable :: grv(:,:,:)
+  real, save, allocatable :: shck(:,:,:)
+  integer, save, dimension(LOW:HIGH,MDIM) :: dirLims
+  logical :: hydro_GPU_scratch = .False.
+  real, dimension(MDIM) :: del
+  real, allocatable, target :: solState_tmp(:,:,:,:)
   logical :: scratch_allocated
-  real,allocatable :: hy_Vc(:,:,:)
 
-  integer,  dimension(LOW:HIGH,MDIM) :: hy_dlim, hy_dlimGC
+
   integer :: hy_meshMe
   real :: hy_cfl
   logical :: hy_hydroComputeDtFirstCall
@@ -54,18 +53,33 @@ module Hydro_data
   integer :: hy_meshNumProcs
   logical :: hy_restart
   logical :: hy_shockDetectOn
-  logical :: hy_useTiling 
+  logical :: hy_useTiling
   real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
-  real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
-  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
-  real, allocatable :: hy_mfrac(:), hy_eosData(:)
- 
+
   !One block's worth of fluxes defined generally (not assuming fixed block size mode)
   real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
   
   !Flux buffers
-  real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
-
+#ifdef FIXEDBLOCKSIZE
+  real, dimension(NFLUXES, GRID_ILO:GRID_IHI+1  , &
+    & GRID_JLO:GRID_JHI    ,GRID_KLO:GRID_KHI  ),target :: hy_fluxBufX
+# if NDIM > 1
+  real, dimension(NFLUXES, GRID_ILO:GRID_IHI    , &
+    & GRID_JLO:GRID_JHI+1  ,GRID_KLO:GRID_KHI  ),target :: hy_fluxBufY
+# else
+  real, dimension(NFLUXES, 0    ,0  ,0  ) :: hy_fluxBufY
+# endif
+# if NDIM > 2
+  real, dimension(NFLUXES, GRID_ILO:GRID_IHI    , &
+    & GRID_JLO:GRID_JHI    ,GRID_KLO:GRID_KHI+1),target :: hy_fluxBufZ
+# else
+  real, dimension(NFLUXES, 0    ,0  ,0  ) :: hy_fluxBufZ
+# endif
+# else  
+  !Not fixed block size
+  real, allocatable, target :: hy_fluxBufX(:,:,:,:),hy_fluxBufY(:,:,:,:),hy_fluxBufZ(:,:,:,:)
+# endif
+ 
   real, allocatable :: hy_grav(:,:,:,:)  
 
   logical :: hy_useHydro
@@ -93,4 +107,3 @@ module Hydro_data
   character(4) :: hy_units
 
 end module Hydro_data
-

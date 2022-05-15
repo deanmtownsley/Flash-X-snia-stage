@@ -1,24 +1,60 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/Hydro_computeDt
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
 !!
 !! NAME
 !!
 !!  Hydro_computeDt
 !!
+!!
+!! SYNOPSIS
+!!
+!!  Hydro_computeDt(type(Grid_tile_t)(IN) :: tileDesc,
+!!                  real(IN)       :: x(GRID_ILO_GC:GRID_IHI_GC),
+!!                  real(IN)       :: dx(GRID_ILO_GC:GRID_IHI_GC),
+!!                  real(IN)       :: uxgrid(GRID_ILO_GC:GRID_IHI_GC),
+!!                  real(IN)       :: y(GRID_JLO_GC:GRID_JHI_GC),
+!!                  real(IN)       :: dy(GRID_JLO_GC:GRID_JHI_GC),
+!!                  real(IN)       :: uygrid(GRID_JLO_GC:GRID_JHI_GC),
+!!                  real(IN)       :: z(GRID_KLO_GC:GRID_KHI_GC),
+!!                  real(IN)       :: dz(GRID_KLO_GC:GRID_KHI_GC),
+!!                  real(IN)       :: uzgrid(GRID_KLO_GC:GRID_KHI_GC),
+!!                  integer(IN)    :: blkLimits(2,MDIM)
+!!                  integer(IN)    :: blkLimitsGC(2,MDIM)
+!!                  real,pointer   :: U(:,:,:,:),
+!!                  real(INOUT)    :: dtCheck,
+!!                  integer(INOUT) :: dtMinLoc(5),
+!!                  real(INOUT), optional :: extraInfo)
+!!
+!!
 !! DESCRIPTION
 !!
 !!  This routine computes the timestep limiter for the Spark Hydro solver.
-!!   For more details see the documentation of the NULL implementation
+!!  The Courant-Fredrichs-Lewy criterion is used.  The sound
+!!  speed is computed and together with the velocities, is used to constrain
+!!  the timestep such that no information can propagate more than one zone
+!!  per timestep.
+!!  Note that this routine only accounts for computing advection time step in hyperbolic
+!!  system of equations.
+!!
+!! ARGUMENTS
+!!
+!!  blockDesc     -  block descriptor
+!!  x, y, z       -  three, directional coordinates
+!!  dx,dy,dz      -  distances in each {*=x, y z} directions
+!!  uxgrid        -  velocity of grid expansion in x directions
+!!  uygrid        -  velocity of grid expansion in y directions
+!!  uzgrid        -  velocity of grid expansion in z directions
+!!  blkLimits     -  the indices for the interior endpoints of the block
+!!  blkLimitsGC   -  the indices for endpoints including the guardcells
+!!  U             -  the physical, solution data from grid
+!!  dtCheck       -  variable to hold timestep constraint
+!!  dtMinLoc(5)   -  array to hold location of cell responsible for minimum dt:
+!!                   dtMinLoc(1) = i index
+!!                   dtMinLoc(2) = j index
+!!                   dtMinLoc(3) = k index
+!!                   dtMinLoc(4) = blockDesc%level "refinement level"
+!!                   dtMinLoc(5) = hy_meshMe
+!!  extraInfo     -  Driver_computeDt can provide extra info to the caller
+!!                   using this argument.
 !!
 !!***
 

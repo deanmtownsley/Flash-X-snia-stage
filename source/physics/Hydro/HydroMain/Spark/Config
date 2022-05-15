@@ -111,5 +111,3 @@ ENDIF
 IF useFog
 	REQUIRES physics/Hydro/HydroMain/Spark/fog
 ENDIF
-
-VARIANTS Inhost Offload Null
