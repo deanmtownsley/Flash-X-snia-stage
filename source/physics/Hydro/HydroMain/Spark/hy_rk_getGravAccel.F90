@@ -1,0 +1,155 @@
+!!Reorder(4):hy_starState
+subroutine hy_rk_getGravAccel(blockDesc,limits)
+  ! *** This has not been tested with OMP offloading *** !
+  use Gravity_interface, ONLY : Gravity_accelOneRow
+  use Hydro_data, ONLY : hy_grav
+  use Grid_tile, ONLY : Grid_tile_t
+  use Driver_interface, ONLY : Driver_abort
+  implicit none
+
+#include "Simulation.h"
+#include "constants.h"
+
+  type(Grid_tile_t)   :: blockDesc
+  integer, intent(IN) :: limits(LOW:HIGH,MDIM)
+  integer, dimension(LOW:HIGH,MDIM) :: blkLimitsGC
+  integer, dimension(MDIM) :: loGC, hiGC
+  integer :: dir, i,j,k,d
+  real :: deltas(MDIM)
+
+  call blockDesc%deltas(deltas)
+  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
+  loGC(:) = blkLimitsGC(LOW,:)
+  hiGC(:) = blkLimitsGC(HIGH,:)
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do collapse(4) shared(blkLimitsGC,hy_grav) private(d,i,j,k) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
+#endif
+  do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
+    do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+      do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+        do d = 1,MDIM
+          hy_grav(d,i,j,k) = 0.0
+        enddo
+      enddo
+    enddo
+  enddo
+
+#ifdef GRAVITY
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do collapse(2) & 
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
+#endif /* OMP_OL */
+  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
+     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+#ifdef FLASH_GRAVITY_TIMEDEP
+        ! For time-dependent gravity, we call the local acceleration routine
+        ! since the GPOT will be extrapolated forward in time for the RK
+        ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
+        ! telling it what data structure to use for computing the acceleration.
+        call accelOneRow((/j,k/),IAXIS,&
+             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),deltas)
+#else
+#ifdef OMP_OL
+        ! We have not implemented the gravity function on the GPU so for now this option is not allowed
+        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
+#endif /* OMP_OL */
+        ! For time-independent gravity, just call the regular Gravity routine.
+        call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&
+             loGC(IAXIS),hiGC(IAXIS),hy_grav(IAXIS,:,j,k))
+#endif
+     enddo
+  enddo
+#if NDIM>1
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do collapse(2) & 
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
+#endif /* OMP_OL */
+  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
+     do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+#ifdef FLASH_GRAVITY_TIMEDEP
+        call accelOneRow((/i,k/),JAXIS,&
+             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),deltas)
+#else
+        call Gravity_accelOneRow((/i,k/),JAXIS,blockDesc,&
+             loGC(JAXIS),hiGC(JAXIS),hy_grav(JAXIS,i,:,k))
+#endif
+     enddo
+  enddo
+#if NDIM==3
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do collapse(2) & 
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
+#endif /* OMP_OL */
+  do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+     do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+#ifdef FLASH_GRAVITY_TIMEDEP
+        call accelOneRow((/i,j/),KAXIS,&
+             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),deltas)
+#else
+        !Used to be the commented part.  I'm not sure why...
+        !call accelOneRow((/i,j/),KAXIS,blockDesc,&
+        !     GRID_KHI_GC,hy_grav(KAXIS,i,j,:))
+        call Gravity_accelOneRow((/i,j/),KAXIS,blockDesc,&
+             loGC(KAXIS),hiGC(KAXIS),hy_grav(KAXIS,i,j,:))
+#endif
+     enddo
+  enddo
+#endif
+#endif
+#endif /* GRAVITY */
+
+contains
+
+  !!!*** This should be simply inlined by the transpiler
+  subroutine accelOneRow(pos, sweepDir, numCells, grav, deltas)
+    use Hydro_data, ONLY : hy_starState
+
+    implicit none
+
+    integer, dimension(2), intent(in) :: pos
+    integer, intent(in)               :: sweepDir, numCells
+    real, intent(inout)               :: grav(numCells)
+
+    real, intent(in):: deltas(MDIM)
+    integer         :: ii, iimin, iimax
+    real            :: gpot(numCells), delxinv
+    !$omp declare target
+    !==================================================
+
+#ifdef GPOT_VAR
+    
+
+    iimin   = 1
+    iimax   = numCells
+    grav(iimin:iimax) = 0.0
+
+    !Get row of potential values and compute inverse of zone spacing
+    if (sweepDir == SWEEP_X) then                     ! x-direction
+       delxinv = 1./deltas(IAXIS)
+       gpot(:) = hy_starState(GPOT_VAR,:,pos(1),pos(2))
+    elseif (sweepDir == SWEEP_Y) then                 ! y-direction
+       delxinv = 1./deltas(JAXIS)
+       gpot(:) = hy_starState(GPOT_VAR,pos(1),:,pos(2))
+    else                                          ! z-direction
+       delxinv = 1./deltas(KAXIS)
+       gpot(:) = hy_starState(GPOT_VAR,pos(1),pos(2),:)
+    endif
+
+    !----------------------------------------------------------------------
+    !               Compute gravitational acceleration
+    !**************** first-order differences
+    !                 preserves conservation
+    delxinv = 0.5e0 * delxinv
+    do ii = iimin+1, iimax-1
+       grav(ii) = grav(ii) + delxinv * (gpot(ii-1) - gpot(ii+1))
+    enddo
+
+    grav(iimin) = grav(iimin+1)     ! this is invalid data - must not be used
+    grav(iimax) = grav(iimax-1)
+#else
+    ! Assume constant gravitational acceleration
+
+#endif /* GPOT_VAR */
+  end subroutine accelOneRow
+
+end subroutine hy_rk_getGravAccel
