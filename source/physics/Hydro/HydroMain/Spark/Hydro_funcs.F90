@@ -95,8 +95,8 @@ subroutine addFluxes(weight,addFlux)
   integer :: axis, geometry
   logical :: zeroFullRegister 
    
-  lev = blockDesc%level
-  blkLimits(:,:)   = blockDesc%limits
+  lev = tileDesc%level
+  blkLimits(:,:)   = tileDesc%limits
 
   if (addFlux) then
     hy_fluxBufX = hy_fluxBufX+weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
@@ -128,7 +128,7 @@ end subroutine addFluxes
 !! Allocate variable size array holding local gravitational accelerations (depending on 
 !! block size), fluxes, flux buffers, and save. 
 !! If offloading to a device, send data and allocate on device only.
-subroutine saveState(blockDesc)
+subroutine saveState(Uin,blkLimits,blkLimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hydro_GPU_scratch, uPlusArray, uMinusArray,&
@@ -141,15 +141,10 @@ subroutine saveState(blockDesc)
 #include "Spark.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
-  type(Grid_tile_t),intent(IN)      :: blockDesc
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer :: solnData(:,:,:,:)
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+  real, pointer :: Uin(:,:,:,:)
   integer :: max_edge, max_edge_y, max_edge_z, v,i1,i2,i3
   ! call Timers_start("Allocations")
-  nullify(solnData)
-
-  blkLimits(:,:)   = blockDesc%limits
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
 
   ! Allocate needed space on GPU if it is not already there
 !  !$omp target enter data map(alloc:flat,shck,snake,uMinusArray,uPlusArray) 
@@ -261,10 +256,6 @@ subroutine saveState(blockDesc)
       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
 
-  ! Get delta to send to device
-  call blockDesc%deltas(del)
-
-  call blockDesc%getDataPtr(solnData,CENTER) 
 
   if (.NOT. allocated(hy_starState)) then
     allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
@@ -283,41 +274,41 @@ subroutine saveState(blockDesc)
 #ifdef OMP_OL
  ! move data to GPU
  !$omp target enter data map(alloc:hy_starState,flat3d,solState_tmp,hy_flx,hy_fly,hy_flz,hy_grav)
- !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
+ !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
  ! distribute work throughout GPU
- !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,solnData) &
- !$omp shared(solnData,hy_starState,blkLimitsGC,solState_tmp) private(v,i1,i2,i3) default(none)
+ !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
+ !$omp shared(Uin,hy_starState,blkLimitsGC,solState_tmp) private(v,i1,i2,i3) default(none)
 #else 
   !$omp parallel do collapse(4) if(hy_threadWithinBlock) &
   !$omp default(none) &
-  !$omp shared(solnData,hy_starState,blkLimits,blkLimitsGC,solState_tmp)
+  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC,solState_tmp)
 #endif
   do i3=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
         do v=1,NUNK_VARS
-          hy_starState(v,i1,i2,i3) = solnData(v,i1,i2,i3)
-          solState_tmp(v,i1,i2,i3) = solnData(v,i1,i2,i3)
+          hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+          solState_tmp(v,i1,i2,i3) = Uin(v,i1,i2,i3)
         enddo
       enddo
     enddo
   enddo
 
-  call blockDesc%releaseDataPtr(solnData,CENTER)
+  call tileDesc%releaseDataPtr(Uin,CENTER)
 
 end subroutine saveState
 
 
-subroutine updateState(blockDesc)
+subroutine updateState(tileDesc)
   use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, uPlusArray, uMinusArray,&
                          shck, snake, flux, flat, grv, flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
                          hy_smallX, hy_cvisc, del, solState_tmp
   implicit none
 #include "Simulation.h"
-  type(Grid_tile_t),intent(IN) :: blockDesc
+  type(Grid_tile_t),intent(IN) :: tileDesc
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-  real, pointer :: solnData(:,:,:,:)
+  real, pointer :: Uin(:,:,:,:)
 #ifdef OMP_OL
 !uPlusArray,uMinusArray,shck,snake,flat,grv,flux
   !$omp target exit data map(DELETE:flat3d,solState_tmp,hy_flx,hy_fly,hy_flz)
@@ -345,26 +336,26 @@ subroutine updateState(blockDesc)
     deallocate(hy_fluxBufX);deallocate(hy_fluxBufY);deallocate(hy_fluxBufZ)
   endif
 #endif
-  nullify(solnData)
-  call blockDesc%getDataPtr(solnData,CENTER)
+  nullify(Uin)
+  call tileDesc%getDataPtr(Uin,CENTER)
  
-  blkLimits(:,:)   = blockDesc%limits
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
+  blkLimits(:,:)   = tileDesc%limits
+  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
 
   !$omp parallel if(hy_threadWithinBlock) &
   !$omp default(none) &
-  !$omp shared(solnData,hy_starState,blkLimits,blkLimitsGC)
+  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC)
   !$omp workshare
 #ifdef GPOT_VAR
   ! First reset GPOT_VAR.
   hy_starState(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
        blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
        blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-       solnData(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+       Uin(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
        blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
        blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
 #endif
-  solnData(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+  Uin(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
        blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
        blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
        hy_starState(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
@@ -373,7 +364,7 @@ subroutine updateState(blockDesc)
 
   !$omp end workshare
   !$omp end parallel
-  call blockDesc%releaseDataPtr(solnData,CENTER)
+  call tileDesc%releaseDataPtr(Uin,CENTER)
 #ifdef OMP_OL
   !$omp target exit data map(DELETE:hy_starState)
 #endif
@@ -381,22 +372,22 @@ subroutine updateState(blockDesc)
 end subroutine updateState
 
 !! Set loop limits.  We include ngcell layers of guard zones
-subroutine setLims(limits,ngcell,blockDesc)
+subroutine setLims(limits,ngcell,tileDesc)
   implicit none
 #include "constants.h"
   integer, intent(IN):: ngcell
   integer, intent(OUT), dimension(LOW:HIGH,MDIM) :: limits
-  type(Grid_tile_t), intent(IN) :: blockDesc
+  type(Grid_tile_t), intent(IN) :: tileDesc
 
-  limits = blockDesc%limits
-  limits(LOW ,IAXIS) = blockDesc%limits(LOW ,IAXIS) - ngcell
-  limits(HIGH,IAXIS) = blockDesc%limits(HIGH,IAXIS) + ngcell
+  limits = tileDesc%limits
+  limits(LOW ,IAXIS) = tileDesc%limits(LOW ,IAXIS) - ngcell
+  limits(HIGH,IAXIS) = tileDesc%limits(HIGH,IAXIS) + ngcell
 #if NDIM > 1
-  limits(LOW ,JAXIS) = blockDesc%limits(LOW ,JAXIS) - ngcell
-  limits(HIGH,JAXIS) = blockDesc%limits(HIGH,JAXIS) + ngcell
+  limits(LOW ,JAXIS) = tileDesc%limits(LOW ,JAXIS) - ngcell
+  limits(HIGH,JAXIS) = tileDesc%limits(HIGH,JAXIS) + ngcell
 #if NDIM == 3
-  limits(LOW ,KAXIS) = blockDesc%limits(LOW ,KAXIS) - ngcell
-  limits(HIGH,KAXIS) = blockDesc%limits(HIGH,KAXIS) + ngcell
+  limits(LOW ,KAXIS) = tileDesc%limits(LOW ,KAXIS) - ngcell
+  limits(HIGH,KAXIS) = tileDesc%limits(HIGH,KAXIS) + ngcell
 #endif /* NDIM == 3 */
 #endif /* NDIM > 1 */
 end subroutine setLims
@@ -409,7 +400,7 @@ end subroutine setLims
 !!
 !! SYNOPSIS
 !!
-!!  shockDetect( type(Grid_tile_t) :: blockDesc
+!!  shockDetect( type(Grid_tile_t) :: tileDesc
 !!               integer (IN)      :: limits )
 !!
 !! DESCRIPTION
@@ -425,7 +416,7 @@ end subroutine setLims
 !!
 !! ARGUMENTS
 !!
-!!  blockDesc  - local block descriptor (respecting tiling syntax)
+!!  tileDesc  - local block descriptor (respecting tiling syntax)
 !!  limits     - region of the block in which to detect shocks
 !!
 !! REFERENCE
@@ -433,7 +424,7 @@ end subroutine setLims
 !!  Balsara and Spicer, JCP, 149:270--292, 1999.
 !!
 !!***
-subroutine shockDetect(blockDesc,limits)
+subroutine shockDetect(tileDesc,limits)
 
   use Hydro_data,        only : hy_geometry, hy_tiny
 
@@ -444,7 +435,7 @@ subroutine shockDetect(blockDesc,limits)
 #include "Spark.h"
 
   !! ---- Argument List ----------------------------------
-  type(Grid_tile_t)   :: blockDesc
+  type(Grid_tile_t)   :: tileDesc
   integer, intent(IN) :: limits(LOW:HIGH,MDIM)
   !! -----------------------------------------------------
 
@@ -457,10 +448,10 @@ subroutine shockDetect(blockDesc,limits)
   real :: minP,minC,beta,delta
   real :: localCfl,cflMax
   real, dimension(:,:,:), allocatable :: Vc
-  real, dimension(:,:,:,:), pointer   :: solnData
+  real, dimension(:,:,:,:), pointer   :: Uin
   
   !necessary for argument for %getDataPtr()
-  nullify(solnData)
+  nullify(Uin)
 
 #ifndef SHOK_VAR
   return
@@ -478,12 +469,12 @@ subroutine shockDetect(blockDesc,limits)
 !!$  delta = 0.01
 
 
-  blkLimits(:,:)   = blockDesc%limits
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
+  blkLimits(:,:)   = tileDesc%limits
+  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
 
-  call blockDesc%getDataPtr(solnData,CENTER)
+  call tileDesc%getDataPtr(Uin,CENTER)
 
-  solnData(SHOK_VAR,:,:,:) = 0.
+  Uin(SHOK_VAR,:,:,:) = 0.
   
 !!!*** keyword to indicate local allocation
   !! Allocate a temporary cell-centered array for sound speed
@@ -496,8 +487,8 @@ subroutine shockDetect(blockDesc,limits)
   do k=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
      do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
         do i=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-           Vc(i,j,k) = sqrt(solnData(GAMC_VAR,i,j,k)*solnData(PRES_VAR,i,j,k)&
-                /max(solnData(DENS_VAR,i,j,k),hy_tiny))
+           Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
+                /max(Uin(DENS_VAR,i,j,k),hy_tiny))
         enddo
      enddo
   enddo
@@ -512,36 +503,36 @@ subroutine shockDetect(blockDesc,limits)
            SW2 = .false.
 
 #if NDIM==1
-           minP = minval(solnData(PRES_VAR,i-1:i+1,j,k))
+           minP = minval(Uin(PRES_VAR,i-1:i+1,j,k))
            minC = minval(Vc(i-1:i+1,j,k))
 #endif
 #if NDIM==2
-           minP = minval(solnData(PRES_VAR,i-1:i+1,j-1:j+1,k))
+           minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k))
            minC = minval(Vc(i-1:i+1,j-1:j+1,k))
 #endif
 #if NDIM==3
-           minP = minval(solnData(PRES_VAR,i-1:i+1,j-1:j+1,k-1:k+1))
+           minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k-1:k+1))
            minC = minval(Vc(i-1:i+1,j-1:j+1,k-1:k+1))
 #endif
            !! We do not need to include non-Cartesian geom factors here.
            !! Undivided divV
-           divv =        solnData(VELX_VAR,i+1,j,  k  ) - solnData(VELX_VAR,i-1,j,  k  )
+           divv =        Uin(VELX_VAR,i+1,j,  k  ) - Uin(VELX_VAR,i-1,j,  k  )
 #if NDIM > 1
-           divv = divv + solnData(VELY_VAR,i,  j+1,k  ) - solnData(VELY_VAR,i,  j-1,k  )
+           divv = divv + Uin(VELY_VAR,i,  j+1,k  ) - Uin(VELY_VAR,i,  j-1,k  )
 #if NDIM == 3
-           divv = divv + solnData(VELZ_VAR,i,  j,  k+1) - solnData(VELZ_VAR,i,  j,  k-1)
+           divv = divv + Uin(VELZ_VAR,i,  j,  k+1) - Uin(VELZ_VAR,i,  j,  k-1)
 #endif
 #endif
            divv = 0.5*divv
 
            !! Undivided grad pres
-           gradPx = 0.5*(solnData(PRES_VAR,i+1,j,  k  ) - solnData(PRES_VAR,i-1,j,  k  ))
+           gradPx = 0.5*(Uin(PRES_VAR,i+1,j,  k  ) - Uin(PRES_VAR,i-1,j,  k  ))
            gradPy = 0.
            gradPz = 0.
 #if NDIM > 1
-           gradPy = 0.5*(solnData(PRES_VAR,i,  j+1,k  ) - solnData(PRES_VAR,i,  j-1,k  ))
+           gradPy = 0.5*(Uin(PRES_VAR,i,  j+1,k  ) - Uin(PRES_VAR,i,  j-1,k  ))
 #if NDIM == 3
-           gradPz = 0.5*(solnData(PRES_VAR,i,  j,  k+1) - solnData(PRES_VAR,i,  j,  k-1))
+           gradPz = 0.5*(Uin(PRES_VAR,i,  j,  k+1) - Uin(PRES_VAR,i,  j,  k-1))
 #endif
 #endif
            if ( abs(gradPx)+abs(gradPy)+abs(gradPz) .ge. beta*minP ) then
@@ -554,7 +545,7 @@ subroutine shockDetect(blockDesc,limits)
               ! Set SHOCK_VAR to 1.0 if a shock is detected.
               ! One use is for a local hybrid method in the Hydro unit which
               ! applies (a diffusive) HLL solver when SHOK_VAR = 1.
-              solnData(SHOK_VAR,i,j,k) = 1.
+              Uin(SHOK_VAR,i,j,k) = 1.
            endif !endif (SW1 .and. SW2) then
 
         enddo !enddo i-loop
@@ -562,7 +553,7 @@ subroutine shockDetect(blockDesc,limits)
   enddo !enddo k-loop
 
   ! Release block pointer
-  call blockDesc%releaseDataPtr(solnData,CENTER)
+  call tileDesc%releaseDataPtr(Uin,CENTER)
 
   ! Deallocate sound speed array
   deallocate(Vc)
@@ -570,7 +561,7 @@ subroutine shockDetect(blockDesc,limits)
 end subroutine shockDetect
 
 !!Calculate divergence of the magnetic field.
-subroutine calcDivB(blockDesc)
+subroutine calcDivB(tileDesc)
   implicit none
 
 #include "constants.h"
@@ -578,22 +569,22 @@ subroutine calcDivB(blockDesc)
 #include "Spark.h"
 
   !! ---- Argument List ----------------------------------
-  type(Grid_tile_t)     :: blockDesc
+  type(Grid_tile_t)     :: tileDesc
   !! -----------------------------------------------------
 
   integer :: i,j,k
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
-  real, dimension(:,:,:,:), pointer   :: solnData
+  real, dimension(:,:,:,:), pointer   :: Uin
   real, dimension(MDIM) :: del
   real :: divB
 
-  nullify(solnData)
+  nullify(Uin)
 
 #ifdef SPARK_GLM
-  blkLimits(:,:)   = blockDesc%limits
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
-  call blockDesc%getDataPtr(solnData,CENTER)
-  call blockDesc%deltas(del)
+  blkLimits(:,:)   = tileDesc%limits
+  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
+  call tileDesc%getDataPtr(Uin,CENTER)
+  call tileDesc%deltas(del)
 
 !!!*** keyword for nonGC loop nest
   do k=blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
@@ -601,77 +592,21 @@ subroutine calcDivB(blockDesc)
         do i=blkLimits(LOW,IAXIS),blkLimits(HIGH,IAXIS)
            divB = 0.0
 #if NDIM>1
-           divB = (solnData(MAGX_VAR,i+1,j,k) - solnData(MAGX_VAR,i-1,j,k))&
+           divB = (Uin(MAGX_VAR,i+1,j,k) - Uin(MAGX_VAR,i-1,j,k))&
                 *0.5/del(IAXIS)
-           divB = divB + (solnData(MAGY_VAR,i,j+1,k) - solnData(MAGY_VAR,i,j-1,k))&
+           divB = divB + (Uin(MAGY_VAR,i,j+1,k) - Uin(MAGY_VAR,i,j-1,k))&
                 *0.5/del(JAXIS)
 #if NDIM==3
-           divB = divB + (solnData(MAGZ_VAR,i,j,k+1) - solnData(MAGZ_VAR,i,j,k-1))&
+           divB = divB + (Uin(MAGZ_VAR,i,j,k+1) - Uin(MAGZ_VAR,i,j,k-1))&
                 *0.5/del(KAXIS)
 #endif
 #endif
-           solnData(DIVB_VAR,i,j,k) = divB
+           Uin(DIVB_VAR,i,j,k) = divB
         end do
      end do
   end do
 
-  call blockDesc%releaseDataPtr(solnData,CENTER)
+  call tileDesc%releaseDataPtr(Uin,CENTER)
 #endif
 end subroutine calcDivB
 
-!!****if* source/physics/Hydro/HydroMain/unsplit/hy_uhd_unitConvert
-!!
-!! NAME
-!!
-!!  hy_uhd_unitConvert
-!!
-!! SYNOPSIS
-!!
-!!  hy_uhd_unitConvert( integer (IN) :: blockID,
-!!                      integer (IN) :: convertDir)
-!!
-!! DESCRIPTION
-!!
-!!  This routine converts physical unit of measure (CGS, SI, or NONE)
-!!  for the unsplit MHD/Hydro units.
-!!
-!! ARGUMENTS
-!!
-!!  blockID    - local block ID
-!!  convertDir - a direction of conversion (1 for forward, 0 for backward)
-!!
-!!***
-subroutine unitConvert(blockDesc,convertDir)
-  use Hydro_data,     ONLY : hy_bref
-
-  implicit none
-
-#include "constants.h"
-#include "Simulation.h"
-#include "Spark.h"
-
-  !! Argument list -------------------------
-  type(Grid_tile_t)   :: blockDesc
-  integer, intent(IN) :: convertDir
-  !! ---------------------------------------
-
-  real, pointer, dimension(:,:,:,:) :: U
-
-  nullify(U)
-
-  call blockDesc%getDataPtr(U,CENTER)
-
-  select case(convertDir)
-  case(1)
-#ifdef MAGX_VAR
-     U(MAGX_VAR:MAGZ_VAR,:,:,:) = U(MAGX_VAR:MAGZ_VAR,:,:,:)/hy_bref
-#endif
-
-  case(0)
-#ifdef MAGX_VAR
-     U(MAGX_VAR:MAGZ_VAR,:,:,:) = U(MAGX_VAR:MAGZ_VAR,:,:,:)*hy_bref
-#endif
-  end select
-
-  call blockDesc%releaseDataPtr(U,CENTER)
-end subroutine unitConvert

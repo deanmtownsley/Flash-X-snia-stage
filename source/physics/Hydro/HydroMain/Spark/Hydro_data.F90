@@ -55,6 +55,7 @@ module Hydro_data
   logical :: hy_shockDetectOn
   logical :: hy_useTiling
   real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
+  real :: hy_del(MDIM)
 
   !One block's worth of fluxes defined generally (not assuming fixed block size mode)
   real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
