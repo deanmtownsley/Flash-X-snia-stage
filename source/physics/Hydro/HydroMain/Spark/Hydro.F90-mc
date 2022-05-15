@@ -56,7 +56,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, intent(IN) :: sweepOrder
   integer :: n, error, lev, maxLev=-1
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
-  integer, dimension(LOW:HIGH,MDIM) :: limits
+  integer, dimension(LOW:HIGH,MDIM) :: limits,mapLims,mapLimsGC
   real :: hdt
   integer :: stage, last_stage
   real, dimension(3) :: coeffs, weights
@@ -108,14 +108,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
     ! Loop over blocks and compute Hydro update block-by-block
 
-!!$    call Grid_getTileIterator(itor,LEAF,tiling=.FALSE.) !FALSE? Try True?
-!!$    do while(itor%isValid())
-!!$       call itor%currentTile(tileDesc)
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC) 
        ! DivB will technically be lagged by 1 step, but we need ghost zones to
-       ! compute the gradients. I ain't doing more communication for a diagnostic...
-       call setLims(limits, NGUARD-1,tileDesc)
+        ! compute the gradients. I ain't doing more communication for a diagnostic...
+        mapLims=blkLimits
+        mapLimsGC=blkLimitsGC
+        call setLims(limits, NGUARD-1,tileDesc)
 
        !---JaredC--- Action 2 (no dependence within interation) 
        call calcDivB(tileDesc) !---JaredC--- This could be done on GPU or CPU and asynchronous to the rest of the sections
@@ -129,7 +128,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Timers_start("scratch")
        ! U* = U0
       !  The data is sent to the GPU at this point.
-       call saveState(Uin,blkLimits,blkLimitsGC)
+       call saveState(Uin,mapLims,mapLimsGC)
        call Timers_stop("scratch")
 
        !---JaredC--- Action 3 
@@ -221,9 +220,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Grid_getTileIterator(itor,LEAF,level=lev,tiling=.FALSE.)
        nullify(Uin)
        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC)
-          xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
-          yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
-          zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
+          mapLims=blkLimits
+          mapLimsGC=blkLimitsGC
+          xLo = mapLims(LOW,IAXIS); xHi = mapLims(HIGH,IAXIS)
+          yLo = mapLims(LOW,JAXIS); yHi = mapLims(HIGH,JAXIS)
+          zLo = mapLims(LOW,KAXIS); zHi = mapLims(HIGH,KAXIS)
           
           call setLims(limits, NGUARD-1, tileDesc)
           
@@ -236,7 +237,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
           ! Allocate storage of fluxes, flux buffers, & gravity info
           call Timers_start("scratch")
           ! U* = U0
-          call saveState(Uin,blkLimits,blkLimitsGC)
+          call saveState(Uin,mapLims,mapLimsGC)
           call Timers_stop("scratch")
           
           !Loop stages
