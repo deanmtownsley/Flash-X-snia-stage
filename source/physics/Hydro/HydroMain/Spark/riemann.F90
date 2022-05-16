@@ -51,7 +51,7 @@
 !!***
 !!! A note: the speed dummy var seems to be unused. Might be deleted?
 subroutine riemann(i1,i2,i3,dir)
-use Hydro_data, only: uPlusArray, uMinusArray, shck, hy_tiny, hy_hybridRiemann, hy_C_hyp, flux
+use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy_C_hyp, hy_flux
   implicit none
 
 #include "constants.h"
@@ -77,12 +77,12 @@ use Hydro_data, only: uPlusArray, uMinusArray, shck, hy_tiny, hy_hybridRiemann, 
   integer :: dir
 !$omp declare target
 
-  inShock = any(shck(i1-1:i1,i2,i3) /= 0.0)
+  inShock = any(hy_shk(i1-1:i1,i2,i3) /= 0.0)
   ! Alias things
 ! ----------------------------- Make this more effective than a copy! ----------------------------------------------!
-  VL = uPlusArray(1:HY_NUM_VARS,i1-1,i2,i3)
-  VR = uMinusArray(1:HY_NUM_VARS,i1,i2,i3)
-  Fstar => flux(1:HY_NUM_FLUX,i1,i2,i3)
+  VL = hy_uplus(1:HY_NUM_VARS,i1-1,i2,i3)
+  VR = hy_uminus(1:HY_NUM_VARS,i1,i2,i3)
+  Fstar => hy_flux(1:HY_NUM_FLUX,i1,i2,i3)
   ! Set no error to begin with
   ierr = 0
 

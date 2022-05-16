@@ -9,7 +9,7 @@
 !! 
 !! *** 
 !!Reorder directive used by FLASH with --index-reorder flag at setup
-!!Reorder(4): hy_starState,solnData, U, hy_fl[xyz], hy_fluxBuf[XYZ]
+!!Reorder(4): hy_starState,solnData, U, hy_fl[xyz], hy_flxb[xyz]
 
 subroutine select_RK_scheme(coeff_array,last_stage,limits_array,weights)
   !Select coefficients for update step, number of stages,
@@ -80,7 +80,7 @@ end subroutine select_RK_scheme
 
 subroutine addFluxes(weight,addFlux)
   !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
-  use Hydro_data, ONLY : hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ 
+  use Hydro_data, ONLY : hy_flx, hy_fly, hy_flz, hy_flxbx, hy_flxby, hy_flxbz 
 
   implicit none
 
@@ -99,27 +99,27 @@ subroutine addFluxes(weight,addFlux)
   blkLimits(:,:)   = tileDesc%limits
 
   if (addFlux) then
-    hy_fluxBufX = hy_fluxBufX+weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+    hy_flxbx = hy_flxbx+weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) 
     if (NDIM > 1) &   
-      hy_fluxBufY = hy_fluxBufY+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+      hy_flxby = hy_flxby+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
     if (NDIM > 2) &
-      hy_fluxBufZ = hy_fluxBufZ+weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+      hy_flxbz = hy_flxbz+weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1)
   else
-    hy_fluxBufX = weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+    hy_flxbx = weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
     if (NDIM > 1) &   
-      hy_fluxBufY = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+      hy_flxby = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
     if (NDIM > 2) &
-      hy_fluxBufZ = weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+      hy_flxbz = weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
                                            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
                                            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1)
   endif
@@ -132,80 +132,19 @@ end subroutine addFluxes
 !! If offloading to a device, send data and allocate on device only.
 subroutine saveState(Uin,blkLimits,blkLimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
-                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hydro_GPU_scratch, uPlusArray, uMinusArray,&
-                         shck, snake, flux, flat, grv,hy_tiny,hy_hybridRiemann,hy_C_hyp,flat3d, &
-                         hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, del, solState_tmp,hy_geometry, &
-                         hy_alphaGLM, scratch_allocated
+  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock,hy_tmpState
+  
   implicit none
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
-#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
   integer ::  v,i1,i2,i3
   ! call Timers_start("Allocations")
 
-  ! Allocate needed space on GPU if it is not already there
-  endif
-#endif
-!!$
-!!$#ifndef FIXEDBLOCKSIZE
-!!$  !Allocate size of flux buffers used for flux correction
-!!$  if (hy_fluxCorrect) then
-!!$    !allocate buffers here
-!!$    if (.NOT. allocated(hy_fluxBufX)) then 
-!!$      allocate(hy_fluxBufX(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-!!$      hy_fluxBufX = 0.
-!!$    endif
-!!$
-!!$    if (.NOT. allocated(hy_fluxBufY)) then 
-!!$      allocate(hy_fluxBufY(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
-!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-!!$      hy_fluxBufY = 0.
-!!$    endif
-!!$
-!!$    if (.NOT. allocated(hy_fluxBufZ)) then 
-!!$      allocate(hy_fluxBufZ(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1))
-!!$      hy_fluxBufZ = 0.
-!!$    endif
-!!$  endif
-!!$  !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
-!!$#endif
-!!$  !Gravity 
-!!$  if (.NOT. allocated(hy_grav)) then
-!!$    allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-!!$  endif
-!!$
-!!$
-!!$  if (.NOT. allocated(hy_starState)) then
-!!$    allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-!!$  endif
-!!$
-!!$  if (.NOT. allocated(solState_tmp)) then
-!!$    allocate(solState_tmp(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-!!$  endif
-!!$
-!!$  ! update temp vars with solution data
-
 #ifdef OMP_OL
- ! move data to GPU
- !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
- !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
- ! distribute work throughout GPU
  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
 #else 
@@ -229,39 +168,23 @@ end subroutine saveState
 
 subroutine updateState(tileDesc)
   use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
-                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, uPlusArray, uMinusArray,&
-                         shck, snake, flux, flat, grv, flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
-                         hy_smallX, hy_cvisc, del, solState_tmp
+                         hy_flxbx, hy_flxby, hy_flxbz, hy_fluxCorrect, hy_uplus, hy_uminus,&
+                         hy_shk, hy_tposedBlk, hy_flux, hy_flat, hy_grv, hy_flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
+                         hy_smallX, hy_cvisc, hy_del, hy_tmpState
   implicit none
 #include "Simulation.h"
   type(Grid_tile_t),intent(IN) :: tileDesc
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
 #ifdef OMP_OL
-!uPlusArray,uMinusArray,shck,snake,flat,grv,flux
-  !$omp target exit data map(DELETE:flat3d,solState_tmp,hy_flx,hy_fly,hy_flz)
+!hy_uplus,hy_uminus,hy_shk,hy_tposedBlk,hy_flat,hy_grv,hy_flux
+  !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
   !$omp target exit data map(DELETE:hy_grav)
   !$omp target update from(hy_starState)
 #endif
-  !First let's not forget to deallocate gravity
-  deallocate(hy_grav)
-  deallocate(hy_flx)
-  deallocate(hy_fly)
-  deallocate(hy_flz)
-  deallocate(flat3d)
-  deallocate(solState_tmp)
-
-  ! deallocate(uPlusArray)
-  ! deallocate(uMinusArray)
-  ! deallocate(shck)
-  ! deallocate(snake)
-  ! deallocate(flat)
-  ! deallocate(grv)
-  ! deallocate(flux)
-
 #ifndef FIXEDBLOCKSIZE
   if (hy_fluxCorrect) then
-    deallocate(hy_fluxBufX);deallocate(hy_fluxBufY);deallocate(hy_fluxBufZ)
+    deallocate(hy_flxbx);deallocate(hy_flxby);deallocate(hy_flxbz)
   endif
 #endif
   nullify(Uin)
@@ -296,7 +219,8 @@ subroutine updateState(tileDesc)
 #ifdef OMP_OL
   !$omp target exit data map(DELETE:hy_starState)
 #endif
-  deallocate(hy_starState)
+  nullify(hy_starState)
+  nullify(hy_tmpState)
 end subroutine updateState
 
 !! Set loop limits.  We include ngcell layers of guard zones

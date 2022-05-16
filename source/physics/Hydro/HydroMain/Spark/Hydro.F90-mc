@@ -34,9 +34,9 @@
 !!Reorder(4): hy_fl[xyz]
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
-  use Hydro_data, ONLY : hy_useHydro, hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
+  use Hydro_data, ONLY : hy_useHydro, hy_fluxCorrect, hy_fluxCorrectPerLevel, &
       hy_gcMask, hy_lChyp, hy_C_hyp, hy_globalComm,hy_del, &
-      hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann
+      hy_tiny, hy_hybridRiemann,hy_sizex, hy_sizey, hy_sizez,hy_geometry
   use hy_rk_interface, ONLY : hy_rk_eos, hy_rk_getFaceFlux, hy_rk_getGravAccel, hy_rk_updateSoln
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
@@ -47,11 +47,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
   @M iter_use
-
+  @M hy_use_scratch
 #include "Simulation.h"
 #include "constants.h"
+#include "Spark.h"
 #include "Flashx_mpi_implicitNone.fh"
-
   real,    intent(in) :: timeEndAdv, dt, dtOld
   integer, intent(IN) :: sweepOrder
   integer :: n, error, lev, maxLev=-1
@@ -67,7 +67,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real,pointer,dimension(:,:,:,:) :: Utemp
   
   @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
-
+  @M hy_declare_scratch
   if (.NOT. hy_useHydro) return
 
   call Timers_start("Hydro")
@@ -102,7 +102,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #endif
 
   call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
-  @hy_alloc_scratch(hy_sizex,hy_sizey,hy_sizez)
+  @M hy_alloc_scratch(hy_sizex,hy_sizey,hy_sizez)
   
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
@@ -130,7 +130,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Timers_start("scratch")
        ! U* = U0
        !  The data is sent to the GPU at this point.
-       @M hy_map_scratch
+       !!       @M hy_map_scratch
+      
        call saveState(Uin,blkLimits,blkLimitsGC)
        call Timers_stop("scratch")
 
@@ -188,7 +189,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
     enddo!stage loop
        !Store flux buffer in semipermanent flux storage (SPFS) 
       !  if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
-      !                           hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
+      !                           hy_flxbx,hy_flxby,hy_flxbz,blkLimits(LOW,:)) 
     @M iter_end
 
     if (hy_fluxCorrect) then
@@ -201,7 +202,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)      
            !Get 'Flux deltas' on coarse side of fine coarse boundaries; 
            !all other values are 0.
-            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+            call Grid_getFluxCorrData_block(tileDesc,hy_flxbx,hy_flxby,hy_flxbz,&
                  blkLimits(LOW,:))
             call hy_rk_correctFluxes(tileDesc,dt)
        @M iter_end
@@ -223,13 +224,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Grid_getTileIterator(itor,LEAF,level=lev,tiling=.FALSE.)
        nullify(Uin)
        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC)
-          mapLims=blkLimits
-          mapLimsGC=blkLimitsGC
-          xLo = mapLims(LOW,IAXIS); xHi = mapLims(HIGH,IAXIS)
-          yLo = mapLims(LOW,JAXIS); yHi = mapLims(HIGH,JAXIS)
-          zLo = mapLims(LOW,KAXIS); zHi = mapLims(HIGH,KAXIS)
+          xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
+          yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
+          zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
           
-          call setLims(limits, NGUARD-1, mapLims)
+          call setLims(limits, NGUARD-1, blkLimits)
           
           ! DivB will technically be lagged by 1 step, but we need ghost zones to
           ! compute the gradients. I ain't doing more communication for a diagnostic...         
@@ -240,7 +239,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
           ! Allocate storage of fluxes, flux buffers, & gravity info
           call Timers_start("scratch")
           ! U* = U0
-          call saveState(Uin,mapLims,mapLimsGC)
+          
+          call saveState(Uin,blkLimits,blkLimitsGC)
           call Timers_stop("scratch")
           
           !Loop stages
@@ -248,17 +248,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
              ! calculate gravitational acceleration based on current value of GPOT_VAR
              ! This is stored in module-scope variable hy_grav
              hy_del=deltas
-             call hy_rk_getGravAccel(limits,mapLimsGC,hy_del)
+             call hy_rk_getGravAccel(limits,blkLimitsGC,hy_del)
              
              !Set needed number of guard cells to update based on
              !current stage for telescoping update
-             call setLims(limits,limits_array(stage),mapLims)
+             call setLims(limits,limits_array(stage),blkLimits)
              
              ! Perform reconstruction and flux calculation
              ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
              call Timers_start("getFaceFlux")
              
-             call hy_rk_getFaceFlux(limits,mapLims,mapLimsGC)
+             call hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
              call Timers_stop("getFaceFlux")
              
              !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
@@ -272,7 +272,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                         hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
                         hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
                         blkLimits(LOW,:),-1/weights(stage),&
-                        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
+                        hy_flxbx, hy_flxby, hy_flxbz)
                 endif
              endif
              
@@ -302,7 +302,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
              endif
           end do!stage loop
           !Put flux buffer information into SPFS
-          if (level > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+          if (level > 1) call Grid_putFluxData_block(tileDesc,hy_flxbx,hy_flxby,hy_flxbz,&
                blkLimits(LOW,:))
           
       @M iter_end
@@ -310,7 +310,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
  endif !Flux correct per Level
  ! !!!###
 
-
+ @M hy_dealloc_scratch
   ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
  hy_lChyp = TINY(1.0)
  

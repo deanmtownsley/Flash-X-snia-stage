@@ -41,3 +41,5 @@
 #else
 #define HY_NUM_FLUX 5
 #endif
+
+#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS

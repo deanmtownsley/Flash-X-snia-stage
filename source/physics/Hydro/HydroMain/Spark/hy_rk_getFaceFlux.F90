@@ -61,8 +61,8 @@
 !!$  real :: speed
 !!$  
 !!$!!!*** keyword here to indicate local allocation on device  
-!!$  real, allocatable, target :: grv(:), shck(:), flat(:),flat3d(:,:,:)
-!!$  real, pointer :: pgrv(:),pshck(:),pflat(:)!?,pflat3d(:,:,:)
+!!$  real, allocatable, target :: grv(:), shck(:), flat(:),hy_flat3d(:,:,:)
+!!$  real, pointer :: pgrv(:),pshck(:),pflat(:)!?,phy_flat3d(:,:,:)
 !!$  logical :: inShock
 !!$  integer :: pLo,pHi !low and high indices for pencil arrays
 !!$  integer :: xLo,yLo,zLo,xHi,yHi,zHi,xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
@@ -80,7 +80,7 @@
 !!$  zLoGC = blkLimitsGC(LOW,KAXIS); zHiGC = blkLimitsGC(HIGH,KAXIS)
 !!$
 !!$!!!*** Is this going to be locally allocated on the device?   
-!!$  allocate(flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)) 
+!!$  allocate(hy_flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)) 
 !!$
 !!$  !set pencil indices based on dimension with largest spread
 !!$  pLo = blkLimitsGC(LOW,maxloc(blkLimitsGC(HIGH,1:MDIM)-blkLimitsGC(LOW,1:MDIM),1))
@@ -102,9 +102,9 @@
 !!$
 !!$  if (hy_flattening) then
 !!$!!!*** only needs transpiler
-!!$     call flattening(flat3d, limits)
+!!$     call flattening(hy_flat3d, limits)
 !!$  else
-!!$     flat3d = 1.0
+!!$     hy_flat3d = 1.0
 !!$  end if
 !!$
 !!$ !$omp parallel if(hy_threadWithinBlock .AND. NDIM > 1) &
@@ -113,7 +113,7 @@
 !!$ !$omp         leftState,rightState,uPlus,uMinus,pencil,dir,dirLims,&
 !!$ !$omp         pshck, pgrv,pflat)&
 !!$ !$omp shared(hy_starState,blockDesc,pLo,pHi,xLoGC,yLoGC,zLoGC,&
-!!$ !$omp        xHiGC,yHiGC,zHiGC,xLo,yLo,zLo,xHi,yHi,zHi,del,flat3d,limits)
+!!$ !$omp        xHiGC,yHiGC,zHiGC,xLo,yLo,zLo,xHi,yHi,zHi,del,hy_flat3d,limits)
 !!$  !  Begin loop over zones
 !!$  do dir = 1, NDIM
 !!$     call setLoop(dir, dirLims)
@@ -199,7 +199,7 @@
 !!$  deallocate(grv)
 !!$  deallocate(shck)
 !!$  deallocate(flat)
-!!$  deallocate(flat3d)
+!!$  deallocate(hy_flat3d)
 !!$
 !!$contains
 !!$
@@ -272,7 +272,7 @@
 !!$#else
 !!$       shck(:) = 0.0
 !!$#endif
-!!$       flat(:) = flat3d(:,i2,i3)
+!!$       flat(:) = hy_flat3d(:,i2,i3)
 !!$    case (JAXIS)
 !!$       pencil(HY_DENS,:) = hy_starState(DENS_VAR,i2,:,i3)
 !!$       pencil(HY_VELX,:) = hy_starState(VELX_VAR,i2,:,i3)
@@ -304,7 +304,7 @@
 !!$#else
 !!$       shck(:) = 0.0
 !!$#endif
-!!$       flat(:) = flat3d(i2,:,i3)
+!!$       flat(:) = hy_flat3d(i2,:,i3)
 !!$    case (KAXIS)
 !!$       pencil(HY_DENS,:) = hy_starState(DENS_VAR,i2,i3,:)
 !!$       pencil(HY_VELX,:) = hy_starState(VELX_VAR,i2,i3,:)
@@ -336,7 +336,7 @@
 !!$#else
 !!$       shck(:) = 0.0
 !!$#endif
-!!$       flat(:) = flat3d(i2,i3,:)
+!!$       flat(:) = hy_flat3d(i2,i3,:)
 !!$    end select
 !!$  end subroutine setPencil
 !!$
@@ -462,14 +462,14 @@
 !!$  end subroutine avisc
 !!$
 !!$  !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
-!!$  subroutine flattening(flat3d,limits)
+!!$  subroutine flattening(hy_flat3d,limits)
 !!$    !! This follows Miller & Colella 2002
 !!$    use Hydro_data, ONLY : hy_starState
 !!$    implicit none
 !!$    integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-!!$    !real, intent(OUT) :: flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
+!!$    !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
 !!$    !real :: flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-!!$    real, intent(OUT) :: flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
+!!$    real, intent(OUT) :: hy_flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
 !!$    real :: flatTilde(NDIM,xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
 !!$    real :: beta, Z
 !!$    real, parameter :: betaMin = 0.75, betaMax = 0.85
@@ -531,9 +531,9 @@
 !!$    do k=limits(LOW,KAXIS)-kz, limits(HIGH,KAXIS)+kz
 !!$       do j=limits(LOW,JAXIS)-ky, limits(HIGH,JAXIS)+ky
 !!$          do i=limits(LOW,IAXIS)-kx, limits(HIGH,IAXIS)+kx
-!!$             flat3d(i,j,k) = minval(flatTilde(1:NDIM,i,j,k))
+!!$             hy_flat3d(i,j,k) = minval(flatTilde(1:NDIM,i,j,k))
 !!$#ifdef FLAT_VAR
-!!$             hy_starState(FLAT_VAR,i,j,k) = flat3d(i,j,k)
+!!$             hy_starState(FLAT_VAR,i,j,k) = hy_flat3d(i,j,k)
 !!$#endif
 !!$          end do
 !!$       end do
@@ -595,8 +595,8 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
 
    use Hydro_data, ONLY : hy_threadWithinBlock, &
                           hy_starState, hy_grav, hy_flattening, hy_flx, hy_fly, hy_flz, &
-                          snake, uPlusArray, uMinusArray, flat, grv, shck, flux, &
-                          flat3d
+                          hy_tposedBlk, hy_uplus, hy_uminus, hy_flat, hy_grv, hy_shk, hy_flux, &
+                          hy_flat3d
    use Timers_interface, ONLY : Timers_start, Timers_stop
    use Driver_interface, ONLY : Driver_abort
  
@@ -621,18 +621,18 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
    if (hy_flattening) then
       !!!*** only needs transpiler
       call Driver_abort( "Flattening has not be implemented with GPU offloading nor has it been tested in FLASH5.")
-      ! call flattening(flat3d, limits)
+      ! call flattening(hy_flat3d, limits)
    else
-      ! call Timers_start("flat3d")
-      !$omp target teams distribute parallel do collapse(3) shared(blkLimitsGC,flat3d) private(i1,i2,i3) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
+      ! call Timers_start("hy_flat3d")
+      !$omp target teams distribute parallel do collapse(3) shared(blkLimitsGC,hy_flat3d) private(i1,i2,i3) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
       do i3 = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
          do i2 = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
             do i1 = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-               flat3d(i1,i2,i3) = 1.0
+               hy_flat3d(i1,i2,i3) = 1.0
             enddo
          enddo
       enddo
-      ! call Timers_stop("flat3d")
+      ! call Timers_stop("hy_flat3d")
    end if
 
 
@@ -665,13 +665,13 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
          dir_str = "_z"
       end select 
       !$omp target update to(dir,guardCells,dirLims)
-      ! call Timers_start("snake_init"//dir_str) 
+      ! call Timers_start("hy_tposedBlk_init"//dir_str) 
 
       call initializeSnake(dir, dirLims, guardCells) ! This is offloaded internally 
 
 
      !$omp target teams distribute parallel do collapse(4) &
-     !$omp  private(i1,i2,i3,v) shared(dirLims,guardCells,uPlusArray, uMinusArray, snake, flat) default(none)
+     !$omp  private(i1,i2,i3,v) shared(dirLims,guardCells,hy_uplus, hy_uminus, hy_tposedBlk, hy_flat) default(none)
      do i3 =1 + guardCells(3) , 1 + guardCells(3) + dirLims(HIGH,3) - dirLims(LOW,3)
         do i2 =1 + guardCells(2) , 1 + guardCells(2) + dirLims(HIGH,2) - dirLims(LOW,2)
            do i1 =1 + guardCells(1) - 1 , 1 + guardCells(1) + dirLims(HIGH,1) - dirLims(LOW,1) + 1
@@ -687,17 +687,17 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
       do i3 = 1 + guardCells(3) , 1 + guardCells(3) + dirLims(HIGH,3) - dirLims(LOW,3)
          do i2 = 1 + guardCells(2) , 1 + guardCells(2) + dirLims(HIGH,2) - dirLims(LOW,2)
             do i1 = 1 + guardCells(1) - 1 , 1 + guardCells(1) + dirLims(HIGH,1) - dirLims(LOW,1) + 1
-               call ensurePhysicalState(uPlusArray(:,i1,i2,i3))
-               call ensurePhysicalState(uMinusArray(:,i1,i2,i3))
+               call ensurePhysicalState(hy_uplus(:,i1,i2,i3))
+               call ensurePhysicalState(hy_uminus(:,i1,i2,i3))
             enddo 
          enddo
       enddo
 
 
       ! call Timers_start("riemann"//dir_str)
-      !  Now call the Riemann solver to compute fluxes
+      !  Now call the Riemann solver to compute hy_fluxes
       !$omp target teams distribute parallel do collapse(3) &
-      !$omp private(i1,i2,i3) shared(dirLims,dir,guardCells,flux) default(none)
+      !$omp private(i1,i2,i3) shared(dirLims,dir,guardCells,hy_flux) default(none)
        do i3 = 1 + guardCells(3) ,1 + guardCells(3) + dirLims(HIGH,3) - dirLims(LOW,3)
           do i2 = 1 + guardCells(2) , 1 + guardCells(2) + dirLims(HIGH,2) - dirLims(LOW,2)
              do i1 = 1 + guardCells(1) , 1 + guardCells(1) + dirLims(HIGH,1) - dirLims(LOW,1) + 1
@@ -706,7 +706,7 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
          enddo
       enddo
       !$omp target teams distribute parallel do collapse(3) &
-      !$omp private(i1,i2,i3) shared(dirLims,dir,guardCells,flux) default(none)
+      !$omp private(i1,i2,i3) shared(dirLims,dir,guardCells,hy_flux) default(none)
       do i3 = 1 + guardCells(3) ,1 + guardCells(3) + dirLims(HIGH,3) - dirLims(LOW,3)
          do i2 = 1 + guardCells(2) , 1 + guardCells(2) + dirLims(HIGH,2) - dirLims(LOW,2)
             do i1 = 1 + guardCells(1) , 1 + guardCells(1) + dirLims(HIGH,1) - dirLims(LOW,1) + 1
@@ -761,7 +761,7 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
    end subroutine setLoop
  
    subroutine saveFluxes(dir,i1,i2,i3,guardCells,dirLims)
-      USE Hydro_data, ONLY: flux, hy_flx, hy_fly, hy_flz
+      USE Hydro_data, ONLY: hy_flux, hy_flx, hy_fly, hy_flz
      integer, intent(IN) :: dir,i1,i2,i3
      integer, dimension(3) :: guardCells
      integer, dimension(LOW:HIGH,MDIM) :: dirLims
@@ -772,17 +772,17 @@ subroutine hy_rk_getFaceFlux(limits,blkLimits,blkLimitsGC)
      k_global = -1 + i3 + dirLims(LOW,3) - guardCells(3)
      select case(dir)
      case(IAXIS)
-        hy_flx(:,i_global,j_global,k_global) = flux(:,i1,i2,i3)
+        hy_flx(:,i_global,j_global,k_global) = hy_flux(:,i1,i2,i3)
      case (JAXIS)
-        hy_fly(:,j_global,i_global,k_global) = flux(:,i1,i2,i3)
+        hy_fly(:,j_global,i_global,k_global) = hy_flux(:,i1,i2,i3)
      case (KAXIS)
-        hy_flz(:,j_global,k_global,i_global) = flux(:,i1,i2,i3)
+        hy_flz(:,j_global,k_global,i_global) = hy_flux(:,i1,i2,i3)
      end select
    end subroutine saveFluxes
  
 !!Account for fluxes that are proportional to mass flux 
 subroutine mscalarFluxes(i1,i2,i3)
-   USE Hydro_data, ONLY: flux, uPlusArray, uMinusArray
+   USE Hydro_data, ONLY: hy_flux, hy_uplus, hy_uminus
    implicit none
    real, pointer :: Xstar(:)
    integer, intent(IN) :: i1,i2,i3
@@ -790,12 +790,12 @@ subroutine mscalarFluxes(i1,i2,i3)
 #if NSPECIES+NMASS_SCALARS==0
    return
 #else
-   if (flux(HY_MASS,i1,i2,i3) > 0.) then
-      Xstar => uPlusArray(HY_NUM_VARS+1:NRECON,i1-1,i2,i3)
+   if (hy_flux(HY_MASS,i1,i2,i3) > 0.) then
+      Xstar => hy_uplus(HY_NUM_VARS+1:NRECON,i1-1,i2,i3)
    else
-      Xstar => uMinusArray(HY_NUM_VARS+1:NRECON,i1,i2,i3)
+      Xstar => hy_uminus(HY_NUM_VARS+1:NRECON,i1,i2,i3)
    endif
-   flux(HY_NUM_FLUX+1:NFLUXES,i1,i2,i3) = Xstar*flux(HY_MASS,i1,i2,i3)
+   hy_flux(HY_NUM_FLUX+1:NFLUXES,i1,i2,i3) = Xstar*hy_flux(HY_MASS,i1,i2,i3)
 #endif
 end subroutine mscalarFluxes
  
@@ -805,46 +805,46 @@ end subroutine mscalarFluxes
 !! I am not including the transverse velocity terms to keep everything
 !! neat and 1D for the pencil data
 subroutine avisc(i1,i2,i3,dir,nvars) !flux,V,i1,nvars,dir)
-   use Hydro_data, ONLY : hy_cvisc, flux, snake
+   use Hydro_data, ONLY : hy_cvisc, hy_flux, hy_tposedBlk
    implicit none
    integer, intent(IN) :: nvars
    integer, intent(IN) :: i1,i2,i3,dir
    real :: cvisc, VenerLo, VenerHi
    !$omp declare target
-   cvisc = hy_cvisc*max(-(snake(HY_VELX+dir-1,i1,i2,i3) - snake(HY_VELX+dir-1,i1-1,i2,i3)),0.)
+   cvisc = hy_cvisc*max(-(hy_tposedBlk(HY_VELX+dir-1,i1,i2,i3) - hy_tposedBlk(HY_VELX+dir-1,i1-1,i2,i3)),0.)
 
    ! Construct minus and plus TOTAL energy densities
-   VenerLo = snake(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(snake(HY_VELX:HY_VELZ,i1-1,i2,i3),snake(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
-            + snake(HY_RHOE,i1-1,i2,i3)
-   VenerHi = snake(HY_DENS,i1,i2,i3)*0.5*(dot_product(snake(HY_VELX:HY_VELZ,i1,i2,i3),snake(HY_VELX:HY_VELZ,i1,i2,i3)))&
-            + snake(HY_RHOE,i1,i2,i3)
+   VenerLo = hy_tposedBlk(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(hy_tposedBlk(HY_VELX:HY_VELZ,i1-1,i2,i3),hy_tposedBlk(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
+            + hy_tposedBlk(HY_RHOE,i1-1,i2,i3)
+   VenerHi = hy_tposedBlk(HY_DENS,i1,i2,i3)*0.5*(dot_product(hy_tposedBlk(HY_VELX:HY_VELZ,i1,i2,i3),hy_tposedBlk(HY_VELX:HY_VELZ,i1,i2,i3)))&
+            + hy_tposedBlk(HY_RHOE,i1,i2,i3)
 
-   flux(HY_MASS:HY_ENER,i1,i2,i3) = &
-         flux(HY_MASS:HY_ENER,i1,i2,i3) &
-         +cvisc*(/snake(HY_DENS,i1-1,i2,i3)                 - snake(HY_DENS,i1,i2,i3)&
-         ,        snake(HY_DENS,i1-1,i2,i3)*snake(HY_VELX,i1-1,i2,i3) - snake(HY_DENS,i1,i2,i3)*snake(HY_VELX,i1,i2,i3)&
-         ,        snake(HY_DENS,i1-1,i2,i3)*snake(HY_VELY,i1-1,i2,i3) - snake(HY_DENS,i1,i2,i3)*snake(HY_VELY,i1,i2,i3)&
-         ,        snake(HY_DENS,i1-1,i2,i3)*snake(HY_VELZ,i1-1,i2,i3) - snake(HY_DENS,i1,i2,i3)*snake(HY_VELZ,i1,i2,i3)&
+   hy_flux(HY_MASS:HY_ENER,i1,i2,i3) = &
+         hy_flux(HY_MASS:HY_ENER,i1,i2,i3) &
+         +cvisc*(/hy_tposedBlk(HY_DENS,i1-1,i2,i3)                 - hy_tposedBlk(HY_DENS,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_DENS,i1-1,i2,i3)*hy_tposedBlk(HY_VELX,i1-1,i2,i3) - hy_tposedBlk(HY_DENS,i1,i2,i3)*hy_tposedBlk(HY_VELX,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_DENS,i1-1,i2,i3)*hy_tposedBlk(HY_VELY,i1-1,i2,i3) - hy_tposedBlk(HY_DENS,i1,i2,i3)*hy_tposedBlk(HY_VELY,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_DENS,i1-1,i2,i3)*hy_tposedBlk(HY_VELZ,i1-1,i2,i3) - hy_tposedBlk(HY_DENS,i1,i2,i3)*hy_tposedBlk(HY_VELZ,i1,i2,i3)&
          ,        VenerLo                         - VenerHi/)
 #ifdef SPARK_GLM
-   flux(HY_FMGX:HY_FPSI,i1,i2,i3) = &
-         flux(HY_FMGX:HY_FPSI,i1,i2,i3) &
-         +cvisc*(/snake(HY_MAGX,i1-1,i2,i3)                 - snake(HY_MAGX,i1,i2,i3)&
-         ,        snake(HY_MAGY,i1-1,i2,i3)                 - snake(HY_MAGY,i1,i2,i3)&
-         ,        snake(HY_MAGZ,i1-1,i2,i3)                 - snake(HY_MAGZ,i1,i2,i3)&
-         ,        snake(HY_PSIB,i1-1,i2,i3)                 - snake(HY_PSIB,i1,i2,i3)/)
+   hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) = &
+         hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) &
+         +cvisc*(/hy_tposedBlk(HY_MAGX,i1-1,i2,i3)                 - hy_tposedBlk(HY_MAGX,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_MAGY,i1-1,i2,i3)                 - hy_tposedBlk(HY_MAGY,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_MAGZ,i1-1,i2,i3)                 - hy_tposedBlk(HY_MAGZ,i1,i2,i3)&
+         ,        hy_tposedBlk(HY_PSIB,i1-1,i2,i3)                 - hy_tposedBlk(HY_PSIB,i1,i2,i3)/)
 #endif
 end subroutine avisc
  
 ! !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
-! subroutine flattening(flat3d,limits)
+! subroutine flattening(hy_flat3d,limits)
 !    !! This follows Miller & Colella 2002
 !    use Hydro_data, ONLY : hy_starState
 !    implicit none
 !    integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-!    !real, intent(OUT) :: flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
+!    !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
 !    !real :: flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-!    real, intent(OUT) :: flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
+!    real, intent(OUT) :: hy_flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
 !    real :: flatTilde(NDIM,xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
 !    real :: beta, Z
 !    real, parameter :: betaMin = 0.75, betaMax = 0.85
@@ -908,9 +908,9 @@ end subroutine avisc
 !    do k=limits(LOW,KAXIS)-kz, limits(HIGH,KAXIS)+kz
 !       do j=limits(LOW,JAXIS)-ky, limits(HIGH,JAXIS)+ky
 !          do i=limits(LOW,IAXIS)-kx, limits(HIGH,IAXIS)+kx
-!             flat3d(i,j,k) = minval(flatTilde(1:NDIM,i,j,k))
+!             hy_flat3d(i,j,k) = minval(flatTilde(1:NDIM,i,j,k))
 ! #ifdef FLAT_VAR
-!             hy_starState(FLAT_VAR,i,j,k) = flat3d(i,j,k)
+!             hy_starState(FLAT_VAR,i,j,k) = hy_flat3d(i,j,k)
 ! #endif
 !          end do
 !       end do
@@ -954,7 +954,7 @@ end subroutine ensurePhysicalState
  end subroutine get_scratch_indices
 
  subroutine initializeSnake(dir, dirLims, guardCells)
-   use Hydro_data, only: snake,grv,shck,flat,hy_starState, uPlusArray, uMinusArray,flat3d,hy_grav
+   use Hydro_data, only: hy_tposedBlk,hy_grv,hy_shk,hy_flat,hy_starState, hy_uplus, hy_uminus,hy_flat3d,hy_grav
 implicit none
 integer :: dir, l,i,j,k,n
 integer, dimension(3) :: guardCells
@@ -962,111 +962,111 @@ integer :: i_s, j_s, k_s   ! Scratch indices
 integer, dimension(LOW:HIGH,MDIM), intent(IN) :: dirLims
 !!$omp declare target
 
-! Give snake proper values
-! Maps the hk_solnData to a snake, such that it is contiguous in memory in the direction of iteration.
- !$omp target teams distribute parallel do collapse(3) default(none) shared(dir,hy_starState,snake,grv,hy_grav,shck,flat,flat3d,dirLims,guardCells) private(i,j,k,n,i_s, j_s, k_s)
+! Give hy_tposedBlk proper values
+! Maps the hk_solnData to a hy_tposedBlk, such that it is contiguous in memory in the direction of iteration.
+ !$omp target teams distribute parallel do collapse(3) default(none) shared(dir,hy_starState,hy_tposedBlk,hy_grv,hy_grav,hy_shk,hy_flat,hy_flat3d,dirLims,guardCells) private(i,j,k,n,i_s, j_s, k_s)
    do k = dirLims(LOW,3) - guardCells(3), dirLims(HIGH,3) + guardCells(3)
       do j = dirLims(LOW,2) - guardCells(2), dirLims(HIGH,2) + guardCells(2)
          do i = dirLims(LOW,1) - guardCells(1), dirLims(HIGH,1) + guardCells(1)
             call get_scratch_indices(dirLims,i_s,j_s,k_s,i,j,k, guardCells)
             if (dir == IAXIS) then
-            snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
-            snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
-            snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
-            snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
-            snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
-            snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
-            snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
+            hy_tposedBlk(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
+            hy_tposedBlk(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
+            hy_tposedBlk(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
+            hy_tposedBlk(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
+            hy_tposedBlk(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
+            hy_tposedBlk(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
+            hy_tposedBlk(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
 #ifdef SPARK_GLM
-            snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
-            snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
-            snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
-            snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
+            hy_tposedBlk(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
+            hy_tposedBlk(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
+            hy_tposedBlk(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
+            hy_tposedBlk(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
             do n=SPECIES_BEGIN, MASS_SCALARS_END
-               snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
+               hy_tposedBlk(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
             enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-            grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,i,j,k)
+            hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,i,j,k)
 #else
-            grv(i_s,j_s,k_s) = hy_grav(IAXIS,i,j,k)
+            hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,i,j,k)
 #endif
 #endif
 #ifdef SHOK_VAR
-            shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,i,j,k)
+            hy_shk(i_s,j_s,k_s) = hy_starState(SHOK_VAR,i,j,k)
 #else
-            shck(i_s,j_s,k_s) = 0.0
+            hy_shk(i_s,j_s,k_s) = 0.0
 #endif
-            flat(i_s,j_s,k_s) = flat3d(i,j,k)
+            hy_flat(i_s,j_s,k_s) = hy_flat3d(i,j,k)
             
 else if (dir == JAXIS) then
-            snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
-            snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
-            snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
-            snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
-            snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
-            snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
-            snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
+            hy_tposedBlk(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
+            hy_tposedBlk(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
+            hy_tposedBlk(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
+            hy_tposedBlk(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
+            hy_tposedBlk(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
+            hy_tposedBlk(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
+            hy_tposedBlk(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
 #ifdef SPARK_GLM
-            snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
-            snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
-            snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
-            snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
+            hy_tposedBlk(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
+            hy_tposedBlk(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
+            hy_tposedBlk(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
+            hy_tposedBlk(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
             do n=SPECIES_BEGIN, MASS_SCALARS_END
-               snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
+               hy_tposedBlk(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
             enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-            grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,i,k)
+            hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,i,k)
 #else
-            grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,i,k)
+            hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,i,k)
 #endif
 #endif
 #ifdef SHOK_VAR
-            shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,i,k)
+            hy_shk(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,i,k)
 #else
-            shck(i_s,j_s,k_s) = 0.0
+            hy_shk(i_s,j_s,k_s) = 0.0
 #endif
-            flat(i_s,j_s,k_s) = flat3d(j,i,k)
+            hy_flat(i_s,j_s,k_s) = hy_flat3d(j,i,k)
 
 else if (dir == KAXIS) then
-            snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
-            snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
-            snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
-            snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
-            snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
-            snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
-            snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
+            hy_tposedBlk(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
+            hy_tposedBlk(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
+            hy_tposedBlk(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
+            hy_tposedBlk(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
+            hy_tposedBlk(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
+            hy_tposedBlk(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
+            hy_tposedBlk(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
 #ifdef SPARK_GLM
-            snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
-            snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
-            snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
-            snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
+            hy_tposedBlk(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
+            hy_tposedBlk(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
+            hy_tposedBlk(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
+            hy_tposedBlk(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
             do n=SPECIES_BEGIN, MASS_SCALARS_END
-               snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
+               hy_tposedBlk(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
             enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-            grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,k,i)
+            hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,k,i)
 #else
-            grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,k,i)
+            hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,k,i)
 #endif
 #endif
 #ifdef SHOK_VAR
-            shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,k,i)
+            hy_shk(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,k,i)
 #else
-            shck(i_s,j_s,k_s) = 0.0
+            hy_shk(i_s,j_s,k_s) = 0.0
 #endif
-            flat(i_s,j_s,k_s) = flat3d(j,k,i)
+            hy_flat(i_s,j_s,k_s) = hy_flat3d(j,k,i)
          endif
 
          enddo

@@ -77,6 +77,9 @@ subroutine Hydro_init()
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
+  hy_sizex=2*NGUARD+NXB
+  hy_sizey=2*NGUARD*K2D+NYB
+  hy_sizez=2*NGUARD*K3D+NZB  
 
   !! Need to issue a warning or error if PM4dev is not used
 
@@ -170,10 +173,6 @@ subroutine Hydro_init()
   call PhysicalConstants_get("Newton", hy_gravConst)
   hy_4piGinv = (4.*PI*hy_gravConst)**(-1)
 
-  ! Deal with units for MHD. We will ALWAYS use Gaussian CGS. Jackson 2E FTW.
-  call RuntimeParameters_get("unitsystem", hy_units)
-  if (hy_units /= "NONE" .AND. hy_units /= "none") then
-    hy_bref = sqrt(4.0*PI)
-  end if
-
+  hy_bref = sqrt(4.0*PI)
+  
 end subroutine Hydro_init

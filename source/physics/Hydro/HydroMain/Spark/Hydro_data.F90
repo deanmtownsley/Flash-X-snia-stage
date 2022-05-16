@@ -12,7 +12,7 @@
 !!  NOTES
 !!
 !!***
-!!REORDER(4): hy_fluxBuf[XYZ]
+!!REORDER(4): hy_afluxBuf[XYZ]
 
 module Hydro_data
 #include "constants.h"
@@ -23,19 +23,38 @@ module Hydro_data
   save
   !$omp declare target (hy_sizex,hy_sizey,hy_sizez,hy_tiny,hy_hybridRiemann,hy_geometry,hy_alphaGLM)
   !$omp declare target (hy_C_hyp,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_cvisc,hy_del)
-  !$omp declare target (fullblk,tranblk, uplus, uminus, grv, shk, utmp,grav)
-  !$omp declare target (flux,flx,fly,flz,flxbx,flxby,flxbz, flat, flat3d)
-  !$omp declare target (xcenter, xright, xleft, ycenter, zcenter, area, vol) 
+  !$omp declare target (hy_ablk,hy_autmphy_aflx,hy_afly,hy_aflz,hy_aflxbx,hy_aflxby,hy_aflxbz,hy_agrav, hy_aflat3d)
+  !$omp declare target (hy_flux,hy_uplus, hy_uminus, hy_grv, hy_shk, hy_flat,hy_tposedBlk)
+  !$omp declare target (hy_axcenter, hy_axright, hy_axleft, hy_aycenter, hy_azcenter, hy_aarea, hy_avol) 
 
-  real,save, allocatable, dimension(:), target :: fullblk,tranblk, uplus, uminus, grv, shk, utmp,grav
-  real,save, allocatable, dimension(:), target :: flux,flx,fly,flz,flxbx,flxby,flxbz, flat, flat3d
-  real, save, allocatable, dimension(:), target :: xcenter, xright, xleft, ycenter, zcenter, area, vol 
-  real, save, pointer, dimension(:,:,:,:) :: hy_starState, hy_tmpState, hy_transBlk, hy_uplus, hy_uminus
-  real, save, pointer, dimension(:,:,:,:) :: hy_flx,hy_fly,hy_flz,hy_flxbx,hy_flxby,hy_flxbz,hy_flux
-  real, save, pointer, dimension(:,:,:) :: hy_flat, hy_flat3d, hy_grv, hy_grav,hy_shk, hy_area, hy_vol
-  real, save, pointer, dimension(:) :: hy_xCenter, hy_yCenter, hy_zCenter, hy_xRight, hy_xLeft
+  real, allocatable, dimension(:), target :: hy_ablk,hy_atposedBlk,hy_aflx,hy_afly,&
+       hy_aflz,hy_aflxbx,hy_aflxby,hy_aflxbz, hy_agrav, hy_aflat3d, hy_autmp
+  real,  allocatable, dimension(:), target :: hy_axcenter, hy_axright, hy_axleft, hy_aycenter, hy_azcenter, hy_aarea, hy_avol 
+  real, allocatable, dimension(:,:,:,:), target :: hy_flux, hy_flat,  hy_uplus, hy_uminus, hy_grv, hy_shk,hy_transBlk
+  real,  pointer, dimension(:,:,:,:) :: hy_starState, hy_tmpState
+!!$  real, pointer, dimension(:,:,:,:) hy_uplus, hy_uminus
+  real,  pointer, dimension(:,:,:,:) :: hy_flx,hy_fly,hy_flz,hy_flxbx,hy_flxby,hy_flxbz,hy_flux
+  real, pointer, dimension(:,:,:) :: hy_area, hy_vol, hy_flat3d
+!!$  real,  pointer, dimension(:,:,:) :: hy_flat, hy_grv, hy_grav,hy_shk, hy_tposedBlk
+  real,  pointer, dimension(:) :: hy_xcenter, hy_ycenter, hy_zcenter, hy_xright, hy_xleft
 
 
+  !! These are the variable that are offloaded
+  integer :: hy_sizex,hy_sizey,hy_sizez
+  integer :: hy_geometry
+  integer, dimension(LOW:HIGH,MDIM) :: dirLims
+
+  real :: hy_tiny=1.e-32
+  real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
+  real :: hy_bref
+  real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
+  real :: hy_cvisc
+  real :: hy_del(MDIM)
+
+  logical :: hy_hybridRiemann, hy_flattening
+  
+
+  !! AD: These variables don't see to be
   integer :: hy_meshMe
   real :: hy_cfl
   logical :: hy_hydroComputeDtFirstCall
@@ -47,71 +66,17 @@ module Hydro_data
   logical :: hy_restart
   logical :: hy_shockDetectOn
   logical :: hy_useTiling
-  real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
-  real :: hy_del(MDIM)
   logical :: hy_useHydro
   logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
   integer, dimension(NFLUXES) :: hy_fluxCorVars
-  integer :: hy_geometry
   real :: hy_limRad
-  real :: hy_cvisc
 
-  real :: hy_tiny=1.e-32
   real :: hy_gravConst, hy_4piGinv
 
-  logical :: hy_hybridRiemann, hy_flattening
 
-  real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
-  real :: hy_bref
 
   logical :: hy_threadWithinBlock
   logical, dimension(NUNK_VARS) :: hy_gcMask
 
   
-  ! Added for GPU
-!!$  real, allocatable, target :: flux(:,:,:,:)
-!!$  real, save, allocatable, target :: snake(:,:,:,:)
-!!$  real, save, target, allocatable :: uPlusArray(:,:,:,:)
-!!$  real, save, target, allocatable :: uMinusArray(:,:,:,:)
-!!$  real, save, allocatable :: flat(:,:,:)
-!!$  real, save, allocatable :: flat3d(:,:,:)
-!!$  integer :: xsize,ysize,zsize
-!!$  real, save, allocatable :: grv(:,:,:)
-!!$  real, save, allocatable :: shck(:,:,:)
-!!$  integer, save, dimension(LOW:HIGH,MDIM) :: dirLims
-!!$  logical :: hydro_GPU_scratch = .False.
-!!$  real, dimension(MDIM) :: del
-!!$  real, allocatable, target :: solState_tmp(:,:,:,:)
-!!$  logical :: scratch_allocated
-!!$  !One block's worth of fluxes defined generally (not assuming fixed block size mode)
-!!$  real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
-!!$  
-!!$  !Flux buffers
-!!$#ifdef FIXEDBLOCKSIZE
-!!$  real, dimension(NFLUXES, GRID_ILO:GRID_IHI+1  , &
-!!$    & GRID_JLO:GRID_JHI    ,GRID_KLO:GRID_KHI  ),target :: hy_fluxBufX
-!!$# if NDIM > 1
-!!$  real, dimension(NFLUXES, GRID_ILO:GRID_IHI    , &
-!!$    & GRID_JLO:GRID_JHI+1  ,GRID_KLO:GRID_KHI  ),target :: hy_fluxBufY
-!!$# else
-!!$  real, dimension(NFLUXES, 0    ,0  ,0  ) :: hy_fluxBufY
-!!$# endif
-!!$# if NDIM > 2
-!!$  real, dimension(NFLUXES, GRID_ILO:GRID_IHI    , &
-!!$    & GRID_JLO:GRID_JHI    ,GRID_KLO:GRID_KHI+1),target :: hy_fluxBufZ
-!!$# else
-!!$  real, dimension(NFLUXES, 0    ,0  ,0  ) :: hy_fluxBufZ
-!!$# endif
-!!$# else  
-!!$  !Not fixed block size
-!!$  real, allocatable, target :: hy_fluxBufX(:,:,:,:),hy_fluxBufY(:,:,:,:),hy_fluxBufZ(:,:,:,:)
-!!$# endif
-!!$ 
-!!$  real, allocatable :: hy_grav(:,:,:,:)  
-
-  ! Additional scratch storage for RK time stepping
-!!$  real, allocatable, target :: hy_starState(:,:,:,:)
-
-  ! Limiter info
-
 end module Hydro_data
