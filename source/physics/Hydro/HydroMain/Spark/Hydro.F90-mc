@@ -64,6 +64,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real, dimension(3,3) :: coeff_array
   logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v
+  real,pointer,dimension(:,:,:,:) :: Utemp
+  
   @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
 
   if (.NOT. hy_useHydro) return
@@ -99,8 +101,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call Grid_getMaxRefinement(maxLev, mode=1)
 #endif
 
-
   call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+  @hy_alloc_scratch(hy_sizex,hy_sizey,hy_sizez)
+  
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
@@ -112,9 +115,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC) 
        ! DivB will technically be lagged by 1 step, but we need ghost zones to
         ! compute the gradients. I ain't doing more communication for a diagnostic...
-        mapLims=blkLimits
-        mapLimsGC=blkLimitsGC
-        call setLims(limits, NGUARD-1,mapLims)
+
+        call setLims(limits, NGUARD-1,blkLimits)
 
        !---JaredC--- Action 2 (no dependence within interation) 
        call calcDivB(tileDesc) !---JaredC--- This could be done on GPU or CPU and asynchronous to the rest of the sections
@@ -127,8 +129,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Timers_start("Offloaded Section")
        call Timers_start("scratch")
        ! U* = U0
-      !  The data is sent to the GPU at this point.
-       call saveState(Uin,mapLims,mapLimsGC)
+       !  The data is sent to the GPU at this point.
+       @M hy_map_scratch
+       call saveState(Uin,blkLimits,blkLimitsGC)
        call Timers_stop("scratch")
 
        !---JaredC--- Action 3 
@@ -138,15 +141,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
          ! This is stored in module-scope variable hy_grav
          hy_del=deltas
          
-         call hy_rk_getGravAccel(limits,mapLimsGC,hy_del)
+         call hy_rk_getGravAccel(limits,blkLimitsGC,hy_del)
 
          !Set needed number of guard cells to update based on
          !current stage for telescoping update
-         call setLims(limits,limits_array(stage), mapLims)
+         call setLims(limits,limits_array(stage), blkLimits)
        
          call Timers_start("getFaceFlux")
 
-          call hy_rk_getFaceFlux(limits, mapLims, mapLimsGC)
+          call hy_rk_getFaceFlux(limits, blkLimits, blkLimitsGC)
 
          call Timers_stop("getFaceFlux")
 !------- Add this in -----

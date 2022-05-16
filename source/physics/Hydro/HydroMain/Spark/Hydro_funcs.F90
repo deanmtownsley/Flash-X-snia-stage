@@ -125,6 +125,8 @@ subroutine addFluxes(weight,addFlux)
   endif
 end subroutine addFluxes
 
+
+
 !! Allocate variable size array holding local gravitational accelerations (depending on 
 !! block size), fluxes, flux buffers, and save. 
 !! If offloading to a device, send data and allocate on device only.
@@ -143,141 +145,69 @@ subroutine saveState(Uin,blkLimits,blkLimitsGC)
 
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
-  integer :: max_edge, max_edge_y, max_edge_z, v,i1,i2,i3
+  integer ::  v,i1,i2,i3
   ! call Timers_start("Allocations")
 
   ! Allocate needed space on GPU if it is not already there
-!  !$omp target enter data map(alloc:flat,shck,snake,uMinusArray,uPlusArray) 
-
-  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
-                blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
-  max_edge_y = 1
-  max_edge_z = 1
-#if NDIM==2
-  max_edge_y = max_edge
-#elif NDIM==3
-  max_edge_y = max_edge
-  max_edge_z = max_edge
-#endif
-! print *, "max edge", max_edge
-  !Construct arrays to hold fluxes used for solution update
- 
-  if (.NOT. allocated(hy_flx)) then
-    allocate(hy_flx(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-    hy_flx = 0.
-  endif
-  
-  if (.NOT. allocated(hy_fly)) then
-    allocate(hy_fly(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-    hy_fly = 0.
-  endif
-  if (.NOT. allocated(hy_flz)) then
-    allocate(hy_flz(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D))
-    hy_flz = 0.
-  endif
-  if (.NOT. allocated(flat3d)) then
-    allocate(flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-    blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-    blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-    flat3d = 0.
-  endif
-#ifdef OMP_OL  
-  if (.not. scratch_allocated) then 
-    scratch_allocated = .true.
-    if (.NOT. allocated(uPlusArray)) then
-      allocate(uPlusArray(NRECON,max_edge,max_edge_y,max_edge_z))
-      uPlusArray = 0.
-    endif
-    if (.NOT. allocated(uMinusArray)) then
-      allocate(uMinusArray(NRECON,max_edge,max_edge_y,max_edge_z))
-      uMinusArray = 0.
-    endif
-    if (.NOT. allocated(shck)) then
-      allocate(shck(max_edge,max_edge_y,max_edge_z))
-      shck = 0.
-    endif 
-    if (.NOT. allocated(snake)) then
-      allocate(snake(NRECON,max_edge,max_edge_y,max_edge_z))
-      snake = 0.
-    endif
-    if (.NOT. allocated(flat)) then
-      allocate(flat(max_edge,max_edge_y,max_edge_z))
-      flat = 0.
-    endif
-    if (.NOT. allocated(grv)) then
-      allocate(grv(max_edge,max_edge_y,max_edge_z))
-      grv = 0.
-    endif
-    if (.NOT. allocated(flux)) then
-      allocate(flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
-      flux = 0.
-    endif
-    !$omp target enter data map(alloc:flat,shck,snake,uMinusArray,uPlusArray,grv,flux)
   endif
 #endif
-
-#ifndef FIXEDBLOCKSIZE
-  !Allocate size of flux buffers used for flux correction
-  if (hy_fluxCorrect) then
-    !allocate buffers here
-    if (.NOT. allocated(hy_fluxBufX)) then 
-      allocate(hy_fluxBufX(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-      hy_fluxBufX = 0.
-    endif
-
-    if (.NOT. allocated(hy_fluxBufY)) then 
-      allocate(hy_fluxBufY(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
-                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-      hy_fluxBufY = 0.
-    endif
-
-    if (.NOT. allocated(hy_fluxBufZ)) then 
-      allocate(hy_fluxBufZ(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1))
-      hy_fluxBufZ = 0.
-    endif
-  endif
-  !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
-#endif
-  !Gravity 
-  if (.NOT. allocated(hy_grav)) then
-    allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
-
-
-  if (.NOT. allocated(hy_starState)) then
-    allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
-
-  if (.NOT. allocated(solState_tmp)) then
-    allocate(solState_tmp(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
-
-  ! update temp vars with solution data
+!!$
+!!$#ifndef FIXEDBLOCKSIZE
+!!$  !Allocate size of flux buffers used for flux correction
+!!$  if (hy_fluxCorrect) then
+!!$    !allocate buffers here
+!!$    if (.NOT. allocated(hy_fluxBufX)) then 
+!!$      allocate(hy_fluxBufX(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
+!!$      hy_fluxBufX = 0.
+!!$    endif
+!!$
+!!$    if (.NOT. allocated(hy_fluxBufY)) then 
+!!$      allocate(hy_fluxBufY(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
+!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
+!!$      hy_fluxBufY = 0.
+!!$    endif
+!!$
+!!$    if (.NOT. allocated(hy_fluxBufZ)) then 
+!!$      allocate(hy_fluxBufZ(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
+!!$                                   blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+!!$                                   blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1))
+!!$      hy_fluxBufZ = 0.
+!!$    endif
+!!$  endif
+!!$  !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
+!!$#endif
+!!$  !Gravity 
+!!$  if (.NOT. allocated(hy_grav)) then
+!!$    allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+!!$  endif
+!!$
+!!$
+!!$  if (.NOT. allocated(hy_starState)) then
+!!$    allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+!!$  endif
+!!$
+!!$  if (.NOT. allocated(solState_tmp)) then
+!!$    allocate(solState_tmp(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$      blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$      blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+!!$  endif
+!!$
+!!$  ! update temp vars with solution data
 
 #ifdef OMP_OL
  ! move data to GPU
- !$omp target enter data map(alloc:hy_starState,flat3d,solState_tmp,hy_flx,hy_fly,hy_flz,hy_grav)
+ !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
  !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
  ! distribute work throughout GPU
  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
- !$omp shared(Uin,hy_starState,blkLimitsGC,solState_tmp) private(v,i1,i2,i3) default(none)
+ !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
 #else 
   !$omp parallel do collapse(4) if(hy_threadWithinBlock) &
   !$omp default(none) &
@@ -288,13 +218,11 @@ subroutine saveState(Uin,blkLimits,blkLimitsGC)
       do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
         do v=1,NUNK_VARS
           hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-          solState_tmp(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+          hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
         enddo
       enddo
     enddo
   enddo
-
-  call tileDesc%releaseDataPtr(Uin,CENTER)
 
 end subroutine saveState
 
