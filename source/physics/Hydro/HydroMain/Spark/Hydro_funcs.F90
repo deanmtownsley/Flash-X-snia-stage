@@ -11,72 +11,6 @@
 !!Reorder directive used by FLASH with --index-reorder flag at setup
 !!Reorder(4): hy_starState,solnData, U, hy_fl[xyz], hy_flxb[xyz]
 
-subroutine select_RK_scheme(coeff_array,last_stage,limits_array,weights)
-  !Select coefficients for update step, number of stages,
-  !stencil sizes, and flux weights for each step.
-
-  implicit none
-
-#include "Simulation.h"
-
-  real,intent(OUT), dimension(3,3) :: coeff_array
-  integer, intent(OUT) :: last_stage
-  integer, intent(OUT), dimension(3) :: limits_array
-  real, intent(OUT), dimension(3) :: weights
-
-  real, save :: onesixth = 1./6.
-  real, save :: onethird = 1./3.
-  real, save :: twothirds = 2./3.
-
-#ifdef HY_RK3
-  !RK3 quantities
-
-  !Stage 1 coefficients
-  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-  ! U1 =  1 * U0           +  1 * dt*L(U0)
-
-  !Stage 2 coefficients
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U2 = 3/4 * U0 + 1/4 * U1 + 1/4 * dt*L(U1)
-
-  !Stage 3 coefficients
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
- 
-  !(remember FORTRAN is column major)
-  coeff_array = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
-
-  last_stage = 3 
-
-  !Array containing number of guard cells on each side for
-  !the telescoping update.
-  limits_array = (/2*NSTENCIL, NSTENCIL, 0/)
-
-  !Weights that scale the fluxes as they're added into the buffers.
-  !Here 'weights' is the same as 'coeff' used in Github pseudocode.
-  weights = (/onesixth, onesixth, twothirds/)
-
-#else
-  !RK2 quantities
-
-  ! Stage 1 coefficients
-  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-  ! U1 =  1 * U0           +  1 * dt*L(U0)
-
-  ! Stage 2 coefficients
-  ! Now update solution based on conservative fluxes
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U2 = 1/2 * U0 + 1/2 * U1 + 1/2 * dt*L(U1)
-  coeff_array = reshape((/1.,0.5,0.,0.,0.5,0.,1.,0.5,0./),(/3,3/))
-
-  last_stage = 2
-
-  limits_array = (/NSTENCIL, 0, 0/)
-
-  weights = (/0.5,0.5,0./)
-#endif
-
-end subroutine select_RK_scheme
 
 subroutine addFluxes(weight,addFlux)
   !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
@@ -145,6 +79,7 @@ subroutine saveState(Uin,blkLimits,blkLimitsGC)
   ! call Timers_start("Allocations")
 
 #ifdef OMP_OL
+ !$omp target map(hy_starState, hy_tmpState)
  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
 #else 
@@ -166,18 +101,17 @@ subroutine saveState(Uin,blkLimits,blkLimitsGC)
 end subroutine saveState
 
 
-subroutine updateState(tileDesc)
+subroutine updateState(Uin,blkLimits,blkLimitsGC)
   use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
                          hy_flxbx, hy_flxby, hy_flxbz, hy_fluxCorrect, hy_uplus, hy_uminus,&
-                         hy_shk, hy_tposedBlk, hy_flux, hy_flat, hy_grv, hy_flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
+                         hy_shk, hy_tposeBlk, hy_flux, hy_flat, hy_grv, hy_flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
                          hy_smallX, hy_cvisc, hy_del, hy_tmpState
   implicit none
 #include "Simulation.h"
-  type(Grid_tile_t),intent(IN) :: tileDesc
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
 #ifdef OMP_OL
-!hy_uplus,hy_uminus,hy_shk,hy_tposedBlk,hy_flat,hy_grv,hy_flux
+!hy_uplus,hy_uminus,hy_shk,hy_tposeBlk,hy_flat,hy_grv,hy_flux
   !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
   !$omp target exit data map(DELETE:hy_grav)
   !$omp target update from(hy_starState)
@@ -187,11 +121,6 @@ subroutine updateState(tileDesc)
     deallocate(hy_flxbx);deallocate(hy_flxby);deallocate(hy_flxbz)
   endif
 #endif
-  nullify(Uin)
-  call tileDesc%getDataPtr(Uin,CENTER)
- 
-  blkLimits(:,:)   = tileDesc%limits
-  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
 
   !$omp parallel if(hy_threadWithinBlock) &
   !$omp default(none) &
@@ -215,7 +144,6 @@ subroutine updateState(tileDesc)
 
   !$omp end workshare
   !$omp end parallel
-  call tileDesc%releaseDataPtr(Uin,CENTER)
 #ifdef OMP_OL
   !$omp target exit data map(DELETE:hy_starState)
 #endif

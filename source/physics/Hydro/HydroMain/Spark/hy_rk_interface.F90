@@ -23,13 +23,13 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
-       use Grid_tile, ONLY : Grid_tile_t
+     subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
        implicit none
-       type(Grid_tile_t)    :: blockDesc
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+       real, pointer :: Uin(:,:,:,:)
+       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
        real, intent(IN) :: dt, dtOld
-       real, dimension(3), intent(IN) :: coeffs
+       real, dimension(3), intent(IN) :: coeffs,hy_del
+       integer, intent(IN) :: level
      end subroutine hy_rk_updateSoln
   end interface
 

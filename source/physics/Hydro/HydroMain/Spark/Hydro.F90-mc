@@ -48,6 +48,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use IO_interface, ONLY : IO_setScalar
   @M iter_use
   @M hy_use_scratch
+  @M hy_use_scratch_geom
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
@@ -56,7 +57,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, intent(IN) :: sweepOrder
   integer :: n, error, lev, maxLev=-1
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
-  integer, dimension(LOW:HIGH,MDIM) :: limits,mapLims,mapLimsGC
+  integer, dimension(LOW:HIGH,MDIM) :: limits
   real :: hdt
   integer :: stage, last_stage
   real, dimension(3) :: coeffs, weights
@@ -64,10 +65,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real, dimension(3,3) :: coeff_array
   logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v
-  real,pointer,dimension(:,:,:,:) :: Utemp
+  real, save :: onesixth = 1./6.
+  real, save :: onethird = 1./3.
+  real, save :: twothirds = 2./3.
+
   
   @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
-  @M hy_declare_scratch
+
   if (.NOT. hy_useHydro) return
 
   call Timers_start("Hydro")
@@ -83,9 +87,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !This array will work for RK2 & RK3
   addFlux_array = (/.false.,.true.,.true./)
  
-  !set up quantities specific to RK scheme (lives in Hydro_funcs)
-  call select_RK_scheme(coeff_array,last_stage,limits_array,weights)
-
+  @M hy_rk_scheme
+  
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM
   call MPI_AllReduce (hy_lChyp, hy_C_hyp, 1, &
@@ -102,8 +105,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #endif
 
   call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
-  @M hy_alloc_scratch(hy_sizex,hy_sizey,hy_sizez)
-  
+  @M hy_alloc_scratch_gi(hy_sizex,hy_sizey,hy_sizez)
+  @M hy_alloc_scratch_geom(hy_sizex,hy_sizey,hy_sizez)
+  @M hy_alloc_scratch_li(hy_sizex,hy_sizey,hy_sizez)
+  @M hy_map_togpu
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
@@ -130,7 +135,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        call Timers_start("scratch")
        ! U* = U0
        !  The data is sent to the GPU at this point.
-       !!       @M hy_map_scratch
+       @M hy_map_scratch_gi
       
        call saveState(Uin,blkLimits,blkLimitsGC)
        call Timers_stop("scratch")
@@ -165,7 +170,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
          call Timers_start("updateSoln")
 
-         call hy_rk_updateSoln(tileDesc,dt,dtOld,limits,coeffs)
+         call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
          call Timers_stop("updateSoln")
          ! Update EOS based on intermediate solution
          call Timers_start("eos")
@@ -181,7 +186,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
          if (stage == last_stage) then
           call Timers_start("scratch")
           ! The data is sent off the GPU at this point
-          call updateState(tileDesc)
+          call updateState(Uin,blkLimits,blkLimitsGC)
           call Timers_stop("scratch")
          endif
        call Timers_stop("Offloaded Section")
@@ -285,7 +290,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
              call Timers_start("updateSoln")
              
              
-             call hy_rk_updateSoln(tileDesc,dt,dtOld,limits,coeffs)
+             call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
              call Timers_stop("updateSoln")
              ! Update EOS based on intermediate solution
              
@@ -297,7 +302,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
              if (stage == last_stage) then
                 ! Finally, store the output and free up the scratch array
                 call Timers_start("scratch")
-                call updateState(tileDesc)
+                call updateState(Uin,blkLimits,blkLimitsGC)
                 call Timers_stop("scratch")
              endif
           end do!stage loop
@@ -310,7 +315,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
  endif !Flux correct per Level
  ! !!!###
 
- @M hy_dealloc_scratch
+ @M hy_dealloc_scratch_gi
+ @M hy_dealloc_scratch_li
+ @M hy_dealloc_scratch_geom
   ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
  hy_lChyp = TINY(1.0)
  

@@ -48,7 +48,6 @@ subroutine Hydro_init()
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
 
   ! Set allocation flag to false. This will allow the scratch array to only be allocated once.
-  scratch_allocated = .False.
 
   ! Everybody should know these
   call Driver_getMype(MESH_COMM,hy_meshMe)

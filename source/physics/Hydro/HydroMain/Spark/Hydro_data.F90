@@ -12,7 +12,7 @@
 !!  NOTES
 !!
 !!***
-!!REORDER(4): hy_afluxBuf[XYZ]
+
 
 module Hydro_data
 #include "constants.h"
@@ -23,26 +23,38 @@ module Hydro_data
   save
   !$omp declare target (hy_sizex,hy_sizey,hy_sizez,hy_tiny,hy_hybridRiemann,hy_geometry,hy_alphaGLM)
   !$omp declare target (hy_C_hyp,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_cvisc,hy_del)
-  !$omp declare target (hy_ablk,hy_autmphy_aflx,hy_afly,hy_aflz,hy_aflxbx,hy_aflxby,hy_aflxbz,hy_agrav, hy_aflat3d)
-  !$omp declare target (hy_flux,hy_uplus, hy_uminus, hy_grv, hy_shk, hy_flat,hy_tposedBlk)
-  !$omp declare target (hy_axcenter, hy_axright, hy_axleft, hy_aycenter, hy_azcenter, hy_aarea, hy_avol) 
+  !$omp declare target (hya_xcenter, hya_xright, hya_xleft, hya_ycenter, hya_zcenter, hya_area, hya_vol) 
+  !$omp declare target (hy_xcenter, hy_xright, hy_xleft, hy_ycenter, hy_zcenter, hy_area, hy_vol) 
+  !$omp declare target (hya_starState, hya_tmpState,hya_flx,hya_fly)
+  !$omp declare target (hya_flz,hya_flxbx,hya_flxby,hya_flxbz, hya_grav, hya_utmp, hya_flat3d)
+  !$omp declare target (hy_starState,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_flxbx,hy_flxby,hy_flxbz, hy_grav,hy_flat3d)
+  !$omp declare target (hy_flux,  hy_uplus, hy_uminus,hy_tposeBlk, hy_grv, hy_shk, hy_flat)
 
-  real, allocatable, dimension(:), target :: hy_ablk,hy_atposedBlk,hy_aflx,hy_afly,&
-       hy_aflz,hy_aflxbx,hy_aflxby,hy_aflxbz, hy_agrav, hy_aflat3d, hy_autmp
-  real,  allocatable, dimension(:), target :: hy_axcenter, hy_axright, hy_axleft, hy_aycenter, hy_azcenter, hy_aarea, hy_avol 
-  real, allocatable, dimension(:,:,:,:), target :: hy_flux, hy_flat,  hy_uplus, hy_uminus, hy_grv, hy_shk,hy_transBlk
-  real,  pointer, dimension(:,:,:,:) :: hy_starState, hy_tmpState
-!!$  real, pointer, dimension(:,:,:,:) hy_uplus, hy_uminus
-  real,  pointer, dimension(:,:,:,:) :: hy_flx,hy_fly,hy_flz,hy_flxbx,hy_flxby,hy_flxbz,hy_flux
-  real, pointer, dimension(:,:,:) :: hy_area, hy_vol, hy_flat3d
-!!$  real,  pointer, dimension(:,:,:) :: hy_flat, hy_grv, hy_grav,hy_shk, hy_tposedBlk
+  !! Arrays and their pointers that are needed only for non cartesian geometry
+  real,  allocatable, dimension(:), target :: hya_xcenter, hya_xright, hya_xleft, &
+       hya_ycenter, hya_zcenter, hya_area, hya_vol 
   real,  pointer, dimension(:) :: hy_xcenter, hy_ycenter, hy_zcenter, hy_xright, hy_xleft
+  real, pointer, dimension(:,:,:) :: hy_area, hy_vol
+
+  !! Arrays and their pointers that will always have global indices
+  real, allocatable, dimension(:), target :: hya_starState, hya_tmpState,hya_flx,hya_fly,&
+       hya_flz,hya_flxbx,hya_flxby,hya_flxbz, hya_grav, hya_flat3d
+  real, pointer, dimension(:,:,:,:) :: hy_starState,hy_tmpState,hy_flx,hy_fly,&
+       hy_flz,hy_flxbx,hy_flxby,hy_flxbz, hy_grav
+  real, pointer,dimension(:,:,:) :: hy_flat3d
+
+  !! Arrays that are beginning life with local indices for now, with their pointers commented out
+  real, allocatable, dimension(:,:,:,:), target :: hy_flux,  hy_uplus, hy_uminus,hy_tposeBlk
+  real, allocatable, dimension(:,:,:), target :: hy_grv, hy_shk, hy_flat
+!!$  real, allocatable, dimension(:), target :: hya_flux,  hya_uplus, hya_uminus,hya_tposeBlk, hya_grv, hya_shk, hya_flat  
+!!$  real, pointer, dimension(:,:,:,:) :: hy_flux,  hy_uplus, hy_uminus,hy_tposeBlk
+!!$  real, pointer, dimension(:,:,:) :: hy_grv, hy_shk, hy_flat
 
 
   !! These are the variable that are offloaded
   integer :: hy_sizex,hy_sizey,hy_sizez
   integer :: hy_geometry
-  integer, dimension(LOW:HIGH,MDIM) :: dirLims
+  integer, dimension(LOW:HIGH,MDIM) :: hy_lims
 
   real :: hy_tiny=1.e-32
   real :: hy_C_hyp, hy_alphaGLM, hy_lChyp

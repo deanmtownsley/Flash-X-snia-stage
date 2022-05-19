@@ -16,13 +16,13 @@
 !!  blockDesc-block descriptor
 !!
 !!***
-!!Reorder(4): hy_starState, solnData, hy_fl[xyz]
-subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
+!!Reorder(4): hy_starState, Uin, hy_fl[xyz]
+subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
-       hy_flx, hy_fly, hy_flz, solState_tmp
+       hy_flx, hy_fly, hy_flz, hy_tmpState
   use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellCoords,Grid_getCellFaceAreas,&
                              Grid_getCellVolumes,Grid_renormAbundance
@@ -34,21 +34,20 @@ subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
 #include "constants.h"
 #include "Spark.h"
 
-  type(Grid_tile_t)   :: blockDesc
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+  real, pointer :: Uin(:,:,:,:)
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   real, intent(IN) :: dt, dtOld
-  real, dimension(3), intent(IN) :: coeffs
+  real, dimension(3), intent(IN) :: coeffs,hy_del
+  integer, intent(IN) :: level
 
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC 
  
-  real, allocatable, dimension(:) :: xCenter, xLeft, xRight, &
-                                     yCenter, zCenter
+!!$  real, allocatable, dimension(:) :: xCenter, xLeft, xRight, &
+!!$                                     yCenter, zCenter
 
   integer :: i,j,k,n,g
 
-  real, pointer :: solnData(:,:,:,:)
   real, pointer :: V0(:), Vstar(:)
 
   real, dimension(NFLUXES) :: U0, Ustar
@@ -60,15 +59,13 @@ subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
   ! Geometry factors
   real :: facM, facP
   real, dimension(NFLUXES) :: Sgeo, Sgrv, Stot
-  real, allocatable, dimension(:,:,:) :: faceAreas
-  real, allocatable, dimension(:,:,:) :: cellVolumes
+!!$  real, allocatable, dimension(:,:,:) :: faceAreas
+!!$  real, allocatable, dimension(:,:,:) :: cellVolumes
   integer :: isize, jsize, ksize, lev, ind
   real :: dhdt
 
-  blkLimits(:,:)   = blockDesc%limits
   lo(:) = blkLimits(LOW,:)
   hi(:) = blkLimits(HIGH,:)
-  blkLimitsGC(:,:) = blockDesc%blkLimitsGC
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)  
 
@@ -81,38 +78,35 @@ subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
   jSize = blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
   kSize = blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
 
-  nullify(solnData)  
-  call blockDesc%getDataPtr(solnData,CENTER)
-
-  call blockDesc%deltas(del)
+  del=hy_del
   dx = del(IAXIS); dy = del(JAXIS); dz = del(KAXIS)
   dhdt = minval(del(1:NDIM))/(coeffs(3)*dt)
 
-  if (hy_geometry /= CARTESIAN) then
-     lev = blockDesc%level
-     
-     allocate(faceAreas(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-     call Grid_getCellFaceAreas(IAXIS,lev,loGC,hiGC,faceAreas)
- 
-     allocate(cellVolumes(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-     call Grid_getCellVolumes(lev,loGC,hiGC,cellVolumes)
-
-     allocate(xCenter(xLoGC:xHiGC))
-     allocate(xLeft(xLoGC:xHiGC))
-     allocate(xRight(xLoGC:xHiGC))
-     allocate(yCenter(yLoGC:yHiGC))
-     allocate(zCenter(zLoGC:zHiGC))
-
-     call Grid_getCellCoords(IAXIS, CENTER, lev, loGC, hiGC, xCenter)
-     call Grid_getCellCoords(IAXIS, LEFT_EDGE, lev, loGC, hiGC, xLeft)
-     call Grid_getCellCoords(IAXIS, RIGHT_EDGE, lev, loGC, hiGC, xRight) 
-     call Grid_getCellCoords(JAXIS, CENTER, lev, loGC, hiGC, yCenter)
-     call Grid_getCellCoords(KAXIS, CENTER, lev, loGC, hiGC, zCenter)
-  endif
-
-  if (hy_geometry /= CARTESIAN) then
-    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
-  endif
+!!$  if (hy_geometry /= CARTESIAN) then
+!!$     lev = level
+!!$     
+!!$     allocate(faceAreas(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+!!$     call Grid_getCellFaceAreas(IAXIS,lev,loGC,hiGC,faceAreas)
+!!$ 
+!!$     allocate(cellVolumes(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+!!$     call Grid_getCellVolumes(lev,loGC,hiGC,cellVolumes)
+!!$
+!!$     allocate(xCenter(xLoGC:xHiGC))
+!!$     allocate(xLeft(xLoGC:xHiGC))
+!!$     allocate(xRight(xLoGC:xHiGC))
+!!$     allocate(yCenter(yLoGC:yHiGC))
+!!$     allocate(zCenter(zLoGC:zHiGC))
+!!$
+!!$     call Grid_getCellCoords(IAXIS, CENTER, lev, loGC, hiGC, xCenter)
+!!$     call Grid_getCellCoords(IAXIS, LEFT_EDGE, lev, loGC, hiGC, xLeft)
+!!$     call Grid_getCellCoords(IAXIS, RIGHT_EDGE, lev, loGC, hiGC, xRight) 
+!!$     call Grid_getCellCoords(JAXIS, CENTER, lev, loGC, hiGC, yCenter)
+!!$     call Grid_getCellCoords(KAXIS, CENTER, lev, loGC, hiGC, zCenter)
+!!$  endif
+!!$
+!!$  if (hy_geometry /= CARTESIAN) then
+!!$    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
+!!$  endif
 #ifdef OMP_OL
   !$omp target teams distribute parallel do &
   !$omp default(none) &
@@ -143,20 +137,20 @@ subroutine hy_rk_updateSoln (blockDesc, dt, dtOld, limits, coeffs)
 #ifdef OMP_OL
   call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif /* OMP_OL */
-  solnData => hy_starState
-  call Grid_renormAbundance(blockDesc,blkLimitsGC,solnData)
-  nullify(solnData)
+  Uin => hy_starState
+  call Grid_renormAbundance(blockDesc,blkLimitsGC,Uin)
+  nullify(Uin)
 #endif 
 
-  if (hy_geometry /= CARTESIAN) then
-     deallocate(xCenter)
-     deallocate(xLeft)
-     deallocate(xRight)
-     deallocate(yCenter)
-     deallocate(zCenter)
-     deallocate(faceAreas)
-     deallocate(cellVolumes)
-  end if
+!!$  if (hy_geometry /= CARTESIAN) then
+!!$     deallocate(xCenter)
+!!$     deallocate(xLeft)
+!!$     deallocate(xRight)
+!!$     deallocate(yCenter)
+!!$     deallocate(zCenter)
+!!$     deallocate(faceAreas)
+!!$     deallocate(cellVolumes)
+!!$  end if
 
 contains
   !!Account for multiplicative factors at each cell face to account for different 
@@ -257,7 +251,7 @@ end subroutine hy_rk_updateSoln
 
 
 subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-  use Hydro_data, only : hy_starState, solState_tmp, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
+  use Hydro_data, only : hy_starState, hy_tmpState, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
     hy_smalldens, hy_smallE
   implicit none
   integer, intent(in) :: i,j,k
@@ -272,7 +266,7 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
   real, dimension(NFLUXES) :: U0, Ustar
   !$omp declare target
 
-  V0    => solState_tmp(:,i,j,k)
+  V0    => hy_tmpState(:,i,j,k)
   Vstar => hy_starState(:,i,j,k)
 
   ! Point to the correct fluxes

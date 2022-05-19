@@ -27,7 +27,7 @@ subroutine hy_rk_correctFluxes(blockDesc, dt)
   use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hy_flxbx, hy_flxby, hy_flxbz
+       hya_flxbx, hya_flxby, hya_flxbz
   use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
                              Grid_getCellVolumes
@@ -112,11 +112,11 @@ subroutine hy_rk_correctFluxes(blockDesc, dt)
   !These pointers allow us to use hy_fluxBuf[XYZ] (whose limits
   !are hard coded in FBS mode) within the varying loop limits below
 
-  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hy_flxbx
+  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hya_flxbx
 #if NDIM>1  
-  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hy_flxby
+  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hya_flxby
 #if NDIM==3
-  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hy_flxbz
+  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_flxbz
 #endif
 #endif
 
@@ -143,7 +143,7 @@ subroutine hy_rk_correctFluxes(blockDesc, dt)
 !  !$omp private(n,i,j,k,Vstar,facM,facP,range,eosData,massFraction,&
 !  !$omp         emag,ekin,dx,dy,dz,fac,dFlux)&
 !  !$omp shared(dt,solnData,hy_starState,p_fluxBufX,p_fluxBufY,p_fluxBufZ,hy_grav,&
-!  !$omp        hy_flxbx,hy_flxby,hy_flxbz,xCenter,xLeft,xRight,blockDesc,&
+!  !$omp        hya_flxbx,hya_flxby,hya_flxbz,xCenter,xLeft,xRight,blockDesc,&
 !  !$omp        blkLimits,blkLimitsGC,hy_alphaGLM, hy_C_hyp,&
 !  !$omp        dhdt, hy_smalldens, hy_smallE,del)
 
