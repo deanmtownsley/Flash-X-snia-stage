@@ -38,23 +38,23 @@ ht_Prandtl = 8.0
 # Heater parameters
 sim_nucSeedRadius =  0.1 # Re-nucleation seed size
 sim_numHeaters    =  1   # Number of heaters
-sim_heaterName    = "3d_fb"
+sim_heaterName    = "weak_scaling"
 sim_heaterShowInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 2.0 # Outlet Buffer
+sim_outletBuffer = 0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
 
 #       Size of computational volume
 #       Size of computational volume
-xmin		= -24.0
-xmax		=  24.0
+xmin		= -4.0
+xmax		=  4.0
 ymin		=  0.0
-ymax		=  15.0
-zmin            = -7.5
-zmax            =  7.5
+ymax		=  4.0
+zmin            = -2.0
+zmax            =  2.0
 
 #       Boundary conditions
 xl_boundary_type = "inflow_ins"
@@ -91,17 +91,17 @@ plot_var_6      = "dust"
 
 checkpointFileNumber = 0
 checkpointFileIntervalTime = 0.5
-checkpointFileIntervalStep = 5000
+checkpointFileIntervalStep = 0
 
 plotFileNumber = 0
 plotFileIntervalTime = 0.1
-plotFileIntervalStep = 1000
+plotFileIntervalStep = 0
 ignoreForcedPlot = .TRUE.
 
 # AMR parameters
-nblockx	= 96
-nblocky	= 30
-nblockz = 30
+nblockx	= 16
+nblocky	= 8
+nblockz = 8
 nfres   = 10000000
 
 lrefine_min       = 1

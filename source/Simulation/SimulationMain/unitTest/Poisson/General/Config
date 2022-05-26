@@ -1,0 +1,28 @@
+D Poisson Solver unitTest
+
+REQUIRES Driver
+
+USESETUPVARS Grid
+
+IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
+   REQUESTS Grid/GridSolvers/HYPRE
+ELSE
+   REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+ENDIF
+
+LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
+LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
+
+D rhds : RHS of the Poisson Problem to be solved
+D nsol : Numerical Solution of Poisson Problem
+D asol : Analytical solution of Poisson problem
+D diff : Pointwise difference between nsol and asol
+ 
+VARIABLE rhds TYPE: GENERIC
+VARIABLE nsol TYPE: GENERIC
+VARIABLE diff TYPE: GENERIC
+VARIABLE asol TYPE: GENERIC
+VARIABLE rfin TYPE: GENERIC
+
+# Number of layers of Guardcells:
+GUARDCELLS 2

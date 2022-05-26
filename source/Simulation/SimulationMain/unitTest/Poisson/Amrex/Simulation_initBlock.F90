@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/unitTest/PFFT_PoissonFD/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/unitTest/Poisson/Amrex/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -40,7 +40,7 @@
 !!
 !!***
 
-!!REORDER(4): solnData
+!!-----!! Do not REORDER(4): solnData
 
 subroutine Simulation_initBlock(solnData,tileDesc)
 
@@ -119,18 +119,15 @@ subroutine Simulation_initBlock(solnData,tileDesc)
           yi=yCenter(j)
           zi=zCenter(k)
 
-           Phi_ijk = sin(2.*PI*xi) * &
-                     sin(2.*PI*yi)
- 
-           !Phi_ijk = cos(2.*PI*xi) * &
-           !          cos(2.*PI*yi)
+           Phi_ijk = cos(2.*PI*xi*pfb_waven_x/Lx + pfb_alpha_x) * &
+                     sin(2.*PI*yi*pfb_waven_y/Ly)*cos(2.*PI*zi*pfb_waven_z/Lz)
+
   
-           F_ijk = -8*PI*PI*Phi_ijk
+           F_ijk  = -4.*PI**2 * ( (pfb_waven_x/Lx)**2. + (pfb_waven_y/Ly)**2. + (pfb_waven_z/Lz)**2. ) * Phi_ijk
            
-           solnData(ASOL_VAR,i,j,k) = Phi_ijk
+           solnData(i,j,k,ASOL_VAR) = Phi_ijk
 
-           solnData(RHS_VAR,i,j,k) = F_ijk
-
+           solnData(i,j,k,RHS_VAR) = F_ijk
 
         enddo
      enddo
@@ -138,11 +135,10 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
 
   ! set values for other variables
-  solnData(DIFF_VAR,lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) = 0.0
-  solnData(NSOL_VAR,lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) = 0.0
+  solnData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), DIFF_VAR) = 0.0
+  solnData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), NSOL_VAR) = 0.0
 
   deallocate(xCenter,yCenter,zCenter)
-
 
   return
 
