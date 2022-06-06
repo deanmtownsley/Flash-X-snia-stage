@@ -52,14 +52,14 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
-FFLAGS_OPT = -c -O2 -r8 -real_size 64 -check uninit
-FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
+FFLAGS_OPT = -c -O2 -r8 -real-size 64 -check uninit
+FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 	-warn all -diag-disable 10120 \
 	-check output_conversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -check bounds \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
-FFLAGS_TEST = -ggdb -c -r8 -real_size 64
+FFLAGS_TEST = -ggdb -c -r8 -real-size 64
 
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
@@ -77,9 +77,6 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wundef \
 	-Winit-self -Wfloat-equal \
 	-fp-stack-check
 CFLAGS_TEST = -c
-
-# Platform symbol
-CDEFINES += -DDarwin
 
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 #CFLAGS_HDF5 = -DH5_USE_18_API -I/nfs/gce/projects/FLASH5/software/vol-async/src -I$(HDF5_PATH)/include
@@ -102,12 +99,12 @@ LFLAGS_TEST  = -o
 #----------------------------------------------------------------------------
 # Library specific linking
 #
-#  If a FLASH module has a 'LIBRARY xxx' line in its Config file, we need to
+#  If a Flash-X source directory has a 'LIBRARY xxx' line in its Config file, we need to
 #  create a macro in this Makefile.h for LIB_xxx, which will be added to the
-#  link line when FLASH is built.  This allows us to switch between different
+#  link line when Flash-X is built.  This allows us to switch between different
 #  (incompatible) libraries.  We also create a _OPT, _DEBUG, and _TEST
 #  library macro to add any performance-minded libraries (like fast math),
-#  depending on how FLASH was setup.
+#  depending on how Flash-X was setup.
 #
 #  Mostly handled by loading modules with Spack and h5pXX wrappers.
 #----------------------------------------------------------------------------
@@ -135,7 +132,7 @@ LIB_LAPACK= -llapack -lblas
 # Additional machine-dependent object files
 #
 #  Add any machine specific files here -- they will be compiled and linked
-#  when FLASH is built.
+#  when Flash-X is built.
 #----------------------------------------------------------------------------
 
 MACHOBJ =
