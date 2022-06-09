@@ -22,7 +22,7 @@
 ##                 as concatenations of other symbols like FFLAGS_HYPRE FFLAGS_DEBUG etc.
 ##                 The set of symbols which are concatenated can depend on LIBRARY
 ##                 statements in Config files parsed by setup, definitions found
-##                 in Makefile.h, and on whcih of the floags {-debug,-test,-test}
+##                 in Makefile.h, and on which of the flags {-debug,-test,-opt}
 ##                 was active for setup.
 ## includeList  -> Commands to include relavant Makefiles
 ## includeMacros-> include Macros
