@@ -17,12 +17,12 @@
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_interfml_memInterfaceace
+!!      use ml_memInterface
 !!
 !!  DESCRIPTION
 !!
 !!      This is the header file for the method of lines time integration unit
-!!      that defines memory
+!!      that defines memory storage and operations procedures
 !!
 !!***
 module ml_memInterface
