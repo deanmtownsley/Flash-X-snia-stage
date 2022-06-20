@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****f* source/numericalTools/MoL/localAPI/ml_warn
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,36 +13,25 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      ml_warn
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call ml_warn(character, intent(in) :: msg(:))
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Print a warning message
 !!
 !!  ARGUMENTS
 !!
+!!      msg : Warning message to print
 !!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
-    use MoL_data
-
-    use RuntimeParameters_interface, only: RuntimeParameters_get
-
+subroutine ml_warn(msg)
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
+    character(len=*), intent(in) :: msg
 
-    MoL_nscratch = 0
-    MoL_nvars    = 0
-
-    call ml_init()
-
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    return
+end subroutine ml_warn

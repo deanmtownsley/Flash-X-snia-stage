@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****if* source/numericalTools/MoL/MoLMain/ml_status
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,36 +13,31 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      ml_status
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call ml_status(character, intent(in) :: msg(:))
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Print a status message
 !!
 !!  ARGUMENTS
 !!
 !!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
+subroutine ml_warn(msg)
     use MoL_data
 
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+#include "MoL.h"
+#include "constants.h"
 
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
-
-    MoL_nscratch = 0
-    MoL_nvars    = 0
-
-    call ml_init()
-
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    character(len=*), intent(in) :: msg
+    
+    if ((MoL_verbosity .ge. MOL_VERBOSE_STATUS) .and. (MoL_mpiRank .eq. MASTER_PE)) then
+        print*, "[MoL]: " // msg
+    end if
+end subroutine ml_warn

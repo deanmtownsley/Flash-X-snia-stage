@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****if* source/numericalTools/MoL/MoLMain/MoL_releaseFunctions
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,36 +13,31 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      MoL_releaseFunctions
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call MoL_releaseFunctions()
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Release all registered MoL functions
 !!
 !!  ARGUMENTS
 !!
 !!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
-    use MoL_data
-
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+subroutine MoL_releaseFunctions()
+    use MoL_functions
 
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
+    if (associated(MoL_rhsE)) nullify(MoL_rhsE)
+    if (associated(MoL_rhsI)) nullify(MoL_rhsI)
+    if (associated(MoL_rhsF)) nullify(MoL_rhsF)
 
-    MoL_nscratch = 0
-    MoL_nvars    = 0
-
-    call ml_init()
-
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    if (associated(MoL_implicitUpdate)) nullify(MoL_implicitUpdate)
+    
+    if (associated(MoL_postUpdate)) nullify(MoL_postUpdate)
+    if (associated(MoL_postUpdateFast)) nullify(MoL_postUpdateFast)
+end subroutine MoL_releaseFunctions

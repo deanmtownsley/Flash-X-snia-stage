@@ -24,22 +24,21 @@
 !!
 !!***
 module MoL_data
-    use MoL_variable, only: MoL_variable_t
-
-#include "Simulation.h"
 
     implicit none
     
-    integer, parameter :: MOL_MAX_VARS = NUNK_VARS
-
     ! MoL_nscratch is the required number of memory-levels (e.g. intermediate
     ! stages) required by an implementation
     ! MoL_nscratch_total adds additional levels for default memory-levels provided
     ! by the base implementation (e.g. RHS and INITIAL)
     integer, save :: MoL_nscratch, MoL_nscratch_total
 
-    ! Evolved variable storage
-    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-    integer, save :: MoL_nvars = 0
+
+    ! Current MPI rank (mainly used for messaging)
+    integer, save :: MoL_mpiRank
+
+    ! Verbosity for messaging
+    integer, save :: MoL_verbosity
+    logical, save :: MoL_abortOnWarn
 
 end module MoL_data

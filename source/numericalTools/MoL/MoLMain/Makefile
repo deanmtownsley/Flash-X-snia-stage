@@ -1,1 +1,3 @@
-MoL += MoL_variable.o MoL_data.o
+MoL += MoL_data.o \
+	   MoL_variables.o \
+	   MoL_functions.o

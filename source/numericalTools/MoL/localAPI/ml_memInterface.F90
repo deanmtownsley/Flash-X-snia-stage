@@ -27,7 +27,27 @@
 !!***
 module ml_memInterface
 
+    use Grid_tile, only: Grid_tile_t
+
     implicit none
+
+    interface
+        subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
+            import :: Grid_tile_t
+            class(tileDesc), intent(in) :: tileDesc
+            real, pointer               :: dataPtr(:,:,:,:)
+            integer,         intent(in) :: dataStruct
+        end subroutine ml_memGetDataPtr
+    end interface
+
+    interface
+        subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
+            import :: Grid_tile_t
+            class(tileDesc), intent(in) :: tileDesc
+            real, pointer               :: dataPtr(:,:,:,:)
+            integer,         intent(in) :: dataStruct
+        end subroutine ml_memReleaseDataPtr
+    end interface
 
     !! ================================ !!
     !!  Memory allocation/deallocation  !!

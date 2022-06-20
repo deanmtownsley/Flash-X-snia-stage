@@ -54,4 +54,38 @@ module ml_interface
             real, intent(in) :: t, dt
         end subroutine ml_advance
     end interface
+
+
+    !! ===================== !!
+    !!  Caclulate RHS terms  !!
+    !! ===================== !!
+    interface
+        subroutine ml_calcRHS(rhsType, rhsStruct, t)
+            integer, intent(in) :: rhsType, rhsStruct
+            real,    intent(in) :: t
+        end subroutine ml_calcRHS
+    end interface
+
+
+    !! ============================ !!
+    !!  Error and warning messages  !!
+    !! ============================ !!
+
+    interface
+        subroutine ml_error(msg)
+            character(len=*), intent(in) :: msg
+        end subroutine ml_error
+    end interface
+
+    interface
+        subroutine ml_warn(msg)
+            character(len=*), intent(in) :: msg
+        end subroutine ml_warn
+    end interface
+
+    interface
+        subroutine ml_status(msg)
+            character(len=*), intent(in) :: msg
+        end subroutine ml_status
+    end interface
 end module ml_interface

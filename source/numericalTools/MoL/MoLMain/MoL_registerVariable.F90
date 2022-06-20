@@ -33,8 +33,8 @@
 !!
 !!***
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
-    use MoL_data, only: MoL_nvars, MoL_vars
-    use MoL_variable, only: MoL_variable_t
+    use MoL_variables
+    use ml_interface, only: ml_warn
 
     implicit none
 
@@ -49,7 +49,7 @@ subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
     ! If this variable is registered already, output a warning (if verbose) and exit
     varLoop: do ivar = 1, MoL_nvars
         if (MoL_vars(ivar)%evolIndex .eq. evolIndex) then
-            ! TODO: print warning
+            call ml_warn("Duplicate variable registration")
             return
         end if
     end do varLoop

@@ -58,6 +58,47 @@ module MoL_interface
         end subroutine MoL_registerVariable
     end interface
 
+    !! ===============================!!
+    !!  Set RHS and update functions  !!
+    !! ============================== !!
+
+    interface MoL_registerFunction
+        subroutine MoL_registerRHS(rhsType, rhsFunc)
+            integer, intent(in) :: rhsType
+            interface
+                subroutine rhsFunc(tileDesc, dy, y, t)
+                    import :: Grid_tile_t
+                    type(Grid_tile_t), intent(in) :: tileDesc
+                    real, dimension(:,:,:,:), pointer :: dy, y
+                    real, intent(in) :: t
+                end subroutine rhsFunc
+            end interface
+        end subroutine MoL_registerRHS
+
+        subroutine MoL_registerUpdate(updateType, updateFunc)
+            integer, intent(in) :: updateType
+            interface
+                subroutine updateFunc(t, dt)
+                    real, intent(in) :: t, dt
+                end subroutine updateFunc
+            end interface
+        end subroutine MoL_registerUpdate
+
+        subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
+            integer, intent(in) :: postUpdateType
+            interface
+                subroutine postUpdateFunc(t)
+                    real, intent(in) :: t
+                end subroutine postUpdateFunc
+            end interface
+        end subroutine MoL_registerPostUpdate
+    end interface MoL_registerFunction
+
+    interface
+        subroutine MoL_releaseFunctions
+        end subroutine MoL_releaseFunctions
+    end interface
+
     !! ===================== !!
     !!  Advance a time step  !!
     !! ===================== !!
@@ -68,27 +109,6 @@ module MoL_interface
         end subroutine MoL_advance
     end interface
 
-    !! ================= !!
-    !!  MoL data access  !!
-    !! ================= !!
-
-    interface
-        subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
-            import :: Grid_tile_t
-            class(Grid_tile_t), intent(inout) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: dataPtr
-            integer, intent(in) :: dataStruct
-        end subroutine MoL_getDataPtr
-    end interface
-
-    interface
-        subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
-            import :: Grid_tile_t
-            class(Grid_tile_t), intent(inout) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: dataPtr
-            integer, intent(in) :: dataStruct
-        end subroutine MoL_releaseDataPtr
-    end interface
 
     !! =================================================== !!
     !!  Call after regrid to update MoL memory structures  !!

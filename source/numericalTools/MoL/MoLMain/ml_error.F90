@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****if* source/numericalTools/MoL/MoLMain/ml_error
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,36 +13,29 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      ml_error
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call ml_error(character, intent(in) :: msg(:))
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Print an error message and abort
 !!
 !!  ARGUMENTS
 !!
 !!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
-    use MoL_data
+subroutine ml_error(msg)
+    use Driver_interface, only: Driver_abort
 
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+#include "constants.h"
 
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
+    character(len=*), intent(in) :: msg
 
-    MoL_nscratch = 0
-    MoL_nvars    = 0
-
-    call ml_init()
-
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    ! Error-messaging is always turned on
+    call Driver_abort("[MoL] ERROR: " // msg)
+end subroutine ml_error

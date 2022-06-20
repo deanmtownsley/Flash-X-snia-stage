@@ -1,4 +1,4 @@
-!!****ih* source/numericalTools/MoL/MoLMain/MoL_variable
+!!****if* source/numericalTools/MoL/MoLMain/MoL_variables
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,19 +13,19 @@
 !!
 !!  NAME
 !!
-!!      MoL_variable
+!!      MoL_variables
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_variable
+!!      use MoL_variables
 !!
 !!  DESCRIPTION
 !!
-!!      Variable-descriptor type used internally by MoL
+!!      Evolved-variable tracking used internally by MoL
 !!
 !!***
 
-module MoL_variable
+module MoL_variables
 
     implicit none
 
@@ -34,4 +34,7 @@ module MoL_variable
         integer :: evolIndex, rhsIndex
     end type MoL_variable_t
 
-end module MoL_variable
+    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
+    integer, save :: MoL_nvars = 0
+
+end module MoL_variables

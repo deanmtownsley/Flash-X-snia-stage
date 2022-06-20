@@ -1,0 +1,6 @@
+# Config file for MoLMain
+
+DEFAULT ERK
+
+PARAMETER MoL_verbosity INTEGER 1 [1, 2, 3]
+PARAMETER MoL_abortOnWarn BOOLEAN FALSE
