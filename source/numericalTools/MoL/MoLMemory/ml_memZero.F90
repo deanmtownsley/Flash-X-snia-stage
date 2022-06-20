@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_variables
+!!****if* source/numericalTools/MoL/MoLMemory/ml_memZero
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,31 +13,29 @@
 !!
 !!  NAME
 !!
-!!      MoL_variables
+!!      ml_memZero
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_variables
+!!      call ml_memZero(integer, intent(in) :: dataStruct)
 !!
 !!  DESCRIPTION
 !!
-!!      Evolved-variable tracking used internally by MoL
+!!      Zero a specified MoL scratch-memory location
+!!
+!!  ARGUMENTS
+!!
+!!      dataStruct : Index of MoL scratch-memory to zero
 !!
 !!***
+subroutine ml_memZero(dataStruct)
+    use ml_memData
 
-module MoL_variables
+#include "MoL.h"
 
     implicit none
 
-    type :: MoL_variable_t
-        character(len=:), allocatable :: name
-        integer :: evolIndex, rhsIndex
-    end type MoL_variable_t
+    integer, intent(in) :: dataStruct
 
-    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-    integer, save :: MoL_nvars = 0
-
-    ! For convenience
-    integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
-
-end module MoL_variables
+    if (dataStruct .ge. MOL_INITIAL) scratch_data(:,:,:,:,:,dataStruct) = 0d0
+end subroutine ml_memZero

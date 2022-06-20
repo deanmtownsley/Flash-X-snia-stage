@@ -69,4 +69,18 @@ subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
     else
         MoL_vars = (/MoL_vars, var/)
     endif
+
+    if (.not. allocated(MoL_unk_mask)) then
+        allocate(MoL_unk_mask(1))
+        MoL_unk_mask = evolIndex
+    else
+        MoL_unk_mask = (/MoL_unk_mask, evolIndex/)
+    endif
+    
+    if (.not. allocated(MoL_scratch_mask)) then
+        allocate(MoL_scratch_mask(1))
+        MoL_scratch_mask = MoL_nvars
+    else
+        MoL_scratch_mask = (/MoL_scratch_mask, MoL_nvars/)
+    endif
 end subroutine MoL_registerVariable

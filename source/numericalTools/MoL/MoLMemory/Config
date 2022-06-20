@@ -1,0 +1,12 @@
+# Config file for MoLMemory
+
+REQUIRES numericalTools/MoL/MoLMain
+REQUIRES numericalTools/MoL/localAPI
+
+USESETUPVARS Grid
+
+# Not bothering with Grid checks since this is handled elsewhere
+
+IF Grid == "Amrex"
+    DEFAULT Amrex
+ENDIF

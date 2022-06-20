@@ -1,5 +1,7 @@
 # Config file for MoLMain
 
+REQUIRES numericalTools/MoL/MoLMemory
+
 DEFAULT ERK
 
 PARAMETER MoL_verbosity INTEGER 1 [1, 2, 3]

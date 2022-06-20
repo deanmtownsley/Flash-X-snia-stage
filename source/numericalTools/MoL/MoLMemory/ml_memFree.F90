@@ -1,4 +1,5 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_variables
+
+!!****if* source/numericalTools/MoL/MoLMemory/ml_memFree
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,31 +14,24 @@
 !!
 !!  NAME
 !!
-!!      MoL_variables
+!!      ml_memFree
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_variables
+!!      call ml_memFree()
 !!
 !!  DESCRIPTION
 !!
-!!      Evolved-variable tracking used internally by MoL
+!!    Free memory at termination or prior to re-allocation
+!!
+!! ARGUMENTS
+!!
 !!
 !!***
-
-module MoL_variables
+subroutine ml_memFree()
+    use ml_memData, only: scratch_data
 
     implicit none
 
-    type :: MoL_variable_t
-        character(len=:), allocatable :: name
-        integer :: evolIndex, rhsIndex
-    end type MoL_variable_t
-
-    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-    integer, save :: MoL_nvars = 0
-
-    ! For convenience
-    integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
-
-end module MoL_variables
+    if (allocated(scratch_data)) deallocate (scratch_data)
+end subroutine ml_memFree

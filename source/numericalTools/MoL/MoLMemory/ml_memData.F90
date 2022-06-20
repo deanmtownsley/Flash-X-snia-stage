@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_variables
+!!****if* source/numericalTools/MoL/MoLMemory/ml_memData
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,32 +12,22 @@
 !!  limitations under the License.
 !!
 !!  NAME
-!!
-!!      MoL_variables
+!!    ml_memData
 !!
 !!  SYNOPSIS
-!!
-!!      use MoL_variables
+!!    use ml_memData
 !!
 !!  DESCRIPTION
+!!    Stores data for MoLMemory
 !!
-!!      Evolved-variable tracking used internally by MoL
+!!  NOTES
 !!
 !!***
-
-module MoL_variables
+module ml_memData
 
     implicit none
 
-    type :: MoL_variable_t
-        character(len=:), allocatable :: name
-        integer :: evolIndex, rhsIndex
-    end type MoL_variable_t
+    ! Ranks are (var,i,j,k,block,dataStruct)
+    real, dimension(:,:,:,:,:,:), allocatable, target, save :: scratch_data
 
-    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-    integer, save :: MoL_nvars = 0
-
-    ! For convenience
-    integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
-
-end module MoL_variables
+end module ml_memData
