@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****if* source/numericalTools/MoL/MoLMain/ERK/ml_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,40 +13,46 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      ml_init
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call ml_init()
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Initialize a method of lines unit implementation
 !!
 !!  ARGUMENTS
 !!
 !!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
-    use MoL_data
-
-    use erk_tableau,  only: erk_tableau_init
-    use imex_tableau, only: imex_tableau_init
+subroutine ml_init()
+    use MoL_data, only: MoL_nscratch
+    use erk_data
+    use erk_tableau, only: erk_tableau_init
 
     use RuntimeParameters_interface, only: RuntimeParameters_get
 
+#include "Simulation.h"
+#include "constants.h"
+#include "MoL.h"
+
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
+    character(len=MAX_STRING_LENGTH) :: erk_method_str
 
-    MoL_nscratch = 0
-    MoL_nvars    = 0
+    integer :: i
 
-    ! Specific integrator setup
-    call ml_init()
+    call RuntimeParameters_get("erk_method", erk_method_str)
+    erk_method = trim(erk_method_str)
 
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    call erk_tableau_init
+
+    ! Setup RHS indexing
+    allocate(erk_K(erk_stages))
+
+    erk_K = (/ (MOL_RHS + i, i = 0,erk_stages-1) /)
+
+    MoL_nscratch = erk_stages
+end subroutine ml_init
