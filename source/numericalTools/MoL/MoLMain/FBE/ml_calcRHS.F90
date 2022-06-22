@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/ERK/ml_calcRHS
+!!****if* source/numericalTools/MoL/MoLMain/FBE/ml_calcRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -71,9 +71,8 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
         call ml_memGetDataPtr(tileDesc, U, MOL_EVOLVED)
         call ml_memGetDataPtr(tileDesc, rhs, rhsStruct)
 
-        ! All RHS types are calculated and stored-in/added-to one location
+        ! Only need explicit (and fast)
         call MoL_rhsE(tileDesc, U, rhs, t)
-        call MoL_rhsI(tileDesc, U, rhs, t)
         call MoL_rhsF(tileDesc, U, rhs, t)
 
         call ml_memReleaseDataPtr(tileDesc, rhs, rhsStruct)
