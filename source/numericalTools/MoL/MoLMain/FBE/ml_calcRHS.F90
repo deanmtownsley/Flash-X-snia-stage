@@ -72,8 +72,8 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
         call ml_memGetDataPtr(tileDesc, rhs, rhsStruct)
 
         ! Only need explicit (and fast)
-        call MoL_rhsE(tileDesc, U, rhs, t)
-        call MoL_rhsF(tileDesc, U, rhs, t)
+        call MoL_rhsE(tileDesc, rhs, U, t)
+        call MoL_rhsF(tileDesc, rhs, U, t)
 
         call ml_memReleaseDataPtr(tileDesc, rhs, rhsStruct)
         call ml_memReleaseDataPtr(tileDesc, U, MOL_EVOLVED)

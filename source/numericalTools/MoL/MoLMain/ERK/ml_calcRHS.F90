@@ -72,9 +72,9 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
         call ml_memGetDataPtr(tileDesc, rhs, rhsStruct)
 
         ! All RHS types are calculated and stored-in/added-to one location
-        call MoL_rhsE(tileDesc, U, rhs, t)
-        call MoL_rhsI(tileDesc, U, rhs, t)
-        call MoL_rhsF(tileDesc, U, rhs, t)
+        call MoL_rhsE(tileDesc, rhs, U, t)
+        call MoL_rhsI(tileDesc, rhs, U, t)
+        call MoL_rhsF(tileDesc, rhs, U, t)
 
         call ml_memReleaseDataPtr(tileDesc, rhs, rhsStruct)
         call ml_memReleaseDataPtr(tileDesc, U, MOL_EVOLVED)
