@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/sim_molPostFastUpdate
+!!****f* source/Simulation/SimulationMain/MoL/sim_molPostFastUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

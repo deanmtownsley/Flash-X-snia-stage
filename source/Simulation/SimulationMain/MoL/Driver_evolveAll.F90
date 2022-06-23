@@ -135,6 +135,10 @@ subroutine Driver_evolveAll()
 
   call Grid_getMaxRefinement(maxLev,mode=1) !mode=1 means lrefine_max, which does not change during sim.
 
+  ! Not necessarily the ideal location for this, but it needs to be done before the
+  ! the evolution loop begins, but after all initialization is complete
+  call sim_molPreEvolve(dr_simTime)
+
   do dr_nstep = dr_nBegin, dr_nend
      
      useSTS_local = dr_useSTS
@@ -164,9 +168,6 @@ subroutine Driver_evolveAll()
      end if
      
      call Driver_driftUnk(__FILE__,__LINE__,driftUnk_flags)
-     
-     dr_simTime = dr_simTime + dr_dt
-     dr_simGeneration = 0
 
      !! ================ !!
      !!   MoL evolution  !!
@@ -180,6 +181,11 @@ subroutine Driver_evolveAll()
 
      ! Reset registered functions so other physics units can utilitize MoL below
      call MoL_releaseFunctions
+
+     ! This has to occur after MoL advances - MoL requires the time at the start
+     ! of a timestep, not the end...
+     dr_simTime = dr_simTime + dr_dt
+     dr_simGeneration = 0
      
      ! 2. Hydro/MHD
 #ifdef DEBUG_DRIVER

@@ -4,4 +4,6 @@ Simulation += sim_molInterface.o 		\
 			  sim_molFasRHS.o 			\
 			  sim_molImplicitUpdate.o	\
 			  sim_molPostUpdate.o 		\
-			  sim_molPostFastUpdate.o
+			  sim_molPostFastUpdate.o	\
+			  sim_molPreEvolve.o		\
+			  sim_molRegisterFunctions.o

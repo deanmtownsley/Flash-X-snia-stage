@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/MoL/sim_molImplicitUpdate
+!!****if* source/Simulation/SimulationMain/MoL/AdvectReact/sim_molPreEvolve
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,28 +13,27 @@
 !!
 !!  NAME 
 !!
-!!      sim_molImplicitUpdate
+!!      sim_molPreEvolve
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molImplicitUpdate(real, intent(in) :: t
-!!                                 real, intent(in) :: dt)
+!!      call sim_molPreEvolve(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Implicitly update evolved variables from t to t+dt
+!!      Perform any pre-evolution work that must occur after all *_init
+!!      and intBlock calls (e.g. setting evolved variables from primitives)
 !!
 !!
 !!  ARGUMENTS
 !!
 !!      t  : Current time
-!!      dt : Size of the time step to take
 !!
 !!***
-subroutine sim_molImplicitUpdate(t, dt)
+subroutine sim_molPreEvolve(t)
     implicit none
 
-    real, intent(in) :: t, dt
+    real, intent(in) :: t
 
-    return
-end subroutine sim_molImplicitUpdate
+    call sim_molPostUpdate(t)
+end subroutine sim_molPreEvolve

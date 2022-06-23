@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/MoL/sim_molExplicitRHS
+!!****if* source/Simulation/SimulationMain/MoL/AdvectReact/sim_molExplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -36,7 +36,12 @@
 !!
 !!***
 subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
+    use Simulation_data
+
     use Grid_tile, only: Grid_tile_t
+
+#include "Simulation.h"
+#include "constants.h"
 
     implicit none
 
@@ -44,5 +49,31 @@ subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
     real, dimension(:,:,:,:), pointer :: rhs, U
     real, intent(in) :: t
 
-    return
+    integer :: i, j, k, ip, im
+
+    real :: del(MDIM), idx
+
+    if (sim_speed > 0d0) then
+        ip = 0
+        im = -1
+    else
+        ip = 1
+        im = 0
+    end if
+
+    lim = tileDesc%limits
+
+    call tileDesc%deltas(del)
+    idx = 1d0/del(IAXIS)
+
+    do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
+        do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
+            do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
+                rhs(PHI0_RHS,i,j,k) = rhs(PHI0_RHS,i,j,k) &
+                    + sim_speed*(U(PHI0_VAR,i+im,j,k) - U(PHI0_VAR,i+ip,j,k))*idx
+                rhs(PHI1_RHS,i,j,k) = rhs(PHI1_RHS,i,j,k) &
+                    + sim_speed*(U(PHI1_VAR,i+im,j,k) - U(PHI1_VAR,i+ip,j,k))*idx
+            end do ! i
+        end do ! j
+    end do ! k
 end subroutine sim_molExplicitRHS

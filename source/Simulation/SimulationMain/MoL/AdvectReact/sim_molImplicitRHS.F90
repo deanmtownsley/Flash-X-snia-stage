@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/MoL/sim_molExplicitRHS
+!!****if* source/Simulation/SimulationMain/MoL/AdvectReact/sim_molImplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,18 +13,18 @@
 !!
 !!  NAME 
 !!
-!!      sim_molExplicitRHS
+!!      sim_molImplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!      call sim_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
 !!                              real, pointer           :: rhs(:,:,:,:)
 !!                              real, pointer           :: U(:,:,:,:)
 !!                              real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Calculate explicit RHS terms
+!!      Calculate implicit RHS terms
 !!
 !!
 !!  ARGUMENTS
@@ -35,8 +35,13 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
+subroutine sim_molImplicitRHS(tileDesc, rhs, U, t)
+    use Simulation_data
+
     use Grid_tile, only: Grid_tile_t
+
+#include "Simulation.h"
+#include "constants.h"
 
     implicit none
 
@@ -44,5 +49,20 @@ subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
     real, dimension(:,:,:,:), pointer :: rhs, U
     real, intent(in) :: t
 
-    return
-end subroutine sim_molExplicitRHS
+    integer, dimension(LOW:HIGH,MDIM) :: lim
+    integer :: i, j, k
+
+    ! No need to do this if decay term is zero
+    if (sim_beta .eq. 0d0) return
+
+    do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
+        do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
+            do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
+                rhs(PHI0_RHS,i,j,k) = rhs(PHI0_RHS,i,j,k) &
+                    + rhs(PHI0_VAR,i,j,k) - sim_beta*U(PHI0_VAR,i,j,k)
+                rhs(PHI1_RHS,i,j,k) = rhs(PHI1_RHS,i,j,k) &
+                    + rhs(PHI1_VAR,i,j,k) - sim_beta*U(PHI1_VAR,i,j,k)
+            end do ! i
+        end do ! j
+    end do ! k
+end subroutine sim_molImplicitRHS

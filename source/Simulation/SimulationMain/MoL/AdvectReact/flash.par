@@ -1,0 +1,30 @@
+# Parameter file for MoL advection-reaction test
+
+nblockx = 1
+
+iGridSize = 200
+
+xmin = -1.0
+xmax =  1.0
+
+geometry = "cartesian"
+
+xl_boundary_type  = "periodic"
+xr_boundary_type  = "periodic"
+
+sim_center = 0.0
+sim_width  = 0.2
+sim_height = 1.0
+sim_speed  = 0.1
+sim_beta   = 0.1
+
+restart = .false.
+
+nend  = 10000
+tmax  = 10.0
+
+checkpointFileIntervalTime = 1.0
+
+basenm          = "mol_advect_react_"
+run_comment     = "MoL Advect-React Test"
+log_file        = "mol_advect_react.log"

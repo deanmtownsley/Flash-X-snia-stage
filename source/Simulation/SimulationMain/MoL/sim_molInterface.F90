@@ -77,6 +77,12 @@ module sim_molInterface
     end interface
 
     interface
+        subroutine sim_molPreEvolve(t)
+            real, intent(in) :: t
+        end subroutine sim_molPreEvolve
+    end interface
+
+    interface
         subroutine sim_molRegisterFunctions
         end subroutine sim_molRegisterFunctions
     end interface
