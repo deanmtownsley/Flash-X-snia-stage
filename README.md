@@ -19,7 +19,7 @@ for a simulation configuration); PARAMESH code is not organized or built as a se
 
 Some applications and tests use external libraries that are expected to be already installed on the
 system where Flash-X is being built and run. The directory locations of such library installations
-should be made know to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
+should be made known to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
 Makefile.h file. See the subdirectories under sites/ .
 
 This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
