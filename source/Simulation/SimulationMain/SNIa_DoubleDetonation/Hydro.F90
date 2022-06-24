@@ -210,7 +210,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
   !! Retain the original cfl that may have been changed in some leaf blocks.
   if (hy_updateHydroFluxes) then
      if (1.2*hy_cfl < hy_cfl_original) then
-        !! Slow recover (of factor of 1.2) to the original CFL once it gets to
+        !! Slow recover (by factor of 1.2) to the original CFL after it has been
         !! reduced to a smaller one in the presence of strong shocks.
         !! This variable CFL takes place in the following three cases using:
         !! (1) use_hybridOrder = .true.,
