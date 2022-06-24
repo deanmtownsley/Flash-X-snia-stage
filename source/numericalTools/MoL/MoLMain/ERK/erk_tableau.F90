@@ -5,7 +5,7 @@ module erk_tableau
 contains
 
 subroutine euler_init()
-    use erk_data, only: erk_A, erk_b, erk_c
+    use erk_data, only: erk_A, erk_b, erk_c, erk_order, erk_stages
     
     implicit none
 
@@ -24,7 +24,7 @@ subroutine euler_init()
 end subroutine euler_init
 
 subroutine rk2_heun_init()
-    use erk_data, only: erk_A, erk_b, erk_c
+    use erk_data, only: erk_A, erk_b, erk_c, erk_order, erk_stages
 
     implicit none
 
@@ -46,7 +46,7 @@ subroutine rk2_heun_init()
 end subroutine rk2_heun_init
 
 subroutine rk3_ssp_init()
-    use erk_data, only: erk_A, erk_b, erk_c
+    use erk_data, only: erk_A, erk_b, erk_c, erk_order, erk_stages
 
     implicit none
 
@@ -72,7 +72,7 @@ subroutine rk3_ssp_init()
 end subroutine rk3_ssp_init
 
 subroutine rk4_init()
-    use erk_data, only: erk_A, erk_b, erk_c
+    use erk_data, only: erk_A, erk_b, erk_c, erk_order, erk_stages
 
     implicit none
 

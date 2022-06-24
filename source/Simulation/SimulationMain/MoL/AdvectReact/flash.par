@@ -1,7 +1,7 @@
 # Parameter file for MoL advection-reaction test
 
-nblockx = 1
-
+nblockx   = 4
+iprocs    = 4
 iGridSize = 200
 
 xmin = -1.0
@@ -17,6 +17,8 @@ sim_width  = 0.2
 sim_height = 1.0
 sim_speed  = 0.1
 sim_beta   = 0.1
+
+erk_method = "erk-rk3-ssp"
 
 restart = .false.
 

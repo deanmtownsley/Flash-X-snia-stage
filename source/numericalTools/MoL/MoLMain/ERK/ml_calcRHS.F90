@@ -78,6 +78,8 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
 
         call ml_memReleaseDataPtr(tileDesc, rhs, rhsStruct)
         call ml_memReleaseDataPtr(tileDesc, U, MOL_EVOLVED)
+
+        call itor%next()
     end do TileLoop
 
     call Grid_releaseTileIterator(itor)

@@ -55,13 +55,13 @@ subroutine sim_molImplicitRHS(tileDesc, rhs, U, t)
     ! No need to do this if decay term is zero
     if (sim_beta .eq. 0d0) return
 
+    lim = tileDesc%limits
+
     do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
         do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
             do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                rhs(PHI0_RHS,i,j,k) = rhs(PHI0_RHS,i,j,k) &
-                    + rhs(PHI0_VAR,i,j,k) - sim_beta*U(PHI0_VAR,i,j,k)
-                rhs(PHI1_RHS,i,j,k) = rhs(PHI1_RHS,i,j,k) &
-                    + rhs(PHI1_VAR,i,j,k) - sim_beta*U(PHI1_VAR,i,j,k)
+                rhs(PHI0_RHS,i,j,k) = rhs(PHI0_RHS,i,j,k) - sim_beta*U(PHI0_VAR,i,j,k)
+                rhs(PHI1_RHS,i,j,k) = rhs(PHI1_RHS,i,j,k) - sim_beta*U(PHI1_VAR,i,j,k)
             end do ! i
         end do ! j
     end do ! k

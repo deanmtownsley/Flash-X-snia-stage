@@ -40,6 +40,8 @@ subroutine ml_advance(t, dt)
     use ml_interface, only: ml_calcRHS
     use ml_memInterface, only: ml_memAddToVars
 
+#include "MoL.h"
+
     implicit none
 
     real, intent(in) :: t, dt
@@ -49,7 +51,7 @@ subroutine ml_advance(t, dt)
 
     integer :: s
 
-    srcs(1) = MOL_INIT
+    srcs(1) = MOL_INITIAL
     srcs(2:) = erk_K
 
     facs(1) = 1d0
