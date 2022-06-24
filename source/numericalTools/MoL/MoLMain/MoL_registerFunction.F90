@@ -41,7 +41,7 @@ subroutine MoL_registerRHS(rhsType, rhsFunc)
 
     use MoL_functions
 
-    use MoL_interface, only: ml_error
+    use ml_interface, only: ml_error
 
 #include "MoL.h"
 
@@ -52,7 +52,7 @@ subroutine MoL_registerRHS(rhsType, rhsFunc)
     interface
         subroutine rhsFunc(tileDesc, dy, y, t)
             import :: Grid_tile_t
-            type(Grid_tile_t), intent(in) :: tileDesc
+            class(Grid_tile_t), intent(in) :: tileDesc
             real, dimension(:,:,:,:), pointer :: dy, y
             real, intent(in) :: t
         end subroutine rhsFunc
@@ -79,7 +79,7 @@ end subroutine MoL_registerRHS
 subroutine MoL_registerUpdate(updateType, updateFunc)
     use MoL_functions
 
-    use MoL_interface, only: ml_error
+    use ml_interface, only: ml_error
 
 #include "MoL.h"
 
@@ -106,7 +106,7 @@ end subroutine MoL_registerUpdate
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
     use MoL_functions
 
-    use MoL_interface, only: ml_error
+    use ml_interface, only: ml_error
 
 #include "MoL.h"
 

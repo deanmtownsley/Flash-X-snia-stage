@@ -34,7 +34,7 @@ module ml_memInterface
     interface
         subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
             import :: Grid_tile_t
-            class(tileDesc), intent(in) :: tileDesc
+            class(Grid_tile_t), intent(in) :: tileDesc
             real, pointer               :: dataPtr(:,:,:,:)
             integer,         intent(in) :: dataStruct
         end subroutine ml_memGetDataPtr
@@ -43,7 +43,7 @@ module ml_memInterface
     interface
         subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
             import :: Grid_tile_t
-            class(tileDesc), intent(in) :: tileDesc
+            class(Grid_tile_t), intent(in) :: tileDesc
             real, pointer               :: dataPtr(:,:,:,:)
             integer,         intent(in) :: dataStruct
         end subroutine ml_memReleaseDataPtr

@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/ml_status
+!!****if* source/Simulation/SimulationMain/MoL/AdvectReact/sim_molPostUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,33 +11,32 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME
+!!  NAME 
 !!
-!!      ml_status
+!!      sim_molPostUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call ml_status(character, intent(in) :: msg(:))
+!!      call sim_molPostUpdate(real, intent(in) :: t)
 !!
-!!  DESCRIPTION
+!!  DESCRIPTION 
 !!
-!!      Print a status message
+!!      Perform any post-update (post-stage/timestep) work
+!!
 !!
 !!  ARGUMENTS
 !!
+!!      t  : Current time
 !!
 !!***
-subroutine ml_status(msg)
-    use MoL_data
+subroutine sim_molPostUpdate(t)
+    use Grid_interface, only: Grid_fillGuardCells
 
-#include "MoL.h"
 #include "constants.h"
 
     implicit none
 
-    character(len=*), intent(in) :: msg
-    
-    if ((MoL_verbosity .ge. MOL_VERBOSE_STATUS) .and. (MoL_mpiRank .eq. MASTER_PE)) then
-        print*, "[MoL]: " // msg
-    end if
-end subroutine ml_status
+    real, intent(in) :: t
+
+    call Grid_fillGuardCells(CENTER, ALLDIR)
+end subroutine sim_molPostUpdate

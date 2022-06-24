@@ -62,19 +62,21 @@ module MoL_interface
     !!  Set RHS and update functions  !!
     !! ============================== !!
 
-    interface MoL_registerFunction
+    interface
         subroutine MoL_registerRHS(rhsType, rhsFunc)
             integer, intent(in) :: rhsType
             interface
                 subroutine rhsFunc(tileDesc, dy, y, t)
                     import :: Grid_tile_t
-                    type(Grid_tile_t), intent(in) :: tileDesc
+                    class(Grid_tile_t), intent(in) :: tileDesc
                     real, dimension(:,:,:,:), pointer :: dy, y
                     real, intent(in) :: t
                 end subroutine rhsFunc
             end interface
         end subroutine MoL_registerRHS
+    end interface
 
+    interface
         subroutine MoL_registerUpdate(updateType, updateFunc)
             integer, intent(in) :: updateType
             interface
@@ -83,7 +85,9 @@ module MoL_interface
                 end subroutine updateFunc
             end interface
         end subroutine MoL_registerUpdate
+    end interface
 
+    interface
         subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
             integer, intent(in) :: postUpdateType
             interface
@@ -92,7 +96,7 @@ module MoL_interface
                 end subroutine postUpdateFunc
             end interface
         end subroutine MoL_registerPostUpdate
-    end interface MoL_registerFunction
+    end interface
 
     interface
         subroutine MoL_releaseFunctions

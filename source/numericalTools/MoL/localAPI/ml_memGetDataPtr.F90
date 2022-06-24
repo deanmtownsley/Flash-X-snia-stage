@@ -44,7 +44,7 @@ subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
 
     implicit none
 
-    class(tileDesc), intent(in) :: tileDesc
+    class(Grid_tile_t), intent(in) :: tileDesc
     real, pointer               :: dataPtr(:,:,:,:)
     integer,         intent(in) :: dataStruct
 

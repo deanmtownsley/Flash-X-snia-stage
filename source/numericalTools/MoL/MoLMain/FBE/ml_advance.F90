@@ -39,6 +39,8 @@ subroutine ml_advance(t, dt)
     use ml_interface, only: ml_calcRHS
     use ml_memInterface, only: ml_memAddToVars
 
+#include "MoL.h"
+
     implicit none
 
     real, intent(in) :: t, dt

@@ -31,7 +31,8 @@ subroutine ml_memAlloc()
 
     use ml_memInterface, only: ml_memFree
     use ml_memData,      only: scratch_data
-    use MoL_data,        only: MoL_nvars, MoL_nscratch_total
+    use MoL_data,        only: MoL_nscratch_total
+    use MoL_variables,   only: MoL_nvars
 
     use Grid_interface, only: Grid_getBlkIndexLimits
 

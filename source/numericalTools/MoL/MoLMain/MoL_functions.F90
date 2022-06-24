@@ -34,7 +34,7 @@ module MoL_functions
     abstract interface
         subroutine MoL_rhs_t(tileDesc, dy, y, t)
             import :: Grid_tile_t
-            type(Grid_tile_t), intent(in) :: tileDesc
+            class(Grid_tile_t), intent(in) :: tileDesc
             real, dimension(:,:,:,:), pointer :: dy, y
             real, intent(in) :: t
         end subroutine MoL_rhs_t

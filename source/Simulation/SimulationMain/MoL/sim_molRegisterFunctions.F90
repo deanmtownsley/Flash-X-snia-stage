@@ -27,21 +27,23 @@
 subroutine sim_molRegisterFunctions()
     use sim_molInterface, only: sim_molExplicitRHS,     &
                                 sim_molImplicitRHS,     &
-                                sim_molImplicitRHS,     &
+                                sim_molFastRHS,         &
                                 sim_molImplicitUpdate,  &
                                 sim_molPostUpdate,      &
                                 sim_molPostFastUpdate
 
-    use MoL_interface, only: MoL_registerFunction
+    use MoL_interface, only: MoL_registerRHS, MoL_registerUpdate, MoL_registerPostUpdate
 
 #include "MoL.h"
 
     implicit none
 
-    call MoL_registerFunction(MOL_RHS_EXPLICIT,     sim_molExplicitRHS)
-    call MoL_registerFunction(MOL_RHS_IMPLICIT,     sim_molImplicitRHS)
-    call MoL_registerFunction(MOL_RHS_FAST,         sim_molFastRHS)
-    call MoL_registerFunction(MOL_IMPLICIT_UPDATE,  sim_molImplicitUpdate)
-    call MoL_registerFunction(MOL_POST_UPDATE,      sim_molPostUpdate)
-    call MoL_registerFunction(MOL_POST_UPDATE_FAST, sim_molPostFastUpdate)
+    call MoL_registerRHS(MOL_RHS_EXPLICIT, sim_molExplicitRHS)
+    call MoL_registerRHS(MOL_RHS_IMPLICIT, sim_molImplicitRHS)
+    call MoL_registerRHS(MOL_RHS_FAST,     sim_molFastRHS)
+
+    call MoL_registerUpdate(MOL_IMPLICIT_UPDATE, sim_molImplicitUpdate)
+
+    call MoL_registerPostUpdate(MOL_POST_UPDATE,      sim_molPostUpdate)
+    call MoL_registerPostUpdate(MOL_POST_UPDATE_FAST, sim_molPostFastUpdate)
 end subroutine sim_molRegisterFunctions

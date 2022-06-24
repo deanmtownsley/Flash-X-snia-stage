@@ -51,6 +51,7 @@ subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
 
     integer :: i, j, k, ip, im
 
+    integer, dimension(LOW:HIGH,MDIM) :: lim
     real :: del(MDIM), idx
 
     if (sim_speed > 0d0) then

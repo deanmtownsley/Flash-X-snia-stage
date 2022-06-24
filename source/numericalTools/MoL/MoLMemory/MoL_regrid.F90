@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_init
+!!****f* source/numericalTools/MoL/MoLMain/MoL_regrid
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,38 +13,29 @@
 !!
 !!  NAME
 !!
-!!      MoL_init
+!!      MoL_regrid
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_init()
+!!      call MoL_regrid()
 !!
 !!  DESCRIPTION
 !!
-!!      Initialize the method of lines unit
+!!      Regrid internally-managed MoL memory  for intermediate stages
 !!
 !!  ARGUMENTS
 !!
 !!
+!!  NOTES
+!!
+!!      Required information to regrid will be queried from Grid
+!!
 !!***
-subroutine MoL_init()
-    use ml_interface, only: ml_init
-    use MoL_data
-    use MoL_variables
-
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+subroutine MoL_regrid()
+    use ml_memInterface, only: ml_memAlloc, ml_memFree
 
     implicit none
 
-    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
-
-    MoL_nscratch = 0
-    MoL_nvars    = 0
-
-    ! Specific integrator setup
-    call ml_init()
-
-    ! +2 for MOL_INITIAL & MOL_RHS
-    MoL_nscratch_total = 2 + MoL_nscratch
-end subroutine MoL_init
+    call ml_memFree
+    call ml_memAlloc
+end subroutine MoL_regrid
