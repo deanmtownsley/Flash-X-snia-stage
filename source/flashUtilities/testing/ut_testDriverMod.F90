@@ -173,7 +173,7 @@ contains
         character(256) :: buffer = ""
 
         if (a /= b) then
-            write(buffer,'(A,I5,A,I5)') msg, a, " != ", b
+            write(buffer,'(2A,I0,A,I0)') msg, " ", a, " != ", b
             write(*,*) TRIM(ADJUSTL(buffer))
             my_n_failed = my_n_failed + 1
         end if
