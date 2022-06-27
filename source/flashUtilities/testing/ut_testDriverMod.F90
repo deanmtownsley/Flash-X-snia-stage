@@ -50,7 +50,6 @@ module ut_testDriverMod
 
     integer, save :: my_n_tests = 0
     integer, save :: my_n_failed = 0
-    real,    save :: my_t_start = 0.0d0
     logical, save :: is_testing = .FALSE.
 
     interface assertEqual
@@ -81,23 +80,13 @@ contains
         end if
 
         is_testing = .TRUE.
-
-        my_t_start = 0.0d0
-        call cpu_time(my_t_start)
     end subroutine start_test_run
 
-    subroutine finish_test_run
+    function finish_test_run result(did_succeed)
         use Driver_data,      ONLY : dr_globalMe
         use Driver_Interface, ONLY : Driver_abort
 
-        real :: my_t_end
-        real :: my_walltime
-
-        integer :: file_unit
-        integer :: ut_getFreeFileUnit
- 
-        character(4)                 :: rank_str 
-        character(MAX_STRING_LENGTH) :: fileName
+        logical :: did_succeed
 
         if (.NOT. is_testing) then
             call Driver_abort("[finish_test_run] Not testing yet")
@@ -105,37 +94,20 @@ contains
 
         is_testing = .FALSE.
 
-        call cpu_time(my_t_end)
-        my_walltime = my_t_end - my_t_start
-
         ! DEV: TODO reduction to collect number of tests/fails/max walltime?
+        did_succeed = (my_n_failed == 0)
         if (dr_globalMe == MASTER_PE) then
             ! Print result to standard out
             write(*,*)
-            if (my_n_failed == 0) then
+            if (did_succeed) then
                 write(*,*) "SUCCESS - ", &
                            (my_n_tests - my_n_failed), "/", my_n_tests, ' passed' 
             else 
                 write(*,*) "FAILURE - ", &
                            (my_n_tests - my_n_failed), "/", my_n_tests, ' passed'
             end if
-            write(*,*)
-            write(*,*) 'Walltime = ', my_walltime, ' s'
-            write(*,*)
-
-            ! Create log file for automatic testing on server
-            write(rank_str,"(I4.4)") dr_globalMe
-            filename = "unitTest_" // rank_str
-            file_unit = ut_getFreeFileUnit()
-            OPEN(file_unit, file=filename)
-            if (my_n_failed == 0) then
-                write(file_unit,'(A)') 'SUCCESS all results conformed with expected values.' 
-            else
-                write(file_unit,'(A)') 'FAILURE'
-            end if
-            CLOSE(file_unit)
         end if
-    end subroutine finish_test_run
+    end function finish_test_run
 
     subroutine assertTrue(a, msg)
         logical,      intent(IN) :: a
