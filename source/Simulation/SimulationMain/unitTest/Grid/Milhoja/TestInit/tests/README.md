@@ -1,2 +1,40 @@
-This should be a living document that expresses the current design of this
-family of tests.
+## Milhoja Initialization Unit Test Design
+
+This document is intended to be a living document that captures and communicates the __current__ design and use of the Milhoja `TestInit` unit test.  In this sense, users can assume that this document and all the contents of this folder are correct, up-to-date, and an encapsulation of the official Flash-X tests related to Milhoja initialization.
+
+#### Keywords
+Milhoja, Grid, Interface, Pseudo-UG, Cartesian, Unit Test, 1D, 2D, 3D
+
+#### Motivation
+This unit test was developed via Test-Driven Development (TDD) of the Milhoja grid backend's Fortran/C++ interoperability layer and the Flash-X Milhoja Grid unit implementation.  Since it is a simple and quick unit test and its checks are generally useful, there is no immediate need to remove the test.  Indeed, it might be invaluable for quick and correct TDD-based development of subsequent Milhoja grid backends.
+
+This test was designed largely to confirm basic Grid unit functionality (e.g., setting initial conditions and filling GCs) as well as to confirm that the significant parts of the public and private Grid interfaces are correctly implemented by Milhoja's grid backend.  In addition, it also confirms that some private Grid variables were correctly initialized.  Therefore, including [123]D versions of this test in the testsuite seems good and useful.
+
+One important detail of this test is that it confirms that data in arrays indexed by dimension have reasonable values above NDIM.  To the best of my knowledge there is no specification for what this data should be for many such arrays.  Therefore including these tests here will at least ensure that all Milhoja grid backends will set this data in the same way and that backend developers should discover quickly what values to use.
+
+#### Success vs. Failure
+As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000` file if all tests passed or if any test failed.  Note that some expected values used to assess correctness are hardcoded in the code.  As a result, the test can only be configured in specific ways via the par files and the setup command (See the specifications below).  It is unlikely that this test will function correctly if more than one MPI process is used.
+
+#### Status
+This test has been verified to function correctly on GCE/compute-12 with the Intel 20.4 compiler and can therefore be included carefully in testsuites.  Please note that more tests will likely be added as more Milhoja grid backend functionality is added.  Please refer to the Doxygen `todo` information contained in the various test-specific files to understand how this test will likely grow.
+
+#### Official GCE Testsuite Specifications
+```
+[test_1D]
+    testNode = "unitTest/Grid/Milhoja/TestInit/1D"
+    setupOptions = "-auto -1d -nxb=8 +noio"
+    numProcs = 1
+    parFile = "test_milhoja_grid.par"
+
+[test_2D]
+    testNode = "unitTest/Grid/Milhoja/TestInit/2D"
+    setupOptions = "-auto -2d -nxb=8 -nyb=4 +noio"
+    numProcs = 1
+    parFile = "test_milhoja_grid.par"
+
+[test_3D]
+    testNode = "unitTest/Grid/Milhoja/TestInit/3D"
+    setupOptions = "-auto -3d -nxb=8 -nyb=4 -nzb=2 +noio"
+    numProcs = 1
+    parFile = "test_milhoja_grid.par"
+```
