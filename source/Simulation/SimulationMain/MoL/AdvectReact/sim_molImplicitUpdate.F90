@@ -54,6 +54,8 @@ subroutine sim_molImplicitUpdate(t, dt)
     type(Grid_tile_t) :: tileDesc
     type(Grid_iterator_t) :: itor
 
+    nullify(U)
+
     ! No need to do this if decay term is zero
     if (sim_beta .eq. 0d0) return
 

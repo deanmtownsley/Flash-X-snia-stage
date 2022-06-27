@@ -10,5 +10,9 @@ IF MoL_Integrator == "ERK"
     DEFAULT ERK
 ENDIF
 
-PARAMETER MoL_verbosity INTEGER 1 [1, 2, 3]
+IF MoL_Integrator == "MR"
+    DEFAULT MR
+ENDIF
+
+PARAMETER MoL_verbosity   INTEGER 1      [1, 2, 3]
 PARAMETER MoL_abortOnWarn BOOLEAN FALSE
