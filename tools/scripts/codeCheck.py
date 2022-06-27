@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os, sys, string, re, getopt
 from pathlib import Path
 
@@ -706,7 +706,7 @@ simply prevents this violation / fix from being applied to any file.
 
    def fix_file(self,filename):
        """Checks for all violations for the given file"""
-       parts = string.split(os.path.basename(filename),".")
+       parts = str.split(os.path.basename(filename),".")
        self.basename = parts[0]
        if len(parts) > 1: self.ext = parts[1].upper()
        fd = open(filename)
@@ -784,7 +784,7 @@ simply prevents this violation / fix from being applied to any file.
                       if aname[:len(prefix)] == prefix:
                          ignore = 1
                   if ignore == 1: continue
-                  parts = string.split(x,".")
+                  parts = str.split(x,".")
                   if len(parts) < 2: continue
                   if parts[1].upper() in self.extensions:
                      flist.append(jname)
