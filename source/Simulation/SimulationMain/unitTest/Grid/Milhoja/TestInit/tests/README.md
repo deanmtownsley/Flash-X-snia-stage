@@ -6,7 +6,7 @@ This document is intended to be a living document that captures and communicates
 Milhoja, Grid, Interface, Pseudo-UG, Cartesian, Unit Test, 1D, 2D, 3D
 
 #### Motivation
-This unit test was developed via Test-Driven Development (TDD) of the Milhoja grid backend's Fortran/C++ interoperability layer and the Flash-X Milhoja Grid unit implementation.  Since it is a simple and quick unit test and its checks are generally useful, there is no immediate need to remove the test.  Indeed, it might be invaluable for quick and correct TDD-based development of subsequent Milhoja grid backends.
+This unit test was developed via Test-Driven Development (TDD) of the Milhoja grid backend's Fortran/C++ interoperability layer and the Flash-X Milhoja Grid unit implementation.  In particular, it was useful for building up functionality before the possibility of saving data to Flash-X format data files.  Since it is a simple and quick unit test and its checks are generally useful, there is no immediate need to remove the test.  Indeed, it might be invaluable for quick and correct TDD-based development of subsequent Milhoja grid backends.  
 
 This test was designed largely to confirm basic Grid unit functionality (e.g., setting initial conditions and filling GCs) as well as to confirm that the significant parts of the public and private Grid interfaces are correctly implemented by Milhoja's grid backend.  In addition, it also confirms that some private Grid variables were correctly initialized.  Therefore, including [123]D versions of this test in the testsuite seems good and useful.
 
