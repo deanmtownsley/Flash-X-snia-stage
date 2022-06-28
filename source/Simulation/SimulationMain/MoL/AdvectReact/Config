@@ -1,5 +1,7 @@
 # Config file for the MoL advection-reaction test problem
 
+LIBRARY LAPACK
+
 # If these don't exist, paramesh fails
 VARIABLE DENS
 FLUX DENS

@@ -52,7 +52,7 @@ FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 
 #F90FLAGS = -fallow-argument-mismatch
-F90FLAGS =
+F90FLAGS = -llapack -lopenblas
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
@@ -104,7 +104,7 @@ LIB_MPI   =
 LIB_MPE   =
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex
 LIB_STDCXX = -lstdc++
-LIB_LAPACK= -lscalapack -lopenblas
+LIB_LAPACK= -llapack -lopenblas
 
 
 #----------------------------------------------------------------------------
