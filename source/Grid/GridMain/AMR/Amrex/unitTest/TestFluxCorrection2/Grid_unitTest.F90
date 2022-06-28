@@ -1,45 +1,20 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestFluxCorrection2/Driver_evolveAll
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!!
-!! NAME
-!!  Driver_evolveAll
-!!
-!! SYNOPSIS
-!!  Driver_evolveAll()
-!!
-!! DESCRIPTION
-!!  The driver for a toy version of a full FLASH simulation that tests if the
-!!  AMReX implementation works well when coupled with the FLASH's Grid unit
-!!  interface for controlling flux correction.  In particular, it is testing if
-!!  the ability to compute flux errors in the flux registers is correctly 
-!!  implemented.
-!!  
-!!  This test refines the mesh at initialization so that level 1 has no leaf
-!!  blocks and level three covers only one level-2 block.
-!!
-!! NOTES
-!!  This simulation *must* be configured with at least the following
-!!  2D run:
-!!     ./setup -auto -2d -nxb=8 -nyb=8
-!!              unitTest/Grid/Amrex/TestFluxCorrection2
-!!             +noio -index-reorder
-!!
-!!***
-
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Driver_evolveAll()
+!> A unit test that confirms that the AMReX implementation works well when coupled
+!! wth Flash-X's Grid unit interface for controlling flux correction.  In particular,
+!! it is testing if the ability to compute flux errors in the flux registers is
+!! correctly implemented.
+!! 
+!! This test refines the mesh at initialization so that level 1 has no leaf
+!! blocks and level three covers only one level-2 block.
+!!
+!! This test is not presently MPI-compatible in the sense that its results can
+!! only be trusted if run with a single processor.
+!!
+!! @param fileUnit   Ignored.  All output is written to stdout.
+!! @param perfect    True if no errors occurred; False, otherwise.
+subroutine Grid_unitTest(fileUnit, perfect)
     use amrex_fort_module,     ONLY : amrex_spacedim
 
     use Grid_interface,        ONLY : Grid_zeroFluxData, &
@@ -54,6 +29,9 @@ subroutine Driver_evolveAll()
     use ut_testDriverMod
 
     implicit none
+
+    integer, intent(in)    :: fileUnit
+    logical, intent(inout) :: perfect
 
     type(Grid_iterator_t) :: itor
     type(Grid_tile_t)     :: tileDesc
@@ -582,7 +560,7 @@ subroutine Driver_evolveAll()
     end do
     call Grid_releaseTileIterator(itor)
 
-    call finish_test_run
+    perfect = finish_test_run()
 
-end subroutine Driver_evolveAll
+end subroutine Grid_unitTest
 

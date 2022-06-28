@@ -1,7 +1,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-!! A unit test that confirms that the AMReX implementation works well when coupled
+!> A unit test that confirms that the AMReX implementation works well when coupled
 !! with Flash-X's Grid unit interface for controlling flux correction.
 !! 
 !! This test refines the mesh at initialization so that level 1 has no leaf
