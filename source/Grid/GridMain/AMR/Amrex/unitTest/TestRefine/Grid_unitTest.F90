@@ -2,18 +2,8 @@
 #include "constants.h"
 #include "sim_constants.h"
 
-!> A unit test that allows users to control and therefore experiment with how AMReX
-!! mesh refinement and derefinement is working as implemented in Flash-X.  The code
-!! advances the data in UNK in time manually.  At each step, the code sets all data
-!! in UNK to zero except for possibly at a few points, whose non-zero values define
-!! what level of refinement must be achieved in the blocks that contain them.  
-!! 
-!! This simulation serves as a form for manually testing appropriate refinement
-!! with AMReX (See documentation in folder).  Ideally, the leaf blocks will be
-!! automatically verified at each step.
-!!
-!! This test is not presently MPI-compatible in the sense that its results can
-!! only be trusted if run with a single processor.
+!> The implementation of the AMReX TestRefine unit test.  Please refer to the
+!! test's design document for more details.
 !!
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.

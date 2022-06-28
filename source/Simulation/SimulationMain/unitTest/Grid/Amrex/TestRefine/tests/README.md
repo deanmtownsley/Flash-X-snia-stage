@@ -19,16 +19,16 @@ Unittest is configured such that
 Changes to the physical data are managed on a step-by-step basis and is done so in conjunction with a custom `gr_markRefineDerefineCallback` routine so that the non-zero data values in the physical data specify the refinement level to be achieved by AMReX for the block containing that point.
 
 Time Stepping
-* [Init](../TestRefine_Init_Both.pdf) - One data point that refines down to level 3 and one to level 2.  After initial refinement, note that the lower-/upper-right blocks should be level 1.  However, they are promoted to level 2 due to periodic BC.
-* [Steps 1/2](../TestRefine_Step2_Both.pdf) - Set all data to zero to invoke full derefinement to level 1.
-* [Steps 3/4](../TestRefine_Step4_Both.pdf) - One data point near corner to invoke refinement to level 2 in its block only.
-* [Steps 5/6](../TestRefine_Step6_Both.pdf) - Same point to invoke refiment to level 5.  Should only achieve level 3 refinement under point.  Should see level 2 refinement elsewhere to maintain 1-level difference at refinement boundaries.
+* [Init](TestRefine_Init_Both.pdf) - One data point that refines down to level 3 and one to level 2.  After initial refinement, note that the lower-/upper-right blocks should be level 1.  However, they are promoted to level 2 due to periodic BC.
+* [Steps 1/2](TestRefine_Step2_Both.pdf) - Set all data to zero to invoke full derefinement to level 1.
+* [Steps 3/4](TestRefine_Step4_Both.pdf) - One data point near corner to invoke refinement to level 2 in its block only.
+* [Steps 5/6](TestRefine_Step6_Both.pdf) - Same point to invoke refiment to level 5.  Should only achieve level 3 refinement under point.  Should see level 2 refinement elsewhere to maintain 1-level difference at refinement boundaries.
 * __Steps 7/8__ - No change to data.  Let refinement achieve level 4 under point.  Due to periodic boundary conditions, refinement to level 3 on other three corners.
-* [Steps 9/10](../TestRefine_Step8_Both.pdf) - No change to data.  Refinement should be unchanged since the maximum refinement level is 4.
+* [Steps 9/10](TestRefine_Step8_Both.pdf) - No change to data.  Refinement should be unchanged since the maximum refinement level is 4.
 * __Steps 11/12__ - Add another point set to refine to level 4.  No refinement check here.  We just let this step advance toward full refinement.
-* [Steps 13/14](../TestRefine_Step14_Both.pdf) - No change to data.  Final refinement/derefinement should be achieved at this step.
+* [Steps 13/14](TestRefine_Step14_Both.pdf) - No change to data.  Final refinement/derefinement should be achieved at this step.
 * __Steps 15/16__ - Set all data to zero to invoke full derefinement to level 1.
-* [Steps 17/18](../TestRefine_Step18_Both.png) - Tag two neighboring cells that are divided by a block boundary to confirm that both blocks are refined in true octree fashion as opposed to having a single, refined block that is translated to contain both tagged cells.  This is an example of sacrificing grid efficiency for the organizational simplicity of octree.  A patch-based scheme might have refined a single block that is translated to include both of the tag cells.
+* [Steps 17/18](TestRefine_Step18_Both.png) - Tag two neighboring cells that are divided by a block boundary to confirm that both blocks are refined in true octree fashion as opposed to having a single, refined block that is translated to contain both tagged cells.  This is an example of sacrificing grid efficiency for the organizational simplicity of octree.  A patch-based scheme might have refined a single block that is translated to include both of the tag cells.
 
 #### Success vs. Failure
 As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000` file if all tests passed or if any test failed.  Note that some expected values used to assess correctness are hardcoded in the code.  As a result, the test can only be configured in specific ways via the par files and the setup command (See the specifications below).  It is unlikely that this test will function correctly if more than one MPI process is used.
