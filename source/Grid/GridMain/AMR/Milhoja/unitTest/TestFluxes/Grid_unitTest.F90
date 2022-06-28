@@ -4,21 +4,6 @@
 !> Confirm proper implementation of Grid-internal flux data storage and access.
 !! This test assumes no guardcells in flux data.
 !!
-!! NOTES
-!!  Suggested test setups are
-!!  1D run:
-!!     ./setup -auto -1d -nxb=8
-!!              unitTest/Grid/Milhoja/TestFluxes
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!  2D run:
-!!     ./setup -auto -2d -nxb=8 -nyb=4 
-!!              unitTest/Grid/Milhoja/TestFluxes
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!  3D run:
-!!     ./setup -auto -3d -nxb=8 -nyb=4 -nzb=2
-!!              unitTest/Grid/Milhoja/TestFluxes
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.
 subroutine Grid_unitTest(fileUnit, perfect)

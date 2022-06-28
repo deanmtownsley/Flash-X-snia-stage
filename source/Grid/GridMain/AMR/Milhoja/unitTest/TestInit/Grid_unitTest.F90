@@ -18,21 +18,6 @@
 !! This test is not presently MPI-compatible in the sense that its results can
 !! only be trusted if run with a single processor.
 !!
-!! NOTES
-!!  This simulation *must* be configured with at least the following
-!!  1D run:
-!!     ./setup -auto -1d -nxb=8
-!!              unitTest/Grid/Milhoja/TestInit 
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!  2D run:
-!!     ./setup -auto -2d -nxb=8 -nyb=4 
-!!              unitTest/Grid/Milhoja/TestInit 
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!  3D run:
-!!     ./setup -auto -3d -nxb=8 -nyb=4 -nzb=2
-!!              unitTest/Grid/Milhoja/TestInit 
-!!             +noio -index-reorder -parfile=test_milhoja_grid.par
-!!
 !! @todo Once the BC unit has been implemented for Milhoja, uncomment the
 !! desired BCs in test_milhoja_grid.par and update expected values here.
 !! @todo Remove all calls and use statement for gr_writePlotfile, once this
