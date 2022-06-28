@@ -12,6 +12,8 @@ This test was designed largely to confirm basic Grid unit functionality (e.g., s
 
 One important detail of this test is that it confirms that data in arrays indexed by dimension have reasonable values above NDIM.  To the best of my knowledge there is no specification for what this data should be for many such arrays.  Therefore including [123]D versions of this test here will at least ensure that all Milhoja grid backends will set this data in the same way and that backend developers should discover quickly what values to use.
 
+While blocks are typically specified in Flash-X to have the same number of cells along each direction, the Grid unit does not insist that all blocks must be specified this way.  Therefore, this test was explicitly written to confirm correct functionality when using blocks with a different number of cells along each direction.
+
 #### Success vs. Failure
 As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000` file if all tests passed or if any test failed.  Note that some expected values used to assess correctness are hardcoded in the code.  As a result, the test can only be configured in specific ways via the par files and the setup command (See the specifications below).  It is unlikely that this test will function correctly if more than one MPI process is used.
 
