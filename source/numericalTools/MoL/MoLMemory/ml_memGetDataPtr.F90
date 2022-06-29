@@ -39,6 +39,7 @@
 !!      dataStruct : Which data struct
 !!
 !!***
+!!REORDER(4): dataPtr
 subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
     use ml_memData,   only: scratch_data
     use ml_interface, only: ml_error

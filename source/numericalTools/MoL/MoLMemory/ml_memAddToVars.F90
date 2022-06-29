@@ -188,7 +188,7 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
             dstVars = MoL_scratch_mask
         end if
     
-        call Grid_getTileIterator(itor, LEAF)
+        call Grid_getTileIterator(itor, LEAF, tiling=.true.)
     
         TileLoop: do
             if (.not. itor%isValid()) exit TileLoop
@@ -255,7 +255,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -314,7 +314,7 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -376,7 +376,7 @@ subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -442,7 +442,7 @@ subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -511,7 +511,7 @@ subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -583,7 +583,7 @@ subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -659,7 +659,7 @@ subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -740,7 +740,7 @@ subroutine ml_memAddToVars7(dst, dstFac, &
     dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -824,7 +824,7 @@ subroutine ml_memAddToVars8(dst, dstFac, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -911,7 +911,7 @@ subroutine ml_memAddToVars9(dst, dstFac, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -1004,7 +1004,7 @@ subroutine ml_memAddToVars10(dst, dstFac, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -1102,7 +1102,7 @@ subroutine ml_memAddToVars11(dst, dstFac, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop
@@ -1203,7 +1203,7 @@ subroutine ml_memAddToVars12(dst, dstFac, &
         dstVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop

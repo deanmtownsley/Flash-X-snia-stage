@@ -80,7 +80,7 @@ subroutine ml_memCopy(dst, src)
         srcVars = MoL_scratch_mask
     end if
 
-    call Grid_getTileIterator(itor, LEAF)
+    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
     TileLoop: do
         if (.not. itor%isValid()) exit TileLoop

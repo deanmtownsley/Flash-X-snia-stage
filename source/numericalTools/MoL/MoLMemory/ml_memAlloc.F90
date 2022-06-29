@@ -48,12 +48,20 @@ subroutine ml_memAlloc()
     if (allocated(scratch_data)) call ml_memFree()
 
     ! Don't need guard-cells here
+#ifdef MOL_REORDER
+    allocate(scratch_data(lim(LOW,IAXIS):lim(HIGH,IAXIS), &
+                          lim(LOW,JAXIS):lim(HIGH,JAXIS), &
+                          lim(LOW,KAXIS):lim(HIGH,KAXIS), &
+                          MoL_nvars,                      &
+                          MAXBLOCKS,                      &
+                          MoL_nscratch_total))
+#else
     allocate(scratch_data(MoL_nvars,                      &
                           lim(LOW,IAXIS):lim(HIGH,IAXIS), &
                           lim(LOW,JAXIS):lim(HIGH,JAXIS), &
                           lim(LOW,KAXIS):lim(HIGH,KAXIS), &
                           MAXBLOCKS,                      &
                           MoL_nscratch_total))
-
+#endif
     scratch_data = 0d0
 end subroutine ml_memAlloc

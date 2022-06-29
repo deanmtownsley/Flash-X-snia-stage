@@ -36,6 +36,13 @@ subroutine MoL_regrid()
 
     implicit none
 
+    logical, save :: first = .true.
+
+    ! Only need to do this once for UG/Paramesh
+    if(.not. first) return
+
     call ml_memFree
     call ml_memAlloc
+
+    first = .false.
 end subroutine MoL_regrid
