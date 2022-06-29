@@ -48,7 +48,6 @@ module Grid_tile
     !! Refer to the Flash-X users' guide for an explanation of the differences
     !! between limits, grownLimits, and blkLimitsGC as well as their uses.
     !!
-    !! @todo Can we get rid of id?
     !! @todo Can we remove MH_tile_Cptr from derived type?  Its presence here
     !!       gives the false perception that Grid_tile_t objects still
     !!       own the tile, which they do not.
@@ -65,7 +64,6 @@ module Grid_tile
         real,        pointer, private :: F_fluxXPtr(:,:,:,:)           => null()
         real,        pointer, private :: F_fluxYPtr(:,:,:,:)           => null()
         real,        pointer, private :: F_fluxZPtr(:,:,:,:)           => null()
-        integer,              public  :: id                            = -1
         integer,              public  :: level                         = -1
         integer,              public  :: grid_index                    = -1
         integer,              public  :: tile_index                    = -1
@@ -256,7 +254,6 @@ contains
 #endif
 #endif
 
-        tileDesc%id         = -1
         tileDesc%grid_index = INT(MH_gId)
         tileDesc%tile_index = -1
         tileDesc%level      = INT(MH_level)

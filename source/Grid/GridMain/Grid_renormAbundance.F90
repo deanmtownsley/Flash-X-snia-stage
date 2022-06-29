@@ -116,7 +116,7 @@ subroutine Grid_renormAbundance(tileDesc, tileLimits, solnData)
                  call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, point, point, pntCoord(IAXIS:IAXIS))
                  call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, point, point, pntCoord(JAXIS:JAXIS))
                  call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, point, point, pntCoord(KAXIS:KAXIS))
-#ifdef FLASH_GRID_AMREX
+#if defined(FLASH_GRID_AMREX) || defined(FLASH_GRID_MILHOJA)
                  print *, 'Error: non-conservation in block at level ', &
                            tileDesc%level, &
                            " / grid_index = ", tileDesc%grid_index
