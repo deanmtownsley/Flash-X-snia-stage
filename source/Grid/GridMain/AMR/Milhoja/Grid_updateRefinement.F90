@@ -11,7 +11,12 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! This subroutine has not yet been implemented and is a noop.
+!! A Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface
+!! information.
+!!
+!! This subroutine is presently a noop and as a result, it is one factor that
+!! limits the Milhoja Grid unit implementation to pseudo-UG.
 !!
 !! @todo Implement
 subroutine Grid_updateRefinement(nstep, time, gridChanged)

@@ -19,6 +19,11 @@
 !! This is a Milhoja-specific implementation of this routine.  Please refer
 !! to the documentation in this routine's stub for general interface information.
 !!
+!! While its interface is fixed, this routine is a work in progress.
+!! Specifically, it will grow as new initialization work is required to add in
+!! new Milhoja Grid unit functionality.  Ideally, this will only be altered when
+!! a new test or updated test can confirm that alterations are correct.
+!!
 !! @todo Confirm that the Milhoja types match the Flash-X types.  Look at the
 !!       testing code that used to be in Milhoja's types module.  How does
 !!       Milhoja confirm that its types match those of the Grid backend?

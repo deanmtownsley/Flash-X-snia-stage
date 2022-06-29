@@ -13,6 +13,13 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! A Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface
+!! information.
+!!
+!! Only partial functionality has been implemented so far.  This routine
+!! aborts if calling code attempts to use non-implemented functionality.
+!!
 !! @todo Code up full implementation
 subroutine Grid_getTileIterator(itor, nodetype, level, tiling, tileSize, nthreads)
     use Grid_data,        ONLY : gr_meshMe

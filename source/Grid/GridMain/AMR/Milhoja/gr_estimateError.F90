@@ -18,11 +18,13 @@
 !! corresponding value in the error array to be the maximum of the incoming
 !! value and the value calculated here.
 !!
+!! This subroutine has not been implemented and aborts if called.
+!!
 !! @todo Paramesh and AMReX also have versions of this, but there is no stub
 !! nor explicit interface.  This implies that all three versions can be
-!! distinct.  Is this as intended?  If not, then we need at least a stub that
-!! defines the generic interface of this subroutine?  Note that it is called
-!! from
+!! distinct.  Is this as intended?  If not, then do we need at least a stub that
+!! defines the generic interface of this subroutine and has more detailed
+!! official documentation?  Note that it is called from
 !!             GridMain/AMR/Grid_markRefineDerefine.F90.
 !! If this usage is correct, then this implies the need for a generic interface.
 !! Should that Grid_markRefineDerefine be moved to Paramesh and at the same time

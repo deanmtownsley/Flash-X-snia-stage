@@ -15,6 +15,9 @@
 !! to the documentation in this routine's stub for general interface
 !! information.
 !!
+!! Only partial functionality has been implemented so far.  This routine
+!! aborts if calling code attempts to use non-implemented functionality.
+!!
 !! @todo Confirm that what is coded is correct and then code up the 
 !!       remaining functionality.
 subroutine Grid_getMaxRefinement(maxRefinement, mode, scope, inputComm)

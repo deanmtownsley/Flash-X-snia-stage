@@ -35,10 +35,15 @@
 !! fill via the routine Grid_bcApplyToRegionSpecialized.  If this routine does
 !! not handle the fill, then the fill is done via Grid_bcApplyToRegion.
 !!
+!! Since this is registered with Milhoja as a callback to be used (potentially)
+!! with C++ grid backends, it is part of the Fortran/C++ interoperability layer. As
+!! a result it is acceptable that it have a C-linkage-compatible interface.
+!!
 !! NOTE: This routine has been written only as a proof-of-concept of the
 !! Fortran/C++ interoperability layer.  It does
 !! *not* write any BC data and, therefore, limits the use of Milhoja to only
 !! all-periodic BC.
+!!
 !! NOTE: The interface of this could be changed substantially once this
 !! is under active development.
 !!

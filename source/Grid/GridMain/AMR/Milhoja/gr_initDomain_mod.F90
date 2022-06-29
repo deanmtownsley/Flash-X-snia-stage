@@ -1,3 +1,6 @@
+#include "constants.h"
+#include "Simulation.h"
+
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
@@ -31,11 +34,6 @@
 !!       Therefore, this needs to conform to that non-constraint.
 !! @todo Would it be better to allow each simulation to specify if
 !!       Simulation_initBlock should set ICs in the GCs?
-!!
-
-#include "constants.h"
-#include "Simulation.h"
-
 module gr_initDomain_mod
     implicit none
     private

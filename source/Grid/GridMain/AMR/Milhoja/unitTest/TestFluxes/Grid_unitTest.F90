@@ -1,8 +1,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-!> Confirm proper implementation of Grid-internal flux data storage and access.
-!! This test assumes no guardcells in flux data.
+!> Refer to the test's design doc for more information.
 !!
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.

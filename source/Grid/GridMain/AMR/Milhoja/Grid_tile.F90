@@ -114,7 +114,7 @@ module Grid_tile
 contains
 
     !> Create a Grid_tile_t object and populate it with the metadata associated
-    !! with the Milhoja C++ Tile object pointed to by the given pointer.
+    !! with the Milhoja C++ Tile object pointed to by the given C pointer.
     !!
     !! Typically, the pointer will have been obtained from a Milhoja tile
     !! iterator, in which case the Tile object would be the current Tile
@@ -399,6 +399,11 @@ contains
     !!
     !! If this is called, calling code is obligated to subsequently release the
     !! pointer using the releaseDataPtr subroutine.
+    !!
+    !! This implementation does not presently grant access to all data types nor
+    !! implement the full functionality implied by all arguments.  This routine
+    !! aborts if calling code attempts to access unavailable data or use 
+    !! unimplemented functionality.
     !!
     !! @todo Code full implementation.
     !! @todo Use Klaus's macro for INOUT pointers

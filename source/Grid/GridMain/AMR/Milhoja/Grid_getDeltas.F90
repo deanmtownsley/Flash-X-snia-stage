@@ -18,9 +18,6 @@
 !! to the documentation in this routine's stub for general interface
 !! information.
 !!
-!! @param level  The 1-based level at which deltas values are requested
-!! @param deltas The delta values
-!!
 !! @todo Should the deltas be cached by Grid_init?
 subroutine Grid_getDeltas(level, deltas)
     use milhoja_types_mod,   ONLY : MILHOJA_INT, &

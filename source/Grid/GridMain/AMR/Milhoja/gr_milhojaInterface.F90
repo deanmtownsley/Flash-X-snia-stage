@@ -11,9 +11,9 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! Module that defines the interfaces for all local subroutines
-!! used by Milhoja-specific Grid unit code.  It is *not* intended that
-!! any of these routines be used by any Grid subunits other than GridMain.
+!! Module that defines the interfaces for all local subroutines used by
+!! Milhoja-specific Grid unit code.  It is intended that these subroutines *only*
+!! be used by the GridMain subunit.
 module gr_milhojaInterface
 
     interface

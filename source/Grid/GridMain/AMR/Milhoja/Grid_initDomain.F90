@@ -17,6 +17,9 @@
 !! to the documentation in this routine's stub for general interface
 !! information.
 !!
+!! Only partial functionality has been implemented so far.  This routine
+!! aborts if calling code attempts to use non-implemented functionality.
+!!
 !! @todo Pass MH_T_INIT all the way through to the Grid backend.
 !! @todo Do we use RPs to determine which initDomain routine to
 !!       call (e.g., no runtime, CPU-only, GPU-only, etc.)

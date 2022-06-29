@@ -146,8 +146,13 @@ contains
     !> Release the resources associated with the given iterator and destroy the
     !! iterator.
     !!
+    !! @todo Prepending the subroutine line with IMPURE_ELEMENTAL confuses
+    !!       Doxygen.  IMPURE_ELEMENTAL was copied directly from AMReX.  What
+    !!       does it do and is it necessary?
+    !!
     !! @param itor       The iterator to destroy
-    IMPURE_ELEMENTAL subroutine destroy_iterator(itor)
+!    IMPURE_ELEMENTAL subroutine destroy_iterator(itor)
+    subroutine destroy_iterator(itor)
         use gr_milhojaInterface, ONLY : gr_checkMilhojaError
 
         type(Grid_iterator_t), intent(INOUT) :: itor

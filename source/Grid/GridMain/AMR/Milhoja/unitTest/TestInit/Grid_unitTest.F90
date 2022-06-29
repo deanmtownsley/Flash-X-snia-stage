@@ -1,27 +1,10 @@
 #include "Simulation.h"
 #include "constants.h"
 
-!> A subset of simulation configuration data is loaded into Milhoja at
-!! initialization and is therefore owned by Milhoja.  As a result, Milhoja is used
-!! to provide these data values to client code through the associated public
-!! Grid_* and local gr_* interface accessor routines as well as local data
-!! members.
-!!
-!! This test also confirms correct GC filling.  However, since this test
-!! currently only runs with all leaf blocks in the coarsest level, it is not a
-!! complete test of GC filling.
-!!
-!! This code tests that Milhoja is properly initialized for a Cartesian domain by
-!! verifying correct results as obtained through the accessor routines and data
-!! members.
-!!
-!! This test is not presently MPI-compatible in the sense that its results can
-!! only be trusted if run with a single processor.
+!> Refer to the test's design doc for more information.
 !!
 !! @todo Once the BC unit has been implemented for Milhoja, uncomment the
 !! desired BCs in test_milhoja_grid.par and update expected values here.
-!! @todo Remove all calls and use statement for gr_writePlotfile, once this
-!!       test is finalized.
 !! @todo Should we leave this unittest with simple data that does not refine so
 !! that testing the block structure is easy?  All blocks presently on coarsest
 !! level since error estimate callback still does nothing.

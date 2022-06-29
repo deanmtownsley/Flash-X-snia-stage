@@ -13,6 +13,10 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! A Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface
+!! information.
+!!
 !! @todo There should be a better (more efficient) way to do this!
 !!  The current version iterates through a loop and counts iterations.
 !!  There should be (and maybe already is) a better way to get the

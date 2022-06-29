@@ -11,32 +11,19 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! This routine is a callback subroutine that is registered with AMReX's
-!! AMR Core layer at initialization.  AMReX may call this subroutine many times
-!! during the process of grid refinement so that FLASH may communicate which
-!! blocks in the given level require refinement.  The final refinement
-!  decisions are made by AMReX based on the information gathered with this
-!! callback.
+!! This subroutine is a callback that is registered with Milhoja's grid backend at
+!! initialization.  The backend may call this subroutine many times during the
+!! process of grid refinement so that Flash-X may communicate to the backend which
+!! blocks in the given level require refinement.  The final refinement decisions
+!! are made by the backend based on the information gathered with this callback.
 !!
-!! This routine iterates across all blocks in the given level and determines if
-!! the current block needs refinement.  If it does, then all cells in the AMReX
-!! tagbox associated with the block interior are marked for refinement by
-!! setting their value to tagval.  If not, then all interior cells are set to
-!! clearval.
+!! This routine iterates across all blocks in the given level and determines if the
+!! current block needs refinement.  A block is marked for refinement if the block's
+!! error estimate for any refinement variable is greater than the variable's
+!! associated refinement cutoff value.
 !!
-!! A block is marked for refinement if the block's error estimate for any
-!! refinement variable is greater than the variable's associated refinement
-!! cutoff value.
-!!
-!! @param lev  The 0-based level index
-!! @param  tags  C-pointer to an AMReX tagbox array.  The elements of this are tag
-!!          boxes.  The cells of these tagboxes are set to communicate a need
-!!          to refine the associated block.
-!! @param time    Not used in this default implementation of Flash-X
-!! @param tagval  For full, rich AMReX tagging, this values should be assigned to
-!!            each cell that has insufficient resolution.
-!! @param clearval  For full, rich AMReX tagging, this values should be assigned to
-!!              each cell that has sufficient resolution.
+!! This subroutine is presently a noop and as a result, it is one factor that
+!! limits the Milhoja Grid unit implementation to pseudo-UG.
 !!
 !! @todo Should this routine be adapted so that it uses the generic Milhoja
 !!       interface?  That seems unnecessary as this routine will likely only 
@@ -49,6 +36,16 @@
 !!       the need for some Flash-X users to supply their own routine.  The types
 !!       have been set to MILHOJA.  However, this is fundamentally an AMReX 
 !!       callback and it makes more conceptual sense for these to be AMReX types.
+!!
+!! @param lev  The 0-based level index
+!! @param tags  C-pointer to an AMReX tagbox array.  The elements of this are tag
+!!          boxes.  The cells of these tagboxes are set to communicate a need
+!!          to refine the associated block.
+!! @param time    Not used in this default implementation of Flash-X
+!! @param tagval  For full, rich AMReX tagging, this values should be assigned to
+!!            each cell that has insufficient resolution.
+!! @param clearval  For full, rich AMReX tagging, this values should be assigned to
+!!              each cell that has sufficient resolution.
 subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind(c)
    use iso_c_binding, ONLY : C_CHAR, &
                              C_PTR
