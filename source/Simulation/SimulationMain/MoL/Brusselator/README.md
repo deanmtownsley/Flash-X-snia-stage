@@ -5,6 +5,7 @@
 ./setup MoL/Brusselator -auto +ug +nofbs -1d
 ```
 The Brusselator test (see [Chinomona & Reynolds, 2021](https://arxiv.org/abs/2007.09776)) is a stiff advection-diffusion-reaction problem intended to demonstrate the capabilities of the method-of-lines (MoL) multi-rate time integrator.  This simulation evolves the system of PDEs
+
 $$
 \begin{align*}
 \frac{\partial u}{\partial t} &= \rho\frac{\partial u}{\partial x} + \alpha\frac{\partial^2 u}{\partial x^2} + \left[a - (w-1)u + u^2v\right]\\\\
@@ -12,11 +13,15 @@ $$
 \frac{\partial w}{\partial t} &= \rho\frac{\partial w}{\partial x} + \alpha\frac{\partial^2 w}{\partial x^2} + \left[\frac{b-w}{\epsilon}-wu\right]
 \end{align*}
 $$
+
 on the domain $x\in[0,1]$, with stationary boundary conditions
+
 $$
 \frac{\partial u}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial v}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial w}{\partial t}\biggr\rvert_{x=0,1} 0
 $$
+
 and initial conditions
+
 $$
 \begin{align*}
 u(0,x) &= a + 0.1\sin(\pi x)\\
