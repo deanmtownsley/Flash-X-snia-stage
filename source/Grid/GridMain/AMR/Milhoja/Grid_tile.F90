@@ -48,9 +48,6 @@ module Grid_tile
     !! Refer to the Flash-X users' guide for an explanation of the differences
     !! between limits, grownLimits, and blkLimitsGC as well as their uses.
     !!
-    !! @todo Can we remove MH_tile_Cptr from derived type?  Its presence here
-    !!       gives the false perception that Grid_tile_t objects still
-    !!       own the tile, which they do not.
     !! @todo Can grid_index and tile_index be made private?
     !! @todo Since physics units should no longer use Grid_tile_t, can and
     !! should we simplify this interface?  In other words, is there a need for
@@ -58,7 +55,6 @@ module Grid_tile
     !! @todo Should blkLimitsGC be renamed to something that reflects more
     !! explicitly its role as data array extent/indexing?
     type, public :: Grid_tile_t
-        type(C_PTR),          private :: MH_tile_Cptr                  = C_NULL_PTR
         type(C_PTR),          private :: C_dataPtr                     = C_NULL_PTR
         real,        pointer, private :: F_dataPtr(:,:,:,:)            => null()
         real,        pointer, private :: F_fluxXPtr(:,:,:,:)           => null()
@@ -162,8 +158,7 @@ contains
         integer(MILHOJA_INT)         :: MH_nFluxVars
         integer(MILHOJA_INT)         :: MH_ierr
 
-        tileDesc%MH_tile_Cptr = MH_tile_Cptr
-        if      (.NOT. C_ASSOCIATED(tileDesc%MH_tile_Cptr)) then
+        if      (.NOT. C_ASSOCIATED(MH_tile_Cptr)) then
             CALL Driver_abort("[Grid_tile_fromMilhojaTilePtr] Null tile pointer")
         else if (C_ASSOCIATED(tileDesc%C_dataPtr)) then
             CALL Driver_abort("[Grid_tile_fromMilhojaTilePtr] C_dataPtr not NULL")
@@ -193,7 +188,7 @@ contains
         fluxY_Cptr = C_NULL_PTR
         fluxZ_Cptr = C_NULL_PTR
 
-        MH_ierr = milhoja_tile_get_metadata_C(tileDesc%MH_tile_Cptr,      &
+        MH_ierr = milhoja_tile_get_metadata_C(MH_tile_Cptr,               &
                                               MH_gId, MH_level,           &
                                               lo_Cptr,   hi_Cptr,         &
                                               loGrown_Cptr, hiGrown_Cptr, &
