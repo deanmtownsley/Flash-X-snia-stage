@@ -9,7 +9,7 @@ The Brusselator test (see [Chinomona & Reynolds, 2021](https://arxiv.org/abs/200
 $$
 \begin{align*}
 \frac{\partial u}{\partial t} &= \rho\frac{\partial u}{\partial x} + \alpha\frac{\partial^2 u}{\partial x^2} + \left[a - (w-1)u + u^2v\right]\\\\
-\frac{\partial v}{\partial t} &= \rho\frac{\partial v}{\partial x} + \alpha\frac{\partial^2 u}{\partial x^2} + \left[wu - u^2v\right]\\\\
+\frac{\partial v}{\partial t} &= \rho\frac{\partial v}{\partial x} + \alpha\frac{\partial^2 v}{\partial x^2} + \left[wu - u^2v\right]\\\\
 \frac{\partial w}{\partial t} &= \rho\frac{\partial w}{\partial x} + \alpha\frac{\partial^2 w}{\partial x^2} + \left[\frac{b-w}{\epsilon}-wu\right]
 \end{align*}
 $$
