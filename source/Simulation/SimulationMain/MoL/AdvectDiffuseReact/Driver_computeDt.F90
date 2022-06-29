@@ -1,0 +1,19 @@
+subroutine Driver_computeDt(nbegin, nstep, simTime, dtOld, dtNew)
+    use Simulation_data
+
+    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+    use Grid_tile
+    use Grid_iterator
+
+#include "Simulation.h"
+#include "constants.h"
+
+    implicit none
+
+    integer, intent(in)  :: nbegin, nstep
+    real,    intent(in)  :: simTime    !! current simulation time
+    real,    intent(in)  :: dtOld      !! last time step we used
+    real,    intent(out) :: dtNew      !! the new timestep we get. to be returned.
+
+    dtNew = 0.1d0/2d0**sim_k
+end subroutine Driver_computeDt

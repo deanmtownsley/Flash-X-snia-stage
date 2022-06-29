@@ -1,0 +1,16 @@
+# Config file for the Advection-Diffusion-Reaction test problem
+LIBRARY LAPACK
+
+GUARDCELLS 4
+
+VARIABLE U  TYPE: GENERIC
+VARIABLE V  TYPE: GENERIC
+VARIABLE W  TYPE: GENERIC
+
+PARAMETER sim_a        REAL  0.6
+PARAMETER sim_b        REAL  2.0
+PARAMETER sim_alpha    REAL  0.01
+PARAMETER sim_epsilon  REAL  0.01
+PARAMETER sim_rho      REAL  0.001
+
+PARAMETER sim_k  INTEGER  0

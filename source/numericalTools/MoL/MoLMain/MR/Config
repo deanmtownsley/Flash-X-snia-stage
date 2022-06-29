@@ -1,6 +1,6 @@
 # Config file for the MoL multi-rate integrator
 
-PARAMETER mr_slowMethod STRING "mr-gark3" ["mr_gark3","mr-gark4"]
+PARAMETER mr_slowMethod STRING "mr-gark3" ["mr-gark3","mr-gark4"]
 
 PARAMETER mr_fastMethod STRING "erk-rk4" ["erk-euler","erk-rk2-heun","erk-rk3-ssp","erk-rk4"]
 

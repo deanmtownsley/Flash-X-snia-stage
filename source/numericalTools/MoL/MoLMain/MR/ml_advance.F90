@@ -129,7 +129,9 @@ subroutine ml_advance(t, dt)
                         call MoL_postUpdateFast(t_fast_stage)
                     end if
 
-                    call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage)
+                    if (dc .gt. 0d0) then
+                        call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage)
+                    end if
 
                     ! Scaled time for forcing term
                     tau = theta/dt
