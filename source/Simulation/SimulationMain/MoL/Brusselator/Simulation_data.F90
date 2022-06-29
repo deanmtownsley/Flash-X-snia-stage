@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/AdvectReact/sim_molPostUpdate
+!!****if* source/Simulation/SimulationMain/MoL/Brusselator/Simulation_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,32 +11,26 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
-!!
-!!      sim_molPostUpdate
+!!  NAME
+!!    Simulation_data
 !!
 !!  SYNOPSIS
+!!    use Simulation_data
 !!
-!!      call sim_molPostUpdate(real, intent(in) :: t)
+!!  DESCRIPTION
 !!
-!!  DESCRIPTION 
-!!
-!!      Perform any post-update (post-stage/timestep) work
-!!
-!!
-!!  ARGUMENTS
-!!
-!!      t  : Current time
+!!    Stores the local data for Simulation setup
 !!
 !!***
-subroutine sim_molPostUpdate(t)
-    use Grid_interface, only: Grid_fillGuardCells
-
-#include "constants.h"
+module Simulation_data
 
     implicit none
+    
+    real, save :: sim_a, sim_b
+    real, save :: sim_epsilon, sim_alpha, sim_rho
 
-    real, intent(in) :: t
+    integer, save :: sim_k
+    
+    integer, save :: U_RHS, V_RHS, W_RHS
 
-    call Grid_fillGuardCells(CENTER, ALLDIR)
-end subroutine sim_molPostUpdate
+end module Simulation_data

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/AdvectDiffuseReact/sim_molImplicitRHS
+!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molExplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,18 +13,18 @@
 !!
 !!  NAME 
 !!
-!!      sim_molImplicitRHS
+!!      sim_molExplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!      call sim_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
 !!                              real, pointer           :: rhs(:,:,:,:)
 !!                              real, pointer           :: vars(:,:,:,:)
 !!                              real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Calculate implicit RHS terms
+!!      Calculate explicit RHS terms
 !!
 !!
 !!  ARGUMENTS
@@ -35,7 +35,7 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molImplicitRHS(tileDesc, rhs, vars, t)
+subroutine sim_molExplicitRHS(tileDesc, rhs, vars, t)
     use Simulation_data
 
     use Grid_tile, only: Grid_tile_t
@@ -49,9 +49,18 @@ subroutine sim_molImplicitRHS(tileDesc, rhs, vars, t)
     real, dimension(:,:,:,:), pointer :: rhs, vars
     real, intent(in) :: t
 
+    integer :: i, j, k, ip, im
+
     integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    integer :: i, j, k
-    real :: del(MDIM), idx2
+    real :: del(MDIM), idx
+
+    if (sim_rho .lt. 0d0) then
+        ip = 0
+        im = -1
+    else
+        ip = 1
+        im = 0
+    end if
 
     call tileDesc%faceBCs(bcs)
 
@@ -61,26 +70,20 @@ subroutine sim_molImplicitRHS(tileDesc, rhs, vars, t)
     if(bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) lim(HIGH,IAXIS) = lim(HIGH,IAXIS) - 1
 
     call tileDesc%deltas(del)
-    idx2 = 1d0/(del(IAXIS)**2)
+    idx = 1d0/del(IAXIS)
 
     do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
         do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
             do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k)       &
-                    + sim_alpha*(     vars(U_VAR,i+1,j,k) &
-                                - 2d0*vars(U_VAR,i,  j,k) &
-                                +     vars(U_VAR,i-1,j,k))*idx2
+                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) &
+                    + sim_rho*(vars(U_VAR,i+ip,j,k) - vars(U_VAR,i+im,j,k))*idx
 
-                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k)       &
-                    + sim_alpha*(     vars(V_VAR,i+1,j,k) &
-                                - 2d0*vars(V_VAR,i,  j,k) &
-                                +     vars(V_VAR,i-1,j,k))*idx2
+                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k) &
+                    + sim_rho*(vars(V_VAR,i+ip,j,k) - vars(V_VAR,i+im,j,k))*idx
 
-                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k)       &
-                    + sim_alpha*(     vars(W_VAR,i+1,j,k) &
-                                - 2d0*vars(W_VAR,i,  j,k) &
-                                +     vars(W_VAR,i-1,j,k))*idx2
+                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) &
+                    + sim_rho*(vars(W_VAR,i+ip,j,k) - vars(W_VAR,i+im,j,k))*idx
             end do ! i
         end do ! j
     end do ! k
-end subroutine sim_molImplicitRHS
+end subroutine sim_molExplicitRHS

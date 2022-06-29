@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/AdvectDiffuseReact/sim_molFastRHS
+!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molFastRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

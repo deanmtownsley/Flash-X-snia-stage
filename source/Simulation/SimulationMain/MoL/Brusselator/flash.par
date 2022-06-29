@@ -1,0 +1,67 @@
+# Parameter file for the Brusselator (advection-diffusion-reaction test) problem
+
+sim_a       = 0.6
+sim_b       = 2.0
+sim_alpha   = 0.01
+sim_epsilon = 0.01
+sim_rho     = 0.001
+
+# Grid information
+
+nblockx = 1
+iprocs  = 1
+
+geometry = "cartesian"
+
+# Grid size = 201
+iGridSize = 201
+xmin = -0.0025
+xmax =  1.0025
+
+# Grid size = 801
+#iGridSize = 801
+#xmin = -0.000625
+#xmax =  1.000625
+
+
+# Boundary conditions (arbitrary) - see README
+
+xl_boundary_type = "outflow"
+xr_boundary_type = "outflow"
+
+
+# Timing
+
+tmax = 3.0
+
+mr_slowMethod = "mr-gark3"
+mr_fastMethod = "erk-rk4"
+mr_nsubcycle = 5
+
+#sim_k = 0
+#nend  = 30
+
+#sim_k = 1
+#nend  = 60
+
+sim_k = 2
+nend  = 120
+
+#sim_k = 3
+#nend  = 240
+
+
+# I/O
+
+restart = .false.
+
+checkpointFileIntervalTime = 0.3
+plotFileIntervalTime       = 0.3
+
+plot_var_1 = "u   "
+plot_var_2 = "v   "
+plot_var_3 = "w   "
+
+basenm      = "brusselator_"
+log_file    = "brusselator.log"
+run_comment = "Brusselator Test"

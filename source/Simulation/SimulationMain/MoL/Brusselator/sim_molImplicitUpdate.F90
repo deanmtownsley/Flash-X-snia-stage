@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/AdvectDiffuseReact/sim_molImplicitUpdate
+!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molImplicitUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
