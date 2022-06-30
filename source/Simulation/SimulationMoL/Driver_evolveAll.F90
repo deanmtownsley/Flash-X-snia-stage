@@ -252,6 +252,9 @@ subroutine Driver_evolveAll()
      print*, 'return from Gravity_potential '  ! DEBUG
 #endif
      endif
+
+     !! This will notify MoL-evolved physics units that timestep is complete
+     call sim_molPostTimeStep(dr_simTime)
      
      dr_dtOld = dr_dt
 
@@ -282,7 +285,17 @@ subroutine Driver_evolveAll()
      call Timers_stop("Grid_updateRefinement")
 
      ! Update MoL intermediate state storage if the grid changed
-     if (gridChanged) call MoL_regrid
+     ! Also notify physics units - if they track both conserved
+     ! and primitive variables in UNK, the refined primitives will
+     ! not be consistent with a con2prim call on the refined
+     ! conserved variables.  A con2prim call may be necessary
+     ! here, as the assumed strictly-Newtonian expressions for
+     ! con2prim and prim2con in Grid are incorrect for any
+     ! relativistic formulation
+     if (gridChanged) then
+          call MoL_regrid
+          call sim_molPostRegrid(dr_simTime)
+     end if
      
      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
 #ifdef DEBUG_DRIVER

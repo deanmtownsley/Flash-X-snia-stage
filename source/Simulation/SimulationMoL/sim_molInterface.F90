@@ -83,6 +83,18 @@ module sim_molInterface
     end interface
 
     interface
+        subroutine sim_molPostTimeStep(t)
+            real, intent(in) :: t
+        end subroutine sim_molPostTimeStep
+    end interface
+
+    interface
+        subroutine sim_molPostRegrid(t)
+            real, intent(in) :: t
+        end subroutine sim_molPostRegrid
+    end interface
+
+    interface
         subroutine sim_molRegisterFunctions
         end subroutine sim_molRegisterFunctions
     end interface

@@ -6,4 +6,6 @@ Simulation += sim_molInterface.o 		\
 			  sim_molPostUpdate.o 		\
 			  sim_molPostFastUpdate.o	\
 			  sim_molPreEvolve.o		\
+			  sim_molPostTimeStep.o		\
+			  sim_molPostRegrid.o		\
 			  sim_molRegisterFunctions.o
