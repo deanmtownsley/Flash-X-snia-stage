@@ -1,4 +1,4 @@
-****if* source/Simulation/SimulationMain/MoL/Brusselator/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/Brusselator/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

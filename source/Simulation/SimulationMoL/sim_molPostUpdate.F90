@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molPostUpdate
+!!****f* source/Simulation/SimulationMoL/sim_molPostUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -30,13 +30,9 @@
 !!
 !!***
 subroutine sim_molPostUpdate(t)
-    use Grid_interface, only: Grid_fillGuardCells
-
-#include "constants.h"
-
     implicit none
 
     real, intent(in) :: t
 
-    call Grid_fillGuardCells(CENTER, ALLDIR)
+    return
 end subroutine sim_molPostUpdate

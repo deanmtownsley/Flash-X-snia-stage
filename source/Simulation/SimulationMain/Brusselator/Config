@@ -1,6 +1,7 @@
 # Config file for the Brusselator (advection-diffusion-reaction) test problem
 LIBRARY LAPACK
 
+REQUIRES Simulation/SimulationMoL
 REQUIRES numericalTools/MoL/MoLMain/MR
 
 GUARDCELLS 4

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molImplicitRHS
+!!****if* source/Simulation/SimulationMain/Brusselator/sim_molImplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Driver_evolveAll
+!!****if* source/Simulation/SimulationMoL/Driver_evolveAll
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -83,7 +83,8 @@ subroutine Driver_evolveAll()
                            MoL_advance,           &
                            MoL_releaseFunctions
 
-  use sim_molInterface, only: sim_molRegisterFunctions
+  use sim_molInterface, only: sim_molRegisterFunctions, &
+                              sim_molPreEvolve
 
   implicit none
 

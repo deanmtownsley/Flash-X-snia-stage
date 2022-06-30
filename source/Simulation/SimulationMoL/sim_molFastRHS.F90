@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molFastRHS
+!!****f* source/Simulation/SimulationMoL/sim_molFastRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -35,43 +35,14 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molFastRHS(tileDesc, rhs, vars, t)
-    use Simulation_data, only: U_RHS, V_RHS, W_RHS, a => sim_a, b => sim_b, &
-                               eps => sim_epsilon
-
+subroutine sim_molFastRHS(tileDesc, rhs, U, t)
     use Grid_tile, only: Grid_tile_t
-
-#include "Simulation.h"
-#include "constants.h"
 
     implicit none
 
     class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, vars
+    real, dimension(:,:,:,:), pointer :: rhs, U
     real, intent(in) :: t
 
-    integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    integer :: i, j, k
-    real :: u,v,w
-
-    call tileDesc%faceBCs(bcs)
-
-    lim = tileDesc%limits
-
-    if(bcs(LOW,IAXIS) .ne. NOT_BOUNDARY) lim(LOW,IAXIS) = lim(LOW,IAXIS) + 1
-    if(bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) lim(HIGH,IAXIS) = lim(HIGH,IAXIS) - 1
-
-    do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
-        do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
-            do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                u = vars(U_VAR,i,j,k)
-                v = vars(V_VAR,i,j,k)
-                w = vars(W_VAR,i,j,k)
-
-                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) + a         - (w+1d0)*u + v*u**2
-                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k)             +       w*u - v*u**2
-                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) + (b-w)/eps -       w*u
-            end do ! i
-        end do ! j
-    end do ! k
+    return
 end subroutine sim_molFastRHS

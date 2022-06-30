@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Brusselator/Simulation_data
+!!****f* source/Simulation/SimulationMoL/sim_molImplicitUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,26 +11,30 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME
-!!    Simulation_data
+!!  NAME 
+!!
+!!      sim_molImplicitUpdate
 !!
 !!  SYNOPSIS
-!!    use Simulation_data
 !!
-!!  DESCRIPTION
+!!      call sim_molImplicitUpdate(real, intent(in) :: t
+!!                                 real, intent(in) :: dt)
 !!
-!!    Stores the local data for Simulation setup
+!!  DESCRIPTION 
+!!
+!!      Implicitly update evolved variables from t to t+dt
+!!
+!!
+!!  ARGUMENTS
+!!
+!!      t  : Current time
+!!      dt : Size of the time step to take
 !!
 !!***
-module Simulation_data
-
+subroutine sim_molImplicitUpdate(t, dt)
     implicit none
-    
-    real, save :: sim_a, sim_b
-    real, save :: sim_epsilon, sim_alpha, sim_rho
 
-    integer, save :: sim_k
-    
-    integer, save :: U_RHS, V_RHS, W_RHS
+    real, intent(in) :: t, dt
 
-end module Simulation_data
+    return
+end subroutine sim_molImplicitUpdate

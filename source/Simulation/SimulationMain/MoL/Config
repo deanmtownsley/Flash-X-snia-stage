@@ -1,5 +1,0 @@
-# Config file for all MoL-based simulations
-
-REQUIRES numericalTools/MoL
-
-EXCLUSIVE *

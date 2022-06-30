@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/Brusselator/sim_molPreEvolve
+!!****f* source/Simulation/SimulationMoL/sim_molPreEvolve
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -35,5 +35,5 @@ subroutine sim_molPreEvolve(t)
 
     real, intent(in) :: t
 
-    call sim_molPostUpdate(t)
+    return
 end subroutine sim_molPreEvolve

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/MoL/sim_molRegisterFunctions
+!!****if* source/Simulation/SimulationMoL/sim_molRegisterFunctions
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
