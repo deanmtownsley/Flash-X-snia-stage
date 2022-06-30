@@ -1,9 +1,11 @@
 # Brusselator Test
 
 ## Setup line
+
 ```bash
 ./setup Brusselator -auto +ug +nofbs -1d
 ```
+
 The Brusselator test (see [Chinomona & Reynolds, 2021](https://arxiv.org/abs/2007.09776)) is a stiff advection-diffusion-reaction problem intended to demonstrate the capabilities of the method-of-lines (MoL) multi-rate time integrator.  This simulation evolves the system of PDEs
 
 $$
