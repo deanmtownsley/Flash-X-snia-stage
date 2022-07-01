@@ -11,6 +11,10 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! A Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface
+!! information.
+!!
 !! This subroutine has not yet been implemented and aborts if called.
 !!
 !! @todo Implement

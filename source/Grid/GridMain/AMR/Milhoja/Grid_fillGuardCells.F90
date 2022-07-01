@@ -21,6 +21,9 @@
 !! This is a Milhoja-specific implementation of this routine.  Please refer
 !! to the documentation in this routine's stub for general interface information.
 !!
+!! Only partial functionality has been implemented so far.  This routine
+!! aborts if calling code attempts to use non-implemented functionality.
+!!
 !! @todo Code up full implementation
 !! @todo gr_setGcFillNLayers appears to be Paramesh-specific.  Can we get rid
 !!       of it?

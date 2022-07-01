@@ -1,7 +1,20 @@
 #include "Simulation.h"
 #include "constants.h"
 
-!> Refer to the test's design doc for more information.
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!! Licensed under the Apache License, Version 2.0 (the "License");
+!! you may not use this file except in compliance with the License.
+!!
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!! @endlicenseblock
+!!
+!! Refer to the test's design doc for more information.
 !!
 !! @todo Once the BC unit has been implemented for Milhoja, uncomment the
 !! desired BCs in test_milhoja_grid.par and update expected values here.
@@ -15,25 +28,25 @@
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.
 subroutine Grid_unitTest(fileUnit, perfect)
-    use Grid_interface,        ONLY : Grid_getGeometry, &
-                                      Grid_getDomainBoundBox, &
-                                      Grid_getDomainBC, &
-                                      Grid_getDeltas, &
-                                      Grid_getMaxRefinement, &
-                                      Grid_getTileIterator, &
-                                      Grid_releaseTileIterator, &
-                                      Grid_fillGuardCells
-    use Grid_iterator,         ONLY : Grid_iterator_t
-    use Grid_tile,             ONLY : Grid_tile_t
-    use Grid_data,             ONLY : gr_numRefineVarsMax, &
-                                      gr_numRefineVars, &
-                                      gr_refine_var, &
-                                      gr_refine_cutoff, &
-                                      gr_derefine_cutoff, &
-                                      gr_refine_filter, &
-                                      gr_enforceMaxRefinement, &
-                                      gr_eosMode, &
-                                      gr_eosModeInit
+    use Grid_interface, ONLY : Grid_getGeometry, &
+                               Grid_getDomainBoundBox, &
+                               Grid_getDomainBC, &
+                               Grid_getDeltas, &
+                               Grid_getMaxRefinement, &
+                               Grid_getTileIterator, &
+                               Grid_releaseTileIterator, &
+                               Grid_fillGuardCells
+    use Grid_iterator,  ONLY : Grid_iterator_t
+    use Grid_tile,      ONLY : Grid_tile_t
+    use Grid_data,      ONLY : gr_numRefineVarsMax, &
+                               gr_numRefineVars, &
+                               gr_refine_var, &
+                               gr_refine_cutoff, &
+                               gr_derefine_cutoff, &
+                               gr_refine_filter, &
+                               gr_enforceMaxRefinement, &
+                               gr_eosMode, &
+                               gr_eosModeInit
     use ut_testDriverMod
 
     implicit none
@@ -75,27 +88,27 @@ subroutine Grid_unitTest(fileUnit, perfect)
     real    :: z_expected
     integer :: maxLevel
 
-    type(Grid_iterator_t) :: itor
-    type(Grid_tile_t)     :: tileDesc
-    real, pointer         :: solnData(:, :, :, :)
-    integer               :: n_blocks
-    integer               :: blkLimits(LOW:HIGH, 1:MDIM)
-    integer               :: blkLimitsGC(LOW:HIGH, 1:MDIM)
-    integer               :: blkGC(LOW:HIGH, 1:MDIM)
-    integer               :: blkSize(1:MDIM)
-    integer               :: xBlkMin
-    integer               :: xBlkMax
-    integer               :: yBlkMin
-    integer               :: yBlkMax
-    integer               :: zBlkMin
-    integer               :: zBlkMax
-    real                  :: xMin
-    real                  :: xMax
-    real                  :: yMin
-    real                  :: yMax
-    real                  :: zMin
-    real                  :: zMax
-    real                  :: boundBox(LOW:HIGH, 1:MDIM)
+    type(Grid_iterator_t)         :: itor
+    type(Grid_tile_t)             :: tileDesc
+    real,                 pointer :: solnData(:, :, :, :)
+    integer                       :: n_blocks
+    integer                       :: blkLimits(LOW:HIGH, 1:MDIM)
+    integer                       :: blkLimitsGC(LOW:HIGH, 1:MDIM)
+    integer                       :: blkGC(LOW:HIGH, 1:MDIM)
+    integer                       :: blkSize(1:MDIM)
+    integer                       :: xBlkMin
+    integer                       :: xBlkMax
+    integer                       :: yBlkMin
+    integer                       :: yBlkMax
+    integer                       :: zBlkMin
+    integer                       :: zBlkMax
+    real                          :: xMin
+    real                          :: xMax
+    real                          :: yMin
+    real                          :: yMax
+    real                          :: zMin
+    real                          :: zMax
+    real                          :: boundBox(LOW:HIGH, 1:MDIM)
 
     integer :: level
     integer :: i, j, k, var
@@ -138,10 +151,10 @@ subroutine Grid_unitTest(fileUnit, perfect)
     CALL assertEqual(domainBC(HIGH, KAXIS), ZH_BC_EX, "Incorrect Z-right BC")
 
     !!!!! CONFIRM PROPER REFINEMENT
-    CALL Grid_getMaxRefinement(maxLevel, mode=1)
-    CALL assertEqual(maxLevel, MAXLEVEL_EX, "Incorrect maximum refine level")
     CALL Grid_getMaxRefinement(maxLevel, mode=4)
     CALL assertEqual(maxLevel, 1, "Incorrect current finest level")
+    CALL Grid_getMaxRefinement(maxLevel, mode=1)
+    CALL assertEqual(maxLevel, MAXLEVEL_EX, "Incorrect maximum refine level")
 
     do level = 1, maxLevel
         CALL Grid_getDeltas(level, deltas)
@@ -185,6 +198,8 @@ subroutine Grid_unitTest(fileUnit, perfect)
         n_blocks = n_blocks + 1
         CALL itor%currentTile(tileDesc)
 
+        CALL assertEqual(tileDesc%level, 1, "Incorrect block level")
+
         CALL tileDesc%boundBox(boundBox)
         xMin = MIN(xMin, boundBox(LOW,  IAXIS))
         xMax = MAX(xMax, boundBox(HIGH, IAXIS))
@@ -193,27 +208,21 @@ subroutine Grid_unitTest(fileUnit, perfect)
         zMin = MIN(zMin, boundBox(LOW,  KAXIS))
         zMax = MAX(zMax, boundBox(HIGH, KAXIS))
 
-        CALL assertEqual(tileDesc%level, 1, "Incorrect block level")
-
         ! Check guard cells along all directions
         blkLimits   = tileDesc%limits
         blkLimitsGC = tileDesc%blkLimitsGC
         blkGC(LOW, :) = blkLimits(LOW, :) - blkLimitsGC(LOW, :)
         blkGC(HIGH, :) = blkLimitsGC(HIGH, :) - blkLimits(HIGH, :)
-#if NDIM == 1
         CALL assertEqual(blkGC(LOW,  IAXIS), NGUARD, &
                          "Incorrect guard cell along X-axis")
         CALL assertEqual(blkGC(HIGH, IAXIS), NGUARD, &
                          "Incorrect guard cell along X-axis")
+#if NDIM == 1
         CALL assertEqual(blkGC(LOW,  JAXIS), 0, "Incorrect guard cell along Y-axis")
         CALL assertEqual(blkGC(HIGH, JAXIS), 0, "Incorrect guard cell along Y-axis")
         CALL assertEqual(blkGC(LOW,  KAXIS), 0, "Incorrect guard cell along Z-axis")
         CALL assertEqual(blkGC(HIGH, KAXIS), 0, "Incorrect guard cell along Z-axis")
 #elif NDIM == 2
-        CALL assertEqual(blkGC(LOW,  IAXIS), NGUARD, &
-                         "Incorrect guard cell along X-axis")
-        CALL assertEqual(blkGC(HIGH, IAXIS), NGUARD, &
-                         "Incorrect guard cell along X-axis")
         CALL assertEqual(blkGC(LOW,  JAXIS), NGUARD, &
                          "Incorrect guard cell along Y-axis")
         CALL assertEqual(blkGC(HIGH, JAXIS), NGUARD, &
@@ -221,10 +230,6 @@ subroutine Grid_unitTest(fileUnit, perfect)
         CALL assertEqual(blkGC(LOW,  KAXIS), 0, "Incorrect guard cell along Z-axis")
         CALL assertEqual(blkGC(HIGH, KAXIS), 0, "Incorrect guard cell along Z-axis")
 #elif NDIM == 3
-        CALL assertEqual(blkGC(LOW,  IAXIS), NGUARD, &
-                         "Incorrect guard cell along X-axis")
-        CALL assertEqual(blkGC(HIGH, IAXIS), NGUARD, &
-                         "Incorrect guard cell along X-axis")
         CALL assertEqual(blkGC(LOW,  JAXIS), NGUARD, &
                          "Incorrect guard cell along Y-axis")
         CALL assertEqual(blkGC(HIGH, JAXIS), NGUARD, &
@@ -237,20 +242,16 @@ subroutine Grid_unitTest(fileUnit, perfect)
 
         ! Correct cells per block along each direction
         blkSize = blkLimits(HIGH, :) - blkLimits(LOW, :) + 1
-#if NDIM == 1
         CALL assertEqual(blkSize(IAXIS), NXCELL_EX / NXBLK_EX, &
                          "Incorrect cells per block along X-axis")
+#if NDIM == 1
         CALL assertEqual(blkSize(JAXIS), 1, "Incorrect cells per block along Y-axis")
         CALL assertEqual(blkSize(KAXIS), 1, "Incorrect cells per block along Z-axis")
 #elif NDIM == 2
-        CALL assertEqual(blkSize(IAXIS), NXCELL_EX / NXBLK_EX, &
-                         "Incorrect cells per block along X-axis")
         CALL assertEqual(blkSize(JAXIS), NYCELL_EX / NYBLK_EX, &
                          "Incorrect cells per block along Y-axis")
         CALL assertEqual(blkSize(KAXIS), 1, "Incorrect cells per block along Z-axis")
 #elif NDIM == 3
-        CALL assertEqual(blkSize(IAXIS), NXCELL_EX / NXBLK_EX, &
-                         "Incorrect cells per block along X-axis")
         CALL assertEqual(blkSize(JAXIS), NYCELL_EX / NYBLK_EX, &
                          "Incorrect cells per block along Y-axis")
         CALL assertEqual(blkSize(KAXIS), NZCELL_EX / NZBLK_EX, &
@@ -268,7 +269,7 @@ subroutine Grid_unitTest(fileUnit, perfect)
     end do
 
     CALL Grid_releaseTileIterator(itor)
-    
+
     ! Confirm proper number of blocks and cells
     CALL assertEqual(xBlkMin, 1, "Incorrect origin X-coordinate")
     CALL assertEqual(yBlkMin, 1, "Incorrect origin Y-coordinate")

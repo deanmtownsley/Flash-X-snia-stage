@@ -112,7 +112,7 @@ subroutine gr_bcApplyToOneFace(axis,bcType,gridDataStruct,varCount,&
   end if
 
 #ifdef FLASH_GRID_MILHOJA
-  call Driver_abort("[gr_bcApplyToOneFace] Determine if Milhoja should execute next block")
+  call Driver_abort("[gr_bcApplyToOneFace] Determine if Milhoja should execute next code block")
 #elif !defined(FLASH_GRID_PARAMESH2) && !defined(FLASH_GRID_AMREX) && !defined(FLASH_GRID_UG)
   if(gridDataStruct == WORK) then
      call gr_hgMapBcType(testBcType,bcType,1,gridDataStruct,axis,face,idest)

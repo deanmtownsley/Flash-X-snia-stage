@@ -14,33 +14,35 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! This is a Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface information.
+!!
 !! This routine is needed in order to compile test Milhoja simulations.  However,
 !! it aborts if called since it is not yet implemented.
 !!
-!! @todo Implement
+!! @todo Implement.  Should it be in a dedicated file or should changes be made
+!!       to the version one folder up?
 !! @todo Does this file need the REORDER directive?
 subroutine gr_bcPutRegion(gridDataStruct, axis, endPoints, regionSize, mask, &
                           region, tileDesc, idest)
   
     use Driver_interface, ONLY : Driver_abort
     use Grid_tile,        ONLY : Grid_tile_t
-    
-    implicit none
-    
-    integer,           intent(IN)  :: gridDataStruct
-    integer,           intent(IN)  :: axis
-    integer,           intent(IN)  :: endPoints(LOW:HIGH, 1:MDIM)
-    integer,           intent(IN)  :: regionSize(1:REGION_DIM)
-    logical,           intent(OUT) :: mask(1:regionSize(STRUCTSIZE))
-    real,              intent(OUT) :: region(regionSize(BC_DIR),     &
-                                             regionSize(SECOND_DIR), &
-                                             regionSize(THIRD_DIR),  &
-                                             regionSize(STRUCTSIZE))
-    type(Grid_tile_t), intent(IN)  :: tileDesc
-    integer,           intent(IN)  :: idest
 
-    mask(:) = .TRUE.
-    region(:,:,:,:) = -1.0
+    implicit none
+
+    integer,           intent(IN) :: gridDataStruct
+    integer,           intent(IN) :: axis
+    integer,           intent(IN) :: endPoints(LOW:HIGH, 1:MDIM)
+    integer,           intent(IN) :: regionSize(1:REGION_DIM)
+    logical,           intent(IN) :: mask(1:regionSize(STRUCTSIZE))
+    real,              intent(IN) :: region(1:regionSize(BC_DIR),     &
+                                            1:regionSize(SECOND_DIR), &
+                                            1:regionSize(THIRD_DIR),  &
+                                            1:regionSize(STRUCTSIZE))
+    type(Grid_tile_t), intent(IN) :: tileDesc
+    integer,           intent(IN) :: idest
+
     CALL Driver_abort("[gr_bcPutRegion] Not implemented yet")
 end subroutine gr_bcPutRegion
 
@@ -57,6 +59,9 @@ end subroutine gr_bcPutRegion
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! This is a Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface information.
+!!
 !! This routine is needed in order to compile test Milhoja simulations.  However,
 !! it aborts if called since it is not yet implemented.
 !!
@@ -68,26 +73,26 @@ subroutine gr_bcPutRegionsMixedGds(gridDataStruct, axis, secondDir, thirdDir, en
   
     use Driver_interface, ONLY : Driver_abort
     use Grid_tile,        ONLY : Grid_tile_t
-    
+
     implicit none
-  
+
     integer,           intent(IN)         :: gridDataStruct
     integer,           intent(IN)         :: axis
     integer,           intent(IN)         :: secondDir
     integer,           intent(IN)         :: thirdDir
     integer,           intent(IN)         :: endPoints(LOW:HIGH, 1:MDIM)
     integer,           intent(IN)         :: regionSize(1:REGION_DIM)
+    real,                         pointer :: regionC(:,:,:,:)
     real,                         pointer :: regionFN(:,:,:,:)
     real,                         pointer :: regionFT1(:,:,:,:)
     real,                         pointer :: regionFT2(:,:,:,:)
-    real,                         pointer :: regionC(:,:,:,:)
     type(Grid_tile_t), intent(IN)         :: tileDesc
     integer,           intent(IN)         :: idest
-    
+
+    NULLIFY(regionC)
     NULLIFY(regionFN)
     NULLIFY(regionFT1)
     NULLIFY(regionFT2)
-    NULLIFY(regionC)
     CALL Driver_abort("[gr_bcPutRegionsMixedGds] Not implemented yet")
 end subroutine gr_bcPutRegionsMixedGds
 

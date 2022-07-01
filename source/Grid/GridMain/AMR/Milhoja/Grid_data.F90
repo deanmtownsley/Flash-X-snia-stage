@@ -14,17 +14,26 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! A standard Flash-X Fortran module that encapsulates all Grid-private
-!! variables as needed by Milhoja.
+!! A standard Flash-X Fortran module that encapsulates all Grid-private variables
+!! as needed by Milhoja.  Note that Grid_init and auxiliary initialization routines
+!! called by Grid_init effectively act as the GridMain constructor.  Therefore, all
+!! variables in this module should be explicitly initialized once Grid_init is
+!! called.
 !!
 !! @todo gr_numDataStruct, gr_gridDataStruct, gr_gridDataStructSize, and
 !! gr_bcEnableApplyMixedGds never initialized.  Does Grid_init need to
 !! initialize them with gr_setDataStructInfo?  Only gr_bcApplyToAllBlks seems to
-!! use them and this presently aborts if called with Milhoja.
+!! use them and this presently aborts if called with Milhoja.  Should gr_bcEnableApplyMixedGds
+!! be set in Grid_init prior to calling gr_setDataStructInfo so that it is
+!! always explicitly initialized?  It looks like that routine should just
+!! use the value rather than set it.
 !! @todo Is gr_allPeriodic necessary?
 !! @todo Is gr_numRefineVarsMax necessary?
+!! @todo Will Milhoja ever be used with Monotonic?  Do we need
+!!       gr_intpolStencilWidth?
 module Grid_data
     implicit none
+    public
     
     !!!!!----- MPI & OpenMP Information    
     integer, save :: gr_globalComm
@@ -84,11 +93,7 @@ module Grid_data
     logical, save :: gr_justExchangedGC
     logical, save :: gr_gcellsUpToDate
 
-#ifdef GRID_WITH_MONOTONIC
-    integer, save :: gr_intpolStencilWidth
-#else
-    ! The following was appropriate for Paramesh3f with native interpolation
+    ! Copied from AMReX
     integer, parameter :: gr_intpolStencilWidth = 1
-#endif
 end module Grid_data
 

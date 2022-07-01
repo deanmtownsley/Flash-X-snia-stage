@@ -3,8 +3,8 @@ basenm = "MilhojaInitTest_"
 # These exact values are used in the unittest.  They should not be
 # changed here and different values should not be given at setup.
 #
-# Refer to the documentation for the corresponding Grid_unitTest.F90
-# file for more information on how to setup this test.
+# Refer to the test design document for more information on how to setup
+# this test.
 
 ##### PHYSICAL SPACE DISCRETIZATION
 geometry = "cartesian"

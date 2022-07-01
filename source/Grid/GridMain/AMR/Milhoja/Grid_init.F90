@@ -29,9 +29,19 @@
 !!       Milhoja confirm that its types match those of the Grid backend?
 !! @todo Figure out the whole max refine deal & implement correctly
 !! @todo Pass nrefs to Milhoja
+!! @todo What BC values should be passed to Milhoja above NDIM?
 !! @todo Are the domain values above NDIM set in gr_globalDomain correct?
 !! @todo The setup tool needs to tell us which grid backend has been selected
 !!       so that we know which interpolator variable to config Milhoja with.
+!! @todo Grid_init needs to be redesigned with constructor inheritance.  For
+!! instance, it appears that all Grid implementations should call
+!! gr_initGeometry.  However, gr_initGeometry requires that some grid local
+!! variables be loaded prior to being called.  This implies a base class with
+!! common data members that need to be set by a constructor for the base class.
+!! Rather than having some base constructor carry out all this work, we presently
+!! expect each grid implementation to do this.  If we were to implement a data
+!! member/constructor inheritance scheme, then writing and maintaining Grid_inits at this
+!! level would be easier and less error prone.
 subroutine Grid_init()
     use milhoja_types_mod,           ONLY : MILHOJA_INT, &
                                             MILHOJA_REAL
@@ -62,7 +72,7 @@ subroutine Grid_init()
 
     implicit none
 
-    character(len=2), parameter :: COL_HDR(MDIM) = ['dx', 'dy', 'dz']
+    character(len=2), parameter :: COL_HDR(1:MDIM) = ['dx', 'dy', 'dz']
 
     character(len=*), parameter :: REF_VAR_NAME      = 'refine_var_'
     character(len=*), parameter :: REF_CUTOFF_NAME   = 'refine_cutoff_'
@@ -83,9 +93,9 @@ subroutine Grid_init()
     integer :: nBlocksX, nBlocksY, nBlocksZ
     integer :: lRefineMax
     integer :: nrefs
-    real    :: xmin, xmax
-    real    :: ymin, ymax
-    real    :: zmin, zmax
+    real    :: xMin, xMax
+    real    :: yMin, yMax
+    real    :: zMin, zMax
     integer :: refVar
     integer :: nonrep
     integer :: ccInterpolator
@@ -269,6 +279,9 @@ subroutine Grid_init()
     CALL gr_checkMilhojaError("Grid_init", MH_ierr)
 
     ! Sanity check configuration
+    ! NOTE: Some sanity checks don't act in the direct interest of Flash-X,
+    ! but rather as a unit test for those developing and maintaining the
+    ! Milhoja Fortran interface.
     CALL milhoja_grid_getCoordinateSystem(MH_coordSys, MH_ierr)
     CALL gr_checkMilhojaError("Grid_init", MH_ierr)
     select case (MH_coordSys)
@@ -393,6 +406,14 @@ subroutine Grid_init()
     !----------------------------------------------------------------------------------
     ! Cache Milhoja-"owned" data as local Grid data variables for optimization
     !----------------------------------------------------------------------------------
+    ! The goal is *not* to cache all variable as pre-optimization, but rather to
+    ! cache based on a profiling-proven need to cache.  Indeed, it is better to
+    ! only have one copy of a configuration value in existence rather than two.
+    !
+    ! Note that we may be forced to cache some data as more general Grid code
+    ! may be written under the assumption that some variables are initialized
+    ! by all Grid unit implementations.
+    !
     ! Load and cache the values from Milhoja rather than from the runtime
     ! parameters.  This is inline with the notion that Milhoja owns this data.
 
@@ -493,8 +514,9 @@ subroutine Grid_init()
     CALL RuntimeParameters_mapStrToInt(eosModeString, gr_eosModeInit)
 
 #ifdef GRID_WITH_MONOTONIC
+    CALL Driver_abort("[Grid_init] Monotonic not implemented with Milhoja yet")
     ! Could possibly be less if gr_intpol < 2  - KW
-    gr_intpolStencilWidth = 2     
+    !gr_intpolStencilWidth = 2     
 #endif
 
     ! This section of the code identifies the variables to use in
@@ -545,7 +567,7 @@ subroutine Grid_init()
                               REF_VAR_NAME, i,' treating it as "none"'
                 end if
                 CALL Logfile_stampMessage( &
-                   'WARNING: Unrecognized or non-replicatedvariable name in refine_var, treating it as "none"')
+                   'WARNING: Unrecognized or non-replicated variable name in refine_var, treating it as "none"')
             end if
         end if
     end do

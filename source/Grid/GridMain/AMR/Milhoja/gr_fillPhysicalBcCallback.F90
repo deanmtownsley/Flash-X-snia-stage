@@ -51,6 +51,7 @@
 !! @todo Should lo/hi really be NDIM?  What if we want to use a backend
 !!       other than AMReX?
 !! @todo What is the variable indexing scheme in Flash-X and Milhoja?
+!! @todo How should Milhoja be configured in terms of BCs above NDIM?
 !!
 !! @param lo_Cptr      Need to figure out what this should be
 !! @param hi_Cptr      Need to figure out what this should be
@@ -87,6 +88,9 @@ subroutine gr_fillPhysicalBcCallback(lo_Cptr, hi_Cptr, MH_level, &
 
     integer :: axis
     integer :: face
+
+    NULLIFY(MH_lo)
+    NULLIFY(MH_hi)
 
     ! Since we should only be running all-periodic BC problems, Milhoja's grid
     ! backend should not even be calling this.

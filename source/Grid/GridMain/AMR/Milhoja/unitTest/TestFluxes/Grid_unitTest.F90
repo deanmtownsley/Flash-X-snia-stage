@@ -1,15 +1,28 @@
 #include "Simulation.h"
 #include "constants.h"
 
-!> Refer to the test's design doc for more information.
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!! Licensed under the Apache License, Version 2.0 (the "License");
+!! you may not use this file except in compliance with the License.
+!!
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!! @endlicenseblock
+!!
+!! Refer to the test's design doc for more information.
 !!
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.
 subroutine Grid_unitTest(fileUnit, perfect)
-    use Grid_interface,        ONLY : Grid_getTileIterator, &
-                                      Grid_releaseTileIterator
-    use Grid_iterator,         ONLY : Grid_iterator_t
-    use Grid_tile,             ONLY : Grid_tile_t
+    use Grid_interface,  ONLY : Grid_getTileIterator, &
+                                Grid_releaseTileIterator
+    use Grid_iterator,   ONLY : Grid_iterator_t
+    use Grid_tile,       ONLY : Grid_tile_t
     use ut_testDriverMod
 
     implicit none
@@ -17,11 +30,11 @@ subroutine Grid_unitTest(fileUnit, perfect)
     integer, intent(in)    :: fileUnit
     logical, intent(inout) :: perfect
 
-    type(Grid_iterator_t) :: itor
-    type(Grid_tile_t)     :: tileDesc
-    real, pointer         :: fluxData(:, :, :, :)
-    integer               :: lBdd(MDIM+1)
-    integer               :: uBdd(MDIM+1)
+    type(Grid_iterator_t)         :: itor
+    type(Grid_tile_t)             :: tileDesc
+    real,                 pointer :: fluxData(:, :, :, :)
+    integer                       :: lBdd(MDIM+1)
+    integer                       :: uBdd(MDIM+1)
 
     integer :: i, j, k, var
 
@@ -39,6 +52,7 @@ subroutine Grid_unitTest(fileUnit, perfect)
         associate(lo => tileDesc%limits(LOW,  :), &
                   hi => tileDesc%limits(HIGH, :))
             CALL tileDesc%getDataPtr(fluxData, FLUXX)
+            CALL assertTrue(ASSOCIATED(fluxData), 'fluxData not acquired for X')
             lBdd(:) = lBound(fluxData)
             CALL assertEqual(lBdd(IAXIS),  lo(IAXIS), "Invalid fluxX lo(x)")
             CALL assertEqual(lBdd(JAXIS),  lo(JAXIS), "Invalid fluxX lo(y)")

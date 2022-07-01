@@ -32,9 +32,9 @@ module Grid_tile
     !! a unique Milhoja-specific tile index that Flash-X code passes around
     !! so that code can later access the tile's metadata and data.  Ideally,
     !! application code should have little need to access or interpret the
-    !! content of the index itself (i.e., grid_index and tile_index). 
-    !! The specific composition of the index and how they are used are
-    !! likely library-dependent and, therefore, this interface provides an
+    !! content of the index itself (e.g., grid_index and tile_index) aside from
+    !! potentially level.  The specific composition of the index and how they are
+    !! used are likely library-dependent and, therefore, this interface provides an
     !! abstraction layer.  The procedures attached to the index via the class
     !! definition can be interpreted as syntactic sugar for easing data and
     !! metadata access.  For instance, the same information can be accessed by
@@ -43,12 +43,13 @@ module Grid_tile
     !! The set {level, grid_index, tile_index} represents the maximal data set
     !! necessary to form a unique tile index across all Milhoja grid backends.
     !! For example, AMReX needs all three, but another backend might only
-    !! require level and grid_index.
+    !! require grid_index.
     !!
     !! Refer to the Flash-X users' guide for an explanation of the differences
     !! between limits, grownLimits, and blkLimitsGC as well as their uses.
     !!
-    !! @todo Can grid_index and tile_index be made private?
+    !! @todo Can grid_index and tile_index be made private?  If not, we should
+    !!       try for this.
     !! @todo Since physics units should no longer use Grid_tile_t, can and
     !! should we simplify this interface?  In other words, is there a need for
     !! syntactic sugar?
@@ -88,6 +89,7 @@ module Grid_tile
                                              result(C_ierr) bind(c)
             use iso_c_binding,     ONLY : C_PTR
             use milhoja_types_mod, ONLY : MILHOJA_INT
+            implicit none
             type(C_PTR),          intent(IN), value :: C_dataItemPtr
             integer(MILHOJA_INT), intent(OUT)       :: C_gId
             integer(MILHOJA_INT), intent(OUT)       :: C_level
@@ -110,14 +112,13 @@ contains
     !> Create a Grid_tile_t object and populate it with the metadata associated
     !! with the Milhoja C++ Tile object pointed to by the given C pointer.
     !!
-    !! Typically, the pointer will have been obtained from a Milhoja tile
-    !! iterator, in which case the Tile object would be the current Tile
-    !! indexed by the iterator.
+    !! Typically, the pointer will have been obtained from a Milhoja tile iterator,
+    !! in which case the Tile object would be the current Tile indexed by the
+    !! iterator.  Another typical use is in Fortran task functions.
     !!
     !! It is intended that this subroutine only be used in the Fortran/C++
     !! interoperability layer as opposed to general Flash-X application code.
-    !! Another typical use is in Fortran task functions.  This justifies the
-    !! presence of C artifacts in the subroutine's interface.
+    !! This justifies the presence of C artifacts in the subroutine's interface.
     !!
     !! The implementation is presently only functional with blocks.
     !!
@@ -249,9 +250,10 @@ contains
 #endif
 #endif
 
+        ! Assuming for C interface that level is 1-based.
+        tileDesc%level      = INT(MH_level)
         tileDesc%grid_index = INT(MH_gId)
         tileDesc%tile_index = -1
-        tileDesc%level      = INT(MH_level)
 
         ! Assuming for C interface that points are defined w.r.t. a 1-based
         ! global index space.
@@ -293,8 +295,6 @@ contains
         CALL milhoja_grid_getDeltas(MH_level, MH_deltas, MH_ierr)
         CALL gr_checkMilhojaError("Grid_tile_t%deltas", MH_ierr)
 
-        ! Preset to the value that an element should have if its index is above
-        ! NDIM
         dx(:) = 0.0
         do i = 1, NDIM
             dx(i) = REAL(MH_deltas(i))
@@ -386,8 +386,9 @@ contains
     end subroutine faceBCs
 
     !> Obtain the pointer to the array holding the associated tile's data.
-    !! The pointer gives access to both the interior of the tile as well as the
-    !! tile's guardcells should these exist.
+    !! For cell-centered data, the pointer gives access to both the interior of
+    !! the tile as well as the tile's guardcells should these exist; for flux
+    !! data, interior only.
     !!
     !! If this is called, calling code is obligated to subsequently release the
     !! pointer using the releaseDataPtr subroutine.
@@ -398,7 +399,6 @@ contains
     !! unimplemented functionality.
     !!
     !! @todo Code full implementation.
-    !! @todo Use Klaus's macro for INOUT pointers
     !!
     !! @param dataPtr  The desired pointer.  This must be null on entry.
     !! @param gridDataStruct The type of data to access via the pointer.  Valid
@@ -413,7 +413,7 @@ contains
         use Driver_interface, ONLY : Driver_abort
 
         class(Grid_tile_t), intent(IN),  target   :: this
-        real,                            pointer  :: dataPtr(:, :, :, :) ! intent(INOUT)
+        real,                            pointer  :: dataPtr(:, :, :, :)
         integer,            intent(IN)            :: gridDataStruct
         logical,            intent(IN),  optional :: localFlag
 
@@ -460,13 +460,11 @@ contains
 
     !> Release the associated tile's given data pointer.
     !!
-    !! @todo Use Klaus's macro for INOUT pointers
-    !!
     !! @param dataPtr  The pointer to release.  It is set to null on exit.
     !! @param gridDataStruct The type of data pointed to.
     subroutine releaseDataPtr(this, dataPtr, gridDataStruct)
         class(Grid_tile_t), intent(IN)          :: this
-        real,                          pointer  :: dataPtr(:, :, :, :) ! intent(INOUT)
+        real,                          pointer  :: dataPtr(:, :, :, :)
         integer,            intent(IN)          :: gridDataStruct
 
         NULLIFY(dataPtr)

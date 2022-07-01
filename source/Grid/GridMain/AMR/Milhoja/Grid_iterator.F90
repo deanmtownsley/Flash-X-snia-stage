@@ -1,4 +1,3 @@
-#include "FortranLangFeatures.fh"
 #include "constants.h"
 #include "Simulation.h"
 
@@ -16,9 +15,10 @@
 !! @endlicenseblock
 !!
 !! This is a Milhoja-specific implementation of the Grid_iterator_t class. While
-!! its public interface must match that of the Grid_iterator_t classes defined by other
-!! Grid implementations, its implementation can be significantly different.
-!! Note that there is no mechanism to enforce this interface requirement.
+!! its public interface must match that of the Grid_iterator_t classes defined
+!! by other Grid implementations, its implementation can be significantly
+!! different.  Note that there is no mechanism to enforce this interface
+!! requirement.
 !!
 !! This implementation is presently limited to pseudo-UG only operation.
 !!
@@ -119,6 +119,7 @@ contains
     !! not be used if the Grid data structures might have been altered by
     !! actions such as regridding after the iterator was acquired.
     !!
+    !! @todo Implement full functionality.
     !! @todo This documentation is mostly generic and should be put into a stub
     !!       file.
     !!
@@ -168,7 +169,6 @@ contains
     !> Determine if the iterator is valid and, therefore, if calling code can
     !! safely call next().
     !!
-    !! @param this       The iterator
     !! @returns True if the iterator is valid and can be advanced with next();
     !! False, if the iterator is set to the last tile and should *not* be
     !! advanced with next().
@@ -192,8 +192,6 @@ contains
 
     !> Advance the iterator to the next tile.  Refer to the documentation for
     !! isValid() for more information on the proper usage of this routine.
-    !!
-    !! @param this       The iterator
     subroutine next(this)
         use gr_milhojaInterface, ONLY : gr_checkMilhojaError
 
@@ -208,7 +206,6 @@ contains
     !> Obtain a tile object that can be used by calling code to access the
     !! data and metadata of the tile that the iterator currently indexes.
     !!
-    !! @param this       The iterator
     !! @param tileDesc   The tile object
     subroutine currentTile(this, tileDesc)
         use iso_c_binding,       ONLY : C_NULL_PTR

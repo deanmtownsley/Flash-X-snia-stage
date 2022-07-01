@@ -539,12 +539,6 @@ subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
       constKey = MILHOJA_CELL_QUADRATIC
 #endif
 
-! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
-!  case ("PC_INTERP", "pc_interp")
-!#ifdef FLASH_GRID_AMREX
-!    constKey = amrex_interp_pc
-!#endif
-
    case DEFAULT
       constKey = NONEXISTENT
    end select

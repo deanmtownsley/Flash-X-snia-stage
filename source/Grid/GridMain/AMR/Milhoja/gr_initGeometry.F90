@@ -11,6 +11,10 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
+!! A Milhoja-specific implementation of this routine.  Please refer
+!! to the documentation in this routine's stub for general interface
+!! information.
+!!
 !! @todo Make GridMain/gr_initGeometry indepedent of Grid_data variables
 !! initliazed by paramesh and *not* used by other libraries.  Then this version
 !! should disappear.
