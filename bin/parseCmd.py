@@ -22,7 +22,7 @@ WITHOUT_ARGS = ["auto","1d","2d","3d","portable",
 # options with arguments
 WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","site","ostype",
              "defines", "objdir","with-unit", "unit", "with-library",
-             "without-unit","without-library","kill-unit","unitsfile",
+             "without-unit","with-unofficial","without-library","kill-unit","unitsfile",
              "makefile", "library", "datafiles", "parfile", "tau",
              "gridinterpolation", "geometry", "particlemethods"]
 
@@ -236,6 +236,7 @@ def parseCommandLine():
                      "POLAR":globals.GRID_GEOM_POLAR}
 
     withUnits = {} # dictionary to store list of units to add (prevents duplicate entries)
+    withUnofficial = {} # dictionary to store list of allowed unofficial units
 
     for (arg,val) in optvallist:
         if   arg == '--portable':         GVars.portable = 1
@@ -308,6 +309,10 @@ def parseCommandLine():
              GVars.withoutUnits[val] = 1
         elif arg == "--kill-unit":
              GVars.killUnits[val] = 1
+        elif arg == "--with-unofficial":
+             if val.endswith(os.sep): val = val[:-1]
+             if val.startswith("source"+os.sep): val = val[7:]
+             withUnofficial[val] = 1
         elif arg in ["--with-library","--library"]: 
              if not val: continue # no name given --> ignore 
              parts = val.split(",")
@@ -402,6 +407,7 @@ def parseCommandLine():
             usage()
 
     GVars.withUnits = list(withUnits.keys()) # takes care of duplicate --with-unit=X arguments
+    GVars.withUnofficial = list(withUnofficial.keys())
 
     GVars.out.setDebugLevel(GVars.verbose) # inform GVars.out about the verbosity level
 
