@@ -1,3 +1,10 @@
+# While the Milhoja Grid unit implementation can be used successfully for some
+# simulations, it is missing a great deal of functionality.  Therefore, its
+# integration in Flash-X is a work in progress and users should not use it.
+# TODO: Remove this once enough functionality has been implemented with
+# associated tests in the test suite.
+UNOFFICIAL
+
 LIBRARY milhoja
 # TODO: Right now we need this so that the build system links in AMReX,
 #       which is necessary to satisfy Milhoja's dependences.  Eventually,
