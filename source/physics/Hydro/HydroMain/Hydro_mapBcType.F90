@@ -32,7 +32,7 @@ subroutine Hydro_mapBcType(bcTypeToApply,bcTypeFromGrid,varIndex,gridDataStruct,
 #include "constants.h"
   
   use Driver_interface, ONLY : Driver_abort
-  use Hydro_data, ONLY: hy_meshMe
+  use hy_data, ONLY: hy_meshMe
   
 
   implicit none

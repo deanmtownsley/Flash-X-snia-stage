@@ -24,6 +24,7 @@
 subroutine Hydro_init()
 
   use Hydro_data
+  use hy_data
   use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
        Driver_getNumProcs,    &
        Driver_getComm
@@ -62,7 +63,7 @@ subroutine Hydro_init()
   if (hy_restart) then
      call IO_getScalar("dt", hy_dt)
      hy_dtmin = hy_dt
-     call IO_getScalar("C_hyp", hy_lChyp)
+     call IO_getScalar(",C_hyp", hy_lChyp)
   else
      hy_dtmin = HUGE(1.0)
      ! Initialize local maximum hyperbolic speed
@@ -76,9 +77,7 @@ subroutine Hydro_init()
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
 #endif
-  hy_sizex=2*NGUARD+NXB
-  hy_sizey=2*NGUARD*K2D+NYB
-  hy_sizez=2*NGUARD*K3D+NZB  
+
 
   !! Need to issue a warning or error if PM4dev is not used
 

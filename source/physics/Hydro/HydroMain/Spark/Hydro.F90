@@ -22,12 +22,12 @@
 !!Reorder(4): hy_fl[xyz]
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
-  use Hydro_data, ONLY : hy_useHydro, hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
-       hy_gcMask, hy_lChyp, hy_C_hyp, hy_globalComm,hy_geometry,hy_del, &
+  use Hydro_data, ONLY :  hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
+       hy_gcMask, hy_lChyp, hy_C_hyp, hy_geometry,hy_del, &
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
-       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc
-  use Hydro_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
+       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc ,hy_flat3d
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
+  use hy_data, ONLY : hy_useHydro
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
