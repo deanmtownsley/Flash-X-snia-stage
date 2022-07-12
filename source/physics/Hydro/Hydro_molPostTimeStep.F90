@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/MoL/dr_molPostUpdate
+!!****f* source/physics/Hydro/Hydro_molPostTimeStep
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,17 @@
 !!
 !!  NAME 
 !!
-!!      dr_molPostUpdate
+!!      Hydro_molPostTimeStep
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molPostUpdate(real, intent(in) :: t)
+!!      call Hydro_molPostTimeStep(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any post-update (post-stage/timestep) work
+!!      Perform any post-timestep work.  This will be called after MoL_advance,
+!!      unit-specific evolution calls.  Re-fluxing and any diagnostic calculations
+!!      should be performed here.
 !!
 !!
 !!  ARGUMENTS
@@ -29,18 +31,10 @@
 !!      t  : Current time
 !!
 !!***
-subroutine dr_molPostUpdate(t)
-    ! use Spacetime_interface,  only: Spacetime_molPostUpdate
-    use Hydro_interface,      only: Hydro_molPostUpdate
-    use RadTrans_interface,   only: RadTrans_molPostUpdate
-    use Simulation_interface, only: Simulation_molPostUpdate
-
+subroutine Hydro_molPostTimeStep(t)
     implicit none
 
     real, intent(in) :: t
 
-    ! call Spacetime_molPostUpdate  (t)
-    call Hydro_molPostUpdate      (t)
-    call RadTrans_molPostUpdate   (t)
-    call Simulation_molPostUpdate (t)
-end subroutine dr_molPostUpdate
+    return
+end subroutine Hydro_molPostTimeStep

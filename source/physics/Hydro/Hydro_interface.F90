@@ -145,4 +145,69 @@ Module Hydro_interface
      end subroutine Hydro_mapBcType
   end interface
 
+
+   !! MoL-specific functionality
+
+   interface
+      subroutine Hydro_molExplicitRHS(tileDesc, rhs, Uin, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, Uin
+         real, intent(in) :: t
+      end subroutine Hydro_molExplicitRHS
+   end interface
+
+   interface
+      subroutine Hydro_molImplicitRHS(tileDesc, rhs, Uin, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, Uin
+         real, intent(in) :: t
+      end subroutine Hydro_molImplicitRHS
+   end interface
+
+   interface
+      subroutine Hydro_molFastRHS(tileDesc, rhs, Uin, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, Uin
+         real, intent(in) :: t
+      end subroutine Hydro_molFastRHS
+   end interface
+
+   interface
+      subroutine Hydro_molImplicitUpdate(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine Hydro_molImplicitUpdate
+   end interface
+
+   interface
+      subroutine Hydro_molPostUpdate(t)
+         real, intent(in) :: t
+      end subroutine Hydro_molPostUpdate
+   end interface
+
+   interface
+         subroutine Hydro_molPostFastUpdate(t)
+            real, intent(in) :: t
+         end subroutine Hydro_molPostFastUpdate
+   end interface
+
+   interface
+      subroutine Hydro_molPreEvolve(t)
+         real, intent(in) :: t
+      end subroutine Hydro_molPreEvolve
+   end interface
+
+   interface
+      subroutine Hydro_molPostTimeStep(t)
+         real, intent(in) :: t
+      end subroutine Hydro_molPostTimeStep
+   end interface
+
+   interface
+      subroutine Hydro_molPostRegrid(t)
+         real, intent(in) :: t
+      end subroutine Hydro_molPostRegrid
+   end interface
 end Module Hydro_interface

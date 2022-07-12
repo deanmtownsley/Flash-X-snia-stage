@@ -37,7 +37,7 @@
 !!***
 subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
     ! use Spacetime_interface,  only: Spacetime_molExplicitRHS
-    ! use Hydro_interface,      only: Hydro_molExplicitRHS
+    use Hydro_interface,      only: Hydro_molExplicitRHS
     use RadTrans_interface,   only: RadTrans_molExplicitRHS
     use Simulation_interface, only: Simulation_molExplicitRHS
 
@@ -50,7 +50,7 @@ subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
     real, intent(in) :: t
 
     ! call Spacetime_molExplicitRHS  (tileDesc, rhs, U, t)
-    ! call Hydro_molExplicitRHS      (tileDesc, rhs, U, t)
+    call Hydro_molExplicitRHS      (tileDesc, rhs, U, t)
     call RadTrans_molExplicitRHS   (tileDesc, rhs, U, t)
     call Simulation_molExplicitRHS (tileDesc, rhs, U, t)
 end subroutine dr_molExplicitRHS
