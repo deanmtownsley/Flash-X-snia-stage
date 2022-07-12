@@ -172,4 +172,70 @@ module RadTrans_interface
      end subroutine RadTrans_finalize       
   end interface
 
+
+   !! MoL-specific functionality
+
+   interface
+      subroutine RadTrans_molExplicitRHS(tileDesc, rhs, solnData, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, solnData
+         real, intent(in) :: t
+      end subroutine RadTrans_molExplicitRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molImplicitRHS(tileDesc, rhs, solnData, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, solnData
+         real, intent(in) :: t
+      end subroutine RadTrans_molImplicitRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molFastRHS(tileDesc, rhs, solnData, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, solnData
+         real, intent(in) :: t
+      end subroutine RadTrans_molFastRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molImplicitUpdate(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine RadTrans_molImplicitUpdate
+   end interface
+
+   interface
+      subroutine RadTrans_molPostUpdate(t)
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostUpdate
+   end interface
+
+   interface
+         subroutine RadTrans_molPostFastUpdate(t)
+            real, intent(in) :: t
+         end subroutine RadTrans_molPostFastUpdate
+   end interface
+
+   interface
+      subroutine RadTrans_molPreEvolve(t)
+         real, intent(in) :: t
+      end subroutine RadTrans_molPreEvolve
+   end interface
+
+   interface
+      subroutine RadTrans_molPostTimeStep(t)
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostTimeStep
+   end interface
+
+   interface
+      subroutine RadTrans_molPostRegrid(t)
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostRegrid
+   end interface
+
 end module RadTrans_interface

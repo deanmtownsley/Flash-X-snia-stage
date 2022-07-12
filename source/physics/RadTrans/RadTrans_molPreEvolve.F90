@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/MoL/dr_molImplicitUpdate
+!!****f* source/RadTrans/RadTrans_molPreEvolve
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,32 +13,27 @@
 !!
 !!  NAME 
 !!
-!!      dr_molImplicitUpdate
+!!      RadTrans_molPreEvolve
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molImplicitUpdate(real, intent(in) :: t
-!!                                real, intent(in) :: dt)
+!!      call RadTrans_molPreEvolve(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Implicitly update evolved variables from t to t+dt
+!!      Perform any pre-evolution work that must occur after all *_init
+!!      and intBlock calls (e.g. setting evolved variables from primitives)
 !!
 !!
 !!  ARGUMENTS
 !!
 !!      t  : Current time
-!!      dt : Size of the time step to take
 !!
 !!***
-subroutine dr_molImplicitUpdate(t, dt)
-    use RadTrans_interface,   only: RadTrans_molImplicitUpdate
-    use Simulation_interface, only: Simulation_molImplicitUpdate
-
+subroutine RadTrans_molPreEvolve(t)
     implicit none
 
-    real, intent(in) :: t, dt
+    real, intent(in) :: t
 
-    call RadTrans_molImplicitUpdate   (t, dt)
-    call Simulation_molImplicitUpdate (t, dt)
-end subroutine dr_molImplicitUpdate
+    return
+end subroutine RadTrans_molPreEvolve

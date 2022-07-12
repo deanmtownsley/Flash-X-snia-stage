@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/MoL/dr_molImplicitUpdate
+!!****f* source/RadTrans/RadTrans_molImplicitUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,12 +13,12 @@
 !!
 !!  NAME 
 !!
-!!      dr_molImplicitUpdate
+!!      RadTrans_molImplicitUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molImplicitUpdate(real, intent(in) :: t
-!!                                real, intent(in) :: dt)
+!!      call RadTrans_molImplicitUpdate(real, intent(in) :: t
+!!                                      real, intent(in) :: dt)
 !!
 !!  DESCRIPTION 
 !!
@@ -31,14 +31,10 @@
 !!      dt : Size of the time step to take
 !!
 !!***
-subroutine dr_molImplicitUpdate(t, dt)
-    use RadTrans_interface,   only: RadTrans_molImplicitUpdate
-    use Simulation_interface, only: Simulation_molImplicitUpdate
-
+subroutine RadTrans_molImplicitUpdate(t, dt)
     implicit none
 
     real, intent(in) :: t, dt
 
-    call RadTrans_molImplicitUpdate   (t, dt)
-    call Simulation_molImplicitUpdate (t, dt)
-end subroutine dr_molImplicitUpdate
+    return
+end subroutine RadTrans_molImplicitUpdate

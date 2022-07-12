@@ -38,7 +38,7 @@
 subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
     ! use Spacetime_interface,  only: Spacetime_molImplicitRHS
     ! use Hydro_interface,      only: Hydro_molImplicitRHS
-    ! use RadTrans_interface,   only: RadTrans_molImplicitRHS
+    use RadTrans_interface,   only: RadTrans_molImplicitRHS
     use Simulation_interface, only: Simulation_molImplicitRHS
 
     use Grid_tile, only: Grid_tile_t
@@ -51,6 +51,6 @@ subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
 
     ! call Spacetime_molImplicitRHS  (tileDesc, rhs, U, t)
     ! call Hydro_molImplicitRHS      (tileDesc, rhs, U, t)
-    ! call RadTrans_molImplicitRHS   (tileDesc, rhs, U, t)
+    call RadTrans_molImplicitRHS   (tileDesc, rhs, U, t)
     call Simulation_molImplicitRHS (tileDesc, rhs, U, t)
 end subroutine dr_molImplicitRHS

@@ -1,4 +1,4 @@
-!!****if* source/Driver/DriverMain/MoL/dr_molImplicitUpdate
+!!****f* source/RadTrans/RadTrans_molPostUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,32 +13,26 @@
 !!
 !!  NAME 
 !!
-!!      dr_molImplicitUpdate
+!!      RadTrans_molPostUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molImplicitUpdate(real, intent(in) :: t
-!!                                real, intent(in) :: dt)
+!!      call RadTrans_molPostUpdate(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Implicitly update evolved variables from t to t+dt
+!!      Perform any post-update (post-stage/timestep) work
 !!
 !!
 !!  ARGUMENTS
 !!
 !!      t  : Current time
-!!      dt : Size of the time step to take
 !!
 !!***
-subroutine dr_molImplicitUpdate(t, dt)
-    use RadTrans_interface,   only: RadTrans_molImplicitUpdate
-    use Simulation_interface, only: Simulation_molImplicitUpdate
-
+subroutine RadTrans_molPostUpdate(t)
     implicit none
 
-    real, intent(in) :: t, dt
+    real, intent(in) :: t
 
-    call RadTrans_molImplicitUpdate   (t, dt)
-    call Simulation_molImplicitUpdate (t, dt)
-end subroutine dr_molImplicitUpdate
+    return
+end subroutine RadTrans_molPostUpdate
