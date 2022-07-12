@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molPreEvolve
+!!****f* source/Simulation/Simulation_molImplicitUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,27 +13,28 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPreEvolve
+!!      Simulation_molImplicitUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPreEvolve(real, intent(in) :: t)
+!!      call Simulation_molImplicitUpdate(real, intent(in) :: t
+!!                                        real, intent(in) :: dt)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any pre-evolution work that must occur after all *_init
-!!      and intBlock calls (e.g. setting evolved variables from primitives)
+!!      Implicitly update evolved variables from t to t+dt
 !!
 !!
 !!  ARGUMENTS
 !!
 !!      t  : Current time
+!!      dt : Size of the time step to take
 !!
 !!***
-subroutine sim_molPreEvolve(t)
+subroutine Simulation_molImplicitUpdate(t, dt)
     implicit none
 
-    real, intent(in) :: t
+    real, intent(in) :: t, dt
 
     return
-end subroutine sim_molPreEvolve
+end subroutine Simulation_molImplicitUpdate

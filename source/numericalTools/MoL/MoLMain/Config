@@ -1,5 +1,6 @@
 # Config file for MoLMain
 
+REQUIRES Driver/DriverMain/MoL
 REQUIRES numericalTools/MoL/MoLMemory
 
 USESETUPVARS MoL_Integrator

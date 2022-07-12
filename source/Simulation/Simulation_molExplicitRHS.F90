@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molImplicitRHS
+!!****f* source/Simulation/Simulation_molExplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,18 +13,18 @@
 !!
 !!  NAME 
 !!
-!!      sim_molImplicitRHS
+!!      Simulation_molExplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                              real, pointer           :: rhs(:,:,:,:)
-!!                              real, pointer           :: U(:,:,:,:)
-!!                              real, intent(in)        :: t)
+!!      call Simulation_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!                                     real, pointer           :: rhs(:,:,:,:)
+!!                                     real, pointer           :: U(:,:,:,:)
+!!                                     real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Calculate implicit RHS terms
+!!      Calculate explicit RHS terms
 !!
 !!
 !!  ARGUMENTS
@@ -35,7 +35,7 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molImplicitRHS(tileDesc, rhs, U, t)
+subroutine Simulation_molExplicitRHS(tileDesc, rhs, U, t)
     use Grid_tile, only: Grid_tile_t
 
     implicit none
@@ -45,4 +45,4 @@ subroutine sim_molImplicitRHS(tileDesc, rhs, U, t)
     real, intent(in) :: t
 
     return
-end subroutine sim_molImplicitRHS
+end subroutine Simulation_molExplicitRHS

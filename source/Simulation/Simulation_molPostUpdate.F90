@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molPostFastUpdate
+!!****f* source/Simulation/Simulation_molPostUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,15 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPostFastUpdate
+!!      Simulation_molPostUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPostFastUpdate(real, intent(in) :: t)
+!!      call Simulation_molPostUpdate(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any post-fast-update (post-stage/timestep) work
+!!      Perform any post-update (post-stage/timestep) work
 !!
 !!
 !!  ARGUMENTS
@@ -29,10 +29,10 @@
 !!      t  : Current time
 !!
 !!***
-subroutine sim_molPostFastUpdate(t)
+subroutine Simulation_molPostUpdate(t)
     implicit none
 
     real, intent(in) :: t
 
     return
-end subroutine sim_molPostFastUpdate
+end subroutine Simulation_molPostUpdate

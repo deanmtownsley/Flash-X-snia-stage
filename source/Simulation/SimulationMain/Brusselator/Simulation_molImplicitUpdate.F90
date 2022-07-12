@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/Brusselator/sim_molImplicitUpdate
+!!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molImplicitUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,12 +13,12 @@
 !!
 !!  NAME 
 !!
-!!      sim_molImplicitUpdate
+!!      Simulation_molImplicitUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molImplicitUpdate(real, intent(in) :: t
-!!                                 real, intent(in) :: dt)
+!!      call Simulation_molImplicitUpdate(real, intent(in) :: t
+!!                                        real, intent(in) :: dt)
 !!
 !!  DESCRIPTION 
 !!
@@ -31,7 +31,7 @@
 !!      dt : Size of the time step to take
 !!
 !!***
-subroutine sim_molImplicitUpdate(t, dt)
+subroutine Simulation_molImplicitUpdate(t, dt)
     use Simulation_data
 
     use Grid_interface, only : Grid_getTileIterator, Grid_releaseTileIterator
@@ -125,6 +125,6 @@ subroutine sim_molImplicitUpdate(t, dt)
 
     call Grid_releaseTileIterator(itor)
 
-    call sim_molPostUpdate(t)
+    call Simulation_molPostUpdate(t)
 
-end subroutine sim_molImplicitUpdate
+end subroutine Simulation_molImplicitUpdate

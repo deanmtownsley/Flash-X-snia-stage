@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molFastRHS
+!!****if* source/Driver/DriverMain/MoL/dr_molImplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,18 +13,18 @@
 !!
 !!  NAME 
 !!
-!!      sim_molFastRHS
+!!      dr_molImplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molFastRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                          real, pointer           :: rhs(:,:,:,:)
-!!                          real, pointer           :: U(:,:,:,:)
-!!                          real, intent(in)        :: t)
+!!      call dr_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!                             real, pointer           :: rhs(:,:,:,:)
+!!                             real, pointer           :: U(:,:,:,:)
+!!                             real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Calculate fast RHS terms
+!!      Calculate implicit RHS terms
 !!
 !!
 !!  ARGUMENTS
@@ -35,7 +35,12 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molFastRHS(tileDesc, rhs, U, t)
+subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
+    ! use Spacetime_interface,  only: Spacetime_molImplicitRHS
+    ! use Hydro_interface,      only: Hydro_molImplicitRHS
+    ! use RadTrans_interface,   only: RadTrans_molImplicitRHS
+    use Simulation_interface, only: Simulation_molImplicitRHS
+
     use Grid_tile, only: Grid_tile_t
 
     implicit none
@@ -44,5 +49,8 @@ subroutine sim_molFastRHS(tileDesc, rhs, U, t)
     real, dimension(:,:,:,:), pointer :: rhs, U
     real, intent(in) :: t
 
-    return
-end subroutine sim_molFastRHS
+    ! call Spacetime_molImplicitRHS  (tileDesc, rhs, U, t)
+    ! call Hydro_molImplicitRHS      (tileDesc, rhs, U, t)
+    ! call RadTrans_molImplicitRHS   (tileDesc, rhs, U, t)
+    call Simulation_molImplicitRHS (tileDesc, rhs, U, t)
+end subroutine dr_molImplicitRHS

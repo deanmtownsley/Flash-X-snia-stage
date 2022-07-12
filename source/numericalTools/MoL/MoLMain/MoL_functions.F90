@@ -48,13 +48,72 @@ module MoL_functions
         end subroutine MoL_postUpdate_t
     end interface
 
-    procedure(MoL_rhs_t), pointer :: MoL_rhsE => null()
-    procedure(MoL_rhs_t), pointer :: MoL_rhsI => null()
-    procedure(MoL_rhs_t), pointer :: MoL_rhsF => null()
+    procedure(MoL_rhs_t), pointer :: MoL_rhsE => MoL_rhsE_default
+    procedure(MoL_rhs_t), pointer :: MoL_rhsI => MoL_rhsI_default
+    procedure(MoL_rhs_t), pointer :: MoL_rhsF => MoL_rhsF_default
 
-    procedure(MoL_implicitUpdate_t), pointer :: MoL_implicitUpdate => null()
+    procedure(MoL_implicitUpdate_t), pointer :: MoL_implicitUpdate &
+        => MoL_implicitUpdate_default
 
-    procedure(MoL_postUpdate_t), pointer :: MoL_postUpdate => null()
-    procedure(MoL_postUpdate_t), pointer :: MoL_postUpdateFast => null()
+    procedure(MoL_postUpdate_t), pointer :: MoL_postUpdate => MoL_PostUpdate_default
+    procedure(MoL_postUpdate_t), pointer :: MoL_postUpdateFast &
+        => MoL_PostUpdateFast_default
+
+contains
+
+subroutine MoL_rhsE_default(tileDesc, dy, y, t)
+    implicit none
+
+    class(Grid_tile_t), intent(in) :: tileDesc
+    real, dimension(:,:,:,:), pointer :: dy, y
+    real, intent(in) :: t
+
+    return
+end subroutine MoL_rhsE_default
+
+subroutine MoL_rhsI_default(tileDesc, dy, y, t)
+    implicit none
+
+    class(Grid_tile_t), intent(in) :: tileDesc
+    real, dimension(:,:,:,:), pointer :: dy, y
+    real, intent(in) :: t
+
+    return
+end subroutine MoL_rhsI_default
+
+subroutine MoL_rhsF_default(tileDesc, dy, y, t)
+    implicit none
+
+    class(Grid_tile_t), intent(in) :: tileDesc
+    real, dimension(:,:,:,:), pointer :: dy, y
+    real, intent(in) :: t
+
+    return
+end subroutine MoL_rhsF_default
+
+
+subroutine MoL_implicitUpdate_default(t, dt)
+    implicit none
+
+    real, intent(in) :: t, dt
+
+    return
+end subroutine MoL_implicitUpdate_default
+
+subroutine MoL_PostUpdate_default(t)
+    implicit none
+
+    real, intent(in) :: t
+
+    return
+end subroutine MoL_PostUpdate_default
+
+subroutine MoL_PostUpdateFast_default(t)
+    implicit none
+
+    real, intent(in) :: t
+
+    return
+end subroutine MoL_PostUpdateFast_default
 
 end module MoL_functions

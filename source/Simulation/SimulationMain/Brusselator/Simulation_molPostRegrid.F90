@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/Brusselator/sim_molPostTimeStep
+!!****f* source/Simulation/SimulationMain/Brusselator/Simulation_molPostRegrid
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,17 +13,19 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPostTimeStep
+!!      Simulation_molPostRegrid
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPostTimeStep(real, intent(in) :: t)
+!!      call Simulation_molPostRegrid(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any post-timestep work.  This will be called after MoL_advance,
-!!      unit-specific evolution calls.  Re-fluxing and any diagnostic calculations
-!!      should be performed here.
+!!      Perform any post-regrid work.  If a physics unit stored primitive
+!!      variables in UNK in additiona to the evolved conserved variables
+!!      used by MoL, a con2prim should be called here to maintain consistency.
+!!      Refined primitive variables will not necessarily be consistent with
+!!      the results of a con2prim call on the refined conserved variables.
 !!
 !!
 !!  ARGUMENTS
@@ -31,10 +33,10 @@
 !!      t  : Current time
 !!
 !!***
-subroutine sim_molPostTimeStep(t)
+subroutine Simulation_molPostRegrid(t)
     implicit none
 
     real, intent(in) :: t
 
-    call sim_molPostUpdate(t)
-end subroutine sim_molPostTimeStep
+    call Simulation_molPostUpdate(t)
+end subroutine Simulation_molPostRegrid

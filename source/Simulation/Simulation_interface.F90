@@ -160,4 +160,70 @@ Module Simulation_interface
      end subroutine Simulation_freeUserArrays
   end interface
 
+
+   !! MoL-specific functionality
+
+   interface
+      subroutine Simulation_molExplicitRHS(tileDesc, rhs, U, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine Simulation_molExplicitRHS
+   end interface
+
+   interface
+      subroutine Simulation_molImplicitRHS(tileDesc, rhs, U, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine Simulation_molImplicitRHS
+   end interface
+
+   interface
+      subroutine Simulation_molFastRHS(tileDesc, rhs, U, t)
+         use Grid_tile, only: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:,:,:,:), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine Simulation_molFastRHS
+   end interface
+
+   interface
+      subroutine Simulation_molImplicitUpdate(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine Simulation_molImplicitUpdate
+   end interface
+
+   interface
+      subroutine Simulation_molPostUpdate(t)
+         real, intent(in) :: t
+      end subroutine Simulation_molPostUpdate
+   end interface
+
+   interface
+         subroutine Simulation_molPostFastUpdate(t)
+            real, intent(in) :: t
+         end subroutine Simulation_molPostFastUpdate
+   end interface
+
+   interface
+      subroutine Simulation_molPreEvolve(t)
+         real, intent(in) :: t
+      end subroutine Simulation_molPreEvolve
+   end interface
+
+   interface
+      subroutine Simulation_molPostTimeStep(t)
+         real, intent(in) :: t
+      end subroutine Simulation_molPostTimeStep
+   end interface
+
+   interface
+      subroutine Simulation_molPostRegrid(t)
+         real, intent(in) :: t
+      end subroutine Simulation_molPostRegrid
+   end interface
+
 end Module Simulation_interface

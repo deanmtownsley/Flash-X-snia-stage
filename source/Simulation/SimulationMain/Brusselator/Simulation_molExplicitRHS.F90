@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/Brusselator/sim_molFastRHS
+!!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molExplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,31 +13,30 @@
 !!
 !!  NAME 
 !!
-!!      sim_molFastRHS
+!!      Simulation_molExplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molFastRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                          real, pointer           :: rhs(:,:,:,:)
-!!                          real, pointer           :: U(:,:,:,:)
-!!                          real, intent(in)        :: t)
+!!      call Simulation_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!                                     real, pointer           :: rhs(:,:,:,:)
+!!                                     real, pointer           :: vars(:,:,:,:)
+!!                                     real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Calculate fast RHS terms
+!!      Calculate explicit RHS terms
 !!
 !!
 !!  ARGUMENTS
 !!
 !!      tileDesc : Current tile descriptor
 !!      rhs      : Pointer to the RHS storage to fill
-!!      U        : Pointer to the current value of the evolved variables
+!!      vars     : Pointer to the current value of the evolved variables
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molFastRHS(tileDesc, rhs, vars, t)
-    use Simulation_data, only: U_RHS, V_RHS, W_RHS, a => sim_a, b => sim_b, &
-                               eps => sim_epsilon
+subroutine Simulation_molExplicitRHS(tileDesc, rhs, vars, t)
+    use Simulation_data
 
     use Grid_tile, only: Grid_tile_t
 
@@ -50,9 +49,18 @@ subroutine sim_molFastRHS(tileDesc, rhs, vars, t)
     real, dimension(:,:,:,:), pointer :: rhs, vars
     real, intent(in) :: t
 
+    integer :: i, j, k, ip, im
+
     integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    integer :: i, j, k
-    real :: u,v,w
+    real :: del(MDIM), idx
+
+    if (sim_rho .lt. 0d0) then
+        ip = 0
+        im = -1
+    else
+        ip = 1
+        im = 0
+    end if
 
     call tileDesc%faceBCs(bcs)
 
@@ -61,17 +69,21 @@ subroutine sim_molFastRHS(tileDesc, rhs, vars, t)
     if(bcs(LOW,IAXIS) .ne. NOT_BOUNDARY) lim(LOW,IAXIS) = lim(LOW,IAXIS) + 1
     if(bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) lim(HIGH,IAXIS) = lim(HIGH,IAXIS) - 1
 
+    call tileDesc%deltas(del)
+    idx = 1d0/del(IAXIS)
+
     do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
         do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
             do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                u = vars(U_VAR,i,j,k)
-                v = vars(V_VAR,i,j,k)
-                w = vars(W_VAR,i,j,k)
+                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) &
+                    + sim_rho*(vars(U_VAR,i+ip,j,k) - vars(U_VAR,i+im,j,k))*idx
 
-                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) + a         - (w+1d0)*u + v*u**2
-                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k)             +       w*u - v*u**2
-                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) + (b-w)/eps -       w*u
+                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k) &
+                    + sim_rho*(vars(V_VAR,i+ip,j,k) - vars(V_VAR,i+im,j,k))*idx
+
+                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) &
+                    + sim_rho*(vars(W_VAR,i+ip,j,k) - vars(W_VAR,i+im,j,k))*idx
             end do ! i
         end do ! j
     end do ! k
-end subroutine sim_molFastRHS
+end subroutine Simulation_molExplicitRHS

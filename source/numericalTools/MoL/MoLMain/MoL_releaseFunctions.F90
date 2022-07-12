@@ -40,4 +40,13 @@ subroutine MoL_releaseFunctions()
     
     if (associated(MoL_postUpdate)) nullify(MoL_postUpdate)
     if (associated(MoL_postUpdateFast)) nullify(MoL_postUpdateFast)
+
+    MoL_rhsE => MoL_rhsE_default
+    MoL_rhsI => MoL_rhsI_default
+    MoL_rhsF => MoL_rhsF_default
+
+    MoL_implicitUpdate => MoL_implicitUpdate_default
+
+    MoL_postUpdate => MoL_postUpdate_default
+    MoL_postUpdateFast => MoL_postUpdateFast_default
 end subroutine MoL_releaseFunctions

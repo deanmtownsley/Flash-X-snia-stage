@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMain/Brusselator/sim_molPostRegrid
+!!****f* source/Simulation/Simulation_molPostRegrid
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPostRegrid
+!!      Simulation_molPostRegrid
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPostRegrid(real, intent(in) :: t)
+!!      call Simulation_molPostRegrid(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
@@ -33,10 +33,10 @@
 !!      t  : Current time
 !!
 !!***
-subroutine sim_molPostRegrid(t)
+subroutine Simulation_molPostRegrid(t)
     implicit none
 
     real, intent(in) :: t
 
-    call sim_molPostUpdate(t)
-end subroutine sim_molPostRegrid
+    return
+end subroutine Simulation_molPostRegrid

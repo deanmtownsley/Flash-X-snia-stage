@@ -1,4 +1,4 @@
-!!****h* source/Simulation/SimulationMoL/sim_molInterface
+!!****h* source/Driver/DriverMain/MoL/dr_molInterface
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,18 +13,18 @@
 !!
 !!  NAME
 !!
-!!      sim_molInterface
+!!      dr_molInterface
 !!
 !!  SYNOPSIS
 !!
-!!      use sim_molInterface
+!!      use dr_molInterface
 !!
 !!  DESCRIPTION
 !!
-!!      MoL-specific simulation features
+!!      MoL-specific driver features
 !!
 !!***
-module sim_molInterface
+module dr_molInterface
 
     use Grid_tile, only: Grid_tile_t
 
@@ -32,71 +32,71 @@ module sim_molInterface
 
 
     interface
-        subroutine sim_molExplicitRHS(tileDesc, rhs, U, t)
+        subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
             import :: Grid_tile_t
             class(Grid_tile_t), intent(in) :: tileDesc
             real, dimension(:,:,:,:), pointer :: rhs, U
             real, intent(in) :: t
-        end subroutine sim_molExplicitRHS
+        end subroutine dr_molExplicitRHS
     end interface
 
     interface
-        subroutine sim_molImplicitRHS(tileDesc, rhs, U, t)
+        subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
             import :: Grid_tile_t
             class(Grid_tile_t), intent(in) :: tileDesc
             real, dimension(:,:,:,:), pointer :: rhs, U
             real, intent(in) :: t
-        end subroutine sim_molImplicitRHS
+        end subroutine dr_molImplicitRHS
     end interface
 
     interface
-        subroutine sim_molFastRHS(tileDesc, rhs, U, t)
+        subroutine dr_molFastRHS(tileDesc, rhs, U, t)
             import :: Grid_tile_t
             class(Grid_tile_t), intent(in) :: tileDesc
             real, dimension(:,:,:,:), pointer :: rhs, U
             real, intent(in) :: t
-        end subroutine sim_molFastRHS
+        end subroutine dr_molFastRHS
     end interface
 
     interface
-        subroutine sim_molImplicitUpdate(t, dt)
+        subroutine dr_molImplicitUpdate(t, dt)
             real, intent(in) :: t, dt
-        end subroutine sim_molImplicitUpdate
+        end subroutine dr_molImplicitUpdate
     end interface
 
     interface
-        subroutine sim_molPostUpdate(t)
+        subroutine dr_molPostUpdate(t)
             real, intent(in) :: t
-        end subroutine sim_molPostUpdate
+        end subroutine dr_molPostUpdate
     end interface
 
     interface
-        subroutine sim_molPostFastUpdate(t)
+        subroutine dr_molPostFastUpdate(t)
             real, intent(in) :: t
-        end subroutine sim_molPostFastUpdate
+        end subroutine dr_molPostFastUpdate
     end interface
 
     interface
-        subroutine sim_molPreEvolve(t)
+        subroutine dr_molPreEvolve(t)
             real, intent(in) :: t
-        end subroutine sim_molPreEvolve
+        end subroutine dr_molPreEvolve
     end interface
 
     interface
-        subroutine sim_molPostTimeStep(t)
+        subroutine dr_molPostTimeStep(t)
             real, intent(in) :: t
-        end subroutine sim_molPostTimeStep
+        end subroutine dr_molPostTimeStep
     end interface
 
     interface
-        subroutine sim_molPostRegrid(t)
+        subroutine dr_molPostRegrid(t)
             real, intent(in) :: t
-        end subroutine sim_molPostRegrid
+        end subroutine dr_molPostRegrid
     end interface
 
     interface
-        subroutine sim_molRegisterFunctions
-        end subroutine sim_molRegisterFunctions
+        subroutine dr_molRegisterFunctions
+        end subroutine dr_molRegisterFunctions
     end interface
 
-end module sim_molInterface
+end module dr_molInterface

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/Brusselator/sim_molImplicitRHS
+!!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molImplicitRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,14 +13,14 @@
 !!
 !!  NAME 
 !!
-!!      sim_molImplicitRHS
+!!      Simulation_molImplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                              real, pointer           :: rhs(:,:,:,:)
-!!                              real, pointer           :: vars(:,:,:,:)
-!!                              real, intent(in)        :: t)
+!!      call Simulation_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
+!!                                     real, pointer           :: rhs(:,:,:,:)
+!!                                     real, pointer           :: vars(:,:,:,:)
+!!                                     real, intent(in)        :: t)
 !!
 !!  DESCRIPTION 
 !!
@@ -35,7 +35,7 @@
 !!      t        : Current time
 !!
 !!***
-subroutine sim_molImplicitRHS(tileDesc, rhs, vars, t)
+subroutine Simulation_molImplicitRHS(tileDesc, rhs, vars, t)
     use Simulation_data
 
     use Grid_tile, only: Grid_tile_t
@@ -83,4 +83,4 @@ subroutine sim_molImplicitRHS(tileDesc, rhs, vars, t)
             end do ! i
         end do ! j
     end do ! k
-end subroutine sim_molImplicitRHS
+end subroutine Simulation_molImplicitRHS

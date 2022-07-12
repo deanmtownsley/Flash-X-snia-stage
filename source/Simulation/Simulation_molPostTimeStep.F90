@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molPostUpdate
+!!****f* source/Simulation/Simulation_molPostTimeStep
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,17 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPostUpdate
+!!      Simulation_molPostTimeStep
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPostUpdate(real, intent(in) :: t)
+!!      call Simulation_molPostTimeStep(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any post-update (post-stage/timestep) work
+!!      Perform any post-timestep work.  This will be called after MoL_advance,
+!!      unit-specific evolution calls.  Re-fluxing and any diagnostic calculations
+!!      should be performed here.
 !!
 !!
 !!  ARGUMENTS
@@ -29,10 +31,10 @@
 !!      t  : Current time
 !!
 !!***
-subroutine sim_molPostUpdate(t)
+subroutine Simulation_molPostTimeStep(t)
     implicit none
 
     real, intent(in) :: t
 
     return
-end subroutine sim_molPostUpdate
+end subroutine Simulation_molPostTimeStep

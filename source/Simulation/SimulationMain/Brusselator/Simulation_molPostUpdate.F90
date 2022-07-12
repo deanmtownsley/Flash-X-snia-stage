@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationMoL/sim_molPostRegrid
+!!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molPostUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,19 +13,15 @@
 !!
 !!  NAME 
 !!
-!!      sim_molPostRegrid
+!!      Simulation_molPostUpdate
 !!
 !!  SYNOPSIS
 !!
-!!      call sim_molPostRegrid(real, intent(in) :: t)
+!!      call Simulation_molPostUpdate(real, intent(in) :: t)
 !!
 !!  DESCRIPTION 
 !!
-!!      Perform any post-regrid work.  If a physics unit stored primitive
-!!      variables in UNK in additiona to the evolved conserved variables
-!!      used by MoL, a con2prim should be called here to maintain consistency.
-!!      Refined primitive variables will not necessarily be consistent with
-!!      the results of a con2prim call on the refined conserved variables.
+!!      Perform any post-update (post-stage/timestep) work
 !!
 !!
 !!  ARGUMENTS
@@ -33,10 +29,14 @@
 !!      t  : Current time
 !!
 !!***
-subroutine sim_molPostRegrid(t)
+subroutine Simulation_molPostUpdate(t)
+    use Grid_interface, only: Grid_fillGuardCells
+
+#include "constants.h"
+
     implicit none
 
     real, intent(in) :: t
 
-    return
-end subroutine sim_molPostRegrid
+    call Grid_fillGuardCells(CENTER, ALLDIR)
+end subroutine Simulation_molPostUpdate

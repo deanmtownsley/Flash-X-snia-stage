@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMoL/Driver_evolveAll
+!!****if* source/Driver/DriverMain/MoL/Driver_evolveAll
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -21,7 +21,7 @@
 !!
 !! DESCRIPTION
 !!
-!! MoL compatible version of Driver/DriverMain/unsplit
+!! MoL compatible version of Driver_evolveAll
 !!
 !! NOTES
 !!
@@ -83,8 +83,10 @@ subroutine Driver_evolveAll()
                            MoL_advance,           &
                            MoL_releaseFunctions
 
-  use sim_molInterface, only: sim_molRegisterFunctions, &
-                              sim_molPreEvolve
+  use dr_molInterface, only: dr_molRegisterFunctions, &
+                             dr_molPreEvolve,         &
+                             dr_molPostTimeStep,      &
+                             dr_molPostRegrid
 
   implicit none
 
@@ -138,7 +140,7 @@ subroutine Driver_evolveAll()
 
   ! Not necessarily the ideal location for this, but it needs to be done before the
   ! the evolution loop begins, but after all initialization is complete
-  call sim_molPreEvolve(dr_simTime)
+  call dr_molPreEvolve(dr_simTime)
 
   do dr_nstep = dr_nBegin, dr_nend
      
@@ -175,7 +177,7 @@ subroutine Driver_evolveAll()
      !! ================ !!
 
      ! Each MoL-based simulation will register RHS, postUpdate, etc. calls w/ MoL
-     call sim_molRegisterFunctions
+     call dr_molRegisterFunctions
 
      ! Take a single time step from t to t+dt
      call MoL_advance(dr_simTime, dr_dt)
@@ -254,7 +256,7 @@ subroutine Driver_evolveAll()
      endif
 
      !! This will notify MoL-evolved physics units that timestep is complete
-     call sim_molPostTimeStep(dr_simTime)
+     call dr_molPostTimeStep(dr_simTime)
      
      dr_dtOld = dr_dt
 
@@ -294,7 +296,7 @@ subroutine Driver_evolveAll()
      ! relativistic formulation
      if (gridChanged) then
           call MoL_regrid
-          call sim_molPostRegrid(dr_simTime)
+          call dr_molPostRegrid(dr_simTime)
      end if
      
      if (gridChanged) dr_simGeneration = dr_simGeneration + 1
