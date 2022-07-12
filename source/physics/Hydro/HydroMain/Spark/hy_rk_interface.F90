@@ -1,4 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_interface
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!   hy_rk_interface
@@ -16,36 +27,39 @@ module hy_rk_interface
 #include "constants.h"
 
   interface
-     subroutine hy_rk_getFaceFlux (limits,blkLimits,blkLimitsGC)
-       implicit none
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
-     end subroutine hy_rk_getFaceFlux
+     subroutine  hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
+       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blklimitsGC
+       real,dimension(MDIM) :: hy_del
+     end subroutine  hy_rk_getFaceFlux
   end interface
 
   interface
      subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
-       implicit none
        real, pointer :: Uin(:,:,:,:)
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
+       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
+       integer,intent(IN) :: level
+       real,dimension(MDIM) :: hy_del
        real, intent(IN) :: dt, dtOld
-       real, dimension(3), intent(IN) :: coeffs,hy_del
-       integer, intent(IN) :: level
+       real, dimension(3), intent(IN) :: coeffs
      end subroutine hy_rk_updateSoln
   end interface
 
   interface
-     subroutine hy_rk_eos(limits)
-       implicit none
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-     end subroutine hy_rk_eos
+     subroutine hy_rk_getGraveAccel (hy_del,limits,blkLimitsGC)
+       real,dimension(MDIM),intent(IN)  :: hy_del
+       integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+     end subroutine hy_rk_getGraveAccel
   end interface
-
+  
+  
   interface
-     subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
-       implicit none
-       integer, dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-       real,dimension(MDIM), intent(in):: deltas
-     end subroutine hy_rk_getGravAccel
+     subroutine hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
+       real, pointer :: Uin(:,:,:,:)
+       integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+       integer,intent(IN) :: level
+       real,dimension(MDIM) :: hy_del
+       real, intent(IN) :: dt
+     end subroutine hy_rk_correctFluxes
   end interface
 
 end module hy_rk_interface

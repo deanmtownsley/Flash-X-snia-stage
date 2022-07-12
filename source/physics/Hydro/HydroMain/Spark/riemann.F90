@@ -1,29 +1,17 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/riemann
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!! NAME
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
 !!
-!!  hy_rk_riemann
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
-!! SYNOPSIS
-!!
-!!  hy_rk_riemann( integer(IN) :: dir,
-!!               real(IN)    :: VL(HY_VARINUMMAX),
-!!               real(IN)    :: VR(HY_VARINUMMAX),
-!!               real(OUT)   :: Fstar(HY_VARINUM1),
-!!               real(OUT)   :: speed,
-!!               integer(OUT):: ierr)
-!!
-!! ARGUMENTS
-!!
-!!  dir    - a spatial direction for which the flux is being considered and computed
-!!  VL     - primitive variable for left state
-!!            (DENS,VELX,VELY,VELZ,PRES,MAGX,MAGY,MAGZ + GAMC,GAME,EINT,TEMP)
-!!  VR     - primitive variable for right state
-!!            (DENS,VELX,VELY,VELZ,PRES,MAGX,MAGY,MAGZ + GAMC,GAME,EINT,TEMP)
-!!  Fstar  - computed flux data
-!!            (includes face pressure at the end)
-!!  speed  - fastest signal velocity to compute dt
-!!  ierr   - a flag to check unphysical negative state (0 is ok; 1 is bad)
+!!  For this function the name and argument lists depend upon the variants used.
 !!
 !! DESCRIPTION
 !!
@@ -50,8 +38,13 @@
 !!
 !!***
 !!! A note: the speed dummy var seems to be unused. Might be deleted?
-subroutine riemann(i1,i2,i3,dir)
-use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy_C_hyp, hy_flux
+
+subroutine riemann (i1,i2,i3,dir)
+
+  use Driver_interface, ONLY : Driver_abort
+  use Hydro_data,       ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
+  use Hydro_data, only: hy_uPlus, hy_uMinus, hy_flux,hy_shck
+  use Hydro_data, ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
   implicit none
 
 #include "constants.h"
@@ -59,13 +52,14 @@ use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy
 #include "Spark.h"
 
   !! Arguments type declaration -----------
+  !! Arguments type declaration -----------
   real, dimension(HY_NUM_VARS) :: VL, VR
   logical :: inShock
   real, pointer:: Fstar(:)
   real:: speed
   integer :: ierr, i1,i2,i3
   !! --------------------------------------
-
+  
   real :: SL,SR,cfL,cfR,aL2,aR2,velNL,velNR
   real :: dStarL,dStarR,totalPresL,totalPresR
   real :: BxStar,ByStar,BzStar,Bn_hll,pStar,qStar
@@ -75,14 +69,13 @@ use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy
   real :: magBL2,magBR2,magNL,magNR
   real :: Bn_glm, Psi_glm, u2, B2, E, Ptot, UB
   integer :: dir
-!$omp declare target
-
-  inShock = any(hy_shk(i1-1:i1,i2,i3) /= 0.0)
-  ! Alias things
-! ----------------------------- Make this more effective than a copy! ----------------------------------------------!
-  VL = hy_uplus(1:HY_NUM_VARS,i1-1,i2,i3)
-  VR = hy_uminus(1:HY_NUM_VARS,i1,i2,i3)
+  ! Check for shocks in the zones involved in flux calculation
+ 
+  VL = hy_uPlus(1:HY_NUM_VARS,i1-1,i2,i3)
+  VR = hy_uMinus(1:HY_NUM_VARS,i1,i2,i3)
+  inShock = any(hy_shck(i1-1:i1,i2,i3) /= 0.0)
   Fstar => hy_flux(1:HY_NUM_FLUX,i1,i2,i3)
+  
   ! Set no error to begin with
   ierr = 0
 
@@ -111,15 +104,15 @@ use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy
 
   ! Check unphysical negativity
   if ((VL(HY_DENS) < hy_tiny .and. VL(HY_DENS) > 0.) .or. &
-        (VR(HY_DENS) < hy_tiny .and. VR(HY_DENS) > 0.) .or. &
-        (VL(HY_PRES) < hy_tiny .and. VL(HY_PRES) > 0.) .or. &
-        (VR(HY_PRES) < hy_tiny .and. VR(HY_PRES) > 0.)) then
-      ! This could be vacuum limit. We return with zero flux.
-      Fstar = 0.
-      return
+       (VR(HY_DENS) < hy_tiny .and. VR(HY_DENS) > 0.) .or. &
+       (VL(HY_PRES) < hy_tiny .and. VL(HY_PRES) > 0.) .or. &
+       (VR(HY_PRES) < hy_tiny .and. VR(HY_PRES) > 0.)) then
+     ! This could be vacuum limit. We return with zero flux.
+     Fstar = 0.
+     return
   elseif (aL2 < 0. .or. aR2 < 0.) then
-      ierr = 1
-      return
+     ierr = 1
+     return
   endif
 
   cfL = sqrt(aL2)
@@ -146,187 +139,25 @@ use Hydro_data, only: hy_uplus, hy_uminus, hy_shk, hy_tiny, hy_hybridRiemann, hy
   totalPresR = totalPresR + 0.5*dot_product(VR(HY_MAGX:HY_MAGZ),VR(HY_MAGX:HY_MAGZ))
 #endif
 
-
-! call prim2con(VL,UL)
-! call prim2con(VR,UR)
-! call prim2flx(dir,VL,FL)
-! call prim2flx(dir,VR,FR)
   ! Convert primitive variables to conservative variables
-  ! Prim2con L
-UL = 0.0
-u2 = dot_product(VL(HY_VELX:HY_VELZ),VL(HY_VELX:HY_VELZ))
-B2 = 0.
-#ifdef SPARK_GLM
-B2 = dot_product(VL(HY_MAGX:HY_MAGZ),VL(HY_MAGX:HY_MAGZ))
-UL(HY_FMGX:HY_FMGZ) = VL(HY_MAGX:HY_MAGZ)
-UL(HY_FPSI) = VL(HY_PSIB)
-#endif
-UL(HY_MASS) = VL(HY_DENS)
-UL(HY_XMOM:HY_ZMOM) = VL(HY_DENS)*VL(HY_VELX:HY_VELZ)
-UL(HY_ENER) = 0.5*VL(HY_DENS)*u2 + VL(HY_RHOE) + 0.5*B2
-
-  ! Prim2con R
-u2 = dot_product(VR(HY_VELX:HY_VELZ),VR(HY_VELX:HY_VELZ))
-B2 = 0.
-#ifdef SPARK_GLM
-B2 = dot_product(VR(HY_MAGX:HY_MAGZ),VR(HY_MAGX:HY_MAGZ))
-UR(HY_FMGX:HY_FMGZ) = VR(HY_MAGX:HY_MAGZ)
-UR(HY_FPSI) = VR(HY_PSIB)
-#endif
-UR(HY_MASS) = VR(HY_DENS)
-UR(HY_XMOM:HY_ZMOM) = VR(HY_DENS)*VR(HY_VELX:HY_VELZ)
-UR(HY_ENER) = 0.5*VR(HY_DENS)*u2 + VR(HY_RHOE) + 0.5*B2
-
-  ! Prim2flx L
-FL = 0.0
-u2 = dot_product(VL(HY_VELX:HY_VELZ),VL(HY_VELX:HY_VELZ))
-E   = 0.5*VL(HY_DENS)*u2 + VL(HY_RHOE)
-Ptot = VL(HY_PRES)
-
-#ifdef SPARK_GLM
-B2 = dot_product(VL(HY_MAGX:HY_MAGZ),VL(HY_MAGX:HY_MAGZ))
-UB = dot_product(VL(HY_VELX:HY_VELZ),VL(HY_MAGX:HY_MAGZ))
-! We will NEED to check units. That could be a pain. #MHDbeNatural
-Ptot= Ptot + 0.5*B2
-E   = E + 0.5*B2
-
-select case(dir)
-case (IAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELX)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX) - VL(HY_MAGX)*VL(HY_MAGX) + Ptot
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY) - VL(HY_MAGX)*VL(HY_MAGY)
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ) - VL(HY_MAGX)*VL(HY_MAGZ)
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELX) - VL(HY_MAGX)*UB
-   FL(HY_FMGX) = 0.
-   FL(HY_FMGY) = VL(HY_VELX)*VL(HY_MAGY)-VL(HY_VELY)*VL(HY_MAGX)
-   FL(HY_FMGZ) = VL(HY_VELX)*VL(HY_MAGZ)-VL(HY_VELZ)*VL(HY_MAGX)
-case (JAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELY)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX) - VL(HY_MAGY)*VL(HY_MAGX)
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY) - VL(HY_MAGY)*VL(HY_MAGY) + Ptot
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ) - VL(HY_MAGY)*VL(HY_MAGZ)
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELY) - VL(HY_MAGY)*UB
-   FL(HY_FMGX) = VL(HY_VELY)*VL(HY_MAGX) - VL(HY_VELX)*VL(HY_MAGY)
-   FL(HY_FMGY) = 0.
-   FL(HY_FMGZ) = VL(HY_VELY)*VL(HY_MAGZ)-VL(HY_VELZ)*VL(HY_MAGY)
-case (KAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELZ)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX) - VL(HY_MAGZ)*VL(HY_MAGX)
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY) - VL(HY_MAGZ)*VL(HY_MAGY)
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ) - VL(HY_MAGZ)*VL(HY_MAGZ) + Ptot
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELZ) - VL(HY_MAGZ)*UB
-   FL(HY_FMGX) = VL(HY_VELZ)*VL(HY_MAGX) - VL(HY_VELX)*VL(HY_MAGZ)
-   FL(HY_FMGY) = VL(HY_VELZ)*VL(HY_MAGY) - VL(HY_VELY)*VL(HY_MAGZ)
-   FL(HY_FMGZ) = 0.
-end select
-
-#else
-
-select case(dir)
-case (IAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELX)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX) + Ptot
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY)
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ)
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELX)
-case (JAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELY)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX)
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY) + Ptot
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ)
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELY)
-case (KAXIS)
-   FL(HY_MASS) = VL(HY_DENS)*VL(HY_VELZ)
-   FL(HY_XMOM) = FL(HY_MASS)*VL(HY_VELX)
-   FL(HY_YMOM) = FL(HY_MASS)*VL(HY_VELY)
-   FL(HY_ZMOM) = FL(HY_MASS)*VL(HY_VELZ) + Ptot
-   FL(HY_ENER) = (E + Ptot)*VL(HY_VELZ)
-end select
-
-#endif
-
-    ! Prim2flx R
-FR = 0.0
-u2 = dot_product(VR(HY_VELX:HY_VELZ),VR(HY_VELX:HY_VELZ))
-E   = 0.5*VR(HY_DENS)*u2 + VR(HY_RHOE)
-Ptot = VR(HY_PRES)
-
-#ifdef SPARK_GLM
-B2 = dot_product(VR(HY_MAGX:HY_MAGZ),VR(HY_MAGX:HY_MAGZ))
-UB = dot_product(VR(HY_VELX:HY_VELZ),VR(HY_MAGX:HY_MAGZ))
-! We will NEED to check units. That could be a pain. #MHDbeNatural
-Ptot= Ptot + 0.5*B2
-E   = E + 0.5*B2
-
-select case(dir)
-case (IAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELX)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX) - VR(HY_MAGX)*VR(HY_MAGX) + Ptot
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY) - VR(HY_MAGX)*VR(HY_MAGY)
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ) - VR(HY_MAGX)*VR(HY_MAGZ)
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELX) - VR(HY_MAGX)*UB
-   FR(HY_FMGX) = 0.
-   FR(HY_FMGY) = VR(HY_VELX)*VR(HY_MAGY)-VR(HY_VELY)*VR(HY_MAGX)
-   FR(HY_FMGZ) = VR(HY_VELX)*VR(HY_MAGZ)-VR(HY_VELZ)*VR(HY_MAGX)
-case (JAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELY)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX) - VR(HY_MAGY)*VR(HY_MAGX)
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY) - VR(HY_MAGY)*VR(HY_MAGY) + Ptot
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ) - VR(HY_MAGY)*VR(HY_MAGZ)
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELY) - VR(HY_MAGY)*UB
-   FR(HY_FMGX) = VR(HY_VELY)*VR(HY_MAGX) - VR(HY_VELX)*VR(HY_MAGY)
-   FR(HY_FMGY) = 0.
-   FR(HY_FMGZ) = VR(HY_VELY)*VR(HY_MAGZ)-VR(HY_VELZ)*VR(HY_MAGY)
-case (KAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELZ)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX) - VR(HY_MAGZ)*VR(HY_MAGX)
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY) - VR(HY_MAGZ)*VR(HY_MAGY)
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ) - VR(HY_MAGZ)*VR(HY_MAGZ) + Ptot
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELZ) - VR(HY_MAGZ)*UB
-   FR(HY_FMGX) = VR(HY_VELZ)*VR(HY_MAGX) - VR(HY_VELX)*VR(HY_MAGZ)
-   FR(HY_FMGY) = VR(HY_VELZ)*VR(HY_MAGY) - VR(HY_VELY)*VR(HY_MAGZ)
-   FR(HY_FMGZ) = 0.
-end select
-
-#else
-
-select case(dir)
-case (IAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELX)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX) + Ptot
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY)
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ)
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELX)
-case (JAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELY)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX)
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY) + Ptot
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ)
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELY)
-case (KAXIS)
-   FR(HY_MASS) = VR(HY_DENS)*VR(HY_VELZ)
-   FR(HY_XMOM) = FR(HY_MASS)*VR(HY_VELX)
-   FR(HY_YMOM) = FR(HY_MASS)*VR(HY_VELY)
-   FR(HY_ZMOM) = FR(HY_MASS)*VR(HY_VELZ) + Ptot
-   FR(HY_ENER) = (E + Ptot)*VR(HY_VELZ)
-end select
-
-#endif
-
-
-
+  !!!*** We need to think about whether this shoud be extracted out and done on the whole block
+  
+  call prim2con(VL,UL)
+  call prim2con(VR,UR)
+  call prim2flx(dir,VL,FL)
+  call prim2flx(dir,VR,FR)
 
   ! Get HLL states for later use
   if (SL > 0.) then
-      Uhll = UL
+     Uhll = UL
   elseif ((SL <= 0.) .and. (SR >= 0.)) then
-      Uhll = (SR*UR - SL*UL - FR + FL)/(SR - SL)
-      !! Pretty sure the following is not need for pressure already in momentum
-      !! fluxes (done in prim2flx). I.e., fP = 1.0
-      !  Uhll(HY_DENS+dir) = Uhll(HY_DENS+dir) + &
-      !       (  totalPresL - totalPresR  )/(SR - SL) * (1.0-fP)
+     Uhll = (SR*UR - SL*UL - FR + FL)/(SR - SL)
+     !! Pretty sure the following is not need for pressure already in momentum
+     !! fluxes (done in prim2flx). I.e., fP = 1.0
+     !  Uhll(HY_DENS+dir) = Uhll(HY_DENS+dir) + &
+     !       (  totalPresL - totalPresR  )/(SR - SL) * (1.0-fP)
   else
-      Uhll = UR
+     Uhll = UR
   endif
 
 #ifdef SPARK_GLM /* for MHD */
@@ -340,9 +171,10 @@ end select
   ! (1) Normal velocity component
   ! qStarL = qStarR = qStar
   qStar=(VR(HY_DENS)*velNR*(SR-velNR) &
-        - VL(HY_DENS)*velNL*(SL-velNL)  &
-        + totalPresL - totalPresR       &
-        - magNL**2   + magNR**2)
+       - VL(HY_DENS)*velNL*(SL-velNL)  &
+       + totalPresL - totalPresR       &
+       - magNL**2   + magNR**2)
+  ! print*, (VR(HY_DENS)*(SR-velNR) - VL(HY_DENS)*(SL-velNL))
   qStar = qStar/(VR(HY_DENS)*(SR-velNR) - VL(HY_DENS)*(SL-velNL))
 
   ! Convenient parameters
@@ -365,74 +197,74 @@ end select
   ! (4) Conserved variables in the two-state (left & right) star regions
   UCstarL(HY_MASS)   = dStarL
   UCstarL(HY_ENER)   = UL(HY_ENER)*numerL/denomL + &
-        ((pStar*qStar - totalPresL*velNL))/denomL
+       ((pStar*qStar - totalPresL*velNL))/denomL
 
   UCstarR(HY_MASS)   = dStarR
   UCstarR(HY_ENER)   = UR(HY_ENER)*numerR/denomR + &
-        ((pStar*qStar - totalPresR*velNR))/denomR
+       ((pStar*qStar - totalPresR*velNR))/denomR
 
 #ifdef SPARK_GLM /* for MHD */
   UCstarL(HY_FMGX:HY_FMGZ)= Uhll(HY_FMGX:HY_FMGZ)
   UCstarL(HY_ENER) = UCstarL(HY_ENER) &
-        -(Bn_hll*dot_product(Uhll(HY_FMGX:HY_FMGZ),Uhll(HY_XMOM:HY_ZMOM))/Uhll(HY_MASS) &
-        -  magNL*dot_product(VL(HY_MAGX:HY_MAGZ),  VL(HY_VELX:HY_VELZ)))/denomL
+       -(Bn_hll*dot_product(Uhll(HY_FMGX:HY_FMGZ),Uhll(HY_XMOM:HY_ZMOM))/Uhll(HY_MASS) &
+       -  magNL*dot_product(VL(HY_MAGX:HY_MAGZ),  VL(HY_VELX:HY_VELZ)))/denomL
 
   UCstarR(HY_FMGX:HY_FMGZ)= Uhll(HY_FMGX:HY_FMGZ)
   UCstarR(HY_ENER) = UCstarR(HY_ENER) &
-        -(Bn_hll*dot_product(Uhll(HY_FMGX:HY_FMGZ),Uhll(HY_XMOM:HY_ZMOM))/Uhll(HY_MASS) &
-        -  magNR*dot_product(VR(HY_MAGX:HY_MAGZ),  VR(HY_VELX:HY_VELZ)))/denomR
+       -(Bn_hll*dot_product(Uhll(HY_FMGX:HY_FMGZ),Uhll(HY_XMOM:HY_ZMOM))/Uhll(HY_MASS) &
+       -  magNR*dot_product(VR(HY_MAGX:HY_MAGZ),  VR(HY_VELX:HY_VELZ)))/denomR
 #endif
 
   select case (dir)
   case (IAXIS)
-      UCstarL(HY_XMOM) = dStarL*qStar
-      UCstarL(HY_YMOM) = UL(HY_YMOM)*numerL/denomL
-      UCstarL(HY_ZMOM) = UL(HY_ZMOM)*numerL/denomL
+     UCstarL(HY_XMOM) = dStarL*qStar
+     UCstarL(HY_YMOM) = UL(HY_YMOM)*numerL/denomL
+     UCstarL(HY_ZMOM) = UL(HY_ZMOM)*numerL/denomL
 
-      UCstarR(HY_XMOM) = dStarR*qStar
-      UCstarR(HY_YMOM) = UR(HY_YMOM)*numerR/denomR
-      UCstarR(HY_ZMOM) = UR(HY_ZMOM)*numerR/denomR
+     UCstarR(HY_XMOM) = dStarR*qStar
+     UCstarR(HY_YMOM) = UR(HY_YMOM)*numerR/denomR
+     UCstarR(HY_ZMOM) = UR(HY_ZMOM)*numerR/denomR
 
 #ifdef SPARK_GLM /* for MHD */
-      UCstarL(HY_YMOM) = UCstarL(HY_YMOM) - (BxStar*ByStar-VL(HY_MAGX)*VL(HY_MAGY))/denomL
-      UCstarL(HY_ZMOM) = UCstarL(HY_ZMOM) - (BxStar*BzStar-VL(HY_MAGX)*VL(HY_MAGZ))/denomL
+     UCstarL(HY_YMOM) = UCstarL(HY_YMOM) - (BxStar*ByStar-VL(HY_MAGX)*VL(HY_MAGY))/denomL
+     UCstarL(HY_ZMOM) = UCstarL(HY_ZMOM) - (BxStar*BzStar-VL(HY_MAGX)*VL(HY_MAGZ))/denomL
 
-      UCstarR(HY_YMOM) = UCstarR(HY_YMOM) - (BxStar*ByStar-VR(HY_MAGX)*VR(HY_MAGY))/denomR
-      UCstarR(HY_ZMOM) = UCstarR(HY_ZMOM) - (BxStar*BzStar-VR(HY_MAGX)*VR(HY_MAGZ))/denomR
+     UCstarR(HY_YMOM) = UCstarR(HY_YMOM) - (BxStar*ByStar-VR(HY_MAGX)*VR(HY_MAGY))/denomR
+     UCstarR(HY_ZMOM) = UCstarR(HY_ZMOM) - (BxStar*BzStar-VR(HY_MAGX)*VR(HY_MAGZ))/denomR
 #endif
 
   case (JAXIS)
-      UCstarL(HY_XMOM) = UL(HY_XMOM)*numerL/denomL
-      UCstarL(HY_YMOM) = dStarL*qStar
-      UCstarL(HY_ZMOM) = UL(HY_ZMOM)*numerL/denomL
+     UCstarL(HY_XMOM) = UL(HY_XMOM)*numerL/denomL
+     UCstarL(HY_YMOM) = dStarL*qStar
+     UCstarL(HY_ZMOM) = UL(HY_ZMOM)*numerL/denomL
 
-      UCstarR(HY_XMOM) = UR(HY_XMOM)*numerR/denomR
-      UCstarR(HY_YMOM) = dStarR*qStar
-      UCstarR(HY_ZMOM) = UR(HY_ZMOM)*numerR/denomR
+     UCstarR(HY_XMOM) = UR(HY_XMOM)*numerR/denomR
+     UCstarR(HY_YMOM) = dStarR*qStar
+     UCstarR(HY_ZMOM) = UR(HY_ZMOM)*numerR/denomR
 
 #ifdef SPARK_GLM /* for MHD */
-      UCstarL(HY_XMOM) = UCstarL(HY_XMOM) - (ByStar*BxStar-VL(HY_MAGY)*VL(HY_MAGX))/denomL
-      UCstarL(HY_ZMOM) = UCstarL(HY_ZMOM) - (ByStar*BzStar-VL(HY_MAGY)*VL(HY_MAGZ))/denomL
+     UCstarL(HY_XMOM) = UCstarL(HY_XMOM) - (ByStar*BxStar-VL(HY_MAGY)*VL(HY_MAGX))/denomL
+     UCstarL(HY_ZMOM) = UCstarL(HY_ZMOM) - (ByStar*BzStar-VL(HY_MAGY)*VL(HY_MAGZ))/denomL
 
-      UCstarR(HY_XMOM) = UCstarR(HY_XMOM) - (ByStar*BxStar-VR(HY_MAGY)*VR(HY_MAGX))/denomR
-      UCstarR(HY_ZMOM) = UCstarR(HY_ZMOM) - (ByStar*BzStar-VR(HY_MAGY)*VR(HY_MAGZ))/denomR
+     UCstarR(HY_XMOM) = UCstarR(HY_XMOM) - (ByStar*BxStar-VR(HY_MAGY)*VR(HY_MAGX))/denomR
+     UCstarR(HY_ZMOM) = UCstarR(HY_ZMOM) - (ByStar*BzStar-VR(HY_MAGY)*VR(HY_MAGZ))/denomR
 #endif
 
   case (KAXIS)
-      UCstarL(HY_XMOM) = UL(HY_XMOM)*numerL/denomL
-      UCstarL(HY_YMOM) = UL(HY_YMOM)*numerL/denomL
-      UCstarL(HY_ZMOM) = dStarL*qStar
+     UCstarL(HY_XMOM) = UL(HY_XMOM)*numerL/denomL
+     UCstarL(HY_YMOM) = UL(HY_YMOM)*numerL/denomL
+     UCstarL(HY_ZMOM) = dStarL*qStar
 
-      UCstarR(HY_XMOM) = UR(HY_XMOM)*numerR/denomR
-      UCstarR(HY_YMOM) = UR(HY_YMOM)*numerR/denomR
-      UCstarR(HY_ZMOM) = dStarR*qStar
+     UCstarR(HY_XMOM) = UR(HY_XMOM)*numerR/denomR
+     UCstarR(HY_YMOM) = UR(HY_YMOM)*numerR/denomR
+     UCstarR(HY_ZMOM) = dStarR*qStar
 
 #ifdef SPARK_GLM /* for MHD */
-      UCstarL(HY_XMOM) = UCstarL(HY_XMOM) - (BzStar*BxStar-VL(HY_MAGZ)*VL(HY_MAGX))/denomL
-      UCstarL(HY_YMOM) = UCstarL(HY_YMOM) - (BzStar*ByStar-VL(HY_MAGZ)*VL(HY_MAGY))/denomL
+     UCstarL(HY_XMOM) = UCstarL(HY_XMOM) - (BzStar*BxStar-VL(HY_MAGZ)*VL(HY_MAGX))/denomL
+     UCstarL(HY_YMOM) = UCstarL(HY_YMOM) - (BzStar*ByStar-VL(HY_MAGZ)*VL(HY_MAGY))/denomL
 
-      UCstarR(HY_XMOM) = UCstarR(HY_XMOM) - (BzStar*BxStar-VR(HY_MAGZ)*VR(HY_MAGX))/denomR
-      UCstarR(HY_YMOM) = UCstarR(HY_YMOM) - (BzStar*ByStar-VR(HY_MAGZ)*VR(HY_MAGY))/denomR
+     UCstarR(HY_XMOM) = UCstarR(HY_XMOM) - (BzStar*BxStar-VR(HY_MAGZ)*VR(HY_MAGX))/denomR
+     UCstarR(HY_YMOM) = UCstarR(HY_YMOM) - (BzStar*ByStar-VR(HY_MAGZ)*VR(HY_MAGY))/denomR
 #endif
   end select
 
@@ -441,24 +273,24 @@ end select
 
   ! (5) Finally, calculate HLLC fluxes
   if (SL >= 0.) then
-      Fstar = FL
+     Fstar = FL
   elseif ((SL < 0.).and. (qStar >= 0.)) then
-      Fstar = FL + SL*(UCstarL - UL)
+     Fstar = FL + SL*(UCstarL - UL)
   elseif ((qStar <0.) .and. (SR >= 0.)) then
-      Fstar = FR + SR*(UCstarR - UR)
+     Fstar = FR + SR*(UCstarR - UR)
   else
-      Fstar = FR
+     Fstar = FR
   endif
 
   !! The following are the HLLE fluxes.
   if (hy_hybridRiemann .AND. inShock) then
-      if (SL > 0.) then
+     if (SL > 0.) then
         Fstar = FL
-      elseif (SR < 0.) then
+     elseif (SR < 0.) then
         Fstar = FR
-      else !if ((SL <= 0.) .and. (SR >= 0.)) then
+     else !if ((SL <= 0.) .and. (SR >= 0.)) then
         Fstar = (SR*FL - SL*FR + SR*SL*(UR - UL))/(SR - SL)
-      endif
+     endif
   end if
 
 #ifdef SPARK_GLM
@@ -466,14 +298,6 @@ end select
   Fstar(HY_FMGX+dir-1) = Psi_glm
   Fstar(HY_FPSI) = hy_C_hyp*hy_C_hyp*Bn_glm
 #endif
-! print *, Fstar
-! print *, flux(1:HY_NUM_FLUX,i1,i2,i3) 
-! if (i1==14 .AND. i2==14) then
-!   print *, "GPU: (",i1,i2,")", Fstar, new_line('a'), VL, new_line('a'), VR
-! endif
-end Subroutine riemann
 
-#include "prim2con.F90"
-#include "prim2flx.F90"
-  
+end Subroutine riemann
 

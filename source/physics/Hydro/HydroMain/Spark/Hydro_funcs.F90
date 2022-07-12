@@ -1,126 +1,336 @@
-!! *** source/physics/Hydro/HydroMain/Spark
+!!****i** source/physics/Hydro/HydroMain/Spark/Hydro_funcs
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
-!! Hydro_funcs
+!!  Hydro_funcs
 !!
 !! DESCRIPTION
 !!
-!! Holds functions frequently accessed by Hydro.F90 for Spark hydrodynamic solver.
+!!  Holds functions frequently accessed by Hydro.F90 for Spark hydrodynamic solver.
 !! 
-!! *** 
+!!***
 !!Reorder directive used by FLASH with --index-reorder flag at setup
-!!Reorder(4): hy_starState,solnData, U, hy_fl[xyz], hy_flxb[xyz]
+!!Reorder(4): hy_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
 
-
-subroutine addFluxes(weight,addFlux)
-  !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
-  use Hydro_data, ONLY : hy_flx, hy_fly, hy_flz, hy_flxbx, hy_flxby, hy_flxbz 
-
-  implicit none
-
-#include "constants.h"
 #include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+#include "Eos.h"
+#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
+subroutine allocate_scr(blkLimits,blkLimitsGC)
+  
+  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+       hy_tiny,hy_hybridRiemann,hy_C_hyp, &
+       hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
+       hy_alphaGLM,hy_Vc,scratch_allocated
+  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
+  implicit none
+  integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+  
+  integer :: max_edge, max_edge_y, max_edge_z
+  
+  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
+       blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
+  max_edge_y = 1
+  max_edge_z = 1
+#if NDIM==2
+  max_edge_y = max_edge
+#elif NDIM==3
+  max_edge_y = max_edge
+  max_edge_z = max_edge
+#endif
+  ! print *, "max edge", max_edge
+  !Construct arrays to hold fluxes used for solution update
+  
+  if (.NOT. allocated(hy_flx)) then
+     allocate(hy_flx(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
+     hy_flx = 0.
+  endif
+  
+  if (.NOT. allocated(hy_fly)) then
+     allocate(hy_fly(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+1*K2D,&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
+     hy_fly = 0.
+  endif
+  if (.NOT. allocated(hy_flz)) then
+     allocate(hy_flz(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+1*K3D))
+     hy_flz = 0.
+  endif
+  if (.NOT. allocated(hy_flat3d)) then
+     allocate(hy_flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+     hy_flat3d = 0.
+  endif
+  if (.NOT. allocated(hy_Vc)) then
+     allocate(hy_Vc(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+     hy_Vc =0.
+  end if
+  
+  
+  
+  !Gravity 
+  if (.NOT. allocated(hy_grav)) then
+     allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  endif
+  
+  if (.NOT. allocated(hy_starState)) then
+     allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  endif
+  
+  if (.NOT. allocated(hy_tmpState)) then
+     allocate(hy_tmpState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  endif
+
+  if (.not. scratch_allocated) then
+  scratch_allocated = .true.
+  if (.NOT. allocated(hy_uPlus)) then
+  allocate(hy_uPlus(NRECON,max_edge,max_edge_y,max_edge_z))
+  hy_uPlus = 0.
+  endif
+  if (.NOT. allocated(hy_uMinus)) then
+  allocate(hy_uMinus(NRECON,max_edge,max_edge_y,max_edge_z))
+  hy_uMinus = 0.
+  endif
+  if (.NOT. allocated(hy_shck)) then
+  allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
+  hy_shck = 0.
+  endif
+  if (.NOT. allocated(hy_snake)) then
+  allocate(hy_snake(NRECON,max_edge,max_edge_y,max_edge_z))
+  hy_snake = 0.
+  endif
+  if (.NOT. allocated(hy_flat)) then
+  allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
+  hy_flat = 0.
+  endif
+  if (.NOT. allocated(hy_grv)) then
+  allocate(hy_grv(max_edge,max_edge_y,max_edge_z))
+  hy_grv = 0.
+  endif
+  if (.NOT. allocated(hy_flux)) then
+  allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
+  hy_flux = 0.
+  endif
+  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
+  endif
+
+  call allocate_fxscr(blkLimits,blkLimitsGC)
+  
+end subroutine allocate_scr
+
+subroutine deallocate_scr()
+  use Hydro_data, ONLY : hy_starState,  hy_grav, hy_flx, hy_fly, hy_flz,&
+       hy_Vc
+  
+  use Hydro_data, ONLY : &
+       hy_flat3d,hy_tmpState
+
+  if(allocated(hy_flx))deallocate(hy_flx)
+  if(allocated(hy_fly))deallocate(hy_fly)
+  if(allocated(hy_flz))deallocate(hy_flz)
+  if(allocated(hy_flat3d))deallocate(hy_flat3d)
+  if(allocated(hy_Vc))deallocate(hy_Vc)
+  if(allocated(hy_grav))deallocate(hy_grav)
+  if(allocated(hy_starState))deallocate(hy_starState)
+  if(allocated(hy_tmpState))deallocate(hy_tmpState)
+  call deallocate_fxscr()
+end subroutine deallocate_scr
+
+subroutine allocate_fxscr(blkLimits,blkLimitsGC)
+  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+       hy_eosData, hy_mfrac, hy_fluxCorrect
+  integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+  integer :: max_edge
+
+  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
+       blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
+
+  !Allocate size of flux buffers used for flux correction
+  if (hy_fluxCorrect) then
+     !allocate buffers here
+     if (.NOT. allocated(hy_fluxBufX)) then 
+        allocate(hy_fluxBufX(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D))
+        hy_fluxBufX = 0.
+     endif
+     
+     if (.NOT. allocated(hy_fluxBufY)) then 
+        allocate(hy_fluxBufY(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D))
+        hy_fluxBufY = 0.
+     endif
+     
+     if (.NOT. allocated(hy_fluxBufZ)) then 
+        allocate(hy_fluxBufZ(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D))
+        hy_fluxBufZ = 0.
+     endif
+  endif
+  !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
+
+  if (.NOT. allocated(hy_eosData)) then
+     allocate(hy_eosData(EOS_NUM*max_edge))
+     hy_eosData = 0.
+  endif
+  
+  if (.NOT. allocated(hy_mfrac)) then
+     allocate(hy_mfrac(NSPECIES*max_edge))
+     hy_mfrac = 0.
+  endif
+end subroutine allocate_fxscr
+
+
+subroutine deallocate_fxscr()
+  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+       hy_eosData, hy_mfrac, hy_fluxCorrect
+
+  !Allocate size of flux buffers used for flux correction
+  if (hy_fluxCorrect) then
+     !allocate buffers here
+     if(allocated(hy_fluxBufX))deallocate(hy_fluxBufX)
+     if(allocated(hy_fluxBufY))deallocate(hy_fluxBufY)
+     if(allocated(hy_fluxBufZ))deallocate(hy_fluxBufZ)
+  end if
+
+  if(allocated(hy_mfrac))deallocate(hy_mfrac)
+  if(allocated(hy_eosData))deallocate(hy_eosData)
+end subroutine deallocate_fxscr
+
+subroutine addFluxes(lev,blkLimits,weight,addFlux)
+  !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
+  use Hydro_data, ONLY : hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ 
+  
+  implicit none
+  
+  integer,intent(IN)::lev
+  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits
   real, intent(IN) :: weight
   logical, intent(IN) :: addFlux
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-  integer, dimension(MDIM) :: datasize
-  integer :: lev, coarse, fine
-  integer :: axis, geometry
-  logical :: zeroFullRegister 
-   
-  lev = tileDesc%level
-  blkLimits(:,:)   = tileDesc%limits
-
+  
+  
   if (addFlux) then
-    hy_flxbx = hy_flxbx+weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) 
-    if (NDIM > 1) &   
-      hy_flxby = hy_flxby+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-    if (NDIM > 2) &
-      hy_flxbz = hy_flxbz+weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1)
+     hy_fluxBufX = hy_fluxBufX+weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     if (NDIM > 1) &   
+          hy_fluxBufY = hy_fluxBufY+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+ blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
+ blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+     if (NDIM > 2) &
+          hy_fluxBufZ = hy_fluxBufZ+weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
   else
-    hy_flxbx = weight*hy_flx(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-    if (NDIM > 1) &   
-      hy_flxby = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-    if (NDIM > 2) &
-      hy_flxbz = weight*hy_flz(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-                                           blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-                                           blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1)
+     hy_fluxBufX = weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     if (NDIM > 1) &   
+          hy_fluxBufY = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+ blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
+ blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+     if (NDIM > 2) &
+          hy_fluxBufZ = weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
+     
   endif
 end subroutine addFluxes
-
-
 
 !! Allocate variable size array holding local gravitational accelerations (depending on 
 !! block size), fluxes, flux buffers, and save. 
 !! If offloading to a device, send data and allocate on device only.
-subroutine saveState(Uin,blkLimits,blkLimitsGC)
+subroutine saveState(Uin,blkLimits,blklimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock,hy_tmpState
-  
+  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_tiny,hy_hybridRiemann,hy_C_hyp, &
+       hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
+       hy_alphaGLM, scratch_allocated
+  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d, hy_grv
   implicit none
-#include "Simulation.h"
-#include "constants.h"
-#include "Spark.h"
-
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+  
+  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
   integer ::  v,i1,i2,i3
   ! call Timers_start("Allocations")
-
-#ifdef OMP_OL
- !$omp target map(hy_starState, hy_tmpState)
- !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
- !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
-#else 
-  !$omp parallel do collapse(4) if(hy_threadWithinBlock) &
-  !$omp default(none) &
-  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC,solState_tmp)
-#endif
+  
+  ! Allocate needed space on GPU if it is not already there
+  !  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus) 
+  
+  
+  ! update temp vars with solution data
+  
+  ! move data to GPU
+  !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
+  !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
+  ! distribute work throughout GPU
+  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
+  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
+  
   do i3=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
-    do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
-      do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-        do v=1,NUNK_VARS
-          hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-          hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-        enddo
-      enddo
-    enddo
-  enddo
-
+  do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+  do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+           do v=1,NUNK_VARS
+              hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+              hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
+           enddo
+  end do
+  end do
+  end do
 end subroutine saveState
 
 
 subroutine updateState(Uin,blkLimits,blkLimitsGC)
   use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
-                         hy_flxbx, hy_flxby, hy_flxbz, hy_fluxCorrect, hy_uplus, hy_uminus,&
-                         hy_shk, hy_tposeBlk, hy_flux, hy_flat, hy_grv, hy_flat3d, hy_smalldens, hy_smallE, hy_smallpres, &
-                         hy_smallX, hy_cvisc, hy_del, hy_tmpState
+                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, &
+                         hy_smalldens, hy_smallE, hy_smallpres, &
+                         hy_smallX, hy_cvisc, hy_del
+  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
+       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d
+  
   implicit none
-#include "Simulation.h"
+  real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  real, pointer :: Uin(:,:,:,:)
-#ifdef OMP_OL
-!hy_uplus,hy_uminus,hy_shk,hy_tposeBlk,hy_flat,hy_grv,hy_flux
+  !hy_uPlus,hy_uMinus,hy_shck,hy_snake,hy_flat,hy_grv,hy_flux
   !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
   !$omp target exit data map(DELETE:hy_grav)
   !$omp target update from(hy_starState)
-#endif
+
 #ifndef FIXEDBLOCKSIZE
-  if (hy_fluxCorrect) then
-    deallocate(hy_flxbx);deallocate(hy_flxby);deallocate(hy_flxbz)
-  endif
+!!$  if (hy_fluxCorrect) then
+!!$    deallocate(hy_fluxBufX);deallocate(hy_fluxBufY);deallocate(hy_fluxBufZ)
+!!$  endif
 #endif
+ 
 
   !$omp parallel if(hy_threadWithinBlock) &
   !$omp default(none) &
@@ -129,104 +339,65 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
 #ifdef GPOT_VAR
   ! First reset GPOT_VAR.
   hy_starState(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
        Uin(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
 #endif
   Uin(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
        hy_starState(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+  
   !$omp end workshare
   !$omp end parallel
-#ifdef OMP_OL
   !$omp target exit data map(DELETE:hy_starState)
-#endif
-  nullify(hy_starState)
-  nullify(hy_tmpState)
+
+!!$  deallocate(hy_starState)
 end subroutine updateState
 
 !! Set loop limits.  We include ngcell layers of guard zones
-subroutine setLims(limits,ngcell,blkLimits)
+subroutine setLims(ngcell,blkLimits,limits)
   implicit none
-#include "constants.h"
   integer, intent(IN):: ngcell
-  integer, intent(IN),dimension(LOW:HIGH,MDIM) :: blkLimits
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits
   integer, intent(OUT), dimension(LOW:HIGH,MDIM) :: limits
-  integer :: ilim
-
-  limits=blkLimits
-  do ilim=1,NDIM
-     limits(LOW ,ilim) = blkLimits(LOW ,ilim) - ngcell
-     limits(HIGH,ilim) = blkLimits(HIGH,ilim) + ngcell
+  
+  integer i
+  
+  
+  limits = blkLimits
+  do i=1,NDIM
+     limits(LOW ,i) = blkLimits(LOW ,i) - ngcell
+     limits(HIGH,i) = blkLimits(HIGH,i) + ngcell
   end do
 end subroutine setLims
 
-!!****if* source/physics/Hydro/HydroMain/Spark/Hydro_funcs
-!!
-!! NAME
-!!
-!!  shockDetect
-!!
-!! SYNOPSIS
-!!
-!!  shockDetect( type(Grid_tile_t) :: tileDesc
-!!               integer (IN)      :: limits )
-!!
-!! DESCRIPTION
-!!
-!!  This routine detects strongly compressive motions in simulation
-!!  by calculating undivided pressure gradients and divergence of
-!!  velocity fields. Two parameters beta and delta have been set
-!!  to detect strong shocks. If such shocks exist then the unsplit
-!!  scheme applies its robust flux differencings using limited slopes
-!!  in data reconstruction step (see hy_rk_dataReconstruct.F90).
-!!  Different shock strengths can also be detected by lowering/increasing
-!!  beta and delta values.
-!!
-!! ARGUMENTS
-!!
-!!  tileDesc  - local block descriptor (respecting tiling syntax)
-!!  limits     - region of the block in which to detect shocks
-!!
-!! REFERENCE
-!!
-!!  Balsara and Spicer, JCP, 149:270--292, 1999.
-!!
-!!***
-subroutine shockDetect(tileDesc,limits)
+subroutine shockDetect(Uin,limits,blkLimitsGC)
 
-  use Hydro_data,        only : hy_geometry, hy_tiny
+  use Hydro_data,        only : hy_geometry, hy_tiny, hy_Vc
 
   implicit none
 
-#include "constants.h"
-#include "Simulation.h"
-#include "Spark.h"
 
   !! ---- Argument List ----------------------------------
-  type(Grid_tile_t)   :: tileDesc
+  real, dimension(:,:,:,:), pointer   :: Uin
   integer, intent(IN) :: limits(LOW:HIGH,MDIM)
+  integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
   !! -----------------------------------------------------
 
   integer :: i,j,k
   logical :: SW1, SW2
 
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
 
   real :: divv,gradPx,gradPy,gradPz
   real :: minP,minC,beta,delta
   real :: localCfl,cflMax
-  real, dimension(:,:,:), allocatable :: Vc
-  real, dimension(:,:,:,:), pointer   :: Uin
   
   !necessary for argument for %getDataPtr()
-  nullify(Uin)
 
 #ifndef SHOK_VAR
   return
@@ -244,34 +415,26 @@ subroutine shockDetect(tileDesc,limits)
 !!$  delta = 0.01
 
 
-  blkLimits(:,:)   = tileDesc%limits
-  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
-
-  call tileDesc%getDataPtr(Uin,CENTER)
 
   Uin(SHOK_VAR,:,:,:) = 0.
   
-!!!*** keyword to indicate local allocation
-  !! Allocate a temporary cell-centered array for sound speed
-  allocate(Vc(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),  &
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS), &
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
 
-!!!*** keyword for GC loop nest
+  !! Allocate a temporary cell-centered array for sound speed
+
+
   !! Compute sound speed
   do k=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
-     do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
-        do i=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-           Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
+  do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+  do i=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+           hy_Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
                 /max(Uin(DENS_VAR,i,j,k),hy_tiny))
-        enddo
-     enddo
-  enddo
+  end do
+  end do
+  end do
 
-!!!*** keyword for non-standard loop nest
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
-     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
-        do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+  do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+  do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
 
            ! initialize switch values
            SW1 = .false.
@@ -279,15 +442,15 @@ subroutine shockDetect(tileDesc,limits)
 
 #if NDIM==1
            minP = minval(Uin(PRES_VAR,i-1:i+1,j,k))
-           minC = minval(Vc(i-1:i+1,j,k))
+           minC = minval(hy_Vc(i-1:i+1,j,k))
 #endif
 #if NDIM==2
            minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k))
-           minC = minval(Vc(i-1:i+1,j-1:j+1,k))
+           minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k))
 #endif
 #if NDIM==3
            minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k-1:k+1))
-           minC = minval(Vc(i-1:i+1,j-1:j+1,k-1:k+1))
+           minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k-1:k+1))
 #endif
            !! We do not need to include non-Cartesian geom factors here.
            !! Undivided divV
@@ -322,66 +485,45 @@ subroutine shockDetect(tileDesc,limits)
               ! applies (a diffusive) HLL solver when SHOK_VAR = 1.
               Uin(SHOK_VAR,i,j,k) = 1.
            endif !endif (SW1 .and. SW2) then
-
-        enddo !enddo i-loop
-     enddo !enddo j-loop
-  enddo !enddo k-loop
-
-  ! Release block pointer
-  call tileDesc%releaseDataPtr(Uin,CENTER)
-
-  ! Deallocate sound speed array
-  deallocate(Vc)
+    end do
+    end do
+    end do
+    
 
 end subroutine shockDetect
 
 !!Calculate divergence of the magnetic field.
-subroutine calcDivB(tileDesc)
+subroutine calcDivB(Uin,hy_del,blkLimits)
   implicit none
 
-#include "constants.h"
-#include "Simulation.h"
-#include "Spark.h"
-
-  !! ---- Argument List ----------------------------------
-  type(Grid_tile_t)     :: tileDesc
-  !! -----------------------------------------------------
-
-  integer :: i,j,k
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
   real, dimension(:,:,:,:), pointer   :: Uin
-  real, dimension(MDIM) :: del
+  real, dimension(MDIM),intent(IN) :: hy_del
+  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits
+
+
   real :: divB
 
-  nullify(Uin)
 
 #ifdef SPARK_GLM
-  blkLimits(:,:)   = tileDesc%limits
-  blkLimitsGC(:,:) = tileDesc%blkLimitsGC
-  call tileDesc%getDataPtr(Uin,CENTER)
-  call tileDesc%deltas(del)
 
-!!!*** keyword for nonGC loop nest
   do k=blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-     do j=blkLimits(LOW,JAXIS),blkLimits(HIGH,JAXIS)
-        do i=blkLimits(LOW,IAXIS),blkLimits(HIGH,IAXIS)
+  do j=blkLimits(LOW,JAXIS),blkLimits(HIGH,JAXIS)
+  do i=blkLimits(LOW,IAXIS),blkLimits(HIGH,IAXIS)
            divB = 0.0
 #if NDIM>1
            divB = (Uin(MAGX_VAR,i+1,j,k) - Uin(MAGX_VAR,i-1,j,k))&
-                *0.5/del(IAXIS)
+                *0.5/hy_del(IAXIS)
            divB = divB + (Uin(MAGY_VAR,i,j+1,k) - Uin(MAGY_VAR,i,j-1,k))&
-                *0.5/del(JAXIS)
+                *0.5/hy_del(JAXIS)
 #if NDIM==3
            divB = divB + (Uin(MAGZ_VAR,i,j,k+1) - Uin(MAGZ_VAR,i,j,k-1))&
-                *0.5/del(KAXIS)
+                *0.5/hy_del(KAXIS)
 #endif
 #endif
            Uin(DIVB_VAR,i,j,k) = divB
-        end do
-     end do
-  end do
-
-  call tileDesc%releaseDataPtr(Uin,CENTER)
+   end do
+   end do
+   end do
 #endif
 end subroutine calcDivB
 

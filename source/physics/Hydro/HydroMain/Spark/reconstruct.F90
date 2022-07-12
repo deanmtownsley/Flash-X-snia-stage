@@ -1,133 +1,122 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/reconstruct
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  NAME
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
 !!
-!!  reconstruct
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
-!!  SYNOPSIS
-!!
-!!  call reconstruct (  )
-!!
-!!  DESCRIPTION
-!!
-!!  ARGUMENTS
+!!  For this function the name and argument lists depend upon the variants used.
 !!
 !!
 !!***
 
-
-subroutine reconstruct(i1,i2,i3,v)
-  use hydro_data, only : hy_uplus, hy_uminus, hy_tposeBlk, hy_flat
-    implicit none
+!subroutine reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
+  subroutine reconstruct(i1,i2,i3,v)
+  use hydro_data, only : hy_uPlus, hy_uMinus, hy_snake, hy_flat
+  implicit none
   
 #include "Simulation.h"
 #include "Spark.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
+  integer, intent(IN) :: i1,i2,i3,v
+  real :: invSumAlpha
+  real, dimension(NRECON,3) :: W5p, W5m, betaWeno, Alpha5, omega
+  integer :: g
+  real, dimension(NRECON) :: mags, betaSum
+  !! Set WENO5 coefficients once and for all
+  !u_{1,i+1/2}= 2/6*u_{i-2} -7/6*u_{i-1} +11/6*u_{i}
+  real, dimension(3), parameter :: coeff1p1(1:3) = (/ 2./6., -7./6., 11./6./)
+  !u_{2,i+1/2}=-1/6*u_{i-2} +5/6*u_{i-1} + 2/6*u_{i}
+  real, dimension(3), parameter :: coeff1p2(1:3) = (/-1./6.,  5./6.,  2./6./)
+  !u_{3,i+1/2}= 2/6*u_{i-2} +5/6*u_{i-1} - 1/6*u_{i}
+  real, dimension(3), parameter :: coeff1p3(1:3) = (/ 2./6.,  5./6., -1./6./)
+  !(gamma1,gamma2,gamma3)
+  real, dimension(3), parameter :: coeff2p(1:3)   = (/0.1, 0.6, 0.3/)
+  !u_{1,i-1/2}=-1/6*u_{i-2} +5/6*u_{i-1} + 2/6*u_{i}
+  real, dimension(3), parameter :: coeff1m1(1:3) = (/-1./6.,  5./6.,  2./6./)
+  !u_{2,i-1/2}= 2/6*u_{i-2} +5/6*u_{i-1} - 1/6*u_{i}
+  real, dimension(3), parameter :: coeff1m2(1:3) = (/ 2./6.,  5./6., -1./6./)
+  !u_{3,i-1/2}=11/6*u_{i-2} -7/6*u_{i-1} + 2/6*u_{i}
+  real, dimension(3), parameter :: coeff1m3(1:3) = (/ 11./6.,-7./6.,  2./6./)
+  !(gamma1,gamma2,gamma3)
+  real, dimension(3), parameter :: coeff2m(1:3)   = (/0.3, 0.6, 0.1/)
   
-    integer, intent(IN) :: i1,i2,i3,v 
-    real :: invSumAlpha
-    real, dimension(3) :: W5p, W5m, betaWeno, Alpha5, omega
-    integer :: g, i
-    real, parameter :: epsilon = 1.e-36
-    real, parameter :: n13o12 = 13./12.
-    ! real, dimension(NRECON) :: mags
-    !! Set WENO5 coefficients once and for all
-    !u_{1,i+1/2}= 2/6*u_{i-2} -7/6*u_{i-1} +11/6*u_{i}
-    real, dimension(3), parameter :: coeff1p1(1:3) = (/ 2./6., -7./6., 11./6./)
-    !u_{2,i+1/2}=-1/6*u_{i-2} +5/6*u_{i-1} + 2/6*u_{i}
-    real, dimension(3), parameter :: coeff1p2(1:3) = (/-1./6.,  5./6.,  2./6./)
-    !u_{3,i+1/2}= 2/6*u_{i-2} +5/6*u_{i-1} - 1/6*u_{i}
-    real, dimension(3), parameter :: coeff1p3(1:3) = (/ 2./6.,  5./6., -1./6./)
-    !(gamma1,gamma2,gamma3)
-    real, dimension(3), parameter :: coeff2p(1:3)   = (/0.1, 0.6, 0.3/)
-    !u_{1,i-1/2}=-1/6*u_{i-2} +5/6*u_{i-1} + 2/6*u_{i}
-    real, dimension(3), parameter :: coeff1m1(1:3) = (/-1./6.,  5./6.,  2./6./)
-    !u_{2,i-1/2}= 2/6*u_{i-2} +5/6*u_{i-1} - 1/6*u_{i}
-    real, dimension(3), parameter :: coeff1m2(1:3) = (/ 2./6.,  5./6., -1./6./)
-    !u_{3,i-1/2}=11/6*u_{i-2} -7/6*u_{i-1} + 2/6*u_{i}
-    real, dimension(3), parameter :: coeff1m3(1:3) = (/ 11./6.,-7./6.,  2./6./)
-    !(gamma1,gamma2,gamma3)
-    real, dimension(3), parameter :: coeff2m(1:3)   = (/0.3, 0.6, 0.1/)
-    !$omp declare target
-    ! Interpolation stencil for weno
-    
-    !! Calculate interface values at i+1/2
-    W5p(1) = coeff1p1(1)*hy_tposeBlk(v,i1-2,i2,i3) + &
-         coeff1p1(2)*hy_tposeBlk(v,i1-1,i2,i3) + coeff1p1(3)*hy_tposeBlk(v,i1,i2,i3)
-    W5p(2) = coeff1p2(1)*hy_tposeBlk(v,i1-1,i2,i3) + &
-         coeff1p2(2)*hy_tposeBlk(v,i1,i2,i3)   + coeff1p2(3)*hy_tposeBlk(v,i1+1,i2,i3)
-    W5p(3) = coeff1p3(1)*hy_tposeBlk(v,i1,i2,i3)   + &
-         coeff1p3(2)*hy_tposeBlk(v,i1+1,i2,i3) + coeff1p3(3)*hy_tposeBlk(v,i1+2,i2,i3)
+  real, parameter :: epsilon = 1.e-36
+  real, parameter :: n13o12 = 13./12.
   
-    !! Calculate interface values at i-1/2
-    W5m(1) = coeff1m1(1)*hy_tposeBlk(v,i1-2,i2,i3) + &
-         coeff1m1(2)*hy_tposeBlk(v,i1-1,i2,i3) + coeff1m1(3)*hy_tposeBlk(v,i1,i2,i3)
-    W5m(2) = coeff1m2(1)*hy_tposeBlk(v,i1-1,i2,i3) + &
-         coeff1m2(2)*hy_tposeBlk(v,i1,i2,i3)   + coeff1m2(3)*hy_tposeBlk(v,i1+1,i2,i3)
-    W5m(3) = coeff1m3(1)*hy_tposeBlk(v,i1,i2,i3)   + &
-         coeff1m3(2)*hy_tposeBlk(v,i1+1,i2,i3) + coeff1m3(3)*hy_tposeBlk(v,i1+2,i2,i3)
+   
+  ! Interpolation stencil for weno
+  !! Calculate interface values at i+1/2
+  W5p(v,1) = coeff1p1(1)*hy_snake(v,i1-2,i2,i3) + coeff1p1(2)*hy_snake(v,i1-1,i2,i3) + coeff1p1(3)*hy_snake(v,i1+0,i2,i3)
+  W5p(v,2) = coeff1p2(1)*hy_snake(v,i1-1,i2,i3) + coeff1p2(2)*hy_snake(v,i1+0,i2,i3)   + coeff1p2(3)*hy_snake(v,i1+1,i2,i3)
+  W5p(v,3) = coeff1p3(1)*hy_snake(v,i1+0,i2,i3)   + coeff1p3(2)*hy_snake(v,i1+1,i2,i3) + coeff1p3(3)*hy_snake(v,i1+2,i2,i3)
   
-    !! Calculate smoothness indicators at i+1/2
-    betaWeno(1) = n13o12*(hy_tposeBlk(v,i1-2,i2,i3) - 2.*hy_tposeBlk(v,i1-1,i2,i3) +    hy_tposeBlk(v,i1,i2,i3)  )**2 &
-         +            0.25*(hy_tposeBlk(v,i1-2,i2,i3) - 4.*hy_tposeBlk(v,i1-1,i2,i3) + 3.*hy_tposeBlk(v,i1,i2,i3)  )**2
-    betaWeno(2) = n13o12*(hy_tposeBlk(v,i1-1,i2,i3) - 2.*hy_tposeBlk(v,i1,i2,i3)   +    hy_tposeBlk(v,i1+1,i2,i3))**2 &
-         +            0.25*(hy_tposeBlk(v,i1-1,i2,i3)                      -    hy_tposeBlk(v,i1+1,i2,i3))**2
-    betaWeno(3) = n13o12*(hy_tposeBlk(v,i1,i2,i3)   - 2.*hy_tposeBlk(v,i1+1,i2,i3) +    hy_tposeBlk(v,i1+2,i2,i3))**2 &
-         +            0.25*(3.*hy_tposeBlk(v,i1,i2,i3)- 4.*hy_tposeBlk(v,i1+1,i2,i3) +    hy_tposeBlk(v,i1+2,i2,i3))**2
+  !! Calculate interface values at i-1/2
+  W5m(v,1) = coeff1m1(1)*hy_snake(v,i1-2,i2,i3) + coeff1m1(2)*hy_snake(v,i1-1,i2,i3) + coeff1m1(3)*hy_snake(v,i1+0,i2,i3)
+  W5m(v,2) = coeff1m2(1)*hy_snake(v,i1-1,i2,i3) + coeff1m2(2)*hy_snake(v,i1+0,i2,i3)   + coeff1m2(3)*hy_snake(v,i1+1,i2,i3)
+  W5m(v,3) = coeff1m3(1)*hy_snake(v,i1+0,i2,i3)   + coeff1m3(2)*hy_snake(v,i1+1,i2,i3) + coeff1m3(3)*hy_snake(v,i1+2,i2,i3)
   
-    !! Use problem-adaptive epsilong as in Tchekovskoy+07, A3
-    ! This does not seem to work with the WENO-Z indicators of Borges+08
-    ! mags(:) = hy_tposeBlk(v,ind-2)**2 + hy_tposeBlk(v,ind-1)**2 + hy_tposeBlk(v,ind)**2 &
-    !      + hy_tposeBlk(v,ind+1)**2 + hy_tposeBlk(v,ind+2)**2
-    ! betaWeno(1) = betaWeno(1) + epsilon*mags(:) + TINY(1.0)
-    ! betaWeno(2) = betaWeno(2) + epsilon*mags(:) + TINY(1.0)
-    ! betaWeno(3) = betaWeno(3) + epsilon*mags(:) + TINY(1.0)
+  !! Calculate smoothness indicators at i+1/2
+  betaWeno(v,1) = n13o12*(hy_snake(v,i1-2,i2,i3) - 2.*hy_snake(v,i1-1,i2,i3) +    hy_snake(v,i1+0,i2,i3)  )**2 &
+       +            0.25*(hy_snake(v,i1-2,i2,i3) - 4.*hy_snake(v,i1-1,i2,i3) + 3.*hy_snake(v,i1,i2,i3)  )**2
+  betaWeno(v,2) = n13o12*(hy_snake(v,i1-1,i2,i3) - 2.*hy_snake(v,i1,i2,i3)   +    hy_snake(v,i1+1,i2,i3))**2 &
+       +            0.25*(hy_snake(v,i1-1,i2,i3)                      -    hy_snake(v,i1+1,i2,i3))**2
+  betaWeno(v,3) = n13o12*(hy_snake(v,i1,i2,i3)   - 2.*hy_snake(v,i1+1,i2,i3) +    hy_snake(v,i1+2,i2,i3))**2 &
+       +            0.25*(3.*hy_snake(v,i1,i2,i3)- 4.*hy_snake(v,i1+1,i2,i3) +    hy_snake(v,i1+2,i2,i3))**2
   
-    !! This is WENO-Z: this is very similar to weno5 with wenoExp=1
-    Alpha5(1) = coeff2p(1)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(1)+epsilon)))
-    Alpha5(2) = coeff2p(2)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(2)+epsilon)))
-    Alpha5(3) = coeff2p(3)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(3)+epsilon)))
+  !! Use problem-adaptive epsilong as in Tchekovskoy7, A3
+  ! This does not seem to work with the WENO-Z indicators of Borges+08
+  ! mags(v) = hy_snake(@M ind_m(2))**2 + hy_snake(@M ind_m(1))**2 + hy_snake(@M ind_p(0))**2 &
+  !      + hy_snake(@M ind_p(1))**2 + hy_snake(@M ind_p(2))**2
+  ! betaWeno(v,1) = betaWeno(v,1) + epsilon*mags(v) + TINY(1.0)
+  ! betaWeno(v,2) = betaWeno(v,2) + epsilon*mags(v) + TINY(1.0)
+  ! betaWeno(v,3) = betaWeno(v,3) + epsilon*mags(v) + TINY(1.0)
   
-    !! Normalize weights at i+1/2
-    invSumAlpha = 1./(Alpha5(1)+Alpha5(2)+Alpha5(3))
-    omega(1)  = Alpha5(1)*invSumAlpha
-    omega(2)  = Alpha5(2)*invSumAlpha
-    omega(3)  = Alpha5(3)*invSumAlpha
+  !! This is WENO-Zv this is very similar to weno5 with wenoExp=1
+  Alpha5(v,1) = coeff2p(1)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,1)+epsilon)))
+  Alpha5(v,2) = coeff2p(2)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,2)+epsilon)))
+  Alpha5(v,3) = coeff2p(3)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,3)+epsilon)))
   
-    ! Compute interface value at i+1/2
-    hy_uplus(v,i1,i2,i3) = omega(1)*W5p(1) + omega(2)*W5p(2) + omega(3)*W5p(3)
-    !! Apply flattening
-    hy_uplus(v,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uplus(v,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_tposeBlk(v,i1,i2,i3)
+  !! Normalize weights at i+1/2
+  invSumAlpha = 1./(Alpha5(v,1)+Alpha5(v,2)+Alpha5(v,3))
+  omega(v,1)  = Alpha5(v,1)*invSumAlpha
+  omega(v,2)  = Alpha5(v,2)*invSumAlpha
+  omega(v,3)  = Alpha5(v,3)*invSumAlpha
   
-    !! Now move on to i-1/2
-    !! This is WENO-Z
-    Alpha5(1) = coeff2m(1)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(1)+epsilon)))
-    Alpha5(2) = coeff2m(2)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(2)+epsilon)))
-    Alpha5(3) = coeff2m(3)*(1.+(abs(betaWeno(1)-betaWeno(3))/(betaWeno(3)+epsilon)))
+  !! Compute interface value at i+1/2
+  hy_uPlus(v ,i1,i2,i3)  = omega(v,1)*W5p(v,1) + omega(v,2)*W5p(v,2) + omega(v,3)*W5p(v,3)
+  !! Apply hy_flattening
+  hy_uPlus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uPlus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_snake(v,i1 ,i2,i3)
   
-    !! Normalize weights at i-1/2
-    invSumAlpha = 1./(Alpha5(1)+Alpha5(2)+Alpha5(3))
-    omega(1)  = Alpha5(1)*invSumAlpha
-    omega(2)  = Alpha5(2)*invSumAlpha
-    omega(3)  = Alpha5(3)*invSumAlpha
+  !! Now move on to i-1/2
+  !! This is WENO-Z
+  Alpha5(v,1) = coeff2m(1)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,1)+epsilon)))
+  Alpha5(v,2) = coeff2m(2)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,2)+epsilon)))
+  Alpha5(v,3) = coeff2m(3)*(1.+(abs(betaWeno(v,1)-betaWeno(v,3))/(betaWeno(v,3)+epsilon)))
   
-    !! Compute interface value at i-1/2
-    hy_uminus(v,i1,i2,i3) = omega(1)*W5m(1) + omega(2)*W5m(2) + omega(3)*W5m(3)
-    !! Apply flattening
-    hy_uminus(v,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uminus(v,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_tposeBlk(v,i1,i2,i3)
+  !! Normalize weights at i-1/2
+  invSumAlpha = 1./(Alpha5(v,1)+Alpha5(v,2)+Alpha5(v,3))
+  omega(v,1)  = Alpha5(v,1)*invSumAlpha
+  omega(v,2)  = Alpha5(v,2)*invSumAlpha
+  omega(v,3)  = Alpha5(v,3)*invSumAlpha
   
-    !! Check for monotonicity
-    if ( (hy_uplus(v,i1,i2,i3)-hy_tposeBlk(v,i1,i2,i3))*(hy_tposeBlk(v,i1,i2,i3)-hy_uminus(v,i1,i2,i3)) <= 0. ) then
-      hy_uplus(v,i1,i2,i3)  = hy_tposeBlk(v,i1,i2,i3)
-      hy_uminus(v,i1,i2,i3) = hy_tposeBlk(v,i1,i2,i3)
-    end if
+  !! Compute interface value at i-1/2
+  hy_uMinus(v ,i1,i2,i3) = omega(v,1)*W5m(v,1) + omega(v,2)*W5m(v,2) + omega(v,3)*W5m(v,3)
+  !! Apply hy_flattening
+  hy_uMinus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uMinus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_snake(v, i1 ,i2,i3)
+  !! Check for monotonicity
+  if ( (hy_uPlus(v ,i1,i2,i3)-hy_snake(v, i1 ,i2,i3))*(hy_snake(v, i1 ,i2,i3)-hy_uMinus(v ,i1,i2,i3)) <= 0. ) then
+     hy_uPlus(v ,i1,i2,i3)  = hy_snake(v, i1 ,i2,i3)
+     hy_uMinus(v ,i1,i2,i3) = hy_snake(v, i1 ,i2,i3)
+  end if
   
-    ! print *, "gpu: (",i1,i2,i3,")",NEW_LINE('a'), "P ", hy_uplus(i1,i2,i3), NEW_LINE('a'),"M ", hy_uminus(:,i1,i2,i3)
-    ! if (i1==17 .AND. i2==17) then
-    !   do i=i1-2,i1+2
-    !     print *, "Snake(",i,i2,i3,")", hy_tposeBlk(7,i,i2,i3), hy_flat(i,i2,i3)
-    !   enddo
-    ! endif
+  
+end  subroutine reconstruct
 
-  end subroutine reconstruct
 

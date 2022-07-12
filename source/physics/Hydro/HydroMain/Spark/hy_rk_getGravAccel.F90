@@ -1,7 +1,45 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!
+!!  NAME
+!!
+!!  hy_rk_getGravAccel
+!!
+!!  SYNOPSIS
+!!
+!!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
+!!                         integer(IN) :: limits(:,:),
+!!                         integer(IN) :: blkLimitsGC(:,:))
+!!
+!!  DESCRIPTION
+!! 
+!!  Get gravitational acceleration for the part of block/tile defined by limits
+!!   where blkLimitsGC define full block
+!!
+!!  ARGUMENTS
+!!     blklimits,blkLimitsGC are the bounds of the block/tile
+!!     hy_del are dx,dy,dz
+!!     limits   sets limits of the fluxes.
+!!
+!!***
+
+
 !!Reorder(4):hy_starState
-subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
+
+subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
-  use Gravity_interface, ONLY : Gravity_accelOneRow
+!!  use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
   use Driver_interface, ONLY : Driver_abort
   implicit none
@@ -9,16 +47,19 @@ subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
 #include "Simulation.h"
 #include "constants.h"
 
-  integer, dimension(LOW:HIGH,MDIM), intent(in) :: limits,blkLimitsGC
-  real,dimension(MDIM), intent(in) :: deltas
+  real,dimension(MDIM),intent(IN)  :: hy_del
+  integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+
+
+
   integer, dimension(MDIM) :: loGC, hiGC
   integer :: dir, i,j,k,d
 
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)
-#ifdef OMP_OL
+
   !$omp target teams distribute parallel do collapse(4) shared(blkLimitsGC,hy_grav) private(d,i,j,k) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
-#endif
+  
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -30,10 +71,8 @@ subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
   enddo
 
 #ifdef GRAVITY
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
-#endif /* OMP_OL */
+  !$omp target teams distribute parallel do collapse(2) &
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
 #ifdef FLASH_GRAVITY_TIMEDEP
@@ -42,61 +81,44 @@ subroutine hy_rk_getGravAccel(limits, blkLimitsGC, deltas)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),deltas)
+             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
 #else
-#ifdef OMP_OL
-        ! We have not implemented the gravity function on the GPU so for now this option is not allowed
-        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented with GPU offloading")
-#endif /* OMP_OL */
-        ! For time-independent gravity, just call the regular Gravity routine.
-!!$        call Gravity_accelOneRow((/j,k/),IAXIS,blockDesc,&
-!!$             loGC(IAXIS),hiGC(IAXIS),hy_grav(IAXIS,:,j,k))
+        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
      enddo
   enddo
 #if NDIM>1
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
-#endif /* OMP_OL */
+  !$omp target teams distribute parallel do collapse(2) &
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)  
+
+#ifdef FLASH_GRAVITY_TIMEDEP
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-#ifdef FLASH_GRAVITY_TIMEDEP
         call accelOneRow((/i,k/),JAXIS,&
-             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),deltas)
-#else
-!!$        call Gravity_accelOneRow((/i,k/),JAXIS,blockDesc,&
-!!$             loGC(JAXIS),hiGC(JAXIS),hy_grav(JAXIS,i,:,k))
-#endif
+             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
      enddo
   enddo
+#endif
 #if NDIM==3
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do collapse(2) & 
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,deltas) map(to:limits,hiGC,loGC,hy_grav,deltas)
-#endif /* OMP_OL */
+
+  !$omp target teams distribute parallel do collapse(2) &
+  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
+
+#ifdef FLASH_GRAVITY_TIMEDEP
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-#ifdef FLASH_GRAVITY_TIMEDEP
         call accelOneRow((/i,j/),KAXIS,&
-             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),deltas)
-#else
-        !Used to be the commented part.  I'm not sure why...
-        !call accelOneRow((/i,j/),KAXIS,blockDesc,&
-        !     GRID_KHI_GC,hy_grav(KAXIS,i,j,:))
-!!$        call Gravity_accelOneRow((/i,j/),KAXIS,blockDesc,&
-!!$             loGC(KAXIS),hiGC(KAXIS),hy_grav(KAXIS,i,j,:))
-#endif
+             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
      enddo
   enddo
+#endif
 #endif
 #endif
 #endif /* GRAVITY */
 
 contains
 
-  !!!*** This should be simply inlined by the transpiler
-  subroutine accelOneRow(pos, sweepDir, numCells, grav, deltas)
+  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del)
     use Hydro_data, ONLY : hy_starState
 
     implicit none
@@ -105,7 +127,7 @@ contains
     integer, intent(in)               :: sweepDir, numCells
     real, intent(inout)               :: grav(numCells)
 
-    real, intent(in):: deltas(MDIM)
+    real, intent(in):: hy_del(MDIM)
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv
     !$omp declare target
@@ -120,13 +142,13 @@ contains
 
     !Get row of potential values and compute inverse of zone spacing
     if (sweepDir == SWEEP_X) then                     ! x-direction
-       delxinv = 1./deltas(IAXIS)
+       delxinv = 1./hy_del(IAXIS)
        gpot(:) = hy_starState(GPOT_VAR,:,pos(1),pos(2))
     elseif (sweepDir == SWEEP_Y) then                 ! y-direction
-       delxinv = 1./deltas(JAXIS)
+       delxinv = 1./hy_del(JAXIS)
        gpot(:) = hy_starState(GPOT_VAR,pos(1),:,pos(2))
     else                                          ! z-direction
-       delxinv = 1./deltas(KAXIS)
+       delxinv = 1./hy_del(KAXIS)
        gpot(:) = hy_starState(GPOT_VAR,pos(1),pos(2),:)
     endif
 
@@ -147,4 +169,4 @@ contains
 #endif /* GPOT_VAR */
   end subroutine accelOneRow
 
-end subroutine hy_rk_getGravAccel
+end subroutine hy_rk_getGraveAccel

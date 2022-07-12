@@ -1,4 +1,15 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_updateSoln
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !!  NAME
 !!
@@ -6,14 +17,27 @@
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_updateSoln ( type(Grid_tile_t) :: blockDesc )
-!!
+!!  call hy_rk_updateSoln ( real, pointer :: Uin(:,:,:,:),
+!!                            integer (IN)  :: blkLimits(:,:),
+!!                            integer (IN)  :: blkLimitsGC(:,:),
+!!                            integer (IN)  :: level,
+!!                            real (IN)     :: hy_del(:),
+!!                            real (IN)     :: dt,
+!!                            real (IN)     :: dtOld,)
+!!                            real (IN)     :: coeffs(:))
+!!     
 !!  DESCRIPTION
 !!  Update solution based on conservative fluxes previously calculated.  Then convert
 !!  conservative to primitive variables.
 !!
 !!  ARGUMENTS
-!!  blockDesc-block descriptor
+!!    Uin -- pointer to solution data
+!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
+!!    level  -- the refine level of the block
+!!    hy_del  --- dx, dy, dz
+!!    dt - current time step
+!!    dtOld - old time step
+!!    coeff - coefficients for updating
 !!
 !!***
 !!Reorder(4): hy_starState, Uin, hy_fl[xyz]
@@ -22,11 +46,10 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   use Hydro_data, ONLY : hy_threadWithinBlock, hy_starState, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
-       hy_flx, hy_fly, hy_flz, hy_tmpState
+       hy_flx, hy_fly, hy_flz
+  use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_data, ONLY : hy_tmpState
   use Driver_interface, ONLY : Driver_abort
-  use Grid_interface, ONLY : Grid_getCellCoords,Grid_getCellFaceAreas,&
-                             Grid_getCellVolumes,Grid_renormAbundance
-  use Grid_tile, ONLY : Grid_tile_t
   
   implicit none
 
@@ -35,16 +58,12 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 #include "Spark.h"
 
   real, pointer :: Uin(:,:,:,:)
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
+  integer,intent(IN) :: level
+  real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt, dtOld
-  real, dimension(3), intent(IN) :: coeffs,hy_del
-  integer, intent(IN) :: level
+  real, dimension(3), intent(IN) :: coeffs
 
-  integer, dimension(MDIM) :: lo, hi, loGC, hiGC
-  integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC 
- 
-!!$  real, allocatable, dimension(:) :: xCenter, xLeft, xRight, &
-!!$                                     yCenter, zCenter
 
   integer :: i,j,k,n,g
 
@@ -52,75 +71,28 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
   real, dimension(NFLUXES) :: U0, Ustar
 
-  real :: dx, dy, dz, del(MDIM)
+  real :: dx, dy, dz
   real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
   real :: flx_weight1, flx_weight2
   real :: eint, ekin, emag
   ! Geometry factors
   real :: facM, facP
-  real, dimension(NFLUXES) :: Sgeo, Sgrv, Stot
-!!$  real, allocatable, dimension(:,:,:) :: faceAreas
-!!$  real, allocatable, dimension(:,:,:) :: cellVolumes
-  integer :: isize, jsize, ksize, lev, ind
+  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
+  integer ::  ind
   real :: dhdt
 
-  lo(:) = blkLimits(LOW,:)
-  hi(:) = blkLimits(HIGH,:)
-  loGC(:) = blkLimitsGC(LOW,:)
-  hiGC(:) = blkLimitsGC(HIGH,:)  
 
-  !convenience indices
-  xLoGC = loGC(IAXIS); xHiGC = hiGC(IAXIS)
-  yLoGC = loGC(JAXIS); yHiGC = hiGC(JAXIS)
-  zLoGC = loGC(KAXIS); zHiGC = hiGC(KAXIS)
-
-  iSize = blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1
-  jSize = blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
-  kSize = blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
-
-  del=hy_del
-  dx = del(IAXIS); dy = del(JAXIS); dz = del(KAXIS)
-  dhdt = minval(del(1:NDIM))/(coeffs(3)*dt)
-
-!!$  if (hy_geometry /= CARTESIAN) then
-!!$     lev = level
-!!$     
-!!$     allocate(faceAreas(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-!!$     call Grid_getCellFaceAreas(IAXIS,lev,loGC,hiGC,faceAreas)
-!!$ 
-!!$     allocate(cellVolumes(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-!!$     call Grid_getCellVolumes(lev,loGC,hiGC,cellVolumes)
-!!$
-!!$     allocate(xCenter(xLoGC:xHiGC))
-!!$     allocate(xLeft(xLoGC:xHiGC))
-!!$     allocate(xRight(xLoGC:xHiGC))
-!!$     allocate(yCenter(yLoGC:yHiGC))
-!!$     allocate(zCenter(zLoGC:zHiGC))
-!!$
-!!$     call Grid_getCellCoords(IAXIS, CENTER, lev, loGC, hiGC, xCenter)
-!!$     call Grid_getCellCoords(IAXIS, LEFT_EDGE, lev, loGC, hiGC, xLeft)
-!!$     call Grid_getCellCoords(IAXIS, RIGHT_EDGE, lev, loGC, hiGC, xRight) 
-!!$     call Grid_getCellCoords(JAXIS, CENTER, lev, loGC, hiGC, yCenter)
-!!$     call Grid_getCellCoords(KAXIS, CENTER, lev, loGC, hiGC, zCenter)
-!!$  endif
-!!$
-!!$  if (hy_geometry /= CARTESIAN) then
-!!$    call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
-!!$  endif
-#ifdef OMP_OL
+  dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
+  dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
+  if (hy_geometry /= CARTESIAN) then
+  call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
+  endif
   !$omp target teams distribute parallel do &
   !$omp default(none) &
   !$omp private(i,j,k)&
   !$omp shared(dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
   !$omp map(to:dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
- !$omp schedule(guided) collapse(3)
-#else
-   !$omp parallel do &
-   !$omp default(none) &
-  !$omp private(i,j,k)&
-  !$omp shared(dt,limits,dtOld,coeffs,dx,dy,dz,dhdt) &
- !$omp schedule(guided) collapse(3)
-#endif
+  !$omp schedule(guided) collapse(3)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -130,109 +102,85 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   enddo !k
 
 
-! -------------------------------------- Deal with below here later ---------------------------------------------------__!
 
-#if NSPECIES+NMASS_SCALARS>0
-  !Properly normalize species after the update
-#ifdef OMP_OL
-  call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
-#endif /* OMP_OL */
-  Uin => hy_starState
-  call Grid_renormAbundance(blockDesc,blkLimitsGC,Uin)
-  nullify(Uin)
-#endif 
-
-!!$  if (hy_geometry /= CARTESIAN) then
-!!$     deallocate(xCenter)
-!!$     deallocate(xLeft)
-!!$     deallocate(xRight)
-!!$     deallocate(yCenter)
-!!$     deallocate(zCenter)
-!!$     deallocate(faceAreas)
-!!$     deallocate(cellVolumes)
-!!$  end if
 
 contains
   !!Account for multiplicative factors at each cell face to account for different 
-  !!geometries.
-!   subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V)
-!     implicit none
-!     integer, intent(IN) :: i,j,k
-!     real, intent(OUT) :: facM, facP
-!     real, dimension(NFLUXES), intent(out) :: Sgeo
-!     real, intent(IN) :: U(:)
-!     real, pointer, intent(IN) :: V(:)
+ !!geometries.
+   subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V,dx)
+     implicit none
+     integer, intent(IN) :: i,j,k
+     real, intent(OUT) :: facM, facP
+     real, dimension(NFLUXES), intent(out) :: Sgeo
+     real, intent(IN) :: U(:),dx
+     real, pointer, intent(IN) :: V(:)
+     real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
+     real    :: pmagStar, xmagStar, zmagStar
+     integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
+     integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
+     integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
+     real    :: alpha, dx_sph
+     if (hy_geometry == CARTESIAN) then
+        facM = 1.0; facP = 1.0; Sgeo = 0.0
+        return
+     endif
+     select case(hy_geometry) ! First, select whether y or z is phi-direction
+     case(CYLINDRICAL)
+        MOM_PHI = HY_ZMOM
+        MOM_PHI_FLUX = HY_ZMOM
+        MOM_ZI       = HY_YMOM
+        MOM_ZI_FLUX  = HY_YMOM
+#ifdef SPARK_GLM
+        MAG_PHI      = HY_MAGZ
+#endif
+        alpha = 1.
+     case(POLAR)
+        MOM_PHI      = HY_YMOM
+        MOM_PHI_FLUX = HY_YMOM
+        MOM_ZI       = HY_ZMOM
+        MOM_ZI_FLUX  = HY_ZMOM
+#ifdef SPARK_GLM
+        MAG_PHI      = HY_MAGY
+#endif
+        alpha = 1.
+     case(SPHERICAL)
+        MOM_PHI      = HY_ZMOM
+        MOM_PHI_FLUX = HY_ZMOM
+        MOM_THT      = HY_YMOM
+        MOM_THT_FLUX = HY_YMOM
+        dx_sph = (hy_xRight(i)**3 - hy_xLeft(i)**3) / (3.*hy_xCenter(i)**2)
+        alpha  = 2.
+     end select
+   
+     facM = hy_farea(i  ,j,k)*dx/hy_cvol(i,j,k)
+     facP = hy_farea(i+1,j,k)*dx/hy_cvol(i,j,k)
 
-!     real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
-!     real    :: pmagStar, xmagStar, zmagStar
-!     integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
-!     integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
-!     integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-!     real    :: alpha, dx_sph
+     Sgeo = 0.
+     !! Calculate geometrical source terms.  See S&O 75.
+     Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / hy_xCenter(i)!T phi,phi
+     Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / hy_xCenter(i)!T phi,r
 
-!     if (hy_geometry == CARTESIAN) then
-!        facM = 1.0; facP = 1.0; Sgeo = 0.0
-!        return
-!     endif
+#ifdef SPARK_GLM
+     ! P* is the total Pressure
+     ! This presently does not work for POLAR coordinates
+     Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ hy_xCenter(i)
+     Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / hy_xCenter(i)
 
-!     select case(hy_geometry) ! First, select whether y or z is phi-direction
-!     case(CYLINDRICAL)
-!        MOM_PHI = HY_ZMOM
-!        MOM_PHI_FLUX = HY_ZMOM
-!        MOM_ZI       = HY_YMOM
-!        MOM_ZI_FLUX  = HY_YMOM
-! #ifdef SPARK_GLM
-!        MAG_PHI      = HY_MAGZ
-! #endif
-!        alpha = 1.
-!     case(POLAR)
-!        MOM_PHI      = HY_YMOM
-!        MOM_PHI_FLUX = HY_YMOM
-!        MOM_ZI       = HY_ZMOM
-!        MOM_ZI_FLUX  = HY_ZMOM
-! #ifdef SPARK_GLM
-!        MAG_PHI      = HY_MAGY
-! #endif
-!        alpha = 1.
-!     case(SPHERICAL)
-!        MOM_PHI      = HY_ZMOM
-!        MOM_PHI_FLUX = HY_ZMOM
-!        MOM_THT      = HY_YMOM
-!        MOM_THT_FLUX = HY_YMOM
-!        dx_sph = (xRight(i)**3 - xLeft(i)**3) / (3.*xCenter(i)**2)
-!        alpha  = 2.
-!     end select
-    
-!     facM = faceAreas(i  ,j,k)*dx/cellVolumes(i,j,k)
-!     facP = faceAreas(i+1,j,k)*dx/cellVolumes(i,j,k)
+     Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / hy_xCenter(i) !O phi,r
+#endif
+     Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
 
-!     Sgeo = 0.
-!     !! Calculate geometrical source terms.  See S&O 75.
-!     Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / xCenter(i)!T phi,phi
-!     Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / xCenter(i)!T phi,r
+     if (hy_geometry == SPHERICAL) then
+        Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / hy_xCenter(i)
+        Sgeo = Sgeo*dx/dx_sph
+     endif
+     if (hy_xCenter(i) < 0.0) then
+        facM = 0.
+        facP = 0.
+        Sgeo = 0.
+     end if
+   end subroutine geoFacs
 
-! #ifdef SPARK_GLM
-!     ! P* is the total Pressure
-!     ! This presently does not work for POLAR coordinates
-!     Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ xCenter(i)
-!     Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / xCenter(i)
-
-!     Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / xCenter(i) !O phi,r
-! #endif
-!     Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
-
-!     if (hy_geometry == SPHERICAL) then
-!        Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / xCenter(i)
-!        Sgeo = Sgeo*dx/dx_sph
-!     endif
-!     if (xCenter(i) < 0.0) then
-!        facM = 0.
-!        facP = 0.
-!        Sgeo = 0.
-!     end if
-!   end subroutine geoFacs
-
-end subroutine hy_rk_updateSoln
 
   !!Calculate source terms due to gravity.
   subroutine gravSources(U,g,S)
@@ -251,8 +199,9 @@ end subroutine hy_rk_updateSoln
 
 
 subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-  use Hydro_data, only : hy_starState, hy_tmpState, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
-    hy_smalldens, hy_smallE
+  use Hydro_data, only : hy_starState, hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
+       hy_smalldens, hy_smallE
+  use Hydro_data, only : hy_tmpState
   implicit none
   integer, intent(in) :: i,j,k
   real, dimension(3), intent(IN) :: coeffs
@@ -260,7 +209,7 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
   real, intent(IN) :: dt, dtOld, dhdt
   real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
   real :: facM, facP
-  real, dimension(NFLUXES) :: Sgeo, Sgrv, Stot
+  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   real :: eint, ekin, emag
   real, pointer :: V0(:), Vstar(:)
   real, dimension(NFLUXES) :: U0, Ustar
@@ -303,18 +252,13 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
 #endif
 
   ! Get geometric factors and sources
-#ifdef OMP_OL
    facM = 1.0; facP = 1.0; Sgeo = 0.0
-#else
-   facM = 1.0; facP = 1.0; Sgeo = 0.0
-   !TODO: This needs to be put back in
-!   call geoFacs(i,j,k,facM,facP,Sgeo,Ustar,Vstar,dx)
-#endif
+   
   ! Get gravitational source terms
-  call gravSources(Ustar,hy_grav(:,i,j,k),Sgrv)
+  call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
 
   ! Sum total source terms
-  Stot = Sgeo + Sgrv
+  Stot = Sgeo + Shy_grv
 
   ! Now update conserved vector with flux gradients
   Ustar = coeffs(1)*U0 + coeffs(2)*Ustar +coeffs(3)*( &
@@ -366,3 +310,4 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
 
 end subroutine update_solution
 
+end subroutine hy_rk_updateSoln

@@ -88,15 +88,15 @@ end subroutine hy_rk_eos
 
 
 
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_eos_offloaded
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_eosed
 !!
 !!  NAME
 !!
-!!  hy_rk_eos_offloaded
+!!  hy_rk_eosed
 !!
 !!  SYNOPSIS
 !!
-!!  call hy_rk_eos_offloaded ( integer(IN) :: blockID )
+!!  call hy_rk_eosed ( integer(IN) :: blockID )
 !!
 !!  DESCRIPTION
 !!
@@ -104,7 +104,7 @@ end subroutine hy_rk_eos
 !!
 !!
 !!***
-subroutine hy_rk_eos_offloaded(limits)
+subroutine hy_rk_eosed(limits)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
   ! use Eos_interface, ONLY : Eos_putData, Eos_getData, Eos
@@ -143,18 +143,18 @@ subroutine hy_rk_eos_offloaded(limits)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-          call eos_idealGamma_offloaded(vecLen,i,j,k, eos_gammam1, eos_gasConstant, &
+          call eos_idealGammaed(vecLen,i,j,k, eos_gammam1, eos_gasConstant, &
                eos_gamma, eos_singleSpeciesA, eos_singleSpeciesZ, eos_mapLookup,eos_smalle,eos_eintSwitch)
         end do
      end do
   end do
 
 
-end subroutine hy_rk_eos_offloaded
+end subroutine hy_rk_eosed
 
 
 
-subroutine eos_idealGamma_offloaded(vecLen,i, j, k, eos_gammam1, eos_gasConstant, eos_gamma, &
+subroutine eos_idealGammaed(vecLen,i, j, k, eos_gammam1, eos_gasConstant, eos_gamma, &
      eos_singleSpeciesA, eos_singleSpeciesZ, eos_mapLookup,eos_smalle,eos_eintSwitch)
 
   !==============================================================================
@@ -274,5 +274,5 @@ subroutine eos_idealGamma_offloaded(vecLen,i, j, k, eos_gammam1, eos_gasConstant
   hy_starState(game_map,i,j,k) = hy_starState(pres_map,i,j,k)/&
     (internalEnergy *hy_starState(dens_map,i,j,k)) +1
   return
-end subroutine eos_idealGamma_offloaded
+end subroutine eos_idealGammaed
   
