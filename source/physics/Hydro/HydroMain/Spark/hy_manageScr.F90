@@ -110,45 +110,31 @@ blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   if (.not. scratch_allocated) then
   scratch_allocated = .true.
   if (.NOT. allocated(hy_uPlus)) then
-  allocate(hy_uPlus(NRECON,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_uPlus(NRECON,max_edge,max_edge_y,max_edge_z))
   hy_uPlus = 0.
   endif
   if (.NOT. allocated(hy_uMinus)) then
-  allocate(hy_uMinus(NRECON,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_uMinus(NRECON,max_edge,max_edge_y,max_edge_z))
   hy_uMinus = 0.
   endif
   if (.NOT. allocated(hy_shck)) then
-  allocate(hy_shck(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
   hy_shck = 0.
   endif
   if (.NOT. allocated(hy_snake)) then
-  allocate(hy_snake(NRECON,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_snake(NRECON,max_edge,max_edge_y,max_edge_z))
   hy_snake = 0.
   endif
   if (.NOT. allocated(hy_flat)) then
-  allocate(hy_flat(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
   hy_flat = 0.
   endif
   if (.NOT. allocated(hy_grv)) then
-  allocate(hy_grv(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_grv(max_edge,max_edge_y,max_edge_z))
   hy_grv = 0.
   endif
   if (.NOT. allocated(hy_flux)) then
-  allocate(hy_flux(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+  allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
   hy_flux = 0.
   endif
   !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
