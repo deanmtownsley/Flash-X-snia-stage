@@ -71,17 +71,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   real, pointer :: spc(:)  
   
   logical :: inShock
-  integer :: pLo,pHi !low and high indices for pencil arrays
-  integer :: xLo,yLo,zLo,xHi,yHi,zHi,xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
 
-  !convenience indices
-  xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
-  yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
-  zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
-
-  xLoGC = blkLimitsGC(LOW,IAXIS); xHiGC = blkLimitsGC(HIGH,IAXIS)
-  yLoGC = blkLimitsGC(LOW,JAXIS); yHiGC = blkLimitsGC(HIGH,JAXIS)
-  zLoGC = blkLimitsGC(LOW,KAXIS); zHiGC = blkLimitsGC(HIGH,KAXIS)
 
   !$omp target data map(to: dir, klim,hy_dlim,gCells)
   if (hy_flattening) then
