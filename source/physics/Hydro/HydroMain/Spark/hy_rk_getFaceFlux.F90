@@ -85,7 +85,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
   !$omp target data map(to: dir, klim,hy_dlim,gCells)
   if (hy_flattening) then
-     call flattening(hy_flat3d, limits)
+     call flattening(limits)
   else
      ! call Timers_start("hy_flat3d")
      !$omp target teams distribute parallel do collapse(3) &
@@ -422,15 +422,16 @@ contains
 
 
   !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
-  subroutine flattening(hy_flat3d,limits)
+  subroutine flattening(limits)
     !! This follows Miller & Colella 2002
-    use Hydro_data, ONLY : hy_starState
+    use Hydro_data, ONLY : hy_starState, hy_flat3d
     implicit none
     integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
     !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     !real :: hy_flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-    real, intent(OUT) :: hy_flat3d(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
-    real :: hy_flatTilde(NDIM,xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC)
+    real :: hy_flatTilde(NDIM,limits(LOW,IAXIS):limits(HIGH,IAXIS),&
+                              limits(LOW,JAXIS):limits(HIGH,JAXIS),&
+                              limits(LOW,KAXIS):limits(HIGH,KAXIS))
     real :: beta, Z
     real, parameter :: betaMin = 0.75, betaMax = 0.85
     real, parameter :: Zmin = 0.25, Zmax = 0.75
