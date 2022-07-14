@@ -131,6 +131,13 @@ Module Logfile_interface
       logical, optional, intent(IN)                        :: reduced
       logical, optional, intent(IN)                        :: separateFiles
     end subroutine Logfile_writeSummary
+
+    subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders,reduced,separateFiles)
+      integer, intent(in)                      :: length, dim, strLen, numHeaders
+      character(len=MAX_STRING_LENGTH), dimension(length,dim), intent(in)  :: strArr
+      logical, optional, intent(IN)                        :: reduced
+      logical, optional, intent(IN)                        :: separateFiles
+    end subroutine Logfile_writeGatherCSV
   end interface
 
 end Module Logfile_interface
