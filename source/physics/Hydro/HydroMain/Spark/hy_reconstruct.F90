@@ -1,4 +1,4 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/reconstruct
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_reconstruct
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -16,8 +16,8 @@
 !!
 !!***
 
-!subroutine reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
-  subroutine reconstruct(i1,i2,i3,v)
+!subroutine hy_reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
+  subroutine hy_reconstruct(i1,i2,i3,v)
   use hydro_data, only : hy_uPlus, hy_uMinus, hy_snake, hy_flat
   implicit none
   
@@ -117,6 +117,6 @@
   end if
   
   
-end  subroutine reconstruct
+end  subroutine hy_reconstruct
 
 

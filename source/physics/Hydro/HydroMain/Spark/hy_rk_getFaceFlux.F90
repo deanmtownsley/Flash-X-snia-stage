@@ -24,7 +24,7 @@
 !!
 !!  DESCRIPTION
 !!  Initially stores grid data by 'pencils' (see subroutine setPencil() below),
-!!  calls outside reconstruction subroutine, calls outisde Riemann solver, and 
+!!  calls outside hy_reconstruction subroutine, calls outisde Riemann solver, and 
 !!  ultimately yields face fluxes for relevant directions.  These fluxes are lastly 
 !!  saved to the grid multifabs (AMReX) for later access.
 !!
@@ -259,7 +259,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
                do v=1,NRECON
-               call reconstruct(i1,i2,i3,v)
+               call hy_reconstruct(i1,i2,i3,v)
                enddo
            end do
            end do
@@ -318,7 +318,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-           call riemann(i1,i2,i3,dir)
+           call hy_riemann(i1,i2,i3,dir)
            end do
            end do
            end do
@@ -353,7 +353,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            ,        hy_snake(HY_PSIB,i1-1,i2,i3)                 - hy_snake(HY_PSIB,i1,i2,i3)/)
 #endif
            ! Here, we compute the species and mass scalar
-           ! fluxes based on the density flux and the reconstructed
+           ! fluxes based on the density flux and the hy_reconstructed
            ! mass scalar interface values
            
            leftState => hy_uPlus
@@ -501,11 +501,6 @@ contains
   end subroutine flattening
 
 end subroutine hy_rk_getFaceFlux
-
-#include "riemann.F90"
-#include "reconstruct.F90"
-#include "prim2con.F90"
-#include "prim2flx.F90"
 
 real function minmod(a,b)
   implicit none

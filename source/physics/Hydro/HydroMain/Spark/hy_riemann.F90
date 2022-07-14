@@ -1,4 +1,4 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/riemann
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_riemann
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -39,7 +39,7 @@
 !!***
 !!! A note: the speed dummy var seems to be unused. Might be deleted?
 
-subroutine riemann (i1,i2,i3,dir)
+subroutine hy_riemann (i1,i2,i3,dir)
 
   use Driver_interface, ONLY : Driver_abort
   use Hydro_data,       ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
@@ -299,5 +299,5 @@ subroutine riemann (i1,i2,i3,dir)
   Fstar(HY_FPSI) = hy_C_hyp*hy_C_hyp*Bn_glm
 #endif
 
-end Subroutine riemann
+end Subroutine hy_riemann
 
