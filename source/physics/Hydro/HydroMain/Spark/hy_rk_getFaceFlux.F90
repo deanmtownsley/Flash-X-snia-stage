@@ -69,9 +69,10 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
   integer :: s	 
   real :: spcSumInv
-  real, pointer :: spc(:)  
+  real, pointer :: spc(:)
   
   logical :: inShock
+  real, dimension(HY_NUM_VARS) :: VL, VR
 
 
   !$omp target data map(to: dir, klim,hy_dlim,gCells)
@@ -308,14 +309,17 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            !$omp private(i1,i2,i3) shared(dir,klim,hy_flux) default(none)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
-           do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-           call hy_riemann(i1,i2,i3,dir)
-           end do
+              do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)
+                   VL = hy_uPlus(1:HY_NUM_VARS,i1-1,i2,i3)
+                   VR = hy_uMinus(1:HY_NUM_VARS,i1,i2,i3)
+                   inShock = any(hy_shck(i1-1:i1,i2,i3) /= 0.0)
+                   call hy_riemann(dir,VL,VR,inShock,hy_flux(1:HY_NUM_FLUX,i1,i2,i3))
+                end do
            end do
            end do
            
            !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3,cvisc,venerLo,venerHi) shared(hy_cvisc,hy_rope,dir,klim,hy_flux) default(none)
+           !$omp private(i1,i2,i3,cvisc,venerLo,venerHies) shared(hy_cvisc,hy_rope,dir,klim,hy_flux) default(none)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      

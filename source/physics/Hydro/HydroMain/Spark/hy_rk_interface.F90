@@ -25,6 +25,7 @@ module hy_rk_interface
 
 #include "Simulation.h"
 #include "constants.h"
+#include "Spark.h"
 
   interface
      subroutine  hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
@@ -69,5 +70,13 @@ module hy_rk_interface
        real,intent(OUT), dimension(:,:,:,:) :: hy_uMinus, hy_uPlus
      end subroutine hy_reconstruct
   end interface
-  
+
+  interface
+     subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
+       real, dimension(HY_NUM_VARS),intent(IN) :: VL, VR
+       logical,intent(IN) :: inShock
+       integer,intent(IN) :: dir
+       real, intent(INOUT) :: Fstar(HY_NUM_FLUX)
+     end subroutine hy_riemann
+  end interface
 end module hy_rk_interface

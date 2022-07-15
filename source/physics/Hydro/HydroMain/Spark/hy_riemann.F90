@@ -39,11 +39,11 @@
 !!***
 !!! A note: the speed dummy var seems to be unused. Might be deleted?
 
-subroutine hy_riemann (i1,i2,i3,dir)
+subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
 
   use Driver_interface, ONLY : Driver_abort
   use Hydro_data,       ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
-  use Hydro_data, only: hy_uPlus, hy_uMinus, hy_flux,hy_shck
+
   use Hydro_data, ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
   implicit none
 
@@ -53,11 +53,12 @@ subroutine hy_riemann (i1,i2,i3,dir)
 
   !! Arguments type declaration -----------
   !! Arguments type declaration -----------
-  real, dimension(HY_NUM_VARS) :: VL, VR
-  logical :: inShock
-  real, pointer:: Fstar(:)
+  real, dimension(HY_NUM_VARS),intent(IN) :: VL, VR
+  logical,intent(IN) :: inShock
+  integer,intent(IN) :: dir
+  real, intent(INOUT):: Fstar(HY_NUM_FLUX)
   real:: speed
-  integer :: ierr, i1,i2,i3
+  integer :: ierr
   !! --------------------------------------
   
   real :: SL,SR,cfL,cfR,aL2,aR2,velNL,velNR
@@ -68,13 +69,10 @@ subroutine hy_riemann (i1,i2,i3,dir)
   real, dimension(HY_NUM_FLUX) :: FL,FR
   real :: magBL2,magBR2,magNL,magNR
   real :: Bn_glm, Psi_glm, u2, B2, E, Ptot, UB
-  integer :: dir
+
   ! Check for shocks in the zones involved in flux calculation
  
-  VL = hy_uPlus(1:HY_NUM_VARS,i1-1,i2,i3)
-  VR = hy_uMinus(1:HY_NUM_VARS,i1,i2,i3)
-  inShock = any(hy_shck(i1-1:i1,i2,i3) /= 0.0)
-  Fstar => hy_flux(1:HY_NUM_FLUX,i1,i2,i3)
+  
   
   ! Set no error to begin with
   ierr = 0
