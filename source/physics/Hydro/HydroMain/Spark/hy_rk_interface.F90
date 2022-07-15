@@ -62,4 +62,12 @@ module hy_rk_interface
      end subroutine hy_rk_correctFluxes
   end interface
 
+  interface
+     subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
+       integer, intent(IN) :: i1,i2,i3,v
+       real,intent(IN) :: hy_rope(:,:,:,:), hy_flat(:,:,:)
+       real,intent(OUT), dimension(:,:,:,:) :: hy_uMinus, hy_uPlus
+     end subroutine hy_reconstruct
+  end interface
+  
 end module hy_rk_interface

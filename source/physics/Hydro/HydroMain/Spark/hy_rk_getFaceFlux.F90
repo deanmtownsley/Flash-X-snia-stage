@@ -48,7 +48,8 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc
   use Hydro_data, ONLY : hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_grv, hy_shck, hy_flux, &
   hy_flat3d
-  use Hydro_data, ONLY : hy_del, hy_dlim 
+  use Hydro_data, ONLY : hy_del, hy_dlim
+  use hy_rk_interface, ONLY : hy_reconstruct
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
   implicit none
@@ -249,7 +250,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
                do v=1,NRECON
-               call hy_reconstruct(i1,i2,i3,v)
+               call hy_reconstruct(i1,i2,i3,v, hy_rope,hy_uPlus, hy_uMinus, hy_flat)
                enddo
            end do
            end do

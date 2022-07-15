@@ -16,15 +16,16 @@
 !!
 !!***
 
-!subroutine hy_reconstruct(hy_uPlus, hy_uMinus, hy_rope, hy_flat, size1d, ind, dx)
-  subroutine hy_reconstruct(i1,i2,i3,v)
-  use hydro_data, only : hy_uPlus, hy_uMinus, hy_rope, hy_flat
-  implicit none
-  
+subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
 #include "Simulation.h"
 #include "Spark.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
+  
+  implicit none
+  
   integer, intent(IN) :: i1,i2,i3,v
+  real,intent(IN) :: hy_rope(:,:,:,:), hy_flat(:,:,:)
+  real,intent(OUT), dimension(:,:,:,:) :: hy_uMinus, hy_uPlus
   real :: invSumAlpha
   real, dimension(NRECON,3) :: W5p, W5m, betaWeno, Alpha5, omega
   integer :: g
