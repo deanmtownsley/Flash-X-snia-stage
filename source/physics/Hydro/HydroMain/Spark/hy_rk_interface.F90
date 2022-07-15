@@ -64,10 +64,11 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
-       integer, intent(IN) :: i1,i2,i3,v
-       real,intent(IN) :: hy_rope(:,:,:,:), hy_flat(:,:,:)
-       real,intent(OUT), dimension(:,:,:,:) :: hy_uMinus, hy_uPlus
+     subroutine hy_reconstruct(v,rope, uPlus, uMinus, flat)
+       integer,intent(IN) :: v
+       real,intent(IN) :: rope(5)
+       real,intent(IN) :: flat
+       real,intent(OUT) :: uMinus, uPlus
      end subroutine hy_reconstruct
   end interface
 

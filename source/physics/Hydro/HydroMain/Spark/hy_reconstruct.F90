@@ -16,16 +16,17 @@
 !!
 !!***
 
-subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
+subroutine hy_reconstruct(v, rope, uPlus, uMinus,flat)
 #include "Simulation.h"
 #include "Spark.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
   
   implicit none
-  
-  integer, intent(IN) :: i1,i2,i3,v
-  real,intent(IN) :: hy_rope(:,:,:,:), hy_flat(:,:,:)
-  real,intent(OUT), dimension(:,:,:,:) :: hy_uMinus, hy_uPlus
+  integer, intent(IN) :: v
+  real,intent(IN) :: rope(5)
+  real,intent(IN) :: flat
+  real, intent(OUT) :: uPlus,uMinus
+
   real :: invSumAlpha
   real, dimension(NRECON,3) :: W5p, W5m, betaWeno, Alpha5, omega
   integer :: g
@@ -50,26 +51,29 @@ subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
   
   real, parameter :: epsilon = 1.e-36
   real, parameter :: n13o12 = 13./12.
+
   
-   
+  
+
+
   ! Interpolation stencil for weno
   !! Calculate interface values at i+1/2
-  W5p(v,1) = coeff1p1(1)*hy_rope(v,i1-2,i2,i3) + coeff1p1(2)*hy_rope(v,i1-1,i2,i3) + coeff1p1(3)*hy_rope(v,i1+0,i2,i3)
-  W5p(v,2) = coeff1p2(1)*hy_rope(v,i1-1,i2,i3) + coeff1p2(2)*hy_rope(v,i1+0,i2,i3)   + coeff1p2(3)*hy_rope(v,i1+1,i2,i3)
-  W5p(v,3) = coeff1p3(1)*hy_rope(v,i1+0,i2,i3)   + coeff1p3(2)*hy_rope(v,i1+1,i2,i3) + coeff1p3(3)*hy_rope(v,i1+2,i2,i3)
+  W5p(v,1) = coeff1p1(1)*rope(1) + coeff1p1(2)*rope(2) + coeff1p1(3)*rope(3)
+  W5p(v,2) = coeff1p2(1)*rope(2) + coeff1p2(2)*rope(3)   + coeff1p2(3)*rope(4)
+  W5p(v,3) = coeff1p3(1)*rope(3)   + coeff1p3(2)*rope(4) + coeff1p3(3)*rope(5)
   
   !! Calculate interface values at i-1/2
-  W5m(v,1) = coeff1m1(1)*hy_rope(v,i1-2,i2,i3) + coeff1m1(2)*hy_rope(v,i1-1,i2,i3) + coeff1m1(3)*hy_rope(v,i1+0,i2,i3)
-  W5m(v,2) = coeff1m2(1)*hy_rope(v,i1-1,i2,i3) + coeff1m2(2)*hy_rope(v,i1+0,i2,i3)   + coeff1m2(3)*hy_rope(v,i1+1,i2,i3)
-  W5m(v,3) = coeff1m3(1)*hy_rope(v,i1+0,i2,i3)   + coeff1m3(2)*hy_rope(v,i1+1,i2,i3) + coeff1m3(3)*hy_rope(v,i1+2,i2,i3)
+  W5m(v,1) = coeff1m1(1)*rope(1) + coeff1m1(2)*rope(2) + coeff1m1(3)*rope(3)
+  W5m(v,2) = coeff1m2(1)*rope(2) + coeff1m2(2)*rope(3)   + coeff1m2(3)*rope(4)
+  W5m(v,3) = coeff1m3(1)*rope(3)   + coeff1m3(2)*rope(4) + coeff1m3(3)*rope(5)
   
   !! Calculate smoothness indicators at i+1/2
-  betaWeno(v,1) = n13o12*(hy_rope(v,i1-2,i2,i3) - 2.*hy_rope(v,i1-1,i2,i3) +    hy_rope(v,i1+0,i2,i3)  )**2 &
-       +            0.25*(hy_rope(v,i1-2,i2,i3) - 4.*hy_rope(v,i1-1,i2,i3) + 3.*hy_rope(v,i1,i2,i3)  )**2
-  betaWeno(v,2) = n13o12*(hy_rope(v,i1-1,i2,i3) - 2.*hy_rope(v,i1,i2,i3)   +    hy_rope(v,i1+1,i2,i3))**2 &
-       +            0.25*(hy_rope(v,i1-1,i2,i3)                      -    hy_rope(v,i1+1,i2,i3))**2
-  betaWeno(v,3) = n13o12*(hy_rope(v,i1,i2,i3)   - 2.*hy_rope(v,i1+1,i2,i3) +    hy_rope(v,i1+2,i2,i3))**2 &
-       +            0.25*(3.*hy_rope(v,i1,i2,i3)- 4.*hy_rope(v,i1+1,i2,i3) +    hy_rope(v,i1+2,i2,i3))**2
+  betaWeno(v,1) = n13o12*(rope(1) - 2.*rope(2) +    rope(3)  )**2 &
+       +            0.25*(rope(1) - 4.*rope(2) + 3.*rope(3)  )**2
+  betaWeno(v,2) = n13o12*(rope(2) - 2.*rope(3)   +    rope(4))**2 &
+       +            0.25*(rope(2)                      -    rope(4))**2
+  betaWeno(v,3) = n13o12*(rope(3)   - 2.*rope(4) +    rope(5))**2 &
+       +            0.25*(3.*rope(3)- 4.*rope(4) +    rope(5))**2
   
   !! Use problem-adaptive epsilong as in Tchekovskoy7, A3
   ! This does not seem to work with the WENO-Z indicators of Borges+08
@@ -91,9 +95,9 @@ subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
   omega(v,3)  = Alpha5(v,3)*invSumAlpha
   
   !! Compute interface value at i+1/2
-  hy_uPlus(v ,i1,i2,i3)  = omega(v,1)*W5p(v,1) + omega(v,2)*W5p(v,2) + omega(v,3)*W5p(v,3)
+  uPlus  = omega(v,1)*W5p(v,1) + omega(v,2)*W5p(v,2) + omega(v,3)*W5p(v,3)
   !! Apply hy_flattening
-  hy_uPlus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uPlus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_rope(v,i1 ,i2,i3)
+  uPlus = flat*uPlus + (1.-flat)*rope(3)
   
   !! Now move on to i-1/2
   !! This is WENO-Z
@@ -108,15 +112,14 @@ subroutine hy_reconstruct(i1,i2,i3,v,hy_rope,hy_uPlus, hy_uMinus, hy_flat)
   omega(v,3)  = Alpha5(v,3)*invSumAlpha
   
   !! Compute interface value at i-1/2
-  hy_uMinus(v ,i1,i2,i3) = omega(v,1)*W5m(v,1) + omega(v,2)*W5m(v,2) + omega(v,3)*W5m(v,3)
+  uMinus = omega(v,1)*W5m(v,1) + omega(v,2)*W5m(v,2) + omega(v,3)*W5m(v,3)
   !! Apply hy_flattening
-  hy_uMinus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uMinus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_rope(v, i1 ,i2,i3)
+  uMinus = flat*uMinus + (1.-flat)*rope(3)
   !! Check for monotonicity
-  if ( (hy_uPlus(v ,i1,i2,i3)-hy_rope(v, i1 ,i2,i3))*(hy_rope(v, i1 ,i2,i3)-hy_uMinus(v ,i1,i2,i3)) <= 0. ) then
-     hy_uPlus(v ,i1,i2,i3)  = hy_rope(v, i1 ,i2,i3)
-     hy_uMinus(v ,i1,i2,i3) = hy_rope(v, i1 ,i2,i3)
+  if ( (uPlus-rope(3))*(rope(3)-uMinus) <= 0. ) then
+     uPlus  = rope(3)
+     uMinus = rope(3)
   end if
-  
   
 end  subroutine hy_reconstruct
 

@@ -73,7 +73,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   
   logical :: inShock
   real, dimension(HY_NUM_VARS) :: VL, VR
-
+  real :: rope(5)
 
   !$omp target data map(to: dir, klim,hy_dlim,gCells)
   if (hy_flattening) then
@@ -250,8 +250,9 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-               do v=1,NRECON
-               call hy_reconstruct(i1,i2,i3,v, hy_rope,hy_uPlus, hy_uMinus, hy_flat)
+              do v=1,NRECON
+               call hy_reconstruct(v, hy_rope(v,i1-2:i1+2,i2,i3),hy_uPlus(v,i1,i2,i3),&
+                    & hy_uMinus(v,i1,i2,i3), hy_flat(i1,i2,i3))
                enddo
            end do
            end do
