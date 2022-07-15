@@ -44,7 +44,6 @@ subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
   use Driver_interface, ONLY : Driver_abort
   use Hydro_data,       ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
 
-  use Hydro_data, ONLY : hy_tiny, hy_hybridRiemann, hy_C_hyp
   implicit none
 
 #include "constants.h"
