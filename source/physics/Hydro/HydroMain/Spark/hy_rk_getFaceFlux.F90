@@ -46,7 +46,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_starState, hy_grav, hy_flattening, hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY : hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc
-  use Hydro_data, ONLY : hy_snake, hy_uPlus, hy_uMinus, hy_flat, hy_grv, hy_shck, hy_flux, &
+  use Hydro_data, ONLY : hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_grv, hy_shck, hy_flux, &
   hy_flat3d
   use Hydro_data, ONLY : hy_del, hy_dlim 
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -129,7 +129,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            klim(HIGH,1)=klim(HIGH,1)+1
            !$omp target update to(klim, dir, hy_dlim,gCells)
            !$omp target teams distribute parallel do collapse(3) default(none) &
-           !$omp shared(dir,hy_starState,hy_snake,hy_grv,hy_grav,hy_shck,hy_flat,&
+           !$omp shared(dir,hy_starState,hy_rope,hy_grv,hy_grav,hy_shck,hy_flat,&
            !$omp hy_flat3d,klim,gCells,hy_dlim) private(i,j,k,n,i_s, j_s, k_s)
            do k = hy_dlim(LOW,3) - gCells(3), hy_dlim(HIGH,3) + gCells(3)
            do j = hy_dlim(LOW,2) - gCells(2), hy_dlim(HIGH,2) + gCells(2)
@@ -138,22 +138,22 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            j_s = 1 + j - hy_dlim(LOW,2) + gCells(2)
            k_s = 1 + k - hy_dlim(LOW,3) + gCells(3)
            if (dir == IAXIS) then
-              hy_snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
-              hy_snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
-              hy_snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
-              hy_snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
-              hy_snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
-              hy_snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
-              hy_snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
+              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
+              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
+              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
+              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
+              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
+              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
+              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
 #ifdef SPARK_GLM
-              hy_snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
-              hy_snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
-              hy_snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
-              hy_snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
+              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
+              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
+              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
+              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
               do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
+              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
               enddo
 #endif
 #ifdef GRAVITY
@@ -170,22 +170,22 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 #endif
               hy_flat(i_s,j_s,k_s) = hy_flat3d(i,j,k)
            else if (dir == JAXIS) then
-              hy_snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
-              hy_snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
-              hy_snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
-              hy_snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
-              hy_snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
-              hy_snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
-              hy_snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
+              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
+              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
+              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
+              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
+              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
+              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
+              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
 #ifdef SPARK_GLM
-              hy_snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
-              hy_snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
-              hy_snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
-              hy_snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
+              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
+              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
+              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
+              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
               do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
+              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
               enddo
 #endif
 #ifdef GRAVITY
@@ -202,22 +202,22 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 #endif
               hy_flat(i_s,j_s,k_s) = hy_flat3d(j,i,k)
            else if (dir == KAXIS) then
-              hy_snake(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
-              hy_snake(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
-              hy_snake(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
-              hy_snake(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
-              hy_snake(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
-              hy_snake(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
-              hy_snake(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
+              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
+              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
+              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
+              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
+              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
+              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
+              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
 #ifdef SPARK_GLM
-              hy_snake(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
-              hy_snake(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
-              hy_snake(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
-              hy_snake(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
+              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
+              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
+              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
+              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
               do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_snake(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
+              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
               enddo
 #endif
 #ifdef GRAVITY
@@ -244,7 +244,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            ! call Timers_start("recon"//dir_str)
            
            !$omp target teams distribute parallel do collapse(4) &
-           !$omp  private(i1,i2,i3,v) shared(klim,hy_uPlus, hy_uMinus, hy_snake, hy_flat) default(none)
+           !$omp  private(i1,i2,i3,v) shared(klim,hy_uPlus, hy_uMinus, hy_rope, hy_flat) default(none)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
@@ -314,33 +314,33 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
            end do
            
            !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3,cvisc,venerLo,venerHi) shared(hy_cvisc,hy_snake,dir,klim,hy_flux) default(none)
+           !$omp private(i1,i2,i3,cvisc,venerLo,venerHi) shared(hy_cvisc,hy_rope,dir,klim,hy_flux) default(none)
            do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
            do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
            ! Add artificial viscosity for strong-shock capturing
-           cvisc = hy_cvisc*max(-(hy_snake(HY_VELX+dir-1,i1,i2,i3) - hy_snake(HY_VELX+dir-1,i1-1,i2,i3)),0.)
+           cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i1,i2,i3) - hy_rope(HY_VELX+dir-1,i1-1,i2,i3)),0.)
            
            ! Construct minus and plus TOTAL energy densities
-           VenerLo = hy_snake(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(hy_snake(HY_VELX:HY_VELZ,i1-1,i2,i3),hy_snake(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
-           + hy_snake(HY_RHOE,i1-1,i2,i3)
-           VenerHi = hy_snake(HY_DENS,i1,i2,i3)*0.5*(dot_product(hy_snake(HY_VELX:HY_VELZ,i1,i2,i3),hy_snake(HY_VELX:HY_VELZ,i1,i2,i3)))&
-           + hy_snake(HY_RHOE,i1,i2,i3)
+           VenerLo = hy_rope(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
+           + hy_rope(HY_RHOE,i1-1,i2,i3)
+           VenerHi = hy_rope(HY_DENS,i1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1,i2,i3)))&
+           + hy_rope(HY_RHOE,i1,i2,i3)
            
            hy_flux(HY_MASS:HY_ENER,i1,i2,i3) = &
            hy_flux(HY_MASS:HY_ENER,i1,i2,i3) &
-           +cvisc*(/hy_snake(HY_DENS,i1-1,i2,i3)                 - hy_snake(HY_DENS,i1,i2,i3)&
-           ,        hy_snake(HY_DENS,i1-1,i2,i3)*hy_snake(HY_VELX,i1-1,i2,i3) - hy_snake(HY_DENS,i1,i2,i3)*hy_snake(HY_VELX,i1,i2,i3)&
-           ,        hy_snake(HY_DENS,i1-1,i2,i3)*hy_snake(HY_VELY,i1-1,i2,i3) - hy_snake(HY_DENS,i1,i2,i3)*hy_snake(HY_VELY,i1,i2,i3)&
-           ,        hy_snake(HY_DENS,i1-1,i2,i3)*hy_snake(HY_VELZ,i1-1,i2,i3) - hy_snake(HY_DENS,i1,i2,i3)*hy_snake(HY_VELZ,i1,i2,i3)&
+           +cvisc*(/hy_rope(HY_DENS,i1-1,i2,i3)                 - hy_rope(HY_DENS,i1,i2,i3)&
+           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELX,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELX,i1,i2,i3)&
+           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELY,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELY,i1,i2,i3)&
+           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELZ,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELZ,i1,i2,i3)&
            ,        VenerLo                         - VenerHi/)
 #ifdef SPARK_GLM
            hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) = &
            hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) &
-           +cvisc*(/hy_snake(HY_MAGX,i1-1,i2,i3)                 - hy_snake(HY_MAGX,i1,i2,i3)&
-           ,        hy_snake(HY_MAGY,i1-1,i2,i3)                 - hy_snake(HY_MAGY,i1,i2,i3)&
-           ,        hy_snake(HY_MAGZ,i1-1,i2,i3)                 - hy_snake(HY_MAGZ,i1,i2,i3)&
-           ,        hy_snake(HY_PSIB,i1-1,i2,i3)                 - hy_snake(HY_PSIB,i1,i2,i3)/)
+           +cvisc*(/hy_rope(HY_MAGX,i1-1,i2,i3)                 - hy_rope(HY_MAGX,i1,i2,i3)&
+           ,        hy_rope(HY_MAGY,i1-1,i2,i3)                 - hy_rope(HY_MAGY,i1,i2,i3)&
+           ,        hy_rope(HY_MAGZ,i1-1,i2,i3)                 - hy_rope(HY_MAGZ,i1,i2,i3)&
+           ,        hy_rope(HY_PSIB,i1-1,i2,i3)                 - hy_rope(HY_PSIB,i1,i2,i3)/)
 #endif
            ! Here, we compute the species and mass scalar
            ! fluxes based on the density flux and the hy_reconstructed

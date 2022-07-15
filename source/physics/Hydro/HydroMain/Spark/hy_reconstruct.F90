@@ -16,9 +16,9 @@
 !!
 !!***
 
-!subroutine hy_reconstruct(hy_uPlus, hy_uMinus, hy_snake, hy_flat, size1d, ind, dx)
+!subroutine hy_reconstruct(hy_uPlus, hy_uMinus, hy_rope, hy_flat, size1d, ind, dx)
   subroutine hy_reconstruct(i1,i2,i3,v)
-  use hydro_data, only : hy_uPlus, hy_uMinus, hy_snake, hy_flat
+  use hydro_data, only : hy_uPlus, hy_uMinus, hy_rope, hy_flat
   implicit none
   
 #include "Simulation.h"
@@ -53,27 +53,27 @@
    
   ! Interpolation stencil for weno
   !! Calculate interface values at i+1/2
-  W5p(v,1) = coeff1p1(1)*hy_snake(v,i1-2,i2,i3) + coeff1p1(2)*hy_snake(v,i1-1,i2,i3) + coeff1p1(3)*hy_snake(v,i1+0,i2,i3)
-  W5p(v,2) = coeff1p2(1)*hy_snake(v,i1-1,i2,i3) + coeff1p2(2)*hy_snake(v,i1+0,i2,i3)   + coeff1p2(3)*hy_snake(v,i1+1,i2,i3)
-  W5p(v,3) = coeff1p3(1)*hy_snake(v,i1+0,i2,i3)   + coeff1p3(2)*hy_snake(v,i1+1,i2,i3) + coeff1p3(3)*hy_snake(v,i1+2,i2,i3)
+  W5p(v,1) = coeff1p1(1)*hy_rope(v,i1-2,i2,i3) + coeff1p1(2)*hy_rope(v,i1-1,i2,i3) + coeff1p1(3)*hy_rope(v,i1+0,i2,i3)
+  W5p(v,2) = coeff1p2(1)*hy_rope(v,i1-1,i2,i3) + coeff1p2(2)*hy_rope(v,i1+0,i2,i3)   + coeff1p2(3)*hy_rope(v,i1+1,i2,i3)
+  W5p(v,3) = coeff1p3(1)*hy_rope(v,i1+0,i2,i3)   + coeff1p3(2)*hy_rope(v,i1+1,i2,i3) + coeff1p3(3)*hy_rope(v,i1+2,i2,i3)
   
   !! Calculate interface values at i-1/2
-  W5m(v,1) = coeff1m1(1)*hy_snake(v,i1-2,i2,i3) + coeff1m1(2)*hy_snake(v,i1-1,i2,i3) + coeff1m1(3)*hy_snake(v,i1+0,i2,i3)
-  W5m(v,2) = coeff1m2(1)*hy_snake(v,i1-1,i2,i3) + coeff1m2(2)*hy_snake(v,i1+0,i2,i3)   + coeff1m2(3)*hy_snake(v,i1+1,i2,i3)
-  W5m(v,3) = coeff1m3(1)*hy_snake(v,i1+0,i2,i3)   + coeff1m3(2)*hy_snake(v,i1+1,i2,i3) + coeff1m3(3)*hy_snake(v,i1+2,i2,i3)
+  W5m(v,1) = coeff1m1(1)*hy_rope(v,i1-2,i2,i3) + coeff1m1(2)*hy_rope(v,i1-1,i2,i3) + coeff1m1(3)*hy_rope(v,i1+0,i2,i3)
+  W5m(v,2) = coeff1m2(1)*hy_rope(v,i1-1,i2,i3) + coeff1m2(2)*hy_rope(v,i1+0,i2,i3)   + coeff1m2(3)*hy_rope(v,i1+1,i2,i3)
+  W5m(v,3) = coeff1m3(1)*hy_rope(v,i1+0,i2,i3)   + coeff1m3(2)*hy_rope(v,i1+1,i2,i3) + coeff1m3(3)*hy_rope(v,i1+2,i2,i3)
   
   !! Calculate smoothness indicators at i+1/2
-  betaWeno(v,1) = n13o12*(hy_snake(v,i1-2,i2,i3) - 2.*hy_snake(v,i1-1,i2,i3) +    hy_snake(v,i1+0,i2,i3)  )**2 &
-       +            0.25*(hy_snake(v,i1-2,i2,i3) - 4.*hy_snake(v,i1-1,i2,i3) + 3.*hy_snake(v,i1,i2,i3)  )**2
-  betaWeno(v,2) = n13o12*(hy_snake(v,i1-1,i2,i3) - 2.*hy_snake(v,i1,i2,i3)   +    hy_snake(v,i1+1,i2,i3))**2 &
-       +            0.25*(hy_snake(v,i1-1,i2,i3)                      -    hy_snake(v,i1+1,i2,i3))**2
-  betaWeno(v,3) = n13o12*(hy_snake(v,i1,i2,i3)   - 2.*hy_snake(v,i1+1,i2,i3) +    hy_snake(v,i1+2,i2,i3))**2 &
-       +            0.25*(3.*hy_snake(v,i1,i2,i3)- 4.*hy_snake(v,i1+1,i2,i3) +    hy_snake(v,i1+2,i2,i3))**2
+  betaWeno(v,1) = n13o12*(hy_rope(v,i1-2,i2,i3) - 2.*hy_rope(v,i1-1,i2,i3) +    hy_rope(v,i1+0,i2,i3)  )**2 &
+       +            0.25*(hy_rope(v,i1-2,i2,i3) - 4.*hy_rope(v,i1-1,i2,i3) + 3.*hy_rope(v,i1,i2,i3)  )**2
+  betaWeno(v,2) = n13o12*(hy_rope(v,i1-1,i2,i3) - 2.*hy_rope(v,i1,i2,i3)   +    hy_rope(v,i1+1,i2,i3))**2 &
+       +            0.25*(hy_rope(v,i1-1,i2,i3)                      -    hy_rope(v,i1+1,i2,i3))**2
+  betaWeno(v,3) = n13o12*(hy_rope(v,i1,i2,i3)   - 2.*hy_rope(v,i1+1,i2,i3) +    hy_rope(v,i1+2,i2,i3))**2 &
+       +            0.25*(3.*hy_rope(v,i1,i2,i3)- 4.*hy_rope(v,i1+1,i2,i3) +    hy_rope(v,i1+2,i2,i3))**2
   
   !! Use problem-adaptive epsilong as in Tchekovskoy7, A3
   ! This does not seem to work with the WENO-Z indicators of Borges+08
-  ! mags(v) = hy_snake(@M ind_m(2))**2 + hy_snake(@M ind_m(1))**2 + hy_snake(@M ind_p(0))**2 &
-  !      + hy_snake(@M ind_p(1))**2 + hy_snake(@M ind_p(2))**2
+  ! mags(v) = hy_rope(@M ind_m(2))**2 + hy_rope(@M ind_m(1))**2 + hy_rope(@M ind_p(0))**2 &
+  !      + hy_rope(@M ind_p(1))**2 + hy_rope(@M ind_p(2))**2
   ! betaWeno(v,1) = betaWeno(v,1) + epsilon*mags(v) + TINY(1.0)
   ! betaWeno(v,2) = betaWeno(v,2) + epsilon*mags(v) + TINY(1.0)
   ! betaWeno(v,3) = betaWeno(v,3) + epsilon*mags(v) + TINY(1.0)
@@ -92,7 +92,7 @@
   !! Compute interface value at i+1/2
   hy_uPlus(v ,i1,i2,i3)  = omega(v,1)*W5p(v,1) + omega(v,2)*W5p(v,2) + omega(v,3)*W5p(v,3)
   !! Apply hy_flattening
-  hy_uPlus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uPlus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_snake(v,i1 ,i2,i3)
+  hy_uPlus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uPlus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_rope(v,i1 ,i2,i3)
   
   !! Now move on to i-1/2
   !! This is WENO-Z
@@ -109,11 +109,11 @@
   !! Compute interface value at i-1/2
   hy_uMinus(v ,i1,i2,i3) = omega(v,1)*W5m(v,1) + omega(v,2)*W5m(v,2) + omega(v,3)*W5m(v,3)
   !! Apply hy_flattening
-  hy_uMinus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uMinus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_snake(v, i1 ,i2,i3)
+  hy_uMinus(v ,i1,i2,i3) = hy_flat(i1,i2,i3)*hy_uMinus(v ,i1,i2,i3) + (1.-hy_flat(i1,i2,i3))*hy_rope(v, i1 ,i2,i3)
   !! Check for monotonicity
-  if ( (hy_uPlus(v ,i1,i2,i3)-hy_snake(v, i1 ,i2,i3))*(hy_snake(v, i1 ,i2,i3)-hy_uMinus(v ,i1,i2,i3)) <= 0. ) then
-     hy_uPlus(v ,i1,i2,i3)  = hy_snake(v, i1 ,i2,i3)
-     hy_uMinus(v ,i1,i2,i3) = hy_snake(v, i1 ,i2,i3)
+  if ( (hy_uPlus(v ,i1,i2,i3)-hy_rope(v, i1 ,i2,i3))*(hy_rope(v, i1 ,i2,i3)-hy_uMinus(v ,i1,i2,i3)) <= 0. ) then
+     hy_uPlus(v ,i1,i2,i3)  = hy_rope(v, i1 ,i2,i3)
+     hy_uMinus(v ,i1,i2,i3) = hy_rope(v, i1 ,i2,i3)
   end if
   
   

@@ -35,7 +35,7 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
        hy_alphaGLM,hy_Vc,scratch_allocated
   use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
+       hy_shck, hy_rope, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   
@@ -121,9 +121,9 @@ blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
   hy_shck = 0.
   endif
-  if (.NOT. allocated(hy_snake)) then
-  allocate(hy_snake(NRECON,max_edge,max_edge_y,max_edge_z))
-  hy_snake = 0.
+  if (.NOT. allocated(hy_rope)) then
+  allocate(hy_rope(NRECON,max_edge,max_edge_y,max_edge_z))
+  hy_rope = 0.
   endif
   if (.NOT. allocated(hy_flat)) then
   allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
@@ -137,7 +137,7 @@ blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
   hy_flux = 0.
   endif
-  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
+  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
   endif
 
   call allocate_fxscr(blkLimits,blkLimitsGC)

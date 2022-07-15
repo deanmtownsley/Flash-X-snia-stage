@@ -19,7 +19,7 @@ module Hydro_data
   save
 
   real, allocatable, target :: hy_flux(:,:,:,:)
-  real,  allocatable, target :: hy_snake(:,:,:,:)
+  real,  allocatable, target :: hy_rope(:,:,:,:)
   real,  target, allocatable :: hy_uPlus(:,:,:,:)
   real,  target, allocatable :: hy_uMinus(:,:,:,:)
   real, allocatable, target :: hy_tmpState(:,:,:,:)

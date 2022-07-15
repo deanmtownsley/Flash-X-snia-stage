@@ -79,7 +79,7 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
        hy_alphaGLM, scratch_allocated
   use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d, hy_grv
+       hy_shck, hy_rope, hy_flux, hy_flat, hy_tmpState,hy_flat3d, hy_grv
   implicit none
   
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
@@ -88,7 +88,7 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
   ! call Timers_start("Allocations")
   
   ! Allocate needed space on GPU if it is not already there
-  !  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_snake,hy_uMinus,hy_uPlus) 
+  !  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus) 
   
   
   ! update temp vars with solution data
@@ -119,12 +119,12 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
                          hy_smalldens, hy_smallE, hy_smallpres, &
                          hy_smallX, hy_cvisc, hy_del
   use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_snake, hy_flux, hy_flat, hy_tmpState,hy_flat3d
+       hy_shck, hy_rope, hy_flux, hy_flat, hy_tmpState,hy_flat3d
   
   implicit none
   real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  !hy_uPlus,hy_uMinus,hy_shck,hy_snake,hy_flat,hy_grv,hy_flux
+  !hy_uPlus,hy_uMinus,hy_shck,hy_rope,hy_flat,hy_grv,hy_flux
   !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
   !$omp target exit data map(DELETE:hy_grav)
   !$omp target update from(hy_starState)
