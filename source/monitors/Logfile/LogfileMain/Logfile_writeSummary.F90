@@ -89,9 +89,10 @@
 !!
 !!***
 
-subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced, separateFiles)
+subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced, separateFiles, & 
+                               gatherWrite)
 
-  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen   
+  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen, log_globalNumProcs
   use Logfile_interface, ONLY : Logfile_break, Logfile_close, &
     Logfile_open
 
@@ -103,10 +104,12 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
   character(len=MAX_STRING_LENGTH), intent(in), dimension(length,dim)  :: strArr
   logical, optional, intent(IN)                        :: reduced
   logical, optional, intent(IN)                        :: separateFiles
+  logical, optional, intent(IN)                        :: gatherWrite
+
   character(len=MAX_STRING_LENGTH)                     :: indentStr, tag
   
-  integer  :: i, tmpLen
-  logical  :: doreduced, doseparate
+  integer  :: i, j, tmpLen
+  logical  :: doreduced, doseparate, dogatherWrite
   integer  :: summary_lun
   integer :: logUnit
   logical :: logUnitLocal=.false.
@@ -121,6 +124,12 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
      doseparate = separateFiles
   else
      doseparate = .FALSE.
+  end if
+
+  if (present(gatherWrite)) then
+     dogatherWrite = gatherWrite
+  else
+     dogatherWrite = .FALSE.
   end if
 
   ! if separate, everyone writes to his own file
@@ -177,7 +186,37 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
            end if
         end if
      end do
-        
+
+! 
+!
+     if(dogatherWrite) then
+      if (log_globalMe .eq. MASTER_PE) then
+         write (summary_lun, *) 'All procs results 1 to n procs'
+
+         do i=0, length-6
+            write(summary_lun ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 2)))
+            write(summary_lun ,fmt="(1x, a)", advance="no") ","
+            write(summary_lun ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 7)))
+            write(summary_lun ,fmt="(1x, a)", advance="no") ","
+            write(summary_lun ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8)))
+            write(summary_lun ,fmt="(1x, a)", advance="no") ","
+
+            do j=1, log_globalNumProcs
+               if (j .eq. log_globalNumProcs) then
+                  write(summary_lun,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
+               else
+                  write(summary_lun,fmt="(1x, a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
+            write(summary_lun ,fmt="(1x, a)", advance="no") ","
+               endif
+            enddo
+            write(summary_lun,*)
+         enddo
+      endif
+    endif
+!
+!
+
+
      call log_summaryBreak(log_globalMe, summary_lun, "=")    
      if (doseparate) then
         close(summary_lun)

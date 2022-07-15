@@ -55,7 +55,7 @@ subroutine Timers_getSummary(nIntervals)
   use Timers_data, ONLY: tmr_stack, tmr_bigInt, tmr_acctSegs, &
        tmr_numsegments, tmr_maxtimerparents, tmr_initDate, tmr_initTime, &
        tmr_writeStatSummary, tmr_eachProcWritesSummary, tmr_globalMe, &
-       tmr_globalNumProcs
+       tmr_globalNumProcs, tmr_writeLogfileGatherSummary
 
   use Logfile_interface, ONLY : Logfile_writeSummary, Logfile_writeGatherCSV, Logfile_stamp
   use Grid_interface, ONLY : Grid_getLocalNumBlks, &
@@ -69,8 +69,8 @@ subroutine Timers_getSummary(nIntervals)
   integer, parameter :: maxRows = 1000
   ! maxColumns is roughly the number of ranks for which timer output that can be stored (-8)
   integer, parameter :: maxColumns = 10000
-  character(len=MAX_STRING_LENGTH), dimension(maxRows, maxColumns) :: perfmonArr
-  
+character(len=MAX_STRING_LENGTH), dimension(maxRows, maxColumns) :: perfmonArr
+
   integer             :: length, dim
   integer             :: index
   integer             :: totalSimSteps, globalNumBlocks
@@ -158,7 +158,7 @@ subroutine Timers_getSummary(nIntervals)
   write (perfmonArr(5,4), "(A)") 'num calls'
   write (perfmonArr(5,5), "(A)") 'secs avg'
   write (perfmonArr(5,6), "(A)") 'time pct'
-  
+   
   numHeaders = 4
   index = 6
   call tmr_buildSummary(perfmonArr, maxRows, maxColumns, index, 0, rootStack, .FALSE.)
@@ -167,7 +167,8 @@ subroutine Timers_getSummary(nIntervals)
   dim = 6
   
   ! always write process zero summary to the logfile
-  call Logfile_writeSummary(perfmonArr(1:length,1:dim), length, dim, MAX_STRING_LENGTH, numHeaders)        
+  call Logfile_writeSummary(perfmonArr(1:length,1:dim), length, dim, MAX_STRING_LENGTH &
+        ,numHeaders, reduced=.FALSE.,separateFiles=.FALSE., gatherWrite=.FALSE.)        
   ! now each process write summary to its own file
   if (tmr_eachProcWritesSummary) then
      call Logfile_writeSummary(perfmonArr(1:length,1:dim), length, dim, MAX_STRING_LENGTH, numHeaders, separateFiles=.true.)        
@@ -206,16 +207,19 @@ subroutine Timers_getSummary(nIntervals)
         call tmr_buildSummary(perfmonArr, maxRows, maxColumns, index, 0, rootStack, .TRUE.)
 
         length = index-1
-       ! guard with csv if block 
+      !   dim = 6 
         dim = 8+tmr_globalNumProcs
-        call Logfile_writeGatherCSV( perfmonArr(1:length,1:dim), length, dim, &
-             MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.)    
-       !  
-        dim = 6 
      
         ! now write the reduced summary to the logfile
         call Logfile_writeSummary( perfmonArr(1:length,1:dim), length, dim, &
-             MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.)         
+             MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE., gatherWrite=.TRUE.)         
+
+        if (tmr_eachProcWritesSummary) then
+         !  dim = 8+tmr_globalNumProcs
+          call Logfile_writeGatherCSV( perfmonArr(1:length,1:dim), length, dim, &
+              MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.) 
+        endif
+
      end if
   end if
   !$omp end master

@@ -106,14 +106,14 @@ subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduc
   logical, optional, intent(IN)                        :: reduced
   logical, optional, intent(IN)                        :: separateFiles
   character(len=MAX_STRING_LENGTH)                     :: indentStr, tag
-  
+
   integer  :: i, j, tmpLen
   logical  :: doreduced, doseparate
   integer :: logUnit
   logical :: logUnitLocal=.false.
 
 !   call Driver_getNumProcs(GLOBAL_COMM,log_globalNumProcs)
-   open(20, file = "output.csv", action = "write")
+   open(20, file = "timer_output.csv", action = "write")
    if (log_globalMe .eq. MASTER_PE) then
       do i=0, length-6
          write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 2)))
@@ -135,9 +135,4 @@ subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduc
       enddo
    endif
 
-  
 end subroutine Logfile_writeGatherCSV
-
-
-
-

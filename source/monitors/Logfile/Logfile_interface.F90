@@ -125,11 +125,13 @@ Module Logfile_interface
   end interface
 
   interface
-    subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders,reduced,separateFiles)
+    subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders,reduced, &
+                                    separateFiles, gatherWrite)
       integer, intent(in)                      :: length, dim, strLen, numHeaders
       character(len=MAX_STRING_LENGTH), dimension(length,dim), intent(in)  :: strArr
       logical, optional, intent(IN)                        :: reduced
       logical, optional, intent(IN)                        :: separateFiles
+      logical, optional, intent(IN)                        :: gatherWrite
     end subroutine Logfile_writeSummary
 
     subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders,reduced,separateFiles)
