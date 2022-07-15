@@ -107,38 +107,7 @@ blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
 blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
 
-  if (.not. scratch_allocated) then
-  scratch_allocated = .true.
-  if (.NOT. allocated(hy_uPlus)) then
-  allocate(hy_uPlus(NRECON,max_edge,max_edge_y,max_edge_z))
-  hy_uPlus = 0.
-  endif
-  if (.NOT. allocated(hy_uMinus)) then
-  allocate(hy_uMinus(NRECON,max_edge,max_edge_y,max_edge_z))
-  hy_uMinus = 0.
-  endif
-  if (.NOT. allocated(hy_shck)) then
-  allocate(hy_shck(max_edge,max_edge_y,max_edge_z))
-  hy_shck = 0.
-  endif
-  if (.NOT. allocated(hy_rope)) then
-  allocate(hy_rope(NRECON,max_edge,max_edge_y,max_edge_z))
-  hy_rope = 0.
-  endif
-  if (.NOT. allocated(hy_flat)) then
-  allocate(hy_flat(max_edge,max_edge_y,max_edge_z))
-  hy_flat = 0.
-  endif
-  if (.NOT. allocated(hy_grv)) then
-  allocate(hy_grv(max_edge,max_edge_y,max_edge_z))
-  hy_grv = 0.
-  endif
-  if (.NOT. allocated(hy_flux)) then
-  allocate(hy_flux(NFLUXES,max_edge,max_edge_y,max_edge_z))
-  hy_flux = 0.
-  endif
   !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
-  endif
 
   call allocate_fxscr(blkLimits,blkLimitsGC)
   

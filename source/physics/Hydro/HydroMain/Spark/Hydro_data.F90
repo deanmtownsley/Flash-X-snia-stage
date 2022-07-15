@@ -18,18 +18,21 @@ module Hydro_data
   implicit none
   save
 
-  real, allocatable, target :: hy_flux(:,:,:,:)
-  real,  allocatable, target :: hy_rope(:,:,:,:)
-  real,  target, allocatable :: hy_uPlus(:,:,:,:)
-  real,  target, allocatable :: hy_uMinus(:,:,:,:)
+  
+  real, target :: hy_flux(NFLUXES,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real,  target :: hy_rope(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real,  target :: hy_uPlus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real,  target :: hy_uMinus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real :: hy_flat(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real :: hy_shck(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real :: hy_grv(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+
+  
   real, allocatable, target :: hy_tmpState(:,:,:,:)
   real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
   real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
-  real,  allocatable :: hy_flat(:,:,:)
   real,  allocatable :: hy_flat3d(:,:,:)
-  real,  allocatable :: hy_grv(:,:,:)
-  real,  allocatable :: hy_shck(:,:,:)
   real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
   real, allocatable :: hy_Vc(:,:,:)
   !Flux buffers
