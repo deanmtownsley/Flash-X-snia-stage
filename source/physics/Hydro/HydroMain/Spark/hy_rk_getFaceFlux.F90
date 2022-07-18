@@ -92,14 +92,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      ! call Timers_stop("hy_flat3d")
   end if
   
-  hy_flux(1:NFLUXES,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flux
-   hy_flat(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flat
-  hy_shck(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_shck
-  hy_grv(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_grv
-  
-  hy_rope(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_rope
-  hy_uPlus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uPlus
-  hy_uMinus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uMinus
 
 
   !  Begin loop over zones
@@ -134,15 +126,24 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      limgc(LOW,:)=lim(LOW,:)-gCells(:)
      limgc(HIGH,:)=lim(HIGH,:)+gCells(:)
 
-!!$     limgc(LOW,IAXIS:KAXIS)=lim(LOW,IAXIS:KAXIS)-gCells(IAXIS:KAXIS)
-!!$     limgc(HIGH,IAXIS:KAXIS)=lim(HIGH,IAXIS:KAXIS)+gCells(IAXIS:KAXIS)
-     
-     
-     !Define appropriate changing indices
+          !Define appropriate changing indices
      klim(LOW,:)=gCells(:)+1
      klim(LOW,1)=klim(LOW,1)-1
      klim(HIGH,:)=1 + gCells(:) + lim(HIGH,:) - lim(LOW,:)
      klim(HIGH,1)=klim(HIGH,1)+1
+
+     
+     hy_flux(1:NFLUXES,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flux
+     hy_flat(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flat
+     hy_shck(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_shck
+     hy_grv(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_grv
+     
+     hy_rope(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_rope
+     hy_uPlus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uPlus
+     hy_uMinus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uMinus
+     
+     
+     
      !$omp target update to(klim, dir, lim,gCells)
      !$omp target teams distribute parallel do collapse(3) default(none) &
      !$omp shared(dir,hy_starState,hy_rope,hy_grv,hy_grav,hy_shck,hy_flat,&
@@ -402,10 +403,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      !release pointers
      
      
-     
-     
-  end do ! dir
-
   nullify(hy_flux)
   nullify(hy_rope)
   nullify(hy_uPlus)
@@ -413,6 +410,10 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   nullify(hy_flat)
   nullify(hy_shck)
   nullify(hy_grv)
+     
+     
+  end do ! dir
+
 
   
   !$omp end target data
