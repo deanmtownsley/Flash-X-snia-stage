@@ -71,7 +71,8 @@ module Timers_data
 
   logical, save                :: tmr_writeStatSummary
   logical, save                :: tmr_eachProcWritesSummary
-  logical, save                :: tmr_writeLogfileGatherSummary
+  logical, save                :: tmr_csvSummaryAllProcs
+  logical, save                :: tmr_logSummaryAllProcs  
   logical, save                :: tmr_suppressInParallel
 
 end module Timers_data

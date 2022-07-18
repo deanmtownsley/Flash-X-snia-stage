@@ -92,7 +92,7 @@
 
 
 subroutine Logfile_writeSummary( strArr, length, dim, strLen, numHeaders, reduced, separateFiles & 
-                                , gatherWrite)
+                                , LogSummaryAllProcs)
 
 #include "constants.h"
 
@@ -101,7 +101,7 @@ subroutine Logfile_writeSummary( strArr, length, dim, strLen, numHeaders, reduce
   character(len=MAX_STRING_LENGTH), dimension(length,dim), intent(in)  :: strArr
   logical, optional, intent(IN)                        :: reduced
   logical, optional, intent(IN)                        :: separateFiles
-  logical, optional, intent(IN)                        :: gatherWrite
+  logical, optional, intent(IN)                        :: LogSummaryAllProcs
 
  
 

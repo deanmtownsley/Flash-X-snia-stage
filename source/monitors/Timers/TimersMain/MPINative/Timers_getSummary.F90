@@ -55,7 +55,7 @@ subroutine Timers_getSummary(nIntervals)
   use Timers_data, ONLY: tmr_stack, tmr_bigInt, tmr_acctSegs, &
        tmr_numsegments, tmr_maxtimerparents, tmr_initDate, tmr_initTime, &
        tmr_writeStatSummary, tmr_eachProcWritesSummary, tmr_globalMe, &
-       tmr_globalNumProcs, tmr_writeLogfileGatherSummary
+       tmr_globalNumProcs, tmr_csvSummaryAllProcs, tmr_logSummaryAllProcs
 
   use Logfile_interface, ONLY : Logfile_writeSummary, Logfile_writeGatherCSV, Logfile_stamp
   use Grid_interface, ONLY : Grid_getLocalNumBlks, &
@@ -66,12 +66,13 @@ subroutine Timers_getSummary(nIntervals)
 #include "constants.h"
 
   integer, intent(in) ::  nIntervals
-  integer, parameter :: maxRows = 1000
-  ! maxColumns is roughly the number of ranks for which timer output that can be stored (-8)
-  integer, parameter :: maxColumns = 10000
+  integer, parameter :: maxRows = 100
+  integer, parameter :: maxColumns = 10
 character(len=MAX_STRING_LENGTH), dimension(maxRows, maxColumns) :: perfmonArr
+character(len=MAX_STRING_LENGTH), ALLOCATABLE :: perfmonArr2(:,:)
 
-  integer             :: length, dim
+
+  integer             :: length, dim, arrRows, arrCols
   integer             :: index
   integer             :: totalSimSteps, globalNumBlocks
   integer             :: i, j
@@ -168,7 +169,7 @@ character(len=MAX_STRING_LENGTH), dimension(maxRows, maxColumns) :: perfmonArr
   
   ! always write process zero summary to the logfile
   call Logfile_writeSummary(perfmonArr(1:length,1:dim), length, dim, MAX_STRING_LENGTH &
-        ,numHeaders, reduced=.FALSE.,separateFiles=.FALSE., gatherWrite=.FALSE.)        
+        ,numHeaders, reduced=.FALSE.,separateFiles=.FALSE., logSummaryAllProcs=.FALSE.)        
   ! now each process write summary to its own file
   if (tmr_eachProcWritesSummary) then
      call Logfile_writeSummary(perfmonArr(1:length,1:dim), length, dim, MAX_STRING_LENGTH, numHeaders, separateFiles=.true.)        
@@ -202,29 +203,43 @@ character(len=MAX_STRING_LENGTH), dimension(maxRows, maxColumns) :: perfmonArr
         write (perfmonArr(5,5), "(A)") 'avg/proc (s)'
         write (perfmonArr(5,6), "(A)") 'num calls'
         
+
+      
+        allocate(perfmonArr2(6+index, 8+tmr_globalNumProcs))
+        arrRows = 6+index
+        arrCols = 8+tmr_globalNumProcs
+
+        ! create this to store all data including performance data from all procs
+        perfmonArr2(1:length,1:dim) = perfmonArr(1:length,1:dim)
+
         numHeaders = 4
-        index = 6
-        call tmr_buildSummary(perfmonArr, maxRows, maxColumns, index, 0, rootStack, .TRUE.)
+        index = 6 
+
+        call tmr_buildSummary(perfmonArr2, arrRows, arrCols, index, 0, rootStack, .TRUE.)
 
         length = index-1
-      !   dim = 6 
-        dim = 8+tmr_globalNumProcs
+        dim = arrCols
      
-        ! now write the reduced summary to the logfile
-        call Logfile_writeSummary( perfmonArr(1:length,1:dim), length, dim, &
-             MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE., gatherWrite=.TRUE.)         
+        ! now write the reduced and each proc summary (if logSummaryAllProcs) to the logfile
+        if (tmr_logSummaryAllProcs) then 
+            call Logfile_writeSummary( perfmonArr2(1:length,1:dim), length, dim, &
+                  MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE., LogSummaryAllProcs=.TRUE.)         
+        else
+            call Logfile_writeSummary( perfmonArr2(1:length,1:dim), length, dim, &
+                  MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.)
+         endif
 
-        if (tmr_eachProcWritesSummary) then
+        if (tmr_csvSummaryAllProcs) then
          !  dim = 8+tmr_globalNumProcs
-          call Logfile_writeGatherCSV( perfmonArr(1:length,1:dim), length, dim, &
+          call Logfile_writeGatherCSV( perfmonArr2(1:length,1:dim), length, dim, &
               MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.) 
         endif
 
      end if
   end if
+  DEALLOCATE(perfmonArr2)
   !$omp end master
   return
-
 end subroutine Timers_getSummary
 
 
