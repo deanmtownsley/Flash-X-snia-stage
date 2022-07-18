@@ -61,7 +61,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
 
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
-  real, pointer,dimension(:,:,:,:) :: leftState, rightState
   integer :: i1,i2,i3, n, g, v, dir, ierr,i,j,k,i_s,j_s,k_s
   integer, dimension(3) :: gCells
   integer, dimension(LOW:HIGH,MDIM) :: klim,dirbnds
@@ -84,330 +83,322 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      !$omp shared(blkLimitsGC,hy_flat3d) private(i1,i2,i3) default(none) map(to:blkLimitsGC)
      !! TODO: Set this once for both rk steps.
      do k=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
-     do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
-     do i=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-                  hy_flat3d(i,j,k) = 1.0
-     end do
-     end do
+        do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+           do i=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+              hy_flat3d(i,j,k) = 1.0
+           end do
+        end do
      end do
      ! call Timers_stop("hy_flat3d")
   end if
-
   
-   !  Begin loop over zones
+  
+  !  Begin loop over zones
   do dir = 1, NDIM
      select case(dir)
      case (IAXIS)
-     hy_dlim(:,:) = limits(:,:)
-     gCells(1) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-     gCells(2) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-     gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-     dir_str = "_x"
+        hy_dlim(:,:) = limits(:,:)
+        gCells(1) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
+        gCells(2) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
+        gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
+        dir_str = "_x"
      case (JAXIS)
-     hy_dlim(:,1) = limits(:,JAXIS)
-     hy_dlim(:,2) = limits(:,IAXIS)
-     hy_dlim(:,3) = limits(:,KAXIS)
-     gCells(1) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-     gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-     gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-     dir_str = "_y"
+        hy_dlim(:,1) = limits(:,JAXIS)
+        hy_dlim(:,2) = limits(:,IAXIS)
+        hy_dlim(:,3) = limits(:,KAXIS)
+        gCells(1) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
+        gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
+        gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
+        dir_str = "_y"
      case (KAXIS)
-     hy_dlim(:,1) = limits(:,KAXIS)
-     hy_dlim(:,2) = limits(:,IAXIS)
-     hy_dlim(:,3) = limits(:,JAXIS)
-     gCells(1) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-     gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-     gCells(3) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-     dir_str = "_z"
+        hy_dlim(:,1) = limits(:,KAXIS)
+        hy_dlim(:,2) = limits(:,IAXIS)
+        hy_dlim(:,3) = limits(:,JAXIS)
+        gCells(1) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
+        gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
+        gCells(3) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
+        dir_str = "_z"
      end select
      
-
      
-    
-           !Define appropriate changing indices
-           klim(LOW,:)=gCells(:)+1
-           klim(LOW,1)=gCells(1)
-           klim(HIGH,:)=1 + gCells(:) + hy_dlim(HIGH,:) - hy_dlim(LOW,:)
-           klim(HIGH,1)=klim(HIGH,1)+1
-           !$omp target update to(klim, dir, hy_dlim,gCells)
-           !$omp target teams distribute parallel do collapse(3) default(none) &
-           !$omp shared(dir,hy_starState,hy_rope,hy_grv,hy_grav,hy_shck,hy_flat,&
-           !$omp hy_flat3d,klim,gCells,hy_dlim) private(i,j,k,n,i_s, j_s, k_s)
-           do k = hy_dlim(LOW,3) - gCells(3), hy_dlim(HIGH,3) + gCells(3)
-           do j = hy_dlim(LOW,2) - gCells(2), hy_dlim(HIGH,2) + gCells(2)
+     
+     
+     !Define appropriate changing indices
+     klim(LOW,:)=gCells(:)+1
+     klim(LOW,1)=gCells(1)
+     klim(HIGH,:)=1 + gCells(:) + hy_dlim(HIGH,:) - hy_dlim(LOW,:)
+     klim(HIGH,1)=klim(HIGH,1)+1
+     !$omp target update to(klim, dir, hy_dlim,gCells)
+     !$omp target teams distribute parallel do collapse(3) default(none) &
+     !$omp shared(dir,hy_starState,hy_rope,hy_grv,hy_grav,hy_shck,hy_flat,&
+     !$omp hy_flat3d,klim,gCells,hy_dlim) private(i,j,k,n,i_s, j_s, k_s)
+     do k = hy_dlim(LOW,3) - gCells(3), hy_dlim(HIGH,3) + gCells(3)
+        do j = hy_dlim(LOW,2) - gCells(2), hy_dlim(HIGH,2) + gCells(2)
            do i = hy_dlim(LOW,1) - gCells(1), hy_dlim(HIGH,1) + gCells(1)
-           i_s = 1 + i - hy_dlim(LOW,1) + gCells(1)
-           j_s = 1 + j - hy_dlim(LOW,2) + gCells(2)
-           k_s = 1 + k - hy_dlim(LOW,3) + gCells(3)
-           if (dir == IAXIS) then
-              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
-              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
-              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
-              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
-              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
-              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
-              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
+              i_s = 1 + i - hy_dlim(LOW,1) + gCells(1)
+              j_s = 1 + j - hy_dlim(LOW,2) + gCells(2)
+              k_s = 1 + k - hy_dlim(LOW,3) + gCells(3)
+              if (dir == IAXIS) then
+                 hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
+                 hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
+                 hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,i,j,k)
+                 hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,i,j,k)
+                 hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,i,j,k)
+                 hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,i,j,k)
+                 hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
 #ifdef SPARK_GLM
-              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
-              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
-              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
-              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
+                 hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,i,j,k)
+                 hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,i,j,k)
+                 hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,i,j,k)
+                 hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,i,j,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
-              do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
-              enddo
+                 do n=SPECIES_BEGIN, MASS_SCALARS_END
+                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,i,j,k)
+                 enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-              hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,i,j,k)
+                 hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,i,j,k)
 #else
-              hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,i,j,k)
+                 hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,i,j,k)
 #endif
 #endif
 #ifdef SHOK_VAR
-              hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,i,j,k)
+                 hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,i,j,k)
 #else
-              hy_shck(i_s,j_s,k_s) = 0.0
+                 hy_shck(i_s,j_s,k_s) = 0.0
 #endif
-              hy_flat(i_s,j_s,k_s) = hy_flat3d(i,j,k)
-           else if (dir == JAXIS) then
-              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
-              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
-              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
-              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
-              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
-              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
-              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
+                 hy_flat(i_s,j_s,k_s) = hy_flat3d(i,j,k)
+              else if (dir == JAXIS) then
+                 hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)
+                 hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,i,k)
+                 hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,i,k)
+                 hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,i,k)
+                 hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,i,k)
+                 hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,i,k)
+                 hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
 #ifdef SPARK_GLM
-              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
-              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
-              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
-              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
+                 hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,i,k)
+                 hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,i,k)
+                 hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,i,k)
+                 hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,i,k)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
-              do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
-              enddo
+                 do n=SPECIES_BEGIN, MASS_SCALARS_END
+                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,i,k)
+                 enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-              hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,i,k)
+                 hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,i,k)
 #else
-              hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,i,k)
+                 hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,i,k)
 #endif
 #endif
 #ifdef SHOK_VAR
-              hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,i,k)
+                 hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,i,k)
 #else
-              hy_shck(i_s,j_s,k_s) = 0.0
+                 hy_shck(i_s,j_s,k_s) = 0.0
 #endif
-              hy_flat(i_s,j_s,k_s) = hy_flat3d(j,i,k)
-           else if (dir == KAXIS) then
-              hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
-              hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
-              hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
-              hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
-              hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
-              hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
-              hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
+                 hy_flat(i_s,j_s,k_s) = hy_flat3d(j,i,k)
+              else if (dir == KAXIS) then
+                 hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)
+                 hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,j,k,i)
+                 hy_rope(HY_VELY,i_s,j_s,k_s) = hy_starState(VELY_VAR,j,k,i)
+                 hy_rope(HY_VELZ,i_s,j_s,k_s) = hy_starState(VELZ_VAR,j,k,i)
+                 hy_rope(HY_PRES,i_s,j_s,k_s) = hy_starState(PRES_VAR,j,k,i)
+                 hy_rope(HY_GAMC,i_s,j_s,k_s) = hy_starState(GAMC_VAR,j,k,i)
+                 hy_rope(HY_RHOE,i_s,j_s,k_s) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
 #ifdef SPARK_GLM
-              hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
-              hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
-              hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
-              hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
+                 hy_rope(HY_MAGX,i_s,j_s,k_s) = hy_starState(MAGX_VAR,j,k,i)
+                 hy_rope(HY_MAGY,i_s,j_s,k_s) = hy_starState(MAGY_VAR,j,k,i)
+                 hy_rope(HY_MAGZ,i_s,j_s,k_s) = hy_starState(MAGZ_VAR,j,k,i)
+                 hy_rope(HY_PSIB,i_s,j_s,k_s) = hy_starState(PSIB_VAR,j,k,i)
 #endif
 #if NSPECIES+NMASS_SCALARS>0
-              do n=SPECIES_BEGIN, MASS_SCALARS_END
-              hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
-              enddo
+                 do n=SPECIES_BEGIN, MASS_SCALARS_END
+                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i_s,j_s,k_s)    = hy_starState(n,j,k,i)
+                 enddo
 #endif
 #ifdef GRAVITY
 #ifdef GPOT_VAR
-              hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,k,i)
+                 hy_grv(i_s,j_s,k_s) = hy_starState(GPOT_VAR,j,k,i)
 #else
-              hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,k,i)
+                 hy_grv(i_s,j_s,k_s) = hy_grav(IAXIS,j,k,i)
 #endif
 #endif
 #ifdef SHOK_VAR
-              hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,k,i)
+                 hy_shck(i_s,j_s,k_s) = hy_starState(SHOK_VAR,j,k,i)
 #else
-              hy_shck(i_s,j_s,k_s) = 0.0
+                 hy_shck(i_s,j_s,k_s) = 0.0
 #endif
-              hy_flat(i_s,j_s,k_s) = hy_flat3d(j,k,i)
-           endif
+                 hy_flat(i_s,j_s,k_s) = hy_flat3d(j,k,i)
+              endif
            end do
-           end do
-           end do  
-
-           !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
-           !$omp private(i1,i2,i3) shared(hy_dlim,klim)
-
-           ! call Timers_start("recon"//dir_str)
-           
-           !$omp target teams distribute parallel do collapse(4) &
-           !$omp  private(i1,i2,i3,v) shared(klim,hy_uPlus, hy_uMinus, hy_rope, hy_flat) default(none)
-           do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
-           do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
+        end do
+     end do
+     
+     !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
+     !$omp private(i1,i2,i3) shared(hy_dlim,klim)
+     
+     ! call Timers_start("recon"//dir_str)
+     
+     !$omp target teams distribute parallel do collapse(4) &
+     !$omp  private(i1,i2,i3,v) shared(klim,hy_uPlus, hy_uMinus, hy_rope, hy_flat) default(none)
+     do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
+        do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
               do v=1,NRECON
-               call hy_reconstruct(v, hy_rope(v,i1-2:i1+2,i2,i3),hy_uPlus(v,i1,i2,i3),&
-                    & hy_uMinus(v,i1,i2,i3), hy_flat(i1,i2,i3))
-               enddo
+                 call hy_reconstruct(v, hy_rope(v,i1-2:i1+2,i2,i3),hy_uPlus(v,i1,i2,i3),&
+                      & hy_uMinus(v,i1,i2,i3), hy_flat(i1,i2,i3))
+              enddo
            end do
-           end do
-           end do
-               
-
-           !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3,v) shared(dir,klim)
-           do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
-           do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
+        end do
+     end do
+     
+     
+     !$omp target teams distribute parallel do collapse(3) &
+     !$omp private(i1,i2,i3,v) shared(dir,klim)
+     do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
+        do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)
-
-           leftState => hy_uPlus
-           rightState => hy_uMinus
-           leftState(HY_DENS ,i1,i2,i3) = max(hy_smalldens, leftState(HY_DENS ,i1,i2,i3))
-           leftState(HY_PRES ,i1,i2,i3) = max(hy_smallpres, leftState(HY_PRES ,i1,i2,i3))
-#if NSPECIES>0
-           ! Limit and renormalize the species.
-           spc => leftState(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i1,i2,i3)
-           do s = 1, NSPECIES
-           spc(s) = max(hy_smallX,min(1.0,spc(s)))
-           end do
-           spcSumInv = 1./sum(spc(1:NSPECIES))
-           spc = spc*spcSumInv
-#endif
-           rightState(HY_DENS ,i1,i2,i3) = max(hy_smalldens, rightState(HY_DENS ,i1,i2,i3))
-           rightState(HY_PRES ,i1,i2,i3) = max(hy_smallpres, rightState(HY_PRES ,i1,i2,i3))
-#if NSPECIES>0
-           ! Limit and renormalize the species.
-           spc => rightState(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i1,i2,i3)
-           do s = 1, NSPECIES
-           spc(s) = max(hy_smallX,min(1.0,spc(s)))
-           end do
-           spcSumInv = 1./sum(spc(1:NSPECIES))
-           spc = spc*spcSumInv
-#endif
-           nullify(leftState)
-           nullify(rightState)
-
-           end do
-           end do
-           end do 
-
-           
-           !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
-           !$omp private(i1,i2,i3) shared(dir,klim)
-           
               
-           ! Check for shocks in the zones involved in flux calculation
-           
+              hy_uPlus(HY_DENS ,i1,i2,i3) = max(hy_smalldens, hy_uPlus(HY_DENS ,i1,i2,i3))
+              hy_uPlus(HY_PRES ,i1,i2,i3) = max(hy_smallpres, hy_uPlus(HY_PRES ,i1,i2,i3))
+#if NSPECIES>0
+              ! Limit and renormalize the species.
+              spc => hy_uPlus(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i1,i2,i3)
+              do s = 1, NSPECIES
+                 spc(s) = max(hy_smallX,min(1.0,spc(s)))
+              end do
+              spcSumInv = 1./sum(spc(1:NSPECIES))
+              spc = spc*spcSumInv
+#endif
+              hy_uMinus(HY_DENS ,i1,i2,i3) = max(hy_smalldens, hy_uMinus(HY_DENS ,i1,i2,i3))
+              hy_uMinus(HY_PRES ,i1,i2,i3) = max(hy_smallpres, hy_uMinus(HY_PRES ,i1,i2,i3))
+#if NSPECIES>0
+              ! Limit and renormalize the species.
+              spc => hy_uMinus(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i1,i2,i3)
+              do s = 1, NSPECIES
+                 spc(s) = max(hy_smallX,min(1.0,spc(s)))
+              end do
+              spcSumInv = 1./sum(spc(1:NSPECIES))
+              spc = spc*spcSumInv
+#endif
+              
+           end do
+        end do
+     end do
 
-           ! Now call the Riemann solver to compute fluxes
-           !!klim(LOW,1)=klim(LOW,1)+1
-           !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3) shared(dir,klim,hy_flux) default(none)
-           do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
-           do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
-              do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)
-                   VL = hy_uPlus(1:HY_NUM_VARS,i1-1,i2,i3)
-                   VR = hy_uMinus(1:HY_NUM_VARS,i1,i2,i3)
-                   inShock = any(hy_shck(i1-1:i1,i2,i3) /= 0.0)
-                   call hy_riemann(dir,VL,VR,inShock,hy_flux(1:HY_NUM_FLUX,i1,i2,i3))
-                end do
-           end do
-           end do
            
-           !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3,cvisc,venerLo,venerHies) shared(hy_cvisc,hy_rope,dir,klim,hy_flux) default(none)
-           do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
-           do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
+     !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
+     !$omp private(i1,i2,i3) shared(dir,klim)
+     
+     
+     ! Check for shocks in the zones involved in flux calculation
+     
+     
+     ! Now call the Riemann solver to compute fluxes
+     !!klim(LOW,1)=klim(LOW,1)+1
+     !$omp target teams distribute parallel do collapse(3) &
+     !$omp private(i1,i2,i3) shared(dir,klim,hy_flux) default(none)
+     do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
+        do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
+           do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)
+              VL = hy_uPlus(1:HY_NUM_VARS,i1-1,i2,i3)
+              VR = hy_uMinus(1:HY_NUM_VARS,i1,i2,i3)
+              inShock = any(hy_shck(i1-1:i1,i2,i3) /= 0.0)
+              call hy_riemann(dir,VL,VR,inShock,hy_flux(1:HY_NUM_FLUX,i1,i2,i3))
+           end do
+        end do
+     end do
+     
+     !$omp target teams distribute parallel do collapse(3) &
+     !$omp private(i1,i2,i3,cvisc,venerLo,venerHies) shared(hy_cvisc,hy_rope,dir,klim,hy_flux) default(none)
+     do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
+        do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-           ! Add artificial viscosity for strong-shock capturing
-           cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i1,i2,i3) - hy_rope(HY_VELX+dir-1,i1-1,i2,i3)),0.)
-           
-           ! Construct minus and plus TOTAL energy densities
-           VenerLo = hy_rope(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
-           + hy_rope(HY_RHOE,i1-1,i2,i3)
-           VenerHi = hy_rope(HY_DENS,i1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1,i2,i3)))&
-           + hy_rope(HY_RHOE,i1,i2,i3)
-           
-           hy_flux(HY_MASS:HY_ENER,i1,i2,i3) = &
-           hy_flux(HY_MASS:HY_ENER,i1,i2,i3) &
-           +cvisc*(/hy_rope(HY_DENS,i1-1,i2,i3)                 - hy_rope(HY_DENS,i1,i2,i3)&
-           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELX,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELX,i1,i2,i3)&
-           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELY,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELY,i1,i2,i3)&
-           ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELZ,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELZ,i1,i2,i3)&
-           ,        VenerLo                         - VenerHi/)
+              ! Add artificial viscosity for strong-shock capturing
+              cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i1,i2,i3) - hy_rope(HY_VELX+dir-1,i1-1,i2,i3)),0.)
+              
+              ! Construct minus and plus TOTAL energy densities
+              VenerLo = hy_rope(HY_DENS,i1-1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1-1,i2,i3)))&
+                   + hy_rope(HY_RHOE,i1-1,i2,i3)
+              VenerHi = hy_rope(HY_DENS,i1,i2,i3)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i1,i2,i3),hy_rope(HY_VELX:HY_VELZ,i1,i2,i3)))&
+                   + hy_rope(HY_RHOE,i1,i2,i3)
+              
+              hy_flux(HY_MASS:HY_ENER,i1,i2,i3) = &
+                   hy_flux(HY_MASS:HY_ENER,i1,i2,i3) &
+                   +cvisc*(/hy_rope(HY_DENS,i1-1,i2,i3)                 - hy_rope(HY_DENS,i1,i2,i3)&
+                   ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELX,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELX,i1,i2,i3)&
+                   ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELY,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELY,i1,i2,i3)&
+                   ,        hy_rope(HY_DENS,i1-1,i2,i3)*hy_rope(HY_VELZ,i1-1,i2,i3) - hy_rope(HY_DENS,i1,i2,i3)*hy_rope(HY_VELZ,i1,i2,i3)&
+                   ,        VenerLo                         - VenerHi/)
 #ifdef SPARK_GLM
-           hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) = &
-           hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) &
-           +cvisc*(/hy_rope(HY_MAGX,i1-1,i2,i3)                 - hy_rope(HY_MAGX,i1,i2,i3)&
-           ,        hy_rope(HY_MAGY,i1-1,i2,i3)                 - hy_rope(HY_MAGY,i1,i2,i3)&
-           ,        hy_rope(HY_MAGZ,i1-1,i2,i3)                 - hy_rope(HY_MAGZ,i1,i2,i3)&
-           ,        hy_rope(HY_PSIB,i1-1,i2,i3)                 - hy_rope(HY_PSIB,i1,i2,i3)/)
+              hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) = &
+                   hy_flux(HY_FMGX:HY_FPSI,i1,i2,i3) &
+                   +cvisc*(/hy_rope(HY_MAGX,i1-1,i2,i3)                 - hy_rope(HY_MAGX,i1,i2,i3)&
+                   ,        hy_rope(HY_MAGY,i1-1,i2,i3)                 - hy_rope(HY_MAGY,i1,i2,i3)&
+                   ,        hy_rope(HY_MAGZ,i1-1,i2,i3)                 - hy_rope(HY_MAGZ,i1,i2,i3)&
+                   ,        hy_rope(HY_PSIB,i1-1,i2,i3)                 - hy_rope(HY_PSIB,i1,i2,i3)/)
 #endif
-           ! Here, we compute the species and mass scalar
-           ! fluxes based on the density flux and the hy_reconstructed
-           ! mass scalar interface values
-           
-           leftState => hy_uPlus
-           rightState => hy_uMinus
-
+              ! Here, we compute the species and mass scalar
+              ! fluxes based on the density flux and the hy_reconstructed
+              ! mass scalar interface values
+              
+              
 #if NSPECIES+NMASS_SCALARS>0
-           if (hy_flux(HY_MASS ,i1,i2,i3) > 0.) then
-           hy_flux(HY_NUM_FLUX+1:NFLUXES ,i1,i2,i3) = leftState(HY_NUM_VARS+1:NRECON @M hy_m123)*hy_flux(HY_MASS ,i1,i2,i3)
-           else
-           hy_flux(HY_NUM_FLUX+1:NFLUXES ,i1,i2,i3) = rightState(HY_NUM_VARS+1:NRECON ,i1,i2,i3)*hy_flux(HY_MASS ,i1,i2,i3)
-           end if
+              if (hy_flux(HY_MASS ,i1,i2,i3) > 0.) then
+                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i1,i2,i3) = hy_uPlus(HY_NUM_VARS+1:NRECON, i1, i2, i3)*hy_flux(HY_MASS ,i1,i2,i3)
+              else
+                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i1,i2,i3) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i1,i2,i3)*hy_flux(HY_MASS ,i1,i2,i3)
+              end if
 #endif
-           nullify(leftState)
-           nullify(rightState)
            end do
-           end do
-           end do
-           ! ***************
-           ! Fluxes computed for one face of this zone
-           ! Save the fluxes
-           ! ***************
-           !$omp target teams distribute parallel do collapse(3) &
-           !$omp private(i1,i2,i3,i_s,j_s,k_s) shared(dir,hy_dlim,gCells,hy_flx,hy_fly,hy_flz,hy_flux,klim) default(none)
-           
-           do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
-           do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
+        end do
+     end do
+     ! ***************
+     ! Fluxes computed for one face of this zone
+     ! Save the fluxes
+     ! ***************
+     !$omp target teams distribute parallel do collapse(3) &
+     !$omp private(i1,i2,i3,i_s,j_s,k_s) shared(dir,hy_dlim,gCells,hy_flx,hy_fly,hy_flz,hy_flux,klim) default(none)
+     
+     do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
+        do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-           i_s = -1+i1+hy_dlim(LOW,1)-gCells(1)
-           j_s = -1+i2+hy_dlim(LOW,2)-gCells(2)
-           k_s = -1+i3+hy_dlim(LOW,3)-gCells(3)
-           select case(dir)
-           case(IAXIS)
-           hy_flx(:,i_s,j_s,k_s) = hy_flux(:,i1,i2,i3)
-           case (JAXIS)
-           hy_fly(:,j_s,i_s,k_s) = hy_flux(:,i1,i2,i3)
-           case (KAXIS)
-           hy_flz(:,j_s,k_s,i_s) = hy_flux(:,i1,i2,i3)
-           end select
+              i_s = -1+i1+hy_dlim(LOW,1)-gCells(1)
+              j_s = -1+i2+hy_dlim(LOW,2)-gCells(2)
+              k_s = -1+i3+hy_dlim(LOW,3)-gCells(3)
+              select case(dir)
+              case(IAXIS)
+                 hy_flx(:,i_s,j_s,k_s) = hy_flux(:,i1,i2,i3)
+              case (JAXIS)
+                 hy_fly(:,j_s,i_s,k_s) = hy_flux(:,i1,i2,i3)
+              case (KAXIS)
+                 hy_flz(:,j_s,k_s,i_s) = hy_flux(:,i1,i2,i3)
+              end select
            end do
-           end do
-           end do
-
-           
-        !release pointers
-        
+        end do
+     end do
      
      
-    
+     !release pointers
+     
+     
+     
+     
   end do ! dir
   
   !$omp end target data
- 
-
-
+  
+  
+  
 contains
-
+  
   !!Set loop dimensions based on the direction of the pencil set
-
+  
   !! the 'pencil' holds a 1D array of the solution data to be operated
   !! on.  It is unrolled this way so that all data that are needed for
   !! interpolation and flux calculation are truly contiguous in memory
@@ -415,8 +406,8 @@ contains
   !! The maximum amount of calculation is done on these data prior to
   !! reseting the pencil data to a new ray through the block.
   !! If I were talented at ASCII art, I would make a diagram...
-
-
+  
+  
   !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
   subroutine flattening(limits)
     !! This follows Miller & Colella 2002
@@ -426,8 +417,8 @@ contains
     !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     !real :: hy_flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     real :: hy_flatTilde(NDIM,limits(LOW,IAXIS):limits(HIGH,IAXIS),&
-                              limits(LOW,JAXIS):limits(HIGH,JAXIS),&
-                              limits(LOW,KAXIS):limits(HIGH,KAXIS))
+         limits(LOW,JAXIS):limits(HIGH,JAXIS),&
+         limits(LOW,KAXIS):limits(HIGH,KAXIS))
     real :: beta, Z
     real, parameter :: betaMin = 0.75, betaMax = 0.85
     real, parameter :: Zmin = 0.25, Zmax = 0.75
@@ -496,7 +487,7 @@ contains
        end do
     end do
   end subroutine flattening
-
+  
 end subroutine hy_rk_getFaceFlux
 
 real function minmod(a,b)
