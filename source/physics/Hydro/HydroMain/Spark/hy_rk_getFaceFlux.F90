@@ -46,7 +46,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_starState, hy_grav, hy_flattening, hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY : hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc
-  use Hydro_data, ONLY : hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_grv, hy_shck, hy_flux, &
+  use Hydro_data, ONLY : hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, hya_shck, hya_flux, &
   hy_flat3d
   use Hydro_data, ONLY : hy_del, hy_dlim
   use hy_rk_interface, ONLY : hy_reconstruct
@@ -73,6 +73,8 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   logical :: inShock
   real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
+  real,dimension(:,:,:,:),pointer :: hy_rope, hy_uPlus, hy_uMinus,hy_flux
+  real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv
 
   !$omp target data map(to: dir, klim,hy_dlim,gCells)
   if (hy_flattening) then
@@ -92,6 +94,15 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      ! call Timers_stop("hy_flat3d")
   end if
   
+  hy_flux=>hya_flux
+  hy_rope=>hya_rope
+  hy_uPlus=>hya_uPlus
+  hy_uMinus=>hya_uMinus
+  hy_flat=>hya_flat
+  hy_shck=>hya_shck
+  hy_grv=>hya_grv
+  
+
   
   !  Begin loop over zones
   do dir = 1, NDIM
@@ -390,6 +401,15 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      
      
   end do ! dir
+
+  nullify(hy_flux)
+  nullify(hy_rope)
+  nullify(hy_uPlus)
+  nullify(hy_uMinus)
+  nullify(hy_flat)
+  nullify(hy_shck)
+  nullify(hy_grv)
+
   
   !$omp end target data
   

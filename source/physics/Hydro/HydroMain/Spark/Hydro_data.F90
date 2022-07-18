@@ -19,13 +19,13 @@ module Hydro_data
   save
 
   
-  real, target :: hy_flux(NFLUXES,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real,  target :: hy_rope(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real,  target :: hy_uPlus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real,  target :: hy_uMinus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real :: hy_flat(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real :: hy_shck(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real :: hy_grv(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_flux(NFLUXES,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_rope(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_uPlus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_uMinus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_flat(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_shck(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
+  real, target :: hya_grv(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
 
   
   real, allocatable, target :: hy_tmpState(:,:,:,:)

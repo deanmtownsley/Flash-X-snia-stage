@@ -34,8 +34,8 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
        hy_alphaGLM,hy_Vc,scratch_allocated
-  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_rope, hy_flux, hy_flat, hy_grv,hy_flat3d,hy_tmpState
+  use Hydro_data, ONLY : hydro_GPU_scratch, hya_uPlus, hya_uMinus,&
+       hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hy_flat3d,hy_tmpState
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   

@@ -77,8 +77,8 @@ subroutine hy_reconstruct(v, rope, uPlus, uMinus,flat)
   
   !! Use problem-adaptive epsilong as in Tchekovskoy7, A3
   ! This does not seem to work with the WENO-Z indicators of Borges+08
-  ! mags(v) = hy_rope(@M ind_m(2))**2 + hy_rope(@M ind_m(1))**2 + hy_rope(@M ind_p(0))**2 &
-  !      + hy_rope(@M ind_p(1))**2 + hy_rope(@M ind_p(2))**2
+  ! mags(v) = rope(@M ind_m(2))**2 + rope(@M ind_m(1))**2 + rope(@M ind_p(0))**2 &
+  !      + rope(@M ind_p(1))**2 + rope(@M ind_p(2))**2
   ! betaWeno(v,1) = betaWeno(v,1) + epsilon*mags(v) + TINY(1.0)
   ! betaWeno(v,2) = betaWeno(v,2) + epsilon*mags(v) + TINY(1.0)
   ! betaWeno(v,3) = betaWeno(v,3) + epsilon*mags(v) + TINY(1.0)

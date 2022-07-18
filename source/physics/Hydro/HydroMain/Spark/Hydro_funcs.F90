@@ -74,12 +74,7 @@ end subroutine addFluxes
 !! If offloading to a device, send data and allocate on device only.
 subroutine saveState(Uin,blkLimits,blklimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_tiny,hy_hybridRiemann,hy_C_hyp, &
-       hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
-       hy_alphaGLM, scratch_allocated
-  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_rope, hy_flux, hy_flat, hy_tmpState,hy_flat3d, hy_grv
+  use Hydro_data, ONLY : hy_starState, hy_tmpState
   implicit none
   
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
@@ -88,27 +83,24 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
   ! call Timers_start("Allocations")
   
   ! Allocate needed space on GPU if it is not already there
-  !  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus) 
   
   
   ! update temp vars with solution data
   
   ! move data to GPU
-  !$omp target enter data map(alloc:hy_starState,hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz,hy_grav)
-  !$omp target update to(hy_tiny,hy_hybridRiemann,hy_C_hyp,hy_cvisc,hy_del,hy_smalldens, hy_smallE, hy_smallpres, hy_smallX,hy_geometry,hy_alphaGLM)
-  ! distribute work throughout GPU
+  !$omp target enter data map(alloc:hy_starState,hy_tmpState)
   !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
   !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
   
   do i3=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
-  do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
-  do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+     do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+        do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
            do v=1,NUNK_VARS
               hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
               hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
            enddo
-  end do
-  end do
+        end do
+     end do
   end do
 end subroutine saveState
 
@@ -118,8 +110,7 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, &
                          hy_smalldens, hy_smallE, hy_smallpres, &
                          hy_smallX, hy_cvisc, hy_del
-  use Hydro_data, ONLY : hydro_GPU_scratch, hy_uPlus, hy_uMinus,&
-       hy_shck, hy_rope, hy_flux, hy_flat, hy_tmpState,hy_flat3d
+  use Hydro_data, ONLY : hy_tmpState,hy_flat3d
   
   implicit none
   real,dimension(:,:,:,:),pointer :: Uin
@@ -129,12 +120,6 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   !$omp target exit data map(DELETE:hy_grav)
   !$omp target update from(hy_starState)
 
-#ifndef FIXEDBLOCKSIZE
-!!$  if (hy_fluxCorrect) then
-!!$    deallocate(hy_fluxBufX);deallocate(hy_fluxBufY);deallocate(hy_fluxBufZ)
-!!$  endif
-#endif
- 
 
   !$omp parallel if(hy_threadWithinBlock) &
   !$omp default(none) &
@@ -143,18 +128,18 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
 #ifdef GPOT_VAR
   ! First reset GPOT_VAR.
   hy_starState(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
+       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
        Uin(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
 #endif
   Uin(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
+       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
        hy_starState(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
+       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
   
   !$omp end workshare
   !$omp end parallel
