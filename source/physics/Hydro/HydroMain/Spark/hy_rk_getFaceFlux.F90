@@ -48,7 +48,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc
   use Hydro_data, ONLY : hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, hya_shck, hya_flux, &
   hy_flat3d
-  use Hydro_data, ONLY : hy_del, hy_dlim
+  use Hydro_data, ONLY : hy_del
   use hy_rk_interface, ONLY : hy_reconstruct
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
@@ -60,8 +60,8 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i1,i2,i3, n, g, v, dir, ierr,i,j,k,i_s,j_s,k_s
-  integer, dimension(3) :: gCells
-  integer, dimension(LOW:HIGH,MDIM) :: klim,dirbnds
+  integer, dimension(MDIM) :: gCells
+  integer, dimension(LOW:HIGH,MDIM) :: klim,lim,limgc
   character(len = 2) :: dir_str
   real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
   integer :: s	 
@@ -74,7 +74,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   real,dimension(:,:,:,:),pointer :: hy_rope, hy_uPlus, hy_uMinus,hy_flux
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv
 
-  !$omp target data map(to: dir, klim,hy_dlim,gCells)
+  !$omp target data map(to: dir, klim,lim,gCells)
   if (hy_flattening) then
      call flattening(limits)
   else
@@ -93,7 +93,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   end if
   
   hy_flux(1:NFLUXES,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flux
-  hy_flat(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flat
+   hy_flat(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flat
   hy_shck(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_shck
   hy_grv(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_grv
   
@@ -107,47 +107,52 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   do dir = 1, NDIM
      select case(dir)
      case (IAXIS)
-        hy_dlim(:,:) = limits(:,:)
+        lim(:,:) = limits(:,:)
         gCells(1) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
         gCells(2) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
         gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
         dir_str = "_x"
      case (JAXIS)
-        hy_dlim(:,1) = limits(:,JAXIS)
-        hy_dlim(:,2) = limits(:,IAXIS)
-        hy_dlim(:,3) = limits(:,KAXIS)
+        lim(:,1) = limits(:,JAXIS)
+        lim(:,2) = limits(:,IAXIS)
+        lim(:,3) = limits(:,KAXIS)
         gCells(1) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
         gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
         gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
         dir_str = "_y"
      case (KAXIS)
-        hy_dlim(:,1) = limits(:,KAXIS)
-        hy_dlim(:,2) = limits(:,IAXIS)
-        hy_dlim(:,3) = limits(:,JAXIS)
+        lim(:,1) = limits(:,KAXIS)
+        lim(:,2) = limits(:,IAXIS)
+        lim(:,3) = limits(:,JAXIS)
         gCells(1) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
         gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
         gCells(3) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
         dir_str = "_z"
      end select
      
-     
+
+     limgc(LOW,:)=lim(LOW,:)-gCells(:)
+     limgc(HIGH,:)=lim(HIGH,:)+gCells(:)
+
+!!$     limgc(LOW,IAXIS:KAXIS)=lim(LOW,IAXIS:KAXIS)-gCells(IAXIS:KAXIS)
+!!$     limgc(HIGH,IAXIS:KAXIS)=lim(HIGH,IAXIS:KAXIS)+gCells(IAXIS:KAXIS)
      
      
      !Define appropriate changing indices
      klim(LOW,:)=gCells(:)+1
-     klim(LOW,1)=gCells(1)
-     klim(HIGH,:)=1 + gCells(:) + hy_dlim(HIGH,:) - hy_dlim(LOW,:)
+     klim(LOW,1)=klim(LOW,1)-1
+     klim(HIGH,:)=1 + gCells(:) + lim(HIGH,:) - lim(LOW,:)
      klim(HIGH,1)=klim(HIGH,1)+1
-     !$omp target update to(klim, dir, hy_dlim,gCells)
+     !$omp target update to(klim, dir, lim,gCells)
      !$omp target teams distribute parallel do collapse(3) default(none) &
      !$omp shared(dir,hy_starState,hy_rope,hy_grv,hy_grav,hy_shck,hy_flat,&
-     !$omp hy_flat3d,klim,gCells,hy_dlim) private(i,j,k,n,i_s, j_s, k_s)
-     do k = hy_dlim(LOW,3) - gCells(3), hy_dlim(HIGH,3) + gCells(3)
-        do j = hy_dlim(LOW,2) - gCells(2), hy_dlim(HIGH,2) + gCells(2)
-           do i = hy_dlim(LOW,1) - gCells(1), hy_dlim(HIGH,1) + gCells(1)
-              i_s = 1 + i - hy_dlim(LOW,1) + gCells(1)
-              j_s = 1 + j - hy_dlim(LOW,2) + gCells(2)
-              k_s = 1 + k - hy_dlim(LOW,3) + gCells(3)
+     !$omp hy_flat3d,klim,gCells,lim) private(i,j,k,n,i_s, j_s, k_s)
+     do k = limgc(LOW,KAXIS), limgc(HIGH,KAXIS)
+        do j = limgc(LOW,JAXIS), limgc(HIGH,JAXIS)
+           do i = limgc(LOW,IAXIS), limgc(HIGH,IAXIS)
+              i_s = 1 + i - lim(LOW,1) + gCells(1)
+              j_s = 1 + j - lim(LOW,2) + gCells(2)
+              k_s = 1 + k - lim(LOW,3) + gCells(3)
               if (dir == IAXIS) then
                  hy_rope(HY_DENS,i_s,j_s,k_s) = hy_starState(DENS_VAR,i,j,k)
                  hy_rope(HY_VELX,i_s,j_s,k_s) = hy_starState(VELX_VAR,i,j,k)
@@ -250,7 +255,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      end do
      
      !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
-     !$omp private(i1,i2,i3) shared(hy_dlim,klim)
+     !$omp private(i1,i2,i3) shared(lim,klim)
      
      ! call Timers_start("recon"//dir_str)
      
@@ -373,14 +378,14 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      ! Save the fluxes
      ! ***************
      !$omp target teams distribute parallel do collapse(3) &
-     !$omp private(i1,i2,i3,i_s,j_s,k_s) shared(dir,hy_dlim,gCells,hy_flx,hy_fly,hy_flz,hy_flux,klim) default(none)
+     !$omp private(i1,i2,i3,i_s,j_s,k_s) shared(dir,lim,gCells,hy_flx,hy_fly,hy_flz,hy_flux,klim) default(none)
      
      do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
         do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)      
-              i_s = -1+i1+hy_dlim(LOW,1)-gCells(1)
-              j_s = -1+i2+hy_dlim(LOW,2)-gCells(2)
-              k_s = -1+i3+hy_dlim(LOW,3)-gCells(3)
+              i_s = -1+i1+lim(LOW,1)-gCells(1)
+              j_s = -1+i2+lim(LOW,2)-gCells(2)
+              k_s = -1+i3+lim(LOW,3)-gCells(3)
               select case(dir)
               case(IAXIS)
                  hy_flx(:,i_s,j_s,k_s) = hy_flux(:,i1,i2,i3)

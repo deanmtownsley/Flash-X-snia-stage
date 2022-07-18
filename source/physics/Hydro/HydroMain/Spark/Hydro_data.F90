@@ -47,7 +47,6 @@ module Hydro_data
   real, dimension(MDIM) :: hy_del
   logical :: scratch_allocated
 
-  integer,  dimension(LOW:HIGH,MDIM) :: hy_dlim, hy_dlimGC
   real :: hy_dt, hy_dtmin
   logical :: hy_shockDetectOn
   logical :: hy_useTiling 
