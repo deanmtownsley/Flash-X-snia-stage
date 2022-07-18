@@ -18,15 +18,17 @@ module Hydro_data
   implicit none
   save
 
-  
-  real, target :: hya_flux(NFLUXES,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_rope(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_uPlus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_uMinus(NRECON,GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_flat(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_shck(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
-  real, target :: hya_grv(GRID_IHI_GC+2,GRID_JHI_GC+2*K2D,GRID_KHI_GC+2*K3D)
 
+  real, target, allocatable :: hya_flux(:)
+  real, target, allocatable :: hya_flat(:)
+  real, target, allocatable :: hya_shck(:)
+  real, target, allocatable :: hya_grv(:)
+
+  real, target, allocatable :: hya_rope(:)
+  real, target, allocatable :: hya_uPlus(:)
+  real, target, allocatable :: hya_uMinus(:)
+  
+  
   
   real, allocatable, target :: hy_tmpState(:,:,:,:)
   real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol

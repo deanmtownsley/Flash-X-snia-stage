@@ -39,7 +39,7 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   
-  integer :: max_edge, max_edge_y, max_edge_z
+  integer :: max_edge, max_edge_y, max_edge_z,space
   
   max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
        blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
@@ -53,36 +53,73 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
 #endif
   ! print *, "max edge", max_edge
   !Construct arrays to hold fluxes used for solution update
+  space=max_edge*max_edge_y*max_edge_z
+  if (.NOT. allocated(hya_flux)) then
+     allocate(hya_flux(NFLUXES*space))
+     hya_flux=0.
+  end if
+
+  if (.NOT. allocated(hya_rope)) then
+     allocate(hya_rope((1+NRECON)*space))
+     hya_rope=0.
+  end if
+
+  if (.NOT. allocated(hya_uPlus)) then
+     allocate(hya_uPlus((1+NRECON)*space))
+     hya_uPlus=0.
+  end if
+
+  if (.NOT. allocated(hya_uMinus)) then
+     allocate(hya_uMinus((1+NRECON)*space))
+     hya_uMinus=0.
+  end if
+
+  if (.NOT. allocated(hya_flat)) then
+     allocate(hya_flat(space))
+     hya_flat=0.
+  end if
+  
+  if (.NOT. allocated(hya_shck)) then
+     allocate(hya_shck(space))
+     hya_shck=0.
+  end if
+  
+  if (.NOT. allocated(hya_grv)) then
+     allocate(hya_grv(space))
+     hya_grv=0.
+  end if
+  
+
   
   if (.NOT. allocated(hy_flx)) then
      allocate(hy_flx(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
      hy_flx = 0.
   endif
   
   if (.NOT. allocated(hy_fly)) then
      allocate(hy_fly(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+1*K2D,&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+1*K2D,&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
      hy_fly = 0.
   endif
   if (.NOT. allocated(hy_flz)) then
      allocate(hy_flz(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+1*K3D))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+1*K3D))
      hy_flz = 0.
   endif
   if (.NOT. allocated(hy_flat3d)) then
      allocate(hy_flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
      hy_flat3d = 0.
   endif
   if (.NOT. allocated(hy_Vc)) then
      allocate(hy_Vc(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
      hy_Vc =0.
   end if
   
@@ -91,24 +128,24 @@ blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   !Gravity 
   if (.NOT. allocated(hy_grav)) then
      allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
   
   if (.NOT. allocated(hy_starState)) then
      allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
   
   if (.NOT. allocated(hy_tmpState)) then
      allocate(hy_tmpState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
-
+  
   !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
-
+  
   call allocate_fxscr(blkLimits,blkLimitsGC)
   
 end subroutine allocate_scr

@@ -57,8 +57,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
-#define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
-
 
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i1,i2,i3, n, g, v, dir, ierr,i,j,k,i_s,j_s,k_s
@@ -94,17 +92,18 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      ! call Timers_stop("hy_flat3d")
   end if
   
-  hy_flux=>hya_flux
-  hy_rope=>hya_rope
-  hy_uPlus=>hya_uPlus
-  hy_uMinus=>hya_uMinus
-  hy_flat=>hya_flat
-  hy_shck=>hya_shck
-  hy_grv=>hya_grv
+  hy_flux(1:NFLUXES,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flux
+  hy_flat(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_flat
+  hy_shck(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_shck
+  hy_grv(1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D)=>hya_grv
   
+  hy_rope(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_rope
+  hy_uPlus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uPlus
+  hy_uMinus(1:NRECON,1:GRID_IHI_GC+2,1:GRID_JHI_GC+2*K2D,1:GRID_KHI_GC+2*K3D) => hya_uMinus
 
-  
+
   !  Begin loop over zones
+
   do dir = 1, NDIM
      select case(dir)
      case (IAXIS)
