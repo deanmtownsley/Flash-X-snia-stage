@@ -43,11 +43,12 @@
 !!Reorder(4):hy_starState,hy_fl[xyz] 
 subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock, &
-       hy_starState, hy_grav, hy_flattening, hy_flx, hy_fly, hy_flz
-  use Hydro_data, ONLY : hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc
-  use Hydro_data, ONLY : hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, hya_shck, hya_flux, &
-  hy_flat3d
+  use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
+       hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
+      
+  use Hydro_data, ONLY : hy_grav, hy_flx, hy_fly, hy_flz, hy_flat3d 
+  use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
+       hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del
   use hy_rk_interface, ONLY : hy_reconstruct
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -71,16 +72,18 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   logical :: inShock
   real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
-  real,dimension(:,:,:,:),pointer :: hy_rope, hy_uPlus, hy_uMinus,hy_flux
+  real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,hy_starState
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv
 
-  !$omp target data map(to: dir, klim,lim,gCells)
+  hy_starState(1:NUNK_VARS,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
+  
   if (hy_flattening) then
-     call flattening(limits)
+     call flattening(limits,hy_starState)
   else
      ! call Timers_start("hy_flat3d")
-     !$omp target teams distribute parallel do collapse(3) &
-     !$omp shared(blkLimitsGC,hy_flat3d) private(i1,i2,i3) default(none) map(to:blkLimitsGC)
      !! TODO: Set this once for both rk steps.
      do k=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
         do j=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
@@ -144,7 +147,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      hy_rope(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_rope
      hy_uPlus(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_uPlus
      hy_uMinus(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_uMinus
-     
+
      
      !$omp target update to(klim, dir, lim,gCells)
      !$omp target teams distribute parallel do collapse(3) default(none) &
@@ -430,11 +433,12 @@ contains
   
   
   !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
-  subroutine flattening(limits)
+  subroutine flattening(limits,hy_starState)
     !! This follows Miller & Colella 2002
-    use Hydro_data, ONLY : hy_starState, hy_flat3d
+    use Hydro_data, ONLY : hy_flat3d
     implicit none
     integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+    real,pointer,dimension(:,:,:,:) :: hy_starState
     !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     !real :: hy_flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     real :: hy_flatTilde(NDIM,limits(LOW,IAXIS):limits(HIGH,IAXIS),&

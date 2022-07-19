@@ -74,23 +74,26 @@ end subroutine addFluxes
 !! If offloading to a device, send data and allocate on device only.
 subroutine saveState(Uin,blkLimits,blklimitsGC)
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hy_starState, hy_tmpState
+  use Hydro_data, ONLY : hya_starState, hya_tmpState
   implicit none
   
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   real, pointer :: Uin(:,:,:,:)
+    real, pointer,dimension(:,:,:,:)::hy_starState,hy_tmpState
   integer ::  v,i1,i2,i3
   ! call Timers_start("Allocations")
   
   ! Allocate needed space on GPU if it is not already there
   
-  
+  hy_starState(1:NUNK_VARS,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
+  hy_tmpState(1:NUNK_VARS,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_tmpState
   ! update temp vars with solution data
-  
-  ! move data to GPU
-  !$omp target enter data map(alloc:hy_starState,hy_tmpState)
-  !$omp target teams distribute parallel do collapse(4) map(to:blkLimitsGC,Uin) &
-  !$omp shared(Uin,hy_starState,blkLimitsGC,hy_tmpState) private(v,i1,i2,i3) default(none)
   
   do i3=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
      do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
@@ -102,29 +105,27 @@ subroutine saveState(Uin,blkLimits,blklimitsGC)
         end do
      end do
   end do
+  nullify (hy_starState)
+  nullify(hy_tmpState)
 end subroutine saveState
 
 
 subroutine updateState(Uin,blkLimits,blkLimitsGC)
-  use Hydro_data, ONLY : hy_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hya_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, &
                          hy_smalldens, hy_smallE, hy_smallpres, &
                          hy_smallX, hy_cvisc, hy_del
-  use Hydro_data, ONLY : hy_tmpState,hy_flat3d
+  use Hydro_data, ONLY : hy_flat3d
   
   implicit none
-  real,dimension(:,:,:,:),pointer :: Uin
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  !hy_uPlus,hy_uMinus,hy_shck,hy_rope,hy_flat,hy_grv,hy_flux
-  !$omp target exit data map(DELETE:hy_flat3d,hy_tmpState,hy_flx,hy_fly,hy_flz)
-  !$omp target exit data map(DELETE:hy_grav)
-  !$omp target update from(hy_starState)
+  real,dimension(:,:,:,:),pointer :: Uin
+  real,dimension(:,:,:,:),pointer :: hy_starState
 
-
-  !$omp parallel if(hy_threadWithinBlock) &
-  !$omp default(none) &
-  !$omp shared(Uin,hy_starState,blkLimits,blkLimitsGC)
-  !$omp workshare
+   hy_starState(1:NUNK_VARS,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
 #ifdef GPOT_VAR
   ! First reset GPOT_VAR.
   hy_starState(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
@@ -140,12 +141,7 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
        hy_starState(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
        blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
        blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-  
-  !$omp end workshare
-  !$omp end parallel
-  !$omp target exit data map(DELETE:hy_starState)
-
-!!$  deallocate(hy_starState)
+  nullify(hy_starState)
 end subroutine updateState
 
 !! Set loop limits.  We include ngcell layers of guard zones

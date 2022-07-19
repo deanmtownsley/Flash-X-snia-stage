@@ -20,7 +20,7 @@
 !! 
 !!***
 !!Reorder directive used by FLASH with --index-reorder flag at setup
-!!Reorder(4): hy_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
+!!Reorder(4): hya_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
 
 #include "Simulation.h"
 #include "constants.h"
@@ -30,19 +30,20 @@
 
 subroutine allocate_scr(blkLimits,blkLimitsGC)
   
-  use Hydro_data, ONLY : hy_starState,  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY :  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
        hy_alphaGLM,hy_Vc,scratch_allocated
-  use Hydro_data, ONLY :  hya_uPlus, hya_uMinus,&
-       hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hy_flat3d,hy_tmpState
+
+  use Hydro_data, ONLY : hya_starState,  hya_uPlus, hya_uMinus,&
+       hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hy_flat3d,hya_tmpState
+
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   
   integer :: max_edge, max_edge_y, max_edge_z,space
   
-  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
-       blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
+  max_edge = MEDGE+2
   max_edge_y = 1
   max_edge_z = 1
 #if NDIM==2
@@ -88,7 +89,15 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
      allocate(hya_grv(space))
      hya_grv=0.
   end if
+
+  if (.NOT. allocated(hya_starState)) then
+     allocate(hya_starState(NUNK_VARS*space))
+  endif
   
+  if (.NOT. allocated(hya_tmpState)) then
+     allocate(hya_tmpState(NUNK_VARS*space))
+  endif
+
 
   
   if (.NOT. allocated(hy_flx)) then
@@ -132,17 +141,6 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
           blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
   endif
   
-  if (.NOT. allocated(hy_starState)) then
-     allocate(hy_starState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
-  
-  if (.NOT. allocated(hy_tmpState)) then
-     allocate(hy_tmpState(NUNK_VARS,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
   
   !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
   
@@ -151,11 +149,11 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
 end subroutine allocate_scr
 
 subroutine deallocate_scr()
-  use Hydro_data, ONLY : hy_starState,  hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hya_starState,  hy_grav, hy_flx, hy_fly, hy_flz,&
        hy_Vc
   
   use Hydro_data, ONLY : &
-       hy_flat3d,hy_tmpState
+       hy_flat3d,hya_tmpState
 
   if(allocated(hy_flx))deallocate(hy_flx)
   if(allocated(hy_fly))deallocate(hy_fly)
@@ -163,8 +161,8 @@ subroutine deallocate_scr()
   if(allocated(hy_flat3d))deallocate(hy_flat3d)
   if(allocated(hy_Vc))deallocate(hy_Vc)
   if(allocated(hy_grav))deallocate(hy_grav)
-  if(allocated(hy_starState))deallocate(hy_starState)
-  if(allocated(hy_tmpState))deallocate(hy_tmpState)
+  if(allocated(hya_starState))deallocate(hya_starState)
+  if(allocated(hya_tmpState))deallocate(hya_tmpState)
   call deallocate_fxscr()
 end subroutine deallocate_scr
 

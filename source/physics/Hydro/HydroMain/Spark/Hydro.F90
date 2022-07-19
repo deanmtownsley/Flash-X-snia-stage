@@ -22,10 +22,14 @@
 !!Reorder(4): hy_fl[xyz]
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
-  use Hydro_data, ONLY :  hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_starState, &
-       hy_gcMask, hy_lChyp, hy_C_hyp, hy_geometry,hy_del, &
-       hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
-       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc ,hy_flat3d
+
+  use Hydro_data, ONLY :   hya_starState,hy_Vc ,hy_flat3d, &      
+       hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
+       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  
+  use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
+       hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
+
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
   use hy_data, ONLY : hy_useHydro
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -71,7 +75,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
     logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v,maxcells
   
-    real, pointer :: Utemp(:,:,:,:)
+    real, pointer :: hy_starState(:,:,:,:)
   
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
@@ -242,10 +246,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
-           
+           hy_starState(1:NUNK_VARS,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            call Timers_stop("eos")
-           
+           nullify(hy_starState)
            !Finally update the state
            if (stage == last_stage) then
               call Timers_start("scratch")
