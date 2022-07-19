@@ -42,8 +42,6 @@ module Hydro_data
   real, allocatable :: hy_grav(:,:,:,:)  
   real, allocatable, target :: hy_starState(:,:,:,:)
 
-  logical :: hydro_GPU_scratch = .False.
-
   real, dimension(MDIM) :: hy_del
   logical :: scratch_allocated
 
