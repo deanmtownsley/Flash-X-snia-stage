@@ -48,7 +48,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hy_farea,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
@@ -85,7 +85,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   !integer,dimension(MDIM) :: pos
   integer :: vecLen = 1 !b/c updated cell by cell
   integer, dimension(LOW:HIGH,MDIM)  :: range
-!!  real,pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
+  real,pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
   
   lo(:) = blkLimits(LOW,:)
   hi(:) = blkLimits(HIGH,:)
@@ -97,20 +97,20 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 
    !~ coarse side of f/c boundary, 0 elsewhere
 
-!!$  hy_fluxBufX(1:NFLUXES,&
-!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
-!!$
-!!$  hy_fluxBufY(1:NFLUXES,&
-!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
-!!$
-!!$  hy_fluxBufZ(1:NFLUXES,&
-!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufZ
+  hy_fluxBufX(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
+
+  hy_fluxBufY(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
+
+  hy_fluxBufZ(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_fluxBufZ
    
    
    do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
@@ -277,7 +277,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
 !  !$omp end parallel
 
-
+  nullify(hy_fluxBufX)
+  nullify(hy_fluxBufY)
+  nullify(hy_fluxBufZ)  
+  
 
 contains
 

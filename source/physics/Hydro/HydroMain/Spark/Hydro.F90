@@ -24,7 +24,7 @@
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY :   hya_starState, &      
-       hya_flx, hya_fly, hya_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
+       hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
@@ -75,8 +75,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
     logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v,maxcells
   
-    real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
-  
+  real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
+  real, pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ  
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
   integer :: pLo,pHi !low and high indices for pencil arrays
@@ -270,9 +270,31 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            deallocate(hy_yCenter)
            deallocate(hy_zCenter)
         end if
-        !Store flux buffer in semipermanent flux storage (SPFS) 
-        if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
-             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
+        !Store flux buffer in semipermanent flux storage (SPFS)
+        
+        if (hy_fluxCorrect) then
+           hy_fluxBufX(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
+           
+           hy_fluxBufY(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
+           
+           hy_fluxBufZ(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_fluxBufZ
+           
+           call Grid_putFluxData_block(tileDesc,&
+                hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
+           nullify(hy_fluxBufX)
+           nullify(hy_fluxBufY)
+           nullify(hy_fluxBufZ)  
+           
+        end if
         call Timers_stop("Offloaded Section")
         call deallocate_scr
 
@@ -305,9 +327,26 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
            call allocate_fxscr(blkLimits,blkLimitsGC)
+           hy_fluxBufX(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
+           
+           hy_fluxBufY(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
+           
+           hy_fluxBufZ(1:NFLUXES,&
+                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_fluxBufZ
            
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
+           nullify(hy_fluxBufX)
+           nullify(hy_fluxBufY)
+           nullify(hy_fluxBufZ)  
            
            if (hy_geometry /= CARTESIAN) then
               allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
