@@ -24,7 +24,7 @@
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY :   hya_starState, &      
-       hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
+       hya_flx, hya_fly, hya_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
@@ -75,7 +75,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
     logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v,maxcells
   
-    real, pointer :: hy_starState(:,:,:,:)
+    real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
   
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
@@ -408,12 +408,28 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               if (stage == last_stage) then
                  if (lev < maxLev) then
+                    hy_flx(1:NFLUXES,&
+                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
+                    
+                    hy_fly(1:NFLUXES,&
+                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
+                    
+                    hy_flz(1:NFLUXES,&
+                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+                    
                     call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
                          hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
                          hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
                          blkLimits(LOW,:),-1/weights(stage),&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
+                    nullify(hy_flx);nullify(hy_fly);nullify(hy_flz)
                  endif
               endif
               

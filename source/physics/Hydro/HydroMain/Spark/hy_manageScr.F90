@@ -30,7 +30,7 @@
 
 subroutine allocate_scr(blkLimits,blkLimitsGC)
   
-  use Hydro_data, ONLY :  hy_fluxCorrect, hya_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY :  hy_fluxCorrect, hya_grav, hya_flx, hya_fly, hya_flz,&
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
        hy_alphaGLM
@@ -115,24 +115,18 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
 
   
   
-  if (.NOT. allocated(hy_flx)) then
-     allocate(hy_flx(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
-     hy_flx = 0.
+  if (.NOT. allocated(hya_flx)) then
+     allocate(hya_flx(NFLUXES*space))
+     hya_flx = 0.
   endif
   
-  if (.NOT. allocated(hy_fly)) then
-     allocate(hy_fly(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+1*K2D,&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+0*K3D))
-     hy_fly = 0.
+  if (.NOT. allocated(hya_fly)) then
+     allocate(hya_fly(NFLUXES*space))
+     hya_fly = 0.
   endif
-  if (.NOT. allocated(hy_flz)) then
-     allocate(hy_flz(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+0,&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+0*K2D,&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+1*K3D))
-     hy_flz = 0.
+  if (.NOT. allocated(hya_flz)) then
+     allocate(hya_flz(NFLUXES*Space))
+     hya_flz = 0.
   endif
   
   
@@ -141,13 +135,13 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
 end subroutine allocate_scr
 
 subroutine deallocate_scr()
-  use Hydro_data, ONLY : hya_starState,  hya_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY : hya_starState,  hya_grav, hya_flx, hya_fly, hya_flz,&
        hya_Vc,  hya_flat3d,hya_tmpState
   
 
-  if(allocated(hy_flx))deallocate(hy_flx)
-  if(allocated(hy_fly))deallocate(hy_fly)
-  if(allocated(hy_flz))deallocate(hy_flz)
+  if(allocated(hya_flx))deallocate(hya_flx)
+  if(allocated(hya_fly))deallocate(hya_fly)
+  if(allocated(hya_flz))deallocate(hya_flz)
   if(allocated(hya_flat3d))deallocate(hya_flat3d)
   if(allocated(hya_Vc))deallocate(hya_Vc)
   if(allocated(hya_grav))deallocate(hya_grav)

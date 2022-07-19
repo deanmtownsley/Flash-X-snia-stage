@@ -46,7 +46,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
       
-  use Hydro_data, ONLY : hya_grav, hy_flx, hy_fly, hy_flz, hya_flat3d 
+  use Hydro_data, ONLY : hya_grav, hya_flx, hya_fly, hya_flz, hya_flat3d 
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del
@@ -73,7 +73,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
   real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,&
-       hy_starState,hy_grav
+       hy_starState,hy_grav, hy_flx, hy_fly, hy_flz
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv,hy_flat3d
 
   hy_starState(1:NUNK_VARS,&
@@ -89,7 +89,22 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   hy_flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flat3d
-  
+
+  hy_flx(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
+
+  hy_fly(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
+
+  hy_flz(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+   
   if (hy_flattening) then
      call flattening(limits)
   else
@@ -316,17 +331,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      end do
 
            
-     !$omp target teams distribute parallel do collapse(2) & ! This collapse 2 is because there is a data dependency
-     !$omp private(i1,i2,i3) shared(dir,klim)
-     
-     
-     ! Check for shocks in the zones involved in flux calculation
-     
-     
-     ! Now call the Riemann solver to compute fluxes
-     !!klim(LOW,1)=klim(LOW,1)+1
-     !$omp target teams distribute parallel do collapse(3) &
-     !$omp private(i1,i2,i3) shared(dir,klim,hy_flux) default(none)
      do i3=klim(LOW,KAXIS),klim(HIGH,KAXIS)
         do i2=klim(LOW,JAXIS),klim(HIGH,JAXIS)
            do i1=klim(LOW,IAXIS),klim(HIGH,IAXIS)
@@ -422,7 +426,9 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   nullify(hy_starState)
   nullify(hy_grav)
   nullify(hy_flat3d)
-  
+  nullify(hy_flx)
+  nullify(hy_fly)
+  nullify(hy_flz)  
   !$omp end target data
   
   
