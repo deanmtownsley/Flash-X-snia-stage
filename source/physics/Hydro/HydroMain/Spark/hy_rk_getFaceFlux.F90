@@ -91,19 +91,19 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flat3d
 
   hy_flx(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
 
   hy_fly(1:NFLUXES,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
 
   hy_flz(1:NFLUXES,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_flz
    
   if (hy_flattening) then
      call flattening(limits)

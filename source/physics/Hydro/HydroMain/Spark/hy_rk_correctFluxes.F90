@@ -85,7 +85,8 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   !integer,dimension(MDIM) :: pos
   integer :: vecLen = 1 !b/c updated cell by cell
   integer, dimension(LOW:HIGH,MDIM)  :: range
-
+!!  real,pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
+  
   lo(:) = blkLimits(LOW,:)
   hi(:) = blkLimits(HIGH,:)
 
@@ -94,23 +95,25 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
    dhdt = minval(hy_del(1:NDIM))/dt
 
   !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 
-  !~ coarse side of f/c boundary, 0 elsewhere
+   !~ coarse side of f/c boundary, 0 elsewhere
 
- 
-!  !$omp parallel if (.FALSE.) &
-!  !$omp default(none) &
-!  !$omp firstprivate(vecLen)&
-!  !$omp private(n,i,j,k,Vstar,facM,facP,range,hy_eosData,hy_mfrac,&
-!  !$omp         emag,ekin,dx,dy,dz,fac,dFlux)&
-!  !$omp shared(dt,Uin,p_fluxBufX,p_fluxBufY,p_fluxBufZ&
-!  !$omp        hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,hy_xCenter,hy_xLeft,hy_xRight,&
-!  !$omp        blkLimits,blkLimitsGC,hy_alphaGLM, hy_C_hyp,&
-!  !$omp        dhdt, hy_smalldens, hy_smallE,hy_del)
-
-  ! Correct IAXIS sides
-  !$omp do schedule(static) collapse(2)
-  !Change limits to grownTile?
-  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+!!$  hy_fluxBufX(1:NFLUXES,&
+!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
+!!$
+!!$  hy_fluxBufY(1:NFLUXES,&
+!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
+!!$
+!!$  hy_fluxBufZ(1:NFLUXES,&
+!!$       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+!!$       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+!!$       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufZ
+   
+   
+   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
         !! LOW side
         i = blkLimits(LOW,IAXIS)

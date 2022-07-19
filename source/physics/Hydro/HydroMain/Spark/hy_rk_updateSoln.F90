@@ -104,19 +104,19 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
 
   hy_flx(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
 
   hy_fly(1:NFLUXES,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
 
   hy_flz(1:NFLUXES,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_flz
   
   
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
