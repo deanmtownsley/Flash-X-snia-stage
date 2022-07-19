@@ -42,7 +42,7 @@
 !!
 !!
 !!***
-!!Reorder(4):p_fluxBuf[XYZ],Uin
+!!Reorder(4):hy_fluxBuf[XYZ],Uin
 subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
@@ -72,7 +72,6 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   integer :: i,j,k,n,g
 
 
-  real, pointer :: p_fluxBufX(:,:,:,:),p_fluxBufY(:,:,:,:),p_fluxBufZ(:,:,:,:)
   real, pointer :: Vstar(:)
   real :: dx, dy, dz
   real :: dFlux(NFLUXES)
@@ -97,18 +96,6 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 
   !~ coarse side of f/c boundary, 0 elsewhere
 
-  nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
-  !These pointers allow us to use hy_fluxBuf[XYZ] (whose limits
-  !are hard coded in FBS mode) within the varying loop limits below
-
-  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hy_fluxBufX
-#if NDIM>1  
-  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hy_fluxBufY
-#if NDIM==3
-  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hy_fluxBufZ
-#endif
-#endif
-
  
 !  !$omp parallel if (.FALSE.) &
 !  !$omp default(none) &
@@ -131,12 +118,12 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         !~ (-) sign b/c fluxes are leaving on the low side
-        dFlux = -p_fluxBufX(:,i  ,j  ,k  )
+        dFlux = -hy_fluxBufX(:,i  ,j  ,k  )
         dx = hy_del(IAXIS)
         ! Get geometric factors and sources
         call geoFacs(i,j,k,facM,facP)
         fac = facM
-        ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
+        ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMHY_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         !Update primitives (Vstar)
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
@@ -161,7 +148,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         ! Positive b/c fluxes are entering on the high side
-        dFlux = p_fluxBufX(:,i+1  ,j  ,k  )
+        dFlux = hy_fluxBufX(:,i+1  ,j  ,k  )
         dx = hy_del(IAXIS)
         ! Get geometric factors and sources
         call geoFacs(i,j,k,facM,facP)
@@ -192,7 +179,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = -p_fluxBufY(:,i  ,j  ,k  )
+        dFlux = -hy_fluxBufY(:,i  ,j  ,k  )
         fac = 1.0
         dx = hy_del(JAXIS)
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -214,7 +201,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = p_fluxBufY(:,i  ,j+1  ,k  )
+        dFlux = hy_fluxBufY(:,i  ,j+1  ,k  )
         fac = 1.0
         dx = hy_del(JAXIS)
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -242,7 +229,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = -p_fluxBufZ(:,i  ,j  ,k  )
+        dFlux = -hy_fluxBufZ(:,i  ,j  ,k  )
         fac = 1.0
         dx = hy_del(KAXIS)
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -264,7 +251,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = p_fluxBufZ(:,i  ,j  ,k+1  )
+        dFlux = hy_fluxBufZ(:,i  ,j  ,k+1  )
         fac = 1.0
         dx = hy_del(KAXIS)
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -287,7 +274,6 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
 !  !$omp end parallel
 
-  nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
 
 
 contains
