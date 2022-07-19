@@ -111,11 +111,7 @@ end subroutine saveState
 
 
 subroutine updateState(Uin,blkLimits,blkLimitsGC)
-  use Hydro_data, ONLY : hya_starState, hy_threadWithinBlock, hy_grav, hy_flx, hy_fly, hy_flz,&
-                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, hy_fluxCorrect, &
-                         hy_smalldens, hy_smallE, hy_smallpres, &
-                         hy_smallX, hy_cvisc, hy_del
-  use Hydro_data, ONLY : hy_flat3d
+  use Hydro_data, ONLY : hya_starState
   
   implicit none
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
@@ -163,7 +159,7 @@ end subroutine setLims
 
 subroutine shockDetect(Uin,limits,blkLimitsGC)
 
-  use Hydro_data,        only : hy_geometry, hy_tiny, hy_Vc
+  use Hydro_data,        only : hy_geometry, hy_tiny, hya_Vc
 
   implicit none
 
@@ -181,12 +177,18 @@ subroutine shockDetect(Uin,limits,blkLimitsGC)
   real :: divv,gradPx,gradPy,gradPz
   real :: minP,minC,beta,delta
   real :: localCfl,cflMax
+  real,dimension(:,:,:),pointer :: hy_Vc
   
   !necessary for argument for %getDataPtr()
 
 #ifndef SHOK_VAR
   return
 #endif
+
+  hy_Vc(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_Vc
+
 
   ! Two parameters that can be adjusted to detect shocks
   ! with different strengths:
@@ -273,7 +275,7 @@ subroutine shockDetect(Uin,limits,blkLimitsGC)
     end do
     end do
     end do
-    
+    nullify(hy_Vc)
 
 end subroutine shockDetect
 

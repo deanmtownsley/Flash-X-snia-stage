@@ -47,7 +47,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
-       hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
+       hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
@@ -115,7 +115,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 !  !$omp firstprivate(vecLen)&
 !  !$omp private(n,i,j,k,Vstar,facM,facP,range,hy_eosData,hy_mfrac,&
 !  !$omp         emag,ekin,dx,dy,dz,fac,dFlux)&
-!  !$omp shared(dt,Uin,p_fluxBufX,p_fluxBufY,p_fluxBufZ,hy_grav,&
+!  !$omp shared(dt,Uin,p_fluxBufX,p_fluxBufY,p_fluxBufZ&
 !  !$omp        hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,hy_xCenter,hy_xLeft,hy_xRight,&
 !  !$omp        blkLimits,blkLimitsGC,hy_alphaGLM, hy_C_hyp,&
 !  !$omp        dhdt, hy_smalldens, hy_smallE,hy_del)

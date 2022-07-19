@@ -29,21 +29,20 @@ module Hydro_data
   real, target, allocatable :: hya_uMinus(:)
   real, allocatable, target :: hya_tmpState(:)
   real, allocatable, target :: hya_starState(:)
+  real, allocatable, target :: hya_Vc(:)
+  real, allocatable, target :: hya_grav(:)  
+  real,  allocatable,target :: hya_flat3d(:)
   
   
   
   real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
   real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
-  real,  allocatable :: hy_flat3d(:,:,:)
   real, allocatable, target :: hy_flx(:,:,:,:), hy_fly(:,:,:,:), hy_flz(:,:,:,:)
-  real, allocatable :: hy_Vc(:,:,:)
   !Flux buffers
   real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
-  real, allocatable :: hy_grav(:,:,:,:)  
 
   real, dimension(MDIM) :: hy_del
-  logical :: scratch_allocated
 
   real :: hy_dt, hy_dtmin
   logical :: hy_shockDetectOn

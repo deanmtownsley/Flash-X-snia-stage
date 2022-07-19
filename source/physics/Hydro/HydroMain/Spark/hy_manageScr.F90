@@ -30,13 +30,13 @@
 
 subroutine allocate_scr(blkLimits,blkLimitsGC)
   
-  use Hydro_data, ONLY :  hy_fluxCorrect, hy_grav, hy_flx, hy_fly, hy_flz,&
+  use Hydro_data, ONLY :  hy_fluxCorrect, hya_grav, hy_flx, hy_fly, hy_flz,&
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
        hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_del,hy_geometry, &
-       hy_alphaGLM,hy_Vc,scratch_allocated
+       hy_alphaGLM
 
-  use Hydro_data, ONLY : hya_starState,  hya_uPlus, hya_uMinus,&
-       hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hy_flat3d,hya_tmpState
+  use Hydro_data, ONLY : hya_starState,  hya_uPlus, hya_uMinus,hya_Vc,&
+       hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hya_flat3d,hya_tmpState
 
   implicit none
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
@@ -98,7 +98,22 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
      allocate(hya_tmpState(NUNK_VARS*space))
   endif
 
+  if (.NOT. allocated(hya_flat3d)) then
+     allocate(hya_flat3d(space))
+     hya_flat3d = 0.
+  endif
+  if (.NOT. allocated(hya_Vc)) then
+     allocate(hya_Vc(space))
+     hya_Vc =0.
+  end if
+  
+    
+  !Gravity 
+  if (.NOT. allocated(hya_grav)) then
+     allocate(hya_grav(MDIM*space))
+  endif
 
+  
   
   if (.NOT. allocated(hy_flx)) then
      allocate(hy_flx(NFLUXES,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
@@ -119,48 +134,23 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
           blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+1*K3D))
      hy_flz = 0.
   endif
-  if (.NOT. allocated(hy_flat3d)) then
-     allocate(hy_flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-     hy_flat3d = 0.
-  endif
-  if (.NOT. allocated(hy_Vc)) then
-     allocate(hy_Vc(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-     hy_Vc =0.
-  end if
   
-  
-  
-  !Gravity 
-  if (.NOT. allocated(hy_grav)) then
-     allocate(hy_grav(MDIM,blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)))
-  endif
-  
-  
-  !$omp target enter data map(alloc:hy_flat,hy_shck,hy_rope,hy_uMinus,hy_uPlus,hy_grv,hy_flux)
   
   call allocate_fxscr(blkLimits,blkLimitsGC)
   
 end subroutine allocate_scr
 
 subroutine deallocate_scr()
-  use Hydro_data, ONLY : hya_starState,  hy_grav, hy_flx, hy_fly, hy_flz,&
-       hy_Vc
+  use Hydro_data, ONLY : hya_starState,  hya_grav, hy_flx, hy_fly, hy_flz,&
+       hya_Vc,  hya_flat3d,hya_tmpState
   
-  use Hydro_data, ONLY : &
-       hy_flat3d,hya_tmpState
 
   if(allocated(hy_flx))deallocate(hy_flx)
   if(allocated(hy_fly))deallocate(hy_fly)
   if(allocated(hy_flz))deallocate(hy_flz)
-  if(allocated(hy_flat3d))deallocate(hy_flat3d)
-  if(allocated(hy_Vc))deallocate(hy_Vc)
-  if(allocated(hy_grav))deallocate(hy_grav)
+  if(allocated(hya_flat3d))deallocate(hya_flat3d)
+  if(allocated(hya_Vc))deallocate(hya_Vc)
+  if(allocated(hya_grav))deallocate(hya_grav)
   if(allocated(hya_starState))deallocate(hya_starState)
   if(allocated(hya_tmpState))deallocate(hya_tmpState)
   call deallocate_fxscr()

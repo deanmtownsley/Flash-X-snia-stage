@@ -38,7 +38,7 @@ subroutine Hydro_correctGravSrc(dt)
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_tile,         ONLY : Grid_tile_t
   use Grid_iterator,     ONLY : Grid_iterator_t
-  use Hydro_data, ONLY : hy_grav, hy_useTiling, hy_del
+  use Hydro_data, ONLY : hya_grav, hy_useTiling, hy_del
   
   implicit none
 
@@ -53,6 +53,7 @@ subroutine Hydro_correctGravSrc(dt)
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC,grownLimits
   real,dimension(MDIM) :: deltas
   real,    intent(in) :: dt
+  real,dimension(:,:,:,:), pointer :: hy_grav
 
   integer :: n, i, j, k
 
@@ -71,7 +72,11 @@ subroutine Hydro_correctGravSrc(dt)
      call tileDesc%getDataPtr(Uin, CENTER)
      limits=blkLimits
      call hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
-
+     hy_grav(1:MDIM,&
+          blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
+     
      do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
         do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
            do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
@@ -86,6 +91,7 @@ subroutine Hydro_correctGravSrc(dt)
            end do
         end do
      end do
+     nullify(hy_grav)
      call tileDesc%releaseDataPtr(Uin,CENTER)
      call itor%next()
   end do !!block loop

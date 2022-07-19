@@ -23,7 +23,7 @@
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
-  use Hydro_data, ONLY :   hya_starState,hy_Vc ,hy_flat3d, &      
+  use Hydro_data, ONLY :   hya_starState, &      
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
@@ -374,7 +374,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call allocate_scr(blkLimits,blkLimitsGC)
            call calcDivB(Uin,hy_del,blkLimits)
            call shockDetect(Uin,limits,blkLimitsGC)
-           deallocate(hy_Vc)
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
            ! U* = U0

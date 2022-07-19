@@ -46,9 +46,9 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
-       hy_flx, hy_fly, hy_flz, hy_grav
+       hy_flx, hy_fly, hy_flz
   use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
-  use Hydro_data, ONLY : hya_tmpState, hya_starState
+  use Hydro_data, ONLY : hya_tmpState, hya_starState, hya_grav
   use Driver_interface, ONLY : Driver_abort
   
   implicit none
@@ -63,7 +63,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt, dtOld
   real, dimension(3), intent(IN) :: coeffs
-  real,dimension(:,:,:,:),pointer :: hy_starState, hy_tmpState
+  real,dimension(:,:,:,:),pointer :: hy_starState, hy_tmpState,hy_grav
 
   integer :: i,j,k,n,g
 
@@ -96,6 +96,11 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_tmpState
+
+  hy_grav(1:MDIM,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
   
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
@@ -106,7 +111,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   enddo !k
   nullify(hy_starState)
   nullify(hy_tmpState)
-
+  nullify(hy_grav)
 
 
 contains
@@ -204,9 +209,9 @@ contains
 
 
 subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-  use Hydro_data, only : hy_flx, hy_fly, hy_flz, hy_grav,hy_alphaGLM,hy_C_hyp, &
+  use Hydro_data, only : hy_flx, hy_fly, hy_flz, hy_alphaGLM,hy_C_hyp, &
        hy_smalldens, hy_smallE
-  use Hydro_data, only :  hya_starState,hya_tmpState
+  use Hydro_data, only :  hya_starState,hya_tmpState,hya_grav
   implicit none
   integer, intent(in) :: i,j,k
   real, dimension(3), intent(IN) :: coeffs

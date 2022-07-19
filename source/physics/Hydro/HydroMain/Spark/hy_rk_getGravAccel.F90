@@ -40,7 +40,7 @@
 subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
-  use Hydro_data, ONLY : hy_grav,hya_starState
+  use Hydro_data, ONLY : hya_grav,hya_starState
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -49,7 +49,7 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
 
   real,dimension(MDIM),intent(IN)  :: hy_del
   integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-  real,dimension(:,:,:,:),pointer :: hy_starState
+  real,dimension(:,:,:,:),pointer :: hy_starState,hy_grav
 
 
   integer, dimension(MDIM) :: loGC, hiGC
@@ -62,6 +62,11 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
+
+  hy_grav(1:MDIM,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
   
 
   !$omp target teams distribute parallel do collapse(4) shared(blkLimitsGC,hy_grav) private(d,i,j,k) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
@@ -122,6 +127,7 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
 #endif
 #endif /* GRAVITY */
   nullify(hy_starState)
+  nullify(hy_grav)  
 contains
 
   subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del,hy_starState)
