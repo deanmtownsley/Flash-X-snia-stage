@@ -91,7 +91,7 @@
 
 subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduced, separateFiles)
 
-  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen, log_globalNumProcs   
+  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen, log_globalNumProcs, log_fileName   
   use Logfile_interface, ONLY : Logfile_break, Logfile_close, &
     Logfile_open
 !   use Driver_interface, ONLY : Driver_getMype, Driver_getComm, Driver_getNumProcs
@@ -105,7 +105,7 @@ subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduc
   character(len=MAX_STRING_LENGTH), intent(in), dimension(length,dim)  :: strArr
   logical, optional, intent(IN)                        :: reduced
   logical, optional, intent(IN)                        :: separateFiles
-  character(len=MAX_STRING_LENGTH)                     :: indentStr, tag
+  character(len=MAX_STRING_LENGTH)                     :: indentStr, tag, filename
 
   integer  :: i, j, tmpLen
   logical  :: doreduced, doseparate
@@ -113,22 +113,25 @@ subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduc
   logical :: logUnitLocal=.false.
 
 !   call Driver_getNumProcs(GLOBAL_COMM,log_globalNumProcs)
-   open(20, file = "timer_output.csv", action = "write")
+   filename = trim(log_fileName) // trim(".csv")
+   open(20, file = trim(filename), action = "write")
    if (log_globalMe .eq. MASTER_PE) then
       do i=0, length-6
-         write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 2)))
-         write(20 ,fmt="(1x, a)", advance="no") ","
+
+         ! trimmed = TRANSFER(PACK(adjustl(trim(strArr(6+i, 2))),adjustl(trim(strArr(6+i, 2)))/=' '),trimmed)
+         write(20 ,fmt="(G0, a)", advance="no") adjustl(trim(strArr(6+i, 2)))
+         write(20 ,fmt="(G0, a)", advance="no") ","
          write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 7)))
-         write(20 ,fmt="(1x, a)", advance="no") ","
+         write(20 ,fmt="(G0, a)", advance="no") ","
          write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8)))
-         write(20 ,fmt="(1x, a)", advance="no") ","
+         write(20 ,fmt="(G0, a)", advance="no") ","
 
          do j=1, log_globalNumProcs
             if (j .eq. log_globalNumProcs) then
                write(20,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
             else
                write(20,fmt="(1x, a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
-         write(20 ,fmt="(1x, a)", advance="no") ","
+         write(20 ,fmt="(G0, a)", advance="no") ","
             endif
          enddo
          write(20,*)
