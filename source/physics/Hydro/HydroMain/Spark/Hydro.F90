@@ -156,6 +156,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      ! Loop over blocks and compute Hydro update block-by-block
      nullify(Uin)
+     call allocate_scr(blkLimits,blkLimitsGC)
      call Grid_getTileIterator(itor, LEAF, tiling=.false.)
      do while(itor%isValid())
         call itor%currentTile(tileDesc)
@@ -168,7 +169,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      ! DivB will technically be lagged by 1 step, but we need ghost zones to
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         
-        call allocate_scr(blkLimits,blkLimitsGC)
         if (hy_geometry /= CARTESIAN) then
            allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
            call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
@@ -296,12 +296,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
         end if
         call Timers_stop("Offloaded Section")
-        call deallocate_scr
 
         call tileDesc%releaseDataPtr(Uin,CENTER)
         call itor%next()
      end do !!block loop
      call Grid_releaseTileIterator(itor)
+     call deallocate_scr
         
      
      if (hy_fluxCorrect) then
