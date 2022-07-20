@@ -39,7 +39,7 @@
 !!    interior cells.
 !!
 !!***
-
+!!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz] 
 subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
@@ -76,34 +76,13 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
        hy_starState,hy_grav, hy_flx, hy_fly, hy_flz
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv,hy_flat3d
 
-  hy_starState(1:NUNK_VARS,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
+  hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
 
-  hy_grav(1:MDIM,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
+  hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
-  hy_flat3d(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flat3d
+  hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
-  hy_flx(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
-
-  hy_fly(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
-
-  hy_flz(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_flz
+  @M hy_map_fl
    
   if (hy_flattening) then
      call flattening(limits)
@@ -164,14 +143,14 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      lim1(HIGH,1)=lim1(HIGH,1)+1
 
      
-     hy_flux(1:NFLUXES,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS))=>hya_flux
-     hy_flat(lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS))=>hya_flat
-     hy_shck(lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS))=>hya_shck
-     hy_grv(lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS))=>hya_grv
+     hy_flux(1:NFLUXES,@M bounds_3d(lim1))=>hya_flux
+     hy_flat(@M bounds_3d(lim1))=>hya_flat
+     hy_shck(@M bounds_3d(lim1))=>hya_shck
+     hy_grv(@M bounds_3d(lim1))=>hya_grv
      
-     hy_rope(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_rope
-     hy_uPlus(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_uPlus
-     hy_uMinus(1:NRECON,lim1(LOW,IAXIS):lim1(HIGH,IAXIS),lim1(LOW,JAXIS):lim1(HIGH,JAXIS),lim1(LOW,KAXIS):lim1(HIGH,KAXIS)) => hya_uMinus
+     hy_rope(1:NRECON,@M bounds_3d(lim1)) => hya_rope
+     hy_uPlus(1:NRECON,@M bounds_3d(lim1)) => hya_uPlus
+     hy_uMinus(1:NRECON,@M bounds_3d(lim1)) => hya_uMinus
 
      
      do k = limgc(LOW,KAXIS), limgc(HIGH,KAXIS)
@@ -426,9 +405,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   nullify(hy_starState)
   nullify(hy_grav)
   nullify(hy_flat3d)
-  nullify(hy_flx)
-  nullify(hy_fly)
-  nullify(hy_flz)  
+  @M hy_nullFl
   !$omp end target data
   
   

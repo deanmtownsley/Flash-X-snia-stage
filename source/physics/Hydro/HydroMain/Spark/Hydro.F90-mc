@@ -20,7 +20,7 @@
 !!
 !!***
 !!Reorder(4): hy_fl[xyz]
-
+!!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY :   hya_starState, &      
@@ -274,26 +274,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !Store flux buffer in semipermanent flux storage (SPFS)
         
         if (hy_fluxCorrect) then
-           hy_fluxBufX(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
-           
-           hy_fluxBufY(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
-           
-           hy_fluxBufZ(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_fluxBufZ
+           @M hy_mapFluxBuf
            
            call Grid_putFluxData_block(tileDesc,&
                 hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
-           nullify(hy_fluxBufX)
-           nullify(hy_fluxBufY)
-           nullify(hy_fluxBufZ)  
+           @M hy_nullFluxBuf  
            
         end if
         call Timers_stop("Offloaded Section")
@@ -326,29 +311,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call tileDesc%getDataPtr(Uin, CENTER) 
            hy_del=deltas
         
-           
+           @M hy_mapFluxBuf
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
-           hy_fluxBufX(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufX
-           
-           hy_fluxBufY(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)+K2D,&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fluxBufY
-           
-           hy_fluxBufZ(1:NFLUXES,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS)+K3D)=>hya_fluxBufZ
+              
            
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
-           nullify(hy_fluxBufX)
-           nullify(hy_fluxBufY)
-           nullify(hy_fluxBufZ)  
+           @M hy_nullFluxBuf 
            
            if (hy_geometry /= CARTESIAN) then
               hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
