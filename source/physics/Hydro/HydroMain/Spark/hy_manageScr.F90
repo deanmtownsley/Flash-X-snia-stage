@@ -28,7 +28,7 @@
 #include "Eos.h"
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
-subroutine allocate_scr(blkLimits,blkLimitsGC)
+subroutine allocate_scr()
   
   use Hydro_data, ONLY :  hy_fluxCorrect, hya_grav, hya_flx, hya_fly, hya_flz,&
        hy_tiny,hy_hybridRiemann,hy_C_hyp, &
@@ -39,7 +39,6 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
        hya_shck, hya_rope, hya_flux, hya_flat, hya_grv,hya_flat3d,hya_tmpState
 
   implicit none
-  integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   
   integer :: max_edge, max_edge_y, max_edge_z,space
   
@@ -130,7 +129,7 @@ subroutine allocate_scr(blkLimits,blkLimitsGC)
   endif
   
   
-  call allocate_fxscr(blkLimits,blkLimitsGC)
+  call allocate_fxscr()
   
 end subroutine allocate_scr
 
@@ -150,10 +149,10 @@ subroutine deallocate_scr()
   call deallocate_fxscr()
 end subroutine deallocate_scr
 
-subroutine allocate_fxscr(blkLimits,blkLimitsGC)
+subroutine allocate_fxscr()
   use Hydro_data, ONLY : hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
        hy_eosData, hy_mfrac, hy_fluxCorrect
-  integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+
   integer :: max_edge, max_edge_y, max_edge_z,space
   
   max_edge = MEDGE+2
@@ -215,3 +214,43 @@ subroutine deallocate_fxscr()
   if(allocated(hy_mfrac))deallocate(hy_mfrac)
   if(allocated(hy_eosData))deallocate(hy_eosData)
 end subroutine deallocate_fxscr
+
+
+subroutine allocate_geom()
+  use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,hya_xRight,&
+       hya_yCenter,hya_zCenter
+
+  integer :: max_edge, max_edge_y, max_edge_z,space
+  
+  max_edge = MEDGE
+  max_edge_y = 1
+  max_edge_z = 1
+#if NDIM==2
+  max_edge_y = max_edge
+#elif NDIM==3
+  max_edge_y = max_edge
+  max_edge_z = max_edge
+#endif
+  
+  space=max_edge*max_edge_y*max_edge_z
+
+  allocate(hya_farea(space))
+  allocate(hya_cvol(space))
+  allocate(hya_xCenter(max_edge))
+  allocate(hya_xRight(max_edge))
+  allocate(hya_xLeft(max_edge))
+  allocate(hya_yCenter(max_edge_y))
+  allocate(hya_zCenter(max_edge_z))  
+end subroutine allocate_geom
+
+subroutine deallocate_geom()
+  use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,hya_xRight,&
+       hya_yCenter,hya_zCenter
+  deallocate(hya_farea)
+  deallocate(hya_cvol)
+  deallocate(hya_xCenter)
+  deallocate(hya_xRight)
+  deallocate(hya_xLeft)
+  deallocate(hya_yCenter)
+  deallocate(hya_zCenter)  
+end subroutine deallocate_geom

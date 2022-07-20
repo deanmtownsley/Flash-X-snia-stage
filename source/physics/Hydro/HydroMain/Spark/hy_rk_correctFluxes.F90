@@ -48,8 +48,8 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hy_farea,hy_cvol,&
-       hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_cvol,&
+       hya_xCenter,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -86,12 +86,21 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   integer :: vecLen = 1 !b/c updated cell by cell
   integer, dimension(LOW:HIGH,MDIM)  :: range
   real,pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
-  
+  real, pointer,dimension(:,:,:) :: hy_farea,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter
   lo(:) = blkLimits(LOW,:)
   hi(:) = blkLimits(HIGH,:)
 
- 
- 
+  if (hy_geometry /= CARTESIAN) then
+     hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_farea
+     hy_cvol(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_cvol
+     hy_xCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hya_xCenter
+
+  end if
    dhdt = minval(hy_del(1:NDIM))/dt
 
   !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 

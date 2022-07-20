@@ -46,7 +46,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY : hya_tmpState, hya_starState, hya_grav,&
        hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
@@ -65,6 +65,8 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   real, dimension(3), intent(IN) :: coeffs
   real,dimension(:,:,:,:),pointer :: hy_starState, hy_tmpState,hy_grav, &
        hy_flx,hy_fly,hy_flz
+  real,dimension(:,:,:),pointer :: hy_farea, hy_cvol
+  real,dimension(:), pointer :: hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter
 
   integer :: i,j,k,n,g
 
@@ -86,7 +88,17 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
   if (hy_geometry /= CARTESIAN) then
-  call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
+     hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_farea
+     hy_cvol(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+          blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+          blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_cvol
+     hy_xCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hya_xCenter
+     hy_xLeft(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xLeft
+     hy_xRight(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xRight
+     hy_yCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS))=>hya_yCenter
+     hy_zCenter(blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_zCenter
   endif
 
   hy_starState(1:NUNK_VARS,&

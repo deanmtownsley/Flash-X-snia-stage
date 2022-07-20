@@ -25,7 +25,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY :   hya_starState, &      
        hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,&
-       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+       hya_farea,hya_cvol,hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
@@ -76,10 +76,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer :: i,j,k,v,maxcells
   
   real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
-  real, pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ  
+  real, pointer,dimension(:,:,:,:) :: hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
+  real, pointer,dimension(:,:,:) :: hy_farea,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter, hy_yCenter, hy_zCenter, hy_xLeft,hy_xRight
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
-  integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
-  integer :: pLo,pHi !low and high indices for pencil arrays
   integer :: lev
   
   if (.NOT. hy_useHydro) return
@@ -156,7 +156,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      ! Loop over blocks and compute Hydro update block-by-block
      nullify(Uin)
-     call allocate_scr(blkLimits,blkLimitsGC)
+     call allocate_scr()
+     if(hy_geometry /= CARTESIAN) call allocate_geom()
      call Grid_getTileIterator(itor, LEAF, tiling=.false.)
      do while(itor%isValid())
         call itor%currentTile(tileDesc)
@@ -170,19 +171,26 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         
         if (hy_geometry /= CARTESIAN) then
-           allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+           hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_farea
+
+           hy_cvol(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_cvol
+           hy_xCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hya_xCenter
+           hy_xLeft(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xLeft
+           hy_xRight(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xRight
+           hy_yCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS))=>hya_yCenter
+           hy_zCenter(blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_zCenter
+           loGC(:)=blklimitsGC(LOW,:)
+           hiGC(:)=blkLimitsGC(HIGH,:)
            call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-           allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
            call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-           allocate(hy_xCenter(xLoGC:xHiGC))
            call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-           allocate(hy_xLeft(xLoGC:xHiGC))
            call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-           allocate(hy_xRight(xLoGC:xHiGC))
            call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
-           allocate(hy_yCenter(yLoGC:yHiGC))
            call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
-           allocate(hy_zCenter(zLoGC:zHiGC))
            call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
         endif
         hy_del=deltas
@@ -261,15 +269,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            endif
            
         enddo!stage loop
-        if (hy_geometry /= CARTESIAN) then
-           deallocate(hy_xCenter)
-           deallocate(hy_xLeft)
-           deallocate(hy_xRight)
-           deallocate(hy_farea)
-           deallocate(hy_cvol)
-           deallocate(hy_yCenter)
-           deallocate(hy_zCenter)
-        end if
+        if (hy_geometry /= CARTESIAN) call deallocate_geom()
+
         !Store flux buffer in semipermanent flux storage (SPFS)
         
         if (hy_fluxCorrect) then
@@ -312,6 +313,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !        ! Loop over blocks and correct block-edge solution
         
         nullify(Uin)
+        call allocate_fxscr()
+        if (hy_geometry /= CARTESIAN)call allocate_geom()
         call Grid_getTileIterator(itor, LEAF, tiling=.false.)
         do while(itor%isValid())
            call itor%currentTile(tileDesc)
@@ -326,7 +329,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
-           call allocate_fxscr(blkLimits,blkLimitsGC)
            hy_fluxBufX(1:NFLUXES,&
                 blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)+1,&
                 blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
@@ -349,34 +351,39 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            nullify(hy_fluxBufZ)  
            
            if (hy_geometry /= CARTESIAN) then
-              allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+              hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                   blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                   blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_farea
+              hy_cvol(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                   blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                   blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_cvol
+              hy_xCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hya_xCenter
+              hy_xLeft(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xLeft
+              hy_xRight(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xRight
+              hy_yCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS))=>hya_yCenter
+              hy_zCenter(blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_zCenter
+              loGC(:)=blklimitsGC(LOW,:)
+              hiGC(:)=blkLimitsGC(HIGH,:)
               call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-              allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
               call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-              allocate(hy_xCenter(xLoGC:xHiGC))
               call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-              allocate(hy_xLeft(xLoGC:xHiGC))
               call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-              allocate(hy_xRight(xLoGC:xHiGC))
               call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
+              call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
+              call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
            endif
         
-           
            call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
-           if (hy_geometry /= CARTESIAN) then
-              deallocate(hy_xCenter)
-              deallocate(hy_xLeft)
-              deallocate(hy_xRight)
-              deallocate(hy_farea)
-              deallocate(hy_cvol)
-           end if
-           call deallocate_fxscr()
            
            call tileDesc%releaseDataPtr(Uin,CENTER)
            call itor%next()
         end do
      !        call Timers_stop("flux correct")
         call Grid_releaseTileIterator(itor)
+
+        if (hy_geometry /= CARTESIAN) call deallocate_geom()
+        call deallocate_fxscr()
+        
      end if !Flux correction
   
   else !flux correct per level
@@ -410,7 +417,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call setLims(NGUARD-1,blkLimits,limits)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
-           call allocate_scr(blkLimits,blkLimitsGC)
+           call allocate_scr()
            call calcDivB(Uin,hy_del,blkLimits)
            call shockDetect(Uin,limits,blkLimitsGC)
            ! Allocate storage of fluxes, flux buffers, & gravity info
@@ -479,23 +486,29 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
               coeffs = coeff_array(stage,:)
               call Timers_start("updateSoln")
-              if (hy_geometry /= CARTESIAN) then
-                 allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-                 call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-                 allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-                 call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-                 allocate(hy_xCenter(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-                 allocate(hy_xLeft(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-                 allocate(hy_xRight(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
-                 allocate(hy_yCenter(yLoGC:yHiGC))
-                 call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
-                 allocate(hy_zCenter(zLoGC:zHiGC))
-                 call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
-              endif
-              
+           if (hy_geometry /= CARTESIAN) then
+              hy_farea(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                   blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                   blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_farea
+              hy_cvol(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+                   blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+                   blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_cvol
+              hy_xCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hya_xCenter
+              hy_xLeft(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xLeft
+              hy_xRight(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS))=>hy_xRight
+              hy_yCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS))=>hya_yCenter
+              hy_zCenter(blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_zCenter
+              loGC(:)=blklimitsGC(LOW,:)
+              hiGC(:)=blkLimitsGC(HIGH,:)
+              call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
+              call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
+              call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
+              call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
+              call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
+              call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
+              call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
+           endif
+            
               call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 !!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               if (hy_geometry /= CARTESIAN) then
