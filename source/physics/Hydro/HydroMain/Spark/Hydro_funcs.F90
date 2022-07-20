@@ -31,7 +31,7 @@
 
 subroutine addFluxes(lev,blkLimits,weight,addFlux)
   !Store weighted fluxes, summed over RK stages, in temporary flux buffers.
-  use Hydro_data, ONLY : hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ 
+  use Hydro_data, ONLY : hya_flx, hya_fly, hya_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ 
   
   implicit none
   
@@ -39,19 +39,55 @@ subroutine addFluxes(lev,blkLimits,weight,addFlux)
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits
   real, intent(IN) :: weight
   logical, intent(IN) :: addFlux
+  real,pointer,dimension(:,:,:,:) :: hy_flx,hy_fly,hy_flz
 
+  hy_flx(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
+
+  hy_fly(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
+
+  hy_flz(1:NFLUXES,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+  
+  
   
   if (addFlux) then
-     hya_fluxBufX = hya_fluxBufX + weight*hya_flx
-     if (NDIM > 1) hya_fluxBufY = hya_fluxBufY + weight*hya_fly
-     if (NDIM > 2) hya_fluxBufZ= hya_fluxBufZ + weight*hya_flz
+     hy_fluxBufX = hy_fluxBufX+weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     if (NDIM > 1) &   
+          hy_fluxBufY = hy_fluxBufY+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+ blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
+ blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+     if (NDIM > 2) &
+          hy_fluxBufZ = hy_fluxBufZ+weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
   else
-     hya_fluxBufX = weight*hya_flx
-     if (NDIM > 1)hya_fluxBufY = weight*hya_fly
-     if (NDIM > 2)hya_fluxBufZ = weight*hya_flz
+     hy_fluxBufX = weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     if (NDIM > 1) &   
+          hy_fluxBufY = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+ blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
+ blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+     if (NDIM > 2) &
+          hy_fluxBufZ = weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
+blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
+blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
      
   endif
-
+  nullify(hy_flx)
+  nullify(hy_fly)
+  nullify(hy_flz)  
+  
 end subroutine addFluxes
 
 !! Allocate variable size array holding local gravitational accelerations (depending on 

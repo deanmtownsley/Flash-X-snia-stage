@@ -33,11 +33,14 @@ module Hydro_data
   real, allocatable, target :: hya_grav(:)  
   real,  allocatable,target :: hya_flat3d(:)
   real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
-  real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
-  real, allocatable, dimension(:),target :: hya_farea,hya_cvol,hya_xCenter, hya_xLeft, hya_xRight,hya_yCenter, hya_zCenter
   
+  
+  
+  real, allocatable, dimension(:,:,:) :: hy_farea, hy_cvol
+  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
   !Flux buffers
+  real, allocatable, dimension(:,:,:,:), target :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
 
   real, dimension(MDIM) :: hy_del
 
