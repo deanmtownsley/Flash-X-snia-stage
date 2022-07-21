@@ -46,29 +46,17 @@ subroutine addFluxes(lev,blkLimits,weight,addFlux)
   
   
   if (addFlux) then
-     hy_fluxBufX = hy_fluxBufX+weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     hy_fluxBufX = hy_fluxBufX+weight*hy_flx(@M hy_mapflx) 
      if (NDIM > 1) &   
-          hy_fluxBufY = hy_fluxBufY+weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
- blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
- blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+          hy_fluxBufY = hy_fluxBufY+weight*hy_fly(@M hy_mapfly)
      if (NDIM > 2) &
-          hy_fluxBufZ = hy_fluxBufZ+weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
+          hy_fluxBufZ = hy_fluxBufZ+weight*hy_flz(@M hy_mapflz)
   else
-     hy_fluxBufX = weight*hy_flx(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D) 
+     hy_fluxBufX = weight*hy_flx(@M hy_mapflx) 
      if (NDIM > 1) &   
-          hy_fluxBufY = weight*hy_fly(:, blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
- blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
- blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D)
+          hy_fluxBufY = weight*hy_fly(@M hy_mapfly)
      if (NDIM > 2) &
-          hy_fluxBufZ = weight*hy_flz(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
+          hy_fluxBufZ = weight*hy_flz(@M hy_mapflz)
      
   endif
   nullify(hy_flx)
@@ -77,76 +65,6 @@ blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D)
   
 end subroutine addFluxes
 
-!! Allocate variable size array holding local gravitational accelerations (depending on 
-!! block size), fluxes, flux buffers, and save. 
-!! If offloading to a device, send data and allocate on device only.
-subroutine saveState(Uin,blkLimits,blklimitsGC)
-  use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Hydro_data, ONLY : hya_starState, hya_tmpState
-  implicit none
-  
-  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  real, pointer :: Uin(:,:,:,:)
-    real, pointer,dimension(:,:,:,:)::hy_starState,hy_tmpState
-  integer ::  v,i1,i2,i3
-  ! call Timers_start("Allocations")
-  
-  ! Allocate needed space on GPU if it is not already there
-  
-  hy_starState(1:NUNK_VARS,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
-  hy_tmpState(1:NUNK_VARS,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_tmpState
-  ! update temp vars with solution data
-  
-  do i3=blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
-     do i2=blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
-        do i1=blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
-           do v=1,NUNK_VARS
-              hy_starState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-              hy_tmpState(v,i1,i2,i3) = Uin(v,i1,i2,i3)
-           enddo
-        end do
-     end do
-  end do
-  nullify (hy_starState)
-  nullify(hy_tmpState)
-end subroutine saveState
-
-
-subroutine updateState(Uin,blkLimits,blkLimitsGC)
-  use Hydro_data, ONLY : hya_starState
-  
-  implicit none
-  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  real,dimension(:,:,:,:),pointer :: Uin
-  real,dimension(:,:,:,:),pointer :: hy_starState
-
-   hy_starState(1:NUNK_VARS,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
-#ifdef GPOT_VAR
-  ! First reset GPOT_VAR.
-  hy_starState(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-       Uin(GPOT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-#endif
-  Uin(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-       hy_starState(:,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),&
-       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-  nullify(hy_starState)
-end subroutine updateState
 
 
 subroutine shockDetect(Uin,limits,blkLimitsGC)
