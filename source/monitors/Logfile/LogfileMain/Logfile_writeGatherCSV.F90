@@ -29,21 +29,16 @@
 !!   Logfile_writeGatherCSV writes the data handed to it by the Timers unit.
 !!   Logfile_writeGatherCSV does not do any of the performance calculations.  Its only
 !!   role is to format the data handed to it by Timers and write the data neatly to the
-!!   Logfile.
+!!   Logfile.csv.
 !!
-!!   The summary implemented here has two sections: a header section
-!!   and a timers summary listing section.  The header section has two columns
-!!   in each row, a name and a value, and there are numHeaders rows of
-!!   these.  strArr(1:numHeaders,1) hold the names, and strArr(1:numHeaders,2) holds the
-!!   values.  strArr(numHeaders+1, :) holds strings that are the column names 
-!!   for the timers summary listing section.  strArr(numHeaders+2:, 1) holds the 
-!!   amount of indentation for each timer, and strArr(numHeadears+2:, 2:) holds 
-!!   the data for each of the columns in timers summary. 
+!!   The summary implemented here  holds the 
+!!   amount of indentation for each timer, and strArr(numHeadears+i:, 7) holds the indentation
+!!   strArr(numHeadears+i:, 8) holds index and strArr(numHeadears+i:, 8+numProcs) holds timer o/p
+!!   gathered from each proc.
 !!
-!!   There are two kinds of summaries that may be generated:
-!!    - the "traditional" summary, which contains timing information collected only
-!!      for the processor writing to the log file, normally processor 0; and
-!!    - a summary with timing information "reduced" across all processors.
+!!   This routine writes <logfile>.csv: 
+!!    - a summary with timing information gathered from all processors is written by processor 0
+!!    - no header information is written.
 !!
 !! ARGUMENTS
 !!
@@ -55,7 +50,7 @@
 !!   dim     - the number of columns in the timer summary + 1 for the indentation 
 !!             of the timers
 !!   strLen  - length of each string entry (likely MAX_STRING_LENGTH)
-!!   numHeaders - the number of name/value pairs in the header of the summary
+!!   numHeaders - the number of name/value pairs in the header of the summary, after this timers start
 !!   reduced - if present and .TRUE., generate summary of reduced timer data;
 !!             otherwise generate a normal local-processor summary.
 !!   separateFiles - if true, every processor writes its summary to its own file named
@@ -63,23 +58,13 @@
 !!
 !! EXAMPLE
 !!
-!!  A typical one-processor summary will look like this:
-!!
-!! ==============================================================================
-!! perf_summary: code performance summary
-!!                      beginning : 03-29-2006  19:23.18
-!!                         ending : 03-29-2006  19:23.25
-!!   seconds in monitoring period :                6.870
-!!         number of subintervals :                   11
-!!        number of evolved zones :                15680
-!!               zones per second :             2282.359
-!! ------------------------------------------------------------------------------
-!! accounting unit                       time sec  num calls   secs avg  time pct
-!! ------------------------------------------------------------------------------
-!! initialization                          0.469      1           0.469     6.828
-!!  guardcell internal                     0.104      8           0.013     1.515
-!! evolution                               6.400      1           6.400    93.158
-!!  hydro                                  5.943     20           0.297    86.507
+!! initialization, 6, 0, 0.398, 0.397, 0.397
+!! eos, 7, 1, 0.002, 0.002, 0.002
+!! guardcell internal, 8, 1, 0.072, 0.065, 0.052
+!! amr_guardcell, 9, 2, 0.069, 0.061, 0.048
+!! eos gc, 10, 2, 0.002, 0.003, 0.002
+!! writeCheckpoint, 11, 1, 0.022, 0.022, 0.022
+!! restrictAll, 12, 2, 0.004, 0.004, 0.003
 !! ...
 !!
 !! NOTES
@@ -116,21 +101,20 @@ subroutine Logfile_writeGatherCSV(strArr, length, dim, strLen, numHeaders, reduc
    filename = trim(log_fileName) // trim(".csv")
    open(20, file = trim(filename), action = "write")
    if (log_globalMe .eq. MASTER_PE) then
-      do i=0, length-6
-
-         ! trimmed = TRANSFER(PACK(adjustl(trim(strArr(6+i, 2))),adjustl(trim(strArr(6+i, 2)))/=' '),trimmed)
-         write(20 ,fmt="(G0, a)", advance="no") adjustl(trim(strArr(6+i, 2)))
+      do i=0, length-numHeaders
+         write(20 ,fmt="(G0, a)", advance="no") adjustl(trim(strArr(numHeaders+i, 2)))
          write(20 ,fmt="(G0, a)", advance="no") ","
-         write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 7)))
+         !  all values below are populated in tmr_buildSummary.F90
+         write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(numHeaders+i, 7)))
          write(20 ,fmt="(G0, a)", advance="no") ","
-         write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8)))
+         write(20 ,fmt="(1x,a)", advance="no") trim(adjustl(strArr(numHeaders+i, 8)))
          write(20 ,fmt="(G0, a)", advance="no") ","
 
          do j=1, log_globalNumProcs
             if (j .eq. log_globalNumProcs) then
-               write(20,fmt="(1x,a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
+               write(20,fmt="(1x,a)", advance="no") trim(adjustl(strArr(numHeaders+i, 8+j)))
             else
-               write(20,fmt="(1x, a)", advance="no") trim(adjustl(strArr(6+i, 8+j)))
+               write(20,fmt="(1x, a)", advance="no") trim(adjustl(strArr(numHeaders+i, 8+j)))
          write(20 ,fmt="(G0, a)", advance="no") ","
             endif
          enddo

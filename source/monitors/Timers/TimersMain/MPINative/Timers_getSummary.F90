@@ -230,7 +230,7 @@ character(len=MAX_STRING_LENGTH), ALLOCATABLE :: perfmonArr2(:,:)
          endif
 
         if (tmr_csvSummaryAllProcs) then
-         !  dim = 8+tmr_globalNumProcs
+          numHeaders = 6 ! after this the timer params start
           call Logfile_writeGatherCSV( perfmonArr2(1:length,1:dim), length, dim, &
               MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.) 
         endif
