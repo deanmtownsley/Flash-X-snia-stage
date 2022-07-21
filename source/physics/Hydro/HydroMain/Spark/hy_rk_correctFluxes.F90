@@ -48,7 +48,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_farea,hy_cvol,&
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hy_farea,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
@@ -101,11 +101,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   !These pointers allow us to use hy_fluxBuf[XYZ] (whose limits
   !are hard coded in FBS mode) within the varying loop limits below
 
-  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hy_fluxBufX
+  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hya_fluxBufX
 #if NDIM>1  
-  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hy_fluxBufY
+  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hya_fluxBufY
 #if NDIM==3
-  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hy_fluxBufZ
+  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_fluxBufZ
 #endif
 #endif
 

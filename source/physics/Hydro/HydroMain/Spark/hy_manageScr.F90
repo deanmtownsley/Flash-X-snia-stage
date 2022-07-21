@@ -151,36 +151,40 @@ subroutine deallocate_scr()
 end subroutine deallocate_scr
 
 subroutine allocate_fxscr(blkLimits,blkLimitsGC)
-  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+  use Hydro_data, ONLY : hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
        hy_eosData, hy_mfrac, hy_fluxCorrect
   integer,dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  integer :: max_edge
-
-  max_edge = max(blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS) + 2,blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS) + 2, &
-       blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS) + 2)
+  integer :: max_edge, max_edge_y, max_edge_z,space
+  
+  max_edge = MEDGE+2
+  max_edge_y = 1
+  max_edge_z = 1
+#if NDIM==2
+  max_edge_y = max_edge
+#elif NDIM==3
+  max_edge_y = max_edge
+  max_edge_z = max_edge
+#endif
+  ! print *, "max edge", max_edge
+  !Construct arrays to hold fluxes used for solution update
+  space=max_edge*max_edge_y*max_edge_z
 
   !Allocate size of flux buffers used for flux correction
   if (hy_fluxCorrect) then
      !allocate buffers here
-     if (.NOT. allocated(hy_fluxBufX)) then 
-        allocate(hy_fluxBufX(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+1,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D))
-        hy_fluxBufX = 0.
+     if (.NOT. allocated(hya_fluxBufX)) then 
+        allocate(hya_fluxBufX(NFLUXES*space))
+        hya_fluxBufX = 0.
      endif
      
-     if (.NOT. allocated(hy_fluxBufY)) then 
-        allocate(hy_fluxBufY(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+0*K3D))
-        hy_fluxBufY = 0.
+     if (.NOT. allocated(hya_fluxBufY)) then 
+        allocate(hya_fluxBufY(NFLUXES*space))
+        hya_fluxBufY = 0.
      endif
      
-     if (.NOT. allocated(hy_fluxBufZ)) then 
-        allocate(hy_fluxBufZ(NFLUXES,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)+0,&
-blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+0*K2D,&
-blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)+1*K3D))
-        hy_fluxBufZ = 0.
+     if (.NOT. allocated(hya_fluxBufZ)) then 
+        allocate(hya_fluxBufZ(NFLUXES*space))
+        hya_fluxBufZ = 0.
      endif
   endif
   !Set up one block's worth of local gravity.  Allocation allows for compatibility with Paramesh4 and AMRex
@@ -198,15 +202,15 @@ end subroutine allocate_fxscr
 
 
 subroutine deallocate_fxscr()
-  use Hydro_data, ONLY : hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+  use Hydro_data, ONLY : hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
        hy_eosData, hy_mfrac, hy_fluxCorrect
 
   !Allocate size of flux buffers used for flux correction
   if (hy_fluxCorrect) then
      !allocate buffers here
-     if(allocated(hy_fluxBufX))deallocate(hy_fluxBufX)
-     if(allocated(hy_fluxBufY))deallocate(hy_fluxBufY)
-     if(allocated(hy_fluxBufZ))deallocate(hy_fluxBufZ)
+     if(allocated(hya_fluxBufX))deallocate(hya_fluxBufX)
+     if(allocated(hya_fluxBufY))deallocate(hya_fluxBufY)
+     if(allocated(hya_fluxBufZ))deallocate(hya_fluxBufZ)
   end if
 
   if(allocated(hy_mfrac))deallocate(hy_mfrac)
