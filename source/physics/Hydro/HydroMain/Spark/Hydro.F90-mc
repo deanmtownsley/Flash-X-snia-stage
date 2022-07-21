@@ -178,7 +178,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         call allocate_scr(blkLimits,blkLimitsGC)
         hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
-        hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState        
+        hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
+        @M hy_map_fl
         if (hy_geometry /= CARTESIAN) then
            allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
            call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
@@ -202,10 +203,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !---JaredC--- Action 2 (no dependence within interation) 
         nullify(Uin)
         call tileDesc%getDataPtr(Uin,CENTER)
-     
-        call calcDivB(Uin,hy_del,blkLimits) !---JaredC--- This could be done on GPU or CPU and asynchronous to the rest of the sections
-        !---JaredC--- This could be pulled out of the loop and given its own loop.
-     
+       
+        @M hy_calcDivB
+        
         call shockDetect(Uin,limits,blkLimitsGC)
 
         ! Setup scratch storage of block data (grav included)
@@ -238,7 +238,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
-           if (hy_fluxCorrect) call addFluxes(level,blkLimits,weights(stage),addFlux_array(stage)) 
+           if (hy_fluxCorrect) then 
+              @M hy_addFluxes
+           end if
            
            ! Now update solution based on conservative fluxes
            ! See select_RK_scheme() for explicit outline of C1, C2, & C3
@@ -264,13 +266,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            if (stage == last_stage) then
               call Timers_start("scratch")
               @M hy_updateState
-!!$              call updateState(Uin,blkLimits,blkLimitsGC)
               call Timers_stop("scratch")
            endif
            
         enddo!stage loop
-        nullify(hy_starState)
-        nullify(hy_tmpState)
         if (hy_geometry /= CARTESIAN) then
            deallocate(hy_xCenter)
            deallocate(hy_xLeft)
@@ -284,6 +283,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
         call Timers_stop("Offloaded Section")
+        nullify(hy_starState)
+        nullify(hy_tmpState)
+        @M hy_nullFl
         call deallocate_scr
 
         call tileDesc%releaseDataPtr(Uin,CENTER)
@@ -385,7 +387,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call allocate_scr(blkLimits,blkLimitsGC)
            hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
            hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState           
-           call calcDivB(Uin,hy_del,blkLimits)
+           @M hy_map_fl
+           @M hy_calcDivB
            call shockDetect(Uin,limits,blkLimitsGC)
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
@@ -422,7 +425,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               if (stage == last_stage) then
                  if (lev < maxLev) then
-                    @M hy_map_fl
                     
                     call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
@@ -430,12 +432,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
                          blkLimits(LOW,:),-1/weights(stage),&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
-                    nullify(hy_flx);nullify(hy_fly);nullify(hy_flz)
                  endif
               endif
               
-              call addFluxes(lev,blkLimits,weights(stage),addFlux_array(stage)) 
-              
+
+              @M hy_addFluxes
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
@@ -493,11 +494,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  call Timers_stop("scratch")
               endif
            end do!stage loop
-           nullify(hy_starState)
-           nullify(hy_tmpState)           
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
+           nullify(hy_starState)
+           nullify(hy_tmpState)           
+           nullify(hy_flx);nullify(hy_fly);nullify(hy_flz)
            call deallocate_scr()
            call tileDesc%releaseDataPtr(Uin,CENTER)
            call itor%next()
@@ -513,7 +515,110 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
 contains
   
-#include "Hydro_funcs.F90"
+  subroutine shockDetect(Uin,limits,blkLimitsGC)
+    
+    use Hydro_data,        only : hy_tiny, hya_Vc
+    
+    implicit none
+    
+    
+    !! ---- Argument List ----------------------------------
+    real, dimension(:,:,:,:), pointer   :: Uin
+    integer, intent(IN) :: limits(LOW:HIGH,MDIM)
+    integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
+    !! -----------------------------------------------------
+    
+    integer :: i,j,k
+    logical :: SW1, SW2
+    
+    
+    real :: divv,gradPx,gradPy,gradPz
+    real :: minP,minC,beta,delta
+    real :: localCfl,cflMax
+    real,dimension(:,:,:),pointer :: hy_Vc
+    
+    !necessary for argument for %getDataPtr()
+    
+#ifndef SHOK_VAR
+    return
+#endif
+    
+    hy_Vc(@M bounds_3d(blkLimitsGC))=>hya_Vc
+    
+    
+    ! Two parameters that can be adjusted to detect shocks
+    ! with different strengths:
+    ! (a) The lower the values the weaker shocks detected
+    !     (lower the values to detect more shock regions)
+    ! (b) The larger the values the stronger shocks detected
+    !     (increase the values to detect less shock regions)
+    beta = 0.5 !0.5 !10. ! gradP
+    delta= 0.1  !0.1 !2. ! divV
+    
+    Uin(SHOK_VAR,:,:,:) = 0.
+    
+    
+    !! Allocate a temporary cell-centered array for sound speed
+    
+    
+    !! Compute sound speed
+    @M loop_3d(blkLimitsGC)
+    hy_Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
+         /max(Uin(DENS_VAR,i,j,k),hy_tiny))
+    @M loop_end_3d
+    @M loop_3d(limits)
+    ! initialize switch values
+    SW1 = .false.
+    SW2 = .false.
+#if NDIM==1
+    minP = minval(Uin(PRES_VAR,i-1:i+1,j,k))
+    minC = minval(hy_Vc(i-1:i+1,j,k))
+#endif
+#if NDIM==2
+    minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k))
+    minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k))
+#endif
+#if NDIM==3
+    minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k-1:k+1))
+    minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k-1:k+1))
+#endif
+    !! We do not need to include non-Cartesian geom factors here.
+    !! Undivided divV
+    divv =        Uin(VELX_VAR,i+1,j,  k  ) - Uin(VELX_VAR,i-1,j,  k  )
+#if NDIM > 1
+    divv = divv + Uin(VELY_VAR,i,  j+1,k  ) - Uin(VELY_VAR,i,  j-1,k  )
+#if NDIM == 3
+    divv = divv + Uin(VELZ_VAR,i,  j,  k+1) - Uin(VELZ_VAR,i,  j,  k-1)
+#endif
+#endif
+    divv = 0.5*divv
+    !! Undivided grad pres
+    gradPx = 0.5*(Uin(PRES_VAR,i+1,j,  k  ) - Uin(PRES_VAR,i-1,j,  k  ))
+    gradPy = 0.
+    gradPz = 0.
+#if NDIM > 1
+    gradPy = 0.5*(Uin(PRES_VAR,i,  j+1,k  ) - Uin(PRES_VAR,i,  j-1,k  ))
+#if NDIM == 3
+    gradPz = 0.5*(Uin(PRES_VAR,i,  j,  k+1) - Uin(PRES_VAR,i,  j,  k-1))
+#endif
+#endif
+    if ( abs(gradPx)+abs(gradPy)+abs(gradPz) .ge. beta*minP ) then
+       SW1 = .true.
+    endif
+    if (-delta*minC .ge. divv) then
+       SW2 = .true.
+    endif
+    if (SW1 .and. SW2) then
+       ! Set SHOCK_VAR to 1.0 if a shock is detected.
+       ! One use is for a local hybrid method in the Hydro unit which
+       ! applies (a diffusive) HLL solver when SHOK_VAR = 1.
+       Uin(SHOK_VAR,i,j,k) = 1.
+    endif !endif (SW1 .and. SW2) then
+    @M loop_end_3d
+    nullify(hy_Vc)
+    
+  end subroutine shockDetect
+
   
   
   subroutine check_if_on_GPU()
