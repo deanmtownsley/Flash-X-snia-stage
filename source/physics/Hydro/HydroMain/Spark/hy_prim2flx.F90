@@ -28,7 +28,7 @@ subroutine hy_prim2flx(dir,V,F)
 #include "constants.h"
 #include "Simulation.h"
 #include "Spark.h"
-!$omp declare target
+
    !! Arguments type declaration -----------
    integer, intent(IN)  :: dir
    real, dimension(HY_NUM_VARS), intent(IN) :: V

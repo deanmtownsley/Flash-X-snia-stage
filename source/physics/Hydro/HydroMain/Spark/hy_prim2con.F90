@@ -32,7 +32,6 @@ subroutine hy_prim2con(V,CU)
   real ,dimension(HY_NUM_FLUX),  intent(OUT) :: CU
   !! --------------------------------------
   real  :: u2, B2
-  !$omp declare target
   CU = 0.0
 
   u2 = dot_product(V(HY_VELX:HY_VELZ),V(HY_VELX:HY_VELZ))

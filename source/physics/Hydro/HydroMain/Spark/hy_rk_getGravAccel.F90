@@ -69,7 +69,6 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
   
 
-  !$omp target teams distribute parallel do collapse(4) shared(blkLimitsGC,hy_grav) private(d,i,j,k) default(none) map(to:blkLimitsGC)!! TODO: Set this once for both rk steps.
   
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
@@ -82,8 +81,7 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
   enddo
 
 #ifdef GRAVITY
-  !$omp target teams distribute parallel do collapse(2) &
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
+
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
 #ifdef FLASH_GRAVITY_TIMEDEP
@@ -99,8 +97,6 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
      enddo
   enddo
 #if NDIM>1
-  !$omp target teams distribute parallel do collapse(2) &
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)  
 
 #ifdef FLASH_GRAVITY_TIMEDEP
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
@@ -112,8 +108,6 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
 #endif
 #if NDIM==3
 
-  !$omp target teams distribute parallel do collapse(2) &
-  !$omp private(k,j) shared(limits,hiGC,loGC,hy_grav,hy_del) map(to:limits,hiGC,loGC,hy_grav,hy_del)
 
 #ifdef FLASH_GRAVITY_TIMEDEP
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
@@ -141,7 +135,7 @@ contains
     real, intent(in):: hy_del(MDIM)
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv
-    !$omp declare target
+
     !==================================================
 
 #ifdef GPOT_VAR
