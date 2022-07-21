@@ -20,7 +20,7 @@
 !!
 !!***
 !!Reorder(4): hy_fl[xyz]
-
+!!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY :   hya_starState, &      
@@ -254,10 +254,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
-           hy_starState(1:NUNK_VARS,&
-                blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
+           hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            call Timers_stop("eos")
            nullify(hy_starState)
@@ -416,20 +413,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               if (stage == last_stage) then
                  if (lev < maxLev) then
-                    hy_flx(1:NFLUXES,&
-                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
-                    
-                    hy_fly(1:NFLUXES,&
-                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
-                    
-                    hy_flz(1:NFLUXES,&
-                         blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-                         blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-                         blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
+                    @M hy_map_fl
                     
                     call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
