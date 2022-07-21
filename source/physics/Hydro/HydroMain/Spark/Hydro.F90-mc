@@ -23,7 +23,7 @@
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
-  use Hydro_data, ONLY :   hya_starState, &      
+  use Hydro_data, ONLY :   hya_starState,hya_tmpState, &      
        hya_flx, hya_fly, hya_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
@@ -75,7 +75,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
     logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v,maxcells,ng
   
-    real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
+    real, pointer,dimension(:,:,:,:) :: hy_tmpState,hy_starState,hy_flx,hy_fly,hy_flz
   
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
@@ -178,7 +178,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         call allocate_scr(blkLimits,blkLimitsGC)
         hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
-        
+        hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState        
         if (hy_geometry /= CARTESIAN) then
            allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
            call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
@@ -214,7 +214,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_start("scratch")
         ! U* = U0
         !  The data is sent to the GPU at this point.
-        call saveState(Uin,blkLimits,blkLimitsGC)
+        @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
         
         
         call Timers_stop("scratch")
@@ -270,7 +270,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
         enddo!stage loop
         nullify(hy_starState)
-
+        nullify(hy_tmpState)
         if (hy_geometry /= CARTESIAN) then
            deallocate(hy_xCenter)
            deallocate(hy_xLeft)
@@ -382,15 +382,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
-           call allocate_scr()
+           call allocate_scr(blkLimits,blkLimitsGC)
            hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
-           
+           hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState           
            call calcDivB(Uin,hy_del,blkLimits)
            call shockDetect(Uin,limits,blkLimitsGC)
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
            ! U* = U0
-           call saveState(Uin,blkLimits,blkLimitsGC)
+           @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
            
            !Loop stages
@@ -494,6 +494,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
            end do!stage loop
            nullify(hy_starState)
+           nullify(hy_tmpState)           
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
