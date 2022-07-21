@@ -1,12 +1,12 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/prim2flx
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_prim2flx
 !!
 !! NAME
 !!
-!!  hy_rk_prim2flx
+!!  hy_prim2flx
 !!
 !! SYNOPSIS
 !!
-!!  hy_rk_prim2flx( integer(IN) :: dir,
+!!  hy_prim2flx( integer(IN) :: dir,
 !!                   real(IN)    :: V(HY_VARINUM3),
 !!                   real(OUT)   :: F(HY_VARINUM1))
 !!
@@ -22,7 +22,7 @@
 !!
 !!***
 
-subroutine prim2flx(dir,V,F)
+subroutine hy_prim2flx(dir,V,F)
     implicit none
   
 #include "constants.h"
@@ -104,5 +104,5 @@ subroutine prim2flx(dir,V,F)
 
 #endif
   
-  end subroutine prim2flx
+  end subroutine hy_prim2flx
   

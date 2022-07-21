@@ -1,12 +1,12 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/prim2con
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_prim2con
 !!
 !! NAME
 !!
-!!  hy_rk_prim2con
+!!  hy_prim2con
 !!
 !! SYNOPSIS
 !!
-!!  hy_rk_prim2con( real(IN)  :: V(HY_VARINUM3),
+!!  hy_prim2con( real(IN)  :: V(HY_VARINUM3),
 !!                   real(OUT) :: CU(HY_VARINUM))
 !!
 !! ARGUMENTS
@@ -20,7 +20,7 @@
 !!
 !!***
 
-subroutine prim2con(V,CU)
+subroutine hy_prim2con(V,CU)
 
   implicit none
 
@@ -48,4 +48,4 @@ subroutine prim2con(V,CU)
 
   CU(HY_ENER) = 0.5*V(HY_DENS)*u2 + V(HY_RHOE) + 0.5*B2
 
-end subroutine prim2con
+end subroutine hy_prim2con

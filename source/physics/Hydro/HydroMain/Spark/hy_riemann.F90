@@ -139,10 +139,10 @@ subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
   ! Convert primitive variables to conservative variables
   !!!*** We need to think about whether this shoud be extracted out and done on the whole block
   
-  call prim2con(VL,UL)
-  call prim2con(VR,UR)
-  call prim2flx(dir,VL,FL)
-  call prim2flx(dir,VR,FR)
+  call hy_prim2con(VL,UL)
+  call hy_prim2con(VR,UR)
+  call hy_prim2flx(dir,VL,FL)
+  call hy_prim2flx(dir,VR,FR)
 
   ! Get HLL states for later use
   if (SL > 0.) then
@@ -150,7 +150,7 @@ subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
   elseif ((SL <= 0.) .and. (SR >= 0.)) then
      Uhll = (SR*UR - SL*UL - FR + FL)/(SR - SL)
      !! Pretty sure the following is not need for pressure already in momentum
-     !! fluxes (done in prim2flx). I.e., fP = 1.0
+     !! fluxes (done in hy_prim2flx). I.e., fP = 1.0
      !  Uhll(HY_DENS+dir) = Uhll(HY_DENS+dir) + &
      !       (  totalPresL - totalPresR  )/(SR - SL) * (1.0-fP)
   else
