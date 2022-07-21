@@ -181,20 +181,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
         @M hy_map_fl
         if (hy_geometry /= CARTESIAN) then
-           allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-           call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-           allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-           call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-           allocate(hy_xCenter(xLoGC:xHiGC))
-           call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-           allocate(hy_xLeft(xLoGC:xHiGC))
-           call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-           allocate(hy_xRight(xLoGC:xHiGC))
-           call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
-           allocate(hy_yCenter(yLoGC:yHiGC))
-           call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
-           allocate(hy_zCenter(zLoGC:zHiGC))
-           call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
+           @M hy_fill_geom
         endif
         hy_del=deltas
         ng=NGUARD-1
@@ -271,13 +258,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
         enddo!stage loop
         if (hy_geometry /= CARTESIAN) then
-           deallocate(hy_xCenter)
-           deallocate(hy_xLeft)
-           deallocate(hy_xRight)
-           deallocate(hy_farea)
-           deallocate(hy_cvol)
-           deallocate(hy_yCenter)
-           deallocate(hy_zCenter)
+           @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
         if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
@@ -322,26 +303,28 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                 blkLimits(LOW,:))
            
            if (hy_geometry /= CARTESIAN) then
-              allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-              call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-              allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-              call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-              allocate(hy_xCenter(xLoGC:xHiGC))
-              call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-              allocate(hy_xLeft(xLoGC:xHiGC))
-              call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-              allocate(hy_xRight(xLoGC:xHiGC))
-              call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
+              @M hy_fill_geom
+!!$              allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+!!$              call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
+!!$              allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
+!!$              call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
+!!$              allocate(hy_xCenter(xLoGC:xHiGC))
+!!$              call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
+!!$              allocate(hy_xLeft(xLoGC:xHiGC))
+!!$              call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
+!!$              allocate(hy_xRight(xLoGC:xHiGC))
+!!$              call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
            endif
         
            
            call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
            if (hy_geometry /= CARTESIAN) then
-              deallocate(hy_xCenter)
-              deallocate(hy_xLeft)
-              deallocate(hy_xRight)
-              deallocate(hy_farea)
-              deallocate(hy_cvol)
+              @M hy_release_geom
+!!$              deallocate(hy_xCenter)
+!!$              deallocate(hy_xLeft)
+!!$              deallocate(hy_xRight)
+!!$              deallocate(hy_farea)
+!!$              deallocate(hy_cvol)
            end if
            call deallocate_fxscr()
            
