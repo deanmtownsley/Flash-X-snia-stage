@@ -21,6 +21,7 @@
 !!***
 !!Reorder directive used by FLASH with --index-reorder flag at setup
 !!Reorder(4): hy_starState,Uin, U, hy_fl[xyz], hy_fluxBuf[XYZ]
+!!NOVARIANTS
 
 #include "Simulation.h"
 #include "constants.h"
@@ -41,21 +42,7 @@ subroutine addFluxes(lev,blkLimits,weight,addFlux)
   logical, intent(IN) :: addFlux
   real,pointer,dimension(:,:,:,:) :: hy_flx,hy_fly,hy_flz
 
-  hy_flx(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flx
-
-  hy_fly(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_fly
-
-  hy_flz(1:NFLUXES,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_flz
-  
+  @M hy_map_fl
   
   
   if (addFlux) then
