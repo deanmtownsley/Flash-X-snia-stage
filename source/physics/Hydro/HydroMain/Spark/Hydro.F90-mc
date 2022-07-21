@@ -83,11 +83,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
   real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
-  integer, dimension(MDIM) :: lo, hi, loGC, hiGC
-  integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
   integer :: pLo,pHi !low and high indices for pencil arrays
   integer :: lev
-
+  integer,dimension(MDIM) :: loGC, hiGC
+  
   integer :: max_edge, max_edge_y, max_edge_z,space
   
   if (.NOT. hy_useHydro) return
@@ -176,14 +175,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call tileDesc%getDataPtr(Uin, CENTER)  
      ! DivB will technically be lagged by 1 step, but we need ghost zones to
      ! compute the gradients. I ain't doing more communication for a diagnostic...
-        lo(:) = blkLimits(LOW,:)
-        hi(:) = blkLimits(HIGH,:)
         loGC(:) = blkLimitsGC(LOW,:)
         hiGC(:) = blkLimitsGC(HIGH,:)
-        !convenience indices
-        xLoGC = loGC(IAXIS); xHiGC = hiGC(IAXIS)
-        yLoGC = loGC(JAXIS); yHiGC = hiGC(JAXIS)
-        zLoGC = loGC(KAXIS); zHiGC = hiGC(KAXIS)
         
         hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
         hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
@@ -211,7 +204,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         ! U* = U0
         !  The data is sent to the GPU at this point.
         @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
-        
         
         call Timers_stop("scratch")
         
