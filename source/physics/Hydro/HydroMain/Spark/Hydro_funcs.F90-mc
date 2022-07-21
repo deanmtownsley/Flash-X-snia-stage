@@ -148,22 +148,6 @@ subroutine updateState(Uin,blkLimits,blkLimitsGC)
   nullify(hy_starState)
 end subroutine updateState
 
-!! Set loop limits.  We include ngcell layers of guard zones
-subroutine setLims(ngcell,blkLimits,limits)
-  implicit none
-  integer, intent(IN):: ngcell
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: blkLimits
-  integer, intent(OUT), dimension(LOW:HIGH,MDIM) :: limits
-  
-  integer i
-  
-  
-  limits = blkLimits
-  do i=1,NDIM
-     limits(LOW ,i) = blkLimits(LOW ,i) - ngcell
-     limits(HIGH,i) = blkLimits(HIGH,i) + ngcell
-  end do
-end subroutine setLims
 
 subroutine shockDetect(Uin,limits,blkLimitsGC)
 

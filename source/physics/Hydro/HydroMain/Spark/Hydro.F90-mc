@@ -73,7 +73,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, dimension(3) :: limits_array
   real, dimension(3,3) :: coeff_array
     logical, dimension (3) :: addFlux_array
-  integer :: i,j,k,v,maxcells
+  integer :: i,j,k,v,maxcells,ng
   
     real, pointer,dimension(:,:,:,:) :: hy_starState,hy_flx,hy_fly,hy_flz
   
@@ -194,7 +194,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
         endif
         hy_del=deltas
-        call setLims(NGUARD-1,blkLimits,limits)
+        ng=NGUARD-1
+        @M hy_setLims(ng)
      
         !---JaredC--- Action 2 (no dependence within interation) 
         nullify(Uin)
@@ -225,7 +226,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
-           call setLims(limits_array(stage), blkLimits, limits)
+           ng=limits_array(stage)
+           @M hy_setLims(ng)
            
            call Timers_start("getFaceFlux")
            
@@ -373,7 +375,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            
            hy_del=deltas
-           call setLims(NGUARD-1,blkLimits,limits)
+           ng=NGUARD-1
+           @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            call allocate_scr(blkLimits,blkLimitsGC)
@@ -394,7 +397,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
-              call setLims(limits_array(stage), blkLimits, limits)
+              ng=limits_array(stage)
+              @M hy_setLims(ng)
               
               ! Perform reconstruction and flux calculation
               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
