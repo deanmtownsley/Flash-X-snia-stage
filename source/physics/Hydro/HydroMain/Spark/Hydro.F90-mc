@@ -177,6 +177,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         zLoGC = loGC(KAXIS); zHiGC = hiGC(KAXIS)
         
         call allocate_scr(blkLimits,blkLimitsGC)
+        hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
+        
         if (hy_geometry /= CARTESIAN) then
            allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
            call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
@@ -256,18 +258,19 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
-           hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            call Timers_stop("eos")
-           nullify(hy_starState)
            !Finally update the state
            if (stage == last_stage) then
               call Timers_start("scratch")
-              call updateState(Uin,blkLimits,blkLimitsGC)
+              @M hy_updateState
+!!$              call updateState(Uin,blkLimits,blkLimitsGC)
               call Timers_stop("scratch")
            endif
            
         enddo!stage loop
+        nullify(hy_starState)
+
         if (hy_geometry /= CARTESIAN) then
            deallocate(hy_xCenter)
            deallocate(hy_xLeft)
@@ -379,7 +382,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
-           call allocate_scr(blkLimits,blkLimitsGC)
+           call allocate_scr()
+           hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
+           
            call calcDivB(Uin,hy_del,blkLimits)
            call shockDetect(Uin,limits,blkLimitsGC)
            ! Allocate storage of fluxes, flux buffers, & gravity info
@@ -483,10 +488,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               if (stage == last_stage) then
                  ! Finally, store the output and free up the scratch array
                  call Timers_start("scratch")
-                 call updateState(Uin,blkLimits,blkLimitsGC)
+                 @M hy_updateState
+!!$                 call updateState(Uin,blkLimits,blkLimitsGC)
                  call Timers_stop("scratch")
               endif
            end do!stage loop
+           nullify(hy_starState)
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
