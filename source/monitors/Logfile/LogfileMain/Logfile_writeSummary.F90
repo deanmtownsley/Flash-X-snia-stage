@@ -89,9 +89,10 @@
 !!
 !!***
 
-subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced, separateFiles)
+subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced, separateFiles, & 
+                               logSummaryAllProcs)
 
-  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen   
+  use Logfile_data, ONLY : log_globalMe,  log_lun, log_fileOpen, log_globalNumProcs
   use Logfile_interface, ONLY : Logfile_break, Logfile_close, &
     Logfile_open
 
@@ -103,10 +104,12 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
   character(len=MAX_STRING_LENGTH), intent(in), dimension(length,dim)  :: strArr
   logical, optional, intent(IN)                        :: reduced
   logical, optional, intent(IN)                        :: separateFiles
+  logical, optional, intent(IN)                        :: LogSummaryAllProcs
+
   character(len=MAX_STRING_LENGTH)                     :: indentStr, tag
   
-  integer  :: i, tmpLen
-  logical  :: doreduced, doseparate
+  integer  :: i, j, tmpLen
+  logical  :: doreduced, doseparate, doLogSummaryAllProcs
   integer  :: summary_lun
   integer :: logUnit
   logical :: logUnitLocal=.false.
@@ -121,6 +124,12 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
      doseparate = separateFiles
   else
      doseparate = .FALSE.
+  end if
+
+  if (present(LogSummaryAllProcs)) then
+     doLogSummaryAllProcs = LogSummaryAllProcs
+  else
+     doLogSummaryAllProcs = .FALSE.
   end if
 
   ! if separate, everyone writes to his own file
@@ -177,7 +186,61 @@ subroutine Logfile_writeSummary(strArr, length, dim, strLen, numHeaders, reduced
            end if
         end if
      end do
-        
+
+! 
+!
+     if(doLogSummaryAllProcs) then
+      if (log_globalMe .eq. MASTER_PE) then
+         call log_summaryBreak(log_globalMe, summary_lun, "=")
+         call log_summaryBreak(log_globalMe, summary_lun, "=")
+
+         write (summary_lun, *) 'perf_summary: Timers from all procs for all variables', numHeaders
+         call log_summaryBreak(log_globalMe, summary_lun, "-")
+
+     do i=1, length
+        if (i < numHeaders+1) then
+           
+           write (summary_lun, "(1X, A30, ' : ', A20)") trim(adjustl(strArr(i,1))), trim(adjustl(strArr(i,2)))
+        else if (i == numHeaders+1) then    
+               ! header for this summary
+           call log_summaryBreak(log_globalMe, summary_lun, "-")
+
+           write (summary_lun, '(1X, A15, 24X)', advance="no") trim(adjustl(strArr(i,2)))      
+
+            do j=1, log_globalNumProcs
+               write(tag,10) 'rank ', j
+10 FORMAT(1x, a, I1, a)                
+               if (j .eq. log_globalNumProcs) then
+                  write (summary_lun, "(A18, 6X)", advance="no") tag
+                  write (summary_lun, "(A28, 6X)") ""
+               else
+                  write (summary_lun, "(A18, 6X)", advance="no") tag                  
+               endif
+            enddo           
+           call log_summaryBreak(log_globalMe, summary_lun, "-")
+
+        else 
+            tmpLen = len_trim(adjustl(strArr(i,1)))
+            write(tag,*) indentStr(1:tmpLen) // trim(adjustl(strArr(i,2)))
+            write(summary_lun, "(A28)", advance="no") tag
+
+            do j=1, log_globalNumProcs
+               if (j .eq. log_globalNumProcs) then
+                  write (summary_lun, "(A18, 6X)", advance="no") trim(adjustl(strArr(i, 8+j)))
+                  write (summary_lun, "(A28, 6X)") ""
+               else
+                  write (summary_lun, "(A18, 6X)", advance="no") trim(adjustl(strArr(i, 8+j)))                  
+               endif
+            enddo
+        end if
+     end do
+
+           call log_summaryBreak(log_globalMe, summary_lun, "-")
+         call log_summaryBreak(log_globalMe, summary_lun, "=")
+      endif
+    endif
+!
+!
      call log_summaryBreak(log_globalMe, summary_lun, "=")    
      if (doseparate) then
         close(summary_lun)
