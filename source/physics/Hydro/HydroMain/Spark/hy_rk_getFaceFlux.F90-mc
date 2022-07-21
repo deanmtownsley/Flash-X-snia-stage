@@ -150,101 +150,11 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 
      @M loop_3d(limgc)
               if (dir == IAXIS) then
-                 hy_rope(HY_DENS,i,j,k) = hy_starState(DENS_VAR,i,j,k)
-                 hy_rope(HY_VELX,i,j,k) = hy_starState(VELX_VAR,i,j,k)
-                 hy_rope(HY_VELY,i,j,k) = hy_starState(VELY_VAR,i,j,k)
-                 hy_rope(HY_VELZ,i,j,k) = hy_starState(VELZ_VAR,i,j,k)
-                 hy_rope(HY_PRES,i,j,k) = hy_starState(PRES_VAR,i,j,k)
-                 hy_rope(HY_GAMC,i,j,k) = hy_starState(GAMC_VAR,i,j,k)
-                 hy_rope(HY_RHOE,i,j,k) = hy_starState(DENS_VAR,i,j,k)*hy_starState(EINT_VAR,i,j,k)
-#ifdef SPARK_GLM
-                 hy_rope(HY_MAGX,i,j,k) = hy_starState(MAGX_VAR,i,j,k)
-                 hy_rope(HY_MAGY,i,j,k) = hy_starState(MAGY_VAR,i,j,k)
-                 hy_rope(HY_MAGZ,i,j,k) = hy_starState(MAGZ_VAR,i,j,k)
-                 hy_rope(HY_PSIB,i,j,k) = hy_starState(PSIB_VAR,i,j,k)
-#endif
-#if NSPECIES+NMASS_SCALARS>0
-                 do n=SPECIES_BEGIN, MASS_SCALARS_END
-                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i,j,k)    = hy_starState(n,i,j,k)
-                 enddo
-#endif
-#ifdef GRAVITY
-#ifdef GPOT_VAR
-                 hy_grv(i,j,k) = hy_starState(GPOT_VAR,i,j,k)
-#else
-                 hy_grv(i,j,k) = hy_grav(IAXIS,i,j,k)
-#endif
-#endif
-#ifdef SHOK_VAR
-                 hy_shck(i,j,k) = hy_starState(SHOK_VAR,i,j,k)
-#else
-                 hy_shck(i,j,k) = 0.0
-#endif
-                 hy_flat(i,j,k) = hy_flat3d(i,j,k)
+                 @M hy_setRope(i,j,k)
               else if (dir == JAXIS) then
-                 hy_rope(HY_DENS,i,j,k) = hy_starState(DENS_VAR,j,i,k)
-                 hy_rope(HY_VELX,i,j,k) = hy_starState(VELX_VAR,j,i,k)
-                 hy_rope(HY_VELY,i,j,k) = hy_starState(VELY_VAR,j,i,k)
-                 hy_rope(HY_VELZ,i,j,k) = hy_starState(VELZ_VAR,j,i,k)
-                 hy_rope(HY_PRES,i,j,k) = hy_starState(PRES_VAR,j,i,k)
-                 hy_rope(HY_GAMC,i,j,k) = hy_starState(GAMC_VAR,j,i,k)
-                 hy_rope(HY_RHOE,i,j,k) = hy_starState(DENS_VAR,j,i,k)*hy_starState(EINT_VAR,j,i,k)
-#ifdef SPARK_GLM
-                 hy_rope(HY_MAGX,i,j,k) = hy_starState(MAGX_VAR,j,i,k)
-                 hy_rope(HY_MAGY,i,j,k) = hy_starState(MAGY_VAR,j,i,k)
-                 hy_rope(HY_MAGZ,i,j,k) = hy_starState(MAGZ_VAR,j,i,k)
-                 hy_rope(HY_PSIB,i,j,k) = hy_starState(PSIB_VAR,j,i,k)
-#endif
-#if NSPECIES+NMASS_SCALARS>0
-                 do n=SPECIES_BEGIN, MASS_SCALARS_END
-                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i,j,k)    = hy_starState(n,j,i,k)
-                 enddo
-#endif
-#ifdef GRAVITY
-#ifdef GPOT_VAR
-                 hy_grv(i,j,k) = hy_starState(GPOT_VAR,j,i,k)
-#else
-                 hy_grv(i,j,k) = hy_grav(IAXIS,j,i,k)
-#endif
-#endif
-#ifdef SHOK_VAR
-                 hy_shck(i,j,k) = hy_starState(SHOK_VAR,j,i,k)
-#else
-                 hy_shck(i,j,k) = 0.0
-#endif
-                 hy_flat(i,j,k) = hy_flat3d(j,i,k)
+                 @M hy_setRope(j,i,k)
               else if (dir == KAXIS) then
-                 hy_rope(HY_DENS,i,j,k) = hy_starState(DENS_VAR,j,k,i)
-                 hy_rope(HY_VELX,i,j,k) = hy_starState(VELX_VAR,j,k,i)
-                 hy_rope(HY_VELY,i,j,k) = hy_starState(VELY_VAR,j,k,i)
-                 hy_rope(HY_VELZ,i,j,k) = hy_starState(VELZ_VAR,j,k,i)
-                 hy_rope(HY_PRES,i,j,k) = hy_starState(PRES_VAR,j,k,i)
-                 hy_rope(HY_GAMC,i,j,k) = hy_starState(GAMC_VAR,j,k,i)
-                 hy_rope(HY_RHOE,i,j,k) = hy_starState(DENS_VAR,j,k,i)*hy_starState(EINT_VAR,j,k,i)
-#ifdef SPARK_GLM
-                 hy_rope(HY_MAGX,i,j,k) = hy_starState(MAGX_VAR,j,k,i)
-                 hy_rope(HY_MAGY,i,j,k) = hy_starState(MAGY_VAR,j,k,i)
-                 hy_rope(HY_MAGZ,i,j,k) = hy_starState(MAGZ_VAR,j,k,i)
-                 hy_rope(HY_PSIB,i,j,k) = hy_starState(PSIB_VAR,j,k,i)
-#endif
-#if NSPECIES+NMASS_SCALARS>0
-                 do n=SPECIES_BEGIN, MASS_SCALARS_END
-                    hy_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i,j,k)    = hy_starState(n,j,k,i)
-                 enddo
-#endif
-#ifdef GRAVITY
-#ifdef GPOT_VAR
-                 hy_grv(i,j,k) = hy_starState(GPOT_VAR,j,k,i)
-#else
-                 hy_grv(i,j,k) = hy_grav(IAXIS,j,k,i)
-#endif
-#endif
-#ifdef SHOK_VAR
-                 hy_shck(i,j,k) = hy_starState(SHOK_VAR,j,k,i)
-#else
-                 hy_shck(i,j,k) = 0.0
-#endif
-                 hy_flat(i,j,k) = hy_flat3d(j,k,i)
+                 @M hy_setRope(j,k,i)
               endif
     @M loop_end_3d
     @M loop_3d(klim)
