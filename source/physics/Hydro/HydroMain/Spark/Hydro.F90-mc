@@ -23,9 +23,12 @@
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
-  use Hydro_data, ONLY :   hya_starState,hya_tmpState, &      
+  use Hydro_data, ONLY :   hya_starState,hya_tmpState, &
+       hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
+       hya_rope, hya_flux, hya_shck, &
        hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,&
        hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_data, ONLY : hy_eosData, hy_mfrac
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
@@ -82,6 +85,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC
   integer :: pLo,pHi !low and high indices for pencil arrays
   integer :: lev
+
+  integer :: max_edge, max_edge_y, max_edge_z,space
   
   if (.NOT. hy_useHydro) return
   
@@ -154,8 +159,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
+  @M hy_allocate_scr
+
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
-     ! Loop over blocks and compute Hydro update block-by-block
      nullify(Uin)
      call Grid_getTileIterator(itor, LEAF, tiling=.false.)
      do while(itor%isValid())
@@ -177,7 +183,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         yLoGC = loGC(JAXIS); yHiGC = hiGC(JAXIS)
         zLoGC = loGC(KAXIS); zHiGC = hiGC(KAXIS)
         
-        call allocate_scr(blkLimits,blkLimitsGC)
         hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
         hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
         @M hy_map_fl
@@ -270,13 +275,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         nullify(hy_tmpState)
         @M hy_nullFl
         @M hy_nullFluxBuf
-        call deallocate_scr
 
         call tileDesc%releaseDataPtr(Uin,CENTER)
         call itor%next()
      end do !!block loop
      call Grid_releaseTileIterator(itor)
-        
      
      if (hy_fluxCorrect) then
         !Communicate the fine fluxes
@@ -287,6 +290,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         nullify(Uin)
         call Grid_getTileIterator(itor, LEAF, tiling=.false.)
+
         do while(itor%isValid())
            call itor%currentTile(tileDesc)
            blkLimits(:,:)=tileDesc%limits
@@ -300,7 +304,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
-           call allocate_fxscr(blkLimits,blkLimitsGC)
            @M hy_mapFluxBuf
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
@@ -315,7 +318,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               @M hy_release_geom
            end if
            @M hy_nullFluxBuf
-           call deallocate_fxscr()
            
            call tileDesc%releaseDataPtr(Uin,CENTER)
            call itor%next()
@@ -323,8 +325,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !        call Timers_stop("flux correct")
         call Grid_releaseTileIterator(itor)
      end if !Flux correction
-  
-  else !flux correct per level
+    else !flux correct per level
      print *, "Flux correct per level"
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
@@ -356,7 +357,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
-           call allocate_scr(blkLimits,blkLimitsGC)
            hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
            hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState           
            @M hy_map_fl
@@ -416,32 +416,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               coeffs = coeff_array(stage,:)
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
-                 allocate(hy_farea(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-                 call Grid_getCellFaceAreas(IAXIS,level,loGC,hiGC,hy_farea)
-                 allocate(hy_cvol(xLoGC:xHiGC,yLoGC:yHiGC,zLoGC:zHiGC))
-                 call Grid_getCellVolumes(level,loGC,hiGC,hy_cvol)
-                 allocate(hy_xCenter(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
-                 allocate(hy_xLeft(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
-                 allocate(hy_xRight(xLoGC:xHiGC))
-                 call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
-                 allocate(hy_yCenter(yLoGC:yHiGC))
-                 call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
-                 allocate(hy_zCenter(zLoGC:zHiGC))
-                 call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
+                 @M hy_fill_geom
               endif
               
               call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 !!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               if (hy_geometry /= CARTESIAN) then
-                 deallocate(hy_xCenter)
-                 deallocate(hy_xLeft)
-                 deallocate(hy_xRight)
-                 deallocate(hy_farea)
-                 deallocate(hy_cvol)
-                 deallocate(hy_yCenter)
-                 deallocate(hy_zCenter)
+                 @M hy_release_geom
               end if
               
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
@@ -474,13 +455,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            nullify(hy_tmpState)           
            nullify(hy_flx);nullify(hy_fly);nullify(hy_flz)
            @M hy_nullFluxBuf
-           call deallocate_scr()
            call tileDesc%releaseDataPtr(Uin,CENTER)
            call itor%next()
         end do !!block loop
         call Grid_releaseTileIterator(itor)        
      enddo!loop over levels
   endif !Flux correct per Level
+  @M hy_deallocate_scr
 
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
