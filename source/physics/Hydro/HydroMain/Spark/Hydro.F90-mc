@@ -27,7 +27,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
        hya_rope, hya_flux, hya_shck, &
        hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,&
-       hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+       hya_farea,hya_cvol,hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY : hy_eosData, hy_mfrac
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
@@ -80,6 +80,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   real, pointer,dimension(:,:,:,:) :: hy_tmpState,hy_starState,hy_flx,hy_fly,hy_flz,&
        hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ
+  real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
   
   integer, dimension(MDIM) :: lo, hi, loGC, hiGC
   integer :: xLoGC,yLoGC,zLoGC,xHiGC,yHiGC,zHiGC

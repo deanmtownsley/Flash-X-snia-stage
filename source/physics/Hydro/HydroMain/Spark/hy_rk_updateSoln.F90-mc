@@ -48,7 +48,8 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hy_farea,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,&
+       &hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY : hya_tmpState, hya_starState, hya_grav,&
        hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
@@ -67,6 +68,8 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   real, dimension(3), intent(IN) :: coeffs
   real,dimension(:,:,:,:),pointer :: hy_starState, hy_tmpState,hy_grav, &
        hy_flx,hy_fly,hy_flz
+  real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
 
   integer :: i,j,k,n,g
 
@@ -87,9 +90,6 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
-!!$  if (hy_geometry /= CARTESIAN) then
-!!$  call Driver_abort("Non Cartesian coordinates are not implemented in SPARK with GPU offloading yet")
-!!$  endif
 
   hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
   hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
@@ -97,7 +97,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   @M hy_map_fl
-  
+  @M hy_map_geom
   
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
@@ -109,7 +109,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   nullify(hy_starState)
   nullify(hy_tmpState)
   nullify(hy_grav)
-
+  @M hy_release_geom
 
 contains
   !!Account for multiplicative factors at each cell face to account for different 
