@@ -235,9 +235,9 @@ character(len=MAX_STRING_LENGTH), ALLOCATABLE :: perfmonArr2(:,:)
               MAX_STRING_LENGTH, numHeaders,reduced=.TRUE.,separateFiles=.FALSE.) 
         endif
 
+        deallocate(perfmonArr2)
      end if
   end if
-  DEALLOCATE(perfmonArr2)
   !$omp end master
   return
 end subroutine Timers_getSummary
