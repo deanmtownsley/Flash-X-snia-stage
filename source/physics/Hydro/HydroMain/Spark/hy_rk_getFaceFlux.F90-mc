@@ -42,7 +42,7 @@
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz] 
 subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
-
+  use openacc
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
       
@@ -83,15 +83,20 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
   @M hy_map_fl
- 
+!$acc data copyin(hya_rope,hya_uPlus,hya_uMinus,hya_flat,&
+!$ hya_grv,hya_shck,hya_flux, hya_flat3d) copy(hya_starState,&
+!$ hya_grav, hya_flx, hya_fly, hya_flz)
+  
   if (hy_flattening) then
      call flattening(limits)
   else
      ! call Timers_start("hy_flat3d")
      !! TODO: Set this once for both rk steps.
+!$acc parallel     
     @M loop_3d(blkLimitsGC)
               hy_flat3d(i,j,k) = 1.0
-    @M loop_end_3d       
+    @M loop_end_3d
+!$acc end parallel              
      ! call Timers_stop("hy_flat3d")
   end if
   
@@ -148,6 +153,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      hy_uPlus(1:NRECON,@M bounds_3d(lim1)) => hya_uPlus
      hy_uMinus(1:NRECON,@M bounds_3d(lim1)) => hya_uMinus
 
+!$acc parallel     
      @M loop_3d(limgc)
               if (dir == IAXIS) then
                  @M hy_setRope(i,j,k)
@@ -156,9 +162,13 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
               else if (dir == KAXIS) then
                  @M hy_setRope(j,k,i)
               endif
-     @M loop_end_3d         
+     @M loop_end_3d
+!$acc end parallel
+
+!$acc parallel     
      @M loop_3d(klim)
-              do v=1,NRECON
+          do v=1,NRECON
+!$acc routine (hy_reconstruct)        
                  call hy_reconstruct(v, hy_rope(v,i-2:i+2,j,k),hy_uPlus(v,i,j,k),&
                       & hy_uMinus(v,i,j,k), hy_flat(i,j,k))
               enddo
@@ -190,6 +200,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
               VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR = hy_uMinus(1:HY_NUM_VARS,i,j,k)
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
+!$acc routine (hy_riemann)              
               call hy_riemann(dir,VL,VR,inShock,hy_flux(1:HY_NUM_FLUX,i,j,k))
      @M hy_break_loop
 
@@ -243,9 +254,9 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
                  hy_flz(:,j,k,i) = hy_flux(:,i,j,k)
               end select
    @M loop_end_3d  
-     
+!acc end parallel     
      !release pointers
-     
+!acc end data     
      
   nullify(hy_flux)
   nullify(hy_rope)
