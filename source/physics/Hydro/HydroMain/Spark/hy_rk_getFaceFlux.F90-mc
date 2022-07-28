@@ -156,16 +156,13 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
               else if (dir == KAXIS) then
                  @M hy_setRope(j,k,i)
               endif
-    @M loop_end_3d
-    @M loop_3d(klim)
+     @M loop_end_3d         
+     @M loop_3d(klim)
               do v=1,NRECON
                  call hy_reconstruct(v, hy_rope(v,i-2:i+2,j,k),hy_uPlus(v,i,j,k),&
                       & hy_uMinus(v,i,j,k), hy_flat(i,j,k))
               enddo
-      @M loop_end_3d
-     
-     
-     @M loop_3d(klim)        
+     @M hy_break_loop
               hy_uPlus(HY_DENS ,i,j,k) = max(hy_smalldens, hy_uPlus(HY_DENS ,i,j,k))
               hy_uPlus(HY_PRES ,i,j,k) = max(hy_smallpres, hy_uPlus(HY_PRES ,i,j,k))
 #if NSPECIES>0
@@ -189,17 +186,13 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
               spc = spc*spcSumInv
 #endif
               
-     @M loop_end_3d
-
-           
-     @M loop_3d(klim)
+     @M hy_break_loop
               VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR = hy_uMinus(1:HY_NUM_VARS,i,j,k)
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
               call hy_riemann(dir,VL,VR,inShock,hy_flux(1:HY_NUM_FLUX,i,j,k))
-     @M loop_end_3d
-              
-     @M loop_3d(klim)      
+     @M hy_break_loop
+
               ! Add artificial viscosity for strong-shock capturing
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
               
@@ -236,13 +229,11 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
               end if
 #endif
-      @M loop_end_3d
+     @M hy_break_loop
      ! ***************
      ! Fluxes computed for one face of this zone
      ! Save the fluxes
      ! ***************
-     
-    @M loop_3d(klim)     
               select case(dir)
               case(IAXIS)
                  hy_flx(:,i,j,k) = hy_flux(:,i,j,k)
