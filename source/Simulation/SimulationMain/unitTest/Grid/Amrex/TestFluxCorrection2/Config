@@ -1,4 +1,4 @@
-REQUIRES  Grid/GridMain/AMR/Amrex
+REQUIRES  Grid/GridMain/AMR/Amrex/unitTest/TestFluxCorrection2
 REQUIRES  flashUtilities/testing
 
 FLUX flux1

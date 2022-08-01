@@ -1,50 +1,13 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestRefine/Driver_evolveAll
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!!
-!! NAME
-!!
-!!  Driver_evolveAll
-!!
-!! SYNOPSIS
-!!
-!!  Driver_evolveAll()
-!!
-!! DESCRIPTION
-!!  The driver for a toy version of a full FLASH simulation that allows users
-!!  to control and therefore experiment with how AMReX mesh refinement and
-!!  derefinement is working as implemented in FLASH.  The code advances the data
-!!  in UNK in time manually.  At each step, the code sets all data in UNK to
-!!  zero except for possibly at a few points, whose non-zero values define
-!!  what level of refinement must be achieved in the blocks that contain them.  
-!!
-!!  This simulation serves as a form for manually testing appropriate refinement
-!!  with AMReX (See documentation in folder).  Ideally, the leaf blocks will be
-!!  automatically verified at each step.
-!!
-!! NOTES
-!!  This simulation *must* be configured with at least the following
-!!  2D run:
-!!     ./setup -auto -2d -nxb=8 -nyb=8
-!!              unitTest/Grid/Amrex/TestRefine
-!!             +noio -index-reorder
-!!
-!!***
-
 #include "Simulation.h"
 #include "constants.h"
 #include "sim_constants.h"
 
-subroutine Driver_evolveAll()
+!> The implementation of the AMReX TestRefine unit test.  Please refer to the
+!! test's design document for more details.
+!!
+!! @param fileUnit   Ignored.  All output is written to stdout.
+!! @param perfect    True if no errors occurred; False, otherwise.
+subroutine Grid_unitTest(fileUnit, perfect)
     use amrex_fort_module,     ONLY : amrex_spacedim
 
     use Grid_interface,        ONLY : Grid_getDomainBoundBox, &
@@ -64,6 +27,9 @@ subroutine Driver_evolveAll()
     use ut_testDriverMod
 
     implicit none
+
+    integer, intent(in)    :: fileUnit
+    logical, intent(inout) :: perfect
 
     real    :: domain(LOW:HIGH, 1:MDIM)
     real    :: deltas(1:MDIM)
@@ -569,7 +535,6 @@ subroutine Driver_evolveAll()
                         "Incorrect leaf blocks on level 2")
     deallocate(leaves_ex(1)%blocks, leaves_ex(2)%blocks)
 
-    call finish_test_run
-
-end subroutine Driver_evolveAll
+    perfect = finish_test_run()
+end subroutine Grid_unitTest
 

@@ -81,7 +81,7 @@ subroutine Driver_evolveAll()
   call Timers_stop("writing")
 
   call Timers_getSummary(0)
-  call Logfile_stamp("FLASH unitTest run complete.", "LOGFILE_END")
+  call Logfile_stamp("Flash-X unitTest run complete.", "LOGFILE_END")
 
   return
   
