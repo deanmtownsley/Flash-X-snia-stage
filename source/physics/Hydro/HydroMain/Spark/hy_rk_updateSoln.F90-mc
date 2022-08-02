@@ -92,7 +92,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
 
   hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
-  hy_tmpState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_tmpState
+  hy_tmpState(1:NFLUXES,@M bounds_3d(blkLimitsGC))=>hya_tmpState
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
