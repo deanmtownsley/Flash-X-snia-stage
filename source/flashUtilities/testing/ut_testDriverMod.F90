@@ -82,7 +82,7 @@ contains
         is_testing = .TRUE.
     end subroutine start_test_run
 
-    function finish_test_run result(did_succeed)
+    function finish_test_run() result(did_succeed)
         use Driver_data,      ONLY : dr_globalMe
         use Driver_Interface, ONLY : Driver_abort
 
