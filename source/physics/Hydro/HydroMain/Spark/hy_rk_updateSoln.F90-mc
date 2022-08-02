@@ -102,8 +102,32 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
+             V0    => hy_tmpState(:,i,j,k)
+             Vstar => hy_starState(:,i,j,k)
+             U0(HY_MASS)            = V0(DENS_VAR)
+             U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
+             U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
+             U0(HY_NUM_FLUX+1:NFLUXES) = V0(SPECIES_BEGIN:MASS_SCALARS_END)*V0(DENS_VAR)
+             Ustar(HY_MASS)         = Vstar(DENS_VAR)
+             Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
+             Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
+             Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
+             
+#ifdef SPARK_GLM
+             U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
+             U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
+                  V0(MAGX_VAR:MAGZ_VAR))
+             U0(HY_FPSI) = V0(PSIB_VAR)
+             Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
+             Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
+                  Vstar(MAGX_VAR:MAGZ_VAR))
+             Ustar(HY_FPSI) = Vstar(PSIB_VAR)
+#endif
           call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-        enddo !i
+          nullify(V0)
+          nullify(Vstar)
+        
+       enddo !i
      enddo !j
   enddo !k
   nullify(hy_starState)
@@ -218,12 +242,8 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
   real :: facM, facP
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   real :: eint, ekin, emag
-  real, pointer :: V0(:), Vstar(:)
-  real, dimension(NFLUXES) :: U0, Ustar
   !$omp declare target
 
-  V0    => hy_tmpState(:,i,j,k)
-  Vstar => hy_starState(:,i,j,k)
 
   ! Point to the correct fluxes
   Fm => hy_flx(:,i  ,j  ,k  )
@@ -238,25 +258,6 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
 #endif
 
   ! Construct vectors of conserved variables
-  U0(HY_MASS)            = V0(DENS_VAR)
-  U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
-  U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
-  U0(HY_NUM_FLUX+1:NFLUXES) = V0(SPECIES_BEGIN:MASS_SCALARS_END)*V0(DENS_VAR)
-  Ustar(HY_MASS)         = Vstar(DENS_VAR)
-  Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
-  Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
-  Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
-
-#ifdef SPARK_GLM
-  U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
-  U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
-        V0(MAGX_VAR:MAGZ_VAR))
-  U0(HY_FPSI) = V0(PSIB_VAR)
-  Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
-  Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
-        Vstar(MAGX_VAR:MAGZ_VAR))
-  Ustar(HY_FPSI) = Vstar(PSIB_VAR)
-#endif
 
   ! Get geometric factors and sources
    facM = 1.0; facP = 1.0; Sgeo = 0.0
@@ -306,8 +307,6 @@ subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
         + coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
 #endif
   ! Release pointers
-  nullify(V0)
-  nullify(Vstar)
   nullify(Fm)
   nullify(Fp)
   nullify(Gm)
