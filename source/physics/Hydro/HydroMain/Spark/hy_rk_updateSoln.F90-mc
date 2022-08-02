@@ -73,9 +73,9 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
   integer :: i,j,k,n,g
 
-  real, pointer :: V0(:), Vstar(:)
+  real, pointer :: Vstar(:)
 
-  real, dimension(NFLUXES) :: U0, Ustar
+  real, dimension(NFLUXES) :: U0, Ustar,V0
 
   real :: dx, dy, dz
   real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
@@ -102,7 +102,8 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-             V0    => hy_tmpState(:,i,j,k)
+             @M hy_retrieveState
+!!$             V0    => hy_tmpState(:,i,j,k)
              Vstar => hy_starState(:,i,j,k)
              U0(HY_MASS)            = V0(HY_MASS)
              U0(HY_XMOM:HY_ZMOM)    = V0(HY_XMOM:HY_ZMOM)
@@ -124,7 +125,6 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
              Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
           call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-          nullify(V0)
           nullify(Vstar)
         
        enddo !i
