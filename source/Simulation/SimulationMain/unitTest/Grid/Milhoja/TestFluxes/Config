@@ -1,0 +1,12 @@
+REQUIRES  Grid/GridMain/AMR/Milhoja/unitTest/TestFluxes
+REQUIRES  flashUtilities/testing
+
+GUARDCELLS 2
+
+VARIABLE dens TYPE: PER_VOLUME       # density
+VARIABLE pres TYPE: GENERIC          # pressure
+VARIABLE ener TYPE: PER_MASS         # specific total energy (T+U)
+VARIABLE temp TYPE: GENERIC
+FLUX flux1
+FLUX flux2
+FLUX flux3

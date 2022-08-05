@@ -1,53 +1,22 @@
-!!****if* source/Simulation/SimulationMain/unitTest/Grid/Amrex/TestInit/Driver_evolveAll
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!!
-!! NAME
-!!
-!!  Driver_evolveAll
-!!
-!! SYNOPSIS
-!!
-!!  Driver_evolveAll()
-!!
-!! DESCRIPTION
-!!  A subset of simulation configuration data is loaded into AMReX at
-!!  initialization and is therefore owned by AMReX.  As a result, AMReX is used
-!!  to provide these data values to client code through the associated public
-!!  Grid_* and local gr_* interface accessor routines.
-!!
-!!  This code tests that AMReX is properly initialized for a Cartesian domain by
-!!  verifying correct results as obtained through the accessor routines.
-!!
-!! NOTES
-!!  This simulation *must* be configured with at least the following
-!!  2D run:
-!!     ./setup -auto -2d -nxb=8 -nyb=4 
-!!              unitTest/Grid/Amrex/TestInit 
-!!             +noio -index-reorder
-!!  3D run:
-!!     ./setup -auto -3d -nxb=8 -nyb=4 -nzb=2
-!!              unitTest/Grid/Amrex/TestInit 
-!!             +noio -index-reorder
-!!
-!!  For the future:
-!!             -unit=IO/IOMain/hdf5/serial/AM
-!!
-!!***
-
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Driver_evolveAll()
+!> A subset of simulation configuration data is loaded into AMReX at
+!! initialization and is therefore owned by AMReX.  As a result, AMReX is used
+!! to provide these data values to client code through the associated public
+!! Grid_* and local gr_* interface accessor routines as well as local data
+!! members.
+!!
+!! This code tests that AMReX is properly initialized for a Cartesian domain by
+!! verifying correct results as obtained through the accessor routines and data
+!! members.
+!!
+!! This test is not presently MPI-compatible in the sense that its results can
+!! only be trusted if run with a single processor.
+!!
+!! @param fileUnit   Ignored.  All output is written to stdout.
+!! @param perfect    True if no errors occurred; False, otherwise.
+subroutine Grid_unitTest(fileUnit, perfect)
     use amrex_fort_module,     ONLY : amrex_spacedim
     use amrex_parallel_module, ONLY : amrex_parallel_myproc
 
@@ -71,6 +40,9 @@ subroutine Driver_evolveAll()
     use ut_testDriverMod
 
     implicit none
+
+    integer, intent(in)    :: fileUnit
+    logical, intent(inout) :: perfect
 
     !!!!! EXPECTED RESULTS BASED ON flash.par AND SETUP VALUES GIVEN ABOVE
     integer,  parameter :: NXCELL_EX   = 64
@@ -643,7 +615,7 @@ subroutine Driver_evolveAll()
     call assertEqual(gr_eosModeInit, MODE_DENS_TEMP, &
                      "Incorrect eosModeInit")
 
-    call finish_test_run
+    perfect = finish_test_run()
 
-end subroutine Driver_evolveAll
+end subroutine Grid_unitTest
 
