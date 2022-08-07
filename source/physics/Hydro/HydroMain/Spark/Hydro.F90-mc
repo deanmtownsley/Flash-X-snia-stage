@@ -158,15 +158,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      nullify(Uin)
-     call Grid_getTileIterator(itor, LEAF, tiling=.false.)
-     do while(itor%isValid())
-        call itor%currentTile(tileDesc)
-        blkLimits(:,:)=tileDesc%limits
-        blkLimitsGC(:,:)=tileDesc%blkLimitsGC
-        grownLimits(:,:)=tileDesc%grownLimits
-        call tileDesc%deltas(deltas)
-        level=tileDesc%level
-        call tileDesc%getDataPtr(Uin, CENTER)  
+     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)
+        hy_del=deltas
      ! DivB will technically be lagged by 1 step, but we need ghost zones to
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         loGC(:) = blkLimitsGC(LOW,:)
@@ -178,14 +171,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
         endif
-        hy_del=deltas
+        
         ng=NGUARD-1
         @M hy_setLims(ng)
-     
-        !---JaredC--- Action 2 (no dependence within interation) 
-        nullify(Uin)
-        call tileDesc%getDataPtr(Uin,CENTER)
-       
+            
         @M hy_calcDivB
         
         call shockDetect(Uin,limits,blkLimitsGC)
@@ -260,11 +249,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_stop("Offloaded Section")
 
         @M hy_release_scr_ptrs
-        call tileDesc%releaseDataPtr(Uin,CENTER)
-        call itor%next()
-     end do !!block loop
-     call Grid_releaseTileIterator(itor)
-     
+     @M iter_end
+        
      if (hy_fluxCorrect) then
         !Communicate the fine fluxes
         call Grid_communicateFluxes(ALLDIR,UNSPEC_LEVEL)

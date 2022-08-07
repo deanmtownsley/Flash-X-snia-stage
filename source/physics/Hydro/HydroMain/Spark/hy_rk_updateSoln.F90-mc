@@ -50,8 +50,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
        hy_fluxCorrect, hy_4piGinv, hy_alphaGLM, hy_C_hyp
   use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,&
        &hya_xRight,hya_yCenter,hya_zCenter
-  use Hydro_data, ONLY : hya_tmpState, hya_starState, hya_grav,&
-       hya_flx, hya_fly, hya_flz
+  use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
   
   implicit none
@@ -100,7 +99,6 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
              @M hy_retrieveState
-!!$             V0    => hy_tmpState(:,i,j,k)
              Vstar => hy_starState(:,i,j,k)
              U0(HY_MASS)            = V0(HY_MASS)
              U0(HY_XMOM:HY_ZMOM)    = V0(HY_XMOM:HY_ZMOM)
