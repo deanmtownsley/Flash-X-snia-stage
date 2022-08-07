@@ -46,6 +46,7 @@ PARAMETER use_hybridRiemann		 BOOLEAN FALSE
 PARAMETER alpha_glm			REAL 0.9
 PARAMETER killdivb   BOOLEAN TRUE
 PARAMETER unitsystem STRING "none"
+PARAMETER telescoping          BOOLEAN  TRUE
 
 # Fluxes, these have to be prefixed by "F0*" because setup.py alphabetizes
 FLUX F01Dens
@@ -53,7 +54,6 @@ FLUX F02Xmom
 FLUX F03Ymom
 FLUX F04Zmom
 FLUX F05Ener
-
 
 #Signal that the unsplit implementation is Spark Hydro
 PPDEFINE FLASH_SPARK_HYDRO
@@ -72,6 +72,7 @@ USESETUPVARS useGLM
 USESETUPVARS useTVD
 USESETUPVARS useFog
 USESETUPVARS useLim03
+USESETUPVARS nontelescoping
 
 USESETUPVARS openMP_offloading
 IF openMP_offloading
@@ -110,4 +111,8 @@ ENDIF
 # Check for first-order Godunov
 IF useFog
 	REQUIRES physics/Hydro/HydroMain/Spark/fog
+ENDIF
+
+IF nontelescoping
+	REQUIRES physics/Hydro/HydroMain/Spark/Nontelescoping
 ENDIF

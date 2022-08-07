@@ -105,15 +105,16 @@ subroutine Hydro_init()
   call RuntimeParameters_get("flux_correct", hy_fluxCorrect)
   call RuntimeParameters_get("flux_correct_perLevel", hy_fluxCorrectPerLevel)
   ! if (NDIM > 1) then
-     if (hy_fluxCorrect) then
-        if (hy_geometry == CARTESIAN) then
-           call Grid_setFluxHandling('consv_flux_densities')
-        else
-           call Grid_setFluxHandling('consv_fluxes')
-        endif
-     end if
+  if (hy_fluxCorrect) then
+     if (hy_geometry == CARTESIAN) then
+        call Grid_setFluxHandling('consv_flux_densities')
+     else
+        call Grid_setFluxHandling('consv_fluxes')
+     endif
+  end if
   ! end if
   call RuntimeParameters_get("hy_useTiling", hy_useTiling)
+  call RuntimeParameters_get("telescoping", hy_telescoping)
   !! For correct flux correction in non-Cartesian geometry----------------------
   do i = 1, NFLUXES
      hy_fluxCorVars(i) = i

@@ -30,7 +30,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
-  use hy_data, ONLY : hy_useHydro
+  use hy_data, ONLY : hy_useHydro,hy_telescoping
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -88,7 +88,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call Timers_start("Hydro")
   
   call check_if_on_GPU()
-
+  hy_telescoping=.true.
   
   hdt = 0.5*dt
   
@@ -164,7 +164,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         loGC(:) = blkLimitsGC(LOW,:)
         hiGC(:) = blkLimitsGC(HIGH,:)
-        
+
+        @M hy_map_tmp_states
         @M hy_map_scr_ptrs
         @M mapLimits(blkLimits,blkLimitsGC,locLimits,locLimitsGC)
 
@@ -247,7 +248,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
         call Timers_stop("Offloaded Section")
-
+        @M hy_release_tmp_states
         @M hy_release_scr_ptrs
      @M iter_end
         
