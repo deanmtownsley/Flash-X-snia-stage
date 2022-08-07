@@ -88,7 +88,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call Timers_start("Hydro")
   
   call check_if_on_GPU()
-  hy_telescoping=.true.
   
   hdt = 0.5*dt
   
