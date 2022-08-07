@@ -231,7 +231,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            coeffs = coeff_array(stage,:)
            
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+           call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
            call Timers_stop("updateSoln")
            
 #if NSPECIES>0
@@ -401,7 +401,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  @M hy_fill_geom
               endif
               
-              call hy_rk_updateSoln(Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 !!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               if (hy_geometry /= CARTESIAN) then
                  @M hy_release_geom

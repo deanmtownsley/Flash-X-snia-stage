@@ -43,7 +43,7 @@
 !!Reorder(4): hy_starState, Uin, hy_fl[xyz]
 !!NOVARIANTS
 
-subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
@@ -60,13 +60,13 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 #include "constants.h"
 #include "Spark.h"
 
-  real, pointer :: Uin(:,:,:,:)
+  real, pointer,dimension(:,:,:,:) :: hy_starState, hy_tmpState
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
   integer,intent(IN) :: level
   real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt, dtOld
   real, dimension(3), intent(IN) :: coeffs
-  real,dimension(:,:,:,:),pointer :: hy_starState, hy_tmpState,hy_grav, &
+  real,dimension(:,:,:,:),pointer :: hy_grav, &
        hy_flx,hy_fly,hy_flz
   real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
   real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
@@ -90,9 +90,6 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
-
-  hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
-  hy_tmpState(1:NFLUXES,@M bounds_3d(blkLimitsGC))=>hya_tmpState
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
@@ -130,8 +127,6 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        enddo !i
      enddo !j
   enddo !k
-  nullify(hy_starState)
-  nullify(hy_tmpState)
   nullify(hy_grav)
   @M hy_release_geom
 

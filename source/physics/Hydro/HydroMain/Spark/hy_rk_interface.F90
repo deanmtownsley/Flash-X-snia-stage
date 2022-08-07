@@ -35,8 +35,8 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
-       real, pointer :: Uin(:,:,:,:)
+     subroutine hy_rk_updateSoln (hy_starState, hy_tmpState, blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+       real, pointer,dimension(:,:,:,:) :: hy_starState, hy_tmpState
        integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
        integer,intent(IN) :: level
        real,dimension(MDIM) :: hy_del
