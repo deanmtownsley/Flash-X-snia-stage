@@ -155,7 +155,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
   @M hy_allocate_scr
-
+  @M hy_saveGlobalState
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)

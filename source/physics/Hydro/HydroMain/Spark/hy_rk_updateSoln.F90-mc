@@ -74,7 +74,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
 
   real, pointer :: Vstar(:)
 
-  real, dimension(NFLUXES) :: U0, Ustar,V0
+  real, dimension(NFLUXES) :: U0, Ustar,V0 
 
   real :: dx, dy, dz
   real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
@@ -98,7 +98,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-             @M hy_retrieveState
+             V0(:) = hy_tmpState(:,i,j,k)
              Vstar => hy_starState(:,i,j,k)
              U0(HY_MASS)            = V0(HY_MASS)
              U0(HY_XMOM:HY_ZMOM)    = V0(HY_XMOM:HY_ZMOM)
