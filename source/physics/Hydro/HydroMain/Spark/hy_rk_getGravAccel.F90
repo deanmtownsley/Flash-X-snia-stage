@@ -37,19 +37,20 @@
 
 !!Reorder(4):hy_starState
 
-subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
+subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
-  use Hydro_data, ONLY : hya_grav,hya_starState
+  use Hydro_data, ONLY : hya_grav
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
 #include "Simulation.h"
 #include "constants.h"
 
+  real,dimension(:,:,:,:),pointer :: hy_starState  
   real,dimension(MDIM),intent(IN)  :: hy_del
   integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-  real,dimension(:,:,:,:),pointer :: hy_starState,hy_grav
+  real,dimension(:,:,:,:),pointer :: hy_grav
 
 
   integer, dimension(MDIM) :: loGC, hiGC
@@ -58,11 +59,6 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)
   
-  hy_starState(1:NUNK_VARS,&
-       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
-       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
-       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_starState
-
   hy_grav(1:MDIM,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
@@ -120,7 +116,6 @@ subroutine hy_rk_getGraveAccel(hy_del,limits,blkLimitsGC)
 #endif
 #endif
 #endif /* GRAVITY */
-  nullify(hy_starState)
   nullify(hy_grav)  
 contains
 

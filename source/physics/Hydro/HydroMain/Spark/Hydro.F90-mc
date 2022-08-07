@@ -195,7 +195,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         do stage=1,last_stage
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
-           call  hy_rk_getGraveAccel (hy_del,limits,blkLimitsGC)
+           call  hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
            
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
@@ -204,7 +204,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            call Timers_start("getFaceFlux")
            
-           call hy_rk_getFaceFlux(blklimits,blkLimitsGC, limits)
+           call hy_rk_getFaceFlux(hy_starState,blklimits,blkLimitsGC, limits)
            
 
            call Timers_stop("getFaceFlux")
@@ -343,7 +343,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               
-              call  hy_rk_getGraveAccel (hy_del,limits,blkLimitsGC)
+              call  hy_rk_getGraveAccel (hy_starState,hy_del,limits,blkLimitsGC)
               
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
@@ -355,7 +355,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("getFaceFlux")
               
               
-              call hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
+              call hy_rk_getFaceFlux (hy_starState, blklimits,blkLimitsGC, limits)
               
               
               

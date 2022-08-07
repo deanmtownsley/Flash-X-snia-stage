@@ -28,7 +28,8 @@ module hy_rk_interface
 #include "Spark.h"
 
   interface
-     subroutine  hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
+     subroutine  hy_rk_getFaceFlux (hy_starState, blklimits,blkLimitsGC, limits)
+       real, pointer,dimension(:,:,:,:) :: hy_starState       
        integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blklimitsGC
        real,dimension(MDIM) :: hy_del
      end subroutine  hy_rk_getFaceFlux
@@ -46,7 +47,8 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getGraveAccel (hy_del,limits,blkLimitsGC)
+     subroutine hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
+       real, pointer,dimension(:,:,:,:) :: hy_starState
        real,dimension(MDIM),intent(IN)  :: hy_del
        integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
      end subroutine hy_rk_getGraveAccel

@@ -41,7 +41,7 @@
 !!***
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz] 
-subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
+subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use openacc
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
@@ -59,6 +59,7 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
 #include "constants.h"
 #include "Spark.h"
 
+  real,dimension(:,:,:,:),pointer ::hy_starState	
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i,j,k, n, g, v, dir, ierr
   integer, dimension(MDIM) :: gCells
@@ -73,10 +74,9 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
   real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
   real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,&
-       hy_starState,hy_grav, hy_flx, hy_fly, hy_flz
+       hy_grav, hy_flx, hy_fly, hy_flz
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv,hy_flat3d
 
-  hy_starState(1:NUNK_VARS,@M bounds_3d(blkLimitsGC))=>hya_starState
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
@@ -269,7 +269,6 @@ subroutine hy_rk_getFaceFlux (blklimits,blkLimitsGC, limits)
      
   end do ! dir
 
-  nullify(hy_starState)
   nullify(hy_grav)
   nullify(hy_flat3d)
   @M hy_nullFl
