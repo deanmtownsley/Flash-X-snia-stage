@@ -149,14 +149,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   ! mode=1 means lrefine_max, which does not change during sim.
   call Grid_getMaxRefinement(maxLev, mode=1)
 #endif
-  
-  call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+  if(hy_telescoping) &
+       call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
   @M hy_allocate_scr
   @M hy_saveGlobalState
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
+     @M hy_stages_nt
+     if(.NOT.hy_telescoping) &
+          call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)
         hy_del=deltas
@@ -192,7 +195,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         !---JaredC--- Action 3 
         !Begin loop over stages
-        do stage=1,last_stage
+        @M hy_stages_t
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
            call  hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
@@ -240,7 +243,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_stop("scratch")
            endif
            
-        enddo!stage loop
+        @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
            @M hy_release_geom
         end if
@@ -251,7 +254,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
      @M iter_end
-        
+     @M hy_end_stages_nt   
      if (hy_fluxCorrect) then
         !Communicate the fine fluxes
         call Grid_communicateFluxes(ALLDIR,UNSPEC_LEVEL)
