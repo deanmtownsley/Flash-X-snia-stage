@@ -432,7 +432,7 @@ class UnitList:
           varList.append(var)
       isNull = [ var.lower() == 'null' for var in self.units[unitName]['VARIANTS'] ]
       if (len(varList)==0 and any(isNull) ):
-        varList.append('NULL')
+        varList.append('Null')
       return varList
 
     def recursiveGetDefs(self,sourceDir,targetUnit):
