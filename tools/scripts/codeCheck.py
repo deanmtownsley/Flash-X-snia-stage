@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os, sys, string, re, getopt
+from pathlib import Path
+
 try:
    import subprocess  # use this when available to avoid a DeprecationWarning
 except ImportError:
@@ -661,7 +663,9 @@ simply prevents this violation / fix from being applied to any file.
 
    def check_file(self,filename):
        """Checks for all violations for the given file"""
-       parts = string.split(os.path.basename(filename),".")
+      #  filename is PosixPath, convert to string to get usual behavior as python2 routine.
+       filename = str(filename)
+       parts = str.split(os.path.basename(filename),".")
        self.basename = parts[0]
        if len(parts) > 1: self.ext = parts[1].upper()
        fd = open(filename)
@@ -702,7 +706,7 @@ simply prevents this violation / fix from being applied to any file.
 
    def fix_file(self,filename):
        """Checks for all violations for the given file"""
-       parts = string.split(os.path.basename(filename),".")
+       parts = str.split(os.path.basename(filename),".")
        self.basename = parts[0]
        if len(parts) > 1: self.ext = parts[1].upper()
        fd = open(filename)
@@ -780,7 +784,7 @@ simply prevents this violation / fix from being applied to any file.
                       if aname[:len(prefix)] == prefix:
                          ignore = 1
                   if ignore == 1: continue
-                  parts = string.split(x,".")
+                  parts = str.split(x,".")
                   if len(parts) < 2: continue
                   if parts[1].upper() in self.extensions:
                      flist.append(jname)
@@ -793,7 +797,14 @@ simply prevents this violation / fix from being applied to any file.
 
        if os.path.isdir(dirOrFileName):
           flist = []
-          os.walk(bn,vfunc,flist)
+          # only F90, .F and .print extension has violations methods implemented eg. devComments_print method
+          flist_all = []
+          check_extension=[".F90", ".F", ".print"]
+          flist_all = list(Path(bn).glob('**/*'))  
+          for f in flist_all:
+             if f.is_file():
+                if f.suffix in check_extension:
+                  flist.append(f)                      
           # now we have the list of all files to process
        else:
           # We assume 'dirOrFileName' refers to a file
@@ -801,6 +812,7 @@ simply prevents this violation / fix from being applied to any file.
           # ignored in this case. That is, we process the explicitly-
           # named file regardless of other rules.
           flist = [dirOrFileName]
+          
        for fname in flist: 
            self.filename = fname
            bound_method(fname)
@@ -1013,7 +1025,9 @@ simply prevents this violation / fix from being applied to any file.
    def fileName(self,lines):
 
        def contract(name):
-           return [x for x in name if x != "_"].lower() # remove _ from name
+           name = name.replace('_', '')
+           name=name.lower()
+           return name # lowercase and remove _ from name
 
        if self.ext in ["C","c"]:
           reg = self.regs["cFunction"]
@@ -1050,8 +1064,10 @@ simply prevents this violation / fix from being applied to any file.
        return ans
 
    def commonBlock_print(self,fd,prefix,info):
-       fd.write("%s Common Blocks: %s\n" % (prefix,string.join(info,", ")))
-       
+
+         # fd.write("%s Common Blocks: %s\n" % (prefix,str.join(info,", "))) ! old python  2 style join works on lists
+         fd.write("%s Common Blocks: %s\n" % (prefix, str.join(str (x for x in info),", ")))
+
    def devComments_F90(self,lines):
        reg = self.regs["devComments"]
        lno = 1
