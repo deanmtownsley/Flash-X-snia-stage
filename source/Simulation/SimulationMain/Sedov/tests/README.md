@@ -2,14 +2,14 @@
 __TODO__: PUDs should write this.
 
 #### Keywords
-Grid, Milhoja, Pseudo-UG, Cartesian/2D
+Grid, Milhoja, Pseudo-UG, Cartesian/2D, Cartesian/3D
 
 #### Motivation
 __TODO__: PUDs should write this.
 
 This test can be useful for testing and integrating Grid unit implementations
 because it can be run with periodic boundary conditions for short enough total
-simulation times.  This is helpeful because running periodic BCs can be
+simulation times.  This is helpful because running periodic BCs can be
 implemented trivially for some AMR backends and, therefore, full-featured BC
 functionality can effectively be ignored.
 

@@ -69,6 +69,7 @@ subroutine gr_updateDataForIo()
     allocate(gr_ioBlkBsize(             MDIM, nBlocks))
     allocate(gr_ioBlkBoundBox(LOW:HIGH, MDIM, nBlocks))
 
+    ! DEVNOTE: Assuming pseudo-UG only here
     j = 1
     CALL Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
     do while (itor%isValid())
