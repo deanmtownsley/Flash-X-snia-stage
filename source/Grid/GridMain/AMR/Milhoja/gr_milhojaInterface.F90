@@ -37,6 +37,10 @@ module gr_milhojaInterface
             integer(MILHOJA_INT), intent(IN), value :: C_nVars
         end subroutine gr_fillPhysicalBcCallback
 
+        subroutine gr_updateDataForIo()
+            implicit none
+        end subroutine gr_updateDataForIo
+
         subroutine gr_markRefineDerefineCallback(level, tags, time, &
                                                  tagval, clearval) bind(c)
             use iso_c_binding,     ONLY : C_PTR, C_CHAR

@@ -1,0 +1,12 @@
+[Milhoja_pseudoUG_simpleUnsplit_2D]
+    testNode = "Sedov/tests"
+    setupOptions = "-auto -2d -nxb=8 -nyb=8 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH -debug -index-reorder --with-unofficial=Grid/GridMain/AMR/Milhoja"
+    numProcs = 4
+    parFile = "test_pseudoug_milhoja_2d.par"
+
+[Milhoja_pseudoUG_unsplit_3D]
+    testNode = "Sedov/tests"
+    setupOptions = "-auto -3d -nxb=8 -nyb=8 -nzb=8 +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH -debug -index-reorder --with-unofficial=Grid/GridMain/AMR/Milhoja"
+    numProcs = 8
+    parFile = "test_pseudoug_milhoja_3d.par"
+
