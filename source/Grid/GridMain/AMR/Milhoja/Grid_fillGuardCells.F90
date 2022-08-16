@@ -81,7 +81,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
     else if (idir /= ALLDIR) then
         call Driver_abort("[Grid_fillGuardCells] idir must be ALLDIR")
     else if (present(unitReadsMeshDataOnly)) then
-        call Driver_abort("[Grid_fillGuardCells] unitReadsMeshDataOnly *not* implemented yet") 
+        write(*,*) "WARNING: Ignoring unitReadsMeshDataOnly as not yet implemented"
     end if
 
     if (isFirstCall .AND. (gr_meshMe == MASTER_PE)) then
