@@ -50,7 +50,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del
-  use hy_rk_interface, ONLY : hy_reconstruct
+  use hy_rk_interface, ONLY : hy_reconstruct, hy_riemann
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
   implicit none
@@ -76,7 +76,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,&
        hy_grav, hy_flx, hy_fly, hy_flz
   real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv,hy_flat3d
-
+  @M hy_recon_declare
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
@@ -168,10 +168,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 !$acc parallel     
      @M loop_3d(klim)
           do v=1,NRECON
-!$acc routine (hy_reconstruct)        
-                 call hy_reconstruct(v, hy_rope(v,i-2:i+2,j,k),hy_uPlus(v,i,j,k),&
-                      & hy_uMinus(v,i,j,k), hy_flat(i,j,k))
-              enddo
+	     @M hy_recon
+           enddo
      @M hy_break_loop
               hy_uPlus(HY_DENS ,i,j,k) = max(hy_smalldens, hy_uPlus(HY_DENS ,i,j,k))
               hy_uPlus(HY_PRES ,i,j,k) = max(hy_smallpres, hy_uPlus(HY_PRES ,i,j,k))
