@@ -28,23 +28,23 @@
 !!
 !!***
 subroutine ml_warn(msg)
-    use MoL_data
+   use MoL_data
 
-    use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
 #include "MoL.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: msg
+   character(len=*), intent(in) :: msg
 
-    if (MoL_abortOnWarn) then
-        ! Always print warning if abort-on-warning is turned on
-        call Driver_abort("[MoL] WARNING: " // msg)
-    end if
+   if (MoL_abortOnWarn) then
+      ! Always print warning if abort-on-warning is turned on
+      call Driver_abort("[MoL] WARNING: "//msg)
+   end if
 
-    if ((MoL_verbosity .ge. MOL_VERBOSE_WARN) .and. (MoL_mpiRank .eq. MASTER_PE)) then
-        print*, "[MoL] WARNING: " // msg
-    end if
+   if ((MoL_verbosity .ge. MOL_VERBOSE_WARN) .and. (MoL_mpiRank .eq. MASTER_PE)) then
+      print *, "[MoL] WARNING: "//msg
+   end if
 end subroutine ml_warn

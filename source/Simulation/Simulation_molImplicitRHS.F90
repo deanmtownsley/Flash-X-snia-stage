@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molImplicitRHS
 !!
@@ -22,7 +22,7 @@
 !!                                     real, pointer           :: U(:,:,:,:)
 !!                                     real, intent(in)        :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Calculate implicit RHS terms
 !!
@@ -36,13 +36,13 @@
 !!
 !!***
 subroutine Simulation_molImplicitRHS(tileDesc, rhs, U, t)
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, U
-    real, intent(in) :: t
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:, :, :, :), pointer :: rhs, U
+   real, intent(in) :: t
 
-    return
+   return
 end subroutine Simulation_molImplicitRHS

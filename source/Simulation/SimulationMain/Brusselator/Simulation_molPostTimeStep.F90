@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molPostTimeStep
 !!
@@ -19,7 +19,7 @@
 !!
 !!      call Simulation_molPostTimeStep(real, intent(in) :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Perform any post-timestep work.  This will be called after MoL_advance,
 !!      unit-specific evolution calls.  Re-fluxing and any diagnostic calculations
@@ -32,9 +32,9 @@
 !!
 !!***
 subroutine Simulation_molPostTimeStep(t)
-    implicit none
+   implicit none
 
-    real, intent(in) :: t
+   real, intent(in) :: t
 
-    call Simulation_molPostUpdate(t)
+   call Simulation_molPostUpdate(t)
 end subroutine Simulation_molPostTimeStep

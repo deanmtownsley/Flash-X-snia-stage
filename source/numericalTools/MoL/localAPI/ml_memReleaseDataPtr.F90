@@ -40,15 +40,15 @@
 !!
 !!***
 subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, pointer               :: dataPtr(:,:,:,:)
-    integer,         intent(in) :: dataStruct
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer               :: dataPtr(:, :, :, :)
+   integer, intent(in) :: dataStruct
 
-    nullify(dataPtr)
-    
-    return
+   nullify (dataPtr)
+
+   return
 end subroutine ml_memReleaseDataPtr

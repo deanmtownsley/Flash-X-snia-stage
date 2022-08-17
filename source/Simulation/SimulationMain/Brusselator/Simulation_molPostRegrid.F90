@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molPostRegrid
 !!
@@ -19,7 +19,7 @@
 !!
 !!      call Simulation_molPostRegrid(real, intent(in) :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Perform any post-regrid work.  If a physics unit stored primitive
 !!      variables in UNK in additiona to the evolved conserved variables
@@ -34,9 +34,9 @@
 !!
 !!***
 subroutine Simulation_molPostRegrid(t)
-    implicit none
+   implicit none
 
-    real, intent(in) :: t
+   real, intent(in) :: t
 
-    call Simulation_molPostUpdate(t)
+   call Simulation_molPostUpdate(t)
 end subroutine Simulation_molPostRegrid

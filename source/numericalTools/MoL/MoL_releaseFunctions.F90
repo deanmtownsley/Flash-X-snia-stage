@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine MoL_releaseFunctions()
-    implicit none
+   implicit none
 
-    return
+   return
 end subroutine MoL_releaseFunctions

@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      MoL_registerVariable
 !!
@@ -21,7 +21,7 @@
 !!                                integer,   intent(in)  :: evolIndex
 !!                                integer,   intent(out) :: rhsIndex)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Register an evolved variable/equation
 !!
@@ -33,13 +33,13 @@
 !!
 !!***
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: name
-    integer, intent(in) :: evolIndex
-    integer, intent(out) :: rhsIndex
+   character(len=*), intent(in) :: name
+   integer, intent(in) :: evolIndex
+   integer, intent(out) :: rhsIndex
 
-    rhsIndex = -1
+   rhsIndex = -1
 
-    return
+   return
 end subroutine MoL_registerVariable

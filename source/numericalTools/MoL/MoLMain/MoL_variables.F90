@@ -27,17 +27,17 @@
 
 module MoL_variables
 
-    implicit none
+   implicit none
 
-    type :: MoL_variable_t
-        character(len=:), allocatable :: name
-        integer :: evolIndex, rhsIndex
-    end type MoL_variable_t
+   type :: MoL_variable_t
+      character(len=:), allocatable :: name
+      integer :: evolIndex, rhsIndex
+   end type MoL_variable_t
 
-    type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-    integer, save :: MoL_nvars = 0
+   type(MoL_variable_t), allocatable, save :: MoL_vars(:)
+   integer, save :: MoL_nvars = 0
 
-    ! For convenience
-    integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
+   ! For convenience
+   integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
 
 end module MoL_variables

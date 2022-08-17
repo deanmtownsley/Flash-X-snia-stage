@@ -28,25 +28,25 @@
 !!
 !!***
 subroutine MoL_releaseFunctions()
-    use MoL_functions
+   use MoL_functions
 
-    implicit none
+   implicit none
 
-    if (associated(MoL_rhsE)) nullify(MoL_rhsE)
-    if (associated(MoL_rhsI)) nullify(MoL_rhsI)
-    if (associated(MoL_rhsF)) nullify(MoL_rhsF)
+   if (associated(MoL_rhsE)) nullify (MoL_rhsE)
+   if (associated(MoL_rhsI)) nullify (MoL_rhsI)
+   if (associated(MoL_rhsF)) nullify (MoL_rhsF)
 
-    if (associated(MoL_implicitUpdate)) nullify(MoL_implicitUpdate)
-    
-    if (associated(MoL_postUpdate)) nullify(MoL_postUpdate)
-    if (associated(MoL_postUpdateFast)) nullify(MoL_postUpdateFast)
+   if (associated(MoL_implicitUpdate)) nullify (MoL_implicitUpdate)
 
-    MoL_rhsE => MoL_rhsE_default
-    MoL_rhsI => MoL_rhsI_default
-    MoL_rhsF => MoL_rhsF_default
+   if (associated(MoL_postUpdate)) nullify (MoL_postUpdate)
+   if (associated(MoL_postUpdateFast)) nullify (MoL_postUpdateFast)
 
-    MoL_implicitUpdate => MoL_implicitUpdate_default
+   MoL_rhsE => MoL_rhsE_default
+   MoL_rhsI => MoL_rhsI_default
+   MoL_rhsF => MoL_rhsF_default
 
-    MoL_postUpdate => MoL_postUpdate_default
-    MoL_postUpdateFast => MoL_postUpdateFast_default
+   MoL_implicitUpdate => MoL_implicitUpdate_default
+
+   MoL_postUpdate => MoL_postUpdate_default
+   MoL_postUpdateFast => MoL_postUpdateFast_default
 end subroutine MoL_releaseFunctions

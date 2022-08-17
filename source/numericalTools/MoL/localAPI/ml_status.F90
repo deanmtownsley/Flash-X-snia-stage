@@ -29,9 +29,9 @@
 !!
 !!***
 subroutine ml_status(msg)
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: msg
+   character(len=*), intent(in) :: msg
 
-    return
+   return
 end subroutine ml_status

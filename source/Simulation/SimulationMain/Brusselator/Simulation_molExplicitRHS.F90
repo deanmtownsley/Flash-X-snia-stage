@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molExplicitRHS
 !!
@@ -22,7 +22,7 @@
 !!                                     real, pointer           :: vars(:,:,:,:)
 !!                                     real, intent(in)        :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Calculate explicit RHS terms
 !!
@@ -36,54 +36,54 @@
 !!
 !!***
 subroutine Simulation_molExplicitRHS(tileDesc, rhs, vars, t)
-    use Simulation_data
+   use Simulation_data
 
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, vars
-    real, intent(in) :: t
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:, :, :, :), pointer :: rhs, vars
+   real, intent(in) :: t
 
-    integer :: i, j, k, ip, im
+   integer :: i, j, k, ip, im
 
-    integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    real :: del(MDIM), idx
+   integer, dimension(LOW:HIGH, MDIM) :: lim, bcs
+   real :: del(MDIM), idx
 
-    if (sim_rho .lt. 0d0) then
-        ip = 0
-        im = -1
-    else
-        ip = 1
-        im = 0
-    end if
+   if (sim_rho .lt. 0d0) then
+      ip = 0
+      im = -1
+   else
+      ip = 1
+      im = 0
+   end if
 
-    call tileDesc%faceBCs(bcs)
+   call tileDesc%faceBCs(bcs)
 
-    lim = tileDesc%limits
+   lim = tileDesc%limits
 
-    if(bcs(LOW,IAXIS) .ne. NOT_BOUNDARY) lim(LOW,IAXIS) = lim(LOW,IAXIS) + 1
-    if(bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) lim(HIGH,IAXIS) = lim(HIGH,IAXIS) - 1
+   if (bcs(LOW, IAXIS) .ne. NOT_BOUNDARY) lim(LOW, IAXIS) = lim(LOW, IAXIS) + 1
+   if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
 
-    call tileDesc%deltas(del)
-    idx = 1d0/del(IAXIS)
+   call tileDesc%deltas(del)
+   idx = 1d0/del(IAXIS)
 
-    do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
-        do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
-            do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) &
-                    + sim_rho*(vars(U_VAR,i+ip,j,k) - vars(U_VAR,i+im,j,k))*idx
+   do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
+      do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
+         do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
+            rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) &
+                                  + sim_rho*(vars(U_VAR, i + ip, j, k) - vars(U_VAR, i + im, j, k))*idx
 
-                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k) &
-                    + sim_rho*(vars(V_VAR,i+ip,j,k) - vars(V_VAR,i+im,j,k))*idx
+            rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
+                                  + sim_rho*(vars(V_VAR, i + ip, j, k) - vars(V_VAR, i + im, j, k))*idx
 
-                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) &
-                    + sim_rho*(vars(W_VAR,i+ip,j,k) - vars(W_VAR,i+im,j,k))*idx
-            end do ! i
-        end do ! j
-    end do ! k
+            rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) &
+                                  + sim_rho*(vars(W_VAR, i + ip, j, k) - vars(W_VAR, i + im, j, k))*idx
+         end do ! i
+      end do ! j
+   end do ! k
 end subroutine Simulation_molExplicitRHS

@@ -28,16 +28,16 @@
 !!
 !!***
 subroutine ml_status(msg)
-    use MoL_data
+   use MoL_data
 
 #include "MoL.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: msg
-    
-    if ((MoL_verbosity .ge. MOL_VERBOSE_STATUS) .and. (MoL_mpiRank .eq. MASTER_PE)) then
-        print*, "[MoL]: " // msg
-    end if
+   character(len=*), intent(in) :: msg
+
+   if ((MoL_verbosity .ge. MOL_VERBOSE_STATUS) .and. (MoL_mpiRank .eq. MASTER_PE)) then
+      print *, "[MoL]: "//msg
+   end if
 end subroutine ml_status

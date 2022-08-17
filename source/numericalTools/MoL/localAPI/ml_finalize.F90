@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_finalize()
-    implicit none
+   implicit none
 
-    return
+   return
 end subroutine ml_finalize

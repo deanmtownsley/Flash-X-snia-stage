@@ -29,9 +29,9 @@
 !!
 !!***
 subroutine ml_memZero(dataStruct)
-    implicit none
+   implicit none
 
-    integer, intent(in) :: dataStruct
+   integer, intent(in) :: dataStruct
 
-    return
+   return
 end subroutine ml_memZero

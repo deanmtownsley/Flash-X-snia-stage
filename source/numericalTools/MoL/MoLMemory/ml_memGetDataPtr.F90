@@ -41,35 +41,35 @@
 !!***
 !!REORDER(4): dataPtr
 subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
-    use ml_memData,   only: scratch_data
-    use ml_interface, only: ml_error
+   use ml_memData, only: scratch_data
+   use ml_interface, only: ml_error
 
-    use Grid_tile,    only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
 #include "MoL.h"
-    
-    implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: dataPtr
-    integer, intent(in) :: dataStruct
+   implicit none
 
-    if (dataStruct .lt. 0) call ml_error("Unsupported data struct requested")
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:, :, :, :), pointer :: dataPtr
+   integer, intent(in) :: dataStruct
 
-    if (dataStruct .eq. MOL_EVOLVED) then
-        if (associated(dataPtr)) call tileDesc%releaseDataPtr(dataPtr, CENTER)
+   if (dataStruct .lt. 0) call ml_error("Unsupported data struct requested")
 
-        ! Grab UNK pointer and bail
-        call tileDesc%getDataPtr(dataPtr, CENTER)
-    else
-        if (associated(dataPtr)) nullify(dataPtr)
+   if (dataStruct .eq. MOL_EVOLVED) then
+      if (associated(dataPtr)) call tileDesc%releaseDataPtr(dataPtr, CENTER)
 
-        ! Grid_tile_t uses `id` to reference the block
-        associate(lo => tileDesc%limits(LOW,:))
-            dataPtr(1:, lo(IAXIS):, lo(JAXIS):, lo(KAXIS):) &
-                => scratch_data(:,:,:,:,tileDesc%id,dataStruct)
-        end associate
-    endif
+      ! Grab UNK pointer and bail
+      call tileDesc%getDataPtr(dataPtr, CENTER)
+   else
+      if (associated(dataPtr)) nullify (dataPtr)
+
+      ! Grid_tile_t uses `id` to reference the block
+      associate (lo => tileDesc%limits(LOW, :))
+         dataPtr(1:, lo(IAXIS):, lo(JAXIS):, lo(KAXIS):) &
+            => scratch_data(:, :, :, :, tileDesc%id, dataStruct)
+      end associate
+   end if
 end subroutine ml_memGetDataPtr

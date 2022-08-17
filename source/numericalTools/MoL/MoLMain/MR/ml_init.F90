@@ -28,52 +28,52 @@
 !!
 !!***
 subroutine ml_init()
-    use MoL_data, only: MoL_nscratch
-    use mr_data
-    use erk, only: erk_init
-    use gark, only: gark_init
+   use MoL_data, only: MoL_nscratch
+   use mr_data
+   use erk, only: erk_init
+   use gark, only: gark_init
 
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+   use RuntimeParameters_interface, only: RuntimeParameters_get
 
 #include "Simulation.h"
 #include "constants.h"
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    character(len=MAX_STRING_LENGTH) :: slowMethod_str, fastMethod_str
+   character(len=MAX_STRING_LENGTH) :: slowMethod_str, fastMethod_str
 
-    integer :: i
+   integer :: i
 
-    call RuntimeParameters_get("mr_slowMethod", slowMethod_str)
-    call RuntimeParameters_get("mr_fastMethod", fastMethod_str)
+   call RuntimeParameters_get("mr_slowMethod", slowMethod_str)
+   call RuntimeParameters_get("mr_fastMethod", fastMethod_str)
 
-    mr_slowMethod = trim(slowMethod_str)
-    mr_fastMethod = trim(fastMethod_str)
+   mr_slowMethod = trim(slowMethod_str)
+   mr_fastMethod = trim(fastMethod_str)
 
-    call RuntimeParameters_get("mr_nsubcycle", mr_nsubcycle)
+   call RuntimeParameters_get("mr_nsubcycle", mr_nsubcycle)
 
-    call gark_init
-    call erk_init
+   call gark_init
+   call erk_init
 
-    ! Setup RHS indexing
-    allocate(FE(mr_nstages_slow))
-    allocate(FI(mr_nstages_slow))
-    allocate(FF(mr_nstages_fast))
+   ! Setup RHS indexing
+   allocate (FE(mr_nstages_slow))
+   allocate (FI(mr_nstages_slow))
+   allocate (FF(mr_nstages_fast))
 
-    FE = MOL_INVALID; FI = MOL_INVALID; FF = MOL_INVALID
+   FE = MOL_INVALID; FI = MOL_INVALID; FF = MOL_INVALID
 
-    ! Uses MOL_RHS as first index
-    do i = 1, mr_nstages_slow, 2
-        FE(i) = MOL_RHS + i - 1
-        FI(i) = MOL_RHS + i
-    end do ! i
+   ! Uses MOL_RHS as first index
+   do i = 1, mr_nstages_slow, 2
+      FE(i) = MOL_RHS + i - 1
+      FI(i) = MOL_RHS + i
+   end do ! i
 
-    FAST_INITIAL = FI(mr_nstages_slow-1) + 1
+   FAST_INITIAL = FI(mr_nstages_slow - 1) + 1
 
-    do i = 1, mr_nstages_fast
-        FF(i) = FAST_INITIAL + i
-    end do ! i
+   do i = 1, mr_nstages_fast
+      FF(i) = FAST_INITIAL + i
+   end do ! i
 
-    MoL_nscratch = mr_nstages_slow + mr_nstages_fast
+   MoL_nscratch = mr_nstages_slow + mr_nstages_fast
 end subroutine ml_init

@@ -29,39 +29,39 @@
 !!***
 subroutine ml_memAlloc()
 
-    use ml_memInterface, only: ml_memFree
-    use ml_memData,      only: scratch_data
-    use MoL_data,        only: MoL_nscratch_total
-    use MoL_variables,   only: MoL_nvars
+   use ml_memInterface, only: ml_memFree
+   use ml_memData, only: scratch_data
+   use MoL_data, only: MoL_nscratch_total
+   use MoL_variables, only: MoL_nvars
 
-    use Grid_interface, only: Grid_getBlkIndexLimits
+   use Grid_interface, only: Grid_getBlkIndexLimits
 
 #include "Simulation.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    integer, dimension(LOW:HIGH,MDIM) :: lim, limGC
+   integer, dimension(LOW:HIGH, MDIM) :: lim, limGC
 
-    call Grid_getBlkIndexLimits(1, lim, limGC)
+   call Grid_getBlkIndexLimits(1, lim, limGC)
 
-    if (allocated(scratch_data)) call ml_memFree()
+   if (allocated(scratch_data)) call ml_memFree()
 
-    ! Don't need guard-cells here
+   ! Don't need guard-cells here
 #ifdef MOL_REORDER
-    allocate(scratch_data(lim(LOW,IAXIS):lim(HIGH,IAXIS), &
-                          lim(LOW,JAXIS):lim(HIGH,JAXIS), &
-                          lim(LOW,KAXIS):lim(HIGH,KAXIS), &
-                          MoL_nvars,                      &
-                          MAXBLOCKS,                      &
+   allocate (scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
+                          lim(LOW, JAXIS):lim(HIGH, JAXIS), &
+                          lim(LOW, KAXIS):lim(HIGH, KAXIS), &
+                          MoL_nvars, &
+                          MAXBLOCKS, &
                           MoL_nscratch_total))
 #else
-    allocate(scratch_data(MoL_nvars,                      &
-                          lim(LOW,IAXIS):lim(HIGH,IAXIS), &
-                          lim(LOW,JAXIS):lim(HIGH,JAXIS), &
-                          lim(LOW,KAXIS):lim(HIGH,KAXIS), &
-                          MAXBLOCKS,                      &
+   allocate (scratch_data(MoL_nvars, &
+                          lim(LOW, IAXIS):lim(HIGH, IAXIS), &
+                          lim(LOW, JAXIS):lim(HIGH, JAXIS), &
+                          lim(LOW, KAXIS):lim(HIGH, KAXIS), &
+                          MAXBLOCKS, &
                           MoL_nscratch_total))
 #endif
-    scratch_data = 0d0
+   scratch_data = 0d0
 end subroutine ml_memAlloc

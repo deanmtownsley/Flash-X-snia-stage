@@ -32,17 +32,17 @@
 !!
 !!***
 subroutine MoL_regrid()
-    use ml_memInterface, only: ml_memAlloc, ml_memFree
+   use ml_memInterface, only: ml_memAlloc, ml_memFree
 
-    implicit none
+   implicit none
 
-    logical, save :: first = .true.
+   logical, save :: first = .true.
 
-    ! Only need to do this once for UG/Paramesh
-    if(.not. first) return
+   ! Only need to do this once for UG/Paramesh
+   if (.not. first) return
 
-    call ml_memFree
-    call ml_memAlloc
+   call ml_memFree
+   call ml_memAlloc
 
-    first = .false.
+   first = .false.
 end subroutine MoL_regrid

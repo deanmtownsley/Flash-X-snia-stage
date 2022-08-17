@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_init()
-    implicit none
+   implicit none
 
-    return
+   return
 end subroutine ml_init

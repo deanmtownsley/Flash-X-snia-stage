@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      dr_molRegisterFunctions
 !!
@@ -19,31 +19,31 @@
 !!
 !!      call dr_molRegisterFunctions
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Registers various MoL functions
 !!
 !!***
 subroutine dr_molRegisterFunctions()
-    use dr_molInterface, only: dr_molExplicitRHS,     &
-                               dr_molImplicitRHS,     &
-                               dr_molFastRHS,         &
-                               dr_molImplicitUpdate,  &
-                               dr_molPostUpdate,      &
-                               dr_molPostFastUpdate
+   use dr_molInterface, only: dr_molExplicitRHS, &
+                              dr_molImplicitRHS, &
+                              dr_molFastRHS, &
+                              dr_molImplicitUpdate, &
+                              dr_molPostUpdate, &
+                              dr_molPostFastUpdate
 
-    use MoL_interface, only: MoL_registerRHS, MoL_registerUpdate, MoL_registerPostUpdate
+   use MoL_interface, only: MoL_registerRHS, MoL_registerUpdate, MoL_registerPostUpdate
 
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    call MoL_registerRHS(MOL_RHS_EXPLICIT, dr_molExplicitRHS)
-    call MoL_registerRHS(MOL_RHS_IMPLICIT, dr_molImplicitRHS)
-    call MoL_registerRHS(MOL_RHS_FAST,     dr_molFastRHS)
+   call MoL_registerRHS(MOL_RHS_EXPLICIT, dr_molExplicitRHS)
+   call MoL_registerRHS(MOL_RHS_IMPLICIT, dr_molImplicitRHS)
+   call MoL_registerRHS(MOL_RHS_FAST, dr_molFastRHS)
 
-    call MoL_registerUpdate(MOL_IMPLICIT_UPDATE, dr_molImplicitUpdate)
+   call MoL_registerUpdate(MOL_IMPLICIT_UPDATE, dr_molImplicitUpdate)
 
-    call MoL_registerPostUpdate(MOL_POST_UPDATE,      dr_molPostUpdate)
-    call MoL_registerPostUpdate(MOL_POST_UPDATE_FAST, dr_molPostFastUpdate)
+   call MoL_registerPostUpdate(MOL_POST_UPDATE, dr_molPostUpdate)
+   call MoL_registerPostUpdate(MOL_POST_UPDATE_FAST, dr_molPostFastUpdate)
 end subroutine dr_molRegisterFunctions

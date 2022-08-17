@@ -28,11 +28,11 @@
 !!
 !!***
 subroutine MoL_finalize()
-    use ml_interface, only: ml_finalize
-    use ml_memInterface, only: ml_memFree
+   use ml_interface, only: ml_finalize
+   use ml_memInterface, only: ml_memFree
 
-    implicit none
+   implicit none
 
-    call ml_memFree
-    call ml_finalize
+   call ml_memFree
+   call ml_finalize
 end subroutine MoL_finalize

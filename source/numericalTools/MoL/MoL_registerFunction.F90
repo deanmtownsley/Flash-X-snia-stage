@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      MoL_registerFunction
 !!
@@ -20,7 +20,7 @@
 !!      call MoL_registerFunction(integer,   intent(in) :: funcType
 !!                                procedure,            :: func)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Register a function with MoL
 !!
@@ -37,48 +37,48 @@
 !!
 !!***
 subroutine MoL_registerRHS(rhsType, rhsFunc)
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
-    implicit none
+   implicit none
 
-    integer, intent(in) :: rhsType
+   integer, intent(in) :: rhsType
 
-    interface
-        subroutine rhsFunc(tileDesc, dy, y, t)
-            import :: Grid_tile_t
-            type(Grid_tile_t), intent(in) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: dy, y
-            real, intent(in) :: t
-        end subroutine rhsFunc
-    end interface
+   interface
+      subroutine rhsFunc(tileDesc, dy, y, t)
+         import :: Grid_tile_t
+         type(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:, :, :, :), pointer :: dy, y
+         real, intent(in) :: t
+      end subroutine rhsFunc
+   end interface
 
-    return
+   return
 end subroutine MoL_registerRHS
 
 subroutine MoL_registerUpdate(updateType, updateFunc)
-    implicit none
+   implicit none
 
-    integer, intent(in) :: updateType
+   integer, intent(in) :: updateType
 
-    interface
-        subroutine updateFunc(t, dt)
-            real, intent(in) :: t, dt
-        end subroutine updateFunc
-    end interface
+   interface
+      subroutine updateFunc(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine updateFunc
+   end interface
 
-    return
+   return
 end subroutine MoL_registerUpdate
 
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
-    implicit none
+   implicit none
 
-    integer, intent(in) :: postUpdateType
+   integer, intent(in) :: postUpdateType
 
-    interface
-        subroutine postUpdateFunc(t)
-            real, intent(in) :: t
-        end subroutine postUpdateFunc
-    end interface
+   interface
+      subroutine postUpdateFunc(t)
+         real, intent(in) :: t
+      end subroutine postUpdateFunc
+   end interface
 
-    return
+   return
 end subroutine MoL_registerPostUpdate

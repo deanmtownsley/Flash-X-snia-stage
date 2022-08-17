@@ -25,9 +25,9 @@
 !!***
 module ml_memData
 
-    implicit none
+   implicit none
 
-    ! Ranks are (var,i,j,k,block,dataStruct)
-    real, dimension(:,:,:,:,:,:), allocatable, target, save :: scratch_data
+   ! Ranks are (var,i,j,k,block,dataStruct)
+   real, dimension(:, :, :, :, :, :), allocatable, target, save :: scratch_data
 
 end module ml_memData

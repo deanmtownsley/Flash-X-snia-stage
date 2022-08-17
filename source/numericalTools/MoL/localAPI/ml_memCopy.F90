@@ -40,9 +40,9 @@
 !!
 !!***
 subroutine ml_memCopy(dst, src)
-    implicit none
+   implicit none
 
-    integer, intent(in) :: dst, src
+   integer, intent(in) :: dst, src
 
-    return
+   return
 end subroutine ml_memCopy

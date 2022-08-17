@@ -41,68 +41,68 @@
 !!***
 !!REORDER(4): dstPtr, srcPtr
 subroutine ml_memCopy(dst, src)
-    use MoL_variables,   only: MoL_scratch_mask, MoL_unk_mask, MoL_nvars
-    use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_variables, only: MoL_scratch_mask, MoL_unk_mask, MoL_nvars
+   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
 
-    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
-    use Grid_tile,      only: Grid_tile_t
-    use Grid_iterator,  only: Grid_iterator_t
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_tile, only: Grid_tile_t
+   use Grid_iterator, only: Grid_iterator_t
 
 #include "Simulation.h"
 #include "constants.h"
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    integer, intent(in) :: dst, src
+   integer, intent(in) :: dst, src
 
-    integer, dimension(MoL_nvars) :: dstVars, srcVars
-    real, dimension(:,:,:,:), pointer :: dstPtr, srcPtr
+   integer, dimension(MoL_nvars) :: dstVars, srcVars
+   real, dimension(:, :, :, :), pointer :: dstPtr, srcPtr
 
-    type(Grid_iterator_t) :: itor
-    type(Grid_tile_t) :: tileDesc
+   type(Grid_iterator_t) :: itor
+   type(Grid_tile_t) :: tileDesc
 
-    integer :: i, j, k
+   integer :: i, j, k
 
-    ! Bail if we requested something stupid
-    if (dst .eq. src) return
+   ! Bail if we requested something stupid
+   if (dst .eq. src) return
 
-    ! Select the correct variable masks
-    if (dst .eq. MOL_EVOLVED) then
-        dstVars = MoL_unk_mask
-    else
-        dstVars = MoL_scratch_mask
-    end if
+   ! Select the correct variable masks
+   if (dst .eq. MOL_EVOLVED) then
+      dstVars = MoL_unk_mask
+   else
+      dstVars = MoL_scratch_mask
+   end if
 
-    if (src .eq. MOL_EVOLVED) then
-        srcVars = MoL_unk_mask
-    else
-        srcVars = MoL_scratch_mask
-    end if
+   if (src .eq. MOL_EVOLVED) then
+      srcVars = MoL_unk_mask
+   else
+      srcVars = MoL_scratch_mask
+   end if
 
-    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
+   call Grid_getTileIterator(itor, LEAF, tiling=.true.)
 
-    TileLoop: do
-        if (.not. itor%isValid()) exit TileLoop
+   TileLoop: do
+      if (.not. itor%isValid()) exit TileLoop
 
-        call itor%currentTile(tileDesc)
+      call itor%currentTile(tileDesc)
 
-        call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-        call ml_memGetDataPtr(tileDesc, srcPtr, src)
+      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
+      call ml_memGetDataPtr(tileDesc, srcPtr, src)
 
-        do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
-            do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
-                do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
-                    dstPtr(dstVars,i,j,k) = srcPtr(srcVars,i,j,k)
-                end do ! i
-            end do ! j
-        end do ! k
+      do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
+         do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
+            do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
+               dstPtr(dstVars, i, j, k) = srcPtr(srcVars, i, j, k)
+            end do ! i
+         end do ! j
+      end do ! k
 
-        call ml_memReleaseDataPtr(tileDesc, srcPtr, src)
-        call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call ml_memReleaseDataPtr(tileDesc, srcPtr, src)
+      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
 
-        call itor%next()
-    end do TileLoop
+      call itor%next()
+   end do TileLoop
 
-    call Grid_releaseTileIterator(itor)
+   call Grid_releaseTileIterator(itor)
 end subroutine ml_memCopy

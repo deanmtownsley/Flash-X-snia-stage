@@ -26,77 +26,76 @@
 !!***
 module dr_molInterface
 
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
-    implicit none
+   implicit none
 
+   interface
+      subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
+         import :: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:, :, :, :), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine dr_molExplicitRHS
+   end interface
 
-    interface
-        subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
-            import :: Grid_tile_t
-            class(Grid_tile_t), intent(in) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: rhs, U
-            real, intent(in) :: t
-        end subroutine dr_molExplicitRHS
-    end interface
+   interface
+      subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
+         import :: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:, :, :, :), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine dr_molImplicitRHS
+   end interface
 
-    interface
-        subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
-            import :: Grid_tile_t
-            class(Grid_tile_t), intent(in) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: rhs, U
-            real, intent(in) :: t
-        end subroutine dr_molImplicitRHS
-    end interface
+   interface
+      subroutine dr_molFastRHS(tileDesc, rhs, U, t)
+         import :: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, dimension(:, :, :, :), pointer :: rhs, U
+         real, intent(in) :: t
+      end subroutine dr_molFastRHS
+   end interface
 
-    interface
-        subroutine dr_molFastRHS(tileDesc, rhs, U, t)
-            import :: Grid_tile_t
-            class(Grid_tile_t), intent(in) :: tileDesc
-            real, dimension(:,:,:,:), pointer :: rhs, U
-            real, intent(in) :: t
-        end subroutine dr_molFastRHS
-    end interface
+   interface
+      subroutine dr_molImplicitUpdate(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine dr_molImplicitUpdate
+   end interface
 
-    interface
-        subroutine dr_molImplicitUpdate(t, dt)
-            real, intent(in) :: t, dt
-        end subroutine dr_molImplicitUpdate
-    end interface
+   interface
+      subroutine dr_molPostUpdate(t)
+         real, intent(in) :: t
+      end subroutine dr_molPostUpdate
+   end interface
 
-    interface
-        subroutine dr_molPostUpdate(t)
-            real, intent(in) :: t
-        end subroutine dr_molPostUpdate
-    end interface
+   interface
+      subroutine dr_molPostFastUpdate(t)
+         real, intent(in) :: t
+      end subroutine dr_molPostFastUpdate
+   end interface
 
-    interface
-        subroutine dr_molPostFastUpdate(t)
-            real, intent(in) :: t
-        end subroutine dr_molPostFastUpdate
-    end interface
+   interface
+      subroutine dr_molPreEvolve(t)
+         real, intent(in) :: t
+      end subroutine dr_molPreEvolve
+   end interface
 
-    interface
-        subroutine dr_molPreEvolve(t)
-            real, intent(in) :: t
-        end subroutine dr_molPreEvolve
-    end interface
+   interface
+      subroutine dr_molPostTimeStep(t)
+         real, intent(in) :: t
+      end subroutine dr_molPostTimeStep
+   end interface
 
-    interface
-        subroutine dr_molPostTimeStep(t)
-            real, intent(in) :: t
-        end subroutine dr_molPostTimeStep
-    end interface
+   interface
+      subroutine dr_molPostRegrid(t)
+         real, intent(in) :: t
+      end subroutine dr_molPostRegrid
+   end interface
 
-    interface
-        subroutine dr_molPostRegrid(t)
-            real, intent(in) :: t
-        end subroutine dr_molPostRegrid
-    end interface
-
-    interface
-        subroutine dr_molRegisterFunctions
-        end subroutine dr_molRegisterFunctions
-    end interface
+   interface
+      subroutine dr_molRegisterFunctions
+      end subroutine dr_molRegisterFunctions
+   end interface
 
 end module dr_molInterface

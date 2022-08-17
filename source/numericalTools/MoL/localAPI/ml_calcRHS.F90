@@ -36,10 +36,10 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-    implicit none
+   implicit none
 
-    integer, intent(in) :: rhsType, rhsStruct
-    real,    intent(in) :: t
+   integer, intent(in) :: rhsType, rhsStruct
+   real, intent(in) :: t
 
-    return
+   return
 end subroutine ml_calcRHS

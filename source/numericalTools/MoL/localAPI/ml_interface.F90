@@ -27,65 +27,61 @@
 !!***
 module ml_interface
 
-    implicit none
-
+   implicit none
 
     !! ================================= !!
     !!  Initialization and finalization  !!
     !! ================================= !!
 
-    interface
-        subroutine ml_init
-        end subroutine ml_init
-    end interface
+   interface
+      subroutine ml_init
+      end subroutine ml_init
+   end interface
 
-    interface
-        subroutine ml_finalize
-        end subroutine ml_finalize
-    end interface
-
+   interface
+      subroutine ml_finalize
+      end subroutine ml_finalize
+   end interface
 
     !! ===================== !!
     !!  Advance a time step  !!
     !! ===================== !!
 
-    interface
-        subroutine ml_advance(t, dt)
-            real, intent(in) :: t, dt
-        end subroutine ml_advance
-    end interface
-
+   interface
+      subroutine ml_advance(t, dt)
+         real, intent(in) :: t, dt
+      end subroutine ml_advance
+   end interface
 
     !! ===================== !!
     !!  Caclulate RHS terms  !!
     !! ===================== !!
-    interface
-        subroutine ml_calcRHS(rhsType, rhsStruct, t)
-            integer, intent(in) :: rhsType, rhsStruct
-            real,    intent(in) :: t
-        end subroutine ml_calcRHS
-    end interface
-
+   interface
+      subroutine ml_calcRHS(rhsType, rhsStruct, t)
+         integer, intent(in) :: rhsType, rhsStruct
+         real, intent(in) :: t
+      end subroutine ml_calcRHS
+   end interface
 
     !! ============================ !!
     !!  Error and warning messages  !!
     !! ============================ !!
 
-    interface
-        subroutine ml_error(msg)
-            character(len=*), intent(in) :: msg
-        end subroutine ml_error
-    end interface
+   interface
+      subroutine ml_error(msg)
+         character(len=*), intent(in) :: msg
+      end subroutine ml_error
+   end interface
 
-    interface
-        subroutine ml_warn(msg)
-            character(len=*), intent(in) :: msg
-        end subroutine ml_warn
-    end interface
+   interface
+      subroutine ml_warn(msg)
+         character(len=*), intent(in) :: msg
+      end subroutine ml_warn
+   end interface
 
-    interface
-        subroutine ml_status(msg)
-            character(len=*), intent(in) :: msg
-        end subroutine ml_status
-    end interface
+   interface
+      subroutine ml_status(msg)
+         character(len=*), intent(in) :: msg
+      end subroutine ml_status
+   end interface
 end module ml_interface

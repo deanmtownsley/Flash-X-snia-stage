@@ -29,13 +29,13 @@
 !!
 !!***
 subroutine ml_memZero(dataStruct)
-    use ml_memData
+   use ml_memData
 
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    integer, intent(in) :: dataStruct
+   integer, intent(in) :: dataStruct
 
-    if (dataStruct .ge. MOL_INITIAL) scratch_data(:,:,:,:,:,dataStruct) = 0d0
+   if (dataStruct .ge. MOL_INITIAL) scratch_data(:, :, :, :, :, dataStruct) = 0d0
 end subroutine ml_memZero

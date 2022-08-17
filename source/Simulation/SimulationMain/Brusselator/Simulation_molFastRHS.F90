@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molFastRHS
 !!
@@ -22,7 +22,7 @@
 !!                                 real, pointer           :: U(:,:,:,:)
 !!                                 real, intent(in)        :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Calculate fast RHS terms
 !!
@@ -36,42 +36,42 @@
 !!
 !!***
 subroutine Simulation_molFastRHS(tileDesc, rhs, vars, t)
-    use Simulation_data, only: U_RHS, V_RHS, W_RHS, a => sim_a, b => sim_b, &
-                               eps => sim_epsilon
+   use Simulation_data, only: U_RHS, V_RHS, W_RHS, a => sim_a, b => sim_b, &
+                              eps => sim_epsilon
 
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, vars
-    real, intent(in) :: t
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:, :, :, :), pointer :: rhs, vars
+   real, intent(in) :: t
 
-    integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    integer :: i, j, k
-    real :: u,v,w
+   integer, dimension(LOW:HIGH, MDIM) :: lim, bcs
+   integer :: i, j, k
+   real :: u, v, w
 
-    call tileDesc%faceBCs(bcs)
+   call tileDesc%faceBCs(bcs)
 
-    lim = tileDesc%limits
+   lim = tileDesc%limits
 
-    if(bcs(LOW,IAXIS) .ne. NOT_BOUNDARY) lim(LOW,IAXIS) = lim(LOW,IAXIS) + 1
-    if(bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) lim(HIGH,IAXIS) = lim(HIGH,IAXIS) - 1
+   if (bcs(LOW, IAXIS) .ne. NOT_BOUNDARY) lim(LOW, IAXIS) = lim(LOW, IAXIS) + 1
+   if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
 
-    do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
-        do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
-            do i = lim(LOW,IAXIS), lim(HIGH,IAXIS)
-                u = vars(U_VAR,i,j,k)
-                v = vars(V_VAR,i,j,k)
-                w = vars(W_VAR,i,j,k)
+   do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
+      do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
+         do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
+            u = vars(U_VAR, i, j, k)
+            v = vars(V_VAR, i, j, k)
+            w = vars(W_VAR, i, j, k)
 
-                rhs(U_RHS,i,j,k) = rhs(U_RHS,i,j,k) + a         - (w+1d0)*u + v*u**2
-                rhs(V_RHS,i,j,k) = rhs(V_RHS,i,j,k)             +       w*u - v*u**2
-                rhs(W_RHS,i,j,k) = rhs(W_RHS,i,j,k) + (b-w)/eps -       w*u
-            end do ! i
-        end do ! j
-    end do ! k
+            rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) + a - (w + 1d0)*u + v*u**2
+            rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) + w*u - v*u**2
+            rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) + (b - w)/eps - w*u
+         end do ! i
+      end do ! j
+   end do ! k
 end subroutine Simulation_molFastRHS

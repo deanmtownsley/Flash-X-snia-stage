@@ -25,20 +25,19 @@
 !!***
 module MoL_data
 
-    implicit none
-    
-    ! MoL_nscratch is the required number of memory-levels (e.g. intermediate
-    ! stages) required by an implementation
-    ! MoL_nscratch_total adds additional levels for default memory-levels provided
-    ! by the base implementation (e.g. RHS and INITIAL)
-    integer, save :: MoL_nscratch, MoL_nscratch_total
+   implicit none
 
+   ! MoL_nscratch is the required number of memory-levels (e.g. intermediate
+   ! stages) required by an implementation
+   ! MoL_nscratch_total adds additional levels for default memory-levels provided
+   ! by the base implementation (e.g. RHS and INITIAL)
+   integer, save :: MoL_nscratch, MoL_nscratch_total
 
-    ! Current MPI rank (mainly used for messaging)
-    integer, save :: MoL_mpiRank
+   ! Current MPI rank (mainly used for messaging)
+   integer, save :: MoL_mpiRank
 
-    ! Verbosity for messaging
-    integer, save :: MoL_verbosity
-    logical, save :: MoL_abortOnWarn
+   ! Verbosity for messaging
+   integer, save :: MoL_verbosity
+   logical, save :: MoL_abortOnWarn
 
 end module MoL_data

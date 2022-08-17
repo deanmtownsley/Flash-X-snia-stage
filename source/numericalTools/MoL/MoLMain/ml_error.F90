@@ -28,14 +28,14 @@
 !!
 !!***
 subroutine ml_error(msg)
-    use Driver_interface, only: Driver_abort
+   use Driver_interface, only: Driver_abort
 
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: msg
+   character(len=*), intent(in) :: msg
 
-    ! Error-messaging is always turned on
-    call Driver_abort("[MoL] ERROR: " // msg)
+   ! Error-messaging is always turned on
+   call Driver_abort("[MoL] ERROR: "//msg)
 end subroutine ml_error

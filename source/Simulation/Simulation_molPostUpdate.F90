@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molPostUpdate
 !!
@@ -19,7 +19,7 @@
 !!
 !!      call Simulation_molPostUpdate(real, intent(in) :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Perform any post-update (post-stage/timestep) work
 !!
@@ -30,9 +30,9 @@
 !!
 !!***
 subroutine Simulation_molPostUpdate(t)
-    implicit none
+   implicit none
 
-    real, intent(in) :: t
+   real, intent(in) :: t
 
-    return
+   return
 end subroutine Simulation_molPostUpdate

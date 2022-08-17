@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Simulation_molImplicitUpdate
 !!
@@ -20,7 +20,7 @@
 !!      call Simulation_molImplicitUpdate(real, intent(in) :: t
 !!                                        real, intent(in) :: dt)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Implicitly update evolved variables from t to t+dt
 !!
@@ -32,99 +32,99 @@
 !!
 !!***
 subroutine Simulation_molImplicitUpdate(t, dt)
-    use Simulation_data
+   use Simulation_data
 
-    use Grid_interface, only : Grid_getTileIterator, Grid_releaseTileIterator
-    use Grid_iterator,  only: Grid_iterator_t
-    use Grid_tile,      only: Grid_tile_t
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_iterator, only: Grid_iterator_t
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
 
-    implicit none
+   implicit none
 
-    real, intent(in) :: t, dt
+   real, intent(in) :: t, dt
 
-    real :: del(MDIM), dx2, fac
-    integer, dimension(LOW:HIGH,MDIM) :: lim, bcs
-    integer :: i, j, k, ilo, ihi
+   real :: del(MDIM), dx2, fac
+   integer, dimension(LOW:HIGH, MDIM) :: lim, bcs
+   integer :: i, j, k, ilo, ihi
 
-    real, dimension(:,:,:,:), pointer :: vars
-    real :: u0, v0, w0
+   real, dimension(:, :, :, :), pointer :: vars
+   real :: u0, v0, w0
 
-    real, dimension(:), allocatable :: DL, D, DU
-    real, dimension(:,:), allocatable :: B
-    integer :: N, info
+   real, dimension(:), allocatable :: DL, D, DU
+   real, dimension(:, :), allocatable :: B
+   integer :: N, info
 
-    type(Grid_tile_t) :: tileDesc
-    type(Grid_iterator_t) :: itor
+   type(Grid_tile_t) :: tileDesc
+   type(Grid_iterator_t) :: itor
 
-    nullify(vars)
+   nullify (vars)
 
-    call Grid_getTileIterator(itor, LEAF)
+   call Grid_getTileIterator(itor, LEAF)
 
-    do ! not using while since this is technically deprecated
-        if (.not. itor%isValid()) exit
+   do ! not using while since this is technically deprecated
+      if (.not. itor%isValid()) exit
 
-        call itor%currentTile(tileDesc)
+      call itor%currentTile(tileDesc)
 
-        call tileDesc%faceBCs(bcs)
+      call tileDesc%faceBCs(bcs)
 
-        lim = tileDesc%limits
-        ilo = lim(LOW,IAXIS)
-        ihi = lim(HIGH,IAXIS)
+      lim = tileDesc%limits
+      ilo = lim(LOW, IAXIS)
+      ihi = lim(HIGH, IAXIS)
 
-        if (bcs(LOW,IAXIS) .ne. NOT_BOUNDARY)  ilo = ilo + 1
-        if (bcs(HIGH,IAXIS) .ne. NOT_BOUNDARY) ihi = ihi - 1
+      if (bcs(LOW, IAXIS) .ne. NOT_BOUNDARY) ilo = ilo + 1
+      if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) ihi = ihi - 1
 
-        call tileDesc%deltas(del)
-        dx2 = del(IAXIS)**2
-        fac = (sim_alpha*dt)/dx2
+      call tileDesc%deltas(del)
+      dx2 = del(IAXIS)**2
+      fac = (sim_alpha*dt)/dx2
 
-        N = ihi - ilo + 1
-        allocate(D(N)); allocate(B(N,3))
-        allocate(DL(N-1)); allocate(DU(N-1))
+      N = ihi - ilo + 1
+      allocate (D(N)); allocate (B(N, 3))
+      allocate (DL(N - 1)); allocate (DU(N - 1))
 
-        call tileDesc%getDataPtr(vars, CENTER)
+      call tileDesc%getDataPtr(vars, CENTER)
 
-        do k = lim(LOW,KAXIS), lim(HIGH,KAXIS)
-            do j = lim(LOW,JAXIS), lim(HIGH,JAXIS)
-                ! Solve for U,V,W
-                ! Note: DGTSV overwrites D,DL,DU so these need to be set everytime
-                DU = -fac
-                DL = -fac
+      do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
+         do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
+            ! Solve for U,V,W
+            ! Note: DGTSV overwrites D,DL,DU so these need to be set everytime
+            DU = -fac
+            DL = -fac
 
-                D = 1d0 + 2d0*fac
+            D = 1d0 + 2d0*fac
 
-                B(:,1) = vars(U_VAR,ilo:ihi,j,k)
-                B(:,2) = vars(V_VAR,ilo:ihi,j,k)
-                B(:,3) = vars(W_VAR,ilo:ihi,j,k)
+            B(:, 1) = vars(U_VAR, ilo:ihi, j, k)
+            B(:, 2) = vars(V_VAR, ilo:ihi, j, k)
+            B(:, 3) = vars(W_VAR, ilo:ihi, j, k)
 
-                B(1,1) = B(1,1) + fac*vars(U_VAR,ilo-1,j,k)
-                B(1,2) = B(1,2) + fac*vars(V_VAR,ilo-1,j,k)
-                B(1,3) = B(1,3) + fac*vars(W_VAR,ilo-1,j,k)
+            B(1, 1) = B(1, 1) + fac*vars(U_VAR, ilo - 1, j, k)
+            B(1, 2) = B(1, 2) + fac*vars(V_VAR, ilo - 1, j, k)
+            B(1, 3) = B(1, 3) + fac*vars(W_VAR, ilo - 1, j, k)
 
-                B(N,1) = B(N,1) + fac*vars(U_VAR,ihi+1,j,k)
-                B(N,2) = B(N,2) + fac*vars(V_VAR,ihi+1,j,k)
-                B(N,3) = B(N,3) + fac*vars(W_VAR,ihi+1,j,k)
+            B(N, 1) = B(N, 1) + fac*vars(U_VAR, ihi + 1, j, k)
+            B(N, 2) = B(N, 2) + fac*vars(V_VAR, ihi + 1, j, k)
+            B(N, 3) = B(N, 3) + fac*vars(W_VAR, ihi + 1, j, k)
 
-                call dgtsv(N, 3, DL, D, DU, B, N, info)
+            call dgtsv(N, 3, DL, D, DU, B, N, info)
 
-                vars(U_VAR,ilo:ihi,j,k) = B(:,1)
-                vars(V_VAR,ilo:ihi,j,k) = B(:,2)
-                vars(W_VAR,ilo:ihi,j,k) = B(:,3)
-            end do ! j
-        end do ! k
+            vars(U_VAR, ilo:ihi, j, k) = B(:, 1)
+            vars(V_VAR, ilo:ihi, j, k) = B(:, 2)
+            vars(W_VAR, ilo:ihi, j, k) = B(:, 3)
+         end do ! j
+      end do ! k
 
-        call tileDesc%releaseDataPtr(vars, CENTER)
+      call tileDesc%releaseDataPtr(vars, CENTER)
 
-        deallocate(D); deallocate(DL); deallocate(DU); deallocate(B)
+      deallocate (D); deallocate (DL); deallocate (DU); deallocate (B)
 
-        call itor%next()
-    end do ! itor
+      call itor%next()
+   end do ! itor
 
-    call Grid_releaseTileIterator(itor)
+   call Grid_releaseTileIterator(itor)
 
-    call Simulation_molPostUpdate(t)
+   call Simulation_molPostUpdate(t)
 
 end subroutine Simulation_molImplicitUpdate

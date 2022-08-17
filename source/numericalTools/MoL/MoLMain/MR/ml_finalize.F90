@@ -28,23 +28,23 @@
 !!
 !!***
 subroutine ml_finalize()
-    use mr_data
+   use mr_data
 
-    implicit none
+   implicit none
 
-    if (allocated(FE)) deallocate(FE)
-    if (allocated(FI)) deallocate(FI)
-    if (allocated(FF)) deallocate(FF)
+   if (allocated(FE)) deallocate (FE)
+   if (allocated(FI)) deallocate (FI)
+   if (allocated(FF)) deallocate (FF)
 
-    if (allocated(gamK)) deallocate(gamK)
-    if (allocated(wK))   deallocate(wK)
+   if (allocated(gamK)) deallocate (gamK)
+   if (allocated(wK)) deallocate (wK)
 
-    if (allocated(gamBar)) deallocate(gamBar)
-    if (allocated(wBar))   deallocate(wBar)
+   if (allocated(gamBar)) deallocate (gamBar)
+   if (allocated(wBar)) deallocate (wBar)
 
-    if (allocated(cS)) deallocate(cS)
+   if (allocated(cS)) deallocate (cS)
 
-    if (allocated(AF)) deallocate(AF)
-    if (allocated(bF)) deallocate(bF)
-    if (allocated(cF)) deallocate(cF)
+   if (allocated(AF)) deallocate (AF)
+   if (allocated(bF)) deallocate (bF)
+   if (allocated(cF)) deallocate (cF)
 end subroutine ml_finalize

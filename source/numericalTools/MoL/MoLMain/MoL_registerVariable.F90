@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      MoL_registerVariable
 !!
@@ -21,7 +21,7 @@
 !!                                integer,   intent(in)  :: evolIndex
 !!                                integer,   intent(out) :: rhsIndex)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Register an evolved variable/equation
 !!
@@ -33,54 +33,53 @@
 !!
 !!***
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
-    use MoL_variables
-    use ml_interface, only: ml_warn
+   use MoL_variables
+   use ml_interface, only: ml_warn
 
-    implicit none
+   implicit none
 
-    character(len=*), intent(in) :: name
-    integer, intent(in) :: evolIndex
-    integer, intent(out) :: rhsIndex
+   character(len=*), intent(in) :: name
+   integer, intent(in) :: evolIndex
+   integer, intent(out) :: rhsIndex
 
-    type(MoL_variable_t) :: var
+   type(MoL_variable_t) :: var
 
-    integer :: ivar
+   integer :: ivar
 
-    ! If this variable is registered already, output a warning (if verbose) and exit
-    varLoop: do ivar = 1, MoL_nvars
-        if (MoL_vars(ivar)%evolIndex .eq. evolIndex) then
-            call ml_warn("Duplicate variable registration")
-            return
-        end if
-    end do varLoop
-    
+   ! If this variable is registered already, output a warning (if verbose) and exit
+   varLoop: do ivar = 1, MoL_nvars
+      if (MoL_vars(ivar)%evolIndex .eq. evolIndex) then
+         call ml_warn("Duplicate variable registration")
+         return
+      end if
+   end do varLoop
 
-    MoL_nvars = MoL_nvars + 1
+   MoL_nvars = MoL_nvars + 1
 
-    var%name = trim(name)
-    var%evolIndex = evolIndex
-    var%rhsIndex = MoL_nvars
+   var%name = trim(name)
+   var%evolIndex = evolIndex
+   var%rhsIndex = MoL_nvars
 
-    rhsIndex = MoL_nvars
+   rhsIndex = MoL_nvars
 
-    if (.not. allocated(MoL_vars)) then
-        allocate(MoL_vars(1))
-        MoL_vars = var
-    else
-        MoL_vars = (/MoL_vars, var/)
-    endif
+   if (.not. allocated(MoL_vars)) then
+      allocate (MoL_vars(1))
+      MoL_vars = var
+   else
+      MoL_vars = (/MoL_vars, var/)
+   end if
 
-    if (.not. allocated(MoL_unk_mask)) then
-        allocate(MoL_unk_mask(1))
-        MoL_unk_mask = evolIndex
-    else
-        MoL_unk_mask = (/MoL_unk_mask, evolIndex/)
-    endif
-    
-    if (.not. allocated(MoL_scratch_mask)) then
-        allocate(MoL_scratch_mask(1))
-        MoL_scratch_mask = MoL_nvars
-    else
-        MoL_scratch_mask = (/MoL_scratch_mask, MoL_nvars/)
-    endif
+   if (.not. allocated(MoL_unk_mask)) then
+      allocate (MoL_unk_mask(1))
+      MoL_unk_mask = evolIndex
+   else
+      MoL_unk_mask = (/MoL_unk_mask, evolIndex/)
+   end if
+
+   if (.not. allocated(MoL_scratch_mask)) then
+      allocate (MoL_scratch_mask(1))
+      MoL_scratch_mask = MoL_nvars
+   else
+      MoL_scratch_mask = (/MoL_scratch_mask, MoL_nvars/)
+   end if
 end subroutine MoL_registerVariable

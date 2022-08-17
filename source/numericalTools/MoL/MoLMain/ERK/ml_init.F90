@@ -28,31 +28,31 @@
 !!
 !!***
 subroutine ml_init()
-    use MoL_data, only: MoL_nscratch
-    use erk_data
-    use erk_tableau, only: erk_tableau_init
+   use MoL_data, only: MoL_nscratch
+   use erk_data
+   use erk_tableau, only: erk_tableau_init
 
-    use RuntimeParameters_interface, only: RuntimeParameters_get
+   use RuntimeParameters_interface, only: RuntimeParameters_get
 
 #include "Simulation.h"
 #include "constants.h"
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    character(len=MAX_STRING_LENGTH) :: erk_method_str
+   character(len=MAX_STRING_LENGTH) :: erk_method_str
 
-    integer :: i
+   integer :: i
 
-    call RuntimeParameters_get("erk_method", erk_method_str)
-    erk_method = trim(erk_method_str)
+   call RuntimeParameters_get("erk_method", erk_method_str)
+   erk_method = trim(erk_method_str)
 
-    call erk_tableau_init
+   call erk_tableau_init
 
-    ! Setup RHS indexing
-    allocate(erk_K(erk_stages))
+   ! Setup RHS indexing
+   allocate (erk_K(erk_stages))
 
-    erk_K = (/ (MOL_RHS + i, i = 0,erk_stages-1) /)
+   erk_K = (/(MOL_RHS + i, i=0, erk_stages - 1)/)
 
-    MoL_nscratch = erk_stages - 1
+   MoL_nscratch = erk_stages - 1
 end subroutine ml_init

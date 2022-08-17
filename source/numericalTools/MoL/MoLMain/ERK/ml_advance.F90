@@ -35,44 +35,44 @@
 !!      to include a level-indicator as well
 !!***
 subroutine ml_advance(t, dt)
-    use erk_data
-    use MoL_functions
-    use ml_interface, only: ml_calcRHS
-    use ml_memInterface, only: ml_memAddToVars
+   use erk_data
+   use MoL_functions
+   use ml_interface, only: ml_calcRHS
+   use ml_memInterface, only: ml_memAddToVars
 
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    real, intent(in) :: t, dt
+   real, intent(in) :: t, dt
 
-    integer :: srcs(1:erk_stages+1)
-    real    :: facs(1:erk_stages+1)
+   integer :: srcs(1:erk_stages + 1)
+   real    :: facs(1:erk_stages + 1)
 
-    integer :: s
+   integer :: s
 
-    srcs(1) = MOL_INITIAL
-    srcs(2:) = erk_K
+   srcs(1) = MOL_INITIAL
+   srcs(2:) = erk_K
 
-    facs(1) = 1d0
+   facs(1) = 1d0
 
-    do s = 1, erk_stages
-        if (erk_c(s) .gt. 0d0) then
-            facs(2:) = erk_A(s,:)*dt
+   do s = 1, erk_stages
+      if (erk_c(s) .gt. 0d0) then
+         facs(2:) = erk_A(s, :)*dt
 
-            call ml_memAddToVars(MOL_EVOLVED, 0d0, s, srcs(:s), facs(:s))
+         call ml_memAddToVars(MOL_EVOLVED, 0d0, s, srcs(:s), facs(:s))
 
-            call MoL_postUpdate(t+erk_c(s)*dt)
-            call MoL_postUpdateFast(t+erk_c(s)*dt)
-        end if
+         call MoL_postUpdate(t + erk_c(s)*dt)
+         call MoL_postUpdateFast(t + erk_c(s)*dt)
+      end if
 
-        call ml_calcRHS(MOL_RHS_EXPLICIT, erk_K(s), t+erk_c(s)*dt)
-    end do ! s
+      call ml_calcRHS(MOL_RHS_EXPLICIT, erk_K(s), t + erk_c(s)*dt)
+   end do ! s
 
-    ! Final linear combination
-    facs(2:) = erk_b*dt
-    call ml_memAddToVars(MOL_EVOLVED, 0d0, erk_stages+1, srcs, facs)
+   ! Final linear combination
+   facs(2:) = erk_b*dt
+   call ml_memAddToVars(MOL_EVOLVED, 0d0, erk_stages + 1, srcs, facs)
 
-    call MoL_postUpdate(t+dt)
-    call MoL_postUpdateFast(t+dt)
+   call MoL_postUpdate(t + dt)
+   call MoL_postUpdateFast(t + dt)
 end subroutine ml_advance

@@ -40,21 +40,21 @@
 !!
 !!***
 subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
-    use Grid_tile, only: Grid_tile_t
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
 #include "MoL.h"
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: dataPtr
-    integer, intent(in) :: dataStruct
+   class(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:, :, :, :), pointer :: dataPtr
+   integer, intent(in) :: dataStruct
 
-    if (dataStruct .eq. MOL_EVOLVED) then
-        call tileDesc%releaseDataPtr(dataPtr, CENTER)
-    else
-        nullify(dataPtr)
-    end if
+   if (dataStruct .eq. MOL_EVOLVED) then
+      call tileDesc%releaseDataPtr(dataPtr, CENTER)
+   else
+      nullify (dataPtr)
+   end if
 end subroutine ml_memReleaseDataPtr

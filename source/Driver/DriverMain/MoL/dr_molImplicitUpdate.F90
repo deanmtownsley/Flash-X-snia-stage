@@ -11,7 +11,7 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      dr_molImplicitUpdate
 !!
@@ -20,7 +20,7 @@
 !!      call dr_molImplicitUpdate(real, intent(in) :: t
 !!                                real, intent(in) :: dt)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Implicitly update evolved variables from t to t+dt
 !!
@@ -32,13 +32,13 @@
 !!
 !!***
 subroutine dr_molImplicitUpdate(t, dt)
-    use RadTrans_interface,   only: RadTrans_molImplicitUpdate
-    use Simulation_interface, only: Simulation_molImplicitUpdate
+   use RadTrans_interface, only: RadTrans_molImplicitUpdate
+   use Simulation_interface, only: Simulation_molImplicitUpdate
 
-    implicit none
+   implicit none
 
-    real, intent(in) :: t, dt
+   real, intent(in) :: t, dt
 
-    call RadTrans_molImplicitUpdate   (t, dt)
-    call Simulation_molImplicitUpdate (t, dt)
+   call RadTrans_molImplicitUpdate(t, dt)
+   call Simulation_molImplicitUpdate(t, dt)
 end subroutine dr_molImplicitUpdate

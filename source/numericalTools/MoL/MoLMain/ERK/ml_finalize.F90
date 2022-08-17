@@ -28,11 +28,11 @@
 !!
 !!***
 subroutine ml_finalize()
-    use erk_data
+   use erk_data
 
-    implicit none
+   implicit none
 
-    if (allocated(erk_A)) deallocate(erk_A)
-    if (allocated(erk_b)) deallocate(erk_b)
-    if (allocated(erk_c)) deallocate(erk_c)
+   if (allocated(erk_A)) deallocate (erk_A)
+   if (allocated(erk_b)) deallocate (erk_b)
+   if (allocated(erk_c)) deallocate (erk_c)
 end subroutine ml_finalize
