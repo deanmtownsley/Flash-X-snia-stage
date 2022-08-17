@@ -65,21 +65,4 @@ module hy_rk_interface
      end subroutine hy_rk_correctFluxes
   end interface
 
-  interface
-     subroutine hy_reconstruct(v,rope, uPlus, uMinus, flat)
-       integer,intent(IN) :: v
-       real,intent(IN) :: rope(5)
-       real,intent(IN) :: flat
-       real,intent(OUT) :: uMinus, uPlus
-     end subroutine hy_reconstruct
-  end interface
-
-  interface
-     subroutine hy_riemann (dir,VL,VR,inShock,Fstar)
-       real, dimension(HY_NUM_VARS),intent(IN) :: VL, VR
-       logical,intent(IN) :: inShock
-       integer,intent(IN) :: dir
-       real, intent(INOUT) :: Fstar(HY_NUM_FLUX)
-     end subroutine hy_riemann
-  end interface
 end module hy_rk_interface

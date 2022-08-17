@@ -50,7 +50,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
-  use hy_rk_interface, ONLY : hy_reconstruct, hy_riemann
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
   implicit none
@@ -69,7 +68,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   integer :: s	 
   real :: spcSumInv
   real, pointer :: spc(:)
-  
+  real  :: u2,E,B2,UB,Ptot
+
   logical :: inShock
 !!  real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
@@ -166,12 +166,13 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M loop_end_3d
 !$acc end parallel
 
-!$acc parallel     
+     !$acc parallel
+     call Timers_start("recon")
      @M loop_3d(klim)
           do v=1,NRECON
 	     @M hy_recon
            enddo
-     @M hy_break_loop
+     @M hy_break_loop(recon,setrem)
               hy_uPlus(HY_DENS ,i,j,k) = max(hy_smalldens, hy_uPlus(HY_DENS ,i,j,k))
               hy_uPlus(HY_PRES ,i,j,k) = max(hy_smallpres, hy_uPlus(HY_PRES ,i,j,k))
 #if NSPECIES>0
@@ -195,13 +196,13 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               spc = spc*spcSumInv
 #endif
               
-     @M hy_break_loop
+     @M hy_break_loop(setrem,riemann)
               VL => hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR => hy_uMinus(1:HY_NUM_VARS,i,j,k) 
 	      Fstar => hy_flux(1:HY_NUM_FLUX,i,j,k)
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
               @M hy_riemann
-     @M hy_break_loop
+     @M hy_break_loop(riemann,cvisc)
 
               ! Add artificial viscosity for strong-shock capturing
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
@@ -239,7 +240,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
               end if
 #endif
-     @M hy_break_loop
+     @M hy_break_loop(cvisc,flux)
      ! ***************
      ! Fluxes computed for one face of this zone
      ! Save the fluxes
@@ -252,7 +253,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               case (KAXIS)
                  hy_flz(:,j,k,i) = hy_flux(:,i,j,k)
               end select
-   @M loop_end_3d  
+      @M loop_end_3d
+      call Timers_stop("flux")        
 !acc end parallel     
      !release pointers
 !acc end data     
@@ -368,9 +370,4 @@ contains
   
 end subroutine hy_rk_getFaceFlux
 
-real function minmod(a,b)
-  implicit none
-  real :: a,b
-  minmod=.5 * (sign(1.,a) + sign(1.,b))*min(abs(a),abs(b))
-end function minmod
 
