@@ -2,15 +2,8 @@
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-ifeq      ($(NDIM), 1)
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/amrex_install/1D
-else ifeq ($(NDIM), 2)
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/amrex_install/2D
-else ifeq ($(NDIM), 3)
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/amrex_install/3D
-else
-AMREX_PATH=
-endif
+AMREX_PATH=/nfs/gce/projects/FLASH5/software/amrex_install/$(NDIM)D
+MILHOJA_PATH=/nfs/gce/projects/FLASH5/software/gcc_current_skylake/Milhoja_$(NDIM)D
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
@@ -64,6 +57,7 @@ FFLAGS_MPI = -DHAVE_MPI_MODULE
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
 
 F90FLAGS =
 
@@ -80,6 +74,7 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_MILHOJA =
 
 
 
@@ -121,6 +116,10 @@ LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
 LIB_MA28 = -L$(MA28_PATH)/lib -lma28
+# setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
+# AMReX, we have to manually list AMReX afterward so that the linker finds
+# the dependencies.
+LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex -lstdc++
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
