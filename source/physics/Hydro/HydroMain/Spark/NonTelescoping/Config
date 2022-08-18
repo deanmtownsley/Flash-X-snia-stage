@@ -1,0 +1,30 @@
+# source/physics/Hydro/HydroMain/Spark/NonTelescoping
+
+# Config file for the Spark Hydro solvers without telescoping
+# Note: It requires an unsplit driver which is different from
+#       the FLASH default split scheme.
+
+USESETUPVARS useMP5
+USESETUPVARS useGLM
+USESETUPVARS useTVD
+USESETUPVARS useFog
+USESETUPVARS useLim03
+USESETUPVARS nontelescoping
+
+
+IF useTVD or useLim03 or useFog
+  GUARDCELLS 2
+	PPDEFINE NSTENCIL 2
+ELSE
+  GUARDCELLS 3
+	PPDEFINE NSTENCIL 3
+ENDIF
+
+# Variables required for state saving
+SCRATCHCENTERVAR mass 
+SCRATCHCENTERVAR xmom 
+SCRATCHCENTERVAR ymom 
+SCRATCHCENTERVAR zmom 
+SCRATCHCENTERVAR mene                  	
+
+PARAMETER telescoping          BOOLEAN  FALSE
