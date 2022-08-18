@@ -7,6 +7,16 @@ D                        & write its summary to a file named timer_summary_<proc
 PARAMETER eachProcWritesSummary       BOOLEAN FALSE
 
 
+D CSVSummaryAllProcs    Should each process write its summary to one CSV file?  If true, root process will 
+D                        & gather and write its summary to a file named timer_output.csv
+PARAMETER CSVSummaryAllProcs       BOOLEAN FALSE
+
+
+D LogSummaryAllProcs     Should each process write its summary to its own file?  If true, root process will 
+D                        & gather and write its summary to the original log file
+PARAMETER LogSummaryAllProcs       BOOLEAN FALSE
+
+
 D tmr_suppressInParallel Should Timers_start()/Timers_stop() calls
 D                      & in an active OpenMP parallel region be ignored?
 PARAMETER tmr_suppressInParallel      BOOLEAN FALSE

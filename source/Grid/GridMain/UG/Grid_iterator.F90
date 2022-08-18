@@ -380,9 +380,9 @@ contains
 
             if (this%tiling) then
                call tile2txtytz(this%curTile,tx,ty,tz)
-               loBnd(:) = min(0, 1 - (/tx,ty,tz/) ) ! indicates whether range includes first cell
-!!$            hiBnd(:) = 1 - max(1, (/this%nxt-1,this%nyt-1,this%nzt-1/) - (/tx,ty,tz/) )
-               hiBnd(:) = min(0, (/tx,ty,tz/) - (/this%nxt-2,this%nyt-2,this%nzt-2/) )
+               loBnd(:) = max(0, 1 - (/tx,ty,tz/) ) ! indicates whether range includes first cell
+!!$            hiBnd(:) = 1 - min(1, (/this%nxt-1,this%nyt-1,this%nzt-1/) - (/tx,ty,tz/) )
+               hiBnd(:) = max(0, (/tx,ty,tz/) - (/this%nxt-2,this%nyt-2,this%nzt-2/) )
                loBnd(:) = loBnd(:) * (lo(:) - loBlkGC(:))
                hiBnd(:) = hiBnd(:) * (hiBlkGC(:) - hi(:))
 
@@ -396,8 +396,8 @@ contains
                hi(KAXIS) = min(hi(KAXIS), lo(KAXIS)+(gr_khi-gr_klo+1)*(tz+1)/this%nzt-1)
                lo(KAXIS) =     lo(KAXIS) + (gr_khi-gr_klo+1)*tz/this%nzt
 #endif
-               loGrown(1:NDIM) = max(loBlkGC(1:NDIM), lo(1:NDIM) - loBnd(1:NDIM)*NGUARD)
-               hiGrown(1:NDIM) = min(hiBlkGC(1:NDIM), hi(1:NDIM) + hiBnd(1:NDIM)*NGUARD)
+               loGrown(1:NDIM) = max(loBlkGC(1:NDIM), lo(1:NDIM) - loBnd(1:NDIM))
+               hiGrown(1:NDIM) = min(hiBlkGC(1:NDIM), hi(1:NDIM) + hiBnd(1:NDIM))
             end if
         end associate
 

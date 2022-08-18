@@ -48,6 +48,8 @@
 !!
 !!***
 
+#include "constants.h"
+
 subroutine Grid_getBlkCenterCoords(blockDesc, blockCenter)
   use Grid_tile,        ONLY : Grid_tile_t
 

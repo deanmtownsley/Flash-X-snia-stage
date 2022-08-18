@@ -1,0 +1,6 @@
+[test_2D]
+    testNode = "unitTest/Grid/Amrex/TestFluxCorrection2"
+    setupOptions = "-auto -2d -nxb=8 -nyb=8 +noio"
+    numProcs = 1
+    parFile = "test_amrex_grid.par"
+

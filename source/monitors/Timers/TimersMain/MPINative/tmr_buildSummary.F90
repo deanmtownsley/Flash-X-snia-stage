@@ -97,9 +97,9 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
   type(tmr_stack), intent(in) :: rootStack
   logical, intent(IN)     :: reduced
   
-  integer i, pushResult
+  integer i, j, pushResult
   integer :: indicies(tmr_numSegments)
-  real :: maxTime, minTime, avgTime
+  real :: maxTime, minTime, avgTime, allProcTime(tmr_globalNumProcs)
   integer ::  ierr
 
   type(tmr_stack) :: currentStack
@@ -113,7 +113,7 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
 
            !Initializing avgTime to 0.0 stops FPE on myPE /= MASTER_PE 
            !when evaluating avgTime = avgTime / tmr_globalNumProcs expression.
-           maxTime = 0.0; minTime = 0.0; avgTime = 0.0
+           maxTime = 0.0; minTime = 0.0; avgTime = 0.0; allProcTime(:) = 0.0;
 
            call MPI_Reduce(tmr_acctSegs(i)%time(indicies(i)), maxTime, 1, &
                 FLASH_REAL, MPI_MAX,     &
@@ -124,6 +124,9 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
            call MPI_Reduce(tmr_acctSegs(i)%time(indicies(i)), avgTime, 1, &
                 FLASH_REAL, MPI_SUM,     &
                 MASTER_PE, tmr_globalComm, ierr)
+           call MPI_Gather(tmr_acctSegs(i)%time(indicies(i)), & 
+                1, FLASH_REAL, allProcTime, 1, & 
+                FLASH_REAL, MASTER_PE, tmr_globalComm, ierr)
            avgTime = avgTime / tmr_globalNumProcs
         end if
 
@@ -136,6 +139,13 @@ recursive subroutine tmr_buildSummary(summaryArray, length, columns, currentInde
            write (summaryArray(currentIndex,4), "(F15.3)") minTime
            write (summaryArray(currentIndex,5), "(F15.3)") avgTime
            write (summaryArray(currentIndex,6), "(I10)") tmr_acctSegs(i)%timesCalled(indicies(i))
+
+           write (summaryArray(currentIndex,7), "(I10)") currentIndex
+           write (summaryArray(currentIndex,8), "(I10)") indentation
+                         
+           do j = 1, tmr_globalNumProcs
+              write (summaryArray(currentIndex,8+j), "(F15.3)") allProcTime(j)
+           enddo
         else
            write (summaryArray(currentIndex,3), "(F15.3)") tmr_acctSegs(i)%time(indicies(i))
            write (summaryArray(currentIndex,4), "(I6)") tmr_acctSegs(i)%timesCalled(indicies(i))
