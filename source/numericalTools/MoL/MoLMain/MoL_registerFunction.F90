@@ -37,8 +37,6 @@
 !!
 !!***
 subroutine MoL_registerRHS(rhsType, rhsFunc)
-   use Grid_tile, only: Grid_tile_t
-
    use MoL_functions
 
    use ml_interface, only: ml_error
@@ -50,10 +48,7 @@ subroutine MoL_registerRHS(rhsType, rhsFunc)
    integer, intent(in) :: rhsType
 
    interface
-      subroutine rhsFunc(tileDesc, dy, y, t)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, dimension(:, :, :, :), pointer :: dy, y
+      subroutine rhsFunc(t)
          real, intent(in) :: t
       end subroutine rhsFunc
    end interface

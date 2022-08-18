@@ -17,10 +17,7 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                                     real, pointer           :: rhs(:,:,:,:)
-!!                                     real, pointer           :: U(:,:,:,:)
-!!                                     real, intent(in)        :: t)
+!!      call Simulation_molExplicitRHS(real, intent(in) :: t)
 !!
 !!  DESCRIPTION
 !!
@@ -29,19 +26,12 @@
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      U        : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t : Current time
 !!
 !!***
-subroutine Simulation_molExplicitRHS(tileDesc, rhs, U, t)
-   use Grid_tile, only: Grid_tile_t
-
+subroutine Simulation_molExplicitRHS(t)
    implicit none
 
-   class(Grid_tile_t), intent(in) :: tileDesc
-   real, dimension(:, :, :, :), pointer :: rhs, U
    real, intent(in) :: t
 
    return

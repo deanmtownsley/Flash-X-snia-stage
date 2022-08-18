@@ -25,9 +25,14 @@
 !!***
 module ml_memData
 
+#include "MoL.h"
+
    implicit none
 
    ! Ranks are (var,i,j,k,block,dataStruct)
    real, dimension(:, :, :, :, :, :), allocatable, target, save :: scratch_data
+
+   ! Active RHS state to use when MOL_RHS is requested
+   integer, save :: ml_activeRHS = MOL_INVALID
 
 end module ml_memData

@@ -1,4 +1,4 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_memGetDataPtr
+!!****if* source/numericalTools/MoL/MoLMemory/MoL_getDataPtr
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,13 +13,13 @@
 !!
 !!  NAME
 !!
-!!      ml_memGetDataPtr
+!!      MoL_getDataPtr
 !!
 !!  SYNOPSIS
 !!
-!!      call ml_memGetDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
-!!                            real, pointer                  :: dataPtr
-!!                            integer, intent(in)            :: dataStruct)
+!!      call MoL_getDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
+!!                          real, pointer                  :: dataPtr
+!!                          integer, intent(in)            :: dataStruct)
 !!
 !!  DESCRIPTION
 !!
@@ -39,16 +39,44 @@
 !!      dataStruct : Which data struct
 !!
 !!***
-subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
+!!REORDER(4): dataPtr
+subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
+   use ml_memData, only: scratch_data, ml_activeRHS
+   use ml_interface, only: ml_error
+
    use Grid_tile, only: Grid_tile_t
+
+#include "Simulation.h"
+#include "constants.h"
+#include "MoL.h"
 
    implicit none
 
    class(Grid_tile_t), intent(in) :: tileDesc
-   real, pointer               :: dataPtr(:, :, :, :)
+   real, dimension(:, :, :, :), pointer :: dataPtr
    integer, intent(in) :: dataStruct
 
-   nullify (dataPtr)
+   integer :: ind
 
-   return
-end subroutine ml_memGetDataPtr
+   if (dataStruct .lt. 0) call ml_error("Unsupported data struct requested")
+
+   if (dataStruct .eq. MOL_EVOLVED) then
+      if (associated(dataPtr)) call tileDesc%releaseDataPtr(dataPtr, CENTER)
+
+      ! Grab UNK pointer and bail
+      call tileDesc%getDataPtr(dataPtr, CENTER)
+   else
+      if ((dataStruct .eq. MOL_RHS) .and. (ml_activeRHS .ne. MOL_INVALID)) then
+         ind = ml_activeRHS
+      else
+         ind = dataStruct
+      end if
+      if (associated(dataPtr)) nullify (dataPtr)
+
+      ! Grid_tile_t uses `id` to reference the block
+      associate (lo => tileDesc%limits(LOW, :))
+         dataPtr(1:, lo(IAXIS):, lo(JAXIS):, lo(KAXIS):) &
+            => scratch_data(:, :, :, :, tileDesc%id, ind)
+      end associate
+   end if
+end subroutine MoL_getDataPtr

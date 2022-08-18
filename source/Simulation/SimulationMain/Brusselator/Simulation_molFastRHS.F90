@@ -17,10 +17,7 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molFastRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                                 real, pointer           :: rhs(:,:,:,:)
-!!                                 real, pointer           :: U(:,:,:,:)
-!!                                 real, intent(in)        :: t)
+!!      call Simulation_molFastRHS(real, intent(in)        :: t)
 !!
 !!  DESCRIPTION
 !!
@@ -29,49 +26,74 @@
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      U        : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t : Current time
 !!
 !!***
-subroutine Simulation_molFastRHS(tileDesc, rhs, vars, t)
+subroutine Simulation_molFastRHS(t)
    use Simulation_data, only: U_RHS, V_RHS, W_RHS, a => sim_a, b => sim_b, &
                               eps => sim_epsilon
 
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
+
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_iterator, only: Grid_iterator_t
    use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
+#include "MoL.h"
 #include "constants.h"
 
    implicit none
 
-   class(Grid_tile_t), intent(in) :: tileDesc
-   real, dimension(:, :, :, :), pointer :: rhs, vars
    real, intent(in) :: t
+
+   type(Grid_iterator_t) :: itor
+   type(Grid_tile_t) :: tileDesc
+
+   real, dimension(:, :, :, :), pointer :: rhs, vars
 
    integer, dimension(LOW:HIGH, MDIM) :: lim, bcs
    integer :: i, j, k
    real :: u, v, w
 
-   call tileDesc%faceBCs(bcs)
+   nullify (rhs); nullify (vars)
 
-   lim = tileDesc%limits
+   call Grid_getTileIterator(itor, LEAF)
 
-   if (bcs(LOW, IAXIS) .ne. NOT_BOUNDARY) lim(LOW, IAXIS) = lim(LOW, IAXIS) + 1
-   if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
+   TileLoop: do
+      if (.not. itor%isValid()) exit TileLoop
 
-   do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
-      do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
-         do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-            u = vars(U_VAR, i, j, k)
-            v = vars(V_VAR, i, j, k)
-            w = vars(W_VAR, i, j, k)
+      call itor%currentTile(tileDesc)
 
-            rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) + a - (w + 1d0)*u + v*u**2
-            rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) + w*u - v*u**2
-            rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) + (b - w)/eps - w*u
-         end do ! i
-      end do ! j
-   end do ! k
+      call tileDesc%faceBCs(bcs)
+
+      lim = tileDesc%limits
+
+      if (bcs(LOW, IAXIS) .ne. NOT_BOUNDARY) lim(LOW, IAXIS) = lim(LOW, IAXIS) + 1
+      if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
+
+      call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
+      call MoL_getDataPtr(tileDesc, rhs, MOL_RHS)
+
+      do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
+         do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
+            do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
+               u = vars(U_VAR, i, j, k)
+               v = vars(V_VAR, i, j, k)
+               w = vars(W_VAR, i, j, k)
+
+               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) + a - (w + 1d0)*u + v*u**2
+               rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) + w*u - v*u**2
+               rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) + (b - w)/eps - w*u
+            end do ! i
+         end do ! j
+      end do ! k
+
+      call MoL_releaseDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_releaseDataPtr(tileDesc, vars, MOL_EVOLVED)
+
+      call itor%next()
+   end do TileLoop
+
+   call Grid_releaseTileIterator(itor)
 end subroutine Simulation_molFastRHS

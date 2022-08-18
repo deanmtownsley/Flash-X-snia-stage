@@ -71,6 +71,8 @@
 subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
 
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
+
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
    use Grid_iterator, only: Grid_iterator_t
@@ -195,12 +197,12 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
 
          call itor%currentTile(tileDesc)
 
-         call ml_memGetDataPtr(tileDesc, dstPtr, dst)
+         call MoL_getDataPtr(tileDesc, dstPtr, dst)
 
          dstPtr(dstVars, :, :, :) = dstFac*dstPtr(dstVars, :, :, :)
 
          do n = 1, nsrcs
-            call ml_memGetDataPtr(tileDesc, srcPtr, srcs(n))
+            call MoL_getDataPtr(tileDesc, srcPtr, srcs(n))
 
             do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
                do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -211,10 +213,10 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
                end do ! j
             end do ! k
 
-            call ml_memReleaseDataPtr(tileDesc, srcPtr, srcs(n))
+            call MoL_releaseDataPtr(tileDesc, srcPtr, srcs(n))
          end do ! n
 
-         call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+         call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
          call itor%next()
       end do TileLoop
@@ -225,7 +227,7 @@ end subroutine ml_memAddToVarsN
 
 subroutine ml_memAddToVars0(dst, dstFac, val)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -262,7 +264,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -272,7 +274,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -282,7 +284,7 @@ end subroutine ml_memAddToVars0
 
 subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -321,8 +323,8 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -333,8 +335,8 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -344,7 +346,7 @@ end subroutine ml_memAddToVars1
 
 subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -383,9 +385,9 @@ subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -397,9 +399,9 @@ subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -410,7 +412,7 @@ end subroutine ml_memAddToVars2
 subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
                             fac1, fac2, fac3)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -449,10 +451,10 @@ subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -465,10 +467,10 @@ subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -479,7 +481,7 @@ end subroutine ml_memAddToVars3
 subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
                             fac1, fac2, fac3, fac4)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -518,11 +520,11 @@ subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -536,11 +538,11 @@ subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -551,7 +553,7 @@ end subroutine ml_memAddToVars4
 subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
                             fac1, fac2, fac3, fac4, fac5)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -590,12 +592,12 @@ subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -610,12 +612,12 @@ subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -626,7 +628,7 @@ end subroutine ml_memAddToVars5
 subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
                             fac1, fac2, fac3, fac4, fac5, fac6)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -666,13 +668,13 @@ subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -688,13 +690,13 @@ subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -706,7 +708,7 @@ subroutine ml_memAddToVars7(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -747,14 +749,14 @@ subroutine ml_memAddToVars7(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -771,14 +773,14 @@ subroutine ml_memAddToVars7(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -790,7 +792,7 @@ subroutine ml_memAddToVars8(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -831,15 +833,15 @@ subroutine ml_memAddToVars8(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memGetDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, src8Ptr, src8)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -857,15 +859,15 @@ subroutine ml_memAddToVars8(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -877,7 +879,7 @@ subroutine ml_memAddToVars9(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, src9, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, fac9)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -918,16 +920,16 @@ subroutine ml_memAddToVars9(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memGetDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memGetDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_getDataPtr(tileDesc, src9Ptr, src9)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -946,16 +948,16 @@ subroutine ml_memAddToVars9(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memReleaseDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_releaseDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -969,7 +971,7 @@ subroutine ml_memAddToVars10(dst, dstFac, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -1011,17 +1013,17 @@ subroutine ml_memAddToVars10(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memGetDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memGetDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memGetDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_getDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_getDataPtr(tileDesc, src10Ptr, src10)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -1041,17 +1043,17 @@ subroutine ml_memAddToVars10(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src10Ptr, src10)
-      call ml_memReleaseDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memReleaseDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_releaseDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_releaseDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -1065,7 +1067,7 @@ subroutine ml_memAddToVars11(dst, dstFac, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -1109,18 +1111,18 @@ subroutine ml_memAddToVars11(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memGetDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memGetDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memGetDataPtr(tileDesc, src10Ptr, src10)
-      call ml_memGetDataPtr(tileDesc, src11Ptr, src11)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_getDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_getDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_getDataPtr(tileDesc, src11Ptr, src11)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -1141,18 +1143,18 @@ subroutine ml_memAddToVars11(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src11Ptr, src11)
-      call ml_memReleaseDataPtr(tileDesc, src10Ptr, src10)
-      call ml_memReleaseDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memReleaseDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src11Ptr, src11)
+      call MoL_releaseDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_releaseDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_releaseDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop
@@ -1166,7 +1168,7 @@ subroutine ml_memAddToVars12(dst, dstFac, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11, fac12)
    use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -1210,19 +1212,19 @@ subroutine ml_memAddToVars12(dst, dstFac, &
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memGetDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memGetDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memGetDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memGetDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memGetDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memGetDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memGetDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memGetDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memGetDataPtr(tileDesc, src10Ptr, src10)
-      call ml_memGetDataPtr(tileDesc, src11Ptr, src11)
-      call ml_memGetDataPtr(tileDesc, src12Ptr, src12)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_getDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_getDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_getDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_getDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_getDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_getDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_getDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_getDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_getDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_getDataPtr(tileDesc, src11Ptr, src11)
+      call MoL_getDataPtr(tileDesc, src12Ptr, src12)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -1244,19 +1246,19 @@ subroutine ml_memAddToVars12(dst, dstFac, &
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, src12Ptr, src12)
-      call ml_memReleaseDataPtr(tileDesc, src11Ptr, src11)
-      call ml_memReleaseDataPtr(tileDesc, src10Ptr, src10)
-      call ml_memReleaseDataPtr(tileDesc, src9Ptr, src9)
-      call ml_memReleaseDataPtr(tileDesc, src8Ptr, src8)
-      call ml_memReleaseDataPtr(tileDesc, src7Ptr, src7)
-      call ml_memReleaseDataPtr(tileDesc, src6Ptr, src6)
-      call ml_memReleaseDataPtr(tileDesc, src5Ptr, src5)
-      call ml_memReleaseDataPtr(tileDesc, src4Ptr, src4)
-      call ml_memReleaseDataPtr(tileDesc, src3Ptr, src3)
-      call ml_memReleaseDataPtr(tileDesc, src2Ptr, src2)
-      call ml_memReleaseDataPtr(tileDesc, src1Ptr, src1)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, src12Ptr, src12)
+      call MoL_releaseDataPtr(tileDesc, src11Ptr, src11)
+      call MoL_releaseDataPtr(tileDesc, src10Ptr, src10)
+      call MoL_releaseDataPtr(tileDesc, src9Ptr, src9)
+      call MoL_releaseDataPtr(tileDesc, src8Ptr, src8)
+      call MoL_releaseDataPtr(tileDesc, src7Ptr, src7)
+      call MoL_releaseDataPtr(tileDesc, src6Ptr, src6)
+      call MoL_releaseDataPtr(tileDesc, src5Ptr, src5)
+      call MoL_releaseDataPtr(tileDesc, src4Ptr, src4)
+      call MoL_releaseDataPtr(tileDesc, src3Ptr, src3)
+      call MoL_releaseDataPtr(tileDesc, src2Ptr, src2)
+      call MoL_releaseDataPtr(tileDesc, src1Ptr, src1)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop

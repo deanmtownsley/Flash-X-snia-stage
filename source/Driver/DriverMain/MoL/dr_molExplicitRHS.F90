@@ -17,10 +17,7 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                             real, pointer           :: rhs(:,:,:,:)
-!!                             real, pointer           :: U(:,:,:,:)
-!!                             real, intent(in)        :: t)
+!!      call dr_molExplicitRHS(real, intent(in) :: t)
 !!
 !!  DESCRIPTION
 !!
@@ -29,28 +26,21 @@
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      U        : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t : Current time
 !!
 !!***
-subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
+subroutine dr_molExplicitRHS(t)
    ! use Spacetime_interface,  only: Spacetime_molExplicitRHS
    use Hydro_interface, only: Hydro_molExplicitRHS
    use RadTrans_interface, only: RadTrans_molExplicitRHS
    use Simulation_interface, only: Simulation_molExplicitRHS
 
-   use Grid_tile, only: Grid_tile_t
-
    implicit none
 
-   class(Grid_tile_t), intent(in) :: tileDesc
-   real, dimension(:, :, :, :), pointer :: rhs, U
    real, intent(in) :: t
 
-   ! call Spacetime_molExplicitRHS  (tileDesc, rhs, U, t)
-   call Hydro_molExplicitRHS(tileDesc, rhs, U, t)
-   call RadTrans_molExplicitRHS(tileDesc, rhs, U, t)
-   call Simulation_molExplicitRHS(tileDesc, rhs, U, t)
+   ! call Spacetime_molExplicitRHS(t)
+   call Hydro_molExplicitRHS(t)
+   call RadTrans_molExplicitRHS(t)
+   call Simulation_molExplicitRHS(t)
 end subroutine dr_molExplicitRHS

@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMemory/ml_memReleaseDataPtr
+!!****f* source/numericalTools/MoL/MoL_getDataPtr
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,17 +13,17 @@
 !!
 !!  NAME
 !!
-!!      ml_memReleaseDataPtr
+!!      ml_memGetMoL_getDataPtrDataPtr
 !!
 !!  SYNOPSIS
 !!
-!!      call ml_memReleaseDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
-!!                                real, pointer                  :: dataPtr
-!!                                integer, intent(in)            :: dataStruct)
+!!      call MoL_getDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
+!!                          real, pointer                  :: dataPtr
+!!                          integer, intent(in)            :: dataStruct)
 !!
 !!  DESCRIPTION
 !!
-!!      Release pointer to the requested data struct for the provided tile
+!!      Obtain pointer to the requested data struct for the provided tile
 !!
 !!      Valid data structs include (defined in MoL.h):
 !!          - MOL_EVOLVED : Evolved variables in UNK
@@ -35,26 +35,20 @@
 !!  ARGUMENTS
 !!
 !!      tileDesc   : Grid tile-descriptor
-!!      dataPtr    : Pointer to release
+!!      dataPtr    : Pointer to set
 !!      dataStruct : Which data struct
 !!
 !!***
-subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
+subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
    use Grid_tile, only: Grid_tile_t
-
-#include "Simulation.h"
-#include "constants.h"
-#include "MoL.h"
 
    implicit none
 
    class(Grid_tile_t), intent(in) :: tileDesc
-   real, dimension(:, :, :, :), pointer :: dataPtr
+   real, pointer               :: dataPtr(:, :, :, :)
    integer, intent(in) :: dataStruct
 
-   if (dataStruct .eq. MOL_EVOLVED) then
-      call tileDesc%releaseDataPtr(dataPtr, CENTER)
-   else
-      nullify (dataPtr)
-   end if
-end subroutine ml_memReleaseDataPtr
+   nullify (dataPtr)
+
+   return
+end subroutine MoL_getDataPtr

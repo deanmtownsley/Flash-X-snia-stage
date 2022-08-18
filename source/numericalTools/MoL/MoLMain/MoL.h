@@ -23,10 +23,12 @@
 /*
     MoL data-structs
 
+    MOL_INVALID : A non-existent memory space used as a flag
     MOL_EVOLVED : Current evolved-variable state (forwards to UNK)
     MOL_INITIAL : Evolved variable state at the start of a timestep
     MOL_RHS     : Current RHS to fill for evolved variables
 */
+#define MOL_INVALID -1
 #define MOL_EVOLVED 0
 #define MOL_INITIAL 1
 #define MOL_RHS 2

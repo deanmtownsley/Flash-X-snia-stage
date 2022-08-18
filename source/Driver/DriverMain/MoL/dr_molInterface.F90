@@ -26,33 +26,22 @@
 !!***
 module dr_molInterface
 
-   use Grid_tile, only: Grid_tile_t
-
    implicit none
 
    interface
-      subroutine dr_molExplicitRHS(tileDesc, rhs, U, t)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, dimension(:, :, :, :), pointer :: rhs, U
+      subroutine dr_molExplicitRHS(t)
          real, intent(in) :: t
       end subroutine dr_molExplicitRHS
    end interface
 
    interface
-      subroutine dr_molImplicitRHS(tileDesc, rhs, U, t)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, dimension(:, :, :, :), pointer :: rhs, U
+      subroutine dr_molImplicitRHS(t)
          real, intent(in) :: t
       end subroutine dr_molImplicitRHS
    end interface
 
    interface
-      subroutine dr_molFastRHS(tileDesc, rhs, U, t)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, dimension(:, :, :, :), pointer :: rhs, U
+      subroutine dr_molFastRHS(t)
          real, intent(in) :: t
       end subroutine dr_molFastRHS
    end interface

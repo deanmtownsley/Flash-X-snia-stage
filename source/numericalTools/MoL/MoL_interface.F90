@@ -66,10 +66,7 @@ module MoL_interface
       subroutine MoL_registerRHS(rhsType, rhsFunc)
          integer, intent(in) :: rhsType
          interface
-            subroutine rhsFunc(tileDesc, dy, y, t)
-               import :: Grid_tile_t
-               class(Grid_tile_t), intent(in) :: tileDesc
-               real, dimension(:, :, :, :), pointer :: dy, y
+            subroutine rhsFunc(t)
                real, intent(in) :: t
             end subroutine rhsFunc
          end interface
@@ -119,6 +116,24 @@ module MoL_interface
    interface
       subroutine MoL_regrid
       end subroutine MoL_regrid
+   end interface
+
+   interface
+      subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
+         import :: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer               :: dataPtr(:, :, :, :)
+         integer, intent(in) :: dataStruct
+      end subroutine MoL_getDataPtr
+   end interface
+
+   interface
+      subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
+         import :: Grid_tile_t
+         class(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer               :: dataPtr(:, :, :, :)
+         integer, intent(in) :: dataStruct
+      end subroutine MoL_releaseDataPtr
    end interface
 
 end module MoL_interface

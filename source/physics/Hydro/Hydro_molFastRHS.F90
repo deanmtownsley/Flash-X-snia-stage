@@ -11,38 +11,29 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      Hydro_molFastRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call Hydro_molFastRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                            real, pointer           :: rhs(:,:,:,:)
-!!                            real, pointer           :: Uin(:,:,:,:)
-!!                            real, intent(in)        :: t)
+!!      call Hydro_molFastRHS(real, intent(in) :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Calculate fast RHS terms
 !!
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      Uin      : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t : Current time
 !!
 !!***
-subroutine Hydro_molFastRHS(tileDesc, rhs, Uin, t)
-    use Grid_tile, only: Grid_tile_t
+subroutine Hydro_molFastRHS(t)
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, Uin
-    real, intent(in) :: t
+   real, intent(in) :: t
 
-    return
+   return
 end subroutine Hydro_molFastRHS

@@ -1,4 +1,4 @@
-!!****f* source/Simulation/Simulation_molImplicitRHS
+!!****if* source/numericalTools/MoL/MoLMemory/ml_memReleaseActiveRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,26 +13,27 @@
 !!
 !!  NAME
 !!
-!!      Simulation_molImplicitRHS
+!!      ml_memReleaseActiveRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molImplicitRHS(real, intent(in) :: t)
+!!      call ml_memReleaseActiveRHS()
 !!
 !!  DESCRIPTION
 !!
-!!      Calculate implicit RHS terms
-!!
+!!      Release the active RHS
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
-!!
 !!***
-subroutine Simulation_molImplicitRHS(t)
+subroutine ml_memReleaseActiveRHS(irhs)
+   use ml_memData, only: ml_activeRHS
+
+#include "MoL.h"
+
    implicit none
 
-   real, intent(in) :: t
+   integer, intent(in) :: irhs
 
-   return
-end subroutine Simulation_molImplicitRHS
+   ml_activeRHS = MOL_INVALID
+end subroutine ml_memReleaseActiveRHS

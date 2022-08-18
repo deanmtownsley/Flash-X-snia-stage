@@ -1,4 +1,4 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_memReleaseDataPtr
+!!****f* source/numericalTools/MoL/MoL_releaseDataPtr
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,13 +13,13 @@
 !!
 !!  NAME
 !!
-!!      ml_memReleaseDataPtr
+!!      MoL_releaseDataPtr
 !!
 !!  SYNOPSIS
 !!
-!!      call ml_memReleaseDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
-!!                                real, pointer                  :: dataPtr
-!!                                integer, intent(in)            :: dataStruct)
+!!      call MoL_releaseDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
+!!                              real, pointer                  :: dataPtr
+!!                              integer, intent(in)            :: dataStruct)
 !!
 !!  DESCRIPTION
 !!
@@ -39,7 +39,7 @@
 !!      dataStruct : Which data struct
 !!
 !!***
-subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
+subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
    use Grid_tile, only: Grid_tile_t
 
    implicit none
@@ -51,4 +51,4 @@ subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
    nullify (dataPtr)
 
    return
-end subroutine ml_memReleaseDataPtr
+end subroutine MoL_releaseDataPtr

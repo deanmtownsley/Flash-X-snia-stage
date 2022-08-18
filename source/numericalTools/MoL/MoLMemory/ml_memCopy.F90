@@ -42,7 +42,7 @@
 !!REORDER(4): dstPtr, srcPtr
 subroutine ml_memCopy(dst, src)
    use MoL_variables, only: MoL_scratch_mask, MoL_unk_mask, MoL_nvars
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_tile, only: Grid_tile_t
@@ -87,8 +87,8 @@ subroutine ml_memCopy(dst, src)
 
       call itor%currentTile(tileDesc)
 
-      call ml_memGetDataPtr(tileDesc, dstPtr, dst)
-      call ml_memGetDataPtr(tileDesc, srcPtr, src)
+      call MoL_getDataPtr(tileDesc, dstPtr, dst)
+      call MoL_getDataPtr(tileDesc, srcPtr, src)
 
       do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
          do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
@@ -98,8 +98,8 @@ subroutine ml_memCopy(dst, src)
          end do ! j
       end do ! k
 
-      call ml_memReleaseDataPtr(tileDesc, srcPtr, src)
-      call ml_memReleaseDataPtr(tileDesc, dstPtr, dst)
+      call MoL_releaseDataPtr(tileDesc, srcPtr, src)
+      call MoL_releaseDataPtr(tileDesc, dstPtr, dst)
 
       call itor%next()
    end do TileLoop

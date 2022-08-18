@@ -5,4 +5,6 @@ MoL = MoL_interface.o			\
 	  MoL_registerVariable.o	\
 	  MoL_registerFunction.o	\
 	  MoL_releaseFunctions.o	\
-	  MoL_regrid.o
+	  MoL_regrid.o					\
+	  MoL_getDataPtr.o			\
+	  MoL_releaseDataPtr.o

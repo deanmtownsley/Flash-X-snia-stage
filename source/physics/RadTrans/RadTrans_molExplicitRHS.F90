@@ -11,38 +11,29 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!  NAME 
+!!  NAME
 !!
 !!      RadTrans_molExplicitRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call RadTrans_molExplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                                   real, pointer           :: rhs(:,:,:,:)
-!!                                   real, pointer           :: Uin(:,:,:,:)
-!!                                   real, intent(in)        :: t)
+!!      call RadTrans_molExplicitRHS(real, intent(in) :: t)
 !!
-!!  DESCRIPTION 
+!!  DESCRIPTION
 !!
 !!      Calculate explicit RHS terms
 !!
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      Uin      : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t : Current time
 !!
 !!***
-subroutine RadTrans_molExplicitRHS(tileDesc, rhs, Uin, t)
-    use Grid_tile, only: Grid_tile_t
+subroutine RadTrans_molExplicitRHS(t)
 
-    implicit none
+   implicit none
 
-    class(Grid_tile_t), intent(in) :: tileDesc
-    real, dimension(:,:,:,:), pointer :: rhs, Uin
-    real, intent(in) :: t
+   real, intent(in) :: t
 
-    return
+   return
 end subroutine RadTrans_molExplicitRHS

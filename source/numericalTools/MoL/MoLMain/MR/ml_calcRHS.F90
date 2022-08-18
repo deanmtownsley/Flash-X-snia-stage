@@ -36,12 +36,8 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use MoL_functions
-   use ml_memInterface, only: ml_memGetDataPtr, ml_memReleaseDataPtr, ml_memZero
-
-   use Grid_iterator, only: Grid_iterator_t
-   use Grid_tile, only: Grid_tile_t
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF
+   use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero
 
 #include "Simulation.h"
 #include "constants.h"
@@ -52,40 +48,22 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
    integer, intent(in) :: rhsType, rhsStruct
    real, intent(in) :: t
 
-   type(Grid_iterator_t) :: itor
-   type(Grid_tile_t) :: tileDesc
-
-   real, dimension(:, :, :, :), pointer :: U, rhs
-
    ! Zero-out RHS memory
    call ml_memZero(rhsStruct)
 
-   call Grid_getTileIterator(itor, LEAF)
+   call ml_memSetActiveRHS(rhsStruct)
 
-   TileLoop: do
-      if (.not. itor%isValid()) exit TileLoop
+   select case (rhsType)
+   case (MOL_RHS_EXPLICIT)
+      call MoL_rhsE(t)
 
-      call itor%currentTile(tileDesc)
+   case (MOL_RHS_IMPLICIT)
+      call MoL_rhsI(t)
 
-      call ml_memGetDataPtr(tileDesc, U, MOL_EVOLVED)
-      call ml_memGetDataPtr(tileDesc, rhs, rhsStruct)
+   case (MOL_RHS_FAST)
+      call MoL_rhsF(t)
+   end select
 
-      select case (rhsType)
-      case (MOL_RHS_EXPLICIT)
-         call MoL_rhsE(tileDesc, rhs, U, t)
+   call ml_memReleaseActiveRHS()
 
-      case (MOL_RHS_IMPLICIT)
-         call MoL_rhsI(tileDesc, rhs, U, t)
-
-      case (MOL_RHS_FAST)
-         call MoL_rhsF(tileDesc, rhs, U, t)
-      end select
-
-      call ml_memReleaseDataPtr(tileDesc, rhs, rhsStruct)
-      call ml_memReleaseDataPtr(tileDesc, U, MOL_EVOLVED)
-
-      call itor%next()
-   end do TileLoop
-
-   call Grid_releaseTileIterator(itor)
 end subroutine ml_calcRHS

@@ -1,4 +1,4 @@
-!!****f* source/Simulation/Simulation_molImplicitRHS
+!!****f* source/numericalTools/MoL/localAPI/ml_memSetActiveRHS
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,26 +13,26 @@
 !!
 !!  NAME
 !!
-!!      Simulation_molImplicitRHS
+!!      ml_memSetActiveRHS
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molImplicitRHS(real, intent(in) :: t)
+!!      call ml_memSetActiveRHS(integer, intent(in) :: irhs)
 !!
 !!  DESCRIPTION
 !!
-!!      Calculate implicit RHS terms
-!!
+!!      Set the active RHS to be pointed to when MOL_RHS is requested
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      irhs : the RHS to set as active
 !!
 !!***
-subroutine Simulation_molImplicitRHS(t)
+subroutine ml_memSetActiveRHS(irhs)
+
    implicit none
 
-   real, intent(in) :: t
+   integer, intent(in) :: irhs
 
    return
-end subroutine Simulation_molImplicitRHS
+end subroutine ml_memSetActiveRHS

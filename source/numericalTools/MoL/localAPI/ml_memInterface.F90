@@ -32,21 +32,14 @@ module ml_memInterface
    implicit none
 
    interface
-      subroutine ml_memGetDataPtr(tileDesc, dataPtr, dataStruct)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, pointer               :: dataPtr(:, :, :, :)
-         integer, intent(in) :: dataStruct
-      end subroutine ml_memGetDataPtr
+      subroutine ml_memSetActiveRHS(irhs)
+         integer, intent(in) :: irhs
+      end subroutine ml_memSetActiveRHS
    end interface
 
    interface
-      subroutine ml_memReleaseDataPtr(tileDesc, dataPtr, dataStruct)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, pointer               :: dataPtr(:, :, :, :)
-         integer, intent(in) :: dataStruct
-      end subroutine ml_memReleaseDataPtr
+      subroutine ml_memReleaseActiveRHS()
+      end subroutine ml_memReleaseActiveRHS
    end interface
 
     !! ================================ !!

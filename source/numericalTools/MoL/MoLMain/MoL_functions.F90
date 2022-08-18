@@ -32,10 +32,7 @@ module MoL_functions
    implicit none
 
    abstract interface
-      subroutine MoL_rhs_t(tileDesc, dy, y, t)
-         import :: Grid_tile_t
-         class(Grid_tile_t), intent(in) :: tileDesc
-         real, dimension(:, :, :, :), pointer :: dy, y
+      subroutine MoL_rhs_t(t)
          real, intent(in) :: t
       end subroutine MoL_rhs_t
 
@@ -61,31 +58,25 @@ module MoL_functions
 
 contains
 
-   subroutine MoL_rhsE_default(tileDesc, dy, y, t)
+   subroutine MoL_rhsE_default(t)
       implicit none
 
-      class(Grid_tile_t), intent(in) :: tileDesc
-      real, dimension(:, :, :, :), pointer :: dy, y
       real, intent(in) :: t
 
       return
    end subroutine MoL_rhsE_default
 
-   subroutine MoL_rhsI_default(tileDesc, dy, y, t)
+   subroutine MoL_rhsI_default(t)
       implicit none
 
-      class(Grid_tile_t), intent(in) :: tileDesc
-      real, dimension(:, :, :, :), pointer :: dy, y
       real, intent(in) :: t
 
       return
    end subroutine MoL_rhsI_default
 
-   subroutine MoL_rhsF_default(tileDesc, dy, y, t)
+   subroutine MoL_rhsF_default(t)
       implicit none
 
-      class(Grid_tile_t), intent(in) :: tileDesc
-      real, dimension(:, :, :, :), pointer :: dy, y
       real, intent(in) :: t
 
       return
