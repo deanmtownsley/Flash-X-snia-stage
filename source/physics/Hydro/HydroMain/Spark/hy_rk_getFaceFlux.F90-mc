@@ -293,25 +293,20 @@ contains
   subroutine flattening(limits)
     !! This follows Miller & Colella 2002
     implicit none
+    integer, parameter :: kx = 1
+    integer, parameter :: ky = K2D
+    integer, parameter :: kz = K3D
     integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
     !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
     !real :: hy_flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-    real :: hy_flatTilde(NDIM,limits(LOW,IAXIS):limits(HIGH,IAXIS),&
-         limits(LOW,JAXIS):limits(HIGH,JAXIS),&
-         limits(LOW,KAXIS):limits(HIGH,KAXIS))
+    real :: hy_flatTilde(NDIM,limits(LOW,IAXIS)-kx:limits(HIGH,IAXIS)+kx,&
+         limits(LOW,JAXIS)-ky:limits(HIGH,JAXIS)+ky,&
+         limits(LOW,KAXIS)-kz:limits(HIGH,KAXIS)+kz)
     real :: beta, Z
     real, parameter :: betaMin = 0.75, betaMax = 0.85
     real, parameter :: Zmin = 0.25, Zmax = 0.75
-    integer :: i,j,k, kx, ky, kz
-    kx = 1
-    ky = 0
-    kz = 0
-#if NDIM>1
-    ky = 1
-#if NDIM==3
-    kz = 1
-#endif
-#endif
+    integer :: i,j,k
+
     do k=limits(LOW,KAXIS)-kz, limits(HIGH,KAXIS)+kz
        do j=limits(LOW,JAXIS)-ky, limits(HIGH,JAXIS)+ky
           do i=limits(LOW,IAXIS)-kx, limits(HIGH,IAXIS)+kx
