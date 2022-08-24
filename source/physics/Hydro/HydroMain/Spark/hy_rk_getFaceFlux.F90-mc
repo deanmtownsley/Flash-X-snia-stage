@@ -235,7 +235,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               
 #if NSPECIES+NMASS_SCALARS>0
               if (hy_flux(HY_MASS ,i,j,k) > 0.) then
-                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON, i, j, k)*hy_flux(HY_MASS ,i,j,k)
+                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON, i-1,j,k)*hy_flux(HY_MASS ,i,j,k)
               else
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
               end if
