@@ -1,3 +1,55 @@
+!!****if* source/numericalTools/MoL/MoLMain/MR/gark
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!  NAME
+!!    gark
+!!
+!!  SYNOPSIS
+!!    use gark
+!!
+!!  DESCRIPTION
+!!    Utilities for setting up a specified GARK tableau.
+!!
+!!    Available methods currently include (list by runtime parameter values for mr_slowMethod):
+!!       mr-gark3 : Third-order IMEX-MRI-GARK3b scheme in [1]
+!!       mr-gark4 : Fourth-order IMEX-MRI-GARK4 scheme in [1]
+!!
+!!    The tableau are all given in the form:
+!!
+!!       c_1 | a_11 ... a_1n
+!!        .  |  .   .    .
+!!        .  |  .    .   .
+!!        .  |  .     .  .
+!!       c_n | a_n1 ... a_nn
+!!        1  | b_1  ... b_n
+!!       -------------------
+!!           | b_1  ... b_n
+!!
+!!    For the implicit methods, the matrices a_ij are lower-triangular
+!!    For the explicit methods, the matrices a_ij are strictly lower-triangular
+!!
+!!    All tableau follow a "solve decoupled" formulation that allows for alternating
+!!    slow- and fast-stages
+!!
+!! REFERENCES
+!!    [1] Implicit-Explicit Multirate Infinitesimal GARK Methods
+!!        Rujeko Chinomona and Daniel R. Reynolds
+!!        SIAM Journal on Scientific Computing 2021 43:5, A3082-A3113
+!!        https://doi.org/10.1137/20M1354349
+!!
+!!  NOTES
+!!
+!!***
 module gark
 
    implicit none

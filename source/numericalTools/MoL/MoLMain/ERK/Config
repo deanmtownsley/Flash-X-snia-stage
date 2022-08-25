@@ -1,3 +1,5 @@
 # Config file the explicit RK integrator
 
+D erk_method The explicit RK method to use
+
 PARAMETER erk_method STRING "erk-rk4" ["erk-euler","erk-rk2-heun","erk-rk3-ssp","erk-rk4"]

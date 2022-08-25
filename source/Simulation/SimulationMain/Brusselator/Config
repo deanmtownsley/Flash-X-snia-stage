@@ -10,6 +10,12 @@ VARIABLE U  TYPE: GENERIC
 VARIABLE V  TYPE: GENERIC
 VARIABLE W  TYPE: GENERIC
 
+D sim_a          Production rate for variable u
+D sim_b          Production rate for variable w
+D sim_alpha      Diffusion coefficient for variables u,v,w
+D sim_epsilon    Scaling parameter for reaction rates of variable w
+D sim_rho        Advective speed for variables u,v,w
+
 PARAMETER sim_a        REAL  0.6
 PARAMETER sim_b        REAL  2.0
 PARAMETER sim_alpha    REAL  0.01
