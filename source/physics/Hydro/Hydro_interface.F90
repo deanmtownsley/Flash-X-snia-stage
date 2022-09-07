@@ -146,54 +146,63 @@ Module Hydro_interface
 
    interface
       subroutine Hydro_molExplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molExplicitRHS
    end interface
 
    interface
       subroutine Hydro_molImplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molImplicitRHS
    end interface
 
    interface
       subroutine Hydro_molFastRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molFastRHS
    end interface
 
    interface
       subroutine Hydro_molImplicitUpdate(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine Hydro_molImplicitUpdate
    end interface
 
    interface
       subroutine Hydro_molPostUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molPostUpdate
    end interface
 
    interface
       subroutine Hydro_molPostFastUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molPostFastUpdate
    end interface
 
    interface
       subroutine Hydro_molPreEvolve(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molPreEvolve
    end interface
 
    interface
       subroutine Hydro_molPostTimeStep(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molPostTimeStep
    end interface
 
    interface
       subroutine Hydro_molPostRegrid(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Hydro_molPostRegrid
    end interface

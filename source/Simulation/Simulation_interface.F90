@@ -164,54 +164,63 @@ Module Simulation_interface
 
    interface
       subroutine Simulation_molExplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molExplicitRHS
    end interface
 
    interface
       subroutine Simulation_molImplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molImplicitRHS
    end interface
 
    interface
       subroutine Simulation_molFastRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molFastRHS
    end interface
 
    interface
       subroutine Simulation_molImplicitUpdate(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine Simulation_molImplicitUpdate
    end interface
 
    interface
       subroutine Simulation_molPostUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molPostUpdate
    end interface
 
    interface
       subroutine Simulation_molPostFastUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molPostFastUpdate
    end interface
 
    interface
       subroutine Simulation_molPreEvolve(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molPreEvolve
    end interface
 
    interface
       subroutine Simulation_molPostTimeStep(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molPostTimeStep
    end interface
 
    interface
       subroutine Simulation_molPostRegrid(t)
+         implicit none
          real, intent(in) :: t
       end subroutine Simulation_molPostRegrid
    end interface

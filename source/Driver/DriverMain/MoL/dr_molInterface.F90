@@ -30,54 +30,63 @@ module dr_molInterface
 
    interface
       subroutine dr_molExplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molExplicitRHS
    end interface
 
    interface
       subroutine dr_molImplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molImplicitRHS
    end interface
 
    interface
       subroutine dr_molFastRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molFastRHS
    end interface
 
    interface
       subroutine dr_molImplicitUpdate(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine dr_molImplicitUpdate
    end interface
 
    interface
       subroutine dr_molPostUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molPostUpdate
    end interface
 
    interface
       subroutine dr_molPostFastUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molPostFastUpdate
    end interface
 
    interface
       subroutine dr_molPreEvolve(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molPreEvolve
    end interface
 
    interface
       subroutine dr_molPostTimeStep(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molPostTimeStep
    end interface
 
    interface
       subroutine dr_molPostRegrid(t)
+         implicit none
          real, intent(in) :: t
       end subroutine dr_molPostRegrid
    end interface

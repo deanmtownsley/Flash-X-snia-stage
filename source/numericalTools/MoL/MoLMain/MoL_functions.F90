@@ -33,14 +33,17 @@ module MoL_functions
 
    abstract interface
       subroutine MoL_rhs_t(t)
+         implicit none
          real, intent(in) :: t
       end subroutine MoL_rhs_t
 
       subroutine MoL_implicitUpdate_t(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine MoL_implicitUpdate_t
 
       subroutine MoL_postUpdate_t(t)
+         implicit none
          real, intent(in) :: t
       end subroutine MoL_postUpdate_t
    end interface

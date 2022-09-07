@@ -27,12 +27,11 @@
 !!***
 module ml_memInterface
 
-   use Grid_tile, only: Grid_tile_t
-
    implicit none
 
    interface
       subroutine ml_memSetActiveRHS(irhs)
+         implicit none
          integer, intent(in) :: irhs
       end subroutine ml_memSetActiveRHS
    end interface
@@ -62,12 +61,14 @@ module ml_memInterface
 
    interface
       subroutine ml_memZero(dst)
+         implicit none
          integer, intent(in) :: dst
       end subroutine ml_memZero
    end interface
 
    interface
       subroutine ml_memCopy(dst, src)
+         implicit none
          integer, intent(in) :: dst, src
       end subroutine ml_memCopy
    end interface
@@ -78,6 +79,7 @@ module ml_memInterface
 
    interface ml_memAddToVars
       subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: nsrcs
@@ -86,6 +88,7 @@ module ml_memInterface
       end subroutine ml_memAddToVarsN
 
       subroutine ml_memAddToVars0(dst, dstFac, val)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          real, intent(in) :: val
@@ -94,6 +97,7 @@ module ml_memInterface
       subroutine ml_memAddToVars1(dst, dstFac, &
                                   src1, &
                                   fac1)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1
@@ -103,6 +107,7 @@ module ml_memInterface
       subroutine ml_memAddToVars2(dst, dstFac, &
                                   src1, src2, &
                                   fac1, fac2)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2
@@ -112,6 +117,7 @@ module ml_memInterface
       subroutine ml_memAddToVars3(dst, dstFac, &
                                   src1, src2, src3, &
                                   fac1, fac2, fac3)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3
@@ -121,6 +127,7 @@ module ml_memInterface
       subroutine ml_memAddToVars4(dst, dstFac, &
                                   src1, src2, src3, src4, &
                                   fac1, fac2, fac3, fac4)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4
@@ -130,6 +137,7 @@ module ml_memInterface
       subroutine ml_memAddToVars5(dst, dstFac, &
                                   src1, src2, src3, src4, src5, &
                                   fac1, fac2, fac3, fac4, fac5)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5
@@ -139,6 +147,7 @@ module ml_memInterface
       subroutine ml_memAddToVars6(dst, dstFac, &
                                   src1, src2, src3, src4, src5, src6, &
                                   fac1, fac2, fac3, fac4, fac5, fac6)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6
@@ -150,6 +159,7 @@ module ml_memInterface
                                   src7, &
                                   fac1, fac2, fac3, fac4, fac5, fac6, &
                                   fac7)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
@@ -163,6 +173,7 @@ module ml_memInterface
                                   src7, src8, &
                                   fac1, fac2, fac3, fac4, fac5, fac6, &
                                   fac7, fac8)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
@@ -176,6 +187,7 @@ module ml_memInterface
                                   src7, src8, src9, &
                                   fac1, fac2, fac3, fac4, fac5, fac6, &
                                   fac7, fac8, fac9)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
@@ -189,6 +201,7 @@ module ml_memInterface
                                    src7, src8, src9, src10, &
                                    fac1, fac2, fac3, fac4, fac5, fac6, &
                                    fac7, fac8, fac9, fac10)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
@@ -202,6 +215,7 @@ module ml_memInterface
                                    src7, src8, src9, src10, src11, &
                                    fac1, fac2, fac3, fac4, fac5, fac6, &
                                    fac7, fac8, fac9, fac10, fac11)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
@@ -215,6 +229,7 @@ module ml_memInterface
                                    src7, src8, src9, src10, src11, src12, &
                                    fac1, fac2, fac3, fac4, fac5, fac6, &
                                    fac7, fac8, fac9, fac10, fac11, fac12)
+         implicit none
          integer, intent(in) :: dst
          real, intent(in) :: dstFac
          integer, intent(in) :: src1, src2, src3, src4, src5, src6, &

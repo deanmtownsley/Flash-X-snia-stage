@@ -175,54 +175,63 @@ module RadTrans_interface
 
    interface
       subroutine RadTrans_molExplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molExplicitRHS
    end interface
 
    interface
       subroutine RadTrans_molImplicitRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molImplicitRHS
    end interface
 
    interface
       subroutine RadTrans_molFastRHS(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molFastRHS
    end interface
 
    interface
       subroutine RadTrans_molImplicitUpdate(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine RadTrans_molImplicitUpdate
    end interface
 
    interface
       subroutine RadTrans_molPostUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molPostUpdate
    end interface
 
    interface
       subroutine RadTrans_molPostFastUpdate(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molPostFastUpdate
    end interface
 
    interface
       subroutine RadTrans_molPreEvolve(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molPreEvolve
    end interface
 
    interface
       subroutine RadTrans_molPostTimeStep(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molPostTimeStep
    end interface
 
    interface
       subroutine RadTrans_molPostRegrid(t)
+         implicit none
          real, intent(in) :: t
       end subroutine RadTrans_molPostRegrid
    end interface

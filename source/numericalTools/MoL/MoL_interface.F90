@@ -28,8 +28,6 @@
 
 module MoL_interface
 
-   use Grid_tile, only: Grid_tile_t
-
    implicit none
 
     !! ================================= !!
@@ -52,6 +50,7 @@ module MoL_interface
 
    interface
       subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
+         implicit none
          character(len=*), intent(in) :: name
          integer, intent(in) :: evolIndex
          integer, intent(out) :: rhsIndex
@@ -64,6 +63,7 @@ module MoL_interface
 
    interface
       subroutine MoL_registerRHS(rhsType, rhsFunc)
+         implicit none
          integer, intent(in) :: rhsType
          interface
             subroutine rhsFunc(t)
@@ -75,6 +75,7 @@ module MoL_interface
 
    interface
       subroutine MoL_registerUpdate(updateType, updateFunc)
+         implicit none
          integer, intent(in) :: updateType
          interface
             subroutine updateFunc(t, dt)
@@ -86,6 +87,7 @@ module MoL_interface
 
    interface
       subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
+         implicit none
          integer, intent(in) :: postUpdateType
          interface
             subroutine postUpdateFunc(t)
@@ -106,6 +108,7 @@ module MoL_interface
 
    interface
       subroutine MoL_advance(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine MoL_advance
    end interface
@@ -120,7 +123,8 @@ module MoL_interface
 
    interface
       subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
-         import :: Grid_tile_t
+         use Grid_tile, only: Grid_tile_t
+         implicit none
          class(Grid_tile_t), intent(in) :: tileDesc
          real, pointer               :: dataPtr(:, :, :, :)
          integer, intent(in) :: dataStruct
@@ -129,7 +133,8 @@ module MoL_interface
 
    interface
       subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
-         import :: Grid_tile_t
+         use Grid_tile, only: Grid_tile_t
+         implicit none
          class(Grid_tile_t), intent(in) :: tileDesc
          real, pointer               :: dataPtr(:, :, :, :)
          integer, intent(in) :: dataStruct

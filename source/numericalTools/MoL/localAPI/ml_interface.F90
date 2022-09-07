@@ -49,6 +49,7 @@ module ml_interface
 
    interface
       subroutine ml_advance(t, dt)
+         implicit none
          real, intent(in) :: t, dt
       end subroutine ml_advance
    end interface
@@ -58,6 +59,7 @@ module ml_interface
     !! ===================== !!
    interface
       subroutine ml_calcRHS(rhsType, rhsStruct, t)
+         implicit none
          integer, intent(in) :: rhsType, rhsStruct
          real, intent(in) :: t
       end subroutine ml_calcRHS
@@ -69,18 +71,21 @@ module ml_interface
 
    interface
       subroutine ml_error(msg)
+         implicit none
          character(len=*), intent(in) :: msg
       end subroutine ml_error
    end interface
 
    interface
       subroutine ml_warn(msg)
+         implicit none
          character(len=*), intent(in) :: msg
       end subroutine ml_warn
    end interface
 
    interface
       subroutine ml_status(msg)
+         implicit none
          character(len=*), intent(in) :: msg
       end subroutine ml_status
    end interface
