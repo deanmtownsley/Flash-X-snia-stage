@@ -1,4 +1,10 @@
 #----------------------------------------------------------------------------
+# Makefile.h compatible with OSX machines with Apple Silicon (M1/M2) family
+# CPUs.  Assumes GNU compilers and appropriate MPI/HDF5 compiler wrappers
+# installed via homebrew
+#----------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
 AMREX_PATH=/Users/stevenfromm/local/amrex/${NDIM}d

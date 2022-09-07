@@ -1,4 +1,10 @@
 #----------------------------------------------------------------------------
+# Makefile.h for use on MSU ICER HPCC intel16/18 (Intel Xenon) and 
+# amd20 (AMD EPYC) clusters running CentOS.  Compatible with GNU compilers 
+# via HDF5 parallel specified below wrappers.
+#----------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
 AMREX_PATH=/mnt/home/frommste/local/amrex/${NDIM}D
