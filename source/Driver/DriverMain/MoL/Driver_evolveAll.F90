@@ -92,10 +92,6 @@ subroutine Driver_evolveAll()
 
 #include "constants.h"
 
-   integer   :: localNumBlocks
-
-   integer, save :: sweepDummy = SWEEP_ALL
-
    ! for logfile output
    character(len=MAX_STRING_LENGTH), dimension(4, 2) :: strBuff
    character(len=15) :: numToStr
