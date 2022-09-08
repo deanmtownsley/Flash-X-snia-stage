@@ -65,10 +65,6 @@ subroutine Driver_evolveAll()
                              Grid_fillGuardCells, &
                              Grid_getDeltas, &
                              Grid_getMaxRefinement
-#ifdef FLASH_GRID_AMREX
-   ! DEV: Temporary ugliness for debugging
-   use gr_amrexInterface, ONLY: gr_writeData
-#endif
 
 #include "Simulation.h"
    use Hydro_interface, ONLY: Hydro, &
