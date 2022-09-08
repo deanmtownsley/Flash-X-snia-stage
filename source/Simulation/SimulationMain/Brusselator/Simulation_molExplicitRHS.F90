@@ -34,7 +34,8 @@ subroutine Simulation_molExplicitRHS(t)
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator, &
+                             Grid_fillGuardCells
    use Grid_iterator, only: Grid_iterator_t
    use Grid_tile, only: Grid_tile_t
 
@@ -64,6 +65,9 @@ subroutine Simulation_molExplicitRHS(t)
       ip = 1
       im = 0
    end if
+
+   ! Required for applying the upwind stencil
+   call Grid_fillGuardCells(CENTER, ALLDIR)
 
    call Grid_getTileIterator(itor, LEAF)
 
