@@ -1,12 +1,5 @@
 subroutine Driver_computeDt(nbegin, nstep, simTime, dtOld, dtNew)
-   use Simulation_data
-
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
-   use Grid_tile
-   use Grid_iterator
-
-#include "Simulation.h"
-#include "constants.h"
+   use Simulation_data, only: sim_k
 
    implicit none
 

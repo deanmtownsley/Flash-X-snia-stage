@@ -19,7 +19,7 @@ $$
 on the domain $x\in[0,1]$, with stationary boundary conditions
 
 $$
-\frac{\partial u}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial v}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial w}{\partial t}\biggr\rvert_{x=0,1} 0
+\frac{\partial u}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial v}{\partial t}\biggr\rvert_{x=0,1} = \frac{\partial w}{\partial t}\biggr\rvert_{x=0,1} = 0
 $$
 
 and initial conditions

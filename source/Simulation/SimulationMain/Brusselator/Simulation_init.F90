@@ -27,7 +27,10 @@
 !!
 !!***
 subroutine Simulation_init()
-   use Simulation_data
+   use Simulation_data, only: sim_a, sim_b, sim_alpha, &
+                              sim_epsilon, sim_rho, sim_k, &
+                              U_RHS, V_RHS, W_RHS
+
    use RuntimeParameters_interface, only: RuntimeParameters_get
    use MoL_interface, only: MoL_registerVariable
 

@@ -32,7 +32,7 @@
 !!
 !!***
 subroutine Simulation_molImplicitUpdate(t, dt)
-   use Simulation_data
+   use Simulation_data, only: sim_alpha
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_iterator, only: Grid_iterator_t

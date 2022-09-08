@@ -30,7 +30,7 @@
 !!
 !!***
 subroutine Simulation_molExplicitRHS(t)
-   use Simulation_data
+   use Simulation_data, only: sim_rho, U_RHS, V_RHS, W_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 

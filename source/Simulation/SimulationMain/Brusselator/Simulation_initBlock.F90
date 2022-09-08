@@ -35,7 +35,8 @@
 !!
 !!***
 subroutine Simulation_initBlock(vars, tileDesc)
-   use Simulation_data
+   use Simulation_data, only: sim_b, sim_a
+
    use Driver_interface, only: Driver_getSimTime
    use Grid_tile, only: Grid_tile_t
    use Grid_interface, only: Grid_getCellCoords
@@ -62,8 +63,7 @@ subroutine Simulation_initBlock(vars, tileDesc)
    allocate (x(tileDesc%limits(LOW, IAXIS):tileDesc%limits(HIGH, IAXIS)))
    x = 0d0
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
-                           tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), &
-                           x)
+                           tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), x)
 
    do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
       do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
