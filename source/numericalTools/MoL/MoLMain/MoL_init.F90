@@ -29,12 +29,18 @@
 !!***
 subroutine MoL_init()
    use ml_interface, only: ml_init
-   use MoL_data
-   use MoL_variables
+   use MoL_data, only: MoL_nscratch, MoL_nscratch_total, &
+                       MoL_abortOnWarn, MoL_verbosity, MoL_mpiRank
+   use MoL_variables, only: MoL_nvars
 
+   use Driver_interface, only: Driver_getMype
    use RuntimeParameters_interface, only: RuntimeParameters_get
 
+#include "constants.h"
+
    implicit none
+
+   call Driver_getMype(MESH_COMM, MoL_mpiRank)
 
    call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
    call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)

@@ -30,7 +30,8 @@ module ml_memData
    implicit none
 
    ! Ranks are (var,i,j,k,block,dataStruct)
-   real, dimension(:, :, :, :, :, :), allocatable, target, save :: scratch_data
+   ! real, dimension(:, :, :, :, :, :), allocatable, target, save :: scratch_data
+   real, dimension(:, :, :, :, :, :), allocatable, target, save :: ml_scratch_data
 
    ! Active RHS state to use when MOL_RHS is requested
    integer, save :: ml_activeRHS = MOL_INVALID

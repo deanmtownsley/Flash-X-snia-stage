@@ -33,22 +33,23 @@ module mr_data
    integer, save :: mr_nstages_slow, mr_nstages_fast
    integer, save :: mr_nsubcycle
 
-   integer, save :: mr_nscratch_slow, mr_nscratch_fast
+   ! Note: indexing variables below do not contain an mr_ to maintain a consistent notation
+   ! with the pre-processor defined variable indexing in Simulation.h and elsewhere
 
    ! RHS indexinng
    integer, dimension(:), allocatable, save :: FE, FI, FF
 
-   ! Initial state for fast evolution
+   ! Initial state index for fast evolution
    integer, save :: FAST_INITIAL
 
    ! Butcher tableau for slow evolution
-   integer, save :: kmax
-   real, dimension(:, :, :), allocatable, save :: gamK, wK
-   real, dimension(:, :), allocatable, save :: gamBar, wBar
-   real, dimension(:), allocatable, save :: cS
+   integer, save :: mr_kmax
+   real, dimension(:, :, :), allocatable, save :: mr_gamK, mr_wK
+   real, dimension(:, :), allocatable, save :: mr_gamBar, mr_wBar
+   real, dimension(:), allocatable, save :: mr_cS
 
    ! Butcher tableau for fast evolution
-   real, dimension(:, :), allocatable, save :: AF
-   real, dimension(:), allocatable, save :: bF, cF
+   real, dimension(:, :), allocatable, save :: mr_AF
+   real, dimension(:), allocatable, save :: mr_bF, mr_cF
 
 end module mr_data

@@ -29,7 +29,7 @@
 !!***
 subroutine ml_init()
    use MoL_data, only: MoL_nscratch
-   use erk_data
+   use erk_data, only: erk_method, erk_stages, erk_K
    use erk_tableau, only: erk_tableau_init
 
    use RuntimeParameters_interface, only: RuntimeParameters_get

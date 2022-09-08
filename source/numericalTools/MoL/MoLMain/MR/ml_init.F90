@@ -29,7 +29,8 @@
 !!***
 subroutine ml_init()
    use MoL_data, only: MoL_nscratch
-   use mr_data
+   use mr_data, only: FE, FI, FF, FAST_INITIAL, mr_slowMethod, mr_fastMethod, &
+                      mr_nsubcycle, mr_nstages_fast, mr_nstages_slow
    use erk, only: erk_init
    use gark, only: gark_init
 

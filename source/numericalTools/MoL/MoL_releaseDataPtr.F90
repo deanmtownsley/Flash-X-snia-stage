@@ -45,7 +45,7 @@ subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
    implicit none
 
    class(Grid_tile_t), intent(in) :: tileDesc
-   real, pointer               :: dataPtr(:, :, :, :)
+   real, pointer :: dataPtr(:, :, :, :)
    integer, intent(in) :: dataStruct
 
    nullify (dataPtr)

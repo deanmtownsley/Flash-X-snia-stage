@@ -36,13 +36,9 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use MoL_functions
+   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF
 
    use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero
-
-#include "Simulation.h"
-#include "constants.h"
-#include "MoL.h"
 
    implicit none
 

@@ -41,7 +41,7 @@
 !!***
 !!REORDER(4): dataPtr
 subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
-   use ml_memData, only: scratch_data, ml_activeRHS
+   use ml_memData, only: ml_scratch_data, ml_activeRHS
    use ml_interface, only: ml_error
 
    use Grid_tile, only: Grid_tile_t
@@ -76,7 +76,7 @@ subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
       ! Grid_tile_t uses `id` to reference the block
       associate (lo => tileDesc%limits(LOW, :))
          dataPtr(1:, lo(IAXIS):, lo(JAXIS):, lo(KAXIS):) &
-            => scratch_data(:, :, :, :, tileDesc%id, ind)
+            => ml_scratch_data(:, :, :, :, tileDesc%id, ind)
       end associate
    end if
 end subroutine MoL_getDataPtr

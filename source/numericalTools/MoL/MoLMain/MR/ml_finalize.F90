@@ -28,7 +28,8 @@
 !!
 !!***
 subroutine ml_finalize()
-   use mr_data
+   use mr_data, only: FE, FI, FF, mr_gamK, mr_wK, &
+                      mr_gamBar, mr_wBar, mr_cS, mr_AF, mr_bF, mr_cF
 
    implicit none
 
@@ -36,15 +37,15 @@ subroutine ml_finalize()
    if (allocated(FI)) deallocate (FI)
    if (allocated(FF)) deallocate (FF)
 
-   if (allocated(gamK)) deallocate (gamK)
-   if (allocated(wK)) deallocate (wK)
+   if (allocated(mr_gamK)) deallocate (mr_gamK)
+   if (allocated(mr_wK)) deallocate (mr_wK)
 
-   if (allocated(gamBar)) deallocate (gamBar)
-   if (allocated(wBar)) deallocate (wBar)
+   if (allocated(mr_gamBar)) deallocate (mr_gamBar)
+   if (allocated(mr_wBar)) deallocate (mr_wBar)
 
-   if (allocated(cS)) deallocate (cS)
+   if (allocated(mr_cS)) deallocate (mr_cS)
 
-   if (allocated(AF)) deallocate (AF)
-   if (allocated(bF)) deallocate (bF)
-   if (allocated(cF)) deallocate (cF)
+   if (allocated(mr_AF)) deallocate (mr_AF)
+   if (allocated(mr_bF)) deallocate (mr_bF)
+   if (allocated(mr_cF)) deallocate (mr_cF)
 end subroutine ml_finalize

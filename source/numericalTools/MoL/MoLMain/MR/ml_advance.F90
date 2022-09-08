@@ -35,11 +35,12 @@
 !!      to include a level-indicator as well
 !!***
 subroutine ml_advance(t, dt)
-   use mr_data
+   use mr_data, only: mr_nstages_slow, mr_nstages_fast, FAST_INITIAL, &
+                      FF, FE, FI, mr_nsubcycle, mr_gamBar, mr_wBar, mr_cS, mr_cF, mr_bF, mr_AF
    use MoL_functions
    use ml_interface, only: ml_calcRHS
    use ml_memInterface, only: ml_memAddToVars, ml_memCopy
-   use gark, only: gamTau, wTau
+   use gark, only: mr_gamTau, mr_wTau
 
 #include "MoL.h"
 
@@ -68,18 +69,18 @@ subroutine ml_advance(t, dt)
          ! Slow stage
 
          ! The time that the RHS for this stage is evaluated at
-         t_stage = t + cS(sS)*dt
+         t_stage = t + mr_cS(sS)*dt
 
          ! If necessary, calculate the intermediate state for the RHS evaluation
-         if (cS(sS) .gt. 0d0) then
+         if (mr_cS(sS) .gt. 0d0) then
 
             ! Store source terms and scaling factors for the linear combination
             do j = 1, sS - 1, 2
                srcsS(j) = FE(j)
                srcsS(j + 1) = FI(j)
 
-               facsS(j) = wBar(sS, j)*dt
-               facsS(j + 1) = gamBar(sS, j)*dt
+               facsS(j) = mr_wBar(sS, j)*dt
+               facsS(j + 1) = mr_gamBar(sS, j)*dt
             end do
 
             ! U^j = U^n + dt*A^ji rhs_i
@@ -89,8 +90,8 @@ subroutine ml_advance(t, dt)
             call MoL_postUpdate(t_stage)
 
             ! Perform an necessary implicit update
-            if (gamBar(sS, sS) .gt. 0d0) then
-               call MoL_implicitUpdate(t_stage, gamBar(sS, sS)*dt)
+            if (mr_gamBar(sS, sS) .gt. 0d0) then
+               call MoL_implicitUpdate(t_stage, mr_gamBar(sS, sS)*dt)
             end if
          end if
 
@@ -102,11 +103,11 @@ subroutine ml_advance(t, dt)
          theta = 0d0
 
          ! The time that this stage starts at
-         t_stage = t + cS(sS - 1)*dt
+         t_stage = t + mr_cS(sS - 1)*dt
          t_fast = t_stage
 
          ! Scaling factor from theta \in [0,dt] --> t \in [t^n,t^n+dt]
-         dc = cS(sS) - cS(sS - 1)
+         dc = mr_cS(sS) - mr_cS(sS - 1)
 
          ! Integrate for some specified number of steps in the fast scheme
          do n = 1, mr_nsubcycle
@@ -115,12 +116,12 @@ subroutine ml_advance(t, dt)
 
             do sF = 1, mr_nstages_fast
                ! The time that this fast stage evaluation takes place at
-               t_fast_stage = t_fast + dc*cF(sF)*dtheta
+               t_fast_stage = t_fast + dc*mr_cF(sF)*dtheta
 
                ! If necessary, compute the intermediate state for the RHS evaluation
-               if (cF(sF) .gt. 0d0) then
+               if (mr_cF(sF) .gt. 0d0) then
                   ! Scaling factors from the tableau
-                  facsF(2:sF) = AF(sF, :sF - 1)*dtheta
+                  facsF(2:sF) = mr_AF(sF, :sF - 1)*dtheta
 
                   ! Linear combination of RHS terms for this stage
                   call ml_memAddToVars(MOL_EVOLVED, 0d0, sF, srcsF(:sF), facsF(:sF))
@@ -141,15 +142,15 @@ subroutine ml_advance(t, dt)
                   srcsS(j) = FE(j)
                   srcsS(j + 1) = FI(j)
 
-                  facsS(j) = wTau(sS, j, tau)
-                  facsS(j + 1) = gamTau(sS, j, tau)
+                  facsS(j) = mr_wTau(sS, j, tau)
+                  facsS(j + 1) = mr_gamTau(sS, j, tau)
                end do
 
                call ml_memAddToVars(FF(sF), dc, sS, srcsS(:sS), facsS(:sS))
             end do ! sF
 
             ! Final linear combination
-            facsF(2:) = bF*dtheta
+            facsF(2:) = mr_bF*dtheta
             call ml_memAddToVars(MOL_EVOLVED, 0d0, mr_nstages_fast + 1, srcsF, facsF)
 
             ! Update the time for the next fast (sub)step

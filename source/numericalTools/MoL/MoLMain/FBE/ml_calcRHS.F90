@@ -36,17 +36,9 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use MoL_functions
+   use MoL_functions, only: MoL_rhsE, MoL_rhsF
 
    use ml_memInterface, only: ml_memZero
-
-   use Grid_iterator, only: Grid_iterator_t
-   use Grid_tile, only: Grid_tile_t
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
-
-#include "Simulation.h"
-#include "constants.h"
-#include "MoL.h"
 
    implicit none
 

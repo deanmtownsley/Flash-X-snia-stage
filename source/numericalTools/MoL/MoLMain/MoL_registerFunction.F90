@@ -37,7 +37,7 @@
 !!
 !!***
 subroutine MoL_registerRHS(rhsType, rhsFunc)
-   use MoL_functions
+   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF
 
    use ml_interface, only: ml_error
 
@@ -72,7 +72,7 @@ subroutine MoL_registerRHS(rhsType, rhsFunc)
 end subroutine MoL_registerRHS
 
 subroutine MoL_registerUpdate(updateType, updateFunc)
-   use MoL_functions
+   use MoL_functions, only: MoL_implicitUpdate
 
    use ml_interface, only: ml_error
 
@@ -99,7 +99,7 @@ subroutine MoL_registerUpdate(updateType, updateFunc)
 end subroutine MoL_registerUpdate
 
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
-   use MoL_functions
+   use MoL_functions, only: MoL_postUpdate, MoL_postUpdateFast
 
    use ml_interface, only: ml_error
 

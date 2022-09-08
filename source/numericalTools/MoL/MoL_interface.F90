@@ -126,7 +126,7 @@ module MoL_interface
          use Grid_tile, only: Grid_tile_t
          implicit none
          class(Grid_tile_t), intent(in) :: tileDesc
-         real, pointer               :: dataPtr(:, :, :, :)
+         real, pointer :: dataPtr(:, :, :, :)
          integer, intent(in) :: dataStruct
       end subroutine MoL_getDataPtr
    end interface
@@ -136,7 +136,7 @@ module MoL_interface
          use Grid_tile, only: Grid_tile_t
          implicit none
          class(Grid_tile_t), intent(in) :: tileDesc
-         real, pointer               :: dataPtr(:, :, :, :)
+         real, pointer :: dataPtr(:, :, :, :)
          integer, intent(in) :: dataStruct
       end subroutine MoL_releaseDataPtr
    end interface

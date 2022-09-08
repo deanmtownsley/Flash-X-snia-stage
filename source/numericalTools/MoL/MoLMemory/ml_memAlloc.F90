@@ -30,7 +30,7 @@
 subroutine ml_memAlloc()
 
    use ml_memInterface, only: ml_memFree
-   use ml_memData, only: scratch_data
+   use ml_memData, only: ml_scratch_data
    use MoL_data, only: MoL_nscratch_total
    use MoL_variables, only: MoL_nvars
 
@@ -45,7 +45,7 @@ subroutine ml_memAlloc()
 
    call Grid_getBlkIndexLimits(1, lim, limGC)
 
-   if (allocated(scratch_data)) call ml_memFree()
+   if (allocated(ml_scratch_data)) call ml_memFree()
 
    ! Don't need guard-cells here
 #ifdef MOL_REORDER
@@ -56,12 +56,12 @@ subroutine ml_memAlloc()
                           MAXBLOCKS, &
                           MoL_nscratch_total))
 #else
-   allocate (scratch_data(MoL_nvars, &
-                          lim(LOW, IAXIS):lim(HIGH, IAXIS), &
-                          lim(LOW, JAXIS):lim(HIGH, JAXIS), &
-                          lim(LOW, KAXIS):lim(HIGH, KAXIS), &
-                          MAXBLOCKS, &
-                          MoL_nscratch_total))
+   allocate (ml_scratch_data(MoL_nvars, &
+                             lim(LOW, IAXIS):lim(HIGH, IAXIS), &
+                             lim(LOW, JAXIS):lim(HIGH, JAXIS), &
+                             lim(LOW, KAXIS):lim(HIGH, KAXIS), &
+                             MAXBLOCKS, &
+                             MoL_nscratch_total))
 #endif
-   scratch_data = 0d0
+   ml_scratch_data = 0d0
 end subroutine ml_memAlloc

@@ -29,9 +29,9 @@
 !!
 !!***
 subroutine ml_memFree()
-   use ml_memData, only: scratch_data
+   use ml_memData, only: ml_scratch_data
 
    implicit none
 
-   if (allocated(scratch_data)) deallocate (scratch_data)
+   if (allocated(ml_scratch_data)) deallocate (ml_scratch_data)
 end subroutine ml_memFree

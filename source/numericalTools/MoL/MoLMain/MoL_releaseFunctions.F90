@@ -28,7 +28,11 @@
 !!
 !!***
 subroutine MoL_releaseFunctions()
-   use MoL_functions
+   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF, &
+                            MoL_implicitUpdate, MoL_postUpdate, MoL_postUpdateFast, &
+                            MoL_rhsE_default, MoL_rhsI_default, MoL_rhsF_default, &
+                            MoL_implicitUpdate_default, MoL_PostUpdate_default, &
+                            MoL_PostUpdateFast_default
 
    implicit none
 

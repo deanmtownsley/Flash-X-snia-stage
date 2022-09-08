@@ -35,8 +35,8 @@
 !!      to include a level-indicator as well
 !!***
 subroutine ml_advance(t, dt)
-   use erk_data
-   use MoL_functions
+   use erk_data, only: erk_stages, erk_A, erk_b, erk_c, erk_K, erk_stages
+   use MoL_functions, only: MoL_postUpdate, MoL_postUpdateFast
    use ml_interface, only: ml_calcRHS
    use ml_memInterface, only: ml_memAddToVars
 
