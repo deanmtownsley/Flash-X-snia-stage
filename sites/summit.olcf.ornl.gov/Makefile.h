@@ -4,11 +4,13 @@ ifdef OLCF_GCC_ROOT
     PE_ENV=gnu
 else ifdef OLCF_PGI_ROOT
     PE_ENV=pgi
+else ifdef OLCF_NVHPC_ROOT
+    PE_ENV=nvhpc
 else ifdef OLCF_XL_ROOT
     PE_ENV=ibm
 else
     $(error Cannot determine compiler module. \
-	    Load the gcc, pgi, or xl module---e.g. "module load gcc" \
+	    Load the gcc, pgi, nvhpc, or xl module---e.g. "module load gcc" \
 	    ---or specify a specific makefile with the setup argument---e.g. "-makefile=gcc")
 endif
 
@@ -165,6 +167,50 @@ else ifdef OLCF_PGI_ROOT
     LIB_DEBUG    = -pgc++libs
 
     LIB_OACC     = -acc -ta=tesla:cc70,ptxinfo -acclibs
+    LIB_MASS     =
+
+
+else ifdef OLCF_NVHPC_ROOT
+
+    # pre-processor flag
+    MDEFS        =
+    PP           = -D
+
+    # generic flags
+    OPENMP       = -mp=multicore
+
+    OPT_FLAGS    = -g -O2 -Mpreprocess
+    TEST_FLAGS   = -g -O1 -Mpreprocess
+    DEBUG_FLAGS  = -g -O0 -Mpreprocess -Mbounds -Mnoopenmp
+
+    # Fortran-specific flags
+    OPT_FFLAGS   =
+    TEST_FFLAGS  =
+    DEBUG_FFLAGS =
+
+    F90FLAGS     = -r8 -i4
+    f90FLAGS     = ${F90FLAGS}
+    F77FLAGS     = -r8 -i4 -Mfixed
+    f77FLAGS     = ${F77FLAGS}
+
+    FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+    FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+
+    # C-specific flags
+    OPT_CFLAGS   =
+    TEST_CFLAGS  =
+    DEBUG_CFLAGS =
+
+    CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+    CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+
+    # Linker flags
+    LIB_OPT      = -pgc++libs
+    LIB_TEST     = -pgc++libs
+    LIB_DEBUG    = -pgc++libs
+
+    LIB_OACC     = -acc -gpu=cc70,ptxinfo -acclibs
+    LIB_OMP_OL   = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
     LIB_MASS     =
 
 else ifdef OLCF_XL_ROOT
