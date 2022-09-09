@@ -178,7 +178,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
            
-           call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
+           nullify(Utemp)
+           Utemp => hy_starState
+           call Eos_wrapped(MODE_DENS_EI,limits,Utemp)
+           nullify(Utemp)
            call Timers_stop("eos")
            
            !Finally update the state
@@ -326,7 +329,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               call Timers_start("eos")
               
-              call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
+              nullify(Utemp)
+              Utemp => hy_starState
+              call Eos_wrapped(MODE_DENS_EI,limits,Utemp)
+              nullify(Utemp)
               
               call Timers_stop("eos")
               
