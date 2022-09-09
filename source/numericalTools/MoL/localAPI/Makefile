@@ -1,6 +1,7 @@
 MoL += ml_interface.o	\
 	   ml_init.o		\
 	   ml_finalize.o	\
+		ml_initTableau.o	\
 	   ml_advance.o		\
 	   ml_calcRHS.o		\
 	   ml_error.o		\

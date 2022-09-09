@@ -29,10 +29,10 @@
 !!***
 subroutine ml_init()
    use MoL_data, only: MoL_nscratch
-   use mr_data, only: FE, FI, FF, FAST_INITIAL, mr_slowMethod, mr_fastMethod, &
-                      mr_nsubcycle, mr_nstages_fast, mr_nstages_slow
-   use erk, only: erk_init
-   use gark, only: gark_init
+   use ml_data, only: FE, FI, FF, FAST_INITIAL, ml_slowMethod, ml_fastMethod, &
+                      ml_nsubcycle, ml_nstages_fast, ml_nstages_slow
+
+   use ml_interface, only: ml_initTableau
 
    use RuntimeParameters_interface, only: RuntimeParameters_get
 
@@ -49,32 +49,31 @@ subroutine ml_init()
    call RuntimeParameters_get("mr_slowMethod", slowMethod_str)
    call RuntimeParameters_get("mr_fastMethod", fastMethod_str)
 
-   mr_slowMethod = trim(slowMethod_str)
-   mr_fastMethod = trim(fastMethod_str)
+   ml_slowMethod = trim(slowMethod_str)
+   ml_fastMethod = trim(fastMethod_str)
 
-   call RuntimeParameters_get("mr_nsubcycle", mr_nsubcycle)
+   call RuntimeParameters_get("mr_nsubcycle", ml_nsubcycle)
 
-   call gark_init
-   call erk_init
+   call ml_initTableau()
 
    ! Setup RHS indexing
-   allocate (FE(mr_nstages_slow))
-   allocate (FI(mr_nstages_slow))
-   allocate (FF(mr_nstages_fast))
+   allocate (FE(ml_nstages_slow))
+   allocate (FI(ml_nstages_slow))
+   allocate (FF(ml_nstages_fast))
 
    FE = MOL_INVALID; FI = MOL_INVALID; FF = MOL_INVALID
 
    ! Uses MOL_RHS as first index
-   do i = 1, mr_nstages_slow, 2
+   do i = 1, ml_nstages_slow, 2
       FE(i) = MOL_RHS + i - 1
       FI(i) = MOL_RHS + i
    end do ! i
 
-   FAST_INITIAL = FI(mr_nstages_slow - 1) + 1
+   FAST_INITIAL = FI(ml_nstages_slow - 1) + 1
 
-   do i = 1, mr_nstages_fast
+   do i = 1, ml_nstages_fast
       FF(i) = FAST_INITIAL + i
    end do ! i
 
-   MoL_nscratch = mr_nstages_slow + mr_nstages_fast
+   MoL_nscratch = ml_nstages_slow + ml_nstages_fast
 end subroutine ml_init

@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/ERK/ml_finalize
+!!****if* source/numericalTools/MoL/MoLMain/ERK/ml_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,28 +12,32 @@
 !!  limitations under the License.
 !!
 !!  NAME
-!!
-!!      ml_finalize
+!!    ml_data
 !!
 !!  SYNOPSIS
-!!
-!!      call ml_finalize()
+!!    use ml_data
 !!
 !!  DESCRIPTION
+!!    Stores data for the explicit Runge-Kutta (ERK) integrator
 !!
-!!      Finalize a method of lines unit implementation
-!!
-!!  ARGUMENTS
-!!
+!!  NOTES
 !!
 !!***
-subroutine ml_finalize()
-   use ml_data, only: ml_A, ml_b, ml_c, ml_K
+module ml_data
 
    implicit none
 
-   if (allocated(ml_A)) deallocate (ml_A)
-   if (allocated(ml_b)) deallocate (ml_b)
-   if (allocated(ml_c)) deallocate (ml_c)
-   if (allocated(ml_K)) deallocate (ml_K)
-end subroutine ml_finalize
+   character(len=:), allocatable, save :: ml_method
+
+   integer, save :: ml_order
+   integer, save :: ml_stages
+
+   ! RK tableau
+   real, dimension(:, :), allocatable, target, save :: ml_A
+   real, dimension(:), allocatable, target, save :: ml_b
+   real, dimension(:), allocatable, target, save :: ml_c
+
+   ! Indices for intermediate RHS states
+   integer, allocatable, save :: ml_K(:)
+
+end module ml_data

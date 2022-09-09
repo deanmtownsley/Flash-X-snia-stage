@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/ERK/erk_data
+!!****f* source/numericalTools/MoL/localAPI/ml_initTableau
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,32 +12,23 @@
 !!  limitations under the License.
 !!
 !!  NAME
-!!    erk_data
+!!
+!!      ml_initTableau
 !!
 !!  SYNOPSIS
-!!    use erk_data
+!!
+!!      call ml_initTableau()
 !!
 !!  DESCRIPTION
-!!    Stores data for the explicit Runge-Kutta (ERK) integrator
 !!
-!!  NOTES
+!!      Initialize the tableau(s) used by the selected MoL integrator
+!!
+!!  ARGUMENTS
+!!
 !!
 !!***
-module erk_data
-
+subroutine ml_initTableau()
    implicit none
 
-   character(len=:), allocatable, save :: erk_method
-
-   integer, save :: erk_order
-   integer, save :: erk_stages
-
-   ! RK tableau
-   real, dimension(:, :), allocatable, target, save :: erk_A
-   real, dimension(:), allocatable, target, save :: erk_b
-   real, dimension(:), allocatable, target, save :: erk_c
-
-   ! Indices for intermediate RHS states
-   integer, allocatable, save :: erk_K(:)
-
-end module erk_data
+   return
+end subroutine ml_initTableau

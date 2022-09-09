@@ -43,6 +43,11 @@ module ml_interface
       end subroutine ml_finalize
    end interface
 
+   interface
+      subroutine ml_initTableau
+      end subroutine ml_initTableau
+   end interface
+
     !! ===================== !!
     !!  Advance a time step  !!
     !! ===================== !!
