@@ -59,6 +59,10 @@ subroutine Simulation_molImplicitUpdate(t, dt)
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
 
+   ! LAPACK tri-diagonal matrix equation solver
+   ! https://netlib.org/lapack/explore-html/d4/d62/group__double_g_tsolve_ga2bf93f2ddefa5e671866eb2191dc19d4.html
+   external :: dgtsv
+
    nullify (vars)
 
    call Grid_getTileIterator(itor, LEAF)
