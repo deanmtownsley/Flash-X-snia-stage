@@ -52,6 +52,9 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
        &hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
+
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
+       Grid_getCellVolumes
   
   implicit none
 
@@ -85,6 +88,10 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   integer ::  ind
   real :: dhdt
+  integer, dimension(1:MDIM) :: loGC, hiGC
+  
+  loGC(:) = blkLimitsGC(LOW,:)
+  hiGC(:) = blkLimitsGC(HIGH,:)
   
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
@@ -93,7 +100,9 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   @M hy_map_fl
-  @M hy_map_geom
+  if (hy_geometry /= CARTESIAN) then
+     @M hy_fill_geom
+  endif
   
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
@@ -122,10 +131,6 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
            !!          call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
            
            facM = 1.0; facP = 1.0; Sgeo = 0.0
-           
-           
-           
-           ! Construct vectors of conserved variables
            
            ! Get geometric factors and sources
            ! Get gravitational source terms

@@ -36,9 +36,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        Grid_fillGuardCells, Grid_getMaxRefinement, &
        Grid_correctFluxData_xtra, Grid_putFluxData_block, &
        Grid_getFluxCorrData_block,Grid_renormAbundance
-  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
-       Grid_getCellVolumes
-  
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
@@ -171,10 +168,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_map_scr_ptrs
         @M mapLimits(blkLimits,blkLimitsGC,locLimits,locLimitsGC)
 
-        if (hy_geometry /= CARTESIAN) then
-           @M hy_fill_geom
-        endif
-        
         ng=NGUARD-1
         @M hy_setLims(ng)
             
