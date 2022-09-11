@@ -53,9 +53,6 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
 
-  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
-       Grid_getCellVolumes
-  
   implicit none
 
 #include "Simulation.h"
@@ -100,9 +97,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   @M hy_map_fl
-  if (hy_geometry /= CARTESIAN) then
-     @M hy_fill_geom
-  endif
+  @M hy_map_geom
   
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)

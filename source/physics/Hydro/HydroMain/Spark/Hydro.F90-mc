@@ -41,6 +41,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_tile,         ONLY : Grid_tile_t
   use Grid_iterator,     ONLY : Grid_iterator_t
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
+       Grid_getCellVolumes
+  
   
   implicit none
   
@@ -163,6 +166,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         loGC(:) = blkLimitsGC(LOW,:)
         hiGC(:) = blkLimitsGC(HIGH,:)
+        if (hy_geometry /= CARTESIAN) then
+           @M hy_fill_geom
+        endif
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
