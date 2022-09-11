@@ -211,9 +211,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
-           if (hy_fluxCorrect) then 
-              @M hy_addFluxes
-           end if
            
            ! Now update solution based on conservative fluxes
            ! See select_RK_scheme() for explicit outline of C1, C2, & C3
@@ -225,6 +222,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
            call Timers_stop("updateSoln")
+           if (hy_fluxCorrect) then 
+              @M hy_addFluxes
+           end if
            
 #if NSPECIES>0
            !Properly normalize species after the update

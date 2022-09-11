@@ -77,7 +77,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   real, dimension(NFLUXES) :: U0, Ustar,V0 
 
   real :: dx, dy, dz
-  real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
+
   real :: flx_weight1, flx_weight2
   real :: eint, ekin, emag
   ! Geometry factors
@@ -85,7 +85,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   integer ::  ind
   real :: dhdt
-
+  
 
   dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
   dhdt = minval(hy_del(1:NDIM))/(coeffs(3)*dt)
@@ -98,113 +98,167 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,leve
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-             V0(:) = hy_tmpState(:,i,j,k)
-             Vstar => hy_starState(:,i,j,k)
-             U0(HY_MASS)            = V0(HY_MASS)
-             U0(HY_XMOM:HY_ZMOM)    = V0(HY_XMOM:HY_ZMOM)
-             U0(HY_ENER)            = V0(HY_ENER)
-             U0(HY_NUM_FLUX+1:NFLUXES) = V0(HY_NUM_FLUX+1:NFLUXES)
-             Ustar(HY_MASS)         = Vstar(DENS_VAR)
-             Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
-             Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
-             Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
-             
+           V0(:) = hy_tmpState(:,i,j,k)
+           Vstar => hy_starState(:,i,j,k)
+           U0(HY_MASS)            = V0(HY_MASS)
+           U0(HY_XMOM:HY_ZMOM)    = V0(HY_XMOM:HY_ZMOM)
+           U0(HY_ENER)            = V0(HY_ENER)
+           U0(HY_NUM_FLUX+1:NFLUXES) = V0(HY_NUM_FLUX+1:NFLUXES)
+           Ustar(HY_MASS)         = Vstar(DENS_VAR)
+           Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
+           Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
+           Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
+           
 #ifdef SPARK_GLM
-             U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
-             U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
-                  V0(MAGX_VAR:MAGZ_VAR))
-             U0(HY_FPSI) = V0(PSIB_VAR)
-             Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
-             Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
-                  Vstar(MAGX_VAR:MAGZ_VAR))
-             Ustar(HY_FPSI) = Vstar(PSIB_VAR)
+           U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
+           U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
+                V0(MAGX_VAR:MAGZ_VAR))
+           U0(HY_FPSI) = V0(PSIB_VAR)
+           Ustar(HY_FMGX:HY_FMGZ) = Vstar(MAGX_VAR:MAGZ_VAR)
+           Ustar(HY_ENER) = Ustar(HY_ENER)+0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),&
+                Vstar(MAGX_VAR:MAGZ_VAR))
+           Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
-          call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-          nullify(Vstar)
-        
-       enddo !i
+           !!          call update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
+           
+           facM = 1.0; facP = 1.0; Sgeo = 0.0
+           
+           
+           
+           ! Construct vectors of conserved variables
+           
+           ! Get geometric factors and sources
+           ! Get gravitational source terms
+           call geoFacs(i,j,k,facM,facP,Sgeo,Ustar,Vstar,dx)
+           call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
+           
+           ! Sum total source terms
+           Stot = Sgeo + Shy_grv
+           
+           ! Now update conserved vector with flux gradients
+           Ustar = coeffs(1)*U0 + coeffs(2)*Ustar +coeffs(3)*( &
+                -dt/dx*(facP*hy_flx(:,i+1,j,k)-facM*hy_flx(:,i,j,k)) &
+#if NDIM > 1
+                -dt/dy*(hy_fly(:,i  ,j+1,k  )-hy_fly(:,i  ,j  ,k  )) &
+#if NDIM ==3
+                -dt/dz*(hy_flz(:,i  ,j  ,k+1)-hy_flz(:,i  ,j  ,k  )) &
+#endif
+#endif
+                +dt*Stot)
+           ! print *, "Ustar" , "(",i,j,k,") ",Ustar
+           ! Update primitive variables
+           emag = 0.0
+#ifdef SPARK_GLM
+           !print *, coeffs(1)*U0(HY_FPSI), coeffs(2)*Ustar(HY_FPSI), Fp(HY_FPSI)-Fm(HY_FPSI)
+           Vstar(MAGX_VAR:MAGZ_VAR) = Ustar(HY_FMGX:HY_FMGZ)
+           Vstar(PSIB_VAR) = Ustar(HY_FPSI)*exp(-hy_alphaGLM*hy_C_hyp/dhdt)
+           emag = 0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),Vstar(MAGX_VAR:MAGZ_VAR))
+           Vstar(MAGP_VAR) = emag
+           Ustar(HY_ENER) = Ustar(HY_ENER) - emag
+#endif
+           
+           Vstar(DENS_VAR)          = max(Ustar(HY_MASS),hy_smalldens)
+           Vstar(VELX_VAR:VELZ_VAR) = Ustar(HY_XMOM:HY_ZMOM)/Vstar(DENS_VAR)
+           Vstar(ENER_VAR)          = max(hy_smallE,Ustar(HY_ENER)/Vstar(DENS_VAR))
+           
+           ekin = .5*dot_product(Vstar(VELX_VAR:VELZ_VAR),Vstar(VELX_VAR:VELZ_VAR))
+           Vstar(EINT_VAR) = max(hy_smallE,Vstar(ENER_VAR)-ekin)
+           
+           ! Divide partial densities by new mass densities to finalize
+           ! update of new mass fractions.
+           Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
+#ifdef GPOT_VAR
+           ! Now extrapolate gravity to intermediate time state
+           ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up
+           Vstar(GPOT_VAR) = coeffs(1)*V0(GPOT_VAR) + coeffs(2)*Vstar(GPOT_VAR) &
+                + coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
+#endif
+           
+           nullify(Vstar)
+           
+        enddo !i
      enddo !j
   enddo !k
   nullify(hy_grav)
   @M hy_release_geom
-
+  
 contains
   !!Account for multiplicative factors at each cell face to account for different 
- !!geometries.
-   subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V,dx)
-     implicit none
-     integer, intent(IN) :: i,j,k
-     real, intent(OUT) :: facM, facP
-     real, dimension(NFLUXES), intent(out) :: Sgeo
-     real, intent(IN) :: U(:),dx
-     real, pointer, intent(IN) :: V(:)
-     real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
-     real    :: pmagStar, xmagStar, zmagStar
-     integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
-     integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
-     integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-     real    :: alpha, dx_sph
-     if (hy_geometry == CARTESIAN) then
-        facM = 1.0; facP = 1.0; Sgeo = 0.0
-        return
-     endif
-     select case(hy_geometry) ! First, select whether y or z is phi-direction
-     case(CYLINDRICAL)
-        MOM_PHI = HY_ZMOM
-        MOM_PHI_FLUX = HY_ZMOM
-        MOM_ZI       = HY_YMOM
-        MOM_ZI_FLUX  = HY_YMOM
+  !!geometries.
+  subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V,dx)
+    implicit none
+    integer, intent(IN) :: i,j,k
+    real, intent(OUT) :: facM, facP
+    real, dimension(NFLUXES), intent(out) :: Sgeo
+    real, intent(IN) :: U(:),dx
+    real, pointer, intent(IN) :: V(:)
+    real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
+    real    :: pmagStar, xmagStar, zmagStar
+    integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
+    integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
+    integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
+    real    :: alpha, dx_sph
+    if (hy_geometry == CARTESIAN) then
+       facM = 1.0; facP = 1.0; Sgeo = 0.0
+       return
+    endif
+    select case(hy_geometry) ! First, select whether y or z is phi-direction
+    case(CYLINDRICAL)
+       MOM_PHI = HY_ZMOM
+       MOM_PHI_FLUX = HY_ZMOM
+       MOM_ZI       = HY_YMOM
+       MOM_ZI_FLUX  = HY_YMOM
 #ifdef SPARK_GLM
-        MAG_PHI      = HY_MAGZ
+       MAG_PHI      = HY_MAGZ
 #endif
-        alpha = 1.
-     case(POLAR)
-        MOM_PHI      = HY_YMOM
-        MOM_PHI_FLUX = HY_YMOM
-        MOM_ZI       = HY_ZMOM
-        MOM_ZI_FLUX  = HY_ZMOM
+       alpha = 1.
+    case(POLAR)
+       MOM_PHI      = HY_YMOM
+       MOM_PHI_FLUX = HY_YMOM
+       MOM_ZI       = HY_ZMOM
+       MOM_ZI_FLUX  = HY_ZMOM
 #ifdef SPARK_GLM
-        MAG_PHI      = HY_MAGY
+       MAG_PHI      = HY_MAGY
 #endif
-        alpha = 1.
-     case(SPHERICAL)
-        MOM_PHI      = HY_ZMOM
-        MOM_PHI_FLUX = HY_ZMOM
-        MOM_THT      = HY_YMOM
-        MOM_THT_FLUX = HY_YMOM
-        dx_sph = (hy_xRight(i)**3 - hy_xLeft(i)**3) / (3.*hy_xCenter(i)**2)
-        alpha  = 2.
-     end select
-   
-     facM = hy_farea(i  ,j,k)*dx/hy_cvol(i,j,k)
-     facP = hy_farea(i+1,j,k)*dx/hy_cvol(i,j,k)
-
-     Sgeo = 0.
-     !! Calculate geometrical source terms.  See S&O 75.
-     Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / hy_xCenter(i)!T phi,phi
-     Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / hy_xCenter(i)!T phi,r
-
+       alpha = 1.
+    case(SPHERICAL)
+       MOM_PHI      = HY_ZMOM
+       MOM_PHI_FLUX = HY_ZMOM
+       MOM_THT      = HY_YMOM
+       MOM_THT_FLUX = HY_YMOM
+       dx_sph = (hy_xRight(i)**3 - hy_xLeft(i)**3) / (3.*hy_xCenter(i)**2)
+       alpha  = 2.
+    end select
+    
+    facM = hy_farea(i  ,j,k)*dx/hy_cvol(i,j,k)
+    facP = hy_farea(i+1,j,k)*dx/hy_cvol(i,j,k)
+    
+    Sgeo = 0.
+    !! Calculate geometrical source terms.  See S&O 75.
+    Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / hy_xCenter(i)!T phi,phi
+    Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / hy_xCenter(i)!T phi,r
+    
 #ifdef SPARK_GLM
-     ! P* is the total Pressure
-     ! This presently does not work for POLAR coordinates
-     Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ hy_xCenter(i)
-     Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / hy_xCenter(i)
-
-     Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / hy_xCenter(i) !O phi,r
+    ! P* is the total Pressure
+    ! This presently does not work for POLAR coordinates
+    Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ hy_xCenter(i)
+    Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / hy_xCenter(i)
+    
+    Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / hy_xCenter(i) !O phi,r
 #endif
-     Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
-
-     if (hy_geometry == SPHERICAL) then
-        Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / hy_xCenter(i)
-        Sgeo = Sgeo*dx/dx_sph
-     endif
-     if (hy_xCenter(i) < 0.0) then
-        facM = 0.
-        facP = 0.
-        Sgeo = 0.
-     end if
-   end subroutine geoFacs
-
+    Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
+    
+    if (hy_geometry == SPHERICAL) then
+       Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / hy_xCenter(i)
+       Sgeo = Sgeo*dx/dx_sph
+    endif
+    if (hy_xCenter(i) < 0.0) then
+       facM = 0.
+       facP = 0.
+       Sgeo = 0.
+    end if
+  end subroutine geoFacs
+  
 
   !!Calculate source terms due to gravity.
   subroutine gravSources(U,g,S)
@@ -219,94 +273,5 @@ contains
     S(HY_ENER) = dot_product(U(HY_XMOM:HY_ZMOM),g(:))
 #endif
   end subroutine gravSources
-
-
-
-subroutine update_solution(i,j,k,coeffs,dt, dtOld, dx, dy, dz, dhdt)
-  use Hydro_data, only : hy_alphaGLM,hy_C_hyp, &
-       hy_smalldens, hy_smallE
-  use Hydro_data, only :  hya_flx, hya_fly, hya_flz, hya_starState,hya_tmpState,hya_grav
-  implicit none
-  integer, intent(in) :: i,j,k
-  real, dimension(3), intent(IN) :: coeffs
-  real, intent(in) :: dx, dy, dz
-  real, intent(IN) :: dt, dtOld, dhdt
-  real, pointer :: Fm(:), Fp(:), Gm(:), Gp(:), Hm(:), Hp(:)
-  real :: facM, facP
-  real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
-  real :: eint, ekin, emag
-  !$omp declare target
-
-
-  ! Point to the correct fluxes
-  Fm => hy_flx(:,i  ,j  ,k  )
-  Fp => hy_flx(:,i+1,j  ,k  )
-#if NDIM > 1
-  Gm => hy_fly(:,i  ,j  ,k  )
-  Gp => hy_fly(:,i  ,j+1,k  )
-#endif
-#if NDIM ==3
-  Hm => hy_flz(:,i  ,j  ,k  )
-  Hp => hy_flz(:,i  ,j  ,k+1)
-#endif
-
-  ! Construct vectors of conserved variables
-
-  ! Get geometric factors and sources
-   facM = 1.0; facP = 1.0; Sgeo = 0.0
-   
-  ! Get gravitational source terms
-  call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
-
-  ! Sum total source terms
-  Stot = Sgeo + Shy_grv
-
-  ! Now update conserved vector with flux gradients
-  Ustar = coeffs(1)*U0 + coeffs(2)*Ustar +coeffs(3)*( &
-        -dt/dx*(facP*Fp-facM*Fm) &
-#if NDIM > 1
-        -dt/dy*(Gp-Gm) &
-#if NDIM ==3
-        -dt/dz*(Hp-Hm) &
-#endif
-#endif
-        +dt*Stot)
-! print *, "Ustar" , "(",i,j,k,") ",Ustar
-  ! Update primitive variables
-  emag = 0.0
-#ifdef SPARK_GLM
-  !print *, coeffs(1)*U0(HY_FPSI), coeffs(2)*Ustar(HY_FPSI), Fp(HY_FPSI)-Fm(HY_FPSI)
-  Vstar(MAGX_VAR:MAGZ_VAR) = Ustar(HY_FMGX:HY_FMGZ)
-  Vstar(PSIB_VAR) = Ustar(HY_FPSI)*exp(-hy_alphaGLM*hy_C_hyp/dhdt)
-  emag = 0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),Vstar(MAGX_VAR:MAGZ_VAR))
-  Vstar(MAGP_VAR) = emag
-  Ustar(HY_ENER) = Ustar(HY_ENER) - emag
-#endif
-
-  Vstar(DENS_VAR)          = max(Ustar(HY_MASS),hy_smalldens)
-  Vstar(VELX_VAR:VELZ_VAR) = Ustar(HY_XMOM:HY_ZMOM)/Vstar(DENS_VAR)
-  Vstar(ENER_VAR)          = max(hy_smallE,Ustar(HY_ENER)/Vstar(DENS_VAR))
-
-  ekin = .5*dot_product(Vstar(VELX_VAR:VELZ_VAR),Vstar(VELX_VAR:VELZ_VAR))
-  Vstar(EINT_VAR) = max(hy_smallE,Vstar(ENER_VAR)-ekin)
-
-  ! Divide partial densities by new mass densities to finalize
-  ! update of new mass fractions.
-  Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
-#ifdef GPOT_VAR
-  ! Now extrapolate gravity to intermediate time state
-  ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up
-  Vstar(GPOT_VAR) = coeffs(1)*V0(GPOT_VAR) + coeffs(2)*Vstar(GPOT_VAR) &
-        + coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
-#endif
-  ! Release pointers
-  nullify(Fm)
-  nullify(Fp)
-  nullify(Gm)
-  nullify(Gp)
-  nullify(Hm)
-  nullify(Hp)
-
-end subroutine update_solution
-
+  
 end subroutine hy_rk_updateSoln
