@@ -1,8 +1,12 @@
-# Flash-X makefile definitions for GCE can be setup by using the settings in env-gce.sh file
+# Flash-X makefile definitions for GCE/skylake/UB20 for GCC compilers
+#
+# Load the software environment by sourcing
+#    /nfs/gce/projects/FLASH5/software/setup_current_gcc_mpich_skylake.sh
+#
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/amrex_install/$(NDIM)D
+AMREX_PATH=/nfs/gce/projects/FLASH5/software/gcc_current_skylake/AMReX_$(NDIM)D
 MILHOJA_PATH=/nfs/gce/projects/FLASH5/software/gcc_current_skylake/Milhoja_$(NDIM)D
 
 #----------------------------------------------------------------------------
