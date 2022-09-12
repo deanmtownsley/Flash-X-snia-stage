@@ -80,7 +80,7 @@
 !!REORDER(5): gr_xflx_[yz]face, gr_yflx_[xz]face, gr_zflx_[xy]face
 
 #include "Simulation.h"
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFluxDensity)
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
   use Grid_interface, ONLY : Grid_getCellFaceAreas
 
   use Grid_tile, ONLY : Grid_tile_t
@@ -111,6 +111,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
+  logical, intent(IN) :: add
   logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
 
   real,pointer, dimension(:,:,:,:) :: fluxx,fluxy,fluxz
@@ -146,8 +147,12 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
   logical                  :: loCase24, hiCase24
   real,allocatable,target :: faceAreas(:,:,:)
   real,pointer            :: areaLeft(:,:,:)
+  real                    :: wt
 
   level = blockDesc % level
+
+  wt=0.0
+  if(add)wt=1.0
 
   sx = NGUARD+1
   sy = NGUARD*K2D+1
@@ -179,18 +184,20 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
      
      
      if(xtrue) then
-        flux_x(:nfluxes,1,:,:,blockID) = fluxx(:,sx,sy:ey,sz:ez)
-        flux_x(:nfluxes,2,:,:,blockID) = fluxx(:,ex+1,sy:ey,sz:ez)
-        gr_xflx(:,1,:,:,blockID) = fluxx(:,sx+1,sy:ey,sz:ez)
-        gr_xflx(:,2,:,:,blockID) = fluxx(:,ex,sy:ey,sz:ez)
+        flux_x(:nfluxes,1,:,:,blockID) = fluxx(:,sx,sy:ey,sz:ez) + wt*flux_x(:nfluxes,1,:,:,blockID)
+        flux_x(:nfluxes,2,:,:,blockID) = fluxx(:,ex+1,sy:ey,sz:ez) + wt*flux_x(:nfluxes,2,:,:,blockID)
+        gr_xflx(:,1,:,:,blockID) = fluxx(:,sx+1,sy:ey,sz:ez) + wt*gr_xflx(:,1,:,:,blockID)
+        gr_xflx(:,2,:,:,blockID) = fluxx(:,ex,sy:ey,sz:ez)+wt*gr_xflx(:,2,:,:,blockID)
 #ifdef FLASH_HYDRO_UNSPLIT
         !! Store transverse components for the faces in global scratch arrays.
 #if NDIM >=2
-        gr_xflx_yface(:,3:NXB-1, 1     ,:,blockID) = fluxx(:,sx+2:ex-1,sy,sz:ez)
-        gr_xflx_yface(:,3:NXB-1, 2     ,:,blockID) = fluxx(:,sx+2:ex-1,ey,sz:ez)
+        gr_xflx_yface(:,3:NXB-1, 1     ,:,blockID) = fluxx(:,sx+2:ex-1,sy,sz:ez) +wt*&
+             gr_xflx_yface(:,3:NXB-1, 1     ,:,blockID)
+        gr_xflx_yface(:,3:NXB-1, 2     ,:,blockID) = fluxx(:,sx+2:ex-1,ey,sz:ez)+ wt*&
+             gr_xflx_yface(:,3:NXB-1, 2     ,:,blockID)
 #if NDIM>2
-        gr_xflx_zface(:,3:NXB-1,2:NYB-1,1,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,sz)
-        gr_xflx_zface(:,3:NXB-1,2:NYB-1,2,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,ez)
+        gr_xflx_zface(:,3:NXB-1,2:NYB-1,1,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,sz) +wt*&
+        gr_xflx_zface(:,3:NXB-1,2:NYB-1,2,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,ez) +wt*&
 #endif
 #endif
 #endif
@@ -198,17 +205,25 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
      
 #if NDIM>1
      if(ytrue) then
-        flux_y(:nfluxes,:,1,:,blockID)  = fluxy(:,sx:ex,sy,sz:ez)
-        flux_y(:nfluxes,:,2,:,blockID)  = fluxy(:,sx:ex,ey+1,sz:ez)
-        gr_yflx(:,:,1,:,blockID) =  fluxy(:,sx:ex,sy+1,sz:ez)
-        gr_yflx(:,:,2,:,blockID) =  fluxy(:,sx:ex,ey,sz:ez)
+        flux_y(:nfluxes,:,1,:,blockID)  = fluxy(:,sx:ex,sy,sz:ez)  +wt*&
+             flux_y(:nfluxes,:,1,:,blockID)
+        flux_y(:nfluxes,:,2,:,blockID)  = fluxy(:,sx:ex,ey+1,sz:ez) +wt*&
+             flux_y(:nfluxes,:,2,:,blockID)
+        gr_yflx(:,:,1,:,blockID) =  fluxy(:,sx:ex,sy+1,sz:ez) +wt*&
+             gr_yflx(:,:,1,:,blockID)
+        gr_yflx(:,:,2,:,blockID) =  fluxy(:,sx:ex,ey,sz:ez) +wt*&
+             gr_yflx(:,:,2,:,blockID)
 #ifdef FLASH_HYDRO_UNSPLIT
         !! Store transverse components for the faces in global scratch arrays.
-        gr_yflx_xface(:,1,3:NYB-1,:,blockID) = fluxy(:,sx,sy+2:ey-1,sz:ez)
-        gr_yflx_xface(:,2,3:NYB-1,:,blockID) = fluxy(:,ex,sy+2:ey-1,sz:ez)
+        gr_yflx_xface(:,1,3:NYB-1,:,blockID) = fluxy(:,sx,sy+2:ey-1,sz:ez) +wt*&
+             gr_yflx_xface(:,1,3:NYB-1,:,blockID)
+        gr_yflx_xface(:,2,3:NYB-1,:,blockID) = fluxy(:,ex,sy+2:ey-1,sz:ez) +wt*&
+             gr_yflx_xface(:,2,3:NYB-1,:,blockID)
 #if NDIM>2
-        gr_yflx_zface(:,2:NXB-1,3:NYB-1,1,blockID) = fluxy(:,sx+1:ex-1,sy+2:ey-1,sz)
-        gr_yflx_zface(:,2:NXB-1,3:NYB-1,2,blockID) = fluxy(:,sx+1:ex-1,sy+2:ey-1,ez)
+        gr_yflx_zface(:,2:NXB-1,3:NYB-1,1,blockID) = fluxy(:,sx+1:ex-1,sy+2:ey-1,sz) +wt*&
+             gr_yflx_zface(:,2:NXB-1,3:NYB-1,1,blockID)
+        gr_yflx_zface(:,2:NXB-1,3:NYB-1,2,blockID) = fluxy(:,sx+1:ex-1,sy+2:ey-1,ez) +wt*&
+             gr_yflx_zface(:,2:NXB-1,3:NYB-1,2,blockID)
 #endif
 #endif
      end if
@@ -216,17 +231,25 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
 
 #if NDIM>2
      if(ztrue) then
-        flux_z(:nfluxes,:,:,1,blockID) = fluxz(:,sx:ex,sy:ey,sz)
-        flux_z(:nfluxes,:,:,2,blockID) = fluxz(:,sx:ex,sy:ey,ez+1)
-        gr_zflx(:,:,:,1,blockID) = fluxz(:,sx:ex,sy:ey,sz+1)
-        gr_zflx(:,:,:,2,blockID) = fluxz(:,sx:ex,sy:ey,ez)
+        flux_z(:nfluxes,:,:,1,blockID) = fluxz(:,sx:ex,sy:ey,sz) +wt*&
+             flux_z(:nfluxes,:,:,1,blockID)
+        flux_z(:nfluxes,:,:,2,blockID) = fluxz(:,sx:ex,sy:ey,ez+1) +wt*&
+             flux_z(:nfluxes,:,:,2,blockID)
+        gr_zflx(:,:,:,1,blockID) = fluxz(:,sx:ex,sy:ey,sz+1) +wt*&
+             gr_zflx(:,:,:,1,blockID)
+        gr_zflx(:,:,:,2,blockID) = fluxz(:,sx:ex,sy:ey,ez) +wt*&
+             gr_zflx(:,:,:,2,blockID)
 #ifdef FLASH_HYDRO_UNSPLIT
         !! Store transverse components for the faces in global scratch arrays.
-        gr_zflx_xface(:, 1,      : ,3:NZB-1,blockID) = fluxz(:,sx,sy:ey,sz+2:ez-1)
-        gr_zflx_xface(:, 2,      : ,3:NZB-1,blockID) = fluxz(:,ex,sy:ey,sz+2:ez-1)
+        gr_zflx_xface(:, 1,      : ,3:NZB-1,blockID) = fluxz(:,sx,sy:ey,sz+2:ez-1) +wt*&
+             gr_zflx_xface(:, 1,      : ,3:NZB-1,blockID)
+        gr_zflx_xface(:, 2,      : ,3:NZB-1,blockID) = fluxz(:,ex,sy:ey,sz+2:ez-1) +wt*&
+             gr_zflx_xface(:, 2,      : ,3:NZB-1,blockID)
 
-        gr_zflx_yface(:,2:NXB-1, 1 ,3:NZB-1,blockID) = fluxz(:,sx+1:ex-1,sy,sz+2:ez-1)
-        gr_zflx_yface(:,2:NXB-1, 2 ,3:NZB-1,blockID) = fluxz(:,sx+1:ex-1,ey,sz+2:ez-1)
+        gr_zflx_yface(:,2:NXB-1, 1 ,3:NZB-1,blockID) = fluxz(:,sx+1:ex-1,sy,sz+2:ez-1) +wt*&
+             gr_zflx_yface(:,2:NXB-1, 1 ,3:NZB-1,blockID)
+        gr_zflx_yface(:,2:NXB-1, 2 ,3:NZB-1,blockID) = fluxz(:,sx+1:ex-1,ey,sz+2:ez-1) +wt*&
+             gr_zflx_yface(:,2:NXB-1, 2 ,3:NZB-1,blockID)
 #endif
      end if
 

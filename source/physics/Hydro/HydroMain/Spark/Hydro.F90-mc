@@ -223,6 +223,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then 
               @M hy_addFluxes
+              call Grid_putFluxData_block(tileDesc,&
+                   hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),&
+                   addFlux_array(stage))
            end if
            
 #if NSPECIES>0
@@ -246,8 +249,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
-        if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
-             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:)) 
+!!$        if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
+!!$             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
         call Timers_stop("Offloaded Section")
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -420,7 +423,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do!stage loop
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:))
+                blkLimits(LOW,:),addFlux_array(stage))
 
            @M hy_release_scr_ptrs
            call tileDesc%releaseDataPtr(Uin,CENTER)
