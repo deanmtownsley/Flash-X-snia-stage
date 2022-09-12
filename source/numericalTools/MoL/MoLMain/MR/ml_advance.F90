@@ -37,7 +37,7 @@
 subroutine ml_advance(t, dt)
    use ml_data, only: ml_nstages_slow, ml_nstages_fast, FAST_INITIAL, &
                       FF, FE, FI, ml_nsubcycle, ml_gamBar, ml_wBar, ml_cS, ml_cF, ml_bF, ml_AF, ml_gamK, ml_wK, ml_kmax
-   use MoL_functions
+   use ml_functions, only: ml_implicitUpdate, ml_postUpdate, ml_postUpdateFast
    use ml_interface, only: ml_calcRHS
    use ml_memInterface, only: ml_memAddToVars, ml_memCopy
    use gark, only: gamTau, wTau
@@ -87,11 +87,11 @@ subroutine ml_advance(t, dt)
             call ml_memAddToVars(MOL_EVOLVED, 1d0, sS - 1, srcsS(:sS - 1), facsS(:sS - 1))
 
             ! Perform post-update work, e.g. con2prim, filling guard cells
-            call MoL_postUpdate(t_stage)
+            call ml_postUpdate(t_stage)
 
             ! Perform an necessary implicit update
             if (ml_gamBar(sS, sS) .gt. 0d0) then
-               call MoL_implicitUpdate(t_stage, ml_gamBar(sS, sS)*dt)
+               call ml_implicitUpdate(t_stage, ml_gamBar(sS, sS)*dt)
             end if
          end if
 
@@ -127,7 +127,7 @@ subroutine ml_advance(t, dt)
                   call ml_memAddToVars(MOL_EVOLVED, 0d0, sF, srcsF(:sF), facsF(:sF))
 
                   ! Guard-cell filling, etc.
-                  call MoL_postUpdateFast(t_fast_stage)
+                  call ml_postUpdateFast(t_fast_stage)
                end if
 
                if (dc .gt. 0d0) then
@@ -157,7 +157,7 @@ subroutine ml_advance(t, dt)
             theta = theta + dtheta
             t_fast = t_stage + dc*theta
 
-            call MoL_postUpdateFast(t_fast)
+            call ml_postUpdateFast(t_fast)
          end do ! n
       end if
    end do ! sS

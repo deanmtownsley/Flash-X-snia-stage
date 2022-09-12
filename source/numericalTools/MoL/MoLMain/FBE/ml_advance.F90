@@ -35,7 +35,7 @@
 !!      to include a level-indicator as well
 !!***
 subroutine ml_advance(t, dt)
-   use MoL_functions, only: MoL_postUpdate, MoL_postUpdateFast, MoL_implicitUpdate
+   use ml_functions, only: ml_postUpdate, ml_postUpdateFast, ml_implicitUpdate
    use ml_interface, only: ml_calcRHS
    use ml_memInterface, only: ml_memAddToVars
 
@@ -51,8 +51,8 @@ subroutine ml_advance(t, dt)
 
    call ml_memAddToVars(MOL_EVOLVED, 1d0, MOL_RHS, dt)
 
-   call MoL_postUpdate(t + dt)
-   call MoL_postUpdateFast(t + dt)
+   call ml_postUpdate(t + dt)
+   call ml_postUpdateFast(t + dt)
 
-   call MoL_implicitUpdate(t + dt, dt)
+   call ml_implicitUpdate(t + dt, dt)
 end subroutine ml_advance

@@ -28,29 +28,29 @@
 !!
 !!***
 subroutine MoL_releaseFunctions()
-   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF, &
-                            MoL_implicitUpdate, MoL_postUpdate, MoL_postUpdateFast, &
-                            MoL_rhsE_default, MoL_rhsI_default, MoL_rhsF_default, &
-                            MoL_implicitUpdate_default, MoL_PostUpdate_default, &
-                            MoL_PostUpdateFast_default
+   use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF, &
+                           ml_implicitUpdate, ml_postUpdate, ml_postUpdateFast, &
+                           ml_rhsE_default, ml_rhsI_default, ml_rhsF_default, &
+                           ml_implicitUpdate_default, ml_PostUpdate_default, &
+                           ml_PostUpdateFast_default
 
    implicit none
 
-   if (associated(MoL_rhsE)) nullify (MoL_rhsE)
-   if (associated(MoL_rhsI)) nullify (MoL_rhsI)
-   if (associated(MoL_rhsF)) nullify (MoL_rhsF)
+   if (associated(ml_rhsE)) nullify (ml_rhsE)
+   if (associated(ml_rhsI)) nullify (ml_rhsI)
+   if (associated(ml_rhsF)) nullify (ml_rhsF)
 
-   if (associated(MoL_implicitUpdate)) nullify (MoL_implicitUpdate)
+   if (associated(ml_implicitUpdate)) nullify (ml_implicitUpdate)
 
-   if (associated(MoL_postUpdate)) nullify (MoL_postUpdate)
-   if (associated(MoL_postUpdateFast)) nullify (MoL_postUpdateFast)
+   if (associated(ml_postUpdate)) nullify (ml_postUpdate)
+   if (associated(ml_postUpdateFast)) nullify (ml_postUpdateFast)
 
-   MoL_rhsE => MoL_rhsE_default
-   MoL_rhsI => MoL_rhsI_default
-   MoL_rhsF => MoL_rhsF_default
+   ml_rhsE => ml_rhsE_default
+   ml_rhsI => ml_rhsI_default
+   ml_rhsF => ml_rhsF_default
 
-   MoL_implicitUpdate => MoL_implicitUpdate_default
+   ml_implicitUpdate => ml_implicitUpdate_default
 
-   MoL_postUpdate => MoL_postUpdate_default
-   MoL_postUpdateFast => MoL_postUpdateFast_default
+   ml_postUpdate => ml_postUpdate_default
+   ml_postUpdateFast => ml_postUpdateFast_default
 end subroutine MoL_releaseFunctions

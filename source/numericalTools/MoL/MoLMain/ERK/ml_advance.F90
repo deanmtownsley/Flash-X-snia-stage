@@ -36,7 +36,7 @@
 !!***
 subroutine ml_advance(t, dt)
    use ml_data, only: ml_stages, ml_A, ml_b, ml_c, ml_K, ml_stages
-   use MoL_functions, only: MoL_postUpdate, MoL_postUpdateFast
+   use ml_functions, only: ml_postUpdate, ml_postUpdateFast
    use ml_interface, only: ml_calcRHS
    use ml_memInterface, only: ml_memAddToVars
 
@@ -62,8 +62,8 @@ subroutine ml_advance(t, dt)
 
          call ml_memAddToVars(MOL_EVOLVED, 0d0, s, srcs(:s), facs(:s))
 
-         call MoL_postUpdate(t + ml_c(s)*dt)
-         call MoL_postUpdateFast(t + ml_c(s)*dt)
+         call ml_postUpdate(t + ml_c(s)*dt)
+         call ml_postUpdateFast(t + ml_c(s)*dt)
       end if
 
       call ml_calcRHS(MOL_RHS_EXPLICIT, ml_K(s), t + ml_c(s)*dt)
@@ -73,6 +73,6 @@ subroutine ml_advance(t, dt)
    facs(2:) = ml_b*dt
    call ml_memAddToVars(MOL_EVOLVED, 0d0, ml_stages + 1, srcs, facs)
 
-   call MoL_postUpdate(t + dt)
-   call MoL_postUpdateFast(t + dt)
+   call ml_postUpdate(t + dt)
+   call ml_postUpdateFast(t + dt)
 end subroutine ml_advance

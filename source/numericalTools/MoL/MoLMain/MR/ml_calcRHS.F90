@@ -36,7 +36,7 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF
+   use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
    use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero
 
 #include "Simulation.h"
@@ -55,13 +55,13 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
 
    select case (rhsType)
    case (MOL_RHS_EXPLICIT)
-      call MoL_rhsE(t)
+      call ml_rhsE(t)
 
    case (MOL_RHS_IMPLICIT)
-      call MoL_rhsI(t)
+      call ml_rhsI(t)
 
    case (MOL_RHS_FAST)
-      call MoL_rhsF(t)
+      call ml_rhsF(t)
    end select
 
    call ml_memReleaseActiveRHS()

@@ -36,7 +36,7 @@
 !!
 !!***
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use MoL_functions, only: MoL_rhsE, MoL_rhsI, MoL_rhsF
+   use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
 
    use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero
 
@@ -50,9 +50,9 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
 
    call ml_memSetActiveRHS(rhsStruct)
 
-   call MoL_rhsE(t)
-   call MoL_rhsI(t)
-   call MoL_rhsF(t)
+   call ml_rhsE(t)
+   call ml_rhsI(t)
+   call ml_rhsF(t)
 
    call ml_memReleaseActiveRHS()
 end subroutine ml_calcRHS
