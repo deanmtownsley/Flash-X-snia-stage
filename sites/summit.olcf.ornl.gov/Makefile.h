@@ -4,11 +4,13 @@ ifdef OLCF_GCC_ROOT
     PE_ENV=gnu
 else ifdef OLCF_PGI_ROOT
     PE_ENV=pgi
+else ifdef OLCF_NVHPC_ROOT
+    PE_ENV=nvhpc
 else ifdef OLCF_XL_ROOT
     PE_ENV=ibm
 else
     $(error Cannot determine compiler module. \
-	    Load the gcc, pgi, or xl module---e.g. "module load gcc" \
+	    Load the gcc, pgi, nvhpc, or xl module---e.g. "module load gcc" \
 	    ---or specify a specific makefile with the setup argument---e.g. "-makefile=gcc")
 endif
 
@@ -105,9 +107,9 @@ ifdef OLCF_GCC_ROOT
     TEST_FFLAGS  =
     DEBUG_FFLAGS = -fcheck=bounds,do,mem,pointer -ffpe-trap=invalid,zero,overflow -fbacktrace
 
-    F90FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -ffree-line-length-none -cpp
+    F90FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -ffree-line-length-none -fallow-argument-mismatch -cpp
     f90FLAGS     = ${F90FLAGS}
-    F77FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -cpp
+    F77FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -fallow-argument-mismatch -cpp
     f77FLAGS     = ${F77FLAGS}
 
     FFLAGS_OACC  = -fopenacc
@@ -150,21 +152,65 @@ else ifdef OLCF_PGI_ROOT
     F77FLAGS     = -r8 -i4 -Mfixed
     f77FLAGS     = ${F77FLAGS}
 
-    FFLAGS_OACC  = -acc -ta=tesla:cc70,cuda10.1,ptxinfo -Minfo=accel
+    FFLAGS_OACC  = -acc -ta=tesla:cc70,ptxinfo -Minfo=accel
 
     # C-specific flags
     OPT_CFLAGS   =
     TEST_CFLAGS  =
     DEBUG_CFLAGS =
 
-    CFLAGS_OACC  = -acc -ta=tesla:cc70,cuda10.1,ptxinfo -Minfo=accel
+    CFLAGS_OACC  = -acc -ta=tesla:cc70,ptxinfo -Minfo=accel
 
     # Linker flags
     LIB_OPT      = -pgc++libs
     LIB_TEST     = -pgc++libs
     LIB_DEBUG    = -pgc++libs
 
-    LIB_OACC     = -acc -ta=tesla:cc70,cuda10.1,ptxinfo -acclibs
+    LIB_OACC     = -acc -ta=tesla:cc70,ptxinfo -acclibs
+    LIB_MASS     =
+
+
+else ifdef OLCF_NVHPC_ROOT
+
+    # pre-processor flag
+    MDEFS        =
+    PP           = -D
+
+    # generic flags
+    OPENMP       = -mp=multicore
+
+    OPT_FLAGS    = -g -O2 -Mpreprocess
+    TEST_FLAGS   = -g -O1 -Mpreprocess
+    DEBUG_FLAGS  = -g -O0 -Mpreprocess -Mbounds -Mnoopenmp
+
+    # Fortran-specific flags
+    OPT_FFLAGS   =
+    TEST_FFLAGS  =
+    DEBUG_FFLAGS =
+
+    F90FLAGS     = -r8 -i4
+    f90FLAGS     = ${F90FLAGS}
+    F77FLAGS     = -r8 -i4 -Mfixed
+    f77FLAGS     = ${F77FLAGS}
+
+    FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+    FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+
+    # C-specific flags
+    OPT_CFLAGS   =
+    TEST_CFLAGS  =
+    DEBUG_CFLAGS =
+
+    CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+    CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+
+    # Linker flags
+    LIB_OPT      = -pgc++libs
+    LIB_TEST     = -pgc++libs
+    LIB_DEBUG    = -pgc++libs
+
+    LIB_OACC     = -acc -gpu=cc70,ptxinfo -acclibs
+    LIB_OMP_OL   = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
     LIB_MASS     =
 
 else ifdef OLCF_XL_ROOT
@@ -231,6 +277,7 @@ FFLAGS_NCMPI = -I${NCMPI_PATH}/include
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
 FFLAGS_CUDA  = -I${CUDA_PATH}/include
 FFLAGS_MAGMA = -I${MAGMA_PATH}/include
+FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
 CFLAGS_OPT   = -c ${OPT_FLAGS} ${OPT_CFLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS} ${TEST_CFLAGS}
@@ -242,6 +289,7 @@ CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
 CFLAGS_CUDA  = -I${CUDA_PATH}/include
 CFLAGS_MAGMA = -I${MAGMA_PATH}/include
+CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
 CU_FLAGS     = -c -g -O2 -m64 -gencode arch=compute_70,code=sm_70
 
@@ -275,6 +323,7 @@ LIB_MATH  = ${LIB_ESSL}
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
 LIB_CUDA  = -L${CUDA_PATH}/lib64 -lcusparse -lcusolver -lcublas -lcudart -lcuda
 LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
+LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
 
 #----------------------------------------------------------------------------
 # Additional machine-dependent object files
