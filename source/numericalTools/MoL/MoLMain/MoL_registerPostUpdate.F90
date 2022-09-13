@@ -17,8 +17,8 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_registerPostUpdate(integer,   intent(in) :: postUpdateType
-!!                                  procedure,            :: postUpdateFunc)
+!!      call MoL_registerPostUpdate(integer, intent(in)         :: postUpdateType,
+!!                                  procedure(MoL_postUpdate_t) :: postUpdateFunc)
 !!
 !!  DESCRIPTION
 !!
@@ -29,12 +29,12 @@
 !!      postUpdateType : One of the following function types defined in MoL.h
 !!                          MOL_POST_UPDATE       -  Post-update (slow) per-stage
 !!                          MOL_POST_UPDATE_FAST  -  Post-update (fast) per-stage
-!!      postUpdateFunc : Procedure to register
+!!      postUpdateFunc : Procedure of type MoL_postUpdate_t to register
 !!
 !!***
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
-   use ml_functions, only: ml_postUpdate_t, ml_postUpdate, ml_postUpdateFast
-
+   use MoL_functionTypes, only: MoL_postUpdate_t
+   use ml_functions, only: ml_postUpdate, ml_postUpdateFast
    use ml_interface, only: ml_error
 
 #include "MoL.h"
@@ -42,7 +42,7 @@ subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
    implicit none
 
    integer, intent(in) :: postUpdateType
-   procedure(ml_postUpdate_t) :: postUpdateFunc
+   procedure(MoL_postUpdate_t) :: postUpdateFunc
 
    select case (postUpdateType)
    case (MOL_POST_UPDATE)

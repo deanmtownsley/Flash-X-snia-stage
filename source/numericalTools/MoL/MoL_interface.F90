@@ -63,37 +63,28 @@ module MoL_interface
 
    interface
       subroutine MoL_registerRHS(rhsType, rhsFunc)
+         use MoL_functionTypes, only: MoL_rhs_t
          implicit none
          integer, intent(in) :: rhsType
-         interface
-            subroutine rhsFunc(t)
-               real, intent(in) :: t
-            end subroutine rhsFunc
-         end interface
+         procedure(MoL_rhs_t) :: rhsFunc
       end subroutine MoL_registerRHS
    end interface
 
    interface
       subroutine MoL_registerUpdate(updateType, updateFunc)
+         use MoL_functionTypes, only: MoL_update_t
          implicit none
          integer, intent(in) :: updateType
-         interface
-            subroutine updateFunc(t, dt)
-               real, intent(in) :: t, dt
-            end subroutine updateFunc
-         end interface
+         procedure(MoL_update_t) :: updateFunc
       end subroutine MoL_registerUpdate
    end interface
 
    interface
       subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
+         use MoL_functionTypes, only: MoL_postUpdate_t
          implicit none
          integer, intent(in) :: postUpdateType
-         interface
-            subroutine postUpdateFunc(t)
-               real, intent(in) :: t
-            end subroutine postUpdateFunc
-         end interface
+         procedure(MoL_postUpdate_t) :: postUpdateFunc
       end subroutine MoL_registerPostUpdate
    end interface
 

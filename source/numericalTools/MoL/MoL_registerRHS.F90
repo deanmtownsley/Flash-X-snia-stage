@@ -17,8 +17,8 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_registerRHS(integer,   intent(in) :: rhsType,
-!!                           procedure,            :: rhsFunc)
+!!      call MoL_registerRHS(integer, intent(in)  :: rhsType,
+!!                           procedure(MoL_rhs_t) :: rhsFunc)
 !!
 !!  DESCRIPTION
 !!
@@ -31,19 +31,16 @@
 !!                   MOL_RHS_EXPLICIT  -  RHS for (slow) explicit terms
 !!                   MOL_RHS_IMPLICIT  -  RHS for (slow) implicit terms
 !!                   MOL_RHS_FAST      -  RHS for (fast) explicit terms
-!!      rhsFunc : Procedure to register
+!!      rhsFunc : Procedure of type MoL_rhs_t to register
 !!
 !!***
 subroutine MoL_registerRHS(rhsType, rhsFunc)
+   use MoL_functionTypes, only: MoL_rhs_t
+
    implicit none
 
    integer, intent(in) :: rhsType
-
-   interface
-      subroutine rhsFunc(t)
-         real, intent(in) :: t
-      end subroutine rhsFunc
-   end interface
+   procedure(MoL_rhs_t) :: rhsFunc
 
    return
 end subroutine MoL_registerRHS

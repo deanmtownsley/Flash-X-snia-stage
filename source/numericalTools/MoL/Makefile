@@ -1,4 +1,5 @@
 MoL = MoL_interface.o			\
+	  MoL_functionTypes.o			\
 	  MoL_init.o					\
 	  MoL_finalize.o				\
 	  MoL_advance.o				\

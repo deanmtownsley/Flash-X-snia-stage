@@ -26,35 +26,18 @@
 !!***
 module ml_functions
 
+   use MoL_functionTypes, only: MoL_rhs_t, MoL_update_t, MoL_postUpdate_t
+
    implicit none
 
-   abstract interface
-      subroutine ml_rhs_t(t)
-         implicit none
-         real, intent(in) :: t
-      end subroutine ml_rhs_t
+   procedure(MoL_rhs_t), pointer :: ml_rhsE => ml_rhsE_default
+   procedure(MoL_rhs_t), pointer :: ml_rhsI => ml_rhsI_default
+   procedure(MoL_rhs_t), pointer :: ml_rhsF => ml_rhsF_default
 
-      subroutine ml_implicitUpdate_t(t, dt)
-         implicit none
-         real, intent(in) :: t, dt
-      end subroutine ml_implicitUpdate_t
+   procedure(MoL_update_t), pointer :: ml_implicitUpdate => ml_implicitUpdate_default
 
-      subroutine ml_postUpdate_t(t)
-         implicit none
-         real, intent(in) :: t
-      end subroutine ml_postUpdate_t
-   end interface
-
-   procedure(ml_rhs_t), pointer :: ml_rhsE => ml_rhsE_default
-   procedure(ml_rhs_t), pointer :: ml_rhsI => ml_rhsI_default
-   procedure(ml_rhs_t), pointer :: ml_rhsF => ml_rhsF_default
-
-   procedure(ml_implicitUpdate_t), pointer :: ml_implicitUpdate &
-      => ml_implicitUpdate_default
-
-   procedure(ml_postUpdate_t), pointer :: ml_postUpdate => ml_postUpdate_default
-   procedure(ml_postUpdate_t), pointer :: ml_postUpdateFast &
-      => ml_postUpdateFast_default
+   procedure(MoL_postUpdate_t), pointer :: ml_postUpdate => ml_postUpdate_default
+   procedure(MoL_postUpdate_t), pointer :: ml_postUpdateFast => ml_postUpdateFast_default
 
 contains
 

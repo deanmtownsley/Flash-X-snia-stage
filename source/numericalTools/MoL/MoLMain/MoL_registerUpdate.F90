@@ -17,8 +17,8 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call MoL_registerUpdate(integer,   intent(in) :: updateType
-!!                              procedure,            :: updateFunc)
+!!      call MoL_registerUpdate(integer, intent(in)             :: updateType,
+!!                              procedure(MoL_implicitUpdate_t) :: updateFunc)
 !!
 !!  DESCRIPTION
 !!
@@ -28,7 +28,7 @@
 !!
 !!      updateType : One of the following function types defined in MoL.h
 !!                       MOL_IMPLICIT_UPDATE   -  Implicit update (slow)
-!!      updateFunc : Procedure to register
+!!      updateFunc : Procedure of type MoL_update_t to register
 !!
 !! NOTE
 !!
@@ -39,8 +39,8 @@
 !!
 !!***
 subroutine MoL_registerUpdate(updateType, updateFunc)
-   use ml_functions, only: ml_implicitUpdate_t, ml_implicitUpdate
-
+   use MoL_functionTypes, only: MoL_update_t
+   use ml_functions, only: ml_implicitUpdate
    use ml_interface, only: ml_error
 
 #include "MoL.h"
@@ -48,7 +48,7 @@ subroutine MoL_registerUpdate(updateType, updateFunc)
    implicit none
 
    integer, intent(in) :: updateType
-   procedure(ml_implicitUpdate_t) :: updateFunc
+   procedure(MoL_update_t) :: updateFunc
 
    select case (updateType)
    case (MOL_IMPLICIT_UPDATE)
