@@ -1,3 +1,0 @@
-# Designate this as a kernel directory
-# TODO: uncomment line below after `os.path.walk` error is resolved in unitUtils.py
-#KERNEL

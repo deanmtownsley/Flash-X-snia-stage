@@ -1,6 +1,6 @@
 # Config file the explicit RK integrator
 
-REQUIRES ./tableau
+KERNEL tableau
 
 D erk_method The explicit RK method to use
 

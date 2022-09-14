@@ -4,7 +4,7 @@ D mr_slowMethod  The IMEX method to use for slow stages
 D mr_fastMethod  The ERK method to use for fast stages
 D mr_nsubcycle   How many fast steps to take during a slow stage
 
-REQUIRES ./tableau
+KERNEL tableau
 
 PARAMETER mr_slowMethod STRING "mr-gark3" ["mr-gark3","mr-gark4"]
 
