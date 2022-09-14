@@ -49,15 +49,15 @@
 !!  else
 !!     .... code for non-rectangular
 !!  endif
-!!
-!! HISTORY
-!!
-!!  2018-09-18 Jared O'Neal   Added support for amrex_interpolater values
 !!***
 
 #include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
+
+#ifdef FLASH_GRID_MILHOJA
+#include "Milhoja.h"
+#endif
 
 subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
 #ifdef FLASH_GRID_AMREX
@@ -497,41 +497,47 @@ subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
 #endif
 
    case ("CELL_CONSERVATIVE_LINEAR", "cell_conservative_linear")
-#ifdef FLASH_GRID_AMREX
+#if   defined(FLASH_GRID_AMREX)
       constKey = amrex_interp_cell_cons
+#elif defined(FLASH_GRID_MILHOJA)
+      constKey = MILHOJA_CELL_CONSERVATIVE_LINEAR
 #endif
 
    case ("CELL_CONSERVATIVE_PROTECTED", "cell_conservative_protected")
-#ifdef FLASH_GRID_AMREX
+#if   defined(FLASH_GRID_AMREX)
       constKey = amrex_interp_protected
+#elif defined(FLASH_GRID_MILHOJA)
+      constKey = MILHOJA_CELL_CONSERVATIVE_PROTECTED
 #endif
 
    case ("CELL_CONSERVATIVE_QUARTIC", "cell_conservative_quartic")
-#ifdef FLASH_GRID_AMREX
+#if   defined(FLASH_GRID_AMREX)
       constKey = amrex_interp_quartic
+#elif defined(FLASH_GRID_MILHOJA)
+      constKey = MILHOJA_CELL_CONSERVATIVE_QUARTIC
 #endif
 
-! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
-!  case ("NODE_BILINEAR", "node_bilinear")
-!#ifdef FLASH_GRID_AMREX
-!    constKey = amrex_interp_node_bilinear
+! DEV: FIXME This interpolator is not working.
+!   case ("CELL_PIECEWISE_CONSTANT", "cell_piecewise_constant")
+!#if   defined(FLASH_GRID_AMREX)
+!      constKey = amrex_interp_pc
+!#elif defined(FLASH_GRID_MILHOJA)
+!      constKey = MILHOJA_CELL_PIECEWISE_CONSTANT
 !#endif
 
    case ("CELL_BILINEAR", "cell_bilinear")
-#ifdef FLASH_GRID_AMREX
+#if   defined(FLASH_GRID_AMREX)
       constKey = amrex_interp_cell_bilinear
+#elif defined(FLASH_GRID_MILHOJA)
+      constKey = MILHOJA_CELL_BILINEAR
 #endif
 
    case ("CELL_QUADRATIC", "cell_quadratic")
-#ifdef FLASH_GRID_AMREX
+#if   defined(FLASH_GRID_AMREX)
       constKey = amrex_interp_quadratic
+#elif defined(FLASH_GRID_MILHOJA)
+      constKey = MILHOJA_CELL_QUADRATIC
 #endif
-
-! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
-!  case ("PC_INTERP", "pc_interp")
-!#ifdef FLASH_GRID_AMREX
-!    constKey = amrex_interp_pc
-!#endif
 
    case DEFAULT
       constKey = NONEXISTENT

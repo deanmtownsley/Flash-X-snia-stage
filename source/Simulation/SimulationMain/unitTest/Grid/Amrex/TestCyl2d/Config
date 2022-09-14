@@ -1,4 +1,4 @@
-REQUIRES  Grid/GridMain/AMR/Amrex
+REQUIRES  Grid/GridMain/AMR/Amrex/unitTest/TestCyl2d
 REQUIRES  flashUtilities/testing
 
 GUARDCELLS 2

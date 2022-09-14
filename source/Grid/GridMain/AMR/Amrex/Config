@@ -66,6 +66,14 @@ D &                  This is the default behavior.
 D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
 PARAMETER enableMaskedGCFill BOOLEAN FALSE
 
-D amrexInterpolator Name of AMReX interpolator to use
+D amrexInterpolator Name of AMReX interpolator to use for interpolating
+D & cell-centered data.  Please refer to AMReX documentation for more
+D & information.
+D & CELL_CONSERVATIVE_LINEAR
+D & CELL_CONSERVATIVE_PROTECTED
+D & CELL_CONSERVATIVE_QUARTIC
+D & CELL_BILINEAR
+D & CELL_QUADRATIC
+D & CELL_PIECEWISE_CONSTANT
 PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
 
