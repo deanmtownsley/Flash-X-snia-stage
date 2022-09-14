@@ -41,7 +41,7 @@
 !!***
 !!REORDER(4): dstPtr, srcPtr
 subroutine ml_memCopy(dst, src)
-   use MoL_variables, only: ml_scratch_mask, ml_unk_mask, ml_nvars
+   use ml_variables, only: ml_scratch_mask, ml_unk_mask, ml_nvars
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator

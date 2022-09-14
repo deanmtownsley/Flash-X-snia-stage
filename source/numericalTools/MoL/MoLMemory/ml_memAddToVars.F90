@@ -69,7 +69,7 @@
 !!REORDER(4): dstPtr, srcPtr, src[12345678]Ptr
 !!REORDER(4): src10Ptr, src11Ptr, src12Ptr
 subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
@@ -226,7 +226,7 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
 end subroutine ml_memAddToVarsN
 
 subroutine ml_memAddToVars0(dst, dstFac, val)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -283,7 +283,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
 end subroutine ml_memAddToVars0
 
 subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -345,7 +345,7 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
 end subroutine ml_memAddToVars1
 
 subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -411,7 +411,7 @@ end subroutine ml_memAddToVars2
 
 subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
                             fac1, fac2, fac3)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -480,7 +480,7 @@ end subroutine ml_memAddToVars3
 
 subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
                             fac1, fac2, fac3, fac4)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -552,7 +552,7 @@ end subroutine ml_memAddToVars4
 
 subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
                             fac1, fac2, fac3, fac4, fac5)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -627,7 +627,7 @@ end subroutine ml_memAddToVars5
 
 subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
                             fac1, fac2, fac3, fac4, fac5, fac6)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -707,7 +707,7 @@ end subroutine ml_memAddToVars6
 subroutine ml_memAddToVars7(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -791,7 +791,7 @@ end subroutine ml_memAddToVars7
 subroutine ml_memAddToVars8(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -878,7 +878,7 @@ end subroutine ml_memAddToVars8
 subroutine ml_memAddToVars9(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, src9, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, fac9)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -970,7 +970,7 @@ subroutine ml_memAddToVars10(dst, dstFac, &
                              src9, src10, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -1066,7 +1066,7 @@ subroutine ml_memAddToVars11(dst, dstFac, &
                              src9, src10, src11, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -1167,7 +1167,7 @@ subroutine ml_memAddToVars12(dst, dstFac, &
                              src9, src10, src11, src12, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11, fac12)
-   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator

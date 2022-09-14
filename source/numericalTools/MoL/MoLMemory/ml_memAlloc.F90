@@ -32,7 +32,7 @@ subroutine ml_memAlloc()
    use ml_memInterface, only: ml_memFree
    use ml_memData, only: ml_scratch_data
    use MoL_data, only: ml_nscratch_total
-   use MoL_variables, only: ml_nvars
+   use ml_variables, only: ml_nvars
 
    use Grid_interface, only: Grid_getBlkIndexLimits
 

@@ -1,4 +1,4 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_variables
+!!****if* source/numericalTools/MoL/MoLMain/ml_variables
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !!  NAME
 !!
-!!      MoL_variables
+!!      ml_variables
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_variables, only:
+!!      use ml_variables, only:
 !!
 !!  DESCRIPTION
 !!
@@ -25,7 +25,7 @@
 !!
 !!***
 
-module MoL_variables
+module ml_variables
 
    implicit none
 
@@ -40,4 +40,4 @@ module MoL_variables
    ! For convenience
    integer, allocatable, save :: ml_unk_mask(:), ml_scratch_mask(:)
 
-end module MoL_variables
+end module ml_variables

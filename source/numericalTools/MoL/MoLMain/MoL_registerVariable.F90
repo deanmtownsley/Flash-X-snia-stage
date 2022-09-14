@@ -33,8 +33,8 @@
 !!
 !!***
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
-   use MoL_variables, only: ml_variable_t, ml_vars, ml_nvars, &
-                            ml_unk_mask, ml_scratch_mask
+   use ml_variables, only: ml_variable_t, ml_vars, ml_nvars, &
+                           ml_unk_mask, ml_scratch_mask
    use ml_interface, only: ml_warn
 
    implicit none

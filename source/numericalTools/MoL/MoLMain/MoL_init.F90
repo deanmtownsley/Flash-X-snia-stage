@@ -31,7 +31,7 @@ subroutine MoL_init()
    use ml_interface, only: ml_init
    use MoL_data, only: ml_nscratch, ml_nscratch_total, &
                        ml_abortOnWarn, ml_verbosity, ml_mpiRank
-   use MoL_variables, only: ml_nvars
+   use ml_variables, only: ml_nvars
 
    use Driver_interface, only: Driver_getMype
    use RuntimeParameters_interface, only: RuntimeParameters_get
