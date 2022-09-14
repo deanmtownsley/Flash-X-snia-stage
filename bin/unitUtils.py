@@ -277,7 +277,12 @@ class UnitList:
 
       ans = []
       GVars.out.put('Will walk %s ...'%path,globals.DEBUG)
-      os.path.walk(path,vfunc,ans) 
+      # os.path.walk(path,vfunc,ans) # Python 2 only
+      # os.walk returns a tuple for every stop during its walk so we must 
+      # apply vpath to each of these to build up the list contained in 
+      # `ans`, where as os.path.walk used to perform this step
+      for root, dirs, files in os.walk(path):
+          vfunc(ans, root, files)
       # now ans contains the list of all directories inside path 
       # except "." directories and their children
       GVars.out.put('...and found %s by walking.'%ans,globals.DEBUG)
