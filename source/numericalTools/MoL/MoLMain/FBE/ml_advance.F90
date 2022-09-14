@@ -45,11 +45,15 @@ subroutine ml_advance(t, dt)
 
    real, intent(in) :: t, dt
 
-   integer :: s
+   integer :: srcs(1)
+   real :: facs(1)
+
+   srcs = MOL_RHS
+   facs = dt
 
    call ml_calcRHS(MOL_RHS_EXPLICIT, MOL_RHS, t)
 
-   call ml_memAddToVars(MOL_EVOLVED, 1d0, MOL_RHS, dt)
+   call ml_memAddToVars(MOL_EVOLVED, 1d0, 1, srcs, facs)
 
    call ml_postUpdate(t + dt)
    call ml_postUpdateFast(t + dt)
