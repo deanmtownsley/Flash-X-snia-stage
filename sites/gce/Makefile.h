@@ -1,8 +1,10 @@
-# Flash-X makefile definitions for GCE/skylake/UB20 for GCC compilers
+# Flash-X makefile definitions for using GCC compilers on GCE.
 #
 # Load the software environment by sourcing
 #    /nfs/gce/projects/FLASH5/software/setup_current_gcc_mpich_skylake.sh
 #
+# Please refer to the script for information on which GCE machines can be used
+# with the associated software environment.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------

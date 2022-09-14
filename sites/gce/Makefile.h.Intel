@@ -1,8 +1,10 @@
-# Flash-X makefile definitions for GCE/sandybridge/UB20 for Intel compilers
+# Flash-X makefile definitions for using Intel compilers on GCE.
 #
 # Load the software environment by sourcing
 #    /nfs/gce/projects/FLASH5/software/setup_current_intel_mpich_sandybridge.sh
 #
+# Please refer to the script for information on which GCE machines can be used
+# with the associated software environment.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
