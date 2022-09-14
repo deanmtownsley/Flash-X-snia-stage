@@ -69,6 +69,8 @@ subroutine rt_init()
   if ( .not. rt_use_nes ) rt_nes_file = ""
   call RuntimeParameters_get ("rt_pair_file", rt_pair_file)
   if ( .not. rt_use_pair ) rt_pair_file = ""
+  call RuntimeParameters_get ("rt_brem_file", rt_brem_file)
+  if ( .not. rt_use_brem ) rt_brem_file = ""
 
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
@@ -91,6 +93,7 @@ subroutine rt_init()
      OpacityTableName_Iso_Option = rt_iso_file, &
      OpacityTableName_NES_Option = rt_nes_file, &
      OpacityTableName_Pair_Option = rt_pair_file, &
+     OpacityTableName_Brem_Option = rt_brem_file, &
      Verbose_Option = Verbose )
 #else
   call RuntimeParameters_get("gamma", eos_gamma)

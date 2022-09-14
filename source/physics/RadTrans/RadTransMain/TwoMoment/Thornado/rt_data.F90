@@ -37,7 +37,7 @@ module rt_data
 
   logical, save :: rt_slopeLimiter
 
-  logical, save :: rt_use_emab, rt_use_iso, rt_use_nes, rt_use_pair
-  character(len=80), save :: rt_emab_file, rt_iso_file, rt_nes_file, rt_pair_file
+  logical, save :: rt_use_emab, rt_use_iso, rt_use_nes, rt_use_pair, rt_use_brem
+  character(len=80), save :: rt_emab_file, rt_iso_file, rt_nes_file, rt_pair_file, rt_brem_file
   
 end module rt_data
