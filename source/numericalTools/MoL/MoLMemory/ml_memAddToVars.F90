@@ -69,7 +69,7 @@
 !!REORDER(4): dstPtr, srcPtr, src[12345678]Ptr
 !!REORDER(4): src10Ptr, src11Ptr, src12Ptr
 subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
@@ -89,7 +89,7 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
    integer, intent(in) :: srcs(nsrcs)
    real, intent(in) :: facs(nsrcs)
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: srcPtr
 
@@ -99,9 +99,9 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
    integer :: i, j, k, n
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    ! For now, just abort if nothing was passed in
@@ -185,9 +185,9 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
    case default
       ! Slow, but for now it will work
       if (dst .eq. MOL_EVOLVED) then
-         dstVars = MoL_unk_mask
+         dstVars = ml_unk_mask
       else
-         dstVars = MoL_scratch_mask
+         dstVars = ml_scratch_mask
       end if
 
       call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -226,7 +226,7 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
 end subroutine ml_memAddToVarsN
 
 subroutine ml_memAddToVars0(dst, dstFac, val)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -243,7 +243,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
    real, intent(in) :: dstFac
    real, intent(in) :: val
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
 
    type(Grid_iterator_t) :: itor
@@ -252,9 +252,9 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -283,7 +283,7 @@ subroutine ml_memAddToVars0(dst, dstFac, val)
 end subroutine ml_memAddToVars0
 
 subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -301,7 +301,7 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
    integer, intent(in) :: src1
    real, intent(in) :: fac1
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr
 
@@ -311,9 +311,9 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -345,7 +345,7 @@ subroutine ml_memAddToVars1(dst, dstFac, src1, fac1)
 end subroutine ml_memAddToVars1
 
 subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -363,7 +363,7 @@ subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
    integer, intent(in) :: src1, src2
    real, intent(in) :: fac1, fac2
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr
 
@@ -373,9 +373,9 @@ subroutine ml_memAddToVars2(dst, dstFac, src1, src2, fac1, fac2)
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -411,7 +411,7 @@ end subroutine ml_memAddToVars2
 
 subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
                             fac1, fac2, fac3)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -429,7 +429,7 @@ subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
    integer, intent(in) :: src1, src2, src3
    real, intent(in) :: fac1, fac2, fac3
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr
 
@@ -439,9 +439,9 @@ subroutine ml_memAddToVars3(dst, dstFac, src1, src2, src3, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -480,7 +480,7 @@ end subroutine ml_memAddToVars3
 
 subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
                             fac1, fac2, fac3, fac4)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -498,7 +498,7 @@ subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
    integer, intent(in) :: src1, src2, src3, src4
    real, intent(in) :: fac1, fac2, fac3, fac4
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, src4Ptr
 
@@ -508,9 +508,9 @@ subroutine ml_memAddToVars4(dst, dstFac, src1, src2, src3, src4, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -552,7 +552,7 @@ end subroutine ml_memAddToVars4
 
 subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
                             fac1, fac2, fac3, fac4, fac5)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -570,7 +570,7 @@ subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
    integer, intent(in) :: src1, src2, src3, src4, src5
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, src4Ptr, src5Ptr
 
@@ -580,9 +580,9 @@ subroutine ml_memAddToVars5(dst, dstFac, src1, src2, src3, src4, src5, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -627,7 +627,7 @@ end subroutine ml_memAddToVars5
 
 subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
                             fac1, fac2, fac3, fac4, fac5, fac6)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -645,7 +645,7 @@ subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
    integer, intent(in) :: src1, src2, src3, src4, src5, src6
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr
@@ -656,9 +656,9 @@ subroutine ml_memAddToVars6(dst, dstFac, src1, src2, src3, src4, src5, src6, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -707,7 +707,7 @@ end subroutine ml_memAddToVars6
 subroutine ml_memAddToVars7(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -725,7 +725,7 @@ subroutine ml_memAddToVars7(dst, dstFac, &
    integer, intent(in) :: src1, src2, src3, src4, src5, src6, src7
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, fac7
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -737,9 +737,9 @@ subroutine ml_memAddToVars7(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -791,7 +791,7 @@ end subroutine ml_memAddToVars7
 subroutine ml_memAddToVars8(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -809,7 +809,7 @@ subroutine ml_memAddToVars8(dst, dstFac, &
    integer, intent(in) :: src1, src2, src3, src4, src5, src6, src7, src8
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -821,9 +821,9 @@ subroutine ml_memAddToVars8(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -878,7 +878,7 @@ end subroutine ml_memAddToVars8
 subroutine ml_memAddToVars9(dst, dstFac, &
                             src1, src2, src3, src4, src5, src6, src7, src8, src9, &
                             fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, fac9)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -896,7 +896,7 @@ subroutine ml_memAddToVars9(dst, dstFac, &
    integer, intent(in) :: src1, src2, src3, src4, src5, src6, src7, src8, src9
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, fac9
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -908,9 +908,9 @@ subroutine ml_memAddToVars9(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -970,7 +970,7 @@ subroutine ml_memAddToVars10(dst, dstFac, &
                              src9, src10, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -988,7 +988,7 @@ subroutine ml_memAddToVars10(dst, dstFac, &
    integer, intent(in) :: src1, src2, src3, src4, src5, src6, src7, src8, src9, src10
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, fac9, fac10
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -1001,9 +1001,9 @@ subroutine ml_memAddToVars10(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -1066,7 +1066,7 @@ subroutine ml_memAddToVars11(dst, dstFac, &
                              src9, src10, src11, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -1086,7 +1086,7 @@ subroutine ml_memAddToVars11(dst, dstFac, &
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
                        fac7, fac8, fac9, fac10, fac11
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -1099,9 +1099,9 @@ subroutine ml_memAddToVars11(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)
@@ -1167,7 +1167,7 @@ subroutine ml_memAddToVars12(dst, dstFac, &
                              src9, src10, src11, src12, &
                              fac1, fac2, fac3, fac4, fac5, fac6, fac7, fac8, &
                              fac9, fac10, fac11, fac12)
-   use MoL_variables, only: MoL_nvars, MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -1187,7 +1187,7 @@ subroutine ml_memAddToVars12(dst, dstFac, &
    real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
                        fac7, fac8, fac9, fac10, fac11, fac12
 
-   integer, dimension(MoL_nvars) :: dstVars
+   integer, dimension(ml_nvars) :: dstVars
    real, dimension(:, :, :, :), pointer :: dstPtr
    real, dimension(:, :, :, :), pointer :: src1Ptr, src2Ptr, src3Ptr, &
                                            src4Ptr, src5Ptr, src6Ptr, &
@@ -1200,9 +1200,9 @@ subroutine ml_memAddToVars12(dst, dstFac, &
    integer :: i, j, k
 
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)

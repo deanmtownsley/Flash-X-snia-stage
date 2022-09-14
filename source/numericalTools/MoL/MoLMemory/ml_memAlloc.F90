@@ -31,8 +31,8 @@ subroutine ml_memAlloc()
 
    use ml_memInterface, only: ml_memFree
    use ml_memData, only: ml_scratch_data
-   use MoL_data, only: MoL_nscratch_total
-   use MoL_variables, only: MoL_nvars
+   use MoL_data, only: ml_nscratch_total
+   use MoL_variables, only: ml_nvars
 
    use Grid_interface, only: Grid_getBlkIndexLimits
 
@@ -52,16 +52,16 @@ subroutine ml_memAlloc()
    allocate (scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
                           lim(LOW, JAXIS):lim(HIGH, JAXIS), &
                           lim(LOW, KAXIS):lim(HIGH, KAXIS), &
-                          MoL_nvars, &
+                          ml_nvars, &
                           MAXBLOCKS, &
-                          MoL_nscratch_total))
+                          ml_nscratch_total))
 #else
-   allocate (ml_scratch_data(MoL_nvars, &
+   allocate (ml_scratch_data(ml_nvars, &
                              lim(LOW, IAXIS):lim(HIGH, IAXIS), &
                              lim(LOW, JAXIS):lim(HIGH, JAXIS), &
                              lim(LOW, KAXIS):lim(HIGH, KAXIS), &
                              MAXBLOCKS, &
-                             MoL_nscratch_total))
+                             ml_nscratch_total))
 #endif
    ml_scratch_data = 0d0
 end subroutine ml_memAlloc

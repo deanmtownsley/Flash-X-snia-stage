@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_status(msg)
-   use MoL_data
+   use MoL_data, only: ml_verbosity, ml_mpiRank
 
 #include "MoL.h"
 #include "constants.h"
@@ -37,7 +37,7 @@ subroutine ml_status(msg)
 
    character(len=*), intent(in) :: msg
 
-   if ((MoL_verbosity .ge. MOL_VERBOSE_STATUS) .and. (MoL_mpiRank .eq. MASTER_PE)) then
+   if ((ml_verbosity .ge. MOL_VERBOSE_STATUS) .and. (ml_mpiRank .eq. MASTER_PE)) then
       print *, "[MoL]: "//msg
    end if
 end subroutine ml_status

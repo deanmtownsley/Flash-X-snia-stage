@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_warn(msg)
-   use MoL_data
+   use MoL_data, only: ml_abortOnWarn, ml_verbosity, ml_mpiRank
 
    use Driver_interface, only: Driver_abort
 
@@ -39,12 +39,12 @@ subroutine ml_warn(msg)
 
    character(len=*), intent(in) :: msg
 
-   if (MoL_abortOnWarn) then
+   if (ml_abortOnWarn) then
       ! Always print warning if abort-on-warning is turned on
       call Driver_abort("[MoL] WARNING: "//msg)
    end if
 
-   if ((MoL_verbosity .ge. MOL_VERBOSE_WARN) .and. (MoL_mpiRank .eq. MASTER_PE)) then
+   if ((ml_verbosity .ge. MOL_VERBOSE_WARN) .and. (ml_mpiRank .eq. MASTER_PE)) then
       print *, "[MoL] WARNING: "//msg
    end if
 end subroutine ml_warn

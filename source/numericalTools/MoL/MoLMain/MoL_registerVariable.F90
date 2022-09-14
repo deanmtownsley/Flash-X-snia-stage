@@ -33,8 +33,8 @@
 !!
 !!***
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
-   use MoL_variables, only: MoL_variable_t, MoL_vars, MoL_nvars, &
-                            MoL_unk_mask, MoL_scratch_mask
+   use MoL_variables, only: ml_variable_t, ml_vars, ml_nvars, &
+                            ml_unk_mask, ml_scratch_mask
    use ml_interface, only: ml_warn
 
    implicit none
@@ -43,44 +43,44 @@ subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    integer, intent(in) :: evolIndex
    integer, intent(out) :: rhsIndex
 
-   type(MoL_variable_t) :: var
+   type(ml_variable_t) :: var
 
    integer :: ivar
 
    ! If this variable is registered already, output a warning (if verbose) and exit
-   varLoop: do ivar = 1, MoL_nvars
-      if (MoL_vars(ivar)%evolIndex .eq. evolIndex) then
+   varLoop: do ivar = 1, ml_nvars
+      if (ml_vars(ivar)%evolIndex .eq. evolIndex) then
          call ml_warn("Duplicate variable registration")
          return
       end if
    end do varLoop
 
-   MoL_nvars = MoL_nvars + 1
+   ml_nvars = ml_nvars + 1
 
    var%name = trim(name)
    var%evolIndex = evolIndex
-   var%rhsIndex = MoL_nvars
+   var%rhsIndex = ml_nvars
 
-   rhsIndex = MoL_nvars
+   rhsIndex = ml_nvars
 
-   if (.not. allocated(MoL_vars)) then
-      allocate (MoL_vars(1))
-      MoL_vars = var
+   if (.not. allocated(ml_vars)) then
+      allocate (ml_vars(1))
+      ml_vars = var
    else
-      MoL_vars = (/MoL_vars, var/)
+      ml_vars = (/ml_vars, var/)
    end if
 
-   if (.not. allocated(MoL_unk_mask)) then
-      allocate (MoL_unk_mask(1))
-      MoL_unk_mask = evolIndex
+   if (.not. allocated(ml_unk_mask)) then
+      allocate (ml_unk_mask(1))
+      ml_unk_mask = evolIndex
    else
-      MoL_unk_mask = (/MoL_unk_mask, evolIndex/)
+      ml_unk_mask = (/ml_unk_mask, evolIndex/)
    end if
 
-   if (.not. allocated(MoL_scratch_mask)) then
-      allocate (MoL_scratch_mask(1))
-      MoL_scratch_mask = MoL_nvars
+   if (.not. allocated(ml_scratch_mask)) then
+      allocate (ml_scratch_mask(1))
+      ml_scratch_mask = ml_nvars
    else
-      MoL_scratch_mask = (/MoL_scratch_mask, MoL_nvars/)
+      ml_scratch_mask = (/ml_scratch_mask, ml_nvars/)
    end if
 end subroutine MoL_registerVariable

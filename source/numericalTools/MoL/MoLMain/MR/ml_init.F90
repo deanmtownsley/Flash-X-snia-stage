@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_init()
-   use MoL_data, only: MoL_nscratch
+   use MoL_data, only: ml_nscratch
    use ml_data, only: FE, FI, FF, FAST_INITIAL, ml_slowMethod, ml_fastMethod, &
                       ml_nsubcycle, ml_nstages_fast, ml_nstages_slow
 
@@ -75,5 +75,5 @@ subroutine ml_init()
       FF(i) = FAST_INITIAL + i
    end do ! i
 
-   MoL_nscratch = ml_nstages_slow + ml_nstages_fast
+   ml_nscratch = ml_nstages_slow + ml_nstages_fast
 end subroutine ml_init

@@ -17,7 +17,7 @@
 !!
 !!  SYNOPSIS
 !!
-!!      use MoL_variables
+!!      use MoL_variables, only:
 !!
 !!  DESCRIPTION
 !!
@@ -29,15 +29,15 @@ module MoL_variables
 
    implicit none
 
-   type :: MoL_variable_t
+   type :: ml_variable_t
       character(len=:), allocatable :: name
       integer :: evolIndex, rhsIndex
-   end type MoL_variable_t
+   end type ml_variable_t
 
-   type(MoL_variable_t), allocatable, save :: MoL_vars(:)
-   integer, save :: MoL_nvars = 0
+   type(ml_variable_t), allocatable, save :: ml_vars(:)
+   integer, save :: ml_nvars = 0
 
    ! For convenience
-   integer, allocatable, save :: MoL_unk_mask(:), MoL_scratch_mask(:)
+   integer, allocatable, save :: ml_unk_mask(:), ml_scratch_mask(:)
 
 end module MoL_variables

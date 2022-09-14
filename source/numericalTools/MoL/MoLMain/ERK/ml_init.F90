@@ -28,7 +28,7 @@
 !!
 !!***
 subroutine ml_init()
-   use MoL_data, only: MoL_nscratch
+   use MoL_data, only: ml_nscratch
    use ml_data, only: ml_method, ml_stages, ml_K
 
    use ml_interface, only: ml_initTableau
@@ -55,5 +55,5 @@ subroutine ml_init()
 
    ml_K = (/(MOL_RHS + i, i=0, ml_stages - 1)/)
 
-   MoL_nscratch = ml_stages - 1
+   ml_nscratch = ml_stages - 1
 end subroutine ml_init

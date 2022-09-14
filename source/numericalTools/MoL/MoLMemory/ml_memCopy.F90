@@ -41,7 +41,7 @@
 !!***
 !!REORDER(4): dstPtr, srcPtr
 subroutine ml_memCopy(dst, src)
-   use MoL_variables, only: MoL_scratch_mask, MoL_unk_mask, MoL_nvars
+   use MoL_variables, only: ml_scratch_mask, ml_unk_mask, ml_nvars
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -56,7 +56,7 @@ subroutine ml_memCopy(dst, src)
 
    integer, intent(in) :: dst, src
 
-   integer, dimension(MoL_nvars) :: dstVars, srcVars
+   integer, dimension(ml_nvars) :: dstVars, srcVars
    real, dimension(:, :, :, :), pointer :: dstPtr, srcPtr
 
    type(Grid_iterator_t) :: itor
@@ -69,15 +69,15 @@ subroutine ml_memCopy(dst, src)
 
    ! Select the correct variable masks
    if (dst .eq. MOL_EVOLVED) then
-      dstVars = MoL_unk_mask
+      dstVars = ml_unk_mask
    else
-      dstVars = MoL_scratch_mask
+      dstVars = ml_scratch_mask
    end if
 
    if (src .eq. MOL_EVOLVED) then
-      srcVars = MoL_unk_mask
+      srcVars = ml_unk_mask
    else
-      srcVars = MoL_scratch_mask
+      srcVars = ml_scratch_mask
    end if
 
    call Grid_getTileIterator(itor, LEAF, tiling=.true.)

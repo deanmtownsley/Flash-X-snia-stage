@@ -28,10 +28,10 @@
 !!
 !!***
 subroutine ml_init()
-   use MoL_data, only: MoL_nscratch
+   use MoL_data, only: ml_nscratch
 
    implicit none
 
    ! Just need MOL_RHS
-   MoL_nscratch = 0
+   ml_nscratch = 0
 end subroutine ml_init

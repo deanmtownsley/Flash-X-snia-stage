@@ -29,9 +29,9 @@
 !!***
 subroutine MoL_init()
    use ml_interface, only: ml_init
-   use MoL_data, only: MoL_nscratch, MoL_nscratch_total, &
-                       MoL_abortOnWarn, MoL_verbosity, MoL_mpiRank
-   use MoL_variables, only: MoL_nvars
+   use MoL_data, only: ml_nscratch, ml_nscratch_total, &
+                       ml_abortOnWarn, ml_verbosity, ml_mpiRank
+   use MoL_variables, only: ml_nvars
 
    use Driver_interface, only: Driver_getMype
    use RuntimeParameters_interface, only: RuntimeParameters_get
@@ -40,17 +40,17 @@ subroutine MoL_init()
 
    implicit none
 
-   call Driver_getMype(MESH_COMM, MoL_mpiRank)
+   call Driver_getMype(MESH_COMM, ml_mpiRank)
 
-   call RuntimeParameters_get("MoL_verbosity", MoL_verbosity)
-   call RuntimeParameters_get("MoL_abortOnWarn", MoL_abortOnWarn)
+   call RuntimeParameters_get("MoL_verbosity", ml_verbosity)
+   call RuntimeParameters_get("MoL_abortOnWarn", ml_abortOnWarn)
 
-   MoL_nscratch = 0
-   MoL_nvars = 0
+   ml_nscratch = 0
+   ml_nvars = 0
 
    ! Specific integrator setup
    call ml_init()
 
    ! +2 for MOL_INITIAL & MOL_RHS
-   MoL_nscratch_total = 2 + MoL_nscratch
+   ml_nscratch_total = 2 + ml_nscratch
 end subroutine MoL_init
