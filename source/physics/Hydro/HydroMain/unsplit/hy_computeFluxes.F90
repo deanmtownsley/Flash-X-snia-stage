@@ -261,7 +261,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
      gravX = 0.
      gravY = 0.
      gravZ = 0.
-     if (hy_useGravity) then
+     if (hy_useGravity) then    ! Compute accelerations:
         call hy_putGravity(tileDesc,halo,Uin,dt,dtOld,gravX,gravY,gravZ)
         gravX = gravX/hy_gref
         gravY = gravY/hy_gref
