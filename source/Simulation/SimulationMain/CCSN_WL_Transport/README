@@ -1,0 +1,3 @@
+Setup syntax for 1D Couch Model:
+Spark Hydro Transport
+./setup CCSN_WL_Transport -auto -1d +spherical -nxb=16 nE=16 swE=1 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MINERBO thorandoOrder=ORDER_V -parfile=flash_spark_weno.par -objdir=WLTransport_WH07_spark +newMpole +spark +thornado +weaklib
