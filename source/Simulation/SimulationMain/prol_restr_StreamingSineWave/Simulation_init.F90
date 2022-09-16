@@ -34,8 +34,6 @@ subroutine Simulation_init()
   use RadiationFieldsModule, ONLY : nCR, nSpecies
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
-  use physicaldata, ONLY : interp_mask_unk, interp_mask_unk_res
-
   implicit none
 
 #include "constants.h"
@@ -67,11 +65,5 @@ subroutine Simulation_init()
 
   sim_nComp = nSpecies * nCR * nE * nDOF
 
-  ! use DG interpolation/averaging for prolongation/restriction
-  interp_mask_unk    (THORNADO_BEGIN:THORNADO_END) = 40
-  ! if curvilinear, these looks like they are overwritten by mpi_amr_1blk_restrict.F90 on lines 332
-  interp_mask_unk_res(THORNADO_BEGIN:THORNADO_END) = 40
-
   return
-
 end subroutine Simulation_init
