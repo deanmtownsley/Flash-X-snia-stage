@@ -1,9 +1,9 @@
-# FLASH makefile definitions for Summit (XL compiler)
-ifdef OLCF_XL_ROOT
-    PE_ENV=ibm
+# FLASH makefile definitions for Summit (NVHPC compiler)
+ifdef OLCF_NVHPC_ROOT
+    PE_ENV=nvhpc
 else
     $(error Cannot determine compiler module. \
-            Load the gcc, pgi, or xl module---e.g. "module load gcc" \
+            Load the gcc, pgi, nvhpc, or xl module---e.g. "module load gcc" \
             ---or specify a specific makefile with the setup argument---e.g. "-makefile=gcc")
 endif
 #----------------------------------------------------------------------------
@@ -11,7 +11,7 @@ endif
 #----------------------------------------------------------------------------
 
 MPI_PATH   = ${OLCF_OMPI_ROOT}
-AMREX_PATH = ${AMREX_DIR}/summit_${NDIM}d_ibm
+AMREX_PATH = ${AMREX_DIR}/summit_${NDIM}d_nvhpc
 HDF5_PATH  = ${OLCF_HDF5_ROOT}
 HYPRE_PATH = ${OLCF_HYPRE_ROOT}
 CUDA_PATH  = ${OLCF_CUDA_ROOT}
@@ -70,7 +70,7 @@ CUCOMP  = nvcc
 LINK    = mpifort
 
 # pre-processor flag
-MDEFS = -WF,
+MDEFS =
 PP    = -D
 
 #----------------------------------------------------------------------------
@@ -85,10 +85,7 @@ PP    = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
-OPENMP         = -qsmp=omp:noauto
-OPENMP_C       = -qsmp=omp:noauto
-OPENMP_FORTRAN = -qsmp=omp:noauto -qnosave -qthreaded
-OPENMP_LINK    = -qsmp=omp:noauto -qnosave -qthreaded
+OPENMP = -mp
 
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 FFLAGS_HDF5  = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
@@ -96,22 +93,21 @@ FFLAGS_NCMPI = -I${NCMPI_PATH}/include
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
 FFLAGS_CUDA  = -I${CUDA_PATH}/include
 FFLAGS_MAGMA = -I${MAGMA_PATH}/include
-FFLAGS_OACC  =
+FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
-OPT_FLAGS    = -g -O2 -qarch=pwr9 -qtune=pwr9 -w
-TEST_FLAGS   = -g -O2 -qarch=pwr9 -qtune=pwr9 -w -qstrict=all
-DEBUG_FLAGS  = -g -O0 -qnosmp -qstrict=all \
-	       -qfloat=rngchk -qcheck=all:nounset \
-               -qflttrap=enable:invalid:nanq:overflow:zerodivide -qsigtrap=xl__trcedump
+OPT_FLAGS    = -g -O2 -Mpreprocess
+TEST_FLAGS   = -g -O1 -Mpreprocess
+DEBUG_FLAGS  = -g -O0 -Mpreprocess -Mbounds -Mnoopenmp
 
 FFLAGS_OPT   = -c ${OPT_FLAGS}
 FFLAGS_TEST  = -c ${TEST_FLAGS}
-FFLAGS_DEBUG = -c ${DEBUG_FLAGS} -qstrict=all -qflag=i:w
+FFLAGS_DEBUG = -c ${DEBUG_FLAGS}
 
-F90FLAGS     = -qintsize=4 -qrealsize=8 -qzerosize -qport=c_loc -qundef -qsuppress=cmpmsg
+F90FLAGS     = -r8 -i4
 f90FLAGS     = ${F90FLAGS}
-F77FLAGS     = ${F90FLAGS} -qfixed
+F77FLAGS     = -r8 -i4 -Mfixed
 f77FLAGS     = ${F77FLAGS}
 
 CFLAGS_AMREX = -I${AMREX_PATH}/include
@@ -120,12 +116,13 @@ CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
 CFLAGS_CUDA  = -I${CUDA_PATH}/include
 CFLAGS_MAGMA = -I${MAGMA_PATH}/include
-CFLAGS_OACC  =
+CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
-CFLAGS_OPT   = -c ${OPT_FLAGS} ${PP}IBM
-CFLAGS_TEST  = -c ${TEST_FLAGS} ${PP}IBM
-CFLAGS_DEBUG = -c ${DEBUG_FLAGS} ${PP}IBM
+CFLAGS_OPT   = -c ${OPT_FLAGS}
+CFLAGS_TEST  = -c ${TEST_FLAGS}
+CFLAGS_DEBUG = -c ${DEBUG_FLAGS}
 
 CU_FLAGS     = -c -g -O2 -m64 -gencode arch=compute_70,code=sm_70
 
@@ -149,7 +146,7 @@ LFLAGS_DEBUG = ${DEBUG_FLAGS} -o
 #  depending on how FLASH was setup.
 #----------------------------------------------------------------------------
 
-LIB_MPI   =
+LIB_MPI =
 
 LIB_STDCXX = -lstdc++
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lstdc++
@@ -157,16 +154,15 @@ LIB_HDF5  = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
 LIB_NCMPI = -L${NCMPI_PATH}/lib -lpnetcdf
 LIB_MATH  = ${LIB_ESSL}
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
-LIB_CUDA  = -L${CUDA_PATH}/lib64 -lcusparse -lcusolver -lcublas -lcudart -lcuda
+LIB_CUDA  = -cudalib=cusparse,cusolver,cublas
 LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
-LIB_OACC  =
+LIB_OACC  = -acc -gpu=cc70,ptxinfo -acclibs
+LIB_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
 LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
 
-LIB_MASS  = -lmass
-
-LIB_OPT   =
-LIB_DEBUG = -pg
-LIB_TEST  =
+LIB_OPT   = -pgc++libs
+LIB_DEBUG = -pgc++libs
+LIB_TEST  = -pgc++libs
 
 #----------------------------------------------------------------------------
 # Additional machine-dependent object files
