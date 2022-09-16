@@ -33,11 +33,16 @@ subroutine rt_init()
 #include "constants.h"
 
   use rt_data
+  use Grid_data, ONLY : gr_minRefine, gr_lrefineMax
   use RadTrans_data, ONLY : rt_gcMask, rt_meshMe
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use ThornadoInitializationModule, ONLY : InitThornado
 #ifdef FLASH_EOS_WEAKLIB
   use eos_wlData, ONLY : eos_pointer
+#endif
+
+#ifdef FLASH_GRID_PARAMESH
+  use physicaldata, ONLY : interp_mask_unk, interp_mask_unk_res
 #endif
 
   implicit none
@@ -86,6 +91,18 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_Include_LinCorr", rt_Include_LinCorr)
 
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
+
+  ! interpolation of DG variables only works for "native" interpolation mode
+#if defined(FLASH_GRID_PARAMESH) && !defined(GRID_WITH_MONOTONIC)
+  ! use DG interpolation/averaging for prolongation/restriction
+  interp_mask_unk    (THORNADO_BEGIN:THORNADO_END) = 40
+  ! if curvilinear, these looks like they are overwritten by mpi_amr_1blk_restrict.F90 on lines 332
+  interp_mask_unk_res(THORNADO_BEGIN:THORNADO_END) = 40
+#else
+  if ( gr_lrefineMax > gr_minRefine ) then
+     call Driver_abort("lrefine_max > lrefine_min is only supported for PM4 w/ -gridinterpolation=native)")
+   end if
+#endif
 
 #if   defined(THORNADO_ORDER_1)
   rt_wMatrRHS(1:2) = 1.0
