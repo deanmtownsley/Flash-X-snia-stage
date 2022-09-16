@@ -39,5 +39,14 @@ module rt_data
 
   logical, save :: rt_use_emab, rt_use_iso, rt_use_nes, rt_use_pair, rt_use_brem
   character(len=80), save :: rt_emab_file, rt_iso_file, rt_nes_file, rt_pair_file, rt_brem_file
+
+  ! neutrino-matter solver parameters
+  integer, save :: rt_M_outer, rt_M_inner
+  integer, save :: rt_MaxIter_outer, rt_MaxIter_inner
+  real,    save :: rt_Rtol_outer, rt_Rtol_inner
+  logical, save :: rt_Include_LinCorr
+
+  real,    save :: rt_wMatrRHS(5)
+
   
 end module rt_data

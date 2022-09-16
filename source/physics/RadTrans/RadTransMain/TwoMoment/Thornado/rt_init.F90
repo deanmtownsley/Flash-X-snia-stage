@@ -77,7 +77,22 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
 
+  call RuntimeParameters_get ("rt_M_outer", rt_M_outer)
+  call RuntimeParameters_get ("rt_M_inner", rt_M_inner)
+  call RuntimeParameters_get ("rt_MaxIter_outer", rt_MaxIter_outer)
+  call RuntimeParameters_get ("rt_MaxIter_inner", rt_MaxIter_inner)
+  call RuntimeParameters_get ("rt_Rtol_outer", rt_Rtol_outer)
+  call RuntimeParameters_get ("rt_Rtol_inner", rt_Rtol_inner)
+  call RuntimeParameters_get ("rt_Include_LinCorr", rt_Include_LinCorr)
+
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
+
+#if   defined(THORNADO_ORDER_1)
+  rt_wMatrRHS(1:2) = 1.0
+  rt_wMatrRHS(3:5) = 0.0
+#elif defined(THORNADO_ORDER_V)
+  rt_wMatrRHS(1:5) = 1.0
+#endif
 
   Verbose = ( rt_meshMe == MASTER_PE )
 #ifdef FLASH_EOS_WEAKLIB
@@ -94,6 +109,17 @@ subroutine rt_init()
      OpacityTableName_NES_Option = rt_nes_file, &
      OpacityTableName_Pair_Option = rt_pair_file, &
      OpacityTableName_Brem_Option = rt_brem_file, &
+     M_outer_Option = rt_M_outer, &
+     M_inner_Option = rt_M_inner, &
+     MaxIter_outer_Option = rt_MaxIter_outer, &
+     MaxIter_inner_Option = rt_MaxIter_inner, &
+     Rtol_outer_Option = rt_Rtol_outer, &
+     Rtol_inner_Option = rt_Rtol_inner, &
+     Include_LinCorr_Option = rt_Include_LinCorr, &
+     wMatrRHS_Option = rt_wMatrRHS, &
+     Include_NES_Option = rt_use_nes, &
+     Include_Pair_Option = rt_use_pair, &
+     Include_Brem_Option = rt_use_brem, &
      Verbose_Option = Verbose )
 #else
   call RuntimeParameters_get("gamma", eos_gamma)

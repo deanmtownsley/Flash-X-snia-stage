@@ -32,6 +32,12 @@ def genLines(setupvars):
     yield 'LIBRARY THORNADO'
     yield 'PPDEFINE THORNADO'
 
+    if "thornadoOrder" in setupvars:
+        thornadoOrder = str(setupvars["thornadoOrder"]).upper()
+    else:
+        thornadoOrder = "ORDER_V"
+    yield 'PPDEFINE THORNADO_%s' % thornadoOrder
+
     ##
     yield 'REQUIRES physics/Eos'
 
@@ -148,6 +154,23 @@ def genLines(setupvars):
     yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
     yield 'D rt_slopeLimiter   flag to use RadTrans slope limiter'
     yield 'PARAMETER rt_slopeLimiter    BOOLEAN  FALSE'
+
+    ##
+    yield 'D rt_M_outer         number of iterations in memory for collision solver outer-loop'
+    yield 'D rt_M_inner         number of iterations in memory for collision solver inner-loop'
+    yield 'D rt_MaxIter_outer   maximum number of iterations for collision solver outer-loop'
+    yield 'D rt_MaxIter_inner   maximum number of iterations for collision solver inner-loop'
+    yield 'D rt_Rtol_outer      convergence criteria for collision solver outer-loop'
+    yield 'D rt_Rtol_inner      convergence criteria for collision solver inner-loop'
+    yield 'D rt_Include_LinCorr flag to include linear rate corrections in collision solver'
+
+    yield 'PARAMETER rt_M_outer         INTEGER  3      [1 to ]'
+    yield 'PARAMETER rt_M_inner         INTEGER  2      [1 to ]'
+    yield 'PARAMETER rt_MaxIter_outer   INTEGER  100    [1 to ]'
+    yield 'PARAMETER rt_MaxIter_inner   INTEGER  100    [1 to ]'
+    yield 'PARAMETER rt_Rtol_outer      REAL     1.0e-8 [0.0 to ]'
+    yield 'PARAMETER rt_Rtol_inner      REAL     1.0e-8 [0.0 to ]'
+    yield 'PARAMETER rt_Include_LinCorr BOOLEAN  FALSE'
 
     ##
     yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'
