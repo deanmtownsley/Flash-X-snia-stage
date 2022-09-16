@@ -1,4 +1,4 @@
-# FLASH makefile definitions for Summit (PGI compiler)
+# FLASH makefile definitions for Summit (NVHPC compiler)
 ifdef OLCF_NVHPC_ROOT
     PE_ENV=nvhpc
 else
@@ -93,7 +93,9 @@ FFLAGS_NCMPI = -I${NCMPI_PATH}/include
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
 FFLAGS_CUDA  = -I${CUDA_PATH}/include
 FFLAGS_MAGMA = -I${MAGMA_PATH}/include
-FFLAGS_OACC  = -acc -cuda -gpu=cc70,cuda11.0,ptxinfo -Minfo=accel
+FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -114,7 +116,9 @@ CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
 CFLAGS_CUDA  = -I${CUDA_PATH}/include
 CFLAGS_MAGMA = -I${MAGMA_PATH}/include
-CFLAGS_OACC  = -acc -cuda -gpu=cc70,cuda11.0,ptxinfo -Minfo=accel
+CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -152,7 +156,9 @@ LIB_MATH  = ${LIB_ESSL}
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
 LIB_CUDA  = -cudalib=cusparse,cusolver,cublas
 LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
-LIB_OACC  = -acc -cuda -gpu=cc70,cuda11.0,ptxinfo -acclibs
+LIB_OACC  = -acc -gpu=cc70,ptxinfo -acclibs
+LIB_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
+LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
 
 LIB_OPT   = -pgc++libs
 LIB_DEBUG = -pgc++libs
@@ -179,8 +185,3 @@ RL = ranlib
 ECHO = echo
 AWK = awk
 CAT = cat
-
-## PGI compiler does not like -O2 with this file for some reason
-mpi_amr_prolong.o : mpi_amr_prolong.F90
-	$(ECHO-COMPILING)
-	$(FCOMP) $(patsubst -fast,-O1,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))

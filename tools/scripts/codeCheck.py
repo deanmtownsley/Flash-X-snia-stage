@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-import os.path, sys, string, re, getopt
+#!/usr/bin/env python3
+import os, sys, string, re, getopt
+from pathlib import Path
+
 try:
    import subprocess  # use this when available to avoid a DeprecationWarning
 except ImportError:
@@ -426,7 +428,7 @@ simply prevents this violation / fix from being applied to any file.
 
    def compile_regexps(self):
        self.regs = {}
-       for k,v in self.regexps.items():
+       for k,v in list(self.regexps.items()):
            self.regs[k] = re.compile(v,re.I)
 
    def contractContLines(self,lines):
@@ -464,15 +466,15 @@ simply prevents this violation / fix from being applied to any file.
           return (data,1)
        (x,bigline) = self.contractContLines(lines)
        if bigline.find(")") < 0: # No ) found
-          print "Some big parsing error while parsing %s" % self.filename
+          print("Some big parsing error while parsing %s" % self.filename)
           sys.exit(1)
        fs = self.regs["fullSub"]
        m = fs.match(bigline)
        if not m: 
           return ({},1) # this is not subroutine at all
        data["subname"] = m.group("subname")
-       data["arglist"] = filter(None, [y.strip() for y in 
-                                       m.group("arglist").split(",")])
+       data["arglist"] = [_f for _f in [y.strip() for y in 
+                                       m.group("arglist").split(",")] if _f]
        return (data,x)
        
    def parseRB(self,lines):
@@ -506,7 +508,7 @@ simply prevents this violation / fix from being applied to any file.
           parts = {}
           for k in self.regs["rbSynArgs"].findall(synopsis): parts[k] = 1
           name = m.groups()[0]
-          rv.update({"syn_name": name,"syn_args":parts.keys(), "args": []})
+          rv.update({"syn_name": name,"syn_args":list(parts.keys()), "args": []})
        else: # may be it is a module
           m = self.regs["rbSynModName"].match(synopsis)
           if m:
@@ -520,7 +522,7 @@ simply prevents this violation / fix from being applied to any file.
               rv["args"].extend( [ x.strip() for x in ilist.split(",") ])
        args = {}
        for x in rv["args"]: args[x] = 1
-       rv["args"][:] = args.keys()
+       rv["args"][:] = list(args.keys())
        # do we have an arguments section but did not find any?
        if not rv["args"] and rv["syn_args"]:
           if " ".join(ans["ARGUMENTS"]).strip(): # found non-trivial arguments
@@ -562,24 +564,24 @@ simply prevents this violation / fix from being applied to any file.
        fd.write("--------------------\n")
        fd.write("\n")
 
-       missingInterfaces = [item for item in self.interfacesDict.keys() if
+       missingInterfaces = [item for item in list(self.interfacesDict.keys()) if
                             self.interfacesDict[item] == INTERFACE_FILE_MISSING]
        fd.write("The following API-Level directories are missing interface.F90 files:\n")
        fd.write("--------------------------------------------------------------------\n")
        fd.write("\n".join(missingInterfaces))
        fd.write("\n\n")
 
-       for pathToAPILevelDir in self.interfacesDict.keys():
+       for pathToAPILevelDir in list(self.interfacesDict.keys()):
          subnamesDict             = self.interfacesDict[pathToAPILevelDir]
          missingDeclarations      = []
          caseMismatchDeclarations = []
          extraDeclarations        = []
          if isinstance(subnamesDict, dict):  # will be of type int if interface file was missing
-           missingDeclarations      = [item for item in subnamesDict.keys() if
+           missingDeclarations      = [item for item in list(subnamesDict.keys()) if
                                        subnamesDict[item] == INTERFACE_DECL_MISSING]
-           caseMismatchDeclarations = [item for item in subnamesDict.keys() if
+           caseMismatchDeclarations = [item for item in list(subnamesDict.keys()) if
                                        subnamesDict[item] == INTERFACE_CASE_MISMATCH]
-           extraDeclarations        = [item for item in subnamesDict.keys() if
+           extraDeclarations        = [item for item in list(subnamesDict.keys()) if
                                        subnamesDict[item] == INTERFACE_DECL_EXTRA]
 
          pathToInterfaceFile = os.path.join(pathToAPILevelDir, (os.path.basename(pathToAPILevelDir) + "_interface.F90"))
@@ -639,13 +641,13 @@ simply prevents this violation / fix from being applied to any file.
        return 1
 
    def list_dir(self,dirOrFileName,methlist):
-       print "\nNAMEOFMETHOD: Short description of method"
+       print("\nNAMEOFMETHOD: Short description of method")
        for (k,dicts) in [("Check Methods",self.violations),
                          ("Fix Methods",self.fixes)]:
-           print "\n%s\n%s" % (k,"-"*len(k))
+           print("\n%s\n%s" % (k,"-"*len(k)))
            for d in dicts:
-               print "\n%(nickname)s: %(fullname)s" % d
-       print 
+               print("\n%(nickname)s: %(fullname)s" % d)
+       print() 
 
    def select_methods(self,dictmethods,methlist):
        if not methlist: return # all default state
@@ -655,20 +657,22 @@ simply prevents this violation / fix from being applied to any file.
               d["disable"] = True
               noValidMethods = False
        if noValidMethods:
-          print "No valid methods found. Methods given: %s" % ", ".join(methlist)
-          print "Run with --mode=list to find valid methods"
+          print("No valid methods found. Methods given: %s" % ", ".join(methlist))
+          print("Run with --mode=list to find valid methods")
           sys.exit(1)
 
    def check_file(self,filename):
        """Checks for all violations for the given file"""
-       parts = string.split(os.path.basename(filename),".")
+      #  filename is PosixPath, convert to string to get usual behavior as python2 routine.
+       filename = str(filename)
+       parts = str.split(os.path.basename(filename),".")
        self.basename = parts[0]
        if len(parts) > 1: self.ext = parts[1].upper()
        fd = open(filename)
        lines = fd.readlines()
        fd.close()
        for vio in self.violations:
-           if vio.has_key("isComplex"):
+           if "isComplex" in vio:
               if vio["isComplex"](self,lines):
                  self.complex_files_byMethod.append( (vio["nickname"],filename,"check") )
                  continue
@@ -686,7 +690,7 @@ simply prevents this violation / fix from being applied to any file.
               try:
                  ans = self.methods[key](self,lines)
               except:
-                 print "Error while processing '%s' for file '%s'" % (key,filename)
+                 print("Error while processing '%s' for file '%s'" % (key,filename))
                  raise
               if ans: self[v].append((filename,ans))
 
@@ -702,14 +706,14 @@ simply prevents this violation / fix from being applied to any file.
 
    def fix_file(self,filename):
        """Checks for all violations for the given file"""
-       parts = string.split(os.path.basename(filename),".")
+       parts = str.split(os.path.basename(filename),".")
        self.basename = parts[0]
        if len(parts) > 1: self.ext = parts[1].upper()
        fd = open(filename)
        lines = fd.readlines()
        fd.close()
        for vio in self.fixes:
-           if vio.has_key("isComplex"):
+           if "isComplex" in vio:
               if vio["isComplex"](self,lines):
                  self.complex_files_byMethod.append( (vio["nickname"],filename,"fix") )
                  continue
@@ -780,7 +784,7 @@ simply prevents this violation / fix from being applied to any file.
                       if aname[:len(prefix)] == prefix:
                          ignore = 1
                   if ignore == 1: continue
-                  parts = string.split(x,".")
+                  parts = str.split(x,".")
                   if len(parts) < 2: continue
                   if parts[1].upper() in self.extensions:
                      flist.append(jname)
@@ -793,7 +797,14 @@ simply prevents this violation / fix from being applied to any file.
 
        if os.path.isdir(dirOrFileName):
           flist = []
-          os.path.walk(bn,vfunc,flist)
+          # only F90, .F and .print extension has violations methods implemented eg. devComments_print method
+          flist_all = []
+          check_extension=[".F90", ".F", ".print"]
+          flist_all = list(Path(bn).glob('**/*'))  
+          for f in flist_all:
+             if f.is_file():
+                if f.suffix in check_extension:
+                  flist.append(f)                      
           # now we have the list of all files to process
        else:
           # We assume 'dirOrFileName' refers to a file
@@ -801,6 +812,7 @@ simply prevents this violation / fix from being applied to any file.
           # ignored in this case. That is, we process the explicitly-
           # named file regardless of other rules.
           flist = [dirOrFileName]
+          
        for fname in flist: 
            self.filename = fname
            bound_method(fname)
@@ -848,24 +860,24 @@ simply prevents this violation / fix from being applied to any file.
          if vio.get("disable"): continue
          v = vio["nickname"]
          fn = vio["fullname"]
-         print "-"*len(fn)
-         print fn
-         print "-"*len(fn)
-         print ""
-         print "Description: "
+         print("-"*len(fn))
+         print(fn)
+         print("-"*len(fn))
+         print("")
+         print("Description: ")
          first = True
          for line in vio.get("desc",fn).split("\n"):
             if first:
-               print line
+               print(line)
                first = False
             else:
-               print (" "*13) + line
-         print ""
-         print "Violations"
+               print((" "*13) + line)
+         print("")
+         print("Violations")
          for (fname,info) in self[v]:
-            print fname
+            print(fname)
             for a in info:
-               print "     " + str(a)
+               print("     " + str(a))
             if "__iter__" in dir(info[0]):
                try:
                   lineNo = int(info[0][0])
@@ -876,7 +888,7 @@ simply prevents this violation / fix from being applied to any file.
                   lineNo = int(info[0])
                except:
                   lineNo = None
-            ans = raw_input("Edit this file? [y/n]")
+            ans = input("Edit this file? [y/n]")
             ans = ans.replace("\n","")
             if ans.lower().startswith("y") or ans.lower == "":
                if lineNo:
@@ -886,11 +898,11 @@ simply prevents this violation / fix from being applied to any file.
                try:
                   status = subprocess.check_call(cmd)
                   if status != 0:
-                     print "There were some errors from", cmd
+                     print("There were some errors from", cmd)
                except NameError:
                   p = popen2.Popen3(cmd)
                   p.wait()
-               print
+               print()
 
 
    ###################### methods for identifying violations and printing the report
@@ -908,7 +920,7 @@ simply prevents this violation / fix from being applied to any file.
        if not m:
           return ["No ROBODOC header"]
        ans = self.parseRB(lines)
-       if ans.has_key("problems"): rv.extend(ans["problems"])
+       if "problems" in ans: rv.extend(ans["problems"])
        if not ans["syn_name"].startswith(self.basename):
           rv.append("Synopsis name is '%s', filename is '%s'" % (ans["syn_name"],self.basename))
           if not ans["syn_name"]: 
@@ -979,7 +991,7 @@ simply prevents this violation / fix from being applied to any file.
              correctlyCasedUnitname = self.interfacesDict.getCorrectlyCasedUnitname(unitname)
              pathToInterfaceFile    = os.path.join(pathToAPILevelDir, (correctlyCasedUnitname + "_interface.F90"))
 
-             if subname not in subnamesDict.keys():
+             if subname not in list(subnamesDict.keys()):
                correctlyCasedSubname = self.interfacesDict.getCorrectlyCasedSubname(subname)
                if correctlyCasedSubname:
                  # Something has been typed with poor attention to upper/lower case
@@ -1013,7 +1025,9 @@ simply prevents this violation / fix from being applied to any file.
    def fileName(self,lines):
 
        def contract(name):
-           return filter(lambda x: x != "_", name).lower() # remove _ from name
+           name = name.replace('_', '')
+           name=name.lower()
+           return name # lowercase and remove _ from name
 
        if self.ext in ["C","c"]:
           reg = self.regs["cFunction"]
@@ -1050,8 +1064,10 @@ simply prevents this violation / fix from being applied to any file.
        return ans
 
    def commonBlock_print(self,fd,prefix,info):
-       fd.write("%s Common Blocks: %s\n" % (prefix,string.join(info,", ")))
-       
+
+         # fd.write("%s Common Blocks: %s\n" % (prefix,str.join(info,", "))) ! old python  2 style join works on lists
+         fd.write("%s Common Blocks: %s\n" % (prefix, str.join(str (x for x in info),", ")))
+
    def devComments_F90(self,lines):
        reg = self.regs["devComments"]
        lno = 1
@@ -1192,7 +1208,7 @@ simply prevents this violation / fix from being applied to any file.
    def FnArgsCheck_F90(self,lines):
        ans = []
        resub  = self.regs["begSub"]
-       if not self.methDict.has_key("FnArgsCheck"): 
+       if "FnArgsCheck" not in self.methDict: 
           self.methDict["FnArgsCheck"] = {}
        mdict = self.methDict["FnArgsCheck"] # store info across calls in this dict
        length = len(lines)
@@ -1209,7 +1225,7 @@ simply prevents this violation / fix from being applied to any file.
               name = dic["subname"]
               args = [x.strip().lower() for x in dic["arglist"]]
               # mdict[name] is a list of pairs (filename,decl)
-              if not mdict.has_key(name): 
+              if name not in mdict: 
                  mdict[name] = []
               # the different declarations we have for subroutine name
               decs = [ x[1] for x in mdict[name] ] 
@@ -1220,10 +1236,10 @@ simply prevents this violation / fix from being applied to any file.
        return ans
        
    def FnArgsCheck_print_all(self,fd,prefix):
-       if not self.methDict.has_key("FnArgsCheck"): 
+       if "FnArgsCheck" not in self.methDict: 
           return
        mdict = self.methDict["FnArgsCheck"]
-       for (k,v) in mdict.items():
+       for (k,v) in list(mdict.items()):
            if len(v) > 1: # more than one decl  for a function
               fd.write("\n%sFunction %s has multiple declarations\n" % (prefix,k))
               for (fname,args) in v:
@@ -1407,14 +1423,14 @@ simply prevents this violation / fix from being applied to any file.
        # mdict is a dictionary mapping FnName to (filename,listofargs)
        mdict = self.methDict["FnArgsCheck"]
        # search for an entry for name equal to filename
-       if not mdict.has_key(self.basename): # no subroutine with name = filename
+       if self.basename not in mdict: # no subroutine with name = filename
           return None # dont fix this yet, this will be flagged by other checks
 
        # reparse code to find the types of the arguments
        # and populate rbinfo
        args = mdict[self.basename][0][1]
        rbinfo = {}
-       for k,v in self.RBinfo.items(): rbinfo[k] = {"type": "", "desc":v }
+       for k,v in list(self.RBinfo.items()): rbinfo[k] = {"type": "", "desc":v }
        inmysub = None
        ctr = 0
        length = len(lines)
@@ -1447,7 +1463,7 @@ simply prevents this violation / fix from being applied to any file.
               typedecl = m.group("typedecl")
               for x in pullargs.findall(ilist):
                   x = x.strip().lower()
-                  if not rbinfo.has_key(x): 
+                  if x not in rbinfo: 
                      rbinfo[x] = {}
                      rbinfo[x].update(rbinfo["none"]) # copy the defaults
                   typedecl = re.sub(" {2,}"," ",typedecl)
@@ -1590,21 +1606,21 @@ simply prevents this violation / fix from being applied to any file.
 
 ########################### START SCRIPT ################################
 def usage():
-   print >> sys.stderr, "Usage: codecheck.py --mode=<mode> --report-file=<report-file> --target=<target> --method=<method>"
-   print >> sys.stderr 
-   print >> sys.stderr, " <mode> is one of 'check', 'fix', 'list', 'edit'. Default 'check'."
-   print >> sys.stderr, "     List mode lists the methods which can be used."
-   print >> sys.stderr 
-   print >> sys.stderr, " <report-file> is where the report will be written."
-   print >> sys.stderr, "     If not specified, it defaults to 'docs/designDocs/violations.txt' for check mode."
-   print >> sys.stderr, "     - implies stdout"
-   print >> sys.stderr 
-   print >> sys.stderr, " <target> If a directory, all files underneath it will be checked (recursively)."
-   print >> sys.stderr, "     If a file, only that single file will be checked."
-   print >> sys.stderr, "     if not specified, defaults to FLASH_HOME/source"
-   print >> sys.stderr 
-   print >> sys.stderr, " <method> determines which checks/fixes should be applied."
-   print >> sys.stderr, "     If not specified defaults to all methods."
+   print("Usage: codecheck.py --mode=<mode> --report-file=<report-file> --target=<target> --method=<method>", file=sys.stderr)
+   print(file=sys.stderr) 
+   print(" <mode> is one of 'check', 'fix', 'list', 'edit'. Default 'check'.", file=sys.stderr)
+   print("     List mode lists the methods which can be used.", file=sys.stderr)
+   print(file=sys.stderr) 
+   print(" <report-file> is where the report will be written.", file=sys.stderr)
+   print("     If not specified, it defaults to 'docs/designDocs/violations.txt' for check mode.", file=sys.stderr)
+   print("     - implies stdout", file=sys.stderr)
+   print(file=sys.stderr) 
+   print(" <target> If a directory, all files underneath it will be checked (recursively).", file=sys.stderr)
+   print("     If a file, only that single file will be checked.", file=sys.stderr)
+   print("     if not specified, defaults to FLASH_HOME/source", file=sys.stderr)
+   print(file=sys.stderr) 
+   print(" <method> determines which checks/fixes should be applied.", file=sys.stderr)
+   print("     If not specified defaults to all methods.", file=sys.stderr)
    sys.exit(1)
 
 
@@ -1637,7 +1653,7 @@ def main():
           meths.extend(v.split(","))
    cc = checkCode(flashHome,fname)
    if not cc.process(dirOrFileName,mode,meths):
-      print >> sys.stderr, "Invalid mode %s\n" % mode
+      print("Invalid mode %s\n" % mode, file=sys.stderr)
       usage()
 
 ########################### END SCRIPT #######################################

@@ -1,4 +1,5 @@
-# FLASH makefile definitions for GCE can be setup by using the settings in mungeenv-gce-Feb2022.sh file;
+# Flash-X makefile definitions for GCE UB20 for Intel compilers
+# can be setup by using the settings in mungeenv-gce-Feb2022.sh file;
 # something like `module add intel/20.4 mpich/3.4.2-intel hdf5/1.12.1-mpich-3.4.2-parallel-fortran`.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
@@ -49,14 +50,14 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
-FFLAGS_OPT = -c -O2 -r8 -real_size 64 -check uninit
-FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real_size 64 \
+FFLAGS_OPT = -c -O2 -r8 -real-size 64 -check uninit
+FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 	-warn all -diag-disable 10120 \
 	-check output_conversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -check bounds \
 	-fimplicit-none -fp-stack-check \
 	-traceback -check bounds 
-FFLAGS_TEST = -O1 -c -r8 -real_size 64 \
+FFLAGS_TEST = -O1 -c -r8 -real-size 64 \
 	 -stand f18 -no-wrap-margin \
 	 -fminshared -assume buffered_stdout
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
@@ -96,12 +97,12 @@ LFLAGS_TEST  = -o
 #----------------------------------------------------------------------------
 # Library specific linking
 #
-#  If a FLASH module has a 'LIBRARY xxx' line in its Config file, we need to
+#  If a Flash-X source directory has a 'LIBRARY xxx' line in its Config file, we need to
 #  create a macro in this Makefile.h for LIB_xxx, which will be added to the
-#  link line when FLASH is built.  This allows us to switch between different
+#  link line when Flash-X is built.  This allows us to switch between different
 #  (incompatible) libraries.  We also create a _OPT, _DEBUG, and _TEST
 #  library macro to add any performance-minded libraries (like fast math),
-#  depending on how FLASH was setup.
+#  depending on how Flash-X was setup.
 #
 #  Mostly handled by loading modules with Spack and h5pXX wrappers.
 #----------------------------------------------------------------------------
@@ -130,7 +131,7 @@ LIB_MA28 = -L$(MA28_PATH)/lib -lma28
 # Additional machine-dependent object files
 #
 #  Add any machine specific files here -- they will be compiled and linked
-#  when FLASH is built.
+#  when Flash-X is built.
 #----------------------------------------------------------------------------
 
 MACHOBJ =

@@ -49,12 +49,13 @@ PP      = -D
 #----------------------------------------------------------------------------
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized -DHAVE_MPI_MODULE -fallow-argument-mismatch
-FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
-	-pedantic -Wall -Wextra -Waliasing \
+FFLAGS_DEBUG = -ggdb -c  -fdefault-real-8 -fdefault-double-8 \
+	-Wall -Wextra -Waliasing \
 	-Wsurprising -Wconversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -fbounds-check \
 	-fimplicit-none -fstack-protector-all \
-	-fbacktrace -fbounds-check -DHAVE_MPI_MODULE -fallow-argument-mismatch
+	-fbacktrace -fbounds-check \
+	-ffree-line-length-none -DHAVE_MPI_MODULE -fallow-argument-mismatch
 FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 	-ffree-line-length-none -DHAVE_MPI_MODULE -fallow-argument-mismatch
 

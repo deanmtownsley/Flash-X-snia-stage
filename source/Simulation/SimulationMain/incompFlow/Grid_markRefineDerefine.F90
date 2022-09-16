@@ -81,7 +81,7 @@ subroutine Grid_markRefineDerefine()
    logical, save :: gcMaskArgsLogged = .FALSE.
    integer, save :: eosModeLast = 0
    logical :: doEos = .true.
-   integer, parameter :: maskSize = NUNK_VARS + NDIM*NFACE_VARS
+   integer, parameter :: maskSize = NUNK_VARS
    logical, dimension(maskSize) :: gcMask
    real, dimension(MAXBLOCKS) :: err
 
@@ -106,15 +106,12 @@ subroutine Grid_markRefineDerefine()
       if (iref > 0) gcMask(iref) = .TRUE.
    end do
 
-   gcMask(NUNK_VARS + 1:min(maskSize, NUNK_VARS + NDIM*NFACE_VARS)) = .TRUE.
-!!$  gcMask(NUNK_VARS+1:maskSize) = .TRUE.
-
    if (.NOT. gcMaskArgsLogged) then
       call Logfile_stampVarMask(gcMask, .true., '[Grid_markRefineDerefine]', 'gcArgs')
    end if
 
 !!$  force_consistency = .FALSE.
-   call Grid_fillGuardCells(CENTER_FACES, ALLDIR, doEos=.true., &
+   call Grid_fillGuardCells(CENTER, ALLDIR, doEos=.true., &
                             maskSize=maskSize, mask=gcMask, makeMaskConsistent=.true., doLogMask=.NOT. gcMaskArgsLogged, &
                             selectBlockType=ACTIVE_BLKS)
    gcMaskArgsLogged = .TRUE.

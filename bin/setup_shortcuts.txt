@@ -47,6 +47,7 @@ ug:+grid:Grid=UG:
 pm40:+grid:Grid=PM40:
 pm3:+pm40
 amrex:Grid=Amrex:-unit=Grid/GridMain/AMR/Amrex:-index-reorder
+milhoja:Grid=Milhoja:-unit=Grid/GridMain/AMR/Milhoja:-index-reorder
 
 # pm4dev_clean indicates a version of Paramesh closer to the one
 # that can be downloaded from sourceforge.  pm4dev indicates a 

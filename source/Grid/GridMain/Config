@@ -6,8 +6,8 @@ USESETUPVARS ThreeT
 # Requires use of the Grid SetupVariable
 USESETUPVARS Grid
 
-IF Grid not in ["","PM4DEV","PM40","PM3","UG","Amrex"]
-   SETUPERROR The variable Grid is not in ["","PM4DEV","PM40","PM3","UG","Amrex"]
+IF Grid not in ["","PM4DEV","PM40","PM3","UG","Amrex","Milhoja"]
+   SETUPERROR The variable Grid is not in ["","PM4DEV","PM40","PM3","UG","Amrex","Milhoja"]
 ENDIF
 
 REQUIRES Grid/localAPI

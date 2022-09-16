@@ -60,4 +60,4 @@ def libinfo(relLibDir="",absLibDir="",buildFlag="",args="",macros=[]):
     #Also label the library as internal because we provide the source code.
     #Do not provide a path because we do not have several different
     #weaklib implementations that exist in different directories.
-    return {"REBUILD":1, "INTERNAL":""}
+    return {"REBUILD":(not GVars.noClobber), "INTERNAL":""}

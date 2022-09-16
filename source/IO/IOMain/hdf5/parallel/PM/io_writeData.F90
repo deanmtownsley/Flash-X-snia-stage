@@ -321,11 +321,11 @@ subroutine io_writeData(fileID)
 
       if (io_doublePrecision) then
          if (io_chkGuardCellsOutput) then
-            allocate (unkBufGC(1, GRID_IHI_GC, GRID_JHI_GC, GRID_KHI_GC, MAXBLOCKS))
+            allocate (unkBufGC(1, GRID_IHI_GC, GRID_JHI_GC, GRID_KHI_GC, localNumBlocks))
             unkBufGC(1, blkLimits(LOW, IAXIS):blkLimits(HIGH, IAXIS), &
                      blkLimits(LOW, JAXIS):blkLimits(HIGH, JAXIS), &
-                     blkLimits(LOW, KAXIS):blkLimits(HIGH, KAXIS), 1:MAXBLOCKS) = &
-               unk(i, :, :, :, 1:MAXBLOCKS)
+                     blkLimits(LOW, KAXIS):blkLimits(HIGH, KAXIS), 1:localNumBlocks) = &
+               unk(i, :, :, :, 1:localNumBlocks)
 
             !DEV: The above works for permanent guardcells, though it leaves the
             !guardcell region filled with arbitrary data in non-permanent
@@ -345,8 +345,8 @@ subroutine io_writeData(fileID)
                                      dowrite)
             deallocate (unkBufGC)
          else
-            unkBuf(1, 1:NXB, 1:NYB, 1:NZB, 1:MAXBLOCKS) = &
-               unk(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi, 1:MAXBLOCKS)
+            unkBuf(1, 1:NXB, 1:NYB, 1:NZB, 1:localNumBlocks) = &
+               unk(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi, 1:localNumBlocks)
             call io_h5write_unknowns(io_globalMe, &
                                      fileID, &
                                      NXB, &
@@ -365,8 +365,8 @@ subroutine io_writeData(fileID)
          isPlotVar = any(io_unklabelsGlobal(u) == io_plotVarStr(1:io_nPlotVars))
          if (isPlotVar) then
             if (io_plotfileGridQuantityDP) then
-               unkBuf(1, 1:NXB, 1:NYB, 1:NZB, 1:MAXBLOCKS) = &
-                  unk(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi, 1:MAXBLOCKS)
+               unkBuf(1, 1:NXB, 1:NYB, 1:NZB, 1:localNumBlocks) = &
+                  unk(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi, 1:localNumBlocks)
                call io_h5write_unknowns(io_globalMe, &
                                         fileID, &
                                         NXB, &
@@ -406,7 +406,10 @@ subroutine io_writeData(fileID)
          end if
       end if
 
+#ifdef USEBARS
       call MPI_BARRIER(io_globalComm, ierr)
+#endif
+
    end do
 
    if (io_doublePrecision .or. io_plotfileGridQuantityDP) then
@@ -548,8 +551,8 @@ subroutine io_writeData(fileID)
 
       if (.NOT. io_chkGuardCellsOutput) then
       do i = 1, NFACE_VARS
-         faceXBuf(1, 1:NXB + 1, 1:NYB, 1:NZB, 1:MAXBLOCKS) = &
-            facevarx(i, io_ilo:io_ihi + 1, io_jlo:io_jhi, io_klo:io_khi, 1:MAXBLOCKS)
+         faceXBuf(1, 1:NXB + 1, 1:NYB, 1:NZB, 1:localNumBlocks) = &
+            facevarx(i, io_ilo:io_ihi + 1, io_jlo:io_jhi, io_klo:io_khi, 1:localNumBlocks)
          call io_h5write_unknowns(io_globalMe, &
                                   fileID, &
                                   NXB + 1, &
@@ -566,8 +569,8 @@ subroutine io_writeData(fileID)
 
          if (NDIM .gt. 1) then
 
-            faceYBuf(1, 1:NXB, 1:NYB + 1, 1:NZB, 1:MAXBLOCKS) = &
-               facevary(i, io_ilo:io_ihi, io_jlo:io_jhi + 1, io_klo:io_khi, 1:MAXBLOCKS)
+            faceYBuf(1, 1:NXB, 1:NYB + 1, 1:NZB, 1:localNumBlocks) = &
+               facevary(i, io_ilo:io_ihi, io_jlo:io_jhi + 1, io_klo:io_khi, 1:localNumBlocks)
 
             call io_h5write_unknowns(io_globalMe, &
                                      fileID, &
@@ -585,8 +588,8 @@ subroutine io_writeData(fileID)
 
             if (NDIM .gt. 2) then
 
-               faceZBuf(1, 1:NXB, 1:NYB, 1:NZB + 1, 1:MAXBLOCKS) = &
-                  facevarz(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi + 1, 1:MAXBLOCKS)
+               faceZBuf(1, 1:NXB, 1:NYB, 1:NZB + 1, 1:localNumBlocks) = &
+                  facevarz(i, io_ilo:io_ihi, io_jlo:io_jhi, io_klo:io_khi + 1, 1:localNumBlocks)
 
                call io_h5write_unknowns(io_globalMe, &
                                         fileID, &

@@ -1,0 +1,151 @@
+# Parameters file for jet-drive core-collapse SN
+
+# Simulation basics
+basenm			       = "coreCollapse_"
+restart			       = .false.
+checkpointFileNumber           = 0
+plotFileNumber                 = 0
+particleFileNumber	       = 0
+run_comment                    = "CoreCollapse!"
+
+# IO
+checkpointFileIntervalStep     = 0
+checkpointFileIntervalTime     = 0.001
+plotFileIntervalStep           = 0
+plotFileIntervalTime           = 0.000
+wall_clock_time_limit          = 42000.
+#wall_clock_time_limit          = 3000.
+wr_integrals_freq	            = 2
+
+plot_var_1                       = "dens"
+plot_var_2                       = "pres"
+plot_var_3                       = "temp"
+plot_var_4                       = "velx"
+plot_var_5                       = "vely"
+plot_var_6                       = "ener"
+plot_var_7                       = "entr"
+plot_var_8                       = "ye  "
+plot_var_9                       = "deps"
+plot_var_10                      = "dye "
+plot_var_11                      = "shok"
+plot_var_12                      = "gpot"
+plot_var_13                      = "gamc"
+plot_var_14                      = "ynu "
+
+# Time
+tinitial                       = 0.0
+tmax                           = 1.0
+nend                           = 1000000
+tstep_change_factor            = 1.25
+dtinit                         = 1.E-9
+dtmax                          = 1.E0
+dtmin                          = 1.E-20
+
+# Domain
+geometry                       = "spherical"
+#geometry                       = "cylindrical"
+#geometry		       = "cartesian"
+
+xmin                           = 0
+xmax                           = 5e8
+xl_boundary_type               = "reflect"
+xr_boundary_type               = "outflow"
+
+ymin                           = 0
+ymax                           = 5e8
+yl_boundary_type               = "reflect"
+yr_boundary_type               = "outflow"
+
+zmin                           = 0
+zmax                           = 5e8
+zl_boundary_type               = "reflect"
+zr_boundary_type               = "outflow"
+
+# Grid/Refinement
+nblockx                        = 1
+nblocky                        = 1
+nblockz                        = 1
+
+gr_lrefineMaxRedDoByLogR       = .true.
+gr_lrefineMaxRedDoByTime       = .FALSE.
+gr_lrefineMaxRedLogBase        = 10.0
+gr_lrefineMaxRedRadiusFact     = 0.2
+gr_lrefineMaxRedTRef           = 2.0
+gr_lrefineMaxRedTimeScale      = 0.5
+
+lrefine_max                    = 8
+lrefine_min                    = 1
+refine_var_1                   = "dens"
+refine_var_2                   = "pres"
+refine_var_3                   = "none"
+refine_var_4                   = "none"
+refine_cutoff_1		       = 0.8
+refine_cutoff_2		       = 0.8
+refine_cutoff_3		       = 0.8
+refine_cutoff_4		       = 0.8
+
+# Simulation
+model_file                     = "s20.1d"
+nsub                           = 4
+vel_mult                       = 1.0
+
+# Hydro
+useHydro                       = .TRUE.
+cfl                            = 0.5
+interpol_order                 = 2
+updateHydroFluxes              = .TRUE.
+eintSwitch		       = 0.0 # Always use Etot
+lim_rad = 0.1
+cvisc           = 0.    # coefficient for artificial viscosity
+use_flattening  = .true. # use flattening (dissipative) (originally for PPM)
+flux_correct    = .true.
+use_hybridRiemann=.true.
+
+# Gravity
+useGravity                     = .true.
+updateGravity                  = .TRUE.
+grav_boundary_type             = "isolated"
+mpole_3daxisymmetry            = .false.
+mpole_dumpMoments              = .FALSE.
+mpole_PrintRadialInfo	       = .false.
+mpole_IgnoreInnerZone	       = .false.
+mpole_lmax                     = 0
+mpole_ZoneRadiusFraction_1     = 1.0
+mpole_ZoneExponent_1           = 0.005
+mpole_ZoneScalar_1	       = 0.5
+mpole_ZoneType_1	       = "logarithmic"
+point_mass                     = 0.0
+point_mass_rsoft               = 0.e0
+use_gravHalfUpdate             = .TRUE.
+use_gravConsv		       = .FALSE.
+use_gravPotUpdate	       = .FALSE.
+
+mpole_useEffectivePot          = False
+mpole_EffPotNum 	       = 1000
+
+# EOS
+eos_file                       = "wl-EOS-SFHo-15-25-50-noBCK.h5"
+eosMode                        = "dens_ie"
+eosModeInit                    = "dens_temp"
+
+# Deleptonization
+useDeleptonize		       = .true.
+delep_Enu		       = 10.0 # MeV
+delep_rhoOne		       = 3.0e7 #3.0e7
+delep_rhoTwo		       = 2.0e13 #2.0e13
+delep_yOne		       = 0.5
+delep_yTwo		       = 0.278 #0.278
+delep_yc		       = 0.035 #0.035
+useEntr 		       = False
+delep_fromFile		       = .false.
+delep_file		       = "yeOfRho.dat"
+
+# Small numbers
+smallt                         = 1.2e8
+smlrho                         = 1.1e3
+smallp                         = 1.E-20
+smalle                         = 1.E1
+
+smallu                         = 1.E-10
+smallx                         = 1.E-100
+small                          = 1.E-100

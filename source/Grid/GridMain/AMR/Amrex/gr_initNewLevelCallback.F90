@@ -57,10 +57,6 @@
 #include "constants.h"
 #include "Simulation.h"
 
-#if defined(FLASH_HYDRO_UNSPLIT) && defined(FLASH_UHD_HYDRO)
-#include "UHD.h"
-#endif
-
 subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
     use iso_c_binding
     use amrex_fort_module,         ONLY : wp => amrex_real

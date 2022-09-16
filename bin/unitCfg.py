@@ -18,7 +18,7 @@ NO_RESTRICT = "noRestrict"
 TOP_UNIT    = "topUnit"
 
 ## For every KEYWORD we have two methods
-## initparseKEYWORD(self) 
+## initparseKEYWORD()
 ##   returns a pair (initialvalue,regexp)
 ##   initialvalue is the default value for internal DataStructure which handles this keyword
 ##   regexp is the regular expression for parsing this keyword line
@@ -56,7 +56,7 @@ class FlashUnit(dict,preProcess):
     # error messages that go with different levels of restriction
     noRestrictErrMsg = "Unknown keyword \"%s\" in file \"%s\", line %d."
     topUnitErrMsg    = ("Illegal keyword \"%s\" in file \"%s\", line %d.\n" +
-                        "Only DEFAULT, PARAMETER, and 'D' keywords are allowed in a top-level Config.")
+                        "Only DEFAULT, CHILDORDER, PARAMETER, and 'D' keywords are allowed in a top-level Config.")
 
     def __init__(self, pathname, restrict, ignorePP=False):
         dict.__init__(self)
@@ -103,7 +103,7 @@ class FlashUnit(dict,preProcess):
             myClass.noRestrictParsers.append(name)
             myClass.keywords.append(keyword) 
             # get the initial value and regexp
-            initval,regexp = getattr(myClass, "initparse%s"%keyword)(self)
+            initval,regexp = getattr(myClass, "initparse%s"%keyword)()
             myClass.initvalues[keyword] = initval
             myClass.regexps[keyword] = re.compile(regexp)
           elif topUnitRe.match(name):
@@ -166,7 +166,8 @@ class FlashUnit(dict,preProcess):
                     raise SetupError('Bad syntax: file %s, line %d:\n%s\n\n%s' % \
                                      (self.filename, lineno, rawline, str(msg)))
 
-    def initparseCHILDORDER(self):
+    @staticmethod
+    def initparseCHILDORDER():
         return [], 'CHILDORDER\s+(.*)$'
 
     def parseCHILDORDER(self, mobj):
@@ -174,21 +175,24 @@ class FlashUnit(dict,preProcess):
         # remaining children appear later in lexicographic order
         self['CHILDORDER'] = mobj.group(1).split()
 
-    def initparseDATAFILES(self):
+    @staticmethod
+    def initparseDATAFILES():
         return [], 'DATAFILES\s+(.*)$'
 
     def parseDATAFILES(self, mobj):
         # DATAFILES -> list of wildcard patterns (with absolute path)
         self['DATAFILES'].extend([os.path.join(self.name,x) for x in mobj.group(1).split()])
 
-    def initparseVARIANTS(self):
+    @staticmethod
+    def initparseVARIANTS():
         return [], 'VARIANTS\s+(.*)$'
 
     def parseVARIANTS(self, mobj):
         # VARIANTS -> list of wildcard patterns
         self['VARIANTS'].extend([x for x in mobj.group(1).split()])
 
-    def initparseD(self):
+    @staticmethod
+    def initparseD():
         return {}, 'D\s*(&|\S+)\s*(.*)$'
 
     def parseD(self, mobj):
@@ -201,7 +205,8 @@ class FlashUnit(dict,preProcess):
             self.DKey = key
             self['D'][key] = comment
             
-    def initparseFACEVAR(self):
+    @staticmethod
+    def initparseFACEVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'FACEVAR\s+(?P<varname>\w+)' + strEosRE
 
@@ -213,7 +218,8 @@ class FlashUnit(dict,preProcess):
            raise SetupError('FACEVAR %s already declared'%facevar)
         self['FACEVAR'][facevar] = (eosmap.upper(),eosmap.upper())
 
-    def initparseVARIABLE(self):
+    @staticmethod
+    def initparseVARIABLE():
         #Order is important.  Only Type then Eos is valid.
 #        strTypeRE = '(\s+TYPE:\s*(?P<type>GENERIC|PER_VOLUME|PER_MASS))?'
         strTypeRE = 'TYPE:\s*(?P<type>GENERIC|PER_VOLUME|PER_MASS)'
@@ -241,7 +247,8 @@ class FlashUnit(dict,preProcess):
             raise SetupError('VARIABLE %s already declared'%variable)
         self['VARIABLE'][variable] = (vartype.upper(), eosmapin.upper(), eosmapout.upper())
 
-    def initparseLIBRARY(self):
+    @staticmethod
+    def initparseLIBRARY():
         return {}, 'LIBRARY\s+(\S+)\s*(.*)$'
 
     def parseLIBRARY(self, mobj):
@@ -249,7 +256,8 @@ class FlashUnit(dict,preProcess):
         libargs = " ".join(mobj.group(2).split()) # trims and removes multiple spaces
         self['LIBRARY'][libname] = libargs
 
-    def initparseGUARDCELLS(self):
+    @staticmethod
+    def initparseGUARDCELLS():
         return None, r'GUARDCELLS\s+([0-9]+)$'
 
     def parseGUARDCELLS(self, mobj):
@@ -258,13 +266,15 @@ class FlashUnit(dict,preProcess):
             raise SetupError('GUARDCELLS already declared')
         self['GUARDCELLS'] = num
 
-    def initparseFLUX(self):
+    @staticmethod
+    def initparseFLUX():
         return {}, r'FLUX\s+(\w+)$'
 
     def parseFLUX(self, mobj):
         self['FLUX'][mobj.group(1)] = 1
                 
-    def initparseSCRATCHVAR(self):
+    @staticmethod
+    def initparseSCRATCHVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHVAR\s+(?P<varname>\w+)' +  strEosRE
 
@@ -274,7 +284,8 @@ class FlashUnit(dict,preProcess):
         if not eosmap: eosmap = "NONEXISTENT"
         self['SCRATCHVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
-    def initparseSCRATCHCENTERVAR(self):
+    @staticmethod
+    def initparseSCRATCHCENTERVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHCENTERVAR\s+(?P<varname>\w+)' +  strEosRE
 
@@ -284,7 +295,8 @@ class FlashUnit(dict,preProcess):
         if not eosmap: eosmap = "NONEXISTENT"
         self['SCRATCHCENTERVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
-    def initparseSCRATCHFACEXVAR(self):
+    @staticmethod
+    def initparseSCRATCHFACEXVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHFACEXVAR\s+(?P<varname>\w+)' +  strEosRE
 
@@ -294,7 +306,8 @@ class FlashUnit(dict,preProcess):
         if not eosmap: eosmap = "NONEXISTENT"
         self['SCRATCHFACEXVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
-    def initparseSCRATCHFACEYVAR(self):
+    @staticmethod
+    def initparseSCRATCHFACEYVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHFACEYVAR\s+(?P<varname>\w+)' +  strEosRE
 
@@ -304,7 +317,8 @@ class FlashUnit(dict,preProcess):
         if not eosmap: eosmap = "NONEXISTENT"
         self['SCRATCHFACEYVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
-    def initparseSCRATCHFACEZVAR(self):
+    @staticmethod
+    def initparseSCRATCHFACEZVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHFACEZVAR\s+(?P<varname>\w+)' +  strEosRE
 
@@ -314,7 +328,8 @@ class FlashUnit(dict,preProcess):
         if not eosmap: eosmap = "NONEXISTENT"
         self['SCRATCHFACEZVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
-    def initparseSPECIES(self):
+    @staticmethod
+    def initparseSPECIES():
         return {}, r'SPECIES\s+(?P<name>\w+)(\s+TO\s+(?P<nElec>\d+))?\s*$'
 
     def parseSPECIES(self, mobj):
@@ -332,7 +347,8 @@ class FlashUnit(dict,preProcess):
         else:
             self['SPECIES'][name] = 1
 
-    def initparseMASS_SCALAR(self):
+    @staticmethod
+    def initparseMASS_SCALAR():
 #        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         strEosmapRE  = 'EOSMAP(INOUT)?:\s*(?P<eosmap>' + GVars.strEos + ')|EOSMAPIN:\s*(?P<eosmapin>' + GVars.strEos + ')|EOSMAPOUT:\s*(?P<eosmapout>' + GVars.strEos + ')'
         return {}, r'MASS_SCALAR\s+(?P<msname>\w+)(\s+)?(?:(NORENORM|RENORM:(?P<gpname>\S*)|' + strEosmapRE + ')\s*)*\s*$'
@@ -354,7 +370,8 @@ class FlashUnit(dict,preProcess):
 ##        print "self['MASS_SCALAR'][" + msname + "] <-", self['MASS_SCALAR'][msname] 
 
 
-    def initparsePARTICLEPROP(self):
+    @staticmethod
+    def initparsePARTICLEPROP():
         return {}, r'PARTICLEPROP\s+(?P<name>\w+)\s+(?P<type>INTEGER|REAL)\s*$'
 
     def parsePARTICLEPROP(self, mobj):
@@ -368,7 +385,8 @@ class FlashUnit(dict,preProcess):
 
     #We will store all of the particle type information as a dictionary of tuples.
     #The particle type will be key, and the values will be the map & init methods.
-    def initparsePARTICLETYPE(self):
+    @staticmethod
+    def initparsePARTICLETYPE():
         return {}, r'PARTICLETYPE\s+(?P<particleType>\w+)\s+INITMETHOD\s+(?P<initMethod>\w+)\s+MAPMETHOD\s+(?P<mapMethod>\w+)\s+ADVMETHOD\s+(?P<advMethod>\w+)\s*$'
 
     def parsePARTICLETYPE(self, mobj):
@@ -380,7 +398,8 @@ class FlashUnit(dict,preProcess):
             raise SetupError('PARTICLETYPE %s already declared' % particleType)
         self['PARTICLETYPE'][particleType] = (initMethod, mapMethod, advMethod)
 
-    def initparsePARTICLEMAP(self):
+    @staticmethod
+    def initparsePARTICLEMAP():
         return {}, r'PARTICLEMAP\s+(TO)\s+(?P<name>\w+)\s+(FROM)\s+(?P<type>'\
             r'(SCRATCHVAR|SCRATCHCENTERVAR|SCRATCHFACEXVAR|SCRATCHFACEYVAR|SCRATCHFACEZVAR|FACEX'\
             r'|FACEY|FACEZ|VARIABLE|MASS_SCALAR|SPECIES))\s+(?P<varname>\w+)\s*$'
@@ -393,7 +412,8 @@ class FlashUnit(dict,preProcess):
             raise SetupError('PARTICLEMAP %s already set'%name)
         self['PARTICLEMAP'][name] = (type, varname)
             
-    def initparseSUGGEST(self):
+    @staticmethod
+    def initparseSUGGEST():
         return [],r'SUGGEST\s+(.*)$'
 
     def parseSUGGEST(self,mobj):
@@ -406,7 +426,8 @@ class FlashUnit(dict,preProcess):
                   sugset.append(os.path.normpath(u))
         self['SUGGEST'].append(sugset)
 
-    def initparseREQUIRES(self):
+    @staticmethod
+    def initparseREQUIRES():
         # "REQUIRES" can be followed by a list of potential Units separated by "OR"
         return [], r'REQUIRES\s+(?P<orList>(?:\S+|\s+OR\s+)+)\s*$'
 
@@ -425,7 +446,8 @@ class FlashUnit(dict,preProcess):
         # Note that self['REQUIRES'] is a list of lists
         self['REQUIRES'].append(units)
 
-    def initparseREQUESTS(self):
+    @staticmethod
+    def initparseREQUESTS():
         return [], r'REQUESTS\s+(?P<name>\S+)\s*$'
 
     # same as REQUIRES except can be negated by a -without-unit in cmd line
@@ -454,7 +476,8 @@ class FlashUnit(dict,preProcess):
         else:
            GVars.out.put("Ignoring request for %s (reason: -without-unit=%s)"%(unit,reason),globals.DEBUG)
 
-    def initparsePARAMETER(self):
+    @staticmethod
+    def initparsePARAMETER():
         return {}, r'PARAMETER\s+(\w+)\s+'\
                    r'(INTEGER|REAL|STRING|BOOLEAN)\s+(?:(CONSTANT)\s+)?'\
                    r'([^[]+)(?:[\[](.*)[]])?\s*$'
@@ -471,13 +494,15 @@ class FlashUnit(dict,preProcess):
             value = str.rstrip(value)
         self['PARAMETER'][name]=(type, value, constant, range)
 
-    def initparseDEFAULT(self):
+    @staticmethod
+    def initparseDEFAULT():
         return "", r'DEFAULT\s+(\S+)$'
 
     def parseDEFAULT(self, mobj):
         self['DEFAULT'] = os.path.join(self.name, os.path.normpath(mobj.group(1)))
         
-    def initparseEXCLUSIVE(self):
+    @staticmethod
+    def initparseEXCLUSIVE():
         return [], r'EXCLUSIVE\s+(.+)$'
 
     def parseEXCLUSIVE(self, mobj):
@@ -497,7 +522,8 @@ class FlashUnit(dict,preProcess):
 
         self['EXCLUSIVE'].append(units)
 
-    def initparseKERNEL(self):
+    @staticmethod
+    def initparseKERNEL():
         return None, r'KERNEL(\s+([^ \t]+))?\s*$'
 
     def parseKERNEL(self, mobj):
@@ -509,7 +535,8 @@ class FlashUnit(dict,preProcess):
             self['KERNEL'] = kname
         GVars.out.put("parseKERNEL: set to %s."% self['KERNEL'],globals.DEBUG)
 
-    def initparseLINKIF(self):
+    @staticmethod
+    def initparseLINKIF():
         return [], r'LINKIF\s+(.+)$'
 
     def parseLINKIF(self,mobj):
@@ -526,7 +553,8 @@ class FlashUnit(dict,preProcess):
 
         self['LINKIF'].append((os.path.join(self.name,parts[0]),parts[1]))
 
-    def initparseCONFLICTS(self):
+    @staticmethod
+    def initparseCONFLICTS():
         return {}, r'CONFLICTS\s+(.+)$'
 
     def parseCONFLICTS(self, mobj):
@@ -534,14 +562,16 @@ class FlashUnit(dict,preProcess):
         # raise an error if any of MODNAME are also included
         for unit in mobj.group(1).split(): self['CONFLICTS'][unit] = 1
 
-    def initparsePPDEFINE(self):
+    @staticmethod
+    def initparsePPDEFINE():
         # name one pre-processor symbol and optionally value to define
         return {},'PPDEFINE\s+(?P<sym>\w+)(?:\s+(?P<val>\w+))?$'
 
     def parsePPDEFINE(self,mobj):
         self['PPDEFINE'][mobj.group("sym")] = mobj.group("val")
     
-    def initparseNONREP(self):
+    @staticmethod
+    def initparseNONREP():
         # non mesh replicated variable array 
         return {},'NONREP\s+(?P<type>MASS_SCALAR|VARIABLE)\s+(?P<name>\w+)\s+(?P<nloc>[0-9]+)\s+(?P<pglob>\w+)(\s+(?P<namef>\S+))?$'
     def parseNONREP(self,mobj):
@@ -628,16 +658,27 @@ class UnitUnion(dict):
             
             for name,(group,eos1,eos2) in list(unit["MASS_SCALAR"].items()):
                 try:
-                  currval = self["MASS_SCALARS"][name]
+                  prevTriple = self["MASS_SCALARS"][name]
+                  prevgrp    = prevTriple[0]
                   gotval = True
                 except KeyError:
                   self["MASS_SCALARS"][name] = (group, eos1, eos2)
                   gotval = False
 
-                if gotval and (currval != group): # different groups specified
-                   msg = ['MASS SCALAR [%s] has two groups ' % name]
-                   msg.append('    %s in %s' % (currval,unit.name))
+                if gotval and (prevgrp != group): # different groups specified
+                   msg = ['MASS SCALAR [%s] has two groups: ' % name]
+                   msg.append('    %s in %s' % (prevgrp,unit.name))
                    msg.append('    %s in %s' % (group,mscalarlocs[name]))
+                   raise SetupError("\n".join(msg))
+                if gotval and (prevTriple[1] != eos1): # different EOS IN mappings specified
+                   msg = ['MASS SCALAR [%s] has two mappings to EOS input:' % name]
+                   msg.append('    %s in %s' % (prevTriple[1],unit.name))
+                   msg.append('    %s in %s' % (eos1,mscalarlocs[name]))
+                   raise SetupError("\n".join(msg))
+                if gotval and (prevTriple[2] != eos2): # different EOS OUT mappings specified
+                   msg = ['MASS SCALAR [%s] has two mappings from EOS output:' % name]
+                   msg.append('    %s in %s' % (prevTriple[2],unit.name))
+                   msg.append('    %s in %s' % (eos2,mscalarlocs[name]))
                    raise SetupError("\n".join(msg))
                 # everything is fine now
                 mscalarlocs[name] = unit.name # store where it was defined
