@@ -9,6 +9,9 @@ from globals import *
 def genLines(setupvars):
 
     ##
+    yield 'REQUIRES Grid/GridMain/AMR/Paramesh4/Thornado'
+
+    ##
     yield 'USESETUPVARS thornadoGPU'
     yield 'IF thornadoGPU'
     yield '    LIBRARY CUDA'
