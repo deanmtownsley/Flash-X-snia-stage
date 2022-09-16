@@ -9,11 +9,12 @@ from globals import *
 def genLines(setupvars):
 
     ##
-    yield 'REQUIRES Grid/GridMain/AMR'
-    Grid = str(setupvars["Grid"]).upper()
-    if Grid == 'PM4DEV':
-        if GVars.gridInterpolation == globals.GRID_INTERP_NATIVE:
-            yield 'REQUIRES Grid/GridMain/AMR/Paramesh4/Thornado'
+    yield 'USESETUPVARS Grid'
+    yield 'IF Grid in ["","PM4DEV","PM40","PM3","PM2"]'
+    yield '    REQUIRES Grid/GridMain/AMR/Paramesh4/Thornado'
+    yield 'ELSEIF Grid=="Amrex"'
+    yield '    REQUIRES Grid/GridMain/AMR/Amrex'
+    yield 'ENDIF'
 
     ##
     yield 'USESETUPVARS thornadoGPU'
