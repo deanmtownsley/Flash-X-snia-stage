@@ -120,16 +120,17 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               ii = mod((iNodeX-1)                    ,THORNADO_NNODESX) + i
               jj = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + j
               kk = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + k
+
+              if ( MeshX(1) % Center(iX1) / conv_x < 0.5 * ( sim_xmin + sim_xmax ) ) then
+                solnData(DENS_VAR,ii,jj,kk) = sim_dens_lo_i
+              else
+                solnData(DENS_VAR,ii,jj,kk) = sim_dens_hi_i
+              end if
               solnData(VELX_VAR,ii,jj,kk) = sim_velx_i
               solnData(VELY_VAR,ii,jj,kk) = sim_vely_i
               solnData(VELZ_VAR,ii,jj,kk) = sim_velz_i
-              solnData(DENS_VAR,ii,jj,kk) = sim_dens_i
               solnData(TEMP_VAR,ii,jj,kk) = sim_temp_i
               solnData(PRES_VAR,ii,jj,kk) = sim_pres_i
-              solnData(EINT_VAR,ii,jj,kk) = sim_eint_i
-              solnData(ENER_VAR,ii,jj,kk) = sim_etot_i
-              solnData(GAMC_VAR,ii,jj,kk) = sim_gamc_i
-              solnData(GAME_VAR,ii,jj,kk) = sim_game_i
               do n = SPECIES_BEGIN,SPECIES_END
                  solnData(n,ii,jj,kk) = sim_xn_i(n)
               enddo

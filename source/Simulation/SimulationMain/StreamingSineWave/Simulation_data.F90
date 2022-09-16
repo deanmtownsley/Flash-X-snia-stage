@@ -34,8 +34,12 @@ module Simulation_data
 #include "Simulation.h"
 
   !! *** Runtime Parameters *** !!
-  real, save :: sim_dens_i = 1.0e6
-  real, save :: sim_temp_i = 1.0e6
+  real, save :: sim_dens_lo_i
+  real, save :: sim_dens_hi_i
+  real, save :: sim_temp_i
+
+  real, save :: sim_xmin
+  real, save :: sim_xmax
 
   !! *** Variables pertaining to this Simulation *** !!
   integer, save :: sim_meshMe, sim_globalMe
