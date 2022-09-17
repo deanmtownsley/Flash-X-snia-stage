@@ -57,6 +57,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   ! thornado modules
 
   use KindModule, ONLY : DP, SqrtTiny
+  use GeometryFieldsModule, ONLY: uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
   use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
   use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
@@ -509,11 +510,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     velt = 0.0
                     velp = 0.0
 
-                    ! Check to see if we can use geometry fields directly.
-
-                    Gmdd11 = 1.0
-                    Gmdd22 = xnode**2
-                    Gmdd33 = xnode**2 * sin(ynode)**2
+                    Gmdd11 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11)
+                    Gmdd22 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22)
+                    Gmdd33 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33)
 
                     call ComputeConserved_TwoMoment &
                        ( D, I1, I2, I3, &
@@ -522,11 +521,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                          Gmdd11, Gmdd22, Gmdd33 )
 
                  end if
-
-                 !print*, 'CN: ', CN
-                 !print*, 'CG1: ', G1
-                 !print*, 'CG2: ', G2
-                 !print*, 'CG3: ', G3
 
                  if( iCR == iCR_N ) solnData(ivar,ii,jj,kk) = CN
 
