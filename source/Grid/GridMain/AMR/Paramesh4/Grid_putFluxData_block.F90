@@ -197,7 +197,9 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
              gr_xflx_yface(:,3:NXB-1, 2     ,:,blockID)
 #if NDIM>2
         gr_xflx_zface(:,3:NXB-1,2:NYB-1,1,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,sz) +wt*&
+             gr_xflx_zface(:,3:NXB-1,2:NYB-1,1,blockID)
         gr_xflx_zface(:,3:NXB-1,2:NYB-1,2,blockID) = fluxx(:,sx+2:ex-1,sy+1:ey-1,ez) +wt*&
+             gr_xflx_zface(:,3:NXB-1,2:NYB-1,2,blockID)           
 #endif
 #endif
 #endif

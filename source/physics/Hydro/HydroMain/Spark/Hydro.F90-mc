@@ -67,7 +67,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer :: n, error, maxLev=-1
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
   integer, dimension(LOW:HIGH,MDIM) :: limits
-  real :: hdt
+  real :: hdt,wt
   integer :: stage, last_stage
   real, dimension(3) :: coeffs, weights
   integer, dimension(3) :: limits_array
@@ -95,7 +95,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !or overwrite them (False).
   !This array will work for RK2 & RK3
   addFlux_array = (/.false.,.true.,.true./)
-  
+  wt=0.0
   !set up quantities specific to RK scheme (lives in Hydro_funcs)
 
 #ifdef HY_RK3
@@ -154,7 +154,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
   @M hy_allocate_scr
-
+  stage=1
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      @M hy_stages_nt
      if(.NOT.hy_telescoping) &
@@ -172,13 +172,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M mapLimits(blkLimits,blkLimitsGC,locLimits,locLimitsGC)
 
         ng=NGUARD-1
         @M hy_setLims(ng)
             
         @M hy_calcDivB
-        
         call shockDetect(Uin,limits,blkLimitsGC)
 
         ! Setup scratch storage of block data (grav included)
@@ -221,11 +219,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
            call Timers_stop("updateSoln")
-           if (hy_fluxCorrect) then 
+           if (hy_fluxCorrect) then
+              if(addFlux_array(stage))wt=1.0
               @M hy_addFluxes
-              call Grid_putFluxData_block(tileDesc,&
-                   hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),&
-                   addFlux_array(stage))
            end if
            
 #if NSPECIES>0
@@ -239,9 +235,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_stop("eos")
            !Finally update the state
            if (stage == last_stage) then
-              call Timers_start("scratch")
               @M hy_updateState
-              call Timers_stop("scratch")
            endif
            
         @M hy_end_stages_t
@@ -249,8 +243,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
-!!$        if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
-!!$             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
+        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData_block(tileDesc,&
+             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
         call Timers_stop("Offloaded Section")
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -332,6 +326,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
+           @M hy_map_tmp_states
            @M hy_map_scr_ptrs
            
            @M hy_calcDivB
