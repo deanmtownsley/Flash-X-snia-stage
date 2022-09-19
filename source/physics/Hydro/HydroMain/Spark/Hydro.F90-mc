@@ -19,7 +19,7 @@
 !!   For more details see the documentation of the NULL implementation
 !!
 !!***
-!!Reorder(4): hy_fl[xyz]
+!!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 

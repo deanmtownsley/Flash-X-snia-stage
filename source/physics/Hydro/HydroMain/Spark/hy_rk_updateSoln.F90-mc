@@ -40,7 +40,7 @@
 !!    coeff - coefficients for updating
 !!
 !!***
-!!Reorder(4): hy_starState, Uin, hy_fl[xyz]
+!!Reorder(4): hy_starState, hy_tmpState, hy_fl[xyz]
 !!NOVARIANTS
 
 subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
