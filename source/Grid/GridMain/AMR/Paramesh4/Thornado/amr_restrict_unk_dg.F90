@@ -65,9 +65,7 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar)
   Use physicaldata
 
   Use TwoMoment_MeshRefinementModule, Only : &
-    ProjectionMatrix_T, VolumeRatio
-  Use ReferenceElementModuleX, Only : &
-    WeightsX_q
+    CoarsenX_TwoMoment
 
   Implicit None
 
@@ -150,7 +148,7 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar)
                     end do
 
                     ! compute contribution to parent element from child element
-                    U_Crse = U_Crse + VolumeRatio * MATMUL( ProjectionMatrix_T(:,:,iFineX), U_Fine ) / WeightsX_q
+                    U_Crse = U_Crse + CoarsenX_TwoMoment( iFineX, U_Fine )
 
                  end do
               end do

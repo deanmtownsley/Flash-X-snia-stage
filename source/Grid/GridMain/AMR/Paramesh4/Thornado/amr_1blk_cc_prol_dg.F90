@@ -97,9 +97,7 @@ Subroutine amr_1blk_cc_prol_dg               &
   Use prolong_arrays
 
   Use TwoMoment_MeshRefinementModule, Only : &
-     ProjectionMatrix
-  Use ReferenceElementModuleX, Only : &
-     WeightsX_q
+     RefineX_TwoMoment
 
   Implicit None
 
@@ -201,7 +199,7 @@ Subroutine amr_1blk_cc_prol_dg               &
                     iFineX = iFineX + 1
 
                     ! compute fine grid element quadrature points
-                    U_Fine = MATMUL( ProjectionMatrix(:,:,iFineX), U_Crse ) / WeightsX_q
+                    U_Fine = RefineX_TwoMoment( iFineX, U_Crse )
 
                     ! calculate unk indices in child block
                     k = fine_lo(3) + (k0-1) + THORNADO_NNODESX*(kcc-1)
