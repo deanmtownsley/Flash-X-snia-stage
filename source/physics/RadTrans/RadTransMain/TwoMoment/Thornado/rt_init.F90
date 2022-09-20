@@ -93,7 +93,7 @@ subroutine rt_init()
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
 
   ! interpolation of DG variables only works for "native" interpolation mode
-#if defined(FLASH_GRID_PARAMESH) && !defined(GRID_WITH_MONOTONIC)
+#if defined(FLASH_GRID_PARAMESH)
   ! use DG interpolation/averaging for prolongation/restriction
   interp_mask_unk    (THORNADO_BEGIN:THORNADO_END) = 40
   ! if curvilinear, these looks like they are overwritten by mpi_amr_1blk_restrict.F90 on lines 332

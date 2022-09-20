@@ -306,6 +306,12 @@ subroutine amr_prolong_gen_unk1_fun &
   ! (subset of variables given by fromUmapMask)
   toCallerMask = gcell_on_cc
 
+#ifdef THORNADO
+  ! do not interpolate thornado variables here
+  toUmapMask(THORNADO_BEGIN:THORNADO_END) = .FALSE.
+  toCallerMask(THORNADO_BEGIN:THORNADO_END) = .FALSE.
+#endif
+
 #ifdef DENS_VAR
   if(niver.gt.0) then
      do ivar = 1,niver
