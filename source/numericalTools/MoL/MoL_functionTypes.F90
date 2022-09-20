@@ -1,34 +1,27 @@
-!!****if* source/numericalTools/MoL/MoL_functionTypes
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoL_functionTypes.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_functionTypes
-!!
-!!  SYNOPSIS
-!!
-!!      use MoL_functionTypes, only:
-!!
-!!  DESCRIPTION
-!!
-!!      Commonly used interfaces for procedures registered and utilized by MoL
-!!
-!!***
+!! @brief Interfaces for MoL-registerable procedures
+!! @ingroup MoL
 module MoL_functionTypes
 
    implicit none
 
    abstract interface
+      !> @brief A RHS procedure
+      !> @param t The time to calculate the RHS at
       subroutine MoL_rhs_t(t)
          implicit none
          real, intent(in) :: t
@@ -36,6 +29,9 @@ module MoL_functionTypes
    end interface
 
    abstract interface
+      !> @brief An update procedure
+      !> @param t  The time at the start of the update
+      !> @param dt The size of the timestep to take
       subroutine MoL_update_t(t, dt)
          implicit none
          real, intent(in) :: t, dt
@@ -43,6 +39,8 @@ module MoL_functionTypes
    end interface
 
    abstract interface
+      !> @brief A post-udate procedure
+      !> @param t The time to perform the post-update at
       subroutine MoL_postUpdate_t(t)
          implicit none
          real, intent(in) :: t

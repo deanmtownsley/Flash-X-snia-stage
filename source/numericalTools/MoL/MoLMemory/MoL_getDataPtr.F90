@@ -1,44 +1,29 @@
-!!****if* source/numericalTools/MoL/MoLMemory/MoL_getDataPtr
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoLMemory/MoL_getDataPtr.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_getDataPtr
+!! @brief MoL_getDataPtr implementation
+!! @ingroup MoLMemory
+
+!> @brief Implements MoL_getDataPtr
+!! @details This implementation works only with UG and Paramesh due to
+!!          the assumed form of the tile-descriptor
 !!
-!!  SYNOPSIS
+!! @ref MoL_getDataPtr_stub "See stub documentation"
 !!
-!!      call MoL_getDataPtr(class(Grid_tile_t), intent(in) :: tileDesc
-!!                          real, pointer                  :: dataPtr
-!!                          integer, intent(in)            :: dataStruct)
-!!
-!!  DESCRIPTION
-!!
-!!      Obtain pointer to the requested data struct for the provided tile
-!!
-!!      Valid data structs include (defined in MoL.h):
-!!          - MOL_EVOLVED : Evolved variables in UNK
-!!          - MOL_INITIAL : Copy of the evolved variables at the start of a timestep
-!!          - MOL_RHS     : The currently-being-calculated RHS terms
-!!          - other       : Each integrator may specify some additional number of
-!!                          of scratch-memory for intermediate stages/RHS terms
-!!
-!!  ARGUMENTS
-!!
-!!      tileDesc   : Grid tile-descriptor
-!!      dataPtr    : Pointer to set
-!!      dataStruct : Which data struct
-!!
-!!***
+!! @ingroup MoLMemory
+
 !!REORDER(4): dataPtr
 subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
    use ml_memData, only: ml_scratch_data, ml_activeRHS

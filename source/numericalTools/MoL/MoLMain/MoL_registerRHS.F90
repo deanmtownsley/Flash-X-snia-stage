@@ -1,39 +1,26 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_registerRHS
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoLMain/MoL_registerRHS.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_registerRHS
+!! @brief MoL_registerRHS implementation
+!! @ingroup MoLMain
+
+!> @brief Implements MoL_registerRHS
 !!
-!!  SYNOPSIS
+!! @ref MoL_registerRHS_stub "See stub documentation"
 !!
-!!      call MoL_registerRHS(integer, intent(in)  :: rhsType,
-!!                           procedure(MoL_rhs_t) :: rhsFunc)
-!!
-!!  DESCRIPTION
-!!
-!!      Register a function with MoL to evaluate one of the three
-!!      right-hand side types
-!!
-!! ARGUMENTS
-!!
-!!      rhsType : One of the following function types defined in MoL.h
-!!                   MOL_RHS_EXPLICIT  -  RHS for (slow) explicit terms
-!!                   MOL_RHS_IMPLICIT  -  RHS for (slow) implicit terms
-!!                   MOL_RHS_FAST      -  RHS for (fast) explicit terms
-!!      rhsFunc : Procedure of type MoL_rhs_t to register
-!!
-!!***
+!! @ingroup MoLMain
 subroutine MoL_registerRHS(rhsType, rhsFunc)
    use MoL_functionTypes, only: MoL_rhs_t
    use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF

@@ -1,39 +1,44 @@
-!!****f* source/numericalTools/MoL/MoL_registerRHS
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoL_registerRHS.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_registerRHS
+!! @brief MoL_registerRHS stub
+!! @ingroup MoL
+
+!> @brief Register a procedure responsible for calculating RHS terms
 !!
-!!  SYNOPSIS
+!! @param rhsType  RHS-type identifier
+!! @param rhsFunc  Procedure that will calculate the RHS terms
+!! @anchor MoL_registerRHS_stub
 !!
-!!      call MoL_registerRHS(integer, intent(in)  :: rhsType,
-!!                           procedure(MoL_rhs_t) :: rhsFunc)
+!! @pre `rhsType` is a valid MoL RHS identifier as defined in @ref MoL.h
+!! @pre `rhsFunc` is a callable procedure of the current time: `call rhsFunc(t)`
 !!
-!!  DESCRIPTION
+!! @sideffect MoL's procedure pointer for the specified RHS-type will be set to the
+!!            provided procedure
 !!
-!!      Register a function with MoL to evaluate one of the three
-!!      right-hand side types
+!! @returns None
 !!
-!! ARGUMENTS
+!! @details
+!!    Valid RHS types include (defined in MoL.h):
+!!       - `MOL_RHS_EXPLICIT`  : RHS for (slow) explicit terms
+!!       - `MOL_RHS_IMPLICIT`  : RHS for (slow) implicit terms
+!!       - `MOL_RHS_FAST`      : RHS for (fast) explicit terms
 !!
-!!      rhsType : One of the following function types defined in MoL.h
-!!                   MOL_RHS_EXPLICIT  -  RHS for (slow) explicit terms
-!!                   MOL_RHS_IMPLICIT  -  RHS for (slow) implicit terms
-!!                   MOL_RHS_FAST      -  RHS for (fast) explicit terms
-!!      rhsFunc : Procedure of type MoL_rhs_t to register
+!! @warning Will trigger Flash-X to abort if an invalid RHS-type is specified
 !!
-!!***
+!! @ingroup MoL
 subroutine MoL_registerRHS(rhsType, rhsFunc)
    use MoL_functionTypes, only: MoL_rhs_t
 

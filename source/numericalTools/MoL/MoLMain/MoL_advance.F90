@@ -1,39 +1,28 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_advance
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoLMain/MoL_advance.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_advance
+!! @brief MoL_advance implementation
+!! @ingroup MoLMain
+
+!> @brief Implements MoL_advance
+!! @details This implementation saves the intial state of the evolved
+!!          variables at time `t` and calls a method-specific `ml_advance`
 !!
-!!  SYNOPSIS
+!! @ref MoL_advance_stub "See stub documentation"
 !!
-!!      call MoL_advance(real, intent(in) :: t
-!!                       real, intent(in) :: dt)
-!!
-!!  DESCRIPTION
-!!
-!!      Take a timestep from t to t+dt
-!!
-!!  ARGUMENTS
-!!
-!!      t  : current time
-!!      dt : size of timestep
-!!
-!!  TODO
-!!
-!!      When/if subcyling is available in Flash-X, this will extend
-!!      to include a level-indicator as well
-!!***
+!! @ingroup MoLMain
 subroutine MoL_advance(t, dt)
    use ml_interface, only: ml_advance
    use ml_memInterface, only: ml_memCopy

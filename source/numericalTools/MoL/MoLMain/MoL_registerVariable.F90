@@ -1,37 +1,26 @@
-!!****if* source/numericalTools/MoL/MoLMain/MoL_registerVariable
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file source/numericalTools/MoL/MoLMain/MoL_registerVariable.F90
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!      MoL_registerVariable
+!! @brief MoL_registerVariable implementation
+!! @ingroup MoLMain
+
+!> @brief Implements MoL_registerVariable
 !!
-!!  SYNOPSIS
+!! @ref MoL_registerVariable_stub "See stub documentation"
 !!
-!!      call MoL_registerVariable(character, intent(in)  :: name(:).
-!!                                integer,   intent(in)  :: evolIndex
-!!                                integer,   intent(out) :: rhsIndex)
-!!
-!!  DESCRIPTION
-!!
-!!      Register an evolved variable/equation
-!!
-!! ARGUMENTS
-!!
-!!      name      : Name of the evolved variable
-!!      evolIndex : Index of the evolved variable in UNK
-!!      rhsIndex  : Index of the evolved variable in RHS memory
-!!
-!!***
+!! @ingroup MoLMain
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    use ml_variables, only: ml_variable_t, ml_vars, ml_nvars, &
                            ml_unk_mask, ml_scratch_mask
