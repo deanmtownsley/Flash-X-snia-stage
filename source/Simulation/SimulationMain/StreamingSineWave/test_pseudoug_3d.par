@@ -40,6 +40,7 @@ tmax = 1.667820475990760e-9 # 1/2 period
 # timestep
 # 1 dt_thornado at level 1
 dtinit = 7.72139109254981e-12
+dtmin  = 7.72139109254981e-12
 
 dr_dtMinContinue = 5.0e-20
 dr_tstepSlowStartFactor = 1.0e0
