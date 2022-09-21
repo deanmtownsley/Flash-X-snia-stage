@@ -1,7 +1,5 @@
-#include "constants.h"
-#include "Simulation.h"
-
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +11,20 @@
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 !! @endlicenseblock
+
+#include "constants.h"
+#include "Simulation.h"
+
+!> @ingroup GridMilhoja
+!! @stubrefgeneric
 !!
-!! Please refer to the documentation in the stub version of this file for more
-!! information.
+!! @brief Concrete implementation of Grid_sendOutputData
 !!
-!! \todo This implementation was built up quick & dirty from the AMReX routine.
-!!       In particular, the current form is only sufficient for pseudo-UG.
+!! @attention
+!! This implementation was built up quick & dirty from the AMReX routine.
+!! In particular, the current form is only sufficient for pseudo-UG.
+!!
+!! @todo Complete full implementation
 subroutine Grid_sendOutputData()
     use Grid_data,           ONLY : gr_str_geometry, &
                                     gr_meshComm, &

@@ -1,11 +1,5 @@
-#ifdef DEBUG_ALL
-#define DEBUG_GRID
-#endif
-
-#include "constants.h"
-#include "Simulation.h"
-
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +11,22 @@
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 !! @endlicenseblock
+
+#ifdef DEBUG_ALL
+#define DEBUG_GRID
+#endif
+
+#include "constants.h"
+#include "Simulation.h"
+
+!> @ingroup GridMilhoja
+!! @stubrefgeneric
 !!
-!! This is a Milhoja-specific implementation of this routine.  Please refer
-!! to the documentation in this routine's stub for general interface information.
+!! @brief Concrete implementation of Grid_fillGuardCells
 !!
+!! @attention
 !! Only partial functionality has been implemented so far.  This routine
-!! aborts if calling code attempts to use non-implemented functionality.
+!! aborts if calling code attempts to use unimplemented functionality.
 !!
 !! @todo Code up full implementation
 !! @todo gr_setGcFillNLayers appears to be Paramesh-specific.  Can we get rid

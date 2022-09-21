@@ -1,4 +1,5 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @file
+!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,7 +11,13 @@
 !! See the License for the specific language governing permissions and
 !! limitations under the License.
 !! @endlicenseblock
+
+!> @ingroup GridMilhoja
 !!
+!! @brief
+!! Milhoja-specific local data variables
+!!
+!! @details
 !! Module that contains some private data specific to a Grid implementation that is
 !! probably not of general enough use to be in the Grid_data module, and is also
 !! not part of the internal implementation of an underlying Grid kernel.
