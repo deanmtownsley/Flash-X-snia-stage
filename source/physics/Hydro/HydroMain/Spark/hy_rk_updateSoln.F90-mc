@@ -46,8 +46,8 @@
 subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
-       hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
-       hy_fluxCorrect, hy_4piGinv, hy_alphaGLM, hy_C_hyp
+       hy_smallE, hy_smalldens, hy_geometry,&
+       hy_4piGinv, hy_alphaGLM, hy_C_hyp
   use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,&
        &hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz

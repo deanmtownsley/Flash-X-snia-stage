@@ -259,19 +259,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         nullify(Uin)
         @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
         
-!!$        call Grid_getTileIterator(itor, LEAF, tiling=.false.)
-!!$
-!!$        do while(itor%isValid())
-!!$           call itor%currentTile(tileDesc)
-!!$           blkLimits(:,:)=tileDesc%limits
-!!$           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
-!!$           grownLimits(:,:)=tileDesc%grownLimits
-!!$           call tileDesc%deltas(deltas)
-!!$           level=tileDesc%level
-!!$           call tileDesc%getDataPtr(Uin, CENTER) 
-!!$           hy_del=deltas
-        
-           
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
            !           !all other values are 0.
            @M hy_mapFluxBuf
@@ -289,11 +276,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end if
            @M hy_nullFluxBuf
            @M iter_end
-!!$           call tileDesc%releaseDataPtr(Uin,CENTER)
-!!$           call itor%next()
-!!$        end do
-!!$     !        call Timers_stop("flux correct")
-!!$        call Grid_releaseTileIterator(itor)
      end if !Flux correction
     else !flux correct per level
      print *, "Flux correct per level"
@@ -304,26 +286,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         !Once the finest level is completed, place averaged fine fluxes into
         !current coarse semipermanent flux storage (SPFS)
+
         if (lev < maxLev) call Grid_communicateFluxes(ALLDIR,lev)
         ! Loop over blocks and compute Hydro update block-by-block
         !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
+
         nullify(Uin)
         @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,hy_del)
-!!$        call Grid_getTileIterator(itor,LEAF,level=lev,tiling=.FALSE.)
-!!$        do while(itor%isValid())
-!!$           call itor%currentTile(tileDesc)
-!!$           blkLimits(:,:)=tileDesc%limits
-!!$           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
-!!$           grownLimits(:,:)=tileDesc%grownLimits
-!!$           call tileDesc%deltas(deltas)
-!!$           level=tileDesc%level
-!!$           call tileDesc%getDataPtr(Uin, CENTER)
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
            zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
            
-           
-           hy_del=deltas
            ng=NGUARD-1
            @M hy_setLims(ng)
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
@@ -355,10 +328,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
               call Timers_start("getFaceFlux")
               
-              
               call hy_rk_getFaceFlux (hy_starState, blklimits,blkLimitsGC, limits)
-              
-              
               
               call Timers_stop("getFaceFlux")
               
@@ -378,11 +348,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  endif
               endif
               
-              if (hy_fluxCorrect) then
-                 wt=0.0
-                 if(addFlux_array(stage))wt=1.0
-                 @M hy_addFluxes
-              end if
+              wt=0.0
+              if(addFlux_array(stage))wt=1.0
+              @M hy_addFluxes
 
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
@@ -394,7 +362,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
               
               call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
-!!$              call tileDesc%releaseDataPtr(Uin,CENTER)
               if (hy_geometry /= CARTESIAN) then
                  @M hy_release_geom
               end if
@@ -418,7 +385,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  ! Finally, store the output and free up the scratch array
                  call Timers_start("scratch")
                  @M hy_updateState
-!!$                 call updateState(Uin,blkLimits,blkLimitsGC)
                  call Timers_stop("scratch")
               endif
            end do!stage loop
@@ -428,10 +394,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            @M hy_release_scr_ptrs
            @M iter_end
-!!$           call tileDesc%releaseDataPtr(Uin,CENTER)
-!!$           call itor%next()
-!!$        end do !!block loop
-!!$        call Grid_releaseTileIterator(itor)        
      enddo!loop over levels
   endif !Flux correct per Level
   @M hy_deallocate_scr
