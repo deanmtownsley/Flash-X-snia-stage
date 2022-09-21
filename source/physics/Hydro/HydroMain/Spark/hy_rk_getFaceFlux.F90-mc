@@ -40,7 +40,7 @@
 !!
 !!***
 !!NOVARIANTS
-!!Reorder(4):hy_starState,hy_fl[xyz],hy_rope,hy_uPlus, hy_uMinus,hy_flux
+!!Reorder(4):hy_starState,hy_fl[xyz]
 subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use openacc
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &

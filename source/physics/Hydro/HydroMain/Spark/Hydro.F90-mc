@@ -64,7 +64,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   real,    intent(in) :: timeEndAdv, dt, dtOld
   integer, intent(IN) :: sweepOrder
-  integer :: n, error, maxLev=-1
+  integer :: n, error, maxLev
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
   integer, dimension(LOW:HIGH,MDIM) :: limits
   real :: hdt,wt
@@ -95,7 +95,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !or overwrite them (False).
   !This array will work for RK2 & RK3
   addFlux_array = (/.false.,.true.,.true./)
-  wt=0.0
   !set up quantities specific to RK scheme (lives in Hydro_funcs)
 
 #ifdef HY_RK3
@@ -156,12 +155,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   @M hy_allocate_scr
   stage=1
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
-     @M hy_stages_nt
+     @M hy_stages_nt !! this is the do loop statement for non-telescoping version
      if(.NOT.hy_telescoping) &
           call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
      nullify(Uin)
-     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC)
-        hy_del=deltas
+     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
      ! DivB will technically be lagged by 1 step, but we need ghost zones to
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         loGC(:) = blkLimitsGC(LOW,:)
@@ -191,7 +189,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         !---JaredC--- Action 3 
         !Begin loop over stages
-        @M hy_stages_t
+        @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
            call  hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
@@ -220,6 +218,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
+              wt=0.0
               if(addFlux_array(stage))wt=1.0
               @M hy_addFluxes
            end if
@@ -234,7 +233,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            call Timers_stop("eos")
            !Finally update the state
-           if (stage == last_stage) then
+           if (stage == last_stage) then !! this is only needed for telescoping version
               @M hy_updateState
            endif
            
@@ -258,17 +257,19 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !        ! Loop over blocks and correct block-edge solution
         
         nullify(Uin)
-        call Grid_getTileIterator(itor, LEAF, tiling=.false.)
-
-        do while(itor%isValid())
-           call itor%currentTile(tileDesc)
-           blkLimits(:,:)=tileDesc%limits
-           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
-           grownLimits(:,:)=tileDesc%grownLimits
-           call tileDesc%deltas(deltas)
-           level=tileDesc%level
-           call tileDesc%getDataPtr(Uin, CENTER) 
-           hy_del=deltas
+        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
+        
+!!$        call Grid_getTileIterator(itor, LEAF, tiling=.false.)
+!!$
+!!$        do while(itor%isValid())
+!!$           call itor%currentTile(tileDesc)
+!!$           blkLimits(:,:)=tileDesc%limits
+!!$           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
+!!$           grownLimits(:,:)=tileDesc%grownLimits
+!!$           call tileDesc%deltas(deltas)
+!!$           level=tileDesc%level
+!!$           call tileDesc%getDataPtr(Uin, CENTER) 
+!!$           hy_del=deltas
         
            
            !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries; 
@@ -287,12 +288,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               @M hy_release_geom
            end if
            @M hy_nullFluxBuf
-           
-           call tileDesc%releaseDataPtr(Uin,CENTER)
-           call itor%next()
-        end do
-     !        call Timers_stop("flux correct")
-        call Grid_releaseTileIterator(itor)
+           @M iter_end
+!!$           call tileDesc%releaseDataPtr(Uin,CENTER)
+!!$           call itor%next()
+!!$        end do
+!!$     !        call Timers_stop("flux correct")
+!!$        call Grid_releaseTileIterator(itor)
      end if !Flux correction
     else !flux correct per level
      print *, "Flux correct per level"
@@ -307,15 +308,16 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         ! Loop over blocks and compute Hydro update block-by-block
         !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
         nullify(Uin)
-        call Grid_getTileIterator(itor,LEAF,level=lev,tiling=.FALSE.)
-        do while(itor%isValid())
-           call itor%currentTile(tileDesc)
-           blkLimits(:,:)=tileDesc%limits
-           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
-           grownLimits(:,:)=tileDesc%grownLimits
-           call tileDesc%deltas(deltas)
-           level=tileDesc%level
-           call tileDesc%getDataPtr(Uin, CENTER)
+        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,hy_del)
+!!$        call Grid_getTileIterator(itor,LEAF,level=lev,tiling=.FALSE.)
+!!$        do while(itor%isValid())
+!!$           call itor%currentTile(tileDesc)
+!!$           blkLimits(:,:)=tileDesc%limits
+!!$           blkLimitsGC(:,:)=tileDesc%blkLimitsGC
+!!$           grownLimits(:,:)=tileDesc%grownLimits
+!!$           call tileDesc%deltas(deltas)
+!!$           level=tileDesc%level
+!!$           call tileDesc%getDataPtr(Uin, CENTER)
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
            zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
@@ -376,8 +378,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  endif
               endif
               
+              if (hy_fluxCorrect) then
+                 wt=0.0
+                 if(addFlux_array(stage))wt=1.0
+                 @M hy_addFluxes
+              end if
 
-              @M hy_addFluxes
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
@@ -421,10 +427,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                 blkLimits(LOW,:),addFlux_array(stage))
 
            @M hy_release_scr_ptrs
-           call tileDesc%releaseDataPtr(Uin,CENTER)
-           call itor%next()
-        end do !!block loop
-        call Grid_releaseTileIterator(itor)        
+           @M iter_end
+!!$           call tileDesc%releaseDataPtr(Uin,CENTER)
+!!$           call itor%next()
+!!$        end do !!block loop
+!!$        call Grid_releaseTileIterator(itor)        
      enddo!loop over levels
   endif !Flux correct per Level
   @M hy_deallocate_scr
