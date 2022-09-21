@@ -68,7 +68,9 @@ subroutine Simulation_init()
   sim_vely_i = 0.0e0
   sim_velz_i = 0.0e0
   sim_xn_i(:) = 0.0e0
+#if NSPECIES > 0
   sim_xn_i(SPECIES_BEGIN) = 1.0e0
+#endif
 
   massFraction(:) = sim_xn_i(:)
 
