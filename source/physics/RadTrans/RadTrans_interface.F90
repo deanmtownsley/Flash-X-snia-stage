@@ -167,6 +167,22 @@ module RadTrans_interface
 !!$  end interface
 
   interface 
+     subroutine RadTrans_prolongDgData(inData,outData)
+       implicit none
+       real,intent(IN)    :: inData(:,:,:)
+       real,intent(INOUT) :: outData(:,:,:)
+     end subroutine RadTrans_prolongDgData
+  end interface
+
+  interface 
+     subroutine RadTrans_restrictDgData(inData,outData)
+       implicit none
+       real,intent(IN)    :: inData(:,:,:)
+       real,intent(INOUT) :: outData(:,:,:)
+     end subroutine RadTrans_restrictDgData
+  end interface
+
+  interface 
      subroutine RadTrans_finalize ()
        implicit none
      end subroutine RadTrans_finalize       

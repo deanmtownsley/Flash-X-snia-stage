@@ -12,4 +12,6 @@ RadTrans = RadTrans.o \
 	   RadTrans_mgdSetEnergy.o \
 	   RadTrans_mgdSetBc.o \
 	   RadTrans_computeFluxLimiter.o \
+	   RadTrans_prolongDgData.o \
+	   RadTrans_restrictDgData.o \
 	   RadTrans_finalize.o
