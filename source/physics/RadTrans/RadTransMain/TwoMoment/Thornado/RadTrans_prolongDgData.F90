@@ -7,7 +7,8 @@
 !! SYNOPSIS
 !!
 !!  call RadTrans_prolongDgData(real(IN)   ,dimension(:,:,:) :: inData(:,:,:),
-!!                              real(INOUT),dimension(:,:,:) :: outData(:,:,:))
+!!                              real(INOUT),dimension(:,:,:) :: outData(:,:,:),
+!!                              integer(IN),dimension(MDIM)  :: skip(3))
 !!
 !! DESCRIPTION
 !!
@@ -20,6 +21,12 @@
 !!   outData : real output array, may be a slice corresponding to a region of cells
 !!            for one variable from a larger array
 !!
+!!   skip : integer array, its values should be in the range
+!!            0 ...  refine_factor*THORNADO_NNODESX - 1
+!!          for the NDIM active spatial directions.
+!!          For each spatial direction, it indicates by how much the first output
+!!          element in that direction is offset wrt the first input element.
+!!
 !! AUTOGENROBODOC
 !!
 !! AUTHORS
@@ -27,12 +34,14 @@
 !! AUTHOR: Antigoni Georgiadou     DATE: 07/20/2021
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
+!!  2022-09-22 Added skip to the interface          - Klaus Weide
 !!
 !!***
 
 #include "Simulation.h"
+#include "constants.h"
 
-subroutine RadTrans_prolongDgData(inData,outData)
+subroutine RadTrans_prolongDgData(inData,outData,skip)
 
   Use TwoMoment_MeshRefinementModule, Only : &
      RefineX_TwoMoment
@@ -40,6 +49,7 @@ subroutine RadTrans_prolongDgData(inData,outData)
   implicit none
   real,intent(IN)    :: inData(:,:,:)
   real,intent(INOUT) :: outData(:,:,:)
+  integer,intent(IN) :: skip(MDIM)
 
   !-----Local variables
   Integer :: i, j, k, i1, j1, k1, i0, j0, k0
@@ -69,9 +79,9 @@ subroutine RadTrans_prolongDgData(inData,outData)
            end do
 
            ! offsets of first child element in output data
-           k0 = 1 + refine_factor*(k1-1)*K3D
-           j0 = 1 + refine_factor*(j1-1)*K2D
-           i0 = 1 + refine_factor*(i1-1)     ! 1, 5, 9, 13
+           k0 = 1 + (refine_factor*(k1-1)-skip(3))*K3D
+           j0 = 1 + (refine_factor*(j1-1)-skip(2))*K2D
+           i0 = 1 +  refine_factor*(i1-1)-skip(1)      ! 1, 5, 9, 13
 
            ! loop over fine grid element for this parent element
            iFineX = 0
@@ -96,7 +106,12 @@ subroutine RadTrans_prolongDgData(inData,outData)
                        kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k
                        jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j
                        ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i
-                       outData(ii,jj,kk) = U_Fine(iNodeX)
+
+                       if (      kk.GE.lbound(outData,3) .AND. kk.LE.ubound(outData,3) &
+                           .AND. jj.GE.lbound(outData,2) .AND. jj.LE.ubound(outData,2) &
+                           .AND. ii.GE.lbound(outData,1) .AND. ii.LE.ubound(outData,1) ) then
+                          outData(ii,jj,kk) = U_Fine(iNodeX)
+                       end if
                     end do
 
                  end do
