@@ -16,7 +16,7 @@
 #include "Simulation.h"
 
 !> @ingroup GridMilhoja
-!! @stubrefgeneric
+!! @stubref{Grid_sendOutputData}
 !!
 !! @brief Concrete implementation of Grid_sendOutputData
 !!

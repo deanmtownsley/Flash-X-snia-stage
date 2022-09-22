@@ -20,7 +20,7 @@
 #include "Simulation.h"
 
 !> @ingroup GridMilhoja
-!! @stubrefgeneric
+!! @stubref{Grid_fillGuardCells}
 !!
 !! @brief Concrete implementation of Grid_fillGuardCells
 !!
