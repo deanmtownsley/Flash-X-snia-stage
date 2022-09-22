@@ -86,7 +86,7 @@
 !! AUTHOR: Antigoni Georgiadou     DATE: 07/20/2021
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
-!!  2022-09-22 Added computastion of skip           - Klaus Weide
+!!  2022-09-22 Added computation of skip            - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
