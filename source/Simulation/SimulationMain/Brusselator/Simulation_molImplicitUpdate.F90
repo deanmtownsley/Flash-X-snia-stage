@@ -89,6 +89,8 @@ subroutine Simulation_molImplicitUpdate(t, dt)
       allocate (D(N)); allocate (B(N, 3))
       allocate (DL(N - 1)); allocate (DU(N - 1))
 
+      ! This is equivalent to `call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)`
+      ! that is utilized in the RHS procedures of this simulation
       call tileDesc%getDataPtr(vars, CENTER)
 
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)

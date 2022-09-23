@@ -17,4 +17,7 @@
     @ingroup numericalTools
    
     @brief Method-of-Lines time integrators and utilities
+
+    @details
+    For further information, please refer to @ref source/numericalTools/MoL/README.md
 */

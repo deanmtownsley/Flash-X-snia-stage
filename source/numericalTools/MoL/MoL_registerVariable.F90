@@ -34,7 +34,9 @@
 !!          in MoL's data structures
 !!
 !! @todo This is intended as a temporary measure until a more suitable
-!!       solution for MoL's scratch memory is decided
+!!       solution for MoL's scratch memory is decided.  The procedure name
+!!       is intentionally similar to the same functionality provided
+!!       in Cactus/ET as a reminder to myself find a better solution
 !!
 !! @param name       The name of the evolved variable
 !! @param evolIndex  Index of the evolved variable in UNK
