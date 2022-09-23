@@ -1,22 +1,67 @@
+!!****if* source/IO/IOMain/hdf5/MH/io_xfer_tree_data
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!! NAME
+!!  io_xfer_tree_data
+!!
+!! SYNOPSIS
+!!
+!!  call io_xfer_tree_data(type(tree_data_t)(INOUT) :: tree_data,
+!!                         integer(io_fileID_t)(in) :: fileID,
+!!                         integer(in)              :: libType,
+!!                         integer(in)              :: xferType,
+!!                         integer(in)              :: localNumBlocks,
+!!                         integer(in)              :: localOffset,
+!!                         integer(in)              :: presentDims)
+!!
+!!
+!! DESCRIPTION
+!!
+!! This subroutine transfers tree data such as block refinement level, block
+!! bounding box and block size from
+!!   1. memory to file for a write transfer, e.g. write checkpoint.
+!!   2. file to memory for a read transfer, e.g. read checkpoint.
+!!
+!! The tree data is either read from or written to a data structure named
+!! tree_data.  In the case of a read transfer it is assumed that the fields
+!! of tree_data have been pre-allocated - we assert that the pre-allocated
+!! storage is large enough in the C data transfer function io_xfer_cont_slab.
+!!
+!! Note that tree data does not need to be read from file in UG applications.
+!!
+!!
+!! ARGUMENTS
+!!
+!! tree_data: The actual tree data.
+!! fileID: The HDF5 or pnetcdf file identifier (used directly by the libraries).
+!! libType: The library we are using (HDF5 or pnetcdf).
+!! xferType: The direction of data transfer: memory to file or file to memory.
+!! localNumBlocks: The number of blocks on myPE being transferred to/from file.
+!! localOffset: The read/write block offset in file.
+!! presentDims: The number of dimensions in the coord, bsize and
+!!              bndbox datasets.  Ensures backwards compatibility with
+!!              FLASH3 beta and earlier.
+!! numFileBlks: The total size of the data to do the HDF5 data space selection 
+!!              before writing it (note this is not required by read
+!!              calls), otherwise the code uses H5Dget_space 
+!!              which would be blocking and non-asynchronous.
+!!***
+
+
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"
 
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!! @licenseblock
-!! Licensed under the Apache License, Version 2.0 (the "License");
-!! you may not use this file except in compliance with the License.
-!!
-!! Unless required by applicable law or agreed to in writing, software
-!! distributed under the License is distributed on an "AS IS" BASIS,
-!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!! See the License for the specific language governing permissions and
-!! limitations under the License.
-!! @endlicenseblock
-!!
-!! Please refer to the documentation in the lowest-level implementation of this
-!! file for more details.
 subroutine io_xfer_tree_data(tree_data, fileID, &
      libType, xferType, localNumBlocks, localOffset, presentDims, numFileBlks)
 
