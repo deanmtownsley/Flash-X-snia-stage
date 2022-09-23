@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_interface.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,33 +11,31 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief Public interfaces for MoL
-!! @ingroup MoL
 !!
 !! @details This is the header file for the method of lines time integration unit
 !!          that defines its public interfaces.
+
+!> @ingroup MoL
+!! Interfaces to MoL public procedures
 module MoL_interface
 
    implicit none
 
-    !! ================================= !!
-    !!  Initialization and finalization  !!
-    !! ================================= !!
-
+   !> @interfaceto{MoL_init}
    interface
       subroutine MoL_init
       end subroutine MoL_init
    end interface
 
+   !> @interfaceto{MoL_finalize}
    interface
       subroutine MoL_finalize
       end subroutine MoL_finalize
    end interface
 
-    !! ======================= !!
-    !!  Variable registration  !!
-    !! ======================= !!
-
+   !> @interfaceto{MoL_registerVariable}
    interface
       subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
          implicit none
@@ -49,10 +45,7 @@ module MoL_interface
       end subroutine MoL_registerVariable
    end interface
 
-    !! ===============================!!
-    !!  Set RHS and update functions  !!
-    !! ============================== !!
-
+   !> @interfaceto{MoL_registerRHS}
    interface
       subroutine MoL_registerRHS(rhsType, rhsFunc)
          use MoL_functionTypes, only: MoL_rhs_t
@@ -62,6 +55,7 @@ module MoL_interface
       end subroutine MoL_registerRHS
    end interface
 
+   !> @interfaceto{MoL_registerUpdate}
    interface
       subroutine MoL_registerUpdate(updateType, updateFunc)
          use MoL_functionTypes, only: MoL_update_t
@@ -71,6 +65,7 @@ module MoL_interface
       end subroutine MoL_registerUpdate
    end interface
 
+   !> @interfaceto{MoL_registerPostUpdate}
    interface
       subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
          use MoL_functionTypes, only: MoL_postUpdate_t
@@ -80,31 +75,27 @@ module MoL_interface
       end subroutine MoL_registerPostUpdate
    end interface
 
+   !> @interfaceto{MoL_releaseFunctions}
    interface
       subroutine MoL_releaseFunctions
       end subroutine MoL_releaseFunctions
    end interface
 
-    !! ===================== !!
-    !!  Advance a time step  !!
-    !! ===================== !!
-
+   !> @interfaceto{MoL_advance}
    interface
-      !> @brief Interface to @ref MoL_advance_stub "MoL_advance"
       subroutine MoL_advance(t, dt)
          implicit none
          real, intent(in) :: t, dt
       end subroutine MoL_advance
    end interface
 
-    !! =================================================== !!
-    !!  Call after regrid to update MoL memory structures  !!
-    !! =================================================== !!
+   !> @interfaceto{MoL_regrid}
    interface
       subroutine MoL_regrid
       end subroutine MoL_regrid
    end interface
 
+   !> @interfaceto{MoL_getDataPtr}
    interface
       subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
          use Grid_tile, only: Grid_tile_t
@@ -115,6 +106,7 @@ module MoL_interface
       end subroutine MoL_getDataPtr
    end interface
 
+   !> @interfaceto{MoL_releaseDataPtr}
    interface
       subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
          use Grid_tile, only: Grid_tile_t

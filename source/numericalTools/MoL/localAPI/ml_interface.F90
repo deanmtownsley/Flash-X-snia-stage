@@ -1,57 +1,47 @@
-!!****h* source/numericalTools/MoL/localAPI/ml_interface
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief Private interfaces for MoL
 !!
-!!      ml_interface
-!!
-!!  SYNOPSIS
-!!
-!!      use ml_interface
-!!
-!!  DESCRIPTION
-!!
-!!      This is the header file for the method of lines time integration unit
-!!      that defines its private interface
-!!
-!!***
+!! @details This is the header file for the method of lines time integration unit
+!!          that defines its private interfaces.
+
+!> @ingroup MoLPrivate
+!! Interfaces to private MoL procedures
 module ml_interface
 
    implicit none
 
-    !! ================================= !!
-    !!  Initialization and finalization  !!
-    !! ================================= !!
-
+   !> @interfaceto{ml_init}
    interface
       subroutine ml_init
       end subroutine ml_init
    end interface
 
+   !> @interfaceto{ml_finalize}
    interface
       subroutine ml_finalize
       end subroutine ml_finalize
    end interface
 
+   !> @interfaceto{ml_initTableau}
    interface
       subroutine ml_initTableau
       end subroutine ml_initTableau
    end interface
 
-    !! ===================== !!
-    !!  Advance a time step  !!
-    !! ===================== !!
-
+   !> @interfaceto{ml_advance}
    interface
       subroutine ml_advance(t, dt)
          implicit none
@@ -59,9 +49,7 @@ module ml_interface
       end subroutine ml_advance
    end interface
 
-    !! ===================== !!
-    !!  Caclulate RHS terms  !!
-    !! ===================== !!
+   !> @interfaceto{ml_calcRHS}
    interface
       subroutine ml_calcRHS(rhsType, rhsStruct, t)
          implicit none
@@ -70,10 +58,7 @@ module ml_interface
       end subroutine ml_calcRHS
    end interface
 
-    !! ============================ !!
-    !!  Error and warning messages  !!
-    !! ============================ !!
-
+   !> @interfaceto{ml_error}
    interface
       subroutine ml_error(msg)
          implicit none
@@ -81,6 +66,7 @@ module ml_interface
       end subroutine ml_error
    end interface
 
+   !> @interfaceto{ml_warn}
    interface
       subroutine ml_warn(msg)
          implicit none
@@ -88,10 +74,12 @@ module ml_interface
       end subroutine ml_warn
    end interface
 
+   !> @interfaceto{ml_status}
    interface
       subroutine ml_status(msg)
          implicit none
          character(len=*), intent(in) :: msg
       end subroutine ml_status
    end interface
+
 end module ml_interface

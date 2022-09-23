@@ -1,4 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_releaseFunctions.F90
+!> @file
 !!
 !! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,19 +14,17 @@
 !! @endlicenseblock
 !!
 !! @brief MoL_releaseFunctions stub
-!! @ingroup MoL
 
-!> @brief Release all registered functions
+!> @ingroup MoL
+!!
+!! @brief Release all registered functions
+!!
+!! @details
 !! @anchor MoL_releaseFunctions_stub
 !!
-!! @pre  MoL's procedure pointers target either registered or default procedures
 !! @post MoL's procedure pointers will target default versions
 !!
-!! @sideeffect The target of MoL's procedure pointers will change
-!!
 !! @returns None
-!!
-!! @ingroup MoL
 subroutine MoL_releaseFunctions()
    implicit none
 

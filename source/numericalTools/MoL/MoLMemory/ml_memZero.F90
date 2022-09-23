@@ -1,33 +1,26 @@
-!!****if* source/numericalTools/MoL/MoLMemory/ml_memZero
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_memZero implementation
+
+!> @ingroup MoLMemory
 !!
-!!      ml_memZero
+!! @brief Implements ml_memZero
 !!
-!!  SYNOPSIS
+!! @note This implementation is specific to UG and Paramesh
 !!
-!!      call ml_memZero(integer, intent(in) :: dataStruct)
-!!
-!!  DESCRIPTION
-!!
-!!      Zero a specified MoL scratch-memory location
-!!
-!!  ARGUMENTS
-!!
-!!      dataStruct : Index of MoL scratch-memory to zero
-!!
-!!***
+!! @stubref{ml_memZero}
 subroutine ml_memZero(dataStruct)
    use ml_memData, only: ml_scratch_data
 

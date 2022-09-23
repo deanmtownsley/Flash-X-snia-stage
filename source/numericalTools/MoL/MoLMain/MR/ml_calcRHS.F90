@@ -35,6 +35,27 @@
 !!      t         : The time of the RHS is to be evaluated at
 !!
 !!***
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief ml_calcRHS implementation for MR
+
+!> @ingroup MoLMR
+!!
+!! @brief Implements ml_calcRHS for MR
+!!
+!! @stubref{ml_calcRHS}
 subroutine ml_calcRHS(rhsType, rhsStruct, t)
    use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
    use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero

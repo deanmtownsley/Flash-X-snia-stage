@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMemory/MoL_releaseDataPtr.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +11,20 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_releaseDataPtr implementation
-!! @ingroup MoLMemory
 
-!> @brief Implements MoL_releaseDataPtr
-!! @details This implementation will work will all Grid backends
+!> @ingroup MoLMemory
 !!
-!! @ref MoL_releaseDataPtr_stub "See stub documentation"
+!! @brief Implements MoL_releaseDataPtr
 !!
-!! @ingroup MoLMemory
+!! @details
+!! This implementation will work will all Grid backends
+!!
+!! @todo Implement reference-counting instead of only nullifying
+!!       `dataPtr` for MoL memory targets
+!!
+!! @stubref{MoL_releaseDataPtr}
 subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
    use Grid_tile, only: Grid_tile_t
 

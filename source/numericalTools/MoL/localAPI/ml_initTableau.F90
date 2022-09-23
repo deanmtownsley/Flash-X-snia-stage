@@ -1,32 +1,34 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_initTableau
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_initTableau stub
+
+!> @ingroup MoLPrivate
 !!
-!!      ml_initTableau
+!! @brief Initialize the integration tableau
 !!
-!!  SYNOPSIS
+!! @details
+!! @anchor ml_initTableau_stub
 !!
-!!      call ml_initTableau()
+!! This procedure will allocate all necessary tableua for the chosen
+!! integration scheme, and fill the tableau via the provided utilities
+!! in the KERNELs of the various implementations
 !!
-!!  DESCRIPTION
+!! @pre An integration scheme has been specified via the implementation's
+!!      runtime parameters
 !!
-!!      Initialize the tableau(s) used by the selected MoL integrator
-!!
-!!  ARGUMENTS
-!!
-!!
-!!***
+!! @returns None
 subroutine ml_initTableau()
    implicit none
 

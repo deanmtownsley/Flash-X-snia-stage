@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_registerUpdate.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,35 +11,35 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_registerUpdate stub
-!! @ingroup MoL
 
-!> @brief Register a procedure responsible for performing an update
-!! @anchor MoL_registerUpdate_stub
+!> @ingroup MoL
 !!
-!! @param updateType  Update-type identifier
-!! @param updateFunc  Procedure that will calculate the update
-!!
-!! @pre `updateType` is a valid MoL update identifier as defined in @ref MoL.h
-!! @pre `updateFunc` is a callable procedure of the current time: `call updateFunc(t, dt)`
-!!
-!! @sideffect MoL's procedure pointer for the specified update will be set to the
-!!            provided procedure
-!!
-!! @returns None
+!! @brief Register a procedure responsible for performing an update
 !!
 !! @details
-!!    Valid update types include (defined in MoL.h):
-!!       - `MOL_IMPLICIT_UPDATE` : For equations and terms requiring implicit integration
+!! @anchor MoL_registerUpdate_stub
+!!
+!! Valid update types include (defined in MoL.h):
+!!    - `MOL_IMPLICIT_UPDATE` : For equations and terms requiring implicit integration
 !!
 !! @note There is only one valid option for updateType (MOL_IMPLICIT_UPDATE),
 !!       but this is left generic to accomodate for new update-types in the
 !!       future, e.g. distinct implcit-updates for both slow- and fast-integration
 !!       steps in the multi-rate integrator.
 !!
+!! @pre `updateType` is a valid MoL update identifier as defined in @ref MoL.h
+!! @pre `updateFunc` is a valid procedure with an interface
+!!      @ref mol_functiontypes::mol_update_t
+!!
+!!
+!! @returns None
+!!
 !! @warning Will trigger Flash-X to abort if an invalid update-type is specified
 !!
-!! @ingroup MoL
+!! @param updateType  Update-type identifier
+!! @param updateFunc  Procedure that will calculate the update
 subroutine MoL_registerUpdate(updateType, updateFunc)
    use MoL_functionTypes, only: MoL_update_t
 

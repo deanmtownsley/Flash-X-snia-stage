@@ -1,31 +1,24 @@
-!!****if* source/numericalTools/MoL/MoLMemory/ml_memReleaseActiveRHS
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_memReleaseActiveRHS implementation
+
+!> @ingroup MoLMemory
 !!
-!!      ml_memReleaseActiveRHS
+!! @brief Implements ml_memReleaseActiveRHS
 !!
-!!  SYNOPSIS
-!!
-!!      call ml_memReleaseActiveRHS()
-!!
-!!  DESCRIPTION
-!!
-!!      Release the active RHS
-!!
-!!  ARGUMENTS
-!!
-!!***
+!! @stubref{ml_memReleaseActiveRHS}
 subroutine ml_memReleaseActiveRHS(irhs)
    use ml_memData, only: ml_activeRHS
 

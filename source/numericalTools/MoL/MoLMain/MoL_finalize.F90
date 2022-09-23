@@ -1,4 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMain/MoL_finalize.F90
+!> @file
 !!
 !! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,13 +14,12 @@
 !! @endlicenseblock
 !!
 !! @brief MoL_finalize implementation
-!! @ingroup MoLMain
 
-!> @brief Implements MoL_finalize
+!> @ingroup MoLMain
 !!
-!! @ref MoL_finalize_stub "See stub documentation"
+!! @brief Implements MoL_finalize
 !!
-!! @ingroup MoLMain
+!! @stubref{MoL_finalize}
 subroutine MoL_finalize()
    use ml_interface, only: ml_finalize
    use ml_memInterface, only: ml_memFree

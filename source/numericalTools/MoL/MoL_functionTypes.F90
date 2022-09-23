@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_functionTypes.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +11,18 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief Interfaces for MoL-registerable procedures
-!! @ingroup MoL
+
+!> @ingroup MoL
+!! Provides interfaces for MoL-registerable procedures
 module MoL_functionTypes
 
    implicit none
 
    abstract interface
       !> @brief A RHS procedure
-      !> @param t The time to calculate the RHS at
+      !! @param t The time to calculate the RHS at
       subroutine MoL_rhs_t(t)
          implicit none
          real, intent(in) :: t
@@ -30,8 +31,8 @@ module MoL_functionTypes
 
    abstract interface
       !> @brief An update procedure
-      !> @param t  The time at the start of the update
-      !> @param dt The size of the timestep to take
+      !! @param t  The time at the start of the update
+      !! @param dt The size of the timestep to take
       subroutine MoL_update_t(t, dt)
          implicit none
          real, intent(in) :: t, dt
@@ -40,7 +41,7 @@ module MoL_functionTypes
 
    abstract interface
       !> @brief A post-udate procedure
-      !> @param t The time to perform the post-update at
+      !! @param t The time to perform the post-update at
       subroutine MoL_postUpdate_t(t)
          implicit none
          real, intent(in) :: t

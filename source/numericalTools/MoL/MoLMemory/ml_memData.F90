@@ -1,39 +1,32 @@
-!!****if* source/numericalTools/MoL/MoLMemory/ml_memData
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
-!!    ml_memData
-!!
-!!  SYNOPSIS
-!!    use ml_memData
-!!
-!!  DESCRIPTION
-!!    Stores data for MoLMemory
-!!
-!!  NOTES
-!!
-!!***
+!! @file
+!! @brief Main data module for MoLMemory
+
+!> @ingroup MoLMemory
+!! MoL scratch memory structures and trackers
 module ml_memData
 
 #include "MoL.h"
 
    implicit none
 
-   ! Ranks are (var,i,j,k,block,dataStruct)
-   ! real, dimension(:, :, :, :, :, :), allocatable, target, save :: scratch_data
+   !> Scratch memory for intermediate stage storage, indexed as (var,i,j,k,block,dataStruct)
    real, dimension(:, :, :, :, :, :), allocatable, target, save :: ml_scratch_data
 
-   ! Active RHS state to use when MOL_RHS is requested
+   !> Active RHS state to use when MOL_RHS is requested
+   !! @hideinitializer
    integer, save :: ml_activeRHS = MOL_INVALID
 
 end module ml_memData

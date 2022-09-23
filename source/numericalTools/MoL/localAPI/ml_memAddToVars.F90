@@ -1,72 +1,57 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_memAddToVars
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  NAME
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!      ml_memAddToVars
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  SYNOPSIS
+!! @file
+!! @brief ml_memAddToVars stub
+
+!> @ingroup MoLPrivate
 !!
-!!      call ml_memAddToVars(integer, intent(in) :: dst
-!!                           real,    intent(in) :: dstFac
-!!                           integer, intent(in) :: nsrcs
-!!                           integer, intent(in) :: srcs(nsrcs)
-!!                           real,    intent(in) :: facs(nsrcs))
+!! @brief Perform a linear combination of evolved variable
 !!
-!!      call ml_memAddToVars(integer, intent(in) :: dst
-!!                           real,    intent(in) :: dstFac
-!!                           real,    intent(in) :: val)
+!! @details
+!! @anchor ml_memAddToVars_stub
 !!
-!!      call ml_memAddToVars(integer, intent(in) :: dst
-!!                           real,    intent(in) :: dstFac
-!!                           integer, intent(in) :: src1, src2, ...
-!!                           real,    intent(in) :: fac1, fac2, ...)
+!! Perform a linear combination of source terms into the specified destination
+!! for all variables evolved by MoL.  The destination can either be the evolved
+!! variables in UNK or their corresponding locations in one of the MoL-specific
+!! scratch memory locations.  The source terms will only-ever be taken from
+!! MoL-specific scratch memory locations.  The linear combinations will take one
+!! of the following form:
 !!
-!!  DESCRIPTION
+!!    `dst = dstFac*dst + fac(1)*src(1) + ... + fac(nsrcs)*src(nsrcs)`
 !!
-!!      Perform a linear combination of source terms into the specified destination
-!!      for all variables evolved by MoL.  The destination can either be the evolved
-!!      variables in UNK or their corresponding locations in one of the MoL-specific
-!!      scratch memory locations.  The source terms will only-ever be taken from
-!!      MoL-specific scratch memory locations.  The linear combinations will take one
-!!      of the following forms:
+!! Valid locations include (defined in \ref MoL.h):
+!! - `MOL_EVOLVED` : Evolved variables in UNK
+!! - `MOL_INITIAL` : Copy of the evolved variables at the start of a timestep
+!! - `MOL_RHS`     : The currently-being-calculated RHS terms
+!! - other         : Each integrator may specify some additional number of
+!!                   of scratch-memory for intermediate stages/RHS terms
 !!
-!!          dst = dstFac*dst + val
+!! @pre `dst` is a valid MoL memory data structure defined in @ref MoL.h
+!! @pre `srcs` are a valid MoL memory data structures defined in @ref MoL.h
 !!
-!!              or
+!! @post The result of the linear combination will be stored in the specified
+!!       destination data structure
 !!
-!!          dst = dstFac*dst + fac1*src1 + ... + facN*srcN
+!! @returns None
 !!
-!!      Valid locations include (defined in MoL.h):
-!!          - MOL_EVOLVED : Evolved variables in UNK
-!!          - MOL_INITIAL : Copy of the evolved variables at the start of a timestep
-!!          - MOL_RHS     : The currently-being-calculated RHS terms
-!!          - other       : Each integrator may specify some additional number of
-!!                          of scratch-memory for intermediate stages/RHS terms
-!!
-!!  ARGUMENTS
-!!
-!!      dst    : Index of the destination location to store the linear combination
-!!      dstFac : Scaling factor for the destination - set this to zero to overwrite
-!!               the existing value
-!!      val    : Scalar value to set all variables to in dst
-!!      nsrcs  : Number of source terms for the general N-src implementation
-!!      srcs   : Array of source index locations in MoL scratch memory
-!!      facs   : Array of scaling factors for each source term
-!!      src1
-!!       |     : Index of each source term location to use
-!!      srcN
-!!      fac1
-!!       |     : Scaling factor for each source term location to use
-!!      facN
-!!
-!!  NOTES
-!!
-!!      For optimal memory use, there are specific implementations for up to twelve
-!!      source terms - this will need to increase if any methods beyond 4th-order
-!!      IMEX(-MRI) are added in the future.  For now, twelve source terms are
-!!      sufficient for the 4rd-order IMEX-MRI-GARK multi-rate integrator
-!!***
-subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
+!! @param dst     Index of the destination location to store the linear combination
+!! @param dstFac  Scaling factor for the destination - set this to zero to overwrite
+!!                the existing value
+!! @param nsrcs   Number of source terms for the general N-src implementation
+!! @param srcs    Array of source index locations in MoL scratch memory
+!! @param facs    Array of scaling factors for each source term
+subroutine ml_memAddToVars(dst, dstFac, nsrcs, srcs, facs)
    implicit none
 
    integer, intent(in) :: dst
@@ -76,194 +61,4 @@ subroutine ml_memAddToVarsN(dst, dstFac, nsrcs, srcs, facs)
    real, intent(in) :: facs(nsrcs)
 
    return
-end subroutine ml_memAddToVarsN
-
-subroutine ml_memAddToVars0(dst, dstFac, val)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   real, intent(in) :: val
-
-   return
-end subroutine ml_memAddToVars0
-
-subroutine ml_memAddToVars1(dst, dstFac, &
-                            src1, &
-                            fac1)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1
-   real, intent(in) :: fac1
-
-   return
-end subroutine ml_memAddToVars1
-
-subroutine ml_memAddToVars2(dst, dstFac, &
-                            src1, src2, &
-                            fac1, fac2)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2
-   real, intent(in) :: fac1, fac2
-
-   return
-end subroutine ml_memAddToVars2
-
-subroutine ml_memAddToVars3(dst, dstFac, &
-                            src1, src2, src3, &
-                            fac1, fac2, fac3)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3
-   real, intent(in) :: fac1, fac2, fac3
-
-   return
-end subroutine ml_memAddToVars3
-
-subroutine ml_memAddToVars4(dst, dstFac, &
-                            src1, src2, src3, src4, &
-                            fac1, fac2, fac3, fac4)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4
-   real, intent(in) :: fac1, fac2, fac3, fac4
-
-   return
-end subroutine ml_memAddToVars4
-
-subroutine ml_memAddToVars5(dst, dstFac, &
-                            src1, src2, src3, src4, src5, &
-                            fac1, fac2, fac3, fac4, fac5)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5
-
-   return
-end subroutine ml_memAddToVars5
-
-subroutine ml_memAddToVars6(dst, dstFac, &
-                            src1, src2, src3, src4, src5, src6, &
-                            fac1, fac2, fac3, fac4, fac5, fac6)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6
-
-   return
-end subroutine ml_memAddToVars6
-
-subroutine ml_memAddToVars7(dst, dstFac, &
-                            src1, src2, src3, src4, src5, src6, &
-                            src7, &
-                            fac1, fac2, fac3, fac4, fac5, fac6, &
-                            fac7)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7
-
-   return
-end subroutine ml_memAddToVars7
-
-subroutine ml_memAddToVars8(dst, dstFac, &
-                            src1, src2, src3, src4, src5, src6, &
-                            src7, src8, &
-                            fac1, fac2, fac3, fac4, fac5, fac6, &
-                            fac7, fac8)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7, src8
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7, fac8
-
-   return
-end subroutine ml_memAddToVars8
-
-subroutine ml_memAddToVars9(dst, dstFac, &
-                            src1, src2, src3, src4, src5, src6, &
-                            src7, src8, src9, &
-                            fac1, fac2, fac3, fac4, fac5, fac6, &
-                            fac7, fac8, fac9)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7, src8, src9
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7, fac8, fac9
-
-   return
-end subroutine ml_memAddToVars9
-
-subroutine ml_memAddToVars10(dst, dstFac, &
-                             src1, src2, src3, src4, src5, src6, &
-                             src7, src8, src9, src10, &
-                             fac1, fac2, fac3, fac4, fac5, fac6, &
-                             fac7, fac8, fac9, fac10)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7, src8, src9, src10
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7, fac8, fac9, fac10
-
-   return
-end subroutine ml_memAddToVars10
-
-subroutine ml_memAddToVars11(dst, dstFac, &
-                             src1, src2, src3, src4, src5, src6, &
-                             src7, src8, src9, src10, src11, &
-                             fac1, fac2, fac3, fac4, fac5, fac6, &
-                             fac7, fac8, fac9, fac10, fac11)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7, src8, src9, src10, src11
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7, fac8, fac9, fac10, fac11
-
-   return
-end subroutine ml_memAddToVars11
-
-subroutine ml_memAddToVars12(dst, dstFac, &
-                             src1, src2, src3, src4, src5, src6, &
-                             src7, src8, src9, src10, src11, src12, &
-                             fac1, fac2, fac3, fac4, fac5, fac6, &
-                             fac7, fac8, fac9, fac10, fac11, fac12)
-   implicit none
-
-   integer, intent(in) :: dst
-   real, intent(in) :: dstFac
-   integer, intent(in) :: src1, src2, src3, src4, src5, src6, &
-                          src7, src8, src9, src10, src11, src12
-   real, intent(in) :: fac1, fac2, fac3, fac4, fac5, fac6, &
-                       fac7, fac8, fac9, fac10, fac11, fac12
-
-   return
-end subroutine ml_memAddToVars12
+end subroutine ml_memAddToVars

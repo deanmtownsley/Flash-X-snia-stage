@@ -1,33 +1,31 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_error
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_error stub
+
+!> @ingroup MoLPrivate
 !!
-!!      ml_error
+!! @brief Issue a MoL-specific error message and abort
 !!
-!!  SYNOPSIS
+!! @details
+!! @anchor ml_error_stub
 !!
-!!      call ml_error(character, intent(in) :: msg(:))
+!! @warning This procedure will cause Flash-X to abort
 !!
-!!  DESCRIPTION
+!! @returns None
 !!
-!!      Print an error message and abort
-!!
-!!  ARGUMENTS
-!!
-!!      msg : Error message to print
-!!
-!!***
+!! @param msg  Description of the error that occurred
 subroutine ml_error(msg)
    implicit none
 

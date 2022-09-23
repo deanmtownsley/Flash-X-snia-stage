@@ -1,33 +1,36 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_memSetActiveRHS
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_memSetActiveRHS stub
+
+!> @ingroup MoLPrivate
 !!
-!!      ml_memSetActiveRHS
+!! @brief Set the active RHS data structure
 !!
-!!  SYNOPSIS
+!! @details
+!! @anchor ml_memSetActiveRHS_stub
 !!
-!!      call ml_memSetActiveRHS(integer, intent(in) :: irhs)
+!! This procedure will set the active RHS term that is associated with
+!! requests for the MOL_RHS data pointer
 !!
-!!  DESCRIPTION
+!! @pre `irhs` is a valid data structure defined in @ref MoL.h
+!! @post MOL_RHS will refer to a specific stage/type of RHS storage in
+!!       MoL's scratch memory
 !!
-!!      Set the active RHS to be pointed to when MOL_RHS is requested
+!! @returns None
 !!
-!!  ARGUMENTS
-!!
-!!      irhs : the RHS to set as active
-!!
-!!***
+!! @param irhs Identifier of the RHS data structure to associate with MOL_RHS
 subroutine ml_memSetActiveRHS(irhs)
 
    implicit none

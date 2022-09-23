@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMemory/MoL_getDataPtr.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +11,21 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_getDataPtr implementation
-!! @ingroup MoLMemory
 
-!> @brief Implements MoL_getDataPtr
-!! @details This implementation works only with UG and Paramesh due to
-!!          the assumed form of the tile-descriptor
+!> @ingroup MoLMemory
 !!
-!! @ref MoL_getDataPtr_stub "See stub documentation"
+!! @brief Implements MoL_getDataPtr
 !!
-!! @ingroup MoLMemory
+!! @details
+!! This implementation works only with UG and Paramesh due to the assumed
+!! form of the tile-descriptor
+!!
+!! @todo Implement reference-counting and strictly require that `dataPtr`
+!!       is null on entry
+!!
+!! @stubref{MoL_getDataPtr}
 
 !!REORDER(4): dataPtr
 subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
@@ -51,6 +54,7 @@ subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
       ! Grab UNK pointer and bail
       call tileDesc%getDataPtr(dataPtr, CENTER)
    else
+      ! Determine if MOL_RHS maps to a specific stage/type of RHS
       if ((dataStruct .eq. MOL_RHS) .and. (ml_activeRHS .ne. MOL_INVALID)) then
          ind = ml_activeRHS
       else

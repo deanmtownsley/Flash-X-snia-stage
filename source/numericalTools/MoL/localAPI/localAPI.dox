@@ -13,10 +13,9 @@
       limitations under the License.
     @endparblock
     
-    @internal
-    
-    @defgroup MoLMemory MoL Memory Management
+    @internal  
+    @defgroup MoLPrivate MoL Private Interface
     @ingroup MoL
 
-    @brief Provides a scratch memory system for intermediate integration-stage storage
+    @brief Provides interfaces to private procedures used internally by MoL
 */

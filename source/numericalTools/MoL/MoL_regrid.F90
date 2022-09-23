@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_regrid.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +11,23 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_regrid stub
-!! @ingroup MoL
 
-!> @brief Regrid MoL data structures
+!> @ingroup MoL
+!!
+!! @brief Regrid MoL data structures
+!!
+!! @details
 !! @anchor MoL_regrid_stub
 !!
-!! @pre MoL has been initialized
-!! @pre Grid has been initialized
+!! This procedure will update the shape of MoL's memory structures to
+!! match the current grid.  This may require (re)allocation of the
+!! data structures in some implementations.
+!!
 !! @pre Evolved variables are registered with MoL
 !!
-!! @post The dimensions and refinement of MoL's data structures will match
-!!       those of Grid
-!!
-!! @sideeffect MoL's data structures may be reallocated
-!!
 !! @returns None
-!!
-!! @ingroup MoL
 subroutine MoL_regrid()
    implicit none
 

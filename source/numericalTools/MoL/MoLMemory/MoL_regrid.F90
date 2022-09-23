@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMemory/MoL_regrid.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +11,20 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_regrid implementation
-!! @ingroup MoLMemory
 
-!> @brief Implements MoL_regrid
-!! @details This implementation will work will all Grid backends
+!> @ingroup MoLMemory
 !!
-!! @ref MoL_regrid_stub "See stub documentation"
+!! @brief Implements MoL_regrid
 !!
-!! @ingroup MoLMemory
+!! @details
+!! This implementation will work with UG and Paramesh.  The size of the
+!! blocklists do not change after initial allocation, and the appropriate
+!! block/tile refinement levels and layout will always be the same as
+!! specified by the Grid iterators and tiles
+!!
+!! @stubref{MoL_regrid}
 subroutine MoL_regrid()
    use ml_memInterface, only: ml_memAlloc, ml_memFree
 

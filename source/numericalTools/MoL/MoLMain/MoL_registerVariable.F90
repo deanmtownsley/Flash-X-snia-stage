@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMain/MoL_registerVariable.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +11,14 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_registerVariable implementation
-!! @ingroup MoLMain
 
-!> @brief Implements MoL_registerVariable
+!> @ingroup MoLMain
 !!
-!! @ref MoL_registerVariable_stub "See stub documentation"
+!! @brief Implements MoL_registerVariable
 !!
-!! @ingroup MoLMain
+!! @stubref{MoL_registerVariable}
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    use ml_variables, only: ml_variable_t, ml_vars, ml_nvars, &
                            ml_unk_mask, ml_scratch_mask

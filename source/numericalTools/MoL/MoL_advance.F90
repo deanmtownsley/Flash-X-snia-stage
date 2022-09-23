@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_advance.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +11,32 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_advance stub
-!! @ingroup MoL
 
-!> @brief Take a timestep from t to t+dt
+!> @ingroup MoL
+!!
+!! @brief Take a timestep from t to t+dt
+!!
+!! @details
 !! @anchor MoL_advance_stub
 !!
-!! @param t  Current time
-!! @param dt Size of the timestep to take
+!! This procedure is the main entry point into the MoL integrator,
+!! and should be called once per time step.
 !!
-!! @pre The solution variables are at a time `t`
-!! @post The solution variables will be advanced to a time `t+dt`
+!! @pre The procedures to calculate the RHS terms for the
+!!      evolved variables and perform post-update work have been
+!!      registered with MoL
+!!
+!! @post The evolved variables will be advanced to a time `t+dt`
 !!
 !! @returns None
 !!
 !! @todo When/if subcyling is available in Flash-X, this will extend
 !!       to include a level-indicator as well
 !!
-!! @ingroup MoL
+!! @param t  Current time
+!! @param dt Size of the timestep to take
 subroutine MoL_advance(t, dt)
    implicit none
 

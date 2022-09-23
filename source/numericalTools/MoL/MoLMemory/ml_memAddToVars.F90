@@ -1,53 +1,26 @@
-!!****if* source/numericalTools/MoL/MoLMemory/ml_memAddToVars
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  NAME
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!      ml_memAddToVars
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  SYNOPSIS
-!!
-!!      call ml_memAddToVars(integer, intent(in) :: dst
-!!                           real,    intent(in) :: dstFac
-!!                           integer, intent(in) :: nsrcs
-!!                           integer, intent(in) :: srcs(nsrcs)
-!!                           real,    intent(in) :: facs(nsrcs))
-!!
-!!  DESCRIPTION
-!!
-!!      Perform a linear combination of source terms into the specified destination
-!!      for all variables evolved by MoL.  The destination can either be the evolved
-!!      variables in UNK or their corresponding locations in one of the MoL-specific
-!!      scratch memory locations.  The source terms will only-ever be taken from
-!!      MoL-specific scratch memory locations.  The linear combinations will take one
-!!      of the following forms:
-!!
-!!          dst = dstFac*dst + fac(1_*src(1_ + ... + fac(nsrcs)*src(nsrcs)
-!!
-!!      Valid locations include (defined in MoL.h):
-!!          - MOL_EVOLVED : Evolved variables in UNK
-!!          - MOL_INITIAL : Copy of the evolved variables at the start of a timestep
-!!          - MOL_RHS     : The currently-being-calculated RHS terms
-!!          - other       : Each integrator may specify some additional number of
-!!                          of scratch-memory for intermediate stages/RHS terms
-!!
-!!  ARGUMENTS
-!!
-!!      dst    : Index of the destination location to store the linear combination
-!!      dstFac : Scaling factor for the destination - set this to zero to overwrite
-!!               the existing value
-!!      val    : Scalar value to set all variables to in dst
-!!      nsrcs  : Number of source terms for the general N-src implementation
-!!      srcs   : Array of source index locations in MoL scratch memory
-!!      facs   : Array of scaling factors for each source term
-!!
-!!  NOTES
-!!
-!!      For optimal memory use, there are specific implementations for up to twelve
-!!      source terms - this will need to increase if any methods beyond 4th-order
-!!      IMEX(-MRI) are added in the future.  For now, twelve source terms are
-!!      sufficient for the 4rd-order IMEX-MRI-GARK multi-rate integrator
-!!***
+!! @file
+!! @brief ml_memAddToVars implementation
+
 !!REORDER(4): dstPtr, srcPtr
+
+!> @ingroup MoLMemory
+!!
+!! @brief Implements ml_memAddToVars
+!!
+!! @stubref{ml_memAddToVars}
 subroutine ml_memAddToVars(dst, dstFac, nsrcs, srcs, facs)
    use ml_variables, only: ml_nvars, ml_unk_mask, ml_scratch_mask
    use ml_memAddToVarsImpl, only: ml_memAddToVarsN

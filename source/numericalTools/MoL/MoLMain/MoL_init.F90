@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMain/MoL_init.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +11,14 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_init implementation
-!! @ingroup MoLMain
 
-!> @brief Implements MoL_init
-!!
-!! @ref MoL_init_stub "See stub documentation"
-!!
 !! @ingroup MoLMain
+!!
+!! @brief Implements MoL_init
+!!
+!! @stubref{MoL_init}
 subroutine MoL_init()
    use ml_interface, only: ml_init
    use MoL_data, only: ml_nscratch, ml_nscratch_total, &

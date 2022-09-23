@@ -1,61 +1,65 @@
-!!****if* source/numericalTools/MoL/MoLMain/MR/gark
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
-!!    gark
+!! @file
+!! @brief GARK tableau utilities
+
+!> @ingroup MoLMR
+!! @brief Utilities for setting up a specified GARK tableau.
 !!
-!!  SYNOPSIS
-!!    use gark
-!!
-!!  DESCRIPTION
-!!    Utilities for setting up a specified GARK tableau.
-!!
+!! @details
 !!    Available methods currently include (list by runtime parameter values for slowMethod):
-!!       mr-gark3 : Third-order IMEX-MRI-GARK3b scheme in [1]
-!!       mr-gark4 : Fourth-order IMEX-MRI-GARK4 scheme in [1]
+!!       - `mr-gark3` : Third-order IMEX-MRI-GARK3b scheme in [1]
+!!       - `mr-gark4` : Fourth-order IMEX-MRI-GARK4 scheme in [1]
 !!
 !!    The tableau are all given in the form:
 !!
-!!       c_1 | a_11 ... a_1n
-!!        .  |  .   .    .
-!!        .  |  .    .   .
-!!        .  |  .     .  .
-!!       c_n | a_n1 ... a_nn
-!!        1  | b_1  ... b_n
-!!       -------------------
-!!           | b_1  ... b_n
+!!    @f[
+!!       \begin{array}{c|ccc}
+!!          c_1    & A_{11} & \dots & A_{1n}\\
+!!          \vdots & \vdots & \ddots& \vdots\\
+!!          c_n    & A_{n1} & \dots & A_{nn}\\
+!!           1     & b_{1}  & \dots & b_{n} \\
+!!          \hline
+!!                 & b_1    & \dots & b_n\\
+!!       \end{array}
+!!    @f]
 !!
-!!    For the implicit methods, the matrices a_ij are lower-triangular
-!!    For the explicit methods, the matrices a_ij are strictly lower-triangular
+!!    - For the implicit methods, the matrices a_ij are lower-triangular
+!!    - For the explicit methods, the matrices a_ij are strictly lower-triangular
 !!
 !!    All tableau follow a "solve decoupled" formulation that allows for alternating
 !!    slow- and fast-stages
 !!
-!! REFERENCES
-!!    [1] Implicit-Explicit Multirate Infinitesimal GARK Methods
-!!        Rujeko Chinomona and Daniel R. Reynolds
-!!        SIAM Journal on Scientific Computing 2021 43:5, A3082-A3113
+!!    @par References
+!!    @parblock
+!!    [1] Rujeko Chinomona and Daniel R. Reynolds,
+!!        Implicit-Explicit Multirate Infinitesimal GARK Methods,
+!!        SIAM Journal on Scientific Computing 2021 43:5, A3082-A3113,
 !!        https://doi.org/10.1137/20M1354349
-!!
-!!  NOTES
-!!
-!!***
+!!    @endparblock
 module gark
 
    implicit none
 
 contains
 
+   !> Implicit-tableau time interpolant
+   !!
+   !! @param i    Stage index
+   !! @param j    Intermediate state index
+   !! @param gamK Implicit tableaus
+   !! @param kmax Number of tableaus
    function gamTau(i, j, tau, gamK, kmax)
       implicit none
 
@@ -73,6 +77,12 @@ contains
       end do
    end function gamTau
 
+   !> Explicit-tableau time interpolant
+   !!
+   !! @param i    Stage index
+   !! @param j    Intermediate state index
+   !! @param wK   Explicit tableaus
+   !! @param kmax Number of tableaus
    function wTau(i, j, tau, wK, kmax)
 
       implicit none
@@ -91,6 +101,14 @@ contains
       end do
    end function wTau
 
+   !> Third-order IMEX-MRI-GARK3b tableau
+   !!
+   !! @param kmax   Number of tableaus (for each type)
+   !! @param gamK   Implicit tableaus
+   !! @param wK     Explicit tableaus
+   !! @param cS     Timing coefficients
+   !! @param order  Order of the method
+   !! @param stages Number of stages
    subroutine gark3_init(kmax, gamK, wK, cS, order, stages)
       implicit none
 
@@ -164,6 +182,8 @@ contains
       wK(8, 7, 1) = 0.4358665215084589994160194511935568425d0
    end subroutine gark3_init
 
+   !> Fourth-order IMEX-MRI-GARK4 tableau
+   !! @copydetails gark3_init
    subroutine gark4_init(kmax, gamK, wK, cS, order, stages)
       implicit none
 

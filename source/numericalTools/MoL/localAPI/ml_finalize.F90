@@ -1,32 +1,30 @@
-!!****f* source/numericalTools/MoL/localAPI/ml_finalize
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_finalize stub
+
+!> @ingroup MoLPrivate
 !!
-!!      ml_finalize
+!! @brief Finalize a MoL implementation unit
 !!
-!!  SYNOPSIS
+!! @details
+!! @anchor ml_finalize_stub
 !!
-!!      call ml_finalize()
+!! This procedure is responsible deallocating all memory allocated
+!! by a specific implementation
 !!
-!!  DESCRIPTION
-!!
-!!      Finalize a method of lines unit implementation
-!!
-!!  ARGUMENTS
-!!
-!!
-!!***
+!! @returns None
 subroutine ml_finalize()
    implicit none
 

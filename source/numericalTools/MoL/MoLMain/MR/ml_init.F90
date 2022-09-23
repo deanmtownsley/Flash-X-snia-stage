@@ -1,36 +1,28 @@
-!!****if* source/numericalTools/MoL/MoLMain/MR/ml_init
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief ml_init implementation for MR
+
+!> @ingroup MoLMR
 !!
-!!      ml_init
+!! @brief Implements ml_init for MR
 !!
-!!  SYNOPSIS
-!!
-!!      call ml_init()
-!!
-!!  DESCRIPTION
-!!
-!!      Initialize a method of lines unit implementation
-!!
-!!  ARGUMENTS
-!!
-!!
-!!***
+!! @stubref{ml_init}
 subroutine ml_init()
    use MoL_data, only: ml_nscratch
-   use ml_data, only: FE, FI, FF, FAST_INITIAL, ml_slowMethod, ml_fastMethod, &
-                      ml_nsubcycle, ml_nstages_fast, ml_nstages_slow
+   use ml_mrData, only: FE, FI, FF, FAST_INITIAL, ml_slowMethod, ml_fastMethod, &
+                        ml_nsubcycle, ml_nstages_fast, ml_nstages_slow
 
    use ml_interface, only: ml_initTableau
 

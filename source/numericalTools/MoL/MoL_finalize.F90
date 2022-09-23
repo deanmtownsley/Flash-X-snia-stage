@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_finalize.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +11,20 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_finalize stub
-!! @ingroup MoL
 
-!> @brief Finalize the method of lines unit
+!> @ingroup MoL
+!!
+!! @brief Finalize the method of lines unit
+!!
+!! @details
 !! @anchor MoL_finalize_stub
 !!
-!! @pre The MoL has been initialized
-!! @post Evolved variables are no longer registered and MoL memory structures
-!!       are inaccessible
-!!
-!! @sideeffect All MoL allocated memory will be freed
+!! This procedure will deallocate memory managed by MoL and call
+!! all implementation specific finalization procedures
 !!
 !! @returns None
-!!
-!! @ingroup MoL
 subroutine MoL_finalize()
    implicit none
 

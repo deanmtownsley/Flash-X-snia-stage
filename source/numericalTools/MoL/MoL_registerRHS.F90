@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_registerRHS.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,32 +11,31 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_registerRHS stub
-!! @ingroup MoL
 
-!> @brief Register a procedure responsible for calculating RHS terms
+!> @ingroup MoL
 !!
-!! @param rhsType  RHS-type identifier
-!! @param rhsFunc  Procedure that will calculate the RHS terms
+!! @brief Register a procedure responsible for calculating RHS terms
+!!
+!! @details
 !! @anchor MoL_registerRHS_stub
 !!
-!! @pre `rhsType` is a valid MoL RHS identifier as defined in @ref MoL.h
-!! @pre `rhsFunc` is a callable procedure of the current time: `call rhsFunc(t)`
+!! Valid RHS types include (defined in MoL.h):
+!!    - `MOL_RHS_EXPLICIT`  : RHS for (slow) explicit terms
+!!    - `MOL_RHS_IMPLICIT`  : RHS for (slow) implicit terms
+!!    - `MOL_RHS_FAST`      : RHS for (fast) explicit terms
 !!
-!! @sideffect MoL's procedure pointer for the specified RHS-type will be set to the
-!!            provided procedure
+!! @pre `rhsType` is a valid MoL RHS identifier as defined in @ref MoL.h
+!! @pre `rhsFunc` is a valid procedure with an interface
+!!      @ref mol_functiontypes::mol_rhs_t
 !!
 !! @returns None
 !!
-!! @details
-!!    Valid RHS types include (defined in MoL.h):
-!!       - `MOL_RHS_EXPLICIT`  : RHS for (slow) explicit terms
-!!       - `MOL_RHS_IMPLICIT`  : RHS for (slow) implicit terms
-!!       - `MOL_RHS_FAST`      : RHS for (fast) explicit terms
-!!
 !! @warning Will trigger Flash-X to abort if an invalid RHS-type is specified
 !!
-!! @ingroup MoL
+!! @param rhsType  RHS-type identifier
+!! @param rhsFunc  Procedure that will calculate the RHS terms
 subroutine MoL_registerRHS(rhsType, rhsFunc)
    use MoL_functionTypes, only: MoL_rhs_t
 

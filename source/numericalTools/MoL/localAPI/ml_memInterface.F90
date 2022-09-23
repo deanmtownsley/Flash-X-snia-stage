@@ -1,34 +1,29 @@
-!!****h* source/numericalTools/MoL/localAPI/ml_memInterface
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!! @brief Private interfaces for MoL's scratcy memory system
 !!
-!!      ml_memInterface
-!!
-!!  SYNOPSIS
-!!
-!!      use ml_memInterface
-!!
-!!  DESCRIPTION
-!!
-!!      This is the header file for the method of lines time integration unit
-!!      that defines memory storage and operations procedures
-!!
-!!***
+!! @details This is the header file for the method of lines time integration unit
+!!          that defines its private interfaces related to scratch memory.
+
+!> @ingroup MoLPrivate
+!! Interfaces to private procedures implementing MoL's memory management
 module ml_memInterface
 
    implicit none
 
+   !> @interfaceto{ml_memSetActiveRHS}
    interface
       subroutine ml_memSetActiveRHS(irhs)
          implicit none
@@ -36,29 +31,25 @@ module ml_memInterface
       end subroutine ml_memSetActiveRHS
    end interface
 
+   !> @interfaceto{ml_memReleaseActiveRHS}
    interface
       subroutine ml_memReleaseActiveRHS()
       end subroutine ml_memReleaseActiveRHS
    end interface
 
-    !! ================================ !!
-    !!  Memory allocation/deallocation  !!
-    !! ================================ !!
-
+   !> @interfaceto{ml_memAlloc}
    interface
       subroutine ml_memAlloc
       end subroutine ml_memAlloc
    end interface
 
+   !> @interfaceto{ml_memFree}
    interface
       subroutine ml_memFree
       end subroutine ml_memFree
    end interface
 
-    !! ===================================== !!
-    !!  Directly set or copy to/from memory  !!
-    !! ===================================== !!
-
+   !> @interfaceto{ml_memZero}
    interface
       subroutine ml_memZero(dst)
          implicit none
@@ -66,6 +57,7 @@ module ml_memInterface
       end subroutine ml_memZero
    end interface
 
+   !> @interfaceto{ml_memCopy}
    interface
       subroutine ml_memCopy(dst, src)
          implicit none
@@ -73,10 +65,7 @@ module ml_memInterface
       end subroutine ml_memCopy
    end interface
 
-    !! ============================== !!
-    !!  Linear combination operators  !!
-    !! ============================== !!
-
+   !> @interfaceto{ml_memAddToVars}
    interface
       subroutine ml_memAddToVars(dst, dstFac, nsrcs, srcs, facs)
          implicit none

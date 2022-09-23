@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMain/MoL_registerPostUpdate.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +11,14 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_registerPostUpdate implementation
-!! @ingroup MoLMain
 
-!> @brief Implements MoL_registerPostUpdate
+!> @ingroup MoLMain
 !!
-!! @ref MoL_registerPostUpdate_stub "See stub documentation"
+!! @brief Implements MoL_registerPostUpdate
 !!
-!! @ingroup MoLMain
+!! @stubref{MoL_registerPostUpdate}
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
    use MoL_functionTypes, only: MoL_postUpdate_t
    use ml_functions, only: ml_postUpdate, ml_postUpdateFast

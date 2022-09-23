@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoL_registerPostUpdate.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,31 +11,30 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_registerPostUpdate stub
-!! @ingroup MoL
 
-!> @brief Register a procedure responsible for performing post-update
+!> @ingroup MoL
+!!
+!! @brief Register a procedure responsible for performing post-update work
+!!
+!! @details
 !! @anchor MoL_registerPostUpdate_stub
 !!
-!! @param postUpdateType  post-update type identifier
-!! @param postUpdateFunc  Procedure that will calculate the post update
+!! Valid post-update types include (defined in MoL.h):
+!!    - `MOL_POST_UPDATE`      : Post-update (slow) per-stage
+!!    - `MOL_POST_UPDATE_FAST` : Post-update (fast) per-stage
 !!
 !! @pre `postUpdateType` is a valid MoL post-update identifier as defined in @ref MoL.h
-!! @pre `postUpdateFunc` is a callable procedure of the current time: `call postUpdateFunc(t)`
-!!
-!! @sideffect MoL's procedure pointer for the specified post-update will be set to the
-!!            provided procedure
+!! @pre `postUpdateFunc` is a valid procedure with an interface
+!!      @ref mol_functiontypes::mol_postupdate_t
 !!
 !! @returns None
 !!
-!! @details
-!!    Valid post-update types include (defined in MoL.h):
-!!       - `MOL_POST_UPDATE`      : Post-update (slow) per-stage
-!!       - `MOL_POST_UPDATE_FAST` : Post-update (fast) per-stage
-!!
 !! @warning Will trigger Flash-X to abort if an invalid post-update type is specified
 !!
-!! @ingroup MoL
+!! @param postUpdateType  post-update type identifier
+!! @param postUpdateFunc  Procedure that will calculate the post update
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
    use MoL_functionTypes, only: MoL_postUpdate_t
 

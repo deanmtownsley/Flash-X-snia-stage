@@ -13,10 +13,10 @@
       limitations under the License.
     @endparblock
     
-    @internal
-    
-    @defgroup MoLMemory MoL Memory Management
-    @ingroup MoL
+    @internal  
+    @defgroup MoLFBE MoL Forward-Backward Euler Integrator
+    @ingroup MoLMain
 
-    @brief Provides a scratch memory system for intermediate integration-stage storage
+    @brief Provides implementation of a first-order forward-backward Euler
+           IMEX integrator
 */

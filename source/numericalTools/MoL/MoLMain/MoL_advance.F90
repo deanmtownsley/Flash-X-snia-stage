@@ -1,6 +1,4 @@
-!> @file source/numericalTools/MoL/MoLMain/MoL_advance.F90
-!!
-!! @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +11,18 @@
 !!   limitations under the License.
 !! @endlicenseblock
 !!
+!! @file
 !! @brief MoL_advance implementation
-!! @ingroup MoLMain
 
-!> @brief Implements MoL_advance
-!! @details This implementation saves the intial state of the evolved
-!!          variables at time `t` and calls a method-specific `ml_advance`
+!> @ingroup MoLMain
 !!
-!! @ref MoL_advance_stub "See stub documentation"
+!! @brief Implements MoL_advance
 !!
-!! @ingroup MoLMain
+!! @details
+!! This implementation saves the intial state of the evolved variables at
+!! time `t` and calls a method-specific `ml_advance`
+!!
+!! @stubref{MoL_advance}
 subroutine MoL_advance(t, dt)
    use ml_interface, only: ml_advance
    use ml_memInterface, only: ml_memCopy
