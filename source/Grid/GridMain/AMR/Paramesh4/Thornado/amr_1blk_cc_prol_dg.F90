@@ -86,9 +86,11 @@
 !! AUTHOR: Antigoni Georgiadou     DATE: 07/20/2021
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
+!!  2022-09-22 Added computation of skip            - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
+#include "constants.h"
 
 Subroutine amr_1blk_cc_prol_dg               &
         (recv,ia,ib,ja,jb,ka,kb,idest,ioff,joff,koff,  &
@@ -112,9 +114,12 @@ Subroutine amr_1blk_cc_prol_dg               &
   !-----Local variables
   Integer :: ifl, ifu, jfl, jfu, kfl, kfu
   Integer :: icl, icu, jcl, jcu, kcl, kcu
+  Integer :: iclX, icuX, jclX, jcuX, kclX, kcuX ! extended range bounds
   Integer :: offi, offj, offk
 
-  Integer, Parameter :: largei = 100
+  integer :: skip(MDIM)
+
+  Integer, Parameter :: largei = 200
 
   Integer, Parameter :: refine_factor = 2 ! Thornado assumes this for now
 
@@ -134,6 +139,7 @@ Subroutine amr_1blk_cc_prol_dg               &
   If (joff > 0) offj = nyb*K2D/2
   If (koff > 0) offk = nzb*K3D/2
 
+  ! The following variables are now unused; left for code comparision:
   kcl = ((kfl-NGUARD-1+largei)/2 + NGUARD - largei/2 )*K3D + 1 + offk
   kcu = ((kfu-NGUARD-1+largei)/2 + NGUARD - largei/2 )*K3D + 1 + offk
   jcl = ((jfl-NGUARD-1+largei)/2 + NGUARD - largei/2 )*K2D + 1 + offj
@@ -141,8 +147,47 @@ Subroutine amr_1blk_cc_prol_dg               &
   icl =  (ifl-NGUARD-1+largei)/2 + NGUARD - largei/2       + 1 + offi
   icu =  (ifu-NGUARD-1+largei)/2 + NGUARD - largei/2       + 1 + offi
 
+!!$  !Example numbers are for (NXB,NYB,NZB)=(16,16,16), NGUARD=6,
+!!$  !prolongation into a new child block (interior cells):
+!!$  !  [ ia, ja, ka ] == [ 7, 7, 7 ]
+!!$  !  [ ib, jb, kb ] == [ 22, 22, 22 ]
+!!$  fine_lo = [ ifl, jfl, kfl ] ! [ 7, 7, 7 ]
+!!$  fine_hi = [ ifu, jfu, kfu ] ! [ 22, 22, 22 ]
+!!$
+!!$  crse_lo = [ icl, jcl, kcl ] ! [ 7, 7, 7 ] ; [ 15, 15, 15 ]
+!!$  crse_hi = [ icu, jcu, kcu ] ! [ 14, 14, 14 ] ; [ 22, 22 22 ]
+!!$  !(Everything is fine here!)
+!!$
+!!$  !Example numbers are for (NXB,NYB,NZB)=(16,16,16), NGUARD=6,
+!!$  !f/c interpolation at a left ; right (all-layers) gc region.
+!!$  !  [ ia, ja, ka ] == [ 1, 7, 7 ]   ; [ 23, 7, 7 ]
+!!$  !  [ ib, jb, kb ] == [ 6, 22, 22 ] ; [ 28, 22, 22 ]
+!!$  fine_lo = [ ifl, jfl, kfl ] ! [ 1, 7, 7 ]   ; [ 23, 7, 7 ]
+!!$  fine_hi = [ ifu, jfu, kfu ] ! [ 6, 22, 22 ] ; [ 28, 22, 22 ]
+!!$
+!!$  crse_lo = [ icl, jcl, kcl ] ! [ 4, 7, 7 ]   ; [ 23, 7, 15 ]
+!!$  crse_hi = [ icu, jcu, kcu ] ! [ 6, 14, 14 ] ; [ 25, 14, 22 ]
+!!$
+!!$  !needs to be turned into:
+!!$
+!!$  crse_loX = [ iclX, jclX, kclX ] ! [ 3(!), 7, 7 ]   ; [ 23, 7, 15 ]
+!!$  crse_hiX = [ icuX, jcuX, kcuX ] ! [ 6, 14, 14 ] ; [ 26(!), 14, 22 ]
 
-  call RadTrans_prolongDgData(recv(ivar,icl:icu,jcl:jcu,kcl:kcu), &
-                              unk1(ivar,ifl:ifu,jfl:jfu,kfl:kfu,idest))
+  kclX = ( ((kfl-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD  )*K3D + 1 + offk
+  kcuX = ( ((kfu-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD+1)*K3D + 1 + offk
+  jclX = ( ((jfl-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD  )*K2D + 1 + offj
+  jcuX = ( ((jfu-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD+1)*K2D + 1 + offj
+  iclX =   ((ifl-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD        + 1 + offi
+  icuX =   ((ifu-NGUARD-1+4*largei)/4 - largei)*2 + NGUARD        + 2 + offi
+
+  skip = (/ &
+            modulo(ia-NGUARD-1, 4)    , &
+            modulo(ja-NGUARD-1, 4)*K2D, &
+            modulo(ka-NGUARD-1, 4)*K3D  &
+         /)
+
+  call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
+                              unk1(ivar,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
+                              skip)
 
 End Subroutine amr_1blk_cc_prol_dg

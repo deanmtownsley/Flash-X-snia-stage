@@ -167,10 +167,11 @@ module RadTrans_interface
 !!$  end interface
 
   interface 
-     subroutine RadTrans_prolongDgData(inData,outData)
+     subroutine RadTrans_prolongDgData(inData,outData,skip)
        implicit none
        real,intent(IN)    :: inData(:,:,:)
        real,intent(INOUT) :: outData(:,:,:)
+       integer,intent(IN) :: skip(MDIM)
      end subroutine RadTrans_prolongDgData
   end interface
 
