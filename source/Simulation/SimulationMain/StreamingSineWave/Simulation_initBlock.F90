@@ -91,7 +91,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   end if
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
-  swX(1:NDIM) = 2
+  swX(1:NDIM) = NGUARD / THORNADO_NNODESX
   u_lo = 1 - swX
   u_hi = nX + swX
 
@@ -106,9 +106,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   call InitThornado_Patch &
        (nX, swX, xL, xR, THORNADO_NSPECIES, 'cartesian' )
 
-  do iX3 = 1, nX(3)
-     do iX2 = 1, nX(2)
-        do iX1 = 1, nX(1)
+  do iX3 = u_lo(3), u_hi(3)
+     do iX2 = u_lo(2), u_hi(2)
+        do iX1 = u_lo(1), u_hi(1)
 
            i = lo(IAXIS) + THORNADO_NNODESX*(iX1-1)
            j = lo(JAXIS) + THORNADO_NNODESX*(iX2-1)
@@ -131,19 +131,21 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               solnData(VELZ_VAR,ii,jj,kk) = sim_velz_i
               solnData(TEMP_VAR,ii,jj,kk) = sim_temp_i
               solnData(PRES_VAR,ii,jj,kk) = sim_pres_i
+#if NSPECIES > 0
               do n = SPECIES_BEGIN,SPECIES_END
                  solnData(n,ii,jj,kk) = sim_xn_i(n)
               enddo
+#endif
               solnData(YE_MSCALAR,ii,jj,kk) = sim_ye_i
            enddo
 
            ! Initialize neutrino data
-           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = 1, THORNADO_NE
+           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
 
               ioff = THORNADO_BEGIN &
-                 + (iS -1)*(THORNADO_NNODESE*THORNADO_NE*THORNADO_NMOMENTS) &
-                 + (iCR-1)*(THORNADO_NNODESE*THORNADO_NE) &
-                 + (iE -1)*(THORNADO_NNODESE)
+                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
 
               do iNode = 1, THORNADO_RAD_NDOF
 
