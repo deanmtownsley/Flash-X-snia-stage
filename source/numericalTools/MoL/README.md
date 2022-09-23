@@ -57,7 +57,7 @@ integer, dimension(MOL_NRHS), save :: MOMX_RHS_INDS
 ! in some init procedure
 MOMX_RHS_INDS = [(i, i = MOMX_RHS_BEGIN, MOMX_RHS_END)]
 ```
-- An "active RHS" identifier in the range `[0, MOL_NRHS]` could be passed to the procedures responsible for calculating the RHS terms and used like:
+- An "active RHS" identifier in the range `[1, MOL_NRHS]` could be passed to the procedures responsible for calculating the RHS terms and used like:
 ```fortran
 subroutine Hydro_molExplicitRHS(t, activeRHS)
    use MoL_interface, only: MoL_getDataPtr, ...
