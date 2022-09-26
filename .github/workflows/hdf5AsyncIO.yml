@@ -26,8 +26,7 @@ jobs:
     
     - name: Dependencies1
       run: |
-       with:
-          credentials: ${{ secrets.THORNADO_PARAMESH}}
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
           git submodule update --init --recursive
           mydir="$PWD"
           sudo apt-get update
