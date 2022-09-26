@@ -26,6 +26,7 @@ jobs:
     
     - name: Dependencies1
       run: |
+       with:
           credentials: ${{ secrets.THORNADO_PARAMESH}}
           git submodule update --init --recursive
           mydir="$PWD"
