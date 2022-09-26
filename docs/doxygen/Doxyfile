@@ -68,7 +68,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ./obj_docs
+OUTPUT_DIRECTORY       = .
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
@@ -287,9 +287,7 @@ ALIASES  =
 ALIASES += licenseblock="\par License^^\parblock"
 ALIASES += endlicenseblock="\endparblock^^"
 ALIASES += addlicenseblock="\copyright Copyright 2022 UChicago Argonne, LLC and contributors\licenseblock^^Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License.^^^^Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.^^\endlicenseblock"
-ALIASES += sideeffect="\par Side Effects:^^"
 ALIASES += stubref{1}="Please refer to the documentation for the \ref \1_stub \"\1 stub\" for the declaration of the routine's interface as well as general usage information."
-ALIASES += interfaceto{1}="Interface to @ref \1_stub \"\1\""
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
@@ -916,7 +914,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = source
+INPUT                  = ../../source
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
