@@ -213,6 +213,8 @@ contains
       
       implicit none
 
+#include "Simulation.h"
+
 !-----Input/output statements
       integer,intent(in)    :: nprocs
       real,intent(in)       :: work_per_proc
