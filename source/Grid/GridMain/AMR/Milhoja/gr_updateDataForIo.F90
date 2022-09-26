@@ -28,9 +28,11 @@
 !!
 !! @attention
 !! This is a quick & dirty implementation built up from the AMReX version.
-!! In particular, it will only work for pseudo-UG runs.
+!! In particular, it will only work for pseudo-UG runs.  This is acceptable
+!! as Milhoja only works in pseudo-UG presently.
 !!
-!! @todo Finish implementation
+!! @todo Finish implementation and update for AMR when this is available
+!! through Milhoja.
 subroutine gr_updateDataForIo()
     use Driver_interface, ONLY : Driver_abort
     use Grid_interface,   ONLY : Grid_getTileIterator, &
@@ -78,7 +80,6 @@ subroutine gr_updateDataForIo()
     allocate(gr_ioBlkBsize(             MDIM, nBlocks))
     allocate(gr_ioBlkBoundBox(LOW:HIGH, MDIM, nBlocks))
 
-    ! DEVNOTE: Assuming pseudo-UG only here
     j = 1
     CALL Grid_getTileIterator(itor, ALL_BLKS, tiling=.FALSE.)
     do while (itor%isValid())
