@@ -23,25 +23,21 @@ module ml_interface
 
    implicit none
 
-   !> @interfaceto{ml_init}
    interface
       subroutine ml_init
       end subroutine ml_init
    end interface
 
-   !> @interfaceto{ml_finalize}
    interface
       subroutine ml_finalize
       end subroutine ml_finalize
    end interface
 
-   !> @interfaceto{ml_initTableau}
    interface
       subroutine ml_initTableau
       end subroutine ml_initTableau
    end interface
 
-   !> @interfaceto{ml_advance}
    interface
       subroutine ml_advance(t, dt)
          implicit none
@@ -49,7 +45,6 @@ module ml_interface
       end subroutine ml_advance
    end interface
 
-   !> @interfaceto{ml_calcRHS}
    interface
       subroutine ml_calcRHS(rhsType, rhsStruct, t)
          implicit none
@@ -58,7 +53,6 @@ module ml_interface
       end subroutine ml_calcRHS
    end interface
 
-   !> @interfaceto{ml_error}
    interface
       subroutine ml_error(msg)
          implicit none
@@ -66,7 +60,6 @@ module ml_interface
       end subroutine ml_error
    end interface
 
-   !> @interfaceto{ml_warn}
    interface
       subroutine ml_warn(msg)
          implicit none
@@ -74,7 +67,6 @@ module ml_interface
       end subroutine ml_warn
    end interface
 
-   !> @interfaceto{ml_status}
    interface
       subroutine ml_status(msg)
          implicit none

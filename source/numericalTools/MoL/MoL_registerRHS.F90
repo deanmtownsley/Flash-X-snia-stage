@@ -26,14 +26,6 @@
 !!    - `MOL_RHS_IMPLICIT`  : RHS for (slow) implicit terms
 !!    - `MOL_RHS_FAST`      : RHS for (fast) explicit terms
 !!
-!! @pre `rhsType` is a valid MoL RHS identifier as defined in @ref MoL.h
-!! @pre `rhsFunc` is a valid procedure with an interface
-!!      @ref mol_functiontypes::mol_rhs_t
-!!
-!! @returns None
-!!
-!! @warning Will trigger Flash-X to abort if an invalid RHS-type is specified
-!!
 !! @param rhsType  RHS-type identifier
 !! @param rhsFunc  Procedure that will calculate the RHS terms
 subroutine MoL_registerRHS(rhsType, rhsFunc)

@@ -15,7 +15,7 @@
     
     @internal
     
-    @defgroup MoLMemory MoL Memory Management
+    @defgroup MoLMemory MoL Memory Management Sub-Unit
     @ingroup MoL
 
     @brief Provides a scratch memory system for intermediate integration-stage storage

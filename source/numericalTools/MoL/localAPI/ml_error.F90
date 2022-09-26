@@ -21,10 +21,6 @@
 !! @details
 !! @anchor ml_error_stub
 !!
-!! @warning This procedure will cause Flash-X to abort
-!!
-!! @returns None
-!!
 !! @param msg  Description of the error that occurred
 subroutine ml_error(msg)
    implicit none

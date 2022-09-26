@@ -21,6 +21,11 @@
 !! @details
 !! @anchor MoL_getDataPtr_stub
 !!
+!! This procedure will associate the provided pointer to the current tile
+!! in the requested data structure.  For compatibility with the reference
+!! counting in Grid, all calls to this procedure must be matched by calls
+!! to @ref mol_releasedataptr
+!!
 !! Valid data structures include (defined in MoL.h):
 !!    - `MOL_EVOLVED` : Evolved variables in UNK
 !!    - `MOL_INITIAL` : Copy of the evolved variables at the start of a timestep
@@ -43,20 +48,12 @@
 !! @note Requests for `MOL_EVOLVED` are forwarded to the provided
 !!       tile descriptor
 !!
-!! @pre `tileDesc` has been set to the current grid tile
-!! @pre `dataPtr` is null
-!! @pre `dataStruct` is a valid MoL data structure as defined in @ref MoL.h
-!!
-!! @returns Associated pointer to the requested data structure in the current tile
-!!
-!! @warning Will trigger Flash-X to abort if an invalid data-structure is
-!!          requested
-!!
 !! @todo This is intended as a temporary measure until a more suitable
 !!       solution for MoL's scratch memory is decided
 !!
 !! @param tileDesc   Descriptor for the current grid tile
-!! @param dataPtr    Pointer that will target the requested data structure
+!! @param dataPtr    Pointer that will target the current tile in the
+!!                   requested data structure
 !! @param dataStruct Identifier of the MoL data structure
 subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
    use Grid_tile, only: Grid_tile_t

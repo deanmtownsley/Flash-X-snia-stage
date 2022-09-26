@@ -25,14 +25,6 @@
 !!    - `MOL_POST_UPDATE`      : Post-update (slow) per-stage
 !!    - `MOL_POST_UPDATE_FAST` : Post-update (fast) per-stage
 !!
-!! @pre `postUpdateType` is a valid MoL post-update identifier as defined in @ref MoL.h
-!! @pre `postUpdateFunc` is a valid procedure with an interface
-!!      @ref mol_functiontypes::mol_postupdate_t
-!!
-!! @returns None
-!!
-!! @warning Will trigger Flash-X to abort if an invalid post-update type is specified
-!!
 !! @param postUpdateType  post-update type identifier
 !! @param postUpdateFunc  Procedure that will calculate the post update
 subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)

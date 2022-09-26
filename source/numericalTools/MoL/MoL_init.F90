@@ -21,11 +21,12 @@
 !! @details
 !! @anchor MoL_init_stub
 !!
-!! This procedure will read MoL's runtime parameters, prepare the unit
-!! to receive variable registrations, and call all implementation
-!! specific intialization procedures.
-!!
-!! @returns None
+!! This procedure should not be called more than once per program execution
+!! during startup, only after RuntimeParameters has been initialized, but before
+!! Simulation and all physics units are initiailized.  All of MoL's runtime parameters
+!! will be processed, and the unit will be prepared to receive variable registrations.
+!! All implementation-specific intialization procedures will be called subequently during
+!! execution of this procedure.
 subroutine MoL_init()
    implicit none
 

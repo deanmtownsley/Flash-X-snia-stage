@@ -14,7 +14,7 @@
    @endparblock
 
    @internal
-   @defgroup MoLMain MoL Top-Level Implementation
+   @defgroup MoLMain MoLMain
    @ingroup MoL
 
    @brief Provides implementations for public interface procedures that are common to all integrators

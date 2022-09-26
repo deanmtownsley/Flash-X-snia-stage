@@ -14,7 +14,7 @@
     @endparblock
     
     @internal  
-    @defgroup MoLPrivate MoL Private Interface
+    @defgroup MoLPrivate MoL localAPI
     @ingroup MoL
 
     @brief Provides interfaces to private procedures used internally by MoL

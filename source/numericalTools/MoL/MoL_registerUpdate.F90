@@ -29,15 +29,6 @@
 !!       future, e.g. distinct implcit-updates for both slow- and fast-integration
 !!       steps in the multi-rate integrator.
 !!
-!! @pre `updateType` is a valid MoL update identifier as defined in @ref MoL.h
-!! @pre `updateFunc` is a valid procedure with an interface
-!!      @ref mol_functiontypes::mol_update_t
-!!
-!!
-!! @returns None
-!!
-!! @warning Will trigger Flash-X to abort if an invalid update-type is specified
-!!
 !! @param updateType  Update-type identifier
 !! @param updateFunc  Procedure that will calculate the update
 subroutine MoL_registerUpdate(updateType, updateFunc)

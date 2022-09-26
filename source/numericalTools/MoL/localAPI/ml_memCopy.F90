@@ -25,8 +25,6 @@
 !! This procedure may be used to copy between internal MoL data structures
 !! or to/from UNK
 !!
-!! @returns None
-!!
 !! @param dst  Destintation data structure as defined in @ref Mol.h
 !! @param src  Source data structure as defined in @ref Mol.h
 subroutine ml_memCopy(dst, src)

@@ -37,14 +37,6 @@
 !! - other         : Each integrator may specify some additional number of
 !!                   of scratch-memory for intermediate stages/RHS terms
 !!
-!! @pre `dst` is a valid MoL memory data structure defined in @ref MoL.h
-!! @pre `srcs` are a valid MoL memory data structures defined in @ref MoL.h
-!!
-!! @post The result of the linear combination will be stored in the specified
-!!       destination data structure
-!!
-!! @returns None
-!!
 !! @param dst     Index of the destination location to store the linear combination
 !! @param dstFac  Scaling factor for the destination - set this to zero to overwrite
 !!                the existing value

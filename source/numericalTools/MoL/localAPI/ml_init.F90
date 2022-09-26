@@ -23,9 +23,8 @@
 !!
 !! This procedure is responsible for reading and runtime parameters,
 !! allocating memory, and all other tasks that are specific to the
-!! implementation
-!!
-!! @returns None
+!! implementation.  It will be called only once during `MoL_init`, and
+!! will be matched by a call to `ml_finalize` during `MoL_finalize`
 subroutine ml_init()
    implicit none
 

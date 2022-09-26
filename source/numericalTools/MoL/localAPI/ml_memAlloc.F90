@@ -21,13 +21,8 @@
 !! @details
 !! @anchor ml_memAlloc_stub
 !!
-!! This procedure may be used either at startup or after regridding
-!!
-!! @pre Evolved variables are registered with MoL
-!! @pre Number of required scratch memory structures has been specified by
-!!      the selected MoL implementation
-!!
-!! @returns None
+!! This procedure may be used either at startup or after regridding.  Space
+!! for all evolved variables will be allocated
 subroutine ml_memAlloc()
    implicit none
 

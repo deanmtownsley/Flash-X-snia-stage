@@ -25,14 +25,6 @@
 !! through the provided timestep.  Each integrator will need to
 !! implement this procedure
 !!
-!! @pre The associated procedures to calculate the RHS terms for the
-!!      evolved variables and perform post-update work have been
-!!      registered with MoL
-!!
-!! @post The evolved variables will be advanced to a time `t+dt`
-!!
-!! @returns None
-!!
 !! @todo When/if subcyling is available in Flash-X, this will extend
 !!       to include a level-indicator as well
 !!

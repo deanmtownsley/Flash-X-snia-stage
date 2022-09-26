@@ -31,11 +31,6 @@
 !! - `MOL_RHS_IMPLICIT`
 !! - `MOL_RHS_FAST`
 !!
-!! @pre `rhsType` is a valid MoL RHS-type defined in @ref MoL.h
-!! @pre `rhsStruct` is a valid MoL RHS data structure defined in @ref MoL.h
-!!
-!! @returns None
-!!
 !! @param rhsType    The type of RHS
 !! @param rhsStruct  MoL memory data-struct to store RHS in
 !! @param t          The time of the RHS is to be evaluated at

@@ -21,17 +21,15 @@
 !! @details
 !! @anchor MoL_releaseDataPtr_stub
 !!
-!! @pre `tileDesc` has been set to the current grid tile
-!! @pre `dataPtr` targets a valid data structure
-!! @pre `dataStruct` is a valid MoL data structure as defined in @ref MoL.h
-!!
-!! @returns Nullified pointer to specified data structure for the current tile
+!! For compatibility with the reference counting in Grid, all calls to this
+!! procedure must be matched by calls to @ref mol_getdataptr
 !!
 !! @todo This is intended as a temporary measure until a more suitable
 !!       solution for MoL's scratch memory is decided
 !!
 !! @param tileDesc   Descriptor for the current grid tile
 !! @param dataPtr    Pointer that targets the specified data structure
+!!                   (null on return)
 !! @param dataStruct Identifier of the MoL data structure
 subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
    use Grid_tile, only: Grid_tile_t

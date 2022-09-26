@@ -21,13 +21,10 @@
 !! @details
 !! @anchor MoL_regrid_stub
 !!
-!! This procedure will update the shape of MoL's memory structures to
+!! This procedure will update the shape of MoL's data structures to
 !! match the current grid.  This may require (re)allocation of the
-!! data structures in some implementations.
-!!
-!! @pre Evolved variables are registered with MoL
-!!
-!! @returns None
+!! data structures in some implementations.  Space will be allocated
+!! for all evolved variables in every data structure.
 subroutine MoL_regrid()
    implicit none
 

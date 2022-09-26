@@ -22,12 +22,10 @@
 !! @anchor ml_memReleaseActiveRHS_stub
 !!
 !! This procedure will unset the active RHS term that is associated with
-!! requests for the MOL_RHS data pointer
-!!
-!! @post MOL_RHS will no longer refer to a specific stage/type of RHS
-!!       storage in MoL's scratch memory
-!!
-!! @returns None
+!! requests for the MOL_RHS data pointer.  Subsequent requests for RHS
+!! data pointers while no active RHS is set will return a pointer
+!! directly to the specified data structure - no mapping to the current
+!! stage/type of RHS will be made
 subroutine ml_memReleaseActiveRHS(irhs)
 
    implicit none

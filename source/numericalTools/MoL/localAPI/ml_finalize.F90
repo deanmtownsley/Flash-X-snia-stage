@@ -22,9 +22,9 @@
 !! @anchor ml_finalize_stub
 !!
 !! This procedure is responsible deallocating all memory allocated
-!! by a specific implementation
-!!
-!! @returns None
+!! by a specific implementation.  This procedure will be called once
+!! during `MoL_finalize`, and must be matched by a call to `ml_init`
+!! during `MoL_init`
 subroutine ml_finalize()
    implicit none
 

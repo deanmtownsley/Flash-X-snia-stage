@@ -23,7 +23,6 @@ module ml_memInterface
 
    implicit none
 
-   !> @interfaceto{ml_memSetActiveRHS}
    interface
       subroutine ml_memSetActiveRHS(irhs)
          implicit none
@@ -31,25 +30,21 @@ module ml_memInterface
       end subroutine ml_memSetActiveRHS
    end interface
 
-   !> @interfaceto{ml_memReleaseActiveRHS}
    interface
       subroutine ml_memReleaseActiveRHS()
       end subroutine ml_memReleaseActiveRHS
    end interface
 
-   !> @interfaceto{ml_memAlloc}
    interface
       subroutine ml_memAlloc
       end subroutine ml_memAlloc
    end interface
 
-   !> @interfaceto{ml_memFree}
    interface
       subroutine ml_memFree
       end subroutine ml_memFree
    end interface
 
-   !> @interfaceto{ml_memZero}
    interface
       subroutine ml_memZero(dst)
          implicit none
@@ -57,7 +52,6 @@ module ml_memInterface
       end subroutine ml_memZero
    end interface
 
-   !> @interfaceto{ml_memCopy}
    interface
       subroutine ml_memCopy(dst, src)
          implicit none
@@ -65,7 +59,6 @@ module ml_memInterface
       end subroutine ml_memCopy
    end interface
 
-   !> @interfaceto{ml_memAddToVars}
    interface
       subroutine ml_memAddToVars(dst, dstFac, nsrcs, srcs, facs)
          implicit none

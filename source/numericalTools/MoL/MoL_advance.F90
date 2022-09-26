@@ -22,15 +22,9 @@
 !! @anchor MoL_advance_stub
 !!
 !! This procedure is the main entry point into the MoL integrator,
-!! and should be called once per time step.
-!!
-!! @pre The procedures to calculate the RHS terms for the
-!!      evolved variables and perform post-update work have been
-!!      registered with MoL
-!!
-!! @post The evolved variables will be advanced to a time `t+dt`
-!!
-!! @returns None
+!! and should be called once per time step.  All evolved variables
+!! will be advanced from the time `t` to the time `t + dt` based
+!! on the evaluation of the RHS terms for the variables' equations.
 !!
 !! @todo When/if subcyling is available in Flash-X, this will extend
 !!       to include a level-indicator as well

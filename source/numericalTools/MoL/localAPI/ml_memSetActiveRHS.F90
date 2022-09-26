@@ -22,13 +22,8 @@
 !! @anchor ml_memSetActiveRHS_stub
 !!
 !! This procedure will set the active RHS term that is associated with
-!! requests for the MOL_RHS data pointer
-!!
-!! @pre `irhs` is a valid data structure defined in @ref MoL.h
-!! @post MOL_RHS will refer to a specific stage/type of RHS storage in
-!!       MoL's scratch memory
-!!
-!! @returns None
+!! requests for the MOL_RHS data pointer.  All subsequent requests for
+!! pointers to MOL_RHS will now target the pointer torwards the active RHS
 !!
 !! @param irhs Identifier of the RHS data structure to associate with MOL_RHS
 subroutine ml_memSetActiveRHS(irhs)

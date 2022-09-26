@@ -24,8 +24,6 @@
 !! Status messages will only be displayed on the master process and if
 !! MoL's verbosity level is set to `MOL_VERBOSITY_STATUS`
 !!
-!! @returns None
-!!
 !! @param msg  The status message to display
 subroutine ml_status(msg)
    implicit none

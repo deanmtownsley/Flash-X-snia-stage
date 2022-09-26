@@ -23,8 +23,6 @@
 !!
 !! This procedure will be call immediately before allocation to ensure that
 !! memory is not already allocated, and upon finalization of the unit
-!!
-!! @returns None
 subroutine ml_memFree()
    implicit none
 

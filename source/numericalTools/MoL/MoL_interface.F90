@@ -23,19 +23,16 @@ module MoL_interface
 
    implicit none
 
-   !> @interfaceto{MoL_init}
    interface
       subroutine MoL_init
       end subroutine MoL_init
    end interface
 
-   !> @interfaceto{MoL_finalize}
    interface
       subroutine MoL_finalize
       end subroutine MoL_finalize
    end interface
 
-   !> @interfaceto{MoL_registerVariable}
    interface
       subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
          implicit none
@@ -45,7 +42,6 @@ module MoL_interface
       end subroutine MoL_registerVariable
    end interface
 
-   !> @interfaceto{MoL_registerRHS}
    interface
       subroutine MoL_registerRHS(rhsType, rhsFunc)
          use MoL_functionTypes, only: MoL_rhs_t
@@ -55,7 +51,6 @@ module MoL_interface
       end subroutine MoL_registerRHS
    end interface
 
-   !> @interfaceto{MoL_registerUpdate}
    interface
       subroutine MoL_registerUpdate(updateType, updateFunc)
          use MoL_functionTypes, only: MoL_update_t
@@ -65,7 +60,6 @@ module MoL_interface
       end subroutine MoL_registerUpdate
    end interface
 
-   !> @interfaceto{MoL_registerPostUpdate}
    interface
       subroutine MoL_registerPostUpdate(postUpdateType, postUpdateFunc)
          use MoL_functionTypes, only: MoL_postUpdate_t
@@ -75,13 +69,11 @@ module MoL_interface
       end subroutine MoL_registerPostUpdate
    end interface
 
-   !> @interfaceto{MoL_releaseFunctions}
    interface
       subroutine MoL_releaseFunctions
       end subroutine MoL_releaseFunctions
    end interface
 
-   !> @interfaceto{MoL_advance}
    interface
       subroutine MoL_advance(t, dt)
          implicit none
@@ -89,13 +81,11 @@ module MoL_interface
       end subroutine MoL_advance
    end interface
 
-   !> @interfaceto{MoL_regrid}
    interface
       subroutine MoL_regrid
       end subroutine MoL_regrid
    end interface
 
-   !> @interfaceto{MoL_getDataPtr}
    interface
       subroutine MoL_getDataPtr(tileDesc, dataPtr, dataStruct)
          use Grid_tile, only: Grid_tile_t
@@ -106,7 +96,6 @@ module MoL_interface
       end subroutine MoL_getDataPtr
    end interface
 
-   !> @interfaceto{MoL_releaseDataPtr}
    interface
       subroutine MoL_releaseDataPtr(tileDesc, dataPtr, dataStruct)
          use Grid_tile, only: Grid_tile_t

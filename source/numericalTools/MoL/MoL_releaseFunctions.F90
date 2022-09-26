@@ -22,9 +22,8 @@
 !! @details
 !! @anchor MoL_releaseFunctions_stub
 !!
-!! @post MoL's procedure pointers will target default versions
-!!
-!! @returns None
+!! Releasing registered functions will reset MoL's internal procedure pointers
+!! to target their default "stub" implementations
 subroutine MoL_releaseFunctions()
    implicit none
 

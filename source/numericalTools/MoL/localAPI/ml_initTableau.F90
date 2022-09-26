@@ -24,11 +24,6 @@
 !! This procedure will allocate all necessary tableua for the chosen
 !! integration scheme, and fill the tableau via the provided utilities
 !! in the KERNELs of the various implementations
-!!
-!! @pre An integration scheme has been specified via the implementation's
-!!      runtime parameters
-!!
-!! @returns None
 subroutine ml_initTableau()
    implicit none
 

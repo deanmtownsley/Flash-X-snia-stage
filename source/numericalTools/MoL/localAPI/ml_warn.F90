@@ -22,11 +22,8 @@
 !! @anchor ml_warn_stub
 !!
 !! Warning messages will only be displayed on the master process and if
-!! MoL's verbosity level is set to `MOL_VERBOSITY_WARN`  or higher
-!!
-!! @warning Flash-X will terminate if MoL is set to abort on warnings
-!!
-!! @returns None
+!! MoL's verbosity level is set to `MOL_VERBOSITY_WARN`  or higher.  If
+!! MoL is configured to abort on issuing a warning, Flash-X will terminate
 !!
 !! @param msg  A warning message to display
 subroutine ml_warn(msg)

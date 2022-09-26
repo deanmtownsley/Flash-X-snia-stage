@@ -22,8 +22,6 @@
 !! @details
 !! @anchor ml_memZero_stub
 !!
-!! @returns None
-!!
 !! @param dataStruct  Destintation data structure
 subroutine ml_memZero(dataStruct)
    implicit none

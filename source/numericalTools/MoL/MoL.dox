@@ -13,7 +13,7 @@
       limitations under the License.
     @endparblock
     
-    @defgroup MoL Method of Lines
+    @defgroup MoL Method of Lines Unit
     @ingroup numericalTools
    
     @brief Method-of-Lines time integrators and utilities

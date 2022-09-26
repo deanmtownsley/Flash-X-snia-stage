@@ -28,11 +28,6 @@
 !! @note Duplicate variable registrations will be ignored unless warnings are
 !!       set to trigger runtime errors in MoL
 !!
-!! @pre `evolIndex` is valid variable index in UNK
-!!
-!! @returns `rhsIndex` will be the index assigned to the evolved variable
-!!          in MoL's data structures
-!!
 !! @todo This is intended as a temporary measure until a more suitable
 !!       solution for MoL's scratch memory is decided.  The procedure name
 !!       is intentionally similar to the same functionality provided
@@ -40,7 +35,8 @@
 !!
 !! @param name       The name of the evolved variable
 !! @param evolIndex  Index of the evolved variable in UNK
-!! @param rhsIndex   Index of the evolved variable in MoL RHS data structures
+!! @param rhsIndex   Output index of the evolved variable in MoL RHS
+!                    data structures
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    implicit none
 

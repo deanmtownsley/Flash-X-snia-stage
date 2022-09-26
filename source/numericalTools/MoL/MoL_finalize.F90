@@ -22,9 +22,9 @@
 !! @anchor MoL_finalize_stub
 !!
 !! This procedure will deallocate memory managed by MoL and call
-!! all implementation specific finalization procedures
-!!
-!! @returns None
+!! all implementation specific finalization procedures.  A single call
+!! to this procedure during program execution finalization is required
+!! if a call to `MoL_initialize` has been made
 subroutine MoL_finalize()
    implicit none
 
