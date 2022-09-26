@@ -1472,7 +1472,9 @@ simply prevents this violation / fix from being applied to any file.
 
        # Generate the robodoc header
        rdoc = [] # before printing we will add !! in front of all lines
-       rdoc.append("****if* %s" % self.filename[:self.filename.find(".F90")])
+       # self.filename is PosixPath, convert to string to allow the following statement
+       filename = str(self.filename)
+       rdoc.append("****if* %s" % filename[:filename.find(".F90")])
        rdoc.extend([""," NAME","","  %s" % self.basename,""," SYNOPSIS",""])
        argprefix = " "*(2+5+len(self.basename))
        synlist = [] 
