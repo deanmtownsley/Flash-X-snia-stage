@@ -100,6 +100,7 @@ contains
   !!Account for multiplicative factors at each cell face to account for different 
  !!geometries.
    subroutine  geoFacs(i,j,k,facM,facP,Sgeo,U,V,dx)
+     !$omp declare target
      implicit none
      integer, intent(IN) :: i,j,k
      real, intent(OUT) :: facM, facP
