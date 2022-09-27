@@ -1,5 +1,7 @@
 # Config file for MoLMain
 
+UNOFFICIAL
+
 REQUIRES Driver/DriverMain/MoL
 REQUIRES numericalTools/MoL/MoLMemory
 
