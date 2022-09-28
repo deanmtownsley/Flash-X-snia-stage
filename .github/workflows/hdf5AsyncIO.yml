@@ -74,9 +74,9 @@ jobs:
           mv Makefile.h Makefile.h.hello
           wget https://gist.githubusercontent.com/rajeeja/768b83c41c64563e81df84d4021b9bd4/raw/695e0872571e907e3c8a2b7cac96f8a3eff98a35/Makefile.h
           cd ../..
-          export H5_DIR=/home/runner/work/FLASH5/FLASH5/hdf5
-          export ABT_DIR=/home/runner/work/FLASH5/FLASH5/vol-async/argobots/
-          export VOL_DIR=/home/runner/work/FLASH5/FLASH5/vol-async
+          export H5_DIR=/home/runner/work/Flash-X/Flash-X/hdf5
+          export ABT_DIR=/home/runner/work/Flash-X/Flash-X/vol-async/argobots/
+          export VOL_DIR=/home/runner/work/Flash-X/Flash-X/vol-async
           export LD_LIBRARY_PATH=$VOL_DIR/src:$H5_DIR/install/lib:$ABT_DIR/lib:$LD_LIBRARY_PATH
           export HDF5_PLUGIN_PATH="$VOL_DIR/src"
           export HDF5_VOL_CONNECTOR="async under_vol=0;under_info={}"             
@@ -86,9 +86,9 @@ jobs:
           mydir="$PWD"
           echo $mydir
           cd object
-          export H5_DIR=/home/runner/work/FLASH5/FLASH5/hdf5
-          export ABT_DIR=/home/runner/work/FLASH5/FLASH5/vol-async/argobots/
-          export VOL_DIR=/home/runner/work/FLASH5/FLASH5/vol-async
+          export H5_DIR=/home/runner/work/Flash-X/Flash-X/hdf5
+          export ABT_DIR=/home/runner/work/Flash-X/Flash-X/vol-async/argobots/
+          export VOL_DIR=/home/runner/work/Flash-X/Flash-X/vol-async
           export LD_LIBRARY_PATH=$VOL_DIR/src:$H5_DIR/install/lib:$ABT_DIR/lib:$LD_LIBRARY_PATH
           export HDF5_PLUGIN_PATH="$VOL_DIR/src"
           export HDF5_VOL_CONNECTOR="async under_vol=0;under_info={}"   
@@ -98,9 +98,9 @@ jobs:
           mydir="$PWD"
           echo $mydir
           cd object
-          export H5_DIR=/home/runner/work/FLASH5/FLASH5/hdf5
-          export ABT_DIR=/home/runner/work/FLASH5/FLASH5/vol-async/argobots/
-          export VOL_DIR=/home/runner/work/FLASH5/FLASH5/vol-async
+          export H5_DIR=/home/runner/work/Flash-X/Flash-X/hdf5
+          export ABT_DIR=/home/runner/work/Flash-X/Flash-X/vol-async/argobots/
+          export VOL_DIR=/home/runner/work/Flash-X/Flash-X/vol-async
           export LD_LIBRARY_PATH=$VOL_DIR/src:$H5_DIR/install/lib:$ABT_DIR/lib:$LD_LIBRARY_PATH
           export HDF5_PLUGIN_PATH="$VOL_DIR/src"
           export HDF5_VOL_CONNECTOR="async under_vol=0;under_info={}"   
