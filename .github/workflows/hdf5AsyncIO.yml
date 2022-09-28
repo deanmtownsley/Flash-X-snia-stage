@@ -72,7 +72,7 @@ jobs:
           echo $mydir
           cd $mydir/sites/hello
           mv Makefile.h Makefile.h.hello
-          wget https://gist.githubusercontent.com/rajeeja/768b83c41c64563e81df84d4021b9bd4/raw/695e0872571e907e3c8a2b7cac96f8a3eff98a35/Makefile.h
+          wget https://gist.githubusercontent.com/rajeeja/768b83c41c64563e81df84d4021b9bd4/raw/8b4064fb5e6ef728071842d7aef4394ef7d066fb/Makefile.h
           cd ../..
           export H5_DIR=/home/runner/work/Flash-X/Flash-X/hdf5
           export ABT_DIR=/home/runner/work/Flash-X/Flash-X/vol-async/argobots/
