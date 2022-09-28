@@ -1,0 +1,5 @@
+# Config file for the Spacetime unit
+DEFAULT SpacetimeMain
+
+D  useSpacetime  Default value will be overridien when including SpacetimeMain
+PARAMETER useSpacetime BOOLEAN FALSE

@@ -1,0 +1,4 @@
+# Config file for the SpacetimeMain unit
+
+D  useSpacetime  Are we actually using Spacetime?
+PARAMETER useSpacetime BOOLEAN TRUE
