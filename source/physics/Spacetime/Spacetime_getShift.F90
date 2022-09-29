@@ -22,22 +22,18 @@
 !! @anchor Spacetime_getShift_stub
 !!
 !! This procedure serves as an accessor to obtain the shift vector
-!! at the specific location in the current grid tile.
+!! at the specific location in the provided solution data.
 !!
 !! @param  betax,betay,betaz  Contravariant components of the shift vector
 !!                            @f$ \beta^i @f$
-!! @param  tileDesc           Descriptor for the current tile
 !! @param  solnData           Pointer to variables in UNK for the current tile
 !! @param  loc                Location (i,j,k) in the current tile
-subroutine Spacetime_getShift(betax, betay, betaz, tileDesc, solnData, loc)
-   use Grid_tile, only: Grid_tile_t
-
+subroutine Spacetime_getShift(betax, betay, betaz, solnData, loc)
 #include "constants.h"
 
    implicit none
 
    real, intent(out) :: betax, betay, betaz
-   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

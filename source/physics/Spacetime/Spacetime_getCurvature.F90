@@ -12,42 +12,37 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_getSpatialMetric stub
+!! @brief Spacetime_getCurvature stub
 
 !> @ingroup Spacetime
 !!
-!! @brief Obtain the spatial metric at the provided location
+!! @brief Obtain the extrinsic at the provided location
 !!
 !! @details
-!! @anchor Spacetime_getSpatialMetric_stub
+!! @anchor Spacetime_getCurvature_stub
 !!
-!! This procedure serves as an accessor to obtain the spatial metric
-!! at the specific location in the current grid tile.
+!! This procedure serves as an accessor to obtain the extrinsic curvature
+!! at the specific location in the provided solution data.
 !!
-!! @param  gxx,gxy,gxz,gyy,gyz,gzz  Symmetric covariant components of the
-!!                                  spatial metric @f$ g_{ij} @f$
-!! @param  tileDesc                 Descriptor for the current tile
+!! @param  Kxx,Kxy,Kxz,Kyy,Kyz,Kzz  Symmetric covariant components of the
+!!                                  extrinsic @f$ K_{ij} @f$
 !! @param  solnData                 Pointer to variables in UNK for the current tile
 !! @param  loc                      Location (i,j,k) in the current tile
-subroutine Spacetime_getSpatialMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
-                                      tileDesc, solnData, loc)
-   use Grid_tile, only: Grid_tile_t
-
+subroutine Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, solnData, loc)
 #include "constants.h"
 
    implicit none
 
-   real, intent(out) :: gxx, gxy, gxz, gyy, gyz, gzz
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, intent(out) :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   gxx = 0d0
-   gxy = 0d0
-   gxz = 0d0
-   gyy = 0d0
-   gyz = 0d0
-   gzz = 0d0
+   Kxx = 0d0
+   Kxy = 0d0
+   Kxz = 0d0
+   Kyy = 0d0
+   Kyz = 0d0
+   Kzz = 0d0
 
    return
-end subroutine Spacetime_getSpatialMetric
+end subroutine Spacetime_getCurvature

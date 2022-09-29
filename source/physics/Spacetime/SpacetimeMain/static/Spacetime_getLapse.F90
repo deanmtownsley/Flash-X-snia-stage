@@ -12,32 +12,25 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_getSpatialMetric implementation
+!! @brief Spacetime_getLapse implementation
 
-!> @ingroup Minkowksi
+!> @ingroup SpacetimeStatic
 !!
-!! @brief Obtain the spatial metric at the provided location
+!! @brief Obtain the lapse function at the provided location
 !!
 !! @details
 !!
-!! @stubref{Spacetime_getSpatialMetric}
-subroutine Spacetime_getSpatialMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
-                                      tileDesc, solnData, loc)
-   use Grid_tile, only: Grid_tile_t
+!! @stubref{Spacetime_getLapse}
+subroutine Spacetime_getLapse(alp, solnData, loc)
 
+#include "Simulation.h"
 #include "constants.h"
 
    implicit none
 
-   real, intent(out) :: gxx, gxy, gxz, gyy, gyz, gzz
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, intent(out) :: alp
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   gxx = 1d0
-   gxy = 0d0
-   gxz = 0d0
-   gyy = 1d0
-   gyz = 0d0
-   gzz = 1d0
-end subroutine Spacetime_getSpatialMetric
+   alp = solnData(ALP_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+end subroutine Spacetime_getLapse

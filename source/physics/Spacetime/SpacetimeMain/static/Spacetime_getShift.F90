@@ -12,26 +12,27 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_getLapse implementation
+!! @brief Spacetime_getShift implementation
 
-!> @ingroup Minkowksi
+!> @ingroup SpacetimeStatic
 !!
-!! @brief Obtain the lapse function at the provided location
+!! @brief Obtain the shift vector at the provided location
 !!
 !! @details
 !!
-!! @stubref{Spacetime_getLapse}
-subroutine Spacetime_getLapse(alp, tileDesc, solnData, loc)
-   use Grid_tile, only: Grid_tile_t
+!! @stubref{Spacetime_getShift}
+subroutine Spacetime_getShift(betax, betay, betaz, solnData, loc)
 
+#include "Simulation.h"
 #include "constants.h"
 
    implicit none
 
-   real, intent(out) :: alp
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, intent(out) :: betax, betay, betaz
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   alp = 1d0
-end subroutine Spacetime_getLapse
+   betax = solnData(BETX_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   betay = solnData(BETY_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   betaz = solnData(BETZ_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+end subroutine Spacetime_getShift

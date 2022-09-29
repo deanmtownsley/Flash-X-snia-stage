@@ -16,33 +16,33 @@
 
 !> @ingroup Spacetime
 !!
-!! @brief Obtain all metric variables at the provided location
+!! @brief Obtain the spatial metric at the provided location
 !!
 !! @details
 !! @anchor Spacetime_getMetric_stub
 !!
-!! This procedure serves as an accessor for all metric variables
-!! at the specific location in the current grid tile.
+!! This procedure serves as an accessor to obtain the spatial metric
+!! at the specific location in the provided solution data.
 !!
-!! @param  metric    Contains all metric variables accesible via the
-!!                   other accessors
-!! @param  tileDesc  Descriptor for the current tile
-!! @param  solnData  Pointer to variables in UNK for the current tile
-!! @param  loc       Location (i,j,k) in the current tile
-subroutine Spacetime_getMetric(metric, tileDesc, solnData, loc)
-   use Spacetime_metric, only: Spacetime_metric_t
-   use Grid_tile, only: Grid_tile_t
-
+!! @param  gxx,gxy,gxz,gyy,gyz,gzz  Symmetric covariant components of the
+!!                                  spatial metric @f$ g_{ij} @f$
+!! @param  solnData                 Pointer to variables in UNK for the current tile
+!! @param  loc                      Location (i,j,k) in the current tile
+subroutine Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, solnData, loc)
 #include "constants.h"
 
    implicit none
 
-   type(Spacetime_metric_t), intent(out) :: metric
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, intent(out) :: gxx, gxy, gxz, gyy, gyz, gzz
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   ! Spacetime_metric_t has no data members at the stub-level
+   gxx = 0d0
+   gxy = 0d0
+   gxz = 0d0
+   gyy = 0d0
+   gyz = 0d0
+   gzz = 0d0
 
    return
 end subroutine Spacetime_getMetric
