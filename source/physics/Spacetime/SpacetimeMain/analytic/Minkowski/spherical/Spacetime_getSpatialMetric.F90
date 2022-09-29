@@ -12,27 +12,20 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_getSpatialMetric stub
+!! @brief Spacetime_getSpatialMetric implementation
 
-!> @ingroup Spacetime
+!> @ingroup Minkowksi
 !!
 !! @brief Obtain the spatial metric at the provided location
 !!
 !! @details
-!! @anchor Spacetime_getSpatialMetric_stub
 !!
-!! This procedure serves as an accessor to obtain the spatial metric
-!! at the specific location in the current grid tile.
-!!
-!! @param  gxx,gxy,gxz,gyy,gyz,gzz  Symmetric covariant components of the
-!!                                  spatial metric @f$ g_{ij} @f$
-!! @param  tileDesc                 Descriptor for the current tile
-!! @param  solnData                 Pointer to variables in UNK for the current tile
-!! @param  loc                      Location (i,j,k) in the current tile
+!! @stubref{Spacetime_getSpatialMetric}
 subroutine Spacetime_getSpatialMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
                                       tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
+#include "Simulation.h"
 #include "constants.h"
 
    implicit none
@@ -42,12 +35,25 @@ subroutine Spacetime_getSpatialMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   gxx = 0d0
+   real :: r2, sin2theta
+   real :: box(LOW:HIGH, MDIM), del(MDIM)
+   integer :: lim(LOW:HIGH, MDIM)
+
+   call tileDesc%boundBox(box)
+   call tileDesc%deltas(del)
+   lim = tileDesc%limits
+
+   r2 = (box(LOW, IAXIS) + (dble(loc(IAXIS) - lim(IAXIS)) + 0.5d0)*del(IAXIS))**2
+#if NDIM > 1
+   sin2theta = sin(box(LOW, JAXIS) + (dble(loc(JAXIS) - lim(JAXIS)) + 0.5d0)*del(JAXIS))**2
+#else
+   sin2theta = 1d0
+#endif
+
+   gxx = 1d0
    gxy = 0d0
    gxz = 0d0
-   gyy = 0d0
+   gyy = r2
    gyz = 0d0
-   gzz = 0d0
-
-   return
+   gzz = r2*sin2theta
 end subroutine Spacetime_getSpatialMetric

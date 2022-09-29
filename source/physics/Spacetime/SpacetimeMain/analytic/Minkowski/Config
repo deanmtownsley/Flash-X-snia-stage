@@ -1,0 +1,11 @@
+# Config file for an analytic Minkowski spacetimes
+
+USESETUPVARS spacetimeCoords
+
+IF SpacetimeCoords not in ["","cartesian","spherical"]
+   SETUPERROR SpacetimeCoords must be one of ["","cartesian","spherical"]
+ENDIF
+
+IF SpacetimeCoords == "spherical"
+   DEFAULT spherical
+ENDIF

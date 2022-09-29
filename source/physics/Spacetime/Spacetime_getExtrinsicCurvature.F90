@@ -27,8 +27,10 @@
 !! @param  Kxx,Kxy,Kxz,Kyy,Kyz,Kzz  Symmetric covariant components of the
 !!                                  extrinsic @f$ K_{ij} @f$
 !! @param  tileDesc                 Descriptor for the current tile
+!! @param  solnData                 Pointer to variables in UNK for the current tile
 !! @param  loc                      Location (i,j,k) in the current tile
-subroutine Spacetime_getExtrinsicCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, tileDesc, loc)
+subroutine Spacetime_getExtrinsicCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, &
+                                           tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
 #include "constants.h"
@@ -37,6 +39,7 @@ subroutine Spacetime_getExtrinsicCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, tileDes
 
    real, intent(out) :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
    type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
    Kxx = 0d0

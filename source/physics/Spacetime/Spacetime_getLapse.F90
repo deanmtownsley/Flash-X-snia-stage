@@ -26,8 +26,9 @@
 !!
 !! @param  alp       Scalar lapse function @f$ \alpha @f$
 !! @param  tileDesc  Descriptor for the current tile
+!! @param  solnData  Pointer to variables in UNK for the current tile
 !! @param  loc       Location (i,j,k) in the current tile
-subroutine Spacetime_getLapse(alp, tileDesc, loc)
+subroutine Spacetime_getLapse(alp, tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
 #include "constants.h"
@@ -36,6 +37,7 @@ subroutine Spacetime_getLapse(alp, tileDesc, loc)
 
    real, intent(out) :: alp
    type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
    alp = 0d0

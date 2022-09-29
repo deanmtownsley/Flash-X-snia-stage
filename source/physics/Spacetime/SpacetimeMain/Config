@@ -1,5 +1,4 @@
 # Config file for the SpacetimeMain unit
 UNOFFICIAL
 
-D  useSpacetime  Are we actually using Spacetime?
-PARAMETER useSpacetime BOOLEAN TRUE
+DEFAULT analytic

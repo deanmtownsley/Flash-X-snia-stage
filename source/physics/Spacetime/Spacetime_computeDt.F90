@@ -24,20 +24,21 @@
 !! This procedure will calculate the minimum necessary timestep
 !! required by the Spacetime unit
 !!
-!! @param  tileDesc  Information and access to the solution data for
-!!                   the current tile
+!! @param  tileDesc  Descriptor for the current tile
+!! @param  solnData  Pointer to variables in UNK for the current tile
 !! @param  dtMin     On output, the minimum required timstep that
 !!                   is required by the Spacetime unit if it is
 !!                   smaller than the input value
 !! @param  dtMinLoc  The location in the grid responsible for the
 !!                   minumum required timestep, indexed as
 !!                   `(i,j,k,block,proc)`
-subroutine Spacetime_computeDt(tileDesc, dtMin, dtMinLoc)
+subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
    use Grid_tile, only: Grid_tile_t
 
    implicit none
 
    type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer :: solnData(:, :, :, :)
    real, intent(inout) :: dtMin
    real, intent(inout) :: dtMinLoc(5)
 

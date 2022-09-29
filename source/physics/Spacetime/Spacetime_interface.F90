@@ -43,65 +43,71 @@ module Spacetime_interface
    end interface
 
    interface
-      subroutine Spacetime_computeDt(tileDesc, dtMin, dtMinLoc)
+      subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
          use Grid_tile, only: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          real, intent(inout) :: dtMin
          real, intent(inout) :: dtMinLoc(5)
       end subroutine Spacetime_computeDt
    end interface
 
    interface
-      subroutine Spacetime_getLapse(alp, tileDesc, loc)
+      subroutine Spacetime_getLapse(alp, tileDesc, solnData, loc)
          use Grid_tile, only: Grid_tile_t
          implicit none
          real, intent(out) :: alp
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          integer, intent(in) :: loc(MDIM)
       end subroutine Spacetime_getLapse
    end interface
 
    interface
       subroutine Spacetime_getShift(betax, betay, betaz, &
-                                    tileDesc, loc)
+                                    tileDesc, solnData, loc)
          use Grid_tile, only: Grid_tile_t
          implicit none
          real, intent(out) :: betax, betay, betaz
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          integer, intent(in) :: loc(MDIM)
       end subroutine Spacetime_getShift
    end interface
 
    interface
       subroutine Spacetime_getSpatialMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
-                                            tileDesc, loc)
+                                            tileDesc, solnData, loc)
          use Grid_tile, only: Grid_tile_t
          implicit none
          real, intent(out) :: gxx, gxy, gxz, gyy, gyz, gzz
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          integer, intent(in) :: loc(MDIM)
       end subroutine Spacetime_getSpatialMetric
    end interface
 
    interface
       subroutine Spacetime_getExtrinsicCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, &
-                                                 tileDesc, loc)
+                                                 tileDesc, solnData, loc)
          use Grid_tile, only: Grid_tile_t
          implicit none
          real, intent(out) :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          integer, intent(in) :: loc(MDIM)
       end subroutine Spacetime_getExtrinsicCurvature
    end interface
 
    interface
-      subroutine Spacetime_getMetric(metric, tileDesc, loc)
+      subroutine Spacetime_getMetric(metric, tileDesc, solnData, loc)
          use Spacetime_metric, only: Spacetime_metric_t
          use Grid_tile, only: Grid_tile_t
          implicit none
          type(Spacetime_metric_t), intent(out) :: metric
          type(Grid_tile_t), intent(in) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
          integer, intent(in) :: loc(MDIM)
       end subroutine Spacetime_getMetric
    end interface
