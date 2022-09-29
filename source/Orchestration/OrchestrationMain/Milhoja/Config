@@ -1,0 +1,22 @@
+# This is not yet under official testing and its functionality is presently
+# limited to pseudo-UG.  Also, the interfaces will go through serious changes.
+UNOFFICIAL
+
+LIBRARY milhoja
+REQUIRES Grid/GridMain/AMR/Milhoja
+
+D or_nThreadTeams         The number of thread teams to create and that are available for use throughout execution
+D or_nThreadsPerTeam      The number of threads that each team has available upon creation
+D or_nStreams             The number of streams available for coordinating data transfers and kernel launches
+D or_nBytesInMemoryPools  The amount of memory in bytes that each memory pool should manage
+PARAMETER or_nThreadTeams        INTEGER 1   [ 1 ... ]
+PARAMETER or_nThreadsPerTeam     INTEGER 1   [ 1 ... ]
+PARAMETER or_nStreams            INTEGER 0   [ 0 ... ]
+# This should be an integer.  However, normal values will likely exceed a 32-bit
+# integer.  Therefore, set as a real and let the unit implementation cast
+# to an appropriately-sized integer.
+PARAMETER or_nBytesInMemoryPools REAL    0.0 [ 0.0 ... ]
+
+# add pre-processor symbol
+PPDEFINE USE_MILHOJA_RUNTIME
+
