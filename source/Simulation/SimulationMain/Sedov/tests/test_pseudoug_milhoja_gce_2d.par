@@ -105,6 +105,20 @@ jGridSize = 256
 kGridSize = 1
  
 ## -------------------------------------------------------------##
+# Orchestration unit - We can only run on CPUs on GCE
+#
+# These might depend on which runtime is used, but this is unimportant
+# since Milhoja is the only option for now.
+or_nThreadTeams        = 2
+or_nThreadsPerTeam     = 7
+or_nStreams            = 0
+or_nBytesInMemoryPools = 0.0
+gr_initBlock_nCpuThreads = 6
+# NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
+# to the par file?
+dr_hydroAdvance_nThreads = 6
+
+## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #	I. INTERPOLATION SCHEME:
 order		= 3      # Interpolation order (first/second/third/fifth order)

@@ -13,6 +13,8 @@
 !!
 !! @file
 
+#include "Milhoja_interface_error_codes.h"
+
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_checkInternalError}
 !! 

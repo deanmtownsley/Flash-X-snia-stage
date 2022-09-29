@@ -59,7 +59,12 @@ FFLAGS_TEST = -O1 -c -r8 -real-size 64 \
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
+# Include -auto so that Fortran routines are thread-safe.  Never use -save.
+# https://www.intel.com/content/www/us/en/developer/articles/technical/threading-fortran-applications-for-parallel-performance-on-multi-core-systems.html
+# TODO: It seems like the setup tool should add in this flag so that our users
+# don't need to know this.  The setup tool could add in a WARNING so that they
+# are made aware.  Similarly, it would need to add -Mrecursive for NVHPC.
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions -auto
 
 F90FLAGS = -DHAVE_MPI_MODULE -DH5_USE_18_API
 

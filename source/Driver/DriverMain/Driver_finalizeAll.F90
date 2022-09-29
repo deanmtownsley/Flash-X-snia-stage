@@ -35,6 +35,7 @@ subroutine Driver_finalizeAll()
   use Multispecies_interface, ONLY : Multispecies_finalize
   use Particles_interface, ONLY : Particles_finalize
   use Grid_interface, ONLY : Grid_finalize
+  use Orchestration_interface, ONLY : Orchestration_finalize
   use Hydro_interface, ONLY : Hydro_finalize
   use Driver_data, ONLY: dr_globalMe, dr_restart
   use Simulation_interface, ONLY : Simulation_finalize
@@ -59,6 +60,9 @@ implicit none
   call Multispecies_finalize()
 
   call Driver_finalizeSourceTerms( dr_restart )
+
+  ! Must finalize before Grid
+  call Orchestration_finalize()
 
   call Grid_finalize()            ! Grid package
  

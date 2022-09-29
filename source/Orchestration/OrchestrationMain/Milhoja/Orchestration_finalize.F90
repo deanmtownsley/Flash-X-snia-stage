@@ -21,13 +21,13 @@ subroutine Orchestration_finalize()
     use milhoja_types_mod,       ONLY : MILHOJA_INT
     use milhoja_runtime_mod,     ONLY : milhoja_runtime_finalize
 
-    use Orchestration_interface, ONLY : Orchestration_checkMilhojaError
+    use Orchestration_interface, ONLY : Orchestration_checkInternalError
 
     implicit none
 
     integer(MILHOJA_INT) :: MH_ierr
 
     CALL milhoja_runtime_finalize(MH_ierr)
-    CALL Orchestration_checkMilhojaError("Orchestration_finalize", MH_ierr)
+    CALL Orchestration_checkInternalError("Orchestration_finalize", MH_ierr)
 end subroutine Orchestration_finalize
 

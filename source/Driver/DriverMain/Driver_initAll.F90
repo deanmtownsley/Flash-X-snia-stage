@@ -68,6 +68,7 @@ subroutine Driver_initAll()
   use Timers_interface, ONLY : Timers_init, Timers_start, Timers_stop
 
   use Grid_interface, ONLY : Grid_init, Grid_initDomain
+  use Orchestration_interface, ONLY : Orchestration_init
 
 #include "Simulation.h"
   use Multispecies_interface, ONLY : Multispecies_init
@@ -130,6 +131,9 @@ subroutine Driver_initAll()
 
   call Logfile_init()
   call Grid_init()
+
+  ! Must initialize Grid first
+  call Orchestration_init()
 
 !!  call Driver_initMaterialProperties()
   if(dr_globalMe==MASTER_PE)print*,'MaterialProperties initialized'

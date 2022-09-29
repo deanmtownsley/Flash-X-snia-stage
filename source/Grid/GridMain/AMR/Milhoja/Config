@@ -41,3 +41,6 @@ D & CELL_QUADRATIC
 D & CELL_PIECEWISE_CONSTANT
 PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
 
+D gr_initBlock_nCpuThreads  The number of threads to be activated in a thread team for setting ICs with the CPU (runtime only)
+PARAMETER gr_initBlock_nCpuThreads INTEGER 1 [ 1 ... ]
+

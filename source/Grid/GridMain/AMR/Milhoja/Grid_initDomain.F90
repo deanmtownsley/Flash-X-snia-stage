@@ -1,5 +1,3 @@
-#include "Simulation.h"
-
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
@@ -13,10 +11,16 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! A Milhoja-specific implementation of this routine.  Please refer
-!! to the documentation in this routine's stub for general interface
-!! information.
+!! @file
+
+#include "Simulation.h"
+
+!> @ingroup GridMilhoja
+!! @stubref{Grid_initDomain}
 !!
+!! @brief Concrete implementation of Grid_initDomain
+!!
+!! @attention
 !! Only partial functionality has been implemented so far.  This routine
 !! aborts if calling code attempts to use non-implemented functionality.
 !!
@@ -31,6 +35,7 @@ subroutine Grid_initDomain(restart, particlesInitialized)
 
     use gr_milhojaInterface,         ONLY : gr_checkMilhojaError
     use gr_initDomain_mod,           ONLY : gr_initBlock_tile_cpu
+    use RuntimeParameters_interface, ONLY : RuntimeParameters_get
     use Driver_interface,            ONLY : Driver_abort
 
     implicit none
@@ -40,6 +45,10 @@ subroutine Grid_initDomain(restart, particlesInitialized)
     logical, intent(IN)    :: restart
     logical, intent(INOUT) :: particlesInitialized
 
+#ifdef USE_MILHOJA_RUNTIME
+    integer              :: nThreads
+    integer(MILHOJA_INT) :: MH_nThreads
+#endif
     integer(MILHOJA_INT) :: MH_ierr
 
     particlesInitialized = .FALSE.
@@ -49,7 +58,9 @@ subroutine Grid_initDomain(restart, particlesInitialized)
     end if
 
 #ifdef USE_MILHOJA_RUNTIME
-    CALL Driver_abort("[Grid_initDomain] Runtime not yet integrated")
+     CALL RuntimeParameters_get('gr_initBlock_nCpuThreads', nThreads)
+     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
+     CALL milhoja_grid_initDomain(gr_initBlock_tile_cpu, MH_nThreads, MH_ierr)
 #else
     CALL milhoja_grid_initDomain(gr_initBlock_tile_cpu, MH_ierr)
 #endif
