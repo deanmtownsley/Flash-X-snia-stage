@@ -1,4 +1,6 @@
 CONFLICTS Grid/GridMain/UG
+CONFLICTS Grid/GridMain/AMR/Amrex
+CONFLICTS Grid/GridMain/AMR/Milhoja
 
 PPDEFINE IO_HDF5_PARALLEL_PM
 
