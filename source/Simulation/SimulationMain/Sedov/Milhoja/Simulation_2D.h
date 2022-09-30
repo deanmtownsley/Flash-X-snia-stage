@@ -396,7 +396,7 @@ of the runtime.
 #define K3D CONSTANT_ZERO
 #endif
 
-#define NGUARD 4
+#define NGUARD 1
 
 #if 0
   *************
