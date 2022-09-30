@@ -1,0 +1,4 @@
+#####----- TO BE WRITTEN ENTIRELY BY CODE GENERATOR
+# Declare runtime parameters needed to configure runtime
+PARAMETER dr_hydroAdvance_nDistributorThreads  INTEGER 1 [ 1 ... ]
+PARAMETER dr_hydroAdvance_nTilesPerPacket      INTEGER 1 [ 1 ... ]

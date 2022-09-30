@@ -22,27 +22,16 @@
 !! results will yield results that can be reasonably compared against similar
 !! C++-based performance results in a publication.
 !!
-!! @note Names should be chosen so that recipe creators can read this file easily.
-!! I don't know if our goal should be for recipe creators to be able to manually
-!! alter this file easily.  Ideally, they should be able to just read this file,
-!! adjust the recipe accordingly, regenerate with the offline toolchain, and diff
-!! the new/old versions if desired.
-!! @note I like the idea of using the dummy argument names in the call to the
-!! Orchestration unit to make explicit here the mapping.  Detailed names for the
-!! actual arguments will hopefully avoid having to open up many files at once just
-!! to digest the Fortran expression here of the timestep recipe.
-!! @note Johann to determine how to write this to file.  Is using a module
-!! for each bundle easiest/cleanest?  If so, is it OK to violate standard Flash-X
-!! file design rules?  Does it make sense that this data is owned by Driver since
-!! any bundle might include task functions from different physics units?
-!! @note The design of the use of runtime parameters for configuration of invocations
-!! of the Orchestration unit shall not preclude the possibility of dynamically
-!! altering these values from one timestep to the next using acquired performance
-!! results and predictive models.
-!!
-!! @todo Remove from repo once offline toolchain is in place.
 !! @todo Compare against C++ version before beginning study.
+!! @todo Remove runtime reset once memory manager in place.
 subroutine Driver_evolveAll()
+   use iso_c_binding, ONLY : C_PTR, &
+                             C_NULL_PTR
+
+   use milhoja_types_mod,   ONLY : MILHOJA_INT, &
+                                   MILHOJA_REAL
+   use milhoja_runtime_mod, ONLY : milhoja_runtime_reset
+
    use Driver_data, ONLY: dr_nstep, &
                           dr_nbegin, &
                           dr_nend, &
@@ -62,34 +51,56 @@ subroutine Driver_evolveAll()
    use IO_interface, ONLY: IO_output, &
                            IO_outputFinal
    use Grid_interface, ONLY: Grid_fillGuardCells
-   use Orchestration_interface, ONLY: Orchestration_executeTasks_Cpu
+   use Orchestration_interface, ONLY: Orchestration_executeTasks_Gpu, &
+                                      Orchestration_checkInternalError
    use Hydro_data, ONLY: hy_gcMaskSize, &
                          hy_gcMask
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
-   use dr_hydroAdvance_bundle_mod, ONLY: dr_hydroAdvance_TF_tile_cpu
-    !!!!!----- END INSERTION BY CODE GENERATOR
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   use dr_hydroAdvance_bundle_mod, ONLY: instantiate_hydro_advance_packet_C, &
+                                         delete_hydro_advance_packet_C
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
+
+   interface
+      subroutine dr_hydro_advance_packet_oacc_tf(C_tId, C_dataItemPtr) bind(c)         
+         use iso_c_binding,     ONLY : C_PTR
+         use milhoja_types_mod, ONLY : MILHOJA_INT
+         integer(MILHOJA_INT), intent(IN), value :: C_tId                             
+         type(C_PTR),          intent(IN), value :: C_dataItemPtr                     
+      end subroutine dr_hydro_advance_packet_oacc_tf                                   
+   end interface
 
    character(len=MAX_STRING_LENGTH) :: strBuff(4, 2)
    character(len=15)                :: numToStr
    logical                          :: shortenedDt
    logical                          :: endRun
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
-   integer :: dr_hydroAdvance_nThreads
-    !!!!!----- END INSERTION BY CODE GENERATOR
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   integer              :: dr_hydroAdvance_nThreads
+   integer              :: dr_hydroAdvance_nDistributorThreads
+   integer              :: dr_hydroAdvance_nTilesPerPacket
+   type(C_PTR)          :: dr_hydroAdvance_packet
+   real(MILHOJA_REAL)   :: MH_dt
+   integer(MILHOJA_INT) :: MH_ierr
+
+   dr_hydroAdvance_packet = C_NULL_PTR 
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    endRun = .FALSE.
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
-   ! RPs are used directly by the Driver and therefore, should be handled at
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   ! RPs are used directly by the Driver and therefore should be handled at
    ! this level rather than at the level of the code generated for use by
-   ! the runtime (i.e., dr_hydroAdvance_bundle_mod).
+   ! the runtime.
    CALL RuntimeParameters_get("dr_hydroAdvance_nThreads", &
-                              dr_hydroAdvance_nThreads)
-    !!!!!----- END INSERTION BY CODE GENERATOR
+                               dr_hydroAdvance_nThreads)
+   CALL RuntimeParameters_get("dr_hydroAdvance_nDistributorThreads", &
+                               dr_hydroAdvance_nDistributorThreads)
+   CALL RuntimeParameters_get("dr_hydroAdvance_nTilesPerPacket", &
+                               dr_hydroAdvance_nTilesPerPacket)
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    CALL Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
    CALL Timers_start("evolution")
@@ -113,12 +124,12 @@ subroutine Driver_evolveAll()
       end if
       dr_simTime = dr_simTime + dr_dt
 
-        !!!!!----- START INSERTION BY CODE GENERATOR
+      !!!!!----- START INSERTION BY CODE GENERATOR
       ! This is the timestep for now as dictated by the recipe and rendered as
       ! Fortran code by the CODE GENERATOR.
       !
       ! This maps the tasks defined implicitly by the bundle onto the chosen
-      ! thread team configuration.  In this case, the CPU-only config.  The
+      ! thread team configuration.  In this case, the GPU-only config.  The
       ! mapping should have been specified originally in the recipe.
       CALL Grid_fillGuardCells(CENTER, ALLDIR, &
                                doEos=.TRUE., &
@@ -127,9 +138,21 @@ subroutine Driver_evolveAll()
                                makeMaskConsistent=.TRUE., &
                                selectBlockType=LEAF, &
                                doLogMask=.TRUE.)
-      CALL Orchestration_executeTasks_Cpu(MH_taskFunction=dr_hydroAdvance_TF_tile_cpu, &
-                                          nThreads=dr_hydroAdvance_nThreads)
-        !!!!!----- END INSERTION BY CODE GENERATOR
+
+      MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
+      MH_ierr = instantiate_hydro_advance_packet_C(MH_dt, &
+                                                   dr_hydroAdvance_packet)
+      CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
+      CALL Orchestration_executeTasks_Gpu(dr_hydro_advance_packet_oacc_tf, &
+                                          dr_hydroAdvance_nDistributorThreads, &
+                                          dr_hydroAdvance_nThreads, &
+                                          dr_hydroAdvance_nTilesPerPacket, &
+                                          dr_hydroAdvance_packet)
+
+      MH_ierr = delete_hydro_advance_packet_C(dr_hydroAdvance_packet)
+      CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
+      dr_hydroAdvance_packet = C_NULL_PTR 
+      !!!!!----- END INSERTION BY CODE GENERATOR
 
       dr_dtOld = dr_dt
       call Driver_computeDt(dr_nbegin, dr_nstep, &
@@ -149,6 +172,12 @@ subroutine Driver_evolveAll()
          end if
          exit
       end if
+
+      ! The runtime backend's memory manager is presently very rudimentary.
+      ! As a result, we need to ask it to reset itself at each step to avoid
+      ! running out of memory on the GPU.
+      CALL milhoja_runtime_reset(MH_ierr)
+      CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
    end do
    dr_nstep = min(dr_nstep, dr_nend)
 
