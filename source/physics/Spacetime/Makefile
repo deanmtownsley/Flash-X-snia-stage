@@ -15,4 +15,5 @@ Spacetime = Spacetime_interface.o \
 				Spacetime_molPostUpdate.o \
 				Spacetime_molPostFastUpdate.o \
 				Spacetime_molPostTimeStep.o \
-				Spacetime_molPostRegrid.o
+				Spacetime_molPostRegrid.o \
+				Spacetime_unitTest.o

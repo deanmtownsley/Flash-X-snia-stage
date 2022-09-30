@@ -14,7 +14,7 @@
    @endparblock
 
    @internal
-   @defgroup SpacetimeStatic static
+   @defgroup SpacetimeStatic Static Spacetime Implementation
    @ingroup SpacetimeMain
 
    @brief Provides an implementation for a static spacetime

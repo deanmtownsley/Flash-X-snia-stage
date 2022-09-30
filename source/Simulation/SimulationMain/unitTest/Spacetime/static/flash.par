@@ -1,0 +1,29 @@
+# Unit test information
+basenm = "spacetime_static_unitTest_"
+
+# Grid and coordinates
+nblockx = 1
+nblocky = 1
+nblockz = 1
+
+iprocs = 1
+jprocs = 1
+kprocs = 1
+
+iGridSize = 8
+jGridSize = 8
+kGridSize = 8
+
+geometry = "cartesian"
+
+xmin = -4.0
+xmax =  4.0
+
+ymin = -4.0
+ymax =  4.0
+
+zmin = -4.0
+zmax =  4.0
+
+# Guard cells and boundaries
+# Does not matter for this test

@@ -155,4 +155,12 @@ module Spacetime_interface
       end subroutine Spacetime_molPostRegrid
    end interface
 
+   interface
+      subroutine Spacetime_unitTest(fileUnit, perfect)
+         implicit none
+         integer, intent(in) :: fileUnit
+         logical, intent(inout) :: perfect
+      end subroutine Spacetime_unitTest
+   end interface
+
 end module Spacetime_interface
