@@ -90,7 +90,8 @@ void  DataPacket_Hydro_gpu_3::tileSize_host(int* nxbGC,
     *nybGC = static_cast<int>(nyb_ + 2 * nGuard_ * MILHOJA_K2D);
     *nzbGC = static_cast<int>(nzb_ + 2 * nGuard_ * MILHOJA_K3D);
     // We are not including GAME in U, which is the last variable in each block
-    *nCcVars = nCcVars_ - 1;
+    // Exclude all the analytic variables as well, which should be after GAME.
+    *nCcVars = nCcVars_ - 8;
     *nFluxVars = nFluxVars_;
 }
 
