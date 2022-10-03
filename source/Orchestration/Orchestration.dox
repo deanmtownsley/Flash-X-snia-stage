@@ -52,6 +52,11 @@ which developers, but not users, should understand.
 adding in a layer of Flash-X types that are mapped onto Orchestration
 implementation types.  Having a fully-functioning runtime in Flash-X should have
 higher-priority than this design issue.
-@todo Should Simulation.h have an ORCHESTRATION_USE_GPUS define to replace
-MILHOJA_USE_CUDA_BACKEND?
+@todo If users specify to the offline tool chain (via the recipe?) that they
+want to use GPUs, then Simulation.h should define something like
+ORCHESTRATION_USE_GPUS.  This should be used throughout this unit instead of
+MILHOJA_USE_CUDA_BACKEND since it's more generic and clear.  Also, I should be
+able to run a CPU-only Simulation with a CUDA-based Milhoja library.  Therefore,
+the interface should be defined by what is specified at setup for the particular
+simulation rather than by what the library is capable of doing.
 */
