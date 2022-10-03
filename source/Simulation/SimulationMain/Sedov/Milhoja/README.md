@@ -8,5 +8,7 @@ be removed from the repository.
 The GPU version of the code requires that the cell-centered data be ordered in
 memory in a way different from how the setup tool chooses to order them.
 Therefore, after running setup but before compiling, users must copy the correct
-Simulation_*D.h file from here to their object directory.
+`Simulation_*_*D.h` file from here to their object directory.  These files should
+be used in all Sedov simulations that are to be compared against GPU results since
+they also decrease NGUARD from 4 to 1.
 
