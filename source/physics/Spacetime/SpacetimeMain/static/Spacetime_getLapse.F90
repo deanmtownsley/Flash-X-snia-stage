@@ -21,7 +21,9 @@
 !! @details
 !!
 !! @stubref{Spacetime_getLapse}
-subroutine Spacetime_getLapse(alp, solnData, loc)
+subroutine Spacetime_getLapse(alp, &
+                              tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
@@ -29,6 +31,7 @@ subroutine Spacetime_getLapse(alp, solnData, loc)
    implicit none
 
    real, intent(out) :: alp
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

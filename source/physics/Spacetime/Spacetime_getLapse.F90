@@ -25,14 +25,19 @@
 !! at the specific location in the provided solution data.
 !!
 !! @param  alp       Scalar lapse function @f$ \alpha @f$
+!! @param  tileDesc                 Current tile descriptor
 !! @param  solnData  Pointer to variables in UNK for the current tile
 !! @param  loc       Location (i,j,k) in the current tile
-subroutine Spacetime_getLapse(alp, solnData, loc)
+subroutine Spacetime_getLapse(alp, &
+                              tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
+
 #include "constants.h"
 
    implicit none
 
    real, intent(out) :: alp
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

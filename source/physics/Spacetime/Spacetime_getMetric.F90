@@ -26,14 +26,19 @@
 !!
 !! @param  gxx,gxy,gxz,gyy,gyz,gzz  Symmetric covariant components of the
 !!                                  spatial metric @f$ g_{ij} @f$
+!! @param  tileDesc                 Current tile descriptor
 !! @param  solnData                 Pointer to variables in UNK for the current tile
 !! @param  loc                      Location (i,j,k) in the current tile
-subroutine Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, solnData, loc)
+subroutine Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
+                               tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
+
 #include "constants.h"
 
    implicit none
 
    real, intent(out) :: gxx, gxy, gxz, gyy, gyz, gzz
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

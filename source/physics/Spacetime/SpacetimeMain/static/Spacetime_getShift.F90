@@ -21,7 +21,9 @@
 !! @details
 !!
 !! @stubref{Spacetime_getShift}
-subroutine Spacetime_getShift(betax, betay, betaz, solnData, loc)
+subroutine Spacetime_getShift(betax, betay, betaz, &
+                              tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
@@ -29,6 +31,7 @@ subroutine Spacetime_getShift(betax, betay, betaz, solnData, loc)
    implicit none
 
    real, intent(out) :: betax, betay, betaz
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

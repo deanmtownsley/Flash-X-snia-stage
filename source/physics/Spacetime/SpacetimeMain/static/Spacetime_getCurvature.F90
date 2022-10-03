@@ -21,7 +21,9 @@
 !! @details
 !!
 !! @stubref{Spacetime_getCurvature}
-subroutine Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, solnData, loc)
+subroutine Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, &
+                                  tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
 
 #include "Simulation.h"
 #include "constants.h"
@@ -29,6 +31,7 @@ subroutine Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, solnData, loc)
    implicit none
 
    real, intent(out) :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 

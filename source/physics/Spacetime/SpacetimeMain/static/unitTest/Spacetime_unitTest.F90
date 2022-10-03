@@ -134,10 +134,10 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
 
                ! Use the accessors to get the values from the grid
                loc = [i, j, k]
-               call Spacetime_getLapse(alp, vars, loc)
-               call Spacetime_getShift(betax, betay, betaz, vars, loc)
-               call Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, vars, loc)
-               call Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, vars, loc)
+               call Spacetime_getLapse(alp, tileDesc, vars, loc)
+               call Spacetime_getShift(betax, betay, betaz, tileDesc, vars, loc)
+               call Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, tileDesc, vars, loc)
+               call Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, tileDesc, vars, loc)
 
                ! Verify that these match
                call assertEqual(alp, alpActual, "Lapse is incorrect")

@@ -26,14 +26,19 @@
 !!
 !! @param  betax,betay,betaz  Contravariant components of the shift vector
 !!                            @f$ \beta^i @f$
+!! @param  tileDesc                 Current tile descriptor
 !! @param  solnData           Pointer to variables in UNK for the current tile
 !! @param  loc                Location (i,j,k) in the current tile
-subroutine Spacetime_getShift(betax, betay, betaz, solnData, loc)
+subroutine Spacetime_getShift(betax, betay, betaz, &
+                              tileDesc, solnData, loc)
+   use Grid_tile, only: Grid_tile_t
+
 #include "constants.h"
 
    implicit none
 
    real, intent(out) :: betax, betay, betaz
+   type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
