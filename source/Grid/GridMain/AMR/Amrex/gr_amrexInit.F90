@@ -42,7 +42,7 @@ subroutine gr_amrexInit()
   use Logfile_interface,           ONLY : Logfile_stamp
   use Grid_data,                   ONLY : gr_geometry, &
                                           gr_domainBC, &
-                                          gr_meshMe
+                                          gr_meshMe, gr_amrexUseBittree
   use gr_amrexInterface,           ONLY : gr_initNewLevelCallback, &
                                           gr_makeFineLevelFromCoarseCallback, &
                                           gr_remakeLevelCallback, &
@@ -135,6 +135,15 @@ subroutine gr_amrexInit()
   call amrex_parmparse_build(pp_amr, "amr")
   call RuntimeParameters_get("gr_amrex_verbosity", verbosity)
   call pp_amr%add   ("v", verbosity)
+
+  print *,gr_amrexUseBittree
+
+  call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
+
+  if (gr_amrexUseBittree) then
+     call pp_amr%add   ("bt_derefine", .TRUE.)
+     call pp_amr%add   ("infer_bt_grids", .FALSE.)
+  end if
 
   call RuntimeParameters_get("nrefs", nrefs)
   call pp_amr%add   ("regrid_int", nrefs)
