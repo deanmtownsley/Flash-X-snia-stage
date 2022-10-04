@@ -1,4 +1,4 @@
-# Method of Lines Time Integration Unit {#mol_readme}
+# Method of Lines Time Integration Unit
 
 The purpose of this README is to give a very general overview of the current state of `MoL` and record some of the outstanding issues/comments/plans related to discussions in the PR and during various related meetings.
 

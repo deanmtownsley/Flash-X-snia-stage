@@ -1,4 +1,4 @@
-# Spacetime Unit {#spacetime_readme}
+# Spacetime Unit
 
 The Spacetime unit houses solvers responsible for evolving the dynamic geometry of spacetime as governed by the Einstein's field equations of general relativity (GR)
 
