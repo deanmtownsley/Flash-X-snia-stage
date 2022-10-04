@@ -23,11 +23,11 @@
     setupOptions = "-auto -2d -test +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True"
     numProcs = 8
     parFile = "tests/test_amr_unsplit_2d.par"
-    environment: OMP_NUM_THREADS=1 GFORTRAN_UNBUFFERED_ALL='y'
-    checkpointBasename: snd_hdf5_chk_
-    transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
-    comparisonNumber: 0001
-    restartParfiles: <pathToSimulations>/<setupName>/testfaster_amr_unsplit_2d_restart.par
-    comparisonBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><comparisonNumber>
-    restartNumber: 0002
-    restartBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><restartNumber>
+    #environment: OMP_NUM_THREADS=1 GFORTRAN_UNBUFFERED_ALL='y'
+    #checkpointBasename: snd_hdf5_chk_
+    #transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+    #comparisonNumber: 0001
+    #restartParfiles: <pathToSimulations>/<setupName>/testfaster_amr_unsplit_2d_restart.par
+    #comparisonBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><comparisonNumber>
+    #restartNumber: 0002
+    #restartBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><restartNumber>
