@@ -4,6 +4,8 @@
 # it is possible to use a variation RHD which treats internal energy differently.
 # But only the Eos_wrapped varies for the two cases.
 
+D gamc_variable sound-speed gamma
+D game_variable internal energy gamma
 VARIABLE gamc  EOSMAP:   GAMC  # sound-speed gamma
 VARIABLE game  EOSMAPOUT:GAME  # energy gamma
 

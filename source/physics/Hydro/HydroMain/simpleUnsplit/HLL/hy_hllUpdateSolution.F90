@@ -1,4 +1,3 @@
-! Note: the following arrays need to be spelled exactly like this in the code below,
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,6 +9,8 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+!!
+! Note: the following arrays need to be spelled exactly like this in the code below,
 !       preserving case.
 !!REORDER(4): Uin, Uout, fl[XYZ]
 

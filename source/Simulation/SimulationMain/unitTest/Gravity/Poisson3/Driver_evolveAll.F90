@@ -66,7 +66,6 @@ subroutine Driver_evolveAll()
   use Gravity_interface, ONLY :  Gravity_potential, Gravity_unitTest
   !use IO_data, ONLY: io_justCheckpointed 
   use IO_interface, ONLY :IO_output,IO_outputFinal
-  use ut_testDriverMod
 
   implicit none
 
@@ -80,9 +79,10 @@ subroutine Driver_evolveAll()
   character(len=15) :: numToStr
 
   ! for unit test
-  logical,save :: perfect = .true.
-  character(len=20) :: fileName
-  integer, parameter        :: fileUnit = 2
+  character(len=4)            :: rank_str
+  logical,          save      :: perfect = .true.
+  character(len=20)           :: fileName
+  integer,          parameter :: fileUnit = 2
 
   ! ------------ end of unitTest setup ---------------------------------------
   
@@ -161,10 +161,23 @@ subroutine Driver_evolveAll()
   end if
 
   ! Gravity unitTest calculations-------------------------------------
-  call start_test_run()
+  write(rank_str,"(I4.4)") dr_globalMe
+  fileName = "unitTest_" // rank_str
+
+  open(fileUnit,file=fileName)
+  write(fileUnit,'("P",I0)') dr_globalMe
+
+  call Timers_start("testing")
   call Gravity_unitTest(fileUnit,perfect)
-  call assertTrue(perfect, "Gravity unit tests failed")
-  call finish_test_run()
+  call Timers_stop("testing")
+
+  call Timers_start("writing")
+  if (perfect) then
+    write(fileUnit,'("all results conformed with expected values.")')
+  endif
+
+  close(fileUnit)
+  call Timers_stop("writing")
 
 !! Eliminted all code beyond here, not needed for unit test -PMR
 !! NO!  We'd actually like to SEE what was calculated. LBR

@@ -51,7 +51,7 @@
 !!  Uin        - pointer to one block's worth of cell-centered solution
 !!               data; this represents the input data to the current
 !!               hydro time step.
-!!               Uout must be an associated pointer.
+!!               Uin must be an associated pointer.
 !!               See NOTES below for more info on the relation between
 !!               Uin and Uout.
 !!  Uout       - pointer to one block's worth of cell-centered solution
@@ -72,13 +72,16 @@
 !!  ------------
 !!
 !!  1. Uin and Uout can point to the same storage. Actually this is
-!!  the way mostly tested.
+!!  the way mostly tested. The following elaboration applies either
+!!  way, but is mostly of interest if Uint and Uout do NOT point to
+!!  the same storage.
 !!
 !!  2. Schematically (omitting any bothersome details about
-!!  directionality, about whether solution variables are in
-!!  primitive or conservative form and fluxes are really fluxes or
-!!  flux densities, etc.), the function of this routine is to do the
-!!  following, in order:
+!!  directionality, about whether solution variables are in primitive
+!!  or conservative form and fluxes are really fluxes or flux
+!!  densities, and considering [gravitational] accelerations and
+!!  geometric terms to be part of the fluxes, etc.), the function of
+!!  this routine is to do the following, in order:
 !!
 !!  (a) Conservative Update:
 !!      **For variables that have corresponding fluxes**
@@ -89,7 +92,17 @@
 !!      **Variables in Uout that do not have corresponding fluxes**,
 !!      on the other hand, are not modified in this part (a).
 !!      The list of variables that are considered to have
-!!      corresponding fluxes is: !!DEV: TBD
+!!      corresponding fluxes is:
+!!           DENS_VAR
+!!           VELX_VAR, VELY_VAR, VELZ_VAR
+!!           ENER_VAR
+!!           EINT_VAR       [if defined and if (hy_useAuxEintEqn)]
+!!           all species and mass scalars
+!!           MAGX_VAR, MAGY_VAR, MAGZ_VAR [if MHD is enabled]
+!!           GLMP_VAR                     [if UGLM-MHD is enabled]
+!!      The fluxes can depend implicitly or explicitly on Uin (including
+!!      on variables not listed above, e.g., PRES_VAR, GAME_VAR,
+!!      BDRY_VAR!), but not on the previous Uout.
 !!
 !!  (b) Additional Solution Modifications:
 !!      These are applied to the variables now in Uout, and can include
@@ -101,7 +114,18 @@
 !!      * call Eos_wrapped (with mode=hy_eosModeAfter, to bring
 !!        solution variables in Uout into a thermodynamically
 !!        consistent state).
+!!      These modification CAN in general depend on Uout values that
+!!      were not set in part a, above, but were passed into this
+!!      subroutine on invocation; however, this is normally not the
+!!      case [with dependence on Uout(BDRY_VAR,...) being a possible
+!!      exception].
 !!
+!!  It follows from the above considerations that in case Uin and
+!!  Uout are not the same storage, it may be necessary to copy some
+!!  variables from Uin into Uout before this routine is called; but
+!!  this SHOULD only be necssary for those variables, not mention in
+!!  part a, that the last sentence of (b) refers to, that is,
+!!  normally only BDRY_VAR [if used at all].
 !!
 !!  Other Notes
 !!  -----------
@@ -258,7 +282,7 @@ Subroutine hy_updateSolution_fluxbuf(tileDesc, flx,fly,flz,lo, Uin, Uout, del,ti
      gravX = 0.
      gravY = 0.
      gravZ = 0.
-     if (hy_useGravity) then
+     if (hy_useGravity) then    ! Compute accelerations:
         call hy_putGravity(tileDesc,halo,Uin,dt,dtOld,gravX,gravY,gravZ)
         gravX = gravX/hy_gref
         gravY = gravY/hy_gref

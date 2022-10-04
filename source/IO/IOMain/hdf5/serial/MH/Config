@@ -1,0 +1,4 @@
+CONFLICTS Grid/GridMain/UG
+CONFLICTS Grid/GridMain/AMR/Paramesh4
+CONFLICTS Grid/GridMain/AMR/Amrex
+REQUIRES IO/IOMain/hdf5/MH

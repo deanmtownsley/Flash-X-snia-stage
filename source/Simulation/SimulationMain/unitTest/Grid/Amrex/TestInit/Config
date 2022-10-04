@@ -1,4 +1,4 @@
-REQUIRES  Grid/GridMain/AMR/Amrex
+REQUIRES  Grid/GridMain/AMR/Amrex/unitTest/TestInit
 REQUIRES  flashUtilities/testing
 
 GUARDCELLS 2
@@ -7,7 +7,4 @@ VARIABLE dens TYPE: PER_VOLUME       # density
 VARIABLE pres TYPE: GENERIC          # pressure
 VARIABLE ener TYPE: PER_MASS         # specific total energy (T+U)
 VARIABLE temp TYPE: GENERIC
-# DEV: Include these once face-centered variables are implemented
-#      in the AMReX-based implementation of the Grid unit
-#FACEVAR alpha
-#FACEVAR beta
+

@@ -31,6 +31,16 @@ IF not NoLevelwideFluxes
 ENDIF
 
 # Variables required by the unsplit solvers
+D dens_variable mass density
+D velx_variable x-velocity
+D vely_variable y-velocity
+D velz_variable z-velocity
+D pres_variable pressure
+D ener_variable specific total energy (T+U)
+D gamc_variable sound-speed gamma
+D game_variable internal energy gamma
+D temp_variable temperature
+D eint_variable specific internal energy (U)
 VARIABLE dens TYPE: PER_VOLUME 	EOSMAP:  DENS # density
 VARIABLE velx TYPE: PER_MASS   	EOSMAPIN:VELX # x-velocity
 VARIABLE vely TYPE: PER_MASS   	EOSMAPIN:VELY # y-velocity

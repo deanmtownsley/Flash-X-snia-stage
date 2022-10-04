@@ -21,22 +21,21 @@
 !!   Public interface for the RadTrans unit
 !!***
 module RadTrans_interfaceTypeDecl
-  implicit none
-  type RadTrans_dbgContext_t
-     integer :: step
-     integer :: group
-     integer :: component
-     integer :: libErrCode
-     integer :: flashErrCode
-     integer :: retriable       ! 0 for NO, 1 for YES
-     logical :: willingToRetry
-  end type RadTrans_dbgContext_t
+   implicit none
+   type RadTrans_dbgContext_t
+      integer :: step
+      integer :: group
+      integer :: component
+      integer :: libErrCode
+      integer :: flashErrCode
+      integer :: retriable       ! 0 for NO, 1 for YES
+      logical :: willingToRetry
+   end type RadTrans_dbgContext_t
 end module RadTrans_interfaceTypeDecl
 
-
 module RadTrans_interface
-  use RadTrans_interfaceTypeDecl, ONLY: RadTrans_dbgContext_t
-  implicit none
+   use RadTrans_interfaceTypeDecl, ONLY: RadTrans_dbgContext_t
+   implicit none
 
 #include "constants.h"
 
@@ -55,30 +54,30 @@ module RadTrans_interface
 !!$     end subroutine RadTrans_getDbgContextPtr
 !!$  end interface
 
-  interface RadTrans
-     subroutine RadTrans(dt, pass)
-       implicit none
-       real,    intent(in) :: dt
-       integer, intent(in), optional :: pass
-     end subroutine RadTrans
+   interface RadTrans
+      subroutine RadTrans(dt, pass)
+         implicit none
+         real, intent(in) :: dt
+         integer, intent(in), optional :: pass
+      end subroutine RadTrans
 !!$     subroutine RadTrans_desc(dt, pass)
 !!$       implicit none
 !!$       real,    intent(in) :: dt
 !!$       integer, intent(in), optional :: pass
 !!$     end subroutine RadTrans_desc
-  end interface RadTrans
+   end interface RadTrans
 
-  interface
-     subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
-       use Grid_tile, ONLY : Grid_tile_t
-       implicit none
-       type(Grid_tile_t), intent(IN) :: tileDesc
-       real, pointer :: solnData(:,:,:,:) 
-       real, intent(INOUT) :: dt_radtrans
-       integer, intent(INOUT)  :: dtMinLoc(5)
-     end subroutine RadTrans_computeDt
-  end interface
-!!$  
+   interface
+      subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), intent(IN) :: tileDesc
+         real, pointer :: solnData(:, :, :, :)
+         real, intent(INOUT) :: dt_radtrans
+         integer, intent(INOUT)  :: dtMinLoc(5)
+      end subroutine RadTrans_computeDt
+   end interface
+!!$
 !!$  interface
 !!$     subroutine RadTrans_computeFluxLimiter(ifl, iflOut, ieddi3, solnData, blockID, gcLayers)
 !!$       implicit none
@@ -91,11 +90,11 @@ module RadTrans_interface
 !!$     end subroutine RadTrans_computeFluxLimiter
 !!$  end interface
 
-  interface
-     subroutine RadTrans_init()
-       implicit none
-     end subroutine RadTrans_init
-  end interface
+   interface
+      subroutine RadTrans_init()
+         implicit none
+      end subroutine RadTrans_init
+   end interface
 
 !!$  interface
 !!$     subroutine RadTrans_planckInt(x, p)
@@ -105,7 +104,7 @@ module RadTrans_interface
 !!$     end subroutine RadTrans_planckInt
 !!$  end interface
 !!$
-!!$  interface 
+!!$  interface
 !!$     subroutine RadTrans_mgdGetBound(g, b)
 !!$       implicit none
 !!$       integer, intent(in) :: g
@@ -113,7 +112,7 @@ module RadTrans_interface
 !!$     end subroutine RadTrans_mgdGetBound
 !!$  end interface
 !!$
-!!$  interface 
+!!$  interface
 !!$     subroutine RadTrans_mgdSetBound(g, b)
 !!$       implicit none
 !!$       integer, intent(in) :: g
@@ -155,10 +154,10 @@ module RadTrans_interface
 !!$       implicit none
 !!$
 !!$       integer, intent(in) :: ig
-!!$       
+!!$
 !!$       integer, optional, intent(in) :: bcTypes(6)
 !!$       real, optional, intent(in) :: bcValues(6)
-!!$       
+!!$
 !!$       integer, optional, intent(in) :: f
 !!$       integer, optional, intent(in) :: bcType
 !!$       real, optional, intent(in) :: bcValue
@@ -166,10 +165,75 @@ module RadTrans_interface
 !!$     end subroutine RadTrans_mgdSetBc
 !!$  end interface
 
-  interface 
-     subroutine RadTrans_finalize ()
-       implicit none
-     end subroutine RadTrans_finalize       
-  end interface
+   interface
+      subroutine RadTrans_finalize()
+         implicit none
+      end subroutine RadTrans_finalize
+   end interface
+
+   !! MoL-specific functionality
+
+   interface
+      subroutine RadTrans_molExplicitRHS(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molExplicitRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molImplicitRHS(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molImplicitRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molFastRHS(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molFastRHS
+   end interface
+
+   interface
+      subroutine RadTrans_molImplicitUpdate(t, dt)
+         implicit none
+         real, intent(in) :: t, dt
+      end subroutine RadTrans_molImplicitUpdate
+   end interface
+
+   interface
+      subroutine RadTrans_molPostUpdate(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostUpdate
+   end interface
+
+   interface
+      subroutine RadTrans_molPostFastUpdate(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostFastUpdate
+   end interface
+
+   interface
+      subroutine RadTrans_molPreEvolve(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molPreEvolve
+   end interface
+
+   interface
+      subroutine RadTrans_molPostTimeStep(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostTimeStep
+   end interface
+
+   interface
+      subroutine RadTrans_molPostRegrid(t)
+         implicit none
+         real, intent(in) :: t
+      end subroutine RadTrans_molPostRegrid
+   end interface
 
 end module RadTrans_interface

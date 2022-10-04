@@ -38,7 +38,7 @@ subroutine Timers_init( initialWCTime)
 
   use Timers_data, ONLY: tmr_initDate, tmr_initTime, tmr_writeStatSummary, &
        tmr_eachProcWritesSummary, tmr_globalMe, tmr_globalNumProcs, tmr_globalComm, &
-       tmr_suppressInParallel
+       tmr_suppressInParallel, tmr_csvSummaryAllProcs, tmr_logSummaryAllProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, Driver_getComm
 
@@ -58,6 +58,8 @@ subroutine Timers_init( initialWCTime)
 
   call RuntimeParameters_get("writeStatSummary", tmr_writeStatSummary)
   call RuntimeParameters_get("eachProcWritesSummary", tmr_eachProcWritesSummary)
+  call RuntimeParameters_get("csvSummaryAllProcs", tmr_csvSummaryAllProcs)
+  call RuntimeParameters_get("logSummaryAllProcs", tmr_logSummaryAllProcs)
   call RuntimeParameters_get("tmr_suppressInParallel", tmr_suppressInParallel)
 
   call tmr_etime(initialWCTime)
