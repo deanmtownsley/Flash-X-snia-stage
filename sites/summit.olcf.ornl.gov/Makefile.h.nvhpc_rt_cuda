@@ -1,4 +1,7 @@
-# FLASH makefile definitions for Summit (NVHPC compiler)
+# Flash-X makefile definitions for Summit (NVHPC compiler)
+#   - AMReX Grid & Cuda Orchestration Milhoja backends available
+#   - OpenACC computation offloading
+#   - Milhoja library choices by NDIM mimic current Sedov regression test setups
 ifdef OLCF_NVHPC_ROOT
     PE_ENV=nvhpc
 else
@@ -10,13 +13,15 @@ endif
 # Set the HDF5/MPI library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
 
-MPI_PATH   = ${OLCF_OMPI_ROOT}
-AMREX_PATH = ${MH_SPARK_DATA_REPO}/summit/nvhpc_current/AMReX_${NDIM}d
+NVHPC_ENV = ${EXASTAR_PROJECT_PATH}/milhoja/MilhojaSparkTest/summit/nvhpc_current
 ifeq ($(NDIM),2)
-	MILHOJA_PATH = ${MH_SPARK_DATA_REPO}/summit/nvhpc_current/Milhoja_2D_cuda_acc_summit_nvhpc_debug.49a4f5b
+	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_2D_cuda_acc_summit_nvhpc_debug
 else ifeq ($(NDIM),3)
-	MILHOJA_PATH = ${MH_SPARK_DATA_REPO}/summit/nvhpc_current/Milhoja_3D_cuda_acc_summit_nvhpc_production.49a4f5b
+	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_3D_cuda_acc_summit_nvhpc_production
 endif
+
+MPI_PATH   = ${OLCF_OMPI_ROOT}
+AMREX_PATH = ${NVHPC_ENV}/AMReX_${NDIM}d
 HDF5_PATH  = ${OLCF_HDF5_ROOT}
 HYPRE_PATH = ${OLCF_HYPRE_ROOT}
 CUDA_PATH  = ${OLCF_CUDA_ROOT}
@@ -92,18 +97,18 @@ PP    = -D
 
 OPENMP = -mp
 
-FFLAGS_AMREX = -I${AMREX_PATH}/include
-FFLAGS_HDF5  = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
-FFLAGS_NCMPI = -I${NCMPI_PATH}/include
-FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
-FFLAGS_CUDA  = -I${CUDA_PATH}/include
-FFLAGS_MAGMA = -I${MAGMA_PATH}/include
-FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
-FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_AMREX   = -I${AMREX_PATH}/include
+FFLAGS_HDF5    = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
+FFLAGS_NCMPI   = -I${NCMPI_PATH}/include
+FFLAGS_HYPRE   = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
+FFLAGS_CUDA    = -I${CUDA_PATH}/include
+FFLAGS_MAGMA   = -I${MAGMA_PATH}/include
+FFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 # -Mrecursive needed so that we compile thread-safe Fortran routines.  This flag
 # ensures that local scope variables are not allocated to static memory.
-FFLAGS_MILHOJA = -Mrecursive -I${MILHOJA_PATH}/include ${FFLAGS_OACC} -DMILHOJA_USE_CUDA_BACKEND -DMILHOJA_ENABLE_OPENACC_OFFLOAD
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include ${FFLAGS_OACC} -Mrecursive -DORCHESTRATION_USE_GPUS -DORCHESTRATION_OPENACC_OFFLOAD
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -118,16 +123,16 @@ f90FLAGS     = ${F90FLAGS}
 F77FLAGS     = -r8 -i4 -Mfixed
 f77FLAGS     = ${F77FLAGS}
 
-CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_HDF5  = -I$(HDF5_PATH)/include ${PP}H5_USE_18_API
-CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
-CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
-CFLAGS_CUDA  = -I${CUDA_PATH}/include
-CFLAGS_MAGMA = -I${MAGMA_PATH}/include
-CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
-CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_AMREX   = -I${AMREX_PATH}/include
+CFLAGS_HDF5    = -I$(HDF5_PATH)/include ${PP}H5_USE_18_API
+CFLAGS_NCMPI   = -I$(NCMPI_PATH)/include
+CFLAGS_HYPRE   = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
+CFLAGS_CUDA    = -I${CUDA_PATH}/include
+CFLAGS_MAGMA   = -I${MAGMA_PATH}/include
+CFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
-CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -DMILHOJA_USE_CUDA_BACKEND -DMILHOJA_ENABLE_OPENACC_OFFLOAD
+CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -DORCHESTRATION_USE_GPUS -DORCHESTRATION_OPENACC_OFFLOAD
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -157,20 +162,20 @@ LFLAGS_DEBUG = ${DEBUG_FLAGS} -o
 
 LIB_MPI =
 
-LIB_STDCXX = -lstdc++
-LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lstdc++
-LIB_HDF5  = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
-LIB_NCMPI = -L${NCMPI_PATH}/lib -lpnetcdf
-LIB_MATH  = ${LIB_ESSL}
-LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
-LIB_CUDA  = -cudalib=cusparse,cusolver,cublas
-LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
-LIB_OACC  = -acc -gpu=cc70,ptxinfo -acclibs
-LIB_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
+LIB_STDCXX  = -lstdc++
+LIB_AMREX   = -L${AMREX_PATH}/lib -lamrex -lstdc++
+LIB_HDF5    = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
+LIB_NCMPI   = -L${NCMPI_PATH}/lib -lpnetcdf
+LIB_MATH    = ${LIB_ESSL}
+LIB_HYPRE   = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
+LIB_CUDA    = -cudalib=cusparse,cusolver,cublas
+LIB_MAGMA   = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
+LIB_OACC    = -acc -gpu=cc70,ptxinfo -acclibs
+LIB_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
 LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
-# the dependencies.
+# all dependencies.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -L${AMREX_PATH}/lib -lmilhoja -lpthread -lamrex -lstdc++ -L${CUDA_PATH}/lib64 -lcudart ${LIB_OACC}
 
 

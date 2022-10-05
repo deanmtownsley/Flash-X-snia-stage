@@ -16,8 +16,6 @@
 #include "constants.h"
 #include "Simulation.h"
 
-#include "Milhoja_interface_error_codes.h"
-
 ! The use of this module implies that the runtime is being used.
 ! Therefore, the Driver unit can assume that precision checks were
 ! performed by Orchestration_init.  Hence, type casts need not be checked.
@@ -63,7 +61,7 @@ module dr_hydroAdvance_bundle_mod
     private
 
     public :: dr_hydroAdvance_TF_tile_cpu
-#ifdef MILHOJA_USE_CUDA_BACKEND
+#ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
     public :: instantiate_hydro_advance_packet_C
     public :: delete_hydro_advance_packet_C
@@ -212,7 +210,7 @@ contains
         CALL F_tile%releaseDataPtr(U,   CENTER)
     end subroutine dr_hydroAdvance_TF_tile_cpu
 
-#ifdef MILHOJA_USE_CUDA_BACKEND
+#ifdef ORCHESTRATION_USE_GPUS
     !> @brief GPU-based variant of the hydro advance task function
     !!
     !! @details

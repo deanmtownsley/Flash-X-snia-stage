@@ -13,10 +13,9 @@ through the public interface, which violates encapsulation and modularity.
 Related to this, the public interface can differ based on whether the runtime is
 to be used and, if so, which runtime backend is used.  See, for example, the
 preprocessor flags USE_MILHOJA_RUNTIME (in Simulation.h) and
-MILHOJA_USE_CUDA_BACKEND (in the Milhoja.h file generated when building the
-Milhoja library instance to use).  Since the interface is linked to Milhoja and
-we do not want to insist that Flash-X users always build/link Milhoja, this
-setup-time construction of the public interface is necessary.
+ORCHESTRATION_USE_GPUS (set in Flash-X Makefile).  Since the interface is linked
+to Milhoja and we do not want to insist that Flash-X users always build/link
+Milhoja, this setup-time construction of the public interface is necessary.
 
 As a consequence, a stub needs to effectively disappear if their subroutine or
 function is not included in the interface.  This is accomplished by having the
@@ -52,11 +51,6 @@ which developers, but not users, should understand.
 adding in a layer of Flash-X types that are mapped onto Orchestration
 implementation types.  Having a fully-functioning runtime in Flash-X should have
 higher-priority than this design issue.
-@todo If users specify to the offline tool chain (via the recipe?) that they
-want to use GPUs, then Simulation.h should define something like
-ORCHESTRATION_USE_GPUS.  This should be used throughout this unit instead of
-MILHOJA_USE_CUDA_BACKEND since it's more generic and clear.  Also, I should be
-able to run a CPU-only Simulation with a CUDA-based Milhoja library.  Therefore,
-the interface should be defined by what is specified at setup for the particular
-simulation rather than by what the library is capable of doing.
+@todo Shouldn't the setup tool define ORCHESTRATION_USE_GPUS instead of the
+(many) Makefiles?
 */

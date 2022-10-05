@@ -1,6 +1,7 @@
 #ifndef DATA_PACKET_HYDRO_GPU_3_H__
 #define DATA_PACKET_HYDRO_GPU_3_H__
 
+#include <Milhoja.h>
 #include <Milhoja_real.h>
 #include <Milhoja_DataPacket.h> 
 
@@ -21,7 +22,7 @@ public:
     void    pack(void) override;
     void    unpack(void) override;
 
-#if MILHOJA_NDIM == 3 && defined(MILHOJA_ENABLE_OPENACC_OFFLOAD)
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
     int     extraAsynchronousQueue(const unsigned int id) override;
     void    releaseExtraQueue(const unsigned int id) override;
 #endif

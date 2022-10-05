@@ -1,4 +1,4 @@
-#if defined(USE_MILHOJA_RUNTIME) && defined(MILHOJA_USE_CUDA_BACKEND)
+#if defined(USE_MILHOJA_RUNTIME) && defined(ORCHESTRATION_USE_GPUS)
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock

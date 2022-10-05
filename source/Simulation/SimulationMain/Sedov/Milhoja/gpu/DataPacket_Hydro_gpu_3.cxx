@@ -4,7 +4,6 @@
 #include <cstring>
 #include <stdexcept>
 
-#include <Milhoja.h>
 #include <Milhoja_IntVect.h>
 #include <Milhoja_RealVect.h>
 #include <Milhoja_Grid.h>
@@ -95,7 +94,7 @@ void  DataPacket_Hydro_gpu_3::tileSize_host(int* nxbGC,
     *nFluxVars = nFluxVars_;
 }
 
-#if MILHOJA_NDIM == 3 && defined(MILHOJA_ENABLE_OPENACC_OFFLOAD)
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
 /**
  * Refer to the documentation of this member function for DataPacket.
  */
@@ -121,7 +120,7 @@ void  DataPacket_Hydro_gpu_3::releaseExtraQueue(const unsigned int id) {
 }
 #endif
 
-#if MILHOJA_NDIM == 3 && defined(MILHOJA_ENABLE_OPENACC_OFFLOAD)
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
 /**
  * Refer to the documentation of this member function for DataPacket.
  */

@@ -1,4 +1,4 @@
-#if defined(MILHOJA_USE_CUDA_BACKEND)
+#ifdef ORCHESTRATION_USE_GPUS
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock

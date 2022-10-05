@@ -13,11 +13,11 @@
 !!
 !! @file
 
-#ifndef MILHOJA_ENABLE_OPENACC_OFFLOAD
+#include "Milhoja.h"
+
+#ifndef MILHOJA_OPENACC_OFFLOADING
 #error "This file should only be compiled if using OpenACC offloading"
 #endif
-
-#include "Milhoja.h"
 
 !> @details
 !! A function that reinterprets the given C variables plucked from a data packet

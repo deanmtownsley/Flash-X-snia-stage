@@ -1,7 +1,3 @@
-#ifndef MILHOJA_ENABLE_OPENACC_OFFLOAD
-#error "This file should only be compiled if using OpenACC offloading"
-#endif
-
 #include <Milhoja.h>
 #include <Milhoja_real.h>
 #include <Milhoja_interface_error_codes.h>
@@ -12,6 +8,10 @@
 // application at all.  Therefore, the need to include this header is
 // unacceptable.  How to get variable mask information otherwise?
 #include "Simulation.h"
+
+#ifndef MILHOJA_OPENACC_OFFLOADING
+#error "This file should only be compiled if using OpenACC offloading"
+#endif
 
 extern "C" {
     //----- C DECLARATION OF FORTRAN ROUTINE WITH C-COMPATIBLE INTERFACE

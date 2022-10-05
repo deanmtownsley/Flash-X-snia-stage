@@ -52,7 +52,7 @@ module Orchestration_interface
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_executeTasks_Cpu
 
-#if defined(MILHOJA_USE_CUDA_BACKEND)
+#ifdef ORCHESTRATION_USE_GPUS
         subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                                   nDistributorThreads, &
                                                   nThreads,            &

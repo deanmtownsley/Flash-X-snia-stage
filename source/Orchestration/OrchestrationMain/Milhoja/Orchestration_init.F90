@@ -13,6 +13,14 @@
 !!
 !! @file
 
+#include "Milhoja.h"
+
+#ifdef ORCHESTRATION_USE_GPUS
+#ifndef MILHOJA_GPUS_SUPPORTED
+#error "Milhoja library does not have GPU-capable runtime backend"
+#endif
+#endif
+
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_init}
 !!
