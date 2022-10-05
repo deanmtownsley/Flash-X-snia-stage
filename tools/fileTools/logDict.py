@@ -205,11 +205,11 @@ class LogDict:
             # extract values
             valueList = [float(value) for value in csvEntry.split(",")[3:]]
 
+            # Blank dictionary
+            valueDict = {}
+
             # Map valueList to a dictionary
-            valueDict = {
-                "proc/" + str(proc).zfill(4): value
-                for proc, value in enumerate(valueList)
-            }
+            valueDict["all procs"] = valueList
 
             # Extract level of the timer
             valueDict["level"] = timerLevel
