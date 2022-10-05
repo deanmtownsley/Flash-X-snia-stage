@@ -4,7 +4,6 @@
     Usage (works with log and log.csv files):
 
     # standard libraries
-    import os
     import sys
     
     # insert path to flash-x
