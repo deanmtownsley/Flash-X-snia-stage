@@ -278,7 +278,7 @@ of the runtime.
   ************************************************************************
 #endif
 
-#define NDIM 2
+#define NDIM 3
 #define MAXBLOCKS 2048
 
 
@@ -343,9 +343,13 @@ of the runtime.
   Definitions for scratch_facevarz array.
   ************************************************************************
 #endif
+#define DUMMY2_SCRATCH_FACEZ_VAR 1
+#define DUMMY3_SCRATCH_FACEZ_VAR 2
+#define DUMMY4_SCRATCH_FACEZ_VAR 3
+#define DUMMY5_SCRATCH_FACEZ_VAR 4
+#define DUMMYFLUX_SCRATCH_FACEZ_VAR 5
 
-
-#define NSCRATCH_FACEZ_VARS 0
+#define NSCRATCH_FACEZ_VARS 5
 #define SCRATCH_FACEZ_VARS_BEGIN (CONSTANT_ONE)
 #define SCRATCH_FACEZ_VARS_END (SCRATCH_FACEZ_VARS_BEGIN - CONSTANT_ONE + NSCRATCH_FACEZ_VARS)
 
@@ -425,9 +429,9 @@ of the runtime.
 
 #ifdef FIXEDBLOCKSIZE 
 
-#define NXB 8
-#define NYB 8
-#define NZB 1
+#define NXB 16
+#define NYB 16
+#define NZB 16
 
 #define GRID_ILO_GC CONSTANT_ONE
 #define GRID_JLO_GC CONSTANT_ONE
@@ -509,6 +513,8 @@ of the runtime.
   ***************************************************************************
 #endif
 
+#define FLASHX_ORCHESTRATION
+#define FLASHX_ORCHESTRATION_MILHOJA
 #define FLASH_EOS
 #define FLASH_EOS_GAMMA
 #define FLASH_GRID_MILHOJA
@@ -520,6 +526,7 @@ of the runtime.
 #define GR_LREFMAXTIMES 20
 #define IO_HDF5_SERIAL
 #define USE_LEVELWIDE_FLUXES
+
 
 #if 0
   ************************************************************************

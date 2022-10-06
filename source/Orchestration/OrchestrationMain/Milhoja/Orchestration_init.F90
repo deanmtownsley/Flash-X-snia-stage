@@ -13,6 +13,8 @@
 !!
 !! @file
 
+#include "Simulation.h"
+
 #include "Milhoja.h"
 
 #ifdef ORCHESTRATION_USE_GPUS

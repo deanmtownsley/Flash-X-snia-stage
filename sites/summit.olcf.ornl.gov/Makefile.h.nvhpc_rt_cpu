@@ -1,6 +1,5 @@
 # Flash-X makefile definitions for Summit (NVHPC compiler)
-#   - AMReX Grid & CPU-only Orchestration Milhoja backends available
-#   - Milhoja library choices by NDIM mimic current Sedov regression test setups
+#   - AMReX Grid & Orchestration Milhoja backends available
 ifdef OLCF_NVHPC_ROOT
     PE_ENV=nvhpc
 else
@@ -12,11 +11,12 @@ endif
 # Set the HDF5/MPI library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
 
+# Milhoja library choices by NDIM mimic current Sedov regression test setups
 NVHPC_ENV = ${EXASTAR_PROJECT_PATH}/milhoja/MilhojaSparkTest/summit/nvhpc_current
 ifeq ($(NDIM),2)
-	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_2D_none_summit_nvhpc_debug
+	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_2D_AMReX_debug
 else ifeq ($(NDIM),3)
-	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_3D_none_summit_nvhpc_production
+	MILHOJA_PATH = ${NVHPC_ENV}/Milhoja_3D_AMReX_production
 endif
 
 MPI_PATH   = ${OLCF_OMPI_ROOT}
@@ -74,7 +74,7 @@ endif
 
 FCOMP   = mpifort
 CCOMP   = mpicc
-CPPCOMP = mpicxx -std=c++11
+CPPCOMP = mpicxx -std=c++14
 CUCOMP  = nvcc
 LINK    = mpifort
 
@@ -107,7 +107,7 @@ FFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
 # -Mrecursive needed so that we compile thread-safe Fortran routines.  This flag
 # ensures that local scope variables are not allocated to static memory.
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include ${FFLAGS_OACC} -Mrecursive
+FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -Mrecursive ${FFLAGS_AMREX}
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -131,7 +131,7 @@ CFLAGS_MAGMA   = -I${MAGMA_PATH}/include
 CFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
-CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
+CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -162,12 +162,12 @@ LFLAGS_DEBUG = ${DEBUG_FLAGS} -o
 LIB_MPI =
 
 LIB_STDCXX  = -lstdc++
-LIB_AMREX   = -L${AMREX_PATH}/lib -lamrex -lstdc++
+LIB_AMREX   = -L${AMREX_PATH}/lib -lamrex
 LIB_HDF5    = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
 LIB_NCMPI   = -L${NCMPI_PATH}/lib -lpnetcdf
 LIB_MATH    = ${LIB_ESSL}
 LIB_HYPRE   = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
-LIB_CUDA    = -cudalib=cusparse,cusolver,cublas
+LIB_CUDA    = -L${CUDA_PATH}/lib64 -lcudart -cudalib=cusparse,cusolver,cublas
 LIB_MAGMA   = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
 LIB_OACC    = -acc -gpu=cc70,ptxinfo -acclibs
 LIB_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
@@ -175,8 +175,7 @@ LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # all dependencies.
-LIB_MILHOJA = -L${MILHOJA_PATH}/lib -L${AMREX_PATH}/lib -lmilhoja -lpthread -lamrex -lstdc++
-
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX}
 
 LIB_OPT   = -pgc++libs
 LIB_DEBUG = -pgc++libs

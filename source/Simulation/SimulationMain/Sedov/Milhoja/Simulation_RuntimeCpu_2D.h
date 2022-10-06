@@ -509,6 +509,8 @@ of the runtime.
   ***************************************************************************
 #endif
 
+#define FLASHX_ORCHESTRATION
+#define FLASHX_ORCHESTRATION_MILHOJA
 #define FLASH_EOS
 #define FLASH_EOS_GAMMA
 #define FLASH_GRID_MILHOJA

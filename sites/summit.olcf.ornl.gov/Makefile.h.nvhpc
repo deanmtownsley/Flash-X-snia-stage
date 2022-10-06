@@ -97,7 +97,7 @@ FFLAGS_MAGMA   = -I${MAGMA_PATH}/include
 FFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
-FFLAGS_MILHOJA = 
+FFLAGS_MILHOJA_AMREX = 
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -121,7 +121,7 @@ CFLAGS_MAGMA   = -I${MAGMA_PATH}/include
 CFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
-CFLAGS_MILHOJA =
+CFLAGS_MILHOJA_AMREX =
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -162,7 +162,7 @@ LIB_MAGMA   = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
 LIB_OACC    = -acc -gpu=cc70,ptxinfo -acclibs
 LIB_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
 LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
-LIB_MILHOJA =
+LIB_MILHOJA_AMREX =
 
 LIB_OPT   = -pgc++libs
 LIB_DEBUG = -pgc++libs

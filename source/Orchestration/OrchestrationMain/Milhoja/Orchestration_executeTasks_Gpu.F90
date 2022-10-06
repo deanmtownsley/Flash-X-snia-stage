@@ -1,4 +1,3 @@
-#ifdef ORCHESTRATION_USE_GPUS
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
@@ -14,6 +13,9 @@
 !!
 !! @file
 
+#include "Simulation.h"
+
+#ifdef ORCHESTRATION_USE_GPUS
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_executeTasks_Gpu}
 !!

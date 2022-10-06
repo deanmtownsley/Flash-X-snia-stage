@@ -1,46 +1,59 @@
-# While the Milhoja Grid unit implementation can be used successfully for some
-# simulations, it is missing a great deal of functionality.  Therefore, its
-# integration in Flash-X is a work in progress and users should not use it.
-# TODO: Remove this once enough functionality has been implemented with
-# associated tests in the test suite.
-UNOFFICIAL
+##python:genLines
 
-LIBRARY milhoja
-# TODO: Right now we need this so that the build system links in AMReX,
-#       which is necessary to satisfy Milhoja's dependences.  Eventually,
-#       this needs to disappear or at least be managed so that linking
-#       occurs correctly regardless of which Grid backend is used by the
-#       runtime.  Is there a way to tell setup that it needs to link milhoja
-#       before AMReX?
-LIBRARY amrex
+def genLines(setupvars):
+    # While the Milhoja Grid unit implementation can be used successfully for
+    # some simulations, it is missing a great deal of functionality.  Therefore,
+    # its integration in Flash-X is a work in progress and users should not use
+    # it.
+    # TODO: Remove this once enough functionality has been implemented with
+    # associated tests in the test suite.
+    yield 'UNOFFICIAL'
 
-REQUIRES Grid/GridBoundaryConditions/Milhoja
+    yield 'PPDEFINE FLASH_GRID_MILHOJA'
 
-CONFLICTS IO/IOMain/hdf5/parallel/UG
-CONFLICTS IO/IOMain/hdf5/serial/UG
-CONFLICTS IO/IOMain/hdf5/parallel/PM
-CONFLICTS IO/IOMain/hdf5/serial/PM
-CONFLICTS IO/IOMain/hdf5/parallel/AM
-CONFLICTS IO/IOMain/hdf5/serial/AM
+    yield 'CONFLICTS IO/IOMain/hdf5/parallel/UG'
+    yield 'CONFLICTS IO/IOMain/hdf5/serial/UG'
+    yield 'CONFLICTS IO/IOMain/hdf5/parallel/PM'
+    yield 'CONFLICTS IO/IOMain/hdf5/serial/PM'
+    yield 'CONFLICTS IO/IOMain/hdf5/parallel/AM'
+    yield 'CONFLICTS IO/IOMain/hdf5/serial/AM'
 
-# add pre-processor symbol
-PPDEFINE FLASH_GRID_MILHOJA
+    # We need a Milhoja-specific BC implementation just to get Milhoja-base
+    # Simulations to build.  They don't do anything important since BCs are not
+    # integrated with Milhoja.
+    # TODO: Remove this once BCs are integrated with Milhoja
+    yield 'REQUIRES Grid/GridBoundaryConditions/Milhoja'
 
-# TODO: I would guess that we want to have a different RP for each grid backend.
-# Users can specify in a single par file the interpolator for each backend and
-# therefore use the same parfile for different grid backends without need to
-# edit the parfile.  Is this a sensible way to work?
-D amrexInterpolator Name of AMReX interpolator to use for interpolating
-D & cell-centered data.  Please refer to AMReX documentation for more
-D & information.
-D & CELL_CONSERVATIVE_LINEAR
-D & CELL_CONSERVATIVE_PROTECTED
-D & CELL_CONSERVATIVE_QUARTIC
-D & CELL_BILINEAR
-D & CELL_QUADRATIC
-D & CELL_PIECEWISE_CONSTANT
-PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
+    yield 'D gr_initBlock_nCpuThreads  N threads to be activated in a thread team'
+    yield 'D & for setting ICs with the CPU (Orchestration only)'
+    yield 'PARAMETER gr_initBlock_nCpuThreads INTEGER 1 [ 1 ... ]'
 
-D gr_initBlock_nCpuThreads  The number of threads to be activated in a thread team for setting ICs with the CPU (runtime only)
-PARAMETER gr_initBlock_nCpuThreads INTEGER 1 [ 1 ... ]
+    # Users must specify runtime variant
+    #   - (grid backend, runtime backend, offloading)
+    #   - assume that the Milhoja Orchestration implementation gets its values independently (if used)
+    if 'Milhoja' not in setupvars:
+        yield 'SETUPERROR Milhoja setup variable not set'
+    milhoja = [e.lower() for e in setupvars['Milhoja'].split(',')]
+    if   len(milhoja) == 1:
+        grid_backend = milhoja[0]
+    elif len(milhoja) == 3:
+        grid_backend, _, _ = milhoja
+    else:
+        yield 'SETUPERROR Invalid N Milhoja specification values'
+
+    if grid_backend == 'amrex':
+        yield 'LIBRARY milhoja_amrex'
+
+        yield 'D amrexInterpolator Name of AMReX interpolator to use for interpolating'
+        yield 'D & cell-centered data.  Please refer to AMReX documentation for more'
+        yield 'D & information.'
+        yield 'D & CELL_CONSERVATIVE_LINEAR'
+        yield 'D & CELL_CONSERVATIVE_PROTECTED'
+        yield 'D & CELL_CONSERVATIVE_QUARTIC'
+        yield 'D & CELL_BILINEAR'
+        yield 'D & CELL_QUADRATIC'
+        yield 'D & CELL_PIECEWISE_CONSTANT'
+        yield 'PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"'
+    else:
+        yield f'SETUPERROR Invalid Milhoja grid backend {grid_backend}'
 

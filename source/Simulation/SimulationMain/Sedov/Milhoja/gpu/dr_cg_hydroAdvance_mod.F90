@@ -13,13 +13,13 @@
 !!
 !! @file
 
-#ifndef ORCHESTRATION_OPENACC_OFFLOAD
-#error "This file should only be compiled if using OpenACC offloading"
-#endif
-
 #include "constants.h"
 #include "Simulation.h"
 #include "UHD.h"
+
+#ifndef ORCHESTRATION_OPENACC_OFFLOAD
+#error "This file should only be compiled if using OpenACC offloading"
+#endif
 
 !> A module that encapsulates all compilable variants of the PUD-developed
 !! static Fortran routines that are finalized by the CODE GENERATOR for use in

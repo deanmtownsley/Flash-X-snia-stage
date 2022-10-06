@@ -19,8 +19,8 @@
 ! The use of this module implies that the runtime is being used.
 ! Therefore, the Driver unit can assume that precision checks were
 ! performed by Orchestration_init.  Hence, type casts need not be checked.
-#ifndef USE_MILHOJA_RUNTIME
-#error "Task function bundles imply the use of the runtime"
+#ifndef FLASHX_ORCHESTRATION_MILHOJA
+#error "Task function bundles imply the use of the Milhoja runtime"
 #endif
 
 !> @details

@@ -1,4 +1,3 @@
-#if defined(USE_MILHOJA_RUNTIME) && defined(ORCHESTRATION_USE_GPUS)
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
@@ -14,6 +13,9 @@
 !!
 !! @file
 
+#include "Simulation.h"
+
+#if defined(FLASHX_ORCHESTRATION_MILHOJA) && defined(ORCHESTRATION_USE_GPUS)
 !> @ingroup Orchestration
 !! @anchor Orchestration_executeTasks_Gpu_stub
 !!

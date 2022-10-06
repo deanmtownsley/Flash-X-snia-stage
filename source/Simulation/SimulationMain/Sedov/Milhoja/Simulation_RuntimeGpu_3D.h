@@ -513,6 +513,8 @@ of the runtime.
   ***************************************************************************
 #endif
 
+#define FLASHX_ORCHESTRATION
+#define FLASHX_ORCHESTRATION_MILHOJA
 #define FLASH_EOS
 #define FLASH_EOS_GAMMA
 #define FLASH_GRID_MILHOJA
@@ -524,8 +526,8 @@ of the runtime.
 #define GR_LREFMAXTIMES 20
 #define IO_HDF5_SERIAL
 #define USE_LEVELWIDE_FLUXES
-#define USE_MILHOJA_RUNTIME
-
+#define ORCHESTRATION_USE_GPUS
+#define ORCHESTRATION_OPENACC_OFFLOAD
 
 #if 0
   ************************************************************************

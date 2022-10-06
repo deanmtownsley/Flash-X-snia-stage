@@ -37,7 +37,7 @@ module Orchestration_interface
             implicit none
         end subroutine Orchestration_finalize
 
-#ifdef USE_MILHOJA_RUNTIME
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
         subroutine Orchestration_checkInternalError(routineName, MH_errorCode)
             use milhoja_types_mod, ONLY : MILHOJA_INT
             implicit none
