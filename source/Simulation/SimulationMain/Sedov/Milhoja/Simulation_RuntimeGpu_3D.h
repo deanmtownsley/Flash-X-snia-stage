@@ -523,11 +523,13 @@ of the runtime.
 #define FLASH_IO_HDF5
 #define FLASH_UHD_HYDRO
 #define FLASH_USE_MEMORYUSAGE
+#define GRID_USE_AMREX_BACKEND
 #define GR_LREFMAXTIMES 20
 #define IO_HDF5_SERIAL
-#define USE_LEVELWIDE_FLUXES
-#define ORCHESTRATION_USE_GPUS
 #define ORCHESTRATION_OPENACC_OFFLOAD
+#define ORCHESTRATION_USE_GPUS
+#define USE_LEVELWIDE_FLUXES
+
 
 #if 0
   ************************************************************************

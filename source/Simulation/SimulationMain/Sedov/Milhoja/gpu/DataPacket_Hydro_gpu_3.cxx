@@ -12,13 +12,10 @@
 /**
  * Construct a DataPacket containing no Tile objects and with no resources
  * assigned to it.
- *
- * @todo My gut feeling is that the contents of this file should be generated
- *       without knowledge of Sedov.h/Driver.h.  Can we get rid of those here?
  */
 DataPacket_Hydro_gpu_3::DataPacket_Hydro_gpu_3(const milhoja::Real dt)
     : milhoja::DataPacket{},
-#if MILHOJA_NDIM == 3
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
       stream2_{},
       stream3_{},
 #endif
@@ -61,7 +58,7 @@ DataPacket_Hydro_gpu_3::DataPacket_Hydro_gpu_3(const milhoja::Real dt)
  * been consumed and therefore own no resources.
  */
 DataPacket_Hydro_gpu_3::~DataPacket_Hydro_gpu_3(void) {
-#if MILHOJA_NDIM == 3
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
     if (stream2_.isValid() || stream3_.isValid()) {
         throw std::logic_error("[DataPacket_Hydro_gpu_3::~DataPacket_Hydro_gpu_3] "
                                "One or more extra streams not released");
@@ -147,7 +144,6 @@ int  DataPacket_Hydro_gpu_3::extraAsynchronousQueue(const unsigned int id) {
 
 /**
  *
- * @todo How do variables such as dt get into this code?
  */
 void  DataPacket_Hydro_gpu_3::pack(void) {
     using namespace milhoja;
@@ -160,7 +156,7 @@ void  DataPacket_Hydro_gpu_3::pack(void) {
     }
 
     //----- OBTAIN NON-TILE-SPECIFIC HOST-SIDE DATA
-    // TODO: Check for correctness of cast here of elsewhere?
+    // TODO: Check for correctness of cast here or elsewhere?
     // This cast is necessary since Fortran code consumes the packet.
     nTiles_h_ = static_cast<int>(tiles_.size());
     int   nxbGC_h     = -1;
@@ -316,8 +312,6 @@ void  DataPacket_Hydro_gpu_3::pack(void) {
 
     //----- BYTE-ALIGN COPY-IN/-OUT SECTION
     // Order from largest to smallest in data type size
-    // 
-    // Pad copy-in section if necessary to get correct byte alignment
     location_ = PacketDataLocation::CC1;
 
     copyInOutStart_p_ = copyInStart_p_ + nCopyInBytes_padded;
@@ -350,7 +344,7 @@ void  DataPacket_Hydro_gpu_3::pack(void) {
 
     // Tile-specific metadata
     char*   char_ptr;
-    for (std::size_t n=0; n<nTiles_h_; ++n) {
+    for (int n=0; n<nTiles_h_; ++n) {
         Tile*   tileDesc_h = tiles_[n].get();
         if (tileDesc_h == nullptr) {
             throw std::runtime_error("[DataPacket_Hydro_gpu_3::pack] Bad tileDesc");
@@ -424,7 +418,7 @@ void  DataPacket_Hydro_gpu_3::pack(void) {
     if (!stream_.isValid()) {
         throw std::runtime_error("[DataPacket_Hydro_gpu_3::pack] Unable to acquire stream");
     }
-#if MILHOJA_NDIM == 3
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
     stream2_ = RuntimeBackend::instance().requestStream(true);
     stream3_ = RuntimeBackend::instance().requestStream(true);
     if (!stream2_.isValid() || !stream3_.isValid()) {

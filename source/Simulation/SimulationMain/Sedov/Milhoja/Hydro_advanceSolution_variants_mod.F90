@@ -1,3 +1,18 @@
+!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!! Licensed under the Apache License, Version 2.0 (the "License");
+!! you may not use this file except in compliance with the License.
+!!
+!! Unless required by applicable law or agreed to in writing, software
+!! distributed under the License is distributed on an "AS IS" BASIS,
+!! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!! See the License for the specific language governing permissions and
+!! limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
 !> A module that encapsulates all compilable variants of the PUD-developed
 !! static Fortran routines that are finalized by the CODE GENERATOR for use in
 !! hydro advance solution task functions.  They have been "finalized" by the
@@ -9,17 +24,12 @@
 !!
 !! For the purposes of this example, we are imagining that the recipe for our
 !! simulation has stipulated that the solution will be advanced in terms of
-!! hydrodynamics effects using both
-!! the CPU and GPU simultaneously.  For example, the CPU variants could be
-!! used to compose a CPU-based variant of the hydro advance task function; the
-!! GPU variants, a GPU-based task function variant.  Such task functions could
-!! be bundled together and mapped onto the CPU/GPU data parallel thread team
-!! configuration.  In addition, we are imagining that the CODE GENERATOR has
-!! been instructed to use OpenMP offloading to offload computation to the GPU.
+!! hydrodynamics effects using only the CPU.
 !!
-!! This code should be written entirely by the CODE GENERATOR and derived from the
-!! PUD-developed hy_* code that presently resides in the Flash-X repo at
-!! Hydro/HydroMain/simpleUnsplit/Milhoja.  Note that while the PUD-developed
+!! This code should be written entirely by the CODE GENERATOR and, under normal
+!! coding circumstances, would be derived from the
+!! PUD-developed hy_* code that resides in
+!! Hydro/HydroMain/simpleUnsplit.  Note that while the PUD-developed
 !! code can be made private to the Hydro unit since it has previously been
 !! called only by Hydro.F90, the routines in this module are presently called by
 !! task functions owned by the Driver unit.  Therefore, they are in the public

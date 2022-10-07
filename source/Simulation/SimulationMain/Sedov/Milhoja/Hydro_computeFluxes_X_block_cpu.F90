@@ -24,6 +24,12 @@
 !! similar changes need to be made in the C++ code.
 !!
 !! @todo Compare this code against C++ before launching a study.
+!! @todo Klaus has previously pointed out that in certain cases we define
+!! variables that are never used.  Get rid of these and see if this can explain
+!! the fact that walltimes grow as the Sedov simulation evolves when we run on
+!! only the CPU.  Same changes are likely needed for both Y and Z.
+!! @todo Should these replace the current, official simpleUnsplit implementations?
+!! If not, do the same corrections need to be made to the official code?
 subroutine Hydro_computeFluxes_X_block_cpu(dt, lo, hi, deltas, U, loU, auxC, loAux, flX, loFl)
     implicit none
 

@@ -71,7 +71,7 @@ private:
     static constexpr std::size_t    pad(const std::size_t sz) 
         { return ((sz + ALIGN_SIZE - 1) / ALIGN_SIZE) * ALIGN_SIZE; }
 
-#if MILHOJA_NDIM == 3
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
     milhoja::Stream  stream2_;
     milhoja::Stream  stream3_;
 #endif
