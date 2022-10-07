@@ -57,15 +57,15 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 #include "constants.h"
 #include "Spark.h"
 
-  real,dimension(:,:,:,:),pointer ::hy_starState	
+  real,dimension(:,:,:,:),pointer ::hy_starState
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i,j,k, n, g, v, dir, ierr
   integer, dimension(MDIM) :: gCells
   integer, dimension(LOW:HIGH,MDIM) :: klim,lim,limgc,lim1
   character(len = 2) :: dir_str
   real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
-  integer :: s	 
-  real :: spcSumInv
+  integer :: s
+  real :: spcSumInv, spcSum
   real, pointer :: spc(:)
   real  :: u2,E,B2,UB,Ptot
 
@@ -85,19 +85,23 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   @M hy_map_fl
   
   if (hy_flattening) then
+     ! AH: TODO: OpenMP for flattening
      call flattening(limits)
   else
      ! call Timers_start("hy_flat3d")
      !! TODO: Set this once for both rk steps.
 
-    @M loop_3d(blkLimitsGC)
+     !$omp target teams distribute parallel do simd collapse(3)
+     @M loop_3d(blkLimitsGC)
               hy_flat3d(i,j,k) = 1.0
-    @M loop_end_3d
+     @M loop_end_3d
 
      ! call Timers_stop("hy_flat3d")
   end if
   
 
+  !$omp target enter data &
+  !$omp map( alloc: lim, gCells, limgc, klim, lim1, dir )
 
   !  Begin loop over zones
 
@@ -140,6 +144,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      lim1(LOW,1)=lim1(LOW,1)-1
      lim1(HIGH,1)=lim1(HIGH,1)+1
 
+     !$omp target update &
+     !$omp to( lim, gCells, limgc, klim, lim1, dir )
      
      hy_flux(1:NFLUXES,@M bounds_3d(lim1))=>hya_flux
      hy_flat(@M bounds_3d(lim1))=>hya_flat
@@ -151,6 +157,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uMinus(1:NRECON,@M bounds_3d(lim1)) => hya_uMinus
 
 
+     !$omp target teams distribute parallel do simd collapse(3)
      @M loop_3d(limgc)
               if (dir == IAXIS) then
                  @M hy_setRope(i,j,k)
@@ -164,41 +171,49 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
 
      call Timers_start("recon")
+     !$omp target teams distribute collapse(3)
      @M loop_3d(klim)
+          !$omp parallel do simd
           do v=1,NRECON
-	     @M hy_recon
-           enddo
-     @M hy_break_loop(recon,setrem)
-              hy_uPlus(HY_DENS ,i,j,k) = max(hy_smalldens, hy_uPlus(HY_DENS ,i,j,k))
-              hy_uPlus(HY_PRES ,i,j,k) = max(hy_smallpres, hy_uPlus(HY_PRES ,i,j,k))
-#if NSPECIES>0
+             @M hy_recon
+          enddo
+     @M loop_end_3d
+     call Timers_stop("recon")
+
+     call Timers_start("setrem")
+     !$omp target teams distribute collapse(3) &
+     !$omp private( spc, spcSumInv, spcSum )
+     @M loop_3d(klim)
               ! Limit and renormalize the species.
-              spc => hy_uPlus(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i,j,k)
-              do s = 1, NSPECIES
-                 spc(s) = max(hy_smallX,min(1.0,spc(s)))
-              end do
-              spcSumInv = 1./sum(spc(1:NSPECIES))
-              spc = spc*spcSumInv
-#endif
-              hy_uMinus(HY_DENS ,i,j,k) = max(hy_smalldens, hy_uMinus(HY_DENS ,i,j,k))
-              hy_uMinus(HY_PRES ,i,j,k) = max(hy_smallpres, hy_uMinus(HY_PRES ,i,j,k))
-#if NSPECIES>0
-              ! Limit and renormalize the species.
-              spc => hy_uMinus(HY_NUM_VARS+1:HY_NUM_VARS+NSPECIES ,i,j,k)
-              do s = 1, NSPECIES
-                 spc(s) = max(hy_smallX,min(1.0,spc(s)))
-              end do
-              spcSumInv = 1./sum(spc(1:NSPECIES))
-              spc = spc*spcSumInv
-#endif
-              
-     @M hy_break_loop(setrem,riemann)
+              @M hy_normalize_species( hy_uPlus )
+              @M hy_normalize_species( hy_uMinus )
+     @M loop_end_3d
+     call Timers_stop("setrem")
+
+     call Timers_start("riemann")
+     !$omp target teams distribute collapse(3) &
+     !$omp private( &
+     !$omp    VL, VR, Fstar, inShock, ierr, &
+     !$omp    UL, UR, Uhll, UCstarR, UCstarL, FL, FR, &
+     !$omp    velNL, velNR, aL2, aR2, &
+     !$omp    magNL, magNR, Bn_glm, Psi_glm, magBL2, magBR2, &
+     !$omp    cfL, cfR, SL, SR, speed, totalPresL, totalPresR, &
+     !$omp    pStar, qStar, numerL, numerR, denomL, denomR, &
+     !$omp    dStarL, dStarR, &
+     !$omp    u2, E, B2, UB, Ptot )
+     @M loop_3d(klim)
               VL => hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR => hy_uMinus(1:HY_NUM_VARS,i,j,k) 
-	      Fstar => hy_flux(1:HY_NUM_FLUX,i,j,k)
+              Fstar => hy_flux(1:HY_NUM_FLUX,i,j,k)
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
               @M hy_riemann
-     @M hy_break_loop(riemann,cvisc)
+     @M loop_end_3d
+     call Timers_stop("riemann")
+
+     call Timers_start("cvisc")
+     !$omp target teams distribute collapse(3) &
+     !$omp private( cvisc )
+     @M loop_3d(klim)
 
               ! Add artificial viscosity for strong-shock capturing
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
@@ -263,6 +278,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      
      
   end do ! dir
+
+  !$omp target exit data &
+  !$omp map( release: lim, gCells, limgc, klim, lim1 )
 
   nullify(hy_grav)
   nullify(hy_flat3d)
