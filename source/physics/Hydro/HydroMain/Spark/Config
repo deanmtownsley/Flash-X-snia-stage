@@ -9,6 +9,8 @@ REQUIRES physics/Eos
 
 EXCLUSIVE fog tvd2 lim03 mp5
 
+LIBRARY OMP_OL
+
 #Signal that the Hydro implementation is an unsplit implementation
 # (used for flux handlings in paramesh_preprocessor.fh)
 ## PPDEFINE FLASH_HYDRO_UNSPLIT
