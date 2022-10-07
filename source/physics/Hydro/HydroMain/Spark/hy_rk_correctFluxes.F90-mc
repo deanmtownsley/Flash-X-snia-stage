@@ -223,10 +223,8 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         nullify(Vstar)
      enddo !j
   enddo !k
-  !$omp end do
 #if NDIM==3
   ! Correct KAXIS sides
-  !$omp do schedule(static) collapse(2)
   do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         !! LOW side
@@ -273,7 +271,6 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         nullify(Vstar)
      enddo !j
   enddo !k
-  !$omp end do
 #endif
 #endif
 

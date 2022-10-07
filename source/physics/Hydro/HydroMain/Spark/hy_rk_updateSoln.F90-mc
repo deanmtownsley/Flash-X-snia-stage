@@ -266,7 +266,6 @@ contains
     real, intent(IN) :: U(NFLUXES)
     real, intent(IN) :: g(MDIM)
     real, intent(OUT) :: S(NFLUXES)
-    !$omp declare target
     S = 0.
 #ifdef GRAVITY
     S(HY_XMOM:HY_ZMOM) = U(HY_MASS)*g(:)
