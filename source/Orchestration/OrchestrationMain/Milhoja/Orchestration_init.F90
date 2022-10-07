@@ -54,8 +54,13 @@ subroutine Orchestration_init()
     !!!!!----- Runtime Parameters
     CALL RuntimeParameters_get("or_nThreadTeams",        nThreadTeams)
     CALL RuntimeParameters_get("or_nThreadsPerTeam",     nThreadsPerTeam)
+#ifdef ORCHESTRATION_USE_GPUS
     CALL RuntimeParameters_get("or_nStreams",            nStreams)
     CALL RuntimeParameters_get("or_nBytesInMemoryPools", nBytesInMemoryPools)
+#else
+    nStreams = 0
+    nBytesInMemoryPools = 0.0
+#endif
 
     !!!!!----- CAST TO MILHOJA TYPES
     MH_nThreadTeams    = INT(nThreadTeams,    kind=MILHOJA_INT)
