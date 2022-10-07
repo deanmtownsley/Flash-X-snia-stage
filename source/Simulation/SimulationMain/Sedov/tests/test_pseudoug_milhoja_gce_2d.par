@@ -111,8 +111,6 @@ kGridSize = 1
 # since Milhoja is the only option for now.
 or_nThreadTeams        = 2
 or_nThreadsPerTeam     = 7
-or_nStreams            = 0
-or_nBytesInMemoryPools = 0.0
 gr_initBlock_nCpuThreads = 6
 # NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
 # to the par file?
