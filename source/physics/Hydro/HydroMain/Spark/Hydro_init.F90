@@ -173,5 +173,12 @@ subroutine Hydro_init()
   hy_4piGinv = (4.*PI*hy_gravConst)**(-1)
 
   hy_bref = sqrt(4.0*PI)
+
+  !$omp target update to &
+  !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
+  !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
+  !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry, &
+  !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
+  !$omp   hy_cfl, hy_telescoping )
   
 end subroutine Hydro_init
