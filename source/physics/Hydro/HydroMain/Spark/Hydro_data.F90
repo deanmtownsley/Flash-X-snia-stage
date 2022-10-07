@@ -35,7 +35,7 @@ module Hydro_data
   real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
   real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
   real, allocatable, dimension(:),target :: hya_farea, hya_cvol
-  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight,hya_yCenter, hya_zCenter
+  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
   !Flux buffers
 
@@ -69,6 +69,31 @@ module Hydro_data
   real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
   real :: hy_bref
   ! System of units used
+
+  !$omp target declare to &
+  !$omp ( hya_starState, hya_tmpState, &
+  !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
+  !$omp   hya_rope, hya_flux, hya_shck, &
+  !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
+  !$omp   hya_farea, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter, &
+  !$omp   hy_mfrac, hy_eosData, &
+  !$omp   hy_del, &
+  !$omp   hy_dt, hy_dtmin, &
+  !$omp   hy_shockDetectOn, &
+  !$omp   hy_useTiling , &
+  !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
+  !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, &
+  !$omp   hy_fluxCorVars, &
+  !$omp   hy_geometry, &
+  !$omp   hy_threadWithinBlock, &
+  !$omp   hy_gcMask, &
+  !$omp   hy_limRad, &
+  !$omp   hy_cvisc, &
+  !$omp   hy_tiny, &
+  !$omp   hy_gravConst, hy_4piGinv, &
+  !$omp   hy_hybridRiemann, hy_flattening, &
+  !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
+  !$omp   hy_bref )
 
 end module Hydro_data
 
