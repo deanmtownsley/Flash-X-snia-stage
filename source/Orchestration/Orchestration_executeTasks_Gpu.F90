@@ -27,8 +27,7 @@
 !! all leaf blocks by the GPUs assigned to each MPI process' runtime instance and in
 !! accord with the given runtime configuration values.  The order in which the
 !! task function is applied to blocks is determined at runtime and should therefore
-!! be considered as arbitrary.  It is a logical error to call this routine if the
-!! runtime is not enabled or if the runtime backend does not work with GPUs.
+!! be considered as arbitrary.
 !!
 !! @note
 !! This subroutine is only available in the Orchestration unit's public interface
@@ -37,9 +36,6 @@
 !! implementation.  Refer to the Orchestration unit's documentation for more
 !! information.
 !!
-!! @todo Presently, the names of executeTasks routines map onto the associated
-!! thread team configuration.  We need a practical and scalable scheme to
-!! express and manage this mapping.
 !! @todo This interface is presently restricted to leaf blocks only because the
 !! runtime implementation is limited in this way.  Once the runtime functions with
 !! AMR, this interface will need to include a specification of which blocks to

@@ -8,14 +8,14 @@ def genLines(setupvars):
 
     yield 'PPDEFINE FLASHX_ORCHESTRATION_MILHOJA'
 
-    # No need for 'LIBRARY milhoja' since the Milhoja Grid implementation should
+    # No need for 'LIBRARY milhoja_*' since the Milhoja Grid implementation should
     # already declare that
 
     # Only works with the Flash-X Milhoja Grid implementation
     if 'Grid' not in setupvars:
         yield 'SETUPERROR Grid setup variable not set'
     if setupvars['Grid'].lower() != 'milhoja':
-        yield 'SETUPERROR Milhoja runtime must use the Milhoja Grid implementation'
+        yield 'SETUPERROR Milhoja orchestration must use the Milhoja Grid implementation'
     yield 'REQUIRES Grid/GridMain/AMR/Milhoja'
 
     # Users must specify runtime variant

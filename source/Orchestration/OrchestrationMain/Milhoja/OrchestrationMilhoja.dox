@@ -2,10 +2,16 @@
 @internal
 @defgroup OrchestrationMilhoja Milhoja Orchestration Implementation
 
-The Milhoja runtime implmentation of the Orchestration unit.  Users must specify
-which runtime backend they would like to use at setup time and setup their build
-system such that Flash-X simulations are built and linked against the correct
-corresponding external Milhoja library instance.
+The Milhoja runtime implementation of the Orchestration unit.  Users must specify
+at setup time the variable\n\n
+Milhoja=<grid backend>,<runtime backend>,<computation offloading model>\n\n
+Valid runtime backends are "None" and "Cuda".  Valid offloading models are
+"None" and "OpenACC".  Please refer to the Milhoja Grid implementation's
+documentation for more information on grid backends.  Users must setup their
+build system such that Flash-X simulations are built and linked against the
+correct corresponding external Milhoja library instance.  Note that use of the
+Milhoja Orchestration implementation requires use of the Milhoja Grid
+implementation.
 
 @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 

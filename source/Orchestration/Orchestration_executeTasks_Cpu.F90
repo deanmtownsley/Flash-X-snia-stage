@@ -26,8 +26,7 @@
 !! team configuration.  Upon termination, the task function will have been applied
 !! by the CPU to all leaf blocks using the given number of threads.  The order
 !! in which the task function is applied to blocks is determined at runtime and
-!! should therefore be considered as arbitrary.  It is a logical error to call this
-!! routine if the runtime is not enabled.
+!! should therefore be considered as arbitrary.
 !!
 !! @note
 !! This subroutine is only available in the Orchestration unit's public interface

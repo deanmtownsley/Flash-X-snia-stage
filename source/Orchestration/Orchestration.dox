@@ -12,8 +12,8 @@ through the public interface, which violates encapsulation and modularity.
 
 Related to this, the public interface can differ based on whether the runtime is
 to be used and, if so, which runtime backend is used.  See, for example, the
-preprocessor flags USE_MILHOJA_RUNTIME (in Simulation.h) and
-ORCHESTRATION_USE_GPUS (set in Flash-X Makefile).  Since the interface is linked
+preprocessor macros FLASHX_ORCHESTRATION, FLASHX_ORCHESTRATION_MILHOJA, and
+ORCHESTRATION_USE_GPUS in Simulation.h.  Since the interface is linked
 to Milhoja and we do not want to insist that Flash-X users always build/link
 Milhoja, this setup-time construction of the public interface is necessary.
 
@@ -48,9 +48,7 @@ the user manual?  It seems largely related to developers rather than users.
 Indeed, it captures and communicates the reasoning behind some design decisions,
 which developers, but not users, should understand.
 @todo Determine if it is worthwhile to recover encapsulation/modularity by
-adding in a layer of Flash-X types that are mapped onto Orchestration
+adding in a layer of Flash-X Orchestration types that are mapped onto Milhoja
 implementation types.  Having a fully-functioning runtime in Flash-X should have
 higher-priority than this design issue.
-@todo Shouldn't the setup tool define ORCHESTRATION_USE_GPUS instead of the
-(many) Makefiles?
 */

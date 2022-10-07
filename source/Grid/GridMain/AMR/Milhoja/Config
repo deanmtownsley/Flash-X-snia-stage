@@ -42,6 +42,7 @@ def genLines(setupvars):
         yield 'SETUPERROR Invalid N Milhoja specification values'
 
     if grid_backend == 'amrex':
+        yield 'PPDEFINE GRID_USE_AMREX_BACKEND'
         yield 'LIBRARY milhoja_amrex'
 
         yield 'D amrexInterpolator Name of AMReX interpolator to use for interpolating'
