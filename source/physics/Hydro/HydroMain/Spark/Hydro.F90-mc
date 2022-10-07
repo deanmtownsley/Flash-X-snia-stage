@@ -74,7 +74,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real, dimension(3,3) :: coeff_array
     logical, dimension (3) :: addFlux_array
   integer :: i,j,k,v,maxcells,ng
-  
 
   @M hy_declare_scr_ptr
   
@@ -133,6 +132,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   weights = (/0.5,0.5,0./)
 #endif
   
+  !$omp target enter data &
+  !$omp map( alloc: grownLimits, locLimits, locLimitsGC, &
+  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits )
+  !$omp map( to: coeffs, weights, limits_array, coeff_array, addFlux_array )
+  
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM
   call MPI_AllReduce (hy_lChyp, hy_C_hyp, 1, &
@@ -160,10 +164,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
           call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
+
      ! DivB will technically be lagged by 1 step, but we need ghost zones to
      ! compute the gradients. I ain't doing more communication for a diagnostic...
         loGC(:) = blkLimitsGC(LOW,:)
         hiGC(:) = blkLimitsGC(HIGH,:)
+
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
         endif
@@ -173,7 +179,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         ng=NGUARD-1
         @M hy_setLims(ng)
+
+        !$omp target enter data &
+        !$omp map( to: Uin )
+        
+        !$omp target update &
+        !$omp to( hy_del, grownLimits, locLimits, locLimitsGC, &
+        !$omp     blkLimits, blkLimitsGC, loGC, hiGC, limits )
             
+        ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
         call shockDetect(Uin,limits,blkLimitsGC)
 
@@ -198,6 +212,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !current stage for telescoping upda
            ng=limits_array(stage)
            @M hy_setLims(ng)
+           !$omp target update &
+           !$omp to( limits )
+            
            
            call Timers_start("getFaceFlux")
            
@@ -247,6 +264,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_stop("Offloaded Section")
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
+        !$omp target exit data &
+        !$omp map( from: Uin )
      @M iter_end
      @M hy_end_stages_nt   
      if (hy_fluxCorrect) then
@@ -401,6 +420,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
   
+  !$omp target exit data &
+  !$omp map( release: grownLimits, locLimits, locLimitsGC, &
+  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits, &
+  !$omp      coeffs, weights, limits_array, coeff_array, addFlux_array )
+  
   call Timers_stop("Hydro")
   
 contains
@@ -418,7 +442,7 @@ contains
     integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
     !! -----------------------------------------------------
     
-    integer :: i,j,k
+    integer :: i,j,k,ii,jj,kk
     logical :: SW1, SW2
     
     
@@ -445,33 +469,34 @@ contains
     beta = 0.5 !0.5 !10. ! gradP
     delta= 0.1  !0.1 !2. ! divV
     
-    Uin(SHOK_VAR,:,:,:) = 0.
-    
     
     !! Allocate a temporary cell-centered array for sound speed
     
     
     !! Compute sound speed
+    !$omp target teams distribute parallel do simd collapse(3)
     @M loop_3d(blkLimitsGC)
+    Uin(SHOK_VAR,i,j,k) = 0.
     hy_Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
          /max(Uin(DENS_VAR,i,j,k),hy_tiny))
     @M loop_end_3d
+    !$omp target teams distribute parallel do simd collapse(3) &
+    !$omp private( SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz )
     @M loop_3d(limits)
     ! initialize switch values
     SW1 = .false.
     SW2 = .false.
-#if NDIM==1
-    minP = minval(Uin(PRES_VAR,i-1:i+1,j,k))
-    minC = minval(hy_Vc(i-1:i+1,j,k))
-#endif
-#if NDIM==2
-    minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k))
-    minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k))
-#endif
-#if NDIM==3
-    minP = minval(Uin(PRES_VAR,i-1:i+1,j-1:j+1,k-1:k+1))
-    minC = minval(hy_Vc(i-1:i+1,j-1:j+1,k-1:k+1))
-#endif
+    minP = HUGE(0.0)
+    minC = HUGE(0.0)
+    do ii = i-1, i+1
+       do jj = j-1*K2D, j+1*K2D
+          do kk = k-1*K3D, k+1*K3D
+             minP = min( minP, Uin(PRES_VAR,ii,jj,kk) )
+             minC = min( minC, hy_Vc(ii,jj,kk) )
+          end do
+       end do
+    end do
+
     !! We do not need to include non-Cartesian geom factors here.
     !! Undivided divV
     divv =        Uin(VELX_VAR,i+1,j,  k  ) - Uin(VELX_VAR,i-1,j,  k  )
@@ -506,6 +531,7 @@ contains
     endif !endif (SW1 .and. SW2) then
     @M loop_end_3d
     nullify(hy_Vc)
+
     
   end subroutine shockDetect
 
