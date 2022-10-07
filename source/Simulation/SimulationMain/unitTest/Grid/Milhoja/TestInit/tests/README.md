@@ -24,19 +24,19 @@ This test has been verified to function correctly on GCE/compute-12 with the Int
 ```
 [test_1D]
     testNode = "UnitTest/Grid/AMR/Milhoja/1D/TestInit"
-    setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
+    setupOptions = "-auto -debug -1d -nxb=8 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 
 [test_2D]
     testNode = "UnitTest/Grid/AMR/Milhoja/2D/TestInit"
-    setupOptions = "-auto -debug -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
+    setupOptions = "-auto -debug -2d -nxb=8 -nyb=4 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 
 [test_3D]
     testNode = "UnitTest/Grid/AMR/Milhoja/3D/TestInit"
-    setupOptions = "-auto -debug -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
+    setupOptions = "-auto -debug -3d -nxb=8 -nyb=4 -nzb=2 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 ```

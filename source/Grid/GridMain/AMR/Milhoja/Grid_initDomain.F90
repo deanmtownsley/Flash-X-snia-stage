@@ -45,7 +45,7 @@ subroutine Grid_initDomain(restart, particlesInitialized)
     logical, intent(IN)    :: restart
     logical, intent(INOUT) :: particlesInitialized
 
-#ifdef USE_MILHOJA_RUNTIME
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
     integer              :: nThreads
     integer(MILHOJA_INT) :: MH_nThreads
 #endif
@@ -57,7 +57,7 @@ subroutine Grid_initDomain(restart, particlesInitialized)
         CALL Driver_abort("[Grid_initDomain] Restarts not yet implemented")
     end if
 
-#ifdef USE_MILHOJA_RUNTIME
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
      CALL RuntimeParameters_get('gr_initBlock_nCpuThreads', nThreads)
      MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
      CALL milhoja_grid_initDomain(gr_initBlock_tile_cpu, MH_nThreads, MH_ierr)

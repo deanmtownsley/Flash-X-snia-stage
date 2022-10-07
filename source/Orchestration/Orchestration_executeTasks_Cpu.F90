@@ -29,6 +29,12 @@
 !! should therefore be considered as arbitrary.  It is a logical error to call this
 !! routine if the runtime is not enabled.
 !!
+!! @note
+!! This subroutine is only available in the Orchestration unit's public interface
+!! if the Milhoja Orchestration implementation is in use.  Therefore, it
+!! effectively has no stub implementation.  Refer to the Orchestration unit's 
+!! documentation for more information.
+!!
 !! @todo Presently, the names of executeTasks routines map onto the associated
 !! thread team configuration.  We need a practical and scalable scheme to
 !! express and manage this mapping.

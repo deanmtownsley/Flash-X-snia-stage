@@ -32,6 +32,12 @@
 !! in the public interface so that tools in the offline toolchain that write
 !! Flash-X Fortran code can perform error checking on internal calls.
 !!
+!! @note
+!! This subroutine is only available in the Orchestration unit's public interface
+!! if the Milhoja Orchestration implementation is in use.  Therefore, it
+!! effectively has no stub implementation.  Refer to the Orchestration unit's 
+!! documentation for more information.
+!!
 !! @param routineName  The name of the Flash-X routine that called this routine.
 !!                     This information is included in the error message.
 !! @param MH_errorCode The Milhoja error code to check.
