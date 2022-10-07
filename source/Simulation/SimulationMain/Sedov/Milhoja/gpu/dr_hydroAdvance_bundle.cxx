@@ -1,3 +1,20 @@
+/**
+ * @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+ *
+ * @licenseblock
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * @endlicenseblock
+ *
+ * @file
+ */
+
 #include <Milhoja.h>
 #include <Milhoja_real.h>
 #include <Milhoja_interface_error_codes.h>
@@ -91,7 +108,7 @@ extern "C" {
         DataPacket_Hydro_gpu_3*             packet_h = static_cast<DataPacket_Hydro_gpu_3*>(dataItem_h);
         const milhoja::PacketDataLocation   location = packet_h->getDataLocation();
         const int                           dataQ_h  = packet_h->asynchronousQueue();
-#if MILHOJA_NDIM == 3
+#if MILHOJA_NDIM == 3 && defined(MILHOJA_OPENACC_OFFLOADING)
         const int                           queue2_h = packet_h->extraAsynchronousQueue(2);
         const int                           queue3_h = packet_h->extraAsynchronousQueue(3);
 #else
@@ -140,6 +157,8 @@ extern "C" {
         // happen for all task functions that must filter?  Selecting the order of
         // variables in memory sounds like part of the larger optimization problem
         // as it affects all data packets.
+        //
+        // C variable indices are 0-based; Flash-X, 1-based.
         packet_h->setVariableMask(UNK_VARS_BEGIN-1, EINT_VAR-1);
 
         if (location != milhoja::PacketDataLocation::CC1) {

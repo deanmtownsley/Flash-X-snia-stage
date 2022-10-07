@@ -44,6 +44,8 @@ contains
 
     !> @todo lo/hi must be local indices.  Make this index-space-agnostic.
     subroutine hy_computeSoundSpeedHll_gpu_oacc(lo, hi, U, auxC)
+        use openacc
+
         !$acc routine vector
 
         integer, intent(IN)  :: lo(1:MDIM)
@@ -68,6 +70,8 @@ contains
 
     !> @todo lo/hi must be local indices.  Make this index-space-agnostic.
     subroutine hy_computeFluxesHll_X_gpu_oacc(dt, lo, hi, deltas, U, auxC, flX)
+        use openacc
+
         !$acc routine vector
 
         real,    intent(IN)  :: dt
@@ -184,6 +188,8 @@ contains
 
     !> @todo lo/hi must be local indices.  Make this index-space-agnostic.
     subroutine hy_computeFluxesHll_Y_gpu_oacc(dt, lo, hi, deltas, U, auxC, flY)
+        use openacc
+
         !$acc routine vector
     
         real,    intent(IN)  :: dt
@@ -299,6 +305,8 @@ contains
     end subroutine hy_computeFluxesHll_Y_gpu_oacc
 
     subroutine hy_computeFluxesHll_Z_gpu_oacc(dt, lo, hi, deltas, U, auxC, flZ)
+        use openacc
+
         !$acc routine vector
     
         real,    intent(IN)  :: dt
@@ -414,6 +422,8 @@ contains
     end subroutine hy_computeFluxesHll_Z_gpu_oacc
 
     subroutine hy_updateSolutionHll_gpu_oacc(lo, hi, flX, flY, flZ, U)
+        use openacc
+
         !$acc routine vector
     
         integer, intent(IN)    :: lo(1:MDIM)
@@ -548,11 +558,12 @@ contains
         end do
         !$acc end loop
     
-    !> @todo lo/hi must be local indices.  Make this index-space-agnostic.
     end subroutine hy_updateSolutionHll_gpu_oacc
 
     !> @todo lo/hi must be local indices.  Make this index-space-agnostic.
     subroutine eos_idealGammaDensIe_gpu_oacc(lo, hi, U)
+        use openacc
+
         !$acc routine vector
     
         ! Taken from Flash-X Sedov/setup_params file 

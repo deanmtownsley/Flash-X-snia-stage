@@ -210,7 +210,7 @@ contains
         CALL F_tile%releaseDataPtr(U,   CENTER)
     end subroutine dr_hydroAdvance_TF_tile_cpu
 
-#ifdef ORCHESTRATION_USE_GPUS
+#if defined(ORCHESTRATION_USE_GPUS) && defined(ORCHESTRATION_OPENACC_OFFLOAD)
     !> @brief GPU-based variant of the hydro advance task function
     !!
     !! @details

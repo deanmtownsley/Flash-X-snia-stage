@@ -28,8 +28,8 @@
 !!
 !! @todo The runtime should confirm at initialization that the casts will
 !! always be correct for the given runtime configuration.
-!! @todo Are the shapes of the different data blocks (e.g., U, face[XYZ]
-!! minimized for the application)?
+!! @todo Are the shapes of the different data blocks (e.g., U, face[XYZ])
+!! minimized for the application?
 subroutine dr_hydro_advance_packet_oacc_c2f(         &
                     C_packet_h,                      &
                     C_dataQ_h,                       &
