@@ -53,11 +53,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   real,dimension(:,:,:,:),pointer :: hy_grav
 
 
-  integer, dimension(MDIM) :: loGC, hiGC
   integer :: dir, i,j,k,d
-
-  loGC(:) = blkLimitsGC(LOW,:)
-  hiGC(:) = blkLimitsGC(HIGH,:)
   
   hy_grav(1:MDIM,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
@@ -66,6 +62,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   
 
   
+  !$omp target teams distribute parallel do simd collapse(4)
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -78,6 +75,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 
 #ifdef GRAVITY
 
+  ! AH: TODO: OpenMP directives for gravity
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
 #ifdef FLASH_GRAVITY_TIMEDEP
@@ -86,7 +84,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
+             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
 #else
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
@@ -98,7 +96,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,k/),JAXIS,&
-             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
+             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
      enddo
   enddo
 #endif
@@ -109,7 +107,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,j/),KAXIS,&
-             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
+             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
      enddo
   enddo
 #endif
