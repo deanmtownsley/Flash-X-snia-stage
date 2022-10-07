@@ -70,7 +70,7 @@ module Hydro_data
   real :: hy_bref
   ! System of units used
 
-  !$omp target declare to &
+  !$omp declare target to &
   !$omp ( hya_starState, hya_tmpState, &
   !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
   !$omp   hya_rope, hya_flux, hya_shck, &

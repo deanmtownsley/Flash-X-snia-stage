@@ -134,7 +134,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   !$omp target enter data &
   !$omp map( alloc: grownLimits, locLimits, locLimitsGC, &
-  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits )
+  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits ) &
   !$omp map( to: coeffs, weights, limits_array, coeff_array, addFlux_array )
   
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
@@ -219,6 +219,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_start("getFaceFlux")
            
            call hy_rk_getFaceFlux(hy_starState,blklimits,blkLimitsGC, limits)
+           !$omp target update from &
+           !$omp ( hya_starState, hya_tmpState, &
+           !$omp   hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
+           !$omp   hya_farea, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter, &
+           !$omp   hya_flux, hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_shck, hya_grv, &
+           !$omp   hya_flat3d, hya_Vc, hya_grav, hya_flx, hya_fly, hya_flz, &
+           !$omp   hy_eosData, hy_mfrac )
            
 
            call Timers_stop("getFaceFlux")
@@ -265,7 +272,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
         !$omp target exit data &
-        !$omp map( from: Uin )
+        !$omp map( release: Uin )
      @M iter_end
      @M hy_end_stages_nt   
      if (hy_fluxCorrect) then

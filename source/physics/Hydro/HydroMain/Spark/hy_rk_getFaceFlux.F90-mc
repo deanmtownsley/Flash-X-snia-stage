@@ -60,6 +60,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   real,dimension(:,:,:,:),pointer ::hy_starState
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i,j,k, n, g, v, dir, ierr
+  integer :: im1
   integer, dimension(MDIM) :: gCells
   integer, dimension(LOW:HIGH,MDIM) :: klim,lim,limgc,lim1
   character(len = 2) :: dir_str
@@ -171,9 +172,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
 
      call Timers_start("recon")
-     !$omp target teams distribute collapse(3)
+     !$omp target teams distribute parallel do simd collapse(4) &
+     !$omp private( W5p, W5m, betaWeno, Alpha5, invSumAlpha, omega )
      @M loop_3d(klim)
-          !$omp parallel do simd
           do v=1,NRECON
              @M hy_recon
           enddo
@@ -191,7 +192,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("setrem")
 
      call Timers_start("riemann")
-     !$omp target teams distribute collapse(3) &
+     !$omp target teams distribute parallel do simd collapse(3) &
      !$omp private( &
      !$omp    VL, VR, Fstar, inShock, ierr, &
      !$omp    UL, UR, Uhll, UCstarR, UCstarL, FL, FR, &
@@ -211,26 +212,34 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("riemann")
 
      call Timers_start("cvisc")
-     !$omp target teams distribute collapse(3) &
-     !$omp private( cvisc )
+     !$omp target teams distribute parallel do simd collapse(3) &
+     !$omp private( cvisc, VenerLo, VenerHi, im1 )
      @M loop_3d(klim)
 
               ! Add artificial viscosity for strong-shock capturing
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
               
               ! Construct minus and plus TOTAL energy densities
-              VenerLo = hy_rope(HY_DENS,i-1,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i-1,j,k),hy_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
-                   + hy_rope(HY_RHOE,i-1,j,k)
-              VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i,j,k),hy_rope(HY_VELX:HY_VELZ,i,j,k)))&
-                   + hy_rope(HY_RHOE,i,j,k)
-              
-              hy_flux(HY_MASS:HY_ENER,i,j,k) = &
-                   hy_flux(HY_MASS:HY_ENER,i,j,k) &
-                   +cvisc*(/hy_rope(HY_DENS,i-1,j,k)                 - hy_rope(HY_DENS,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k)&
-                   ,        VenerLo                         - VenerHi/)
+              im1 = i-1
+              @M hy_dot_product(v,im1,im1,HY_VELX,HY_VELZ,hy_rope,hy_rope,VenerLo)
+              VenerLo = hy_rope(HY_DENS,i-1,j,k)*0.5*VenerLo + hy_rope(HY_RHOE,i-1,j,k)
+
+              @M hy_dot_product(v,i,i,HY_VELX,HY_VELZ,hy_rope,hy_rope,VenerHi)
+              VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*VenerHi + hy_rope(HY_RHOE,i,j,k)
+
+              hy_flux(HY_MASS,i,j,k) = &
+                   hy_flux(HY_MASS,i,j,k) &
+                   +cvisc*( hy_rope(HY_DENS,i-1,j,k) - hy_rope(HY_DENS,i,j,k) )
+
+              hy_flux(HY_XMOM:HY_ZMOM,i,j,k) = &
+                   hy_flux(HY_XMOM:HY_ZMOM,i,j,k) &
+                   +cvisc*(   hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX:HY_VELZ,i-1,j,k) &
+                            - hy_rope(HY_DENS,i  ,j,k)*hy_rope(HY_VELX:HY_VELZ,i  ,j,k) )
+
+              hy_flux(HY_ENER,i,j,k) = &
+                   hy_flux(HY_ENER,i,j,k) &
+                   +cvisc*( VenerLo - VenerHi )
+
 #ifdef SPARK_GLM
               hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
                    hy_flux(HY_FMGX:HY_FPSI,i,j,k) &
@@ -245,27 +254,41 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               
               
 #if NSPECIES+NMASS_SCALARS>0
+              ! AH: TODO: Potentially make loop explicit
               if (hy_flux(HY_MASS ,i,j,k) > 0.) then
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON, i-1,j,k)*hy_flux(HY_MASS ,i,j,k)
               else
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
               end if
 #endif
-     @M hy_break_loop(cvisc,flux)
+     @M loop_end_3d
+     call Timers_stop("cvisc")
+
+     call Timers_start("flux")
      ! ***************
      ! Fluxes computed for one face of this zone
      ! Save the fluxes
      ! ***************
-              select case(dir)
-              case(IAXIS)
-                 hy_flx(:,i,j,k) = hy_flux(:,i,j,k)
-              case (JAXIS)
-                 hy_fly(:,j,i,k) = hy_flux(:,i,j,k)
-              case (KAXIS)
-                 hy_flz(:,j,k,i) = hy_flux(:,i,j,k)
-              end select
-      @M loop_end_3d
-      call Timers_stop("flux")        
+     select case(dir)
+     case(IAXIS)
+        !$omp target teams distribute parallel do simd collapse(4)
+        @M loop_3d(klim)
+              do v = 1, NFLUXES
+                 hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
+              end do
+        @M loop_end_3d
+     case (JAXIS)
+        !$omp target teams distribute parallel do simd collapse(4)
+        @M loop_3d(klim)
+                 hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
+        @M loop_end_3d
+     case (KAXIS)
+        !$omp target teams distribute parallel do simd collapse(4)
+        @M loop_3d(klim)
+                 hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
+        @M loop_end_3d
+     end select
+     call Timers_stop("flux")        
      !release pointers
      
   nullify(hy_flux)

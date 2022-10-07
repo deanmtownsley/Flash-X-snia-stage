@@ -9,7 +9,7 @@ Module hy_data
   logical :: hy_useHydro, hy_telescoping
   integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs
 
-  !$omp target declare to &
+  !$omp declare target to &
   !$omp ( hy_cfl, &
   !$omp   hy_hydroComputeDtFirstCall, &
   !$omp   hy_updateHydroFluxes, &
