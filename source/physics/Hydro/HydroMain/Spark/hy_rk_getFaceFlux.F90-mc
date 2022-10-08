@@ -227,18 +227,20 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               @M hy_dot_product(v,i,i,HY_VELX,HY_VELZ,hy_rope,hy_rope,VenerHi)
               VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*VenerHi + hy_rope(HY_RHOE,i,j,k)
 
-              hy_flux(HY_MASS,i,j,k) = &
-                   hy_flux(HY_MASS,i,j,k) &
+
+              hy_flux(HY_XMOM,i,j,k) = hy_flux(HY_XMOM,i,j,k) &
+                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k))
+
+              hy_flux(HY_YMOM,i,j,k) =  hy_flux(HY_YMOM,i,j,k) &
+                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k))
+
+               hy_flux(HY_ZMOM,i,j,k) = hy_flux(HY_ZMOM,i,j,k) &
+                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k))
+              
+              hy_flux(HY_MASS,i,j,k) = hy_flux(HY_MASS,i,j,k) &
                    +cvisc*( hy_rope(HY_DENS,i-1,j,k) - hy_rope(HY_DENS,i,j,k) )
 
-              hy_flux(HY_XMOM:HY_ZMOM,i,j,k) = &
-                   hy_flux(HY_XMOM:HY_ZMOM,i,j,k) &
-                   +cvisc*(   hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX:HY_VELZ,i-1,j,k) &
-                            - hy_rope(HY_DENS,i  ,j,k)*hy_rope(HY_VELX:HY_VELZ,i  ,j,k) )
-
-              hy_flux(HY_ENER,i,j,k) = &
-                   hy_flux(HY_ENER,i,j,k) &
-                   +cvisc*( VenerLo - VenerHi )
+              hy_flux(HY_ENER,i,j,k) = hy_flux(HY_ENER,i,j,k) + cvisc*( VenerLo - VenerHi )
 
 #ifdef SPARK_GLM
               hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
@@ -280,12 +282,16 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      case (JAXIS)
         !$omp target teams distribute parallel do simd collapse(4)
         @M loop_3d(klim)
+              do v = 1, NFLUXES
                  hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
+              end do
         @M loop_end_3d
      case (KAXIS)
         !$omp target teams distribute parallel do simd collapse(4)
         @M loop_3d(klim)
-                 hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
+           do v = 1, NFLUXES
+              hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
+           end do
         @M loop_end_3d
      end select
      call Timers_stop("flux")        
