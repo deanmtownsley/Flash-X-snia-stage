@@ -2,8 +2,11 @@
 @internal
 @defgroup OrchestrationMilhoja Milhoja Orchestration Implementation
 
-The Milhoja runtime implementation of the Orchestration unit.  Users must specify
-at setup time the variable\n\n
+@brief
+The Milhoja runtime implementation of the Orchestration unit.
+
+@details
+Users must specify at setup time the variable\n\n
 Milhoja=<grid backend>,<runtime backend>,<computation offloading model>\n\n
 Valid runtime backends are "None" and "Cuda".  Valid offloading models are
 "None" and "OpenACC".  Please refer to the Milhoja Grid implementation's

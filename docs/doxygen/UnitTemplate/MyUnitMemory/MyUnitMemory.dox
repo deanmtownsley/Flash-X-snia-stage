@@ -1,6 +1,13 @@
 /**
-@internal
-@defgroup MyUnitPrivate MyUnit's localAPI
+@defgroup MyUnitMemory MyUnit Memory Management Sub-Unit
+
+@brief
+<Insert a brief, high-level description of sub-unit>
+
+@details
+The .dox file at the level of MyUnit is dedicated primarily to specifying
+the contract and usage of the main functionality of MyUnit.  The analogous
+specification of such details related to this sub-unit should go here.
 
 @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 

@@ -13,9 +13,9 @@
 !!
 !! @file
 
-As for MyUnit_interface.  The documentation of stubs and concrete
-implementations in the private interface should follow the rules for documenting
-stubs and concrete implementations in the public interface.
+! FORMATTING RULES
+!
+! As for MyUnit_interface.
 
 !> @ingroup MyUnitPrivate
 !!
@@ -23,12 +23,16 @@ stubs and concrete implementations in the public interface.
 !!
 !! @details
 !! A standard Flash-X Fortran module that encapsulates the interface declarations
-!! of all routine's in the MyUnit unit that are part of this unit's private
+!! of all routine's in the MyUnit unit that are part of the unit's private
 !! interface.
 module mu_interface
 
     implicit none
 
+    ! Since a unit's private interface is defined by the stubs, this module, whose
+    ! existence is motivated by Flash-X's internal design rules, does not need
+    ! much documentation.  In particular, do *not* use doxygen to document the
+    ! different interfaces below.
     interface
         ...
     end interface

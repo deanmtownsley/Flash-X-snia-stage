@@ -2,8 +2,9 @@
 @internal
 @defgroup MyUnitImpl Impl MyUnit Implementation
 
-Since this documents a particular implementation of a unit, this document should
-not contain any specification of the unit's contract.  In can contain
+@details
+Since this documents a particular implementation of a unit, the details section
+should not contain any specification of the unit's contract.  In can contain
 implementation-specific information that will help users understand the
 high-level role of this implementation as well as how to use it.  It can also
 contain high-level details for developers and maintainers.

@@ -13,14 +13,17 @@
 !!
 !! @file
 
-The file documentation header should be at the top of the file and should need
-no modification.  C-preprocessor macros can go here if so desired.  The next
-documentation block should be placed as close to the module as possible.
+! FORMATTING RULES
+!
+! The file documentation header should be at the top of the file and should need
+! no modification.  C-preprocessor macros can go here if so desired.  The next
+! documentation block should be placed as close to the module as possible.
+! 
+! @ingroup should refer to the group name associated with the current folder.
+! This is declared as the first item in the @defgroup statement in the .dox file
+! in the same folder as this file.
 
-@ingroup should refer to the group name for this unit's stub name.  This is
-declared as the first item in the @defgroup statement in MyUnit.dox.
-
-!> @ingroup MyUnit
+!> @ingroup MyUnitMain
 !!
 !! @brief Flash-X standard data module for MyUnit
 module MyUnit_data
@@ -46,5 +49,6 @@ module MyUnit_data
     type(I_thought_this_was_c_t) :: e
 
     !> @}
-...
+
+    ...
 end module MyUnit_data

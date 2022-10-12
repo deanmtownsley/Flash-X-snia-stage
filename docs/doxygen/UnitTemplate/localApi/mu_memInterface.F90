@@ -15,34 +15,25 @@
 
 ! FORMATTING RULES
 !
-! The file documentation header should be at the top of the file and should need
-! no modification.  C-preprocessor macros can go here if so desired.  The next
-! documentation block should be placed as close to the module as possible.
-! 
-! @ingroup should refer to the group name for this unit's stub group.  This is
-! declared as the first item in the @defgroup statement in MyUnit.dox.
+! As for MyUnit_interface.
 
-!> @ingroup MyUnit
+!> @ingroup MyUnitPrivate
 !!
-!! @brief Public interface of the MyUnit unit
+!! @brief Private interface of MyUnit's memory management sub-unit
 !!
 !! @details
 !! A standard Flash-X Fortran module that encapsulates the interface declarations
-!! of all routine's in the MyUnit unit that are part of this unit's public
-!! interface.
-module MyUnit_interface
+!! of all routine's in MyUnit's private, dedicated memory management sub-unit.
+module mu_memInterface
 
     implicit none
 
-    ! Since a unit's public interface is defined by the stubs, this module, whose
+    ! Since a unit's private interface is defined by the stubs, this module, whose
     ! existence is motivated by Flash-X's internal design rules, does not need
     ! much documentation.  In particular, do *not* use doxygen to document the
     ! different interfaces below.
     interface
-        subroutine MyUnit_myRoutine(a, b, c)
-            implicit none
-            ...
-        end subroutine MyUnit_myRoutine
+        ...
     end interface
 
-end module MyUnit_interface
+end module mu_memInterface

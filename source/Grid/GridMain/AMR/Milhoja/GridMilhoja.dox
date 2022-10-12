@@ -2,8 +2,11 @@
 @internal
 @defgroup GridMilhoja Milhoja Grid Implementation
 
-The Milhoja implementation of the Grid unit.  Users must specify
-at setup time the variable\n\n
+@brief
+The Milhoja implementation of the Grid unit.
+
+@details
+Users must specify at setup time the variable\n\n
 Milhoja=<grid backend>,[<runtime backend>,<computation offloading model>]\n\n
 If the Orchestration unit is to be used in the simulation, then the last two
 arguments must be included; otherwise, they are optional and any given arguments

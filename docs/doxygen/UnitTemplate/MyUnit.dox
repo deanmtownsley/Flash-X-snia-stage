@@ -1,28 +1,30 @@
 /**
-@defgroup MyUnit The Flash-X Unit named MyUnit
+@defgroup MyUnit Flash-X Doxygen Documentation Template
 
+@brief
 <Insert a brief, high-level description of unit>
 
+@details
 While the inline documentation in the stubs supplies the contract at the level
-of subroutines, functions, data modules, and interface modules, it does not
-include the part of the contract that is higher-level and related to the unit as
-a whole.  This portion of the unit's contract can go here.  As with the stubs,
-all implementations must make sure that their code satisfies this part of the
-contract as well.  Some examples of contract details are
-* How the unit should be used within Flash-X and in conjunction with other units
-* What can differentiate one implementation of the unit from a another.
+of subroutines and functions, it does not include the part of the contract that
+is higher-level and related to the unit as a whole.  This portion of the unit's
+contract can go here.  As with the stubs, all implementations must make sure
+that their code satisfies this part of the contract as well.  Some examples of
+contract details are
+- How the unit should be used within Flash-X and in conjunction with other units
+- What can differentiate one implementation of the unit from another.
   Details related to a single implementation should go in that implementation's
   .dox file.
-* Assumptions made by the unit at the contract level
-* Preconditions for using the unit or a subset of the unit.  To avoid
+- Assumptions made by the unit at the contract level
+- Preconditions for using the unit or a subset of the unit.  To avoid
   duplicating documentation in stubs, this should not include preconditions for
   using a single routine.
 
 This seems like a natural place to add in some general, implementation-agnostic
 information for developers/maintainers as well.  This could include, for
 instance, 
-* Documenting high-level design decisions
-* Stating if this unit constrains which version of a library can be used (but
+- Documenting high-level design decisions
+- Stating if this unit constrains which version of a library can be used (but
   don't include the version info, which should appear high-up in the repo's
   README).
 
