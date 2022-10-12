@@ -45,4 +45,35 @@ module MyUnit_interface
         end subroutine MyUnit_myRoutine
     end interface
 
+    interface MyUnit_simpleGeneric
+        ! These two share the same contract aside from slight differences that
+        ! don't need explicit documentation/explanation.
+        subroutine MyUnit_simpleGeneric_int(a, b)
+            implicit none
+            integer, intent(IN)  :: a
+            real,    intent(OUT) :: b
+        end subroutine MyUnit_simpleGeneric_int
+        subroutine MyUnit_simpleGeneric_real(a, b)
+            implicit none
+            real, intent(IN)  :: a
+            real, intent(OUT) :: b
+        end subroutine MyUnit_simpleGeneric_real
+    end interface MyUnit_simpleGeneric
+
+    interface MyUnit_complexGeneric
+        ! These two share a commonality but require different contracts at the
+        ! very least to accommodate significant argument differences
+        subroutine MyUnit_complexGeneric_noRuntime(a, b)
+            implicit none
+            integer, intent(IN)  :: a
+            real,    intent(OUT) :: b
+        end subroutine MyUnit_complexGeneric_noRuntime
+        subroutine MyUnit_complexGeneric_cpuOnly(a1, a2, b)
+            implicit none
+            integer, intent(IN)  :: a1
+            integer, intent(IN)  :: a2
+            real,    intent(OUT) :: b
+        end subroutine MyUnit_complexGeneric_cpuOnly
+    end interface MyUnit_complexGeneric
+
 end module MyUnit_interface
