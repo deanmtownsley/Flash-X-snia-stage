@@ -19,10 +19,10 @@
 !! @brief Finalize the Orchestration unit
 !!
 !! @details
-!! Finalize the Orchestration unit.  This routine should be called at most once
-!! during program execution.  It should only be called if Orchestration_init has
-!! been called, in which case it must be called.  If this routine is called, it
-!! must be called before finalizing the Grid unit.   Called, called, called...
+!! This routine should be called at most once during program execution.  It should
+!! only be called if Orchestration_init has been called, in which case it must be
+!! called.  If this routine is called, it must be called before finalizing the Grid
+!! unit.   Called, called, called...
 !!
 !! It is intended that only the Driver unit call this routine.
 subroutine Orchestration_finalize()
