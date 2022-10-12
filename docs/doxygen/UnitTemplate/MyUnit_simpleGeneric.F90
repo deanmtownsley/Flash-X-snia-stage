@@ -20,7 +20,7 @@
 !> @ingroup MyUnit
 !! @anchor MyUnit_simpleGeneric_int_stub
 !!
-!! @brief Integer version of MyUnit_simpleGeneric generic interface
+!! @brief Integer version of @ref myunit_interface::myunit_simplegeneric "MyUnit_simpleGeneric generic interface"
 !! 
 !! @details
 !! This section should be written following the same rules for the details
@@ -43,7 +43,7 @@ end subroutine MyUnit_simpleGeneric_int
 !> @ingroup MyUnit
 !! @anchor MyUnit_simpleGeneric_real_stub
 !!
-!! @brief Real version of MyUnit_simpleGeneric generic interface
+!! @brief Real version of @ref myunit_interface::myunit_simplegeneric "MyUnit_simpleGeneric generic interface"
 !! 
 !! @details
 !! This version is a trivial variant of the Integer version.  Refer to the

@@ -20,7 +20,7 @@
 !> @ingroup MyUnitImpl
 !! @stubref{MyUnit_complexGeneric_noRuntime}
 !!
-!! @brief Concrete no-runtime version of MyUnit_complexGeneric generic interface
+!! @brief Concrete no-runtime version of @ref myunit_interface::myunit_complexgeneric "MyUnit_complexGeneric generic interface"
 !! 
 !! @details
 !! This section should be written following the same rules for the details
@@ -37,7 +37,7 @@ end subroutine MyUnit_complexGeneric_noRuntime
 !> @ingroup MyUnitImpl
 !! @stubref{MyUnit_complexGeneric_cpuOnly}
 !!
-!! @brief Concrete CPU-only version of MyUnit_complexGeneric generic interface
+!! @brief Concrete CPU-only version of @ref myunit_interface::myunit_complexgeneric "MyUnit_complexGeneric generic interface"
 !! 
 !! @details
 !! This section should be written following the same rules for the details

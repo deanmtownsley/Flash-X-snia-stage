@@ -20,7 +20,7 @@
 !> @ingroup MyUnitMain
 !! @stubref{MyUnit_simpleGeneric_int}
 !!
-!! @brief Concrete integer version of MyUnit_simpleGeneric generic interface
+!! @brief Concrete integer version of @ref myunit_interface::myunit_simplegeneric "MyUnit_simpleGeneric generic interface"
 !! 
 !! @details
 !! This section should be written following the same rules for the details
@@ -37,7 +37,7 @@ end subroutine MyUnit_simpleGeneric_int
 !> @ingroup MyUnitMain
 !! @stubref{MyUnit_simpleGeneric_real}
 !!
-!! @brief Concrete real version of MyUnit_simpleGeneric generic interface
+!! @brief Concrete real version of @ref myunit_interface::myunit_simplegeneric "MyUnit_simpleGeneric generic interface"
 !! 
 !! @details
 !! This section should be written following the same rules for the details
