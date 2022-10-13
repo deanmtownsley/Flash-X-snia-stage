@@ -24,15 +24,18 @@ def genLines(setupvars):
     # TODO: Remove this once BCs are integrated with Milhoja
     yield 'REQUIRES Grid/GridBoundaryConditions/Milhoja'
 
-    yield 'D gr_initBlock_nCpuThreads  N threads to be activated in a thread team'
-    yield 'D & for setting ICs with the CPU (Orchestration only)'
-    yield 'PARAMETER gr_initBlock_nCpuThreads INTEGER 1 [ 1 ... ]'
+    if 'Milhoja' not in setupvars:
+        yield 'SETUPERROR Milhoja setup variable not set'
+    elif 'withOrchestration' not in setupvars:
+        yield 'SETUPERROR withOrchestration not in setup variables'
+    elif setupvars['withOrchestration']:
+        yield 'D gr_initBlock_nCpuThreads  N threads to be activated in a thread team'
+        yield 'D & for setting ICs with the CPU (Orchestration only)'
+        yield 'PARAMETER gr_initBlock_nCpuThreads INTEGER 1 [ 1 ... ]'
 
     # Users must specify runtime variant
     #   - (grid backend, runtime backend, offloading)
     #   - assume that the Milhoja Orchestration implementation gets its values independently (if used)
-    if 'Milhoja' not in setupvars:
-        yield 'SETUPERROR Milhoja setup variable not set'
     milhoja = [e.lower() for e in setupvars['Milhoja'].split(',')]
     if   len(milhoja) == 1:
         grid_backend = milhoja[0]
