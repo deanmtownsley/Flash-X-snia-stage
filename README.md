@@ -8,6 +8,13 @@ been redesigned to be compatible with increasingly heterogeneous
 hardware platforms. Part of the redesign is a newly designed
 performance portability layer that is language agnostic.
 
+## Inline documentation
+__IMPORTANT__: Flash-X developers are presently migrating inline documentation
+from Robodoc to Doxygen.  The documentation that has been converted to Doxygen
+and is in the `main` branch has been subject to review as part of the Flash-X PR
+approval process.  The Robodoc documentation is not subject to this level of
+active quality control and should therefore be used with care.
+
 ## Libraries
 
 The code of the PARAMESH library for Flash-X is provided as a git submodule by a separate code

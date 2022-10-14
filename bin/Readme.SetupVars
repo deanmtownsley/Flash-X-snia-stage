@@ -289,3 +289,17 @@ Harder to introduce now because we have multiple particle types)
   - Simulation/SimulationMain/incompFlow/RisingBubble
   - Simulation/SimulationMain/incompFlow/PoolBoiling
   - Simulation/SimulationMain/incompFlow/ChannelFlow
+
+* Name  : Milhoja
+  Type  : String
+
+  This must be provided if the Milhoja Grid implementation or Milhoja
+  Orchestration units are used.  Its value is specified as either
+        Milhoja=<grid backend> or
+        Milhoja=<grid backend>,<runtime backend>,<offloading>
+  If the Orchestration unit is not used and the 3 argument version is
+  provided, then the last two values are ignored.
+        <grid backend>    must be AMReX
+        <runtime backend> either None or CUDA
+        <offloading>      either None or OpenACC
+
