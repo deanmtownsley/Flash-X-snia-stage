@@ -68,6 +68,13 @@ module Hydro_data
 
   real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
   real :: hy_bref
+
+  !! moved out from static physics routines to make it easier for data packet generation
+
+  integer, dimension(MDIM) :: hy_gCells
+  integer, dimension(LOW:HIGH,MDIM) :: hy_klim,hy_lim,hy_limgc,hy_lim1
+  integer :: hy_dir
+  
   ! System of units used
 
   !$omp declare target to &
@@ -93,7 +100,8 @@ module Hydro_data
   !$omp   hy_gravConst, hy_4piGinv, &
   !$omp   hy_hybridRiemann, hy_flattening, &
   !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
-  !$omp   hy_bref )
+  !$omp   hy_bref, &
+  !$omp   hy_klim,hy_lim,hy_limgc,hy_lim1,hy_gCells, hy_dir)
 
 end module Hydro_data
 
