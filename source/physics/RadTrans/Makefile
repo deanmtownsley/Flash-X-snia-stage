@@ -14,4 +14,13 @@ RadTrans = RadTrans.o \
 	   RadTrans_computeFluxLimiter.o \
 	   RadTrans_prolongDgData.o \
 	   RadTrans_restrictDgData.o \
-	   RadTrans_finalize.o
+	   RadTrans_finalize.o \
+	   RadTrans_molExplicitRHS.o \
+	   RadTrans_molImplicitRHS.o \
+	   RadTrans_molFastRHS.o \
+	   RadTrans_molImplicitUpdate.o \
+	   RadTrans_molPostUpdate.o \
+	   RadTrans_molPostFastUpdate.o \
+	   RadTrans_molPreEvolve.o \
+	   RadTrans_molPostTimeStep.o \
+	   RadTrans_molPostRegrid.o

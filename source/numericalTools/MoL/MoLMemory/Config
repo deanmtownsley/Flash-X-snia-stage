@@ -1,0 +1,19 @@
+# Config file for MoLMemory
+
+REQUIRES numericalTools/MoL/MoLMain
+REQUIRES numericalTools/MoL/localAPI
+
+USESETUPVARS Grid, GridIndexReordered
+
+# Not bothering with Grid checks since this is handled elsewhere
+
+IF Grid == "Amrex"
+    DEFAULT Amrex
+ENDIF
+
+# This only matters in UG/Paramesh and in only a few
+# specific places that REORDER commands will not suffice for
+# so just adding  pre-processor flag
+IF GridIndexReordered
+    PPDEFINE MOL_REORDER
+ENDIF

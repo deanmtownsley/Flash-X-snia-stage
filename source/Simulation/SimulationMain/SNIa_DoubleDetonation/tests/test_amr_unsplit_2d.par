@@ -257,6 +257,15 @@ gr_btCustomWork				= .true.  # Enable load balancing based on customized work ar
 gr_btWorkLBLeaf				= 2.0
 gr_btWorkLBPar				= 1.0
 
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
+
+# proper tiling enabled, but not hy_useTiling;
+# This is for testing for a code regression.
+gr_enableTiling = .TRUE.
+gr_useTiling = .TRUE.
+gr_tileSizeX = 4
+
 ## -------------------------------------------------------------
 ## Hydro (SPLIT AND UNSPLIT)
 ## -------------------------------------------------------------
