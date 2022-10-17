@@ -24,7 +24,6 @@
 subroutine Hydro_init()
 
   use Hydro_data
-  use hy_data
   use Driver_interface,            ONLY : Driver_abort, Driver_getMype, &
        Driver_getNumProcs,    &
        Driver_getComm

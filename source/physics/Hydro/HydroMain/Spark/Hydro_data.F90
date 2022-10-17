@@ -74,11 +74,25 @@ module Hydro_data
   integer, dimension(MDIM) :: hy_gCells
   integer, dimension(LOW:HIGH,MDIM) :: hy_klim,hy_lim,hy_limgc,hy_lim1
   integer :: hy_dir
-  
+
+  real :: hy_cfl
+  logical :: hy_hydroComputeDtFirstCall
+  logical :: hy_updateHydroFluxes
+  integer :: hy_gcMaskSize
+  logical :: hy_restart
+  logical :: hy_useHydro, hy_telescoping
+  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs
+
   ! System of units used
 
   !$omp declare target to &
-  !$omp ( hya_starState, hya_tmpState, &
+  !$omp ( hy_cfl, &
+  !$omp   hy_hydroComputeDtFirstCall, &
+  !$omp   hy_updateHydroFluxes, &
+  !$omp   hy_gcMaskSize, &
+  !$omp   hy_restart, &
+  !$omp   hy_useHydro, hy_telescoping, &
+  !$omp   hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcshya_starState, hya_tmpState, &
   !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
   !$omp   hya_rope, hya_flux, hya_shck, &
   !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &

@@ -24,13 +24,12 @@
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_scratch_use
-  use Hydro_data, ONLY : hy_eosData, hy_mfrac
+  use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
-  use hy_data, ONLY : hy_useHydro,hy_telescoping
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
