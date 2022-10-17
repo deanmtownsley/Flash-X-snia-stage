@@ -28,6 +28,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
+  use Hydro_data, ONLY : klim,lim,limgc,lim1,gCells, dir,stage
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -67,7 +68,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
   integer, dimension(LOW:HIGH,MDIM) :: limits
   real :: hdt,wt
-  integer :: stage, last_stage
+  integer :: last_stage
   real, dimension(3) :: coeffs, weights
   integer, dimension(3) :: limits_array
   real, dimension(3,3) :: coeff_array
@@ -108,7 +109,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
   !(remember FORTRAN is column major)
   coeff_array = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
-  last_stage = 3
   !Array containing number of guard cells on each side for
   !the telescoping update.
   limits_array = (/2*NSTENCIL, NSTENCIL, 0/)
@@ -126,10 +126,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
   ! U2 = 1/2 * U0 + 1/2 * U1 + 1/2 * dt*L(U1)
   coeff_array = reshape((/1.,0.5,0.,0.,0.5,0.,1.,0.5,0./),(/3,3/))
-  last_stage = 2
   limits_array = (/NSTENCIL, 0, 0/)
   weights = (/0.5,0.5,0./)
 #endif
+  last_stage = MAXSTAGE
+
   
   !$omp target enter data &
   !$omp map( alloc: grownLimits, locLimits, locLimitsGC, &
@@ -202,6 +203,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         
         !---JaredC--- Action 3 
         !Begin loop over stages
+        @M hy_stages_t
+           do dir=1,NDIM
+              @M hy_calc_lim
+           end do
+        @M hy_end_stages_t    
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
@@ -216,7 +222,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             
            
            call Timers_start("getFaceFlux")
-           
            call hy_rk_getFaceFlux(hy_starState,blklimits,blkLimitsGC, limits)
            !$omp target update from &
            !$omp ( hya_starState, hya_tmpState, &

@@ -41,6 +41,7 @@
 !!***
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz]
+
 subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
@@ -49,7 +50,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
-  use Hydro_data, ONLY : hy_klim,hy_lim,hy_limgc,hy_lim1,hy_gCells, hy_dir
+  use Hydro_data, ONLY : klim,lim,limgc,lim1,gCells, dir,stage
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
   implicit none
@@ -103,65 +104,27 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   !  Begin loop over zones
 
-  do hy_dir = 1, NDIM
-     select case(hy_dir)
-     case (IAXIS)
-        hy_lim(:,:) = limits(:,:)
-        hy_gCells(1) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-        hy_gCells(2) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-        hy_gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-        dir_str = "_x"
-     case (JAXIS)
-        hy_lim(:,1) = limits(:,JAXIS)
-        hy_lim(:,2) = limits(:,IAXIS)
-        hy_lim(:,3) = limits(:,KAXIS)
-        hy_gCells(1) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-        hy_gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-        hy_gCells(3) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-        dir_str = "_y"
-     case (KAXIS)
-        hy_lim(:,1) = limits(:,KAXIS)
-        hy_lim(:,2) = limits(:,IAXIS)
-        hy_lim(:,3) = limits(:,JAXIS)
-        hy_gCells(1) = (limits(LOW,KAXIS) - blkLimitsGC(LOW,KAXIS))
-        hy_gCells(2) = (limits(LOW,IAXIS) - blkLimitsGC(LOW,IAXIS))
-        hy_gCells(3) = (limits(LOW,JAXIS) - blkLimitsGC(LOW,JAXIS))
-        dir_str = "_z"
-     end select
-     
-
-     hy_limgc(LOW,:)=hy_lim(LOW,:)-hy_gCells(:)
-     hy_limgc(HIGH,:)=hy_lim(HIGH,:)+hy_gCells(:)
-
-
-     hy_klim=hy_lim
-     hy_klim(LOW,1)=hy_klim(LOW,1)-1
-     hy_klim(HIGH,1)=hy_klim(HIGH,1)+1
-
-     hy_lim1=hy_limgc
-     hy_lim1(LOW,1)=hy_lim1(LOW,1)-1
-     hy_lim1(HIGH,1)=hy_lim1(HIGH,1)+1
-
+  do dir = 1, NDIM
      !$omp target update &
-     !$omp to( hy_lim, hy_gCells, hy_limgc, hy_klim, hy_lim1, hy_dir )
+     !$omp to( lim, gCells, limgc, klim, lim1, dir, stage )
      
-     hy_flux(1:NFLUXES,@M bounds_3d(hy_lim1))=>hya_flux
-     hy_flat(@M bounds_3d(hy_lim1))=>hya_flat
-     hy_shck(@M bounds_3d(hy_lim1))=>hya_shck
-     hy_grv(@M bounds_3d(hy_lim1))=>hya_grv
+     hy_flux(1:NFLUXES,@M hy_bounds_lim)=>hya_flux
+     hy_flat(@M hy_bounds_lim)=>hya_flat
+     hy_shck(@M hy_bounds_lim)=>hya_shck
+     hy_grv(@M hy_bounds_lim)=>hya_grv
      
-     hy_rope(1:NRECON,@M bounds_3d(hy_lim1)) => hya_rope
-     hy_uPlus(1:NRECON,@M bounds_3d(hy_lim1)) => hya_uPlus
-     hy_uMinus(1:NRECON,@M bounds_3d(hy_lim1)) => hya_uMinus
+     hy_rope(1:NRECON,@M hy_bounds_lim) => hya_rope
+     hy_uPlus(1:NRECON,@M hy_bounds_lim) => hya_uPlus
+     hy_uMinus(1:NRECON,@M hy_bounds_lim) => hya_uMinus
 
 
      !$omp target teams distribute parallel do simd collapse(3)
-     @M loop_3d(hy_limgc)
-              if (hy_dir == IAXIS) then
+     @M hy_loop_limgc
+              if (dir == IAXIS) then
                  @M hy_setRope(i,j,k)
-              else if (hy_dir == JAXIS) then
+              else if (dir == JAXIS) then
                  @M hy_setRope(j,i,k)
-              else if (hy_dir == KAXIS) then
+              else if (dir == KAXIS) then
                  @M hy_setRope(j,k,i)
               endif
      @M loop_end_3d
@@ -171,7 +134,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_start("recon")
      !$omp target teams distribute parallel do simd collapse(4) &
      !$omp private( W5p, W5m, betaWeno, Alpha5, invSumAlpha, omega )
-     @M loop_3d(hy_klim)
+     @M hy_loop_lim
           do v=1,NRECON
              @M hy_recon
           enddo
@@ -181,7 +144,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_start("setrem")
      !$omp target teams distribute collapse(3) &
      !$omp private( spc, spcSumInv, spcSum )
-     @M loop_3d(hy_klim)
+     @M hy_loop_lim
               ! Limit and renormalize the species.
               @M hy_normalize_species( hy_uPlus )
               @M hy_normalize_species( hy_uMinus )
@@ -199,7 +162,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp    pStar, qStar, numerL, numerR, denomL, denomR, &
      !$omp    dStarL, dStarR, &
      !$omp    u2, E, B2, UB, Ptot )
-     @M loop_3d(hy_klim)
+     @M hy_loop_lim
               VL => hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR => hy_uMinus(1:HY_NUM_VARS,i,j,k) 
               Fstar => hy_flux(1:HY_NUM_FLUX,i,j,k)
@@ -211,10 +174,10 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_start("cvisc")
      !$omp target teams distribute parallel do simd collapse(3) &
      !$omp private( cvisc, VenerLo, VenerHi, im1 )
-     @M loop_3d(hy_klim)
+     @M hy_loop_lim
 
               ! Add artificial viscosity for strong-shock capturing
-              cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+hy_dir-1,i,j,k) - hy_rope(HY_VELX+hy_dir-1,i-1,j,k)),0.)
+              cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
               
               ! Construct minus and plus TOTAL energy densities
               im1 = i-1
@@ -268,24 +231,24 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      ! Fluxes computed for one face of this zone
      ! Save the fluxes
      ! ***************
-     select case(hy_dir)
+     select case(dir)
      case(IAXIS)
         !$omp target teams distribute parallel do simd collapse(4)
-        @M loop_3d(hy_klim)
+        @M hy_loop_lim
               do v = 1, NFLUXES
                  hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
               end do
         @M loop_end_3d
      case (JAXIS)
         !$omp target teams distribute parallel do simd collapse(4)
-        @M loop_3d(hy_klim)
+        @M hy_loop_lim
               do v = 1, NFLUXES
                  hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
               end do
         @M loop_end_3d
      case (KAXIS)
         !$omp target teams distribute parallel do simd collapse(4)
-        @M loop_3d(hy_klim)
+        @M hy_loop_lim
            do v = 1, NFLUXES
               hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
            end do
@@ -303,7 +266,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   nullify(hy_grv)
      
      
-  end do ! hy_dir
+  end do ! dir
 
   nullify(hy_grav)
   nullify(hy_flat3d)

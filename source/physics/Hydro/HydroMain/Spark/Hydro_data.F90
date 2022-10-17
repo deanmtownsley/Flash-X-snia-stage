@@ -51,8 +51,6 @@ module Hydro_data
   logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
   integer, dimension(NFLUXES) :: hy_fluxCorVars
   integer :: hy_geometry
-
-  
   logical :: hy_threadWithinBlock
   logical, dimension(NUNK_VARS) :: hy_gcMask
   ! Additional scratch storage for RK time stepping
@@ -71,9 +69,9 @@ module Hydro_data
 
   !! moved out from static physics routines to make it easier for data packet generation
 
-  integer, dimension(MDIM) :: hy_gCells
-  integer, dimension(LOW:HIGH,MDIM) :: hy_klim,hy_lim,hy_limgc,hy_lim1
-  integer :: hy_dir
+  integer, dimension(MDIM) :: gCells
+  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim1,lim,limgc
+  integer :: dir,stage
 
   real :: hy_cfl
   logical :: hy_hydroComputeDtFirstCall
@@ -115,7 +113,7 @@ module Hydro_data
   !$omp   hy_hybridRiemann, hy_flattening, &
   !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_bref, &
-  !$omp   hy_klim,hy_lim,hy_limgc,hy_lim1,hy_gCells, hy_dir)
+  !$omp   klim,lim,limgc,lim1,gCells, dir, stage)
 
 end module Hydro_data
 
