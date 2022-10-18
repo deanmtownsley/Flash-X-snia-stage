@@ -194,7 +194,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            hy_coeffs = hy_coeffArray(stage,:)
            
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, hy_coeffs)
+           call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
               wt=0.0
@@ -342,7 +342,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  @M hy_fill_geom
               endif
               
-              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, hy_coeffs)
+              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
               if (hy_geometry /= CARTESIAN) then
                  @M hy_release_geom
               end if
