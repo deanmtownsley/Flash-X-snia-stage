@@ -59,8 +59,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real,              pointer    :: Uin(:,:,:,:)
   type(Grid_tile_t)     :: tileDesc
   integer :: level
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC,grownLimits,&
-       locLimits,locLimitsGC
+  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC,grownLimits
+
   real,dimension(MDIM) :: deltas
 
   real,    intent(in) :: timeEndAdv, dt, dtOld
@@ -76,7 +76,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   @M hy_declare_scr_ptr
   
   integer :: lev
-  integer,dimension(MDIM) :: loGC, hiGC
   
   integer :: max_edge, max_edge_y, max_edge_z,space
   
@@ -93,8 +92,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   
   !$omp target enter data &
-  !$omp map( alloc: grownLimits, locLimits, locLimitsGC, &
-  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits ) 
+  !$omp map( alloc: grownLimits, blkLimits, blkLimitsGC, limits ) 
 
   
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
@@ -118,11 +116,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
 
-     ! DivB will technically be lagged by 1 step, but we need ghost zones to
-     ! compute the gradients. I ain't doing more communication for a diagnostic...
-        loGC(:) = blkLimitsGC(LOW,:)
-        hiGC(:) = blkLimitsGC(HIGH,:)
-
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
         endif
@@ -137,30 +130,35 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !$omp map( to: Uin )
         
         !$omp target update &
-        !$omp to( hy_del, grownLimits, locLimits, locLimitsGC, &
-        !$omp     blkLimits, blkLimitsGC, loGC, hiGC, limits )
-            
+        !$omp to( hy_del, grownLimits, blkLimits, blkLimitsGC, limits )
+
+        ! DivB will technically be lagged by 1 step, but we need ghost zones to
+        ! compute the gradients. I ain't doing more communication for a diagnostic...
+        
         ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
         call shockDetect(Uin,limits,blkLimitsGC)
 
-        ! Setup scratch storage of block data (grav included)
-        !---JaredC--- Send data to device and/or allocate arrays
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
-        ! U* = U0
-        !  The data is sent to the GPU at this point.
+
+
         @M hy_saveState
         
         call Timers_stop("scratch")
         
-        !---JaredC--- Action 3 
-        !Begin loop over stages
+        !! This macro (hy_stages_t) has a null implementation for the non-telescoping mode.
+        !! the next few lines compute all the index limits needed for all stages and directions
+        !! in hy_rk_getFaceFlux. These indices are now available to the routines through "use"
+        !! clause. I have done this to simplify the kernel launching in the GPU and also to
+        !! really inventory all data that needs to move to the device memory for computation
         @M hy_stages_t
            do dir=1,NDIM
               @M hy_calc_lim
            end do
+
         @M hy_end_stages_t    
+        !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
@@ -385,9 +383,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   hy_lChyp = TINY(1.0)
   
   !$omp target exit data &
-  !$omp map( release: grownLimits, locLimits, locLimitsGC, &
-  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits, &
-  !$omp      hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray)
+  !$omp map( release: grownLimits, blkLimits, blkLimitsGC, limits)
   
   call Timers_stop("Hydro")
   
