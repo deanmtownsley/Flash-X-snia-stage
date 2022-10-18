@@ -33,7 +33,7 @@ subroutine Hydro_init()
   use Logfile_interface,           ONLY : Logfile_stampMessage, &
        Logfile_stampVarMask, &
        Logfile_stamp
-  use Grid_interface,              ONLY : Grid_setFluxHandling
+  use Grid_interface,              ONLY : Grid_setFluxHandling, Grid_getMaxRefinement
   use IO_interface,                ONLY : IO_getScalar, IO_setScalar
 
   implicit none
@@ -112,6 +112,15 @@ subroutine Hydro_init()
      endif
   end if
   ! end if
+  !Array indicating whether to add flux into flux buffers (True)
+  !or overwrite them (False).
+  !This array will work for RK2 & RK3
+  
+  hy_addFluxArray = .true.
+  hy_addFluxArray(1)=.false.
+
+  !set up quantities specific to RK scheme (lives in Hydro_funcs)
+  
   call RuntimeParameters_get("hy_useTiling", hy_useTiling)
   call RuntimeParameters_get("telescoping", hy_telescoping)
   !! For correct flux correction in non-Cartesian geometry----------------------
@@ -173,11 +182,55 @@ subroutine Hydro_init()
 
   hy_bref = sqrt(4.0*PI)
 
+#ifdef FLASH_GRID_UG
+  hy_fluxCorrect = .false.
+  hy_maxLev = 1
+#else  
+  ! mode=1 means lrefine_max, which does not change during sim.
+  call Grid_getMaxRefinement(hy_maxLev, mode=1)
+#endif
+
+#ifdef HY_RK3
+  !RK3 quantities
+  !Stage 1 coefficients
+  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+  ! U1 =  1 * U0           +  1 * dt*L(U0)
+  !Stage 2 coefficients
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U2 = 3/4 * U0 + 1/4 * U1 + 1/4 * dt*L(U1)
+  !Stage 3 coefficients
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
+  !(remember FORTRAN is column major)
+  hy_coeffArray = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
+  !Array containing number of guard cells on each side for
+  !the telescoping update.
+  hy_limitsArray = (/2*NSTENCIL, NSTENCIL, 0/)
+  !Weights that scale the fluxes as they are added into the buffers.
+  !Here hy_weights is
+  the same as coeff used in Github pseudocode.
+  hy_weights = (/onesixth, onesixth, twothirds/)
+#else
+  !RK2 quantities
+  ! Stage 1 coefficients
+  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+  ! U1 =  1 * U0           +  1 * dt*L(U0)
+  ! Stage 2 coefficients
+  ! Now update solution based on conservative fluxes
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U2 = 1/2 * U0 + 1/2 * U1 + 1/2 * dt*L(U1)
+  hy_coeffArray = reshape((/1.,0.5,0.,0.,0.5,0.,1.,0.5,0./),(/3,3/))
+  hy_limitsArray = (/NSTENCIL, 0, 0/)
+  hy_weights = (/0.5,0.5,0./)
+#endif
+
+
   !$omp target update to &
   !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
   !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
   !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry, &
   !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
-  !$omp   hy_cfl, hy_telescoping )
+  !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
+  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev)
   
 end subroutine Hydro_init

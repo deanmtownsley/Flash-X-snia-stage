@@ -67,11 +67,6 @@ module Hydro_data
   real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
   real :: hy_bref
 
-  !! moved out from static physics routines to make it easier for data packet generation
-
-  integer, dimension(MDIM) :: gCells
-  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim1,lim,limgc
-  integer :: dir,stage
 
   real :: hy_cfl
   logical :: hy_hydroComputeDtFirstCall
@@ -79,9 +74,23 @@ module Hydro_data
   integer :: hy_gcMaskSize
   logical :: hy_restart
   logical :: hy_useHydro, hy_telescoping
-  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs
+  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs,hy_maxLev
+  logical, dimension(MAXSTAGE) :: hy_addFluxArray
+  real, dimension(3) :: hy_coeffs, hy_weights
+  integer, dimension(3) :: hy_limitsArray
+  real, dimension(3,3) :: hy_coeffArray
+  
 
-  ! System of units used
+
+  !! moved out from static physics routines to make it easier for data packet generation
+  !! this set of variables do not follow the standard naming convention because "_" is not usable
+  !! with macro-processor because it needs to be escaped for python
+  !! also they are not really module scope, they are being put here so that all the variable that
+  !! need to be explicitly mapped to the device memory are all in one place
+  
+  integer, dimension(MDIM) :: gCells
+  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim1,lim,limgc
+  integer :: dir,stage
 
   !$omp declare target to &
   !$omp ( hy_cfl, &
@@ -112,7 +121,8 @@ module Hydro_data
   !$omp   hy_gravConst, hy_4piGinv, &
   !$omp   hy_hybridRiemann, hy_flattening, &
   !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
-  !$omp   hy_bref, &
+  !$omp   hy_bref, hy_maxLev, hy_addFluxArray, &
+  !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
   !$omp   klim,lim,limgc,lim1,gCells, dir, stage)
 
 end module Hydro_data

@@ -24,7 +24,8 @@
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_scratch_use
-  use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping
+  use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping,hy_maxLev,&
+                         hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
@@ -69,10 +70,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer, dimension(LOW:HIGH,MDIM) :: limits
   real :: hdt,wt
   integer :: last_stage
-  real, dimension(3) :: coeffs, weights
-  integer, dimension(3) :: limits_array
-  real, dimension(3,3) :: coeff_array
-    logical, dimension (3) :: addFlux_array
+
   integer :: i,j,k,v,maxcells,ng
 
   @M hy_declare_scr_ptr
@@ -90,52 +88,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   hdt = 0.5*dt
   
-  !Array indicating whether to add flux into flux buffers (True)
-  !or overwrite them (False).
-  !This array will work for RK2 & RK3
-  addFlux_array = (/.false.,.true.,.true./)
-  !set up quantities specific to RK scheme (lives in Hydro_funcs)
 
-#ifdef HY_RK3
-  !RK3 quantities
-  !Stage 1 coefficients
-  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-  ! U1 =  1 * U0           +  1 * dt*L(U0)
-  !Stage 2 coefficients
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U2 = 3/4 * U0 + 1/4 * U1 + 1/4 * dt*L(U1)
-  !Stage 3 coefficients
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
-  !(remember FORTRAN is column major)
-  coeff_array = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
-  !Array containing number of guard cells on each side for
-  !the telescoping update.
-  limits_array = (/2*NSTENCIL, NSTENCIL, 0/)
-  !Weights that scale the fluxes as they are added into the buffers.
-  !Here weights is
-  the same as coeff used in Github pseudocode.
-  weights = (/onesixth, onesixth, twothirds/)
-#else
-  !RK2 quantities
-  ! Stage 1 coefficients
-  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-  ! U1 =  1 * U0           +  1 * dt*L(U0)
-  ! Stage 2 coefficients
-  ! Now update solution based on conservative fluxes
-  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
-  ! U2 = 1/2 * U0 + 1/2 * U1 + 1/2 * dt*L(U1)
-  coeff_array = reshape((/1.,0.5,0.,0.,0.5,0.,1.,0.5,0./),(/3,3/))
-  limits_array = (/NSTENCIL, 0, 0/)
-  weights = (/0.5,0.5,0./)
-#endif
   last_stage = MAXSTAGE
 
   
   !$omp target enter data &
   !$omp map( alloc: grownLimits, locLimits, locLimitsGC, &
-  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits ) &
-  !$omp map( to: coeffs, weights, limits_array, coeff_array, addFlux_array )
+  !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits ) 
+
   
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM
@@ -144,13 +104,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
   
-#ifdef FLASH_GRID_UG
-  hy_fluxCorrect = .false.
-  maxLev = 1
-#else  
-  ! mode=1 means lrefine_max, which does not change during sim.
-  call Grid_getMaxRefinement(maxLev, mode=1)
-#endif
   if(hy_telescoping) &
        call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
   !-------------------------------------------------------------------!
@@ -215,7 +168,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
-           ng=limits_array(stage)
+           ng=hy_limitsArray(stage)
            @M hy_setLims(ng)
            !$omp target update &
            !$omp to( limits )
@@ -240,14 +193,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
            
            !Set proper coefficients for the given stage
-           coeffs = coeff_array(stage,:)
+           hy_coeffs = hy_coeffArray(stage,:)
            
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+           call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, hy_coeffs)
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
               wt=0.0
-              if(addFlux_array(stage))wt=1.0
+              if(hy_addFluxArray(stage))wt=1.0
               @M hy_addFluxes
            end if
            
@@ -312,12 +265,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
-     do lev=maxLev,1,-1
+     do lev=hy_maxLev,1,-1
         
         !Once the finest level is completed, place averaged fine fluxes into
         !current coarse semipermanent flux storage (SPFS)
 
-        if (lev < maxLev) call Grid_communicateFluxes(ALLDIR,lev)
+        if (lev < hy_maxLev) call Grid_communicateFluxes(ALLDIR,lev)
         ! Loop over blocks and compute Hydro update block-by-block
         !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
 
@@ -351,7 +304,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
-              ng=limits_array(stage)
+              ng=hy_limitsArray(stage)
               @M hy_setLims(ng)
               
               ! Perform reconstruction and flux calculation
@@ -367,31 +320,31 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               !introduced on fine coarse boundaries.
               
               if (stage == last_stage) then
-                 if (lev < maxLev) then
+                 if (lev < hy_maxLev) then
                     
-                    call Grid_correctFluxData_xtra(tileDesc,1/weights(stage),&
+                    call Grid_correctFluxData_xtra(tileDesc,1/hy_weights(stage),&
                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
                          hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
                          hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
-                         blkLimits(LOW,:),-1/weights(stage),&
+                         blkLimits(LOW,:),-1/hy_weights(stage),&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
                  endif
               endif
               
               wt=0.0
-              if(addFlux_array(stage))wt=1.0
+              if(hy_addFluxArray(stage))wt=1.0
               @M hy_addFluxes
 
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-              coeffs = coeff_array(stage,:)
+              hy_coeffs = hy_coeffArray(stage,:)
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
               endif
               
-              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, coeffs)
+              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, limits, hy_coeffs)
               if (hy_geometry /= CARTESIAN) then
                  @M hy_release_geom
               end if
@@ -420,7 +373,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do!stage loop
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:),addFlux_array(stage))
+                blkLimits(LOW,:),hy_addFluxArray(stage))
 
            @M hy_release_scr_ptrs
            @M iter_end
@@ -434,7 +387,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !$omp target exit data &
   !$omp map( release: grownLimits, locLimits, locLimitsGC, &
   !$omp      blkLimits, blkLimitsGC, loGC, hiGC, limits, &
-  !$omp      coeffs, weights, limits_array, coeff_array, addFlux_array )
+  !$omp      hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray)
   
   call Timers_stop("Hydro")
   
