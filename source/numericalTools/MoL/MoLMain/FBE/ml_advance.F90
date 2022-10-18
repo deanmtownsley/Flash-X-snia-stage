@@ -36,7 +36,7 @@ subroutine ml_advance(t, dt)
    srcs = MOL_RHS
    facs = dt
 
-   call ml_calcRHS(MOL_RHS_EXPLICIT, MOL_RHS, t)
+   call ml_calcRHS(MOL_RHS_EXPLICIT, MOL_RHS, t, dt)
 
    call ml_memAddToVars(MOL_EVOLVED, 1d0, 1, srcs, facs)
 

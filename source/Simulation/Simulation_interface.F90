@@ -163,23 +163,29 @@ Module Simulation_interface
    !! MoL-specific functionality
 
    interface
-      subroutine Simulation_molExplicitRHS(t)
+      subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Simulation_molExplicitRHS
    end interface
 
    interface
-      subroutine Simulation_molImplicitRHS(t)
+      subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Simulation_molImplicitRHS
    end interface
 
    interface
-      subroutine Simulation_molFastRHS(t)
+      subroutine Simulation_molFastRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Simulation_molFastRHS
    end interface
 
