@@ -81,8 +81,8 @@ subroutine ml_advance(t, dt)
          end if
 
          ! Calculate the RHS terms for this stage
-         call ml_calcRHS(MOL_RHS_EXPLICIT, FE(sS), t_stage)
-         call ml_calcRHS(MOL_RHS_IMPLICIT, FI(sS), t_stage)
+         call ml_calcRHS(MOL_RHS_EXPLICIT, FE(sS), t_stage, ml_wBar(ml_nstages_slow, sS)*dt)
+         call ml_calcRHS(MOL_RHS_IMPLICIT, FI(sS), t_stage, ml_gamBar(ml_nstages_slow, sS)*dt)
       else
          ! Fast stage
          theta = 0d0
@@ -116,7 +116,7 @@ subroutine ml_advance(t, dt)
                end if
 
                if (dc .gt. 0d0) then
-                  call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage)
+                  call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage, ml_bF(sF)*dt)
                end if
 
                ! Scaled time for forcing term

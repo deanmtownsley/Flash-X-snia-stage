@@ -19,7 +19,7 @@
 !! @brief Implements ml_calcRHS for FBE
 !!
 !! @stubref{ml_calcRHS}
-subroutine ml_calcRHS(rhsType, rhsStruct, t)
+subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
    use ml_functions, only: ml_rhsE, ml_rhsF
 
    use ml_memInterface, only: ml_memZero
@@ -28,13 +28,12 @@ subroutine ml_calcRHS(rhsType, rhsStruct, t)
 
    integer, intent(in) :: rhsType, rhsStruct
    real, intent(in) :: t
+   real, intent(in) :: dtWeight
 
    ! Zero-out RHS memory
    call ml_memZero(rhsStruct)
 
-   ! No need to set an active RHS - only MOL_RHS exists
-   ! Both explicit and fast-explicit will be added here
-   call ml_rhsE(t)
-   call ml_rhsF(t)
+   call ml_rhsE(t, rhsStruct, dtWeight)
+   call ml_rhsF(t, rhsStruct, dtWeight)
 
 end subroutine ml_calcRHS

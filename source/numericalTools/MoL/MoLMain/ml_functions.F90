@@ -59,10 +59,12 @@ contains
    !> Explicit RHS default procedure
    !! @see mol_functiontypes::mol_rhs_t
    !! @param t The time to evaluate the RHS at
-   subroutine ml_rhsE_default(t)
+   subroutine ml_rhsE_default(t, activeRHS, dtWeight)
       implicit none
 
       real, intent(in) :: t
+      integer, intent(in) :: activeRHS
+      real, intent(in) :: dtWeight
 
       return
    end subroutine ml_rhsE_default
@@ -70,10 +72,12 @@ contains
    !> Implicit RHS default procedure
    !! @see mol_functiontypes::mol_rhs_t
    !! @param t The time to evaluate the RHS at
-   subroutine ml_rhsI_default(t)
+   subroutine ml_rhsI_default(t, activeRHS, dtWeight)
       implicit none
 
       real, intent(in) :: t
+      integer, intent(in) :: activeRHS
+      real, intent(in) :: dtWeight
 
       return
    end subroutine ml_rhsI_default
@@ -81,10 +85,12 @@ contains
    !> Fast RHS default procedure
    !! @see mol_functiontypes::mol_rhs_t
    !! @param t The time to evaluate the RHS at
-   subroutine ml_rhsF_default(t)
+   subroutine ml_rhsF_default(t, activeRHS, dtWeight)
       implicit none
 
       real, intent(in) :: t
+      integer, intent(in) :: activeRHS
+      real, intent(in) :: dtWeight
 
       return
    end subroutine ml_rhsF_default

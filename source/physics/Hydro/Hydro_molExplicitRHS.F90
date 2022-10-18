@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Hydro_molExplicitRHS(real, intent(in) :: t)
+!!      call Hydro_molExplicitRHS(real,    intent(in) :: t,
+!                                 integer, intent(in) :: activeRHS
+!!                                real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,14 +28,18 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weight timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Hydro_molExplicitRHS(t)
+subroutine Hydro_molExplicitRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine Hydro_molExplicitRHS

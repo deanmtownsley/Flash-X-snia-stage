@@ -51,7 +51,7 @@ subroutine ml_advance(t, dt)
          call ml_postUpdateFast(t + ml_c(s)*dt)
       end if
 
-      call ml_calcRHS(MOL_RHS_EXPLICIT, ml_K(s), t + ml_c(s)*dt)
+      call ml_calcRHS(MOL_RHS_EXPLICIT, ml_K(s), t + ml_c(s)*dt, ml_b(s)*dt)
    end do ! s
 
    ! Final linear combination
