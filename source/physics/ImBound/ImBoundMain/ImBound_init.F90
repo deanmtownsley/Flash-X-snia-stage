@@ -19,10 +19,10 @@
 !! SYNOPSIS
 !!
 !!  call ImBound_init()
-!!  
+!!
 !!
 !! DESCRIPTION
-!! 
+!!
 !!
 !!***
 
@@ -31,35 +31,44 @@
 
 subroutine ImBound_init(restart)
 
-  use ImBound_data
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface,            ONLY : Driver_getMype, Driver_getNumProcs, &
-                                          Driver_getComm
+   use ImBound_data
+   use ib_interface, ONLY: ib_readBody
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, &
+                               Driver_getComm
 
-  implicit none
-  include 'Flashx_mpi.h'
-  logical, intent(in) :: restart
+   implicit none
+   include 'Flashx_mpi.h'
+   logical, intent(in) :: restart
 
-  call RuntimeParameters_get("useImBound", ib_useImBound)
+   character(len=30) :: bodyFile
+   integer :: ibd
+   call RuntimeParameters_get("useImBound", ib_useImBound)
 
-  if (.NOT. ib_useImBound) RETURN
+   if (.NOT. ib_useImBound) RETURN
 
-  call Driver_getMype(MESH_COMM, ib_meshMe)
-  call Driver_getNumProcs(MESH_COMM, ib_meshNumProcs)
-  call Driver_getComm(MESH_COMM, ib_meshComm)
+   call Driver_getMype(MESH_COMM, ib_meshMe)
+   call Driver_getNumProcs(MESH_COMM, ib_meshNumProcs)
+   call Driver_getComm(MESH_COMM, ib_meshComm)
 
-  call RuntimeParameters_get("ib_rhoSolid",ib_rhoSolid)
-  call RuntimeParameters_get("ib_muSolid",ib_muSolid)
-  call RuntimeParameters_get("ib_thcoSolid",ib_thcoSolid)
-  call RuntimeParameters_get("ib_CpSolid",ib_CpSolid)
-  call RuntimeParameters_get("ib_lsIt",ib_lsIt)
+   call RuntimeParameters_get("ib_lsIt", ib_lsIt)
+   call RuntimeParameters_get("ib_numBodies", ib_numBodies)
+   call RuntimeParameters_get("ib_bodyName", ib_bodyName)
+   call RuntimeParameters_get("ib_enableSelectiveMapping", ib_enableSelectiveMapping)
 
- if (ib_meshMe .eq. MASTER_PE) then
-     write(*,*) 'ib_rhoSolid=',ib_rhoSolid
-     write(*,*) 'ib_muSolid=',ib_muSolid
-     write(*,*) 'ib_thcoSolid=',ib_thcoSolid
-     write(*,*) 'ib_CpSolid=',ib_CpSolid
-     write(*,*) 'ib_lsIt=',ib_lsIt
-  endif
+   if (ib_meshMe .eq. MASTER_PE) then
+      write (*, *) 'ib_lsIt=', ib_lsIt
+      write (*, *) 'ib_numBodies=', ib_numBodies
+      write (*, *) 'ib_bodyName=', ib_bodyName
+      write (*, *) 'ib_enableSelectiveMapping', ib_enableSelectiveMapping
+   end if
+
+   allocate (ib_bodyInfo(ib_numBodies))
+
+   do ibd = 1, ib_numBodies
+      write (bodyFile, "(A,A,I4.4)") trim(ib_bodyName), '_hdf5_ibd_', ibd
+      call ib_readBody(ib_bodyInfo(ibd), bodyFile)
+      call ib_bodyInfo(ibd)%buildTree()
+   end do
 
 end subroutine ImBound_init

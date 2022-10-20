@@ -1,4 +1,4 @@
-!!****if* source/physics/ImBound/ImBoundMain/ImBound_data
+!!****if* source/physics/ImBound/ImBoundMain/ImBound_getBodyPtr
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -29,37 +29,20 @@
 !!  This stores data and limiter functions that are specific to the ImBound module.
 !!
 !!***
+subroutine ImBound_getBodyPtr(bodyPtr, ibd)
 
-module ImBound_data
+   use ImBound_type, only: ImBound_type_t
+   use ImBound_data, only: ib_bodyInfo
+   use Driver_interface, only: Driver_abort
 
-#include "Simulation.h"
-#include "constants.h"
+   type(ImBound_type_t), pointer :: bodyPtr
+   integer, intent(in) :: ibd 
 
-   use ImBound_type, ONLY: ImBound_type_t
+   ! Avoid possible memory leaks
+   if (associated(bodyPtr)) then
+      call Driver_abort("[ImBound_getBodyPtr] Given data pointer must be NULL")
+   end if
 
-   implicit none
+   bodyPtr => ib_bodyInfo(ibd)
 
-   logical, save :: ib_useImBound
-
-   logical, save :: ib_enableSelectiveMapping
-
-   integer, save :: ib_lsIt
-
-   integer, save :: ib_meshMe
-   integer, save :: ib_meshNumProcs
-   integer, save :: ib_meshComm
-   integer, save :: ib_nstep
-
-   real, dimension(2), save :: ib_alfa
-   real, save :: ib_rhoa
-   real, save :: ib_gama
-
-   integer, save :: ib_iVelFVar
-
-   type(ImBound_type_t), save, dimension(:), allocatable, target :: ib_bodyInfo
-
-   character(len=20), save :: ib_bodyName
-
-   integer, save :: ib_numBodies
-
-end module ImBound_data
+end subroutine ImBound_getBodyPtr

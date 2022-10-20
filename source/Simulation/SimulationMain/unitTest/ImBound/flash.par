@@ -1,0 +1,59 @@
+#       Grid dimensionality and geometry
+geometry	= "cartesian"
+
+# level set iterations
+ib_lsIt = 3
+ib_enableSelectiveMapping = TRUE
+
+#       Size of computational volume
+xmin		=  -2.0
+xmax		=   2.0
+ymin		=  -5.0
+ymax		=   1.0
+zmin            =  -2.0
+zmax            =   2.0
+
+xl_boundary_type = "user-defined"
+xr_boundary_type = "user-defined"
+yl_boundary_type = "user-defined"
+yr_boundary_type = "user-defined"
+zl_boundary_type = "user-defined"
+zr_boundary_type = "user-defined"
+
+#       Simulation (grid, time, I/O) parameters
+run_comment	= "ImBound Unit Test"
+log_file	= "flash.log"
+basenm		= "flash_"
+restart         = .false.
+nend            = 400
+tmax            = 5. 
+ins_cflFlg      = 0
+ins_cfl         = 0.3
+ins_sigma	= 0.2
+ins_dtSpec      = 1.0d-2
+dtinit          = 1.0d-2
+tstep_change_factor = 1.0
+ins_pressureCorrect= .false.
+
+plot_var_1	= "lmda"
+plot_var_2      = "nmlx"
+plot_var_3      = "nmly"
+
+checkpointFileIntervalTime = 1.
+checkpointFileIntervalStep = 5
+
+plotFileIntervalTime = 1.
+plotFileIntervalStep = 5
+
+# AMR parameters
+nblockx	= 8
+nblocky	= 12
+nblockz = 8
+
+lrefine_min        = 1
+lrefine_max        = 1
+
+refine_var_count   = 1
+refine_var_1       = "lmda"
+refine_cutoff_1    =  0.0d0
+derefine_cutoff_1  = -0.01d0

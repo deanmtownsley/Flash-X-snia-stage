@@ -21,14 +21,6 @@ subroutine ImBound_getScalarProp(name, value)
   character(len=100)            :: errorMessage
 
   select case(name)
-     case("Solid_Density","solid_density","SOLID_DENSITY")
-       value = ib_rhoSolid
-     case("Solid_Viscosity","solid_viscosity","SOLID_VISCOSITY")
-       value = ib_muSolid
-     case("Solid_Conductivity","solid_conductivity","SOLID_CONDUCTIVITY")
-       value = ib_thcoSolid
-     case("Solid_Specific_Heat","solid_specific_heat","SOLID_SPECIFIC_HEAT")
-       value = ib_CpSolid
      case default
        value = 0.
        write(errorMessage,*) '[ImBound_getScalarProp] Unknown scalar: ',name

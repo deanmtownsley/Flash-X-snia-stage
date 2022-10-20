@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/Simulation/SimulationMain/unitTest/ImBound/Simulation_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +13,27 @@
 !!
 !! NAME
 !!
-!!  Imbound_finalize
-!!
+!!  Simulation_data
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
-!!  
+!!  use Simulation_data
 !!
 !! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
+!!
+!!  Stores the local data for Simulation setup: INS-iso-turb
 !!
 !!***
 
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
+module Simulation_data
 
   implicit none
 
-  deallocate(ib_bodyInfo)
+#include "constants.h"
 
-end subroutine ImBound_finalize
+  !! *** Runtime Parameters *** !!
+  real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
 
+  integer, save :: sim_meshMe
+
+end module Simulation_data

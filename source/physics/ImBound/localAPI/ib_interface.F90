@@ -1,0 +1,40 @@
+!!***if* source/physics/ImBound/localAPI/ib_interface
+!!
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!
+!!***
+module ib_interface
+
+   interface
+      subroutine ib_readBody(body, bodyFile)
+         use ImBound_type, ONLY: ImBound_type_t
+         implicit none
+         type(ImBound_type_t), intent(inout) :: body
+         character(len=*), intent(in) :: bodyFile
+      end subroutine ib_readBody
+   end interface
+
+   interface
+      subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+         use ImBound_type, ONLY: ImBound_type_t
+         implicit none
+         real, dimension(:, :, :), intent(inout) :: lmda
+         real, dimension(:), intent(in) :: xcenter, ycenter
+         type(ImBound_type_t), intent(in) :: body
+         integer, intent(in) :: ix1, ix2, jy1, jy2
+         real, intent(in) :: dx, dy
+      end subroutine ib_mapToGrid
+   end interface
+
+end module ib_interface
