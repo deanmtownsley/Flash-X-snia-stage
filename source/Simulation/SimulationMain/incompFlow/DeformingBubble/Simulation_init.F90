@@ -41,7 +41,7 @@ subroutine Simulation_init()
    use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
-                              sim_meshMe, sim_reInitFlow, &
+                              sim_meshMe, sim_reInitFlow, sim_runTest, &
                               sim_numBubbles, sim_bubbleLoc
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
@@ -59,9 +59,11 @@ subroutine Simulation_init()
    call RuntimeParameters_get('zmax', sim_zMax)
 
    call RuntimeParameters_get('sim_reInitFlow', sim_reInitFlow)
+   call RuntimeParameters_get('sim_runTest', sim_runTest)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'sim_reInitFlow =', sim_reInitFlow
+      write (*, *) 'sim_runTest =', sim_runTest
    end if
 
    ! Initialize dimensional scales
