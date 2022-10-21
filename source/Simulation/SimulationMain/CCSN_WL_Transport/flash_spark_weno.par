@@ -1,21 +1,22 @@
 # Parameters file for core-collapse SN
 
 # Simulation basics
-basenm			       = "ccsn1d_spark_weno"
+basenm			       = "ccsn1d_wl_transport_spark_weno_1km"
 restart			       = .false.
 checkpointFileNumber           = 0
 plotFileNumber                 = 0
-run_comment                    = "1.2*small{rho,T} mono(2) HLL minmod"
+#run_comment                    = "1.2*small{rho,T} mono(2) HLL minmod"
 #output_directory	       = "output"
 
 # IO  
 checkpointFileIntervalStep     = 0
 checkpointFileIntervalTime     = 0.01 
 plotFileIntervalStep           = 0
-plotFileIntervalTime           = 0.005
+plotFileIntervalTime           = 0.0005
 # wall_clock_checkpoint          = 7200.
 memory_stat_freq               = 20
 io_writeMscalarIntegrals       = .TRUE.
+eachprocwritessummary          = .TRUE.
 
 # Time 
 tinitial                       = 0.0
@@ -30,13 +31,13 @@ dr_dtMinBelowAction            = 1    # write chkpt then abort
 
 # Domain 
 geometry                       = "spherical"
-xmax                           = 7.e8 
+xmax                           = 7.68e8 
 xmin                           = 0.e0 
 xl_boundary_type               = "reflect" 
 xr_boundary_type               = "outflow"
 
 # Grid/Refinement
-nblockx                        = 20 
+nblockx                        = 15 
 nblocky                        = 1 
 nblockz                        = 1
 
@@ -50,8 +51,8 @@ gr_lrefineMaxRedLogBase        = 10.0
 gr_lrefineMaxRedTRef           = 2.0
 gr_lrefineMaxRedTimeScale      = 0.5
 
-lrefine_max                    = 4
-lrefine_min                    = 4
+lrefine_max                    = 6
+lrefine_min                    = 6
 refine_var_1                   = "dens"
 refine_var_2                   = "pres"
 refine_var_3                   = "none" 
@@ -65,7 +66,14 @@ plot_var_1                     = "dens"
 plot_var_2                     = "pres"
 plot_var_3                     = "temp"
 plot_var_4                     = "entr"
-
+plot_var_5                     = "velx"
+plot_var_6                     = "gpot"
+plot_var_7                     = "eint"
+plot_var_8                     = "ener"
+plot_var_9                     = "ye"
+plot_var_10                    = "t001"
+plot_var_11                    = "t002"
+plot_var_12                    = "shok"
 
 # Simulation
 #progenitor_model_file = "d96InitModel.txt"

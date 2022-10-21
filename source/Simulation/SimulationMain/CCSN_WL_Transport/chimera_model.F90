@@ -19,7 +19,7 @@ module chimera_model_module
 
   use, intrinsic :: iso_fortran_env, ONLY : dp=>real64
   use Driver_interface, ONLY : Driver_abort, Driver_getMype
-  use Multispecies_interface, ONLY : Multispecies_getProperty
+  !use Multispecies_interface, ONLY : Multispecies_getProperty
   use PhysicalConstants_interface, ONLY : PhysicalConstants_get
   use hdf5
   use hdf5_read_write
@@ -28,7 +28,7 @@ module chimera_model_module
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Multispecies.h"
+!#include "Multispecies.h"
 
   real (dp), parameter :: zero = 0.0_dp
   real (dp), parameter :: one = 1.0_dp
@@ -419,6 +419,8 @@ contains
     ! close fluid group
     call h5gclose_f(group_id, ierr)
 
+#ifdef FLASH_MULTISPECIES
+
     ! open abundance group
     call h5gopen_f(file_id, '/abundance', group_id, ierr)
     if (ierr /= 0) call Driver_abort('Could not open /abundance group')
@@ -521,6 +523,8 @@ contains
 
     ! close abundance group
     call h5gclose_f(group_id, ierr)
+
+#endif
 
 #ifdef FLASH_PARTICLES
     ! open particle group
