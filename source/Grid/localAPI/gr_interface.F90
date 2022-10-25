@@ -263,12 +263,6 @@ module gr_interface
   end interface
 
   interface
-     subroutine gr_setBlockType(blockID,type)
-       integer, intent(IN) :: blockID, type
-     end subroutine gr_setBlockType
-  end interface
-
-  interface
      subroutine gr_xyzToBlockLevel(lev, xyz, ijk)
        integer, intent(in) :: lev
        real, intent(in) :: xyz(NDIM)
