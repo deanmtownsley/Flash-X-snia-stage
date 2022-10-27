@@ -52,6 +52,7 @@ subroutine amr_prolong_gen_unk1_fun &
   use Grid_data,ONLY: gr_convertToConsvdForMeshCalls, gr_convertToConsvdInMeshInterp, &
        gr_delta, gr_globalDomain, &
        gr_vartypes, gr_dirGeom, gr_smallx, gr_intpol
+  use umap, ONLY: umap1, umap2, umap3
 
   implicit none
 #include "constants.h"
