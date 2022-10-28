@@ -43,13 +43,13 @@ subroutine amr_prolong_gen_work1_fun &
   
   use workspace, ONLY : work1
   use Grid_interface, ONLY : Grid_getCellCoords
+  use tree, ONLY : bnd_box, lrefine
   use Driver_interface, ONLY : Driver_abort
 
-  use Grid_data,ONLY: gr_dirGeom, gr_smallx, gr_intpol
-#ifndef FLASH_GRID_AMREX
-  ! We should not be compiling this file in the FLASH_GRID_AMREX case anyway!
-  use gr_specificData,ONLY: gr_oneBlock
-#endif
+  use Grid_data,ONLY: gr_delta, gr_globalDomain, &
+       gr_dirGeom, gr_smallx, gr_intpol
+  use umap, ONLY: umap1, umap2, umap3
+
   implicit none
 #include "constants.h"
   
@@ -80,7 +80,9 @@ subroutine amr_prolong_gen_work1_fun &
   integer, intent(IN) :: idest, isg, mype, ia, ib, ja, jb, ka, kb,ioff,joff,koff
 
   integer :: i,j,k
+  integer :: level
   integer :: i1,j1,k1,offia,offib,offic,offoa,offob,offoc
+  integer,dimension(MDIM) :: lo,loGC,hiGC
   
   real, dimension(GRID_ILO_GC:GRID_IHI_GC) :: xo, xi
   real, dimension(GRID_JLO_GC:GRID_JHI_GC) :: yo, yi
@@ -126,15 +128,15 @@ subroutine amr_prolong_gen_work1_fun &
 
 #ifdef DEBUG_GRID
   if ( max(NXB,NYB,NZB) + 2*NGUARD > mvx_m ) then
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: umap.h workspace too small; mvx_m < max(NXB,NYB,NZB) + 2*NGUARD")
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: umap.h workspace too small; mvx_m < max(NXB,NYB,NZB) + 2*NGUARD")
   end if
   
   if ( mui_m < NUNK_VARS ) then
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: umap.h workspace too small; mui_m < FLASH_NUMBER_OF_VARIABLES ")
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: umap.h workspace too small; mui_m < FLASH_NUMBER_OF_VARIABLES ")
   end if
   
   if(NGUARD<twice_iguard) then
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: not enough guardcells to support asked for interpolation")
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: not enough guardcells to support asked for interpolation")
   end if
   
 #endif
@@ -162,8 +164,17 @@ subroutine amr_prolong_gen_work1_fun &
   xoend = ib-ia+1
   xiend = (ib-ia+ref_ratio)/ref_ratio + min(1,mod(ib-ia,ref_ratio)*mod(ib+NGUARD,ref_ratio)) + twice_iguard
   
-!!$  call Grid_getCellCoords(IAXIS,isg,CENTER,.true.,xi,GRID_IHI_GC)
-  xi(:)=gr_oneBlock(isg)%firstAxisCoords(CENTER,:)
+  level = lrefine(isg)               ! refinement level of the child
+
+  lo(1:NDIM) = nint((bnd_box(LOW,1:NDIM,isg) - gr_globalDomain(LOW,1:NDIM)) &
+                    / gr_delta(1:NDIM,level)) + 1
+  lo(NDIM+1:MDIM) = 1
+
+  loGC(1:NDIM) = lo(1:NDIM) - NGUARD
+  loGC(NDIM+1:MDIM) = 1
+  hiGC(1:MDIM) = lo(1:MDIM) + (/NXB+NGUARD,NYB+NGUARD*K2D,NZB+NGUARD*K3D/) - 1
+
+  call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, xi)
   pdx = xi(2) - xi(1)
   cdx = 0.5e0*pdx
 
@@ -184,8 +195,7 @@ subroutine amr_prolong_gen_work1_fun &
   yoend = jb-ja+1
   yiend = (jb-ja+ref_ratio)/ref_ratio + min(1,mod(jb-ja,ref_ratio)*mod(jb+NGUARD,ref_ratio)) + twice_iguard
 
-!!$  call Grid_getCellCoords(JAXIS,isg,CENTER,.true.,yi,GRID_JHI_GC)
-  yi(:)=gr_oneBlock(isg)%secondAxisCoords(CENTER,:)
+  call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, yi)
   pdy = yi(2) - yi(1)
   cdy = 0.5e0*pdy
   
@@ -207,8 +217,7 @@ subroutine amr_prolong_gen_work1_fun &
   zoend = kb-ka+1
   ziend = (kb-ka+ref_ratio)/ref_ratio + min(1,mod(kb-ka,ref_ratio)*mod(kb+NGUARD,ref_ratio)) + twice_iguard
 
-!!$  call Grid_getCellCoords(KAXIS,isg,CENTER,.true.,zi,GRID_KHI_GC)
-  zi(:)=gr_oneBlock(isg)%thirdAxisCoords(CENTER,:)
+  call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, zi)
   pdz = zi(2) - zi(1)
   cdz = 0.5e0*pdz
   
@@ -230,29 +239,29 @@ subroutine amr_prolong_gen_work1_fun &
   ! optional check of array dimensioning
 
   if ( size(pu,1) < inxu ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu size too small along dim 1: ',size(pu,1),' < ',niver*xiend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu too small along dim 1")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu size too small along dim 1: ',size(pu,1),' < ',niver*xiend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu too small along dim 1")
   end if
   if ( size(pu,2) < yiend ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu size too small along dim 2: ',size(pu,2),' < ',yiend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu too small along dim 2")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu size too small along dim 2: ',size(pu,2),' < ',yiend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu too small along dim 2")
   end if
   if ( size(pu,3) < ziend ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu size too small along dim 3: ',size(pu,3),' < ',ziend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: pu too small along dim 3")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu size too small along dim 3: ',size(pu,3),' < ',ziend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: pu too small along dim 3")
   end if
 
   if ( size(qu,1) < onxu ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu size too small along dim 1: ',size(qu,1),' < ',niver*xoend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu too small along dim 1")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu size too small along dim 1: ',size(qu,1),' < ',niver*xoend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu too small along dim 1")
   end if
   if ( size(qu,2) < yoend ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu size too small along dim 2: ',size(qu,2),' < ',yoend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu too small along dim 2")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu size too small along dim 2: ',size(qu,2),' < ',yoend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu too small along dim 2")
   end if
   if ( size(qu,3) < zoend ) then
-     write(*,*) '[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu size too small along dim 3: ',size(qu,3),' < ',zoend
-     call Driver_abort("[AMR_PROLONG_GEN_UNK_FUN] ERROR: qu too small along dim 3")
+     write(*,*) '[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu size too small along dim 3: ',size(qu,3),' < ',zoend
+     call Driver_abort("[AMR_PROLONG_GEN_WORK1_FUN] ERROR: qu too small along dim 3")
   end if
 #endif
 

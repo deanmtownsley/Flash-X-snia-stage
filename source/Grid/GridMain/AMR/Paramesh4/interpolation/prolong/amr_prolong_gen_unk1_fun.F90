@@ -43,16 +43,17 @@ subroutine amr_prolong_gen_unk1_fun &
      &       (recv, ia, ib, ja, jb, ka, kb, idest, & 
      &        ioff, joff, koff, mype, isg)
   
-  
+
+  use Grid_interface, ONLY: Grid_getCellCoords
   use physicaldata, ONLY : unk1, gcell_on_cc
+  use tree, ONLY : bnd_box, lrefine
   use Driver_interface, ONLY : Driver_abort
 
   use Grid_data,ONLY: gr_convertToConsvdForMeshCalls, gr_convertToConsvdInMeshInterp, &
+       gr_delta, gr_globalDomain, &
        gr_vartypes, gr_dirGeom, gr_smallx, gr_intpol
-#ifndef FLASH_GRID_AMREX
-  ! We should not be compiling this file in the FLASH_GRID_AMREX case anyway!
-  use gr_specificData,ONLY: gr_oneBlock
-#endif
+  use umap, ONLY: umap1, umap2, umap3
+
   implicit none
 #include "constants.h"
   
@@ -91,7 +92,9 @@ subroutine amr_prolong_gen_unk1_fun &
   integer, intent(IN) :: idest, isg, mype, ia, ib, ja, jb, ka, kb,ioff,joff,koff
 
   integer :: i,j,k,ivar,last_var
+  integer :: level
   integer :: i1,j1,k1,offia,offib,offic,offoa,offob,offoc
+  integer,dimension(MDIM) :: lo,loGC,hiGC
   
   real, dimension(GRID_ILO_GC:GRID_IHI_GC) :: xo, xi
   real, dimension(GRID_JLO_GC:GRID_JHI_GC) :: yo, yi
@@ -218,7 +221,7 @@ subroutine amr_prolong_gen_unk1_fun &
 !     3     (ia+2)/2 - 2     1                -1         ia-1      3               0
 !     4     (ia+3)/2 - 2     2                 0         ia-1      4               0
 !     5     (ia+4)/2 - 2     3                 0         ia-1      5               0
-!     6     (ia+5)/3 - 2     4                 1         ia-1      6               0
+!     6     (ia+5)/2 - 2     4                 1         ia-1      6               0
   
   xoend = ib-ia+1
 !!$  xiend = xoend/ref_ratio + twice_iguard
@@ -230,9 +233,26 @@ subroutine amr_prolong_gen_unk1_fun &
 !     4     xoend/2 + 4      NXB/2 + 4  (8 or 12)   ib-ia+1   NXB                           4
 !     6     xoend/2 + 4      NXB/2 + 4 ([8 or]12)   ib-ia+1   NXB                           6
 !!NOW:...
-  
-!!$  call Grid_getCellCoords(IAXIS,isg,CENTER,.true.,xi,GRID_IHI_GC)
-  xi(:)=gr_oneBlock(isg)%firstAxisCoords(CENTER,:)
+!   NGUARD   xiend                                       xiend, xoend (len([ia..lb]=NXB)       xoend  xiend,xoend(ia/b=1..NGUARD)  xiend(ia/b=NXB+NGUARD+1..NXB+2*NGUARD)
+!   =====================================================================================================================================================================
+!     2   ceil(xoend/2.)+evn(xoend)*odd(ib+NGUARD)+4  NXB/2+odd(ib+2)+4  (8,9 or 12,13), NXB  ib-ia+1   1+1*0 + 4,  2                     1+1*0 + 4
+!     3   ceil(xoend/2.)+evn(xoend)*odd(ib+NGUARD)+4  NXB/2+odd(ib+3)+4  (8,9 or 12,13), NXB  ib-ia+1   2+0*0 + 4,  3                     2+0*1 + 4
+!     4   ceil(xoend/2.)+evn(xoend)*odd(ib+NGUARD)+4  NXB/2+odd(ib+4)+4  (8,9 or 12,13), NXB  ib-ia+1   2+1*0 + 4,  4                     2+1*0 + 4
+!     5   ceil(xoend/2.)+evn(xoend)*odd(ib+NGUARD)+4  NXB/2+odd(ib+5)+4 ([8,9 or]12,13), NXB  ib-ia+1   3+0*0 + 4,  5                     3+0*1 + 4
+!     6   ceil(xoend/2.)+evn(xoend)*odd(ib+NGUARD)+4  NXB/2+odd(ib+6)+4 ([8,9 or]12,13), NXB  ib-ia+1   3+1*0 + 4,  6                     3+1*0 + 4
+
+
+  level = lrefine(isg)               ! refinement level of the child
+
+  lo(1:NDIM) = nint((bnd_box(LOW,1:NDIM,isg) - gr_globalDomain(LOW,1:NDIM)) &
+                    / gr_delta(1:NDIM,level)) + 1
+  lo(NDIM+1:MDIM) = 1
+
+  loGC(1:NDIM) = lo(1:NDIM) - NGUARD
+  loGC(NDIM+1:MDIM) = 1
+  hiGC(1:MDIM) = lo(1:MDIM) + (/NXB+NGUARD,NYB+NGUARD*K2D,NZB+NGUARD*K3D/) - 1
+
+  call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, xi)
   pdx = xi(2) - xi(1)
   cdx = 0.5e0*pdx
 
@@ -255,8 +275,7 @@ subroutine amr_prolong_gen_unk1_fun &
 !!$  yiend = yoend/ref_ratio + twice_iguard
   yiend = (jb-ja+ref_ratio)/ref_ratio + min(1,mod(jb-ja,ref_ratio)*mod(jb+NGUARD,ref_ratio)) + twice_iguard
 
-!!$  call Grid_getCellCoords(JAXIS,isg,CENTER,.true.,yi,GRID_JHI_GC)
-  yi(:)=gr_oneBlock(isg)%secondAxisCoords(CENTER,:)
+  call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, yi)
   pdy = yi(2) - yi(1)
   cdy = 0.5e0*pdy
   
@@ -280,8 +299,7 @@ subroutine amr_prolong_gen_unk1_fun &
 !!$  ziend = zoend/ref_ratio + twice_iguard
   ziend = (kb-ka+ref_ratio)/ref_ratio + min(1,mod(kb-ka,ref_ratio)*mod(kb+NGUARD,ref_ratio)) + twice_iguard
 
-!!$  call Grid_getCellCoords(KAXIS,isg,CENTER,.true.,zi,GRID_KHI_GC)
-  zi(:)=gr_oneBlock(isg)%thirdAxisCoords(CENTER,:)
+  call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, zi)
   pdz = zi(2) - zi(1)
   cdz = 0.5e0*pdz
   
