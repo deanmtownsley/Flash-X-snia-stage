@@ -12,7 +12,9 @@
 
 #include "Simulation.h" 
 
-
+      Module umap
+      implicit none
+      contains
         subroutine mapcx
      &               ( nx,x,hdx,mx,xx,hdxx,
      &                 ix,dxm,dx,dxp,dxpp,
@@ -245,7 +247,7 @@
            end do
         end if
         return
-        end
+        end subroutine mapcx
         
 *
 * --------------- UMAP1.F ---------------
@@ -503,7 +505,7 @@
 *
 * end of UMAP1
 *
-        end
+        end subroutine umap1
  
 
 
@@ -829,7 +831,7 @@
 *
 * end of MAP1
 *
-        end
+        end subroutine map1
 
 
 
@@ -1077,7 +1079,7 @@
 *
 * end of MAP1_F2D
 *
-        end
+        end subroutine map1_f2d
         
 *
 * --------------- UMAP2.F ---------------
@@ -1390,7 +1392,7 @@
 *
 * end of UMAP2
 *
-        end
+        end subroutine umap2
  
 
 
@@ -1903,7 +1905,7 @@
 *
 * end of MAP2
 *
-        end
+        end subroutine map2
  
 
 
@@ -2137,7 +2139,7 @@
 *
 * end of MAP2_F2D
 *
-        end
+        end subroutine map2_f2d
         
 *
 * --------------- UMAP3.F ---------------
@@ -2581,7 +2583,7 @@
 *
 * end of UMAP3
 *
-        end
+        end subroutine umap3
  
 
         subroutine map3
@@ -3203,7 +3205,7 @@
 *
 * end of MAP3
 *
-        end
+        end subroutine map3
  
 
 
@@ -3447,4 +3449,5 @@
 *
 * end of MAP3_F2D
 *
-        end
+        end subroutine map3_f2d
+      end Module umap

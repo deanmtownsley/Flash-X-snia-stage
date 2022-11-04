@@ -1,4 +1,4 @@
-!!****if* source/physics/RadTrans/RadTrans_computeDt
+!!****f* source/physics/RadTrans/RadTrans_computeDt
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -33,13 +33,9 @@
 !!
 !!***
 
-!!REORDER(4): solnData
-
 subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
   
   use Grid_tile, ONLY : Grid_tile_t
-
-#include "constants.h"
 
   implicit none
 

@@ -59,7 +59,6 @@
 !!
 !!***
 
-!!REORDER(4): solnData
 
 subroutine gr_mpoleCen2Dcylindrical (idensvar)
 
