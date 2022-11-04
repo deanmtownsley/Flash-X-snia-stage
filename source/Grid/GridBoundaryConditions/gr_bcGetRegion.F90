@@ -484,7 +484,7 @@ subroutine gr_bcGetRegionsMixedGds(gridDataStruct,axis,secondDir,thirdDir,endPoi
 #endif
 #ifdef FLASH_GRID_AMREX
   use gr_physicalMultifabs, ONLY : unk, &
-                                   facevarx, facevary, facevarz
+                                   facevars
 #endif
 
   implicit none

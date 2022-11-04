@@ -61,7 +61,7 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   use Grid_iterator,             ONLY : Grid_iterator_t
   use Grid_tile,                 ONLY : Grid_tile_t
   use gr_physicalMultifabs,      ONLY : unk, &
-                                        facevarx, facevary, facevarz
+                                        facevars
   use Driver_interface,          ONLY : Driver_abort
 
   implicit none
@@ -149,44 +149,21 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   end if
 
 #if NFACE_VARS > 0
-  !!!!! FACE-CENTERED DATA
+  !!!! FACE-CENTERED DATA
   if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX)) then
+      .OR. (gridDataStruct == FACES)) then
     do lev = finest_level, 1, -1
-        call amrex_average_down(facevarx(lev  ), &
-                                facevarx(lev-1), &
-                                amrex_geom(lev  ), &
-                                amrex_geom(lev-1), &
-                                1, NFACE_VARS, &
-                                amrex_ref_ratio(lev-1))
+        do dir = 1, NDIM
+           call amrex_average_down(facevars(lev  , dir), &
+                                   facevars(lev-1, dir), &
+                                   amrex_geom(lev  ), &
+                                   amrex_geom(lev-1), &
+                                   1, NFACE_VARS, &
+                                   amrex_ref_ratio(lev-1))
+        end do
     end do 
   end if
-#if NDIM >= 2
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEY)) then
-    do lev = finest_level, 1, -1
-        call amrex_average_down(facevary(lev  ), &
-                                facevary(lev-1), &
-                                amrex_geom(lev  ), &
-                                amrex_geom(lev-1), &
-                                1, NFACE_VARS, &
-                                amrex_ref_ratio(lev-1))
-    end do 
-  end if
-#endif
-#if NDIM == 3
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEZ)) then
-    do lev = finest_level, 1, -1
-        call amrex_average_down(facevarz(lev  ), &
-                                facevarz(lev-1), &
-                                amrex_geom(lev  ), &
-                                amrex_geom(lev-1), &
-                                1, NFACE_VARS, &
-                                amrex_ref_ratio(lev-1))
-    end do 
-  end if
-#endif
+
 #else
   if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
       .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then

@@ -114,7 +114,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                         gr_meshMe, gr_meshComm, &
                                         gr_gcellsUpToDate, &
                                         gr_interpolator, &
-                                        lo_bc_amrex, hi_bc_amrex
+                                        lo_bc_amrex, hi_bc_amrex, &
+                                        lo_bc_amrexFace, hi_bc_amrexFace
   use Eos_interface,             ONLY : Eos_guardCells
   use Driver_interface,          ONLY : Driver_abort
   use Timers_interface,          ONLY : Timers_start, Timers_stop
@@ -133,7 +134,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                         gr_makeMaskConsistent_gen
   use gr_specificData,           ONLY : gr_bndGCFillNeedsPrimitiveVars
   use gr_physicalMultifabs,      ONLY : unk, &
-                                        facevarx, facevary, facevarz
+                                        facevars
   use Grid_iterator,             ONLY : Grid_iterator_t
   use Grid_tile,                 ONLY : Grid_tile_t
 
@@ -510,76 +511,45 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   ! Fill FACEVARX GC if it exists and is so desired
   ! DEV: TODO Do we need C-to-P conversion here for face vars?
   if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX)) then
+      .OR. (gridDataStruct == FACES)) then
      lev = 0
-     call amrex_fillpatch(facevarx(lev), 1.0, facevarx(lev), &
-                                         0.0, facevarx(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
+
+     do dir = 1, NDIM
+        call amrex_fillpatch(facevars(lev, dir), &
+                             1.0, facevars(lev, dir), &
+                             0.0, facevars(lev, dir), &
+                             amrex_geom(lev), gr_fillPhysicalBC, &
+                             0.0, 1, 1, NFACE_VARS)
+     end do
 
      do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevarx(lev), 1.0, facevarx(lev-1), &
-                                            0.0, facevarx(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevarx(lev  ), &
-                                            0.0, facevarx(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
-     end do
-  end if
-#if NDIM >= 2
-  ! Fill FACEVARY GC if it exists and is so desired
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEY)) then
-     lev = 0
-     call amrex_fillpatch(facevary(lev), 1.0, facevary(lev), &
-                                         0.0, facevary(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
-
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevary(lev), 1.0, facevary(lev-1), &
-                                            0.0, facevary(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevary(lev  ), &
-                                            0.0, facevary(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
-     end do
-  end if
+        call amrex_fillpatch(facevars(lev, :), &
+                             1.0, facevars(lev-1, :), &
+                             0.0, facevars(lev-1, :), &
+                             amrex_geom(lev-1), &
+                             gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+        &                    gr_fillPhysicalBC, &
 #endif
-#if NDIM == 3
-  ! Fill FACEVARZ GC if it exists and is so desired
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEZ)) then
-     lev = 0
-     call amrex_fillpatch(facevarz(lev), 1.0, facevarz(lev), &
-                                         0.0, facevarz(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
-
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevarz(lev), 1.0, facevarz(lev-1), &
-                                            0.0, facevarz(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevarz(lev  ), &
-                                            0.0, facevarz(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
+                             1.0, facevars(lev  , :), &
+                             0.0, facevars(lev  , :), &
+                             amrex_geom(lev  ), &
+                             gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+        &                    gr_fillPhysicalBC, &
+#endif
+                             0.0, 1, 1, NFACE_VARS, &
+                             amrex_ref_ratio(lev-1), gr_interpolatorFace, &
+                             lo_bc_amrexFace, hi_bc_amrexFace)
      end do
   end if
-#endif
+
 #else
   if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
       .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
     call Driver_abort("[Grid_fillGuardCells] No face data to work with")
   end if
+
 #endif
 
   call Timers_stop("eos gc")
