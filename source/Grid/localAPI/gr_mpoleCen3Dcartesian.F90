@@ -53,7 +53,6 @@
 !!
 !!***
 
-!!REORDER(4): solnData
 
 subroutine gr_mpoleCen3Dcartesian (idensvar)
 

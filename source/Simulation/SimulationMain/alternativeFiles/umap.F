@@ -12,7 +12,9 @@
 
 #include "Simulation.h" 
 
-
+      Module umap
+      implicit none
+      contains
         subroutine mapcx
      &               ( nx,x,hdx,mx,xx,hdxx,
      &                 ix,dxm,dx,dxp,deltaXi,
@@ -297,7 +299,7 @@ c$$$              dxpp(ii) = dvz !! NOT: dvr * dvrli ! dvfr
         a3_b3 = ( a - b )*( a*a + a*b + b*b )
         end function
         
-        end
+        end subroutine mapcx
         
 *
 * --------------- UMAP1.F ---------------
@@ -558,7 +560,7 @@ c$$$              dxpp(ii) = dvz !! NOT: dvr * dvrli ! dvfr
 *
 * end of UMAP1
 *
-        end
+        end subroutine umap1
  
 
 
@@ -914,7 +916,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP1
 *
-        end
+        end subroutine map1
 
 
 
@@ -1162,7 +1164,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP1_F2D
 *
-        end
+        end subroutine map1_f2d
         
 *
 * --------------- UMAP2.F ---------------
@@ -1477,7 +1479,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of UMAP2
 *
-        end
+        end subroutine umap2
  
 
 
@@ -1990,7 +1992,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP2
 *
-        end
+        end subroutine map2
  
 
 
@@ -2224,7 +2226,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP2_F2D
 *
-        end
+        end subroutine map2_f2d
         
 *
 * --------------- UMAP3.F ---------------
@@ -2670,7 +2672,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of UMAP3
 *
-        end
+        end subroutine umap3
  
 
         subroutine map3
@@ -3292,7 +3294,7 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP3
 *
-        end
+        end subroutine map3
  
 
 
@@ -3536,4 +3538,5 @@ c$$$              print*,'I,L,dXim,dXi,dXip:',i,l,dXim,dXi,dXip
 *
 * end of MAP3_F2D
 *
-        end
+        end subroutine map3_f2d
+      end Module umap

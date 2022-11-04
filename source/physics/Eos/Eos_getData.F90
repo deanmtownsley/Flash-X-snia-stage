@@ -97,9 +97,6 @@
 !!
 !!***
 
-! solnData depends on the ordering on unk
-!!REORDER(4): solnData
-
 
 subroutine Eos_getData(range,vecLen,solnData,gridDataStruct,eosData,massFrac, eosMask)
 
