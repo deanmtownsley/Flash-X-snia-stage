@@ -188,7 +188,7 @@ subroutine gr_bcGetRegion(gridDataStruct,axis,endPoints,regionSize,mask,&
   ! DEV: TODO How to manage casting from multifab real to FLASH real?
   use amrex_fort_module,    ONLY : wp => amrex_real
   use gr_physicalMultifabs, ONLY : unk, &
-                                   facevarx, facevary, facevarz
+                                   facevars
 #endif
 
   implicit none

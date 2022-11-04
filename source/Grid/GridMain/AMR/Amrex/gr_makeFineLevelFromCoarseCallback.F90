@@ -78,7 +78,7 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
 
     use Grid_data,                 ONLY : gr_doFluxCorrection, &
                                           gr_amrexDidRefinement, &
-                                          gr_interpolator, &
+                                          gr_interpolator, gr_interpolatorFace, &
                                           lo_bc_amrex, hi_bc_amrex, &
                                           lo_bc_amrexFace, hi_bc_amrexFace, &
                                           gr_meshMe

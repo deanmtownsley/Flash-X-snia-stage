@@ -96,7 +96,7 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
                                           lo_bc_amrexFace, hi_bc_amrexFace, &
                                           gr_amrexDidRefinement, &
                                           gr_doFluxCorrection, &
-                                          gr_interpolator, &
+                                          gr_interpolator, gr_interpolatorFace, &
                                           gr_meshMe
     use gr_amrexInterface,         ONLY : gr_clearLevelCallback, &
                                           gr_preinterpolationWork, &

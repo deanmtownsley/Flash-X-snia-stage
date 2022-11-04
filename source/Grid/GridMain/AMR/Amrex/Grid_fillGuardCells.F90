@@ -113,7 +113,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                         gr_smalle, &
                                         gr_meshMe, gr_meshComm, &
                                         gr_gcellsUpToDate, &
-                                        gr_interpolator, &
+                                        gr_interpolator, gr_interpolatorFace, &
                                         lo_bc_amrex, hi_bc_amrex, &
                                         lo_bc_amrexFace, hi_bc_amrexFace
   use Eos_interface,             ONLY : Eos_guardCells
@@ -160,7 +160,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t)     :: tileDesc
 
-  integer :: ierr
+  integer :: ierr, dir
 
   logical :: needEos
   logical :: needConversionGlobal

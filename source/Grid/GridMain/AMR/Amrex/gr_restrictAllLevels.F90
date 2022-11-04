@@ -78,6 +78,8 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
 
   real, pointer :: solnData(:,:,:,:)
 
+  integer :: dir
+
   nullify(solnData)
 
   if (       (gridDataStruct /= CENTER) .AND. (gridDataStruct /= CENTER_FACES) &
