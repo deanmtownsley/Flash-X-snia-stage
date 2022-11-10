@@ -2,7 +2,7 @@
 # (restart picks up from 0.1s)
 [AMR_unsplit_1D]
     testNode = "Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib"
-    setupOptions = "-auto -debug -1d +spherical -nxb=16 +pm4dev +hdf5 +newMpole +uhd"
+    setupOptions = "-auto -1d +spherical -nxb=16 +pm4dev +hdf5 +newMpole +uhd"
     parFile = "test_amr_unsplit_1d.par"
     errTol = 8.0e-12
     transfers = "source/Simulation/SimulationMain/CCSN_WL/s15s7b2_short source/physics/Eos/EosMain/WeakLib/tables/wl-EOS-SFHo-15-25-50-noBCK.h5"
