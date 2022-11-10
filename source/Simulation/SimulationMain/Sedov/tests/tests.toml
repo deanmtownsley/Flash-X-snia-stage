@@ -169,5 +169,23 @@
     transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
     parFiles = "test_amr_unsplit_3d.par"
     restartParFiles = "test_amr_unsplit_3d_restart.par"
-
 # end 3d AMR
+
+# Particle 2D
+["Comparison/Sedov/Part/2d/Paramesh"]
+    setupOptions = "-auto -2d -debug  -unit=Particles Bittree=true"
+    transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
+    parFiles = "test_paramesh_particles_2d.par"
+# end Particle 2D
+
+# 2d UG
+["Comparison/Sedov/UG/2d/unsplit"]
+    setupOptions = " -auto -2d -debug +uhd +ug +nofbs"
+    transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
+    parFiles = "test_pseudoug_2d.par"
+
+["Comparison/Sedov/UG/2d/spark"]
+    setupOptions = " -auto -2d -debug +ug +nofbs +sparkinhost"
+    transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
+    parFiles = "test_pseudoug_2d.par"
+# end 2d UG
