@@ -15,8 +15,8 @@
 
 [PM_unsplit]
 testNode = "Composite/Cellular/2d/PM/unsplit"
-setupOptions = -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
-transfers = ["helm_table.dat","SpeciesList.txt"]
+setupOption<s = -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
+transfers = ["object/helm_table.dat","object/SpeciesList.txt"]
 parFiles = ["coldstart_2d.par"]
 restartParFiles = ["restart_2d.par"]
 

@@ -1,7 +1,6 @@
 #	Runtime parameters for the YahilLattimerCollapse problem.
 
 # Simulation basics
-basenm               = "yahil2d_"
 restart              = .false.
 checkpointFileNumber = 0
 plotfileNumber       = 0
@@ -10,7 +9,7 @@ run_comment          = "Yahil collapse 2D with Yali Profile"
 # IO
 #    checkpoint file output parameters
 checkpointFileIntervalStep = 0
-checkpointFileIntervalTime = 1E-3 # second
+#checkpointFileIntervalTime = 1E-3 # second
 #    plotfile output parameters
 plotfileIntervalStep       = 0
 plotfileIntervalTime       = 0.
