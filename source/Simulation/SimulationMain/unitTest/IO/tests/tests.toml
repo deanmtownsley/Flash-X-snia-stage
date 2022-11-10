@@ -1,0 +1,9 @@
+[test_pm4dev]
+    testNode = "UnitTest/IO/hdf5/3d/pm4dev"
+    setupOptions = "-auto --index-reorder -3d +cube16 +parallelIO nVars=25"
+    parFiles = "test_PM_3d_noparticles.par"
+
+[test_async_pm4dev]
+    testNode = "UnitTest/IO/hdf5/3d/Asyncpm4dev"
+    setupOptions = "-auto --index-reorder -3d +cube16 +parallelIO nVars=25 +hdf5AsyncIO"
+    parFiles = "test_PM_3d_noparticles.par"
