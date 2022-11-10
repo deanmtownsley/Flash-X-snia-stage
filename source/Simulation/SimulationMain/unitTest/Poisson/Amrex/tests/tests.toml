@@ -1,5 +1,4 @@
 # Poisson AMReX tests
-[Multigrid_AMReX]
-  testNode = "Gravity/Multigrid/AMReX/3d"
-  setupOptions = "-auto -3d +amrex +noio -maxblocks=1000"
-  parFiles = ["flash.par"]
+["UnitTest/Multigrid/AMReX/3d"]
+   setupOptions = "-auto -3d +amrex +noio -maxblocks=1000"
+   parFiles = ["flash.par"]

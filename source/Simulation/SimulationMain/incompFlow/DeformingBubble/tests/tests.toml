@@ -1,12 +1,10 @@
 # TOML file for DeformingBubble test
 # TODO: handle string replacement feature used in xml files
 
-[Example_Simple]
-  testNode = "UnitTest/incompFlow/DeformingBubble/2D/AMReX"
+["UnitTest/incompFlow/DeformingBubble/2D/AMReX"]
   setupOptions = "-auto -2d -nxb=16 -nyb=16 +amrex +parallelIO"
   parFiles = ["test_simple.par"]
 
-[Example_User]
-  testNode = "UnitTest/incompFlow/DeformingBubble/2D/pm4dev"
+["UnitTest/incompFlow/DeformingBubble/2D/pm4dev"]
   setupOptions = "-auto -2d -nxb=16 -nyb=16 --index-reorder +pm4dev -gridinterpolation=native +serialIO"
   parFiles = ["test_user.par"]
