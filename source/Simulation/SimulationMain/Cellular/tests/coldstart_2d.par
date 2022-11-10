@@ -2,14 +2,14 @@
 # [source/Simulation/SimulationMain/Cellular]
 #
 # example setup:
-# ./setup Cellular -auto -2d +cartesian -nxb=16 -nyb=16 -maxblocks=256 +xnet xnetData=Data_SN160 xnetGPU=False +Mode3 -parfile=test_amr_2d.par
+# ./setup Cellular -auto -2d +cartesian -nxb=16 -nyb=16 -maxblocks=256 +xnet xnetData=Data_SN160 xnetGPU=False -parfile=coldstart_2d.par
 
 ## -------------------------------------------------------------
 ## I/O
 ## -------------------------------------------------------------
 
 # names of files
-basenm					= "cellular_"
+
 log_file				= "cellular.log"
 stats_files				= "cellular.dat"
 
@@ -28,7 +28,7 @@ plot_var_2				= "si28"
 #plotFileNumber				= 125
 
 # dump checkpoint files every checkpointFileIntervalTime seconds
-checkpointFileIntervalTime		= 1.0e-9
+#checkpointFileIntervalTime		= 1.0e-9
 #checkpointFileIntervalStep		= 1
 
 # dump plot files every plotFileIntervalTime seconds
@@ -89,7 +89,7 @@ nend					= 1000
 tmax					= 3.0e-9
 
 cfl					= 0.8     # CFL factor
-dr_shortenLastStepBeforeTMax		= .true.  # Stop at tmax exactly
+dr_shortenLastStepBeforeTMax		= .false.
 
 dtinit					= 1.0e-16 # Initial tstep
 dtmin					= 1.0e-20 # Min tstep size
