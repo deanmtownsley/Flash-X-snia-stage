@@ -24,12 +24,10 @@ jprocs = 2
 
 #		simulation parameters
 convertToConsvdInMeshInterp = .true.
-basenm          = "isentropic_vortex_"
-log_file        = "isentropic_vortex.log"
-restart         = .false.
+restart         = .true.
 checkpointFileIntervalTime = 0.0
 checkpointFileIntervalStep = 100
-checkpointFileNumber = 0	
+checkpointFileNumber = 1	
 
 nend            = 200
 tmax            = 10.
