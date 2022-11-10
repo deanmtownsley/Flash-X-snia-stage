@@ -24,25 +24,25 @@
 
 [AMReX_unsplit]
 testNode = "Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit"
-setupOptions = "-auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles"
+setupOptions = "-auto -2d +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles"
 parFiles = ["iv.par"]
-restartParfiles=["iv_restart.par"]
+restartParFiles=["iv_restart.par"]
 
 [AMReX_spark]
 testNode = "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark"
-setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+setupOptions: -auto -2d -nxb=16 -nyb=16 +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 parFiles =["iv.par"]
-restartParfiles: ["iv_restart.par"]
+restartParFiles: ["iv_restart.par"]
 
 [Paramesh_unsplit]
 testNode = "Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit"
-setupOptions = -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+setupOptions = -auto -2d +nolwf +uhd -unit=Particles Bittree=True
 parfiles = ["iv.par"]
-restartParfiles = ["iv_restart.par"]
+restartParFiles = ["iv_restart.par"]
 
 [UG_unsplit]
 testNode = "Composite/IsentropicVortex/UG/2d/unsplit"
-setupOptions = -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+setupOptions = -auto -2d +nolwf +uhd -unit=Particles Bittree=True
 parfiles = ["iv_ug_4p.par"]
-restartParfiles = ["iv_ug_restart.par"]
+restartParFiles = ["iv_ug_restart.par"]
 
