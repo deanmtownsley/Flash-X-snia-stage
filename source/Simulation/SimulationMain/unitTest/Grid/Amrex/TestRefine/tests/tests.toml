@@ -1,4 +1,3 @@
-[test_2D]
-    testNode = "unitTest/Grid/AMR/AMReX/2d/Refine"
+["unitTest/Grid/AMR/AMReX/2d/Refine"]
     setupOptions = "-auto -2d -nxb=8 -nyb=8 +noio +amrex"
     parFiles = ["test_amrex_grid.par"]

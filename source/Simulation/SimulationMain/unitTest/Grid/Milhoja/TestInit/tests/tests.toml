@@ -1,14 +1,11 @@
-[test_1D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/1D/TestInit"
+["UnitTest/Grid/AMR/Milhoja/1D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     parFiles = ["test_milhoja_grid.par"]
 
-[test_2D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/2D/TestInit"
+["UnitTest/Grid/AMR/Milhoja/2D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     parFiles = ["test_milhoja_grid.par"]
 
-[test_3D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/3D/TestInit"
+["UnitTest/Grid/AMR/Milhoja/3D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     parFiles = ["test_milhoja_grid.par"]
