@@ -1,21 +1,19 @@
 # flash file for a 1d, 2d, or 3d cellular detonation of carbon
 # [source/Simulation/SimulationMain/Cellular]
 #
-# example setup:
-# ./setup Cellular -auto -2d +cartesian -nxb=16 -nyb=16 -maxblocks=256 +xnet xnetData=Data_SN160 xnetGPU=False +Mode3 -parfile=test_amr_2d.par
 
 ## -------------------------------------------------------------
 ## I/O
 ## -------------------------------------------------------------
 
 # names of files
-basenm					= "cellular_"
+
 log_file				= "cellular.log"
 stats_files				= "cellular.dat"
 
 # for starting a new run
 restart					= .true.
-checkpointFileNumber			= 3
+checkpointFileNumber			= 1
 plotFileNumber				= 0
 
 # specify the plot variables
@@ -28,7 +26,7 @@ plot_var_2				= "si28"
 #plotFileNumber				= 125
 
 # dump checkpoint files every checkpointFileIntervalTime seconds
-checkpointFileIntervalTime		= 1.0e-9
+#checkpointFileIntervalTime		= 1.0e-9
 #checkpointFileIntervalStep		= 1
 
 # dump plot files every plotFileIntervalTime seconds
