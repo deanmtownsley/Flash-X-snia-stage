@@ -1,46 +1,38 @@
 #  Runtime parameter file for the isentropic vortex problem
-#  Adaptive mesh, 2 levels max refinement
-#
-#
-# The completion of the run is processor dependent.
-#
-#
-# Non-convergence in Riemann when using 4 processors:
-#
-#     76 3.7703E+00 2.5000E-02  (1.562E-01, 1.562E-01, 0.000E+00) |  1.219E-01
-#  
-# Nonconvergence in subroutine rieman
-#
-#
-# 
-# Mesh abort when using 5 processors:
-#
-#      75 3.7203E+00 2.5000E-02  (8.594E+00, 7.656E+00, 0.000E+00) |  1.040E-01
-# MayDay: /home/chris/flash/chomboForFlash/current/lib/include/Vector.H:217: Assertion `n < size()' failed. !!!
-#
-#
+#  2d UG problem on 4 procs.  
 
 
-#               AMR parameters
 
-lrefine_max     = 2
-refine_var_1     = "dens"
+
+pt_numX	= 30
+pt_numY	= 30
+
+pt_maxPerProc = 900
+
+useParticles = .true.
+
+pt_initialXMin = 0.0
+pt_initialXMax = 10.0
+pt_initialYMin = 0.0
+pt_initialYMax = 10.0
+pt_initialZMin = 0.0
+pt_initialZMax = 10.0
+
+iprocs = 2
+jprocs = 2
 
 
 #		simulation parameters
-basenm          = "isentropic_vortex_"
-log_file        = "isentropic_vortex.log"
-stats_file      = "isentropic_vortex.dat"
+convertToConsvdInMeshInterp = .true.
+
 restart         = .false.
-checkpointFileIntervalTime = 0.0
-checkpointFileIntervalStep = 100
+#checkpointFileIntervalTime = 0.0
+#checkpointFileIntervalStep = 100
 checkpointFileNumber = 0	
 
 nend            = 200
 tmax            = 10.
 
-#nblockx		= 2
-#nblocky		= 2
 
 cfl		= .95
 
@@ -81,14 +73,9 @@ smalle          = 1.e-100
 smallt          = 1.e-100
 
 nriem           = 5
+convertToConsvdForMeshCalls   = .true.
 use_steepening  = .false.
 cvisc           = 0.
 eintSwitch     = 0.
 
 plot_var_1 = "dens"
-
-flux_correct = .true.
-
-maxblocksize = 8
-igridsize = 16
-jgridsize = 16

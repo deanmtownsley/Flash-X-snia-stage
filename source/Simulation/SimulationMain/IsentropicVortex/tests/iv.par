@@ -9,7 +9,7 @@ refine_var_1     = "dens"
 pt_numX	= 10
 pt_numY	= 10
 
-pt_maxPerProc = 100
+pt_maxPerProc = 900
 
 useParticles = .true.
 
@@ -23,15 +23,13 @@ pt_initialZMax = 10.0
 
 #		simulation parameters
 
-basenm          = "isentropic_vortex_"
-log_file        = "isentropic_vortex.log"
-restart         = .true.
-checkpointFileIntervalTime = 0.0
-checkpointFileIntervalStep = 20
-checkpointFileNumber = 21	
+restart         = .false.
+#checkpointFileIntervalTime = 0.0
+#checkpointFileIntervalStep = 20
+checkpointFileNumber = 0	
 
 nend            = 1000
-tmax            = 20.
+tmax            = 10.
 
 #nblockx		= 2
 #nblocky		= 2

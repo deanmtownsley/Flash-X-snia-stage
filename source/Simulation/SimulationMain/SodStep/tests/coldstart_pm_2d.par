@@ -60,13 +60,12 @@ yr_boundary_type = "outflow"
 #	Simulation (grid, time, I/O) parameters
 
 cfl		= 0.8
-basenm          = "sod_"
-restart         = .true.
+restart         = .false.
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0.2
-checkpointFileIntervalStep = 0
-checkpointFileNumber = 0002
+#checkpointFileIntervalTime = 0.2
+#checkpointFileIntervalStep = 0
+checkpointFileNumber = 0
 
 #	plotfile output parameters
 plotfileIntervalTime = 0
@@ -74,7 +73,7 @@ plotfileIntervalStep = 0
 plotfileNumber = 0
 
 nend            = 1000
-tmax            = .80
+tmax            = .40
 
 run_comment     = "Sod problem, diagonal direction"
 log_file        = "sod.log"
