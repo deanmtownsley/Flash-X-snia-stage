@@ -1,0 +1,39 @@
+# This test is usually being run on 2 proces.
+
+["Comparison/DustCollapse/AMR/1dSph/spark"]
+    setupOptions = "-auto -1d +spherical -nxb=16 -unit=Grid/GridMain/AMR/Amrex -unit=IO/IOMain/hdf5/serial/AM +sparkinhost +serialIO -index-reorder +newMpole"
+    parFiles = ["test_1dsph.debug.par"]
+
+
+# These tests are usually being run on 4 or 8 proces.
+
+["Composite/DustCollapse/AMR/1dSph/pm4dev"]
+    setupOptions = "-auto -1d +spherical +sHLL +uhd +serialIO -index-reorder +newMpole"
+    parFiles = ["test_1dsph.par"]
+    restartParFiles = ["test_1dsph_restart.par"]
+
+["Composite/DustCollapse/AMR/2dCyl/pm4AltMorton"]
+    setupOptions = "-auto -2d +cylindrical +uhd +serialIO -index-reorder +newMpole"
+    parFiles = ["test_2dcyl.par"]
+    restartParFiles = ["test_2dcyl_restart.par"]
+
+["Composite/DustCollapse/AMR/2dCyl/pm4AltMortonBittree"]
+    setupOptions = "-auto -2d +cylindrical +uhd +serialIO -index-reorder +newMpole"
+    parFiles = ["test_2dcyl.par"]
+    restartParFiles = ["test_2dcyl_restart.par"]
+
+["Composite/DustCollapse/AMR/3d/AMReX"]
+    setupOptions = "-auto -3d +cartesian +amrex +parallelIO +newMpole"
+    parFiles = ["test_3dcar.debug.par"]
+    restartParFiles = ["test_3dcar_restart.par"]
+
+["Composite/DustCollapse/AMR/3d/pm4dev"]
+    setupOptions = "-auto -3d +cartesian +uhd +serialIO -index-reorder +newMpole"
+    parFiles = ["coldstart_pm_3d.par"]
+    restartParFiles = ["restart_pm_3d.par"]
+
+["Composite/DustCollapse/PseudoUG/3d/pm4dev"]
+    setupOptions = "-auto -3d +cartesian +uhd +serialIO -index-reorder +newMpole"
+    parFiles = ["test_3dcar.par"]
+    restartParFiles = ["test_3dcar_restart.par"]
+  
