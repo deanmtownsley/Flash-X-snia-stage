@@ -26,18 +26,6 @@ module Simulation_data
 
   logical, save :: sim_restart
   integer, save :: sim_meshMe, sim_globalMe
-  real, save :: sim_dens_i
-  real, save :: sim_temp_i
-  real, save :: sim_velx_i
-  real, save :: sim_vely_i
-  real, save :: sim_velz_i
-  real, save :: sim_pres_i
-  real, save :: sim_eint_i
-  real, save :: sim_etot_i
-  real, save :: sim_gamc_i
-  real, save :: sim_game_i
-  real, save :: sim_xn_i(SPECIES_BEGIN:SPECIES_END)
-  real, save :: sim_ye_i
 
   real, save :: sim_nComp
 
@@ -62,10 +50,20 @@ module Simulation_data
   real, parameter :: R_Y  = 4.5d06 !* centimeter
   real, parameter :: H_Y  = 1.0d06 !* centimeter  
 
-  ! --- Uniform Fluid Field ---
-  real, save      :: dens_i
-  real, save      :: temp_i
-  real, save      :: ye_i
+  ! uniform initial conditions
+  real, save :: sim_dens_i
+  real, save :: sim_temp_i
+  real, save :: sim_velx_i
+  real, save :: sim_vely_i
+  real, save :: sim_velz_i
+  real, save :: sim_pres_i
+  real, save :: sim_eint_i
+  real, save :: sim_etot_i
+  real, save :: sim_gamc_i
+  real, save :: sim_game_i
+  real, save :: sim_xn_i(SPECIES_BEGIN:SPECIES_END)
+  real, save :: sim_ye_i
+  real, save :: sim_mu_i
 
   ! profile use
   logical, save :: sim_use_model

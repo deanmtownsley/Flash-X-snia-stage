@@ -52,16 +52,19 @@ subroutine Simulation_init()
   call RuntimeParameters_get("sim_model_file", sim_model_file)
   call RuntimeParameters_get("sim_rintSwitch", sim_rintSwitch)
 
-  call RuntimeParameters_get('dens_i', dens_i)
-  call RuntimeParameters_get('temp_i', temp_i)
-  call RuntimeParameters_get('ye_i',   ye_i)
+  call RuntimeParameters_get('sim_dens_i', sim_dens_i)
+  call RuntimeParameters_get('sim_temp_i', sim_temp_i)
+  call RuntimeParameters_get('sim_ye_i',   sim_ye_i)
+  call RuntimeParameters_get('sim_mu_i',   sim_mu_i)
+
+  call RuntimeParameters_get('sim_velx_i', sim_velx_i)
+  call RuntimeParameters_get('sim_vely_i', sim_vely_i)
+  call RuntimeParameters_get('sim_velz_i', sim_velz_i)
 
   sim_xn_i = 0.0e0
-  if( NSPECIES > 0 ) sim_xn_i(SPECIES_BEGIN) = 1.0e0
-
-  sim_velx_i = 0.0e0
-  sim_vely_i = 0.0e0
-  sim_velz_i = 0.0e0
+#if NSPECIES>0
+  sim_xn_i(SPECIES_BEGIN) = 1.0e0
+#endif
 
   sim_nComp = nSpecies * nCR * nE * nDOF
 
