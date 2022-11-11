@@ -1,4 +1,15 @@
 !!****if* source/Simulation/SimulationMain/Relaxation
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!  Grid_bcApplyToRegion
@@ -66,7 +77,7 @@
 !!  other grid information, such as cell coordinates, etc.  Currently
 !!  supported simple boundary conditions include "OUTFLOW", "REFLECTING" and
 !!  "DIODE".
-!!  Additional dummy arguments secondDir, thirdDir, and endPoints
+!!  Additional dummy arguments level, secondDir, thirdDir, and endPoints
 !!  are not needed for these simple kinds of BCs, but can be
 !!  used by alternative implementations for BC types that do need coordinate
 !!  information, etc.
@@ -111,24 +122,10 @@
 !!         However, an implementation of this interface may ignore the mask argument;
 !!         a mask should be understood as a possible opportunity for optimization which
 !!         an implementation may ignore.
-!!         Specifying a mask does not mean that previous values of other variables in
+!!         Specifying a mask does not guarantee that previous values of other variables in
 !!         guard cells will be left undisturbed.
 !!  applied - is set true if this routine has handled the given bcType, otherwise it is 
 !!            set to false.
-!!
-!!  tileDesc - Derived type that encapsulates metadata that uniquely
-!!              characterizes local block to be operated on
-!!
-!!              With Paramesh 4:
-!!              This may be a block actually residing on the local processor,
-!!              or the handle may refer to a block that belong to a remote processor
-!!              but for which cached information is currently available locally.
-!!              The two cases can be distinguished by checking whether 
-!!              (blockHandle .LE. lnblocks): this is true only for blocks that
-!!              reside on the executing processor.
-!!              The block ID is available for passing on to some handlers for 
-!!              boundary conditions that may need it, ignored in the default 
-!!              implementation.
 !!
 !!  secondDir,thirdDir -   Second and third coordinate directions.
 !!                         These are the transverse directions perpendicular to
