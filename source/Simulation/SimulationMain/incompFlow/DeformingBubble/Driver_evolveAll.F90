@@ -74,7 +74,7 @@ subroutine Driver_evolveAll()
 
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt
 
-   use Simulation_data, ONLY: sim_reInitFlow
+   use Simulation_data, ONLY: sim_reInitFlow, sim_runTest
 
    implicit none
 
@@ -431,21 +431,23 @@ subroutine Driver_evolveAll()
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-   temp = dr_globalMe
-   do i = 1, 4
-      prNum(i) = mod(temp, 10)
-      temp = temp/10
-   end do
-   filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
-              char(48 + prNum(2))//char(48 + prNum(1))
-   open (fileUnit, file=fileName)
-   write (fileUnit, '("P",I0)') dr_globalMe
-   if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then
-      write (fileUnit, '(A)') 'SUCCESS all results conformed with expected values.'
-   else
-      write (fileUnit, '(A)') 'FAILURE'
+   if (sim_runTest) then
+      temp = dr_globalMe
+      do i = 1, 4
+         prNum(i) = mod(temp, 10)
+         temp = temp/10
+      end do
+      filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
+                 char(48 + prNum(2))//char(48 + prNum(1))
+      open (fileUnit, file=fileName)
+      write (fileUnit, '("P",I0)') dr_globalMe
+      if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then
+         write (fileUnit, '(A)') 'SUCCESS all results conformed with expected values.'
+      else
+         write (fileUnit, '(A)') 'FAILURE'
+      end if
+      close (fileUnit)
    end if
-   close (fileUnit)
    !-------------------------------------------------------------------------------
 
    return
