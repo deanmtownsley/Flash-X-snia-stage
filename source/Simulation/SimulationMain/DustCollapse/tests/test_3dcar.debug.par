@@ -49,7 +49,7 @@ cfl		= 0.8
 
 lrefine_min     = 4
 lrefine_max     = 4
-basenm          = "dustcoll_"
+
 restart         = .false.
 
 checkpointFileIntervalTime          = 0.0358

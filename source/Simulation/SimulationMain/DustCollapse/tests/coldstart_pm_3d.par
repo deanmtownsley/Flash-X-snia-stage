@@ -46,7 +46,7 @@ grav_boundary_type = "isolated"
 cfl		= 0.8
 
 lrefine_max     = 4
-basenm          = "dustcoll_"
+
 restart         = .false.
 
 checkpointFileIntervalTime          = 0.0358

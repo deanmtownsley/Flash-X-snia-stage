@@ -1,6 +1,6 @@
 #	Runtime parameters for the dust collapse problem, flux_correct disabled.
-# ./setup -makefile=gnu DustCollapse -auto -1d +Mode1 +serialIO +uhd +newMpole -debug -objdir=Comparison_DustCollapse_AMR_newMpole_1dSph_pm4dev
-# ./setup -makefile=gnu DustCollapse -auto -1d +Mode3 +serialIO +uhd +newMpole -debug -objdir=Comparison_DustCollapse_AMR_newMpole_1dSph_AMReX
+# ./setup -makefile=gnu DustCollapse -auto -1d -index-reorder +serialIO +uhd +newMpole -debug +nolwf -objdir=Comparison_DustCollapse_AMR_newMpole_1dSph_pm4dev
+# ./setup -makefile=gnu DustCollapse -auto -1d +amrex +serialIO +uhd +newMpole -debug -objdir=Comparison_DustCollapse_AMR_newMpole_1dSph_AMReX
 # ./setup DustCollapse -auto -1d -nxb=16 +spherical +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM +spark +newMpole
 
 #	Parameters for initial model
@@ -36,7 +36,6 @@ grav_boundary_type = "isolated"
 
 cfl		= 0.8
 lrefine_max     = 8
-basenm          = "dustcoll_"
 restart         = .false.
 
 checkpointFileIntervalTime          = 0.0358

@@ -1,5 +1,5 @@
 #	Runtime parameters for the dust collapse problem.
-# ./setup -makefile=gnu DustCollapse -auto -1d +Mode1 +serialIO +uhd +newMpole -debug -objdir=Comparison_DustCollapse_AMR_newMpole_1dSph_pm4dev
+# ./setup -makefile=gnu DustCollapse -auto -1d -index-reorder +serialIO +uhd +newMpole -debug -objdir=Composite_DustCollapse_AMR_newMpole_1dSph_pm4dev
 
 #	Parameters for initial model
 
@@ -34,7 +34,6 @@ grav_boundary_type = "isolated"
 
 cfl		= 0.8
 lrefine_max     = 8
-basenm          = "dustcoll_"
 restart         = .true.
 
 checkpointFileIntervalTime          = 0.0358
