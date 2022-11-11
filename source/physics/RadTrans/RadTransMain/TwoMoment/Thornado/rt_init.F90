@@ -65,6 +65,7 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_use_iso",  rt_use_iso)
   call RuntimeParameters_get ("rt_use_nes",  rt_use_nes)
   call RuntimeParameters_get ("rt_use_pair", rt_use_pair)
+  call RuntimeParameters_get ("rt_use_brem", rt_use_brem)
 
   call RuntimeParameters_get ("rt_emab_file", rt_emab_file)
   if ( .not. rt_use_emab ) rt_emab_file = ""
