@@ -44,7 +44,7 @@ basenm          = "dustcoll_"
 restart         = .false.
 
 checkpointFileIntervalTime          = 0.0358
-checkpointFileIntervalStep    =  19
+checkpointFileIntervalStep    =  53
 
 plotFileIntervalTime     = 1000.
 

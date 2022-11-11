@@ -42,10 +42,10 @@ cfl		= 0.8
 lrefine_max     = 4
 basenm          = "dustcoll_"
 restart         = .true.
-checkpointFileNumber = 3
+checkpointFileNumber = 1
 
 checkpointFileIntervalTime          = 0.0358
-checkpointFileIntervalStep    =  19
+checkpointFileIntervalStep    =  53
 
 plotFileIntervalTime     = 1000.
 
