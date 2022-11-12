@@ -4,15 +4,11 @@ gamma = 1.4
 # Direction of constant gravity field:
 gdirec = "x"
 
-# This improves PPM for Hydrostatic conditions:
-ppm_modifystates = .TRUE.
-
 sim_tempRef = 298.15
 ##sim_densRef = 0.001184 - not itself a runtime parameter
 sim_presRef = 1013250.0
 
 eachProcWritesOwnAbortLog      = .true.
-eachProcWritesSummary          = .true.
 geometry                       = "cartesian"
 
 lrefine_min                    = 2
@@ -31,16 +27,14 @@ plotfileMetadataDP             = .false.
 refine_on_particle_count       = .true.
 
 run_comment                    = "Flash-X HydroStatic test run"
-checkpointFileIntervalTime     = 1.0
-checkpointFileNumber           = 10
-restart                        = .TRUE.
+checkpointFileIntervalTime     = 10.0
 useCollectiveHDF5              = .false.
 useParticles                   = .FALSE.
 
-wall_clock_checkpoint          = 600.
+wall_clock_checkpoint          = 3600.
 
 nend = 400
-tmax = 11.0
+tmax = 10
 
 xmin = 0
 xmax = 800000
@@ -66,11 +60,5 @@ nblockY = 4
 #convertToConsvdInMeshInterp    = .FALSE.
 gr_bndGCFillNeedsPrimitiveVars  = .TRUE.
 
-# Additional stuff to play with...
-useConductivity = F
-#cond_constantIsochoric = 1000.e6
-useViscosity = F
-#diff_visc_nu = 10.0e6
-#dt_diff_factor = 0.2
 
 dr_dtMinContinue               = 1.e-8
