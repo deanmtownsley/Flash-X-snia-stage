@@ -163,12 +163,14 @@
     transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
     parFiles = ["test_amr_unsplit_3d.par"]
     restartparFiles = ["test_amr_unsplit_3d_restart.par"]
+    errTol = 5.0e-16
 
 ["Composite/Sedov/AMR/3d/pm4Nolwf/unsplit"]
     setupOptions = "-auto -3d -debug -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev +nolwf -gridinterpolation=native"
     transfers = ["source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat"]
     parFiles = ["test_amr_unsplit_3d.par"]
     restartparFiles = ["test_amr_unsplit_3d_restart.par"]
+    errTol = 5.0e-22
 # end 3d AMR
 
 # Particle 2D
