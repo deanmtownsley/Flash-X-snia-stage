@@ -76,13 +76,11 @@ smallt          = 1.E-7
 
 dtinit           = 1.E-5
 dtmax           = 1.E-2
-nriem 	         = 50
 cvisc           = 0.
 eintSwitch     = 1.E-4
 
 memory_stat_freq = 1
 convertToConsvdForMeshCalls   = .true.
-#monotone        = .true.
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##

@@ -1,6 +1,6 @@
 #	Runtime parameters for the dust collapse problem.
-# ./setup -makefile=gnu DustCollapse -auto -3d +Mode1 +serialIO +uhd +newMpole -debug -parfile=coldstart_pm_3d.par -objdir=Comparison_DustCollapse_AMR_newMpole_3d_pm4dev
-# ./setup -makefile=gnu DustCollapse -auto -3d +Mode3 +serialIO +uhd +newMpole -debug -parfile=coldstart_pm_3d.par -objdir=Comparison_DustCollapse_AMR_newMpole_3d_AMReX
+# ./setup -makefile=gnu DustCollapse -auto -3d -index-reorder +serialIO +uhd +newMpole -debug -parfile=test_3dcar_restart.par -objdir=Composite_DustCollapse_AMR_newMpole_3d_pm4dev
+# ./setup -makefile=gnu DustCollapse -auto -3d +amrex +serialIO +uhd +newMpole -debug -parfile=test_3dcar_restart.par -objdir=Composite_DustCollapse_PseudoUG_newMpole_3d_AMReX
 
 #	Parameters for initial model
 
@@ -52,8 +52,8 @@ lrefine_max     = 4
 restart         = .true.
 
 checkpointFileIntervalTime          = 0.0358
-checkpointFileIntervalStep    =  20
-checkpointFileNumber = 0002
+checkpointFileIntervalStep    =  0
+checkpointFileNumber = 0001
 
 plotFileIntervalTime     = 1000.
 
