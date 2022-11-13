@@ -157,10 +157,12 @@
     setupOptions = "-auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM"
     parFiles = ["test_amr_2d.par"]
 
+# test_amr_unsplit_2d missing
 ["Comparison/Sod/AMR/2d/AMReX/unsplit"]
     setupOptions = "-auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM"
     parFiles = ["test_amr_unsplit_2d.par"]
 
+# @kweide test_amr_TBLfc_unsplit_2d.par does not exist
 ["Comparison/Sod/AMR/2d/AMReXFc/unsplit"]
     setupOptions = "-auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM"
     parFiles = ["test_amr_TBLfc_unsplit_2d.par"]
