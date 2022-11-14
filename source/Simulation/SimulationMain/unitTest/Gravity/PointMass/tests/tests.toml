@@ -2,16 +2,16 @@
 #
 ["UnitTest/PointMassGravity/3d/Pramesh"]
    setupOptions = "-auto -3d +pm4dev -maxblocks=550 -nxb=8 -nyb=8 -nzb=8"
-   parFiles = "flash.par"
+   parfiles = "flash.par"
 
 ["UnitTest/PointMassGravity/3d/AMReX"]
    setupOptions = " -auto -3d +amrex +noio -maxblocks=10 -nxb=8 -nyb=8 -nzb=8"
-   parFiles = "flash.par"
+   parfiles = "flash.par"
   
 ["UnitTest/PointMassGravity/2dCyl/Paramesh"]
    setupOptions = "-auto -2d +pm4dev +cylindrical +serialIO -debug"
-   parFiles = "test_2dcyl.par"
+   parfiles = "test_2dcyl.par"
 
 ["UnitTest/PointMassGravity/2dCyl/AMReX"]
    setupOptions = "-auto -2d +amrex +cylindrical +noio -debug"   
-   parFiles: "test_2dcyl.par"
+   parfiles: "test_2dcyl.par"

@@ -2,47 +2,47 @@
 
 ["Comparison/DustCollapse/AMR/1dSph/AMReX"]
     setupOptions = "-auto -1d +spherical +amrex +serialIO +uhd +newMpole +nolwf"
-    parFiles = ["test_1dsph.debug.par"]
+    parfiles = ["test_1dsph.debug.par"]
 
 ["Comparison/DustCollapse/AMR/1dSph/spark"]
     setupOptions = "-auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM +sparkinhost -index-reorder +newMpole"
-    parFiles = ["test_1dsph.debug.par"]
+    parfiles = ["test_1dsph.debug.par"]
 
 ["Comparison/DustCollapse/AMR/2dCyl/AMReX"]
     setupOptions = "-auto -2d +cylindrical +amrex +serialIO +uhd +newMpole"
-    parFiles = ["test_2dcyl.debug.par"]
+    parfiles = ["test_2dcyl.debug.par"]
 
 
 # These tests are usually being run on 4 or 8 procs.
 
 ["Composite/DustCollapse/AMR/1dSph/pm4dev"]
     setupOptions = "-auto -1d +spherical +sHLL +uhd +serialIO -index-reorder +newMpole"
-    parFiles = ["test_1dsph.par"]
-    restartParFiles = ["test_1dsph_restart.par"]
+    parfiles = ["test_1dsph.par"]
+    restartParfiles = ["test_1dsph_restart.par"]
 
 ["Composite/DustCollapse/AMR/2dCyl/pm4AltMorton"]
     setupOptions = "-auto -2d +cylindrical +uhd +serialIO -index-reorder +newMpole"
-    parFiles = ["test_2dcyl.par"]
-    restartParFiles = ["test_2dcyl_restart.par"]
+    parfiles = ["test_2dcyl.par"]
+    restartParfiles = ["test_2dcyl_restart.par"]
 
 ["Composite/DustCollapse/AMR/2dCyl/pm4AltMortonBittree"]
     setupOptions = "-auto -2d +cylindrical +uhd +serialIO -index-reorder +newMpole"
-    parFiles = ["test_2dcyl.par"]
-    restartParFiles = ["test_2dcyl_restart.par"]
+    parfiles = ["test_2dcyl.par"]
+    restartParfiles = ["test_2dcyl_restart.par"]
 
 # The following test should really have PseudoUG in its name in place of AMR!
 ["Composite/DustCollapse/AMR/3d/AMReX"]
     setupOptions = "-auto -3d +cartesian +amrex +parallelIO +newMpole"
-    parFiles = ["test_3dcar.debug.par"]
-    restartParFiles = ["test_3dcar_restart.par"]
+    parfiles = ["test_3dcar.debug.par"]
+    restartParfiles = ["test_3dcar_restart.par"]
 
 ["Composite/DustCollapse/AMR/3d/pm4dev"]
     setupOptions = "-auto -3d +cartesian +uhd +serialIO -index-reorder +newMpole"
-    parFiles = ["coldstart_pm_3d.par"]
-    restartParFiles = ["restart_pm_3d.par"]
+    parfiles = ["coldstart_pm_3d.par"]
+    restartParfiles = ["restart_pm_3d.par"]
 
 ["Composite/DustCollapse/PseudoUG/3d/pm4dev"]
     setupOptions = "-auto -3d +cartesian +uhd +serialIO -index-reorder +newMpole"
-    parFiles = ["test_3dcar.par"]
-    restartParFiles = ["test_3dcar_restart.par"]
+    parfiles = ["test_3dcar.par"]
+    restartParfiles = ["test_3dcar_restart.par"]
   

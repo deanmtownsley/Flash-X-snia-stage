@@ -1,4 +1,4 @@
 ["unitTest/Eos/weaklib/3d/pm4dev"]
     setupOptions = "-auto +pm4dev -3d +noio"
     transfers = ["object/tables"]
-    parFiles = ["flash.par"]
+    parfiles = ["flash.par"]

@@ -1,11 +1,11 @@
 ["UnitTest/Grid/AMR/Milhoja/1D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    parFiles = ["test_milhoja_grid.par"]
+    parfiles = ["test_milhoja_grid.par"]
 
 ["UnitTest/Grid/AMR/Milhoja/2D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    parFiles = ["test_milhoja_grid.par"]
+    parfiles = ["test_milhoja_grid.par"]
 
 ["UnitTest/Grid/AMR/Milhoja/3D/TestInit"]
     setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    parFiles = ["test_milhoja_grid.par"]
+    parfiles = ["test_milhoja_grid.par"]

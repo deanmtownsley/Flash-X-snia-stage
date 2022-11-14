@@ -24,33 +24,33 @@
 testnode = "Composite/Yahil/1d/sph/PM/unsplit"
 setupOptions =  -debug -auto -1d +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
 errTol= 4.0e-14
-parFiles= ["yahil_1d.par"]
+parfiles= ["yahil_1d.par"]
 transfers= ["object/Yahil_Gam130.dat"]
-restartParFiles= ["yahil_1d_restart.par"]
+restartParfiles= ["yahil_1d_restart.par"]
 
 
 [1dSph_PM_spark]
 testnode = "Composite/Yahil/1d/sph/PM/spark"
 setupOptions =  -debug -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +sparkinhost
 errTol= 4.0e-14
-parFiles= ["yahil_1d.par"]
+parfiles= ["yahil_1d.par"]
 transfers= ["object/Yahil_Gam130.dat"]
-restartParFiles= ["yahil_1d_restart.par"]
+restartParfiles= ["yahil_1d_restart.par"]
 
 
 [2dcyl_PM_unsplit]
 testnode = "Composite/Yahil/2d/cyl/PM/unsplit"
 setupOptions =  -debug -auto -2d +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
 errTol= 6.0e-14
-parFiles= ["yahil_2d.par"]
+parfiles= ["yahil_2d.par"]
 transfers= ["object/Yahil_Gam130.dat"]
-restartParFiles= ["yahil_2d_restart.par"]
+restartParfiles= ["yahil_2d_restart.par"]
 
 [2dcyl_PM_spark]
 testnode = "Composite/Yahil/2d/cyl/PM/spark"
 setupOptions =  -debug -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +sparkinhost
 errTol= 6.0e-14
-parFiles= ["yahil_2d_spark.par"]
+parfiles= ["yahil_2d_spark.par"]
 transfers= ["object/Yahil_Gam130.dat"]
-restartParFiles= ["yahil_2d_spark_restart.par"]
+restartParfiles= ["yahil_2d_spark_restart.par"]
 

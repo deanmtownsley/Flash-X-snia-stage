@@ -15,6 +15,6 @@
 [Step]
 testNode = "Composite/SodStep/2d/PM/unsplit"
 setupOptions = "-auto -2d +uhd -unit=IO/IOMain/hdf5/serial/AM -unit=Particles"
-parFiles = ["coldstart_pm_2d.par"]
-restartParFiles=["restart_pm_2d.par"]
+parfiles = ["coldstart_pm_2d.par"]
+restartParfiles=["restart_pm_2d.par"]
 
