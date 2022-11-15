@@ -101,11 +101,18 @@ if __name__ == "__main__":
                     for key in yamlkeys:
                         if key in suiteDict[nodeName].keys():
                             if key in ["parfiles", "restartParfiles"]:
-                                if "/tests/" in suiteDict[nodeName][key]:
+                                if f"{setupName}/tests/" in suiteDict[nodeName][key]:
                                     suiteDict[nodeName][key] = suiteDict[nodeName][
                                         key
                                     ].replace(
                                         "<pathToSimulations>/" + setupName + "/tests/",
+                                        "",
+                                    )
+                                elif f"<setupName>" in suiteDict[nodeName][key]:
+                                    suiteDict[nodeName][key] = suiteDict[nodeName][
+                                        key
+                                    ].replace(
+                                        "<pathToSimulations>/" + "<setupName>/",
                                         "",
                                     )
                                 else:
