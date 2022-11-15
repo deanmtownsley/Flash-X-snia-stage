@@ -80,8 +80,8 @@ if __name__ == "__main__":
                     yamlfile.write(f"\n{nodeName}:\n")
                     for key in yamlkeys:
                         if key in suiteDict[nodeName].keys():
-                            if key == "parfiles":
-                                if "tests" in suiteDict[nodeName][key]:
+                            if key in ["parfiles", "restartParfiles"]:
+                                if "/tests/" in suiteDict[nodeName][key]:
                                     suiteDict[nodeName][key] = suiteDict[nodeName][
                                         key
                                     ].replace(

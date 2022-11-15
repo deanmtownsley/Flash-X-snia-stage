@@ -4,47 +4,47 @@
 Composite/DustCollapse/AMR/newMpole/1dSph/pm4dev:
   setupOptions: -auto -1d +spherical --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_1dsph.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_1dsph_restart.par
+  restartParfiles: test_1dsph_restart.par
 
 Composite/DustCollapse/AMR/newMpole/2dCyl/pm4dev:
   setupOptions: -auto -2d +cylindrical --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_2dcyl_restart.par
+  restartParfiles: test_2dcyl_restart.par
 
 Composite/DustCollapse/AMR/newMpole/2dCyl/pm4AltMorton:
   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True +serialIO +uhd +newMpole
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_2dcyl_restart.par
+  restartParfiles: test_2dcyl_restart.par
 
 Composite/DustCollapse/AMR/newMpole/2dCyl/pm4AltMortonBittree:
   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True Bittree=True +serialIO +uhd +newMpole
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_2dcyl_restart.par
+  restartParfiles: test_2dcyl_restart.par
 
 Composite/DustCollapse/AMR/newMpole/3d/pm4dev:
   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: coldstart_pm_3d.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_3d.par
+  restartParfiles: restart_pm_3d.par
 
 Composite/DustCollapse/AMR/newMpole/3d/AMReX:
   setupOptions: -auto -3d +cartesian +amrex +parallelIO +newMpole -debug
   parfiles: test_3dcar.debug.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_3dcar_restart.par
+  restartParfiles: test_3dcar_restart.par
 
 Composite/DustCollapse/PseudoUG/newMpole/3d/pm4dev:
   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_3dcar.par
-  restartParfiles: <pathToSimulations>/DustCollapse/test_3dcar_restart.par
+  restartParfiles: test_3dcar_restart.par
 
 Comparison/DustCollapse/AMR/newMpole/1dSph/pm4dev:
   setupOptions: -auto -1d +spherical --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_1dsph.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_sph_1d.par
+  restartParfiles: restart_pm_sph_1d.par
 
 Comparison/DustCollapse/AMR/newMpole/1dSph/AMReX:
   setupOptions: -auto -1d +spherical +amrex +serialIO +uhd +newMpole -debug +nolwf
   parfiles: test_1dsph.debug.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_sph_1d.par
+  restartParfiles: restart_pm_sph_1d.par
 
 Comparison/DustCollapse/AMR/newMpole/1dSph/spark:
   setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +sparkinhost  +newMpole -debug
@@ -53,44 +53,44 @@ Comparison/DustCollapse/AMR/newMpole/1dSph/spark:
 Comparison/DustCollapse/AMR/newMpole/2dCyl/pm4dev:
   setupOptions: -auto -2d +cylindrical --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_cyl_2d.par
+  restartParfiles: restart_pm_cyl_2d.par
 
 Comparison/DustCollapse/AMR/newMpole/2dCyl/pm4AltMorton:
   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True +serialIO +uhd +newMpole
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_cyl_2d.par
+  restartParfiles: restart_pm_cyl_2d.par
 
 Comparison/DustCollapse/AMR/newMpole/2dCyl/pm4Bittree:
   setupOptions: -auto -2d +cylindrical --index-reorder Bittree=True +serialIO +uhd +newMpole
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_cyl_2d.par
+  restartParfiles: restart_pm_cyl_2d.par
 
 Comparison/DustCollapse/AMR/newMpole/2dCyl/pm4AltMortonBittree:
   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True Bittree=True +serialIO +uhd +newMpole
   parfiles: test_2dcyl.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_cyl_2d.par
+  restartParfiles: restart_pm_cyl_2d.par
 
 Comparison/DustCollapse/AMR/newMpole/2dCyl/AMReX:
   setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole -debug
   parfiles: test_2dcyl.debug.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_cyl_2d.par
+  restartParfiles: restart_pm_cyl_2d.par
 
 Comparison/DustCollapse/AMR/newMpole/3d/pm4dev:
   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: coldstart_pm_3d.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_3d.par
+  restartParfiles: restart_pm_3d.par
 
 Comparison/DustCollapse/AMR/newMpole/3d/AMReX:
   setupOptions: -auto -3d +cartesian +amrex +serialIO +uhd +newMpole -debug
   parfiles: test_3dcar.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_3d.par
+  restartParfiles: restart_pm_3d.par
 
 Comparison/DustCollapse/PseudoUG/newMpole/3d/pm4dev:
   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: test_3dcar.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_3d.par
+  restartParfiles: restart_pm_3d.par
 
 Comparison/DustCollapse/PseudoUG/newMpole/3d/AMReX:
   setupOptions: -auto -3d +cartesian +amrex +serialIO +uhd +newMpole -debug
   parfiles: test_3dcar.debug.par
-  restartParfiles: <pathToSimulations>/DustCollapse/restart_pm_3d.par
+  restartParfiles: restart_pm_3d.par

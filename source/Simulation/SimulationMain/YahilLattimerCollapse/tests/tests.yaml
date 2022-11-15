@@ -22,7 +22,7 @@ Composite/Yahil/AMR/2dCyl/Paramesh/unsplit:
 Composite/Yahil/AMR/2dCyl/Paramesh/spark:
   setupOptions: -debug -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +sparkinhost
   parfiles: yahil_2d_spark.par
-  restartParfiles: <pathToSimulations>/YahilLattimerCollapse/yahil_2d_spark_restart.par
+  restartParfiles: yahil_2d_spark_restart.par
   transfers: object/Yahil_Gam130.dat
 
 Comparison/Yahil/AMR/1dSph/Paramesh/unsplit:
