@@ -98,5 +98,5 @@ if __name__ == "__main__":
                             yamlfile.write(f"  {key}: {suiteDict[nodeName][key]}\n")
 
                     suitefile.write(
-                        f'{setupName} --test={nodeName} --nprocs={suiteDict[nodeName]["numProcs"]}\n'
+                        f'{setupName} --test="{nodeName}" --nprocs={suiteDict[nodeName]["numProcs"]}\n'
                     )
