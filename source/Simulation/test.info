@@ -47,31 +47,31 @@
         <AMReX>
           <2d>
             <Init>
-              setupName: unitTest/Grid/Amrex/TestInit/tests
+              setupName: unitTest/Grid/Amrex/TestInit
               setupOptions: -auto -2d -nxb=8 -nyb=4 +noio +amrex
               numProcs: 1
               parfiles: <pathToSimulations>/unitTest/Grid/Amrex/TestInit/tests/test_amrex_grid.par
             </Init>
             <Refine>
-              setupName: unitTest/Grid/Amrex/TestRefine/tests
+              setupName: unitTest/Grid/Amrex/TestRefine
               setupOptions: -auto -2d -nxb=8 -nyb=8 +noio +amrex
               numProcs: 1
               parfiles: <pathToSimulations>/unitTest/Grid/Amrex/TestRefine/tests/test_amrex_grid.par
             </Refine>
             <FluxCorrection>
-              setupName: unitTest/Grid/Amrex/TestFluxCorrection/tests
+              setupName: unitTest/Grid/Amrex/TestFluxCorrection
               setupOptions: -auto -2d -nxb=8 -nyb=8 +noio +amrex
               numProcs: 1
               parfiles: <pathToSimulations>/unitTest/Grid/Amrex/TestFluxCorrection/tests/test_amrex_grid.par
             </FluxCorrection>
             <FluxCorrection2>
-              setupName: unitTest/Grid/Amrex/TestFluxCorrection2/tests
+              setupName: unitTest/Grid/Amrex/TestFluxCorrection2
               setupOptions: -auto -2d -nxb=8 -nyb=8 +noio +amrex
               numProcs: 1
               parfiles: <pathToSimulations>/unitTest/Grid/Amrex/TestFluxCorrection2/tests/test_amrex_grid.par
             </FluxCorrection2>
             <TestCyl>
-              setupName: unitTest/Grid/Amrex/TestCyl2d/tests
+              setupName: unitTest/Grid/Amrex/TestCyl2d
               setupOptions: -auto -2d -nxb=8 -nyb=4 +noio +amrex
               numProcs: 1
               parfiles: <pathToSimulations>/unitTest/Grid/Amrex/TestCyl2d/tests/test_amrex_grid.par

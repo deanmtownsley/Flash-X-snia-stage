@@ -1,0 +1,10 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/IO/hdf5/3d/pm4dev:
+  setupOptions: -auto --index-reorder -3d +cube16 +parallelIO nVars=25
+  parfiles: test_PM_3d_noparticles.par
+
+UnitTest/IO/hdf5/3d/Asyncpm4dev:
+  setupOptions: -auto --index-reorder -3d +cube16 +parallelIO nVars=25 +hdf5AsyncIO
+  parfiles: test_PM_3d_noparticles.par

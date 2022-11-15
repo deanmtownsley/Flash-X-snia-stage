@@ -1,0 +1,10 @@
+# YAML file for DeformingBubble test
+# comments can be added with "#"
+
+UnitTest/incompFlow/DeformingBubble/2D/AMReX:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +parallelIO
+  parfiles: test_simple.par
+
+UnitTest/incompFlow/DeformingBubble/2D/pm4dev:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 --index-reorder +pm4dev -gridinterpolation=native +serialIO
+  parfiles: test_user.par

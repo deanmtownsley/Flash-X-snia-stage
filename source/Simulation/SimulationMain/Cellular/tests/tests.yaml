@@ -1,0 +1,13 @@
+# YAML file for test information
+# comments start with "#"
+
+Composite/Cellular/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
+  parfiles: test_amr_2d_coldstart.par
+  restartParfiles: <pathToSimulations>/Cellular/test_amr_2d_restart.par
+  transfers: object/helm_table.dat object/SpeciesList.txt
+
+Comparison/Cellular/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
+  parfiles: test_amr_2d.par
+  transfers: object/helm_table.dat object/SpeciesList.txt
