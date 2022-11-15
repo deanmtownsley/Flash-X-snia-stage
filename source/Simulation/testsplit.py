@@ -55,7 +55,7 @@ if __name__ == "__main__":
     yamlkeys = ["setupOptions", "parfiles", "restartParfiles", "transfers"]
     suitekeys = ["numProcs"]
 
-    with open("test.suite", "w") as suitefile:
+    with open("gce.suite", "w") as suitefile:
 
         suitefile.write("# Test suite file for test gce\n")
         suitefile.write('# comments start with "#"\n')
