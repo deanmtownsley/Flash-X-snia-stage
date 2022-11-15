@@ -1,6 +1,6 @@
 """
 A simple parser to split test.info into YAML files for individual
-simulation directories
+simulation directories and test.suite file for Private-Testing repo
 """
 import FlashXTest
 import yaml
