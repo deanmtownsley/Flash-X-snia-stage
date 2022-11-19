@@ -82,12 +82,10 @@ zr_boundary_type = "outflow"
 #	Simulation (grid, time, I/O) parameters
 
 cfl		= 0.8
-basenm          = "sod_"
 restart         = .false.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.2
-checkpointFileIntervalStep = 0
 checkpointFileNumber = 0
 
 #	plotfile output parameters

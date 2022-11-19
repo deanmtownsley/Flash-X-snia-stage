@@ -48,12 +48,10 @@ zr_boundary_type      = "outflow"
 cfl		        = 0.45
 refine_var_1    = "dens"
 refine_var_2    = "pres"
-basenm          = "sedov_"
 restart         = .false.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.02
-checkpointFileIntervalStep = 0
 checkpointFileNumber       = 0
 
 #	plotfile output parameters

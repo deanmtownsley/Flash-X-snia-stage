@@ -71,7 +71,6 @@ cfl		= 0.7
 
 flux_correct = .FALSE.
 
-basenm   = "sedov_"
 restart  = .false.
 
 #	integral quantities & errors write frequency
@@ -79,7 +78,6 @@ wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.01
-checkpointFileIntervalStep = 0
 checkpointFileNumber = 1
 
 #	plotfile output parameters

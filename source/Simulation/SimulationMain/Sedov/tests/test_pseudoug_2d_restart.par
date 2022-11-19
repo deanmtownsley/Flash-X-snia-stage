@@ -50,12 +50,10 @@ flux_correct = .FALSE.
 
 #	Simulation time, I/O  parameters
 cfl		 = 0.45
-basenm   = "sedov_"
 restart  = .true.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.01
-checkpointFileIntervalStep = 0
 checkpointFileNumber       = 5
 
 #	plotfile output parameters

@@ -45,12 +45,10 @@ zr_boundary_type      = "outflow"
 
 #	Simulation (grid, time, I/O) parameters
 cfl		        = 0.45
-basenm          = "sedov_"
 restart         = .false.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.02
-checkpointFileIntervalStep = 0
 checkpointFileNumber       = 0
 
 #	plotfile output parameters

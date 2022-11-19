@@ -65,13 +65,11 @@ useParticles = .true.
 #	Simulation time, I/O  parameters
 
 cfl		= 0.8
-basenm          = "sedov_2d_6lev_"
 restart         = .false.
 
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.01
-checkpointFileIntervalStep = 0
 checkpointFileNumber = 0
 
 #	plotfile output parameters

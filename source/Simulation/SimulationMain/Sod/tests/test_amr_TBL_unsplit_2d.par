@@ -52,7 +52,6 @@ hy_useTiling = .TRUE.
 
 #	Simulation (grid, time, I/O) parameters
 cfl		= 0.3
-basenm  = "sod_"
 restart = .false.
 
 threadHydroBlockList           = .TRUE.
@@ -60,7 +59,6 @@ threadIOBlockList              = .FALSE.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.005
-checkpointFileIntervalStep = 0
 checkpointFileNumber       = 0
 
 #	plotfile output parameters
