@@ -32,13 +32,13 @@ Initial adaptation from other Grid unitTest in progress; done for test_pm and te
 
 [test_amrex]
     testNode = "UnitTest/Grid/AMReX/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -3d -nxb=8 -nyb=8 -nzb=8 +noio +amrex"
+    setupOptions = "-auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +amrex +cylindrical"
     numProcs = 1
-    parFile = "test_pm_grid.par"
+    parFile = "test_amrex_grid.par"
 
 [test_milhoja]
     testNode = "UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -3d -nxb=8 -nyb=8 -nzb=8 +noio -with-unofficial=Grid/GridMain/AMR/Milhoja"
+    setupOptions = "-auto -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
-    parFile = "test_pm_grid.par"
+    parFile = "test_milhoja_grid.par"
 ```

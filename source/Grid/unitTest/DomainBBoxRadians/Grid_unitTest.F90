@@ -9,7 +9,7 @@
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.
 
-!!REORDER(4) solnData
+!!REORDER(4): solnData
 subroutine Grid_unitTest(fileUnit, perfect)
 
     use Grid_interface,        ONLY : Grid_getDomainBoundBox, &
@@ -33,10 +33,19 @@ subroutine Grid_unitTest(fileUnit, perfect)
     integer, intent(in)    :: fileUnit
     logical, intent(inout) :: perfect
 
+#if defined(FLASH_GRID_AMREX) || defined(FLASH_GRID_MILHOJA)
+#  define FORCE_POWEROF2_BLKSIZE
+#else
+#  undef FORCE_POWEROF2_BLKSIZE
+#endif
     !!!!! EXPECTED RESULTS BASED ON flash.par AND SETUP VALUES GIVEN ABOVE
     integer,  parameter :: NXCELL_EX   =  8
     integer,  parameter :: NYCELL_EX   = 16
+#ifndef FORCE_POWEROF2_BLKSIZE
     integer,  parameter :: NZCELL_EX   = 20
+#else
+    integer,  parameter :: NZCELL_EX   = 32
+#endif
     integer,  parameter :: NXBLK_EX    =  1
 #ifdef FLASH_GRID_UG
     integer,  parameter :: NYBLK_EX    =  1
@@ -50,7 +59,11 @@ subroutine Grid_unitTest(fileUnit, perfect)
     real,     save      :: YMIN_EX     = -1.50
     real,     save      :: YMAX_EX     =  4.50
     real,     save      :: ZMIN_EX     =  10
+#ifndef FORCE_POWEROF2_BLKSIZE
     real,     save      :: ZMAX_EX     =  30
+#else
+    real,     save      :: ZMAX_EX     =  42
+#endif
     real,     parameter :: XDELTA_EX   = (XMAX_EX-XMIN_EX)/NXCELL_EX
     real                :: YDELTA_EX
     real                :: ZDELTA_EX
@@ -392,7 +405,7 @@ subroutine Grid_unitTest(fileUnit, perfect)
     !!!!! CONFIRM REFINEMENT SETUP
 
     !!!!! CONFIRM PROPER INITIAL CONDITIONS
-    call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+    call Grid_getTileIterator(itor, LEAF)
     do while (itor%isValid())
         call itor%currentTile(tileDesc)
 
@@ -464,7 +477,7 @@ subroutine Grid_unitTest(fileUnit, perfect)
 
     !!!!! CONFIRM CELL COORDINATE ACCESSORS
     ! TEST THAT COORDINATE FUNCTIONS ARE CORRECT
-    call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+    call Grid_getTileIterator(itor, LEAF)
     do while (itor%isValid())
        call itor%currentTile(tileDesc)
 
@@ -492,9 +505,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
                   call assertEqual(y_coords(j), YMIN_EX + (j-1)*YDELTA_EX, "Bad Y-coordinate")
                   call assertEqual(z_coords(k), 0.0,                       "Bad Z-coordinate")
 #elif NDIM == 3
-                  call assertEqual(x_coords(i), XMIN_EX + (i-1)*XDELTA_EX, "Bad X-coordinate")
-                  call assertEqual(y_coords(j), YMIN_EX + (j-1)*YDELTA_EX, "Bad Y-coordinate")
-                  call assertEqual(z_coords(k), ZMIN_EX + (k-1)*ZDELTA_EX, "Bad Z-coordinate")
+                  call assertEqual      (x_coords(i), XMIN_EX + (i-1)*XDELTA_EX, "Bad X-coordinate")
+                  call assertEqual      (y_coords(j), YMIN_EX + (j-1)*YDELTA_EX, "Bad Y-coordinate")
+                  call assertAlmostEqual(z_coords(k), ZMIN_EX + (k-1)*ZDELTA_EX, "Bad left face Z-coordinate")
 #endif
              end do
           end do
@@ -518,9 +531,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
                  call assertEqual(y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
                  call assertEqual(z_coords(k), 0.0,                         "Bad Z-coordinate")
 #elif NDIM == 3
-                 call assertEqual(x_coords(i), XMIN_EX + (i-0.5)*XDELTA_EX, "Bad X-coordinate")
-                 call assertEqual(y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
-                 call assertEqual(z_coords(k), ZMIN_EX + (k-0.5)*ZDELTA_EX, "Bad Z-coordinate")
+                 call assertEqual      (x_coords(i), XMIN_EX + (i-0.5)*XDELTA_EX, "Bad X-coordinate")
+                 call assertEqual      (y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
+                 call assertAlmostEqual(z_coords(k), ZMIN_EX + (k-0.5)*ZDELTA_EX, "Bad cell-center Z-coordinate")
 #endif
              end do
           end do
@@ -544,9 +557,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
                   call assertEqual(y_coords(j), YMIN_EX + j*YDELTA_EX, "Bad Y-coordinate")
                   call assertEqual(z_coords(k), 0.0,                   "Bad Z-coordinate")
 #elif NDIM == 3
-                  call assertEqual(x_coords(i), XMIN_EX + i*XDELTA_EX, "Bad X-coordinate")
-                  call assertEqual(y_coords(j), YMIN_EX + j*YDELTA_EX, "Bad Y-coordinate")
-                  call assertEqual(z_coords(k), ZMIN_EX + k*ZDELTA_EX, "Bad Z-coordinate")
+                  call assertEqual      (x_coords(i), XMIN_EX + i*XDELTA_EX, "Bad X-coordinate")
+                  call assertEqual      (y_coords(j), YMIN_EX + j*YDELTA_EX, "Bad Y-coordinate")
+                  call assertAlmostEqual(z_coords(k), ZMIN_EX + k*ZDELTA_EX, "Bad right face Z-coordinate")
 #endif
              end do
           end do
@@ -561,7 +574,7 @@ subroutine Grid_unitTest(fileUnit, perfect)
     call Grid_releaseTileIterator(itor)
 
     ! CONFIRM THAT WE CAN GET COORDINATES OF TILE FACES
-    call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+    call Grid_getTileIterator(itor, LEAF)
     do while (itor%isValid())
        call itor%currentTile(tileDesc)
 
@@ -588,9 +601,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
                  call assertEqual(y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
                  call assertEqual(z_coords(k), 0.0,                         "Bad Z-coordinate")
 #elif NDIM == 3
-                 call assertEqual(x_coords(i), XMIN_EX + (i-1)  *XDELTA_EX, "Bad X-coordinate")
-                 call assertEqual(y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
-                 call assertEqual(z_coords(k), ZMIN_EX + (k-0.5)*ZDELTA_EX, "Bad Z-coordinate")
+                 call assertEqual      (x_coords(i), XMIN_EX + (i-1)  *XDELTA_EX, "Bad X-coordinate")
+                 call assertEqual      (y_coords(j), YMIN_EX + (j-0.5)*YDELTA_EX, "Bad Y-coordinate")
+                 call assertAlmostEqual(z_coords(k), ZMIN_EX + (k-0.5)*ZDELTA_EX, "Bad cell Z-coordinate")
 #endif
              end do
           end do
