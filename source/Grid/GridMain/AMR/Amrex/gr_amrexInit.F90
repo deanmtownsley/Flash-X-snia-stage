@@ -167,6 +167,9 @@ subroutine gr_amrexInit()
   ! entire block.  Therefore, we do not need to tag guardcells.
   call pp_amr%add("n_error_buf", 0)
 
+#ifdef DISABLED_CODE
+  call pp_amr%add("check_input", 0)
+#endif
   ! desctructors not valid for all compilers
 #if !defined(__GFORTRAN__) || (__GNUC__ > 4)
   call amrex_parmparse_destroy(pp_geom)

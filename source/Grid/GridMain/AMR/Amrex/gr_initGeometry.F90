@@ -26,6 +26,19 @@
 !!  Perform Grid data initializations that are related to the
 !!  geometry of the simulation. 
 !!
+!!  Uses the following data, which must have been
+!!  established before the call:
+!!
+!!  Initializes the following data, which will be available
+!!  after the call:
+!!    gr_geometry (one of CARTESIAN, POLAR, SPHERICAL, or CYLINDRICAL)
+!!    gr_geometryOverride
+!!    gr_dirGeom
+!!    gr_dirIsAngular
+!!    gr_imin, gr_jmin, gr_kmin      (UG or Paramesh Grid only)
+!!    gr_imax, gr_jmax, gr_kmax      (UG or Paramesh Grid only)
+!!    dr_globalDomain(LOW:HIGH,IAXIS:KAXIS)
+!!
 !! NOTES
 !!
 !!  This subroutine is normally called from Grid_init.
@@ -58,31 +71,41 @@
 !!
 !!***
 
+#include "Simulation.h"
+
 ! DEVNOTE: Make GridMain/gr_initGeometry indepedent of Grid_data variables
 ! initlized by paramesh and *not* used by AMReX.  Then this version should 
 ! disappear.
 subroutine gr_initGeometry()
 
-  use Grid_data, ONLY : gr_dirGeom, gr_dirIsAngular, gr_domainBC, gr_geometry
   use Driver_interface, ONLY : Driver_abort
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_setReal
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
-                                          RuntimeParameters_mapStrToInt, &
-                                          RuntimeParameters_setReal
+       RuntimeParameters_mapStrToInt
   use Logfile_interface, ONLY : Logfile_stampMessage,Logfile_stamp
+
+  use Grid_data, ONLY : gr_geometry, gr_geometryOverride, &
+                        gr_str_geometry, &
+                        gr_dirGeom, gr_dirIsAngular, gr_domainBC, &
+                        gr_globalDomain
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMRSH)
+  use Grid_data, ONLY : gr_imin, gr_imax, gr_jmin, gr_jmax, gr_kmin, gr_kmax
+#endif
 
   implicit none
 
-#include "Simulation.h"
 #include "constants.h"
 
   integer :: idir
 
   real    :: imin, imax, jmin, jmax, kmin, kmax
-  logical :: geometryOverride
 
-  ! Load directly rather than assume that they were already loaded by all
+  call RuntimeParameters_get("geometry",gr_str_geometry)
+  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+
+  ! Load directly rather than assume that they were already loaded by some
   ! flavors of Grid_init
-  call RuntimeParameters_get("geometryOverride", geometryOverride)
+  call RuntimeParameters_get("geometryOverride", gr_geometryOverride)
   call RuntimeParameters_get('xmin', imin)
   call RuntimeParameters_get('xmax', imax)
   call RuntimeParameters_get('ymin', jmin)
@@ -192,7 +215,7 @@ subroutine gr_initGeometry()
 ! have a reflecting boundary there.
 
      if (imin < 0.0) then
-        if (.NOT. geometryOverride) &
+        if (.NOT. gr_geometryOverride) &
              call Driver_abort("ERROR: radial coordinate cannot be < 0.0")
      endif
 
@@ -200,7 +223,7 @@ subroutine gr_initGeometry()
      (gr_domainBC(LOW,IAXIS) /= REFLECTING .AND. gr_domainBC(LOW,IAXIS) /= AXISYMMETRIC)) then
         !! FUTURE: We could have some special treatment for a boundary at r=0.0,
         !! like using the singular_line code provided in Paramesh3 ff. - KW
-        if (.NOT. geometryOverride) &
+        if (.NOT. gr_geometryOverride) &
              call Driver_abort("ERROR: reflecting or axisymmetric boundary required at x = 0.0 for radial coords")
      endif
 
@@ -281,5 +304,21 @@ subroutine gr_initGeometry()
      call RuntimeParameters_setReal("zmax", kmax)
   endif
 
+  !Store computational domain limits in a convenient array.  Used later in Grid_getDomainBC.
+  gr_globalDomain(LOW,IAXIS) = imin
+  gr_globalDomain(LOW,JAXIS) = jmin
+  gr_globalDomain(LOW,KAXIS) = kmin
+  gr_globalDomain(HIGH,IAXIS) = imax
+  gr_globalDomain(HIGH,JAXIS) = jmax
+  gr_globalDomain(HIGH,KAXIS) = kmax
+
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMRSH)
+  gr_imin = imin
+  gr_jmin = jmin
+  gr_kmin = kmin
+  gr_imax = imax
+  gr_jmax = jmax
+  gr_kmax = kmax
+#endif
 
 end subroutine gr_initGeometry

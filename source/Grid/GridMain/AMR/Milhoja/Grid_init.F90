@@ -165,8 +165,9 @@ subroutine Grid_init()
     !------------------------------------------------------------------------------
     ! Load into local Grid variables all runtime parameters needed by gr_initGeometry
     !------------------------------------------------------------------------------
-    CALL RuntimeParameters_get("geometry", gr_str_geometry)
-    CALL RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+!The following is now done in gr_initGeometry:
+!!$    CALL RuntimeParameters_get("geometry", gr_str_geometry)
+!!$    CALL RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
 
     !get the boundary conditions stored as strings in the par file
     CALL RuntimeParameters_get("xl_boundary_type", xl_bcString)
@@ -422,6 +423,9 @@ subroutine Grid_init()
     gr_globalDomain(:, :) = 0.0
     CALL milhoja_grid_getDomainBoundBox(MH_domainLo, MH_domainHi, MH_ierr)
     CALL gr_checkMilhojaError("Grid_init", MH_ierr)
+    !The following assignments should be unnecessary -- basically no-ops --
+    !since gr_globalDomain is already being set in gr_initGeometry,
+    !and those better be the same values!
     do i = 1, NDIM
         gr_globalDomain(LOW,  i) = REAL(MH_domainLo(i))
         gr_globalDomain(HIGH, i) = REAL(MH_domainHi(i))

@@ -198,8 +198,9 @@ subroutine Grid_init()
 !------------------------------------------------------------------------------
 ! Load into local Grid variables all runtime parameters needed by gr_initGeometry
 !------------------------------------------------------------------------------
-  call RuntimeParameters_get("geometry",gr_str_geometry)
-  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+!The following is now done in gr_initGeometry:
+!!$  call RuntimeParameters_get("geometry",gr_str_geometry)
+!!$  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
 
   !get the boundary conditions stored as strings in the flash.par file
   call RuntimeParameters_get("xl_boundary_type", xl_bcString)
@@ -302,6 +303,9 @@ subroutine Grid_init()
 ! Store interface-accessible data as local Grid data variables for optimization
 !----------------------------------------------------------------------------------
   !Store computational domain limits in a convenient array
+  !The following call should now be unnecessary -- basically, a no-op --
+  !since gr_globalDomain is already being set in gr_initGeometry,
+  !and those better be the same values!
   call Grid_getDomainBoundBox(gr_globalDomain)
 
   call Grid_getMaxRefinement(gr_lRefineMax, mode=1)

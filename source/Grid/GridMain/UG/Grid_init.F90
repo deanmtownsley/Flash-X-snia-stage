@@ -18,8 +18,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_init()
-!!
+!!  call Grid_init()
 !!
 !! DESCRIPTION
 !!
@@ -112,9 +111,10 @@ subroutine Grid_init()
      call Driver_getComm(AXIS_COMM, gr_axisComm(i),i)
   end do
 
-  call RuntimeParameters_get("geometry", gr_str_geometry)
-  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
-  call RuntimeParameters_get("geometryOverride",gr_geometryOverride)
+  ! Moved to gr_initGeometry:
+!!$  call RuntimeParameters_get("geometry", gr_str_geometry)
+!!$  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+!!$  call RuntimeParameters_get("geometryOverride",gr_geometryOverride)
 
   call RuntimeParameters_get("bndPriorityOne",gr_bndOrder(1))
   call RuntimeParameters_get("bndPriorityTwo",gr_bndOrder(2))
@@ -143,19 +143,20 @@ subroutine Grid_init()
   call RuntimeParameters_mapStrToInt(zl_bcString,gr_domainBC(LOW,KAXIS))
   call RuntimeParameters_mapStrToInt(zr_bcString,gr_domainBC(HIGH,KAXIS))
 
-  call RuntimeParameters_get('xmin', gr_imin)
-  call RuntimeParameters_get('xmax', gr_imax)
-  call RuntimeParameters_get('ymin', gr_jmin)
-  call RuntimeParameters_get('ymax', gr_jmax)
-  call RuntimeParameters_get('zmin', gr_kmin)
-  call RuntimeParameters_get('zmax', gr_kmax)
-
-  gr_globalDomain(LOW,IAXIS) = gr_imin
-  gr_globalDomain(LOW,JAXIS) = gr_jmin
-  gr_globalDomain(LOW,KAXIS) = gr_kmin
-  gr_globalDomain(HIGH,IAXIS) = gr_imax
-  gr_globalDomain(HIGH,JAXIS) = gr_jmax
-  gr_globalDomain(HIGH,KAXIS) = gr_kmax
+  ! The equivalent is now done in gr_initGeometry:
+!!$  call RuntimeParameters_get('xmin', gr_imin)
+!!$  call RuntimeParameters_get('xmax', gr_imax)
+!!$  call RuntimeParameters_get('ymin', gr_jmin)
+!!$  call RuntimeParameters_get('ymax', gr_jmax)
+!!$  call RuntimeParameters_get('zmin', gr_kmin)
+!!$  call RuntimeParameters_get('zmax', gr_kmax)
+!!$
+!!$  gr_globalDomain(LOW,IAXIS) = gr_imin
+!!$  gr_globalDomain(LOW,JAXIS) = gr_jmin
+!!$  gr_globalDomain(LOW,KAXIS) = gr_kmin
+!!$  gr_globalDomain(HIGH,IAXIS) = gr_imax
+!!$  gr_globalDomain(HIGH,JAXIS) = gr_jmax
+!!$  gr_globalDomain(HIGH,KAXIS) = gr_kmax
 
   call RuntimeParameters_get('smalle', gr_smalle)
   call RuntimeParameters_get('smallx', gr_smallx)
@@ -163,8 +164,10 @@ subroutine Grid_init()
 
 ! Determine the geometries of the individual dimensions, and scale
 ! angle value parameters that are expressed in degrees to radians.
-! This call must be made after gr_geometry, gr_domainBC, and gr_{j,k}{min,max}
+! This call must be made after baundary conditions in gr_domainBC
 ! have been set based on the corresponding runtime parameters.
+! After this call, gr_geometry and gr_{i,j,k}{min,max} will have
+! been set correctly.
   call gr_initGeometry()
 
 
