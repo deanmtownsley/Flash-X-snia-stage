@@ -241,7 +241,7 @@ subroutine gr_initGeometry()
 #if NDIM > 1
 ! y is the spherical theta coordinate.  It ranges from 0 to pi.  Since we
 ! are specifying the range in degrees, make sure that it is not > 180.
-        if (jmin > 180.0 .OR. jmax > 180.0) then 
+        if (jmin > 180.0 .OR. jmax > 180.0) then
            print *, 'ERROR: the theta coordinate in spherical geometry cannot be > pi.'
            print *, '       Check ymin and ymax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
@@ -285,7 +285,7 @@ subroutine gr_initGeometry()
 
 #if NDIM > 2
 ! z is the phi coordinate in both spherical and cylindrical coords.
-        if (kmin > 360.0 .OR. kmax > 360.0) then 
+        if (kmin > 360.0 .OR. kmax > 360.0) then
            print *, 'ERROR: the phi coordinate in the current geometry cannot be > 2 pi.'
            print *, '       Check zmin and zmax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
@@ -308,7 +308,9 @@ subroutine gr_initGeometry()
      call RuntimeParameters_setReal("zmax", kmax)
   endif
 
-  !Store computational domain limits in a convenient array.  Used later in Grid_getDomainBC.
+  ! Store computational domain limits in a convenient array.
+  ! Implementations of Grid_getDomainBoundBox may use this array
+  ! to return the correct domain bounds.
   gr_globalDomain(LOW,IAXIS) = imin
   gr_globalDomain(LOW,JAXIS) = jmin
   gr_globalDomain(LOW,KAXIS) = kmin
@@ -316,6 +318,9 @@ subroutine gr_initGeometry()
   gr_globalDomain(HIGH,JAXIS) = jmax
   gr_globalDomain(HIGH,KAXIS) = kmax
 
+  ! Some implementations of Grid_getDomainBoundBox have their own
+  ! way to return the correct domain bounds. For UG and PARAMESH,
+  ! module variables gr_imin,...,gr_kmax, are used.
 #if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMESH)
   gr_imin = imin
   gr_jmin = jmin
