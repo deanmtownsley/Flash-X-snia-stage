@@ -195,7 +195,7 @@ subroutine Grid_init()
 !----------------------------------------------------------------------------------
 ! mesh geometry - done early so Paramesh_init can use gr_geometry for some checking
 !----------------------------------------------------------------------------------
-  ! Initialization of gr_geometry etc is done in gr_initGeometry, called below.
+  ! Initialization of gr_geometry etc is done in gr_initGeometry.
 
   call gr_initGeometry()
 
@@ -284,14 +284,6 @@ subroutine Grid_init()
 
   ! Initialization of gr_globalDomain, containing the same information as gr_imin,...,gr_kmax,
   ! is done in gr_initGeometry, called above.
-  ! The following lines moved to gr_initGeometry:
-!!$  !Store computational domain limits in a convenient array.  Used later in Grid_getDomainBC.
-!!$  gr_globalDomain(LOW,IAXIS) = gr_imin
-!!$  gr_globalDomain(LOW,JAXIS) = gr_jmin
-!!$  gr_globalDomain(LOW,KAXIS) = gr_kmin
-!!$  gr_globalDomain(HIGH,IAXIS) = gr_imax
-!!$  gr_globalDomain(HIGH,JAXIS) = gr_jmax
-!!$  gr_globalDomain(HIGH,KAXIS) = gr_kmax
 
 
   call RuntimeParameters_get("eosMode", eosModeString)

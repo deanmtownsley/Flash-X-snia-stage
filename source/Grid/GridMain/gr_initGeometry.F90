@@ -44,10 +44,10 @@
 !!
 !!  This subroutine is normally called from Grid_init.
 !!  This code was moved into a separate file because it is
-!!  independent of the choice of Grid implementation.
+!!  essentially independent of the choice of Grid implementation.
 !!
 !!  Here are some initialization things that are NOT done in this
-!!  subroutine, and that should therefore generelly occur in later steps:
+!!  subroutine, and that should therefore generally occur in later steps:
 !!    - maximum refinement levels
 !!    - per-level quantities, for example, deltas (cell spacings) for each level
 !!
@@ -57,7 +57,12 @@
 !! SIDE EFFECTS
 !!
 !!  Loads the following runtime parameter into Grid_data module variables:
-!!    geometryOverride into gr_geometryOverride
+!!    geometry   into  gr_str_geometry (as string) and gr_geometry (as integer)
+!!    geometryOverride  into  gr_geometryOverride
+!!    xmin,xmax,ymin,ymax,zmin,zmax
+!!                    - into elements of dr_globalDomain
+!!                    - into gr_imin,gr_imax,gr_jmin,gr_jmax,gr_kmin,gr_kmax
+!!                      (additionally), if the Grud is UG or PARAMESH.
 !!
 !!  On return, the components of gr_dirGeom will be set appropriately for
 !!  the simulation's geometry as indicated by gr_geometry.
@@ -65,9 +70,9 @@
 !!  For angle coordinates, values will be scaled by multiplying with pi/180.
 !!  This may affect ymin, ymax and/or zmin, zmax, depending on gr_geometry.
 !!  For example, if the JAXIS grid direction stands for an angle (as is the case
-!!  in POLAR and SPHERICAL coordinates),  ymin and ymax  given in degrees 
+!!  in POLAR and SPHERICAL coordinates),  ymin and ymax given in degrees
 !!  in a flash.par file are converted here to radians.
-!!  
+!!
 !!
 !! ARGUMENTS
 !!
@@ -85,9 +90,9 @@
 subroutine gr_initGeometry()
 
   use Driver_interface, ONLY : Driver_abort
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_setReal
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
        RuntimeParameters_mapStrToInt
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_setReal
   use Logfile_interface, ONLY : Logfile_stampMessage,Logfile_stamp
 
   use Grid_data, ONLY : gr_geometry, gr_geometryOverride, &

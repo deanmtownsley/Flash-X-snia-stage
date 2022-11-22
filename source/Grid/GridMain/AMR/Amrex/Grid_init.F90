@@ -195,13 +195,9 @@ subroutine Grid_init()
   endif
 #endif
 
-!------------------------------------------------------------------------------
-! Load into local Grid variables all runtime parameters needed by gr_initGeometry
-!------------------------------------------------------------------------------
-!The following is now done in gr_initGeometry:
-!!$  call RuntimeParameters_get("geometry",gr_str_geometry)
-!!$  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+  ! Initialization of gr_geometry etc is done in gr_initGeometry, called below.
 
+  ! DO THIS EARLY - must be before gr_initGeometry is called:
   !get the boundary conditions stored as strings in the flash.par file
   call RuntimeParameters_get("xl_boundary_type", xl_bcString)
   call RuntimeParameters_get("xr_boundary_type", xr_bcString)
@@ -218,10 +214,12 @@ subroutine Grid_init()
   call RuntimeParameters_mapStrToInt(zl_bcString, gr_domainBC(LOW, KAXIS))
   call RuntimeParameters_mapStrToInt(zr_bcString, gr_domainBC(HIGH,KAXIS))
 
-!------------------------------------------------------------------------------
-! FLASH inits geometry first as it can change runtime parameters
-!------------------------------------------------------------------------------
-  ! Determine the geometries of the individual dimensions, and scale
+!----------------------------------------------------------------------------------
+! mesh geometry - done early so Paramesh_init can use gr_geometry for some checking
+! Flash-X inits geometry first as it can change runtime parameters.
+!----------------------------------------------------------------------------------
+  ! Initialize geometry-related Flash-X runtime parameters,
+  ! determine the geometries of the individual dimensions, and scale
   ! angle value parameters that are expressed in degrees to radians.
   call gr_initGeometry()
 
