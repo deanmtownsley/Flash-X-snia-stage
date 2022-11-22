@@ -43,8 +43,13 @@
 !! NOTES
 !!
 !!  This subroutine is normally called from Grid_init.
-!!  The code was moved into a separate file because it is
+!!  This code was moved into a separate file because it is
 !!  independent of the choice of Grid implementation.
+!!
+!!  Here are some initialization things that are NOT done in this
+!!  subroutine, and that should therefore generelly occur in later steps:
+!!    - maximum refinement levels
+!!    - per-level quantities, for example, deltas (cell spacings) for each level
 !!
 !!  CARTESIAN, POLAR, SPHERICAL, and CYLINDRICAL are defined
 !!  in constants.h.
@@ -89,7 +94,7 @@ subroutine gr_initGeometry()
                         gr_str_geometry, &
                         gr_dirGeom, gr_dirIsAngular, gr_domainBC, &
                         gr_globalDomain
-#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMRSH)
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMESH)
   use Grid_data, ONLY : gr_imin, gr_imax, gr_jmin, gr_jmax, gr_kmin, gr_kmax
 #endif
 
@@ -311,7 +316,7 @@ subroutine gr_initGeometry()
   gr_globalDomain(HIGH,JAXIS) = jmax
   gr_globalDomain(HIGH,KAXIS) = kmax
 
-#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMRSH)
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMESH)
   gr_imin = imin
   gr_jmin = jmin
   gr_kmin = kmin
