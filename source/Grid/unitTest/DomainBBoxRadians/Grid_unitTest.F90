@@ -4,7 +4,7 @@
 !> This code tests that the Grid unit is properly initialized for a domain and
 !! a geometry with angle coordinates, by verifying that coordinates have been
 !! properly from degrees (the units used in runtime parameters) to radians
-!! (the units sued internally in the Flash-X code).
+!! (the units used internally in the Flash-X code).
 !!
 !! @param fileUnit   Ignored.  All output is written to stdout.
 !! @param perfect    True if no errors occurred; False, otherwise.

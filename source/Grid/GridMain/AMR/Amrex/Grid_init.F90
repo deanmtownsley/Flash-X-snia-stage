@@ -215,7 +215,7 @@ subroutine Grid_init()
   call RuntimeParameters_mapStrToInt(zr_bcString, gr_domainBC(HIGH,KAXIS))
 
 !----------------------------------------------------------------------------------
-! mesh geometry - done early so Paramesh_init can use gr_geometry for some checking
+! mesh geometry - done early so other code can use gr_geometry, etc.
 ! Flash-X inits geometry first as it can change runtime parameters.
 !----------------------------------------------------------------------------------
   ! Initialize geometry-related Flash-X runtime parameters,

@@ -62,7 +62,7 @@
 !!    xmin,xmax,ymin,ymax,zmin,zmax
 !!                    - into elements of dr_globalDomain
 !!                    - into gr_imin,gr_imax,gr_jmin,gr_jmax,gr_kmin,gr_kmax
-!!                      (additionally), if the Grud is UG or PARAMESH.
+!!                      (additionally), if the Grid is UG or PARAMESH.
 !!
 !!  On return, the components of gr_dirGeom will be set appropriately for
 !!  the simulation's geometry as indicated by gr_geometry.

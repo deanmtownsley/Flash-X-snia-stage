@@ -159,12 +159,9 @@ subroutine gr_initSpecific()
   amr_mpi_meshComm=gr_meshComm
   call Paramesh_init()
 
-  ! The following call is now made directly from Grid_init:
-! Determine the geometries of the individual dimensions, and scale
-! angle value parameters that are expressed in degrees to radians.
-! This call must be made after gr_geometry, gr_domainBC, and gr_{j,k}{min,max}
-! have been set based on the corresponding runtime parameters.
-!!$  call gr_initGeometry()
+  ! In previous code versions, gr_initGeometry() was called from here.
+  ! Now gr_initGeometry() has been revised and should be called earlier
+  ! instead, namely in Grid_init, by all Grid implementations.
 
   allocate(gr_delta(MDIM,lrefine_max))
   !! calculating deltas for each level of 

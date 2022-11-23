@@ -6,7 +6,7 @@ This document is intended to capture and communicate the design and use of the `
 Paramesh, AMReX, Milhoja, Uniform, Grid, Interface, Pseudo-UG, Cartesian, Unit Test, Geometry, Curvilinear, Angle Coordinate, 3D
 
 #### Motivation
-This test was designed largely to check whether angle coordinates are consistently converted from degrees (in Grid-owned runtime parameters) to radians (Flash-X code internal convention). All Grid implementations should have consistent behavior in this respect. Some other Grid features are also tested along the way, mostly those that plly to all, or nearly all, Grid implementations.
+This test was designed largely to check whether angle coordinates are consistently converted from degrees (in Grid-owned runtime parameters) to radians (Flash-X code internal convention). All Grid implementations should have consistent behavior in this respect. Some other Grid features are also tested along the way, mostly those that apply to all, or nearly all, Grid implementations.
 
 While blocks are typically specified in Flash-X to have the same number of cells along each direction, the Grid unit does not insist that all blocks must be specified this way.  Therefore, this test was explicitly written to confirm correct functionality when using blocks with a different number of cells along different directions.
 
