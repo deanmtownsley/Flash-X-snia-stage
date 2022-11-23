@@ -3,7 +3,6 @@
 
 ##### PHYSICAL SPACE DISCRETIZATION
 geometry = "cylindrical"
-#geometryOverride = .TRUE.
 
 xmin     =  1.0
 xmax     =  4.0

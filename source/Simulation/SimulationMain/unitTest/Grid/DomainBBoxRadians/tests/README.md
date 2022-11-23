@@ -14,7 +14,7 @@ While blocks are typically specified in Flash-X to have the same number of cells
 As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000` file if all tests passed or if any test failed.  Note that some expected values used to assess correctness are hardcoded in the code.  As a result, the test can only be configured in specific ways via the par files and the setup command (See the specifications below).  It is unlikely that this test will function correctly if more than one MPI process is used.
 
 #### Status
-Initial adaptation from other Grid unitTest in progress; done for test_pm and test_ug.
+These tests have been verified to function correctly on  GCE/compute-02 with GFortran / GCC 7.5.0 compilers and can therefore be included in testsuites.
 
 #### Unofficial GCE Testsuite Specifications
 ```
