@@ -42,6 +42,9 @@
 !! expect each grid implementation to do this.  If we were to implement a data
 !! member/constructor inheritance scheme, then writing and maintaining Grid_inits at this
 !! level would be easier and less error prone.
+!! @todo The runtime parameter geometryOverride should probably be made to have
+!!       the same effects as in the Amrex Grid implementation (see gr_amrexInit).
+!!       For now, code below aborts instead if gr_geometryOverride is TRUE.
 subroutine Grid_init()
     use milhoja_types_mod,           ONLY : MILHOJA_INT, &
                                             MILHOJA_REAL
@@ -188,6 +191,9 @@ subroutine Grid_init()
   ! determine the geometries of  dimensions, and scale
   ! angle value parameters that are expressed in degrees to radians.
     CALL gr_initGeometry()
+    if (gr_geometryOverride) then
+       CALL Driver_abort("[Grid_init] Runtime parameter geometryOverride not yet supported by Milhoja Grid")
+    end if
 
     !------------------------------------------------------------------------------
     ! Load into local Grid variables all runtime parameters needed by Milhoja
