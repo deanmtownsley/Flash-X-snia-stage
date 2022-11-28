@@ -301,7 +301,7 @@ subroutine Grid_init()
 !----------------------------------------------------------------------------------
 ! Store interface-accessible data as local Grid data variables for optimization
 !----------------------------------------------------------------------------------
-  !Store computational domain limits in a convenient array
+  !Store computational domain limits in a convenient array.
   !The following call should be unnecessary -- basically, a no-op --
   !since gr_globalDomain is already being set in gr_initGeometry,
   !and the significant coordinate values set by the following call
