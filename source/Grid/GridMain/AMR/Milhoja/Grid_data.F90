@@ -85,6 +85,7 @@ module Grid_data
     logical, save :: gr_useTiling
     integer, save :: gr_tileSize(1:MDIM)
 
+    logical, save :: gr_geometryOverride
     character(len=MAX_STRING_LENGTH), save :: gr_str_geometry
 
     integer, save :: gr_eosMode

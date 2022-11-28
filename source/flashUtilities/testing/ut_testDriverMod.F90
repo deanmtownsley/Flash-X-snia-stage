@@ -57,6 +57,11 @@ module ut_testDriverMod
         procedure :: assertEqualReal
     end interface assertEqual
 
+    interface assertAlmostEqual
+        procedure :: assertAlmostEqualAuto
+        procedure :: assertAlmostEqual
+    end interface assertAlmostEqual
+
     interface assertSetEqual
         procedure :: assertSetEqual2dIntArray
     end interface assertSetEqual
@@ -113,7 +118,7 @@ contains
         logical,      intent(IN) :: a
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
         
         if (.NOT. a) then
             write(buffer,'(A)') msg
@@ -127,7 +132,7 @@ contains
         logical,      intent(IN) :: a
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
         
         if (a) then
             write(buffer,'(A)') msg
@@ -142,7 +147,7 @@ contains
         integer,      intent(IN) :: b
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (a /= b) then
             write(buffer,'(2A,I0,A,I0)') msg, " ", a, " != ", b
@@ -157,15 +162,35 @@ contains
         real,         intent(IN) :: b
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (a /= b) then
-            write(buffer,'(A,F15.8,A,F15.8)') msg, a, " != ", b
+600         format(A,1P,G24.16,A,G24.16)
+            write(buffer,600) msg, a, " != ", b
             write(*,*) TRIM(ADJUSTL(buffer))
             my_n_failed = my_n_failed + 1
         end if
         my_n_tests = my_n_tests + 1
     end subroutine assertEqualReal
+
+    subroutine assertAlmostEqualAuto(a, b, msg)
+        real,         intent(IN) :: a
+        real,         intent(IN) :: b
+        character(*), intent(IN) :: msg
+
+        real :: prec
+        character(256) :: buffer
+
+        prec = 2.0 * spacing(min(abs(a),abs(b)))
+        if (ABS(b - a) > prec) then
+700         format(A,' (with auto tol)',6P,G24.16,A,0P,G24.16)
+            write(buffer,700) msg, a, " != ", b
+200         format((A))
+            write(*,200) TRIM(ADJUSTL(buffer))
+            my_n_failed = my_n_failed + 1
+        end if
+        my_n_tests = my_n_tests + 1
+    end subroutine assertAlmostEqualAuto
 
     subroutine assertAlmostEqual(a, b, prec, msg)
         real,         intent(IN) :: a
@@ -173,7 +198,7 @@ contains
         real,         intent(IN) :: prec
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (ABS(b - a) > prec) then
             write(buffer,'(A,F15.8,A,F15.8)') msg, a, " != ", b
