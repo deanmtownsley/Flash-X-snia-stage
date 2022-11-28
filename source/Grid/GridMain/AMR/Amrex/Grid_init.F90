@@ -221,6 +221,7 @@ subroutine Grid_init()
   ! Initialize geometry-related Flash-X runtime parameters,
   ! determine the geometries of the individual dimensions, and scale
   ! angle value parameters that are expressed in degrees to radians.
+  ! This call has to come before the call to gr_amrexInit!
   call gr_initGeometry()
 
 !------------------------------------------------------------------------------
@@ -301,9 +302,12 @@ subroutine Grid_init()
 ! Store interface-accessible data as local Grid data variables for optimization
 !----------------------------------------------------------------------------------
   !Store computational domain limits in a convenient array
-  !The following call should now be unnecessary -- basically, a no-op --
+  !The following call should be unnecessary -- basically, a no-op --
   !since gr_globalDomain is already being set in gr_initGeometry,
-  !and those better be the same values!
+  !and the significant coordinate values set by the following call
+  !should be exactly the same.  However, there may be differences
+  !in the values to which the elements corresponding to inactive
+  !directions (i.e., > NDIM) are set, if NDIM < MDIM.
   call Grid_getDomainBoundBox(gr_globalDomain)
 
   call Grid_getMaxRefinement(gr_lRefineMax, mode=1)
