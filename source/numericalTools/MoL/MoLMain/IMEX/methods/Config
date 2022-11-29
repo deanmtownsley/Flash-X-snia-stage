@@ -1,0 +1,11 @@
+# Config file the implicit-explicit integrator methods
+
+USESETUPVARS IMEX_Method
+
+EXCLUSIVE *
+
+DEFAULT FBE
+
+IF IMEX_Method == "IMEX-SSP2-222"
+   DEFAULT SSP2_222
+ENDIF
