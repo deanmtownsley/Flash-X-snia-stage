@@ -1,0 +1,7 @@
+# Config file for the IMEX integrator
+
+# The specific method will be selected in the Config file in the methods
+# directory - this added directory level is to keep things less cluttered
+# and follow a similar pattern as the KERNEL directories in the other
+# integrator implementations
+DEFAULT methods
