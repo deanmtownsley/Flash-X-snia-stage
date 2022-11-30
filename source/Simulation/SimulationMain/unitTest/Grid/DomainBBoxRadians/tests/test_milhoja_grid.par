@@ -1,0 +1,67 @@
+# These exact values are used in the unittest.  They should not be
+# changed here and different values should not be given at setup.
+
+##### PHYSICAL SPACE DISCRETIZATION
+geometry = "cylindrical"
+
+xmin     =  1.0
+xmax     =  4.0
+ymin     = -1.5
+ymax     =  4.5
+zmin     =  10
+zmax     =  42
+
+##### PARTITION OF PHYSICAL SPACE INTO BLOCKS
+nblockx =  1
+nblocky =  2
+nblockz =  2
+
+gr_enableTiling = .FALSE.
+gr_useTiling = .FALSE.
+gr_tileSizeX = 4
+gr_tileSizeY = 2
+gr_tileSizeZ = 1
+
+##### BOUNDARY CONDITIONS
+xl_boundary_type = "reflect"
+xr_boundary_type = "outflow"
+yl_boundary_type = "periodic"
+yr_boundary_type = "periodic"
+zl_boundary_type = "reflect"
+zr_boundary_type = "reflect"
+
+##### AMR CONFIGURATION
+lrefine_max = 1
+nrefs       = 5
+
+refine_var_1    = "dens"
+
+refine_cutoff_1 = 0.8
+refine_cutoff_2 = 0.5
+refine_cutoff_3 = 0.6
+
+derefine_cutoff_1 = 0.45
+derefine_cutoff_2 = 0.325
+derefine_cutoff_3 = 0.35
+
+refine_filter_1 = 0.05
+refine_filter_2 = 0.025
+refine_filter_3 = 0.035
+
+##### EoS CONFIGURATION
+eosMode     = "dens_ie"
+eosModeInit = "dens_temp"
+
+##### TRICKS
+# Settings to avoid warnings (or even program aborts) about
+# non-positive values for variables that are usually taken as mass
+# density and specific energies, and are thus handled specially by the
+# Grid unit.  This may only be necessary for the Paramesh Grid, since
+# its gr_sanitizeDataAfterInterp subroutine appears to be particularly
+# picky by default.
+# Negative values for "small rho" and "small energy" bounds should not
+# be used in physically meaningful simulations! The values here are
+# chosen to be just low enough (and then some) to avoid warnings in
+# the default test configuration with NGUARD=2.
+smlRho = -2.201
+smallE = -4.401

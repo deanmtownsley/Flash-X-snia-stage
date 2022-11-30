@@ -77,7 +77,6 @@
 function gr_blockMatch(blkID,ntype,refinementLevel) result(match)
 
   use tree, ONLY : nodetype,lnblocks,neigh,lrefine
-  use gr_specificData, ONLY : gr_oneBlock
 
   implicit none
 
@@ -129,10 +128,6 @@ function gr_blockMatch(blkID,ntype,refinementLevel) result(match)
      end if
   case(ACTIVE_BLKS)
      match = ((nodetype(i)==LEAF).or.(nodetype(i)==PARENT_BLK))
-  case(TRAVERSED)
-     match = (gr_oneBlock(i)%blockType==TRAVERSED) !DEV: What does this mean?
-  case(TRAVERSED_AND_ACTIVE)
-     match = (gr_oneBlock(i)%blockType==TRAVERSED_AND_ACTIVE) !DEV: What does this mean?
   case(REFINEMENT)
      if (present(refinementLevel)) then
         if (refinementLevel > 0) then
