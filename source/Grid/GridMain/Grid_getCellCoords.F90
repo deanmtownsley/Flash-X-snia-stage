@@ -147,7 +147,7 @@
 
 subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   use Grid_interface,   ONLY : Grid_getDeltas
-  use Grid_data,        ONLY : gr_globalDomain, gr_geometry
+  use Grid_data,        ONLY : gr_globalDomain
   use Driver_interface, ONLY : Driver_abort
 
   implicit none
