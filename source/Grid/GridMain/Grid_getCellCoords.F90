@@ -159,7 +159,7 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   integer, intent(in)  :: hi(1:MDIM)
   real,    intent(out) :: coordinates(:)
 
-  real    :: shift, t0
+  real    :: shift
   integer :: nElements
   real    :: deltas(1:MDIM)
   integer :: i
@@ -194,15 +194,8 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
 
   associate (x0 => gr_globalDomain(LOW, axis), &
              dx => deltas(axis))
-      t0 = 0.0
-      if (gr_geometry == SPHERICAL) then
-              if ((axis == JAXIS) .or. (axis == KAXIS)) t0 = x0 - (x0 * PI/(180.))
-      else if (gr_geometry == CYLINDRICAL) then
-              if (axis == KAXIS) t0 = x0 - (x0 * PI/(180.))
-      end if
-
       do i = 1, nElements
-          coordinates(i) = (x0 - t0) + (lo(axis) + i - shift) * dx
+          coordinates(i) = x0 + (lo(axis) + i - shift) * dx
       end do
   end associate
 end subroutine Grid_getCellCoords
