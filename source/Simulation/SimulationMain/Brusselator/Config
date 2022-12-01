@@ -2,7 +2,7 @@
 LIBRARY LAPACK
 
 REQUIRES Driver/DriverMain/MoL
-REQUIRES numericalTools/MoL/MoLMain/MR
+REQUIRES numericalTools/MoL/MoLMain/IMEX
 
 GUARDCELLS 4
 
