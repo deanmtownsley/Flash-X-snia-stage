@@ -10,4 +10,4 @@
 	url = ../../Flash-X/PARAMESH-for-Flash-X.git
 [submodule "lib/amrex/source"]
 	path = lib/amrex/source
-	url = ../../AMReX-Codes/amrex.git
+	url = https://github.com/AMReX-Codes/amrex
