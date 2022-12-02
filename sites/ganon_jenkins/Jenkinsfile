@@ -1,6 +1,6 @@
 pipeline {
     triggers { pollSCM('') }  // Run tests whenever a new commit is detected.
-    agent { dockerfile { 'sites/ganon_jenkins' } } // Use the Dockerfile defined in the root Flash-X directory
+    agent { dockerfile { dir 'sites/ganon_jenkins' } } // Use the Dockerfile defined in the root Flash-X directory
     environment {
         pathToSimulations = '../source/Simulation/SimulationMain' // Needed in order for Flash-X-Test to know where to find files
     }
