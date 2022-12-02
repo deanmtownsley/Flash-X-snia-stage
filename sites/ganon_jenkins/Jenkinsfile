@@ -102,13 +102,13 @@ pipeline {
                 }
 	    }}
 
-	    stage('Grid_AMR_AMReX_2d_Refine'){ steps{
-		sh './setup unitTest/Grid/Amrex/TestRefine -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
-		dir("${STAGE_NAME}"){
-		    sh "make -j EXE=flash-exe"
-		    sh "mpiexec -n 1 flash-exe"
-                }
-	    }}
+	    //stage('Grid_AMR_AMReX_2d_Refine'){ steps{
+		//sh './setup unitTest/Grid/Amrex/TestRefine -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
+		//dir("${STAGE_NAME}"){
+		    //sh "make -j EXE=flash-exe"
+		    //sh "mpiexec -n 1 flash-exe"
+                //}
+	    //}}
 
 	    stage('Grid_AMR_AMReX_2d_TestCyl'){ steps{
 		sh './setup unitTest/Grid/Amrex/TestCyl2d -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME}'
