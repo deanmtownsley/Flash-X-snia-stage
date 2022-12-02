@@ -10,7 +10,7 @@ pipeline {
     	// Set up submodules and amrex //
         //=============================//
     	stage('Prerequisites'){ steps{
-	    withCredentials([gitUsernamePassword(credentialsId: '95dcef17-3b25-4155-bfd8-9b4706deef56', gitToolName: 'git-tool')]) {
+	    withCredentials([gitUsernamePassword(credentialsId: 'github_personal_access_token', gitToolName: 'git-tool')]) {
 	        sh 'git submodule update --init'
 	    }
 	    dir('lib/amrex/source'){
