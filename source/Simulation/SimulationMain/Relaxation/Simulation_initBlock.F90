@@ -43,6 +43,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use NeutrinoOpacitiesComputationModule, ONLY : ComputeEquilibriumDistributions_Point
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
 
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+
 #if defined(THORNADO_ORDER_V)
   use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
 #endif
@@ -51,10 +55,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
   implicit none
 
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
-  
   real, dimension(:,:,:,:), pointer :: solnData
   type(Grid_tile_t), intent(in)     :: tileDesc
 
@@ -321,12 +321,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                      Inu2 = 0.0
                      Inu3 = 0.0
                      CALL ComputeConserved_TwoMoment &
-                       ( Dnu, Inu1, Inu2, Inu3, &
-                         Nnu, Gnu1, Gnu2, Gnu3, &
-                         sim_velx_i, sim_vely_i, sim_velz_i, &
-                         uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11), &
-                         uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22), &
-                         uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33) )
+                          ( Dnu, Inu1, Inu2, Inu3, &
+                            Nnu, Gnu1, Gnu2, Gnu3, &
+                            sim_velx_i, sim_vely_i, sim_velz_i, &
+                            uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11), &
+                            uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22), &
+                            uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33) )
 #endif
 
                  end select
