@@ -15,9 +15,9 @@ pipeline {
 	    }
 	    dir('lib/amrex/source'){
 	        sh '''
-	        ./configure --prefix=install/1D --dim=1; make -j; make install
-	        ./configure --prefix=install/2D --dim=2; make -j; make install
-	        ./configure --prefix=install/3D --dim=3; make -j; make install
+	        ./configure --prefix=install/1D --dim=1; make -j8; make install
+	        ./configure --prefix=install/2D --dim=2; make -j8; make install
+	        ./configure --prefix=install/3D --dim=3; make -j8; make install
 	        '''
 	    }
 	    sh 'mpicc -v'
@@ -27,7 +27,7 @@ pipeline {
 	//==================================================//
         // Run all of the official tests using Flash-X-Test //
 	//==================================================//
-        stage('UnitTest'){ parallel {
+        stage('UnitTest'){ stages {
 	    
 	    stage('Eos_helmholtz_3d_AMReX'){ steps{
 		sh './setup unitTest/Eos/Helmholtz -site=ganon_jenkins -auto +amrex -3d +noio -objdir=${STAGE_NAME}'
