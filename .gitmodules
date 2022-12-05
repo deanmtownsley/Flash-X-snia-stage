@@ -8,3 +8,6 @@
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
 	branch = main
 	url = ../../Flash-X/PARAMESH-for-Flash-X.git
+[submodule "lib/amrex/source"]
+	path = lib/amrex/source
+	url = ../../AMReX-Codes/amrex.git
