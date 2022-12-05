@@ -1,10 +1,13 @@
 [submodule "lib/weaklib/source"]
 	path = lib/weaklib/source
-	url = git@github.com:starkiller-astro/weaklib.git
+	url = ../../starkiller-astro/weaklib.git
 [submodule "lib/thornado/source"]
 	path = lib/thornado/source
-	url = git@github.com:endeve/thornado.git
+	url = ../../endeve/thornado.git
 [submodule "source/Grid/GridMain/AMR/Paramesh4/PM4_package"]
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
 	branch = main
-	url = git@github.com:Flash-X/PARAMESH-for-Flash-X.git
+	url = ../../Flash-X/PARAMESH-for-Flash-X.git
+[submodule "lib/amrex/source"]
+	path = lib/amrex/source
+	url = ../../AMReX-Codes/amrex
