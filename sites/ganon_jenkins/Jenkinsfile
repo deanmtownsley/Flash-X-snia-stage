@@ -27,7 +27,7 @@ pipeline {
 	    sh './setup StreamingSineWave -site=ganon_jenkins -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True -gridinterpolation=native +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_amr_3d.par  -objdir=${STAGE_NAME}'
 	    dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "mpiexec -n 1 flash-exe"
+                    sh "mpiexec -n 8 flash-exe"
 	    }
 	}}
 
