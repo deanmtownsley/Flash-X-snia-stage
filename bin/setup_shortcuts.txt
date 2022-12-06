@@ -189,3 +189,9 @@ weaklibACC:+weaklib:weaklibACC=True:-defines=WEAKLIB_OACC
 
 # Shortcut to use starkiller eos
 starkiller:--with-unit=physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller
+
+# MoL Shortcut
+MoL:--with-unit=numericalTools/MoL:--with-unofficial=numericalTools/MoL:useMoL=True
+MoLERK:+MoL:MoL_Integrator="ERK"
+MoLIMEX:+MoL:MoL_Integrator="IMEX"
+MoLMR:+MoL:MoL_Integrator="MR"
