@@ -18,6 +18,9 @@ pipeline {
 	        sh 'git submodule update --init'
 		sh 'pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@89a8d49c831db6da9f87095068c2e766bd5bd458'
 	    }
+	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
+	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTest.suite"
+	    sh ".local/bin/flashxtest run-suite"
 	    dir('lib/amrex/source'){
 	        sh '''
 	        ./configure --prefix=install/1D --dim=1; make -j8; make install
@@ -33,10 +36,8 @@ pipeline {
         // Run all of the official tests using Flash-X-Test //
 	//==================================================//
         stage('UnitTest'){ steps{
-	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
-	    sh ".local/bin/flashxtest setup-suite site/ganon_jenkins/UnitTest.suite"
-	    sh ".local/bin/flashxtest run-suite"
-        }} //stage('UnitTest'){ steps{
+	    sh "echo tmp"
+	}} //stage('UnitTest'){ steps{
 	
     } // stages{
 
