@@ -3,6 +3,10 @@ pipeline {
     agent { dockerfile { dir 'sites/ganon_jenkins' } } // Use the Dockerfile defined in the root Flash-X directory
     environment {
         pathToSimulations = '../source/Simulation/SimulationMain' // Needed in order for Flash-X-Test to know where to find files
+	HOME="${env.WORKSPACE}"
+	// Get rid of Read -1, expected <someNumber>, errno =1 error
+        // See https://github.com/open-mpi/ompi/issues/4948
+        OMPI_MCA_btl_vader_single_copy_mechanism = 'none'
     }
     stages {
 
@@ -12,6 +16,7 @@ pipeline {
     	stage('Prerequisites'){ steps{
 	    withCredentials([gitUsernamePassword(credentialsId: 'github_personal_access_token', gitToolName: 'git-tool')]) {
 	        sh 'git submodule update --init'
+		sh 'pip3 install pip install git+https://github.com/Flash-X/Flash-X-Test.git@89a8d49c831db6da9f87095068c2e766bd5bd458'
 	    }
 	    dir('lib/amrex/source'){
 	        sh '''
