@@ -32,11 +32,11 @@ pipeline {
 	//==================================================//
         // Run all of the official tests using Flash-X-Test //
 	//==================================================//
-        stage('UnitTest'){
+        stage('UnitTest'){ steps{
 	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
 	    sh ".local/bin/flashxtest setup-suite site/ganon_jenkins/UnitTest.suite"
 	    sh ".local/bin/flashxtest run-suite"
-        } //stage('UnitTest'){
+        }} //stage('UnitTest'){ steps{
 	
     } // stages{
 
