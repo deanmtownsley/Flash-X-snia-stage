@@ -42,7 +42,7 @@ module Simulation_data
   real, save :: sim_xmax
 
   !! *** Variables pertaining to this Simulation *** !!
-  integer, save :: sim_meshMe, sim_globalMe
+  integer, save :: sim_meshMe, sim_meshComm, sim_globalMe, sim_globalComm
   real, save :: sim_velx_i
   real, save :: sim_vely_i
   real, save :: sim_velz_i

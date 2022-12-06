@@ -38,7 +38,7 @@
 subroutine Simulation_init()
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abort, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getComm, Driver_getMype
   use Eos_interface, ONLY : Eos_getAbarZbar
   use Logfile_interface, ONLY : Logfile_stamp
   use ProgramHeaderModule, ONLY : nE, nDOF
@@ -54,7 +54,9 @@ subroutine Simulation_init()
 
   real, dimension(SPECIES_BEGIN:SPECIES_END) :: massFraction
 
+  call Driver_getComm(MESH_COMM, sim_meshComm)
   call Driver_getMype(MESH_COMM, sim_meshMe)
+  call Driver_getComm(GLOBAL_COMM, sim_globalComm)
   call Driver_getMype(GLOBAL_COMM, sim_globalMe)
 
   call RuntimeParameters_get('xmin', sim_xmin)

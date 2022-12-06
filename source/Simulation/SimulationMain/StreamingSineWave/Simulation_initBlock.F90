@@ -38,6 +38,8 @@
 
 !!REORDER(4): solnData
 
+#include "constants.h"
+#include "Simulation.h"
 
 subroutine Simulation_initBlock(solnData, tileDesc)
 
@@ -47,15 +49,17 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Grid_interface, ONLY : Grid_getGeometry
 
   use KindModule, ONLY : TwoPi
+  use GeometryFieldsModule, ONLY : uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33
   use MeshModule, ONLY : NodeCoordinate, MeshX
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
   use UnitsModule, ONLY : Centimeter, Gram, Second
 
-  implicit none
+#if defined(THORNADO_ORDER_V)
+  use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
+#endif
 
-#include "constants.h"
-#include "Simulation.h"
+  implicit none
   
   real, dimension(:,:,:,:), pointer :: solnData
   type(Grid_tile_t), intent(in)     :: tileDesc
@@ -71,10 +75,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   integer :: nX(3), swX(3)
   real :: xL(3), xR(3)
   real :: xnode, ynode, znode, ss, ye
+  real :: Nnu, Gnu1, Gnu2, Gnu3
+  real :: Dnu, Inu1, Inu2, Inu3
 
   real, parameter :: conv_x = Centimeter
   real, parameter :: conv_J = Gram/Second**2/Centimeter
   real, parameter :: conv_H = Gram/Second**3
+
+  real, parameter :: UnitV  = Centimeter/Second
 
   ! get dimensions/limits and coordinates
   lo(1:MDIM) = tileDesc%limits(LOW,1:MDIM)
@@ -140,13 +148,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
            enddo
 
            ! Initialize neutrino data
-           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
-
-              ioff = THORNADO_BEGIN &
-                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
-                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
-                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
-
+           do iS = 1, THORNADO_NSPECIES ; do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
               do iNode = 1, THORNADO_RAD_NDOF
 
                  ! calculate the indices
@@ -161,8 +163,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  jj      = iNodeX2 + j - 1
                  kk      = iNodeX3 + k - 1
 
-                 ivar    = ioff + iNodeE - 1
-
                  ! calculate actual positions of the nodes used for the gaussian quadrature
                  xnode = NodeCoordinate( MeshX(1), iX1, iNodeX1 )
                  ynode = NodeCoordinate( MeshX(2), iX2, iNodeX2 )
@@ -170,20 +170,69 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
                  ss = 0.5 + 0.49 * sin( TwoPi * xnode )
 
+#if   defined(THORNADO_ORDER_1)
+                 Nnu  = ss
+                 Gnu1 = ss * ( 1.0e0 - 1.0e-12 )
+                 Gnu2 = 0.0
+                 Gnu3 = 0.0
+#elif defined(THORNADO_ORDER_V)
+                 Dnu  = ss
+                 Inu1 = ss * ( 1.0e0 - 1.0e-12 )
+                 Inu2 = 0.0
+                 Inu3 = 0.0
+                 CALL ComputeConserved_TwoMoment &
+                    ( Dnu, Inu1, Inu2, Inu3, &
+                      Nnu, Gnu1, Gnu2, Gnu3, &
+                      sim_velx_i * UnitV, &
+                      sim_vely_i * UnitV, &
+                      sim_velz_i * UnitV, &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11), &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22), &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33) )
+#endif
+
                  ! J moment, iCR = 1
-                 if (iCR == iCR_N) solnData(ivar,ii,jj,kk) = ss
+                 iCR  = iCR_N
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 ivar = ioff + iNodeE - 1
+                 solnData(ivar,ii,jj,kk) = Nnu
 
                  ! H_x moment, iCR = 2
-                 if (iCR == iCR_G1) solnData(ivar,ii,jj,kk) = ss * ( 1.0e0 - 1.0e-12 )
+                 iCR  = iCR_G1
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 ivar = ioff + iNodeE - 1
+                 solnData(ivar,ii,jj,kk) = Gnu1
 
                  ! H_y moment, iCR = 3
-                 if (iCR == iCR_G2) solnData(ivar,ii,jj,kk) = 0.0e0
+                 iCR  = iCR_G2
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 ivar = ioff + iNodeE - 1
+                 solnData(ivar,ii,jj,kk) = Gnu2
 
                  ! H_z moment, iCR = 4
-                 if (iCR == iCR_G3) solnData(ivar,ii,jj,kk) = 0.0e0
+                 iCR  = iCR_G3
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 ivar = ioff + iNodeE - 1
+                 solnData(ivar,ii,jj,kk) = Gnu3
 
               enddo
-           enddo ; enddo ; enddo
+           enddo ; enddo
 
         enddo
      enddo
