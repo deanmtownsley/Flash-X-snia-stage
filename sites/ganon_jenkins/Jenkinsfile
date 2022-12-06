@@ -18,7 +18,7 @@ pipeline {
 	        sh 'git submodule update --init'
 		sh 'pip3 install pip install git+https://github.com/Flash-X/Flash-X-Test.git@89a8d49c831db6da9f87095068c2e766bd5bd458'
 	    }
-	    sh 'flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins'
+	    sh "flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
 	    dir('lib/amrex/source'){
 	        sh '''
 	        ./configure --prefix=install/1D --dim=1; make -j8; make install
