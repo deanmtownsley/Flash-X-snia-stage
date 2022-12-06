@@ -5,6 +5,8 @@ UNOFFICIAL
 REQUIRES Driver/DriverMain/MoL
 REQUIRES numericalTools/MoL/MoLMemory
 
+PPDEFINE USE_MOL
+
 USESETUPVARS MoL_Integrator
 
 DEFAULT FBE
