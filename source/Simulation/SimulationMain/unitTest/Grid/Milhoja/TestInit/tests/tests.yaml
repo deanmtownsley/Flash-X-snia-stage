@@ -1,0 +1,14 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/Grid/AMR/Milhoja/1D/TestInit:
+  setupOptions: -auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par
+
+UnitTest/Grid/AMR/Milhoja/2D/TestInit:
+  setupOptions: -auto -debug -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par
+
+UnitTest/Grid/AMR/Milhoja/3D/TestInit:
+  setupOptions: -auto -debug -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par

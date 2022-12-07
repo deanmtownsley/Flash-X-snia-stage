@@ -1,0 +1,46 @@
+# YAML file for test information
+# comments start with "#"
+
+Composite/SNIaShellDet/AMR/2d/Paramesh:
+  setupOptions: -auto -2d -debug +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13 +nolwf
+  parfiles: test_shellDet_2d_composite.par
+  restartParfiles: test_shellDet_2d_restart.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Composite/SNIaDDT/AMR/2d/Paramesh:
+  setupOptions: -auto -2d -test +uhd +nolwf +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  restartParfiles: testfaster_amr_unsplit_2d_restart.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Composite/SNIaDDT/AMR/2d/pm4AltMortonBittree:
+  setupOptions: -auto -2d -test +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: testfaster_amr_unsplit_2d_restart.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Composite/SNIaDDT/AMR/2d/spark:
+  setupOptions: -auto -2d -test +sparkinhost  +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  restartParfiles: testfaster_amr_unsplit_2d_restart.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Comparison/SNIaDDT/AMR/2d/Paramesh:
+  setupOptions: -auto -2d -test +uhd +nolwf +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Comparison/SNIaDDT/AMR/2d/pm4AltMortonBittree:
+  setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Comparison/SNIaDDT/AMR/2d/spark:
+  setupOptions: -auto -2d -test +sparkinhost  +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Comparison/SNIaShellDet/AMR/2d/Paramesh:
+  setupOptions: -auto -2d -debug +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13
+  parfiles: test_shellDet_2d.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
