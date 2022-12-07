@@ -17,6 +17,10 @@ IF MoL_Integrator == "MR"
     DEFAULT MR
 ENDIF
 
+IF MoL_Integrator == "IMEX"
+    DEFAULT IMEX
+ENDIF
+
 D MoL_verbosity     Output only 1) errors, 2) errors+warnings, 3) errors+warnings+status
 D MoL_abortOnWarn   Call Driver_abort when issuing a warning in addition to encountering an error
 

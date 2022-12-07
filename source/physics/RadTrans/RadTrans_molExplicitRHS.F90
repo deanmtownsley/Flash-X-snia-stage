@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call RadTrans_molExplicitRHS(real, intent(in) :: t)
+!!      call RadTrans_molExplicitRHS(real,    intent(in) :: t,
+!                                    integer, intent(in) :: activeRHS
+!!                                   real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,14 +28,18 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weight timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine RadTrans_molExplicitRHS(t)
+subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine RadTrans_molExplicitRHS

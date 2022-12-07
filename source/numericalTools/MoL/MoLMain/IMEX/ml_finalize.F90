@@ -12,28 +12,25 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief ml_calcRHS implementation for ERK
+!! @brief ml_finalize implementation for IMEX
 
-!> @ingroup MoLERK
+!> @ingroup MoLIMEX
 !!
-!! @brief Implements ml_calcRHS for ERK
+!! @brief Implements ml_finalize for IMEX
 !!
-!! @stubref{ml_calcRHS}
-subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
-   use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
-
-   use ml_memInterface, only: ml_memZero
+!! @stubref{ml_finalize}
+subroutine ml_finalize()
+   use ml_imexData, only: ml_AE, ml_bE, ml_cE, ml_AI, ml_bI, ml_cI, FE, FI
 
    implicit none
 
-   integer, intent(in) :: rhsType, rhsStruct
-   real, intent(in) :: t
-   real, intent(in) :: dtWeight
+   if (allocated(ml_AE)) deallocate (ml_AE)
+   if (allocated(ml_bE)) deallocate (ml_bE)
+   if (allocated(ml_cE)) deallocate (ml_cE)
+   if (allocated(ml_AI)) deallocate (ml_AI)
+   if (allocated(ml_bI)) deallocate (ml_bI)
+   if (allocated(ml_cI)) deallocate (ml_cI)
 
-   ! Zero-out RHS memory
-   call ml_memZero(rhsStruct)
-
-   call ml_rhsE(t, rhsStruct, dtWeight)
-   call ml_rhsI(t, rhsStruct, dtWeight)
-   call ml_rhsF(t, rhsStruct, dtWeight)
-end subroutine ml_calcRHS
+   if (allocated(FE)) deallocate (FE)
+   if (allocated(FI)) deallocate (FI)
+end subroutine ml_finalize

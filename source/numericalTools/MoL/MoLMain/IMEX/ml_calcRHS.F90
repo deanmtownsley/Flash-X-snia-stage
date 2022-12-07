@@ -12,29 +12,36 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief ml_calcRHS implementation for FBE
+!! @brief ml_calcRHS implementation for IMEX
 
-!> @ingroup MoLFBE
+!> @ingroup MoLIMEX
 !!
-!! @brief Implements ml_calcRHS for FBE
+!! @brief Implements ml_calcRHS for IMEX
 !!
 !! @stubref{ml_calcRHS}
-subroutine ml_calcRHS(rhsType, rhsStruct, t)
-   use ml_functions, only: ml_rhsE, ml_rhsF
+subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
+   use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
 
    use ml_memInterface, only: ml_memZero
+
+#include "MoL.h"
 
    implicit none
 
    integer, intent(in) :: rhsType, rhsStruct
    real, intent(in) :: t
+   real, intent(in) :: dtWeight
 
    ! Zero-out RHS memory
    call ml_memZero(rhsStruct)
 
-   ! No need to set an active RHS - only MOL_RHS exists
-   ! Both explicit and fast-explicit will be added here
-   call ml_rhsE(t)
-   call ml_rhsF(t)
+   select case (rhsType)
+   case (MOL_RHS_EXPLICIT)
+      call ml_rhsE(t, rhsStruct, dtWeight)
+      call ml_rhsF(t, rhsStruct, dtWeight)
+
+   case (MOL_RHS_IMPLICIT)
+      call ml_rhsI(t, rhsStruct, dtWeight)
+   end select
 
 end subroutine ml_calcRHS

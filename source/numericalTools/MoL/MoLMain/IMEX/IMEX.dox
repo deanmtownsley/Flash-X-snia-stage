@@ -14,9 +14,8 @@
     @endparblock
     
     @internal  
-    @defgroup MoLFBE MoL Forward-Backward Euler Integrator
+    @defgroup MoLIMEX MoL Implicit-Explicit Integrator
     @ingroup MoLMain
 
-    @brief Provides implementation of a first-order forward-backward Euler
-           IMEX integrator
+    @brief Provides implementation of IMEX integrators
 */
