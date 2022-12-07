@@ -22,11 +22,9 @@ pipeline {
 		sh 'pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@1c51f6a'
 	    }
 	    dir('lib/amrex/source'){
-	        sh '''
-	        ./configure --prefix=install/1D --dim=1; make -j; make install
-	        ./configure --prefix=install/2D --dim=2; make -j; make install
-	        ./configure --prefix=install/3D --dim=3; make -j; make install
-	        '''
+	        sh "./configure --prefix=install/1D --dim=1; make -j; make install"
+		sh "./configure --prefix=install/2D --dim=2; make -j; make install"
+	        sh "./configure --prefix=install/3D --dim=3; make -j; make install"
 	    }
 	    sh 'mpicc -v'
 	}}
