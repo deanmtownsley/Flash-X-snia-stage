@@ -88,6 +88,10 @@ subroutine RadTrans( dt, pass )
 
   nullify( Uin )
 
+#ifdef USE_MOL
+  return
+#endif
+
   if( .NOT. rt_useRadTrans ) return
 
   if ( my_ngrow /= 2 ) then
