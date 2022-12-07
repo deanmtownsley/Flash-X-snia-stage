@@ -43,20 +43,6 @@ unitTest/Grid/Amrex/TestFluxCorrection2 -t "UnitTest/Grid/AMR/AMReX/2d/FluxCorre
 unitTest/Grid/Amrex/TestCyl2d -t "UnitTest/Grid/AMR/AMReX/2d/TestCyl" -np 1
 
 #------------------------------------------------
-# Tests for - unitTest/Grid/Milhoja/TestInit
-#------------------------------------------------
-unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/1D/TestInit" -np 1
-unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/2D/TestInit" -np 1
-unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/3D/TestInit" -np 1
-
-#------------------------------------------------
-# Tests for - unitTest/Grid/Milhoja/TestFluxes
-#------------------------------------------------
-unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/1D/TestFluxes" -np 1
-unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/2D/TestFluxes" -np 1
-unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/3D/TestFluxes" -np 1
-
-#------------------------------------------------
 # Tests for - unitTest/Grid/AnomalousRefine
 #------------------------------------------------
 unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/Paramesh" -np 1

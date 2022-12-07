@@ -1,26 +1,19 @@
 #	Runtime parameters for the Sedov explosion problem.
 #       Version for testing simpleUnsplit Hydro with AMR implementations that 
-#       are configured to restrict the mesh to a uniform grid at the finest
-#       refinement level.
-#
-#       It is intended that these results 
-#        - serve as a baseline for true AMR results (see test_amr_unsplit_3d.par) and
-#        - be used to confirm that different AMR implements yield the same
-#          results in the absence of interpolation.
-#
-#   This parfile has been created as a first test of using the Milhoja Grid
-#   implementation.  In particular, Milhoja does not yet support lrefineMin and
-#   therefore the standard pseudoug parfile cannot be used.  Once this
-#   functionality is implemented in Milhoja, it should be tested identically to
-#   all other Grid unit implementations and this file should be removed.
-#
+#       are configured to allow for dynamic Grid refinement.
+#    
+#       Note that the refine/derefine cutoffs are set equal so that all AMR
+#       implementations reduce to identical refinement operations.  Since the
+#       different implementations likely use different interpolation
+#       implementations, the actual refinement sequence may differ.
+
 #	Parameters for initial model
 #		Ambient pressure and density, explosion energy, initial
 #		radius of perturbation, and location of explosion center
 sim_pAmbient	 = 1.E-5
 sim_rhoAmbient	 = 1.
 sim_expEnergy	 = 1.
-sim_rInit		 = 0.109375
+sim_rInit		 = 0.013671875
 sim_xctr		 = 0.5
 sim_yctr		 = 0.5
 sim_zctr		 = 0.5
@@ -51,30 +44,23 @@ yr_boundary_type = "periodic"
 zl_boundary_type = "periodic"
 zr_boundary_type = "periodic"
 
-flux_correct = .FALSE.
-
 #	Simulation time, I/O  parameters
 cfl		 = 0.45
-restart  = .false.
+restart  = .true.
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0.02
-checkpointFileNumber       = 0
+checkpointFileIntervalTime = 0.01
+checkpointFileNumber       = 5
 
 #	plotfile output parameters
 plotfileIntervalTime = 0.
 plotfileIntervalStep = 0
 plotfileNumber       = 0
 
-nend            = 1000
-tmax            = 0.02
+nend            = 10000
+tmax            = 0.075
 
-# use MeshCalls for now so that we can compare AMReX, which does not have
-# MeshInterp implemented, against Paramesh
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-
-run_comment     = "3D Sedov explosion, from t=0 with sim_rInit = 3.5dx_min"
+run_comment     = "Sedov explosion"
 log_file        = "sedov.log"
 eintSwitch      = 1.e-4
 flux_correct    = .FALSE.
@@ -84,14 +70,22 @@ plot_var_2 = "pres"
 plot_var_3 = "temp"
 
 #  Adaptive Grid refinement parameters
-nblockx         = 8
-nblocky         = 8
-nblockz         = 8
-lrefine_min     = 1
-lrefine_max     = 1
-refine_var_1    = "dens"
-refine_var_2    = "pres"
+lrefine_max       = 6
+refine_var_1      = "dens"
+refine_var_2      = "pres"
+refine_cutoff_1   = 0.5
+derefine_cutoff_1 = 0.5
 
+gr_useTiling = .TRUE.
+gr_tileSizeX = 4
+gr_tileSizeY = 2
+gr_tileSizeZ = 1
+
+# Uniform Grid specific parameters 
+iProcs = 1	#num procs in i direction
+jProcs = 1	#num procs in j direction
+kProcs = 1
+ 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #	I. INTERPOLATION SCHEME:
