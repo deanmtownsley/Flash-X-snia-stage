@@ -34,8 +34,10 @@ subroutine rt_init()
 
   use rt_data
   use Grid_data, ONLY : gr_minRefine, gr_lrefineMax
+  use MoL_interface, ONLY : MoL_registerVariable
   use RadTrans_data, ONLY : rt_gcMask, rt_meshMe
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+  use Simulation_interface, ONLY : Simulation_mapIntToStr
   use ThornadoInitializationModule, ONLY : InitThornado
 #ifdef FLASH_EOS_WEAKLIB
   use eos_wlData, ONLY : eos_pointer
@@ -50,6 +52,8 @@ subroutine rt_init()
   character(len=MAX_STRING_LENGTH) :: eos_file
   real :: eos_gamma
   logical :: Verbose
+  integer :: iS, iCR, iE, iNodeE, ivar
+  character(len=4) :: unk_name
 
   call RuntimeParameters_get ("rt_writeTimers", rt_writeTimers)
 
@@ -150,6 +154,25 @@ subroutine rt_init()
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
      Verbose_Option = Verbose )
+#endif
+
+#ifdef USE_MOL
+  do iS = 1, THORNADO_NSPECIES
+     do iCR = 1, THORNADO_NMOMENTS
+        do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
+           do iNodeE = 1, THORNADO_NNODESE
+              ivar = THORNADO_BEGIN &
+                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE) &
+                 + iNodeE - 1
+
+              call Simulation_mapIntToStr(ivar, unk_name, MAPBLOCK_UNK)
+              call MoL_registerVariable(unk_name, ivar, rt_irhs(iNodeE,iE,iCR,iS))
+           end do
+        end do
+     end do
+  end do
 #endif
 
   return

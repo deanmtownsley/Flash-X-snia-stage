@@ -36,6 +36,11 @@ def genLines(setupvars):
     yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OMP'
     yield 'ENDIF'
 
+    yield 'USESETUPVARS useMoL'
+    yield 'IF useMoL'
+    yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/MoL'
+    yield 'ENDIF'
+
     ##
     yield 'LIBRARY THORNADO'
     yield 'PPDEFINE THORNADO'

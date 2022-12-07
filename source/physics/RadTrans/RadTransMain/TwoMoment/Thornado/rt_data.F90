@@ -48,5 +48,9 @@ module rt_data
 
   real,    save :: rt_wMatrRHS(5)
 
+  integer, save :: rt_irhs(1:THORNADO_NNODESE, &
+                           1-THORNADO_SWE:THORNADO_NE+THORNADO_SWE, &
+                           1:THORNADO_NMOMENTS, &
+                           1:THORNADO_NSPECIES)
   
 end module rt_data
