@@ -38,6 +38,7 @@
 
 #include "Simulation.h"
 #include "constants.h"
+#include "MoL.h"
 
 subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
 

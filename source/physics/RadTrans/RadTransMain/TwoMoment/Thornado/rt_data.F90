@@ -22,6 +22,9 @@
 !!    Stores local data for Thornado
 !!
 !!***
+
+#include "Simulation.h"
+
 module rt_data
 
   implicit none
