@@ -10,4 +10,4 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 # the following is needed to use weaklib tables in tests
-COPY weaklib-tables /home/jenkins
+COPY /mnt/scratch/weaklib-tables /home/jenkins
