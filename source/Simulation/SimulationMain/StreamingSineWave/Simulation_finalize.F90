@@ -47,7 +47,7 @@ subroutine Simulation_finalize()
   use FluidFieldsModule, ONLY : uCF, nCF
   USE GeometryFieldsModule, ONLY : uGF
   use ProgramHeaderModule, ONLY : iZ_B0, iZ_E0, iZ_B1, iZ_E1
-  use RadiationFieldsModule, ONLY : uCR, uPR, nSpecies, nPR
+  use RadiationFieldsModule, ONLY : uCR, uPR
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
   use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeFromConserved_TwoMoment
   use UnitsModule, ONLY : Centimeter, Second
@@ -62,12 +62,12 @@ subroutine Simulation_finalize()
   real, dimension(LOW:HIGH,MDIM) :: boundBox
   real :: simTime
 
-  real :: MaxError_local(nPR,nSpecies)
-  real :: MaxError(nPR,nSpecies)
+  real :: MaxError_local(THORNADO_NMOMENTS,THORNADO_NSPECIES)
+  real :: MaxError(THORNADO_NMOMENTS,THORNADO_NSPECIES)
 
   integer, dimension(1:MDIM) :: lo, hi, u_lo, u_hi
 
-  integer, parameter :: my_ngrow = 2
+  integer, parameter :: my_ngrow = 0
   integer :: nX(3), swX(3), iS, iPR, ierr
   real :: xL(3), xR(3)
 
@@ -80,7 +80,7 @@ subroutine Simulation_finalize()
   MaxError_local = 0.0
   MaxError = 0.0
 
-  call Grid_getTileIterator(itor, LEAF)
+  call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
 
@@ -126,19 +126,15 @@ subroutine Simulation_finalize()
   end do ! iterator loop
   call Grid_releaseTileIterator(itor)
 
-  do iS = 1, nSpecies
-     do iPR = 1, nPR
-        call MPI_Reduce(MaxError_local(iPR,iS),MaxError(iPR,iS),1, &
-           FLASH_REAL,MPI_MAX,MASTER_PE,sim_globalComm,ierr)
-     end do
-  end do
+  call MPI_AllReduce(MaxError_local(1,1),MaxError(1,1), &
+    THORNADO_NMOMENTS*THORNADO_NSPECIES,FLASH_REAL,MPI_MAX,sim_globalComm,ierr)
 
   if ( sim_globalMe == MASTER_PE ) then
      WRITE(*,*)
      WRITE(*,'(A2,A)') '', 'INFO: SineWaveStreaming Error'
      WRITE(*,*)
      WRITE(*,'(A4,A2,4A12)') '', 'Sp', 'N', 'G1', 'G2', 'G3'
-     DO iS = 1, nSpecies
+     DO iS = 1, THORNADO_NSPECIES
         WRITE(*,'(A4,I2.2,4ES12.4E2)') '', iS, MaxError(:,iS)
      END DO
   end if
@@ -156,18 +152,18 @@ contains
     USE ProgramHeaderModule, ONLY: &
        nDOFZ, iE_B0, iE_E0, iX_B0, iX_E0
     USE RadiationFieldsModule, ONLY: &
-       nSpecies, uPR, iPR_D, iPR_I1, iPR_I2, iPR_I3, nPR
+       uPR, iPR_D, iPR_I1, iPR_I2, iPR_I3
     USE ReferenceElementModule, ONLY: &
        NodeNumberTable
 
     REAL(DP), INTENT(in) :: t
-    REAL(DP), INTENT(inout) :: MaxError(nPR,nSpecies)
+    REAL(DP), INTENT(inout) :: MaxError(THORNADO_NMOMENTS,THORNADO_NSPECIES)
 
     INTEGER  :: iE, iX1, iX2, iX3, iS
     INTEGER  :: iNodeZ, iNodeX1
     REAL(DP) :: X1, D_A, I1_A, I2_A, I3_A
 
-    DO iS  = 1       , nSpecies
+    DO iS  = 1       , THORNADO_NSPECIES
     DO iX3 = iX_B0(3), iX_E0(3)
     DO iX2 = iX_B0(2), iX_E0(2)
     DO iX1 = iX_B0(1), iX_E0(1)
