@@ -1,6 +1,9 @@
 pipeline {
     triggers { pollSCM('') }  // Run tests whenever a new commit is detected.
-    agent { dockerfile { dir 'sites/ganon_jenkins' } } // Use the Dockerfile defined in the root Flash-X directory
+    agent { dockerfile {
+        dir 'sites/ganon_jenkins'
+	args '-v /mnt/scratch/weaklib-tables:/weaklib-tables:ro'
+    } } // Use the specified dockerfile and mount the weaklib tables as a volume
     environment {
         pathToSimulations = '../source/Simulation/SimulationMain' // Needed in order for Flash-X-Test to know where to find files
 	HOME="${env.WORKSPACE}"  // needed to be able to initialize flash-x-test
