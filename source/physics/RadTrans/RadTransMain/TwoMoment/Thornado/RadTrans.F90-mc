@@ -42,21 +42,22 @@ subroutine RadTrans( dt, pass )
 
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_everywhere
-  use FluidFieldsModule, ONLY : uCF, nCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne
-  use GeometryFieldsModule, ONLY : uGF, iGF_h_1, iGF_h_2, iGF_h_3
+  use FluidFieldsModule, ONLY : uCF
+  use GeometryFieldsModule, ONLY : uGF
   use Grid_interface, ONLY : Grid_fillGuardCells, &
       Grid_getMaxRefinement, Grid_getDeltas, &
       Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_data, ONLY: gr_str_geometry
-  use RadiationFieldsModule, ONLY : uCR, nCR, iCR_N, iCR_G1, iCR_G2, iCR_G3
+  use RadiationFieldsModule, ONLY : uCR
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
   use rt_data, ONLY : rt_doExplicit, rt_doImplicit
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
-  use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
+  use ThornadoInitializationModule, ONLY : &
+        InitThornado_Patch, FreeThornado_Patch
   use Timers_interface, ONLY : Timers_start, Timers_stop
-  use TimeSteppingModule_Flash, ONLY : ComputeTimeStep_TwoMoment, Update_IMEX_PDARS
-  use UnitsModule, ONLY : Gram, Centimeter, Second, AtomicMassUnit
+  use TimeSteppingModule_Flash, ONLY : Update_IMEX_PDARS
+  use UnitsModule, ONLY : Centimeter, Second
 
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
@@ -66,17 +67,12 @@ subroutine RadTrans( dt, pass )
 #include "Simulation.h"
 #include "constants.h"
 
-  real,    intent(in) :: dt
+  real,    intent(in)           :: dt
   integer, intent(in), optional :: pass
 
   real, pointer, dimension(:,:,:,:) :: Uin
   real, dimension(LOW:HIGH,MDIM) :: boundBox
-  integer, dimension(MDIM) :: lo,hi,u_lo,u_hi
-  real, dimension(MDIM) :: dx, dx_thornado
-  real :: dt_thornado, dt_sub, t_sub
-
-  integer :: i, j, k, ic, jc, kc, ii, jj, kk, n, ioff, ivar, i_sub, n_sub
-  integer :: level, maxLev
+  integer, dimension(MDIM) :: lo, hi, u_lo, u_hi
 
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t) :: tileDesc
@@ -85,24 +81,14 @@ subroutine RadTrans( dt, pass )
   integer :: nX(3), swX(3)
   real :: xL(3), xR(3)
 
-  real :: D, S1, S2, S3, E, Nel, ekin
-  integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE
-
   integer :: faces(LOW:HIGH, 1:MDIM)
-  integer :: onBoundary(LOW:HIGH, 1:MDIM)
   integer :: ApplyBC
 
-  real, parameter :: conv_x    = Centimeter
-  real, parameter :: conv_dens = Gram / Centimeter**3
-  real, parameter :: conv_mom  = Gram / Centimeter**2 / Second
-  real, parameter :: conv_enr  = Gram / Centimeter / Second**2
-  real, parameter :: conv_ne   = Gram / Centimeter**3 / AtomicMassUnit
-  real, parameter :: conv_J    = Gram/Second**2/Centimeter
-  real, parameter :: conv_H    = Gram/Second**3
+  real, parameter :: conv_x = Centimeter
 
-  nullify(Uin)
+  nullify( Uin )
 
-  if (.NOT. rt_useRadTrans) return
+  if( .NOT. rt_useRadTrans ) return
 
   if ( my_ngrow /= 2 ) then
      call Driver_abort("Need two ghost cells in call_to_thornado!")
@@ -110,146 +96,145 @@ subroutine RadTrans( dt, pass )
      call Driver_abort("NGUARD must be at least my_ngrow*THORNADO_NNODESX")
   end if
 
-  call Timers_start("RadTrans")
+  call Timers_start( "RadTrans" )
 
-  call Timers_start("rt_gc")
-  call Grid_fillGuardCells(CENTER,ALLDIR, &
-    minLayers=my_ngrow*THORNADO_NNODESX,doEos=.true.,eosMode=rt_eosModeGc, &
-    maskSize=NUNK_VARS,mask=rt_gcMask,makeMaskConsistent=.true.)
-  call Timers_stop("rt_gc")
+  call Timers_start( "rt_gc" )
 
-#ifdef FLASH_GRID_UG
-  maxLev = 1
-#else
-  call Grid_getMaxRefinement(maxLev,mode=1) !mode=1 means lrefine_max, which does not change during sim.
-#endif
+  call Grid_fillGuardCells &
+         ( CENTER, ALLDIR, minLayers=my_ngrow*THORNADO_NNODESX, &
+	   doEos=.true., eosMode=rt_eosModeGc, maskSize=NUNK_VARS, &
+	   mask=rt_gcMask, makeMaskConsistent=.true. )
+  
+  call Timers_stop( "rt_gc" )
 
-  ! Get cell widths and timestep
-  call Grid_getDeltas(maxLev,dx)
-  dx_thornado = THORNADO_NNODESX * dx
-  call ComputeTimeStep_TwoMoment( dx_thornado, dt_thornado )
-  dt_sub = min(dt_thornado,dt)
-  t_sub = 0.0
+  call Grid_getTileIterator( itor, LEAF, tiling=rt_enableTiling )
+  
+  do while( itor % isValid() )
+  
+    call itor%currentTile(tileDesc)
 
-  do while ( t_sub < dt )
-     if ( t_sub + dt_sub > dt ) dt_sub = dt - t_sub
-     !do level = 1, maxLev
-     !   call Grid_getTileIterator(itor, LEAF, level=level, tiling=rt_enableTiling)
-        call Grid_getTileIterator(itor, LEAF, tiling=rt_enableTiling)
-        do while(itor%isValid())
-           call itor%currentTile(tileDesc)
+    ! Get a pointer to solution data
+    
+    call tileDesc % getDataPtr( Uin, CENTER )
 
-           ! Get a pointer to solution data
-           call tileDesc%getDataPtr(Uin, CENTER)
+    ! Check if the block needs boundary condition
+    ! RC: This only works for the reflecting inner boundary in 1D
+    
+    call tileDesc % faceBCs( faces )
 
-           ! Check if the block needs boundary condition
-           ! RC: This only works for the reflecting inner boundary in 1D
-           call tileDesc%faceBCs(faces)
-           if( faces(LOW,IAXIS) == REFLECTING .and. &
-               rt_geometry == SPHERICAL )then
-             ApplyBC = 3
-           else
-             ApplyBC = 0
-           end if
+    ApplyBC = 0
+    if( faces(LOW,IAXIS) == REFLECTING .and. rt_geometry == SPHERICAL )then
+      
+      ApplyBC = 3
+      
+    end if
 
-           ! get dimensions/limits and coordinates
-           nX = 1
-           swX = 0
-           xL = 0.0
-           if ( rt_geometry == CARTESIAN ) then
-              xR = 1.0
-           else if ( rt_geometry == CYLINDRICAL ) then
-              xR = [ 1.0, 1.0, 2.0*PI ]
-           else if ( rt_geometry == SPHERICAL ) then
-              xR = [ 1.0, PI, 2.0*PI ]
-           end if
+    ! get dimensions/limits and coordinates
+    
+    nX  = 1
+    swX = 0
+    xL  = 0.0
+    if     ( rt_geometry == CARTESIAN   )then
+      xR = 1.0
+    else if( rt_geometry == CYLINDRICAL )then
+      xR = [ 1.0, 1.0, 2.0*PI ]
+    else if( rt_geometry == SPHERICAL   )then
+      xR = [ 1.0, PI, 2.0*PI ]
+    end if
 
-           lo = tileDesc%limits(LOW,1:MDIM)
-           hi = tileDesc%limits(HIGH,1:MDIM)
-           nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
-           swX(1:NDIM) = my_ngrow
-           u_lo = 1 - swX
-           u_hi = nX + swX
+    lo = tileDesc % limits(LOW ,1:MDIM)
+    hi = tileDesc % limits(HIGH,1:MDIM)
+    
+    nX (1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / THORNADO_NNODESX
+    swX(1:NDIM) = my_ngrow
+    
+    u_lo = 1  - swX
+    u_hi = nX + swX
 
-           call tileDesc%boundBox(boundBox)
-           xL(1:NDIM) = boundBox(LOW, 1:NDIM)
-           xR(1:NDIM) = boundBox(HIGH,1:NDIM)
+    call tileDesc % boundBox( boundBox )
+    xL(1:NDIM) = boundBox(LOW, 1:NDIM)
+    xR(1:NDIM) = boundBox(HIGH,1:NDIM)
 
-           ! Thornado uses units where c = G = k = 1, Meter = 1
-           ! convert cm to m for Thornado
-           xL(1) = xL(1) * conv_x
-           xR(1) = xR(1) * conv_x
-           if ( rt_geometry == CARTESIAN .or. rt_geometry == CYLINDRICAL) then
-              xL(2) = xL(2) * conv_x
-              xR(2) = xR(2) * conv_x
-              if ( rt_geometry == CARTESIAN ) then
-                 xL(3) = xL(3) * conv_x
-                 xR(3) = xR(3) * conv_x
-              end if
-           end if
+    ! Thornado uses units where c = G = k = 1, Meter = 1
+    ! convert cm to m for Thornado
+    
+    xL(1) = xL(1) * conv_x
+    xR(1) = xR(1) * conv_x
+    if( rt_geometry == CARTESIAN .or. rt_geometry == CYLINDRICAL )then
+      xL(2) = xL(2) * conv_x
+      xR(2) = xR(2) * conv_x
+      if( rt_geometry == CARTESIAN )then
+        xL(3) = xL(3) * conv_x
+        xR(3) = xR(3) * conv_x
+      end if
+    end if
 
-           ! Setup thornado data structures
-           call Timers_start("rt_init")
+    ! Setup thornado data structures
+    
+    call Timers_start( "rt_init" )
 
-           @M dir_enter_data &
-           @M dir_copyin()( @M dir_map_type(to) Uin, lo, hi, u_lo, u_hi, nX ) &
-           @M dir_end
+    @M dir_enter_data &
+    @M dir_copyin()( @M dir_map_type(to) Uin, lo, hi, u_lo, u_hi, nX ) &
+    @M dir_end
 
-           call InitThornado_Patch(nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry)
-           call Timers_stop("rt_init")
+    call InitThornado_Patch &
+    	   ( nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry )
+	   
+    call Timers_stop( "rt_init" )
 
-           call Timers_start("rt_reconstruction")
-           call rt_tm_reconstruction(Uin, nX, lo, hi, u_lo, u_hi)
-           call Timers_stop("rt_reconstruction")
+    call Timers_start( "rt_reconstruction" )
+    
+    call rt_tm_reconstruction( Uin, nX, lo, hi, u_lo, u_hi )
+    
+    call Timers_stop( "rt_reconstruction" )
 
-           ! Call the Fortran interface that lives in the Thornado repo
-           call Timers_start("rt_imex")
-           call Update_IMEX_PDARS(dt_sub*Second, uCF, uCR, &
-              Explicit_Option = rt_doExplicit, Implicit_Option = rt_doImplicit, &
-              SingleStage_Option = .false., BoundaryCondition_Option = ApplyBC )
-           call Timers_stop("rt_imex")
+    ! Call the Fortran interface that lives in the Thornado repo
+    
+    call Timers_start( "rt_imex" )
+    
+    call Update_IMEX_PDARS &
+    	   ( dt * Second, uCF, uCR, &
+             Explicit_Option = rt_doExplicit, &
+	     Implicit_Option = rt_doImplicit, &
+             SingleStage_Option = .false., &
+	     BoundaryCondition_Option = ApplyBC )
+    
+    call Timers_stop( "rt_imex" )
 
-           ! Copy back from the Thornado arrays into Flash arrays
-           call Timers_start("rt_projection")
-           call rt_tm_projection(Uin, nX, lo, hi, u_lo, u_hi)
-           call Timers_stop("rt_projection")
+    ! Copy back from the Thornado arrays into Flash arrays
+    
+    call Timers_start( "rt_projection" )
+    
+    call rt_tm_projection( Uin, nX, lo, hi, u_lo, u_hi )
+    
+    call Timers_stop( "rt_projection" )
 
-           call Timers_start("rt_finalize")
+    call Timers_start( "rt_finalize" )
 
-           @M dir_exit_data &
-           @M dir_copyout()( @M dir_map_type(from) Uin ) &
-           @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
-           @M dir_end
+    @M dir_exit_data &
+    @M dir_copyout()( @M dir_map_type(from) Uin ) &
+    @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
+    @M dir_end
 
-           call FreeThornado_Patch()
-           call Timers_stop("rt_finalize")
+    call FreeThornado_Patch()
+    
+    call Timers_stop( "rt_finalize" )
 
-           call tileDesc%releaseDataPtr(Uin, CENTER)
+    call tileDesc % releaseDataPtr( Uin, CENTER )
 
-           call itor%next()
-        end do ! iterator loop
-        call Grid_releaseTileIterator(itor)
-     !end do ! level loop
+    call itor % next()
+    
+  end do ! iterator loop
+  
+  call Grid_releaseTileIterator( itor )
+  
+  call Timers_start( "eos" )
 
-     t_sub = t_sub + dt_sub
+  call Eos_everywhere( MODE_DENS_EI )
 
-     if ( t_sub < dt ) then
-        call Timers_start("rt_gc_sub")
-        call Grid_fillGuardCells(CENTER,ALLDIR, &
-           minLayers=my_ngrow*THORNADO_NNODESX,doEos=.false.,eosMode=rt_eosModeGc, &
-           maskSize=NUNK_VARS,mask=rt_gcMask,makeMaskConsistent=.false.)
-        call Timers_stop("rt_gc_sub")
-     end if
+  call Timers_stop( "eos" )
 
-  end do ! timestep loop
-
-  call Timers_start("eos")
-
-  call Eos_everywhere(MODE_DENS_EI)
-
-  call Timers_stop("eos")
-
-  call Timers_stop("RadTrans")
+  call Timers_stop( "RadTrans" )
 
   return
 
