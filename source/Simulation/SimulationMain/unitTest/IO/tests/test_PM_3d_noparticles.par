@@ -1,0 +1,25 @@
+#For test suite runs:
+# ./setup unitTest/IO -auto --index-reorder -3d +cube16 +parallelIO nVars=25 -parfile=test_PM_3d_noparticles.par
+#For a more realistic I/O benchmark test:
+# ./setup unitTest/IO -auto --index-reorder -3d +cube16 +parallelIO nVars=250 -parfile=test_PM_3d_noparticles.par
+
+#paramesh grid will not refine on its own. 
+#set this to higher values to create more blocks
+lrefine_max = 3
+lrefine_min = 3
+
+#can also create more initial blocks in paramesh this way
+nblockx = 2
+nblocky = 2
+nblockz = 2
+#Uncomment the following lines for a more realistic I/O benchmark test:
+##nblockx = 16
+##nblocky = 16
+##nblockz = 16
+
+#must specify which variables to output for plotfile
+plot_var_1 = "X001"
+plot_var_2 = "X002"
+plot_var_3 = "X003"
+plot_var_3 = "X004"
+plot_var_3 = "X005"
