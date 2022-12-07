@@ -11,5 +11,5 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 # The following is needed for the Flash-X-Test script to run. It apparently requires a user string from getpwuid() in python
 RUN addgroup --gid 1001 $USER
-RUN adduser --force-badname --disabled-password --gecos ',,,,' --uid 500 --gid 1001 $USER
+RUN adduser --force-badname --disabled-password --gecos ',,,,' --uid 128 --gid 1001 $USER
 USER $USER
