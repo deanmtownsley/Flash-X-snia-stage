@@ -53,7 +53,6 @@ unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/AMReX" -np 3
 # Tests for - unitTest/IO
 #------------------------------------------------
 unitTest/IO -t "UnitTest/IO/hdf5/3d/pm4dev" -np 4
-unitTest/IO -t "UnitTest/IO/hdf5/3d/Asyncpm4dev" -np 4
 
 #------------------------------------------------
 # Tests for - unitTest/Poisson/Amrex
