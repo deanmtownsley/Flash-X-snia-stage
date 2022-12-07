@@ -9,5 +9,5 @@ ENV LOGNAME=jenkins
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
-RUN useradd -ms /bin/bash jenkinsuser
+RUN --user-group --system --create-home --no-log-init jenkinsuser
 USER jenkinsuser
