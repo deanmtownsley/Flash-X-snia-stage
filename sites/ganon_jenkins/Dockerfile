@@ -10,6 +10,6 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 # The following is needed for the Flash-X-Test script to run. It apparently requires a user string from getpwuid() in python
-RUN if [[ ${OSTYPE} == linux-gnu ]] ; then addgroup --gid $GID jenkinsuser ; fi
-RUN adduser --force-badname --disabled-password --gecos ',,,,' --uid $UID --gid $GID jenkinsuser
+RUN if [[ ${OSTYPE} == linux-gnu ]] ; then addgroup --gid $GROUPS jenkinsuser ; fi
+RUN adduser --force-badname --disabled-password --gecos ',,,,' --uid $UID --gid $GROUPS jenkinsuser
 USER jenkinsuser
