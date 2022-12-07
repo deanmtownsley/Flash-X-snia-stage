@@ -3,7 +3,7 @@ pipeline {
     agent { dockerfile { dir 'sites/ganon_jenkins' } } // Use the Dockerfile defined in the root Flash-X directory
     environment {
         pathToSimulations = '../source/Simulation/SimulationMain' // Needed in order for Flash-X-Test to know where to find files
-	HOME="${env.WORKSPACE}"
+	HOME="${env.WORKSPACE}"  // needed to be able to initialize flash-x-test
 	// Get rid of Read -1, expected <someNumber>, errno =1 error
         // See https://github.com/open-mpi/ompi/issues/4948
         OMPI_MCA_btl_vader_single_copy_mechanism = 'none'
@@ -18,14 +18,11 @@ pipeline {
 	        sh 'git submodule update --init'
 		sh 'pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@89a8d49c831db6da9f87095068c2e766bd5bd458'
 	    }
-	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
-	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTest.suite"
-	    sh ".local/bin/flashxtest run-suite"
 	    dir('lib/amrex/source'){
 	        sh '''
-	        ./configure --prefix=install/1D --dim=1; make -j8; make install
-	        ./configure --prefix=install/2D --dim=2; make -j8; make install
-	        ./configure --prefix=install/3D --dim=3; make -j8; make install
+	        ./configure --prefix=install/1D --dim=1; make -j; make install
+	        ./configure --prefix=install/2D --dim=2; make -j; make install
+	        ./configure --prefix=install/3D --dim=3; make -j; make install
 	        '''
 	    }
 	    sh 'mpicc -v'
@@ -36,7 +33,9 @@ pipeline {
         // Run all of the official tests using Flash-X-Test //
 	//==================================================//
         stage('UnitTest'){ steps{
-	    sh "echo tmp"
+	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
+	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTest.suite"
+	    sh ".local/bin/flashxtest run-suite"
 	}} //stage('UnitTest'){ steps{
 	
     } // stages{
