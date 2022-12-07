@@ -45,6 +45,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
                     sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -53,6 +56,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
                     sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -61,6 +67,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -69,6 +78,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -78,6 +90,9 @@ pipeline {
 		    sh "make -j EXE=flash-exe"
                     sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/flash_2dcyl.par flash.par"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -86,6 +101,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -94,6 +112,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -102,6 +123,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -110,6 +134,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -126,6 +153,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -134,6 +164,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 3 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -142,6 +175,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -150,6 +186,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -159,6 +198,9 @@ pipeline {
 		    sh "make -j EXE=flash-exe"
                     sh "cp ${env.pathToSimulations}/unitTest/IO/test_PM_3d_noparticles.par flash.par"
 		    sh "mpiexec -n 4 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -167,6 +209,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 4 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -176,6 +221,9 @@ pipeline {
 		    sh "make -j EXE=flash-exe"
                     sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/test_2dcyl.par flash.par"
 		    sh "mpiexec -n 2 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -185,6 +233,9 @@ pipeline {
 		    sh "make -j EXE=flash-exe"
                     sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/test_2dcyl.par flash.par"
 		    sh "mpiexec -n 2 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -193,6 +244,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 3 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -201,6 +255,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 3 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -209,6 +266,9 @@ pipeline {
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 2 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
