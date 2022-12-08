@@ -12,30 +12,33 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_getShift implementation
+!! @brief Spacetime_getCurvature implementation
 
-!> @ingroup SpacetimeStatic
+!> @ingroup SpacetimeMain
 !!
-!! @brief Obtain the shift vector at the provided location
+!! @brief Obtain the extrinsic curvature at the provided location
 !!
 !! @details
 !!
-!! @stubref{Spacetime_getShift}
-subroutine Spacetime_getShift(betax, betay, betaz, &
-                              tileDesc, solnData, loc)
+!! @stubref{Spacetime_getCurvature}
+subroutine Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, &
+                                  tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
-#include "Simulation.h"
+#include "ADM.h"
 #include "constants.h"
 
    implicit none
 
-   real, intent(out) :: betax, betay, betaz
+   real, intent(out) :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
    type(Grid_tile_t), intent(in) :: tileDesc
    real, pointer :: solnData(:, :, :, :)
    integer, intent(in) :: loc(MDIM)
 
-   betax = solnData(BETX_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
-   betay = solnData(BETY_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
-   betaz = solnData(BETZ_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
-end subroutine Spacetime_getShift
+   Kxx = solnData(KXX_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   Kxy = solnData(KXY_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   Kxz = solnData(KXZ_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   Kyy = solnData(KYY_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   Kyz = solnData(KYZ_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+   Kzz = solnData(KZZ_VAR, loc(IAXIS), loc(JAXIS), loc(KAXIS))
+end subroutine Spacetime_getCurvature

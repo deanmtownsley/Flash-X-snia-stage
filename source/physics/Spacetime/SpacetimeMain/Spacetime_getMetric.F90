@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_getMetric implementation
 
-!> @ingroup SpacetimeStatic
+!> @ingroup SpacetimeMain
 !!
 !! @brief Obtain the spatial metric at the provided location
 !!
@@ -25,7 +25,7 @@ subroutine Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, &
                                tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
-#include "Simulation.h"
+#include "ADM.h"
 #include "constants.h"
 
    implicit none

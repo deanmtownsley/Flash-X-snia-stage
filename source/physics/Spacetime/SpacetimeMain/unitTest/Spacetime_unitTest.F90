@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_unitTest implementation
 
-!> @ingroup SpacetimeStatic
+!> @ingroup SpacetimeMain
 !!
 !! @details
 !!

@@ -32,7 +32,7 @@ subroutine Simulation_initBlock(vars, tileDesc)
    use Grid_tile, only: Grid_tile_t
    use Grid_interface, only: Grid_getCellCoords
 
-#include "Simulation.h"
+#include "ADM.h"
 #include "constants.h"
 
    implicit none
@@ -83,9 +83,9 @@ subroutine Simulation_initBlock(vars, tileDesc)
             vars(ALP_VAR, i, j, k) = alp
 
             ! Shift
-            vars(BETX_VAR, i, j, k) = 2d0*H*alp**2*lx
-            vars(BETY_VAR, i, j, k) = 2d0*H*alp**2*ly
-            vars(BETZ_VAR, i, j, k) = 2d0*H*alp**2*lz
+            vars(BETAX_VAR, i, j, k) = 2d0*H*alp**2*lx
+            vars(BETAY_VAR, i, j, k) = 2d0*H*alp**2*ly
+            vars(BETAZ_VAR, i, j, k) = 2d0*H*alp**2*lz
 
             ! Spatial metric (including 0 explicitly for ease of reading)
             vars(GXX_VAR, i, j, k) = 1d0 + 2d0*H*lx*lx

@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_getLapse implementation
 
-!> @ingroup SpacetimeStatic
+!> @ingroup SpacetimeMain
 !!
 !! @brief Obtain the lapse function at the provided location
 !!
@@ -25,7 +25,7 @@ subroutine Spacetime_getLapse(alp, &
                               tileDesc, solnData, loc)
    use Grid_tile, only: Grid_tile_t
 
-#include "Simulation.h"
+#include "ADM.h"
 #include "constants.h"
 
    implicit none

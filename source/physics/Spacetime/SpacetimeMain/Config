@@ -1,4 +1,29 @@
 # Config file for the SpacetimeMain unit
 UNOFFICIAL
 
-DEFAULT static
+# Using variable naming scheme to for these to be contiguous in UNK
+# These will be renamed later in `ADM.h`
+
+# alpha, lapse function - ALP_VAR
+VARIABLE SP00 TYPE:GENERIC
+
+# beta^i, shift vector (spatial, contravariant) - BETA[X|Y|Z]_VAR
+VARIABLE SP01 TYPE:GENERIC
+VARIABLE SP02 TYPE:GENERIC
+VARIABLE SP03 TYPE:GENERIC
+
+# g_ij, spatial metric (spatial, covariant, symmetric) - G[XX|XY|XZ|YY|YZ|ZZ_VAR]
+VARIABLE SP04 TYPE:GENERIC
+VARIABLE SP05 TYPE:GENERIC
+VARIABLE SP06 TYPE:GENERIC
+VARIABLE SP07 TYPE:GENERIC
+VARIABLE SP08 TYPE:GENERIC
+VARIABLE SP09 TYPE:GENERIC
+
+# K_ij, extrinsic curvature (spatial, covariant, symmetric) - K[XX|XY|XZ|YY|YZ|ZZ_VAR]
+VARIABLE SP10 TYPE:GENERIC
+VARIABLE SP11 TYPE:GENERIC
+VARIABLE SP12 TYPE:GENERIC
+VARIABLE SP13 TYPE:GENERIC
+VARIABLE SP14 TYPE:GENERIC
+VARIABLE SP15 TYPE:GENERIC
