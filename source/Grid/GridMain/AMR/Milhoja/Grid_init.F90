@@ -199,7 +199,7 @@ subroutine Grid_init()
     ! Load into local Grid variables all runtime parameters needed by Milhoja
     !------------------------------------------------------------------------------
     ! Don't load any of these into Grid_data variables.  That is done after
-    ! intiailizing Milhoja.
+    ! initializing Milhoja.
     CALL RuntimeParameters_get('xmin', xMin)
     CALL RuntimeParameters_get('xmax', xMax)
     CALL RuntimeParameters_get('ymin', yMin)
