@@ -292,9 +292,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = U0
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
+           @M hy_stages_t
+              do dir=1,NDIM
+                 @M hy_calc_lim
+              end do
+
+           @M hy_end_stages_t    
+        !! Begin loop over stages for the telescoping mode.
+           @M hy_stages_t !! this is the do loop statement for telescoping version
            
-           !Loop stages
-           do stage=1,last_stage
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               
@@ -371,8 +377,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do!stage loop
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:),hy_addFluxArray(stage))
-
+                blkLimits(LOW,:),.false.)
            @M hy_release_scr_ptrs
            @M iter_end
      enddo!loop over levels
