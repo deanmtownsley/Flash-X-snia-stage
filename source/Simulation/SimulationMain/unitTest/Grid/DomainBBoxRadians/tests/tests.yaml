@@ -27,26 +27,18 @@
 ## GCE/compute-02 with GFortran / GCC 7.5.0 compilers and can
 ## therefore be included in testsuites.
 
-[test_pm]
-    testNode = "UnitTest/Grid/pm4/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -strict -3d -nxb=8 -nyb=8 -nzb=10 +noio -gridinterpolation=native"
-    numProcs = 1
-    parFile = "test_pm_grid.par"
+UnitTest/Grid/pm4/3dcyl/DomainBBoxRadians:
+  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=10 +noio -gridinterpolation=native
+  parfiles: test_pm_grid.par
 
-[test_ug]
-    testNode = "UnitTest/Grid/UG/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -strict -3d +cylindrical -nxb=8 -nyb=8 -nzb=10 --without-unit=physics/Eos +noio +ug +nofbs"
-    numProcs = 1
-    parFile = "test_ug_grid.par"
+UnitTest/Grid/UG/3dcyl/DomainBBoxRadians:
+  setupOptions: -auto -strict -3d +cylindrical -nxb=8 -nyb=8 -nzb=10 --without-unit=physics/Eos +noio +ug +nofbs"
+  parfiles: test_ug_grid.par
 
-[test_amrex]
-    testNode = "UnitTest/Grid/AMReX/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +amrex +cylindrical"
-    numProcs = 1
-    parFile = "test_amrex_grid.par"
+UnitTest/Grid/AMReX/3dcyl/DomainBBoxRadians:
+  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +amrex +cylindrical"
+  parfiles: test_amrex_grid.par
 
-[test_milhoja]
-    testNode = "UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians"
-    setupOptions = "-auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja"
-    numProcs = 1
-    parFile = "test_milhoja_grid.par"
+UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians:
+  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par

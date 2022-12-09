@@ -4,3 +4,15 @@
 UnitTest/Grid/AMR/AMReX/2d/Init:
   setupOptions: -auto -2d -nxb=8 -nyb=4 +noio +amrex
   parfiles: test_amrex_grid.par
+
+UnitTest/Grid/Amrex/TestInit/1D:
+  setupOptions: -auto -1d -nxb=8 +noio
+  parfiles: test_amrex_grid.par
+
+UnitTest/Grid/Amrex/TestInit/2D:
+  setupOptions: -auto -2d -nxb=8 -nyb=4 +noio
+  parfiles: test_amrex_grid.par
+
+UnitTest/Grid/Amrex/TestInit/3D:
+  setupOptions: -auto -2d -nxb=8 -nyb=4 -nzb=2 +noio
+  parfiles: test_amrex_grid.par
