@@ -1,5 +1,0 @@
-# Tests for rising bubble problem
-#
-["UnitTest/RisingBubble/AMReX/2d"]
-   setupOptions = "-auto -2d -nxb=16 -nyb=16 +amrex +noio -maxblocks=100"
-   parfiles = ["flash.par"] 

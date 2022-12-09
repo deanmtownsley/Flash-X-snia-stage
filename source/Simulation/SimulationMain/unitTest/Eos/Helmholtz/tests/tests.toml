@@ -1,9 +1,0 @@
-["unitTest/Eos/helmholtz/3d/pm4dev"]
-    setupOptions = "-auto +pm4dev -3d +noio"
-    transfers = ["object/helm_table.dat", "object/SpeciesList.txt"]
-    parfiles = ["flash.par"]
-
-["unitTest/Eos/helmholtz/3d/AMReX"]
-    setupOptions = "-auto +amrex -3d +noio"
-    transfers = ["object/helm_table.dat", "object/SpeciesList.txt"]
-    parfiles = ["flash.par"]

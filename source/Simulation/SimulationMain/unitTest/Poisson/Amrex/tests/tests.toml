@@ -1,4 +1,0 @@
-# Poisson AMReX tests
-["UnitTest/Multigrid/AMReX/3d"]
-   setupOptions = "-auto -3d +amrex +noio -maxblocks=1000"
-   parfiles = ["flash.par"]
