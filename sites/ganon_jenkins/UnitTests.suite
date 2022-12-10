@@ -1,5 +1,4 @@
-# Test suite file for test gce
-# comments start with "#"
+# Test suite file for ganon_jenkins
 
 #------------------------------------------------
 # Tests for - unitTest/Eos/Helmholtz
