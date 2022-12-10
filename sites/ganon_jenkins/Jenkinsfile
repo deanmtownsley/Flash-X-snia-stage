@@ -37,7 +37,7 @@ pipeline {
 	//==================================================//
         stage('UnitTest'){ steps{
 	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
-	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTest.suite"
+	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins"
 	    sh ".local/bin/flashxtest run-suite"
 	}} //stage('UnitTest'){ steps{
 	
