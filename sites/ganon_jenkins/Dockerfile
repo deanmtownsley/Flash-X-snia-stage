@@ -9,6 +9,13 @@ ENV LOGNAME=jenkins
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
+# Install amrex here essentially as a cache
+RUN git clone https://github.com/AMReX-Codes/amrex.git /amrex
+WORKDIR /amrex
+RUN git checkout bf267b0954263f9f7d9c340c74bf50efa070f8cc
+RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
+RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
+RUN ./configure --prefix=install/3D --dim=3 && make -j && make install
 # The following is needed for the Flash-X-Test script to run. It apparently requires a user string from getpwuid() in python
 RUN adduser --uid 128 $USER
 USER $USER
