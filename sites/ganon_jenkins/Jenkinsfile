@@ -20,13 +20,6 @@ pipeline {
 	    withCredentials([gitUsernamePassword(credentialsId: 'github_personal_access_token', gitToolName: 'git-tool')]) {
 	        sh 'git submodule update --init'
 		sh 'pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@1c51f6a'
-		sh 'git clone https://github.com/AMReX-Codes/amrex.git lib/amrex/source'
-	    }
-	    dir('lib/amrex/source'){
-		sh "git checkout bf267b0954263f9f7d9c340c74bf50efa070f8cc"
-	        sh "./configure --prefix=install/1D --dim=1; make -j; make install"
-		sh "./configure --prefix=install/2D --dim=2; make -j; make install"
-	        sh "./configure --prefix=install/3D --dim=3; make -j; make install"
 	    }
 	    sh 'mpicc -v'
 	}}
