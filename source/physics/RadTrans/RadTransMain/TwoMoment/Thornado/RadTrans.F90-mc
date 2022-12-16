@@ -52,7 +52,7 @@ subroutine RadTrans( dt, pass )
   use RadiationFieldsModule, ONLY : uCR, nCR
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
-  use rt_data, ONLY : rt_doExplicit, rt_doImplicit
+  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_ivar
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
   use ThornadoInitializationModule, ONLY : &
         InitThornado_Patch, FreeThornado_Patch
@@ -90,6 +90,7 @@ subroutine RadTrans( dt, pass )
 
   integer :: faces(LOW:HIGH, 1:MDIM)
   integer :: ApplyBC
+  integer :: ivar
 
   real, parameter :: conv_x = Centimeter
 
@@ -115,8 +116,8 @@ subroutine RadTrans( dt, pass )
 
   call Grid_fillGuardCells &
          ( CENTER, ALLDIR, minLayers=my_ngrow*THORNADO_NNODESX, &
-	   doEos=.true., eosMode=rt_eosModeGc, maskSize=NUNK_VARS, &
-	   mask=rt_gcMask, makeMaskConsistent=.true. )
+           doEos=.true., eosMode=rt_eosModeGc, maskSize=NUNK_VARS, &
+           mask=rt_gcMask, makeMaskConsistent=.true. )
   
   call Timers_stop( "rt_gc" )
 
@@ -193,8 +194,8 @@ subroutine RadTrans( dt, pass )
     @M dir_end
 
     call InitThornado_Patch &
-    	   ( nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry )
-	   
+           ( nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry )
+
     call Timers_stop( "rt_init" )
 
     call Timers_start( "rt_reconstruction" )
@@ -237,12 +238,17 @@ subroutine RadTrans( dt, pass )
     
     call Timers_stop( "rt_imex" )
 
-  if ( sim_globalMe == MASTER_PE ) then
-     write(*,*) Uin(THORNADO_BEGIN,lo(IAXIS),lo(JAXIS),lo(KAXIS))
-     write(*,*) T0_R(1,1,1,1,1,1,1)
-     write(*,*) Uin(THORNADO_BEGIN,lo(IAXIS),lo(JAXIS),lo(KAXIS)) + dt * T0_R(1,1,1,1,1,1,1)
-     write(*,*) T1_R(1,1,1,1,1,1,1)
-  end if
+    if ( sim_globalMe == MASTER_PE ) then
+       ivar = rt_ivar(1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS),lo(KAXIS)), &
+                  Uin(ivar,lo(IAXIS)-1,lo(JAXIS),lo(KAXIS)), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS),lo(KAXIS))
+       write(*,*) T0_R(1,1,1,1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS),lo(KAXIS)) + dt * T0_R(1,1,1,1,1,1,1), &
+                  Uin(ivar,lo(IAXIS)-1,lo(JAXIS),lo(KAXIS)) + dt * T0_R(3,1,0,1,1,1,1), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS),lo(KAXIS)) + dt * T0_R(1,1,0,1,1,1,1)
+       write(*,*) T1_R(1,1,1,1,1,1,1)
+    end if
     deallocate( T0_R, T1_R )
 
     ! Copy back from the Thornado arrays into Flash arrays

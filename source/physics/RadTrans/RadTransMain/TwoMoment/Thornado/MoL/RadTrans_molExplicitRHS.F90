@@ -51,7 +51,7 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
   use MoL_interface, ONLY : MoL_getDataPtr, MoL_releaseDataPtr
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
-  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_irhs
+  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_irhs, rt_ivar
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
@@ -93,7 +93,7 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
   integer :: nX(3), swX(3), iZ_SW_P(4)
   real :: xL(3), xR(3)
   integer :: iX1, iX2, iX3, iS, iCR, iE, iNodeZ, iNodeE, iNodeX
-  integer :: i, j, k, ii, jj, kk, irhs
+  integer :: i, j, k, ii, jj, kk, irhs, ivar
 
   real, allocatable, dimension(:,:,:,:,:,:,:) :: d_uCR
 
@@ -188,7 +188,6 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
                      iZ_B1(3):iZ_E1(3), &
                      iZ_B1(4):iZ_E1(4), &
                      1:nCR,1:nSpecies) )
-     d_uCR = 1.0
      call Timers_stop("rt_init")
 
      call Timers_start("rt_reconstruction")
@@ -256,7 +255,10 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
      call Timers_stop("rt_projection")
 
      if ( sim_globalMe == MASTER_PE ) then
-       write(*,*) Uin(THORNADO_BEGIN,lo(IAXIS),lo(JAXIS),lo(KAXIS))
+       ivar = rt_ivar(1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS),lo(KAXIS)), &
+                  Uin(ivar,lo(IAXIS)-1,lo(JAXIS),lo(KAXIS)), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS),lo(KAXIS))
        write(*,*) d_uCR(1,1,1,1,1,1,1)
      end if
 
