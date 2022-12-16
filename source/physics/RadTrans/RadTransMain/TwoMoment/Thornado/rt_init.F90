@@ -85,6 +85,7 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
   call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
+  call RuntimeParameters_get ("rt_energyLimiter", rt_energyLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
 
   call RuntimeParameters_get ("rt_M_outer", rt_M_outer)
@@ -126,6 +127,7 @@ subroutine rt_init()
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
+     EnergyLimiter_Option = rt_energyLimiter, &
      OpacityTableName_EmAb_Option = rt_emab_file, &
      OpacityTableName_Iso_Option = rt_iso_file, &
      OpacityTableName_NES_Option = rt_nes_file, &
