@@ -131,4 +131,4 @@ These workflows are located in `.github/workflows` and are not part of default t
 
 ## Tests
 The source code for flashtest and a full set of tests are available from the 
-Flash-X-Test repository. The repository also has tools to help you setup your local test suite
+Flash-X-Test repository. The repository also has tools to help you setup your local test suite.
