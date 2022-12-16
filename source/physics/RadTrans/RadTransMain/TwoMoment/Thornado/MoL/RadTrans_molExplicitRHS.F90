@@ -256,9 +256,13 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
 
      if ( sim_globalMe == MASTER_PE ) then
        ivar = rt_ivar(1,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS),lo(KAXIS)), &
-                  Uin(ivar,lo(IAXIS)-1,lo(JAXIS),lo(KAXIS)), &
-                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS),lo(KAXIS))
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2)
        write(*,*) d_uCR(1,1,1,1,1,1,1)
      end if
 
