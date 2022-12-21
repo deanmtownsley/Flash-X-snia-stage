@@ -167,6 +167,8 @@ def genLines(setupvars):
     yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
     yield 'D rt_slopeLimiter   flag to use RadTrans slope limiter'
     yield 'PARAMETER rt_slopeLimiter    BOOLEAN  FALSE'
+    yield 'D rt_energyLimiter   flag to use RadTrans energy limiter'
+    yield 'PARAMETER rt_energyLimiter    BOOLEAN  FALSE'
 
     ##
     yield 'D rt_M_outer         number of iterations in memory for collision solver outer-loop'

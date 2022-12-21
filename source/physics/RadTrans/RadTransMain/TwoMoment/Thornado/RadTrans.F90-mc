@@ -43,15 +43,16 @@ subroutine RadTrans( dt, pass )
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_everywhere
   use FluidFieldsModule, ONLY : uCF
+  use GeometryFieldsModuleE, ONLY : uGE
   use GeometryFieldsModule, ONLY : uGF
   use Grid_interface, ONLY : Grid_fillGuardCells, &
       Grid_getMaxRefinement, Grid_getDeltas, &
       Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_data, ONLY: gr_str_geometry
-  use RadiationFieldsModule, ONLY : uCR
+  use RadiationFieldsModule, ONLY : uCR, nCR
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
-  use rt_data, ONLY : rt_doExplicit, rt_doImplicit
+  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_ivar
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
   use ThornadoInitializationModule, ONLY : &
         InitThornado_Patch, FreeThornado_Patch
@@ -61,6 +62,12 @@ subroutine RadTrans( dt, pass )
 
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
+
+  use Simulation_data, ONLY : sim_globalMe
+  use ProgramHeaderModule, ONLY : iZ_B0, iZ_B1, iZ_E0, iZ_E1, &
+     iX_B0, iX_B1, iX_E0, iX_E1, nDOFZ
+  use TimeSteppingModule_Flash, ONLY : ApplyBoundaryConditions_Radiation, &
+     ApplyBoundaryConditions_Euler_FLASH
 
   implicit none
 
@@ -78,13 +85,16 @@ subroutine RadTrans( dt, pass )
   type(Grid_tile_t) :: tileDesc
 
   integer, parameter :: my_ngrow = 2
-  integer :: nX(3), swX(3)
+  integer :: nX(3), swX(3), iZ_SW_P(4)
   real :: xL(3), xR(3)
 
   integer :: faces(LOW:HIGH, 1:MDIM)
   integer :: ApplyBC
+  integer :: ivar
 
   real, parameter :: conv_x = Centimeter
+
+  real, allocatable, dimension(:,:,:,:,:,:,:) :: T0_R, T1_R
 
   nullify( Uin )
 
@@ -106,8 +116,8 @@ subroutine RadTrans( dt, pass )
 
   call Grid_fillGuardCells &
          ( CENTER, ALLDIR, minLayers=my_ngrow*THORNADO_NNODESX, &
-	   doEos=.true., eosMode=rt_eosModeGc, maskSize=NUNK_VARS, &
-	   mask=rt_gcMask, makeMaskConsistent=.true. )
+           doEos=.true., eosMode=rt_eosModeGc, maskSize=NUNK_VARS, &
+           mask=rt_gcMask, makeMaskConsistent=.true. )
   
   call Timers_stop( "rt_gc" )
 
@@ -137,6 +147,7 @@ subroutine RadTrans( dt, pass )
     
     nX  = 1
     swX = 0
+    iZ_SW_P = 0
     xL  = 0.0
     if     ( rt_geometry == CARTESIAN   )then
       xR = 1.0
@@ -151,6 +162,7 @@ subroutine RadTrans( dt, pass )
     
     nX (1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / THORNADO_NNODESX
     swX(1:NDIM) = my_ngrow
+    iZ_SW_P(2:NDIM+1) = swX
     
     u_lo = 1  - swX
     u_hi = nX + swX
@@ -182,8 +194,8 @@ subroutine RadTrans( dt, pass )
     @M dir_end
 
     call InitThornado_Patch &
-    	   ( nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry )
-	   
+           ( nX, swX, xL, xR, THORNADO_NSPECIES, rt_str_geometry )
+
     call Timers_stop( "rt_init" )
 
     call Timers_start( "rt_reconstruction" )
@@ -192,18 +204,60 @@ subroutine RadTrans( dt, pass )
     
     call Timers_stop( "rt_reconstruction" )
 
+      CALL ApplyBoundaryConditions_Radiation &
+             ( iZ_SW_P, iZ_B0, iZ_E0, iZ_B1, iZ_E1, uCR, ApplyBC )
+
+#if   defined(THORNADO_ORDER_V)
+      CALL ApplyBoundaryConditions_Euler_FLASH &
+             ( iZ_SW_P, iX_B0, iX_E0, iX_B1, iX_E1, uCF, ApplyBC )
+#endif
+
     ! Call the Fortran interface that lives in the Thornado repo
     
     call Timers_start( "rt_imex" )
     
+     allocate( T0_R (1:nDOFZ, &
+                     iZ_B1(1):iZ_E1(1), &
+                     iZ_B1(2):iZ_E1(2), &
+                     iZ_B1(3):iZ_E1(3), &
+                     iZ_B1(4):iZ_E1(4), &
+                     1:nCR,1:THORNADO_NSPECIES) )
+     allocate( T1_R (1:nDOFZ, &
+                     iZ_B1(1):iZ_E1(1), &
+                     iZ_B1(2):iZ_E1(2), &
+                     iZ_B1(3):iZ_E1(3), &
+                     iZ_B1(4):iZ_E1(4), &
+                     1:nCR,1:THORNADO_NSPECIES) )
+
     call Update_IMEX_PDARS &
-    	   ( dt * Second, uCF, uCR, &
+           ( dt * Second, uCF, uCR, T0_R, T1_R, &
              Explicit_Option = rt_doExplicit, &
-	     Implicit_Option = rt_doImplicit, &
+             Implicit_Option = rt_doImplicit, &
              SingleStage_Option = .false., &
-	     BoundaryCondition_Option = ApplyBC )
+             BoundaryCondition_Option = ApplyBC )
     
     call Timers_stop( "rt_imex" )
+
+    if ( sim_globalMe == MASTER_PE ) then
+       ivar = rt_ivar(1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2)
+       write(*,*) T0_R(1,1,1,1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,1,1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(3,1,0,1,1,1,1), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,0,1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ) + dt * T0_R(5,1,1,0,1,1,1), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  ) + dt * T0_R(1,1,1,0,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1) + dt * T0_R(9,1,1,1,0,1,1), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2) + dt * T0_R(1,1,1,1,0,1,1)
+       write(*,*) T1_R(1,1,1,1,1,1,1)
+    end if
+    deallocate( T0_R, T1_R )
 
     ! Copy back from the Thornado arrays into Flash arrays
     

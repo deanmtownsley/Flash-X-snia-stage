@@ -85,6 +85,7 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
   call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
+  call RuntimeParameters_get ("rt_energyLimiter", rt_energyLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
 
   call RuntimeParameters_get ("rt_M_outer", rt_M_outer)
@@ -126,6 +127,7 @@ subroutine rt_init()
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
+     EnergyLimiter_Option = rt_energyLimiter, &
      OpacityTableName_EmAb_Option = rt_emab_file, &
      OpacityTableName_Iso_Option = rt_iso_file, &
      OpacityTableName_NES_Option = rt_nes_file, &
@@ -156,24 +158,26 @@ subroutine rt_init()
      Verbose_Option = Verbose )
 #endif
 
-#ifdef USE_MOL
   do iS = 1, THORNADO_NSPECIES
      do iCR = 1, THORNADO_NMOMENTS
         do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
            do iNodeE = 1, THORNADO_NNODESE
+
               ivar = THORNADO_BEGIN &
                  + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
                  + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
                  + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE) &
                  + iNodeE - 1
 
+              rt_ivar(iNodeE,iE,iCR,iS) = ivar
+
               call Simulation_mapIntToStr(ivar, unk_name, MAPBLOCK_UNK)
               call MoL_registerVariable(unk_name, ivar, rt_irhs(iNodeE,iE,iCR,iS))
+
            end do
         end do
      end do
   end do
-#endif
 
   call RuntimeParameters_get( "rt_D_0"  , rt_D_0 )
   call RuntimeParameters_get( "rt_Chi"  , rt_Chi )

@@ -51,7 +51,7 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
   use MoL_interface, ONLY : MoL_getDataPtr, MoL_releaseDataPtr
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
-  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_irhs
+  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_irhs, rt_ivar
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
@@ -66,13 +66,15 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
      ApplyBoundaryConditions_Euler_FLASH
   use UnitsModule, ONLY : Centimeter
 
-#ifdef TWOMOMENT_ORDER_1
+#if   defined(THORNADO_ORDER_1)
   USE TwoMoment_DiscretizationModule_Streaming, ONLY: &
     ComputeIncrement_TwoMoment_Explicit
-#elif TWOMOMENT_ORDER_V
+#elif defined(THORNADO_ORDER_V)
   USE TwoMoment_DiscretizationModule_Streaming_OrderV, ONLY: &
     ComputeIncrement_TwoMoment_Explicit
 #endif
+
+  use Simulation_data, ONLY : sim_globalMe
 
    implicit none
 
@@ -91,7 +93,7 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
   integer :: nX(3), swX(3), iZ_SW_P(4)
   real :: xL(3), xR(3)
   integer :: iX1, iX2, iX3, iS, iCR, iE, iNodeZ, iNodeE, iNodeX
-  integer :: i, j, k, ii, jj, kk, irhs
+  integer :: i, j, k, ii, jj, kk, irhs, ivar
 
   real, allocatable, dimension(:,:,:,:,:,:,:) :: d_uCR
 
@@ -151,7 +153,7 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
      hi = tileDesc%limits(HIGH,1:MDIM)
      nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
      swX(1:NDIM) = my_ngrow
-     iZ_SW_P(2:NDIM+1) = swX
+     iZ_SW_P(2:NDIM+1) = swX(1:NDIM)
      u_lo = 1 - swX
      u_hi = nX + swX
 
@@ -195,20 +197,20 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
       CALL ApplyBoundaryConditions_Radiation &
              ( iZ_SW_P, iZ_B0, iZ_E0, iZ_B1, iZ_E1, uCR, ApplyBC )
 
-#ifdef TWOMOMENT_ORDER_V
+#if   defined(THORNADO_ORDER_V)
       CALL ApplyBoundaryConditions_Euler_FLASH &
              ( iZ_SW_P, iX_B0, iX_E0, iX_B1, iX_E1, uCF, ApplyBC )
 #endif
 
      ! Call the Fortran interface that lives in the Thornado repo
      call Timers_start("rt_explicit")
-#ifdef TWOMOMENT_ORDER_1
+#if   defined(THORNADO_ORDER_1)
       CALL ComputeIncrement_TwoMoment_Explicit &
-             ( iZ_B0_SW, iZ_E0_SW, iZ_B1, iZ_E1, &
+             ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, &
                uGE, uGF, uCR, d_uCR )
-#elif TWOMOMENT_ORDER_V
+#elif defined(THORNADO_ORDER_V)
       CALL ComputeIncrement_TwoMoment_Explicit &
-             ( iZ_B0_SW, iZ_E0_SW, iZ_B1, iZ_E1, &
+             ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, &
                uGE, uGF, uCF, uCR, d_uCR )
 #endif
      call Timers_stop("rt_explicit")
@@ -251,6 +253,18 @@ subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
         end do
      end do
      call Timers_stop("rt_projection")
+
+     if ( sim_globalMe == MASTER_PE ) then
+       ivar = rt_ivar(1,1,1,1)
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  )
+       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1), &
+                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2)
+       write(*,*) d_uCR(1,1,1,1,1,1,1)
+     end if
 
      call Timers_start("rt_finalize")
 
