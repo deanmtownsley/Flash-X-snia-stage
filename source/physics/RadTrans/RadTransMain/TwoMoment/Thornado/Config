@@ -188,3 +188,8 @@ def genLines(setupvars):
     ##
     yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'
     yield 'PARAMETER rt_writeTimers  BOOLEAN   FALSE'
+
+    ##
+    yield 'PARAMETER rt_D_0   REAL 1.0e0 [0.0 to ]'
+    yield 'PARAMETER rt_Chi   REAL 1.0e0 [0.0 to ]'
+    yield 'PARAMETER rt_Sigma REAL 1.0e0 [0.0 to ]'

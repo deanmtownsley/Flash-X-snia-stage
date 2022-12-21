@@ -175,5 +175,9 @@ subroutine rt_init()
   end do
 #endif
 
+  call RuntimeParameters_get( "rt_D_0"  , rt_D_0 )
+  call RuntimeParameters_get( "rt_Chi"  , rt_Chi )
+  call RuntimeParameters_get( "rt_Sigma", rt_Sigma )
+
   return
 end subroutine rt_init

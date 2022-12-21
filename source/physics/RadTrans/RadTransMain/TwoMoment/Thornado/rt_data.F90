@@ -55,5 +55,7 @@ module rt_data
                            1-THORNADO_SWE:THORNADO_NE+THORNADO_SWE, &
                            1:THORNADO_NMOMENTS, &
                            1:THORNADO_NSPECIES)
+
+  real,    save :: rt_D_0, rt_Chi, rt_Sigma
   
 end module rt_data
