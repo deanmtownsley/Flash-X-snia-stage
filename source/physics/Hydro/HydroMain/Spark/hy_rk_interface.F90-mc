@@ -46,8 +46,10 @@ module hy_rk_interface
 
   interface
      subroutine @M hy_grav_name (@M hy_grav_call_args)
+       use Grid_tile, ONLY: Grid_tile_t
        real,dimension(MDIM),intent(IN)  :: hy_del
        integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+       type(Grid_tile_t), intent(in)  :: tileDesc
      end subroutine @M hy_grav_name
   end interface
   
