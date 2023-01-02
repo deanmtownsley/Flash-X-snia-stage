@@ -113,7 +113,7 @@ subroutine Simulation_init()
 
   ! Determine location of spheroid center depending on grid geometry.
   ! Allowed geometries:  2D:  axisymmetric; 3D:  Cartesian.
-  ! Eventually should also support 3D cylindrical and spherical.
+  ! Eventually should also support 3D cylindrical and 3D spherical.
 
   call Grid_getGeometry(geometry)
   if ((NDIM == 2) .and. (geometry == CYLINDRICAL)) then
@@ -125,6 +125,15 @@ subroutine Simulation_init()
 
   else if ((NDIM == 2) .and. (geometry == POLAR)) then
      ! 2D axisymmetric
+     sim_initGeometry = geometry
+     sim_xctr = 0.0
+     sim_yctr = 0.0
+     sim_zctr = 0.0
+     call RuntimeParameters_set("xctr", sim_xctr)
+     call RuntimeParameters_set("yctr", sim_yctr)
+     call RuntimeParameters_set("zctr", sim_zctr)
+
+  else if ((NDIM == 2) .and. (geometry == SPHERICAL)) then
      sim_initGeometry = geometry
      sim_xctr = 0.0
      sim_yctr = 0.0

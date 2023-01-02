@@ -161,9 +161,16 @@ subroutine sim_analytical(tileDesc)
 
                     case (CARTESIAN)       ! 3d cartesian
 
+                       rFunc = (xdist*sim_a1inv)**2 + (ydist*sim_a1inv)**2 + (zdist*sim_a3inv)**2
                        r2 = xdist**2 + ydist**2
                        z2 = zdist**2
-                       rFunc = (xdist*sim_a1inv)**2 + (ydist*sim_a1inv)**2 + (zdist*sim_a3inv)**2
+
+                    case (SPHERICAL)
+
+                       rFunc = xdist**2 * ( (sim_a1inv * sin(ydist))**2 + (sim_a3inv * cos(ydist))**2 )
+                       r2 = ( xdist * sin(ydist) )**2
+                       z2 = ( xdist * cos(ydist) )**2
+
                     end select
 
                     if (rFunc <= 1.) then    ! inside the spheroid

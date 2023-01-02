@@ -148,6 +148,16 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        vyfac = xdist*rinv
                        vzfac = 0.0
 
+                    case (SPHERICAL)
+
+                       dist2 = xdist**2 * ( (sim_a1inv * sin(ydist))**2 + (sim_a3inv * cos(ydist))**2 )
+                       rxy   = xdist * sin(ydist)
+                       rxyz2 = (rxy * sim_a1inv)**2 + (xdist * cos(ydist) * sim_a3inv)**2
+                       rinv  = 1./xdist
+                       vxfac = 0.0
+                       vyfac = 0.0
+                       vzfac = 0.0
+
                     end select
 
                     if (dist2 <= 1.) then    ! inside the spheroid
