@@ -148,16 +148,17 @@ subroutine sim_analytical(tileDesc)
 
                     select case (sim_initGeometry)
 
-                    case (POLAR)   ! 2d axisymmetric?
-
-                       rFunc = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
-                       r2 = xdist**2 + ydist**2
-
                     case (CYLINDRICAL)   ! 2d axisymmetric
 
                        rFunc = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
                        r2 = xdist**2
                        z2 = ydist**2
+
+                    case (SPHERICAL)
+
+                       rFunc = xdist**2 * ( (sim_a1inv * sin(ydist))**2 + (sim_a3inv * cos(ydist))**2 )
+                       r2 = ( xdist * sin(ydist) )**2
+                       z2 = ( xdist * cos(ydist) )**2
 
                     case (CARTESIAN)       ! 3d cartesian
 
@@ -165,11 +166,11 @@ subroutine sim_analytical(tileDesc)
                        r2 = xdist**2 + ydist**2
                        z2 = zdist**2
 
-                    case (SPHERICAL)
-
-                       rFunc = xdist**2 * ( (sim_a1inv * sin(ydist))**2 + (sim_a3inv * cos(ydist))**2 )
-                       r2 = ( xdist * sin(ydist) )**2
-                       z2 = ( xdist * cos(ydist) )**2
+                    !! NOTE: The polar setup is untested and may be incorrect -- leaving past syntax here for posterity
+                    !! NOTE: Simulation_init currently aborts the polar case
+                    !case (POLAR)   ! 2d axisymmetric?
+                       !rFunc = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
+                       !r2 = xdist**2 + ydist**2
 
                     end select
 
