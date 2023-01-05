@@ -128,6 +128,7 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   lo_gc = tileDesc%blkLimitsGC(LOW, :)
   hi_gc = tileDesc%blkLimitsGC(HIGH,:)
 
+  ! DEV: TODO Review performance impact of the arrays in this block
   if (geometry == SPHERICAL) then
 
      !Need radial term if sweeping over theta or phi
