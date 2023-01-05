@@ -21,7 +21,7 @@
 !!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
 !!                         integer(IN) :: limits(:,:),
 !!                         integer(IN) :: blkLimitsGC(:,:),
-!!                         integer(IN) :: tileDesc)
+!!                         integer(IN) :: level)
 !!
 !!  DESCRIPTION
 !! 
@@ -32,7 +32,8 @@
 !!     blklimits,blkLimitsGC are the bounds of the block/tile
 !!     hy_del are dx,dy,dz
 !!     limits   sets limits of the fluxes.
-!!     tileDesc current tile number
+!!     level - refinement level.
+!!           This is 1-based, i.e., the root level is numbered 1.
 !!
 !!***
 
@@ -44,7 +45,6 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
   use Hydro_data, ONLY : hy_grav
   use Driver_interface, ONLY : Driver_abort
-  use Grid_tile,        ONLY : Grid_tile_t
   implicit none
 
 #include "Simulation.h"
@@ -52,8 +52,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
 
   real,dimension(MDIM),intent(IN)  :: hy_del
   integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-  type(Grid_tile_t), intent(in)  :: tileDesc
-
+  integer, intent(in)  :: level
 
   integer, dimension(MDIM) :: loGC, hiGC
   integer :: dir, i,j,k,d
@@ -83,7 +82,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,tileDesc)
+             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,level,loGC,hiGC)
 #else
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
@@ -96,7 +95,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,k/),JAXIS,&
-             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,tileDesc)
+             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,level,loGC,hiGC)
      enddo
   enddo
 #endif
@@ -108,7 +107,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,j/),KAXIS,&
-             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,tileDesc)
+             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,level,loGC,hiGC)
      enddo
   enddo
 #endif
@@ -118,10 +117,9 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
 
 contains
 
-  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del, tileDesc)
+  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del, level, loGC, hiGC)
     use Hydro_data, ONLY : hy_starState
     use Grid_interface, ONLY : Grid_getCellCoords, Grid_getGeometry
-    use Grid_tile, ONLY : Grid_tile_t
 
     implicit none
 
@@ -130,11 +128,12 @@ contains
     real, intent(inout)               :: grav(numCells)
 
     real, intent(in):: hy_del(MDIM)
-    type(Grid_tile_t), intent(in)  :: tileDesc
+    integer, intent(in)  :: level
+    integer, dimension(MDIM), intent(in) :: loGC, hiGC
+
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv
     integer         :: geometry
-    integer, dimension(MDIM)        :: lo_gc, hi_gc
     real, allocatable, dimension(:) :: radCenter, thtCenter
     !$omp declare target
     !==================================================
@@ -142,29 +141,27 @@ contains
 #ifdef GPOT_VAR
     call Grid_getGeometry(geometry)
 
-    lo_gc = tileDesc%blkLimitsGC(LOW, :)
-    hi_gc = tileDesc%blkLimitsGC(HIGH,:)
-
+    ! DEV: TODO Review performance impact of the arrays in this block
     if (geometry == SPHERICAL) then
 
        !Need radial term if sweeping over theta or phi
        if (sweepDir == SWEEP_Y .or. sweepDir == SWEEP_Z) then
-          allocate( radCenter(lo_gc(IAXIS):hi_gc(IAXIS)) )
-          call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, radCenter)
+          allocate( radCenter(loGC(IAXIS):hiGC(IAXIS)) )
+          call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, radCenter)
        endif
 
        !Need theta term if sweeping over phi
        if (sweepDir == SWEEP_Z) then
-          allocate( thtCenter(lo_gc(JAXIS):hi_gc(JAXIS)) )
-          call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, thtCenter)
+          allocate( thtCenter(loGC(JAXIS):hiGC(JAXIS)) )
+          call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, thtCenter)
        endif
 
     else if (geometry == CYLINDRICAL) then
 
        !Need radial term if sweeping over angle
        if (sweepDir == SWEEP_Z) then
-          allocate( radCenter(lo_gc(IAXIS):hi_gc(IAXIS)) )
-          call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, radCenter)
+          allocate( radCenter(loGC(IAXIS):hiGC(IAXIS)) )
+          call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, radCenter)
        endif
 
     endif
