@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """This program parses all the .c files in the current directory and finds the header files
 each file depends on. Having done that, it appends those dependencies to Makefile.Depends."""

@@ -65,7 +65,7 @@ restart = .false.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.005
-checkpointFileNumber       = 35
+checkpointFileNumber       = 1
 
 #	plotfile output parameters
 plotfileIntervalTime = 0.

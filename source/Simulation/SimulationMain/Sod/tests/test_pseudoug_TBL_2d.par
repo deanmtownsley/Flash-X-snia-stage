@@ -54,7 +54,7 @@ threadHydroBlockList           = .TRUE.
 threadIOBlockList              = .TRUE.
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0.005
+checkpointFileIntervalTime = 0.175
 checkpointFileNumber       = 0
 
 #	plotfile output parameters
