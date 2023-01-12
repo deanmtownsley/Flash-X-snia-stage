@@ -92,7 +92,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      ! call Timers_start("hy_flat3d")
      !! TODO: Set this once for both rk steps.
 
-     !$omp target teams distribute parallel do simd collapse(3)
+     !$omp target teams distribute parallel do simd collapse(3) &
      !$omp default(none) &
      !$omp private(i, j, k) &
      !$omp shared(blkLimitsGC, hy_flat3d)
@@ -121,7 +121,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uMinus(1:NRECON,@M hy_bounds_lim) => hya_uMinus
 
 
-     !$omp target teams distribute parallel do simd collapse(3)
+     !$omp target teams distribute parallel do simd collapse(3) &
      !$omp default(none) &
      !$omp private(i, j, k, n) &
      !$omp shared(limgc, dir, stage, hy_rope, hy_starState, hy_grv, hy_grav, hy_shck, hy_flat, hy_flat3d)
