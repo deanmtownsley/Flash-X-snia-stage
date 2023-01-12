@@ -99,7 +99,7 @@ module Hydro_data
   !$omp   hy_gcMaskSize, &
   !$omp   hy_restart, &
   !$omp   hy_useHydro, hy_telescoping, &
-  !$omp   hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcshya_starState, hya_tmpState, &
+  !$omp   hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs, hya_starState, hya_tmpState, &
   !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
   !$omp   hya_rope, hya_flux, hya_shck, &
   !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
@@ -108,7 +108,7 @@ module Hydro_data
   !$omp   hy_del, &
   !$omp   hy_dt, hy_dtmin, &
   !$omp   hy_shockDetectOn, &
-  !$omp   hy_useTiling , &
+  !$omp   hy_useTiling, &
   !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
   !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, &
   !$omp   hy_fluxCorVars, &
