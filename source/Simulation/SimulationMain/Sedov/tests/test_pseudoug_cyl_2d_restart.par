@@ -77,11 +77,11 @@ restart  = .true.
 wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0.01
-checkpointFileNumber = 3
+checkpointFileIntervalTime = 0
+checkpointFileNumber = 1
 
 #	plotfile output parameters
-plotfileIntervalTime = 0.0004
+plotfileIntervalTime = 0
 plotfileIntervalStep = 0
 plotfileNumber       = 0
 
