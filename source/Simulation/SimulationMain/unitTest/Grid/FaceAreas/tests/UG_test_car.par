@@ -1,4 +1,3 @@
-basenm = "GridCellFaceAreasTest_"
 
 # These exact values are used in the unittest.  They should not be
 # changed here and different values should not be given at setup.

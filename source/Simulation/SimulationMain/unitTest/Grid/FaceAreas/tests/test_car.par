@@ -1,17 +1,16 @@
-basenm = "GridCellFaceAreasTest_"
 
 # These exact values are used in the unittest.  They should not be
 # changed here and different values should not be given at setup.
 
 ##### PHYSICAL SPACE DISCRETIZATION
-geometry = "spherical"
+geometry = "cartesian"
 
-xmin     =  0.0
-xmax     =  128.0
-ymin     =  0.0
-ymax     =  180.0
-zmin     =  0
-zmax     =  360.
+xmin     =  -64.0
+xmax     =  64.0
+ymin     = -64.0
+ymax     =  64.0
+zmin     =  -64.0
+zmax     =  64.0
 
 ##### PARTITION OF PHYSICAL SPACE INTO BLOCKS
 nblockx =  1
@@ -25,13 +24,13 @@ gr_tileSizeY = 1
 gr_tileSizeZ = 1
 
 ##### BOUNDARY CONDITIONS
-xl_boundary_type = "reflect"
+xl_boundary_type = "outflow"
 xr_boundary_type = "outflow"
-yl_boundary_type = "reflect"
-yr_boundary_type = "reflect"
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
 # DEV: One periodic on Z and the other Z not is an unacceptable user error
-zl_boundary_type = "periodic"
-zr_boundary_type = "periodic"
+zl_boundary_type = "outflow"
+zr_boundary_type = "outflow"
 
 ##### AMR CONFIGURATION
 lrefine_max = 1
