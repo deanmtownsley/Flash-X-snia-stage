@@ -1,6 +1,7 @@
 # YAML file for test information
 # comments start with "#"
 
+## 2D PseudoUG
 Composite/Sedov/PseudoUG/2d/AMReX/simpleUnsplit:
   setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
@@ -30,7 +31,9 @@ Composite/Sedov/PseudoUG/2d/Paramesh/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 2D PseudoUG
 
+# 2DCyl PseudoUG
 Composite/Sedov/PseudoUG/2dCyl/AMReX/unsplit:
   setupOptions: -auto -2d +cylindrical -debug -maxblocks=175 -nxb=16 -nyb=16 +uhd +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM DoAnalytical=True
   parfiles: test_pseudoug_cyl_2d.par
@@ -48,7 +51,9 @@ Composite/Sedov/PseudoUG/2dCyl/Paramesh/spark:
   parfiles: test_pseudoug_cyl_2d_spark.par
   restartParfiles: test_pseudoug_cyl_2d_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 2DCyl PseudoUG
 
+# 3d PseudoUG
 Composite/Sedov/PseudoUG/3d/AMReX/unsplit:
   setupOptions: -auto -3d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_3d.par
@@ -60,7 +65,9 @@ Composite/Sedov/PseudoUG/3d/Paramesh/unsplit:
   parfiles: test_pseudoug_3d.par
   restartParfiles: test_pseudoug_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+# end 3d PseudoUG
 
+## 2D AMR
 Composite/Sedov/AMR/2d/AMReX/simpleUnsplit:
   setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_amr_2d.par
@@ -90,7 +97,9 @@ Composite/Sedov/AMR/2d/Paramesh/unsplit:
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 2D AMR
 
+# 2DCyl AMR
 Composite/Sedov/AMR/2dCyl/AMReX/unsplit:
   setupOptions: -auto -2d +cylindrical -debug -maxblocks=175 -nxb=16 -nyb=16 +uhd +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM DoAnalytical=True
   parfiles: test_amr_cyl_2d.par
@@ -102,7 +111,9 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   parfiles: test_amr_cyl_2d.par
   restartParfiles: test_amr_cyl_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 2DCyl AMR
 
+# 3d AMR
 Composite/Sedov/AMR/3d/AMReX/unsplit:
   setupOptions: -auto -3d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_amr_unsplit_3d.par
@@ -144,12 +155,16 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
   parfiles: test_amr_unsplit_3d.par
   restartParfiles: test_amr_unsplit_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+# end 3d AMR
 
+# Particle 2D
 Comparison/Sedov/Part/2d/Paramesh:
   setupOptions: -auto -2d -debug  -unit=Particles Bittree=true
   parfiles: test_paramesh_particles_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+# end Particle 2D
 
+# 2d UG
 Comparison/Sedov/UG/2d/unsplit:
   setupOptions: -auto -2d -debug +uhd +ug +nofbs
   parfiles: test_pseudoug_2d.par
@@ -159,6 +174,7 @@ Comparison/Sedov/UG/2d/spark:
   setupOptions: -auto -2d -debug +ug +nofbs +sparkinhost
   parfiles: test_pseudoug_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+# end 2d UG
 
 Comparison/Sedov/PseudoUG/2d/AMReX/simpleUnsplit:
   setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
