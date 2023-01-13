@@ -1,3 +1,5 @@
+# YAML file for test information
+# comments start with "#"
 ##  SodStep
 #   Sod shock tube with sections of domain taken out to create internal boundaries
 
@@ -12,9 +14,7 @@
 # flashx_hdf5_chk_0001 is used as comparison test to ensure correct running, the
 # second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
 
-[Step]
-testNode = "Composite/SodStep/2d/PM/unsplit"
-setupOptions = "-auto -2d +uhd -unit=IO/IOMain/hdf5/serial/AM -unit=Particles"
-parfiles = ["coldstart_pm_2d.par"]
-restartParfiles=["restart_pm_2d.par"]
-
+Composite/SodStep/2d/PM/unsplit:
+  setupOptions: -auto -2d +uhd -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: coldstart_pm_2d.par
+  restartParfiles: restart_pm_2d.par

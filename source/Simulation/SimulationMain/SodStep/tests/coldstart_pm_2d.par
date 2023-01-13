@@ -63,8 +63,8 @@ cfl		= 0.8
 restart         = .false.
 
 #	checkpoint file output parameters
-#checkpointFileIntervalTime = 0.2
-#checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0.0
+checkpointFileIntervalStep = 0
 checkpointFileNumber = 0
 
 #	plotfile output parameters
