@@ -9,10 +9,12 @@ UnitTest/PointMassGravity/3d/AMReX:
   setupOptions: -auto -3d +amrex +noio -maxblocks=10 -nxb=8 -nyb=8 -nzb=8
   parfiles: <defaultParfile>
 
+#This test was originally configured with debug option
 UnitTest/PointMassGravity/2dCyl/Paramesh:
-  setupOptions: -auto -2d +pm4dev +cylindrical +serialIO -debug
+  setupOptions: -auto -2d +pm4dev +cylindrical +serialIO 
   parfiles: test_2dcyl.par
 
+#This test was originally configured with debug option
 UnitTest/PointMassGravity/2dCyl/AMReX:
-  setupOptions: -auto -2d +amrex +cylindrical +noio -debug
+  setupOptions: -auto -2d +amrex +cylindrical +noio 
   parfiles: test_2dcyl.par
