@@ -26,8 +26,8 @@ jprocs = 2
 convertToConsvdInMeshInterp = .true.
 
 restart         = .false.
-#checkpointFileIntervalTime = 0.0
-#checkpointFileIntervalStep = 100
+checkpointFileIntervalTime = 0.0
+checkpointFileIntervalStep = 0
 checkpointFileNumber = 0	
 
 nend            = 200
