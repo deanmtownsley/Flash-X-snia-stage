@@ -27,7 +27,8 @@ plotfileMetadataDP             = .false.
 refine_on_particle_count       = .true.
 
 run_comment                    = "Flash-X HydroStatic test run"
-checkpointFileIntervalTime = 0
+checkpointFileIntervalStep     = 0
+checkpointFileIntervalTime     = 0.0
 useCollectiveHDF5              = .false.
 useParticles                   = .FALSE.
 
