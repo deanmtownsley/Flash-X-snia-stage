@@ -14,7 +14,6 @@
 #wall_clock_checkpoint			= 3000
 
 # names of files
-basenm					= "snd_"
 log_file				= "snd.log"
 
 restart					= .false.
@@ -23,11 +22,11 @@ checkpointFileNumber			= 0
 plotFileNumber				= 0
 
 #output_directory			= "./chk"
-#checkpointFileIntervalStep		= 0
-#checkpointFileIntervalTime		= 1.0e-1
+checkpointFileIntervalStep		= 0
+checkpointFileIntervalTime		= 0.0
 
-#plotFileIntervalStep			= 0
-#plotFileIntervalTime			= 1.0e-2
+plotFileIntervalStep			= 0
+plotFileIntervalTime			= 0.0
 
 #ignoreForcedPlot			= .true.
 #summaryOutputOnly			= .true.

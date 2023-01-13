@@ -24,8 +24,8 @@ pt_initialZMax = 10.0
 #		simulation parameters
 
 restart         = .false.
-#checkpointFileIntervalTime = 0.0
-#checkpointFileIntervalStep = 20
+checkpointFileIntervalTime = 0.0
+checkpointFileIntervalStep = 0
 checkpointFileNumber = 0	
 
 nend            = 1000
