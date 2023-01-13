@@ -38,8 +38,8 @@ cfl		= 0.8
 lrefine_max     = 8
 restart         = .false.
 
-checkpointFileIntervalTime          = 0.0358
-checkpointFileIntervalStep    =  25000
+checkpointFileIntervalTime = 0
+checkpointFileIntervalStep = 0
 
 plotFileIntervalTime     = 1000.
 

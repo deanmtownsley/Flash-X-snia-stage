@@ -43,8 +43,8 @@ lrefine_max     = 4
 restart         = .true.
 checkpointFileNumber = 1
 
-checkpointFileIntervalTime          = 0.0358
-checkpointFileIntervalStep    =  53
+checkpointFileIntervalTime = 0
+checkpointFileIntervalStep = 0
 
 plotFileIntervalTime     = 1000.
 
