@@ -40,7 +40,7 @@ cfl = 0.8
 
 # checkpoint/plot files
 checkpointFileIntervalStep = 0
-checkpointFileIntervalTime = 1.0E-4
+checkpointFileIntervalTime = 0
 plotFileNumber = 0
 
 ignoreForcedPlot = .false.
