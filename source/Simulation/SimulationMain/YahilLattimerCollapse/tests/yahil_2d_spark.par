@@ -10,10 +10,10 @@ run_comment          = "Yahil collapse 2D with Yali Profile"
 # IO
 #    checkpoint file output parameters
 checkpointFileIntervalStep = 0
-#checkpointFileIntervalTime = 1E-3 # second
+checkpointFileIntervalTime = 0
 #    plotfile output parameters
-plotfileIntervalStep       = 0
-plotfileIntervalTime       = 0.
+plotfileIntervalStep = 0
+plotfileIntervalTime = 0
 
 # Time
 nend            = 1000000
