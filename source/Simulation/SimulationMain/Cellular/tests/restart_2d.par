@@ -26,12 +26,12 @@ plot_var_2				= "si28"
 #plotFileNumber				= 125
 
 # dump checkpoint files every checkpointFileIntervalTime seconds
-#checkpointFileIntervalTime		= 1.0e-9
-#checkpointFileIntervalStep		= 1
+checkpointFileIntervalTime		= 0.0
+checkpointFileIntervalStep		= 0
 
 # dump plot files every plotFileIntervalTime seconds
-plotFileIntervalTime			= 1.0e+8
-#plotFileIntervalStep			= 1
+plotFileIntervalTime			= 0.0
+plotFileIntervalStep			= 0
 
 ## -------------------------------------------------------------
 ## refinement
