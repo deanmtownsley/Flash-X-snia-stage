@@ -1,7 +1,6 @@
 # [source/Simulation/SimulationMain/DeleptonizationWave]
 
 # names of files
-basenm               = "deleptonizationwave_"
 log_file             = "deleptonizationwave.log"
 restart              = .false.
 checkpointFileNumber = 0
