@@ -42,6 +42,9 @@
 !! expect each grid implementation to do this.  If we were to implement a data
 !! member/constructor inheritance scheme, then writing and maintaining Grid_inits at this
 !! level would be easier and less error prone.
+!! @todo The runtime parameter geometryOverride should probably be made to have
+!!       the same effects as in the Amrex Grid implementation (see gr_amrexInit).
+!!       For now, code below aborts instead if gr_geometryOverride is TRUE.
 subroutine Grid_init()
     use milhoja_types_mod,           ONLY : MILHOJA_INT, &
                                             MILHOJA_REAL
@@ -162,12 +165,9 @@ subroutine Grid_init()
         write(*,'(A)') "[Grid] Initializing ..."
     end if
 
-    !------------------------------------------------------------------------------
-    ! Load into local Grid variables all runtime parameters needed by gr_initGeometry
-    !------------------------------------------------------------------------------
-    CALL RuntimeParameters_get("geometry", gr_str_geometry)
-    CALL RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+  ! Initialization of gr_geometry etc is done in gr_initGeometry, called below.
 
+  ! DO THIS EARLY - must be before gr_initGeometry is called:
     !get the boundary conditions stored as strings in the par file
     CALL RuntimeParameters_get("xl_boundary_type", xl_bcString)
     CALL RuntimeParameters_get("xr_boundary_type", xr_bcString)
@@ -187,13 +187,19 @@ subroutine Grid_init()
     !------------------------------------------------------------------------------
     ! Init geometry first as it can change runtime parameters
     !------------------------------------------------------------------------------
+  ! Initialize geometry-related Flash-X runtime parameters,
+  ! determine the geometries of  dimensions, and scale
+  ! angle value parameters that are expressed in degrees to radians.
     CALL gr_initGeometry()
+    if (gr_geometryOverride) then
+       CALL Driver_abort("[Grid_init] Runtime parameter geometryOverride not yet supported by Milhoja Grid")
+    end if
 
     !------------------------------------------------------------------------------
     ! Load into local Grid variables all runtime parameters needed by Milhoja
     !------------------------------------------------------------------------------
     ! Don't load any of these into Grid_data variables.  That is done after
-    ! intiailizing Milhoja.
+    ! initializing Milhoja.
     CALL RuntimeParameters_get('xmin', xMin)
     CALL RuntimeParameters_get('xmax', xMax)
     CALL RuntimeParameters_get('ymin', yMin)
@@ -422,6 +428,9 @@ subroutine Grid_init()
     gr_globalDomain(:, :) = 0.0
     CALL milhoja_grid_getDomainBoundBox(MH_domainLo, MH_domainHi, MH_ierr)
     CALL gr_checkMilhojaError("Grid_init", MH_ierr)
+    !The following assignments should be unnecessary -- basically no-ops --
+    !since gr_globalDomain is already being set in gr_initGeometry,
+    !and those better be the same values!
     do i = 1, NDIM
         gr_globalDomain(LOW,  i) = REAL(MH_domainLo(i))
         gr_globalDomain(HIGH, i) = REAL(MH_domainHi(i))
