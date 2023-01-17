@@ -57,7 +57,7 @@ Composite/DustCollapse/AMR/3d/AMReX:
 Composite/DustCollapse/AMR/3d/pm4dev:
   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
   parfiles: coldstart_pm_3d.par
-  restartParfiles: test_3dcar_restart.par
+  restartParfiles: restart_pm_3d.par
 
 # The following test used to be configured with -debug.
 Composite/DustCollapse/PseudoUG/3d/pm4dev:
