@@ -142,7 +142,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
 
-        !$omp target teams distribute collapse(3)
+        !$omp target teams distribute collapse(3) &
         !$omp default(none) &
         !$omp private(i, j, k, v) &
         !$omp shared(blkLimitsGC, Uin, hy_starState, hy_tmpState)
