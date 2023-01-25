@@ -176,11 +176,12 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp    u2, E, B2, UB, Ptot ) &
      !$omp shared(klim, dir, stage, hy_uMinus, hy_uPlus, hy_flux, hy_shck, hy_tiny, hy_hybridRiemann)
      @M hy_loop_lim
-              VL => hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
-              VR => hy_uMinus(1:HY_NUM_VARS,i,j,k) 
-              Fstar => hy_flux(1:HY_NUM_FLUX,i,j,k)
+              VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
+              VR = hy_uMinus(1:HY_NUM_VARS,i,j,k) 
+              Fstar = hy_flux(1:HY_NUM_FLUX,i,j,k)
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
               @M hy_riemann
+              hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
      @M loop_end_3d
      call Timers_stop("riemann")
 
