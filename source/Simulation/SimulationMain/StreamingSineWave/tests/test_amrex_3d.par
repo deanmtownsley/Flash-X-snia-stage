@@ -1,7 +1,6 @@
 # [source/Simulation/SimulationMain/StreamingSineWave]
 
 # names of files
-basenm   = "streamingsinewave_"
 log_file = "streamingsinewave.log"
 
 # physical domain (sine wave period = ((xmax-xmin)/clight))
