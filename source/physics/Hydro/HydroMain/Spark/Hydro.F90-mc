@@ -195,6 +195,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            !Set proper coefficients for the given stage
            hy_coeffs = hy_coeffArray(stage,:)
+           !$omp target update to (hy_coeffs)
            
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
