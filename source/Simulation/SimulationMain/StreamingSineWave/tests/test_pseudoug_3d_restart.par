@@ -51,8 +51,8 @@ restart = .true.
 checkpointFileNumber = 1
 plotFileNumber = 0
 
-#checkpointFileIntervalStep = 30
-#checkpointFileIntervalTime = 1.667820476e-8 # 5 periods
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
 
 #plotFileIntervalStep = 200
 #plotFileIntervalTime = 8.3391023799538e-10 # 1/4 period

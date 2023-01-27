@@ -18,12 +18,12 @@ log_file				= "snd.log"
 
 restart					= .false.
 
-checkpointFileNumber			= 0
+checkpointFileNumber = 0
 plotFileNumber				= 0
 
 #output_directory			= "./chk"
-checkpointFileIntervalStep		= 0
-checkpointFileIntervalTime		= 0.0
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
 
 plotFileIntervalStep			= 0
 plotFileIntervalTime			= 0.0
