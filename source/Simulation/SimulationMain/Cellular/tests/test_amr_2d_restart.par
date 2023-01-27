@@ -14,7 +14,7 @@ stats_files				= "cellular.dat"
 
 # for starting a new run
 restart					= .true.
-checkpointFileNumber			= 3
+checkpointFileNumber			= 1
 plotFileNumber				= 0
 
 # specify the plot variables
