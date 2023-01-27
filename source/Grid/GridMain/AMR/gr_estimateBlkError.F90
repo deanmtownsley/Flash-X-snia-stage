@@ -72,7 +72,6 @@ subroutine gr_estimateBlkError(error, tileDesc, iref, refine_filter)
   logical, parameter :: WITH_GC = .TRUE.
 
   real,dimension(MDIM) ::  del, del_f, delta
-  integer,dimension(MDIM) :: ncell
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC,face,bdry
   real,allocatable,dimension(:,:,:,:)::delu,delua
   real,allocatable,dimension(:)      :: xCenter,yCenter
@@ -90,7 +89,7 @@ subroutine gr_estimateBlkError(error, tileDesc, iref, refine_filter)
   real, pointer :: solnData(:,:,:,:)
   integer :: blkLevel
 
-  integer, parameter :: grd_max = 2
+  integer, parameter :: grd_max = 2 ! stencil cells needed on either side
 
 !==============================================================================
 
@@ -130,7 +129,6 @@ subroutine gr_estimateBlkError(error, tileDesc, iref, refine_filter)
 
 
         del=0.0
-        ncell(:)=blkLimits(HIGH,:)-blkLimits(LOW,:)+1
         call tileDesc%deltas(delta)
         del(IAXIS:NDIM) = 0.5e0/delta(IAXIS:NDIM)
         del_f(JAXIS:NDIM) = del(JAXIS:NDIM)
@@ -226,12 +224,12 @@ subroutine gr_estimateBlkError(error, tileDesc, iref, refine_filter)
            if (face(LOW,i) == NOT_BOUNDARY)then
               bstart(i)=grd+blkLimitsGC(LOW,i)
            else
-              bstart(i)=blkLimits(LOW,i)
+              bstart(i)=max(grd+blkLimitsGC(LOW,i), blkLimits(LOW,i))
            end if
            if(face(HIGH,i)==NOT_BOUNDARY) then
               bend(i)  = blkLimitsGC(HIGH,i)-grd
            else
-              bend(i)  = blkLimits(HIGH,i)
+              bend(i)  = min(blkLimitsGC(HIGH,i)-grd, blkLimits(HIGH,i))
            end if
         end do
         
