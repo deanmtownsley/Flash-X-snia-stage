@@ -296,15 +296,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = U0
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
-           @M hy_stages_t
+           do stage=1,last_stage
               do dir=1,NDIM
                  @M hy_calc_lim
               end do
 
-           @M hy_end_stages_t    
+           end do
         !! Begin loop over stages for the telescoping mode.
-           @M hy_stages_t !! this is the do loop statement for telescoping version
-           
+           do stage=1,last_stage !! this is the do loop statement for telescoping version
+              
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               
@@ -342,7 +342,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               wt=0.0
               if(hy_addFluxArray(stage))wt=1.0
               @M hy_addFluxes
-
+              
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
@@ -384,9 +384,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                 blkLimits(LOW,:),.false.)
            @M hy_release_scr_ptrs
            @M iter_end
-     enddo!loop over levels
-  endif !Flux correct per Level
-  @M hy_deallocate_scr
+        enddo!loop over levels
+     endif !Flux correct per Level
+     @M hy_deallocate_scr
 
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
