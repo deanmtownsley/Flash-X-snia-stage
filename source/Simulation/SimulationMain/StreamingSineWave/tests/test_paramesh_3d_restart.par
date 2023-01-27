@@ -111,5 +111,7 @@ rt_UpperBry1         = 1.0d100
 dens_i = 1.0e6
 temp_i = 1.0e6
 
+earlyBlockDistAdjustment = .true.
+
 # other flags
 useParticles = .false.

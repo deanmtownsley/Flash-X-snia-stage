@@ -49,7 +49,7 @@ Composite/DustCollapse/AMR/2dCyl/pm4AltMortonBittree:
 # The following test used to be configured with -debug.
 Composite/DustCollapse/AMR/3d/AMReX:
   setupOptions: -auto -3d +cartesian +amrex +parallelIO +newMpole -debug
-  parfiles: test_3dcar.debug.par
+  parfiles: test_3dcar.par
   restartParfiles: test_3dcar_restart.par
 
 # The following was not in tests.yaml:
