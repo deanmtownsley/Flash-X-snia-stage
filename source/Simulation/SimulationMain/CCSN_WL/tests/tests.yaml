@@ -1,0 +1,7 @@
+# YAML file for test information
+# comments start with "#"
+
+Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib:
+  setupOptions: -auto -1d -debug +spherical -nxb=16 threadBlockList=False +pm4dev +hdf5 threadWithinBlock=False +newMpole +uhd
+  parfiles: ccsn1d.par
+  transfers: object/s15s7b2_short object/wl-EOS-SFHo-15-25-50-noBCK.h5

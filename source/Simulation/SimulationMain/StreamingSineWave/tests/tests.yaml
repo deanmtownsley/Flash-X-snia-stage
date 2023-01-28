@@ -1,0 +1,46 @@
+# YAML file for test information
+# comments start with "#"
+
+Composite/StreamingSineWave/PseudoUG/3d/Paramesh:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
+  parfiles: test_paramesh_3d.par
+  restartParfiles: test_paramesh_3d_restart.par
+  transfers: object/SpeciesList.txt
+
+Composite/StreamingSineWave/PseudoUG/3d/AMReX:
+  setupOptions: -auto -3d +cartesian nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +amrex +nolwf
+  parfiles: test_amrex_3d.par
+  restartParfiles: test_amrex_3d_restart.par
+  transfers: object/SpeciesList.txt
+
+Composite/StreamingSineWave/AMR/3d/Paramesh:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
+  parfiles: test_paramesh_3d.par
+  restartParfiles: test_paramesh_3d_restart.par
+  transfers: object/SpeciesList.txt
+
+Composite/StreamingSineWave/AMR/3d/AMReX:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +amrex
+  parfiles: test_amrex_3d.par
+  restartParfiles: test_amrex_3d_restart.par
+  transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/PseudoUG/3d/Paramesh:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
+  parfiles: test_paramesh_3d.par
+  transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/PseudoUG/3d/AMReX:
+  setupOptions: -auto -3d +cartesian nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +amrex +nolwf
+  parfiles: test_amrex_3d.par
+  transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/AMR/3d/Paramesh:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
+  parfiles: test_paramesh_3d.par
+  transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/AMR/3d/AMReX:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +amrex
+  parfiles: test_amrex_3d.par
+  transfers: object/SpeciesList.txt
