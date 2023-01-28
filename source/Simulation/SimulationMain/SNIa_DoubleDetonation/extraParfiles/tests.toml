@@ -1,0 +1,85 @@
+# TOML file for SNIa_DoubleDetonation test
+
+# The following describes a variant of the
+# Composite/SNIaDDT/AMR/2d/Paramesh test that was introduced in June
+# 2022 as a regression test against issue Flash-X/Flash-X#226.
+# * If the bug identified in Issue 226 is present in the code, the
+#   test will yield a FAILURE in Part 2 if its testing phase.
+# * If the bug identified in Issue 226 is absent from the code, the
+#   test will yield SUCCESS in Part 2 if its testing phase, and the
+#   results should match those from the original test
+#   Composite/SNIaDDT/AMR/2d/Paramesh (which uses a different
+#   parameter file) exactly.
+# NOTES
+# * The testNode name "Composite/SNIaDDT/AMR/2d/pm4AltMortonBittree"
+#   does not give a hint about how this test differs from existing
+#   tests named "Composite/SNIaDDT/AMR/2d/Paramesh", or maybe it gives
+#   the wrong idea.
+# * The test "Composite/SNIaDDT/AMR/2d/Paramesh" uses a parfile named
+#   testfaster_amr_unsplit_2d.par where this one uses a parfile named
+#   test_amr_unsplit_2d.par. But use the same restart parfile.
+#
+# TODO
+# * This test configuration will require new updates to the testing
+#   tool to support baselines, transfer, etc. Commenting the variables
+#   that are not supported for the time being to progress the PR associated
+#   with this file. Revisit this later when testing tool supports the required
+#   functionality
+["Composite/SNIaShellDet/AMR/2d/Paramesh"]
+    setupOptions = "-auto -2d +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +a13"
+    parfiles = ["test_shellDet_2d_composite.par"]
+    restartParfiles = ["test_shellDet_2d_restart.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
+    errTol = 5.0e-10
+
+["Composite/SNIaDDT/AMR/2d/pm4AltMortonBittree"]
+    setupOptions = "-auto -2d +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True"
+    parfiles = ["testfaster_amr_unsplit_2d.par"]
+    restartParfiles = ["testfaster_amr_unsplit_2d_restart.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
+    #environment: OMP_NUM_THREADS=1 GFORTRAN_UNBUFFERED_ALL='y'
+    #checkpointBasename: snd_hdf5_chk_
+    #comparisonNumber: 0001
+    #restartParfiles: <pathToSimulations>/<setupName>/testfaster_amr_unsplit_2d_restart.par
+    #comparisonBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><comparisonNumber>
+    #restartNumber: 0002
+    #restartBenchmark: <baselineDir>/baselines/<siteDir>/c57bbedf/2021-12-23/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><restartNumber>
+
+["Composite/SNIaDDT/AMR/2d/spark"]
+    setupOptions = "-auto -2d +sparkinhost +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True"
+    parfiles = ["testfaster_amr_unsplit_2d.par"]
+    restartParfiles = ["testfaster_amr_unsplit_2d_restart.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
+
+["Comparison/SNIaShellDet/AMR/2d/Paramesh"]
+    setupOptions = "-auto -2d +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +a13"
+    parfiles = ["test_shellDet_2d.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
+
+["Comparison/SNIaDDT/AMR/2d/pm4AltMortonBittree"]
+    setupOptions = "-auto -2d +uhd +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True"
+    parfiles = ["testfaster_amr_unsplit_2d.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
+
+["Comparison/SNIaDDT/AMR/2d/spark"]
+    setupOptions = "-auto -2d +sparkinhost +pm4dev +nolwf +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha AltMorton=True Bittree=True useFortran2003=True"
+    parfiles = ["testfaster_amr_unsplit_2d.par"]
+    transfers = ["object/Networks",
+                 "object/Profiles",
+                 "object/helm_table.dat",
+                 "object/SpeciesList.txt"]
