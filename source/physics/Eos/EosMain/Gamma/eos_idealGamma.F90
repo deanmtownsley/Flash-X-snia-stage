@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Gamma/Eos
+!!****if* source/physics/Eos/EosMain/Gamma/eos_idealGamma
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,11 +14,11 @@
 !!
 !! NAME
 !!
-!!  Eos
+!!  eos_idealGamma
 !!
 !! SYNOPSIS
 !!
-!!  call Eos(integer(IN) :: mode,
+!!  call eos_idealGamma(integer(IN) :: mode,
 !!                      integer(IN) :: vecLen,
 !!                      real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!            optional, integer(IN) :: vecBegin,
@@ -143,7 +143,7 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine Eos(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
+subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
 
 !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -357,7 +357,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFla
 
 
   return
-end subroutine Eos
+end subroutine eos_idealGamma
 
 !! FOR FUTURE  : This section is not in use in FLASH 3 yet. none
 !! of the current setups use entropy. This will be taken care of 

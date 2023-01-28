@@ -18,6 +18,7 @@
 !!  For more details see the documentation of the NULL implementation
 !!
 !!***
+!!NOVARIANTS
 
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
 
@@ -46,14 +47,11 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   pMask = present(mask)
   pMassFrac_and_mask = pMassFrac.and.pMask
   
-  if(pMassFrac_and_mask) then
-     call eos_weaklib(mode, vecLen, eosData, massFrac, mask)
-  elseif (pMassFrac) then
-     call eos_weaklib(mode, vecLen, eosData, massFrac)
-  elseif (pMask) then
-     call eos_weaklib(mode, vecLen, eosData, mask=mask)
-  else
-     call eos_weaklib(mode, vecLen, eosData)
-  end if
+  @M eos_idealGamma
+  @M eos_multiGamma
+  @M eos_weaklib
+  @M eos_helmYe
+  @M eos_helmSpecies
+  @M eos_starKiller
   return
 end subroutine Eos

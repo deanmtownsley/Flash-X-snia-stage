@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Multigamma/Eos
+!!****if* source/physics/Eos/EosMain/Multigamma/eos_multiGamma
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  Eos
+!!  eos_multiGamma
 !!
 !! SYNOPSIS
 !!
-!!  call Eos(integer(IN) :: mode,
+!!  call eos_multiGamma(integer(IN) :: mode,
 !!                  integer(IN) :: vecLen,
 !!                  real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!        optional, integer(IN) :: vecBegin,
@@ -141,7 +141,7 @@
 
 #define ORIGINAL_GAMC_AVERAGE
 
-subroutine Eos(mode, vecLen, eosData,massFrac, mask ,vecBegin,vecEnd, diag)
+subroutine eos_multiGamma(mode, vecLen, eosData,massFrac, mask ,vecBegin,vecEnd, diag)
 
 !==============================================================================
   use eos_mgammaData, ONLY: eos_gammam1j,  eos_ggprodj, eos_gc
@@ -356,7 +356,7 @@ subroutine Eos(mode, vecLen, eosData,massFrac, mask ,vecBegin,vecEnd, diag)
      end if
   end if
   return
-end subroutine Eos
+end subroutine eos_MultiGamma
 
 !!..no matter what the input mode compute the entropy
 !!..ignore the -chemical_potential*number_density part for now

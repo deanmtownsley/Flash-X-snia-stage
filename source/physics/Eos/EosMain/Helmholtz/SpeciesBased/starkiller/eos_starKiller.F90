@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/Eos
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_starKiller
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!! Eos
+!! eos_starKiller
 !!
 !! SYNOPSIS
 !!
-!!  call Eos(integer(IN) :: mode,
+!!  call eos_starKiller(integer(IN) :: mode,
 !!                     integer(IN) :: vecLen,
 !!                     real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!           optional, real(IN)    :: massFrac(vecLen*NSPECIES),
@@ -105,7 +105,7 @@
 !!*** 
 
 
-subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
+subroutine eos_starKiller(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -826,6 +826,6 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   return
 
-end subroutine Eos
+end subroutine eos_StarKiller
 
 

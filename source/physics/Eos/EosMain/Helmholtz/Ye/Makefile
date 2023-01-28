@@ -2,7 +2,7 @@
 
 Eos += eos_helmConstData.o  eos_vecData.o \
        eos_readHfet.o eos_writeHfet.o \
-       eos_helm.o eos_vecAlloc.o eos_vecDealloc.o 
+        eos_helmYe.o eos_helm.o eos_vecAlloc.o eos_vecDealloc.o 
 
 eos_vecAlloc.o : eos_vecData.o  
 eos_vecDealloc.o : eos_vecData.o  

@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/Ye/Eos
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_helmSpecies
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!! Eos
+!! eos_helmSpecies
 !!
 !! SYNOPSIS
 !!
-!!  call Eos(integer(IN) :: mode,
+!!  call eos_helmSpecies(integer(IN) :: mode,
 !!                     integer(IN) :: vecLen,
 !!                     real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!           optional, real(IN)    :: massFrac(vecLen*NSPECIES),
@@ -38,12 +38,11 @@
 !!  
 !!  The routine takes different quantities as givens depending on the
 !!  value of the mode variable: if mode=MODE_DENS_TEMP, density and
-!!  temperature are taken as given, and pressure and internal energy are generated
+!!  temperature are taken as given, and pressure and energy are generated
 !!  as output; if mode=MODE_DENS_EI, density and internal energy are taken as
 !!  givens, and pressure and temperature are generated as output.  If
 !!  mode=MODE_DENS_PRES, density and pressure are taken as givens, and
-!!  energy and temperature are generated as output.  Note that internal
-!!  energy is grid variable EINT_VAR, not ENER_VAR.
+!!  energy and temperature are generated as output.
 !!  
 !!  In addition to pressure, temperature, and internal energy, which are
 !!  always thermodynamically consistent after this call, other quantities
@@ -68,11 +67,11 @@
 !!             the first 1:vecLen entries represent the first Eos variable, vecLen+1:
 !!             2*vecLen represent the second Eos variable and so on. 
 !!
-!!  massFrac : If present, contains the mass fractions of the species included in
+!!  massFrac : Contains the mass fractions of the species included in
 !!             the simulation. The array is sized as NSPECIES*vecLen.
-!!             If you are working with electron abundance mass scalars, then you
-!!             do not necessarily have to have mass fractions.  
-!!             Thus, for the Ye formulation this value is never used!
+!!             Although this is declared as an optional dummy argument, an
+!!             actual argument MUST be provided when calling THIS implementation
+!!             of Eos.
 !!
 !!  mask     : Mask is a logical array the size of EOS_DERIVS (number
 !!              of partial derivatives that can be computed, defined in
@@ -95,7 +94,6 @@
 !!
 !!  eos_tol    Controls the accuracy of the Newton Rhapson iterations for MODE_DENS_EI and 
 !!             MODE_DENS_PRES.
-!!
 !!
 !! NOTES
 !!
@@ -131,12 +129,8 @@
 !!  table (helm_table.bdat) is created for speed of access.  This binary file should NOT be
 !!  carried across machine architectures or even compilers.
 !!
-!!  Here USE_EOS_YE is defined, and this routine operates in "light" or Ye mode.  The abar and zbar are
-!!  NOT calculated below, and the calling routine MUST fill up eosData(EOS_ABAR,....) and
-!!  eosData(EOS_ZBAR,.....) before calling this.  There is NO ERROR CHECKING within this routine.
-!!  The user is entirely responsible for figuring this out themselves.  Search in your
-!!  object directory for all calls to "call Eos" directly -- the "call Eos_wrapped" has been
-!!  taken care of for you!
+!!  When USE_EOS_YE is defined, this routine is replaced by the one in 
+!!  physics/Eos/EosMain/Helmholtz/Ye
 !!
 !!  When operating in MODE_DENS_EI, the INPUT energy is updated.  This change of an input parameter
 !!     can be overridden by setting the runtime parameter eos_forceConstantInput to true.
@@ -155,37 +149,39 @@
 !!*** 
 
 
-subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
+subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   use Driver_interface, ONLY : Driver_abort
+  use Multispecies_interface, ONLY : Multispecies_getSumInv, &
+       Multispecies_getSumFrac
   use Logfile_interface, ONLY:  Logfile_stampMessage
-  
+
   use eos_helmInterface, ONLY : eos_helm
 
-  use Eos_data, ONLY : eos_smallt, eos_type, eos_meshMe
-  use eos_helmData, ONLY: eos_tol, eos_maxNewton, &
+  use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
        eos_forceConstantInput
+  use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ
   use eos_vecData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
        gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
        detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
-
+  !$ use omp_lib
   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
 #include "Eos.h"
+#ifdef FLASH_MULTISPECIES
+#include "Multispecies.h"
+#endif
 
   !     Arguments
   integer, INTENT(in) :: mode, vecLen
   real, INTENT(inout), dimension(vecLen*EOS_NUM) :: eosData
-  real, optional,INTENT(in), dimension(vecLen*NSPECIES) :: massFrac !UNUSED
+  real, optional,INTENT(in), dimension(vecLen*NSPECIES) :: massFrac
+  integer,optional, INTENT(in) :: vecE,vecB
   ! must correspond to dimensions of Eos_wrapped
   logical,optional,target, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-  integer, optional, INTENT(IN) :: vecE, vecB
   integer, optional, INTENT(out) :: diagFlag
-
-  ! This is the variable that is used internally -- set to false unless mask comes in.
-  logical, dimension(EOS_VARS+1:EOS_NUM) :: maskInternal
 
   integer :: i, k
   integer :: vecBegin,vecEnd
@@ -205,44 +201,59 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
   !      The composition is parametrized by abar and zbar, which are computed
   !      from the mass fractions xn().
 
-   ! Should we warn user if mask is used? Helmholtz EOS does not use it very much.
-  maskInternal = .false.
-  if (present(mask)) then
-     maskInternal = mask
+  !  if you are working with electron abundance mass scalars, then you don't
+  !  necessarily have to have mass fractions.
+  if(.not.present(massFrac)) then
+     call Driver_abort("[Eos] Helmholtz needs mass fractions")
   end if
 
   if (present(diagFlag)) then
      diagFlag = 0
   endif
+
   vecBegin = 1
   vecEnd = vecLen
-  if(present(vecB))vecBegin=vecB
-  if(present(vecE))vecEnd=vecE
+
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
   pres = (EOS_PRES-1)*vecLen
   dens = (EOS_DENS-1)*vecLen
   temp = (EOS_TEMP-1)*vecLen
-  eint = (EOS_EINT-1)*vecLen   ! in eos_helm, this is etot
-  gamc = (EOS_GAMC-1)*vecLen   ! in eos_helm, this is gamc
+  eint = (EOS_EINT-1)*vecLen   ! in flash2 eos_helm, this is etot
+  gamc = (EOS_GAMC-1)*vecLen   ! in flash2 eos_helm, this is gamc
   abar = (EOS_ABAR-1)*vecLen   
-  zbar = (EOS_ZBAR-1)*vecLen 
-  entr = (EOS_ENTR-1)*vecLen 
+  zbar = (EOS_ZBAR-1)*vecLen   
+  entr = (EOS_ENTR-1)*vecLen
 
   !! For allocatable arrays, set them up now.
 #ifndef FIXEDBLOCKSIZE
-  call eos_vecAlloc(vecBegin:vecEnd)
+  call eos_vecAlloc(vecLen)
 #endif
 
-  do k = vecBegin, vecEnd
+  do k = 1, vecLen
 
      tempRow(k)    = eosData(temp+k)
      denRow(k)     = eosData(dens+k)
-     abarRow(k)    = eosData(abar+k)   ! NOTE user is assumed to know what they're doing!
-     zbarRow(k)    = eosData(zbar+k)   ! NOTE compare to SpeciesBased Helmholtz where we don't assume
+
+     ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_wrapped does not.
+
+#ifdef FLASH_MULTISPECIES
+     !Calculate the inverse in a way that allows for zero mass fractions
+     call Multispecies_getSumInv(A, abarInv,massFrac((k-1)*NSPECIES+1:k*NSPECIES))
+     abarRow(k) = 1.e0 / abarInv
+
+     call Multispecies_getSumFrac(Z, zbarFrac, massFrac((k-1)*NSPECIES+1:k*NSPECIES))
+     zbarRow(k) = abarRow(k) * zbarFrac
+#else
+     ! No multispecies defined, use default values (same as Gamma formulation)
+     abarRow(k) = eos_singleSpeciesA
+     zbarRow(k) = eos_singleSpeciesZ
+#endif
 
   enddo
 
 
+  eosData(abar+1:abar+vecLen) = abarRow(1:vecLen) 
+  eosData(zbar+1:zbar+vecLen) = zbarRow(1:vecLen)
 
   !==============================================================================
 
@@ -253,19 +264,19 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   if (mode==MODE_DENS_TEMP) then
 
-     call eos_helm(vecBegin,vecEnd,maskInternal)
+     call eos_helm(1,vecLen)
 
-     eosData(pres+vecBegin:pres+vecEnd)=ptotRow(vecBegin:vecEnd)
-     eosData(eint+vecBegin:eint+vecEnd)=etotRow(vecBegin:vecEnd)
-     eosData(gamc+vecBegin:gamc+vecEnd)=gamcRow(vecBegin:vecEnd)
-     eosData(entr+vecBegin:entr+vecEnd)=stotRow(vecBegin:vecEnd)
+     eosData(pres+1:pres+vecLen)=ptotRow(1:vecLen)
+     eosData(eint+1:eint+vecLen)=etotRow(1:vecLen)
+     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
+     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
 
      !==============================================================================
      !      MODE_DENS_EI  internal energy and density given
 
   else if (mode==MODE_DENS_EI) then
 
-     ewantRow(vecBegin:vecEnd)   = eosData(eint+vecBegin:eint+vecEnd)   ! store desired internal energy for mode=2 case
+     ewantRow(1:vecLen)   = eosData(eint+1:eint+vecLen)   ! store desired internal energy for mode=2 case
      if (eos_forceConstantInput) then
         esaveRow = ewantRow
      end if
@@ -280,7 +291,7 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      !  Initial temperature here is what is stored in the grid, even though we 
      !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
 
-     call eos_helm(vecBegin,vecEnd,maskInternal)
+     call eos_helm(vecBegin,vecEnd)
      !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
 
 
@@ -318,7 +329,7 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         do i = 2, eos_maxNewton
            if (error(k)< eos_tol) goto 70
 
-           call eos_helm(k,k,maskInternal)
+           call eos_helm(k,k)
 
            tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
                 &              / detRow(k)
@@ -353,9 +364,14 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         print *, ' '
         print *, 'too many iterations', eos_maxNewton
         print *, ' '
+        print *, ' k    = ', k,vecBegin,vecEnd
         print *, ' temp = ', tempRow(k)
         print *, ' dens = ', denRow(k)
+        print *, ' abar = ', abarRow(k)
+        print *, ' zbar = ', zbarRow(k)
         print *, ' pres = ', ptotRow(k)
+        print *, ' etot = ', etotRow(k)
+        print *, ' ewant= ', ewantRow(k)
 
 
         call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
@@ -369,21 +385,22 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
      ! Crank through the entire eos one last time
 
-     call eos_helm(vecBegin,vecEnd,maskInternal)
+     call eos_helm(vecBegin,vecEnd)
 
      ! Fill the FLASH arrays with the results.  
+
      !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
-     eosData(temp+vecBegin:temp+vecEnd)=tempRow(vecBegin:vecEnd)
-     eosData(pres+vecBegin:pres+vecEnd)=ptotRow(vecBegin:vecEnd)
-     eosData(gamc+vecBegin:gamc+vecEnd)=gamcRow(vecBegin:vecEnd)
-     eosData(entr+vecBegin:entr+vecEnd)=stotRow(vecBegin:vecEnd)
+     eosData(temp+1:temp+vecLen)=tempRow(1:vecLen)
+     eosData(pres+1:pres+vecLen)=ptotRow(1:vecLen)
+     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
+     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
 
      !  Update the energy to be the true energy, instead of the energy we were trying to meet
      !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
      if (eos_forceConstantInput)  then
-        eosData(eint+vecBegin:eint+vecEnd) = esaveRow(vecBegin:vecEnd)
+        eosData(eint+1:eint+vecLen) = esaveRow(1:vecLen)
      else
-        eosData(eint+vecBegin:eint+vecEnd) = etotRow(vecBegin:vecEnd)
+        eosData(eint+1:eint+vecLen) = etotRow(1:vecLen)
      end if
 
 
@@ -393,7 +410,7 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   else if (mode==MODE_DENS_PRES) then
 
-     pwantRow(vecBegin:vecEnd) = eosData(pres+vecBegin:pres+vecEnd)   ! store desired pressure for mode=3 case
+     pwantRow(1:vecLen) = eosData(pres+1:pres+vecLen)   ! store desired pressure for mode=3 case
      if (eos_forceConstantInput) then
         psaveRow = pwantRow
      end if
@@ -401,7 +418,7 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      error(:) = 0.0e0
 
      ! Do the first eos call with all the zones in the pipe
-     call eos_helm(vecBegin,vecEnd,maskInternal)
+     call eos_helm(vecBegin,vecEnd)
 
      do k = vecBegin, vecEnd
 
@@ -438,7 +455,7 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
            if (error(k) .LT. eos_tol) goto 170
 
            ! do eos only over this single item
-           call eos_helm(k,k,maskInternal)
+           call eos_helm(k,k)
 
            tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
                 &              / dptRow(k)
@@ -476,7 +493,11 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         print *, ' k    = ', k,vecBegin,vecEnd
         print *, ' temp = ', tempRow(k)
         print *, ' dens = ', denRow(k)
+        print *, ' abar = ', abarRow(k)
+        print *, ' zbar = ', zbarRow(k)
+        print *, ' etot = ', etotRow(k)
         print *, ' pres = ', ptotRow(k)
+        print *, ' pwant= ', pwantRow(k)
 
         call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in Eos')
 
@@ -489,20 +510,20 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
      ! Crank through the entire eos one last time
 
-     call eos_helm(vecBegin,vecEnd,maskInternal)
+     call eos_helm(vecBegin,vecEnd)
 
      ! Fill the FLASH arrays with the results.  
-     eosData(temp+vecBegin:temp+vecEnd)=tempRow(vecBegin:vecEnd)
-     eosData(gamc+vecBegin:gamc+vecEnd)=gamcRow(vecBegin:vecEnd)
-     eosData(eint+vecBegin:eint+vecEnd)=etotRow(vecBegin:vecEnd)
-     eosData(entr+vecBegin:entr+vecEnd)=stotRow(vecBegin:vecEnd)
+     eosData(temp+1:temp+vecLen)=tempRow(1:vecLen)
+     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
+     eosData(eint+1:eint+vecLen)=etotRow(1:vecLen)
+     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
 
      ! Update the pressure to be the equilibrium pressure, instead of the pressure we were trying to meet
      !  ConstantInput LBR and KW believe this is wrong.  See notes at the top of the routine
      if (eos_forceConstantInput) then
-        eosData(pres+vecBegin:pres+vecEnd) = psaveRow(vecBegin:vecEnd)
+        eosData(pres+1:pres+vecLen) = psaveRow(1:vecLen)
      else
-        eosData(pres+vecBegin:pres+vecEnd) = ptotRow(vecBegin:vecEnd)
+        eosData(pres+1:pres+vecLen) = ptotRow(1:vecLen)
      end if
 
 
@@ -521,66 +542,66 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      ! Entropy derivatives
      if(mask(EOS_DST)) then
         dst = (EOS_DST-1)*vecLen
-        eosData(dst+vecBegin:dst+vecEnd) = dstRow(vecBegin:vecEnd)
+        eosData(dst+1:dst+vecLen) = dstRow(1:vecLen)
      end if
      if(mask(EOS_DSD)) then
         dsd = (EOS_DSD-1)*vecLen
-        eosData(dsd+vecBegin:dsd+vecEnd) = dsdRow(vecBegin:vecEnd)
+        eosData(dsd+1:dsd+vecLen) = dsdRow(1:vecLen)
      end if
      if(mask(EOS_DPT)) then
         dpt = (EOS_DPT-1)*vecLen
-         eosData(dpt+vecBegin:dpt+vecEnd) = dptRow(vecBegin:vecEnd)
+        eosData(dpt+1:dpt+vecLen) = dptRow(1:vecLen)
      end if
      if(mask(EOS_DPD)) then
         dpd = (EOS_DPD-1)*vecLen
-        eosData(dpd+vecBegin:dpd+vecEnd) = dpdRow(vecBegin:vecEnd)
+        eosData(dpd+1:dpd+vecLen) = dpdRow(1:vecLen)
      end if
      if(mask(EOS_DET))then
         det = (EOS_DET-1)*vecLen
-         eosData(det+vecBegin:det+vecEnd) = detRow(vecBegin:vecEnd)
+        eosData(det+1:det+vecLen) = detRow(1:vecLen)
      end if
      if(mask(EOS_DED))then 
         ded = (EOS_DED-1)*vecLen
-        eosData(ded+vecBegin:ded+vecEnd) = dedRow(vecBegin:vecEnd)
+        eosData(ded+1:ded+vecLen) = dedRow(1:vecLen)
      end if
      if(mask(EOS_DEA))then 
         dea = (EOS_DEA-1)*vecLen
-        eosData(dea+vecBegin:dea+vecEnd) = deaRow(vecBegin:vecEnd)
+        eosData(dea+1:dea+vecLen) = deaRow(1:vecLen)
      end if
      if(mask(EOS_DEZ))then 
         dez = (EOS_DEZ-1)*vecLen
-        eosData(dez+vecBegin:dez+vecEnd) = dezRow(vecBegin:vecEnd)
+        eosData(dez+1:dez+vecLen) = dezRow(1:vecLen)
      end if
      if(mask(EOS_PEL))then 
         pel = (EOS_PEL-1)*vecLen
-        eosData(pel+vecBegin:pel+vecEnd) = pelRow(vecBegin:vecEnd)
+        eosData(pel+1:pel+vecLen) = pelRow(1:vecLen)
      end if
      if(mask(EOS_NE))then 
         ne = (EOS_NE-1)*vecLen
-        eosData(ne+vecBegin:ne+vecEnd) = neRow(vecBegin:vecEnd)
+        eosData(ne+1:ne+vecLen) = neRow(1:vecLen)
      end if
      if(mask(EOS_ETA))then 
         eta = (EOS_ETA-1)*vecLen
-        eosData(eta+vecBegin:eta+vecEnd) = etaRow(vecBegin:vecEnd)
+        eosData(eta+1:eta+vecLen) = etaRow(1:vecLen)
      end if
      if(mask(EOS_DETAT))then
         detat = (EOS_DETAT-1)*vecLen
-        eosData(detat+vecBegin:detat+vecEnd) = detatRow(vecBegin:vecEnd)
+        eosData(detat+1:detat+vecLen) = detatRow(1:vecLen)
      end if
-     
+
      if(mask(EOS_CV))then
         if(mask(EOS_DET)) then
            c_v = (EOS_CV-1)*vecLen
-           eosData(c_v+vecBegin:c_v+vecEnd) = cvRow(vecBegin:vecEnd)
+           eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
         else
            call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
      end if
-     
+
      if(mask(EOS_CP))then
         if(mask(EOS_CV).and.mask(EOS_DET)) then
            c_p = (EOS_CP-1)*vecLen
-           eosData(c_p+vecBegin:c_p+vecEnd) = cpRow(vecBegin:vecEnd)
+           eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
         else
            call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
@@ -597,6 +618,6 @@ subroutine Eos(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   return
 
-end subroutine Eos
+end subroutine eos_helmSpecies
 
 
