@@ -201,7 +201,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
 #endif
 #ifdef CFL_VAR
         where (1.2*Uin(CFL_VAR,:,:,:) < hy_cfl_original)
-           !! Slow recover (of factor of 1.2) to the original CFL once it gets to
+           !! Slow recover (by factor of 1.2) to the original CFL after it has been
            !! reduced to a smaller one in the presence of strong shocks.
            !! This variable CFL takes place in the following three cases using:
            !! (1) use_hybridOrder = .true.,
@@ -261,7 +261,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
      gravX = 0.
      gravY = 0.
      gravZ = 0.
-     if (hy_useGravity) then
+     if (hy_useGravity) then    ! Compute accelerations:
         call hy_putGravity(tileDesc,halo,Uin,dt,dtOld,gravX,gravY,gravZ)
         gravX = gravX/hy_gref
         gravY = gravY/hy_gref

@@ -1,4 +1,27 @@
 !!****if* source/flashUtilities/interpolation/oneDim/ut_parabolicInterpol
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!! NAME
+!!
+!!  ut_parabolicInterpol
+!!
+!! DESCRIPTION
+!!
+!!   Given a vector of coordinates, x, the size, n, and associated function
+!!   values, var, take the zone edges and center (y_l, y_c, y_r), and return
+!!   the parabolic interpolation to this.
+!!
+!!***
 subroutine ut_parabolicInterpol(x,var,n,y_l,y_c,y_r,var_interp)
     ! Given a vector of coordinates, x, the size, n, and associated function
     ! values, var, take the zone edges and center (y_l, y_c, y_r), and return

@@ -235,6 +235,7 @@ class GVarsClass:
     buildFlag    = 'OPT' #other options are 'DEBUG' and 'TEST' and 'OPT'
     npg          = 0
     withUnits    = []
+    withUnofficial   = []
     withLibraries = {}
     datafiles    = [] # list of unix patterns for files to be copied over to object directory
     parfile      = "" # list of unix patterns for files to be copied over to object directory

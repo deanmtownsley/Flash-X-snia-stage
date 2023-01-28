@@ -99,9 +99,6 @@
 !!
 !!***
 
-! solnData depends on the ordering on unk
-!!REORDER(4): solnData
-
 
 subroutine Eos_putData(axis,pos,vecLen,solnData,gridDataStruct,eosData)
   

@@ -255,29 +255,19 @@ class UnitList:
         self.addUnits(ans)
 
     def recursiveGetDir(self,path):
-
-      def vfunc(ans,dname,fnames):
-          GVars.out.put('...while walking, ans=%s, dname="%s", fnames=%s ...'%(ans,dname,fnames),globals.DEBUG)
-          fnames.sort()
-          dontDescend = []
-          # remove all (a) ".files" and (b) non-directories from fnames 
-          for x in fnames:
-              if x[0] == ".": # names starting with . to be ignored
-                  dontDescend.append(x)
-                  continue
-              jname = os.path.join(dname,x)
-              if not os.path.isdir(jname): # not a directory, also ignored
-                  dontDescend.append(x)
-                  continue
-          # removal in place so recursion does not go there
-          for x in dontDescend:
-              fnames.remove(x)
-          # if we descended into this dname directory, append it to answer list
-          ans.append(dname)
-
-      ans = []
       GVars.out.put('Will walk %s ...'%path,globals.DEBUG)
-      os.path.walk(path,vfunc,ans) 
+      
+      ans = []
+      for root, dirs, files in os.walk(path):
+          # Unfortunately these are not skipped automatically
+          # but we can modify dirs in place for top-down traversal
+          # of the directory structure to make sure that `os.walk`
+          # properly excludes everything in `.*` directories
+          for dir in dirs:
+              if(dir[0] == '.'):
+                  dirs.remove(dir)
+          ans.append(root)
+          
       # now ans contains the list of all directories inside path 
       # except "." directories and their children
       GVars.out.put('...and found %s by walking.'%ans,globals.DEBUG)

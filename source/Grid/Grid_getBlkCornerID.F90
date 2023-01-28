@@ -24,7 +24,7 @@
 !!  
 !! DESCRIPTION 
 !! 
-!!  Returns the global integer indices of the left most interior zone
+!!  Returns the global integer indices of the leftmost interior zone
 !!  of the block and the stride of indices along each dimension.
 !!  Together the cornerID and the stride make a unique identifier for
 !!  each block on the grid.
@@ -72,13 +72,14 @@
 !! EXAMPLE
 !!
 !! Example 1:
-!!  In a 1 dimensional UG case with 2 blocks and nxb=8
-!!  The cornerID for block 1 = 1 and the cornerID for block 2 = 9 
+!!  In a 1-dimensional UG case with 2 blocks and nxb=8:
+!!  The cornerID for block 1 = 1 and the cornerID for block 2 (which
+!!  resides on a different process) is 9.
 !!
 !!
 !! Example 2:
-!!  In a 1 dimensional PARAMESH case with lrefine_max = 4, nxb=8, the
-!!  global indices range from 1:64.  If the grid is fully refined then
+!!  In a 1-dimensional PARAMESH case with lrefine_max = 4, nxb=8, and nBlockX=1,
+!!  the global indices range from 1:64.  If the grid is fully refined then
 !!  there are 8 blocks in the x direction and their cornerIDs are
 !!  1,9,17,25,33,41,49,57 respectively. stride=1
 !!  

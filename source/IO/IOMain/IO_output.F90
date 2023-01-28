@@ -503,7 +503,9 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
      call Logfile_stamp( '.dump_restart file found, exiting' , '[IO_OUTPUT]')
 
      
-     call MPI_Barrier(io_globalComm, ierr)
+#ifdef USEBARS
+      call MPI_BARRIER(io_globalComm, ierr)
+#endif
      if ( io_globalMe == MASTER_PE ) then
         write(*,*) '[IO_output] .dump_restart file found: exiting.'
      end if
@@ -550,7 +552,9 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
      call Logfile_stamp( 'Maximum RSS exceeded, exiting' , '[IO_OUTPUT]')
 
      
-     call MPI_Barrier(io_globalComm, ierr)
+#ifdef USEBARS
+      call MPI_BARRIER(io_globalComm, ierr)
+#endif
      write(*,*) '[IO_output] Maximum RSS exceeded: exiting.'
 
      !DO NOT CALL Driver_finalizeSimulation.here, will cause problems! -PR
@@ -580,9 +584,10 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
 
      call Logfile_stamp( '.kill file found, exiting' , '[IO_OUTPUT]')
 
+#ifdef USEBARS
+      call MPI_BARRIER(io_globalComm, ierr)
+#endif
 
-
-     call MPI_Barrier(io_globalComm, ierr)
      if ( io_globalMe == MASTER_PE ) then
         write(*,*) '[IO_output] .kill file found: exiting.'
      end if

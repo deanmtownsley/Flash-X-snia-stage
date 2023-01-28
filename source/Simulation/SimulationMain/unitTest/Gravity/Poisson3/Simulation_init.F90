@@ -113,7 +113,7 @@ subroutine Simulation_init()
 
   ! Determine location of spheroid center depending on grid geometry.
   ! Allowed geometries:  2D:  axisymmetric; 3D:  Cartesian.
-  ! Eventually should also support 3D cylindrical and spherical.
+  ! Eventually should also support 3D cylindrical and 3D spherical.
 
   call Grid_getGeometry(geometry)
   if ((NDIM == 2) .and. (geometry == CYLINDRICAL)) then
@@ -123,8 +123,7 @@ subroutine Simulation_init()
      sim_zctr = 0.0
      call RuntimeParameters_set("xctr", sim_xctr)
 
-  else if ((NDIM == 2) .and. (geometry == POLAR)) then
-     ! 2D axisymmetric
+  else if ((NDIM == 2) .and. (geometry == SPHERICAL)) then
      sim_initGeometry = geometry
      sim_xctr = 0.0
      sim_yctr = 0.0
@@ -137,8 +136,19 @@ subroutine Simulation_init()
      ! 3D Cartesian
      sim_initGeometry = geometry
 
+  !! NOTE: The polar setup is untested and may be incorrect -- leaving past syntax here for posterity
+  !else if ((NDIM == 2) .and. (geometry == POLAR)) then
+     !! 2D axisymmetric
+     !sim_initGeometry = geometry
+     !sim_xctr = 0.0
+     !sim_yctr = 0.0
+     !sim_zctr = 0.0
+     !call RuntimeParameters_set("xctr", sim_xctr)
+     !call RuntimeParameters_set("yctr", sim_yctr)
+     !call RuntimeParameters_set("zctr", sim_zctr)
+
   else            ! unsupported geometry
-     call Driver_abort('Simulation_init:  unsupported geometry.  Needs CYLINDRICAL or 3D SPHERICAL')
+     call Driver_abort('Simulation_init:  unsupported geometry.  Needs 2D CYLINDRICAL, 2D SPHERICAL, or 3D CARTESIAN')
   endif
 
 

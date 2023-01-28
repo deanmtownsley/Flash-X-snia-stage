@@ -1,0 +1,43 @@
+# While the Milhoja Grid unit implementation can be used successfully for some
+# simulations, it is missing a great deal of functionality.  Therefore, its
+# integration in Flash-X is a work in progress and users should not use it.
+# TODO: Remove this once enough functionality has been implemented with
+# associated tests in the test suite.
+UNOFFICIAL
+
+LIBRARY milhoja
+# TODO: Right now we need this so that the build system links in AMReX,
+#       which is necessary to satisfy Milhoja's dependences.  Eventually,
+#       this needs to disappear or at least be managed so that linking
+#       occurs correctly regardless of which Grid backend is used by the
+#       runtime.  Is there a way to tell setup that it needs to link milhoja
+#       before AMReX?
+LIBRARY amrex
+
+REQUIRES Grid/GridBoundaryConditions/Milhoja
+
+CONFLICTS IO/IOMain/hdf5/parallel/UG
+CONFLICTS IO/IOMain/hdf5/serial/UG
+CONFLICTS IO/IOMain/hdf5/parallel/PM
+CONFLICTS IO/IOMain/hdf5/serial/PM
+CONFLICTS IO/IOMain/hdf5/parallel/AM
+CONFLICTS IO/IOMain/hdf5/serial/AM
+
+# add pre-processor symbol
+PPDEFINE FLASH_GRID_MILHOJA
+
+# TODO: I would guess that we want to have a different RP for each grid backend.
+# Users can specify in a single par file the interpolator for each backend and
+# therefore use the same parfile for different grid backends without need to
+# edit the parfile.  Is this a sensible way to work?
+D amrexInterpolator Name of AMReX interpolator to use for interpolating
+D & cell-centered data.  Please refer to AMReX documentation for more
+D & information.
+D & CELL_CONSERVATIVE_LINEAR
+D & CELL_CONSERVATIVE_PROTECTED
+D & CELL_CONSERVATIVE_QUARTIC
+D & CELL_BILINEAR
+D & CELL_QUADRATIC
+D & CELL_PIECEWISE_CONSTANT
+PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
+

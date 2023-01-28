@@ -26,20 +26,43 @@
 !!  Perform Grid data initializations that are related to the
 !!  geometry of the simulation. 
 !!
-!!  The Grid unit variable gr_geometry must already have been
-!!  set to one of CARTESIAN, POLAR, SPHERICAL, or CYLINDRICAL
-!!  by the caller.
+!!  Uses the following data, which must have been
+!!  established before the call:
+!!    gr_domainBC(LOW:HIGH,IAXIS:KAXIS)
+!!
+!!  Initializes the following data, which will be available
+!!  after the call:
+!!    gr_geometry (one of CARTESIAN, POLAR, SPHERICAL, or CYLINDRICAL)
+!!    gr_geometryOverride
+!!    gr_dirGeom
+!!    gr_dirIsAngular
+!!    gr_imin, gr_jmin, gr_kmin      (UG or Paramesh Grid only)
+!!    gr_imax, gr_jmax, gr_kmax      (UG or Paramesh Grid only)
+!!    dr_globalDomain(LOW:HIGH,IAXIS:KAXIS)
 !!
 !! NOTES
 !!
 !!  This subroutine is normally called from Grid_init.
-!!  The code was moved into a separate file because it is
-!!  independent of the choice of Grid implementation.
+!!  This code was moved into a separate file because it is
+!!  essentially independent of the choice of Grid implementation.
+!!
+!!  Here are some initialization things that are NOT done in this
+!!  subroutine, and that should therefore generally occur in later steps:
+!!    - maximum refinement levels
+!!    - per-level quantities, for example, deltas (cell spacings) for each level
 !!
 !!  CARTESIAN, POLAR, SPHERICAL, and CYLINDRICAL are defined
 !!  in constants.h.
 !!
 !! SIDE EFFECTS
+!!
+!!  Loads the following runtime parameter into Grid_data module variables:
+!!    geometry   into  gr_str_geometry (as string) and gr_geometry (as integer)
+!!    geometryOverride  into  gr_geometryOverride
+!!    xmin,xmax,ymin,ymax,zmin,zmax
+!!                    - into elements of dr_globalDomain
+!!                    - into gr_imin,gr_imax,gr_jmin,gr_jmax,gr_kmin,gr_kmax
+!!                      (additionally), if the Grid is UG or PARAMESH.
 !!
 !!  On return, the components of gr_dirGeom will be set appropriately for
 !!  the simulation's geometry as indicated by gr_geometry.
@@ -47,9 +70,9 @@
 !!  For angle coordinates, values will be scaled by multiplying with pi/180.
 !!  This may affect ymin, ymax and/or zmin, zmax, depending on gr_geometry.
 !!  For example, if the JAXIS grid direction stands for an angle (as is the case
-!!  in POLAR and SPHERICAL coordinates),  ymin and ymax  given in degrees 
+!!  in POLAR and SPHERICAL coordinates),  ymin and ymax given in degrees
 !!  in a flash.par file are converted here to radians.
-!!  
+!!
 !!
 !! ARGUMENTS
 !!
@@ -62,22 +85,42 @@
 !!
 !!***
 
+#include "Simulation.h"
 
 subroutine gr_initGeometry()
 
-  use Grid_data, ONLY : gr_geometry, gr_dirGeom, gr_dirIsAngular, gr_domainBC, &
-       gr_geometryOverride, &
-       gr_imin, gr_jmin, gr_jmax, gr_kmin, gr_kmax, gr_meshMe
   use Driver_interface, ONLY : Driver_abort
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
+       RuntimeParameters_mapStrToInt
   use RuntimeParameters_interface, ONLY : RuntimeParameters_setReal
   use Logfile_interface, ONLY : Logfile_stampMessage,Logfile_stamp
 
+  use Grid_data, ONLY : gr_geometry, gr_geometryOverride, &
+                        gr_str_geometry, &
+                        gr_dirGeom, gr_dirIsAngular, gr_domainBC, &
+                        gr_globalDomain
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMESH)
+  use Grid_data, ONLY : gr_imin, gr_imax, gr_jmin, gr_jmax, gr_kmin, gr_kmax
+#endif
+
   implicit none
 
-#include "Simulation.h"
 #include "constants.h"
 
   integer :: idir
+
+  real    :: imin, imax, jmin, jmax, kmin, kmax
+
+  call RuntimeParameters_get("geometry",gr_str_geometry)
+  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
+
+  call RuntimeParameters_get("geometryOverride", gr_geometryOverride)
+  call RuntimeParameters_get('xmin', imin)
+  call RuntimeParameters_get('xmax', imax)
+  call RuntimeParameters_get('ymin', jmin)
+  call RuntimeParameters_get('ymax', jmax)
+  call RuntimeParameters_get('zmin', kmin)
+  call RuntimeParameters_get('zmax', kmax)
 
   do idir=1,NDIM
      call Logfile_stamp(idir,'[gr_initGeometry] checking BCs for idir')
@@ -180,12 +223,12 @@ subroutine gr_initGeometry()
 ! The radial coordinate must always be >= 0.0.  If it is 0.0, then we should
 ! have a reflecting boundary there.
 
-     if (gr_imin < 0.0) then
+     if (imin < 0.0) then
         if (.NOT. gr_geometryOverride) &
              call Driver_abort("ERROR: radial coordinate cannot be < 0.0")
      endif
 
-     if (gr_imin == 0.0 .AND. &
+     if (imin == 0.0 .AND. &
      (gr_domainBC(LOW,IAXIS) /= REFLECTING .AND. gr_domainBC(LOW,IAXIS) /= AXISYMMETRIC)) then
         !! FUTURE: We could have some special treatment for a boundary at r=0.0,
         !! like using the singular_line code provided in Paramesh3 ff. - KW
@@ -203,7 +246,7 @@ subroutine gr_initGeometry()
 #if NDIM > 1
 ! y is the spherical theta coordinate.  It ranges from 0 to pi.  Since we
 ! are specifying the range in degrees, make sure that it is not > 180.
-        if (gr_jmin > 180.0 .OR. gr_jmax > 180.0) then 
+        if (jmin > 180.0 .OR. jmax > 180.0) then
            print *, 'ERROR: the theta coordinate in spherical geometry cannot be > pi.'
            print *, '       Check ymin and ymax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
@@ -216,7 +259,7 @@ subroutine gr_initGeometry()
 #if NDIM > 1
 ! In polar coordinates, y is the phi coordinate, which can range from 0
 ! to 2 pi.  
-        if (gr_jmin > 360.0 .OR. gr_jmax > 360.0) then
+        if (jmin > 360.0 .OR. jmax > 360.0) then
            print *, 'ERROR: the phi coordinate in polar geometry cannot be > 2 pi.'
            print *, '       Check ymin and ymax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
@@ -230,13 +273,13 @@ subroutine gr_initGeometry()
         
      endif
         
-     gr_jmin = gr_jmin*PI/180
-     gr_jmax = gr_jmax*PI/180
+     jmin = jmin*PI/180
+     jmax = jmax*PI/180
 
      ! In case some other unit gets the coordinate range runtime parameters AFTER Grid_init
      ! is called, it will get the scaled values expressing coordinates in radians.
-     call RuntimeParameters_setReal("ymin", gr_jmin)
-     call RuntimeParameters_setReal("ymax", gr_jmax)
+     call RuntimeParameters_setReal("ymin", jmin)
+     call RuntimeParameters_setReal("ymax", jmax)
 
   endif
 
@@ -247,7 +290,7 @@ subroutine gr_initGeometry()
 
 #if NDIM > 2
 ! z is the phi coordinate in both spherical and cylindrical coords.
-        if (gr_kmin > 360.0 .OR. gr_kmax > 360.0) then 
+        if (kmin > 360.0 .OR. kmax > 360.0) then
            print *, 'ERROR: the phi coordinate in the current geometry cannot be > 2 pi.'
            print *, '       Check zmin and zmax.  The angles are assumed to be specified'
            print *, '       in degrees on input.'
@@ -261,14 +304,35 @@ subroutine gr_initGeometry()
         
      endif
 
-     gr_kmin = gr_kmin*PI/180
-     gr_kmax = gr_kmax*PI/180
+     kmin = kmin*PI/180
+     kmax = kmax*PI/180
 
      ! In case some other unit gets the coordinate range runtime parameters AFTER Grid_init
      ! is called, it will get the scaled values expressing coordinates in radians.
-     call RuntimeParameters_setReal("zmin", gr_kmin)
-     call RuntimeParameters_setReal("zmax", gr_kmax)
+     call RuntimeParameters_setReal("zmin", kmin)
+     call RuntimeParameters_setReal("zmax", kmax)
   endif
 
+  ! Store computational domain limits in a convenient array.
+  ! Implementations of Grid_getDomainBoundBox may use this array
+  ! to return the correct domain bounds.
+  gr_globalDomain(LOW,IAXIS) = imin
+  gr_globalDomain(LOW,JAXIS) = jmin
+  gr_globalDomain(LOW,KAXIS) = kmin
+  gr_globalDomain(HIGH,IAXIS) = imax
+  gr_globalDomain(HIGH,JAXIS) = jmax
+  gr_globalDomain(HIGH,KAXIS) = kmax
+
+  ! Some implementations of Grid_getDomainBoundBox have their own
+  ! way to return the correct domain bounds. For UG and PARAMESH,
+  ! module variables gr_imin,...,gr_kmax, are used.
+#if defined(FLASH_GRID_UG) || defined(FLASH_GRID_PARAMESH)
+  gr_imin = imin
+  gr_jmin = jmin
+  gr_kmin = kmin
+  gr_imax = imax
+  gr_jmax = jmax
+  gr_kmax = kmax
+#endif
 
 end subroutine gr_initGeometry

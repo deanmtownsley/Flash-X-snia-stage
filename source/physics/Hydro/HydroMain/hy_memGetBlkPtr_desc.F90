@@ -68,6 +68,7 @@ subroutine hy_memGetBlkPtr_desc(tileDesc,dataPtr, gridDataStruct)
 
   use hy_memInterface, ONLY : hy_memGetBlkPtr_blkid
   use Grid_tile, ONLY : Grid_tile_t
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
   type(Grid_tile_t), intent(IN) :: tileDesc
@@ -82,7 +83,11 @@ subroutine hy_memGetBlkPtr_desc(tileDesc,dataPtr, gridDataStruct)
   integer, parameter :: iX = 2
 #endif
 
+#ifdef FLASH_GRID_MILHOJA
+  call Driver_abort("[hy_memGetBlkPtr_desc] Figure out how to integrate Milhoja")
+#else
   call hy_memGetBlkPtr_blkid(tileDesc%id, medPtr, gridDataStruct)
+#endif
 
   ! DEV: How to set this if we eventually have tiling with Paramesh?
   lo = lbound(medPtr)

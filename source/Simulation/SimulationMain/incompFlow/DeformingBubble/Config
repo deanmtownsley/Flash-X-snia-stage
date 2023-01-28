@@ -6,3 +6,4 @@ REQUIRES physics/IncompNS/IncompNSExtras
 REQUIRES physics/Multiphase/MultiphaseMain
 
 PARAMETER sim_reInitFlow  BOOLEAN FALSE
+PARAMETER sim_runTest BOOLEAN FALSE
