@@ -84,7 +84,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
+             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,hy_starState)
 #else
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
@@ -96,7 +96,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,k/),JAXIS,&
-             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
+             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,hy_starState)
      enddo
   enddo
 #endif
@@ -107,7 +107,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,j/),KAXIS,&
-             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
+             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,hy_starState)
      enddo
   enddo
 #endif
@@ -124,7 +124,7 @@ contains
     integer, dimension(2), intent(in) :: pos
     integer, intent(in)               :: sweepDir, numCells
     real, intent(inout)               :: grav(numCells)
-    real,dimension(:,:,:,:) :: hy_starState
+    real,dimension(:,:,:,:),pointer :: hy_starState
     real, intent(in):: hy_del(MDIM)
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv

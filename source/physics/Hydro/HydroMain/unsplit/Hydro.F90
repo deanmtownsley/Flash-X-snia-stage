@@ -303,7 +303,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
         end if
         call hy_computeFluxes(tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :), &
                                       Uin, Uout, del, simTime, dt, dtOld, sweepDummy)
-        call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
+        call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :),.false.)
 
         if (level .NE. maxLev) then
            Uout => Uin
@@ -415,7 +415,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
                                       del, simTime, dt, dtOld, sweepDummy)
            end if
            if (hy_fluxCorrect .AND. (level > 1)) then
-              call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
+              call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :),.false.)
            end if
 #ifndef FIXEDBLOCKSIZE
            call tileDesc%releaseDataPtr(fluxBufX, FLUXX)
