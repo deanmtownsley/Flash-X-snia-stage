@@ -123,9 +123,9 @@ autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
 
 ## Containerization Workflows
 
-![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
-![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
-![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+[comment]: ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+[comment]: ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+[comment]: ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
