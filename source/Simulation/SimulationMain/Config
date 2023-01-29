@@ -12,5 +12,5 @@ IF not AllowAlternativeFiles
    EXCLUSIVE *
 ENDIF
 
-D basenm       Base name for output files	
-PARAMETER basenm	STRING	"flash_" 
+D basenm       Base name for output files
+PARAMETER basenm	STRING	"flashx_"
