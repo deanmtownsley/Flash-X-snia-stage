@@ -1,0 +1,52 @@
+# YAML file for test information
+# comments start with "#"
+## Isentropic Composite Tests 
+#  This is a hydro test with periodic boundary conditions and runs only in 2D
+#  it preserves the vortices, they just move around in the domain
+
+#### Keywords  Particles, Hydro, Cartesian/2D
+
+#### Motivation
+# This test was designed to verify that tracer particles move
+# correctly through the domain. It is meaningful only if run on numProcs 4 or more
+
+#### Variants
+# There are three variants of test
+# AMReX for Grid, unsplit for Hydro
+# AMReX for Grid, spark for Hydro
+# Paramesh for Grid, unsplit for Hydro\
+# UG for Grid, unsplit for Hydro -- this test will run only on 4 procs.
+
+
+#### Success vs. Failure
+# This is a composite test therefore has two baseline files. The first file
+# flashx_hdf5_chk_0001 is used as comparison test to ensure correct running, the
+# second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
+
+Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+#this test had debug flag turned on
+Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark:
+  setupOptions: -auto -2d -nxb=16 -nyb=16  +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+#Comparison/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
+#  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  parfiles: iv.par
+
+#Comparison/IsentropicVortex/PseudoUG/2d/AMReX/spark:
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  parfiles: iv.par
+
+#Comparison/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
+#  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+#  parfiles: iv.par

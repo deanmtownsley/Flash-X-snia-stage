@@ -28,17 +28,17 @@
 ## therefore be included in testsuites.
 
 UnitTest/Grid/pm4/3dcyl/DomainBBoxRadians:
-  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=10 +noio -gridinterpolation=native
-  parfiles: test_pm_grid.par
+    setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=10 +noio -gridinterpolation=native
+    parfiles: test_pm_grid.par
 
 UnitTest/Grid/UG/3dcyl/DomainBBoxRadians:
-  setupOptions: -auto -strict -3d +cylindrical -nxb=8 -nyb=8 -nzb=10 --without-unit=physics/Eos +noio +ug +nofbs"
-  parfiles: test_ug_grid.par
+    setupOptions: -auto -strict -3d +cylindrical -nxb=8 -nyb=8 -nzb=10 --without-unit=physics/Eos +noio +ug +nofbs
+    parfiles: test_ug_grid.par
 
 UnitTest/Grid/AMReX/3dcyl/DomainBBoxRadians:
-  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +amrex +cylindrical"
-  parfiles: test_amrex_grid.par
+    setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +amrex +cylindrical
+    parfiles: test_amrex_grid.par
 
 UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians:
-  setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja
-  parfiles: test_milhoja_grid.par
+    setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja
+    parfiles: test_milhoja_grid.par
