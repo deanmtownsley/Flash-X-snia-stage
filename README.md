@@ -134,7 +134,7 @@ Test specifications for individual simulations are included under ``*/tests/test
 
 Testing and maintainence of the code is implemented using command line tools available in Flash-X-Test repository: https://github.com/Flash-X/Flash-X-Test
 
-Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``site/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
+Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``sites/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
 
 Testing servers:
 
