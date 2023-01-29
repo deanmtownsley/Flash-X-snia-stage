@@ -136,7 +136,7 @@ Testing and maintainence of the code is implemented using command line tools ava
 
 Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``site/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
 
-List of testing servers:
+Testing servers:
 
 - Argonne, GCE - https://jenkins-gce.cels.anl.gov/job/Flash-X-automated
 - Ganon - http://ganon2.device.utk.edu:8080 
