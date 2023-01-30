@@ -23,7 +23,6 @@
 !!                      real(INOUT) :: eosData(vecLen*EOS_NUM),
 !!            optional, integer(IN) :: vecBegin,
 !!            optional, integer(IN) :: vecEnd,
-!!            optional, real(IN)    :: massFrac(vecLen*NSPECIES),
 !!      optional,target,logical(IN) :: mask(EOS_VARS+1:EOS_NUM)  )
 !!
 !! DESCRIPTION
@@ -80,9 +79,6 @@
 !!  vecEnd   : Index of last cell in eosData to handle.
 !!             Can be used to limit operation to a subrange of cells, untested.
 !!             If not present, the default is vecLen.
-!!
-!!  massFrac : Contains the mass fractions of the species included in
-!!             the simulation. The array is sized as NSPECIES*vecLen.
 !!
 !!  mask     : Mask is a logical array the size of EOS_DERIVS (number
 !!              of partial derivatives that can be computed, defined in
@@ -143,7 +139,7 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
+subroutine eos_idealGamma(mode, vecLen, eosData, mask, vecBegin, vecEnd)
 
 !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -162,9 +158,7 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
   integer, INTENT(in) :: mode, vecLen
   real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
   integer,optional,INTENT(in) :: vecBegin,vecEnd
-  real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-  integer, optional, INTENT(out)    :: diagFlag
 
   real ::  ggprod, ggprodinv, gam1inv
   integer :: dens, temp, pres, eint, abar, zbar
@@ -172,8 +166,6 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
   integer :: dpt, dpd, det, ded, c_v, c_p, gamc, pel, ne, eta
   integer :: i, ilo,ihi
 
-  if (present(diagFlag)) diagFlag = 0
-  
   ggprod = eos_gammam1 * eos_gasConstant
 
 !============================================================================
