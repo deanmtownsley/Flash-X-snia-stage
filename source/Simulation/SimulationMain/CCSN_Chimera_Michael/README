@@ -1,2 +1,0 @@
-Setup syntax for 2D Chimera Model:
-./setup CCSN_Chimera -auto -portable -2d +cylindrical -nxb=16 -nyb=16 -objdir CCSNChim_2dcyl threadBlockList=False threadWithinBlock=False +pm4dev +uhd +newMpole +parallelio xnet=True xnetData=Data_SN160 xnetGPU=True +hdf5 +starkiller starkillerGPU=True cutout=True -makefile=pgi
