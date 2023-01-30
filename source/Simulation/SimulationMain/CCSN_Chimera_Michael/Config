@@ -1,0 +1,249 @@
+# Config file for Core Collapse SN setup.
+
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro/HydroMain 
+
+# Composition
+USESETUPVARS xnet
+IF xnet
+   REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
+ENDIF
+REQUIRES Simulation/SimulationComposition
+REQUIRES Multispecies
+
+# EoS
+REQUIRES physics/Eos/EosMain/Helmholtz
+
+# Gravity (pick PointMass or Multipole)
+#REQUESTS physics/Gravity/GravityMain/PointMass
+REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
+
+LINKIF Gravity_init.F90.pointmass physics/Gravity/GravityMain/PointMass
+LINKIF ./gr_mpolefiles/gr_mpoleData.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleInit.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleCenterOfExpansion.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleMoments.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpolePotentials.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleRadialSampling.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpolePot2Dcylindrical.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleCen2Dspherical.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleMom2Dspherical.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleMomBins2Dspherical.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpolePot2Dspherical.F90 Grid/GridSolvers/Multipole_new
+LINKIF ./gr_mpolefiles/gr_mpoleRad2Dspherical.F90 Grid/GridSolvers/Multipole_new
+
+#sneo: paths changed below
+LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR
+#LINKIF Grid_getCellFaceAreas.F90 Grid/GridMain
+#LINKIF Grid_getCellCoords.F90 Grid/GridMain
+LINKIF Grid_interface.F90 Grid/GridMain
+#LINKIF faceareaStore.F90 Grid/GridMain
+#LINKIF check_variable_sneo.F90 Grid/GridMain
+
+#LINKIF hy_getFaceFlux.F90 physics/Hydro/HydroMain/unsplit 
+#LINKIF hy_unsplitUpdate.F90 physics/Hydro/HydroMain/unsplit
+#LINKIF Hydro.F90 physics/Hydro/HydroMain/Spark
+
+# PNS Cutout
+USESETUPVARS cutout
+IF cutout
+   VARIABLE BDRY #For cutting out the PNS
+ENDIF
+# params for initialization
+D chimera_model_file    	Name of input file with chimera model
+PARAMETER chimera_model_file	STRING ""
+D progenitor_model_file 	Name of input file with 1D progenitor model
+PARAMETER progenitor_model_file	STRING ""
+D max_r  	                max radius to use chimera data
+PARAMETER max_r	                REAL 0.0
+D r_inner	                inner radius boundary for chimera data
+PARAMETER r_inner               REAL 0.0
+D do_quad	                flag for performing quadrature averages in mapping of model
+PARAMETER do_quad	        BOOLEAN FALSE
+D nquad	  number of quadrature points in each dimension for mapping of model
+PARAMETER nquad		        INTEGER 2
+D mpole_PtXpos                  x position for point mass (Currently only for 2dSph, 2dCyl)
+PARAMETER mpole_PtXpos          REAL 0.0
+D mpole_PtZpos                  z position for point mass (Currently only for 2dSph, 2dCyl)
+PARAMETER mpole_PtZpos          REAL 0.0
+D mpole_PtYpos                  y position for point mass (Currently only for 3dSph)
+PARAMETER mpole_PtYpos          REAL 0.0
+
+# Extra variables
+VARIABLE SHOK
+VARIABLE entr EOSMAPOUT: ENTR
+#variables to store face areas
+#VARIABLE FAAX
+#VARIABLE FAAY
+#VARIABLE FAAZ
+#VARIABLE IVAX
+#VARIABLE IVAY
+
+# These would allow use to use the "Ye" mode of Helmholtz if we want
+MASS_SCALAR YE
+MASS_SCALAR SUMY
+
+# Default Species
+IF not xnet
+   SPECIES    D
+   SPECIES    P
+   SPECIES    N
+   SPECIES    HE3
+   SPECIES    HE4
+   SPECIES    LI6
+   SPECIES    LI7
+   SPECIES    BE7
+   SPECIES    BE9
+   SPECIES    B8
+   SPECIES    B10
+   SPECIES    B11
+   SPECIES    C12
+   SPECIES    C13
+   SPECIES    C14
+   SPECIES    N13
+   SPECIES    N14
+   SPECIES    N15
+   SPECIES    O14
+   SPECIES    O15
+   SPECIES    O16
+   SPECIES    O17
+   SPECIES    O18
+   SPECIES    F17
+   SPECIES    F18
+   SPECIES    F19
+   SPECIES    NE18
+   SPECIES    NE19
+   SPECIES    NE20
+   SPECIES    NE21
+   SPECIES    NE22
+   SPECIES    NA21
+   SPECIES    NA22
+   SPECIES    NA23
+   SPECIES    MG23
+   SPECIES    MG24
+   SPECIES    MG25
+   SPECIES    MG26
+   SPECIES    AL25
+   SPECIES    AL26
+   SPECIES    AL27
+   SPECIES    SI28
+   SPECIES    SI29
+   SPECIES    SI30
+   SPECIES    SI31
+   SPECIES    SI32
+   SPECIES    P29
+   SPECIES    P30
+   SPECIES    P31
+   SPECIES    P32
+   SPECIES    P33
+   SPECIES    S32
+   SPECIES    S33
+   SPECIES    S34
+   SPECIES    S35
+   SPECIES    S36
+   SPECIES    CL33
+   SPECIES    CL34
+   SPECIES    CL35
+   SPECIES    CL36
+   SPECIES    CL37
+   SPECIES    AR36
+   SPECIES    AR37
+   SPECIES    AR38
+   SPECIES    AR39
+   SPECIES    AR40
+   SPECIES    K37
+   SPECIES    K38
+   SPECIES    K39
+   SPECIES    K40
+   SPECIES    K41
+   SPECIES    CA40
+   SPECIES    CA41
+   SPECIES    CA42
+   SPECIES    CA43
+   SPECIES    CA44
+   SPECIES    CA45
+   SPECIES    CA46
+   SPECIES    CA47
+   SPECIES    CA48
+   SPECIES    SC43
+   SPECIES    SC44
+   SPECIES    SC45
+   SPECIES    SC46
+   SPECIES    SC47
+   SPECIES    SC48
+   SPECIES    SC49
+   SPECIES    TI44
+   SPECIES    TI45
+   SPECIES    TI46
+   SPECIES    TI47
+   SPECIES    TI48
+   SPECIES    TI49
+   SPECIES    TI50
+   SPECIES    TI51
+   SPECIES    V46
+   SPECIES    V47
+   SPECIES    V48
+   SPECIES    V49
+   SPECIES    V50
+   SPECIES    V51
+   SPECIES    V52
+   SPECIES    CR48
+   SPECIES    CR49
+   SPECIES    CR50
+   SPECIES    CR51
+   SPECIES    CR52
+   SPECIES    CR53
+   SPECIES    CR54
+   SPECIES    MN50
+   SPECIES    MN51
+   SPECIES    MN52
+   SPECIES    MN53
+   SPECIES    MN54
+   SPECIES    MN55
+   SPECIES    FE52
+   SPECIES    FE53
+   SPECIES    FE54
+   SPECIES    FE55
+   SPECIES    FE56
+   SPECIES    FE57
+   SPECIES    FE58
+   SPECIES    CO53
+   SPECIES    CO54
+   SPECIES    CO55
+   SPECIES    CO56
+   SPECIES    CO57
+   SPECIES    CO58
+   SPECIES    CO59
+   SPECIES    NI56
+   SPECIES    NI57
+   SPECIES    NI58
+   SPECIES    NI59
+   SPECIES    NI60
+   SPECIES    NI61
+   SPECIES    NI62
+   SPECIES    NI63
+   SPECIES    NI64
+   SPECIES    CU57
+   SPECIES    CU58
+   SPECIES    CU59
+   SPECIES    CU60
+   SPECIES    CU61
+   SPECIES    CU62
+   SPECIES    CU63
+   SPECIES    CU64
+   SPECIES    CU65
+   SPECIES    ZN59
+   SPECIES    ZN60
+   SPECIES    ZN61
+   SPECIES    ZN62
+   SPECIES    ZN63
+   SPECIES    ZN64
+   SPECIES    ZN65
+   SPECIES    ZN66
+   SPECIES    GA62
+   SPECIES    GA63
+   SPECIES    GA64
+   SPECIES    GE63
+   SPECIES    GE64
+ENDIF

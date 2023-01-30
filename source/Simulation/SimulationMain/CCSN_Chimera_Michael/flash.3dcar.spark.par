@@ -1,0 +1,189 @@
+# Parameters file for core-collapse SN
+
+# Simulation basics
+basenm			       = "ccsn3dcar_spark_"
+restart			       = .false.
+checkpointFileNumber           = 0 # number of the most recent checkpoint
+plotFileNumber                 = 0 # number of the plotfile that will be written next (so +1 of most recent plotfile number)
+run_comment                    = "CoreCollapse 2D Breakout"
+output_directory	       = "output"
+
+# I/O  
+checkpointFileIntervalStep     = 0       #checkpoint after certain number of steps?
+checkpointFileIntervalTime     = .25     # checkpoint after sim time in seconds
+plotFileIntervalStep           = 0
+plotFileIntervalTime           = 0.05
+wall_clock_checkpoint          = 7100.0 #checkpoint after so many seconds and exit (ideally match parameter below)
+wall_clock_time_limit          = 7100.0 #wall clock time, allow room for buffer if IO takes a while
+plotfileMetadataDP             = .true.  #double precision for plotfiles
+plotfileGridQuantityDP         = .true.
+
+# Variables to output in pltfiles (can add more if you want)
+plot_var_1                     = "temp"
+plot_var_2                     = "pres"
+plot_var_3                     = "eint"
+plot_var_4                     = "dens"
+plot_var_4                     = "shok"
+plot_var_4                     = "velx"
+plot_var_4                     = "vely"
+
+# Time 
+tinitial                       = 0.0        #Does not have to be 0 for a new simulation, you can set it equal to tfinal of CHIMERA for instance
+tmax                           = 100.0      #can be changed throughout the simulation
+nend                           = 1000000000 #end simulation after this many timesteps
+tstep_change_factor            = 1.5        #change dt by this factor if not limited by hydro
+dtinit                         = 1.E-10     #initial dt
+dtmax                          = 1.E5       #dt max
+dtmin                          = 1.E-20     #dt min
+dr_shortenLastStepBeforeTMax   = .true.     #shortens timestep to match tmax exactly if approaching tmax
+
+# Domain 
+geometry                       = "cartesian"
+xmin                           = -5.e9  #cm
+xmax                           = 5.e9 #cm
+ymin                           = -5.e9 #cm
+ymax                           = 5.e9  #cm
+zmin			       = -5.e9
+zmax			       = 5.e9
+
+xl_boundary_type               = "outflow" #"axisymmetric"
+xr_boundary_type               = "outflow"
+yl_boundary_type               = "outflow"
+yl_boundary_type               = "outflow"
+zr_boundary_type               = "outflow"
+zr_boundary_type               = "outflow"
+
+# Refinement (only used for AMR, ignored if Unigrid)
+nblockx                        = 8
+nblocky                        = 8
+nblockz                        = 8
+gr_lrefineMaxRedDoByLogR       = .true.
+gr_lrefineMaxRedDoByTime       = .FALSE.
+gr_lrefineMaxRedLogBase        = 10.0 # only needed for MaxRedDoByTime
+gr_lrefineMaxRedRadiusFact     = 0.06 # Limits max resolution based on log distance. 0.06 Limits resolution to ~1.5e5cm at ~8.1e7cm (should be half this distance, but FLASH doubles it for some reason)
+gr_lrefineMaxRedTRef           = 2.0  # only needed for MaxRedDoByTime
+gr_lrefineMaxRedTimeScale      = 0.5  # only needed for MaxRedDoByTime
+lrefine_max                    = 3
+lrefine_min                    = 1
+refine_var_1                   = "dens"
+refine_var_2                   = "pres"
+refine_var_3                   = "sumy"
+refine_cutoff_1                = 0.7 #0.8
+refine_cutoff_2                = 0.5 #0.8
+refine_cutoff_3                = 0.5 #0.8
+derefine_cutoff_1              = 0.3 #0.2
+derefine_cutoff_2              = 0.5 #0.2
+derefine_cutoff_3              = 0.5 #0.2
+refine_var_count               = 3
+
+# Grid
+convertToConsvdForMeshCalls   = .false.
+converttoconsvdinmeshinterp   = .false.
+flux_correct    = .true. #false for uniform grid
+
+# Hydro
+useHydro = .TRUE.
+cfl = 0.5
+updateHydroFluxes = .true.
+use_cma_advection = .true.
+use_steepening  = .false. # use contact steepening (originally for PPM)
+
+##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
+flux_correct          = .true.  # Flux correction on/off
+flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis. Must be .true. for AMReX
+use_hybridRiemann     = .true.  # Use the HLL solver inside shocks
+
+## SWITCHES FOR LOAD BALANCING
+gr_btSortByWork        = .true.  # Weight blocks for load distribution
+gr_btCustomWork        = .true.  # Enable load balancing based on customized work array
+#gr_btExchangeWork     = .true.  # Exchange work array during refinement
+#gr_bitDistributedSort = .true.  # Use different sorting method for work array
+#gr_btWorkDefaultLeaf  = 2.0     # Leaf block work default
+gr_btWorkLBLeaf        = 2.0     # Leaf block work lower bound
+gr_btWorkUBLeaf        = 40.0    # Leaf block work upper bound
+#gr_btWorkDefaultPar   = 1.0     # Parent block work default
+gr_btWorkLBPar         = 1.0     # Parent block work lower bound
+gr_btWorkUBPar         = 1.0     # Parent block work upper bound
+
+# Gravity
+useGravity                     = .true. 
+updateGravity                  = .TRUE. 
+grav_boundary_type             = "isolated"
+mpole_3daxisymmetry            = .false.
+mpole_dumpMoments              = .FALSE.
+mpole_PrintRadialInfo	       = .false.
+mpole_IgnoreInnerZone          = .true. # Normally false, but for some reason only works if true in our problem
+mpole_lmax                     = 8
+mpole_ZoneRadiusFraction_1     = 1.0
+mpole_ZoneExponent_1           = 0.005
+mpole_ZoneScalar_1	       = 0.5
+mpole_ZoneType_1	       = "logarithmic"
+
+# Additional Pointmass (for Multipole Gravity)
+point_mass                     = 0.e0 # extra, external, point mass, usually used if cutting out part of grid other than the PNS
+point_mass_rsoft               = 0.e0 # softening radius, not really used since point_mass is placed at r=0 within the cutout region
+mpole_PtXpos = 0.e0
+mpole_PtYpos = 0.e0
+mpole_PtZpos = 0.e0
+
+# Additional Pointmass (for PointMass Gravity)
+#ptmass       = 0.e0
+#gravsoft     = 0.e0
+#ptxpos       = 0.e0
+#ptypos       = 0.e0
+#ptzpos       = 0.e0
+
+# EoS
+eintSwitch                     = 0.0         #Always uses Etot (see runtime param descrip for details)
+eosMode                        = "dens_ie"   #Density and internal energy are supplied during evolution, others come from calcs
+eosModeInit                    = "dens_pres" #Density and pressure are supplied initially (Simulation_initBlock), others come from calcs
+eos_useStarkiller              = .true.      # Using starkiller EoS
+#eos_vecLenACC                  = 512         # Vector length threshold for when turning on GPU acceleration
+
+# Deleptonization
+useDeleptonize		       = .false.
+
+# RadTrans/Leakage
+useRadTrans		      = .false.
+
+# Neutrino Heating/Cooling
+useHeat			       = .false.
+			      			       
+# Small numbers (used for flooring certain quantities)
+smallt                         = 1.0e3   #temperature
+smlrho                         = 1.0e-12 #density
+smallp                         = 1.E-20  #pressure
+smalle                         = 1.E1    #energy
+smallu                         = 1.E-10  #velocity
+smallx                         = 1.E-17  #mass fractions/abundances
+small                          = 1.E-100 #general
+
+# Burn Unit
+useBurn                        = .false.
+useShockBurn                   = .true.
+nuclearTempMin                 = 1.1e8 # threshold to consider burning. default is 1.1e8
+
+
+#Breakout Parameters
+progenitor_model_file = "d96xn160.txt" 
+chimera_model_file = "chimera_03334_grid_1_01.h5"
+r_inner = 5.e7        # inner radial cutout (used for calculation of internal point mass). Must match x_min on a fresh restart and never changed afterwards
+max_r = 1.8e9         # radius you want to switch from chimera to progenitor data
+
+# XNet
+xnet_iweak                              = 1       # (-1) Weak rxns only, (0) Weak rxns off, (1) Weak rxns on
+xnet_iscrn                              = 1       # Screening
+xnet_iprocess                           = 1       # Network data pre-processing?
+xnet_isolv                              = 3       # Integration scheme: (1) Backward-Euler, (3) BDF/Gear
+xnet_kstmx                              = 6000    # Max XNet steps for each zone
+xnet_kitmx                              = 10      # Max NR iterations
+xnet_iconvc                             = 3       # Convergence condition (error weights for BDF integrator)
+xnet_yacc                               = 1.0e-07 # Abundances > yacc used for XNet timestep calculation
+xnet_tolm                               = 1.0e-6  # Mass conservation tolerance
+xnet_tolc                               = 1.0e-3  # Tolerance for iterative abundance change
+xnet_ymin                               = 1.0e-99 # Abundance < ymin is set to 0.0
+xnet_iheat                              = 1       # Self-heating (couple temperature to abundance evolution)
+xnet_tolt9                              = 1.0e-4  # Tolerance for iterative temperature change
+xnet_nzbatchmx                          = 16      # Number of zones to batch
+xnet_writeTimers                        = .true.  # Write XNet timers to stdout at end of run
+
