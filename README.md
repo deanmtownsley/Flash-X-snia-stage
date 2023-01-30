@@ -138,5 +138,5 @@ Please refer to the instructions there to setup your own testing infrastructure.
 
 Testing servers:
 
-- Argonne (GCE) - https://jenkins-gce.cels.anl.gov/job/Flash-X-automated
+- Argonne - https://jenkins-gce.cels.anl.gov/job/Flash-X-automated
 - Ganon - http://ganon2.device.utk.edu:8080 
