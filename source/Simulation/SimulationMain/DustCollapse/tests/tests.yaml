@@ -10,7 +10,7 @@ Comparison/DustCollapse/AMR/1dSph/AMReX:
 
 # The following test used to be configured with -debug.
 Comparison/DustCollapse/AMR/1dSph/spark:
-  setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +sparkinhost  +newMpole -debug
+  setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +spark  +newMpole -debug
   parfiles: test_1dsph.debug.par
 
 # The following test used to be configured with -debug.

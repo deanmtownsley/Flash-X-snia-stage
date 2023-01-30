@@ -161,6 +161,7 @@ ddt:use_ddt=True:--defines=DDT:--with-unit=source/monitors/Debugger/DebuggerMain
 nolwf:NoLevelwideFluxes=True:useAmrexFlashFluxreg=True
 
 # Support for Spark solver(s)
+spark:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf
 sparkbase1d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-1d:
 sparkbase2d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-2d:+sqr16
 sparkbase3d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-3d:+cube16
