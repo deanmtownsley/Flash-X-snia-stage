@@ -505,6 +505,12 @@ Module Grid_interface
      end subroutine Grid_putLocalNumBlks
   end interface
 
+  interface Grid_getMaxcells
+     subroutine Grid_getMaxcells(maxcells)
+       integer,intent(out) :: maxcells
+     end subroutine Grid_getMaxcells
+  end interface Grid_getMaxcells
+
   interface Grid_restrictAllLevels
      subroutine Grid_restrictAllLevels()
      end subroutine Grid_restrictAllLevels

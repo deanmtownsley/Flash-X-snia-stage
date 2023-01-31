@@ -43,7 +43,6 @@
 #endif
 
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
-#define MEDGE NXB+NGUARD*2
 
 #define MAXSTAGE 2
   

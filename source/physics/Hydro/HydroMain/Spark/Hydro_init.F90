@@ -33,7 +33,7 @@ subroutine Hydro_init()
   use Logfile_interface,           ONLY : Logfile_stampMessage, &
        Logfile_stampVarMask, &
        Logfile_stamp
-  use Grid_interface,              ONLY : Grid_setFluxHandling, Grid_getMaxRefinement
+  use Grid_interface,              ONLY : Grid_setFluxHandling, Grid_getMaxRefinement, Grid_getMaxCells
   use IO_interface,                ONLY : IO_getScalar, IO_setScalar
 
   implicit none
@@ -223,7 +223,8 @@ subroutine Hydro_init()
   hy_limitsArray = (/NSTENCIL, 0, 0/)
   hy_weights = (/0.5,0.5,0./)
 #endif
-
+  call Grid_getMaxcells(hy_maxCells)
+  hy_maxCells=2*NGUARD+hy_maxCells
 
   !$omp target update to &
   !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
@@ -231,6 +232,6 @@ subroutine Hydro_init()
   !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry, &
   !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
-  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev)
+  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev,hy_maxCells)
   
 end subroutine Hydro_init
