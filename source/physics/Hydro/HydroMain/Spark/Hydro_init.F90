@@ -62,7 +62,7 @@ subroutine Hydro_init()
   if (hy_restart) then
      call IO_getScalar("dt", hy_dt)
      hy_dtmin = hy_dt
-     call IO_getScalar(",C_hyp", hy_lChyp)
+     call IO_getScalar("C_hyp", hy_lChyp)
   else
      hy_dtmin = HUGE(1.0)
      ! Initialize local maximum hyperbolic speed
