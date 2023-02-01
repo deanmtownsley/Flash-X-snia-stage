@@ -57,7 +57,6 @@ Module Grid_data
   real,    save :: gr_minCellSize
   real,    save :: gr_minCellSizes(MDIM)
   logical, save :: gr_allPeriodic
-  integer, save :: gr_maxCells
   ! Local copies that stores BC information for AMReX callbacks.
   ! These variables should only be used by the AMReX callbacks.
   integer, target, save :: lo_bc_amrex(NDIM, UNK_VARS_BEGIN:UNK_VARS_END)

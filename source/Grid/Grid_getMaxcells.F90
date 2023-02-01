@@ -19,6 +19,7 @@
 !!
 
 subroutine Grid_getMaxcells(maxcells)
+  implicit none
   integer, intent(OUT) :: maxCells
   maxcells=1
 end subroutine Grid_getMaxcells

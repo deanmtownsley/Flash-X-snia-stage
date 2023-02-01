@@ -21,6 +21,7 @@
 
 #include "Simulation.h"
 subroutine Grid_getMaxcells(maxcells)
+  implicit none
   integer, intent(OUT) :: maxCells
   maxcells=max(NXB,NYB,NZB)
   !! in future if we allow use of AMReX in patch mode
