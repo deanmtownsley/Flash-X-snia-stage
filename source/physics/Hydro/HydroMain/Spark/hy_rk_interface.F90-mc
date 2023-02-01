@@ -48,6 +48,7 @@ module hy_rk_interface
      subroutine @M hy_grav_name (@M hy_grav_call_args)
        real,dimension(MDIM),intent(IN)  :: hy_del
        integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+       integer, intent(IN)  :: level
      end subroutine @M hy_grav_name
   end interface
   

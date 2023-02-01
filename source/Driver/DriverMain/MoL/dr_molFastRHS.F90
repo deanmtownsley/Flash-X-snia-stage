@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call dr_molFastRHS(real, intent(in) :: t)
+!!      call dr_molFastRHS(real,    intent(in) :: t,
+!!                         integer, intent(in) :: activeRHS,
+!!                         real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,10 +28,12 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t          : Current time
+!!      activeRHS : The RHS data struct to fill
+!!      dtWeight  : Weighted timestep for the current stage (e.g. for flux corrections)
 !!
 !!***
-subroutine dr_molFastRHS(t)
+subroutine dr_molFastRHS(t, activeRHS, dtWeight)
    ! use Spacetime_interface,  only: Spacetime_molFastRHS
    use Hydro_interface, only: Hydro_molFastRHS
    use RadTrans_interface, only: RadTrans_molFastRHS
@@ -38,9 +42,11 @@ subroutine dr_molFastRHS(t)
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
-   ! call Spacetime_molFastRHS(t)
-   call Hydro_molFastRHS(t)
-   call RadTrans_molFastRHS(t)
-   call Simulation_molFastRHS(t)
+   ! call Spacetime_molFastRHS(t, activeRHS, dtWeight)
+   call Hydro_molFastRHS(t, activeRHS, dtWeight)
+   call RadTrans_molFastRHS(t, activeRHS, dtWeight)
+   call Simulation_molFastRHS(t, activeRHS, dtWeight)
 end subroutine dr_molFastRHS

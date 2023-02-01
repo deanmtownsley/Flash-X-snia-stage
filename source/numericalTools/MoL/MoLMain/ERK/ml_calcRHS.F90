@@ -19,24 +19,21 @@
 !! @brief Implements ml_calcRHS for ERK
 !!
 !! @stubref{ml_calcRHS}
-subroutine ml_calcRHS(rhsType, rhsStruct, t)
+subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
    use ml_functions, only: ml_rhsE, ml_rhsI, ml_rhsF
 
-   use ml_memInterface, only: ml_memSetActiveRHS, ml_memReleaseActiveRHS, ml_memZero
+   use ml_memInterface, only: ml_memZero
 
    implicit none
 
    integer, intent(in) :: rhsType, rhsStruct
    real, intent(in) :: t
+   real, intent(in) :: dtWeight
 
    ! Zero-out RHS memory
    call ml_memZero(rhsStruct)
 
-   call ml_memSetActiveRHS(rhsStruct)
-
-   call ml_rhsE(t)
-   call ml_rhsI(t)
-   call ml_rhsF(t)
-
-   call ml_memReleaseActiveRHS()
+   call ml_rhsE(t, rhsStruct, dtWeight)
+   call ml_rhsI(t, rhsStruct, dtWeight)
+   call ml_rhsF(t, rhsStruct, dtWeight)
 end subroutine ml_calcRHS

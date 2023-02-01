@@ -18,6 +18,9 @@
 !! Provides tracking of registered evolved variables
 module ml_variables
 
+#include "Simulation.h"
+#include "MoL.h"
+
    implicit none
 
    !> Associates an evolved variable index in UNK with an RHS index
@@ -43,6 +46,7 @@ module ml_variables
    !! @{
    !! Maps variable indices between UNK and MoL's scratch memory
    integer, allocatable, save :: ml_unk_mask(:), ml_scratch_mask(:)
+   integer, save :: ml_unk_to_scratch(NUNK_VARS) = MOL_INVALID
    !> @}
 
 end module ml_variables

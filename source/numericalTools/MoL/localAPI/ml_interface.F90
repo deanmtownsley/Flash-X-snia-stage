@@ -46,10 +46,11 @@ module ml_interface
    end interface
 
    interface
-      subroutine ml_calcRHS(rhsType, rhsStruct, t)
+      subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
          implicit none
          integer, intent(in) :: rhsType, rhsStruct
          real, intent(in) :: t
+         real, intent(in) :: dtWeight
       end subroutine ml_calcRHS
    end interface
 

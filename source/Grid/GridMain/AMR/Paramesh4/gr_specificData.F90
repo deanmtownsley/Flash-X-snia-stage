@@ -83,7 +83,6 @@ Module gr_specificData
      real,dimension(3,GRID_IHI_GC) :: firstAxisCoords
      real,dimension(3,GRID_JHI_GC) :: secondAxisCoords
      real,dimension(3,GRID_KHI_GC) :: thirdAxisCoords
-     integer :: blockType
   end type gridBlock
 
   type(gridBlock),save,dimension(MAXBLOCKS),target :: gr_oneBlock

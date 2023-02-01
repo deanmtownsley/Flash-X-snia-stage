@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molExplicitRHS(real, intent(in) :: t)
+!!      call Simulation_molExplicitRHS(real,    intent(in) :: t,
+!                                      integer, intent(in) :: activeRHS
+!!                                     real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,10 +28,12 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weight timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Simulation_molExplicitRHS(t)
+subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_rho, U_RHS, V_RHS, W_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
@@ -46,6 +50,8 @@ subroutine Simulation_molExplicitRHS(t)
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -102,7 +108,7 @@ subroutine Simulation_molExplicitRHS(t)
       !           that is not directly accessible to the user via
       !           requests for MOL_RHS
       call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
-      call MoL_getDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_getDataPtr(tileDesc, rhs, activeRHS)
 
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
@@ -119,7 +125,7 @@ subroutine Simulation_molExplicitRHS(t)
          end do ! j
       end do ! k
 
-      call MoL_releaseDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_releaseDataPtr(tileDesc, rhs, activeRHS)
       call MoL_releaseDataPtr(tileDesc, vars, MOL_EVOLVED)
 
       call itor%next()

@@ -106,4 +106,12 @@ module MoL_interface
       end subroutine MoL_releaseDataPtr
    end interface
 
+   interface
+      function MoL_getRHSIndex(evolIndex)
+         implicit none
+         integer :: MoL_getRHSIndex
+         integer, intent(in) :: evolIndex
+      end function MoL_getRHSIndex
+   end interface
+
 end module MoL_interface

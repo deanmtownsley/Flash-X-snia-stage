@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molFastRHS(real, intent(in) :: t)
+!!      call Simulation_molFastRHS(real,    intent(in) :: t,
+!                                  integer, intent(in) :: activeRHS
+!!                                 real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,14 +28,18 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t        : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weight timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Simulation_molFastRHS(t)
+subroutine Simulation_molFastRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine Simulation_molFastRHS
