@@ -52,7 +52,7 @@
 !!  
 !!
 !!  After every sweep, IO_writeIntegralQuantities is called to compute some global
-!!  quantities and write them to the flash.dat file.
+!!  quantities and write them to the flashx.dat file.
 !!
 !!  A checkpoint is given a name according to the basename (specified
 !!  via the basenm runtime parameter) and the filetype (pnetcdf,
@@ -204,7 +204,7 @@ subroutine IO_output( simTime, dt, nstep, nbegin, endRun, outputType)
   
   
   !------------------------------------------------------------------------------
-  ! Write values of integral quantities -- these are stored in flash.dat
+  ! Write values of integral quantities -- these are stored in flashx.dat
   !------------------------------------------------------------------------------
   
   call Timers_start("diagnostics")

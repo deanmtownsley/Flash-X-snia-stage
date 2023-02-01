@@ -123,13 +123,20 @@ autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
 
 ## Containerization Workflows
 
-![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
-![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
-![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+[comment]: ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+[comment]: ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+[comment]: ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
 ## Tests
-The source code for flashtest and a full set of tests are available from the
-Flash-X-Test repository. The repository also has tools to help you setup your local test suite.
+Test specifications for individual simulations are included under ``*/tests/tests.yaml`` files in each simulation directory under ``source/Simulation/SimulationMain``. New tests should be added as enteries in the prescribed YAML format before including it as a part of suites on different platforms.
 
+Testing and maintainence of the code is implemented using command line tools available in Flash-X-Test repository: https://github.com/Flash-X/Flash-X-Test
+
+Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``sites/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
+
+Testing servers:
+
+- Argonne, GCE - https://jenkins-gce.cels.anl.gov/job/Flash-X-automated
+- Ganon - http://ganon2.device.utk.edu:8080 

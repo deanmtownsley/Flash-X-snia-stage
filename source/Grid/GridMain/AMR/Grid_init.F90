@@ -161,13 +161,7 @@ subroutine Grid_init()
   integer,save :: refVar
   integer :: countInComm, color, key, ierr
   integer :: nonrep
-  
-!----------------------------------------------------------------------------------
-! mesh geometry - moved here so Paramesh_init can use gr_geometry for some checking
-!----------------------------------------------------------------------------------
-  call RuntimeParameters_get("geometry",gr_str_geometry)
-  call RuntimeParameters_mapStrToInt(gr_str_geometry, gr_geometry)
-  call RuntimeParameters_get("geometryOverride",gr_geometryOverride)
+
 
   call Driver_getMype(GLOBAL_COMM, gr_globalMe)
   call Driver_getNumProcs(GLOBAL_COMM, gr_globalNumProcs)
@@ -181,6 +175,29 @@ subroutine Grid_init()
   call Driver_getNumProcs(MESH_ACROSS_COMM, gr_meshAcrossNumProcs)
   call Driver_getComm(MESH_ACROSS_COMM, gr_meshAcrossComm)
 
+  ! DO THIS EARLY - must be before gr_initGeometry is called:
+  !get the boundary conditions stored as strings in the flash.par file
+  call RuntimeParameters_get("xl_boundary_type", xl_bcString)
+  call RuntimeParameters_get("xr_boundary_type", xr_bcString)
+  call RuntimeParameters_get("yl_boundary_type", yl_bcString)
+  call RuntimeParameters_get("yr_boundary_type", yr_bcString)
+  call RuntimeParameters_get("zl_boundary_type", zl_bcString)
+  call RuntimeParameters_get("zr_boundary_type", zr_bcString)
+
+  !map the string boundary conditions to integer constants defined in constants.h
+  call RuntimeParameters_mapStrToInt(xl_bcString,gr_domainBC(LOW,IAXIS))
+  call RuntimeParameters_mapStrToInt(xr_bcString,gr_domainBC(HIGH,IAXIS))
+  call RuntimeParameters_mapStrToInt(yl_bcString,gr_domainBC(LOW,JAXIS))
+  call RuntimeParameters_mapStrToInt(yr_bcString,gr_domainBC(HIGH,JAXIS))
+  call RuntimeParameters_mapStrToInt(zl_bcString,gr_domainBC(LOW,KAXIS))
+  call RuntimeParameters_mapStrToInt(zr_bcString,gr_domainBC(HIGH,KAXIS))
+
+!----------------------------------------------------------------------------------
+! mesh geometry - done early so Paramesh_init can use gr_geometry for some checking
+!----------------------------------------------------------------------------------
+  ! Initialization of gr_geometry etc is done in gr_initGeometry.
+
+  call gr_initGeometry()
 
 #ifdef GRID_WITH_MONOTONIC
   if (NGUARD < 4) then
@@ -194,13 +211,8 @@ subroutine Grid_init()
   endif
 #endif
 
-  !Get the physical domain limits. Angles in degrees, will be converted in gr_initGeometry!
-  call RuntimeParameters_get('xmin', gr_imin)
-  call RuntimeParameters_get('xmax', gr_imax)
-  call RuntimeParameters_get('ymin', gr_jmin)
-  call RuntimeParameters_get('ymax', gr_jmax)
-  call RuntimeParameters_get('zmin', gr_kmin)
-  call RuntimeParameters_get('zmax', gr_kmax)
+  ! Initialization of gr_imin,gr_imax,...,gr_kmax is done in gr_initGeometry, called above.
+
   call RuntimeParameters_get('lrefine_min', gr_minRefine)
   call RuntimeParameters_get('lrefine_max', gr_lrefineMax)
   call RuntimeParameters_get("nrefs", gr_nrefs)
@@ -260,22 +272,6 @@ subroutine Grid_init()
   call RuntimeParameters_get("grav_boundary_type", grav_boundary_type)
   gr_isolatedBoundaries = (grav_boundary_type=="isolated")
 
-  !get the boundary conditions stored as strings in the flash.par file
-  call RuntimeParameters_get("xl_boundary_type", xl_bcString)
-  call RuntimeParameters_get("xr_boundary_type", xr_bcString)
-  call RuntimeParameters_get("yl_boundary_type", yl_bcString)
-  call RuntimeParameters_get("yr_boundary_type", yr_bcString)
-  call RuntimeParameters_get("zl_boundary_type", zl_bcString)
-  call RuntimeParameters_get("zr_boundary_type", zr_bcString)
-
-  !map the string boundary conditions to integer constants defined in constants.h
-  call RuntimeParameters_mapStrToInt(xl_bcString,gr_domainBC(LOW,IAXIS))
-  call RuntimeParameters_mapStrToInt(xr_bcString,gr_domainBC(HIGH,IAXIS))
-  call RuntimeParameters_mapStrToInt(yl_bcString,gr_domainBC(LOW,JAXIS))
-  call RuntimeParameters_mapStrToInt(yr_bcString,gr_domainBC(HIGH,JAXIS))
-  call RuntimeParameters_mapStrToInt(zl_bcString,gr_domainBC(LOW,KAXIS))
-  call RuntimeParameters_mapStrToInt(zr_bcString,gr_domainBC(HIGH,KAXIS))
-
   gr_allPeriodic = .TRUE.
   do i = 1, NDIM
      if(gr_domainBC(LOW,  i) /= PERIODIC)     gr_allPeriodic = .FALSE.
@@ -286,13 +282,8 @@ subroutine Grid_init()
   call RuntimeParameters_get("bndPriorityTwo",gr_bndOrder(2))
   call RuntimeParameters_get("bndPriorityThree",gr_bndOrder(3))
 
-  !Store computational domain limits in a convenient array.  Used later in Grid_getDomainBC.
-  gr_globalDomain(LOW,IAXIS) = gr_imin
-  gr_globalDomain(LOW,JAXIS) = gr_jmin
-  gr_globalDomain(LOW,KAXIS) = gr_kmin
-  gr_globalDomain(HIGH,IAXIS) = gr_imax
-  gr_globalDomain(HIGH,JAXIS) = gr_jmax
-  gr_globalDomain(HIGH,KAXIS) = gr_kmax
+  ! Initialization of gr_globalDomain, containing the same information as gr_imin,...,gr_kmax,
+  ! is done in gr_initGeometry, called above.
 
 
   call RuntimeParameters_get("eosMode", eosModeString)

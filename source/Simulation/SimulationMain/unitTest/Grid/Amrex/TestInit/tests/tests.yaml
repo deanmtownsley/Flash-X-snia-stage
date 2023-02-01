@@ -1,0 +1,7 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/Grid/AMR/AMReX/2d/Init:
+  setupOptions: -auto -2d -nxb=8 -nyb=4 +noio +amrex
+  parfiles: test_amrex_grid.par
+

@@ -29,23 +29,29 @@ module dr_molInterface
    implicit none
 
    interface
-      subroutine dr_molExplicitRHS(t)
+      subroutine dr_molExplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine dr_molExplicitRHS
    end interface
 
    interface
-      subroutine dr_molImplicitRHS(t)
+      subroutine dr_molImplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine dr_molImplicitRHS
    end interface
 
    interface
-      subroutine dr_molFastRHS(t)
+      subroutine dr_molFastRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine dr_molFastRHS
    end interface
 

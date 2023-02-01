@@ -1,0 +1,20 @@
+# YAML file for test information
+# comments start with "#"
+##  SodStep
+#   Sod shock tube with sections of domain taken out to create internal boundaries
+
+#### Keywords   Hydro, boundaries within domain
+
+#### Motivation
+# This is meant to test generation of complicated boundaries by taking out
+#  pieces of domain
+
+#### Success vs. Failure
+# This is a composite test therefore has two baseline files. The first file
+# flashx_hdf5_chk_0001 is used as comparison test to ensure correct running, the
+# second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
+
+Composite/SodStep/2d/PM/unsplit:
+  setupOptions: -auto -2d +uhd -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: coldstart_pm_2d.par
+  restartParfiles: restart_pm_2d.par

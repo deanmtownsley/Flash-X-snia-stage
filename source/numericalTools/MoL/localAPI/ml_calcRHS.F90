@@ -34,11 +34,13 @@
 !! @param rhsType    The type of RHS
 !! @param rhsStruct  MoL memory data-struct to store RHS in
 !! @param t          The time of the RHS is to be evaluated at
-subroutine ml_calcRHS(rhsType, rhsStruct, t)
+!! @param dtWeight   Weighted timestep for this stage (e.g. for flux corrections)
+subroutine ml_calcRHS(rhsType, rhsStruct, t, dtWeight)
    implicit none
 
    integer, intent(in) :: rhsType, rhsStruct
    real, intent(in) :: t
+   real, intent(in) :: dtWeight
 
    return
 end subroutine ml_calcRHS

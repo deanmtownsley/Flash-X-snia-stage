@@ -174,23 +174,29 @@ module RadTrans_interface
    !! MoL-specific functionality
 
    interface
-      subroutine RadTrans_molExplicitRHS(t)
+      subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine RadTrans_molExplicitRHS
    end interface
 
    interface
-      subroutine RadTrans_molImplicitRHS(t)
+      subroutine RadTrans_molImplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine RadTrans_molImplicitRHS
    end interface
 
    interface
-      subroutine RadTrans_molFastRHS(t)
+      subroutine RadTrans_molFastRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine RadTrans_molFastRHS
    end interface
 
