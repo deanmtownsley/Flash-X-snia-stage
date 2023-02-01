@@ -116,7 +116,7 @@ subroutine ml_advance(t, dt)
                end if
 
                if (dc .gt. 0d0) then
-                  call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage, ml_bF(sF)*dt)
+                  call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage, ml_bF(sF)*dtheta)
                end if
 
                ! Scaled time for forcing term
