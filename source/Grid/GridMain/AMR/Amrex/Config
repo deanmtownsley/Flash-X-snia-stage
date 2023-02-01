@@ -44,11 +44,6 @@ D & Note that this flag on its own does not turn flux correction on. It should
 D & only have an effect if flux_correct is also turned on and supported.
 PARAMETER flux_correct_perLevel BOOLEAN TRUE
 
-D if AMReX is to be used in a patch mode then blocksized scratch space needs
-D & to know what is the maximum possible number of cells a along any direction
-D & a block can have. By default this is set to NXB assuming octree mode
-PARAMETER gr_maxCells INTEGER NXB [ 1 ... ]
-
 # !!! If you add a parameter, please add a description line
 # Format is D <parameter name> <description>
 
