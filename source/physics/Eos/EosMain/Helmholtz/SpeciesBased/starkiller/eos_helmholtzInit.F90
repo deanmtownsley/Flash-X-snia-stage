@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/helmholtzInit
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/starKillerInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  helmholtzInit
+!!  starKillerInit
 !!
 !! SYNOPSIS
 !!
-!!  call helmholtzInit()
+!!  call starKillerInit()
 !!
 !! DESCRIPTION
 !!
@@ -57,7 +57,7 @@
 #define DEBUG_EOS
 #endif
 
-subroutine helmholtzInit()
+subroutine starKillerInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, &
        eos_eintSwitch, eos_smallt
@@ -91,7 +91,7 @@ subroutine helmholtzInit()
   call RuntimeParameters_get('eos_vecLenACC', eos_vecLenACC)
 
 #ifdef DEBUG_EOS
-  print *, 'in helmholtzInit'
+  print *, 'in starKillerInit'
 #endif
   call RuntimeParameters_get('eos_coulombAbort', eos_coulombAbort)
 #ifdef DEBUG_EOS
@@ -105,7 +105,7 @@ subroutine helmholtzInit()
 #endif
 
 #ifdef USE_EOS_YE
-  write(*,*)"USE_EOS_YE should not be defined with Helmholtz/SpeciesBased EOS.  Use Helmholtz/Ye instead!"
+  write(*,*)"USE_EOS_YE should not be defined with StarKiller/SpeciesBased EOS.  Use StarKiller/Ye instead!"
   call Driver_abort("[Eos_init] Use Helmholtz/Ye with USE_EOS_YE mode")
 #endif
 
@@ -253,4 +253,4 @@ subroutine helmholtzInit()
   call network_init()
 
   return
-end subroutine helmholtzInit
+end subroutine starKillerInit

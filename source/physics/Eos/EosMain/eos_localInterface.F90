@@ -63,19 +63,42 @@ module eos_localInterface
 
 
   interface
-     subroutine eos_helmholtz(mode, vecLen, eosData, massFrac, mask, diagFlag)
+     subroutine eos_helmSpecies(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
        integer, INTENT(in) :: mode, vecLen
        real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
        real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+       integer,INTENT(in),optional :: vecBegin,vecEnd
        logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
        integer, optional, INTENT(out)::diagFlag
-     end subroutine Eos_helmholtz
+     end subroutine eos_helmSpecies
   end interface
 
+  interface
+     subroutine eos_helmYe(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
+       integer, INTENT(in) :: mode, vecLen
+       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
+       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+       integer,INTENT(in),optional :: vecBegin,vecEnd
+       logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
+       integer, optional, INTENT(out)::diagFlag
+     end subroutine eos_helmYe
+  end interface
+
+  interface
+     subroutine eos_starKiller(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
+       integer, INTENT(in) :: mode, vecLen
+       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
+       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+       integer,INTENT(in),optional :: vecBegin,vecEnd
+       logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
+       integer, optional, INTENT(out)::diagFlag
+     end subroutine eos_starKiller
+  end interface
+  
   
   interface 
-     subroutine eos_gammaInit()
-     end subroutine eos_gammaInit
+     subroutine eos_idealGammaInit()
+     end subroutine eos_idealGammaInit
   end interface
 
   interface 
@@ -84,10 +107,20 @@ module eos_localInterface
   end interface
 
   interface 
-     subroutine eos_helmholtzInit()
-     end subroutine eos_helmholtzInit
+     subroutine eos_helmSpeciesInit()
+     end subroutine eos_helmSpeciesInit
   end interface
 
+  interface 
+     subroutine eos_helmYeInit()
+     end subroutine eos_helmYeInit
+  end interface
+
+  interface 
+     subroutine eos_starKillerInit()
+     end subroutine eos_starKillerInit
+  end interface
+  
 
   interface
      subroutine eos_weaklibInit()

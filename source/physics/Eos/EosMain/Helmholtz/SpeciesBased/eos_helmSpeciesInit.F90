@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/Ye/helmholtzInit
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_helmSpeciesInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  helmholtzInit
+!!  eos_helmSpeciesInit
 !!
 !! SYNOPSIS
 !!
-!!  call helmholtzInit()
+!!  call eos_helmSpeciesInit()
 !!
 !! DESCRIPTION
 !!
@@ -51,13 +51,15 @@
 !!
 !!***
 
+#ifdef DEBUG_ALL
+#define DEBUG_EOS
+#endif
 
+subroutine eos_helmSpeciesInit()
 
-subroutine helmholtzInit()
-
-  use Eos_data, ONLY : eos_type, eos_meshMe, eos_smallt
+  use Eos_data, ONLY : eos_type, eos_meshMe, &
+       eos_eintSwitch, eos_smallt
   use eos_helmData 
-  use Logfile_interface, ONLY : Logfile_stampMessage
   use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   implicit none
@@ -81,15 +83,27 @@ subroutine helmholtzInit()
   call RuntimeParameters_get('eos_tolerance', eos_tol)
   call RuntimeParameters_get('eos_maxNewton', eos_maxNewton)
   call RuntimeParameters_get('eos_coulombMult', eos_coulombMult)
-  call RuntimeParameters_get('eos_coulombAbort', eos_coulombAbort)
-  call RuntimeParameters_get("eos_forceConstantInput",eos_forceConstantInput)
 
-#ifndef USE_EOS_YE
-  write(*,*)"WARNING!! When using Eos/Helmholtz/Ye, generally USE_EOS_YE should be defined!")
-  call Logfile_stampMessage( &
-       "WARNING! When using Eos/Helmholtz/Ye, generally USE_EOS_YE should be defined!")
+#ifdef DEBUG_EOS
+  print *, 'in eos_helmSpeciesInit'
+#endif
+  call RuntimeParameters_get('eos_coulombAbort', eos_coulombAbort)
+#ifdef DEBUG_EOS
+  print *, 'done with RuntimeParameters_get (eos_coulombAbort)'
 #endif
 
+#ifndef EINT_VAR
+  if (eos_eintSwitch > 0.0) then
+     call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
+  end if
+#endif
+
+#ifdef USE_EOS_YE
+  write(*,*)"USE_EOS_YE should not be defined with Helmholtz/SpeciesBased EOS.  Use Helmholtz/Ye instead!"
+  call Driver_abort("[Eos_init] Use Helmholtz/Ye with USE_EOS_YE mode")
+#endif
+
+  call RuntimeParameters_get("eos_forceConstantInput",eos_forceConstantInput)
 
   if (eos_meshMe==MASTER_PE) then
      open(unit=unitEos,file='helm_table.bdat',status='old',iostat=istat)
@@ -230,4 +244,4 @@ subroutine helmholtzInit()
   eos_type=EOS_HLM
 
   return
-end subroutine helmholtzInit
+end subroutine eos_helmSpeciesInit

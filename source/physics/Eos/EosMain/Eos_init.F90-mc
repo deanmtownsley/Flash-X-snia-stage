@@ -51,6 +51,7 @@
 !!  Gamma law Eos defines two mesh-based variables GAMC_VAR and GAME_VAR in Simulation.h
 !!
 !!***
+!!NOVARIANTS
 subroutine Eos_init()
 
   use Eos_data
@@ -59,7 +60,8 @@ subroutine Eos_init()
   use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_idealGammaInit, eos_multiGammaInit, eos_helmholtzInit, eos_weaklibInit
+  use eos_localInterface, ONLY : eos_idealGammaInit, eos_multiGammaInit, eos_helmSpeciesInit, &
+       eos_helmYeInit, eos_starKillerInit, eos_weaklibInit
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -94,7 +96,9 @@ subroutine Eos_init()
 
   @M eos_idealGammaInit
   @M eos_multiGammaInit
-  @M eos_helmholtzInit
+  @M eos_helmSpeciesInit
+  @M eos_helmYeInit
+  @M eos_starKillerInit
   @M eos_weaklibInit  
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
   call RuntimeParameters_get("threadEosWithinBlock", eos_threadWithinBlock)
