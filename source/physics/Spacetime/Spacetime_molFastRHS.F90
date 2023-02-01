@@ -39,12 +39,14 @@
 !! @param  t          Time that the RHS is to be evaluated at
 !! @param  activeRHS  Data-struct identifier to use when requesting a RHS
 !!                    pointer in a tile
-subroutine Spacetime_molFastRHS(t, activeRHS)
+!! @param  dtWeight   Weighted timestep (e.g. for flux corrections)
+subroutine Spacetime_molFastRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
    integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine Spacetime_molFastRHS

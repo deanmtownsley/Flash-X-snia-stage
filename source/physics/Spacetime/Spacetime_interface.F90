@@ -138,34 +138,38 @@ module Spacetime_interface
    ! For dynamic solvers
 
    interface Spacetime_molExplicitRHS
-      subroutine Spacetime_molExplicitRHS(t, activeRHS)
+      subroutine Spacetime_molExplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
          integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Spacetime_molExplicitRHS
 
-      subroutine Spacetime_molExplicitRHS_tile(tileDesc, t, activeRHS)
+      subroutine Spacetime_molExplicitRHS_tile(tileDesc, t, activeRHS, dtWeight)
          use Grid_tile, only: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: t
          integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Spacetime_molExplicitRHS_tile
    end interface Spacetime_molExplicitRHS
 
    interface Spacetime_molFastRHS
-      subroutine Spacetime_molFastRHS(t, activeRHS)
+      subroutine Spacetime_molFastRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
          integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Spacetime_molFastRHS
 
-      subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS)
+      subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
          use Grid_tile, only: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: t
          integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Spacetime_molFastRHS_tile
    end interface Spacetime_molFastRHS
 
