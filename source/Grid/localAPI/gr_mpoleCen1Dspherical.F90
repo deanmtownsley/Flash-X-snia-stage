@@ -35,7 +35,6 @@
 !!
 !!***
 
-!!REORDER(4): solnData
 
 subroutine gr_mpoleCen1Dspherical (idensvar)
 

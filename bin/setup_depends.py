@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """This program parses all the .F90 files in the current directory and finds the modules 
 each file depends on. Having done that, it generates a makefile listing those dependencies"""

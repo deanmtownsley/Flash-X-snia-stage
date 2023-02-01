@@ -174,8 +174,6 @@ MASTER_PE is the designated master processor in a run.
 #define PARENT_BLK 2
 #define ANCESTOR 3
 #define REFINEMENT 321
-#define TRAVERSED 254
-#define TRAVERSED_AND_ACTIVE 278
 #define INREGION 296
 
 #if 0

@@ -49,7 +49,7 @@
 !!              in constants.h.
 !!  blockID   -     The local block metadata
 !!  grav()   -       Array to receive result
-!!  numCells -       Number of cells to update in grav array
+!!  numCells -       Number of cells along sweepDir to update in grav array
 !!  potentialIndex      -  if specified,  Variable # to take as potential.
 !!                         Default is GPOT_VAR for the potential stored in the
 !!                         gpot slot of unk, which should correspond to the
@@ -82,6 +82,7 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
                                potentialIndex, extraAccelVars)
   use Gravity_data, ONLY : grv_defaultGpotVar
   use Grid_tile,    ONLY : Grid_tile_t
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getGeometry
 
   implicit none
 
@@ -110,6 +111,9 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   integer         :: potVar
   integer         :: sink_ax_index, sink_ay_index, sink_az_index
   real            :: deltas(1:MDIM)
+  integer         :: geometry
+  integer, dimension(MDIM)        :: lo_gc, hi_gc
+  real, allocatable, dimension(:) :: radCenter, thtCenter
 
   !==================================================
 
@@ -118,6 +122,36 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   call tileDesc%deltas(deltas)
   
   call tileDesc%getDataPtr(solnVec, CENTER)
+
+  call Grid_getGeometry(geometry)
+
+  lo_gc = tileDesc%blkLimitsGC(LOW, :)
+  hi_gc = tileDesc%blkLimitsGC(HIGH,:)
+
+  ! DEV: TODO Review performance impact of the arrays in this block
+  if (geometry == SPHERICAL) then
+
+     !Need radial term if sweeping over theta or phi
+     if (sweepDir == SWEEP_Y .or. sweepDir == SWEEP_Z) then
+        allocate( radCenter(lo_gc(IAXIS):hi_gc(IAXIS)) )
+        call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, radCenter)
+     endif
+
+     !Need theta term if sweeping over phi
+     if (sweepDir == SWEEP_Z) then
+        allocate( thtCenter(lo_gc(JAXIS):hi_gc(JAXIS)) )
+        call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, thtCenter)
+     endif
+
+  else if (geometry == CYLINDRICAL) then
+
+     !Need radial term if sweeping over angle
+     if (sweepDir == SWEEP_Z) then
+        allocate( radCenter(lo_gc(IAXIS):hi_gc(IAXIS)) )
+        call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo_gc, hi_gc, radCenter)
+     endif
+
+  endif
 
 !! IF a variable index is explicitly specified, assume that as the potential
 !! otherwise use the default current potential GPOT_VAR  
@@ -178,6 +212,11 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
 
      delxinv = 1.0 / deltas(JAXIS)
 
+     !Correct units for spherical coordinates
+     if (geometry == SPHERICAL) then
+        delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+     endif
+
      do i = lo, hi 
         gpot(i) = solnVec(potVar,pos(1),i,pos(2))
      end do
@@ -192,6 +231,13 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   else                                            ! z-direction
      
      delxinv = 1.0 / deltas(KAXIS)
+
+     !Correct units for spherical and cylindrical coordinates
+     if (geometry == SPHERICAL) then
+        delxinv = delxinv * ( 1.0 / ( radCenter(pos(1)) * sin(thtCenter(pos(2))) ) )
+     else if (geometry == CYLINDRICAL) then
+        delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+     endif
 
      do i = lo, hi 
         gpot(i) = solnVec(potVar,pos(1),pos(2),i)
@@ -238,5 +284,23 @@ subroutine Gravity_accelOneRow(pos, sweepDir, tileDesc, lo, hi, grav, Uin, &
   grav(hi) = grav(hi-1)
   
   call tileDesc%releaseDataPtr(solnVec, CENTER)
+
+  !Clean up term corrections
+  if (geometry == SPHERICAL) then
+     if (sweepDir == SWEEP_Y .or. sweepDir == SWEEP_Z) then
+        deallocate(radCenter)
+     endif
+
+     if (sweepDir == SWEEP_Z) then
+        deallocate(thtCenter)
+     endif
+
+  else if (geometry == CYLINDRICAL) then
+     if (sweepDir == SWEEP_Z) then
+        deallocate(radCenter)
+     endif
+
+  endif
+
 end subroutine Gravity_accelOneRow
 

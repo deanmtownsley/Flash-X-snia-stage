@@ -1,0 +1,8 @@
+# YAML file for test information
+# comments start with "#"
+# 1D Streaming Doppler Shift test for neutrino radiation transport
+
+Composite/DopplerShift_MI_16E_OrderV_1D:
+  setupOptions: -auto -1d +cartesian -nxb=16 nE=16 swE=1 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V
+  parfiles: test_pseudoug_1d.par
+  restartParfiles: test_pseudoug_1d_restart.par

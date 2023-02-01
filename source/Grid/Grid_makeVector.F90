@@ -1,4 +1,4 @@
-!!****if* source/Grid/Grid_makeVector
+!!****f* source/Grid/Grid_makeVector
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -81,17 +81,11 @@
 !!  Grid_interface
 !!***
 
-!!REORDER(5): unk
-!!REORDER(4): dataPtr
-
 #ifdef DEBUG_ALL
 #define DEBUG_GRID
 #endif
 
 subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirection,gridDataStruct)
-
-#include "constants.h"
-#include "Simulation.h"
 
 
   implicit none

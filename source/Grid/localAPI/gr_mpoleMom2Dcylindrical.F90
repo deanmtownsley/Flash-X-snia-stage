@@ -33,7 +33,6 @@
 !!
 !!***
 
-!!REORDER(4): solnData
 
 subroutine gr_mpoleMom2Dcylindrical (idensvar)
 

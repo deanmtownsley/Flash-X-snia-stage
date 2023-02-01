@@ -1,0 +1,6 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/Multigrid/AMReX/3d:
+  setupOptions: -auto -3d +amrex +noio -maxblocks=1000
+  parfiles: <defaultParfile>

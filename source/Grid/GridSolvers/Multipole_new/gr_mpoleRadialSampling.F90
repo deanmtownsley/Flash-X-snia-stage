@@ -33,6 +33,7 @@ subroutine gr_mpoleRadialSampling ()
 
   use gr_mpoleInterface, ONLY : gr_mpoleRad3Dcartesian,   &
                                 gr_mpoleRad2Dcylindrical, &
+                                gr_mpoleRad2Dspherical,   &
                                 gr_mpoleRad1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGeometry
@@ -61,7 +62,7 @@ subroutine gr_mpoleRadialSampling ()
 
     case (GRID_2DSPHERICAL)
 
-          call Driver_abort("this geometry is not supported")
+          call gr_mpoleRad2Dspherical   ()
 
     case (GRID_1DSPHERICAL)
 

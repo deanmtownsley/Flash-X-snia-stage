@@ -103,7 +103,6 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
 
   use tree, ONLY : nodetype,lnblocks,neigh,lrefine,bnd_box
   use Driver_interface, ONLY : Driver_abort
-  use gr_specificData, ONLY : gr_oneBlock
 
 #include "constants.h"
 #include "Simulation.h"  
@@ -185,22 +184,6 @@ subroutine gr_pmGetListOfBlocks(blockType, listOfBlocks,count,refinementLevel,&
         count=count+1
         listOfBlocks(count)=i
     end do
-
- case(TRAVERSED)
-    do i = 1,lnblocks
-       if(gr_oneBlock(i)%blockType==TRAVERSED) then
-          count=count+1
-          listOfBlocks(count)=i
-       end if
-     end do
-
- case(TRAVERSED_AND_ACTIVE)
-    do i = 1,lnblocks
-       if(gr_oneBlock(i)%blockType==TRAVERSED_AND_ACTIVE) then
-          count=count+1
-          listOfBlocks(count)=i
-       end if
-     end do
 
   case(REFINEMENT)
      if (present(refinementLevel)) then

@@ -54,7 +54,7 @@ ENDIF
 
 
 D memory_stat_freq Specify the number of timesteps between memory statistic
-D & dumps to flash.log !!NOT Yet Implemented in F3
+D & dumps to flashx.log
 PARAMETER memory_stat_freq INTEGER 100000
 
 D rss_limit Maximum value (in MB) of largest resident set size (rss) before we
@@ -71,14 +71,15 @@ D &   This is useful to ensure that the job outputs a restart file before
 D &   a queue window closes.
 PARAMETER wall_clock_checkpoint   REAL    43200.
 
-D wr_integrals_freq         Number of timesteps between writing to flash.dat
+D wr_integrals_freq         Number of timesteps between writes to the .dat file
+D & (see parameter stats_file)
 PARAMETER wr_integrals_freq INTEGER 1
 
-D basenm       Base name for checkpoint files	
-PARAMETER basenm	STRING	"flash_" 
+D basenm       Base name for checkpoint and other output files
+PARAMETER basenm	STRING	"flashx_"
 
 D stats_file   Name of the file integral quantities are written to (.dat file)
-PARAMETER stats_file    STRING  "flash.dat"
+PARAMETER stats_file    STRING  "flashx.dat"
 
 D io_writeMscalarIntegrals Should density integrals for all mass scalars be written
 D & to the stats_file (.dat file)?  This runtime parameter is handled in the default
