@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/Ye/eos_initHelmholtz
+!!****if* source/physics/Eos/EosMain/Helmholtz/Ye/helmholtzInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  eos_initHelmholtz
+!!  helmholtzInit
 !!
 !! SYNOPSIS
 !!
-!!  call eos_initHelmholtz()
+!!  call helmholtzInit()
 !!
 !! DESCRIPTION
 !!
@@ -53,7 +53,7 @@
 
 
 
-subroutine eos_initHelmholtz()
+subroutine helmholtzInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, eos_smallt
   use eos_helmData 
@@ -230,4 +230,4 @@ subroutine eos_initHelmholtz()
   eos_type=EOS_HLM
 
   return
-end subroutine eos_initHelmholtz
+end subroutine helmholtzInit

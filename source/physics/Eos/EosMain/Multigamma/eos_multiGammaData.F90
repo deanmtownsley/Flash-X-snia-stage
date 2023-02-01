@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Multigamma/eos_mgammaData
+!!****if* source/physics/Eos/EosMain/Multigamma/eos_multiGammaData
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,12 +13,12 @@
 !!
 !! NAME
 !!
-!!  eos_mgammaData
+!!  eos_multiGammaData
 !!
 !! 
 !! SYNOPSIS
 !!
-!!  use eos_mgammaData
+!!  use eos_multiGammaData
 !!
 !! DESCRIPTION
 !!
@@ -43,10 +43,10 @@
 !!
 !!***
 
-module eos_mgammaData
+module eos_multiGammaData
 
 #include "Simulation.h"
 
   real, save, dimension(NSPECIES) ::  eos_gc, eos_gammam1j, eos_ggprodj, eos_ggprodinvj, eos_gam1invj
 
-end module eos_mgammaData
+end module eos_multiGammaData

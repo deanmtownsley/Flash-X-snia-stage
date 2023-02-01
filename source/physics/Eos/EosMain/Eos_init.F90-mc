@@ -59,7 +59,7 @@ subroutine Eos_init()
   use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_initMgamma, eos_initHelmholtz, eos_initGamma
+  use eos_localInterface, ONLY : @M eos_versionInit
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -92,11 +92,7 @@ subroutine Eos_init()
 
   call eos_fillMapLookup()
 
-  call eos_initGamma()
-  call eos_initMgamma()
-  call eos_initHelmholtz()
-  call eos_initWeaklib()
-
+  @M eos_versionInitCall
 
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
   call RuntimeParameters_get("threadEosWithinBlock", eos_threadWithinBlock)

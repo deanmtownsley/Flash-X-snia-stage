@@ -25,7 +25,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  use eos_localInterface, ONLY : eos_weaklib
+  use eos_localInterface, ONLY : @M eos_version
   implicit none
 #include "constants.h"
 #include "Eos.h"
@@ -47,11 +47,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   pMask = present(mask)
   pMassFrac_and_mask = pMassFrac.and.pMask
   
-  @M eos_idealGamma
-  @M eos_multiGamma
-  @M eos_weaklib
-  @M eos_helmYe
-  @M eos_helmSpecies
-  @M eos_starKiller
+  @M eos_versionCall
+  
   return
 end subroutine Eos

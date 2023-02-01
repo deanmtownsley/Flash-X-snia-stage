@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_initHelmholtz
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/helmholtzInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  eos_initHelmholtz
+!!  helmholtzInit
 !!
 !! SYNOPSIS
 !!
-!!  call eos_initHelmholtz()
+!!  call helmholtzInit()
 !!
 !! DESCRIPTION
 !!
@@ -44,8 +44,6 @@
 !!                                 default), calls to Eos may slightly modify
 !!                                 these input variables in order to preserve
 !!                                 thermodynamic equilibrium.
-!!   eos_useStarkiller          -- Flag for whether to use starkiller Helmholtz
-!!   eos_vecLenACC              -- Minimum vecLen to use OpenACC implementation
 !!
 !!  NOTES
 !!
@@ -57,15 +55,13 @@
 #define DEBUG_EOS
 #endif
 
-subroutine eos_initHelmholtz()
+subroutine helmholtzInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, &
        eos_eintSwitch, eos_smallt
   use eos_helmData 
   use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use actual_eos_module, ONLY : actual_eos_init
-  use network, ONLY : network_init
   implicit none
 
   ! vector_eos.fh computes the vector length from nxb, nyb, nzb, so 
@@ -87,11 +83,9 @@ subroutine eos_initHelmholtz()
   call RuntimeParameters_get('eos_tolerance', eos_tol)
   call RuntimeParameters_get('eos_maxNewton', eos_maxNewton)
   call RuntimeParameters_get('eos_coulombMult', eos_coulombMult)
-  call RuntimeParameters_get('eos_useStarkiller', eos_useStarkiller)
-  call RuntimeParameters_get('eos_vecLenACC', eos_vecLenACC)
 
 #ifdef DEBUG_EOS
-  print *, 'in eos_initHelmholtz'
+  print *, 'in helmholtzInit'
 #endif
   call RuntimeParameters_get('eos_coulombAbort', eos_coulombAbort)
 #ifdef DEBUG_EOS
@@ -220,11 +214,11 @@ subroutine eos_initHelmholtz()
 
   eos_tlo   = 3.0e0
   eos_thi   = 13.0e0
-  tstp      = (eos_thi - eos_tlo)/real(EOSJMAX-1,kind(tstp))
+  tstp      = (eos_thi - eos_tlo)/float(EOSJMAX-1)
   eos_tstpi = 1.0e0/tstp
   eos_dlo   = -12.0e0
   eos_dhi   = 15.0e0
-  dstp      = (eos_dhi - eos_dlo)/real(EOSIMAX-1,kind(dstp))
+  dstp      = (eos_dhi - eos_dlo)/float(EOSIMAX-1)
   eos_dstpi = 1.0e0/dstp
   do j=1,EOSJMAX
      eos_t(j) = 10.0e0**(eos_tlo + (j-1)*tstp)
@@ -249,8 +243,5 @@ subroutine eos_initHelmholtz()
   enddo
   eos_type=EOS_HLM
 
-  call actual_eos_init()
-  call network_init()
-
   return
-end subroutine eos_initHelmholtz
+end subroutine helmholtzInit

@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Multigamma/eos_initMgamma
+!!****if* source/physics/Eos/EosMain/Multigamma/eos_multiGammaInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,12 +13,12 @@
 !!
 !! NAME
 !!
-!!  eos_initMgamma
+!!  eos_multiGammaInit
 !!
 !! 
 !! SYNOPSIS
 !!
-!!  call eos_initMgamma()
+!!  call eos_multiGammaInit()
 !!
 !! DESCRIPTION
 !!
@@ -45,10 +45,10 @@
 !!
 !!***
 
-subroutine eos_initMgamma()
+subroutine eos_multiGammaInit()
 
   use Eos_data, ONLY : eos_gasConstant, eos_smalle, eos_eintSwitch, eos_type
-  use eos_mgammaData, ONLY : eos_gc, eos_gammam1j, eos_ggprodj, eos_ggprodinvj, eos_gam1invj
+  use eos_multiGammaData, ONLY : eos_gc, eos_gammam1j, eos_ggprodj, eos_ggprodinvj, eos_gam1invj
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Multispecies_interface, ONLY : Multispecies_getProperty
@@ -77,4 +77,4 @@ subroutine eos_initMgamma()
   eos_type = EOS_MGAM
 
   return
-end subroutine eos_initMgamma
+end subroutine eos_multiGammaInit
