@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/WeakLib/eos_initWeaklib
+!!****if* source/physics/Eos/EosMain/WeakLib/eos_weaklibInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -29,7 +29,7 @@
 !!
 !!***
 
-SUBROUTINE eos_initWeaklib()
+SUBROUTINE eos_weaklibInit()
 
   USE Eos_data, ONLY:                     &
       eos_type,                           &
@@ -174,4 +174,4 @@ SUBROUTINE eos_initWeaklib()
 
   RETURN
 
-end subroutine eos_initWeaklib
+end subroutine eos_weaklibInit

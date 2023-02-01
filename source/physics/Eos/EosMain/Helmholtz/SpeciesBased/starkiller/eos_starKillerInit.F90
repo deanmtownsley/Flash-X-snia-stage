@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/starKillerInit
+!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller/eos_starKillerInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  starKillerInit
+!!  eos_starKillerInit
 !!
 !! SYNOPSIS
 !!
-!!  call starKillerInit()
+!!  call eos_starKillerInit()
 !!
 !! DESCRIPTION
 !!
@@ -57,7 +57,7 @@
 #define DEBUG_EOS
 #endif
 
-subroutine starKillerInit()
+subroutine eos_starKillerInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, &
        eos_eintSwitch, eos_smallt
@@ -91,7 +91,7 @@ subroutine starKillerInit()
   call RuntimeParameters_get('eos_vecLenACC', eos_vecLenACC)
 
 #ifdef DEBUG_EOS
-  print *, 'in starKillerInit'
+  print *, 'in eos_starKillerInit'
 #endif
   call RuntimeParameters_get('eos_coulombAbort', eos_coulombAbort)
 #ifdef DEBUG_EOS
@@ -253,4 +253,4 @@ subroutine starKillerInit()
   call network_init()
 
   return
-end subroutine starKillerInit
+end subroutine eos_starKillerInit
