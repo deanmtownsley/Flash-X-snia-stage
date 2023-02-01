@@ -40,7 +40,7 @@ module eos_localInterface
   end interface
 
     interface
-     subroutine eos_idealGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask, diagFlag)
+     subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
        implicit none
        integer, INTENT(in) :: mode, vecLen
        real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
@@ -52,7 +52,7 @@ module eos_localInterface
   end interface
  
   interface
-     subroutine eos_multiGamma(mode, vecLen, eosData, vecBegin,vecEnd, massFrac, mask)
+     subroutine eos_multiGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
        integer, INTENT(in) :: mode, vecLen
        real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
        integer,optional,INTENT(in) :: vecBegin,vecEnd

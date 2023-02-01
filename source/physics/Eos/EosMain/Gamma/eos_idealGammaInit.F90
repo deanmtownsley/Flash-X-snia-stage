@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Gamma/eos_initGamma
+!!****if* source/physics/Eos/EosMain/Gamma/eos_idealGammaInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  eos_initGamma
+!!  eos_idealGammaInit
 !!
 !! SYNOPSIS
 !!  
-!!  call  eos_initGamma()
+!!  call  eos_idealGammaInit()
 !!                 
 !!
 !! DESCRIPTION
@@ -32,7 +32,7 @@
 #include "Eos.h"
 #include "constants.h"
 #include "Simulation.h"
-subroutine Eos_init()
+subroutine eos_idealGammaInit()
 
   use Eos_data
   use eos_idealGammaData, ONLY : eos_gammam1
@@ -62,21 +62,19 @@ subroutine Eos_init()
   call RuntimeParameters_get("eintSwitch",eos_eintSwitch)
 #ifndef EINT_VAR
   if (eos_eintSwitch > 0.0) then
-     call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
+     call Driver_abort("[eos_idealGammaInit] eintSwitch is nonzero, but EINT_VAR not defined!")
   end if
 #endif
 
 
   call eos_fillMapLookup()
 
-  call eos_initGamma()
-
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
   call RuntimeParameters_get("threadEosWithinBlock", eos_threadWithinBlock)
 
   if (eos_threadWithinBlock .and. .not. threadWithinBlockBuild) then
      call Logfile_stamp('WARNING! Turning off within block threading '//&
-          'because FLASH is not built appropriately','[Eos_init]')
+          'because FLASH is not built appropriately','[eos_idealGammaInit]')
      eos_threadWithinBlock = .false.
   end if
 
@@ -86,4 +84,4 @@ subroutine Eos_init()
   eos_gammam1 = 1.0/(eos_gamma-1.0)
 
   return
-end subroutine Eos_init
+end subroutine eos_idealGammaInit
