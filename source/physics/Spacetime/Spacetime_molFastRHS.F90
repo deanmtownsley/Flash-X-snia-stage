@@ -30,21 +30,17 @@
 !!       @ref spacetime_molexplicitrhs - doing so will double the contribution
 !!       to the explicit RHS terms
 !!
-!! @attention The active RHS identifier is intended for future changes to MoL's
-!!            scratch memory for intermediate stage storage.  This currently
-!!            will always take a valule of `MOL_RHS` which will allow MoL
-!!            to automatically associate a pointer to the correct storage
-!!            for the current integration stage
-!!
 !! @param  t          Time that the RHS is to be evaluated at
 !! @param  activeRHS  Data-struct identifier to use when requesting a RHS
 !!                    pointer in a tile
-subroutine Spacetime_molFastRHS(t, activeRHS)
+!! @param  dtWeight   Weighted timestep (e.g. for flux corrections)
+subroutine Spacetime_molFastRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
    integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine Spacetime_molFastRHS
