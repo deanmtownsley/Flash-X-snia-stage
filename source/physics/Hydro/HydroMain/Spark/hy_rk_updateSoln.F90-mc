@@ -71,9 +71,9 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
 
   integer :: i,j,k,n,g
 
-  real, dimension(NUNK_VARS) :: Vstar
+  real, dimension(NUNK_VARS) :: Vstar, V0
 
-  real, dimension(NFLUXES) :: U0, Ustar,V0 
+  real, dimension(NFLUXES) :: U0, Ustar
 
   real :: dx, dy, dz
 
@@ -137,9 +137,13 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            
            ! Get geometric factors and sources
            ! Get gravitational source terms
-           call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
-                        hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
-                        facM, facP, Sgeo, Ustar, Vstar, dx)
+	   if (hy_geometry == CARTESIAN) then
+              facM = 1.0; facP = 1.0; Sgeo = 0.0
+           else
+              call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
+                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
+                   facM, facP, Sgeo, Ustar, Vstar, dx)
+           end if
            call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
            
            ! Sum total source terms
@@ -213,10 +217,6 @@ contains
     integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
     real    :: alpha, dx_sph
     !$omp declare target
-    if (geom == CARTESIAN) then
-       facM = 1.0; facP = 1.0; Sgeo = 0.0
-       return
-    endif
     select case(geom) ! First, select whether y or z is phi-direction
     case(CYLINDRICAL)
        MOM_PHI = HY_ZMOM
