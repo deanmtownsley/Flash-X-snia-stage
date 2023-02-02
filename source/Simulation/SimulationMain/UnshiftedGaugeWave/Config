@@ -1,0 +1,6 @@
+# Config file for the Z4c unshifted gauge wave problem
+
+REQUIRES physics/Spacetime/Spacetimemain/Z4c
+
+D sim_dt Fixed timestep for the unshifted gauge wave problem
+PARAMETER sim_dt REAL 0.5

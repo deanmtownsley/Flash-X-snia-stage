@@ -23,9 +23,8 @@ subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
    use Grid_tile, only: Grid_tile_t
    use Driver_interface, only: Driver_getMype
 
-   use z4c_data, only: z4c_cfl
+   use Simulation_data, only: sim_dt
 
-#include "Simulation.h"
 #include "constants.h"
 
    implicit none
@@ -35,26 +34,14 @@ subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
    real, intent(inout) :: dtMin
    integer, intent(inout) :: dtMinLoc(5)
 
-   real :: dtMinTile
-   real, dimension(MDIM) :: del
-
    integer :: myPE
 
-   call tileDesc%deltas(del)
+   dtMin = sim_dt
 
-   ! The timestep required by the Z4c solver will always be
-   ! limited by the speed of light (assumes c = 1), and is not
-   ! tied to any specific location the tile
-   dtMinTile = z4c_cfl*minval(del(1:NDIM))
+   call Driver_getMype(MESH_COMM, myPE)
 
-   if (dtMinTile .lt. dtMin) then
-      dtMin = dtMinTile
-
-      call Driver_getMype(MESH_COMM, myPE)
-
-      dtMinLoc(1:3) = tileDesc%limits(LOW, :)
-      dtMinLoc(4) = tileDesc%level
-      dtMinLoc(5) = myPE
-   end if
+   dtMinLoc(1:3) = tileDesc%limits(LOW, :)
+   dtMinLoc(4) = tileDesc%level
+   dtMinLoc(5) = myPE
 
 end subroutine Spacetime_computeDt

@@ -30,6 +30,8 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                        ALPHA_RHS, BETA_U_0_RHS, BETA_U_1_RHS, BETA_U_2_RHS, &
                        eta => z4c_eta, kappa1 => z4c_kappa1, kappa2 => z4c_kappa2, KOSigma => z4c_KOSigma
 
+   use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
+
 #include "Z4c.h"
 #include "MoL.h"
 #include "constants.h"

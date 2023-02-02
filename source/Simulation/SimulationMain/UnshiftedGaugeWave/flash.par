@@ -1,0 +1,68 @@
+# Parameter file for the unshifted gauge wave problem
+
+sim_mass    = 0.1
+
+# Grid information
+
+nblockx = 1
+iprocs  = 1
+
+nblocky = 2
+jprocs  = 2
+
+nblockz = 2
+kprocs  = 2
+
+geometry = "cartesian"
+
+# Grid size = 201
+iGridSize = 64
+xmin = -0.5
+xmax =  0.5
+
+jGridSize = 8
+ymin = -0.5
+ymax =  0.5
+
+kGridSize = 8
+zmin = -0.5
+zmax =  0.5
+
+
+# Boundary conditions
+
+xl_boundary_type = "periodic"
+xr_boundary_type = "periodic"
+
+yl_boundary_type = "periodic"
+yr_boundary_type = "periodic"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
+
+# Timing
+
+tmax = 1.0
+
+erk_method = "erk-rk4"
+mr_slowMethod = "mr-gark3"
+mr_fastMethod = "erk-rk4"
+mr_nsubcycle = 1
+
+sim_dt = 0.00125
+nend  = 10000
+
+
+# I/O
+
+restart = .false.
+
+checkpointFileIntervalTime = 1.0
+plotFileIntervalTime       = 1.0
+
+plot_var_1 = "z400"
+plot_var_2 = "z401"
+
+basenm      = "waveequation_"
+log_file    = "waveequation.log"
+run_comment = "waveequation Test"
