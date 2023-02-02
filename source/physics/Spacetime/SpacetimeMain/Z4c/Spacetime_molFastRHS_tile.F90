@@ -48,7 +48,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
    integer, dimension(LOW:HIGH, MDIM) :: lim, bcs
    integer :: i, j, k
 
-   real :: del(MDIM), dx0, dx1, dx2
+   real :: del(MDIM), dx0, dx1, dx2, idx0, idx1, idx2
 
    real :: CHI
    real :: GAMTILDE_LL_00, GAMTILDE_LL_01, GAMTILDE_LL_02, GAMTILDE_LL_11, GAMTILDE_LL_12, GAMTILDE_LL_22
@@ -288,6 +288,18 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
    real :: mul, mus
 
+   ! For finite differences (stencils given as dimensions)
+   real, dimension(-2:2), parameter :: dDi = [1d0/12d0, -2d0/3d0, 0d0, 2d0/3d0, -1d0/12d0]
+   real, dimension(-1:3), parameter :: dupDi = [-1d0/4d0, -5d0/6d0, 3d0/2d0, -1d0/2d0, 1d0/12d0]
+   real, dimension(-3:1), parameter :: ddnDi = [-1d0/12d0, 1d0/2d0, -3d0/2d0, 5d0/6d0, 1d0/4d0]
+   real, dimension(-2:2), parameter :: dDDii = [-1d0/12d0, 4d0/3d0, -5d0/2d0, 4d0/3d0, -1d0/12d0]
+   real, dimension(-2:2, -2:2), parameter :: dDDij = reshape([1d0/144d0, -1d0/18d0, 0d0, 1d0/18d0, -1d0/144d0, &
+                                                              -1d0/18d0, 4d0/9d0, 0d0, -4d0/9d0, 1d0/18d0, &
+                                                              0d0, 0d0, 0d0, 0d0, 0d0, &
+                                                              1d0/18d0, -4d0/9d0, 0d0, 4d0/9d0, -1d0/18d0, &
+                                                              -1d0/144d0, 1d0/18d0, 0d0, -1d0/18d0, 1d0/144d0], [5, 5])
+   real, dimension(-3:3), parameter :: dKODi = [1d0/64d0, -3d0/32d0, 15d0/64d0, -5d0/16d0, 15d0/64d0, -3d0/32d0, 1d0/64d0]
+
    nullify (rhs); nullify (vars)
 
    lim = tileDesc%limits
@@ -296,6 +308,10 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
    dx0 = del(IAXIS)
    dx1 = del(JAXIS)
    dx2 = del(KAXIS)
+
+   idx0 = 1d0/dx0
+   idx1 = 1d0/dx1
+   idx2 = 1d0/dx2
 
    call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
    call MoL_getDataPtr(tileDesc, rhs, activeRHS)
@@ -333,372 +349,104 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             BETA_U_1 = vars(BETA_U_1_VAR, i, j, k)
             BETA_U_2 = vars(BETA_U_2_VAR, i, j, k)
 
-            dDCHI_L_0 = ((2.0d0/3.0d0)*vars(CHI_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
-                         CHI_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(CHI_VAR, i - 1, j, k) + ( &
-                         1.0d0/12.0d0)*vars(CHI_VAR, i - 2, j, k))/dx0
-            dDCHI_L_1 = ((2.0d0/3.0d0)*vars(CHI_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
-                         CHI_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(CHI_VAR, i, j - 1, k) + ( &
-                         1.0d0/12.0d0)*vars(CHI_VAR, i, j - 2, k))/dx1
-            dDCHI_L_2 = ((2.0d0/3.0d0)*vars(CHI_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
-                         CHI_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(CHI_VAR, i, j, k - 1) + ( &
-                         1.0d0/12.0d0)*vars(CHI_VAR, i, j, k - 2))/dx2
+            dDCHI_L_0 = sum(dDi*vars(CHI_VAR, i - 2:i + 2, j, k))*idx0
+            dDCHI_L_1 = sum(dDi*vars(CHI_VAR, i, j - 2:j + 2, k))*idx1
+            dDCHI_L_2 = sum(dDi*vars(CHI_VAR, i, j, k - 2:k + 2))*idx2
 
-            dupDCHI_L_0 = ((3.0d0/2.0d0)*vars(CHI_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i + 2, j, k) + (1.0d0/12.0d0)*vars(CHI_VAR, i + 3, j, k) - 1.0d0 &
-                           /4.0d0*vars(CHI_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars(CHI_VAR, i, j, &
-                                                                                k))/dx0
-            dupDCHI_L_1 = ((3.0d0/2.0d0)*vars(CHI_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i, j + 2, k) + (1.0d0/12.0d0)*vars(CHI_VAR, i, j + 3, k) - 1.0d0 &
-                           /4.0d0*vars(CHI_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars(CHI_VAR, i, j, &
-                                                                                k))/dx1
-            dupDCHI_L_2 = ((3.0d0/2.0d0)*vars(CHI_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i, j, k + 2) + (1.0d0/12.0d0)*vars(CHI_VAR, i, j, k + 3) - 1.0d0 &
-                           /4.0d0*vars(CHI_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars(CHI_VAR, i, j, &
-                                                                                k))/dx2
+            dupDCHI_L_0 = sum(dupDi*vars(CHI_VAR, i - 1:i + 3, j, k))*idx0
+            dupDCHI_L_1 = sum(dupDi*vars(CHI_VAR, i, j - 1:j + 3, k))*idx1
+            dupDCHI_L_2 = sum(dupDi*vars(CHI_VAR, i, j, k - 1:k + 3))*idx2
 
-            ddnDCHI_L_0 = ((1.0d0/4.0d0)*vars(CHI_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i - 1, j, k) + (1.0d0/2.0d0)*vars(CHI_VAR, i - 2, j, k) - 1.0d0/ &
-                           12.0d0*vars(CHI_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars(CHI_VAR, i, &
-                                                                                  j, k))/dx0
-            ddnDCHI_L_1 = ((1.0d0/4.0d0)*vars(CHI_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i, j - 1, k) + (1.0d0/2.0d0)*vars(CHI_VAR, i, j - 2, k) - 1.0d0/ &
-                           12.0d0*vars(CHI_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars(CHI_VAR, i, &
-                                                                                  j, k))/dx1
-            ddnDCHI_L_2 = ((1.0d0/4.0d0)*vars(CHI_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars(CHI_VAR &
-                                                                , i, j, k - 1) + (1.0d0/2.0d0)*vars(CHI_VAR, i, j, k - 2) - 1.0d0/ &
-                           12.0d0*vars(CHI_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars(CHI_VAR, i, &
-                                                                                  j, k))/dx2
+            ddnDCHI_L_0 = sum(ddnDi*vars(CHI_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDCHI_L_1 = sum(ddnDi*vars(CHI_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDCHI_L_2 = sum(ddnDi*vars(CHI_VAR, i, j, k - 3:k + 1))*idx2
 
-            dDDCHI_LL_00 = ((4.0d0/3.0d0)*vars(CHI_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
-                            CHI_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(CHI_VAR, i - 1, j, k) - &
-                            1.0d0/12.0d0*vars(CHI_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars(CHI_VAR, &
-                                                                                       i, j, k))/dx0**2
-            dDDCHI_LL_01 = ((4.0d0/9.0d0)*vars(CHI_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0*vars( &
-                            CHI_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(CHI_VAR, i + 1, j - 1, &
-                                                                k) + (1.0d0/18.0d0)*vars(CHI_VAR, i + 1, j - 2, k) - 1.0d0/18.0d0* &
-                            vars(CHI_VAR, i + 2, j + 1, k) + (1.0d0/144.0d0)*vars(CHI_VAR, i + &
-                                                                    2, j + 2, k) + (1.0d0/18.0d0)*vars(CHI_VAR, i + 2, j - 1, k) - &
-                            1.0d0/144.0d0*vars(CHI_VAR, i + 2, j - 2, k) - 4.0d0/9.0d0*vars( &
-                            CHI_VAR, i - 1, j + 1, k) + (1.0d0/18.0d0)*vars(CHI_VAR, i - 1, j + &
-                                                                     2, k) + (4.0d0/9.0d0)*vars(CHI_VAR, i - 1, j - 1, k) - 1.0d0/ &
-                            18.0d0*vars(CHI_VAR, i - 1, j - 2, k) + (1.0d0/18.0d0)*vars(CHI_VAR &
-                                                                 , i - 2, j + 1, k) - 1.0d0/144.0d0*vars(CHI_VAR, i - 2, j + 2, k) &
-                            - 1.0d0/18.0d0*vars(CHI_VAR, i - 2, j - 1, k) + (1.0d0/144.0d0)* &
-                            vars(CHI_VAR, i - 2, j - 2, k))/(dx0*dx1)
-            dDDCHI_LL_02 = ((4.0d0/9.0d0)*vars(CHI_VAR, i + 1, j, k + 1) - 1.0d0/18.0d0*vars( &
-                            CHI_VAR, i + 1, j, k + 2) - 4.0d0/9.0d0*vars(CHI_VAR, i + 1, j, k - &
-                                                                1) + (1.0d0/18.0d0)*vars(CHI_VAR, i + 1, j, k - 2) - 1.0d0/18.0d0* &
-                            vars(CHI_VAR, i + 2, j, k + 1) + (1.0d0/144.0d0)*vars(CHI_VAR, i + &
-                                                                    2, j, k + 2) + (1.0d0/18.0d0)*vars(CHI_VAR, i + 2, j, k - 1) - &
-                            1.0d0/144.0d0*vars(CHI_VAR, i + 2, j, k - 2) - 4.0d0/9.0d0*vars( &
-                            CHI_VAR, i - 1, j, k + 1) + (1.0d0/18.0d0)*vars(CHI_VAR, i - 1, j, &
-                                                                    k + 2) + (4.0d0/9.0d0)*vars(CHI_VAR, i - 1, j, k - 1) - 1.0d0/ &
-                            18.0d0*vars(CHI_VAR, i - 1, j, k - 2) + (1.0d0/18.0d0)*vars(CHI_VAR &
-                                                                 , i - 2, j, k + 1) - 1.0d0/144.0d0*vars(CHI_VAR, i - 2, j, k + 2) &
-                            - 1.0d0/18.0d0*vars(CHI_VAR, i - 2, j, k - 1) + (1.0d0/144.0d0)* &
-                            vars(CHI_VAR, i - 2, j, k - 2))/(dx0*dx2)
-            dDDCHI_LL_11 = ((4.0d0/3.0d0)*vars(CHI_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
-                            CHI_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(CHI_VAR, i, j - 1, k) - &
-                            1.0d0/12.0d0*vars(CHI_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars(CHI_VAR, &
-                                                                                       i, j, k))/dx1**2
-            dDDCHI_LL_12 = ((4.0d0/9.0d0)*vars(CHI_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0*vars( &
-                            CHI_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(CHI_VAR, i, j + 1, k - &
-                                                                1) + (1.0d0/18.0d0)*vars(CHI_VAR, i, j + 1, k - 2) - 1.0d0/18.0d0* &
-                            vars(CHI_VAR, i, j + 2, k + 1) + (1.0d0/144.0d0)*vars(CHI_VAR, i, j &
-                                                                     + 2, k + 2) + (1.0d0/18.0d0)*vars(CHI_VAR, i, j + 2, k - 1) - &
-                            1.0d0/144.0d0*vars(CHI_VAR, i, j + 2, k - 2) - 4.0d0/9.0d0*vars( &
-                            CHI_VAR, i, j - 1, k + 1) + (1.0d0/18.0d0)*vars(CHI_VAR, i, j - 1, &
-                                                                    k + 2) + (4.0d0/9.0d0)*vars(CHI_VAR, i, j - 1, k - 1) - 1.0d0/ &
-                            18.0d0*vars(CHI_VAR, i, j - 1, k - 2) + (1.0d0/18.0d0)*vars(CHI_VAR &
-                                                                 , i, j - 2, k + 1) - 1.0d0/144.0d0*vars(CHI_VAR, i, j - 2, k + 2) &
-                            - 1.0d0/18.0d0*vars(CHI_VAR, i, j - 2, k - 1) + (1.0d0/144.0d0)* &
-                            vars(CHI_VAR, i, j - 2, k - 2))/(dx1*dx2)
-            dDDCHI_LL_22 = ((4.0d0/3.0d0)*vars(CHI_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
-                            CHI_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(CHI_VAR, i, j, k - 1) - &
-                            1.0d0/12.0d0*vars(CHI_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars(CHI_VAR, &
-                                                                                       i, j, k))/dx2**2
+            dDDCHI_LL_00 = sum(dDDii*vars(CHI_VAR, i - 2:i + 2, j, k))*idx0**2
+            dDDCHI_LL_01 = sum(dDDij*vars(CHI_VAR, i - 2:i + 2, j - 2:j + 2, k))*idx0*idx1
+            dDDCHI_LL_02 = sum(dDDij*vars(CHI_VAR, i - 2:i + 2, j, k - 2:k + 2))*idx0*idx2
+            dDDCHI_LL_11 = sum(dDDii*vars(CHI_VAR, i, j - 2:j + 2, k))*idx1**2
+            dDDCHI_LL_12 = sum(dDDij*vars(CHI_VAR, i, j - 2:j + 2, k - 2:k + 2))*idx1*idx2
+            dDDCHI_LL_22 = sum(dDDii*vars(CHI_VAR, i, j, k - 2:k + 2))*idx2**2
 
-            dKODCHI = ((15.0d0/64.0d0)*vars(CHI_VAR, i, j, k + 1) - 3.0d0/32.0d0*vars( &
-                       CHI_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(CHI_VAR, i, j, k + 3) + &
-                       (15.0d0/64.0d0)*vars(CHI_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
-                       CHI_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars(CHI_VAR, i, j, k - 3) - &
-                       5.0d0/16.0d0*vars(CHI_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                               CHI_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars(CHI_VAR, i, j + 2, k) + ( &
-                                                                  1.0d0/64.0d0)*vars(CHI_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                               CHI_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(CHI_VAR, i, j - 2, k) + ( &
-                                                                   1.0d0/64.0d0)*vars(CHI_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                               CHI_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars(CHI_VAR, i + 1, j, k &
-                                                                ) - 3.0d0/32.0d0*vars(CHI_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
-                                                                CHI_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars(CHI_VAR, i - 1, j, k) &
-                                                                  - 3.0d0/32.0d0*vars(CHI_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
-                                                                    CHI_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars(CHI_VAR, i, j, k))/dx0
+            dKODCHI = sum(dKODi*vars(CHI_VAR, i - 3:i + 3, j, k))*idx0 + &
+                      sum(dKODi*vars(CHI_VAR, i, j - 3:j + 3, k))*idx1 + &
+                      sum(dKODi*vars(CHI_VAR, i, j, k - 3:k + 3))*idx2
 
-            AdvDBETACHI = BETA_U_0*(ddnDCHI_L_0*merge(1.d0, 0.d0, BETA_U_0 < 0) + dupDCHI_L_0* &
-                                    merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*(ddnDCHI_L_1*merge(1.d0, &
-                                                              0.d0, BETA_U_1 < 0) + dupDCHI_L_1*merge(1.d0, 0.d0, BETA_U_1 > 0)) + &
-                          BETA_U_2*(ddnDCHI_L_2*merge(1.d0, 0.d0, BETA_U_2 < 0) + dupDCHI_L_2* &
-                                    merge(1.d0, 0.d0, BETA_U_2 > 0))
+            AdvDBETACHI = BETA_U_0*(ddnDCHI_L_0*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
+                                    dupDCHI_L_0*merge(1.d0, 0.d0, BETA_U_0 > 0)) + &
+                          BETA_U_1*(ddnDCHI_L_1*merge(1.d0, 0.d0, BETA_U_1 < 0) + &
+                                    dupDCHI_L_1*merge(1.d0, 0.d0, BETA_U_1 > 0)) + &
+                          BETA_U_2*(ddnDCHI_L_2*merge(1.d0, 0.d0, BETA_U_2 < 0) + &
+                                    dupDCHI_L_2*merge(1.d0, 0.d0, BETA_U_2 > 0))
 
-            dDGAMTILDE_LLL_000 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_00_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_00_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_00_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_001 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_00_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_00_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_00_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_00_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_002 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_00_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_00_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_00_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_00_VAR, i, j, k - 2))/dx2
-            dDGAMTILDE_LLL_010 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_01_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_01_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_01_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_011 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_01_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_01_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_01_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_01_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_012 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_01_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_01_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_01_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_01_VAR, i, j, k - 2))/dx2
-            dDGAMTILDE_LLL_020 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_02_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_02_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_02_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_021 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_02_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_02_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_02_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_02_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_022 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_02_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_02_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_02_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_02_VAR, i, j, k - 2))/dx2
-            dDGAMTILDE_LLL_110 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_11_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_11_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_11_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_111 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_11_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_11_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_11_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_11_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_112 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_11_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_11_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_11_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_11_VAR, i, j, k - 2))/dx2
-            dDGAMTILDE_LLL_120 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_12_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_12_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_12_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_121 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_12_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_12_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_12_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_12_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_122 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_12_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_12_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_12_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_12_VAR, i, j, k - 2))/dx2
-            dDGAMTILDE_LLL_220 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_22_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_22_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_22_VAR, i - 2, j, k))/dx0
-            dDGAMTILDE_LLL_221 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_22_VAR, i, j + 1, k) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_22_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_22_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_22_VAR, i, j - 2, k))/dx1
-            dDGAMTILDE_LLL_222 = ((2.0d0/3.0d0)*vars(GAMTILDE_LL_22_VAR, i, j, k + 1) - 1.0d0/12.0d0 &
-                                  *vars(GAMTILDE_LL_22_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
-                                  GAMTILDE_LL_22_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                  GAMTILDE_LL_22_VAR, i, j, k - 2))/dx2
+            dDGAMTILDE_LLL_000 = sum(dDi*vars(GAMTILDE_LL_00_VAR, i - 2:i + 2, j, k))*idx0
+            dDGAMTILDE_LLL_010 = sum(dDi*vars(GAMTILDE_LL_01_VAR, i - 2:i + 2, j, k))*idx0
+            dDGAMTILDE_LLL_020 = sum(dDi*vars(GAMTILDE_LL_02_VAR, i - 2:i + 2, j, k))*idx0
+            dDGAMTILDE_LLL_110 = sum(dDi*vars(GAMTILDE_LL_11_VAR, i - 2:i + 2, j, k))*idx0
+            dDGAMTILDE_LLL_120 = sum(dDi*vars(GAMTILDE_LL_12_VAR, i - 2:i + 2, j, k))*idx0
+            dDGAMTILDE_LLL_220 = sum(dDi*vars(GAMTILDE_LL_22_VAR, i - 2:i + 2, j, k))*idx0
 
-            dupDGAMTILDE_LLL_000 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_001 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_00_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_002 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_00_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx2
-            dupDGAMTILDE_LLL_010 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_011 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_01_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_012 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_01_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx2
-            dupDGAMTILDE_LLL_020 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_021 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_02_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_022 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_02_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx2
-            dupDGAMTILDE_LLL_110 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_111 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_11_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_112 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_11_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx2
-            dupDGAMTILDE_LLL_120 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_121 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_12_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_122 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_12_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx2
-            dupDGAMTILDE_LLL_220 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx0
-            dupDGAMTILDE_LLL_221 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_22_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx1
-            dupDGAMTILDE_LLL_222 = ((3.0d0/2.0d0)*vars(GAMTILDE_LL_22_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx2
+            dDGAMTILDE_LLL_001 = sum(dDi*vars(GAMTILDE_LL_00_VAR, i, j - 2:j + 2, k))*idx1
+            dDGAMTILDE_LLL_011 = sum(dDi*vars(GAMTILDE_LL_01_VAR, i, j - 2:j + 2, k))*idx1
+            dDGAMTILDE_LLL_021 = sum(dDi*vars(GAMTILDE_LL_02_VAR, i, j - 2:j + 2, k))*idx1
+            dDGAMTILDE_LLL_111 = sum(dDi*vars(GAMTILDE_LL_11_VAR, i, j - 2:j + 2, k))*idx1
+            dDGAMTILDE_LLL_121 = sum(dDi*vars(GAMTILDE_LL_12_VAR, i, j - 2:j + 2, k))*idx1
+            dDGAMTILDE_LLL_221 = sum(dDi*vars(GAMTILDE_LL_22_VAR, i, j - 2:j + 2, k))*idx1
 
-            ddnDGAMTILDE_LLL_000 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_00_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_001 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_00_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_002 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_00_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_00_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_00_VAR, i, j, k))/dx2
-            ddnDGAMTILDE_LLL_010 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_01_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_011 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_01_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_012 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_01_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_01_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_01_VAR, i, j, k))/dx2
-            ddnDGAMTILDE_LLL_020 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_02_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_021 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_02_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_022 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_02_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_02_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_02_VAR, i, j, k))/dx2
-            ddnDGAMTILDE_LLL_110 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_11_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_111 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_11_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_112 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_11_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_11_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_11_VAR, i, j, k))/dx2
-            ddnDGAMTILDE_LLL_120 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_12_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_121 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_12_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_122 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_12_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_12_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_12_VAR, i, j, k))/dx2
-            ddnDGAMTILDE_LLL_220 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_22_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i - 2, j, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx0
-            ddnDGAMTILDE_LLL_221 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_22_VAR, i, j + 1, k) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j - 2, k) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx1
-            ddnDGAMTILDE_LLL_222 = ((1.0d0/4.0d0)*vars(GAMTILDE_LL_22_VAR, i, j, k + 1) - 3.0d0/2.0d0* &
-                                    vars(GAMTILDE_LL_22_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k - 2) - 1.0d0/12.0d0*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                                    GAMTILDE_LL_22_VAR, i, j, k))/dx2
+            dDGAMTILDE_LLL_002 = sum(dDi*vars(GAMTILDE_LL_00_VAR, i, j, k - 2:k + 2))*idx2
+            dDGAMTILDE_LLL_012 = sum(dDi*vars(GAMTILDE_LL_01_VAR, i, j, k - 2:k + 2))*idx2
+            dDGAMTILDE_LLL_022 = sum(dDi*vars(GAMTILDE_LL_02_VAR, i, j, k - 2:k + 2))*idx2
+            dDGAMTILDE_LLL_112 = sum(dDi*vars(GAMTILDE_LL_11_VAR, i, j, k - 2:k + 2))*idx2
+            dDGAMTILDE_LLL_122 = sum(dDi*vars(GAMTILDE_LL_12_VAR, i, j, k - 2:k + 2))*idx2
+            dDGAMTILDE_LLL_222 = sum(dDi*vars(GAMTILDE_LL_22_VAR, i, j, k - 2:k + 2))*idx2
+
+            dupDGAMTILDE_LLL_000 = sum(dupDi*vars(GAMTILDE_LL_00_VAR, i - 1:i + 3, j, k))*idx0
+            dupDGAMTILDE_LLL_010 = sum(dupDi*vars(GAMTILDE_LL_01_VAR, i - 1:i + 3, j, k))*idx0
+            dupDGAMTILDE_LLL_020 = sum(dupDi*vars(GAMTILDE_LL_02_VAR, i - 1:i + 3, j, k))*idx0
+            dupDGAMTILDE_LLL_110 = sum(dupDi*vars(GAMTILDE_LL_11_VAR, i - 1:i + 3, j, k))*idx0
+            dupDGAMTILDE_LLL_120 = sum(dupDi*vars(GAMTILDE_LL_12_VAR, i - 1:i + 3, j, k))*idx0
+            dupDGAMTILDE_LLL_220 = sum(dupDi*vars(GAMTILDE_LL_22_VAR, i - 1:i + 3, j, k))*idx0
+
+            dupDGAMTILDE_LLL_001 = sum(dupDi*vars(GAMTILDE_LL_00_VAR, i, j - 1:j + 3, k))*idx1
+            dupDGAMTILDE_LLL_011 = sum(dupDi*vars(GAMTILDE_LL_01_VAR, i, j - 1:j + 3, k))*idx1
+            dupDGAMTILDE_LLL_021 = sum(dupDi*vars(GAMTILDE_LL_02_VAR, i, j - 1:j + 3, k))*idx1
+            dupDGAMTILDE_LLL_111 = sum(dupDi*vars(GAMTILDE_LL_11_VAR, i, j - 1:j + 3, k))*idx1
+            dupDGAMTILDE_LLL_121 = sum(dupDi*vars(GAMTILDE_LL_12_VAR, i, j - 1:j + 3, k))*idx1
+            dupDGAMTILDE_LLL_221 = sum(dupDi*vars(GAMTILDE_LL_22_VAR, i, j - 1:j + 3, k))*idx1
+
+            dupDGAMTILDE_LLL_002 = sum(dupDi*vars(GAMTILDE_LL_00_VAR, i, j, k - 1:k + 3))*idx2
+            dupDGAMTILDE_LLL_012 = sum(dupDi*vars(GAMTILDE_LL_01_VAR, i, j, k - 1:k + 3))*idx2
+            dupDGAMTILDE_LLL_022 = sum(dupDi*vars(GAMTILDE_LL_02_VAR, i, j, k - 1:k + 3))*idx2
+            dupDGAMTILDE_LLL_112 = sum(dupDi*vars(GAMTILDE_LL_11_VAR, i, j, k - 1:k + 3))*idx2
+            dupDGAMTILDE_LLL_122 = sum(dupDi*vars(GAMTILDE_LL_12_VAR, i, j, k - 1:k + 3))*idx2
+            dupDGAMTILDE_LLL_222 = sum(dupDi*vars(GAMTILDE_LL_22_VAR, i, j, k - 1:k + 3))*idx2
+
+            ddnDGAMTILDE_LLL_000 = sum(ddnDi*vars(GAMTILDE_LL_00_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDGAMTILDE_LLL_010 = sum(ddnDi*vars(GAMTILDE_LL_01_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDGAMTILDE_LLL_020 = sum(ddnDi*vars(GAMTILDE_LL_02_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDGAMTILDE_LLL_110 = sum(ddnDi*vars(GAMTILDE_LL_11_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDGAMTILDE_LLL_120 = sum(ddnDi*vars(GAMTILDE_LL_12_VAR, i - 3:i + 1, j, k))*idx0
+            ddnDGAMTILDE_LLL_220 = sum(ddnDi*vars(GAMTILDE_LL_22_VAR, i - 3:i + 1, j, k))*idx0
+
+            ddnDGAMTILDE_LLL_001 = sum(ddnDi*vars(GAMTILDE_LL_00_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDGAMTILDE_LLL_011 = sum(ddnDi*vars(GAMTILDE_LL_01_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDGAMTILDE_LLL_021 = sum(ddnDi*vars(GAMTILDE_LL_02_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDGAMTILDE_LLL_111 = sum(ddnDi*vars(GAMTILDE_LL_11_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDGAMTILDE_LLL_121 = sum(ddnDi*vars(GAMTILDE_LL_12_VAR, i, j - 3:j + 1, k))*idx1
+            ddnDGAMTILDE_LLL_221 = sum(ddnDi*vars(GAMTILDE_LL_22_VAR, i, j - 3:j + 1, k))*idx1
+
+            ddnDGAMTILDE_LLL_002 = sum(ddnDi*vars(GAMTILDE_LL_00_VAR, i, j, k - 3:k + 1))*idx2
+            ddnDGAMTILDE_LLL_012 = sum(ddnDi*vars(GAMTILDE_LL_01_VAR, i, j, k - 3:k + 1))*idx2
+            ddnDGAMTILDE_LLL_022 = sum(ddnDi*vars(GAMTILDE_LL_02_VAR, i, j, k - 3:k + 1))*idx2
+            ddnDGAMTILDE_LLL_112 = sum(ddnDi*vars(GAMTILDE_LL_11_VAR, i, j, k - 3:k + 1))*idx2
+            ddnDGAMTILDE_LLL_122 = sum(ddnDi*vars(GAMTILDE_LL_12_VAR, i, j, k - 3:k + 1))*idx2
+            ddnDGAMTILDE_LLL_222 = sum(ddnDi*vars(GAMTILDE_LL_22_VAR, i, j, k - 3:k + 1))*idx2
 
             dDDGAMTILDE_LLLL_0000 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_00_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_00_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_00_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_00_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_00_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_0001 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_00_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_00_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_00_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -735,7 +483,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_00_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_00_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_00_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_00_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_00_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_0012 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_00_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_00_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_00_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -756,12 +504,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_00_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_00_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_00_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_00_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_00_VAR, i, j, k))*idx2**2
             dDDGAMTILDE_LLLL_0100 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_01_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_01_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_01_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_01_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_01_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_0101 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_01_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_01_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_01_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -798,7 +546,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_01_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_01_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_01_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_01_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_01_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_0112 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_01_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_01_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_01_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -819,12 +567,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_01_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_01_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_01_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_01_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_01_VAR, i, j, k))*idx2**2
             dDDGAMTILDE_LLLL_0200 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_02_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_02_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_02_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_02_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_02_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_0201 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_02_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_02_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_02_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -861,7 +609,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_02_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_02_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_02_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_02_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_02_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_0212 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_02_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_02_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_02_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -882,12 +630,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_02_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_02_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_02_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_02_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_02_VAR, i, j, k))*idx2**2
             dDDGAMTILDE_LLLL_1100 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_11_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_11_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_11_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_11_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_11_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_1101 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_11_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_11_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_11_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -924,7 +672,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_11_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_11_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_11_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_11_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_11_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_1112 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_11_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_11_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_11_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -945,12 +693,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_11_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_11_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_11_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_11_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_11_VAR, i, j, k))*idx2**2
             dDDGAMTILDE_LLLL_1200 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_12_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_12_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_12_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_12_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_12_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_1201 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_12_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_12_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_12_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -987,7 +735,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_12_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_12_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_12_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_12_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_12_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_1212 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_12_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_12_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_12_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -1008,12 +756,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_12_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_12_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_12_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_12_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_12_VAR, i, j, k))*idx2**2
             dDDGAMTILDE_LLLL_2200 = ((4.0d0/3.0d0)*vars(GAMTILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/12.0d0 &
                                      *vars(GAMTILDE_LL_22_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_22_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_22_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_22_VAR, i, j, k))/dx0**2
+                                     GAMTILDE_LL_22_VAR, i, j, k))*idx0**2
             dDDGAMTILDE_LLLL_2201 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_22_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_22_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_22_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars( &
@@ -1050,7 +798,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_22_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_22_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_22_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_22_VAR, i, j, k))/dx1**2
+                                     GAMTILDE_LL_22_VAR, i, j, k))*idx1**2
             dDDGAMTILDE_LLLL_2212 = ((4.0d0/9.0d0)*vars(GAMTILDE_LL_22_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                      18.0d0*vars(GAMTILDE_LL_22_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0* &
                                      vars(GAMTILDE_LL_22_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars( &
@@ -1071,7 +819,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                      *vars(GAMTILDE_LL_22_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                      GAMTILDE_LL_22_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars( &
                                      GAMTILDE_LL_22_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                                     GAMTILDE_LL_22_VAR, i, j, k))/dx2**2
+                                     GAMTILDE_LL_22_VAR, i, j, k))*idx2**2
 
             dKODGAMTILDE_LL_00 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_00_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_00_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
@@ -1079,126 +827,126 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                   GAMTILDE_LL_00_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_00_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_00_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_00_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_00_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_00_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_00_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_00_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_00_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_00_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_00_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_00_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_00_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_00_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_00_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_00_VAR, i, j, k))*idx0
             dKODGAMTILDE_LL_01 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_01_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_01_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
                                   (GAMTILDE_LL_01_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_01_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_01_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_01_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_01_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_01_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_01_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_01_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_01_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_01_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_01_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_01_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_01_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_01_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_01_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_01_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_01_VAR, i, j, k))*idx0
             dKODGAMTILDE_LL_02 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_02_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_02_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
                                   (GAMTILDE_LL_02_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_02_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_02_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_02_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_02_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_02_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_02_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_02_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_02_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_02_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_02_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_02_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_02_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_02_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_02_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_02_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_02_VAR, i, j, k))*idx0
             dKODGAMTILDE_LL_11 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_11_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_11_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
                                   (GAMTILDE_LL_11_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_11_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_11_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_11_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_11_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_11_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_11_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_11_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_11_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_11_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_11_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_11_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_11_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_11_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_11_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_11_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_11_VAR, i, j, k))*idx0
             dKODGAMTILDE_LL_12 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_12_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_12_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
                                   (GAMTILDE_LL_12_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_12_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_12_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_12_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_12_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_12_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_12_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_12_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_12_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_12_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_12_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_12_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_12_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_12_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_12_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_12_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_12_VAR, i, j, k))*idx0
             dKODGAMTILDE_LL_22 = ((15.0d0/64.0d0)*vars(GAMTILDE_LL_22_VAR, i, j, k + 1) - 3.0d0/ &
                                   32.0d0*vars(GAMTILDE_LL_22_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars &
                                   (GAMTILDE_LL_22_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_22_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars( &
                                   GAMTILDE_LL_22_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars( &
                                   GAMTILDE_LL_22_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars( &
-                                  GAMTILDE_LL_22_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                                       GAMTILDE_LL_22_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                  GAMTILDE_LL_22_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars( &
+                                                                        GAMTILDE_LL_22_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
+                                                                       GAMTILDE_LL_22_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_22_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_22_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                           GAMTILDE_LL_22_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_22_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                            GAMTILDE_LL_22_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                              GAMTILDE_LL_22_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                   GAMTILDE_LL_22_VAR, i, j, k))/dx0
+                                                                                                  GAMTILDE_LL_22_VAR, i, j, k))*idx0
 
             AdvDBETAGAMTILDE_LL_00 = BETA_U_0*(ddnDGAMTILDE_LLL_000*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                                dupDGAMTILDE_LLL_000*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -1239,44 +987,44 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
             dDKHAT_L_0 = ((2.0d0/3.0d0)*vars(KHAT_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                           KHAT_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(KHAT_VAR, i - 1, j, k) + &
-                          (1.0d0/12.0d0)*vars(KHAT_VAR, i - 2, j, k))/dx0
+                          (1.0d0/12.0d0)*vars(KHAT_VAR, i - 2, j, k))*idx0
             dDKHAT_L_1 = ((2.0d0/3.0d0)*vars(KHAT_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                           KHAT_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(KHAT_VAR, i, j - 1, k) + &
-                          (1.0d0/12.0d0)*vars(KHAT_VAR, i, j - 2, k))/dx1
+                          (1.0d0/12.0d0)*vars(KHAT_VAR, i, j - 2, k))*idx1
             dDKHAT_L_2 = ((2.0d0/3.0d0)*vars(KHAT_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                           KHAT_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(KHAT_VAR, i, j, k - 1) + &
-                          (1.0d0/12.0d0)*vars(KHAT_VAR, i, j, k - 2))/dx2
+                          (1.0d0/12.0d0)*vars(KHAT_VAR, i, j, k - 2))*idx2
 
             dupDKHAT_L_0 = ((3.0d0/2.0d0)*vars(KHAT_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                             KHAT_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(KHAT_VAR, i + 3, j, k &
                                                                    ) - 1.0d0/4.0d0*vars(KHAT_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                            KHAT_VAR, i, j, k))/dx0
+                            KHAT_VAR, i, j, k))*idx0
             dupDKHAT_L_1 = ((3.0d0/2.0d0)*vars(KHAT_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                             KHAT_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(KHAT_VAR, i, j + 3, k &
                                                                    ) - 1.0d0/4.0d0*vars(KHAT_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                            KHAT_VAR, i, j, k))/dx1
+                            KHAT_VAR, i, j, k))*idx1
             dupDKHAT_L_2 = ((3.0d0/2.0d0)*vars(KHAT_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                             KHAT_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(KHAT_VAR, i, j, k + 3 &
                                                                    ) - 1.0d0/4.0d0*vars(KHAT_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                            KHAT_VAR, i, j, k))/dx2
+                            KHAT_VAR, i, j, k))*idx2
 
             ddnDKHAT_L_0 = ((1.0d0/4.0d0)*vars(KHAT_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                             KHAT_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(KHAT_VAR, i - 2, j, k) &
                             - 1.0d0/12.0d0*vars(KHAT_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars( &
-                            KHAT_VAR, i, j, k))/dx0
+                            KHAT_VAR, i, j, k))*idx0
             ddnDKHAT_L_1 = ((1.0d0/4.0d0)*vars(KHAT_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                             KHAT_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(KHAT_VAR, i, j - 2, k) &
                             - 1.0d0/12.0d0*vars(KHAT_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars( &
-                            KHAT_VAR, i, j, k))/dx1
+                            KHAT_VAR, i, j, k))*idx1
             ddnDKHAT_L_2 = ((1.0d0/4.0d0)*vars(KHAT_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                             KHAT_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(KHAT_VAR, i, j, k - 2) &
                             - 1.0d0/12.0d0*vars(KHAT_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars( &
-                            KHAT_VAR, i, j, k))/dx2
+                            KHAT_VAR, i, j, k))*idx2
 
             dDDKHAT_LL_00 = ((4.0d0/3.0d0)*vars(KHAT_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                              KHAT_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(KHAT_VAR, i - 1, j, k) &
                              - 1.0d0/12.0d0*vars(KHAT_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                             KHAT_VAR, i, j, k))/dx0**2
+                             KHAT_VAR, i, j, k))*idx0**2
             dDDKHAT_LL_01 = ((4.0d0/9.0d0)*vars(KHAT_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0*vars( &
                              KHAT_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(KHAT_VAR, i + 1, j - &
                                                                    1, k) + (1.0d0/18.0d0)*vars(KHAT_VAR, i + 1, j - 2, k) - 1.0d0/ &
@@ -1305,7 +1053,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDKHAT_LL_11 = ((4.0d0/3.0d0)*vars(KHAT_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                              KHAT_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(KHAT_VAR, i, j - 1, k) &
                              - 1.0d0/12.0d0*vars(KHAT_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                             KHAT_VAR, i, j, k))/dx1**2
+                             KHAT_VAR, i, j, k))*idx1**2
             dDDKHAT_LL_12 = ((4.0d0/9.0d0)*vars(KHAT_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0*vars( &
                              KHAT_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(KHAT_VAR, i, j + 1, k &
                                                                     - 1) + (1.0d0/18.0d0)*vars(KHAT_VAR, i, j + 1, k - 2) - 1.0d0/ &
@@ -1322,23 +1070,23 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDKHAT_LL_22 = ((4.0d0/3.0d0)*vars(KHAT_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                              KHAT_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(KHAT_VAR, i, j, k - 1) &
                              - 1.0d0/12.0d0*vars(KHAT_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                             KHAT_VAR, i, j, k))/dx2**2
+                             KHAT_VAR, i, j, k))*idx2**2
 
             dKODKHAT = ((15.0d0/64.0d0)*vars(KHAT_VAR, i, j, k + 1) - 3.0d0/32.0d0*vars( &
                         KHAT_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(KHAT_VAR, i, j, k + 3 &
                                                                    ) + (15.0d0/64.0d0)*vars(KHAT_VAR, i, j, k - 1) - 3.0d0/32.0d0* &
                         vars(KHAT_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars(KHAT_VAR, i, j, k &
-                                                                - 3) - 5.0d0/16.0d0*vars(KHAT_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0 &
+                                                               - 3) - 5.0d0/16.0d0*vars(KHAT_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0 &
                                                                 )*vars(KHAT_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars(KHAT_VAR, i, j + &
                                                                      2, k) + (1.0d0/64.0d0)*vars(KHAT_VAR, i, j + 3, k) + (15.0d0/ &
                                                                64.0d0)*vars(KHAT_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(KHAT_VAR, i &
                                                                  , j - 2, k) + (1.0d0/64.0d0)*vars(KHAT_VAR, i, j - 3, k) - 5.0d0/ &
-                                                                      16.0d0*vars(KHAT_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars( &
+                                                                     16.0d0*vars(KHAT_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars( &
                                                                KHAT_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars(KHAT_VAR, i + 2, j, k) + &
                                                                 (1.0d0/64.0d0)*vars(KHAT_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                KHAT_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(KHAT_VAR, i - 2, j, k) + &
                                                                    (1.0d0/64.0d0)*vars(KHAT_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars( &
-                                                                                                             KHAT_VAR, i, j, k))/dx0
+                                                                                                            KHAT_VAR, i, j, k))*idx0
 
             AdvDBETAKHAT = BETA_U_0*(ddnDKHAT_L_0*merge(1.d0, 0.d0, BETA_U_0 < 0) + dupDKHAT_L_0* &
                                      merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*(ddnDKHAT_L_1*merge(1.d0, &
@@ -1349,148 +1097,148 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDATILDE_LLL_000 = ((2.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_00_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_00_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_00_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_00_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_001 = ((2.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_00_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_00_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_00_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_00_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_002 = ((2.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_00_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_00_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_00_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_00_VAR, i, j, k - 2))*idx2
             dDATILDE_LLL_010 = ((2.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_01_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_01_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_01_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_01_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_011 = ((2.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_01_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_01_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_01_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_01_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_012 = ((2.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_01_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_01_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_01_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_01_VAR, i, j, k - 2))*idx2
             dDATILDE_LLL_020 = ((2.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_02_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_02_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_02_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_02_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_021 = ((2.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_02_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_02_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_02_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_02_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_022 = ((2.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_02_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_02_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_02_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_02_VAR, i, j, k - 2))*idx2
             dDATILDE_LLL_110 = ((2.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_11_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_11_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_11_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_11_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_111 = ((2.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_11_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_11_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_11_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_11_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_112 = ((2.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_11_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_11_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_11_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_11_VAR, i, j, k - 2))*idx2
             dDATILDE_LLL_120 = ((2.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_12_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_12_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_12_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_12_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_121 = ((2.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_12_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_12_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_12_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_12_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_122 = ((2.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_12_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_12_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_12_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_12_VAR, i, j, k - 2))*idx2
             dDATILDE_LLL_220 = ((2.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_22_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_22_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_22_VAR, i - 2, j, k))/dx0
+                                ATILDE_LL_22_VAR, i - 2, j, k))*idx0
             dDATILDE_LLL_221 = ((2.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_22_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_22_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_22_VAR, i, j - 2, k))/dx1
+                                ATILDE_LL_22_VAR, i, j - 2, k))*idx1
             dDATILDE_LLL_222 = ((2.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(ATILDE_LL_22_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 ATILDE_LL_22_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                ATILDE_LL_22_VAR, i, j, k - 2))/dx2
+                                ATILDE_LL_22_VAR, i, j, k - 2))*idx2
 
             dupDATILDE_LLL_000 = ((3.0d0/2.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_00_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_00_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_00_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx0
             dupDATILDE_LLL_001 = ((3.0d0/2.0d0)*vars(ATILDE_LL_00_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_00_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_00_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_00_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx1
             dupDATILDE_LLL_002 = ((3.0d0/2.0d0)*vars(ATILDE_LL_00_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_00_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_00_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_00_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx2
             dupDATILDE_LLL_010 = ((3.0d0/2.0d0)*vars(ATILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_01_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_01_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_01_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx0
             dupDATILDE_LLL_011 = ((3.0d0/2.0d0)*vars(ATILDE_LL_01_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_01_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_01_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_01_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx1
             dupDATILDE_LLL_012 = ((3.0d0/2.0d0)*vars(ATILDE_LL_01_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_01_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_01_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_01_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx2
             dupDATILDE_LLL_020 = ((3.0d0/2.0d0)*vars(ATILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_02_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_02_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_02_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx0
             dupDATILDE_LLL_021 = ((3.0d0/2.0d0)*vars(ATILDE_LL_02_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_02_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_02_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_02_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx1
             dupDATILDE_LLL_022 = ((3.0d0/2.0d0)*vars(ATILDE_LL_02_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_02_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_02_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_02_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx2
             dupDATILDE_LLL_110 = ((3.0d0/2.0d0)*vars(ATILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_11_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_11_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_11_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx0
             dupDATILDE_LLL_111 = ((3.0d0/2.0d0)*vars(ATILDE_LL_11_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_11_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_11_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_11_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx1
             dupDATILDE_LLL_112 = ((3.0d0/2.0d0)*vars(ATILDE_LL_11_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_11_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_11_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_11_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx2
             dupDATILDE_LLL_120 = ((3.0d0/2.0d0)*vars(ATILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_12_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_12_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_12_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx0
             dupDATILDE_LLL_121 = ((3.0d0/2.0d0)*vars(ATILDE_LL_12_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_12_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_12_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_12_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx1
             dupDATILDE_LLL_122 = ((3.0d0/2.0d0)*vars(ATILDE_LL_12_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_12_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_12_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_12_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx2
             dupDATILDE_LLL_220 = ((3.0d0/2.0d0)*vars(ATILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_22_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_22_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(ATILDE_LL_22_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx0
             dupDATILDE_LLL_221 = ((3.0d0/2.0d0)*vars(ATILDE_LL_22_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_22_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_22_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(ATILDE_LL_22_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx1
             dupDATILDE_LLL_222 = ((3.0d0/2.0d0)*vars(ATILDE_LL_22_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(ATILDE_LL_22_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   ATILDE_LL_22_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(ATILDE_LL_22_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx2
 
             ddnDATILDE_LLL_000 = ((1.0d0/4.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
                                   vars(ATILDE_LL_00_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
@@ -1586,7 +1334,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0000 = ((4.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_00_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_00_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_00_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_0001 = ((4.0d0/9.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_00_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1623,7 +1371,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0011 = ((4.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_00_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_00_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_00_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_0012 = ((4.0d0/9.0d0)*vars(ATILDE_LL_00_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_00_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1644,12 +1392,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0022 = ((4.0d0/3.0d0)*vars(ATILDE_LL_00_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_00_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_00_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_00_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx2 &
                                   **2
             dDDATILDE_LLLL_0100 = ((4.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_01_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_01_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_01_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_0101 = ((4.0d0/9.0d0)*vars(ATILDE_LL_01_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_01_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1686,7 +1434,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0111 = ((4.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_01_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_01_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_01_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_0112 = ((4.0d0/9.0d0)*vars(ATILDE_LL_01_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_01_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1707,12 +1455,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0122 = ((4.0d0/3.0d0)*vars(ATILDE_LL_01_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_01_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_01_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_01_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx2 &
                                   **2
             dDDATILDE_LLLL_0200 = ((4.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_02_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_02_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_02_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_0201 = ((4.0d0/9.0d0)*vars(ATILDE_LL_02_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_02_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1749,7 +1497,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0211 = ((4.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_02_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_02_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_02_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_0212 = ((4.0d0/9.0d0)*vars(ATILDE_LL_02_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_02_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1770,12 +1518,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_0222 = ((4.0d0/3.0d0)*vars(ATILDE_LL_02_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_02_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_02_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_02_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx2 &
                                   **2
             dDDATILDE_LLLL_1100 = ((4.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_11_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_11_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_11_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_1101 = ((4.0d0/9.0d0)*vars(ATILDE_LL_11_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_11_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1812,7 +1560,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_1111 = ((4.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_11_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_11_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_11_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_1112 = ((4.0d0/9.0d0)*vars(ATILDE_LL_11_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_11_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1833,12 +1581,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_1122 = ((4.0d0/3.0d0)*vars(ATILDE_LL_11_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_11_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_11_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_11_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx2 &
                                   **2
             dDDATILDE_LLLL_1200 = ((4.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_12_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_12_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_12_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_1201 = ((4.0d0/9.0d0)*vars(ATILDE_LL_12_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_12_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1875,7 +1623,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_1211 = ((4.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_12_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_12_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_12_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_1212 = ((4.0d0/9.0d0)*vars(ATILDE_LL_12_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_12_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1896,12 +1644,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_1222 = ((4.0d0/3.0d0)*vars(ATILDE_LL_12_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_12_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_12_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_12_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx2 &
                                   **2
             dDDATILDE_LLLL_2200 = ((4.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_22_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_22_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(ATILDE_LL_22_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx0 &
                                   **2
             dDDATILDE_LLLL_2201 = ((4.0d0/9.0d0)*vars(ATILDE_LL_22_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_22_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -1938,7 +1686,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_2211 = ((4.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_22_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_22_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(ATILDE_LL_22_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx1 &
                                   **2
             dDDATILDE_LLLL_2212 = ((4.0d0/9.0d0)*vars(ATILDE_LL_22_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(ATILDE_LL_22_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -1959,7 +1707,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDATILDE_LLLL_2222 = ((4.0d0/3.0d0)*vars(ATILDE_LL_22_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(ATILDE_LL_22_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    ATILDE_LL_22_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(ATILDE_LL_22_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx2 &
                                   **2
 
             dKODATILDE_LL_00 = ((15.0d0/64.0d0)*vars(ATILDE_LL_00_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
@@ -1967,109 +1715,109 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                 ATILDE_LL_00_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_00_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_00_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_00_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_00_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_00_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_00_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_00_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_00_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_00_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_00_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_00_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_00_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_00_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_00_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_00_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_00_VAR, i, j, k))*idx0
             dKODATILDE_LL_01 = ((15.0d0/64.0d0)*vars(ATILDE_LL_01_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(ATILDE_LL_01_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 ATILDE_LL_01_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_01_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_01_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_01_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_01_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_01_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_01_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_01_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_01_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_01_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_01_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_01_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_01_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_01_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_01_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_01_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_01_VAR, i, j, k))*idx0
             dKODATILDE_LL_02 = ((15.0d0/64.0d0)*vars(ATILDE_LL_02_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(ATILDE_LL_02_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 ATILDE_LL_02_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_02_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_02_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_02_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_02_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_02_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_02_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_02_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_02_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_02_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_02_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_02_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_02_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_02_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_02_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_02_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_02_VAR, i, j, k))*idx0
             dKODATILDE_LL_11 = ((15.0d0/64.0d0)*vars(ATILDE_LL_11_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(ATILDE_LL_11_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 ATILDE_LL_11_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_11_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_11_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_11_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_11_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_11_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_11_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_11_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_11_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_11_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_11_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_11_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_11_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_11_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_11_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_11_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_11_VAR, i, j, k))*idx0
             dKODATILDE_LL_12 = ((15.0d0/64.0d0)*vars(ATILDE_LL_12_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(ATILDE_LL_12_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 ATILDE_LL_12_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_12_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_12_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_12_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_12_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_12_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_12_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_12_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_12_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_12_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_12_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_12_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_12_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_12_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_12_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_12_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_12_VAR, i, j, k))*idx0
             dKODATILDE_LL_22 = ((15.0d0/64.0d0)*vars(ATILDE_LL_22_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(ATILDE_LL_22_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 ATILDE_LL_22_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 ATILDE_LL_22_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(ATILDE_LL_22_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(ATILDE_LL_22_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_22_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_22_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_22_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_22_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(ATILDE_LL_22_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_22_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(ATILDE_LL_22_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              ATILDE_LL_22_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             ATILDE_LL_22_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                ATILDE_LL_22_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ATILDE_LL_22_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(ATILDE_LL_22_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(ATILDE_LL_22_VAR, i, j, k))*idx0
 
             AdvDBETAATILDE_LL_00 = BETA_U_0*(ddnDATILDE_LLL_000*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                              dupDATILDE_LLL_000*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -2110,44 +1858,44 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
             dDTHETAFUNC_L_0 = ((2.0d0/3.0d0)*vars(THETAFUNC_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars &
                                (THETAFUNC_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(THETAFUNC_VAR, i - &
-                                                                     1, j, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i - 2, j, k))/dx0
+                                                                    1, j, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i - 2, j, k))*idx0
             dDTHETAFUNC_L_1 = ((2.0d0/3.0d0)*vars(THETAFUNC_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars &
                                (THETAFUNC_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(THETAFUNC_VAR, i, j &
-                                                                      - 1, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, j - 2, k))/dx1
+                                                                     - 1, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, j - 2, k))*idx1
             dDTHETAFUNC_L_2 = ((2.0d0/3.0d0)*vars(THETAFUNC_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars &
                                (THETAFUNC_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(THETAFUNC_VAR, i, j &
-                                                                     , k - 1) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, j, k - 2))/dx2
+                                                                    , k - 1) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, j, k - 2))*idx2
 
             dupDTHETAFUNC_L_0 = ((3.0d0/2.0d0)*vars(THETAFUNC_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i &
                                                                 + 3, j, k) - 1.0d0/4.0d0*vars(THETAFUNC_VAR, i - 1, j, k) - 5.0d0/ &
-                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))/dx0
+                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))*idx0
             dupDTHETAFUNC_L_1 = ((3.0d0/2.0d0)*vars(THETAFUNC_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, &
                                                                  j + 3, k) - 1.0d0/4.0d0*vars(THETAFUNC_VAR, i, j - 1, k) - 5.0d0/ &
-                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))/dx1
+                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))*idx1
             dupDTHETAFUNC_L_2 = ((3.0d0/2.0d0)*vars(THETAFUNC_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(THETAFUNC_VAR, i, &
                                                                  j, k + 3) - 1.0d0/4.0d0*vars(THETAFUNC_VAR, i, j, k - 1) - 5.0d0/ &
-                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))/dx2
+                                 6.0d0*vars(THETAFUNC_VAR, i, j, k))*idx2
 
             ddnDTHETAFUNC_L_0 = ((1.0d0/4.0d0)*vars(THETAFUNC_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(THETAFUNC_VAR, i - &
                                                                 2, j, k) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i - 3, j, k) + (5.0d0/ &
-                                                                                            6.0d0)*vars(THETAFUNC_VAR, i, j, k))/dx0
+                                                                                           6.0d0)*vars(THETAFUNC_VAR, i, j, k))*idx0
             ddnDTHETAFUNC_L_1 = ((1.0d0/4.0d0)*vars(THETAFUNC_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(THETAFUNC_VAR, i, &
                                                                 j - 2, k) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i, j - 3, k) + (5.0d0 &
-                                                                                           /6.0d0)*vars(THETAFUNC_VAR, i, j, k))/dx1
+                                                                                          /6.0d0)*vars(THETAFUNC_VAR, i, j, k))*idx1
             ddnDTHETAFUNC_L_2 = ((1.0d0/4.0d0)*vars(THETAFUNC_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                                  THETAFUNC_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(THETAFUNC_VAR, i, &
                                                                 j, k - 2) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i, j, k - 3) + (5.0d0 &
-                                                                                           /6.0d0)*vars(THETAFUNC_VAR, i, j, k))/dx2
+                                                                                          /6.0d0)*vars(THETAFUNC_VAR, i, j, k))*idx2
 
             dDDTHETAFUNC_LL_00 = ((4.0d0/3.0d0)*vars(THETAFUNC_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars &
                                   (THETAFUNC_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(THETAFUNC_VAR, i &
                                                                 - 1, j, k) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i - 2, j, k) - 5.0d0 &
-                                  /2.0d0*vars(THETAFUNC_VAR, i, j, k))/dx0**2
+                                  /2.0d0*vars(THETAFUNC_VAR, i, j, k))*idx0**2
             dDDTHETAFUNC_LL_01 = ((4.0d0/9.0d0)*vars(THETAFUNC_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0* &
                                   vars(THETAFUNC_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
                                   THETAFUNC_VAR, i + 1, j - 1, k) + (1.0d0/18.0d0)*vars(THETAFUNC_VAR &
@@ -2179,7 +1927,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDTHETAFUNC_LL_11 = ((4.0d0/3.0d0)*vars(THETAFUNC_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars &
                                   (THETAFUNC_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(THETAFUNC_VAR, i, &
                                                                 j - 1, k) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i, j - 2, k) - 5.0d0/ &
-                                  2.0d0*vars(THETAFUNC_VAR, i, j, k))/dx1**2
+                                  2.0d0*vars(THETAFUNC_VAR, i, j, k))*idx1**2
             dDDTHETAFUNC_LL_12 = ((4.0d0/9.0d0)*vars(THETAFUNC_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0* &
                                   vars(THETAFUNC_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
                                   THETAFUNC_VAR, i, j + 1, k - 1) + (1.0d0/18.0d0)*vars(THETAFUNC_VAR &
@@ -2197,25 +1945,25 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDTHETAFUNC_LL_22 = ((4.0d0/3.0d0)*vars(THETAFUNC_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars &
                                   (THETAFUNC_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(THETAFUNC_VAR, i, &
                                                                 j, k - 1) - 1.0d0/12.0d0*vars(THETAFUNC_VAR, i, j, k - 2) - 5.0d0/ &
-                                  2.0d0*vars(THETAFUNC_VAR, i, j, k))/dx2**2
+                                  2.0d0*vars(THETAFUNC_VAR, i, j, k))*idx2**2
 
             dKODTHETAFUNC = ((15.0d0/64.0d0)*vars(THETAFUNC_VAR, i, j, k + 1) - 3.0d0/32.0d0* &
                              vars(THETAFUNC_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                              THETAFUNC_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars(THETAFUNC_VAR, i &
                                                                    , j, k - 1) - 3.0d0/32.0d0*vars(THETAFUNC_VAR, i, j, k - 2) + ( &
                              1.0d0/64.0d0)*vars(THETAFUNC_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars &
-                             (THETAFUNC_VAR, i, j, k))/dx2 + ((15.0d0/64.0d0)*vars(THETAFUNC_VAR &
+                             (THETAFUNC_VAR, i, j, k))*idx2 + ((15.0d0/64.0d0)*vars(THETAFUNC_VAR &
                                                                 , i, j + 1, k) - 3.0d0/32.0d0*vars(THETAFUNC_VAR, i, j + 2, k) + ( &
-                                                              1.0d0/64.0d0)*vars(THETAFUNC_VAR, i, j + 3, k) + (15.0d0/64.0d0)* &
-                                                              vars(THETAFUNC_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(THETAFUNC_VAR, &
+                                                               1.0d0/64.0d0)*vars(THETAFUNC_VAR, i, j + 3, k) + (15.0d0/64.0d0)* &
+                                                               vars(THETAFUNC_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(THETAFUNC_VAR, &
                                                                   i, j - 2, k) + (1.0d0/64.0d0)*vars(THETAFUNC_VAR, i, j - 3, k) - &
-                                                              5.0d0/16.0d0*vars(THETAFUNC_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)* &
+                                                               5.0d0/16.0d0*vars(THETAFUNC_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)* &
                                                                vars(THETAFUNC_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars(THETAFUNC_VAR, &
                                                                 i + 2, j, k) + (1.0d0/64.0d0)*vars(THETAFUNC_VAR, i + 3, j, k) + ( &
                                                                    15.0d0/64.0d0)*vars(THETAFUNC_VAR, i - 1, j, k) - 3.0d0/32.0d0* &
                                                                            vars(THETAFUNC_VAR, i - 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                THETAFUNC_VAR, i - 3, j, k) - 5.0d0/16.0d0*vars(THETAFUNC_VAR, i, j &
-                                                                                                                           , k))/dx0
+                                                                                                                          , k))*idx0
 
             AdvDBETATHETAFUNC = BETA_U_0*(ddnDTHETAFUNC_L_0*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                           dupDTHETAFUNC_L_0*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -2227,76 +1975,76 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDGAMTILDE_UL_00 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_0_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_0_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_0_VAR, i - 2, j, k))/dx0
+                                GAMTILDE_U_0_VAR, i - 2, j, k))*idx0
             dDGAMTILDE_UL_01 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_0_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_0_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_0_VAR, i, j - 2, k))/dx1
+                                GAMTILDE_U_0_VAR, i, j - 2, k))*idx1
             dDGAMTILDE_UL_02 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_0_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_0_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_0_VAR, i, j, k - 2))/dx2
+                                GAMTILDE_U_0_VAR, i, j, k - 2))*idx2
             dDGAMTILDE_UL_10 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_1_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_1_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_1_VAR, i - 2, j, k))/dx0
+                                GAMTILDE_U_1_VAR, i - 2, j, k))*idx0
             dDGAMTILDE_UL_11 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_1_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_1_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_1_VAR, i, j - 2, k))/dx1
+                                GAMTILDE_U_1_VAR, i, j - 2, k))*idx1
             dDGAMTILDE_UL_12 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_1_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_1_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_1_VAR, i, j, k - 2))/dx2
+                                GAMTILDE_U_1_VAR, i, j, k - 2))*idx2
             dDGAMTILDE_UL_20 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_2_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_2_VAR, i - 1, j, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_2_VAR, i - 2, j, k))/dx0
+                                GAMTILDE_U_2_VAR, i - 2, j, k))*idx0
             dDGAMTILDE_UL_21 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_2_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_2_VAR, i, j - 1, k) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_2_VAR, i, j - 2, k))/dx1
+                                GAMTILDE_U_2_VAR, i, j - 2, k))*idx1
             dDGAMTILDE_UL_22 = ((2.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                 vars(GAMTILDE_U_2_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars( &
                                 GAMTILDE_U_2_VAR, i, j, k - 1) + (1.0d0/12.0d0)*vars( &
-                                GAMTILDE_U_2_VAR, i, j, k - 2))/dx2
+                                GAMTILDE_U_2_VAR, i, j, k - 2))*idx2
 
             dupDGAMTILDE_UL_00 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_0_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_0_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_0_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx0
             dupDGAMTILDE_UL_01 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_0_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_0_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_0_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_0_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx1
             dupDGAMTILDE_UL_02 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_0_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_0_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_0_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(GAMTILDE_U_0_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx2
             dupDGAMTILDE_UL_10 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_1_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_1_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_1_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_1_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx0
             dupDGAMTILDE_UL_11 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_1_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_1_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_1_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_1_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx1
             dupDGAMTILDE_UL_12 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_1_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_1_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_1_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(GAMTILDE_U_1_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx2
             dupDGAMTILDE_UL_20 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_2_VAR, i + 1, j, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_2_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_2_VAR, i + 3, j, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_2_VAR, &
-                                                                     i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx0
+                                                                    i - 1, j, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx0
             dupDGAMTILDE_UL_21 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_2_VAR, i, j + 1, k) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_2_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_2_VAR, i, j + 3, k) - 1.0d0/4.0d0*vars(GAMTILDE_U_2_VAR, &
-                                                                     i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx1
+                                                                    i, j - 1, k) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx1
             dupDGAMTILDE_UL_22 = ((3.0d0/2.0d0)*vars(GAMTILDE_U_2_VAR, i, j, k + 1) - 1.0d0/2.0d0* &
                                   vars(GAMTILDE_U_2_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars( &
                                   GAMTILDE_U_2_VAR, i, j, k + 3) - 1.0d0/4.0d0*vars(GAMTILDE_U_2_VAR, &
-                                                                     i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx2
+                                                                    i, j, k - 1) - 5.0d0/6.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx2
 
             ddnDGAMTILDE_UL_00 = ((1.0d0/4.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j, k) - 3.0d0/2.0d0* &
                                   vars(GAMTILDE_U_0_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars( &
@@ -2347,7 +2095,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_000 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_0_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_0_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_0_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx0 &
                                   **2
             dDDGAMTILDE_ULL_001 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_0_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -2384,7 +2132,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_011 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_0_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_0_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_0_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx1 &
                                   **2
             dDDGAMTILDE_ULL_012 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_0_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_0_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -2405,12 +2153,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_022 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_0_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_0_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_0_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(GAMTILDE_U_0_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx2 &
                                   **2
             dDDGAMTILDE_ULL_100 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_1_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_1_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_1_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx0 &
                                   **2
             dDDGAMTILDE_ULL_101 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_1_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_1_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -2447,7 +2195,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_111 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_1_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_1_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_1_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx1 &
                                   **2
             dDDGAMTILDE_ULL_112 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_1_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_1_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -2468,12 +2216,12 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_122 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_1_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_1_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_1_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(GAMTILDE_U_1_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx2 &
                                   **2
             dDDGAMTILDE_ULL_200 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i + 1, j, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_2_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_2_VAR, i - 1, j, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_2_VAR &
-                                                                 , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx0 &
+                                                                , i - 2, j, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx0 &
                                   **2
             dDDGAMTILDE_ULL_201 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_2_VAR, i + 1, j + 1, k) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_2_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars( &
@@ -2510,7 +2258,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_211 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i, j + 1, k) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_2_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_2_VAR, i, j - 1, k) - 1.0d0/12.0d0*vars(GAMTILDE_U_2_VAR &
-                                                                 , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx1 &
+                                                                , i, j - 2, k) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx1 &
                                   **2
             dDDGAMTILDE_ULL_212 = ((4.0d0/9.0d0)*vars(GAMTILDE_U_2_VAR, i, j + 1, k + 1) - 1.0d0/ &
                                    18.0d0*vars(GAMTILDE_U_2_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars( &
@@ -2531,7 +2279,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDGAMTILDE_ULL_222 = ((4.0d0/3.0d0)*vars(GAMTILDE_U_2_VAR, i, j, k + 1) - 1.0d0/12.0d0* &
                                    vars(GAMTILDE_U_2_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars( &
                                    GAMTILDE_U_2_VAR, i, j, k - 1) - 1.0d0/12.0d0*vars(GAMTILDE_U_2_VAR &
-                                                                 , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx2 &
+                                                                , i, j, k - 2) - 5.0d0/2.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx2 &
                                   **2
 
             dKODGAMTILDE_U_0 = ((15.0d0/64.0d0)*vars(GAMTILDE_U_0_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
@@ -2539,55 +2287,55 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                 GAMTILDE_U_0_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 GAMTILDE_U_0_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(GAMTILDE_U_0_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(GAMTILDE_U_0_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_0_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_0_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_0_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_0_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_0_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_0_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_0_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_0_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_0_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_0_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_0_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_0_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(GAMTILDE_U_0_VAR, i, j, k))*idx0
             dKODGAMTILDE_U_1 = ((15.0d0/64.0d0)*vars(GAMTILDE_U_1_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(GAMTILDE_U_1_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 GAMTILDE_U_1_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 GAMTILDE_U_1_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(GAMTILDE_U_1_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(GAMTILDE_U_1_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_1_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_1_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_1_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_1_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_1_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_1_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_1_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_1_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_1_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_1_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_1_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_1_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(GAMTILDE_U_1_VAR, i, j, k))*idx0
             dKODGAMTILDE_U_2 = ((15.0d0/64.0d0)*vars(GAMTILDE_U_2_VAR, i, j, k + 1) - 3.0d0/32.0d0 &
                                 *vars(GAMTILDE_U_2_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars( &
                                 GAMTILDE_U_2_VAR, i, j, k + 3) + (15.0d0/64.0d0)*vars( &
                                 GAMTILDE_U_2_VAR, i, j, k - 1) - 3.0d0/32.0d0*vars(GAMTILDE_U_2_VAR &
                                                                 , i, j, k - 2) + (1.0d0/64.0d0)*vars(GAMTILDE_U_2_VAR, i, j, k - 3 &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_2_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_2_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_2_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_2_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_2_VAR &
                                                                 , i, j - 2, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_2_VAR, i, j - 3, k &
-                                                                 ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx1 + ((15.0d0/ &
+                                                                ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx1 + ((15.0d0/ &
                                                                   64.0d0)*vars(GAMTILDE_U_2_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars( &
                                                                              GAMTILDE_U_2_VAR, i + 2, j, k) + (1.0d0/64.0d0)*vars( &
                                                                             GAMTILDE_U_2_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                GAMTILDE_U_2_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(GAMTILDE_U_2_VAR &
                                                                 , i - 2, j, k) + (1.0d0/64.0d0)*vars(GAMTILDE_U_2_VAR, i - 3, j, k &
-                                                                               ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))/dx0
+                                                                              ) - 5.0d0/16.0d0*vars(GAMTILDE_U_2_VAR, i, j, k))*idx0
 
             AdvDBETAGAMTILDE_U_0 = BETA_U_0*(ddnDGAMTILDE_UL_00*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                              dupDGAMTILDE_UL_00*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -2610,44 +2358,44 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
             dDALPHA_L_0 = ((2.0d0/3.0d0)*vars(ALPHA_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                            ALPHA_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(ALPHA_VAR, i - 1, j, k) &
-                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i - 2, j, k))/dx0
+                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i - 2, j, k))*idx0
             dDALPHA_L_1 = ((2.0d0/3.0d0)*vars(ALPHA_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                            ALPHA_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(ALPHA_VAR, i, j - 1, k) &
-                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j - 2, k))/dx1
+                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j - 2, k))*idx1
             dDALPHA_L_2 = ((2.0d0/3.0d0)*vars(ALPHA_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                            ALPHA_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(ALPHA_VAR, i, j, k - 1) &
-                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j, k - 2))/dx2
+                           + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j, k - 2))*idx2
 
             dupDALPHA_L_0 = ((3.0d0/2.0d0)*vars(ALPHA_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                              ALPHA_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(ALPHA_VAR, i + 3, j, &
                                                                  k) - 1.0d0/4.0d0*vars(ALPHA_VAR, i - 1, j, k) - 5.0d0/6.0d0*vars( &
-                             ALPHA_VAR, i, j, k))/dx0
+                             ALPHA_VAR, i, j, k))*idx0
             dupDALPHA_L_1 = ((3.0d0/2.0d0)*vars(ALPHA_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                              ALPHA_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j + 3, &
                                                                  k) - 1.0d0/4.0d0*vars(ALPHA_VAR, i, j - 1, k) - 5.0d0/6.0d0*vars( &
-                             ALPHA_VAR, i, j, k))/dx1
+                             ALPHA_VAR, i, j, k))*idx1
             dupDALPHA_L_2 = ((3.0d0/2.0d0)*vars(ALPHA_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                              ALPHA_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(ALPHA_VAR, i, j, k + &
                                                                  3) - 1.0d0/4.0d0*vars(ALPHA_VAR, i, j, k - 1) - 5.0d0/6.0d0*vars( &
-                             ALPHA_VAR, i, j, k))/dx2
+                             ALPHA_VAR, i, j, k))*idx2
 
             ddnDALPHA_L_0 = ((1.0d0/4.0d0)*vars(ALPHA_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                              ALPHA_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(ALPHA_VAR, i - 2, j, k &
                                                                 ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i - 3, j, k) + (5.0d0/6.0d0)*vars &
-                             (ALPHA_VAR, i, j, k))/dx0
+                             (ALPHA_VAR, i, j, k))*idx0
             ddnDALPHA_L_1 = ((1.0d0/4.0d0)*vars(ALPHA_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                              ALPHA_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(ALPHA_VAR, i, j - 2, k &
                                                                 ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i, j - 3, k) + (5.0d0/6.0d0)*vars &
-                             (ALPHA_VAR, i, j, k))/dx1
+                             (ALPHA_VAR, i, j, k))*idx1
             ddnDALPHA_L_2 = ((1.0d0/4.0d0)*vars(ALPHA_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                              ALPHA_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(ALPHA_VAR, i, j, k - 2 &
                                                                 ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i, j, k - 3) + (5.0d0/6.0d0)*vars &
-                             (ALPHA_VAR, i, j, k))/dx2
+                             (ALPHA_VAR, i, j, k))*idx2
 
             dDDALPHA_LL_00 = ((4.0d0/3.0d0)*vars(ALPHA_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                               ALPHA_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(ALPHA_VAR, i - 1, j, k &
                                                                  ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i - 2, j, k) - 5.0d0/2.0d0*vars( &
-                              ALPHA_VAR, i, j, k))/dx0**2
+                              ALPHA_VAR, i, j, k))*idx0**2
             dDDALPHA_LL_01 = ((4.0d0/9.0d0)*vars(ALPHA_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0*vars &
                               (ALPHA_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(ALPHA_VAR, i + 1, j &
                                                                 - 1, k) + (1.0d0/18.0d0)*vars(ALPHA_VAR, i + 1, j - 2, k) - 1.0d0/ &
@@ -2677,7 +2425,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDALPHA_LL_11 = ((4.0d0/3.0d0)*vars(ALPHA_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                               ALPHA_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(ALPHA_VAR, i, j - 1, k &
                                                                  ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i, j - 2, k) - 5.0d0/2.0d0*vars( &
-                              ALPHA_VAR, i, j, k))/dx1**2
+                              ALPHA_VAR, i, j, k))*idx1**2
             dDDALPHA_LL_12 = ((4.0d0/9.0d0)*vars(ALPHA_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0*vars &
                               (ALPHA_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(ALPHA_VAR, i, j + 1 &
                                                                 , k - 1) + (1.0d0/18.0d0)*vars(ALPHA_VAR, i, j + 1, k - 2) - 1.0d0 &
@@ -2694,23 +2442,23 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDALPHA_LL_22 = ((4.0d0/3.0d0)*vars(ALPHA_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                               ALPHA_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(ALPHA_VAR, i, j, k - 1 &
                                                                  ) - 1.0d0/12.0d0*vars(ALPHA_VAR, i, j, k - 2) - 5.0d0/2.0d0*vars( &
-                              ALPHA_VAR, i, j, k))/dx2**2
+                              ALPHA_VAR, i, j, k))*idx2**2
 
             dKODALPHA = ((15.0d0/64.0d0)*vars(ALPHA_VAR, i, j, k + 1) - 3.0d0/32.0d0*vars( &
                          ALPHA_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i, j, k + &
                                                                  3) + (15.0d0/64.0d0)*vars(ALPHA_VAR, i, j, k - 1) - 3.0d0/32.0d0* &
                          vars(ALPHA_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i, j, &
-                                                                   k - 3) - 5.0d0/16.0d0*vars(ALPHA_VAR, i, j, k))/dx2 + ((15.0d0/ &
+                                                                  k - 3) - 5.0d0/16.0d0*vars(ALPHA_VAR, i, j, k))*idx2 + ((15.0d0/ &
                                                                64.0d0)*vars(ALPHA_VAR, i, j + 1, k) - 3.0d0/32.0d0*vars(ALPHA_VAR, &
                                                                     i, j + 2, k) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i, j + 3, k) + ( &
                                                                   15.0d0/64.0d0)*vars(ALPHA_VAR, i, j - 1, k) - 3.0d0/32.0d0*vars( &
                                                                 ALPHA_VAR, i, j - 2, k) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i, j - 3, &
-                                                                k) - 5.0d0/16.0d0*vars(ALPHA_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0) &
+                                                               k) - 5.0d0/16.0d0*vars(ALPHA_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0) &
                                                                *vars(ALPHA_VAR, i + 1, j, k) - 3.0d0/32.0d0*vars(ALPHA_VAR, i + 2, &
                                                                     j, k) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i + 3, j, k) + (15.0d0/ &
                                                                64.0d0)*vars(ALPHA_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(ALPHA_VAR, &
                                                                 i - 2, j, k) + (1.0d0/64.0d0)*vars(ALPHA_VAR, i - 3, j, k) - 5.0d0 &
-                                                                                               /16.0d0*vars(ALPHA_VAR, i, j, k))/dx0
+                                                                                              /16.0d0*vars(ALPHA_VAR, i, j, k))*idx0
 
             AdvDBETAALPHA = BETA_U_0*(ddnDALPHA_L_0*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                       dupDALPHA_L_0*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -2720,110 +2468,110 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
             dDBETA_UL_00 = ((2.0d0/3.0d0)*vars(BETA_U_0_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_0_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(BETA_U_0_VAR, i - 1, &
-                                                                         j, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i - 2, j, k))/dx0
+                                                                        j, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i - 2, j, k))*idx0
             dDBETA_UL_01 = ((2.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_0_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(BETA_U_0_VAR, i, j - &
-                                                                         1, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j - 2, k))/dx1
+                                                                        1, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j - 2, k))*idx1
             dDBETA_UL_02 = ((2.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                             BETA_U_0_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(BETA_U_0_VAR, i, j, k &
-                                                                          - 1) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j, k - 2))/dx2
+                                                                         - 1) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j, k - 2))*idx2
             dDBETA_UL_10 = ((2.0d0/3.0d0)*vars(BETA_U_1_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_1_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(BETA_U_1_VAR, i - 1, &
-                                                                         j, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i - 2, j, k))/dx0
+                                                                        j, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i - 2, j, k))*idx0
             dDBETA_UL_11 = ((2.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_1_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(BETA_U_1_VAR, i, j - &
-                                                                         1, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j - 2, k))/dx1
+                                                                        1, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j - 2, k))*idx1
             dDBETA_UL_12 = ((2.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                             BETA_U_1_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(BETA_U_1_VAR, i, j, k &
-                                                                          - 1) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j, k - 2))/dx2
+                                                                         - 1) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j, k - 2))*idx2
             dDBETA_UL_20 = ((2.0d0/3.0d0)*vars(BETA_U_2_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_2_VAR, i + 2, j, k) - 2.0d0/3.0d0*vars(BETA_U_2_VAR, i - 1, &
-                                                                         j, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i - 2, j, k))/dx0
+                                                                        j, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i - 2, j, k))*idx0
             dDBETA_UL_21 = ((2.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                             BETA_U_2_VAR, i, j + 2, k) - 2.0d0/3.0d0*vars(BETA_U_2_VAR, i, j - &
-                                                                         1, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j - 2, k))/dx1
+                                                                        1, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j - 2, k))*idx1
             dDBETA_UL_22 = ((2.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                             BETA_U_2_VAR, i, j, k + 2) - 2.0d0/3.0d0*vars(BETA_U_2_VAR, i, j, k &
-                                                                          - 1) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j, k - 2))/dx2
+                                                                         - 1) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j, k - 2))*idx2
 
             dupDBETA_UL_00 = ((3.0d0/2.0d0)*vars(BETA_U_0_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i + &
                                                                    3, j, k) - 1.0d0/4.0d0*vars(BETA_U_0_VAR, i - 1, j, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_0_VAR, i, j, k))/dx0
+                              6.0d0*vars(BETA_U_0_VAR, i, j, k))*idx0
             dupDBETA_UL_01 = ((3.0d0/2.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j &
                                                                     + 3, k) - 1.0d0/4.0d0*vars(BETA_U_0_VAR, i, j - 1, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_0_VAR, i, j, k))/dx1
+                              6.0d0*vars(BETA_U_0_VAR, i, j, k))*idx1
             dupDBETA_UL_02 = ((3.0d0/2.0d0)*vars(BETA_U_0_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(BETA_U_0_VAR, i, j &
                                                                    , k + 3) - 1.0d0/4.0d0*vars(BETA_U_0_VAR, i, j, k - 1) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_0_VAR, i, j, k))/dx2
+                              6.0d0*vars(BETA_U_0_VAR, i, j, k))*idx2
             dupDBETA_UL_10 = ((3.0d0/2.0d0)*vars(BETA_U_1_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i + &
                                                                    3, j, k) - 1.0d0/4.0d0*vars(BETA_U_1_VAR, i - 1, j, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_1_VAR, i, j, k))/dx0
+                              6.0d0*vars(BETA_U_1_VAR, i, j, k))*idx0
             dupDBETA_UL_11 = ((3.0d0/2.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j &
                                                                     + 3, k) - 1.0d0/4.0d0*vars(BETA_U_1_VAR, i, j - 1, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_1_VAR, i, j, k))/dx1
+                              6.0d0*vars(BETA_U_1_VAR, i, j, k))*idx1
             dupDBETA_UL_12 = ((3.0d0/2.0d0)*vars(BETA_U_1_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(BETA_U_1_VAR, i, j &
                                                                    , k + 3) - 1.0d0/4.0d0*vars(BETA_U_1_VAR, i, j, k - 1) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_1_VAR, i, j, k))/dx2
+                              6.0d0*vars(BETA_U_1_VAR, i, j, k))*idx2
             dupDBETA_UL_20 = ((3.0d0/2.0d0)*vars(BETA_U_2_VAR, i + 1, j, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i + 2, j, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i + &
                                                                    3, j, k) - 1.0d0/4.0d0*vars(BETA_U_2_VAR, i - 1, j, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_2_VAR, i, j, k))/dx0
+                              6.0d0*vars(BETA_U_2_VAR, i, j, k))*idx0
             dupDBETA_UL_21 = ((3.0d0/2.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 1.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i, j + 2, k) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j &
                                                                     + 3, k) - 1.0d0/4.0d0*vars(BETA_U_2_VAR, i, j - 1, k) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_2_VAR, i, j, k))/dx1
+                              6.0d0*vars(BETA_U_2_VAR, i, j, k))*idx1
             dupDBETA_UL_22 = ((3.0d0/2.0d0)*vars(BETA_U_2_VAR, i, j, k + 1) - 1.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i, j, k + 2) + (1.0d0/12.0d0)*vars(BETA_U_2_VAR, i, j &
                                                                    , k + 3) - 1.0d0/4.0d0*vars(BETA_U_2_VAR, i, j, k - 1) - 5.0d0/ &
-                              6.0d0*vars(BETA_U_2_VAR, i, j, k))/dx2
+                              6.0d0*vars(BETA_U_2_VAR, i, j, k))*idx2
 
             ddnDBETA_UL_00 = ((1.0d0/4.0d0)*vars(BETA_U_0_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(BETA_U_0_VAR, i - 2 &
                                                                   , j, k) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i - 3, j, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_0_VAR, i, j, k))/dx0
+                                                                                            6.0d0)*vars(BETA_U_0_VAR, i, j, k))*idx0
             ddnDBETA_UL_01 = ((1.0d0/4.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(BETA_U_0_VAR, i, j &
                                                                   - 2, k) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i, j - 3, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_0_VAR, i, j, k))/dx1
+                                                                                            6.0d0)*vars(BETA_U_0_VAR, i, j, k))*idx1
             ddnDBETA_UL_02 = ((1.0d0/4.0d0)*vars(BETA_U_0_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                               BETA_U_0_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(BETA_U_0_VAR, i, j, &
                                                                    k - 2) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i, j, k - 3) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_0_VAR, i, j, k))/dx2
+                                                                                            6.0d0)*vars(BETA_U_0_VAR, i, j, k))*idx2
             ddnDBETA_UL_10 = ((1.0d0/4.0d0)*vars(BETA_U_1_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(BETA_U_1_VAR, i - 2 &
                                                                   , j, k) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i - 3, j, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_1_VAR, i, j, k))/dx0
+                                                                                            6.0d0)*vars(BETA_U_1_VAR, i, j, k))*idx0
             ddnDBETA_UL_11 = ((1.0d0/4.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(BETA_U_1_VAR, i, j &
                                                                   - 2, k) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i, j - 3, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_1_VAR, i, j, k))/dx1
+                                                                                            6.0d0)*vars(BETA_U_1_VAR, i, j, k))*idx1
             ddnDBETA_UL_12 = ((1.0d0/4.0d0)*vars(BETA_U_1_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                               BETA_U_1_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(BETA_U_1_VAR, i, j, &
                                                                    k - 2) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i, j, k - 3) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_1_VAR, i, j, k))/dx2
+                                                                                            6.0d0)*vars(BETA_U_1_VAR, i, j, k))*idx2
             ddnDBETA_UL_20 = ((1.0d0/4.0d0)*vars(BETA_U_2_VAR, i + 1, j, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i - 1, j, k) + (1.0d0/2.0d0)*vars(BETA_U_2_VAR, i - 2 &
                                                                   , j, k) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i - 3, j, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_2_VAR, i, j, k))/dx0
+                                                                                            6.0d0)*vars(BETA_U_2_VAR, i, j, k))*idx0
             ddnDBETA_UL_21 = ((1.0d0/4.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 3.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i, j - 1, k) + (1.0d0/2.0d0)*vars(BETA_U_2_VAR, i, j &
                                                                   - 2, k) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i, j - 3, k) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_2_VAR, i, j, k))/dx1
+                                                                                            6.0d0)*vars(BETA_U_2_VAR, i, j, k))*idx1
             ddnDBETA_UL_22 = ((1.0d0/4.0d0)*vars(BETA_U_2_VAR, i, j, k + 1) - 3.0d0/2.0d0*vars( &
                               BETA_U_2_VAR, i, j, k - 1) + (1.0d0/2.0d0)*vars(BETA_U_2_VAR, i, j, &
                                                                    k - 2) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i, j, k - 3) + (5.0d0/ &
-                                                                                             6.0d0)*vars(BETA_U_2_VAR, i, j, k))/dx2
+                                                                                            6.0d0)*vars(BETA_U_2_VAR, i, j, k))*idx2
 
             dDDBETA_ULL_000 = ((4.0d0/3.0d0)*vars(BETA_U_0_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_0_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(BETA_U_0_VAR, i - 1 &
                                                                    , j, k) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i - 2, j, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_0_VAR, i, j, k))/dx0**2
+                               2.0d0*vars(BETA_U_0_VAR, i, j, k))*idx0**2
             dDDBETA_ULL_001 = ((4.0d0/9.0d0)*vars(BETA_U_0_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0* &
                                vars(BETA_U_0_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(BETA_U_0_VAR &
                                                                  , i + 1, j - 1, k) + (1.0d0/18.0d0)*vars(BETA_U_0_VAR, i + 1, j - &
@@ -2853,7 +2601,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_011 = ((4.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_0_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j &
                                                                    - 1, k) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i, j - 2, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_0_VAR, i, j, k))/dx1**2
+                               2.0d0*vars(BETA_U_0_VAR, i, j, k))*idx1**2
             dDDBETA_ULL_012 = ((4.0d0/9.0d0)*vars(BETA_U_0_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0* &
                                vars(BETA_U_0_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(BETA_U_0_VAR &
                                                                 , i, j + 1, k - 1) + (1.0d0/18.0d0)*vars(BETA_U_0_VAR, i, j + 1, k &
@@ -2870,11 +2618,11 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_022 = ((4.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                                BETA_U_0_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(BETA_U_0_VAR, i, j, &
                                                                     k - 1) - 1.0d0/12.0d0*vars(BETA_U_0_VAR, i, j, k - 2) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_0_VAR, i, j, k))/dx2**2
+                               2.0d0*vars(BETA_U_0_VAR, i, j, k))*idx2**2
             dDDBETA_ULL_100 = ((4.0d0/3.0d0)*vars(BETA_U_1_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_1_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(BETA_U_1_VAR, i - 1 &
                                                                    , j, k) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i - 2, j, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_1_VAR, i, j, k))/dx0**2
+                               2.0d0*vars(BETA_U_1_VAR, i, j, k))*idx0**2
             dDDBETA_ULL_101 = ((4.0d0/9.0d0)*vars(BETA_U_1_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0* &
                                vars(BETA_U_1_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(BETA_U_1_VAR &
                                                                  , i + 1, j - 1, k) + (1.0d0/18.0d0)*vars(BETA_U_1_VAR, i + 1, j - &
@@ -2904,7 +2652,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_111 = ((4.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_1_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j &
                                                                    - 1, k) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i, j - 2, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_1_VAR, i, j, k))/dx1**2
+                               2.0d0*vars(BETA_U_1_VAR, i, j, k))*idx1**2
             dDDBETA_ULL_112 = ((4.0d0/9.0d0)*vars(BETA_U_1_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0* &
                                vars(BETA_U_1_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(BETA_U_1_VAR &
                                                                 , i, j + 1, k - 1) + (1.0d0/18.0d0)*vars(BETA_U_1_VAR, i, j + 1, k &
@@ -2921,11 +2669,11 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_122 = ((4.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                                BETA_U_1_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(BETA_U_1_VAR, i, j, &
                                                                     k - 1) - 1.0d0/12.0d0*vars(BETA_U_1_VAR, i, j, k - 2) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_1_VAR, i, j, k))/dx2**2
+                               2.0d0*vars(BETA_U_1_VAR, i, j, k))*idx2**2
             dDDBETA_ULL_200 = ((4.0d0/3.0d0)*vars(BETA_U_2_VAR, i + 1, j, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_2_VAR, i + 2, j, k) + (4.0d0/3.0d0)*vars(BETA_U_2_VAR, i - 1 &
                                                                    , j, k) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i - 2, j, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_2_VAR, i, j, k))/dx0**2
+                               2.0d0*vars(BETA_U_2_VAR, i, j, k))*idx0**2
             dDDBETA_ULL_201 = ((4.0d0/9.0d0)*vars(BETA_U_2_VAR, i + 1, j + 1, k) - 1.0d0/18.0d0* &
                                vars(BETA_U_2_VAR, i + 1, j + 2, k) - 4.0d0/9.0d0*vars(BETA_U_2_VAR &
                                                                  , i + 1, j - 1, k) + (1.0d0/18.0d0)*vars(BETA_U_2_VAR, i + 1, j - &
@@ -2955,7 +2703,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_211 = ((4.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 1.0d0/12.0d0*vars( &
                                BETA_U_2_VAR, i, j + 2, k) + (4.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j &
                                                                    - 1, k) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i, j - 2, k) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_2_VAR, i, j, k))/dx1**2
+                               2.0d0*vars(BETA_U_2_VAR, i, j, k))*idx1**2
             dDDBETA_ULL_212 = ((4.0d0/9.0d0)*vars(BETA_U_2_VAR, i, j + 1, k + 1) - 1.0d0/18.0d0* &
                                vars(BETA_U_2_VAR, i, j + 1, k + 2) - 4.0d0/9.0d0*vars(BETA_U_2_VAR &
                                                                 , i, j + 1, k - 1) + (1.0d0/18.0d0)*vars(BETA_U_2_VAR, i, j + 1, k &
@@ -2972,56 +2720,56 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
             dDDBETA_ULL_222 = ((4.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j, k + 1) - 1.0d0/12.0d0*vars( &
                                BETA_U_2_VAR, i, j, k + 2) + (4.0d0/3.0d0)*vars(BETA_U_2_VAR, i, j, &
                                                                     k - 1) - 1.0d0/12.0d0*vars(BETA_U_2_VAR, i, j, k - 2) - 5.0d0/ &
-                               2.0d0*vars(BETA_U_2_VAR, i, j, k))/dx2**2
+                               2.0d0*vars(BETA_U_2_VAR, i, j, k))*idx2**2
 
             dKODBETA_U_0 = ((15.0d0/64.0d0)*vars(BETA_U_0_VAR, i, j, k + 1) - 3.0d0/32.0d0* &
                             vars(BETA_U_0_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(BETA_U_0_VAR, &
                                                                   i, j, k + 3) + (15.0d0/64.0d0)*vars(BETA_U_0_VAR, i, j, k - 1) - &
                             3.0d0/32.0d0*vars(BETA_U_0_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars &
                             (BETA_U_0_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars(BETA_U_0_VAR, i, j, &
-                                                                k))/dx2 + ((15.0d0/64.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 3.0d0 &
+                                                               k))*idx2 + ((15.0d0/64.0d0)*vars(BETA_U_0_VAR, i, j + 1, k) - 3.0d0 &
                                                                     /32.0d0*vars(BETA_U_0_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                 BETA_U_0_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars(BETA_U_0_VAR, i, &
                                                                 j - 1, k) - 3.0d0/32.0d0*vars(BETA_U_0_VAR, i, j - 2, k) + (1.0d0/ &
                                                                       64.0d0)*vars(BETA_U_0_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                               BETA_U_0_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars(BETA_U_0_VAR, i &
+                                                              BETA_U_0_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars(BETA_U_0_VAR, i &
                                                                 + 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_0_VAR, i + 2, j, k) + (1.0d0 &
                                                                   /64.0d0)*vars(BETA_U_0_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                BETA_U_0_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_0_VAR, i - 2, &
                                                                    j, k) + (1.0d0/64.0d0)*vars(BETA_U_0_VAR, i - 3, j, k) - 5.0d0/ &
-                                                                                             16.0d0*vars(BETA_U_0_VAR, i, j, k))/dx0
+                                                                                            16.0d0*vars(BETA_U_0_VAR, i, j, k))*idx0
             dKODBETA_U_1 = ((15.0d0/64.0d0)*vars(BETA_U_1_VAR, i, j, k + 1) - 3.0d0/32.0d0* &
                             vars(BETA_U_1_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(BETA_U_1_VAR, &
                                                                   i, j, k + 3) + (15.0d0/64.0d0)*vars(BETA_U_1_VAR, i, j, k - 1) - &
                             3.0d0/32.0d0*vars(BETA_U_1_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars &
                             (BETA_U_1_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars(BETA_U_1_VAR, i, j, &
-                                                                k))/dx2 + ((15.0d0/64.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 3.0d0 &
+                                                               k))*idx2 + ((15.0d0/64.0d0)*vars(BETA_U_1_VAR, i, j + 1, k) - 3.0d0 &
                                                                     /32.0d0*vars(BETA_U_1_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                 BETA_U_1_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars(BETA_U_1_VAR, i, &
                                                                 j - 1, k) - 3.0d0/32.0d0*vars(BETA_U_1_VAR, i, j - 2, k) + (1.0d0/ &
                                                                       64.0d0)*vars(BETA_U_1_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                               BETA_U_1_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars(BETA_U_1_VAR, i &
+                                                              BETA_U_1_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars(BETA_U_1_VAR, i &
                                                                 + 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_1_VAR, i + 2, j, k) + (1.0d0 &
                                                                   /64.0d0)*vars(BETA_U_1_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                BETA_U_1_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_1_VAR, i - 2, &
                                                                    j, k) + (1.0d0/64.0d0)*vars(BETA_U_1_VAR, i - 3, j, k) - 5.0d0/ &
-                                                                                             16.0d0*vars(BETA_U_1_VAR, i, j, k))/dx0
+                                                                                            16.0d0*vars(BETA_U_1_VAR, i, j, k))*idx0
             dKODBETA_U_2 = ((15.0d0/64.0d0)*vars(BETA_U_2_VAR, i, j, k + 1) - 3.0d0/32.0d0* &
                             vars(BETA_U_2_VAR, i, j, k + 2) + (1.0d0/64.0d0)*vars(BETA_U_2_VAR, &
                                                                   i, j, k + 3) + (15.0d0/64.0d0)*vars(BETA_U_2_VAR, i, j, k - 1) - &
                             3.0d0/32.0d0*vars(BETA_U_2_VAR, i, j, k - 2) + (1.0d0/64.0d0)*vars &
                             (BETA_U_2_VAR, i, j, k - 3) - 5.0d0/16.0d0*vars(BETA_U_2_VAR, i, j, &
-                                                                k))/dx2 + ((15.0d0/64.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 3.0d0 &
+                                                               k))*idx2 + ((15.0d0/64.0d0)*vars(BETA_U_2_VAR, i, j + 1, k) - 3.0d0 &
                                                                     /32.0d0*vars(BETA_U_2_VAR, i, j + 2, k) + (1.0d0/64.0d0)*vars( &
                                                                 BETA_U_2_VAR, i, j + 3, k) + (15.0d0/64.0d0)*vars(BETA_U_2_VAR, i, &
                                                                 j - 1, k) - 3.0d0/32.0d0*vars(BETA_U_2_VAR, i, j - 2, k) + (1.0d0/ &
                                                                       64.0d0)*vars(BETA_U_2_VAR, i, j - 3, k) - 5.0d0/16.0d0*vars( &
-                                                               BETA_U_2_VAR, i, j, k))/dx1 + ((15.0d0/64.0d0)*vars(BETA_U_2_VAR, i &
+                                                              BETA_U_2_VAR, i, j, k))*idx1 + ((15.0d0/64.0d0)*vars(BETA_U_2_VAR, i &
                                                                 + 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_2_VAR, i + 2, j, k) + (1.0d0 &
                                                                   /64.0d0)*vars(BETA_U_2_VAR, i + 3, j, k) + (15.0d0/64.0d0)*vars( &
                                                                BETA_U_2_VAR, i - 1, j, k) - 3.0d0/32.0d0*vars(BETA_U_2_VAR, i - 2, &
                                                                    j, k) + (1.0d0/64.0d0)*vars(BETA_U_2_VAR, i - 3, j, k) - 5.0d0/ &
-                                                                                             16.0d0*vars(BETA_U_2_VAR, i, j, k))/dx0
+                                                                                            16.0d0*vars(BETA_U_2_VAR, i, j, k))*idx0
 
             AdvDBETABETA_U_0 = BETA_U_0*(ddnDBETA_UL_00*merge(1.d0, 0.d0, BETA_U_0 < 0) + &
                                          dupDBETA_UL_00*merge(1.d0, 0.d0, BETA_U_0 > 0)) + BETA_U_1*( &
@@ -4187,4 +3935,5 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
    call MoL_releaseDataPtr(tileDesc, rhs, activeRHS)
    call MoL_releaseDataPtr(tileDesc, vars, MOL_EVOLVED)
+
 end subroutine Spacetime_molFastRHS_tile
