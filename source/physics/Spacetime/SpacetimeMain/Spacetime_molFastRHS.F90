@@ -20,7 +20,7 @@
 !!
 !! @stubref(Spacetime_molFastRHS)
 subroutine Spacetime_molFastRHS(t, activeRHS, dtWeight)
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator, Grid_fillGuardCells
    use Grid_iterator, only: Grid_iterator_t
    use Grid_tile, only: Grid_tile_t
 
@@ -36,6 +36,8 @@ subroutine Spacetime_molFastRHS(t, activeRHS, dtWeight)
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
+
+   call Grid_fillGuardCells(CENTER, ALLDIR)
 
    call Grid_getTileIterator(itor, LEAF)
 
