@@ -156,11 +156,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !! clause. I have done this to simplify the kernel launching in the GPU and also to
         !! really inventory all data that needs to move to the device memory for computation
         @M hy_stages_t
+           ng=hy_limitsArray(stage)
+           @M hy_setLims(ng)
            do dir=1,NDIM
               @M hy_calc_lim
            end do
+        @M hy_end_stages_t
 
-        @M hy_end_stages_t    
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
