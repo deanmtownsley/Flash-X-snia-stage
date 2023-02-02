@@ -58,6 +58,7 @@ module eos_localInterface
        integer,optional,INTENT(in) :: vecBegin,vecEnd
        logical, optional, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
        real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+       integer, optional, INTENT(out)    :: diagFlag
      end subroutine eos_multiGamma
   end interface
 
