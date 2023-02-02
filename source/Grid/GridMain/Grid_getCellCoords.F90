@@ -187,6 +187,7 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   end if
 
   if (SIZE(coordinates) < nElements) then
+     print*,hi(axis),lo(axis), SIZE(Coordinates),AXIS
       call Driver_abort("[Grid_getCellCoords] coordinates is too small")
   end if
 

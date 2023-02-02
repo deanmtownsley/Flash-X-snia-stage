@@ -1,4 +1,4 @@
-##python:genLines
+##python3:genLines
 
 def genLines(setupvars):
     yield "PPDEFINE FLASH_MULTISPECIES"

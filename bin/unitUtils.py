@@ -388,7 +388,7 @@ class UnitList:
       # split unitnames into list describing path
       pathlist = [unitname.split("/") for unitname in list(self.units.keys())]
       # First do a lexicographic sort as that should get most of elements in place
-      # since this is optimized in python, we have done most of the work without using
+      # since this is optimized in python3, we have done most of the work without using
       # our fancy ordering
       pathlist.sort() 
       # now use our fancy sorting routine, so hopefully there are few calls to our 
