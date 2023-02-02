@@ -51,6 +51,7 @@ mr_nsubcycle = 1
 
 sim_dt = 0.00125
 nend  = 10000
+dr_shortenlaststepbeforetmax = True
 
 
 # I/O
