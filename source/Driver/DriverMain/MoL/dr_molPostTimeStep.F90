@@ -32,7 +32,7 @@
 !!
 !!***
 subroutine dr_molPostTimeStep(t)
-   ! use Spacetime_interface,  only: Spacetime_molPostTimeStep
+   use Spacetime_interface, only: Spacetime_molPostTimeStep
    use Hydro_interface, only: Hydro_molPostTimeStep
    use RadTrans_interface, only: RadTrans_molPostTimeStep
    use Simulation_interface, only: Simulation_molPostTimeStep
@@ -41,7 +41,7 @@ subroutine dr_molPostTimeStep(t)
 
    real, intent(in) :: t
 
-   ! call Spacetime_molPostTimeStep  (t)
+   call Spacetime_molPostTimeStep(t)
    call Hydro_molPostTimeStep(t)
    call RadTrans_molPostTimeStep(t)
    call Simulation_molPostTimeStep(t)

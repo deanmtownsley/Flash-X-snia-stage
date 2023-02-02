@@ -47,6 +47,8 @@ subroutine Driver_finalizeAll()
   use Stencils_interface, ONLY: Stencils_finalize
   use ImBound_interface, ONLY: ImBound_finalize
   use MoL_interface, ONLY: MoL_finalize
+  use Spacetime_interface, ONLY: Spacetime_finalize
+
 implicit none
 #include "mpif.h"
 
@@ -68,6 +70,8 @@ implicit none
   call Hydro_finalize()           ! Hydrodynamics
   
   call Eos_finalize()             ! Equation of State
+
+  call Spacetime_finalize()       ! Spacetime
 
   call Gravity_finalize()         ! Gravity
 
