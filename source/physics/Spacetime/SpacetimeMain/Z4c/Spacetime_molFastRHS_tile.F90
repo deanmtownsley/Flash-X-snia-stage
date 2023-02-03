@@ -28,6 +28,7 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                        ATILDE_LL_11_RHS, ATILDE_LL_12_RHS, ATILDE_LL_22_RHS, &
                        THETAFUNC_RHS, GAMTILDE_U_0_RHS, GAMTILDE_U_1_RHS, GAMTILDE_U_2_RHS, &
                        ALPHA_RHS, BETA_U_0_RHS, BETA_U_1_RHS, BETA_U_2_RHS, &
+                       z4c_harmonicLapse, z4c_stationaryShift, &
                        eta => z4c_eta, kappa1 => z4c_kappa1, kappa2 => z4c_kappa2, KOSigma => z4c_KOSigma
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
@@ -1241,9 +1242,9 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                            dDDGAMTILDE_LLLL_0001*invGAMTILDE_UU_01 - &
                            dDDGAMTILDE_LLLL_0002*invGAMTILDE_UU_02 - &
                            dDDGAMTILDE_LLLL_0012*invGAMTILDE_UU_12 - &
-                           0.5d0*dDDGAMTILDE_LLLL_0000*invGAMTILDE_UU_00 - &
-                           0.5d0*dDDGAMTILDE_LLLL_0011*invGAMTILDE_UU_11 - &
-                           0.5d0*dDDGAMTILDE_LLLL_0022*invGAMTILDE_UU_22
+                           0.5d0*(dDDGAMTILDE_LLLL_0000*invGAMTILDE_UU_00 + &
+                                  dDDGAMTILDE_LLLL_0011*invGAMTILDE_UU_11 + &
+                                  dDDGAMTILDE_LLLL_0022*invGAMTILDE_UU_22)
 
             Rtilde_LL_01 = 0.5d0*(GAMTILDE_LL_00*dDGAMTILDE_UL_01 + GAMTILDE_LL_01*dDGAMTILDE_UL_00 + &
                                   GAMTILDE_LL_01*dDGAMTILDE_UL_11 + GAMTILDE_LL_02*dDGAMTILDE_UL_21 + &
@@ -1277,66 +1278,43 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                            Gamtilde_LLL_211*Gamtilde_ULL_202*invGAMTILDE_UU_12 + &
                            Gamtilde_LLL_212*Gamtilde_ULL_200*invGAMTILDE_UU_02 + &
                            Gamtilde_LLL_212*Gamtilde_ULL_201*invGAMTILDE_UU_12 + &
-                           Gamtilde_LLL_212*Gamtilde_ULL_202*invGAMTILDE_UU_22 - 1.0d0/2.0d0 &
-                           *dDDGAMTILDE_LLLL_0100*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_0101* &
-                           invGAMTILDE_UU_01 - dDDGAMTILDE_LLLL_0102*invGAMTILDE_UU_02 - &
-                           1.0d0/2.0d0*dDDGAMTILDE_LLLL_0111*invGAMTILDE_UU_11 - &
-                           dDDGAMTILDE_LLLL_0112*invGAMTILDE_UU_12 - 1.0d0/2.0d0* &
-                           dDDGAMTILDE_LLLL_0122*invGAMTILDE_UU_22 + invGAMTILDE_UU_00*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_001 + Gamtilde_LLL_100* &
-                           Gamtilde_ULL_000) + invGAMTILDE_UU_00*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_101 + Gamtilde_LLL_101*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_00*(Gamtilde_LLL_002*Gamtilde_ULL_201 + &
-                                              Gamtilde_LLL_102*Gamtilde_ULL_200) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_011 + Gamtilde_LLL_100* &
-                           Gamtilde_ULL_001) + invGAMTILDE_UU_01*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_001 + Gamtilde_LLL_101*Gamtilde_ULL_000) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_111 + &
-                                              Gamtilde_LLL_101*Gamtilde_ULL_101) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_211 + Gamtilde_LLL_102* &
-                           Gamtilde_ULL_201) + invGAMTILDE_UU_01*(Gamtilde_LLL_011* &
-                                                                  Gamtilde_ULL_101 + Gamtilde_LLL_111*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_012*Gamtilde_ULL_201 + &
-                                              Gamtilde_LLL_112*Gamtilde_ULL_200) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_012 + Gamtilde_LLL_100* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_02*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_112 + Gamtilde_LLL_101*Gamtilde_ULL_102) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_001 + &
-                                              Gamtilde_LLL_102*Gamtilde_ULL_000) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_212 + Gamtilde_LLL_102* &
-                           Gamtilde_ULL_202) + invGAMTILDE_UU_02*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_101 + Gamtilde_LLL_112*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_022*Gamtilde_ULL_201 + &
-                                              Gamtilde_LLL_122*Gamtilde_ULL_200) + invGAMTILDE_UU_11*( &
-                           Gamtilde_LLL_001*Gamtilde_ULL_011 + Gamtilde_LLL_101* &
-                           Gamtilde_ULL_001) + invGAMTILDE_UU_11*(Gamtilde_LLL_011* &
-                                                                  Gamtilde_ULL_111 + Gamtilde_LLL_111*Gamtilde_ULL_101) + &
-                           invGAMTILDE_UU_11*(Gamtilde_LLL_012*Gamtilde_ULL_211 + &
-                                              Gamtilde_LLL_112*Gamtilde_ULL_201) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_001*Gamtilde_ULL_012 + Gamtilde_LLL_101* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_12*(Gamtilde_LLL_002* &
-                                                                  Gamtilde_ULL_011 + Gamtilde_LLL_102*Gamtilde_ULL_001) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_011*Gamtilde_ULL_112 + &
-                                              Gamtilde_LLL_111*Gamtilde_ULL_102) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_012*Gamtilde_ULL_111 + Gamtilde_LLL_112* &
-                           Gamtilde_ULL_101) + invGAMTILDE_UU_12*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_212 + Gamtilde_LLL_112*Gamtilde_ULL_202) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_022*Gamtilde_ULL_211 + &
-                                              Gamtilde_LLL_122*Gamtilde_ULL_201) + invGAMTILDE_UU_22*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_012 + Gamtilde_LLL_102* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_22*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_112 + Gamtilde_LLL_112*Gamtilde_ULL_102) + &
-                           invGAMTILDE_UU_22*(Gamtilde_LLL_022*Gamtilde_ULL_212 + &
-                                              Gamtilde_LLL_122*Gamtilde_ULL_202)
-            Rtilde_LL_02 = 0.5d0*GAMTILDE_LL_00*dDGAMTILDE_UL_02 + 0.5d0* &
-                           GAMTILDE_LL_01*dDGAMTILDE_UL_12 + 0.5d0*GAMTILDE_LL_02* &
-                           dDGAMTILDE_UL_00 + 0.5d0*GAMTILDE_LL_02*dDGAMTILDE_UL_22 &
-                           + 0.5d0*GAMTILDE_LL_12*dDGAMTILDE_UL_10 + 0.5d0* &
-                           GAMTILDE_LL_22*dDGAMTILDE_UL_20 + 0.5d0*GamtildeD_U_0* &
-                           Gamtilde_LLL_002 + 0.5d0*GamtildeD_U_0*Gamtilde_LLL_200 + &
-                           0.5d0*GamtildeD_U_1*Gamtilde_LLL_012 + 0.5d0* &
-                           GamtildeD_U_1*Gamtilde_LLL_201 + 0.5d0*GamtildeD_U_2* &
-                           Gamtilde_LLL_022 + 0.5d0*GamtildeD_U_2*Gamtilde_LLL_202 + &
+                           Gamtilde_LLL_212*Gamtilde_ULL_202*invGAMTILDE_UU_22 - &
+                           0.5d0*dDDGAMTILDE_LLLL_0100*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_0101*invGAMTILDE_UU_01 - &
+                           dDDGAMTILDE_LLLL_0102*invGAMTILDE_UU_02 - 0.5d0*dDDGAMTILDE_LLLL_0111*invGAMTILDE_UU_11 - &
+                           dDDGAMTILDE_LLLL_0112*invGAMTILDE_UU_12 - 0.5d0*dDDGAMTILDE_LLLL_0122*invGAMTILDE_UU_22 + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_000*Gamtilde_ULL_001 + Gamtilde_LLL_100*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_001*Gamtilde_ULL_101 + Gamtilde_LLL_101*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_002*Gamtilde_ULL_201 + Gamtilde_LLL_102*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_000*Gamtilde_ULL_011 + Gamtilde_LLL_100*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_001 + Gamtilde_LLL_101*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_111 + Gamtilde_LLL_101*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_002*Gamtilde_ULL_211 + Gamtilde_LLL_102*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_011*Gamtilde_ULL_101 + Gamtilde_LLL_111*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_012*Gamtilde_ULL_201 + Gamtilde_LLL_112*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_000*Gamtilde_ULL_012 + Gamtilde_LLL_100*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_001*Gamtilde_ULL_112 + Gamtilde_LLL_101*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_001 + Gamtilde_LLL_102*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_212 + Gamtilde_LLL_102*Gamtilde_ULL_202) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_012*Gamtilde_ULL_101 + Gamtilde_LLL_112*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_022*Gamtilde_ULL_201 + Gamtilde_LLL_122*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_001*Gamtilde_ULL_011 + Gamtilde_LLL_101*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_011*Gamtilde_ULL_111 + Gamtilde_LLL_111*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_012*Gamtilde_ULL_211 + Gamtilde_LLL_112*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_001*Gamtilde_ULL_012 + Gamtilde_LLL_101*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_002*Gamtilde_ULL_011 + Gamtilde_LLL_102*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_011*Gamtilde_ULL_112 + Gamtilde_LLL_111*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_012*Gamtilde_ULL_111 + Gamtilde_LLL_112*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_012*Gamtilde_ULL_212 + Gamtilde_LLL_112*Gamtilde_ULL_202) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_022*Gamtilde_ULL_211 + Gamtilde_LLL_122*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_002*Gamtilde_ULL_012 + Gamtilde_LLL_102*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_012*Gamtilde_ULL_112 + Gamtilde_LLL_112*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_022*Gamtilde_ULL_212 + Gamtilde_LLL_122*Gamtilde_ULL_202)
+            Rtilde_LL_02 = 0.5d0*(GAMTILDE_LL_00*dDGAMTILDE_UL_02 + GAMTILDE_LL_01*dDGAMTILDE_UL_12 + &
+                                  GAMTILDE_LL_02*dDGAMTILDE_UL_00 + GAMTILDE_LL_02*dDGAMTILDE_UL_22 + &
+                                  GAMTILDE_LL_12*dDGAMTILDE_UL_10 + GAMTILDE_LL_22*dDGAMTILDE_UL_20 + &
+                                  GamtildeD_U_0*Gamtilde_LLL_002 + GamtildeD_U_0*Gamtilde_LLL_200 + &
+                                  GamtildeD_U_1*Gamtilde_LLL_012 + GamtildeD_U_1*Gamtilde_LLL_201 + &
+                                  GamtildeD_U_2*Gamtilde_LLL_022 + GamtildeD_U_2*Gamtilde_LLL_202) + &
                            Gamtilde_LLL_002*Gamtilde_ULL_000*invGAMTILDE_UU_00 + &
                            Gamtilde_LLL_002*Gamtilde_ULL_001*invGAMTILDE_UU_01 + &
                            Gamtilde_LLL_002*Gamtilde_ULL_002*invGAMTILDE_UU_02 + &
@@ -1363,120 +1341,94 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                            Gamtilde_LLL_212*Gamtilde_ULL_202*invGAMTILDE_UU_12 + &
                            Gamtilde_LLL_222*Gamtilde_ULL_200*invGAMTILDE_UU_02 + &
                            Gamtilde_LLL_222*Gamtilde_ULL_201*invGAMTILDE_UU_12 + &
-                           Gamtilde_LLL_222*Gamtilde_ULL_202*invGAMTILDE_UU_22 - 1.0d0/2.0d0 &
-                           *dDDGAMTILDE_LLLL_0200*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_0201* &
-                           invGAMTILDE_UU_01 - dDDGAMTILDE_LLLL_0202*invGAMTILDE_UU_02 - &
-                           1.0d0/2.0d0*dDDGAMTILDE_LLLL_0211*invGAMTILDE_UU_11 - &
-                           dDDGAMTILDE_LLLL_0212*invGAMTILDE_UU_12 - 1.0d0/2.0d0* &
-                           dDDGAMTILDE_LLLL_0222*invGAMTILDE_UU_22 + invGAMTILDE_UU_00*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_002 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_000) + invGAMTILDE_UU_00*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_201*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_00*(Gamtilde_LLL_002*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_202*Gamtilde_ULL_200) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_012 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_001) + invGAMTILDE_UU_01*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_002 + Gamtilde_LLL_201*Gamtilde_ULL_000) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_112 + &
-                                              Gamtilde_LLL_201*Gamtilde_ULL_101) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_212 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_201) + invGAMTILDE_UU_01*(Gamtilde_LLL_011* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_211*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_012*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_212*Gamtilde_ULL_200) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_000*Gamtilde_ULL_022 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_02*(Gamtilde_LLL_001* &
-                                                                  Gamtilde_ULL_122 + Gamtilde_LLL_201*Gamtilde_ULL_102) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_002 + &
-                                              Gamtilde_LLL_202*Gamtilde_ULL_000) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_222 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_202) + invGAMTILDE_UU_02*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_212*Gamtilde_ULL_100) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_022*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_200) + invGAMTILDE_UU_11*( &
-                           Gamtilde_LLL_001*Gamtilde_ULL_012 + Gamtilde_LLL_201* &
-                           Gamtilde_ULL_001) + invGAMTILDE_UU_11*(Gamtilde_LLL_011* &
-                                                                  Gamtilde_ULL_112 + Gamtilde_LLL_211*Gamtilde_ULL_101) + &
-                           invGAMTILDE_UU_11*(Gamtilde_LLL_012*Gamtilde_ULL_212 + &
-                                              Gamtilde_LLL_212*Gamtilde_ULL_201) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_001*Gamtilde_ULL_022 + Gamtilde_LLL_201* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_12*(Gamtilde_LLL_002* &
-                                                                  Gamtilde_ULL_012 + Gamtilde_LLL_202*Gamtilde_ULL_001) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_011*Gamtilde_ULL_122 + &
-                                              Gamtilde_LLL_211*Gamtilde_ULL_102) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_012*Gamtilde_ULL_112 + Gamtilde_LLL_212* &
-                           Gamtilde_ULL_101) + invGAMTILDE_UU_12*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_222 + Gamtilde_LLL_212*Gamtilde_ULL_202) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_022*Gamtilde_ULL_212 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_201) + invGAMTILDE_UU_22*( &
-                           Gamtilde_LLL_002*Gamtilde_ULL_022 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_002) + invGAMTILDE_UU_22*(Gamtilde_LLL_012* &
-                                                                  Gamtilde_ULL_122 + Gamtilde_LLL_212*Gamtilde_ULL_102) + &
-                           invGAMTILDE_UU_22*(Gamtilde_LLL_022*Gamtilde_ULL_222 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_202)
-            Rtilde_LL_11 = GAMTILDE_LL_01*dDGAMTILDE_UL_01 + GAMTILDE_LL_11*dDGAMTILDE_UL_11 &
-                           + GAMTILDE_LL_12*dDGAMTILDE_UL_21 + GamtildeD_U_0* &
-                           Gamtilde_LLL_101 + GamtildeD_U_1*Gamtilde_LLL_111 + GamtildeD_U_2 &
-                           *Gamtilde_LLL_112 + Gamtilde_LLL_001*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_00 + Gamtilde_LLL_001*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_01 + Gamtilde_LLL_001*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_02 + Gamtilde_LLL_011*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_01 + Gamtilde_LLL_011*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_11 + Gamtilde_LLL_011*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_12 + Gamtilde_LLL_012*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_02 + Gamtilde_LLL_012*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_12 + Gamtilde_LLL_012*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_22 + 2*Gamtilde_LLL_100*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_00 + 2*Gamtilde_LLL_100*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_01 + 2*Gamtilde_LLL_100*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_02 + 2*Gamtilde_LLL_101*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_01 + 2*Gamtilde_LLL_101*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_11 + 2*Gamtilde_LLL_101*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_12 + 3*Gamtilde_LLL_101*Gamtilde_ULL_101* &
-                           invGAMTILDE_UU_00 + 3*Gamtilde_LLL_101*Gamtilde_ULL_111* &
-                           invGAMTILDE_UU_01 + 3*Gamtilde_LLL_101*Gamtilde_ULL_112* &
-                           invGAMTILDE_UU_02 + 2*Gamtilde_LLL_102*Gamtilde_ULL_001* &
-                           invGAMTILDE_UU_02 + 2*Gamtilde_LLL_102*Gamtilde_ULL_011* &
-                           invGAMTILDE_UU_12 + 2*Gamtilde_LLL_102*Gamtilde_ULL_012* &
-                           invGAMTILDE_UU_22 + 2*Gamtilde_LLL_102*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_00 + 2*Gamtilde_LLL_102*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_01 + 2*Gamtilde_LLL_102*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_02 + 3*Gamtilde_LLL_111*Gamtilde_ULL_101* &
-                           invGAMTILDE_UU_01 + 3*Gamtilde_LLL_111*Gamtilde_ULL_111* &
-                           invGAMTILDE_UU_11 + 3*Gamtilde_LLL_111*Gamtilde_ULL_112* &
-                           invGAMTILDE_UU_12 + 3*Gamtilde_LLL_112*Gamtilde_ULL_101* &
-                           invGAMTILDE_UU_02 + 3*Gamtilde_LLL_112*Gamtilde_ULL_111* &
-                           invGAMTILDE_UU_12 + 3*Gamtilde_LLL_112*Gamtilde_ULL_112* &
-                           invGAMTILDE_UU_22 + 2*Gamtilde_LLL_112*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_01 + 2*Gamtilde_LLL_112*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_11 + 2*Gamtilde_LLL_112*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_12 + 2*Gamtilde_LLL_122*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_02 + 2*Gamtilde_LLL_122*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_12 + 2*Gamtilde_LLL_122*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_22 + Gamtilde_LLL_201*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_00 + Gamtilde_LLL_201*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_01 + Gamtilde_LLL_201*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_02 + Gamtilde_LLL_211*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_01 + Gamtilde_LLL_211*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_11 + Gamtilde_LLL_211*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_12 + Gamtilde_LLL_212*Gamtilde_ULL_201* &
-                           invGAMTILDE_UU_02 + Gamtilde_LLL_212*Gamtilde_ULL_211* &
-                           invGAMTILDE_UU_12 + Gamtilde_LLL_212*Gamtilde_ULL_212* &
-                           invGAMTILDE_UU_22 - 1.0d0/2.0d0*dDDGAMTILDE_LLLL_1100* &
-                           invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_1101*invGAMTILDE_UU_01 - &
-                           dDDGAMTILDE_LLLL_1102*invGAMTILDE_UU_02 - 1.0d0/2.0d0* &
-                           dDDGAMTILDE_LLLL_1111*invGAMTILDE_UU_11 - dDDGAMTILDE_LLLL_1112* &
-                           invGAMTILDE_UU_12 - 1.0d0/2.0d0*dDDGAMTILDE_LLLL_1122* &
-                           invGAMTILDE_UU_22
-            Rtilde_LL_12 = 0.5d0*GAMTILDE_LL_01*dDGAMTILDE_UL_02 + 0.5d0* &
-                           GAMTILDE_LL_02*dDGAMTILDE_UL_01 + 0.5d0*GAMTILDE_LL_11* &
-                           dDGAMTILDE_UL_12 + 0.5d0*GAMTILDE_LL_12*dDGAMTILDE_UL_11 &
-                           + 0.5d0*GAMTILDE_LL_12*dDGAMTILDE_UL_22 + 0.5d0* &
-                           GAMTILDE_LL_22*dDGAMTILDE_UL_21 + 0.5d0*GamtildeD_U_0* &
-                           Gamtilde_LLL_102 + 0.5d0*GamtildeD_U_0*Gamtilde_LLL_201 + &
-                           0.5d0*GamtildeD_U_1*Gamtilde_LLL_112 + 0.5d0* &
-                           GamtildeD_U_1*Gamtilde_LLL_211 + 0.5d0*GamtildeD_U_2* &
-                           Gamtilde_LLL_122 + 0.5d0*GamtildeD_U_2*Gamtilde_LLL_212 + &
+                           Gamtilde_LLL_222*Gamtilde_ULL_202*invGAMTILDE_UU_22 - &
+                           0.5d0*dDDGAMTILDE_LLLL_0200*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_0201*invGAMTILDE_UU_01 - &
+                           dDDGAMTILDE_LLLL_0202*invGAMTILDE_UU_02 - 0.5d0*dDDGAMTILDE_LLLL_0211*invGAMTILDE_UU_11 - &
+                           dDDGAMTILDE_LLLL_0212*invGAMTILDE_UU_12 - 0.5d0*dDDGAMTILDE_LLLL_0222*invGAMTILDE_UU_22 + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_000*Gamtilde_ULL_002 + Gamtilde_LLL_200*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_001*Gamtilde_ULL_102 + Gamtilde_LLL_201*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_002*Gamtilde_ULL_202 + Gamtilde_LLL_202*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_000*Gamtilde_ULL_012 + Gamtilde_LLL_200*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_002 + Gamtilde_LLL_201*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_001*Gamtilde_ULL_112 + Gamtilde_LLL_201*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_002*Gamtilde_ULL_212 + Gamtilde_LLL_202*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_011*Gamtilde_ULL_102 + Gamtilde_LLL_211*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_012*Gamtilde_ULL_202 + Gamtilde_LLL_212*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_000*Gamtilde_ULL_022 + Gamtilde_LLL_200*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_001*Gamtilde_ULL_122 + Gamtilde_LLL_201*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_002 + Gamtilde_LLL_202*Gamtilde_ULL_000) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_002*Gamtilde_ULL_222 + Gamtilde_LLL_202*Gamtilde_ULL_202) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_012*Gamtilde_ULL_102 + Gamtilde_LLL_212*Gamtilde_ULL_100) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_022*Gamtilde_ULL_202 + Gamtilde_LLL_222*Gamtilde_ULL_200) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_001*Gamtilde_ULL_012 + Gamtilde_LLL_201*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_011*Gamtilde_ULL_112 + Gamtilde_LLL_211*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_012*Gamtilde_ULL_212 + Gamtilde_LLL_212*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_001*Gamtilde_ULL_022 + Gamtilde_LLL_201*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_002*Gamtilde_ULL_012 + Gamtilde_LLL_202*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_011*Gamtilde_ULL_122 + Gamtilde_LLL_211*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_012*Gamtilde_ULL_112 + Gamtilde_LLL_212*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_012*Gamtilde_ULL_222 + Gamtilde_LLL_212*Gamtilde_ULL_202) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_022*Gamtilde_ULL_212 + Gamtilde_LLL_222*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_002*Gamtilde_ULL_022 + Gamtilde_LLL_202*Gamtilde_ULL_002) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_012*Gamtilde_ULL_122 + Gamtilde_LLL_212*Gamtilde_ULL_102) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_022*Gamtilde_ULL_222 + Gamtilde_LLL_222*Gamtilde_ULL_202)
+            Rtilde_LL_11 = GAMTILDE_LL_01*dDGAMTILDE_UL_01 + GAMTILDE_LL_11*dDGAMTILDE_UL_11 + &
+                           GAMTILDE_LL_12*dDGAMTILDE_UL_21 + GamtildeD_U_0*Gamtilde_LLL_101 + &
+                           GamtildeD_U_1*Gamtilde_LLL_111 + GamtildeD_U_2*Gamtilde_LLL_112 + &
+                           Gamtilde_LLL_001*Gamtilde_ULL_001*invGAMTILDE_UU_00 + &
+                           Gamtilde_LLL_001*Gamtilde_ULL_011*invGAMTILDE_UU_01 + &
+                           Gamtilde_LLL_001*Gamtilde_ULL_012*invGAMTILDE_UU_02 + &
+                           Gamtilde_LLL_011*Gamtilde_ULL_001*invGAMTILDE_UU_01 + &
+                           Gamtilde_LLL_011*Gamtilde_ULL_011*invGAMTILDE_UU_11 + &
+                           Gamtilde_LLL_011*Gamtilde_ULL_012*invGAMTILDE_UU_12 + &
+                           Gamtilde_LLL_012*Gamtilde_ULL_001*invGAMTILDE_UU_02 + &
+                           Gamtilde_LLL_012*Gamtilde_ULL_011*invGAMTILDE_UU_12 + &
+                           Gamtilde_LLL_012*Gamtilde_ULL_012*invGAMTILDE_UU_22 + &
+                           2*Gamtilde_LLL_100*Gamtilde_ULL_001*invGAMTILDE_UU_00 + &
+                           2*Gamtilde_LLL_100*Gamtilde_ULL_011*invGAMTILDE_UU_01 + &
+                           2*Gamtilde_LLL_100*Gamtilde_ULL_012*invGAMTILDE_UU_02 + &
+                           2*Gamtilde_LLL_101*Gamtilde_ULL_001*invGAMTILDE_UU_01 + &
+                           2*Gamtilde_LLL_101*Gamtilde_ULL_011*invGAMTILDE_UU_11 + &
+                           2*Gamtilde_LLL_101*Gamtilde_ULL_012*invGAMTILDE_UU_12 + &
+                           3*Gamtilde_LLL_101*Gamtilde_ULL_101*invGAMTILDE_UU_00 + &
+                           3*Gamtilde_LLL_101*Gamtilde_ULL_111*invGAMTILDE_UU_01 + &
+                           3*Gamtilde_LLL_101*Gamtilde_ULL_112*invGAMTILDE_UU_02 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_001*invGAMTILDE_UU_02 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_011*invGAMTILDE_UU_12 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_012*invGAMTILDE_UU_22 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_201*invGAMTILDE_UU_00 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_211*invGAMTILDE_UU_01 + &
+                           2*Gamtilde_LLL_102*Gamtilde_ULL_212*invGAMTILDE_UU_02 + &
+                           3*Gamtilde_LLL_111*Gamtilde_ULL_101*invGAMTILDE_UU_01 + &
+                           3*Gamtilde_LLL_111*Gamtilde_ULL_111*invGAMTILDE_UU_11 + &
+                           3*Gamtilde_LLL_111*Gamtilde_ULL_112*invGAMTILDE_UU_12 + &
+                           3*Gamtilde_LLL_112*Gamtilde_ULL_101*invGAMTILDE_UU_02 + &
+                           3*Gamtilde_LLL_112*Gamtilde_ULL_111*invGAMTILDE_UU_12 + &
+                           3*Gamtilde_LLL_112*Gamtilde_ULL_112*invGAMTILDE_UU_22 + &
+                           2*Gamtilde_LLL_112*Gamtilde_ULL_201*invGAMTILDE_UU_01 + &
+                           2*Gamtilde_LLL_112*Gamtilde_ULL_211*invGAMTILDE_UU_11 + &
+                           2*Gamtilde_LLL_112*Gamtilde_ULL_212*invGAMTILDE_UU_12 + &
+                           2*Gamtilde_LLL_122*Gamtilde_ULL_201*invGAMTILDE_UU_02 + &
+                           2*Gamtilde_LLL_122*Gamtilde_ULL_211*invGAMTILDE_UU_12 + &
+                           2*Gamtilde_LLL_122*Gamtilde_ULL_212*invGAMTILDE_UU_22 + &
+                           Gamtilde_LLL_201*Gamtilde_ULL_201*invGAMTILDE_UU_00 + &
+                           Gamtilde_LLL_201*Gamtilde_ULL_211*invGAMTILDE_UU_01 + &
+                           Gamtilde_LLL_201*Gamtilde_ULL_212*invGAMTILDE_UU_02 + &
+                           Gamtilde_LLL_211*Gamtilde_ULL_201*invGAMTILDE_UU_01 + &
+                           Gamtilde_LLL_211*Gamtilde_ULL_211*invGAMTILDE_UU_11 + &
+                           Gamtilde_LLL_211*Gamtilde_ULL_212*invGAMTILDE_UU_12 + &
+                           Gamtilde_LLL_212*Gamtilde_ULL_201*invGAMTILDE_UU_02 + &
+                           Gamtilde_LLL_212*Gamtilde_ULL_211*invGAMTILDE_UU_12 + &
+                           Gamtilde_LLL_212*Gamtilde_ULL_212*invGAMTILDE_UU_22 - &
+                           0.5d0*dDDGAMTILDE_LLLL_1100*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_1101*invGAMTILDE_UU_01 - &
+                           dDDGAMTILDE_LLLL_1102*invGAMTILDE_UU_02 - 0.5d0*dDDGAMTILDE_LLLL_1111*invGAMTILDE_UU_11 - &
+                           dDDGAMTILDE_LLLL_1112*invGAMTILDE_UU_12 - 0.5d0*dDDGAMTILDE_LLLL_1122*invGAMTILDE_UU_22
+            Rtilde_LL_12 = 0.5d0*(GAMTILDE_LL_01*dDGAMTILDE_UL_02 + GAMTILDE_LL_02*dDGAMTILDE_UL_01 + &
+                                  GAMTILDE_LL_11*dDGAMTILDE_UL_12 + GAMTILDE_LL_12*dDGAMTILDE_UL_11 + &
+                                  GAMTILDE_LL_12*dDGAMTILDE_UL_22 + GAMTILDE_LL_22*dDGAMTILDE_UL_21 + &
+                                  GamtildeD_U_0*Gamtilde_LLL_102 + GamtildeD_U_0*Gamtilde_LLL_201 + &
+                                  GamtildeD_U_1*Gamtilde_LLL_112 + GamtildeD_U_1*Gamtilde_LLL_211 + &
+                                  GamtildeD_U_2*Gamtilde_LLL_122 + GamtildeD_U_2*Gamtilde_LLL_212) + &
                            Gamtilde_LLL_002*Gamtilde_ULL_001*invGAMTILDE_UU_00 + &
                            Gamtilde_LLL_002*Gamtilde_ULL_011*invGAMTILDE_UU_01 + &
                            Gamtilde_LLL_002*Gamtilde_ULL_012*invGAMTILDE_UU_02 + &
@@ -1503,57 +1455,37 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                            Gamtilde_LLL_212*Gamtilde_ULL_212*invGAMTILDE_UU_12 + &
                            Gamtilde_LLL_222*Gamtilde_ULL_201*invGAMTILDE_UU_02 + &
                            Gamtilde_LLL_222*Gamtilde_ULL_211*invGAMTILDE_UU_12 + &
-                           Gamtilde_LLL_222*Gamtilde_ULL_212*invGAMTILDE_UU_22 - 1.0d0/2.0d0 &
-                           *dDDGAMTILDE_LLLL_1200*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_1201* &
-                           invGAMTILDE_UU_01 - dDDGAMTILDE_LLLL_1202*invGAMTILDE_UU_02 - &
-                           1.0d0/2.0d0*dDDGAMTILDE_LLLL_1211*invGAMTILDE_UU_11 - &
-                           dDDGAMTILDE_LLLL_1212*invGAMTILDE_UU_12 - 1.0d0/2.0d0* &
-                           dDDGAMTILDE_LLLL_1222*invGAMTILDE_UU_22 + invGAMTILDE_UU_00*( &
-                           Gamtilde_LLL_100*Gamtilde_ULL_002 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_001) + invGAMTILDE_UU_00*(Gamtilde_LLL_101* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_201*Gamtilde_ULL_101) + &
-                           invGAMTILDE_UU_00*(Gamtilde_LLL_102*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_202*Gamtilde_ULL_201) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_100*Gamtilde_ULL_012 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_011) + invGAMTILDE_UU_01*(Gamtilde_LLL_101* &
-                                                                  Gamtilde_ULL_002 + Gamtilde_LLL_201*Gamtilde_ULL_001) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_101*Gamtilde_ULL_112 + &
-                                              Gamtilde_LLL_201*Gamtilde_ULL_111) + invGAMTILDE_UU_01*( &
-                           Gamtilde_LLL_102*Gamtilde_ULL_212 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_211) + invGAMTILDE_UU_01*(Gamtilde_LLL_111* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_211*Gamtilde_ULL_101) + &
-                           invGAMTILDE_UU_01*(Gamtilde_LLL_112*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_212*Gamtilde_ULL_201) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_100*Gamtilde_ULL_022 + Gamtilde_LLL_200* &
-                           Gamtilde_ULL_012) + invGAMTILDE_UU_02*(Gamtilde_LLL_101* &
-                                                                  Gamtilde_ULL_122 + Gamtilde_LLL_201*Gamtilde_ULL_112) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_102*Gamtilde_ULL_002 + &
-                                              Gamtilde_LLL_202*Gamtilde_ULL_001) + invGAMTILDE_UU_02*( &
-                           Gamtilde_LLL_102*Gamtilde_ULL_222 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_212) + invGAMTILDE_UU_02*(Gamtilde_LLL_112* &
-                                                                  Gamtilde_ULL_102 + Gamtilde_LLL_212*Gamtilde_ULL_101) + &
-                           invGAMTILDE_UU_02*(Gamtilde_LLL_122*Gamtilde_ULL_202 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_201) + invGAMTILDE_UU_11*( &
-                           Gamtilde_LLL_101*Gamtilde_ULL_012 + Gamtilde_LLL_201* &
-                           Gamtilde_ULL_011) + invGAMTILDE_UU_11*(Gamtilde_LLL_111* &
-                                                                  Gamtilde_ULL_112 + Gamtilde_LLL_211*Gamtilde_ULL_111) + &
-                           invGAMTILDE_UU_11*(Gamtilde_LLL_112*Gamtilde_ULL_212 + &
-                                              Gamtilde_LLL_212*Gamtilde_ULL_211) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_101*Gamtilde_ULL_022 + Gamtilde_LLL_201* &
-                           Gamtilde_ULL_012) + invGAMTILDE_UU_12*(Gamtilde_LLL_102* &
-                                                                  Gamtilde_ULL_012 + Gamtilde_LLL_202*Gamtilde_ULL_011) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_111*Gamtilde_ULL_122 + &
-                                              Gamtilde_LLL_211*Gamtilde_ULL_112) + invGAMTILDE_UU_12*( &
-                           Gamtilde_LLL_112*Gamtilde_ULL_112 + Gamtilde_LLL_212* &
-                           Gamtilde_ULL_111) + invGAMTILDE_UU_12*(Gamtilde_LLL_112* &
-                                                                  Gamtilde_ULL_222 + Gamtilde_LLL_212*Gamtilde_ULL_212) + &
-                           invGAMTILDE_UU_12*(Gamtilde_LLL_122*Gamtilde_ULL_212 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_211) + invGAMTILDE_UU_22*( &
-                           Gamtilde_LLL_102*Gamtilde_ULL_022 + Gamtilde_LLL_202* &
-                           Gamtilde_ULL_012) + invGAMTILDE_UU_22*(Gamtilde_LLL_112* &
-                                                                  Gamtilde_ULL_122 + Gamtilde_LLL_212*Gamtilde_ULL_112) + &
-                           invGAMTILDE_UU_22*(Gamtilde_LLL_122*Gamtilde_ULL_222 + &
-                                              Gamtilde_LLL_222*Gamtilde_ULL_212)
+                           Gamtilde_LLL_222*Gamtilde_ULL_212*invGAMTILDE_UU_22 - &
+                           0.5d0*dDDGAMTILDE_LLLL_1200*invGAMTILDE_UU_00 - dDDGAMTILDE_LLLL_1201*invGAMTILDE_UU_01 - &
+                           dDDGAMTILDE_LLLL_1202*invGAMTILDE_UU_02 - 0.5d0*dDDGAMTILDE_LLLL_1211*invGAMTILDE_UU_11 - &
+                           dDDGAMTILDE_LLLL_1212*invGAMTILDE_UU_12 - 0.5d0*dDDGAMTILDE_LLLL_1222*invGAMTILDE_UU_22 + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_100*Gamtilde_ULL_002 + Gamtilde_LLL_200*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_101*Gamtilde_ULL_102 + Gamtilde_LLL_201*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_00*(Gamtilde_LLL_102*Gamtilde_ULL_202 + Gamtilde_LLL_202*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_100*Gamtilde_ULL_012 + Gamtilde_LLL_200*Gamtilde_ULL_011) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_101*Gamtilde_ULL_002 + Gamtilde_LLL_201*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_101*Gamtilde_ULL_112 + Gamtilde_LLL_201*Gamtilde_ULL_111) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_102*Gamtilde_ULL_212 + Gamtilde_LLL_202*Gamtilde_ULL_211) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_111*Gamtilde_ULL_102 + Gamtilde_LLL_211*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_01*(Gamtilde_LLL_112*Gamtilde_ULL_202 + Gamtilde_LLL_212*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_100*Gamtilde_ULL_022 + Gamtilde_LLL_200*Gamtilde_ULL_012) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_101*Gamtilde_ULL_122 + Gamtilde_LLL_201*Gamtilde_ULL_112) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_102*Gamtilde_ULL_002 + Gamtilde_LLL_202*Gamtilde_ULL_001) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_102*Gamtilde_ULL_222 + Gamtilde_LLL_202*Gamtilde_ULL_212) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_112*Gamtilde_ULL_102 + Gamtilde_LLL_212*Gamtilde_ULL_101) + &
+                           invGAMTILDE_UU_02*(Gamtilde_LLL_122*Gamtilde_ULL_202 + Gamtilde_LLL_222*Gamtilde_ULL_201) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_101*Gamtilde_ULL_012 + Gamtilde_LLL_201*Gamtilde_ULL_011) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_111*Gamtilde_ULL_112 + Gamtilde_LLL_211*Gamtilde_ULL_111) + &
+                           invGAMTILDE_UU_11*(Gamtilde_LLL_112*Gamtilde_ULL_212 + Gamtilde_LLL_212*Gamtilde_ULL_211) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_101*Gamtilde_ULL_022 + Gamtilde_LLL_201*Gamtilde_ULL_012) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_102*Gamtilde_ULL_012 + Gamtilde_LLL_202*Gamtilde_ULL_011) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_111*Gamtilde_ULL_122 + Gamtilde_LLL_211*Gamtilde_ULL_112) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_112*Gamtilde_ULL_112 + Gamtilde_LLL_212*Gamtilde_ULL_111) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_112*Gamtilde_ULL_222 + Gamtilde_LLL_212*Gamtilde_ULL_212) + &
+                           invGAMTILDE_UU_12*(Gamtilde_LLL_122*Gamtilde_ULL_212 + Gamtilde_LLL_222*Gamtilde_ULL_211) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_102*Gamtilde_ULL_022 + Gamtilde_LLL_202*Gamtilde_ULL_012) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_112*Gamtilde_ULL_122 + Gamtilde_LLL_212*Gamtilde_ULL_112) + &
+                           invGAMTILDE_UU_22*(Gamtilde_LLL_122*Gamtilde_ULL_222 + Gamtilde_LLL_222*Gamtilde_ULL_212)
             Rtilde_LL_22 = GAMTILDE_LL_02*dDGAMTILDE_UL_02 + GAMTILDE_LL_12*dDGAMTILDE_UL_12 &
                            + GAMTILDE_LL_22*dDGAMTILDE_UL_22 + GamtildeD_U_0* &
                            Gamtilde_LLL_202 + GamtildeD_U_1*Gamtilde_LLL_212 + GamtildeD_U_2 &
@@ -1769,8 +1701,6 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
 
             divTildebeta = CovDtildebeta_UL_00 + CovDtildebeta_UL_11 + CovDtildebeta_UL_22
 
-            KOSigma = 0.100000000000000d0
-
             rhs(CHI_RHS, i, j, k) = AdvDBETACHI + (2.0d0/3.0d0)*CHI*(ALPHA*(KHAT + 2*THETAFUNC) - &
                                                                      divTildebeta) + KOSigma*dKODCHI
 
@@ -1808,10 +1738,6 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                                GAMTILDE_LL_22*dDBETA_UL_00 - 2.0d0/3.0d0*GAMTILDE_LL_22* &
                                                dDBETA_UL_11 + (4.0d0/3.0d0)*GAMTILDE_LL_22*dDBETA_UL_22 + &
                                                KOSigma*dKODGAMTILDE_LL_22
-
-            kappa1 = 1.0d0
-
-            kappa2 = 0
 
             rhs(KHAT_RHS, i, j, k) = ALPHA*ATILDE_LL_00*Atilde_UU_00 + 2*ALPHA*ATILDE_LL_01* &
                                      Atilde_UU_01 + 2*ALPHA*ATILDE_LL_02*Atilde_UU_02 + ALPHA* &
@@ -1957,24 +1883,24 @@ subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
                                                                          3.0d0)*dDDBETA_ULL_212*invGAMTILDE_UU_12 + (4.0d0/3.0d0)* &
                                              dDDBETA_ULL_222*invGAMTILDE_UU_22
 
-            mul = 1.0d0 !2.0d0/ALPHA !
-
-            mus = ALPHA**(-2)
+            if (z4c_harmonicLapse) then
+               mul = 1.0d0
+            else
+               mul = 2.0d0/ALPHA
+            end if
 
             rhs(ALPHA_RHS, i, j, k) = -ALPHA**2*KHAT*mul + AdvDBETAALPHA + KOSigma*dKODALPHA
 
-            eta = 2.0d0
+            if (.not. z4c_stationaryShift) then
+               mus = 1d0/ALPHA**2
 
-            rhs(BETA_U_0_RHS, i, j, k) = 0
-            rhs(BETA_U_1_RHS, i, j, k) = 0
-            rhs(BETA_U_2_RHS, i, j, k) = 0
-
-            !rhs(BETA_U_0_RHS, i, j, k) =       ALPHA**2*GAMTILDE_U_0*mus + AdvDBETABETA_U_0 - BETA_U_0*eta + &
-            !KOSigma*dKODBETA_U_0
-            !rhs(BETA_U_1_RHS, i, j, k) =       ALPHA**2*GAMTILDE_U_1*mus + AdvDBETABETA_U_1 - BETA_U_1*eta + &
-            !KOSigma*dKODBETA_U_1
-            !rhs(BETA_U_2_RHS, i, j, k) =       ALPHA**2*GAMTILDE_U_2*mus + AdvDBETABETA_U_2 - BETA_U_2*eta + &
-            !KOSigma*dKODBETA_U_2
+               rhs(BETA_U_0_RHS, i, j, k) = ALPHA**2*GAMTILDE_U_0*mus + AdvDBETABETA_U_0 - BETA_U_0*eta + &
+                                            KOSigma*dKODBETA_U_0
+               rhs(BETA_U_1_RHS, i, j, k) = ALPHA**2*GAMTILDE_U_1*mus + AdvDBETABETA_U_1 - BETA_U_1*eta + &
+                                            KOSigma*dKODBETA_U_1
+               rhs(BETA_U_2_RHS, i, j, k) = ALPHA**2*GAMTILDE_U_2*mus + AdvDBETABETA_U_2 - BETA_U_2*eta + &
+                                            KOSigma*dKODBETA_U_2
+            end if
 
          end do ! i
       end do ! j

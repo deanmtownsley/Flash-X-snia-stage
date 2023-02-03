@@ -38,6 +38,9 @@ subroutine Spacetime_init()
    call RuntimeParameters_get("z4c_kappa2", z4c_kappa2)
    call RuntimeParameters_get("z4c_KOSigma", z4c_KOSigma)
 
+   call RuntimeParameters_get("z4c_harmonicLapse", z4c_harmonicLapse)
+   call RuntimeParameters_get("z4c_stationaryShift", z4c_stationaryShift)
+
    call MoL_registerVariable("Z400", CHI_VAR, CHI_RHS)
    call MoL_registerVariable("Z401", GAMTILDE_LL_00_VAR, GAMTILDE_LL_00_RHS)
    call MoL_registerVariable("Z402", GAMTILDE_LL_01_VAR, GAMTILDE_LL_01_RHS)
@@ -57,7 +60,10 @@ subroutine Spacetime_init()
    call MoL_registerVariable("Z416", GAMTILDE_U_1_VAR, GAMTILDE_U_1_RHS)
    call MoL_registerVariable("Z417", GAMTILDE_U_2_VAR, GAMTILDE_U_2_RHS)
    call MoL_registerVariable("Z418", ALPHA_VAR, ALPHA_RHS)
-   call MoL_registerVariable("Z419", BETA_U_0_VAR, BETA_U_0_RHS)
-   call MoL_registerVariable("Z420", BETA_U_1_VAR, BETA_U_1_RHS)
-   call MoL_registerVariable("Z421", BETA_U_2_VAR, BETA_U_2_RHS)
+
+   if (.not. z4c_stationaryShift) then
+      call MoL_registerVariable("Z419", BETA_U_0_VAR, BETA_U_0_RHS)
+      call MoL_registerVariable("Z420", BETA_U_1_VAR, BETA_U_1_RHS)
+      call MoL_registerVariable("Z421", BETA_U_2_VAR, BETA_U_2_RHS)
+   end if
 end subroutine Spacetime_init

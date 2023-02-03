@@ -14,7 +14,7 @@ or
 - Default `flash.par` is configured to run with four MPI ranks
 - Included `plot.py` script can be ran to quickly check the solutions stability.  For the default `flash.par`:
 ```bash
-python plot.py waveequation_hdf5_plt_cnt_000*
+python plot.py unshifted_gauge_wave_hdf5_plt_cnt_000*
 ```
 
 ### TODO

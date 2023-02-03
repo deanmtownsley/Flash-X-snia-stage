@@ -1,7 +1,5 @@
 # Parameter file for the unshifted gauge wave problem
 
-sim_mass    = 0.1
-
 # Grid information
 
 nblockx = 1
@@ -64,6 +62,17 @@ plotFileIntervalTime       = 1.0
 plot_var_1 = "z400"
 plot_var_2 = "z401"
 
-basenm      = "waveequation_"
-log_file    = "waveequation.log"
-run_comment = "waveequation Test"
+basenm      = "unshifted_gauge_wave_"
+log_file    = "unshifted_gauge_wave.log"
+run_comment = "Unshifted Gauge Wave Test"
+
+# Z4c parameters
+z4c_cfl = 0.5
+
+z4c_eta = 2.0
+z4c_kappa1 = 1.0
+z4c_kappa2 = 0.0
+z4c_KOSigma = 0.02
+
+z4c_harmonicLapse = True
+z4c_stationaryShift = True

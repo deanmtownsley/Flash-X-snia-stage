@@ -29,6 +29,9 @@ module z4c_data
    real, save :: z4c_kappa2
    real, save :: z4c_KOSigma
 
+   logical, save :: z4c_harmonicLapse
+   logical, save :: z4c_stationaryShift
+
    real, save :: z4c_cfl
 
    ! RHS indices from MoL - capitalized for consistency with *_VAR indices

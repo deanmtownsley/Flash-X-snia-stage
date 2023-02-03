@@ -49,3 +49,6 @@ PARAMETER z4c_KOSigma  REAL  0.1
 PARAMETER z4c_cfl      REAL  0.25
 
 # TODO: Parameter OR setup variable for gauge/slicing choice
+
+PARAMETER z4c_harmonicLapse    BOOLEAN False
+PARAMETER z4c_stationaryShift  BOOLEAN False
