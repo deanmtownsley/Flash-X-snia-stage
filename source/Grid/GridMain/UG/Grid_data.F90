@@ -117,4 +117,5 @@ Module Grid_data
   logical, save :: gr_enableTiling
   logical, save :: gr_useTiling
   integer, save :: gr_tileSize(1:MDIM)
+  integer, save :: gr_maxCells
 end Module Grid_data

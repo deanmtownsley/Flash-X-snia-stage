@@ -1,22 +1,22 @@
 !!****if* source/physics/Hydro/HydroMain/Spark/Hydro_init
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
 !!
 !! NAME
 !!
 !!  Hydro_init
 !!
 !!
-!!  For more details see the documentation of the NULL implementation
+!! SYNOPSIS
+!!
+!!  Hydro_init()
+!!
+!!
+!! DESCRIPTION
+!!
+!!  This routine initializes unit scope variables which are typically the runtime parameters.
+!!  The routine must be called once by Driver_initFlash.F90 first. Calling multiple
+!!  times will not cause any harm but is unnecessary.
+!!
+!! ARGUMENTS
 !!
 !!
 !!***
@@ -33,7 +33,7 @@ subroutine Hydro_init()
   use Logfile_interface,           ONLY : Logfile_stampMessage, &
        Logfile_stampVarMask, &
        Logfile_stamp
-  use Grid_interface,              ONLY : Grid_setFluxHandling
+  use Grid_interface,              ONLY : Grid_setFluxHandling, Grid_getMaxRefinement, Grid_getMaxCells
   use IO_interface,                ONLY : IO_getScalar, IO_setScalar
 
   implicit none
@@ -48,7 +48,6 @@ subroutine Hydro_init()
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
 
   ! Set allocation flag to false. This will allow the scratch array to only be allocated once.
-  scratch_allocated = .False.
 
   ! Everybody should know these
   call Driver_getMype(MESH_COMM,hy_meshMe)
@@ -78,6 +77,7 @@ subroutine Hydro_init()
   endif
 #endif
 
+
   !! Need to issue a warning or error if PM4dev is not used
 
   call RuntimeParameters_get("smlrho",              hy_smalldens)
@@ -104,15 +104,25 @@ subroutine Hydro_init()
   call RuntimeParameters_get("flux_correct", hy_fluxCorrect)
   call RuntimeParameters_get("flux_correct_perLevel", hy_fluxCorrectPerLevel)
   ! if (NDIM > 1) then
-     if (hy_fluxCorrect) then
-        if (hy_geometry == CARTESIAN) then
-           call Grid_setFluxHandling('consv_flux_densities')
-        else
-           call Grid_setFluxHandling('consv_fluxes')
-        endif
-     end if
+  if (hy_fluxCorrect) then
+     if (hy_geometry == CARTESIAN) then
+        call Grid_setFluxHandling('consv_flux_densities')
+     else
+        call Grid_setFluxHandling('consv_fluxes')
+     endif
+  end if
   ! end if
+  !Array indicating whether to add flux into flux buffers (True)
+  !or overwrite them (False).
+  !This array will work for RK2 & RK3
+  
+  hy_addFluxArray = .true.
+  hy_addFluxArray(1)=.false.
+
+  !set up quantities specific to RK scheme (lives in Hydro_funcs)
+  
   call RuntimeParameters_get("hy_useTiling", hy_useTiling)
+  call RuntimeParameters_get("telescoping", hy_telescoping)
   !! For correct flux correction in non-Cartesian geometry----------------------
   do i = 1, NFLUXES
      hy_fluxCorVars(i) = i
@@ -170,10 +180,58 @@ subroutine Hydro_init()
   call PhysicalConstants_get("Newton", hy_gravConst)
   hy_4piGinv = (4.*PI*hy_gravConst)**(-1)
 
-  ! Deal with units for MHD. We will ALWAYS use Gaussian CGS. Jackson 2E FTW.
-  call RuntimeParameters_get("unitsystem", hy_units)
-  if (hy_units /= "NONE" .AND. hy_units /= "none") then
-    hy_bref = sqrt(4.0*PI)
-  end if
+  hy_bref = sqrt(4.0*PI)
 
+#ifdef FLASH_GRID_UG
+  hy_fluxCorrect = .false.
+  hy_maxLev = 1
+#else  
+  ! mode=1 means lrefine_max, which does not change during sim.
+  call Grid_getMaxRefinement(hy_maxLev, mode=1)
+#endif
+
+#ifdef HY_RK3
+  !RK3 quantities
+  !Stage 1 coefficients
+  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+  ! U1 =  1 * U0           +  1 * dt*L(U0)
+  !Stage 2 coefficients
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U2 = 3/4 * U0 + 1/4 * U1 + 1/4 * dt*L(U1)
+  !Stage 3 coefficients
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
+  !(remember FORTRAN is column major)
+  hy_coeffArray = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
+  !Array containing number of guard cells on each side for
+  !the telescoping update.
+  hy_limitsArray = (/2*NSTENCIL, NSTENCIL, 0/)
+  !Weights that scale the fluxes as they are added into the buffers.
+  !Here hy_weights is
+  the same as coeff used in Github pseudocode.
+  hy_weights = (/onesixth, onesixth, twothirds/)
+#else
+  !RK2 quantities
+  ! Stage 1 coefficients
+  ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+  ! U1 =  1 * U0           +  1 * dt*L(U0)
+  ! Stage 2 coefficients
+  ! Now update solution based on conservative fluxes
+  ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
+  ! U2 = 1/2 * U0 + 1/2 * U1 + 1/2 * dt*L(U1)
+  hy_coeffArray = reshape((/1.,0.5,0.,0.,0.5,0.,1.,0.5,0./),(/3,3/))
+  hy_limitsArray = (/NSTENCIL, 0, 0/)
+  hy_weights = (/0.5,0.5,0./)
+#endif
+  call Grid_getMaxcells(hy_maxCells)
+  hy_maxCells=2*NGUARD+hy_maxCells
+
+  !$omp target update to &
+  !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
+  !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
+  !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry, &
+  !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
+  !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
+  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev,hy_maxCells)
+  
 end subroutine Hydro_init
