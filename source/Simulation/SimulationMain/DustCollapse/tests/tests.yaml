@@ -1,0 +1,128 @@
+# YAML file for test information
+
+# These tests are usually being run on 2 or 4 procs.
+
+# The following test used to be configured with -debug.
+Comparison/DustCollapse/AMR/1dSph/AMReX:
+  setupOptions: -auto -1d +spherical +amrex +serialIO +uhd +newMpole -debug +nolwf
+  parfiles: test_1dsph.debug.par
+  restartParfiles: restart_pm_sph_1d.par
+
+# The following test used to be configured with -debug.
+Comparison/DustCollapse/AMR/1dSph/spark:
+  setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +sparkinhost  +newMpole -debug
+  parfiles: test_1dsph.debug.par
+
+# The following test used to be configured with -debug.
+Comparison/DustCollapse/AMR/2dCyl/AMReX:
+  setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole -debug
+  parfiles: test_2dcyl.debug.par
+  restartParfiles: restart_pm_cyl_2d.par
+
+
+# These tests are usually being run on 4 or 8 procs.
+
+# The following test used to be configured with -debug.
+Composite/DustCollapse/AMR/1dSph/pm4dev:
+  setupOptions: -auto -1d +spherical --index-reorder +serialIO +uhd +newMpole -debug
+  parfiles: test_1dsph.par
+  restartParfiles: test_1dsph_restart.par
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Composite/DustCollapse/AMR/2dCyl/pm4dev:
+#   setupOptions: -auto -2d +cylindrical --index-reorder +serialIO +uhd +newMpole -debug
+#   parfiles: test_2dcyl.par
+#   restartParfiles: test_2dcyl_restart.par
+
+Composite/DustCollapse/AMR/2dCyl/pm4AltMorton:
+  setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True +serialIO +uhd +newMpole
+  parfiles: test_2dcyl.par
+  restartParfiles: test_2dcyl_restart.par
+
+Composite/DustCollapse/AMR/2dCyl/pm4AltMortonBittree:
+  setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True Bittree=True +serialIO +uhd +newMpole
+  parfiles: test_2dcyl.par
+  restartParfiles: test_2dcyl_restart.par
+
+# The following test should really have PseudoUG in its name in place of AMR!
+# The following test used to be configured with -debug.
+Composite/DustCollapse/AMR/3d/AMReX:
+  setupOptions: -auto -3d +cartesian +amrex +parallelIO +newMpole -debug
+  parfiles: test_3dcar.par
+  restartParfiles: test_3dcar_restart.par
+
+# The following was not in tests.yaml:
+# The following test used to be configured with -debug.
+Composite/DustCollapse/AMR/3d/pm4dev:
+  setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
+  parfiles: coldstart_pm_3d.par
+  restartParfiles: restart_pm_3d.par
+
+# The following test used to be configured with -debug.
+Composite/DustCollapse/PseudoUG/3d/pm4dev:
+  setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
+  parfiles: test_3dcar.par
+  restartParfiles: test_3dcar_restart.par
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/AMR/1dSph/pm4dev:
+#   setupOptions: -auto -1d +spherical --index-reorder +serialIO +uhd +newMpole -debug
+#   parfiles: test_1dsph.par
+#   restartParfiles: restart_pm_sph_1d.par
+
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/AMR/2dCyl/pm4dev:
+#   setupOptions: -auto -2d +cylindrical --index-reorder +serialIO +uhd +newMpole -debug
+#   parfiles: test_2dcyl.par
+#   restartParfiles: restart_pm_cyl_2d.par
+
+# The following was not in tests.toml:
+# Comparison/DustCollapse/AMR/2dCyl/pm4AltMorton:
+#   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True +serialIO +uhd +newMpole
+#   parfiles: test_2dcyl.par
+#   restartParfiles: restart_pm_cyl_2d.par
+
+# The following was not in tests.toml:
+# Comparison/DustCollapse/AMR/2dCyl/pm4Bittree:
+#   setupOptions: -auto -2d +cylindrical --index-reorder Bittree=True +serialIO +uhd +newMpole
+#   parfiles: test_2dcyl.par
+#   restartParfiles: restart_pm_cyl_2d.par
+
+# The following was not in tests.toml:
+# Comparison/DustCollapse/AMR/2dCyl/pm4AltMortonBittree:
+#   setupOptions: -auto -2d +cylindrical --index-reorder AltMorton=True Bittree=True +serialIO +uhd +newMpole
+#   parfiles: test_2dcyl.par
+#   restartParfiles: restart_pm_cyl_2d.par
+
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/AMR/3d/pm4dev:
+#   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
+#   parfiles: coldstart_pm_3d.par
+#   restartParfiles: restart_pm_3d.par
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/AMR/3d/AMReX:
+#   setupOptions: -auto -3d +cartesian +amrex +serialIO +uhd +newMpole -debug
+#   parfiles: test_3dcar.par
+#   restartParfiles: restart_pm_3d.par
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/PseudoUG/3d/pm4dev:
+#   setupOptions: -auto -3d +cartesian --index-reorder +serialIO +uhd +newMpole -debug
+#   parfiles: test_3dcar.par
+#   restartParfiles: restart_pm_3d.par
+
+# The following was not in tests.toml:
+# The following test used to be configured with -debug.
+# Comparison/DustCollapse/PseudoUG/3d/AMReX:
+#   setupOptions: -auto -3d +cartesian +amrex +serialIO +uhd +newMpole -debug
+#   parfiles: test_3dcar.debug.par
+#   restartParfiles: restart_pm_3d.par
