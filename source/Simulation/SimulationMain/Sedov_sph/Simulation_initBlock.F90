@@ -407,7 +407,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                     
                     vel = vSub * dvSub(ii,jj)
                     !sneo
-                    if (geometry == CARTESIAN) then 
+                    if ((geometry == CARTESIAN) .or. (geometry == CYLINDRICAL)) then 
                         sumVX  = sumVX  + vel*xDist*distInv
                         sumVY  = sumVY  + vel*yDist*distInv
                         sumVZ  = sumVZ  + vel*zDist*distInv
