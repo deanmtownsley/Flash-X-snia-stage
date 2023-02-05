@@ -142,7 +142,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
      end if
   end if
   
-  !sneo
+  !sneo: to avoid computing analytical solution at every time step
   ! call Grid_computeUserVars()
 
   if (io_writeMscalarIntegrals) then

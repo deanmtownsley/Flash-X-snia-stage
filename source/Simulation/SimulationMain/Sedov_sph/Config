@@ -1,6 +1,7 @@
 #       Configuration file for the Sedov explosion problem
 #       (Sedov, L. I., 1959, Similarity and Dimensional Methods
 #       in Mechanics [New York:  Academic])
+#       Modified files by sneopane to make sedov problem compatible with spherical geometry
 USESETUPVARS Grid
 USESETUPVARS withParticles
 
@@ -15,6 +16,8 @@ IF withParticles
 ENDIF
 
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
+#sneo:  
+LINKIF Grid_getCellVolume.F90 Grid/GridMain
 
 USESETUPVARS threadBlockList
 IF threadBlockList and withHydro
