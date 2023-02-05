@@ -26,7 +26,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hy_gcMask, hy_lChyp, hy_C_hyp, hy_globalComm,hy_geometry,hy_del, &
        hy_flx, hy_fly, hy_flz, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_tiny, hy_hybridRiemann,&
        hy_fareaX,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter,hy_Vc, &
-       hy_fareaY, hy_fareaZ   !sneo
+       hy_fareaY, hy_fareaZ, hy_yRight, hy_yLeft   !sneo
   use Hydro_inhost_data, ONLY : hy_pgrv,hy_pshck,hy_pflat,hy_flat3d,hy_pen
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGravAccel, hy_rk_updateSoln, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -83,9 +83,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   if (.NOT. hy_useHydro) return
   
   call Timers_start("Hydro")
-  
-  
-
   
   hdt = 0.5*dt
   
@@ -196,6 +193,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, hy_yCenter)
            allocate(hy_zCenter(zLoGC:zHiGC))
            call Grid_getCellCoords(KAXIS, CENTER, level, loGC, hiGC, hy_zCenter)
+
+           !sneo
+           allocate(hy_yRight(yLoGC:yHiGC))
+           allocate(hy_yLeft(yLoGC:yHiGC))
+           call Grid_getCellCoords(JAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_yRight)
+           call Grid_getCellCoords(JAXIS, LEFT_EDGE, level, loGC, hiGC, hy_yLeft)
         endif
         hy_del=deltas
         call setLims(NGUARD-1,blkLimits,limits)
@@ -290,13 +293,16 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            deallocate(hy_xCenter)
            deallocate(hy_xLeft)
            deallocate(hy_xRight)
+           deallocate(hy_cvol)
+           deallocate(hy_yCenter)
+           deallocate(hy_zCenter)
            !sneo
            deallocate(hy_fareaX)
            deallocate(hy_fareaY)
            deallocate(hy_fareaZ)
-           deallocate(hy_cvol)
-           deallocate(hy_yCenter)
-           deallocate(hy_zCenter)
+           deallocate(hy_yLeft)
+           deallocate(hy_yRight)
+
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
         if (hy_fluxCorrect) call Grid_putFluxData_block(tileDesc,&
@@ -361,6 +367,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
               allocate(hy_xRight(xLoGC:xHiGC))
               call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
+              !sneo
+              allocate(hy_yRight(yLoGC:yHiGC))
+              allocate(hy_yLeft(yLoGC:yHiGC))
+              call Grid_getCellCoords(JAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_yRight)
+              call Grid_getCellCoords(JAXIS, LEFT_EDGE, level, loGC, hiGC, hy_yLeft)
            endif
         
            
@@ -374,6 +385,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               deallocate(hy_fareaY)
               deallocate(hy_fareaZ)
               deallocate(hy_cvol)
+              deallocate(hy_yLeft)
+              deallocate(hy_yRight)
            end if
            call deallocate_fxscr()
            

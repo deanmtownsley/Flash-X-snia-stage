@@ -57,7 +57,8 @@ module Hydro_data
   logical :: hy_useTiling 
   real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
   real, allocatable, dimension(:,:,:) :: hy_fareaX, hy_fareaY, hy_fareaZ,hy_cvol !sneo
-  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter
+  real, allocatable, dimension(:) :: hy_xCenter, hy_xLeft, hy_xRight,hy_yCenter, hy_zCenter, hy_yLeft, hy_yRight  !sneo
+
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
  
   !One block's worth of fluxes defined generally (not assuming fixed block size mode)

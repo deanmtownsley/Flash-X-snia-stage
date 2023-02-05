@@ -47,7 +47,7 @@ subroutine hy_rk_updateSoln (Uin,blkLimits,blklimitsGC,level,hy_del, dt, dtOld, 
        hy_smallE, hy_smalldens, hy_geometry,hy_fluxCorrectPerLevel,&
        hy_fluxCorrect, hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp,&
        hy_flx, hy_fly, hy_flz
-  use Hydro_data, ONLY: hy_fareaX,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter, hy_fareaY, hy_fareaZ !sneo
+  use Hydro_data, ONLY: hy_fareaX,hy_cvol,hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter, hy_fareaY, hy_fareaZ, hy_yRight, hy_yLeft !sneo
   use Hydro_offload_data, ONLY : hy_tmpState
   use Driver_interface, ONLY : Driver_abort
   
@@ -115,7 +115,7 @@ contains
      integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI,  MAG_PHI_FLUX
      integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI,  MAG_ZI_FLUX
      integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-     real    :: dx_sph
+     real    :: dx_sph, dy_sph !sneo
      if (hy_geometry == CARTESIAN) then
         facMx = 1.0; facPx = 1.0; facMy = 1.0; facPy = 1.0; facMz = 1.0; facPz = 1.0;Sgeo = 0.0
         return
@@ -143,6 +143,7 @@ contains
         MOM_THT      = HY_YMOM
         MOM_THT_FLUX = HY_YMOM
         dx_sph = (hy_xRight(i)**3 - hy_xLeft(i)**3) / (3.*hy_xCenter(i)**2)
+        dy_sph = (cos(hy_yLeft(j)) - cos(hy_yRight(j)))/sin(hy_yCenter(j))
      end select
       
      !sneo 
@@ -183,7 +184,11 @@ contains
      ! phi term: -(T_{R \phi} + Cot(\theta)*T_{\theta \phi})/R
      Sgeo(MOM_PHI) = -((V(DENS_VAR)*V(VELX_VAR)*V(VELZ_VAR)) + &
              (V(DENS_VAR)*V(VELY_VAR)*V(VELZ_VAR))*cotan(hy_yCenter(j))) / hy_xCenter(i)
-     Sgeo(HY_XMOM) = Sgeo(HY_XMOM)*dx/dx_sph
+     !Sgeo = Sgeo * dx/dx_sph
+     !sneo
+     !Sgeo(HY_XMOM) = Sgeo(HY_XMOM)*dx/dx_sph
+     !Sgeo(MOM_THT) = Sgeo(MOM_THT)*dy/dy_sph
+     Sgeo = Sgeo * dx/dx_sph * dy/dy_sph
      endif
      if (hy_xCenter(i) < 0.0) then
         facMx = 0.
@@ -194,6 +199,15 @@ contains
         facPz = 0.
         Sgeo = 0.
      end if
+
+#if 0     
+     !sneo
+     if ((hy_yCenter(j) < 0.0) .or. (hy_yCenter(j) > PI)) then
+        facMy = 0.
+        facPy = 0.
+        Sgeo = 0.
+     end if
+#endif     
    end subroutine geoFacs
 
 

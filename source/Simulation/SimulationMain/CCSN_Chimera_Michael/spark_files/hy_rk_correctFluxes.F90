@@ -50,7 +50,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
        hy_grav, hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
        hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ,hy_fareaX,hy_cvol,&
        hy_xCenter,hy_xLeft,hy_xRight,hy_eosData, hy_mfrac, &
-       hy_fareaY, hy_fareaZ !sneo
+       hy_fareaY, hy_fareaZ, hy_yCenter !sneo
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -377,6 +377,15 @@ contains
        facM = 0.
        facP = 0.
     end if
+
+#if 0
+    !sneo
+    if ((hy_yCenter(j) < 0.0) .or. (hy_yCenter(j) > PI)) then
+       facM = 0.
+       facP = 0.
+    end if
+#endif
+
   end subroutine geoFacs
 
 end subroutine hy_rk_correctFluxes
