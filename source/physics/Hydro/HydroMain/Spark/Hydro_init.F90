@@ -202,14 +202,14 @@ subroutine Hydro_init()
   ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
   ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
   !(remember FORTRAN is column major)
-  hy_coeffArray = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
+  hy_coeffArray = reshape((/1.,0.75,1./3.,0.,0.25,2./3.,1.,0.25,2./3./),(/3,3/))
   !Array containing number of guard cells on each side for
   !the telescoping update.
   hy_limitsArray = (/2*NSTENCIL, NSTENCIL, 0/)
   !Weights that scale the fluxes as they are added into the buffers.
   !Here hy_weights is
-  the same as coeff used in Github pseudocode.
-  hy_weights = (/onesixth, onesixth, twothirds/)
+  !the same as coeff used in Github pseudocode.
+  hy_weights = (/1./6., 1./6., 2./3./)
 #else
   !RK2 quantities
   ! Stage 1 coefficients
