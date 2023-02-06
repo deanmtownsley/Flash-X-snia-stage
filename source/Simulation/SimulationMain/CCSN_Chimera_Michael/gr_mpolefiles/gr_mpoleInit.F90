@@ -156,7 +156,10 @@ subroutine gr_mpoleInit ()
   if (gr_mpoleGeometry == GRID_2DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCYLINDRICAL .or. &
+!sneo
+#if 0
       gr_mpoleGeometry == GRID_3DSPHERICAL   .or. &
+#endif
       gr_mpoleGeometry == GRID_3DPOLAR       .or. &
       gr_mpoleGeometry == GRID_2DPOLAR       .or. &
       gr_mpoleGeometry == GRID_1DPOLAR) then
@@ -225,12 +228,14 @@ subroutine gr_mpoleInit ()
           call Driver_abort ('[gr_mpoleInit] ERROR: angular Z-coord out of range')
       end if
   end if
-
+!sneo
+#if 0
   if (gr_mpoleSymmetryPlane2D) then
       if (gr_mpoleDomainXmin /= ZERO .or. gr_mpoleDomainYmin /= ZERO) then
           call Driver_abort ('[gr_mpoleInit] ERROR: 2D symmetry plane requires xmin,ymin = 0')
       end if
   end if
+#endif
 !
 !
 !  ...Set the internal domain limits, if radial/angular geometries are present.
@@ -248,6 +253,16 @@ subroutine gr_mpoleInit ()
            gr_mpoleDomainRmax     = gr_mpoleDomainXmax
            gr_mpoleDomainPhiMax   = gr_mpoleDomainZmax     ! order is important here
            gr_mpoleDomainZmax     = gr_mpoleDomainYmax     ! otherwise we loose Z info
+
+     !sneo      
+     case (GRID_3DSPHERICAL)
+
+           gr_mpoleDomainRmin     = gr_mpoleDomainXmin
+           gr_mpoleDomainThetaMin = gr_mpoleDomainYmin     
+           gr_mpoleDomainPhiMin   = gr_mpoleDomainZmin     
+           gr_mpoleDomainRmax     = gr_mpoleDomainXmax
+           gr_mpoleDomainThetaMax = gr_mpoleDomainYmax     
+           gr_mpoleDomainPhiMax   = gr_mpoleDomainZmax     
 
      case (GRID_2DCYLINDRICAL)
 
@@ -314,7 +329,7 @@ subroutine gr_mpoleInit ()
 
        end if
 
-     case (GRID_3DCYLINDRICAL)
+     case (GRID_3DCYLINDRICAL, GRID_3DSPHERICAL)
 
            gr_mpoleMaxM  = gr_mpoleMaxL
            gr_mpoleMaxLM = (gr_mpoleMaxL + 1) * (gr_mpoleMaxL + 1)

@@ -38,6 +38,7 @@ subroutine gr_mpoleMoments (idensvar)
   use gr_mpoleInterface, ONLY : gr_mpoleMom3Dcartesian,   &
                                 gr_mpoleMom2Dcylindrical, &
                                 gr_mpoleMom2Dspherical, &
+                                gr_mpoleMom3Dspherical, &
                                 gr_mpoleMom1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGeometry
@@ -65,6 +66,10 @@ subroutine gr_mpoleMoments (idensvar)
     case (GRID_2DCYLINDRICAL)
 
           call gr_mpoleMom2Dcylindrical (idensvar)
+
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleMom3Dspherical(idensvar)
 
     case (GRID_2DSPHERICAL)
 

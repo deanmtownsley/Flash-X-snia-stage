@@ -38,6 +38,7 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
   use gr_mpoleInterface, ONLY : gr_mpoleCen3Dcartesian,   &
                                 gr_mpoleCen2Dcylindrical, &
                                 gr_mpoleCen2Dspherical, &
+                                gr_mpoleCen3Dspherical, &
                                 gr_mpoleCen1Dspherical
   
   use Driver_interface, ONLY : Driver_abort
@@ -64,6 +65,10 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
     case (GRID_2DCYLINDRICAL)
 
           call gr_mpoleCen2Dcylindrical (idensvar)
+
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleCen3Dspherical   (idensvar)
 
     case (GRID_2DSPHERICAL)
 

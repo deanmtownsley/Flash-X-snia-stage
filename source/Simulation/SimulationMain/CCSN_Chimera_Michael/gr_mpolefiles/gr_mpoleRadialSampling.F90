@@ -34,6 +34,7 @@ subroutine gr_mpoleRadialSampling ()
   use gr_mpoleInterface, ONLY : gr_mpoleRad3Dcartesian,   &
                                 gr_mpoleRad2Dcylindrical, &
                                 gr_mpoleRad2Dspherical, &
+                                gr_mpoleRad3Dspherical, &
                                 gr_mpoleRad1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGeometry
@@ -59,6 +60,10 @@ subroutine gr_mpoleRadialSampling ()
     case (GRID_2DCYLINDRICAL)
 
           call gr_mpoleRad2Dcylindrical ()
+
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleRad3Dspherical   ()
 
     case (GRID_2DSPHERICAL)
 

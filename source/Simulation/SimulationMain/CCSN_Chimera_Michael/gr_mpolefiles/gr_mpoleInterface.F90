@@ -65,6 +65,12 @@ module gr_mpoleInterface
   end interface
 
   interface
+     subroutine gr_mpoleCen3Dspherical (idensvar)
+       integer, intent (in) :: idensvar
+     end subroutine gr_mpoleCen3Dspherical
+  end interface
+
+  interface
      subroutine gr_mpoleCenterOfExpansion (idensvar)
        integer, intent (in) :: idensvar
      end subroutine gr_mpoleCenterOfExpansion
@@ -133,6 +139,12 @@ module gr_mpoleInterface
   end interface
 
   interface
+     subroutine gr_mpoleMom3Dspherical (idensvar)
+       integer, intent (in) :: idensvar
+     end subroutine gr_mpoleMom3Dspherical
+  end interface
+
+  interface
      subroutine gr_mpoleMomBins1Dspherical (maxQtype)
        integer, intent (in) :: maxQtype
      end subroutine gr_mpoleMomBins1Dspherical
@@ -160,6 +172,12 @@ module gr_mpoleInterface
      subroutine gr_mpoleMomBins3Dcylindrical (maxQtype)
        integer, intent (in) :: maxQtype
      end subroutine gr_mpoleMomBins3Dcylindrical
+  end interface
+
+  interface
+     subroutine gr_mpoleMomBins3Dspherical (maxQtype)
+       integer, intent (in) :: maxQtype
+     end subroutine gr_mpoleMomBins3Dspherical
   end interface
 
   interface
@@ -199,6 +217,12 @@ module gr_mpoleInterface
   end interface
 
   interface
+     subroutine gr_mpolePot3Dspherical (ipotvar)
+       integer, intent (in) :: ipotvar
+     end subroutine gr_mpolePot3Dspherical
+  end interface
+
+  interface
      subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
        integer, intent (in) :: ipotvar
        real,    intent (in) :: Poisson_factor
@@ -233,6 +257,11 @@ module gr_mpoleInterface
   interface
      subroutine gr_mpoleRad3Dcylindrical()
      end subroutine gr_mpoleRad3Dcylindrical
+  end interface
+
+  interface
+     subroutine gr_mpoleRad3Dspherical()
+     end subroutine gr_mpoleRad3Dspherical
   end interface
 
   interface
