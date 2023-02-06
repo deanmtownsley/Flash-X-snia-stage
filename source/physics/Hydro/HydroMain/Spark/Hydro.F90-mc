@@ -83,8 +83,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   call Timers_start("Hydro")
   
-  call check_if_on_GPU()
-  
   hdt = 0.5*dt
   
 
@@ -506,27 +504,4 @@ contains
     
   end subroutine shockDetect
 
-  
-  
-  subroutine check_if_on_GPU()
-!$  use omp_lib, ONLY : omp_is_initial_device
-    use Driver_interface, ONLY : Driver_abort
-    implicit none
-    logical :: onCPU
-    
-    onCPU = .TRUE.
-    
-    !$omp target map(tofrom:onCPU)
-    !$  onCPU = omp_is_initial_device()
-    !$omp end target
-    
-    if (onCPU) then
-       print *, "---------------- Running on CPU --------------------------------"
-       ! call Driver_abort("Unable to run on GPU")
-    else
-       print *, "---------------- Running on GPU --------------------------------"
-    end if
-    
-  end subroutine check_if_on_GPU
-  
 end subroutine Hydro

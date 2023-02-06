@@ -232,5 +232,29 @@ subroutine Hydro_init()
   !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
   !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev)
-  
+
+  call check_if_omp_offload()
+
+contains
+
+  subroutine check_if_omp_offload()
+!$  use omp_lib, ONLY: omp_is_initial_device
+    use Hydro_data, ONLY: hy_meshMe
+    implicit none
+
+    logical :: onCPU
+
+    onCPU = .true.
+    !$omp target map(tofrom: onCPU)
+    !$  onCPU = omp_is_initial_device()
+    !$omp end target
+    !$omp barrier
+
+    if (.not. onCPU) then
+      write(*, '(A, I3, A)'), "[Hydro_init] proc ", hy_meshMe, ":  GPU offloading is available"
+    end if
+  end subroutine check_if_omp_offload
+
 end subroutine Hydro_init
+
+
