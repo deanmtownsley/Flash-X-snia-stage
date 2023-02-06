@@ -140,9 +140,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_start("recon")
      !$omp target teams distribute parallel do simd collapse(4) &
      !$omp default(none) &
-     !$omp private(i, j, k, v, W5p, W5m, betaWeno, Alpha5, invSumAlpha, omega) &
+     !$omp private(i, j, k, v, W5p, W5m, betaWeno, Alpha5, omega, invSumAlpha, abs_betadiff) &
      !$omp shared(klim, dir, stage, hy_rope, hy_uMinus, hy_uPlus, hy_flat, &
-     !$omp        coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3)
+     !$omp        coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm)
      @M hy_loop(klim)
           do v=1,NRECON
              @M hy_recon
