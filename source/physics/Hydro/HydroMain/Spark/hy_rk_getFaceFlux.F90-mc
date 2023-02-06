@@ -131,7 +131,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               else if (dir == JAXIS) then
                  @M hy_setRope(j,i,k)
               else if (dir == KAXIS) then
-                 @M hy_setRope(k,j,i)
+                 @M hy_setRope(j,k,i)
               endif
      @M loop_end_3d
 
@@ -275,7 +275,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         !$omp shared(lim, dir, stage, hy_flux, hy_flz)
         @M hy_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
-              hy_flz(v,k,j,i) = hy_flux(v,i,j,k)
+              hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
            end do
         @M loop_end_3d
      end select
