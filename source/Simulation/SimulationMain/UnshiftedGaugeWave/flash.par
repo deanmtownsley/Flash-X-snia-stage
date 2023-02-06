@@ -72,7 +72,7 @@ z4c_cfl = 0.5
 z4c_eta = 2.0
 z4c_kappa1 = 1.0
 z4c_kappa2 = 0.0
-z4c_KOSigma = 0.02
+z4c_KOSigma = 0.1
 
 z4c_harmonicLapse = True
 z4c_stationaryShift = True
