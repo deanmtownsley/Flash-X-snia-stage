@@ -20,23 +20,20 @@ As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000
 #### Status
 This test has been verified to function correctly on GCE/compute-12 with the Intel 20.4 compiler and can therefore be included carefully in testsuites.  Please note that more tests will likely be added as more Milhoja grid backend functionality is added.  Please refer to the Doxygen `todo` information contained in the various test-specific files to understand how this test will likely grow.
 
-#### Official GCE Testsuite Specifications
+#### GCE Testsuite Specifications
 ```
-[test_1D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/1D/TestInit"
-    setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    numProcs = 1
-    parFile = "test_milhoja_grid.par"
+# The following test used to be configured with -debug.
+UnitTest/Grid/AMR/Milhoja/1D/TestInit:
+  setupOptions: -auto  -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par
 
-[test_2D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/2D/TestInit"
-    setupOptions = "-auto -debug -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    numProcs = 1
-    parFile = "test_milhoja_grid.par"
+# The following test used to be configured with -debug.
+UnitTest/Grid/AMR/Milhoja/2D/TestInit:
+  setupOptions: -auto  -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par
 
-[test_3D]
-    testNode = "UnitTest/Grid/AMR/Milhoja/3D/TestInit"
-    setupOptions = "-auto -debug -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
-    numProcs = 1
-    parFile = "test_milhoja_grid.par"
+# The following test used to be configured with -debug.
+UnitTest/Grid/AMR/Milhoja/3D/TestInit:
+  setupOptions: -auto  -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_milhoja_grid.par
 ```

@@ -17,9 +17,9 @@ int FTOC(sim_expected_mesh_values)(const int * const pMyPE,
   const char * AttDatasetName[NUM_ATTR] = {"minimum","maximum"};
 
 #if defined (EXP_HDF5)
-  const char FileName[] = "flash_hdf5_chk_0001";
+  const char FileName[] = "flashx_hdf5_chk_0001";
 #elif defined (EXP_PNETCDF)
-  const char FileName[] = "flash_ncmpi_chk_0001";
+  const char FileName[] = "flashx_ncmpi_chk_0001";
 #else
   const char FileName[] = "error";
   if (myPE == 0) {

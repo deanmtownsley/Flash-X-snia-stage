@@ -1,0 +1,9 @@
+# 1D adiabatic collapse of Woosley & Weaver (1995) s15s7b2 progenitor w/ WeakLib, evolved to 0.2s
+# (restart picks up from 0.1s)
+["Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib"]
+    setupOptions = "-auto -1d +spherical -nxb=16 +pm4dev +hdf5 +newMpole +uhd +weaklib"
+    parfiles = ["test_amr_unsplit_1d.par"]
+    restartParfiles = ["test_amr_unsplit_1d_restart.par"]
+    transfers = ["object/s15s7b2_short",
+                 "object/wl-EOS-SFHo-15-25-50-noBCK.h5"]
+    errTol = 8.0e-12
