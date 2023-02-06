@@ -1,0 +1,18 @@
+# Config file for the advection-reaction IMEX unit test
+
+REQUIRES Driver/DriverMain/MoL
+# REQUIRES numericalTools/MoL/MoLMain/IMEX
+
+GUARDCELLS 2
+
+VARIABLE U  TYPE: GENERIC
+
+# Parameters for the advection-reaction equation du/dt + alpha*du/dx = -beta*u
+PARAMETER sim_alpha    REAL   1.0
+PARAMETER sim_beta     REAL   0.1
+
+
+# Initial data: u(x) = A*exp(-(x-mu)^2/(2 sigma^2))
+PARAMETER sim_A      REAL  5.0
+PARAMETER sim_mu     REAL  0.5
+PARAMETER sim_sigma  REAL  0.2

@@ -1,5 +1,5 @@
 
-!!****f* source/Simulation/SimulationMain/unitTest/MoL/sim_verifySolution
+!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/sim_verifySolution
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -37,9 +37,10 @@
 !!
 !!***
 subroutine sim_verifySolution(t, valid, maxError)
-   use Simulation_data, only: sim_beta
+   use Simulation_data, only: sim_A, sim_mu, sim_sigma, sim_beta, sim_alpha
 
-   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
+   use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator, &
+                             Grid_getCellCoords
    use Grid_iterator, only: Grid_iterator_t
    use Grid_tile, only: Grid_tile_t
 
@@ -60,16 +61,15 @@ subroutine sim_verifySolution(t, valid, maxError)
    integer :: i, j, k
    integer, dimension(LOW:HIGH, MDIM) :: lim
 
-   real :: u_actual, v_actual, u_err, v_err
+   real, allocatable :: x(:)
+   real :: u_actual, u_err
 
-   real, parameter :: errorTolerance = 1d-6
+   real, parameter :: errorTolerance = 2.5d-2
 
    nullify (vars)
 
    maxError = 0d0
    valid = .false.
-
-   ! No guard-cell filling necessary - just a bunch of local equations to solve
 
    call Grid_getTileIterator(itor, LEAF)
 
@@ -82,22 +82,26 @@ subroutine sim_verifySolution(t, valid, maxError)
 
       lim = tileDesc%limits
 
+      allocate (x(tileDesc%limits(LOW, IAXIS):tileDesc%limits(HIGH, IAXIS)))
+      x = 0d0
+      call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                              tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), x)
+
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               u_actual = sqrt(3d0 + cos(sim_beta*t))
-               v_actual = sqrt(2d0 + cos(t))
+               u_actual = exp(-sim_beta*t)*sim_A*exp(-0.5d0*((x(i) - sim_alpha*t - sim_mu)/sim_sigma)**2)
 
-               u_err = abs(vars(U_VAR, i, j, k) - u_actual)
-               v_err = abs(vars(V_VAR, i, j, k) - v_actual)
+               u_err = abs((vars(U_VAR, i, j, k) - u_actual))
 
                maxError = max(maxError, u_err)
-               maxError = max(maxError, v_err)
             end do ! i
          end do ! j
       end do ! k
 
       call tileDesc%releaseDataPtr(vars, CENTER)
+
+      deallocate (x)
 
       call itor%next()
    end do TileLoop

@@ -1,0 +1,43 @@
+# Parameter file for the MoL IMEX unit test
+
+sim_alpha = 0.1
+sim_beta  = 0.01
+sim_A     = 1.0
+sim_mu    = 1.0
+sim_sigma = 0.1
+
+# Grid information
+
+nblockx = 1
+iprocs  = 1
+
+geometry = "cartesian"
+
+# Grid size is arbitrary - each cell evolves its own equation
+iGridSize = 500
+xmin = 0.0
+xmax = 5.0
+
+# Boundary conditions (arbitrary)
+
+xl_boundary_type = "periodic"
+xr_boundary_type = "periodic"
+
+! timestep is 0.5*dx/sim_alpha
+tmax = 1.0
+nend = 1000
+
+dr_shortenlaststepbeforetmax = True
+
+imex_method = "imex-fbe"
+
+# I/O (none really)
+
+restart = .false.
+
+checkpointFileIntervalTime = 1000.0
+plotFileIntervalTime       = 1000.0
+
+basenm      = "unitTest_MoL_IMEX_"
+log_file    = "unitTest_MoL_IMEX.log"
+run_comment = "MoL IMEX Unit Test"
