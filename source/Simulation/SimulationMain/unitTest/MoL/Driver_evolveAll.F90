@@ -191,7 +191,7 @@ subroutine Driver_evolveAll()
 
    end do
 
-   call sim_verifySolution(dr_simTime, valid, maxError)
+   call sim_verifySolution(dr_simTime, dr_dt, valid, maxError)
    if (dr_globalMe == MASTER_PE) then
       print *, "MoL unit test passed?", valid
       print *, "Max error: ", maxError

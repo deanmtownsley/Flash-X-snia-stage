@@ -18,6 +18,7 @@
 !!
 !! SYNOPSIS
 !!  call sim_verifySolution(real,    intent(in)  :: t,
+!!                          real,    intent(in)  :: dt,
 !!                          logical, intent(out) :: valid,
 !!                          real,    intent(out) :: maxError)
 !!
@@ -31,24 +32,27 @@
 !! ARGUMENTS
 !!
 !!    t        : The current time that the solution is at
+!!    dt       : The current timestep
 !!    valid    : Is this a valid solution
 !!    maxError : The maximum error present in the solution that was utilized
 !!               to determine if the solution was valid
 !!
 !!***
-subroutine sim_verifySolution(t, valid, maxError)
+subroutine sim_verifySolution(t, dt, valid, maxError)
    use Simulation_data, only: sim_beta
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_iterator, only: Grid_iterator_t
    use Grid_tile, only: Grid_tile_t
 
+   use MoL_interface, only: MoL_getOrder
+
 #include "Simulation.h"
 #include "constants.h"
 
    implicit none
 
-   real, intent(in) :: t
+   real, intent(in) :: t, dt
    logical, intent(out) :: valid
    real, intent(out) :: maxError
 
@@ -62,7 +66,9 @@ subroutine sim_verifySolution(t, valid, maxError)
 
    real :: u_actual, v_actual, u_err, v_err
 
-   real, parameter :: errorTolerance = 1d-6
+   real :: errorTolerance
+
+   errorTolerance = 2d0*dt**(MoL_getOrder() - 1)
 
    nullify (vars)
 

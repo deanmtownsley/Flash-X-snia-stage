@@ -19,9 +19,9 @@ module sim_interface
    implicit none
 
    interface
-      subroutine sim_verifySolution(t, valid, maxError)
+      subroutine sim_verifySolution(t, dt, valid, maxError)
          implicit none
-         real, intent(in) :: t
+         real, intent(in) :: t, dt
          logical, intent(out) :: valid
          real, intent(out) :: maxError
       end subroutine sim_verifySolution
