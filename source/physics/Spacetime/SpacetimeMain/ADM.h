@@ -45,4 +45,17 @@
 #define KYZ_VAR SP14_VAR
 #define KZZ_VAR SP15_VAR
 
+#define TE_VAR SP16_VAR
+
+#define TSX_VAR SP17_VAR
+#define TSY_VAR SP18_VAR
+#define TSZ_VAR SP19_VAR
+
+#define TSXX_VAR SP20_VAR
+#define TSXY_VAR SP21_VAR
+#define TSXZ_VAR SP22_VAR
+#define TSYY_VAR SP23_VAR
+#define TSYZ_VAR SP24_VAR
+#define TSZZ_VAR SP25_VAR
+
 #endif
