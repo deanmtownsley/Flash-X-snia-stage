@@ -10,6 +10,7 @@ print("Opening {} HDF5 files...".format(len(fnames)))
 
 chis = []
 gtildes = []
+gs = []
 
 xs = []
 ts = []
@@ -19,6 +20,7 @@ for fname in fnames:
         ts.append(hf["real scalars"][0][1])
         chis.append(hf["z400"][()])
         gtildes.append(hf["z401"][()])
+        gs.append(hf["sp04"][()])
         xs.append(hf["bounding box"][()])
 
 ts = np.array(ts)
@@ -43,7 +45,7 @@ for i in range(len(chis)):
 
 plt.ylabel(r"$\chi$")
 plt.xlabel(r"$x$")
-plt.savefig("einsteinsolver.pdf")
+plt.savefig("gauge_wave.pdf")
 
 plt.figure()
 res = (gtildes[1][0, 0, 0, :]/chis[1][0, 0, 0, :] -
@@ -51,14 +53,15 @@ res = (gtildes[1][0, 0, 0, :]/chis[1][0, 0, 0, :] -
 
 plt.plot(x, res)
 
-plt.savefig("einsteinsolver_residual.pdf")
+plt.savefig("gauge_wave_residual.pdf")
 
 nx = chis[0].shape[3]
 amplitude = np.max(gtildes[0][0, 0, 0, :]/chis[0][0, 0, 0, :])
 L2norm = np.sqrt(np.sum((res/amplitude)**2)) / nx
 print("residual norm =", L2norm)
-if L2norm < 1e-7:
-    print("Success!")
-else:
+try:
+    assert(L2norm < 1e-7)
+except:
     print("ERROR: the residual is too large")
-    assert (False)
+else:
+    print("Success!")
