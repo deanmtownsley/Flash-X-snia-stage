@@ -1,1 +1,3 @@
-Spacetime += z4c_data.o
+Spacetime += z4c_data.o \
+				 z4c_interface.o \
+				 z4c_calculateADM.o

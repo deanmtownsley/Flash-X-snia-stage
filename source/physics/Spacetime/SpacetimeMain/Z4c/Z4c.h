@@ -1,7 +1,7 @@
 #ifndef __FLASHX__Z4C_H
 #define __FLASHX__Z4C_H
 
-#include "Simulation.h"
+#include "ADM.h"
 
 /*
     Rename 4-character compliant variable names to
