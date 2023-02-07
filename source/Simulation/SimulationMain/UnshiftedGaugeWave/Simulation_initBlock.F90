@@ -53,7 +53,8 @@ subroutine Simulation_initBlock(vars, tileDesc)
    integer :: i, j, k
    real :: t
 
-   real :: A, d, b, dtb, dxb, chi, Ksclr, gamma_LL_00, gamma_LL_11, gamma_LL_22, K_LL_00, K_LL_11, K_LL_22, x_U_0, x_U_1, x_U_2
+   real :: A, d, b, dtb, dxb, dyb, dzb, chi, Ksclr, &
+           gamma_LL_00, gamma_LL_11, gamma_LL_22, K_LL_00, K_LL_11, K_LL_22, x_U_0, x_U_1, x_U_2
 
    real, allocatable :: x(:)
    real, allocatable :: y(:)
@@ -84,52 +85,52 @@ subroutine Simulation_initBlock(vars, tileDesc)
          do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
 
             x_U_0 = x(i)
-            x_U_1 = y(i)
-            x_U_2 = z(i)
+            x_U_1 = y(j)
+            x_U_2 = z(k)
 
             A = 0.05d0
-            d = 1.0d0
-            b = A*sin(2*PI*x_U_0/d)
-            dtb = -(2*PI*A/d)*cos(2*PI*x_U_0/d)
-            dxb = (2*PI*A/d)*cos(2*PI*x_U_0/d)
-            chi = (1/(1 - b))**(1.0d0/3.0d0)
+            d = 1d0
+            b = A*sin(2d0*PI*x_U_0/d)
+            dtb = -(2d0*PI*A/d)*cos(2*PI*x_U_0/d)
+            dxb = (2d0*PI*A/d)*cos(2*PI*x_U_0/d)
+            chi = (1d0/(1d0 - b))**(1.0d0/3.0d0)
 
-            Ksclr = (dtb/2d0)*(1/(1 - b))**(3.0d0/2.0d0)
+            Ksclr = (dtb/2d0)*(1d0/(1d0 - b))**1.5d0
 
-            gamma_LL_00 = 1 - b; 
-            gamma_LL_11 = 1; 
-            gamma_LL_22 = 1; 
-            K_LL_00 = (dtb/2d0)*(1/(1 - b))**(1.0d0/2.0d0)
+            gamma_LL_00 = 1d0 - b
+            gamma_LL_11 = 1d0
+            gamma_LL_22 = 1d0
+            K_LL_00 = (dtb/2d0)*sqrt(1d0/(1d0 - b))
             K_LL_11 = 0
             K_LL_22 = 0
 
             vars(CHI_VAR, i, j, k) = chi
 
-            vars(GAMTILDE_LL_00_VAR, i, j, k) = chi*(1 - b)
-            vars(GAMTILDE_LL_01_VAR, i, j, k) = 0
-            vars(GAMTILDE_LL_02_VAR, i, j, k) = 0
+            vars(GAMTILDE_LL_00_VAR, i, j, k) = chi*(1d0 - b)
+            vars(GAMTILDE_LL_01_VAR, i, j, k) = 0d0
+            vars(GAMTILDE_LL_02_VAR, i, j, k) = 0d0
             vars(GAMTILDE_LL_11_VAR, i, j, k) = chi
-            vars(GAMTILDE_LL_12_VAR, i, j, k) = 0
+            vars(GAMTILDE_LL_12_VAR, i, j, k) = 0d0
             vars(GAMTILDE_LL_22_VAR, i, j, k) = chi
 
             vars(KHAT_VAR, i, j, k) = Ksclr
 
             vars(ATILDE_LL_00_VAR, i, j, k) = chi*(K_LL_00 - (1d0/3d0)*gamma_LL_00*Ksclr)
-            vars(ATILDE_LL_01_VAR, i, j, k) = 0
-            vars(ATILDE_LL_02_VAR, i, j, k) = 0
+            vars(ATILDE_LL_01_VAR, i, j, k) = 0d0
+            vars(ATILDE_LL_02_VAR, i, j, k) = 0d0
             vars(ATILDE_LL_11_VAR, i, j, k) = chi*(K_LL_11 - (1d0/3d0)*gamma_LL_11*Ksclr)
-            vars(ATILDE_LL_12_VAR, i, j, k) = 0
+            vars(ATILDE_LL_12_VAR, i, j, k) = 0d0
             vars(ATILDE_LL_22_VAR, i, j, k) = chi*(K_LL_22 - (1d0/3d0)*gamma_LL_22*Ksclr)
 
-            vars(GAMTILDE_U_0_VAR, i, j, k) = -(2*dxb/3d0)*(1/(1 - b))**(5.0d0/3.0d0)
-            vars(GAMTILDE_U_1_VAR, i, j, k) = 0
-            vars(GAMTILDE_U_2_VAR, i, j, k) = 0
+            vars(GAMTILDE_U_0_VAR, i, j, k) = -(2d0*dxb/3d0)*(1d0/(1d0 - b))**(5d0/3d0)
+            vars(GAMTILDE_U_1_VAR, i, j, k) = 0d0
+            vars(GAMTILDE_U_2_VAR, i, j, k) = 0d0
 
-            vars(ALPHA_VAR, i, j, k) = (1 - b)**(1.0d0/2.0d0)
+            vars(ALPHA_VAR, i, j, k) = sqrt(1d0 - b)
 
-            vars(BETA_U_0_VAR, i, j, k) = 0
-            vars(BETA_U_1_VAR, i, j, k) = 0
-            vars(BETA_U_2_VAR, i, j, k) = 0
+            vars(BETA_U_0_VAR, i, j, k) = 0d0
+            vars(BETA_U_1_VAR, i, j, k) = 0d0
+            vars(BETA_U_2_VAR, i, j, k) = 0d0
          end do ! i
       end do ! j
    end do ! k

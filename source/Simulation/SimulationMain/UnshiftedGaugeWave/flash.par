@@ -13,7 +13,6 @@ kprocs  = 2
 
 geometry = "cartesian"
 
-# Grid size = 201
 iGridSize = 64
 xmin = -0.5
 xmax =  0.5
@@ -61,7 +60,6 @@ plotFileIntervalTime       = 1.0
 
 plot_var_1 = "z400"
 plot_var_2 = "z401"
-plot_var_2 = "sp04"
 
 basenm      = "unshifted_gauge_wave_"
 log_file    = "unshifted_gauge_wave.log"

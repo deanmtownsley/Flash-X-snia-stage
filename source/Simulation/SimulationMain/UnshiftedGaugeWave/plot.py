@@ -10,7 +10,7 @@ print("Opening {} HDF5 files...".format(len(fnames)))
 
 chis = []
 gtildes = []
-gs = []
+# gs = []
 
 xs = []
 ts = []
@@ -20,7 +20,6 @@ for fname in fnames:
         ts.append(hf["real scalars"][0][1])
         chis.append(hf["z400"][()])
         gtildes.append(hf["z401"][()])
-        gs.append(hf["sp04"][()])
         xs.append(hf["bounding box"][()])
 
 ts = np.array(ts)
