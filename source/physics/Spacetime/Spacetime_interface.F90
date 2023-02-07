@@ -49,7 +49,7 @@ module Spacetime_interface
          type(Grid_tile_t), intent(in) :: tileDesc
          real, pointer :: solnData(:, :, :, :)
          real, intent(inout) :: dtMin
-         real, intent(inout) :: dtMinLoc(5)
+         integer, intent(inout) :: dtMinLoc(5)
       end subroutine Spacetime_computeDt
    end interface
 

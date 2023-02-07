@@ -12,28 +12,20 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spacetime_computeDt stub
+!! @brief Spacetime_computeDt implementation
 
-!> @ingroup Spacetime
+!> @ingroup Z4c
 !!
-!! @brief Calculate the minimum required timestep
+!! @brief Implements Spacetime_computeDt for the Z4c solver
 !!
-!! @details
-!! @anchor Spacetime_computeDt_stub
-!!
-!! This procedure will calculate the minimum necessary timestep
-!! required by the Spacetime unit
-!!
-!! @param  tileDesc  Descriptor for the current tile
-!! @param  solnData  Pointer to variables in UNK for the current tile
-!! @param  dtMin     On output, the minimum required timstep that
-!!                   is required by the Spacetime unit if it is
-!!                   smaller than the input value
-!! @param  dtMinLoc  The location in the grid responsible for the
-!!                   minumum required timestep, indexed as
-!!                   `(i,j,k,block,proc)`
+!! @stubref{Spacetime_computeDt}
 subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
    use Grid_tile, only: Grid_tile_t
+   use Driver_interface, only: Driver_getMype
+
+   use Simulation_data, only: sim_dt
+
+#include "constants.h"
 
    implicit none
 
@@ -42,5 +34,14 @@ subroutine Spacetime_computeDt(tileDesc, solnData, dtMin, dtMinLoc)
    real, intent(inout) :: dtMin
    integer, intent(inout) :: dtMinLoc(5)
 
-   return
+   integer :: myPE
+
+   dtMin = sim_dt
+
+   call Driver_getMype(MESH_COMM, myPE)
+
+   dtMinLoc(1:3) = tileDesc%limits(LOW, :)
+   dtMinLoc(4) = tileDesc%level
+   dtMinLoc(5) = myPE
+
 end subroutine Spacetime_computeDt

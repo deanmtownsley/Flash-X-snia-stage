@@ -24,12 +24,6 @@
 !! This procedure is responsible for adding its explicitly-integrated RHS
 !! terms to the overall RHS for a single tile during the current integration stage
 !!
-!! @attention The active RHS identifier is intended for future changes to MoL's
-!!            scratch memory for intermediate stage storage.  This currently
-!!            will always take a valule of `MOL_RHS` which will allow MoL
-!!            to automatically associate a pointer to the correct storage
-!!            for the current integration stage
-!!
 !! @param  tileDesc   Descriptor for the current tile
 !! @param  t          Time that the RHS is to be evaluated at
 !! @param  activeRHS  Data-struct identifier to use when requesting a RHS

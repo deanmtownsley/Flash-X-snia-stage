@@ -1,0 +1,54 @@
+REQUIRES numericalTools/MoL
+REQUIRES Driver/DriverMain/MoL
+
+GUARDCELLS 4
+
+# These will be re-defined to more meaningful names in Z4c.h
+VARIABLE Z400  TYPE: GENERIC    # chi
+
+VARIABLE Z401  TYPE: GENERIC    # gamtilde_ll_00
+VARIABLE Z402  TYPE: GENERIC    # gamtilde_ll_01
+VARIABLE Z403  TYPE: GENERIC    # gamtilde_ll_02
+VARIABLE Z404  TYPE: GENERIC    # gamtilde_ll_11
+VARIABLE Z405  TYPE: GENERIC    # gamtilde_ll_12
+VARIABLE Z406  TYPE: GENERIC    # gamtilde_ll_22
+
+VARIABLE Z407  TYPE: GENERIC    # khat
+
+VARIABLE Z408  TYPE: GENERIC    # atilde_ll_00
+VARIABLE Z409  TYPE: GENERIC    # atilde_ll_01
+VARIABLE Z410  TYPE: GENERIC    # atilde_ll_02
+VARIABLE Z411  TYPE: GENERIC    # atilde_ll_11
+VARIABLE Z412  TYPE: GENERIC    # atilde_ll_12
+VARIABLE Z413  TYPE: GENERIC    # atilde_ll_22
+
+VARIABLE Z414  TYPE: GENERIC    # theta
+
+VARIABLE Z415  TYPE: GENERIC    # gamtilde_u_0
+VARIABLE Z416  TYPE: GENERIC    # gamtilde_u_1
+VARIABLE Z417  TYPE: GENERIC    # gamtilde_u_2
+
+VARIABLE Z418  TYPE: GENERIC    # alpha
+
+VARIABLE Z419  TYPE: GENERIC    # beta_u_0
+VARIABLE Z420  TYPE: GENERIC    # beta_u_1
+VARIABLE Z421  TYPE: GENERIC    # beta_u_2
+
+D z4c_eta      TODO: describe me...
+D z4c_kappa1   TODO: describe me...
+D z4c_kappa2   TODO: describe me...
+D z4c_KOSigma  TODO: describe me...
+
+D z4c_cfl  Timestep CFL factor
+
+PARAMETER z4c_eta      REAL  2.0
+PARAMETER z4c_kappa1   REAL  1.0
+PARAMETER z4c_kappa2   REAL  0.0
+PARAMETER z4c_KOSigma  REAL  0.1
+
+PARAMETER z4c_cfl      REAL  0.25
+
+# TODO: Parameter OR setup variable for gauge/slicing choice
+
+PARAMETER z4c_harmonicLapse    BOOLEAN False
+PARAMETER z4c_stationaryShift  BOOLEAN False
