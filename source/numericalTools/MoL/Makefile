@@ -11,4 +11,5 @@ MoL = MoL_interface.o			\
 	  MoL_releaseFunctions.o	\
 	  MoL_regrid.o					\
 	  MoL_getDataPtr.o			\
-	  MoL_releaseDataPtr.o
+	  MoL_releaseDataPtr.o		\
+	  MoL_getOrder.o

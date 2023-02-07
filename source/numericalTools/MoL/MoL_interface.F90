@@ -114,4 +114,11 @@ module MoL_interface
       end function MoL_getRHSIndex
    end interface
 
+   interface
+      function MoL_getOrder()
+         implicit none
+         integer :: MoL_getOrder
+      end function MoL_getOrder
+   end interface
+
 end module MoL_interface
