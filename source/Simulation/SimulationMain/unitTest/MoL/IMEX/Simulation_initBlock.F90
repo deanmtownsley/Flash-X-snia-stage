@@ -35,8 +35,9 @@
 !!
 !!***
 subroutine Simulation_initBlock(vars, tileDesc)
-   use Simulation_data, only: sim_A, sim_mu, sim_sigma
+   use Simulation_data, only: sim_beta
 
+   use Driver_interface, only: Driver_getSimTime
    use Grid_tile, only: Grid_tile_t
    use Grid_interface, only: Grid_getCellCoords
 
@@ -49,21 +50,17 @@ subroutine Simulation_initBlock(vars, tileDesc)
    type(Grid_tile_t) :: tileDesc
 
    integer :: i, j, k
-   real, allocatable :: x(:)
+   real :: t
 
-   allocate (x(tileDesc%limits(LOW, IAXIS):tileDesc%limits(HIGH, IAXIS)))
-   x = 0d0
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
-                           tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), x)
+   call Driver_getSimTime(t)
 
    do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
       do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
          do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
-            vars(U_VAR, i, j, k) = sim_A*exp(-0.5d0*((x(i) - sim_mu)/sim_sigma)**2)
+            vars(U_VAR, i, j, k) = 2d0
+            vars(V_VAR, i, j, k) = sqrt(3d0)
          end do ! i
       end do ! j
    end do ! k
-
-   deallocate (x)
 
 end subroutine Simulation_initBlock

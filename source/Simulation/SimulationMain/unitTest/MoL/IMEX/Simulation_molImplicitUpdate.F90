@@ -32,7 +32,7 @@
 !!
 !!***
 subroutine Simulation_molImplicitUpdate(t, dt)
-   use Simulation_data, only: sim_beta
+   use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_iterator, only: Grid_iterator_t
@@ -53,6 +53,21 @@ subroutine Simulation_molImplicitUpdate(t, dt)
    type(Grid_tile_t) :: tileDesc
    type(Grid_iterator_t) :: itor
 
+   real :: u, v, Au, Bu, Av, Bv, cost, cosbt
+   real :: f(2), dfdv(2, 2), invdfdv(2, 2), detdfdv, du, dv, u0, v0
+
+   integer, parameter :: max_iterations = 100
+   real, parameter :: tol = 1d-10
+
+   Au = 0.5d0*sim_lambdaF
+   Bu = 0.5d0*(1d0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
+
+   Av = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   Bv = 0.5d0*sim_lambdaS
+
+   cost = cos(t)
+   cosbt = cos(sim_beta*t)
+
    nullify (vars)
 
    call Grid_getTileIterator(itor, LEAF)
@@ -71,7 +86,43 @@ subroutine Simulation_molImplicitUpdate(t, dt)
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               vars(U_VAR, i, j, k) = vars(U_VAR, i, j, k)/(1d0 + dt*sim_beta)
+               u = vars(U_VAR, i, j, k)
+               v = vars(V_VAR, i, j, k)
+
+               u0 = u
+               v0 = v
+
+               ! Newton solve
+               NewtonIteration: do n = 1, max_iterations
+                  f(1) = u - u0 - dt*((Au*(u**2 - cosbt - 3d0) - 0.5d0*sim_beta*sin(sim_beta*t))/u &
+                                      + Bu*(v**2 - cost - 2d0)/v)
+                  f(2) = v - v0 - dt*(Av*(u**2 - cosbt - 3d0)/u + Bv*(v**2 - cost - 2d0)/v)
+
+                  ! if (f .eq. 0d0) exit NewtonIteration
+
+                  dfdv(1, 1) = 1d0 - dt*(2d0*Au*(u**2 + cosbt + 3d0) + 0.5d0*sim_beta*sin(sim_beta*t))/(2d0*u**2)
+                  dfdv(1, 2) = -dt*Bu*(v**2 + cost + 2d0)/v**2
+                  dfdv(2, 1) = -dt*(Av*(u**2 + cosbt + 3d0)/u**2)
+                  dfdv(2, 2) = 1d0 - dt*(Bv*(v**2 + cost + 2d0)/v**2)
+
+                  detdfdv = dfdv(1, 1)*dfdv(2, 2) - dfdv(1, 2)*dfdv(2, 1)
+
+                  invdfdv(1, 1) = dfdv(2, 2)/detdfdv
+                  invdfdv(1, 2) = -dfdv(2, 1)/detdfdv
+                  invdfdv(2, 1) = -dfdv(1, 2)/detdfdv
+                  invdfdv(2, 2) = dfdv(1, 1)/detdfdv
+
+                  du = invdfdv(1, 1)*f(1) + invdfdv(1, 2)*f(2)
+                  dv = invdfdv(2, 1)*f(1) + invdfdv(2, 2)*f(2)
+
+                  u = u - du
+                  v = v - dv
+
+                  if (sqrt(du**2 + dv**2) .lt. tol) exit NewtonIteration
+               end do NewtonIteration
+
+               vars(U_VAR, i, j, k) = u
+               vars(V_VAR, i, j, k) = v
             end do ! i
          end do ! j
       end do ! k

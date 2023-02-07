@@ -34,7 +34,7 @@
 !!
 !!***
 subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
-   use Simulation_data, only: sim_beta, U_RHS
+   use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS, U_RHS, V_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
@@ -58,6 +58,16 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    real, dimension(:, :, :, :), pointer :: rhs, vars
    integer, dimension(LOW:HIGH, MDIM) :: lim
    integer :: i, j, k
+   real :: u, v, Au, Bu, Av, Bv, cost, cosbt
+
+   Au = 0.5d0*sim_lambdaF
+   Bu = 0.5d0*(1d0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
+
+   Av = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   Bv = 0.5d0*sim_lambdaS
+
+   cost = cos(t)
+   cosbt = cos(sim_beta*t)
 
    nullify (rhs); nullify (vars)
 
@@ -76,7 +86,16 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) - sim_beta*vars(U_VAR, i, j, k)
+               u = vars(U_VAR, i, j, k)
+               v = vars(V_VAR, i, j, k)
+
+               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) &
+                                     + (Au*(u**2 - cosbt - 3d0) - 0.5d0*sim_beta*sin(sim_beta*t))/u &
+                                     + Bu*(v**2 - cost - 2d0)/v
+
+               rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
+                                     + Av*(u**2 - cosbt - 3d0)/u &
+                                     + Bv*(v**2 - cost - 2d0)/v
             end do ! i
          end do ! j
       end do ! k

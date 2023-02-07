@@ -34,7 +34,7 @@
 !!
 !!***
 subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
-   use Simulation_data, only: U_RHS, sim_alpha
+   use Simulation_data, only: V_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
 
@@ -60,22 +60,10 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
    integer :: i, j, k
 
    integer, dimension(LOW:HIGH, MDIM) :: lim
-   real, dimension(MDIM) :: del
-
-   integer :: im, ip
-   real :: idx
-
-   if (sim_alpha .gt. 0d0) then
-      ip = 0
-      im = -1
-   else
-      ip = 1
-      im = 0
-   end if
 
    nullify (rhs); nullify (vars)
 
-   call Grid_fillGuardCells(CENTER, ALLDIR)
+   ! No guard-cell filling necessary - just a bunch of local equations to solve
 
    call Grid_getTileIterator(itor, LEAF)
 
@@ -85,9 +73,6 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
       call itor%currentTile(tileDesc)
 
       lim = tileDesc%limits
-      call tileDesc%deltas(del)
-
-      idx = 1d0/del(IAXIS)
 
       call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
       call MoL_getDataPtr(tileDesc, rhs, activeRHS)
@@ -95,8 +80,8 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) &
-                                     - sim_alpha*vars(U_VAR, i + ip, j, k)*idx + sim_alpha*vars(U_VAR, i + im, j, k)*idx
+               ! Only V has a slow explicit term
+               rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) - 0.5d0*sin(t)/vars(V_VAR, i, j, k)
             end do ! i
          end do ! j
       end do ! k

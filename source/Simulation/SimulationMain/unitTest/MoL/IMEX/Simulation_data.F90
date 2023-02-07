@@ -26,9 +26,11 @@ module Simulation_data
 
    implicit none
 
-   real, save :: sim_alpha, sim_beta
-   real, save :: sim_A, sim_mu, sim_sigma
+   real, save :: sim_epsilon, sim_alpha, sim_beta
+   real, save :: sim_lambdaF, sim_lambdaS
 
-   integer, save :: U_RHS
+   integer, save :: sim_k
+
+   integer, save :: U_RHS, V_RHS
 
 end module Simulation_data
