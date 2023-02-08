@@ -29,7 +29,7 @@ tmax = 7.85398
 sim_k = 8
 nend = 640
 
-imex_method = "imex-ssp3-443"
+imex_method = "imex-ssp3-433"
 
 # I/O (none really)
 
