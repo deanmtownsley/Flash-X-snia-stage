@@ -1,12 +1,22 @@
 # Configuration file for streaming sine wave static radiation field problem
 
 # Unit Dependencies:
-USESETUPVARS Grid  # instructs setup that Grid must be defined by ./setup or flash.par
-                   # otherwise be set to the empty string
-
 REQUIRES Driver
+REQUIRES Grid/GridMain/AMR
 REQUIRES physics/Hydro
 REQUIRES physics/Eos/EosMain/Gamma
 REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
 REQUIRES Simulation/SimulationComposition
 REQUESTS IO
+
+D dens_lo_i             Initial low density [g cm^{-3}]
+D dens_hi_i             Initial high density [g cm^{-3}]
+D temp_i                Initial temperature [K]
+D vel_i                 Initial velocity in x-direction [cm s^[-1}]
+D pres_i                Initial Pressure [g cm^{-1} s^[-2}]
+
+PARAMETER       dens_lo_i       REAL    1.0e6   [0.0 to ]
+PARAMETER       dens_hi_i       REAL    1.0e6   [0.0 to ]
+PARAMETER       temp_i          REAL    1.0e6   [0.0 to ]
+PARAMETER       vel_i           REAL    0.0e0
+PARAMETER       pres_i          REAL    1.0e21  [0.0 to ]

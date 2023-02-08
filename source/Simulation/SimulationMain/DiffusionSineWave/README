@@ -1,0 +1,14 @@
+Setup syntax for 3D, Order(v/c) (CPU):
+./setup DiffusionSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V
+
+Setup syntax for 3D, Order(v/c) (GPU):
+./setup DiffusionSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +thornadoACC thornadoOrder=ORDER_V
+
+For AMR test (native grid interpolation):
+./setup DiffusionSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True -gridinterpolation=native +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_amr_3d.par
+
+For AMR test (monotonic grid interpolation):
+./setup DiffusionSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True -gridinterpolation=monotonic +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_amr_3d.par
+
+For PsuedoUG test:
+./setup DiffusionSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_pseudoug_3d.par

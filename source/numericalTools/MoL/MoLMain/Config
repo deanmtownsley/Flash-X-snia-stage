@@ -1,0 +1,30 @@
+# Config file for MoLMain
+
+UNOFFICIAL
+
+REQUIRES Driver/DriverMain/MoL
+REQUIRES numericalTools/MoL/MoLMemory
+
+PPDEFINE USE_MOL
+
+USESETUPVARS MoL_Integrator
+
+DEFAULT ERK
+
+IF MoL_Integrator == "ERK"
+    DEFAULT ERK
+ENDIF
+
+IF MoL_Integrator == "MR"
+    DEFAULT MR
+ENDIF
+
+IF MoL_Integrator == "IMEX"
+    DEFAULT IMEX
+ENDIF
+
+D MoL_verbosity     Output only 1) errors, 2) errors+warnings, 3) errors+warnings+status
+D MoL_abortOnWarn   Call Driver_abort when issuing a warning in addition to encountering an error
+
+PARAMETER MoL_verbosity   INTEGER 1      [1, 2, 3]
+PARAMETER MoL_abortOnWarn BOOLEAN FALSE

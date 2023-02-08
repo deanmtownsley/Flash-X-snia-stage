@@ -1,18 +1,14 @@
-Setup syntax for 3D (CPU):
-./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1
+Setup syntax for 3D, Order(v/c) (CPU):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V
 
-Setup syntax for 3D (GPU):
-./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 +thornadoACC
+Setup syntax for 3D, Order(v/c) (GPU):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +thornadoACC thornadoOrder=ORDER_V
 
-For Paramesh test:
-./setup StreamingSineWave -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 -parfile=test_paramesh_3d.par
+For AMR test (native grid interpolation):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True -gridinterpolation=native +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_amr_3d.par
 
-For AMReX test:
-./setup StreamingSineWave -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 +Mode3 -parfile=test_amrex_3d.par
+For AMR test (monotonic grid interpolation):
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True -gridinterpolation=monotonic +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_amr_3d.par
 
-For 1D O(1) CPU:
-./setup StreamingSineWave -auto -1d +cartesian -nxb=256 nE=1 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_1 -parfile=test_1d_256.par
-
-For 1D O(v) CPU:
-./setup StreamingSineWave -auto -1d +cartesian -nxb=256 nE=1 swE=0 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_1d_256.par -objdir=sine1d_256x2e_Ov
-
+For PsuedoUG test:
+./setup StreamingSineWave -auto -3d +cartesian -nxb=16 -nyb=16 -nzb=16 +pm4dev Bittree=True +spark swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V -parfile=test_pseudoug_3d.par

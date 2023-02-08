@@ -1,0 +1,6 @@
+# Configuration file for the Method-of-Lines (MoL) unit
+
+DEFAULT MoLMain
+
+# Allows for implementations to override private procedures more easily
+CHILDORDER localAPI

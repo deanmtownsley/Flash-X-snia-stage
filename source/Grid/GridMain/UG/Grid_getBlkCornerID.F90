@@ -11,9 +11,18 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
+!! NAME
+!!  Grid_getBlkCornerID
+!!
 !! SYNOPSIS
 !!
-!!  call Grid_getBlkCornerID(type(block_metadta_t)(IN) :: block,
+!!  call Grid_getBlkCornerID(integer(IN)  :: blockId,
+!!                           integer(OUT) :: cornerID(MDIM),
+!!                           integer(OUT) :: stride(MDIM),
+!!                  optional,integer(OUT) :: cornerIDHigh(MDIM),
+!!                   optional,logical(IN) :: inRegion)
+!!
+!!  call Grid_getBlkCornerID(type(Grid_tile_t)(IN) :: block,
 !!                           integer(OUT) :: cornerID(MDIM),
 !!                           integer(OUT) :: stride(MDIM),
 !!                 optional, integer(OUT) :: cornerIDHigh(MDIM),
@@ -21,7 +30,7 @@
 !!  
 !! DESCRIPTION 
 !! 
-!!  Returns the global integer indices of the left most interior zone
+!!  Returns the global integer indices of the leftmost interior zone
 !!  of the block and the stride of indices along each dimension.
 !!  Together the cornerID and the stride make a unique identifier for
 !!  each block on the grid.
@@ -38,7 +47,7 @@
 !! 
 !! ARGUMENTS 
 !!
-!!   block - block metadata
+!!   block - block metadata, that is block descriptor
 !!  cornerID :: global integer indices of start of the interior zone
 !!              of the block
 !!     
@@ -53,8 +62,9 @@
 !!
 !! EXAMPLE
 !!
-!!  In a 1 dimensional UG case with 2 blocks and nxb=8
-!!  The cornerID for block 1 = 1 and the cornerID for block 2 = 9 
+!!  In a 1-dimensional UG case with 2 blocks and nxb=8:
+!!  The cornerID for block 1 = 1 and the cornerID for block 2 (which
+!!  resides on a different process) is 9.
 !!  
 !! 
 !!***

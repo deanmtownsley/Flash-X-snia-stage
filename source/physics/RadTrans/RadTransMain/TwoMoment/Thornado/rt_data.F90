@@ -22,6 +22,9 @@
 !!    Stores local data for Thornado
 !!
 !!***
+
+#include "Simulation.h"
+
 module rt_data
 
   implicit none
@@ -36,6 +39,7 @@ module rt_data
   real,    save :: rt_UpperBry1
 
   logical, save :: rt_slopeLimiter
+  logical, save :: rt_energyLimiter
 
   logical, save :: rt_use_emab, rt_use_iso, rt_use_nes, rt_use_pair, rt_use_brem
   character(len=80), save :: rt_emab_file, rt_iso_file, rt_nes_file, rt_pair_file, rt_brem_file
@@ -48,5 +52,16 @@ module rt_data
 
   real,    save :: rt_wMatrRHS(5)
 
+  integer, save :: rt_ivar(1:THORNADO_NNODESE, &
+                           1-THORNADO_SWE:THORNADO_NE+THORNADO_SWE, &
+                           1:THORNADO_NMOMENTS, &
+                           1:THORNADO_NSPECIES)
+
+  integer, save :: rt_irhs(1:THORNADO_NNODESE, &
+                           1-THORNADO_SWE:THORNADO_NE+THORNADO_SWE, &
+                           1:THORNADO_NMOMENTS, &
+                           1:THORNADO_NSPECIES)
+
+  real,    save :: rt_D_0, rt_Chi, rt_Sigma
   
 end module rt_data

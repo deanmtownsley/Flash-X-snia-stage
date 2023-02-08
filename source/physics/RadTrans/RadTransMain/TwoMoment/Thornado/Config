@@ -9,6 +9,14 @@ from globals import *
 def genLines(setupvars):
 
     ##
+    yield 'USESETUPVARS Grid'
+    yield 'IF Grid in ["","PM4DEV","PM40","PM3","PM2"]'
+    yield '    REQUIRES Grid/GridMain/AMR/Paramesh4/Thornado'
+    yield 'ELSEIF Grid=="Amrex"'
+    yield '    REQUIRES Grid/GridMain/AMR/Amrex'
+    yield 'ENDIF'
+
+    ##
     yield 'USESETUPVARS thornadoGPU'
     yield 'IF thornadoGPU'
     yield '    LIBRARY CUDA'
@@ -26,6 +34,11 @@ def genLines(setupvars):
     yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OMP_OL'
     yield 'ELSE'
     yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/OMP'
+    yield 'ENDIF'
+
+    yield 'USESETUPVARS useMoL'
+    yield 'IF useMoL'
+    yield '    REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado/MoL'
     yield 'ENDIF'
 
     ##
@@ -154,6 +167,8 @@ def genLines(setupvars):
     yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
     yield 'D rt_slopeLimiter   flag to use RadTrans slope limiter'
     yield 'PARAMETER rt_slopeLimiter    BOOLEAN  FALSE'
+    yield 'D rt_energyLimiter   flag to use RadTrans energy limiter'
+    yield 'PARAMETER rt_energyLimiter    BOOLEAN  FALSE'
 
     ##
     yield 'D rt_M_outer         number of iterations in memory for collision solver outer-loop'
@@ -175,3 +190,8 @@ def genLines(setupvars):
     ##
     yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'
     yield 'PARAMETER rt_writeTimers  BOOLEAN   FALSE'
+
+    ##
+    yield 'PARAMETER rt_D_0   REAL 1.0e0 [0.0 to ]'
+    yield 'PARAMETER rt_Chi   REAL 1.0e0 [0.0 to ]'
+    yield 'PARAMETER rt_Sigma REAL 1.0e0 [0.0 to ]'

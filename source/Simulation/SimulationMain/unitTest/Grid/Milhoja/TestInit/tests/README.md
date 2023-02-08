@@ -23,20 +23,20 @@ This test has been verified to function correctly on GCE/compute-12 with the Int
 #### Official GCE Testsuite Specifications
 ```
 [test_1D]
-    testNode = "unitTest/Grid/Milhoja/TestInit/1D"
-    setupOptions = "-auto -1d -nxb=8 +noio"
+    testNode = "UnitTest/Grid/AMR/Milhoja/1D/TestInit"
+    setupOptions = "-auto -debug -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 
 [test_2D]
-    testNode = "unitTest/Grid/Milhoja/TestInit/2D"
-    setupOptions = "-auto -2d -nxb=8 -nyb=4 +noio"
+    testNode = "UnitTest/Grid/AMR/Milhoja/2D/TestInit"
+    setupOptions = "-auto -debug -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 
 [test_3D]
-    testNode = "unitTest/Grid/Milhoja/TestInit/3D"
-    setupOptions = "-auto -3d -nxb=8 -nyb=4 -nzb=2 +noio"
+    testNode = "UnitTest/Grid/AMR/Milhoja/3D/TestInit"
+    setupOptions = "-auto -debug -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja"
     numProcs = 1
     parFile = "test_milhoja_grid.par"
 ```

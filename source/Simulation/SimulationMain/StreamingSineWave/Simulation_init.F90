@@ -38,8 +38,8 @@
 subroutine Simulation_init()
 
   use Simulation_data
-  use Driver_interface, ONLY : Driver_abort, Driver_getMype
-  use Eos_interface, ONLY : Eos, Eos_getAbarZbar
+  use Driver_interface, ONLY : Driver_abort, Driver_getComm, Driver_getMype
+  use Eos_interface, ONLY : Eos_getAbarZbar
   use Logfile_interface, ONLY : Logfile_stamp
   use ProgramHeaderModule, ONLY : nE, nDOF
   use RadiationFieldsModule, ONLY : nCR, nSpecies
@@ -53,39 +53,32 @@ subroutine Simulation_init()
 #include "Multispecies.h"
 
   real, dimension(SPECIES_BEGIN:SPECIES_END) :: massFraction
-  real, dimension(EOS_NUM) :: eosData
 
+  call Driver_getComm(MESH_COMM, sim_meshComm)
   call Driver_getMype(MESH_COMM, sim_meshMe)
+  call Driver_getComm(GLOBAL_COMM, sim_globalComm)
   call Driver_getMype(GLOBAL_COMM, sim_globalMe)
 
+  call RuntimeParameters_get('xmin', sim_xmin)
+  call RuntimeParameters_get('xmax', sim_xmax)
+
+  call RuntimeParameters_get('dens_lo_i', sim_dens_lo_i)
+  call RuntimeParameters_get('dens_hi_i', sim_dens_hi_i)
+  call RuntimeParameters_get('temp_i', sim_temp_i)
+  call RuntimeParameters_get('pres_i', sim_pres_i)
+  call RuntimeParameters_get('vel_i', sim_velx_i)
+  sim_vely_i = 0.0e0
+  sim_velz_i = 0.0e0
   sim_xn_i(:) = 0.0e0
+#if NSPECIES > 0
   sim_xn_i(SPECIES_BEGIN) = 1.0e0
+#endif
 
   massFraction(:) = sim_xn_i(:)
 
-  eosData(EOS_DENS) = sim_dens_i
-  eosData(EOS_TEMP) = sim_temp_i
-
-  call Eos(MODE_DENS_TEMP,1,eosData,massFraction)
-
-  sim_velx_i = 0.0e0
-  sim_vely_i = 0.0e0
-  sim_velz_i = 0.0e0
-  sim_pres_i = eosData(EOS_PRES)
-  sim_eint_i = eosData(EOS_EINT)
-  IF( NDIM == 3 ) THEN
-    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2 + sim_vely_i**2 + sim_velz_i**2)
-  ELSE IF( NDIM == 2 ) THEN
-    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2 + sim_vely_i**2)
-  ELSE
-    sim_etot_i = sim_eint_i + 0.5*(sim_velx_i**2)
-  END IF
-  sim_gamc_i = eosData(EOS_GAMC)
-  sim_game_i = sim_pres_i/(sim_eint_i*sim_dens_i) + 1.0e0
   call Eos_getAbarZbar(Ye=sim_ye_i,massFrac=massfraction)
 
   sim_nComp = nSpecies * nCR * nE * nDOF
 
   return
-
 end subroutine Simulation_init

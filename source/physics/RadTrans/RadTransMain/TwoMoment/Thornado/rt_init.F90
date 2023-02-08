@@ -33,11 +33,18 @@ subroutine rt_init()
 #include "constants.h"
 
   use rt_data
+  use Grid_data, ONLY : gr_minRefine, gr_lrefineMax
+  use MoL_interface, ONLY : MoL_registerVariable
   use RadTrans_data, ONLY : rt_gcMask, rt_meshMe
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+  use Simulation_interface, ONLY : Simulation_mapIntToStr
   use ThornadoInitializationModule, ONLY : InitThornado
 #ifdef FLASH_EOS_WEAKLIB
   use eos_wlData, ONLY : eos_pointer
+#endif
+
+#ifdef FLASH_GRID_PARAMESH
+  use physicaldata, ONLY : interp_mask_unk, interp_mask_unk_res
 #endif
 
   implicit none
@@ -45,6 +52,8 @@ subroutine rt_init()
   character(len=MAX_STRING_LENGTH) :: eos_file
   real :: eos_gamma
   logical :: Verbose
+  integer :: iS, iCR, iE, iNodeE, ivar
+  character(len=4) :: unk_name
 
   call RuntimeParameters_get ("rt_writeTimers", rt_writeTimers)
 
@@ -76,6 +85,7 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
   call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
+  call RuntimeParameters_get ("rt_energyLimiter", rt_energyLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
 
   call RuntimeParameters_get ("rt_M_outer", rt_M_outer)
@@ -87,6 +97,18 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_Include_LinCorr", rt_Include_LinCorr)
 
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
+
+  ! interpolation of DG variables only works for "native" interpolation mode
+#if defined(FLASH_GRID_PARAMESH)
+  ! use DG interpolation/averaging for prolongation/restriction
+  interp_mask_unk    (THORNADO_BEGIN:THORNADO_END) = 40
+  ! if curvilinear, these looks like they are overwritten by mpi_amr_1blk_restrict.F90 on lines 332
+  interp_mask_unk_res(THORNADO_BEGIN:THORNADO_END) = 40
+#else
+  if ( gr_lrefineMax > gr_minRefine ) then
+     call Driver_abort("lrefine_max > lrefine_min is only supported for PM4 w/ -gridinterpolation=native)")
+   end if
+#endif
 
 #if   defined(THORNADO_ORDER_1)
   rt_wMatrRHS(1:2) = 1.0
@@ -105,6 +127,7 @@ subroutine rt_init()
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
+     EnergyLimiter_Option = rt_energyLimiter, &
      OpacityTableName_EmAb_Option = rt_emab_file, &
      OpacityTableName_Iso_Option = rt_iso_file, &
      OpacityTableName_NES_Option = rt_nes_file, &
@@ -134,6 +157,31 @@ subroutine rt_init()
      SlopeLimiter_Option = rt_slopeLimiter, &
      Verbose_Option = Verbose )
 #endif
+
+  do iS = 1, THORNADO_NSPECIES
+     do iCR = 1, THORNADO_NMOMENTS
+        do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
+           do iNodeE = 1, THORNADO_NNODESE
+
+              ivar = THORNADO_BEGIN &
+                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE) &
+                 + iNodeE - 1
+
+              rt_ivar(iNodeE,iE,iCR,iS) = ivar
+
+              call Simulation_mapIntToStr(ivar, unk_name, MAPBLOCK_UNK)
+              call MoL_registerVariable(unk_name, ivar, rt_irhs(iNodeE,iE,iCR,iS))
+
+           end do
+        end do
+     end do
+  end do
+
+  call RuntimeParameters_get( "rt_D_0"  , rt_D_0 )
+  call RuntimeParameters_get( "rt_Chi"  , rt_Chi )
+  call RuntimeParameters_get( "rt_Sigma", rt_Sigma )
 
   return
 end subroutine rt_init

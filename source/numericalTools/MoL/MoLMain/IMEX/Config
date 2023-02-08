@@ -1,0 +1,7 @@
+# Config file for the MoL IMEX integrator
+
+KERNEL tableau
+
+D imex_method  The IMEX method to use
+PARAMETER imex_method STRING "imex-ssp2-222" ["imex-fbe","imex-ssp2-222","imex-ssp2-322","imex-ssp2-332","imex-ssp3-332","imex-ssp3-433"]
+
