@@ -94,7 +94,7 @@ subroutine RadTrans( dt, pass )
 
   real, parameter :: conv_x = Centimeter
 
-  real, allocatable, dimension(:,:,:,:,:,:,:) :: T0_R, T1_R
+  !real, allocatable, dimension(:,:,:,:,:,:,:) :: T0_R, T1_R
 
   nullify( Uin )
 
@@ -216,18 +216,18 @@ subroutine RadTrans( dt, pass )
     
     call Timers_start( "rt_imex" )
     
-     allocate( T0_R (1:nDOFZ, &
-                     iZ_B1(1):iZ_E1(1), &
-                     iZ_B1(2):iZ_E1(2), &
-                     iZ_B1(3):iZ_E1(3), &
-                     iZ_B1(4):iZ_E1(4), &
-                     1:nCR,1:THORNADO_NSPECIES) )
-     allocate( T1_R (1:nDOFZ, &
-                     iZ_B1(1):iZ_E1(1), &
-                     iZ_B1(2):iZ_E1(2), &
-                     iZ_B1(3):iZ_E1(3), &
-                     iZ_B1(4):iZ_E1(4), &
-                     1:nCR,1:THORNADO_NSPECIES) )
+     !allocate( T0_R (1:nDOFZ, &
+     !                iZ_B1(1):iZ_E1(1), &
+     !                iZ_B1(2):iZ_E1(2), &
+     !                iZ_B1(3):iZ_E1(3), &
+     !                iZ_B1(4):iZ_E1(4), &
+     !                1:nCR,1:THORNADO_NSPECIES) )
+     !allocate( T1_R (1:nDOFZ, &
+     !                iZ_B1(1):iZ_E1(1), &
+     !                iZ_B1(2):iZ_E1(2), &
+     !                iZ_B1(3):iZ_E1(3), &
+     !                iZ_B1(4):iZ_E1(4), &
+     !                1:nCR,1:THORNADO_NSPECIES) )
 
     call Update_IMEX_PDARS &
            ( dt * Second, uCF, uCR, &
