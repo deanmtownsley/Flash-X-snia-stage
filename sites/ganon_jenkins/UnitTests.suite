@@ -45,3 +45,22 @@ unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/AMReX" -np 2
 #------------------------------------------------
 incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
 incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+
+#------------------------------------------------
+# Tests for - unitTest/MoL
+#------------------------------------------------
+unitTest/MoL/MR -t "UnitTest/MoL/MR/GARK3" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/FBE" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-222" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-322" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-332" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3-332" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3-433" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-111" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-121" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-122" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-222" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-232" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-233" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-343" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-433" -np 1
