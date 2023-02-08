@@ -52,6 +52,6 @@ UnitTest/MoL/IMEX/ARK-343:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
   parfiles: flash.par.ark-343
 
-UnitTest/MoL/IMEX/ARK-443:
+UnitTest/MoL/IMEX/ARK-433:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
-  parfiles: flash.par.ark-443
+  parfiles: flash.par.ark-433
