@@ -1,0 +1,8 @@
+Setup syntax for 1D Couch Model:
+
+Base
+./setup CCSN_WL_Transport -auto -1d +spherical -nxb=16 nE=16 swE=1 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MINERBO thorandoOrder=ORDER_V -parfile=flash_spark_weno.par -objdir=WLTransport_WH07_spark +newMpole +spark +thornado +weaklib
+
+With GPUs on Summit (change nxb depending on resolution)
+./setup CCSN_WL_Transport -auto -1d +spherical -nxb=16 nE=16 swE=1 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MINERBO thorandoOrder=ORDER_V -parfile=flash_spark_weno.par -objdir=WLTransport_WH07_spark +newMpole +spark +thornadoACC +weaklibACC -site=summit.olcf.ornl.gov -makefile=nvhpc Bittree=True ImprovedSort=True
+
