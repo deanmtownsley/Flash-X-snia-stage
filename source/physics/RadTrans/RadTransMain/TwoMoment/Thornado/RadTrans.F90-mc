@@ -230,34 +230,40 @@ subroutine RadTrans( dt, pass )
                      1:nCR,1:THORNADO_NSPECIES) )
 
     call Update_IMEX_PDARS &
-           ( dt * Second, uCF, uCR, T0_R, T1_R, &
+           ( dt * Second, uCF, uCR, &
              Explicit_Option = rt_doExplicit, &
              Implicit_Option = rt_doImplicit, &
              SingleStage_Option = .false., &
              BoundaryCondition_Option = ApplyBC )
+    !call Update_IMEX_PDARS &
+    !       ( dt * Second, uCF, uCR, T0_R, T1_R, &
+    !         Explicit_Option = rt_doExplicit, &
+    !         Implicit_Option = rt_doImplicit, &
+    !         SingleStage_Option = .false., &
+    !         BoundaryCondition_Option = ApplyBC )
     
     call Timers_stop( "rt_imex" )
 
-    if ( sim_globalMe == MASTER_PE ) then
-       ivar = rt_ivar(1,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  )
-       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ), &
-                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  )
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ), &
-                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  )
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1), &
-                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2)
-       write(*,*) T0_R(1,1,1,1,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,1,1,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(3,1,0,1,1,1,1), &
-                  Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,0,1,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ) + dt * T0_R(5,1,1,0,1,1,1), &
-                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  ) + dt * T0_R(1,1,1,0,1,1,1)
-       write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1) + dt * T0_R(9,1,1,1,0,1,1), &
-                  Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2) + dt * T0_R(1,1,1,1,0,1,1)
-       write(*,*) T1_R(1,1,1,1,1,1,1)
-    end if
-    deallocate( T0_R, T1_R )
+    !if ( sim_globalMe == MASTER_PE ) then
+    !   ivar = rt_ivar(1,1,1,1)
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  )
+    !   write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ), &
+    !              Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  )
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ), &
+    !              Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  )
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1), &
+    !              Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2)
+    !   write(*,*) T0_R(1,1,1,1,1,1,1)
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,1,1,1,1,1)
+    !   write(*,*) Uin(ivar,lo(IAXIS)-1,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(3,1,0,1,1,1,1), &
+    !              Uin(ivar,lo(IAXIS)-2,lo(JAXIS)  ,lo(KAXIS)  ) + dt * T0_R(1,1,0,1,1,1,1)
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-1,lo(KAXIS)  ) + dt * T0_R(5,1,1,0,1,1,1), &
+    !              Uin(ivar,lo(IAXIS)  ,lo(JAXIS)-2,lo(KAXIS)  ) + dt * T0_R(1,1,1,0,1,1,1)
+    !   write(*,*) Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-1) + dt * T0_R(9,1,1,1,0,1,1), &
+    !              Uin(ivar,lo(IAXIS)  ,lo(JAXIS)  ,lo(KAXIS)-2) + dt * T0_R(1,1,1,1,0,1,1)
+    !   write(*,*) T1_R(1,1,1,1,1,1,1)
+    !end if
+    !deallocate( T0_R, T1_R )
 
     ! Copy back from the Thornado arrays into Flash arrays
     
