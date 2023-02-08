@@ -112,6 +112,12 @@ subroutine Simulation_finalize()
 
      call rt_tm_reconstruction(solnData, nX, lo, hi, u_lo, u_hi)
 
+#if   defined(THORNADO_OACC)
+     !$ACC UPDATE HOST( uGF, uCF, uCR )
+#elif defined(THORNADO_OMP_OL)
+     !$OMP TARGET UPDATE FROM( uGF, uCF, uCR )
+#endif
+
      ! get primitive radiation fields
      call ComputeFromConserved_TwoMoment &
         ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR )
