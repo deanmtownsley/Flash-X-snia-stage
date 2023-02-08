@@ -60,6 +60,10 @@ subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
 
   ! Interpolate fluid vars from Thornado arrays into Flash arrays
 
+  @M dir_enter_data &
+  @M dir_copyin()( @M dir_map_type(to) Uin, lo, hi, u_lo, u_hi, nX ) &
+  @M dir_end
+
   @M dir_loop_outer(4) &
   @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin ) &
   @M dir_present()( ProjectionMatrix, Uin, uCF, uGF, nX ) &
@@ -159,6 +163,10 @@ subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
      end do
   end do
 
+  @M dir_exit_data &
+  @M dir_copyout()( @M dir_map_type(from) Uin ) &
+  @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
+  @M dir_end
 
   return
 end subroutine rt_tm_projection
