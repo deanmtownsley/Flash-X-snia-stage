@@ -120,6 +120,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
+        !$omp target enter data map(to: hy_starState, hy_tmpState, &
+        !$omp                       hy_flx, hy_fly, hy_flz, &
+        !$omp                       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
 
         ng=NGUARD-1
         @M hy_setLims(ng)
@@ -204,7 +207,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
+           !$omp target update from(hy_starState)
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
+           !$omp target update to(hy_starState)
            call Timers_stop("eos")
            !Finally update the state
            if (stage == last_stage) then !! this is only needed for telescoping version
@@ -219,6 +224,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData_block(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
         call Timers_stop("Offloaded Section")
+        !$omp target exit data map(release: hy_starState, hy_tmpState, &
+        !$omp                      hy_flx, hy_fly, hy_flz, &
+        !$omp                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
         !$omp target exit data &
