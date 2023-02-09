@@ -31,4 +31,9 @@
 #define BETA_U_1_VAR Z420_VAR
 #define BETA_U_2_VAR Z421_VAR
 
+#define Z4C_H_VAR Z422_VAR
+#define Z4C_M_VAR Z423_VAR
+#define Z4C_Z_VAR Z424_VAR
+#define Z4C_C_VAR Z425_VAR
+
 #endif /* __FLASHX__Z4C_H */

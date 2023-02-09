@@ -11,6 +11,10 @@ print("Opening {} HDF5 files...".format(len(fnames)))
 chis = []
 gtildes = []
 # gs = []
+Hs = []
+Ms = []
+Zs = []
+Cs = []
 
 xs = []
 ts = []
@@ -20,6 +24,10 @@ for fname in fnames:
         ts.append(hf["real scalars"][0][1])
         chis.append(hf["z400"][()])
         gtildes.append(hf["z401"][()])
+        Hs.append(hf["z422"][()])
+        Ms.append(hf["z423"][()])
+        Zs.append(hf["z424"][()])
+        Cs.append(hf["z425"][()])
         xs.append(hf["bounding box"][()])
 
 ts = np.array(ts)
@@ -53,6 +61,11 @@ res = (gtildes[1][0, 0, 0, :]/chis[1][0, 0, 0, :] -
 plt.plot(x, res)
 
 plt.savefig("gauge_wave_residual.pdf")
+
+print("max(H) =", np.max(Hs[1]))
+print("max(M) =", np.max(Ms[1]))
+print("max(Z) =", np.max(Zs[1]))
+print("max(C) =", np.max(Cs[1]))
 
 nx = chis[0].shape[3]
 amplitude = np.max(gtildes[0][0, 0, 0, :]/chis[0][0, 0, 0, :])

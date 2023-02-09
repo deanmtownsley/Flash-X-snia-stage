@@ -34,6 +34,11 @@ VARIABLE Z419  TYPE: GENERIC    # beta_u_0
 VARIABLE Z420  TYPE: GENERIC    # beta_u_1
 VARIABLE Z421  TYPE: GENERIC    # beta_u_2
 
+VARIABLE Z422  TYPE: GENERIC    # H  - Hamiltonian constraint violation
+VARIABLE Z423  TYPE: GENERIC    # M  - Momentum constraint violation
+VARIABLE Z424  TYPE: GENERIC    # Z  - Vector constraint violation
+VARIABLE Z425  TYPE: GENERIC    # C  - Total constraint violation
+
 D z4c_eta      TODO: describe me...
 D z4c_kappa1   TODO: describe me...
 D z4c_kappa2   TODO: describe me...

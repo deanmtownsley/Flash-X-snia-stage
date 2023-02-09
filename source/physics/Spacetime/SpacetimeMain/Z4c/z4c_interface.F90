@@ -33,4 +33,13 @@ module z4c_interface
       end subroutine z4c_calculateADM
    end interface
 
+   interface
+      subroutine z4c_calculateConstraintViolation(vars, lim, del)
+         implicit none
+         real, dimension(:, :, :, :), pointer :: vars
+         integer, dimension(LOW:HIGH, MDIM) :: lim
+         real, dimension(MDIM) :: del
+      end subroutine z4c_calculateConstraintViolation
+   end interface
+
 end module z4c_interface

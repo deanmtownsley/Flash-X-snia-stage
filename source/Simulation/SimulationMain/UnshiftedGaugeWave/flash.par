@@ -60,6 +60,10 @@ plotFileIntervalTime       = 1.0
 
 plot_var_1 = "z400"
 plot_var_2 = "z401"
+plot_var_3 = "z422"
+plot_var_4 = "z423"
+plot_var_5 = "z424"
+plot_var_6 = "z425"
 
 basenm      = "unshifted_gauge_wave_"
 log_file    = "unshifted_gauge_wave.log"
