@@ -1,13 +1,11 @@
-# FLASH makefile definitions for Linux/x86-64 macOS with spack installed helper tools
+# FLASH makefile definitions for x86-64 macOS
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-ifeq      ($(NDIM), 1)
-AMREX_PATH=${HOME}/Projects/amrex_install/1D
-else ifeq ($(NDIM), 2)
-AMREX_PATH=${HOME}/Projects/amrex_install/2D
+ifeq      ($(NDIM), 2)
+AMREX_PATH=/Users/mbook/amrex/installdir/
 else ifeq ($(NDIM), 3)
-AMREX_PATH=${HOME}/Projects/amrex_install/3D
+AMREX_PATH=/Users/mbook/install/amrex3d
 else
 AMREX_PATH=
 endif
@@ -15,12 +13,16 @@ endif
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- managed by loading with Spack 
 #----------------------------------------------------------------------------
-HDF5_PATH = 
+HDF5_PATH = /opt/homebrew/Cellar/hdf5-mpi/1.12.2_1/
 HYPRE_PATH = 
 ZLIB_PATH  =
 PAPI_PATH  =
 PAPI_FLAGS =
-LIB_NCMPI = /usr/local
+LIB_NCMPI = /opt/homebrew/Cellar/hdf5-mpi/1.12.2_1/
+SZ_PATH    = /Users/mbook/install/sz
+SZ3_PATH    = /Users/mbook/install/sz3
+ZFP_PATH   = /Users/mbook/install/zfp/
+H5Z_PATH   = /Users/mbook/install/h5zzfp/
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -28,10 +30,10 @@ LIB_NCMPI = /usr/local
 #   Use the parallel HDF5 wrappers which use the mpiXX compiler wrappers 
 #   -- these will automatically load the proper libraries and include files.
 #----------------------------------------------------------------------------
-FCOMP   = h5pfc
-CCOMP   = h5pcc
-CPPCOMP = mpicxx
-LINK    = h5pfc -std=c++11
+FCOMP   = mpif90
+CCOMP   = mpicc
+CPPCOMP = mpiCC
+LINK    = mpif90  -std=c++11
 
 # pre-processor flag
 PP      = -D
@@ -48,36 +50,48 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
-FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
-FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
-	-pedantic -Wall -Wextra -Wno-do-subscript -Wno-unused -Waliasing \
+FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized -DHAVE_MPI_MODULE -fallow-argument-mismatch
+FFLAGS_DEBUG = -ggdb -c  -fdefault-real-8 -fdefault-double-8 \
+	-Wall -Wextra -Waliasing \
 	-Wsurprising -Wconversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -fbounds-check \
 	-fimplicit-none -fstack-protector-all \
-	-fbacktrace -fbounds-check -fallow-argument-mismatch
+	-fbacktrace -fbounds-check -Wno-unused -Wno-unknown-warning-option\
+	-ffree-line-length-none -DHAVE_MPI_MODULE -fallow-argument-mismatch \
+	-Wno-unused-dummy-argument -Wno-zerotrip 
 FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
-	-ffree-line-length-none
+	-ffree-line-length-none -DHAVE_MPI_MODULE -fallow-argument-mismatch
+
+FFLAGS_SZ    = -I${SZ_PATH}/include
+FFLAGS_SZ3    = -I${SZ3_PATH}/include
+FFLAGS_ZFP   = -I${ZFP_PATH}/include -I${H5Z_PATH}/include
 
 FFLAGS_HYPRE =
 FFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_AMREX = -I${AMREX_PATH}/include
 
 F90FLAGS =
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
 #http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
-CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
+CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2 
 CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 	-Wconversion -Wstrict-prototypes -Wunreachable-code \
 	-pedantic -Wall -Wextra -Winit-self -ftree-vrp -Wfloat-equal \
-	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all
+	-Wunsafe-loop-optimizations -Wpadded  \
+	-Wno-unused -fstack-protector-all
 CFLAGS_TEST = -c
 
 # Platform symbol
 CDEFINES += -DDarwin
 
-CFLAGS_HDF5 = -DH5_USE_18_API
-CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
+# if we are using HDF5, we need to specify the path to the include files
+CFLAGS_HDF5 = -I ${HDF5_PATH}/include 
+CFLAGS_NCMPI = -I ${NCMPI_PATH}/include
+CFLAGS_SZ    = -I${SZ_PATH}/include
+CFLAGS_SZ3    = -I${SZ3_PATH}/include
+CFLAGS_ZFP   = -I${ZFP_PATH}/include -I${H5Z_PATH}/include
 
 #----------------------------------------------------------------------------
 # Linker flags
@@ -102,20 +116,21 @@ LFLAGS_TEST  = -o
 #
 #  Mostly handled by loading modules with Spack and h5pXX wrappers.
 #----------------------------------------------------------------------------
-
+ 
 LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
-
-LIB_HDF5  =
+LIB_HDF5  = -L${HDF5_PATH}/lib -lhdf5 -lz
 LIB_PAPI  =
 LIB_MATH  =
 LIB_MPI   = 
 LIB_MPE   =
 LIB_HYPRE =
-LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
+LIB_AMREX = -L${AMREX_PATH}/lib -lamrex
 LIB_STDCXX = -lstdc++
-LIB_LAPACK= -llapack -lblas
+LIB_SZ    = -L${SZ_PATH}/lib -DFLASH_HDF5_SZ -lhdf5sz -Wl,-rpath,${SZ_PATH}/lib
+LIB_SZ3    = -L${SZ3_PATH}/lib -DFLASH_HDF5_SZ3 -lhdf5sz3 -Wl,-rpath,${SZ3_PATH}/lib
+LIB_ZFP   = -L${ZFP_PATH}/lib -L${H5Z_PATH}/lib -DFLASH_HDF5_ZFP -lh5zzfp -lzfp -Wl,-rpath,${ZFP_PATH}/lib -Wl,-rpath,${H5Z_PATH}/lib
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
