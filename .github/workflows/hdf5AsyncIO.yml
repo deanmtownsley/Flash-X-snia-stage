@@ -76,7 +76,7 @@ jobs:
           export LD_LIBRARY_PATH=$VOL_DIR/src:$H5_DIR/install/lib:$ABT_DIR/lib:$LD_LIBRARY_PATH
           export HDF5_PLUGIN_PATH="$VOL_DIR/src"
           export HDF5_VOL_CONNECTOR="async under_vol=0;under_info={}"             
-          ./setup ${{ github.event.inputs.name }} -auto -debug -site=hello -makefile=Makefile.h.GitHubActions +parallelIO +hdf5AsyncIO       
+          ./setup ${{ github.event.inputs.name }} -auto -debug -site=hello -makefile=GitHubActions +parallelIO +hdf5AsyncIO       
     - name: Flash make
       run: |
           mydir="$PWD"
