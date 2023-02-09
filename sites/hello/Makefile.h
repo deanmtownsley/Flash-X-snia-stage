@@ -61,7 +61,7 @@ FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 FFLAGS_HYPRE =
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 
-F90FLAGS =
+F90FLAGS =  -fallow-argument-mismatch
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
