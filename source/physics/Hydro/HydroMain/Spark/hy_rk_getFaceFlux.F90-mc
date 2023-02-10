@@ -66,8 +66,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   character(len = 2) :: dir_str
   real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
   integer :: s
-  real :: spcSumInv, spcSum
-  real, pointer :: spc(:)
+  real :: spcSumInv
+  real, dimension(NSPECIES) :: spc
   real  :: u2,E,B2,UB,Ptot
 
   logical :: inShock
@@ -154,10 +154,10 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("recon")
 
      call Timers_start("setrem")
-     !$omp target teams distribute collapse(3) &
+     !$omp target teams distribute parallel do simd collapse(3) &
      !$omp default(none) &
-     !$omp private(i, j, k, s, spc, spcSumInv, spcSum) &
-     !$omp shared(klim, dir, stage, hy_uPlus, hy_uMinus, hy_smalldens, hy_smallpres)
+     !$omp private(i, j, k, s, spc, spcSumInv) &
+     !$omp shared(klim, dir, stage, hy_uPlus, hy_uMinus, hy_smalldens, hy_smallpres, hy_smallX)
      @M hy_loop(klim)
               ! Limit and renormalize the species.
               @M hy_normalize_species( hy_uPlus )
