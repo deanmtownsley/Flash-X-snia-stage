@@ -68,7 +68,7 @@ FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 
-F90FLAGS =
+F90FLAGS =  -fallow-argument-mismatch -cpp
 
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
