@@ -96,8 +96,10 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   @M hy_map_fl
+  !$omp target enter data map (alloc: hy_grav, hy_flx, hy_fly, hy_flz)
   if (hy_geometry /= CARTESIAN) then
     @M hy_map_geom
+    !$omp target enter data map (alloc: hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
   end if
 
   !$omp target teams distribute parallel do simd collapse(3) &
@@ -106,7 +108,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   !$omp         ekin, emag) &
   !$omp shared(limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz, &
   !$omp        hy_coeffs, hy_farea, hy_cvol, hy_smalldens, hy_smallE, &
-  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt)
+  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt) &
+  !$omp map(to: limits)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -193,9 +196,13 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
         enddo !i
      enddo !j
   enddo !k
+
+  !$omp target exit data map (release: hy_grav, hy_flx, hy_fly, hy_flz)
+  @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then
     @M hy_release_geom
+    !$omp target exit data map (release: hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
   end if
   
 contains
