@@ -62,17 +62,21 @@ plt.plot(x, res)
 
 plt.savefig("gauge_wave_residual.pdf")
 
-print("max(H) =", np.max(Hs[1]))
-print("max(M) =", np.max(Ms[1]))
-print("max(Z) =", np.max(Zs[1]))
-print("max(C) =", np.max(Cs[1]))
+print("max(H) =", np.max(Hs[1][0, 0, 0, :]),
+      "norm(H) =", np.sqrt(np.sum(Hs[1][0, 0, 0, :]**2))/nx)
+print("max(M) =", np.max(Ms[1][0, 0, 0, :]),
+      "norm(M) =", np.sqrt(np.sum(Ms[1][0, 0, 0, :]**2))/nx)
+print("max(Z) =", np.max(Zs[1][0, 0, 0, :]),
+      "norm(Z) =", np.sqrt(np.sum(Zs[1][0, 0, 0, :]**2))/nx)
+print("max(C) =", np.max(Cs[1][0, 0, 0, :]),
+      "norm(C) =", np.sqrt(np.sum(Cs[1][0, 0, 0, :]**2))/nx)
 
 nx = chis[0].shape[3]
 amplitude = np.max(gtildes[0][0, 0, 0, :]/chis[0][0, 0, 0, :])
 L2norm = np.sqrt(np.sum((res/amplitude)**2)) / nx
 print("residual norm =", L2norm)
 try:
-    assert(L2norm < 1e-7)
+    assert (L2norm < 1e-7)
 except:
     print("ERROR: the residual is too large")
 else:

@@ -101,11 +101,11 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
    real :: R_LL_00, R_LL_01, R_LL_02, R_LL_11, R_LL_12, R_LL_22
 
    real :: K_LL_00, K_LL_01, K_LL_02, K_LL_11, K_LL_12, K_LL_22
-   real :: K_UU_00, K_UU_01, K_UU_02, K_UU_11, K_UU_12, K_UU_22
+   ! real :: K_UU_00, K_UU_01, K_UU_02, K_UU_11, K_UU_12, K_UU_22
 
-   real :: K_LU_00, K_LU_01, K_LU_02, &
-           K_LU_10, K_LU_11, K_LU_12, &
-           K_LU_20, K_LU_21, K_LU_22
+   ! real :: K_LU_00, K_LU_01, K_LU_02, &
+   !         K_LU_10, K_LU_11, K_LU_12, &
+   !         K_LU_20, K_LU_21, K_LU_22
 
    real :: CovDK_LLL_000, CovDK_LLL_001, CovDK_LLL_002, &
            CovDK_LLL_010, CovDK_LLL_011, CovDK_LLL_012, &
@@ -946,27 +946,41 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
             K_LL_12 = ATILDE_LL_12*invCHI + gam_LL_12*Ksclr/3d0
             K_LL_22 = ATILDE_LL_22*invCHI + gam_LL_22*Ksclr/3d0
 
-            K_LU_00 = K_LL_00*invgam_UU_00 + K_LL_01*invgam_UU_01 + K_LL_02*invgam_UU_02
-            K_LU_01 = K_LL_00*invgam_UU_01 + K_LL_01*invgam_UU_11 + K_LL_02*invgam_UU_12
-            K_LU_02 = K_LL_00*invgam_UU_02 + K_LL_01*invgam_UU_12 + K_LL_02*invgam_UU_22
+            ! K_LU_00 = K_LL_00*invgam_UU_00 + K_LL_01*invgam_UU_01 + K_LL_02*invgam_UU_02
+            ! K_LU_01 = K_LL_00*invgam_UU_01 + K_LL_01*invgam_UU_11 + K_LL_02*invgam_UU_12
+            ! K_LU_02 = K_LL_00*invgam_UU_02 + K_LL_01*invgam_UU_12 + K_LL_02*invgam_UU_22
 
-            K_LU_10 = K_LL_01*invgam_UU_00 + K_LL_11*invgam_UU_01 + K_LL_12*invgam_UU_02
-            K_LU_11 = K_LL_01*invgam_UU_01 + K_LL_11*invgam_UU_11 + K_LL_12*invgam_UU_12
-            K_LU_12 = K_LL_01*invgam_UU_02 + K_LL_11*invgam_UU_12 + K_LL_12*invgam_UU_22
+            ! K_LU_10 = K_LL_01*invgam_UU_00 + K_LL_11*invgam_UU_01 + K_LL_12*invgam_UU_02
+            ! K_LU_11 = K_LL_01*invgam_UU_01 + K_LL_11*invgam_UU_11 + K_LL_12*invgam_UU_12
+            ! K_LU_12 = K_LL_01*invgam_UU_02 + K_LL_11*invgam_UU_12 + K_LL_12*invgam_UU_22
 
-            K_LU_20 = K_LL_02*invgam_UU_00 + K_LL_12*invgam_UU_01 + K_LL_22*invgam_UU_02
-            K_LU_21 = K_LL_02*invgam_UU_01 + K_LL_12*invgam_UU_11 + K_LL_22*invgam_UU_12
-            K_LU_22 = K_LL_02*invgam_UU_02 + K_LL_12*invgam_UU_12 + K_LL_22*invgam_UU_22
+            ! K_LU_20 = K_LL_02*invgam_UU_00 + K_LL_12*invgam_UU_01 + K_LL_22*invgam_UU_02
+            ! K_LU_21 = K_LL_02*invgam_UU_01 + K_LL_12*invgam_UU_11 + K_LL_22*invgam_UU_12
+            ! K_LU_22 = K_LL_02*invgam_UU_02 + K_LL_12*invgam_UU_12 + K_LL_22*invgam_UU_22
 
-            K_UU_00 = invgam_UU_00*K_LU_00 + invgam_UU_01*K_LU_10 + invgam_UU_02*K_LU_20
-            K_UU_01 = invgam_UU_00*K_LU_01 + invgam_UU_01*K_LU_11 + invgam_UU_02*K_LU_21
-            K_UU_02 = invgam_UU_00*K_LU_02 + invgam_UU_01*K_LU_12 + invgam_UU_02*K_LU_22
-            K_UU_11 = invgam_UU_01*K_LU_01 + invgam_UU_11*K_LU_11 + invgam_UU_12*K_LU_21
-            K_UU_12 = invgam_UU_01*K_LU_02 + invgam_UU_11*K_LU_12 + invgam_UU_12*K_LU_22
-            K_UU_22 = invgam_UU_02*K_LU_02 + invgam_UU_12*K_LU_12 + invgam_UU_22*K_LU_22
+            ! K_UU_00 = invgam_UU_00*K_LU_00 + invgam_UU_01*K_LU_10 + invgam_UU_02*K_LU_20
+            ! K_UU_01 = invgam_UU_00*K_LU_01 + invgam_UU_01*K_LU_11 + invgam_UU_02*K_LU_21
+            ! K_UU_02 = invgam_UU_00*K_LU_02 + invgam_UU_01*K_LU_12 + invgam_UU_02*K_LU_22
+            ! K_UU_11 = invgam_UU_01*K_LU_01 + invgam_UU_11*K_LU_11 + invgam_UU_12*K_LU_21
+            ! K_UU_12 = invgam_UU_01*K_LU_02 + invgam_UU_11*K_LU_12 + invgam_UU_12*K_LU_22
+            ! K_UU_22 = invgam_UU_02*K_LU_02 + invgam_UU_12*K_LU_12 + invgam_UU_22*K_LU_22
 
-            K2 = K_UU_00*K_LL_00 + K_UU_11*K_LL_11 + K_UU_22 + K_LL_22 + &
-                 2d0*(K_UU_01*K_LL_01 + K_UU_02*K_LL_02 + K_UU_12 + K_LL_12)
+            ! K2 = K_UU_00*K_LL_00 + K_UU_11*K_LL_11 + K_UU_22 + K_LL_22 + &
+            !      2d0*(K_UU_01*K_LL_01 + K_UU_02*K_LL_02 + K_UU_12 + K_LL_12)
+
+            K2 = invgam_UU_00**2*K_LL_00**2 + 2*invgam_UU_02**2*K_LL_02**2 + &
+                 2*invgam_UU_00*(2*invgam_UU_01*K_LL_00*K_LL_01 + invgam_UU_11*K_LL_01**2 + &
+                                 K_LL_02*(2*invgam_UU_02*K_LL_00 + 2*invgam_UU_12*K_LL_01 + invgam_UU_22*K_LL_02)) + &
+                 invgam_UU_11**2*K_LL_11**2 + 2*invgam_UU_01**2*(K_LL_01**2 + K_LL_00*K_LL_11) + &
+                 4*(invgam_UU_02*invgam_UU_11*K_LL_01 + invgam_UU_02*invgam_UU_12*K_LL_02 + &
+                    invgam_UU_11*invgam_UU_12*K_LL_11)*K_LL_12 + &
+                 2*(invgam_UU_12**2 + invgam_UU_11*invgam_UU_22)*K_LL_12**2 + &
+                 4*invgam_UU_01*(invgam_UU_02*K_LL_01*K_LL_02 + invgam_UU_11*K_LL_01*K_LL_11 + &
+                                 invgam_UU_12*K_LL_02*K_LL_11 + invgam_UU_02*K_LL_00*K_LL_12 + &
+                                 invgam_UU_12*K_LL_01*K_LL_12 + invgam_UU_22*K_LL_02*K_LL_12) + &
+                 2*(invgam_UU_02**2*K_LL_00 + 2*invgam_UU_02*(invgam_UU_12*K_LL_01 + invgam_UU_22*K_LL_02) + &
+                    invgam_UU_12*(invgam_UU_12*K_LL_11 + 2*invgam_UU_22*K_LL_12))*K_LL_22 + &
+                 invgam_UU_22**2*K_LL_22**2
 
             dDKsclr_L_0 = dDKHAT_L_0 + 2d0*dDTHETAFUNC_L_0
             dDKsclr_L_1 = dDKHAT_L_1 + 2d0*dDTHETAFUNC_L_1
@@ -976,19 +990,19 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             2d0*K_LL_00*Gam_ULL_000 - &
                             2d0*K_LL_01*Gam_ULL_100 - &
                             2d0*K_LL_02*Gam_ULL_200 - &
-                            K_LL_00*dDCHI_L_0
+                            K_LL_00*dDCHI_L_0*invCHI
 
             CovDK_LLL_001 = (dDATILDE_LLL_001 + (dDGAMTILDE_LLL_001*Ksclr + GAMTILDE_LL_00*dDKsclr_L_1)/3d0)*invCHI - &
                             2d0*K_LL_00*Gam_ULL_001 - &
                             2d0*K_LL_01*Gam_ULL_101 - &
                             2d0*K_LL_02*Gam_ULL_201 - &
-                            K_LL_00*dDCHI_L_1
+                            K_LL_00*dDCHI_L_1*invCHI
 
             CovDK_LLL_002 = (dDATILDE_LLL_002 + (dDGAMTILDE_LLL_002*Ksclr + GAMTILDE_LL_00*dDKsclr_L_2)/3d0)*invCHI - &
                             2d0*K_LL_00*Gam_ULL_002 - &
                             2d0*K_LL_01*Gam_ULL_102 - &
                             2d0*K_LL_02*Gam_ULL_202 - &
-                            K_LL_00*dDCHI_L_2
+                            K_LL_00*dDCHI_L_2*invCHI
 
             CovDK_LLL_010 = (dDATILDE_LLL_010 + (dDGAMTILDE_LLL_010*Ksclr + GAMTILDE_LL_01*dDKsclr_L_0)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_001 - &
@@ -996,7 +1010,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*Gam_ULL_201 - &
                             K_LL_11*Gam_ULL_100 - &
                             K_LL_12*Gam_ULL_200 - &
-                            K_LL_01*dDCHI_L_0
+                            K_LL_01*dDCHI_L_0*invCHI
 
             CovDK_LLL_011 = (dDATILDE_LLL_011 + (dDGAMTILDE_LLL_011*Ksclr + GAMTILDE_LL_01*dDKsclr_L_1)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_011 - &
@@ -1004,7 +1018,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*Gam_ULL_211 - &
                             K_LL_11*Gam_ULL_101 - &
                             K_LL_12*Gam_ULL_201 - &
-                            K_LL_01*dDCHI_L_1
+                            K_LL_01*dDCHI_L_1*invCHI
 
             CovDK_LLL_012 = (dDATILDE_LLL_012 + (dDGAMTILDE_LLL_012*Ksclr + GAMTILDE_LL_01*dDKsclr_L_2)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_012 - &
@@ -1012,7 +1026,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*Gam_ULL_212 - &
                             K_LL_11*Gam_ULL_102 - &
                             K_LL_12*Gam_ULL_202 - &
-                            K_LL_01*dDCHI_L_2
+                            K_LL_01*dDCHI_L_2*invCHI
 
             CovDK_LLL_020 = (dDATILDE_LLL_020 + (dDGAMTILDE_LLL_020*Ksclr + GAMTILDE_LL_02*dDKsclr_L_0)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_002 - &
@@ -1020,7 +1034,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*(Gam_ULL_202 + Gam_ULL_000) - &
                             K_LL_12*Gam_ULL_100 - &
                             K_LL_22*Gam_ULL_200 - &
-                            K_LL_02*dDCHI_L_0
+                            K_LL_02*dDCHI_L_0*invCHI
 
             CovDK_LLL_021 = (dDATILDE_LLL_021 + (dDGAMTILDE_LLL_021*Ksclr + GAMTILDE_LL_02*dDKsclr_L_1)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_012 - &
@@ -1028,7 +1042,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*(Gam_ULL_212 + Gam_ULL_001) - &
                             K_LL_12*Gam_ULL_101 - &
                             K_LL_22*Gam_ULL_201 - &
-                            K_LL_02*dDCHI_L_1
+                            K_LL_02*dDCHI_L_1*invCHI
 
             CovDK_LLL_022 = (dDATILDE_LLL_022 + (dDGAMTILDE_LLL_022*Ksclr + GAMTILDE_LL_02*dDKsclr_L_2)/3d0)*invCHI - &
                             K_LL_00*Gam_ULL_022 - &
@@ -1036,25 +1050,25 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_02*(Gam_ULL_222 + Gam_ULL_002) - &
                             K_LL_12*Gam_ULL_102 - &
                             K_LL_22*Gam_ULL_202 - &
-                            K_LL_02*dDCHI_L_2
+                            K_LL_02*dDCHI_L_2*invCHI
 
             CovDK_LLL_110 = (dDATILDE_LLL_110 + (dDGAMTILDE_LLL_110*Ksclr + GAMTILDE_LL_11*dDKsclr_L_0)/3d0)*invCHI - &
                             2d0*K_LL_01*Gam_ULL_001 - &
                             2d0*K_LL_11*Gam_ULL_101 - &
                             2d0*K_LL_12*Gam_ULL_201 - &
-                            K_LL_11*dDCHI_L_0
+                            K_LL_11*dDCHI_L_0*invCHI
 
             CovDK_LLL_111 = (dDATILDE_LLL_111 + (dDGAMTILDE_LLL_111*Ksclr + GAMTILDE_LL_11*dDKsclr_L_1)/3d0)*invCHI - &
                             2d0*K_LL_01*Gam_ULL_011 - &
                             2d0*K_LL_11*Gam_ULL_111 - &
                             2d0*K_LL_12*Gam_ULL_211 - &
-                            K_LL_11*dDCHI_L_1
+                            K_LL_11*dDCHI_L_1*invCHI
 
             CovDK_LLL_112 = (dDATILDE_LLL_112 + (dDGAMTILDE_LLL_112*Ksclr + GAMTILDE_LL_11*dDKsclr_L_2)/3d0)*invCHI - &
                             2d0*K_LL_01*Gam_ULL_012 - &
                             2d0*K_LL_11*Gam_ULL_112 - &
                             2d0*K_LL_12*Gam_ULL_212 - &
-                            K_LL_11*dDCHI_L_2
+                            K_LL_11*dDCHI_L_2*invCHI
 
             CovDK_LLL_120 = (dDATILDE_LLL_120 + (dDGAMTILDE_LLL_120*Ksclr + GAMTILDE_LL_12*dDKsclr_L_0)/3d0)*invCHI - &
                             K_LL_01*Gam_ULL_002 - &
@@ -1062,7 +1076,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_11*Gam_ULL_102 - &
                             K_LL_12*(Gam_ULL_202 + Gam_ULL_101) - &
                             K_LL_22*Gam_ULL_201 - &
-                            K_LL_12*dDCHI_L_0
+                            K_LL_12*dDCHI_L_0*invCHI
 
             CovDK_LLL_121 = (dDATILDE_LLL_121 + (dDGAMTILDE_LLL_121*Ksclr + GAMTILDE_LL_12*dDKsclr_L_1)/3d0)*invCHI - &
                             K_LL_01*Gam_ULL_012 - &
@@ -1070,7 +1084,7 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_11*Gam_ULL_112 - &
                             K_LL_12*(Gam_ULL_212 + Gam_ULL_111) - &
                             K_LL_22*Gam_ULL_211 - &
-                            K_LL_12*dDCHI_L_1
+                            K_LL_12*dDCHI_L_1*invCHI
 
             CovDK_LLL_122 = (dDATILDE_LLL_122 + (dDGAMTILDE_LLL_122*Ksclr + GAMTILDE_LL_12*dDKsclr_L_2)/3d0)*invCHI - &
                             K_LL_01*Gam_ULL_022 - &
@@ -1078,25 +1092,25 @@ subroutine z4c_calculateConstraintViolation(vars, lim, del)
                             K_LL_11*Gam_ULL_122 - &
                             K_LL_12*(Gam_ULL_222 + Gam_ULL_112) - &
                             K_LL_22*Gam_ULL_212 - &
-                            K_LL_12*dDCHI_L_2
+                            K_LL_12*dDCHI_L_2*invCHI
 
             CovDK_LLL_220 = (dDATILDE_LLL_220 + (dDGAMTILDE_LLL_220*Ksclr + GAMTILDE_LL_22*dDKsclr_L_0)/3d0)*invCHI - &
                             2d0*K_LL_02*Gam_ULL_002 - &
                             2d0*K_LL_12*Gam_ULL_102 - &
                             2d0*K_LL_22*Gam_ULL_202 - &
-                            K_LL_22*dDCHI_L_0
+                            K_LL_22*dDCHI_L_0*invCHI
 
             CovDK_LLL_221 = (dDATILDE_LLL_221 + (dDGAMTILDE_LLL_221*Ksclr + GAMTILDE_LL_22*dDKsclr_L_1)/3d0)*invCHI - &
                             2d0*K_LL_02*Gam_ULL_012 - &
                             2d0*K_LL_12*Gam_ULL_112 - &
                             2d0*K_LL_22*Gam_ULL_212 - &
-                            K_LL_22*dDCHI_L_1
+                            K_LL_22*dDCHI_L_1*invCHI
 
             CovDK_LLL_222 = (dDATILDE_LLL_222 + (dDGAMTILDE_LLL_222*Ksclr + GAMTILDE_LL_22*dDKsclr_L_2)/3d0)*invCHI - &
                             2d0*K_LL_02*Gam_ULL_022 - &
                             2d0*K_LL_12*Gam_ULL_122 - &
                             2d0*K_LL_22*Gam_ULL_222 - &
-                            K_LL_22*dDCHI_L_2
+                            K_LL_22*dDCHI_L_2*invCHI
 
             CovDK_L_0 = CovDK_LLL_000*invgam_UU_00 + CovDK_LLL_011*invgam_UU_11 + CovDK_LLL_022*invgam_UU_22 + &
                         (CovDK_LLL_001 + CovDK_LLL_010)*invgam_UU_01 + &
