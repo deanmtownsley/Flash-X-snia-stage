@@ -120,9 +120,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        !$omp target enter data map(to: hy_starState, hy_tmpState, &
-        !$omp                       hy_flx, hy_fly, hy_flz, &
-        !$omp                       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
+        !$omp target enter data map(alloc: hy_starState, hy_tmpState, &
+        !$omp                              hy_flx, hy_fly, hy_flz, &
+        !$omp                              hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
 
         ng=NGUARD-1
         @M hy_setLims(ng)
@@ -143,7 +143,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
 
-        !$omp target teams distribute collapse(3) &
+        !$omp target teams distribute parallel do simd collapse(3) &
         !$omp default(none) &
         !$omp private(i, j, k, v) &
         !$omp shared(blkLimitsGC, Uin, hy_starState, hy_tmpState)
