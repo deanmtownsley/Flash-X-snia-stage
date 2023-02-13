@@ -1,4 +1,4 @@
-!!****f* source/Grid/Grid_putFluxData_block
+!!****f* source/Grid/Grid_putFluxData_old
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!
 !! NAME
 !!
-!!  Grid_putFluxData_block
+!!  Grid_putFluxData_old
 !!
 !! SYNOPSIS
 !!
-!!  call Grid_putFluxData_block(type(Grid_tile_t)(in) :: blockDesc,
+!!  call Grid_putFluxData_old(type(Grid_tile_t)(in) :: blockDesc,
 !!                              real(in),Contiguous,TARGET :: fluxBufX(:, lo(1): ,lo(2): ,lo(3): ),
 !!                              real(in),Contiguous,TARGET :: fluxBufY(:, lo(1): ,lo(2): ,lo(3): ),
 !!                              real(in),Contiguous,TARGET :: fluxBufZ(:, lo(1): ,lo(2): ,lo(3): ),
@@ -72,7 +72,7 @@
 
 !!REORDER(4): fluxBuf[XYZ]
 
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
+subroutine Grid_putFluxData_old(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo)
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 #include "FortranLangFeatures.fh"
@@ -82,7 +82,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
-  logical, intent(in) :: add
+
   return
 
-end subroutine Grid_putFluxData_block
+end subroutine Grid_putFluxData_old

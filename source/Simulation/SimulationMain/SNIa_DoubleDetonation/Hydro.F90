@@ -316,7 +316,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
         end if
         call hy_computeFluxes(tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :), &
                                       Uin, Uout, del, simTime, dt, dtOld, sweepDummy)
-        call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :),.false.)
+        call Grid_putFluxData(tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
 
         if (level .NE. maxLev) then
            if (fakeTimer1) then
@@ -479,7 +479,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
               call Timers_stop ("update solution body")
            end if
            if (hy_fluxCorrect .AND. (level > 1)) then
-              call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :),.false.)
+              call Grid_putFluxData (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
            end if
 #ifndef FIXEDBLOCKSIZE
            call tileDesc%releaseDataPtr(fluxBufX, FLUXX)
