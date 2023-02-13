@@ -67,12 +67,9 @@ FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
+FFLAGS_MPI = -DHAVE_MPI_MODULE
 
-F90FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -ffree-line-length-none -fallow-argument-mismatch -cpp
-f90FLAGS     = ${F90FLAGS}
-F77FLAGS     = -fdefault-real-8 -fdefault-double-8 -fimplicit-none -fallow-argument-mismatch -cpp
-f77FLAGS     = ${F77FLAGS}
-
+F90FLAGS = 
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
@@ -89,7 +86,7 @@ CFLAGS_TEST = -ggdb -O0 -c
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
-CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_18_API -I/home/runner/work/Flash-X/Flash-X/vol-async/src
+CFLAGS_HDF5 = -I${HDF5_PATH}/include
 CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 
 #----------------------------------------------------------------------------
@@ -120,7 +117,7 @@ LIB_DEBUG =
 LIB_TEST  =
 
 LIB_HDF4  =
-LIB_HDF5  = -L ${HDF5_PATH}/lib -lhdf5 -lz -L/home/runner/work/Flash-X/Flash-X/vol-async/src -lh5async -lasynchdf5
+LIB_HDF5  = -L ${HDF5_PATH}/lib -lhdf5 -lz
 
 LIB_PAPI  =
 LIB_MATH  =
