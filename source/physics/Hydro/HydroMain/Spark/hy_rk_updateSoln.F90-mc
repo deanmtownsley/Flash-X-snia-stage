@@ -85,6 +85,15 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   integer ::  ind
   real :: dhdt
   integer, dimension(1:MDIM) :: loGC, hiGC
+
+  !! temporaries to be used in computing geometric factors
+  real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
+  real    :: pmagStar, xmagStar, zmagStar
+  integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI, MAG_PHI_FLUX
+  integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
+  integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
+  real    :: alpha, dx_sph
+  
   
   loGC(:) = blkLimitsGC(LOW,:)
   hiGC(:) = blkLimitsGC(HIGH,:)
@@ -137,14 +146,14 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            
            ! Get geometric factors and sources
            ! Get gravitational source terms
-	   if (hy_geometry == CARTESIAN) then
-              facM = 1.0; facP = 1.0; Sgeo = 0.0
-           else
-              call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
-                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
-                   facM, facP, Sgeo, Ustar, Vstar, dx)
+           if(hy_geometry /= CARTESIAN) then
+              @M hy_geom_update(Ustar,Vstar)
+!!$           call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
+!!$                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
+!!$                   facM, facP, Sgeo, Ustar, Vstar, dx)
            end if
-           call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
+           @M hy_gravSources
+!!$           call gravSources(Ustar,hy_grav(:,i,j,k),Shy_grv)
            
            ! Sum total source terms
            Stot = Sgeo + Shy_grv
@@ -198,95 +207,5 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
     @M hy_release_geom
   end if
   
-contains
-  !!Account for multiplicative factors at each cell face to account for different 
-  !!geometries.
-  subroutine geoFacs(geom, xLeft, xCenter, xRight, farea, farea_p1, cvol, facM, facP, Sgeo, U, V, dx)
-    implicit none
-    real, intent(OUT) :: facM, facP
-    real, dimension(NFLUXES), intent(OUT) :: Sgeo
-
-    integer, intent(IN) :: geom
-    real, dimension(NUNK_VARS), intent(IN) :: V
-    real, dimension(NFLUXES), intent(IN) :: U
-    real, intent(IN) :: dx, xLeft, xCenter, xRight, farea, farea_p1, cvol
-    real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
-    real    :: pmagStar, xmagStar, zmagStar
-    integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI, MAG_PHI_FLUX
-    integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
-    integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-    real    :: alpha, dx_sph
-    !$omp declare target
-    select case(geom) ! First, select whether y or z is phi-direction
-    case(CYLINDRICAL)
-       MOM_PHI = HY_ZMOM
-       MOM_PHI_FLUX = HY_ZMOM
-       MOM_ZI       = HY_YMOM
-       MOM_ZI_FLUX  = HY_YMOM
-#ifdef SPARK_GLM
-       MAG_PHI      = HY_MAGZ
-#endif
-       alpha = 1.
-    case(POLAR)
-       MOM_PHI      = HY_YMOM
-       MOM_PHI_FLUX = HY_YMOM
-       MOM_ZI       = HY_ZMOM
-       MOM_ZI_FLUX  = HY_ZMOM
-#ifdef SPARK_GLM
-       MAG_PHI      = HY_MAGY
-#endif
-       alpha = 1.
-    case(SPHERICAL)
-       MOM_PHI      = HY_ZMOM
-       MOM_PHI_FLUX = HY_ZMOM
-       MOM_THT      = HY_YMOM
-       MOM_THT_FLUX = HY_YMOM
-       dx_sph = (xRight**3 - xLeft**3) / (3.*xCenter**2)
-       alpha  = 2.
-    end select
-    
-    facM = farea*dx/cvol
-    facP = farea_p1*dx/cvol
-    
-    Sgeo = 0.
-    !! Calculate geometrical source terms.  See S&O 75.
-    Sgeo(HY_XMOM) = (V(DENS_VAR)*V(VELZ_VAR)*V(VELZ_VAR) + alpha*V(PRES_VAR)) / xCenter!T phi,phi
-    Sgeo(MOM_PHI) =  V(DENS_VAR)*V(VELZ_VAR)*V(VELX_VAR) / xCenter!T phi,r
-    
-#ifdef SPARK_GLM
-    ! P* is the total Pressure
-    ! This presently does not work for POLAR coordinates
-    Sgeo(HY_XMOM) = Sgeo(HY_XMOM) - (V(MAGZ_VAR)**2 - alpha*V(MAGP_VAR))/ xCenter
-    Sgeo(MOM_PHI) = Sgeo(MOM_PHI) - V(MAGZ_VAR)*V(MAGX_VAR) / xCenter
-    
-    Sgeo(MAG_PHI) = - (V(VELZ_VAR)*V(MAGX_VAR) - V(MAGZ_VAR)*V(VELX_VAR)) / xCenter !O phi,r
-#endif
-    Sgeo(MOM_PHI) = - Sgeo(MOM_PHI)
-    
-    if (geom == SPHERICAL) then
-       Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + U(MOM_THT)**2/V(DENS_VAR) / xCenter
-       Sgeo = Sgeo*dx/dx_sph
-    endif
-    if (xCenter < 0.0) then
-       facM = 0.
-       facP = 0.
-       Sgeo = 0.
-    end if
-  end subroutine geoFacs
-  
-
-  !!Calculate source terms due to gravity.
-  subroutine gravSources(U,g,S)
-    implicit none
-    real, intent(IN) :: U(NFLUXES)
-    real, intent(IN) :: g(MDIM)
-    real, intent(OUT) :: S(NFLUXES)
-    !$omp declare target
-    S = 0.
-#ifdef GRAVITY
-    S(HY_XMOM:HY_ZMOM) = U(HY_MASS)*g(:)
-    S(HY_ENER) = dot_product(U(HY_XMOM:HY_ZMOM),g(:))
-#endif
-  end subroutine gravSources
   
 end subroutine hy_rk_updateSoln

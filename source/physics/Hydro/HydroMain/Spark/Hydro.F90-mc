@@ -210,7 +210,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
 #if NSPECIES>0
            !Properly normalize species after the update
-           call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+           call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+           !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif 
            
            ! Update EOS based on intermediate solution
@@ -362,7 +363,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
 #if NSPECIES>0
-              call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+              call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+              !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif 
               
               call Timers_stop("updateSoln")

@@ -126,7 +126,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         dFlux = -p_fluxBufX(:,i  ,j  ,k  )
         dx = hy_del(IAXIS)
         ! Get geometric factors and sources
-        call geoFacs(i,j,k,facM,facP)
+!!        call geoFacs(i,j,k,facM,facP)
+        !!Geometric factors for non-Cartesian geometries
+        @M hy_geom_flux_correct
         fac = facM
         ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         !Update primitives (Vstar)
@@ -156,8 +158,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         dFlux = p_fluxBufX(:,i+1  ,j  ,k  )
         dx = hy_del(IAXIS)
         ! Get geometric factors and sources
-        call geoFacs(i,j,k,facM,facP)
-        fac = facP
+!!        call geoFacs(i,j,k,facM,facP)
+        @M hy_geom_flux_correct
+	fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -325,24 +328,5 @@ contains
     Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
   end subroutine correctZone
 
-  !!Geometric factors for non-Cartesian geometries
-  subroutine  geoFacs(i,j,k,facM,facP)
-    implicit none
-    integer, intent(IN) :: i,j,k
-    real, intent(OUT) :: facM, facP
-    real    :: alpha, dx_sph
-
-    if (hy_geometry == CARTESIAN) then
-       facM = 1.0; facP = 1.0
-       return
-    endif
-    facM = hy_farea(i  ,j,k)*dx/hy_cvol(i,j,k)
-    facP = hy_farea(i+1,j,k)*dx/hy_cvol(i,j,k)
-
-    if (hy_xCenter(i) < 0.0) then
-       facM = 0.
-       facP = 0.
-    end if
-  end subroutine geoFacs
 
 end subroutine hy_rk_correctFluxes
