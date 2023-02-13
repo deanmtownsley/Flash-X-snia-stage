@@ -295,12 +295,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = U0
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
-           do stage=1,last_stage
+           @M hy_stages_t
+              ng=hy_limitsArray(stage)
+              @M hy_setLims(ng)
               do dir=1,NDIM
                  @M hy_calc_lim
               end do
-
-           end do
+           @M hy_end_stages_t
         !! Begin loop over stages for the telescoping mode.
            do stage=1,last_stage !! this is the do loop statement for telescoping version
               
