@@ -50,7 +50,7 @@ PP      = -D
 OPENMP = -fopenmp
 
 FFLAGS_OPT = -ggdb -c -O2 -fdefault-real-8 -fdefault-double-8 \
--Wuninitialized
+-Wuninitialized -DHAVE_MPI_MODULE
 
 #I explictly add -O0 because I found that compiling source files without
 #an optimization flag generates the same object code as compiling source
@@ -67,9 +67,7 @@ FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
-FFLAGS_MPI = -DHAVE_MPI_MODULE
-
-F90FLAGS = 
+F90FLAGS =
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
