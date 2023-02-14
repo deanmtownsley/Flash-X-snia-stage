@@ -49,16 +49,15 @@ PP      = -D
 
 OPENMP = -fopenmp
 
-FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized \
--DHAVE_MPI_MODULE
+FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized 
 
 #I explictly add -O0 because I found that compiling source files without
 #an optimization flag generates the same object code as compiling source
 #files with -O2.  The -O0 is required so that gdb no longer shows
 #"<value optimized out>" for certain function arguments.
 
-FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
--pedantic -Wall -Waliasing -fallow-argument-mismatch
+#FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
+#-pedantic -Wall -Waliasing -fallow-argument-mismatch
 #-Wsurprising -Wconversion -Wunderflow \
 #-ffpe-trap=invalid,zero,overflow -fbounds-check \
 #-fimplicit-none -fstack-protector-all
