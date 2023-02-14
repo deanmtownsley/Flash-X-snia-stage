@@ -56,11 +56,12 @@ FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
 #files with -O2.  The -O0 is required so that gdb no longer shows
 #"<value optimized out>" for certain function arguments.
 
+#-pedantic -Wall -Waliasing -fallow-argument-mismatch
+
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
--pedantic -Wall -Waliasing -fallow-argument-mismatch
-#-Wsurprising -Wconversion -Wunderflow \
-#-ffpe-trap=invalid,zero,overflow -fbounds-check \
-#-fimplicit-none -fstack-protector-all
+-Wsurprising -Wconversion -Wunderflow \
+-ffpe-trap=invalid,zero,overflow -fbounds-check \
+-fimplicit-none -fstack-protector-all
 
 FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 
