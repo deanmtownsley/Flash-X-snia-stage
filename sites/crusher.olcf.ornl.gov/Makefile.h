@@ -29,8 +29,8 @@ endif
 
 ROCM_PATH ?= ${OLCF_ROCM_ROOT}
 ifneq (${ROCM_PATH},)
-  INC_ROCM = -I$(ROCM_PATH)/include -I$(OLCF_HIPFORT_ROOT)/include/hipfort/amdgcn
-  LIB_ROCM = -L$(ROCM_PATH)/lib -lrocsparse -lrocsolver -lrocblas -lhipblas -lhipsparse -lamdhip64 -L$(HIPFORT_ROOT)/lib -lhipfort-amdgcn
+  INC_ROCM = -I$(ROCM_PATH)/include -I$(HIPFORT_PATH)/include/hipfort/amdgcn
+  LIB_ROCM = -L$(ROCM_PATH)/lib -lrocsparse -lrocsolver -lrocblas -lhipblas -lhipsparse -lamdhip64 -L$(HIPFORT_PATH)/lib -lhipfort-amdgcn
 else
   ifeq (${USE_ROCM},TRUE)
     $(error Cannot resolve ROCM path. \
