@@ -155,6 +155,7 @@ subroutine rt_init()
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
+     EnergyLimiter_Option = rt_energyLimiter, &
      Verbose_Option = Verbose )
 #endif
 
