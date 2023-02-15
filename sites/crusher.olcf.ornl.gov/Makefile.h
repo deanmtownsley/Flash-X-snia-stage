@@ -120,10 +120,10 @@ ifeq ($(PE_ENV),GNU)
 else ifeq ($(PE_ENV),CRAY)
 
     # these are needed because Cray has OpenMP on by default (and OPENMP precedes FFLAGS in Makefile)
-    FCOMP        += -h noomp
-    CCOMP        += -h noomp
-    CPPCOMP      += -h noomp
-    LINK         += -h noomp
+    FCOMP        += -fno-openmp
+    CCOMP        += -fno-openmp
+    CPPCOMP      += -fno-openmp
+    LINK         += -fno-openmp
 
     # pre-processor flag
     MDEFS         =
@@ -150,9 +150,9 @@ else ifeq ($(PE_ENV),CRAY)
     FFLAGS_OMP_OL = -fopenmp
 
     # C-specific flags
-    OPT_CFLAGS    =
-    TEST_CFLAGS   =
-    DEBUG_CFLAGS  =
+    OPT_CFLAGS    = -Wno-error=int-conversion
+    TEST_CFLAGS   = -Wno-error=int-conversion
+    DEBUG_CFLAGS  = -Wno-error=int-conversion
 
     CFLAGS_OACC   = -hacc
     CFLAGS_OMP_OL = -fopenmp
