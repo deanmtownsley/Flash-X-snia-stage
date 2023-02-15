@@ -170,6 +170,9 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    use Grid_tile, ONLY: Grid_tile_t
    use Driver_interface, ONLY: Driver_getDt
    use IncompNS_interface, ONLY: IncompNS_getScalarProp
+   use Simulation_data, ONLY: sim_xMin, sim_xMax, &
+                              sim_yMin, sim_yMax, &
+                              sim_zMin, sim_zMax
 
 #ifdef SIMULATION_FORCE_INLET
    use sim_inletInterface, ONLY: sim_inletApplyBCToRegion
@@ -203,6 +206,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    logical :: predcorrflg
    real, dimension(LOW:HIGH, MDIM) :: outflowVel
    real :: invReynolds
+   real, dimension(MDIM) :: gravity
 
    select case (bcType)
    case (OUTFLOW_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
@@ -226,6 +230,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    call IncompNS_getScalarProp("Pred_Corr_Flag", predcorrflg)
    call IncompNS_getVectorProp("Outflow_Vel_Low", outflowVel(LOW, :))
    call IncompNS_getVectorProp("Outflow_Vel_High", outflowVel(HIGH, :))
+   call IncompNS_getVectorProp("Gravity", gravity)
    call gr_bcGetCoords_internal
 
    do ivar = 1, varCount
@@ -596,7 +601,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
 #ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
+                                             guard, face, axis, secondDir, thirdDir)
 #endif
                !--------------------------------------------------------------------------------------------------
             case (EXTRAP_INS) ! face == LOW
@@ -1042,7 +1047,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
 #ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
+                                             guard, face, axis, secondDir, thirdDir)
 #endif
 
             case (EXTRAP_INS) ! face == HIGH

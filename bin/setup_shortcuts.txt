@@ -188,3 +188,7 @@ weaklibACC:+weaklib:weaklibACC=True:-defines=WEAKLIB_OACC
 
 # Shortcut to use starkiller eos
 starkiller:--with-unit=physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller
+
+# Shortcut for incompFlow simulations
+incomp2d:-auto:+amrex:-2d:+sqr16:+parallelIO:SimForceInOut=True:IOWriteGridFiles=True
+incomp3d:-auto:+amrex:-3d:+cube16:+parallelIO:SimForceInOut=True:IOWriteGridFiles=True

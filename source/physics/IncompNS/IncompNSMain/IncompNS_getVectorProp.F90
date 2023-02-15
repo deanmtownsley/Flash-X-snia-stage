@@ -32,6 +32,8 @@ subroutine IncompNS_getVectorProp(name, value)
        value = ins_outflowVel(LOW,:)
      case("Outflow_Vel_High","outflow_vel_high","OUTFLOW_VEL_HIGH")
        value = ins_outflowVel(HIGH,:)
+     case("Gravity", "gravity", "GRAVITY")
+       value = (/ins_gravX, ins_gravY, ins_gravZ/)
      case default
        value = 0.
        write(errorMessage,*) '[IncompNS_getVectorProp] Unknown scalar: ',name
