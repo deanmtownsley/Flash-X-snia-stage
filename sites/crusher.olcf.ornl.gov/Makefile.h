@@ -119,6 +119,12 @@ ifeq ($(PE_ENV),GNU)
 
 else ifeq ($(PE_ENV),CRAY)
 
+    # these are needed because Cray has OpenMP on by default (and OPENMP precedes FFLAGS in Makefile)
+    FCOMP        += -h noomp
+    CCOMP        += -h noomp
+    CPPCOMP      += -h noomp
+    LINK         += -h noomp
+
     # pre-processor flag
     MDEFS         =
     PP            = -D
