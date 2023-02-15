@@ -63,7 +63,6 @@ subroutine RadTrans( dt, pass )
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
 
-  use Simulation_data, ONLY : sim_globalMe
   use ProgramHeaderModule, ONLY : iZ_B0, iZ_B1, iZ_E0, iZ_E1, &
      iX_B0, iX_B1, iX_E0, iX_E1, nDOFZ
   use TimeSteppingModule_Flash, ONLY : ApplyBoundaryConditions_Radiation, &
@@ -162,7 +161,7 @@ subroutine RadTrans( dt, pass )
     
     nX (1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / THORNADO_NNODESX
     swX(1:NDIM) = my_ngrow
-    iZ_SW_P(2:NDIM+1) = swX
+    iZ_SW_P(2:NDIM+1) = swX(1:NDIM)
     
     u_lo = 1  - swX
     u_hi = nX + swX
