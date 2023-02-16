@@ -51,11 +51,7 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
                      iseedX = heater%xSite(isite)
                      iseedZ = heater%zSite(isite)
                      iseedY = heater%ySite(isite) + heater%seedHeight
-#if NDIM == 2
-                     idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2)
-#else
                      idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
-#endif
                      phi(i, j, k) = max(phi(i, j, k), idfun)
                   end if
 
