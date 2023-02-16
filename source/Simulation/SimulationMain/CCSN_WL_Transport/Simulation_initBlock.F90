@@ -54,6 +54,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use chimera_model_module
   use model_interp_module
 
+#if defined(THORNADO)
   ! thornado modules
 
   use KindModule, ONLY : DP, SqrtTiny
@@ -63,6 +64,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch  
   use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
+#endif
 
   implicit none
 
@@ -167,58 +169,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   call Grid_getCellCoords(KAXIS,CENTER,     level, blkLimits(LOW,:), blkLimits(HIGH,:), zCenter)
   call Grid_getCellCoords(KAXIS,LEFT_EDGE,  level, blkLimits(LOW,:), blkLimits(HIGH,:), zLeft  )
   call Grid_getCellCoords(KAXIS,RIGHT_EDGE, level, blkLimits(LOW,:), blkLimits(HIGH,:), zRight )
-
-  lo(1:MDIM) = tileDesc%limits(LOW,1:MDIM)
-  hi(1:MDIM) = tileDesc%limits(HIGH,1:MDIM)
-
-  nX = 1
-  swX = 0
-  xL = 0.0
-  if ( meshGeom == CARTESIAN ) then
-     xR = 1.0
-  else if ( meshGeom == CYLINDRICAL ) then
-     xR = [ 1.0, 1.0, 2.0*PI ]
-  else if ( meshGeom == SPHERICAL ) then
-     xR = [ 1.0, PI, 2.0*PI ]
-  else
-     call Driver_abort("Geometry not supported")
-  end if
-
-  nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
-  swX(1:NDIM) = 2
-  u_lo(2:4) = 1 - swX
-  u_hi(2:4) = nX + swX
-  u_lo(1)   = 1 - THORNADO_SWE
-  u_hi(1)   = THORNADO_NE + THORNADO_SWE
-
-  ! convert cm to m for Thornado
-  xL(1) = xL(1) * conv_x
-  xR(1) = xR(1) * conv_x
-  if ( meshGeom /= SPHERICAL ) then
-     xL(2) = xL(2) * conv_x
-     xR(2) = xR(2) * conv_x
-  end if
-  if ( meshGeom == CARTESIAN ) then
-     xL(3) = xL(3) * conv_x
-     xR(3) = xR(3) * conv_x
-  end if
-
-  if ( meshGeom == SPHERICAL ) then
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "spherical" )
-
-  else if ( meshGeom == CYLINDRICAL ) then
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "cylindrical" )
-
-  else
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "cartesian" )
-
-  end if
 
   do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS),blkLimits(HIGH,JAXIS)
@@ -450,7 +400,60 @@ subroutine Simulation_initBlock(solnData, tileDesc)
      end do
   end do
 
+#if defined (THORNADO)
   !print*, 'Initializing radiation fields with thornado.'
+
+  lo(1:MDIM) = tileDesc%limits(LOW,1:MDIM)
+  hi(1:MDIM) = tileDesc%limits(HIGH,1:MDIM)
+
+  nX = 1
+  swX = 0
+  xL = 0.0
+  if ( meshGeom == CARTESIAN ) then
+     xR = 1.0
+  else if ( meshGeom == CYLINDRICAL ) then
+     xR = [ 1.0, 1.0, 2.0*PI ]
+  else if ( meshGeom == SPHERICAL ) then
+     xR = [ 1.0, PI, 2.0*PI ]
+  else
+     call Driver_abort("Geometry not supported")
+  end if
+
+  nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
+  swX(1:NDIM) = 2
+  u_lo(2:4) = 1 - swX
+  u_hi(2:4) = nX + swX
+  u_lo(1)   = 1 - THORNADO_SWE
+  u_hi(1)   = THORNADO_NE + THORNADO_SWE
+
+  ! convert cm to m for Thornado
+  xL(1) = xL(1) * conv_x
+  xR(1) = xR(1) * conv_x
+  if ( meshGeom /= SPHERICAL ) then
+     xL(2) = xL(2) * conv_x
+     xR(2) = xR(2) * conv_x
+  end if
+  if ( meshGeom == CARTESIAN ) then
+     xL(3) = xL(3) * conv_x
+     xR(3) = xR(3) * conv_x
+  end if
+
+  if ( meshGeom == SPHERICAL ) then
+
+     call InitThornado_Patch &
+          (nX, swX, xL, xR, THORNADO_NSPECIES, "spherical" )
+
+  else if ( meshGeom == CYLINDRICAL ) then
+
+     call InitThornado_Patch &
+          (nX, swX, xL, xR, THORNADO_NSPECIES, "cylindrical" )
+
+  else
+
+     call InitThornado_Patch &
+          (nX, swX, xL, xR, THORNADO_NSPECIES, "cartesian" )
+
+  end if
 
   do iX3 = 1, nX(3)
      do iX2 = 1, nX(2)
@@ -539,6 +542,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   end do
 
   call FreeThornado_Patch()
+#endif
 
 ! call Grid_releaseBlkPtr(blockID,solnData,CENTER)
 
