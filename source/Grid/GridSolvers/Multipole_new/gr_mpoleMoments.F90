@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleMoments
+!!****if* source/Simulation/SimulationMain/CCSN_Chim_Chimera/gr_mpoleMoments
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -37,7 +37,8 @@ subroutine gr_mpoleMoments (idensvar)
 
   use gr_mpoleInterface, ONLY : gr_mpoleMom3Dcartesian,   &
                                 gr_mpoleMom2Dcylindrical, &
-                                gr_mpoleMom2Dspherical,   &
+                                gr_mpoleMom2Dspherical, &
+                                gr_mpoleMom3Dspherical, &
                                 gr_mpoleMom1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGeometry
@@ -56,7 +57,7 @@ subroutine gr_mpoleMoments (idensvar)
 
     case (GRID_3DCARTESIAN)
 
-          call gr_mpoleMom3Dcartesian   (idensvar)
+          call gr_mpoleMom3Dcartesian (idensvar)
 
     case (GRID_3DCYLINDRICAL)
 
@@ -66,13 +67,17 @@ subroutine gr_mpoleMoments (idensvar)
 
           call gr_mpoleMom2Dcylindrical (idensvar)
 
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleMom3Dspherical(idensvar)
+
     case (GRID_2DSPHERICAL)
 
-          call gr_mpoleMom2Dspherical   (idensvar)
+          call gr_mpoleMom2Dspherical(idensvar)
 
     case (GRID_1DSPHERICAL)
 
-          call gr_mpoleMom1Dspherical   (idensvar)
+          call gr_mpoleMom1Dspherical (idensvar)
 
   end select
 !

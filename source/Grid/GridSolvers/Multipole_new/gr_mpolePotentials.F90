@@ -1,4 +1,4 @@
-!!****if* source/Grid/GridSolvers/Multipole_new/gr_mpolePotentials
+!!****if* source/Simulation/SimulationMain/CCSN_Chimera_Michael/gr_mpolePotentials
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -40,7 +40,8 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
 
   use gr_mpoleInterface, ONLY : gr_mpolePot3Dcartesian,   &
                                 gr_mpolePot2Dcylindrical, &
-                                gr_mpolePot2Dspherical,   &
+                                gr_mpolePot2Dspherical, &
+                                gr_mpolePot3Dspherical, &
                                 gr_mpolePot1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGravityConstant, &
@@ -82,6 +83,10 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
      case (GRID_2DCYLINDRICAL)
 
            call gr_mpolePot2Dcylindrical (ipotvar)
+
+     case (GRID_3DSPHERICAL)
+
+           call gr_mpolePot3Dspherical   (ipotvar)
 
      case (GRID_2DSPHERICAL)
 
