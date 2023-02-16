@@ -119,6 +119,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   real    :: Gmdd11, Gmdd22, Gmdd33
   real    :: CN, G1, G2, G3
 
+#if defined(THORNADO)
   real, parameter :: conv_x = Centimeter
   real, parameter :: UnitD  = Gram / Centimeter**3
   real, parameter :: UnitT  = Kelvin
@@ -127,6 +128,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   real, parameter :: conv_J = Gram/Second**2/Centimeter
   real, parameter :: conv_H = Gram/Second**3
   real, parameter :: conv_e = MeV
+#endif
 
 
 !!$#ifndef FLASH_GRID_AMREX
