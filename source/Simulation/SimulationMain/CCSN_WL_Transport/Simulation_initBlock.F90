@@ -42,6 +42,11 @@
 
 subroutine Simulation_initBlock(solnData, tileDesc)
 
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+#include "Multispecies.h"
+
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
@@ -67,11 +72,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #endif
 
   implicit none
-
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
-#include "Multispecies.h"
 
   real,dimension(:,:,:,:),pointer :: solnData
   type(Grid_tile_t), intent(in)   :: tileDesc
