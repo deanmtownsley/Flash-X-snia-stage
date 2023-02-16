@@ -2,7 +2,8 @@
 
 REQUIRES Driver
 REQUIRES Grid
-REQUIRES physics/Hydro/HydroMain/Spark
+#REQUIRES physics/Hydro/HydroMain/Spark
+REQUIRES physics/Hydro/HydroMain
 
 ## Need to include these in order to create maps of Chimera network to FLASH network (even if just for advection)
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
@@ -21,7 +22,7 @@ REQUIRES physics/Eos/EosMain/WeakLib
 #REQUESTS physics/Gravity/GravityMain/PointMass
 REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
 
-REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
+#REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
 
 REQUESTS IO
 REQUESTS IO/IOMain/hdf5
@@ -57,8 +58,8 @@ D entr_variable Specific entropy, for analysis and visualization
 VARIABLE entr TYPE: PER_MASS    EOSMAPOUT: ENTR
 
 # These would allow use to use the "Ye" mode of Helmholtz if we want
-#MASS_SCALAR YE EOSMAPIN: YE
-#MASS_SCALAR SUMY EOSMAPIN: SUMY
+MASS_SCALAR YE EOSMAPIN: YE
+MASS_SCALAR SUMY EOSMAPIN: SUMY
 
 # For cutting out the PNS using Simulation_defineDomain
 # NBOUNDARIES = [ 2*NDIM + (number of blocks for which Simulation_defineDomain returns false) ]
