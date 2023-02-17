@@ -1,0 +1,43 @@
+# Parameter file for the Brusselator (advection-diffusion-reaction test) problem
+
+sim_alpha   =   1.0
+sim_beta    =  20.0
+sim_epsilon =   0.1
+sim_lambdaF = -10.0
+sim_lambdaS =  -1.0
+
+# Grid information
+
+nblockx = 1
+iprocs  = 1
+
+geometry = "cartesian"
+
+# Grid size is arbitrary - each cell evolves its own equation
+iGridSize = 10
+xmin = 0.0
+xmax = 1.0
+
+# Boundary conditions (arbitrary)
+
+xl_boundary_type = "periodic"
+xr_boundary_type = "periodic"
+
+# Timestep control: dt = pi/2^sim_k
+# End time = 5pi/2, so (end time)/dt = 640 for this case
+tmax = 7.85398
+sim_k = 8
+nend = 640
+
+imex_method = "imex-ssp2-332"
+
+# I/O (none really)
+
+restart = .false.
+
+checkpointFileIntervalTime = 1000.0
+plotFileIntervalTime       = 1000.0
+
+basenm      = "unitTest_MoL_MR_"
+log_file    = "unitTest_MoL_MR.log"
+run_comment = "MoL MR Unit Test"

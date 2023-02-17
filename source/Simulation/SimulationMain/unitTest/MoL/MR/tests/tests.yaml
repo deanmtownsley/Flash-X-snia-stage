@@ -1,0 +1,5 @@
+# YAML file for MoL multi-rate unit tests
+
+UnitTest/MoL/MR/GARK3:
+  setupOptions: -auto -1d +ug +nofbs +MoLMR
+  parfiles: <defaultParfile>

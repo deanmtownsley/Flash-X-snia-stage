@@ -1,4 +1,4 @@
-!!****h* source/Simulation/SimulationMain/unitTest/MoL/sim_interface
+!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/Simulation_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,20 +11,26 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! This is the header file for the MoL unit test module
-!! that defines its public interfaces.
+!!  NAME
+!!    Simulation_data
+!!
+!!  SYNOPSIS
+!!    use Simulation_data
+!!
+!!  DESCRIPTION
+!!
+!!    Stores the local data for Simulation setup
+!!
 !!***
-module sim_interface
+module Simulation_data
 
    implicit none
 
-   interface
-      subroutine sim_verifySolution(t, dt, valid, maxError)
-         implicit none
-         real, intent(in) :: t, dt
-         logical, intent(out) :: valid
-         real, intent(out) :: maxError
-      end subroutine sim_verifySolution
-   end interface
+   real, save :: sim_epsilon, sim_alpha, sim_beta
+   real, save :: sim_lambdaF, sim_lambdaS
 
-end module sim_interface
+   integer, save :: sim_k
+
+   integer, save :: U_RHS, V_RHS
+
+end module Simulation_data

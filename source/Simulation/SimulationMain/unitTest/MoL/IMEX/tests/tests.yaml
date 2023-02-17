@@ -1,0 +1,57 @@
+# YAML file for MoL multi-rate unit tests
+
+UnitTest/MoL/IMEX/FBE:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.fbe
+
+UnitTest/MoL/IMEX/SSP2-222:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ssp2-222
+
+UnitTest/MoL/IMEX/SSP2-322:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ssp2-322
+
+UnitTest/MoL/IMEX/SSP2-332:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ssp2-332
+
+UnitTest/MoL/IMEX/SSP3-332:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ssp3-332
+
+UnitTest/MoL/IMEX/SSP3-433:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ssp3-433
+
+UnitTest/MoL/IMEX/ARK-111:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-111
+
+UnitTest/MoL/IMEX/ARK-121:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-121
+
+UnitTest/MoL/IMEX/ARK-122:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-122
+
+UnitTest/MoL/IMEX/ARK-222:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-222
+
+UnitTest/MoL/IMEX/ARK-232:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-232
+
+UnitTest/MoL/IMEX/ARK-233:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-233
+
+UnitTest/MoL/IMEX/ARK-343:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-343
+
+UnitTest/MoL/IMEX/ARK-443:
+  setupOptions: -auto -1d +ug +nofbs +MoLIMEX
+  parfiles: flash.par.ark-443

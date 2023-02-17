@@ -1,5 +1,5 @@
 
-!!****f* source/Simulation/SimulationMain/unitTest/MoL/sim_verifySolution
+!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/sim_verifySolution
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

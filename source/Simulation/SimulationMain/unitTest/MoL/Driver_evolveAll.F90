@@ -69,6 +69,23 @@ subroutine Driver_evolveAll()
    logical :: valid
    real :: maxError
 
+   character(len=20) :: fileName
+   integer, parameter        :: fileUnit = 2
+   integer, dimension(4) :: prNum
+   integer :: temp, i
+
+   temp = dr_globalMe
+
+   do i = 1, 4
+      prNum(i) = mod(temp, 10)
+      temp = temp/10
+   end do
+   filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
+              char(48 + prNum(2))//char(48 + prNum(1))
+
+   open (fileUnit, file=fileName)
+   write (fileUnit, '("P",I0)') dr_globalMe
+
   !! MoL needs a regrid call to setup initial storage for intermediate states
   !! This must occur after ALL *_init calls that have MoL_registerVariable calls
    call MoL_regrid
@@ -191,11 +208,19 @@ subroutine Driver_evolveAll()
 
    end do
 
-   call sim_verifySolution(dr_simTime, valid, maxError)
+   call sim_verifySolution(dr_simTime, dr_dt, valid, maxError)
    if (dr_globalMe == MASTER_PE) then
       print *, "MoL unit test passed?", valid
       print *, "Max error: ", maxError
    end if
+
+   if (valid) then
+      write (fileUnit, '(A)') 'SUCCESS all results conformed with expected values.'
+   else
+      write (fileUnit, '(A)') 'FAILURE'
+   end if
+
+   close (fileUnit)
 
    !The value of dr_nstep after the loop is (dr_nend + 1) if the loop iterated for
    !the maximum number of times.  However, we need to retain the value that

@@ -55,9 +55,6 @@ subroutine ml_init()
       FI(i + 1) = MOL_RHS + 2*i + 1
    end do ! i
 
-   print *, FE
-   print *, FI
-
    ! -1 for reusing MOL_RHS
    ml_nscratch = 2*ml_nstages - 1
 end subroutine ml_init

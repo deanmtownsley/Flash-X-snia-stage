@@ -17,6 +17,7 @@
 !!
 !! SYNOPSIS
 !!  call sim_verifySolution(real,    intent(in)  :: t,
+!!                          real,    intent(in)  :: dt,
 !!                          logical, intent(out) :: valid,
 !!                          real,    intent(out) :: maxError)
 !!
@@ -30,15 +31,16 @@
 !! ARGUMENTS
 !!
 !!    t        : The current time that the solution is at
+!!    dt       : The current timestep
 !!    valid    : Is this a valid solution
 !!    maxError : The maximum error present in the solution that was utilized
 !!               to determine if the solution was valid
 !!
 !!***
-subroutine sim_verifySolution(t, valid, maxError)
+subroutine sim_verifySolution(t, dt, valid, maxError)
    implicit none
 
-   real, intent(in) :: t
+   real, intent(in) :: t, dt
    logical, intent(out) :: valid
    real, intent(out) :: maxError
 
