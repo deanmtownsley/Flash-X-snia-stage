@@ -35,7 +35,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
-       Grid_correctFluxData_xtra, Grid_putFluxData_block, &
+       Grid_correctFluxData_xtra, Grid_putFluxData, &
        Grid_getFluxCorrData_block,Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
@@ -228,7 +228,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
-        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData_block(tileDesc,&
+        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
         call Timers_stop("Offloaded Section")
         @M hy_release_tmp_states
@@ -384,7 +384,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
            end do!stage loop
            !Put flux buffer information into SPFS
-           if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+           if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:),.false.)
            @M hy_release_scr_ptrs
            @M iter_end
