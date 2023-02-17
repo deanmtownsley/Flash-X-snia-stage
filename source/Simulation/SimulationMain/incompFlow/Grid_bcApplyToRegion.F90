@@ -170,9 +170,6 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    use Grid_tile, ONLY: Grid_tile_t
    use Driver_interface, ONLY: Driver_getDt
    use IncompNS_interface, ONLY: IncompNS_getScalarProp
-   use Simulation_data, ONLY: sim_xMin, sim_xMax, &
-                              sim_yMin, sim_yMax, &
-                              sim_zMin, sim_zMax
 
 #ifdef SIMULATION_FORCE_INLET
    use sim_inletInterface, ONLY: sim_inletApplyBCToRegion
