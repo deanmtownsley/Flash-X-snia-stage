@@ -66,6 +66,12 @@ Module IncompNS_interface
          real, intent(out)             :: value
       end subroutine IncompNS_getScalarPropReal
 
+      subroutine IncompNS_getScalarPropInteger(name, value)
+         implicit none
+         character(len=*), intent(in)  :: name
+         integer, intent(out)          :: value
+      end subroutine IncompNS_getScalarPropInteger
+ 
       subroutine IncompNS_getScalarPropLogical(name, value)
          implicit none
          character(len=*), intent(in)  :: name

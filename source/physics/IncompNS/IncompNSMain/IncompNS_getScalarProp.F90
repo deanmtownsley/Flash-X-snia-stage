@@ -42,6 +42,28 @@ subroutine IncompNS_getScalarPropReal(name, value)
 
 end subroutine IncompNS_getScalarPropReal
 
+subroutine IncompNS_getScalarPropInteger(name, value)
+
+  use IncompNS_data
+  use Driver_interface, only: Driver_abort
+
+  implicit none
+  character(len=*), intent(in)  :: name
+  integer, intent(out)          :: value
+
+  character(len=100)             :: errorMessage
+
+  select case(name)
+     case("Inflow_Vel_Scale","inflow_vel_scale","INFLOW_VEL_SCALE")
+       value = ins_inflowVelScale 
+     case default
+       value = .false.
+       write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
+       call Driver_abort(errorMessage)
+  end select  
+
+end subroutine IncompNS_getScalarPropInteger
+
 subroutine IncompNS_getScalarPropLogical(name, value)
 
   use IncompNS_data

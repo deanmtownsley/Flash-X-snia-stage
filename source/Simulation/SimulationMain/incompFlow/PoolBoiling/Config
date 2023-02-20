@@ -19,5 +19,3 @@ IF SimForceInOut
 ENDIF
 
 DATAFILES *_hdf5_htr_*
-
-DATAFILES test_fc72.par single_bubble.par multiple_bubbles.par
