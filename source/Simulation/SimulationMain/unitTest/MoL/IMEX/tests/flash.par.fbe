@@ -1,4 +1,4 @@
-# Parameter file for the Brusselator (advection-diffusion-reaction test) problem
+# Parameter file for the MoL IMEX KPR unit test using IMEX-FBE
 
 sim_alpha   =   1.0
 sim_beta    =  20.0

@@ -1,4 +1,4 @@
-# Parameter file for the Brusselator (advection-diffusion-reaction test) problem
+# Default parameter file for the MoL MR KPR unit test
 
 sim_alpha   =   1.0
 sim_beta    =  20.0
