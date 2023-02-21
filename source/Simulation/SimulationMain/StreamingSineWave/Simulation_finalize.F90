@@ -47,7 +47,7 @@ subroutine Simulation_finalize()
   use FluidFieldsModule, ONLY : uCF, nCF
   USE GeometryFieldsModule, ONLY : uGF
   use ProgramHeaderModule, ONLY : iZ_B0, iZ_E0, iZ_B1, iZ_E1
-  use RadiationFieldsModule, ONLY : uCR, uPR
+  use RadiationFieldsModule, ONLY : uCR, uPR, uAR, uGR
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
   use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeFromConserved_TwoMoment
   use UnitsModule, ONLY : Centimeter, Second
@@ -120,7 +120,7 @@ subroutine Simulation_finalize()
 
      ! get primitive radiation fields
      call ComputeFromConserved_TwoMoment &
-        ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR )
+        ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR, uAR, uGR )
 
      call ComputeError_SineWaveStreaming( simTime * Second, MaxError_local )
 
