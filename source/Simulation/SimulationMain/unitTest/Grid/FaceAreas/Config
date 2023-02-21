@@ -1,0 +1,17 @@
+IF Grid=='UG'
+   REQUIRES  Grid/GridMain/UG
+ELSE
+   REQUIRES  Grid/GridMain/AMR
+ENDIF
+REQUIRES  Grid/GridMain/unitTest/FaceAreas
+REQUIRES  flashUtilities/testing
+
+VARIABLE dens TYPE: PER_VOLUME       # density
+VARIABLE pres TYPE: GENERIC          # pressure
+VARIABLE ener TYPE: PER_MASS         # specific total energy (T+U)
+VARIABLE temp TYPE: GENERIC
+VARIABLE gamc
+VARIABLE game
+VARIABLE velx
+VARIABLE vely
+

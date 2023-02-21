@@ -20,7 +20,8 @@
 !!
 !!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
 !!                         integer(IN) :: limits(:,:),
-!!                         integer(IN) :: blkLimitsGC(:,:))
+!!                         integer(IN) :: blkLimitsGC(:,:),
+!!                         integer(IN) :: level)
 !!
 !!  DESCRIPTION
 !! 
@@ -31,6 +32,8 @@
 !!     blklimits,blkLimitsGC are the bounds of the block/tile
 !!     hy_del are dx,dy,dz
 !!     limits   sets limits of the fluxes.
+!!     level - refinement level.
+!!           This is 1-based, i.e., the root level is numbered 1.
 !!
 !!***
 
@@ -49,8 +52,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
 
   real,dimension(MDIM),intent(IN)  :: hy_del
   integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
-
-
+  integer, intent(in)  :: level
 
   integer, dimension(MDIM) :: loGC, hiGC
   integer :: dir, i,j,k,d
@@ -80,7 +82,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
+             hiGC(IAXIS)-loGC(IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,level,loGC,hiGC)
 #else
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
@@ -93,7 +95,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,k/),JAXIS,&
-             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
+             hiGC(JAXIS)-loGC(JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,level,loGC,hiGC)
      enddo
   enddo
 #endif
@@ -105,7 +107,7 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,j/),KAXIS,&
-             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
+             hiGC(KAXIS)-loGC(KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,level,loGC,hiGC)
      enddo
   enddo
 #endif
@@ -115,8 +117,9 @@ subroutine @M hy_grav_name(@M hy_grav_call_args)
 
 contains
 
-  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del)
+  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del, level, loGC, hiGC)
     use Hydro_data, ONLY : hy_starState
+    use Grid_interface, ONLY : Grid_getCellCoords, Grid_getGeometry
 
     implicit none
 
@@ -125,13 +128,43 @@ contains
     real, intent(inout)               :: grav(numCells)
 
     real, intent(in):: hy_del(MDIM)
+    integer, intent(in)  :: level
+    integer, dimension(MDIM), intent(in) :: loGC, hiGC
+
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv
+    integer         :: geometry
+    real, allocatable, dimension(:) :: radCenter, thtCenter
     !$omp declare target
     !==================================================
 
 #ifdef GPOT_VAR
-    
+    call Grid_getGeometry(geometry)
+
+    ! DEV: TODO Review performance impact of the arrays in this block
+    if (geometry == SPHERICAL) then
+
+       !Need radial term if sweeping over theta or phi
+       if (sweepDir == SWEEP_Y .or. sweepDir == SWEEP_Z) then
+          allocate( radCenter(loGC(IAXIS):hiGC(IAXIS)) )
+          call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, radCenter)
+       endif
+
+       !Need theta term if sweeping over phi
+       if (sweepDir == SWEEP_Z) then
+          allocate( thtCenter(loGC(JAXIS):hiGC(JAXIS)) )
+          call Grid_getCellCoords(JAXIS, CENTER, level, loGC, hiGC, thtCenter)
+       endif
+
+    else if (geometry == CYLINDRICAL) then
+
+       !Need radial term if sweeping over angle
+       if (sweepDir == SWEEP_Z) then
+          allocate( radCenter(loGC(IAXIS):hiGC(IAXIS)) )
+          call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, radCenter)
+       endif
+
+    endif
 
     iimin   = 1
     iimax   = numCells
@@ -143,9 +176,23 @@ contains
        gpot(:) = hy_starState(GPOT_VAR,:,pos(1),pos(2))
     elseif (sweepDir == SWEEP_Y) then                 ! y-direction
        delxinv = 1./hy_del(JAXIS)
+
+       !Correct units for spherical coordinates
+       if (geometry == SPHERICAL) then
+          delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+       endif
+
        gpot(:) = hy_starState(GPOT_VAR,pos(1),:,pos(2))
     else                                          ! z-direction
        delxinv = 1./hy_del(KAXIS)
+
+       !Correct units for spherical and cylindrical coordinates
+       if (geometry == SPHERICAL) then
+          delxinv = delxinv * ( 1.0 / ( radCenter(pos(1)) * sin(thtCenter(pos(2))) ) )
+       else if (geometry == CYLINDRICAL) then
+          delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+       endif
+
        gpot(:) = hy_starState(GPOT_VAR,pos(1),pos(2),:)
     endif
 
@@ -160,6 +207,22 @@ contains
 
     grav(iimin) = grav(iimin+1)     ! this is invalid data - must not be used
     grav(iimax) = grav(iimax-1)
+
+    !Clean up term corrections
+    if (geometry == SPHERICAL) then
+       if (sweepDir == SWEEP_Y .or. sweepDir == SWEEP_Z) then
+          deallocate(radCenter)
+       endif
+
+       if (sweepDir == SWEEP_Z) then
+          deallocate(thtCenter)
+       endif
+    else if (geometry == CYLINDRICAL) then
+       if (sweepDir == SWEEP_Z) then
+          deallocate(radCenter)
+       endif
+    endif
+
 #else
     ! Assume constant gravitational acceleration
 

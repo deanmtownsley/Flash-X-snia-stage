@@ -36,13 +36,11 @@ As this test is a unit test it indicates via the Flash-X-standard `unitTest_0000
 #### Status
 This test has been verified to function correctly on GCE/compute-12 with the Intel 20.4 compiler and can therefore be included carefully in testsuites.  Since the motivation for this test was as an initial tool for exploring AMReX through Flash-X, the need for inclusion in a testsuite is not obvious.  On one hand, the test required a fair amount of novel code and therefore could require more maintenance.  On the other hand, it might help us identify immediately if changes in AMReX violate some of our assumptions about AMReX's refinement.  Ideally, we should work with the AMReX team (if not already done so) to document the refinement so that it is not black box to Flash-X Grid developers or Flash-X users.
 
-#### Official GCE Testsuite Specifications
+#### GCE Testsuite Specifications
 ```
-[test_2D]
-    testNode = "unitTest/Grid/Amrex/TestRefine"
-    setupOptions = "-auto -2d -nxb=8 -nyb=8 +noio"
-    numProcs = 1
-    parFile = "test_amrex_grid.par"
+UnitTest/Grid/AMR/AMReX/2d/Refine:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +noio +amrex
+  parfiles: test_amrex_grid.par
 ```
 
 #### Conclusions Derived from Experimention

@@ -1,0 +1,7 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/Eos/starkiller/3d/pm4dev:
+  setupOptions: -auto +pm4dev -3d +noio
+  parfiles: <defaultParfile>
+  transfers: object/helm_table.dat object/SpeciesList.txt
