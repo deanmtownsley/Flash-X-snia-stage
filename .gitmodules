@@ -1,9 +1,11 @@
 [submodule "lib/weaklib/source"]
 	path = lib/weaklib/source
 	url = ../../starkiller-astro/weaklib.git
+	branch = master
 [submodule "lib/thornado/source"]
 	path = lib/thornado/source
 	url = ../../endeve/thornado.git
+	branch = master
 [submodule "source/Grid/GridMain/AMR/Paramesh4/PM4_package"]
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
 	branch = main
