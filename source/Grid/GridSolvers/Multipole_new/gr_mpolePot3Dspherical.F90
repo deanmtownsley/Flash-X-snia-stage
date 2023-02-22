@@ -249,7 +249,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
 
 
      
-     alpha_p     = TWO * DeltaKHalfSine * DeltaKHalfSine      ! for calculating sin (phi + n * DeltaKHalf)
+     alpha_p     = TWO * DeltaKHalfSine * DeltaKHalfSine      ! for calculating sin (phi + n * DeltaK)
      beta_p      = DeltaKSine   
 
 
