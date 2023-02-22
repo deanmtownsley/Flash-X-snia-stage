@@ -54,7 +54,7 @@
 !! NOTES
 !!
 !!  gr_mpoleZcenter denotes the location of the center of multipole expansion
-!!  in the 3D cartesian version of the 3D spherical framework (R,theta -> x,z).
+!!  in the 3D cartesian version of the 3D spherical framework.
 !!  Due to symmetry, there is no need to evaluate and store a x-coordinate
 !!  component, which is always equal to zero.
 !!
