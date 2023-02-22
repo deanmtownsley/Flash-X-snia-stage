@@ -95,7 +95,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    solnData(DFUN_VAR, :, :, :) = -1e13
    solnData(TEMP_VAR, :, :, :) = 0.
-   facexData(VELC_FACE_VAR, :, :, :) = inflowVelScale*1.0
+   facexData(VELC_FACE_VAR, :, :, :) = 1.0
 
    call sim_heaterInitBlk(xCenter, yCenter, zCenter, &
                           GRID_ILO_GC, GRID_IHI_GC, &
