@@ -163,10 +163,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do
         @M hy_end_stages_t
 
+        ng = NGUARD-1
+        @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
+        
            call  hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
            
            !Set needed number of guard cells to update based on
@@ -305,6 +308,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               end do
 
            end do
+           ng = NGUARD-1
+           @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
            do stage=1,last_stage !! this is the do loop statement for telescoping version
               
