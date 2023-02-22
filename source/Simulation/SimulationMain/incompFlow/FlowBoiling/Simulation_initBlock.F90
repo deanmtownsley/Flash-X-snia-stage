@@ -50,6 +50,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
    use sim_heaterInterface, ONLY: sim_heaterInitBlk
+   use IncompNS_interface, ONLY: IncompNS_getScalarProp
 
    implicit none
 
@@ -66,9 +67,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real    :: del(MDIM)
    logical :: gcell = .true.
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   integer :: inflowVelScale
 
    !--------------------------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
+
+   call tileDesc%getDataPtr(facexData, FACEX)
+
+   call IncompNS_getScalarProp("Inflow_Vel_Scale", inflowVelScale)
 
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
@@ -89,6 +95,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    solnData(DFUN_VAR, :, :, :) = -1e13
    solnData(TEMP_VAR, :, :, :) = 0.
+   facexData(VELC_FACE_VAR, :, :, :) = inflowVelScale*1.0
 
    call sim_heaterInitBlk(xCenter, yCenter, zCenter, &
                           GRID_ILO_GC, GRID_IHI_GC, &
@@ -96,6 +103,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                           GRID_KLO_GC, GRID_KHI_GC, &
                           solnData(TEMP_VAR, :, :, :), &
                           solnData(DFUN_VAR, :, :, :))
+
+   call tileDesc%releaseDataPtr(facexData, FACEX)
 
    deallocate (xCenter, yCenter, zCenter)
 
