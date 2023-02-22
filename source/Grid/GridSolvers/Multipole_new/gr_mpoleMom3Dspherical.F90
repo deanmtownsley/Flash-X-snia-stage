@@ -167,35 +167,10 @@ subroutine gr_mpoleMom3Dspherical (idensvar)
      bndBoxILow = bndBox (LOW,IAXIS)
      bndBoxJLow = bndBox (LOW,JAXIS)
      bndBoxKLow = bndBox (LOW,KAXIS)
+!             Since the location of the center of mass has been determined
+!             in 3D cartesian (x,y,z) coordinates, converting from 3D spherical (r, theta, phi) coordinates
 !
-!
-!          ...The 3D cylindrical case:
-!
-!
-!                               ------
-!                             /        \
-!                            /     z    \
-!                           |\     |    /|
-!                           | \    |   / |
-!                           |   ------   |
-!                           |      | /   |
-!                           |      |/phi |         Rcyl --> stored in i-index (FLASH x)
-!                           |      ----->|            z --> stored in j-index (FLASH y)
-!                           |       Rcyl |          phi --> stored in k-index (FLASH z)
-!                           |            |
-!                           |            |
-!                           |   ------   |
-!                           | /        \ |
-!                           |/          \|
-!                            \          /
-!                             \        /
-!                               ------
-!
-!             The (Rcyl,phi) pair needs to be converted to the corresponding cartesian
-!             (x,y) pair, because the location of the center of mass has been determined
-!             in 3D cartesian (x,y,z) coordinates.
-!
-!
+
      alpha_p       = TWO * DeltaKHalfSine * DeltaKHalfSine
      beta_p        = DeltaKSine
      

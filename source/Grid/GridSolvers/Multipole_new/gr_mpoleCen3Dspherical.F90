@@ -205,31 +205,8 @@ subroutine gr_mpoleCen3Dspherical (idensvar)
      bndBoxKLow = bndBox (LOW,KAXIS)
 !
 !
-!          ...The 3D cylindrical case:
-!
-!
-!                               ------
-!                             /        \
-!                            /     z    \
-!                           |\     |    /|
-!                           | \    |   / |
-!                           |   ------   |
-!                           |      | /   |
-!                           |      |/phi |         Rcyl --> stored in i-index (FLASH x)
-!                           |      ----->|            z --> stored in j-index (FLASH y)
-!                           |       Rcyl |          phi --> stored in k-index (FLASH z)
-!                           |            |
-!                           |            |
-!                           |   ------   |
-!                           | /        \ |
-!                           |/          \|
-!                            \          /
-!                             \        /
-!                               ------
-!
-!             The (Rcyl,phi) pair needs to be converted to the corresponding cartesian
-!             (x,y) pair, because the location of the center of multipole expansion
-!             will be determined in 3D cartesian (x,y,z) coordinates.
+!             Since location of the center of multipole expansion will be determined in 3D cartesian (x,y,z) coordinates, conversion 
+!             from 3D spherical (r, theta, phi) coordinates is necessary.
 !
 !             The cell volume is:
 !

@@ -184,30 +184,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
      bndBoxKLow = bndBox (LOW,KAXIS)
 
      solnData (ipotvar , imin:imax , jmin:jmax , kmin:kmax) = ZERO
-!
-!
-!         ...The 3D cylindrical case:
-!
-!
-!                               ------
-!                             /        \
-!                            /     z    \
-!                           |\     |    /|
-!                           | \    |   / |
-!                           |   ------   |
-!                           |      | /   |
-!                           |      |/phi |         Rcyl --> stored in i-index (FLASH x)
-!                           |      ----->|            z --> stored in j-index (FLASH y)
-!                           |       Rcyl |          phi --> stored in k-index (FLASH z)
-!                           |            |
-!                           |            |
-!                           |   ------   |
-!                           | /        \ |
-!                           |/          \|
-!                            \          /
-!                             \        /
-!                               ------
-!
+
 !            The full set of regular and irregular solid harmonics:
 !
 !                          0 =< L =< gr_mpoleMaxL
@@ -272,8 +249,6 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
 
 
      
-!     alpha_p     = TWO * DeltaKFourthSine * DeltaKFourthSine      ! for calculating sin (phi + n * DeltaKHalf)
-!     beta_p      = DeltaKHalfSine                                 ! and cos (phi + n * DeltaKHalf)
      alpha_p     = TWO * DeltaKHalfSine * DeltaKHalfSine      ! for calculating sin (phi + n * DeltaKHalf)
      beta_p      = DeltaKSine   
 
@@ -287,8 +262,6 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
       kC = int (kF/2) + 1                                       ! local (inner) largest k cell index for k face
       k2 = mod (kF,2) == 0 .and. kC > 1 .and. kC < kCmax + 1    ! 2 cells k and k-1 share k face?
       kC = kmin - 1 + min (kC , kCmax)                          ! change to global (inner + guard) k cell index
-      !jB = mod (kF+1,2)                                         ! initial local j face index (0 or 1)
-      !jS = 1 + jB                                               ! step value for local j face indices (1 or 2) 
       jB = 0
       jS = 2
 

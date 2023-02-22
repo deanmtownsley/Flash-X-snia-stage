@@ -117,8 +117,7 @@ subroutine gr_mpoleRad3Dspherical ()
 !
 !
 !       ...Get the minimum cell sizes for the linear parts of the domain, which
-!          determine the radial distance in 3D space. For 3D cylindrical coordinates,
-!          these are the 3D cylindrical radial and the 3D cylindrical 'z' components.
+!          determine the radial distance in 3D space. 
 !
 !
   call Grid_getMinCellSizes (minCellSizes)
@@ -127,38 +126,7 @@ subroutine gr_mpoleRad3Dspherical ()
 !
 !
 !       ...Determine the maximum distance from the center of multipole expansion to the
-!          computational domain boundaries. For 3D cylindrical geometries, this is best
-!          done by splitting the problem into the 2D (Rcyl,phi) component and the z-axis
-!          component. The z-axis component is trivial. For the 2D (Rcyl,phi) component
-!          we need to find separately the center of multipole expansion (CM) radius from
-!          the domain radial origin (o) and add this to the maximum radial coordinate
-!          of the 3D cylindrical domain:
-!
-!
-!                                    ___________
-!                 (Rcyl,phi)        /           \
-!                                  /             \
-!                     or          /               \
-!                                /     CM          \
-!                   (x,y)       /        \ <------  \ ---   CM radius
-!                              |          o          |
-!                   plane       \          \        /
-!                                \          \ <--- / ----   max radial 3D cylindrical
-!                                 \          \    /           domain coordinate
-!                                  \          \  /
-!                                   \__________\/
-!
-!
-!          Determine also the 'atomic' radial spacing. This is the
-!          smallest possible size of one radial bin. Half the Geometric
-!          mean (n-th root of product of n samples) is used to determine
-!          the atomic spacing from the minimum cell spacings in the radial
-!          and z direction. The angular direction is NOT used in determining
-!          the atomic radial spacing. The inverse is also calculated for further
-!          reference.
-!
-!
-!
+!          computational domain boundaries.
 
   cmRsph = sqrt (gr_mpoleXcenter * gr_mpoleXcenter + gr_mpoleYcenter * gr_mpoleYcenter + gr_mpoleZcenter * gr_mpoleZcenter)
   gr_mpoleMaxR  = gr_mpoleDomainRmax + cmRsph
@@ -198,7 +166,8 @@ subroutine gr_mpoleRad3Dspherical ()
 !        have radii in the inner zone.
 !
 !
-      call Grid_getLocalNumBlks(nblks) !sneo:added recently, but not sure if needed
+      call Grid_getLocalNumBlks(nblks)
+
       allocate (blockListInnerZone (1:nblks))
 
       gr_mpoleInnerZoneMaxR = real (gr_mpoleInnerZoneSize) * gr_mpoleDrInnerZone
