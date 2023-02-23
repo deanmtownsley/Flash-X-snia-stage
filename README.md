@@ -138,5 +138,12 @@ Please refer to the instructions there to setup your own testing infrastructure.
 
 Testing servers:
 
-- Argonne, GCE - https://jenkins-gce.cels.anl.gov/job/Flash-X-automated
-- Ganon - http://ganon2.device.utk.edu:8080 
+- Argonne, GCE:
+
+  FlashTest server for running tests on `staged` branch - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged
+
+  FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
+
+- Ganon:
+
+  FlashTest - http://ganon2.device.utk.edu:8080 
