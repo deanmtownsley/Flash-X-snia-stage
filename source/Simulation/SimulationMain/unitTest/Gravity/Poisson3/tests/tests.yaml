@@ -11,11 +11,11 @@ UnitTest/Gravity/AMR/2dCyl/Paramesh:
   parfiles: test_flash_2dcyl.par
 
 UnitTest/Gravity/AMR/2dSph/Paramesh:
-  setupOptions: -auto -2d +spherical +newMpole +noio -maxblock=1000 
+  setupOptions: -auto -2d +spherical +newMpole +noio -maxblocks=1000 
   parfiles: test_flash_2dsph.par
 
 #This test was originally configured with debug option
 #GCC compiler version 10.2.0 was used for the test    
 UnitTest/Gravity/AMR/3dSph/Paramesh:
-  setupOptions: -auto -3d +spherical +newMpole +noio -maxblock=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev
+  setupOptions: -auto -3d +spherical +newMpole +noio -maxblocks=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev
   parfiles: test_flash_3dsph.par
