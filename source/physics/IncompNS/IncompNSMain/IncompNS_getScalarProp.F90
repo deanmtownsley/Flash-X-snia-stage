@@ -18,70 +18,66 @@
 
 subroutine IncompNS_getScalarPropReal(name, value)
 
-  use IncompNS_data
-  use Driver_interface, only: Driver_abort
+   use IncompNS_data
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  real, intent(out)             :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   real, intent(out)             :: value
 
-  character(len=100)             :: errorMessage
+   character(len=100)             :: errorMessage
 
-  select case(name)
-     case("Reynolds_Number","reynolds_number","REYNOLDS_NUMBER")
-       value = ins_invReynolds
-     case("Min_Divergence","min_divergence","MIN_DIVERGENCE")
-       value = ins_mindiv
-     case("Max_Divergence","max_divergence","MAX_DIVERGENCE")
-       value = ins_maxdiv
-     case default
-       value = 0.
-       write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-       call Driver_abort(errorMessage)
-  end select  
+   select case (name)
+   case ("Reynolds_Number", "reynolds_number", "REYNOLDS_NUMBER")
+      value = ins_invReynolds
+   case ("Min_Divergence", "min_divergence", "MIN_DIVERGENCE")
+      value = ins_mindiv
+   case ("Max_Divergence", "max_divergence", "MAX_DIVERGENCE")
+      value = ins_maxdiv
+   case ("Inflow_Vel_Scale", "inflow_vel_scale", "INFLOW_VEL_SCALE")
+      value = ins_inflowVelScale
+   case default
+      value = 0.
+      write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+      call Driver_abort(errorMessage)
+   end select
 
 end subroutine IncompNS_getScalarPropReal
 
 subroutine IncompNS_getScalarPropInteger(name, value)
 
-  use IncompNS_data
-  use Driver_interface, only: Driver_abort
+   use Driver_interface, ONLY: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
 
-  character(len=100)             :: errorMessage
+   character(len=100)            :: errorMessage
 
-  select case(name)
-     case("Inflow_Vel_Scale","inflow_vel_scale","INFLOW_VEL_SCALE")
-       value = ins_inflowVelScale 
-     case default
-       value = .false.
-       write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-       call Driver_abort(errorMessage)
-  end select  
+   value = .false.
+   write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
 
 end subroutine IncompNS_getScalarPropInteger
 
 subroutine IncompNS_getScalarPropLogical(name, value)
 
-  use IncompNS_data
-  use Driver_interface, only: Driver_abort
+   use IncompNS_data
+   use Driver_interface, only: Driver_abort
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  logical, intent(out)          :: value
+   implicit none
+   character(len=*), intent(in)  :: name
+   logical, intent(out)          :: value
 
-  character(len=100)             :: errorMessage
+   character(len=100)             :: errorMessage
 
-  select case(name)
-     case("Pred_Corr_Flag","pred_corr_flag","PRED_CORR_FLAG")
-       value = ins_predcorrflg 
-     case default
-       value = .false.
-       write(errorMessage,*) '[IncompNS_getScalarProp] Unknown scalar: ',name
-       call Driver_abort(errorMessage)
-  end select  
+   select case (name)
+   case ("Pred_Corr_Flag", "pred_corr_flag", "PRED_CORR_FLAG")
+      value = ins_predcorrflg
+   case default
+      value = .false.
+      write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+      call Driver_abort(errorMessage)
+   end select
 
 end subroutine IncompNS_getScalarPropLogical

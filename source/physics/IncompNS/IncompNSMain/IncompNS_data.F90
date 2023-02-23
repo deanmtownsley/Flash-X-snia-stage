@@ -92,6 +92,6 @@ module IncompNS_data
   real, save :: ins_mindiv,ins_maxdiv
 
   real, save :: ins_outflowVel(LOW:HIGH,MDIM)
-  integer, save :: ins_inflowVelScale
+  real, save :: ins_inflowVelScale
 
 end module IncompNS_data

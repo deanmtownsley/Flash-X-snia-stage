@@ -49,7 +49,7 @@ PARAMETER  ins_dpdy  REAL  0.00   # Value of constant dpdy.
 PARAMETER  ins_dpdz  REAL  0.00   # Value of constant dpdz.
 
 #---------------------------------------------------------------------------
-PARAMETER ins_inflowVelScale INTEGER 1 # 
+PARAMETER ins_inflowVelScale REAL 1.0 # 
   
 #-----------------------------------------------------------------------------
 # Variables required by the INS module

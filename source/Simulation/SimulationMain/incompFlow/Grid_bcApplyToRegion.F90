@@ -204,7 +204,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    real, dimension(LOW:HIGH, MDIM) :: outflowVel
    real :: invReynolds
    real, dimension(MDIM) :: gravity
-   integer :: inflowVelScale
+   real :: inflowVelScale
 
    select case (bcType)
    case (OUTFLOW_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
