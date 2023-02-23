@@ -202,28 +202,21 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
               
               ! Construct minus and plus TOTAL energy densities
-              im1 = i-1
-              @M hy_dot_product(v,im1,im1,HY_VELX,HY_VELZ,hy_rope,hy_rope,VenerLo)
-              VenerLo = hy_rope(HY_DENS,i-1,j,k)*0.5*VenerLo + hy_rope(HY_RHOE,i-1,j,k)
-
-              @M hy_dot_product(v,i,i,HY_VELX,HY_VELZ,hy_rope,hy_rope,VenerHi)
-              VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*VenerHi + hy_rope(HY_RHOE,i,j,k)
-
-
-              hy_flux(HY_XMOM,i,j,k) = hy_flux(HY_XMOM,i,j,k) &
-                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k))
-
-              hy_flux(HY_YMOM,i,j,k) =  hy_flux(HY_YMOM,i,j,k) &
-                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k))
-
-               hy_flux(HY_ZMOM,i,j,k) = hy_flux(HY_ZMOM,i,j,k) &
-                   +cvisc*(hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k))
+              ! Construct minus and plus TOTAL energy densities
+              VenerLo = hy_rope(HY_DENS,i-1,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i-1,j,k),hy_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
+                   + hy_rope(HY_RHOE,i-1,j,k)
+              VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i,j,k),hy_rope(HY_VELX:HY_VELZ,i,j,k)))&
+                   + hy_rope(HY_RHOE,i,j,k)
               
-              hy_flux(HY_MASS,i,j,k) = hy_flux(HY_MASS,i,j,k) &
-                   +cvisc*( hy_rope(HY_DENS,i-1,j,k) - hy_rope(HY_DENS,i,j,k) )
+              hy_flux(HY_MASS:HY_ENER,i,j,k) = &
+                   hy_flux(HY_MASS:HY_ENER,i,j,k) &
+                   +cvisc*(/hy_rope(HY_DENS,i-1,j,k)                 - hy_rope(HY_DENS,i,j,k)&
+                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k)&
+                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k)&
+                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k)&
+                   ,        VenerLo                         - VenerHi/)
 
-              hy_flux(HY_ENER,i,j,k) = hy_flux(HY_ENER,i,j,k) + cvisc*( VenerLo - VenerHi )
-
+              
 #ifdef SPARK_GLM
               hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
                    hy_flux(HY_FMGX:HY_FPSI,i,j,k) &

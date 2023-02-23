@@ -40,7 +40,7 @@
 subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
-  use Hydro_data, ONLY : hya_grav
+  use Hydro_data, ONLY : hya_grav, hya_xCenter, hya_yCenter, hy_geometry
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -51,7 +51,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   real,dimension(MDIM),intent(IN)  :: hy_del
   integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
   real,dimension(:,:,:,:),pointer :: hy_grav
-
+  real,dimension(:),pointer :: radCenter, thtCenter
 
   integer :: dir, i,j,k,d
   
@@ -59,8 +59,11 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
-  
 
+  if(hy_geometry /= CARTESIAN) then
+     radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
+     thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
+  end if
   
   !$omp target teams distribute parallel do simd collapse(4)
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
@@ -76,6 +79,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 #ifdef GRAVITY
 
   ! AH: TODO: OpenMP directives for gravity
+
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
 #ifdef FLASH_GRAVITY_TIMEDEP
@@ -84,7 +88,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
         ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
         ! telling it what data structure to use for computing the acceleration.
         call accelOneRow((/j,k/),IAXIS,&
-             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del)
+             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,hy_starState,radCenter, thtCenter)
 #else
         call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif
@@ -96,7 +100,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,k/),JAXIS,&
-             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del)
+             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,hy_starState,radCenter, thtCenter)
      enddo
   enddo
 #endif
@@ -107,27 +111,34 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
         call accelOneRow((/i,j/),KAXIS,&
-             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del)
+             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,hy_starState,radCenter, thtCenter)
      enddo
   enddo
 #endif
 #endif
 #endif
 #endif /* GRAVITY */
-  nullify(hy_grav)  
+  nullify(hy_grav)
+  if(hy_geometry /= CARTESIAN) then
+     nullify(radCenter)
+     nullify(thtCenter)
+  end if
 contains
 
-  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del,hy_starState)
-
+  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del,hy_starState,&
+                 radCenter, thtCenter)
+    use Hydro_data, ONLY : hy_geometry
     implicit none
 
     integer, dimension(2), intent(in) :: pos
     integer, intent(in)               :: sweepDir, numCells
     real, intent(inout)               :: grav(numCells)
-    real,dimension(:,:,:,:) :: hy_starState
+    real,dimension(:),pointer :: radCenter, thtCenter
+    real,dimension(:,:,:,:),pointer :: hy_starState
     real, intent(in):: hy_del(MDIM)
     integer         :: ii, iimin, iimax
     real            :: gpot(numCells), delxinv
+    integer, save   :: count =1
 
     !==================================================
 
@@ -144,9 +155,15 @@ contains
        gpot(:) = hy_starState(GPOT_VAR,:,pos(1),pos(2))
     elseif (sweepDir == SWEEP_Y) then                 ! y-direction
        delxinv = 1./hy_del(JAXIS)
+       if(hy_geometry ==SPHERICAL) delxinv = delxinv * (1.0 / radCenter(pos(1)))
        gpot(:) = hy_starState(GPOT_VAR,pos(1),:,pos(2))
     else                                          ! z-direction
        delxinv = 1./hy_del(KAXIS)
+       if (hy_geometry == SPHERICAL) then
+          delxinv = delxinv * ( 1.0 / ( radCenter(pos(1)) * sin(thtCenter(pos(2))) ) )
+       else if (hy_geometry == CYLINDRICAL) then
+          delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+       endif
        gpot(:) = hy_starState(GPOT_VAR,pos(1),pos(2),:)
     endif
 

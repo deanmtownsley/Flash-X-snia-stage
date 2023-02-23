@@ -19,7 +19,7 @@ for a simulation configuration); PARAMESH code is not organized or built as a se
 
 Some applications and tests use external libraries that are expected to be already installed on the
 system where Flash-X is being built and run. The directory locations of such library installations
-should be made know to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
+should be made known to the Flash-X build system by a site-specific (or, as a fallback, OS-specific)
 Makefile.h file. See the subdirectories under sites/ .
 
 This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
@@ -123,13 +123,27 @@ autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
 
 ## Containerization Workflows
 
-![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
-![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
-![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+[comment]: ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+[comment]: ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+[comment]: ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
 ## Tests
-The source code for flashtest and a full set of tests are available from the
-Flash-X-Test repository. The repository also has tools to help you setup your local test suite.
+Test specifications for individual simulations are included under ``*/tests/tests.yaml`` files in each simulation directory under ``source/Simulation/SimulationMain``. New tests should be added as enteries in the prescribed YAML format before including it as a part of suites on different platforms.
 
+Testing and maintainence of the code is implemented using command line tools available in Flash-X-Test repository: https://github.com/Flash-X/Flash-X-Test
+
+Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``sites/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
+
+Testing servers:
+
+- Argonne, GCE:
+
+  FlashTest server for running production tests on `staged` branch - https://jenkins-gce.cels.anl.gov/job/Flash-X-production
+
+  FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
+
+- Ganon:
+
+  FlashTest - http://ganon2.device.utk.edu:8080 

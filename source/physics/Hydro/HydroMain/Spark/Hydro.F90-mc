@@ -28,14 +28,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray
   
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
-       hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann
+       hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
   use Hydro_data, ONLY : klim,lim,limgc,lim1,gCells, dir,stage
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
-       Grid_correctFluxData_xtra, Grid_putFluxData_block, &
+       Grid_correctFluxData_xtra, Grid_putFluxData, &
        Grid_getFluxCorrData_block,Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
@@ -164,6 +164,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do
         @M hy_end_stages_t
 
+        ng = NGUARD-1
+        @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
@@ -202,7 +204,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
 #if NSPECIES>0
            !Properly normalize species after the update
-           call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+           call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+           !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif 
            
            ! Update EOS based on intermediate solution
@@ -221,7 +224,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
-        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData_block(tileDesc,&
+        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
         call Timers_stop("Offloaded Section")
         !$omp target exit data map(release: hy_starState, hy_tmpState, &
@@ -302,6 +305,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  @M hy_calc_lim
               end do
            @M hy_end_stages_t
+           ng = NGUARD-1
+           @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
            do stage=1,last_stage !! this is the do loop statement for telescoping version
               
@@ -360,7 +365,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
               
 #if NSPECIES>0
-              call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+              call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+              !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif 
               
               call Timers_stop("updateSoln")
@@ -380,7 +386,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
            end do!stage loop
            !Put flux buffer information into SPFS
-           if (lev > 1) call Grid_putFluxData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+           if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:),.false.)
            @M hy_release_scr_ptrs
            @M iter_end

@@ -90,7 +90,7 @@ subroutine Simulation_init()
      
      write (*,*)
      call Logfile_stampMessage( "initializing for dust collapse problem")
-     write (*,*) 'flash:  initializing for dust collapse problem.'
+     write (*,*) 'Flash-X:  initializing for dust collapse problem.'
      write (*,*)
      
   endif

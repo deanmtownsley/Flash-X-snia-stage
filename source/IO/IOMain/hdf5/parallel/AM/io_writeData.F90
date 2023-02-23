@@ -424,7 +424,10 @@ subroutine io_writeData(fileID)
             end if
          end if
 
-         call MPI_BARRIER(io_globalComm, ierr)
+#ifdef USEBARS
+      call MPI_BARRIER(io_globalComm, ierr)
+#endif
+
          deallocate (unkBuf)
 
       end if ! endif localNumBlocks > 0

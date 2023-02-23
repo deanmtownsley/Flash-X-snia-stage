@@ -40,6 +40,7 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
 
   use gr_mpoleInterface, ONLY : gr_mpolePot3Dcartesian,   &
                                 gr_mpolePot2Dcylindrical, &
+                                gr_mpolePot2Dspherical,   &
                                 gr_mpolePot1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGravityConstant, &
@@ -84,7 +85,7 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
 
      case (GRID_2DSPHERICAL)
 
-           call Driver_abort("this geometry is not supported")
+           call gr_mpolePot2Dspherical   (ipotvar)
 
      case (GRID_1DSPHERICAL)
 

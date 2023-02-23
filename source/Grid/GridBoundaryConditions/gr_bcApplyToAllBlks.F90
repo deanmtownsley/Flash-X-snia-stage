@@ -68,6 +68,8 @@ subroutine gr_bcApplyToAllBlks(axis,isWork)
 
 #ifdef FLASH_GRID_AMREX
   call Driver_abort("[gr_bcApplyToAllBlks] not implemented for AMReX")
+#elif defined(FLASH_GRID_MILHOJA)
+  call Driver_abort("[gr_bcApplyToAllBlks] not implemented for Milhoja")
 #else
   if(isWork) then
      localNum=1

@@ -80,7 +80,7 @@
 !!REORDER(5): gr_xflx_[yz]face, gr_yflx_[xz]face, gr_zflx_[xy]face
 
 #include "Simulation.h"
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
   use Grid_interface, ONLY : Grid_getCellFaceAreas
 
   use Grid_tile, ONLY : Grid_tile_t
@@ -112,7 +112,6 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
   logical, intent(IN) :: add
-  logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
 
   real,pointer, dimension(:,:,:,:) :: fluxx,fluxy,fluxz
   CONTIGUOUS_FSTMT(fluxx)

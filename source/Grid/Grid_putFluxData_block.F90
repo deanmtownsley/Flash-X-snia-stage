@@ -72,7 +72,7 @@
 
 !!REORDER(4): fluxBuf[XYZ]
 
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFluxDensity)
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 #include "FortranLangFeatures.fh"
@@ -82,8 +82,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
-  logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
-
+  logical, intent(in) :: add
   return
 
 end subroutine Grid_putFluxData_block

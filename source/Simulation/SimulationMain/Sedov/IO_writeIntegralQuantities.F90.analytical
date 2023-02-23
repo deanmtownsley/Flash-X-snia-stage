@@ -29,7 +29,7 @@
 !!   modifying the volume of each zone (dvol).
 !!
 !!   Users should modify this routine if they want to store any
-!!   quantities other than default values in the flash.dat.  Make sure
+!!   quantities other than default values in the flashx.dat.  Make sure
 !!   to modify the nGlobalSum parameter to match the number of
 !!   quantities written.  Also make sure to modify the header to match
 !!   the names of quantities with those calculated in the lsum and

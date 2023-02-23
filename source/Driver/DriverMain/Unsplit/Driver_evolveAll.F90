@@ -77,10 +77,6 @@ subroutine Driver_evolveAll()
                                   Grid_fillGuardCells,&
                                   Grid_getDeltas,&
                                   Grid_getMaxRefinement
-#ifdef FLASH_GRID_AMREX
-  ! DEV: Temporary ugliness for debugging
-  use gr_amrexInterface,   ONLY : gr_writeData
-#endif
 
 #include "Simulation.h"
   use Hydro_interface,     ONLY : Hydro, &
@@ -339,7 +335,7 @@ subroutine Driver_evolveAll()
   !dr_nstep had during the last loop iteration, otherwise the number for nstep
   !that will be stored in a final checkpoint file will be wrong.
   dr_nstep = min(dr_nstep,dr_nend)
-  
+
   !!******************************************************************************
   !! End of Evolution Loop
   !!******************************************************************************

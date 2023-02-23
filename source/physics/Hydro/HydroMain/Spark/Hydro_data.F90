@@ -74,7 +74,7 @@ module Hydro_data
   integer :: hy_gcMaskSize
   logical :: hy_restart
   logical :: hy_useHydro, hy_telescoping
-  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs,hy_maxLev
+  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs,hy_maxLev,hy_maxCells
   logical, dimension(MAXSTAGE) :: hy_addFluxArray
   real, dimension(3) :: hy_coeffs, hy_weights
   integer, dimension(3) :: hy_limitsArray
@@ -114,7 +114,7 @@ module Hydro_data
   !$omp   hy_fluxCorVars, &
   !$omp   hy_geometry, &
   !$omp   hy_threadWithinBlock, &
-  !$omp   hy_gcMask, &
+  !$omp   hy_gcMask, hy_maxCells, &
   !$omp   hy_limRad, &
   !$omp   hy_cvisc, &
   !$omp   hy_tiny, &

@@ -1,0 +1,121 @@
+#	Runtime parameters for the YahilLattimerCollapse problem.
+
+# Simulation basics
+restart              = .true.
+checkpointFileNumber = 1
+plotfileNumber       = 0
+run_comment          = "Yahil collapse 1D with Yali Profile"
+
+# IO
+#    checkpoint file output parameters
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
+#    plotfile output parameters
+plotfileIntervalStep = 0
+plotfileIntervalTime = 0
+
+# Time
+nend             = 1000000
+tmax             = 1.5E-1         # [s] 
+
+# Domain
+geometry = "spherical"
+xmin             = 0.
+xmax             = 1.0E10         # [cm]
+xl_boundary_type = "reflect"
+xr_boundary_type = "outflow"
+
+## Grid/Refinement
+nblockx          = 100
+nblocky          = 1
+nblockz          = 1 
+
+#  Adaptive Grid refinement parameters
+lrefine_max      = 9
+lrefine_min      = 3
+refine_var_1     = "dens"
+refine_var_2     = "pres"
+refine_var_3     = "ener"
+refine_var_4     = "none"
+refine_cutoff_1  = 0.8
+refine_cutoff_2  = 0.8
+refine_cutoff_3  = 0.8
+refine_cutoff_4  = 0.8
+
+plot_var_1       = "dens"
+plot_var_2       = "pres"
+plot_var_3       = "temp"
+plot_var_4       = "ener"
+
+
+# Simulation
+# Specify file from which to read initial profile
+sim_profFileName = "Yahil_Gam130.dat"
+sim_gammaInitial = 1.30
+nsub             = 1
+
+# Gas ratio of specific heats
+gamma            = 1.30
+
+# Parameters for initial model, FALSH default unit: CGS
+#  Cenral pressure and density, collapse time,  max density
+sim_pCentral     = 6.E27  # [erg cm-3]
+sim_rhoCentral   = 7.E9   # [g/cm3]
+sim_collapsetime = 1.5E-1 # [s]
+sim_maxDens      = 1.E13  # [g/cm3] 
+
+# Center postion
+sim_xctr	 = 0.0E0
+sim_yctr	 = 0.0E0
+
+cfl		 = 0.8
+
+log_file         = "yahil1d.log"
+eintSwitch       = 1.e-4
+
+
+# Uniform Grid specific parameters 
+iProcs           = 1	#num procs in i direction
+jProcs           = 1	#num procs in j direction
+kProcs           = 1
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#	I. INTERPOLATION SCHEME:
+order		= 3      # Interpolation order (first/second/third/fifth order)
+slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta= 1.   # Slope parameter for the "limited" slope by Toro
+charLimiting	= .true. # Characteristic limiting vs. Primitive limiting
+
+use_avisc	= .false. # use artificial viscosity (originally for PPM)
+cvisc		= 0.1     # coefficient for artificial viscosity
+use_flattening	= .false. # use flattening (dissipative) (originally for PPM)
+use_steepening	= .false. # use contact steepening (originally for PPM)
+use_upwindTVD	= .false. # use upwind biased TVD slope for PPM (need nguard=6)
+
+#	II. RIEMANN SOLVERS:
+RiemannSolver	= "HLLC"       # Roe, HLL, HLLC, LLF, Marquina
+entropy         = .false.     # Entropy fix for the Roe solver
+
+#	III. STRONG SHOCK HANDLING SCHEME:
+shockDetect	= .true.     # Shock Detect for numerical stability
+## -------------------------------------------------------------##
+
+# Gravity
+useGravity      = .true.
+updateGravity   = .true.
+
+
+## ---------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE SUPER-TIME-STEPPING (STS) ALGORITHM  ##
+##  NOTE: For details on using STS runtime parameters, please     ##
+##        refer to user's guide (Driver chapter).                 ##
+useSTS          = .false.
+nstepTotalSTS   = 5
+nuSTS           = 0.2
+## ---------------------------------------------------------------##
+
+# Small numbers
+smallt          = 1.2e8
+smallx          = 1.E-100
+small           = 1.E-100

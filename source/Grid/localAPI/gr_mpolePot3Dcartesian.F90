@@ -33,8 +33,6 @@
 !!
 !!***
 
-!!REORDER(4): solnData
-
 subroutine gr_mpolePot3Dcartesian (ipotvar)
 
   implicit none

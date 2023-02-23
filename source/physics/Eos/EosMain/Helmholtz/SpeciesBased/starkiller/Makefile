@@ -1,6 +1,6 @@
 #	Makefile for the Helmholtz equation of state, species based
 
-Eos += eos_starKiller.o bl_types.o bl_constants.o actual_network.o network.o eos_type.o actual_eos.o
+Eos += eos_starKiller.o eos_starKillerInit.o bl_types.o bl_constants.o actual_network.o network.o eos_type.o actual_eos.o
 
 Eos.o : eos_vecData.o  Eos_data.o
 bl_constants.o : bl_types.o

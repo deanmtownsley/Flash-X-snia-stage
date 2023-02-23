@@ -50,13 +50,17 @@ module ut_testDriverMod
 
     integer, save :: my_n_tests = 0
     integer, save :: my_n_failed = 0
-    real,    save :: my_t_start = 0.0d0
     logical, save :: is_testing = .FALSE.
 
     interface assertEqual
         procedure :: assertEqualInt
         procedure :: assertEqualReal
     end interface assertEqual
+
+    interface assertAlmostEqual
+        procedure :: assertAlmostEqualAuto
+        procedure :: assertAlmostEqual
+    end interface assertAlmostEqual
 
     interface assertSetEqual
         procedure :: assertSetEqual2dIntArray
@@ -81,23 +85,13 @@ contains
         end if
 
         is_testing = .TRUE.
-
-        my_t_start = 0.0d0
-        call cpu_time(my_t_start)
     end subroutine start_test_run
 
-    subroutine finish_test_run
+    function finish_test_run() result(did_succeed)
         use Driver_data,      ONLY : dr_globalMe
         use Driver_Interface, ONLY : Driver_abort
 
-        real :: my_t_end
-        real :: my_walltime
-
-        integer :: file_unit
-        integer :: ut_getFreeFileUnit
- 
-        character(4)                 :: rank_str 
-        character(MAX_STRING_LENGTH) :: fileName
+        logical :: did_succeed
 
         if (.NOT. is_testing) then
             call Driver_abort("[finish_test_run] Not testing yet")
@@ -105,43 +99,26 @@ contains
 
         is_testing = .FALSE.
 
-        call cpu_time(my_t_end)
-        my_walltime = my_t_end - my_t_start
-
         ! DEV: TODO reduction to collect number of tests/fails/max walltime?
+        did_succeed = (my_n_failed == 0)
         if (dr_globalMe == MASTER_PE) then
             ! Print result to standard out
             write(*,*)
-            if (my_n_failed == 0) then
+            if (did_succeed) then
                 write(*,*) "SUCCESS - ", &
                            (my_n_tests - my_n_failed), "/", my_n_tests, ' passed' 
             else 
                 write(*,*) "FAILURE - ", &
                            (my_n_tests - my_n_failed), "/", my_n_tests, ' passed'
             end if
-            write(*,*)
-            write(*,*) 'Walltime = ', my_walltime, ' s'
-            write(*,*)
-
-            ! Create log file for automatic testing on server
-            write(rank_str,"(I4.4)") dr_globalMe
-            filename = "unitTest_" // rank_str
-            file_unit = ut_getFreeFileUnit()
-            OPEN(file_unit, file=filename)
-            if (my_n_failed == 0) then
-                write(file_unit,'(A)') 'SUCCESS all results conformed with expected values.' 
-            else
-                write(file_unit,'(A)') 'FAILURE'
-            end if
-            CLOSE(file_unit)
         end if
-    end subroutine finish_test_run
+    end function finish_test_run
 
     subroutine assertTrue(a, msg)
         logical,      intent(IN) :: a
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
         
         if (.NOT. a) then
             write(buffer,'(A)') msg
@@ -155,7 +132,7 @@ contains
         logical,      intent(IN) :: a
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
         
         if (a) then
             write(buffer,'(A)') msg
@@ -170,10 +147,10 @@ contains
         integer,      intent(IN) :: b
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (a /= b) then
-            write(buffer,'(A,I5,A,I5)') msg, a, " != ", b
+            write(buffer,'(2A,I0,A,I0)') msg, " ", a, " != ", b
             write(*,*) TRIM(ADJUSTL(buffer))
             my_n_failed = my_n_failed + 1
         end if
@@ -185,15 +162,35 @@ contains
         real,         intent(IN) :: b
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (a /= b) then
-            write(buffer,'(A,F15.8,A,F15.8)') msg, a, " != ", b
+600         format(A,1P,G24.16,A,G24.16)
+            write(buffer,600) msg, a, " != ", b
             write(*,*) TRIM(ADJUSTL(buffer))
             my_n_failed = my_n_failed + 1
         end if
         my_n_tests = my_n_tests + 1
     end subroutine assertEqualReal
+
+    subroutine assertAlmostEqualAuto(a, b, msg)
+        real,         intent(IN) :: a
+        real,         intent(IN) :: b
+        character(*), intent(IN) :: msg
+
+        real :: prec
+        character(256) :: buffer
+
+        prec = 2.0 * spacing(min(abs(a),abs(b)))
+        if (ABS(b - a) > prec) then
+700         format(A,' (with auto tol)',6P,G24.16,A,0P,G24.16)
+            write(buffer,700) msg, a, " != ", b
+200         format((A))
+            write(*,200) TRIM(ADJUSTL(buffer))
+            my_n_failed = my_n_failed + 1
+        end if
+        my_n_tests = my_n_tests + 1
+    end subroutine assertAlmostEqualAuto
 
     subroutine assertAlmostEqual(a, b, prec, msg)
         real,         intent(IN) :: a
@@ -201,7 +198,7 @@ contains
         real,         intent(IN) :: prec
         character(*), intent(IN) :: msg
 
-        character(256) :: buffer = ""
+        character(256) :: buffer
 
         if (ABS(b - a) > prec) then
             write(buffer,'(A,F15.8,A,F15.8)') msg, a, " != ", b

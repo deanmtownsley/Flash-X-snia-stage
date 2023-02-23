@@ -97,7 +97,11 @@ FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
 FFLAGS_CUDA  = -I${CUDA_PATH}/include
 FFLAGS_MAGMA = -I${MAGMA_PATH}/include
 FFLAGS_OACC  =
+
 FFLAGS_OMP_OL= ${OPENMP_FORTRAN} -qoffload
+
+FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
+
 
 OPT_FLAGS    = -g -O2 -qarch=pwr9 -qtune=pwr9 -w
 TEST_FLAGS   = -g -O2 -qarch=pwr9 -qtune=pwr9 -w -qstrict=all
@@ -121,7 +125,11 @@ CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
 CFLAGS_CUDA  = -I${CUDA_PATH}/include
 CFLAGS_MAGMA = -I${MAGMA_PATH}/include
 CFLAGS_OACC  =
+
 CFLAGS_OMP_OL= ${OPENMP_C} -qoffload
+
+CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
+
 
 CFLAGS_OPT   = -c ${OPT_FLAGS} ${PP}IBM
 CFLAGS_TEST  = -c ${TEST_FLAGS} ${PP}IBM
@@ -160,7 +168,11 @@ LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
 LIB_CUDA  = -L${CUDA_PATH}/lib64 -lcusparse -lcusolver -lcublas -lcudart -lcuda
 LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
 LIB_OACC  =
+
 LIB_OMP_OL   = ${OPENMP_LINK} -qoffload
+
+LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
+
 
 LIB_MASS  = -lmass
 

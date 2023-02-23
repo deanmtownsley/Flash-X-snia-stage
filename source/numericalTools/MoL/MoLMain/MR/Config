@@ -1,0 +1,13 @@
+# Config file for the MoL multi-rate integrator
+
+D mr_slowMethod  The IMEX method to use for slow stages
+D mr_fastMethod  The ERK method to use for fast stages
+D mr_nsubcycle   How many fast steps to take during a slow stage
+
+KERNEL tableau
+
+PARAMETER mr_slowMethod STRING "mr-gark3" ["mr-gark3","mr-gark4"]
+
+PARAMETER mr_fastMethod STRING "erk-rk4" ["erk-euler","erk-rk2-heun","erk-rk3-ssp","erk-rk4"]
+
+PARAMETER mr_nsubcycle INTEGER 1

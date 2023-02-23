@@ -47,6 +47,7 @@ ug:+grid:Grid=UG:
 pm40:+grid:Grid=PM40:
 pm3:+pm40
 amrex:Grid=Amrex:-unit=Grid/GridMain/AMR/Amrex:-index-reorder
+milhoja:Grid=Milhoja:-unit=Grid/GridMain/AMR/Milhoja:-index-reorder
 
 # pm4dev_clean indicates a version of Paramesh closer to the one
 # that can be downloaded from sourceforge.  pm4dev indicates a 
@@ -58,6 +59,11 @@ pm4dev_basic:+grid:Grid=PM4DEV
 pm4dev_clean:+pm4dev_basic:FlashAvoidOrrery=False
 pm4dev:+pm4dev_basic:FlashAvoidOrrery=True
 pm4dev_fixed:+pm4dev:ParameshLibraryMode=False
+
+# Paramesh4 with fewer setup-derived constants hardwired as Fortran
+# PARAMETERs and more arrays (holding grid metadata) allocated at
+# runtime, compiled with LIBRARY defined.  Not tested much. - KW
+pm4dev_dynamicmem:+pm4dev:ParameshLibraryMode=True
 
 # NOTE: If pure hydro mode used with the USM solver, add +pureHydro in setup
 #default optimized codes
@@ -95,10 +101,6 @@ ptio:+ug:-with-unit=Particles:
 # sizes and non-fixed block size
 rnf:-3d:-nxb=8:-nyb=16:-nzb=32:-nofbs:+ug:
 nofbs:-nofbs:+ug:parallelIO=True:
-# PM40 with arrays allocated at runtime, compiled with LIBRARY defined.
-# Not officially supported. - KW
-dynamicmem-pm40:+pm40:ParameshLibraryMode=True
-dynamicmem-pm3:+dynamicmem-pm40
 
 
 ###### Shortcuts to achieve setup script support for geometry-related
@@ -159,14 +161,10 @@ ddt:use_ddt=True:--defines=DDT:--with-unit=source/monitors/Debugger/DebuggerMain
 nolwf:NoLevelwideFluxes=True:useAmrexFlashFluxreg=True
 
 # Support for Spark solver(s)
+spark:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf
+sparkbase1d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-1d:
 sparkbase2d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-2d:+sqr16
 sparkbase3d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-3d:+cube16
-sparkInhost2d:+sparkbase2d:--with-unit=physics/Hydro/HydroMain/Spark/Inhost
-sparkInhost3d:+sparkbase3d:--with-unit=physics/Hydro/HydroMain/Spark/Inhost
-sparkOffload2d:+sparkbase2d: --with-unit=physics/Hydro/HydroMain/Spark/Offload
-sparkOffload3d:+sparkbase3d: --with-unit=physics/Hydro/HydroMain/Spark/Offload
-spark2d:+sparkbase2d: --with-unit=physics/Hydro/HydroMain/Spark/Null
-spark3d:+sparkbase3d: --with-unit=physics/Hydro/HydroMain/Spark/Null
 # for future
 spark3:--with-unit=physics/Hydro/HydroMain/Spark/rk3:Spark=True:+nolwf
 
