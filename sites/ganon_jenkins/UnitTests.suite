@@ -35,6 +35,8 @@ unitTest/Poisson/Amrex -t "UnitTest/Multigrid/AMReX/3d" -np 1
 #------------------------------------------------
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 1
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dSph/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/Paramesh" -np 3
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/AMReX" -np 3
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/Paramesh" -np 2
