@@ -15,17 +15,16 @@
     transfers = ["source/Simulation/SimulationComposition/Burn/SpeciesList.txt"]
     errTol = 5.0e-13
 
-# TODO: AMR not currently supported with this test until delop_Ov branch is merged
-#["Comparison/StreamingSineWave/AMR/3D/Paramesh"]
-#    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +pm4dev +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
-#    parfiles = ["test_amr_3d.par"]
-#    restartParfiles = ["test_amr_3d_restart.par"]
-#    transfers = ["object/SpeciesList.txt"]
-#    errTol = 5.0e-13
-#
-#["Comparison/StreamingSineWave/AMR/3D/Paramesh"]
-#    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +amrex +nolwf +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
-#    parfiles = ["test_amr_3d.par"]
-#    restartParfiles = ["test_amr_3d_restart.par"]
-#    transfers = ["object/SpeciesList.txt"]
-#    errTol = 5.0e-13
+["Comparison/StreamingSineWave/AMR/3D/Paramesh"]
+    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +pm4dev +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
+    parfiles = ["test_amr_3d.par"]
+    restartParfiles = ["test_amr_3d_restart.par"]
+    transfers = ["object/SpeciesList.txt"]
+    errTol = 5.0e-13
+
+["Comparison/StreamingSineWave/AMR/3D/Paramesh"]
+    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +amrex +nolwf +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
+    parfiles = ["test_amr_3d.par"]
+    restartParfiles = ["test_amr_3d_restart.par"]
+    transfers = ["object/SpeciesList.txt"]
+    errTol = 5.0e-13
