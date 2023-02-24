@@ -100,8 +100,8 @@ subroutine Logfile_init()
   !  Set the default log_file to something similar to basenm if defaults are not used
   call RuntimeParameters_get("basenm",test_baseName)
   if (test_baseName .NE. "NotSet_") then   ! Must account for IO not being included...
-     if ((test_baseName .NE. 'flash_') .AND.                    &
-          &      (log_fileName .EQ. "flash.log")) then
+     if ((test_baseName .NE. 'flashx_') .AND.                    &
+          &      (log_fileName .EQ. "flashx.log")) then
         posBlank = index(test_baseName,' ')
         if (posBlank > 2) then  !  Rule out " " and "_" and "A" ...
            if (test_baseName(posBlank-1:posBlank-1)=='_') then ! only when name ends in _ ...

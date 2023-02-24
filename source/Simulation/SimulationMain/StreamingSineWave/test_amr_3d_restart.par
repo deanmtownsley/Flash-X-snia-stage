@@ -1,7 +1,6 @@
 # [source/Simulation/SimulationMain/StreamingSineWave]
 
 # names of files
-basenm   = "streamingsinewave_"
 log_file = "streamingsinewave.log"
 
 # physical domain (sine wave period = ((xmax-xmin)/clight))
@@ -53,6 +52,15 @@ restart = .true.
 checkpointFileNumber = 1
 plotFileNumber = 0
 
+<<<<<<<< HEAD:source/Simulation/SimulationMain/StreamingSineWave/test_amr_3d_restart.par
+========
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
+
+#plotFileIntervalStep = 200
+#plotFileIntervalTime = 8.3391023799538e-10 # 1/4 period
+
+>>>>>>>> main:source/Simulation/SimulationMain/StreamingSineWave/tests/test_paramesh_3d.par
 ignoreForcedPlot = .false.
 
 #eachProcWritesSummary = .true.
@@ -120,6 +128,8 @@ vel_i = 2.99792458e9 # 0.1c
 # eos options
 eosMode = "dens_ie"
 eosModeInit = "dens_pres"
+
+earlyBlockDistAdjustment = .false.
 
 # other flags
 useParticles = .false.

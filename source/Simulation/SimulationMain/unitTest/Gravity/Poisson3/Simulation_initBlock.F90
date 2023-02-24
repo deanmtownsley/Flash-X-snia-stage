@@ -118,7 +118,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
                     select case (sim_initGeometry)
 
-                    case (POLAR)   ! 2d axisymmetric?
+                    case (CYLINDRICAL)   ! 2d axisymmetric
 
                        dist2 = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
                        rxy   = xdist
@@ -128,12 +128,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        vyfac = 0.0
                        vzfac = 0.0
 
-                    case (CYLINDRICAL)   ! 2d axisymmetric
+                    case (SPHERICAL)
 
-                       dist2 = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
-                       rxy   = xdist
-                       rxyz2 = dist2
-                       rinv  = 1./sqrt(xdist**2 + ydist**2)
+                       dist2 = xdist**2 * ( (sim_a1inv * sin(ydist))**2 + (sim_a3inv * cos(ydist))**2 )
+                       rxy   = xdist * sin(ydist)
+                       rxyz2 = (rxy * sim_a1inv)**2 + (xdist * cos(ydist) * sim_a3inv)**2
+                       rinv  = 1./xdist
                        vxfac = 0.0
                        vyfac = 0.0
                        vzfac = 0.0
@@ -147,6 +147,17 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        vxfac = -ydist*rinv
                        vyfac = xdist*rinv
                        vzfac = 0.0
+
+                    !! NOTE: The polar setup is untested and may be incorrect -- leaving past syntax here for posterity
+                    !! NOTE: Simulation_init currently aborts the polar case
+                    !case (POLAR)   ! 2d axisymmetric?
+                       !dist2 = (xdist*sim_a1inv)**2 + (ydist*sim_a3inv)**2
+                       !rxy   = xdist
+                       !rxyz2 = dist2
+                       !rinv  = 1./sqrt(xdist**2 + ydist**2)
+                       !vxfac = 0.0
+                       !vyfac = 0.0
+                       !vzfac = 0.0
 
                     end select
 

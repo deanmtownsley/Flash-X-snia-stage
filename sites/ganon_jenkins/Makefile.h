@@ -21,11 +21,11 @@ NCMPI_PATH = /usr/local/netcdf
 MPE_PATH   =
 
 ifeq      ($(NDIM), 1)
-AMREX_PATH=${WORKSPACE}/lib/amrex/source/install/1D
+AMREX_PATH=/amrex/install/1D
 else ifeq ($(NDIM), 2)
-AMREX_PATH=${WORKSPACE}/lib/amrex/source/install/2D
+AMREX_PATH=/amrex/install/2D
 else ifeq ($(NDIM), 3)
-AMREX_PATH=${WORKSPACE}/lib/amrex/source/install/3D
+AMREX_PATH=/amrex/install/3D
 else
 AMREX_PATH=
 endif

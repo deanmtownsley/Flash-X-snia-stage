@@ -1,0 +1,49 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Eos
+#------------------------------------------------
+unitTest/Eos/Helmholtz -t "UnitTest/Eos/helmholtz/3d/pm4dev" -np 1
+unitTest/Eos/Helmholtz -t "UnitTest/Eos/helmholtz/3d/AMReX" -np 1
+unitTest/Eos/Helmholtz/starkiller -t "UnitTest/Eos/starkiller/3d/pm4dev" -np 1
+unitTest/Eos/WeakLib -t "UnitTest/Eos/weaklib/3d/pm4dev" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Grid
+#------------------------------------------------
+unitTest/Grid/Amrex/TestInit -t "UnitTest/Grid/AMR/AMReX/2d/Init" -np 1
+unitTest/Grid/Amrex/TestRefine -t "UnitTest/Grid/AMR/AMReX/2d/Refine" -np 1
+unitTest/Grid/Amrex/TestFluxCorrection -t "UnitTest/Grid/AMR/AMReX/2d/FluxCorrection" -np 1
+unitTest/Grid/Amrex/TestFluxCorrection2 -t "UnitTest/Grid/AMR/AMReX/2d/FluxCorrection2" -np 1
+unitTest/Grid/Amrex/TestCyl2d -t "UnitTest/Grid/AMR/AMReX/2d/TestCyl" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/Paramesh" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/pm4AltMortonBittree" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/AMReX" -np 3
+
+#------------------------------------------------
+# Tests for - unitTest/IO
+#------------------------------------------------
+unitTest/IO -t "UnitTest/IO/hdf5/3d/pm4dev" -np 4
+
+#------------------------------------------------
+# Tests for - unitTest/Poisson
+#------------------------------------------------
+unitTest/Poisson/Amrex -t "UnitTest/Multigrid/AMReX/3d" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Gravity
+#------------------------------------------------
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dSph/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/Paramesh" -np 3
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/AMReX" -np 3
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/Paramesh" -np 2
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/AMReX" -np 2
+
+#------------------------------------------------
+# Tests for - incompFlow
+#------------------------------------------------
+incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
+incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4

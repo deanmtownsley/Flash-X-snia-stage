@@ -1,0 +1,40 @@
+# These exact values are used in the unittest.  They should not be
+# changed here and different values should not be given at setup.
+
+##### PHYSICAL SPACE DISCRETIZATION
+geometry = "cylindrical"
+#geometryOverride = .TRUE.
+
+xmin     =  1.0
+xmax     =  4.0
+ymin     = -1.5
+ymax     =  4.5
+zmin     =  10
+zmax     =  30
+
+gr_enableTiling = .FALSE.
+gr_useTiling = .TRUE.
+gr_tileSizeX = 4
+gr_tileSizeY = 2
+gr_tileSizeZ = 1
+
+##### BOUNDARY CONDITIONS
+xl_boundary_type = "reflect"
+xr_boundary_type = "outflow"
+yl_boundary_type = "periodic"
+yr_boundary_type = "periodic"
+zl_boundary_type = "reflect"
+zr_boundary_type = "reflect"
+
+##### PARTITION OF PHYSICAL SPACE INTO BLOCKS (one per proc)
+iGridSize = 8   #defined as nxb * iprocs
+jGridSize = 16
+kGridSize = 20
+iProcs = 1	#number or procs in the i direction	
+jProcs = 1
+kProcs = 1
+
+##### EoS CONFIGURATION
+eosMode     = "dens_ie"
+eosModeInit = "dens_temp"
+

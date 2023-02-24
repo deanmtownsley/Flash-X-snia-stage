@@ -6,5 +6,5 @@ D run_comment       Comment for run
 D log_file          Name of log file to create
 
 PARAMETER run_number    STRING  "1"
-PARAMETER run_comment   STRING  "FLASH 3 run"
-PARAMETER log_file      STRING  "flash.log"
+PARAMETER run_comment   STRING  "Flash-X run"
+PARAMETER log_file      STRING  "flashx.log"
