@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleRadialSampling
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ subroutine gr_mpoleRadialSampling ()
 
   use gr_mpoleInterface, ONLY : gr_mpoleRad3Dcartesian,   &
                                 gr_mpoleRad2Dcylindrical, &
-                                gr_mpoleRad2Dspherical,   &
+                                gr_mpoleRad2Dspherical, &
+                                gr_mpoleRad3Dspherical, &
                                 gr_mpoleRad1Dspherical
 
   use gr_mpoleData,      ONLY : gr_mpoleGeometry
@@ -59,6 +60,10 @@ subroutine gr_mpoleRadialSampling ()
     case (GRID_2DCYLINDRICAL)
 
           call gr_mpoleRad2Dcylindrical ()
+
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleRad3Dspherical   ()
 
     case (GRID_2DSPHERICAL)
 

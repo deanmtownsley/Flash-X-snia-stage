@@ -1,5 +1,5 @@
 # Runtime parameters for the Maclaurin spheroid problem.
-#./setup unitTest/Gravity/Poisson3 -2d +spherical -auto -maxblocks=1000 +newMpole +noio -parfile=flash_2dsph.par
+#./setup unitTest/Gravity/Poisson3 -auto -3d +spherical +newMpole +noio -maxblocks=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev -parfile=tests/test_flash_3dsph.par
 
 # --------------------------------------------------------------------------
 # error tolerance for testing
@@ -30,11 +30,15 @@ xmin                      = 0.        # Radius
 xmax                      = 0.5
 ymin                      = 0.        # Polar angle (degrees)
 ymax                      = 180.
+zmin                      = 0.        # Polar angle (degrees)
+zmax                      = 360.
 
 xl_boundary_type          = "reflecting" # Boundary conditions
 xr_boundary_type          = "outflow"
 yl_boundary_type          = "reflecting"
 yr_boundary_type          = "reflecting"
+zl_boundary_type          = "periodic"
+zr_boundary_type          = "periodic"
 grav_boundary_type        = "isolated"
 
 #-------------------------------------------------------------------------------
@@ -57,7 +61,7 @@ convertToConsvdInMeshInterp  = .true.    # Interpolate conserved variables?
 
 # Time and I/O parameters
 
-run_comment               = "2D sph Maclaurin spheroid test"
+run_comment               = "3D sph Maclaurin spheroid test"
                                       # Comment to use in log file
 basenm                    = "maclaurin_"
                                       # Base name for output files
