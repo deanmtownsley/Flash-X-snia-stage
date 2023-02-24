@@ -11,3 +11,8 @@ Comparison/StreamingSineWave/AMR/3d/Paramesh/spark:
   setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark
   parfiles: test_amr_3d.par
   transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/AMR/3d/Paramesh/sparkMonotonic:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark +gridinterpolation=monotonic
+  parfiles: test_amr_3d.par
+  transfers: object/SpeciesList.txt
