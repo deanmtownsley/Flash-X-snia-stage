@@ -1,15 +1,10 @@
 # 3D Streaming Sine Wave test for neutrino radiation transport
 # Here, "3D" is effectively a collection of 1D pencils since there is only propagation in the x-direction.
 # To keep the runtime down, the test only uses 2 energy elements (nE=2) and 1 species (nSpecies=1)
-["Comparison/StreamingSineWave/PseudoUG/3D/Paramesh"]
-    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +pm4dev +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
-    parfiles = ["test_pseudoug_3d.par"]
-    restartParfiles = ["test_pseudoug_3d_restart.par"]
-    transfers = ["object/SpeciesList.txt"]
-    errTol = 5.0e-13
 
-["Comparison/StreamingSineWave/AMR/3D/Paramesh"]
+["Comparison/StreamingSineWave/AMR/3D/Paramesh/spark"]
     setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +pm4dev +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
+    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark"
     parfiles = ["test_amr_3d.par"]
     restartParfiles = ["test_amr_3d_restart.par"]
     transfers = ["object/SpeciesList.txt"]
