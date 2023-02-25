@@ -112,8 +112,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_fluxBufZ
 #endif
 #endif
-
-  @M hy_map_geom 
+  if(hy_geometry /= CARTESIAN) then
+     @M hy_map_geom
+  end if   
   !Change limits to grownTile?
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
@@ -279,8 +280,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
 
   nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
-  @M hy_release_geom
-
+  
+  if(hy_geometry /= CARTESIAN) then
+    @M hy_release_geom
+  end if
 contains
 
   !!Update cell state based on flux hy_del
