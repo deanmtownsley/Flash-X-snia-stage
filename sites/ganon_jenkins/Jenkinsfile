@@ -84,7 +84,7 @@ pipeline {
 		sh './setup unitTest/Gravity/Poisson3 -site=ganon_jenkins -auto -2d +cylindrical +newmpole -debug -maxblocks=600 +noio +pm4dev -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/tests/flash_2dcyl.par flash.par"
+                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/tests/test_flash_2dcyl.par flash.par"
 		    sh "mpiexec -n 1 flash-exe"
 		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
 		    sh "cat unitTest_0???"
