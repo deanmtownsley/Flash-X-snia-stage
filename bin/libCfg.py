@@ -10,8 +10,9 @@ import string, re, types, os
 import globals
 from globals import * # GVars and SetupError
 from utils import *
+from preProcess import preProcess
 
-class FlashLib(dict):
+class FlashLib(dict,preProcess):
     """Encapsulates library information as expressed in Config files.
     Data is accessed through dictionary methods, ex:
   
@@ -25,6 +26,7 @@ class FlashLib(dict):
 
     def __init__(self, pathName, ignoreConfig=0):
         dict.__init__(self)
+        preProcess.__init__(self,values=GVars.setupVars.getdict())
 
         self.COMMENT = '#'
         self.QUOTE   = '"'
@@ -79,10 +81,9 @@ class FlashLib(dict):
         return match
 
     def parse(self):
-        lineno = 0
+        ans = self.processFile(self.filename) # exception goes all the way to the top
 
-        for line in open(self.filename).readlines():
-            lineno += 1
+        for lineno,line in ans:
             rawline = line
             if rawline and rawline[-1]=='\n': rawline = rawline[:-1]
 
