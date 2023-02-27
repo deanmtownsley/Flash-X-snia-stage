@@ -81,7 +81,7 @@ pipeline {
 	    }}
 
 	    stage('Gravity_AMR_2dCyl_Paramesh'){ steps{
-		sh './setup unitTest/Eos/WeakLib unitTest/Gravity/Poisson3 -site=ganon_jenkins -auto -2d +cylindrical +newmpole -debug -maxblocks=600 +noio +pm4dev -objdir=${STAGE_NAME}'
+		sh './setup unitTest/Gravity/Poisson3 -site=ganon_jenkins -auto -2d +cylindrical +newmpole -debug -maxblocks=600 +noio +pm4dev -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
                     sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/tests/flash_2dcyl.par flash.par"
@@ -104,31 +104,40 @@ pipeline {
 	    }}
 
 	    stage('Grid_AMR_AMReX_2d_FluxCorrection'){ steps{
-		sh './setup unitTest/Grid/Amrex/TestFluxCorrection -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
+		sh './setup unitTest/Grid/Amrex/TestFluxCorrection -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME} -parfile=tests/test_amrex_grid.par'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
 	    stage('Grid_AMR_AMReX_2d_FluxCorrection2'){ steps{
-		sh './setup unitTest/Grid/Amrex/TestFluxCorrection2 -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
+		sh './setup unitTest/Grid/Amrex/TestFluxCorrection2 -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME} -parfile=tests/test_amrex_grid.par'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
 	    stage('Grid_AMR_AMReX_2d_Init'){ steps{
-		sh './setup unitTest/Grid/Amrex/TestInit -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME}'
+		sh './setup unitTest/Grid/Amrex/TestInit -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME} -parfile=tests/test_amrex_grid.par'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
 	    //stage('Grid_AMR_AMReX_2d_Refine'){ steps{
-		//sh './setup unitTest/Grid/Amrex/TestRefine -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
+		//sh './setup unitTest/Grid/Amrex/TestRefine -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME} -parfile=tests/test_amrex_grid.par'
 		//dir("${STAGE_NAME}"){
 		    //sh "make -j EXE=flash-exe"
 		    //sh "mpiexec -n 1 flash-exe"
@@ -136,10 +145,13 @@ pipeline {
 	    //}}
 
 	    stage('Grid_AMR_AMReX_2d_TestCyl'){ steps{
-		sh './setup unitTest/Grid/Amrex/TestCyl2d -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME}'
+		sh './setup unitTest/Grid/Amrex/TestCyl2d -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME} -parfile=tests/test_amrex_grid.par'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
+		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
+		    sh "cat unitTest_0???"
+		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
@@ -257,7 +269,21 @@ pipeline {
 	    }}
 
 
-        }} //stage('UnitTests'){ parallel {
+        }} //stage('UnitTests'){ stages {
+
+        stage('CompositeRun'){ stages {
+	    stage('C_Sod_PseudoUG_2d_Paramesh_simpleUnsplit'){ steps{
+		sh './setup Sod -site=ganon_jenkins -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native HydroGuardcells=1 -parfile=test_pseudoug_2d.par -objdir=${STAGE_NAME}'
+		dir("${STAGE_NAME}"){
+		    sh "make -j EXE=flash-exe"
+		    sh "mpiexec -n 4 flash-exe"
+		    sh "cat amr_runtime_parameters.dump || /bin/true"
+		    sh "ls -ld sod.???"
+		    sh "ls -lhd sod_hdf5_*"
+                }
+	    }}
+
+        }} //stage('CompositeRun'){ stages {
 
 
 	//==================================================//
