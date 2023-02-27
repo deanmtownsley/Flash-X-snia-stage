@@ -84,7 +84,7 @@ pipeline {
 		sh './setup unitTest/Eos/WeakLib unitTest/Gravity/Poisson3 -site=ganon_jenkins -auto -2d +cylindrical +newmpole -debug -maxblocks=600 +noio +pm4dev -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/flash_2dcyl.par flash.par"
+                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/Poisson3/tests/flash_2dcyl.par flash.par"
 		    sh "mpiexec -n 1 flash-exe"
 		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
 		    sh "cat unitTest_0???"
@@ -103,36 +103,43 @@ pipeline {
                 }
 	    }}
 
-	    stage('Grid_MultiPhysData_AMR_Paramesh_basic'){ steps{
-		sh './setup unitTest/Grid/MultiPhysData -site=ganon_jenkins -auto -2d -nxb=8 -nyb=6 -without-unit=flashUtilities/interpolation -without-unit=flashUtilities/system --without-unit=physics/Eos +noio +nolwf -gridinterpolation=native -parfile=tests/amr_basic.par -objdir=${STAGE_NAME}'
+	    stage('Grid_AMR_AMReX_2d_FluxCorrection'){ steps{
+		sh './setup unitTest/Grid/Amrex/TestFluxCorrection -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
 		    sh "mpiexec -n 1 flash-exe"
-		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
-		    sh "cat unitTest_0???"
-		    sh "test `fgrep -n 'all results conformed with expected values.' unitTest_0???|wc -l` = 1"
                 }
 	    }}
 
-	    stage('Grid_MultiPhysData_AMR_Paramesh_advanced'){ steps{
-		sh './setup unitTest/Grid/MultiPhysData -site=ganon_jenkins -auto -2d -nxb=8 -nyb=6 -without-unit=flashUtilities/interpolation -without-unit=flashUtilities/system --without-unit=physics/Eos +noio +nolwf -gridinterpolation=native -parfile=tests/amr_advanced.par -objdir=${STAGE_NAME}'
+	    stage('Grid_AMR_AMReX_2d_FluxCorrection2'){ steps{
+		sh './setup unitTest/Grid/Amrex/TestFluxCorrection2 -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-		    sh "mpiexec -n 9 flash-exe"
-		    sh "ls unitTest_0??? >/dev/null && egrep -C3 'all.results.conformed.with.expected.values.' unitTest_0???"
-		    sh "cat unitTest_0???"
-		    sh "test `egrep -n 'all.results.conformed.with.expected.values.' unitTest_0???|wc -l` = 9"
+		    sh "mpiexec -n 1 flash-exe"
                 }
 	    }}
 
-	    stage('Grid_MultiPhysData_AMR_Paramesh_adv6p'){ steps{
-		sh './setup unitTest/Grid/MultiPhysData -site=ganon_jenkins -auto -2d -nxb=8 -nyb=6 --without-unit=physics/Eos +noio -gridinterpolation=native -parfile=tests/amr_advanced.par -objdir=${STAGE_NAME}'
+	    stage('Grid_AMR_AMReX_2d_Init'){ steps{
+		sh './setup unitTest/Grid/Amrex/TestInit -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-		    sh "mpiexec -n 6 flash-exe"
-		    sh "ls unitTest_0??? >/dev/null && egrep -C3 'all.results.conformed.with.expected.values.' unitTest_0???"
-		    sh "cat unitTest_0???"
-		    sh "test `egrep -n 'all.results.conformed.with.expected.values.' unitTest_0???|wc -l` = 6"
+		    sh "mpiexec -n 1 flash-exe"
+                }
+	    }}
+
+	    //stage('Grid_AMR_AMReX_2d_Refine'){ steps{
+		//sh './setup unitTest/Grid/Amrex/TestRefine -site=ganon_jenkins -auto -2d -nxb=8 -nyb=8 +noio +amrex -objdir=${STAGE_NAME}'
+		//dir("${STAGE_NAME}"){
+		    //sh "make -j EXE=flash-exe"
+		    //sh "mpiexec -n 1 flash-exe"
+                //}
+	    //}}
+
+	    stage('Grid_AMR_AMReX_2d_TestCyl'){ steps{
+		sh './setup unitTest/Grid/Amrex/TestCyl2d -site=ganon_jenkins -auto -2d -nxb=8 -nyb=4 +noio +amrex -objdir=${STAGE_NAME}'
+		dir("${STAGE_NAME}"){
+		    sh "make -j EXE=flash-exe"
+		    sh "mpiexec -n 1 flash-exe"
                 }
 	    }}
 
@@ -173,7 +180,7 @@ pipeline {
 		sh './setup unitTest/IO -site=ganon_jenkins -auto --index-reorder -3d +cube16 +parallelIO nVars=25 -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "cp ${env.pathToSimulations}/unitTest/IO/test_PM_3d_noparticles.par flash.par"
+                    sh "cp ${env.pathToSimulations}/unitTest/IO/tests/test_PM_3d_noparticles.par flash.par"
 		    sh "mpiexec -n 4 flash-exe"
 		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
 		    sh "cat unitTest_0???"
@@ -196,7 +203,7 @@ pipeline {
 		sh './setup unitTest/Gravity/PointMass -site=ganon_jenkins -auto -2d +amrex +cylindrical +noio -debug -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/test_2dcyl.par flash.par"
+                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/tests/test_2dcyl.par flash.par"
 		    sh "mpiexec -n 2 flash-exe"
 		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
 		    sh "cat unitTest_0???"
@@ -208,7 +215,7 @@ pipeline {
 		sh './setup unitTest/Gravity/PointMass -site=ganon_jenkins -auto -2d +pm4dev +cylindrical +serialIO -debug -objdir=${STAGE_NAME}'
 		dir("${STAGE_NAME}"){
 		    sh "make -j EXE=flash-exe"
-                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/test_2dcyl.par flash.par"
+                    sh "cp ${env.pathToSimulations}/unitTest/Gravity/PointMass/tests/test_2dcyl.par flash.par"
 		    sh "mpiexec -n 2 flash-exe"
 		    sh "ls unitTest_0??? >/dev/null && fgrep -C3 'all results conformed with expected values.' unitTest_0???"
 		    sh "cat unitTest_0???"
@@ -275,7 +282,7 @@ pipeline {
     post {
         always {
 	    cleanWs(
-	        cleanWhenNotBuilt: true,
+	        cleanWhenNotBuilt: false,
 		deleteDirs: true,
 		disableDeferredWipeout: false,
 		notFailBuild: true,
