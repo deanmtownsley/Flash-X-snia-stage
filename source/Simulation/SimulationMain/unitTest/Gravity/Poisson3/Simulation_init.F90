@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/Gravity/Poisson3/Simulation_init
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ subroutine Simulation_init()
      sim_zctr = 0.0
      call RuntimeParameters_set("xctr", sim_xctr)
 
-  else if ((NDIM == 2) .and. (geometry == SPHERICAL)) then
+  else if ((NDIM >= 2) .and. (geometry == SPHERICAL)) then
      sim_initGeometry = geometry
      sim_xctr = 0.0
      sim_yctr = 0.0
