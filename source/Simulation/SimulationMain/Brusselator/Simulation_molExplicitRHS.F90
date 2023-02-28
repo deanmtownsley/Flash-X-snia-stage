@@ -30,7 +30,7 @@
 !!
 !!      t         : Current time
 !!      activeRHS : RHS data struct to fill
-!!      dtWeight  : Weight timestep (e.g. for flux corrections)
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
 subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
