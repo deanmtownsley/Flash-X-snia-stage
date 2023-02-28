@@ -1,7 +1,6 @@
 # Config file for the KPR IMEX unit test
 
 REQUIRES Driver/DriverMain/MoL
-#REQUIRES numericalTools/MoL/MoLMain/IMEX
 
 # fast: u, slow: v
 VARIABLE U  TYPE: GENERIC

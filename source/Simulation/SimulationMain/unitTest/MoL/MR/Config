@@ -1,7 +1,6 @@
 # Config file for the KPR multi-rate unit test
 
 REQUIRES Driver/DriverMain/MoL
-#REQUIRES numericalTools/MoL/MoLMain/MR
 
 # fast: u, slow: v
 VARIABLE U  TYPE: GENERIC
