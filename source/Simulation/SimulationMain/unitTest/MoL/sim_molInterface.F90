@@ -1,4 +1,4 @@
-!!****h* source/Simulation/SimulationMain/unitTest/MoL/sim_interface
+!!****h* source/Simulation/SimulationMain/unitTest/MoL/sim_molInterface
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -14,17 +14,17 @@
 !! This is the header file for the MoL unit test module
 !! that defines its public interfaces.
 !!***
-module sim_interface
+module sim_molInterface
 
    implicit none
 
    interface
-      subroutine sim_verifySolution(t, dt, valid, maxError)
+      subroutine sim_molVerifySolution(t, dt, valid, maxError)
          implicit none
          real, intent(in) :: t, dt
          logical, intent(out) :: valid
          real, intent(out) :: maxError
-      end subroutine sim_verifySolution
+      end subroutine sim_molVerifySolution
    end interface
 
-end module sim_interface
+end module sim_molInterface

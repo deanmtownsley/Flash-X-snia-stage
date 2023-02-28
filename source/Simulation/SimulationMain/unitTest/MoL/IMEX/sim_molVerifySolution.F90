@@ -1,5 +1,5 @@
 
-!!****f* source/Simulation/SimulationMain/unitTest/MoL/sim_verifySolution
+!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/sim_molVerifySolution
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,11 +13,11 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  sim_verifySolution
+!!  sim_molVerifySolution
 !!
 !!
 !! SYNOPSIS
-!!  call sim_verifySolution(real,    intent(in)  :: t,
+!!  call sim_molVerifySolution(real,    intent(in)  :: t,
 !!                          real,    intent(in)  :: dt,
 !!                          logical, intent(out) :: valid,
 !!                          real,    intent(out) :: maxError)
@@ -38,7 +38,7 @@
 !!               to determine if the solution was valid
 !!
 !!***
-subroutine sim_verifySolution(t, dt, valid, maxError)
+subroutine sim_molVerifySolution(t, dt, valid, maxError)
    use Simulation_data, only: sim_beta
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -111,4 +111,4 @@ subroutine sim_verifySolution(t, dt, valid, maxError)
    call Grid_releaseTileIterator(itor)
 
    if (maxError .lt. errorTolerance) valid = .true.
-end subroutine sim_verifySolution
+end subroutine sim_molVerifySolution
