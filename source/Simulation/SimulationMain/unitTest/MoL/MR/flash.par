@@ -40,6 +40,5 @@ restart = .false.
 checkpointFileIntervalTime = 1000.0
 plotFileIntervalTime       = 1000.0
 
-basenm      = "unitTest_MoL_MR_"
 log_file    = "unitTest_MoL_MR.log"
 run_comment = "MoL MR Unit Test"
