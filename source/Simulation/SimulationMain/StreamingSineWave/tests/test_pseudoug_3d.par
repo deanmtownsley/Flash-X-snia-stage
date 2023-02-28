@@ -52,15 +52,12 @@ restart = .false.
 checkpointFileNumber = 0
 plotFileNumber = 0
 
-<<<<<<<< HEAD:source/Simulation/SimulationMain/StreamingSineWave/test_pseudoug_3d.par
-========
 checkpointFileIntervalStep = 0
 checkpointFileIntervalTime = 0
 
 #plotFileIntervalStep = 200
 #plotFileIntervalTime = 8.3391023799538e-10 # 1/4 period
 
->>>>>>>> main:source/Simulation/SimulationMain/StreamingSineWave/tests/test_pseudoug_3d_restart.par
 ignoreForcedPlot = .false.
 
 #eachProcWritesSummary = .true.
