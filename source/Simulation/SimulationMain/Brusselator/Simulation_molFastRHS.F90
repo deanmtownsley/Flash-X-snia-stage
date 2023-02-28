@@ -81,18 +81,6 @@ subroutine Simulation_molFastRHS(t, activeRHS, dtWeight)
       ! Note: In the following, the request for MOL_EVOLVED will
       !       always obtain a pointer to the variables in UNK; this
       !       call simply forwards to the tile descriptors `getDataPtr`.
-      !       The request for MOL_RHS will behave in one of two ways,
-      !       depending on the requirements of the selected integrator:
-      !         - `rhs` will point to the current integration stage
-      !            RHS memory structure as determined internally in MoL,
-      !            and this will be typically be to stage-specific and
-      !            type-specific (explicit, implicit, etc.)
-      !         - `rhs` will point to the same (always the first and
-      !           provided by default in MoL) RHS memory structure, and
-      !           if the integrator requires saving this state, it will
-      !           make a copy of the state into another block of memory
-      !           that is not directly accessible to the user via
-      !           requests for MOL_RHS
       call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
       call MoL_getDataPtr(tileDesc, rhs, activeRHS)
 
