@@ -292,7 +292,7 @@ Harder to introduce now because we have multiple particle types)
 
 * Name  : useWeaklib
   Type  : Boolean
-  Remark: Automatically set to True by +weaklib shortcut   (++)
+  Remark: Automatically set to True by +weaklib shortcut
   
   If true, units querying this setup variable (e.g. Thornado) will
   require that the weaklib library is built during setup and
