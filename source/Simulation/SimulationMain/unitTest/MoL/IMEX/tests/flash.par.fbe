@@ -8,9 +8,6 @@ sim_lambdaS =  -1.0
 
 # Grid information
 
-nblockx = 1
-iprocs  = 1
-
 geometry = "cartesian"
 
 # Grid size is arbitrary - each cell evolves its own equation
