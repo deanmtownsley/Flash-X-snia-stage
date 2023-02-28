@@ -302,7 +302,12 @@ pipeline {
 		    sh "mpiexec -n 4 flash-exe"
 		    sh "cat amr_runtime_parameters.dump || /bin/true"
 		    sh "ls -ld sod.???"
-		    sh "ls -lhd sod_hdf5_*"
+		    sh "ls -lhd flashx_hdf5_*"
+
+		    sh "cp ${env.pathToSimulations}/Sod/tests/test_pseudoug_2d_restart.par flash.par""
+		    sh "mpiexec -n 4 flash-exe"
+		    sh "ls -ld sod.???"
+		    sh "ls -lhd flashx_hdf5_*"
                 }
 	    }}
 
