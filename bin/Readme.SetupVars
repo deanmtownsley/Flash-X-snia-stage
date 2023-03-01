@@ -297,3 +297,18 @@ Harder to introduce now because we have multiple particle types)
   If true, units querying this setup variable (e.g. Thornado) will
   require that the weaklib library is built during setup and
   subsequently linked against
+
+* Name  : useMoL
+  Type  : Boolean
+  Remark: Automatically set to True by +MoL shortcut
+  
+  If true, units querying this setup variable can make setup-time
+  choices for MoL compatibility
+
+* Name  : MoL_integrator
+  Type  : String
+  Values: ERK, IMEX, MR
+  Remark: Automatically set by +MoLERK, +MoLIMEX, +MoLMR shortcuts
+  
+  Selects the explicit RK (ERK), implicit-explicit (IMEX), or multi-
+  rate IMEX (MR) MoL integrator implementation
