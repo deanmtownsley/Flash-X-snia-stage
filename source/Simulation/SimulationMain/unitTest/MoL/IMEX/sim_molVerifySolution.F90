@@ -38,6 +38,9 @@
 !!               to determine if the solution was valid
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine sim_molVerifySolution(t, dt, valid, maxError)
    use Simulation_data, only: sim_beta
 

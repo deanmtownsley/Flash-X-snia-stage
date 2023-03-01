@@ -33,6 +33,9 @@
 !!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
+
+!!REORDER(4): vars,rhs
+
 subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_alpha, U_RHS, V_RHS, W_RHS
 

@@ -31,6 +31,9 @@
 !!      dt : Size of the time step to take
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine Simulation_molImplicitUpdate(t, dt)
    use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS
 

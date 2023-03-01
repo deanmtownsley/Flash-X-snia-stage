@@ -34,6 +34,9 @@
 !!  blockDesc -        describes the block to initialize
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine Simulation_initBlock(vars, tileDesc)
    use Simulation_data, only: sim_beta
 
