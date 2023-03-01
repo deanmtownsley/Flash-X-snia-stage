@@ -6,12 +6,12 @@ UnitTest/MoL/IMEX/FBE:
 
 UnitTest/MoL/IMEX/SSP2:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
-  parfiles: flash.par.ssp2-222 flash.par.ssp2-322 flash.par.ssp2-332
+  parfiles: ssp2-222.par ssp2-322.par ssp2-332.par
 
 UnitTest/MoL/IMEX/SSP3:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
-  parfiles: flash.par.ssp3-332 flash.par.ssp3-433
+  parfiles: ssp3-332.par ssp3-433.par
 
 UnitTest/MoL/IMEX/ARK:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
-  parfiles: flash.par.ark-111 flash.par.ark-121 flash.par.ark-122 flash.par.ark-222 flash.par.ark-232 flash.par.ark-233 flash.par.ark-343 flash.par.ark-443
+  parfiles: ark-111.par ark-121.par ark-122.par ark-222.par ark-232.par ark-233.par ark-343.par ark-443.par
