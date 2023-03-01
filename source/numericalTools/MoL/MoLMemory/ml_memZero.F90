@@ -30,5 +30,5 @@ subroutine ml_memZero(dataStruct)
 
    integer, intent(in) :: dataStruct
 
-   if (dataStruct .ge. MOL_INITIAL) ml_scratch_data(:, :, :, :, :, dataStruct) = 0d0
+   if (dataStruct .ge. MOL_INITIAL) ml_scratch_data(:, :, :, :, :, dataStruct) = 0.0
 end subroutine ml_memZero

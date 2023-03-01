@@ -46,5 +46,5 @@ subroutine sim_molVerifySolution(t, dt, valid, maxError)
 
    ! The stub should break the unit test...
    valid = .false.
-   maxError = 1d40
+   maxError = 1e40
 end subroutine sim_molVerifySolution

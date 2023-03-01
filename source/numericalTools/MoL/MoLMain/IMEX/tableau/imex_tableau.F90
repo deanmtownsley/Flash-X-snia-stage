@@ -59,19 +59,19 @@ contains
       order = 1
       stages = 2 ! To make this work like higher-order methods
 
-      AI(1, :) = [0d0, 0d0]
-      AI(2, :) = [0d0, 1d0]
+      AI(1, :) = [0.0, 0.0]
+      AI(2, :) = [0.0, 1.0]
 
-      bI(:) = [0d0, 1d0]
+      bI(:) = [0.0, 1.0]
 
-      cI(:) = [0d0, 1d0]
+      cI(:) = [0.0, 1.0]
 
-      AE(1, :) = [0d0, 0d0]
-      AE(2, :) = [1d0, 0d0]
+      AE(1, :) = [0.0, 0.0]
+      AE(2, :) = [1.0, 0.0]
 
-      bE(:) = [1d0, 0d0]
+      bE(:) = [1.0, 0.0]
 
-      cE(:) = [0d0, 1d0]
+      cE(:) = [0.0, 1.0]
    end subroutine fbe_init
 
    !> Second-order IMEX-SSP2(2,2,2) method
@@ -84,7 +84,7 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: gam = 1d0 - 1d0/sqrt(2d0)
+      real, parameter :: gam = 1.0 - 1.0/sqrt(2.0)
 
       allocate (AI(2, 2), AE(2, 2))
       allocate (bI(2), bE(2))
@@ -93,19 +93,19 @@ contains
       order = 2
       stages = 2
 
-      AI(1, :) = [gam, 0d0]
-      AI(2, :) = [1d0 - 2d0*gam, gam]
+      AI(1, :) = [gam, 0.0]
+      AI(2, :) = [1.0 - 2.0*gam, gam]
 
-      bI(:) = [0.5d0, 0.5d0]
+      bI(:) = [0.5, 0.5]
 
-      cI(:) = [gam, 1d0 - gam]
+      cI(:) = [gam, 1.0 - gam]
 
-      AE(1, :) = [0d0, 0d0]
-      AE(2, :) = [1d0, 0d0]
+      AE(1, :) = [0.0, 0.0]
+      AE(2, :) = [1.0, 0.0]
 
-      bE(:) = [0.5d0, 0.5d0]
+      bE(:) = [0.5, 0.5]
 
-      cE(:) = [0d0, 1d0]
+      cE(:) = [0.0, 1.0]
    end subroutine ssp2_222_init
 
    !> Second-order IMEX-SSP2(3,2,2) method
@@ -125,21 +125,21 @@ contains
       order = 2
       stages = 3
 
-      AI(1, :) = [0.5d0, 0d0, 0d0]
-      AI(2, :) = [-0.5d0, 0.5d0, 0d0]
-      AI(3, :) = [0d0, 0.5d0, 0.5d0]
+      AI(1, :) = [0.5, 0.0, 0.0]
+      AI(2, :) = [-0.5, 0.5, 0.0]
+      AI(3, :) = [0.0, 0.5, 0.5]
 
-      bI(:) = [0d0, 0.5d0, 0.5d0]
+      bI(:) = [0.0, 0.5, 0.5]
 
-      cI(:) = [0.5d0, 0d0, 1d0]
+      cI(:) = [0.5, 0.0, 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [0d0, 0d0, 0d0]
-      AE(3, :) = [0d0, 1d0, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [0.0, 0.0, 0.0]
+      AE(3, :) = [0.0, 1.0, 0.0]
 
-      bE(:) = [0d0, 0.5d0, 0.5d0]
+      bE(:) = [0.0, 0.5, 0.5]
 
-      cE(:) = [0d0, 0d0, 1d0]
+      cE(:) = [0.0, 0.0, 1.0]
    end subroutine ssp2_322_init
 
    !> Second-order IMEX-SSP2(3,3,2) method
@@ -159,21 +159,21 @@ contains
       order = 2
       stages = 3
 
-      AI(1, :) = [0.25d0, 0d0, 0d0]
-      AI(2, :) = [0d0, 0.25d0, 0d0]
-      AI(3, :) = [1d0/3d0, 1d0/3d0, 1d0/3d0]
+      AI(1, :) = [0.25, 0.0, 0.0]
+      AI(2, :) = [0.0, 0.25, 0.0]
+      AI(3, :) = [1.0/3.0, 1.0/3.0, 1.0/3.0]
 
-      bI(:) = [1d0/3d0, 1d0/3d0, 1d0/3d0]
+      bI(:) = [1.0/3.0, 1.0/3.0, 1.0/3.0]
 
-      cI(:) = [0.25d0, 0.25d0, 1d0]
+      cI(:) = [0.25, 0.25, 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [0.5d0, 0d0, 0d0]
-      AE(3, :) = [0.5d0, 0.5d0, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [0.5, 0.0, 0.0]
+      AE(3, :) = [0.5, 0.5, 0.0]
 
-      bE(:) = [1d0/3d0, 1d0/3d0, 1d0/3d0]
+      bE(:) = [1.0/3.0, 1.0/3.0, 1.0/3.0]
 
-      cE(:) = [0d0, 0.5d0, 1d0]
+      cE(:) = [0.0, 0.5, 1.0]
    end subroutine ssp2_332_init
 
    !> Second-order IMEX-SSP3(3,3,2) method
@@ -186,7 +186,7 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: gam = 1d0 - 1d0/sqrt(2d0)
+      real, parameter :: gam = 1.0 - 1.0/sqrt(2.0)
 
       allocate (AI(3, 3), AE(3, 3))
       allocate (bI(3), bE(3))
@@ -195,21 +195,21 @@ contains
       order = 2
       stages = 3
 
-      AI(1, :) = [gam, 0d0, 0d0]
-      AI(2, :) = [1d0 - 2d0*gam, gam, 0d0]
-      AI(3, :) = [0.5d0 - gam, 0d0, gam]
+      AI(1, :) = [gam, 0.0, 0.0]
+      AI(2, :) = [1.0 - 2.0*gam, gam, 0.0]
+      AI(3, :) = [0.5 - gam, 0.0, gam]
 
-      bI(:) = [1d0/6d0, 1d0/6d0, 2d0/3d0]
+      bI(:) = [1.0/6.0, 1.0/6.0, 2.0/3.0]
 
-      cI(:) = [gam, 1d0 - gam, 0.5d0]
+      cI(:) = [gam, 1.0 - gam, 0.5]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [1d0, 0d0, 0d0]
-      AE(3, :) = [0.25d0, 0.25d0, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [1.0, 0.0, 0.0]
+      AE(3, :) = [0.25, 0.25, 0.0]
 
-      bE(:) = [1d0/6d0, 1d0/6d0, 2d0/3d0]
+      bE(:) = [1.0/6.0, 1.0/6.0, 2.0/3.0]
 
-      cE(:) = [0d0, 1d0, 0.5d0]
+      cE(:) = [0.0, 1.0, 0.5]
    end subroutine ssp3_332_init
 
    !> Second-order IMEX-SSP3(4,3,3) method
@@ -222,9 +222,9 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: alp = 0.24169426078821d0
-      real, parameter :: beta = 0.06042356519705d0
-      real, parameter :: eta = 0.12915286960590d0
+      real, parameter :: alp = 0.24169426078821
+      real, parameter :: beta = 0.06042356519705
+      real, parameter :: eta = 0.12915286960590
 
       allocate (AI(4, 4), AE(4, 4))
       allocate (bI(4), bE(4))
@@ -233,23 +233,23 @@ contains
       order = 3
       stages = 4
 
-      AI(1, :) = [alp, 0d0, 0d0, 0d0]
-      AI(2, :) = [-alp, alp, 0d0, 0d0]
-      AI(3, :) = [0d0, 1d0 - alp, alp, 0d0]
-      AI(4, :) = [beta, eta, 0.5d0 - beta - eta - alp, alp]
+      AI(1, :) = [alp, 0.0, 0.0, 0.0]
+      AI(2, :) = [-alp, alp, 0.0, 0.0]
+      AI(3, :) = [0.0, 1.0 - alp, alp, 0.0]
+      AI(4, :) = [beta, eta, 0.5 - beta - eta - alp, alp]
 
-      bI(:) = [0d0, 1d0/6d0, 1d0/6d0, 2d0/3d0]
+      bI(:) = [0.0, 1.0/6.0, 1.0/6.0, 2.0/3.0]
 
-      cI(:) = [alp, 0d0, 1d0, 0.5d0]
+      cI(:) = [alp, 0.0, 1.0, 0.5]
 
-      AE(1, :) = [0d0, 0d0, 0d0, 0d0]
-      AE(2, :) = [0d0, 0d0, 0d0, 0d0]
-      AE(3, :) = [0d0, 1d0, 0d0, 0d0]
-      AE(4, :) = [0d0, 0.25d0, 0.25d0, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0, 0.0]
+      AE(2, :) = [0.0, 0.0, 0.0, 0.0]
+      AE(3, :) = [0.0, 1.0, 0.0, 0.0]
+      AE(4, :) = [0.0, 0.25, 0.25, 0.0]
 
-      bE(:) = [0d0, 1d0/6d0, 1d0/6d0, 2d0/3d0]
+      bE(:) = [0.0, 1.0/6.0, 1.0/6.0, 2.0/3.0]
 
-      cE(:) = [0d0, 0d0, 1d0, 0.5d0]
+      cE(:) = [0.0, 0.0, 1.0, 0.5]
    end subroutine ssp3_433_init
 
    !> First-order forward-backward Euler method (1,1,1)
@@ -269,19 +269,19 @@ contains
       order = 1
       stages = 2
 
-      AI(1, :) = [0d0, 0d0]
-      AI(2, :) = [0d0, 1d0]
+      AI(1, :) = [0.0, 0.0]
+      AI(2, :) = [0.0, 1.0]
 
-      bI(:) = [0d0, 1d0]
+      bI(:) = [0.0, 1.0]
 
-      cI(:) = [0d0, 1d0]
+      cI(:) = [0.0, 1.0]
 
-      AE(1, :) = [0d0, 0d0]
-      AE(2, :) = [1d0, 0d0]
+      AE(1, :) = [0.0, 0.0]
+      AE(2, :) = [1.0, 0.0]
 
-      bE(:) = [1d0, 0d0]
+      bE(:) = [1.0, 0.0]
 
-      cE(:) = [0d0, 1d0]
+      cE(:) = [0.0, 1.0]
    end subroutine ark_111_init
 
    !> First-order forward-backward Euler method (1,1,1)
@@ -301,19 +301,19 @@ contains
       order = 1
       stages = 2
 
-      AI(1, :) = [0d0, 0d0]
-      AI(2, :) = [0d0, 1d0]
+      AI(1, :) = [0.0, 0.0]
+      AI(2, :) = [0.0, 1.0]
 
-      bI(:) = [0d0, 1d0]
+      bI(:) = [0.0, 1.0]
 
-      cI(:) = [0d0, 1d0]
+      cI(:) = [0.0, 1.0]
 
-      AE(1, :) = [0d0, 0d0]
-      AE(2, :) = [1d0, 0d0]
+      AE(1, :) = [0.0, 0.0]
+      AE(2, :) = [1.0, 0.0]
 
-      bE(:) = [0d0, 1d0]
+      bE(:) = [0.0, 1.0]
 
-      cE(:) = [0d0, 1d0]
+      cE(:) = [0.0, 1.0]
    end subroutine ark_121_init
 
    !> Second-order mid-point method (1,2,2)
@@ -333,19 +333,19 @@ contains
       order = 2
       stages = 2
 
-      AI(1, :) = [0d0, 0d0]
-      AI(2, :) = [0d0, 0.5d0]
+      AI(1, :) = [0.0, 0.0]
+      AI(2, :) = [0.0, 0.5]
 
-      bI(:) = [0d0, 1d0]
+      bI(:) = [0.0, 1.0]
 
-      cI(:) = [0d0, 0.5d0]
+      cI(:) = [0.0, 0.5]
 
-      AE(1, :) = [0d0, 0d0]
-      AE(2, :) = [0.5d0, 0d0]
+      AE(1, :) = [0.0, 0.0]
+      AE(2, :) = [0.5, 0.0]
 
-      bE(:) = [0d0, 1d0]
+      bE(:) = [0.0, 1.0]
 
-      cE(:) = [0d0, 0.5d0]
+      cE(:) = [0.0, 0.5]
    end subroutine ark_122_init
 
    !> Second-order method (2,2,2)
@@ -358,8 +358,8 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: gam = (2d0 + sqrt(2d0))/2d0
-      real, parameter :: d = 1d0 - 1d0/(2d0*gam)
+      real, parameter :: gam = (2.0 + sqrt(2.0))/2.0
+      real, parameter :: d = 1.0 - 1.0/(2.0*gam)
 
       allocate (AI(3, 3), AE(3, 3))
       allocate (bI(3), bE(3))
@@ -368,21 +368,21 @@ contains
       order = 2
       stages = 3
 
-      AI(1, :) = [0d0, 0d0, 0d0]
-      AI(2, :) = [0d0, gam, 0d0]
-      AI(3, :) = [0d0, 1d0 - gam, gam]
+      AI(1, :) = [0.0, 0.0, 0.0]
+      AI(2, :) = [0.0, gam, 0.0]
+      AI(3, :) = [0.0, 1.0 - gam, gam]
 
-      bI(:) = [0d0, 1d0 - gam, gam]
+      bI(:) = [0.0, 1.0 - gam, gam]
 
-      cI(:) = [0d0, gam, 1d0]
+      cI(:) = [0.0, gam, 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [gam, 0d0, 0d0]
-      AE(3, :) = [d, 1d0 - d, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [gam, 0.0, 0.0]
+      AE(3, :) = [d, 1.0 - d, 0.0]
 
-      bE(:) = [d, 1d0 - d, 0d0]
+      bE(:) = [d, 1.0 - d, 0.0]
 
-      cE(:) = [0d0, gam, 1d0]
+      cE(:) = [0.0, gam, 1.0]
    end subroutine ark_222_init
 
    !> Second-order method (2,3,2)
@@ -395,8 +395,8 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: gam = (2d0 + sqrt(2d0))/2d0
-      real, parameter :: d = -2d0*sqrt(2d0)/3d0
+      real, parameter :: gam = (2.0 + sqrt(2.0))/2.0
+      real, parameter :: d = -2.0*sqrt(2.0)/3.0
 
       allocate (AI(3, 3), AE(3, 3))
       allocate (bI(3), bE(3))
@@ -405,21 +405,21 @@ contains
       order = 2
       stages = 3
 
-      AI(1, :) = [0d0, 0d0, 0d0]
-      AI(2, :) = [0d0, gam, 0d0]
-      AI(3, :) = [0d0, 1d0 - gam, gam]
+      AI(1, :) = [0.0, 0.0, 0.0]
+      AI(2, :) = [0.0, gam, 0.0]
+      AI(3, :) = [0.0, 1.0 - gam, gam]
 
-      bI(:) = [0d0, 1d0 - gam, gam]
+      bI(:) = [0.0, 1.0 - gam, gam]
 
-      cI(:) = [0d0, gam, 1d0]
+      cI(:) = [0.0, gam, 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [gam, 0d0, 0d0]
-      AE(3, :) = [d, 1d0 - d, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [gam, 0.0, 0.0]
+      AE(3, :) = [d, 1.0 - d, 0.0]
 
-      bE(:) = [0d0, 1d0 - gam, gam]
+      bE(:) = [0.0, 1.0 - gam, gam]
 
-      cE(:) = [0d0, gam, 1d0]
+      cE(:) = [0.0, gam, 1.0]
    end subroutine ark_232_init
 
    !> Third-order method (2,3,3)
@@ -432,7 +432,7 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: gam = (3d0 + sqrt(3d0))/6d0
+      real, parameter :: gam = (3.0 + sqrt(3.0))/6.0
 
       allocate (AI(3, 3), AE(3, 3))
       allocate (bI(3), bE(3))
@@ -441,21 +441,21 @@ contains
       order = 3
       stages = 3
 
-      AI(1, :) = [0d0, 0d0, 0d0]
-      AI(2, :) = [0d0, gam, 0d0]
-      AI(3, :) = [0d0, 1d0 - 2d0*gam, gam]
+      AI(1, :) = [0.0, 0.0, 0.0]
+      AI(2, :) = [0.0, gam, 0.0]
+      AI(3, :) = [0.0, 1.0 - 2.0*gam, gam]
 
-      bI(:) = [0d0, 0.5d0, 0.5d0]
+      bI(:) = [0.0, 0.5, 0.5]
 
-      cI(:) = [0d0, gam, 1d0 - gam]
+      cI(:) = [0.0, gam, 1.0 - gam]
 
-      AE(1, :) = [0d0, 0d0, 0d0]
-      AE(2, :) = [gam, 0d0, 0d0]
-      AE(3, :) = [gam - 1d0, 2d0*(1d0 - gam), 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0]
+      AE(2, :) = [gam, 0.0, 0.0]
+      AE(3, :) = [gam - 1.0, 2.0*(1.0 - gam), 0.0]
 
-      bE(:) = [0d0, 0.5d0, 0.5d0]
+      bE(:) = [0.0, 0.5, 0.5]
 
-      cE(:) = [0d0, gam, 1d0 - gam]
+      cE(:) = [0.0, gam, 1.0 - gam]
    end subroutine ark_233_init
 
    !> Third-order method (3,4,3)
@@ -468,12 +468,12 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: eta = 0.4358665215084589994160194511935568425293d0
-      real, parameter :: alp = 0.5529291480359398193611887297385924764949d0
-      real, parameter :: a31 = alp*(15d0 - 60d0*eta + 21d0*eta**2)/4d0 - 3.5d0 + 13d0*eta - 4.5d0*eta**2
-      real, parameter :: a32 = alp*(-15d0 + 60d0*eta - 21d0*eta**2)/4d0 + 4d0 - 12.5d0*eta + 4.5d0*eta**2
-      real, parameter :: b2 = -1.5d0*eta**2 + 4d0*eta - 0.25d0
-      real, parameter :: b3 = 1.5d0*eta**2 - 5d0*eta + 1.25d0
+      real, parameter :: eta = 0.4358665215084589994160194511935568425293
+      real, parameter :: alp = 0.5529291480359398193611887297385924764949
+      real, parameter :: a31 = alp*(15.0 - 60.0*eta + 21.0*eta**2)/4.0 - 3.5 + 13.0*eta - 4.5*eta**2
+      real, parameter :: a32 = alp*(-15.0 + 60.0*eta - 21.0*eta**2)/4.0 + 4.0 - 12.5*eta + 4.5*eta**2
+      real, parameter :: b2 = -1.5*eta**2 + 4.0*eta - 0.25
+      real, parameter :: b3 = 1.5*eta**2 - 5.0*eta + 1.25
 
       allocate (AI(4, 4), AE(4, 4))
       allocate (bI(4), bE(4))
@@ -482,23 +482,23 @@ contains
       order = 3
       stages = 4
 
-      AI(1, :) = [0d0, 0d0, 0d0, 0d0]
-      AI(2, :) = [0d0, eta, 0d0, 0d0]
-      AI(3, :) = [0d0, 0.5d0*(1d0 - eta), eta, 0d0]
-      AI(4, :) = [0d0, b2, b3, eta]
+      AI(1, :) = [0.0, 0.0, 0.0, 0.0]
+      AI(2, :) = [0.0, eta, 0.0, 0.0]
+      AI(3, :) = [0.0, 0.5*(1.0 - eta), eta, 0.0]
+      AI(4, :) = [0.0, b2, b3, eta]
 
-      bI(:) = [0d0, b2, b3, eta]
+      bI(:) = [0.0, b2, b3, eta]
 
-      cI(:) = [0d0, eta, 0.5d0*(1d0 + eta), 1d0]
+      cI(:) = [0.0, eta, 0.5*(1.0 + eta), 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0, 0d0]
-      AE(2, :) = [eta, 0d0, 0d0, 0d0]
-      AE(3, :) = [a31, a32, 0d0, 0d0]
-      AE(4, :) = [1d0 - 2d0*alp, alp, alp, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0, 0.0]
+      AE(2, :) = [eta, 0.0, 0.0, 0.0]
+      AE(3, :) = [a31, a32, 0.0, 0.0]
+      AE(4, :) = [1.0 - 2.0*alp, alp, alp, 0.0]
 
-      bE(:) = [0d0, b2, b3, eta]
+      bE(:) = [0.0, b2, b3, eta]
 
-      cE(:) = [0d0, eta, 0.5d0*(1d0 + eta), 1d0]
+      cE(:) = [0.0, eta, 0.5*(1.0 + eta), 1.0]
    end subroutine ark_343_init
 
    !> Third-order method (4,4,3)
@@ -511,12 +511,12 @@ contains
       real, allocatable, intent(out) :: AE(:, :), bE(:), cE(:)
       integer, intent(out) :: order, stages
 
-      real, parameter :: eta = 0.4358665215084589994160194511935568425293d0
-      real, parameter :: alp = 0.5529291480359398193611887297385924764949d0
-      real, parameter :: a31 = alp*(15d0 - 60d0*eta + 21d0*eta**2)/4d0 - 3.5d0 + 13d0*eta - 4.5d0*eta**2
-      real, parameter :: a32 = alp*(-15d0 + 60d0*eta - 21d0*eta**2)/4d0 + 4d0 - 12.5d0*eta + 4.5d0*eta**2
-      real, parameter :: b2 = -1.5d0*eta**2 + 4d0*eta - 0.25d0
-      real, parameter :: b3 = 1.5d0*eta**2 - 5d0*eta + 1.25d0
+      real, parameter :: eta = 0.4358665215084589994160194511935568425293
+      real, parameter :: alp = 0.5529291480359398193611887297385924764949
+      real, parameter :: a31 = alp*(15.0 - 60.0*eta + 21.0*eta**2)/4.0 - 3.5 + 13.0*eta - 4.5*eta**2
+      real, parameter :: a32 = alp*(-15.0 + 60.0*eta - 21.0*eta**2)/4.0 + 4.0 - 12.5*eta + 4.5*eta**2
+      real, parameter :: b2 = -1.5*eta**2 + 4.0*eta - 0.25
+      real, parameter :: b3 = 1.5*eta**2 - 5.0*eta + 1.25
 
       allocate (AI(5, 5), AE(5, 5))
       allocate (bI(5), bE(5))
@@ -525,25 +525,25 @@ contains
       order = 3
       stages = 5
 
-      AI(1, :) = [0d0, 0d0, 0d0, 0d0, 0d0]
-      AI(2, :) = [0d0, 0.5d0, 0d0, 0d0, 0d0]
-      AI(3, :) = [0d0, 1d0/6d0, 0.5d0, 0d0, 0d0]
-      AI(4, :) = [0d0, -0.5d0, 0.5d0, 0.5d0, 0d0]
-      AI(5, :) = [0d0, 1.5d0, -1.5d0, 0.5d0, 0.5d0]
+      AI(1, :) = [0.0, 0.0, 0.0, 0.0, 0.0]
+      AI(2, :) = [0.0, 0.5, 0.0, 0.0, 0.0]
+      AI(3, :) = [0.0, 1.0/6.0, 0.5, 0.0, 0.0]
+      AI(4, :) = [0.0, -0.5, 0.5, 0.5, 0.0]
+      AI(5, :) = [0.0, 1.5, -1.5, 0.5, 0.5]
 
-      bI(:) = [0d0, 1.5d0, -1.5d0, 0.5d0, 0.5d0]
+      bI(:) = [0.0, 1.5, -1.5, 0.5, 0.5]
 
-      cI(:) = [0d0, 0.5d0, 2d0/3d0, 0.5d0, 1d0]
+      cI(:) = [0.0, 0.5, 2.0/3.0, 0.5, 1.0]
 
-      AE(1, :) = [0d0, 0d0, 0d0, 0d0, 0d0]
-      AE(2, :) = [0.5d0, 0d0, 0d0, 0d0, 0d0]
-      AE(3, :) = [11d0/18d0, 1d0/18d0, 0d0, 0d0, 0d0]
-      AE(4, :) = [5d0/6d0, -5d0/6d0, 0.5d0, 0d0, 0d0]
-      AE(5, :) = [0.25d0, 1.75d0, 0.75d0, -1.75d0, 0d0]
+      AE(1, :) = [0.0, 0.0, 0.0, 0.0, 0.0]
+      AE(2, :) = [0.5, 0.0, 0.0, 0.0, 0.0]
+      AE(3, :) = [11.0/18.0, 1.0/18.0, 0.0, 0.0, 0.0]
+      AE(4, :) = [5.0/6.0, -5.0/6.0, 0.5, 0.0, 0.0]
+      AE(5, :) = [0.25, 1.75, 0.75, -1.75, 0.0]
 
-      bE(:) = [0.25d0, 1.75d0, 0.75d0, -1.75d0, 0d0]
+      bE(:) = [0.25, 1.75, 0.75, -1.75, 0.0]
 
-      cE(:) = [0d0, 0.5d0, 2d0/3d0, 0.5d0, 1d0]
+      cE(:) = [0.0, 0.5, 2.0/3.0, 0.5, 1.0]
    end subroutine ark_443_init
 
 end module imex_tableau

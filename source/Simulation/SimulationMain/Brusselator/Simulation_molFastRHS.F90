@@ -91,7 +91,7 @@ subroutine Simulation_molFastRHS(t, activeRHS, dtWeight)
                v = vars(V_VAR, i, j, k)
                w = vars(W_VAR, i, j, k)
 
-               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) + a - (w + 1d0)*u + v*u**2
+               rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) + a - (w + 1.0)*u + v*u**2
                rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) + w*u - v*u**2
                rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) + (b - w)/eps - w*u
             end do ! i

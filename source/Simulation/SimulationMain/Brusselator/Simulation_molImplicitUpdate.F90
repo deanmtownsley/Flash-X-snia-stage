@@ -100,7 +100,7 @@ subroutine Simulation_molImplicitUpdate(t, dt)
             DU = -fac
             DL = -fac
 
-            D = 1d0 + 2d0*fac
+            D = 1.0 + 2.0*fac
 
             B(:, 1) = vars(U_VAR, ilo:ihi, j, k)
             B(:, 2) = vars(V_VAR, ilo:ihi, j, k)

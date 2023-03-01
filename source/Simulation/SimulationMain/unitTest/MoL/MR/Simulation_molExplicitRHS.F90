@@ -81,7 +81,7 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
                ! Only V has a slow explicit term
-               rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) - 0.5d0*sin(t)/vars(V_VAR, i, j, k)
+               rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) - 0.5*sin(t)/vars(V_VAR, i, j, k)
             end do ! i
          end do ! j
       end do ! k

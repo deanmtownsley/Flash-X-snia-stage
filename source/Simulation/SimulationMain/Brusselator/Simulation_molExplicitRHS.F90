@@ -64,7 +64,7 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
 
    nullify (rhs); nullify (vars)
 
-   if (sim_rho .lt. 0d0) then
+   if (sim_rho .lt. 0.0) then
       ip = 0
       im = -1
    else
@@ -90,7 +90,7 @@ subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
       if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
 
       call tileDesc%deltas(del)
-      idx = 1d0/del(IAXIS)
+      idx = 1.0/del(IAXIS)
 
       ! Note: In the following, the request for MOL_EVOLVED will
       !       always obtain a pointer to the variables in UNK; this

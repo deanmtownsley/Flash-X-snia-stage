@@ -57,8 +57,8 @@ subroutine Simulation_initBlock(vars, tileDesc)
    do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
       do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
          do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
-            vars(U_VAR, i, j, k) = 2d0
-            vars(V_VAR, i, j, k) = sqrt(3d0)
+            vars(U_VAR, i, j, k) = 2.0
+            vars(V_VAR, i, j, k) = sqrt(3.0)
          end do ! i
       end do ! j
    end do ! k

@@ -60,5 +60,5 @@ subroutine Driver_computeDt(nbegin, nstep, simTime, dtOld, dtNew)
    real, intent(in)  :: dtOld      !! last time step we used
    real, intent(out) :: dtNew      !! the new timestep we get. to be returned.
 
-   dtNew = PI/2d0**sim_k
+   dtNew = PI/2.0**sim_k
 end subroutine Driver_computeDt

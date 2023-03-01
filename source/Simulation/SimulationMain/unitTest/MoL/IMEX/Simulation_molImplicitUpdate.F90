@@ -57,13 +57,13 @@ subroutine Simulation_molImplicitUpdate(t, dt)
    real :: f(2), dfdv(2, 2), invdfdv(2, 2), detdfdv, du, dv, u0, v0
 
    integer, parameter :: max_iterations = 100
-   real, parameter :: tol = 1d-10
+   real, parameter :: tol = 1e-10
 
-   Au = 0.5d0*sim_lambdaF
-   Bu = 0.5d0*(1d0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
+   Au = 0.5*sim_lambdaF
+   Bu = 0.5*(1.0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
 
-   Av = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   Bv = 0.5d0*sim_lambdaS
+   Av = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   Bv = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -94,16 +94,16 @@ subroutine Simulation_molImplicitUpdate(t, dt)
 
                ! Newton solve
                NewtonIteration: do n = 1, max_iterations
-                  f(1) = u - u0 - dt*((Au*(u**2 - cosbt - 3d0) - 0.5d0*sim_beta*sin(sim_beta*t))/u &
-                                      + Bu*(v**2 - cost - 2d0)/v)
-                  f(2) = v - v0 - dt*(Av*(u**2 - cosbt - 3d0)/u + Bv*(v**2 - cost - 2d0)/v)
+                  f(1) = u - u0 - dt*((Au*(u**2 - cosbt - 3.0) - 0.5*sim_beta*sin(sim_beta*t))/u &
+                                      + Bu*(v**2 - cost - 2.0)/v)
+                  f(2) = v - v0 - dt*(Av*(u**2 - cosbt - 3.0)/u + Bv*(v**2 - cost - 2.0)/v)
 
-                  ! if (f .eq. 0d0) exit NewtonIteration
+                  ! if (f .eq. 0.0) exit NewtonIteration
 
-                  dfdv(1, 1) = 1d0 - dt*(2d0*Au*(u**2 + cosbt + 3d0) + 0.5d0*sim_beta*sin(sim_beta*t))/(2d0*u**2)
-                  dfdv(1, 2) = -dt*Bu*(v**2 + cost + 2d0)/v**2
-                  dfdv(2, 1) = -dt*(Av*(u**2 + cosbt + 3d0)/u**2)
-                  dfdv(2, 2) = 1d0 - dt*(Bv*(v**2 + cost + 2d0)/v**2)
+                  dfdv(1, 1) = 1.0 - dt*(2.0*Au*(u**2 + cosbt + 3.0) + 0.5*sim_beta*sin(sim_beta*t))/(2.0*u**2)
+                  dfdv(1, 2) = -dt*Bu*(v**2 + cost + 2.0)/v**2
+                  dfdv(2, 1) = -dt*(Av*(u**2 + cosbt + 3.0)/u**2)
+                  dfdv(2, 2) = 1.0 - dt*(Bv*(v**2 + cost + 2.0)/v**2)
 
                   detdfdv = dfdv(1, 1)*dfdv(2, 2) - dfdv(1, 2)*dfdv(2, 1)
 

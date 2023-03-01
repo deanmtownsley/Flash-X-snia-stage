@@ -58,5 +58,5 @@ subroutine ml_memAlloc()
                              MAXBLOCKS, &
                              ml_nscratch_total))
 #endif
-   ml_scratch_data = 0d0
+   ml_scratch_data = 0.0
 end subroutine ml_memAlloc

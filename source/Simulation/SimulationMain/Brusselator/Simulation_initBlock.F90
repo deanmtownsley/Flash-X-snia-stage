@@ -61,16 +61,16 @@ subroutine Simulation_initBlock(vars, tileDesc)
    call tileDesc%boundBox(box)
 
    allocate (x(tileDesc%limits(LOW, IAXIS):tileDesc%limits(HIGH, IAXIS)))
-   x = 0d0
+   x = 0.0
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                            tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), x)
 
    do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
       do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
          do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
-            vars(U_VAR, i, j, k) = sim_a + 0.1d0*sin(PI*x(i))
-            vars(V_VAR, i, j, k) = sim_b/sim_a + 0.1d0*sin(PI*x(i))
-            vars(W_VAR, i, j, k) = sim_b + 0.1d0*sin(PI*x(i))
+            vars(U_VAR, i, j, k) = sim_a + 0.1*sin(PI*x(i))
+            vars(V_VAR, i, j, k) = sim_b/sim_a + 0.1*sin(PI*x(i))
+            vars(W_VAR, i, j, k) = sim_b + 0.1*sin(PI*x(i))
          end do ! i
       end do ! j
    end do ! k

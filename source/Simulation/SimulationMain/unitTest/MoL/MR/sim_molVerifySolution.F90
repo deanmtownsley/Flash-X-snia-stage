@@ -68,11 +68,11 @@ subroutine sim_molVerifySolution(t, dt, valid, maxError)
 
    real :: errorTolerance
 
-   errorTolerance = 2d0*dt**(MoL_getOrder() - 1)
+   errorTolerance = 2.0*dt**(MoL_getOrder() - 1)
 
    nullify (vars)
 
-   maxError = 0d0
+   maxError = 0.0
    valid = .false.
 
    ! No guard-cell filling necessary - just a bunch of local equations to solve
@@ -91,8 +91,8 @@ subroutine sim_molVerifySolution(t, dt, valid, maxError)
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               u_actual = sqrt(3d0 + cos(sim_beta*t))
-               v_actual = sqrt(2d0 + cos(t))
+               u_actual = sqrt(3.0 + cos(sim_beta*t))
+               v_actual = sqrt(2.0 + cos(t))
 
                u_err = abs(vars(U_VAR, i, j, k) - u_actual)
                v_err = abs(vars(V_VAR, i, j, k) - v_actual)

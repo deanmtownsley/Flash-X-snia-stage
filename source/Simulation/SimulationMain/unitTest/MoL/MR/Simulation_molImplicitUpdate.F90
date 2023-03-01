@@ -56,10 +56,10 @@ subroutine Simulation_molImplicitUpdate(t, dt)
    real :: u, v, A, B, cost, cosbt, f, dfdv, dv, v0
 
    integer, parameter :: max_iterations = 100
-   real, parameter :: tol = 1d-10
+   real, parameter :: tol = 1e-10
 
-   A = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   B = 0.5d0*sim_lambdaS
+   A = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   B = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -89,11 +89,11 @@ subroutine Simulation_molImplicitUpdate(t, dt)
 
                ! Newton solve
                NewtonIteration: do n = 1, max_iterations
-                  f = v - v0 - dt*(A*(u**2 - cosbt - 3d0)/u + B*(v**2 - cost - 2d0)/v)
+                  f = v - v0 - dt*(A*(u**2 - cosbt - 3.0)/u + B*(v**2 - cost - 2.0)/v)
 
-                  ! if (f .eq. 0d0) exit NewtonIteration
+                  ! if (f .eq. 0.0) exit NewtonIteration
 
-                  dfdv = 1d0 - dt*(B*(v**2 + cost + 2d0)/v**2)
+                  dfdv = 1.0 - dt*(B*(v**2 + cost + 2.0)/v**2)
                   dv = f/dfdv
 
                   v = v - dv

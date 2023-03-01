@@ -60,8 +60,8 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    integer :: i, j, k
    real :: u, v, A, B, cost, cosbt
 
-   A = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   B = 0.5d0*sim_lambdaS
+   A = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   B = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -88,8 +88,8 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
                v = vars(V_VAR, i, j, k)
 
                rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
-                                     + A*(u**2 - cosbt - 3d0)/u &
-                                     + B*(v**2 - cost - 2d0)/v
+                                     + A*(u**2 - cosbt - 3.0)/u &
+                                     + B*(v**2 - cost - 2.0)/v
             end do ! i
          end do ! j
       end do ! k
