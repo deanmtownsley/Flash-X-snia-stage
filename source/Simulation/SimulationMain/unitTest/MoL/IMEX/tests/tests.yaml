@@ -12,6 +12,6 @@ UnitTest/MoL/IMEX/SSP3:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
   parfiles: flash.par.ssp3-332 flash.par.ssp3-433
 
-UnitTest/MoL/IMEX/ARK-111:
+UnitTest/MoL/IMEX/ARK:
   setupOptions: -auto -1d +ug +nofbs +MoLIMEX
   parfiles: flash.par.ark-111 flash.par.ark-121 flash.par.ark-122 flash.par.ark-222 flash.par.ark-232 flash.par.ark-233 flash.par.ark-343 flash.par.ark-443
