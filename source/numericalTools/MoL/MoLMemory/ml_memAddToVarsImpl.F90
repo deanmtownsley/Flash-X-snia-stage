@@ -14,8 +14,7 @@
 !! @file
 !! @brief Specialized cases for ml_memAddToVars
 
-!!REORDER(4): dstPtr, src[12345678]Ptr
-!!REORDER(4): src10Ptr, src11Ptr, src12Ptr
+!!REORDER(4): dstPtr, src1Ptr, src2Ptr, src3Ptr, src4Ptr, src5Ptr, src6Ptr, src7Ptr, src8Ptr, src9Ptr, src5Ptr, src10Ptr, src11Ptr, src12Ptr
 
 !> @ingroup MoLMemory
 !! Specialized cases for ml_memAddToVars

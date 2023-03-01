@@ -44,7 +44,7 @@ subroutine ml_memAlloc()
 
    ! Don't need guard-cells here
 #ifdef MOL_REORDER
-   allocate (scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
+   allocate (ml_scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
                           lim(LOW, JAXIS):lim(HIGH, JAXIS), &
                           lim(LOW, KAXIS):lim(HIGH, KAXIS), &
                           ml_nvars, &
