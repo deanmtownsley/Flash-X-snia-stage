@@ -145,23 +145,29 @@ Module Hydro_interface
    !! MoL-specific functionality
 
    interface
-      subroutine Hydro_molExplicitRHS(t)
+      subroutine Hydro_molExplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Hydro_molExplicitRHS
    end interface
 
    interface
-      subroutine Hydro_molImplicitRHS(t)
+      subroutine Hydro_molImplicitRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Hydro_molImplicitRHS
    end interface
 
    interface
-      subroutine Hydro_molFastRHS(t)
+      subroutine Hydro_molFastRHS(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine Hydro_molFastRHS
    end interface
 

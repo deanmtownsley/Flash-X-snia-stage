@@ -5,9 +5,11 @@ UNOFFICIAL
 REQUIRES Driver/DriverMain/MoL
 REQUIRES numericalTools/MoL/MoLMemory
 
+PPDEFINE USE_MOL
+
 USESETUPVARS MoL_Integrator
 
-DEFAULT FBE
+DEFAULT ERK
 
 IF MoL_Integrator == "ERK"
     DEFAULT ERK
@@ -15,6 +17,10 @@ ENDIF
 
 IF MoL_Integrator == "MR"
     DEFAULT MR
+ENDIF
+
+IF MoL_Integrator == "IMEX"
+    DEFAULT IMEX
 ENDIF
 
 D MoL_verbosity     Output only 1) errors, 2) errors+warnings, 3) errors+warnings+status
