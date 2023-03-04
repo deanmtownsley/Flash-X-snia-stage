@@ -1,4 +1,4 @@
-subroutine mph_setWeberJumps3d(phi, sigx, sigy, sigz, dx, dy, dz, invWbr, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine mph_setWeberJumps3d(phi, sigx, sigy, sigz, dx, dy, dz, invWbr, rhoGas, ix1, ix2, jy1, jy2, kz1, kz2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -15,7 +15,7 @@ subroutine mph_setWeberJumps3d(phi, sigx, sigy, sigz, dx, dy, dz, invWbr, ix1, i
 
    !-----Argument list-------------------
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-   real, intent(in) :: dx, dy, dz, invWbr
+   real, intent(in) :: dx, dy, dz, invWbr, rhoGas
    real, dimension(:, :, :), intent(in) :: phi
    real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
 

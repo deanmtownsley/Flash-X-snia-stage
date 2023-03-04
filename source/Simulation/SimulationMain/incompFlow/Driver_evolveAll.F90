@@ -58,7 +58,7 @@ subroutine Driver_evolveAll()
 
    use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
                              Grid_fillGuardCells, Grid_getTileIterator, &
-                             Grid_releaseTileIterator, Grid_solvePoisson
+                             Grid_releaseTileIterator, Grid_solvePoisson, Grid_solveLaplacian
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -109,7 +109,8 @@ subroutine Driver_evolveAll()
    real :: mindiv, maxdiv
    logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
-              iHliqVar, iHgasVar, iTempVar, iDivVar
+              iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
+              iViscVar
    integer :: iteration
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -118,6 +119,11 @@ subroutine Driver_evolveAll()
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
    call IncompNS_getGridVar("CENTER_PRESSURE", iPresVar)
    call IncompNS_getGridVar("CENTER_DIVERGENCE", iDivVar)
+
+#ifdef INCOMPNS_VARDENS
+   call IncompNS_getGridVar("FACE_DENSITY", iRhoFVar)
+   call IncompNS_getGridVar("CENTER_VISCOSITY", iViscVar)
+#endif
 
 #ifdef HEATAD_MAIN
    ! Get grid variables for heat advection diffusion if
@@ -279,10 +285,14 @@ subroutine Driver_evolveAll()
 
       ! Fill GuardCells for Pressure Jump
       gcMask = .FALSE.
+      gcMask(iViscVar) = .TRUE.
       gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + iRhoFVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + iRhoFVar) = .TRUE.
 #if NDIM == 3
       gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + 2*NFACE_VARS + iRhoFVar) = .TRUE.
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
@@ -408,6 +418,7 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
+#ifdef INCOMPNS_CONSTDENS
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
       call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
@@ -415,6 +426,23 @@ subroutine Driver_evolveAll()
                              bcValues=ins_pressureBC_values, &
                              poisfact=ins_poisfact)
       !------------------------------------------------------------
+#else
+      ! Solve pressure Poisson equation
+      !------------------------------------------------------------
+      call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
+                             bcTypes=ins_pressureBC_types, &
+                             bcValues=ins_pressureBC_values, &
+                             poisfact=ins_poisfact)
+      !------------------------------------------------------------
+
+      !! Solve variable coefficient pressure Poisson equation
+      !!------------------------------------------------------------
+      !call Grid_solveLaplacian(iSoln=iPresVar, iSrc=iDivVar, iCoeff=iRhoFVar, &
+      !                         bcTypes=ins_pressureBC_types, &
+      !                         bcValues=ins_pressureBC_values, &
+      !                         poisfact=ins_poisfact)
+      !!------------------------------------------------------------
+#endif
 
       ! Fill GuardCells for pressure
       gcMask = .FALSE.

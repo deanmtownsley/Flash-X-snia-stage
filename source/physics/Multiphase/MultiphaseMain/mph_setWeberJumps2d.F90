@@ -1,4 +1,4 @@
-subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, jy2)
+subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2, jy1, jy2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -15,7 +15,7 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, j
 
    !-----Argument list-------------------
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   real, intent(in) :: dx, dy, invWbr
+   real, intent(in) :: dx, dy, invWbr, rhoGas
    real, dimension(:, :, :), intent(in) :: phi
    real, dimension(:, :, :), intent(inout) :: sigx, sigy
 
@@ -99,6 +99,7 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, j
             xijl = invWbr*crv(i, j, k)                 !- kpd - sigma*K. Used for jump in pressure
             xijr = invWbr*crv(i + 1, j, k)               !- kpd - sigma*K. Used for jump in pressure
             xij = xijl*th + xijr*(1.-th)             !- kpd - Jump in value
+            aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) - xij/dx   !- kpd - sigma*K/rho/dx
          end if
 
@@ -111,6 +112,7 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, j
             xijl = invWbr*crv(i, j, k)
             xijr = invWbr*crv(i + 1, j, k)
             xij = xijl*(1.-th) + xijr*th
+            aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) + xij/dx
          end if
 
@@ -123,6 +125,7 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, j
             yijl = invWbr*crv(i, j, k)
             yijr = invWbr*crv(i, j + 1, k)
             yij = yijl*th + yijr*(1.-th)
+            aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) - yij/dy
          end if
 
@@ -135,6 +138,7 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, j
             yijl = invWbr*crv(i, j, k)
             yijr = invWbr*crv(i, j + 1, k)
             yij = yijl*(1.-th) + yijr*th
+            aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) + yij/dy
          end if
          !--------------------------------------------------------------

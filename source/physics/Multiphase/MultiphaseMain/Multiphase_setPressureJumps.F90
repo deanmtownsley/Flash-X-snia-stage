@@ -65,7 +65,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             facexData(mph_iJumpVar, :, :, :), &
                             faceyData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), &
-                            mph_invWeber, &
+                            mph_invWeber, mph_rhoGas, &
                             GRID_ILO_GC, GRID_IHI_GC, &
                             GRID_JLO_GC, GRID_JHI_GC)
 
@@ -94,7 +94,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             faceyData(mph_iJumpVar, :, :, :), &
                             facezData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                            mph_invWeber, &
+                            mph_invWeber, mph_rhoGas, &
                             GRID_ILO_GC, GRID_IHI_GC, &
                             GRID_JLO_GC, GRID_JHI_GC, &
                             GRID_KLO_GC, GRID_KHI_GC)

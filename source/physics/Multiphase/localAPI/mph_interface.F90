@@ -29,20 +29,20 @@ Module mph_interface
 #include "Multiphase.h"
 
    interface
-      subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, ix1, ix2, jy1, jy2)
+      subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2, jy1, jy2)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2
-         real, intent(in) :: dx, dy, invWbr
+         real, intent(in) :: dx, dy, invWbr, rhoGas
          real, dimension(:, :, :), intent(in) :: phi
          real, dimension(:, :, :), intent(inout) :: sigx, sigy
       end subroutine mph_setWeberJumps2d
    end interface
 
    interface
-      subroutine mph_setWeberJumps3d(phi, sigx, sigy, sigz, dx, dy, dz, invWbr, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_setWeberJumps3d(phi, sigx, sigy, sigz, dx, dy, dz, invWbr, rhoGas, ix1, ix2, jy1, jy2, kz1, kz2)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-         real, intent(in) :: dx, dy, dz, invWbr
+         real, intent(in) :: dx, dy, dz, invWbr, rhoGas
          real, dimension(:, :, :), intent(in) :: phi
          real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
       end subroutine mph_setWeberJumps3d

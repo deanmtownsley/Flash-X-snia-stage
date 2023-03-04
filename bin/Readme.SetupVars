@@ -289,3 +289,9 @@ Harder to introduce now because we have multiple particle types)
   - Simulation/SimulationMain/incompFlow/RisingBubble
   - Simulation/SimulationMain/incompFlow/PoolBoiling
   - Simulation/SimulationMain/incompFlow/ChannelFlow
+
+* Name  : SimLSDamping
+  Type  : Boolean
+
+  Defaults to False. If True, will apply level set damping at outlet
+  - Simulation/SimulationMain/incompFlow/PoolBoiling

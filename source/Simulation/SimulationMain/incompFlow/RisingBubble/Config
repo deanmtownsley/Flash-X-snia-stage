@@ -12,4 +12,4 @@ IF SimForceInOut
     REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
 ENDIF
 
-DATAFILES test_amr.par
+DATAFILES extraParfiles/test_amr.par

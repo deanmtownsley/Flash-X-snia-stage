@@ -23,7 +23,7 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
    real, dimension(ix1:ix2, jy1:jy2, 1) :: pf
    real :: th, xijl, xijr, xij, yij, yijl, yijr
    integer :: i, j, k
-   real :: bb
+   real :: bb, aa
 
    bb = (1./rhoGas) - 1
    k = 1
@@ -42,6 +42,7 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
             xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
             xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
             xij = xijl*th + xijr*(1.-th)
+            aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) - xij/dx
          end if
 
@@ -54,8 +55,8 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
             xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
             xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
             xij = xijl*(1.-th) + xijr*th
+            aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) + xij/dx
-
          end if
 
          !--------------------------------------------------------------
@@ -67,6 +68,7 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
             yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
             yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
             yij = yijl*th + yijr*(1.-th)
+            aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) - yij/dy
          end if
 
@@ -79,6 +81,7 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
             yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
             yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
             yij = yijl*(1.-th) + yijr*th
+            aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) + yij/dy
          end if
          !--------------------------------------------------------------
