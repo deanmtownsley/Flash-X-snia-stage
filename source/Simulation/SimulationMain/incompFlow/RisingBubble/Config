@@ -12,4 +12,6 @@ IF SimForceInOut
     REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
 ENDIF
 
+PARAMETER sim_bubbleRadius REAL 0.25
+
 DATAFILES extraParfiles/test_amr.par
