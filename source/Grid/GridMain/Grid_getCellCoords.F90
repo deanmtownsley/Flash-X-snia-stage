@@ -67,8 +67,8 @@
 !!          lo(axis) ... hi(axis).
 !!
 !!   coordinates - The array holding the data returning the coordinate values.
-!!                 The array must be at large enough to hold the number of
-!!                 coordinate values that are requested occording to lo and hi
+!!                 The array must be large enough to hold the number of
+!!                 coordinate values that are requested according to lo and hi
 !!                 arguments. That is, the following must be true:
 !!           
 !!          if edge = CENTER/LEFT_EDGE/RIGHT_EDGE then

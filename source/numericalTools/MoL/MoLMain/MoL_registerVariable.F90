@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@
 !! @stubref{MoL_registerVariable}
 subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    use ml_variables, only: ml_variable_t, ml_vars, ml_nvars, &
-                           ml_unk_mask, ml_scratch_mask
+                           ml_unk_mask, ml_scratch_mask, ml_unk_to_scratch
    use ml_interface, only: ml_warn
 
    implicit none
@@ -49,6 +49,8 @@ subroutine MoL_registerVariable(name, evolIndex, rhsIndex)
    var%rhsIndex = ml_nvars
 
    rhsIndex = ml_nvars
+
+   ml_unk_to_scratch(evolIndex) = rhsIndex
 
    if (.not. allocated(ml_vars)) then
       allocate (ml_vars(1))
