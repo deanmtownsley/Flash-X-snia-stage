@@ -143,10 +143,10 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   enddo
 
   ! set values for other variables
-  facexData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), COEF_FACE_VAR) = 1.0
-  faceyData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), COEF_FACE_VAR) = 1.0
+  facexData(lo(IAXIS):hi(IAXIS)+1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), COEF_FACE_VAR) = 1.0
+  faceyData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS)+1, lo(KAXIS):hi(KAXIS), COEF_FACE_VAR) = 1.0
 #if NDIM==MDIM
-  facezData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS), COEF_FACE_VAR) = 1.0
+  facezData(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)+1, COEF_FACE_VAR) = 1.0
 #endif
 
   ! set values for other variables
