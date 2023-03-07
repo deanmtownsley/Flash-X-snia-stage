@@ -162,7 +162,7 @@ subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, 
   end select
 
   multFixed = ((NDIM > 1) .AND. (gr_geometry .NE. CARTESIAN))
-  
+
   if (nfluxes > 0) then
      fluxx(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufX ! fluxx,fluxy,fluxz use local (Paramesh) index counting
      fluxy(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufY ! fluxBuf[XYZ] use the global index convention (for the level)

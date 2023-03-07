@@ -22,6 +22,7 @@
 !!                              real(in),Contiguous,TARGET :: fluxBufY(:, lo(1): ,lo(2): ,lo(3): ),
 !!                              real(in),Contiguous,TARGET :: fluxBufZ(:, lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
+!!                              logical(IN), OPTIONAL :: add,
 !!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!
 !! DESCRIPTION
@@ -44,6 +45,14 @@
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
+!!   add :       whether to add or override.
+!!               If this argument is present in a call but isFluxDensity is not,
+!!               INDEPENDENT OF WHETHER THE VALUE IS .FALSE. OR .TRUE.,
+!!               it is assumed that in the non-Cartesian geometry the "fluxes"
+!!               in the fluxBuf? arguments have already been multiplied by
+!!               area factors; that ids, they really are fluxes and not flux
+!!               densities.
+!!
 !!   isFluxDensity : indicates, for each flux component, whether the component
 !!                   is a flux proper (if TRUE) or a flux density (otherwise).
 !!                   This may be either removed, or changed into a scalar flag,
@@ -58,7 +67,7 @@
 !!   SPFS means semi-permanent flux storage. When using a Grid
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
 !!   flux register class, such as FlashFluxRegister. When using a Grid
-!!   implementation based on PARAMESH, SPFS is provideded by arrays
+!!   implementation based on PARAMESH, SPFS is provided by arrays
 !!   flux_x, flux_y, flux_z private to PARAMESH in conjunction with
 !!   additional arrays like gr_[xyz]flx and gr_xflx_[yz]face,gr_yflx_[xz]face,
 !!   gr_zflx_[xy]face that are private to the Paramesh4 immplementation of
@@ -72,7 +81,7 @@
 
 !!REORDER(4): fluxBuf[XYZ]
 
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 #include "FortranLangFeatures.fh"
@@ -82,7 +91,9 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add)
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
-  logical, intent(in) :: add
+  logical, intent(in), OPTIONAL :: add
+  logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
+
   return
 
 end subroutine Grid_putFluxData_block
