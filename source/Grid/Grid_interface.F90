@@ -429,7 +429,7 @@ Module Grid_interface
        integer, intent(IN),optional :: axis
        integer, intent(IN), OPTIONAL,target :: pressureSlots(:)
      end subroutine Grid_putFluxData
-     subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isDensity)
+     subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
        use Grid_tile, ONLY : Grid_tile_t
        implicit none
        type(Grid_tile_t), intent(in) :: blockDesc
