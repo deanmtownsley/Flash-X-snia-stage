@@ -167,7 +167,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
 
   if (present(isFluxDensity)) then
      allIsFlux = ( size(isFluxDensity,1) > 0 .AND. .NOT. ANY(isFluxDensity) )
-  else if ((present(add)) then
+  else if (present(add)) then
      allIsFlux = .TRUE.
   else
      allIsFlux = (gr_geometry .NE. CARTESIAN)
