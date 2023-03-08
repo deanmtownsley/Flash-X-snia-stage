@@ -13,6 +13,10 @@ Comparison/DustCollapse/AMR/1dSph/spark:
   setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +spark  +newMpole
   parfiles: test_1dsph.debug.par
 
+Comparison/DustCollapse/AMR/1dSph/sparkNt:
+  setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +newMpole -debug
+  parfiles: test_1dsph.debug.par
+
 # The following test used to be configured with -debug.
 Comparison/DustCollapse/AMR/2dCyl/AMReX:
   setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole -debug
