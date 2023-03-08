@@ -13,17 +13,17 @@ Composite/Sod/PseudoUG/2d/AMReX/unsplit:
   restartParfiles: test_pseudoug_2d_restart.par
 
 Composite/Sod/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM
+  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True  +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
 Composite/Sod/PseudoUG/2d/AMReX/sparkMT:
-  setupOptions: -auto -2d -debug +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+  setupOptions: -auto -2d -debug +sparkbase2d nontelescoping=True  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 
 Composite/Sod/PseudoUG/2d/AMReX/sparkPIO:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d  +parallelIO
+  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True  +parallelIO
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 # end PseudoUG AMReX 2d
@@ -40,7 +40,7 @@ Composite/Sod/PseudoUG/2d/Paramesh/unsplit:
   restartParfiles: test_pseudoug_2d_restart.par
 
 Composite/Sod/PseudoUG/2d/Paramesh/sparkMT:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +spark  +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +spark nontelescoping=True  +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 # end PseudoUG Paramesh 2d
@@ -114,7 +114,7 @@ Comparison/Sod/UG/2d/unsplit:
   parfiles: test_pseudoug_2d.par
 
 Comparison/Sod/UG/2d/spark:
-  setupOptions: -auto -2d -debug +spark  +ug +nofbs
+  setupOptions: -auto -2d -debug +spark nontelescoping=True  +ug +nofbs
   parfiles: test_pseudoug_2d.par
 
 #  comment: Set OMP_NUM_THREADS=2 since libamex with omp support is installed
@@ -132,7 +132,7 @@ Comparison/Sod/PseudoUG/2d/AMReX/unsplit:
   parfiles: test_pseudoug_2d.par
 
 Comparison/Sod/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +amrex +spark  +serialio -unit=IO/IOMain/hdf5/serial/AM
+  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +amrex +spark nontelescoping=True  +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
 # end Comparison PseudoUG 2d
 
@@ -150,7 +150,7 @@ Comparison/Sod/PseudoUG/2d/Paramesh/unsplit:
   parfiles: test_pseudoug_2d.par
 
 Comparison/Sod/PseudoUG/2d/Paramesh/spark:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +pm4dev +spark  -gridinterpolation=monotonic
+  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +pm4dev +spark nontelescoping=True  -gridinterpolation=monotonic
   parfiles: test_pseudoug_2d.par
 
 Comparison/Sod/AMR/2d/AMReX/simpleUnsplit:
