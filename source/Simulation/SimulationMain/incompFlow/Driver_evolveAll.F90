@@ -110,7 +110,7 @@ subroutine Driver_evolveAll()
    logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
-              iViscVar
+              iViscVar, iRhoCVar
    integer :: iteration
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -123,6 +123,7 @@ subroutine Driver_evolveAll()
 #ifdef INCOMPNS_VARDENS
    call IncompNS_getGridVar("FACE_DENSITY", iRhoFVar)
    call IncompNS_getGridVar("CENTER_VISCOSITY", iViscVar)
+   call IncompNS_getGridVar("CENTER_DENSITY", iRhoCVar)
 #endif
 
 #ifdef HEATAD_MAIN
@@ -286,6 +287,7 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for Pressure Jump
       gcMask = .FALSE.
       gcMask(iViscVar) = .TRUE.
+      gcMask(iRhoCVar) = .TRUE.
       gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
       gcMask(NUNK_VARS + iRhoFVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.

@@ -55,6 +55,7 @@ subroutine IncompNS_reInitGridVars(tileDesc)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
    solnData(VISC_VAR, :, :, :) = 1.
+   solnData(RHOC_VAR, :, :, :) = 1.
    facexData(RHOF_FACE_VAR, :, :, :) = 1.
    faceyData(RHOF_FACE_VAR, :, :, :) = 1.
    facexData(SIGM_FACE_VAR, :, :, :) = 0.

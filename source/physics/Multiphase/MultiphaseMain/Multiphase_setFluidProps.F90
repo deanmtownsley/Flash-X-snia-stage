@@ -66,8 +66,8 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                faceyData(mph_iRhoFVar, :, :, :), &
                                1./mph_rhoGas, &
                                stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               iSmear=mph_iPropSmear*minCellDiag)
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS))!, &
+                               !iSmear=mph_iPropSmear*minCellDiag)
 
 #else
    call Stencils_lsFaceProps3d(solnData(DFUN_VAR, :, :, :), &
@@ -77,8 +77,8 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                1./mph_rhoGas, &
                                stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
                                stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
-                               iSmear=mph_iPropSmear*minCellDiag)
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))!, &
+                               !iSmear=mph_iPropSmear*minCellDiag)
 #endif
 
    call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
@@ -88,6 +88,15 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
                                stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
                                iSmear=mph_iPropSmear*minCellDiag)
+
+   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
+                               solnData(mph_iRhoCVar, :, :, :), &
+                               1./mph_rhoGas, &
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
+                               iSmear=mph_iPropSmear*minCellDiag)
+
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)

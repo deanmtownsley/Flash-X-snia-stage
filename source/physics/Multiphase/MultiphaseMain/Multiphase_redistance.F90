@@ -55,7 +55,7 @@ subroutine Multiphase_redistance(tileDesc, iteration)
 
    call tileDesc%deltas(del)
    minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2)
-   lsDT = minCellDiag/5.0d0
+   lsDT = minCellDiag/2.0d0
 #if NDIM < MDIM
    !--------------------------------------------
    ! Call DFUN re-initialization routine for 2D:

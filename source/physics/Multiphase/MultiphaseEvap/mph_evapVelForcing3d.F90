@@ -14,13 +14,13 @@
 !!
 !!
 !!******
-subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, visc, normx, normy, normz, mflux, &
+subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, normx, normy, normz, mflux, &
                                 ru1, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: uni, vni, wni
    real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
-   real, dimension(:, :, :), intent(in)    :: visc, normx, normy, normz, mflux
+   real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, normz, mflux
    real                                  :: ru1, dt, dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
 
@@ -39,31 +39,31 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, visc, normx, no
       do j = jy1, jy2
          do i = ix1, ix2 + 1
 
-            aicc = rhox(i, j, k)* &
+            aicc = 0.5*(rhoc(i, j, k) + rhoc(i - 1, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aixr = rhox(i + 1, j, k)* &
+            aixr = 0.5*(rhoc(i, j, k) + rhoc(i + 1, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aixl = rhox(i - 1, j, k)* &
+            aixl = 0.5*(rhoc(i - 1, j, k) + rhoc(i - 2, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aiyr = rhox(i, j + 1, k)* &
+            aiyr = 0.5*(rhoc(i, j + 1, k) + rhoc(i - 1, j + 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aiyl = rhox(i, j - 1, k)* &
+            aiyl = 0.5*(rhoc(i, j - 1, k) + rhoc(i - 1, j - 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aizr = rhox(i, j, k + 1)* &
+            aizr = 0.5*(rhoc(i, j, k + 1) + rhoc(i - 1, j, k + 1))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
-            aizl = rhox(i, j, k - 1)* &
+            aizl = 0.5*(rhoc(i, j, k - 1) + rhoc(i - 1, j, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
                    0.5*(normx(i, j, k) + normx(i - 1, j, k))
 
@@ -98,31 +98,31 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, visc, normx, no
       do j = jy1, jy2 + 1
          do i = ix1, ix2
 
-            aicc = rhoy(i, j, k)* &
+            aicc = 0.5*(rhoc(i, j, k) + rhoc(i, j - 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aixr = rhoy(i + 1, j, k)* &
+            aixr = 0.5*(rhoc(i + 1, j, k) + rhoc(i + 1, j - 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aixl = rhoy(i - 1, j, k)* &
+            aixl = 0.5*(rhoc(i - 1, j, k) + rhoc(i - 1, j - 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aiyr = rhoy(i, j + 1, k)* &
+            aiyr = 0.5*(rhoc(i, j + 1, k) + rhoc(i, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aiyl = rhoy(i, j - 1, k)* &
+            aiyl = 0.5*(rhoc(i, j - 1, k) + rhoc(i, j - 2, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aizr = rhoy(i, j, k + 1)* &
+            aizr = 0.5*(rhoc(i, j, k + 1) + rhoc(i, j - 1, k + 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
-            aizl = rhoy(i, j, k - 1)* &
+            aizl = 0.5*(rhoc(i, j, k - 1) + rhoc(i, j - 1, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
                    0.5*(normy(i, j, k) + normy(i, j - 1, k))
 
@@ -157,31 +157,31 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, visc, normx, no
       do j = jy1, jy2
          do i = ix1, ix2
 
-            aicc = rhoz(i, j, k)* &
+            aicc = 0.5*(rhoc(i, j, k) + rhoc(i, j, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aixr = rhoz(i + 1, j, k)* &
+            aixr = 0.5*(rhoc(i + 1, j, k) + rhoc(i + 1, j, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aixl = rhoz(i - 1, j, k)* &
+            aixl = 0.5*(rhoc(i - 1, j, k) + rhoc(i - 1, j, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aiyr = rhoz(i, j + 1, k)* &
+            aiyr = 0.5*(rhoc(i, j + 1, k) + rhoc(i, j + 1, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aiyl = rhoz(i, j - 1, k)* &
+            aiyl = 0.5*(rhoc(i, j - 1, k) + rhoc(i, j - 1, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aizr = rhoz(i, j, k + 1)* &
+            aizr = 0.5*(rhoc(i, j, k + 1) + rhoc(i, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 
-            aizl = rhoz(i, j, k - 1)* &
+            aizl = 0.5*(rhoc(i, j, k - 1) + rhoc(i, j, k - 2))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &
                    0.5*(normz(i, j, k) + normz(i, j, k - 1))
 

@@ -67,61 +67,61 @@ Module mph_evapInterface
    end interface
 
    interface mph_evapVelocity
-      subroutine mph_evapVelocity2d(uni, vni, rhox, rhoy, normx, normy, mflux, ix1, ix2, jy1, jy2)
+      subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, ix1, ix2, jy1, jy2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni
-         real, dimension(:, :, :), intent(in)    :: rhox, rhoy
+         real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
          integer, intent(in)                   :: ix1, ix2, jy1, jy2
       end subroutine mph_evapVelocity2d
 
-      subroutine mph_evapVelocity3d(uni, vni, wni, rhox, rhoy, rhoz, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni, wni
-         real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
+         real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
       end subroutine mph_evapVelocity3d
    end interface
 
    interface
-      subroutine mph_evapVelForcing2d(uni, vni, rhox, rhoy, visc, normx, normy, mflux, &
+      subroutine mph_evapVelForcing2d(uni, vni, rhox, rhoy, rhoc, visc, normx, normy, mflux, &
                                       ru1, dt, dx, dy, ix1, ix2, jy1, jy2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni
          real, dimension(:, :, :), intent(in)    :: rhox, rhoy
-         real, dimension(:, :, :), intent(in)    :: visc, normx, normy, mflux
+         real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, mflux
          real                                  :: ru1, dt, dx, dy
          integer, intent(in)                   :: ix1, ix2, jy1, jy2
       end subroutine mph_evapVelForcing2d
    end interface
 
    interface
-      subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, visc, normx, normy, normz, mflux, &
+      subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, normx, normy, normz, mflux, &
                                       ru1, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni, wni
          real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
-         real, dimension(:, :, :), intent(in)    :: visc, normx, normy, normz, mflux
+         real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, normz, mflux
          real                                  :: ru1, dt, dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
       end subroutine mph_evapVelForcing3d
    end interface
 
    interface mph_evapDivergence
-      subroutine mph_evapDivergence2d(divv, rhox, rhoy, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
+      subroutine mph_evapDivergence2d(divv, rhoc, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: divv
-         real, dimension(:, :, :), intent(in)    :: rhox, rhoy
+         real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
          real, intent(in)                      :: dx, dy
          integer, intent(in)                   :: ix1, ix2, jy1, jy2
       end subroutine mph_evapDivergence2d
 
-      subroutine mph_evapDivergence3d(divv, rhox, rhoy, rhoz, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_evapDivergence3d(divv, rhoc, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
          implicit none
          real, dimension(:, :, :), intent(inout) :: divv
-         real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
+         real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
          real, intent(in)                      :: dx, dy, dz
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
