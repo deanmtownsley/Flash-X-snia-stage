@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_putFluxData_block
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@
 !!               INDEPENDENT OF WHETHER THE VALUE IS .FALSE. OR .TRUE.,
 !!               it is assumed that in the non-Cartesian geometry the "fluxes"
 !!               in the fluxBuf? arguments have already been multiplied by
-!!               area factors; that ids, they really are fluxes and not flux
+!!               area factors; that is, they really are fluxes and not flux
 !!               densities.
 !!
 !!   isFluxDensity : indicates, for each flux component, whether the component

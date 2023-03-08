@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_putFluxData_block
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 !!                              real(in),Contiguous,TARGET :: fluxBufY(lo(1): ,lo(2): ,lo(3): ,: ),
 !!                              real(in),Contiguous,TARGET :: fluxBufZ(lo(1): ,lo(2): ,lo(3): ,: ),
 !!                              integer(in) :: lo(3),
+!!                              logical(IN), OPTIONAL :: add,
 !!                              logical(IN), OPTIONAL :: isFluxDensity)
 !!
 !! DESCRIPTION
@@ -47,10 +48,20 @@
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
 !!
+!!   add :       whether to add or override.
+!!               If this argument is present in a call but isFluxDensity is not,
+!!               INDEPENDENT OF WHETHER THE VALUE IS .FALSE. OR .TRUE.,
+!!               it is assumed that in the non-Cartesian geometry the "fluxes"
+!!               in the fluxBuf? arguments have already been multiplied by
+!!               area factors; that is, they really are fluxes and not flux
+!!               densities.
+!!
 !!   isFluxDensity : indicates, for each flux component, whether the component
 !!                   is a flux proper (if TRUE) or a flux density (otherwise).
 !!                   This may be either removed, or changed into a scalar flag,
 !!                   later.
+!!                   ONLY PARTIALLY SUPPORTED IN THIS IMPLEMENTATION, WILL ABORT
+!!                   IF A MIXTURE OF fluxes AND flux density IS INDICATED.
 !!
 !! NOTES
 !!
@@ -65,7 +76,7 @@
 !!   Hydro
 !!***
 
-subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFluxDensity)
+subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
   use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getCellFaceAreas
   use Grid_tile, ONLY : Grid_tile_t
@@ -81,6 +92,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
+  logical, intent(in), OPTIONAL :: add
   logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
 
   integer :: fineLev            !level of this block, FLASH convention (1-based)
@@ -88,31 +100,50 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFlu
   integer :: igrd               !grid index as used by AMReX
 
   logical :: multFluxx,multFluxy,multFluxz !whether to multiply by area
+  logical                  :: allIsFlux
   real,allocatable :: faceAreas(:,:,:)
+  real                    :: wt
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
   call Driver_abort("Grid_putFluxData_block.F90 requires amrex_flash_fluxregister,&
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
-  select case (gr_geometry)
-  case(CARTESIAN)
+  wt=0.0
+  if (present(add)) then
+     if(add)wt=1.0
+  end if
+
+  if (present(isFluxDensity)) then
+     allIsFlux = ( size(isFluxDensity,1) > 0 .AND. .NOT. ANY(isFluxDensity) )
+  else if (present(add)) then
+     allIsFlux = .TRUE.
+  else
+     allIsFlux = (gr_geometry .NE. CARTESIAN)
+  end if
+
+  if (allIsFlux) then
      multFluxx = .false. ; multFluxy = .false. ; multFluxz = .false.
-  case(SPHERICAL)
-     multFluxx = (NDIM>1); multFluxy = .TRUE.  ; multFluxz = .TRUE.
-  case(POLAR)
-     multFluxx = .FALSE. ; multFluxy = .FALSE. ; multFluxz = .TRUE.
-  case(CYLINDRICAL)
-     multFluxx = .FALSE. ; multFluxy = .TRUE.  ; multFluxz = .FALSE.
-  end select
+  else
+     select case (gr_geometry)
+     case(CARTESIAN)
+        multFluxx = .false. ; multFluxy = .false. ; multFluxz = .false.
+     case(SPHERICAL)
+        multFluxx = (NDIM>1); multFluxy = .TRUE.  ; multFluxz = .TRUE.
+     case(POLAR)
+        multFluxx = .FALSE. ; multFluxy = .FALSE. ; multFluxz = .TRUE.
+     case(CYLINDRICAL)
+        multFluxx = .FALSE. ; multFluxy = .TRUE.  ; multFluxz = .FALSE.
+     end select
+  end if
 
   fineLev = blockDesc % level
   ilev = fineLev - 1
   if (ilev > 0) then
 
      if (present(isFluxDensity)) then
-        if (.NOT.ALL(isFluxDensity)) &
-             call Driver_abort("Grid_putFluxData_block: isFluxDensity is not yet supported")
+        if (.NOT.(ALL(isFluxDensity) .OR. allIsFlux)) &
+             call Driver_abort("Grid_putFluxData_block: isFluxDensity not yet fully supported")
      end if
 
      igrd = blockDesc % grid_index
