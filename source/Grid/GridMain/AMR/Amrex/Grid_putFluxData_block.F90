@@ -119,7 +119,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   else if (present(add)) then
      allIsFlux = .TRUE.
   else
-     allIsFlux = (gr_geometry .NE. CARTESIAN)
+     allIsFlux = .FALSE.
   end if
 
   if (allIsFlux) then
