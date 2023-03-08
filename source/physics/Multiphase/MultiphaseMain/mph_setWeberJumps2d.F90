@@ -88,8 +88,8 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2
 
    !--Need to loop through one guard cell on each side to set jumps
    !---when they cross block boundaries
-   do j = jy1 + 1, jy2 - 2
-      do i = ix1 + 1, ix2 - 2
+   do j = jy1 + 1, jy2 - 1
+      do i = ix1 + 1, ix2 - 1
          !--------------------------------------------------------------
          !- kpd - pf=0 (water) in current cell and pf=1 (air) in cell to right
          !--------------------------------------------------------------
