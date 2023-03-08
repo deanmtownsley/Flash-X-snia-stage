@@ -116,5 +116,6 @@ IF useFog
 ENDIF
 
 IF nontelescoping
-	REQUIRES physics/Hydro/HydroMain/Spark/Nontelescoping
+	REQUIRES physics/Hydro/HydroMain/Spark/NonTelescoping
 ENDIF
+
