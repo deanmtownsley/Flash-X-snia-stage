@@ -1,3 +1,7 @@
+DEFAULT presPoisson
+#
+CHILDORDER presPoisson presLaplacian
+EXCLUSIVE  presPoisson presLaplacian
 #
 PPDEFINE INCOMPNS_VARDENS
 

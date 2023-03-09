@@ -9,3 +9,4 @@ REQUIRES physics/Multiphase/MultiphaseEvap
 REQUIRES physics/HeatAD/HeatADMain/varDiffusion
 REQUIRES physics/HeatAD/HeatADAdvection
 
+PARAMETER sim_bubbleRadius REAL 0.25

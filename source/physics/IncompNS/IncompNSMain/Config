@@ -1,5 +1,5 @@
 #       Config file for the Incompressible Navier Stoke solver.
-DEFAULT ConstDens
+DEFAULT constDens
 
 PPDEFINE INCOMPNS_MAIN
 

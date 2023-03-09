@@ -50,7 +50,7 @@ subroutine Driver_evolveAll()
                           dr_nstep, dr_dtOld, dr_dtNew, &
                           dr_simGeneration, &
                           dr_restart
-   use Driver_interface, ONLY: Driver_sourceTerms, Driver_computeDt
+   use Driver_interface, ONLY: Driver_sourceTerms, Driver_computeDt, Driver_abort
    use Logfile_interface, ONLY: Logfile_stamp, Logfile_close
    use Timers_interface, ONLY: Timers_start, Timers_stop, &
                                Timers_getSummary
@@ -420,30 +420,31 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-#ifdef INCOMPNS_CONSTDENS
+      ! Fill GuardCells for pressure
+      gcMask = .FALSE.
+      gcMask(iDivVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask, &
+                               selectBlockType=ACTIVE_BLKS)
+
+#if defined(INCOMPNS_PRES_POISSON)
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
       call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
                              bcTypes=ins_pressureBC_types, &
                              bcValues=ins_pressureBC_values, &
                              poisfact=ins_poisfact)
+      !------------------------------------------------------------
+#elif defined(INCOMPNS_PRES_LAPLACIAN)
+      ! Solve variable coefficient pressure Poisson equation
+      !------------------------------------------------------------
+      call Grid_solveLaplacian(iSoln=iPresVar, iSrc=iDivVar, iCoeff=iRhoFVar, &
+                               bcTypes=ins_pressureBC_types, &
+                               bcValues=ins_pressureBC_values, &
+                               poisfact=ins_poisfact)
       !------------------------------------------------------------
 #else
-      ! Solve pressure Poisson equation
-      !------------------------------------------------------------
-      call Grid_solvePoisson(iSoln=iPresVar, iSrc=iDivVar, &
-                             bcTypes=ins_pressureBC_types, &
-                             bcValues=ins_pressureBC_values, &
-                             poisfact=ins_poisfact)
-      !------------------------------------------------------------
-
-      !! Solve variable coefficient pressure Poisson equation
-      !!------------------------------------------------------------
-      !call Grid_solveLaplacian(iSoln=iPresVar, iSrc=iDivVar, iCoeff=iRhoFVar, &
-      !                         bcTypes=ins_pressureBC_types, &
-      !                         bcValues=ins_pressureBC_values, &
-      !                         poisfact=ins_poisfact)
-      !!------------------------------------------------------------
+      call Driver_abort("Missing pressure solver")
 #endif
 
       ! Fill GuardCells for pressure
