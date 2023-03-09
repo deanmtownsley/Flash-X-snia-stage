@@ -1,8 +1,15 @@
-# source/physics/Hydro/HydroMain/Spark/NonTelescoping
+##python3:genLines
 
 # Config file for the Spark Hydro solvers without telescoping
-# Note: It requires an unsplit driver which is different from
-#       the FLASH default split scheme.
+# [physics/Hydro/HydroMain/Spark/NonTelescoping]
+
+import os.path
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    yield '''
 
 USESETUPVARS useMP5
 USESETUPVARS useGLM
@@ -28,3 +35,7 @@ SCRATCHCENTERVAR zmom
 SCRATCHCENTERVAR mene                  	
 
 PARAMETER telescoping          BOOLEAN  FALSE
+'''
+
+    for i in range(13-5):
+        yield 'SCRATCHCENTERVAR zz%.2d' % (i+6)
