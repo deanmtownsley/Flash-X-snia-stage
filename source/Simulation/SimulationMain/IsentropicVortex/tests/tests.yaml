@@ -30,7 +30,7 @@ Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 
 #this test had debug flag turned on
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -nxb=16 -nyb=16  +spark nontelescoping=True  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
