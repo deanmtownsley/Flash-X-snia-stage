@@ -61,7 +61,7 @@ module hy_rk_interface
        integer,intent(IN) :: level
        real,dimension(MDIM) :: hy_del
        real, intent(IN) :: dt
-       integer, intent(IN) :: isFlux ! handle as fluxes rather than flux densities?
+       logical, intent(IN) :: isFlux ! handle as fluxes rather than flux densities?
      end subroutine hy_rk_correctFluxes
   end interface
 
