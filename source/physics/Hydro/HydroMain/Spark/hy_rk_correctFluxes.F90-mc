@@ -230,7 +230,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
            @M hy_geom_flux_dxdv
            fac = facP
         else
-           fax = 1.0
+           fac = 1.0
         end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
@@ -287,7 +287,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
            @M hy_geom_flux_dxdv
            fac = facP
         else
-           fax = 1.0
+           fac = 1.0
         end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
