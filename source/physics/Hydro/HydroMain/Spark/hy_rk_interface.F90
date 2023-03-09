@@ -55,12 +55,13 @@ module hy_rk_interface
   
   
   interface
-     subroutine hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
+     subroutine hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt, isFlux)
        real, pointer :: Uin(:,:,:,:)
        integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
        integer,intent(IN) :: level
        real,dimension(MDIM) :: hy_del
        real, intent(IN) :: dt
+       integer, intent(IN) :: isFlux ! handle as fluxes rather than flux densities?
      end subroutine hy_rk_correctFluxes
   end interface
 
