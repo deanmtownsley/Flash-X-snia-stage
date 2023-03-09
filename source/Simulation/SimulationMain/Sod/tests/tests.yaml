@@ -12,18 +12,21 @@ Composite/Sod/PseudoUG/2d/AMReX/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True  +serialio -unit=IO/IOMain/hdf5/serial/AM
+  setupOptions: -auto -2d +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/sparkMT:
-  setupOptions: -auto -2d -debug +sparkbase2d nontelescoping=True  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+  setupOptions: -auto -2d +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/sparkPIO:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True  +parallelIO
+  setupOptions: -auto -2d +amrex +sparkbase2d  +parallelIO
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 # end PseudoUG AMReX 2d
