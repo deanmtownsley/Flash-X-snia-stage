@@ -70,17 +70,13 @@ jobs:
       run: |
           mydir="$PWD"
           echo $mydir
-          cd $mydir/sites/hello
-          mv Makefile.h Makefile.h.hello
-          wget https://gist.githubusercontent.com/rajeeja/768b83c41c64563e81df84d4021b9bd4/raw/8b4064fb5e6ef728071842d7aef4394ef7d066fb/Makefile.h
-          cd ../..
           export H5_DIR=/home/runner/work/Flash-X/Flash-X/hdf5
           export ABT_DIR=/home/runner/work/Flash-X/Flash-X/vol-async/argobots/
           export VOL_DIR=/home/runner/work/Flash-X/Flash-X/vol-async
           export LD_LIBRARY_PATH=$VOL_DIR/src:$H5_DIR/install/lib:$ABT_DIR/lib:$LD_LIBRARY_PATH
           export HDF5_PLUGIN_PATH="$VOL_DIR/src"
           export HDF5_VOL_CONNECTOR="async under_vol=0;under_info={}"             
-          ./setup ${{ github.event.inputs.name }} -auto -debug -site=hello +parallelIO +hdf5AsyncIO       
+          ./setup ${{ github.event.inputs.name }} -auto -debug -site=hello -makefile=GitHubActions +parallelIO +hdf5AsyncIO       
     - name: Flash make
       run: |
           mydir="$PWD"
