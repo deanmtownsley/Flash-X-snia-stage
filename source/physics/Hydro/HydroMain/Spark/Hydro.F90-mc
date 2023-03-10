@@ -254,7 +254,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !           !all other values are 0.
            @M hy_mapFluxBuf
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:),isFluxDensity=(/.NOT. hy_telescoping/))
+                blkLimits(LOW,:),isFluxDensity=(/hy_telescoping/))
            
            if (hy_geometry /= CARTESIAN) then
               @M hy_fill_geom
