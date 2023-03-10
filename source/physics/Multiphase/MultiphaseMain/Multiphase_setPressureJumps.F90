@@ -54,7 +54,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
    call tileDesc%deltas(del)
 
 #if NDIM < MDIM
-   call Stencils_lsNormals2d(solnData(DFUN_VAR, :, :, :), &
+   call Stencils_lsNormals2d(solnData(RHOC_VAR, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
@@ -80,7 +80,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
 #endif
 
 #else
-   call Stencils_lsNormals3d(solnData(DFUN_VAR, :, :, :), &
+   call Stencils_lsNormals3d(solnData(RHOC_VAR, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
                              solnData(NRMZ_VAR, :, :, :), &
