@@ -1,7 +1,11 @@
 # A shorter test suite file for testing THIS BRANCH with gce
 # comments start with "#"
-# Currently, these are Comparison and Restart tests that have failed
-# during recent testing of Spark-related development. - K. Weide
+
+# These are mostly Comparison and Composite tests that have failed
+# at some point during recent testing of Spark-related development,
+# as well as some additional tests using Spark. The list of tests
+# here is a subset of those in the current Production.suite.
+# - K. Weide
 
 #------------------------------------------------
 # Tests for - Sod

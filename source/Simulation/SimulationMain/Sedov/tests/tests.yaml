@@ -171,7 +171,7 @@ Comparison/Sedov/UG/2d/unsplit:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Comparison/Sedov/UG/2d/spark:
-  setupOptions: -auto -2d -debug +ug +nofbs +spark nontelescoping=True
+  setupOptions: -auto -2d -debug +ug +nofbs +spark
   parfiles: test_pseudoug_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 # end 2d UG
