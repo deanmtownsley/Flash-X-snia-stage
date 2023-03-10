@@ -59,7 +59,7 @@ int Driver_abortC(char* message);
  *
  * DESCRIPTION
  *
- *  Write the header information describing the FLASH dataset into the HDF5 
+ *  Write the header information describing the Flash-X dataset into the HDF5 
  *  file.
  *
  *
@@ -80,7 +80,7 @@ int Driver_abortC(char* message);
  *
  *  file_creation_time    a string giving the current time/date
  *
- *  flash_version         a string giving the version of the FLASH source used
+ *  flash_version         a string giving the version of the Flash-X source used
  *
  *  build_date            a string giving the date that the executable 
  *                        was built
@@ -112,7 +112,7 @@ void FTOC(io_h5write_header)(int* MyPE,
                        char unk_labels[][4],      /* unknown labels */
                        char setup_call[],   /* syntax of setup */
                        char file_creation_time[], /* time and date stamp */
-                       char flash_version[],      /* FLASH version num */
+                       char flash_version[],      /* Flash-X version num */
                        char build_date[],   /* date of compilation */
                        char build_dir[],    /* path of compilation */
                        char build_machine[], /* machine compiled on */

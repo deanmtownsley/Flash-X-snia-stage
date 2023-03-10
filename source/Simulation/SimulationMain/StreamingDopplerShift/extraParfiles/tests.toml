@@ -1,0 +1,6 @@
+# 1D Streaming Doppler Shift test for neutrino radiation transport
+["Comparison/StreamingDopplerShift/PseudoUG/1D/Paramesh"]
+    setupOptions = "-auto -1d +cartesian -nxb=16 +pm4dev +hdf5 +thornado nE=16 swE=1 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V"
+    parfiles = ["test_pseudoug_1d.par"]
+    restartParfiles = ["test_pseudoug_1d_restart.par"]
+    #errTol = 5.0e-13

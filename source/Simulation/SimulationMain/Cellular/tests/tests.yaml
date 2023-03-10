@@ -1,0 +1,27 @@
+# YAML file for test information
+# comments start with "#"
+## Cellular Composite Tests 
+#  This is cellular detonation setup which exercises hydro combined with nuclear burning. Typically done with Approx13 or Approx19 networks. It has a dependency on MA28 library
+
+#### Keywords
+
+#### Motivation
+# Units exercised are Burn, Hydro, Grid, Helmholtz EOS
+
+
+#### Success vs. Failure
+# This is a composite test therefore has two baseline files. The first file
+# flashx_hdf5_chk_0001 is used as comparison test to ensure correct running, the
+# second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
+
+
+Composite/Cellular/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
+  parfiles: test_amr_2d_coldstart.par
+  restartParfiles: test_amr_2d_restart.par
+  transfers: object/helm_table.dat object/SpeciesList.txt
+
+#Comparison/Cellular/AMR/2d/Paramesh/unsplit:
+#  setupOptions: -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
+#  parfiles: test_amr_2d.par
+#  transfers: object/helm_table.dat object/SpeciesList.txt

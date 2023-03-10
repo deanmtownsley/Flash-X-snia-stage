@@ -23,8 +23,8 @@
 !!   Get the string which contains the time stamp of the run.
 !!   This variable is initialized in Driver_init, and updated
 !!   in Logfile_create.  If the Logfile unit is included in a
-!!   Simulation, then the time stamps in the flash.log and the
-!!   flash.dat will match.  
+!!   Simulation, then the time stamps in the flashx.log and the
+!!   flashx.dat will match.  
 !!     
 !!
 !! ARGUMENTS

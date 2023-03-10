@@ -1,0 +1,21 @@
+# YAML file for test information
+
+# These tests are usually being run on 6 procs.
+
+# The following test used to be configured with -debug.
+Composite/HydroStatic/AMR/2d/AMReX:
+  setupOptions: -auto -2d +amrex +nolwf useFortran2003=True
+  parfiles: flash.par
+  restartParfiles: test_amr_2d_restart.par
+
+# The following test used to be configured with -test.
+Composite/HydroStatic/AMR/2d/Paramesh:
+  setupOptions: -auto -2d -test --index-reorder +nolwf useFortran2003=True
+  parfiles: flash.par
+  restartParfiles: test_amr_2d_restart.par
+
+# The following test used to be configured with -test.
+Composite/HydroStatic/AMR/2d/pm4AltMortonBittree:
+  setupOptions: -auto -2d -test +pm4dev +nolwf AltMorton=True Bittree=True useFortran2003=True -noc
+  parfiles: flash.par
+  restartParfiles: test_amr_2d_restart.par

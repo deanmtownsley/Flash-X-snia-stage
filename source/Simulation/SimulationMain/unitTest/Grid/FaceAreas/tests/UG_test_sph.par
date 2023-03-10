@@ -1,0 +1,42 @@
+
+# These exact values are used in the unittest.  They should not be
+# changed here and different values should not be given at setup.
+
+##### PHYSICAL SPACE DISCRETIZATION
+geometry = "spherical"
+
+xmin     =  0.0
+xmax     =  128.0
+ymin     =  0.0
+ymax     =  180.0
+zmin     =  0
+zmax     =  360.
+
+##### UG Configuration
+
+iGridSize = 128
+jGridSize = 32
+kGridSize = 32
+iprocs = 1
+jprocs = 1
+kprocs = 1
+
+gr_enableTiling = .TRUE.
+gr_useTiling = .TRUE.
+gr_tileSizeX = 1
+gr_tileSizeY = 1
+gr_tileSizeZ = 1
+
+##### BOUNDARY CONDITIONS
+xl_boundary_type = "reflect"
+xr_boundary_type = "outflow"
+yl_boundary_type = "reflect"
+yr_boundary_type = "reflect"
+# DEV: One periodic on Z and the other Z not is an unacceptable user error
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
+
+##### EoS CONFIGURATION
+eosMode     = "dens_ie"
+eosModeInit = "dens_temp"
+

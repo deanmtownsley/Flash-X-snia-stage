@@ -123,7 +123,7 @@ subroutine Simulation_init()
      
 !!     call Logfile_stamp("initializing for Isentropic Vortex problem", 'run_init')
      print *, ' '
-     print *, 'flash: ', NDIM, 'dimensional vortex initialization'
+     print *, 'Flash-X: ', NDIM, 'dimensional vortex initialization'
      print *, ' '
      print *, 'Parameters read: '
      print *, ' '

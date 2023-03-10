@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molImplicitUpdate
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@
 !!      dt : Size of the time step to take
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine Simulation_molImplicitUpdate(t, dt)
    use Simulation_data, only: sim_alpha
 
@@ -100,7 +103,7 @@ subroutine Simulation_molImplicitUpdate(t, dt)
             DU = -fac
             DL = -fac
 
-            D = 1d0 + 2d0*fac
+            D = 1.0 + 2.0*fac
 
             B(:, 1) = vars(U_VAR, ilo:ihi, j, k)
             B(:, 2) = vars(V_VAR, ilo:ihi, j, k)

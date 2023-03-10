@@ -1,0 +1,17 @@
+# YAML file for test information
+# comments start with "#"
+
+Comparison/DeleptonizationWave/1dSph/Paramesh:
+  setupOptions: -auto -1d +spherical --index-reorder -nxb=16 -maxblocks=100 nE=5 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoSolver=EMAB -with-unit=source/physics/Eos/EosMain/WeakLib +uhd +pm4dev
+  parfiles: test_sph_1d_mcs.par
+  transfers: object/Chimera_S25+100ms_r_Boltz object/Chimera_S25+100ms_h
+
+Comparison/DeleptonizationWave/2d/Paramesh:
+  setupOptions: -auto -2d +cartesian --index-reorder -nxb=16 -nyb=16 -maxblocks=400 nE=16 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MAXIMUM_ENTROPY_CB thornadoSolver=FIXED_POINT_NESTED_AA -unit=physics/Eos/EosMain/WeakLib
+  parfiles: test_car_2d_mcs.par
+  transfers: object/wl-EOS-SFHo-15-25-50-noBCK.h5
+
+Comparison/DeleptonizationWave/3d/Paramesh:
+  setupOptions: -auto -3d +cartesian --index-reorder -nxb=16 -nyb=16 -nzb=16 -maxblocks=100 nE=8 nSpecies=2 nNodes=2 nMoments=4 momentClosure=MAXIMUM_ENTROPY_CB thornadoSolver=FIXED_POINT_NESTED_AA -unit=physics/Eos/EosMain/WeakLib
+  parfiles: test_3d_mcs.par
+  transfers: object/wl-EOS-SFHo-15-25-50-noBCK.h5

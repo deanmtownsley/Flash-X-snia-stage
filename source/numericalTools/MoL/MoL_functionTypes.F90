@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,11 @@ module MoL_functionTypes
    abstract interface
       !> @brief A RHS procedure
       !! @param t The time to calculate the RHS at
-      subroutine MoL_rhs_t(t)
+      subroutine MoL_rhs_t(t, activeRHS, dtWeight)
          implicit none
          real, intent(in) :: t
+         integer, intent(in) :: activeRHS
+         real, intent(in) :: dtWeight
       end subroutine MoL_rhs_t
    end interface
 

@@ -1,6 +1,6 @@
 !!****f* source/physics/Hydro/Hydro_molFastRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Hydro_molFastRHS(real, intent(in) :: t)
+!!      call Hydro_molFastRHS(real,    intent(in) :: t,
+!                             integer, intent(in) :: activeRHS
+!!                            real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,14 +28,18 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Hydro_molFastRHS(t)
+subroutine Hydro_molFastRHS(t, activeRHS, dtWeight)
 
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    return
 end subroutine Hydro_molFastRHS
