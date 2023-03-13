@@ -42,38 +42,43 @@ subroutine ins_setupPoissonRhs_vardens(divu, &
            d1z, d2z, p1z, p2z1, p2z2, p2z, &
            term1, term2, term3
 
+   real :: invRhoGas
+
+   invRhoGas = 1.0/rhoGas
+
    do k = kz1, kz2
       do i = ix1, ix2
          do j = jy1, jy2
 
-            term1 = (sigx(i + 1, j, k) - sigx(i, j, k))/dx + (sigy(i, j + 1, k) - sigy(i, j, k))/dy
+            term1 = (rhox(i + 1, j, k)*sigx(i + 1, j, k) - rhox(i, j, k)*sigx(i, j, k))/dx + &
+                    (rhoy(i, j + 1, k)*sigy(i, j + 1, k) - rhoy(i, j, k)*sigy(i, j, k))/dy
 
-            d1x = 1.0 - rhoGas*rhox(i + 1, j, k)
+            d1x = invRhoGas - rhox(i + 1, j, k)
             p1x = 2*pxn1(i + 1, j, k) - pxn2(i + 1, j, k)
-            d2x = 1.0 - rhoGas*rhox(i, j, k)
+            d2x = invRhoGas - rhox(i, j, k)
             p2x = 2*pxn1(i, j, k) - pxn2(i, j, k)
 
-            d1y = 1.0 - rhoGas*rhoy(i, j + 1, k)
+            d1y = invRhoGas - rhoy(i, j + 1, k)
             p1y = 2*pyn1(i, j + 1, k) - pyn2(i, j + 1, k)
-            d2y = 1.0 - rhoGas*rhoy(i, j, k)
+            d2y = invRhoGas - rhoy(i, j, k)
             p2y = 2*pyn1(i, j, k) - pyn2(i, j, k)
 
             term2 = (d1x*p1x - d2x*p2x)/dx + (d1y*p1y - d2y*p2y)/dy
 
 #if NDIM == 3
-            term1 = term1 + (sigz(i, j, k + 1) - sigz(i, j, k))/dz
+            term1 = term1 + (rhoz(i, j, k + 1)*sigz(i, j, k + 1) - rhoz(i, j, k)*sigz(i, j, k))/dz
 
-            d1z = 1.0 - rhoGas*rhoz(i, j, k + 1)
+            d1z = invRhoGas - rhoz(i, j, k + 1)
             p1z = 2*pzn1(i, j, k + 1) - pzn2(i, j, k + 1)
-            d2z = 1.0 - rhoGas*rhoz(i, j, k)
+            d2z = invRhoGas - rhoz(i, j, k)
             p2z = 2*pzn1(i, j, k) - pzn2(i, j, k)
 
             term2 = term2 + (d1z*p1z - d2z*p2z)/dz
 #endif
 
-            term3 = (rhoGas/dt)*divu(i, j, k)
+            term3 = (1/dt)*divu(i, j, k)
 
-            divu(i, j, k) = term1 + term2 + term3
+            divu(i, j, k) = rhoGas*(term1 + term2 + term3)
 
          end do
       end do
