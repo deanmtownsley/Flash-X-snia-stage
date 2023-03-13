@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,11 +67,11 @@ contains
       order = 1
       stages = 1
 
-      A(1, 1) = 0d0
+      A(1, 1) = 0.0
 
-      b(1) = 1d0
+      b(1) = 1.0
 
-      c(1) = 0d0
+      c(1) = 0.0
    end subroutine euler_init
 
    !> Second-order Heun's method
@@ -89,14 +89,14 @@ contains
       order = 2
       stages = 2
 
-      A = 0d0
-      A(2, 1) = 1d0
+      A = 0.0
+      A(2, 1) = 1.0
 
-      b(1) = 1d0/2d0
-      b(2) = 1d0/2d0
+      b(1) = 1.0/2.0
+      b(2) = 1.0/2.0
 
-      c(1) = 0d0
-      c(2) = 1d0
+      c(1) = 0.0
+      c(2) = 1.0
    end subroutine rk2_heun_init
 
    !> Third-order RK SSP method
@@ -114,18 +114,18 @@ contains
       order = 3
       stages = 3
 
-      A = 0d0
-      A(2, 1) = 1d0
-      A(3, 1) = 1d0/4d0
-      A(3, 2) = 1d0/4d0
+      A = 0.0
+      A(2, 1) = 1.0
+      A(3, 1) = 1.0/4.0
+      A(3, 2) = 1.0/4.0
 
-      b(1) = 1d0/6d0
-      b(2) = 1d0/6d0
-      b(3) = 2d0/3d0
+      b(1) = 1.0/6.0
+      b(2) = 1.0/6.0
+      b(3) = 2.0/3.0
 
-      c(1) = 0d0
-      c(2) = 1d0
-      c(3) = 1d0/2d0
+      c(1) = 0.0
+      c(2) = 1.0
+      c(3) = 1.0/2.0
    end subroutine rk3_ssp_init
 
    !> Fourth-order RK method
@@ -143,20 +143,20 @@ contains
       order = 4
       stages = 4
 
-      A = 0d0
-      A(2, 1) = 1d0/2d0
-      A(3, 2) = 1d0/2d0
-      A(4, 3) = 1d0
+      A = 0.0
+      A(2, 1) = 1.0/2.0
+      A(3, 2) = 1.0/2.0
+      A(4, 3) = 1.0
 
-      b(1) = 1d0/6d0
-      b(2) = 1d0/3d0
-      b(3) = 1d0/3d0
-      b(4) = 1d0/6d0
+      b(1) = 1.0/6.0
+      b(2) = 1.0/3.0
+      b(3) = 1.0/3.0
+      b(4) = 1.0/6.0
 
-      c(1) = 0d0
-      c(2) = 1d0/2d0
-      c(3) = 1d0/2d0
-      c(4) = 1d0
+      c(1) = 0.0
+      c(2) = 1.0/2.0
+      c(3) = 1.0/2.0
+      c(4) = 1.0
    end subroutine rk4_init
 
 end module erk_tableau

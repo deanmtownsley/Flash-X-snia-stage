@@ -183,7 +183,7 @@ thornado:--with-unit=physics/RadTrans/RadTransMain/TwoMoment/Thornado
 thornadoOMP:+thornado:thornadoOMP=True:-defines=THORNADO_OMP
 thornadoACC:+thornadoGPU:thornadoACC=True:-defines=THORNADO_OACC
 
-weaklib:--with-unit=physics/Eos/EosMain/WeakLib:-defines=MICROPHYSICS_WEAKLIB
+weaklib:useWeaklib=True:--with-unit=physics/Eos/EosMain/WeakLib:-defines=MICROPHYSICS_WEAKLIB
 weaklibACC:+weaklib:weaklibACC=True:-defines=WEAKLIB_OACC
 
 # Shortcut to use starkiller eos

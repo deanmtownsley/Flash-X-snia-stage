@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ subroutine ml_advance(t, dt)
    integer :: s
 
    srcs(1) = MOL_INITIAL
-   facs(1) = 1d0
+   facs(1) = 1.0
 
    do s = 1, ml_nstages
       srcs(2*s) = FE(s)
@@ -45,17 +45,17 @@ subroutine ml_advance(t, dt)
    end do ! s
 
    do s = 1, ml_nstages
-      if ((any(ml_AE(s, 1:s - 1) .ne. 0d0)) .or. (any(ml_AI(s, 1:s - 1) .ne. 0d0))) then
+      if ((any(ml_AE(s, 1:s - 1) .ne. 0.0)) .or. (any(ml_AI(s, 1:s - 1) .ne. 0.0))) then
          facs(2::2) = ml_AE(s, :)*dt
          facs(3::2) = ml_AI(s, :)*dt
 
-         call ml_memAddToVars(MOL_EVOLVED, 0d0, 2*s - 1, srcs(1:2*s - 1), facs(1:2*s - 1))
+         call ml_memAddToVars(MOL_EVOLVED, 0.0, 2*s - 1, srcs(1:2*s - 1), facs(1:2*s - 1))
 
          call ml_postUpdate(t + ml_cE(s)*dt)
          call ml_postUpdateFast(t + ml_cE(s)*dt)
       end if
 
-      if (ml_AI(s, s) .ne. 0d0) then
+      if (ml_AI(s, s) .ne. 0.0) then
          call ml_implicitUpdate(t + ml_cI(s)*dt, ml_AI(s, s)*dt)
       end if
 
@@ -64,13 +64,13 @@ subroutine ml_advance(t, dt)
    end do ! s
 
    ! Final linear combination
-   if (any(ml_bE .ne. 0d0) .or. any(ml_bI .ne. 0d0)) then
+   if (any(ml_bE .ne. 0.0) .or. any(ml_bI .ne. 0.0)) then
       do s = 1, ml_nstages
          facs(2*s) = ml_bE(s)*dt
          facs(2*s + 1) = ml_bI(s)*dt
       end do ! s
 
-      call ml_memAddToVars(MOL_EVOLVED, 0d0, 2*ml_nstages + 1, srcs, facs)
+      call ml_memAddToVars(MOL_EVOLVED, 0.0, 2*ml_nstages + 1, srcs, facs)
 
       call ml_postUpdate(t + dt)
       call ml_postUpdateFast(t + dt)

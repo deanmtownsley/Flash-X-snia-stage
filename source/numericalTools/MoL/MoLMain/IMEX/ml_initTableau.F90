@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,9 @@ subroutine ml_initTableau()
 
    use ml_interface, only: ml_error
 
-   use imex_tableau, only: fbe_init, ssp2_222_init, ssp2_322_init, ssp2_332_init, ssp3_332_init, ssp3_433_init
+   use imex_tableau, only: fbe_init, ssp2_222_init, ssp2_322_init, ssp2_332_init, ssp3_332_init, ssp3_433_init, &
+                           ark_111_init, ark_121_init, ark_122_init, ark_222_init, ark_232_init, ark_233_init, &
+                           ark_343_init, ark_443_init
 
    implicit none
 
@@ -56,6 +58,30 @@ subroutine ml_initTableau()
 
    case ("imex-ssp3-433")
       call ssp3_433_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-111")
+      call ark_111_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-121")
+      call ark_121_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-122")
+      call ark_122_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-222")
+      call ark_222_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-232")
+      call ark_232_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-233")
+      call ark_233_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-343")
+      call ark_343_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
+
+   case ("imex-ark-443")
+      call ark_443_init(ml_AI, ml_bI, ml_cI, ml_AE, ml_bE, ml_cE, ml_order, ml_nstages)
 
    case default
       call ml_error("Unkown IMEX method")
