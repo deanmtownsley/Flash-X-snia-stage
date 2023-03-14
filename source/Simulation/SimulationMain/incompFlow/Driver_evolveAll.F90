@@ -110,7 +110,8 @@ subroutine Driver_evolveAll()
    logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
-              iViscVar, iRhoCVar
+              iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
+              iCurvVar, iAlphVar, iTempGfmVar
    integer :: iteration
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -130,12 +131,17 @@ subroutine Driver_evolveAll()
    ! Get grid variables for heat advection diffusion if
    ! if HeatAD unit is available
    call HeatAD_getGridVar("CENTER_TEMPERATURE", iTempVar)
+   call HeatAD_getGridVar("CENTER_THERMAL_DIFFUSITY", iAlphVar)
+   call HeatAD_getGridVar("CENTER_THERMAL_FORCING", iTempGfmVar)
 #endif
 
 #ifdef MULTIPHASE_MAIN
    ! Get grid variables for level set distance function
    ! if Multiphase unit is available
    call Multiphase_getGridVar("CENTER_LEVELSET", iDfunVar)
+   call Multiphase_getGridVar("CENTER_PHASEFUN_SHARP", iSharpPfunVar)
+   call Multiphase_getGridVar("CENTER_PHASEFUN_SMEARED", iSmearedPfunVar)
+   call Multiphase_getGridVar("CENTER_CURVATURE", iCurvVar)
 
    ! Fill GuardCells for level set function
    ! This is done for book-keeping purposes during
@@ -269,7 +275,7 @@ subroutine Driver_evolveAll()
       call Multiphase_indicators()
       !------------------------------------------------------------
 
-      ! Update fluid properties and pressure jumps
+      ! Update fluid and thermal properties
       ! Loop over blocks (tiles)
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -277,7 +283,9 @@ subroutine Driver_evolveAll()
          call itor%currentTile(tileDesc)
          !---------------------------------------------------------
          call Multiphase_setFluidProps(tileDesc)
-         call Multiphase_setPressureJumps(tileDesc)
+#ifdef MULTIPHASE_EVAPORATION
+         call Multiphase_setThermalProps(tileDesc)
+#endif
          !---------------------------------------------------------
          call itor%next()
       end do
@@ -288,33 +296,52 @@ subroutine Driver_evolveAll()
       gcMask = .FALSE.
       gcMask(iViscVar) = .TRUE.
       gcMask(iRhoCVar) = .TRUE.
-      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(iCurvVar) = .TRUE.
+#ifdef MULTIPHASE_EVAPORATION
+      gcMask(iAlphVar) = .TRUE.
+#endif
+      gcMask(iSharpPfunVar) = .TRUE.
+      gcMask(iSmearedPfunVar) = .TRUE.
+      gcMask(iAlphVar) = .TRUE.
       gcMask(NUNK_VARS + iRhoFVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + iRhoFVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
       gcMask(NUNK_VARS + 2*NFACE_VARS + iRhoFVar) = .TRUE.
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
 
-#ifdef MULTIPHASE_EVAPORATION
-      ! Update thermal properties and apply thermal
-      ! forcing for evaporation
+      ! Update pressure and temperature jumps
+      ! Loop over blocks (tiles)
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
          call itor%currentTile(tileDesc)
          !---------------------------------------------------------
-         call Multiphase_setThermalProps(tileDesc)
+         call Multiphase_setPressureJumps(tileDesc)
+#ifdef MULTIPHASE_EVAPORATION
          call Multiphase_thermalForcing(tileDesc)
+#endif
          !---------------------------------------------------------
          call itor%next()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
+      ! Fill GuardCells for Pressure Jump
+      gcMask = .FALSE.
+#ifdef MULTIPHASE_EVAPORATION
+      gcMask(iTempGfmVar) = .TRUE.
+#endif
+      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#endif
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+
+#ifdef MULTIPHASE_EVAPORATION
       ! Perform extrapolation iterations for
       ! heat flux
       !------------------------------------------------------------

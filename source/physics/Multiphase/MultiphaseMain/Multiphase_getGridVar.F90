@@ -24,6 +24,12 @@ subroutine Multiphase_getGridVar(name, value)
       value = DFUN_VAR
    case ("Center_Levelset_Forcing", "center_Levelset_forcing", "CENTER_LEVELSET_FORCING")
       value = DFRC_VAR
+   case ("Center_Phasefun_Sharp", "center_phasefun_sharp", "CENTER_PHASEFUN_SHARP")
+      value = PFUN_VAR
+   case ("Center_Phasefun_Smeared", "center_phasefun_smeared", "CENTER_PHASEFUN_SMEARED")
+      value = SMHV_VAR
+   case ("Center_Curvature", "center_curvature", "CENTER_CURVATURE")
+      value = CURV_VAR
 #ifdef MULTIPHASE_EVAPORATION
    case ("Center_Massflux", "center_massflux", "CENTER_MASSFLUX")
       value = MFLX_VAR

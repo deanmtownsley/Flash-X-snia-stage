@@ -1,4 +1,4 @@
-subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
+subroutine mph_setEvapJumps2d(phi, pf, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -16,18 +16,16 @@ subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, 
    !-----Argument list-------------------
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy, rhoGas
-   real, dimension(:, :, :), intent(in) :: phi, mflux
+   real, dimension(:, :, :), intent(in) :: phi, mflux, pf
    real, dimension(:, :, :), intent(inout) :: sigx, sigy
 
    !-------Local variables---------------
-   real, dimension(ix1:ix2, jy1:jy2, 1) :: pf
    real :: th, xijl, xijr, xij, yij, yijl, yijr
    integer :: i, j, k
    real :: bb, aa
 
    bb = (1./rhoGas) - 1
    k = 1
-   pf(ix1:ix2, jy1:jy2, k) = (sign(1.0, phi(ix1:ix2, jy1:jy2, k)) + 1.0)/2.0
 
    !--Need to loop through one guard cell on each side to set jumps
    !---when they cross block boundaries

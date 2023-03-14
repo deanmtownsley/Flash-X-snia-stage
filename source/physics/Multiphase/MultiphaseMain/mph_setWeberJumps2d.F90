@@ -1,4 +1,4 @@
-subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2, jy1, jy2)
+subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2, jy1, jy2)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -16,18 +16,14 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2
    !-----Argument list-------------------
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy, invWbr, rhoGas
-   real, dimension(:, :, :), intent(in) :: phi
+   real, dimension(:, :, :), intent(in) :: phi, crv, pf
    real, dimension(:, :, :), intent(inout) :: sigx, sigy
 
    !-------Local variables---------------
-   real, dimension(ix1:ix2, jy1:jy2, 1) :: crv, pf
    real :: th, aa, xijl, xijr, &
            cri, xij, yij, yijl, yijr
    integer :: i, j, k
    real, parameter :: eps = 1E-13
-   real :: rPhiXN, rPhiXE, rPhiXS, rPhiXW, &
-           rPhiYN, rPhiYE, rPhiYS, rPhiYW, &
-           rMagN, rMagE, rMagS, rMagW
 
    !--------------------------------------------
    !----------------jump conditions ------------
@@ -49,42 +45,6 @@ subroutine mph_setWeberJumps2d(phi, sigx, sigy, dx, dy, invWbr, rhoGas, ix1, ix2
    !--------------------------------------------
 
    k = 1
-   crv = 0.
-
-   pf(ix1:ix2, jy1:jy2, k) = (sign(1.0, phi(ix1:ix2, jy1:jy2, k)) + 1.0)/2.0
-
-   do j = jy1 + 1, jy2 - 1
-      do i = ix1 + 1, ix2 - 1
-         !----------------------------------------------------
-         !--------------2 phi gradients per face method------
-         !----------------------------------------------------
-         !        X - Location
-         rPhiXE = 1./dx*(phi(i + 1, j, k) - phi(i, j, k))
-         rPhiXW = 1./dx*(phi(i, j, k) - phi(i - 1, j, k))
-         rPhiXN = 1./4./dx*((phi(i + 1, j + 1, k) - phi(i - 1, j + 1, k)) &
-                            + (phi(i + 1, j, k) - phi(i - 1, j, k)))
-         rPhiXS = 1./4./dx*((phi(i + 1, j, k) - phi(i - 1, j, k)) &
-                            + (phi(i + 1, j - 1, k) - phi(i - 1, j - 1, k)))
-         !        Y - Location
-         rPhiYN = 1./dy*(phi(i, j + 1, k) - phi(i, j, k))
-         rPhiYS = 1./dy*(phi(i, j, k) - phi(i, j - 1, k))
-         rPhiYE = 1./4./dy*((phi(i + 1, j + 1, k) - phi(i + 1, j - 1, k)) &
-                            + (phi(i, j + 1, k) - phi(i, j - 1, k)))
-         rPhiYW = 1./4./dy*((phi(i, j + 1, k) - phi(i, j - 1, k)) &
-                            + (phi(i - 1, j + 1, k) - phi(i - 1, j - 1, k)))
-         !----------------------------------------------------
-
-         !----Compute the magnitude of the gradient at each face
-         rMagE = sqrt(rPhiXE**2.+rPhiYE**2.) + eps
-         rMagW = sqrt(rPhiXW**2.+rPhiYW**2.) + eps
-         rMagN = sqrt(rPhiXN**2.+rPhiYN**2.) + eps
-         rMagS = sqrt(rPhiXS**2.+rPhiYS**2.) + eps
-
-         crv(i, j, k) = 1./dx*(rPhiXE/rMagE - rPhiXW/rMagW) &
-                        + 1./dy*(rPhiYN/rMagN - rPhiYS/rMagS)
-         !----------------------------------------------------
-      end do
-   end do
 
    !--Need to loop through one guard cell on each side to set jumps
    !---when they cross block boundaries

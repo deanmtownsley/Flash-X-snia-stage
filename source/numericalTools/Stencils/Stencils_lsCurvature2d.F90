@@ -9,10 +9,11 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-subroutine mph_setEvapJumps2d(phi, pf, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
+!!
+subroutine Stencils_lsCurvature2d(crv, phi, dx, dy, ix1, ix2, jy1, jy2)
    implicit none
    integer, intent(in) :: ix1, ix2, jy1, jy2
-   real, intent(in) :: dx, dy, rhoGas
-   real, dimension(:, :, :), intent(in) :: phi, mflux, pf
-   real, dimension(:, :, :), intent(inout) :: sigx, sigy
-end subroutine mph_setEvapJumps2d
+   real, intent(in) :: dx, dy
+   real, dimension(:, :, :), intent(in) :: phi
+   real, dimension(:, :, :), intent(inout) :: crv
+end subroutine Stencils_lsCurvature2d

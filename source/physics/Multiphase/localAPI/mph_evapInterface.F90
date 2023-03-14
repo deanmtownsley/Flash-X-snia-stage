@@ -129,21 +129,21 @@ Module mph_evapInterface
    end interface
 
    interface
-      subroutine mph_setEvapJumps2d(phi, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
+      subroutine mph_setEvapJumps2d(phi, pf, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2
          real, intent(in) :: dx, dy, rhoGas
-         real, dimension(:, :, :), intent(in) :: phi, mflux
+         real, dimension(:, :, :), intent(in) :: phi, mflux, pf
          real, dimension(:, :, :), intent(inout) :: sigx, sigy
       end subroutine mph_setEvapJumps2d
    end interface
 
    interface
-      subroutine mph_setEvapJumps3d(phi, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
          real, intent(in) :: dx, dy, dz, rhoGas
-         real, dimension(:, :, :), intent(in) :: phi, mflux
+         real, dimension(:, :, :), intent(in) :: phi, mflux, pf
          real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
       end subroutine mph_setEvapJumps3d
    end interface
