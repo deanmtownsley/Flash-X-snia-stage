@@ -1,12 +1,26 @@
-!!****if* RadTrans/RadTransMain/TwoMoment/Thornado/RadTrans_prolongDgData
+!!****if* RadTrans/RadTransMain/TwoMoment/Thornado/RadTrans_prolongDgData_simple
+!! NOTICE
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
-!!  RadTrans_prolongDgData
+!!  RadTrans_prolongDgData_simple
 !!
 !! SYNOPSIS
 !!
 !!  call RadTrans_prolongDgData(real(IN)   ,dimension(:,:,:) :: inData(:,:,:),
+!!                              real(INOUT),dimension(:,:,:) :: outData(:,:,:),
+!!                              integer(IN),dimension(MDIM)  :: skip(3))
+!!  call RadTrans_prolongDgData_simple(real(IN)   ,dimension(:,:,:) :: inData(:,:,:),
 !!                              real(INOUT),dimension(:,:,:) :: outData(:,:,:),
 !!                              integer(IN),dimension(MDIM)  :: skip(3))
 !!
@@ -35,13 +49,14 @@
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
 !!  2022-09-22 Added skip to the interface          - Klaus Weide
+!!  2023-03-14 Named RadTrans_prolongDgData_simple  - Klaus Weide
 !!
 !!***
 
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine RadTrans_prolongDgData(inData,outData,skip)
+subroutine RadTrans_prolongDgData_simple(inData,outData,skip)
 
   Use TwoMoment_MeshRefinementModule, Only : &
      RefineX_TwoMoment
@@ -122,4 +137,4 @@ subroutine RadTrans_prolongDgData(inData,outData,skip)
      end do
   end do
 
-end subroutine RadTrans_prolongDgData
+end subroutine RadTrans_prolongDgData_simple

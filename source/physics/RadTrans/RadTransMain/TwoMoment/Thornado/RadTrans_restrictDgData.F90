@@ -103,7 +103,7 @@ subroutine RadTrans_restrictDgData(inData,outData)
               kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k1
               jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j1
               ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i1
-              outdata(ii,jj,kk) = U_Crse(iNodeX)
+              outData(ii,jj,kk) = U_Crse(iNodeX)
            end do
 
         end do
