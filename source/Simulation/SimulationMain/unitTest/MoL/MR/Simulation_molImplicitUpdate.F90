@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/MoL/MR/Simulation_molImplicitUpdate
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@
 !!      dt : Size of the time step to take
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine Simulation_molImplicitUpdate(t, dt)
    use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS
 
@@ -56,10 +59,10 @@ subroutine Simulation_molImplicitUpdate(t, dt)
    real :: u, v, A, B, cost, cosbt, f, dfdv, dv, v0
 
    integer, parameter :: max_iterations = 100
-   real, parameter :: tol = 1d-10
+   real, parameter :: tol = 1e-10
 
-   A = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   B = 0.5d0*sim_lambdaS
+   A = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   B = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -89,11 +92,11 @@ subroutine Simulation_molImplicitUpdate(t, dt)
 
                ! Newton solve
                NewtonIteration: do n = 1, max_iterations
-                  f = v - v0 - dt*(A*(u**2 - cosbt - 3d0)/u + B*(v**2 - cost - 2d0)/v)
+                  f = v - v0 - dt*(A*(u**2 - cosbt - 3.0)/u + B*(v**2 - cost - 2.0)/v)
 
-                  ! if (f .eq. 0d0) exit NewtonIteration
+                  ! if (f .eq. 0.0) exit NewtonIteration
 
-                  dfdv = 1d0 - dt*(B*(v**2 + cost + 2d0)/v**2)
+                  dfdv = 1.0 - dt*(B*(v**2 + cost + 2.0)/v**2)
                   dv = f/dfdv
 
                   v = v - dv

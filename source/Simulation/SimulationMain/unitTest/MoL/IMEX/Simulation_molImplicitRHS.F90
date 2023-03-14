@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/Simulation_molImplicitRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -30,9 +30,12 @@
 !!
 !!      t         : Current time
 !!      activeRHS : RHS data struct to fill
-!!      dtWeight  : Weight timestep (e.g. for flux corrections)
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
+
+!!REORDER(4): vars,rhs
+
 subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS, U_RHS, V_RHS
 
@@ -60,11 +63,11 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    integer :: i, j, k
    real :: u, v, Au, Bu, Av, Bv, cost, cosbt
 
-   Au = 0.5d0*sim_lambdaF
-   Bu = 0.5d0*(1d0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
+   Au = 0.5*sim_lambdaF
+   Bu = 0.5*(1.0 - sim_epsilon)*(sim_lambdaF - sim_lambdaS)/sim_alpha
 
-   Av = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   Bv = 0.5d0*sim_lambdaS
+   Av = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   Bv = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -90,12 +93,12 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
                v = vars(V_VAR, i, j, k)
 
                rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) &
-                                     + (Au*(u**2 - cosbt - 3d0) - 0.5d0*sim_beta*sin(sim_beta*t))/u &
-                                     + Bu*(v**2 - cost - 2d0)/v
+                                     + (Au*(u**2 - cosbt - 3.0) - 0.5*sim_beta*sin(sim_beta*t))/u &
+                                     + Bu*(v**2 - cost - 2.0)/v
 
                rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
-                                     + Av*(u**2 - cosbt - 3d0)/u &
-                                     + Bv*(v**2 - cost - 2d0)/v
+                                     + Av*(u**2 - cosbt - 3.0)/u &
+                                     + Bv*(v**2 - cost - 2.0)/v
             end do ! i
          end do ! j
       end do ! k

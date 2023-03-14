@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/MoL/Driver_evolveAll
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ subroutine Driver_evolveAll()
                               dr_molPostTimeStep, &
                               dr_molPostRegrid
 
-   use sim_interface, only: sim_verifySolution
+   use sim_molInterface, only: sim_molVerifySolution
 
 #include "Simulation.h"
 #include "constants.h"
@@ -208,7 +208,7 @@ subroutine Driver_evolveAll()
 
    end do
 
-   call sim_verifySolution(dr_simTime, dr_dt, valid, maxError)
+   call sim_molVerifySolution(dr_simTime, dr_dt, valid, maxError)
    if (dr_globalMe == MASTER_PE) then
       print *, "MoL unit test passed?", valid
       print *, "Max error: ", maxError

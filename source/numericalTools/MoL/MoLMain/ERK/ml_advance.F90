@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,13 +39,13 @@ subroutine ml_advance(t, dt)
    srcs(1) = MOL_INITIAL
    srcs(2:) = ml_K
 
-   facs(1) = 1d0
+   facs(1) = 1.0
 
    do s = 1, ml_stages
-      if (ml_c(s) .gt. 0d0) then
+      if (ml_c(s) .gt. 0.0) then
          facs(2:) = ml_A(s, :)*dt
 
-         call ml_memAddToVars(MOL_EVOLVED, 0d0, s, srcs(:s), facs(:s))
+         call ml_memAddToVars(MOL_EVOLVED, 0.0, s, srcs(:s), facs(:s))
 
          call ml_postUpdate(t + ml_c(s)*dt)
          call ml_postUpdateFast(t + ml_c(s)*dt)
@@ -56,7 +56,7 @@ subroutine ml_advance(t, dt)
 
    ! Final linear combination
    facs(2:) = ml_b*dt
-   call ml_memAddToVars(MOL_EVOLVED, 0d0, ml_stages + 1, srcs, facs)
+   call ml_memAddToVars(MOL_EVOLVED, 0.0, ml_stages + 1, srcs, facs)
 
    call ml_postUpdate(t + dt)
    call ml_postUpdateFast(t + dt)

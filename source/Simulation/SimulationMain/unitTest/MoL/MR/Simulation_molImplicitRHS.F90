@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/MoL/MR/Simulation_molImplicitRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -30,9 +30,12 @@
 !!
 !!      t         : Current time
 !!      activeRHS : RHS data struct to fill
-!!      dtWeight  : Weight timestep (e.g. for flux corrections)
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
+
+!!REORDER(4): vars,rhs
+
 subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_alpha, sim_beta, sim_epsilon, sim_lambdaF, sim_lambdaS, V_RHS
 
@@ -60,8 +63,8 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    integer :: i, j, k
    real :: u, v, A, B, cost, cosbt
 
-   A = -0.5d0*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
-   B = 0.5d0*sim_lambdaS
+   A = -0.5*sim_alpha*sim_epsilon*(sim_lambdaF - sim_lambdaS)
+   B = 0.5*sim_lambdaS
 
    cost = cos(t)
    cosbt = cos(sim_beta*t)
@@ -88,8 +91,8 @@ subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
                v = vars(V_VAR, i, j, k)
 
                rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
-                                     + A*(u**2 - cosbt - 3d0)/u &
-                                     + B*(v**2 - cost - 2d0)/v
+                                     + A*(u**2 - cosbt - 3.0)/u &
+                                     + B*(v**2 - cost - 2.0)/v
             end do ! i
          end do ! j
       end do ! k

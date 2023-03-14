@@ -35,6 +35,8 @@ unitTest/Poisson/Amrex -t "UnitTest/Multigrid/AMReX/3d" -np 1
 #------------------------------------------------
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 1
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dSph/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/Paramesh" -np 3
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/AMReX" -np 3
 unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/Paramesh" -np 2
@@ -51,16 +53,6 @@ incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
 #------------------------------------------------
 unitTest/MoL/MR -t "UnitTest/MoL/MR/GARK3" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/FBE" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-222" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-322" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2-332" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3-332" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3-433" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-111" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-121" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-122" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-222" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-232" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-233" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-343" -np 1
-unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK-443" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK" -np 1

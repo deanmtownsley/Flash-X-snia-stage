@@ -1,4 +1,4 @@
-# Parameter file for the Brusselator (advection-diffusion-reaction test) problem
+# Parameter file for the MoL IMEX KPR unit test using IMEX-ARK-111
 
 sim_alpha   =   1.0
 sim_beta    =  20.0
@@ -7,9 +7,6 @@ sim_lambdaF = -10.0
 sim_lambdaS =  -1.0
 
 # Grid information
-
-nblockx = 1
-iprocs  = 1
 
 geometry = "cartesian"
 
@@ -29,7 +26,7 @@ tmax = 7.85398
 sim_k = 8
 nend = 640
 
-imex_method = "imex-ark-122"
+imex_method = "imex-ark-111"
 
 # I/O (none really)
 
@@ -38,6 +35,5 @@ restart = .false.
 checkpointFileIntervalTime = 1000.0
 plotFileIntervalTime       = 1000.0
 
-basenm      = "unitTest_MoL_MR_"
 log_file    = "unitTest_MoL_MR.log"
 run_comment = "MoL MR Unit Test"

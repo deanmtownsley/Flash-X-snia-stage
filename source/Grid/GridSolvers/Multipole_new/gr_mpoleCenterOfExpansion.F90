@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleCenterOfExpansion
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -37,8 +37,10 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
 
   use gr_mpoleInterface, ONLY : gr_mpoleCen3Dcartesian,   &
                                 gr_mpoleCen2Dcylindrical, &
-                                gr_mpoleCen2Dspherical,   &
+                                gr_mpoleCen2Dspherical, &
+                                gr_mpoleCen3Dspherical, &
                                 gr_mpoleCen1Dspherical
+  
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -63,6 +65,10 @@ subroutine gr_mpoleCenterOfExpansion (idensvar)
     case (GRID_2DCYLINDRICAL)
 
           call gr_mpoleCen2Dcylindrical (idensvar)
+
+    case (GRID_3DSPHERICAL)
+
+          call gr_mpoleCen3Dspherical   (idensvar)
 
     case (GRID_2DSPHERICAL)
 

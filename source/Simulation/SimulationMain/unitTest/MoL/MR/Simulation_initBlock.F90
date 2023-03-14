@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/unitTest/MoL/MR/Simulation_initBlock
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@
 !!  blockDesc -        describes the block to initialize
 !!
 !!***
+
+!!REORDER(4): vars
+
 subroutine Simulation_initBlock(vars, tileDesc)
    use Simulation_data, only: sim_beta
 
@@ -57,8 +60,8 @@ subroutine Simulation_initBlock(vars, tileDesc)
    do k = tileDesc%limits(LOW, KAXIS), tileDesc%limits(HIGH, KAXIS)
       do j = tileDesc%limits(LOW, JAXIS), tileDesc%limits(HIGH, JAXIS)
          do i = tileDesc%limits(LOW, IAXIS), tileDesc%limits(HIGH, IAXIS)
-            vars(U_VAR, i, j, k) = 2d0
-            vars(V_VAR, i, j, k) = sqrt(3d0)
+            vars(U_VAR, i, j, k) = 2.0
+            vars(V_VAR, i, j, k) = sqrt(3.0)
          end do ! i
       end do ! j
    end do ! k

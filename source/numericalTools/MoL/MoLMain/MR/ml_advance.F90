@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,7 @@ subroutine ml_advance(t, dt)
    srcsF(1) = FAST_INITIAL
    srcsF(2:) = FF
 
-   facsF(1) = 1d0
+   facsF(1) = 1.0
 
    dtheta = dt/ml_nsubcycle
 
@@ -57,7 +57,7 @@ subroutine ml_advance(t, dt)
          t_stage = t + ml_cS(sS)*dt
 
          ! If necessary, calculate the intermediate state for the RHS evaluation
-         if (ml_cS(sS) .gt. 0d0) then
+         if (ml_cS(sS) .gt. 0.0) then
 
             ! Store source terms and scaling factors for the linear combination
             do j = 1, sS - 1, 2
@@ -69,13 +69,13 @@ subroutine ml_advance(t, dt)
             end do
 
             ! U^j = U^n + dt*A^ji rhs_i
-            call ml_memAddToVars(MOL_EVOLVED, 1d0, sS - 1, srcsS(:sS - 1), facsS(:sS - 1))
+            call ml_memAddToVars(MOL_EVOLVED, 1.0, sS - 1, srcsS(:sS - 1), facsS(:sS - 1))
 
             ! Perform post-update work, e.g. con2prim, filling guard cells
             call ml_postUpdate(t_stage)
 
             ! Perform an necessary implicit update
-            if (ml_gamBar(sS, sS) .gt. 0d0) then
+            if (ml_gamBar(sS, sS) .gt. 0.0) then
                call ml_implicitUpdate(t_stage, ml_gamBar(sS, sS)*dt)
             end if
          end if
@@ -85,7 +85,7 @@ subroutine ml_advance(t, dt)
          call ml_calcRHS(MOL_RHS_IMPLICIT, FI(sS), t_stage, ml_gamBar(ml_nstages_slow, sS)*dt)
       else
          ! Fast stage
-         theta = 0d0
+         theta = 0.0
 
          ! The time that this stage starts at
          t_stage = t + ml_cS(sS - 1)*dt
@@ -104,18 +104,18 @@ subroutine ml_advance(t, dt)
                t_fast_stage = t_fast + dc*ml_cF(sF)*dtheta
 
                ! If necessary, compute the intermediate state for the RHS evaluation
-               if (ml_cF(sF) .gt. 0d0) then
+               if (ml_cF(sF) .gt. 0.0) then
                   ! Scaling factors from the tableau
                   facsF(2:sF) = ml_AF(sF, :sF - 1)*dtheta
 
                   ! Linear combination of RHS terms for this stage
-                  call ml_memAddToVars(MOL_EVOLVED, 0d0, sF, srcsF(:sF), facsF(:sF))
+                  call ml_memAddToVars(MOL_EVOLVED, 0.0, sF, srcsF(:sF), facsF(:sF))
 
                   ! Guard-cell filling, etc.
                   call ml_postUpdateFast(t_fast_stage)
                end if
 
-               if (dc .gt. 0d0) then
+               if (dc .gt. 0.0) then
                   call ml_calcRHS(MOL_RHS_FAST, FF(sF), t_fast_stage, ml_bF(sF)*dtheta)
                end if
 
@@ -136,7 +136,7 @@ subroutine ml_advance(t, dt)
 
             ! Final linear combination
             facsF(2:) = ml_bF*dtheta
-            call ml_memAddToVars(MOL_EVOLVED, 0d0, ml_nstages_fast + 1, srcsF, facsF)
+            call ml_memAddToVars(MOL_EVOLVED, 0.0, ml_nstages_fast + 1, srcsF, facsF)
 
             ! Update the time for the next fast (sub)step
             theta = theta + dtheta

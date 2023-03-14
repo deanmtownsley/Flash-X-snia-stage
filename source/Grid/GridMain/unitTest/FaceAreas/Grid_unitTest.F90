@@ -218,10 +218,10 @@ subroutine Grid_unitTest(fileUnit, perfect)
         call Grid_getDeltas(ilev, deltas)
 
         x_expected = XDELTA_EX / 2.0**(ilev - 1)
-        call assertEqual(deltas(IAXIS),x_expected,"Incorrect delta of  X-coordinate")
+        call assertEqual(deltas(IAXIS),x_expected,"Incorrect delta of X-coordinate")
 #if NDIM >= 2
         y_expected = YDELTA_EX / 2.0**(ilev - 1)
-        call assertEqual(deltas(JAXIS),y_expected,"Incorrect delta of  Y-coordinate")
+        call assertEqual(deltas(JAXIS),y_expected,"Incorrect delta of Y-coordinate")
 #endif
 #if NDIM == 3
         z_expected = ZDELTA_EX / 2.0**(ilev - 1)
@@ -314,9 +314,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
     call Grid_releaseTileIterator(itor)
     
     ! Confirm proper number of blocks and cells
-    call assertEqual(xBlkMin, 1, "Incorrect number of blocks along X-axis")
-    call assertEqual(yBlkMin, 1, "Incorrect number of blocks along Y-axis")
-    call assertEqual(zBlkMin, 1, "Incorrect number of blocks along Z-axis")
+    call assertEqual(xBlkMin, 1, "Incorrect lowest cell index along X-axis")
+    call assertEqual(yBlkMin, 1, "Incorrect lowest cell index along Y-axis")
+    call assertEqual(zBlkMin, 1, "Incorrect lowest cell index along Z-axis")
 
     call assertEqual(n_blocks, &
 #if NDIM == 1

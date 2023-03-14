@@ -1,6 +1,6 @@
-!!****if* source/Grid/GridMain/paramesh/gr_markRefineDerefine
+!!****if* source/Grid/GridMain/AMR/Paramesh4/gr_markRefineDerefine
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -16,39 +16,39 @@
 !!
 !! SYNOPSIS
 !!
-!!  gr_markRefineDerefine(integer(IN) :: iref,
-!!                        real(IN) :: refine_cutoff,
-!!                        real(IN) :: derefine_cutoff,
-!!                        real(IN) :: refine_filter)
+!!  call gr_markRefineDerefine(real(IN) :: error(MAXBLOCKS),
+!!                             real(IN) :: refine_cutoff,
+!!                             real(IN) :: derefine_cutoff)
 !!  
 !!  DESCRIPTION
 !!  
-!!    Blocks are marked for refining or derefining.
-!!    This version uses the second derivative calculations on the specified variable to 
-!!    determine if the block needs more resoultion (refine) or less resolution (derefine).
+!!    Blocks are marked for refining or derefining based on error estimates.
+!!
+!!    The error estimates passed in as the first argument are typically obtained by
+!!    second derivative calculations on one of a set of specified variables to
+!!    determine if the block needs more resolution (refine) or less resolution (derefine).
 !!    The arguments de/refine_cutoff are the thresholds for triggering the corresponding action.
 !!
 !!    After blocks have been marked, control is meant to be passed to Paramesh for actually
 !!    updating the refinement of the grid.
 !!
-!!  ARGUMENTS 
+!!  ARGUMENTS
 !!
-!!
-!!    iref - index of the refinement variable in data structure "unk"
+!!    error - an array containing estimates of the largest errors of each block.
+!!            These numbers are relative numbers typically in the range 0.0 .. 1.0
+!!            that are directly comparable to refine_cutoff and derefine_cutoff values.
 !!
 !!    refine_cutoff - the threshold value for triggering refinement 
 !!
-!!    derefine_cutoff - the threshold for triggereing derefinement
+!!    derefine_cutoff - the threshold for triggering derefinement
 !!
-!!    refine_filter - makes sure that error calculations to determine refinement
-!!                    don't diverge numerically 
-!! 
 !!  NOTES
 !!  
 !!    See Grid_markRefineDerefine
 !!
 !!  SEE ALSO
-!!  
+!!
+!!    gr_estimateError
 !!    Grid_markRefineDerefine
 !!
 !!***
@@ -62,10 +62,11 @@ subroutine gr_markRefineDerefine(error, refine_cutoff,derefine_cutoff)
 
 #include "Flashx_mpi_implicitNone.fh"
 #include "Simulation.h"
-#include "constants.h"  
+#include "constants.h"
+
+  real, intent(IN) :: error(MAXBLOCKS)
   real, intent(IN) :: refine_cutoff, derefine_cutoff
-  real,intent(IN) :: error(MAXBLOCKS)
-  
+
   integer ierr
   integer nsend,nrecv
   integer reqr(MAXBLOCKS),reqs(MAXBLOCKS*nchild)

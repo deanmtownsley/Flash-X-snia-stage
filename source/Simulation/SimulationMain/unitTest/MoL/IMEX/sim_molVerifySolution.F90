@@ -1,7 +1,7 @@
 
-!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/sim_verifySolution
+!!****if* source/Simulation/SimulationMain/unitTest/MoL/IMEX/sim_molVerifySolution
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  sim_verifySolution
+!!  sim_molVerifySolution
 !!
 !!
 !! SYNOPSIS
-!!  call sim_verifySolution(real,    intent(in)  :: t,
+!!  call sim_molVerifySolution(real,    intent(in)  :: t,
 !!                          real,    intent(in)  :: dt,
 !!                          logical, intent(out) :: valid,
 !!                          real,    intent(out) :: maxError)
@@ -38,7 +38,10 @@
 !!               to determine if the solution was valid
 !!
 !!***
-subroutine sim_verifySolution(t, dt, valid, maxError)
+
+!!REORDER(4): vars
+
+subroutine sim_molVerifySolution(t, dt, valid, maxError)
    use Simulation_data, only: sim_beta
 
    use Grid_interface, only: Grid_getTileIterator, Grid_releaseTileIterator
@@ -68,11 +71,11 @@ subroutine sim_verifySolution(t, dt, valid, maxError)
 
    real :: errorTolerance
 
-   errorTolerance = 2d0*dt**(MoL_getOrder() - 1)
+   errorTolerance = 2.0*dt**(MoL_getOrder() - 1)
 
    nullify (vars)
 
-   maxError = 0d0
+   maxError = 0.0
    valid = .false.
 
    ! No guard-cell filling necessary - just a bunch of local equations to solve
@@ -91,8 +94,8 @@ subroutine sim_verifySolution(t, dt, valid, maxError)
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
-               u_actual = sqrt(3d0 + cos(sim_beta*t))
-               v_actual = sqrt(2d0 + cos(t))
+               u_actual = sqrt(3.0 + cos(sim_beta*t))
+               v_actual = sqrt(2.0 + cos(t))
 
                u_err = abs(vars(U_VAR, i, j, k) - u_actual)
                v_err = abs(vars(V_VAR, i, j, k) - v_actual)
@@ -111,4 +114,4 @@ subroutine sim_verifySolution(t, dt, valid, maxError)
    call Grid_releaseTileIterator(itor)
 
    if (maxError .lt. errorTolerance) valid = .true.
-end subroutine sim_verifySolution
+end subroutine sim_molVerifySolution

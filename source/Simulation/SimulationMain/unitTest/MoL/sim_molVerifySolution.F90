@@ -1,6 +1,6 @@
-!!****f* source/Simulation/SimulationMain/unitTest/MoL/sim_verifySolution
+!!****f* source/Simulation/SimulationMain/unitTest/MoL/sim_molVerifySolution
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -12,14 +12,14 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  sim_verifySolution
+!!  sim_molVerifySolution
 !!
 !!
 !! SYNOPSIS
-!!  call sim_verifySolution(real,    intent(in)  :: t,
-!!                          real,    intent(in)  :: dt,
-!!                          logical, intent(out) :: valid,
-!!                          real,    intent(out) :: maxError)
+!!  call sim_molVerifySolution(real,    intent(in)  :: t,
+!!                             real,    intent(in)  :: dt,
+!!                             logical, intent(out) :: valid,
+!!                             real,    intent(out) :: maxError)
 !!
 !!
 !! DESCRIPTION
@@ -37,7 +37,7 @@
 !!               to determine if the solution was valid
 !!
 !!***
-subroutine sim_verifySolution(t, dt, valid, maxError)
+subroutine sim_molVerifySolution(t, dt, valid, maxError)
    implicit none
 
    real, intent(in) :: t, dt
@@ -46,5 +46,5 @@ subroutine sim_verifySolution(t, dt, valid, maxError)
 
    ! The stub should break the unit test...
    valid = .false.
-   maxError = 1d40
-end subroutine sim_verifySolution
+   maxError = 1e40
+end subroutine sim_molVerifySolution
