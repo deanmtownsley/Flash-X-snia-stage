@@ -125,7 +125,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip)
 
            ! offsets of first child element in output data
            k0 = 1 + (refine_factor*(k1-1)-skip(3))*K3D
-           j0 = 1 + (refine_factor*(j1-1)-skip(2))*K1uD
+           j0 = 1 + (refine_factor*(j1-1)-skip(2))*K2D
            i0 = 1 +  refine_factor*(i1-1)-skip(1)      ! 1, 5, 9, 13
 
            ! loop over fine grid element for this parent element
