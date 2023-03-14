@@ -61,8 +61,8 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             faceyData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), &
                             mph_invWeber, mph_rhoGas, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC)
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps2d(solnData(DFUN_VAR, :, :, :), &
@@ -71,8 +71,8 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                            faceyData(mph_iJumpVar, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
                            del(DIR_X), del(DIR_Y), &
-                           GRID_ILO_GC, GRID_IHI_GC, &
-                           GRID_JLO_GC, GRID_JHI_GC)
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI)
 #endif
 
 #else
@@ -85,9 +85,9 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             facezData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
                             mph_invWeber, mph_rhoGas, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC, &
-                            GRID_KLO_GC, GRID_KHI_GC)
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI, &
+                            GRID_KLO, GRID_KHI)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps3d(solnData(DFUN_VAR, :, :, :), &
@@ -97,9 +97,9 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                            facezData(mph_iJumpVar, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
                            del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                           GRID_ILO_GC, GRID_IHI_GC, &
-                           GRID_JLO_GC, GRID_JHI_GC, &
-                           GRID_KLO_GC, GRID_KHI_GC)
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           GRID_KLO, GRID_KHI)
 #endif
 
 #endif

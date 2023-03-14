@@ -131,7 +131,7 @@ subroutine Driver_evolveAll()
    ! Get grid variables for heat advection diffusion if
    ! if HeatAD unit is available
    call HeatAD_getGridVar("CENTER_TEMPERATURE", iTempVar)
-   call HeatAD_getGridVar("CENTER_THERMAL_DIFFUSITY", iAlphVar)
+   call HeatAD_getGridVar("CENTER_THERMAL_DIFFUSIVITY", iAlphVar)
    call HeatAD_getGridVar("CENTER_THERMAL_FORCING", iTempGfmVar)
 #endif
 

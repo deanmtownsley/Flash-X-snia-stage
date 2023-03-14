@@ -284,20 +284,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -355,20 +355,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -425,20 +425,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
 
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -495,20 +495,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -566,20 +566,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -646,20 +646,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -729,20 +729,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -801,20 +801,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -871,20 +871,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -941,20 +941,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -1012,20 +1012,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then
@@ -1092,20 +1092,20 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
-                  else if (ivar == SIGM_FACE_VAR) then
-                     if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
-                        k = 2*guard + 2
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-
-                     else
-                        k = 2*guard + 1
-                        do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = 0.
-                        end do
-                     end if
+                  !else if (ivar == SIGM_FACE_VAR) then
+                  !   if (isFace) then
+                  !      regionData(guard + 1, 1:je, 1:ke, ivar) = 0.
+                  !      k = 2*guard + 2
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !
+                  !   else
+                  !      k = 2*guard + 1
+                  !      do i = 1, guard
+                  !         regionData(k - i, 1:je, 1:ke, ivar) = 0.
+                  !      end do
+                  !   end if
 #endif
                   else
                      if (isFace) then

@@ -13,6 +13,6 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
    implicit none
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy, invWbr, rhoGas
-   real, dimension(:, :, :), intent(in) :: phi, crv, pf
-   real, dimension(:, :, :), intent(inout) :: sigx, sigy
+   real, dimension(:, :, :), intent(in) :: phi, pf
+   real, dimension(:, :, :), intent(inout) :: sigx, sigy, crv
 end subroutine mph_setWeberJumps2d

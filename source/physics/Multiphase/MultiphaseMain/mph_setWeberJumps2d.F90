@@ -10,16 +10,18 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+#include "Simulation.h"
    !
    implicit none
 
    !-----Argument list-------------------
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy, invWbr, rhoGas
-   real, dimension(:, :, :), intent(in) :: phi, crv, pf
-   real, dimension(:, :, :), intent(inout) :: sigx, sigy
+   real, dimension(:, :, :), intent(in) :: phi, pf
+   real, dimension(:, :, :), intent(inout) :: sigx, sigy, crv
 
    !-------Local variables---------------
+   integer :: icrv(NXB+2*NGUARD,NYB+2*NGUARD,1)
    real :: th, aa, xijl, xijr, &
            cri, xij, yij, yijl, yijr
    integer :: i, j, k
@@ -45,11 +47,12 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
    !--------------------------------------------
 
    k = 1
+   icrv = 0
 
    !--Need to loop through one guard cell on each side to set jumps
    !---when they cross block boundaries
-   do j = jy1 + 1, jy2 - 1
-      do i = ix1 + 1, ix2 - 1
+   do j = jy1 - 1, jy2
+      do i = ix1 - 1, ix2
          !--------------------------------------------------------------
          !- kpd - pf=0 (water) in current cell and pf=1 (air) in cell to right
          !--------------------------------------------------------------
@@ -61,6 +64,8 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
             xij = xijl*th + xijr*(1.-th)             !- kpd - Jump in value
             aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) - xij/dx   !- kpd - sigma*K/rho/dx
+            icrv(i, j, k) = 1
+            icrv(i + 1, j, k) = 1
          end if
 
          !--------------------------------------------------------------
@@ -74,6 +79,8 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
             xij = xijl*(1.-th) + xijr*th
             aa = th*rhoGas + (1.-th)
             sigx(i + 1, j, k) = sigx(i + 1, j, k) + xij/dx
+            icrv(i, j, k) = 1
+            icrv(i + 1, j, k) = 1
          end if
 
          !--------------------------------------------------------------
@@ -87,6 +94,8 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
             yij = yijl*th + yijr*(1.-th)
             aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) - yij/dy
+            icrv(i, j, k) = 1
+            icrv(i, j + 1, k) = 1
          end if
 
          !--------------------------------------------------------------
@@ -100,9 +109,14 @@ subroutine mph_setWeberJumps2d(phi, crv, pf, sigx, sigy, dx, dy, invWbr, rhoGas,
             yij = yijl*(1.-th) + yijr*th
             aa = th*rhoGas + (1.-th)
             sigy(i, j + 1, k) = sigy(i, j + 1, k) + yij/dy
+            icrv(i, j, k) = 1
+            icrv(i, j + 1, k) = 1
          end if
          !--------------------------------------------------------------
          !--------------------------------------------------------------
       end do
    end do
+
+   crv(ix1:ix2, jy1:jy2, 1) = icrv(ix1:ix2, jy1:jy2, 1)*crv(ix1:ix2, jy1:jy2, 1)
+
 end subroutine mph_setWeberJumps2d

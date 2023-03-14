@@ -27,7 +27,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                  Stencils_lsFaceProps2d, &
                                  Stencils_lsFaceProps3d, &
                                  Stencils_lsCurvature2d, &
-                                 Stencils_lsCurvature3d
+                                 Stencils_lsCurvature3d, &
+                                 Stencils_lsNormals2d, &
+                                 Stencils_lsNormals3d
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use Grid_tile, ONLY: Grid_tile_t
@@ -62,6 +64,27 @@ subroutine Multiphase_setFluidProps(tileDesc)
 
    minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
 
+   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
+                               solnData(SMHV_VAR, :, :, :), &
+                               1., &
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
+                               iSmear=mph_iPropSmear*minCellDiag)
+
+   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
+                               solnData(PFUN_VAR, :, :, :), &
+                               1., &
+                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
+                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
+                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))
+
+   solnData(mph_iMuCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*mph_muGas + &
+                                    (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iMucVar, :, :, :)
+
+   solnData(mph_iRhoCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*(1./mph_rhoGas) + &
+                                     (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iRhoCVar, :, :, :)
+
 #if NDIM < MDIM
    call Stencils_lsFaceProps2d(solnData(DFUN_VAR, :, :, :), &
                                facexData(mph_iRhoFVar, :, :, :), &
@@ -69,7 +92,7 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                1./mph_rhoGas, &
                                stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
                                stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS))!, &
-   !iSmear=mph_iPropSmear*minCellDiag)
+                               !iSmear=mph_iPropSmear*minCellDiag)
 
    call Stencils_lsNormals2d(solnData(RHOC_VAR, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
@@ -93,7 +116,7 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
                                stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
                                stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))!, &
-   !iSmear=mph_iPropSmear*minCellDiag)
+                               !iSmear=mph_iPropSmear*minCellDiag)
 
    call Stencils_lsNormals3d(solnData(RHOC_VAR, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
@@ -111,27 +134,6 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                GRID_JLO_GC, GRID_JHI_GC, &
                                GRID_KLO_GC, GRID_KHI_GC)
 #endif
-
-   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
-                               solnData(SMHV_VAR, :, :, :), &
-                               0., &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
-                               iSmear=mph_iPropSmear*minCellDiag)
-
-   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
-                               solnData(PFUN_VAR, :, :, :), &
-                               0., &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))
-
-   solnData(mph_iMuCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*mph_muGas + &
-                                    (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iMucVar, :, :, :)
-
-   solnData(mph_iRhoCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*(1./mph_rhoGas) + &
-                                     (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iRhoCVar, :, :, :)
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
