@@ -98,9 +98,10 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
   Type(MeshType) :: MeshX_Crse(3)
   Type(MeshType) :: MeshX_Fine(3)
 
-  real :: G_Crse(THORNADO_FLUID_NDOF,nGF)
-  real :: G_Fine(THORNADO_FLUID_NDOF,nGF)
+  real :: G_Crse(THORNADO_FLUID_NDOF,1,1,1,nGF)
+  real :: G_Fine(THORNADO_FLUID_NDOF,1,1,1,nGF)
 
+  integer :: iX_B1(3), iX_E1(3)
   real :: xL_Crse(3), xR_Crse(3)
   real :: xL_Fine(3), xR_Fine(3)
 
@@ -108,6 +109,9 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
 
   nFineX = 1
   nFineX(1:NDIM) = refine_factor !or use Thornado-native variables here
+
+  iX_B1 = 1
+  iX_E1 = 1
 
   ! loop over coarse (thornado) elements in parent block
   do k1 = 1, size(inData,3), THORNADO_NNODESX
@@ -129,13 +133,15 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
            call CreateMesh( MeshX_Crse(2), 1, THORNADO_NNODESX, 0, xL_Crse(2), xR_Crse(2) )
            call CreateMesh( MeshX_Crse(3), 1, THORNADO_NNODESX, 0, xL_Crse(3), xR_Crse(3) )
 
-           call ComputeGeometryX( MeshX_Crse, G_Crse, rt_str_geometry )
+           call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Crse, &
+              MeshX_Option = MeshX_Crse, &
+              CoordinateSystem_Option = rt_str_geometry )
 
            do iNodeX = 1, THORNADO_FLUID_NDOF
               kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k1
               jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j1
               ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i1
-              U_Crse(iNodeX) = inData(ii,jj,kk) * G_Crse(iNodeX,iGF_SqrtGm)
+              U_Crse(iNodeX) = inData(ii,jj,kk) * G_Crse(iNodeX,1,1,1,iGF_SqrtGm)
            end do
 
            call DestroyMesh( MeshX_Crse(1) )
@@ -236,7 +242,9 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
                     call CreateMesh( MeshX_Fine(2), 1, THORNADO_NNODESX, 0, xL_Fine(2), xR_Fine(2) )
                     call CreateMesh( MeshX_Fine(3), 1, THORNADO_NNODESX, 0, xL_Fine(3), xR_Fine(3) )
 
-                    call ComputeGeometryX( MeshX_Fine, G_Fine, rt_str_geometry )
+                    call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Fine, &
+                       MeshX_Option = MeshX_Fine, &
+                       CoordinateSystem_Option = rt_str_geometry )
 
                     ! store the result in child block
                     do iNodeX = 1, THORNADO_FLUID_NDOF
@@ -247,7 +255,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
                        if (      kk.GE.lbound(outData,3) .AND. kk.LE.ubound(outData,3) &
                            .AND. jj.GE.lbound(outData,2) .AND. jj.LE.ubound(outData,2) &
                            .AND. ii.GE.lbound(outData,1) .AND. ii.LE.ubound(outData,1) ) then
-                          outData(ii,jj,kk) = U_Fine(iNodeX) / G_Fine(iNodeX,iGF_SqrtGm)
+                          outData(ii,jj,kk) = U_Fine(iNodeX) / G_Fine(iNodeX,1,1,1,iGF_SqrtGm)
                        end if
                     end do
 
