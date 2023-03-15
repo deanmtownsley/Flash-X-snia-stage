@@ -11,6 +11,8 @@ def genLines(setupvars):
 
     yield '''
 
+UNOFFICIAL
+
 USESETUPVARS useMP5
 USESETUPVARS useGLM
 USESETUPVARS useTVD
