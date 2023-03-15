@@ -148,3 +148,15 @@ CD = cd
 RL = ranlib
 ECHO = echo
 
+ifeq ($(FLASHBINARY),true)
+
+RadTrans_OMP.o : driver_interface.mod eos_interface.mod fluidfieldsmodule.mod geometryfieldsmodulee.mod geometryfieldsmodule.mod grid_interface.mod grid_data.mod radiationfieldsmodule.mod radtrans_data.mod rt_data.mod rt_tm_interface.mod thornadoinitializationmodule.mod timers_interface.mod timesteppingmodule_flash.mod unitsmodule.mod grid_iterator.mod grid_tile.mod programheadermodule.mod Simulation.h constants.h
+	$(ECHO-COMPILING)
+	$(FCOMP) $(patsubst -O2,-O1,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+rt_tm_projection_OMP.o : fluidfieldsmodule.mod geometryfieldsmodule.mod radiationfieldsmodule.mod subcellreconstructionmodule.mod unitsmodule.mod Simulation.h constants.h
+	$(ECHO-COMPILING)
+	$(FCOMP) $(patsubst -O2,-O1,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+rt_tm_reconstruction_OMP.o : rt_data.mod fluidfieldsmodule.mod geometryfieldsmodule.mod radiationfieldsmodule.mod subcellreconstructionmodule.mod unitsmodule.mod Simulation.h constants.h
+	$(ECHO-COMPILING)
+	$(FCOMP) $(patsubst -O2,-O1,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+endif
