@@ -122,8 +122,8 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
            k1u = k1 + THORNADO_NNODESX
 
            !! extents for this element
-           xL_Crse = (/ xface((i1 ), yface(j1 ), zface(k1 ) /) * conv_x
-           xR_Crse = (/ xface((i1u), yface(j1u), zface(k1u) /) * conv_x
+           xL_Crse = (/ xface(i1 ), yface(j1 ), zface(k1 ) /) * conv_x
+           xR_Crse = (/ xface(i1u), yface(j1u), zface(k1u) /) * conv_x
 
            call CreateMesh( MeshX_Crse(1), 1, THORNADO_NNODESX, 0, xL_Crse(1), xR_Crse(1) )
            call CreateMesh( MeshX_Crse(2), 1, THORNADO_NNODESX, 0, xL_Crse(2), xR_Crse(2) )
@@ -196,7 +196,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
                        xR_Fine(1) = xR_Crse(1)
                     else if (nFineX(1) == THORNADO_NNODESX) then
                        xR_Fine(1) = xface(i1+icc) * conv_x
-                    else if (mod(icc*THORNADO_NNODESX,nFineX(1) == 0) then
+                    else if (mod(icc*THORNADO_NNODESX,nFineX(1)) == 0) then
                        xL_Fine(1) = xface(i1 + (icc*THORNADO_NNODESX)/nFineX(1)) * conv_x
                     else
                        xR_Fine(1) = ( xL_Crse(1)*(nFineX(1)-icc )  + xR_Crse(1)*(icc  ) ) / nFineX(1)
