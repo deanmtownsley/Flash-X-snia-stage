@@ -177,8 +177,8 @@ module RadTrans_interface
        real,intent(IN)    :: inData(:,:,:)
        real,intent(INOUT) :: outData(:,:,:)
        integer,intent(IN) :: skip(MDIM)
-       real,intent(IN)    :: xface
-       real,intent(IN),OPTIONAL :: yface, zface
+       real,intent(IN)    :: xface(:)
+       real,intent(IN),OPTIONAL :: yface(:), zface(:)
      end subroutine RadTrans_prolongDgData
   end interface
 
