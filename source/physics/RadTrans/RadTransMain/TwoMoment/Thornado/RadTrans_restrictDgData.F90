@@ -37,6 +37,17 @@ subroutine RadTrans_restrictDgData(inData,outData)
   Use TwoMoment_MeshRefinementModule, Only : &
      CoarsenX_TwoMoment
 
+  Use GeometryFieldsModule, Only: &
+     nGF, iGF_SqrtGm
+  Use GeometryComputationModule, Only: &
+     ComputeGeometryX
+  Use MeshModule, Only : &
+     MeshType, CreateMesh, DestroyMesh
+  Use UnitsModule, Only : &
+     Centimeter
+
+  use RadTrans_data, ONLY : rt_str_geometry, rt_geometry
+
   implicit none
   real,intent(IN)    :: inData(:,:,:)
   real,intent(INOUT) :: outData(:,:,:)
@@ -53,8 +64,21 @@ subroutine RadTrans_restrictDgData(inData,outData)
   Real    :: U_Crse(THORNADO_FLUID_NDOF)
   Real    :: U_Fine(THORNADO_FLUID_NDOF)
 
+  Type(MeshType) :: MeshX_Crse(3)
+  Type(MeshType) :: MeshX_Fine(3)
+
+  real :: G_Crse(THORNADO_FLUID_NDOF,1,1,1,nGF)
+  real :: G_Fine(THORNADO_FLUID_NDOF,1,1,1,nGF)
+
+  integer :: iX_B1(3), iX_E1(3)
+  real :: xL_Crse(3), xR_Crse(3)
+  real :: xL_Fine(3), xR_Fine(3)
+
   nFineX = 1
   nFineX(1:NDIM) = refine_factor !or use Thornado-natived variables here
+
+  iX_B1 = 1
+  iX_E1 = 1
 
   ! loop over thornado elements in parent block
            ! unk offsets of first child element in child block
@@ -77,12 +101,30 @@ subroutine RadTrans_restrictDgData(inData,outData)
                     i = i0 + THORNADO_NNODESX*(icc-1) ! icc = 1 : 1, 5, 9, 13
                     ! icc = 2 : 3, 7, 11, 15
 
+                    ! Calculate sqrt(Gamma) for geometry corrections
+                    G_Fine = 1.0
+
+                    ! Create DG mesh for 1 element where xL_Fine and xR_Fine are the 
+                    ! lower- and upper-extents of the PM "supercell" (child) that maps to 
+                    ! the thornado element
+                    call CreateMesh( MeshX_Fine(1), 1, THORNADO_NNODESX, 0, xL_Fine(1), xR_Fine(1) )
+                    call CreateMesh( MeshX_Fine(2), 1, THORNADO_NNODESX, 0, xL_Fine(2), xR_Fine(2) )
+                    call CreateMesh( MeshX_Fine(3), 1, THORNADO_NNODESX, 0, xL_Fine(3), xR_Fine(3) )
+
+                    call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Fine, &
+                       MeshX_Option = MeshX_Fine, &
+                       CoordinateSystem_Option = rt_str_geometry )
+
+                    call DestroyMesh( MeshX_Fine(1) )
+                    call DestroyMesh( MeshX_Fine(2) )
+                    call DestroyMesh( MeshX_Fine(3) )
+
                     ! grab the data from fine grid element quadrature points
                     do iNodeX = 1, THORNADO_FLUID_NDOF
                        kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k
                        jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j
                        ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i
-                       U_Fine(iNodeX) = indata(ii,jj,kk)
+                       U_Fine(iNodeX) = indata(ii,jj,kk) * G_Fine(iNodeX,1,1,1,iGF_SqrtGm)
                     end do
 
                     ! compute contribution to parent element from child element
@@ -98,12 +140,30 @@ subroutine RadTrans_restrictDgData(inData,outData)
            j1 = 1 + (j0-1)/nFineX(2)*K2D
            i1 = 1 + (i0-1)/nFineX(1)     ! 1, 3, 5, 7
 
+           ! Calculate sqrt(Gamma) for geometry corrections
+           G_Crse = 1.0
+
+           ! Create DG mesh for 1 element where xL_Crse and xR_Crse are the 
+           ! lower- and upper-extents of the PM "supercell" (parent) that maps to 
+           ! the thornado element
+           call CreateMesh( MeshX_Crse(1), 1, THORNADO_NNODESX, 0, xL_Crse(1), xR_Crse(1) )
+           call CreateMesh( MeshX_Crse(2), 1, THORNADO_NNODESX, 0, xL_Crse(2), xR_Crse(2) )
+           call CreateMesh( MeshX_Crse(3), 1, THORNADO_NNODESX, 0, xL_Crse(3), xR_Crse(3) )
+
+           call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Crse, &
+              MeshX_Option = MeshX_Crse, &
+              CoordinateSystem_Option = rt_str_geometry )
+
+           call DestroyMesh( MeshX_Crse(1) )
+           call DestroyMesh( MeshX_Crse(2) )
+           call DestroyMesh( MeshX_Crse(3) )
+
            ! store the result in parent block
            do iNodeX = 1, THORNADO_FLUID_NDOF
               kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k1
               jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j1
               ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i1
-              outData(ii,jj,kk) = U_Crse(iNodeX)
+              outData(ii,jj,kk) = U_Crse(iNodeX) / G_Crse(iNodeX,1,1,1,iGF_SqrtGm)
            end do
 
         end do
