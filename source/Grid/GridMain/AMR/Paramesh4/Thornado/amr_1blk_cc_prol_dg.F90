@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/Thornado/amr_1blk_cc_prol_dg
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -57,31 +57,39 @@
 !!   The position of the child within the parent block is specified by
 !!   the ioff, joff and koff arguments.
 !!
-!!   Created a custom prolongation routine that is called from
-!!   amr_1blk_cc_prol_gen_unk_fun depending on the value of
-!!   interp_mask_unk(ivar). The method is named amr_1blk_cc_prol_dg.
+!! DESCRIPTION
+!!
+!!   This custom prolongation routine is called from
+!!   amr_1blk_cc_prol_gen_unk_fun, when requested by the value of
+!!   interp_mask_unk(ivar).
 !!
 !!   It is applied to all UNK variables whose corresponding element
 !!   of interp_mask is set to 40.
 !!
 !!   The amr_1blk_cc_prol_dg routine accepts a "coarse" block (recv) as
-!!   input and return a "fine" block (unk1).
+!!   input and returns a "fine" block (unk1).
 !!   The routine will prepare an array from recv and then call a routine that 
 !!   is in Thornado- the Refine_TwoMoment.
 !!   It will subsequently transfer information as an output from the Thornado
 !!   routine into the "fine" block array.
 !!
+!! NOTES
+!!
+!!   In the case of curvilinear coordinates, the arrays cell_face_coord1, cell_face_coord2,
+!!   cell_face_coord3 from the physicaldata module are assumed to contain the coordinates
+!!   of cell faces for the full coarse block, i.e., for the data in the recv argument.
+!!   The caller should therefore call amr_block_geometry (on the coarse block)
+!!   before this routine is called.
 !!
 !! CALLS
 !!
+!!   RadTrans_prolongDgData
 !!   No calls made to other PARAMESH routines.
 !!
 !! RETURNS
 !!
 !!   Does not return anything.  Upon exit the data in recv is interpolated
 !!   and placed into the unk1 array.
-!!
-!! DESCRIPTION
 !!
 !! AUTHOR: Antigoni Georgiadou     DATE: 07/20/2021
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
@@ -98,8 +106,10 @@ Subroutine amr_1blk_cc_prol_dg               &
 
   !-----Use Statements
   Use paramesh_dimensions, ONLY: nxb, nyb, nzb
+  Use tree,         ONLY: bnd_box
   Use physicaldata, ONLY: unk1
-
+  Use physicaldata, ONLY: cell_face_coord1, cell_face_coord2, cell_face_coord3
+  Use physicaldata, ONLY: curvilinear
 
   use RadTrans_interface, ONLY: RadTrans_prolongDgData
 
@@ -186,8 +196,17 @@ Subroutine amr_1blk_cc_prol_dg               &
             modulo(ka-NGUARD-1, 4)*K3D  &
          /)
 
-  call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
+  if (.NOT. curvilinear) then
+     call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
                               unk1(ivar,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
                               skip)
+  else
+     call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
+                              unk1(ivar,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
+                              skip,                                        &
+                              cell_face_coord1(iclX:icuX+1),               &
+                              cell_face_coord2(jclX:jcuX+1),               &
+                              cell_face_coord3(kclX:kcuX+1))
+  end if
 
 End Subroutine amr_1blk_cc_prol_dg

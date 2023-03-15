@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Paramesh4/Thornado/amr_1blk_cc_prol_gen_unk_fun
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@
 !!  Written by Peter MacNeice January 2002.
 !!  Modified for GRID_WITH_MONOTONIC variant - Klaus Weide 2022-02-20
 !!  Changes to call amr_1blk_cc_prol_dg for Thornado - Austin Harris 2021-12-06
+!!  2023-03-15 Call amr_block_geometry if needed for _prol_dg     - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
@@ -97,6 +98,7 @@ subroutine amr_1blk_cc_prol_gen_unk_fun                &
 
   Use paramesh_dimensions
   Use physicaldata
+!!$  Use physicaldata, ONLY: curvilinear
   Use tree
   Use prolong_arrays
 
@@ -105,7 +107,8 @@ subroutine amr_1blk_cc_prol_gen_unk_fun                &
                        amr_1blk_cc_prol_linear,    & 
                        amr_1blk_cc_prol_genorder,  & 
                        amr_1blk_cc_prol_dg,    &
-                       amr_1blk_cc_prol_user
+                       amr_1blk_cc_prol_user,  &
+                       amr_block_geometry
 
   implicit none
 
@@ -127,6 +130,14 @@ subroutine amr_1blk_cc_prol_gen_unk_fun                &
   if (timing_mpi) then
      time1 = mpi_wtime()
   end if  ! End If (timing_mpi)
+
+  if (curvilinear .AND. &
+      ANY(interp_mask_unk(:) == 40 .and. int_gcell_on_cc(:))) then
+     ! This call prepares cell_face_coord1[,2[,3]] for use by
+     ! amr_1blk_cc_prol_dg. It has been pulled out of the loop over
+     ! ivar, below, to avoid unnecessarily repeated calls.
+     call amr_block_geometry(lb_p,pe_p)
+  end if
 
 #ifdef GRID_WITH_MONOTONIC
 ! Call the minimally changed subroutine from Paramesh2
