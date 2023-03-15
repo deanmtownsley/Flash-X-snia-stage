@@ -196,7 +196,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
                        xR_Fine(1) = xR_Crse(1)
                     else if (nFineX(1) == THORNADO_NNODESX) then
                        xR_Fine(1) = xface(i1+icc) * conv_x
-                    else if (mod((icc*THORNADO_NNODESX,nFineX(1)) == 0) then
+                    else if (mod(icc*THORNADO_NNODESX,nFineX(1) == 0) then
                        xL_Fine(1) = xface(i1 + (icc*THORNADO_NNODESX)/nFineX(1)) * conv_x
                     else
                        xR_Fine(1) = ( xL_Crse(1)*(nFineX(1)-icc )  + xR_Crse(1)*(icc  ) ) / nFineX(1)
