@@ -197,7 +197,7 @@ contains
         case(FLUXZ)
            dataPtr(1:, gr_ilo:, gr_jlo:, gr_klo:) => gr_flxz(:,:,:,:) 
        case(SCRATCH_CTR)
-          dataPtr(1:, gr_ilo:, gr_jlo:, gr_klo:) => scratch_ctr(:,:,:,:,this%id)
+          dataPtr(1:, gr_iloGc:, gr_jloGc:, gr_kloGc:) => scratch_ctr(:,:,:,:,this%id)
         case DEFAULT
             call Driver_abort("[getDataPtr] Unknown grid data structure")
         end select

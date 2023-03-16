@@ -338,9 +338,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
     call Grid_releaseTileIterator(itor)
     
     ! Confirm proper number of blocks and cells
-    call assertEqual(xBlkMin, 1, "Incorrect origin X-coordinate")
-    call assertEqual(yBlkMin, 1, "Incorrect origin Y-coordinate")
-    call assertEqual(zBlkMin, 1, "Incorrect origin Z-coordinate")
+    call assertEqual(xBlkMin, 1, "Incorrect lowest cell index along X-axis")
+    call assertEqual(yBlkMin, 1, "Incorrect lowest cell index along Y-axis")
+    call assertEqual(zBlkMin, 1, "Incorrect lowest cell index along Z-axis")
 
     ! FIXME: This only works for one processor.  Need a reduction here.
 #if NDIM == 1
