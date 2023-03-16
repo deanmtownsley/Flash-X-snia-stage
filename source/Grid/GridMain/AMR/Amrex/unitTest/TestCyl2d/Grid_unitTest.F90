@@ -119,9 +119,9 @@ subroutine Grid_unitTest(fileUnit, perfect)
 
         x_expected = XDELTA_EX / 2.0**(ilev - 1)
         y_expected = YDELTA_EX / 2.0**(ilev - 1)
-        call assertEqual(deltas(IAXIS),x_expected,"Incorrect high X-coordinate")
-        call assertEqual(deltas(JAXIS),y_expected,"Incorrect high Y-coordinate")
-        call assertEqual(deltas(KAXIS),0.0,       "Incorrect high Z-coordinate")
+        call assertEqual(deltas(IAXIS),x_expected,"Incorrect X delta")
+        call assertEqual(deltas(JAXIS),y_expected,"Incorrect Y delta")
+        call assertEqual(deltas(KAXIS),0.0,       "Incorrect Z delta")
     end do
 
     !!!!! CONFIRM PROPER BLOCK/CELL STRUCTURE
