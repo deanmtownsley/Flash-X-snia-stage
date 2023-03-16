@@ -111,7 +111,7 @@ subroutine Driver_evolveAll()
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
-              iCurvVar, iAlphVar, iTempGfmVar
+              iCurvVar, iAlphVar, iTempFrcVar
    integer :: iteration
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -132,7 +132,7 @@ subroutine Driver_evolveAll()
    ! if HeatAD unit is available
    call HeatAD_getGridVar("CENTER_TEMPERATURE", iTempVar)
    call HeatAD_getGridVar("CENTER_THERMAL_DIFFUSIVITY", iAlphVar)
-   call HeatAD_getGridVar("CENTER_THERMAL_FORCING", iTempGfmVar)
+   call HeatAD_getGridVar("CENTER_THERMAL_FORCING", iTempFrcVar)
 #endif
 
 #ifdef MULTIPHASE_MAIN
@@ -224,57 +224,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
 #ifdef MULTIPHASE_MAIN
-      ! Multiphase advection procedure
-      ! Loop over blocks (tiles) and call Multiphase
-      ! routines
-      !------------------------------------------------------------
-      call Grid_getTileIterator(itor, nodetype=LEAF)
-      do while (itor%isValid())
-         call itor%currentTile(tileDesc)
-         !---------------------------------------------------------
-         call Multiphase_advection(tileDesc)
-         call Multiphase_solve(tileDesc, dr_dt)
-         !---------------------------------------------------------
-         call itor%next()
-      end do
-      call Grid_releaseTileIterator(itor)
-      !------------------------------------------------------------
-
-      ! Fill GuardCells for level set function
-      gcMask = .FALSE.
-      gcMask(iDfunVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask)
-
-      ! Apply redistancing procedure
-      !------------------------------------------------------------
-      do iteration = 1, mph_lsIt
-
-         ! Loop over blocks (tiles) and call Multiphase
-         ! routines
-         call Grid_getTileIterator(itor, nodetype=LEAF)
-         do while (itor%isValid())
-            call itor%currentTile(tileDesc)
-            !------------------------------------------------------
-            call Multiphase_redistance(tileDesc, iteration)
-            !------------------------------------------------------
-            call itor%next()
-         end do
-         call Grid_releaseTileIterator(itor)
-
-         ! Fill GuardCells for level set function
-         gcMask = .FALSE.
-         gcMask(iDfunVar) = .TRUE.
-         call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS, mask=gcMask)
-      end do
-      !------------------------------------------------------------
-
-      ! Call indicators to show information
-      !------------------------------------------------------------
-      call Multiphase_indicators()
-      !------------------------------------------------------------
-
       ! Update fluid and thermal properties
       ! Loop over blocks (tiles)
       !------------------------------------------------------------
@@ -331,7 +280,7 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for Pressure Jump
       gcMask = .FALSE.
 #ifdef MULTIPHASE_EVAPORATION
-      gcMask(iTempGfmVar) = .TRUE.
+      gcMask(iTempFrcVar) = .TRUE.
 #endif
       gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
@@ -532,6 +481,59 @@ subroutine Driver_evolveAll()
       ! Call indicators
       !------------------------------------------------------------
       call HeatAD_indicators()
+      !------------------------------------------------------------
+#endif
+
+#ifdef MULTIPHASE_MAIN
+      ! Multiphase advection procedure
+      ! Loop over blocks (tiles) and call Multiphase
+      ! routines
+      !------------------------------------------------------------
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Multiphase_advection(tileDesc)
+         call Multiphase_solve(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
+      !------------------------------------------------------------
+
+      ! Fill GuardCells for level set function
+      gcMask = .FALSE.
+      gcMask(iDfunVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask)
+
+      ! Apply redistancing procedure
+      !------------------------------------------------------------
+      do iteration = 1, mph_lsIt
+
+         ! Loop over blocks (tiles) and call Multiphase
+         ! routines
+         call Grid_getTileIterator(itor, nodetype=LEAF)
+         do while (itor%isValid())
+            call itor%currentTile(tileDesc)
+            !------------------------------------------------------
+            call Multiphase_redistance(tileDesc, iteration)
+            !------------------------------------------------------
+            call itor%next()
+         end do
+         call Grid_releaseTileIterator(itor)
+
+         ! Fill GuardCells for level set function
+         gcMask = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS, mask=gcMask)
+      end do
+      !------------------------------------------------------------
+
+      ! Call indicators to show information
+      !------------------------------------------------------------
+      call Multiphase_indicators()
       !------------------------------------------------------------
 #endif
 

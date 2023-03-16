@@ -50,8 +50,8 @@ subroutine ins_setupPoissonRhs_vardens(divu, &
       do i = ix1, ix2
          do j = jy1, jy2
 
-            term1 = (rhox(i + 1, j, k)*sigx(i + 1, j, k) - rhox(i, j, k)*sigx(i, j, k))/dx + &
-                    (rhoy(i, j + 1, k)*sigy(i, j + 1, k) - rhoy(i, j, k)*sigy(i, j, k))/dy
+            term1 = (invRhoGas*sigx(i + 1, j, k) - invRhoGas*sigx(i, j, k))/dx + &
+                    (invRhoGas*sigy(i, j + 1, k) - invRhoGas*sigy(i, j, k))/dy
 
             d1x = invRhoGas - rhox(i + 1, j, k)
             p1x = 2*pxn1(i + 1, j, k) - pxn2(i + 1, j, k)
@@ -66,7 +66,7 @@ subroutine ins_setupPoissonRhs_vardens(divu, &
             term2 = (d1x*p1x - d2x*p2x)/dx + (d1y*p1y - d2y*p2y)/dy
 
 #if NDIM == 3
-            term1 = term1 + (rhoz(i, j, k + 1)*sigz(i, j, k + 1) - rhoz(i, j, k)*sigz(i, j, k))/dz
+            term1 = term1 + (invRhoGas*sigz(i, j, k + 1) - invRhoGas*sigz(i, j, k))/dz
 
             d1z = invRhoGas - rhoz(i, j, k + 1)
             p1z = 2*pzn1(i, j, k + 1) - pzn2(i, j, k + 1)

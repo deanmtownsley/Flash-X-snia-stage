@@ -53,11 +53,11 @@ subroutine ins_corrector_vardens(uni, vni, wni, sigx, sigy, sigz, pxn1, pyn1, pz
             Mdens = rhox(i, j, k)
             uni(i, j, k) = uni(i, j, k) - &
                            dt*invRhoGas*((p(i, j, k) - p(i - 1, j, k))/dx) + &
-                           dt*Mdens*sigx(i, j, k) - &
+                           dt*invRhoGas*sigx(i, j, k) - &
                            dt*(Mdens - invRhoGas)*(2*pxn1(i, j, k) - pxn2(i, j, k))
 
             pxn2(i, j, k) = pxn1(i, j, k)
-            pxn1(i, j, k) = (p(i, j, k) - p(i - 1, j, k))/dx !- sigx(i, j, k)
+            pxn1(i, j, k) = (p(i, j, k) - p(i - 1, j, k))/dx - sigx(i, j, k)
          end do
       end do
    end do
@@ -68,11 +68,11 @@ subroutine ins_corrector_vardens(uni, vni, wni, sigx, sigy, sigz, pxn1, pyn1, pz
             Mdens = rhoy(i, j, k)
             vni(i, j, k) = vni(i, j, k) - &
                            dt*invRhoGas*((p(i, j, k) - p(i, j - 1, k))/dy) + &
-                           dt*Mdens*sigy(i, j, k) - &
+                           dt*invRhoGas*sigy(i, j, k) - &
                            dt*(Mdens - invRhoGas)*(2*pyn1(i, j, k) - pyn2(i, j, k))
 
             pyn2(i, j, k) = pyn1(i, j, k)
-            pyn1(i, j, k) = (p(i, j, k) - p(i, j - 1, k))/dy !- sigy(i, j, k)
+            pyn1(i, j, k) = (p(i, j, k) - p(i, j - 1, k))/dy - sigy(i, j, k)
          end do
       end do
    end do
@@ -84,11 +84,11 @@ subroutine ins_corrector_vardens(uni, vni, wni, sigx, sigy, sigz, pxn1, pyn1, pz
             Mdens = rhoz(i, j, k)
             wni(i, j, k) = wni(i, j, k) - &
                            dt*invRhoGas*((p(i, j, k) - p(i, j, k - 1))/dz) + &
-                           dt*Mdens*sigz(i, j, k) - &
+                           dt*invRhoGas*sigz(i, j, k) - &
                            dt*(Mdens - invRhoGas)*(2*pzn1(i, j, k) - pzn2(i, j, k))
 
             pzn2(i, j, k) = pzn1(i, j, k)
-            pzn1(i, j, k) = (p(i, j, k) - p(i, j, k - 1))/dz !- sigz(i, j, k)
+            pzn1(i, j, k) = (p(i, j, k) - p(i, j, k - 1))/dz - sigz(i, j, k)
          end do
       end do
    end do
