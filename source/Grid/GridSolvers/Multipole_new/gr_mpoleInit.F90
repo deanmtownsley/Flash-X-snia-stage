@@ -156,8 +156,7 @@ subroutine gr_mpoleInit ()
 !       yet implemented). Also inform the user (and abort the program), if symmetry
 !       requirements cannot be honored or make no sense.
 !
-  !
-
+!
   if (gr_mpoleGeometry == GRID_2DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCYLINDRICAL .or. &

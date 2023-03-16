@@ -238,6 +238,7 @@ subroutine Grid_init()
   call RuntimeParameters_get("gr_tileSizeX", gr_tileSize(IAXIS))
   call RuntimeParameters_get("gr_tileSizeY", gr_tileSize(JAXIS))
   call RuntimeParameters_get("gr_tileSizeZ", gr_tileSize(KAXIS))
+
   ! DEV: Unable to set an upper limit on these runtime parameters using
   ! N[XYZ]B.  Therefore, we are checking here.
   if (gr_tileSize(IAXIS) > NXB) then

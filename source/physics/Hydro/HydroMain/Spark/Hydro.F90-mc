@@ -254,14 +254,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            if (hy_geometry /= CARTESIAN) then
               @M hy_fill_geom
-!!              @M hy_fill_faceareasYZ
            endif
         
            
            call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt, .NOT.hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom
-!!              @M hy_release_faceareasYZ
            end if
            @M hy_nullFluxBuf
            @M iter_end
