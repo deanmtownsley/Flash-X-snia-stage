@@ -95,7 +95,7 @@ subroutine gr_mpoleMom3Dcartesian (idensvar)
   gr_mpoleQused (:) = 0 
 
   NULLIFY(Uin)
-  @M iter_all_begin(LEAF,.false.,tileLimits,tileLimitsGC)     
+  @M iter_all_begin(LEAF,.false.,tileLimits,tileLimitsGC,deltas)     
 
      call tileDesc%boundBox(bndBox)
      imin       = tileLimits (LOW, IAXIS)
@@ -157,7 +157,7 @@ subroutine gr_mpoleMom3Dcartesian (idensvar)
 
   nQ = 0
 
-   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC)  
+   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas)  
 
       call tileDesc%boundBox(bndBox)
 

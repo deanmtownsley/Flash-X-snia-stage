@@ -125,7 +125,7 @@ class LibUnion(dict):
      # does ...lib/libname/libinfo.py exist?
      if os.path.isfile(os.path.join(libDir,'libinfo.py')):
        # use the new method of getting info
-       sys.path.insert(1,libDir) # ask python to search here
+       sys.path.insert(1,libDir) # ask python3 to search here
        # call the libinfo function in libinfo.py and store its result
        libFlags = __import__("libinfo").libinfo(absLibDir=libDir,
                               relLibDir=relLibDir,

@@ -1,4 +1,4 @@
-##python:genLines
+##python3:genLines
     
 # Configuration file for Thornado two moment IMEX
 # [physics/RadTrans/RadTransMain/TwoMoment/Thornado]
