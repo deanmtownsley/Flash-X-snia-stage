@@ -438,15 +438,6 @@ Module Grid_interface
        logical, intent(in), OPTIONAL :: add
        logical, intent(IN), OPTIONAL :: isFluxDensity(:)
      end subroutine Grid_putFluxData_block
-
-!!$     subroutine Grid_putFluxData_old(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo)
-!!$       use Grid_tile, ONLY : Grid_tile_t
-!!$       implicit none
-!!$       type(Grid_tile_t), intent(in) :: blockDesc
-!!$       integer,intent(in) :: lo(3)
-!!$       real,CONTIGUOUS_INTENT(in),dimension(: ,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX,fluxBufY,fluxBufZ
-!!$     end subroutine Grid_putFluxData_old
-
   end interface Grid_putFluxData
 
   interface Grid_getFluxData ! get (corrected) flux data

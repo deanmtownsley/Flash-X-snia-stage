@@ -9,7 +9,7 @@ Grid += Grid_init.o \
 	Grid_fillGuardCells.o Grid_notifySolnDataUpdate.o \
 	Grid_markRefineDerefine.o \
 	Grid_putFluxData.o \
-	Grid_putFluxData_block.o Grid_putFluxData_old.o\
+	Grid_putFluxData_block.o \
 	Grid_getFluxData_block.o \
         Grid_getFluxCorrData_block.o Grid_getFluxCorrData_xtra.o\
 	Grid_correctFluxData.o Grid_correctFluxData_xtra.o \
