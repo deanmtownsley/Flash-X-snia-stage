@@ -95,6 +95,7 @@
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
 !!  2022-09-22 Added computation of skip            - Klaus Weide
+!!  2023-03-14 Pass cell_face_coordN when needed    - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
@@ -106,7 +107,6 @@ Subroutine amr_1blk_cc_prol_dg               &
 
   !-----Use Statements
   Use paramesh_dimensions, ONLY: nxb, nyb, nzb
-  Use tree,         ONLY: bnd_box
   Use physicaldata, ONLY: unk1
   Use physicaldata, ONLY: cell_face_coord1, cell_face_coord2, cell_face_coord3
   Use physicaldata, ONLY: curvilinear

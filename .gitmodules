@@ -8,7 +8,7 @@
 	url = https://github.com/endeve/thornado.git
 [submodule "source/Grid/GridMain/AMR/Paramesh4/PM4_package"]
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
-	branch = main
+	branch = kweide/delep_Ov
 	url = https://github.com/Flash-X/PARAMESH-for-Flash-X.git
 [submodule "lib/amrex/source"]
 	path = lib/amrex/source
