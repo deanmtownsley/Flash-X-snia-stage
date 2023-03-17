@@ -137,7 +137,7 @@ subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
       dtMinLoc(1) = THORNADO_NNODESX * (iX1-1) + lo(IAXIS)
       dtMinLoc(2) = THORNADO_NNODESX * (iX2-1) + lo(JAXIS)
       dtMinLoc(3) = THORNADO_NNODESX * (iX3-1) + lo(KAXIS)
-      dtMinLoc(4) = tileDesc % id
+      dtMinLoc(4) = tileDesc % level
       dtMinLoc(5) = rt_meshMe
 
     END IF

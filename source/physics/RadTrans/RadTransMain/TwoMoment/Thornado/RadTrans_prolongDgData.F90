@@ -84,7 +84,6 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
   !-----Local variables
   Integer :: i, j, k, i1, j1, k1, i0, j0, k0
   Integer :: i1u, j1u, k1u
-!!$  Integer :: iu, ju, ku
   Integer :: ii, jj, kk, icc, jcc, kcc
 
   Integer :: iNodeX
@@ -152,9 +151,6 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
            k0 = 1 + (nFineX(3) * (k1-1) - skip(3)) * K3D
            j0 = 1 + (nFineX(2) * (j1-1) - skip(2)) * K2D
            i0 = 1 +  nFineX(1) * (i1-1) - skip(1)      ! 1, 5, 9, 13
-!!$           kl = 1 +  nFineX(3) * (k1-1) * K3D
-!!$           jl = 1 +  nFineX(2) * (j1-1) * K2D
-!!$           il = 1 +  nFineX(1) * (i1-1)     ! 1, 5, 9, 13
 
            ! loop over fine grid element for this parent element
            iFineX = 0
@@ -176,10 +172,6 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
 
                     ! Calculate sqrt(Gamma) for geometry corrections
                     G_Fine = 1.0
-                    !! upper indices for cells in thornado element
-!!$                    iu = i + THORNADO_NNODESX - 1
-!!$                    ju = j + THORNADO_NNODESX - 1
-!!$                    ku = k + THORNADO_NNODESX - 1
 
                     !! extents for this element
 

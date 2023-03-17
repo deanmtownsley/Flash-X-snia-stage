@@ -43,6 +43,16 @@
 !!
 !! AUTOGENROBODOC
 !!
+!! NOTES
+!!  The specific subroutine RadTrans_prolongDgData_simple can be invoked by the
+!!  generic name RadTrans_prolongDgData if the caller uses the generic interface
+!!  definition in the RadTrans_interface module.
+!!
+!! SEE ALSO
+!!  RadTrans_prolongDgData
+!!  RadTrans_restrictDgData_simple
+!!  RadTrans_restrictDgData
+!!
 !! HISTORY
 !!
 !!  2022-09-20 Created RadTrans_prolongDgData API         - Klaus Weide
