@@ -45,9 +45,9 @@ class preProcess:
    def processFile(self,filename):
       fd = open(filename,"r")
       self.filename = filename
-      # if the first line of the file starts with ##python, then we compile it as python and run its genLines method to get the lines
-      if fd.readline().startswith("##python:genLines"):
-          # read the rest of the file (doesnt include ##python:genLines line) and compile it into code
+      # if the first line of the file starts with ##python3, then we compile it as python3 and run its genLines method to get the lines
+      if fd.readline().startswith("##python3:genLines"):
+          # read the rest of the file (doesnt include ##python3:genLines line) and compile it into code
           code = compile(fd.read(), filename, "exec")
           fd.close()
           # initialize a namespace with the prelude code

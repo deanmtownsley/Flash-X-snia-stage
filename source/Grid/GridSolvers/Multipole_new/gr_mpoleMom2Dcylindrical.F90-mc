@@ -95,7 +95,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   gr_mpoleQused (:) = 0 
   nullify(Uin)
 
-   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC)
+   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas)
      call tileDesc%boundBox(bndBox)
      imin       = tileLimits (LOW, IAXIS)
      jmin       = tileLimits (LOW, JAXIS)
@@ -172,7 +172,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   gr_mpoleQused (:) = 0 
 
   nQ = 0
-   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC)
+   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas)
      
      call tileDesc%boundBox(bndBox)
 
