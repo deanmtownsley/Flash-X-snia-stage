@@ -161,10 +161,10 @@ ddt:use_ddt=True:--defines=DDT:--with-unit=source/monitors/Debugger/DebuggerMain
 nolwf:NoLevelwideFluxes=True:useAmrexFlashFluxreg=True
 
 # Support for Spark solver(s)
-sparkbase:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:
-sparkInhost:+sparkbase:--with-unit=physics/Hydro/HydroMain/Spark/Inhost
-sparkOffload:+sparkbase: --with-unit=physics/Hydro/HydroMain/Spark/Offload
-spark:+sparkbase: --with-unit=physics/Hydro/HydroMain/Spark/Null
+spark:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf
+sparkbase1d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-1d:
+sparkbase2d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-2d:+sqr16
+sparkbase3d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-3d:+cube16
 # for future
 spark3:--with-unit=physics/Hydro/HydroMain/Spark/rk3:Spark=True:+nolwf
 
@@ -184,7 +184,7 @@ thornadoOMP:+thornado:thornadoOMP=True:-defines=THORNADO_OMP
 thornadoGPU:+thornado:thornadoGPU=True:-defines=THORNADO_GPU
 thornadoACC:+thornadoGPU:thornadoACC=True:-defines=THORNADO_OACC
 
-weaklib:--with-unit=physics/Eos/EosMain/WeakLib:-defines=MICROPHYSICS_WEAKLIB
+weaklib:useWeaklib=True:--with-unit=physics/Eos/EosMain/WeakLib:-defines=MICROPHYSICS_WEAKLIB
 weaklibACC:+weaklib:weaklibACC=True:-defines=WEAKLIB_OACC
 
 # Shortcut to use starkiller eos

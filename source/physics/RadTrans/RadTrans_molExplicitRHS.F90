@@ -1,6 +1,6 @@
 !!****f* source/RadTrans/RadTrans_molExplicitRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 !!
 !!      t         : Current time
 !!      activeRHS : RHS data struct to fill
-!!      dtWeight  : Weight timestep (e.g. for flux corrections)
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
 subroutine RadTrans_molExplicitRHS(t, activeRHS, dtWeight)

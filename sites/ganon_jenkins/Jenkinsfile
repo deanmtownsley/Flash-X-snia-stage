@@ -35,11 +35,12 @@ pipeline {
 	    archiveArtifacts artifacts: '**/setup_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_call'  , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_error' , allowEmptyArchive: true
-	    archiveArtifacts artifacts: '**/gmake_output', allowEmptyArchive: true
+	    //archiveArtifacts artifacts: '**/gmake_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/gmake_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/*.log'       , allowEmptyArchive: true
+	    archiveArtifacts artifacts: 'TestResults/*/*/errors', allowEmptyArchive: true
 	}} //stage('UnitTest'){ steps{
 	
     } // stages{

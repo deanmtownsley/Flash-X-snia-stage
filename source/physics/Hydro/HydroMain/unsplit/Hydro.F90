@@ -303,7 +303,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
         end if
         call hy_computeFluxes(tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :), &
                                       Uin, Uout, del, simTime, dt, dtOld, sweepDummy)
-        call Grid_putFluxData  (tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
+        call Grid_putFluxData(tileDesc, fluxBufX,fluxBufY,fluxBufZ,tileDesc%limits(LOW, :))
 
         if (level .NE. maxLev) then
            Uout => Uin

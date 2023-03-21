@@ -1,0 +1,17 @@
+# Config file for the KPR multi-rate unit test
+
+REQUIRES Driver/DriverMain/MoL
+
+# fast: u, slow: v
+VARIABLE U  TYPE: GENERIC
+VARIABLE V  TYPE: GENERIC
+
+# Parameters for the KPR equation in Chinomona & Reynolds 2021, Sec. 5.1
+PARAMETER sim_alpha    REAL    1.0
+PARAMETER sim_beta     REAL   20.0
+PARAMETER sim_epsilon  REAL    0.1
+PARAMETER sim_lambdaF  REAL  -10.0
+PARAMETER sim_lambdaS  REAL   -1.0
+
+D sim_k  Timestep control: dt = Pi/2^k
+PARAMETER sim_k INTEGER 5
