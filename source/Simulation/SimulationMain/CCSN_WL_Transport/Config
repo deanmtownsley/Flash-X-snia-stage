@@ -24,6 +24,8 @@ REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
 
 #REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
 
+LINKIF Grid_markRefineDerefine.F90.pm4 Grid/GridMain/AMR/Paramesh4
+
 REQUESTS IO
 REQUESTS IO/IOMain/hdf5
 

@@ -63,7 +63,7 @@ subroutine Simulation_init()
   real :: mass_chim, vol_chim, mass_prog, vol_prog
   real :: r, theta, phi, x, y, z, rcyl, zcyl, gr_max_r, point_mass
   real :: rlo, rhi, dr, dvol, dvolr, domega, domega_exclude, tmp1, tmp2, tmp3
-  integer :: irho_inner
+  integer :: irho_inner, i_outer
 
   call Driver_getMype(MESH_COMM, sim_meshMe)
 
@@ -295,6 +295,10 @@ subroutine Simulation_init()
   end if
   !gr_point_mass = gr_point_mass + point_mass
   sim_pointMass = point_mass
+
+  i_outer = locate( gr_max_r, imax_chim+1, x_e_chim )
+  sim_maxDens = maxval(rhobar_c_chim(1:i_outer))
+
   contains
 
 !!! THIS IS OLD READ IN OF KEPLER FILE
