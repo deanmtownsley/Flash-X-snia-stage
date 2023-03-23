@@ -84,6 +84,14 @@ subroutine Simulation_init()
   call RuntimeParameters_get( 'do_quad', sim_do_quad)
   call RuntimeParameters_get( 'nquad', sim_nquad)
 
+  call RuntimeParameters_get("lrefine_max", sim_lrefineMax)
+  call RuntimeParameters_get("lrefine_center", sim_lrefCenter)
+  if (sim_lrefCenter == 0) sim_lrefCenter = sim_lrefineMax
+
+  call RuntimeParameters_get("fullAngRefRad", sim_fullAngRefRad)
+
+  call RuntimeParameters_get("tinitial", sim_tinitial)
+
 !  call RuntimeParameters_get('xhe4', sim_xhe4)
 !  call RuntimeParameters_get('xc12', sim_xc12)
 !  call RuntimeParameters_get('xo16', sim_xo16)

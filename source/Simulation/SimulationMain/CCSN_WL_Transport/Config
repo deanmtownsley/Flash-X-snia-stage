@@ -53,6 +53,14 @@ PARAMETER do_quad	        BOOLEAN FALSE
 D nquad	  number of quadrature points in each dimension for mapping of model
 PARAMETER nquad		        INTEGER 2
 
+# custom refinement
+
+D lrefine_center		Refinement level of central region (usually < lrefine_max). If <=0, use lrefine_max.
+PARAMETER lrefine_center	INTEGER 0
+
+D fullAngRefRad			Inside this radius, refinement forced up to max allowed by gr_lrefineMaxRedRadiusFact
+PARAMETER fullAngRefRad   	REAL 0.0
+
 # Extra variables
 VARIABLE BDRY #For cutting out the PNS with rigid body
 

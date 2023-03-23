@@ -73,7 +73,7 @@ subroutine Grid_markRefineDerefine()
                              Grid_markRefineSpecialized
   use gr_interface,   ONLY : gr_markRefineDerefine, &
                              gr_enforceMaxRefine
-  use Simulation_data, ONLY : sim_maxDens
+  use Simulation_data, ONLY : sim_maxDens, sim_fullAngRefRad, sim_lrefCenter
   implicit none
 
 #include "constants.h"
@@ -145,6 +145,11 @@ subroutine Grid_markRefineDerefine()
 
   if(gr_enforceMaxRefinement) call gr_enforceMaxRefine(gr_maxRefine)
 
+  ! Force refinement inside of specified radius
+  spec(1:3) = 0.0
+  spec(4) = sim_fullAngRefRad
+  call Grid_markRefineSpecialized(INRADIUS,4,spec,sim_lrefCenter)
+
   if(gr_lrefineMaxRedDoByLogR) &
        call gr_unmarkRefineByLogRadius(gr_lrefineCenterI,&
        gr_lrefineCenterJ,gr_lrefineCenterK)
@@ -157,17 +162,12 @@ subroutine Grid_markRefineDerefine()
      derefine(:) = .false.
   end where
 
-  ! Force refinement inside of specified radius
-  spec(1:3) = 0.0
-  spec(4) = 600.0e5
-  call Grid_markRefineSpecialized(INRADIUS,4,spec,lrefine_max)
-
   ! And we don't need too much resolution well before bounce
   if (sim_maxDens > 0.) then
      if (sim_maxDens < 1.e11) then
-        call gr_enforceMaxRefine(lrefine_max-2)
+        call gr_enforceMaxRefine(sim_lrefCenter-2)
      else if (sim_maxDens < 1.e12) then
-        call gr_enforceMaxRefine(lrefine_max-1)
+        call gr_enforceMaxRefine(sim_lrefCenter-1)
      end if
   end if
   
