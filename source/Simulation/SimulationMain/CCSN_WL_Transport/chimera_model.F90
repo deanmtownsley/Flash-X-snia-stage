@@ -433,10 +433,15 @@ contains
     allocate (name_nuc_chim(nnc_chim))
     allocate (xn_read(nnc_chim,nx_chim,ny_chim,nz_chim))
     allocate (xn_c_chim(NSPECIES,nx_chim,ny_chim,nz_chim))
-    allocate (nse_c_chim(nx_chim+1,ny_chim,nz_chim))
     allocate (a_aux_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (z_aux_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (be_aux_c_chim(nx_chim,ny_chim,nz_chim))
+    ! chimera changed dimensions of nse_c in r4491, so use this to get backwards-compatibility
+    if ( nx_chim == imax_chim ) then
+       allocate (nse_c_chim(nx_chim,ny_chim,nz_chim))
+    else
+       allocate (nse_c_chim(nx_chim+1,ny_chim,nz_chim))
+    end if
 
     ! read nuclei values
     datasize1d(1) = nnc_chim-1
@@ -493,7 +498,12 @@ contains
 #endif
 
     ! read nse state
-    datasize3d = (/ nx_chim+1, ny_chim, nz_chim /)
+    ! chimera changed dimensions of nse_c in r4491, so use this to get backwards-compatibility
+    if ( nx_chim == imax_chim ) then
+       datasize3d = (/ nx_chim+1, ny_chim, nz_chim /)
+    else
+       datasize3d = (/ nx_chim  , ny_chim, nz_chim /)
+    end if
     slab_offset3d = (/ 0, 0, 0 /)
     call read_ray_hyperslab('nse_c', nse_c_chim, group_id, datasize3d, slab_offset3d)
 
