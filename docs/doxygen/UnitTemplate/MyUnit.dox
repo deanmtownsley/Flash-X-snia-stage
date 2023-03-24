@@ -1,8 +1,7 @@
 /**
 @defgroup MyUnit Flash-X Doxygen Documentation Template
 
-@brief
-<Insert a brief, high-level description of unit>
+@brief  <Insert a brief, high-level description of unit>
 
 @details
 While the inline documentation in the stubs supplies the contract at the level
