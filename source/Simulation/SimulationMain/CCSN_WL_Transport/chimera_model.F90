@@ -90,6 +90,7 @@ module chimera_model_module
   real (dp), allocatable, save :: eb_c_chim(:,:,:)
   real (dp), allocatable, save :: em_c_chim(:,:,:)
   real (dp), allocatable, save :: s_c_chim(:,:,:)
+  real (dp), allocatable, save :: sumy_c_chim(:,:,:)
 
   real (dp), allocatable, save :: rhobar_c_chim(:)
   real (dp), allocatable, save :: tbar_c_chim(:)
@@ -368,6 +369,7 @@ contains
     allocate (eb_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (em_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (s_c_chim(nx_chim,ny_chim,nz_chim))
+    allocate (sumy_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (gravx_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (gravy_c_chim(nx_chim,ny_chim,nz_chim))
     allocate (gravz_c_chim(nx_chim,ny_chim,nz_chim))
@@ -419,8 +421,6 @@ contains
     ! close fluid group
     call h5gclose_f(group_id, ierr)
 
-#ifdef FLASH_MULTISPECIES
-
     ! open abundance group
     call h5gopen_f(file_id, '/abundance', group_id, ierr)
     if (ierr /= 0) call Driver_abort('Could not open /abundance group')
@@ -458,6 +458,8 @@ contains
     slab_offset4d = (/ 0, 0, 0, 0 /)
     call read_ray_hyperslab('xn_c', xn_read, group_id, datasize4d, slab_offset4d)
 
+#ifdef FLASH_MULTISPECIES
+
     ! create lookup tables for isotopes in FLASH net
     k = 0
     net_to_flash(:) = nnc_chim
@@ -488,6 +490,8 @@ contains
 
     xn_c_chim(net_in_flash,:,:,:) = xn_read(net_to_flash(net_in_flash),:,:,:)
 
+#endif
+
     ! read nse state
     datasize3d = (/ nx_chim+1, ny_chim, nz_chim /)
     slab_offset3d = (/ 0, 0, 0 /)
@@ -507,6 +511,12 @@ contains
     end do
     eb_c_chim(:,:,:) = eb_c_chim(:,:,:) - xn_read(nnc_chim,:,:,:)*be_aux_c_chim(:,:,:)/a_aux_c_chim(:,:,:)
 
+    sumy_c_chim(:,:,:) = zero
+    do i = 1, nnc_chim-1
+      sumy_c_chim(:,:,:) = sumy_c_chim(:,:,:) + xn_read(i,:,:,:)/a_nuc_chim(i)
+    end do
+    sumy_c_chim(:,:,:) = sumy_c_chim(:,:,:) + xn_read(nnc_chim,:,:,:)/a_aux_c_chim(:,:,:)
+
     ! convert from MeV/c^2 to erg/g
     call PhysicalConstants_get('speed of light', c_light)
     call PhysicalConstants_get('electron charge', q_e)
@@ -523,8 +533,6 @@ contains
 
     ! close abundance group
     call h5gclose_f(group_id, ierr)
-
-#endif
 
 #ifdef FLASH_PARTICLES
     ! open particle group
@@ -607,6 +615,7 @@ contains
        deallocate(eb_c_chim)
        deallocate(em_c_chim)
        deallocate(s_c_chim)
+       deallocate(sumy_c_chim)
        deallocate(gravx_c_chim)
        deallocate(gravy_c_chim)
        deallocate(gravz_c_chim)

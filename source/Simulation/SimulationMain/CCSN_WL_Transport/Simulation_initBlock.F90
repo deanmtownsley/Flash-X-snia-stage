@@ -100,7 +100,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
   real :: dens_interp, velx_interp, vely_interp, velz_interp
   real :: temp_interp, pres_interp, eint_interp, spec_interp(NSPECIES)
-  real :: ye_interp, var_interp
+  real :: ye_interp, sumy_interp, var_interp
   real :: radCenter, thtCenter, phiCenter
   real :: radCenterVol, thtCenterVol, phiCenterVol
 
@@ -246,6 +246,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #if defined (YE_MSCALAR)
                     call interp1d_linear(x_c_chim, ye_c_chim(:,1,1), radCenter, ye_interp)
 #endif
+#if defined (SUMY_MSCALAR)
+                    call interp1d_linear(x_c_chim, sumy_c_chim(:,1,1), radCenter, sumy_interp)
+#endif
                  else if ( NDIM == 2 ) then
                     ! Interpolate density in volume
                     call interp2d_linear(volx_c_chim, voly_c_chim, rho_c_chim(:,:,1), &
@@ -270,6 +273,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #if defined (YE_MSCALAR)
                     call interp2d_linear(x_c_chim, y_c_chim(1:ny_chim), ye_c_chim(:,:,1), &
                        &                 radCenter, thtCenter, ye_interp)
+#endif
+#if defined (SUMY_MSCALAR)
+                    call interp2d_linear(x_c_chim, y_c_chim(1:ny_chim), sumy_c_chim(:,:,1), &
+                       &                 radCenter, thtCenter, sumy_interp)
 #endif
                  else if ( NDIM == 3 ) then
                     ! Interpolate density in volume
@@ -296,6 +303,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     call interp3d_linear(x_c_chim, y_c_chim(1:ny_chim), z_c_chim(1:nz_chim), ye_c_chim(:,:,:), &
                        &                 radCenter, thtCenter, phiCenter, ye_interp)
 #endif
+#if defined (SUMY_MSCALAR)
+                    call interp3d_linear(x_c_chim, y_c_chim(1:ny_chim), z_c_chim(1:nz_chim), sumy_c_chim(:,:,:), &
+                       &                 radCenter, thtCenter, phiCenter, sumy_interp)
+#endif
                  end if
                  solnData(DENS_VAR,i,j,k) = dens_interp
                  solnData(EINT_VAR,i,j,k) = eint_interp
@@ -304,6 +315,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  solnData(SPECIES_BEGIN:SPECIES_END,i,j,k) = spec_interp(:)
 #if defined (YE_MSCALAR)
                  solnData(YE_MSCALAR,i,j,k) = ye_interp
+#endif
+#if defined (SUMY_MSCALAR)
+                 solnData(SUMY_MSCALAR,i,j,k) = sumy_interp
 #endif
                  if ( meshGeom == CARTESIAN ) then
                     solnData(VELX_VAR,i,j,k) = + velx_interp * sin( thtCenter ) * cos( phiCenter ) &
@@ -382,6 +396,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
            endif
 
 #if NSPECIES > 0
+
 #if defined (YE_MSCALAR)
            call renorm_mass_ye(solnData(YE_MSCALAR,i,j,k),solnData(SPECIES_BEGIN:SPECIES_END,i,j,k))
 #else
@@ -392,10 +407,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               & max(sim_smallx,min(1.0,suminv*solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)))
 #endif
 
-#endif
 #if defined (SUMY_MSCALAR)
-           call Eos_getAbarZbar(solnData(:,i,j,k),abar,zbar,sumY)
+           call Multispecies_getSumInv(A,sumY,solnData(SPECIES_BEGIN:SPECIES_END,i,j,k))
            solnData(SUMY_MSCALAR,i,j,k) = sumY
+#endif
+
 #endif
 
         end do
