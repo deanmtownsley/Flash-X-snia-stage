@@ -17,7 +17,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
+subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                                   dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                   xMin, xMax, yMin, yMax, zMin, zMax, &
                                   outletFlag, outletBuffer, outletGrowthRate, &
@@ -26,7 +26,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
 
    implicit none
    real, dimension(:, :, :), intent(in) :: vel, phi
-   real, dimension(:, :, :), intent(inout) :: rhs
+   real, dimension(:, :, :), intent(inout) :: rhs, sigm
    real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -109,6 +109,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
 
                   ! Set source term for navier-stokes equation
                   rhs(i, j, k) = rhs(i, j, k) + velforce*outletFlag(ibound, idimn)*outprofile(ibound, idimn)
+                  sigm(i, j, k) = sigm(i, j, k) - sigm(i, j, k)*outletFlag(ibound, idimn)*outprofile(ibound, idimn)
                end do
             end do
 
@@ -119,11 +120,17 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
                iliq = (1 - int(sign(1., phiface(axis))))/2
                igas = (1 + int(sign(1., phiface(axis))))/2
 
-               QAuxLiq(ibound, axis) = QAuxLiq(ibound, axis) + iliq*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAuxLiq(ibound, axis) = volAuxLiq(ibound, axis) + iliq*outletFlag(ibound, axis)*outprofile(ibound, axis)
+               QAuxLiq(ibound, axis) = QAuxLiq(ibound, axis) + &
+                                       iliq*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
 
-               QAuxGas(ibound, axis) = QAuxGas(ibound, axis) + igas*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAuxGas(ibound, axis) = volAuxGas(ibound, axis) + igas*outletFlag(ibound, axis)*outprofile(ibound, axis)
+               volAuxLiq(ibound, axis) = volAuxLiq(ibound, axis) + &
+                                         iliq*outletFlag(ibound, axis)*outprofile(ibound, axis)
+
+               QAuxGas(ibound, axis) = QAuxGas(ibound, axis) + &
+                                       igas*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
+
+               volAuxGas(ibound, axis) = volAuxGas(ibound, axis) + &
+                                         igas*outletFlag(ibound, axis)*outprofile(ibound, axis)
             end do
 
          end do

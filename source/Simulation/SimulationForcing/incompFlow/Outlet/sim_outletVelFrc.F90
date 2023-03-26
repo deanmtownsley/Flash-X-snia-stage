@@ -104,8 +104,11 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
             ! Update QAux and volAux on local processor
             ! This is later used to compute QOut in Simulation_adjustEvolution
             do ibound = LOW, HIGH
-               QAux(ibound, axis) = QAux(ibound, axis) + outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAux(ibound, axis) = volAux(ibound, axis) + outletFlag(ibound, axis)*outprofile(ibound, axis)
+               QAux(ibound, axis) = QAux(ibound, axis) + &
+                                    outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
+
+               volAux(ibound, axis) = volAux(ibound, axis) + &
+                                      outletFlag(ibound, axis)*outprofile(ibound, axis)
             end do
 
          end do

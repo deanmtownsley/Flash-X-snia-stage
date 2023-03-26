@@ -81,13 +81,19 @@ subroutine Driver_evolveAll()
    use HeatAD_interface, ONLY: HeatAD_diffusion, HeatAD_advection, HeatAD_solve, HeatAD_reInitGridVars, &
                                HeatAD_indicators, HeatAD_getGridVar
 
-   use Simulation_interface, ONLY: Simulation_adjustEvolution
-
    use IncompNS_data, ONLY: ins_predcorrflg, ins_pressureBC_types, ins_pressureBC_values, &
                             ins_poisfact
 
 #ifdef MULTIPHASE_MAIN
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
+#endif
+
+#ifdef SIMULATION_FORCE_HEATER
+   use sim_heaterInterface, ONLY: sim_forceHeater
+#endif
+
+#ifdef SIMULATION_FORCE_OUTLET
+   use sim_outletInterface, ONLY: sim_forceOutlet
 #endif
 
    implicit none
@@ -218,10 +224,12 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Apply simulation specific modifications
+#ifdef SIMULATION_FORCE_HEATER
+      ! Apply heater specific forcing
       !------------------------------------------------------------
-      call Simulation_adjustEvolution(dr_nstep, dr_dt, dr_simTime)
+      call sim_forceHeater(dr_nstep, dr_dt, dr_simTime)
       !------------------------------------------------------------
+#endif
 
 #ifdef MULTIPHASE_MAIN
       ! Update fluid and thermal properties
@@ -335,6 +343,13 @@ subroutine Driver_evolveAll()
                                maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
+#endif
+
+#ifdef SIMULATION_FORCE_OUTLET
+      ! Apply outlet specific forcing
+      !------------------------------------------------------------
+      call sim_forceOutlet(dr_nstep, dr_dt, dr_simTime)
+      !------------------------------------------------------------
 #endif
 
       !------------------------------------------------------------
