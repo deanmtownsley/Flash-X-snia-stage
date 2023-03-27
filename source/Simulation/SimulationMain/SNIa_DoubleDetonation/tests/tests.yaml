@@ -53,7 +53,7 @@ Comparison/SNIaDDT/AMR/2d/Paramesh:
 
 # The following test used to be configured with -test.
 Comparison/SNIaDDT/AMR/2d/spark:
-  setupOptions: -auto -2d +sparkinhost  +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  setupOptions: -auto -2d +spark +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
   parfiles: testfaster_amr_unsplit_2d.par
   transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
 
