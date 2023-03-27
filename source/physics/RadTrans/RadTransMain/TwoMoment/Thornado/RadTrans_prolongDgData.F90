@@ -47,7 +47,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip)
      RefineX_TwoMoment
 
   Use GeometryFieldsModule, Only: &
-     nGF
+     nGF, iGF_SqrtGm
   Use GeometryComputationModule, Only: &
      ComputeGeometryX
   Use MeshModule, Only : &
