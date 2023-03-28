@@ -56,6 +56,8 @@ FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
 FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 	-ffree-line-length-none
 
+FFLAGS_MPI = -DHAVE_MPI_MODULE
+
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
@@ -70,8 +72,8 @@ CFLAGS_OPT = -ggdb -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
 
 CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 -Wconversion -Wstrict-prototypes -Wunreachable-code \
--pedantic -Wall -Wextra -Wno-unused -Winit-self -ftree-vrp -Wfloat-equal \
--Wunsafe-loop-optimizations -Wpadded -fstack-protector-all
+-pedantic -Wall -Wextra -Wno-unused -Winit-self -Wfloat-equal \
+-Wpadded -fstack-protector-all
 
 CFLAGS_TEST = -ggdb -c
 

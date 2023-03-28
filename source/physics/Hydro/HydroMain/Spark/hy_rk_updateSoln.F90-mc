@@ -48,7 +48,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,&
        hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hya_farea,hya_cvol,hya_xCenter,hya_xLeft,&
+  use Hydro_data, ONLY: hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
        hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
@@ -66,7 +66,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   real, dimension(3), intent(IN) :: hy_coeffs
   real,dimension(:,:,:,:),pointer :: hy_grav, &
        hy_flx,hy_fly,hy_flz
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
+  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
   real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
 
   integer :: i,j,k,n,g

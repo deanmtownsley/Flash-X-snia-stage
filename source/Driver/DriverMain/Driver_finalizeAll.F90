@@ -46,6 +46,7 @@ subroutine Driver_finalizeAll()
   use HeatAD_interface, ONLY: HeatAD_finalize
   use Stencils_interface, ONLY: Stencils_finalize
   use ImBound_interface, ONLY: ImBound_finalize
+  use MoL_interface, ONLY: MoL_finalize
 implicit none
 #include "mpif.h"
 
@@ -76,9 +77,11 @@ implicit none
 
   call HeatAD_finalize()          ! Heat Advection Diffusion
 
-  call Stencils_finalize()       ! Stencils units
+  call Stencils_finalize()        ! Stencils units
 
   call ImBound_finalize()         ! Immersed Boundary
+
+  call MoL_finalize()             ! Method of Lines
 
   call IO_finalize()
 

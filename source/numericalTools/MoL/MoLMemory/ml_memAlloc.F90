@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ subroutine ml_memAlloc()
 
    ! Don't need guard-cells here
 #ifdef MOL_REORDER
-   allocate (scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
+   allocate (ml_scratch_data(lim(LOW, IAXIS):lim(HIGH, IAXIS), &
                           lim(LOW, JAXIS):lim(HIGH, JAXIS), &
                           lim(LOW, KAXIS):lim(HIGH, KAXIS), &
                           ml_nvars, &
@@ -58,5 +58,5 @@ subroutine ml_memAlloc()
                              MAXBLOCKS, &
                              ml_nscratch_total))
 #endif
-   ml_scratch_data = 0d0
+   ml_scratch_data = 0.0
 end subroutine ml_memAlloc

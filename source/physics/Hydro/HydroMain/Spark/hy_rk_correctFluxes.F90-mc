@@ -22,7 +22,8 @@
 !!                            integer (IN)  :: blkLimitsGC(:,:),
 !!                            integer (IN)  :: level,
 !!                            real (IN)     :: hy_del(:),
-!!                            real (IN)     :: dt)
+!!                            real (IN)     :: dt,
+!!                            logical (IN)  :: isFlux)
 !!     
 !!
 !!  DESCRIPTION
@@ -45,12 +46,12 @@
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 !!NOVARIANTS
 
-subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
+subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlux)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_cvol,&
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,&
        hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter,hy_eosData, hy_mfrac
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
@@ -68,12 +69,13 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   integer,intent(IN) :: level
   real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt
+  logical, intent(IN) :: isFlux
 
   integer, dimension(MDIM) :: lo, hi
   
   integer :: i,j,k,n,g
 
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_cvol
+  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
   real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
 
   real, pointer :: p_fluxBufX(:,:,:,:),p_fluxBufY(:,:,:,:),p_fluxBufZ(:,:,:,:)
@@ -112,8 +114,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
   p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_fluxBufZ
 #endif
 #endif
-
-  @M hy_map_geom 
+  if(hy_geometry /= CARTESIAN) then
+     @M hy_map_geom
+  end if   
   !Change limits to grownTile?
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
@@ -128,7 +131,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         ! Get geometric factors and sources
 !!        call geoFacs(i,j,k,facM,facP)
         !!Geometric factors for non-Cartesian geometries
-        @M hy_geom_flux_correct
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+        else
+           @M hy_geom_flux_correct
+        end if
         fac = facM
         ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         !Update primitives (Vstar)
@@ -159,7 +166,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         dx = hy_del(IAXIS)
         ! Get geometric factors and sources
 !!        call geoFacs(i,j,k,facM,facP)
-        @M hy_geom_flux_correct
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+        else
+           @M hy_geom_flux_correct
+        end if
 	fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
@@ -190,6 +201,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         dFlux = -p_fluxBufY(:,i  ,j  ,k  )
         fac = 1.0
         dx = hy_del(JAXIS)
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+           fac = facM
+        end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -210,8 +225,13 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         dFlux = p_fluxBufY(:,i  ,j+1  ,k  )
-        fac = 1.0
         dx = hy_del(JAXIS)
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+           fac = facP
+        else
+           fac = 1.0
+        end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -238,6 +258,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         dFlux = -p_fluxBufZ(:,i  ,j  ,k  )
         fac = 1.0
         dx = hy_del(KAXIS)
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+           fac = facM
+        end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -258,8 +282,13 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         dFlux = p_fluxBufZ(:,i  ,j  ,k+1  )
-        fac = 1.0
         dx = hy_del(KAXIS)
+        if (isFlux) then
+           @M hy_geom_flux_dxdv
+           fac = facP
+        else
+           fac = 1.0
+        end if
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -279,8 +308,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt)
 
 
   nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
-  @M hy_release_geom
-
+  
+  if(hy_geometry /= CARTESIAN) then
+    @M hy_release_geom
+  end if
 contains
 
   !!Update cell state based on flux hy_del

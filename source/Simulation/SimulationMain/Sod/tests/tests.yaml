@@ -12,18 +12,21 @@ Composite/Sod/PseudoUG/2d/AMReX/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM
+  setupOptions: -auto -2d +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/sparkMT:
-  setupOptions: -auto -2d -debug +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+  setupOptions: -auto -2d +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/sparkPIO:
-  setupOptions: -auto -2d -debug +amrex +sparkbase2d  +parallelIO
+  setupOptions: -auto -2d +amrex +sparkbase2d  +parallelIO
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 # end PseudoUG AMReX 2d
@@ -39,8 +42,9 @@ Composite/Sod/PseudoUG/2d/Paramesh/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/Paramesh/sparkMT:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +spark  +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 # end PseudoUG Paramesh 2d
@@ -113,8 +117,9 @@ Comparison/Sod/UG/2d/unsplit:
   setupOptions: -auto -2d -debug +uhd +ug +nofbs
   parfiles: test_pseudoug_2d.par
 
+# The following test used to be configured with -debug.
 Comparison/Sod/UG/2d/spark:
-  setupOptions: -auto -2d -debug +spark  +ug +nofbs
+  setupOptions: -auto -2d +spark +ug +nofbs
   parfiles: test_pseudoug_2d.par
 
 #  comment: Set OMP_NUM_THREADS=2 since libamex with omp support is installed

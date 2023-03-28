@@ -1,8 +1,17 @@
-# source/physics/Hydro/HydroMain/Spark/NonTelescoping
+##python3:genLines
 
 # Config file for the Spark Hydro solvers without telescoping
-# Note: It requires an unsplit driver which is different from
-#       the FLASH default split scheme.
+# [physics/Hydro/HydroMain/Spark/NonTelescoping]
+
+import os.path
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    yield '''
+
+UNOFFICIAL
 
 USESETUPVARS useMP5
 USESETUPVARS useGLM
@@ -11,6 +20,8 @@ USESETUPVARS useFog
 USESETUPVARS useLim03
 USESETUPVARS nontelescoping
 
+# The Amrex Grid does not support SCRATCH_CTR variables in the way needed here:
+CONFLICTS Grid/GridMain/AMR/Amrex
 
 IF useTVD or useLim03 or useFog
   GUARDCELLS 2
@@ -28,3 +39,7 @@ SCRATCHCENTERVAR zmom
 SCRATCHCENTERVAR mene                  	
 
 PARAMETER telescoping          BOOLEAN  FALSE
+'''
+
+    for i in range(33-5):
+        yield 'SCRATCHCENTERVAR zz%.2d' % (i+6)

@@ -1,6 +1,6 @@
 #include "constants.h"
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ module Hydro_data
   real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
   real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
   real, allocatable, dimension(:),target :: hya_farea, hya_cvol
+  real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
   real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
   !Flux buffers

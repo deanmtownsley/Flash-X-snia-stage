@@ -1,7 +1,7 @@
 REQUIRES Driver
 REQUIRES Grid
 REQUIRES physics/Hydro
-#REQUIRES physics/Gravity/GravityMain/Poisson
+REQUIRES physics/Gravity/GravityMain/Poisson
 REQUIRES physics/Eos/EosMain/Helmholtz
 REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
 REQUIRES Simulation/SimulationComposition

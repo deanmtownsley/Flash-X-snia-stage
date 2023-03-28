@@ -83,6 +83,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   
   call Timers_start("Hydro")
   
+  call check_if_on_GPU()
+  
   hdt = 0.5*dt
   
 
@@ -143,10 +145,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
 
-        !$omp target teams distribute parallel do simd collapse(3) &
-        !$omp default(none) &
-        !$omp private(i, j, k, v) &
-        !$omp shared(blkLimitsGC, Uin, hy_starState, hy_tmpState)
         @M hy_saveState
         
         call Timers_stop("scratch")
@@ -225,7 +223,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
         if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData(tileDesc,&
-             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:),.false.) 
+             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
         call Timers_stop("Offloaded Section")
         !$omp target exit data map(release: hy_starState, hy_tmpState, &
         !$omp                      hy_flx, hy_fly, hy_flz, &
@@ -250,14 +248,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !           !all other values are 0.
            @M hy_mapFluxBuf
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:))
+                blkLimits(LOW,:),isFluxDensity=(/hy_telescoping/))
            
            if (hy_geometry /= CARTESIAN) then
               @M hy_fill_geom
            endif
         
            
-           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt)
+           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt, .NOT.hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom
            end if
@@ -298,13 +296,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = U0
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
-           @M hy_stages_t
-              ng=hy_limitsArray(stage)
-              @M hy_setLims(ng)
+           do stage=1,last_stage
               do dir=1,NDIM
                  @M hy_calc_lim
               end do
-           @M hy_end_stages_t
+
+           end do
            ng = NGUARD-1
            @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
@@ -387,7 +384,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do!stage loop
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:),.false.)
+                blkLimits(LOW,:))
            @M hy_release_scr_ptrs
            @M iter_end
         enddo!loop over levels
@@ -510,4 +507,27 @@ contains
     
   end subroutine shockDetect
 
+  
+  
+  subroutine check_if_on_GPU()
+!$  use omp_lib, ONLY : omp_is_initial_device
+    use Driver_interface, ONLY : Driver_abort
+    implicit none
+    logical :: onCPU
+    
+    onCPU = .TRUE.
+    
+    !$omp target map(tofrom:onCPU)
+    !$  onCPU = omp_is_initial_device()
+    !$omp end target
+    
+    if (onCPU) then
+       print *, "---------------- Running on CPU --------------------------------"
+       ! call Driver_abort("Unable to run on GPU")
+    else
+       print *, "---------------- Running on GPU --------------------------------"
+    end if
+    
+  end subroutine check_if_on_GPU
+  
 end subroutine Hydro

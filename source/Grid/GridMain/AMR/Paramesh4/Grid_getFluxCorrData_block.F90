@@ -126,11 +126,18 @@ subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, 
   integer, dimension(MDIM) :: offs
   integer                  :: offx, offy, offz
   logical                  :: loCase4, hiCase4
+  logical                  :: allIsFlux
   real,allocatable,target :: faceAreas(:,:,:)
   real,pointer            :: areaLeft(:,:,:)
 
   level = blockDesc % level
   blockID = blockDesc % id
+
+  if (present(isFluxDensity)) then
+     allIsFlux = ( size(isFluxDensity,1) > 0 .AND. .NOT. ANY(isFluxDensity) )
+  else
+     allIsFlux = .FALSE.
+  end if
 
   sx = NGUARD+1
   sy = NGUARD*K2D+1
@@ -150,18 +157,22 @@ subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, 
   ztrue= (NDIM>2)
 
 
-  select case (gr_geometry)
-  case(CARTESIAN)
+  if (allIsFlux) then
      divideFluxx = .false. ; divideFluxy = .false. ; divideFluxz = .false.
-  case(SPHERICAL)
-     divideFluxx = (NDIM>1); divideFluxy = .TRUE.  ; divideFluxz = .TRUE.
-  case(POLAR)
-     divideFluxx = .FALSE. ; divideFluxy = .FALSE. ; divideFluxz = .TRUE.
-  case(CYLINDRICAL)
-     divideFluxx = .FALSE. ; divideFluxy = .TRUE.  ; divideFluxz = .FALSE.
-  end select
-
-  multFixed = ((NDIM > 1) .AND. (gr_geometry .NE. CARTESIAN))
+     multFixed = .FALSE.
+  else
+     select case (gr_geometry)
+     case(CARTESIAN)
+        divideFluxx = .false. ; divideFluxy = .false. ; divideFluxz = .false.
+     case(SPHERICAL)
+        divideFluxx = (NDIM>1); divideFluxy = .TRUE.  ; divideFluxz = .TRUE.
+     case(POLAR)
+        divideFluxx = .FALSE. ; divideFluxy = .FALSE. ; divideFluxz = .TRUE.
+     case(CYLINDRICAL)
+        divideFluxx = .FALSE. ; divideFluxy = .TRUE.  ; divideFluxz = .FALSE.
+     end select
+     multFixed = ((NDIM > 1) .AND. (gr_geometry .NE. CARTESIAN))
+  end if
 
   if (nfluxes > 0) then
      fluxx(1:,gr_iloFl:,gr_jloFl:,gr_kloFl:) => fluxBufX ! fluxx,fluxy,fluxz use local (Paramesh) index counting
@@ -172,7 +183,7 @@ subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, 
 !!$     else
 !!$        presP => presDefault
 !!$     end if
-     
+
      offs(:) = blockDesc%blkLimitsGC(LOW,1:MDIM) - 1
      offx = offs(IAXIS); offy = offs(JAXIS); offz = offs(KAXIS)
 
