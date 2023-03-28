@@ -56,7 +56,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use UnitsModule, ONLY : Centimeter, Gram, Second
 
 #if defined(THORNADO_ORDER_V)
-  use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
+  use TwoMoment_UtilitiesModule, ONLY : ComputeConserved_TwoMoment
 #endif
 
   implicit none
