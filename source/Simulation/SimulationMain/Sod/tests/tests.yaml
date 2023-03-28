@@ -69,14 +69,14 @@ Composite/Sod/AMR/2d/AMReX/unsplitAsyncIO:
   setupOptions: -auto -2d -debug +uhd +amrex +nolwf +parallelIO +hdf5AsyncIO
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
+# end AMR AMReX 2d
 
+# AMR Paramesh 2d
 Composite/Sod/AMR/2d/Paramesh/simpleUnsplit:
   setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
   parfiles: test_amr_2d.par
   restartParfiles: test_amr_2d_restart.par
-# end AMR AMReX 2d
 
-# AMR Paramesh 2d
 Composite/Sod/AMR/2d/Paramesh/unsplit:
   setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf -gridinterpolation=monotonic
   parfiles: test_amr_unsplit_2d.par

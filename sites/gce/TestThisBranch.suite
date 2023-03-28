@@ -1,0 +1,23 @@
+# A shorter test suite file for testing THIS BRANCH with gce
+# comments start with "#"
+
+# These are some Sod Composite AMR tests that have given changed
+# results, sometimes only very slightly different, after the
+# changes of Issue #421 / PR #422 were applied.
+# Those changes relate to the behavior of Paramesh4 block data
+# restriction wrt ancestor blocks and are implemented purely in
+# the Paramesh4/PM4_package submodule code.
+# The list of tests here is a subset of those in the current
+# Production.suite.  - K. Weide
+
+#------------------------------------------------
+# Tests for - Sod
+#------------------------------------------------
+
+Sod -t "Composite/Sod/AMR/2d/Paramesh/unsplit" -np 1 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/AMR/2d/Paramesh/simpleUnsplit" -np 1 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/AMR/2d/pm4Bittree/simpleUnsplit" -np 1 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/unsplit" -np 2 \
+	-e OMP_NUM_THREADS=2 -e OMP_STACKSIZE=16M -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/AMR/2d/pm4AltMortonBittree/unsplit" -np 2 \
+	-e OMP_NUM_THREADS=1 -cbase 2023-01-18 -rbase 2023-01-19
