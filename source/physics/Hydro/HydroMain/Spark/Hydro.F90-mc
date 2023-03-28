@@ -118,6 +118,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
+           !$omp target enter data map(to: hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &
+           !$omp                           hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
         endif
 
         @M hy_map_tmp_states
@@ -219,6 +221,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
+           !$omp target exit data map(release: hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &
+           !$omp                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS) 
