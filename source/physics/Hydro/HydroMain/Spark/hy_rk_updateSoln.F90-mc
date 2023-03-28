@@ -210,8 +210,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then
-    @M hy_release_geom
     !$omp target exit data map (release: hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
+    @M hy_release_geom
   end if
   
   
