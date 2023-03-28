@@ -40,6 +40,9 @@
 
 subroutine RadTrans( dt, pass )
 
+#include "Simulation.h"
+#include "constants.h"
+
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_everywhere
   use FluidFieldsModule, ONLY : uCF
@@ -49,7 +52,7 @@ subroutine RadTrans( dt, pass )
       Grid_getMaxRefinement, Grid_getDeltas, &
       Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_data, ONLY: gr_str_geometry
-  use RadiationFieldsModule, ONLY : uCR, nCR
+  use RadiationFieldsModule, ONLY : uCR, nCR, uPR, uAR, uGR
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
   use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_ivar
@@ -58,6 +61,9 @@ subroutine RadTrans( dt, pass )
         InitThornado_Patch, FreeThornado_Patch
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use TimeSteppingModule_Flash, ONLY : Update_IMEX_PDARS
+#if defined(THORNADO_ORDER_V)
+  use TwoMoment_UtilitiesModule, ONLY: ComputeFromConserved_TwoMoment
+#endif
   use UnitsModule, ONLY : Centimeter, Second
 
   use Grid_iterator, ONLY : Grid_iterator_t
@@ -69,9 +75,6 @@ subroutine RadTrans( dt, pass )
      ApplyBoundaryConditions_Euler_FLASH
 
   implicit none
-
-#include "Simulation.h"
-#include "constants.h"
 
   real,    intent(in)           :: dt
   integer, intent(in), optional :: pass
@@ -263,6 +266,12 @@ subroutine RadTrans( dt, pass )
     !   write(*,*) T1_R(1,1,1,1,1,1,1)
     !end if
     !deallocate( T0_R, T1_R )
+
+    ! Calculate energy-integrated (gray) quantities
+#if defined(THORNADO_ORDER_V)
+    call ComputeFromConserved_TwoMoment &
+           ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR, uAR, uGR )
+#endif
 
     ! Copy back from the Thornado arrays into Flash arrays
     
