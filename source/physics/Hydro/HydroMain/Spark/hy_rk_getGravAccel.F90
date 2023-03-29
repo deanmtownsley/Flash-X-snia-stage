@@ -53,19 +53,27 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   real,dimension(:,:,:,:),pointer :: hy_grav
   real,dimension(:),pointer :: radCenter, thtCenter
 
+  real :: delxinv
   integer :: dir, i,j,k,d
+  integer :: im, ip, jm, jp, km, kp
   
   hy_grav(1:MDIM,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
+  !$omp target enter data map(alloc: hy_grav)
 
   if(hy_geometry /= CARTESIAN) then
      radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
      thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
+     !$omp target enter data map(to: radCenter, thtCenter)
   end if
   
-  !$omp target teams distribute parallel do simd collapse(4)
+  !$omp target teams distribute parallel do simd collapse(4) &
+  !$omp default(none) &
+  !$omp private(i, j, k, d) &
+  !$omp shared(blkLimitsGC, hy_grav) &
+  !$omp map(to: blkLimitsGC)
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -77,111 +85,80 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   enddo
 
 #ifdef GRAVITY
-
-  ! AH: TODO: OpenMP directives for gravity
-
-  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
-     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+  ! For time-dependent gravity, we call the local acceleration routine
+  ! since the GPOT will be extrapolated forward in time for the RK
+  ! sub-stages.
 #ifdef FLASH_GRAVITY_TIMEDEP
-        ! For time-dependent gravity, we call the local acceleration routine
-        ! since the GPOT will be extrapolated forward in time for the RK
-        ! sub-stages. A cleaner way might be to pass a pointer to Gravity_accelOneRow
-        ! telling it what data structure to use for computing the acceleration.
-        call accelOneRow((/j,k/),IAXIS,&
-             blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1,hy_grav(IAXIS,:,j,k),hy_del,hy_starState,radCenter, thtCenter)
+#ifdef GPOT_VAR
+  !$omp target teams distribute parallel do simd collapse(3) &
+  !$omp default(none) &
+  !$omp private(i, j, k, d, delxinv, im, ip, jm, jp, km, kp) &
+  !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry) &
+  !$omp map(to: limits, hy_del)
+  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
+    do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+        do d=1,NDIM
+          select case(d)
+          case(IAXIS)
+            im=1; ip=1; jm=0; jp=0; km=0; kp=0
+          case(JAXIS)
+            im=0; ip=0; jm=1; jp=1; km=0; kp=0
+          case(KAXIS)
+            im=0; ip=0; jm=0; jp=0; km=1; kp=1
+          end select
+          delxinv = getDelXinv(d, hy_del, hy_geometry, radCenter(i), thtCenter(j))
+          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) + delxinv*(hy_starState(GPOT_VAR,i-im,j-jm,k-km) - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp))
+        end do
+      enddo
+    enddo
+  enddo
+#endif /* GPOT_VAR */
 #else
-        call Driver_abort("Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
-#endif
-     enddo
-  enddo
-#if NDIM>1
-
-#ifdef FLASH_GRAVITY_TIMEDEP
-  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
-     do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-        call accelOneRow((/i,k/),JAXIS,&
-             blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1,hy_grav(JAXIS,i,:,k),hy_del,hy_starState,radCenter, thtCenter)
-     enddo
-  enddo
-#endif
-#if NDIM==3
-
-
-#ifdef FLASH_GRAVITY_TIMEDEP
-  do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
-     do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-        call accelOneRow((/i,j/),KAXIS,&
-             blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1,hy_grav(KAXIS,i,j,:),hy_del,hy_starState,radCenter, thtCenter)
-     enddo
-  enddo
-#endif
-#endif
-#endif
+  call Driver_abort("[hy_rk_getGraveAccel] Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
+#endif /* FLASH_GRAVITY_TIMEDEP */
 #endif /* GRAVITY */
+
+  !$omp target exit data map(from: hy_grav)
   nullify(hy_grav)
   if(hy_geometry /= CARTESIAN) then
+     !$omp target exit data map(release: radCenter, thtCenter)
      nullify(radCenter)
      nullify(thtCenter)
   end if
+
+
 contains
 
-  subroutine accelOneRow(pos, sweepDir, numCells, grav, hy_del,hy_starState,&
-                 radCenter, thtCenter)
-    use Hydro_data, ONLY : hy_geometry
+  pure function getDelXinv(sweepDir, deltas, geometry, radx, thty) result(delxinv)
+
     implicit none
 
-    integer, dimension(2), intent(in) :: pos
-    integer, intent(in)               :: sweepDir, numCells
-    real, intent(inout)               :: grav(numCells)
-    real,dimension(:),pointer :: radCenter, thtCenter
-    real,dimension(:,:,:,:),pointer :: hy_starState
-    real, intent(in):: hy_del(MDIM)
-    integer         :: ii, iimin, iimax
-    real            :: gpot(numCells), delxinv
-    integer, save   :: count =1
+    integer, intent(IN) :: sweepDir, geometry
+    real, dimension(MDIM), intent(IN) :: deltas
+    real, intent(IN) :: radx, thty
 
-    !==================================================
+    real :: delxinv
 
-#ifdef GPOT_VAR
-    
+    !$omp declare target
 
-    iimin   = 1
-    iimax   = numCells
-    grav(iimin:iimax) = 0.0
-
-    !Get row of potential values and compute inverse of zone spacing
     if (sweepDir == SWEEP_X) then                     ! x-direction
-       delxinv = 1./hy_del(IAXIS)
-       gpot(:) = hy_starState(GPOT_VAR,:,pos(1),pos(2))
+       delxinv = 1./deltas(IAXIS)
     elseif (sweepDir == SWEEP_Y) then                 ! y-direction
-       delxinv = 1./hy_del(JAXIS)
-       if(hy_geometry ==SPHERICAL) delxinv = delxinv * (1.0 / radCenter(pos(1)))
-       gpot(:) = hy_starState(GPOT_VAR,pos(1),:,pos(2))
-    else                                          ! z-direction
-       delxinv = 1./hy_del(KAXIS)
-       if (hy_geometry == SPHERICAL) then
-          delxinv = delxinv * ( 1.0 / ( radCenter(pos(1)) * sin(thtCenter(pos(2))) ) )
-       else if (hy_geometry == CYLINDRICAL) then
-          delxinv = delxinv * ( 1.0 / radCenter(pos(1)) )
+       delxinv = 1./deltas(JAXIS)
+       if (geometry == SPHERICAL) delxinv = delxinv / radx
+    else                                              ! z-direction
+       delxinv = 1./deltas(KAXIS)
+       if (geometry == SPHERICAL) then
+          delxinv = delxinv / ( radx * sin(thty) )
+       else if (geometry == CYLINDRICAL) then
+          delxinv = delxinv / radx
        endif
-       gpot(:) = hy_starState(GPOT_VAR,pos(1),pos(2),:)
     endif
 
-    !----------------------------------------------------------------------
-    !               Compute gravitational acceleration
-    !**************** first-order differences
-    !                 preserves conservation
     delxinv = 0.5e0 * delxinv
-    do ii = iimin+1, iimax-1
-       grav(ii) = grav(ii) + delxinv * (gpot(ii-1) - gpot(ii+1))
-    enddo
+    return
+  end function getDelXinv
 
-    grav(iimin) = grav(iimin+1)     ! this is invalid data - must not be used
-    grav(iimax) = grav(iimax-1)
-#else
-    ! Assume constant gravitational acceleration
-
-#endif /* GPOT_VAR */
-  end subroutine accelOneRow
 
 end subroutine hy_rk_getGraveAccel
