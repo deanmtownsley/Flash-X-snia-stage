@@ -24,4 +24,4 @@ Sod -t "Composite/Sod/AMR/2d/pm4AltMortonBittree/unsplit" -np 2 \
 # Tests for - CCSN_WL
 #------------------------------------------------
 
-Sod -t "Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib" -np 4
+CCSN_WL -t "Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib" -np 4
