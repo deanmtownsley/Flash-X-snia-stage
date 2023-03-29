@@ -7,6 +7,7 @@
 !! SYNOPSIS
 !!
 !!  call rt_tm_projection ( real(IN),pointer :: Uin(:,:,:,:), 
+!!                          real(IN),pointer :: Sout(:,:,:,:),
 !!                              integer(IN) :: nX(3),
 !!                              integer(IN) :: lo(MDIM),hi(MDIM),
 !!                              integer(IN) :: u_lo(MDIM),u_hi(MDIM) )
@@ -19,6 +20,7 @@
 !!
 !! ARGUMENTS
 !! Uin - pointer to cell-centered Flash data
+!! Sout - pointer to cell-centered Flash scratch data
 !! nX - number of cells
 !! lo - lower index limits (excluding guard cells)
 !! hi - upper index limits (excluding guard cells)
@@ -27,9 +29,9 @@
 !!
 !!***
 
-!!REORDER(4): Uin
+!!REORDER(4): Uin, Sout
 
-subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
+subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -43,7 +45,7 @@ subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
 
   implicit none
 
-  real, pointer, dimension(:,:,:,:) :: Uin
+  real, pointer, dimension(:,:,:,:) :: Uin, Sout
   integer, dimension(3), intent(in) :: nX
   integer, dimension(MDIM), intent(in) :: lo,hi,u_lo,u_hi
 
@@ -63,12 +65,12 @@ subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
   ! Interpolate fluid vars from Thornado arrays into Flash arrays
 
   @M dir_enter_data &
-  @M dir_copyin()( @M dir_map_type(to) Uin, lo, hi, u_lo, u_hi, nX ) &
+  @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, u_lo, u_hi, nX ) &
   @M dir_end
 
   @M dir_loop_outer(4) &
   @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin ) &
-  @M dir_present()( ProjectionMatrix, Uin, uCF, uGF, uGR, unitsGR, nX ) &
+  @M dir_present()( ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX ) &
   @M dir_end
 
   do kc = 1, nX(3)
@@ -153,19 +155,19 @@ subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
                  HetF = HetF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_Q )
               end do
 
-              Uin( EUD_VAR,ii,jj,kk) = EuD  / unitsGR(iGR_N )
-              Uin( LAD_VAR,ii,jj,kk) = LaD  / unitsGR(iGR_D )
-              Uin(LAI1_VAR,ii,jj,kk) = LaI1 / unitsGR(iGR_I1)
-              Uin(LAI2_VAR,ii,jj,kk) = LaI2 / unitsGR(iGR_I2)
-              Uin(LAI3_VAR,ii,jj,kk) = LaI3 / unitsGR(iGR_I3)
-              Uin( LAJ_VAR,ii,jj,kk) = LaJ  / unitsGR(iGR_J )
-              Uin(LAH1_VAR,ii,jj,kk) = LaH1 / unitsGR(iGR_H1)
-              Uin(LAH2_VAR,ii,jj,kk) = LaH2 / unitsGR(iGR_H2)
-              Uin(LAH3_VAR,ii,jj,kk) = LaH3 / unitsGR(iGR_H3)
-              Uin(RMSE_VAR,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
-              Uin(FLXF_VAR,ii,jj,kk) = FlxF / unitsGR(iGR_F )
-              Uin(EDDF_VAR,ii,jj,kk) = EddF / unitsGR(iGR_K )
-              Uin(HETF_VAR,ii,jj,kk) = HetF / unitsGR(iGR_Q )
+              Sout( EUD_SCRATCH_GRID_VAR,ii,jj,kk) = EuD  / unitsGR(iGR_N )
+              Sout( LAD_SCRATCH_GRID_VAR,ii,jj,kk) = LaD  / unitsGR(iGR_D )
+              Sout(LAI1_SCRATCH_GRID_VAR,ii,jj,kk) = LaI1 / unitsGR(iGR_I1)
+              Sout(LAI2_SCRATCH_GRID_VAR,ii,jj,kk) = LaI2 / unitsGR(iGR_I2)
+              Sout(LAI3_SCRATCH_GRID_VAR,ii,jj,kk) = LaI3 / unitsGR(iGR_I3)
+              Sout( LAJ_SCRATCH_GRID_VAR,ii,jj,kk) = LaJ  / unitsGR(iGR_J )
+              Sout(LAH1_SCRATCH_GRID_VAR,ii,jj,kk) = LaH1 / unitsGR(iGR_H1)
+              Sout(LAH2_SCRATCH_GRID_VAR,ii,jj,kk) = LaH2 / unitsGR(iGR_H2)
+              Sout(LAH3_SCRATCH_GRID_VAR,ii,jj,kk) = LaH3 / unitsGR(iGR_H3)
+              Sout(RMSE_SCRATCH_GRID_VAR,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
+              Sout(FLXF_SCRATCH_GRID_VAR,ii,jj,kk) = FlxF / unitsGR(iGR_F )
+              Sout(EDDF_SCRATCH_GRID_VAR,ii,jj,kk) = EddF / unitsGR(iGR_K )
+              Sout(HETF_SCRATCH_GRID_VAR,ii,jj,kk) = HetF / unitsGR(iGR_Q )
 
            end do
         end do

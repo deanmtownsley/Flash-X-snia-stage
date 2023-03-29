@@ -36,7 +36,7 @@
 !!
 !!***
 
-!!REORDER(4): Uin
+!!REORDER(4): Uin, Sout
 
 subroutine RadTrans( dt, pass )
 
@@ -79,7 +79,7 @@ subroutine RadTrans( dt, pass )
   real,    intent(in)           :: dt
   integer, intent(in), optional :: pass
 
-  real, pointer, dimension(:,:,:,:) :: Uin
+  real, pointer, dimension(:,:,:,:) :: Uin, Sout
   real, dimension(LOW:HIGH,MDIM) :: boundBox
   integer, dimension(MDIM) :: lo, hi, u_lo, u_hi
 
@@ -99,6 +99,7 @@ subroutine RadTrans( dt, pass )
   !real, allocatable, dimension(:,:,:,:,:,:,:) :: T0_R, T1_R
 
   nullify( Uin )
+  nullify( Sout )
 
 #ifdef USE_MOL
   return
@@ -129,9 +130,10 @@ subroutine RadTrans( dt, pass )
   
     call itor%currentTile(tileDesc)
 
-    ! Get a pointer to solution data
+    ! Get a pointer to solution data and scratch data
     
     call tileDesc % getDataPtr( Uin, CENTER )
+    call tileDesc % getDataPtr( Sout, SCRATCH )
 
     ! Check if the block needs boundary condition
     ! RC: This only works for the reflecting inner boundary in 1D
@@ -192,7 +194,7 @@ subroutine RadTrans( dt, pass )
     call Timers_start( "rt_init" )
 
     @M dir_enter_data &
-    @M dir_copyin()( @M dir_map_type(to) Uin, lo, hi, u_lo, u_hi, nX ) &
+    @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, u_lo, u_hi, nX ) &
     @M dir_end
 
     call InitThornado_Patch &
@@ -277,14 +279,14 @@ subroutine RadTrans( dt, pass )
     
     call Timers_start( "rt_projection" )
     
-    call rt_tm_projection( Uin, nX, lo, hi, u_lo, u_hi )
+    call rt_tm_projection( Uin, Sout, nX, lo, hi, u_lo, u_hi )
     
     call Timers_stop( "rt_projection" )
 
     call Timers_start( "rt_finalize" )
 
     @M dir_exit_data &
-    @M dir_copyout()( @M dir_map_type(from) Uin ) &
+    @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
     @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
     @M dir_end
 
@@ -293,6 +295,7 @@ subroutine RadTrans( dt, pass )
     call Timers_stop( "rt_finalize" )
 
     call tileDesc % releaseDataPtr( Uin, CENTER )
+    call tileDesc % releaseDataPtr( Sout, SCRATCH )
 
     call itor % next()
     
