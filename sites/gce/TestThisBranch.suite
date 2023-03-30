@@ -12,13 +12,13 @@
 # Tests for - Sod
 #------------------------------------------------
 
-Sod -t "Composite/Sod/AMR/2d/Paramesh/unsplit" -np 1 -cbase 2023-03-28
-Sod -t "Composite/Sod/AMR/2d/Paramesh/simpleUnsplit" -np 1 -cbase 2023-03-28
-Sod -t "Composite/Sod/AMR/2d/pm4Bittree/simpleUnsplit" -np 1 -cbase 2023-03-28
+Sod -t "Composite/Sod/AMR/2d/Paramesh/unsplit" -np 1 -cbase 2023-03-28 -rbase 2023-03-29
+Sod -t "Composite/Sod/AMR/2d/Paramesh/simpleUnsplit" -np 1 -cbase 2023-03-28 -rbase 2023-03-29
+Sod -t "Composite/Sod/AMR/2d/pm4Bittree/simpleUnsplit" -np 1 -cbase 2023-03-28 -rbase 2023-03-29
 Sod -t "Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/unsplit" -np 2 \
-	-e OMP_NUM_THREADS=2 -e OMP_STACKSIZE=16M -cbase 2023-03-28
+	-e OMP_NUM_THREADS=2 -e OMP_STACKSIZE=16M -cbase 2023-03-28 -rbase 2023-03-29
 Sod -t "Composite/Sod/AMR/2d/pm4AltMortonBittree/unsplit" -np 2 \
-	-e OMP_NUM_THREADS=1 -cbase 2023-03-28
+	-e OMP_NUM_THREADS=1 -cbase 2023-03-28 -rbase 2023-03-29
 
 #------------------------------------------------
 # Tests for - CCSN_WL

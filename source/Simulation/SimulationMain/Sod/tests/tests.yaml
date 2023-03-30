@@ -73,12 +73,12 @@ Composite/Sod/AMR/2d/AMReX/unsplitAsyncIO:
 
 # AMR Paramesh 2d
 Composite/Sod/AMR/2d/Paramesh/simpleUnsplit:
-  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
   parfiles: test_amr_2d.par
   restartParfiles: test_amr_2d_restart.par
 
 Composite/Sod/AMR/2d/Paramesh/unsplit:
-  setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf -gridinterpolation=monotonic
+  setupOptions: -auto -2d +uhd +pm4dev +nolwf -gridinterpolation=monotonic
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
 
@@ -93,7 +93,7 @@ Composite/Sod/AMR/2d/pm4AltMortonBittree/simpleUnsplit:
   restartParfiles: test_amr_2d_restart.par
 
 Composite/Sod/AMR/2d/pm4AltMortonBittree/unsplit:
-  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True -gridinterpolation=monotonic -noc
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True -gridinterpolation=monotonic -noc
   parfiles: test_amr_TBL_unsplit_2d.par
   restartParfiles: test_amr_TBL_unsplit_2d_restart.par
 
@@ -103,7 +103,7 @@ Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/simpleUnsplit:
   restartParfiles: test_amr_2d_restart.par
 
 Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/unsplit:
-  setupOptions: -auto -2d -debug +uhd +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=monotonic -noc
+  setupOptions: -auto -2d +uhd +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=monotonic -noc
   parfiles: test_amr_TBL_unsplit_2d.par
   restartParfiles: test_amr_TBL_unsplit_2d_restart.par
 # end AMR Paramesh 2d
