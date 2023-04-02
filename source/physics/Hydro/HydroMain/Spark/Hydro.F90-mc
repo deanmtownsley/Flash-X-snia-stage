@@ -301,6 +301,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
            do stage=1,last_stage
+              ng=hy_limitsArray(stage)
+              @M hy_setLims(ng)
               do dir=1,NDIM
                  @M hy_calc_lim
               end do
