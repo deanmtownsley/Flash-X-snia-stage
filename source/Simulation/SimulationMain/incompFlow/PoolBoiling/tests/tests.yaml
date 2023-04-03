@@ -3,5 +3,10 @@
 
 Comparison/incompFlow/PoolBoiling/2d/AMReX:
   setupOptions: -auto -maxblocks=100 +amrex +parallelIO SimForceInOut=True SimLSDamping=True -2d -nxb=16 -nyb=16
-  parfiles: single_bubble.par
+  parfiles: test_single_bubble.par
   transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/single_bubble_hdf5_htr_0001
+
+Comparison/incompFlow/PoolBoiling/3d/IO:
+  setupOptions: -auto -maxblocks=20 +amrex +parallelIO SimForceInOut=True -3d -nxb=16 -nyb=16 -nzb=16
+  parfiles: test_3d_io.par
+  transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/test_3d_io.py
