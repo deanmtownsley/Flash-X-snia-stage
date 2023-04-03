@@ -169,7 +169,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    use Grid_data, ONLY: gr_dirGeom, gr_smallrho, gr_smallE
    use Grid_tile, ONLY: Grid_tile_t
    use Driver_interface, ONLY: Driver_getDt
-   use IncompNS_interface, ONLY: IncompNS_getScalarProp
+   use IncompNS_interface, ONLY: IncompNS_getScalarProp, IncompNS_getVectorProp
 
 #ifdef SIMULATION_FORCE_INLET
    use sim_inletInterface, ONLY: sim_inletApplyBCToRegion
@@ -203,6 +203,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    logical :: predcorrflg
    real, dimension(LOW:HIGH, MDIM) :: outflowVel
    real :: invReynolds
+   real, dimension(MDIM) :: gravity
+   real :: inflowVelScale
 
    select case (bcType)
    case (OUTFLOW_INS, NOSLIP_INS, SLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS) ! Incompressible solver BCs
@@ -226,6 +228,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
    call IncompNS_getScalarProp("Pred_Corr_Flag", predcorrflg)
    call IncompNS_getVectorProp("Outflow_Vel_Low", outflowVel(LOW, :))
    call IncompNS_getVectorProp("Outflow_Vel_High", outflowVel(HIGH, :))
+   call IncompNS_getVectorProp("Gravity", gravity)
+   call IncompNS_getScalarProp("Inflow_Vel_Scale", inflowVelScale)
    call gr_bcGetCoords_internal
 
    do ivar = 1, varCount
@@ -287,7 +291,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -358,7 +362,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -498,7 +502,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -549,10 +553,10 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                   if (ivar == VELC_FACE_VAR) then
                      if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = 1.
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = inflowVelScale*1.
                         k = 2*guard + 2
                         do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 2.-regionData(k - i, 1:je, 1:ke, ivar)
+                           regionData(i, 1:je, 1:ke, ivar) = inflowVelScale*2.-regionData(k - i, 1:je, 1:ke, ivar)
                         end do
 
                      else
@@ -569,7 +573,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -596,7 +600,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
 #ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
+                                             guard, face, axis, secondDir, thirdDir)
 #endif
                !--------------------------------------------------------------------------------------------------
             case (EXTRAP_INS) ! face == LOW
@@ -649,7 +653,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -732,7 +736,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -804,7 +808,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -874,7 +878,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -944,7 +948,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -995,10 +999,10 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                   if (ivar == VELC_FACE_VAR) then
                      if (isFace) then
-                        regionData(guard + 1, 1:je, 1:ke, ivar) = -1.
+                        regionData(guard + 1, 1:je, 1:ke, ivar) = -inflowVelScale*1.
                         k = 2*guard + 2
                         do i = 1, guard
-                           regionData(k - i, 1:je, 1:ke, ivar) = -2.-regionData(i, 1:je, 1:ke, ivar)
+                           regionData(k - i, 1:je, 1:ke, ivar) = -inflowVelScale*2.-regionData(i, 1:je, 1:ke, ivar)
                         end do
 
                      else
@@ -1015,7 +1019,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard
@@ -1042,7 +1046,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
 #ifdef SIMULATION_FORCE_INLET
                call sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                           guard, face, axis, secondDir, thirdDir)
+                                             guard, face, axis, secondDir, thirdDir)
 #endif
 
             case (EXTRAP_INS) ! face == HIGH
@@ -1095,7 +1099,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         do i = 1, guard
                            regionData(k - i, 1:je, 1:ke, ivar) = 0.
                         end do
-
+                  
                      else
                         k = 2*guard + 1
                         do i = 1, guard

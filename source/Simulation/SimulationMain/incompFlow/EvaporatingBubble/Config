@@ -9,3 +9,11 @@ REQUIRES physics/Multiphase/MultiphaseEvap
 REQUIRES physics/HeatAD/HeatADMain/varDiffusion
 REQUIRES physics/HeatAD/HeatADAdvection
 
+USESETUPVARS SimForceInOut
+
+IF SimForceInOut
+    REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
+    REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
+ENDIF
+
+PARAMETER sim_bubbleRadius REAL 0.25

@@ -28,6 +28,8 @@ subroutine IncompNS_getGridVar(name, value)
        value = DUST_VAR
      case("Face_Density","face_density","FACE_DENSITY")
        value = RHOF_FACE_VAR
+     case("Center_Density","center_density","CENTER_DENSITY")
+       value = RHOC_VAR
      case("Center_Viscosity","center_viscosity","CENTER_VISCOSITY")
        value = VISC_VAR
      case("Face_Pressure_Jump","face_pressure_jump","FACE_PRESSURE_JUMP")
