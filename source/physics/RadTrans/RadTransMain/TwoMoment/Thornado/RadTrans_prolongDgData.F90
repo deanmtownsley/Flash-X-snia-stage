@@ -87,6 +87,9 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
   Integer :: i1u, j1u, k1u
   Integer :: ii, jj, kk, icc, jcc, kcc
 
+  Integer :: iX1, iX2, iX3
+  Integer :: iX1_Fine, iX2_Fine, iX3_Fine
+
   Integer :: iNodeX
   Integer :: iFineX, nFineX(3), nFine
 
@@ -143,8 +146,8 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
   allocate( G_Fine(THORNADO_FLUID_NDOF,nX_Fine(1),nX_Fine(2),nX_Fine(3),nGF) )
 
   do k = 1, 3
-     call CreateMesh( MeshX_Crse(k), nX_Crse, THORNADO_NNODESX, 0, xL(k), xR(k) )
-     call CreateMesh( MeshX_Fine(k), nX_Fine, THORNADO_NNODESX, 0, xL(k), xR(k) )
+     call CreateMesh( MeshX_Crse(k), nX_Crse(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
+     call CreateMesh( MeshX_Fine(k), nX_Fine(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
   end do
 
 #if   defined( THORNADO_OMP_OL )
@@ -185,9 +188,9 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
   !$OMP PARALLEL DO COLLAPSE(4) &
   !$OMP PRIVATE( i1, j1, k1, kk, jj, ii )
 #endif
-  do iX3 = 1, nX(3)
-     do iX2 = 1, nX(2)
-        do iX1 = 1, nX(1)
+  do iX3 = 1, nX_Crse(3)
+     do iX2 = 1, nX_Crse(2)
+        do iX1 = 1, nX_Crse(1)
 
            do iNodeX = 1, THORNADO_FLUID_NDOF
               i1 = ( iX1 - 1 ) * THORNADO_NNODESX + 1
