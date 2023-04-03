@@ -48,7 +48,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #include "Eos.h"
 
 #if defined(THORNADO_ORDER_V)
-  use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
+  use TwoMoment_UtilitiesModule, ONLY : ComputeConserved_TwoMoment
 #endif
 
   use rt_data, ONLY : rt_UpperBry1
