@@ -29,8 +29,6 @@ ELSE
 ENDIF
 
 
-REQUIRES physics/Eos/localAPI
-
 D eintSwitch   a rarely used switch which ensures that internal energy calculations
 D &            maintain sufficient precision. Important only if energyTotal is dominated by energyKinetic.
 D &            If (energyInternal < eintSwitch*energyKinetic) then

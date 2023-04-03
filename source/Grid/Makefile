@@ -68,7 +68,7 @@ Grid += Grid_init.o \
 	Grid_addCoarseToFluxRegister.o \
 	Grid_setWork.o \
 	Grid_setWorkBounds.o \
-	Grid_setWorkDefault.o
+	Grid_setWorkDefault.o Grid_getMaxcells.o
 
 Grid += Grid_init.o Grid_coordTransfm.o
 
