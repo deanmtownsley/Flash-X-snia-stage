@@ -33,6 +33,9 @@ PARAMETER mph_iPropSmear REAL 1.0      # Thickness of the smeared region
 VARIABLE dfun                   # Level set distance function
 VARIABLE hdn0                   # RHS for level set advection
 VARIABLE dfrc                   # Level set forcing variable
+VARIABLE pfun                   # Sharp phase function
+VARIABLE smhv                   # Smeared phase function
+VARIABLE curv		 	# Curvature variable
 
 VARIABLE nrmx TYPE:GENERIC      # level set normal (x - direction)
 VARIABLE nrmy TYPE:GENERIC      # level set normal (y - direction)

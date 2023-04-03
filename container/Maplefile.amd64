@@ -13,10 +13,10 @@ container = "flashx"
 
 # Commands for building local image and
 # installing dependencies
-build = [
-    "git clone https://github.com/akashdhruv/FlashKit.git /home/lib/flashkit",
-    "cd /home/lib/flashkit && python3 setup.py develop",
-]
+#build = [
+#    "git clone https://github.com/akashdhruv/FlashKit.git /home/lib/flashkit",
+#    "cd /home/lib/flashkit && python3 setup.py develop",
+#]
 
 # Commands to execute inside the container and update the
 # image

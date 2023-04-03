@@ -110,5 +110,4 @@ subroutine Stencils_lsRedistance2d(phi,phi_orig,dt,dx,dy,ix1,ix2,jy1,jy2)
            end do !do j = jy1,jy2
         end do    !do i = iy1,iy2
 
-        return
 end subroutine Stencils_lsRedistance2d 
