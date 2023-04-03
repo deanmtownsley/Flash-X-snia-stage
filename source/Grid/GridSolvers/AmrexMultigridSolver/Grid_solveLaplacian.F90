@@ -48,7 +48,7 @@
 !! NOTES:
 !!  Currently, solver only works for periodic, Neumann and Dirichlet BCs
 !!  Other BCs to be implemented later
-!!  Relative and absolute tolerences for multigrid sovle - 1.e-10, 0.0
+!!  Relative and absolute tolerences for multigrid solve - 1.e-10, 0.0
 !!
 !!***
 
