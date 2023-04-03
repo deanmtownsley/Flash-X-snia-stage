@@ -228,9 +228,9 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
      do jcc = 1, nFineX(2)
         do icc = 1, nFineX(1)
 
-           do iX3 = 1, nX(3)
-              do iX2 = 1, nX(2)
-                 do iX1 = 1, nX(1)
+           do iX3 = 1, nX_Crse(3)
+              do iX2 = 1, nX_Crse(2)
+                 do iX1 = 1, nX_Crse(1)
 
                     ! store the result in child block
                     do iNodeX = 1, THORNADO_FLUID_NDOF
