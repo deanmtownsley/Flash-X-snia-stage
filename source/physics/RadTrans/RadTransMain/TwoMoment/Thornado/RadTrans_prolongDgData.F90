@@ -92,7 +92,7 @@ subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
 
   Integer, Parameter :: refine_factor = 2 ! Thornado assumes this for now
 
-  real              :: U_Fine(:,:,:,:,:)
+  real, allocatable :: U_Fine(:,:,:,:,:)
   real, allocatable :: U_Crse(:,:,:,:)
 
   real, allocatable :: G_Crse(:,:,:,:,:)
