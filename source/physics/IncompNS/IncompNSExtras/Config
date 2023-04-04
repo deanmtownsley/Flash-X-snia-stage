@@ -2,6 +2,8 @@
 REQUIRES physics/IncompNS/IncompNSMain
 REQUIRES physics/IncompNS/localAPI
 
+PPDEFINE INCOMPNS_EXTRAS
+
 #-----------------------------------------------------------------------
 VARIABLE velx                   # velocity in x direction
 VARIABLE vely            	# velocity in y direction

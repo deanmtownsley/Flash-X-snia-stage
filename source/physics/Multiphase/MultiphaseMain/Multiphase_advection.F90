@@ -58,8 +58,7 @@ subroutine Multiphase_advection(tileDesc)
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
                            faceyData(mph_iVelFVar, :, :, :), &
-                           facexData(mph_iRhoFVar, :, :, :), &
-                           faceyData(mph_iRhoFVar, :, :, :), &
+                           solnData(mph_iRhoCVar, :, :, :), &
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), &
@@ -79,8 +78,7 @@ subroutine Multiphase_advection(tileDesc)
 #ifdef MULTIPHASE_EVAPORATION
    call mph_evapVelocity2d(facexData(mph_iVelFVar, :, :, :), &
                            faceyData(mph_iVelFVar, :, :, :), &
-                           facexData(mph_iRhoFVar, :, :, :), &
-                           faceyData(mph_iRhoFVar, :, :, :), &
+                           solnData(mph_iRhoCVar, :, :, :), &
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            -solnData(MFLX_VAR, :, :, :), &
@@ -94,9 +92,7 @@ subroutine Multiphase_advection(tileDesc)
    call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
                            faceyData(mph_iVelFVar, :, :, :), &
                            facezData(mph_iVelFVar, :, :, :), &
-                           facexData(mph_iRhoFVar, :, :, :), &
-                           faceyData(mph_iRhoFVar, :, :, :), &
-                           facezData(mph_iRhoFVar, :, :, :), &
+                           solnData(mph_iRhoCVar, :, :, :), &
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
@@ -123,9 +119,7 @@ subroutine Multiphase_advection(tileDesc)
    call mph_evapVelocity3d(facexData(mph_iVelFVar, :, :, :), &
                            faceyData(mph_iVelFVar, :, :, :), &
                            facezData(mph_iVelFVar, :, :, :), &
-                           facexData(mph_iRhoFVar, :, :, :), &
-                           faceyData(mph_iRhoFVar, :, :, :), &
-                           facezData(mph_iRhoFVar, :, :, :), &
+                           solnData(mph_iRhoCVar, :, :, :), &
                            solnData(NRMX_VAR, :, :, :), &
                            solnData(NRMY_VAR, :, :, :), &
                            solnData(NRMZ_VAR, :, :, :), &
