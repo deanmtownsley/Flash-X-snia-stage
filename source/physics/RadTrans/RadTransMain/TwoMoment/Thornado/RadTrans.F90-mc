@@ -76,6 +76,8 @@ subroutine RadTrans( dt, pass )
   real,    intent(in)           :: dt
   integer, intent(in), optional :: pass
 
+  logical, save :: fakeTimer1 = .TRUE.
+
   real, pointer, dimension(:,:,:,:) :: Uin
   real, dimension(LOW:HIGH,MDIM) :: boundBox
   integer, dimension(MDIM) :: lo, hi, u_lo, u_hi
@@ -122,6 +124,19 @@ subroutine RadTrans( dt, pass )
 
   call Grid_getTileIterator( itor, LEAF, tiling=rt_enableTiling )
   
+  if (.not. itor%isValid() .AND. fakeTimer1) then
+     call Timers_start( "rt_init" )
+     call Timers_stop ( "rt_init" )
+     call Timers_start( "rt_reconstruction" )
+     call Timers_stop ( "rt_reconstruction" )
+     call Timers_start( "rt_imex" )
+     call Timers_stop ( "rt_imex" )
+     call Timers_start( "rt_projection" )
+     call Timers_stop ( "rt_projection" )
+     call Timers_start( "rt_finalize" )
+     call Timers_stop ( "rt_finalize" )
+     fakeTimer1 = .FALSE.
+  end if
   do while( itor % isValid() )
   
     call itor%currentTile(tileDesc)
@@ -284,6 +299,8 @@ subroutine RadTrans( dt, pass )
     call Timers_stop( "rt_finalize" )
 
     call tileDesc % releaseDataPtr( Uin, CENTER )
+
+    fakeTimer1 = .FALSE.
 
     call itor % next()
     
