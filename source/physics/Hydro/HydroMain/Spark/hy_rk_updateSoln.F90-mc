@@ -106,10 +106,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   !$omp target enter data map (to: hy_grav)
 
   @M hy_map_fl
-  !$omp target enter data map (alloc: hy_flx, hy_fly, hy_flz)
   if (hy_geometry /= CARTESIAN) then
     @M hy_map_geom
-    !$omp target enter data map (alloc: hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
   end if
 
   !$omp target teams distribute parallel do simd collapse(3) &
@@ -207,11 +205,10 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
      enddo !j
   enddo !k
 
-  !$omp target exit data map (release: hy_grav, hy_flx, hy_fly, hy_flz)
+  !$omp target exit data map (release: hy_grav)
   @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then
-    !$omp target exit data map (release: hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter)
     @M hy_release_geom
   end if
   

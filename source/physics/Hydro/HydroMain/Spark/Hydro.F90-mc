@@ -182,6 +182,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(hy_starState,blklimits,blkLimitsGC, limits)
+           !$omp target update from(hy_flx, hy_fly, hy_flz)
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
            
@@ -195,6 +196,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
+           !$omp target update from(hy_starState)
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
               wt=0.0
@@ -210,7 +212,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
-           !$omp target update from(hy_starState)
            call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
            !$omp target update to(hy_starState)
            call Timers_stop("eos")
