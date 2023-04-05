@@ -8,5 +8,5 @@ Comparison/incompFlow/PoolBoiling/2d/AMReX:
 
 Comparison/incompFlow/PoolBoiling/3d/IO:
   setupOptions: -auto -maxblocks=20 +amrex +parallelIO SimForceInOut=True -3d -nxb=16 -nyb=16 -nzb=16
-  parfiles: test_3d_io.par
-  transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/test_3d_io.py
+  parfiles: test_io_3d.par
+  transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/test_io_3d.py
