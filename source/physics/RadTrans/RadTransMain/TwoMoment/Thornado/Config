@@ -118,6 +118,20 @@ def genLines(setupvars):
     yield 'PPDEFINE THORNADO_BEGIN T001_VAR'
     yield 'PPDEFINE THORNADO_END T%.3d_VAR' % (nSpecies*nMoments*(nE+2*swE)*nDOFE)
 
+    yield 'SCRATCHVAR EDDF'
+    yield 'SCRATCHVAR EUD'
+    yield 'SCRATCHVAR FLXF'
+    yield 'SCRATCHVAR HETF'
+    yield 'SCRATCHVAR LAD'
+    yield 'SCRATCHVAR LAH1'
+    yield 'SCRATCHVAR LAH2'
+    yield 'SCRATCHVAR LAH3'
+    yield 'SCRATCHVAR LAI1'
+    yield 'SCRATCHVAR LAI2'
+    yield 'SCRATCHVAR LAI3'
+    yield 'SCRATCHVAR LAJ'
+    yield 'SCRATCHVAR RMSE'
+
     ##
     nguard = nNodesX * 2
     yield 'GUARDCELLS %d' % nguard

@@ -91,6 +91,20 @@ plot_var_2 = "pres"
 plot_var_3 = "velx"
 plot_var_4 = "T001"
 
+plot_grid_var_1  = "eud"
+plot_grid_var_2  = "lad"
+plot_grid_var_3  = "lai1"
+plot_grid_var_4  = "lai2"
+plot_grid_var_5  = "lai3"
+plot_grid_var_6  = "laj"
+plot_grid_var_7  = "lah1"
+plot_grid_var_8  = "lah2"
+plot_grid_var_9  = "lah3"
+plot_grid_var_10 = "rmse"
+plot_grid_var_11 = "flxf"
+plot_grid_var_12 = "eddf"
+plot_grid_var_13 = "hetf"
+
 # eos options
 eintSwitch = 1.e-4
 eos_coulombMult = 1.0

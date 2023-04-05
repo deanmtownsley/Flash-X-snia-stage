@@ -526,10 +526,10 @@ contains
     !$omp end target
     
     if (onCPU) then
-       print *, "---------------- Running on CPU --------------------------------"
+       !print *, "---------------- Running on CPU --------------------------------"
        ! call Driver_abort("Unable to run on GPU")
     else
-       print *, "---------------- Running on GPU --------------------------------"
+       !print *, "---------------- Running on GPU --------------------------------"
     end if
     
   end subroutine check_if_on_GPU

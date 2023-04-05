@@ -162,7 +162,7 @@ PARAMETER plot_var_12 STRING "none"
 
 
 D plot_grid_var_1	Allows user to output specific scratch grid vars
-D &	Up to 12 choices are allowed.  If plot_grid_var_X is set to
+D &	Up to 13 choices are allowed.  If plot_grid_var_X is set to
 D &	"none" then no variable will be saved.
 D &     The parameter should have the same name as the variable corresponding to it.
 D &     For exampe, if a variable is declared GRID_VAR vrtz, to write that grid variable to a plotfile
@@ -179,6 +179,7 @@ PARAMETER plot_grid_var_9 STRING "none"
 PARAMETER plot_grid_var_10 STRING "none"
 PARAMETER plot_grid_var_11 STRING "none"
 PARAMETER plot_grid_var_12 STRING "none"
+PARAMETER plot_grid_var_13 STRING "none"
 
 D alwaysRestrictCheckpoint Allows the user to choose whether checkpoint file 
 D &    data is always restricted, so all ancestor blocks have valid data.

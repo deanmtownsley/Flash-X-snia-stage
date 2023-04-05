@@ -286,6 +286,7 @@ subroutine IO_init()
   call RuntimeParameters_get('plot_grid_var_10', io_plotGridVarStr(10))
   call RuntimeParameters_get('plot_grid_var_11', io_plotGridVarStr(11))
   call RuntimeParameters_get('plot_grid_var_12', io_plotGridVarStr(12))
+  call RuntimeParameters_get('plot_grid_var_13', io_plotGridVarStr(13))
 
 
   !translate the scratch grid vars from strings to integers

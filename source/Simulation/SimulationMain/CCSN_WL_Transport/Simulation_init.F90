@@ -63,7 +63,7 @@ subroutine Simulation_init()
   real :: mass_chim, vol_chim, mass_prog, vol_prog
   real :: r, theta, phi, x, y, z, rcyl, zcyl, gr_max_r, point_mass
   real :: rlo, rhi, dr, dvol, dvolr, domega, domega_exclude, tmp1, tmp2, tmp3
-  integer :: irho_inner
+  integer :: irho_inner, i_outer
 
   call Driver_getMype(MESH_COMM, sim_meshMe)
 
@@ -83,6 +83,14 @@ subroutine Simulation_init()
   call RuntimeParameters_get( 'rho_inner', sim_rho_inner)
   call RuntimeParameters_get( 'do_quad', sim_do_quad)
   call RuntimeParameters_get( 'nquad', sim_nquad)
+
+  call RuntimeParameters_get("lrefine_max", sim_lrefineMax)
+  call RuntimeParameters_get("lrefine_center", sim_lrefCenter)
+  if (sim_lrefCenter == 0) sim_lrefCenter = sim_lrefineMax
+
+  call RuntimeParameters_get("fullAngRefRad", sim_fullAngRefRad)
+
+  call RuntimeParameters_get("tinitial", sim_tinitial)
 
 !  call RuntimeParameters_get('xhe4', sim_xhe4)
 !  call RuntimeParameters_get('xc12', sim_xc12)
@@ -295,6 +303,10 @@ subroutine Simulation_init()
   end if
   !gr_point_mass = gr_point_mass + point_mass
   sim_pointMass = point_mass
+
+  i_outer = locate( gr_max_r, imax_chim+1, x_e_chim )
+  sim_maxDens = maxval(rhobar_c_chim(1:i_outer))
+
   contains
 
 !!! THIS IS OLD READ IN OF KEPLER FILE

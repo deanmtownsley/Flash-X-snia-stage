@@ -25,8 +25,8 @@ module rt_tm_interface
   end interface
 
   interface
-     subroutine rt_tm_projection(Uin,nX,lo,hi,u_lo,u_hi)
-        real, pointer, dimension(:,:,:,:) :: Uin
+     subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
+        real, pointer, dimension(:,:,:,:) :: Uin,Sout
         integer, dimension(3), intent(in) :: nX
         integer, dimension(MDIM), intent(in) :: lo,hi,u_lo,u_hi
      end subroutine rt_tm_projection

@@ -72,6 +72,13 @@ module Simulation_data
   real, save :: sim_bounceTime
   real, save :: sim_massAccRate, sim_massAccNum
 
+  real, save :: sim_avgShockR, sim_minShockR, sim_maxShockR
+
+  integer, save :: sim_lrefCenter, sim_lrefineMax
+  real, save :: sim_fullAngRefRad
+  logical, save :: sim_alwaysRefineShock
+
+  real, save :: sim_tinitial
   real, save :: sim_maxDens
 
 end module Simulation_data
