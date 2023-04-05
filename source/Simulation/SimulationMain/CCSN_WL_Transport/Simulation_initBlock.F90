@@ -68,7 +68,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
   use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch  
-  use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeConserved_TwoMoment
+  use TwoMoment_UtilitiesModule, ONLY : ComputeConserved_TwoMoment
 #endif
 
   implicit none
