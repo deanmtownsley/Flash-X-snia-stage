@@ -110,6 +110,7 @@ Subroutine amr_1blk_cc_prol_dg               &
   Use physicaldata, ONLY: unk1
   Use physicaldata, ONLY: cell_face_coord1, cell_face_coord2, cell_face_coord3
   Use physicaldata, ONLY: curvilinear
+  Use physicaldata, ONLY: interp_mask_unk_res, int_gcell_on_cc
 
   use RadTrans_interface, ONLY: RadTrans_prolongDgData
 
@@ -197,16 +198,18 @@ Subroutine amr_1blk_cc_prol_dg               &
          /)
 
   if (.NOT. curvilinear) then
-     call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
-                              unk1(ivar,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
-                              skip)
+     call RadTrans_prolongDgData(recv(:,iclX:icuX,jclX:jcuX,kclX:kcuX), &
+                                 unk1(:,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
+                                 skip, &
+                                 (interp_mask_unk_res == 40 .and. int_gcell_on_cc))
   else
-     call RadTrans_prolongDgData(recv(ivar,iclX:icuX,jclX:jcuX,kclX:kcuX), &
-                              unk1(ivar,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
-                              skip,                                        &
-                              cell_face_coord1(iclX:icuX+1),               &
-                              cell_face_coord2(jclX:jcuX+1),               &
-                              cell_face_coord3(kclX:kcuX+1))
+     call RadTrans_prolongDgData(recv(:,iclX:icuX,jclX:jcuX,kclX:kcuX), &
+                                 unk1(:,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
+                                 skip,                                        &
+                                 (interp_mask_unk_res == 40 .and. int_gcell_on_cc), &
+                                 cell_face_coord1(iclX:icuX+1),               &
+                                 cell_face_coord2(jclX:jcuX+1),               &
+                                 cell_face_coord3(kclX:kcuX+1))
   end if
 
 End Subroutine amr_1blk_cc_prol_dg

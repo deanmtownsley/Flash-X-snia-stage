@@ -50,10 +50,12 @@
 
 #include "Simulation.h"
 
-subroutine RadTrans_restrictDgData(inData,outData, xface,yface,zface)
+subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 
   Use TwoMoment_MeshRefinementModule, Only : &
      CoarsenX_TwoMoment
+  Use ArrayUtilitiesModule, Only : &
+     CreatePackIndex
 
   Use GeometryFieldsModule, Only: &
      nGF, iGF_SqrtGm
@@ -67,8 +69,9 @@ subroutine RadTrans_restrictDgData(inData,outData, xface,yface,zface)
   use RadTrans_data, ONLY : rt_str_geometry
 
   implicit none
-  real,intent(IN)    :: inData(:,:,:)
-  real,intent(INOUT) :: outData(:,:,:)
+  real,intent(IN)    :: inData(:,:,:,:)
+  real,intent(INOUT) :: outData(:,:,:,:)
+  logical,intent(IN) :: lmask(:)
   real,intent(IN)    :: xface(:)
   real,intent(IN),OPTIONAL :: yface(:), zface(:)
 
@@ -77,182 +80,248 @@ subroutine RadTrans_restrictDgData(inData,outData, xface,yface,zface)
   Integer :: i1u, j1u, k1u
   Integer :: ii, jj, kk, icc, jcc, kcc
 
+  Integer :: iX1, iX2, iX3
+  Integer :: iX1_Fine, iX2_Fine, iX3_Fine
+
   Integer :: iNodeX
-  Integer :: iFineX, nFineX(3)
+  Integer :: iFineX, nFineX(3), nFine
 
   Integer, Parameter :: refine_factor = 2 ! Thornado assumes this for now
 
-  Real    :: U_Crse(THORNADO_FLUID_NDOF)
-  Real    :: U_Fine(THORNADO_FLUID_NDOF)
+  real, allocatable :: U_Fine(:,:,:,:,:,:)
+  real, allocatable :: U_Crse(:,:,:,:,:)
+
+  real, allocatable :: G_Crse(:,:,:,:,:)
+  real, allocatable :: G_Fine(:,:,:,:,:)
+
+  integer :: nX_Crse(3)
+  integer :: nX_Fine(3)
+
+  integer :: iX_Crse_B1(3), iX_Crse_E1(3)
+  integer :: iX_Fine_B1(3), iX_Fine_E1(3)
 
   Type(MeshType) :: MeshX_Crse(3)
   Type(MeshType) :: MeshX_Fine(3)
 
-  real :: G_Crse(THORNADO_FLUID_NDOF,1,1,1,nGF)
-  real :: G_Fine(THORNADO_FLUID_NDOF,1,1,1,nGF)
+  integer :: lo(3), hi(3)
+  real :: xL(3), xR(3)
 
-  integer :: iX_B1(3), iX_E1(3)
-  real :: xL_Crse(3), xR_Crse(3)
-  real :: xL_Fine(3), xR_Fine(3)
+  real, parameter :: conv_x = Centimeter
+
+  integer :: ivar_unk2dg(size(lmask))
+  integer :: ivar_dg2unk(size(lmask))
+  integer :: ivar, ivar_dg, nvar_dg
+
+#if   defined( THORNADO_OMP_OL )
+  !$OMP TARGET ENTER DATA &
+  !$OMP MAP( to:    lmask ) &
+  !$OMP MAP( alloc: ivar_unk2dg, ivar_dg2unk )
+#elif defined( THORNADO_OACC   )
+  !$ACC ENTER DATA &
+  !$ACC COPYIN(     lmask ) &
+  !$ACC CREATE(     ivar_unk2dg, ivar_dg2unk )
+#endif
+
+  CALL CreatePackIndex( lmask, nvar_dg, ivar_unk2dg, ivar_dg2unk )
 
   nFineX = 1
   nFineX(1:NDIM) = refine_factor !or use Thornado-native variables here
 
-  iX_B1 = 1
-  iX_E1 = 1
+  nFine = product( nFineX )
 
-  ! loop over thornado elements in parent block
-           ! unk offsets of first child element in child block
-  do k0 = 1, size(inData,3), THORNADO_NNODESX*nFineX(3)
-     do j0 = 1, size(inData,2), THORNADO_NNODESX*nFineX(2)
-        do i0 = 1, size(inData,1), THORNADO_NNODESX*nFineX(1)    ! 1, 5, 9, 13
+  lo = [ lbound(inData,2), lbound(inData,3), lbound(inData,4) ]
+  hi = [ ubound(inData,2), ubound(inData,3), ubound(inData,4) ]
 
-           ! get indices indices for the coarse output data array
-           ! note: no skipping by twos!
-           k1 = 1 + (k0-1)/nFineX(3)*K3D
-           j1 = 1 + (j0-1)/nFineX(2)*K2D
-           i1 = 1 + (i0-1)/nFineX(1)     ! 1, 3, 5, 7
-           !! upper indices for cells in coarse thornado element
-           i1u = i1 + THORNADO_NNODESX
-           j1u = j1 + THORNADO_NNODESX
-           k1u = k1 + THORNADO_NNODESX
-           !! extents for this coarse element
-           xL_Crse = (/ xface(i1 ), yface(j1 ), zface(k1 ) /) * Centimeter
-           xR_Crse = (/ xface(i1u), yface(j1u), zface(k1u) /) * Centimeter
+  !! extents for this element
+  xL = (/ xface(lo(1)  ), yface(lo(2)  ), zface(lo(3)  ) /) * conv_x
+  xR = (/ xface(hi(1)+1), yface(hi(2)+1), zface(hi(3)+1) /) * conv_x
 
-           U_Crse = 0.0
+  nX_Crse = 1
+  nX_Crse(1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / ( THORNADO_NNODESX * nFineX(1:NDIM) )
 
-           ! loop over child elements for this parent element
-           iFineX = 0
-           do kcc = 1, nFineX(3)
-              do jcc = 1, nFineX(2)
-                 do icc = 1, nFineX(1)
-                    iFineX = iFineX + 1
+  iX_Crse_B1 = 1
+  iX_Crse_E1 = nX_Crse
 
-                    ! unk offsets for child block
-                    k = k0 + THORNADO_NNODESX*(kcc-1)
-                    j = j0 + THORNADO_NNODESX*(jcc-1)
-                    i = i0 + THORNADO_NNODESX*(icc-1) ! icc = 1 : 1, 5, 9, 13
-                    ! icc = 2 : 3, 7, 11, 15
+  nX_Fine = 1
+  nX_Fine(1:NDIM) = nX_Crse(1:NDIM) * THORNADO_NNODESX
 
-                    ! Calculate sqrt(Gamma) for geometry corrections
-                    G_Fine = 1.0
+  iX_Fine_B1 = 1
+  iX_Fine_E1 = nX_Fine
 
-                    !! extents for this fine element
+  allocate( U_Crse(THORNADO_FLUID_NDOF,nX_Crse(1),nX_Crse(2),nX_Crse(3),nvar_dg) )
+  allocate( U_Fine(THORNADO_FLUID_NDOF,nFine,nX_Crse(1),nX_Crse(2),nX_Crse(3),nvar_dg) )
 
-                    ! Going to some trouble to avoid rounding differences in
-                    ! some cases where faces of the fine grid are collocated
-                    ! with faces fo the coarse grid... this should work
-                    ! generically, i.e., even when THORNADO_NNODESX and/or
-                    ! refinement factors are different from 2... may not be
-                    ! worth all this trouble... - KW
-                    if (icc==1) then
-                       xL_Fine(1) = xL_Crse(1)
-                    else if (nFineX(1) == THORNADO_NNODESX) then
-                       xL_Fine(1) = xface(i1+icc-1) * Centimeter
-                    else if (mod((icc-1)*THORNADO_NNODESX,nFineX(1)) == 0) then
-                       xL_Fine(1) = xface(i1 + ((icc-1)*THORNADO_NNODESX)/nFineX(1)) * Centimeter
-                    else
-                       xL_Fine(1) = ( xL_Crse(1)*(nFineX(1)-icc+1) + xR_Crse(1)*(icc-1) ) / nFineX(1)
-                    end if
-                    if (icc==nFineX(1)) then
-                       xR_Fine(1) = xR_Crse(1)
-                    else if (nFineX(1) == THORNADO_NNODESX) then
-                       xR_Fine(1) = xface(i1+icc) * Centimeter
-                    else if (mod(icc*THORNADO_NNODESX,nFineX(1)) == 0) then
-                       xL_Fine(1) = xface(i1 + (icc*THORNADO_NNODESX)/nFineX(1)) * Centimeter
-                    else
-                       xR_Fine(1) = ( xL_Crse(1)*(nFineX(1)-icc )  + xR_Crse(1)*(icc  ) ) / nFineX(1)
-                    end if
+  allocate( G_Crse(THORNADO_FLUID_NDOF,nX_Crse(1),nX_Crse(2),nX_Crse(3),nGF) )
+  allocate( G_Fine(THORNADO_FLUID_NDOF,nX_Fine(1),nX_Fine(2),nX_Fine(3),nGF) )
 
-                    if (jcc==1) then
-                       xL_Fine(2) = xL_Crse(2)
-                    else if (nFineX(2) == THORNADO_NNODESX) then
-                       xL_Fine(2) = yface(j1+jcc-1) * Centimeter
-                    else
-                       xL_Fine(2) = ( xL_Crse(2)*(nFineX(2)-jcc+1) + xR_Crse(2)*(jcc-1) ) / nFineX(2)
-                    end if
-                    if (jcc==nFineX(2)) then
-                       xR_Fine(2) = xR_Crse(2)
-                    else if (nFineX(2) == THORNADO_NNODESX) then
-                       xR_Fine(2) = yface(j1+jcc) * Centimeter
-                    else
-                       xR_Fine(2) = ( xL_Crse(2)*(nFineX(2)-jcc )  + xR_Crse(2)*(jcc  ) ) / nFineX(2)
-                    end if
+  do k = 1, 3
+     call CreateMesh( MeshX_Crse(k), nX_Crse(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
+     call CreateMesh( MeshX_Fine(k), nX_Fine(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
+  end do
 
-                    if (kcc==1) then
-                       xL_Fine(3) = xL_Crse(3)
-                    else if (nFineX(3) == THORNADO_NNODESX) then
-                       xL_Fine(3) = zface(k1+kcc-1) * Centimeter
-                    else
-                       xL_Fine(3) = ( xL_Crse(3)*(nFineX(3)-kcc+1) + xR_Crse(3)*(kcc-1) ) / nFineX(3)
-                    end if
-                    if (kcc==nFineX(3)) then
-                       xR_Fine(3) = xR_Crse(3)
-                    else if (nFineX(3) == THORNADO_NNODESX) then
-                       xR_Fine(3) = zface(k1+kcc) * Centimeter
-                    else
-                       xR_Fine(3) = ( xL_Crse(3)*(nFineX(3)-kcc )  + xR_Crse(3)*(kcc  ) ) / nFineX(3)
-                    end if
+#if   defined( THORNADO_OMP_OL )
+  !$OMP TARGET ENTER DATA &
+  !$OMP MAP( to:    inData, outData, nFineX, ) &
+  !$OMP             nX_Crse, iX_Crse_B1, iX_Crse_E1, &
+  !$OMP             nX_Fine, iX_Fine_B1, iX_Fine_E1 ) &
+  !$OMP MAP( alloc: U_Crse, G_Crse, &
+  !$OMP             U_Fine, G_Fine )
+#elif defined( THORNADO_OACC   )
+  !$ACC ENTER DATA &
+  !$ACC COPYIN(     inData, outData, nFineX, &
+  !$ACC             nX_Crse, iX_Crse_B1, iX_Crse_E1, &
+  !$ACC             nX_Fine, iX_Fine_B1, iX_Fine_E1 ) &
+  !$ACC CREATE(     U_Crse, G_Crse, &
+  !$ACC             U_Fine, G_Fine )
+#endif
 
-                    ! Create DG mesh for 1 element where xL_Fine and xR_Fine are the 
-                    ! lower- and upper-extents of the PM "supercell" (child) that maps to 
-                    ! the thornado element
-                    call CreateMesh( MeshX_Fine(1), 1, THORNADO_NNODESX, 0, xL_Fine(1), xR_Fine(1) )
-                    call CreateMesh( MeshX_Fine(2), 1, THORNADO_NNODESX, 0, xL_Fine(2), xR_Fine(2) )
-                    call CreateMesh( MeshX_Fine(3), 1, THORNADO_NNODESX, 0, xL_Fine(3), xR_Fine(3) )
+  ! Calculate sqrt(Gamma) for geometry corrections
+  call ComputeGeometryX( iX_Crse_B1, iX_Crse_E1, iX_Crse_B1, iX_Crse_E1, G_Crse, &
+     MeshX_Option = MeshX_Crse, &
+     CoordinateSystem_Option = rt_str_geometry )
 
-                    call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Fine, &
-                       MeshX_Option = MeshX_Fine, &
-                       CoordinateSystem_Option = rt_str_geometry )
+  call ComputeGeometryX( iX_Fine_B1, iX_Fine_E1, iX_Fine_B1, iX_Fine_E1, G_Fine, &
+     MeshX_Option = MeshX_Fine, &
+     CoordinateSystem_Option = rt_str_geometry )
 
-                    call DestroyMesh( MeshX_Fine(1) )
-                    call DestroyMesh( MeshX_Fine(2) )
-                    call DestroyMesh( MeshX_Fine(3) )
+  ! loop over fine grid elements
+#if   defined( THORNADO_OMP_OL )
+  !$OMP TARGET TEAMS DISTRIBUTE PARALLEL DO SIMD COLLAPSE(8) &
+  !$OMP PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$OMP          i0, j0, k0, i, j, k, ii, jj, kk )
+#elif defined( THORNADO_OACC   )
+  !$ACC PARALLEL LOOP GANG VECTOR COLLAPSE(8) &
+  !$ACC PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$ACC          i0, j0, k0, i, j, k, ii, jj, kk )
+#elif defined( THORNADO_OMP    )
+  !$OMP PARALLEL DO COLLAPSE(8) &
+  !$OMP PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$OMP          i0, j0, k0, i, j, k, ii, jj, kk )
+#endif
+  do ivar_dg = 1, nvar_dg
 
-                    ! grab the data from fine grid element quadrature points
-                    do iNodeX = 1, THORNADO_FLUID_NDOF
-                       kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k
-                       jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j
-                       ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i
-                       U_Fine(iNodeX) = indata(ii,jj,kk) * G_Fine(iNodeX,1,1,1,iGF_SqrtGm)
+     do iX3 = 1, nX_Crse(3)
+        do iX2 = 1, nX_Crse(2)
+           do iX1 = 1, nX_Crse(1)
+
+              do kcc = 1, nFineX(3)
+                 do jcc = 1, nFineX(2)
+                    do icc = 1, nFineX(1)
+
+                       ! store the result in child block
+                       do iNodeX = 1, THORNADO_FLUID_NDOF
+
+                          ! which child element of the parent element we are considering
+                          iFineX =     icc &
+                                   + ( jcc - 1 ) * nFineX(1) & 
+                                   + ( kcc - 1 ) * nFineX(1) * nFineX(2)
+
+                          ! element indexes in child block
+                          iX1_Fine = ( iX1 - 1 ) * nFineX(1) + icc
+                          iX2_Fine = ( iX2 - 1 ) * nFineX(2) + jcc
+                          iX3_Fine = ( iX3 - 1 ) * nFineX(3) + kcc
+
+                          ! offsets for the parent (iX1,iX2,iX3) element in unk
+                          i1 = ( iX1 - 1 ) * THORNADO_NNODESX + 1
+                          j1 = ( iX2 - 1 ) * THORNADO_NNODESX + 1
+                          k1 = ( iX3 - 1 ) * THORNADO_NNODESX + 1
+
+                          ! offsets of first child element in output data
+                          k0 = 1 + (nFineX(3) * (k1-1)) * K3D
+                          j0 = 1 + (nFineX(2) * (j1-1)) * K2D
+                          i0 = 1 +  nFineX(1) * (i1-1)
+
+                          ! calculate unk indices in child block
+                          k = k0 + THORNADO_NNODESX*(kcc-1)
+                          j = j0 + THORNADO_NNODESX*(jcc-1)
+                          i = i0 + THORNADO_NNODESX*(icc-1)
+
+                          kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k
+                          jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j
+                          ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i
+
+                          ivar = ivar_dg2unk(ivar_dg)
+                          U_Fine(iNodeX,iFineX,iX1,iX2,iX3,ivar_dg) &
+                             =   inData(ivar,ii,jj,kk) &
+                               * G_Fine(iNodeX,iX1_Fine,iX2_Fine,iX3_Fine,iGF_SqrtGm)
+
+                       end do
+
                     end do
-
-                    ! compute contribution to parent element from child element
-                    U_Crse = U_Crse + CoarsenX_TwoMoment( iFineX, U_Fine )
-
                  end do
               end do
+
            end do
-
-           ! Calculate sqrt(Gamma) for geometry corrections
-           G_Crse = 1.0
-
-           ! Create DG mesh for 1 element where xL_Crse and xR_Crse are the 
-           ! lower- and upper-extents of the PM "supercell" (parent) that maps to 
-           ! the thornado element
-           call CreateMesh( MeshX_Crse(1), 1, THORNADO_NNODESX, 0, xL_Crse(1), xR_Crse(1) )
-           call CreateMesh( MeshX_Crse(2), 1, THORNADO_NNODESX, 0, xL_Crse(2), xR_Crse(2) )
-           call CreateMesh( MeshX_Crse(3), 1, THORNADO_NNODESX, 0, xL_Crse(3), xR_Crse(3) )
-
-           call ComputeGeometryX( iX_B1, iX_E1, iX_B1, iX_E1, G_Crse, &
-              MeshX_Option = MeshX_Crse, &
-              CoordinateSystem_Option = rt_str_geometry )
-
-           call DestroyMesh( MeshX_Crse(1) )
-           call DestroyMesh( MeshX_Crse(2) )
-           call DestroyMesh( MeshX_Crse(3) )
-
-           ! store the result in parent block
-           do iNodeX = 1, THORNADO_FLUID_NDOF
-              kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k1
-              jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j1
-              ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i1
-              outData(ii,jj,kk) = U_Crse(iNodeX) / G_Crse(iNodeX,1,1,1,iGF_SqrtGm)
-           end do
-
         end do
      end do
+
   end do
+
+  ! compute coarse grid element reconstruction
+  CALL CoarsenX_TwoMoment( nX_Crse, nvar_dg, U_Fine, U_Crse )
+
+  ! loop over coarse (thornado) elements in parent block
+#if   defined( THORNADO_OMP_OL )
+  !$OMP TARGET TEAMS DISTRIBUTE PARALLEL DO SIMD COLLAPSE(5) &
+  !$OMP PRIVATE( i1, j1, k1, kk, jj, ii, ivar )
+#elif defined( THORNADO_OACC   )
+  !$ACC PARALLEL LOOP GANG VECTOR COLLAPSE(5) &
+  !$ACC PRIVATE( i1, j1, k1, kk, jj, ii, ivar )
+#elif defined( THORNADO_OMP    )
+  !$OMP PARALLEL DO COLLAPSE(5) &
+  !$OMP PRIVATE( i1, j1, k1, kk, jj, ii, ivar )
+#endif
+  do ivar_dg = 1, nvar_dg
+
+     do iX3 = 1, nX_Crse(3)
+        do iX2 = 1, nX_Crse(2)
+           do iX1 = 1, nX_Crse(1)
+
+              do iNodeX = 1, THORNADO_FLUID_NDOF
+
+                 i1 = ( iX1 - 1 ) * THORNADO_NNODESX + 1
+                 j1 = ( iX2 - 1 ) * THORNADO_NNODESX + 1
+                 k1 = ( iX3 - 1 ) * THORNADO_NNODESX + 1
+
+                 kk = mod( (iNodeX-1) / THORNADO_NNODESX**2,THORNADO_NNODESX ) + k1
+                 jj = mod( (iNodeX-1) / THORNADO_NNODESX   ,THORNADO_NNODESX ) + j1
+                 ii = mod( (iNodeX-1)                      ,THORNADO_NNODESX ) + i1
+
+                 ivar = ivar_dg2unk(ivar_dg)
+                 outData(ivar,ii,jj,kk) &
+                    =   U_Crse(iNodeX,iX1,iX2,iX3,ivar_dg) &
+                      / G_Crse(iNodeX,iX1,iX2,iX3,iGF_SqrtGm)
+
+              end do
+
+           end do
+        end do
+     end do
+
+  end do
+
+#if   defined( THORNADO_OMP_OL )
+  !$OMP TARGET EXIT DATA &
+  !$OMP MAP( from:    outData ) &
+  !$OMP MAP( release: inData, nFineX, lmask, ivar_unk2dg, ivar_dg2unk, &
+  !$OMP               nX_Crse, iX_Crse_B1, iX_Crse_E1, U_Crse, G_Crse, &
+  !$OMP               nX_Fine, iX_Fine_B1, iX_Fine_E1, U_Fine, G_Fine )
+#elif defined( THORNADO_OACC   )
+  !$ACC EXIT DATA &
+  !$ACC COPYOUT(      outData ) &
+  !$ACC DELETE(       inData, nFineX, lmask, ivar_unk2dg, ivar_dg2unk, &
+  !$ACC               nX_Crse, iX_Crse_B1, iX_Crse_E1, U_Crse, G_Crse, &
+  !$ACC               nX_Fine, iX_Fine_B1, iX_Fine_E1, U_Fine, G_Fine )
+#endif
+
+  do k = 1, 3
+     call DestroyMesh( MeshX_Crse(k) )
+     call DestroyMesh( MeshX_Fine(k) )
+  end do
+
+  deallocate( U_Crse )
+  deallocate( U_Fine )
+  deallocate( G_Crse )
+  deallocate( G_Fine )
 
 end subroutine RadTrans_restrictDgData

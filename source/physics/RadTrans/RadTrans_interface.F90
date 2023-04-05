@@ -166,32 +166,36 @@ module RadTrans_interface
 !!$  end interface
 
   interface RadTrans_prolongDgData
-     subroutine RadTrans_prolongDgData_simple(inData,outData,skip)
+     subroutine RadTrans_prolongDgData_simple(inData,outData,skip,lmask)
        implicit none
-       real,intent(IN)    :: inData(:,:,:)
-       real,intent(INOUT) :: outData(:,:,:)
+       real,intent(IN)    :: inData(:,:,:,:)
+       real,intent(INOUT) :: outData(:,:,:,:)
        integer,intent(IN) :: skip(MDIM)
+       logical,intent(IN) :: lmask(:)
      end subroutine RadTrans_prolongDgData_simple
-     subroutine RadTrans_prolongDgData(inData,outData,skip,xface,yface,zface)
+     subroutine RadTrans_prolongDgData(inData,outData,skip,lmask,xface,yface,zface)
        implicit none
-       real,intent(IN)    :: inData(:,:,:)
-       real,intent(INOUT) :: outData(:,:,:)
+       real,intent(IN)    :: inData(:,:,:,:)
+       real,intent(INOUT) :: outData(:,:,:,:)
        integer,intent(IN) :: skip(MDIM)
+       logical,intent(IN) :: lmask(:)
        real,intent(IN)    :: xface(:)
        real,intent(IN),OPTIONAL :: yface(:), zface(:)
      end subroutine RadTrans_prolongDgData
   end interface
 
   interface RadTrans_restrictDgData
-     subroutine RadTrans_restrictDgData_simple(inData,outData)
+     subroutine RadTrans_restrictDgData_simple(inData,outData,lmask)
        implicit none
-       real,intent(IN)    :: inData(:,:,:)
-       real,intent(INOUT) :: outData(:,:,:)
+       real,intent(IN)    :: inData(:,:,:,:)
+       real,intent(INOUT) :: outData(:,:,:,:)
+       logical,intent(IN) :: lmask(:)
      end subroutine RadTrans_restrictDgData_simple
-     subroutine RadTrans_restrictDgData(inData,outData, xface,yface,zface)
+     subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
        implicit none
-       real,intent(IN)    :: inData(:,:,:)
-       real,intent(INOUT) :: outData(:,:,:)
+       real,intent(IN)    :: inData(:,:,:,:)
+       real,intent(INOUT) :: outData(:,:,:,:)
+       logical,intent(IN) :: lmask(:)
        real,intent(IN)    :: xface(:)
        real,intent(IN),OPTIONAL :: yface(:), zface(:)
      end subroutine RadTrans_restrictDgData

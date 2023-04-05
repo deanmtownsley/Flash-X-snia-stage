@@ -81,6 +81,7 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar,ioff,joff,koff)
   Use paramesh_dimensions, ONLY: nxb, nyb, nzb
   Use physicaldata, ONLY: cell_face_coord1, cell_face_coord2, cell_face_coord3
   Use physicaldata, ONLY: curvilinear
+  Use physicaldata, ONLY: interp_mask_unk_res
 
   use RadTrans_interface, ONLY: RadTrans_restrictDgData
 
@@ -112,8 +113,9 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar,ioff,joff,koff)
   kfu = nzb+NGUARD*K3D
 
   if (.NOT. curvilinear) then
-     call RadTrans_restrictDgData(datain (ivar,ifl:ifu,  jfl:jfu,  kfl:kfu), &
-                               dataout(ivar,ifl:ifu:2,jfl:jfu:2,kfl:kfu:2))
+     call RadTrans_restrictDgData(datain (:,ifl:ifu,  jfl:jfu,  kfl:kfu), &
+                                  dataout(:,ifl:ifu:2,jfl:jfu:2,kfl:kfu:2), &
+                                  (interp_mask_unk_res == 40) )
   else
      ! Compute corresponding index bounds in the coarse block, into which the
      ! data we store in dataout will ultimately be copied.
@@ -123,8 +125,9 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar,ioff,joff,koff)
      jcuX = 1 + (nyb/2  + joff + NGUARD) * K2D
      kclX = 1 + (       + koff + NGUARD) * K3D
      kcuX = 1 + (nzb/2  + koff + NGUARD) * K3D
-     call RadTrans_restrictDgData(datain (ivar,ifl:ifu,  jfl:jfu,  kfl:kfu),   &
-                                  dataout(ivar,ifl:ifu:2,jfl:jfu:2,kfl:kfu:2), &
+     call RadTrans_restrictDgData(datain (:,ifl:ifu,  jfl:jfu,  kfl:kfu),   &
+                                  dataout(:,ifl:ifu:2,jfl:jfu:2,kfl:kfu:2), &
+                                  (interp_mask_unk_res == 40), &
                                   cell_face_coord1(iclX:icuX+1),               &
                                   cell_face_coord2(jclX:jcuX+K2D),             &
                                   cell_face_coord3(kclX:kcuX+K3D))
