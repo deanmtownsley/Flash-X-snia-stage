@@ -6,5 +6,5 @@
 	url = https://github.com/endeve/thornado.git
 [submodule "source/Grid/GridMain/AMR/Paramesh4/PM4_package"]
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
-	branch = main
+	branch = PM_restrictMore
 	url = https://github.com/Flash-X/PARAMESH-for-Flash-X.git
