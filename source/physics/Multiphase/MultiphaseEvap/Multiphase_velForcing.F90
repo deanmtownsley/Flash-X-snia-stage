@@ -55,6 +55,7 @@ subroutine Multiphase_velForcing(tileDesc, dt)
                              faceyData(mph_iVelFVar, :, :, :), &
                              facexData(mph_iRhoFVar, :, :, :), &
                              faceyData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iRhoCVar, :, :, :), &
                              solnData(mph_iMuCVar, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
@@ -72,6 +73,7 @@ subroutine Multiphase_velForcing(tileDesc, dt)
                              facexData(mph_iRhoFVar, :, :, :), &
                              faceyData(mph_iRhoFVar, :, :, :), &
                              facezData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iRhoCVar, :, :, :), &
                              solnData(mph_iMuCVar, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &

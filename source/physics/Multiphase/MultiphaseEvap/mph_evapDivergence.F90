@@ -14,11 +14,11 @@
 !!
 !!
 !!******
-subroutine mph_evapDivergence2d(divv, rhox, rhoy, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
+subroutine mph_evapDivergence2d(divv, rhoc, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: divv
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
    real, intent(in)                      :: dx, dy
    integer, intent(in)                   :: ix1, ix2, jy1, jy2
@@ -31,10 +31,10 @@ subroutine mph_evapDivergence2d(divv, rhox, rhoy, normx, normy, mflux, dx, dy, i
    do j = jy1, jy2
       do i = ix1, ix2
 
-         rhoxr = rhox(i + 1, j, k)
-         rhoxl = rhox(i, j, k)
-         rhoyr = rhoy(i, j + 1, k)
-         rhoyl = rhoy(i, j, k)
+         rhoxr = (rhoc(i, j, k) + rhoc(i + 1, j, k))/2.0d0
+         rhoxl = (rhoc(i, j, k) + rhoc(i - 1, j, k))/2.0d0
+         rhoyr = (rhoc(i, j, k) + rhoc(i, j + 1, k))/2.0d0
+         rhoyl = (rhoc(i, j, k) + rhoc(i, j - 1, k))/2.0d0
 
          aicx = mflux(i, j, k)*normx(i, j, k)
          aicy = mflux(i, j, k)*normy(i, j, k)
@@ -46,11 +46,11 @@ subroutine mph_evapDivergence2d(divv, rhox, rhoy, normx, normy, mflux, dx, dy, i
 
 end subroutine mph_evapDivergence2d
 
-subroutine mph_evapDivergence3d(divv, rhox, rhoy, rhoz, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine mph_evapDivergence3d(divv, rhoc, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: divv
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
    real, intent(in)                      :: dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -64,12 +64,12 @@ subroutine mph_evapDivergence3d(divv, rhox, rhoy, rhoz, normx, normy, normz, mfl
       do j = jy1, jy2
          do i = ix1, ix2
 
-            rhoxr = rhox(i + 1, j, k)
-            rhoxl = rhox(i, j, k)
-            rhoyr = rhoy(i, j + 1, k)
-            rhoyl = rhoy(i, j, k)
-            rhozr = rhoz(i, j, k + 1)
-            rhozl = rhoz(i, j, k)
+            rhoxr = (rhoc(i, j, k) + rhoc(i + 1, j, k))/2.0d0
+            rhoxl = (rhoc(i, j, k) + rhoc(i - 1, j, k))/2.0d0
+            rhoyr = (rhoc(i, j, k) + rhoc(i, j + 1, k))/2.0d0
+            rhoyl = (rhoc(i, j, k) + rhoc(i, j - 1, k))/2.0d0
+            rhozr = (rhoc(i, j, k) + rhoc(i, j, k + 1))/2.0d0
+            rhozl = (rhoc(i, j, k) + rhoc(i, j, k - 1))/2.0d0
 
             aicx = mflux(i, j, k)*normx(i, j, k)
             aicy = mflux(i, j, k)*normy(i, j, k)
