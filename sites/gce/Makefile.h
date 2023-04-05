@@ -1,26 +1,27 @@
-# Flash-X makefile definitions for using GCC compilers on GCE.
+# Flash-X makefile definitions for using the GCC compiler suite with the
+# testing environment setup by the Flash-X/Flash-X-TestEnv GitHub 
+# repository.  Refer to the GCE-specific README in that repo for
+# information regarding compatible machines and how to setup the 
+# software environment.
 #
-# Load the software environment by sourcing
-#    /nfs/gce/projects/FLASH5/software/setup_current_gcc_mpich_skylake.sh
-#
-# Please refer to the script for information on which GCE machines can be used
-# with the associated software environment.
+# NOTE: This software environment is updated without warning as needed by the
+# Flash-X GCE Test gatekeepers.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/gcc_current_skylake/AMReX_$(NDIM)D
-MILHOJA_PATH=/nfs/gce/projects/FLASH5/software/gcc_current_skylake/Milhoja_$(NDIM)D
+AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
-HDF5_PATH = /nfs/gce/projects/FLASH5/software/hdf5/install/
-HYPRE_PATH = /nfs/gce/projects/FLASH5/software/hypre_install/
+HDF5_PATH = 
+HYPRE_PATH = 
 ZLIB_PATH  =
 PAPI_PATH  =
 PAPI_FLAGS =
 LIB_NCMPI = /usr
-MA28_PATH = /nfs/gce/projects/FLASH5/software/ma28
+MA28_PATH = ${FLASHX_MA28_DIR}
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -121,7 +122,7 @@ LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
-LIB_MA28 = -L$(MA28_PATH)/lib -lma28
+LIB_MA28 = -L$(MA28_PATH) -lma28
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # the dependencies.
