@@ -90,7 +90,7 @@ module Hydro_data
   !! need to be explicitly mapped to the device memory are all in one place
   
   integer, dimension(MDIM) :: gCells
-  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim1,lim,limgc
+  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim,limgc
   integer :: dir,stage
 
   !$omp declare target to &
@@ -124,7 +124,7 @@ module Hydro_data
   !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_bref, hy_maxLev, hy_addFluxArray, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
-  !$omp   klim,lim,limgc,lim1,gCells, dir, stage)
+  !$omp   klim,lim,limgc,gCells, dir, stage)
 
 end module Hydro_data
 
