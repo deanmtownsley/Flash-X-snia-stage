@@ -1,5 +1,5 @@
 #       Config file for the Incompressible Navier Stoke solver.
-DEFAULT ConstDens
+DEFAULT constDens
 
 PPDEFINE INCOMPNS_MAIN
 
@@ -47,6 +47,9 @@ PARAMETER ins_gravZ          REAL     0.
 PARAMETER  ins_dpdx  REAL  0.00   # Value of constant dpdx.
 PARAMETER  ins_dpdy  REAL  0.00   # Value of constant dpdy.
 PARAMETER  ins_dpdz  REAL  0.00   # Value of constant dpdz.
+
+#---------------------------------------------------------------------------
+PARAMETER ins_inflowVelScale REAL 1.0 # 
   
 #-----------------------------------------------------------------------------
 # Variables required by the INS module

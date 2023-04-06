@@ -14,12 +14,12 @@
 !!
 !!
 !!******
-subroutine mph_evapVelocity2d(uni, vni, rhox, rhoy, normx, normy, mflux, ix1, ix2, jy1, jy2)
+subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, ix1, ix2, jy1, jy2)
 
    !--Arugment List------------------------------
    implicit none
    real, dimension(:, :, :), intent(inout) :: uni, vni
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
    integer, intent(in)                   :: ix1, ix2, jy1, jy2
 
@@ -29,22 +29,22 @@ subroutine mph_evapVelocity2d(uni, vni, rhox, rhoy, normx, normy, mflux, ix1, ix
    uni(ix1:ix2 + 1, jy1:jy2, kz1) = uni(ix1:ix2 + 1, jy1:jy2, kz1) + &
                                     (mflux(ix1 - 1:ix2, jy1:jy2, kz1) + mflux(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0* &
                                     (normx(ix1 - 1:ix2, jy1:jy2, kz1) + normx(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0* &
-                                    (rhox(ix1:ix2 + 1, jy1:jy2, kz1))
+                                    (rhoc(ix1 - 1:ix2, jy1:jy2, kz1) + rhoc(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0
 
    !------V-COMPONENT--------
    vni(ix1:ix2, jy1:jy2 + 1, kz1) = vni(ix1:ix2, jy1:jy2 + 1, kz1) + &
                                     (mflux(ix1:ix2, jy1 - 1:jy2, kz1) + mflux(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0* &
                                     (normy(ix1:ix2, jy1 - 1:jy2, kz1) + normy(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0* &
-                                    (rhoy(ix1:ix2, jy1:jy2 + 1, kz1))
+                                    (rhoc(ix1:ix2, jy1 - 1:jy2, kz1) + rhoc(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0
 
 end subroutine mph_evapVelocity2d
 
-subroutine mph_evapVelocity3d(uni, vni, wni, rhox, rhoy, rhoz, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
 
    !--Arugment List------------------------------
    implicit none
    real, dimension(:, :, :), intent(inout) :: uni, vni, wni
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
 
@@ -52,18 +52,18 @@ subroutine mph_evapVelocity3d(uni, vni, wni, rhox, rhoy, rhoz, normx, normy, nor
    uni(ix1:ix2 + 1, jy1:jy2, kz1:kz2) = uni(ix1:ix2 + 1, jy1:jy2, kz1:kz2) + &
                                         (mflux(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + mflux(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0* &
                                         (normx(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + normx(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0* &
-                                        (rhox(ix1:ix2 + 1, jy1:jy2, kz1:kz2))
+                                        (rhoc(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + rhoc(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0
 
    !------V-COMPONENT--------
    vni(ix1:ix2, jy1:jy2 + 1, kz1:kz2) = vni(ix1:ix2, jy1:jy2 + 1, kz1:kz2) + &
                                         (mflux(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + mflux(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0* &
                                         (normy(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + normy(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0* &
-                                        (rhoy(ix1:ix2, jy1:jy2 + 1, kz1:kz2))
+                                        (rhoc(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + rhoc(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0
 
    !------W-COMPONENT--------
    wni(ix1:ix2, jy1:jy2, kz1:kz2 + 1) = wni(ix1:ix2, jy1:jy2, kz1:kz2 + 1) + &
                                         (mflux(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + mflux(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0* &
                                         (normz(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + normz(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0* &
-                                        (rhoz(ix1:ix2, jy1:jy2, kz1:kz2 + 1))
+                                        (rhoc(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + rhoc(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0
 
 end subroutine mph_evapVelocity3d

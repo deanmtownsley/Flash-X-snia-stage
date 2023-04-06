@@ -54,60 +54,52 @@ subroutine Multiphase_setPressureJumps(tileDesc)
    call tileDesc%deltas(del)
 
 #if NDIM < MDIM
-   call Stencils_lsNormals2d(solnData(DFUN_VAR, :, :, :), &
-                             solnData(NRMX_VAR, :, :, :), &
-                             solnData(NRMY_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC)
-
    call mph_setWeberJumps2d(solnData(DFUN_VAR, :, :, :), &
+                            solnData(CURV_VAR, :, :, :), &
+                            solnData(PFUN_VAR, :, :, :), &
                             facexData(mph_iJumpVar, :, :, :), &
                             faceyData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), &
-                            mph_invWeber, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC)
+                            mph_invWeber, mph_rhoGas, &
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps2d(solnData(DFUN_VAR, :, :, :), &
+                           solnData(PFUN_VAR, :, :, :), &
                            facexData(mph_iJumpVar, :, :, :), &
                            faceyData(mph_iJumpVar, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
                            del(DIR_X), del(DIR_Y), &
-                           GRID_ILO_GC, GRID_IHI_GC, &
-                           GRID_JLO_GC, GRID_JHI_GC)
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI)
 #endif
 
 #else
-   call Stencils_lsNormals3d(solnData(DFUN_VAR, :, :, :), &
-                             solnData(NRMX_VAR, :, :, :), &
-                             solnData(NRMY_VAR, :, :, :), &
-                             solnData(NRMZ_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC, &
-                             GRID_KLO_GC, GRID_KHI_GC)
 
    call mph_setWeberJumps3d(solnData(DFUN_VAR, :, :, :), &
+                            solnData(CURV_VAR, :, :, :), &
+                            solnData(PFUN_VAR, :, :, :), &
                             facexData(mph_iJumpVar, :, :, :), &
                             faceyData(mph_iJumpVar, :, :, :), &
                             facezData(mph_iJumpVar, :, :, :), &
                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                            mph_invWeber, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC, &
-                            GRID_KLO_GC, GRID_KHI_GC)
+                            mph_invWeber, mph_rhoGas, &
+                            GRID_ILO, GRID_IHI, &
+                            GRID_JLO, GRID_JHI, &
+                            GRID_KLO, GRID_KHI)
+
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps3d(solnData(DFUN_VAR, :, :, :), &
+                           solnData(PFUN_VAR, :, :, :), &
                            facexData(mph_iJumpVar, :, :, :), &
                            faceyData(mph_iJumpVar, :, :, :), &
                            facezData(mph_iJumpVar, :, :, :), &
                            solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
                            del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                           GRID_ILO_GC, GRID_IHI_GC, &
-                           GRID_JLO_GC, GRID_JHI_GC, &
-                           GRID_KLO_GC, GRID_KHI_GC)
+                           GRID_ILO, GRID_IHI, &
+                           GRID_JLO, GRID_JHI, &
+                           GRID_KLO, GRID_KHI)
 #endif
 
 #endif

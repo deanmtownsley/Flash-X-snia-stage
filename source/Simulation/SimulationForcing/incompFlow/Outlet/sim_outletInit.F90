@@ -42,7 +42,7 @@ subroutine sim_outletInit()
    do idimn = 1, NDIM
       do ibound = LOW, HIGH
          select case (domainBC(ibound, idimn))
-         case (OUTFLOW_INS)
+         case (OUTFLOW_INS, EXTRAP_INS)
             sim_outletFlag(ibound, idimn) = 1
          end select
       end do

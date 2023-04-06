@@ -6,4 +6,5 @@ Simulation += sim_outletData.o \
               sim_outletLSDamping.o \
               sim_outletVelFrc.o \
               sim_outletVelFrcPhased.o \
-              sim_outletApplyBCToRegion.o
+              sim_outletApplyBCToRegion.o \
+              sim_forceOutlet.o

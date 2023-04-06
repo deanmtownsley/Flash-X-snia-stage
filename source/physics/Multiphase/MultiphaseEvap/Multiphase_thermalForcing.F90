@@ -52,7 +52,7 @@ subroutine Multiphase_thermalForcing(tileDesc)
                       solnData(NRMY_VAR, :, :, :), &
                       (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar, :, :, :), &
                       solnData(mph_iTempVar, :, :, :), &
-                      solnData(mph_iGfmVar, :, :, :), &
+                      solnData(mph_iTempFrcVar, :, :, :), &
                       solnData(HFLQ_VAR, :, :, :), &
                       solnData(HFGS_VAR, :, :, :), &
                       mph_Tsat, &
@@ -68,7 +68,7 @@ subroutine Multiphase_thermalForcing(tileDesc)
                       solnData(NRMZ_VAR, :, :, :), &
                       (mph_invReynolds/mph_Prandtl)*solnData(mph_iAlphaCVar, :, :, :), &
                       solnData(mph_iTempVar, :, :, :), &
-                      solnData(mph_iGfmVar, :, :, :), &
+                      solnData(mph_iTempFrcVar, :, :, :), &
                       solnData(HFLQ_VAR, :, :, :), &
                       solnData(HFGS_VAR, :, :, :), &
                       mph_Tsat, &
