@@ -79,14 +79,22 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   @M hy_recon_declare
   @M hy_riemann_declare
 
-  !$omp target enter data map (to: coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm)
+  logical :: offload = .false.
+
+#ifdef OMP_OL
+  offload = .true.
+#endif
+
+  !$omp target enter data map (to: coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm) &
+  !$omp if(offload)
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
   @M hy_map_fl
   
-  !$omp target enter data map(alloc: lim, klim, limgc, stage, dir)
+  !$omp target enter data map(alloc: lim, klim, limgc, stage, dir) &
+  !$omp if(offload)
   if (hy_flattening) then
      ! AH: TODO: OpenMP for flattening
      call flattening(limits)
@@ -94,11 +102,15 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      ! call Timers_start("hy_flat3d")
      !! TODO: Set this once for both rk steps.
 
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(3) &
+     !$omp map(to: blkLimitsGC) &
+#else
+     !$omp parallel do simd collapse(3) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k) &
-     !$omp shared(blkLimitsGC, hy_flat3d) &
-     !$omp map(to: blkLimitsGC)
+     !$omp shared(blkLimitsGC, hy_flat3d)
      @M loop_3d(blkLimitsGC)
               hy_flat3d(i,j,k) = 1.0
      @M loop_end_3d
@@ -112,7 +124,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   do dir = 1, NDIM
      call Timers_start("prepare_scratch")
-     !$omp target update to(lim, limgc, klim, dir, stage)
+     !$omp target update to(lim, limgc, klim, dir, stage) if(offload)
      
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
      hy_flat(@M hy_bounds(limgc))=>hya_flat
@@ -123,11 +135,16 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uPlus(1:NRECON,@M hy_bounds(limgc)) => hya_uPlus
      hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
 
-     !$omp target enter data map(alloc: hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus)
+     !$omp target enter data map(alloc: hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus) &
+     !$omp if(offload)
      call Timers_stop("prepare_scratch")
 
      call Timers_start("setRope")
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(3) &
+#else
+     !$omp parallel do simd collapse(3) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k, n) &
      !$omp shared(limgc, dir, stage, hy_rope, hy_starState, hy_grv, hy_grav, hy_shck, hy_flat, hy_flat3d)
@@ -145,7 +162,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
 
      call Timers_start("recon")
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(4) &
+#else
+     !$omp parallel do simd collapse(4) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k, v, W5p, W5m, betaWeno, Alpha5, omega, invSumAlpha, abs_betadiff) &
      !$omp shared(klim, dir, stage, hy_rope, hy_uMinus, hy_uPlus, hy_flat, &
@@ -158,7 +179,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("recon")
 
      call Timers_start("setrem")
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(3) &
+#else
+     !$omp parallel do simd collapse(3) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k, s, spc, spcSumInv) &
      !$omp shared(klim, dir, stage, hy_uPlus, hy_uMinus, hy_smalldens, hy_smallpres, hy_smallX)
@@ -170,7 +195,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("setrem")
 
      call Timers_start("riemann")
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(3) &
+#else
+     !$omp parallel do simd collapse(3) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k, v, &
      !$omp    VL, VR, Fstar, inShock, ierr, &
@@ -192,7 +221,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      call Timers_stop("riemann")
 
      call Timers_start("cvisc")
+#ifdef OMP_OL
      !$omp target teams distribute parallel do simd collapse(3) &
+#else
+     !$omp parallel do simd collapse(3) &
+#endif
      !$omp default(none) &
      !$omp private(i, j, k, v, cvisc, VenerLo, VenerHi, im1) &
      !$omp shared(lim, dir, stage, hy_cvisc, hy_rope, hy_flux, hy_uMinus, hy_uPlus)
@@ -248,33 +281,45 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      ! ***************
      select case(dir)
      case(IAXIS)
+#ifdef OMP_OL
         !$omp target teams distribute parallel do simd collapse(4) &
+        !$omp map(from: hy_flx) &
+#else
+        !$omp parallel do simd collapse(4) &
+#endif
         !$omp default(none) &
         !$omp private(i, j, k, v) &
-        !$omp shared(lim, dir, stage, hy_flux, hy_flx) &
-        !$omp map(from: hy_flx)
+        !$omp shared(lim, dir, stage, hy_flux, hy_flx)
         @M hy_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
                  hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
               end do
         @M loop_end_3d
      case (JAXIS)
+#ifdef OMP_OL
         !$omp target teams distribute parallel do simd collapse(4) &
+        !$omp map(from: hy_fly) &
+#else
+        !$omp parallel do simd collapse(4) &
+#endif
         !$omp default(none) &
         !$omp private(i, j, k, v) &
-        !$omp shared(lim, dir, stage, hy_flux, hy_fly) &
-        !$omp map(from: hy_fly)
+        !$omp shared(lim, dir, stage, hy_flux, hy_fly)
         @M hy_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
                  hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
               end do
         @M loop_end_3d
      case (KAXIS)
+#ifdef OMP_OL
         !$omp target teams distribute parallel do simd collapse(4) &
+        !$omp map(from: hy_flz) &
+#else
+        !$omp parallel do simd collapse(4) &
+#endif
         !$omp default(none) &
         !$omp private(i, j, k, v) &
-        !$omp shared(lim, dir, stage, hy_flux, hy_flz) &
-        !$omp map(from: hy_flz)
+        !$omp shared(lim, dir, stage, hy_flux, hy_flz)
         @M hy_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
               hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
@@ -283,7 +328,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      end select
      call Timers_stop("flux")        
      !release pointers
-     !$omp target exit data map(release: hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv)
+     !$omp target exit data map(release: hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv) &
+     !$omp if(offload)
      nullify(hy_flux)
      nullify(hy_rope)
      nullify(hy_uPlus)
@@ -295,7 +341,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      
   end do ! dir
 
-  !$omp target exit data map(release: lim, klim, limgc, stage, dir)
+  !$omp target exit data map(release: lim, klim, limgc, stage, dir) &
+  !$omp if(offload)
   nullify(hy_grav)
   nullify(hy_flat3d)
   @M hy_nullFl

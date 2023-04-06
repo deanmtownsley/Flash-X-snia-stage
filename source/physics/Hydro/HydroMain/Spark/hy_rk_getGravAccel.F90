@@ -56,24 +56,34 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   real :: delxinv
   integer :: dir, i,j,k,d
   integer :: im, ip, jm, jp, km, kp
+
+  logical :: offload = .false.
+
+#ifdef OMP_OL
+  offload = .true.
+#endif
   
   hy_grav(1:MDIM,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
-  !$omp target enter data map(alloc: hy_grav)
+  !$omp target enter data map(alloc: hy_grav) if(offload)
 
   if(hy_geometry /= CARTESIAN) then
      radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
      thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
-     !$omp target enter data map(to: radCenter, thtCenter)
+     !$omp target enter data map(to: radCenter, thtCenter) if(offload)
   end if
-  
+
+#ifdef OMP_OL
   !$omp target teams distribute parallel do simd collapse(4) &
+  !$omp map(to: blkLimitsGC) &
+#else
+  !$omp parallel do simd collapse(4) &
+#endif
   !$omp default(none) &
   !$omp private(i, j, k, d) &
-  !$omp shared(blkLimitsGC, hy_grav) &
-  !$omp map(to: blkLimitsGC)
+  !$omp shared(blkLimitsGC, hy_grav)
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -90,11 +100,16 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! sub-stages.
 #ifdef FLASH_GRAVITY_TIMEDEP
 #ifdef GPOT_VAR
+
+#ifdef OMP_OL
   !$omp target teams distribute parallel do simd collapse(3) &
+  !$omp map(to: limits, hy_del) &
+#else
+  !$omp parallel do simd collapse(3) &
+#endif /* OMP_OL */
   !$omp default(none) &
   !$omp private(i, j, k, d, delxinv, im, ip, jm, jp, km, kp) &
-  !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry) &
-  !$omp map(to: limits, hy_del)
+  !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
       do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
@@ -119,10 +134,10 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 #endif /* FLASH_GRAVITY_TIMEDEP */
 #endif /* GRAVITY */
 
-  !$omp target exit data map(from: hy_grav)
+  !$omp target exit data map(from: hy_grav) if(offload)
   nullify(hy_grav)
   if(hy_geometry /= CARTESIAN) then
-     !$omp target exit data map(release: radCenter, thtCenter)
+     !$omp target exit data map(release: radCenter, thtCenter) if(offload)
      nullify(radCenter)
      nullify(thtCenter)
   end if

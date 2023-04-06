@@ -93,6 +93,12 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
   integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
   real    :: alpha, dx_sph
+
+  logical :: offload = .false.
+
+#ifdef OMP_OL
+  offload = .true.
+#endif
   
   
   loGC(:) = blkLimitsGC(LOW,:)
@@ -103,22 +109,26 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   dhdt = minval(hy_del(1:NDIM))/(hy_coeffs(3)*dt)
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
-  !$omp target enter data map (to: hy_grav)
+  !$omp target enter data map (to: hy_grav) if(offload)
 
   @M hy_map_fl
   if (hy_geometry /= CARTESIAN) then
     @M hy_map_geom
   end if
 
+#ifdef OMP_OL
   !$omp target teams distribute parallel do simd collapse(3) &
+  !$omp map(to: limits) &
+#else
+  !$omp parallel do simd collapse(3) &
+#endif
   !$omp default(none) &
   !$omp private(i, j, k, V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag, &
   !$omp         MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX, &
   !$omp         alpha, dx_sph, facM, facP) &
   !$omp shared(limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz, &
   !$omp        hy_coeffs, hy_farea, hy_cvol, hy_smalldens, hy_smallE, &
-  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld) &
-  !$omp map(to: limits)
+  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -205,7 +215,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
      enddo !j
   enddo !k
 
-  !$omp target exit data map (release: hy_grav)
+  !$omp target exit data map (release: hy_grav) if(offload)
   @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then
