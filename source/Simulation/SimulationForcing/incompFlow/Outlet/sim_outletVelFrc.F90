@@ -89,7 +89,7 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
                   if (abs(vel(i, j, k)) > velout) ifnorm = 1
 
                   ifpar = 0
-                  if (abs(vel(i, j, k)) > velref) ifpar = 1
+                  if (abs(vel(i, j, k)) > velout) ifpar = 1
 
                   ! Check if normal axis
                   inorm = 0
@@ -100,7 +100,7 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
                   !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
 
                   velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
-                             ifpar*(1 - inorm)*((velref*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
                              velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
