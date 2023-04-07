@@ -48,6 +48,8 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
+OPENMP = -fopenmp
+
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
 	-Wall -Wextra -Wno-unused -Waliasing \
