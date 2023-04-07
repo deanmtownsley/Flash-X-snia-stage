@@ -17,14 +17,13 @@
 !!
 !! SYNOPSIS
 !!
-!!   Call amr_restrict_unk_dg (datain, dataout, ivar, ioff, joff, koff)
-!!   Call amr_restrict_unk_dg (real array, real array, integer, integer, integer, integer)
+!!   Call amr_restrict_unk_dg (datain, dataout, ioff, joff, koff)
+!!   Call amr_restrict_unk_dg (real array, real array, integer, integer, integer)
 !!
 !! ARGUMENTS
 !!
 !!   Real,    Intent(in)    :: datain(:,:,:,:)  data to restrict
 !!   Real,    Intent(inout) :: dataout(:,:,:,:)  data which is restricted and returned
-!!   Integer, Intent(in)    :: ivar  variable number in unk to restrict
 !!   ioff, joff, koff : offsets of the restricted data that is returned within the coarse
 !!                      block; each of these numbers should be either 0 or half
 !!                      the number of interior cells in the block for the
@@ -52,8 +51,8 @@
 !!
 !!   Data is passed in in the array 'datain' and returned in the array
 !!   'dataout'.
-!!   The last argument 'ivar' specifies which variable in 'unk' to apply
-!!   the interpolation to.
+!!   The restriction operates on a subset of variables in UNK selected
+!!   by corresponding entries in the array interp_mask_unk_res.
 !!
 !! NOTES
 !!
@@ -71,11 +70,13 @@
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
 !!  2023-03-15 Pass cell_face_coordN when needed    - Klaus Weide
 !!  2023-03-16 Accept ioff,joff,koff args           - Klaus Weide
+!!  2023-04-05 Act on a set of variables, not all   - Austin Harris
+!!  2023-04-07 Eliminate ivar argument              - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
 
-Subroutine amr_restrict_unk_dg(datain,dataout,ivar,ioff,joff,koff)
+Subroutine amr_restrict_unk_dg(datain,dataout,ioff,joff,koff)
 
   !-----Use Statements
   Use paramesh_dimensions, ONLY: nxb, nyb, nzb
@@ -90,7 +91,6 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ivar,ioff,joff,koff)
   !-----Input/Output arguments.
   Real,    Intent(in)    :: datain(:,:,:,:)
   Real,    Intent(inout) :: dataout(:,:,:,:)
-  Integer, Intent(in)    :: ivar
   Integer, Intent(in)    :: ioff,joff,koff
 
   !-----Local arrays and variables.
