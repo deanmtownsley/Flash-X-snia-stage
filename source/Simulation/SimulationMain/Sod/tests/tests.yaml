@@ -20,7 +20,7 @@ Composite/Sod/PseudoUG/2d/AMReX/spark:
 
 # The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/sparkMT:
-  setupOptions: -auto -2d +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True omp_offload=True
+  setupOptions: -auto -2d +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 
@@ -44,7 +44,7 @@ Composite/Sod/PseudoUG/2d/Paramesh/unsplit:
 
 # The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/Paramesh/sparkMT:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True omp_offload=True
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
 # end PseudoUG Paramesh 2d
