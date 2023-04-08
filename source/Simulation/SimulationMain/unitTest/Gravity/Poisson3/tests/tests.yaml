@@ -2,7 +2,7 @@
 # comments start with "#"
 
 UnitTest/Gravity/AMR/3d/Paramesh:
-  setupOptions: -auto -3d +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 -gridinterpolation=monotonic
+  setupOptions: -auto -3d +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 -gridinterpolation=monotonic +threadwB
   parfiles: <defaultParfile>
 
 #This test was originally configured with debug option
@@ -17,5 +17,5 @@ UnitTest/Gravity/AMR/2dSph/Paramesh:
 #This test was originally configured with debug option
 #GCC compiler version 10.2.0 was used for the test    
 UnitTest/Gravity/AMR/3dSph/Paramesh:
-  setupOptions: -auto -3d +spherical +newMpole +noio -maxblocks=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev
+  setupOptions: -auto -3d +spherical +newMpole +noio -maxblocks=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev +threadBL
   parfiles: test_flash_3dsph.par

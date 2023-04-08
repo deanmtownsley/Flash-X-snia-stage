@@ -123,7 +123,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   !$omp parallel do simd collapse(3) &
 #endif
   !$omp default(none) &
-  !$omp private(i, j, k, V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag, &
+  !$omp private(V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag, &
   !$omp         MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX, &
   !$omp         alpha, dx_sph, facM, facP) &
   !$omp shared(limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz, &

@@ -82,7 +82,6 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   !$omp parallel do simd collapse(4) &
 #endif
   !$omp default(none) &
-  !$omp private(i, j, k, d) &
   !$omp shared(blkLimitsGC, hy_grav)
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
@@ -108,7 +107,7 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   !$omp parallel do simd collapse(3) &
 #endif /* OMP_OL */
   !$omp default(none) &
-  !$omp private(i, j, k, d, delxinv, im, ip, jm, jp, km, kp) &
+  !$omp private(d, delxinv, im, ip, jm, jp, km, kp) &
   !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry)
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
