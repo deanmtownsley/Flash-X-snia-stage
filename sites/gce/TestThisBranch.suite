@@ -87,3 +87,9 @@ SNIa_DoubleDetonation -t "Composite/SNIaDDT/AMR/2d/Paramesh" -np 8 \
 # was added, again on 2023-02-21 by kweide.
 SNIa_DoubleDetonation -t "Composite/SNIaDDT/AMR/2d/pm4AltMortonBittree" -np 8 \
 	-e OMP_NUM_THREADS=1 -cbase 2023-01-30 -rbase 2023-01-31_2
+
+#------------------------------------------------
+# Tests for - Poisson solver
+#------------------------------------------------
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1

@@ -184,7 +184,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(3) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k, s, spc, spcSumInv) &
+     !$omp private(s, spc, spcSumInv) &
      !$omp shared(klim, dir, stage, hy_uPlus, hy_uMinus, hy_smalldens, hy_smallpres, hy_smallX)
      @M hy_loop(klim)
               ! Limit and renormalize the species.
