@@ -109,7 +109,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(3) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k) &
      !$omp shared(blkLimitsGC, hy_flat3d)
      @M loop_3d(blkLimitsGC)
               hy_flat3d(i,j,k) = 1.0
@@ -146,7 +145,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(3) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k, n) &
+     !$omp private(n) &
      !$omp shared(limgc, dir, stage, hy_rope, hy_starState, hy_grv, hy_grav, hy_shck, hy_flat, hy_flat3d)
      @M hy_loop(limgc)
               if (dir == IAXIS) then
@@ -168,7 +167,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(4) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k, v, W5p, W5m, betaWeno, Alpha5, omega, invSumAlpha, abs_betadiff) &
+     !$omp private(W5p, W5m, betaWeno, Alpha5, omega, invSumAlpha, abs_betadiff) &
      !$omp shared(klim, dir, stage, hy_rope, hy_uMinus, hy_uPlus, hy_flat, &
      !$omp        coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm)
      @M hy_loop(klim)
@@ -201,7 +200,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(3) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k, v, &
+     !$omp private(v, &
      !$omp    VL, VR, Fstar, inShock, ierr, &
      !$omp    UL, UR, Uhll, UCstarR, UCstarL, FL, FR, &
      !$omp    velNL, velNR, aL2, aR2, &
@@ -227,7 +226,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      !$omp parallel do simd collapse(3) &
 #endif
      !$omp default(none) &
-     !$omp private(i, j, k, v, cvisc, VenerLo, VenerHi, im1) &
+     !$omp private(v, cvisc, VenerLo, VenerHi, im1) &
      !$omp shared(lim, dir, stage, hy_cvisc, hy_rope, hy_flux, hy_uMinus, hy_uPlus)
      @M hy_loop_plus(lim,1,0,0)
 
@@ -288,7 +287,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         !$omp parallel do simd collapse(4) &
 #endif
         !$omp default(none) &
-        !$omp private(i, j, k, v) &
         !$omp shared(lim, dir, stage, hy_flux, hy_flx)
         @M hy_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
@@ -303,7 +301,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         !$omp parallel do simd collapse(4) &
 #endif
         !$omp default(none) &
-        !$omp private(i, j, k, v) &
         !$omp shared(lim, dir, stage, hy_flux, hy_fly)
         @M hy_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
@@ -318,7 +315,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         !$omp parallel do simd collapse(4) &
 #endif
         !$omp default(none) &
-        !$omp private(i, j, k, v) &
         !$omp shared(lim, dir, stage, hy_flux, hy_flz)
         @M hy_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
