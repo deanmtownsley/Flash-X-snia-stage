@@ -143,7 +143,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   call Grid_getTileIterator(itor, LEAF, tiling = .FALSE.)
 
   !$omp parallel if (gr_mpoleMultiThreading) &
-  !$omp default(none) &
+  !$omp default(private) &
   !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
   !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
   !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
