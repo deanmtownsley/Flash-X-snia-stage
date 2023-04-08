@@ -264,7 +264,6 @@ subroutine Driver_evolveAll()
 #endif
       gcMask(iSharpPfunVar) = .TRUE.
       gcMask(iSmearedPfunVar) = .TRUE.
-      gcMask(iAlphVar) = .TRUE.
       gcMask(NUNK_VARS + iRhoFVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + iRhoFVar) = .TRUE.
 #if NDIM == 3
