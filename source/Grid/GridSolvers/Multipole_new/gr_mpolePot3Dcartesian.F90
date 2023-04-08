@@ -144,6 +144,13 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
 
   !$omp parallel if (gr_mpoleMultiThreading) &
   !$omp default(none) &
+  !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
+  !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
+  !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
+  !$omp         idampingQuotient,rI,rinvI,rcL,icL,idamp,rdamp,rdotI,idotR,&
+  !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
+  !$omp         dampI,dampR,h,g,f,rc2,ic2,xR,yR,xI,yI,c,s,rs0,is0,rsL,isL,rs1,is1,&
+  !$omp         rs2,is2,mM)&
   !$omp shared( tileDesc,itor,ipotvar,&
   !$omp         bndBox,delta,solnData,tileLimits,&
   !$omp         imin,jmin,kmin,imax,jmax,kmax,&

@@ -49,6 +49,7 @@ PP      = -D
 #----------------------------------------------------------------------------
 
 OPENMP = -fopenmp
+OPENMP_LINK = -fopenmp -qnosave -qthreaded
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
@@ -128,6 +129,8 @@ LIB_MA28 = -L$(MA28_PATH)/lib -lma28
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # the dependencies.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex -lstdc++
+
+LIB_OMP_OL   = ${OPENMP_LINK} -qoffload
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
