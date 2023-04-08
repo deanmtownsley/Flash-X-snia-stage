@@ -92,4 +92,4 @@ Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkMT" -np 4 \
 # Tests for - Poisson solver
 #------------------------------------------------
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 1
-unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1 -e OMP_NUM_THREADS=2
