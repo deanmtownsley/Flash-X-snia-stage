@@ -141,7 +141,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   !
 
   !$omp parallel if (gr_mpoleMultiThreading) &
-  !$omp default(private) &
+  !$omp default(firstprivate) &
   !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
   !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
   !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
@@ -150,12 +150,13 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   !$omp         dampI,dampR,h,g,f,rc2,ic2,xR,yR,xI,yI,c,s,rs0,is0,rsL,isL,rs1,is1,&
   !$omp         rs2,is2,mM,&
   !$omp         tileDesc,itor)&
-  !$omp firstprivate(ipotvar,&
-  !$omp         bndBox,delta,solnData,tileLimits,&
+  !$omp firstprivate(solnData)&
+  !$omp private(bndBox,delta,tileLimits,&
   !$omp         imin,jmin,kmin,imax,jmax,kmax,&
   !$omp         iCmax,jCmax,kCmax,iFmax,jFmax,kFmax,&
   !$omp         DeltaI,DeltaJ,DeltaK,DeltaIHalf,DeltaJHalf,DeltaKHalf,&
   !$omp         bndBoxILow,bndBoxJLow,bndBoxKLow)&
+  !$omp shared( ipotvar)&
   !$omp shared( gr_mpoleGravityConstant,gr_mpoleSymmetryAxis3D,gr_mpoleNumberInv,&
   !$omp         gr_mpoleTotalNrCosineMoments,gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
   !$omp         gr_mpoleMaxL,gr_mpoleMax2L,gr_mpoleMaxM,gr_mpoleMaxLM,gr_mpoleMaxQ,&
