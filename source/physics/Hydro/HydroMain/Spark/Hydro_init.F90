@@ -237,6 +237,7 @@ subroutine Hydro_init()
   call Grid_getMaxcells(hy_maxCells)
   hy_maxCells=2*NGUARD+hy_maxCells
 
+#ifdef OMP_OL
   !$omp target update to &
   !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
   !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
@@ -244,6 +245,7 @@ subroutine Hydro_init()
   !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
   !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev, hy_maxCells)
+#endif
 
   call check_if_omp_offload()
 
@@ -257,10 +259,12 @@ contains
     logical :: onCPU
 
     onCPU = .true.
+#ifdef OMP_OL
     !$omp target map(tofrom: onCPU)
     !$  onCPU = omp_is_initial_device()
     !$omp end target
     !$omp barrier
+#endif
 
     if (.not. onCPU) then
       write(*, '(A, I3, A)'), "[Hydro_init] proc ", hy_meshMe, ":  GPU offloading is available"
