@@ -119,7 +119,7 @@ Subroutine amr_restrict_unk_dg(datain,dataout,ioff,joff,koff)
   else
      ! Compute corresponding index bounds in the coarse block, into which the
      ! data we store in dataout will ultimately be copied.
-     iclX = 1 +         + ioff + NGUARD
+     iclX = 1 +           ioff + NGUARD
      icuX = 1 +  nxb/2  + ioff + NGUARD
      jclX = 1 + (       + joff + NGUARD) * K2D
      jcuX = 1 + (nyb/2  + joff + NGUARD) * K2D
