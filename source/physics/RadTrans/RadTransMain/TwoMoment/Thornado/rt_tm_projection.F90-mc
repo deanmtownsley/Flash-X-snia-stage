@@ -39,7 +39,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
   use FluidFieldsModule, ONLY : uCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne
   use GeometryFieldsModule, ONLY : uGF, iGF_h_1, iGF_h_2, iGF_h_3
   use RadiationFieldsModule, ONLY : uCR, uGR, iGR_N, iGR_D, iGR_I1, iGR_I2, iGR_I3, &
-     iGR_J, iGR_H1, iGR_H2, iGR_H3, iGR_RMS, iGR_F, iGR_K, iGR_Q, unitsGR
+     iGR_J, iGR_H1, iGR_H2, iGR_H3, iGR_RMS, iGR_F, iGR_K, iGR_Q, unitsGR, nGR
   use SubcellReconstructionModule, ONLY : ProjectionMatrix
   use UnitsModule, ONLY : Gram, Centimeter, Second, AtomicMassUnit
 
@@ -53,7 +53,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
 
   real :: D, S1, S2, S3, E, Nel, ekin
   real :: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF
-  integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE
+  integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE, iGR
 
   real, parameter :: conv_dens = Gram / Centimeter**3
   real, parameter :: conv_mom  = Gram / Centimeter**2 / Second
@@ -69,7 +69,8 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
   @M dir_end
 
   @M dir_loop_outer(4) &
-  @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin ) &
+  @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff ) &
+  @M dir_private()( EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF ) &
   @M dir_present()( ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX ) &
   @M dir_end
 
@@ -121,53 +122,60 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
 #endif
 
               ! Interpolate energy-integrated (gray) radiation quantities to cell-centers
-              EuD  = 0.0
-              LaD  = 0.0
-              LaI1 = 0.0
-              LaI2 = 0.0
-              LaI3 = 0.0
-              LaJ  = 0.0
-              LaH1 = 0.0
-              LaH2 = 0.0
-              LaH3 = 0.0
-              rmsE = 0.0
-              FlxF = 0.0
-              EddF = 0.0
-              HetF = 0.0
 
-              @M dir_loop_inner(1) &
-              @M dir_reduction()( +: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF ) &
-              @M dir_end
+              do iS = 1, THORNADO_NSPECIES
 
-              do n = 1, THORNADO_FLUID_NDOF
-                 EuD  = EuD  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_N )
-                 LaD  = LaD  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_D )
-                 LaI1 = LaI1 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I1) * uGF(n,ic,jc,kc,iGF_h_1)
-                 LaI2 = LaI2 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I2) * uGF(n,ic,jc,kc,iGF_h_2)
-                 LaI3 = LaI3 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I3) * uGF(n,ic,jc,kc,iGF_h_3)
-                 LaJ  = LaJ  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_J )
-                 LaH1 = LaH1 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H1) * uGF(n,ic,jc,kc,iGF_h_1)
-                 LaH2 = LaH2 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H2) * uGF(n,ic,jc,kc,iGF_h_2)
-                 LaH3 = LaH3 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H3) * uGF(n,ic,jc,kc,iGF_h_3)
-                 rmsE = rmsE + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_RMS)
-                 FlxF = FlxF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_F )
-                 EddF = EddF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_K )
-                 HetF = HetF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_Q )
+                 EuD  = 0.0
+                 LaD  = 0.0
+                 LaI1 = 0.0
+                 LaI2 = 0.0
+                 LaI3 = 0.0
+                 LaJ  = 0.0
+                 LaH1 = 0.0
+                 LaH2 = 0.0
+                 LaH3 = 0.0
+                 rmsE = 0.0
+                 FlxF = 0.0
+                 EddF = 0.0
+                 HetF = 0.0
+
+                 @M dir_loop_inner(1) &
+                 @M dir_reduction()( +: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF ) &
+                 @M dir_end
+
+                 do n = 1, THORNADO_FLUID_NDOF
+                    EuD  = EuD  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_N  ,iS)
+                    LaD  = LaD  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_D  ,iS)
+                    LaI1 = LaI1 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I1 ,iS) * uGF(n,ic,jc,kc,iGF_h_1)
+                    LaI2 = LaI2 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I2 ,iS) * uGF(n,ic,jc,kc,iGF_h_2)
+                    LaI3 = LaI3 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_I3 ,iS) * uGF(n,ic,jc,kc,iGF_h_3)
+                    LaJ  = LaJ  + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_J  ,iS)
+                    LaH1 = LaH1 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H1 ,iS) * uGF(n,ic,jc,kc,iGF_h_1)
+                    LaH2 = LaH2 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H2 ,iS) * uGF(n,ic,jc,kc,iGF_h_2)
+                    LaH3 = LaH3 + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_H3 ,iS) * uGF(n,ic,jc,kc,iGF_h_3)
+                    rmsE = rmsE + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_RMS,iS)
+                    FlxF = FlxF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_F  ,iS)
+                    EddF = EddF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_K  ,iS)
+                    HetF = HetF + ProjectionMatrix(iNodeX,n)*uGR(n,ic,jc,kc,iGR_Q  ,iS)
+                 end do
+
+                 ioff = SCRATCH_GRID_VARS_BEGIN + (iS-1)*nGR
+
+                 Sout(ioff+iGR_N  ,ii,jj,kk) = EuD  / unitsGR(iGR_N  )
+                 Sout(ioff+iGR_D  ,ii,jj,kk) = LaD  / unitsGR(iGR_D  )
+                 Sout(ioff+iGR_I1 ,ii,jj,kk) = LaI1 / unitsGR(iGR_I1 )
+                 Sout(ioff+iGR_I2 ,ii,jj,kk) = LaI2 / unitsGR(iGR_I2 )
+                 Sout(ioff+iGR_I3 ,ii,jj,kk) = LaI3 / unitsGR(iGR_I3 )
+                 Sout(ioff+iGR_J  ,ii,jj,kk) = LaJ  / unitsGR(iGR_J  )
+                 Sout(ioff+iGR_H1 ,ii,jj,kk) = LaH1 / unitsGR(iGR_H1 )
+                 Sout(ioff+iGR_H2 ,ii,jj,kk) = LaH2 / unitsGR(iGR_H2 )
+                 Sout(ioff+iGR_H3 ,ii,jj,kk) = LaH3 / unitsGR(iGR_H3 )
+                 Sout(ioff+iGR_RMS,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
+                 Sout(ioff+iGR_F  ,ii,jj,kk) = FlxF / unitsGR(iGR_F  )
+                 Sout(ioff+iGR_K  ,ii,jj,kk) = EddF / unitsGR(iGR_K  )
+                 Sout(ioff+iGR_Q  ,ii,jj,kk) = HetF / unitsGR(iGR_Q  )
+
               end do
-
-              Sout( EUD_SCRATCH_GRID_VAR,ii,jj,kk) = EuD  / unitsGR(iGR_N )
-              Sout( LAD_SCRATCH_GRID_VAR,ii,jj,kk) = LaD  / unitsGR(iGR_D )
-              Sout(LAI1_SCRATCH_GRID_VAR,ii,jj,kk) = LaI1 / unitsGR(iGR_I1)
-              Sout(LAI2_SCRATCH_GRID_VAR,ii,jj,kk) = LaI2 / unitsGR(iGR_I2)
-              Sout(LAI3_SCRATCH_GRID_VAR,ii,jj,kk) = LaI3 / unitsGR(iGR_I3)
-              Sout( LAJ_SCRATCH_GRID_VAR,ii,jj,kk) = LaJ  / unitsGR(iGR_J )
-              Sout(LAH1_SCRATCH_GRID_VAR,ii,jj,kk) = LaH1 / unitsGR(iGR_H1)
-              Sout(LAH2_SCRATCH_GRID_VAR,ii,jj,kk) = LaH2 / unitsGR(iGR_H2)
-              Sout(LAH3_SCRATCH_GRID_VAR,ii,jj,kk) = LaH3 / unitsGR(iGR_H3)
-              Sout(RMSE_SCRATCH_GRID_VAR,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
-              Sout(FLXF_SCRATCH_GRID_VAR,ii,jj,kk) = FlxF / unitsGR(iGR_F )
-              Sout(EDDF_SCRATCH_GRID_VAR,ii,jj,kk) = EddF / unitsGR(iGR_K )
-              Sout(HETF_SCRATCH_GRID_VAR,ii,jj,kk) = HetF / unitsGR(iGR_Q )
 
            end do
         end do
@@ -215,7 +223,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
   end do
 
   @M dir_exit_data &
-  @M dir_copyout()( @M dir_map_type(from) Uin ) &
+  @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
   @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
   @M dir_end
 
