@@ -178,14 +178,20 @@ a13:--with-unit=physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13
 
 a19:--with-unit=physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19
 
-#Shortcut for thornado with GPUs
+#Shortcuts for thornado and weaklib
 thornado:--with-unit=physics/RadTrans/RadTransMain/TwoMoment/Thornado
 thornadoOMP:+thornado:thornadoOMP=True:-defines=THORNADO_OMP
 thornadoGPU:+thornado:thornadoGPU=True:-defines=THORNADO_GPU
 thornadoACC:+thornadoGPU:thornadoACC=True:-defines=THORNADO_OACC
+thornadoOMP_OL:+thornadoGPU:thornadoOMP_OL=True:-defines=THORNADO_OMP_OL
+
+thornadoNVIDIA:+thornadoGPU:thornadoNVIDIA=True:-defines=THORNADO_CUDA
+thornadoAMD:+thornadoGPU:thornadoAMD=True:-defines=THORNADO_HIP
 
 weaklib:useWeaklib=True:--with-unit=physics/Eos/EosMain/WeakLib:-defines=MICROPHYSICS_WEAKLIB
+weaklibOMP:+weaklib:weaklibOMP=True:-defines=WEAKLIB_OMP
 weaklibACC:+weaklib:weaklibACC=True:-defines=WEAKLIB_OACC
+weaklibOMP_OL:+weaklib:weaklibOMP_OL=True:-defines=WEAKLIB_OMP_OL
 
 # Shortcut to use starkiller eos
 starkiller:--with-unit=physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller

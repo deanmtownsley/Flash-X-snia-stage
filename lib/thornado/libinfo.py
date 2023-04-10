@@ -20,8 +20,13 @@ def create_build_script(absLibDir,buildFlag,args):
     else:
         USE_GPU = "FALSE"
 
-    if "thornadoHIP" in setupVars:
-        USE_HIP = str(setupVars["thornadoHIP"]).upper()
+    if "thornadoNVIDIA" in setupVars:
+        USE_CUDA = str(setupVars["thornadoNVIDIA"]).upper()
+    else:
+        USE_CUDA = USE_GPU
+
+    if "thornadoAMD" in setupVars:
+        USE_HIP = str(setupVars["thornadoAMD"]).upper()
     else:
         USE_HIP = "FALSE"
 
@@ -67,12 +72,14 @@ def create_build_script(absLibDir,buildFlag,args):
     fileObj.write('set -ex\n')  # set -e to fail when an error occurs, -x to trace commands
     fileObj.write('cd source/SandBox/Interface_FLASH\n')
     fileObj.write('make clean\n')
-    fileObj.write('make' + 
+    fileObj.write('make -j8' +
                   ' BUILDFLAG=' + buildFlag +
                   ' USE_GPU=' + USE_GPU +
+                  ' USE_CUDA=' + USE_CUDA +
                   ' USE_HIP=' + USE_HIP +
                   ' USE_OACC=' + USE_OACC +
                   ' USE_OMP_OL=' + USE_OMP_OL +
+                  ' USE_OMP=' + USE_OMP +
                   ' MOMENT_CLOSURE=' + momentClosure +
                   ' NEUTRINO_MATTER_SOLVER=' + thornadoSolver +
                   ' TWOMOMENT_ORDER=' + thornadoOrder +

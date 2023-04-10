@@ -37,10 +37,11 @@ def create_build_script(absLibDir,buildFlag,args):
     fileObj.write('set -ex\n')  # set -e to fail when an error occurs, -x to trace commands
     fileObj.write('cd source/Distributions/ExternalLibrary\n')
     fileObj.write('make -f Makefile.Flash clean\n')
-    fileObj.write('make -f Makefile.Flash' + 
+    fileObj.write('make -f Makefile.Flash -j8' +
                   ' BUILDFLAG=' + buildFlag +
                   ' USE_OACC=' + USE_OACC +
                   ' USE_OMP_OL=' + USE_OMP_OL +
+                  ' USE_OMP=' + USE_OMP +
                   '\n')
     fileObj.write('cd ../../../\n')
     fileObj.close()
