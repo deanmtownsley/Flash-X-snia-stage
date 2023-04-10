@@ -267,7 +267,7 @@ contains
 #endif
 
     if (.not. onCPU) then
-      write(*, '(A, I3, A)'), "[Hydro_init] proc ", hy_meshMe, ":  GPU offloading is available"
+      write(*, '(A, I3, A)') "[Hydro_init] proc ", hy_meshMe, ":  GPU offloading is available"
     end if
   end subroutine check_if_omp_offload
 
