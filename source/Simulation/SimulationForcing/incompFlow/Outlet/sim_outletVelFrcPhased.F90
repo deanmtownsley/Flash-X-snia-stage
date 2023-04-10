@@ -17,7 +17,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
+subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                                   dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                   xMin, xMax, yMin, yMax, zMin, zMax, &
                                   outletFlag, outletBuffer, outletGrowthRate, &
@@ -26,7 +26,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
 
    implicit none
    real, dimension(:, :, :), intent(in) :: vel, phi
-   real, dimension(:, :, :), intent(inout) :: rhs
+   real, dimension(:, :, :), intent(inout) :: rhs, sigm
    real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
    real, intent(in) :: dt, dx, dy, dz
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -39,7 +39,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
    real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
 
    !---Local variables
-   integer :: i, j, k, idimn, ibound, iforce, iliq, igas, inorm
+   integer :: i, j, k, idimn, ibound, ifnorm, ifpar, iliq, igas, inorm
    real :: xcell, ycell, zcell, velout, velforce
    real :: outprofile(LOW:HIGH, MDIM), velgrad(LOW:HIGH, MDIM), phiface(MDIM)
    real, parameter :: velref = 1.
@@ -86,8 +86,8 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
                do ibound = LOW, HIGH
 
                   ! Cache the fluid information liquid or gas
-                  iliq = (1 - int(sign(1., phiface(idimn))))/2
-                  igas = (1 + int(sign(1., phiface(idimn))))/2
+                  iliq = (1 - int(sign(1., phiface(axis))))/2
+                  igas = (1 + int(sign(1., phiface(axis))))/2
 
                   ! Get absolute outlet velocity
                   ! QOut is the mean outlet velocity
@@ -96,19 +96,27 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
 
                   ! Check if local velocity greater than
                   ! outlet velocity
-                  iforce = 0
-                  if (abs(vel(i, j, k)) > velout) iforce = 1
+                  ifnorm = 0
+                  if (abs(vel(i, j, k)) > velout) ifnorm = 1
+
+                  ifpar = 0
+                  if (abs(vel(i, j, k)) > velout) ifpar = 1
 
                   ! Check if normal axis
                   inorm = 0
                   if (axis == idimn) inorm = 1
 
                   ! compute forcing on the local cell
-                  velforce = inorm*iforce*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
-                                           velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
+                  !velforce = inorm*ifnorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
+                  !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
+
+                  velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
+                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                             velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
                   rhs(i, j, k) = rhs(i, j, k) + velforce*outletFlag(ibound, idimn)*outprofile(ibound, idimn)
+                  sigm(i, j, k) = sigm(i, j, k) - sigm(i, j, k)*outletFlag(ibound, idimn)*outprofile(ibound, idimn)
                end do
             end do
 
@@ -119,11 +127,17 @@ subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
                iliq = (1 - int(sign(1., phiface(axis))))/2
                igas = (1 + int(sign(1., phiface(axis))))/2
 
-               QAuxLiq(ibound, axis) = QAuxLiq(ibound, axis) + iliq*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAuxLiq(ibound, axis) = volAuxLiq(ibound, axis) + iliq*outletFlag(ibound, axis)*outprofile(ibound, axis)
+               QAuxLiq(ibound, axis) = QAuxLiq(ibound, axis) + &
+                                       iliq*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
 
-               QAuxGas(ibound, axis) = QAuxGas(ibound, axis) + igas*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAuxGas(ibound, axis) = volAuxGas(ibound, axis) + igas*outletFlag(ibound, axis)*outprofile(ibound, axis)
+               volAuxLiq(ibound, axis) = volAuxLiq(ibound, axis) + &
+                                         iliq*outletFlag(ibound, axis)*outprofile(ibound, axis)
+
+               QAuxGas(ibound, axis) = QAuxGas(ibound, axis) + &
+                                       igas*outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
+
+               volAuxGas(ibound, axis) = volAuxGas(ibound, axis) + &
+                                         igas*outletFlag(ibound, axis)*outprofile(ibound, axis)
             end do
 
          end do

@@ -37,7 +37,7 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
    real, intent(in) :: QOut(LOW:HIGH, MDIM)
 
    !---Local variables
-   integer :: i, j, k, idimn, ibound, iforce, inorm
+   integer :: i, j, k, idimn, ibound, ifnorm, ifpar, inorm
    real :: xcell, ycell, zcell, velout, velforce
    real :: outprofile(LOW:HIGH, MDIM), velgrad(LOW:HIGH, MDIM)
    real, parameter :: velref = 1.
@@ -85,16 +85,23 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
 
                   ! Check if local velocity greater than
                   ! outlet velocity
-                  iforce = 0
-                  if (abs(vel(i, j, k)) > velout) iforce = 1
+                  ifnorm = 0
+                  if (abs(vel(i, j, k)) > velout) ifnorm = 1
+
+                  ifpar = 0
+                  if (abs(vel(i, j, k)) > velout) ifpar = 1
 
                   ! Check if normal axis
                   inorm = 0
                   if (axis == idimn) inorm = 1
 
                   ! compute forcing on the local cell
-                  velforce = inorm*iforce*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
-                                           velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
+                  !velforce = inorm*ifnorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
+                  !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
+
+                  velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
+                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                             velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
                   rhs(i, j, k) = rhs(i, j, k) + velforce*outletFlag(ibound, idimn)*outprofile(ibound, idimn)
@@ -104,8 +111,11 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
             ! Update QAux and volAux on local processor
             ! This is later used to compute QOut in Simulation_adjustEvolution
             do ibound = LOW, HIGH
-               QAux(ibound, axis) = QAux(ibound, axis) + outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
-               volAux(ibound, axis) = volAux(ibound, axis) + outletFlag(ibound, axis)*outprofile(ibound, axis)
+               QAux(ibound, axis) = QAux(ibound, axis) + &
+                                    outletFlag(ibound, axis)*vel(i, j, k)*outprofile(ibound, axis)
+
+               volAux(ibound, axis) = volAux(ibound, axis) + &
+                                      outletFlag(ibound, axis)*outprofile(ibound, axis)
             end do
 
          end do

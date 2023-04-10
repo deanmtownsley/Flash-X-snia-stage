@@ -50,8 +50,7 @@ subroutine Multiphase_divergence(tileDesc)
 
 #if NDIM < MDIM
    call mph_evapDivergence2d(solnData(mph_iDivCvar, :, :, :), &
-                             facexData(mph_iRhoFVar, :, :, :), &
-                             faceyData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iRhoCVar, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
                              solnData(MFLX_VAR, :, :, :), &
@@ -64,9 +63,7 @@ subroutine Multiphase_divergence(tileDesc)
    call tileDesc%getDataPtr(facezData, FACEZ)
 
    call mph_evapDivergence3d(solnData(mph_iDivCvar, :, :, :), &
-                             facexData(mph_iRhoFVar, :, :, :), &
-                             faceyData(mph_iRhoFVar, :, :, :), &
-                             facezData(mph_iRhoFVar, :, :, :), &
+                             solnData(mph_iRhoCVar, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
                              solnData(NRMZ_VAR, :, :, :), &

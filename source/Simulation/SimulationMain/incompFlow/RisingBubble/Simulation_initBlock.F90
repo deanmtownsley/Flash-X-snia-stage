@@ -84,7 +84,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
           yi=yCenter(j)
           zi=zCenter(k)
 
-          solnData(DFUN_VAR,i,j,k) = 0.25-sqrt((xi)**2+(yi)**2+(zi)**2)
+          solnData(DFUN_VAR,i,j,k) = sim_bubbleRadius-sqrt((xi)**2+(yi)**2+(zi)**2)
         enddo
      enddo
   enddo
