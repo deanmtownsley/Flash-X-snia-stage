@@ -50,7 +50,7 @@ subroutine Simulation_finalize()
   use ProgramHeaderModule, ONLY : iZ_B0, iZ_E0, iZ_B1, iZ_E1
   use RadiationFieldsModule, ONLY : uCR, uPR, nSpecies, nPR
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
-  use TwoMoment_UtilitiesModule_OrderV, ONLY : ComputeFromConserved_TwoMoment
+  use TwoMoment_UtilitiesModule, ONLY : ComputeFromConserved_TwoMoment
   use UnitsModule, ONLY : Centimeter, Second
 
 #include "Flashx_mpi_implicitNone.fh"

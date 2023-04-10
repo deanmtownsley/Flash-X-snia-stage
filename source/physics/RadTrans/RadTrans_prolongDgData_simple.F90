@@ -1,4 +1,4 @@
-!!****f* RadTrans/RadTrans_prolongDgData
+!!****f* RadTrans/RadTrans_prolongDgData_simple
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -13,16 +13,16 @@
 !!
 !! NAME
 !!
-!!  RadTrans_prolongDgData
+!!  RadTrans_prolongDgData_simple
 !!
 !! SYNOPSIS
 !!
 !!  call RadTrans_prolongDgData(real(IN)    :: inData(:,:,:),
 !!                              real(INOUT) :: outData(:,:,:),
-!!                              integer(IN) :: skip(MDIM),
-!!                              integer(IN),dimension(:)     :: xface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: yface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: zface(:))
+!!                              integer(IN) :: skip(MDIM))
+!!  call RadTrans_prolongDgData_simple(real(IN)    :: inData(:,:,:),
+!!                              real(INOUT) :: outData(:,:,:),
+!!                              integer(IN) :: skip(MDIM))
 !!
 !! DESCRIPTION
 !!
@@ -41,24 +41,30 @@
 !!          For each spatial direction, it indicates by how much the first output
 !!          element in that direction is offset wrt the first input element.
 !!
-!!   xface,yface,zface : cell face coordinates corresponding to the input array.
-!!
 !! AUTOGENROBODOC
+!!
+!! NOTES
+!!  The specific subroutine RadTrans_prolongDgData_simple can be invoked by the
+!!  generic name RadTrans_prolongDgData if the caller uses the generic interface
+!!  definition in the RadTrans_interface module.
+!!
+!! SEE ALSO
+!!  RadTrans_prolongDgData
+!!  RadTrans_restrictDgData_simple
+!!  RadTrans_restrictDgData
 !!
 !! HISTORY
 !!
 !!  2022-09-20 Created RadTrans_prolongDgData API         - Klaus Weide
 !!  2022-09-22 Added skip to the interface                - Klaus Weide
-!!  2023-03-14 Added face coords as arguments             - Klaus Weide
+!!  2023-03-14 Named RadTrans_prolongDgData_simple        - Klaus Weide
 !!***
 
 #include "constants.h"
 
-subroutine RadTrans_prolongDgData(inData,outData,skip, xface,yface,zface)
+subroutine RadTrans_prolongDgData_simple(inData,outData,skip)
   implicit none
   real,intent(IN)    :: inData(:,:,:)
   real,intent(INOUT) :: outData(:,:,:)
   integer,intent(IN) :: skip(MDIM)
-  real,intent(IN)    :: xface(:)
-  real,intent(IN),OPTIONAL :: yface(:), zface(:)
-end subroutine RadTrans_prolongDgData
+end subroutine RadTrans_prolongDgData_simple

@@ -1,4 +1,4 @@
-!!****f* RadTrans/RadTrans_restrictDgData
+!!****f* RadTrans/RadTrans_restrictDgData_simplezzz
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,15 @@
 !!
 !! NAME
 !!
-!!  RadTrans_restrictDgData
+!!  RadTrans_restrictDgData_simple
 !!
 !! SYNOPSIS
 !!
 !!  call RadTrans_restrictDgData(real(IN)    :: inData(:,:,:),
-!!                               real(INOUT) :: outData(:,:,:),
-!!                              integer(IN),dimension(:)     :: xface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: yface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: zface(:))
+!!                               real(INOUT) :: outData(:,:,:))
+!!
+!!  call RadTrans_restrictDgData_simple(real(IN)    :: inData(:,:,:),
+!!                                      real(INOUT) :: outData(:,:,:))
 !!
 !! DESCRIPTION
 !!
@@ -34,21 +34,26 @@
 !!   outData : real output array, may be a slice corresponding to a region of cells
 !!            for one variable from a larger array
 !!
-!!   xface,yface,zface : cell face coordinates corresponding to the logical region
-!!                       of coarse data in in the output array.
-!!
 !! AUTOGENROBODOC
+!!
+!! NOTES
+!!  The specific subroutine RadTrans_restrictDgData_simple can be invoked by the
+!!  generic name RadTrans_restrictDgData if the caller uses the generic interface
+!!  definition in the RadTrans_interface module.
+!!
+!! SEE ALSO
+!!  RadTrans_restrictDgData
+!!  RadTrans_prolongDgData_simple
+!!  RadTrans_prolongDgData
 !!
 !! HISTORY
 !!
 !!  2022-09-20 Created RadTrans_restrictDgData API        - Klaus Weide
-!!  2023-03-15 geometry support using face coords         - Klaus Weide
+!!  2023-03-16 Named RadTrans_restrictDgData_simple       - Klaus Weide
 !!***
 
-subroutine RadTrans_restrictDgData(inData,outData, xface,yface,zface)
+subroutine RadTrans_restrictDgData_simple(inData,outData)
   implicit none
   real,intent(IN)    :: inData(:,:,:)
   real,intent(INOUT) :: outData(:,:,:)
-  real,intent(IN)    :: xface(:)
-  real,intent(IN),OPTIONAL :: yface(:), zface(:)
-end subroutine RadTrans_restrictDgData
+end subroutine RadTrans_restrictDgData_simple

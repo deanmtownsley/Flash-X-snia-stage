@@ -161,19 +161,19 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,u_lo,u_hi)
 
                  ioff = SCRATCH_GRID_VARS_BEGIN + (iS-1)*nGR
 
-                 Sout(ioff+iGR_N  ,ii,jj,kk) = EuD  / unitsGR(iGR_N  )
-                 Sout(ioff+iGR_D  ,ii,jj,kk) = LaD  / unitsGR(iGR_D  )
-                 Sout(ioff+iGR_I1 ,ii,jj,kk) = LaI1 / unitsGR(iGR_I1 )
-                 Sout(ioff+iGR_I2 ,ii,jj,kk) = LaI2 / unitsGR(iGR_I2 )
-                 Sout(ioff+iGR_I3 ,ii,jj,kk) = LaI3 / unitsGR(iGR_I3 )
-                 Sout(ioff+iGR_J  ,ii,jj,kk) = LaJ  / unitsGR(iGR_J  )
-                 Sout(ioff+iGR_H1 ,ii,jj,kk) = LaH1 / unitsGR(iGR_H1 )
-                 Sout(ioff+iGR_H2 ,ii,jj,kk) = LaH2 / unitsGR(iGR_H2 )
-                 Sout(ioff+iGR_H3 ,ii,jj,kk) = LaH3 / unitsGR(iGR_H3 )
-                 Sout(ioff+iGR_RMS,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
-                 Sout(ioff+iGR_F  ,ii,jj,kk) = FlxF / unitsGR(iGR_F  )
-                 Sout(ioff+iGR_K  ,ii,jj,kk) = EddF / unitsGR(iGR_K  )
-                 Sout(ioff+iGR_Q  ,ii,jj,kk) = HetF / unitsGR(iGR_Q  )
+                 Sout(ioff+iGR_N  -1,ii,jj,kk) = EuD  / unitsGR(iGR_N  )
+                 Sout(ioff+iGR_D  -1,ii,jj,kk) = LaD  / unitsGR(iGR_D  )
+                 Sout(ioff+iGR_I1 -1,ii,jj,kk) = LaI1 / unitsGR(iGR_I1 )
+                 Sout(ioff+iGR_I2 -1,ii,jj,kk) = LaI2 / unitsGR(iGR_I2 )
+                 Sout(ioff+iGR_I3 -1,ii,jj,kk) = LaI3 / unitsGR(iGR_I3 )
+                 Sout(ioff+iGR_J  -1,ii,jj,kk) = LaJ  / unitsGR(iGR_J  )
+                 Sout(ioff+iGR_H1 -1,ii,jj,kk) = LaH1 / unitsGR(iGR_H1 )
+                 Sout(ioff+iGR_H2 -1,ii,jj,kk) = LaH2 / unitsGR(iGR_H2 )
+                 Sout(ioff+iGR_H3 -1,ii,jj,kk) = LaH3 / unitsGR(iGR_H3 )
+                 Sout(ioff+iGR_RMS-1,ii,jj,kk) = rmsE / unitsGR(iGR_RMS)
+                 Sout(ioff+iGR_F  -1,ii,jj,kk) = FlxF / unitsGR(iGR_F  )
+                 Sout(ioff+iGR_K  -1,ii,jj,kk) = EddF / unitsGR(iGR_K  )
+                 Sout(ioff+iGR_Q  -1,ii,jj,kk) = HetF / unitsGR(iGR_Q  )
 
               end do
 

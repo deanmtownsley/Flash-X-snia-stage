@@ -79,6 +79,8 @@ subroutine RadTrans( dt, pass )
   real,    intent(in)           :: dt
   integer, intent(in), optional :: pass
 
+  logical, save :: fakeTimer1 = .TRUE.
+
   real, pointer, dimension(:,:,:,:) :: Uin, Sout
   real, dimension(LOW:HIGH,MDIM) :: boundBox
   integer, dimension(MDIM) :: lo, hi, u_lo, u_hi
@@ -126,6 +128,19 @@ subroutine RadTrans( dt, pass )
 
   call Grid_getTileIterator( itor, LEAF, tiling=rt_enableTiling )
   
+  if (.not. itor%isValid() .AND. fakeTimer1) then
+     call Timers_start( "rt_init" )
+     call Timers_stop ( "rt_init" )
+     call Timers_start( "rt_reconstruction" )
+     call Timers_stop ( "rt_reconstruction" )
+     call Timers_start( "rt_imex" )
+     call Timers_stop ( "rt_imex" )
+     call Timers_start( "rt_projection" )
+     call Timers_stop ( "rt_projection" )
+     call Timers_start( "rt_finalize" )
+     call Timers_stop ( "rt_finalize" )
+     fakeTimer1 = .FALSE.
+  end if
   do while( itor % isValid() )
   
     call itor%currentTile(tileDesc)
@@ -245,8 +260,6 @@ subroutine RadTrans( dt, pass )
     !         Implicit_Option = rt_doImplicit, &
     !         SingleStage_Option = .false., &
     !         BoundaryCondition_Option = ApplyBC )
-    
-    call Timers_stop( "rt_imex" )
 
     !if ( sim_globalMe == MASTER_PE ) then
     !   ivar = rt_ivar(1,1,1,1)
@@ -274,6 +287,8 @@ subroutine RadTrans( dt, pass )
     call ComputeFromConserved_TwoMoment &
            ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR, uAR, uGR )
 #endif
+    
+    call Timers_stop( "rt_imex" )
 
     ! Copy back from the Thornado arrays into Flash arrays
     
@@ -296,6 +311,8 @@ subroutine RadTrans( dt, pass )
 
     call tileDesc % releaseDataPtr( Uin, CENTER )
     call tileDesc % releaseDataPtr( Sout, SCRATCH )
+
+    fakeTimer1 = .FALSE.
 
     call itor % next()
     

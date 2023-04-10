@@ -1,4 +1,4 @@
-!!****if* RadTrans/RadTransMain/TwoMoment/Thornado/RadTrans_restrictDgData
+!!****if* RadTrans/RadTransMain/TwoMoment/Thornado/RadTrans_restrictDgData_simple
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,15 @@
 !!
 !! NAME
 !!
-!!  RadTrans_restrictDgData
+!!  RadTrans_restrictDgData_simple
 !!
 !! SYNOPSIS
 !!
 !!  call RadTrans_restrictDgData(real(IN)    :: inData(:,:,:),
-!!                               real(INOUT) :: outData(:,:,:),
-!!                              integer(IN),dimension(:)     :: xface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: yface(:),
-!!                              integer(IN),dimension(:),OPTIONAL :: zface(:))
+!!                               real(INOUT) :: outData(:,:,:))
+!!
+!!  call RadTrans_restrictDgData_simple(real(IN)    :: inData(:,:,:),
+!!                                      real(INOUT) :: outData(:,:,:))
 !!
 !! DESCRIPTION
 !!
@@ -34,54 +34,44 @@
 !!   outData : real output array, may be a slice corresponding to a region of cells
 !!            for one variable from a larger array
 !!
-!!   xface,yface,zface : cell face coordinates corresponding to the logical region
-!!                       of coarse data in in the output array.
-!!
 !! AUTOGENROBODOC
+!!
+!! NOTES
+!!  The specific subroutine implemented here can be invoked by the generic name
+!!  RadTrans_restrictDgData if the caller uses the generic interface definition
+!!  in the RadTrans_interface module.
+!!
+!! SEE ALSO
+!!  RadTrans_restrictDgData
 !!
 !! AUTHORS
 !!
 !! AUTHOR: Antigoni Georgiadou     DATE: 07/20/2021
 !! AUTHOR: Austin Harris           DATE: 09/16/2022
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
-!!  2023-03-15 geometry support using face coords   - Austin Harris, Klaus Weide
+!!  2023-03-16 Named RadTrans_restrictDgData_simple - Klaus Weide
 !!
 !!***
 
 #include "Simulation.h"
 
-subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
+subroutine RadTrans_restrictDgData_simple(inData,outData,lmask)
 
   Use TwoMoment_MeshRefinementModule, Only : &
      CoarsenX_TwoMoment
   Use ArrayUtilitiesModule, Only : &
      CreatePackIndex
 
-  Use GeometryFieldsModule, Only: &
-     nGF, iGF_SqrtGm
-  Use GeometryComputationModule, Only: &
-     ComputeGeometryX
-  Use MeshModule, Only : &
-     MeshType, CreateMesh, DestroyMesh
-  Use UnitsModule, Only : &
-     Centimeter
-
-  use RadTrans_data, ONLY : rt_str_geometry
-
   implicit none
   real,intent(IN)    :: inData(:,:,:,:)
   real,intent(INOUT) :: outData(:,:,:,:)
   logical,intent(IN) :: lmask(:)
-  real,intent(IN)    :: xface(:)
-  real,intent(IN),OPTIONAL :: yface(:), zface(:)
 
   !-----Local variables
   Integer :: i, j, k, i1, j1, k1, i0, j0, k0
-  Integer :: i1u, j1u, k1u
   Integer :: ii, jj, kk, icc, jcc, kcc
 
   Integer :: iX1, iX2, iX3
-  Integer :: iX1_Fine, iX2_Fine, iX3_Fine
 
   Integer :: iNodeX
   Integer :: iFineX, nFineX(3), nFine
@@ -91,22 +81,8 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
   real, allocatable :: U_Fine(:,:,:,:,:,:)
   real, allocatable :: U_Crse(:,:,:,:,:)
 
-  real, allocatable :: G_Crse(:,:,:,:,:)
-  real, allocatable :: G_Fine(:,:,:,:,:)
-
-  integer :: nX_Crse(3)
-  integer :: nX_Fine(3)
-
-  integer :: iX_Crse_B1(3), iX_Crse_E1(3)
-  integer :: iX_Fine_B1(3), iX_Fine_E1(3)
-
-  Type(MeshType) :: MeshX_Crse(3)
-  Type(MeshType) :: MeshX_Fine(3)
-
+  integer :: nX(3)
   integer :: lo(3), hi(3)
-  real :: xL(3), xR(3)
-
-  real, parameter :: conv_x = Centimeter
 
   integer :: ivar_unk2dg(size(lmask))
   integer :: ivar_dg2unk(size(lmask))
@@ -132,77 +108,41 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
   lo = [ lbound(inData,2), lbound(inData,3), lbound(inData,4) ]
   hi = [ ubound(inData,2), ubound(inData,3), ubound(inData,4) ]
 
-  !! extents for this element
-  xL = (/ xface(lo(1)  ), yface(lo(2)  ), zface(lo(3)  ) /) * conv_x
-  xR = (/ xface(hi(1)+1), yface(hi(2)+1), zface(hi(3)+1) /) * conv_x
+  nX = 1
+  nX(1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / ( THORNADO_NNODESX * nFineX(1:NDIM) )
 
-  nX_Crse = 1
-  nX_Crse(1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / ( THORNADO_NNODESX * nFineX(1:NDIM) )
-
-  iX_Crse_B1 = 1
-  iX_Crse_E1 = nX_Crse
-
-  nX_Fine = 1
-  nX_Fine(1:NDIM) = nX_Crse(1:NDIM) * THORNADO_NNODESX
-
-  iX_Fine_B1 = 1
-  iX_Fine_E1 = nX_Fine
-
-  allocate( U_Crse(THORNADO_FLUID_NDOF,nX_Crse(1),nX_Crse(2),nX_Crse(3),nvar_dg) )
-  allocate( U_Fine(THORNADO_FLUID_NDOF,nFine,nX_Crse(1),nX_Crse(2),nX_Crse(3),nvar_dg) )
-
-  allocate( G_Crse(THORNADO_FLUID_NDOF,nX_Crse(1),nX_Crse(2),nX_Crse(3),nGF) )
-  allocate( G_Fine(THORNADO_FLUID_NDOF,nX_Fine(1),nX_Fine(2),nX_Fine(3),nGF) )
-
-  do k = 1, 3
-     call CreateMesh( MeshX_Crse(k), nX_Crse(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
-     call CreateMesh( MeshX_Fine(k), nX_Fine(k), THORNADO_NNODESX, 0, xL(k), xR(k) )
-  end do
+  allocate( U_Crse(THORNADO_FLUID_NDOF,nX(1),nX(2),nX(3),nvar_dg) )
+  allocate( U_Fine(THORNADO_FLUID_NDOF,nFine,nX(1),nX(2),nX(3),nvar_dg) )
 
 #if   defined( THORNADO_OMP_OL )
   !$OMP TARGET ENTER DATA &
-  !$OMP MAP( to:    inData, outData, nFineX, ) &
-  !$OMP             nX_Crse, iX_Crse_B1, iX_Crse_E1, &
-  !$OMP             nX_Fine, iX_Fine_B1, iX_Fine_E1 ) &
-  !$OMP MAP( alloc: U_Crse, G_Crse, &
-  !$OMP             U_Fine, G_Fine )
+  !$OMP MAP( to:    inData, outData, nFineX, nX ) &
+  !$OMP MAP( alloc: U_Crse, U_Fine )
 #elif defined( THORNADO_OACC   )
   !$ACC ENTER DATA &
-  !$ACC COPYIN(     inData, outData, nFineX, &
-  !$ACC             nX_Crse, iX_Crse_B1, iX_Crse_E1, &
-  !$ACC             nX_Fine, iX_Fine_B1, iX_Fine_E1 ) &
-  !$ACC CREATE(     U_Crse, G_Crse, &
-  !$ACC             U_Fine, G_Fine )
+  !$ACC COPYIN(     inData, outData, nFineX, nX ) &
+  !$ACC CREATE(     U_Crse, U_Fine )
 #endif
-
-  ! Calculate sqrt(Gamma) for geometry corrections
-  call ComputeGeometryX( iX_Crse_B1, iX_Crse_E1, iX_Crse_B1, iX_Crse_E1, G_Crse, &
-     MeshX_Option = MeshX_Crse, &
-     CoordinateSystem_Option = rt_str_geometry )
-
-  call ComputeGeometryX( iX_Fine_B1, iX_Fine_E1, iX_Fine_B1, iX_Fine_E1, G_Fine, &
-     MeshX_Option = MeshX_Fine, &
-     CoordinateSystem_Option = rt_str_geometry )
 
   ! loop over fine grid elements
 #if   defined( THORNADO_OMP_OL )
   !$OMP TARGET TEAMS DISTRIBUTE PARALLEL DO SIMD COLLAPSE(8) &
-  !$OMP PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$OMP PRIVATE( i1, j1, k1, iFineX, ivar, &
   !$OMP          i0, j0, k0, i, j, k, ii, jj, kk )
 #elif defined( THORNADO_OACC   )
   !$ACC PARALLEL LOOP GANG VECTOR COLLAPSE(8) &
-  !$ACC PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$ACC PRIVATE( i1, j1, k1, iFineX, ivar, &
   !$ACC          i0, j0, k0, i, j, k, ii, jj, kk )
 #elif defined( THORNADO_OMP    )
   !$OMP PARALLEL DO COLLAPSE(8) &
-  !$OMP PRIVATE( i1, j1, k1, iX1_Fine, iX2_Fine, iX3_Fine, iFineX, ivar, &
+  !$OMP PRIVATE( i1, j1, k1, iFineX, ivar, &
   !$OMP          i0, j0, k0, i, j, k, ii, jj, kk )
 #endif
   do ivar_dg = 1, nvar_dg
 
-     do iX3 = 1, nX_Crse(3)
-        do iX2 = 1, nX_Crse(2)
-           do iX1 = 1, nX_Crse(1)
+     do iX3 = 1, nX(3)
+        do iX2 = 1, nX(2)
+           do iX1 = 1, nX(1)
 
               do kcc = 1, nFineX(3)
                  do jcc = 1, nFineX(2)
@@ -215,11 +155,6 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
                           iFineX =     icc &
                                    + ( jcc - 1 ) * nFineX(1) & 
                                    + ( kcc - 1 ) * nFineX(1) * nFineX(2)
-
-                          ! element indexes in child block
-                          iX1_Fine = ( iX1 - 1 ) * nFineX(1) + icc
-                          iX2_Fine = ( iX2 - 1 ) * nFineX(2) + jcc
-                          iX3_Fine = ( iX3 - 1 ) * nFineX(3) + kcc
 
                           ! offsets for the parent (iX1,iX2,iX3) element in unk
                           i1 = ( iX1 - 1 ) * THORNADO_NNODESX + 1
@@ -242,8 +177,7 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 
                           ivar = ivar_dg2unk(ivar_dg)
                           U_Fine(iNodeX,iFineX,iX1,iX2,iX3,ivar_dg) &
-                             =   inData(ivar,ii,jj,kk) &
-                               * G_Fine(iNodeX,iX1_Fine,iX2_Fine,iX3_Fine,iGF_SqrtGm)
+                             = inData(ivar,ii,jj,kk)
 
                        end do
 
@@ -258,7 +192,7 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
   end do
 
   ! compute coarse grid element reconstruction
-  CALL CoarsenX_TwoMoment( nX_Crse, nvar_dg, U_Fine, U_Crse )
+  CALL CoarsenX_TwoMoment( nX, nvar_dg, U_Fine, U_Crse )
 
   ! loop over coarse (thornado) elements in parent block
 #if   defined( THORNADO_OMP_OL )
@@ -273,9 +207,9 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 #endif
   do ivar_dg = 1, nvar_dg
 
-     do iX3 = 1, nX_Crse(3)
-        do iX2 = 1, nX_Crse(2)
-           do iX1 = 1, nX_Crse(1)
+     do iX3 = 1, nX(3)
+        do iX2 = 1, nX(2)
+           do iX1 = 1, nX(1)
 
               do iNodeX = 1, THORNADO_FLUID_NDOF
 
@@ -289,8 +223,7 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 
                  ivar = ivar_dg2unk(ivar_dg)
                  outData(ivar,ii,jj,kk) &
-                    =   U_Crse(iNodeX,iX1,iX2,iX3,ivar_dg) &
-                      / G_Crse(iNodeX,iX1,iX2,iX3,iGF_SqrtGm)
+                    = U_Crse(iNodeX,iX1,iX2,iX3,ivar_dg)
 
               end do
 
@@ -303,25 +236,14 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 #if   defined( THORNADO_OMP_OL )
   !$OMP TARGET EXIT DATA &
   !$OMP MAP( from:    outData ) &
-  !$OMP MAP( release: inData, nFineX, lmask, ivar_unk2dg, ivar_dg2unk, &
-  !$OMP               nX_Crse, iX_Crse_B1, iX_Crse_E1, U_Crse, G_Crse, &
-  !$OMP               nX_Fine, iX_Fine_B1, iX_Fine_E1, U_Fine, G_Fine )
+  !$OMP MAP( release: inData, nFineX, nX, U_Crse, U_Fine, lmask, ivar_unk2dg, ivar_dg2unk )
 #elif defined( THORNADO_OACC   )
   !$ACC EXIT DATA &
   !$ACC COPYOUT(      outData ) &
-  !$ACC DELETE(       inData, nFineX, lmask, ivar_unk2dg, ivar_dg2unk, &
-  !$ACC               nX_Crse, iX_Crse_B1, iX_Crse_E1, U_Crse, G_Crse, &
-  !$ACC               nX_Fine, iX_Fine_B1, iX_Fine_E1, U_Fine, G_Fine )
+  !$ACC DELETE(       inData, nFineX, nX, U_Crse, U_Fine, lmask, ivar_unk2dg, ivar_dg2unk )
 #endif
-
-  do k = 1, 3
-     call DestroyMesh( MeshX_Crse(k) )
-     call DestroyMesh( MeshX_Fine(k) )
-  end do
 
   deallocate( U_Crse )
   deallocate( U_Fine )
-  deallocate( G_Crse )
-  deallocate( G_Fine )
 
-end subroutine RadTrans_restrictDgData
+end subroutine RadTrans_restrictDgData_simple
