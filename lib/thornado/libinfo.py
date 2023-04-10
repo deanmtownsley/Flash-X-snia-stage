@@ -23,7 +23,7 @@ def create_build_script(absLibDir,buildFlag,args):
     if "thornadoNVIDIA" in setupVars:
         USE_CUDA = str(setupVars["thornadoNVIDIA"]).upper()
     else:
-        USE_CUDA = USE_GPU
+        USE_CUDA = "FALSE"
 
     if "thornadoAMD" in setupVars:
         USE_HIP = str(setupVars["thornadoAMD"]).upper()
