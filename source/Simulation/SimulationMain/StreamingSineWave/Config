@@ -20,3 +20,11 @@ PARAMETER       dens_hi_i       REAL    1.0e6   [0.0 to ]
 PARAMETER       temp_i          REAL    1.0e6   [0.0 to ]
 PARAMETER       vel_i           REAL    0.0e0
 PARAMETER       pres_i          REAL    1.0e21  [0.0 to ]
+#
+# Use more Timers-friendly variant if Hydro, if appropriate
+USESETUPVARS NoLevelwideFluxes
+IF NoLevelwideFluxes
+   LINKIF Hydro.F90.timersFix physics/Hydro/HydroMain/unsplit
+ELSE
+   LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
+ENDIF
