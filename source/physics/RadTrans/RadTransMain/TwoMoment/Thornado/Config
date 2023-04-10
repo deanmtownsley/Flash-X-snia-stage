@@ -121,7 +121,7 @@ def genLines(setupvars):
     nGR = 13 # number of gray variables
     for iS in range(1, nSpecies+1):
         for iGR in range(1, nGR):
-            iN = (iS-1)*nGR + iN
+            iN = (iS-1)*nGR + iGR
             yield 'SCRATCHVAR TG%.2d' % (iN)
 
     ##
