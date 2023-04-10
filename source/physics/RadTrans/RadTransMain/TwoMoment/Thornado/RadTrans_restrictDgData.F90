@@ -161,7 +161,7 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
 
 #if   defined( THORNADO_OMP_OL )
   !$OMP TARGET ENTER DATA &
-  !$OMP MAP( to:    inData, outData, nFineX, ) &
+  !$OMP MAP( to:    inData, outData, nFineX, &
   !$OMP             nX_Crse, iX_Crse_B1, iX_Crse_E1, &
   !$OMP             nX_Fine, iX_Fine_B1, iX_Fine_E1 ) &
   !$OMP MAP( alloc: U_Crse, G_Crse, &
