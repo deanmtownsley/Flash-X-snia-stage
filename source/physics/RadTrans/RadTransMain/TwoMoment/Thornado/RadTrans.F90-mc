@@ -260,8 +260,6 @@ subroutine RadTrans( dt, pass )
     !         Implicit_Option = rt_doImplicit, &
     !         SingleStage_Option = .false., &
     !         BoundaryCondition_Option = ApplyBC )
-    
-    call Timers_stop( "rt_imex" )
 
     !if ( sim_globalMe == MASTER_PE ) then
     !   ivar = rt_ivar(1,1,1,1)
@@ -289,6 +287,8 @@ subroutine RadTrans( dt, pass )
     call ComputeFromConserved_TwoMoment &
            ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR, uAR, uGR )
 #endif
+    
+    call Timers_stop( "rt_imex" )
 
     ! Copy back from the Thornado arrays into Flash arrays
     
