@@ -140,7 +140,7 @@ module IO_data
 
   !This is hard coded now, max number of vars to output to the plotfile
   integer, parameter :: io_maxPlotVars = MAX_PLOT_VARS
-  integer, parameter :: io_maxPlotGridVars = 13 !max scratch grid vars to output
+  integer, parameter :: io_maxPlotGridVars = 78 !max scratch grid vars to output
   integer, parameter :: io_maxPlotFaceVars = 12 !max face vars to output - NOT YET IMPLEMENTED
 
 
