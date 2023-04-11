@@ -1,0 +1,418 @@
+<gce>
+  <Comparison>
+    <Sod>
+      <UG>
+        <2d>
+          <spark>
+            setupName: Sod
+            nodeName: Comparison/Sod/UG/2d/spark
+            setupOptions: -auto -2d +spark +ug +nofbs
+            numProcs: 4
+            parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<chkMax>
+          </spark>
+        </2d>
+      </UG>
+    </Sod>
+    <Sedov>
+      <UG>
+        <2d>
+          <spark>
+            setupName: Sedov
+            nodeName: Comparison/Sedov/UG/2d/spark
+            setupOptions: -auto -2d +ug +nofbs +spark
+            numProcs: 4
+            parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_2d.par
+            transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+            shortPathToBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<chkMax>
+          </spark>
+        </2d>
+      </UG>
+    </Sedov>
+    <DustCollapse>
+      <AMR>
+        <1dSph>
+          <spark>
+            setupName: DustCollapse
+            nodeName: Comparison/DustCollapse/AMR/1dSph/spark
+            setupOptions: -auto -1d -nxb=16 +spherical -unit=Grid/GridMain/AMR/Amrex +serialio -unit=IO/IOMain/hdf5/serial/AM --index-reorder +serialIO +spark  +newMpole
+            numProcs: 2
+            parfiles: <pathToSimulations>/DustCollapse/tests/test_1dsph.debug.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<chkMax>
+          </spark>
+        </1dSph>
+      </AMR>
+    </DustCollapse>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <spark>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/1dSph/Paramesh/spark
+              setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_1d.par
+              transfers: object/Yahil_Gam130.dat
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/<buildDir>/<runDir>/<chkMax>
+            </spark>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <spark>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/2dCyl/Paramesh/spark
+              setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_spark.par
+              transfers: object/Yahil_Gam130.dat
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/<buildDir>/<runDir>/<chkMax>
+            </spark>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
+    <SNIaDDT>
+      <AMR>
+        <2d>
+          <spark>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Comparison/SNIaDDT/AMR/2d/spark
+            setupOptions: -auto -2d +spark +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+            numProcs: 8
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d.par
+            transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+            environment: OMP_NUM_THREADS=1
+            shortPathToBenchmark: <siteDir>/2023-04-11_5/<buildDir>/<runDir>/<chkMax>
+          </spark>
+        </2d>
+      </AMR>
+    </SNIaDDT>
+  </Comparison>
+  <Composite>
+    <Sod>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <spark>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/spark
+              setupOptions: -auto -2d +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM omp_offload=True
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </spark>
+            <sparkMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkMT
+              setupOptions: -auto -2d +sparkbase2d  +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_spark_multithread.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_spark_multithread_restart.par
+              environment: OMP_NUM_THREADS=2
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </sparkMT>
+            <sparkPIO>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkPIO
+              setupOptions: -auto -2d +amrex +sparkbase2d  +parallelIO
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </sparkPIO>
+          </AMReX>
+          <Paramesh>
+            <sparkMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/Paramesh/sparkMT
+              setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_spark_multithread.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_spark_multithread_restart.par
+              environment: OMP_NUM_THREADS=2
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </sparkMT>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+      <AMR>
+        <2d>
+          <AMReX>
+            <unsplit>
+              setupName: Sod
+              nodeName: Composite/Sod/AMR/2d/AMReX/unsplit
+              setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+              numProcs: 2
+              parfiles: <pathToSimulations>/Sod/tests/test_amr_unsplit_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_amr_unsplit_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </unsplit>
+            <unsplitAsyncIO>
+              setupName: Sod
+              nodeName: Composite/Sod/AMR/2d/AMReX/unsplitAsyncIO
+              setupOptions: -auto -2d -debug +uhd +amrex +nolwf +parallelIO +hdf5AsyncIO
+              numProcs: 2
+              parfiles: <pathToSimulations>/Sod/tests/test_amr_unsplit_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_amr_unsplit_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </unsplitAsyncIO>
+          </AMReX>
+        </2d>
+      </AMR>
+    </Sod>
+    <Sedov>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <spark>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2d/AMReX/spark
+              setupOptions: -auto -2d -debug +amrex +spark  +serialio -unit=IO/IOMain/hdf5/serial/AM
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_2d.par
+              restartParfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_2d_restart.par
+              transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </spark>
+          </AMReX>
+        </2d>
+        <2dCyl>
+          <Paramesh>
+            <spark>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2dCyl/Paramesh/spark
+              setupOptions: -auto -2d +cylindrical -maxblocks=175 -nxb=16 -nyb=16 +spark +pm4dev -gridinterpolation=monotonic DoAnalytical=True
+              numProcs: 8
+              parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark.par
+              restartParfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark_restart.par
+              transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </spark>
+          </Paramesh>
+        </2dCyl>
+      </PseudoUG>
+      <AMR>
+        <2d>
+          <AMReX>
+            <spark>
+              setupName: Sedov
+              nodeName: Composite/Sedov/AMR/2d/AMReX/spark
+              setupOptions: -auto -2d -debug +amrex +spark  +serialio -unit=IO/IOMain/hdf5/serial/AM
+              numProcs: 4
+              parfiles: <pathToSimulations>/Sedov/tests/test_amr_unsplit_2d.par
+              restartParfiles: <pathToSimulations>/Sedov/tests/test_amr_unsplit_2d_restart.par
+              transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </spark>
+          </AMReX>
+        </2d>
+      </AMR>
+    </Sedov>
+    <IsentropicVortex>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit
+              setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+              numProcs: 4
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+            <spark>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark
+              setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </spark>
+          </AMReX>
+          <Paramesh>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit
+              setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+              numProcs: 4
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </unsplit>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+    </IsentropicVortex>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <spark>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/1dSph/Paramesh/spark
+              setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_1d.par
+              restartParfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_1d_restart.par
+              transfers: object/Yahil_Gam130.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </spark>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <unsplit>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/2dCyl/Paramesh/unsplit
+              setupOptions: -auto -2d +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d.par
+              restartParfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_restart.par
+              transfers: object/Yahil_Gam130.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+            <spark>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/2dCyl/Paramesh/spark
+              setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark -debug
+              numProcs: 4
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_spark.par
+              restartParfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_spark_restart.par
+              transfers: object/Yahil_Gam130.dat
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </spark>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
+    <SNIaShellDet>
+      <AMR>
+        <2d>
+          <Paramesh>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Composite/SNIaShellDet/AMR/2d/Paramesh
+            setupOptions: -auto -2d  +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13 +nolwf
+            numProcs: 8
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/test_shellDet_2d_composite.par
+            restartParfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/test_shellDet_2d_restart.par
+            transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+            checkpointBasename: flashx_hdf5_chk_
+            comparisonNumber: 0001
+            restartNumber: 0002
+          </Paramesh>
+        </2d>
+      </AMR>
+    </SNIaShellDet>
+    <SNIaDDT>
+      <AMR>
+        <2d>
+          <Paramesh>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Composite/SNIaDDT/AMR/2d/Paramesh
+            setupOptions: -auto -2d +uhd +nolwf +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+            numProcs: 8
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d.par
+            restartParfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d_restart.par
+            transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+            environment: OMP_NUM_THREADS=1
+            checkpointBasename: flashx_hdf5_chk_
+            comparisonNumber: 0001
+            restartNumber: 0002
+          </Paramesh>
+          <pm4AltMortonBittree>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Composite/SNIaDDT/AMR/2d/pm4AltMortonBittree
+            setupOptions: -auto -2d +uhd +nolwf +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+            numProcs: 8
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/test_amr_unsplit_2d.par
+            restartParfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d_restart.par
+            transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+            environment: OMP_NUM_THREADS=1
+            checkpointBasename: flashx_hdf5_chk_
+            comparisonNumber: 0001
+            restartNumber: 0002
+          </pm4AltMortonBittree>
+        </2d>
+      </AMR>
+    </SNIaDDT>
+  </Composite>
+  <UnitTest>
+    <Gravity>
+      <AMR>
+        <3d>
+          <Paramesh>
+            setupName: unitTest/Gravity/Poisson3
+            nodeName: UnitTest/Gravity/AMR/3d/Paramesh
+            setupOptions: -auto -3d +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 -gridinterpolation=monotonic +threadwB
+            numProcs: 1
+            parfiles: <defaultParfile>
+            environment: OMP_NUM_THREADS=4
+          </Paramesh>
+        </3d>
+        <3dSph>
+          <Paramesh>
+            setupName: unitTest/Gravity/Poisson3
+            nodeName: UnitTest/Gravity/AMR/3dSph/Paramesh
+            setupOptions: -auto -3d +spherical +newMpole +noio -maxblocks=1000 -nxb=16 -nyb=8 -nzb=16 +pm4dev +threadBL
+            numProcs: 1
+            parfiles: <pathToSimulations>/unitTest/Gravity/Poisson3/tests/test_flash_3dsph.par
+            environment: OMP_NUM_THREADS=2
+          </Paramesh>
+        </3dSph>
+      </AMR>
+    </Gravity>
+  </UnitTest>
+</gce>
