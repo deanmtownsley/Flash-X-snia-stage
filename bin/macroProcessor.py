@@ -9,9 +9,11 @@ except ImportError: pass
 string_char = "\""
 comment_char = "!"
 macro_keyword = 'M'
-macro_regex = r'\s*@\s*' + re.escape(macro_keyword) + r'\s*\w*(?:\s*\(\s*[\w.]*\s*(?:,\s*[\w.]*\s*)*\))?'
+macro_regex = r'\s*@\s*' + re.escape(macro_keyword) + r'\s*\w*(?:\s*\(\s*[\w\[\].]*\s*(?:,\s*[\w\[\].]*\s*)*\))?'
 invocation_regex = r'(?P<indent>\s*)@\s*' + re.escape(macro_keyword) + \
-                   r'\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w.]*\s*(?:,\s*[\w.]*\s*)*)\))?'
+                   r'\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\].]*\s*(?:,\s*[\w\[\].]*\s*)*)\))?'
+
+print(invocation_regex)
 
 class macroProcessor:
   def __init__(self):
@@ -72,9 +74,14 @@ class macroProcessor:
     # get definition and replace args
     definition =  self.mdict[key]
     arglist = self.argdict[key]
+    if len(arglist) != len(args):
+      msg = f"Error: macro: {key} needs {len(arglist)} argument(s), but {len(args)} given."
+      raise SyntaxError(msg)
     for i,arg in enumerate(args):
       if(i<len(arglist) ):
         arg_re = r'\b'+arglist[i]+r'\b' #don't substitute substrings
+        if '[' in arglist[i] and ']' in arglist[i]: # if arglist[i] is a [listitem]
+          arg_re = r'\B' + re.escape(arglist[i]) + r'\B'
         definition = re.sub( arg_re, arg, definition)
 
     # add appropriate indent to all lines
@@ -96,6 +103,31 @@ class macroProcessor:
     definition = '\n'.join(def_lines)
 
     return definition
+
+  def _argListItemHandler(self, arglist):
+    # if arglist is empty, return empty list
+    if len(arglist) == 1 and arglist[0] == '':
+      return []
+
+    newArgList = []
+    listitem = []
+    # if arglist contains args enclosed with [ and ],
+    # merge them into a single list element
+    for arg in arglist:
+      arg = arg.strip()
+      if listitem:
+        listitem.append(arg)
+      elif arg.startswith('['):
+        listitem = [arg.lstrip('[')]
+      else:
+        newArgList.append(arg)
+
+      if arg.endswith(']'):
+        listitem[-1] = listitem[-1].rstrip(']')
+        newArgList.append(', '.join(listitem))
+        listitem = []
+
+    return newArgList
 
   def expandMacro(self, invocation, macroStack):
     expansion = invocation
@@ -121,6 +153,7 @@ class macroProcessor:
             msg = "Error: argument list expected for macro %s"%macroName
             raise SyntaxError(msg)
           args = argtext.split(',')
+          args = self._argListItemHandler(args)
 
         expansion = self.getMacroDef(macroName,args,indent)
         keymatch = True
@@ -168,10 +201,22 @@ class macroProcessor:
 
     return lineOut
 
+  # strip macro lines with line continuation
+  def _continuationLine(self, fin, cont_char):
+    lines = []
+    for line in fin:
+      if line.lstrip().startswith('@M'):
+        while line.rstrip('\n').endswith(cont_char):
+          line = line.rstrip(cont_char+'\n').rstrip() + next(fin).lstrip()
+      lines.append(line)
+    return lines
+
   # Process a whole file
   def convertFile(self,filename,output):
     with open(output,'w') as f:
-      lines = open(filename).readlines()
+      # lines = open(filename).readlines()
+      fin = open(filename)
+      lines = self._continuationLine(fin, '&')
       for line in lines:
         f.write(self.processLine(line))
 
