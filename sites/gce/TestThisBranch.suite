@@ -43,8 +43,8 @@ IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit" -n
 #------------------------------------------------
 # Tests for - YahilLattimerCollapse
 #------------------------------------------------
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-01-18
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-01-18
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
 YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/unsplit" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
@@ -59,7 +59,7 @@ SNIa_DoubleDetonation -t "Composite/SNIaShellDet/AMR/2d/Paramesh" -np 8 -cbase 2
 # /nfs/pub_html/gce/projects/FLASH5/TestResults/gce/2023-01-23/Comparison_SNIaDDT_AMR_2d_spark/testfaster_amr_unsplit_2d/snd_hdf5_chk_0001
 # on 2023-01-30 by K. Weide.
 SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
-	-e OMP_NUM_THREADS=1 -cbase 2023-01-30
+	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
 
 SNIa_DoubleDetonation -t "Composite/SNIaDDT/AMR/2d/Paramesh" -np 8 \
 	-e OMP_NUM_THREADS=1 -cbase 2023-01-26 -rbase 2023-01-26_2
