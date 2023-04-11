@@ -109,9 +109,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   dhdt = minval(hy_del(1:NDIM))/(hy_coeffs(3)*dt)
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
-#ifdef OMP_OL
-  !$omp target enter data map (to: hy_grav) if(offload)
-#endif
+  @M hy_device_enter_data(to, [hy_grav])
 
   @M hy_map_fl
   if (hy_geometry /= CARTESIAN) then
@@ -217,9 +215,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
      enddo !j
   enddo !k
 
-#ifdef OMP_OL
-  !$omp target exit data map (release: hy_grav) if(offload)
-#endif
+  @M hy_device_exit_data(release, [hy_grav])
   @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then

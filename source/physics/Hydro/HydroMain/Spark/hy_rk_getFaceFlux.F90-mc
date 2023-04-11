@@ -85,20 +85,14 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   offload = .true.
 #endif
 
-#ifdef OMP_OL
-  !$omp target enter data map (to: coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm) &
-  !$omp if(offload)
-#endif
+  @M hy_device_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
   @M hy_map_fl
   
-#ifdef OMP_OL
-  !$omp target enter data map(alloc: lim, klim, limgc, stage, dir) &
-  !$omp if(offload)
-#endif
+  @M hy_device_enter_data(alloc, [lim, klim, limgc, stage, dir])
   if (hy_flattening) then
      ! AH: TODO: OpenMP for flattening
      call flattening(limits)
@@ -127,9 +121,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   do dir = 1, NDIM
      call Timers_start("prepare_scratch")
-#ifdef OMP_OL
-     !$omp target update to(lim, limgc, klim, dir, stage) if(offload)
-#endif
+     @M hy_device_update_to([lim, limgc, klim, dir, stage])
 
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
      hy_flat(@M hy_bounds(limgc))=>hya_flat
@@ -140,10 +132,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uPlus(1:NRECON,@M hy_bounds(limgc)) => hya_uPlus
      hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
 
-#ifdef OMP_OL
-     !$omp target enter data map(alloc: hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus) &
-     !$omp if(offload)
-#endif
+     @M hy_device_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus])
      call Timers_stop("prepare_scratch")
 
      call Timers_start("setRope")
@@ -332,10 +321,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      end select
      call Timers_stop("flux")        
      !release pointers
-#ifdef OMP_OL
-     !$omp target exit data map(release: hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv) &
-     !$omp if(offload)
-#endif
+     @M hy_device_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
      nullify(hy_flux)
      nullify(hy_rope)
      nullify(hy_uPlus)
@@ -347,10 +333,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      
   end do ! dir
 
-#ifdef OMP_OL
-  !$omp target exit data map(release: lim, klim, limgc, stage, dir) &
-  !$omp if(offload)
-#endif
+  @M hy_device_exit_data(release, [lim, klim, limgc, stage, dir])
   nullify(hy_grav)
   nullify(hy_flat3d)
   @M hy_nullFl
