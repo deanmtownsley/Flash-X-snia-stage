@@ -15,52 +15,52 @@ def create_build_script(absLibDir,buildFlag,args):
 
     setupVars = GVars.setupVars.getdict()
 
+    USE_GPU = "FALSE"
+    USE_CUDA = "FALSE"
+    USE_CUBLAS = "FALSE"
+    USE_HIP = "FALSE"
+    USE_ROCM = "FALSE"
+    USE_ONEMKL = "FALSE"
+    USE_OACC = "FALSE"
+    USE_OMP_OL = "FALSE"
+    USE_OMP = "FALSE"
+
+    momentClosure = "MINERBO"
+    thornadoSolver = "EMAB"
+    thornadoOrder = "ORDER_V"
+    microphysics = ""
+
     if "thornadoGPU" in setupVars:
-        USE_GPU = str(setupVars["thornadoGPU"]).upper()
-    else:
-        USE_GPU = "FALSE"
-
-    if "thornadoNVIDIA" in setupVars:
-        USE_CUDA = str(setupVars["thornadoNVIDIA"]).upper()
-    else:
-        USE_CUDA = "FALSE"
-
-    if "thornadoAMD" in setupVars:
-        USE_HIP = str(setupVars["thornadoAMD"]).upper()
-    else:
-        USE_HIP = "FALSE"
+        thornadoGPU = str(setupVars["thornadoGPU"]).upper()
+        if thornadoGPU in ["NVIDIA","AMD","INTEL"]:
+            USE_GPU = "TRUE"
+            if thornadoGPU == "AMD":
+                USE_HIP = "TRUE"
+                USE_ROCM = "TRUE"
+            elif thornadoGPU == "INTEL":
+                USE_ONEMKL = "TRUE"
+            elif thornadoGPU == "NVIDIA":
+                USE_CUDA = "TRUE"
+                USE_CUBLAS = "TRUE"
 
     if "thornadoACC" in setupVars:
         USE_OACC = str(setupVars["thornadoACC"]).upper()
-    else:
-        USE_OACC = "FALSE"
 
     if "thornadoOMP_OL" in setupVars:
         USE_OMP_OL = str(setupVars["thornadoOMP_OL"]).upper()
-    else:
-        USE_OMP_OL = "FALSE"
 
     if "thornadoOMP" in setupVars:
         USE_OMP = str(setupVars["thornadoOMP"]).upper()
-    else:
-        USE_OMP = "FALSE"
 
     if "momentClosure" in setupVars:
         momentClosure = str(setupVars["momentClosure"]).upper()
-    else:
-        momentClosure = "MAXIMUM_ENTROPY_CB"
 
     if "thornadoSolver" in setupVars:
         thornadoSolver = str(setupVars["thornadoSolver"]).upper()
-    else:
-        thornadoSolver = "EMAB"
 
     if "thornadoOrder" in setupVars:
         thornadoOrder = str(setupVars["thornadoOrder"]).upper()
-    else:
-        thornadoOrder = "ORDER_V"
 
-    microphysics = ""
     for unit in GVars.withUnits:
         if "WEAKLIB" == os.path.basename(unit).upper():
             microphysics = "WEAKLIB"
@@ -71,12 +71,15 @@ def create_build_script(absLibDir,buildFlag,args):
     fileObj.write('#  This file should be executable!\n\n')
     fileObj.write('set -ex\n')  # set -e to fail when an error occurs, -x to trace commands
     fileObj.write('cd source/SandBox/Interface_FLASH\n')
-    fileObj.write('make clean\n')
-    fileObj.write('make -j8' +
+    fileObj.write('make -f Makefile.Flash clean\n')
+    fileObj.write('make -f Makefile.Flash -j8' +
                   ' BUILDFLAG=' + buildFlag +
                   ' USE_GPU=' + USE_GPU +
                   ' USE_CUDA=' + USE_CUDA +
+                  ' USE_CUBLAS=' + USE_CUBLAS +
                   ' USE_HIP=' + USE_HIP +
+                  ' USE_ROCM=' + USE_ROCM +
+                  ' USE_ONEMKL=' + USE_ONEMKL +
                   ' USE_OACC=' + USE_OACC +
                   ' USE_OMP_OL=' + USE_OMP_OL +
                   ' USE_OMP=' + USE_OMP +

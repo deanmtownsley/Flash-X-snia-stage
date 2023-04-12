@@ -18,8 +18,18 @@ def genLines(setupvars):
 
     ##
     yield 'USESETUPVARS thornadoGPU'
-    yield 'IF thornadoGPU'
+    yield 'IF thornadoGPU in ["NVIDIA","AMD","INTEL"]'
+    yield 'IF thornadoGPU == "AMD"'
+    yield '    LIBRARY ROCM'
+    yield 'ELSEIF thornadoGPU == "INTEL"'
+    yield '    LIBRARY ONEMKL'
+    yield 'ELSEIF thornadoGPU == "NVIDIA"'
     yield '    LIBRARY CUDA'
+    yield 'ELSE'
+    yield '    LIBRARY CUDA'
+    yield 'ENDIF'
+    yield 'ELSE'
+    yield '    LIBRARY LAPACK'
     yield 'ENDIF'
 
     yield 'VARIANTS OACC OMP_OL OMP'
