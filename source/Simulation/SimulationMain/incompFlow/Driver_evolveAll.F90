@@ -148,14 +148,6 @@ subroutine Driver_evolveAll()
    call Multiphase_getGridVar("CENTER_PHASEFUN_SHARP", iSharpPfunVar)
    call Multiphase_getGridVar("CENTER_PHASEFUN_SMEARED", iSmearedPfunVar)
    call Multiphase_getGridVar("CENTER_CURVATURE", iCurvVar)
-
-   ! Fill GuardCells for level set function
-   ! This is done for book-keeping purposes during
-   ! restart
-   gcMask = .FALSE.
-   gcMask(iDfunVar) = .TRUE.
-   call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -181,6 +173,19 @@ subroutine Driver_evolveAll()
                          dr_simTime, dr_dtOld, dr_dtNew)
    ! store new
    dr_dt = dr_dtNew
+
+   ! TODO find an elegant way to do this
+   ! Update grid and notify changes to other units
+   ! This is done for book-keeping purposes during
+   ! restart
+   ! call Grid_updateRefinement(0, dr_simTime, gridChanged)
+
+   ! Fill GuardCells
+   ! This is done for book-keeping purposes during
+   ! restart
+   gcMask = .TRUE.
+   call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
 
    do dr_nstep = dr_nBegin, dr_nend
 

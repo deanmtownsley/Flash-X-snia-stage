@@ -66,10 +66,10 @@
 !!             is present, then the thread-specific starting index mentioned
 !!             above will be set to 0 (zero-based convention) if it would
 !!             otherwise exceed nthreads-1.
-!!             This argument will only have and effect if all of the following
+!!             This argument will only have an effect if all of the following
 !!             are true:
-!!             o The code is built with OpenMP support (-fopenmp copmiuler flag
-!!               or similar, depending of compiler used). (This implies that
+!!             o The code is built with OpenMP support (-fopenmp compiler flag
+!!               or similar, depending on compiler used). (This implies that
 !!               preprocessor symbol _OPENMP is defined.)
 !!             o Grid_getTileIterator is called in an active parallel region
 !!               (i.e., omp_get_num_threads() return a value > 1).
