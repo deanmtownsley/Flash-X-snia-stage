@@ -3,8 +3,7 @@
 # To keep the runtime down, the test only uses 2 energy elements (nE=2) and 1 species (nSpecies=1)
 
 ["Comparison/StreamingSineWave/AMR/3D/Paramesh/spark"]
-    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 +hdf5 +pm4dev +thornado nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO"
-    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark"
+    setupOptions = "-auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark +hdf5"
     parfiles = ["test_amr_3d.par"]
     restartParfiles = ["test_amr_3d_restart.par"]
     transfers = ["object/SpeciesList.txt"]
