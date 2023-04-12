@@ -42,7 +42,7 @@ subroutine IncompNS_getScalarPropInteger(name, value)
 
    character(len=100)            :: errorMessage
 
-   value = .false.
+   value = 0
    write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
    call Driver_abort(errorMessage)
 
