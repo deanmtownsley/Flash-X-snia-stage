@@ -119,12 +119,6 @@ ifeq ($(PE_ENV),GNU)
 
 else ifeq ($(PE_ENV),CRAY)
 
-    # these are needed because Cray has OpenMP on by default (and OPENMP precedes FFLAGS in Makefile)
-    FCOMP        += -fno-openmp
-    CCOMP        += -fno-openmp
-    CPPCOMP      += -fno-openmp
-    LINK         += -fno-openmp
-
     # pre-processor flag
     MDEFS         =
     PP            = -D
@@ -134,16 +128,16 @@ else ifeq ($(PE_ENV),CRAY)
 
     OPT_FLAGS     = -O2
     TEST_FLAGS    = -O1 -em 
-    DEBUG_FLAGS   = -O0 -eD -Ktrap=fp
+    DEBUG_FLAGS   = -g -O0
 
     # Fortran-specific flags
     OPT_FFLAGS    =
     TEST_FFLAGS   =
-    DEBUG_FFLAGS  =
+    DEBUG_FFLAGS  = -Ktrap=fp
 
-    F90FLAGS      = -s real64 -s integer32 -eI -eZ -f free
+    F90FLAGS      = -s real64 -s integer32 -eI -eZ -ef -f free
     f90FLAGS      = ${F90FLAGS}
-    F77FLAGS      = -s real64 -s integer32 -eI -eZ -f fixed
+    F77FLAGS      = -s real64 -s integer32 -eI -eZ -ef -f fixed
     f77FLAGS      = ${F77FLAGS}
 
     FFLAGS_OACC   = -hacc
@@ -152,7 +146,7 @@ else ifeq ($(PE_ENV),CRAY)
     # C-specific flags
     OPT_CFLAGS    = -Wno-error=int-conversion
     TEST_CFLAGS   = -Wno-error=int-conversion
-    DEBUG_CFLAGS  = -Wno-error=int-conversion
+    DEBUG_CFLAGS  = -ffpe-trap=fp -Wno-error=int-conversion
 
     CFLAGS_OACC   = -hacc
     CFLAGS_OMP_OL = -fopenmp
@@ -162,8 +156,8 @@ else ifeq ($(PE_ENV),CRAY)
     LIB_TEST      =
     LIB_DEBUG     =
 
-    LIB_OACC      =
-    LIB_OMP_OL    =
+    LIB_OACC      = -hacc
+    LIB_OMP_OL    = -fopenmp
 
 endif
 
