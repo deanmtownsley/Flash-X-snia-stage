@@ -240,6 +240,8 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+              comparisonBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
             </spark>
           </AMReX>
         </2d>
@@ -305,6 +307,8 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+              comparisonBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
             </spark>
           </Paramesh>
         </1dSph>
@@ -321,6 +325,8 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+              comparisonBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
             </unsplit>
             <spark>
               setupName: YahilLattimerCollapse
@@ -333,6 +339,8 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+              comparisonBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartBenchmark: <siteDir>/2023-04-12/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
             </spark>
           </Paramesh>
         </2dCyl>
