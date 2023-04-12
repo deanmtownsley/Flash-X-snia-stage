@@ -26,7 +26,7 @@ Sod -t "Composite/Sod/AMR/2d/AMReX/unsplitAsyncIO" -np 2 -cbase 2023-01-18 -rbas
 Sedov -t "Comparison/Sedov/UG/2d/spark" -np 4 -cbase 2023-01-18
 Sedov -t "Composite/Sedov/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/spark" -np 8 -cbase 2023-01-18 -rbase 2023-01-19
-Sedov -t "Composite/Sedov/AMR/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/AMR/2d/AMReX/spark" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
 #------------------------------------------------
 # Tests for - DustCollapse
@@ -45,9 +45,9 @@ IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit" -n
 #------------------------------------------------
 YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
 YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
-YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
-YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/unsplit" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
-YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/unsplit" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
 #------------------------------------------------
 # Tests for - SNIa_DoubleDetonation
