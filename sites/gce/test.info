@@ -393,6 +393,7 @@
             environment: OMP_NUM_THREADS=1
             checkpointBasename: flashx_hdf5_chk_
             comparisonNumber: 0001
+            comparisonBenchmark: <siteDir>/2023-01-26/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><comparisonNumber>
             restartNumber: 0002
           </pm4AltMortonBittree>
         </2d>
