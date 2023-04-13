@@ -381,6 +381,8 @@
             checkpointBasename: flashx_hdf5_chk_
             comparisonNumber: 0001
             restartNumber: 0002
+            comparisonBenchmark: <siteDir>/2023-04-13_2/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+            restartBenchmark: <siteDir>/2023-04-13_2/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
           </Paramesh>
           <pm4AltMortonBittree>
             setupName: SNIa_DoubleDetonation
@@ -390,10 +392,10 @@
             parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/test_amr_unsplit_2d.par
             restartParfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d_restart.par
             transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
-            environment: OMP_NUM_THREADS=1
+            environment: OMP_NUM_THREADS=2
             checkpointBasename: flashx_hdf5_chk_
             comparisonNumber: 0001
-            comparisonBenchmark: <siteDir>/2023-01-26/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/<checkpointBasename><comparisonNumber>
+            comparisonBenchmark: gce/2023-04-13_2/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/flashx_hdf5_chk_0001
             restartNumber: 0002
           </pm4AltMortonBittree>
         </2d>
