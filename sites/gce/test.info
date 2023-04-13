@@ -360,6 +360,8 @@
             checkpointBasename: flashx_hdf5_chk_
             comparisonNumber: 0001
             restartNumber: 0002
+            comparisonBenchmark: <siteDir>/2023-04-12_4/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+            restartBenchmark: <siteDir>/2023-04-12_4/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
           </Paramesh>
         </2d>
       </AMR>
