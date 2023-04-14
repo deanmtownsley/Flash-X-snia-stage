@@ -95,9 +95,10 @@ subroutine Simulation_init()
         print*, 'Looking into profile for initializing radiation field ...'
         call sim_readBoltzTranProfile_rad
       case ( 4 )
-        if (sim_meshMe == MASTER_PE) &
-        print*, 'Using Thornado Relaxation setting to initial radiation field ...'
-        write(*,'(A14,3ES12.3)') '[rho, T, Ye]:', sim_dens_i, sim_temp_i, sim_ye_i
+        if (sim_meshMe == MASTER_PE) then
+          print*, 'Using Thornado Relaxation setting to initial radiation field ...'
+          write(*,'(A14,3ES12.3)') '[rho, T, Ye]:', sim_dens_i, sim_temp_i, sim_ye_i
+        end if
       case default
         if (sim_meshMe == MASTER_PE) &
         print*, 'Using default radtion field initialization: no neutrino ...'
