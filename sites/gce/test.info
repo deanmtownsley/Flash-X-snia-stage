@@ -261,6 +261,7 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+	      sfocuFlags: -D tag -D cpu
             </unsplit>
             <spark>
               setupName: IsentropicVortex
@@ -395,8 +396,9 @@
             environment: OMP_NUM_THREADS=2
             checkpointBasename: flashx_hdf5_chk_
             comparisonNumber: 0001
-            comparisonBenchmark: gce/2023-04-13_2/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/flashx_hdf5_chk_0001
+            X-comparisonBenchmark: gce/2023-04-13_2/Composite_SNIaDDT_AMR_2d_Paramesh/testfaster_amr_unsplit_2d/flashx_hdf5_chk_0001
             restartNumber: 0002
+            restartBenchmark: <siteDir>/2023-04-13_5/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
           </pm4AltMortonBittree>
         </2d>
       </AMR>
