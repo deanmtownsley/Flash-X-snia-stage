@@ -10,7 +10,7 @@ DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-01-1
 #------------------------------------------------
 # Tests for - IsentropicVortex
 #------------------------------------------------
-IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit" -np 4
+IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit" -np 4 -cbase 2023-04-14_3 -rbase 2023-04-14_3
 IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-04-14_2 -rbase 2023-04-14_2
 IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 
