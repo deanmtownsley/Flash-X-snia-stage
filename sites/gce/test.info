@@ -260,13 +260,14 @@
               restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
+              comparisonBenchmark: <baselineDir>/baselines/<siteDir>/2021-09-22/ef99ef5f/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
               restartNumber: 0002
 	      sfocuFlags: -D tag -D cpu
             </unsplit>
             <spark>
               setupName: IsentropicVortex
               nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark
-              setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles -debug
+              setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
               numProcs: 4
               parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
               restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
