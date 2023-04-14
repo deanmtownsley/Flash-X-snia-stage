@@ -273,6 +273,7 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
+	      sfocuFlags: -D tag -D cpu
             </spark>
           </AMReX>
           <Paramesh>
