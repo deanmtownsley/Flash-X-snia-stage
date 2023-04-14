@@ -260,9 +260,8 @@
               restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
-              comparisonBenchmark: <baselineDir>/baselines/<siteDir>/2021-09-22/ef99ef5f/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
               restartNumber: 0002
-	      sfocuFlags: -D tag -D cpu
+	      sfocuFlags: -e 2.e-13 -D tag -D cpu -p 2.e-14
             </unsplit>
             <spark>
               setupName: IsentropicVortex
@@ -274,7 +273,7 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
-	      sfocuFlags: -D tag -D cpu
+	      sfocuFlags: -e 2.e-13 -D tag -D cpu -p 2.e-14
             </spark>
           </AMReX>
           <Paramesh>
