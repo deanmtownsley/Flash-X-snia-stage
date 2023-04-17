@@ -67,12 +67,12 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
-  @M hy_device_enter_data(alloc, [hy_grav])
+  @M hy_OMP_TARGET_enter_data(alloc, [hy_grav])
 
   if(hy_geometry /= CARTESIAN) then
      radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
      thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
-     @M hy_device_enter_data(to, [radCenter, thtCenter])
+     @M hy_OMP_TARGET_enter_data(to, [radCenter, thtCenter])
   end if
 
 #ifdef OMP_OL
@@ -133,10 +133,10 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 #endif /* FLASH_GRAVITY_TIMEDEP */
 #endif /* GRAVITY */
 
-  @M hy_device_exit_data(from, [hy_grav])
+  @M hy_OMP_TARGET_exit_data(from, [hy_grav])
   nullify(hy_grav)
   if(hy_geometry /= CARTESIAN) then
-     @M hy_device_exit_data(release, [radCenter, thtCenter])
+     @M hy_OMP_TARGET_exit_data(release, [radCenter, thtCenter])
      nullify(radCenter)
      nullify(thtCenter)
   end if
