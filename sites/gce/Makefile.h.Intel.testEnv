@@ -48,6 +48,8 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
+OPENMP = -qopenmp
+
 FFLAGS_OPT = -c -O2 -r8 -real-size 64 -check uninit
 FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 	-warn all -diag-disable 10120 \
