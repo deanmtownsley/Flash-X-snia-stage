@@ -86,8 +86,8 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                do ibound = LOW, HIGH
 
                   ! Cache the fluid information liquid or gas
-                  iliq = (1 - int(sign(1., phiface(idimn))))/2
-                  igas = (1 + int(sign(1., phiface(idimn))))/2
+                  iliq = (1 - int(sign(1., phiface(axis))))/2
+                  igas = (1 + int(sign(1., phiface(axis))))/2
 
                   ! Get absolute outlet velocity
                   ! QOut is the mean outlet velocity
@@ -100,7 +100,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                   if (abs(vel(i, j, k)) > velout) ifnorm = 1
 
                   ifpar = 0
-                  if (abs(vel(i, j, k)) > velref) ifpar = 1
+                  if (abs(vel(i, j, k)) > velout) ifpar = 1
 
                   ! Check if normal axis
                   inorm = 0
@@ -111,7 +111,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                   !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
 
                   velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
-                             ifpar*(1 - inorm)*((velref*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
                              velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
