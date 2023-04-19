@@ -41,6 +41,7 @@ subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
   use Grid_tile                   , only : Grid_tile_t
   use RadTrans_data               , only : rt_geometry, rt_str_geometry, &
                                            rt_meshMe, rt_cfl
+  use rt_data                     , only : rt_doExplicit
   use UnitsModule                 , only : Centimeter
   use PhysicalConstantsModule     , only : SpeedOfLightCGS
   use ProgramHeaderModule         , only : nDimsX, nNodes, iX_B0, iX_E0
@@ -61,6 +62,16 @@ subroutine RadTrans_computeDt(tileDesc, solnData, dt_radtrans, dtMinLoc)
   real    :: boundBox(LOW:HIGH,MDIM)
   real    :: xL(3), xR(3)
   real    :: CFL, TimeStep, dt(3)
+
+  if ( .not. rt_doExplicit ) then
+     dt_radtrans = HUGE( 1.0 )
+     dtMinLoc(1) = tileDesc % limits(LOW,IAXIS)
+     dtMinLoc(2) = tileDesc % limits(LOW,JAXIS)
+     dtMinLoc(3) = tileDesc % limits(LOW,KAXIS)
+     dtMinLoc(4) = tileDesc % level
+     dtMinLoc(5) = rt_meshMe
+     return
+  end if
 
   CFL = rt_cfl / ( SpeedOfLightCGS * DBLE( NDIM * ( 2 * THORNADO_NNODES - 1 ) ) )
 
