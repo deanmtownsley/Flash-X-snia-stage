@@ -13,12 +13,12 @@
 !!
 !! NAME
 !!
-!!  eos_helmData
+!!  eos_wlData
 !!
 !!
 !! SYNOPSIS
 !!
-!!  use eos_helmData
+!!  use eos_wlData
 !!
 !! DESCRIPTION
 !!
@@ -41,5 +41,16 @@ module eos_wlData
  type(EquationOfStateTableType), pointer :: eos_pointer
 
  integer, save :: nVariables
+
+ logical, save :: eos_postBounce = .FALSE.
+ real, save :: eos_bounceTime = 0.0
+ real, save :: eos_centralDens, eos_centralEntr
+ integer, save :: eos_nstep
+
+ ! The entropy within radius eos_shockEntrRad at which bounce will be flagged:
+ real, parameter :: eos_shockEntr = 3.0
+ real, parameter :: eos_shockEntrRad = 3.0e6
+ ! The minimum central density at which bounce will be flagged:
+ real, parameter :: eos_bounceDens = 2.0e14
 
 end module eos_wlData
