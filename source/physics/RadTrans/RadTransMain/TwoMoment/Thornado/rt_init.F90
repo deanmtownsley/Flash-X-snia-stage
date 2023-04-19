@@ -84,6 +84,8 @@ subroutine rt_init()
 
   call RuntimeParameters_get ("rt_positivityLimiter", rt_positivityLimiter)
   call RuntimeParameters_get ("rt_UpperBry1", rt_UpperBry1)
+  call RuntimeParameters_get ("rt_troubledCellIndicator", rt_troubledCellIndicator)
+  call RuntimeParameters_get ("rt_cTCI", rt_cTCI)
   call RuntimeParameters_get ("rt_slopeLimiter", rt_slopeLimiter)
   call RuntimeParameters_get ("rt_energyLimiter", rt_energyLimiter)
   rt_UpperBry1 = NEAREST(rt_UpperBry1,-1.0)
@@ -126,6 +128,8 @@ subroutine rt_init()
      External_EOS = eos_pointer, &
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
+     TroubledCellIndicator_Option = rt_troubledCellIndicator, &
+     C_TCI_Option = rt_cTCI, &
      SlopeLimiter_Option = rt_slopeLimiter, &
      EnergyLimiter_Option = rt_energyLimiter, &
      OpacityTableName_EmAb_Option = rt_emab_file, &

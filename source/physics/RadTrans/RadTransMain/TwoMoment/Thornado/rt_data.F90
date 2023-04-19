@@ -38,6 +38,9 @@ module rt_data
   logical, save :: rt_positivityLimiter
   real,    save :: rt_UpperBry1
 
+  logical, save :: rt_troubledCellIndicator
+  real,    save :: rt_cTCI
+
   logical, save :: rt_slopeLimiter
   logical, save :: rt_energyLimiter
 

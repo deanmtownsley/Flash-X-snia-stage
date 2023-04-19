@@ -173,14 +173,19 @@ def genLines(setupvars):
     yield 'PARAMETER rt_pair_file   STRING   ""'
     yield 'PARAMETER rt_brem_file   STRING   ""'
 
-    yield 'D rt_positivityLimiter   flag to use RadTrans positivity limiter'
-    yield 'PARAMETER rt_positivityLimiter    BOOLEAN  FALSE'
-    yield 'D rt_UpperBry1  Upper limiter for neutrino number density'
-    yield 'PARAMETER rt_UpperBry1    REAL     1.0e100    [1.0 to ]'
-    yield 'D rt_slopeLimiter   flag to use RadTrans slope limiter'
-    yield 'PARAMETER rt_slopeLimiter    BOOLEAN  FALSE'
-    yield 'D rt_energyLimiter   flag to use RadTrans energy limiter'
-    yield 'PARAMETER rt_energyLimiter    BOOLEAN  FALSE'
+    yield 'D rt_positivityLimiter       flag to use RadTrans positivity limiter'
+    yield 'D rt_troubledCellIndicator   flag to use RadTrans troubled cell indicator'
+    yield 'D rt_slopeLimiter            flag to use RadTrans slope limiter'
+    yield 'D rt_energyLimiter           flag to use RadTrans energy limiter'
+    yield 'D rt_UpperBry1               upper limit for neutrino number density'
+    yield 'D rt_cTCI                    threshold for determining if TCI is triggered'
+
+    yield 'PARAMETER rt_positivityLimiter       BOOLEAN  FALSE'
+    yield 'PARAMETER rt_troubledCellIndicator   BOOLEAN  FALSE'
+    yield 'PARAMETER rt_slopeLimiter            BOOLEAN  FALSE'
+    yield 'PARAMETER rt_energyLimiter           BOOLEAN  FALSE'
+    yield 'PARAMETER rt_UpperBry1               REAL     1.0e100 [1.0 to ]'
+    yield 'PARAMETER rt_cTCI                    REAL     0.01    [0.0 to ]'
 
     ##
     yield 'D rt_M_outer         number of iterations in memory for collision solver outer-loop'
