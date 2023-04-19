@@ -38,5 +38,7 @@ module RadTrans_data
 
   character(len=MAX_STRING_LENGTH) :: rt_str_geometry
   integer, save :: rt_geometry
+
+  real, save :: rt_cfl
   
 end module RadTrans_data

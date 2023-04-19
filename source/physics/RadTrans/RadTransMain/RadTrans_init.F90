@@ -47,6 +47,8 @@ subroutine RadTrans_init()
   call RuntimeParameters_get("geometry",rt_str_geometry)
   call RuntimeParameters_mapStrToInt(rt_str_geometry, rt_geometry)
 
+  call RuntimeParameters_get("cfl",rt_cfl)
+
   rt_eosModeGc = MODE_DENS_EI
 
   rt_gcMask = .FALSE.
