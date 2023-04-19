@@ -51,8 +51,9 @@ PP      = -D
 
 OPENMP = -fopenmp
 
-FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
+FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized -ffree-line-length-none
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
+	-ffree-line-length-none \
 	-Wall -Wextra -Wno-unused -Waliasing \
 	-Wno-unused-dummy-argument \
 	-Wsurprising -Wconversion -Wunderflow \
