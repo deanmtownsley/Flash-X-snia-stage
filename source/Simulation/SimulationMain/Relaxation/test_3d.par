@@ -40,18 +40,25 @@ dtmin	= 1.0e-7
 
 tstep_change_factor = 1.04
 
+dr_shortenLastStepBeforeTMax = .true.
+
 # checkpoint/plot files
 restart = .false.
 
 checkpointFileNumber = 0
 plotFileNumber = 0
 
-checkpointFileIntervalStep = 1
-#checkpointFileIntervalTime = 1.0E-3
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
 
-plotFileIntervalStep = 1
+#plotFileIntervalStep = 1
+#plotFileIntervalTime = 1.0e-3
 
 ignoreForcedPlot = .false.
+
+#eachProcWritesSummary = .true.
+#writeStateSummary = .true.
+#summaryOutputOnly = .true.
 
 plot_var_1 = "dens"
 plot_var_2 = "eint"
@@ -59,8 +66,8 @@ plot_var_3 = "velx"
 plot_var_4 = "vely"
 plot_var_5 = "velz"
 plot_var_6 = "ye  "
-plot_var_7 = "T001"
-plot_var_8 = "T002"
+plot_var_7 = "t001"
+plot_var_8 = "t002"
 
 plot_grid_var_1  = "tg01"
 plot_grid_var_2  = "tg02"
@@ -167,7 +174,7 @@ rt_zoomE= 1.266038160710160
 rt_bcE	= 0
 
 # collision solver parameters
-rt_M_outer		= 3
+rt_M_outer		= 2
 rt_M_inner		= 2
 rt_MaxIter_outer	= 100
 rt_MaxIter_inner	= 100
