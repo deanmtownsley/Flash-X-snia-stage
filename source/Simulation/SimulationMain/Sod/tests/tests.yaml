@@ -14,7 +14,7 @@ Composite/Sod/PseudoUG/2d/AMReX/unsplit:
 
 # The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM omp_offload=True
+  setupOptions: -auto -2d +amrex +sparkbase2d  +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
