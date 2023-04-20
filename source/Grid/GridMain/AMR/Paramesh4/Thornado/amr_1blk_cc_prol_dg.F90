@@ -18,14 +18,14 @@
 !! SYNOPSIS
 !!
 !!   Call amr_1blk_cc_prol_dg (recv,ia,ib,ja,jb,ka,kb,idest,
-!!                                 ioff,joff,koff,mype,ivar)
+!!                                 ioff,joff,koff,mype)
 !!   Call amr_1blk_cc_prol_dg (real,
 !!                                 integer, integer, integer, integer,
 !!                                 integer, integer, integer, integer,
-!!                                 integer, integer, integer, integer)
+!!                                 integer, integer, integer)
 !!
 !! ARGUMENTS
-!!***Desriptions need to be updated***
+!!***Descriptions need to be updated***
 !!  Real,    intent(inout) :: recv(:,:,:,:)
 !!    Data array holding the data extracted from unk which will be prolonged
 !!    and placed into the unk1 array.
@@ -38,9 +38,6 @@
 !!    idest controls which 'layer' into which the prolonged data will be
 !!    placed in unk1.  ioff, joff and koff are offsets.  mype is is the
 !!    local processor id.
-!!
-!!  Integer, intent(in) :: ivar,
-!!    ivar is the varible number in unk which is prolonged.
 !!
 !! INCLUDES
 !!
@@ -60,8 +57,8 @@
 !! DESCRIPTION
 !!
 !!   This custom prolongation routine is called from
-!!   amr_1blk_cc_prol_gen_unk_fun, when requested by the value of
-!!   interp_mask_unk(ivar).
+!!   amr_1blk_cc_prol_gen_unk_fun, when requested by the values of
+!!   interp_mask_unk(:).
 !!
 !!   It is applied to all UNK variables whose corresponding element
 !!   of interp_mask is set to 40.
@@ -96,6 +93,7 @@
 !! MODIFIED: Klaus Weide           DATE: 09/20/2022
 !!  2022-09-22 Added computation of skip            - Klaus Weide
 !!  2023-03-14 Pass cell_face_coordN when needed    - Klaus Weide
+!!  2023-04-19 Eliminated ivar argument             - Klaus Weide
 !!***
 
 #include "paramesh_preprocessor.fh"
@@ -103,14 +101,14 @@
 
 Subroutine amr_1blk_cc_prol_dg               &
         (recv,ia,ib,ja,jb,ka,kb,idest,ioff,joff,koff,  &
-         mype,ivar)
+         mype)
 
   !-----Use Statements
   Use paramesh_dimensions, ONLY: nxb, nyb, nzb
   Use physicaldata, ONLY: unk1
   Use physicaldata, ONLY: cell_face_coord1, cell_face_coord2, cell_face_coord3
   Use physicaldata, ONLY: curvilinear
-  Use physicaldata, ONLY: interp_mask_unk_res, int_gcell_on_cc
+  Use physicaldata, ONLY: interp_mask_unk, int_gcell_on_cc
 
   use RadTrans_interface, ONLY: RadTrans_prolongDgData
 
@@ -120,7 +118,6 @@ Subroutine amr_1blk_cc_prol_dg               &
   Real,    Intent(inout) :: recv(:,:,:,:)
   Integer, Intent(in)    :: ia,ib,ja,jb,ka,kb
   Integer, Intent(in)    :: idest,ioff,joff,koff,mype
-  Integer, Intent(in)    :: ivar
 
   !-----Local variables
   Integer :: ifl, ifu, jfl, jfu, kfl, kfu
@@ -201,12 +198,12 @@ Subroutine amr_1blk_cc_prol_dg               &
      call RadTrans_prolongDgData(recv(:,iclX:icuX,jclX:jcuX,kclX:kcuX), &
                                  unk1(:,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
                                  skip, &
-                                 (interp_mask_unk_res == 40 .and. int_gcell_on_cc))
+                                 (interp_mask_unk == 40 .and. int_gcell_on_cc))
   else
      call RadTrans_prolongDgData(recv(:,iclX:icuX,jclX:jcuX,kclX:kcuX), &
                                  unk1(:,ifl :ifu, jfl :jfu, kfl :kfu, idest), &
                                  skip,                                        &
-                                 (interp_mask_unk_res == 40 .and. int_gcell_on_cc), &
+                                 (interp_mask_unk == 40 .and. int_gcell_on_cc), &
                                  cell_face_coord1(iclX:icuX+1),               &
                                  cell_face_coord2(jclX:jcuX+1),               &
                                  cell_face_coord3(kclX:kcuX+1))

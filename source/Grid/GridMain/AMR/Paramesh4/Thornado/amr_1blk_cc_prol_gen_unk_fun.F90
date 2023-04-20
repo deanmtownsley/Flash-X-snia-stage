@@ -62,7 +62,6 @@
 !!   physicaldata
 !!   tree
 !!   timings
-!!   prolong_arrays
 !!   paramesh_interfaces
 !!
 !! CALLS
@@ -100,7 +99,6 @@ subroutine amr_1blk_cc_prol_gen_unk_fun                &
   Use physicaldata
 !!$  Use physicaldata, ONLY: curvilinear
   Use tree
-  Use prolong_arrays
 
   Use paramesh_interfaces, only :                  &
                        amr_1blk_cc_prol_inject,    & 
@@ -184,10 +182,10 @@ subroutine amr_1blk_cc_prol_gen_unk_fun                &
 
 !--------User defined interpolation to be used for
 !prolongation/restriction from Thornado
-  If ( ANY( interp_mask_unk_res == 40 .and. int_gcell_on_cc ) ) &
+  If ( ANY( interp_mask_unk == 40 .and. int_gcell_on_cc ) ) &
         Call amr_1blk_cc_prol_dg                      &
         (recv,ia,ib,ja,jb,ka,kb,idest,ioff,joff,koff, &
-        mype,ivar)
+        mype)
 
   if (timing_mpi) then
      timer_amr_1blk_cc_prol_gen_unk =                 &
