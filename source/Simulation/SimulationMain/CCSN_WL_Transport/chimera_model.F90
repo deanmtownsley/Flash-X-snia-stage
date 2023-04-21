@@ -500,9 +500,9 @@ contains
     ! read nse state
     ! chimera changed dimensions of nse_c in r4491, so use this to get backwards-compatibility
     if ( nx_chim == imax_chim ) then
-       datasize3d = (/ nx_chim+1, ny_chim, nz_chim /)
-    else
        datasize3d = (/ nx_chim  , ny_chim, nz_chim /)
+    else
+       datasize3d = (/ nx_chim+1, ny_chim, nz_chim /)
     end if
     slab_offset3d = (/ 0, 0, 0 /)
     call read_ray_hyperslab('nse_c', nse_c_chim, group_id, datasize3d, slab_offset3d)
