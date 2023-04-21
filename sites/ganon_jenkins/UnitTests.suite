@@ -48,6 +48,7 @@ unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/AMReX" -np 2
 #------------------------------------------------
 incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
 incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
 
 #------------------------------------------------
 # Tests for - unitTest/MoL
