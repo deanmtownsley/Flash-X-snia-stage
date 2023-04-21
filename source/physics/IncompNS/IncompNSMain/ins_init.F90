@@ -23,6 +23,7 @@ subroutine ins_init()
    use IncompNS_data
    use Driver_interface, ONLY: Driver_abort
    use Grid_interface, ONLY: GRID_PDE_BND_NEUMANN, GRID_PDE_BND_DIRICHLET, &
+                             GRID_PDE_BND_PERIODIC, &
                              Grid_getDomainBoundBox, Grid_getDomainBC
 
    implicit none
@@ -41,7 +42,7 @@ subroutine ins_init()
 
          select case (ins_domainBC(ibound, idimn))
          case (PERIODIC)
-            ins_pressureBC_types(eachBoundary) = GRID_PDE_BND_NEUMANN
+            ins_pressureBC_types(eachBoundary) = GRID_PDE_BND_PERIODIC
 
          case (SLIP_INS, NOSLIP_INS, INFLOW_INS, MOVLID_INS, EXTRAP_INS)
             ins_pressureBC_types(eachBoundary) = GRID_PDE_BND_NEUMANN
