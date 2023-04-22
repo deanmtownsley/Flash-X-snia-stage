@@ -1,0 +1,178 @@
+!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
+!!
+!!
+!!  NAME
+!!
+!!  hy_rk_getGravAccel
+!!
+!!  SYNOPSIS
+!!
+!!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
+!!                         integer(IN) :: limits(:,:),
+!!                         integer(IN) :: blkLimitsGC(:,:))
+!!
+!!  DESCRIPTION
+!! 
+!!  Get gravitational acceleration for the part of block/tile defined by limits
+!!   where blkLimitsGC define full block
+!!
+!!  ARGUMENTS
+!!     blklimits,blkLimitsGC are the bounds of the block/tile
+!!     hy_del are dx,dy,dz
+!!     limits   sets limits of the fluxes.
+!!
+!!***
+
+
+!!Reorder(4):hy_starState
+!!NOVARIANTS
+subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
+  ! *** This has not been tested with OMP offloading *** !
+!!  use Gravity_interface, ONLY : Gravity_accelOneRow
+  use Hydro_data, ONLY : hya_grav, hya_xCenter, hya_yCenter, hy_geometry
+  use Driver_interface, ONLY : Driver_abort
+  implicit none
+
+#include "Simulation.h"
+#include "constants.h"
+
+  real,dimension(:,:,:,:),pointer :: hy_starState  
+  real,dimension(MDIM),intent(IN)  :: hy_del
+  integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+  real,dimension(:,:,:,:),pointer :: hy_grav
+  real,dimension(:),pointer :: radCenter, thtCenter
+
+  real :: delxinv
+  integer :: dir, i,j,k,d
+  integer :: im, ip, jm, jp, km, kp
+
+  logical :: offload = .false.
+
+#ifdef OMP_OL
+  offload = .true.
+#endif
+  
+  hy_grav(1:MDIM,&
+       blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
+       blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
+       blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
+  @M hy_OMP_TARGET_enter_data(alloc, [hy_grav])
+
+  if(hy_geometry /= CARTESIAN) then
+     radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
+     thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
+     @M hy_OMP_TARGET_enter_data(to, [radCenter, thtCenter])
+  end if
+
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do simd collapse(4) &
+  !$omp map(to: blkLimitsGC) &
+#else
+  !$omp parallel do simd collapse(4) &
+#endif
+  !$omp default(none) &
+  !$omp shared(blkLimitsGC, hy_grav)
+  do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
+    do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
+      do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
+        do d = 1,MDIM
+          hy_grav(d,i,j,k) = 0.0
+        enddo
+      enddo
+    enddo
+  enddo
+
+#ifdef GRAVITY
+  ! For time-dependent gravity, we call the local acceleration routine
+  ! since the GPOT will be extrapolated forward in time for the RK
+  ! sub-stages.
+#ifdef FLASH_GRAVITY_TIMEDEP
+#ifdef GPOT_VAR
+
+#ifdef OMP_OL
+  !$omp target teams distribute parallel do simd collapse(3) &
+  !$omp map(to: limits, hy_del) &
+#else
+  !$omp parallel do simd collapse(3) &
+#endif /* OMP_OL */
+  !$omp default(none) &
+  !$omp private(d, delxinv, im, ip, jm, jp, km, kp) &
+  !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry)
+  do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
+    do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+        do d=1,NDIM
+          select case(d)
+          case(IAXIS)
+            im=1; ip=1; jm=0; jp=0; km=0; kp=0
+          case(JAXIS)
+            im=0; ip=0; jm=1; jp=1; km=0; kp=0
+          case(KAXIS)
+            im=0; ip=0; jm=0; jp=0; km=1; kp=1
+          end select
+          delxinv = getDelXinv(d, hy_del, hy_geometry, radCenter(i), thtCenter(j))
+          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) + delxinv*(hy_starState(GPOT_VAR,i-im,j-jm,k-km) - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp))
+        end do
+      enddo
+    enddo
+  enddo
+#endif /* GPOT_VAR */
+#else
+  call Driver_abort("[hy_rk_getGraveAccel] Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
+#endif /* FLASH_GRAVITY_TIMEDEP */
+#endif /* GRAVITY */
+
+  @M hy_OMP_TARGET_exit_data(from, [hy_grav])
+  nullify(hy_grav)
+  if(hy_geometry /= CARTESIAN) then
+     @M hy_OMP_TARGET_exit_data(release, [radCenter, thtCenter])
+     nullify(radCenter)
+     nullify(thtCenter)
+  end if
+
+
+contains
+
+  pure function getDelXinv(sweepDir, deltas, geometry, radx, thty) result(delxinv)
+
+    implicit none
+
+    integer, intent(IN) :: sweepDir, geometry
+    real, dimension(MDIM), intent(IN) :: deltas
+    real, intent(IN) :: radx, thty
+
+    real :: delxinv
+
+    !$omp declare target
+
+    if (sweepDir == SWEEP_X) then                     ! x-direction
+       delxinv = 1./deltas(IAXIS)
+    elseif (sweepDir == SWEEP_Y) then                 ! y-direction
+       delxinv = 1./deltas(JAXIS)
+       if (geometry == SPHERICAL) delxinv = delxinv / radx
+    else                                              ! z-direction
+       delxinv = 1./deltas(KAXIS)
+       if (geometry == SPHERICAL) then
+          delxinv = delxinv / ( radx * sin(thty) )
+       else if (geometry == CYLINDRICAL) then
+          delxinv = delxinv / radx
+       endif
+    endif
+
+    delxinv = 0.5e0 * delxinv
+    return
+  end function getDelXinv
+
+
+end subroutine hy_rk_getGraveAccel
