@@ -65,7 +65,7 @@ subroutine sim_inletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coo
                      jetProfile = sqrt((coordinates(i, j, k, IAXIS) - sim_jetCoords(IAXIS))**2 + &
                                        (coordinates(i, j, k, KAXIS) - sim_jetCoords(KAXIS))**2) - sim_jetRadius
 
-                     regionData(i, j, k, ivar) = 2*(jetProfile - 0.1*cos(time*pi/2)) - regionData(offset - i, j, k, ivar)
+                     regionData(i, j, k, ivar) = 2*jetProfile - regionData(offset - i, j, k, ivar)
 
                   end do
                end do
