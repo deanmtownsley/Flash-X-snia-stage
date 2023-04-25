@@ -5,7 +5,7 @@
 
 MPI_PATH   =
 AMREX_PATH =
-HDF5_PATH  = /lcrc/project/Flash-X/soft/hdf5-1.12.2
+HDF5_PATH  = /lcrc/project/Flash-X/soft/nvhpc_22.3/hdf5/1.12.2
 HYPRE_PATH =
 CUDA_PATH  = ${CUDA_HOME}
 
