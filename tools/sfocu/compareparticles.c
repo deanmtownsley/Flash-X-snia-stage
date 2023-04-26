@@ -60,7 +60,7 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
 
   /* opts->pComp is zero when -D options isn't specified
    cpuIndex > -1 when particles have a cpu tag. */
-  if ((cpuIndexA > -1 || cpuIndexB > 0) && opts->pComp == 0) {
+  if ((cpuIndexA > -1 || cpuIndexB > -1) && opts->pComp == 0) {
     if (opts->verbose)
       printf("Searching particles by comparing pos/vel {x,y,z}\n");
     posxIndexA = find_particle_prop_index(pAllA, "posx");
