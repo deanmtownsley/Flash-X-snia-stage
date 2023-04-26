@@ -206,7 +206,7 @@ int sfocu(int argc, char **argv)
     printf("  -I: Specify name(s) of variable(s) to ignore, max length 4 characters each - use '*' for all.\n");
     printf("      These options are processed BEFORE any -s options.\n");
     printf("  -D: Specify list of particle attributes to uniquely identify particles.\n");
-    printf("      -D must always follow a single property eg. -D posx.\n");
+    printf("      -D must be followed by a single property eg. -D posx.\n");
     printf("      -D posx -D posy -D posz means that two particles are considered identical iff their coordinates match.\n");
     printf("  -s: Specify additional name(s) of variable(s) to compare, max length 4 characters each.\n");
     printf("      Use this to force recognition of SCRATCH vars not kept in the FLASH3 'UNK' array.\n");
