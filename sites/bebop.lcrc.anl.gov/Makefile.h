@@ -1,5 +1,6 @@
 # Flash-X makefile definitions for using the Intel compiler suite
 # tested with intel/17.0.4 and intel-mpi/2017.3
+#   $ module load intel/17.0.4-74uvhji intel-mpi/2017.3-dfphq6k
 #
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants

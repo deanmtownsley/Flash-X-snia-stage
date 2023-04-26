@@ -1,5 +1,6 @@
 # Flash-X Makefile header for swing.lcrc.gov (NVHPC)
 # tested with nvhpc/22.3
+#   $ module load nvhpc/22.3-zvp5ypz
 #
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- these need to be updated for your system
