@@ -134,14 +134,13 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
 
-  NULLIFY(solnData)
   !
   !     ...Sum quantities over all locally held leaf tiles.
   !
   !
 
   !$omp parallel if (gr_mpoleMultiThreading) &
-  !$omp default(firstprivate) &
+  !$omp default(none) &
   !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
   !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
   !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
@@ -168,7 +167,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   !$omp         gr_mpoleOuterZoneQshift,gr_mpoleXcenter,gr_mpoleYcenter,gr_mpoleZcenter,&
   !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
   
-  call Grid_getTileIterator(itor, LEAF, tiling = .FALSE.)
+  call Grid_getTileIterator(itor, LEAF)
   do while(itor%isValid())
 
      call itor%currentTile(tileDesc)

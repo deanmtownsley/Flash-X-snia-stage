@@ -1,0 +1,58 @@
+# Test suite file for test gce
+# comments start with "#"
+
+#------------------------------------------------
+# Tests for - Sod
+#------------------------------------------------
+Sod -t "Comparison/Sod/UG/2d/spark" -np 4 -cbase 2023-01-18
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkPIO" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+
+#------------------------------------------------
+# Tests for - Sedov
+#------------------------------------------------
+Sedov -t "Comparison/Sedov/UG/2d/spark" -np 4 -cbase 2023-01-18
+Sedov -t "Composite/Sedov/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/spark" -np 8 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/AMR/2d/AMReX/spark" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+
+#------------------------------------------------
+# Tests for - DustCollapse
+#------------------------------------------------
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-01-18
+
+#------------------------------------------------
+# Tests for - IsentropicVortex
+#------------------------------------------------
+IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-04-14_2 -rbase 2023-04-14_2
+
+#------------------------------------------------
+# Tests for - YahilLattimerCollapse
+#------------------------------------------------
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+
+#------------------------------------------------
+# Tests for - SNIa_DoubleDetonation
+#------------------------------------------------
+# The new comparison baseline 2023-01-30 was confirmed manually to be sfocu-same as
+# /nfs/pub_html/gce/projects/FLASH5/TestResults/gce/2023-01-23/Comparison_SNIaDDT_AMR_2d_spark/testfaster_amr_unsplit_2d/snd_hdf5_chk_0001
+# on 2023-01-30 by K. Weide.
+SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
+	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
+
+
+#------------------------------------------------
+# Tests for - Poisson solver
+#------------------------------------------------
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+# unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=3
+# unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1 -e OMP_NUM_THREADS=2
