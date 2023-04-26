@@ -40,6 +40,7 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
   bool found = false;
   int nPVars = 0;
   double error = 0.0;
+  double onePropDiff;
 
   double propValueA, propValueB, posxValueA, posxValueB, posyValueA, posyValueB, poszValueA, poszValueB;
 
@@ -151,8 +152,16 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
 	pPropValueA[j] = pAllA->realProps[(partIndexA * pAllA->numRealProps) + propIndexA[j]];
 	pPropValueB[j] = pAllB->realProps[(partIndexA * pAllB->numRealProps) + propIndexB[j]];
 
-	if (pPropValueA[j] == pPropValueB[j]) {
+	if (pPropValueA[j] == pPropValueB[j]) { /* exact match */
 	  found = true;
+	} else if (opts->pmatch_tol > 0.0) { /* try tolerance */
+	  onePropDiff = fabs(pPropValueA[j] - pPropValueB[j]);
+	  if (onePropDiff <= opts->pmatch_tol)
+	    found = true;
+	  else {
+	    found = false;
+	    break;
+	  }
 	} else {
 	  found = false;
 	  break;
@@ -168,8 +177,16 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
           pPropValueA[j] = pAllA->realProps[(partIndexA * pAllA->numRealProps) + propIndexA[j]];
           pPropValueB[j] = pAllB->realProps[(partIndexB * pAllB->numRealProps) + propIndexB[j]];
 
-          if (pPropValueA[j] == pPropValueB[j]) {
+          if (pPropValueA[j] == pPropValueB[j]) { /* exact match */
             found = true;
+	  } else if (opts->pmatch_tol > 0.0) { /* try tolerance */
+	    onePropDiff = fabs(pPropValueA[j] - pPropValueB[j]);
+	    if (onePropDiff <= opts->pmatch_tol)
+	      found = true;
+	    else {
+	      found = false;
+	      break;
+	    }
           } else {
             found = false;
             break;
