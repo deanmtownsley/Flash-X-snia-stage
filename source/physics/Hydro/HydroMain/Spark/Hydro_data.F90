@@ -93,6 +93,7 @@ module Hydro_data
   integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim,limgc
   integer :: dir,stage
 
+#ifdef OMP_OL
   !$omp declare target to &
   !$omp ( hy_cfl, &
   !$omp   hy_hydroComputeDtFirstCall, &
@@ -125,6 +126,7 @@ module Hydro_data
   !$omp   hy_bref, hy_maxLev, hy_addFluxArray, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
   !$omp   klim,lim,limgc,gCells, dir, stage)
+#endif OMP_OL
 
 end module Hydro_data
 

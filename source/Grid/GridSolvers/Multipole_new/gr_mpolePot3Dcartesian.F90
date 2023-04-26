@@ -150,7 +150,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   !$omp         dampI,dampR,h,g,f,rc2,ic2,xR,yR,xI,yI,c,s,rs0,is0,rsL,isL,rs1,is1,&
   !$omp         rs2,is2,mM,&
   !$omp         tileDesc,itor)&
-  !$omp firstprivate(solnData)&
+  !$omp private(solnData)&
   !$omp private(bndBox,delta,tileLimits,&
   !$omp         imin,jmin,kmin,imax,jmax,kmax,&
   !$omp         iCmax,jCmax,kCmax,iFmax,jFmax,kFmax,&
@@ -169,7 +169,6 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
   
   call Grid_getTileIterator(itor, LEAF, tiling = .FALSE.)
-
   do while(itor%isValid())
 
      call itor%currentTile(tileDesc)
@@ -177,6 +176,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
      
      call tileDesc%boundBox(bndBox)
      call tileDesc%deltas(delta)
+     NULLIFY(solnData)
      call tileDesc%getDataPtr(solnData, CENTER)
 
      imin       = tileLimits (LOW, IAXIS)
@@ -667,9 +667,9 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
      call itor%next()
   end do
 
-  !$omp end parallel
-
   call Grid_releaseTileIterator(itor)
+
+  !$omp end parallel
   !
   !
   !    ...Ready!
