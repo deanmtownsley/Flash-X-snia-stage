@@ -1,11 +1,14 @@
 # Flash-X Makefile header for swing.lcrc.gov (NVHPC)
+# tested with nvhpc/22.3
+#   $ module load nvhpc/22.3-zvp5ypz
+#
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
 
 MPI_PATH   =
 AMREX_PATH =
-HDF5_PATH  = /lcrc/project/Flash-X/soft/hdf5-1.12.2
+HDF5_PATH  = /lcrc/project/Flash-X/soft/nvhpc_22.3/hdf5/1.12.2
 HYPRE_PATH =
 CUDA_PATH  = ${CUDA_HOME}
 
