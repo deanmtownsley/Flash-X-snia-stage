@@ -59,7 +59,7 @@ subroutine Grid_conserveFluxes( axis, coarse_level)
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator, &
                              Grid_getCellFaceAreas
-  !$ use omp_lib
+  !$ use omp_lib, ONLY: omp_get_thread_num
 
 #ifndef FLASH_GRID_PARAMESH2
   use physicaldata, ONLY: no_permanent_guardcells

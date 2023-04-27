@@ -59,6 +59,7 @@ summitdev.ccs.ornl.gov summitdev-login[0-9]
 summit.olcf.ornl.gov login[0-9].summit.olcf.ornl.gov
 etacar.ornl.gov etacar
 compute001.mcs.anl.gov ^compute00[2-5]\.mcs\.anl\.gov$
-swing.lcrc.anl.gov gpulogin\d\.lcrc\.anl\.gov
 crusher.olcf.ornl.gov login[0-9].crusher.olcf.ornl.gov
 frontier.olcf.ornl.gov login[0-9]+.frontier.olcf.ornl.gov
+bebop.lcrc.anl.gov beboplogin[0-9].lcrc.anl.gov
+swing.lcrc.anl.gov gpulogin[0-9].lcrc.anl.gov
