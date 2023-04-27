@@ -1,0 +1,90 @@
+<gce>
+  <Comparison>
+    <DustCollapse>
+      <AMR>
+        <1dSph>
+          <spark>
+            setupName: DustCollapse
+            nodeName: Comparison/DustCollapse/AMR/1dSph/spark
+            parfiles: <pathToSimulations>/DustCollapse/tests/test_1dsph.debug.par
+          </spark>
+        </1dSph>
+      </AMR>
+    </DustCollapse>
+  </Comparison>
+  <Composite>
+    <Sod>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <simpleUnsplit>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/simpleUnsplit
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+            </simpleUnsplit>
+	  </AMReX>
+        </2d>
+      </PseudoUG>
+    </Sod>
+    <IsentropicVortex>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </unsplit>
+            <spark>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+              sfocuFlags: -p 1.e-12 -P 1.e-13
+            </spark>
+          </AMReX>
+          <Paramesh>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/<buildDir>/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/<buildDir>/<runDir>/<checkpointBasename><restartNumber>
+            </unsplit>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+    </IsentropicVortex>
+  </Composite>
+  <UnitTest>
+    <Eos>
+      <helmholtz>
+        <3d>
+          <pm4dev>
+            setupName: unitTest/Eos/Helmholtz
+            nodeName: UnitTest/Eos/helmholtz/3d/pm4dev
+            setupOptions: -auto +pm4dev -3d +noio
+            numProcs: 1
+            parfiles: <defaultParfile>
+            transfers: object/helm_table.dat object/SpeciesList.txt
+          </pm4dev>
+        </3d>
+      </helmholtz>
+    </Eos>
+  </UnitTest>
+</gce>
