@@ -51,7 +51,7 @@
               checkpointBasename: flashx_hdf5_chk_
               comparisonNumber: 0001
               restartNumber: 0002
-              sfocuFlags: -p 1.e-12 -P 1.e-13
+              sfocuFlags: -e 1.e-13 -p 1.e-12 -P 1.e-13
             </spark>
           </AMReX>
           <Paramesh>

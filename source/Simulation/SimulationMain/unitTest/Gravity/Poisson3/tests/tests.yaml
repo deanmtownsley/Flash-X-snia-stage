@@ -17,9 +17,12 @@ UnitTest/Gravity/AMR/3d/AMReX:
   setupOptions: -auto -3d +amrex +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 +threadwB
   parfiles: <defaultParfile>
 
-#This test was originally configured with debug option
+UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh:
+  setupOptions: -auto -2d +cylindrical +newmpole -maxblocks=600 +noio +pm4dev +threadBL
+  parfiles: test_flash_2dcyl.par
+
 UnitTest/Gravity/AMR/2dCyl/Paramesh:
-  setupOptions: -auto -2d +cylindrical +newmpole -maxblocks=600 +noio +pm4dev
+  setupOptions: -auto -2d +cylindrical +newmpole -maxblocks=600 +noio +pm4dev+threadwB
   parfiles: test_flash_2dcyl.par
 
 UnitTest/Gravity/AMR/2dSph/Paramesh:
