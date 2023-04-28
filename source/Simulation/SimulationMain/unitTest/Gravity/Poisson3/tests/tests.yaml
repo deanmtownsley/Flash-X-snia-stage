@@ -1,8 +1,20 @@
 # YAML file for test information
 # comments start with "#"
 
+UnitTest/Gravity/AMR/3d/TBL/Paramesh:
+  setupOptions: -auto -3d +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 -gridinterpolation=monotonic +threadBL
+  parfiles: <defaultParfile>
+
 UnitTest/Gravity/AMR/3d/Paramesh:
   setupOptions: -auto -3d +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 -gridinterpolation=monotonic +threadwB
+  parfiles: <defaultParfile>
+
+UnitTest/Gravity/AMR/3d/TBL/AMReX:
+  setupOptions: -auto -3d +amrex +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 +threadBL
+  parfiles: <defaultParfile>
+
+UnitTest/Gravity/AMR/3d/AMReX:
+  setupOptions: -auto -3d +amrex +newmpole +uhd -debug -maxblocks=550 -nxb=8 -nyb=8 -nzb=8 +threadwB
   parfiles: <defaultParfile>
 
 #This test was originally configured with debug option
