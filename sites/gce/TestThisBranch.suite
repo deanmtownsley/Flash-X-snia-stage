@@ -51,6 +51,14 @@ SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
 #------------------------------------------------
 # Tests for - Poisson solver
 #------------------------------------------------
+# The following 3d and 2dCyl Poisson3 tests also exercise various
+# combinations of MPI parallelism, OpenMP threading (both
+# threadBlockList and threadWithinBlock style), and proper tiling,
+# as used by the Multipole_new Poisson solver.
+# Note that the TBL/AMReX combination is only expected to work for
+# proper OpenMP (CPU-)threading, i.e., OMP_NUM_THREADS > 1, when an
+# instance of the AMReX library is used that was built with OpenMP support.
+
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=3
