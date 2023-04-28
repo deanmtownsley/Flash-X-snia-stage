@@ -47,7 +47,7 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
    integer :: i, j, k
 
    if (.NOT.(     (gr_geometry == CARTESIAN)                   &
-             .OR. (gr_geometry == SPHERICAL   .AND. NDIM < 3)  &
+             .OR. (gr_geometry == SPHERICAL)  &
              .OR. (gr_geometry == CYLINDRICAL .AND. NDIM == 2) &
              )     ) then
      volumes(:, :, :) = 0.0
