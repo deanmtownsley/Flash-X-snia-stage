@@ -36,7 +36,7 @@ module Hydro_data
   real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
   real, allocatable, dimension(:),target :: hya_farea, hya_cvol
   real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
-  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter
+  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter, hya_yLeft, hya_yRight
   real, allocatable :: hy_mfrac(:), hy_eosData(:)
   !Flux buffers
 
@@ -106,6 +106,7 @@ module Hydro_data
   !$omp   hya_rope, hya_flux, hya_shck, &
   !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
   !$omp   hya_farea, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter, &
+  !$omp   hya_fareaY, hya_fareaZ, hya_yLeft, hya_yRight, &
   !$omp   hy_mfrac, hy_eosData, &
   !$omp   hy_del, &
   !$omp   hy_dt, hy_dtmin, &

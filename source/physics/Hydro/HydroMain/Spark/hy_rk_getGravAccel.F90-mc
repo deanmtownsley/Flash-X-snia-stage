@@ -154,9 +154,7 @@ contains
 
     real :: delxinv
 
-#ifdef OMP_OL
     !$omp declare target
-#endif
 
     if (sweepDir == SWEEP_X) then                     ! x-direction
        delxinv = 1./deltas(IAXIS)
