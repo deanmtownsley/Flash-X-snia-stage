@@ -33,7 +33,7 @@ IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark" -np 4 -
 #------------------------------------------------
 # Tests for - YahilLattimerCollapse
 #------------------------------------------------
-YahilLattimerCollapse -t "Comparison	/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-27
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-27
 YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-27
 YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-27
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-27
