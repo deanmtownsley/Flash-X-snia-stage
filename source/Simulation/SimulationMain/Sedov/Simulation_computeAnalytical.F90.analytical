@@ -60,7 +60,8 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
   use Driver_data,         ONLY : dr_simGeneration
   use Grid_interface,   ONLY : Grid_getCellCoords, &
                                Grid_getCellVolumes, &
-                               Grid_subcellGeometry
+                               Grid_subcellGeometry, &
+                               Grid_getGeometry
   use Grid_tile,        ONLY : Grid_tile_t 
   use Driver_interface, ONLY : Driver_getSimTime
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -95,12 +96,15 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
   real,allocatable,dimension(:) :: xCoord,yCoord,zCoord
   real,allocatable :: cellVolumes(:, :, :)
   integer, dimension(2,MDIM) :: tileLimits
+  integer :: geometry
 
 !!$  real     :: dvSub(0:sim_nSubZones-1,0:(sim_nSubZones-1)*K2D)
   real,allocatable :: dvSub(:,:)
   real     :: dvc, quotinv
 
   real :: deltas(1:MDIM)
+
+  call Grid_getGeometry(geometry)
 
   if (tcurr == sim_analyticTime) then
      call Driver_getSimTime(simTime, simGen)
@@ -124,10 +128,14 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
   !  Construct the radial samples needed for the initialization.
   !
      diagonal = (sim_xMax-sim_xMin)**2
-     diagonal = diagonal + K2D*(sim_yMax-sim_yMin)**2
-     diagonal = diagonal + K3D*(sim_zMax-sim_zMin)**2
-     diagonal = sqrt(diagonal)
-  
+     if (geometry == SPHERICAL) then
+         diagonal = sqrt(diagonal)
+     else
+         diagonal = diagonal + K2D*(sim_yMax-sim_yMin)**2
+         diagonal = diagonal + K3D*(sim_zMax-sim_zMin)**2
+         diagonal = sqrt(diagonal)
+     end if
+
      drProf = diagonal / (sim_nProfile-1)
   
      do i = 1, sim_nProfile
@@ -212,7 +220,8 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
   !$omp sim_smallT,dxx,dyy,dzz,&
   !$omp sim_useProfileFromFile,errIgnored,solnData, &
   !$omp sim_rhoAmbient,sim_pAmbient, &
-  !$omp sim_xCenter,sim_yCenter,sim_zCenter) &
+  !$omp sim_xCenter,sim_yCenter,sim_zCenter, &
+  !$omp geometry) &
   !$omp private(i,j,k,ii,jj,kk,sumRho,sumP,sumVX,sumVY,sumVZ,&
   !$omp xx,yy,zz,xDist,yDist,zDist,dist,distInv,jLo,jHi,frac,vel,&
   !$omp rho,p,vx,vy,vz,ek,e,eint,kat,rhoSub,pSub,vSub,dvc,quotinv,dvSub)
@@ -239,7 +248,8 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
 
            dvc = cellVolumes(i, j, k)
            call Grid_subcellGeometry(sim_nSubZones,1+(sim_nSubZones-1)*K2D,1+(sim_nSubZones-1)*K3D, &
-                dvc, dvSub, xCoord(i)-0.5*dxx, xCoord(i)+0.5*dxx )
+                dvc, dvSub, xCoord(i)-0.5*dxx, xCoord(i)+0.5*dxx, &
+                yCoord(j)-0.5*dyy, yCoord(j)+0.5*dyy )
 
 
            sumRho = 0.
@@ -268,7 +278,12 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
                     xx    = xCoord(i) + ((real(ii)+0.5)*sim_inSubzones-.5)*dxx
                     xDist = xx - sim_xCenter
                     
-                    dist    = sqrt( xDist**2 + yDist**2 + zDist**2 )
+                    if (geometry == SPHERICAL) then
+                        dist = sqrt(xDist**2)
+                    else 
+                        dist    = sqrt( xDist**2 + yDist**2 + zDist**2 )
+                    endif
+
                     distInv = 1. / max( dist, 1.E-10 )
                     if (sim_useProfileFromFile) then
                        if (dist .LE. sim_rProf(sim_nProfile+1)) then
@@ -320,10 +335,15 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
                     sumRho = sumRho + rhoSub * dvSub(ii,jj)
                     
                     vel = vSub * dvSub(ii,jj)
-                    
-                    sumVX  = sumVX  + vel*xDist*distInv
-                    sumVY  = sumVY  + vel*yDist*distInv
-                    sumVZ  = sumVZ  + vel*zDist*distInv
+                    if (geometry == SPHERICAL) then
+                        sumVX = sumVX + vel
+                        sumVY  = 0.0 
+                        sumVZ  = 0.0
+                    else 
+                        sumVX  = sumVX  + vel*xDist*distInv
+                        sumVY  = sumVY  + vel*yDist*distInv
+                        sumVZ  = sumVZ  + vel*zDist*distInv
+                   end if
                     
                  enddo
               enddo
