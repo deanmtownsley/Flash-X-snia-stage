@@ -158,6 +158,23 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 # end 3d AMR
 
+# Amr spark
+Comparison/Sedov/AMR/1dsph/Paramesh/spark:
+  setupOptions: -auto -1d +spherical -nxb=16 +spark +pm4dev
+  parfiles: test_amr_spark_sph.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov/AMR/2dsph/Paramesh/spark:
+  setupOptions: -auto -2d +spherical -nxb=16 -nyb=8 +spark +pm4dev
+  parfiles: test_amr_spark_sph.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov/AMR/3dsph/Paramesh/spark:
+  setupOptions: -auto -3d +spherical -nxb=16 -nyb=8 -nzb=16 +spark +pm4dev
+  parfiles: test_amr_spark_sph.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+# end Amr spark
+
 # Particle 2D
 Comparison/Sedov/Part/2d/Paramesh:
   setupOptions: -auto -2d -debug  -unit=Particles Bittree=true
