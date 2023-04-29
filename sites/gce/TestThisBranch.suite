@@ -56,13 +56,15 @@ SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
 # threadBlockList and threadWithinBlock style), and proper tiling,
 # as used by the Multipole_new Poisson solver.
 # Note that the TBL/AMReX combination is only expected to work for
-# proper OpenMP (CPU-)threading, i.e., OMP_NUM_THREADS > 1, when an
+# proper OpenMP (CPU-)threading, i.e., for OMP_NUM_THREADS > 1, when an
 # instance of the AMReX library is used that was built with OpenMP support.
 
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
-unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=1
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
+
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1 -e OMP_NUM_THREADS=2
