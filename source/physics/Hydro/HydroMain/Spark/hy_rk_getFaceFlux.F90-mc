@@ -49,7 +49,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hya_grav, hya_flx, hya_fly, hya_flz, hya_flat3d 
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
        hya_shck, hya_flux
-  use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
+  use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp, hy_limRad
   use Hydro_data, ONLY : klim,lim,limgc,gCells, dir,stage
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
