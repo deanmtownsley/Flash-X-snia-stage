@@ -71,8 +71,13 @@ subroutine RadTrans( dt, pass )
 
   use ProgramHeaderModule, ONLY : iZ_B0, iZ_B1, iZ_E0, iZ_E1, &
      iX_B0, iX_B1, iX_E0, iX_E1, nDOFZ
-  use TimeSteppingModule_Flash, ONLY : ApplyBoundaryConditions_Radiation, &
-     ApplyBoundaryConditions_Euler_FLASH
+  use TimeSteppingModule_Flash, ONLY : &
+     ApplyBoundaryConditions_Radiation, &
+     ApplyBoundaryConditions_Fluid, &
+     iApplyBC_Both, &
+     iApplyBC_Inner, &
+     iApplyBC_Outer, &
+     iApplyBC_None
 
   implicit none
 
@@ -83,18 +88,18 @@ subroutine RadTrans( dt, pass )
 
   real, pointer, dimension(:,:,:,:) :: Uin, Sout
   real, dimension(LOW:HIGH,MDIM) :: boundBox
-  integer, dimension(MDIM) :: lo, hi, u_lo, u_hi
+  integer, dimension(MDIM) :: lo, hi, loGC, hiGC, u_lo, u_hi
 
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t) :: tileDesc
 
   integer, parameter :: my_ngrow = 2
   integer :: nX(3), swX(3), iZ_SW_P(4)
+  integer :: bcX(3), iApplyBC(3)
   real :: xL(3), xR(3)
 
   integer :: faces(LOW:HIGH, 1:MDIM)
-  integer :: ApplyBC
-  integer :: ivar
+  integer :: ivar, i
 
   real, parameter :: conv_x = Centimeter
 
@@ -149,23 +154,15 @@ subroutine RadTrans( dt, pass )
     
     call tileDesc % getDataPtr( Uin, CENTER )
     call tileDesc % getDataPtr( Sout, SCRATCH )
-
-    ! Check if the block needs boundary condition
-    ! RC: This only works for the reflecting inner boundary in 1D
     
     call tileDesc % faceBCs( faces )
-
-    ApplyBC = 0
-    if( faces(LOW,IAXIS) == REFLECTING .and. rt_geometry == SPHERICAL )then
-      
-      ApplyBC = 3
-      
-    end if
 
     ! get dimensions/limits and coordinates
     
     nX  = 1
     swX = 0
+    bcX = 0
+    iApplyBC = iApplyBC_None
     iZ_SW_P = 0
     xL  = 0.0
     if     ( rt_geometry == CARTESIAN   )then
@@ -178,10 +175,27 @@ subroutine RadTrans( dt, pass )
 
     lo = tileDesc % limits(LOW ,1:MDIM)
     hi = tileDesc % limits(HIGH,1:MDIM)
+
+    loGC = tileDesc % blkLimitsGC(LOW ,1:MDIM)
+    hiGC = tileDesc % blkLimitsGC(HIGH,1:MDIM)
     
     nX (1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / THORNADO_NNODESX
     swX(1:NDIM) = my_ngrow
     iZ_SW_P(2:NDIM+1) = swX(1:NDIM)
+
+    ! Check if the block needs boundary condition
+    do i = 1, NDIM
+       if ( faces(LOW,i) == REFLECTING .and. faces(HIGH,i) == REFLECTING ) then
+          bcX(i) = 3
+          iApplyBC(i) = iApplyBC_Both
+       else if ( faces(LOW,i) == REFLECTING ) then
+          bcX(i) = 3
+          iApplyBC(i) = iApplyBC_Inner
+       else if ( faces(HIGH,i) == REFLECTING ) then
+          bcX(i) = 3
+          iApplyBC(i) = iApplyBC_Outer
+       end if
+    end do
     
     u_lo = 1  - swX
     u_hi = nX + swX
@@ -209,7 +223,7 @@ subroutine RadTrans( dt, pass )
     call Timers_start( "rt_init" )
 
     @M dir_enter_data &
-    @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, u_lo, u_hi, nX ) &
+    @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX ) &
     @M dir_end
 
     call InitThornado_Patch &
@@ -219,16 +233,16 @@ subroutine RadTrans( dt, pass )
 
     call Timers_start( "rt_reconstruction" )
     
-    call rt_tm_reconstruction( Uin, nX, lo, hi, u_lo, u_hi )
+    call rt_tm_reconstruction( Uin, nX, lo, hi, loGC, hiGC, u_lo, u_hi, tileDesc % level )
     
     call Timers_stop( "rt_reconstruction" )
 
-      CALL ApplyBoundaryConditions_Radiation &
-             ( iZ_SW_P, iZ_B0, iZ_E0, iZ_B1, iZ_E1, uCR, ApplyBC )
+    call ApplyBoundaryConditions_Radiation &
+           ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uCR, iZ_SW_P, bcX, iApplyBC )
 
 #if   defined(THORNADO_ORDER_V)
-      CALL ApplyBoundaryConditions_Euler_FLASH &
-             ( iZ_SW_P, iX_B0, iX_E0, iX_B1, iX_E1, uCF, ApplyBC )
+    call ApplyBoundaryConditions_Fluid &
+           ( iX_B0, iX_E0, iX_B1, iX_E1, uCF, iZ_SW_P, bcX, iApplyBC )
 #endif
 
     ! Call the Fortran interface that lives in the Thornado repo
@@ -253,7 +267,8 @@ subroutine RadTrans( dt, pass )
              Explicit_Option = rt_doExplicit, &
              Implicit_Option = rt_doImplicit, &
              SingleStage_Option = .false., &
-             BoundaryCondition_Option = ApplyBC )
+             bcX_Option = bcX, &
+             iApplyBC_Option = iApplyBC )
     !call Update_IMEX_PDARS &
     !       ( dt * Second, uCF, uCR, T0_R, T1_R, &
     !         Explicit_Option = rt_doExplicit, &
@@ -294,7 +309,7 @@ subroutine RadTrans( dt, pass )
     
     call Timers_start( "rt_projection" )
     
-    call rt_tm_projection( Uin, Sout, nX, lo, hi, u_lo, u_hi )
+    call rt_tm_projection( Uin, Sout, nX, lo, hi, loGC, hiGC, u_lo, u_hi, tileDesc % level )
     
     call Timers_stop( "rt_projection" )
 
@@ -302,7 +317,7 @@ subroutine RadTrans( dt, pass )
 
     @M dir_exit_data &
     @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
-    @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
+    @M dir_delete()( @M dir_map_type(release) lo, hi, loGC, hiGC, u_lo, u_hi, nX ) &
     @M dir_end
 
     call FreeThornado_Patch()
