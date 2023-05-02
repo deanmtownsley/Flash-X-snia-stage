@@ -114,6 +114,20 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 ## end 2DCyl AMR
 
+## 2DSph AMR
+Composite/Sedov/AMR/2dCyl/Paramesh/unsplitPLM:
+  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +pm4dev DoAnalytical=True
+  parfiles: test_amr_plm_sph_2d.par
+  restartParfiles: test_amr_plm_sph_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/2dCyl/AMReX/unsplitPPM:
+  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +amrex DoAnalytical=True
+  parfiles: test_amr_ppm_sph_2d.par
+  restartParfiles: test_amr_ppm_sph_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 2DSph AMR
+
 # 3d AMR
 Composite/Sedov/AMR/3d/AMReX/unsplit:
   setupOptions: -auto -3d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
@@ -156,7 +170,27 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
   parfiles: test_amr_unsplit_3d.par
   restartParfiles: test_amr_unsplit_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/3d/Paramesh/spark3:
+  setupOptions: -auto -3d -nxb=20 -nyb=20 -nzb=20 +spark3 +pm4dev DoAnalytical=True
+  parfiles: test_amr_spark_3d.par
+  restartParfiles: test_amr_spark_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 # end 3d AMR
+
+## 3DCyl AMR
+Composite/Sedov/AMR/3dCyl/Paramesh/unsplitWENO:
+  setupOptions: -auto -3d +cylindrical -maxblocks=175 -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev DoAnalytical=True
+  parfiles: test_amr_weno_cyl_3d.par
+  restartParfiles: test_amr_weno_cyl_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/3dCyl/AMReX/unsplitFOG:
+  setupOptions: -auto -3d +cylindrical -maxblocks=175 -nxb=8 -nyb=8 -nzb=8 +uhd +amrex DoAnalytical=True
+  parfiles: test_amr_fog_cyl_3d.par
+  restartParfiles: test_amr_fog_cyl_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 3DCyl AMR
 
 # Particle 2D
 Comparison/Sedov/Part/2d/Paramesh:
