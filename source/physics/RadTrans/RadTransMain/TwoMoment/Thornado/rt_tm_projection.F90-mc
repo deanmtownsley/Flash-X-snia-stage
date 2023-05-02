@@ -10,6 +10,7 @@
 !!                          real(IN),pointer :: Sout(:,:,:,:),
 !!                              integer(IN) :: nX(3),
 !!                              integer(IN) :: lo(MDIM),hi(MDIM),
+!!                              integer(IN) :: loGC(MDIM),hiGC(MDIM),
 !!                              integer(IN) :: u_lo(MDIM),u_hi(MDIM),
 !!                              integer(IN) :: level )
 !!
@@ -25,8 +26,10 @@
 !! nX - number of cells
 !! lo - lower index limits (excluding guard cells)
 !! hi - upper index limits (excluding guard cells)
-!! u_lo - lower index limits (including guard cells)
-!! u_hi - upper index limits (including guard cells)
+!! loGC - lower index limits (with guard cells)
+!! hiGC - upper index limits (with guard cells)
+!! u_lo - lower index limits for elements (including guard cells)
+!! u_hi - upper index limits for elements (including guard cells)
 !! level - refinement level
 !!
 !!***
@@ -131,7 +134,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   ! Interpolate fluid vars from Thornado arrays into Flash arrays
 
   @M dir_enter_data &
-  @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, u_lo, u_hi, nX, volFac ) &
+  @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac ) &
   @M dir_end
 
   @M dir_loop_outer(4) &
@@ -290,7 +293,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   @M dir_exit_data &
   @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
-  @M dir_delete()( @M dir_map_type(release) lo, hi, u_lo, u_hi, nX ) &
+  @M dir_delete()( @M dir_map_type(release) lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac ) &
   @M dir_end
 
   return
