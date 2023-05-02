@@ -98,6 +98,21 @@ Composite/Sedov/AMR/2d/Paramesh/unsplit:
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/2d/Paramesh/sparkLim03:
+  setupOptions: -auto +sparkbase2d useLim03=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
+
+Composite/Sedov/AMR/2d/Paramesh/sparkMp5:
+  setupOptions: -auto +sparkbase2d useMP5=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
+
+Composite/Sedov/AMR/2d/Paramesh/sparkTvd2:
+  setupOptions: -auto +sparkbase2d useTVD=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
 ## end 2D AMR
 
 # 2DCyl AMR
