@@ -43,10 +43,13 @@ module Simulation_data
   logical, save :: sim_do_quad
   integer, save :: sim_nquad
 
+  character(len=MAX_STRING_LENGTH) :: sim_str_geometry
+  integer, save :: sim_geometry
+
   integer, save :: nvar_stored
   integer, parameter :: n1d_max = 10000 ! Max number of lines a file can have
   integer, save :: n1d_total ! Actual number of lines, calculated after input
-  real, save :: sim_smlrho, sim_smallt,sim_smallx
+  real, save :: sim_smlrho, sim_smallt, sim_smallp, sim_smalle, sim_smallx
   real,save :: xzn(n1d_max), volxzn(n1d_max), dvolxzn(n1d_max)
   real,save :: model_1d(n1d_max,NUNK_VARS)
   real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax

@@ -44,15 +44,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
 #include "constants.h"
 #include "Simulation.h"
-#include "Eos.h"
 #include "Multispecies.h"
 
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
-  use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
-       Grid_getCellCoords, Grid_getDeltas, &
-       Grid_getGeometry
-  use Eos_interface, ONLY : Eos_wrapped, Eos_getAbarZbar, Eos
+  use Grid_interface, ONLY : Grid_getCellCoords
+  use Eos_interface, ONLY : Eos_wrapped
   use Multispecies_interface, ONLY : Multispecies_getSumFrac,  Multispecies_getSumInv
 
   use Simulation_data
@@ -60,13 +57,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use model_interp_module
 
 #if defined(THORNADO)
-  ! thornado modules
+  use rt_data, ONLY : rt_ivar
 
-  use KindModule, ONLY : DP, SqrtTiny
-  use GeometryFieldsModule, ONLY: uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33
+  use GeometryFieldsModule, ONLY: uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33, iGF_h_1, iGF_h_2, iGF_h_3
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
-  use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
-  use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
+  use UnitsModule, ONLY : Centimeter, Second
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch  
   use TwoMoment_UtilitiesModule, ONLY : ComputeConserved_TwoMoment
 #endif
@@ -76,27 +71,15 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   real,dimension(:,:,:,:),pointer :: solnData
   type(Grid_tile_t), intent(in)   :: tileDesc
 
-  integer :: blockID
   real, allocatable, dimension(:) :: xCenter, xLeft, xRight
   real, allocatable, dimension(:) :: yCenter, yLeft, yRight
   real, allocatable, dimension(:) :: zCenter, zLeft, zRight
-  real, dimension(MDIM) :: delta
-  real :: dx, dy, dz
-
-  real, dimension(EOS_NUM) :: eosData
-
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits
-  integer, dimension(MDIM) :: rigid_axis
-  integer :: iSize, jSize, kSize
-  integer :: iSizeGC, jSizeGC, kSizeGC
+  real, dimension(LOW:HIGH,MDIM) :: boundBox
   integer :: level
-
-  integer :: meshGeom
 
   integer :: i, j, k, n, ivar
 
-  real :: suminv
-  real :: abar,zbar,sumY
+  real :: suminv,sumY
 
   real :: dens_interp, velx_interp, vely_interp, velz_interp
   real :: temp_interp, pres_interp, eint_interp, spec_interp(NSPECIES)
@@ -110,74 +93,51 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
   integer :: ii, jj, kk, ic, jc, kc
   integer :: iX1, iX2, iX3, iNodeX1, iNodeX2, iNodeX3
-  integer :: iS, iCR, iE, iNode, iNodeX, iNodeE, ioff
+  integer :: iS, iCR, iE, iNode, iNodeX, iNodeE
   integer :: nX(3), swX(3)
   real    :: xL(3), xR(3)
-  real    :: xnode, ynode, znode, enode
-  real    :: D, I1, I2, I3
-  real    :: velr, velt, velp
-  real    :: Gmdd11, Gmdd22, Gmdd33
-  real    :: CN, G1, G2, G3
+  real    :: V1, V2, V3
+  real    :: Nnu, Gnu1, Gnu2, Gnu3
+  real    :: Dnu, Inu1, Inu2, Inu3
 
 #if defined(THORNADO)
   real, parameter :: conv_x = Centimeter
-  real, parameter :: UnitD  = Gram / Centimeter**3
-  real, parameter :: UnitT  = Kelvin
-  real, parameter :: UnitY  = 1.0
   real, parameter :: UnitV  = Centimeter/Second
-  real, parameter :: conv_J = Gram/Second**2/Centimeter
-  real, parameter :: conv_H = Gram/Second**3
-  real, parameter :: conv_e = MeV
 #endif
 
-
-!!$#ifndef FLASH_GRID_AMREX
-!!$  blockID = tileDesc%id    ! Maybe useful for debugging
-!!$#endif
-  blkLimits = tileDesc%limits
-  level     = tileDesc%level
+  lo    = tileDesc%limits(LOW,1:MDIM)
+  hi    = tileDesc%limits(HIGH,1:MDIM)
+  level = tileDesc%level
 
   !! allocate all needed space
-  allocate(xCenter(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)))
-  allocate(xLeft  (blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)))
-  allocate(xRight (blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)))
-  allocate(yCenter(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)))
-  allocate(yLeft  (blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)))
-  allocate(yRight (blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)))
-  allocate(zCenter(blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-  allocate(zLeft  (blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
-  allocate(zRight (blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)))
+  allocate(xCenter(lo(IAXIS):hi(IAXIS)))
+  allocate(xLeft  (lo(IAXIS):hi(IAXIS)))
+  allocate(xRight (lo(IAXIS):hi(IAXIS)))
+  allocate(yCenter(lo(JAXIS):hi(JAXIS)))
+  allocate(yLeft  (lo(JAXIS):hi(JAXIS)))
+  allocate(yRight (lo(JAXIS):hi(JAXIS)))
+  allocate(zCenter(lo(KAXIS):hi(KAXIS)))
+  allocate(zLeft  (lo(KAXIS):hi(KAXIS)))
+  allocate(zRight (lo(KAXIS):hi(KAXIS)))
 
-  xCenter(:) = 0.e0
-  yCenter(:) = 0.e0
-  zCenter(:) = 0.e0
+  call Grid_getCellCoords(IAXIS,CENTER,     level, lo, hi, xCenter)
+  call Grid_getCellCoords(IAXIS,LEFT_EDGE,  level, lo, hi, xLeft  )
+  call Grid_getCellCoords(IAXIS,RIGHT_EDGE, level, lo, hi, xRight )
 
-  call Grid_getDeltas(level, delta)
-  dx = delta(IAXIS)
-  dy = delta(JAXIS)
-  dz = delta(KAXIS)
+  call Grid_getCellCoords(JAXIS,CENTER,     level, lo, hi, yCenter)
+  call Grid_getCellCoords(JAXIS,LEFT_EDGE,  level, lo, hi, yLeft  )
+  call Grid_getCellCoords(JAXIS,RIGHT_EDGE, level, lo, hi, yRight )
 
-! call Grid_getBlkPtr(blockID,solnData,CENTER)
-  call Grid_getGeometry(meshGeom)
+  call Grid_getCellCoords(KAXIS,CENTER,     level, lo, hi, zCenter)
+  call Grid_getCellCoords(KAXIS,LEFT_EDGE,  level, lo, hi, zLeft  )
+  call Grid_getCellCoords(KAXIS,RIGHT_EDGE, level, lo, hi, zRight )
 
-  call Grid_getCellCoords(IAXIS,CENTER,     level, blkLimits(LOW,:), blkLimits(HIGH,:), xCenter)
-  call Grid_getCellCoords(IAXIS,LEFT_EDGE,  level, blkLimits(LOW,:), blkLimits(HIGH,:), xLeft  )
-  call Grid_getCellCoords(IAXIS,RIGHT_EDGE, level, blkLimits(LOW,:), blkLimits(HIGH,:), xRight )
-
-  call Grid_getCellCoords(JAXIS,CENTER,     level, blkLimits(LOW,:), blkLimits(HIGH,:), yCenter)
-  call Grid_getCellCoords(JAXIS,LEFT_EDGE,  level, blkLimits(LOW,:), blkLimits(HIGH,:), yLeft  )
-  call Grid_getCellCoords(JAXIS,RIGHT_EDGE, level, blkLimits(LOW,:), blkLimits(HIGH,:), yRight )
-
-  call Grid_getCellCoords(KAXIS,CENTER,     level, blkLimits(LOW,:), blkLimits(HIGH,:), zCenter)
-  call Grid_getCellCoords(KAXIS,LEFT_EDGE,  level, blkLimits(LOW,:), blkLimits(HIGH,:), zLeft  )
-  call Grid_getCellCoords(KAXIS,RIGHT_EDGE, level, blkLimits(LOW,:), blkLimits(HIGH,:), zRight )
-
-  do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-     do j = blkLimits(LOW,JAXIS),blkLimits(HIGH,JAXIS)
-        do i = blkLimits(LOW,IAXIS),blkLimits(HIGH,IAXIS)
+  do k = lo(KAXIS),hi(KAXIS)
+     do j = lo(JAXIS),hi(JAXIS)
+        do i = lo(IAXIS),hi(IAXIS)
 
            ! yCenter and zCenter should be 0.0 when NDIM does not include them
-           if ( meshGeom == SPHERICAL ) then
+           if ( sim_geometry == SPHERICAL ) then
 
               radCenter = xCenter(i)
               radCenterVol = (1.0/3.0)*( xLeft(i)**3 &
@@ -189,7 +149,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               phiCenter = zCenter(k)
               phiCenterVol = phiCenter
 
-           else if ( meshGeom == CYLINDRICAL ) then
+           else if ( sim_geometry == CYLINDRICAL ) then
 
               radCenter = sqrt(xCenter(i)**2 + yCenter(j)**2)
               radCenterVol = (1.0/3.0) * radCenter**3
@@ -207,7 +167,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               phiCenter = zCenter(k)
               phiCenterVol = phiCenter
 
-           else if ( meshGeom == CARTESIAN ) then
+           else if ( sim_geometry == CARTESIAN ) then
 
               radCenter = sqrt(xCenter(i)**2 + yCenter(j)**2 + zCenter(k)**2)
               radCenterVol = (1.0/3.0) * radCenter**3
@@ -319,7 +279,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #if defined (SUMY_MSCALAR)
                  solnData(SUMY_MSCALAR,i,j,k) = sumy_interp
 #endif
-                 if ( meshGeom == CARTESIAN ) then
+                 if ( sim_geometry == CARTESIAN ) then
                     solnData(VELX_VAR,i,j,k) = + velx_interp * sin( thtCenter ) * cos( phiCenter ) &
                        &                       + vely_interp * cos( thtCenter ) * cos( phiCenter ) &
                        &                       - velz_interp * sin( thtCenter ) * sin( phiCenter )
@@ -328,13 +288,13 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        &                       + velz_interp * sin( thtCenter ) * cos( phiCenter )
                     solnData(VELZ_VAR,i,j,k) = + velx_interp * cos( thtCenter ) &
                        &                       - vely_interp * sin( thtCenter )
-                 else if ( meshGeom == CYLINDRICAL ) then
+                 else if ( sim_geometry == CYLINDRICAL ) then
                     solnData(VELX_VAR,i,j,k) = + velx_interp * sin( thtCenter ) &
                        &                       + vely_interp * cos( thtCenter )
                     solnData(VELY_VAR,i,j,k) = + velx_interp * cos( thtCenter ) &
                        &                       - vely_interp * sin( thtCenter )
                     solnData(VELZ_VAR,i,j,k) = velz_interp
-                 else if ( meshGeom == SPHERICAL ) then
+                 else if ( sim_geometry == SPHERICAL ) then
                     solnData(VELX_VAR,i,j,k) = velx_interp
                     solnData(VELY_VAR,i,j,k) = vely_interp
                     solnData(VELZ_VAR,i,j,k) = velz_interp
@@ -368,7 +328,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  end if
               end do
 
-              if ( meshGeom == CARTESIAN ) then
+              if ( sim_geometry == CARTESIAN ) then
                  solnData(VELX_VAR,i,j,k) = + velx_interp * sin( thtCenter ) * cos( phiCenter ) &
                     &                       + vely_interp * cos( thtCenter ) * cos( phiCenter ) &
                     &                       - velz_interp * sin( thtCenter ) * sin( phiCenter )
@@ -377,13 +337,13 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     &                       + velz_interp * sin( thtCenter ) * cos( phiCenter )
                  solnData(VELZ_VAR,i,j,k) = + velx_interp * cos( thtCenter ) &
                     &                       - vely_interp * sin( thtCenter )
-              else if ( meshGeom == CYLINDRICAL ) then
+              else if ( sim_geometry == CYLINDRICAL ) then
                  solnData(VELX_VAR,i,j,k) = + velx_interp * sin( thtCenter ) &
                     &                       + vely_interp * cos( thtCenter )
                  solnData(VELY_VAR,i,j,k) = + velx_interp * cos( thtCenter ) &
                     &                       - vely_interp * sin( thtCenter )
                  solnData(VELZ_VAR,i,j,k) = velz_interp
-              else if ( meshGeom == SPHERICAL ) then
+              else if ( sim_geometry == SPHERICAL ) then
                  solnData(VELX_VAR,i,j,k) = velx_interp
                  solnData(VELY_VAR,i,j,k) = vely_interp
                  solnData(VELZ_VAR,i,j,k) = velz_interp
@@ -419,19 +379,15 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   end do
 
 #if defined (THORNADO)
-  !print*, 'Initializing radiation fields with thornado.'
-
-  lo(1:MDIM) = tileDesc%limits(LOW,1:MDIM)
-  hi(1:MDIM) = tileDesc%limits(HIGH,1:MDIM)
 
   nX = 1
   swX = 0
   xL = 0.0
-  if ( meshGeom == CARTESIAN ) then
+  if ( sim_geometry == CARTESIAN ) then
      xR = 1.0
-  else if ( meshGeom == CYLINDRICAL ) then
+  else if ( sim_geometry == CYLINDRICAL ) then
      xR = [ 1.0, 1.0, 2.0*PI ]
-  else if ( meshGeom == SPHERICAL ) then
+  else if ( sim_geometry == SPHERICAL ) then
      xR = [ 1.0, PI, 2.0*PI ]
   else
      call Driver_abort("Geometry not supported")
@@ -444,125 +400,84 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   u_lo(1)   = 1 - THORNADO_SWE
   u_hi(1)   = THORNADO_NE + THORNADO_SWE
 
+  call tileDesc % boundBox( boundBox )
+  xL(1:NDIM) = boundBox(LOW, 1:NDIM)
+  xR(1:NDIM) = boundBox(HIGH,1:NDIM)
+
   ! convert cm to m for Thornado
   xL(1) = xL(1) * conv_x
   xR(1) = xR(1) * conv_x
-  if ( meshGeom /= SPHERICAL ) then
+  if ( sim_geometry /= SPHERICAL ) then
      xL(2) = xL(2) * conv_x
      xR(2) = xR(2) * conv_x
   end if
-  if ( meshGeom == CARTESIAN ) then
+  if ( sim_geometry == CARTESIAN ) then
      xL(3) = xL(3) * conv_x
      xR(3) = xR(3) * conv_x
   end if
 
-  if ( meshGeom == SPHERICAL ) then
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "spherical" )
-
-  else if ( meshGeom == CYLINDRICAL ) then
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "cylindrical" )
-
-  else
-
-     call InitThornado_Patch &
-          (nX, swX, xL, xR, THORNADO_NSPECIES, "cartesian" )
-
-  end if
+  call InitThornado_Patch &
+    (nX, swX, xL, xR, THORNADO_NSPECIES, sim_str_geometry )
 
   do iX3 = 1, nX(3)
      do iX2 = 1, nX(2)
         do iX1 = 1, nX(1)
 
-           !print*, 'In cell: ', iX1, iX2, iX3
-
            i = lo(IAXIS) + THORNADO_NNODESX*(iX1-1)
            j = lo(JAXIS) + THORNADO_NNODESX*(iX2-1)
            k = lo(KAXIS) + THORNADO_NNODESX*(iX3-1)
 
-           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = u_lo(1), u_hi(1)
-
-              ioff = THORNADO_BEGIN &
-                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE) &
-                           *THORNADO_NMOMENTS) &
-                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
-                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
-
+           do iS = 1, THORNADO_NSPECIES ; do iE = u_lo(1), u_hi(1)
               do iNode = 1, THORNADO_RAD_NDOF
 
                  iNodeE  = mod((iNode -1)                 ,THORNADO_NNODESE   ) + 1
                  iNodeX  = mod((iNode -1)/THORNADO_NNODESE,THORNADO_FLUID_NDOF) + 1
 
                  iNodeX1 = mod((iNodeX-1)                    ,THORNADO_NNODESX) + 1
-                 ii      = iNodeX1 + i - 1
-
                  iNodeX2 = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + 1
-                 jj      = iNodeX2 + j - 1
-
                  iNodeX3 = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + 1
+
+                 ii      = iNodeX1 + i - 1
+                 jj      = iNodeX2 + j - 1
                  kk      = iNodeX3 + k - 1
                  
-                 ! calculate the indices
-                 ivar = ioff + iNodeE - 1
+#if   defined(THORNADO_ORDER_1)
+                 Nnu  = 1.0e-20
+                 Gnu1 = 0.0
+                 Gnu2 = 0.0
+                 Gnu3 = 0.0
+#elif defined(THORNADO_ORDER_V)
+                 Dnu  = 1.0e-20
+                 Inu1 = 0.0
+                 Inu2 = 0.0
+                 Inu3 = 0.0
+                 V1 = solnData(VELX_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_1)
+                 V2 = solnData(VELY_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_2)
+                 V3 = solnData(VELZ_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_3)
+                 CALL ComputeConserved_TwoMoment &
+                    ( Dnu, Inu1, Inu2, Inu3, &
+                      Nnu, Gnu1, Gnu2, Gnu3, &
+                      V1, V2, V3, &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11), &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22), &
+                      uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33) )
+#endif
 
-                 !print*, 'ivar: ', ivar
-
-                 ! calculate actual positions of the nodes used for the gaussian quadrature
-                 xnode = NodeCoordinate( MeshX(1), iX1, iNodeX1 )
-                 ynode = NodeCoordinate( MeshX(2), iX2, iNodeX2 )
-                 znode = NodeCoordinate( MeshX(3), iX3, iNodeX3 )
-                 enode = NodeCoordinate( MeshE,    iE,  iNodeE  )
-
-                 xnode = xnode / conv_x
-                 if ( meshGeom /= SPHERICAL ) ynode = ynode / conv_x
-                 if ( meshGeom == CARTESIAN ) znode = znode / conv_x
-
-                 D = 1.0e-20
-                 I1 = 0.0e0
-                 I2 = 0.0e0
-                 I3 = 0.0e0
-
-                 if( meshGeom == SPHERICAL ) then
-
-                    velr = solnData(VELX_VAR,ii,jj,kk) * UnitV
-                    velt = 0.0
-                    velp = 0.0
-
-                    Gmdd11 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11)
-                    Gmdd22 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22)
-                    Gmdd33 = uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33)
-
-                    call ComputeConserved_TwoMoment &
-                       ( D, I1, I2, I3, &
-                         CN, G1, G2, G3, &
-                         velr, velt, velp, &
-                         Gmdd11, Gmdd22, Gmdd33 )
-
-                 end if
-
-                 if( iCR == iCR_N ) solnData(ivar,ii,jj,kk) = CN
-
-                 if( iCR == iCR_G1 ) solnData(ivar,ii,jj,kk) = G1
-
-                 if( iCR == iCR_G2 ) solnData(ivar,ii,jj,kk) = G2
-
-                 if( iCR == iCR_G3 ) solnData(ivar,ii,jj,kk) = G3
+                 solnData(rt_ivar(iNodeE,iE,iCR_N ,iS),ii,jj,kk) = Nnu
+                 solnData(rt_ivar(iNodeE,iE,iCR_G1,iS),ii,jj,kk) = Gnu1
+                 solnData(rt_ivar(iNodeE,iE,iCR_G2,iS),ii,jj,kk) = Gnu2
+                 solnData(rt_ivar(iNodeE,iE,iCR_G3,iS),ii,jj,kk) = Gnu3
 
               end do
-
-           end do ; end do ; end do ;
+           end do ; end do
 
         end do
      end do
   end do
 
   call FreeThornado_Patch()
-#endif
 
-! call Grid_releaseBlkPtr(blockID,solnData,CENTER)
+#endif
 
   deallocate(xLeft)
   deallocate(xRight)

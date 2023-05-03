@@ -43,7 +43,8 @@
 subroutine Simulation_init()
   use Simulation_data
   use Driver_interface, ONLY : Driver_abort, Driver_getMype
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+  use RuntimeParameters_interface, ONLY : RuntimeParameters_get, &
+    RuntimeParameters_mapStrToInt
   use Grid_interface, ONLY : Grid_getGeometry, Grid_getDomainBoundBox
   !use gr_mpoleData, ONLY : gr_point_mass=>point_mass
 
@@ -70,11 +71,16 @@ subroutine Simulation_init()
   call Grid_getGeometry(meshGeom)
   call Grid_getDomainBoundBox(boundBox)
 
+  call RuntimeParameters_get("geometry",sim_str_geometry)
+  call RuntimeParameters_mapStrToInt(sim_str_geometry, sim_geometry)
+
   call RuntimeParameters_get( 'chimera_model_file', chimera_model_file)
   call RuntimeParameters_get( 'progenitor_model_file', progenitor_model_file)
 
   call RuntimeParameters_get( 'smlrho',   sim_smlrho)
   call RuntimeParameters_get( 'smallt',   sim_smallt)
+  call RuntimeParameters_get( 'smallp',   sim_smallp)
+  call RuntimeParameters_get( 'smalle',   sim_smalle)
   call RuntimeParameters_get( 'smallx',   sim_smallx)
   call RuntimeParameters_get( 'restart', sim_restart)
 
@@ -122,7 +128,7 @@ subroutine Simulation_init()
   ! density less than sim_rho_inner (default is 1.0e11 g/cm^3)
   if ( sim_r_inner <= 0.0 ) then
     irho_inner = locate_descending( sim_rho_inner, imax_chim, rhobar_c_chim )
-    sim_r_inner = x_e_chim(irho_inner)
+    if ( irho_inner > 0 ) sim_r_inner = x_e_chim(irho_inner)
   end if
 
   ! set the inner radius to be the max of the user-defined value or the inner grid boundary
