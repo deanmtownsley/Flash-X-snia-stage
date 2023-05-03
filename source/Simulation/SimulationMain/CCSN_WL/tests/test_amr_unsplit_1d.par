@@ -10,9 +10,9 @@ run_comment                    = "CoreCollapse 1D with WeakLib"
 
 
 # IO  
-checkpointFileIntervalStep     = 0.0
+checkpointFileIntervalStep     = 0
 checkpointFileIntervalTime     = 0.0
-plotFileIntervalStep           = 0.0
+plotFileIntervalStep           = 0
 plotFileIntervalTime           = 0.0
 
 plot_var_1                     = "dens"
