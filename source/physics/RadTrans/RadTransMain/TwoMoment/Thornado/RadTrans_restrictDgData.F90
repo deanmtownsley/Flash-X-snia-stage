@@ -133,8 +133,8 @@ subroutine RadTrans_restrictDgData(inData,outData,lmask,xface,yface,zface)
   hi = [ ubound(inData,2), ubound(inData,3), ubound(inData,4) ]
 
   !! extents for this element
-  xL = (/ xface(lo(1)  ), yface(lo(2)  ), zface(lo(3)  ) /) * conv_x
-  xR = (/ xface(hi(1)+1), yface(hi(2)+1), zface(hi(3)+1) /) * conv_x
+  xL = (/ xface(1)          , yface(1)          , zface(1)           /) * conv_x
+  xR = (/ xface(size(xface)), yface(size(yface)), zface(size(zface)) /) * conv_x
 
   nX_Crse = 1
   nX_Crse(1:NDIM) = ( hi(1:NDIM) - lo(1:NDIM) + 1 ) / ( THORNADO_NNODESX * nFineX(1:NDIM) )
