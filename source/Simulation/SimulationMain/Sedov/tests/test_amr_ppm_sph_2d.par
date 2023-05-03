@@ -87,7 +87,7 @@ memory_stat_freq               = 1000
 nend            = 10000
 tmax            = 0.03
 
-run_comment     = "2D spherical Sedov from tinitial=0.1"
+run_comment     = "2D spherical Sedov from tinitial=0.01"
 log_file        = "flashx.log"
 #eintSwitch     = 0.0 # 1.e-4
 #use_auxEintEqn = .FALSE.

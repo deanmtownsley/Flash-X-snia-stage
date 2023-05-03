@@ -1,8 +1,8 @@
 #	Runtime parameters for the Sedov explosion problem.
-#./setup Sedov -auto -2d +spherical +uhd -parfile=test_amr_plm_cyl_2d.par DoAnalytical=True
-#       Version for testing "unsplit" Hydro with piecewise linear reconstruction with an AMR implementation
+#./setup Sedov -auto -3d +cylindrical +uhd -parfile=test_amr_weno_cyl_3d.par DoAnalytical=True
+#       Version for testing "unsplit" Hydro with WENO reconstruction with an AMR implementation
 #       that is configured to allow for dynamic Grid refinement.
-#./setup Sedov -auto -2d -nxb=16 -nyb=16 +spherical +uhd DoAnalytical=True -parfile=test_amr_plm_cyl_2d.par
+#./setup Sedov -auto -3d -nxb=16 -nyb=16 +cylindrical +uhd DoAnalytical=True -parfile=test_amr_weno_cyl_3d.par
 #
 
 #	Parameters for initial model
@@ -19,8 +19,7 @@ sim_rInit               = 0.109375
 #sim_rInit		= 0.31159806851954913  # shock radius at tmax     = 0.05
 
 sim_xctr		= 0.0
-#sim_yctr		= 0.5
-#sim_zctr		= 0.5
+sim_yctr		= 0.0
 
 sim_nsubzones           = 1 # 7 # 10000
 
@@ -36,13 +35,15 @@ gamma           = 1.4
 #	Computational volume parameters
 #		Grid dimensionality and geometry
 
-geometry = "spherical"
+geometry = "cylindrical"
 
 #		Size of computational volume
 xmin		= 0.
 xmax		= 0.5
-ymin		= 0.0
-ymax		= 180.0
+ymin		= -0.5
+ymax		= 0.5
+zmin		= -180.0
+zmax		= 180.0
 
 # Log integral quantities using all levels and all cells
 sim_oneLevelIntegralsOnly = .FALSE.
@@ -58,8 +59,11 @@ sim_latestLSTime       = 0.026
 xl_boundary_type      = "reflecting"
 xr_boundary_type      = "outflow"
 
-yl_boundary_type = "reflecting"
-yr_boundary_type = "reflecting"
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
 
 #	Simulation time, I/O  parameters
 
@@ -87,7 +91,7 @@ memory_stat_freq               = 1000
 nend            = 10000
 tmax            = 0.03
 
-run_comment     = "2D spherical Sedov from tinitial=0.01"
+run_comment     = "3D cylindrical Sedov from tinitial=0.01"
 log_file        = "flashx.log"
 #eintSwitch     = 0.0 # 1.e-4
 #use_auxEintEqn = .FALSE.
@@ -118,13 +122,11 @@ nblocky                        = 2
 #nblockz                        = 1
 
 gr_useTiling = .FALSE.
-
-# Uniform Grid specific parameters 
  
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #	I. INTERPOLATION SCHEME:
-order		= 2      # Interpolation order (first/second/third/fifth order)
+order		= 5      # Interpolation order (first/second/third/fifth order)
 sim_bcSetBdryVar = .FALSE.
 slopeLimiter    = "vanLeer" # Slope limiters (minmod,mc,vanLeer,vanLeer1.5?,hybrid,limited)
 LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
@@ -140,6 +142,7 @@ hy_fPresInMomFlux = 0.0      # Percentage of pressure gradient for the momentum 
 
 #       II. RIEMANN SOLVERS:
 RiemannSolver	= "hllc"       # Roe, HLL, HLLC, LLF, Marquina
+entropy         = .false.     # Entropy fix for the Roe solver
 
 #	III. STRONG SHOCK HANDLING SCHEME:
 shockDetect	= .false.     # Shock Detect for numerical stability

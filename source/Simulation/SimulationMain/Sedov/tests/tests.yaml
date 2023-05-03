@@ -130,13 +130,13 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
 ## end 2DCyl AMR
 
 ## 2DSph AMR
-Composite/Sedov/AMR/2dCyl/Paramesh/unsplitPLM:
+Composite/Sedov/AMR/2dSph/Paramesh/unsplitPLM:
   setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +pm4dev DoAnalytical=True
   parfiles: test_amr_plm_sph_2d.par
   restartParfiles: test_amr_plm_sph_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
-Composite/Sedov/AMR/2dCyl/AMReX/unsplitPPM:
+Composite/Sedov/AMR/2dSph/AMReX/unsplitPPM:
   setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +amrex DoAnalytical=True
   parfiles: test_amr_ppm_sph_2d.par
   restartParfiles: test_amr_ppm_sph_2d_restart.par
