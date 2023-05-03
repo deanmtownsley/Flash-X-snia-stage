@@ -366,7 +366,7 @@ subroutine IO_init()
   do i=1, io_maxPlotGridVars
      call Simulation_mapStrToInt(trim(io_plotGridVarStr(i)), io_plotGridVar(i),MAPBLOCK_SCRATCH)
      if(io_plotGridVar(i) /= NONEXISTENT) then
-        print *, "got the plotvarstr ", io_plotGridVarStr(i) 
+        !print *, "got the plotvarstr ", io_plotGridVarStr(i)
         io_nPlotGridVars = io_nPlotGridVars + 1
      end if
   end do
