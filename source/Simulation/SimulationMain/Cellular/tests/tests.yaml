@@ -25,3 +25,15 @@ Composite/Cellular/AMR/2d/Paramesh/unsplit:
 #  setupOptions: -auto -2d -debug +a13 +uhd +pm4dev -gridinterpolation=monotonic
 #  parfiles: test_amr_2d.par
 #  transfers: object/helm_table.dat object/SpeciesList.txt
+
+Composite/Cellular/AMR/2d/Paramesh/unsplitA19:
+  setupOptions: -auto -2d -debug +a19 +uhd +pm4dev -gridinterpolation=monotonic
+  parfiles: test_amr_2d_coldstart.par
+  restartParfiles: test_amr_2d_restart.par
+  transfers: object/helm_table.dat object/SpeciesList.txt
+# need to have par files for UG case
+# Composite/Cellular/UG/2d/unsplitA13:
+#   setupOptions: -auto -2d -debug +a13 +uhd +ug -gridinterpolation=monotonic
+#   parfiles:
+#   restartParfiles:
+#   transfers: object/helm_table.dat object/SpeciesList.txt
