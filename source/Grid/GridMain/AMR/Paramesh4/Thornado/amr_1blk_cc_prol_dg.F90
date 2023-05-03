@@ -205,8 +205,8 @@ Subroutine amr_1blk_cc_prol_dg               &
                                  skip,                                        &
                                  (interp_mask_unk == 40 .and. int_gcell_on_cc), &
                                  cell_face_coord1(iclX:icuX+1),               &
-                                 cell_face_coord2(jclX:jcuX+1),               &
-                                 cell_face_coord3(kclX:kcuX+1))
+                                 cell_face_coord2(jclX:jcuX+K2D),               &
+                                 cell_face_coord3(kclX:kcuX+K3D))
   end if
 
 End Subroutine amr_1blk_cc_prol_dg
