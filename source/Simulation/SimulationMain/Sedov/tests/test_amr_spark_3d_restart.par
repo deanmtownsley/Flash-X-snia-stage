@@ -67,7 +67,7 @@ memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
 nend            = 1000
-tmax            = 0.025
+tmax            = 0.022
 
 run_comment     = "3D Sedov explosion, from tinitial=0.01, cont'd"
 log_file        = "flashx.log"
@@ -86,22 +86,25 @@ derefine_cutoff_1 = 0.75
 
 gr_enableTiling = .TRUE.
 gr_useTiling = .TRUE.
-gr_tileSizeX = 8
-gr_tileSizeY = 4
-gr_tileSizeZ = 4
+gr_tileSizeX = 20
+gr_tileSizeY = 20
+gr_tileSizeZ = 5
 hy_useTiling = .TRUE.
+
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
 
 ## -------------------------------------------------------------##
 ##  SWITCHES FOR THE SPARK HYDRO SOLVER                         ##
 #	I. INTERPOLATION SCHEME:
-slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
-charLimiting	= .true. # Characteristic limiting vs. Primitive limiting
+# Reconstruction order / method is determined at setup time
+#slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
 
 #cvisc		= 0.1     # coefficient for artificial viscosity
 use_flattening	= .false. # use flattening (dissipative) (originally for PPM)
 
 #	II. RIEMANN SOLVERS:
-RiemannSolver	= "HLL"       # Roe, HLL, HLLC, LLF, Marquina
+#RiemannSolver	= "HLL"       # Roe, HLL, HLLC, LLF, Marquina
 
 #	III. STRONG SHOCK HANDLING SCHEME:
 use_hybridRiemann = .FALSE.   #Use the HLL solver inside shocks (flagged by SHOK_VAR)

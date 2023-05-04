@@ -187,7 +187,7 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov/AMR/3d/Paramesh/spark3:
-  setupOptions: -auto -3d -nxb=20 -nyb=20 -nzb=20 +spark3 +pm4dev DoAnalytical=True
+  setupOptions: -auto -strictparams -3d -nxb=20 -nyb=20 -nzb=20 +spark3 +pm4dev +threadBL DoAnalytical=True
   parfiles: test_amr_spark_3d.par
   restartParfiles: test_amr_spark_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
