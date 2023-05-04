@@ -77,8 +77,7 @@ USESETUPVARS nontelescoping
 
 USESETUPVARS omp_offload
 IF omp_offload
-   LIBRARY OMP_OL
-   PPDEFINE OMP_OL
+  REQUIRES physics/Hydro/HydroMain/Spark/omp_offload
 ENDIF
 
 

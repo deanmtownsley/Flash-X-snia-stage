@@ -189,7 +189,7 @@ int sfocu(int argc, char **argv)
   if (parse_cmdline(&opts, argc, argv))
   {
     /*printf("Usage: %s [-hvi] [-t mesh_tol] [-e err_tol] file1 file2\n", argv[0]); */
-    printf("Usage: %s [-hv] [-t mesh_tol] [-e err_tol] [-p perr_tol] [-I var1 [-I var2 [..]]] [-s svar1 [-s svar2 [..]]] file1 file2\n", argv[0]);
+    printf("Usage: %s [-hv] [-t mesh_tol] [-e err_tol] [-p perr_tol] [-P pmatch_tol] [-I var1 [-I var2 [..]]] [-s svar1 [-s svar2 [..]]] file1 file2\n", argv[0]);
     printf("  -h: This help screen\n");
     printf("  -v: Verbose output\n");
     printf("  -Ln: Show Ln error norms, default is -L1\n");
@@ -203,11 +203,14 @@ int sfocu(int argc, char **argv)
           printf("      continuing with comparison as long as blocks contain same # of zones\n");*/
     printf("  -t: Set mesh tolerance\n");
     printf("      Default value is 0.0\n");
+    printf("  -P: Set particle-matching tolerance for identifying particles, see also -D below.\n");
+    printf("      Default value is 0.0\n");
     printf("  -I: Specify name(s) of variable(s) to ignore, max length 4 characters each - use '*' for all.\n");
     printf("      These options are processed BEFORE any -s options.\n");
     printf("  -D: Specify list of particle attributes to uniquely identify particles.\n");
-    printf("      -D must always follow a single property eg. -D posx.\n");
-    printf("      -D posx -D posy -D posz means that two particles are considered identical iff their coordinates match.\n");
+    printf("      -D must be followed by a single property eg. -D posx.\n");
+    printf("      -D posx -D posy -D posz means that two particles are considered identical if\n");
+    printf("      and only if their coordinates match (within a tolerance given by -P).\n");
     printf("  -s: Specify additional name(s) of variable(s) to compare, max length 4 characters each.\n");
     printf("      Use this to force recognition of SCRATCH vars not kept in the FLASH3 'UNK' array.\n");
     printf("  -a: Sfocu will attempt to locate all grid-based variables from HDF5's metadata instead\n");
@@ -238,6 +241,12 @@ int sfocu(int argc, char **argv)
   if (opts.perr_tol < 0)
   {
     printf("Particle mag-error tolerance may not be less than zero\n");
+    return 1;
+  }
+
+  if (opts.pmatch_tol < 0)
+  {
+    printf("Particle-matching tolerance must not be less than zero\n");
     return 1;
   }
 

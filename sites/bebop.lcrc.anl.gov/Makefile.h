@@ -1,26 +1,21 @@
-# Flash-X makefile definitions for using the Intel compiler suite with the
-# testing environment setup by the Flash-X/Flash-X-TestEnv GitHub 
-# repository.  Refer to the GCE-specific README in that repo for
-# information regarding compatible machines and how to setup the 
-# software environment.
+# Flash-X makefile definitions for using the Intel compiler suite
+# tested with intel/17.0.4 and intel-mpi/2017.3
+#   $ module use /lcrc/project/Flash-X/soft/bebop/modulefiles
+#   $ module purge && module load FlashX-intel-oneapi
 #
-# NOTE: This software environment is updated without warning as needed by the
-# Flash-X GCE Test gatekeepers.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
-MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+AMREX_PATH   = ${FLASHX_AMREX${NDIM}D_DIR}
+HYPRE_PATH   = ${FLASHX_HYPRE_DIR}
+# MILHOJA_PATH =
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
-HYPRE_PATH =
-ZLIB_PATH  =
-PAPI_PATH  =
-PAPI_FLAGS =
-LIB_NCMPI = /usr
-MA28_PATH = ${FLASHX_MA28_DIR}
+MPI_PATH   = ${I_MPI_ROOT}/intel64
+HDF4_PATH  =
+HDF5_PATH  = ${FLASHX_HDF5_DIR}
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -28,10 +23,10 @@ MA28_PATH = ${FLASHX_MA28_DIR}
 #   Use the parallel HDF5 wrappers which use the mpiXX compiler wrappers 
 #   -- these will automatically load the proper libraries and include files.
 #----------------------------------------------------------------------------
-FCOMP   = h5pfc
-CCOMP   = h5pcc
-CPPCOMP = mpicxx
-LINK    = h5pfc
+FCOMP   = ${HDF5_PATH}/bin/h5pfc
+CCOMP   = ${HDF5_PATH}/bin/h5pcc
+CPPCOMP = ${MPI_PATH}/bin/mpiicpc    # hdf5 CXX wrapper isn't installed
+LINK    = ${HDF5_PATH}/bin/h5pfc
 
 # pre-processor flag
 PP      = -D
@@ -60,17 +55,8 @@ FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 FFLAGS_TEST = -O1 -c -r8 -real-size 64 \
 	 -stand f18 -no-wrap-margin \
 	 -fminshared -assume buffered_stdout
-FFLAGS_HYPRE = -I${HYPRE_PATH}/include
-CFLAGS_HYPRE = -I${HYPRE_PATH}/include
-FFLAGS_AMREX = -I${AMREX_PATH}/include
-# Include -auto so that Fortran routines are thread-safe.  Never use -save.
-# https://www.intel.com/content/www/us/en/developer/articles/technical/threading-fortran-applications-for-parallel-performance-on-multi-core-systems.html
-# TODO: It seems like the setup tool should add in this flag so that our users
-# don't need to know this.  The setup tool could add in a WARNING so that they
-# are made aware.  Similarly, it would need to add -Mrecursive for NVHPC.
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions -auto
 
-F90FLAGS = -DHAVE_MPI_MODULE -DH5_USE_18_API
+F90FLAGS = -DHAVE_MPI_MODULE
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
 #overflows at both compile time and run time (only active at -O1 or higher)
@@ -83,10 +69,12 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wundef \
 	-fp-stack-check
 CFLAGS_TEST = -c
 
-CFLAGS_HDF5 = -DH5_USE_18_API
-CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
-CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_MILHOJA =
+# CFLAGS_NCMPI   = -I$(LIB_NCMPI)/include
+CFLAGS_AMREX   =
+# CFLAGS_MILHOJA =
+FFLAGS_HYPRE   = -I${HYPRE_PATH}/include
+CFLAGS_HYPRE   = -I${HYPRE_PATH}/include
+FFLAGS_AMREX   = -I${AMREX_PATH}/include
 
 #----------------------------------------------------------------------------
 # Linker flags
@@ -116,27 +104,16 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_HDF5  =
+LIB_HDF5  = -L ${HDF5_PATH}/lib -lhdf5 -DH5_USE_18_API
 LIB_PAPI  =
 LIB_MATH  =
 LIB_MPI   =
 LIB_MPE   =
+LIB_STDCXX = -lstdc++
+LIB_LAPACK = -llapack -lblas
+
 LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
-LIB_STDCXX = -lstdc++
-LIB_LAPACK= -llapack -lblas
-LIB_MA28 = -L$(MA28_PATH) -lma28
-# setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
-# AMReX, we have to manually list AMReX afterward so that the linker finds
-# all dependencies.
-# TODO: I believe that Klaus has addressed this.  If so, update to use his
-# new fix.
-LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
-
-# Uncomment the following line to use electic fence memory debugger.
-# Need the following environmental variable (see env.sh):
-# export EF_ALLOW_MALLOC_0=1
-#CONFIG_LIB = -L/usr/lib64 -lefence
 
 #----------------------------------------------------------------------------
 # Additional machine-dependent object files
