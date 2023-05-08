@@ -73,6 +73,8 @@ subroutine gr_mpoleInit ()
 !
 !
   call RuntimeParameters_get  ("mpole_MultiThreading",       gr_mpoleMultiThreading     )
+  call RuntimeParameters_get  ("threadBlockListBuild",       gr_mpoleThreadTileList     )! from Driver unit
+  call RuntimeParameters_get  ("threadWithinBlockBuild",     gr_mpoleThreadWithinTile   )! from Driver unit
   call RuntimeParameters_get  ("mpole_Lmax",                 gr_mpoleMaxL               )
   call RuntimeParameters_get  ("mpole_2DSymmetryPlane",      gr_mpoleSymmetryPlane2D    )
   call RuntimeParameters_get  ("mpole_3DAxisymmetry",        gr_mpoleSymmetryAxis3D     )
