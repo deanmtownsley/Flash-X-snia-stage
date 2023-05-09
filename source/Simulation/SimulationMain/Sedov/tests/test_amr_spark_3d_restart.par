@@ -48,7 +48,7 @@ zl_boundary_type      = "outflow"
 zr_boundary_type      = "outflow"
 
 #	Simulation (grid, time, I/O) parameters
-cfl		        = 0.7
+cfl		        = 0.3
 restart         = .true.
 
 #	integral quantities & errors write frequency
