@@ -67,7 +67,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
        gr_mpoleInnerZoneResolutionInv, &
        gr_mpoleOuterZoneQshift,        &
        gr_mpoleMultiThreading,         &
-       gr_mpoleThreadTileList
+       gr_mpoleThreadWithinTile
 
   use gr_mpoleData,      ONLY : gr_mpoleXcenter,                &
        gr_mpoleYcenter,                &
@@ -135,39 +135,12 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
   type(Grid_tile_t) :: tileDesc
   type(Grid_iterator_t) :: itor
 
+  NULLIFY(solnData)
   !
   !     ...Sum quantities over all locally held leaf tiles.
   !
   !
 
-  !$omp parallel if (gr_mpoleMultiThreading .AND. gr_mpoleThreadTileList) &
-  !$omp default(none) &
-  !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
-  !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
-  !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
-  !$omp         idampingQuotient,rI,rinvI,rcL,icL,idamp,rdamp,rdotI,idotR,&
-  !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
-  !$omp         dampI,dampR,h,g,f,rc2,ic2,xR,yR,xI,yI,c,s,rs0,is0,rsL,isL,rs1,is1,&
-  !$omp         rs2,is2,mM,&
-  !$omp         tileDesc,itor)&
-  !$omp private(solnData)&
-  !$omp private(bndBox,delta,tileLimits,&
-  !$omp         imin,jmin,kmin,imax,jmax,kmax,&
-  !$omp         iCmax,jCmax,kCmax,iFmax,jFmax,kFmax,&
-  !$omp         DeltaI,DeltaJ,DeltaK,DeltaIHalf,DeltaJHalf,DeltaKHalf,&
-  !$omp         bndBoxILow,bndBoxJLow,bndBoxKLow)&
-  !$omp shared( ipotvar)&
-  !$omp shared( gr_mpoleGravityConstant,gr_mpoleSymmetryAxis3D,gr_mpoleNumberInv,&
-  !$omp         gr_mpoleTotalNrCosineMoments,gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
-  !$omp         gr_mpoleMaxL,gr_mpoleMax2L,gr_mpoleMaxM,gr_mpoleMaxLM,gr_mpoleMaxQ,&
-  !$omp         gr_mpoleMaxRadialZones,gr_mpoleMinRadialZone,gr_mpoleZoneRmax,&
-  !$omp         gr_mpoleZoneQmax,gr_mpoleZoneType,gr_mpoleZoneScalarInv,&
-  !$omp         gr_mpoleZoneLogNormInv,gr_mpoleZoneExponentInv,gr_mpoleInnerZoneMaxR,&
-  !$omp         gr_mpoleInnerZoneDrRadii,gr_mpoleInnerZoneQlower,gr_mpoleInnerZoneQupper,&
-  !$omp         gr_mpoleInnerZoneResolution,gr_mpoleInnerZoneResolutionInv,&
-  !$omp         gr_mpoleOuterZoneQshift,gr_mpoleXcenter,gr_mpoleYcenter,gr_mpoleZcenter,&
-  !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
-  
   call Grid_getTileIterator(itor, LEAF)
   do while(itor%isValid())
 
@@ -204,7 +177,35 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
      bndBoxJLow = bndBox (LOW,JAXIS)
      bndBoxKLow = bndBox (LOW,KAXIS)
 
+     !$omp parallel if (gr_mpoleMultiThreading .AND. gr_mpoleThreadWithinTile) &
+     !$omp default(none) &
+     !$omp private(z,kC,k2,jB,jS,y,jC,j2,iB,x,iC,i2,r,&
+     !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
+     !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
+     !$omp         idampingQuotient,rI,rinvI,rcL,icL,idamp,rdamp,rdotI,idotR,&
+     !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
+     !$omp         dampI,dampR,h,g,f,rc2,ic2,xR,yR,xI,yI,c,s,rs0,is0,rsL,isL,rs1,is1,&
+     !$omp         rs2,is2,mM)&
+     !$omp shared(solnData)&
+     !$omp shared(imin,jmin,kmin,imax,jmax,kmax,&
+     !$omp         iCmax,jCmax,kCmax,iFmax,jFmax,kFmax,&
+     !$omp         DeltaIHalf,DeltaJHalf,DeltaKHalf,&
+     !$omp         bndBoxILow,bndBoxJLow,bndBoxKLow)&
+     !$omp shared( ipotvar)&
+     !$omp shared( gr_mpoleGravityConstant,gr_mpoleSymmetryAxis3D,gr_mpoleNumberInv,&
+     !$omp         gr_mpoleTotalNrCosineMoments,gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
+     !$omp         gr_mpoleMaxL,gr_mpoleMax2L,gr_mpoleMaxM,gr_mpoleMaxLM,gr_mpoleMaxQ,&
+     !$omp         gr_mpoleMaxRadialZones,gr_mpoleMinRadialZone,gr_mpoleZoneRmax,&
+     !$omp         gr_mpoleZoneQmax,gr_mpoleZoneType,gr_mpoleZoneScalarInv,&
+     !$omp         gr_mpoleZoneLogNormInv,gr_mpoleZoneExponentInv,gr_mpoleInnerZoneMaxR,&
+     !$omp         gr_mpoleInnerZoneDrRadii,gr_mpoleInnerZoneQlower,gr_mpoleInnerZoneQupper,&
+     !$omp         gr_mpoleInnerZoneResolution,gr_mpoleInnerZoneResolutionInv,&
+     !$omp         gr_mpoleOuterZoneQshift,gr_mpoleXcenter,gr_mpoleYcenter,gr_mpoleZcenter,&
+     !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
+     
+     !$omp workshare
      solnData (ipotvar , imin:imax , jmin:jmax , kmin:kmax) = ZERO
+     !$omp end workshare
      !
      !
      !
@@ -280,6 +281,7 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
      !
      !
      !
+     !$omp do schedule(static)
      do kF = 0, kFmax                                           ! loop over local k face indices
 
         z = bndBoxKLow + kF*DeltaKHalf - gr_mpoleZcenter                          ! initial z-axis location of k face
@@ -626,18 +628,25 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
               !
               !
               if (i2) then
+                 !$omp atomic
                  solnData (ipotvar,iC-1,jC,kC) = solnData (ipotvar,iC-1,jC,kC) + facePotential
+                 !$omp atomic
                  solnData (ipotvar,iC  ,jC,kC) = solnData (ipotvar,iC  ,jC,kC) + facePotential
 
               else if (j2) then
+                 !$omp atomic
                  solnData (ipotvar,iC,jC-1,kC) = solnData (ipotvar,iC,jC-1,kC) + facePotential
+                 !$omp atomic
                  solnData (ipotvar,iC,jC  ,kC) = solnData (ipotvar,iC,jC  ,kC) + facePotential
 
               else if (k2) then
+                 !$omp atomic
                  solnData (ipotvar,iC,jC,kC-1) = solnData (ipotvar,iC,jC,kC-1) + facePotential
+                 !$omp atomic
                  solnData (ipotvar,iC,jC,kC  ) = solnData (ipotvar,iC,jC,kC  ) + facePotential
 
               else
+                 !$omp atomic
                  solnData (ipotvar,iC,jC,kC) = solnData (ipotvar,iC,jC,kC) + facePotential
 
               end if
@@ -645,12 +654,16 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
            end do
         end do
      end do
+     !$omp end do
      !
      !
      !    ...Form the potential average in each cell.
      !
      !
+     !$omp workshare
      solnData (ipotvar,imin:imax,jmin:jmax,kmin:kmax) = sixth * solnData (ipotvar,imin:imax,jmin:jmax,kmin:kmax)
+     !$omp end workshare
+     !$omp end parallel
      !
      !
      !    ...Get ready for retrieving next tile for the current processor.
@@ -662,7 +675,6 @@ subroutine gr_mpolePot3Dcartesian (ipotvar)
 
   call Grid_releaseTileIterator(itor)
 
-  !$omp end parallel
   !
   !
   !    ...Ready!

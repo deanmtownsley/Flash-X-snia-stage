@@ -1,11 +1,13 @@
 # Flash-X makefile definitions for using the Intel compiler suite
 # tested with intel/17.0.4 and intel-mpi/2017.3
-#   $ module load intel/17.0.4-74uvhji intel-mpi/2017.3-dfphq6k
+#   $ module use /lcrc/project/Flash-X/soft/bebop/modulefiles
+#   $ module purge && module load FlashX-intel-oneapi
 #
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-# AMREX_PATH   =
+AMREX_PATH   = ${FLASHX_AMREX${NDIM}D_DIR}
+HYPRE_PATH   = ${FLASHX_HYPRE_DIR}
 # MILHOJA_PATH =
 
 #----------------------------------------------------------------------------
@@ -13,7 +15,7 @@
 #----------------------------------------------------------------------------
 MPI_PATH   = ${I_MPI_ROOT}/intel64
 HDF4_PATH  =
-HDF5_PATH  = /lcrc/project/Flash-X/soft/intel_17.04/hdf5/1.12.2
+HDF5_PATH  = ${FLASHX_HDF5_DIR}
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -68,11 +70,11 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wundef \
 CFLAGS_TEST = -c
 
 # CFLAGS_NCMPI   = -I$(LIB_NCMPI)/include
-# CFLAGS_AMREX   =
+CFLAGS_AMREX   =
 # CFLAGS_MILHOJA =
-# FFLAGS_HYPRE   = -I${HYPRE_PATH}/include
-# CFLAGS_HYPRE   = -I${HYPRE_PATH}/include
-# FFLAGS_AMREX   = -I${AMREX_PATH}/include
+FFLAGS_HYPRE   = -I${HYPRE_PATH}/include
+CFLAGS_HYPRE   = -I${HYPRE_PATH}/include
+FFLAGS_AMREX   = -I${AMREX_PATH}/include
 
 #----------------------------------------------------------------------------
 # Linker flags
@@ -110,8 +112,8 @@ LIB_MPE   =
 LIB_STDCXX = -lstdc++
 LIB_LAPACK = -llapack -lblas
 
-# LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
-# LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
+LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
+LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 
 #----------------------------------------------------------------------------
 # Additional machine-dependent object files

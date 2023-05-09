@@ -59,7 +59,7 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
                                 gr_mpoleInnerZoneQupper,        &
                                 gr_mpoleOuterZoneQshift,        &
                                 gr_mpoleMultiThreading,         &
-                                gr_mpoleThreadTileList
+                                gr_mpoleThreadWithinTile
 
   use gr_mpoleData,      ONLY : gr_mpoleRcenter,                &
                                 gr_mpoleZcenter,                &
@@ -120,42 +120,12 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
   type(Grid_tile_t)     :: tileDesc
   type(Grid_iterator_t) :: itor
 
+  nullify(solnData)
 
 !
 !     ...Sum quantities over all locally held leaf blocks.
 !
 !
-  !$omp parallel if (gr_mpoleMultiThreading .AND. gr_mpoleThreadTileList) &
-  !$omp default(none) &
-  !$omp private(z,jC,j2,iB,iC,i2,r,&
-  !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
-  !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
-  !$omp         idampingQuotient,rI,rinvI,rcL,Rcyl,icL,idamp,rdamp,rdotI,idotR,&
-  !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
-  !$omp         dampI,dampR,h,g,f,rc2,ic2,&
-  !$omp         tileDesc,itor)&
-  !$omp private(solnData)&
-  !$omp private(bndBox,delta,tileLimits,&
-  !$omp         imin,jmin,imax,jmax,&
-  !$omp         iCmax,jCmax,iFmax,jFmax,&
-  !$omp         DeltaI,DeltaJ,DeltaIHalf,DeltaJHalf,&
-  !$omp         bndBoxILow,bndBoxJLow)&
-  !$omp shared( ipotvar)&
-  !$omp shared( gr_mpoleGravityConstant,gr_mpoleNumberInv,&
-  !$omp         gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
-  !$omp         gr_mpoleMaxL,&
-  !$omp         gr_mpoleMaxRadialZones,gr_mpoleMinRadialZone,gr_mpoleZoneRmax,&
-  !$omp         gr_mpoleZoneQmax,gr_mpoleZoneType,gr_mpoleZoneScalarInv,&
-  !$omp         gr_mpoleZoneLogNormInv,gr_mpoleZoneExponentInv,gr_mpoleInnerZoneMaxR,&
-  !$omp         gr_mpoleInnerZoneDrRadii,gr_mpoleInnerZoneQlower,gr_mpoleInnerZoneQupper,&
-  !$omp         gr_mpoleOuterZoneQshift,gr_mpoleRcenter,gr_mpoleZcenter,&
-  !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
-
-  ! Replaced `!$omp do schedule(static)` with `!$omp single` below as temporary fix until we determine
-  ! the proper way to parallelize leaf iterator loops with OpenMP - JAH
-!!$  !$omp single
-
-  NULLIFY(solnData)
 
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
   do while(itor%isValid())
@@ -184,7 +154,33 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
      bndBoxILow = bndBox (LOW,IAXIS)
      bndBoxJLow = bndBox (LOW,JAXIS)
 
+     !$omp parallel if (gr_mpoleMultiThreading .AND. gr_mpoleThreadWithinTile) &
+     !$omp default(none) &
+     !$omp firstprivate(jF,iF,z,jC,j2,iB,iC,i2,r,&
+     !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
+     !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
+     !$omp         idampingQuotient,rI,rinvI,rcL,Rcyl,icL,idamp,rdamp,rdotI,idotR,&
+     !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
+     !$omp         dampI,dampR,h,g,f,rc2,ic2)&
+     !$omp shared(solnData)&
+     !$omp shared(imin,jmin,imax,jmax,&
+     !$omp         iCmax,jCmax,iFmax,jFmax,&
+     !$omp         DeltaI,DeltaJ,DeltaIHalf,DeltaJHalf,&
+     !$omp         bndBoxILow,bndBoxJLow)&
+     !$omp shared( ipotvar)&
+     !$omp shared( gr_mpoleGravityConstant,gr_mpoleNumberInv,&
+     !$omp         gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
+     !$omp         gr_mpoleMaxL,&
+     !$omp         gr_mpoleMaxRadialZones,gr_mpoleMinRadialZone,gr_mpoleZoneRmax,&
+     !$omp         gr_mpoleZoneQmax,gr_mpoleZoneType,gr_mpoleZoneScalarInv,&
+     !$omp         gr_mpoleZoneLogNormInv,gr_mpoleZoneExponentInv,gr_mpoleInnerZoneMaxR,&
+     !$omp         gr_mpoleInnerZoneDrRadii,gr_mpoleInnerZoneQlower,gr_mpoleInnerZoneQupper,&
+     !$omp         gr_mpoleOuterZoneQshift,gr_mpoleRcenter,gr_mpoleZcenter,&
+     !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
+
+     !$omp workshare
      solnData (ipotvar , imin:imax , jmin:jmax , 1) = ZERO
+     !$omp end workshare
 !
 !
 !         ...The 2D cylindrical case:
@@ -273,14 +269,15 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
 !
 !
 !
-     z = bndBoxJLow - gr_mpoleZcenter                             ! initial z-axis location of j face
 
+     !$omp do
      do jF = 0, jFmax                                             ! loop over local j face indices
 
       jC = int (jF/2) + 1                                         ! local (inner) largest j cell index for j face
       j2 = mod (jF,2) == 0 .and. jC > 1 .and. jC < jCmax + 1      ! 2 cells j and j-1 share j face?
       jC = jmin - 1 + min (jC , jCmax)                            ! change to global (inner + guard) j cell index
       iB = mod (jF+1,2)                                           ! initial local i face index (0 or 1)
+      z = bndBoxJLow - gr_mpoleZcenter + jF * DeltaJHalf          ! z-axis location of j face
 
       Rcyl = bndBoxILow + iB * DeltaIHalf - gr_mpoleRcenter       ! initial Rcyl-axis location of i face
 
@@ -432,30 +429,39 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
 !
        if (i2) then
 
+           !$omp atomic
            solnData (ipotvar,iC-1,jC,1) = solnData (ipotvar,iC-1,jC,1) + facePotential
+           !$omp atomic
            solnData (ipotvar,iC  ,jC,1) = solnData (ipotvar,iC  ,jC,1) + facePotential
 
        else if (j2) then
 
+           !$omp atomic
            solnData (ipotvar,iC,jC-1,1) = solnData (ipotvar,iC,jC-1,1) + facePotential
+           !$omp atomic
            solnData (ipotvar,iC,jC  ,1) = solnData (ipotvar,iC,jC  ,1) + facePotential
 
        else
 
+           !$omp atomic
            solnData (ipotvar,iC,jC,1) = solnData (ipotvar,iC,jC,1) + facePotential
 
        end if
 
        Rcyl = Rcyl + DeltaI      ! face position increment along radial axis
       end do
-      z = z + DeltaJHalf         ! face position increment along z-axis
+
      end do
+     !$omp end do
 !
 !
 !    ...Form the potential average in each cell.
 !
 !
+     !$omp workshare
      solnData (ipotvar,imin:imax,jmin:jmax,1) = FOURTH * solnData (ipotvar,imin:imax,jmin:jmax,1)
+     !$omp end workshare
+     !$omp end parallel
 !
 !
 !    ...Get ready for retrieving next LEAF block for the current processor.
@@ -465,7 +471,6 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
      call itor%next()
   end do
   call Grid_releaseTileIterator(itor)
-  !$omp end parallel
 
 
 !    ...Ready!
