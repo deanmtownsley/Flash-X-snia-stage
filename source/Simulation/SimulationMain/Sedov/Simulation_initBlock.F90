@@ -73,7 +73,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   use Grid_interface, ONLY : Grid_getCellCoords, &
                              Grid_getCellVolumes, &
                              Grid_subcellGeometry, &
-                             Grid_getDeltas
+                             Grid_getDeltas, &
+                             Grid_getGeometry
   use Grid_tile, ONLY : Grid_tile_t 
   use ut_interpolationInterface
  
@@ -103,12 +104,16 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   integer,dimension(LOW:HIGH,MDIM) :: tileLimits
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
   integer,dimension(MDIM) :: axis
+  integer :: geometry
 
 !!$  real     :: dvSub(0:sim_nSubZones-1,0:(sim_nSubZones-1)*K2D)
   real,allocatable :: dvSub(:,:)
   real     :: dvc, quotinv
 
   real :: deltas(1:MDIM)
+
+
+  call Grid_getGeometry(geometry)
 
   if (sim_useProfileFromFile) then
      ! lazy initialization - should already have been done from Simulation_init
@@ -126,10 +131,14 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   !  Construct the radial samples needed for the initialization.
   !
      diagonal = (sim_xMax-sim_xMin)**2
-     diagonal = diagonal + K2D*(sim_yMax-sim_yMin)**2
-     diagonal = diagonal + K3D*(sim_zMax-sim_zMin)**2
-     diagonal = sqrt(diagonal)
-  
+     if (geometry == SPHERICAL) then
+         diagonal = sqrt(diagonal)
+     else 
+         diagonal = diagonal + K2D*(sim_yMax-sim_yMin)**2
+         diagonal = diagonal + K3D*(sim_zMax-sim_zMin)**2
+         diagonal = sqrt(diagonal)
+     end if
+
      drProf = diagonal / (sim_nProfile-1)
   
      do i = 1, sim_nProfile
@@ -193,7 +202,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
      !$omp sim_smallX,sim_pProf,sim_rhoProf,sim_vProf,sim_gamma,sim_inszd,&
      !$omp sim_smallT,&
      !$omp solnData, &
-     !$omp sim_xCenter,sim_yCenter,sim_zCenter) &
+     !$omp sim_xCenter,sim_yCenter,sim_zCenter, &
+     !$omp geometry) &
      !$omp private(i,j,k,ii,jj,kk,n,sumRho,sumP,sumVX,sumVY,sumVZ,&
      !$omp xx,yy,zz,xDist,yDist,zDist,dist,distInv,jLo,jHi,frac,vel,axis,&
      !$omp rho,p,vx,vy,vz,ek,e,eint,kat)
@@ -296,7 +306,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   !$omp sim_smallT,&
   !$omp sim_useProfileFromFile,sim_tinitial,errIgnored,solnData, &
   !$omp sim_rhoAmbient,sim_pAmbient, &
-  !$omp sim_xCenter,sim_yCenter,sim_zCenter) &
+  !$omp sim_xCenter,sim_yCenter,sim_zCenter, &
+  !$omp geometry) &
   !$omp private(i,j,k,ii,jj,kk,n,sumRho,sumP,sumVX,sumVY,sumVZ,&
   !$omp xx,yy,zz,xDist,yDist,zDist,dist,distInv,jLo,jHi,frac,vel,axis,&
   !$omp rho,p,vx,vy,vz,ek,e,eint,kat,rhoSub,pSub,vSub,dvc,quotinv,dvSub)
@@ -326,7 +337,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                                      1+(sim_nSubZones-1)*K2D, &
                                      1+(sim_nSubZones-1)*K3D, &
                                      dvc, dvSub, &
-                                     xCoord(i)-0.5*dxx, xCoord(i)+0.5*dxx)
+                                     xCoord(i)-0.5*dxx, xCoord(i)+0.5*dxx, &
+                                     yCoord(j)-0.5*dyy, yCoord(j)+0.5*dyy) 
 
            sumRho = 0.
            sumP   = 0.
@@ -353,8 +365,13 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                  do ii = 0, (sim_nSubZones-1)
                     xx    = xCoord(i) + ((real(ii)+0.5)*sim_inSubzones-.5)*dxx
                     xDist = xx - sim_xCenter
-                    
-                    dist    = sqrt( xDist**2 + yDist**2 + zDist**2 )
+
+                    if (geometry == SPHERICAL) then
+                        dist = sqrt(xDist**2)
+                    else 
+                        dist    = sqrt( xDist**2 + yDist**2 + zDist**2 )
+                    end if
+
                     distInv = 1. / max( dist, 1.E-10 )
                     call sim_find (rProf, sim_nProfile, dist, jLo)
                     !
@@ -392,11 +409,16 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                     sumRho = sumRho + rhoSub * dvSub(ii,jj)
                     
                     vel = vSub * dvSub(ii,jj)
-                    
-                    sumVX  = sumVX  + vel*xDist*distInv
-                    sumVY  = sumVY  + vel*yDist*distInv
-                    sumVZ  = sumVZ  + vel*zDist*distInv
-                    
+                    if (geometry == SPHERICAL) then
+                        sumVX = sumVX + vel
+                        sumVY  = 0.0 
+                        sumVZ  = 0.0
+                    else 
+                        sumVX  = sumVX  + vel*xDist*distInv
+                        sumVY  = sumVY  + vel*yDist*distInv
+                        sumVZ  = sumVZ  + vel*zDist*distInv
+                   end if
+
                  enddo
               enddo
            enddo
