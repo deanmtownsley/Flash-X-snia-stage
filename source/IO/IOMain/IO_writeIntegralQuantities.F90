@@ -25,9 +25,9 @@
 !!   and write them to an ASCII file.  If this is the initial step,
 !!   create the file and write a header to it before writing the data.
 !!
-!!   Presently, this supports 1, 2, and 3-d Cartesian geometry and 2-d
-!!   cylindrical geometry (r,z).  More geometries can be added by
-!!   modifying the volume of each zone (dvol).
+!!   This implementation is intended to be valid for all supported
+!!   combinations of NDIM and geometry by taking the proper volume
+!!   of each zone (dvol) into account, but see the NOTE below.
 !!
 !!   Users should modify this routine if they want to store any
 !!   quantities other than default values in the flashx.dat. Make sure
@@ -41,7 +41,17 @@
 !!   isFirst - if 1 then write header info plus data, otherwise just write data
 !!   simTime - simulation time
 !!
+!! NOTES
 !!
+!!  In non-Cartesian geometries, not all integrated quantities may be directly
+!!  meaningful as physical quantities. In particular, components of spatial
+!!  vectors, like the components of momentum that appear under the "x-momentum",
+!!  "y-momentum", and "z-momentum" headings, may not be meanigful as components
+!!  of linear momentum if the corresponding x-, y-, z-coordinates are not
+!!  linear.
+!!
+!! SEE ALSO
+!!  Grid_getCellVolumes
 !!***
 
 !!REORDER(4):solnData
@@ -57,16 +67,14 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
 
-  implicit none
 
-#include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 #include "Simulation.h"
   
   
-  real, intent(in) :: simTime
-
   integer, intent(in) :: isFirst
+  real, intent(in) :: simTime
 
   integer :: funit = 99
   integer :: error
