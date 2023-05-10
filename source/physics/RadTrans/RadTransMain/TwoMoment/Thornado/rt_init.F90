@@ -35,7 +35,7 @@ subroutine rt_init()
   use rt_data
   use Grid_data, ONLY : gr_minRefine, gr_lrefineMax
   use MoL_interface, ONLY : MoL_registerVariable
-  use RadTrans_data, ONLY : rt_gcMask, rt_meshMe
+  use RadTrans_data, ONLY : rt_gcMask, rt_meshMe, rt_str_geometry
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Simulation_interface, ONLY : Simulation_mapIntToStr
   use ThornadoInitializationModule, ONLY : InitThornado
@@ -64,6 +64,8 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_eR",    rt_eR)
   call RuntimeParameters_get ("rt_zoomE", rt_zoomE)
   call RuntimeParameters_get ("rt_bcE",   rt_bcE)
+
+  call RuntimeParameters_get ("rt_units", rt_units)
 
   call RuntimeParameters_get ("rt_use_emab", rt_use_emab)
   call RuntimeParameters_get ("rt_use_iso",  rt_use_iso)
@@ -148,6 +150,8 @@ subroutine rt_init()
      Include_NES_Option = rt_use_nes, &
      Include_Pair_Option = rt_use_pair, &
      Include_Brem_Option = rt_use_brem, &
+     ActivateUnits_Option = rt_units, &
+     CoordinateSystem_Option = rt_str_geometry, &
      Verbose_Option = Verbose )
 #else
   call RuntimeParameters_get("gamma", eos_gamma)
@@ -160,6 +164,8 @@ subroutine rt_init()
      UpperBry1_Option = rt_UpperBry1, &
      SlopeLimiter_Option = rt_slopeLimiter, &
      EnergyLimiter_Option = rt_energyLimiter, &
+     CoordinateSystem_Option = rt_str_geometry, &
+     ActivateUnits_Option = rt_units, &
      Verbose_Option = Verbose )
 #endif
 

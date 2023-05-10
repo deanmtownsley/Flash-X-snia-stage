@@ -35,6 +35,8 @@ module rt_data
   integer, save :: rt_bcE
   real,    save :: rt_eL, rt_eR, rt_zoomE
 
+  logical, save :: rt_units
+
   logical, save :: rt_positivityLimiter
   real,    save :: rt_UpperBry1
 

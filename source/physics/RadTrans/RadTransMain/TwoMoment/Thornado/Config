@@ -150,6 +150,9 @@ def genLines(setupvars):
     yield 'D rt_bcE  energy grid boundary condition'
     yield 'PARAMETER rt_bcE      INTEGER  0      [0 to ]'
 
+    yield 'D rt_units flag to use physiacl units in thornado'
+    yield 'PARAMETER rt_units    BOOLEAN  TRUE'
+
     ##
     yield 'D rt_use_emab   flag to load emission/absorption opacity table'
     yield 'D rt_use_iso    flag to load iso-energetic scattering opacity table'
