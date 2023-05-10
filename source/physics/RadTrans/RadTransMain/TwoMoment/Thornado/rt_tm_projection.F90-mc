@@ -51,7 +51,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
      iGR_J, iGR_H1, iGR_H2, iGR_H3, iGR_RMS, iGR_F, iGR_K, iGR_Q, unitsGR, nGR
   use SubcellReconstructionModule, ONLY : ProjectionMatrix
   use UnitsModule, ONLY : Gram, Centimeter, Second, AtomicMassUnit, Erg, MeV, &
-     PlanckConstant, SpeedOfLight
+     PlanckConstant, SpeedOfLight, UnitsActive
 
   implicit none
 
@@ -84,15 +84,15 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   real, parameter :: hc3       = ( PlanckConstant * SpeedOfLight )**3
 
-  real, parameter :: conv_N    = hc3 * 1.0 / Centimeter**3
-  real, parameter :: conv_D    = hc3 * 1.0 / Centimeter**3
-  real, parameter :: conv_I1   = hc3 * 1.0 / Centimeter**2 / Second
-  real, parameter :: conv_I2   = hc3 * 1.0 / Centimeter**2 / Second
-  real, parameter :: conv_I3   = hc3 * 1.0 / Centimeter**2 / Second
-  real, parameter :: conv_J    = hc3 * Erg / Centimeter**3
-  real, parameter :: conv_H1   = hc3 * Erg / Centimeter**2 / Second
-  real, parameter :: conv_H2   = hc3 * Erg / Centimeter**2 / Second
-  real, parameter :: conv_H3   = hc3 * Erg / Centimeter**2 / Second
+  real, parameter :: conv_N    = 1.0 / Centimeter**3
+  real, parameter :: conv_D    = 1.0 / Centimeter**3
+  real, parameter :: conv_I1   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_I2   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_I3   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_J    = Erg / Centimeter**3
+  real, parameter :: conv_H1   = Erg / Centimeter**2 / Second
+  real, parameter :: conv_H2   = Erg / Centimeter**2 / Second
+  real, parameter :: conv_H3   = Erg / Centimeter**2 / Second
   real, parameter :: conv_RMS  = MeV
 
   select case ( rt_geometry )
@@ -243,6 +243,10 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
                  Sout(ioff+iGR_F  -1,ii,jj,kk) = FlxF / volFac(ii,jj,kk)
                  Sout(ioff+iGR_K  -1,ii,jj,kk) = EddF / volFac(ii,jj,kk)
                  Sout(ioff+iGR_Q  -1,ii,jj,kk) = HetF / volFac(ii,jj,kk)
+
+                 if ( UnitsActive ) then
+                   Sout((ioff+iGR_N-1):(ioff+iGR_H3-1),ii,jj,kk) = Sout((ioff+iGR_N-1):(ioff+iGR_H3-1),ii,jj,kk) / hc3
+                 end if
 
               end do
 
