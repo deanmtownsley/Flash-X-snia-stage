@@ -6,10 +6,16 @@
 #
 # NOTE: This software environment is updated without warning as needed by the
 # Flash-X GCE Test gatekeepers.
+
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+ifeq ("$(USEOPENMP)","1")
+  AMREX_PATH=${FLASHX_AMREX_OMP${NDIM}D_DIR}
+else
+  AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+endif
+
 MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
 
 #----------------------------------------------------------------------------

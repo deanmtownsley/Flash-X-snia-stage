@@ -23,6 +23,11 @@ IF nDim != 3 and nDim != 2 and nDim != ''
 ENDIF
 
 
+USESETUPVARS threadWithinBlock
+IF threadWithinBlock
+   REQUIRES ./threadWithinTile
+ENDIF
+
 USESETUPVARS timeMultipole
 IF timeMultipole
    REQUIRES Simulation/SimulationMain/unitTest/Gravity/Poisson3/timeMultipole

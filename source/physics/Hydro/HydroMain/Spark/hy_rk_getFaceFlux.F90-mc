@@ -52,6 +52,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp, hy_limRad
   use Hydro_data, ONLY : klim,lim,limgc,gCells, dir,stage
   use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -61,7 +62,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   real,dimension(:,:,:,:),pointer ::hy_starState
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
-  integer :: i,j,k, n, g, v,  ierr
+  integer :: i,j,k, n, g, v
   integer :: im1
   character(len = 2) :: dir_str
   real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
@@ -198,7 +199,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 #endif
      !$omp default(none) &
      !$omp private(v, &
-     !$omp    VL, VR, Fstar, inShock, ierr, &
+     !$omp    VL, VR, Fstar, inShock, &
      !$omp    UL, UR, Uhll, UCstarR, UCstarL, FL, FR, &
      !$omp    velNL, velNR, aL2, aR2, &
      !$omp    magNL, magNR, Bn_glm, Psi_glm, magBL2, magBR2, &

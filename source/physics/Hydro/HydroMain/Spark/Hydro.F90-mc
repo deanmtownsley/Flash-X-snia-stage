@@ -67,7 +67,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   integer :: xLo,xHi,yLo,yHi,zLo,zHi
   integer, dimension(LOW:HIGH,MDIM) :: limits
   real :: hdt,wt
-  integer :: last_stage
+  integer, parameter :: last_stage = MAXSTAGE
 
   integer :: i,j,k,v,maxcells,ng
 
@@ -89,10 +89,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #endif
 
   hdt = 0.5*dt
-
-
-  last_stage = MAXSTAGE
-
 
   @M hy_OMP_TARGET_enter_data(alloc, [grownLimits, blkLimits, blkLimitsGC, limits])
 

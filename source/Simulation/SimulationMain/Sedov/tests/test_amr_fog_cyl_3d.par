@@ -67,8 +67,7 @@ zr_boundary_type = "periodic"
 
 #	Simulation time, I/O  parameters
 
-cfl		= 0.8
-#hy_cflFallbackFactor           = 0.9
+cfl		= 0.3
 
 flux_correct = .TRUE.
 
