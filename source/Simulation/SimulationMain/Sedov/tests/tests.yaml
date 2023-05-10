@@ -137,7 +137,7 @@ Composite/Sedov/AMR/2dSph/Paramesh/unsplitPLM:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov/AMR/2dSph/AMReX/unsplitPPM:
-  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +amrex DoAnalytical=True
+  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +amrex +nolwf DoAnalytical=True
   parfiles: test_amr_ppm_sph_2d.par
   restartParfiles: test_amr_ppm_sph_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
@@ -195,13 +195,13 @@ Composite/Sedov/AMR/3d/Paramesh/spark3:
 
 ## 3DCyl AMR
 Composite/Sedov/AMR/3dCyl/Paramesh/unsplitWENO:
-  setupOptions: -auto -3d +cylindrical -maxblocks=175 -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev DoAnalytical=True
+  setupOptions: -auto -3d +cylindrical -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev DoAnalytical=True
   parfiles: test_amr_weno_cyl_3d.par
   restartParfiles: test_amr_weno_cyl_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov/AMR/3dCyl/AMReX/unsplitFOG:
-  setupOptions: -auto -3d +cylindrical -maxblocks=175 -nxb=8 -nyb=8 -nzb=8 +uhd +amrex DoAnalytical=True
+  setupOptions: -auto -3d +cylindrical -nxb=8 -nyb=8 -nzb=8 +uhd +amrex DoAnalytical=True
   parfiles: test_amr_fog_cyl_3d.par
   restartParfiles: test_amr_fog_cyl_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
