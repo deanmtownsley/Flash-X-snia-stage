@@ -285,7 +285,10 @@
                                   faceAreas)
 #if NDIM > 1
        if (hy_geometry == SPHERICAL) then
-           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
+          call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
+                                     lbound(faceAreasY), ubound(faceAreasY), &
+                                     faceAreasY)
+!!$           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
 !          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
 !            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
 !            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
@@ -1012,7 +1015,10 @@
     ! DEV: FIXME Include this again and see if we can use faceAreas and
     !            cellVolumes instead
        if (hy_geometry == SPHERICAL) then
-           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
+          call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
+                                     lbound(faceAreasY), ubound(faceAreasY), &
+                                     faceAreasY)
+!!$           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
 !          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
 !            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
 !            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
