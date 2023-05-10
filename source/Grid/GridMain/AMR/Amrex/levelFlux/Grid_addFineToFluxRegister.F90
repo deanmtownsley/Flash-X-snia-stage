@@ -284,7 +284,7 @@ subroutine Grid_addFineToFluxRegister(fine_level, isDensity, coefficient, &
 #endif
 
 #if   NDIM == 3
-          call Driver_abort("[Grid_addFineToFluxRegister] 3D Cylindrical not tested")
+!!$          call Driver_abort("[Grid_addFineToFluxRegister] 3D Cylindrical not tested")
           call tileDesc%getDataPtr(fluxData, FLUXZ)
           lo(:) = lbound(fluxData)
           hi(:) = ubound(fluxData)
