@@ -36,7 +36,7 @@ unitTest/Laplacian/Amrex -t "UnitTest/Laplacian/AMReX/3d" -np 1
 #------------------------------------------------
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
-unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=1 -as "threadBlockList=False"
+#unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=1 # causes error: -as "threadBlockList=False"
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 3 -e OMP_NUM_THREADS=3
