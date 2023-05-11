@@ -160,7 +160,7 @@
 #endif
 
     real, dimension(blGC(LOW,IAXIS):blGC(HIGH,IAXIS)) :: xCenter, xLeft, xRight
-#if NDIM == 3
+#if NDIM >= 2
     real, dimension(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)) :: yCenter
 #else
     real, dimension(0) :: yCenter
@@ -364,8 +364,8 @@
                                blGC(LOW, :), blGC(HIGH, :), xLeft)
        call Grid_getCellCoords(IAXIS, RIGHT_EDGE, tileDesc%level, &
                                blGC(LOW, :), blGC(HIGH, :), xRight)
-       if (NDIM == 3 .AND. hy_geometry == SPHERICAL) then
-          call Driver_abort("[hy_unsplitUpdate] This has not been tested")
+       if (NDIM >= 2 .AND. hy_geometry == SPHERICAL) then
+          if (NDIM == 3) call Driver_abort("[hy_unsplitUpdate] This has not been tested")
           call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
                                   blkLimits(LOW, :), blkLimits(HIGH, :), &
                                   yCenter)
