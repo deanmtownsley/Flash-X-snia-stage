@@ -114,7 +114,7 @@ subroutine Simulation_init()
   call Grid_getGeometry(sim_geometry)
   ! Determine which coordinate directions contribute to the "distance" (from explosion center)
   sim_k2dDist = Real(K2D)
-  sim_k2dDist = Real(K3D)
+  sim_k3dDist = Real(K3D)
   if (sim_geometry == SPHERICAL) then
      sim_k2dDist = 0.0
      sim_k3dDist = 0.0
