@@ -200,9 +200,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     call interp1d_linear(x_c_chim, u_c_chim(:,1,1), radCenter, velx_interp)
                     call interp1d_linear(x_c_chim, v_c_chim(:,1,1), radCenter, vely_interp)
                     call interp1d_linear(x_c_chim, w_c_chim(:,1,1), radCenter, velz_interp)
+#if NSPECIES > 0
                     do n = 1, NSPECIES
                        call interp1d_linear(x_c_chim, xn_c_chim(n,:,1,1), radCenter, spec_interp(n))
                     end do
+#endif
 #if defined (YE_MSCALAR)
                     call interp1d_linear(x_c_chim, ye_c_chim(:,1,1), radCenter, ye_interp)
 #endif
@@ -226,10 +228,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        &                 radCenter, thtCenter, vely_interp)
                     call interp2d_linear(x_c_chim, y_c_chim(1:ny_chim), w_c_chim(:,:,1), &
                        &                 radCenter, thtCenter, velz_interp)
+#if NSPECIES > 0
                     do n = 1, NSPECIES
                        call interp2d_linear(x_c_chim, y_c_chim(1:ny_chim), xn_c_chim(n,:,:,1), &
                           &                 radCenter, thtCenter, spec_interp(n))
                     end do
+#endif
 #if defined (YE_MSCALAR)
                     call interp2d_linear(x_c_chim, y_c_chim(1:ny_chim), ye_c_chim(:,:,1), &
                        &                 radCenter, thtCenter, ye_interp)
@@ -255,10 +259,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        &                 radCenter, thtCenter, phiCenter, vely_interp)
                     call interp3d_linear(x_c_chim, y_c_chim(1:ny_chim), z_c_chim(1:nz_chim), w_c_chim(:,:,:), &
                        &                 radCenter, thtCenter, phiCenter, velz_interp)
+#if NSPECIES > 0
                     do n = 1, NSPECIES
                        call interp3d_linear(x_c_chim, y_c_chim(1:ny_chim), z_c_chim(1:nz_chim), xn_c_chim(n,:,:,:), &
                           &                 radCenter, thtCenter, phiCenter, spec_interp(n))
                     end do
+#endif
 #if defined (YE_MSCALAR)
                     call interp3d_linear(x_c_chim, y_c_chim(1:ny_chim), z_c_chim(1:nz_chim), ye_c_chim(:,:,:), &
                        &                 radCenter, thtCenter, phiCenter, ye_interp)
