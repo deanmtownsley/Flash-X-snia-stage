@@ -74,18 +74,20 @@ restart  = .false.
 wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0
+checkpointFileIntervalTime = 0.0
 checkpointFileNumber = 0
 
 #	plotfile output parameters
-plotfileIntervalTime = 0
+plotfileIntervalTime = 0.0
 plotfileIntervalStep = 0
 
-memory_stat_freq               = 1000
+memory_stat_freq               = 200
 
 #tstep_change_factor = 1.1
-nend            = 10000
-tmax            = 0.03
+nend            = 2000
+tmax            = 0.011
+dr_dtMinContinue               = 1.0e-9
+dr_dtMinBelowAction            = 1    # write chkpt then abort
 
 run_comment     = "2D spherical Sedov from tinitial=0.01"
 log_file        = "flashx.log"
@@ -118,8 +120,6 @@ nblocky                        = 2
 #nblockz                        = 1
 
 gr_useTiling = .FALSE.
-
-# Uniform Grid specific parameters 
  
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##

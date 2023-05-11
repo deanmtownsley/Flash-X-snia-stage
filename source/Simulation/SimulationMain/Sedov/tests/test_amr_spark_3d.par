@@ -8,7 +8,7 @@
 sim_pAmbient	 = 1.E-5
 sim_rhoAmbient	 = 1.
 sim_expEnergy	 = 1.
-tinitial        = 0.01
+tinitial        = 0.012
 sim_rInit		 = 0.109375
 sim_xctr		 = 0.5
 sim_yctr		 = 0.5
@@ -61,19 +61,19 @@ restart         = .false.
 wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0
+checkpointFileIntervalTime = 0.0
 checkpointFileNumber = 0
 
 #	plotfile output parameters
-plotfileIntervalTime = 0
+plotfileIntervalTime = 0.0
 plotfileIntervalStep = 0
 
-memory_stat_freq               = 1000
+memory_stat_freq               = 100
 
 nend            = 1000
-tmax            = 0.02
+tmax            = 0.015
 
-run_comment     = "3D Sedov explosion, from tinitial=0.01"
+run_comment     = "3D Sedov explosion, from tinitial=0.012"
 log_file        = "flashx.log"
 eintSwitch      = 1.e-4
 

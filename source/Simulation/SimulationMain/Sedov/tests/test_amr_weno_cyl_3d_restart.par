@@ -76,18 +76,18 @@ restart  = .TRUE.
 wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0
+checkpointFileIntervalTime = 0.0
 checkpointFileNumber = 1
 
 #	plotfile output parameters
-plotfileIntervalTime = 0
+plotfileIntervalTime = 0.0
 plotfileIntervalStep = 0
 
 memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
-nend            = 10000
-tmax            = 0.035
+nend            = 900
+tmax            = 0.0111
 
 run_comment     = "3D cylindrical Sedov from tinitial=0.01, cont'd"
 log_file        = "flashx.log"

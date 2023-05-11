@@ -84,7 +84,7 @@ plotfileIntervalStep = 0
 memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
-nend            = 10000
+nend            = 800
 tmax            = 0.03
 
 run_comment     = "2D spherical Sedov from tinitial=0.01"

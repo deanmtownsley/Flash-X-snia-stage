@@ -55,21 +55,21 @@ restart         = .true.
 wr_integrals_freq              = 1
 
 #	checkpoint file output parameters
-checkpointFileIntervalTime = 0
+checkpointFileIntervalTime = 0.0
 checkpointFileNumber = 1
 
 #	plotfile output parameters
-plotfileIntervalTime = 0
+plotfileIntervalTime = 0.0
 plotfileIntervalStep = 0
 plotfileNumber       = 0
 
-memory_stat_freq               = 1000
+memory_stat_freq               = 100
 
 #tstep_change_factor = 1.1
 nend            = 1000
-tmax            = 0.022
+tmax            = 0.016
 
-run_comment     = "3D Sedov explosion, from tinitial=0.01, cont'd"
+run_comment     = "3D Sedov explosion, from tinitial=0.012, cont'd"
 log_file        = "flashx.log"
 eintSwitch      = 1.e-4
 
