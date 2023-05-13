@@ -62,8 +62,8 @@ yr_boundary_type = "reflecting"
 
 #	Simulation time, I/O  parameters
 
-cfl		= 0.8
-#hy_cflFallbackFactor           = 0.9
+cfl		= 0.45
+hy_cflFallbackFactor           = 0.3
 
 flux_correct = .TRUE.
 
@@ -140,6 +140,6 @@ hy_fPresInMomFlux = 0.0      # Percentage of pressure gradient for the momentum 
 RiemannSolver	= "hllc"       # Roe, HLL, HLLC, LLF, Marquina
 
 #	III. STRONG SHOCK HANDLING SCHEME:
-shockDetect	= .false.     # Shock Detect for numerical stability
-shockLowerCFL   = .FALSE.     # Lower the simulation CFL if shocks are detected
+shockDetect	= .TRUE.     # Shock Detect for numerical stability
+shockLowerCFL   = .TRUE.     # Lower the simulation CFL if shocks are detected
 ## -------------------------------------------------------------##
