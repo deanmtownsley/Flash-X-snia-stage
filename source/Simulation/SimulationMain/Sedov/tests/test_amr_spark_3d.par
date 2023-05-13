@@ -8,7 +8,7 @@
 sim_pAmbient	 = 1.E-5
 sim_rhoAmbient	 = 1.
 sim_expEnergy	 = 1.
-tinitial        = 0.012
+tinitial        = 0.013
 sim_rInit		 = 0.109375
 sim_xctr		 = 0.5
 sim_yctr		 = 0.5
@@ -71,9 +71,9 @@ plotfileIntervalStep = 0
 memory_stat_freq               = 100
 
 nend            = 1000
-tmax            = 0.015
+tmax            = 0.0145
 
-run_comment     = "3D Sedov explosion, from tinitial=0.012"
+run_comment     = "3D Sedov explosion, from tinitial=0.013"
 log_file        = "flashx.log"
 eintSwitch      = 1.e-4
 

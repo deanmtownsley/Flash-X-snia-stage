@@ -67,9 +67,9 @@ memory_stat_freq               = 100
 
 #tstep_change_factor = 1.1
 nend            = 1000
-tmax            = 0.016
+tmax            = 0.0150
 
-run_comment     = "3D Sedov explosion, from tinitial=0.012, cont'd"
+run_comment     = "3D Sedov explosion, from tinitial=0.013, cont'd"
 log_file        = "flashx.log"
 eintSwitch      = 1.e-4
 
