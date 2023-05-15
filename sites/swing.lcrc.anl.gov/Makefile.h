@@ -1,12 +1,16 @@
 # Flash-X Makefile header for swing.lcrc.gov (NVHPC)
+# tested with nvhpc/22.3
+#   $ module use /lcrc/project/Flash-X/soft/swing/modulefiles
+#   $ module purge && module load FlashX-nvhpc
+#
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
 
 MPI_PATH   =
-AMREX_PATH =
-HDF5_PATH  = /lcrc/project/Flash-X/soft/hdf5-1.12.2
-HYPRE_PATH =
+AMREX_PATH = ${FLASHX_AMREX${NDIM}D_DIR}
+HDF5_PATH  = ${FLASHX_HDF5_DIR}
+HYPRE_PATH = ${FLASHX_HYPRE_DIR}
 CUDA_PATH  = ${CUDA_HOME}
 
 
@@ -22,7 +26,7 @@ CUDA_PATH  = ${CUDA_HOME}
 
 FCOMP   = mpifort
 CCOMP   = mpicc
-CPPCOMP = mpicxx -std=c++11
+CPPCOMP = mpicxx -std=c++14
 CUCOMP  = nvcc
 LINK    = mpifort
 
