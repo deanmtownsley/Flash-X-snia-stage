@@ -1,12 +1,10 @@
 # Parameters file for core-collapse SN
 
 # Simulation basics
-basenm			       = "ccsn1d_"
 restart			       = .false.
 checkpointFileNumber           = 0
 plotFileNumber                 = 0
 run_comment                    = "CoreCollapse 1D with WeakLib"
-#output_directory	       = "output"
 
 
 # IO  

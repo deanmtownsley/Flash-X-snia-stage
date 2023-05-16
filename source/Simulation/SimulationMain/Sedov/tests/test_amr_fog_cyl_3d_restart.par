@@ -87,6 +87,8 @@ memory_stat_freq               = 1000
 #tstep_change_factor = 1.1
 nend            = 10000
 tmax            = 0.035
+dr_dtMinContinue               = 1.0e-9
+dr_dtMinBelowAction            = 1    # write chkpt then abort
 
 run_comment     = "3D cylindrical Sedov from tinitial=0.01, cont'd"
 log_file        = "flashx.log"
@@ -101,7 +103,7 @@ plot_var_3 = "temp"
 # Fix derefine_cutoff=refine_cutoff for all refinement
 # variables so that we can do a better direct comparison
 # of AMReX- and Paramesh-generated results
-lrefine_max       = 5
+lrefine_max       = 4
 lrefine_min     = 1
 #lrefine_min_init     = 1
 refine_var_1      = "dens"

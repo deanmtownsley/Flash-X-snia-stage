@@ -102,7 +102,7 @@ plot_var_3 = "temp"
 # Fix derefine_cutoff=refine_cutoff for all refinement
 # variables so that we can do a better direct comparison
 # of AMReX- and Paramesh-generated results
-lrefine_max       = 5
+lrefine_max       = 4
 lrefine_min     = 1
 #lrefine_min_init     = 1
 refine_var_1      = "dens"
