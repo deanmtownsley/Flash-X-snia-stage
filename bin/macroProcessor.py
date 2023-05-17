@@ -240,7 +240,7 @@ class macroProcessor:
         with open(output, "w") as f:
             # lines = open(filename).readlines()
             fin = open(filename)
-            lines = self._continuationLine(fin, "&")
+            lines = self._continuationLine(fin, "&&")
             for line in lines:
                 f.write(self.processLine(line))
 
