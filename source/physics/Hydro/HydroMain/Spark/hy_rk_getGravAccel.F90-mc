@@ -122,7 +122,9 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
             im=0; ip=0; jm=0; jp=0; km=1; kp=1
           end select
           delxinv = getDelXinv(d, hy_del, hy_geometry, radCenter(i), thtCenter(j))
-          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) + delxinv*(hy_starState(GPOT_VAR,i-im,j-jm,k-km) - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp))
+          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) &
+             + delxinv*( hy_starState(GPOT_VAR,i-im,j-jm,k-km) &
+                        - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp) )
         end do
       enddo
     enddo

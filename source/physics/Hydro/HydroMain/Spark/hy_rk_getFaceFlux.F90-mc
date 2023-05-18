@@ -135,13 +135,13 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_setRope_private &
      @M hy_DIR_TARGET_setRope_shared
      @M hy_permute_loop(limgc, lim)
-              if (dir == IAXIS) then
-                 @M hy_setRope(i,j,k)
-              else if (dir == JAXIS) then
-                 @M hy_setRope(j,i,k)
-              else if (dir == KAXIS) then
-                 @M hy_setRope(j,k,i)
-              endif
+        if (dir == IAXIS) then
+           @M hy_setRope(i,j,k)
+        else if (dir == JAXIS) then
+           @M hy_setRope(j,i,k)
+        else if (dir == KAXIS) then
+           @M hy_setRope(j,k,i)
+        endif
      @M hy_break_loop
      call Timers_stop("setRope")
 
@@ -152,9 +152,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_recon_private &
      @M hy_DIR_TARGET_recon_shared
      @M hy_inner_loop(klim)
-          do v=1,NRECON
-             @M hy_recon
-          enddo
+        do v=1,NRECON
+           @M hy_recon
+        enddo
      @M hy_break_loop
      call Timers_stop("recon")
 
@@ -163,9 +163,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_normalize_species_private &
      @M hy_DIR_TARGET_normalize_species_shared
      @M hy_inner_loop(klim)
-              ! Limit and renormalize the species.
-              @M hy_normalize_species( hy_uPlus )
-              @M hy_normalize_species( hy_uMinus )
+        ! Limit and renormalize the species.
+        @M hy_normalize_species( hy_uPlus )
+        @M hy_normalize_species( hy_uMinus )
      @M hy_break_loop
      call Timers_stop("setrem")
 
@@ -174,11 +174,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_riemann_private &
      @M hy_DIR_TARGET_riemann_shared
      @M hy_inner_loop_plus(lim,1,0,0)
-              VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
-              VR = hy_uMinus(1:HY_NUM_VARS,i,j,k) 
-              inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
-              @M hy_riemann
-              hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
+        VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
+        VR = hy_uMinus(1:HY_NUM_VARS,i,j,k) 
+        inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
+        @M hy_riemann
+        hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
      @M hy_break_loop
      call Timers_stop("riemann")
 
@@ -187,45 +187,45 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_avisc_private &
      @M hy_DIR_TARGET_avisc_shared
      @M hy_inner_loop_plus(lim,1,0,0)
-              ! Add artificial viscosity for strong-shock capturing
-              cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
-              
-              ! Construct minus and plus TOTAL energy densities
-              ! Construct minus and plus TOTAL energy densities
-              VenerLo = hy_rope(HY_DENS,i-1,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i-1,j,k),hy_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
-                   + hy_rope(HY_RHOE,i-1,j,k)
-              VenerHi = hy_rope(HY_DENS,i,j,k)*0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i,j,k),hy_rope(HY_VELX:HY_VELZ,i,j,k)))&
-                   + hy_rope(HY_RHOE,i,j,k)
-              
-              hy_flux(HY_MASS:HY_ENER,i,j,k) = &
-                   hy_flux(HY_MASS:HY_ENER,i,j,k) &
-                   +cvisc*(/hy_rope(HY_DENS,i-1,j,k)                 - hy_rope(HY_DENS,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k)&
-                   ,        hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k)&
-                   ,        VenerLo                         - VenerHi/)
+        ! Add artificial viscosity for strong-shock capturing
+        cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
+        ! Construct minus and plus TOTAL energy densities
+        VenerLo = hy_rope(HY_DENS,i-1,j,k) &
+                  *0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i-1,j,k),hy_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
+                  + hy_rope(HY_RHOE,i-1,j,k)
+        VenerHi = hy_rope(HY_DENS,i,j,k) &
+                  *0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i,j,k),hy_rope(HY_VELX:HY_VELZ,i,j,k)))&
+                  + hy_rope(HY_RHOE,i,j,k)
+
+        hy_flux(HY_MASS:HY_ENER,i,j,k) = &
+              hy_flux(HY_MASS:HY_ENER,i,j,k) &
+                 + cvisc*(/ hy_rope(HY_DENS,i-1,j,k) - hy_rope(HY_DENS,i,j,k), &
+                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k), &
+                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k), &
+                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k), &
+                            VenerLo - VenerHi &
+                         /)
 
               
 #ifdef SPARK_GLM
-              hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
-                   hy_flux(HY_FMGX:HY_FPSI,i,j,k) &
-                   +cvisc*(/hy_rope(HY_MAGX,i-1,j,k)                 - hy_rope(HY_MAGX,i,j,k)&
-                   ,        hy_rope(HY_MAGY,i-1,j,k)                 - hy_rope(HY_MAGY,i,j,k)&
-                   ,        hy_rope(HY_MAGZ,i-1,j,k)                 - hy_rope(HY_MAGZ,i,j,k)&
-                   ,        hy_rope(HY_PSIB,i-1,j,k)                 - hy_rope(HY_PSIB,i,j,k)/)
+        hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
+              hy_flux(HY_FMGX:HY_FPSI,i,j,k) &
+                 + cvisc*(/ hy_rope(HY_MAGX,i-1,j,k) - hy_rope(HY_MAGX,i,j,k), &
+                            hy_rope(HY_MAGY,i-1,j,k) - hy_rope(HY_MAGY,i,j,k), &
+                            hy_rope(HY_MAGZ,i-1,j,k) - hy_rope(HY_MAGZ,i,j,k), &
+                            hy_rope(HY_PSIB,i-1,j,k) - hy_rope(HY_PSIB,i,j,k) &
+                         /)
 #endif
               ! Here, we compute the species and mass scalar
               ! fluxes based on the density flux and the hy_reconstructed
               ! mass scalar interface values
-              
-              
 #if NSPECIES+NMASS_SCALARS>0
               ! AH: TODO: Potentially make loop explicit
-              if (hy_flux(HY_MASS ,i,j,k) > 0.) then
-                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON, i-1,j,k)*hy_flux(HY_MASS ,i,j,k)
-              else
-                 hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
-              end if
+         if (hy_flux(HY_MASS ,i,j,k) > 0.) then
+            hy_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*hy_flux(HY_MASS,i,j,k)
+         else
+            hy_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*hy_flux(HY_MASS,i,j,k)
+         end if
 #endif
      @M hy_break_loop
      call Timers_stop("cvisc")
@@ -241,18 +241,18 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         @M hy_DIR_TARGET_saveFlux_shared(hy_flx) &
         @M hy_DIR_TARGET_map(from, [hy_flx])
         @M hy_inner_loop_plus(lim,1,0,0)
-              do v = 1, NFLUXES
-                 hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
-              end do
+           do v = 1, NFLUXES
+              hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
+           end do
         @M hy_break_loop
      case (JAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
         @M hy_DIR_TARGET_saveFlux_shared(hy_fly) &
         @M hy_DIR_TARGET_map(from, [hy_fly])
         @M hy_inner_loop_plus(lim,1,0,0)
-              do v = 1, NFLUXES
-                 hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
-              end do
+           do v = 1, NFLUXES
+              hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
+           end do
         @M hy_break_loop
      case (KAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &

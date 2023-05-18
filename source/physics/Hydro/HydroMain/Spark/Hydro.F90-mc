@@ -219,8 +219,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS)
-        if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData(tileDesc,&
-             hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
+        if ((hy_telescoping).and.(hy_fluxCorrect)) then
+           call Grid_putFluxData(tileDesc,&
+                                 hy_fluxBufX, &
+                                 hy_fluxBufY, &
+                                 hy_fluxBufZ, &
+                                 blkLimits(LOW,:))
+        end if
         call Timers_stop("Offloaded Section")
         @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                          hy_flx, hy_fly, hy_flz, &&
