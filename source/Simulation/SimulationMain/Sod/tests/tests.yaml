@@ -42,7 +42,13 @@ Composite/Sod/PseudoUG/2d/Paramesh/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
 
+# The following test used to be configured with -debug.
 Composite/Sod/PseudoUG/2d/Paramesh/sparkMT:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+  parfiles: test_pseudoug_2d_spark_multithread.par
+  restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
+
+Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT:
   setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +spark nontelescoping=True  +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
   parfiles: test_pseudoug_2d_spark_multithread.par
   restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
@@ -116,7 +122,12 @@ Comparison/Sod/UG/2d/unsplit:
   setupOptions: -auto -2d -debug +uhd +ug +nofbs
   parfiles: test_pseudoug_2d.par
 
+# The following test used to be configured with -debug.
 Comparison/Sod/UG/2d/spark:
+  setupOptions: -auto -2d +spark +ug +nofbs
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/UG/2d/sparkNt:
   setupOptions: -auto -2d -debug +spark nontelescoping=True  +ug +nofbs
   parfiles: test_pseudoug_2d.par
 
