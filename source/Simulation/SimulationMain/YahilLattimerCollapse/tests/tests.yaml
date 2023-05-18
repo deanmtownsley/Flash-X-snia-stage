@@ -30,7 +30,7 @@ Composite/Yahil/AMR/1dSph/Paramesh/unsplit:
 
 # The following test used to be configured with -debug.
 Composite/Yahil/AMR/1dSph/Paramesh/spark:
-  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
   parfiles: yahil_1d.par
   restartParfiles: yahil_1d_restart.par
   transfers: object/Yahil_Gam130.dat
@@ -44,7 +44,7 @@ Composite/Yahil/AMR/2dCyl/Paramesh/unsplit:
 
 # The following test used to be configured with -debug.
 Composite/Yahil/AMR/2dCyl/Paramesh/spark:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
   parfiles: yahil_2d_spark.par
   restartParfiles: yahil_2d_spark_restart.par
   transfers: object/Yahil_Gam130.dat
@@ -56,7 +56,7 @@ Comparison/Yahil/AMR/1dSph/Paramesh/unsplit:
 
 # The following test used to be configured with -debug.
 Comparison/Yahil/AMR/1dSph/Paramesh/spark:
-  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
   parfiles: yahil_1d.par
   transfers: object/Yahil_Gam130.dat
 
@@ -67,6 +67,6 @@ Comparison/Yahil/AMR/2dCyl/Paramesh/unsplit:
 
 # The following test used to be configured with -debug.
 Comparison/Yahil/AMR/2dCyl/Paramesh/spark:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
   parfiles: yahil_2d_spark.par
   transfers: object/Yahil_Gam130.dat
