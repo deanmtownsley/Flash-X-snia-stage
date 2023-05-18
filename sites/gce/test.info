@@ -1,0 +1,147 @@
+<gce>
+  <Comparison>
+    <Sod>
+      <UG>
+        <2d>
+          <sparkNt>
+            setupName: Sod
+            nodeName: Comparison/Sod/UG/2d/sparkNt
+            parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/Comparison_Sod_UG_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </UG>
+    </Sod>
+    <Sedov>
+      <UG>
+        <2d>
+          <sparkNt>
+            setupName: Sedov
+            nodeName: Comparison/Sedov/UG/2d/sparkNt
+            parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_2d.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/Comparison_Sedov_UG_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </UG>
+    </Sedov>
+    <DustCollapse>
+      <AMR>
+        <1dSph>
+          <sparkNt>
+            setupName: DustCollapse
+            nodeName: Comparison/DustCollapse/AMR/1dSph/sparkNt
+            parfiles: <pathToSimulations>/DustCollapse/tests/test_1dsph.debug.par
+            shortPathToBenchmark: <siteDir>/2023-04-18_3/Comparison_DustCollapse_AMR_1dSph_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </1dSph>
+      </AMR>
+    </DustCollapse>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_1d.par
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_1dSph_Paramesh_spark/<runDir>/<chkMax>
+            </sparkNt>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_spark.par
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<chkMax>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
+    <SNIaDDT>
+      <AMR>
+        <2d>
+          <sparkNt>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Comparison/SNIaDDT/AMR/2d/sparkNt
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d.par
+            shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_SNIaDDT_AMR_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </AMR>
+    </SNIaDDT>
+  </Comparison>
+  <Composite>
+    <Sod>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <simpleUnsplit>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/simpleUnsplit
+              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+            </simpleUnsplit>
+	  </AMReX>
+        </2d>
+      </PseudoUG>
+    </Sod>
+    <IsentropicVortex>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+            <spark>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+              sfocuFlags: -e 1.e-13 -p 1.e-12 -P 1.e-13
+            </spark>
+          </AMReX>
+          <Paramesh>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+    </IsentropicVortex>
+  </Composite>
+  <UnitTest>
+    <Eos>
+      <helmholtz>
+        <3d>
+          <pm4dev>
+            setupName: unitTest/Eos/Helmholtz
+            nodeName: UnitTest/Eos/helmholtz/3d/pm4dev
+            setupOptions: -auto +pm4dev -3d +noio
+            numProcs: 1
+            parfiles: <defaultParfile>
+            transfers: object/helm_table.dat object/SpeciesList.txt
+          </pm4dev>
+        </3d>
+      </helmholtz>
+    </Eos>
+  </UnitTest>
+</gce>
