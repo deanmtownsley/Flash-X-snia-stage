@@ -395,8 +395,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
            end do!stage loop
            !Put flux buffer information into SPFS
-           if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:))
+           if (lev > 1) then
+              call Grid_putFluxData(tileDesc, &
+                                    hy_fluxBufX, &
+                                    hy_fluxBufY, &
+                                    hy_fluxBufZ, &
+                                    blkLimits(LOW,:))
+           end if
            @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                             hy_flx, hy_fly, hy_flz, &&
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
