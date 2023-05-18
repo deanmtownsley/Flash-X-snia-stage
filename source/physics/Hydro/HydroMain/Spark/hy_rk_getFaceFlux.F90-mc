@@ -134,7 +134,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_setRope_private &
      @M hy_DIR_TARGET_setRope_shared
-     @M hy_loop(limgc)
+     @M hy_permute_loop(limgc, lim)
               if (dir == IAXIS) then
                  @M hy_setRope(i,j,k)
               else if (dir == JAXIS) then
@@ -142,7 +142,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
               else if (dir == KAXIS) then
                  @M hy_setRope(j,k,i)
               endif
-     @M loop_end_3d
+     @M hy_break_loop
      call Timers_stop("setRope")
 
 
@@ -151,43 +151,42 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_parallel_loop(4) &
      @M hy_DIR_TARGET_recon_private &
      @M hy_DIR_TARGET_recon_shared
-     @M hy_loop(klim)
+     @M hy_inner_loop(klim)
           do v=1,NRECON
              @M hy_recon
           enddo
-     @M loop_end_3d
+     @M hy_break_loop
      call Timers_stop("recon")
 
      call Timers_start("setrem")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_normalize_species_private &
      @M hy_DIR_TARGET_normalize_species_shared
-     @M hy_loop(klim)
+     @M hy_inner_loop(klim)
               ! Limit and renormalize the species.
               @M hy_normalize_species( hy_uPlus )
               @M hy_normalize_species( hy_uMinus )
-     @M loop_end_3d
+     @M hy_break_loop
      call Timers_stop("setrem")
 
      call Timers_start("riemann")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_riemann_private &
      @M hy_DIR_TARGET_riemann_shared
-     @M hy_loop_plus(lim,1,0,0)
+     @M hy_inner_loop_plus(lim,1,0,0)
               VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
               VR = hy_uMinus(1:HY_NUM_VARS,i,j,k) 
               inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
               @M hy_riemann
               hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
-     @M loop_end_3d
+     @M hy_break_loop
      call Timers_stop("riemann")
 
      call Timers_start("cvisc")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_avisc_private &
      @M hy_DIR_TARGET_avisc_shared
-     @M hy_loop_plus(lim,1,0,0)
-
+     @M hy_inner_loop_plus(lim,1,0,0)
               ! Add artificial viscosity for strong-shock capturing
               cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
               
@@ -228,7 +227,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
                  hy_flux(HY_NUM_FLUX+1:NFLUXES ,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON ,i,j,k)*hy_flux(HY_MASS ,i,j,k)
               end if
 #endif
-     @M loop_end_3d
+     @M hy_break_loop
      call Timers_stop("cvisc")
 
      call Timers_start("flux")
@@ -241,31 +240,32 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
         @M hy_DIR_TARGET_saveFlux_shared(hy_flx) &
         @M hy_DIR_TARGET_map(from, [hy_flx])
-        @M hy_loop_plus(lim,1,0,0)
+        @M hy_inner_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
                  hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
               end do
-        @M loop_end_3d
+        @M hy_break_loop
      case (JAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
         @M hy_DIR_TARGET_saveFlux_shared(hy_fly) &
         @M hy_DIR_TARGET_map(from, [hy_fly])
-        @M hy_loop_plus(lim,1,0,0)
+        @M hy_inner_loop_plus(lim,1,0,0)
               do v = 1, NFLUXES
                  hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
               end do
-        @M loop_end_3d
+        @M hy_break_loop
      case (KAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
         @M hy_DIR_TARGET_saveFlux_shared(hy_flz) &
         @M hy_DIR_TARGET_map(from, [hy_flz])
-        @M hy_loop_plus(lim,1,0,0)
+        @M hy_inner_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
               hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
            end do
-        @M loop_end_3d
+        @M hy_break_loop
      end select
-     call Timers_stop("flux")        
+     call Timers_stop("flux")
+     @M hy_permute_loop_end
      !release pointers
      @M hy_OMP_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
      nullify(hy_flux)
