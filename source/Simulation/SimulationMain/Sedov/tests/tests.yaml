@@ -20,6 +20,12 @@ Composite/Sedov/PseudoUG/2d/AMReX/spark:
   restartParfiles: test_pseudoug_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Composite/Sedov/PseudoUG/2d/AMReX/sparkNt:
+  setupOptions: -auto -2d -debug +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Composite/Sedov/PseudoUG/2d/Paramesh/simpleUnsplit:
   setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
   parfiles: test_pseudoug_2d.par
@@ -89,6 +95,12 @@ Composite/Sedov/AMR/2d/AMReX/unsplit:
 
 Composite/Sedov/AMR/2d/AMReX/spark:
   setupOptions: -auto -2d -debug +amrex +spark  +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: test_amr_unsplit_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/2d/AMReX/sparkNt:
+  setupOptions: -auto -2d -debug +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
