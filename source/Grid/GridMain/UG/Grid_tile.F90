@@ -55,6 +55,7 @@ contains
     end subroutine deltas
 
     subroutine boundBox(this, box)
+        use Grid_data, ONLY : gr_delta
         use Grid_data, ONLY : gr_iCoords, gr_jCoords, gr_kCoords
         use Grid_data, ONLY : gr_ilo, gr_ihi, &
                               gr_jlo, gr_jhi, &
@@ -62,6 +63,7 @@ contains
 
         class(Grid_tile_t), intent(IN)  :: this
         real,               intent(OUT) :: box(LOW:HIGH, 1:MDIM)
+        integer         :: i
 
         box(:, :) = 0.0
    
@@ -75,16 +77,22 @@ contains
         box(LOW,  KAXIS) = gr_kCoords(LEFT_EDGE,  gr_klo, 1)
         box(HIGH, KAXIS) = gr_kCoords(RIGHT_EDGE, gr_khi, 1)
 #endif
-    end subroutine boundBox 
+        do i = 1,NDIM
+           box(LOW,i)  = box(LOW,i)  + (this%limits(LOW,i)  - this%blkLimitsGC(LOW,i)  - NGUARD) * gr_delta(i, 1)
+           box(HIGH,i) = box(HIGH,i) + (this%limits(HIGH,i) - this%blkLimitsGC(HIGH,i) + NGUARD) * gr_delta(i, 1)
+        end do
+    end subroutine boundBox
 
     subroutine physicalSize(this, tileSize) 
+        use Grid_data, ONLY:  gr_delta
         use Grid_data, ONLY : gr_iCoords, gr_jCoords, gr_kCoords
         use Grid_data, ONLY : gr_ilo, gr_ihi, &
                               gr_jlo, gr_jhi, &
                               gr_klo, gr_khi
 
         class(Grid_tile_t), intent(IN)  :: this
-        real,               intent(OUT) :: tileSize(1:MDIM) 
+        real,               intent(OUT) :: tileSize(1:MDIM)
+        integer         :: i
 
         tileSize(:) = 0.0
         tileSize(IAXIS) =   gr_iCoords(RIGHT_EDGE, gr_ihi, 1) &
@@ -97,6 +105,10 @@ contains
         tileSize(KAXIS) =   gr_kCoords(RIGHT_EDGE, gr_khi, 1) &
                           - gr_kCoords(LEFT_EDGE,  gr_klo, 1)
 #endif
+        do i = 1,NDIM
+           tileSize(i) = tileSize(i) + gr_delta(i, 1) * &
+                ( this%limits(HIGH,i) - this%limits(LOW,i) + this%blkLimitsGC(LOW,i) - this%blkLimitsGC(HIGH,i) + 2*NGUARD )
+        end do
     end subroutine physicalSize
     
     subroutine faceBCs(this, faces, onBoundary)
