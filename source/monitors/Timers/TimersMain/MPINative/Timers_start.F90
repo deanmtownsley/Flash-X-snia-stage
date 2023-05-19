@@ -55,7 +55,7 @@
 
 subroutine Timers_startString(name)
 use Timers_interface, ONLY : Timers_startIndex
-!$ use omp_lib
+!$ use omp_lib,       ONLY: omp_get_num_threads
 use Timers_data,      ONLY : tmr_suppressInParallel
 
   implicit none

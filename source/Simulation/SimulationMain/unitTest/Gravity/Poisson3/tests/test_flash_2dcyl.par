@@ -1,6 +1,6 @@
 # Runtime parameters for the Maclaurin spheroid problem.
-#./setup unitTest/Gravity/Poisson3 -2d +cylindrical -auto +newMpole -parfile=flash_2dcyl.par
-#./setup unitTest/Gravity/Poisson3 -2d +cylindrical -auto -maxblocks=600 -debug +noio +pm4dev +newMpole -parfile=flash_2dcyl.par
+#./setup unitTest/Gravity/Poisson3 -2d +cylindrical -auto +newMpole -parfile=tests/test_flash_2dcyl.par
+#./setup unitTest/Gravity/Poisson3 -2d +cylindrical -auto -maxblocks=600 -debug +noio +pm4dev +newMpole -parfile=tests/test_flash_2dcyl.par
 
 # --------------------------------------------------------------------------
 # error tolerance for testing

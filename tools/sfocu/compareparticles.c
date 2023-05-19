@@ -40,6 +40,7 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
   bool found = false;
   int nPVars = 0;
   double error = 0.0;
+  double onePropDiff;
 
   double propValueA, propValueB, posxValueA, posxValueB, posyValueA, posyValueB, poszValueA, poszValueB;
 
@@ -59,8 +60,8 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
   procIndexA = find_particle_prop_index(pAllA, "proc");
 
   /* opts->pComp is zero when -D options isn't specified
-   cpuIndex > 0 when particles have a cpu tag. */
-  if (cpuIndexA > 0 && opts->pComp == 0) {
+   cpuIndex > -1 when particles have a cpu tag. */
+  if ((cpuIndexA > -1 || cpuIndexB > -1) && opts->pComp == 0) {
     if (opts->verbose)
       printf("Searching particles by comparing pos/vel {x,y,z}\n");
     posxIndexA = find_particle_prop_index(pAllA, "posx");
@@ -145,14 +146,47 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
           break;
         }
       }
-    } else if (cpuIndexA > 0 && cpuIndexB > 0) { /* we have cpu property, particles equality is different here */
+    } else if (cpuIndexA > -1 || cpuIndexB > -1) { /* we have cpu property, particles equality is different here */
+      found = false;
+      for (j = 0; j < nPVars; j++) {
+	pPropValueA[j] = pAllA->realProps[(partIndexA * pAllA->numRealProps) + propIndexA[j]];
+	pPropValueB[j] = pAllB->realProps[(partIndexA * pAllB->numRealProps) + propIndexB[j]];
+
+	if (pPropValueA[j] == pPropValueB[j]) { /* exact match */
+	  found = true;
+	} else if (opts->pmatch_tol > 0.0) { /* try tolerance */
+	  onePropDiff = fabs(pPropValueA[j] - pPropValueB[j]);
+	  if (onePropDiff <= opts->pmatch_tol)
+	    found = true;
+	  else {
+	    found = false;
+	    break;
+	  }
+	} else {
+	  found = false;
+	  break;
+	}
+      }
+      if (found) {
+        pAtoB[partIndexA] = partIndexA;
+	continue;
+      }
+      failed = 1;
       for (partIndexB = 0; partIndexB < B->totalparticles; partIndexB++) {
         for (j = 0; j < nPVars; j++) {
           pPropValueA[j] = pAllA->realProps[(partIndexA * pAllA->numRealProps) + propIndexA[j]];
           pPropValueB[j] = pAllB->realProps[(partIndexB * pAllB->numRealProps) + propIndexB[j]];
 
-          if (pPropValueA[j] == pPropValueB[j]) {
+          if (pPropValueA[j] == pPropValueB[j]) { /* exact match */
             found = true;
+	  } else if (opts->pmatch_tol > 0.0) { /* try tolerance */
+	    onePropDiff = fabs(pPropValueA[j] - pPropValueB[j]);
+	    if (onePropDiff <= opts->pmatch_tol)
+	      found = true;
+	    else {
+	      found = false;
+	      break;
+	    }
           } else {
             found = false;
             break;
@@ -196,15 +230,16 @@ void compareparticles(options_t *opts, FR_File *A, FR_File *B, FR_ParticlesAllPr
   for (i = 0; i < particlesGotten; i++) {
     if (pAtoB[i] != NO_BLOCK) {
       for (iprop = 0; iprop < particleReport->numRealPartProps; iprop++) {
+	int ipropA = particleReport->ipropA[iprop];
         /*AMReX case or case with cpu id */
-        if (cpuIndexA > 0) {
+        if (cpuIndexA > -1 || cpuIndexA > -1) {
           /* don't check for tag or cpu index */
-          if (iprop == tagIndexA || iprop == cpuIndexA) {
+          if (ipropA == tagIndexA || ipropA == cpuIndexA) {
             continue;
           }
         }
-        if (iprop != blkIndexA && iprop != procIndexA) {
-          propValueA = pAllA->realProps[i * A->numRealPartProps + particleReport->ipropA[iprop]];
+        if (ipropA != blkIndexA && ipropA != procIndexA) {
+          propValueA = pAllA->realProps[i * A->numRealPartProps + ipropA];
           propValueB = pAllB->realProps[pAtoB[i] * B->numRealPartProps + particleReport->ipropB[iprop]];
 
           if (particleReport->particlesCompared == 0) {

@@ -44,5 +44,9 @@
 
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
+#ifdef HY_RK3
+#define MAXSTAGE 3
+#else     /* default is RK2 */
 #define MAXSTAGE 2
+#endif
   
