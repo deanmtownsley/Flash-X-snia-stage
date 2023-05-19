@@ -97,3 +97,11 @@ MASS_SCALAR SUMY EOSMAPIN: SUMY
 #SPECIES    NI56  # Properties A=56. Z=28. Eb=484.00300
 #SPECIES    NEUT  # Properties A=1.  Z=0.  Eb=0.
 #SPECIES    PROT  # Properties A=1.  Z=1.  Eb=0.
+
+# Use more Timers-friendly variant if Hydro, if appropriate
+USESETUPVARS NoLevelwideFluxes
+IF NoLevelwideFluxes
+   LINKIF Hydro.F90.timersFix physics/Hydro/HydroMain/unsplit
+ELSE
+   LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
+ENDIF
