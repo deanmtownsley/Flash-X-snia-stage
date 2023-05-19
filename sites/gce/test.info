@@ -86,9 +86,39 @@
               checkpointBasename: flashx_hdf5_chk_
             </simpleUnsplit>
 	  </AMReX>
+          <Paramesh>
+            <sparkNtMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_Paramesh_sparkMT/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_Paramesh_sparkMT/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtMT>
+          </Paramesh>
         </2d>
       </PseudoUG>
     </Sod>
+    <Sedov>
+      <PseudoUG>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark.par
+              restartParfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </PseudoUG>
+    </Sedov>
     <IsentropicVortex>
       <PseudoUG>
         <2d>

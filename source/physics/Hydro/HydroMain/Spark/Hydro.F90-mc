@@ -35,7 +35,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
-       Grid_correctFluxData_xtra, Grid_putFluxData, &
+       Grid_correctFluxData_xtra, Grid_putFluxData, Grid_putFluxData_block, &
        Grid_getFluxCorrData_block,Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
