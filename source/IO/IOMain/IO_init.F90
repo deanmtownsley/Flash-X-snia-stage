@@ -263,13 +263,13 @@ subroutine IO_init()
   io_nPlotVars = j
 
 
-  if(NFACE_VARS .GT. 0) then
-    do i= 1, NFACE_VARS
-      WRITE(io_faceXVarLabels(i),'(''fcx'',I1)') i
-      WRITE(io_faceYVarLabels(i),'(''fcy'',I1)') i
-      WRITE(io_faceZVarLabels(i),'(''fcz'',I1)') i
-    end do
-  endif
+#if NFACE_VARS > 0
+  do i= 1, NFACE_VARS
+    WRITE(io_faceXVarLabels(i),'(''fcx'',I1)') i
+    WRITE(io_faceYVarLabels(i),'(''fcy'',I1)') i
+    WRITE(io_faceZVarLabels(i),'(''fcz'',I1)') i
+  end do
+#endif
 
 
   ! get all the IO scratch plot grid vars.  These are the scratch grid vars to
