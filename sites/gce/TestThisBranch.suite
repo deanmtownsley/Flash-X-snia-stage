@@ -12,10 +12,10 @@ Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkPIO" -np 4 -cbase 2023-01-18 -rbase
 Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkMT" -np 4 \
 	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
 Sod -t "Comparison/Sod/UG/2d/sparkNt" -np 4 -cbase 2023-01-18
-#ANt# Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
-#ANt# Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT" -np 4 \
-#ANt# 	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
-#ANt# Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT" -np 4 \
 	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
 
@@ -29,13 +29,13 @@ Sedov -t "Composite/Sedov/AMR/2d/AMReX/spark" -np 4 -cbase 2023-04-12 -rbase 202
 Sedov -t "Comparison/Sedov/UG/2d/sparkNt" -np 4 -cbase 2023-01-18
 #ANt# Sedov -t "Composite/Sedov/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
 Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt" -np 8 -cbase 2023-01-18 -rbase 2023-01-19
-#ANt# Sedov -t "Composite/Sedov/AMR/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+Sedov -t "Composite/Sedov/AMR/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
 #------------------------------------------------
 # Tests for - DustCollapse
 #------------------------------------------------
 DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-04-18_3
-#ANt# DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/sparkNt" -np 2 -cbase 2023-04-18_3
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/sparkNt" -np 2 -cbase 2023-04-18_3
 
 #------------------------------------------------
 # Tests for - IsentropicVortex
@@ -46,12 +46,12 @@ IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark" -np 4 -
 #------------------------------------------------
 # Tests for - YahilLattimerCollapse
 #------------------------------------------------
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
 YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-11_5
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
 YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
@@ -60,7 +60,7 @@ YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -n
 #------------------------------------------------
 SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
 	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
-SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/sparkNt" -np 8 -as " -test" \
+SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/sparkNt" -np 8 -as="-test" \
 	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
 
 

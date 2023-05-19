@@ -157,6 +157,36 @@
         </2d>
       </PseudoUG>
     </IsentropicVortex>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/1dSph/Paramesh/sparkNt
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_1dSph_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-12/Composite_Yahil_AMR_1dSph_Paramesh_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-12/Composite_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
   </Composite>
   <UnitTest>
     <Eos>
