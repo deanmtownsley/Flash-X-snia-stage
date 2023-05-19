@@ -28,7 +28,7 @@ USESETUPVARS nontelescoping
 USESETUPVARS Grid
 IF Grid in ["","Amrex","Milhoja"]
   PPDEFINE CONFLICT_AMREX_AND_SPARKNT
-#ENDIF
+ENDIF
 
 IF useTVD or useLim03 or useFog
   GUARDCELLS 2
