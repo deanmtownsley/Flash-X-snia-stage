@@ -65,7 +65,7 @@ subroutine Simulation_finalize()
   real :: MaxError_local(THORNADO_NMOMENTS,THORNADO_NSPECIES)
   real :: MaxError(THORNADO_NMOMENTS,THORNADO_NSPECIES)
 
-  integer, dimension(1:MDIM) :: lo, hi, u_lo, u_hi
+  integer, dimension(1:MDIM) :: lo, hi, u_lo, u_hi, loGC, hiGC
 
   integer, parameter :: my_ngrow = 0
   integer :: nX(3), swX(3), iS, iPR, ierr
@@ -95,6 +95,8 @@ subroutine Simulation_finalize()
 
      lo = tileDesc%limits(LOW,1:MDIM)
      hi = tileDesc%limits(HIGH,1:MDIM)
+     loGC = tileDesc % blkLimitsGC(LOW ,1:MDIM)
+     hiGC = tileDesc % blkLimitsGC(HIGH,1:MDIM)
      nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
      swX(1:NDIM) = my_ngrow
      u_lo = 1 - swX
@@ -110,7 +112,7 @@ subroutine Simulation_finalize()
 
      call InitThornado_Patch(nX, swX, xL, xR, THORNADO_NSPECIES, 'cartesian')
 
-     call rt_tm_reconstruction(solnData, nX, lo, hi, u_lo, u_hi)
+     call rt_tm_reconstruction(solnData, nX, lo, hi, loGC, hiGC, u_lo, u_hi, tileDesc % level )
 
 #if   defined(THORNADO_OACC)
      !$ACC UPDATE HOST( uGF, uCF, uCR )
