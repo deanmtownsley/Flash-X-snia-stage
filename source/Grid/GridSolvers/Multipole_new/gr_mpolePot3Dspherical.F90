@@ -143,7 +143,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
   nullify(solnData)
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
 
-  !$omp do schedule (static)
+  !!$omp do schedule (static)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
      tileLimits=tileDesc%limits
@@ -647,7 +647,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
      call itor%next()
 
   end do
-  !$omp end do
+  !!$omp end do
   call Grid_releaseTileIterator(itor)
 
 !
