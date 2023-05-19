@@ -647,8 +647,8 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
      call itor%next()
 
   end do
-  call Grid_releaseTileIterator(itor)
   !$omp end do
+  call Grid_releaseTileIterator(itor)
 
 !
 !
