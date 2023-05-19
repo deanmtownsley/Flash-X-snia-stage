@@ -60,7 +60,7 @@ YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -n
 #------------------------------------------------
 SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
 	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
-SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/sparkNt" -np 8 -as "-test" \
+SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/sparkNt" -np 8 -as " -test" \
 	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
 
 
