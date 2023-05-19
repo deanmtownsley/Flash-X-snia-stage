@@ -20,8 +20,15 @@ USESETUPVARS useFog
 USESETUPVARS useLim03
 USESETUPVARS nontelescoping
 
-# The Amrex Grid does not support SCRATCH_CTR variables in the way needed here:
-CONFLICTS Grid/GridMain/AMR/Amrex
+# The Amrex Grid does not support SCRATCH_CTR variables in the way needed here.
+# However, instead of generating failure ar sewtup time by using something like
+#   CONFLICTS Grid/GridMain/AMR/Amrex
+# here, let is just define a preprocessor symbol here that allows to deal with
+# the situation at run time.
+USESETUPVARS Grid
+IF Grid in ["","Amrex","Milhoja"]
+  PPDEFINE CONFLICT_AMREX_AND_SPARKNT
+#ENDIF
 
 IF useTVD or useLim03 or useFog
   GUARDCELLS 2

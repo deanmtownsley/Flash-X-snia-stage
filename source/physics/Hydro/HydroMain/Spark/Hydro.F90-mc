@@ -81,6 +81,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   if (.NOT. hy_useHydro) return
 
+  ! Check for some incompatible configuration options
+  @M hy_check_config
+
   call Timers_start("Hydro")
 
   call check_if_on_GPU()
