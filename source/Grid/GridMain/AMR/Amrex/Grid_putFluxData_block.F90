@@ -78,6 +78,7 @@
 
 subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
   use Driver_interface, ONLY : Driver_abort
+  use Logfile_interface, ONLY : Logfile_stampMessage
   use Grid_interface, ONLY : Grid_getCellFaceAreas
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_data,      ONLY : gr_geometry
@@ -112,6 +113,13 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   wt=0.0
   if (present(add)) then
      if(add)wt=1.0
+  end if
+
+  if (wt .NE. 0.0) then
+     call Logfile_stampMessage("You probably should not try to use nontelescoping Spark with AMReX.")
+     print*,'Grid_putFluxData_block: LO,ADD,present(isFluxDensity):', lo, add, present(isFluxDensity)
+     if (present(isFluxDensity)) print*,'Grid_putFluxData_block: isFluxDensity:', isFluxDensity
+     call Driver_abort("Grid_putFluxData_block: adding is not supported with Amrex Grid!")
   end if
 
   if (present(isFluxDensity)) then
