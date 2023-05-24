@@ -115,7 +115,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   !  Begin loop over zones
 
   do dir = 1, NDIM
-     call Timers_start("prepare_scratch")
+     ! call Timers_start("prepare_scratch")
      @M hy_OMP_TARGET_update_to([lim, limgc, klim, dir, stage])
 
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
@@ -128,9 +128,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
 
      @M hy_OMP_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus])
-     call Timers_stop("prepare_scratch")
+     ! call Timers_stop("prepare_scratch")
 
-     call Timers_start("setRope")
+     ! call Timers_start("setRope")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_setRope_private &
      @M hy_DIR_TARGET_setRope_shared
@@ -143,11 +143,11 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
            @M hy_setRope(j,k,i)
         endif
      @M hy_break_loop
-     call Timers_stop("setRope")
+     ! call Timers_stop("setRope")
 
 
 
-     call Timers_start("recon")
+     ! call Timers_start("recon")
      @M hy_DIR_TARGET_parallel_loop(4) &
      @M hy_DIR_TARGET_recon_private &
      @M hy_DIR_TARGET_recon_shared
@@ -156,9 +156,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
            @M hy_recon
         enddo
      @M hy_break_loop
-     call Timers_stop("recon")
+     ! call Timers_stop("recon")
 
-     call Timers_start("setrem")
+     ! call Timers_start("setrem")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_normalize_species_private &
      @M hy_DIR_TARGET_normalize_species_shared
@@ -167,9 +167,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         @M hy_normalize_species( hy_uPlus )
         @M hy_normalize_species( hy_uMinus )
      @M hy_break_loop
-     call Timers_stop("setrem")
+     ! call Timers_stop("setrem")
 
-     call Timers_start("riemann")
+     ! call Timers_start("riemann")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_riemann_private &
      @M hy_DIR_TARGET_riemann_shared
@@ -180,9 +180,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
         @M hy_riemann
         hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
      @M hy_break_loop
-     call Timers_stop("riemann")
+     ! call Timers_stop("riemann")
 
-     call Timers_start("cvisc")
+     ! call Timers_start("cvisc")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_avisc_private &
      @M hy_DIR_TARGET_avisc_shared
@@ -228,9 +228,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
          end if
 #endif
      @M hy_break_loop
-     call Timers_stop("cvisc")
+     ! call Timers_stop("cvisc")
 
-     call Timers_start("flux")
+     ! call Timers_start("flux")
      ! ***************
      ! Fluxes computed for one face of this zone
      ! Save the fluxes
@@ -264,7 +264,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
            end do
         @M hy_break_loop
      end select
-     call Timers_stop("flux")
+     ! call Timers_stop("flux")
      @M hy_permute_loop_end
      !release pointers
      @M hy_OMP_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
