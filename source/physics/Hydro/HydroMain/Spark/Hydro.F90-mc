@@ -25,7 +25,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_scratch_use
   use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping,hy_maxLev,&
-                         hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray
+                         hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray,&
+                         hy_threadWithinBlock
 
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
@@ -466,23 +467,18 @@ contains
 
 
     !! Compute sound speed
-#ifdef OMP_OL
-    !$omp target teams distribute parallel do simd collapse(3)
-#else
-    !$omp parallel do simd collapse(3)
-#endif
+    @M hy_DIR_parallel_loop_simd(3) &
+    @M hy_DIR_private([hy_tiny]) &
+    @M hy_DIR_shared([blkLimitsGC, Uin, hy_Vc])
     @M loop_3d(blkLimitsGC)
     Uin(SHOK_VAR,i,j,k) = 0.
     hy_Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
          /max(Uin(DENS_VAR,i,j,k),hy_tiny))
     @M loop_end_3d
 
-#ifdef OMP_OL
-    !$omp target teams distribute parallel do simd collapse(3) &
-#else
-    !$omp parallel do simd collapse(3) &
-#endif
-    !$omp private(SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz)
+    @M hy_DIR_parallel_loop_simd(3) &
+    @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz]) &
+    @M hy_DIR_shared([limits, Uin, hy_Vc, beta, delta])
     @M loop_3d(limits)
     ! initialize switch values
     SW1 = .false.
