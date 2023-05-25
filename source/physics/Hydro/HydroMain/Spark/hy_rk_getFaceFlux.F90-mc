@@ -114,8 +114,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   !  Begin loop over zones
   @M hy_DIR_HOST_parallel_if_threaded &
-  @M hy_DIR_HOST_shared &
-  @M hy_DIR_HOST_private
+  @M hy_DIR_HOST_getFaceFlux_shared &
+  @M hy_DIR_HOST_getFaceFlux_private
   do dir = 1, NDIM
      ! call Timers_start("prepare_scratch")
      @M hy_OMP_TARGET_update_to([lim, limgc, klim, dir, stage])
