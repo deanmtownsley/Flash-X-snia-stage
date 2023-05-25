@@ -113,7 +113,9 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
 
   !  Begin loop over zones
-
+  @M hy_DIR_HOST_parallel_if_threaded &
+  @M hy_DIR_HOST_shared &
+  @M hy_DIR_HOST_private
   do dir = 1, NDIM
      ! call Timers_start("prepare_scratch")
      @M hy_OMP_TARGET_update_to([lim, limgc, klim, dir, stage])
@@ -131,6 +133,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      ! call Timers_stop("prepare_scratch")
 
      ! call Timers_start("setRope")
+     @M hy_DIR_HOST_do_collapse(2)
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_setRope_private &
      @M hy_DIR_TARGET_setRope_shared
@@ -266,6 +269,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      end select
      ! call Timers_stop("flux")
      @M hy_permute_loop_end
+     @M hy_DIR_HOST_end_do
      !release pointers
      @M hy_OMP_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
      nullify(hy_flux)
@@ -278,6 +282,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      
      
   end do ! dir
+  @M hy_DIR_HOST_end_parallel
 
   @M hy_OMP_TARGET_exit_data(release, [lim, klim, limgc, stage, dir])
   nullify(hy_grav)
