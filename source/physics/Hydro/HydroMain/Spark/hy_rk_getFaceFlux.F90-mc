@@ -85,14 +85,14 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   offload = .true.
 #endif
 
-  @M hy_OMP_TARGET_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
+  @M hy_DIR_TARGET_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
 
   hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
   @M hy_map_fl
   
-  @M hy_OMP_TARGET_enter_data(alloc, [lim, klim, limgc, stage, dir])
+  @M hy_DIR_TARGET_enter_data(alloc, [lim, klim, limgc, stage, dir])
   if (hy_flattening) then
      ! AH: TODO: OpenMP for flattening
      call flattening(limits)
@@ -118,7 +118,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   @M hy_DIR_HOST_getFaceFlux_private
   do dir = 1, NDIM
      ! call Timers_start("prepare_scratch")
-     @M hy_OMP_TARGET_update_to([lim, limgc, klim, dir, stage])
+     @M hy_DIR_TARGET_update_to([lim, limgc, klim, dir, stage])
 
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
      hy_flat(@M hy_bounds(limgc))=>hya_flat
@@ -129,7 +129,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_uPlus(1:NRECON,@M hy_bounds(limgc)) => hya_uPlus
      hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
 
-     @M hy_OMP_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus])
+     @M hy_DIR_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus])
      ! call Timers_stop("prepare_scratch")
 
      ! call Timers_start("setRope")
@@ -271,7 +271,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_permute_loop_end
      @M hy_DIR_HOST_end_do
      !release pointers
-     @M hy_OMP_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
+     @M hy_DIR_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
      nullify(hy_flux)
      nullify(hy_rope)
      nullify(hy_uPlus)
@@ -284,7 +284,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   end do ! dir
   @M hy_DIR_HOST_end_parallel
 
-  @M hy_OMP_TARGET_exit_data(release, [lim, klim, limgc, stage, dir])
+  @M hy_DIR_TARGET_exit_data(release, [lim, klim, limgc, stage, dir])
   nullify(hy_grav)
   nullify(hy_flat3d)
   @M hy_nullFl

@@ -91,7 +91,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   hdt = 0.5*dt
 
-  @M hy_OMP_TARGET_enter_data(alloc, [grownLimits, blkLimits, blkLimitsGC, limits])
+  @M hy_DIR_TARGET_enter_data(alloc, [grownLimits, blkLimits, blkLimitsGC, limits])
 
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM
@@ -116,21 +116,21 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
-           @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                        hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
         endif
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
                                      hy_flx, hy_fly, hy_flz, &&
                                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
         ng=NGUARD-1
         @M hy_setLims(ng)
 
-        @M hy_OMP_TARGET_enter_data(to, [Uin])
-        @M hy_OMP_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
+        @M hy_DIR_TARGET_enter_data(to, [Uin])
+        @M hy_DIR_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
 
         ! DivB will technically be lagged by 1 step, but we need ghost zones to
         ! compute the gradients. I ain't doing more communication for a diagnostic...
@@ -171,11 +171,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !current stage for telescoping upda
            ng=hy_limitsArray(stage)
            @M hy_setLims(ng)
-           @M hy_OMP_TARGET_update_to([limits])
+           @M hy_DIR_TARGET_update_to([limits])
 
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(hy_starState, blklimits, blkLimitsGC, limits)
-           @M hy_OMP_TARGET_update_from([hy_flx, hy_fly, hy_flz])
+           @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
 
@@ -185,11 +185,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            !Set proper coefficients for the given stage
            hy_coeffs = hy_coeffArray(stage,:)
-           @M hy_OMP_TARGET_update_to([hy_coeffs])
+           @M hy_DIR_TARGET_update_to([hy_coeffs])
 
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState, hy_tmpState, blkLimits, blklimitsGC, hy_del, dt, dtOld, limits, hy_coeffs)
-           @M hy_OMP_TARGET_update_from([hy_starState])
+           @M hy_DIR_TARGET_update_from([hy_starState])
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
               wt=0.0
@@ -206,7 +206,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
            call Eos_wrapped(MODE_DENS_EI, limits, hy_starState)
-           @M hy_OMP_TARGET_update_to([hy_starState])
+           @M hy_DIR_TARGET_update_to([hy_starState])
            call Timers_stop("eos")
            !Finally update the state
            if (stage == last_stage) then !! this is only needed for telescoping version
@@ -215,7 +215,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
-           @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                             hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
            @M hy_release_geom
         end if
@@ -228,13 +228,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                  blkLimits(LOW,:))
         end if
         call Timers_stop("Offloaded Section")
-        @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
+        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                          hy_flx, hy_fly, hy_flz, &&
                                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
 
-        @M hy_OMP_TARGET_exit_data(release, [Uin])
+        @M hy_DIR_TARGET_exit_data(release, [Uin])
      @M iter_end
      @M hy_end_stages_nt
      if (hy_fluxCorrect) then
@@ -281,7 +281,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         nullify(Uin)
         @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,hy_del)
-        @M hy_OMP_TARGET_enter_data(to, [Uin])
+        @M hy_DIR_TARGET_enter_data(to, [Uin])
 
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
@@ -289,12 +289,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            ng=NGUARD-1
            @M hy_setLims(ng)
-           @M hy_OMP_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
+           @M hy_DIR_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            @M hy_map_tmp_states
            @M hy_map_scr_ptrs
-           @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
                                            hy_flx, hy_fly, hy_flz, &&
                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
@@ -325,13 +325,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               !current stage for telescoping update
               ng=hy_limitsArray(stage)
               @M hy_setLims(ng)
-              @M hy_OMP_TARGET_update_to([limits])
+              @M hy_DIR_TARGET_update_to([limits])
 
               ! Perform reconstruction and flux calculation
               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
               call Timers_start("getFaceFlux")
               call hy_rk_getFaceFlux (hy_starState, blklimits,blkLimitsGC, limits)
-              @M hy_OMP_TARGET_update_from([hy_flx, hy_fly, hy_flz])
+              @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
               call Timers_stop("getFaceFlux")
 
               !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
@@ -346,7 +346,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
                          blkLimits(LOW,:),-1/hy_weights(stage),&
                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
-                    @M hy_OMP_TARGET_update_to([hy_flx, hy_fly, hy_flz])
+                    @M hy_DIR_TARGET_update_to([hy_flx, hy_fly, hy_flz])
                  endif
               endif
 
@@ -358,18 +358,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
               hy_coeffs = hy_coeffArray(stage,:)
-              @M hy_OMP_TARGET_update_to([hy_coeffs])
+              @M hy_DIR_TARGET_update_to([hy_coeffs])
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
-                 @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                 @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
               call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
-              @M hy_OMP_TARGET_update_from([hy_starState])
+              @M hy_DIR_TARGET_update_from([hy_starState])
               if (hy_geometry /= CARTESIAN) then
-                 @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                 @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
                                                   hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
                  @M hy_release_geom
               end if
@@ -385,7 +385,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
               call Timers_start("eos")
               call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
-              @M hy_OMP_TARGET_update_to([hy_starState])
+              @M hy_DIR_TARGET_update_to([hy_starState])
               call Timers_stop("eos")
 
               if (stage == last_stage) then
@@ -403,11 +403,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                     hy_fluxBufZ, &
                                     blkLimits(LOW,:))
            end if
-           @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
+           @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                             hy_flx, hy_fly, hy_flz, &&
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            @M hy_release_scr_ptrs
-           @M hy_OMP_TARGET_exit_data(release, [Uin])
+           @M hy_DIR_TARGET_exit_data(release, [Uin])
            @M iter_end
         enddo!loop over levels
      endif !Flux correct per Level
@@ -416,7 +416,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
 
-  @M hy_OMP_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits])
+  @M hy_DIR_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits])
 
   call Timers_stop("Hydro")
 
