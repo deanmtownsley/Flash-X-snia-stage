@@ -44,6 +44,11 @@ Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt:
+  setupOptions: -auto -2d +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping -unit=Particles Bittree=True
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 #  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par

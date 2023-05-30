@@ -37,6 +37,12 @@ Composite/Sedov/PseudoUG/2d/Paramesh/unsplit:
   parfiles: test_pseudoug_2d.par
   restartParfiles: test_pseudoug_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/PseudoUG/2d/Paramesh/sparkNt:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 ## end 2D PseudoUG
 
 # 2DCyl PseudoUG
