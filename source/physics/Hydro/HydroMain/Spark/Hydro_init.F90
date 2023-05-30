@@ -97,6 +97,8 @@ subroutine Hydro_init()
   call RuntimeParameters_get("smallx",              hy_smallX)
   call RuntimeParameters_get("smallu",              hy_smallu)
 
+  call RuntimeParameters_get("hy_zeroTol",          hy_zeroTol)
+
   call RuntimeParameters_get("updateHydroFluxes",   hy_updateHydrofluxes)
   call RuntimeParameters_get("use_hybridRiemann",   hy_hybridRiemann)
   call RuntimeParameters_get("use_flattening",      hy_flattening)

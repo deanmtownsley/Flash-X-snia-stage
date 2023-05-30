@@ -44,7 +44,7 @@
 
 subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
-       hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
+       hy_smallE, hy_smallpres, hy_smallX, hy_zeroTol, hy_cvisc, hy_flattening
       
   use Hydro_data, ONLY : hya_grav, hya_flx, hya_fly, hya_flz, hya_flat3d 
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &

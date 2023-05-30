@@ -62,6 +62,7 @@ module Hydro_data
 
   real :: hy_tiny=1.e-32
   real :: hy_gravConst, hy_4piGinv
+  real :: hy_zeroTol
 
   logical :: hy_hybridRiemann, hy_flattening
 
