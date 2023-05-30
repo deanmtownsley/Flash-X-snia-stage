@@ -144,7 +144,7 @@ Module Grid_interface
   end interface
 
   interface
-     subroutine Grid_communicateFluxes(axis, coarse_level)
+     recursive subroutine Grid_communicateFluxes(axis, coarse_level)
        implicit none
        integer, intent(IN)                   :: axis
        integer, intent(IN)                   :: coarse_level
