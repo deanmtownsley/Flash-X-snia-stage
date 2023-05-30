@@ -25,7 +25,7 @@
 !!  The communication happens entirely within SPFS, and does not
 !!  involve any data structures that should be directly visible to
 !!  client code. Instead, client code uses subroutines like
-!!  Grid_putFluxData_fluxbuf to transfer flux data to SPFS before a
+!!  Grid_putFluxData_block to transfer flux data to SPFS before a
 !!  communication phase, and Grid_correctFluxData to get data back
 !!  from SPFS after the communication.
 !!
@@ -70,12 +70,12 @@
 !! SEE ALSO
 !!
 !!  Grid_putFluxData
-!!  Grid_putFluxData_fluxbuf
+!!  Grid_putFluxData_block
 !!  Grid_correctFluxData
 !!
 !!***
 
-subroutine Grid_communicateFluxes(axis, coarse_level)
+recursive subroutine Grid_communicateFluxes(axis, coarse_level)
 
     implicit none
 
