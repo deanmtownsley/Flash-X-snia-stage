@@ -94,9 +94,9 @@
               setupName: Sod
               nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT
               comparisonNumber: 0001
-              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/test_pseudoug_2d/<checkpointBasename><comparisonNumber>
               restartNumber: 0002
-              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/test_pseudoug_2d/<checkpointBasename><restartNumber>
             </sparkNtMT>
             <sparkNtPIO>
               setupName: Sod
