@@ -43,7 +43,7 @@ D hy_zeroTol        Tolerance for floating-point imprecision when comparing agai
 # Runtime Parameters
 PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
 PARAMETER use_hybridRiemann		 BOOLEAN FALSE
-PARAMETER hy_zeroTol           REAL    1.e-32
+PARAMETER hy_zeroTol           REAL    0.0
 
 # GLM-MHD damping factor
 PARAMETER alpha_glm			REAL 0.9
