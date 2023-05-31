@@ -30,6 +30,7 @@ module RadTrans_data
   implicit none
   
   integer, save :: rt_meshMe ! Process rank
+  integer, save :: rt_meshNumProcs
   logical, save :: rt_useRadTrans
   logical, save :: rt_enableTiling
 

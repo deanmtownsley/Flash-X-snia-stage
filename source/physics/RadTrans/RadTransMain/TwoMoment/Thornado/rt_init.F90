@@ -35,7 +35,7 @@ subroutine rt_init()
   use rt_data
   use Grid_data, ONLY : gr_minRefine, gr_lrefineMax
   use MoL_interface, ONLY : MoL_registerVariable
-  use RadTrans_data, ONLY : rt_gcMask, rt_meshMe, rt_str_geometry
+  use RadTrans_data, ONLY : rt_gcMask, rt_meshMe, rt_meshNumProcs, rt_str_geometry
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Simulation_interface, ONLY : Simulation_mapIntToStr
   use ThornadoInitializationModule, ONLY : InitThornado
@@ -101,6 +101,8 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_Include_LinCorr", rt_Include_LinCorr)
 
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
+
+  rt_offGridFluxR = 0.0
 
   ! interpolation of DG variables only works for "native" interpolation mode
 #if defined(FLASH_GRID_PARAMESH)

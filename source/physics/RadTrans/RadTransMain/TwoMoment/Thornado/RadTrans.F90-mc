@@ -55,7 +55,8 @@ subroutine RadTrans( dt, pass )
   use RadiationFieldsModule, ONLY : uCR, nCR, uPR, uAR, uGR
   use RadTrans_data, ONLY : rt_useRadTrans, rt_enableTiling, &
      rt_eosModeGc, rt_gcMask, rt_str_geometry, rt_geometry
-  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_ivar
+  use rt_data, ONLY : rt_doExplicit, rt_doImplicit, rt_ivar, &
+     rt_offGridFluxR
   use rt_tm_interface, ONLY : rt_tm_reconstruction, rt_tm_projection
   use ThornadoInitializationModule, ONLY : &
         InitThornado_Patch, FreeThornado_Patch
@@ -97,6 +98,7 @@ subroutine RadTrans( dt, pass )
   integer :: nX(3), swX(3), iZ_SW_P(4)
   integer :: bcX(3), iApplyBC(3)
   real :: xL(3), xR(3)
+  real :: local_offGridFluxR(2*THORNADO_NMOMENTS)
 
   integer :: faces(LOW:HIGH, 1:MDIM)
   integer :: ivar, i
@@ -130,6 +132,8 @@ subroutine RadTrans( dt, pass )
            mask=rt_gcMask, makeMaskConsistent=.true. )
   
   call Timers_stop( "rt_gc" )
+
+  local_offGridFluxR = 0.0
 
   call Grid_getTileIterator( itor, LEAF, tiling=rt_enableTiling )
   
@@ -268,7 +272,8 @@ subroutine RadTrans( dt, pass )
              Implicit_Option = rt_doImplicit, &
              SingleStage_Option = .false., &
              bcX_Option = bcX, &
-             iApplyBC_Option = iApplyBC )
+             iApplyBC_Option = iApplyBC, &
+             OffGridFluxR_Option = local_offGridFluxR )
     !call Update_IMEX_PDARS &
     !       ( dt * Second, uCF, uCR, T0_R, T1_R, &
     !         Explicit_Option = rt_doExplicit, &
@@ -302,6 +307,8 @@ subroutine RadTrans( dt, pass )
     call ComputeFromConserved_TwoMoment &
            ( iZ_B0, iZ_E0, iZ_B1, iZ_E1, uGF, uCF, uCR, uPR, uAR, uGR )
 #endif
+
+    rt_offGridFluxR = rt_offGridFluxR + local_offGridFluxR
     
     call Timers_stop( "rt_imex" )
 

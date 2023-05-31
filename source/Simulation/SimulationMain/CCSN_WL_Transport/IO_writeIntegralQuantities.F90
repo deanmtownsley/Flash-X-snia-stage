@@ -46,6 +46,8 @@
 
 !!REORDER(4):solnData
 
+#include "Simulation.h"
+
 subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
   use IO_data, ONLY : io_restart, io_statsFileName, io_globalComm
@@ -58,11 +60,14 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   use Grid_tile,     ONLY : Grid_tile_t
   use Simulation_data, ONLY : sim_maxDens
 
+#if defined(THORNADO)
+  use rt_data, ONLY : rt_offGridFluxR
+#endif
+
   implicit none
 
 #include "Flashx_mpi.h"
 #include "constants.h"
-#include "Simulation.h"
   
   
   real, intent(in) :: simTime
@@ -78,10 +83,15 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t)     :: tileDesc
 
-#ifdef MAGP_VAR
-  integer, parameter ::  nGlobalSumProp = 8              ! Number of globally-summed regular quantities
+#if defined(THORNADO)
+  integer, parameter ::  nGlobalThornado = 2*THORNADO_NMOMENTS ! Number of globally-summed thornado quantities
 #else
-  integer, parameter ::  nGlobalSumProp = 7              ! Number of globally-summed regular quantities
+  integer, parameter ::  nGlobalThornado = 0
+#endif
+#ifdef MAGP_VAR
+  integer, parameter ::  nGlobalSumProp = 8 + nGlobalThornado  ! Number of globally-summed regular quantities
+#else
+  integer, parameter ::  nGlobalSumProp = 7 + nGlobalThornado  ! Number of globally-summed regular quantities
 #endif
   integer, parameter ::  nGlobalSum = nGlobalSumProp + NMASS_SCALARS ! Number of globally-summed quantities
   real :: gsum(nGlobalSum) !Global summed quantities
@@ -225,6 +235,11 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
      call itor%next()
   enddo
   call Grid_releaseTileIterator(itor)
+
+#if defined(THORNADO)
+  iSum = nGlobalSumProp - nGlobalThornado
+  lsum(iSum+1:iSum+2*THORNADO_NMOMENTS) = rt_offGridFluxR
+#endif
 
   ! Now the MASTER_PE sums the local contributions from all of
   ! the processors and writes the total to a file.
