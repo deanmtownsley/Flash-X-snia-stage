@@ -290,6 +290,14 @@ Harder to introduce now because we have multiple particle types)
   - Simulation/SimulationMain/incompFlow/PoolBoiling
   - Simulation/SimulationMain/incompFlow/ChannelFlow
 
+* Name  : HydroGuardcells
+  Type  : Integer
+
+  Can be used to generate a GUARDCELLS Config directive with a
+  nondefault value in some Hydro implementations, under certain
+  conditions. Recognized by the Spark Hydro implementation when
+  it is used in its nontelescoping variant.
+
 * Name  : SimLSDamping
   Type  : Boolean
 

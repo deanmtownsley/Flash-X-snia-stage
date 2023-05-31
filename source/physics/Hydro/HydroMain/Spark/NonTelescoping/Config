@@ -30,12 +30,6 @@ IF Grid in ["","Amrex","Milhoja"]
   PPDEFINE CONFLICT_AMREX_AND_SPARKNT
 ENDIF
 
-IF useTVD or useLim03 or useFog
-  GUARDCELLS 2
-ELSE
-  GUARDCELLS 3
-ENDIF
-
 # Variables required for state saving
 SCRATCHCENTERVAR mass 
 SCRATCHCENTERVAR xmom 
@@ -44,6 +38,20 @@ SCRATCHCENTERVAR zmom
 SCRATCHCENTERVAR mene                  	
 
 PARAMETER telescoping          BOOLEAN  FALSE
+'''
+
+    if "HydroGuardcells" in setupvars:
+        ngcLow  = max(2,setupvars["HydroGuardcells"])
+        ngcHigh = max(3,setupvars["HydroGuardcells"])
+    else:
+        ngcLow  = 2
+        ngcHigh = 4
+    yield f'''
+IF useTVD or useLim03 or useFog
+  GUARDCELLS {ngcLow}
+ELSE
+  GUARDCELLS {ngcHigh}
+ENDIF
 '''
 
     for i in range(33-5):
