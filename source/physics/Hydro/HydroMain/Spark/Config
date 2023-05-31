@@ -38,12 +38,12 @@ D slopeLimiter		mc, vanLeer, minmod, hybrid, limited
 D EOSforRiemann         Turn on/off calls to Eos for thermo of reconstructed face states (MODE_DENS_PRES)
 D RiemannSolver		Roe, HLL, HLLC, Marquina, MarquinaModified, Hybrid or local Lax-Friedrichs, plus HLLD for MHD
 D use_hybridRiemann	Use the HLL solver inside shocks (flagged by SHOK_VAR)
-D hy_zeroTol        Tolerance for floating-point imprecision when comparing against zero
+D hy_mp5ZeroTol        Floating-point zero-comparison tolerance for MP5 slope limiting.
 
 # Runtime Parameters
 PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
 PARAMETER use_hybridRiemann		 BOOLEAN FALSE
-PARAMETER hy_zeroTol           REAL    0.0
+PARAMETER hy_mp5ZeroTol        REAL    0.0
 
 # GLM-MHD damping factor
 PARAMETER alpha_glm			REAL 0.9
