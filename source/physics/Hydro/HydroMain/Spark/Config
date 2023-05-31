@@ -82,11 +82,17 @@ ENDIF
 
 
 IF useTVD or useLim03 or useFog
-  GUARDCELLS 4
 	PPDEFINE NSTENCIL 2
 ELSE
-  GUARDCELLS 6
 	PPDEFINE NSTENCIL 3
+ENDIF
+
+IF not nontelescoping and (useTVD or useLim03 or useFog)
+  GUARDCELLS 4
+ENDIF
+
+IF not nontelescoping and not (useTVD or useLim03 or useFog)
+  GUARDCELLS 6
 ENDIF
 
 # Check for GLM-MHD
