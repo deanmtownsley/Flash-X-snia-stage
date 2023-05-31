@@ -78,14 +78,35 @@
       <PseudoUG>
         <2d>
           <AMReX>
-            <simpleUnsplit>
+            <sparkMT>
               setupName: Sod
-              nodeName: Composite/Sod/PseudoUG/2d/AMReX/simpleUnsplit
-              parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
-              restartParfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d_restart.par
-              checkpointBasename: flashx_hdf5_chk_
-            </simpleUnsplit>
-	  </AMReX>
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkMT
+            </sparkMT>
+            <sparkNt>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+            <sparkNtMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtMT>
+            <sparkNtPIO>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtPIO>
+          </AMReX>
           <Paramesh>
             <sparkNtMT>
               setupName: Sod
@@ -102,6 +123,28 @@
     </Sod>
     <Sedov>
       <PseudoUG>
+        <2d>
+          <AMReX>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </AMReX>
+          <Paramesh>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2d>
         <2dCyl>
           <Paramesh>
             <sparkNt>
@@ -118,6 +161,20 @@
           </Paramesh>
         </2dCyl>
       </PseudoUG>
+      <AMR>
+        <2d>
+          <AMReX>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/AMR/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-12/Composite_Sedov_AMR_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-12/Composite_Sedov_AMR_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </AMReX>
+        </2d>
+      </AMR>
     </Sedov>
     <IsentropicVortex>
       <PseudoUG>
@@ -156,6 +213,20 @@
           </Paramesh>
         </2d>
       </PseudoUG>
+      <AMR>
+        <2d>
+          <Paramesh>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2d>
+      </AMR>
     </IsentropicVortex>
     <Yahil>
       <AMR>
