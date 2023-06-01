@@ -45,6 +45,7 @@
 !!***
 
 !!REORDER(4):solnData
+!!REORDER(4):scratchData
 
 #include "Simulation.h"
 
@@ -62,6 +63,9 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
 #if defined(THORNADO)
   use rt_data, ONLY : rt_offGridFluxR
+  use RadiationFieldsModule, ONLY : iNuE, iNuE_Bar, &
+    iGR_N, iGR_J, iGR_H1, iGR_H2, iGR_H3, nGR
+  use PhysicalConstantsModule, ONLY : SpeedOfLightCGS 
 #endif
 
   implicit none
@@ -89,13 +93,28 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   integer, parameter ::  nGlobalThornado = 0
 #endif
 #ifdef MAGP_VAR
-  integer, parameter ::  nGlobalSumProp = 8 + nGlobalThornado  ! Number of globally-summed regular quantities
+  integer, parameter ::  nGlobalSumProp = 11 + nGlobalThornado  ! Number of globally-summed regular quantities
 #else
-  integer, parameter ::  nGlobalSumProp = 7 + nGlobalThornado  ! Number of globally-summed regular quantities
+  integer, parameter ::  nGlobalSumProp = 10 + nGlobalThornado  ! Number of globally-summed regular quantities
 #endif
   integer, parameter ::  nGlobalSum = nGlobalSumProp + NMASS_SCALARS ! Number of globally-summed quantities
   real :: gsum(nGlobalSum) !Global summed quantities
   real :: lsum(nGlobalSum) !Global summed quantities
+
+  integer, parameter :: iGR_N_NuE      = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_N - 1 
+  integer, parameter :: iGR_N_NuE_Bar  = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_N - 1
+
+  integer, parameter :: iGR_J_NuE      = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_J - 1
+  integer, parameter :: iGR_J_NuE_Bar  = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_J - 1
+
+  integer, parameter :: iGR_H1_NuE     = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_H1 - 1
+  integer, parameter :: iGR_H1_NuE_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_H1 - 1
+
+  integer, parameter :: iGR_H2_NuE     = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_H2 - 1
+  integer, parameter :: iGR_H2_NuE_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_H2 - 1
+
+  integer, parameter :: iGR_H3_NuE     = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_H3 - 1
+  integer, parameter :: iGR_H3_NuE_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_H3 - 1
 
   integer :: ivar
   integer :: i, j, k
@@ -103,6 +122,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   integer :: hi(1:MDIM)
   real    :: dvol
   real, DIMENSION(:,:,:,:), POINTER :: solnData
+  real, DIMENSION(:,:,:,:), POINTER :: scratchData
 
   real :: maxDensLocal, maxDensGlobal
 
@@ -111,6 +131,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   real, allocatable :: cellVolumes(:,:,:)
 
   nullify(solnData)
+  nullify(scratchData)
 
   if (io_writeMscalarIntegrals) then
      nGlobalSumUsed = nGlobalSum
@@ -138,6 +159,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
                               cellVolumes)
 
      call tileDesc%getDataPtr(solnData, CENTER)
+     call tileDesc%getDataPtr(scratchData, SCRATCH)
 
      ! Sum contributions from the indicated blkLimits of cells.
      do       k = lo(KAXIS), hi(KAXIS)
@@ -203,11 +225,29 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
               lsum(7) = lsum(7) + solnData(DENS_VAR,i,j,k) * &
                    &                                solnData(EINT_VAR,i,j,k)*dvol
 #endif
+
+              !neutrino lepton number
+              lsum(8) = lsum(8) + (scratchData(iGR_N_NuE,i,j,k) &
+                                -  scratchData(iGR_N_NuE_Bar,i,j,k) )*dvol
+
+              !NuE energy = \int (J_e + 2 v^i H_{ei}) dV
+              lsum(9) = lsum(9) + (scratchData(iGR_J_NuE,i,j,k) + 2.0d0 &
+                                * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuE,i,j,k) &
+                                 + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuE,i,j,k) &
+                                 + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuE,i,j,k)) &
+                                /SpeedOfLightCGS**2)*dvol
+
+              !NuE_Bar energy = \int (J_ebar + 2 v^i H_{ebar i}) dV
+              lsum(10) = lsum(10) + (scratchData(iGR_J_NuE_Bar,i,j,k) + 2.0d0 &
+                                  * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuE_Bar,i,j,k) &
+                                   + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuE_Bar,i,j,k) &
+                                   + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuE_Bar,i,j,k)) &
+                                  /SpeedOfLightCGS**2)*dvol
 #endif ! ifdef DENS_VAR
 
 #ifdef MAGP_VAR
               ! magnetic energy
-              lsum(8) = lsum(8) + solnData(MAGP_VAR,i,j,k)*dvol
+              lsum(11) = lsum(11) + solnData(MAGP_VAR,i,j,k)*dvol
 #endif
 
 #ifdef DENS_VAR
@@ -229,6 +269,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
         enddo
      enddo
      call tileDesc%releaseDataPtr(solnData, CENTER)
+     call tileDesc%releaseDataPtr(scratchData, SCRATCH)
 
      deallocate(cellVolumes)
 
@@ -279,6 +320,9 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
              'E_total                   ', &
              'E_kinetic                 ', &
              'E_internal                ', &
+             'e-type nu lepton number   ', &
+             'NuE energy                ', &
+             'NuE_Bar energy            ', &
              (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
               min(MASS_SCALARS_END,&
                   MASS_SCALARS_BEGIN+nGlobalSumUsed-nGlobalSumProp-1))
@@ -294,6 +338,9 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
              'E_total                   ', &
              'E_kinetic                 ', &
              'E_internal                ', &
+             'e-type nu lepton number   ', &
+             'NuE energy                ', &
+             'NuE_Bar energy            ', &
              'MagEnergy                 ', &
              (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
               min(MASS_SCALARS_END,&
