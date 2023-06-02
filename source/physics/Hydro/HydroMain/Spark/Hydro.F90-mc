@@ -139,7 +139,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
-        call shockDetect(Uin,limits,blkLimitsGC)
+        if (hy_telescoping .OR. stage==1) call shockDetect(Uin,limits,blkLimitsGC)
 
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
