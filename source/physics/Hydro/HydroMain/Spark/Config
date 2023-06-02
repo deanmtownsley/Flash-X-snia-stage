@@ -67,7 +67,6 @@ IF ParameshLibraryMode or (Grid in ["","PM4DEV"])
 	DATAFILES amr_runtime_parameters.tpl
 ENDIF
 
-# Number of guard cells at each boundary
 USESETUPVARS useMP5
 USESETUPVARS useGLM
 USESETUPVARS useTVD
@@ -87,6 +86,7 @@ ELSE
 	PPDEFINE NSTENCIL 3
 ENDIF
 
+# Number of guard cells at each boundary
 IF not nontelescoping and (useTVD or useLim03 or useFog)
   GUARDCELLS 4
 ENDIF
