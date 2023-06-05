@@ -20,8 +20,10 @@ USESETUPVARS useFog
 USESETUPVARS useLim03
 USESETUPVARS nontelescoping
 
+PPDEFINE SPARK_HYDRO_NONTELESC
+
 # The Amrex Grid does not support SCRATCH_CTR variables in the way needed here.
-# However, instead of generating failure ar sewtup time by using something like
+# However, instead of generating failure at setup time by using something like
 #   CONFLICTS Grid/GridMain/AMR/Amrex
 # here, let us define a preprocessor symbol here that allows to deal with
 # the situation at run time.

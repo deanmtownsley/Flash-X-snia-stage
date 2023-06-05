@@ -81,7 +81,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   if (.NOT. hy_useHydro) return
 
-  ! Check for some incompatible configuration options
+  ! Check for some incompatible configuration options; perhaps move to Hydro_init
   @M hy_check_config
 
   call Timers_start("Hydro")
