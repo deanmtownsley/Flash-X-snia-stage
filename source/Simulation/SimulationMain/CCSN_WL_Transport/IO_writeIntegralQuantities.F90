@@ -64,6 +64,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 #if defined(THORNADO)
   use rt_data, ONLY : rt_offGridFluxR
   use RadiationFieldsModule, ONLY : iNuE, iNuE_Bar, &
+    iNuM, iNuM_Bar, iNuT, iNuT_Bar, &
     iGR_N, iGR_J, iGR_H1, iGR_H2, iGR_H3, nGR
   use PhysicalConstantsModule, ONLY : SpeedOfLightCGS 
 #endif
@@ -88,18 +89,19 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   type(Grid_tile_t)     :: tileDesc
 
 #if defined(THORNADO)
-  integer, parameter ::  nGlobalThornado = 2*THORNADO_NMOMENTS ! Number of globally-summed thornado quantities
-#else
-  integer, parameter ::  nGlobalThornado = 0
-#endif
-#ifdef MAGP_VAR
-  integer, parameter ::  nGlobalSumProp = 11 + nGlobalThornado  ! Number of globally-summed regular quantities
-#else
-  integer, parameter ::  nGlobalSumProp = 10 + nGlobalThornado  ! Number of globally-summed regular quantities
-#endif
-  integer, parameter ::  nGlobalSum = nGlobalSumProp + NMASS_SCALARS ! Number of globally-summed quantities
-  real :: gsum(nGlobalSum) !Global summed quantities
-  real :: lsum(nGlobalSum) !Global summed quantities
+! Number of globally-summed thornado quantities:
+! total electron type neutrino lepton number in domain, 
+! total NuE energy in domain, 
+! total NuE_Bar energy in domain, 
+! (total NuM energy in domain), 
+! (total NuM_Bar energy in domain), 
+! (total NuT energy in domain), 
+! (total NuT_Bar energy in domain), 
+! total neutrino lepton number that left grid,
+! total neutrino energy that left grid,
+! total neutrino (x,y,z)-momentum that left grid
+
+  integer, parameter :: nOffGridThornado = 5
 
   integer, parameter :: iGR_N_NuE      = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_N - 1 
   integer, parameter :: iGR_N_NuE_Bar  = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_N - 1
@@ -115,6 +117,51 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
   integer, parameter :: iGR_H3_NuE     = SCRATCH_GRID_VARS_BEGIN + (iNuE    -1)*nGR + iGR_H3 - 1
   integer, parameter :: iGR_H3_NuE_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuE_Bar-1)*nGR + iGR_H3 - 1
+
+#if THORNADO_NSPECIES == 6
+
+  integer, parameter :: nVolumeThornado = 7
+  integer, parameter :: nGlobalThornado = nVolumeThornado + nOffGridThornado 
+
+  integer, parameter :: iGR_J_NuM      = SCRATCH_GRID_VARS_BEGIN + (iNuM    -1)*nGR + iGR_J - 1
+  integer, parameter :: iGR_J_NuM_Bar  = SCRATCH_GRID_VARS_BEGIN + (iNuM_Bar-1)*nGR + iGR_J - 1
+
+  integer, parameter :: iGR_H1_NuM     = SCRATCH_GRID_VARS_BEGIN + (iNuM    -1)*nGR + iGR_H1 - 1
+  integer, parameter :: iGR_H1_NuM_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuM_Bar-1)*nGR + iGR_H1 - 1
+
+  integer, parameter :: iGR_H2_NuM     = SCRATCH_GRID_VARS_BEGIN + (iNuM    -1)*nGR + iGR_H2 - 1
+  integer, parameter :: iGR_H2_NuM_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuM_Bar-1)*nGR + iGR_H2 - 1
+
+  integer, parameter :: iGR_H3_NuM     = SCRATCH_GRID_VARS_BEGIN + (iNuM    -1)*nGR + iGR_H3 - 1
+  integer, parameter :: iGR_H3_NuM_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuM_Bar-1)*nGR + iGR_H3 - 1
+
+  integer, parameter :: iGR_J_NuT      = SCRATCH_GRID_VARS_BEGIN + (iNuT    -1)*nGR + iGR_J - 1
+  integer, parameter :: iGR_J_NuT_Bar  = SCRATCH_GRID_VARS_BEGIN + (iNuT_Bar-1)*nGR + iGR_J - 1
+
+  integer, parameter :: iGR_H1_NuT     = SCRATCH_GRID_VARS_BEGIN + (iNuT    -1)*nGR + iGR_H1 - 1
+  integer, parameter :: iGR_H1_NuT_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuT_Bar-1)*nGR + iGR_H1 - 1
+
+  integer, parameter :: iGR_H2_NuT     = SCRATCH_GRID_VARS_BEGIN + (iNuT    -1)*nGR + iGR_H2 - 1
+  integer, parameter :: iGR_H2_NuT_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuT_Bar-1)*nGR + iGR_H2 - 1
+
+  integer, parameter :: iGR_H3_NuT     = SCRATCH_GRID_VARS_BEGIN + (iNuT    -1)*nGR + iGR_H3 - 1
+  integer, parameter :: iGR_H3_NuT_Bar = SCRATCH_GRID_VARS_BEGIN + (iNuT_Bar-1)*nGR + iGR_H3 - 1
+#else
+  integer, parameter :: nVolumeThornado = 3
+  integer, parameter :: nGlobalThornado = nVolumeThornado + nOffGridThornado 
+
+#endif
+#else
+  integer, parameter ::  nGlobalThornado = 0
+#endif
+#ifdef MAGP_VAR
+  integer, parameter ::  nGlobalSumProp = 8 + nGlobalThornado  ! Number of globally-summed regular quantities
+#else
+  integer, parameter ::  nGlobalSumProp = 7 + nGlobalThornado  ! Number of globally-summed regular quantities
+#endif
+  integer, parameter ::  nGlobalSum = nGlobalSumProp + NMASS_SCALARS ! Number of globally-summed quantities
+  real :: gsum(nGlobalSum) !Global summed quantities
+  real :: lsum(nGlobalSum) !Global summed quantities
 
   integer :: ivar
   integer :: i, j, k
@@ -226,7 +273,8 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
                    &                                solnData(EINT_VAR,i,j,k)*dvol
 #endif
 
-              !neutrino lepton number
+#if defined(THORNADO)
+              !electron type neutrino lepton number
               lsum(8) = lsum(8) + (scratchData(iGR_N_NuE,i,j,k) &
                                 -  scratchData(iGR_N_NuE_Bar,i,j,k) )*dvol
 
@@ -243,11 +291,42 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
                                    + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuE_Bar,i,j,k) &
                                    + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuE_Bar,i,j,k)) &
                                   /SpeedOfLightCGS**2)*dvol
+#if THORNADO_NSPECIES == 6
+              !NuM energy = \int (J_{\mu} + 2 v^i H_{\mu i}) dV
+              lsum(11) = lsum(11) + (scratchData(iGR_J_NuM,i,j,k) + 2.0d0 &
+                                  * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuM,i,j,k) &
+                                   + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuM,i,j,k) &
+                                   + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuM,i,j,k)) &
+                                   /SpeedOfLightCGS**2)*dvol
+
+              !NuM_Bar energy = \int (J_{\mu bar} + 2 v^i H_{\mu bar i}) dV
+              lsum(12) = lsum(12) + (scratchData(iGR_J_NuM_Bar,i,j,k) + 2.0d0 &
+                                  * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuM_Bar,i,j,k) &
+                                   + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuM_Bar,i,j,k) &
+                                   + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuM_Bar,i,j,k)) &
+                                  /SpeedOfLightCGS**2)*dvol
+
+              !NuT energy = \int (J_{\tau} + 2 v^i H_{\tau i}) dV
+              lsum(13) = lsum(13) + (scratchData(iGR_J_NuT,i,j,k) + 2.0d0 &
+                                  * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuT,i,j,k) &
+                                   + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuT,i,j,k) &
+                                   + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuT,i,j,k)) &
+                                   /SpeedOfLightCGS**2)*dvol
+
+              !NuM_Bar energy = \int (J_{\tau bar} + 2 v^i H_{\tau bar i}) dV
+              lsum(14) = lsum(14) + (scratchData(iGR_J_NuT_Bar,i,j,k) + 2.0d0 &
+                                  * (solnData(VELX_VAR,i,j,k)*scratchData(iGR_H1_NuT_Bar,i,j,k) &
+                                   + solnData(VELY_VAR,i,j,k)*scratchData(iGR_H2_NuT_Bar,i,j,k) &
+                                   + solnData(VELZ_VAR,i,j,k)*scratchData(iGR_H3_NuT_Bar,i,j,k)) &
+                                  /SpeedOfLightCGS**2)*dvol
+#endif ! 
+#endif
 #endif ! ifdef DENS_VAR
 
 #ifdef MAGP_VAR
               ! magnetic energy
-              lsum(11) = lsum(11) + solnData(MAGP_VAR,i,j,k)*dvol
+              lsum(nGlobalSumProp-nGlobalThornado) = &
+              lsum(nGlobalSumProp-nGlobalThornado) + solnData(MAGP_VAR,i,j,k)*dvol
 #endif
 
 #ifdef DENS_VAR
@@ -278,8 +357,13 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
   call Grid_releaseTileIterator(itor)
 
 #if defined(THORNADO)
-  iSum = nGlobalSumProp - nGlobalThornado
-  lsum(iSum+1:iSum+2*THORNADO_NMOMENTS) = rt_offGridFluxR
+  iSum = nGlobalSumProp - nOffGridThornado
+  !lsum(iSum+1:iSum+2*THORNADO_NMOMENTS) = rt_offGridFluxR
+  lsum(iSum+1) = rt_offGridFluxR(1)
+  lsum(iSum+2) = rt_offGridFluxR(5)
+  lsum(iSum+3) = rt_offGridFluxR(6)
+  lsum(iSum+4) = rt_offGridFluxR(7)
+  lsum(iSum+5) = rt_offGridFluxR(8)
 #endif
 
   ! Now the MASTER_PE sums the local contributions from all of
@@ -310,42 +394,50 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
      if (isFirst .EQ. 1 .AND. (.NOT. io_restart .or. ioStat .NE. 0)) then
 
-#ifndef MAGP_VAR
         write (funit, 10)               &
-             '#time                     ', &
-             'mass                      ', &
-             'x-momentum                ', &
-             'y-momentum                ', &
-             'z-momentum                ', &
-             'E_total                   ', &
-             'E_kinetic                 ', &
-             'E_internal                ', &
-             'e-type nu lepton number   ', &
-             'NuE energy                ', &
-             'NuE_Bar energy            ', &
-             (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
-              min(MASS_SCALARS_END,&
-                  MASS_SCALARS_BEGIN+nGlobalSumUsed-nGlobalSumProp-1))
-
-#else
-
-        write (funit, 10)               &
-             '#time                     ', &
-             'mass                      ', &
-             'x-momentum                ', &
-             'y-momentum                ', &
-             'z-momentum                ', &
-             'E_total                   ', &
-             'E_kinetic                 ', &
-             'E_internal                ', &
-             'e-type nu lepton number   ', &
-             'NuE energy                ', &
-             'NuE_Bar energy            ', &
-             'MagEnergy                 ', &
-             (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
-              min(MASS_SCALARS_END,&
-                  MASS_SCALARS_BEGIN+nGlobalSumUsed-nGlobalSumProp-1))
+             '1 time                    ', &
+             '2 mass                    ', &
+             '3 x-momentum              ', &
+             '4 y-momentum              ', &
+             '5 z-momentum              ', &
+             '6 E_total                 ', &
+             '7 E_kinetic               ', &
+             '8 E_internal              ', &
+#if defined(THORNADO)
+             '9 e-type nu lepton number ', &
+             '10 NuE energy             ', &
+             '11 NuE_Bar energy         ', &
+#if THORNADO_NSPECIES == 6
+             '12 NuM energy             ', &
+             '13 NuM_Bar energy         ', &
+             '14 NuT energy             ', &
+             '15 NuT_Bar energy         ', &
+             '16 Nu lepton num off grid ', &
+             '17 Nu energy off grid     ', &
+             '18 Nu x-momentum off grid ', &
+             '19 Nu y-momentum off grid ', &
+             '20 Nu z-momentum off grid ', &
+#ifdef MAGP_VAR
+             '21MagEnergy               ', &
 #endif
+#else
+             '12 Nu lepton num off grid ', &
+             '13 Nu energy off grid     ', &
+             '14 Nu x-momentum off grid ', &
+             '15 Nu y-momentum off grid ', &
+             '16 Nu z-momentum off grid ', &
+#ifdef MAGP_VAR
+             '17 MagEnergy              ', &
+#endif
+#endif !THORNADO_NSPECIES == 6
+#endif !defined(THORNADO)
+#ifdef MAGP_VAR
+             '9 MagEnergy               ', &
+#endif
+             (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
+              min(MASS_SCALARS_END,&
+                  MASS_SCALARS_BEGIN+nGlobalSumUsed-nGlobalSumProp-1))
+
 
 10         format (2x,50(a25, :, 1X))
 
@@ -357,7 +449,7 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
      ! Write the global sums to the file.
      write (funit, 12) simtime, gsum(1:nGlobalSumUsed)
 
-12   format (1x, 50(es25.18, :, 1x))
+12   format (1x, 50(es25.17e3, :, 1x))
 
      close (funit)          ! Close the file.
 
