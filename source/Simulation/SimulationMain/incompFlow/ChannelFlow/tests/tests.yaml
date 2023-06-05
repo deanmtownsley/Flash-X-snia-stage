@@ -1,0 +1,6 @@
+# YAML file for PoolBoiling tests
+# comments can be added with "#"
+
+UnitTest/incompFlow/ChanneFlow/2d/Periodic:
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -2d -nxb=16 -nyb=16
+  parfiles: test_periodic_bc.par
