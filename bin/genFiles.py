@@ -77,11 +77,11 @@ def generateFlashDefines(configInfo):
     tpl['nflux'] = len(configInfo['FLUX'])
     tpl['nrealprops'] = configInfo['n_real_props']
     tpl['nscratchvars'] = len(configInfo['SCRATCHVAR'])
-    if 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS'].isdecimal():
+    if 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isdecimal():
         tpl['nscratchcentervars'] = max(len(configInfo['SCRATCHCENTERVAR']),int(configInfo['NSCRATCHCENTERVARS']))
-    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS'].isidentifier() and len(configInfo['SCRATCHCENTERVAR']) > 0:
+    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isidentifier() and len(configInfo['SCRATCHCENTERVAR']) > 0:
         tpl['nscratchcentervars'] = "max(%s,%s)" % (len(configInfo['SCRATCHCENTERVAR']),configInfo['NSCRATCHCENTERVARS'])
-    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS'].isidentifier():
+    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isidentifier():
         tpl['nscratchcentervars'] = configInfo['NSCRATCHCENTERVARS']
     else:
         tpl['nscratchcentervars'] = len(configInfo['SCRATCHCENTERVAR'])
