@@ -32,12 +32,14 @@ IF Grid in ["","Amrex","Milhoja"]
   PPDEFINE CONFLICT_AMREX_AND_SPARKNT
 ENDIF
 
-# Variables required for state saving
-SCRATCHCENTERVAR mass 
-SCRATCHCENTERVAR xmom 
-SCRATCHCENTERVAR ymom 
-SCRATCHCENTERVAR zmom 
-SCRATCHCENTERVAR mene                  	
+# Variables required for state saving - commented out since we do not need to name them
+# SCRATCHCENTERVAR mass
+# SCRATCHCENTERVAR xmom
+# SCRATCHCENTERVAR ymom
+# SCRATCHCENTERVAR zmom
+# SCRATCHCENTERVAR mene
+# Request as many SCRATCHCENTERVAR variabls as there are UNK variables!
+NSCRATCHCENTERVARS NUNK_VARS
 
 PARAMETER telescoping          BOOLEAN  FALSE
 '''
@@ -55,6 +57,3 @@ ELSE
   GUARDCELLS {ngcHigh}
 ENDIF
 '''
-
-    for i in range(33-5):
-        yield 'SCRATCHCENTERVAR zz%.2d' % (i+6)
