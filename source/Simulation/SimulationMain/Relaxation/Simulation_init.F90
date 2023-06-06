@@ -40,7 +40,9 @@ subroutine Simulation_init()
 #include "Simulation.h"
 
   call Logfile_stamp( 'Entering simulation initialization' , '[Simulation_init]')
+  call Driver_getComm(MESH_COMM, sim_meshComm)
   call Driver_getMype(MESH_COMM, sim_meshMe)
+  call Driver_getComm(GLOBAL_COMM, sim_globalComm)
   call Driver_getMype(GLOBAL_COMM, sim_globalMe)
 
   call RuntimeParameters_get( 'restart', sim_restart)

@@ -25,7 +25,7 @@ module Simulation_data
   !! *** Variables pertaining to this Simulation *** !!
 
   logical, save :: sim_restart
-  integer, save :: sim_meshMe, sim_globalMe
+  integer, save :: sim_meshMe, sim_meshComm, sim_globalMe, sim_globalComm
 
   real, save :: sim_nComp
 
