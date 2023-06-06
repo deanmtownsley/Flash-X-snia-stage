@@ -57,6 +57,11 @@ Comparison/SNIaDDT/AMR/2d/spark:
   parfiles: testfaster_amr_unsplit_2d.par
   transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
 
+Comparison/SNIaDDT/AMR/2d/sparkNt:
+  setupOptions: -auto -2d +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +pm4dev +cylindrical -nxb=16 -nyb=16 +newMpole +xnet xnetData=Data_alpha Bittree=True AltMorton=True useFortran2003=True
+  parfiles: testfaster_amr_unsplit_2d.par
+  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+
 #Comparison/SNIaShellDet/AMR/2d/Paramesh:
 #  setupOptions: -auto -2d -debug +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13
 #  parfiles: test_shellDet_2d.par
