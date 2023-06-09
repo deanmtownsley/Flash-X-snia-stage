@@ -369,8 +369,8 @@ contains
     use UnitsModule, ONLY : MeV, Gram, Centimeter, Kelvin, Kilometer
     use Simulation_data, ONLY : n1d_max, xzn, D_Nu_P, I1_Nu_P
     use NeutrinoOpacitiesComputationModule, ONLY: &
-        ComputeEquilibriumDistributions_Points, &
-        ComputeNeutrinoOpacities_EC_Points
+        ComputeEquilibriumDistributions, &
+        ComputeNeutrinoOpacities_EC
     use ut_interpolationInterface, ONLY : ut_hunt
 
 #include "Simulation.h"
@@ -393,10 +393,10 @@ contains
     allocate( T_P(nR) )
     allocate( Y_P(nR) )
     allocate( R_Nu(nE,THORNADO_NSPECIES) )
-    allocate( Chi(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( fEQ(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( D_Nu_P(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( I1_Nu_P(nE,nR,THORNADO_NSPECIES) ) 
+    allocate( Chi(nE,THORNADO_NSPECIES,nR) ) 
+    allocate( fEQ(nE,THORNADO_NSPECIES,nR) ) 
+    allocate( D_Nu_P(nE,THORNADO_NSPECIES,nR) ) 
+    allocate( I1_Nu_P(nE,THORNADO_NSPECIES,nR) ) 
 
     ! convert to thornado's unit
     R_P = xzn * Centimeter
@@ -417,19 +417,17 @@ contains
       end do
     end do
     ! compute neutrino absorption opacities
-    do iS = 1, THORNADO_NSPECIES
-      call ComputeNeutrinoOpacities_EC_Points &
-             ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, iS, Chi(:,:,iS) )
-      call ComputeEquilibriumDistributions_Points &
-             ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ(:,:,iS), iS )
-    end do
+    call ComputeNeutrinoOpacities_EC &
+           ( 1, nE, 1, THORNADO_NSPECIES, 1, nR, E_Nu, D_P, T_P, Y_P, Chi )
+    call ComputeEquilibriumDistributions &
+           ( 1, nE, 1, THORNADO_NSPECIES, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ )
     ! compute approximate neutrino sphere radii
     do iS = 1, THORNADO_NSPECIES; do iE = 1, nE
       Tau = 0.0e0
       do iR = nR-1, 1, -1
         if( Tau > 2.0e0 / 3.0e0 ) cycle
         Tau = Tau + 0.5e0 * ( R_P(iR+1) - R_P(iR) ) &
-                          * ( Chi(iE,iR+1,iS) + Chi(iE,iR,iS) )
+                          * ( Chi(iE,iS,iR+1) + Chi(iE,iS,iR) )
         R_Nu(iE,iS) = MAX( R_P(iR), 1.0e1 * Kilometer )
       end do 
     end do; end do
@@ -438,8 +436,8 @@ contains
       call ut_hunt(R_P,nR,R_Nu(iE,iS),buff_int)    
       i = MIN( iR, buff_int )
       call ComputeSphereSolution &
-               ( R_Nu(iE,iS), Chi(iE,i,iS), fEQ(iE,i,iS), &
-                 R_P(iR), D_Nu_P(iE,iR,iS), I1_Nu_P(iE,iR,iS) )
+               ( R_Nu(iE,iS), Chi(iE,iS,i), fEQ(iE,iS,i), &
+                 R_P(iR), D_Nu_P(iE,iS,iR), I1_Nu_P(iE,iS,iR) )
     end do; end do; end do
 
     deallocate( R_P, D_P, T_P, Y_P )
