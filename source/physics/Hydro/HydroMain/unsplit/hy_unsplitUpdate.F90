@@ -288,13 +288,6 @@
           call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
                                      lbound(faceAreasY), ubound(faceAreasY), &
                                      faceAreasY)
-!!$           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
-!          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
-!            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
-!            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,  &
-!            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)), &
-!            (/isize, jsize+1, ksize/) )
        end if
 #endif
        call Grid_getCellVolumes(tileDesc%level, &
@@ -1018,13 +1011,6 @@
           call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
                                      lbound(faceAreasY), ubound(faceAreasY), &
                                      faceAreasY)
-!!$           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
-!          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
-!            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
-!            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,  &
-!            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)), &
-!            (/isize, jsize+1, ksize/) )
        end if
 #endif
 
