@@ -20,7 +20,7 @@ comment = re.compile("^\s*!") # identify comment lines
 # use to split a line to quoted strings, comments and others
 # I commented this out b/c Murali doensn't seem to use it anywhere - nttaylor
 
-reordRE = re.compile("^\s*!!\s*REORDER[(](?P<num>[2|3|4|5])[)]:\s*(?P<list>.*)$", re.I)
+reordRE = re.compile("^\s*!!\s*REORDER[(](?P<num>[2345])[)]:\s*(?P<list>.*)$", re.I)
 
 ######### Compute variables to be reordered
 
