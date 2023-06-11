@@ -3,10 +3,13 @@ PPDEFINE HY_RK3
 USESETUPVARS useTVD
 USESETUPVARS useFog
 USESETUPVARS useLim03
+USESETUPVARS nontelescoping
 
-IF useTVD or useLim03 or useFog
+IF not nontelescoping and (useTVD or useLim03 or useFog)
   GUARDCELLS 6
-ELSE
+ENDIF
+
+IF not nontelescoping and not (useTVD or useLim03 or useFog)
   GUARDCELLS 10
 ENDIF
 
