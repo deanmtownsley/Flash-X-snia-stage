@@ -25,7 +25,7 @@
 !!  The communication happens entirely within SPFS, and does not
 !!  involve any data structures that should be directly visible to
 !!  client code. Instead, client code uses subroutines like
-!!  Grid_putFluxData_fluxbuf to transfer flux data to SPFS before a
+!!  Grid_putFluxData_block to transfer flux data to SPFS before a
 !!  communication phase, and Grid_correctFluxData to get data back
 !!  from SPFS after the communication.
 !!
@@ -64,7 +64,7 @@
 !! SEE ALSO
 !!
 !!  Grid_putFluxData
-!!  Grid_putFluxData_fluxbuf
+!!  Grid_putFluxData_block
 !!  Grid_correctFluxData
 !!
 !!***
@@ -76,7 +76,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Grid_communicateFluxes(axis, coarse_level)
+recursive subroutine Grid_communicateFluxes(axis, coarse_level)
     use gr_physicalMultifabs, ONLY : flux_registers
     use amrex_amrcore_module, ONLY : amrex_get_finest_level
 
@@ -97,23 +97,27 @@ subroutine Grid_communicateFluxes(axis, coarse_level)
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
-    if (coarse_level == UNSPEC_LEVEL) then
-       call Driver_abort("This Grid_communicateFluxes.F90 does not support UNSPEC_LEVEL!")
-    end if
-
     ! FLASH uses 1-based level index / AMReX uses 0-based index
-    coarse = coarse_level - 1
-    fine   = coarse_level
+    if (coarse_level .NE. UNSPEC_LEVEL) then
+       coarse = coarse_level - 1
+       fine   = coarse_level
 
     ! No need to communicate on the finest level in existence or any
     ! level index corresponding to a finer mesh
-    if (coarse >= amrex_get_finest_level())     RETURN
+       if (coarse >= amrex_get_finest_level())     RETURN
 
         ! The AMReX flux registers internally are storing and communicating
         ! fluxes and *not* flux densities.
 
-    call flux_registers(fine)%communicate()
+       call flux_registers(fine)%communicate()
 
+    else
+
+       do fine = amrex_get_finest_level(), 1, -1
+          call flux_registers(fine)%communicate()
+       end do
+
+    end if
 #endif
 end subroutine Grid_communicateFluxes
 
