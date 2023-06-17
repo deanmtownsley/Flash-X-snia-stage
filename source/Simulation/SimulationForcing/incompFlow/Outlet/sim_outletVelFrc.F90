@@ -37,7 +37,7 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
    real, intent(in) :: QOut(LOW:HIGH, MDIM)
 
    !---Local variables
-   integer :: i, j, k, idimn, ibound, ifnorm, ifpar, inorm
+   integer :: i, j, k, idimn, ibound, iforce, inorm
    real :: xcell, ycell, zcell, velout, velforce
    real :: outprofile(LOW:HIGH, MDIM), velgrad(LOW:HIGH, MDIM)
    real, parameter :: velref = 1.
@@ -85,22 +85,14 @@ subroutine sim_outletVelFrc(vel, rhs, xgrid, ygrid, zgrid, &
 
                   ! Check if local velocity greater than
                   ! outlet velocity
-                  ifnorm = 0
-                  if (abs(vel(i, j, k)) > velout) ifnorm = 1
-
-                  ifpar = 0
-                  if (abs(vel(i, j, k)) > velout) ifpar = 1
+                  iforce = 0
+                  if (abs(vel(i, j, k)) > velout) iforce = 1
 
                   ! Check if normal axis
                   inorm = 0
                   if (axis == idimn) inorm = 1
 
-                  ! compute forcing on the local cell
-                  !velforce = inorm*ifnorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
-                  !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
-
-                  velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
-                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                  velforce = iforce*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
                              velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
