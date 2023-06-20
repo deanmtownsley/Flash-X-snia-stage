@@ -20,11 +20,11 @@
 !!
 !! DESCRIPTION
 !!
-!!  This module exists to make available the public type dieclarations
+!!  This module exists to make available the public type declarations
 !!  and subroutines from either amrex_flash_fluxregister_module or
 !!  amrex_fluxregister_module under unified names.
 !!
-!!  Which of the two is used defends on the preprocessor symbol
+!!  Which of the two is used depends on the preprocessor symbol
 !!  USE_AMREX_FLASHFLUXREGISTER .
 !!
 !! NOTES
