@@ -213,14 +213,14 @@ subroutine Hydro_init()
   ! U* =  C1 * U0 +  C2 * U* +  C3 * dt*L(U*)
   ! U3 = 1/3 * U0 + 2/3 * U2 + 2/3 * dt*L(U2)
   !(remember FORTRAN is column major)
-  hy_coeffArray = reshape((/1.,0.75,onethird,0.,0.25,twothirds,1.,0.25,twothirds/),(/3,3/))
+  hy_coeffArray = reshape((/1.,0.75,1./3.,0.,0.25,2./3.,1.,0.25,2./3./),(/3,3/))
   !Array containing number of guard cells on each side for
   !the telescoping update.
   hy_limitsArray = (/2*NSTENCIL, NSTENCIL, 0/)
   !Weights that scale the fluxes as they are added into the buffers.
   !Here hy_weights is
-  the same as coeff used in Github pseudocode.
-  hy_weights = (/onesixth, onesixth, twothirds/)
+  !the same as coeff used in Github pseudocode.
+  hy_weights = (/1./6., 1./6., 2./3./)
 #else
   !RK2 quantities
   ! Stage 1 coefficients
@@ -237,12 +237,38 @@ subroutine Hydro_init()
   call Grid_getMaxcells(hy_maxCells)
   hy_maxCells=2*NGUARD+hy_maxCells
 
+#ifdef OMP_OL
   !$omp target update to &
   !$omp ( hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref, &
   !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
   !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry, &
   !$omp   hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp, &
   !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
-  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev,hy_maxCells)
-  
+  !$omp   hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev, hy_maxCells)
+#endif
+
+  call check_if_omp_offload()
+
+contains
+
+  subroutine check_if_omp_offload()
+!$  use omp_lib, ONLY: omp_is_initial_device
+    use Hydro_data, ONLY: hy_meshMe
+    implicit none
+
+    logical :: onCPU
+
+    onCPU = .true.
+#ifdef OMP_OL
+    !$omp target map(tofrom: onCPU)
+    !$  onCPU = omp_is_initial_device()
+    !$omp end target
+    !$omp barrier
+#endif
+
+    if (.not. onCPU) then
+      write(*, '(A, I3, A)') "[Hydro_init] proc ", hy_meshMe, ":  GPU offloading is available"
+    end if
+  end subroutine check_if_omp_offload
+
 end subroutine Hydro_init

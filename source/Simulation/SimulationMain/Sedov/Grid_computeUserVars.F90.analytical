@@ -42,12 +42,14 @@
 !!***
 
 subroutine Grid_computeUserVars()
-  use Simulation_data,      ONLY: sim_analyticGen
+  use Simulation_data,      ONLY: sim_analyticGen, &
+                                  sim_threadBlockList
   use Simulation_interface, ONLY: Simulation_computeAnalytical
   use Driver_data,         ONLY : dr_simGeneration
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_getTileIterator, &
-                             Grid_releaseTileIterator
+                             Grid_releaseTileIterator, &
+                             Grid_getCellVolumes
   use Driver_interface, ONLY: Driver_getSimTime, &
                               Driver_abort
 !  use Grid_data, ONLY : gr_meshMe
@@ -64,19 +66,22 @@ subroutine Grid_computeUserVars()
   type(Grid_tile_t) :: tileDesc
 
   integer,dimension(2,MDIM) :: bl
-  integer,dimension(  MDIM) :: bsize
   real, pointer, dimension(:,:,:,:) :: solnData
   real,allocatable :: cellVol(:,:,:)
 
-  nullify(solnData)
 
   call Timers_start("computeUserVars")
   call Driver_getSimTime(tnew, simGen)
 
-  call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
+  !$omp parallel if (sim_threadBlockList) &
+  !$omp private(tileDesc,itor)&
+  !$omp private(solnData)&
+  !$omp shared(tnew)
+  call Grid_getTileIterator(itor, LEAF)
   do while (itor%isValid())
      call itor%currentTile(tileDesc)
 
+     NULLIFY(solnData)
      call tileDesc%getDataPtr(solnData, CENTER)
      call Simulation_computeAnalytical(solnData, tileDesc, tnew)
 
@@ -84,17 +89,11 @@ subroutine Grid_computeUserVars()
      bl = tileDesc%limits
 
 #if defined(DENC_VAR) || defined(PRSC_VAR) || defined(VLRC_VAR)
-     bsize(:) = bl(HIGH,:) - bl(LOW,:) + 1
      allocate( cellVol(bl(LOW,IAXIS):bl(HIGH,IAXIS), &
                        bl(LOW,JAXIS):bl(HIGH,JAXIS), &
                        bl(LOW,KAXIS):bl(HIGH,KAXIS)) )
-     call Driver_abort("[Grid_computeUserVars] Get volumes from Grid_getCellVolumes")
-!     call Grid_getBlkData(tileDesc, CELL_VOLUME, 0, EXTERIOR, &
-!            (/bl(LOW,IAXIS),bl(LOW,JAXIS),bl(LOW,KAXIS)/), &
-!            cellVol   (bl(LOW,IAXIS):bl(HIGH,IAXIS), &
-!                       bl(LOW,JAXIS):bl(HIGH,JAXIS), &
-!                       bl(LOW,KAXIS):bl(HIGH,KAXIS)), &
-!            dataSize=bsize )
+     call Grid_getCellVolumes(tileDesc%level, &
+                              lbound(cellVol), ubound(cellVol), cellVol)
 #endif
 
 !!$
@@ -140,6 +139,7 @@ subroutine Grid_computeUserVars()
      call itor%next()
   end do
   call Grid_releaseTileIterator(itor)
+  !$omp end parallel
 
   dr_simGeneration = simGen + 1
   sim_analyticGen  = dr_simGeneration

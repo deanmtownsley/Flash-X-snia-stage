@@ -1,25 +1,26 @@
-# Flash-X makefile definitions for using Intel compilers on GCE.
+# Flash-X makefile definitions for using the Intel compiler suite with the
+# testing environment setup by the Flash-X/Flash-X-TestEnv GitHub 
+# repository.  Refer to the GCE-specific README in that repo for
+# information regarding compatible machines and how to setup the 
+# software environment.
 #
-# Load the software environment by sourcing
-#    /nfs/gce/projects/FLASH5/software/setup_current_intel_mpich_sandybridge.sh
-#
-# Please refer to the script for information on which GCE machines can be used
-# with the associated software environment.
+# NOTE: This software environment is updated without warning as needed by the
+# Flash-X GCE Test gatekeepers.
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=/nfs/gce/projects/FLASH5/software/intel_current_sandybridge/AMReX_$(NDIM)D
-MILHOJA_PATH=/nfs/gce/projects/FLASH5/software/intel_current_sandybridge/Milhoja_$(NDIM)D_debug
+AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
-HYPRE_PATH = /nfs/gce/projects/FLASH5/software/hypre_install/
+HYPRE_PATH =
 ZLIB_PATH  =
 PAPI_PATH  =
 PAPI_FLAGS =
 LIB_NCMPI = /usr
-MA28_PATH = /nfs/gce/projects/FLASH5/software/ma28
+MA28_PATH = ${FLASHX_MA28_DIR}
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -47,6 +48,8 @@ PP      = -D
 #  (ex. FFLAGS) to the proper set of flags (ex. FFLAGS_OPT).
 #----------------------------------------------------------------------------
 
+OPENMP = -qopenmp
+
 FFLAGS_OPT = -c -O2 -r8 -real-size 64 -check uninit
 FFLAGS_DEBUG = -ggdb -c -O0 -r8 -real-size 64 \
 	-warn all -diag-disable 10120 \
@@ -60,7 +63,12 @@ FFLAGS_TEST = -O1 -c -r8 -real-size 64 \
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
+# Include -auto so that Fortran routines are thread-safe.  Never use -save.
+# https://www.intel.com/content/www/us/en/developer/articles/technical/threading-fortran-applications-for-parallel-performance-on-multi-core-systems.html
+# TODO: It seems like the setup tool should add in this flag so that our users
+# don't need to know this.  The setup tool could add in a WARNING so that they
+# are made aware.  Similarly, it would need to add -Mrecursive for NVHPC.
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions -auto
 
 F90FLAGS = -DHAVE_MPI_MODULE -DH5_USE_18_API
 
@@ -117,10 +125,12 @@ LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
-LIB_MA28 = -L$(MA28_PATH)/lib -lma28
+LIB_MA28 = -L$(MA28_PATH) -lma28
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
-# the dependencies.
+# all dependencies.
+# TODO: I believe that Klaus has addressed this.  If so, update to use his
+# new fix.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
 
 # Uncomment the following line to use electic fence memory debugger.

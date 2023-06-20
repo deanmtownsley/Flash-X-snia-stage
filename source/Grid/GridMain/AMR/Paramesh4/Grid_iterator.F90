@@ -95,7 +95,7 @@ contains
     !!****
     subroutine build_iterator(itor, nodetype, level, tiling, tileSize, nthreads)
         use Driver_interface, ONLY : Driver_abort
-        !$ use omp_lib
+        !$ use omp_lib,       ONLY : omp_get_num_threads, omp_get_thread_num
         type(Grid_iterator_t), intent(OUT) :: itor
         integer,               intent(IN)  :: nodetype
         integer,               intent(IN)  :: level

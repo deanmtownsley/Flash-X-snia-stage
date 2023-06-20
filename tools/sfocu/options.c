@@ -20,6 +20,7 @@ int parse_cmdline(options_t *opts, int argc, char **argv)
   opts->mesh_tol = 0.;
   opts->err_tol = 0.;
   opts->perr_tol = 0.;
+  opts->pmatch_tol = 0.;
   opts->extra_varnames = 0;
   opts->n_extra_varnames = 0;
   opts->ignorableVarnames = 0;
@@ -29,7 +30,7 @@ int parse_cmdline(options_t *opts, int argc, char **argv)
   opts->gridVarSelfDiscovery = 0;
 
   /* Argument parsing */
-  while ((c = getopt(argc, argv, "ahvirb:L:t:s:I:D:e:p:")) != -1)
+  while ((c = getopt(argc, argv, "ahvirb:L:t:s:I:D:e:p:P:")) != -1)
   {
     switch (c)
     {
@@ -59,6 +60,9 @@ int parse_cmdline(options_t *opts, int argc, char **argv)
       break;
     case 'p':
       opts->perr_tol = atof(optarg);
+      break;
+    case 'P':
+      opts->pmatch_tol = atof(optarg);
       break;
     case 'b':
       opts->benchmark = optarg[0];

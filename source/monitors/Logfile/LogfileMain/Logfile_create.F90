@@ -149,7 +149,7 @@ subroutine Logfile_create ()
         isOpenmpMacroDefined = .false.
 #endif
         !$ openmpNested = omp_get_nested()
-        !$ if (openmpNested) then
+        !$ if (openmpNested .OR. (isOpenmpMacroDefined .AND. _OPENMP .GE. 201511)) then
         !$   if (isOpenmpMacroDefined .AND. _OPENMP .GE. 200805) then
         !$     write (log_lun,*) 'OpenMP max active levels:  ', &
         !$      omp_get_max_active_levels()
