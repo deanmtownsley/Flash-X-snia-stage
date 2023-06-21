@@ -118,14 +118,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
-           @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &
+           @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      \
                                        hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
         endif
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &
-                                     hy_flx, hy_fly, hy_flz, &
+        @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, \
+                                     hy_flx, hy_fly, hy_flz, \
                                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
         ng=NGUARD-1
@@ -217,7 +217,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
-           @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &
+           @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      \
                                             hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
            @M hy_release_geom
         end if
@@ -225,7 +225,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if ((hy_telescoping).and.(hy_fluxCorrect)) call Grid_putFluxData(tileDesc,&
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
         call Timers_stop("Offloaded Section")
-        @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &
+        @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
                                          hy_flx, hy_fly, hy_flz, &
                                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_release_tmp_states
@@ -291,7 +291,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            @M hy_map_tmp_states
            @M hy_map_scr_ptrs
-           @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &
+           @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, \
                                            hy_flx, hy_fly, hy_flz, &
                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
@@ -359,14 +359,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
-                 @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &
+                 @M hy_OMP_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, \
                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
               call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
               @M hy_OMP_TARGET_update_from([hy_starState])
               if (hy_geometry /= CARTESIAN) then
-                 @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &
+                 @M hy_OMP_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, \
                                                   hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
                  @M hy_release_geom
               end if
@@ -395,7 +395,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            !Put flux buffer information into SPFS
            if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
-           @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, &
+           @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
                                             hy_flx, hy_fly, hy_flz, &
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            @M hy_release_scr_ptrs
