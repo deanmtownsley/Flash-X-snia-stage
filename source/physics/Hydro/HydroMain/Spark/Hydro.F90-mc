@@ -226,7 +226,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
              hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,blkLimits(LOW,:))
         call Timers_stop("Offloaded Section")
         @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
-                                         hy_flx, hy_fly, hy_flz, &
+                                         hy_flx, hy_fly, hy_flz, \
                                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -292,7 +292,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_map_tmp_states
            @M hy_map_scr_ptrs
            @M hy_OMP_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, \
-                                           hy_flx, hy_fly, hy_flz, &
+                                           hy_flx, hy_fly, hy_flz, \
                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
            @M hy_calcDivB
@@ -396,7 +396,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            if (lev > 1) call Grid_putFluxData(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
                 blkLimits(LOW,:))
            @M hy_OMP_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
-                                            hy_flx, hy_fly, hy_flz, &
+                                            hy_flx, hy_fly, hy_flz, \
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            @M hy_release_scr_ptrs
            @M hy_OMP_TARGET_exit_data(release, [Uin])
