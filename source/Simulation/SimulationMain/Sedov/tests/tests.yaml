@@ -235,6 +235,7 @@ Composite/Sedov/AMR/3dCyl/AMReX/unsplitFOG:
 Composite/Sedov/AMR/3dSph/Paramesh/spark:
   setupOptions: -auto -3d +spherical -nxb=16 -nyb=8 -nzb=16 +spark +pm4dev
   parfiles: test_amr_spark_sph.par
+  restartParfiles: test_amr_spark_sph_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 ## end 3DSph AMR
 
