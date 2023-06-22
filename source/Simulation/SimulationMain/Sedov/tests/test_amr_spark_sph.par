@@ -1,0 +1,153 @@
+#	Runtime parameters for the Sedov explosion problem.
+#       Version for testing Hydro with AMR implementations that
+#       are configured to allow for dynamic Grid refinement.
+#
+#	Parameters for initial model
+#		Ambient pressure and density, explosion energy, initial
+#		radius of perturbation, and location of explosion center
+
+sim_pAmbient	= 1.E-5
+sim_rhoAmbient	= 1.
+sim_expEnergy	= 1.
+tinitial        = 0.01
+
+sim_xctr		= 0.0
+sim_yctr		= 0.0
+sim_zctr		= 0.0
+
+sim_nsubzones           = 1
+
+sim_profFileName        = "sedovSolutionModLong.dat"
+sim_minRhoInit          = 1.0E-3
+smlRho                  = 1.0E-10
+
+#eosModeInit = "eos_nop"
+eosModeInit = "dens_ie"
+
+#		Gas ratio of specific heats
+gamma           = 1.4
+
+#	Computational volume parameters
+#		Grid dimensionality and geometry
+
+geometry = "spherical"
+
+#		Size of computational volume
+xmin		= 0.0
+xmax		= 0.5
+ymin		= 0.0
+ymax		= 180.0
+zmin		= 0.0
+zmax		= 360.0
+
+# Log integral quantities using all levels and all cells
+sim_oneLevelIntegralsOnly = .FALSE.
+sim_smallestNormRadius = -1.0
+sim_largestNormRadius  =  1.0e20
+
+sim_earliestLSTime     = 0.021
+sim_latestLSTime       = 0.026
+
+
+#		Boundary conditions
+#
+xl_boundary_type      = "reflecting"
+xr_boundary_type      = "outflow"
+
+yl_boundary_type = "reflecting"
+yr_boundary_type = "reflecting"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
+
+#	Simulation time, I/O  parameters
+
+cfl		= 0.4
+#hy_cflFallbackFactor           = 0.9
+
+
+basenm   = "flashx_"
+
+restart  = .false.
+
+alwaysComputeUserVars = .False.
+#	integral quantities & errors write frequency
+wr_integrals_freq              = 1
+
+#	checkpoint file output parameters
+checkpointFileIntervalTime = 0.0
+checkpointFileIntervalStep = 0
+checkpointFileNumber = 0
+
+#	plotfile output parameters
+plotfileIntervalTime = 0.0
+plotfileIntervalStep = 0
+plotfileNumber       = 0
+
+memory_stat_freq               = 1000
+
+#tstep_change_factor = 1.1
+nend            = 100000
+tmax            = 0.03
+#dr_shortenLastStepBeforeTMax   = .TRUE.
+
+run_comment     = "3D Sedov explosion from tinitial=0.01"
+log_file        = "flashx.log"
+eintSwitch     = 0.0 # 1.e-4
+use_auxEintEqn = .FALSE.
+
+plot_var_1 = "dens"
+plot_var_2 = "dena"
+plot_var_3 = "pres"
+plot_var_4 = "prsa"
+plot_var_5 = "velx"
+plot_var_6 = "vlxa"
+plot_var_7 = "eint"
+plot_var_8 = "eina"
+plot_var_9 = "ener"
+plot_var_10 = "enra"
+plot_var_11 = "temp"
+plot_var_12 = "vely"
+plot_var_13 = "vlya"
+plot_var_14 = "velz"
+plot_var_15 = "vlza"
+
+#  Adaptive Grid refinement parameters
+# Fix derefine_cutoff=refine_cutoff for all refinement
+# variables so that we can do a better direct comparison
+# of AMReX- and Paramesh-generated results
+lrefine_max       = 2
+lrefine_min     = 1
+#lrefine_min_init     = 1
+refine_var_1      = "dens"
+#refine_var_2      = "pres"
+#refine_cutoff_1   = 0.1
+#derefine_cutoff_1 = 0.1
+#refine_cutoff_2   = 0.1
+#derefine_cutoff_2 = 0.1
+sim_forceCenterDerefine   = .FALSE.
+#sim_centerRefineLevel     = 1
+#sim_derefineRadius     = 0.12
+
+nblockx                        = 1
+nblocky                        = 1
+nblockz                        = 1
+
+gr_useTiling = .FALSE.
+
+# Uniform Grid specific parameters 
+#iGridSize =  256  #global number of gridpoints along x, excluding gcells
+#jGridSize =  512  #global number of gridpoints along y, excluding gcells
+#iProcs = 4	#num procs in i direction
+#jProcs = 8	#num procs in j direction
+#kProcs = 1
+ 
+#	Related to the Hydro solver
+#
+flux_correct          = .true.  # Flux correction on/off
+flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis.
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
+use_hybridRiemann     = .true.  # Use the HLL solver inside shocks
+
