@@ -134,13 +134,13 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   ! Interpolate fluid vars from Thornado arrays into Flash arrays
 
   @M dir_enter_data &
-  @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac ) &
+  @M dir_copyin( [Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
   @M dir_end
 
   @M dir_loop_outer(4) &
-  @M dir_private()( i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff ) &
-  @M dir_private()( EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF ) &
-  @M dir_present()( ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX, volFac ) &
+  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff] ) &
+  @M dir_private( [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
+  @M dir_present( [ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX, volFac] ) &
   @M dir_end
 
   do kc = 1, nX(3)
@@ -164,7 +164,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
               Nel = 0.0
 
               @M dir_loop_inner(1) &
-              @M dir_reduction()( +: D, S1, S2, S3, E, Nel ) &
+              @M dir_reduction( +, [D, S1, S2, S3, E, Nel] ) &
               @M dir_end
 
               do n = 1, THORNADO_FLUID_NDOF
@@ -209,7 +209,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
                  HetF = 0.0
 
                  @M dir_loop_inner(1) &
-                 @M dir_reduction()( +: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF ) &
+                 @M dir_reduction( +, [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
                  @M dir_end
 
                  do n = 1, THORNADO_FLUID_NDOF
@@ -258,8 +258,8 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   ! Copy radiation vars from Thornado arrays into Flash arrays
 
   @M dir_loop(7) &
-  @M dir_private()( i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX ) &
-  @M dir_present()( Uin, uCR, nX, lo ) &
+  @M dir_private( [i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX] ) &
+  @M dir_present( [Uin, uCR, nX, lo] ) &
   @M dir_end
 
   do kc = 1, nX(3)
@@ -296,8 +296,8 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   end do
 
   @M dir_exit_data &
-  @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
-  @M dir_delete()( @M dir_map_type(release) lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac ) &
+  @M dir_copyout( [Uin, Sout] ) &
+  @M dir_delete( [lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
   @M dir_end
 
   return

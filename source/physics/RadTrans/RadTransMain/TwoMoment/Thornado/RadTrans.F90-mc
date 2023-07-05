@@ -227,7 +227,7 @@ subroutine RadTrans( dt, pass )
     call Timers_start( "rt_init" )
 
     @M dir_enter_data &
-    @M dir_copyin()( @M dir_map_type(to) Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX ) &
+    @M dir_copyin( [Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX] ) &
     @M dir_end
 
     call InitThornado_Patch &
@@ -323,8 +323,8 @@ subroutine RadTrans( dt, pass )
     call Timers_start( "rt_finalize" )
 
     @M dir_exit_data &
-    @M dir_copyout()( @M dir_map_type(from) Uin, Sout ) &
-    @M dir_delete()( @M dir_map_type(release) lo, hi, loGC, hiGC, u_lo, u_hi, nX ) &
+    @M dir_copyout( [Uin, Sout] ) &
+    @M dir_delete( [lo, hi, loGC, hiGC, u_lo, u_hi, nX] ) &
     @M dir_end
 
     call FreeThornado_Patch()
