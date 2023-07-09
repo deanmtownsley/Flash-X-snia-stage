@@ -12,6 +12,7 @@ typedef struct options_t
   double mesh_tol;
   double err_tol;
   double perr_tol;
+  double pmatch_tol;
   char *file1, *file2;
   char **extra_varnames;
   int n_extra_varnames;

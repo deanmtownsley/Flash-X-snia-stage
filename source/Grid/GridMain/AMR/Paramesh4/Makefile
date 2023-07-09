@@ -19,7 +19,7 @@ Grid += gr_freeCommRecvBuffer.o gr_checkGridConsistency.o gr_initParameshDomainB
 
 Grid += prolong_arrays.o  \
         mpi_amr_1blk_guardcell.o mpi_amr_1blk_guardcell_c_to_f.o \
-        mpi_amr_1blk_restrict.o mpi_amr_checkpoint_wr.o mpi_amr_checkpoint_re.o	\
+        mpi_amr_1blk_restrict.o	\
         mpi_amr_comm_setup.o mpi_amr_derefine_blocks.o mpi_amr_check_derefine.o mpi_amr_edge_average.o \
         mpi_amr_edge_average_udt.o mpi_amr_edge_average_vdt.o	\
         mpi_amr_edge_diagonal_check.o mpi_amr_flux_conserve.o	\
@@ -78,13 +78,6 @@ Grid += prolong_arrays.o  \
         mpi_amr_boundary_block_info.o  \
         amr_set_runtime_parameters.o      \
         amr_1blk_fc_clean_divb.o physicaldata.o \
-        mpi_amr_checkpoint_wr_default.o \
-        mpi_amr_checkpoint_wr_hdf5.o \
-        mpi_amr_checkpoint_wr_mpiio.o \
-        mpi_amr_checkpoint_re_default.o \
-        mpi_amr_checkpoint_re_hdf5.o \
-        mpi_amr_checkpoint_re_mpiio.o \
-        mpi_amr_plotfile_chombo.o \
         mpi_amr_singular_line.o \
         mpi_put_edge_buffer_1blk.o \
         amr_1blk_cc_prol_user.o \

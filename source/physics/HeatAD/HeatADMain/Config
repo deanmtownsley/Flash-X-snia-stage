@@ -1,5 +1,5 @@
 #       Config file for the Heat Advection Diffusion solver.
-DEFAULT ConstDiffusion
+DEFAULT constDiffusion
 
 PPDEFINE HEATAD_MAIN
 

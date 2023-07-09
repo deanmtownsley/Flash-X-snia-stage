@@ -51,7 +51,7 @@ subroutine sim_outletLSDamping(pfrc, phi, xcenter, ycenter, zcenter, boundBox, &
                             + outletSink*outletFlag(HIGH, JAXIS)*(2/(1 + exp(-outletGrowthRate*(yi - yMax)/outletBuffer)))
 
 #if NDIM == MDIM
-            pfrc(i, j, k) = prfc(i, j, k) &
+            pfrc(i, j, k) = pfrc(i, j, k) &
                             + outletSink*outletFlag(HIGH, KAXIS)*(2/(1 + exp(-outletGrowthRate*(zi - zMax)/outletBuffer)))
 #endif
 

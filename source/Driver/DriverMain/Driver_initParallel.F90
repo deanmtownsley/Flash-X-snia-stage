@@ -50,7 +50,10 @@ subroutine Driver_initParallel ()
 
   use Driver_data, ONLY : dr_globalMe, dr_globalNumProcs, dr_globalComm, &
        dr_mpiThreadSupport
-  !$ use omp_lib
+  !$ use omp_lib, ONLY: omp_get_num_threads, omp_get_thread_num
+#ifdef __INTEL_COMPILER
+  !$ use omp_lib, ONLY: kmp_size_t_kind, kmp_get_stacksize_s
+#endif
 
 #include "Flashx_mpi_implicitNone.fh"
 

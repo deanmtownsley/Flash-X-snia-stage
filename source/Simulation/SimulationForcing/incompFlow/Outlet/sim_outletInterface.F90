@@ -88,7 +88,7 @@ Module sim_outletInterface
    end interface
 
    interface
-      subroutine sim_outletVelFrcPhased(vel, rhs, phi, xgrid, ygrid, zgrid, &
+      subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                                         dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, &
                                         xMin, xMax, yMin, yMax, zMin, zMax, &
                                         outletFlag, outletBuffer, outletGrowthRate, &
@@ -97,7 +97,7 @@ Module sim_outletInterface
 
          implicit none
          real, dimension(:, :, :), intent(in) :: vel, phi
-         real, dimension(:, :, :), intent(inout) :: rhs
+         real, dimension(:, :, :), intent(inout) :: rhs, sigm
          real, dimension(:), intent(in) :: xgrid, ygrid, zgrid
          real, intent(in) :: dt, dx, dy, dz
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -113,7 +113,7 @@ Module sim_outletInterface
 
    interface
       subroutine sim_outletApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                         guard, face, axis, secondDir, thirdDir)
+                                           guard, face, axis, secondDir, thirdDir)
 
          implicit none
          integer, intent(IN) :: level, ivar, gridDataStruct
@@ -129,6 +129,15 @@ Module sim_outletInterface
          integer, intent(IN) :: guard, face, axis, secondDir, thirdDir
 
       end subroutine sim_outletApplyBCToRegion
+   end interface
+
+   interface
+      subroutine sim_forceOutlet(nstep, dt, stime)
+         implicit none
+         integer, intent(in) :: nstep
+         real, intent(in) :: dt
+         real, intent(in) :: stime
+      end subroutine sim_forceOutlet
    end interface
 
 End module sim_outletInterface

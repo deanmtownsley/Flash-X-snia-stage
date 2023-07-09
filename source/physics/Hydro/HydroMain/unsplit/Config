@@ -107,7 +107,7 @@ D entropy		Entropy Fix routine for the Roe Riemann solver
 D entropyFixMethod      Entropy fix method for the Roe Riemann solver: Harten or HartenHyman
 D shockDetect           Switch to use a strong compressive shock detection
 D shockLowerCFL		Lower the simulation CFL if shocks are detected
-D hy_fallbackLowerCFL	Lower the simulation CFL if fallin back to a lower reconstruction order in problematic cells
+D hy_fallbackLowerCFL	Lower the simulation CFL if falling back to a lower reconstruction order in problematic cells
 D hy_cflFallbackFactor  factor for scaling CFL factor when it is lowered because of fallback in problematic cells
 
 D use_gravHalfUpdate    Include gravitational accelerations to hydro coupling at n+1/2

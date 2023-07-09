@@ -34,6 +34,7 @@ module gr_amrexMultigridData
   use amrex_fort_module,     ONLY : amrex_real
   use amrex_multigrid_module, ONLY : amrex_multigrid
   use amrex_poisson_module, ONLY: amrex_poisson
+  use amrex_abeclaplacian_module, ONLY: amrex_abeclaplacian
   
   implicit none
 
@@ -67,10 +68,12 @@ module gr_amrexMultigridData
   type(amrex_multifab), allocatable, save :: gr_amrexMG_rhs(:)
   type(amrex_multifab), allocatable, save :: gr_amrexMG_exact_solution(:)
   type(amrex_multifab), allocatable, save :: gr_amrexMG_acoef(:)
-  type(amrex_multifab), allocatable, save :: gr_amrexMG_bcoef(:)
+  type(amrex_multifab), allocatable, save :: gr_amrexMG_bcoef(:,:)
+
   real(amrex_real), save :: gr_amrexMG_ascalar, gr_amrexMG_bscalar
 
   type(amrex_poisson) :: gr_amrexMG_poisson
+  type(amrex_abeclaplacian) :: gr_amrexMG_abeclaplacian
   type(amrex_multigrid) :: gr_amrexMG_multigrid
 
   real(amrex_real), save :: gr_amrexMG_Tol

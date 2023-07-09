@@ -292,4 +292,24 @@ Module Stencils_interface
     end subroutine Stencils_lsNormals3d
   end interface
 
+  interface
+    subroutine Stencils_lsCurvature2d(crv, phi, dx, dy, ix1, ix2, jy1, jy2)
+    implicit none
+    integer, intent(in) :: ix1, ix2, jy1, jy2
+    real, intent(in) :: dx, dy
+    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(inout) :: crv
+  end subroutine Stencils_lsCurvature2d
+ end interface
+
+  interface
+    subroutine Stencils_lsCurvature3d(crv, phi, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+    implicit none
+    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+    real, intent(in) :: dx, dy, dz
+    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(inout) :: crv
+  end subroutine Stencils_lsCurvature3d
+ end interface
+
 end Module Stencils_interface

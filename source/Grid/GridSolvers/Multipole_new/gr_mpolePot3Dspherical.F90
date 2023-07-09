@@ -140,7 +140,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
 !     ...Sum quantities over all locally held leaf blocks.
 !
 !
-  !$omp do schedule (static)
+  !$omp single
   nullify(solnData)
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
 
@@ -648,7 +648,7 @@ subroutine gr_mpolePot3Dspherical (ipotvar)
 
   end do
   call Grid_releaseTileIterator(itor)
-  !$omp end do
+  !$omp end single
 
 !
 !

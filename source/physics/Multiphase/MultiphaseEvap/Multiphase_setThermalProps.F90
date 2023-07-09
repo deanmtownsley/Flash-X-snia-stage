@@ -47,14 +47,8 @@ subroutine Multiphase_setThermalProps(tileDesc)
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%deltas(del)
 
-   minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
-
-   call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
-                               solnData(mph_iAlphaCVar, :, :, :), &
-                               mph_thcoGas/(mph_rhoGas*mph_CpGas), &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, &
-                               GRID_KLO_GC, GRID_KHI_GC, iSmear=mph_iPropSmear*minCellDiag)
+   solnData(mph_iAlphaCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*(mph_thcoGas/(mph_rhoGas*mph_CpGas)) + &
+                                       (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iAlphaCVar, :, :, :)
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)

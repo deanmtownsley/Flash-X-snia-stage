@@ -17,6 +17,7 @@
 
 !!REORDER(4): dataPtr
 
+#include "FortranLangFeatures.fh"
 #include "constants.h"
 #include "Simulation.h"
 
@@ -25,7 +26,7 @@ module Grid_tile
 
     private
 
-    type, public :: Grid_tile_t 
+    type, public :: Grid_tile_t
         integer :: id
         integer :: cid(MDIM)
         integer :: stride(MDIM)
@@ -55,11 +56,13 @@ contains
     end subroutine deltas
 
     subroutine boundBox(this, box)
+        use Grid_data,        ONLY: gr_delta
         use tree,             ONLY : bnd_box
         use Driver_interface, ONLY : Driver_abort
 
         class(Grid_tile_t), intent(IN)  :: this
         real,               intent(OUT) :: box(LOW:HIGH, 1:MDIM)
+        integer         :: i
   
         if (this%id <= 0) then
            print *, "blockId = ", this%id
@@ -67,15 +70,26 @@ contains
         end if
   
         box = bnd_box(:, :, this%id)
-    end subroutine boundBox 
+        do i = 1,NDIM
+           box(LOW,i)  = box(LOW,i)  + (this%limits(LOW,i)  - this%blkLimitsGC(LOW,i)  - NGUARD) * gr_delta(i, this%level)
+           box(HIGH,i) = box(HIGH,i) + (this%limits(HIGH,i) - this%blkLimitsGC(HIGH,i) + NGUARD) * gr_delta(i, this%level)
+        end do
+    end subroutine boundBox
 
     subroutine physicalSize(this, tileSize) 
+        use Grid_data, ONLY: gr_delta
         use tree, ONLY : bsize
 
         class(Grid_tile_t), intent(IN)  :: this
-        real,               intent(OUT) :: tileSize(1:MDIM) 
+        real,               intent(OUT) :: tileSize(1:MDIM)
+        integer         :: i
       
         tileSize = bsize(:, this%id)
+        do i = 1,NDIM
+           tileSize(i) = tileSize(i) + gr_delta(i, this%level) * &
+                ( this%limits(HIGH,i) - this%limits(LOW,i) + this%blkLimitsGC(LOW,i) - this%blkLimitsGC(HIGH,i) + 2*NGUARD )
+        end do
+
     end subroutine physicalSize
 
     subroutine faceBCs(this, faces, onBoundary)
@@ -166,8 +180,12 @@ contains
         use gr_specificData, ONLY : gr_flxx, gr_flxy, gr_flxz
 #endif
 
-       class(Grid_tile_t), intent(IN), target   :: this
-       real,                           pointer  :: dataPtr(:, :, :, :)
+       class(Grid_tile_t), intent(IN)           :: this
+#ifdef DEBUG_GRID
+       real,               pointer              :: dataPtr(:, :, :, :)
+#else
+       real,               POINTER_INTENT_OUT   :: dataPtr(:, :, :, :)
+#endif
        integer,            intent(IN)           :: gridDataStruct
        logical,            intent(IN), optional :: localFlag
 
@@ -196,12 +214,12 @@ contains
           print *, 'Grid_getBlkPtr:  invalid blockid ',this%id
           call Driver_abort("[getDataPtr] invalid blockid ")
        end if
-#endif
 
        ! Avoid possible memory leaks
        if (associated(dataPtr)) then
            call Driver_abort("[getDataPtr] Given data pointer must be NULL")
        end if
+#endif
 
        lo = this%blkLimitsGC(LOW, :)
 

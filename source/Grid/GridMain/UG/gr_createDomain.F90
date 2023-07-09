@@ -61,7 +61,7 @@ subroutine gr_createDomain()
        &scratch_facevarx,scratch_facevary,scratch_facevarz
   
   use Grid_data, ONLY : gr_axisMe, gr_axisNumProcs,&
-       gr_guard, &
+       gr_guard,gr_maxCells, &
        gr_gIndexSize, gr_blkCornerID, &
        gr_lIndexSize, gr_kmax, gr_kmin, &
        gr_jmax, gr_jmin, gr_imax, gr_imin, gr_delta, gr_blkBC, &
@@ -87,6 +87,7 @@ subroutine gr_createDomain()
 
   !store local index size for each block
   gr_lIndexSize = gr_gIndexSize/gr_axisNumProcs
+  gr_maxCells = max(gr_lIndexSize(IAXIS),gr_lIndexSize(JAXIS),gr_lIndexSize(KAXIS))
 
   !store lower left global index for each dim
   gr_blkCornerID = gr_axisMe*gr_lIndexSize+1  

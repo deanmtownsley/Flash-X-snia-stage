@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpolePot2Dcylindrical
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -45,9 +45,6 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
                                 gr_mpoleDrInv,                  &
                                 gr_mpoleDrInnerZoneInv,         &
                                 gr_mpoleMaxL,                   &
-                                gr_mpoleMaxM,                   &
-                                gr_mpoleMaxLM,                  &
-                                gr_mpoleMaxQ,                   &
                                 gr_mpoleMaxRadialZones,         &
                                 gr_mpoleMinRadialZone,          &
                                 gr_mpoleZoneRmax,               &
@@ -60,9 +57,9 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
                                 gr_mpoleInnerZoneDrRadii,       &
                                 gr_mpoleInnerZoneQlower,        &
                                 gr_mpoleInnerZoneQupper,        &
-                                gr_mpoleInnerZoneResolution,    &
-                                gr_mpoleInnerZoneResolutionInv, &
-                                gr_mpoleOuterZoneQshift
+                                gr_mpoleOuterZoneQshift,        &
+                                gr_mpoleMultiThreading,         &
+                                gr_mpoleThreadTileList
 
   use gr_mpoleData,      ONLY : gr_mpoleRcenter,                &
                                 gr_mpoleZcenter,                &
@@ -123,16 +120,43 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
   type(Grid_tile_t)     :: tileDesc
   type(Grid_iterator_t) :: itor
 
-  nullify(solnData)
 
 !
 !     ...Sum quantities over all locally held leaf blocks.
 !
 !
+  !$omp parallel if (gr_mpoleMultiThreading .AND. gr_mpoleThreadTileList) &
+  !$omp default(none) &
+  !$omp private(z,jC,j2,iB,iC,i2,r,&
+  !$omp         innerZonePotential,rinDrs,drUnit,qlower,qupper,qfracR,qfracI,&
+  !$omp         rlocal,type,sclInv,expInv,qfloat,lgnInv,qlocal,rdamping,idamping,&
+  !$omp         idampingQuotient,rI,rinvI,rcL,Rcyl,icL,idamp,rdamp,rdotI,idotR,&
+  !$omp         facePotential,rdampingQuotient,zR,rR,zI,rsqR,rsqinvI,rc0,ic0,rc1,ic1,&
+  !$omp         dampI,dampR,h,g,f,rc2,ic2,&
+  !$omp         tileDesc,itor)&
+  !$omp private(solnData)&
+  !$omp private(bndBox,delta,tileLimits,&
+  !$omp         imin,jmin,imax,jmax,&
+  !$omp         iCmax,jCmax,iFmax,jFmax,&
+  !$omp         DeltaI,DeltaJ,DeltaIHalf,DeltaJHalf,&
+  !$omp         bndBoxILow,bndBoxJLow)&
+  !$omp shared( ipotvar)&
+  !$omp shared( gr_mpoleGravityConstant,gr_mpoleNumberInv,&
+  !$omp         gr_mpoleDrInv,gr_mpoleDrInnerZoneInv,&
+  !$omp         gr_mpoleMaxL,&
+  !$omp         gr_mpoleMaxRadialZones,gr_mpoleMinRadialZone,gr_mpoleZoneRmax,&
+  !$omp         gr_mpoleZoneQmax,gr_mpoleZoneType,gr_mpoleZoneScalarInv,&
+  !$omp         gr_mpoleZoneLogNormInv,gr_mpoleZoneExponentInv,gr_mpoleInnerZoneMaxR,&
+  !$omp         gr_mpoleInnerZoneDrRadii,gr_mpoleInnerZoneQlower,gr_mpoleInnerZoneQupper,&
+  !$omp         gr_mpoleOuterZoneQshift,gr_mpoleRcenter,gr_mpoleZcenter,&
+  !$omp         gr_mpoleQDampingR,gr_mpoleQDampingI, gr_mpoleMomentR,gr_mpoleMomentI)
 
   ! Replaced `!$omp do schedule(static)` with `!$omp single` below as temporary fix until we determine
   ! the proper way to parallelize leaf iterator loops with OpenMP - JAH
-  !$omp single
+!!$  !$omp single
+
+  NULLIFY(solnData)
+
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
@@ -441,7 +465,7 @@ subroutine gr_mpolePot2Dcylindrical (ipotvar)
      call itor%next()
   end do
   call Grid_releaseTileIterator(itor)
-  !$omp end single
+  !$omp end parallel
 
 
 !    ...Ready!

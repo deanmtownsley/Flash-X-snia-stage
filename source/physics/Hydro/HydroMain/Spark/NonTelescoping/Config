@@ -1,0 +1,59 @@
+##python3:genLines
+
+# Config file for the Spark Hydro solvers without telescoping
+# [physics/Hydro/HydroMain/Spark/NonTelescoping]
+
+import os.path
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    yield '''
+
+UNOFFICIAL
+
+USESETUPVARS useMP5
+USESETUPVARS useGLM
+USESETUPVARS useTVD
+USESETUPVARS useFog
+USESETUPVARS useLim03
+USESETUPVARS nontelescoping
+
+PPDEFINE SPARK_HYDRO_NONTELESC
+
+# The Amrex Grid does not support SCRATCH_CTR variables in the way needed here.
+# However, instead of generating failure at setup time by using something like
+#   CONFLICTS Grid/GridMain/AMR/Amrex
+# here, let us define a preprocessor symbol here that allows to deal with
+# the situation at run time.
+USESETUPVARS Grid
+IF Grid in ["","Amrex","Milhoja"]
+  PPDEFINE CONFLICT_AMREX_AND_SPARKNT
+ENDIF
+
+# Variables required for state saving - commented out since we do not need to name them
+# SCRATCHCENTERVAR mass
+# SCRATCHCENTERVAR xmom
+# SCRATCHCENTERVAR ymom
+# SCRATCHCENTERVAR zmom
+# SCRATCHCENTERVAR mene
+# Request as many SCRATCHCENTERVAR variabls as there are UNK variables!
+NSCRATCHCENTERVARS NUNK_VARS
+
+PARAMETER telescoping          BOOLEAN  FALSE
+'''
+
+    if "HydroGuardcells" in setupvars:
+        ngcLow  = max(2,setupvars["HydroGuardcells"])
+        ngcHigh = max(3,setupvars["HydroGuardcells"])
+    else:
+        ngcLow  = 2
+        ngcHigh = 4
+    yield f'''
+IF useTVD or useLim03 or useFog
+  GUARDCELLS {ngcLow}
+ELSE
+  GUARDCELLS {ngcHigh}
+ENDIF
+'''

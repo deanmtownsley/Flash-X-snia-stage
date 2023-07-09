@@ -22,6 +22,6 @@ subroutine mph_evapInit()
    implicit none
    call HeatAD_getGridVar('Center_Thermal_Diffusivity', mph_iAlphaCVar)
    call HeatAD_getGridVar('Center_Temperature', mph_iTempVar)
-   call HeatAD_getGridVar('Center_Thermal_Forcing', mph_iGfmVar)
+   call HeatAD_getGridVar('Center_Thermal_Forcing', mph_iTempFrcVar)
 
 end subroutine mph_evapInit

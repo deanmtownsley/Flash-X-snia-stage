@@ -30,7 +30,12 @@ Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 
 #this test had debug flag turned on
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark:
-  setupOptions: -auto -2d -nxb=16 -nyb=16  +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  setupOptions: -auto +sparkbase2d +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
+  setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
@@ -39,12 +44,17 @@ Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt:
+  setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping -unit=Particles Bittree=True
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 #  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/spark:
-#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +sparkinhost  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
 #Comparison/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:

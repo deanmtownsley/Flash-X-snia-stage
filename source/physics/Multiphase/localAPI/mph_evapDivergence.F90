@@ -14,19 +14,19 @@
 !!
 !!
 !!******
-subroutine mph_evapDivergence2d(divv, rhox, rhoy, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
+subroutine mph_evapDivergence2d(divv, rhoc, normx, normy, mflux, dx, dy, ix1, ix2, jy1, jy2)
    implicit none
    real, dimension(:, :, :), intent(inout) :: divv
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
    real, intent(in)                      :: dx, dy
    integer, intent(in)                   :: ix1, ix2, jy1, jy2
 end subroutine mph_evapDivergence2d
 
-subroutine mph_evapDivergence3d(divv, rhox, rhoy, rhoz, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine mph_evapDivergence3d(divv, rhoc, normx, normy, normz, mflux, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
    implicit none
    real, dimension(:, :, :), intent(inout) :: divv
-   real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
+   real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
    real, intent(in)                      :: dx, dy, dz
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
