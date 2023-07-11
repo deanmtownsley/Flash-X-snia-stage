@@ -15,12 +15,12 @@ macro_keyword = "M"
 macro_regex = (
     r"\s*@\s*"
     + re.escape(macro_keyword)
-    + r"\s*\w*(?:\s*\(\s*[\w\[\].]*\s*(?:,\s*[\w\[\].]*\s*)*\))?"
+    + r"\s*\w*(?:\s*\(\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*\))?"
 )
 invocation_regex = (
     r"(?P<indent>\s*)@\s*"
     + re.escape(macro_keyword)
-    + r"\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\].]*\s*(?:,\s*[\w\[\].]*\s*)*)\))?"
+    + r"\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*)\))?"
 )
 
 
