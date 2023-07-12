@@ -127,7 +127,7 @@ subroutine rt_init()
 #ifdef FLASH_EOS_WEAKLIB
   call RuntimeParameters_get("eos_file", eos_file)
   call InitThornado( THORNADO_NNODES, NDIM, THORNADO_NE, &
-     THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, &
+     THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, THORNADO_NSPECIES, &
      EquationOfStateTableName_Option = eos_file, &
      External_EOS = eos_pointer, &
      PositivityLimiter_Option = rt_positivityLimiter, &
@@ -158,7 +158,7 @@ subroutine rt_init()
 #else
   call RuntimeParameters_get("gamma", eos_gamma)
   call InitThornado( THORNADO_NNODES, NDIM, THORNADO_NE, &
-     THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, &
+     THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, THORNADO_NSPECIES, &
      EquationOfStateTableName_Option = '', &
      External_EOS = 0, &
      Gamma_IDEAL_Option = eos_gamma, &
