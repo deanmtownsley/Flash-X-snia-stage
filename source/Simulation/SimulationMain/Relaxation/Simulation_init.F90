@@ -1,4 +1,15 @@
-!!****if* source/Simulation/SimulationMain/Relaxation/Simulation_init
+!!****if* source/Simulation/SimulationMain/DeleptonizationWave/Simulation_init
+!! NOTICE
+!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!
+!!  Licensed under the Apache License, Version 2.0 (the "License");
+!!  you may not use this file except in compliance with the License.
+!!
+!!  Unless required by applicable law or agreed to in writing, software
+!!  distributed under the License is distributed on an "AS IS" BASIS,
+!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!  See the License for the specific language governing permissions and
+!!  limitations under the License.
 !!
 !! NAME
 !!
@@ -369,90 +380,148 @@ contains
 
   subroutine sim_computeSphereSolution
 
-    use MeshModule, ONLY : NodeCoordinate, MeshE
-    use UnitsModule, ONLY : MeV, Gram, Centimeter, Kelvin, Kilometer
     use Simulation_data, ONLY : n1d_max, xzn, D_Nu_P, I1_Nu_P
-    !use NeutrinoOpacitiesComputationModule, ONLY: &
-    !    ComputeEquilibriumDistributions_Points, &
-    !    ComputeNeutrinoOpacities_EC_Points
     use ut_interpolationInterface, ONLY : ut_hunt
+
+    use MeshModule, ONLY : NodeCoordinate, MeshE
+    use NeutrinoOpacitiesComputationModule, ONLY : &
+       ComputeEquilibriumDistributions_DG, &
+       ComputeNeutrinoOpacities_EC
+    use UnitsModule, ONLY : MeV, Gram, Centimeter, Kelvin, Kilometer, &
+       Zero, Half, SqrtTiny
 
 #include "Simulation.h"
 
-    integer :: iE, iNodeE, nE, nR, i, iS, iR, buff_int
-    real :: enode, Tau
+    integer :: iE, iNodeE, iS, iR, i, buff_int
+    real :: Tau
     real, allocatable :: R_P(:), D_P(:), T_P(:), Y_P(:)
     real, allocatable :: Chi(:,:,:), fEQ(:,:,:), R_Nu(:,:), E_Nu(:)
+
+    integer :: nE, nSpecies, nR
+    integer :: nDOFE, iE_B0, iE_E0
 
     real, parameter :: UnitD  = Gram / Centimeter**3
     real, parameter :: UnitT  = Kelvin
     real, parameter :: UnitY  = 1.0
-    
-    nR = n1d_max 
-    nE = THORNADO_NE * THORNADO_NNODESE
 
-    allocate( E_Nu(nE) )
-    allocate( R_P(nR) )
-    allocate( D_P(nR) )
-    allocate( T_P(nR) )
-    allocate( Y_P(nR) )
-    allocate( R_Nu(nE,THORNADO_NSPECIES) )
-    allocate( Chi(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( fEQ(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( D_Nu_P(nE,nR,THORNADO_NSPECIES) ) 
-    allocate( I1_Nu_P(nE,nR,THORNADO_NSPECIES) ) 
+    iE_B0 = 1
+    iE_E0 = THORNADO_NE
+    nDOFE = THORNADO_NNODESE
+    nSpecies = THORNADO_NSPECIES
+
+    ! --- Radiation Fields ---
+
+    nR = n1d_max 
+    nE = ( iE_E0 - iE_B0 + 1 ) * nDOFE
+
+    ALLOCATE( E_Nu   (nE) )
+    ALLOCATE( R_Nu   (nE,nSpecies) )
+    ALLOCATE( Chi    (nE,nSpecies,nR) )
+    ALLOCATE( fEQ    (nE,nSpecies,nR) )
+    ALLOCATE( D_Nu_P (nE,nSpecies,nR) )
+    ALLOCATE( I1_Nu_P(nE,nSpecies,nR) )
+
+    Chi = Zero
+
+    ALLOCATE( R_P(nR) )
+    ALLOCATE( D_P(nR) )
+    ALLOCATE( T_P(nR) )
+    ALLOCATE( Y_P(nR) )
 
     ! convert to thornado's unit
     R_P = xzn * Centimeter
     D_P = model_1d(:,DENS_VAR) * UnitD
     T_P = model_1d(:,TEMP_VAR) * UnitT
     Y_P = model_1d(:,YE_MSCALAR) * UnitY
+
     ! prevent too low temperature
-    call ut_hunt(R_P,nR,5.0e3*Kilometer,buff_int)
+    call ut_hunt( R_P, nR, 5.0e3*Kilometer, buff_int )
     D_P = max( D_P, D_P(buff_int) )
     T_P = max( T_P, T_P(buff_int) )
-    ! get thornado neutrino energies node value
-    i = 1
-    do iE = 1, THORNADO_NE
-      do iNodeE = 1, THORNADO_NNODESE
-        enode = NodeCoordinate( MeshE,iE,iNodeE)
-        E_Nu(i) = enode
-        i = i+1
-      end do
-    end do
-    ! compute neutrino absorption opacities
-    !do iS = 1, THORNADO_NSPECIES
-    !  call ComputeNeutrinoOpacities_EC_Points &
-    !         ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, iS, Chi(:,:,iS) )
-    !  call ComputeEquilibriumDistributions_Points &
-    !         ( 1, nE, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ(:,:,iS), iS )
-    !end do
-    ! compute approximate neutrino sphere radii
-    do iS = 1, THORNADO_NSPECIES; do iE = 1, nE
-      Tau = 0.0e0
-      do iR = nR-1, 1, -1
-        if( Tau > 2.0e0 / 3.0e0 ) cycle
-        Tau = Tau + 0.5e0 * ( R_P(iR+1) - R_P(iR) ) &
-                          * ( Chi(iE,iR+1,iS) + Chi(iE,iR,iS) )
-        R_Nu(iE,iS) = MAX( R_P(iR), 1.0e1 * Kilometer )
-      end do 
-    end do; end do
-    ! use Chi and fEQ at local radius or neutrino sphere
-    do iS = 1, THORNADO_NSPECIES; do iR = 1, nR; do iE = 1, nE
-      call ut_hunt(R_P,nR,R_Nu(iE,iS),buff_int)    
+
+    ! --- Neutrino Energies ---
+
+    DO iE = iE_B0, iE_E0
+    DO iNodeE = 1, nDOFE
+
+      E_Nu((iE-1)*nDOFE+iNodeE) = NodeCoordinate( MeshE, iE, iNodeE )
+
+    END DO
+    END DO
+
+    ! --- Neutrino Absorption Opacities and Equilibrium Distributions ---
+
+    CALL ComputeNeutrinoOpacities_EC &
+           ( 1, nE, 1, nSpecies, 1, nR, E_Nu, D_P, T_P, Y_P, Chi )
+
+    DO iR = 1, nR
+
+      ! --- Prevent too large drop-off of the opacity -------
+      ! --- This is mainly to prevent opacity for Nue_Bar ---
+      ! --- be close to zero for low neutrino energies ------
+
+      DO iS = 1, nSpecies
+      DO iE = 1, nE-1
+
+        IF( Chi(iE,iS,iR) < 1.d-16 * Chi(iE+1,iS,iR) )THEN
+
+          Chi(1:iE,iS,iR) = Chi(iE+1,iS,iR) * ( E_Nu(1:iE) / E_Nu(iE+1) )**2
+
+        END IF
+
+      END DO
+      END DO
+
+    END DO
+
+    CALL ComputeEquilibriumDistributions_DG &
+           ( 1, nE, 1, nSpecies, 1, nR, E_Nu, D_P, T_P, Y_P, fEQ )
+
+    ! --- Approximate Neutrino Sphere Radii ---
+
+    DO iS = 1, nSpecies
+    DO iE = 1, nE
+
+      Tau = Zero
+      DO iR = nR-1, 1, -1
+
+        IF( Tau > 2.0_DP / 3.0_DP ) CYCLE
+
+        Tau = Tau + Half * ( R_P(iR+1) - R_P(iR) ) &
+                         * ( Chi(iE,iS,iR+1) + Chi(iE,iS,iR) )
+
+        R_Nu(iE,iS) = MAX( R_P(iR), 1.0d1 * Kilometer )
+
+      END DO
+
+    END DO
+    END DO
+
+    ! --- Homogeneous Sphere Solution ---
+
+    DO iR = 1, nR
+    DO iS = 1, nSpecies
+    DO iE = 1, nE
+
+      ! --- Use Chi and fEQ at MIN( local radius, neutrino sphere radius ) ---
+
+      call ut_hunt( R_P, nR, R_Nu(iE,iS), buff_int )
       i = MIN( iR, buff_int )
-      call ComputeSphereSolution &
-               ( R_Nu(iE,iS), Chi(iE,i,iS), fEQ(iE,i,iS), &
-                 R_P(iR), D_Nu_P(iE,iR,iS), I1_Nu_P(iE,iR,iS) )
-    end do; end do; end do
 
-    deallocate( R_P, D_P, T_P, Y_P )
-    deallocate( E_Nu, R_Nu, Chi, fEQ )
+      CALL ComputeSphereSolution &
+             ( R_Nu(iE,iS), Chi(iE,iS,i), fEQ(iE,iS,i), &
+               R_P(iR), D_Nu_P(iE,iS,iR), I1_Nu_P(iE,iS,iR) )
 
-    if (sim_meshMe == MASTER_PE) &
-      print*, 'Compute Sphere Solution completed'
+      D_Nu_P(iE,iS,iR) = MAX( D_Nu_P(iE,iS,iR), SqrtTiny )
+
+    END DO
+    END DO
+    END DO
+
+    DEALLOCATE( R_P, D_P, T_P, Y_P )
+    DEALLOCATE( E_Nu, R_Nu, Chi, fEQ )
+
     return
-
   end subroutine sim_computeSphereSolution
 
   subroutine ComputeSphereSolution( R0, Chi, f0, R, D, I )
@@ -474,8 +543,6 @@ contains
 
     D = 0.5e0 * TRAPEZ( nMu, Mu, Distribution )
     I = 0.5e0 * TRAPEZ( nMu, Mu, Distribution * Mu )
-
-    D = max( D, 1.0e-100 )
 
   end subroutine ComputeSphereSolution
 
