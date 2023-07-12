@@ -46,14 +46,15 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_coordTransfm
   use Eos_interface, ONLY : Eos_wrapped
 
-  use KindModule, ONLY : SqrtTiny
-  use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
-  use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
+  use GeometryFieldsModule, ONLY : uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33
   use MeshModule, ONLY : NodeCoordinate, MeshE, MeshX
   use NeutrinoOpacitiesComputationModule, ONLY : ComputeEquilibriumDistributions_Point
+  use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
   use ThornadoInitializationModule, ONLY : InitThornado_Patch, FreeThornado_Patch
+  use TwoMoment_UtilitiesModule, ONLY : ComputeConserved_TwoMoment
+  use UnitsModule, ONLY : Centimeter, Gram, Second, MeV, Kelvin
 
-  use rt_data, ONLY : rt_UpperBry1
+  use rt_data, ONLY : rt_UpperBry1, rt_ivar
 
   implicit none
 
@@ -77,8 +78,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   integer :: iS, iCR, iE, iNode, iNodeX, iNodeE, ioff, ivar
   integer :: nX(3), swX(3)
   real :: xL(3), xR(3)
-  real :: xnode, ynode, znode, enode, Psi0, Psi1
+  real :: xnode, ynode, znode, enode
+  real :: Nnu, Gnu1, Gnu2, Gnu3
+  real :: Dnu, Inu1, Inu2, Inu3
   real :: dens_buffer, temp_buffer, ye_buffer, velr_buffer
+  real :: dens_i, temp_i, velx_i, vely_i, velz_i, ye_i
 
   real, parameter :: conv_x = Centimeter
   real, parameter :: UnitD  = Gram / Centimeter**3
@@ -120,7 +124,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   end if
 
   nX(1:NDIM) = (hi(1:NDIM) - lo(1:NDIM) + 1) / THORNADO_NNODESX
-  swX(1:NDIM) = 2
+  swX(1:NDIM) = NGUARD / THORNADO_NNODESX
   u_lo(2:4) = 1 - swX
   u_hi(2:4) = nX + swX
   u_lo(1)   = 1 - THORNADO_SWE
@@ -184,37 +188,29 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               solnData(VELY_VAR,ii,jj,kk) = sim_vely_i
               solnData(VELZ_VAR,ii,jj,kk) = sim_velz_i
               solnData(YE_MSCALAR,ii,jj,kk) = sim_ye_i
+
+#if NSPECIES>0
               do n = SPECIES_BEGIN,SPECIES_END
                  solnData(n,ii,jj,kk) = sim_xn_i(n)
               end do
+#endif
 
            end do
 
            ! Initialize neutrino data
-           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS ; do iE = u_lo(1), u_hi(1)
-
-              ioff = THORNADO_BEGIN &
-                 + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE) &
-                           *THORNADO_NMOMENTS) &
-                 + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
-                 + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
-
+           do iS = 1, THORNADO_NSPECIES ; do iE = 1, THORNADO_NE
               do iNode = 1, THORNADO_RAD_NDOF
 
                  iNodeE  = mod((iNode -1)                 ,THORNADO_NNODESE   ) + 1
                  iNodeX  = mod((iNode -1)/THORNADO_NNODESE,THORNADO_FLUID_NDOF) + 1
 
                  iNodeX1 = mod((iNodeX-1)                    ,THORNADO_NNODESX) + 1
-                 ii      = iNodeX1 + i - 1
-
                  iNodeX2 = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + 1
-                 jj      = iNodeX2 + j - 1
-
                  iNodeX3 = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + 1
-                 kk      = iNodeX3 + k - 1
 
-                 ! calculate the indices
-                 ivar = ioff + iNodeE - 1
+                 ii      = iNodeX1 + i - 1
+                 jj      = iNodeX2 + j - 1
+                 kk      = iNodeX3 + k - 1
 
                  ! calculate actual positions of the nodes used for the gaussian quadrature
                  xnode = NodeCoordinate( MeshX(1), iX1, iNodeX1 )
@@ -244,18 +240,23 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                     ( rcc, tcc, pcc, velr, velt, velp, &
                       sim_geometry, sim_velx_i, sim_vely_i, sim_velz_i )
 
-                 sim_dens_i = sim_dens_i * UnitD
-                 sim_temp_i = sim_temp_i * UnitT
-                 sim_velx_i = sim_velx_i * UnitV
-                 sim_vely_i = sim_vely_i * UnitV
-                 sim_velz_i = sim_velz_i * UnitV
-                 sim_ye_i   = sim_ye_i   * UnitY
+                 dens_i = sim_dens_i * UnitD
+                 temp_i = sim_temp_i * UnitT
+                 velx_i = sim_velx_i * UnitV
+                 vely_i = sim_vely_i * UnitV
+                 velz_i = sim_velz_i * UnitV
+                 ye_i   = sim_ye_i   * UnitY
+
+                 Dnu  = 0.0
+                 Inu1 = 0.0
+                 Inu2 = 0.0
+                 Inu3 = 0.0
 
                  select case ( sim_rad_option )
                    case ( -1 ) ! Zero Distribution
 
-                     Psi0 = 1.0e-20
-                     Psi1 = 0.0e0
+                     Dnu = 1.0e-20
+                     Inu1 = 0.0e0
 
                    case ( 0 ) ! FD with sim_rintSwitch
 
@@ -267,72 +268,56 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                        temp_buffer = temp_buffer * UnitT
                        ye_buffer   = ye_buffer   * UnitY
                        call ComputeEquilibriumDistributions_Point &
-                            ( enode, dens_buffer, temp_buffer, ye_buffer, Psi0, iS )
-                       Psi0 = Psi0 * ( sim_rintSwitch / rcc )**2
+                            ( enode, dens_buffer, temp_buffer, ye_buffer, Dnu, iS )
+                       Dnu = Dnu * ( sim_rintSwitch / rcc )**2
 
                      else
                        call ComputeEquilibriumDistributions_Point &
-                            ( enode, sim_dens_i, sim_temp_i, sim_ye_i, Psi0, iS )
+                            ( enode, dens_i, temp_i, ye_i, Dnu, iS )
                      end if
 
-                     Psi1 = 0.0e0
+                     Inu1 = 0.0e0
 
-                   case ( 1 ) ! approximate neutrino spher
+                   case ( 1 ) ! approximate neutrino sphere
 
-                     call sim_interp_rad( iE, iNodeE, rcc, iS, Psi0, Psi1 )
+                     call sim_interp_rad( iE, iNodeE, rcc, iS, Dnu, Inu1 )
 
                    case ( 2 ) ! Chimera Profile radiation
 
-                     call sim_interpProfile_rad( enode/MeV, rcc, iS, Psi0, Psi1 )
+                     call sim_interpProfile_rad( enode/MeV, rcc, iS, Dnu, Inu1 )
 
                    case ( 3 ) ! BoltzTran Profile radiation
 
-                     call sim_interpProfile_rad( enode/MeV, rcc, iS, Psi0, Psi1 )
+                     call sim_interpProfile_rad( enode/MeV, rcc, iS, Dnu, Inu1 )
 
                  end select
 
-                 ! realizability check
-                 ! --- non-negative zeroth moment
-                 if( Psi0 > rt_UpperBry1 ) then
-                   !!$write(*,'(A,2ES12.3)') &
-                   !!$  ' Triggered realizability check in Simulation_initBlock.F90 J=', Psi0
-                   Psi0 = max( 0.0e0, min(Psi0,rt_UpperBry1) )
-                   if( Psi1 < 0.0 ) then
-                     Psi1 = -(1.0d0-Psi0)*Psi0
-                   else
-                     Psi1 = (1.0d0-Psi0)*Psi0
-                   end if
-                 end if
-                 ! --- (1-J)*J >= abs(H)
-                 if( abs(Psi1) > (1.0d0-Psi0)*Psi0 ) then
-                   !!$write(*,'(A,2ES12.3)') &
-                   !!$  ' Triggered realizability check in Simulation_initBlock.F90 gamma',&
-                   !!$  Psi0, Psi1
-                   !!$write(*,'(A,2ES12.3)') '       @ (E,X)', enode/MeV, rcc
-                   if( Psi1 < 0.0 ) then
-                     Psi1 = -(1.0d0-Psi0)*Psi0
-                   else
-                     Psi1 = (1.0d0-Psi0)*Psi0
-                   end if
-                   if( abs(Psi1) > (1.0d0-Psi0)*Psi0 )&
-                     stop 'not preserve realizability in initializing radiation'
-                 end if
-
+                 CALL ComputeConserved_TwoMoment &
+                      ( Dnu, Inu1, Inu2, Inu3, &
+                        Nnu, Gnu1, Gnu2, Gnu3, &
+                        velx_i, vely_i, velz_i, &
+                        uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_11), &
+                        uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_22), &
+                        uGF(iNodeX,iX1,iX2,iX3,iGF_Gm_dd_33) )
 
                  ! J moment, iCR = 1
-                 if (iCR == iCR_N) solnData(ivar,ii,jj,kk) = Psi0
+                 ivar = rt_ivar(iNodeE,iE,iCR_N ,iS)
+                 solnData(ivar,ii,jj,kk) = Nnu
                               
                  ! H_x moment, iCR = 2
-                 if (iCR == iCR_G1) solnData(ivar,ii,jj,kk) = Psi1
+                 ivar = rt_ivar(iNodeE,iE,iCR_G1,iS)
+                 solnData(ivar,ii,jj,kk) = Gnu1
 
                  ! H_y moment, iCR = 3
-                 if (iCR == iCR_G2) solnData(ivar,ii,jj,kk) = 0.0e0
+                 ivar = rt_ivar(iNodeE,iE,iCR_G2,iS)
+                 solnData(ivar,ii,jj,kk) = Gnu2
 
                  ! H_z moment, iCR = 4
-                 if (iCR == iCR_G3) solnData(ivar,ii,jj,kk) = 0.0e0
+                 ivar = rt_ivar(iNodeE,iE,iCR_G3,iS)
+                 solnData(ivar,ii,jj,kk) = Gnu3
 
               end do
-           end do ; end do ; end do
+           end do ; end do
 
         end do
      end do
@@ -424,7 +409,7 @@ contains
      return
   end subroutine sim_interpProfile
 
-  subroutine sim_interpProfile_rad( e_MeV, rcc, iS, Psi0, Psi1 )
+  subroutine sim_interpProfile_rad( e_MeV, rcc, iS, Dnu, Inu1 )
 
      use Simulation_data, ONLY : xznrad, ezn, model_1d_rad, n1d_nE
      use Driver_interface, ONLY : Driver_abort
@@ -434,7 +419,7 @@ contains
 
      integer, intent(in) :: iS
      real,    intent(in) :: e_MeV, rcc
-     real,    intent(out) :: Psi0, Psi1
+     real,    intent(out) :: Dnu, Inu1
 
      integer, parameter :: order = 1
 
@@ -472,23 +457,16 @@ contains
         p01 = Table1( ide  , idx )
         p11 = Table1( ide+1, idx )
  
-        Psi0 = BiLinear( p00, p10, p01, p11, de, dx )
+        Dnu = BiLinear( p00, p10, p01, p11, de, dx )
 
-        gamma = ( 1.0e0 - Psi0 ) * Psi0
+        gamma = ( 1.0e0 - Dnu ) * Dnu
 
          p00 = Table2( ide  , idx   )
          P10 = Table2( ide+1, idx   )
          p01 = Table2( ide  , idx   )
          p11 = Table2( ide+1, idx   )
 
-         Psi1 = BiLinear( p00, p10, p01, p11, de, dx )
-         if( abs(Psi1) > gamma ) then
-           if( Psi1 < 0.0 ) then
-             Psi1 = - gamma
-           else
-             Psi1 = gamma
-           end if
-         end if
+         Inu1 = BiLinear( p00, p10, p01, p11, de, dx )
         end associate
      end if
 
@@ -519,48 +497,16 @@ contains
           p01 = Table1( ide  , idx+1 )
           p11 = Table1( ide+1, idx+1 )
 
-          Psi0 = BiLinear( p00, p10, p01, p11, de, dx )
-          if( Psi0 < 0.0e0 .or. Psi0 > 1.0e0 ) then
-            !!$write(*,'(A,ES12.3,A,2I4,A,2ES12.3)') 'J (Psi0)=', Psi0, &
-            !!$  ' hit the realizability bry [ide, idx] = [', &
-            !!$  ide, idx,'] => [MeV,cm] =', e_MeV, rcc
-            Psi0 = min(p00, p10, p01, p11)
-            write(*,'(A25,2ES15.3)') 'The four neighbors (e,x):', p00, p01
-            write(*,'(A30,A15)') '', 'Psi0'
-            write(*,'(A25,2ES15.3)') '', p10, p11
-            Psi0 = min(min(p00,p10),min(p01,p11))
-            if( Psi0 < 0.0 )then
-              write(*,'(A,ES15.6)') 'Psi0 = ', Psi0
-              call Driver_abort('Fail to enforce J > 0')
-            end if
-          end if
-          !!$if( Psi0 > 1.0 ) then
-          !!$  !write(*,'(A20,ES25.13,A,2I4)') 'Psi0 exceed one !', Psi0-1.0d0, ' @ (indexE,indexX)', ide, idx
-          !!$  !write(*,'(A25,2ES15.3)') 'The four neighbors (e,x):', p00, p01
-          !!$  !write(*,'(A30,A15)') '', 'Psi0'
-          !!$  !write(*,'(A25,2ES15.3)') '', p10, p11
-          !!$  !write(*,'(A)') 'Enforce min(Psi0,1.0d0)'
-          !!$  Psi0 = min(Psi0,1.0e0)
-          if( Psi0 > 1.0e0 )then
-            write(*,'(A,ES15.6)') 'Psi0 = ', Psi0
-            call Driver_abort('Fail to enforce J < 1.0')
-          end if
+          Dnu = BiLinear( p00, p10, p01, p11, de, dx )
 
-          gamma = ( 1.0e0 - Psi0 ) * Psi0
+          gamma = ( 1.0e0 - Dnu ) * Dnu
 
           p00 = Table2( ide  , idx   )
           P10 = Table2( ide+1, idx   )
           p01 = Table2( ide  , idx+1 )
           p11 = Table2( ide+1, idx+1 )
 
-          Psi1 = BiLinear( p00, p10, p01, p11, de, dx )
-          if( abs(Psi1) > gamma ) then
-            if( Psi1 < 0.0 ) then
-              Psi1 = - gamma
-            else
-              Psi1 = gamma
-            end if
-          end if
+          Inu1 = BiLinear( p00, p10, p01, p11, de, dx )
 
         end associate
 
@@ -569,7 +515,7 @@ contains
      return
   end subroutine sim_interpProfile_rad
 
-  subroutine sim_interp_rad( iE, iNodeE, rcc, iS, Psi0, Psi1 )
+  subroutine sim_interp_rad( iE, iNodeE, rcc, iS, Dnu, Inu1 )
 
     use Simulation_data, ONLY: n1d_max, xzn, D_Nu_P, I1_Nu_P
     use ut_interpolationInterface, ONLY : ut_hunt
@@ -578,13 +524,13 @@ contains
 
     integer, intent(in)  :: iE, iNodeE, iS
     real,    intent(in)  :: rcc
-    real,    intent(out) :: Psi0, Psi1
+    real,    intent(out) :: Dnu, Inu1
 
     integer, parameter :: order = 1
-    integer :: i_nodeE, idx
+    integer :: iP_E, idx
     real    :: err
 
-    i_nodeE = (iE-1) * THORNADO_NNODESE + iNodeE
+    iP_E = (iE-1) * THORNADO_NNODESE + iNodeE
 
     if ( rcc > xzn(n1d_max) ) then
         write(*,'(A,ES15.3)') ' location not covered by profile : r = ', rcc, 'cm'
@@ -594,12 +540,12 @@ contains
     call ut_hunt(xzn, n1d_max, rcc, idx)
     idx = max( 1, idx )
 
-    Psi0 = Interpolate1D_Linear &
+    Dnu  = Interpolate1D_Linear &
               ( rcc, xzn(idx), xzn(idx+1), &
-                D_Nu_P (i_nodeE,idx,iS), D_Nu_P (i_nodeE,idx+1,iS) )
-    Psi1 = Interpolate1D_Linear &
+                D_Nu_P (iP_E,iS,idx), D_Nu_P (iP_E,iS,idx+1) )
+    Inu1 = Interpolate1D_Linear &
               ( rcc, xzn(idx), xzn(idx+1), &
-                I1_Nu_P (i_nodeE,idx,iS), I1_Nu_P (i_nodeE,idx+1,iS) )    
+                I1_Nu_P(iP_E,iS,idx), I1_Nu_P(iP_E,iS,idx+1) )    
 
     return 
  
