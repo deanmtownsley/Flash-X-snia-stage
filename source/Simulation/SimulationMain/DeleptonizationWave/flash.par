@@ -36,7 +36,7 @@ plotfileGridQuantityDP      = .TRUE.
 
 tinitial                        = 0.0
 tmax                            = 1.0e-2
-nend                            = 1000
+nend                            = 10000
 dtinit                          = 1.E-12
 dtmax                           = 5.E-7
 dtmin                           = 1.E-20
@@ -79,7 +79,7 @@ nblockz                     = 1
 
 enableMaskedGCFill          = .TRUE.
 
-lrefine_max                 = 1
+lrefine_max                 = 2
 lrefine_min                 = 1
 refine_var_1                = "dens"
 refine_var_2                = "pres"
