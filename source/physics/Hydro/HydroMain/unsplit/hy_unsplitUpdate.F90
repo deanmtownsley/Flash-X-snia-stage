@@ -800,7 +800,7 @@
                       Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + densNph*thtVel0*thtVel0 / xCenter(i)
                       Sgeo(HY_XMOM) = Sgeo(HY_XMOM)*dx/dx_sph
 #if NDIM > 1
-                      Sgeo(MOM_THT) = (densNph*phiVel0*phiVel0 + 0*fP*alpha*presStar) / xCenter(i)
+                      Sgeo(MOM_THT) = (densNph*phiVel0*phiVel0 + fP*presStar) / xCenter(i)
                       Sgeo(MOM_THT) = Sgeo(MOM_THT) * cos(yCenter(j))/sin(yCenter(j))
                       Sgeo(MOM_THT) = Sgeo(MOM_THT) - (densNph*thtVel0*xvel0) / xCenter(i)
                       Sgeo(MOM_THT) = Sgeo(MOM_THT)*dx/dx_sph
