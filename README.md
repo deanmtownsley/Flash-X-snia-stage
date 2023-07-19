@@ -146,4 +146,4 @@ Testing servers:
 
 - Ganon:
 
-  FlashTest - http://ganon2.device.utk.edu:8080 
+  FlashTest - http://ganon.device.utk.edu:8080 
