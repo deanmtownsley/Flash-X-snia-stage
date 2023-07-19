@@ -63,7 +63,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
   *(record_label_new + 4) = '\0';
 
 
-  // check if the dataset exists
+  /* check if the dataset exists */
   ierr = H5Lexists(*file_identifier, record_label_new, H5P_DEFAULT);
   if (ierr < 0) {
     dataset = -1;
