@@ -137,7 +137,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   @M dir_copyin( [Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
   @M dir_end
 
-  @M dir_loop_outer(4) &
+  @M dir_loop(4) &
   @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff] ) &
   @M dir_private( [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
   @M dir_present( [ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX, volFac] ) &
@@ -162,10 +162,6 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
               S3  = 0.0
               E   = 0.0
               Nel = 0.0
-
-              @M dir_loop_inner(1) &
-              @M dir_reduction( +, [D, S1, S2, S3, E, Nel] ) &
-              @M dir_end
 
               do n = 1, THORNADO_FLUID_NDOF
                  D   = D   + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_D )
@@ -207,10 +203,6 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
                  FlxF = 0.0
                  EddF = 0.0
                  HetF = 0.0
-
-                 @M dir_loop_inner(1) &
-                 @M dir_reduction( +, [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
-                 @M dir_end
 
                  do n = 1, THORNADO_FLUID_NDOF
                     EuD  = EuD  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_N  ,iS)
