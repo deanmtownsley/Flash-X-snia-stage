@@ -129,8 +129,8 @@ subroutine rt_tm_reconstruction(Uin,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   @M dir_copyin( [Uin, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
   @M dir_end
 
-  @M dir_loop_outer(4) &
-  @M dir_private( [i, j, k, D, S1, S2, S3, E, Nel] ) &
+  @M dir_loop(4) &
+  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel] ) &
   @M dir_present( [ReconstructionMatrix, Uin, uCF, uGF, u_lo, u_hi, lo, hi, volFac] ) &
   @M dir_end
 
@@ -149,11 +149,6 @@ subroutine rt_tm_reconstruction(Uin,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
               S3  = 0.0
               E   = 0.0
               Nel = 0.0
-
-              @M dir_loop_inner(1) &
-              @M dir_private( [ii, jj, kk] ) &
-              @M dir_reduction( +, [D, S1, S2, S3, E, Nel] ) &
-              @M dir_end
 
               do n = 1, THORNADO_FLUID_NDOF
                  ii = mod((n-1)                    ,THORNADO_NNODESX) + i
