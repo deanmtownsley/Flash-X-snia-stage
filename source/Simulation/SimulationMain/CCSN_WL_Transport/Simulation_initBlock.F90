@@ -278,7 +278,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  solnData(EINT_VAR,i,j,k) = eint_interp
                  solnData(PRES_VAR,i,j,k) = pres_interp
                  solnData(TEMP_VAR,i,j,k) = temp_interp
+#if NSPECIES > 0
                  solnData(SPECIES_BEGIN:SPECIES_END,i,j,k) = spec_interp(:)
+#endif
 #if defined (YE_MSCALAR)
                  solnData(YE_MSCALAR,i,j,k) = ye_interp
 #endif
