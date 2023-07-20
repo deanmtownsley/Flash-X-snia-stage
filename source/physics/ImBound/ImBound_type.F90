@@ -150,9 +150,9 @@ contains
       call ann_kSearch(c_loc(queryPt), this%dim, nn, c_loc(nnIdx), c_loc(dists), eps, this%kdTreeRC)
    end subroutine
 
-   type ImBound_type_t
-      integer :: numElems
-      type(ib_elem), dimension(:), allocatable :: elems
-   end type ImBound_type_t
+   !type ImBound_type_t
+   !   integer :: numElems
+   !   type(ib_elem), dimension(:), allocatable :: elems
+   !end type ImBound_type_t
 
 end module ImBound_type
