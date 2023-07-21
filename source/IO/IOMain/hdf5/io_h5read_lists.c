@@ -44,7 +44,7 @@ void io_h5readLists
 
   hsize_t dimens_1d, maxdimens_1d;
 
-  hid_t dataspace, memspace, dataset;
+  hid_t dataspace, memspace, dataset = 0;
 
   hid_t string_type;
 

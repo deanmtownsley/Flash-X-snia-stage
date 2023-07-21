@@ -30,7 +30,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
                    int* global_offset,
                    int* doread)
 {
-  hid_t dataspace, dataset, memspace, dxfer_template;
+  hid_t dataspace, dataset = 0, memspace, dxfer_template;
   herr_t status;
 
   int rank;
@@ -88,7 +88,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
       }
     }
   }
-  
+
   if (dataset < 0) {
     printf("couldn't find variable '%s' in the file, so skipping it\n", record_label_new);
   } else {

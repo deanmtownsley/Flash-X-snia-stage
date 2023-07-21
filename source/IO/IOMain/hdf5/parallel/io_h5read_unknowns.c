@@ -33,7 +33,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
                    int* global_offset,
                    int* doread)
 {
-  hid_t dataspace, dataset, memspace, dxfer_template;
+  hid_t dataspace, dataset = 0, memspace, dxfer_template;
   herr_t status;
 
   int rank;
