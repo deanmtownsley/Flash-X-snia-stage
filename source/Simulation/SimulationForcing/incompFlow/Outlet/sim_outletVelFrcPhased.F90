@@ -39,7 +39,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
    real, intent(in) :: QOutLiq(LOW:HIGH, MDIM), QOutGas(LOW:HIGH, MDIM)
 
    !---Local variables
-   integer :: i, j, k, idimn, ibound, ifnorm, ifpar, iliq, igas, inorm
+   integer :: i, j, k, idimn, ibound, iforce, iliq, igas, inorm
    real :: xcell, ycell, zcell, velout, velforce
    real :: outprofile(LOW:HIGH, MDIM), velgrad(LOW:HIGH, MDIM), phiface(MDIM)
    real, parameter :: velref = 1.
@@ -72,7 +72,7 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                                            (vel(i, j + 1, k) - vel(i, j - 1, k))/(2*dy)/)
 
 #if NDIM == MDIM
-            phiface(:) = (phi(i, j, k) + phi(i, j, k - 1))*.5
+            phiface(KAXIS) = (phi(i, j, k) + phi(i, j, k - 1))*.5
 
             outprofile(LOW, KAXIS) = 2/(1 + exp(outletGrowthRate*(zcell - zMin)/outletBuffer))
             outprofile(HIGH, KAXIS) = 2/(1 + exp(-outletGrowthRate*(zcell - zMax)/outletBuffer))
@@ -96,22 +96,14 @@ subroutine sim_outletVelFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
 
                   ! Check if local velocity greater than
                   ! outlet velocity
-                  ifnorm = 0
-                  if (abs(vel(i, j, k)) > velout) ifnorm = 1
-
-                  ifpar = 0
-                  if (abs(vel(i, j, k)) > velout) ifpar = 1
+                  iforce = 0
+                  if (abs(vel(i, j, k)) > velout) iforce = 1
 
                   ! Check if normal axis
                   inorm = 0
                   if (axis == idimn) inorm = 1
 
-                  ! compute forcing on the local cell
-                  !velforce = inorm*ifnorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt - &
-                  !                         velref*velgrad(ibound, idimn)) - (1 - inorm)*vel(i, j, k)/dt
-
-                  velforce = ifnorm*inorm*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) + &
-                             ifpar*(1 - inorm)*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
+                  velforce = iforce*((velout*vel(i, j, k)/(abs(vel(i, j, k)) + 1e-13) - vel(i, j, k))/dt) - &
                              velout*velgrad(ibound, idimn)
 
                   ! Set source term for navier-stokes equation
