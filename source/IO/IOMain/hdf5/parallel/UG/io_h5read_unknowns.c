@@ -30,7 +30,7 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
                    int* global_offset,
                    int* doread)
 {
-  hid_t dataspace, dataset, memspace, dxfer_template;
+  hid_t dataspace, dataset = 0, memspace, dxfer_template;
   herr_t status;
 
   int rank;
@@ -64,13 +64,14 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
   *(record_label_new + 4) = '\0';
 
 
-  /* open the dataset
-     suppress the error message if the variable does not exist in file */
-  herr = H5Eget_auto(&old_func, &old_client_data);
-  assert(herr >= 0);
-  herr = H5Eset_auto(NULL, NULL);
-  assert(herr >= 0);
-  dataset = H5Dopen(*file_identifier, record_label_new);
+  /* open the dataset*/
+    ierr = H5Lexists(*file_identifier, record_label_new, H5P_DEFAULT);
+    if (ierr < 0) {
+      dataset = -1;
+    }
+    else {
+      dataset = H5Dopen(*file_identifier, record_label_new);
+    }
   /* If the open fails then we attempt to open the dataset again with a
      space trimmed name.  We do this because type based I/O in FLASH
      creates datasets which have names that are stripped of space padding */
@@ -78,11 +79,15 @@ void FTOC(io_h5read_unknowns)(hid_t* file_identifier,
     spaceTrimLen = strcspn(record_label_new, " ");
     if (spaceTrimLen > 0) {
       *(record_label_new + spaceTrimLen) = '\0';
-      dataset = H5Dopen(*file_identifier, record_label_new);
+      ierr = H5Lexists(*file_identifier, record_label_new, H5P_DEFAULT);
+      if (ierr < 0) {
+        dataset = -1;
+      }
+      else {
+        dataset = H5Dopen(*file_identifier, record_label_new);
+      }
     }
   }
-  herr = H5Eset_auto(old_func, old_client_data);
-  assert(herr >= 0);
 
   if (dataset < 0) {
     printf("couldn't find variable '%s' in the file, so skipping it\n", record_label_new);
