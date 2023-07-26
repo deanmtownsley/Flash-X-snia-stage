@@ -189,15 +189,44 @@ subroutine RadTrans( dt, pass )
 
     ! Check if the block needs boundary condition
     do i = 1, NDIM
-       if ( faces(LOW,i) == REFLECTING .and. faces(HIGH,i) == REFLECTING ) then
+
+       if (     ( faces(LOW ,i) == OUTFLOW .or. faces(LOW ,i) == DIODE ) &
+          .and. ( faces(HIGH,i) == OUTFLOW .or. faces(HIGH,i) == DIODE ) ) then
+
+          bcX(i) = 2
+          iApplyBC(i) = iApplyBC_Both
+
+       else if (  faces(LOW ,i) == REFLECTING .and. faces(HIGH,i) == REFLECTING ) then
+
           bcX(i) = 3
           iApplyBC(i) = iApplyBC_Both
-       else if ( faces(LOW,i) == REFLECTING ) then
+
+       else if (  faces(LOW ,i) == REFLECTING &
+          .and. ( faces(HIGH,i) == OUTFLOW .or. faces(HIGH,i) == DIODE ) ) then
+
+          bcX(i) = 32
+          iApplyBC(i) = iApplyBC_Both
+
+       else if ( faces(LOW ,i) == OUTFLOW .or. faces(LOW ,i) == DIODE ) then
+
+          bcX(i) = 2
+          iApplyBC(i) = iApplyBC_Inner
+
+       else if ( faces(HIGH,i) == OUTFLOW .or. faces(HIGH,i) == DIODE ) then
+
+          bcX(i) = 2
+          iApplyBC(i) = iApplyBC_Outer
+
+       else if ( faces(LOW ,i) == REFLECTING ) then
+
           bcX(i) = 3
           iApplyBC(i) = iApplyBC_Inner
+
        else if ( faces(HIGH,i) == REFLECTING ) then
+
           bcX(i) = 3
           iApplyBC(i) = iApplyBC_Outer
+
        end if
     end do
     
