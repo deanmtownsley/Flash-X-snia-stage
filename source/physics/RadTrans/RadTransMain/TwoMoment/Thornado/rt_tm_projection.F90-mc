@@ -140,7 +140,6 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   @M dir_loop(4) &
   @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff] ) &
   @M dir_private( [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
-  @M dir_present( [ProjectionMatrix, Uin, Sout, uCF, uGF, uGR, unitsGR, nX, volFac] ) &
   @M dir_end
 
   do kc = 1, nX(3)
@@ -251,7 +250,6 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   @M dir_loop(7) &
   @M dir_private( [i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX] ) &
-  @M dir_present( [Uin, uCR, nX, lo] ) &
   @M dir_end
 
   do kc = 1, nX(3)

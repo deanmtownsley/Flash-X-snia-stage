@@ -131,7 +131,6 @@ subroutine rt_tm_reconstruction(Uin,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   @M dir_loop(4) &
   @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel] ) &
-  @M dir_present( [ReconstructionMatrix, Uin, uCF, uGF, u_lo, u_hi, lo, hi, volFac] ) &
   @M dir_end
 
   do kc = u_lo(KAXIS), u_hi(KAXIS)
@@ -188,7 +187,6 @@ subroutine rt_tm_reconstruction(Uin,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   @M dir_loop(7) &
   @M dir_private( [i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX] ) &
-  @M dir_present( [Uin, uCR, u_lo, u_hi, lo, hi] ) &
   @M dir_end
 
   do kc = u_lo(KAXIS), u_hi(KAXIS)
