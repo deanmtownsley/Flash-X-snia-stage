@@ -140,7 +140,10 @@ Testing servers:
 
 - Argonne, GCE:
 
-  FlashTest server for running tests on `staged` branch - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged
+  FlashTest server for running tests on `staged` branch
+
+  GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
+  Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
 
   FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
 
