@@ -42,7 +42,6 @@
 !!  The KIND type parameter io_fileID_t is defined in Fortran module io_intfTypesModule.
 !!  It should ensure that fileID is compatible with the integer type needed by
 !!  implementation routines.
-!!  used.
 !!***
 
 #include "constants.h"

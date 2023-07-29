@@ -44,7 +44,7 @@ void io_h5readLists
 
   hsize_t dimens_1d, maxdimens_1d;
 
-  hid_t dataspace, memspace, dataset;
+  hid_t dataspace, memspace, dataset = 0;
 
   hid_t string_type;
 
@@ -52,6 +52,7 @@ void io_h5readLists
   hid_t int_list_type;
   hid_t str_list_type;
   hid_t log_list_type;
+  htri_t ierr;
   
   real_list_t *real_list;
   int_list_t *int_list;
@@ -69,25 +70,22 @@ void io_h5readLists
   string_type = H5Tcopy(H5T_C_S1);
   H5Tset_size(string_type, MAX_STRING_LENGTH);
 
-
-  H5Eget_auto(H5P_DEFAULT, &old_func, &old_client_data); /* save old error handling here - KW */
-
   /*************************************
    * real runtime parameters / scalars *
    *************************************/
-
-  /* temporarily turn off error printing */
-  H5Eset_auto(NULL, NULL,H5P_DEFAULT);
-  /* create the name of the dataset */
+  // check if the dataset exists
+  ierr = H5Lexists(*file_identifier, dataset_names[2], H5P_DEFAULT);
+  if (ierr < 0) {
+    dataset = -1;
+  }
+  else {
+  /* open the dataset */
 #ifdef FLASH_IO_ASYNC_HDF5
   dataset = H5Dopen_async(*file_identifier, dataset_names[2], H5P_DEFAULT, io_es_id);
-
 #else
   dataset = H5Dopen(*file_identifier, dataset_names[2],H5P_DEFAULT);
 #endif
-
-  /* Restore error handling */
-  H5Eset_auto(old_func, old_client_data,H5P_DEFAULT);
+  }
   
   if (dataset < 0){
     snprintf(s, errbufsize,"couldn't open the dataset %s\n", dataset_names[2]);
@@ -162,18 +160,20 @@ void io_h5readLists
    * integer runtime parameters / scalars *
    ****************************************/
   
-  /* temporarily turn off error printing */
-  H5Eset_auto(NULL, NULL,H5P_DEFAULT);
-  /* create the name of the dataset */
+  // check if the dataset exists
+  ierr = H5Lexists(*file_identifier, dataset_names[0], H5P_DEFAULT);
+  if (ierr < 0) {
+    dataset = -1;
+  }
+  else {
+  /* open the dataset */
 #ifdef FLASH_IO_ASYNC_HDF5
   dataset = H5Dopen_async(*file_identifier, dataset_names[0], H5P_DEFAULT, io_es_id);
 
 #else
   dataset = H5Dopen(*file_identifier, dataset_names[0],H5P_DEFAULT);
 #endif  
-
-  /* Restore error handling */
-  H5Eset_auto(old_func, old_client_data,H5P_DEFAULT);
+  }
     
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[0]);
@@ -244,8 +244,12 @@ void io_h5readLists
    * string runtime parameters / scalars *
    ***************************************/
 
-  /* temporarily turn off error printing */
-  H5Eset_auto(NULL, NULL,H5P_DEFAULT);
+  // check if the dataset exists
+  ierr = H5Lexists(*file_identifier, dataset_names[1], H5P_DEFAULT);
+  if (ierr < 0) {
+    dataset = -1;
+  }
+  else {
   /* create the name of the dataset */
 #ifdef FLASH_IO_ASYNC_HDF5
   dataset = H5Dopen_async(*file_identifier, dataset_names[1], H5P_DEFAULT, io_es_id);
@@ -253,10 +257,8 @@ void io_h5readLists
 #else
   dataset = H5Dopen(*file_identifier, dataset_names[1],H5P_DEFAULT);
 #endif  
+  }
 
-  /* Restore error handling */
-  H5Eset_auto(old_func, old_client_data,H5P_DEFAULT);
-  
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[1]);
     Driver_abortC(s);
@@ -327,18 +329,19 @@ void io_h5readLists
    * logical runtime parameters / scalars *
    ****************************************/
 
-  /* temporarily turn off error printing */
-  H5Eset_auto(NULL, NULL,H5P_DEFAULT);
-  /* create the name of the dataset */
+  // check if the dataset exists
+  ierr = H5Lexists(*file_identifier, dataset_names[3], H5P_DEFAULT);
+  if (ierr < 0) {
+    dataset = -1;
+  }
+  else {
+  /* open the dataset */
 #ifdef FLASH_IO_ASYNC_HDF5
   dataset = H5Dopen_async(*file_identifier, dataset_names[3], H5P_DEFAULT, io_es_id);
-
 #else
   dataset = H5Dopen(*file_identifier, dataset_names[3],H5P_DEFAULT);
 #endif  
-
-  /* Restore error handling */
-  H5Eset_auto(old_func, old_client_data,H5P_DEFAULT);
+  }
   
   if (dataset < 0){
     snprintf(s,errbufsize,"couldn't open the dataset %s\n", dataset_names[3]);
