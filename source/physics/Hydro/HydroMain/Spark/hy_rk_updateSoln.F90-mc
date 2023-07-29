@@ -48,8 +48,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,&
        hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hya_fareaX,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
-       hya_xRight,hya_yCenter,hya_yLeft,hya_yRight,hya_zCenter  
+  use Hydro_data, ONLY: hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
+       hya_xRight,hya_yCenter,hya_zCenter
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
 
@@ -66,8 +66,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   real, dimension(3), intent(IN) :: hy_coeffs
   real,dimension(:,:,:,:),pointer :: hy_grav, &
        hy_flx,hy_fly,hy_flz
-  real,pointer,dimension(:,:,:) ::hy_fareaX,hy_fareaY,hy_fareaZ,hy_cvol
-  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_yLeft,hy_yRight,hy_zCenter
+  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
 
   integer :: i,j,k,n,g
 
@@ -80,7 +80,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   real :: flx_weight1, flx_weight2
   real :: eint, ekin, emag
   ! Geometry factors
-  real :: facMx, facPx, facMy, facPy, facMz, facPz
+  real :: facM, facP
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   integer ::  ind
   real :: dhdt
@@ -92,7 +92,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI, MAG_PHI_FLUX
   integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
   integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-  real    :: alpha, dx_sph, invr, cotan 
+  real    :: alpha, dx_sph
 
   logical :: offload = .false.
 
@@ -125,10 +125,10 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   !$omp default(none) &
   !$omp private(V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag, &
   !$omp         MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX, &
-  !$omp         alpha, dx_sph, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan) &
+  !$omp         alpha, dx_sph, facM, facP) &
   !$omp shared(limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz, &
-  !$omp        hy_coeffs, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_smalldens, hy_smallE, &
-  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, hy_yLeft, hy_yRight, dx, dy, dz, dt, dtOld)
+  !$omp        hy_coeffs, hy_farea, hy_cvol, hy_smalldens, hy_smallE, &
+  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld)
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -154,16 +154,15 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
            !!          call update_solution(i,j,k,hy_coeffs,dt, dtOld, dx, dy, dz, dhdt)
-           facMx = 1.0; facPx = 1.0; Sgeo = 0.0
-           facMy = 1.0; facPy = 1.0;
-           facMz = 1.0; facPz = 1.0;
-
+           
+           facM = 1.0; facP = 1.0; Sgeo = 0.0
+           
            ! Get geometric factors and sources
            ! Get gravitational source terms
            if(hy_geometry /= CARTESIAN) then
               @M hy_geom_update(Ustar,Vstar)
 !!$           call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
-!!$                   hy_fareaX(i,j,k), hy_fareaX(i+1,j,k), hy_cvol(i,j,k), &
+!!$                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
 !!$                   facM, facP, Sgeo, Ustar, Vstar, dx)
            end if
            @M hy_gravSources
@@ -173,11 +172,11 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            
            ! Now update conserved vector with flux gradients
            Ustar = hy_coeffs(1)*U0 + hy_coeffs(2)*Ustar +hy_coeffs(3)*( &
-                -dt/dx*(facPx*hy_flx(:,i+1,j,k)-facMx*hy_flx(:,i,j,k)) &
+                -dt/dx*(facP*hy_flx(:,i+1,j,k)-facM*hy_flx(:,i,j,k)) &
 #if NDIM > 1
-                -dt/dy*(facPy*hy_fly(:,i,j+1,k)-facMy*hy_fly(:,i,j,k)) &
+                -dt/dy*(hy_fly(:,i  ,j+1,k  )-hy_fly(:,i  ,j  ,k  )) &
 #if NDIM ==3
-                -dt/dz*(facPz*hy_flz(:,i,j,k+1)-facMz*hy_flz(:,i,j,k)) &
+                -dt/dz*(hy_flz(:,i  ,j  ,k+1)-hy_flz(:,i  ,j  ,k  )) &
 #endif
 #endif
                 +dt*Stot)
