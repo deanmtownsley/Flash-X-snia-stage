@@ -142,10 +142,13 @@ Testing servers:
 
   FlashTest server for running tests on `staged` branch
 
-  GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
-  Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
+  - GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
+  - Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
 
-  FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
+  FlashTestView
+
+  - GCC - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_gcc
+  - Intel - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_intel
 
 - Ganon:
 
