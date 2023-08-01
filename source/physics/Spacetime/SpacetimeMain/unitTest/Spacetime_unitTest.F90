@@ -32,10 +32,7 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
                              Grid_getCellCoords
    use ut_testDriverMod, only: start_test_run, finish_test_run, assertEqual
 
-   use Spacetime_interface, only: Spacetime_getLapse, Spacetime_getShift, &
-                                  Spacetime_getMetric, Spacetime_getCurvature
-
-#include "Simulation.h"
+#include "ADM.h"
 #include "constants.h"
 
    implicit none
@@ -47,15 +44,10 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
    type(Grid_tile_t) :: tileDesc
    real, dimension(:, :, :, :), pointer :: vars
 
-   integer :: i, j, k, loc(MDIM)
+   integer :: i, j, k
 
    real, dimension(:), allocatable :: x, y, z
    real :: H, r, lx, ly, lz
-
-   real :: alp
-   real :: betax, betay, betaz
-   real :: gxx, gxy, gxz, gyy, gyz, gzz
-   real :: Kxx, Kxy, Kxz, Kyy, Kyz, Kzz
 
    real :: alpActual
    real :: betaxActual, betayActual, betazActual
@@ -132,33 +124,26 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
                KyzActual = 2d0*H*alpActual/r*(0d0 - (2d0 + H)*ly*lz)
                KzzActual = 2d0*H*alpActual/r*(1d0 - (2d0 + H)*lz*lz)
 
-               ! Use the accessors to get the values from the grid
-               loc = [i, j, k]
-               call Spacetime_getLapse(alp, tileDesc, vars, loc)
-               call Spacetime_getShift(betax, betay, betaz, tileDesc, vars, loc)
-               call Spacetime_getMetric(gxx, gxy, gxz, gyy, gyz, gzz, tileDesc, vars, loc)
-               call Spacetime_getCurvature(Kxx, Kxy, Kxz, Kyy, Kyz, Kzz, tileDesc, vars, loc)
-
                ! Verify that these match
-               call assertEqual(alp, alpActual, "Lapse is incorrect")
+               call assertEqual(vars(ALP_VAR, i, j, k), alpActual, "Lapse is incorrect")
 
-               call assertEqual(betax, betaxActual, "Shift vector x-component is incorrect")
-               call assertEqual(betay, betayActual, "Shift vector y-component is incorrect")
-               call assertEqual(betaz, betazActual, "Shift vector z-component is incorrect")
+               call assertEqual(vars(BETAX_VAR, i, j, k), betaxActual, "Shift vector x-component is incorrect")
+               call assertEqual(vars(BETAY_VAR, i, j, k), betayActual, "Shift vector y-component is incorrect")
+               call assertEqual(vars(BETAZ_VAR, i, j, k), betazActual, "Shift vector z-component is incorrect")
 
-               call assertEqual(gxx, gxxActual, "Spatial metric xx-component is incorrect")
-               call assertEqual(gxy, gxyActual, "Spatial metric xy-component is incorrect")
-               call assertEqual(gxz, gxzActual, "Spatial metric xz-component is incorrect")
-               call assertEqual(gyy, gyyActual, "Spatial metric yy-component is incorrect")
-               call assertEqual(gyz, gyzActual, "Spatial metric yz-component is incorrect")
-               call assertEqual(gzz, gzzActual, "Spatial metric zz-component is incorrect")
+               call assertEqual(vars(GXX_VAR, i, j, k), gxxActual, "Spatial metric xx-component is incorrect")
+               call assertEqual(vars(GXY_VAR, i, j, k), gxyActual, "Spatial metric xy-component is incorrect")
+               call assertEqual(vars(GXZ_VAR, i, j, k), gxzActual, "Spatial metric xz-component is incorrect")
+               call assertEqual(vars(GYY_VAR, i, j, k), gyyActual, "Spatial metric yy-component is incorrect")
+               call assertEqual(vars(GYZ_VAR, i, j, k), gyzActual, "Spatial metric yz-component is incorrect")
+               call assertEqual(vars(GZZ_VAR, i, j, k), gzzActual, "Spatial metric zz-component is incorrect")
 
-               call assertEqual(Kxx, KxxActual, "Extrinsic curvature xx-component is incorrect")
-               call assertEqual(Kxy, KxyActual, "Extrinsic curvature xy-component is incorrect")
-               call assertEqual(Kxz, KxzActual, "Extrinsic curvature xz-component is incorrect")
-               call assertEqual(Kyy, KyyActual, "Extrinsic curvature yy-component is incorrect")
-               call assertEqual(Kyz, KyzActual, "Extrinsic curvature yz-component is incorrect")
-               call assertEqual(Kzz, KzzActual, "Extrinsic curvature zz-component is incorrect")
+               call assertEqual(vars(KXX_VAR, i, j, k), KxxActual, "Extrinsic curvature xx-component is incorrect")
+               call assertEqual(vars(KXY_VAR, i, j, k), KxyActual, "Extrinsic curvature xy-component is incorrect")
+               call assertEqual(vars(KXZ_VAR, i, j, k), KxzActual, "Extrinsic curvature xz-component is incorrect")
+               call assertEqual(vars(KYY_VAR, i, j, k), KyyActual, "Extrinsic curvature yy-component is incorrect")
+               call assertEqual(vars(KYZ_VAR, i, j, k), KyzActual, "Extrinsic curvature yz-component is incorrect")
+               call assertEqual(vars(KZZ_VAR, i, j, k), KzzActual, "Extrinsic curvature zz-component is incorrect")
             end do ! i
          end do ! j
       end do ! k
