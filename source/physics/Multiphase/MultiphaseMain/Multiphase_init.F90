@@ -93,6 +93,7 @@ subroutine Multiphase_init(restart)
    call IncompNS_getGridVar('Face_Pressure_Jump', mph_iJumpVar)
    call IncompNS_getGridVar('Center_Viscosity', mph_iMuCVar)
    call IncompNS_getGridVar('Center_Divergence', mph_iDivCVar)
+   call IncompNS_getGridVar('Center_Density', mph_iRhoCVar)
 
    call mph_evapInit()
    call mph_init()

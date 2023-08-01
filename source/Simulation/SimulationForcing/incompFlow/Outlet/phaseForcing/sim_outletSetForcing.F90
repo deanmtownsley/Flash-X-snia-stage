@@ -95,6 +95,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    call sim_outletVelFrcPhased(facexData(VELC_FACE_VAR, :, :, :), &
                                facexData(VFRC_FACE_VAR, :, :, :), &
+                               facexData(SIGM_FACE_VAR, :, :, :), &
                                solnData(DFUN_VAR, :, :, :), &
                                xCenter - del(IAXIS)/2, yCenter, zCenter, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
@@ -108,6 +109,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    call sim_outletVelFrcPhased(faceyData(VELC_FACE_VAR, :, :, :), &
                                faceyData(VFRC_FACE_VAR, :, :, :), &
+                               faceyData(SIGM_FACE_VAR, :, :, :), &
                                solnData(DFUN_VAR, :, :, :), &
                                xCenter, yCenter - del(JAXIS)/2, zCenter, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
@@ -135,6 +137,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    call sim_outletVelFrcPhased(facexData(VELC_FACE_VAR, :, :, :), &
                                facexData(VFRC_FACE_VAR, :, :, :), &
+                               facexData(SIGM_FACE_VAR, :, :, :), &
                                solnData(DFUN_VAR, :, :, :), &
                                xCenter - del(IAXIS)/2, yCenter, zCenter, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
@@ -148,6 +151,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    call sim_outletVelFrcPhased(faceyData(VELC_FACE_VAR, :, :, :), &
                                faceyData(VFRC_FACE_VAR, :, :, :), &
+                               faceyData(SIGM_FACE_VAR, :, :, :), &
                                solnData(DFUN_VAR, :, :, :), &
                                xCenter, yCenter - del(JAXIS)/2, zCenter, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &
@@ -161,6 +165,7 @@ subroutine sim_outletSetForcing(tileDesc, dt)
 
    call sim_outletVelFrcPhased(facezData(VELC_FACE_VAR, :, :, :), &
                                facezData(VFRC_FACE_VAR, :, :, :), &
+                               facezData(SIGM_FACE_VAR, :, :, :), &
                                solnData(DFUN_VAR, :, :, :), &
                                xCenter, yCenter, zCenter - del(KAXIS)/2, &
                                dt, del(IAXIS), del(JAXIS), del(KAXIS), &

@@ -296,6 +296,16 @@ class FlashUnit(dict,preProcess):
         self['SCRATCHCENTERVAR'][variable] = (eosmap.upper(),eosmap.upper())
 
     @staticmethod
+    def initparseNSCRATCHCENTERVARS():
+        return None, r'NSCRATCHCENTERVARS\s+(?P<varnum>\w+)\s*$'
+
+    def parseNSCRATCHCENTERVARS(self, mobj):
+        varnumStr = mobj.group("varnum")
+        if self['NSCRATCHCENTERVARS']!=None:
+            raise SetupError('NSCRATCHCENTERVARS already declared')
+        self['NSCRATCHCENTERVARS'] = varnumStr
+
+    @staticmethod
     def initparseSCRATCHFACEXVAR():
         strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
         return {},'SCRATCHFACEXVAR\s+(?P<varname>\w+)' +  strEosRE
@@ -608,6 +618,7 @@ class UnitUnion(dict):
         self['FLUX'] = {}
         self['SCRATCHVAR'] = {}
         self['SCRATCHCENTERVAR'] = {}
+        self['NSCRATCHCENTERVARS'] = None
         self['SCRATCHFACEXVAR'] = {}
         self['SCRATCHFACEYVAR'] = {}
         self['SCRATCHFACEZVAR'] = {}
@@ -710,6 +721,14 @@ class UnitUnion(dict):
                   self['GUARDCELLS']=unit['GUARDCELLS']
                else:
                   self['GUARDCELLS']= max(unit['GUARDCELLS'], self['GUARDCELLS'])
+
+            if unit['NSCRATCHCENTERVARS']!=None:
+               if self['NSCRATCHCENTERVARS']==None:
+                  self['NSCRATCHCENTERVARS']=unit['NSCRATCHCENTERVARS']
+               elif unit['NSCRATCHCENTERVARS'].isdecimal() and self['NSCRATCHCENTERVARS'].isdecimal():
+                  self['NSCRATCHCENTERVARS']= "%s" % max(int(unit['NSCRATCHCENTERVARS']), int(self['NSCRATCHCENTERVARS']))
+               else:
+                  self['NSCRATCHCENTERVARS']= "max(%s,%s)" % (unit['NSCRATCHCENTERVARS'], self['NSCRATCHCENTERVARS'])
 
             for (prop,prop_type) in list(unit['PARTICLEPROP'].items()):
                 if unit['PARTICLEPROP'].get(prop,prop_type)!=prop_type:

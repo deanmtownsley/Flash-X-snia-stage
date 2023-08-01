@@ -51,6 +51,7 @@ subroutine sim_scaleProfile(tcurr)
   if (sim_useProfileFromFile) then
      if (.NOT. sim_profileIsScaled .OR. (sim_profileScaledTime .NE. tcurr)) then
         call Timers_start("scaleProfile")
+        !$omp single
         S  = ( sim_rhoAmbient / (sim_expEnergy*tcurr*tcurr) ) ** 0.2
         St = S * tcurr
 
@@ -62,6 +63,7 @@ subroutine sim_scaleProfile(tcurr)
 !!$        print*,i,sim_rProf  (i),sim_vProf  (i),sim_rhoProf(i),sim_pProf  (i)
 !!$        if (.NOT. written) write(53,*)sim_rProf  (i),sim_vProf  (i),sim_rhoProf(i),sim_pProf  (i)
         end do
+        !$omp end single
         call Timers_stop("scaleProfile")
      end if
   end if

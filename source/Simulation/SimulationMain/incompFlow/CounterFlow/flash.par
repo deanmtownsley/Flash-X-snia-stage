@@ -28,10 +28,10 @@ mph_invWeber = 0.004
 geometry	= "cartesian"
 
 # Simulation parameters
-sim_outletBuffer = 0.5
+sim_outletBuffer = 0.1
 sim_channelDepth = 1.0
-sim_nozzleFreq = 0.5
-sim_nozzleAmp = 0.2
+sim_nozzleFreq = 0.2
+sim_nozzleAmp = 0.8
 sim_liqFlowRate = 1.0
 sim_gasFlowRate = -1.0
 
@@ -57,13 +57,13 @@ log_file	= "INS_Counter_Flow.log"
 basenm		= "INS_Counter_Flow_"
 restart         = .false.
 nend            = 10000000
-tmax            = 40.
+tmax            = 70.
 ins_cflFlg      = 1
 ins_cfl         = 0.05
 ins_sigma	= 0.05
 ins_dtSpec      = 0.1d-3
 dtinit          = 0.1d-3
-tstep_change_factor = 1.01
+tstep_change_factor = 1.0
 ins_pressureCorrect = .false.
 
 #Integration Scheme:
@@ -76,11 +76,12 @@ plot_var_4      = "dfun"
 plot_var_5      = "dust"
 plot_var_6      = "omgm"
 
+checkpointFileNumber = 0
 checkpointFileIntervalTime = 5.0
-checkpointFileIntervalStep = 500000
 
+plotFileNumber =  0
 plotFileIntervalTime = 0.1
-plotFileIntervalStep = 100000
+ignoreForcedPlot = .TRUE.
 
 # AMR parameters
 nblockx	= 10

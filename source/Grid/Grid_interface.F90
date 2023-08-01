@@ -144,7 +144,7 @@ Module Grid_interface
   end interface
 
   interface
-     subroutine Grid_communicateFluxes(axis, coarse_level)
+     recursive subroutine Grid_communicateFluxes(axis, coarse_level)
        implicit none
        integer, intent(IN)                   :: axis
        integer, intent(IN)                   :: coarse_level
@@ -683,7 +683,18 @@ Module Grid_interface
        real, intent(inout)    :: poisfact
      end subroutine Grid_solvePoisson
   end interface
-  
+ 
+  interface 
+     subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, &
+          bcValues, poisfact)
+       implicit none
+       integer, intent(in)    :: iSoln, iSrc, iCoeff
+       integer, intent(in)    :: bcTypes(6)
+       real, intent(in)       :: bcValues(2,6)
+       real, intent(inout)    :: poisfact
+     end subroutine Grid_solveLaplacian
+  end interface
+   
   interface
      subroutine Grid_setSolverDbgContextInfo(component,group)
        implicit none

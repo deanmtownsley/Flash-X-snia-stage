@@ -439,8 +439,8 @@ subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,
      !---------------------------------------------------------
 !_______________________________RHS TERM______________________________________!
 
-     rhs(i,j,k) = rhs(i,j,k) - (frx*ur  - flx*ul)/dx  - (fry*vr  - fly*vl)/dy - (frz*wr - flz*wl)/dz &
-                             + phi(i,j,k)*(ur-ul)/dx  + phi(i,j,k)*(vr-vl)/dy + phi(i,j,k)*(wr-wl)/dz
+     rhs(i,j,k) = rhs(i,j,k) - (frx*ur  - flx*ul)/dx  - (fry*vr  - fly*vl)/dy - (frz*wr - flz*wl)/dz !&
+                             !+ phi(i,j,k)*(ur-ul)/dx  + phi(i,j,k)*(vr-vl)/dy + phi(i,j,k)*(wr-wl)/dz
 
     end do
    end do

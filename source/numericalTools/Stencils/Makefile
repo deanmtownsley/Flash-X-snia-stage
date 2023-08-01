@@ -18,7 +18,9 @@ Stencils += Stencils_lsRedistance2d.o \
             Stencils_lsFaceProps3d.o \
             Stencils_lsCenterProps.o \
             Stencils_lsNormals2d.o \
-            Stencils_lsNormals3d.o
+            Stencils_lsNormals3d.o \
+            Stencils_lsCurvature2d.o \
+            Stencils_lsCurvature3d.o
 
 Stencils += Stencils_integrateEuler.o \
             Stencils_integrateAB2.o
