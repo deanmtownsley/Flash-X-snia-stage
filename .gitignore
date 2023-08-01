@@ -4,6 +4,7 @@
 *~
 *.sif
 *.mod
+.DS*
 # Dirs
 build/
 sites/ares/

@@ -226,6 +226,13 @@ subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact
      call amrex_multifab_destroy(gr_amrexMG_rhs(ilev))
      call amrex_boxarray_destroy(gr_amrexMG_ba(ilev))
      call amrex_distromap_destroy(gr_amrexMG_dm(ilev))
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(1,ilev))
+#if NDIM >= 2
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(2,ilev))
+#endif
+#if NDIM == 3
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(3,ilev))
+#endif
     end do
      
     call Timers_stop("Grid_solveLaplacian")
