@@ -21,7 +21,9 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
 #include "constants.h"
 
    ! Modules Used
+   use ImBound_data, ONLY: ib_bruteForceMapping
    use ImBound_type, ONLY: ImBound_type_t
+   use ib_annInterface, ONLY: ib_annSearchTree, ib_annSearchTreeRC
    implicit none
 
    ! Arguments
@@ -86,14 +88,14 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
          ycell = ycenter(j)
          zcell = 0.0
          !! ======================================= ANN approach ==============================================
-         if (.true.) then
+         if (.not. ib_bruteForceMapping) then
             queryPt = (/xcell, ycell/)
             queryPt_rc = ycell
             !!! find the  nearest neighbors
             !! to compute ls value
-            call body%searchTree(queryPt, nn, nnIdx, dists, eps)
+            call ib_annSearchTree(body, queryPt, nn, nnIdx, dists, eps)
             !! for ray casting
-            call body%searchTreeRC(queryPt_rc, nn_rc, nnIdx_rc, dists_rc, eps)
+            call ib_annSearchTreeRC(body, queryPt_rc, nn_rc, nnIdx_rc, dists_rc, eps)
             do nn_i = 1, nn
                p_i = nnIdx(nn_i) + 1 ! need + 1 to convert c++ index to fortran
                PA = (/body%elems(p_i)%xA, body%elems(p_i)%yA/)
@@ -134,40 +136,42 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
 
                distls(nn_i) = sqrt(v1(1)**2 + v1(2)**2)
 
-               !!! ray casting
-               do nn_irc = 1, nn_rc
-                  ! End points for the line segment of the IB
-                  ! PA is on the left and PB is on the right
-                  ap_i = nnIdx_rc(nn_irc) + 1 !! ap_i is short for panel_index
-                  PA = (/body%elems(ap_i)%xA, body%elems(ap_i)%yA/)
-                  PB = (/body%elems(ap_i)%xB, body%elems(ap_i)%yB/)
-                  ! Grid cell point
-                  Pcell = (/xcell, ycell/)
-                  ! Find if the horizontal ray on right-side intersects with body
-                  miny = min(PA(2), PB(2))
-                  maxy = max(PA(2), PB(2))
-
-                  if (ycell .gt. miny .and. ycell .lt. maxy) then
-
-                     ! Method #1 use ratios to divide the current panel using
-                     ! y intersection and find x
-
-                     mratio = PA(2) - ycell
-                     nratio = ycell - PB(2)
-                     xit = (mratio*PB(1) + nratio*PA(1))/(mratio + nratio)
-
-                     ! Method #2 use the equation of line instead
-
-                     !mratio = (PB(2)-PA(2))/(PB(1)-PA(1))
-                     !xit = PA(1) + (ycell - PA(2))/mratio
-
-                     ! Check to make sure that the intersection is on the right
-
-                     if (xit .ge. xcell) countit = countit + 1
-
-                  end if
-               end do
             end do
+
+               !!! ray casting
+            do nn_irc = 1, nn_rc
+               ! End points for the line segment of the IB
+               ! PA is on the left and PB is on the right
+               ap_i = nnIdx_rc(nn_irc) + 1 !! ap_i is short for panel_index
+               PA = (/body%elems(ap_i)%xA, body%elems(ap_i)%yA/)
+               PB = (/body%elems(ap_i)%xB, body%elems(ap_i)%yB/)
+               ! Grid cell point
+               Pcell = (/xcell, ycell/)
+               ! Find if the horizontal ray on right-side intersects with body
+               miny = min(PA(2), PB(2))
+               maxy = max(PA(2), PB(2))
+
+               if (ycell .gt. miny .and. ycell .lt. maxy) then
+
+                  ! Method #1 use ratios to divide the current panel using
+                  ! y intersection and find x
+
+                  mratio = PA(2) - ycell
+                  nratio = ycell - PB(2)
+                  xit = (mratio*PB(1) + nratio*PA(1))/(mratio + nratio)
+
+                  ! Method #2 use the equation of line instead
+
+                  !mratio = (PB(2)-PA(2))/(PB(1)-PA(1))
+                  !xit = PA(1) + (ycell - PA(2))/mratio
+
+                  ! Check to make sure that the intersection is on the right
+
+                  if (xit .ge. xcell) countit = countit + 1
+
+               end if
+            end do
+
             ! Construct level set - if intersections are positive then the point
             ! lies outside (-), if odd then the point lies inside (+)
             mvd = sign(minval(distls(:)), 2*mod(countit, 2) - 1.)
@@ -178,7 +182,7 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
          !! ======================================= ANN approach ends ===============================================
 
          !! ======================================= Classical approach ==============================================
-         if (.false.) then
+         if (ib_bruteForceMapping) then
             do p_i = 1, body%numElems ! p_i is short for panel_index
                ! End points for the line segment of the IB
                ! PA is on the left and PB is on the right

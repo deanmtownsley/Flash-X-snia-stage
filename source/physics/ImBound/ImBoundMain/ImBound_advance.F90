@@ -34,7 +34,10 @@
 
 subroutine ImBound_advance(bodyInfo, time, dt)
 
+   use ImBound_data, ONLY: ib_bruteForceMapping
    use ImBound_type, ONLY: ImBound_type_t
+   use ib_annInterface, ONLY: ib_annBuildTree
+
    implicit none
    type(ImBound_type_t), intent(inout) :: bodyInfo
    real, intent(in) :: time, dt
@@ -52,5 +55,7 @@ subroutine ImBound_advance(bodyInfo, time, dt)
 
    bodyInfo%boundBox(:, JAXIS) = (/minval(bodyInfo%elems(:)%yCenter), &
                                    maxval(bodyInfo%elems(:)%yCenter)/)
-   call bodyInfo%buildTree()
+
+   if (.not. ib_bruteForceMapping) call ib_annBuildTree(bodyInfo)
+
 end subroutine ImBound_advance

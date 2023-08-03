@@ -9,10 +9,11 @@ D useImBound   Should the ImBound unit be used?
 PARAMETER useImBound BOOLEAN TRUE
 
 #---------------------------------------------------------------------------------
-PARAMETER ib_lsIt                    INTEGER   2        # Level Set redistance iterations...
-PARAMETER ib_numBodies               INTEGER   1        # Number of bodies
-PARAMETER ib_bodyName                STRING   "flash" # Name of the string
-PARAMETER ib_enableSelectiveMapping  BOOLEAN  TRUE
+PARAMETER ib_lsIt                    	INTEGER	2        # Level Set redistance iterations...
+PARAMETER ib_numBodies               	INTEGER	1        # Number of bodies
+PARAMETER ib_bodyName                	STRING	"flash" # Name of the string
+PARAMETER ib_enableSelectiveMapping	BOOLEAN	TRUE
+PARAMETER ib_bruteForceMapping		BOOLEAN	FALSE
 
 #---------------------------------------------------------------------------------
 VARIABLE lmda    # Level set distance function for immersed boundary

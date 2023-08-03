@@ -33,6 +33,7 @@ subroutine ImBound_init(restart)
 
    use ImBound_data
    use ib_interface, ONLY: ib_readBody
+   use ib_annInterface, ONLY: ib_annBuildTree
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, &
                                Driver_getComm
@@ -55,12 +56,14 @@ subroutine ImBound_init(restart)
    call RuntimeParameters_get("ib_numBodies", ib_numBodies)
    call RuntimeParameters_get("ib_bodyName", ib_bodyName)
    call RuntimeParameters_get("ib_enableSelectiveMapping", ib_enableSelectiveMapping)
+   call RuntimeParameters_get("ib_bruteForceMapping", ib_bruteForceMapping)
 
    if (ib_meshMe .eq. MASTER_PE) then
       write (*, *) 'ib_lsIt=', ib_lsIt
       write (*, *) 'ib_numBodies=', ib_numBodies
       write (*, *) 'ib_bodyName=', ib_bodyName
       write (*, *) 'ib_enableSelectiveMapping', ib_enableSelectiveMapping
+      write (*, *) 'ib_bruteForceMapping', ib_bruteForceMapping
    end if
 
    allocate (ib_bodyInfo(ib_numBodies))
@@ -68,7 +71,7 @@ subroutine ImBound_init(restart)
    do ibd = 1, ib_numBodies
       write (bodyFile, "(A,A,I4.4)") trim(ib_bodyName), '_hdf5_ibd_', ibd
       call ib_readBody(ib_bodyInfo(ibd), bodyFile)
-      call ib_bodyInfo(ibd)%buildTree()
+      if (.not. ib_bruteForceMapping) call ib_annBuildTree(ib_bodyInfo(ibd))
    end do
 
 end subroutine ImBound_init

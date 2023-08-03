@@ -43,6 +43,8 @@ module ImBound_data
 
    logical, save :: ib_enableSelectiveMapping
 
+   logical, save :: ib_bruteForceMapping
+
    integer, save :: ib_lsIt
 
    integer, save :: ib_meshMe
