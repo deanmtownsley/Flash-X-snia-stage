@@ -32,6 +32,6 @@ subroutine ib_annSearchTree(body, queryPt, nn, nnIdx, dists, eps)
 
    allocate (dists(nn))
    allocate (nnIdx(nn))
-   call ann_kSearch(c_loc(queryPt), body%dim, nn, c_loc(nnIdx), c_loc(dists), eps, body%kdTree)
+   call ann_kSearch(c_loc(queryPt), body%dims, nn, c_loc(nnIdx), c_loc(dists), eps, body%kdTree)
 
 end subroutine ib_annSearchTree

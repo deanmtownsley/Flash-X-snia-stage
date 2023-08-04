@@ -67,7 +67,7 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
    nn_rc = 8 ! #NN for ray casting
    allocate (distls(nn))
    !! allocate query point
-   allocate (queryPt(body%dim))
+   allocate (queryPt(body%dims))
    allocate (queryPt_rc(1))
    k = 1
    do j = jy1, jy2

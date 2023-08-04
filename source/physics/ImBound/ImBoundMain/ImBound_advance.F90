@@ -47,8 +47,11 @@ subroutine ImBound_advance(bodyInfo, time, dt)
    bodyInfo%elems(:)%xB = bodyInfo%elems(:)%xB + dt*bodyInfo%velx
    bodyInfo%elems(:)%yB = bodyInfo%elems(:)%yB + dt*bodyInfo%vely
 
-   bodyInfo%elems(:)%xCenter = (bodyInfo%elems(:)%xA + bodyInfo%elems(:)%xB)/2
-   bodyInfo%elems(:)%yCenter = (bodyInfo%elems(:)%yA + bodyInfo%elems(:)%yB)/2
+   bodyInfo%elems(:)%xCenter = bodyInfo%elems(:)%xCenter + dt*bodyInfo%velx
+   bodyInfo%elems(:)%yCenter = bodyInfo%elems(:)%yCenter + dt*bodyInfo%vely
+
+   !bodyInfo%elems(:)%xCenter = (bodyInfo%elems(:)%xA + bodyInfo%elems(:)%xB)/2
+   !bodyInfo%elems(:)%yCenter = (bodyInfo%elems(:)%yA + bodyInfo%elems(:)%yB)/2
 
    bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%xCenter), &
                                    maxval(bodyInfo%elems(:)%xCenter)/)

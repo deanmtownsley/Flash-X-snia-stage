@@ -28,45 +28,73 @@ subroutine ib_readBody(body, bodyFile)
    integer(HID_T)                 :: file
    integer                        :: h5err
    integer(HID_T)                 :: dset
-   integer(HSIZE_T), dimension(3) :: dims
+   integer(HSIZE_T), dimension(3) :: dsetDims
 
    call h5open_f(h5err)
    call h5fopen_f(trim(bodyFile), H5F_ACC_RDONLY_F, file, h5err) !H5F_ACC_RDONLY_F
    if (h5err < 0) call Driver_abort('Unable to open body file')
 
-   dims = (/1, 1, 1/)
+   dsetDims = (/1, 1, 1/)
 
    call h5dopen_f(file, "numElems", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read body/numElems')
-   call h5dread_f(dset, H5T_NATIVE_INTEGER, body%numElems, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, body%numElems, dsetDims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "dims", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read body/dims')
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, body%dims, dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    allocate (body%elems(body%numElems))
 
-   dims = (/body%numElems, 1, 1/)
+   dsetDims = (/body%numElems, 1, 1/)
 
    call h5dopen_f(file, "elems/xA", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xA')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xA, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xA, dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yA", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yA')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yA, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yA, dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/xB", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xB')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xB, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xB, dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yB", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yB')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yB, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yB, dsetDims, h5err)
    call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "elems/xCenter", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read elems/xCenter')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xCenter, dsetDims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "elems/yCenter", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read elems/yCenter')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yCenter, dsetDims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "elems/xNorm", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read elems/xNorm')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xNorm, dsetDims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "elems/yNorm", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read elems/yNorm')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yNorm, dsetDims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   if (body%dims == 3) then
+      ! Add read statement for 3d body
+   end if
 
    call h5fclose_f(file, h5err)
    call h5close_f(h5err)
-   
-   body%dim = 2 !! need to read this from file 
+
 end subroutine ib_readBody

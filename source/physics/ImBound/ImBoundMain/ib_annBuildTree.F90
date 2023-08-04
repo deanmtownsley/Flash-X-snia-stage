@@ -30,7 +30,7 @@ subroutine ib_annBuildTree(body)
    !=======================================================================
    body%kdTree = c_null_ptr
    body%kdTreeRC = c_null_ptr
-   cols = body%dim ! need to (un)hard code body
+   cols = body%dims ! need to (un)hard code body
    cols_rc = 1
    rows = body%numElems
    allocate (dset_data(rows, cols))
