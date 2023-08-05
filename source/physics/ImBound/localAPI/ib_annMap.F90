@@ -1,8 +1,8 @@
-!! source/physics/ImBound/localAPI/ib_mapToGrid
+!! source/physics/ImBound/localAPI/ib_annMap
 !!
 !! NAME
 !!
-!! ib_mapToGrid(blockCount,blockList,dt)
+!! ib_annMap(blockCount,blockList,dt)
 !!
 !! SYNOPSIS
 !!
@@ -15,7 +15,7 @@
 !! Subroutine to find the distance function lambda for
 !! the immersed boundary (IB).
 !!
-subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 
    use ImBound_type, ONLY: ImBound_type_t
 
@@ -27,4 +27,4 @@ subroutine ib_mapToGrid(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy
 
-end subroutine ib_mapToGrid
+end subroutine ib_annMap

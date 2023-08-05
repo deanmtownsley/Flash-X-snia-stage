@@ -32,8 +32,7 @@
 subroutine ImBound_init(restart)
 
    use ImBound_data
-   use ib_interface, ONLY: ib_readBody
-   use ib_annInterface, ONLY: ib_annBuildTree
+   use ib_interface, ONLY: ib_readBody, ib_annBuildTree
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, &
                                Driver_getComm
@@ -57,6 +56,7 @@ subroutine ImBound_init(restart)
    call RuntimeParameters_get("ib_bodyName", ib_bodyName)
    call RuntimeParameters_get("ib_enableSelectiveMapping", ib_enableSelectiveMapping)
    call RuntimeParameters_get("ib_bruteForceMapping", ib_bruteForceMapping)
+   call RuntimeParameters_get("ib_annQueries", ib_annQueries)
 
    if (ib_meshMe .eq. MASTER_PE) then
       write (*, *) 'ib_lsIt=', ib_lsIt
@@ -64,6 +64,7 @@ subroutine ImBound_init(restart)
       write (*, *) 'ib_bodyName=', ib_bodyName
       write (*, *) 'ib_enableSelectiveMapping', ib_enableSelectiveMapping
       write (*, *) 'ib_bruteForceMapping', ib_bruteForceMapping
+      write (*, *) 'ib_annQueries', ib_annQueries
    end if
 
    allocate (ib_bodyInfo(ib_numBodies))

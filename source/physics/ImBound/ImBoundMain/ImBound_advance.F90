@@ -36,7 +36,7 @@ subroutine ImBound_advance(bodyInfo, time, dt)
 
    use ImBound_data, ONLY: ib_bruteForceMapping
    use ImBound_type, ONLY: ImBound_type_t
-   use ib_annInterface, ONLY: ib_annBuildTree
+   use ib_interface, ONLY: ib_annBuildTree
 
    implicit none
    type(ImBound_type_t), intent(inout) :: bodyInfo

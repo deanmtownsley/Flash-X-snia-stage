@@ -14,6 +14,7 @@ PARAMETER ib_numBodies               	INTEGER	1        # Number of bodies
 PARAMETER ib_bodyName                	STRING	"flash" # Name of the string
 PARAMETER ib_enableSelectiveMapping	BOOLEAN	TRUE
 PARAMETER ib_bruteForceMapping		BOOLEAN	FALSE
+PARAMETER ib_annQueries			INTEGER 6
 
 #---------------------------------------------------------------------------------
 VARIABLE lmda    # Level set distance function for immersed boundary

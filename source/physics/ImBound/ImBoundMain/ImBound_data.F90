@@ -40,17 +40,15 @@ module ImBound_data
    implicit none
 
    logical, save :: ib_useImBound
-
    logical, save :: ib_enableSelectiveMapping
-
    logical, save :: ib_bruteForceMapping
 
    integer, save :: ib_lsIt
-
    integer, save :: ib_meshMe
    integer, save :: ib_meshNumProcs
    integer, save :: ib_meshComm
    integer, save :: ib_nstep
+   integer, save :: ib_annQueries
 
    real, dimension(2), save :: ib_alfa
    real, save :: ib_rhoa

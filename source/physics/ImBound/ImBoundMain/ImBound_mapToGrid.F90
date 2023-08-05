@@ -23,7 +23,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    use ImBound_data
    use ImBound_type, ONLY: ImBound_type_t
-   use ib_interface, ONLY: ib_mapToGrid
+   use ib_interface, ONLY: ib_bruteForceMap, ib_annMap
    use Timers_interface, ONLY: Timers_start, Timers_stop
    use Driver_interface, ONLY: Driver_getNStep
    use Grid_tile, ONLY: Grid_tile_t
@@ -66,12 +66,23 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
-   call ib_mapToGrid(solnData(LMDA_VAR, :, :, :), &
+   if (ib_bruteForceMapping) then
+      call ib_bruteForceMap(solnData(LMDA_VAR, :, :, :), &
+                            xCenter, yCenter, &
+                            del(IAXIS), del(JAXIS), &
+                            GRID_ILO_GC, GRID_IHI_GC, &
+                            GRID_JLO_GC, GRID_JHI_GC, &
+                            bodyInfo)
+
+   else
+      call ib_annMap(solnData(LMDA_VAR, :, :, :), &
                      xCenter, yCenter, &
                      del(IAXIS), del(JAXIS), &
                      GRID_ILO_GC, GRID_IHI_GC, &
                      GRID_JLO_GC, GRID_JHI_GC, &
                      bodyInfo)
+
+   end if
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
