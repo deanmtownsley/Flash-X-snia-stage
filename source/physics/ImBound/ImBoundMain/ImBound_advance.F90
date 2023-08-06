@@ -43,50 +43,41 @@ subroutine ImBound_advance(bodyInfo, time, dt)
    type(ImBound_type_t), intent(inout) :: bodyInfo
 
    real, intent(in) :: time, dt
-   real, dimension(2, 2) :: rotation
-   real, dimension(2) :: transform
-   real, dimension(1, 2) :: vector
+   real, dimension(2, 2) :: rotate
+   real, dimension(2) :: offset
+   real, dimension(2) :: vector
    integer :: panelIndex
 
-   rotation(1, :) = (/cos(bodyInfo%thetaz), -sin(bodyInfo%thetaz)/)
-   rotation(2, :) = (/sin(bodyInfo%thetaz), cos(bodyInfo%thetaz)/)
+   rotate(:, 1) = (/cos(dt*bodyInfo%thetaz), -sin(dt*bodyInfo%thetaz)/)
+   rotate(:, 2) = (/sin(dt*bodyInfo%thetaz), cos(dt*bodyInfo%thetaz)/)
+
+   offset(:) = (/dt*bodyInfo%velx, dt*bodyInfo%vely/)
 
    do panelIndex = 1, bodyInfo%numElems
-      vector(1, 1) = bodyInfo%elems(panelIndex)%xA
-      vector(1, 2) = bodyInfo%elems(panelIndex)%yA
-      vector = matmul(vector, rotation)
-      bodyInfo%elems(panelIndex)%xA = vector(1, 1)
-      bodyInfo%elems(panelIndex)%yA = vector(1, 2)
+      vector(1) = bodyInfo%elems(panelIndex)%xA
+      vector(2) = bodyInfo%elems(panelIndex)%yA
+      vector = matmul(vector, rotate) + offset
+      bodyInfo%elems(panelIndex)%xA = vector(1)
+      bodyInfo%elems(panelIndex)%yA = vector(2)
 
-      vector(1, 1) = bodyInfo%elems(panelIndex)%xB
-      vector(1, 2) = bodyInfo%elems(panelIndex)%yB
-      vector = matmul(vector, rotation)
-      bodyInfo%elems(panelIndex)%xB = vector(1, 1)
-      bodyInfo%elems(panelIndex)%yB = vector(1, 2)
+      vector(1) = bodyInfo%elems(panelIndex)%xB
+      vector(2) = bodyInfo%elems(panelIndex)%yB
+      vector = matmul(vector, rotate) + offset
+      bodyInfo%elems(panelIndex)%xB = vector(1)
+      bodyInfo%elems(panelIndex)%yB = vector(2)
 
-      vector(1, 1) = bodyInfo%elems(panelIndex)%xCenter
-      vector(1, 2) = bodyInfo%elems(panelIndex)%yCenter
-      vector = matmul(vector, rotation)
-      bodyInfo%elems(panelIndex)%xCenter = vector(1, 1)
-      bodyInfo%elems(panelIndex)%yCenter = vector(1, 2)
+      vector(1) = bodyInfo%elems(panelIndex)%xCenter
+      vector(2) = bodyInfo%elems(panelIndex)%yCenter
+      vector = matmul(vector, rotate) + offset
+      bodyInfo%elems(panelIndex)%xCenter = vector(1)
+      bodyInfo%elems(panelIndex)%yCenter = vector(2)
 
-      vector(1, 1) = bodyInfo%elems(panelIndex)%xNorm
-      vector(1, 2) = bodyInfo%elems(panelIndex)%yNorm
-      vector = matmul(vector, rotation)
-      bodyInfo%elems(panelIndex)%xNorm = vector(1, 1)
-      bodyInfo%elems(panelIndex)%yNorm = vector(1, 2)
+      vector(1) = bodyInfo%elems(panelIndex)%xNorm
+      vector(2) = bodyInfo%elems(panelIndex)%yNorm
+      vector = matmul(vector, rotate)
+      bodyInfo%elems(panelIndex)%xNorm = vector(1)
+      bodyInfo%elems(panelIndex)%yNorm = vector(2)
    end do
-
-   transform(:) = (/bodyInfo%velx, bodyInfo%vely/)
-
-   bodyInfo%elems(:)%xA = bodyInfo%elems(:)%xA + dt*transform(1)
-   bodyInfo%elems(:)%yA = bodyInfo%elems(:)%yA + dt*transform(2)
-
-   bodyInfo%elems(:)%xB = bodyInfo%elems(:)%xB + dt*transform(1)
-   bodyInfo%elems(:)%yB = bodyInfo%elems(:)%yB + dt*transform(2)
-
-   bodyInfo%elems(:)%xCenter = bodyInfo%elems(:)%xCenter + dt*transform(1)
-   bodyInfo%elems(:)%yCenter = bodyInfo%elems(:)%yCenter + dt*transform(2)
 
    bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%xCenter), &
                                    maxval(bodyInfo%elems(:)%xCenter)/)

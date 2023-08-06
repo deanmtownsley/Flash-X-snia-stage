@@ -24,6 +24,7 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    use ImBound_data, ONLY: ib_annQueries
    use ImBound_type, ONLY: ImBound_type_t
    use ib_interface, ONLY: ib_annSearchTree
+   use Timers_interface, ONLY: Timers_start, Timers_stop
    implicit none
 
    ! Arguments
@@ -81,7 +82,9 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          queryPt = (/xcell, ycell/)
          !!! find the  nearest neighbors
          !! to compute ls value
+         call Timers_start("ib_annSearchTree")
          call ib_annSearchTree(body, queryPt, annElems, annIdx)
+         call Timers_stop("ib_annSearchTree")
 
          ! Grid cell point
          Pcell = (/xcell, ycell/)
