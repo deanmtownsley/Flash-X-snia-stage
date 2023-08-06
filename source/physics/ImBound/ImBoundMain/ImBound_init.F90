@@ -72,7 +72,7 @@ subroutine ImBound_init(restart)
    do ibd = 1, ib_numBodies
       write (bodyFile, "(A,A,I4.4)") trim(ib_bodyName), '_hdf5_ibd_', ibd
       call ib_readBody(ib_bodyInfo(ibd), bodyFile)
-      if (.not. ib_bruteForceMapping) call ib_annBuildTree(ib_bodyInfo(ibd))
+      call ib_annBuildTree(ib_bodyInfo(ibd))
    end do
 
 end subroutine ImBound_init

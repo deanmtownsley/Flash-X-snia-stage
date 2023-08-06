@@ -52,7 +52,6 @@ module ImBound_type
       real :: thetax, thetay, thetaz
       real :: boundBox(LOW:HIGH, IAXIS:KAXIS)
       type(c_ptr) :: kdTree = c_null_ptr
-      type(c_ptr) :: kdTreeRC = c_null_ptr
    end type ImBound_type_t
 
 end module ImBound_type

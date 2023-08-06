@@ -23,26 +23,25 @@ subroutine ib_annBuildTree(body)
 
    class(ImBound_type_t), intent(INOUT)  :: body
 
-      !! ANN tree variables
-   integer :: p_i, rows, cols, i, cols_rc
-   real, dimension(:, :), allocatable, target :: dset_data, dset_data_rc
-      !! build the ANN tree for given body
-   !=======================================================================
+   ! ANN tree variables
+   integer :: panelIndex, rowSize, colSize
+   real, dimension(:, :), allocatable, target :: annDset
+
+   ! build the ANN tree for given body
    body%kdTree = c_null_ptr
-   body%kdTreeRC = c_null_ptr
-   cols = body%dims ! need to (un)hard code body
-   cols_rc = 1
-   rows = body%numElems
-   allocate (dset_data(rows, cols))
-   allocate (dset_data_rc(rows, cols_rc))
-   do p_i = 1, body%numElems
-      dset_data(p_i, :) = (/body%elems(p_i)%xA, body%elems(p_i)%yA/)
-      dset_data_rc(p_i, :) = body%elems(p_i)%yA
+   colSize = body%dims ! need to (un)hard code body
+   rowSize = body%numElems
+
+   allocate (annDset(rowSize, colSize))
+
+   do panelIndex = 1, body%numElems
+      annDset(panelIndex, :) = (/body%elems(panelIndex)%xCenter, body%elems(panelIndex)%yCenter/)
    end do
-      !!! build the ann tree
-      !! for finding nearest neighbors to get level-set value
-   call ann_buildTree(rows, cols, c_loc(dset_data), body%kdTree)
-      !! for finding nearest neighbors for ray casting
-   call ann_buildTree(rows, cols_rc, c_loc(dset_data_rc), body%kdTreeRC)
+
+   ! build the ann tree
+   ! for finding nearest neighbors to get level-set value
+   call ann_buildTree(rowSize, colSize, c_loc(annDset), body%kdTree)
+
+   deallocate (annDset)
 
 end subroutine ib_annBuildTree

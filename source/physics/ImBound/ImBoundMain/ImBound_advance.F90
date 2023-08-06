@@ -31,6 +31,7 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine ImBound_advance(bodyInfo, time, dt)
 
@@ -40,18 +41,52 @@ subroutine ImBound_advance(bodyInfo, time, dt)
 
    implicit none
    type(ImBound_type_t), intent(inout) :: bodyInfo
+
    real, intent(in) :: time, dt
-   bodyInfo%elems(:)%xA = bodyInfo%elems(:)%xA + dt*bodyInfo%velx
-   bodyInfo%elems(:)%yA = bodyInfo%elems(:)%yA + dt*bodyInfo%vely
+   real, dimension(2, 2) :: rotation
+   real, dimension(2) :: transform
+   real, dimension(1, 2) :: vector
+   integer :: panelIndex
 
-   bodyInfo%elems(:)%xB = bodyInfo%elems(:)%xB + dt*bodyInfo%velx
-   bodyInfo%elems(:)%yB = bodyInfo%elems(:)%yB + dt*bodyInfo%vely
+   rotation(1, :) = (/cos(bodyInfo%thetaz), -sin(bodyInfo%thetaz)/)
+   rotation(2, :) = (/sin(bodyInfo%thetaz), cos(bodyInfo%thetaz)/)
 
-   bodyInfo%elems(:)%xCenter = bodyInfo%elems(:)%xCenter + dt*bodyInfo%velx
-   bodyInfo%elems(:)%yCenter = bodyInfo%elems(:)%yCenter + dt*bodyInfo%vely
+   do panelIndex = 1, bodyInfo%numElems
+      vector(1, 1) = bodyInfo%elems(panelIndex)%xA
+      vector(1, 2) = bodyInfo%elems(panelIndex)%yA
+      vector = matmul(vector, rotation)
+      bodyInfo%elems(panelIndex)%xA = vector(1, 1)
+      bodyInfo%elems(panelIndex)%yA = vector(1, 2)
 
-   !bodyInfo%elems(:)%xCenter = (bodyInfo%elems(:)%xA + bodyInfo%elems(:)%xB)/2
-   !bodyInfo%elems(:)%yCenter = (bodyInfo%elems(:)%yA + bodyInfo%elems(:)%yB)/2
+      vector(1, 1) = bodyInfo%elems(panelIndex)%xB
+      vector(1, 2) = bodyInfo%elems(panelIndex)%yB
+      vector = matmul(vector, rotation)
+      bodyInfo%elems(panelIndex)%xB = vector(1, 1)
+      bodyInfo%elems(panelIndex)%yB = vector(1, 2)
+
+      vector(1, 1) = bodyInfo%elems(panelIndex)%xCenter
+      vector(1, 2) = bodyInfo%elems(panelIndex)%yCenter
+      vector = matmul(vector, rotation)
+      bodyInfo%elems(panelIndex)%xCenter = vector(1, 1)
+      bodyInfo%elems(panelIndex)%yCenter = vector(1, 2)
+
+      vector(1, 1) = bodyInfo%elems(panelIndex)%xNorm
+      vector(1, 2) = bodyInfo%elems(panelIndex)%yNorm
+      vector = matmul(vector, rotation)
+      bodyInfo%elems(panelIndex)%xNorm = vector(1, 1)
+      bodyInfo%elems(panelIndex)%yNorm = vector(1, 2)
+   end do
+
+   transform(:) = (/bodyInfo%velx, bodyInfo%vely/)
+
+   bodyInfo%elems(:)%xA = bodyInfo%elems(:)%xA + dt*transform(1)
+   bodyInfo%elems(:)%yA = bodyInfo%elems(:)%yA + dt*transform(2)
+
+   bodyInfo%elems(:)%xB = bodyInfo%elems(:)%xB + dt*transform(1)
+   bodyInfo%elems(:)%yB = bodyInfo%elems(:)%yB + dt*transform(2)
+
+   bodyInfo%elems(:)%xCenter = bodyInfo%elems(:)%xCenter + dt*transform(1)
+   bodyInfo%elems(:)%yCenter = bodyInfo%elems(:)%yCenter + dt*transform(2)
 
    bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%xCenter), &
                                    maxval(bodyInfo%elems(:)%xCenter)/)
@@ -59,6 +94,6 @@ subroutine ImBound_advance(bodyInfo, time, dt)
    bodyInfo%boundBox(:, JAXIS) = (/minval(bodyInfo%elems(:)%yCenter), &
                                    maxval(bodyInfo%elems(:)%yCenter)/)
 
-   if (.not. ib_bruteForceMapping) call ib_annBuildTree(bodyInfo)
+   call ib_annBuildTree(bodyInfo)
 
 end subroutine ImBound_advance

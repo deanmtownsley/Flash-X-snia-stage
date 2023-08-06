@@ -25,33 +25,15 @@ module ib_interface
    end interface
 
    interface
-      subroutine ib_annSearchTree(body, queryPt, nn, nnIdx, dists, eps)
+      subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
          use ImBound_type, ONLY: ImBound_type_t
          class(ImBound_type_t), intent(IN)  :: body
-         integer, intent(IN) :: nn
+         integer, intent(IN) :: annElems
          ! query point
          real, dimension(:), target, intent(IN) :: queryPt
-         ! distance of queryPt from neighbors
-         real, dimension(:), allocatable, target, intent(OUT)  :: dists
          ! indices of nearest neighbors
-         integer, dimension(:), allocatable, target, intent(OUT):: nnIdx
-         real, intent(in) :: eps
+         integer, dimension(:), target, intent(OUT):: annIdx
       end subroutine ib_annSearchTree
-   end interface
-
-   interface
-      subroutine ib_annSearchTreeRC(body, queryPt, nn, nnIdx, dists, eps)
-         use ImBound_type, ONLY: ImBound_type_t
-         class(ImBound_type_t), intent(IN)  :: body
-         integer, intent(IN) :: nn
-         ! query point
-         real, dimension(:), target, intent(IN) :: queryPt
-         ! distance of queryPt from neighbors
-         real, dimension(:), allocatable, target, intent(OUT)  :: dists
-         ! indices of nearest neighbors
-         integer, dimension(:), allocatable, target, intent(OUT):: nnIdx
-         real, intent(in) :: eps
-      end subroutine ib_annSearchTreeRC
    end interface
 
    interface

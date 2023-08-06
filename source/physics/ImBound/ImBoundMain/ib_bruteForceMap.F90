@@ -32,12 +32,8 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
    real, intent(in) :: dx, dy
 
    ! Internal Variables
-   integer :: numPart, e, ptelem, nel, p
-   integer, allocatable, dimension(:) :: max_ptelem
-
    integer :: i, j, k, panelIndex
-   real :: mva, mvd
-   real :: xcell, ycell, zcell
+   real :: xcell, ycell, zcell, mvd
 
    ! For the algorithm
    real, allocatable, dimension(:) :: PA, PB, Pcell, P0, v1

@@ -23,7 +23,7 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    ! Modules Used
    use ImBound_data, ONLY: ib_annQueries
    use ImBound_type, ONLY: ImBound_type_t
-   use ib_interface, ONLY: ib_annSearchTree, ib_annSearchTreeRC
+   use ib_interface, ONLY: ib_annSearchTree
    implicit none
 
    ! Arguments
@@ -33,29 +33,23 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    integer, intent(in) :: ix1, ix2, jy1, jy2
    real, intent(in) :: dx, dy
 
-   ! Internal Variables
-   integer :: numPart, e, ptelem, nel, p
-   integer, allocatable, dimension(:) :: max_ptelem
-
+   ! Internal variables
    integer :: i, j, k, panelIndex
-   real :: mva, mvd
-   real :: xcell, ycell, zcell
+   real :: xcell, ycell, zcell, mvd
 
    ! For the algorithm
    real, allocatable, dimension(:) :: PA, PB, Pcell, P0, v1
    real, allocatable, dimension(:) :: dist
    real :: u
    integer :: nelm = 2 ! Dimension for the points, 2 for (x,y) in 2-D
-   integer :: countit
-   real    :: miny, maxy, mratio, nratio, xit
 
    ! the grid/search data
    integer :: annElems, annIndex
    ! query points and distance of queryPt from neighbors
-   real, dimension(:), allocatable:: queryPt, dists
+   real, dimension(:), allocatable:: queryPt
    ! indices of nearest neighbors (NN)
    integer, dimension(:), allocatable :: annIdx
-   real :: eps = 0.0, dotNorm, magNorm, thetaNorm
+   real :: eps = 1e-13, dotNorm, magNorm, thetaNorm
 
    ! allocating data
    allocate (PA(nelm), PB(nelm), Pcell(nelm), P0(nelm), v1(nelm))
@@ -63,6 +57,7 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    ! define ANN parameters
    annElems = ib_annQueries
    allocate (dist(annElems))
+   allocate (annIdx(annElems))
    !! allocate query point
    allocate (queryPt(body%dims))
 
@@ -86,7 +81,7 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          queryPt = (/xcell, ycell/)
          !!! find the  nearest neighbors
          !! to compute ls value
-         call ib_annSearchTree(body, queryPt, annElems, annIdx, dists, eps)
+         call ib_annSearchTree(body, queryPt, annElems, annIdx)
 
          ! Grid cell point
          Pcell = (/xcell, ycell/)
@@ -129,9 +124,9 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
             magNorm = sqrt(body%elems(panelIndex)%xNorm**2 + body%elems(panelIndex)%yNorm**2)* &
                       sqrt(v1(1)**2 + v1(2)**2)
 
-            thetaNorm = acos(dotNorm/(magNorm + 1e-13))
+            thetaNorm = acos(dotNorm/(magNorm + eps))
 
-            if ((thetaNorm <= acos(-1.)/2) .or. (thetaNorm >= 3*acos(-1.)/2)) then
+            if ((thetaNorm <= (acos(-1.)/2 + eps)) .or. (thetaNorm > (3*acos(-1.)/2 - eps))) then
                dist(annIndex) = -sqrt(v1(1)**2 + v1(2)**2)
             else
                dist(annIndex) = sqrt(v1(1)**2 + v1(2)**2)
@@ -141,18 +136,17 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
                mvd = dist(annIndex)
             end if
 
-            !dist(annIndex) = sqrt(v1(1)**2 + v1(2)**2)
-
          end do
 
-         !mvd = minval(dist(:))
          ! For first body explicitly satisfy level set, and then compare with
          ! existing level set for successive bodies
          lmda(i, j, k) = mvd
 
       end do
    end do
+
    deallocate (dist)
    deallocate (PA, PB, Pcell, P0, v1)
+   deallocate (annIdx, queryPt)
 
 end subroutine ib_annMap

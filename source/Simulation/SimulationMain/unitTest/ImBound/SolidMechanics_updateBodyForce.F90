@@ -41,5 +41,6 @@ subroutine SolidMechanics_updateBodyForce(bodyInfo, time, dt)
 
    bodyInfo%velx = pi*cos(pi*time)
    bodyInfo%vely = -1.0
+   bodyInfo%thetaz = 0. !dt*2*pi
 
 end subroutine SolidMechanics_updateBodyForce

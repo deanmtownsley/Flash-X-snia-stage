@@ -13,7 +13,7 @@
 !!
 !!***
 
-subroutine ib_annSearchTree(body, queryPt, nn, nnIdx, dists, eps)
+subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
    !
    use ANN_mod
    use ANN_types_mod
@@ -21,17 +21,18 @@ subroutine ib_annSearchTree(body, queryPt, nn, nnIdx, dists, eps)
    implicit none
    !
    class(ImBound_type_t), intent(IN)  :: body
-   integer, intent(IN) :: nn
-   ! query point
-   real, dimension(:), target, intent(IN) :: queryPt
-   ! distance of queryPt from neighbors
-   real, dimension(:), allocatable, target, intent(OUT)  :: dists
-   ! indices of nearest neighbors
-   integer, dimension(:), allocatable, target, intent(OUT):: nnIdx
-   real, intent(in) :: eps
+   integer, intent(IN) :: annElems
+   real, dimension(:), target, intent(IN) :: queryPt ! query point
+   integer, dimension(:), target, intent(OUT):: annIdx ! indices of nearest neighbors
 
-   allocate (dists(nn))
-   allocate (nnIdx(nn))
-   call ann_kSearch(c_loc(queryPt), body%dims, nn, c_loc(nnIdx), c_loc(dists), eps, body%kdTree)
+   ! local variables
+   real :: eps = 0.
+   real, dimension(:), allocatable, target :: annDists
+
+   allocate (annDists(annElems))
+
+   call ann_kSearch(c_loc(queryPt), body%dims, annElems, c_loc(annIdx), c_loc(annDists), eps, body%kdTree)
+
+   deallocate(annDists)
 
 end subroutine ib_annSearchTree
