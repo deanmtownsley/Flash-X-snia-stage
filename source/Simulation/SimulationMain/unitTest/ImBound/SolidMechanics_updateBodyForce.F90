@@ -39,8 +39,7 @@ subroutine SolidMechanics_updateBodyForce(bodyInfo, time, dt)
 
    real, parameter :: pi = acos(-1.0)
 
-   bodyInfo%velx = pi*cos(pi*time)
-   bodyInfo%vely = -1.0
-   bodyInfo%thetaz = 2*pi
+   bodyInfo%velc = (/pi*cos(pi*time), -1., 0./)
+   bodyInfo%theta = (/0., 0., 2*pi/)
 
 end subroutine SolidMechanics_updateBodyForce

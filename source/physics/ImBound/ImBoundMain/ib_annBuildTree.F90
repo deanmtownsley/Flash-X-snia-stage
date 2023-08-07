@@ -35,7 +35,7 @@ subroutine ib_annBuildTree(body)
    allocate (annDset(rowSize, colSize))
 
    do panelIndex = 1, body%numElems
-      annDset(panelIndex, :) = (/body%elems(panelIndex)%xCenter, body%elems(panelIndex)%yCenter/)
+      annDset(panelIndex, :) = body%elems(panelIndex)%center(1:body%dims)
    end do
 
    ! build the ann tree

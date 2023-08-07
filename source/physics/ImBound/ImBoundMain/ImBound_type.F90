@@ -37,19 +37,15 @@ module ImBound_type
    implicit none
 
    type ib_elem
-      real :: xA, yA, zA
-      real :: xB, yB, zB
-      real :: xC, yC, zC
-      real :: xCenter, yCenter, zCenter
-      real :: xNorm, yNorm, zNorm
+      real, dimension(MDIM) :: pA, pB, pC
+      real, dimension(MDIM) :: center, normal
    end type ib_elem
 
    type ImBound_type_t
       integer :: numElems
       integer :: dims
       type(ib_elem), dimension(:), allocatable :: elems
-      real :: velx, vely, velz
-      real :: thetax, thetay, thetaz
+      real, dimension(MDIM) :: velc, theta
       real :: boundBox(LOW:HIGH, IAXIS:KAXIS)
       type(c_ptr) :: kdTree = c_null_ptr
    end type ImBound_type_t

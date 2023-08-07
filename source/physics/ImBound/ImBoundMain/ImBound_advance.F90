@@ -48,42 +48,32 @@ subroutine ImBound_advance(bodyInfo, time, dt)
    real, dimension(2) :: vector
    integer :: panelIndex
 
-   rotate(:, 1) = (/cos(dt*bodyInfo%thetaz), -sin(dt*bodyInfo%thetaz)/)
-   rotate(:, 2) = (/sin(dt*bodyInfo%thetaz), cos(dt*bodyInfo%thetaz)/)
+   rotate(:, 1) = (/cos(dt*bodyInfo%theta(3)), -sin(dt*bodyInfo%theta(3))/)
+   rotate(:, 2) = (/sin(dt*bodyInfo%theta(3)), cos(dt*bodyInfo%theta(3))/)
 
-   offset(:) = (/dt*bodyInfo%velx, dt*bodyInfo%vely/)
+   offset(:) = (/dt*bodyInfo%velc(1), dt*bodyInfo%velc(2)/)
 
    do panelIndex = 1, bodyInfo%numElems
-      vector(1) = bodyInfo%elems(panelIndex)%xA
-      vector(2) = bodyInfo%elems(panelIndex)%yA
-      vector = matmul(vector, rotate) + offset
-      bodyInfo%elems(panelIndex)%xA = vector(1)
-      bodyInfo%elems(panelIndex)%yA = vector(2)
 
-      vector(1) = bodyInfo%elems(panelIndex)%xB
-      vector(2) = bodyInfo%elems(panelIndex)%yB
-      vector = matmul(vector, rotate) + offset
-      bodyInfo%elems(panelIndex)%xB = vector(1)
-      bodyInfo%elems(panelIndex)%yB = vector(2)
+      bodyInfo%elems(panelIndex)%pA(1:2) = &
+         matmul(bodyInfo%elems(panelIndex)%pA(1:2), rotate) + offset
 
-      vector(1) = bodyInfo%elems(panelIndex)%xCenter
-      vector(2) = bodyInfo%elems(panelIndex)%yCenter
-      vector = matmul(vector, rotate) + offset
-      bodyInfo%elems(panelIndex)%xCenter = vector(1)
-      bodyInfo%elems(panelIndex)%yCenter = vector(2)
+      bodyInfo%elems(panelIndex)%pB(1:2) = &
+         matmul(bodyInfo%elems(panelIndex)%pB(1:2), rotate) + offset
 
-      vector(1) = bodyInfo%elems(panelIndex)%xNorm
-      vector(2) = bodyInfo%elems(panelIndex)%yNorm
-      vector = matmul(vector, rotate)
-      bodyInfo%elems(panelIndex)%xNorm = vector(1)
-      bodyInfo%elems(panelIndex)%yNorm = vector(2)
+      bodyInfo%elems(panelIndex)%center(1:2) = &
+         matmul(bodyInfo%elems(panelIndex)%center(1:2), rotate) + offset
+
+      bodyInfo%elems(panelIndex)%normal(1:2) = &
+         matmul(bodyInfo%elems(panelIndex)%normal(1:2), rotate)
+
    end do
 
-   bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%xCenter), &
-                                   maxval(bodyInfo%elems(:)%xCenter)/)
+   bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%center(1)), &
+                                   maxval(bodyInfo%elems(:)%center(1))/)
 
-   bodyInfo%boundBox(:, JAXIS) = (/minval(bodyInfo%elems(:)%yCenter), &
-                                   maxval(bodyInfo%elems(:)%yCenter)/)
+   bodyInfo%boundBox(:, JAXIS) = (/minval(bodyInfo%elems(:)%center(2)), &
+                                   maxval(bodyInfo%elems(:)%center(2))/)
 
    call ib_annBuildTree(bodyInfo)
 

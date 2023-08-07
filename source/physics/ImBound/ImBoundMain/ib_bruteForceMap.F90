@@ -69,8 +69,9 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
          do panelIndex = 1, body%numElems ! panelIndex is short for panel_index
             ! End points for the line segment of the IB
             ! PA is on the left and PB is on the right
-            PA = (/body%elems(panelIndex)%xA, body%elems(panelIndex)%yA/)
-            PB = (/body%elems(panelIndex)%xB, body%elems(panelIndex)%yB/)
+            PA = body%elems(panelIndex)%pA
+            PB = body%elems(panelIndex)%pB
+
             ! Drop a normal from Pcell to the line made by connecting PA PB (not the
             ! line segment)
             u = ((Pcell(1) - PA(1))*(PB(1) - PA(1)) + (Pcell(2) - PA(2))*(PB(2) - PA(2)))/ &

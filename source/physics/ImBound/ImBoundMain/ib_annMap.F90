@@ -42,25 +42,20 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    real, allocatable, dimension(:) :: PA, PB, Pcell, P0, v1
    real, allocatable, dimension(:) :: dist
    real :: u
-   integer :: nelm = 2 ! Dimension for the points, 2 for (x,y) in 2-D
 
    ! the grid/search data
    integer :: annElems, annIndex
-   ! query points and distance of queryPt from neighbors
-   real, dimension(:), allocatable:: queryPt
    ! indices of nearest neighbors (NN)
    integer, dimension(:), allocatable :: annIdx
    real :: eps = 1e-13, dotNorm, magNorm, thetaNorm
 
    ! allocating data
-   allocate (PA(nelm), PB(nelm), Pcell(nelm), P0(nelm), v1(nelm))
+   allocate (PA(body%dims), PB(body%dims), Pcell(body%dims), P0(body%dims), v1(body%dims))
 
    ! define ANN parameters
    annElems = ib_annQueries
    allocate (dist(annElems))
    allocate (annIdx(annElems))
-   !! allocate query point
-   allocate (queryPt(body%dims))
 
    k = 1
    do j = jy1, jy2
@@ -79,20 +74,20 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          ycell = ycenter(j)
          zcell = 0.0
 
-         queryPt = (/xcell, ycell/)
-         !!! find the  nearest neighbors
-         !! to compute ls value
-         call Timers_start("ib_annSearchTree")
-         call ib_annSearchTree(body, queryPt, annElems, annIdx)
-         call Timers_stop("ib_annSearchTree")
-
          ! Grid cell point
          Pcell = (/xcell, ycell/)
 
+         !!! find the  nearest neighbors
+         !! to compute ls value
+         call Timers_start("ib_annSearchTree")
+         call ib_annSearchTree(body, Pcell, annElems, annIdx)
+         call Timers_stop("ib_annSearchTree")
+
          do annIndex = 1, annElems
             panelIndex = annIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
-            PA = (/body%elems(panelIndex)%xA, body%elems(panelIndex)%yA/)
-            PB = (/body%elems(panelIndex)%xB, body%elems(panelIndex)%yB/)
+
+            PA = body%elems(panelIndex)%pA
+            PB = body%elems(panelIndex)%pB
 
             ! Drop a normal from Pcell to the line made by connecting PA PB (not the
             ! line segment)
@@ -123,8 +118,8 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
                v1 = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
             end if
 
-            dotNorm = v1(1)*body%elems(panelIndex)%xNorm + v1(2)*body%elems(panelIndex)%yNorm
-            magNorm = sqrt(body%elems(panelIndex)%xNorm**2 + body%elems(panelIndex)%yNorm**2)* &
+            dotNorm = v1(1)*body%elems(panelIndex)%normal(1) + v1(2)*body%elems(panelIndex)%normal(2)
+            magNorm = sqrt(body%elems(panelIndex)%normal(1)**2 + body%elems(panelIndex)%normal(2)**2)* &
                       sqrt(v1(1)**2 + v1(2)**2)
 
             thetaNorm = acos(dotNorm/(magNorm + eps))
@@ -150,6 +145,6 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 
    deallocate (dist)
    deallocate (PA, PB, Pcell, P0, v1)
-   deallocate (annIdx, queryPt)
+   deallocate (annIdx)
 
 end subroutine ib_annMap

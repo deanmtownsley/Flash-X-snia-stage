@@ -52,42 +52,42 @@ subroutine ib_readBody(body, bodyFile)
 
    call h5dopen_f(file, "elems/xA", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xA')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xA, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pA(1), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yA", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yA')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yA, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pA(2), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/xB", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xB')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xB, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pB(1), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yB", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yB')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yB, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pB(2), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/xCenter", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xCenter')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xCenter, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%center(1), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yCenter", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yCenter')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yCenter, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%center(2), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/xNorm", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/xNorm')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%xNorm, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%normal(1), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "elems/yNorm", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read elems/yNorm')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%yNorm, dsetDims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%normal(2), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
    if (body%dims == 3) then
