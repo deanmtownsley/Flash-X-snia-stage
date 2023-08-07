@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/physics/ImBound/ImBound_bodyType
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +13,33 @@
 !!
 !! NAME
 !!
-!!  Imbound_finalize
+!!  ImBound_bodyType
 !!
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
-!!  
+!!  MODULE ImBound_bodyType()
+!!
+!!
+!! ARGUMENTS
+!!
 !!
 !! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
+!!
+!!  This stores data and limiter functions that are specific to the ImBound module.
 !!
 !!***
+#include "constants.h"
 
-subroutine ImBound_finalize()
+module ImBound_type
 
-  use ImBound_data, ONLY: ib_bodyInfo
+   use iso_c_binding
+   implicit none
 
-  implicit none
+   type ib_elem
+   end type ib_elem
 
-  deallocate(ib_bodyInfo)
+   type ImBound_type_t
+   end type ImBound_type_t
 
-end subroutine ImBound_finalize
-
+end module ImBound_type

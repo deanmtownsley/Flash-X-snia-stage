@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****f* source/physics/SolidMechanics/SolidMechanics_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -18,7 +18,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
+!!  SolidMechanics_finalize()
 !!  
 !!
 !! DESCRIPTION
@@ -29,13 +29,9 @@
 !!
 !!***
 
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
+subroutine SolidMechanics_finalize()
 
   implicit none
 
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
+end subroutine SolidMechanics_finalize
 
