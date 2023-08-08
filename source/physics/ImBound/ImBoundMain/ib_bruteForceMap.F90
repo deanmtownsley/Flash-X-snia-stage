@@ -165,7 +165,7 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
    real :: dotD, da, db
    real :: tempnorm, tempnorm1, tempnorm2, tempnorm3
    real, allocatable, dimension(:) :: dist
-   real :: du,dn
+   real :: du, dn
    integer :: nelm = 3 ! Dimension for the points, 3 for (x,y,z) in 3-D
    integer :: countit
    real    :: miny, maxy, mratio, nratio, xit
@@ -276,24 +276,24 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
 
 end subroutine ib_bruteForceMap3D
 
-subroutine cross_product(cross,a,b)
+subroutine cross_product(cross, a, b)
 
-        implicit none
-        real, dimension(3), intent(out) :: cross
-        real, dimension(3), intent(in) :: a, b
+   implicit none
+   real, dimension(3), intent(out) :: cross
+   real, dimension(3), intent(in) :: a, b
 
-        cross(1) = a(2) * b(3) - a(3) * b(2)
-        cross(2) = a(3) * b(1) - a(1) * b(3)
-        cross(3) = a(1) * b(2) - a(2) * b(1)        
+   cross(1) = a(2)*b(3) - a(3)*b(2)
+   cross(2) = a(3)*b(1) - a(1)*b(3)
+   cross(3) = a(1)*b(2) - a(2)*b(1)
 
 end subroutine cross_product
 
-subroutine norm(mag,vec)
+subroutine norm(mag, vec)
 
-        implicit none
-        real, intent(out) :: mag
-        real, dimension(3), intent(in)  :: vec
-        
-        mag = sqrt(vec(1)**2 + vec(2)**2 + vec(3)**2)
+   implicit none
+   real, intent(out) :: mag
+   real, dimension(3), intent(in)  :: vec
+
+   mag = sqrt(vec(1)**2 + vec(2)**2 + vec(3)**2)
 
 end subroutine norm
