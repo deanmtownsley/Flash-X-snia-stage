@@ -15,7 +15,7 @@
 !! Subroutine to find the distance function lambda for
 !! the immersed boundary (IB).
 !!
-subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+subroutine ib_bruteForceMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -36,7 +36,7 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
    real :: xcell, ycell, zcell, mvd
 
    ! For the algorithm
-   real, allocatable, dimension(:) :: PA, PB, Pcell, P0, v1
+   real, dimension(2) :: PA, PB, Pcell, P0, v1
    real, allocatable, dimension(:) :: dist
    real :: u
    integer :: nelm = 2 ! Dimension for the points, 2 for (x,y) in 2-D
@@ -45,7 +45,6 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
 
    ! allocating data
    allocate (dist(body%numElems))
-   allocate (PA(nelm), PB(nelm), Pcell(nelm), P0(nelm), v1(nelm))
 
    k = 1
    do j = jy1, jy2
@@ -69,8 +68,8 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
          do panelIndex = 1, body%numElems ! panelIndex is short for panel_index
             ! End points for the line segment of the IB
             ! PA is on the left and PB is on the right
-            PA = body%elems(panelIndex)%pA
-            PB = body%elems(panelIndex)%pB
+            PA = body%elems(panelIndex)%pA(1:2)
+            PB = body%elems(panelIndex)%pB(1:2)
 
             ! Drop a normal from Pcell to the line made by connecting PA PB (not the
             ! line segment)
@@ -139,6 +138,162 @@ subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, 
    end do
 
    deallocate (dist)
-   deallocate (PA, PB, Pcell, P0, v1)
 
-end subroutine ib_bruteForceMap
+end subroutine ib_bruteForceMap2D
+
+subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
+
+   ! Modules Used
+   use ImBound_type, ONLY: ImBound_type_t
+   implicit none
+
+   ! Arguments
+   real, dimension(:, :, :), intent(inout) :: lmda
+   real, dimension(:), intent(in) :: xcenter, ycenter, zcenter
+   type(ImBound_type_t), intent(in) :: body
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, intent(in) :: dx, dy, dz
+
+   ! Internal Variables
+   integer :: i, j, k, panelIndex
+   real :: xcell, ycell, zcell, mvd
+
+   ! For the algorithm
+   real, dimension(3) :: PA, PB, P1, P0, PC, nrm, lx, ln
+   real, dimension(3) :: tempvec, PP, vec, PN
+   real, dimension(3) :: vecA, vecB, vecW
+   real :: dotD, da, db
+   real :: tempnorm, tempnorm1, tempnorm2, tempnorm3
+   real, allocatable, dimension(:) :: dist
+   real :: du,dn
+   integer :: nelm = 3 ! Dimension for the points, 3 for (x,y,z) in 3-D
+   integer :: countit
+   real    :: miny, maxy, mratio, nratio, xit
+
+   ! allocating data
+   allocate (dist(body%numElems))
+
+   do k = kz1, kz2
+      do j = jy1, jy2
+         do i = ix1, ix2
+            dist = 1e+200
+            countit = 0   ! Counter to check no. of intersections with the body
+            PA = 0.0
+            PB = 0.0
+            P0 = 0.0
+            P1 = 0.0
+
+            ! x and y coordinates for the current grid cell
+            xcell = xcenter(i)
+            ycell = ycenter(j)
+            zcell = zcenter(k)
+
+            ! Grid cell point
+            P1 = (/xcell, ycell, zcell/)
+
+            do panelIndex = 1, body%numElems ! panelIndex is short for panel_index
+               ! End points for the line segment of the IB
+               ! PA is on the left and PB is on the right
+               PA = body%elems(panelIndex)%pA
+               PB = body%elems(panelIndex)%pB
+               PC = body%elems(panelIndex)%pC
+
+               ! Normal to plane
+               nrm = body%elems(panelIndex)%normal
+
+               ! Direction vector for rays
+               ! lx - to find intersections in x-dir
+               ! ln - to find intersections in normal-dir
+               lx = (/1.0, 0.0, 0.0/)
+               ln = nrm
+
+               ! Procedure to calculate intersection for lx
+               vec = PA - P1
+               vecA = PB - PA; 
+               vecB = PC - PA; 
+               dotD = dot_product(vecA, vecB)**2 - dot_product(vecA, vecA)*dot_product(vecB, vecB)
+
+               if (abs(dot_product(lx, nrm)) .lt. 1e-13) then
+                  du = 0.0
+
+               else
+                  du = dot_product(vec, nrm)/dot_product(lx, nrm)
+
+               end if
+
+               PP = P1 + du*lx
+               vecW = PP - PA; 
+               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
+                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+
+               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
+                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD; 
+               if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0 .and. du .gt. 0.0) &
+                  countit = countit + 1
+
+               ! Procedure to calculate intersection for ln
+               dn = dot_product(vec, nrm)/dot_product(ln, nrm)
+               PN = P1 + dn*ln
+               vecW = PN - PA; 
+               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
+                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+
+               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
+                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD; 
+               ! Use normal distance if intersection point within plane else
+               ! use shortest distance to vertices or center
+               if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0) then
+
+                  call norm(tempnorm, P1 - PN)
+                  dist(panelIndex) = tempnorm
+
+               else
+
+                  call norm(tempnorm1, P1 - PA)
+                  call norm(tempnorm2, P1 - PB)
+                  call norm(tempnorm3, P1 - PC)
+                  call norm(tempnorm, P1 - P0)
+
+                  dist(panelIndex) = minval((/tempnorm, tempnorm1, tempnorm2, tempnorm3/))
+
+               end if
+
+            end do
+
+            ! Construct level set - if intersections are positive then the point
+            ! lies outside (-), if odd then the point lies inside (+)
+            mvd = sign(minval(dist(:)), 2*mod(countit, 2) - 1.)
+
+            ! For first body explicitly satisfy level set, and then compare with
+            ! existing level set for successive bodies
+            lmda(i, j, k) = mvd
+
+         end do
+      end do
+   end do
+
+   deallocate (dist)
+
+end subroutine ib_bruteForceMap3D
+
+subroutine cross_product(cross,a,b)
+
+        implicit none
+        real, dimension(3), intent(out) :: cross
+        real, dimension(3), intent(in) :: a, b
+
+        cross(1) = a(2) * b(3) - a(3) * b(2)
+        cross(2) = a(3) * b(1) - a(1) * b(3)
+        cross(3) = a(1) * b(2) - a(2) * b(1)        
+
+end subroutine cross_product
+
+subroutine norm(mag,vec)
+
+        implicit none
+        real, intent(out) :: mag
+        real, dimension(3), intent(in)  :: vec
+        
+        mag = sqrt(vec(1)**2 + vec(2)**2 + vec(3)**2)
+
+end subroutine norm

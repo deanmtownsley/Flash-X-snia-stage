@@ -15,7 +15,7 @@
 !! Subroutine to find the distance function lambda for
 !! the immersed boundary (IB).
 !!
-subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -39,7 +39,7 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    real :: xcell, ycell, zcell, mvd
 
    ! For the algorithm
-   real, allocatable, dimension(:) :: PA, PB, Pcell, P0, v1
+   real, dimension(2) :: PA, PB, Pcell, P0, v1
    real, allocatable, dimension(:) :: dist
    real :: u
 
@@ -48,9 +48,6 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    ! indices of nearest neighbors (NN)
    integer, dimension(:), allocatable :: annIdx
    real :: eps = 1e-13, dotNorm, magNorm, thetaNorm
-
-   ! allocating data
-   allocate (PA(body%dims), PB(body%dims), Pcell(body%dims), P0(body%dims), v1(body%dims))
 
    ! define ANN parameters
    annElems = ib_annQueries
@@ -86,8 +83,8 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          do annIndex = 1, annElems
             panelIndex = annIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
 
-            PA = body%elems(panelIndex)%pA
-            PB = body%elems(panelIndex)%pB
+            PA = body%elems(panelIndex)%pA(1:2)
+            PB = body%elems(panelIndex)%pB(1:2)
 
             ! Drop a normal from Pcell to the line made by connecting PA PB (not the
             ! line segment)
@@ -144,7 +141,21 @@ subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    end do
 
    deallocate (dist)
-   deallocate (PA, PB, Pcell, P0, v1)
    deallocate (annIdx)
 
-end subroutine ib_annMap
+end subroutine ib_annMap2D
+
+subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
+
+   ! Modules Used
+   use ImBound_type, ONLY: ImBound_type_t
+   implicit none
+
+   ! Arguments
+   real, dimension(:, :, :), intent(inout) :: lmda
+   real, dimension(:), intent(in) :: xcenter, ycenter, zcenter
+   type(ImBound_type_t), intent(in) :: body
+   integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+   real, intent(in) :: dx, dy, dz
+
+end subroutine ib_annMap3D
