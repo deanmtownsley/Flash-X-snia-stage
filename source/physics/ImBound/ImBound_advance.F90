@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/physics/ImBound/ImBound_advance
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +13,25 @@
 !!
 !! NAME
 !!
-!!  Imbound_finalize
+!!  ImBound_data
 !!
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
-!!  
+!!  MODULE ImBound_data()
+!!
+!!
+!! ARGUMENTS
+!!
 !!
 !! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
+!!
+!!  This stores data and limiter functions that are specific to the ImBound module.
 !!
 !!***
-
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
-
-  implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+subroutine ImBound_advance(bodyInfo, time, dt)
+   use ImBound_type, ONLY: ImBound_type_t
+   implicit none
+   type(ImBound_type_t), intent(in) :: bodyInfo
+   real, intent(in) :: time, dt
+end subroutine ImBound_advance

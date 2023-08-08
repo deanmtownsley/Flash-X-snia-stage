@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****f* source/Simulation/SimulationMain/unitTest/ImBound/Simulation_finalize
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,30 +12,25 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!
-!!  Imbound_finalize
-!!
+!!  Simulation_finalize
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
-!!  
+!!  Simulation_finalize()
 !!
 !! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
+!!
+!!  This dummy function cleans up the Simulation unit, deallocates memory, etc.
+!!  However, as nothing needs to be done, only this stub is included.
+!!
+!! ARGUMENTS
+!!
+!!
 !!
 !!***
 
-subroutine ImBound_finalize()
+#include"Simulation.h"
 
-  use ImBound_data, ONLY: ib_bodyInfo
-
-  implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+subroutine Simulation_finalize()
+   implicit none
+end subroutine Simulation_finalize
