@@ -40,7 +40,7 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    real :: xcell, ycell, zcell, mvd
 
    ! For the algorithm
-   real, dimension(2) :: PA, PB, Pcell, P0, v1
+   real, dimension(2) :: PA, PB, Pcell, P0, vecI
    real, allocatable, dimension(:) :: dist
    real :: u
    integer :: annIndex
@@ -59,7 +59,7 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          P0 = 0.0
          Pcell = 0.0
 
-         v1 = 0.0
+         vecI = 0.0
 
          ! x and y coordinates for the current grid cell
          xcell = xcenter(i)
@@ -105,20 +105,20 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
             !  shortest distance to the line segment will not be perpendicular)
 
             if (abs(P0(1) - PA(1)) .lt. 1e-13 .and. abs(P0(2) - PA(2)) .lt. 1e-13) then
-               v1 = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
+               vecI = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
             else
-               v1 = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
+               vecI = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
             end if
 
-            dotNorm = dot_product(v1(1:2), body%elems(panelIndex)%normal(1:2))
-            magNorm = vec_magnitude2D(v1(1:2))*vec_magnitude2D(body%elems(panelIndex)%normal(1:2))
+            dotNorm = dot_product(vecI(1:2), body%elems(panelIndex)%normal(1:2))
+            magNorm = vec_magnitude2D(vecI(1:2))*vec_magnitude2D(body%elems(panelIndex)%normal(1:2))
 
             thetaNorm = acos(dotNorm/(magNorm + eps))
 
             if ((thetaNorm <= (acos(-1.)/2 + eps)) .or. (thetaNorm > (3*acos(-1.)/2 - eps))) then
-               dist(annIndex) = -sqrt(v1(1)**2 + v1(2)**2)
+               dist(annIndex) = -vec_magnitude2D(vecI(1:2))
             else
-               dist(annIndex) = sqrt(v1(1)**2 + v1(2)**2)
+               dist(annIndex) = vec_magnitude2D(vecI(1:2))
             end if
 
             if (abs(mvd) > abs(dist(annIndex))) then
@@ -141,7 +141,11 @@ end subroutine ib_annMap2D
 subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
 
    ! Modules Used
+   use ImBound_data, ONLY: ib_annQueries, ib_annIdx
    use ImBound_type, ONLY: ImBound_type_t
+   use ib_interface, ONLY: ib_annSearchTree
+   use vector, ONLY: vec_magnitude3D
+   use Timers_interface, ONLY: Timers_start, Timers_stop
    implicit none
 
    ! Arguments
@@ -150,5 +154,128 @@ subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy
    type(ImBound_type_t), intent(in) :: body
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
    real, intent(in) :: dx, dy, dz
+
+   ! Internal Variables
+   integer :: i, j, k, panelIndex
+   real :: xcell, ycell, zcell, mvd
+
+   ! For the algorithm
+   real, dimension(3) :: PA, PB, Pcell, P0, PC, ln
+   real, dimension(3) :: vec, PN, vecI
+   real, dimension(3) :: vecA, vecB, vecW
+   real :: dotD, da, db
+   real, allocatable, dimension(:) :: dist
+   real :: dn
+   real, dimension(4) :: tempMag
+   real, dimension(4, 3) :: tempVec
+   integer :: vecIndex
+   integer :: annIndex
+   real :: eps = 1e-13, dotNorm, magNorm, thetaNorm
+
+   ! allocating data
+   allocate (dist(ib_annQueries))
+
+   do k = kz1, kz2
+      do j = jy1, jy2
+         do i = ix1, ix2
+            dist = 1e+200
+            mvd = 1e+200
+            PA = 0.0
+            PB = 0.0
+            PC = 0.0
+            P0 = 0.0
+            Pcell = 0.0
+
+            ! x and y coordinates for the current grid cell
+            xcell = xcenter(i)
+            ycell = ycenter(j)
+            zcell = zcenter(k)
+
+            ! Grid cell point
+            Pcell = (/xcell, ycell, zcell/)
+
+            ! find the  nearest neighbors to compute ls value
+            ib_annIdx(:) = 0
+            call Timers_start("ib_annSearchTree")
+            call ib_annSearchTree(body, Pcell, ib_annQueries, ib_annIdx)
+            call Timers_stop("ib_annSearchTree")
+
+            do annIndex = 1, ib_annQueries
+               panelIndex = ib_annIdx(annIndex) + 1
+
+               ! End points for the line segment of the IB
+               ! PA is on the left and PB is on the right
+               P0 = body%elems(panelIndex)%center
+               PA = body%elems(panelIndex)%pA
+               PB = body%elems(panelIndex)%pB
+               PC = body%elems(panelIndex)%pC
+
+               ! Normal to plane
+               ln = body%elems(panelIndex)%normal
+
+               ! Procedure to calculate intersection for lx
+               vec = PA - Pcell
+               vecA = PB - PA
+               vecB = PC - PA
+               dotD = dot_product(vecA, vecB)**2 - dot_product(vecA, vecA)*dot_product(vecB, vecB)
+
+               ! Procedure to calculate intersection for ln
+               dn = dot_product(vec, ln)/dot_product(ln, ln)
+               PN = Pcell + dn*ln
+               vecW = PN - PA 
+               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
+                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+
+               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
+                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD
+
+               ! Use normal distance if intersection point within plane else
+               ! use shortest distance to vertices or center
+
+               if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0) then
+
+                  vecI = Pcell - PN
+
+               else
+
+                  tempVec(1, :) = Pcell - PA
+                  tempVec(2, :) = Pcell - PB
+                  tempVec(3, :) = Pcell - PC
+                  tempVec(4, :) = Pcell - P0
+
+                  do vecIndex = 1, 4
+                     tempMag(vecIndex) = vec_magnitude3D(tempVec(vecIndex, :))
+                  end do
+
+                  vecI = reshape(tempVec(minloc(tempMag), :), [3])
+
+               end if
+
+               dotNorm = dot_product(vecI, ln)
+               magNorm = vec_magnitude3D(vecI)*vec_magnitude3D(ln)
+
+               thetaNorm = acos(dotNorm/(magNorm + eps))
+
+               if ((thetaNorm <= (acos(-1.)/2 + eps)) .or. (thetaNorm > (3*acos(-1.)/2 - eps))) then
+                  dist(annIndex) = -vec_magnitude3D(vecI)
+               else
+                  dist(annIndex) = vec_magnitude3D(vecI)
+               end if
+
+               if (abs(mvd) > abs(dist(annIndex))) then
+                  mvd = dist(annIndex)
+               end if
+
+            end do
+
+            ! For first body explicitly satisfy level set, and then compare with
+            ! existing level set for successive bodies
+            lmda(i, j, k) = mvd
+
+         end do
+      end do
+   end do
+
+   deallocate (dist)
 
 end subroutine ib_annMap3D

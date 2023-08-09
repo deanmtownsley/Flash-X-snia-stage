@@ -161,7 +161,7 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
 
    ! For the algorithm
    real, dimension(3) :: PA, PB, P1, P0, PC, nrm, lx, ln
-   real, dimension(3) :: tempvec, PP, vec, PN
+   real, dimension(3) :: PP, vec, PN
    real, dimension(3) :: vecA, vecB, vecW
    real :: dotD, da, db
    real :: tempMag, tempMag1, tempMag2, tempMag3
@@ -181,6 +181,7 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
             countit = 0   ! Counter to check no. of intersections with the body
             PA = 0.0
             PB = 0.0
+            PC = 0.0
             P0 = 0.0
             P1 = 0.0
 
