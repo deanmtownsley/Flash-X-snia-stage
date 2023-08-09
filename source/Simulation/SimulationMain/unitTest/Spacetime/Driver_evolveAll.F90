@@ -33,8 +33,6 @@ subroutine Driver_evolveAll()
 
    use Spacetime_interface, only: Spacetime_unitTest
 
-   use iso_fortran_env, only: stdout => output_unit
-
 #include "constants.h"
 
    implicit none
@@ -43,21 +41,44 @@ subroutine Driver_evolveAll()
 
    integer :: procID
 
+   character(len=20) :: fileName
+   integer, parameter        :: fileUnit = 2
+   integer, dimension(4) :: prNum
+   integer :: temp, i
+
+   temp = procID
+
+   do i = 1, 4
+      prNum(i) = mod(temp, 10)
+      temp = temp/10
+   end do
+   filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
+              char(48 + prNum(2))//char(48 + prNum(1))
+
+   open (fileUnit, file=fileName)
+   write (fileUnit, '("P",I0)') procID
+
    call Driver_getMype(GLOBAL_COMM, procID)
 
-   write (stdout, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test started"
+   write (*, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test started"
 
    perfect = .true.
 
    call Timers_start("testing")
-   call Spacetime_unitTest(stdout, perfect)
+   call Spacetime_unitTest(fileUnit, perfect)
    call Timers_stop("testing")
 
    if (perfect) then
-      write (stdout, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test PASSED"
+      write (*, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test PASSED"
+
+      write (fileUnit, '(A)') 'SUCCESS all results conformed with expected values.'
    else
-      write (stdout, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test FAILED"
+      write (*, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test FAILED"
+
+      write (fileUnit, '(A)') 'FAILURE'
    end if
+
+   close (fileUnit)
 
    call Timers_getSummary(0)
 
