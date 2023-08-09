@@ -54,7 +54,7 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
    real :: gxxActual, gxyActual, gxzActual, gyyActual, gyzActual, gzzActual
    real :: KxxActual, KxyActual, KxzActual, KyyActual, KyzActual, KzzActual
 
-   real, parameter :: M = 1d0
+   real, parameter :: M = 1.0
 
    nullify (vars)
 
@@ -72,7 +72,7 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
       allocate (x(tileDesc%limits(LOW, IAXIS):tileDesc%limits(HIGH, IAXIS)), &
                 y(tileDesc%limits(LOW, JAXIS):tileDesc%limits(HIGH, JAXIS)), &
                 z(tileDesc%limits(LOW, KAXIS):tileDesc%limits(HIGH, KAXIS)))
-      x = 0d0; y = 0d0; z = 0d0
+      x = 0.0; y = 0.0; z = 0.0
 
       call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                               tileDesc%limits(LOW, :), tileDesc%limits(HIGH, :), x)
@@ -101,28 +101,28 @@ subroutine Spacetime_unitTest(fileUnit, perfect)
                lz = z(k)/r
 
                ! Lapse
-               alpActual = 1d0/sqrt(1d0 + 2d0*H)
+               alpActual = 1.0/sqrt(1.0 + 2.0*H)
 
                ! Shift
-               betaxActual = 2d0*H*alpActual**2*lx
-               betayActual = 2d0*H*alpActual**2*ly
-               betazActual = 2d0*H*alpActual**2*lz
+               betaxActual = 2.0*H*alpActual**2*lx
+               betayActual = 2.0*H*alpActual**2*ly
+               betazActual = 2.0*H*alpActual**2*lz
 
                ! Spatial metric (including 0 explicitly for ease of reading)
-               gxxActual = 1d0 + 2d0*H*lx*lx
-               gxyActual = 0d0 + 2d0*H*lx*ly
-               gxzActual = 0d0 + 2d0*H*lx*lz
-               gyyActual = 1d0 + 2d0*H*ly*ly
-               gyzActual = 0d0 + 2d0*H*ly*lz
-               gzzActual = 1d0 + 2d0*H*lz*lz
+               gxxActual = 1.0 + 2.0*H*lx*lx
+               gxyActual = 0.0 + 2.0*H*lx*ly
+               gxzActual = 0.0 + 2.0*H*lx*lz
+               gyyActual = 1.0 + 2.0*H*ly*ly
+               gyzActual = 0.0 + 2.0*H*ly*lz
+               gzzActual = 1.0 + 2.0*H*lz*lz
 
                ! Extrinsic curvature (including 0 explicitly for ease of reading)
-               KxxActual = 2d0*H*alpActual/r*(1d0 - (2d0 + H)*lx*lx)
-               KxyActual = 2d0*H*alpActual/r*(0d0 - (2d0 + H)*lx*ly)
-               KxzActual = 2d0*H*alpActual/r*(0d0 - (2d0 + H)*lx*lz)
-               KyyActual = 2d0*H*alpActual/r*(1d0 - (2d0 + H)*ly*ly)
-               KyzActual = 2d0*H*alpActual/r*(0d0 - (2d0 + H)*ly*lz)
-               KzzActual = 2d0*H*alpActual/r*(1d0 - (2d0 + H)*lz*lz)
+               KxxActual = 2.0*H*alpActual/r*(1.0 - (2.0 + H)*lx*lx)
+               KxyActual = 2.0*H*alpActual/r*(0.0 - (2.0 + H)*lx*ly)
+               KxzActual = 2.0*H*alpActual/r*(0.0 - (2.0 + H)*lx*lz)
+               KyyActual = 2.0*H*alpActual/r*(1.0 - (2.0 + H)*ly*ly)
+               KyzActual = 2.0*H*alpActual/r*(0.0 - (2.0 + H)*ly*lz)
+               KzzActual = 2.0*H*alpActual/r*(1.0 - (2.0 + H)*lz*lz)
 
                ! Verify that these match
                call assertEqual(vars(ALP_VAR, i, j, k), alpActual, "Lapse is incorrect")

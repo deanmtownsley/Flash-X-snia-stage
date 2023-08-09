@@ -1,0 +1,13 @@
+# YAML file for Spacetime static unit test
+
+UnitTest/Spacetime/static/1D:
+  setupOptions: -auto -1d +nofbs +noio --with-unofficial=physics/Spacetime
+  parfiles: <defaultParfile>
+
+UnitTest/Spacetime/static/2D:
+  setupOptions: -auto -2d +nofbs +noio --with-unofficial=physics/Spacetime
+  parfiles: <defaultParfile>
+
+UnitTest/Spacetime/static/3D:
+  setupOptions: -auto -3d +nofbs +noio --with-unofficial=physics/Spacetime
+  parfiles: <defaultParfile>

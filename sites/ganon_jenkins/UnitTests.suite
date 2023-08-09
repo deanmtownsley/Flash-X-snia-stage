@@ -64,3 +64,10 @@ unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/FBE" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Spacetime
+#------------------------------------------------
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/1D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/2D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/3D" -np 1
