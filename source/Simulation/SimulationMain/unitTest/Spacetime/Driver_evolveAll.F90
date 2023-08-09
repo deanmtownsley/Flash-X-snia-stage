@@ -46,6 +46,8 @@ subroutine Driver_evolveAll()
    integer, dimension(4) :: prNum
    integer :: temp, i
 
+   call Driver_getMype(GLOBAL_COMM, procID)
+
    temp = procID
 
    do i = 1, 4
@@ -57,8 +59,6 @@ subroutine Driver_evolveAll()
 
    open (fileUnit, file=fileName)
    write (fileUnit, '("P",I0)') procID
-
-   call Driver_getMype(GLOBAL_COMM, procID)
 
    write (*, "(a,i0.4,a)") "Proc #", procID, " - Spacetime unit test started"
 
