@@ -195,6 +195,7 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
             do panelIndex = 1, body%numElems ! panelIndex is short for panel_index
                ! End points for the line segment of the IB
                ! PA is on the left and PB is on the right
+               P0 = body%elems(panelIndex)%center
                PA = body%elems(panelIndex)%pA
                PB = body%elems(panelIndex)%pB
                PC = body%elems(panelIndex)%pC
