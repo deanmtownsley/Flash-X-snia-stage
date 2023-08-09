@@ -25,8 +25,8 @@
 !! utilizing the @ref MoL "MoL Unit".  It is not advisable to use this
 !! procedure along side other physics units that are evolving equations
 !! that may tightly couple to those evolved by the Spacetime unit.  It
-!! is not gauranteed nor required that an implementation of Spacetime
-!! will provide an implementation of this procedure.
+!! is not gauranteed that an implementation of Spacetime will provide an
+!! implementation of this procedure.
 !!
 !! @param  t   The time at the start of the timestep
 !! @param  dt  The size of the timestep

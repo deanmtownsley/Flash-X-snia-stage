@@ -17,6 +17,5 @@
    @defgroup SpacetimeMain SpacetimeMain
    @ingroup Spacetime
 
-   @brief Provides implementations for public procedures that are common to
-          all spacetime solvers
+   @brief Provides grid variables for the ADM and stress-energy tensor quantities
 */
