@@ -21,9 +21,10 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 #include "constants.h"
 
    ! Modules Used
-   use ImBound_data, ONLY: ib_annQueries
+   use ImBound_data, ONLY: ib_annQueries, ib_annIdx
    use ImBound_type, ONLY: ImBound_type_t
    use ib_interface, ONLY: ib_annSearchTree
+   use vector, ONLY: vec_magnitude2D
    use Timers_interface, ONLY: Timers_start, Timers_stop
    implicit none
 
@@ -42,17 +43,11 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    real, dimension(2) :: PA, PB, Pcell, P0, v1
    real, allocatable, dimension(:) :: dist
    real :: u
-
-   ! the grid/search data
-   integer :: annElems, annIndex
-   ! indices of nearest neighbors (NN)
-   integer, dimension(:), allocatable :: annIdx
+   integer :: annIndex
    real :: eps = 1e-13, dotNorm, magNorm, thetaNorm
 
    ! define ANN parameters
-   annElems = ib_annQueries
-   allocate (dist(annElems))
-   allocate (annIdx(annElems))
+   allocate (dist(ib_annQueries))
 
    k = 1
    do j = jy1, jy2
@@ -74,14 +69,14 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          ! Grid cell point
          Pcell = (/xcell, ycell/)
 
-         !!! find the  nearest neighbors
-         !! to compute ls value
+         ! find the  nearest neighbors to compute ls value
+         ib_annIdx(:) = 0
          call Timers_start("ib_annSearchTree")
-         call ib_annSearchTree(body, Pcell, annElems, annIdx)
+         call ib_annSearchTree(body, Pcell, ib_annQueries, ib_annIdx)
          call Timers_stop("ib_annSearchTree")
 
-         do annIndex = 1, annElems
-            panelIndex = annIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
+         do annIndex = 1, ib_annQueries
+            panelIndex = ib_annIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
 
             PA = body%elems(panelIndex)%pA(1:2)
             PB = body%elems(panelIndex)%pB(1:2)
@@ -115,9 +110,8 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
                v1 = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
             end if
 
-            dotNorm = v1(1)*body%elems(panelIndex)%normal(1) + v1(2)*body%elems(panelIndex)%normal(2)
-            magNorm = sqrt(body%elems(panelIndex)%normal(1)**2 + body%elems(panelIndex)%normal(2)**2)* &
-                      sqrt(v1(1)**2 + v1(2)**2)
+            dotNorm = dot_product(v1(1:2), body%elems(panelIndex)%normal(1:2))
+            magNorm = vec_magnitude2D(v1(1:2))*vec_magnitude2D(body%elems(panelIndex)%normal(1:2))
 
             thetaNorm = acos(dotNorm/(magNorm + eps))
 
@@ -141,7 +135,6 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
    end do
 
    deallocate (dist)
-   deallocate (annIdx)
 
 end subroutine ib_annMap2D
 

@@ -1,0 +1,5 @@
+# [/lib/vector]
+# declare dependency on library
+# INTERNAL means we distribute the source code
+
+TYPE INTERNAL

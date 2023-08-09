@@ -42,6 +42,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
    real, dimension(GRID_KHI_GC) :: zCenter
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    integer, dimension(MDIM) :: lo, hi
+   real, dimension(LOW:HIGH, 1:MDIM) :: boundBox
 
 !-----------------------------------------------------------------------------------------
    nullify (solnData)
@@ -50,6 +51,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%deltas(del)
+   call tileDesc%boundBox(boundBox)
 
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC

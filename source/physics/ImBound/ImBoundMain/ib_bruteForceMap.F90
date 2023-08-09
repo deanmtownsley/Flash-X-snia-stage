@@ -144,6 +144,7 @@ end subroutine ib_bruteForceMap2D
 subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
 
    ! Modules Used
+   use vector, ONLY: vec_magnitude3D
    use ImBound_type, ONLY: ImBound_type_t
    implicit none
 
@@ -163,7 +164,7 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
    real, dimension(3) :: tempvec, PP, vec, PN
    real, dimension(3) :: vecA, vecB, vecW
    real :: dotD, da, db
-   real :: tempnorm, tempnorm1, tempnorm2, tempnorm3
+   real :: tempMag, tempMag1, tempMag2, tempMag3
    real, allocatable, dimension(:) :: dist
    real :: du, dn
    integer :: nelm = 3 ! Dimension for the points, 3 for (x,y,z) in 3-D
@@ -244,17 +245,17 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
                ! use shortest distance to vertices or center
                if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0) then
 
-                  call norm(tempnorm, P1 - PN)
-                  dist(panelIndex) = tempnorm
+                  tempMag = vec_magnitude3D(P1 - PN)
+                  dist(panelIndex) = tempMag
 
                else
 
-                  call norm(tempnorm1, P1 - PA)
-                  call norm(tempnorm2, P1 - PB)
-                  call norm(tempnorm3, P1 - PC)
-                  call norm(tempnorm, P1 - P0)
+                  tempMag1 = vec_magnitude3D(P1 - PA)
+                  tempMag2 = vec_magnitude3D(P1 - PB)
+                  tempMag3 = vec_magnitude3D(P1 - PC)
+                  tempMag = vec_magnitude3D(P1 - P0)
 
-                  dist(panelIndex) = minval((/tempnorm, tempnorm1, tempnorm2, tempnorm3/))
+                  dist(panelIndex) = minval((/tempMag, tempMag1, tempMag2, tempMag3/))
 
                end if
 
@@ -275,25 +276,3 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
    deallocate (dist)
 
 end subroutine ib_bruteForceMap3D
-
-subroutine cross_product(cross, a, b)
-
-   implicit none
-   real, dimension(3), intent(out) :: cross
-   real, dimension(3), intent(in) :: a, b
-
-   cross(1) = a(2)*b(3) - a(3)*b(2)
-   cross(2) = a(3)*b(1) - a(1)*b(3)
-   cross(3) = a(1)*b(2) - a(2)*b(1)
-
-end subroutine cross_product
-
-subroutine norm(mag, vec)
-
-   implicit none
-   real, intent(out) :: mag
-   real, dimension(3), intent(in)  :: vec
-
-   mag = sqrt(vec(1)**2 + vec(2)**2 + vec(3)**2)
-
-end subroutine norm
