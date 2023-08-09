@@ -265,9 +265,9 @@ subroutine io_readData()
       doread)
     
     if(i /= NONEXISTENT) then
-      unk(i,1+io_iguard:localnxb+io_iguard,&
-            1+io_jguard:localnyb+io_jguard,&
-            1+io_kguard:localnzb+io_kguard,1) = &
+      unk(i,1+nxbOffset:localnxb+nxbOffset,&
+            1+nybOffset:localnyb+nybOffset,&
+            1+nzbOffset:localnzb+nzbOffset,1) = &
             unkBuf(1,1:localnxb,1:localnyb,1:localnzb,1)
     end if
   enddo
@@ -295,9 +295,9 @@ subroutine io_readData()
            faceXBuf, &
            io_faceXVarLabels(i))
            
-     facevarx(i, 1+io_iguard:localnxb+io_iguard+1, &
-                 1+io_jguard:localnyb+io_jguard, &
-                 1+io_kguard:localnzb+io_kguard, 1) = &
+     facevarx(i, 1+nxbOffset:localnxb+nxbOffset+1, &
+                 1+nybOffset:localnyb+nybOffset, &
+                 1+nzbOffset:localnzb+nzbOffset, 1) = &
        faceXBuf(1,1:localnxb+1,1:localnyb,1:localnzb,1)
 
     if( NDIM > 1) then
@@ -315,9 +315,9 @@ subroutine io_readData()
              faceYBuf, &
              io_faceYVarLabels(i))
            
-       facevary(i, 1+io_iguard:localnxb+io_iguard, &
-                   1+io_jguard:localnyb+io_jguard+1, &
-                   1+io_kguard:localnzb+io_kguard, 1) = &
+       facevary(i, 1+nxbOffset:localnxb+nxbOffset, &
+                   1+nybOffset:localnyb+nybOffset+1, &
+                   1+nzbOffset:localnzb+nzbOffset, 1) = &
          faceYBuf(1,1:localnxb,1:localnyb+1,1:localnzb,1)
 
     end if !NDIM > 1
@@ -338,9 +338,9 @@ subroutine io_readData()
              faceZBuf, &
              io_faceZVarLabels(i))
            
-       facevarz(i, 1+io_iguard:localnxb+io_iguard, &
-                   1+io_jguard:localnyb+io_jguard, &
-                   1+io_kguard:localnzb+io_kguard+1, 1) = &
+       facevarz(i, 1+nxbOffset:localnxb+nxbOffset, &
+                   1+nybOffset:localnyb+nybOffset, &
+                   1+nzbOffset:localnzb+nzbOffset+1, 1) = &
          faceZBuf(1,1:localnxb,1:localnyb,1:localnzb+1,1)
 
     end if !NDIM > 2

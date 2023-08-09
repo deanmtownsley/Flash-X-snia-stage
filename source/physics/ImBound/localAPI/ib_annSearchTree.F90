@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/physics/ImBound/localAPI/ib_annSearchTree
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,31 +11,17 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! NAME
-!!
-!!  Imbound_finalize
-!!
-!!
-!! SYNOPSIS
-!!
-!!  ImBound_finalize()
-!!  
-!!
-!! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
-!!
 !!***
 
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
-
-  implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
+   !
+   use ImBound_type, ONLY: ImBound_type_t
+   implicit none
+   !
+   class(ImBound_type_t), intent(IN)  :: body
+   integer, intent(IN) :: annElems
+   ! query point
+   real, dimension(:), target, intent(IN) :: queryPt
+   ! indices of nearest neighbors
+   integer, dimension(:), target, intent(OUT):: annIdx
+end subroutine ib_annSearchTree

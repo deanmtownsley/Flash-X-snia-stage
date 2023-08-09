@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****f* source/physics/SolidMechanics/SolidMechanics_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +13,26 @@
 !!
 !! NAME
 !!
-!!  Imbound_finalize
+!!  SolidMechanics_init
 !!
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
+!!  call SolidMechanics_init(LOGICAL(IN) :: restart)
 !!  
+!! ARGUMENTS
+!!
+!!  restart - restart flag.
 !!
 !! DESCRIPTION
 !! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
+!!  Initialize unit scope variables which typically take values from runtime parameters.
+!!  This must be called once by Driver_initAll.F90 first. Calling multiple
 !!  times will not cause any harm but is unnecessary.
 !!
 !!***
 
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
-
+subroutine SolidMechanics_init(restart)
   implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+  logical, INTENT(IN) :: restart
+end subroutine SolidMechanics_init

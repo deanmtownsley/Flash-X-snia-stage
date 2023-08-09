@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/physics/ImBound/ImBound_getBodyPtr
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,29 +13,24 @@
 !!
 !! NAME
 !!
-!!  Imbound_finalize
+!!  ImBound_data
 !!
 !!
 !! SYNOPSIS
 !!
-!!  ImBound_finalize()
-!!  
+!!  MODULE ImBound_data()
+!!
+!!
+!! ARGUMENTS
+!!
 !!
 !! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
+!!
+!!  This stores data and limiter functions that are specific to the ImBound module.
 !!
 !!***
-
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
-
-  implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+subroutine ImBound_getBodyPtr(bodyPtr, ibd)
+   use ImBound_type, only: ImBound_type_t
+   type(ImBound_type_t), pointer :: bodyPtr
+   integer, intent(in) :: ibd
+end subroutine ImBound_getBodyPtr

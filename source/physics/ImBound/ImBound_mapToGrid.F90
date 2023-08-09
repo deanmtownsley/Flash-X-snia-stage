@@ -1,4 +1,4 @@
-!!****f* source/physics/ImBound/ImBound_finalize
+!!****if* source/physics/ImBound/ImBound_mapToGrid
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,31 +11,14 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!! NAME
-!!
-!!  Imbound_finalize
 !!
 !!
-!! SYNOPSIS
-!!
-!!  ImBound_finalize()
-!!  
-!!
-!! DESCRIPTION
-!! 
-!!  Finalize unit scope variables which are typically the runtime parameters.
-!!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
-!!  times will not cause any harm but is unnecessary.
 !!
 !!***
-
-subroutine ImBound_finalize()
-
-  use ImBound_data, ONLY: ib_bodyInfo
-
-  implicit none
-
-  deallocate(ib_bodyInfo)
-
-end subroutine ImBound_finalize
-
+subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
+   use Grid_tile, ONLY: Grid_tile_t
+   use ImBound_type, ONLY: ImBound_type_t
+   implicit none
+   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   type(ImBound_type_t), intent(in) :: bodyInfo
+end subroutine ImBound_mapToGrid
