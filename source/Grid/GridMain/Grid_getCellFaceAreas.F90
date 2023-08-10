@@ -189,9 +189,9 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 4.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * ( cos(thf(j)) - cos(thf(j+1)) ) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * ( cos(thf(j)) - cos(thf(j+1)) ) * dPhi
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * dPhi
 #endif
                   end do
                end do
@@ -223,9 +223,9 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 2.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * sin(thf(j)) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * sin(thf(j)) * dPhi
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * dPhi
 #endif
                   end do
                end do
