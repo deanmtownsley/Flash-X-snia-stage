@@ -136,11 +136,11 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
                      ! DEV: TODO These can be done more simply using
                      ! the radii of the cell centers (see cell volumes)
 #if   NDIM == 1
-                     areas(i, j, k) = PI * (r(i+1)**2 - r(i)**2)
+                     areas(i, j, k) = PI * ABS(r(i+1)**2 - r(i)**2)
 #elif NDIM == 2
-                     areas(i, j, k) = PI * (r(i+1)**2 - r(i)**2)
+                     areas(i, j, k) = PI * ABS(r(i+1)**2 - r(i)**2)
 #elif NDIM == 3
-                     areas(i, j, k) = 0.5 * (r(i+1)**2 - r(i)**2) * dPhi
+                     areas(i, j, k) = 0.5 * ABS(r(i+1)**2 - r(i)**2) * dPhi
 #endif
                   end do
                end do
@@ -189,9 +189,9 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 4.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * ( cos(thf(j)) - cos(thf(j+1)) ) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * ( cos(thf(j)) - cos(thf(j+1)) ) * dPhi
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * dPhi
 #endif
                   end do
                end do
@@ -219,13 +219,13 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
             do       k = lo(KAXIS), hi(KAXIS)
                do    j = lo(JAXIS), hi(JAXIS)
                   do i = lo(IAXIS), hi(IAXIS)
-                     facebase = (rf(i)+rf(i+1))*(rf(i+1)-rf(i))*0.5
+                     facebase = ABS((rf(i)+rf(i+1))*(rf(i+1)-rf(i))) * 0.5
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 2.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * sin(thf(j)) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * sin(thf(j)) * dPhi
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * dPhi
 #endif
                   end do
                end do
@@ -246,7 +246,7 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
                do    j = lo(JAXIS), hi(JAXIS)
                   do i = lo(IAXIS), hi(IAXIS)
 
-                     facebase = 0.5 * (rf(i+1) + rf(i)) * (rf(i+1) - rf(i))
+                     facebase = 0.5 * ABS((rf(i+1) + rf(i)) * (rf(i+1) - rf(i)))
 #if NDIM == 1
                      areas(i, j, k) = facebase * PI
 #elif NDIM >= 2
