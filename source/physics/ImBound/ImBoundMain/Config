@@ -29,4 +29,3 @@ VARIABLE nmlz TYPE:GENERIC      # level set normal (z - direction)
 END IF
 
 LIBRARY ANN
-LIBRARY VECTOR

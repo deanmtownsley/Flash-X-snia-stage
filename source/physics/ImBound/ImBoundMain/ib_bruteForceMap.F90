@@ -144,7 +144,6 @@ end subroutine ib_bruteForceMap2D
 subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
 
    ! Modules Used
-   use vector, ONLY: vec_magnitude3D
    use ImBound_type, ONLY: ImBound_type_t
    implicit none
 
@@ -212,50 +211,54 @@ subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, 
 
                ! Procedure to calculate intersection for lx
                vec = PA - P1
-               vecA = PB - PA; 
-               vecB = PC - PA; 
-               dotD = dot_product(vecA, vecB)**2 - dot_product(vecA, vecA)*dot_product(vecB, vecB)
+               vecA = PB - PA
+               vecB = PC - PA
+               dotD = DOT_PRODUCT(vecA, vecB)**2 - DOT_PRODUCT(vecA, vecA)*DOT_PRODUCT(vecB, vecB)
 
-               if (abs(dot_product(lx, nrm)) .lt. 1e-13) then
+               if (abs(DOT_PRODUCT(lx, nrm)) .lt. 1e-13) then
                   du = 0.0
 
                else
-                  du = dot_product(vec, nrm)/dot_product(lx, nrm)
+                  du = DOT_PRODUCT(vec, nrm)/DOT_PRODUCT(lx, nrm)
 
                end if
 
                PP = P1 + du*lx
-               vecW = PP - PA; 
-               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
-                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+               vecW = PP - PA
 
-               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
-                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD; 
+               da = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecB) &
+                     - DOT_PRODUCT(vecB, vecB)*DOT_PRODUCT(vecW, vecA))/dotD
+
+               db = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecA) &
+                     - DOT_PRODUCT(vecA, vecA)*DOT_PRODUCT(vecW, vecB))/dotD
+
                if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0 .and. du .gt. 0.0) &
                   countit = countit + 1
 
                ! Procedure to calculate intersection for ln
-               dn = dot_product(vec, nrm)/dot_product(ln, nrm)
+               dn = DOT_PRODUCT(vec, nrm)/DOT_PRODUCT(ln, nrm)
                PN = P1 + dn*ln
-               vecW = PN - PA; 
-               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
-                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+               vecW = PN - PA
 
-               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
-                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD; 
+               da = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecB) &
+                     - DOT_PRODUCT(vecB, vecB)*DOT_PRODUCT(vecW, vecA))/dotD
+
+               db = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecA) &
+                     - DOT_PRODUCT(vecA, vecA)*DOT_PRODUCT(vecW, vecB))/dotD
+
                ! Use normal distance if intersection point within plane else
                ! use shortest distance to vertices or center
                if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0) then
 
-                  tempMag = vec_magnitude3D(P1 - PN)
+                  tempMag = NORM2(P1 - PN)
                   dist(panelIndex) = tempMag
 
                else
 
-                  tempMag1 = vec_magnitude3D(P1 - PA)
-                  tempMag2 = vec_magnitude3D(P1 - PB)
-                  tempMag3 = vec_magnitude3D(P1 - PC)
-                  tempMag = vec_magnitude3D(P1 - P0)
+                  tempMag1 = NORM2(P1 - PA)
+                  tempMag2 = NORM2(P1 - PB)
+                  tempMag3 = NORM2(P1 - PC)
+                  tempMag = NORM2(P1 - P0)
 
                   dist(panelIndex) = minval((/tempMag, tempMag1, tempMag2, tempMag3/))
 

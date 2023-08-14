@@ -22,9 +22,8 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
 
    ! Modules Used
    use ImBound_data, ONLY: ib_annQueries, ib_annIdx
-   use ImBound_type, ONLY: ImBound_type_t
    use ib_interface, ONLY: ib_annSearchTree
-   use vector, ONLY: vec_magnitude2D
+   use ImBound_type, ONLY: ImBound_type_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
    implicit none
 
@@ -110,15 +109,15 @@ subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
                vecI = (/(Pcell(1) - P0(1)), (Pcell(2) - P0(2))/)
             end if
 
-            dotNorm = dot_product(vecI(1:2), body%elems(panelIndex)%normal(1:2))
-            magNorm = vec_magnitude2D(vecI(1:2))*vec_magnitude2D(body%elems(panelIndex)%normal(1:2))
+            dotNorm = DOT_PRODUCT(vecI(1:2), body%elems(panelIndex)%normal(1:2))
+            magNorm = NORM2(vecI(1:2))*NORM2(body%elems(panelIndex)%normal(1:2))
 
             thetaNorm = acos(dotNorm/(magNorm + eps))
 
             if ((thetaNorm <= (acos(-1.)/2 + eps)) .or. (thetaNorm > (3*acos(-1.)/2 - eps))) then
-               dist(annIndex) = -vec_magnitude2D(vecI(1:2))
+               dist(annIndex) = -NORM2(vecI(1:2))
             else
-               dist(annIndex) = vec_magnitude2D(vecI(1:2))
+               dist(annIndex) = NORM2(vecI(1:2))
             end if
 
             if (abs(mvd) > abs(dist(annIndex))) then
@@ -144,7 +143,6 @@ subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy
    use ImBound_data, ONLY: ib_annQueries, ib_annIdx
    use ImBound_type, ONLY: ImBound_type_t
    use ib_interface, ONLY: ib_annSearchTree
-   use vector, ONLY: vec_magnitude3D
    use Timers_interface, ONLY: Timers_start, Timers_stop
    implicit none
 
@@ -217,21 +215,21 @@ subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy
                vec = PA - Pcell
                vecA = PB - PA
                vecB = PC - PA
-               dotD = dot_product(vecA, vecB)**2 - dot_product(vecA, vecA)*dot_product(vecB, vecB)
+               dotD = DOT_PRODUCT(vecA, vecB)**2 - DOT_PRODUCT(vecA, vecA)*DOT_PRODUCT(vecB, vecB)
 
                ! Procedure to calculate intersection for ln
-               dn = dot_product(vec, ln)/dot_product(ln, ln)
+               dn = DOT_PRODUCT(vec, ln)/DOT_PRODUCT(ln, ln)
                PN = Pcell + dn*ln
-               vecW = PN - PA 
-               da = (dot_product(vecA, vecB)*dot_product(vecW, vecB) &
-                     - dot_product(vecB, vecB)*dot_product(vecW, vecA))/dotD
+               vecW = PN - PA
 
-               db = (dot_product(vecA, vecB)*dot_product(vecW, vecA) &
-                     - dot_product(vecA, vecA)*dot_product(vecW, vecB))/dotD
+               da = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecB) &
+                     - DOT_PRODUCT(vecB, vecB)*DOT_PRODUCT(vecW, vecA))/dotD
+
+               db = (DOT_PRODUCT(vecA, vecB)*DOT_PRODUCT(vecW, vecA) &
+                     - DOT_PRODUCT(vecA, vecA)*DOT_PRODUCT(vecW, vecB))/dotD
 
                ! Use normal distance if intersection point within plane else
                ! use shortest distance to vertices or center
-
                if (da .ge. 0.0 .and. da .le. 1.0 .and. db .ge. 0.0 .and. (da + db) .le. 1.0) then
 
                   vecI = Pcell - PN
@@ -244,22 +242,22 @@ subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy
                   tempVec(4, :) = Pcell - P0
 
                   do vecIndex = 1, 4
-                     tempMag(vecIndex) = vec_magnitude3D(tempVec(vecIndex, :))
+                     tempMag(vecIndex) = NORM2(tempVec(vecIndex, :))
                   end do
 
                   vecI = reshape(tempVec(minloc(tempMag), :), [3])
 
                end if
 
-               dotNorm = dot_product(vecI, ln)
-               magNorm = vec_magnitude3D(vecI)*vec_magnitude3D(ln)
+               dotNorm = DOT_PRODUCT(vecI, ln)
+               magNorm = NORM2(vecI)*NORM2(ln)
 
                thetaNorm = acos(dotNorm/(magNorm + eps))
 
                if ((thetaNorm <= (acos(-1.)/2 + eps)) .or. (thetaNorm > (3*acos(-1.)/2 - eps))) then
-                  dist(annIndex) = -vec_magnitude3D(vecI)
+                  dist(annIndex) = -NORM2(vecI)
                else
-                  dist(annIndex) = vec_magnitude3D(vecI)
+                  dist(annIndex) = NORM2(vecI)
                end if
 
                if (abs(mvd) > abs(dist(annIndex))) then
