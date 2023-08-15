@@ -140,10 +140,34 @@ Testing servers:
 
 - Argonne, GCE:
 
-  FlashTest server for running tests on `staged` branch - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged
+  FlashTest server for running tests on `staged` branch
 
-  FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
+  - GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
+  - Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
+
+  FlashTestView
+
+  - GCC - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_gcc
+  - Intel - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_intel
 
 - Ganon:
 
   FlashTest - http://ganon.device.utk.edu:8080 or http://ganon2.device.utk.edu:8080
+
+## Citation
+
+Please use the following for citing Flash-X
+
+```
+@article{Flash-X-SoftwareX,
+title = {Flash-X: A multiphysics simulation software instrument},
+journal = {SoftwareX},
+volume = {19},
+pages = {101168},
+year = {2022},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2022.101168},
+url = {https://www.sciencedirect.com/science/article/pii/S2352711022001030},
+author = {Anshu Dubey and Klaus Weide and Jared O’Neal and Akash Dhruv and Sean Couch and J. Austin Harris and Tom Klosterman and Rajeev Jain and Johann Rudi and Bronson Messer and Michael Pajkos and Jared Carlson and Ran Chu and Mohamed Wahib and Saurabh Chawdhary and Paul M. Ricker and Dongwook Lee and Katie Antypas and Katherine M. Riley and Christopher Daley and Murali Ganapathy and Francis X. Timmes and Dean M. Townsley and Marcos Vanella and John Bachan and Paul M. Rich and Shravan Kumar and Eirik Endeve and W. Raphael Hix and Anthony Mezzacappa and Thomas Papatheodore},
+}
+```
