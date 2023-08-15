@@ -12,14 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Spactime stub
+!! @brief Spacetime stub
 
 !> @ingroup Spacetime
 !!
 !! @brief Evolve the spacetime variables by the provided timestep
 !!
 !! @details
-!! @anchor Spactime_stub
+!! @anchor Spacetime_stub
 !!
 !! This procedure is intended to evolve the spacetime variables when not
 !! utilizing the @ref MoL "MoL Unit".  It is not advisable to use this
