@@ -1,0 +1,9 @@
+#       Config file for the SolidMechanics unit
+REQUIRES physics/SolidMechanics/localAPI
+REQUIRES physics/ImBound/ImBoundMain
+
+PPDEFINE SOLIDMECHANICS_MAIN
+
+#--------------------------------------------------------------------------------
+D useSolidMechanics   Should the SolidMechanics unit be used?
+PARAMETER useSolidMechanics BOOLEAN TRUE

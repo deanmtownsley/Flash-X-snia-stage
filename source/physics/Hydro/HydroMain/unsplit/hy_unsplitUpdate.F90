@@ -160,7 +160,7 @@
 #endif
 
     real, dimension(blGC(LOW,IAXIS):blGC(HIGH,IAXIS)) :: xCenter, xLeft, xRight
-#if NDIM == 3
+#if NDIM >= 2
     real, dimension(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)) :: yCenter
 #else
     real, dimension(0) :: yCenter
@@ -285,13 +285,9 @@
                                   faceAreas)
 #if NDIM > 1
        if (hy_geometry == SPHERICAL) then
-           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
-!          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
-!            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
-!            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,  &
-!            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)), &
-!            (/isize, jsize+1, ksize/) )
+          call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
+                                     lbound(faceAreasY), ubound(faceAreasY), &
+                                     faceAreasY)
        end if
 #endif
        call Grid_getCellVolumes(tileDesc%level, &
@@ -361,8 +357,8 @@
                                blGC(LOW, :), blGC(HIGH, :), xLeft)
        call Grid_getCellCoords(IAXIS, RIGHT_EDGE, tileDesc%level, &
                                blGC(LOW, :), blGC(HIGH, :), xRight)
-       if (NDIM == 3 .AND. hy_geometry == SPHERICAL) then
-          call Driver_abort("[hy_unsplitUpdate] This has not been tested")
+       if (NDIM >= 2 .AND. hy_geometry == SPHERICAL) then
+          if (NDIM == 3) call Driver_abort("[hy_unsplitUpdate] This has not been tested")
           call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
                                   blkLimits(LOW, :), blkLimits(HIGH, :), &
                                   yCenter)
@@ -800,7 +796,7 @@
                       Sgeo(HY_XMOM) = Sgeo(HY_XMOM) + densNph*thtVel0*thtVel0 / xCenter(i)
                       Sgeo(HY_XMOM) = Sgeo(HY_XMOM)*dx/dx_sph
 #if NDIM > 1
-                      Sgeo(MOM_THT) = (densNph*phiVel0*phiVel0 + 0*fP*alpha*presStar) / xCenter(i)
+                      Sgeo(MOM_THT) = (densNph*phiVel0*phiVel0 + fP*presStar) / xCenter(i)
                       Sgeo(MOM_THT) = Sgeo(MOM_THT) * cos(yCenter(j))/sin(yCenter(j))
                       Sgeo(MOM_THT) = Sgeo(MOM_THT) - (densNph*thtVel0*xvel0) / xCenter(i)
                       Sgeo(MOM_THT) = Sgeo(MOM_THT)*dx/dx_sph
@@ -1012,13 +1008,9 @@
     ! DEV: FIXME Include this again and see if we can use faceAreas and
     !            cellVolumes instead
        if (hy_geometry == SPHERICAL) then
-           call Driver_abort("[hy_unsplitUpdate] Implement with Grid_getCellFaceAreas")
-!          call Grid_getBlkData(tileDesc, CELL_FACEAREA, JLO_FACE, GLOBALIDX1, &
-!            (/blkLimits(LOW,IAXIS),blkLimits(LOW,JAXIS),blkLimits(LOW,KAXIS)/), &
-!            faceAreasY(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),&
-!            blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)+1,  &
-!            blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)), &
-!            (/isize, jsize+1, ksize/) )
+          call Grid_getCellFaceAreas(JAXIS, tileDesc%level, &
+                                     lbound(faceAreasY), ubound(faceAreasY), &
+                                     faceAreasY)
        end if
 #endif
 

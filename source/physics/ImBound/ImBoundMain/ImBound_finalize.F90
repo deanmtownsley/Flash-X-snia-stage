@@ -31,7 +31,11 @@
 
 subroutine ImBound_finalize()
 
+  use ImBound_data, ONLY: ib_bodyInfo
+
   implicit none
+
+  deallocate(ib_bodyInfo)
 
 end subroutine ImBound_finalize
 

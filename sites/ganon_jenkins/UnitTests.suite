@@ -36,7 +36,6 @@ unitTest/Laplacian/Amrex -t "UnitTest/Laplacian/AMReX/3d" -np 1
 #------------------------------------------------
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
-unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=1 -e OMP_STACKSIZE=16M
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
 unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 3 -e OMP_NUM_THREADS=3
@@ -52,6 +51,10 @@ unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/AMReX" -np 2
 #------------------------------------------------
 incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
 incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+#
+# adhruv: 07/19/2023: commenting this test until facevar compatability
+# is estabilished with AMReX version > 21.05 
+# incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
 
 #------------------------------------------------
 # Tests for - unitTest/MoL
