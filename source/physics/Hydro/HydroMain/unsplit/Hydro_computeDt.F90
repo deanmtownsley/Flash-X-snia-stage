@@ -217,7 +217,9 @@ Subroutine Hydro_computeDt( tileDesc,       &
                  elseif (hy_geometry == SPHERICAL) then
 #if NDIM > 1
                     delyinv = 1.0/(x(i)*dy(j))           ! y is theta
+#if NDIM > 2
                     delzinv = 1.0/(x(i)*sin(y(j))*dz(k)) ! z is phi
+#endif
 #endif
                  endif
 
