@@ -32,17 +32,14 @@
 !!
 !! @param  tileDesc   Descriptor for the current tile
 !! @param  t          Time that the RHS is to be evaluated at
-!! @param  activeRHS  Data-struct identifier to use when requesting a RHS
-!!                    pointer in a tile
 !! @param  dtWeight   Weighted timestep (e.g. for flux corrections)
-subroutine Spacetime_molFastRHS_tile(tileDesc, t, activeRHS, dtWeight)
+subroutine Spacetime_molFastRHS_tile(tileDesc, t, dtWeight)
    use Grid_tile, only: Grid_tile_t
 
    implicit none
 
    type(Grid_tile_t), intent(in) :: tileDesc
    real, intent(in) :: t
-   integer, intent(in) :: activeRHS
    real, intent(in) :: dtWeight
 
    return
