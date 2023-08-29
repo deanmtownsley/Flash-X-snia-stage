@@ -34,7 +34,6 @@
 !!
 !!***
 subroutine dr_molFastRHS(t, activeRHS, dtWeight)
-   use Spacetime_interface, only: Spacetime_molFastRHS
    use Hydro_interface, only: Hydro_molFastRHS
    use RadTrans_interface, only: RadTrans_molFastRHS
    use Simulation_interface, only: Simulation_molFastRHS

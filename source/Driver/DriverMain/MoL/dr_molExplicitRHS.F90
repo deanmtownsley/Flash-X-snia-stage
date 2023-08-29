@@ -34,7 +34,6 @@
 !!
 !!***
 subroutine dr_molExplicitRHS(t, activeRHS, dtWeight)
-   use Spacetime_interface, only: Spacetime_molExplicitRHS
    use Hydro_interface, only: Hydro_molExplicitRHS
    use RadTrans_interface, only: RadTrans_molExplicitRHS
    use Simulation_interface, only: Simulation_molExplicitRHS
@@ -45,7 +44,6 @@ subroutine dr_molExplicitRHS(t, activeRHS, dtWeight)
    integer, intent(in) :: activeRHS
    real, intent(in) :: dtWeight
 
-   call Spacetime_molExplicitRHS(t, activeRHS, dtWeight)
    call Hydro_molExplicitRHS(t, activeRHS, dtWeight)
    call RadTrans_molExplicitRHS(t, activeRHS, dtWeight)
    call Simulation_molExplicitRHS(t, activeRHS, dtWeight)

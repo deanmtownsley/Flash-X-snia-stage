@@ -30,7 +30,6 @@
 !!
 !!***
 subroutine dr_molPostFastUpdate(t)
-   use Spacetime_interface, only: Spacetime_molPostFastUpdate
    use Hydro_interface, only: Hydro_molPostFastUpdate
    use RadTrans_interface, only: RadTrans_molPostFastUpdate
    use Simulation_interface, only: Simulation_molPostFastUpdate
@@ -39,7 +38,6 @@ subroutine dr_molPostFastUpdate(t)
 
    real, intent(in) :: t
 
-   call Spacetime_molPostFastUpdate(t)
    call Hydro_molPostFastUpdate(t)
    call RadTrans_molPostFastUpdate(t)
    call Simulation_molPostFastUpdate(t)
