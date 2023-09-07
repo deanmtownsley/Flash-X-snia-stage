@@ -60,7 +60,7 @@ recursive subroutine Timers_stopIndex (i)
   use Timers_data, ONLY:  tmr_callStack, tmr_acctSegs
   use Timers_data, ONLY: tmr_suppressInParallel
   use Timers_interface, ONLY : Timers_startIndex
-!$ use omp_lib
+!$ use omp_lib,         ONLY: omp_get_num_threads
 
   implicit none  
 

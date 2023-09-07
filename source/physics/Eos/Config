@@ -9,6 +9,5 @@
 
 DEFAULT EosMain
 
-CHILDORDER localAPI
 
 

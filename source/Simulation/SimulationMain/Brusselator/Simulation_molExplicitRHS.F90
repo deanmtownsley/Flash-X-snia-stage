@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molExplicitRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molExplicitRHS(real, intent(in) :: t)
+!!      call Simulation_molExplicitRHS(real,    intent(in) :: t,
+!                                      integer, intent(in) :: activeRHS
+!!                                     real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -26,10 +28,15 @@
 !!
 !!  ARGUMENTS
 !!
-!!      t : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Simulation_molExplicitRHS(t)
+
+!!REORDER(4): vars,rhs
+
+subroutine Simulation_molExplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_rho, U_RHS, V_RHS, W_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
@@ -46,6 +53,8 @@ subroutine Simulation_molExplicitRHS(t)
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -58,7 +67,7 @@ subroutine Simulation_molExplicitRHS(t)
 
    nullify (rhs); nullify (vars)
 
-   if (sim_rho .lt. 0d0) then
+   if (sim_rho .lt. 0.0) then
       ip = 0
       im = -1
    else
@@ -84,25 +93,13 @@ subroutine Simulation_molExplicitRHS(t)
       if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
 
       call tileDesc%deltas(del)
-      idx = 1d0/del(IAXIS)
+      idx = 1.0/del(IAXIS)
 
       ! Note: In the following, the request for MOL_EVOLVED will
       !       always obtain a pointer to the variables in UNK; this
       !       call simply forwards to the tile descriptors `getDataPtr`.
-      !       The request for MOL_RHS will behave in one of two ways,
-      !       depending on the requirements of the selected integrator:
-      !         - `rhs` will point to the current integration stage
-      !            RHS memory structure as determined internally in MoL,
-      !            and this will be typically be to stage-specific and
-      !            type-specific (explicit, implicit, etc.)
-      !         - `rhs` will point to the same (always the first and
-      !           provided by default in MoL) RHS memory structure, and
-      !           if the integrator requires saving this state, it will
-      !           make a copy of the state into another block of memory
-      !           that is not directly accessible to the user via
-      !           requests for MOL_RHS
       call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
-      call MoL_getDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_getDataPtr(tileDesc, rhs, activeRHS)
 
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
@@ -119,7 +116,7 @@ subroutine Simulation_molExplicitRHS(t)
          end do ! j
       end do ! k
 
-      call MoL_releaseDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_releaseDataPtr(tileDesc, rhs, activeRHS)
       call MoL_releaseDataPtr(tileDesc, vars, MOL_EVOLVED)
 
       call itor%next()

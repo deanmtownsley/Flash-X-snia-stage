@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridSolvers/Multipole_new/gr_mpoleInit
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -73,6 +73,8 @@ subroutine gr_mpoleInit ()
 !
 !
   call RuntimeParameters_get  ("mpole_MultiThreading",       gr_mpoleMultiThreading     )
+  call RuntimeParameters_get  ("threadBlockListBuild",       gr_mpoleThreadTileList     )! from Driver unit
+  call RuntimeParameters_get  ("threadWithinBlockBuild",     gr_mpoleThreadWithinTile   )! from Driver unit
   call RuntimeParameters_get  ("mpole_Lmax",                 gr_mpoleMaxL               )
   call RuntimeParameters_get  ("mpole_2DSymmetryPlane",      gr_mpoleSymmetryPlane2D    )
   call RuntimeParameters_get  ("mpole_3DAxisymmetry",        gr_mpoleSymmetryAxis3D     )
@@ -160,7 +162,6 @@ subroutine gr_mpoleInit ()
   if (gr_mpoleGeometry == GRID_2DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCARTESIAN   .or. &
       gr_mpoleGeometry == GRID_1DCYLINDRICAL .or. &
-      gr_mpoleGeometry == GRID_3DSPHERICAL   .or. &
       gr_mpoleGeometry == GRID_3DPOLAR       .or. &
       gr_mpoleGeometry == GRID_2DPOLAR       .or. &
       gr_mpoleGeometry == GRID_1DPOLAR) then
@@ -251,6 +252,15 @@ subroutine gr_mpoleInit ()
            gr_mpoleDomainPhiMax   = gr_mpoleDomainZmax     ! order is important here
            gr_mpoleDomainZmax     = gr_mpoleDomainYmax     ! otherwise we loose Z info
 
+     case (GRID_3DSPHERICAL)
+
+           gr_mpoleDomainRmin     = gr_mpoleDomainXmin
+           gr_mpoleDomainThetaMin = gr_mpoleDomainYmin     
+           gr_mpoleDomainPhiMin   = gr_mpoleDomainZmin     
+           gr_mpoleDomainRmax     = gr_mpoleDomainXmax
+           gr_mpoleDomainThetaMax = gr_mpoleDomainYmax     
+           gr_mpoleDomainPhiMax   = gr_mpoleDomainZmax     
+
      case (GRID_2DCYLINDRICAL)
 
            gr_mpoleDomainRmin     = gr_mpoleDomainXmin
@@ -316,7 +326,7 @@ subroutine gr_mpoleInit ()
 
        end if
 
-     case (GRID_3DCYLINDRICAL)
+     case (GRID_3DCYLINDRICAL, GRID_3DSPHERICAL)
 
            gr_mpoleMaxM  = gr_mpoleMaxL
            gr_mpoleMaxLM = (gr_mpoleMaxL + 1) * (gr_mpoleMaxL + 1)

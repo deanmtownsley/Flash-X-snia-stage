@@ -1,0 +1,58 @@
+UnitTest/Grid/pm4/3d/FaceAreas:
+  setupOptions: -auto -3d +cartesian +pm4dev -nxb=128 -nyb=128 -nzb=128 +noio
+  parfiles: test_car.par
+
+UnitTest/Grid/pm4/1dCyl/FaceAreas:
+  setupOptions: -auto -1d +cylindrical +pm4dev -nxb=128 +noio
+  parfiles: test_cyl.par
+
+UnitTest/Grid/pm4/2dCyl/FaceAreas:
+  setupOptions: -auto -2d +cylindrical +pm4dev -nxb=128 -nyb=128 +noio
+  parfiles: test_cyl.par
+
+UnitTest/Grid/pm4/3dCyl/FaceAreas:
+  setupOptions: -auto -3d +cylindrical +pm4dev -nxb=128 -nyb=128 -nzb=32 +noio
+  parfiles: test_cyl.par
+
+UnitTest/Grid/pm4/1dSph/FaceAreas:
+  setupOptions: -auto -1d +spherical +pm4dev -nxb=128 +noio
+  parfiles: test_sph.par
+
+UnitTest/Grid/pm4/2dSph/FaceAreas:
+  setupOptions: -auto -2d +spherical +pm4dev -nxb=128 -nyb=32 +noio
+  parfiles: test_sph.par
+
+UnitTest/Grid/pm4/3dSph/FaceAreas:
+  setupOptions: -auto -3d +spherical +pm4dev -nxb=128 -nyb=32 -nzb=32 +noio
+  parfiles: test_sph.par
+
+
+
+UnitTest/Grid/UG/3d/FaceAreas:
+  setupOptions: -auto -3d +cartesian +ug -nofbs -nxb=128 -nyb=128 -nzb=128 +noio
+  parfiles: UG_test_car.par
+
+UnitTest/Grid/UG/1dCyl/FaceAreas:
+  setupOptions: -auto -1d +cylindrical +ug -nofbs -nxb=128 +noio
+  parfiles: UG_test_cyl.par
+
+UnitTest/Grid/UG/2dCyl/FaceAreas:
+  setupOptions: -auto -2d +cylindrical +ug -nofbs -nxb=128 -nyb=128 +noio
+  parfiles: UG_test_cyl.par
+
+UnitTest/Grid/UG/3dCyl/FaceAreas:
+  setupOptions: -auto -3d +cylindrical +ug -nofbs -nxb=128 -nyb=128 -nzb=32 +noio
+  parfiles: UG_test_cyl.par
+
+UnitTest/Grid/UG/1dSph/FaceAreas:
+  setupOptions: -auto -1d +spherical +ug -nofbs -nxb=128 +noio
+  parfiles: UG_test_sph.par
+
+UnitTest/Grid/UG/2dSph/FaceAreas:
+  setupOptions: -auto -2d +spherical +ug -nofbs -nxb=128 -nyb=32 +noio
+  parfiles: UG_test_sph.par
+
+UnitTest/Grid/UG/3dSph/FaceAreas:
+  setupOptions: -auto -3d +spherical +ug -nofbs -nxb=128 -nyb=32 -nzb=32 +noio
+  parfiles: UG_test_sph.par
+

@@ -1183,7 +1183,7 @@ contains
     !       the code is to be aborted immediately once this routine is called.
     allocate(xcent(blkLimitsGC(LOW, IAXIS):blkLimitsGC(HIGH, IAXIS)))
     allocate(ycent(blkLimitsGC(LOW, JAXIS):blkLimitsGC(HIGH, JAXIS)))
-    allocate(zcent(blkLimitsGC(HIGH, KAXIS):blkLimitsGC(HIGH, KAXIS)))
+    allocate(zcent(blkLimitsGC(LOW, KAXIS):blkLimitsGC(HIGH, KAXIS)))
 
     call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                             blkLimitsGC(LOW, :), blkLimitsGC(HIGH, :), xcent)

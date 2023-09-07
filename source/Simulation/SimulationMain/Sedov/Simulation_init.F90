@@ -57,6 +57,7 @@ subroutine Simulation_init()
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface,           ONLY : Logfile_stamp
+  use Grid_interface,              ONLY : Grid_getGeometry
   use ut_generalInterface,         ONLY : ut_getFreeFileUnit
 
   implicit none
@@ -111,6 +112,16 @@ subroutine Simulation_init()
      sim_useProfileFromFile = (trim(sim_profFileName) .NE. "/dev/null")
   end if
 
+  call Grid_getGeometry(sim_geometry)
+  ! Determine which coordinate directions contribute to the "distance" (from explosion center)
+  sim_k2dDist = Real(K2D)
+  sim_k3dDist = Real(K3D)
+  if (sim_geometry == SPHERICAL) then
+     sim_k2dDist = 0.0
+     sim_k3dDist = 0.0
+  end if
+  if (sim_geometry == CYLINDRICAL) sim_k3dDist = 0.0
+  if (sim_geometry == POLAR) sim_k2dDist = 0.0
 
   sim_inSubZones = 1./real(sim_nSubZones)
   sim_inSubzm1   = 1./real(max(sim_nSubZones-1,1))

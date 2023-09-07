@@ -1,0 +1,17 @@
+# YAML file for MoL multi-rate unit tests
+
+UnitTest/MoL/IMEX/FBE:
+  setupOptions: -auto -1d +ug +nofbs -noclobber +MoLIMEX
+  parfiles: flash.par.fbe
+
+UnitTest/MoL/IMEX/SSP2:
+  setupOptions: -auto -1d +ug +nofbs -noclobber +MoLIMEX
+  parfiles: ssp2-222.par ssp2-322.par ssp2-332.par
+
+UnitTest/MoL/IMEX/SSP3:
+  setupOptions: -auto -1d +ug +nofbs -noclobber +MoLIMEX
+  parfiles: ssp3-332.par ssp3-433.par
+
+UnitTest/MoL/IMEX/ARK:
+  setupOptions: -auto -1d +ug +nofbs -noclobber +MoLIMEX
+  parfiles: ark-111.par ark-121.par ark-122.par ark-222.par ark-232.par ark-233.par ark-343.par ark-443.par

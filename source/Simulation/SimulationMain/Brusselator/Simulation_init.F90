@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/Brusselator/Simulation_init
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ subroutine Simulation_init()
                               U_RHS, V_RHS, W_RHS
 
    use RuntimeParameters_interface, only: RuntimeParameters_get
-   use MoL_interface, only: MoL_registerVariable
+   use MoL_interface, only: MoL_registerVariable, MoL_getRHSIndex
 
 #include "Simulation.h"
 #include "constants.h"
@@ -51,5 +51,10 @@ subroutine Simulation_init()
    call MoL_registerVariable("u", U_VAR, U_RHS)
    call MoL_registerVariable("v", V_VAR, V_RHS)
    call MoL_registerVariable("w", W_VAR, W_RHS)
+
+   ! Sanity check
+   U_RHS = MoL_getRHSIndex(U_VAR)
+   V_RHS = MoL_getRHSIndex(V_VAR)
+   W_RHS = MoL_getRHSIndex(W_VAR)
 
 end subroutine Simulation_init

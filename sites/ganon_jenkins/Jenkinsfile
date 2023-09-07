@@ -1,0 +1,59 @@
+pipeline {
+    triggers { pollSCM('') }  // Run tests whenever a new commit is detected.
+    agent { dockerfile {
+        dir 'sites/ganon_jenkins'
+	args '-v /mnt/scratch/weaklib-tables:/weaklib-tables:ro'
+    } } // Use the specified dockerfile and mount the weaklib tables as a volume
+    environment {
+        pathToSimulations = '../source/Simulation/SimulationMain' // Needed in order for Flash-X-Test to know where to find files
+	HOME="${env.WORKSPACE}"  // needed to be able to initialize flash-x-test
+	// Get rid of Read -1, expected <someNumber>, errno =1 error
+        // See https://github.com/open-mpi/ompi/issues/4948
+        OMPI_MCA_btl_vader_single_copy_mechanism = 'none'
+    }
+    stages {
+
+        //=============================//
+    	// Set up submodules and amrex //
+        //=============================//
+    	stage('Prerequisites'){ steps{
+	    withCredentials([gitUsernamePassword(credentialsId: 'github_personal_access_token', gitToolName: 'git-tool')]) {
+	        sh 'git submodule update --init'
+		sh 'pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01'
+	    }
+	    sh 'mpicc -v'
+	}}
+
+
+	//==================================================//
+        // Run all of the official tests using Flash-X-Test //
+	//==================================================//
+        stage('UnitTest'){ steps{
+	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
+	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTests.suite"
+	    sh ".local/bin/flashxtest run-suite"
+	    archiveArtifacts artifacts: '**/setup_output', allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/setup_call'  , allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/setup_error' , allowEmptyArchive: true
+	    //archiveArtifacts artifacts: '**/gmake_output', allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/gmake_error' , allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/*.log'       , allowEmptyArchive: true
+	    archiveArtifacts artifacts: 'TestResults/*/*/errors', allowEmptyArchive: true
+	}} //stage('UnitTest'){ steps{
+	
+    } // stages{
+
+    post {
+        always {
+	    cleanWs(
+	        cleanWhenNotBuilt: true,
+		deleteDirs: true,
+		disableDeferredWipeout: false,
+		notFailBuild: true,
+		patterns: [[pattern: 'lib', type: 'EXCLUDE']] ) // allow amrex to be cached
+	}
+    }
+
+} // pipeline{

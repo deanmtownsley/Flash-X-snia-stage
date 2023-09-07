@@ -93,9 +93,6 @@ subroutine io_readData()
    use amrex_distromap_module, ONLY: amrex_distromap_build, amrex_distromap, &
                                      amrex_print
    use amrex_multifab_module, ONLY: amrex_multifab, amrex_multifab_build
-   use amrex_multifab_module, ONLY: amrex_mfiter, &
-                                    amrex_mfiter_build, &
-                                    amrex_mfiter_destroy
    use gr_fluxregister_mod, ONLY: gr_fluxregisterBuild
    use amrex_plotfile_module, ONLY: amrex_write_plotfile
 
@@ -161,6 +158,8 @@ subroutine io_readData()
    type(Grid_tile_t)     :: tileDesc
 
    real(wp), contiguous, pointer, dimension(:, :, :, :) :: dp, facexData, faceyData, facezData
+
+   intrinsic nint
 
    myGlobalComm = io_globalComm
 
@@ -300,19 +299,19 @@ subroutine io_readData()
             k = k + 1
             id_on_lev(i, k) = j !store global block id of level i's block k
 
-            if (NDIM >= 1) bnd_box_sub(1, 1, k) = NXB*int((tree_data%bnd_box(1, 1, j) &
+            if (NDIM >= 1) bnd_box_sub(1, 1, k) = NXB*nint((tree_data%bnd_box(1, 1, j) &
                                                            - gr_globalDomain(LOW, 1))/tree_data%bsize(1, j))
-            if (NDIM >= 2) bnd_box_sub(1, 2, k) = NYB*int((tree_data%bnd_box(1, 2, j) &
+            if (NDIM >= 2) bnd_box_sub(1, 2, k) = NYB*nint((tree_data%bnd_box(1, 2, j) &
                                                            - gr_globalDomain(LOW, 2))/tree_data%bsize(2, j))
-            if (NDIM == 3) bnd_box_sub(1, 3, k) = NZB*int((tree_data%bnd_box(1, 3, j) &
+            if (NDIM == 3) bnd_box_sub(1, 3, k) = NZB*nint((tree_data%bnd_box(1, 3, j) &
                                                            - gr_globalDomain(LOW, 3))/tree_data%bsize(3, j))
 
             !bnd_box_sub(HI,:,k) needs to be decremented by 1 since it should be corner of top right cell
-            if (NDIM >= 1) bnd_box_sub(2, 1, k) = NXB*int((tree_data%bnd_box(2, 1, j) &
+            if (NDIM >= 1) bnd_box_sub(2, 1, k) = NXB*nint((tree_data%bnd_box(2, 1, j) &
                                                            - gr_globalDomain(LOW, 1))/tree_data%bsize(1, j)) - 1
-            if (NDIM >= 2) bnd_box_sub(2, 2, k) = NYB*int((tree_data%bnd_box(2, 2, j) &
+            if (NDIM >= 2) bnd_box_sub(2, 2, k) = NYB*nint((tree_data%bnd_box(2, 2, j) &
                                                            - gr_globalDomain(LOW, 2))/tree_data%bsize(2, j)) - 1
-            if (NDIM == 3) bnd_box_sub(2, 3, k) = NZB*int((tree_data%bnd_box(2, 3, j) &
+            if (NDIM == 3) bnd_box_sub(2, 3, k) = NZB*nint((tree_data%bnd_box(2, 3, j) &
                                                            - gr_globalDomain(LOW, 3))/tree_data%bsize(3, j)) - 1
 
          end if
@@ -324,10 +323,18 @@ subroutine io_readData()
       ! build and set boxarray
       call amrex_boxarray_build(ba, bnd_box_sub(:, :, 1:k))
       call amrex_set_boxarray(i - 1, ba)
+#ifdef DEBUG_GRID
+      print*,' ===== Boxarray for level',i,' ====='
+      call amrex_print(ba)
+#endif
 
       ! build and set distromap
       call amrex_distromap_build(dm, ba)
       call amrex_set_distromap(i - 1, dm)
+#ifdef DEBUG_GRID
+      print*,' ===== Distromap for level',i,' ====='
+      call amrex_print(dm)
+#endif
 
       ! Build multifabs
       call amrex_multifab_build(unk(i - 1), ba, dm, NUNK_VARS, NGUARD)
@@ -581,6 +588,8 @@ subroutine io_readData()
                     hi => tileDesc%limits(HIGH, :))
             call tileDesc%getDataPtr(dp, CENTER)
             do var = UNK_VARS_BEGIN, UNK_VARS_END
+               ! Should we zero-fill, including guard cells? Let us try without, otherwise enable:
+               ! dp(:,:,:,var) = 0.0
                ! set all values at once
                dp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), var) = unkbuf(var, 1:NXB, 1:NYB, 1:NZB, j)
             end do

@@ -20,6 +20,11 @@ def create_build_script(absLibDir,buildFlag,args):
     else:
         USE_GPU = "FALSE"
 
+    if "thornadoHIP" in setupVars:
+        USE_HIP = str(setupVars["thornadoHIP"]).upper()
+    else:
+        USE_HIP = "FALSE"
+
     if "thornadoACC" in setupVars:
         USE_OACC = str(setupVars["thornadoACC"]).upper()
     else:
@@ -60,6 +65,7 @@ def create_build_script(absLibDir,buildFlag,args):
     fileObj.write('make' + 
                   ' BUILDFLAG=' + buildFlag +
                   ' USE_GPU=' + USE_GPU +
+                  ' USE_HIP=' + USE_HIP +
                   ' USE_OACC=' + USE_OACC +
                   ' USE_OMP_OL=' + USE_OMP_OL +
                   ' MOMENT_CLOSURE=' + momentClosure +

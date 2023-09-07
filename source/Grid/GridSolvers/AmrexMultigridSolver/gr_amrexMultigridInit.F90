@@ -14,6 +14,7 @@ subroutine gr_amrexMultigridInit()
     use Timers_interface, ONLY : Timers_start, Timers_stop
     use amrex_amr_module, ONLY : amrex_get_finest_level
     use amrex_fort_module, ONLY : amrex_real
+    use amrex_base_module, ONLY: amrex_spacedim
     use gr_amrexMultigridData
     use RuntimeParameters_interface, ONLY : RuntimeParameters_get
     use Grid_data, ONLY: gr_meshMe
@@ -41,6 +42,11 @@ subroutine gr_amrexMultigridInit()
     allocate(gr_amrexMG_rhs(0:gr_amrexMG_maxLevel))
     allocate(gr_amrexMG_ba(0:gr_amrexMG_maxLevel))
     allocate(gr_amrexMG_dm(0:gr_amrexMG_maxLevel))
+    allocate(gr_amrexMG_acoef(0:gr_amrexMG_maxLevel))
+    allocate(gr_amrexMG_bcoef(amrex_spacedim,0:gr_amrexMG_maxLevel))
+
+    gr_amrexMG_ascalar = 1.d-3
+    gr_amrexMG_bscalar = -1.d0
 
     call Timers_stop("gr_multigridAmrexInit")
 

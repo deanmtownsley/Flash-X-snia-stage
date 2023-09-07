@@ -126,6 +126,8 @@ module gr_mpoleData
   logical, save :: gr_mpoleInnerZoneExists
   logical, save :: gr_mpoleMomentsDump
   logical, save :: gr_mpoleMultiThreading
+  logical, save :: gr_mpoleThreadTileList
+  logical, save :: gr_mpoleThreadWithinTile
   logical, save :: gr_mpoleOuterZoneExists
   logical, save :: gr_mpoleRadialInfoPrint
   logical, save :: gr_mpoleSymmetryAxis3D

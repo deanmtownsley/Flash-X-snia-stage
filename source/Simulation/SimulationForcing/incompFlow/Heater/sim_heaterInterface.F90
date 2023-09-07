@@ -100,7 +100,7 @@ Module sim_heaterInterface
 
    interface
       subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                         guard, face, axis, secondDir, thirdDir)
+                                           guard, face, axis, secondDir, thirdDir)
          integer, intent(IN) :: level, ivar, gridDataStruct
          integer, dimension(REGION_DIM), intent(IN) :: regionSize
          real, dimension(regionSize(BC_DIR), &
@@ -119,6 +119,15 @@ Module sim_heaterInterface
       subroutine sim_heaterTagSites(stime)
          real, intent(in) :: stime
       end subroutine
+   end interface
+
+   interface
+      subroutine sim_forceHeater(nstep, dt, stime)
+         implicit none
+         integer, intent(in) :: nstep
+         real, intent(in) :: dt
+         real, intent(in) :: stime
+      end subroutine sim_forceHeater
    end interface
 
 End module sim_heaterInterface

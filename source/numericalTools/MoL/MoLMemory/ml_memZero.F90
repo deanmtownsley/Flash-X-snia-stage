@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !!   Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,5 +30,5 @@ subroutine ml_memZero(dataStruct)
 
    integer, intent(in) :: dataStruct
 
-   if (dataStruct .ge. MOL_INITIAL) ml_scratch_data(:, :, :, :, :, dataStruct) = 0d0
+   if (dataStruct .ge. MOL_INITIAL) ml_scratch_data(:, :, :, :, :, dataStruct) = 0.0
 end subroutine ml_memZero

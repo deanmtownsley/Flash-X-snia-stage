@@ -1,0 +1,275 @@
+# YAML file for test information
+# comments start with "#"
+
+# PseudoUG AMReX 2d
+Composite/Sod/PseudoUG/2d/AMReX/simpleUnsplit:
+  setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+Composite/Sod/PseudoUG/2d/AMReX/unsplit:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+# The following test used to be configured with -debug.
+Composite/Sod/PseudoUG/2d/AMReX/spark:
+  setupOptions: -auto -2d +amrex +sparkbase2d +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+Composite/Sod/PseudoUG/2d/AMReX/sparkNt:
+  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+# The following test used to be configured with -debug.
+Composite/Sod/PseudoUG/2d/AMReX/sparkMT:
+  setupOptions: -auto -2d +sparkbase2d +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+  parfiles: test_pseudoug_2d_spark_multithread.par
+  restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
+
+Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT:
+  setupOptions: -auto -2d -debug +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialio -unit=IO/IOMain/hdf5/serial/AM  threadWithinBlock=True
+  parfiles: test_pseudoug_2d_spark_multithread.par
+  restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
+
+# The following test used to be configured with -debug.
+Composite/Sod/PseudoUG/2d/AMReX/sparkPIO:
+  setupOptions: -auto -2d +amrex +sparkbase2d +parallelIO
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO:
+  setupOptions: -auto -2d -debug +amrex +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +parallelIO
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+# end PseudoUG AMReX 2d
+
+# PseudoUG Paramesh 2d
+Composite/Sod/PseudoUG/2d/Paramesh/simpleUnsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+Composite/Sod/PseudoUG/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf -gridinterpolation=monotonic
+  parfiles: test_pseudoug_2d.par
+  restartParfiles: test_pseudoug_2d_restart.par
+
+# The following test used to be configured with -debug.
+Composite/Sod/PseudoUG/2d/Paramesh/sparkMT:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +spark +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+  parfiles: test_pseudoug_2d_spark_multithread.par
+  restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
+
+Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +pm4dev -gridinterpolation=monotonic threadWithinBlock=True
+  parfiles: test_pseudoug_2d_spark_multithread.par
+  restartParfiles: test_pseudoug_2d_spark_multithread_restart.par
+# end PseudoUG Paramesh 2d
+
+# AMR AMReX 2d
+Composite/Sod/AMR/2d/AMReX/simpleUnsplit:
+  setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_2d.par
+  restartParfiles: test_amr_2d_restart.par
+
+Composite/Sod/AMR/2d/AMReX/unsplit:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: test_amr_unsplit_2d_restart.par
+
+Composite/Sod/AMR/2d/AMReX/unsplitPIO:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +parallelIO
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: test_amr_unsplit_2d_restart.par
+
+Composite/Sod/AMR/2d/AMReX/unsplitAsyncIO:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +parallelIO +hdf5AsyncIO
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: test_amr_unsplit_2d_restart.par
+# end AMR AMReX 2d
+
+# AMR Paramesh 2d
+Composite/Sod/AMR/2d/Paramesh/simpleUnsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
+  parfiles: test_amr_2d.par
+  restartParfiles: test_amr_2d_restart.par
+
+Composite/Sod/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d +uhd +pm4dev +nolwf -gridinterpolation=monotonic
+  parfiles: test_amr_unsplit_2d.par
+  restartParfiles: test_amr_unsplit_2d_restart.par
+
+Composite/Sod/AMR/2d/pm4Bittree/simpleUnsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +sHLL +pm4dev Bittree=True -gridinterpolation=native
+  parfiles: test_amr_2d.par
+  restartParfiles: test_amr_2d_restart.par
+
+Composite/Sod/AMR/2d/pm4AltMortonBittree/simpleUnsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 -unit=physics/Hydro/HydroMain/simpleUnsplit/HLL +pm4dev AltMorton=True Bittree=True -gridinterpolation=native -noc
+  parfiles: test_amr_TBL_2d.par
+  restartParfiles: test_amr_2d_restart.par
+
+Composite/Sod/AMR/2d/pm4AltMortonBittree/unsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBL_unsplit_2d.par
+  restartParfiles: test_amr_TBL_unsplit_2d_restart.par
+
+Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/simpleUnsplit:
+  setupOptions: -auto -2d -unit=physics/Hydro/HydroMain/simpleUnsplit/HLL +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=native -noc
+  parfiles: test_amr_TBL_2d.par
+  restartParfiles: test_amr_2d_restart.par
+
+Composite/Sod/AMR/2d/pm4AltMortonBittree/TBL/unsplit:
+  setupOptions: -auto -2d +uhd +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBL_unsplit_2d.par
+  restartParfiles: test_amr_TBL_unsplit_2d_restart.par
+# end AMR Paramesh 2d
+
+# Comparison UG 2d
+Comparison/Sod/UG/2d/simpleUnsplit:
+  setupOptions: -auto -2d -test +sHLL +ug +nofbs
+  parfiles: test_ug_TBL_2d.par
+
+Comparison/Sod/UG/2d/unsplit:
+  setupOptions: -auto -2d -debug +uhd +ug +nofbs
+  parfiles: test_pseudoug_2d.par
+
+# The following test used to be configured with -debug.
+Comparison/Sod/UG/2d/spark:
+  setupOptions: -auto -2d +spark +ug +nofbs
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/UG/2d/sparkNt:
+  setupOptions: -auto -2d -debug +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +ug +nofbs
+  parfiles: test_pseudoug_2d.par
+
+#  comment: Set OMP_NUM_THREADS=2 since libamex with omp support is installed
+#  environment: OMP_NUM_THREADS=2 OMP_STACKSIZE=16M
+Comparison/Sod/UG/2d/TBL/simpleUnsplit:
+  setupOptions: -auto -2d -test -unit=physics/Hydro/HydroMain/simpleUnsplit/HLL +ug +nofbs +threadBL
+  parfiles: test_ug_TBL_2d.par
+
+Comparison/Sod/PseudoUG/2d/AMReX/simpleUnsplit:
+  setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/AMReX/unsplit:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/AMReX/spark:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +amrex +spark +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/AMReX/sparkNt:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_pseudoug_2d.par
+# end Comparison PseudoUG 2d
+
+# Comparison AMR 2d
+Comparison/Sod/PseudoUG/2d/AMReX/TBL/simpleUnsplit:
+  setupOptions: -auto -2d -debug -unit=physics/Hydro/HydroMain/simpleUnsplit/HLL +amrex useAmrexFlashFluxreg=False -unit=IO/IOMain/hdf5/serial/AM +threadBL
+  parfiles: test_pseudoug_TBL_2d.par
+
+Comparison/Sod/PseudoUG/2d/Paramesh/simpleUnsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf -gridinterpolation=monotonic
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/Paramesh/spark:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +pm4dev +spark -gridinterpolation=monotonic
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/PseudoUG/2d/Paramesh/sparkNt:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 -debug +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping -gridinterpolation=monotonic
+  parfiles: test_pseudoug_2d.par
+
+Comparison/Sod/AMR/2d/AMReX/simpleUnsplit:
+  setupOptions: -auto -2d -debug +sHLL +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_2d.par
+
+Comparison/Sod/AMR/2d/AMReX/unsplit:
+  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_unsplit_2d.par
+
+Comparison/Sod/AMR/2d/AMReXFc/unsplit:
+  setupOptions: -auto -2d -test +uhd +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM
+  parfiles: test_amr_TBLfc_unsplit_2d.par
+
+Comparison/Sod/AMR/2d/AMReXFc/TBL/unsplit:
+  setupOptions: -auto -2d -test +uhd +amrex +threadBL +serialIO -unit=IO/IOMain/hdf5/serial/AM -noc
+  parfiles: test_amr_TBLfc_unsplit_2d.par
+
+Comparison/Sod/AMR/2d/Paramesh/simpleUnsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +sHLL +pm4dev -gridinterpolation=native
+  parfiles: test_amr_2d.par
+
+Comparison/Sod/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +uhd +pm4dev +nolwf -gridinterpolation=monotonic
+  parfiles: test_amr_unsplit_2d.par
+
+Comparison/Sod/AMR/2d/pm4Bittree/simpleUnsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +sHLL +pm4dev Bittree=True -gridinterpolation=native
+  parfiles: test_amr_2d.par
+
+Comparison/Sod/AMR/2d/pm4AltMortonBittree/simpleUnsplit:
+  setupOptions: -auto -2d -nxb=8 -nyb=8 +sHLL +pm4dev AltMorton=True Bittree=True -gridinterpolation=native -noc
+  parfiles: test_amr_TBL_2d.par
+
+Comparison/Sod/AMR/2d/pm4AltMortonBittree/unsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBL_unsplit_2d.par
+
+# numProcs: 2
+# environment: OMP_NUM_THREADS=2 OMP_STACKSIZE=16M
+Comparison/Sod/AMR/2d/pm4AltMortonBittree/TBL/simpleUnsplit:
+  setupOptions: -auto -2d +sHLL +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=native -noc
+  parfiles: test_amr_TBL_2d.par
+
+Comparison/Sod/AMR/2d/pm4AltMortonBittree/TBL/unsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBL_unsplit_2d.par
+
+Comparison/Sod/AMR/2d/pm4AltMortonBittreeFc/unsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBLfc_unsplit_2d.par
+
+# numProcs: 2
+# environment: OMP_NUM_THREADS=2 OMP_STACKSIZE=16M
+Comparison/Sod/AMR/2d/pm4AltMortonBittreeFc/TBL/unsplit:
+  setupOptions: -auto -2d -debug -nxb=8 -nyb=8 +uhd +pm4dev AltMorton=True Bittree=True +threadBL -gridinterpolation=monotonic -noc
+  parfiles: test_amr_TBLfc_unsplit_2d.par
+# end Comparison AMR 2d
+
+# nprocs 8
+# Comparison AMR 3d
+Comparison/Sod/AMR/3d/Paramesh/unsplit:
+  setupOptions: -auto -3d -debug +cube16 +uhd +pm4dev
+  parfiles: test3d-1node_4lev.par
+
+Comparison/Sod/AMR/3d/pm4Nolwf/unsplit:
+  setupOptions: -auto -3d -debug +cube16 +uhd +pm4dev +nolwf
+  parfiles: test3d-1node_4lev.par
+
+Comparison/Sod/AMR/3d/cube16/Paramesh/unsplit:
+  setupOptions: -auto -3d +cube16 +uhd +pm4dev
+  parfiles: test3d-1node_4lev.par
+
+Comparison/Sod/AMR/3d/cube16/pm4Nolwf/unsplit:
+  setupOptions: -auto -3d +cube16 +uhd +pm4dev +nolwf -noc
+  parfiles: test3d-1node_4lev.par
+
+Comparison/Sod/AMR/3d/cube16/AMReX/unsplit:
+  setupOptions: -auto -3d +cube16 +uhd +amrex
+  parfiles: test3d-1node_4lev.par
+
+Comparison/Sod/AMR/3d/cube16/AMReXNolwf/unsplit:
+  setupOptions: -auto -3d +cube16 +uhd +amrex +nolwf -noc
+  parfiles: test3d-1node_4lev.par
+# end Comparison AMR 3d

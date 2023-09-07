@@ -111,7 +111,7 @@ Module Grid_data
   integer, save :: gr_domainBC(2, MDIM)
 !  integer,save,dimension(2,MDIM) :: gr_blkBC
   logical, save :: gr_dirIsAngular(MDIM)
-!  logical, save :: gr_geometryOverride
+  logical, save :: gr_geometryOverride = .FALSE.
   character(len=MAX_STRING_LENGTH) :: gr_str_geometry
   integer, save :: gr_refine_var(MAXREFVARS)
   real,    save :: gr_refine_cutoff(MAXREFVARS)

@@ -9,4 +9,5 @@ Simulation += sim_heaterData.o \
               sim_heaterLSReInitBlk.o \
               sim_heaterCheckSitesBlk.o \
               sim_heaterApplyBCToRegion.o \
-              sim_heaterTagSites.o
+              sim_heaterTagSites.o \
+              sim_forceHeater.o

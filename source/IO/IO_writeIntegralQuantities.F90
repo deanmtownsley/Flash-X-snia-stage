@@ -24,12 +24,14 @@
 !!   and write them to an ASCII file.  If this is the initial step,
 !!   create the file and write a header to it before writing the data.
 !!
-!!   Presently, this supports 1, 2, and 3-d Cartesian geometry and 2-d
+!!   This interface can be implemented for all combinations of NDIM
+!!   and geometry. Implementations can be expected to support
+!!   at least 1, 2, and 3-d Cartesian geometry and 2-d
 !!   cylindrical geometry (r,z).  More geometries can be added by
 !!   modifying the volume of each zone (dvol).
 !!
 !!   Users should modify this routine if they want to store any
-!!   quantities other than default values in the flash.dat.  Make sure
+!!   quantities other than default values in the flashx.dat. Make sure
 !!   to modify the nGlobalSum parameter to match the number of
 !!   quantities written.  Also make sure to modify the header to match
 !!   the names of quantities with those calculated in the lsum and
@@ -40,11 +42,21 @@
 !!   isFirst - if 1 then write header info plus data, otherwise just write data
 !!   simTime - simulation time
 !!
+!! NOTES
 !!
+!!  In non-Cartesian geometries, not all integrated quantities may be directly
+!!  meaningful as physical quantities. In particular, components of spatial
+!!  vectors, like the components of momentum that appear under the "x-momentum",
+!!  "y-momentum", and "z-momentum" headings, may not be meanigful as components
+!!  of linear momentum if the corresponding x-, y-, z-coordinates are not
+!!  linear.
+!!
+!! SEE ALSO
+!!  Grid_getCellVolumes
 !!***
 
-subroutine IO_writeIntegralQuantities(isfirst, simTime)
+subroutine IO_writeIntegralQuantities(isFirst, simTime)
 implicit none
-  integer, intent(in) :: isfirst
+  integer, intent(in) :: isFirst
   real, intent(in) :: simTime
 end subroutine IO_writeIntegralQuantities

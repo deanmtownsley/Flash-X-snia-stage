@@ -9,6 +9,7 @@ REQUIRES physics/Eos
 
 EXCLUSIVE fog tvd2 lim03 mp5
 
+
 #Signal that the Hydro implementation is an unsplit implementation
 # (used for flux handlings in paramesh_preprocessor.fh)
 ## PPDEFINE FLASH_HYDRO_UNSPLIT
@@ -46,6 +47,7 @@ PARAMETER use_hybridRiemann		 BOOLEAN FALSE
 PARAMETER alpha_glm			REAL 0.9
 PARAMETER killdivb   BOOLEAN TRUE
 PARAMETER unitsystem STRING "none"
+PARAMETER telescoping          BOOLEAN  TRUE
 
 # Fluxes, these have to be prefixed by "F0*" because setup.py alphabetizes
 FLUX F01Dens
@@ -53,7 +55,6 @@ FLUX F02Xmom
 FLUX F03Ymom
 FLUX F04Zmom
 FLUX F05Ener
-
 
 #Signal that the unsplit implementation is Spark Hydro
 PPDEFINE FLASH_SPARK_HYDRO
@@ -66,25 +67,32 @@ IF ParameshLibraryMode or (Grid in ["","PM4DEV"])
 	DATAFILES amr_runtime_parameters.tpl
 ENDIF
 
-# Number of guard cells at each boundary
 USESETUPVARS useMP5
 USESETUPVARS useGLM
 USESETUPVARS useTVD
 USESETUPVARS useFog
 USESETUPVARS useLim03
+USESETUPVARS nontelescoping
 
-USESETUPVARS openMP_offloading
-IF openMP_offloading
-        PPDEFINE OMP_OL
+USESETUPVARS omp_offload
+IF omp_offload
+  REQUIRES physics/Hydro/HydroMain/Spark/omp_offload
 ENDIF
 
 
 IF useTVD or useLim03 or useFog
-  GUARDCELLS 4
 	PPDEFINE NSTENCIL 2
 ELSE
-  GUARDCELLS 6
 	PPDEFINE NSTENCIL 3
+ENDIF
+
+# Number of guard cells at each boundary
+IF not nontelescoping and (useTVD or useLim03 or useFog)
+  GUARDCELLS 4
+ENDIF
+
+IF not nontelescoping and not (useTVD or useLim03 or useFog)
+  GUARDCELLS 6
 ENDIF
 
 # Check for GLM-MHD
@@ -112,4 +120,7 @@ IF useFog
 	REQUIRES physics/Hydro/HydroMain/Spark/fog
 ENDIF
 
-VARIANTS Inhost Offload Null
+IF nontelescoping
+	REQUIRES physics/Hydro/HydroMain/Spark/NonTelescoping
+ENDIF
+

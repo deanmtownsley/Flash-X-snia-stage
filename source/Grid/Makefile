@@ -40,7 +40,7 @@ Grid += Grid_init.o \
 	Grid_countParticlesByBlock.o \
 	Grid_getGeometry.o Grid_sortParticles.o Grid_countParticles.o \
 	Grid_mapMeshToParticles.o Grid_mapMeshToParticles_pc.o Grid_mapParticlesToMesh.o \
-	Grid_solvePoisson.o Grid_conserveField.o Grid_interface.o \
+	Grid_solvePoisson.o Grid_solveLaplacian.o Grid_conserveField.o Grid_interface.o \
         Grid_ptDataTypes.o \
         Grid_bcApplyToRegion.o\
 	Grid_bcApplyToRegionSpecialized.o\
@@ -68,7 +68,7 @@ Grid += Grid_init.o \
 	Grid_addCoarseToFluxRegister.o \
 	Grid_setWork.o \
 	Grid_setWorkBounds.o \
-	Grid_setWorkDefault.o
+	Grid_setWorkDefault.o Grid_getMaxcells.o
 
 Grid += Grid_init.o Grid_coordTransfm.o
 

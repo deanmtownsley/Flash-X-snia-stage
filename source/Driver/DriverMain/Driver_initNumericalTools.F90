@@ -35,11 +35,13 @@ subroutine Driver_initNumericalTools ()
   use Roots_interface,      ONLY:  Roots_init
   use RungeKutta_interface, ONLY:  RungeKutta_init
   use Stencils_interface,   ONLY:  Stencils_init
+  use MoL_interface,        ONLY:  MoL_init
 
   implicit none
 
   call Roots_init      ()
   call RungeKutta_init ()
   call Stencils_init   ()
+  call MoL_init        ()
 
 end subroutine Driver_initNumericalTools

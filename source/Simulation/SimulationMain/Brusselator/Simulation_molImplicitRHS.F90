@@ -1,6 +1,6 @@
 !!****if* source/Simulation/SimulationMain/Brusselator/Simulation_molImplicitRHS
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 !!
 !!  SYNOPSIS
 !!
-!!      call Simulation_molImplicitRHS(Grid_tile_t, intent(in) :: tileDesc
-!!                                     real, pointer           :: rhs(:,:,:,:)
-!!                                     real, pointer           :: vars(:,:,:,:)
-!!                                     real, intent(in)        :: t)
+!!      call Simulation_molImplicitRHS(real,    intent(in) :: t,
+!                                      integer, intent(in) :: activeRHS
+!!                                     real,    intent(in) :: dtWeight)
 !!
 !!  DESCRIPTION
 !!
@@ -29,13 +28,15 @@
 !!
 !!  ARGUMENTS
 !!
-!!      tileDesc : Current tile descriptor
-!!      rhs      : Pointer to the RHS storage to fill
-!!      vars     : Pointer to the current value of the evolved variables
-!!      t        : Current time
+!!      t         : Current time
+!!      activeRHS : RHS data struct to fill
+!!      dtWeight  : Weighted timestep (e.g. for flux corrections)
 !!
 !!***
-subroutine Simulation_molImplicitRHS(t)
+
+!!REORDER(4): vars,rhs
+
+subroutine Simulation_molImplicitRHS(t, activeRHS, dtWeight)
    use Simulation_data, only: sim_alpha, U_RHS, V_RHS, W_RHS
 
    use MoL_interface, only: MoL_getDataPtr, MoL_releaseDataPtr
@@ -51,6 +52,8 @@ subroutine Simulation_molImplicitRHS(t)
    implicit none
 
    real, intent(in) :: t
+   integer, intent(in) :: activeRHS
+   real, intent(in) :: dtWeight
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -77,48 +80,36 @@ subroutine Simulation_molImplicitRHS(t)
       if (bcs(HIGH, IAXIS) .ne. NOT_BOUNDARY) lim(HIGH, IAXIS) = lim(HIGH, IAXIS) - 1
 
       call tileDesc%deltas(del)
-      idx2 = 1d0/(del(IAXIS)**2)
+      idx2 = 1.0/(del(IAXIS)**2)
 
       ! Note: In the following, the request for MOL_EVOLVED will
       !       always obtain a pointer to the variables in UNK; this
       !       call simply forwards to the tile descriptors `getDataPtr`.
-      !       The request for MOL_RHS will behave in one of two ways,
-      !       depending on the requirements of the selected integrator:
-      !         - `rhs` will point to the current integration stage
-      !            RHS memory structure as determined internally in MoL,
-      !            and this will be typically be to stage-specific and
-      !            type-specific (explicit, implicit, etc.)
-      !         - `rhs` will point to the same (always the first and
-      !           provided by default in MoL) RHS memory structure, and
-      !           if the integrator requires saving this state, it will
-      !           make a copy of the state into another block of memory
-      !           that is not directly accessible to the user via
-      !           requests for MOL_RHS
       call MoL_getDataPtr(tileDesc, vars, MOL_EVOLVED)
-      call MoL_getDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_getDataPtr(tileDesc, rhs, activeRHS)
 
       do k = lim(LOW, KAXIS), lim(HIGH, KAXIS)
          do j = lim(LOW, JAXIS), lim(HIGH, JAXIS)
             do i = lim(LOW, IAXIS), lim(HIGH, IAXIS)
                rhs(U_RHS, i, j, k) = rhs(U_RHS, i, j, k) &
                                      + sim_alpha*(vars(U_VAR, i + 1, j, k) &
-                                                  - 2d0*vars(U_VAR, i, j, k) &
+                                                  - 2.0*vars(U_VAR, i, j, k) &
                                                   + vars(U_VAR, i - 1, j, k))*idx2
 
                rhs(V_RHS, i, j, k) = rhs(V_RHS, i, j, k) &
                                      + sim_alpha*(vars(V_VAR, i + 1, j, k) &
-                                                  - 2d0*vars(V_VAR, i, j, k) &
+                                                  - 2.0*vars(V_VAR, i, j, k) &
                                                   + vars(V_VAR, i - 1, j, k))*idx2
 
                rhs(W_RHS, i, j, k) = rhs(W_RHS, i, j, k) &
                                      + sim_alpha*(vars(W_VAR, i + 1, j, k) &
-                                                  - 2d0*vars(W_VAR, i, j, k) &
+                                                  - 2.0*vars(W_VAR, i, j, k) &
                                                   + vars(W_VAR, i - 1, j, k))*idx2
             end do ! i
          end do ! j
       end do ! k
 
-      call MoL_releaseDataPtr(tileDesc, rhs, MOL_RHS)
+      call MoL_releaseDataPtr(tileDesc, rhs, activeRHS)
       call MoL_releaseDataPtr(tileDesc, vars, MOL_EVOLVED)
 
       call itor%next()

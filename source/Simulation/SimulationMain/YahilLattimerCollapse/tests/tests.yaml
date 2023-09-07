@@ -1,0 +1,94 @@
+# YAML file for test information
+# comments start with "#"
+
+## YahilLattimerCollapse
+# 
+
+#### Keywords  Multipole-gravity, Hydro, 1dsph 2dcyl
+
+#### Motivation
+# 
+#### Variants
+# There are four variants of test
+# 1d spherical with unsplit
+# 2d cylindrical with unsplit
+# 1d spherical with spark
+# 2d cylindrical with spark
+
+
+#### Success vs. Failure
+# These are all composite tests therefore have two baseline files. The first file
+# flashx_hdf5_chk_0001 is used as comparison test to ensure correct running, the
+# second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
+
+
+Composite/Yahil/AMR/1dSph/Paramesh/unsplit:
+  setupOptions: -debug -auto -1d +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
+  parfiles: yahil_1d.par
+  restartParfiles: yahil_1d_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+# The following test used to be configured with -debug.
+Composite/Yahil/AMR/1dSph/Paramesh/spark:
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  parfiles: yahil_1d.par
+  restartParfiles: yahil_1d_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+Composite/Yahil/AMR/1dSph/Paramesh/sparkNt:
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
+  parfiles: yahil_1d.par
+  restartParfiles: yahil_1d_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+# The following test used to be configured with -debug.
+Composite/Yahil/AMR/2dCyl/Paramesh/unsplit:
+  setupOptions: -auto -2d +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
+  parfiles: yahil_2d.par
+  restartParfiles: yahil_2d_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+# The following test used to be configured with -debug.
+Composite/Yahil/AMR/2dCyl/Paramesh/spark:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  parfiles: yahil_2d_spark.par
+  restartParfiles: yahil_2d_spark_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
+  parfiles: yahil_2d_spark.par
+  restartParfiles: yahil_2d_spark_restart.par
+  transfers: object/Yahil_Gam130.dat
+
+Comparison/Yahil/AMR/1dSph/Paramesh/unsplit:
+  setupOptions: -debug -auto -1d +spherical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
+  parfiles: yahil_1d.par
+  transfers: object/Yahil_Gam130.dat
+
+# The following test used to be configured with -debug.
+Comparison/Yahil/AMR/1dSph/Paramesh/spark:
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  parfiles: yahil_1d.par
+  transfers: object/Yahil_Gam130.dat
+
+Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt:
+  setupOptions: -auto -1d -nxb=12 +spherical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
+  parfiles: yahil_1d.par
+  transfers: object/Yahil_Gam130.dat
+
+Comparison/Yahil/AMR/2dCyl/Paramesh/unsplit:
+  setupOptions: -debug -auto -2d +cylindrical -maxblocks=16000 +hdf5 -without-unit=Grid/GridSolvers/Multipole -unit=Grid/GridSolvers/Multipole_new +uhd +nolwf
+  parfiles: yahil_2d.par
+  transfers: object/Yahil_Gam130.dat
+
+# The following test used to be configured with -debug.
+Comparison/Yahil/AMR/2dCyl/Paramesh/spark:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark
+  parfiles: yahil_2d_spark.par
+  transfers: object/Yahil_Gam130.dat
+
+Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical -maxblocks=16000 +hdf5 -unit=Grid/GridSolvers/Multipole_new +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping
+  parfiles: yahil_2d_spark.par
+  transfers: object/Yahil_Gam130.dat

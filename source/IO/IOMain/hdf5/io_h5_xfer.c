@@ -15,7 +15,7 @@ int io_h5_xfer(const int myPE, const hid_t fileID, const int xferType,
   herr_t (*old_func)(void*) = NULL;
   void *old_client_data = NULL;
   hsize_t hDummyMemSize[IO_MAX_DIMS];
-  hid_t dataspace, memspace, dataset;
+  hid_t dataspace, memspace, dataset=0;
   herr_t err;
   int i, zeroSize = 0;
   int ierr;
@@ -28,20 +28,23 @@ int io_h5_xfer(const int myPE, const hid_t fileID, const int xferType,
     if (hMemCount[i] == 0 || hDiskCount[i] == 0) zeroSize = 1;
   }
 
-  /* open the dataset
-     suppress the error message if the variable does not exist in file */
-  err = H5Eget_auto(H5E_DEFAULT, &old_func, &old_client_data);
-  assert(err >= 0);
-  err = H5Eset_auto(H5P_DEFAULT, NULL, NULL);
-  assert(err >= 0);
+  // search for the dataset
+  if (xferType == IO_READ_XFER) {
+    ierr = H5Lexists(fileID, datasetName, H5P_DEFAULT);
+    
+    if (ierr < 0) {
+      dataset = -1;
+    }
+  }
+
+if (dataset == 0){
+  /* open the dataset*/
 #ifdef FLASH_IO_ASYNC_HDF5
   dataset = H5Dopen_async(fileID, datasetName, H5P_DEFAULT, io_es_id);
 #else
   dataset = H5Dopen(fileID, datasetName, H5P_DEFAULT);
 #endif  
-  err = H5Eset_auto(H5E_DEFAULT, old_func, old_client_data);
-  assert(err >= 0);
-
+}
 
   if (dataset < 0) {
 

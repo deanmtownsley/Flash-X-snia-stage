@@ -32,6 +32,22 @@ subroutine IncompNS_getScalarPropReal(name, value)
 
 end subroutine IncompNS_getScalarPropReal
 
+subroutine IncompNS_getScalarPropInteger(name, value)
+
+   use Driver_interface, ONLY: Driver_abort
+
+   implicit none
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
+
+   character(len=100)            :: errorMessage
+
+   value = 0
+   write (errorMessage, *) '[IncompNS_getScalarProp] Unknown scalar: ', name
+   call Driver_abort(errorMessage)
+
+end subroutine IncompNS_getScalarPropInteger
+
 subroutine IncompNS_getScalarPropLogical(name, value)
 
    use Driver_interface, ONLY: Driver_abort

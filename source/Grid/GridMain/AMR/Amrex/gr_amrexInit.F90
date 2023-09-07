@@ -42,7 +42,9 @@ subroutine gr_amrexInit()
   use Logfile_interface,           ONLY : Logfile_stamp
   use Grid_data,                   ONLY : gr_geometry, &
                                           gr_domainBC, &
+                                          gr_geometryOverride, &
                                           gr_meshMe, gr_amrexUseBittree
+
   use gr_amrexInterface,           ONLY : gr_initNewLevelCallback, &
                                           gr_makeFineLevelFromCoarseCallback, &
                                           gr_remakeLevelCallback, &
@@ -178,6 +180,12 @@ subroutine gr_amrexInit()
   ! entire block.  Therefore, we do not need to tag guardcells.
   call pp_amr%add("n_error_buf", 0)
 
+  if (gr_geometryOverride) then
+     ! This allows, among other things, values of NXB, NYB, and NZB that are not
+     ! powers of 2. However, setting check_input to 0 is not recommended by the
+     ! AMReX developers.
+     call pp_amr%add("check_input", 0)
+  end if
   ! desctructors not valid for all compilers
 #if !defined(__GFORTRAN__) || (__GNUC__ > 4)
   call amrex_parmparse_destroy(pp_geom)

@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/paramesh/gr_setGcFillNLayers
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@
 
 subroutine gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
   use Driver_interface, ONLY : Driver_abort
+  use Logfile_interface, ONLY : Logfile_stampMessage
   use Grid_data, ONLY : gr_intpolStencilWidth
 
 #include "Simulation.h"
@@ -83,7 +84,7 @@ subroutine gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
   integer,intent(OUT),OPTIONAL  :: returnLayers(MDIM)
 
   integer :: nlayers_transverse, nlayers_transverse_parents, retnlayers_transverse
-
+  logical,save :: warningIssued = .FALSE.
 
   if(idir==ALLDIR .and. .not. present(minLayers))then
      layers=guard
@@ -126,6 +127,18 @@ subroutine gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
         print*,"[gr_setGcFillNLayers] Wrong direction specification in Grid_fillGuardCells: idir=",idir
         call Driver_abort("[gr_setGcFillNLayers] Wrong direction specification in Grid_fillGuardCells")
      end select
+
+     if (ANY(layers(1:NDIM).GT.guard)) then
+        if (.NOT.warningIssued) then
+           print*,"WARNING:  [gr_setGcFillNLayers]  Layers",layers," greater than available guard cells (",guard,")"
+           call Logfile_stampMessage("WARNING: [gr_setGcFillNLayers] More guard cell layers requested than available")
+        end if
+        layers(:) = min(layers(:),guard)
+        if (.NOT.warningIssued) then
+           print*,"[gr_setGcFillNLayers] Layers lowered to",layers
+           warningIssued = .TRUE.
+        end if
+     end if
 
      if (present(returnLayers)) then
         retnlayers_transverse = 0

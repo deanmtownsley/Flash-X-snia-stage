@@ -48,7 +48,7 @@ subroutine gr_writeData(stepno, t_new, argBaseName)
     if(present(argBaseName)) then
         baseName=argBaseName
     else 
-        baseName = "flash_"
+        baseName = "flashx_"
     endif
 
     if      (stepno .lt. 1000000) then

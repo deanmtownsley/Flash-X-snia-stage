@@ -4,11 +4,13 @@
 *~
 *.sif
 *.mod
+.DS*
 # Dirs
 build/
 sites/ares/
 obj*
 sod_2d*
+spark2d*
 __pycache__
 *TestResults/
 docs/doxygen/html/

@@ -67,8 +67,8 @@
 !!          lo(axis) ... hi(axis).
 !!
 !!   coordinates - The array holding the data returning the coordinate values.
-!!                 The array must be at large enough to hold the number of
-!!                 coordinate values that are requested occording to lo and hi
+!!                 The array must be large enough to hold the number of
+!!                 coordinate values that are requested according to lo and hi
 !!                 arguments. That is, the following must be true:
 !!           
 !!          if edge = CENTER/LEFT_EDGE/RIGHT_EDGE then
@@ -187,7 +187,10 @@ subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
   end if
 
   if (SIZE(coordinates) < nElements) then
-      call Driver_abort("[Grid_getCellCoords] coordinates is too small")
+99   format('Grid_getCellCoords ERROR: axis,lo..hi(axis),size(coordinates):', &
+          I3, I8,':',I7, I10)
+     print 99, axis, lo(axis),hi(axis), size(coordinates)
+     call Driver_abort("[Grid_getCellCoords] coordinates is too small")
   end if
 
   call Grid_getDeltas(level, deltas)

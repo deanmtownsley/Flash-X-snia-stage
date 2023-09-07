@@ -1,0 +1,96 @@
+# Runtime parameters for the Maclaurin spheroid problem.
+#./setup unitTest/Gravity/Poisson3 -2d +spherical -auto -maxblocks=1000 +newMpole +noio -parfile=tests/test_flash_2dsph.par
+
+# --------------------------------------------------------------------------
+# error tolerance for testing
+pass_tolerance = 0.009         # 0.01 is 1% error
+
+#-------------------------------------------------------------------------------
+
+# Parameters for initial model
+
+angular_velocity          = 0.        # Dimensionless angular velocity (Omega)
+density                   = 1.        # Spheroid density (rho)
+eccentricity              = 0.5       # Eccentricity of spheroid (e)
+equatorial_semimajor_axis = 0.25      # Equatorial semimajor axis (a1)
+
+xctr                      = 0.0       # Center coordinates of spheroid (in spherical coords)
+yctr                      = 0.0
+zctr                      = 0.0
+
+nsubzones                 = 1         # Number of averaging sub-zones per dimen.
+
+#-------------------------------------------------------------------------------
+
+# Computational volume parameters
+
+geometry = "spherical"
+
+xmin                      = 0.        # Radius
+xmax                      = 0.5
+ymin                      = 0.        # Polar angle (degrees)
+ymax                      = 180.
+
+xl_boundary_type          = "reflecting" # Boundary conditions
+xr_boundary_type          = "outflow"
+yl_boundary_type          = "reflecting"
+yr_boundary_type          = "reflecting"
+grav_boundary_type        = "isolated"
+
+#-------------------------------------------------------------------------------
+
+# Adaptive mesh parameters
+
+lrefine_max               = 4         # Maximum refinement level
+lrefine_min               = 1         # Minimum refinement level
+
+refine_var_1              = "dens"    # Refinement variables
+refine_var_2              = "pres"
+
+Nblockx                   = 1         # Number of top-level blocks
+Nblocky                   = 1
+Nblockz                   = 1
+
+convertToConsvdInMeshInterp  = .true.    # Interpolate conserved variables?
+
+#-------------------------------------------------------------------------------
+
+# Time and I/O parameters
+
+run_comment               = "2D sph Maclaurin spheroid test"
+                                      # Comment to use in log file
+basenm                    = "maclaurin_"
+                                      # Base name for output files
+
+restart                   = .false.   # Start from checkpoint file?
+checkpointFileNumber      = 0         # Initial checkpoint file number
+
+checkpointFileIntervalTime = 0.1      # Checkpoint simulation-time interval
+checkpointFileIntervalStep = 200       # Checkpoint step interval
+wall_clock_checkpoint      = 3600.     # Checkpoint wall-clock interval
+
+nend                      = 0         # Maximum number of steps to take
+tmax                      = 0.0       # Maximum time to run (not used)
+
+alwaysRestrictCheckpoint = .FALSE.
+
+plot_var_1                = "dens"
+plot_var_2                = "pres"
+plot_var_3                = "temp"
+plot_var_4                = "ener"
+plot_var_5                = "eint"
+
+#-------------------------------------------------------------------------------
+
+# Physics/solver parameters
+
+gamma                     = 1.6666667 # Ratio of specific heats
+
+useGravity                = .true.    # Turn on gravity?
+mpole_lmax                = 8         # Maximum multipole moment
+mpole_dumpMoments          = .false.      # output the moment array
+#-------------------------------------------------------------------------------
+
+# End
+eintSwitch     = 1.e-4
+

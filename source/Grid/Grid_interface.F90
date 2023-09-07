@@ -144,7 +144,7 @@ Module Grid_interface
   end interface
 
   interface
-     subroutine Grid_communicateFluxes(axis, coarse_level)
+     recursive subroutine Grid_communicateFluxes(axis, coarse_level)
        implicit none
        integer, intent(IN)                   :: axis
        integer, intent(IN)                   :: coarse_level
@@ -429,13 +429,14 @@ Module Grid_interface
        integer, intent(IN),optional :: axis
        integer, intent(IN), OPTIONAL,target :: pressureSlots(:)
      end subroutine Grid_putFluxData
-     subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo,isFluxDensity)
+     subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add, isFluxDensity)
        use Grid_tile, ONLY : Grid_tile_t
        implicit none
        type(Grid_tile_t), intent(in) :: blockDesc
        integer,intent(in) :: lo(3)
        real,CONTIGUOUS_INTENT(in),dimension(: ,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX,fluxBufY,fluxBufZ
-       logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
+       logical, intent(in), OPTIONAL :: add
+       logical, intent(IN), OPTIONAL :: isFluxDensity(:)
      end subroutine Grid_putFluxData_block
   end interface Grid_putFluxData
 
@@ -503,6 +504,12 @@ Module Grid_interface
        integer,intent(in) :: numBlocks
      end subroutine Grid_putLocalNumBlks
   end interface
+
+  interface Grid_getMaxcells
+     subroutine Grid_getMaxcells(maxcells)
+       integer,intent(out) :: maxcells
+     end subroutine Grid_getMaxcells
+  end interface Grid_getMaxcells
 
   interface Grid_restrictAllLevels
      subroutine Grid_restrictAllLevels()
@@ -676,7 +683,18 @@ Module Grid_interface
        real, intent(inout)    :: poisfact
      end subroutine Grid_solvePoisson
   end interface
-  
+ 
+  interface 
+     subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, &
+          bcValues, poisfact)
+       implicit none
+       integer, intent(in)    :: iSoln, iSrc, iCoeff
+       integer, intent(in)    :: bcTypes(6)
+       real, intent(in)       :: bcValues(2,6)
+       real, intent(inout)    :: poisfact
+     end subroutine Grid_solveLaplacian
+  end interface
+   
   interface
      subroutine Grid_setSolverDbgContextInfo(component,group)
        implicit none

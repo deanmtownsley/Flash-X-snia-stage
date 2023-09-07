@@ -123,13 +123,51 @@ autocmd BufNewFile,BufRead *.F90-mc set filetype=fortran
 
 ## Containerization Workflows
 
-![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
-![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
-![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
+[comment]: ![incompFlow](https://github.com/Flash-X/Flash-X/workflows/incompFlow/badge.svg)
+[comment]: ![Sod](https://github.com/Flash-X/Flash-X/workflows/Sod/badge.svg)
+[comment]: ![Sedov](https://github.com/Flash-X/Flash-X/workflows/Sedov/badge.svg)
 
 These workflows are located in `.github/workflows` and are not part of default testing framework. Please to refer `.github/workflows/README.md` and `container/README.md` for details on containerization with **Flash-X**
 
 ## Tests
-The source code for flashtest and a full set of tests are available from the
-Flash-X-Test repository. The repository also has tools to help you setup your local test suite.
+Test specifications for individual simulations are included under ``*/tests/tests.yaml`` files in each simulation directory under ``source/Simulation/SimulationMain``. New tests should be added as enteries in the prescribed YAML format before including it as a part of suites on different platforms.
 
+Testing and maintainence of the code is implemented using command line tools available in Flash-X-Test repository: https://github.com/Flash-X/Flash-X-Test
+
+Please refer to the instructions there to setup your own testing infrastructure. Also take a look at ``sites/ganon_jenkins/UnitTests.suite`` for an example of publicly available test suite which can be edited to enable code coverage for new modules.
+
+Testing servers:
+
+- Argonne, GCE:
+
+  FlashTest server for running tests on `staged` branch
+
+  - GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
+  - Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
+
+  FlashTestView
+
+  - GCC - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_gcc
+  - Intel - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_intel
+
+- Ganon:
+
+  FlashTest - http://ganon.device.utk.edu:8080 or http://ganon2.device.utk.edu:8080
+
+## Citation
+
+Please use the following for citing Flash-X
+
+```
+@article{Flash-X-SoftwareX,
+title = {Flash-X: A multiphysics simulation software instrument},
+journal = {SoftwareX},
+volume = {19},
+pages = {101168},
+year = {2022},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2022.101168},
+url = {https://www.sciencedirect.com/science/article/pii/S2352711022001030},
+author = {Anshu Dubey and Klaus Weide and Jared O’Neal and Akash Dhruv and Sean Couch and J. Austin Harris and Tom Klosterman and Rajeev Jain and Johann Rudi and Bronson Messer and Michael Pajkos and Jared Carlson and Ran Chu and Mohamed Wahib and Saurabh Chawdhary and Paul M. Ricker and Dongwook Lee and Katie Antypas and Katherine M. Riley and Christopher Daley and Murali Ganapathy and Francis X. Timmes and Dean M. Townsley and Marcos Vanella and John Bachan and Paul M. Rich and Shravan Kumar and Eirik Endeve and W. Raphael Hix and Anthony Mezzacappa and Thomas Papatheodore},
+}
+```

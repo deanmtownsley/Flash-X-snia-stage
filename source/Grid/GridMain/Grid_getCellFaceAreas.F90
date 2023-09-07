@@ -49,12 +49,7 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
    real    :: area, facebase
    integer :: i, j, k
 
-   if (      (gr_geometry /= CARTESIAN) &
-       .AND. (gr_geometry /= SPHERICAL   .OR. NDIM > 2) &
-       .AND. (gr_geometry /= CYLINDRICAL .OR. NDIM /= 2)) then
-     areas(:, :, :) = 0.0
-     call Driver_abort("[Grid_getCellFaceAreas] Not tested yet")
-   else if ((axis /= IAXIS) .AND. (axis /= JAXIS) .AND. (axis /= KAXIS)) then
+   if ((axis /= IAXIS) .AND. (axis /= JAXIS) .AND. (axis /= KAXIS)) then
      call Driver_abort("[Grid_getCellFaceAreas] Invalid axis")
    end if
 
@@ -141,11 +136,11 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
                      ! DEV: TODO These can be done more simply using
                      ! the radii of the cell centers (see cell volumes)
 #if   NDIM == 1
-                     areas(i, j, k) = PI * (r(i+1)**2 - r(i)**2)
+                     areas(i, j, k) = PI * ABS(r(i+1)**2 - r(i)**2)
 #elif NDIM == 2
-                     areas(i, j, k) = PI * (r(i+1)**2 - r(i)**2)
+                     areas(i, j, k) = PI * ABS(r(i+1)**2 - r(i)**2)
 #elif NDIM == 3
-                     areas(i, j, k) = 0.5 * (r(i+1)**2 - r(i)**2) * dPhi
+                     areas(i, j, k) = 0.5 * ABS(r(i+1)**2 - r(i)**2) * dPhi
 #endif
                   end do
                end do
@@ -194,9 +189,9 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 4.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * ( cos(thf(i)) - cos(thf(i+1)) ) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * ( cos(thf(i)) - cos(thf(i+1)) ) * dPhi
+                     areas(i, j, k) = facebase * ABS( cos(thf(j)) - cos(thf(j+1)) ) * dPhi
 #endif
                   end do
                end do
@@ -224,13 +219,13 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
             do       k = lo(KAXIS), hi(KAXIS)
                do    j = lo(JAXIS), hi(JAXIS)
                   do i = lo(IAXIS), hi(IAXIS)
-                     facebase = (rf(i)+rf(i+1))*(rf(i+1)-rf(i))*0.5
+                     facebase = ABS((rf(i)+rf(i+1))*(rf(i+1)-rf(i))) * 0.5
 #if   NDIM == 1
                      areas(i, j, k) = facebase * 2.0 * PI
 #elif NDIM == 2
-                     areas(i, j, k) = facebase * sin(thf(j)) * 2.0 * PI
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * 2.0 * PI
 #elif NDIM == 3
-                     areas(i, j, k) = facebase * sin(thf(j)) * dPhi
+                     areas(i, j, k) = facebase * ABS(sin(thf(j))) * dPhi
 #endif
                   end do
                end do
@@ -239,32 +234,29 @@ subroutine Grid_getCellFaceAreas(axis, level, lo, hi, areas)
          deallocate(rf)
          deallocate(faceCoords)
       else if (axis == KAXIS) then
-         ! Get r-coordinates of faces
-         allocate(faceCoords(lo(IAXIS):hi(IAXIS)))
-         call Grid_getCellCoords(axis, FACES, level, lo, hi, faceCoords)
+         ! Get r-coordinates of r-faces
+         allocate(rf          (lo(IAXIS):hi(IAXIS)+1))
+         call Grid_getCellCoords(IAXIS, FACES, level, lo, hi, rf  )
 #if NDIM >= 2
          allocate(thf         (lo(JAXIS):hi(JAXIS)+1))
          call Grid_getCellCoords(JAXIS, FACES, level, lo, hi, thf )
 #endif
-         associate(dr   => deltas(IAXIS), &
-                   rf   => faceCoords)
+         associate(dthf   => deltas(JAXIS))
             do       k = lo(KAXIS), hi(KAXIS)
                do    j = lo(JAXIS), hi(JAXIS)
                   do i = lo(IAXIS), hi(IAXIS)
-                     facebase = dr *  &
-                        ( rf(i  ) *  rf(i  )  +  &
-                          rf(i  ) *  rf(i+1)  +  &
-                          rf(i+1) *  rf(i+1) )
-#if   NDIM == 1
-                     areas(i, j, k) = facebase * 2./3.
+
+                     facebase = 0.5 * ABS((rf(i+1) + rf(i)) * (rf(i+1) - rf(i)))
+#if NDIM == 1
+                     areas(i, j, k) = facebase * PI
 #elif NDIM >= 2
-                     areas(i, j, k) = facebase * ( cos(thf(i)) - cos(thf(i+1)) ) / 3.0
+                     areas(i, j, k) = facebase * dthf
 #endif
                   end do
                end do
             end do
          end associate
-         deallocate(facecoords)
+         deallocate(rf)
 #if NDIM >= 2
          deallocate(thf)
 #endif
