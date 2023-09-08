@@ -42,6 +42,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
    real, dimension(GRID_KHI_GC) :: zCenter
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    integer, dimension(MDIM) :: lo, hi
+   real, dimension(LOW:HIGH, 1:MDIM) :: boundBox
 
 !-----------------------------------------------------------------------------------------
    nullify (solnData)
@@ -50,6 +51,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%deltas(del)
+   call tileDesc%boundBox(boundBox)
 
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC
@@ -66,6 +68,28 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
+#if NDIM == MDIM
+   if (ib_bruteForceMapping) then
+      call ib_bruteForceMap(solnData(LMDA_VAR, :, :, :), &
+                            xCenter, yCenter, zCenter, &
+                            del(IAXIS), del(JAXIS), del(KAXIS), &
+                            GRID_ILO_GC, GRID_IHI_GC, &
+                            GRID_JLO_GC, GRID_JHI_GC, &
+                            GRID_KLO_GC, GRID_KHI_GC, &
+                            bodyInfo)
+
+   else
+      call ib_annMap(solnData(LMDA_VAR, :, :, :), &
+                     xCenter, yCenter, zCenter, &
+                     del(IAXIS), del(JAXIS), del(KAXIS), &
+                     GRID_ILO_GC, GRID_IHI_GC, &
+                     GRID_JLO_GC, GRID_JHI_GC, &
+                     GRID_KLO_GC, GRID_KHI_GC, &
+                     bodyInfo)
+
+   end if
+
+#else
    if (ib_bruteForceMapping) then
       call ib_bruteForceMap(solnData(LMDA_VAR, :, :, :), &
                             xCenter, yCenter, &
@@ -83,6 +107,7 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
                      bodyInfo)
 
    end if
+#endif
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
