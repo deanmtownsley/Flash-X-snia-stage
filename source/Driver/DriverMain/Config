@@ -13,6 +13,7 @@ ENDIF
 EXCLUSIVE Split Unsplit INSfracstep 
 CHILDORDER SolidMechanics_rbc INSfracstep 
 REQUIRES RuntimeParameters
+REQUIRES TimeAdvance
 REQUESTS Grid
 REQUESTS monitors/Logfile
 REQUESTS PhysicalConstants
