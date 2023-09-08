@@ -156,8 +156,8 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
       .OR. (gridDataStruct == FACES)) then
     do lev = finest_level, 1, -1
         do dir = 1, NDIM
-           call amrex_average_down(facevars(lev  , dir), &
-                                   facevars(lev-1, dir), &
+           call amrex_average_down(facevars(dir,   lev), &
+                                   facevars(dir, lev-1), &
                                    amrex_geom(lev  ), &
                                    amrex_geom(lev-1), &
                                    1, NFACE_VARS, &

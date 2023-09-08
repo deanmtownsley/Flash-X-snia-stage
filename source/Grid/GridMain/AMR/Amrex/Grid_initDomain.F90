@@ -123,7 +123,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
 #if NFACE_VARS > 0
     ! Use NDIM multifab for face variables
     ! TODO: Check how indexing affects peformance
-    allocate(facevars(0:amrex_max_level, 1:NDIM))
+    allocate(facevars(1:NDIM, 0:amrex_max_level))
 #endif
 
     ! DEV: T_INIT is set to zero now as AMReX does not care about this value.

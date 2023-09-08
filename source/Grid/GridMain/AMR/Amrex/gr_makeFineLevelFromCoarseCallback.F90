@@ -124,16 +124,16 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
     ! Face variables
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, IAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(IAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, JAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(JAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, KAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(KAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 
@@ -181,8 +181,8 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
                                          gr_postinterpolationWork)
 
 #if NFACE_VARS > 0
-    call amrex_fillcoarsepatch(facevars(lev, IAXIS), time,     facevars(lev-1, IAXIS),  &
-                                              time+0.1,        facevars(lev-1, IAXIS),  &
+    call amrex_fillcoarsepatch(facevars(IAXIS, lev), time,     facevars(IAXIS, lev-1),  &
+                                              time+0.1,        facevars(IAXIS, lev-1),  &
                                               amrex_geom(lev-1), gr_fillPhysicalBC,  &
                                               amrex_geom(lev  ), gr_fillPhysicalBC,  &
                                               time, &
@@ -190,8 +190,8 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
                                               amrex_ref_ratio(lev-1), gr_interpolatorFace, &
                                               lo_bc_amrexFace(:, :, IAXIS), hi_bc_amrexFace(:, :, IAXIS)) 
 #if NDIM >= 2
-    call amrex_fillcoarsepatch(facevars(lev, JAXIS), time,     facevars(lev-1, JAXIS),  &
-                                              time+0.1,        facevars(lev-1, JAXIS),  &
+    call amrex_fillcoarsepatch(facevars(JAXIS, lev), time,     facevars(JAXIS, lev-1),  &
+                                              time+0.1,        facevars(JAXIS, lev-1),  &
                                               amrex_geom(lev-1), gr_fillPhysicalBC,  &
                                               amrex_geom(lev  ), gr_fillPhysicalBC,  &
                                               time, &
@@ -200,8 +200,8 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
                                               lo_bc_amrexFace(:, :, JAXIS), hi_bc_amrexFace(:, :, JAXIS)) 
 #endif
 #if NDIM == 3
-    call amrex_fillcoarsepatch(facevars(lev, KAXIS), time,     facevars(lev-1, KAXIS),  &
-                                              time+0.1,        facevars(lev-1, KAXIS),  &
+    call amrex_fillcoarsepatch(facevars(KAXIS, lev), time,     facevars(KAXIS, lev-1),  &
+                                              time+0.1,        facevars(KAXIS, lev-1),  &
                                               amrex_geom(lev-1), gr_fillPhysicalBC,  &
                                               amrex_geom(lev  ), gr_fillPhysicalBC,  &
                                               time, &

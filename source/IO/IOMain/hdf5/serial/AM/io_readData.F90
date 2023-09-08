@@ -267,7 +267,7 @@ subroutine io_readData()
    allocate (unk(0:gr_maxRefine - 1))
 
 #if NFACE_VARS > 0
-   allocate (facevars(0:gr_maxRefine - 1, 1:NDIM))
+   allocate (facevars(1:NDIM, 0:gr_maxRefine - 1))
 #endif
 
 #if 1
@@ -343,16 +343,16 @@ subroutine io_readData()
       ! Face variables
       nodal(:) = .FALSE.
       nodal(IAXIS) = .TRUE.
-      call amrex_multifab_build(facevars(i - 1, IAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(IAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
       nodal(:) = .FALSE.
       nodal(JAXIS) = .TRUE.
-      call amrex_multifab_build(facevars(i - 1, JAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(JAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
       nodal(:) = .FALSE.
       nodal(KAXIS) = .TRUE.
-      call amrex_multifab_build(facevars(i - 1, KAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(KAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 

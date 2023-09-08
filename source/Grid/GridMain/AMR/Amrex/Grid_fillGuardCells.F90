@@ -515,24 +515,24 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      lev = 0
 
      do dir = 1, NDIM
-        call amrex_fillpatch(facevars(lev, dir), &
-                             1.0, facevars(lev, dir), &
-                             0.0, facevars(lev, dir), &
+        call amrex_fillpatch(facevars(dir, lev), &
+                             1.0, facevars(dir, lev), &
+                             0.0, facevars(dir, lev), &
                              amrex_geom(lev), gr_fillPhysicalBC, &
                              0.0, 1, 1, NFACE_VARS)
      end do
 
      do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevars(lev, :), &
-                             1.0, facevars(lev-1, :), &
-                             0.0, facevars(lev-1, :), &
+        call amrex_fillpatch(facevars(:, lev), &
+                             1.0, facevars(:, lev-1), &
+                             0.0, facevars(:, lev-1), &
                              amrex_geom(lev-1), &
                              gr_fillPhysicalBC, gr_fillPhysicalBC, &
 #if NDIM == MDIM
         &                    gr_fillPhysicalBC, &
 #endif
-                             1.0, facevars(lev  , :), &
-                             0.0, facevars(lev  , :), &
+                             1.0, facevars(:,  lev), &
+                             0.0, facevars(:,  lev), &
                              amrex_geom(lev  ), &
                              gr_fillPhysicalBC, gr_fillPhysicalBC, &
 #if NDIM == MDIM

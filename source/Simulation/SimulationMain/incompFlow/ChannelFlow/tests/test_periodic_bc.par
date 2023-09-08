@@ -68,13 +68,15 @@ plotFileIntervalStep = 5
 nblockx	= 20
 nblocky	= 4
 nblockz = 4
-nfres   = 1000
+nrefs   = 1000
 
 lrefine_min       = 2
 lrefine_max       = 2
 
 #	Flux Conservation for AMR
 flux_correct    = .true.
+
+amrexFaceInterpolator = "face_div_free"
 
 # AMReX Poisson Solver Parameters
 gr_amrexMG_composite_solve = .true.

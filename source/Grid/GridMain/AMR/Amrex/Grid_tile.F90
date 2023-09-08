@@ -320,19 +320,19 @@ contains
              dataPtr(lo(1):, lo(2):, lo(3):, 1:) => unk     (ilev)%dataptr(igrd)
           case(FACEX)
 #if NFACE_VARS > 0
-             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(ilev, IAXIS)%dataptr(igrd)
+             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(IAXIS, ilev)%dataptr(igrd)
 #else
              nullify(dataPtr)
 #endif
           case(FACEY)
 #if NFACE_VARS > 0 && NDIM >= 2
-             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(ilev, JAXIS)%dataptr(igrd)
+             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(JAXIS, ilev)%dataptr(igrd)
 #else
              nullify(dataPtr)
 #endif
           case(FACEZ)
 #if NFACE_VARS > 0 && NDIM == 3
-             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(ilev, KAXIS)%dataptr(igrd)
+             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => facevars(KAXIS, ilev)%dataptr(igrd)
 #else
              nullify(dataPtr)
 #endif

@@ -129,16 +129,16 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
     ! Face variables
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, IAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(IAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, JAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(JAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
-    call amrex_multifab_build(facevars(lev, KAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(KAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 

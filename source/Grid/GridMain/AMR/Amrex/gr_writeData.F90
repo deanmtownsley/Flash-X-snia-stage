@@ -91,16 +91,16 @@ subroutine gr_writeData(stepno, t_new, argBaseName)
     end do
 
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "x_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevars(:, IAXIS), varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(IAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #if(NDIM>1)
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "y_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevars(:, JAXIS), varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(JAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #endif
 #if(NDIM>2)
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "z_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevars(:, KAXIS), varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(KAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #endif
 #endif
