@@ -23,10 +23,5 @@ lib/ma28/source/*__genmod.f90
 lib/thornado/include
 lib/thornado/Makefile.h
 lib/thornado/build.csh
-lib/vector/build.sh
-lib/vector/Makefile.h
-lib/vector/include
-lib/vector/source/*.mod
-lib/vector/source/*.o
 tools/sfocu/sfocu
 source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/MesaNet/kernel/external_codes_with_mesa/min_net/run
