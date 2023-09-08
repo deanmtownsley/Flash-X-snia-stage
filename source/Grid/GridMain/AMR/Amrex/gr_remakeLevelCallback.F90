@@ -238,20 +238,20 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
     call amrex_multifab_build(facevars(IAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevars(lev, IAXIS)%copy(tmp_facevars(IAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call facevars(IAXIS, lev)%copy(tmp_facevars(IAXIS), 1, 1, NFACE_VARS, NGUARD)
     call amrex_multifab_destroy(tmp_facevars(IAXIS))
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
     call amrex_multifab_build(facevars(JAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevars(lev, JAXIS)%copy(tmp_facevars(JAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call facevars(JAXIS, lev)%copy(tmp_facevars(JAXIS), 1, 1, NFACE_VARS, NGUARD)
     call amrex_multifab_destroy(tmp_facevars(JAXIS))
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
     call amrex_multifab_build(facevars(KAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevars(lev, KAXIS)%copy(tmp_facevars(KAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call facevars(KAXIS, lev)%copy(tmp_facevars(KAXIS), 1, 1, NFACE_VARS, NGUARD)
     call amrex_multifab_destroy(tmp_facevars(KAXIS))
 #endif
 #endif
