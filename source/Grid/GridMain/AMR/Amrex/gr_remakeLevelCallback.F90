@@ -164,9 +164,6 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
                                      amrex_geom(lev), gr_fillPhysicalBC, &
                                      time, UNK_VARS_BEGIN, UNK_VARS_BEGIN, NUNK_VARS)       
 
-       ! TODO: This implementation is deprecated and needs to be update to work with
-       ! AMReX version > 21.05. Multifab array for face variables is needed instead of
-       ! individual arrays. Current WIP
 #if NFACE_VARS > 0
        call amrex_fillpatch(tmp_facevars(IAXIS), time+1.0, facevars(IAXIS, lev), &
                                                  time,     facevars(IAXIS, lev), &
@@ -198,9 +195,6 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
                                      gr_preinterpolationWork, &
                                      gr_postinterpolationWork)
 
-       ! TODO: This implementation is deprecated and needs to be update to work with
-       ! AMReX version > 21.05. Multifab array for face variables is needed instead of
-       ! individual arrays. Current WIP
 #if NFACE_VARS > 0
        call amrex_fillpatch(tmp_facevars, &
                             time+1.0, facevars(:, lev-1), &
