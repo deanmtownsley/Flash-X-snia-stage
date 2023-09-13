@@ -12,7 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Apply flux correction at fine/coarse boundaries.
 !!
@@ -29,6 +29,7 @@
 !! @param hy_del       dx, dy, dz
 !! @param dt           Timestep
 !! @param isFlux       A switch to handle fluxes rather than flux densities
+!<
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 !!NOVARIANTS
 

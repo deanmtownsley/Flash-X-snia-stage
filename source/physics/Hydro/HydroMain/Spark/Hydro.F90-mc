@@ -12,11 +12,12 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Main implementations of Spark Hydro solver
 !!
 !! @stubref{Hydro}
+!<
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)

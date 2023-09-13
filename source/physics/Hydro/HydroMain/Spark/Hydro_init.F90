@@ -12,11 +12,12 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Initialize unit scope variables for Hydro
 !!
 !! @stubref{Hydro_init}
+!<
 subroutine Hydro_init()
 
   use Hydro_data

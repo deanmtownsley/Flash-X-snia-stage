@@ -12,9 +12,10 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Internal interface for Spark Hydro subroutines
+!<
 module hy_rk_interface
 
 #include "Simulation.h"

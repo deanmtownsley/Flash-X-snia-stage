@@ -12,12 +12,12 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Computes the timestep limiter using Courant-Fredrichs-Lewy criterion
 !!
 !! @stubref{Hydro_computeDt}
-
+!<
 !!REORDER(4): U
 
 Subroutine Hydro_computeDt( blockDesc,       &!blockID

@@ -12,11 +12,12 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Data module for Hydro
 !!
 !! @stubref{Hydro_data}
+!<
 module Hydro_data
 
 #include "constants.h"

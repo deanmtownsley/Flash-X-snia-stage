@@ -12,17 +12,20 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Computes interfacial fluxes through reconstruction and solving Riemann
 !!
 !! @details
-!! Initially stores grid data in @p hy_rope by permuting indices i,j,k.
-!! Thus, the i-index is always the direction where this subroutine
-!! solves interfacial fluxes. See the "hy_setRope" macro.
 !! The reconstruction method and Riemann Solver are implemented as macros,
 !! so one can implement new reconstruction/Riemann solver by redefining
 !! corresponding macros.
+!!
+!! @note
+!! Initially stores grid data in @p hy_rope by permuting indices <tt> i,j,k </tt>,
+!! depending on the direction of the flux.
+!! Thus, the <tt>i</tt>-index is always the direction where this subroutine
+!! solves interfacial fluxes. See the "hy_setRope" macro.
 !!
 !! @param hy_starState  Pointer to input solution data
 !! @param blkLimits     Index limits for interior of the tile
@@ -34,6 +37,7 @@
 !! "limits" looks unnecessary, and the permutating limits,
 !! "lim" and "limgc" could be input arguments.
 !! "dir" and "stage" as well.
+!<
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz]
 

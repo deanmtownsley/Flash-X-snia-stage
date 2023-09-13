@@ -12,7 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
-!> @ingroup HydroMain/Spark
+!> @ingroup HydroSpark
 !!
 !! @brief Update solution then save it in primitive form
 !!
@@ -31,6 +31,7 @@
 !! @param dtOld         Old timestep
 !! @param limits        sets limits of the fluxes.
 !! @param hy_coeffs     RK coefficients in Butcher tableau
+!<
 !!Reorder(4): hy_starState, hy_tmpState, hy_fl[xyz]
 !!NOVARIANTS
 
