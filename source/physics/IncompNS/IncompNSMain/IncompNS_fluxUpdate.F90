@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/IncompNS_predictorUpdate
+!!****if* source/physics/IncompNS/IncompNSMain/IncompNS_fluxUpdate
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -23,7 +23,7 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_predictorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+subroutine IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
 
    use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -49,7 +49,7 @@ subroutine IncompNS_predictorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    nullify (solnData, facexData, faceyData, facezData)
 #endif
 
-   call Timers_start("IncompNS_predictorUpdate")
+   call Timers_start("IncompNS_fluxUpdate")
 
    call tileDesc%deltas(del)
 
@@ -109,6 +109,6 @@ subroutine IncompNS_predictorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
-   call Timers_stop("IncompNS_predictorUpdate")
+   call Timers_stop("IncompNS_fluxUpdate")
 
-end subroutine IncompNS_predictorUpdate
+end subroutine IncompNS_fluxUpdate

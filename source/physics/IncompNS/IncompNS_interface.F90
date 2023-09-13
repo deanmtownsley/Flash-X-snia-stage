@@ -169,43 +169,23 @@ Module IncompNS_interface
    end interface
 
    interface
-      subroutine IncompNS_predictorFluxes(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+      subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), INTENT(IN) :: tileDesc
          integer, intent(in) :: lo(3)
          real, intent(out), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
-      end subroutine IncompNS_predictorFluxes
+      end subroutine IncompNS_fluxSet
    end interface
 
    interface
-      subroutine IncompNS_correctorFluxes(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         integer, intent(in) :: lo(3)
-         real, intent(out), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
-      end subroutine IncompNS_correctorFluxes
-   end interface
-
-   interface
-      subroutine IncompNS_predictorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+      subroutine IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), INTENT(IN) :: tileDesc
          integer, intent(in) :: lo(3)
          real, intent(in), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
-      end subroutine IncompNS_predictorUpdate
-   end interface
-
-   interface
-      subroutine IncompNS_correctorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         integer, intent(in) :: lo(3)
-         real, intent(in), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
-      end subroutine IncompNS_correctorUpdate
+      end subroutine IncompNS_fluxUpdate
    end interface
 
 end Module IncompNS_interface

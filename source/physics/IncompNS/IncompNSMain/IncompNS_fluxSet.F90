@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/varDens/IncompNS_correctorFluxes
+!!****if* source/physics/IncompNS/IncompNSMain/IncompNS_fluxSet
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -23,7 +23,7 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_correctorFluxes(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
 
    use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -48,12 +48,12 @@ subroutine IncompNS_correctorFluxes(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    nullify (solnData, facexData, faceyData, facezData)
 #endif
 
-   call Timers_start("IncompNS_correctorFluxes")
+   call Timers_start("IncompNS_fluxSet")
 
    call tileDesc%deltas(del)
 
 #if NDIM == 2
-   del(KAXIS) = 1
+   del(DIR_Z) = 1
 #endif
 
    ! Positions in face arrays where flux vars have been stored
@@ -108,6 +108,6 @@ subroutine IncompNS_correctorFluxes(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
-   call Timers_stop("IncompNS_correctorFluxes")
+   call Timers_stop("IncompNS_fluxSet")
 
-end subroutine IncompNS_correctorFluxes
+end subroutine IncompNS_fluxSet

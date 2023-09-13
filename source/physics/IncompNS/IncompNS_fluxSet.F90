@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNS_predictorUpdate
+!!****if* source/physics/IncompNS/IncompNS_fluxSet
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -15,10 +15,10 @@
 !!
 !!
 !!***
-subroutine IncompNS_predictorUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    use Grid_tile, ONLY: Grid_tile_t
    implicit none
    type(Grid_tile_t), INTENT(IN) :: tileDesc
    integer,intent(in) :: lo(3)
-   real,intent(in),dimension(1:, lo(1): ,lo(2): ,lo(3):) :: fluxBufX,fluxBufY,fluxBufZ
-end subroutine IncompNS_predictorUpdate
+   real,intent(out),dimension(1:, lo(1): ,lo(2): ,lo(3):) :: fluxBufX,fluxBufY,fluxBufZ
+end subroutine IncompNS_fluxSet
