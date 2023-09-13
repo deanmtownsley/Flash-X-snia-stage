@@ -1,48 +1,34 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_correctFluxes
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!!  hy_rk_correctFluxes
+!! @brief Apply flux correction at fine/coarse boundaries.
 !!
-!!  SYNOPSIS
+!! @details
+!! The proper 'flux hy_del'--consistent with Section 3 of Berger&Colella(1989)--
+!! should be loaded into hy_fluxBuf[XYZ]. Because this algorithm applies flux
+!! correction at every block interface (not just fine/coarse interfaces)
+!! the fluxes NOT on fine/coarse interfaces must be zerod out.
 !!
-!!  call hy_rk_correctFluxes (real, pointer :: Uin(:,:,:,:),
-!!                            integer (IN)  :: blkLimits(:,:),
-!!                            integer (IN)  :: blkLimitsGC(:,:),
-!!                            integer (IN)  :: level,
-!!                            real (IN)     :: hy_del(:),
-!!                            real (IN)     :: dt,
-!!                            logical (IN)  :: isFlux)
-!!     
-!!
-!!  DESCRIPTION
-!!  Apply flux correction at fine/coarse boundaries. 
-!!  The proper 'flux hy_del'--consistent with Section 3 of Berger&Colella(1989)--
-!!  should be loaded into hy_fluxBuf[XYZ].  Because this algorithm applies flux 
-!!  correction at every block interface (not just fine/coarse interfaces) the fluxes 
-!!  NOT on fine/coarse interfaces must be zerod out. 
-!!
-!!
-!!  ARGUMENTS
-!!    Uin -- pointer to solution data
-!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
-!!    level  -- the refine level of the block
-!!    hy_del  --- dx, dy, dz
-!!    dt - time step
-!!
-!!
-!!***
+!! @param Uin          Pointer to solution data
+!! @param blkLimits    Index limits for interior of the tile
+!! @param blkLimitsGC  Index limits for exterior of the tile
+!! @param level        The refine level of the block
+!! @param hy_del       dx, dy, dz
+!! @param dt           Timestep
+!! @param isFlux       A switch to handle fluxes rather than flux densities
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 !!NOVARIANTS
 

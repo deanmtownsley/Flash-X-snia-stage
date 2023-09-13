@@ -1,26 +1,20 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_interface
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
-!!   hy_rk_interface
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!! SYNOPSIS
-!!   use hy_rk_interface : ONLY
-!!
-!!  DESCRIPTION
-!!    Interface for internal Spark Hydro subroutines
-!!
-!!***
+!! @brief Internal interface for Spark Hydro subroutines
 module hy_rk_interface
 
 #include "Simulation.h"

@@ -1,40 +1,29 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!!  NAME
+!! @brief Get gravitational acceleration
 !!
-!!  hy_rk_getGravAccel
+!! @details
+!! Get gravitational acceleration for the part of block/tile defined by @p limits
+!! where blkLimitsGC define full block
 !!
-!!  SYNOPSIS
-!!
-!!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
-!!                         integer(IN) :: limits(:,:),
-!!                         integer(IN) :: blkLimitsGC(:,:))
-!!
-!!  DESCRIPTION
-!! 
-!!  Get gravitational acceleration for the part of block/tile defined by limits
-!!   where blkLimitsGC define full block
-!!
-!!  ARGUMENTS
-!!     blklimits,blkLimitsGC are the bounds of the block/tile
-!!     hy_del are dx,dy,dz
-!!     limits   sets limits of the fluxes.
-!!
-!!***
-
-
+!! @param hy_starState  Pointer to input solution data
+!! @param hy_del        dx, dy, dz
+!! @param limits        sets limits of the fluxes.
+!! @param blkLimitsGC   Index limits for exterior of the tile
 !!Reorder(4):hy_starState
 !!NOVARIANTS
 subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)

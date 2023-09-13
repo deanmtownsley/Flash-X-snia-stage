@@ -1,45 +1,36 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_updateSoln
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!!  hy_rk_updateSoln
+!! @brief Update solution then save it in primitive form
 !!
-!!  SYNOPSIS
+!! @details
+!! Update solution data based on conservative fluxes
+!! calculated previously in hy_rk_getFaceFlux().
+!! Then convert conservative to primitive variables.
+!! Note that this only updates the part of tile/block within @p limits
 !!
-!!  call hy_rk_updateSoln ( real, pointer :: Uin(:,:,:,:),
-!!                            integer (IN)  :: blkLimits(:,:),
-!!                            integer (IN)  :: blkLimitsGC(:,:),
-!!                            integer (IN)  :: level,
-!!                            real (IN)     :: hy_del(:),
-!!                            real (IN)     :: dt,
-!!                            real (IN)     :: dtOld,)
-!!                            real (IN)     :: hy_coeffs(:))
-!!     
-!!  DESCRIPTION
-!!  Update solution based on conservative fluxes previously calculated.  Then convert
-!!  conservative to primitive variables.
-!!
-!!  ARGUMENTS
-!!    Uin -- pointer to solution data
-!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
-!!    level  -- the refine level of the block
-!!    hy_del  --- dx, dy, dz
-!!    dt - current time step
-!!    dtOld - old time step
-!!    coeff - coefficients for updating
-!!
-!!***
+!! @param hy_starState  Pointer to input/output solution data
+!! @param hy_tmpState   Pointer to input solution data at n-step
+!! @param blkLimits     Index limits for interior of the tile
+!! @param blkLimitsGC   Index limits for exterior of the tile
+!! @param hy_del        dx, dy, dz
+!! @param dt            Timestep
+!! @param dtOld         Old timestep
+!! @param limits        sets limits of the fluxes.
+!! @param hy_coeffs     RK coefficients in Butcher tableau
 !!Reorder(4): hy_starState, hy_tmpState, hy_fl[xyz]
 !!NOVARIANTS
 

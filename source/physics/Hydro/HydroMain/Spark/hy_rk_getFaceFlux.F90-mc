@@ -1,44 +1,39 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getFaceFlux
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!!  hy_rk_getFaceFlux
+!! @brief Computes interfacial fluxes through reconstruction and solving Riemann
 !!
-!!  SYNOPSIS
+!! @details
+!! Initially stores grid data in @p hy_rope by permuting indices i,j,k.
+!! Thus, the i-index is always the direction where this subroutine
+!! solves interfacial fluxes. See the "hy_setRope" macro.
+!! The reconstruction method and Riemann Solver are implemented as macros,
+!! so one can implement new reconstruction/Riemann solver by redefining
+!! corresponding macros.
 !!
-!!  call hy_rk_getFaceFlux ( integer(IN) :: blklimits(:,:),
-!!                           integer(IN) :: blklimitsGC(:,:),
-!!                           real(IN)    :: hy_del(:),
-!!                           integer(IN) :: limits(:,:))
+!! @param hy_starState  Pointer to input solution data
+!! @param blkLimits     Index limits for interior of the tile
+!! @param blkLimitsGC   Index limits for exterior of the tile
+!! @param limits        sets limits of the fluxes.
 !!
-!!  DESCRIPTION
-!!  Initially stores grid data by 'pencils' (see subroutine setPencil() below),
-!!  calls outside hy_reconstruction subroutine, calls outisde Riemann solver, and 
-!!  ultimately yields face fluxes for relevant directions.  These fluxes are lastly 
-!!  saved to the grid multifabs (AMReX) for later access.
-!!
-!!  ARGUMENTS
-!!     blklimits,blkLimitsGC are the bounds of the block/tile
-!!     hy_del are dx,dy,dz
-!!     limits   sets limits of the fluxes.
-!!
-!!     Note this is a modified form typically yielded
-!!     by blockDesc%limits b/c stage 1 of RK integration accounts for NSTENCIL 
-!!     number of guard cells beyond the block interior.  Stage 2 only updates the 
-!!    interior cells.
-!!
-!!***
+!! @todo
+!! The input arguments should be reconsidered.
+!! "limits" looks unnecessary, and the permutating limits,
+!! "lim" and "limgc" could be input arguments.
+!! "dir" and "stage" as well.
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz]
 

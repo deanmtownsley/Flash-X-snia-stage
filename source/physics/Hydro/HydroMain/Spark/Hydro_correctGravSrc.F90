@@ -1,37 +1,24 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/Hydro_correctGravSrc
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
+!! @file
+!> @ingroup HydroMain/Spark
 !!
-!! NAME
+!! @brief Corrects gravitational source terms with n+1 potential
+!!        to make source terms second-order accurate
 !!
-!!  Hydro_correctGravSrc
-!!
-!!
-!! SYNOPSIS
-!!                           
-!!  Hydro_correctGravSrc(real(IN)    :: dt)
-!!
-!!
-!! DESCRIPTION
-!!
-!!  Corrects gravitational source terms with n+1 potential to make source
-!!  source terms second-order accurate
-!!
-!! ARGUMENTS
-!!
-!!  dt         - timestep
-!!
-!!***
+!! @todo Is this file needed? There is no interface for this subroutine.
+
 !!Reorder(4):solnData
 
 subroutine Hydro_correctGravSrc(dt)

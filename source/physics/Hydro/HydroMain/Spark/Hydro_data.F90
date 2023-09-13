@@ -1,23 +1,30 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup HydroMain/Spark
+!!
+!! @brief Data module for Hydro
+!!
+!! @stubref{Hydro_data}
+module Hydro_data
+
 #include "constants.h"
-!! NOTICE
-!!  Copyright 2023 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
 #include "Simulation.h"
 #include "Spark.h"
 
-
-module Hydro_data
   implicit none
   save
-
 
   real, target, allocatable :: hya_flux(:)
   real, target, allocatable :: hya_flat(:)
@@ -46,7 +53,6 @@ module Hydro_data
   logical :: hy_shockDetectOn
   logical :: hy_useTiling 
   real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
- 
 
 
   logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
@@ -80,7 +86,6 @@ module Hydro_data
   real, dimension(3) :: hy_coeffs, hy_weights
   integer, dimension(3) :: hy_limitsArray
   real, dimension(3,3) :: hy_coeffArray
-  
 
 
   !! moved out from static physics routines to make it easier for data packet generation
@@ -88,7 +93,6 @@ module Hydro_data
   !! with macro-processor because it needs to be escaped for python
   !! also they are not really module scope, they are being put here so that all the variable that
   !! need to be explicitly mapped to the device memory are all in one place
-  
   integer, dimension(MDIM) :: gCells
   integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim,limgc
   integer :: dir,stage
