@@ -674,6 +674,7 @@ subroutine ReflectingThornadoFlux(axis, ivar, sign)
   ! E_E : the ending index
   ! T001_VAR is the first number density variable
 
+#ifdef THORNADO_NMOMENTS
   do iS = 1,THORNADO_NSPECIES
     B_E = (iS-1) * THORNADO_NMOMENTS * (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE &
           + (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE * axis &
@@ -681,5 +682,6 @@ subroutine ReflectingThornadoFlux(axis, ivar, sign)
     E_E = B_E + (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE - 1
     if((ivar>=B_E).and.(ivar<=E_E)) sign=-1
   end do
+#endif
 
 end subroutine ReflectingThornadoFlux
