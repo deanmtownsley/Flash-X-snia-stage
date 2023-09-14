@@ -381,57 +381,6 @@ subroutine Driver_evolveAll()
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
 
-         ! Enforce flux correction for velocities
-         ! currently exclusively implmented for
-         ! AMReX configuration
-#if 0
-!#ifdef FLASH_GRID_AMREX
-         !----------------------------------------------------------------
-         call Grid_getMaxRefinement(maxLev, mode=1)
-
-         !----------------------------------------------------------------
-         do level = maxLev, 1, -1
-
-            !----------------------------------------------------------------
-            if (level < maxLev) then
-               call Grid_communicateFluxes(ALLDIR, level)
-            end if
-            !----------------------------------------------------------------
-
-            !----------------------------------------------------------------
-            call Grid_getTileIterator(itor, LEAF, level=level, tiling=.FALSE.)
-            do while (itor%isValid())
-               !----------------------------------------------------------------
-               call itor%currentTile(tileDesc)
-               call tileDesc%getDataPtr(fluxBufX, FLUXX)
-               call tileDesc%getDataPtr(fluxBufY, FLUXY)
-               call tileDesc%getDataPtr(fluxBufZ, FLUXZ)
-               !----------------------------------------------------------------
-               fluxBufX = 0.
-               fluxBufY = 0.
-               fluxBufZ = 0.
-               call IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
-
-               if (level < maxLev) then
-                  call Grid_correctFluxData(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
-               end if
-
-               call IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
-
-               if (level > 1) then
-                  call Grid_putFluxData(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
-               end if
-
-               !----------------------------------------------------------------
-               call tileDesc%releaseDataPtr(fluxBufX, FLUXX)
-               call tileDesc%releaseDataPtr(fluxBufY, FLUXY)
-               call tileDesc%releaseDataPtr(fluxBufZ, FLUXZ)
-               call itor%next()
-            end do
-            call Grid_releaseTileIterator(itor)
-         end do 
-#endif
-
       ! Start of fractional-step velocity procedure
       ! Calculate predicted velocity and apply
       ! necessary forcing
@@ -578,6 +527,57 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+
+      ! Enforce flux correction for velocities
+      ! currently exclusively implmented for
+      ! AMReX configuration
+#if 0
+!#ifdef FLASH_GRID_AMREX
+         !----------------------------------------------------------------
+         call Grid_getMaxRefinement(maxLev, mode=1)
+
+         !----------------------------------------------------------------
+         do level = maxLev, 1, -1
+
+            !----------------------------------------------------------------
+            if (level < maxLev) then
+               call Grid_communicateFluxes(ALLDIR, level)
+            end if
+            !----------------------------------------------------------------
+
+            !----------------------------------------------------------------
+            call Grid_getTileIterator(itor, LEAF, level=level, tiling=.FALSE.)
+            do while (itor%isValid())
+               !----------------------------------------------------------------
+               call itor%currentTile(tileDesc)
+               call tileDesc%getDataPtr(fluxBufX, FLUXX)
+               call tileDesc%getDataPtr(fluxBufY, FLUXY)
+               call tileDesc%getDataPtr(fluxBufZ, FLUXZ)
+               !----------------------------------------------------------------
+               fluxBufX = 0.
+               fluxBufY = 0.
+               fluxBufZ = 0.
+               call IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
+
+               if (level < maxLev) then
+                  call Grid_correctFluxData(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
+               end if
+
+               call IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
+
+               if (level > 1) then
+                  call Grid_putFluxData(tileDesc, fluxBufX, fluxBufY, fluxBufZ, tileDesc%limits(LOW, :))
+               end if
+
+               !----------------------------------------------------------------
+               call tileDesc%releaseDataPtr(fluxBufX, FLUXX)
+               call tileDesc%releaseDataPtr(fluxBufY, FLUXY)
+               call tileDesc%releaseDataPtr(fluxBufZ, FLUXZ)
+               call itor%next()
+            end do
+            call Grid_releaseTileIterator(itor)
+         end do 
+#endif
 
       ! Call indicators method to show information
       !------------------------------------------------------------
