@@ -181,34 +181,21 @@ subroutine gr_makeFineLevelFromCoarseCallback(lev, time, pba, pdm) bind(c)
                                          gr_postinterpolationWork)
 
 #if NFACE_VARS > 0
-    call amrex_fillcoarsepatch(facevars(IAXIS, lev), time,     facevars(IAXIS, lev-1),  &
-                                              time+0.1,        facevars(IAXIS, lev-1),  &
-                                              amrex_geom(lev-1), gr_fillPhysicalBC,  &
-                                              amrex_geom(lev  ), gr_fillPhysicalBC,  &
-                                              time, &
-                                              1, 1, NFACE_VARS, &
-                                              amrex_ref_ratio(lev-1), gr_interpolatorFace, &
-                                              lo_bc_amrexFace(:, :, IAXIS), hi_bc_amrexFace(:, :, IAXIS)) 
-#if NDIM >= 2
-    call amrex_fillcoarsepatch(facevars(JAXIS, lev), time,     facevars(JAXIS, lev-1),  &
-                                              time+0.1,        facevars(JAXIS, lev-1),  &
-                                              amrex_geom(lev-1), gr_fillPhysicalBC,  &
-                                              amrex_geom(lev  ), gr_fillPhysicalBC,  &
-                                              time, &
-                                              1, 1, NFACE_VARS, &
-                                              amrex_ref_ratio(lev-1), gr_interpolatorFace, &
-                                              lo_bc_amrexFace(:, :, JAXIS), hi_bc_amrexFace(:, :, JAXIS)) 
+     call amrex_fillcoarsepatch(facevars(:, lev), time,     facevars(:, lev-1), &
+                                                  time+0.1, facevars(:, lev-1), &
+                                amrex_geom(lev-1), &
+                                gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+        &                       gr_fillPhysicalBC, &
 #endif
-#if NDIM == 3
-    call amrex_fillcoarsepatch(facevars(KAXIS, lev), time,     facevars(KAXIS, lev-1),  &
-                                              time+0.1,        facevars(KAXIS, lev-1),  &
-                                              amrex_geom(lev-1), gr_fillPhysicalBC,  &
-                                              amrex_geom(lev  ), gr_fillPhysicalBC,  &
-                                              time, &
-                                              1, 1, NFACE_VARS, &
-                                              amrex_ref_ratio(lev-1), gr_interpolatorFace, &
-                                              lo_bc_amrexFace(:, :, KAXIS), hi_bc_amrexFace(:, :, KAXIS)) 
+                                amrex_geom(lev  ), &
+                                gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+        &                       gr_fillPhysicalBC, &
 #endif
+                             time, 1, 1, NFACE_VARS, &
+                             amrex_ref_ratio(lev-1), gr_interpolatorFace, &
+                             lo_bc_amrexFace, hi_bc_amrexFace)
 #endif
 
     nFab = 0

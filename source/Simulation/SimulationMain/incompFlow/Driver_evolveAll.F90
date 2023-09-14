@@ -34,9 +34,11 @@
 !!
 !!
 !!***
+!!REORDER(4): fluxBuf[XYZ]
 
 #include "constants.h"
 #include "Simulation.h"
+#include "FortranLangFeatures.fh"
 
 #ifdef DEBUG_ALL
 #define DEBUG_DRIVER
@@ -120,9 +122,16 @@ subroutine Driver_evolveAll()
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
               iCurvVar, iAlphVar, iTempFrcVar
-   integer :: iteration
+   integer :: iteration, level, maxLev
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
+
+   real, pointer,dimension(:,:,:,:) :: fluxBufX,fluxBufY,fluxBufZ
+   CONTIGUOUS_FSTMT(fluxBufX)
+   CONTIGUOUS_FSTMT(fluxBufY)
+   CONTIGUOUS_FSTMT(fluxBufZ)
+
+   nullify(fluxBufX, fluxBufY, fluxBufZ)
 
    ! Get grid variables for incompressible Naiver-Stokes
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
@@ -375,7 +384,8 @@ subroutine Driver_evolveAll()
          ! Enforce flux correction for velocities
          ! currently exclusively implmented for
          ! AMReX configuration
-#ifdef FLASH_GRID_AMREX
+#if 0
+!#ifdef FLASH_GRID_AMREX
          !----------------------------------------------------------------
          call Grid_getMaxRefinement(maxLev, mode=1)
 
@@ -455,7 +465,8 @@ subroutine Driver_evolveAll()
          ! Enforce flux correction for velocities
          ! currently exclusively implmented for
          ! AMReX configuration
-#ifdef FLASH_GRID_AMREX
+#if 0
+!#ifdef FLASH_GRID_AMREX
          !----------------------------------------------------------------
          call Grid_getMaxRefinement(maxLev, mode=1)
 
