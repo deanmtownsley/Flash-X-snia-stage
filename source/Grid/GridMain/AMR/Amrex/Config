@@ -82,5 +82,3 @@ PARAMETER amrexFaceInterpolator STRING "FACE_LINEAR"
 
 D amrexUseBittree Parameter for AMReX mode with Bittree
 PARAMETER gr_amrexUseBittree BOOLEAN FALSE
-
-LIBRARY bittree

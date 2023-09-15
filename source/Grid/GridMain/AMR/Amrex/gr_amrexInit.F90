@@ -23,6 +23,7 @@
 !!
 !!***
 
+#include "AMReX_Config.H"
 #include "constants.h"
 
 subroutine gr_amrexInit()
@@ -138,11 +139,13 @@ subroutine gr_amrexInit()
   call RuntimeParameters_get("gr_amrex_verbosity", verbosity)
   call pp_amr%add   ("v", verbosity)
 
+#ifdef AMREX_USE_BITTREE
   if(gr_meshMe==MASTER_PE .and. gr_amrexUseBittree) then
      write(*,*) "use AMReX in Bittree mode"
   end if
 
   call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
+#endif
 
   if (gr_amrexUseBittree) then
      call pp_amr%add   ("bt_derefine", .TRUE.)

@@ -80,22 +80,22 @@ subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
 
    ! copy interface velocities to flux variables
    ! X direction:
-   fluxBufX(VELC_FLUX, sx, sy:ey, sz:ez) = &
+   fluxBufX(MOMT_FLUX, sx, sy:ey, sz:ez) = &
       facexData(VELC_FACE_VAR, sx, sy:ey, sz:ez)*del(DIR_Y)*del(DIR_Z)
-   fluxBufX(VELC_FLUX, ex + 1, sy:ey, sz:ez) = &
+   fluxBufX(MOMT_FLUX, ex + 1, sy:ey, sz:ez) = &
       facexData(VELC_FACE_VAR, ex + 1, sy:ey, sz:ez)*del(DIR_Y)*del(DIR_Z)
 
    ! Y direction:
-   fluxBufY(VELC_FLUX, sx:ex, sy, sz:ez) = &
+   fluxBufY(MOMT_FLUX, sx:ex, sy, sz:ez) = &
       faceyData(VELC_FACE_VAR, sx:ex, sy, sz:ez)*del(DIR_X)*del(DIR_Z)
-   fluxBufY(VELC_FLUX, sx:ex, ey + 1, sz:ez) = &
+   fluxBufY(MOMT_FLUX, sx:ex, ey + 1, sz:ez) = &
       faceyData(VELC_FACE_VAR, sx:ex, ey + 1, sz:ez)*del(DIR_X)*del(DIR_Z)
 
 #if NDIM == 3
    ! Z direction:
-   fluxBufZ(VELC_FLUX, sx:ex, sy:ey, sz) = &
+   fluxBufZ(MOMT_FLUX, sx:ex, sy:ey, sz) = &
       facezData(VELC_FACE_VAR, sx:ex, sy:ey, sz)*del(DIR_X)*del(DIR_Y)
-   fluxBufZ(VELC_FLUX, sx:ex, sy:ey, ez + 1) = &
+   fluxBufZ(MOMT_FLUX, sx:ex, sy:ey, ez + 1) = &
       facezData(VELC_FACE_VAR, sx:ex, sy:ey, ez + 1)*del(DIR_X)*del(DIR_Y)
 #endif
 

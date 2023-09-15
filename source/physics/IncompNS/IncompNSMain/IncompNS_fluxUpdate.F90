@@ -82,22 +82,22 @@ subroutine IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
    ! update interface velocities with flux variables
    ! X direction:
    facexData(VELC_FACE_VAR, sx, sy:ey, sz:ez) = &
-      fluxBufX(VELC_FLUX, sx, sy:ey, sz:ez)/(del(DIR_Y)*del(DIR_Z))  ! dy*dz
+      fluxBufX(MOMT_FLUX, sx, sy:ey, sz:ez)/(del(DIR_Y)*del(DIR_Z))  ! dy*dz
    facexData(VELC_FACE_VAR, ex + 1, sy:ey, sz:ez) = &
-      fluxBufX(VELC_FLUX, ex + 1, sy:ey, sz:ez)/(del(DIR_Y)*del(DIR_Z))
+      fluxBufX(MOMT_FLUX, ex + 1, sy:ey, sz:ez)/(del(DIR_Y)*del(DIR_Z))
 
    ! Y direction:
    faceyData(VELC_FACE_VAR, sx:ex, sy, sz:ez) = &
-      fluxBufY(VELC_FLUX, sx:ex, sy, sz:ez)/(del(DIR_X)*del(DIR_Z))  ! dx*dz
+      fluxBufY(MOMT_FLUX, sx:ex, sy, sz:ez)/(del(DIR_X)*del(DIR_Z))  ! dx*dz
    faceyData(VELC_FACE_VAR, sx:ex, ey + 1, sz:ez) = &
-      fluxBufY(VELC_FLUX, sx:ex, ey + 1, sz:ez)/(del(DIR_X)*del(DIR_Z))
+      fluxBufY(MOMT_FLUX, sx:ex, ey + 1, sz:ez)/(del(DIR_X)*del(DIR_Z))
 
 #if NDIM == 3
    ! Z direction:
    facezData(VELC_FACE_VAR, sx:ex, sy:ey, sz) = &
-      fluxBufZ(VELC_FLUX, sx:ex, sy:ey, sz)/(del(DIR_X)*del(DIR_Y))  ! dx*dy
+      fluxBufZ(MOMT_FLUX, sx:ex, sy:ey, sz)/(del(DIR_X)*del(DIR_Y))  ! dx*dy
    facezData(VELC_FACE_VAR, sx:ex, sy:ey, ez + 1) = &
-      fluxBufZ(VELC_FLUX, sx:ex, sy:ey, ez + 1)/(del(DIR_X)*del(DIR_Y))
+      fluxBufZ(MOMT_FLUX, sx:ex, sy:ey, ez + 1)/(del(DIR_X)*del(DIR_Y))
 #endif
 
    ! Release pointers:
