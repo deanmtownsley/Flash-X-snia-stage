@@ -123,6 +123,7 @@ LIB_MPI   =
 LIB_MPE   =
 LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
 LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
+LIB_BITTREE =
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
 LIB_MA28 = -L$(MA28_PATH) -lma28

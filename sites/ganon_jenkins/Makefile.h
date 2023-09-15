@@ -9,7 +9,7 @@ MPI_PATH   = /usr
 HDF4_PATH  =
 HDF5_INCLUDE_PATH  = /usr/include/hdf5/openmpi
 HDF5_LIB_PATH = /usr/lib/x86_64-linux-gnu/hdf5/openmpi
-HYPRE_PATH = /usr/local/hypre
+HYPRE_PATH = /hypre/install
 LIB_LAPACK = /usr/lib/x86_64-linux-gnu/liblapack.so /usr/lib/x86_64-linux-gnu/libblas.so
 
 ZLIB_PATH  =
@@ -31,6 +31,7 @@ AMREX_PATH=
 endif
 LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
 
+LIB_BITTREE = 
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
