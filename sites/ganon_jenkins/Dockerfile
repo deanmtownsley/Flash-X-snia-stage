@@ -36,6 +36,8 @@ RUN git clone https://github.com/hypre-space/hypre.git /hypre
 WORKDIR /hypre
 RUN git checkout v2.22.0
 RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/hypre/install && make install
+ENV LD_LIBRARY_PATH=/hypre/install/lib:$LD_LIBRARY_PATH
+ENV DYLD_LIBRARY_PATH=/hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Create an archive directory to store baselins
 RUN mkdir -pv /archive/ganon_jenkins

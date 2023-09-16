@@ -21,6 +21,8 @@ pipeline {
 	        sh 'git submodule update --init'
 	    }
 	    sh 'mpicc -v'
+            sh 'echo $LD_LIBRARY_PATH'
+            sh 'echo $DYLD_LIBRARY_PATH'
 	}}
 
 
