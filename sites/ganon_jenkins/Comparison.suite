@@ -21,7 +21,7 @@
 # adhruv 09/16/2023 - Added comparison tests to improve coverage of incompressible 
 #                     Navier-Stokes simulations
 incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/AMReX/2d" -np 4 -cbase 2023-09-15
-incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 2023-09-15
-incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 2023-09-15
+incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 2023-09-16
+incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 2023-09-16
 #incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/Paramesh/2d" -np 4 -cbase 2023-09-15
 #incompFlow/RisingBubble -t "Comparison/RisingBubble/Paramesh/2d" -np 3 -cbase 2023-09-15

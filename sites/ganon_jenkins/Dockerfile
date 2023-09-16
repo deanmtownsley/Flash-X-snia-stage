@@ -11,6 +11,7 @@ RUN mkdir -pv /archive/ganon_jenkins
 
 # Copy benchmarks from cloud archive
 RUN curl -s -L https://anl.box.com/shared/static/ybxzm1uhgdotxro7q700mahv6gw82ufr | tar xvz -C /archive/ganon_jenkins
+RUN curl -s -L https://anl.box.com/shared/static/a4jgr0rxj8d2l3oqfg8zwcgomscsvliq | tar xvz -C /archive/ganon_jenkins
 
 # Change permissions
 RUN chmod -R 777 /archive/ganon_jenkins/* && ls -l /archive/ganon_jenkins
