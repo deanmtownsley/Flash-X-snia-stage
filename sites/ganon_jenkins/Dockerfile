@@ -15,8 +15,8 @@ RUN apt-get update
 
 # Installation of compilers, tools, and libraries from ubuntu distribution
 RUN apt-get install -y python3 python3-pip gfortran build-essential 
-RUN apt-get libhdf5-openmpi-dev openmpi-bin pkg-config libopenmpi-dev openmpi-bin 
-RUN apt-get libblas-dev liblapack-dev libpnetcdf-dev git python-is-python3
+RUN apt-get install -y libhdf5-openmpi-dev openmpi-bin pkg-config libopenmpi-dev openmpi-bin 
+RUN apt-get install -y libblas-dev liblapack-dev libpnetcdf-dev git python-is-python3
 RUN apt-get install -y curl tar
 
 # Installation of python packages
