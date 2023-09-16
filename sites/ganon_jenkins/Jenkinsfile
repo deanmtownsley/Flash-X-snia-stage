@@ -27,7 +27,7 @@ pipeline {
 	//==================================================//
         // Run all of the official tests using Flash-X-Test //
 	//==================================================//
-        stage('Tests'){ steps{
+        stage('All-Tests'){ steps{
 	    sh "flashxtest init -a /archive -z ${env.WORKSPACE} -s ganon_jenkins"
 	    sh "flashxtest setup-suite sites/ganon_jenkins/*.suite"
 	    sh "flashxtest run-suite"
