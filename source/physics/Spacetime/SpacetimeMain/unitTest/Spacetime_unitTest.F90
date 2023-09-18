@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_unitTest implementation
 
-!> @ingroup SpacetimeMain
+!> @ingroup physics_Spacetime_SpacetimeMain_unitTest
 !!
 !! @details
 !!

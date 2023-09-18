@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molFastRHS stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Adds Spacetime's contribution to the fast RHS for all tiles
 !!

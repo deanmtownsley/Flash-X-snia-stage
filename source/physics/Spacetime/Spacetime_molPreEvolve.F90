@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molPreEvolve stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Perform any necessary work prior to starting evolution
 !!

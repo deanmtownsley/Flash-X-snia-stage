@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molPostTimeStep stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Perform any necessary work after a full timestep
 !!

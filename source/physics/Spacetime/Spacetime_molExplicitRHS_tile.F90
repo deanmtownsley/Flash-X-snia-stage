@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molExplicitRHS_tile stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Adds Spacetime's contribution to the explicit RHS for a single tile
 !!

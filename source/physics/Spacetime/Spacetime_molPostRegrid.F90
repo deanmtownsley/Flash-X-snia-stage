@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molPostRegrid stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Perform any necessary work after any re-gridding operation
 !!

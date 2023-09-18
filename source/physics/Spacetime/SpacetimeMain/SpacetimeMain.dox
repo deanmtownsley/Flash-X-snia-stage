@@ -14,8 +14,8 @@
    @endparblock
 
    @internal
-   @defgroup SpacetimeMain SpacetimeMain
-   @ingroup Spacetime
+   @defgroup physics_Spacetime_SpacetimeMain SpacetimeMain
+   @ingroup physics_Spacetime
 
    @brief Provides grid variables for the ADM and stress-energy tensor quantities
 

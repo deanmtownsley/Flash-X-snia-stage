@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_finalize stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Finalize the Spacetime unit
 !!

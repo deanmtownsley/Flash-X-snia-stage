@@ -13,7 +13,7 @@
    limitations under the License.
    @endparblock
    
-   @defgroup Spacetime Spacetime Unit
+   @defgroup physics_Spacetime Spacetime Unit
    @ingroup physics
 
    @brief Spacetime solvers and utilities

@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_init stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Initialize the Spacetime unit
 !!

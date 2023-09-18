@@ -14,7 +14,7 @@
    @endparblock
 
    @file
-   @ingroup SpacetimeMain
+   @ingroup physics_Spacetime_SpacetimeMain
 
    @brief Re-named variable defines for the ADM variables provided in
    SpacetimeMain

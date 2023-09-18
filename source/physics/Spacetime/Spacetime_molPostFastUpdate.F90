@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_molPostFastUpdate stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Perform any necessary work after an integration stage fast update
 !!

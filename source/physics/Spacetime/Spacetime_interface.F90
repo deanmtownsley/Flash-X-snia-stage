@@ -17,7 +17,7 @@
 !! @details This is the header file for the Spacetime unit that defines
 !!          its public interfaces.
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !! Interfaces to Spacetime public procedures
 module Spacetime_interface
 

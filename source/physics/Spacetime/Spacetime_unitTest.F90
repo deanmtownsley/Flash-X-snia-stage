@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_unitTest stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Perform a unit test of a Spacetime implementation
 !!

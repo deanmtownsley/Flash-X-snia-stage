@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Evolve the spacetime variables by the provided timestep
 !!

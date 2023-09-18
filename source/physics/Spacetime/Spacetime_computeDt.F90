@@ -14,7 +14,7 @@
 !! @file
 !! @brief Spacetime_computeDt stub
 
-!> @ingroup Spacetime
+!> @ingroup physics_Spacetime
 !!
 !! @brief Calculate the minimum required timestep
 !!
