@@ -44,7 +44,6 @@ subroutine dr_molFastRHS(t, activeRHS, dtWeight)
    integer, intent(in) :: activeRHS
    real, intent(in) :: dtWeight
 
-   call Spacetime_molFastRHS(t, activeRHS, dtWeight)
    call Hydro_molFastRHS(t, activeRHS, dtWeight)
    call RadTrans_molFastRHS(t, activeRHS, dtWeight)
    call Simulation_molFastRHS(t, activeRHS, dtWeight)
