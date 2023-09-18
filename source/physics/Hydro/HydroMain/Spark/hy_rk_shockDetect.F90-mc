@@ -20,6 +20,8 @@
 !!NOVARIANTS
 subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
 
+   use Hydro_data, ONLY: hy_threadWithinBlock
+
 #include "Simulation.h"
 #include "constants.h"
 
