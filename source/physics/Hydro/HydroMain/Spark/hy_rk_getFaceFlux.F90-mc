@@ -45,8 +45,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
       
-  use Hydro_data, ONLY : hya_grav, hya_flx, hya_fly, hya_flz, hya_flat3d 
-  use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat, hya_grv, &
+  use Hydro_data, ONLY : hya_flx, hya_fly, hya_flz, hya_flat3d 
+  use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat,&
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
   use Hydro_data, ONLY : klim,lim,limgc,gCells, dir,stage
@@ -73,8 +73,8 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 !!  real, dimension(HY_NUM_VARS) :: VL, VR
   real :: rope(5)
   real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,&
-       hy_grav, hy_flx, hy_fly, hy_flz
-  real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_grv,hy_flat3d
+       hy_flx, hy_fly, hy_flz
+  real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_flat3d
   @M hy_recon_declare
   @M hy_riemann_declare
 
@@ -85,8 +85,6 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 #endif
 
   @M hy_DIR_TARGET_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
-  hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
-
   hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
 
   @M hy_map_fl
@@ -122,13 +120,12 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
      hy_flat(@M hy_bounds(limgc))=>hya_flat
      hy_shck(@M hy_bounds(limgc))=>hya_shck
-     hy_grv(@M hy_bounds(limgc))=>hya_grv
      
      hy_rope(1:NRECON,@M hy_bounds(limgc)) => hya_rope
      hy_uPlus(1:NRECON,@M hy_bounds(limgc)) => hya_uPlus
      hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
 
-     @M hy_DIR_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_grv, hy_rope, hy_uPlus, hy_uMinus])
+     @M hy_DIR_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_rope, hy_uPlus, hy_uMinus])
      ! call Timers_stop("prepare_scratch")
 
      ! call Timers_start("setRope")
@@ -270,21 +267,19 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_permute_loop_end
      @M hy_DIR_HOST_end_do
      !release pointers
-     @M hy_DIR_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck, hy_grv])
+     @M hy_DIR_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck])
      nullify(hy_flux)
      nullify(hy_rope)
      nullify(hy_uPlus)
      nullify(hy_uMinus)
      nullify(hy_flat)
      nullify(hy_shck)
-     nullify(hy_grv)
      
      
   end do ! dir
   @M hy_DIR_HOST_end_parallel
 
   @M hy_DIR_TARGET_exit_data(release, [lim, klim, limgc, stage, dir])
-  nullify(hy_grav)
   nullify(hy_flat3d)
   @M hy_nullFl
   
