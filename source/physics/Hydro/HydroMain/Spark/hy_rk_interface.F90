@@ -41,10 +41,12 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getGraveAccel (hy_starState, hy_del,limits,blkLimitsGC)
-       real, pointer,dimension(:,:,:,:) :: hy_starState
-       real,dimension(MDIM),intent(IN)  :: hy_del
-       integer,dimension(LOW:HIGH,MDIM), intent(IN) :: limits, blkLimitsGC
+     subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC)
+       real, dimension(:,:,:,:), pointer :: starState, grav
+       real, dimension(:), pointer :: radCenter, thtCenter
+       real, dimension(MDIM), intent(IN)  :: deltas
+       integer, intent(IN) :: geometry
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
      end subroutine hy_rk_getGraveAccel
   end interface
   

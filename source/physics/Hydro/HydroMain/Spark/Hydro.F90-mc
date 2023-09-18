@@ -124,6 +124,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
                                      hy_flx, hy_fly, hy_flz, &&
                                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav])
 
         ng=NGUARD-1
         @M hy_setLims(ng)
@@ -158,13 +159,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            end do
         @M hy_end_stages_t
 
-        ng = NGUARD-1
-        @M hy_setLims(ng)
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
-           call hy_rk_getGraveAccel(hy_starState, hy_del, limits, blkLimitsGC)
+           call hy_rk_getGraveAccel(hy_starState, hy_grav, &
+               hy_xCenter, hy_yCenter, hy_del, hy_geometry, blkLimitsGC)
 
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
@@ -311,14 +311,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                  @M hy_calc_lim
               end do
            end do
-           ng = NGUARD-1
-           @M hy_setLims(ng)
+
            !! Begin loop over stages for the telescoping mode.
            do stage=1,last_stage !! this is the do loop statement for telescoping version
 
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
-              call  hy_rk_getGraveAccel (hy_starState,hy_del,limits,blkLimitsGC)
+              call hy_rk_getGraveAccel(hy_starState, hy_grav, &
+                  hy_xCenter, hy_yCenter, hy_del, hy_geometry, blkLimitsGC)
 
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
@@ -405,6 +405,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                             hy_flx, hy_fly, hy_flz, &&
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_exit_data(release, [hy_grav])
            @M hy_release_scr_ptrs
            @M hy_DIR_TARGET_exit_data(release, [Uin])
            @M iter_end
