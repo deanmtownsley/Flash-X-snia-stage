@@ -1,0 +1,14 @@
+!!NOVARIANTS
+subroutine Hydro_finalize()
+
+   use Hydro_data
+
+#include "constants.h"
+
+   implicit none
+
+   @M hy_deallocate_scr
+
+
+end subroutine Hydro_finalize
+

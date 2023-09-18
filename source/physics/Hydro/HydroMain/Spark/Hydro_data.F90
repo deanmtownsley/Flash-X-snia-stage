@@ -98,41 +98,6 @@ module Hydro_data
   integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim,limgc
   integer :: dir,stage
 
-#ifdef OMP_OL
-  !$omp declare target to &
-  !$omp ( hy_cfl, &
-  !$omp   hy_hydroComputeDtFirstCall, &
-  !$omp   hy_updateHydroFluxes, &
-  !$omp   hy_gcMaskSize, &
-  !$omp   hy_restart, &
-  !$omp   hy_useHydro, hy_telescoping, &
-  !$omp   hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs, hya_starState, hya_tmpState, &
-  !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
-  !$omp   hya_rope, hya_flux, hya_shck, &
-  !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
-  !$omp   hya_farea, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter, &
-  !$omp   hy_mfrac, hy_eosData, &
-  !$omp   hy_del, &
-  !$omp   hy_dt, hy_dtmin, &
-  !$omp   hy_shockDetectOn, &
-  !$omp   hy_useTiling, &
-  !$omp   hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, &
-  !$omp   hy_fluxCorrect, hy_fluxCorrectPerLevel, &
-  !$omp   hy_fluxCorVars, &
-  !$omp   hy_geometry, &
-  !$omp   hy_threadWithinBlock, &
-  !$omp   hy_gcMask, hy_maxCells, &
-  !$omp   hy_limRad, &
-  !$omp   hy_cvisc, &
-  !$omp   hy_tiny, &
-  !$omp   hy_gravConst, hy_4piGinv, &
-  !$omp   hy_hybridRiemann, hy_flattening, &
-  !$omp   hy_C_hyp, hy_alphaGLM, hy_lChyp, &
-  !$omp   hy_bref, hy_maxLev, hy_addFluxArray, &
-  !$omp   hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, &
-  !$omp   klim,lim,limgc,gCells, dir, stage)
-#endif OMP_OL
-
 end module Hydro_data
 
 

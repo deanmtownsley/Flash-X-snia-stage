@@ -18,6 +18,7 @@
 !!
 !! @stubref{Hydro_init}
 !<
+!!NOVARIANTS
 subroutine Hydro_init()
 
   use Hydro_data
@@ -37,12 +38,14 @@ subroutine Hydro_init()
 
 #include "constants.h"
 #include "Simulation.h"
+#include "Eos.h"
 #include "Spark.h"
 
   character(len=MAX_STRING_LENGTH) :: str_geometry
   integer :: i
   logical :: threadBlockListBuild, threadWithinBlockBuild
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
+  integer :: max_edge, max_edge_y, max_edge_z, space
 
   ! Set allocation flag to false. This will allow the scratch array to only be allocated once.
 
@@ -234,6 +237,8 @@ subroutine Hydro_init()
 #endif
 
   call check_if_omp_offload()
+
+  @M hy_allocate_scr
 
 contains
 

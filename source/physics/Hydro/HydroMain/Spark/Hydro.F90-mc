@@ -75,8 +75,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   integer :: lev
 
-  integer :: max_edge, max_edge_y, max_edge_z,space
-
   logical :: offload = .false.
 
   if (.NOT. hy_useHydro) return
@@ -107,7 +105,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
-  @M hy_allocate_scr
   stage=1
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      @M hy_stages_nt !! this is the do loop statement for non-telescoping version
@@ -413,7 +410,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M iter_end
         enddo!loop over levels
      endif !Flux correct per Level
-     @M hy_deallocate_scr
 
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
