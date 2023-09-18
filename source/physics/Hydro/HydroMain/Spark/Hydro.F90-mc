@@ -31,7 +31,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
   use Hydro_data, ONLY : klim,lim,limgc,gCells,dir,stage
 
-  use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
+  use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes, hy_rk_shockDetect
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -136,7 +136,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
-        if (hy_telescoping .OR. stage==1) call shockDetect(Uin,limits,blkLimitsGC)
+        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
 
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
@@ -298,7 +298,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
            @M hy_calcDivB
-           call shockDetect(Uin,limits,blkLimitsGC)
+           call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
            ! U* = U0
@@ -419,118 +419,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call Timers_stop("Hydro")
 
 contains
-
-  subroutine shockDetect(Uin,limits,blkLimitsGC)
-
-    use Hydro_data,        only : hy_tiny, hya_Vc
-
-    implicit none
-
-
-    !! ---- Argument List ----------------------------------
-    real, dimension(:,:,:,:), pointer   :: Uin
-    integer, intent(IN) :: limits(LOW:HIGH,MDIM)
-    integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
-    !! -----------------------------------------------------
-
-    integer :: i,j,k,ii,jj,kk
-    logical :: SW1, SW2
-
-
-    real :: divv,gradPx,gradPy,gradPz
-    real :: minP,minC,beta,delta
-    real :: localCfl,cflMax
-    real,dimension(:,:,:),pointer :: hy_Vc
-
-    !necessary for argument for %getDataPtr()
-
-#ifndef SHOK_VAR
-    return
-#endif
-
-    hy_Vc(@M bounds_3d(blkLimitsGC))=>hya_Vc
-
-
-    ! Two parameters that can be adjusted to detect shocks
-    ! with different strengths:
-    ! (a) The lower the values the weaker shocks detected
-    !     (lower the values to detect more shock regions)
-    ! (b) The larger the values the stronger shocks detected
-    !     (increase the values to detect less shock regions)
-    beta = 0.5 !0.5 !10. ! gradP
-    delta= 0.1  !0.1 !2. ! divV
-
-
-    !! Allocate a temporary cell-centered array for sound speed
-
-
-    !! Compute sound speed
-    @M hy_DIR_parallel_loop_simd(3) &
-    @M hy_DIR_private([hy_tiny]) &
-    @M hy_DIR_shared([blkLimitsGC, Uin, hy_Vc])
-    @M loop_3d(blkLimitsGC)
-    Uin(SHOK_VAR,i,j,k) = 0.
-    hy_Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
-         /max(Uin(DENS_VAR,i,j,k),hy_tiny))
-    @M loop_end_3d
-
-    @M hy_DIR_parallel_loop_simd(3) &
-    @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz]) &
-    @M hy_DIR_shared([limits, Uin, hy_Vc, beta, delta])
-    @M loop_3d(limits)
-    ! initialize switch values
-    SW1 = .false.
-    SW2 = .false.
-    minP = HUGE(0.0)
-    minC = HUGE(0.0)
-    do ii = i-1, i+1
-       do jj = j-1*K2D, j+1*K2D
-          do kk = k-1*K3D, k+1*K3D
-             minP = min( minP, Uin(PRES_VAR,ii,jj,kk) )
-             minC = min( minC, hy_Vc(ii,jj,kk) )
-          end do
-       end do
-    end do
-
-    !! We do not need to include non-Cartesian geom factors here.
-    !! Undivided divV
-    divv =        Uin(VELX_VAR,i+1,j,  k  ) - Uin(VELX_VAR,i-1,j,  k  )
-#if NDIM > 1
-    divv = divv + Uin(VELY_VAR,i,  j+1,k  ) - Uin(VELY_VAR,i,  j-1,k  )
-#if NDIM == 3
-    divv = divv + Uin(VELZ_VAR,i,  j,  k+1) - Uin(VELZ_VAR,i,  j,  k-1)
-#endif
-#endif
-    divv = 0.5*divv
-    !! Undivided grad pres
-    gradPx = 0.5*(Uin(PRES_VAR,i+1,j,  k  ) - Uin(PRES_VAR,i-1,j,  k  ))
-    gradPy = 0.
-    gradPz = 0.
-#if NDIM > 1
-    gradPy = 0.5*(Uin(PRES_VAR,i,  j+1,k  ) - Uin(PRES_VAR,i,  j-1,k  ))
-#if NDIM == 3
-    gradPz = 0.5*(Uin(PRES_VAR,i,  j,  k+1) - Uin(PRES_VAR,i,  j,  k-1))
-#endif
-#endif
-    if ( abs(gradPx)+abs(gradPy)+abs(gradPz) .ge. beta*minP ) then
-       SW1 = .true.
-    endif
-    if (-delta*minC .ge. divv) then
-       SW2 = .true.
-    endif
-    if (SW1 .and. SW2) then
-       ! Set SHOCK_VAR to 1.0 if a shock is detected.
-       ! One use is for a local hybrid method in the Hydro unit which
-       ! applies (a diffusive) HLL solver when SHOK_VAR = 1.
-       Uin(SHOK_VAR,i,j,k) = 1.
-    endif !endif (SW1 .and. SW2) then
-    @M loop_end_3d
-    nullify(hy_Vc)
-
-
-  end subroutine shockDetect
-
-
 
   subroutine check_if_on_GPU()
 !$  use omp_lib, ONLY : omp_is_initial_device

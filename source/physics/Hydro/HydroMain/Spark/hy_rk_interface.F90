@@ -60,4 +60,14 @@ module hy_rk_interface
      end subroutine hy_rk_correctFluxes
   end interface
 
+
+  interface
+     subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
+       real, pointer, dimension(:, :, :, :) :: Uin
+       integer, intent(IN) :: limits(LOW:HIGH, MDIM)
+       integer, intent(IN) :: blkLimitsGC(LOW:HIGH, MDIM)
+       real, intent(IN) :: tinyZero
+     end subroutine hy_rk_shockDetect
+  end interface
+
 end module hy_rk_interface
