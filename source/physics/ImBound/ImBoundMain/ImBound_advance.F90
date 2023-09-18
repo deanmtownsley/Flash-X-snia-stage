@@ -48,6 +48,9 @@ subroutine ImBound_advance(bodyInfo, time, dt)
    real, dimension(2) :: vector
    integer :: panelIndex
 
+#if NDIM==MDIM
+
+#else
    rotate(:, 1) = (/cos(dt*bodyInfo%theta(3)), -sin(dt*bodyInfo%theta(3))/)
    rotate(:, 2) = (/sin(dt*bodyInfo%theta(3)), cos(dt*bodyInfo%theta(3))/)
 
@@ -68,13 +71,13 @@ subroutine ImBound_advance(bodyInfo, time, dt)
          matmul(bodyInfo%elems(panelIndex)%normal(1:2), rotate)
 
    end do
+#endif
 
    bodyInfo%boundBox(:, IAXIS) = (/minval(bodyInfo%elems(:)%center(1)), &
                                    maxval(bodyInfo%elems(:)%center(1))/)
 
    bodyInfo%boundBox(:, JAXIS) = (/minval(bodyInfo%elems(:)%center(2)), &
                                    maxval(bodyInfo%elems(:)%center(2))/)
-
    call ib_annBuildTree(bodyInfo)
 
 end subroutine ImBound_advance

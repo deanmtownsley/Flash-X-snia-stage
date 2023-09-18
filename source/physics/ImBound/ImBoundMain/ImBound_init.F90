@@ -68,6 +68,7 @@ subroutine ImBound_init(restart)
    end if
 
    allocate (ib_bodyInfo(ib_numBodies))
+   allocate (ib_annIdx(ib_annQueries))
 
    do ibd = 1, ib_numBodies
       write (bodyFile, "(A,A,I4.4)") trim(ib_bodyName), '_hdf5_ibd_', ibd
