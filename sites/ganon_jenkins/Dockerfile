@@ -40,12 +40,10 @@ ENV LD_LIBRARY_PATH=/hypre/install/lib:$LD_LIBRARY_PATH
 ENV DYLD_LIBRARY_PATH=/hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Create an archive directory to store baselins
-RUN mkdir -pv /archive/ganon_jenkins
+RUN mkdir -pv /archive/ganon_jenkins/benchmarks
 
 # Copy benchmarks from cloud archive and unpack them into archive
-RUN curl -s -L https://anl.box.com/shared/static/ybxzm1uhgdotxro7q700mahv6gw82ufr | tar xvz -C /archive/ganon_jenkins
-RUN curl -s -L https://anl.box.com/shared/static/a4jgr0rxj8d2l3oqfg8zwcgomscsvliq | tar xvz -C /archive/ganon_jenkins
-RUN curl -s -L https://anl.box.com/shared/static/gu7qm8xq6pfcpcdp0s8vggumdxwg34fl | tar xvz -C /archive/ganon_jenkins
+RUN curl -s -L https://anl.box.com/shared/static/74yz29aufgc46v8t78r0pligdwm4cn6e | tar xvz --strip-components=1 -C archive/ganon_jenkins/benchmarks
 
 # Change permissions for the archive directory
 RUN chmod -R 777 /archive/ganon_jenkins/* && ls -l /archive/ganon_jenkins
