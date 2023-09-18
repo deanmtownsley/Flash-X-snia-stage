@@ -30,7 +30,6 @@ module Hydro_data
   real, target, allocatable :: hya_flux(:)
   real, target, allocatable :: hya_flat(:)
   real, target, allocatable :: hya_shck(:)
-  real, target, allocatable :: hya_grv(:)
 
   real, target, allocatable :: hya_rope(:)
   real, target, allocatable :: hya_uPlus(:)
