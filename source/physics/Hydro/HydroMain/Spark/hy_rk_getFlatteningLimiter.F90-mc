@@ -31,6 +31,8 @@
 
 subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
 
+   use Hydro_data, ONLY: hy_threadWithinBlock
+
    implicit none
 
 #include "Simulation.h"
