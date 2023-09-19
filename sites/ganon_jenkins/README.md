@@ -9,7 +9,7 @@ tests to `Comparision.suite` and adding the date stamp of the approved benchmark
 
 The benchmarks should be available as compressed tar files. See following files for example:
 
-https://anl.box.com/s/74yz29aufgc46v8t78r0pligdwm4cn6e
+https://anl.box.com/s/3ic5yepg7ad2m98g6bf4grjynep4aj88
 
 This tar archive should be unpacked into `/archive/ganon_jenkins/0000-00-00`. This is done to ensure that the size 
 of benchmarks stays under control. If benchmarks are updated, a new tar file should be created along with addition 
