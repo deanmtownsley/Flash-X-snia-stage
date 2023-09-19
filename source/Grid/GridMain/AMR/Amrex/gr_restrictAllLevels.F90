@@ -52,7 +52,10 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   use amrex_amrcore_module,      ONLY : amrex_get_finest_level, &
                                         amrex_geom, &
                                         amrex_ref_ratio
-  use amrex_multifabutil_module, ONLY : amrex_average_down, amrex_average_down_faces
+  use amrex_multifabutil_module, ONLY : amrex_average_down
+#if NFACE_VARS > 0
+  use amrex_multifabutil_module, ONLY : amrex_average_down_faces
+#endif
 
   use Grid_interface,            ONLY : Grid_getTileIterator, &
                                         Grid_releaseTileIterator
