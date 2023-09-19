@@ -22,11 +22,21 @@ module hy_rk_interface
 #include "constants.h"
 #include "Spark.h"
 
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+
   interface
-     subroutine  hy_rk_getFaceFlux (hy_starState, blklimits,blkLimitsGC, limits)
-       real, pointer,dimension(:,:,:,:) :: hy_starState       
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blklimitsGC
-       real,dimension(MDIM) :: hy_del
+     subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, &
+                                   stage, hybridRiemann, cvisc, tinyZero, smalld, smallp, smallx, &
+                                   a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
+       real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
+       real, dimension(:,:,:), pointer :: flat3d
+       integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
+       integer, intent(IN) :: stage
+       logical, intent(IN) :: hybridRiemann
+       real, intent(IN) :: cvisc, smalld, smallp, smallx, tinyZero
+       real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
      end subroutine  hy_rk_getFaceFlux
   end interface
 

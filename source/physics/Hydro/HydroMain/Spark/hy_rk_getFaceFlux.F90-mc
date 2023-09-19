@@ -22,35 +22,36 @@
 !! corresponding macros.
 !!
 !! @note
-!! Initially stores grid data in @p hy_rope by permuting indices <tt> i,j,k </tt>,
+!! Initially stores grid data in @p p_rope by permuting indices <tt> i,j,k </tt>,
 !! depending on the direction of the flux.
 !! Thus, the <tt>i</tt>-index is always the direction where this subroutine
-!! solves interfacial fluxes. See the "hy_setRope" macro.
+!! solves interfacial fluxes. See @p hy_setRope macro.
+!! The index limits are determined by the input paramters @p lim and @p limgc,
+!! and they also should be permutated indeces. See @p hy_calc_lim macro.
 !!
-!! @param hy_starState  Pointer to input solution data
-!! @param blkLimits     Index limits for interior of the tile
-!! @param blkLimitsGC   Index limits for exterior of the tile
-!! @param limits        sets limits of the fluxes.
+!! @param starState      Pointer to input solution data
+!! @param flat3d         Flattening limiter
+!! @param flx,fly,flz    Output fluxes
+!! @param lim            Permutated index limits for interior of the part of tile
+!! @param limgc          Permutated index limits for outerior of the part of tile
+!! @param stage          Current RK stage
+!! @param hybridRiemann  On/Off switch for hybrid Riemann solver
+!! @param cvisc          Artificial viscosity constant
+!! @param tinyZero       A tiny number to check unphysical negativity
+!! @param smalld         Density cutoff value
+!! @param smallp         Pressure cutoff value
+!! @param smallx         Abundance cutoff value
+!! @param a_[*]          Scratch spaces for internal calculations
 !!
-!! @todo
-!! The input arguments should be reconsidered.
-!! "limits" looks unnecessary, and the permutating limits,
-!! "lim" and "limgc" could be input arguments.
-!! "dir" and "stage" as well.
 !<
 !!NOVARIANTS
-!!Reorder(4):hy_starState,hy_fl[xyz]
+!!Reorder(4):starState,fl[xyz]
 
-subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
-  use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
-       hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
-      
-  use Hydro_data, ONLY : hya_flx, hya_fly, hya_flz, hya_flat3d 
-  use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat,&
-       hya_shck, hya_flux
-  use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
-  use Hydro_data, ONLY : lim,limgc,gCells, dir,stage
-  use Timers_interface, ONLY : Timers_start, Timers_stop
+subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, stage, &
+                              hybridRiemann, cvisc, tinyZero, smalld, smallp, smallx, &
+                              a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
+
+  use Hydro_data, ONLY : hy_threadWithinBlock
 
   implicit none
 
@@ -58,21 +59,24 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
 #include "constants.h"
 #include "Spark.h"
 
-  real,dimension(:,:,:,:),pointer ::hy_starState
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
-  integer :: i,j,k, n, g, v,  ierr
-  real :: cvisc, VenerLo, VenerHi
-  integer :: s
+  real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
+  real, dimension(:,:,:), pointer :: flat3d
+  integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
+  integer, intent(IN) :: stage
+  logical, intent(IN) :: hybridRiemann
+  real, intent(IN) :: cvisc, smalld, smallp, smallx, tinyZero
+  real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
+
+  real, dimension(:,:,:,:), pointer :: p_rope, p_uPlus, p_uMinus, p_flux
+  real, dimension(:,:,:), pointer :: p_flat, p_shck
+
+  integer :: i, j, k, s, n, v, dir, ierr
+  real :: avisc, VenerLo, VenerHi
   real :: spcSumInv
   real, dimension(NSPECIES) :: spc
-  real  :: u2,E,B2,UB,Ptot
+  real  :: u2, E, B2, UB, Ptot
 
   logical :: inShock
-!!  real, dimension(HY_NUM_VARS) :: VL, VR
-  real :: rope(5)
-  real,dimension(:,:,:,:),pointer::hy_rope, hy_uPlus, hy_uMinus,hy_flux,&
-       hy_flx, hy_fly, hy_flz
-  real,dimension(:,:,:),pointer :: hy_flat,hy_shck,hy_flat3d
   @M hy_recon_declare
   @M hy_riemann_declare
 
@@ -83,11 +87,7 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
 #endif
 
   @M hy_DIR_TARGET_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
-  hy_flat3d(@M bounds_3d(blkLimitsGC))=>hya_flat3d
-
-  @M hy_map_fl
-  
-  @M hy_DIR_TARGET_enter_data(alloc, [lim, limgc, stage, dir])
+  @M hy_DIR_TARGET_enter_data(to, [lim, limgc, stage, dir])
 
 
   !  Begin loop over zones
@@ -96,17 +96,17 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
   @M hy_DIR_HOST_getFaceFlux_private
   do dir = 1, NDIM
      ! call Timers_start("prepare_scratch")
-     @M hy_DIR_TARGET_update_to([lim, limgc, dir, stage])
+     @M hy_DIR_TARGET_update_to([dir])
 
-     hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
-     hy_flat(@M hy_bounds(limgc))=>hya_flat
-     hy_shck(@M hy_bounds(limgc))=>hya_shck
-     
-     hy_rope(1:NRECON,@M hy_bounds(limgc)) => hya_rope
-     hy_uPlus(1:NRECON,@M hy_bounds(limgc)) => hya_uPlus
-     hy_uMinus(1:NRECON,@M hy_bounds(limgc)) => hya_uMinus
+     p_flux(1:NFLUXES,@M hy_bounds(limgc)) => a_flux
+     p_flat(@M hy_bounds(limgc)) => a_flat
+     p_shck(@M hy_bounds(limgc)) => a_shck
 
-     @M hy_DIR_TARGET_enter_data(alloc, [hy_flux, hy_flat, hy_shck, hy_rope, hy_uPlus, hy_uMinus])
+     p_rope(1:NRECON,@M hy_bounds(limgc)) => a_rope
+     p_uPlus(1:NRECON,@M hy_bounds(limgc)) => a_uPlus
+     p_uMinus(1:NRECON,@M hy_bounds(limgc)) => a_uMinus
+
+     @M hy_DIR_TARGET_enter_data(alloc, [p_flux, p_flat, p_shck, p_rope, p_uPlus, p_uMinus])
      ! call Timers_stop("prepare_scratch")
 
      ! call Timers_start("setRope")
@@ -144,8 +144,8 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
      @M hy_DIR_TARGET_normalize_species_shared
      @M hy_inner_loop_ext_i(lim)
         ! Limit and renormalize the species.
-        @M hy_normalize_species( hy_uPlus )
-        @M hy_normalize_species( hy_uMinus )
+        @M hy_normalize_species( p_uPlus )
+        @M hy_normalize_species( p_uMinus )
      @M hy_break_loop
      ! call Timers_stop("setrem")
 
@@ -154,46 +154,46 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
      @M hy_DIR_TARGET_riemann_private &
      @M hy_DIR_TARGET_riemann_shared
      @M hy_inner_loop_plus(lim,1,0,0)
-        VL = hy_uPlus(1:HY_NUM_VARS,i-1,j,k)
-        VR = hy_uMinus(1:HY_NUM_VARS,i,j,k) 
-        inShock = any(hy_shck(i-1:i,j,k) /= 0.0)
+        VL = p_uPlus(1:HY_NUM_VARS,i-1,j,k)
+        VR = p_uMinus(1:HY_NUM_VARS,i,j,k) 
+        inShock = any(p_shck(i-1:i,j,k) /= 0.0)
         @M hy_riemann
-        hy_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
+        p_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
      @M hy_break_loop
      ! call Timers_stop("riemann")
 
-     ! call Timers_start("cvisc")
+     ! call Timers_start("avisc")
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_avisc_private &
      @M hy_DIR_TARGET_avisc_shared
      @M hy_inner_loop_plus(lim,1,0,0)
         ! Add artificial viscosity for strong-shock capturing
-        cvisc = hy_cvisc*max(-(hy_rope(HY_VELX+dir-1,i,j,k) - hy_rope(HY_VELX+dir-1,i-1,j,k)),0.)
+        avisc = cvisc*max(-(p_rope(HY_VELX+dir-1,i,j,k) - p_rope(HY_VELX+dir-1,i-1,j,k)),0.)
         ! Construct minus and plus TOTAL energy densities
-        VenerLo = hy_rope(HY_DENS,i-1,j,k) &
-                  *0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i-1,j,k),hy_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
-                  + hy_rope(HY_RHOE,i-1,j,k)
-        VenerHi = hy_rope(HY_DENS,i,j,k) &
-                  *0.5*(dot_product(hy_rope(HY_VELX:HY_VELZ,i,j,k),hy_rope(HY_VELX:HY_VELZ,i,j,k)))&
-                  + hy_rope(HY_RHOE,i,j,k)
+        VenerLo = p_rope(HY_DENS,i-1,j,k) &
+                  *0.5*(dot_product(p_rope(HY_VELX:HY_VELZ,i-1,j,k),p_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
+                  + p_rope(HY_RHOE,i-1,j,k)
+        VenerHi = p_rope(HY_DENS,i,j,k) &
+                  *0.5*(dot_product(p_rope(HY_VELX:HY_VELZ,i,j,k),p_rope(HY_VELX:HY_VELZ,i,j,k)))&
+                  + p_rope(HY_RHOE,i,j,k)
 
-        hy_flux(HY_MASS:HY_ENER,i,j,k) = &
-              hy_flux(HY_MASS:HY_ENER,i,j,k) &
-                 + cvisc*(/ hy_rope(HY_DENS,i-1,j,k) - hy_rope(HY_DENS,i,j,k), &
-                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELX,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELX,i,j,k), &
-                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELY,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELY,i,j,k), &
-                            hy_rope(HY_DENS,i-1,j,k)*hy_rope(HY_VELZ,i-1,j,k) - hy_rope(HY_DENS,i,j,k)*hy_rope(HY_VELZ,i,j,k), &
+        p_flux(HY_MASS:HY_ENER,i,j,k) = &
+              p_flux(HY_MASS:HY_ENER,i,j,k) &
+                 + avisc*(/ p_rope(HY_DENS,i-1,j,k) - p_rope(HY_DENS,i,j,k), &
+                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELX,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELX,i,j,k), &
+                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELY,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELY,i,j,k), &
+                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELZ,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELZ,i,j,k), &
                             VenerLo - VenerHi &
                          /)
 
               
 #ifdef SPARK_GLM
-        hy_flux(HY_FMGX:HY_FPSI,i,j,k) = &
-              hy_flux(HY_FMGX:HY_FPSI,i,j,k) &
-                 + cvisc*(/ hy_rope(HY_MAGX,i-1,j,k) - hy_rope(HY_MAGX,i,j,k), &
-                            hy_rope(HY_MAGY,i-1,j,k) - hy_rope(HY_MAGY,i,j,k), &
-                            hy_rope(HY_MAGZ,i-1,j,k) - hy_rope(HY_MAGZ,i,j,k), &
-                            hy_rope(HY_PSIB,i-1,j,k) - hy_rope(HY_PSIB,i,j,k) &
+        p_flux(HY_FMGX:HY_FPSI,i,j,k) = &
+              p_flux(HY_FMGX:HY_FPSI,i,j,k) &
+                 + avisc*(/ p_rope(HY_MAGX,i-1,j,k) - p_rope(HY_MAGX,i,j,k), &
+                            p_rope(HY_MAGY,i-1,j,k) - p_rope(HY_MAGY,i,j,k), &
+                            p_rope(HY_MAGZ,i-1,j,k) - p_rope(HY_MAGZ,i,j,k), &
+                            p_rope(HY_PSIB,i-1,j,k) - p_rope(HY_PSIB,i,j,k) &
                          /)
 #endif
               ! Here, we compute the species and mass scalar
@@ -201,14 +201,14 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
               ! mass scalar interface values
 #if NSPECIES+NMASS_SCALARS>0
               ! AH: TODO: Potentially make loop explicit
-         if (hy_flux(HY_MASS ,i,j,k) > 0.) then
-            hy_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*hy_flux(HY_MASS,i,j,k)
+         if (p_flux(HY_MASS ,i,j,k) > 0.) then
+            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*p_flux(HY_MASS,i,j,k)
          else
-            hy_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*hy_flux(HY_MASS,i,j,k)
+            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*p_flux(HY_MASS,i,j,k)
          end if
 #endif
      @M hy_break_loop
-     ! call Timers_stop("cvisc")
+     ! call Timers_stop("avisc")
 
      ! call Timers_start("flux")
      ! ***************
@@ -218,29 +218,26 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
      select case(dir)
      case(IAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(hy_flx) &
-        @M hy_DIR_TARGET_map(from, [hy_flx])
+        @M hy_DIR_TARGET_saveFlux_shared(flx)
         @M hy_inner_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
-              hy_flx(v,i,j,k) = hy_flux(v,i,j,k)
+              flx(v,i,j,k) = p_flux(v,i,j,k)
            end do
         @M hy_break_loop
      case (JAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(hy_fly) &
-        @M hy_DIR_TARGET_map(from, [hy_fly])
+        @M hy_DIR_TARGET_saveFlux_shared(fly)
         @M hy_inner_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
-              hy_fly(v,j,i,k) = hy_flux(v,i,j,k)
+              fly(v,j,i,k) = p_flux(v,i,j,k)
            end do
         @M hy_break_loop
      case (KAXIS)
         @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(hy_flz) &
-        @M hy_DIR_TARGET_map(from, [hy_flz])
+        @M hy_DIR_TARGET_saveFlux_shared(flz)
         @M hy_inner_loop_plus(lim,1,0,0)
            do v = 1, NFLUXES
-              hy_flz(v,j,k,i) = hy_flux(v,i,j,k)
+              flz(v,j,k,i) = p_flux(v,i,j,k)
            end do
         @M hy_break_loop
      end select
@@ -248,21 +245,17 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
      @M hy_permute_loop_end
      @M hy_DIR_HOST_end_do
      !release pointers
-     @M hy_DIR_TARGET_exit_data(release, [hy_flux, hy_rope, hy_uPlus, hy_uMinus, hy_flat, hy_shck])
-     nullify(hy_flux)
-     nullify(hy_rope)
-     nullify(hy_uPlus)
-     nullify(hy_uMinus)
-     nullify(hy_flat)
-     nullify(hy_shck)
-     
-     
+     @M hy_DIR_TARGET_exit_data(release, [p_flux, p_rope, p_uPlus, p_uMinus, p_flat, p_shck])
+     nullify(p_flux)
+     nullify(p_rope)
+     nullify(p_uPlus)
+     nullify(p_uMinus)
+     nullify(p_flat)
+     nullify(p_shck)
   end do ! dir
   @M hy_DIR_HOST_end_parallel
 
   @M hy_DIR_TARGET_exit_data(release, [lim, limgc, stage, dir])
-  nullify(hy_flat3d)
-  @M hy_nullFl
 
 end subroutine hy_rk_getFaceFlux
 
