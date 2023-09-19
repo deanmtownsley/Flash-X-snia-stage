@@ -41,12 +41,14 @@ ENV DYLD_LIBRARY_PATH=/hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Create an archive directory to store baselins
 RUN mkdir -pv /archive/ganon_jenkins/0000-00-00
+ENV ARCHIVEDIR=/archive/ganon_jenkins/0000-00-00
 
 # Copy benchmarks from cloud archive and unpack them into archive
-RUN curl -s -L https://anl.box.com/shared/static/74yz29aufgc46v8t78r0pligdwm4cn6e | tar xvz --strip-components=1 -C /archive/ganon_jenkins/0000-00-00
+RUN curl -s -L https://anl.box.com/shared/static/74yz29aufgc46v8t78r0pligdwm4cn6e | \
+    tar xvz --strip-components=1 -C $ARCHIVEDIR
 
 # Change permissions for the archive directory
-RUN chmod -R 777 /archive/ganon_jenkins/* && ls -l /archive/ganon_jenkins
+RUN chmod -R 777 $ARCHIVEDIR && ls -l $ARCHIVEDIR
 
 # Run container in non-root mode. This requirement is imposed by Flash-X-Test for security.
 ENV USER=jenkins
