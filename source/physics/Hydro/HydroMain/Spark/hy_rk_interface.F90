@@ -72,4 +72,13 @@ module hy_rk_interface
      end subroutine hy_rk_shockDetect
   end interface
 
+  interface
+     subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
+        logical, intent(IN) :: is_flattening
+        real, dimension(:,:,:,:), pointer :: starState
+        real, dimension(:,:,:), pointer :: flat3d
+        integer, intent(IN), dimension(LOW:HIGH, MDIM) :: limits
+     end subroutine hy_rk_getFlatteningLimiter
+   end interface
+
 end module hy_rk_interface

@@ -25,13 +25,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   @M hy_scratch_use
   use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping,hy_maxLev,&
                          hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray,&
-                         hy_threadWithinBlock
+                         hy_threadWithinBlock, hy_flattening
 
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
   use Hydro_data, ONLY : lim,limgc,gCells,dir,stage
 
-  use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes, hy_rk_shockDetect
+  use hy_rk_interface, ONLY : hy_rk_getFaceFlux, &
+                              hy_rk_getGraveAccel, &
+                              hy_rk_updateSoln, &
+                              hy_rk_correctFluxes, &
+                              hy_rk_shockDetect, &
+                              hy_rk_getFlatteningLimiter
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
@@ -171,6 +176,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ng=hy_limitsArray(stage)
            @M hy_setLims(ng)
            @M hy_DIR_TARGET_update_to([limits])
+
+           call hy_rk_getFlatteningLimiter(hy_flattening, hy_starState, hy_flat3d, limits)
 
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(hy_starState, blklimits, blkLimitsGC, limits)
@@ -325,6 +332,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ng=hy_limitsArray(stage)
               @M hy_setLims(ng)
               @M hy_DIR_TARGET_update_to([limits])
+
+              call hy_rk_getFlatteningLimiter(hy_flattening, hy_starState, hy_flat3d, limits)
 
               ! Perform reconstruction and flux calculation
               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells

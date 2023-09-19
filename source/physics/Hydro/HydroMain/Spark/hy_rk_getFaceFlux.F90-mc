@@ -88,23 +88,6 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
   @M hy_map_fl
   
   @M hy_DIR_TARGET_enter_data(alloc, [lim, limgc, stage, dir])
-  if (hy_flattening) then
-     ! AH: TODO: OpenMP for flattening
-     call flattening(limits)
-  else
-     ! call Timers_start("hy_flat3d")
-     !! TODO: Set this once for both rk steps.
-
-     @M hy_DIR_TARGET_parallel_loop(3) &
-     @M hy_DIR_TARGET_flat3d_shared &
-     @M hy_DIR_TARGET_map(to, [blkLimitsGC])
-     @M loop_3d(blkLimitsGC)
-              hy_flat3d(i,j,k) = 1.0
-     @M loop_end_3d
-
-     ! call Timers_stop("hy_flat3d")
-  end if
-  
 
 
   !  Begin loop over zones
@@ -280,96 +263,7 @@ subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
   @M hy_DIR_TARGET_exit_data(release, [lim, limgc, stage, dir])
   nullify(hy_flat3d)
   @M hy_nullFl
-  
-  
-  
-contains
-  
-  !!Set loop dimensions based on the direction of the pencil set
-  
-  !! the 'pencil' holds a 1D array of the solution data to be operated
-  !! on.  It is unrolled this way so that all data that are needed for
-  !! interpolation and flux calculation are truly contiguous in memory
-  !! space.  And so that it all fits in cache at once...
-  !! The maximum amount of calculation is done on these data prior to
-  !! reseting the pencil data to a new ray through the block.
-  !! If I were talented at ASCII art, I would make a diagram...
-  
-  
-  !~ Flattening has not been tested yet in FLASH5, only 1D & 2D runs so far.
-  subroutine flattening(limits)
-    !! This follows Miller & Colella 2002
-    implicit none
-    integer, parameter :: kx = 1
-    integer, parameter :: ky = K2D
-    integer, parameter :: kz = K3D
-    integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
-    !real, intent(OUT) :: hy_flat3d(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-    !real :: hy_flatTilde(NDIM,GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC)
-    real :: hy_flatTilde(NDIM,limits(LOW,IAXIS)-kx:limits(HIGH,IAXIS)+kx,&
-         limits(LOW,JAXIS)-ky:limits(HIGH,JAXIS)+ky,&
-         limits(LOW,KAXIS)-kz:limits(HIGH,KAXIS)+kz)
-    real :: beta, Z
-    real, parameter :: betaMin = 0.75, betaMax = 0.85
-    real, parameter :: Zmin = 0.25, Zmax = 0.75
-    integer :: i,j,k
 
-    do k=limits(LOW,KAXIS)-kz, limits(HIGH,KAXIS)+kz
-       do j=limits(LOW,JAXIS)-ky, limits(HIGH,JAXIS)+ky
-          do i=limits(LOW,IAXIS)-kx, limits(HIGH,IAXIS)+kx
-             !1e-99 used to be TINY(1.0) but that produced Seg Faults
-             beta = abs(hy_starState(PRES_VAR,i+1,j,k)-hy_starState(PRES_VAR,i-1,j,k)) &
-                  / max(1e-99, abs(hy_starState(PRES_VAR,i+2,j,k)-hy_starState(PRES_VAR,i-2,j,k)))
-             Z    = abs(hy_starState(PRES_VAR,i+1,j,k)-hy_starState(PRES_VAR,i-1,j,k)) &
-                  / (hy_starState(GAMC_VAR,i,j,k)*hy_starState(PRES_VAR,i,j,k))
-             hy_flatTilde(IAXIS,i,j,k) = max(0.,min(1.,(betaMax-beta)/(betaMax-betaMin)))
-             if (hy_starState(VELX_VAR,i+1,j,k)<hy_starState(VELX_VAR,i,j,k)) then
-                hy_flatTilde(IAXIS,i,j,k) = max(hy_flatTilde(IAXIS,i,j,k), &
-                     &                   min(1., (Zmax-Z)/(Zmax-Zmin)))
-             else
-                hy_flatTilde(IAXIS,i,j,k) = 1.0
-             end if
-#if NDIM>1
-             beta = abs(hy_starState(PRES_VAR,i,j+1,k)-hy_starState(PRES_VAR,i,j-1,k)) &
-                  / max(1.e-99,abs(hy_starState(PRES_VAR,i,j+2,k)-hy_starState(PRES_VAR,i,j-2,k)))
-             Z    = abs(hy_starState(PRES_VAR,i,j+1,k)-hy_starState(PRES_VAR,i,j-1,k)) &
-                  / (hy_starState(GAMC_VAR,i,j,k)*hy_starState(PRES_VAR,i,j,k))
-             hy_flatTilde(JAXIS,i,j,k) = max(0.,min(1.,(betaMax-beta)/(betaMax-betaMin)))
-             if (hy_starState(VELY_VAR,i,j+1,k)<hy_starState(VELY_VAR,i,j,k)) then
-                hy_flatTilde(JAXIS,i,j,k) = max(hy_flatTilde(JAXIS,i,j,k), &
-                     &                   min(1., (Zmax-Z)/(Zmax-Zmin)))
-             else
-                hy_flatTilde(JAXIS,i,j,k) = 1.0
-             end if
-#if NDIM==3
-             beta = abs(hy_starState(PRES_VAR,i,j,k+1)-hy_starState(PRES_VAR,i,j,k-1)) &
-                  / max(1.e-99,abs(hy_starState(PRES_VAR,i,j,k+2)-hy_starState(PRES_VAR,i,j,k-2)))
-             Z    = abs(hy_starState(PRES_VAR,i,j,k+1)-hy_starState(PRES_VAR,i,j,k-1)) &
-                  / (hy_starState(GAMC_VAR,i,j,k)*hy_starState(PRES_VAR,i,j,k))
-             hy_flatTilde(KAXIS,i,j,k) = max(0.,min(1.,(betaMax-beta)/(betaMax-betaMin)))
-             if (hy_starState(VELZ_VAR,i,j,k+1)<hy_starState(VELZ_VAR,i,j,k)) then
-                hy_flatTilde(KAXIS,i,j,k) = max(hy_flatTilde(KAXIS,i,j,k), &
-                     &                   min(1., (Zmax-Z)/(Zmax-Zmin)))
-             else
-                hy_flatTilde(KAXIS,i,j,k) = 1.0
-             end if
-#endif
-#endif
-          end do
-       end do
-    end do
-    do k=limits(LOW,KAXIS)-kz, limits(HIGH,KAXIS)+kz
-       do j=limits(LOW,JAXIS)-ky, limits(HIGH,JAXIS)+ky
-          do i=limits(LOW,IAXIS)-kx, limits(HIGH,IAXIS)+kx
-             hy_flat3d(i,j,k) = minval(hy_flatTilde(1:NDIM,i,j,k))
-#ifdef FLAT_VAR
-             hy_starState(FLAT_VAR,i,j,k) = hy_flat3d(i,j,k)
-#endif
-          end do
-       end do
-    end do
-  end subroutine flattening
-  
 end subroutine hy_rk_getFaceFlux
 
 
