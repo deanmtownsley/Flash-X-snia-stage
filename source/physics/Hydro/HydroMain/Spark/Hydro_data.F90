@@ -94,7 +94,7 @@ module Hydro_data
   !! also they are not really module scope, they are being put here so that all the variable that
   !! need to be explicitly mapped to the device memory are all in one place
   integer, dimension(MDIM) :: gCells
-  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: klim,lim,limgc
+  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: lim,limgc
   integer :: dir,stage
 
 end module Hydro_data

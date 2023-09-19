@@ -41,7 +41,7 @@
 !!NOVARIANTS
 !!Reorder(4):hy_starState,hy_fl[xyz]
 
-subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
+subroutine hy_rk_getFaceFlux (hy_starState, blklimits, blkLimitsGC, limits)
   use Hydro_data, ONLY : hy_threadWithinBlock,hy_smalldens, &
        hy_smallE, hy_smallpres, hy_smallX, hy_cvisc, hy_flattening
       
@@ -49,7 +49,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   use Hydro_data, ONLY : hya_starState,hya_rope, hya_uPlus, hya_uMinus, hya_flat,&
        hya_shck, hya_flux
   use Hydro_data, ONLY : hy_del, hy_tiny, hy_hybridRiemann, hy_C_hyp
-  use Hydro_data, ONLY : klim,lim,limgc,gCells, dir,stage
+  use Hydro_data, ONLY : lim,limgc,gCells, dir,stage
   use Timers_interface, ONLY : Timers_start, Timers_stop
 
   implicit none
@@ -61,9 +61,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   real,dimension(:,:,:,:),pointer ::hy_starState
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits, blkLimits, blkLimitsGC
   integer :: i,j,k, n, g, v,  ierr
-  integer :: im1
-  character(len = 2) :: dir_str
-  real :: cvisc, VenerLo, VenerHi, accelM, accelP,dx
+  real :: cvisc, VenerLo, VenerHi
   integer :: s
   real :: spcSumInv
   real, dimension(NSPECIES) :: spc
@@ -89,7 +87,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
 
   @M hy_map_fl
   
-  @M hy_DIR_TARGET_enter_data(alloc, [lim, klim, limgc, stage, dir])
+  @M hy_DIR_TARGET_enter_data(alloc, [lim, limgc, stage, dir])
   if (hy_flattening) then
      ! AH: TODO: OpenMP for flattening
      call flattening(limits)
@@ -115,7 +113,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   @M hy_DIR_HOST_getFaceFlux_private
   do dir = 1, NDIM
      ! call Timers_start("prepare_scratch")
-     @M hy_DIR_TARGET_update_to([lim, limgc, klim, dir, stage])
+     @M hy_DIR_TARGET_update_to([lim, limgc, dir, stage])
 
      hy_flux(1:NFLUXES,@M hy_bounds(limgc))=>hya_flux
      hy_flat(@M hy_bounds(limgc))=>hya_flat
@@ -150,7 +148,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_parallel_loop(4) &
      @M hy_DIR_TARGET_recon_private &
      @M hy_DIR_TARGET_recon_shared
-     @M hy_inner_loop(klim)
+     @M hy_inner_loop_ext_i(lim)
         do v=1,NRECON
            @M hy_recon
         enddo
@@ -161,7 +159,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
      @M hy_DIR_TARGET_parallel_loop(3) &
      @M hy_DIR_TARGET_normalize_species_private &
      @M hy_DIR_TARGET_normalize_species_shared
-     @M hy_inner_loop(klim)
+     @M hy_inner_loop_ext_i(lim)
         ! Limit and renormalize the species.
         @M hy_normalize_species( hy_uPlus )
         @M hy_normalize_species( hy_uMinus )
@@ -279,7 +277,7 @@ subroutine hy_rk_getFaceFlux (hy_starState,blklimits,blkLimitsGC, limits)
   end do ! dir
   @M hy_DIR_HOST_end_parallel
 
-  @M hy_DIR_TARGET_exit_data(release, [lim, klim, limgc, stage, dir])
+  @M hy_DIR_TARGET_exit_data(release, [lim, limgc, stage, dir])
   nullify(hy_flat3d)
   @M hy_nullFl
   

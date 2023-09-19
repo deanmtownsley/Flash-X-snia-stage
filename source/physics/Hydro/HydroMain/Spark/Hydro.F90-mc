@@ -29,7 +29,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
-  use Hydro_data, ONLY : klim,lim,limgc,gCells,dir,stage
+  use Hydro_data, ONLY : lim,limgc,gCells,dir,stage
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes, hy_rk_shockDetect
   use Timers_interface, ONLY : Timers_start, Timers_stop
