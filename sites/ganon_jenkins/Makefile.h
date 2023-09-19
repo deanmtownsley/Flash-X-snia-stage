@@ -29,9 +29,28 @@ AMREX_PATH=/amrex/install/3D
 else
 AMREX_PATH=
 endif
-LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
 
+if $(AMREX_PATH)
+LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
+else
+LIB_AMREX = 
+endif
+
+ifeq      ($(NDIM), 1)
+BITTREE_PATH=
+else ifeq ($(NDIM), 2)
+BITTREE_PATH=/bittree/install/2D
+else ifeq ($(NDIM), 3)
+BITTREE_PATH=/bittree/install/3D
+else
+BITTREE_PATH=
+endif
+
+if $(BITTREE_PATH)
+LIB_BITTREE = ${BITTREE_PATH}/lib/libbittree.a
+else
 LIB_BITTREE = 
+endif
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
