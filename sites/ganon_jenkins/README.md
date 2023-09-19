@@ -1,6 +1,6 @@
 ## Public testing for Flash-X
 
-The current location of the jenkins server that is running tests is: ganon2.device.utk.edu:8080
+The current location of the jenkins server that is running tests is: http://ganon2.device.utk.edu:8080
 
 ## Using benchmarks
 
