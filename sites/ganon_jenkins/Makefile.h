@@ -30,7 +30,7 @@ else
 AMREX_PATH=
 endif
 
-if $(AMREX_PATH)
+ifdef $(AMREX_PATH)
 LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
 else
 LIB_AMREX = 
@@ -46,7 +46,7 @@ else
 BITTREE_PATH=
 endif
 
-if $(BITTREE_PATH)
+ifdef $(BITTREE_PATH)
 LIB_BITTREE = ${BITTREE_PATH}/lib/libbittree.a
 else
 LIB_BITTREE = 
