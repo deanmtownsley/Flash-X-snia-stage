@@ -52,7 +52,7 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   use amrex_amrcore_module,      ONLY : amrex_get_finest_level, &
                                         amrex_geom, &
                                         amrex_ref_ratio
-  use amrex_multifabutil_module, ONLY : amrex_average_down
+  use amrex_multifabutil_module, ONLY : amrex_average_down, amrex_average_down_faces
 
   use Grid_interface,            ONLY : Grid_getTileIterator, &
                                         Grid_releaseTileIterator
@@ -155,14 +155,11 @@ subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
   if (     (gridDataStruct == CENTER_FACES) &
       .OR. (gridDataStruct == FACES)) then
     do lev = finest_level, 1, -1
-        do dir = 1, NDIM
-           call amrex_average_down(facevars(dir,   lev), &
-                                   facevars(dir, lev-1), &
-                                   amrex_geom(lev  ), &
-                                   amrex_geom(lev-1), &
-                                   1, NFACE_VARS, &
-                                   amrex_ref_ratio(lev-1))
-        end do
+        call amrex_average_down_faces(facevars(:, lev), &
+                                      facevars(:, lev-1), &
+                                      amrex_geom(lev-1), &
+                                      1, NFACE_VARS, &
+                                      amrex_ref_ratio(lev-1))
     end do 
   end if
 
