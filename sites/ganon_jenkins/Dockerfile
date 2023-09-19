@@ -24,7 +24,7 @@ RUN pip3 install numpy matplotlib h5py scipy configparser
 RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
 
 # Install bittree from source
-RUN git clone git@github.com:Flash-X/Bittree.git /bittree
+RUN git clone https://github.com/Flash-X/Bittree.git /bittree
 WORKDIR /bittree
 RUN git checkout v2.0
 RUN python3 setup.py library --dim 2 --prefix /bittree/install/2D
