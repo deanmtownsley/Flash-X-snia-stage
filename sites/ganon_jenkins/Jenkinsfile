@@ -52,7 +52,8 @@ pipeline {
 		deleteDirs: true,
 		disableDeferredWipeout: false,
 		notFailBuild: true,
-		patterns: [[pattern: 'lib', type: 'EXCLUDE']] ) // allow amrex to be cached
+		patterns: [[pattern: 'lib'            , type: 'EXCLUDE'],   // allow amrex to be cached
+			   [pattern: '**/setup_output', type: 'EXCLUDE']] )
 	}
     }
 
