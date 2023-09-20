@@ -130,7 +130,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
                                      hy_flx, hy_fly, hy_flz, &&
                                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
         ng=NGUARD-1
         @M hy_setLims(ng)
