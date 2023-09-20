@@ -35,7 +35,6 @@ pipeline {
 	    archiveArtifacts artifacts: '**/setup_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_call'  , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_error' , allowEmptyArchive: true
-	    //archiveArtifacts artifacts: '**/gmake_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/gmake_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
@@ -53,7 +52,14 @@ pipeline {
 		disableDeferredWipeout: false,
 		notFailBuild: true,
 		patterns: [[pattern: 'lib'            , type: 'EXCLUDE'],   // allow amrex to be cached
-			   [pattern: '**/setup_output', type: 'EXCLUDE']] )
+			   [pattern: '**/setup_output', type: 'EXCLUDE'],
+			   [pattern: '**/setup_call'  , type: 'EXCLUDE'],
+			   [pattern: '**/setup_error' , type: 'EXCLUDE'],
+			   [pattern: '**/gmake_error' , type: 'EXCLUDE'],
+			   [pattern: '**/flash_output', type: 'EXCLUDE'],
+			   [pattern: '**/flash_error' , type: 'EXCLUDE'],
+			   [pattern: '**/*.log'       , type: 'EXCLUDE'],
+			   [pattern: 'TestResults/*/*/errors', type: 'EXCLUDE']] )
 	}
     }
 
