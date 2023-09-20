@@ -451,14 +451,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
                  
 #if   defined(THORNADO_ORDER_1)
                  Nnu  = 1.0e-20
-                 Gnu1 = 0.0
-                 Gnu2 = 0.0
-                 Gnu3 = 0.0
+                 Gnu1 = 1.0e-40
+                 Gnu2 = 1.0e-40 * K2D
+                 Gnu3 = 1.0e-40 * K3D
 #elif defined(THORNADO_ORDER_V)
                  Dnu  = 1.0e-20
-                 Inu1 = 0.0
-                 Inu2 = 0.0
-                 Inu3 = 0.0
+                 Inu1 = 1.0e-40
+                 Inu2 = 1.0e-40 * K2D
+                 Inu3 = 1.0e-40 * K3D
                  V1 = solnData(VELX_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_1)
                  V2 = solnData(VELY_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_2)
                  V3 = solnData(VELZ_VAR,ii,jj,kk) * UnitV / uGF(iNodeX,iX1,iX2,iX3,iGF_h_3)
