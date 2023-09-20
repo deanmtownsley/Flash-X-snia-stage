@@ -140,17 +140,25 @@ subroutine gr_amrexInit()
   call pp_amr%add   ("v", verbosity)
 
 #ifdef AMREX_USE_BITTREE
-  if(gr_meshMe==MASTER_PE .and. gr_amrexUseBittree) then
-     write(*,*) "use AMReX in Bittree mode"
+  if(gr_meshMe==MASTER_PE) then
+     if (gr_amrexUseBittree) then
+        write(*,*) "Using AMReX in Bittree mode"
+     else
+        write(*,*) "Set gr_amrexUseBittree = .TRUE. to use AMReX in Bittree mode"
+     end if
   end if
-
   call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
-#endif
 
   if (gr_amrexUseBittree) then
      call pp_amr%add   ("bt_derefine", .TRUE.)
      call pp_amr%add   ("infer_bt_grids", .FALSE.)
   end if
+
+#else
+  if(gr_meshMe==MASTER_PE) then
+     write(*,*) "AMReX is not configured with Bittree. This feature will not be available"
+  end if
+#endif
 
   call RuntimeParameters_get("nrefs", nrefs)
   call pp_amr%add   ("regrid_int", nrefs)
