@@ -148,12 +148,6 @@ subroutine gr_amrexInit()
      end if
   end if
   call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
-
-  if (gr_amrexUseBittree) then
-     call pp_amr%add   ("bt_derefine", .TRUE.)
-     call pp_amr%add   ("infer_bt_grids", .FALSE.)
-  end if
-
 #else
   if(gr_meshMe==MASTER_PE) then
      write(*,*) "AMReX is not configured with Bittree. This feature will not be available"
