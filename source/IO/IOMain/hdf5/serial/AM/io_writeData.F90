@@ -92,7 +92,7 @@ subroutine io_writeData(fileID)
    use gr_specificData, ONLY: gr_ioBlkNodeType, gr_ioBlkCoords, gr_ioBlkBsize, gr_ioBlkBoundBox, &
                               gr_ioBlkLrefine
 
-   use gr_physicalMultifabs, ONLY: facevarx, facevary, facevarz !to be replaced...
+   use gr_physicalMultifabs, ONLY: facevars !to be replaced...
 
    implicit none
 

@@ -23,6 +23,7 @@
 !!
 !!***
 
+#include "AMReX_Config.H"
 #include "constants.h"
 
 subroutine gr_amrexInit()
@@ -43,7 +44,8 @@ subroutine gr_amrexInit()
   use Grid_data,                   ONLY : gr_geometry, &
                                           gr_domainBC, &
                                           gr_geometryOverride, &
-                                          gr_meshMe
+                                          gr_meshMe, gr_amrexUseBittree
+
   use gr_amrexInterface,           ONLY : gr_initNewLevelCallback, &
                                           gr_makeFineLevelFromCoarseCallback, &
                                           gr_remakeLevelCallback, &
@@ -136,6 +138,19 @@ subroutine gr_amrexInit()
   call amrex_parmparse_build(pp_amr, "amr")
   call RuntimeParameters_get("gr_amrex_verbosity", verbosity)
   call pp_amr%add   ("v", verbosity)
+
+#ifdef AMREX_USE_BITTREE
+  if(gr_meshMe==MASTER_PE .and. gr_amrexUseBittree) then
+     write(*,*) "use AMReX in Bittree mode"
+  end if
+
+  call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
+#endif
+
+  if (gr_amrexUseBittree) then
+     call pp_amr%add   ("bt_derefine", .TRUE.)
+     call pp_amr%add   ("infer_bt_grids", .FALSE.)
+  end if
 
   call RuntimeParameters_get("nrefs", nrefs)
   call pp_amr%add   ("regrid_int", nrefs)

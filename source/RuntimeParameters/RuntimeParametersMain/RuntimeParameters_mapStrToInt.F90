@@ -67,7 +67,9 @@ subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
                                         amrex_interp_cell_bilinear, &
                                         amrex_interp_quadratic, &
                                         amrex_interp_protected, &
-                                        amrex_interp_quartic
+                                        amrex_interp_quartic, &
+                                        amrex_interp_face_divfree, &
+                                        amrex_interp_face_linear
 #endif
 
    implicit none
@@ -538,6 +540,22 @@ subroutine RuntimeParameters_mapStrToInt(inputString, constKey)
 #elif defined(FLASH_GRID_MILHOJA)
       constKey = MILHOJA_CELL_QUADRATIC
 #endif
+
+   case ("FACE_DIV_FREE", "face_div_free")
+#ifdef FLASH_GRID_AMREX
+      constKey = amrex_interp_face_divfree
+#endif
+
+   case ("FACE_LINEAR", "face_linear")
+#ifdef FLASH_GRID_AMREX
+      constKey = amrex_interp_face_linear
+#endif
+
+! DEV: FIXME This interpolator is not working with Flash-X (FLASH5 Issue 138)
+!  case ("PC_INTERP", "pc_interp")
+!#ifdef FLASH_GRID_AMREX
+!    constKey = amrex_interp_pc
+!#endif
 
    case DEFAULT
       constKey = NONEXISTENT

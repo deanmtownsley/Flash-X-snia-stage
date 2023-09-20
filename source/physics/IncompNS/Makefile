@@ -14,5 +14,6 @@ IncompNS += IncompNS_interface.o \
             IncompNS_setupPoisson.o \
             IncompNS_corrector.o \
             IncompNS_indicators.o \
-            IncompNS_reInitGridVars.o
-
+            IncompNS_reInitGridVars.o \
+            IncompNS_fluxSet.o \
+            IncompNS_fluxUpdate.o
