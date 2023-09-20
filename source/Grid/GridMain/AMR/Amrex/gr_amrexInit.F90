@@ -150,7 +150,7 @@ subroutine gr_amrexInit()
   call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
 #else
   if(gr_meshMe==MASTER_PE) then
-     write(*,*) "AMReX is not configured with Bittree. This feature will not be available"
+     write(*,*) "AMReX is not configured with Bittree. This feature will not be available and may lead to performance degradation"
   end if
 #endif
 
