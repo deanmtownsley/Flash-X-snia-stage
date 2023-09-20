@@ -30,7 +30,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
   use Hydro_data, ONLY : lim,limgc,gCells,dir,stage
-  use Hydro_data, ONLY : hy_cvisc, hy_smalldens, hy_smallpres, hy_smallX
+  use Hydro_data, ONLY : hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX, hy_alphaGLM
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
@@ -198,7 +198,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_DIR_TARGET_update_to([hy_coeffs])
 
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(hy_starState, hy_tmpState, blkLimits, blklimitsGC, hy_del, dt, dtOld, limits, hy_coeffs)
+           call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffs, &
+                                 hy_grav, hy_flx, hy_fly, hy_flz, &
+                                 hy_del, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                 hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
+                                 dt, dtOld, limits)
            @M hy_DIR_TARGET_update_from([hy_starState])
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
@@ -381,7 +385,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
-              call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
+              call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffs, &
+                                    hy_grav, hy_flx, hy_fly, hy_flz, &
+                                    hy_del, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                    hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
+                                    dt, dtOld, limits)
               @M hy_DIR_TARGET_update_from([hy_starState])
               if (hy_geometry /= CARTESIAN) then
                  @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&

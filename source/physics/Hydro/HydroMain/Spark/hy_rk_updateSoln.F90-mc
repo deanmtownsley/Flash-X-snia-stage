@@ -18,31 +18,40 @@
 !!
 !! @details
 !! Update solution data based on conservative fluxes
-!! calculated previously in hy_rk_getFaceFlux().
+!! calculated previously in @p hy_rk_getFaceFlux().
 !! Then convert conservative to primitive variables.
 !! Note that this only updates the part of tile/block within @p limits
 !!
-!! @param hy_starState  Pointer to input/output solution data
-!! @param hy_tmpState   Pointer to input solution data at n-step
-!! @param blkLimits     Index limits for interior of the tile
-!! @param blkLimitsGC   Index limits for exterior of the tile
-!! @param hy_del        dx, dy, dz
-!! @param dt            Timestep
-!! @param dtOld         Old timestep
-!! @param limits        sets limits of the fluxes.
-!! @param hy_coeffs     RK coefficients in Butcher tableau
+!! @param starState    Pointer to input/output solution data
+!! @param tmpState     Pointer to input solution data at n-step
+!! @param rk_coeffs    RK coefficients in Butcher tableau
+!! @param grav         Pointer to gravity acceleration
+!! @param flx,fly,flz  Pointer to fluxes
+!! @param deltas       dx, dy, dz
+!! @param farea        Pointer to face areas for non-cartesian grid
+!! @param cvol         Pointer to cell volumes for non-cartesian grid
+!! @param xCenter      Pointer to cell center coordinates of IAXIS for non-cartesian grid
+!! @param xLeft        Pointer to cell's left coordinates of IAXIS for non-cartesian grid
+!! @param xRight       Pointer to cell's right coordinates of IAXIS for non-cartesian grid
+!! @param geometry     Geometry switch
+!! @param smalle       Energy cutoff value
+!! @param smalld       Density cutoff value
+!! @param alphaGLM     Alpha value for GLM; Only used for GLM
+!! @param C_hyp        Global maximum hyperbolic speed; Only used for GLM
+!! @param dt           Timestep
+!! @param dtOld        Old timestep
+!! @param limits       Index limits for updating solution.
 !<
-!!Reorder(4): hy_starState, hy_tmpState, hy_fl[xyz]
+!!Reorder(4): starState, tmpState, fl[xyz]
 !!NOVARIANTS
 
-subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
+subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
+                             grav, flx, fly, flz, &
+                             deltas, farea, cvol, xCenter, xLeft, xRight, geometry, &
+                             smalle, smalld, alphaGLM, C_hyp, &
+                             dt, dtOld, limits)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock, &
-       hy_smallE, hy_smalldens, hy_geometry,&
-       hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
-       hya_xRight,hya_yCenter,hya_zCenter
-  use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
+  use Hydro_data, ONLY : hy_threadWithinBlock
   use Driver_interface, ONLY : Driver_abort
 
   implicit none
@@ -51,32 +60,27 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
 #include "constants.h"
 #include "Spark.h"
 
-  real, pointer,dimension(:,:,:,:) :: hy_starState, hy_tmpState
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
-  real,dimension(MDIM), intent(IN) :: hy_del
-  real, intent(IN) :: dt, dtOld
-  real, dimension(3), intent(IN) :: hy_coeffs
-  real,dimension(:,:,:,:),pointer :: hy_grav, &
-       hy_flx,hy_fly,hy_flz
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
-  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  real, dimension(:,:,:,:), pointer :: starState, tmpState, flx, fly, flz
+  real, dimension(:,:,:,:), pointer :: grav
+  real, dimension(:,:,:), pointer :: farea, cvol
+  real, dimension(:), pointer :: xCenter, xLeft, xRight
+  real, dimension(3), intent(IN) :: rk_coeffs
+  real, dimension(MDIM), intent(IN)  :: deltas
+  integer, intent(IN) :: geometry
+  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+  real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
 
-  integer :: i,j,k,n,g
+  integer :: i, j, k, n, g
 
   real, dimension(NUNK_VARS) :: Vstar, V0
-
   real, dimension(NFLUXES) :: U0, Ustar
 
   real :: dx, dy, dz
-
-  real :: flx_weight1, flx_weight2
-  real :: eint, ekin, emag
+  real :: ekin, emag
   ! Geometry factors
   real :: facM, facP
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
-  integer ::  ind
   real :: dhdt
-  integer, dimension(1:MDIM) :: loGC, hiGC
 
   !! temporaries to be used in computing geometric factors
   real    :: presStar, densStar, pmomStar, tmomStar, xmomStar
@@ -91,36 +95,23 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
 #ifdef OMP_OL
   offload = .true.
 #endif
-  
-  
-  loGC(:) = blkLimitsGC(LOW,:)
-  hiGC(:) = blkLimitsGC(HIGH,:)
-  
 
-  dx = hy_del(IAXIS); dy = hy_del(JAXIS); dz = hy_del(KAXIS)
-  dhdt = minval(hy_del(1:NDIM))/(hy_coeffs(3)*dt)
-
-  hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
-  @M hy_DIR_TARGET_enter_data(to, [hy_grav])
-
-  @M hy_map_fl
-  if (hy_geometry /= CARTESIAN) then
-    @M hy_map_geom
-  end if
+  dx = deltas(IAXIS); dy = deltas(JAXIS); dz = deltas(KAXIS)
+  dhdt = minval(deltas(1:NDIM))/(rk_coeffs(3)*dt)
 
   @M hy_DIR_parallel_loop(3) &
   @M hy_DIR_TARGET_map(to, [limits]) &
   @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
   @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
   @M hy_DIR_private([alpha, dx_sph, facM, facP]) &
-  @M hy_DIR_shared([limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz]) &
-  @M hy_DIR_shared([hy_coeffs, hy_farea, hy_cvol, hy_smalldens, hy_smallE]) &
-  @M hy_DIR_shared([hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld])
+  @M hy_DIR_shared([limits, starState, tmpState, grav, flx, fly, flz]) &
+  @M hy_DIR_shared([rk_coeffs, farea, cvol, smalld, smalle]) &
+  @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, dx, dy, dz, dt, dtOld])
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
-           V0(1:NUNK_VARS) = hy_tmpState(1:NUNK_VARS, i, j, k)
-           Vstar(1:NUNK_VARS) = hy_starState(1:NUNK_VARS, i, j, k)
+           V0(1:NUNK_VARS) = tmpState(1:NUNK_VARS, i, j, k)
+           Vstar(1:NUNK_VARS) = starState(1:NUNK_VARS, i, j, k)
            U0(HY_MASS)            = V0(DENS_VAR)
            U0(HY_XMOM:HY_ZMOM)    = V0(DENS_VAR)*V0(VELX_VAR:VELZ_VAR)
            U0(HY_ENER)            = V0(DENS_VAR)*V0(ENER_VAR)
@@ -129,7 +120,6 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
            Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
            Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
-           
 #ifdef SPARK_GLM
            U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
            U0(HY_ENER) = U0(HY_ENER)+0.5*dot_product(V0(MAGX_VAR:MAGZ_VAR),&
@@ -140,74 +130,57 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
                 Vstar(MAGX_VAR:MAGZ_VAR))
            Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
-           !!          call update_solution(i,j,k,hy_coeffs,dt, dtOld, dx, dy, dz, dhdt)
-           
            facM = 1.0; facP = 1.0; Sgeo = 0.0
-           
            ! Get geometric factors and sources
            ! Get gravitational source terms
-           if(hy_geometry /= CARTESIAN) then
-              @M hy_geom_update(Ustar,Vstar)
-!!$           call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
-!!$                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
-!!$                   facM, facP, Sgeo, Ustar, Vstar, dx)
+           if(geometry /= CARTESIAN) then
+              @M hy_geom_update(Ustar, Vstar)
            end if
-           @M hy_gravSources
-           
+           @M hy_gravSources(Ustar)
+
            ! Sum total source terms
            Stot = Sgeo + Shy_grv
-           
+
            ! Now update conserved vector with flux gradients
-           Ustar = hy_coeffs(1)*U0 + hy_coeffs(2)*Ustar +hy_coeffs(3)*( &
-                -dt/dx*(facP*hy_flx(:,i+1,j,k)-facM*hy_flx(:,i,j,k)) &
+           Ustar = rk_coeffs(1)*U0 + rk_coeffs(2)*Ustar + rk_coeffs(3)*( &
+                -dt/dx*(facP*flx(:, i+1, j, k) - facM*flx(:, i, j, k)) &
 #if NDIM > 1
-                -dt/dy*(hy_fly(:,i  ,j+1,k  )-hy_fly(:,i  ,j  ,k  )) &
+                -dt/dy*(fly(:, i, j+1, k) - fly(:, i, j, k)) &
 #if NDIM ==3
-                -dt/dz*(hy_flz(:,i  ,j  ,k+1)-hy_flz(:,i  ,j  ,k  )) &
+                -dt/dz*(flz(:, i, j, k+1) - flz(:, i, j, k)) &
 #endif
 #endif
                 +dt*Stot)
-           ! print *, "Ustar" , "(",i,j,k,") ",Ustar
+
            ! Update primitive variables
            emag = 0.0
 #ifdef SPARK_GLM
-           !print *, hy_coeffs(1)*U0(HY_FPSI), hy_coeffs(2)*Ustar(HY_FPSI), Fp(HY_FPSI)-Fm(HY_FPSI)
            Vstar(MAGX_VAR:MAGZ_VAR) = Ustar(HY_FMGX:HY_FMGZ)
-           Vstar(PSIB_VAR) = Ustar(HY_FPSI)*exp(-hy_alphaGLM*hy_C_hyp/dhdt)
+           Vstar(PSIB_VAR) = Ustar(HY_FPSI)*exp(-alphaGLM*C_hyp/dhdt)
            emag = 0.5*dot_product(Vstar(MAGX_VAR:MAGZ_VAR),Vstar(MAGX_VAR:MAGZ_VAR))
            Vstar(MAGP_VAR) = emag
            Ustar(HY_ENER) = Ustar(HY_ENER) - emag
 #endif
-           
-           Vstar(DENS_VAR)          = max(Ustar(HY_MASS),hy_smalldens)
+           Vstar(DENS_VAR)          = max(Ustar(HY_MASS),smalld)
            Vstar(VELX_VAR:VELZ_VAR) = Ustar(HY_XMOM:HY_ZMOM)/Vstar(DENS_VAR)
-           Vstar(ENER_VAR)          = max(hy_smallE,Ustar(HY_ENER)/Vstar(DENS_VAR))
-           
+           Vstar(ENER_VAR)          = max(smalle,Ustar(HY_ENER)/Vstar(DENS_VAR))
+
            ekin = .5*dot_product(Vstar(VELX_VAR:VELZ_VAR),Vstar(VELX_VAR:VELZ_VAR))
-           Vstar(EINT_VAR) = max(hy_smallE,Vstar(ENER_VAR)-ekin)
-           
+           Vstar(EINT_VAR) = max(smalle,Vstar(ENER_VAR)-ekin)
+
            ! Divide partial densities by new mass densities to finalize
            ! update of new mass fractions.
            Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
 #ifdef GPOT_VAR
            ! Now extrapolate gravity to intermediate time state
            ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up
-           Vstar(GPOT_VAR) = hy_coeffs(1)*V0(GPOT_VAR) + hy_coeffs(2)*Vstar(GPOT_VAR) &
-                + hy_coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
+           Vstar(GPOT_VAR) = rk_coeffs(1)*V0(GPOT_VAR) + rk_coeffs(2)*Vstar(GPOT_VAR) &
+                + rk_coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
 #endif
-           
-           hy_starState(1:NUNK_VARS, i, j, k) = Vstar(1:NUNK_VARS)
-           
+           ! save the solution in primitive form
+           starState(1:NUNK_VARS, i, j, k) = Vstar(1:NUNK_VARS)
         enddo !i
      enddo !j
   enddo !k
 
-  @M hy_DIR_TARGET_exit_data(release, [hy_grav])
-  @M hy_nullFl
-  nullify(hy_grav)
-  if (hy_geometry /= CARTESIAN) then
-    @M hy_release_geom
-  end if
-  
-  
 end subroutine hy_rk_updateSoln

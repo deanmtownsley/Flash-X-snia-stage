@@ -41,12 +41,20 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_updateSoln (hy_starState, hy_tmpState, blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
-       real, pointer,dimension(:,:,:,:) :: hy_starState, hy_tmpState
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits,blkLimits,blkLimitsGC
-       real,dimension(MDIM) :: hy_del
-       real, intent(IN) :: dt, dtOld
-       real, dimension(3), intent(IN) :: hy_coeffs
+     subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
+                                  grav, flx, fly, flz, &
+                                  deltas, farea, cvol, xCenter, xLeft, xRight, geometry, &
+                                  smalle, smalld, alphaGLM, C_hyp, &
+                                  dt, dtOld, limits)
+       real, dimension(:,:,:,:), pointer :: starState, tmpState, flx, fly, flz
+       real, dimension(:,:,:,:), pointer :: grav
+       real, dimension(:,:,:), pointer :: farea, cvol
+       real, dimension(:), pointer :: xCenter, xLeft, xRight
+       real, dimension(3), intent(IN) :: rk_coeffs
+       real, dimension(MDIM), intent(IN)  :: deltas
+       integer, intent(IN) :: geometry
+       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+       real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
      end subroutine hy_rk_updateSoln
   end interface
 
