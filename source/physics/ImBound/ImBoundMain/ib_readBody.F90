@@ -92,6 +92,42 @@ subroutine ib_readBody(body, bodyFile)
 
    if (body%dims == 3) then
       ! Add read statement for 3d body
+
+      call h5dopen_f(file, "elems/zA", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/zA')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pA(3), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/zB", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/zB')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pB(3), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/zCenter", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/zCenter')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%center(3), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/zNorm", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/zNorm')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%normal(3), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/xC", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/xC')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pC(1), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/yC", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/yC')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pC(2), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
+      call h5dopen_f(file, "elems/zC", dset, h5err)
+      if (h5err < 0) call Driver_abort('Unable to read elems/zC')
+      call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pC(3), dsetDims, h5err)
+      call h5dclose_f(dset, h5err)
+
    end if
 
    call h5fclose_f(file, h5err)
