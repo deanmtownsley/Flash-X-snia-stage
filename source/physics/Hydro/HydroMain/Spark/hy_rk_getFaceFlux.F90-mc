@@ -202,9 +202,9 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, stag
 #if NSPECIES+NMASS_SCALARS>0
               ! AH: TODO: Potentially make loop explicit
          if (p_flux(HY_MASS ,i,j,k) > 0.) then
-            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*p_flux(HY_MASS,i,j,k)
+            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = p_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*p_flux(HY_MASS,i,j,k)
          else
-            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = hy_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*p_flux(HY_MASS,i,j,k)
+            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = p_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*p_flux(HY_MASS,i,j,k)
          end if
 #endif
      @M hy_break_loop
