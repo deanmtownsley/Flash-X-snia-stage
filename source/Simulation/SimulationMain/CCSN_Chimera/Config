@@ -9,6 +9,8 @@ REQUIRES physics/Hydro/HydroMain
 REQUIRES Simulation/SimulationComposition
 REQUIRES Multispecies
 
+DATAFILES SpeciesList.txt
+
 ## Need to use one of these
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet150_GPU_loadBalance
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet150_CPU_loadBalance
