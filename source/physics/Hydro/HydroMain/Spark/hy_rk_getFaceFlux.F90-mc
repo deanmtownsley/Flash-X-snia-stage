@@ -37,6 +37,7 @@
 !! @param stage          Current RK stage
 !! @param hybridRiemann  On/Off switch for hybrid Riemann solver
 !! @param cvisc          Artificial viscosity constant
+!! @param C_hyp        Global maximum hyperbolic speed; Only used for GLM
 !! @param tinyZero       A tiny number to check unphysical negativity
 !! @param smalld         Density cutoff value
 !! @param smallp         Pressure cutoff value
@@ -47,8 +48,9 @@
 !!NOVARIANTS
 !!Reorder(4):starState,fl[xyz]
 
-subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, stage, &
-                              hybridRiemann, cvisc, tinyZero, smalld, smallp, smallx, &
+subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
+                              lim, limgc, stage, &
+                              hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
                               a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
@@ -64,7 +66,7 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, stag
   integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
   integer, intent(IN) :: stage
   logical, intent(IN) :: hybridRiemann
-  real, intent(IN) :: cvisc, smalld, smallp, smallx, tinyZero
+  real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
   real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
 
   real, dimension(:,:,:,:), pointer :: p_rope, p_uPlus, p_uMinus, p_flux

@@ -181,10 +181,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call hy_rk_getFlatteningLimiter(hy_flattening, hy_starState, hy_flat3d, limits)
 
            call Timers_start("getFaceFlux")
-           call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, lim, limgc, &
-                                   stage, hy_hybridRiemann, hy_cvisc, hy_tiny, &
-                                   hy_smalldens, hy_smallpres, hy_smallX, &
-                                   hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
+           call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
+                                  lim, limgc, stage, &
+                                  hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
+                                  hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
+                                  hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
            @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
@@ -346,10 +347,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! Perform reconstruction and flux calculation
               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
               call Timers_start("getFaceFlux")
-              call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, lim, limgc, &
-                                      stage, hy_hybridRiemann, hy_cvisc, hy_tiny, &
-                                      hy_smalldens, hy_smallpres, hy_smallX, &
-                                      hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
+              call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
+                                     lim, limgc, stage, &
+                                     hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
+                                     hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
+                                     hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
               @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
               call Timers_stop("getFaceFlux")
 

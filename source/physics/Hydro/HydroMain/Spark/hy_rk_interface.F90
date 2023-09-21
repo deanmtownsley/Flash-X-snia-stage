@@ -27,8 +27,9 @@ module hy_rk_interface
 #include "Spark.h"
 
   interface
-     subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, lim, limgc, &
-                                   stage, hybridRiemann, cvisc, tinyZero, smalld, smallp, smallx, &
+     subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
+                                   lim, limgc, stage, &
+                                   hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
                                    a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
        real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
        real, dimension(:,:,:), pointer :: flat3d
