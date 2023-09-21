@@ -1,2 +1,10 @@
 Setup syntax for 2D Chimera Model:
-./setup CCSN_Chimera -auto -2d +cylindrical -nxb=16 -nyb=16 threadBlockList=False +pm4dev -index-reorder +hdf5 +serialIO -objdir=CCSN_Chimera --with-unit=physics/Hydro/HydroMain/simpleUnsplit
+
+./setup CCSN_Chimera -auto -portable -2d +cylindrical -nxb=16 -nyb=16 -objdir=CCSN_Chimera +pm4dev +hdf5 +parallelio +newMpole +uhd threadBlockList=False xnet=True xnetData=Data_SN160 xnetGPU=False fakePNS=True -parfile=flash.par
+
+Optional flags for certain resolutions: +starkiller starkillerGPU=True
+
+Expanded ``SpeciesList.txt`` provided here to match labels and species in ``d96InitModel.txt``
+
+Due to filesize limits, initial Chimera data (i.e., ``chimera_03334_grid_1_01.h5``) provided elsewhere. 
+

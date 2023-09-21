@@ -1,2 +1,2 @@
 # Git attributes
-*.F90-mc linguist-language=fortran
+*.F90-mc linguist-language=fortran-free-form

@@ -45,8 +45,8 @@ module ib_interface
       end subroutine ib_readBody
    end interface
 
-   interface
-      subroutine ib_bruteForceMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+   interface ib_bruteForceMap
+      subroutine ib_bruteForceMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          use ImBound_type, ONLY: ImBound_type_t
          implicit none
          real, dimension(:, :, :), intent(inout) :: lmda
@@ -54,11 +54,21 @@ module ib_interface
          type(ImBound_type_t), intent(in) :: body
          integer, intent(in) :: ix1, ix2, jy1, jy2
          real, intent(in) :: dx, dy
-      end subroutine ib_bruteForceMap
-   end interface
+      end subroutine ib_bruteForceMap2D
 
-   interface
-      subroutine ib_annMap(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
+      subroutine ib_bruteForceMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
+         use ImBound_type, ONLY: ImBound_type_t
+         implicit none
+         real, dimension(:, :, :), intent(inout) :: lmda
+         real, dimension(:), intent(in) :: xcenter, ycenter, zcenter
+         type(ImBound_type_t), intent(in) :: body
+         integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in) :: dx, dy, dz
+      end subroutine ib_bruteForceMap3D
+   end interface ib_bruteForceMap
+
+   interface ib_annMap
+      subroutine ib_annMap2D(lmda, xcenter, ycenter, dx, dy, ix1, ix2, jy1, jy2, body)
          use ImBound_type, ONLY: ImBound_type_t
          implicit none
          real, dimension(:, :, :), intent(inout) :: lmda
@@ -66,7 +76,17 @@ module ib_interface
          type(ImBound_type_t), intent(in) :: body
          integer, intent(in) :: ix1, ix2, jy1, jy2
          real, intent(in) :: dx, dy
-      end subroutine ib_annMap
+      end subroutine ib_annMap2D
+
+      subroutine ib_annMap3D(lmda, xcenter, ycenter, zcenter, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, body)
+         use ImBound_type, ONLY: ImBound_type_t
+         implicit none
+         real, dimension(:, :, :), intent(inout) :: lmda
+         real, dimension(:), intent(in) :: xcenter, ycenter, zcenter
+         type(ImBound_type_t), intent(in) :: body
+         integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in) :: dx, dy, dz
+      end subroutine ib_annMap3D
    end interface
 
 end module ib_interface

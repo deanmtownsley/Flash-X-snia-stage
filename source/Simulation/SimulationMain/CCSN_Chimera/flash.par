@@ -5,132 +5,135 @@ basenm			       = "ccsn2d_"
 restart			       = .false.
 checkpointFileNumber           = 0
 plotFileNumber                 = 0
-run_comment                    = "1.2*small{rho,T} mono(2) HLL minmod"
+run_comment                    = "CoreCollapse Chimera 2D"
 #output_directory	       = "output"
 
-# IO  
+# I/O  
 checkpointFileIntervalStep     = 0
-checkpointFileIntervalTime     = 0.01 
+checkpointFileIntervalTime     = .025
 plotFileIntervalStep           = 0
 plotFileIntervalTime           = 0.005
-# wall_clock_checkpoint          = 7200.
-wall_clock_time_limit          = 36000.
-memory_stat_freq               = 20
-io_writeMscalarIntegrals       = .TRUE.
+wall_clock_checkpoint          = 7100.0
+wall_clock_time_limit          = 7100.0
+plotfileMetadataDP             = .true.
+plotfileGridQuantityDP         = .true.
+
+# Variables to output in pltfiles
+plot_var_1                     = "temp"
+plot_var_2                     = "pres"
+plot_var_3                     = "eint"
+plot_var_4                     = "dens"
+plot_var_5                     = "entr"
 
 # Time 
-tinitial                       = 0.0
-tmax                           = 0.5
-dr_shortenLastStepBeforeTMax   = .TRUE.
-nend                           = 100000000
-tstep_change_factor            = 1.5
-dtinit                         = 1.E-10 #was E-8
-dtmax                          = 1.E5
-dtmin                          = 1.E-20
-dr_dtMinContinue               = 1.0e-12
-dr_dtMinBelowAction            = 1    # write chkpt then abort
+tinitial                       = 0.0        
+tmax                           = 0.5      
+nend                           = 1000000000
+tstep_change_factor            = 1.5        
+dtinit                         = 1.E-10     
+dtmax                          = 1.E5       
+dtmin                          = 1.E-20     
+dr_shortenLastStepBeforeTMax   = .true.     
 
 # Domain 
 geometry                       = "cylindrical"
-xmax                           = 2.e10 
-xmin                           = 0.e0 
-ymin                           = -2.e10
-ymax                           = 2.e10
-xl_boundary_type               = "reflect" 
+xmin                           = 0.e0  #cm
+xmax                           = 1.e10 #cm
+ymin                           = -5.e9 #cm
+ymax                           = 5.e9  #cm
+
+xl_boundary_type               = "reflect"
 xr_boundary_type               = "outflow"
 yl_boundary_type               = "outflow"
 yr_boundary_type               = "outflow"
 
-# Grid/Refinement
-nblockx                        = 20 
-nblocky                        = 40 
+# Refinement
+nblockx                        = 16
+nblocky                        = 16
 nblockz                        = 1
-
-enableMaskedGCFill             = .TRUE.
-
-gr_lrefineMaxRedDoByLogR       = .true. # .FALSE. to get NO distance-based refinement limitation
-gr_lrefineMaxRedRadiusFact     = 0.025  # 0.15 to get highest refinement only very close to center
-
+gr_lrefineMaxRedDoByLogR       = .true.
 gr_lrefineMaxRedDoByTime       = .FALSE.
-gr_lrefineMaxRedLogBase        = 10.0
-gr_lrefineMaxRedTRef           = 2.0
-gr_lrefineMaxRedTimeScale      = 0.5
-
-lrefine_max                    = 7
+gr_lrefineMaxRedLogBase        = 10.0 # only needed for MaxRedDoByTime
+gr_lrefineMaxRedRadiusFact     = 0.06 # Limits max resolution based on log distance.
+gr_lrefineMaxRedTRef           = 2.0  # only needed for MaxRedDoByTime
+gr_lrefineMaxRedTimeScale      = 0.5  # only needed for MaxRedDoByTime
+lrefine_max                    = 9
 lrefine_min                    = 1
 refine_var_1                   = "dens"
 refine_var_2                   = "pres"
-refine_var_3                   = "none" 
-refine_var_4                   = "none"
-refine_cutoff_1		       = 0.8
-refine_cutoff_2		       = 0.8
-refine_cutoff_3		       = 0.8
-refine_cutoff_4		       = 0.8
+refine_var_3                   = "sumy"
+refine_cutoff_1                = 0.7 #0.8
+refine_cutoff_2                = 0.5 #0.8
+refine_cutoff_3                = 0.5 #0.8
+derefine_cutoff_1              = 0.3 #0.2
+derefine_cutoff_2              = 0.5 #0.2
+derefine_cutoff_3              = 0.5 #0.2
+refine_var_count               = 3
 
-plot_var_1                     = "dens"
-plot_var_2                     = "pres"
-plot_var_3                     = "temp"
-plot_var_4                     = "entr"
-
-
-# Simulation
-progenitor_model_file = "d96InitModel.txt"
-chimera_model_file = "chimera_03670_grid_1_01.h5"
-r_inner = 5.e7 #also used as PNS cutout boundary with rigid body
-rho_inner = 1.e11
-max_r = 2.e9
+# Grid
+convertToConsvdForMeshCalls   = .false.
+converttoconsvdinmeshinterp   = .false.
+flux_correct    = .true.
 
 # Hydro
-useHydro                       = .TRUE.
-cfl                            = 0.5
-interpol_order                 = 2
-updateHydroFluxes              = .TRUE.
-eintSwitch		       = 0.0 # Always use Etot
-#convertToConsvdForMeshCalls   = .false.
-#converttoconsvdinmeshinterp   = .false.
-
-##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
-#       I. INTERPOLATION SCHEME:
-order           = 3      # Interpolation order (first/second/third/fifth order)
-slopeLimiter    = "minmod"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
-LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
-charLimiting    = .true. # Characteristic limiting vs.Primitive limiting
-
-use_avisc       = .true. # use artificial viscosity (originally for PPM)
-cvisc           = 0.1    # coefficient for artificial viscosity
-use_flattening  = .true. # use flattening (dissipative) (originally for PPM)
+useHydro = .TRUE.
+cfl = 0.45
+updateHydroFluxes = .true.
+use_cma_advection = .true.
 use_steepening  = .false. # use contact steepening (originally for PPM)
+
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER
+order           = 3      # Interpolation order (first/second/third/fifth order)
+interpol_order  = 1
+slopeLimiter    = "hybrid"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
+use_avisc       = .true. # use artificial viscosity (originally for PPM)
+use_flattening  = .true. # use flattening (dissipative) (originally for PPM)
 use_upwindTVD   = .false. # use upwind biased TVD slope for PPM (need nguard=6)
-flux_correct    = .FALSE.
 EOSforRiemann   = .false.
 transOrder      = 1
-use_auxEintEqn  = .FALSE. # Always use Etot
+use_auxEintEqn  = .TRUE.
 hydroComputeDtOption = -1
-
-#       II. RIEMANN SOLVERS: 
-RiemannSolver   = "HLL"       # Roe, HLL, HLLC, LLF, Marquina
+RiemannSolver   = "hybrid"       # Roe, HLL, HLLC, LLF, Marquina
 entropy         = .false.     # Entropy fix for the Roe solver
-
-hy_fPresInMomFlux = 0.0       # Part of pressure gradient term in momentum equation to include in momentum fluxes
-
-#       III. STRONG SHOCK HANDELING SCHEME:
 shockDetect     = .true.     # Shock Detect for numerical stability
-## -------------------------------------------------------------##
+charLimiting    = .true. # Characteristic limiting vs.Primitive limiting
+cvisc           = 0.1    # coefficient for artificial viscosity
 
 # Gravity
 useGravity                     = .true. 
+updateGravity                  = .TRUE. 
 grav_boundary_type             = "isolated"
-use_gravHalfUpdate             = .TRUE. 
+mpole_3daxisymmetry            = .false.
+mpole_dumpMoments              = .FALSE.
+mpole_PrintRadialInfo	       = .false.
+mpole_IgnoreInnerZone          = .true.
+mpole_lmax                     = 8
+mpole_ZoneRadiusFraction_1     = 1.0
+mpole_ZoneExponent_1           = 0.005
+mpole_ZoneScalar_1	       = 0.5
+mpole_ZoneType_1	       = "logarithmic"
 
-ptmass = 0.0 #The amount of mass added to the point mass calculated in Simulation_init
-ptxpos = 0.0
-ptypos = 0.0
-ptzpos = 0.0
+# Additional Pointmass (for Multipole Gravity)
+point_mass                     = 0.e0 # extra point mass to be supplied to when calculating gravity
+point_mass_rsoft               = 0.e0 # softening radius
+mpole_PtXpos                   = 0.e0 # position of point mass along x-axis (sometimes r-axis)
+mpole_PtYpos                   = 0.e0 # position of point mass along y-axis
+mpole_PtZpos                   = 0.e0 # position of point mass along z-axis
 
+# Additional Pointmass (for PointMass Gravity)
+#ptmass       = 0.e0
+#gravsoft     = 0.e0
+#ptxpos       = 0.e0
+#ptypos       = 0.e0
+#ptzpos       = 0.e0
 
-#EOS
-eosMode                        = "dens_ie"
-eosModeInit                    = "dens_temp"
+# EoS
+eintSwitch                     = 0.0         #Always uses Etot
+eosMode                        = "dens_ie"   
+eosModeInit                    = "dens_pres" 
+#eos_useStarkiller              = .false.      # Using starkiller EoS
+#eos_vecLenACC                  = 256         # Vector length threshold for when turning on GPU acceleration
 
 # Deleptonization
 useDeleptonize		       = .false.
@@ -141,19 +144,44 @@ useRadTrans		      = .false.
 # Neutrino Heating/Cooling
 useHeat			       = .false.
 			      			       
-# Small numbers
-smallt                         = 1.0e4 
-smlrho                         = 1.0e-10
-smallp                         = 1.E-20
-smalle                         = 1.E1
-smallu                         = 1.E-10
-smallx                         = 1.E-10
-small                          = 1.E-100
+# Small numbers (used for flooring certain quantities)
+smallt                         = 1.0e3   #temperature
+smlrho                         = 1.0e-12 #density
+smallp                         = 1.E-20  #pressure
+smalle                         = 1.E1    #energy
+smallu                         = 1.E-10  #velocity
+smallx                         = 1.E-17  #mass fractions/abundances
+small                          = 1.E-100 #general
 
 # Burn Unit
 useBurn                        = .false.
-useShockBurn                   = .false.
-nuclearTempMin                 = 1.0e6 #was 1.1e8
+useShockBurn                   = .true.
+nuclearTempMin                 = 1.1e8
 
-use_cma_advection              = .true.
+
+#CCSN Chimera Parameters
+progenitor_model_file = "d96InitModel.txt" 
+chimera_model_file = "chimera_03334_grid_1_01.h5"
+r_inner = 5.e7        # radius marking switch from fake PNS data to chimera data
+max_r = 1.8e9         # radius marking switch from chimera to progenitor data
+bdry_dens = 1.0e-8    # density to be placed in BDRY region
+bdry_pres = 1.0e-15   # pressure to be placed in BDRY region
+bdry_temp = 1.0e3     # temperature to be placed in BDRY region
+
+# XNet
+xnet_iweak                              = 1       # (-1) Weak rxns only, (0) Weak rxns off, (1) Weak rxns on
+xnet_iscrn                              = 1       # Screening
+xnet_iprocess                           = 1       # Network data pre-processing?
+xnet_isolv                              = 3       # Integration scheme: (1) Backward-Euler, (3) BDF/Gear
+xnet_kstmx                              = 6000    # Max XNet steps for each zone
+xnet_kitmx                              = 10      # Max NR iterations
+xnet_iconvc                             = 3       # Convergence condition (error weights for BDF integrator)
+xnet_yacc                               = 1.0e-07 # Abundances > yacc used for XNet timestep calculation
+xnet_tolm                               = 1.0e-6  # Mass conservation tolerance
+xnet_tolc                               = 1.0e-3  # Tolerance for iterative abundance change
+xnet_ymin                               = 1.0e-99 # Abundance < ymin is set to 0.0
+xnet_iheat                              = 1       # Self-heating (couple temperature to abundance evolution)
+xnet_tolt9                              = 1.0e-4  # Tolerance for iterative temperature change
+xnet_nzbatchmx                          = 16      # Number of zones to batch
+xnet_writeTimers                        = .true.  # Write XNet timers to stdout at end of run
 
