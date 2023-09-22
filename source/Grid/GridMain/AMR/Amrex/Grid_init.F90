@@ -545,7 +545,6 @@ subroutine Grid_init()
 !  gr_isolatedBoundaries = (grav_boundary_type=="isolated")
 !
   do i = UNK_VARS_BEGIN,UNK_VARS_END
-!     gr_vars(i)=i
      call Simulation_getVarnameType(i, gr_vartypes(i))
   end do
 
