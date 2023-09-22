@@ -78,7 +78,6 @@ Module Grid_data
   logical, save :: gr_amrexDidRefinement = .FALSE.
 
 !  integer,save,dimension(MDIM)::gr_bndOrder
-!  integer,save,dimension(UNK_VARS_BEGIN:UNK_VARS_END) :: gr_vars
   integer,save,dimension(UNK_VARS_BEGIN:UNK_VARS_END) :: gr_vartypes
   logical, save :: gr_justExchangedGC
 !  logical, save :: gr_isolatedBoundaries
