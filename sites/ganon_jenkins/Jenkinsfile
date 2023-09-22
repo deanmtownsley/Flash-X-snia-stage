@@ -321,27 +321,26 @@ pipeline {
 	    sh ".local/bin/flashxtest init -z ${env.WORKSPACE} -s ganon_jenkins"
 	    sh ".local/bin/flashxtest setup-suite sites/ganon_jenkins/UnitTests.suite"
 	    sh ".local/bin/flashxtest run-suite"
+	}} //stage('UnitTest'){ steps{
+
+    } // stages{
+
+    post {
+        always {
 	    archiveArtifacts artifacts: '**/setup_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_call'  , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/setup_error' , allowEmptyArchive: true
-	    //archiveArtifacts artifacts: '**/gmake_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/gmake_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/*.log'       , allowEmptyArchive: true
 	    archiveArtifacts artifacts: 'TestResults/*/*/errors', allowEmptyArchive: true
-	}} //stage('UnitTest'){ steps{
-	
-    } // stages{
-
-    post {
-        always {
 	    cleanWs(
 	        cleanWhenNotBuilt: false,
 		deleteDirs: true,
 		disableDeferredWipeout: false,
 		notFailBuild: true,
-		patterns: [[pattern: 'lib', type: 'EXCLUDE']] ) // allow amrex to be cached
+		patterns: [[pattern: 'lib', type: 'EXCLUDE']])   // allow amrex to be cached
 	}
     }
 

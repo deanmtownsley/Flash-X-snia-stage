@@ -120,9 +120,9 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
 #if   NDIM == 1
                   volumes(i, j, k) = cellvolume * 4.*PI/3.
 #elif NDIM == 2
-                  volumes(i, j, k) = cellvolume * ( cos(thf(j)) - cos(thf(j+1)) ) * 2.*PI/3.
+                  volumes(i, j, k) = cellvolume * ABS( cos(thf(j)) - cos(thf(j+1)) ) * 2.*PI/3.
 #elif NDIM == 3
-                  volumes(i, j, k) = cellvolume * ( cos(thf(j)) - cos(thf(j+1)) ) *   &
+                  volumes(i, j, k) = cellvolume * ABS( cos(thf(j)) - cos(thf(j+1)) ) *   &
                                      dPhi / 3.0
 #endif
                end do

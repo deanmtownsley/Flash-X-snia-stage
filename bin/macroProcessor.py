@@ -222,6 +222,11 @@ class macroProcessor:
             for invocation in invocation_list:
                 expansion = self.expandMacro(invocation, macroStack)
                 lineOut = lineOut.replace(invocation, expansion, 1)
+                # if the macro-processed line has only whitespaces
+                # or it just has one &,
+                # return a blank line
+                if lineOut.strip() == "&" or lineOut.strip() == "":
+                    lineOut = ""
 
         return lineOut
 

@@ -1,0 +1,10 @@
+#	Config file for the SolidMechanics unit
+DEFAULT SolidMechanicsMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useSolidMechanics       Should the SolidMechanics unit be used?
+# Value is meant to be overridden if SolidMechanicsMain implementation gets included
+PARAMETER useSolidMechanics    BOOLEAN CONSTANT FALSE 
