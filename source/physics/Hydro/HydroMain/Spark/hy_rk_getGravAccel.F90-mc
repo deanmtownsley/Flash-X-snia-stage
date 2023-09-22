@@ -1,46 +1,36 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_getGravAccel
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
+!! @file
+!> @ingroup HydroSpark
 !!
-!!  NAME
+!! @brief Get gravitational acceleration
 !!
-!!  hy_rk_getGravAccel
+!! @details
+!! Get gravitational acceleration for the part of block/tile defined by @p limits
+!! where blkLimitsGC define full block
 !!
-!!  SYNOPSIS
-!!
-!!  call hy_rk_getGravAccel ( real(IN) :: hy_del(:),
-!!                         integer(IN) :: limits(:,:),
-!!                         integer(IN) :: blkLimitsGC(:,:))
-!!
-!!  DESCRIPTION
-!! 
-!!  Get gravitational acceleration for the part of block/tile defined by limits
-!!   where blkLimitsGC define full block
-!!
-!!  ARGUMENTS
-!!     blklimits,blkLimitsGC are the bounds of the block/tile
-!!     hy_del are dx,dy,dz
-!!     limits   sets limits of the fluxes.
-!!
-!!***
-
-
+!! @param hy_starState  Pointer to input solution data
+!! @param hy_del        dx, dy, dz
+!! @param limits        sets limits of the fluxes.
+!! @param blkLimitsGC   Index limits for exterior of the tile
+!<
 !!Reorder(4):hy_starState
 !!NOVARIANTS
 subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
 !!  use Gravity_interface, ONLY : Gravity_accelOneRow
-  use Hydro_data, ONLY : hya_grav, hya_xCenter, hya_yCenter, hy_geometry
+  use Hydro_data, ONLY : hy_threadWithinBlock, hya_grav, hya_xCenter, hya_yCenter, hy_geometry
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -67,22 +57,17 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
-  @M hy_OMP_TARGET_enter_data(alloc, [hy_grav])
+  @M hy_DIR_TARGET_enter_data(alloc, [hy_grav])
 
   if(hy_geometry /= CARTESIAN) then
      radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
      thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
-     @M hy_OMP_TARGET_enter_data(to, [radCenter, thtCenter])
+     @M hy_DIR_TARGET_enter_data(to, [radCenter, thtCenter])
   end if
 
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do simd collapse(4) &
-  !$omp map(to: blkLimitsGC) &
-#else
-  !$omp parallel do simd collapse(4) &
-#endif
-  !$omp default(none) &
-  !$omp shared(blkLimitsGC, hy_grav)
+  @M hy_DIR_parallel_loop(4) &
+  @M hy_DIR_TARGET_map(to, [blkLimitsGC]) &
+  @M hy_DIR_shared([blkLimitsGC, hy_grav])
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -100,15 +85,10 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 #ifdef FLASH_GRAVITY_TIMEDEP
 #ifdef GPOT_VAR
 
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do simd collapse(3) &
-  !$omp map(to: limits, hy_del) &
-#else
-  !$omp parallel do simd collapse(3) &
-#endif /* OMP_OL */
-  !$omp default(none) &
-  !$omp private(d, delxinv, im, ip, jm, jp, km, kp) &
-  !$omp shared(limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry)
+  @M hy_DIR_parallel_loop_simd(3) &
+  @M hy_DIR_TARGET_map(to, [limits, hy_del]) &
+  @M hy_DIR_private([d, delxinv, im, ip, jm, jp, km, kp]) &
+  @M hy_DIR_shared([limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry])
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
       do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
@@ -122,7 +102,9 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
             im=0; ip=0; jm=0; jp=0; km=1; kp=1
           end select
           delxinv = getDelXinv(d, hy_del, hy_geometry, radCenter(i), thtCenter(j))
-          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) + delxinv*(hy_starState(GPOT_VAR,i-im,j-jm,k-km) - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp))
+          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) &
+             + delxinv*( hy_starState(GPOT_VAR,i-im,j-jm,k-km) &
+                        - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp) )
         end do
       enddo
     enddo
@@ -133,10 +115,10 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 #endif /* FLASH_GRAVITY_TIMEDEP */
 #endif /* GRAVITY */
 
-  @M hy_OMP_TARGET_exit_data(from, [hy_grav])
+  @M hy_DIR_TARGET_exit_data(from, [hy_grav])
   nullify(hy_grav)
   if(hy_geometry /= CARTESIAN) then
-     @M hy_OMP_TARGET_exit_data(release, [radCenter, thtCenter])
+     @M hy_DIR_TARGET_exit_data(release, [radCenter, thtCenter])
      nullify(radCenter)
      nullify(thtCenter)
   end if
