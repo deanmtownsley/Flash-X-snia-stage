@@ -142,17 +142,19 @@ subroutine gr_amrexInit()
 #ifdef AMREX_USE_BITTREE
   if(gr_meshMe==MASTER_PE) then
      if (gr_amrexUseBittree) then
-        write(*,*) "Using AMReX in Bittree mode"
+        write(*,*) "Using AMReX in Bittree mode."
      else
-        write(*,*) "Set gr_amrexUseBittree = .TRUE. to use AMReX in Bittree mode"
+        write(*,*) "The AMReX library was configured with Bittree, &
+                    &but gr_amrexUseBittree feature is not being utilized. &
+                    &Set gr_amrexUseBittree = .TRUE. to use AMReX in Bittree mode."
      end if
   end if
   call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
 #else
   if(gr_meshMe==MASTER_PE) then
      write(*,*) "The AMReX library was not configured with Bittree. &
-                 The gr_amrexUseBittree feature will not be available to Flash-X. &
-                 This may result in performance degradation"
+                 &The gr_amrexUseBittree feature will not be available to Flash-X. &
+                 &This may result in performance degradation."
   end if
 #endif
 
