@@ -55,7 +55,7 @@ sim_latestLSTime       = 0.026
 
 #		Boundary conditions
 #
-xl_boundary_type      = "reflecting"
+xl_boundary_type      = "axisymmetric"
 xr_boundary_type      = "outflow"
 
 yl_boundary_type = "outflow"
