@@ -36,7 +36,7 @@ module hy_rk_interface
        integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
        integer, intent(IN) :: stage
        logical, intent(IN) :: hybridRiemann
-       real, intent(IN) :: cvisc, smalld, smallp, smallx, tinyZero
+       real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
        real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
      end subroutine  hy_rk_getFaceFlux
   end interface
