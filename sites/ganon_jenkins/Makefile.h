@@ -9,7 +9,7 @@ MPI_PATH   = /usr
 HDF4_PATH  =
 HDF5_INCLUDE_PATH  = /usr/include/hdf5/openmpi
 HDF5_LIB_PATH = /usr/lib/x86_64-linux-gnu/hdf5/openmpi
-HYPRE_PATH = /hypre/install
+HYPRE_PATH = /Hypre/install
 LIB_LAPACK = /usr/lib/x86_64-linux-gnu/liblapack.so /usr/lib/x86_64-linux-gnu/libblas.so
 
 ZLIB_PATH  =
@@ -21,11 +21,11 @@ NCMPI_PATH = /usr/local/netcdf
 MPE_PATH   =
 
 ifeq      ($(NDIM), 1)
-AMREX_PATH=/amrex/install/1D
+AMREX_PATH=/Amrex/install/1D
 else ifeq ($(NDIM), 2)
-AMREX_PATH=/amrex/install/2D
+AMREX_PATH=/Amrex/install/2D
 else ifeq ($(NDIM), 3)
-AMREX_PATH=/amrex/install/3D
+AMREX_PATH=/Amrex/install/3D
 else
 AMREX_PATH=
 endif
@@ -39,9 +39,9 @@ endif
 ifeq      ($(NDIM), 1)
 BITTREE_PATH=
 else ifeq ($(NDIM), 2)
-BITTREE_PATH=/bittree/install/2D
+BITTREE_PATH=/Bittree/install/2D
 else ifeq ($(NDIM), 3)
-BITTREE_PATH=/bittree/install/3D
+BITTREE_PATH=/Bittree/install/3D
 else
 BITTREE_PATH=
 endif

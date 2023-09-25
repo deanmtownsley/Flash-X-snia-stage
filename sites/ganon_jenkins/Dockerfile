@@ -24,8 +24,8 @@ RUN pip3 install numpy matplotlib h5py scipy configparser
 RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
 
 # Install bittree from source
-RUN git clone https://github.com/Flash-X/Bittree.git /bittree
-WORKDIR /bittree
+RUN git clone https://github.com/Flash-X/Bittree.git /Bittree
+WORKDIR /Bittree
 RUN git checkout v2.0
 RUN python3 setup.py library --dim 2 --prefix /bittree/install/2D
 RUN cd build && make && make install && cd ..
@@ -33,16 +33,16 @@ RUN python3 setup.py library --dim 3 --prefix /bittree/install/3D
 RUN cd build && make && make install && cd ..
 
 # Installation of AMReX from source
-RUN git clone https://github.com/AMReX-Codes/amrex.git /amrex
-WORKDIR /amrex
+RUN git clone https://github.com/AMReX-Codes/amrex.git /Amrex
+WORKDIR /Amrex
 RUN git checkout f08b40b
 RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
 RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
 RUN ./configure --prefix=install/3D --dim=3 && make -j && make install
 
 # Install hypre from source
-RUN git clone https://github.com/hypre-space/hypre.git /hypre
-WORKDIR /hypre
+RUN git clone https://github.com/hypre-space/hypre.git /Hypre
+WORKDIR /Hypre
 RUN git checkout v2.22.0
 RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/hypre/install && make install
 ENV LD_LIBRARY_PATH=/hypre/install/lib:$LD_LIBRARY_PATH
