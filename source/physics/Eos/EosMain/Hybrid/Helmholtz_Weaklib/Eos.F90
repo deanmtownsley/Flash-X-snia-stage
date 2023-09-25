@@ -57,6 +57,8 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    real :: entr_WL, entr_HLM
    real :: gamc_WL, gamc_HLM
 
+   integer :: i, k
+
    vecBegin = 1
    vecEnd = vecLen
    if (present(vecB)) vecBegin = vecB
