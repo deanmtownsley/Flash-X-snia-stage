@@ -27,9 +27,9 @@ RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
 RUN git clone https://github.com/Flash-X/Bittree.git /Bittree
 WORKDIR /Bittree
 RUN git checkout v2.0
-RUN python3 setup.py library --dim 2 --prefix /bittree/install/2D
+RUN python3 setup.py library --dim 2 --prefix /Bittree/install/2D
 RUN cd build && make && make install && cd ..
-RUN python3 setup.py library --dim 3 --prefix /bittree/install/3D
+RUN python3 setup.py library --dim 3 --prefix /Bittree/install/3D
 RUN cd build && make && make install && cd ..
 
 # Installation of AMReX from source
@@ -44,9 +44,9 @@ RUN ./configure --prefix=install/3D --dim=3 && make -j && make install
 RUN git clone https://github.com/hypre-space/hypre.git /Hypre
 WORKDIR /Hypre
 RUN git checkout v2.22.0
-RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/hypre/install && make install
-ENV LD_LIBRARY_PATH=/hypre/install/lib:$LD_LIBRARY_PATH
-ENV DYLD_LIBRARY_PATH=/hypre/install/lib:$DYLD_LIBRARY_PATH
+RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/Hypre/install && make install
+ENV LD_LIBRARY_PATH=/Hypre/install/lib:$LD_LIBRARY_PATH
+ENV DYLD_LIBRARY_PATH=/Hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Create an archive directory to store baselins
 RUN mkdir -pv /archive/ganon_jenkins/0000-00-00
