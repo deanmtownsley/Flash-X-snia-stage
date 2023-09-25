@@ -17,7 +17,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call helmYeInit()
+!!  call eos_helmYeInit()
 !!
 !! DESCRIPTION
 !!
@@ -53,7 +53,7 @@
 
 
 
-subroutine helmYeInit()
+subroutine eos_helmYeInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, eos_smallt
   use eos_helmData 
@@ -230,4 +230,4 @@ subroutine helmYeInit()
   eos_type=EOS_HLM
 
   return
-end subroutine helmYeInit
+end subroutine eos_helmYeInit
