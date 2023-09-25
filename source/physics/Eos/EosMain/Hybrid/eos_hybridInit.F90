@@ -55,7 +55,7 @@ subroutine eos_hybridInit()
       toterr = toterr + ierr
 
       if (toterr /= 0) then
-         call Driver_abortFlash("[eos_hybridInit] Could not initialize Hybrid EoS from checkpoint!")
+         call Driver_abort("[eos_hybridInit] Could not initialize Hybrid EoS from checkpoint!")
       end if
    else
       call RuntimeParameters_get('eos_hybTransitionDensHi', eos_hybTransitionDensHi)
