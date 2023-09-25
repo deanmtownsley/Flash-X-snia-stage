@@ -35,7 +35,7 @@ RUN cd build && make && make install && cd ..
 # Installation of AMReX from source
 RUN git clone https://github.com/AMReX-Codes/amrex.git /amrex
 WORKDIR /amrex
-RUN git checkout e06025b
+RUN git checkout f08b40b
 RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
 RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
 RUN ./configure --prefix=install/3D --dim=3 && make -j && make install
