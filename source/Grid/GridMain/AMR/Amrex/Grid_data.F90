@@ -63,6 +63,10 @@ Module Grid_data
   integer, target, save :: lo_bc_amrex(NDIM, UNK_VARS_BEGIN:UNK_VARS_END)
   integer, target, save :: hi_bc_amrex(NDIM, UNK_VARS_BEGIN:UNK_VARS_END)
 
+  ! BC information for face variables
+  integer, target, save :: lo_bc_amrexFace(NDIM, NFACE_VARS, NDIM)
+  integer, target, save :: hi_bc_amrexFace(NDIM, NFACE_VARS, NDIM)
+
   ! These are historical.
   ! Within the AMReX implementation, the number of guardcells
   ! is set to NGUARD for all directions.  Code in the Amrex 
@@ -118,10 +122,12 @@ Module Grid_data
 
   logical, save :: gr_enableMaskedGCFill
 
-  integer, save :: gr_interpolator
+  integer, save :: gr_interpolator, gr_interpolatorFace
 
   logical, save :: gr_enableTiling, gr_useTiling
   integer, save :: gr_tileSize(1:MDIM)
+
+  logical, save :: gr_amrexUseBittree
 
 #ifdef GRID_WITH_MONOTONIC
   integer, save :: gr_intpolStencilWidth

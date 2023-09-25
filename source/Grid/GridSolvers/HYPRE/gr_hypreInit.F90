@@ -50,7 +50,9 @@ subroutine gr_hypreInit()
                            gr_hypreAnisoDiffusion,gr_hypreMatrixIsSetup
 
   use gr_hypreLocalInterface, only: gr_hypreSetupSolver
-  
+  use Grid_data, only: gr_minRefine, gr_lrefineMax
+  use Driver_interface, only: Driver_abort
+
   implicit none 
 
 #include "constants.h"
@@ -64,6 +66,10 @@ subroutine gr_hypreInit()
   
   real :: ssol
   
+  if (gr_minRefine /= gr_lrefineMax) then
+       call Driver_abort("gr_hypreInit: lrefine_min and lrefine_max must be equal")
+  end if
+
   call PhysicalConstants_get("speed of light",gr_speedlt)
   call PhysicalConstants_get("Stefan-Boltzmann",ssol)
   
