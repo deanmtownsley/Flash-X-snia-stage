@@ -41,8 +41,6 @@ subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
 
    real :: divv,gradPx,gradPy,gradPz
    real :: minP,minC,beta,delta
-   real :: localCfl,cflMax
-   real,dimension(:,:,:),pointer :: hy_Vc
 
    !necessary for argument for %getDataPtr()
 #ifndef SHOK_VAR
