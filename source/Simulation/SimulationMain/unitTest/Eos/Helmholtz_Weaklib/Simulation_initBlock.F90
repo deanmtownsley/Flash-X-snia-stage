@@ -171,6 +171,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             solnData(TEMP_VAR, i, j, k) = temp
             solnData(CPRS_VAR, i, j, k) = pres
             solnData(YE_MSCALAR, i, j, k) = ye
+            solnData(SUMY_MSCALAR, i, j, k) = 1.0
             ! Put some small value in energies, so Eos_wrapped called at grid
             ! init will not have to floor then with smallE
             solnData(ENER_VAR, i, j, k) = sim_smallE*1.02

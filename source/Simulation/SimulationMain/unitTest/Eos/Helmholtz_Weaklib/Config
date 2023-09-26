@@ -3,13 +3,13 @@
 #  Receives the Simulation_init from SimulationComposition
 
 REQUIRES physics/Eos/EosMain/Hybrid/Helmholtz_WeakLib
-#REQUIRES physics/Eos/unitTest/WeakLib
+REQUIRES physics/Eos/unitTest/WeakLib
 
 # Extra variables
 D ye_mscalar      Electron Fraction
 MASS_SCALAR YE    EOSMAPIN: YE
 
-MASS_SCALAR SUMY
+MASS_SCALAR SUMY EOSMAPIN: SUMY
 
 D sim_yeMin       Initial distribution of electron fraction, minimum.  Even distribution between min/max.
 D sim_yeMax       Initial distribution of electron fraction, maximum.  Even distribution between min/max.

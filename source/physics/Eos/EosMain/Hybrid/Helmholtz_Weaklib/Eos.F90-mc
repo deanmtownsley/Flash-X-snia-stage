@@ -49,6 +49,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    integer :: k_HLM, vecLen_HLM, kVec_HLM(vecLen)
    real, allocatable :: eosData_WL(:), massFrac_WL(:)
    real, allocatable :: eosData_HLM(:), massFrac_HLM(:)
+   real, dimension(EOS_NUM) :: eosData_k
 
    real :: dens_in, fac
    real :: temp_WL, temp_HLM
@@ -78,13 +79,16 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    ! pack eosData into separate eosData vectors for each EoS
    vecLen_WL = COUNT(eos_hybFlag == EOS_WL .or. eos_hybFlag == EOS_HYB)
    vecLen_HLM = COUNT(eos_hybFlag == EOS_HLM .or. eos_hybFlag == EOS_HYB)
-
+   print *, vecLen_WL, vecLen_HLM
    allocate (eosData_WL(EOS_NUM*vecLen_WL))
    allocate (eosData_HLM(EOS_NUM*vecLen_HLM))
    if (pMassFrac) then
       allocate (massFrac_WL(NSPECIES*vecLen_WL))
       allocate (massFrac_HLM(NSPECIES*vecLen_HLM))
    end if
+
+   eosData_WL = 0.0
+   eosData_HLM = 0.0
 
    k_WL = 0
    k_HLM = 0
