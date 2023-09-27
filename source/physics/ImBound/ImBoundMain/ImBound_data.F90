@@ -49,6 +49,7 @@ module ImBound_data
    integer, save :: ib_meshComm
    integer, save :: ib_nstep
    integer, save :: ib_annQueries
+   integer, save, dimension(:), allocatable :: ib_annIdx
 
    real, dimension(2), save :: ib_alfa
    real, save :: ib_rhoa
@@ -59,7 +60,6 @@ module ImBound_data
    type(ImBound_type_t), save, dimension(:), allocatable, target :: ib_bodyInfo
 
    character(len=20), save :: ib_bodyName
-
    integer, save :: ib_numBodies
 
 end module ImBound_data

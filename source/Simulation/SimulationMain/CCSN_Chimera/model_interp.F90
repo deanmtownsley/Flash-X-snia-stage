@@ -1,6 +1,6 @@
 module model_interp_module
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -48,12 +48,12 @@ contains
     integer :: ilo, ihi, imid
 
     if (x <= xs(1)) then
-       locate = 0
+       locate = 1
     else if (x >= xs(n)) then
-       locate = n
+       locate = n+1
     else
        ilo = 1
-       ihi = n-1
+       ihi = n
        do while (ilo+1 /= ihi)
           imid = (ilo+ihi)/2
           if (x <= xs(imid)) then
@@ -80,12 +80,12 @@ contains
     integer :: ilo, ihi, imid
 
     if (x >= xs(1)) then
-       locate_descending = 0
+       locate_descending = 1
     else if (x <= xs(n)) then
-       locate_descending = n
+       locate_descending = n+1
     else
        ilo = 1
-       ihi = n-1
+       ihi = n
        do while (ilo+1 /= ihi)
           imid = (ilo+ihi)/2
           if (x >= xs(imid)) then
@@ -463,3 +463,4 @@ contains
   end subroutine interp3d_linear_vec
 
 end module model_interp_module
+
