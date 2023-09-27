@@ -5,13 +5,13 @@
 Setup the test as follows
 
 ```bash
-./setup unitTest/Spacetime/static -auto -1d +nofbs +noio --with-unofficial=physics/Spacetime
+./setup unitTest/Spacetime/static -auto -1d +nofbs +noio
 ```
 ```bash
-./setup unitTest/Spacetime/static -auto -2d +nofbs +noio --with-unofficial=physics/Spacetime
+./setup unitTest/Spacetime/static -auto -2d +nofbs +noio
 ```
 ```bash
-./setup unitTest/Spacetime/static -auto -3d +nofbs +noio --with-unofficial=physics/Spacetime
+./setup unitTest/Spacetime/static -auto -3d +nofbs +noio
 ```
 
 Other Grid-backends besides UG (which this defaults to) may be used, but additional refinement parameters will be necessary.  This functionality may be added here in the future along side tests of static non-vacuum backgrounds when relativistic hydro and/or radiation solvers are available.
