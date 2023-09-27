@@ -25,6 +25,96 @@
 
 #include "Simulation.h"
 
+/*
+   Issue warnings if the following variables names
+   have been defined in Simulation.h already
+*/
+
+#ifdef ALP_VAR
+#warning ALP_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef BETAX_VAR
+#warning BETAX_VAR has been declared in Simulation.h already
+#endif
+#ifdef BETAY_VAR
+#warning BETAY_VAR has been declared in Simulation.h already
+#endif
+#ifdef BETAZ_VAR
+#warning BETAZ_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef GXX_VAR
+#warning GXX_VAR has been declared in Simulation.h already
+#endif
+#ifdef GXY_VAR
+#warning GXY_VAR has been declared in Simulation.h already
+#endif
+#ifdef GXZ_VAR
+#warning GXZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef GYY_VAR
+#warning GYY_VAR has been declared in Simulation.h already
+#endif
+#ifdef GYZ_VAR
+#warning GYZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef GZZ_VAR
+#warning GZZ_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef KXX_VAR
+#warning KXX_VAR has been declared in Simulation.h already
+#endif
+#ifdef KXY_VAR
+#warning KXY_VAR has been declared in Simulation.h already
+#endif
+#ifdef KXZ_VAR
+#warning KXZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef KYY_VAR
+#warning KYY_VAR has been declared in Simulation.h already
+#endif
+#ifdef KYZ_VAR
+#warning KYZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef KZZ_VAR
+#warning KZZ_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef TE_VAR
+#warning TE_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef TSX_VAR
+#warning TSX_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSY_VAR
+#warning TSY_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSZ_VAR
+#warning TSZ_VAR has been declared in Simulation.h already
+#endif
+
+#ifdef TSXX_VAR
+#warning TSXX_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSXY_VAR
+#warning TSXY_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSXZ_VAR
+#warning TSXZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSYY_VAR
+#warning TSYY_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSYZ_VAR
+#warning TSYZ_VAR has been declared in Simulation.h already
+#endif
+#ifdef TSZZ_VAR
+#warning TSZZ_VAR has been declared in Simulation.h already
+#endif
+
 #define ALP_VAR SP00_VAR
 
 #define BETAX_VAR SP01_VAR
