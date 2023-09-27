@@ -138,9 +138,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
-                                     hy_flx, hy_fly, hy_flz, &&
-                                     hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
         ng=NGUARD-1
@@ -250,9 +249,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                  blkLimits(LOW,:))
         end if
         call Timers_stop("Offloaded Section")
-        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
-                                         hy_flx, hy_fly, hy_flz, &&
-                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
+        @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -327,9 +325,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            @M hy_map_tmp_states
            @M hy_map_scr_ptrs
-           @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
-                                           hy_flx, hy_fly, hy_flz, &&
-                                           hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
            @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
            @M hy_calcDivB
@@ -441,9 +438,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               @M hy_release_geom
            end if
 
-           @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
-                                            hy_flx, hy_fly, hy_flz, &&
-                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
+           @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
            @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
            @M hy_release_tmp_states
            @M hy_release_scr_ptrs
