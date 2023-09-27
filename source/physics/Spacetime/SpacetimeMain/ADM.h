@@ -31,88 +31,88 @@
 */
 
 #ifdef ALP_VAR
-#warning ALP_VAR has been declared in Simulation.h already
+#warning ALP_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef BETAX_VAR
-#warning BETAX_VAR has been declared in Simulation.h already
+#warning BETAX_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef BETAY_VAR
-#warning BETAY_VAR has been declared in Simulation.h already
+#warning BETAY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef BETAZ_VAR
-#warning BETAZ_VAR has been declared in Simulation.h already
+#warning BETAZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef GXX_VAR
-#warning GXX_VAR has been declared in Simulation.h already
+#warning GXX_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef GXY_VAR
-#warning GXY_VAR has been declared in Simulation.h already
+#warning GXY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef GXZ_VAR
-#warning GXZ_VAR has been declared in Simulation.h already
+#warning GXZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef GYY_VAR
-#warning GYY_VAR has been declared in Simulation.h already
+#warning GYY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef GYZ_VAR
-#warning GYZ_VAR has been declared in Simulation.h already
+#warning GYZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef GZZ_VAR
-#warning GZZ_VAR has been declared in Simulation.h already
+#warning GZZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef KXX_VAR
-#warning KXX_VAR has been declared in Simulation.h already
+#warning KXX_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef KXY_VAR
-#warning KXY_VAR has been declared in Simulation.h already
+#warning KXY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef KXZ_VAR
-#warning KXZ_VAR has been declared in Simulation.h already
+#warning KXZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef KYY_VAR
-#warning KYY_VAR has been declared in Simulation.h already
+#warning KYY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef KYZ_VAR
-#warning KYZ_VAR has been declared in Simulation.h already
+#warning KYZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef KZZ_VAR
-#warning KZZ_VAR has been declared in Simulation.h already
+#warning KZZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef TE_VAR
-#warning TE_VAR has been declared in Simulation.h already
+#warning TE_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef TSX_VAR
-#warning TSX_VAR has been declared in Simulation.h already
+#warning TSX_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSY_VAR
-#warning TSY_VAR has been declared in Simulation.h already
+#warning TSY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSZ_VAR
-#warning TSZ_VAR has been declared in Simulation.h already
+#warning TSZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #ifdef TSXX_VAR
-#warning TSXX_VAR has been declared in Simulation.h already
+#warning TSXX_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSXY_VAR
-#warning TSXY_VAR has been declared in Simulation.h already
+#warning TSXY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSXZ_VAR
-#warning TSXZ_VAR has been declared in Simulation.h already
+#warning TSXZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSYY_VAR
-#warning TSYY_VAR has been declared in Simulation.h already
+#warning TSYY_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSYZ_VAR
-#warning TSYZ_VAR has been declared in Simulation.h already
+#warning TSYZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 #ifdef TSZZ_VAR
-#warning TSZZ_VAR has been declared in Simulation.h already
+#warning TSZZ_VAR declared multiple times, previous declaration probably in Simulation.h
 #endif
 
 #define ALP_VAR SP00_VAR
