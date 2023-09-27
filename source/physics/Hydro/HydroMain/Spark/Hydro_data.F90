@@ -44,10 +44,7 @@ module Hydro_data
   real, allocatable, dimension(:),target :: hya_farea, hya_cvol
   real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
   real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter
-  real, allocatable :: hy_mfrac(:), hy_eosData(:)
   !Flux buffers
-
-  real, dimension(MDIM) :: hy_del
 
   real :: hy_dt, hy_dtmin
   logical :: hy_shockDetectOn
@@ -87,15 +84,6 @@ module Hydro_data
   integer, dimension(3) :: hy_limitsArray
   real, dimension(3,3) :: hy_coeffArray
 
-
-  !! moved out from static physics routines to make it easier for data packet generation
-  !! this set of variables do not follow the standard naming convention because "_" is not usable
-  !! with macro-processor because it needs to be escaped for python
-  !! also they are not really module scope, they are being put here so that all the variable that
-  !! need to be explicitly mapped to the device memory are all in one place
-  integer, dimension(MDIM) :: gCells
-  integer, dimension(LOW:HIGH,MDIM,NDIM,MAXSTAGE) :: lim,limgc
-  integer :: dir,stage
 
 end module Hydro_data
 

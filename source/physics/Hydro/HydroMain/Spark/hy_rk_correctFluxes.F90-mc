@@ -17,7 +17,7 @@
 !! @brief Apply flux correction at fine/coarse boundaries.
 !!
 !! @details
-!! The proper 'flux hy_del'--consistent with Section 3 of Berger&Colella(1989)--
+!! The proper 'flux deltas'--consistent with Section 3 of Berger&Colella(1989)--
 !! should be loaded into hy_fluxBuf[XYZ]. Because this algorithm applies flux
 !! correction at every block interface (not just fine/coarse interfaces)
 !! the fluxes NOT on fine/coarse interfaces must be zerod out.
@@ -26,20 +26,20 @@
 !! @param blkLimits    Index limits for interior of the tile
 !! @param blkLimitsGC  Index limits for exterior of the tile
 !! @param level        The refine level of the block
-!! @param hy_del       dx, dy, dz
+!! @param deltas       dx, dy, dz
 !! @param dt           Timestep
 !! @param isFlux       A switch to handle fluxes rather than flux densities
 !<
 !!Reorder(4):p_fluxBuf[XYZ],Uin
 !!NOVARIANTS
 
-subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlux)
+subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlux)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
        hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,&
-       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter,hy_eosData, hy_mfrac
+       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -54,7 +54,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
   real, pointer :: Uin(:,:,:,:)
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
   integer,intent(IN) :: level
-  real,dimension(MDIM) :: hy_del
+  real, dimension(MDIM), intent(IN) :: deltas
   real, intent(IN) :: dt
   logical, intent(IN) :: isFlux
 
@@ -85,7 +85,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
 
  
  
-   dhdt = minval(hy_del(1:NDIM))/dt
+   dhdt = minval(deltas(1:NDIM))/dt
 
   !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 
   !~ coarse side of f/c boundary, 0 elsewhere
@@ -114,7 +114,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         ! Point to the correct fluxes
         !~ (-) sign b/c fluxes are leaving on the low side
         dFlux = -p_fluxBufX(:,i  ,j  ,k  )
-        dx = hy_del(IAXIS)
+        dx = deltas(IAXIS)
         ! Get geometric factors and sources
 !!        call geoFacs(i,j,k,facM,facP)
         !!Geometric factors for non-Cartesian geometries
@@ -147,7 +147,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         ! Point to the correct fluxes
         ! Positive b/c fluxes are entering on the high side
         dFlux = p_fluxBufX(:,i+1  ,j  ,k  )
-        dx = hy_del(IAXIS)
+        dx = deltas(IAXIS)
         ! Get geometric factors and sources
 !!        call geoFacs(i,j,k,facM,facP)
         if (isFlux) then
@@ -179,7 +179,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         ! Point to the correct fluxes
         dFlux = -p_fluxBufY(:,i  ,j  ,k  )
         fac = 1.0
-        dx = hy_del(JAXIS)
+        dx = deltas(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
            fac = facM
@@ -204,7 +204,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         dFlux = p_fluxBufY(:,i  ,j+1  ,k  )
-        dx = hy_del(JAXIS)
+        dx = deltas(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
            fac = facP
@@ -233,7 +233,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         ! Point to the correct fluxes
         dFlux = -p_fluxBufZ(:,i  ,j  ,k  )
         fac = 1.0
-        dx = hy_del(KAXIS)
+        dx = deltas(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
            fac = facM
@@ -258,7 +258,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         dFlux = p_fluxBufZ(:,i  ,j  ,k+1  )
-        dx = hy_del(KAXIS)
+        dx = deltas(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
            fac = facP
@@ -287,7 +287,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
   end if
 contains
 
-  !!Update cell state based on flux hy_del
+  !!Update cell state based on flux deltas
   subroutine correctZone(Vstar,dFlux,dt,dx,fac)
     implicit none
     real, pointer, intent(INOUT) :: Vstar(:)
@@ -306,7 +306,7 @@ contains
     Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
 
-    ! Now correct conserved vector with flux hy_del
+    ! Now correct conserved vector with flux deltas
     ! The facP, facM definition is cracked. Need to know what side we are on
     Ustar = Ustar -dt/dx*(fac*dFlux)
 

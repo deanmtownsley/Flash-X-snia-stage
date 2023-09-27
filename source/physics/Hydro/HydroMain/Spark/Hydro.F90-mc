@@ -22,15 +22,35 @@
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
-  @M hy_scratch_use
-  use Hydro_data, ONLY : hy_eosData, hy_mfrac,hy_useHydro,hy_telescoping,hy_maxLev,&
-                         hy_addFluxArray,hy_coeffs,hy_weights,hy_limitsArray,hy_coeffArray,&
-                         hy_threadWithinBlock, hy_flattening
+  use Grid_interface, ONLY : Grid_getTileIterator, &
+                             Grid_releaseTileIterator, &
+                             Grid_getCellCoords, &
+                             Grid_getCellFaceAreas, &
+                             Grid_getCellVolumes, &
+                             Grid_communicateFluxes, &
+                             Grid_fillGuardCells, &
+                             Grid_correctFluxData_xtra, &
+                             Grid_getFluxCorrData_block, &
+                             Grid_putFluxData, &
+                             Grid_renormAbundance
+  use Grid_tile, ONLY : Grid_tile_t
+  use Grid_iterator, ONLY : Grid_iterator_t
+  use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Eos_interface, ONLY : Eos_wrapped
+  use IO_interface, ONLY : IO_setScalar
 
-  use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
-       hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
-  use Hydro_data, ONLY : lim,limgc,gCells,dir,stage
-  use Hydro_data, ONLY : hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX, hy_alphaGLM
+
+  use Hydro_data, ONLY : hy_useHydro, &
+                         hy_fluxCorrect, hy_fluxCorrectPerLevel, &
+                         hy_telescoping, &
+                         hy_maxLev, &
+                         hy_weights, hy_coeffArray, &   ! I dont think they are belong to Hydro
+                         hy_threadWithinBlock, hy_flattening, &
+                         hy_gcMask,&
+                         hy_lChyp, hy_C_hyp, hy_alphaGLM, &
+                         hy_geometry, hy_tiny, hy_hybridRiemann, hy_maxCells, &
+                         hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX
+  @M hy_scratch_use
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
@@ -38,18 +58,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                               hy_rk_correctFluxes, &
                               hy_rk_shockDetect, &
                               hy_rk_getFlatteningLimiter
-  use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Grid_interface, ONLY : Grid_communicateFluxes, &
-       Grid_fillGuardCells, Grid_getMaxRefinement, &
-       Grid_correctFluxData_xtra, Grid_putFluxData, Grid_putFluxData_block, &
-       Grid_getFluxCorrData_block,Grid_renormAbundance
-  use Eos_interface, ONLY : Eos_wrapped
-  use IO_interface, ONLY : IO_setScalar
-  use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
-  use Grid_tile,         ONLY : Grid_tile_t
-  use Grid_iterator,     ONLY : Grid_iterator_t
-  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getCellFaceAreas, &
-       Grid_getCellVolumes
 
 #include "Simulation.h"
 #include "constants.h"
@@ -59,28 +67,31 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #include "Flashx_mpi_implicitNone.fh"
 
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
-  type(Grid_iterator_t) :: itor
-  real,              pointer    :: Uin(:,:,:,:)
-  type(Grid_tile_t)     :: tileDesc
-  integer :: level
-  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC,grownLimits
 
-  real,dimension(MDIM) :: deltas
-
-  real,    intent(in) :: timeEndAdv, dt, dtOld
+  real, intent(IN) :: timeEndAdv, dt, dtOld
   integer, intent(IN) :: sweepOrder
-  integer :: n, error, maxLev
-  integer :: xLo,xHi,yLo,yHi,zLo,zHi
-  integer, dimension(LOW:HIGH,MDIM) :: limits
-  real :: hdt,wt
-  integer, parameter :: last_stage = MAXSTAGE
 
-  integer :: i,j,k,v,maxcells,ng
+  type(Grid_iterator_t) :: itor
+  type(Grid_tile_t)     :: tileDesc
+  real, pointer :: Uin(:,:,:,:)
+  integer :: level
+  integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC, grownLimits
+  real, dimension(MDIM) :: deltas
 
   @M hy_declare_scr_ptr
 
-  integer :: lev
+  real :: wt
+  real, dimension(3) :: rk_coeffs
 
+  ! telescoping variables
+  integer, dimension(MDIM) :: gCells
+  integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE) :: lim, limgc
+  integer, dimension(LOW:HIGH, MDIM) :: limits
+
+  integer :: i, j, k, v, lev, dir, stage, ng
+  integer :: xLo, xHi, yLo, yHi, zLo, zHi
+
+  integer, parameter :: last_stage = MAXSTAGE
   logical :: offload = .false.
 
   if (.NOT. hy_useHydro) return
@@ -94,8 +105,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #ifdef OMP_OL
   offload = .true.
 #endif
-
-  hdt = 0.5*dt
 
   @M hy_DIR_TARGET_enter_data(alloc, [grownLimits, blkLimits, blkLimitsGC, limits])
 
@@ -117,7 +126,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      if(.NOT.hy_telescoping) &
           call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
      nullify(Uin)
-     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
+     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
@@ -136,7 +145,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_setLims(ng)
 
         @M hy_DIR_TARGET_enter_data(to, [Uin])
-        @M hy_DIR_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
+        @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
 
         ! DivB will technically be lagged by 1 step, but we need ghost zones to
         ! compute the gradients. I ain't doing more communication for a diagnostic...
@@ -158,7 +167,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !! clause. I have done this to simplify the kernel launching in the GPU and also to
         !! really inventory all data that needs to move to the device memory for computation
         @M hy_stages_t
-           ng=hy_limitsArray(stage)
+           ng = (MAXSTAGE-stage)*NSTENCIL
            @M hy_setLims(ng)
            do dir=1,NDIM
               @M hy_calc_lim
@@ -170,11 +179,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
            call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-               hy_xCenter, hy_yCenter, hy_del, hy_geometry, blkLimitsGC)
+               hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC)
 
            !Set needed number of guard cells to update based on
            !current stage for telescoping upda
-           ng=hy_limitsArray(stage)
+           ng = (MAXSTAGE-stage)*NSTENCIL
            @M hy_setLims(ng)
            @M hy_DIR_TARGET_update_to([limits])
 
@@ -195,20 +204,20 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
 
            !Set proper coefficients for the given stage
-           hy_coeffs = hy_coeffArray(stage,:)
-           @M hy_DIR_TARGET_update_to([hy_coeffs])
+           rk_coeffs = hy_coeffArray(stage,:)
+           @M hy_DIR_TARGET_update_to([rk_coeffs])
 
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffs, &
+           call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
-                                 hy_del, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                 deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
                                  hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                  dt, dtOld, limits)
            @M hy_DIR_TARGET_update_from([hy_starState])
            call Timers_stop("updateSoln")
            if (hy_fluxCorrect) then
               wt=0.0
-              if(hy_addFluxArray(stage))wt=1.0
+              if(stage > 1)wt=1.0
               @M hy_addFluxes
            end if
 
@@ -260,9 +269,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !        ! Loop over blocks and correct block-edge solution
 
         nullify(Uin)
-        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
+        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas)
 
-           !           !Get 'Flux hy_del' on coarse side of fine coarse boundaries;
+           !           !Get 'Flux deltas' on coarse side of fine coarse boundaries;
            !           !all other values are 0.
            @M hy_mapFluxBuf
            call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
@@ -273,7 +282,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            endif
 
 
-           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt, .NOT.hy_telescoping)
+           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,deltas, dt, .NOT.hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom
            end if
@@ -295,7 +304,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
 
         nullify(Uin)
-        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,hy_del)
+        @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,deltas)
         @M hy_DIR_TARGET_enter_data(to, [Uin])
 
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
@@ -304,7 +313,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            ng=NGUARD-1
            @M hy_setLims(ng)
-           @M hy_DIR_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
+           @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            @M hy_map_tmp_states
@@ -321,7 +330,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
            do stage=1,last_stage
-              ng=hy_limitsArray(stage)
+              ng = (MAXSTAGE-stage)*NSTENCIL
               @M hy_setLims(ng)
               do dir=1,NDIM
                  @M hy_calc_lim
@@ -334,11 +343,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! calculate gravitational acceleration based on current value of GPOT_VAR
               ! This is stored in module-scope variable hy_grav
               call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-                  hy_xCenter, hy_yCenter, hy_del, hy_geometry, blkLimitsGC)
+                  hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC)
 
               !Set needed number of guard cells to update based on
               !current stage for telescoping update
-              ng=hy_limitsArray(stage)
+              ng = (MAXSTAGE-stage)*NSTENCIL
               @M hy_setLims(ng)
               @M hy_DIR_TARGET_update_to([limits])
 
@@ -372,14 +381,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               endif
 
               wt=0.0
-              if(hy_addFluxArray(stage))wt=1.0
+              if(stage > 1)wt=1.0
               @M hy_addFluxes
 
               ! Now update solution based on conservative fluxes
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-              hy_coeffs = hy_coeffArray(stage,:)
-              @M hy_DIR_TARGET_update_to([hy_coeffs])
+              rk_coeffs = hy_coeffArray(stage,:)
+              @M hy_DIR_TARGET_update_to([rk_coeffs])
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
@@ -387,9 +396,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
-              call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffs, &
+              call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                     hy_grav, hy_flx, hy_fly, hy_flz, &
-                                    hy_del, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                    deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
                                     hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                     dt, dtOld, limits)
               @M hy_DIR_TARGET_update_from([hy_starState])
@@ -432,6 +441,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                             hy_flx, hy_fly, hy_flz, &&
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            @M hy_DIR_TARGET_exit_data(release, [hy_grav])
+           @M hy_release_tmp_states
            @M hy_release_scr_ptrs
            @M hy_DIR_TARGET_exit_data(release, [Uin])
            @M iter_end
