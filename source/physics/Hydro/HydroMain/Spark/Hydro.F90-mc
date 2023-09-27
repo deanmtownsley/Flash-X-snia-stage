@@ -128,6 +128,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas)
 
+        @M hy_DIR_TARGET_enter_data(to, [Uin])
+
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
            @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
@@ -144,21 +146,19 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         ng=NGUARD-1
         @M hy_setLims(ng)
 
-        @M hy_DIR_TARGET_enter_data(to, [Uin])
         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
 
         ! DivB will technically be lagged by 1 step, but we need ghost zones to
         ! compute the gradients. I ain't doing more communication for a diagnostic...
 
-        ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
-        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
 
         call Timers_start("Offloaded Section")
+
+        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
+
         call Timers_start("scratch")
-
         @M hy_saveState
-
         call Timers_stop("scratch")
 
         !! This macro (hy_stages_t) has a null implementation for the non-telescoping mode.
@@ -205,8 +205,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            !Set proper coefficients for the given stage
            rk_coeffs = hy_coeffArray(stage,:)
-           @M hy_DIR_TARGET_update_to([rk_coeffs])
-
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
@@ -255,6 +253,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                          hy_flx, hy_fly, hy_flz, &&
                                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
 
@@ -308,7 +307,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         nullify(Uin)
         @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,deltas)
-        @M hy_DIR_TARGET_enter_data(to, [Uin])
+
+           if (hy_geometry /= CARTESIAN) then
+              @M hy_fill_geom
+              @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                                           hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+           endif
+
+           @M hy_DIR_TARGET_enter_data(to, [Uin])
 
            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
@@ -324,14 +330,19 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, &&
                                            hy_flx, hy_fly, hy_flz, &&
                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
            @M hy_calcDivB
+
+           call Timers_start("Offloaded Section")
+
            call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
+
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
-           ! U* = U0
            @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
            call Timers_stop("scratch")
+
            do stage=1,last_stage
               ng = (MAXSTAGE-stage)*NSTENCIL
               @M hy_setLims(ng)
@@ -370,7 +381,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
               !This incorporates fluxes calculated in the last stage & the 'flux difference'
               !introduced on fine coarse boundaries.
-
               if (stage == last_stage) then
                  if (lev < hy_maxLev) then
                     call Grid_correctFluxData_xtra(tileDesc,1/hy_weights(stage),&
@@ -391,35 +401,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
               rk_coeffs = hy_coeffArray(stage,:)
-              @M hy_DIR_TARGET_update_to([rk_coeffs])
               call Timers_start("updateSoln")
-              if (hy_geometry /= CARTESIAN) then
-                 @M hy_fill_geom
-                 @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
-                                              hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
-              endif
-
               call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                     hy_grav, hy_flx, hy_fly, hy_flz, &
                                     deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
                                     hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                     dt, dtOld, limits)
               @M hy_DIR_TARGET_update_from([hy_starState])
-              if (hy_geometry /= CARTESIAN) then
-                 @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
-                                                  hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
-                 @M hy_release_geom
-              end if
-
-              ! -------------------------------------- Deal with below here later ---------------------------------------------------__!
-
+              call Timers_stop("updateSoln")
 #if NSPECIES>0
               call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
-              !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
 #endif
-              call Timers_stop("updateSoln")
               ! Update EOS based on intermediate solution
-
               call Timers_start("eos")
               call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
               @M hy_DIR_TARGET_update_to([hy_starState])
@@ -427,11 +420,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
               if (stage == last_stage) then
                  ! Finally, store the output and free up the scratch array
-                 call Timers_start("scratch")
                  @M hy_updateState
-                 call Timers_stop("scratch")
               endif
            end do!stage loop
+
+           call Timers_stop("Offloaded Section")
+
            !Put flux buffer information into SPFS
            if (lev > 1) then
               call Grid_putFluxData(tileDesc, &
@@ -440,16 +434,24 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                     hy_fluxBufZ, &
                                     blkLimits(LOW,:))
            end if
+
+           if (hy_geometry /= CARTESIAN) then
+              @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+              @M hy_release_geom
+           end if
+
            @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, &&
                                             hy_flx, hy_fly, hy_flz, &&
                                             hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-           @M hy_DIR_TARGET_exit_data(release, [hy_grav])
+           @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
            @M hy_release_tmp_states
            @M hy_release_scr_ptrs
+
            @M hy_DIR_TARGET_exit_data(release, [Uin])
-           @M iter_end
-        enddo!loop over levels
-     endif !Flux correct per Level
+         @M iter_end
+      enddo!loop over levels
+    endif !Flux correct per Level
 
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
   hy_lChyp = TINY(1.0)
