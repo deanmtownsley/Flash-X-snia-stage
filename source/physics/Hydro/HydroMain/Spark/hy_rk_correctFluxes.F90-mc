@@ -22,18 +22,27 @@
 !! correction at every block interface (not just fine/coarse interfaces)
 !! the fluxes NOT on fine/coarse interfaces must be zerod out.
 !!
-!! @param Uin          Pointer to solution data
-!! @param blkLimits    Index limits for interior of the tile
-!! @param blkLimitsGC  Index limits for exterior of the tile
-!! @param level        The refine level of the block
-!! @param deltas       dx, dy, dz
-!! @param dt           Timestep
-!! @param isFlux       A switch to handle fluxes rather than flux densities
+!! @param Uin             Pointer to solution data
+!! @param blkLimits       Index limits for interior of the tile
+!! @param fluxBuf[X,Y,Z]  Pointer to Flux buffers in [X,Y,Z] direction
+!! @param deltas          dx, dy, dz
+!! @param farea           Pointer to face areas for non-cartesian grid
+!! @param cvol            Pointer to cell volumes for non-cartesian grid
+!! @param xCenter         Pointer to cell center coordinates of IAXIS for non-cartesian grid
+!! @param xLeft           Pointer to cell's left coordinates of IAXIS for non-cartesian grid
+!! @param xRight          Pointer to cell's right coordinates of IAXIS for non-cartesian grid
+!! @param geometry        Geometry switch
+!! @param dt              Timestep
+!! @param isFlux          A switch to handle fluxes rather than flux densities
 !<
-!!Reorder(4):p_fluxBuf[XYZ],Uin
+!!Reorder(4):fluxBuf[XYZ],Uin
 !!NOVARIANTS
 
-subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlux)
+subroutine hy_rk_correctFluxes(Uin, blkLimits, &
+                               fluxBufX, fluxBufY, fluxBufZ, &
+                               deltas, farea, cvol, &
+                               xCenter, xLeft, xRight, geometry, &
+                               dt, isFlux)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
@@ -52,60 +61,26 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
 #include "Eos.h"
 
   real, pointer :: Uin(:,:,:,:)
-  integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
-  integer,intent(IN) :: level
-  real, dimension(MDIM), intent(IN) :: deltas
+  real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
+  integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
+  real, dimension(:,:,:), pointer :: farea, cvol
+  real, dimension(:), pointer :: xCenter, xLeft, xRight
+  real, dimension(MDIM), intent(IN)  :: deltas
+  integer, intent(IN) :: geometry
   real, intent(IN) :: dt
   logical, intent(IN) :: isFlux
 
-  integer, dimension(MDIM) :: lo, hi
-  
-  integer :: i,j,k,n,g
-
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
-  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
-
-  real, pointer :: p_fluxBufX(:,:,:,:),p_fluxBufY(:,:,:,:),p_fluxBufZ(:,:,:,:)
+  integer :: i, j, k
   real, pointer :: Vstar(:)
   real :: dx, dy, dz
   real :: dFlux(NFLUXES)
-
-  real :: eint, ekin, emag
   ! Geometry factors
-  real :: facM, facP
-  real :: dhdt, fac
- 
+  real :: fac, facM, facP
+
   ! For EOS call
-  !integer,dimension(MDIM) :: pos
-  integer :: vecLen = 1 !b/c updated cell by cell
-  integer, dimension(LOW:HIGH,MDIM)  :: range
+  integer, dimension(LOW:HIGH,MDIM) :: idxRange
 
-  lo(:) = blkLimits(LOW,:)
-  hi(:) = blkLimits(HIGH,:)
-
- 
- 
-   dhdt = minval(deltas(1:NDIM))/dt
-
-  !~ hy_fluxBuf[XYZ] represents (sum(F_fine) - F_coarse) on 
-  !~ coarse side of f/c boundary, 0 elsewhere
-
-  nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
-  !These pointers allow us to use hy_fluxBuf[XYZ] (whose limits
-  !are hard coded in FBS mode) within the varying loop limits below
-
-  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hya_fluxBufX
-#if NDIM>1  
-  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hya_fluxBufY
-#if NDIM==3
-  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_fluxBufZ
-#endif
-#endif
-  if(hy_geometry /= CARTESIAN) then
-     @M hy_map_geom
-  end if   
-  !Change limits to grownTile?
-  !! LOW side
+  ! LOW side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
         i = blkLimits(LOW,IAXIS)
@@ -113,19 +88,16 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         !~ (-) sign b/c fluxes are leaving on the low side
-        dFlux = -p_fluxBufX(:,i  ,j  ,k  )
+        dFlux = -fluxBufX(:,i,j,k)
         dx = deltas(IAXIS)
-        ! Get geometric factors and sources
-!!        call geoFacs(i,j,k,facM,facP)
-        !!Geometric factors for non-Cartesian geometries
+        ! Geometric factors for non-Cartesian geometries
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
            @M hy_geom_flux_correct
         end if
         fac = facM
-        ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
-        !Update primitives (Vstar)
+        ! Update primitives (Vstar)
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Release pointers
         nullify(Vstar)
@@ -133,12 +105,12 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) =   blkLimits(LOW,IAXIS)
-  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
-  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) =   blkLimits(LOW,IAXIS)
+  idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 
-  !! HIGH side
+  ! HIGH side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
         i = blkLimits(HIGH,IAXIS)
@@ -146,10 +118,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
         ! Positive b/c fluxes are entering on the high side
-        dFlux = p_fluxBufX(:,i+1  ,j  ,k  )
+        dFlux = fluxBufX(:,i+1,j,k)
         dx = deltas(IAXIS)
         ! Get geometric factors and sources
-!!        call geoFacs(i,j,k,facM,facP)
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
@@ -163,21 +134,21 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) =   blkLimits(HIGH,IAXIS)
-  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
-  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) =   blkLimits(HIGH,IAXIS)
+  idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 
 #if NDIM>1
   ! Correct JAXIS sides
-  !! LOW side
+  ! LOW side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         j = blkLimits(LOW,JAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = -p_fluxBufY(:,i  ,j  ,k  )
+        dFlux = -fluxBufY(:,i,j,k)
         fac = 1.0
         dx = deltas(JAXIS)
         if (isFlux) then
@@ -191,19 +162,19 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
-  range(LOW:HIGH,JAXIS) =   blkLimits(LOW,JAXIS)
-  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  idxRange(LOW:HIGH,JAXIS) =   blkLimits(LOW,JAXIS)
+  idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 
-  !! HIGH side
+  ! HIGH side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         j = blkLimits(HIGH,JAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = p_fluxBufY(:,i  ,j+1  ,k  )
+        dFlux = fluxBufY(:,i,j+1,k)
         dx = deltas(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
@@ -218,20 +189,20 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
-  range(LOW:HIGH,JAXIS) =   blkLimits(HIGH,JAXIS)
-  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  idxRange(LOW:HIGH,JAXIS) =   blkLimits(HIGH,JAXIS)
+  idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 #if NDIM==3
   ! Correct KAXIS sides
-  !! LOW side
+  ! LOW side
   do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         k = blkLimits(LOW,KAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = -p_fluxBufZ(:,i  ,j  ,k  )
+        dFlux = -fluxBufZ(:,i,j,k)
         fac = 1.0
         dx = deltas(KAXIS)
         if (isFlux) then
@@ -245,19 +216,19 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
-  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
-  range(LOW:HIGH,KAXIS) =   blkLimits(LOW,KAXIS)
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  idxRange(LOW:HIGH,KAXIS) =   blkLimits(LOW,KAXIS)
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 
-  !! HIGH side
+  ! HIGH side
   do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         k = blkLimits(HIGH,KAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
         ! Point to the correct fluxes
-        dFlux = p_fluxBufZ(:,i  ,j  ,k+1  )
+        dFlux = fluxBufZ(:,i,j,k+1)
         dx = deltas(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
@@ -272,19 +243,14 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,deltas, dt, isFlu
   enddo !k
 
   ! Update EOS
-  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
-  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
-  range(LOW:HIGH,KAXIS) =   blkLimits(HIGH,KAXIS)
-  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+  idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  idxRange(LOW:HIGH,KAXIS) =   blkLimits(HIGH,KAXIS)
+  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
 #endif
 #endif
 
 
-  nullify(p_fluxBufX);nullify(p_fluxBufY);nullify(p_fluxBufZ)
-  
-  if(hy_geometry /= CARTESIAN) then
-    @M hy_release_geom
-  end if
 contains
 
   !!Update cell state based on flux deltas
@@ -293,6 +259,7 @@ contains
     real, pointer, intent(INOUT) :: Vstar(:)
     real, intent(IN) :: dFlux(NFLUXES), dt, dx, fac
     real :: Ustar(NFLUXES)
+    real :: eint, ekin, emag
 
     ! Construct vectors of conserved variables
     Ustar(HY_MASS)         = Vstar(DENS_VAR)

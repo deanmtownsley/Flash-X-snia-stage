@@ -71,13 +71,20 @@ module hy_rk_interface
   
   
   interface
-     subroutine hy_rk_correctFluxes(Uin, blkLimits, blklimitsGC, level, deltas, dt, isFlux)
+     subroutine hy_rk_correctFluxes(Uin, blkLimits, &
+                                    fluxBufX, fluxBufY, fluxBufZ, &
+                                    deltas, farea, cvol, &
+                                    xCenter, xLeft, xRight, geometry, &
+                                    dt, isFlux)
        real, pointer :: Uin(:,:,:,:)
-       integer, dimension(LOW:HIGH,MDIM), intent(IN) :: blkLimits, blkLimitsGC
-       integer, intent(IN) :: level
-       real,dimension(MDIM), intent(IN) :: deltas
+       real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
+       real, dimension(:,:,:), pointer :: farea, cvol
+       real, dimension(:), pointer :: xCenter, xLeft, xRight
+       real, dimension(MDIM), intent(IN)  :: deltas
+       integer, intent(IN) :: geometry
        real, intent(IN) :: dt
-       logical, intent(IN) :: isFlux ! handle as fluxes rather than flux densities?
+       logical, intent(IN) :: isFlux
      end subroutine hy_rk_correctFluxes
   end interface
 
