@@ -1,5 +1,4 @@
 # Config file for the SpacetimeMain unit
-UNOFFICIAL
 
 # Using variable naming scheme to ensure that they are contiguous in UNK
 # These will be renamed later in `ADM.h`
