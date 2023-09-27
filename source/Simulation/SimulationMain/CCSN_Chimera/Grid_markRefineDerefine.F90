@@ -1,6 +1,6 @@
-!!****if* source/Simulation/SimulationMain/CCSN/Grid_markRefineDerefine
+!!****if* source/Simulation/SimulationMain/CCSN_Chimera/Grid_markRefineDerefine
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -23,16 +23,26 @@
 !!  This routine is used with AMR only where individual 
 !!  blocks are marked for refinement or derefinement based upon
 !!  some refinement criterion. The Uniform Grid does not need
-!!  this routine, and uses the stub.
+!!  this routine, and uses the stub. The AMReX-based Grid
+!!  currently does not understand this way of implementing
+!!  refinement criteria either, and uses callbacks instead,
+!!  which are implemented as private functions of the Grid unit.
 !!
-!!  This routine is normally called by the implementation of
+!!  With the PARAMESH-based Grid implementation,
+!!  this routine is normally called by the implementation of
 !!  Grid_updateRefinement. It may also get called repeatedly
 !!  during the initial construction of the Grid from
 !!  Grid_initDomain.
 !!
 !! ARGUMENTS
-!! 
+!!
 !!  none
+!!
+!! SEE ALSO
+!!
+!!  Grid_updateRefinement
+!!  Grid_initDomain
+!!  gr_expandDomain
 !!
 !! NOTES
 !!
@@ -48,9 +58,6 @@
 
 subroutine Grid_markRefineDerefine()
 
-#include "constants.h"
-#include "Simulation.h"
-
   use Grid_data, ONLY : gr_refine_cutoff, gr_derefine_cutoff,&
                         gr_refine_filter,&
                         gr_numRefineVars,gr_refine_var,gr_refineOnParticleCount,&
@@ -60,13 +67,15 @@ subroutine Grid_markRefineDerefine()
                         gr_lrefineMaxRedDoByLogR,&
                         gr_lrefineCenterI,gr_lrefineCenterJ,gr_lrefineCenterK,&
                         gr_eosModeNow
-  use tree, ONLY : newchild, refine, derefine, stay, lrefine_max
+  use tree, ONLY : newchild, refine, derefine, stay, nodetype, lrefine_max
   use Logfile_interface, ONLY : Logfile_stampVarMask
   use Grid_interface, ONLY : Grid_fillGuardCells
   use gr_interface,   ONLY : gr_markRefineDerefine
-
+  use Simulation_data, ONLY : sim_r_inner
   implicit none
 
+#include "constants.h"
+#include "Simulation.h"
 
   
   real :: ref_cut,deref_cut,ref_filter
@@ -76,8 +85,8 @@ subroutine Grid_markRefineDerefine()
   logical :: doEos=.true.
   integer,parameter :: maskSize = NUNK_VARS+NDIM*NFACE_VARS
   logical,dimension(maskSize) :: gcMask
-  real, dimension(4) :: spec
   real, dimension(MAXBLOCKS) :: err
+  real, dimension(1:4) :: spec
 
   if(gr_lrefineMaxRedDoByTime) then
      call gr_markDerefineByTime()
@@ -114,7 +123,6 @@ subroutine Grid_markRefineDerefine()
        selectBlockType=ACTIVE_BLKS)
   gcMaskArgsLogged = .TRUE.
 !!$  force_consistency = .TRUE.
-  err=0.0
 
   newchild(:) = .FALSE.
   refine(:)   = .FALSE.
@@ -126,17 +134,10 @@ subroutine Grid_markRefineDerefine()
      ref_cut = gr_refine_cutoff(l)
      deref_cut = gr_derefine_cutoff(l)
      ref_filter = gr_refine_filter(l)
-     ! call gr_markRefineDerefine(iref,ref_cut,deref_cut,ref_filter)  - OLD CALL
+     err(:)      = 0.0
      call gr_estimateError(err, iref, ref_filter)
      call gr_markRefineDerefine(err, ref_cut, deref_cut)
   end do
-
-#ifdef FLASH_GRID_PARAMESH2
-  ! Make sure lrefine_min and lrefine_max are obeyed - KW
-  if (gr_numRefineVars .LE. 0) then
-     call gr_markRefineDerefine(-1, 0.0, 0.0, 0.0)
-  end if
-#endif
 
   if(gr_refineOnParticleCount)call gr_ptMarkRefineDerefine()
 
@@ -146,10 +147,17 @@ subroutine Grid_markRefineDerefine()
        call gr_unmarkRefineByLogRadius(gr_lrefineCenterI,&
        gr_lrefineCenterJ,gr_lrefineCenterK)
   
-     spec(1:3) = 0.0
-     spec(4) = 5.e6
-     call Grid_markRefineSpecialized(INRADIUS,4,spec,lrefine_max)
 
+  spec(1:3) = 0.0
+  spec(4) = sim_r_inner*1.2
+  call Grid_markRefineSpecialized(INRADIUS,4,spec,lrefine_max)
+  ! When the flag arrays are passed to Paramesh for processing, only leaf
+  ! blocks should be marked. - KW
+  where (nodetype(:) .NE. LEAF)
+     refine(:)   = .false.
+     derefine(:) = .false.
+  end where
+  
   return
 end subroutine Grid_markRefineDerefine
 

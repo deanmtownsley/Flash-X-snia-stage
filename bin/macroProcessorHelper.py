@@ -18,7 +18,7 @@ def formatOutput(outpath):
     if ext in fortran_exts:
         if hasattr(shutil, "which"):
             if shutil.which("fprettify"):
-                subprocess.run("fprettify {}".format(outpath), shell=True, check=True)
+                subprocess.run("fprettify -w1 {}".format(outpath), shell=True, check=True)
 
 
 # unitDir: path to unit directory with mc files
