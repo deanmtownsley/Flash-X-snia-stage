@@ -30,8 +30,8 @@ MA28_PATH = ${FLASHX_MA28_DIR}
 #----------------------------------------------------------------------------
 FCOMP   = h5pfc
 CCOMP   = h5pcc
-CPPCOMP = mpicxx
-LINK    = h5pfc
+CPPCOMP = mpicxx -std=c++17
+LINK    = h5pfc -std=c++17
 
 # pre-processor flag
 PP      = -D
@@ -85,7 +85,7 @@ CFLAGS_TEST = -c
 
 CFLAGS_HDF5 = -DH5_USE_18_API
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
-CFLAGS_AMREX = -I${AMREX_PATH}/include -std=c++17
+CFLAGS_AMREX = -I${AMREX_PATH}/include
 CFLAGS_MILHOJA =
 
 #----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ LIB_MATH  =
 LIB_MPI   =
 LIB_MPE   =
 LIB_HYPRE = -L$(HYPRE_PATH)/lib -lHYPRE
-LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread -std=c++17
+LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lpthread
 LIB_BITTREE =
 LIB_STDCXX = -lstdc++
 LIB_LAPACK= -llapack -lblas
