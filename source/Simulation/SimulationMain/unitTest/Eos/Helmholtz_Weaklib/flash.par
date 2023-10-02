@@ -34,5 +34,5 @@ nblockz = 1
 eosModeInit = "eos_nop"
 eosMode     = "eos_nop"
 
-eos_hybTransitionDensLo = 1e7
-eos_hybTransitionDensHi = 5e7
+eos_hybTransitionDensLo = 1e5
+eos_hybTransitionDensHi = 5e5

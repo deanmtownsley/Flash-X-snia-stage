@@ -51,7 +51,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    real, allocatable :: eosData_HLM(:), massFrac_HLM(:)
    real, dimension(EOS_NUM) :: eosData_k
 
-   real :: dens_in, fac
+   real :: dens_in, fac, facLo, facHi
    real :: temp_WL, temp_HLM
    real :: pres_WL, pres_HLM
    real :: eint_WL, eint_HLM
@@ -59,6 +59,8 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    real :: gamc_WL, gamc_HLM
 
    integer :: i, k
+
+   real :: a, b, r
 
    vecBegin = 1
    vecEnd = vecLen
@@ -79,7 +81,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    ! pack eosData into separate eosData vectors for each EoS
    vecLen_WL = COUNT(eos_hybFlag == EOS_WL .or. eos_hybFlag == EOS_HYB)
    vecLen_HLM = COUNT(eos_hybFlag == EOS_HLM .or. eos_hybFlag == EOS_HYB)
-   print *, vecLen_WL, vecLen_HLM
+   ! print *, vecLen_WL, vecLen_HLM, count(eos_hybFlag == EOS_HYB)
    allocate (eosData_WL(EOS_NUM*vecLen_WL))
    allocate (eosData_HLM(EOS_NUM*vecLen_HLM))
    if (pMassFrac) then
@@ -172,28 +174,79 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          fac = (dens_in - eos_hybTransitionDensLo) &
                /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
 
-         select case (mode)
-         case (MODE_DENS_TEMP)
-            eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
-            eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
-            eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
-            eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
-         case (MODE_DENS_EI)
-            eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
-            eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
-            eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
-            eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
-         case (MODE_DENS_PRES)
-            eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
-            eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
-            eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
-            eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
-         case (MODE_DENS_ENTR)
-            eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
-            eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
-            eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
-            eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
-         end select
+         ! r = ((dens_in - eos_hybTransitionDensLo) &
+         !      /(eos_hybTransitionDensHi - dens_in))
+         ! r = min(r, 1.0 - r)
+         ! r = (log(dens_in) - log(eos_hybTransitionDensLo)) &
+         !     /(log(eos_hybTransitionDensHi) - log(eos_hybTransitionDensLo))
+         r = 1.0/fac**2
+
+         facHi = (dens_in/eos_hybTransitionDensHi)**2
+         facLo = (eos_hybTransitionDensLo/dens_in)**2
+
+         ! r = facLo/facHi
+
+         ! fac = 0.5*max(0.0, min(2.0*r, 0.5*(1.0 + r), 2.0))
+         ! fac = 0.5*max(0.0, min(2.0*r, 1.0), min(r, 2.0))
+         ! fac = 0.5*max(0.0, min(1.0, r))
+         ! fac = 0.5*max(0.0, min(2.0*r, min((1.0 + 2.0*r)/3.0, 2.0)))
+
+         ! Because why not?
+         ! fac = 1.0/3.0 + 2.0/15.0*fac**2*(3.0 - fac + 3.0*fac**2)
+
+         ! select case (mode)
+         ! case (MODE_DENS_TEMP)
+         !    eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
+         !    eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
+         !    eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
+         !    eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
+         ! case (MODE_DENS_EI)
+         !    eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
+         !    eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
+         !    eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
+         !    eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
+         ! case (MODE_DENS_PRES)
+         !    eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
+         !    eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
+         !    eosData_k(EOS_ENTR) = fac*entr_WL + (1.0 - fac)*entr_HLM
+         !    eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
+         ! case (MODE_DENS_ENTR)
+         !    eosData_k(EOS_TEMP) = fac*temp_WL + (1.0 - fac)*temp_HLM
+         !    eosData_k(EOS_PRES) = fac*pres_WL + (1.0 - fac)*pres_HLM
+         !    eosData_k(EOS_EINT) = fac*eint_WL + (1.0 - fac)*eint_HLM
+         !    eosData_k(EOS_GAMC) = fac*gamc_WL + (1.0 - fac)*gamc_HLM
+         ! end select
+
+         ! select case (mode)
+         ! case (MODE_DENS_TEMP)
+         !    eosData_k(EOS_PRES) = (pres_WL*facHi + pres_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_EINT) = (eint_WL*facHi + eint_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_ENTR) = (entr_WL*facHi + entr_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_GAMC) = (gamc_WL*facHi + gamc_HLM*facLo)/(facLo + facHi)
+         ! case (MODE_DENS_EI)
+         !    eosData_k(EOS_TEMP) = (temp_WL*facHi + temp_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_PRES) = (pres_WL*facHi + pres_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_ENTR) = (entr_WL*facHi + entr_HLM*facLo)/(facLo + facHi)
+         !    eosData_k(EOS_GAMC) = (gamc_WL*facHi + gamc_HLM*facLo)/(facLo + facHi)
+         ! case (MODE_DENS_PRES)
+         !    eosData_k(EOS_TEMP) = exp(log(temp_WL)*r + log(temp_HLM)*(1.0 - r))
+         !    eosData_k(EOS_EINT) = exp(log(eint_WL)*r + log(eint_HLM)*(1.0 - r))
+         !    eosData_k(EOS_ENTR) = exp(log(entr_WL)*r + log(entr_HLM)*(1.0 - r))
+         !    eosData_k(EOS_GAMC) = exp(log(gamc_WL)*r + log(gamc_HLM)*(1.0 - r))
+         ! case (MODE_DENS_ENTR)
+         !    eosData_k(EOS_TEMP) = exp(log(temp_WL)*r + log(temp_HLM)*(1.0 - r))
+         !    eosData_k(EOS_PRES) = exp(log(pres_WL)*r + log(pres_HLM)*(1.0 - r))
+         !    eosData_k(EOS_EINT) = exp(log(eint_WL)*r + log(eint_HLM)*(1.0 - r))
+         !    eosData_k(EOS_GAMC) = exp(log(gamc_WL)*r + log(gamc_HLM)*(1.0 - r))
+         ! end select
+
+         do i = 1, EOS_NUM
+         eosData_k(i) = (facHi*eosData_WL((i - 1)*vecLen_WL + k_WL) + facLo*eosData_HLM((i - 1)*vecLen_HLM + k_HLM))/(facLo + facHi)
+            ! eosData_k(i) = sqrt(eosData_WL((i - 1)*vecLen_WL + k_WL)**r*eosData_HLM((i - 1)*vecLen_HLM + k_HLM)**(1.0 - r))
+            ! ! For no good reason whatsoever, this actually works slightly better...
+            ! eosData_k(i) = (1.5*fac - 0.5)*eosData_WL((i - 1)*vecLen_WL + k_WL) &
+            !                + 1.5*(1.0 - fac)*eosData_HLM((i - 1)*vecLen_HLM + k_HLM)
+         end do
 
       else ! eos_hybFlag(k) == EOS_HLM
 

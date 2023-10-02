@@ -3,7 +3,7 @@
 #  Receives the Simulation_init from SimulationComposition
 
 REQUIRES physics/Eos/EosMain/Hybrid/Helmholtz_WeakLib
-REQUIRES physics/Eos/unitTest/WeakLib
+REQUIRES physics/Eos/unitTest/Hybrid
 
 # Extra variables
 D ye_mscalar      Electron Fraction
