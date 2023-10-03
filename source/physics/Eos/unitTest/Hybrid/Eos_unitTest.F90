@@ -79,13 +79,10 @@ subroutine Eos_unitTest(fileUnit, perfect)
    use Grid_tile, ONLY: Grid_tile_t
    use IO_interface, ONLY: IO_writeCheckpoint
    use Eos_data, ONLY: eos_meshMe, eos_meshNumProcs
-   use eos_testData, ONLY: eos_testPresModeStr, &
-                           eos_testEintModeStr, &
-                           eos_testTempModeStr, &
-                           eos_testPresMode, &
-                           eos_testEintMode, &
-                           eos_testTempMode
    use eos_testData, ONLY: tolerance => eos_testTolerance
+
+   use Timers_interface, only: Timers_start, Timers_stop, Timers_getSummary
+
    implicit none
 
 # include "Eos.h"
@@ -97,36 +94,21 @@ subroutine Eos_unitTest(fileUnit, perfect)
    integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t)     :: tileDesc
-   real :: presErr, tempErr, eintErr
 
    integer :: blockID
    real, pointer, dimension(:, :, :, :):: solnData
-   logical:: test1, test2, test3, test4 !for a block
    logical:: test1allB, test2allB, test3allB, test4allB !for all blocks
 
-   integer :: vecLen, blockOffset, pres, dens, temp, e, n, m
-   integer :: isize, jsize, ksize, i, j, k, nStartsAtOne
-   real, dimension(:), allocatable :: eosData
-   real, dimension(:), allocatable :: massFrac
-   logical, dimension(EOS_VARS + 1:EOS_NUM) :: mask
-   real, allocatable, dimension(:, :, :, :) :: derivedVariables
-   real, dimension(:, :, :), allocatable :: deriv1, deriv2
-
-   character(len=7), pointer:: ap
-   character(len=7), target :: a
    integer, parameter :: maxPrintPE = 20
    integer, save :: nodeType = LEAF
    integer :: ib, ie, jb, je, kb, ke
-   integer, dimension(3) :: startingPos, dataSize
-   real :: presErr1, presErr2
-   real :: tempErr1, tempErr2
-   real :: eintErr1, eintErr2
 
    character(len=9), dimension(MODE_DENS_TEMP:MODE_DENS_PRES), parameter :: &
       mode_names = ["DENS_TEMP", "DENS_EINT", "DENS_PRES"]
 
    character(len=:), allocatable :: block_fmt, mode_fmt, set_fmt, err_fmt, &
-                                    status_fmt, setup_fmt, init_fmt, result_fmt
+                                    status_fmt, setup_fmt, init_fmt, result_fmt, &
+                                    comp_fmt
 
    block_fmt = "(i6,':  Block: ',i8,'  Type: ',i4)"
    mode_fmt = "(i6,':  Running test for mode: ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)"
@@ -136,20 +118,9 @@ subroutine Eos_unitTest(fileUnit, perfect)
    status_fmt = "(i6,':  Result for test for ',a9,':  ',a4)"
    init_fmt = "(i6,':  Initialized ',a4,1x,a3': ',es24.15)"
    result_fmt = "(i6,':  Resulting ',a4,1x,a3': ',es24.15)"
+   comp_fmt = "(i6,':     ',a4,2x,es24.15,4x,a4,2x,es24.15)"
 
    nullify (solnData)
-
-   if (eos_meshNumProcs == 1) then
-      a = ''
-      ap => a
-   else
-20    format(I6, ':')
-      write (a, 20) eos_meshMe
-      a = trim(adjustl(a))
-      ap => a
-   end if
-
-   mask = .true.
 
    call setupTest(MODE_DENS_TEMP, DENS_VAR, TEMP_VAR, DENS_VAR, CTMP_VAR, EINT_VAR, PRES_VAR, OTMP_VAR, OENT_VAR, OPRS_VAR)
    call IO_writeCheckpoint()   !! This is checkpoint 001
@@ -169,13 +140,16 @@ subroutine Eos_unitTest(fileUnit, perfect)
    call runTest(test4allB, MODE_DENS_TEMP, DENS_VAR, TEMP_VAR, EINT_VAR, PRES_VAR, OENT_VAR, OPRS_VAR)
    call IO_writeCheckpoint()   !! This is checkpoint 006
 
-   if (eos_meshMe .EQ. MASTER_PE) print *, 'out of the loop'
    perfect = test1allB .and. test2allB .and. test3allB .and. test4allB
-   if (perfect) then
-      if (eos_meshMe < maxPrintPE) print *, ap, 'SUCCESS all tests were fine'
-   else
-      if (eos_meshMe < maxPrintPE) print *, ap, 'FAILURE some tests failed'
+   if (eos_meshMe < maxPrintPE) then
+      if (perfect) then
+         print "(i6,':  ',a)", eos_meshMe, 'SUCCESS all tests passed'
+      else
+         print "(i6,':  ',a)", eos_meshMe, 'FAILURE some tests failed'
+      end if
    end if
+
+   call Timers_getSummary(1)
 
 contains
 
@@ -205,6 +179,8 @@ contains
       character(len=4) :: out_1_name, out_2_name
       character(len=4) :: out_1_exp_name, out_2_exp_name
       character(len=4) :: in_1_init_name, in_2_init_name
+
+      name = mode_names(mode)
 
       call Simulation_mapIntToStr(in_1, in_1_name, MAPBLOCK_UNK)
       call Simulation_mapIntToStr(in_2, in_2_name, MAPBLOCK_UNK)
@@ -258,7 +234,9 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
+      call Timers_start(name)
       call Eos_everywhere(mode)
+      call Timers_stop(name)
 
       write (*, *) repeat("-", 88)
 
@@ -385,7 +363,9 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
+      call Timers_start(name)
       call Eos_everywhere(mode)
+      call Timers_stop(name)
 
       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
 
@@ -409,20 +389,36 @@ contains
             write (*, block_fmt) eos_meshMe, blockID, nodeType
          end if
 
-         err_1 = maxval(abs((solnData(out_1, ib:ie, jb:je, kb:ke) &
-                             - solnData(out_1_exp, ib:ie, jb:je, kb:ke)) &
-                            /solnData(out_1_exp, ib:ie, jb:je, kb:ke)))
+         ierr_1 = maxloc(abs((solnData(out_1, ib:ie, jb:je, kb:ke) &
+                              - solnData(out_1_exp, ib:ie, jb:je, kb:ke)) &
+                             /solnData(out_1_exp, ib:ie, jb:je, kb:ke)))
 
-         err_2 = maxval(abs((solnData(out_2, ib:ie, jb:je, kb:ke) &
-                             - solnData(out_2_exp, ib:ie, jb:je, kb:ke)) &
-                            /solnData(out_2_exp, ib:ie, jb:je, kb:ke)))
+         ierr_2 = maxloc(abs((solnData(out_2, ib:ie, jb:je, kb:ke) &
+                              - solnData(out_2_exp, ib:ie, jb:je, kb:ke)) &
+                             /solnData(out_2_exp, ib:ie, jb:je, kb:ke)))
+
+         err_1 = abs((solnData(out_1, ierr_1(1), ierr_1(2), ierr_1(3)) &
+                      - solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3))) &
+                     /solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3)))
+
+         err_2 = abs((solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)) &
+                      - solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))) &
+                     /solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3)))
 
          success = tolerance .gt. err_1
          success = success .and. (tolerance .gt. err_2)
 
          if (eos_meshMe < maxPrintPE) then
             write (*, err_fmt) eos_meshMe, out_1_name, err_1
+            write (*, comp_fmt) eos_meshMe, in_1_name, solnData(in_1, ierr_1(1), ierr_1(2), ierr_1(3)), &
+               in_2_name, solnData(in_2, ierr_1(1), ierr_1(2), ierr_1(3))
+            write (*, comp_fmt) eos_meshMe, out_1_name, solnData(out_1, ierr_1(1), ierr_1(2), ierr_1(3)), &
+               out_1_exp_name, solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3))
             write (*, err_fmt) eos_meshMe, out_2_name, err_2
+            write (*, comp_fmt) eos_meshMe, in_1_name, solnData(in_1, ierr_2(1), ierr_2(2), ierr_2(3)), &
+               in_2_name, solnData(in_2, ierr_2(1), ierr_2(2), ierr_2(3))
+            write (*, comp_fmt) eos_meshMe, out_2_name, solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)), &
+               out_2_exp_name, solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))
 
             if (success) then
                write (*, status_fmt) eos_meshMe, name, "PASS"
