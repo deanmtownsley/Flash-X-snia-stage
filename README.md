@@ -23,8 +23,8 @@ should be made known to the Flash-X build system by a site-specific (or, as a fa
 Makefile.h file. See the subdirectories under sites/ .
 
 This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
-should be installed, and the appropriate locations mentioned in Makefile.h . Flash-X is compatiable 
-with AMReX version 23.10. Simulations that use face-centered variables are not compatiable with any 
+should be installed, and the appropriate locations mentioned in Makefile.h . Flash-X is compatible
+with AMReX version 23.10. Simulations that use face-centered variables are not compatible with any 
 other version before this tag.
 
 On the other hand, some applications and tests use INTERNAL libraries. Such libraries are built, as part of the Flash-X setup process, from source code that is located in subdirectories under lib/ . There are two cases for such libraries:
