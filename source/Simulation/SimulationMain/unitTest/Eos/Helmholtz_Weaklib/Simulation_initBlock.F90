@@ -87,10 +87,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    if (sim_debug .AND. (sim_meshMe == MASTER_PE)) then
       callNo = callNo + 1
-#ifdef FLASH_GRID_PARAMESH
-      blockID = tileDesc%id
-#else
+#ifdef FLASH_GRID_AMREX
       blockID = tileDesc%grid_index
+#else
+      blockID = tileDesc%id
 #endif
       print *, 'call Simulation_initBlock #', callNo, blockID
       print *, 'globalInd  :', globalInd

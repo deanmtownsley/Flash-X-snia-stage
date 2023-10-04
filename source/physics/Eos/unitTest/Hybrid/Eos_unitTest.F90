@@ -110,15 +110,18 @@ subroutine Eos_unitTest(fileUnit, perfect)
                                     status_fmt, setup_fmt, init_fmt, result_fmt, &
                                     comp_fmt
 
-   block_fmt = "(i6,':  Block: ',i8,'  Type: ',i4)"
-   mode_fmt = "(i6,':  Running test for mode: ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)"
-   setup_fmt = "(i6,':  Setting up test for mode: ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)"
-   set_fmt = "(i6,':  Setting ',a4,' = ',a4)"
-   err_fmt = "(i6,':  Maximum error in ',a4,': ',es24.15)"
-   status_fmt = "(i6,':  Result for test for ',a9,':  ',a4)"
-   init_fmt = "(i6,':  Initialized ',a4,1x,a3': ',es24.15)"
-   result_fmt = "(i6,':  Resulting ',a4,1x,a3': ',es24.15)"
-   comp_fmt = "(i6,':     ',a4,2x,es24.15,4x,a4,2x,es24.15)"
+   block_fmt  = "(i6,':  Block: ',i8,'  Type: ',i4)" !&
+
+   setup_fmt  = "(i6,':  Setting up test for mode: ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)" !&
+   mode_fmt   = "(i6,':  Running test for mode:    ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)" !&
+
+   set_fmt    = "(i6,':  Setting ',a4,' = ',a4)"              !&
+   init_fmt   = "(i6,':  Initialized ',a4,1x,a3': ',es24.15)" !&
+   result_fmt = "(i6,':  Resulting ',a4,1x,a3': ',es24.15)"   !&
+
+   status_fmt = "(i6,':  Result for test for ',a9,':  ',a4)"   !&
+   err_fmt    = "(i6,':  Maximum error in ',a4,': ',es24.15)"  !&
+   comp_fmt   = "(i6,':     ',a4,2x,es24.15,4x,a4,2x,es24.15)" !&
 
    nullify (solnData)
 

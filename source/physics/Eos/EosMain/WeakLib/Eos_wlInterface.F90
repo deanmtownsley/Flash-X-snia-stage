@@ -1,4 +1,4 @@
-Module Eos_nucInterface
+Module Eos_wlInterface
 
   implicit none
 
@@ -28,5 +28,5 @@ Module Eos_nucInterface
      end subroutine Eos_wlEnerShift
   end interface
 
-end Module Eos_nucInterface
+end Module Eos_wlInterface
   

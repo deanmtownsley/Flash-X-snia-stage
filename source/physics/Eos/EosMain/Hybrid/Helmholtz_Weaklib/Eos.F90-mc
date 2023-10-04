@@ -21,12 +21,11 @@
 !!NOVARIANTS
 
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
-
-   use Driver_interface, ONLY: Driver_abort
-   use Eos_data, ONLY: eos_meshMe, eos_type
+   use Eos_data, ONLY: eos_meshMe
    use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi
    use eos_localInterface, ONLY: eos_helmYe, eos_weaklib
    use eos_hybridInterface, ONLY: eos_hybridSetFlag
+   use Eos_wlInterface, only: Eos_wlEnerShift
 
    implicit none
 
@@ -52,15 +51,9 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    real, dimension(EOS_NUM) :: eosData_k
 
    real :: dens_in, fac, facLo, facHi
-   real :: temp_WL, temp_HLM
-   real :: pres_WL, pres_HLM
-   real :: eint_WL, eint_HLM
-   real :: entr_WL, entr_HLM
-   real :: gamc_WL, gamc_HLM
+   real :: energyShift
 
    integer :: i, k
-
-   real :: a, b, r, rLo, rHi
 
    vecBegin = 1
    vecEnd = vecLen
@@ -77,6 +70,8 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    pMassFrac_and_mask = pMassFrac .and. pMask
 
    call eos_hybridSetFlag(mode, vecLen, eosData, massFrac, mask, vecBegin, vecEnd, eos_hybFlag)
+
+   call Eos_wlEnerShift(energyShift)
 
    ! pack eosData into separate eosData vectors for each EoS
    vecLen_WL = COUNT(eos_hybFlag == EOS_WL .or. eos_hybFlag == EOS_HYB)
@@ -113,6 +108,10 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          do i = 1, EOS_NUM
             eosData_HLM((i - 1)*vecLen_HLM + k_HLM) = eosData((i - 1)*vecLen + k)
          end do
+
+         eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) = &
+            eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) - energyShift
+
          if (pMassFrac) then
             do i = 1, NSPECIES
                massFrac_HLM((k_HLM - 1)*NSPECIES + i) = massFrac((k - 1)*NSPECIES + i)
@@ -156,23 +155,14 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          k_WL = kVec_WL(k)
          k_HLM = kVec_HLM(k)
 
+         eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) = &
+            eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) + energyShift
+
          dens_in = eosData((EOS_DENS - 1)*vecLen + k)
 
-         temp_WL = eosData_WL((EOS_TEMP - 1)*vecLen_WL + k_WL)
-         pres_WL = eosData_WL((EOS_PRES - 1)*vecLen_WL + k_WL)
-         eint_WL = eosData_WL((EOS_EINT - 1)*vecLen_WL + k_WL)
-         entr_WL = eosData_WL((EOS_ENTR - 1)*vecLen_WL + k_WL)
-         gamc_WL = eosData_WL((EOS_GAMC - 1)*vecLen_WL + k_WL)
-
-         temp_HLM = eosData_HLM((EOS_TEMP - 1)*vecLen_HLM + k_HLM)
-         pres_HLM = eosData_HLM((EOS_PRES - 1)*vecLen_HLM + k_HLM)
-         eint_HLM = eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM)
-         entr_HLM = eosData_HLM((EOS_ENTR - 1)*vecLen_HLM + k_HLM)
-         gamc_HLM = eosData_HLM((EOS_GAMC - 1)*vecLen_HLM + k_HLM)
-
          ! Interpolate between limits
-         fac = (dens_in - eos_hybTransitionDensLo) &
-               /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
+         ! fac = (dens_in - eos_hybTransitionDensLo) &
+         !       /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
 
          facHi = (dens_in/eos_hybTransitionDensHi)**2
          facLo = (eos_hybTransitionDensLo/dens_in)**2
@@ -185,8 +175,11 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          end do
 
       else ! eos_hybFlag(k) == EOS_HLM
-
          k_HLM = kVec_HLM(k)
+
+         eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) = &
+            eosData_HLM((EOS_EINT - 1)*vecLen_HLM + k_HLM) + energyShift
+
          do i = 1, EOS_NUM
             eosData_k(i) = eosData_HLM((i - 1)*vecLen_HLM + k_HLM)
          end do
