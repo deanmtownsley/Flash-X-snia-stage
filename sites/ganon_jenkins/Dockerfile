@@ -24,9 +24,8 @@ RUN pip3 install numpy matplotlib h5py scipy configparser
 RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
 
 # Install bittree from source
-RUN git clone https://github.com/Flash-X/Bittree.git /Bittree
+RUN git clone https://github.com/Flash-X/Bittree.git --branch v2.0 /Bittree
 WORKDIR /Bittree
-RUN git checkout v2.0
 RUN python3 setup.py library --dim 2 --prefix /Bittree/install/2D
 RUN cd build && make && make install && cd ..
 RUN python3 setup.py library --dim 3 --prefix /Bittree/install/3D
@@ -40,9 +39,8 @@ RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
 RUN ./configure --prefix=install/3D --dim=3 && make -j && make install
 
 # Install hypre from source
-RUN git clone https://github.com/hypre-space/hypre.git /Hypre
+RUN git clone https://github.com/hypre-space/hypre.git --branch v2.22.0 /Hypre
 WORKDIR /Hypre
-RUN git checkout v2.22.0
 RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/Hypre/install && make install
 ENV LD_LIBRARY_PATH=/Hypre/install/lib:$LD_LIBRARY_PATH
 ENV DYLD_LIBRARY_PATH=/Hypre/install/lib:$DYLD_LIBRARY_PATH
