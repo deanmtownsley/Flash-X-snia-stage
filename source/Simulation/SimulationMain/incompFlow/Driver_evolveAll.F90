@@ -34,9 +34,11 @@
 !!
 !!
 !!***
+!!REORDER(4): fluxBuf[XYZ]
 
 #include "constants.h"
 #include "Simulation.h"
+#include "FortranLangFeatures.fh"
 
 #ifdef DEBUG_ALL
 #define DEBUG_DRIVER
@@ -58,7 +60,9 @@ subroutine Driver_evolveAll()
 
    use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
                              Grid_fillGuardCells, Grid_getTileIterator, &
-                             Grid_releaseTileIterator, Grid_solvePoisson, Grid_solveLaplacian
+                             Grid_releaseTileIterator, Grid_solvePoisson, Grid_solveLaplacian, &
+                             Grid_correctFluxData, Grid_putFluxData, Grid_communicateFluxes, &
+                             Grid_getMaxRefinement
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -70,7 +74,7 @@ subroutine Driver_evolveAll()
                                  IncompNS_setupPoisson, IncompNS_corrector, &
                                  IncompNS_indicators, IncompNS_reInitGridVars, &
                                  IncompNS_advection, IncompNS_diffusion, IncompNS_getScalarProp, &
-                                 IncompNS_getGridVar
+                                 IncompNS_getGridVar, IncompNS_fluxSet, IncompNS_fluxUpdate
 
    use Multiphase_interface, ONLY: Multiphase_setFluidProps, Multiphase_setPressureJumps, &
                                    Multiphase_advection, Multiphase_redistance, Multiphase_solve, &
@@ -118,9 +122,16 @@ subroutine Driver_evolveAll()
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
               iCurvVar, iAlphVar, iTempFrcVar
-   integer :: iteration
+   integer :: iteration, level, maxLev
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
+
+   real, pointer,dimension(:,:,:,:) :: fluxBufX,fluxBufY,fluxBufZ
+   CONTIGUOUS_FSTMT(fluxBufX)
+   CONTIGUOUS_FSTMT(fluxBufY)
+   CONTIGUOUS_FSTMT(fluxBufZ)
+
+   nullify(fluxBufX, fluxBufY, fluxBufZ)
 
    ! Get grid variables for incompressible Naiver-Stokes
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
