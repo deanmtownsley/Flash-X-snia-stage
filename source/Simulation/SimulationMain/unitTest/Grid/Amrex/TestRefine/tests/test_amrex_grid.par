@@ -43,4 +43,5 @@ convertToConsvdInMeshInterp = .FALSE.
 convertToConsvdForMeshCalls = .FALSE.
 flux_correct                = .FALSE.
 
-
+#### Bittree
+gr_amrexUseBittree = .TRUE.

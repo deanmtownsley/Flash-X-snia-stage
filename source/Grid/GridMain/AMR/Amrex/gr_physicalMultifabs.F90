@@ -36,15 +36,11 @@ module gr_physicalMultifabs
     implicit none
 
     public :: unk
-    public :: facevarx
-    public :: facevary
-    public :: facevarz
+    public :: facevars
 
     type(amrex_multifab), allocatable, target :: unk(:)
-    type(amrex_multifab), allocatable         :: facevarx(:)
-    type(amrex_multifab), allocatable         :: facevary(:)
-    type(amrex_multifab), allocatable         :: facevarz(:)
     type(amrex_multifab), allocatable         :: gr_scratchCtr(:)
+    type(amrex_multifab), allocatable         :: facevars(:, :)
 
     type(amrex_multifab),     allocatable :: fluxes(:, :)
     type(gr_fluxregister_t),  allocatable :: flux_registers(:)

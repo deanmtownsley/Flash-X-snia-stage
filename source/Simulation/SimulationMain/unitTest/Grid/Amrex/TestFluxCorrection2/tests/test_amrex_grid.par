@@ -28,3 +28,5 @@ yr_boundary_type = "outflow"
 lrefine_max = 3
 nrefs       = 1
 
+#### Bittree
+gr_amrexUseBittree = .TRUE.

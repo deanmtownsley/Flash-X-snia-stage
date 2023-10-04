@@ -82,7 +82,7 @@ subroutine io_readData()
    use gr_physicalMultifabs, ONLY: unk, &
                                    gr_scratchCtr, &
                                    fluxes, &
-                                   flux_registers, facevarx, facevary, facevarz
+                                   flux_registers, facevars
    use amrex_amrcore_module, ONLY: amrex_set_boxarray, amrex_get_numlevels, amrex_get_boxarray, &
                                    amrex_set_distromap, amrex_set_finest_level, amrex_geom, &
                                    amrex_ref_ratio, amrex_get_distromap
@@ -267,13 +267,7 @@ subroutine io_readData()
    allocate (unk(0:gr_maxRefine - 1))
 
 #if NFACE_VARS > 0
-   allocate (facevarx(0:gr_maxRefine - 1))
-#if NDIM >= 2
-   allocate (facevary(0:gr_maxRefine - 1))
-#endif
-#if NDIM == 3
-   allocate (facevarz(0:gr_maxRefine - 1))
-#endif
+   allocate (facevars(1:NDIM, 0:gr_maxRefine - 1))
 #endif
 
 #if 1
@@ -349,16 +343,16 @@ subroutine io_readData()
       ! Face variables
       nodal(:) = .FALSE.
       nodal(IAXIS) = .TRUE.
-      call amrex_multifab_build(facevarx(i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(IAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
       nodal(:) = .FALSE.
       nodal(JAXIS) = .TRUE.
-      call amrex_multifab_build(facevary(i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(JAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
       nodal(:) = .FALSE.
       nodal(KAXIS) = .TRUE.
-      call amrex_multifab_build(facevarz(i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
+      call amrex_multifab_build(facevars(KAXIS, i - 1), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 
