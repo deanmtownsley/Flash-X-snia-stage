@@ -41,15 +41,6 @@ ymax		= 180.0
 zmin		= 0.0
 zmax		= 360.0
 
-# Log integral quantities using all levels and all cells
-sim_oneLevelIntegralsOnly = .FALSE.
-sim_smallestNormRadius = -1.0
-sim_largestNormRadius  =  1.0e20
-
-sim_earliestLSTime     = 0.021
-sim_latestLSTime       = 0.026
-
-
 #		Boundary conditions
 #
 xl_boundary_type      = "reflecting"
@@ -65,9 +56,6 @@ zr_boundary_type = "periodic"
 
 cfl		= 0.4
 #hy_cflFallbackFactor           = 0.9
-
-
-basenm   = "sedov_spark_3dsph_"
 
 restart  = .false.
 
