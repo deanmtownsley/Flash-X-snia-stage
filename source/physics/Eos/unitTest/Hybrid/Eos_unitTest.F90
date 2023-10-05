@@ -183,6 +183,8 @@ contains
       character(len=4) :: out_1_exp_name, out_2_exp_name
       character(len=4) :: in_1_init_name, in_2_init_name
 
+      integer :: n
+
       name = mode_names(mode)
 
       call Simulation_mapIntToStr(in_1, in_1_name, MAPBLOCK_UNK)
@@ -237,8 +239,11 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
+      ! Arbitrarily looping here to accumulate better stats on total/average times
       call Timers_start(name)
-      call Eos_everywhere(mode)
+      do n = 1, 1000
+         call Eos_everywhere(mode)
+      end do !n
       call Timers_stop(name)
 
       write (*, *) repeat("-", 88)
@@ -366,9 +371,9 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
-      call Timers_start(name)
+      ! call Timers_start(name)
       call Eos_everywhere(mode)
-      call Timers_stop(name)
+      ! call Timers_stop(name)
 
       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
 
