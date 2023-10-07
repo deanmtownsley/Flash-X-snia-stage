@@ -6,7 +6,7 @@
 #		Ambient pressure and density, explosion energy, initial
 #		radius of perturbation, and location of explosion center
 #       Setup line:
-#       Sedov -debug -auto -2d +spherical +pm4dev +spark -nxb=12 -nyb=12 DoAnalytical=True 
+#       Sedov -auto -2d +spherical +pm4dev +spark -nxb=12 -nyb=12 DoAnalytical=True -parfile=tests/test_amr_sph_2d_spark.par  
 sim_pAmbient	= 1.E-5
 sim_rhoAmbient	= 1.
 sim_expEnergy	= 1.
@@ -73,7 +73,7 @@ memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
 nend            = 100000
-tmax            = 0.53
+tmax            = 0.52
 #dr_shortenLastStepBeforeTMax   = .TRUE.
 
 run_comment     = "2D Sedov explosion from tinitial=0.5"
@@ -99,7 +99,7 @@ plot_var_13 = "vlya"
 # Fix derefine_cutoff=refine_cutoff for all refinement
 # variables so that we can do a better direct comparison
 # of AMReX- and Paramesh-generated results
-lrefine_max       = 3
+lrefine_max       = 5
 lrefine_min     = 1
 #lrefine_min_init     = 1
 refine_var_1      = "dens"
@@ -108,9 +108,9 @@ refine_var_1      = "dens"
 #derefine_cutoff_1 = 0.1
 #refine_cutoff_2   = 0.1
 #derefine_cutoff_2 = 0.1
-sim_forceCenterDerefine   = .FALSE.
-#sim_centerRefineLevel     = 1
-#sim_derefineRadius     = 0.12
+sim_forceCenterDerefine   = .TRUE.
+sim_centerRefineLevel     = 3
+sim_derefineRadius     = 0.76
 
 nblockx                        = 1
 nblocky                        = 1

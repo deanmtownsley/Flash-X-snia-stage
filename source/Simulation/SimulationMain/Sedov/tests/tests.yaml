@@ -142,6 +142,7 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
 Composite/Sedov/AMR/2dSph/Paramesh/spark:
   setupOptions: -auto -2d +spherical -debug -nxb=12 -nyb=12 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_2d_spark.par
+  restartParfiles: test_amr_sph_2d_spark_restart.par 
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 ## end 2DSph AMR
@@ -194,6 +195,7 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
 Composite/Sedov/AMR/3dSph/Paramesh/spark:
   setupOptions: -auto -3d +spherical -debug -nxb=12 -nyb=12 -nzb=12 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_3d_spark.par
+  restartParfiles: test_amr_sph_3d_spark_restart.par 
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 ## end 3DSph AMR

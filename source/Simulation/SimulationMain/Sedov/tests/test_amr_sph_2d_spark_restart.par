@@ -6,7 +6,7 @@
 #		Ambient pressure and density, explosion energy, initial
 #		radius of perturbation, and location of explosion center
 #       Setup line:
-#       Sedov -debug -auto -3d +spherical +pm4dev +spark -nxb=12 -nyb=12 -nzb=12 DoAnalytical=True -parfile=tests/test_amr_sph_3d_spark.par
+#       Sedov -auto -2d +spherical +pm4dev +spark -nxb=12 -nyb=12 DoAnalytical=True -parfile=tests/test_amr_sph_2d_spark_restart.par  
 sim_pAmbient	= 1.E-5
 sim_rhoAmbient	= 1.
 sim_expEnergy	= 1.
@@ -14,7 +14,6 @@ tinitial        = 0.5
 
 sim_xctr		= 0.0
 sim_yctr		= 0.0
-sim_zctr		= 0.0
 
 sim_nsubzones           = 1 
 
@@ -38,8 +37,7 @@ xmin		= 0.0
 xmax		= 2.0
 ymin		= 0.0
 ymax		= 180.0
-zmin		= 0.0
-zmax		= 360.0
+
 
 #		Boundary conditions
 #
@@ -49,15 +47,13 @@ xr_boundary_type      = "outflow"
 yl_boundary_type = "reflecting"
 yr_boundary_type = "reflecting"
 
-zl_boundary_type = "periodic"
-zr_boundary_type = "periodic"
-
 #	Simulation time, I/O  parameters
 
 cfl		= 0.4
 #hy_cflFallbackFactor           = 0.9
 
-restart  = .false.
+
+restart  = .true.
 
 alwaysComputeUserVars = .False.
 #	integral quantities & errors write frequency
@@ -66,7 +62,7 @@ wr_integrals_freq              = 1
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0
 checkpointFileIntervalStep = 0
-checkpointFileNumber = 0
+checkpointFileNumber = 1
 
 #	plotfile output parameters
 plotfileIntervalTime = 0
@@ -77,10 +73,10 @@ memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
 nend            = 100000
-tmax            = 0.501
+tmax            = 0.53
 #dr_shortenLastStepBeforeTMax   = .TRUE.
 
-run_comment     = "3D Sedov explosion from tinitial=0.5"
+run_comment     = "2D Sedov explosion restart from t=0.52"
 #log_file        = "sedov_spark.log"
 eintSwitch     = 0.0 # 1.e-4
 use_auxEintEqn = .FALSE.
@@ -98,14 +94,12 @@ plot_var_10 = "enra"
 plot_var_11 = "temp"
 plot_var_12 = "vely"
 plot_var_13 = "vlya"
-plot_var_14 = "velz"
-plot_var_15 = "vlza"
 
 #  Adaptive Grid refinement parameters
 # Fix derefine_cutoff=refine_cutoff for all refinement
 # variables so that we can do a better direct comparison
 # of AMReX- and Paramesh-generated results
-lrefine_max       = 3
+lrefine_max       = 5
 lrefine_min     = 1
 #lrefine_min_init     = 1
 refine_var_1      = "dens"
@@ -115,8 +109,8 @@ refine_var_1      = "dens"
 #refine_cutoff_2   = 0.1
 #derefine_cutoff_2 = 0.1
 sim_forceCenterDerefine   = .TRUE.
-#sim_centerRefineLevel     = 1
-#sim_derefineRadius     = 0.12
+sim_centerRefineLevel     = 3
+sim_derefineRadius     = 0.76
 
 nblockx                        = 1
 nblocky                        = 1

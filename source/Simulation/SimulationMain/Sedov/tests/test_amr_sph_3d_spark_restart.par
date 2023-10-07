@@ -6,7 +6,7 @@
 #		Ambient pressure and density, explosion energy, initial
 #		radius of perturbation, and location of explosion center
 #       Setup line:
-#       Sedov -debug -auto -3d +spherical +pm4dev +spark -nxb=12 -nyb=12 -nzb=12 DoAnalytical=True -parfile=tests/test_amr_sph_3d_spark.par
+#       Sedov -debug -auto -3d +spherical +pm4dev +spark -nxb=12 -nyb=12 -nzb=12 DoAnalytical=True -parfile=tests/test_amr_sph_3d_spark_restart.par
 sim_pAmbient	= 1.E-5
 sim_rhoAmbient	= 1.
 sim_expEnergy	= 1.
@@ -57,7 +57,7 @@ zr_boundary_type = "periodic"
 cfl		= 0.4
 #hy_cflFallbackFactor           = 0.9
 
-restart  = .false.
+restart  = .true.
 
 alwaysComputeUserVars = .False.
 #	integral quantities & errors write frequency
@@ -66,7 +66,7 @@ wr_integrals_freq              = 1
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0
 checkpointFileIntervalStep = 0
-checkpointFileNumber = 0
+checkpointFileNumber = 1
 
 #	plotfile output parameters
 plotfileIntervalTime = 0
@@ -77,10 +77,10 @@ memory_stat_freq               = 1000
 
 #tstep_change_factor = 1.1
 nend            = 100000
-tmax            = 0.501
+tmax            = 0.502
 #dr_shortenLastStepBeforeTMax   = .TRUE.
 
-run_comment     = "3D Sedov explosion from tinitial=0.5"
+run_comment     = "3D Sedov explosion restart from t=0.501"
 #log_file        = "sedov_spark.log"
 eintSwitch     = 0.0 # 1.e-4
 use_auxEintEqn = .FALSE.
