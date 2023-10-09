@@ -1,6 +1,6 @@
 !!****ih* source/Grid/localAPI/gr_mpoleInterface
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ module gr_mpoleInterface
 
   interface
      subroutine gr_mpoleMom3Dspherical (idensvar)
-       integer, intent (in) :: idensvar
+       integer, intent(in) :: idensvar
      end subroutine gr_mpoleMom3Dspherical
   end interface
 

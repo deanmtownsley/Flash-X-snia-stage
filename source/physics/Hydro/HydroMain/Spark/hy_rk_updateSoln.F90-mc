@@ -113,7 +113,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   @M hy_DIR_TARGET_map(to, [limits]) &
   @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
   @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
-  @M hy_DIR_private([alpha, dx_sph, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan]) &
+  @M hy_DIR_private([alpha, dx_sph, facM, facP]) &
   @M hy_DIR_shared([limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz]) &
   @M hy_DIR_shared([hy_coeffs, hy_fareaX, hy_cvol, hy_smalldens, hy_smallE]) &
   @M hy_DIR_shared([hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld])
