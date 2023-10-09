@@ -35,6 +35,13 @@ module hy_rk_interface
   end interface
 
   interface
+     subroutine hy_rk_permutateLimits(blkLimits, blkLimitsGC, permLimits, permLimitsGC)
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits, blkLimitsGC
+       integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(OUT) :: permLimits, permLimitsGC
+     end subroutine hy_rk_permutateLimits
+  end interface
+
+  interface
      subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
                                    lim, limgc, stage, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &

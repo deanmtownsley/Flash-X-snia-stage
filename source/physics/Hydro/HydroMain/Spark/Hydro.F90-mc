@@ -53,6 +53,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   @M hy_scratch_use
 
   use hy_rk_interface, ONLY : hy_rk_initSolnScratch, &
+                              hy_rk_permutateLimits, &
                               hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
                               hy_rk_updateSoln, &
@@ -158,18 +159,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
         call Timers_stop("scratch")
 
-        !! This macro (hy_stages_t) has a null implementation for the non-telescoping mode.
-        !! the next few lines compute all the index limits needed for all stages and directions
-        !! in hy_rk_getFaceFlux. These indices are now available to the routines through "use"
-        !! clause. I have done this to simplify the kernel launching in the GPU and also to
-        !! really inventory all data that needs to move to the device memory for computation
-        @M hy_stages_t
-           ng = (MAXSTAGE-stage)*NSTENCIL
-           @M hy_setLims(ng)
-           do dir=1,NDIM
-              @M hy_calc_lim
-           end do
-        @M hy_end_stages_t
+        !! compute all the index limits needed for all stages
+        !! and directions in hy_rk_getFaceFlux.
+        call hy_rk_permutateLimits(blkLimits, blkLimitsGC, lim, limgc)
 
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
@@ -336,13 +328,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
            call Timers_stop("scratch")
 
-           do stage=1,last_stage
-              ng = (MAXSTAGE-stage)*NSTENCIL
-              @M hy_setLims(ng)
-              do dir=1,NDIM
-                 @M hy_calc_lim
-              end do
-           end do
+           call hy_rk_permutateLimits(blkLimits, blkLimitsGC, lim, limgc)
 
            !! Begin loop over stages for the telescoping mode.
            do stage=1,last_stage !! this is the do loop statement for telescoping version
