@@ -63,7 +63,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
   use Grid_data,            ONLY : gr_doFluxCorrection
   use gr_physicalMultifabs, ONLY : unk, &
                                    gr_scratchCtr, &
-                                   facevarx, facevary, facevarz, &
+                                   facevars, &
                                    fluxes, &
                                    flux_registers
   use Grid_data, ONLY : gr_globalNumBlocks, gr_globalDomain, gr_interpolator, &
@@ -121,14 +121,9 @@ subroutine Grid_initDomain(restart,particlesInitialized)
     allocate(unk     (0:amrex_max_level))
 
 #if NFACE_VARS > 0
-    !call Driver_abort("[Grid_initDomain] Face-centered variables not yet supported with AMReX Grid implementation")
-    allocate(facevarx(0:amrex_max_level))
-#if NDIM >= 2
-    allocate(facevary(0:amrex_max_level))
-#endif
-#if NDIM == 3
-    allocate(facevarz(0:amrex_max_level))
-#endif
+    ! Use NDIM multifab for face variables
+    ! TODO: Check how indexing affects peformance
+    allocate(facevars(1:NDIM, 0:amrex_max_level))
 #endif
 
     ! DEV: T_INIT is set to zero now as AMReX does not care about this value.

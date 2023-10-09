@@ -168,4 +168,24 @@ Module IncompNS_interface
       end subroutine IncompNS_reInitGridVars
    end interface
 
+   interface
+      subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+         integer, intent(in) :: lo(3)
+         real, intent(out), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
+      end subroutine IncompNS_fluxSet
+   end interface
+
+   interface
+      subroutine IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+         use Grid_tile, ONLY: Grid_tile_t
+         implicit none
+         type(Grid_tile_t), INTENT(IN) :: tileDesc
+         integer, intent(in) :: lo(3)
+         real, intent(in), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
+      end subroutine IncompNS_fluxUpdate
+   end interface
+
 end Module IncompNS_interface

@@ -57,3 +57,5 @@ refine_filter_3 = 0.035
 eosMode     = "dens_ie"
 eosModeInit = "dens_temp"
 
+#### Bittree
+gr_amrexUseBittree = .TRUE.
