@@ -75,6 +75,7 @@ subroutine gr_mpoleCen2Dspherical (idensvar)
 
   use gr_mpoleData,      ONLY : gr_mpoleSymmetryPlane2D, &
                                 gr_mpoleDomainRmax,      &
+                                gr_mpoleDomainRmin,      &
                                 gr_mpoleDomainThetaMax,  &
                                 gr_mpoleDrInnerZone,     &
                                 gr_mpoleDrInnerZoneInv,  &
@@ -360,6 +361,8 @@ subroutine gr_mpoleCen2Dspherical (idensvar)
   messageTag = 1
   invokeRecv = .true.
 
+  !This loop hangs if r_min > 0, regardless if ignoring inner zone or not (probably due to missing region?)
+if (gr_mpoleDomainRmin == ZERO) then
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
@@ -452,6 +455,15 @@ subroutine gr_mpoleCen2Dspherical (idensvar)
                       status,         &
                       error           )
   end if
+
+else
+
+  gr_mpoleDrInnerZone = ZERO
+  localData (1) = gr_mpoleDrInnerZone
+  localData (2) = gr_mpoleZcenter
+
+end if  
+  
 !
 !
 !     ...At this point, the master has all the info. Broadcast and update all
@@ -466,9 +478,14 @@ subroutine gr_mpoleCen2Dspherical (idensvar)
                   error        )
 
   gr_mpoleDrInnerZone    = localData (1)
-  gr_mpoleDrInnerZoneInv = ONE / gr_mpoleDrInnerZone
   gr_mpoleZcenter        = localData (2)
   gr_mpoleRcenter        = abs (gr_mpoleZcenter)
+  if (gr_mpoleDrInnerZone == ZERO) then
+    gr_mpoleDrInnerZoneInv = ZERO
+  else
+    gr_mpoleDrInnerZoneInv = ONE / gr_mpoleDrInnerZone
+  endif
+  
 !
 !
 !     ...Ready!

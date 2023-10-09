@@ -128,6 +128,11 @@ module eos_localInterface
      end subroutine eos_weaklibInit
   end interface
 
+  interface
+     subroutine eos_HybridInit()
+     end subroutine eos_HybridInit
+  end interface
+
   interface 
      subroutine eos_externalComputeAbarZbar(solnScalars, abarData, zbarData)
        implicit none
