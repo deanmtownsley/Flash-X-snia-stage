@@ -110,7 +110,7 @@ module Hydro_data
   !$omp   hya_uPlus, hya_uMinus, hya_Vc, hya_grav, hya_flat3d, hya_flat, hya_grv,&
   !$omp   hya_rope, hya_flux, hya_shck, &
   !$omp   hya_flx, hya_fly, hya_flz, hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ, &
-  !$omp   hya_fareaX, hya_fareaY, hya_fareaZ, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, &
+  !$omp   hya_fareaX, hya_cvol, hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, &
   !$omp   hya_yLeft, hya_yRight, hya_zCenter, &
   !$omp   hy_mfrac, hy_eosData, &
   !$omp   hy_del, &
