@@ -18,7 +18,7 @@
 !<
 !!Reorder(4): Uin
 !!NOVARIANTS
-subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
+subroutine hy_rk_shockDetect(Uin, blkLimitsGC, tinyZero)
 
    use Hydro_data, ONLY: hy_threadWithinBlock
 
@@ -29,7 +29,6 @@ subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
 
    !! ---- Argument List ----------------------------------
    real, pointer, dimension(:,:,:,:) :: Uin
-   integer, intent(IN) :: limits(LOW:HIGH,MDIM)
    integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
    real, intent(IN) :: tinyZero
    !! -----------------------------------------------------
@@ -58,7 +57,7 @@ subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
 
    Vc = 0.0
 
-   @M hy_DIR_TARGET_enter_data(to, [beta, delta, Vc])
+   @M hy_DIR_TARGET_enter_data(to, [blkLimitsGC, beta, delta, Vc])
 
    !! Compute sound speed
    @M hy_DIR_parallel_loop_simd(3) &
@@ -71,8 +70,10 @@ subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
 
    @M hy_DIR_parallel_loop_simd(3) &
    @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz]) &
-   @M hy_DIR_shared([limits, Uin, Vc, beta, delta])
-   @M loop_3d(limits)
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, beta, delta])
+   do k = blkLimitsGC(LOW, KAXIS)+K3D, blkLimitsGC(HIGH, KAXIS)-K3D
+   do j = blkLimitsGC(LOW, JAXIS)+K2D, blkLimitsGC(HIGH, JAXIS)-K2D
+   do i = blkLimitsGC(LOW, IAXIS)+1, blkLimitsGC(HIGH, IAXIS)-1
       ! initialize switch values
       SW1 = .false.
       SW2 = .false.
@@ -121,7 +122,7 @@ subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
       endif !endif (SW1 .and. SW2) then
    @M loop_end_3d
 
-   @M hy_DIR_TARGET_exit_data(release, [beta, delta, Vc])
+   @M hy_DIR_TARGET_exit_data(release, [blkLimitsGC, beta, delta, Vc])
 
 
 end subroutine hy_rk_shockDetect

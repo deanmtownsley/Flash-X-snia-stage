@@ -98,9 +98,8 @@ module hy_rk_interface
 
 
   interface
-     subroutine hy_rk_shockDetect(Uin, limits, blkLimitsGC, tinyZero)
+     subroutine hy_rk_shockDetect(Uin, blkLimitsGC, tinyZero)
        real, pointer, dimension(:, :, :, :) :: Uin
-       integer, intent(IN) :: limits(LOW:HIGH, MDIM)
        integer, intent(IN) :: blkLimitsGC(LOW:HIGH, MDIM)
        real, intent(IN) :: tinyZero
      end subroutine hy_rk_shockDetect
