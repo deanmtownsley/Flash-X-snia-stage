@@ -1,6 +1,6 @@
-!!****if* source/physics/Eos/EosMain/hybrid/Helmholtz_WeakLib/eos_hybridSetFlag
+!!****if* source/physics/Eos/EosMain/hybrid/Helmholtz_WeakLib/eos_hybridHelmholtz
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
 !!
 !! NAME
 !!
-!!  eos_hybridSetFlag
+!!  eos_hybridHelmholtz
 !!
 !! SYNOPSIS
 !!
-!!  call eos_hybridSetFlag(integer(IN)  :: mode,
+!!  call eos_hybridHelmholtz(integer(IN)  :: mode,
 !!                         integer(IN)  :: vecLen,
 !!                         real(INOUT)  :: eosData(vecLen*EOS_NUM),
 !!               optional, real(IN)     :: massFrac(vecLen*NSPECIES),
-!!               optional, logical(IN)  :: mask(EOS_VARS+1:EOS_NUM),
-!!                         integer(OUT) :: eos_hybFlag(vecLen))
+!!               optional, logical(IN)  :: mask(EOS_VARS+1:EOS_NUM))
 !!
 !! DESCRIPTION
 !!
-!!  This routine implements the hybrid (Helmholtz+WeakLib) equation of state.
+!!  This procedure prepares and calls the Helmholtz Eos
 !!
 !! ARGUMENTS
 !!
@@ -60,18 +59,14 @@
 !!             Note that the indexing of mask does not begin at 1, but rather at one past
 !!             the number of variables.
 !!
-!!  eos_hybFlag : flag to select the one or both of the EoS in the hybrid implementation
-!!
-!! NOTES
-!!
-!!  AH: several arguments are not needed, but are passed in almost all EoS routines so I have
-!!      included them here.
-!!
 !!***
+subroutine eos_hybridHelmholtz(mode, eosData, mask, massFrac)
 
-subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecB, vecE, eos_hybFlag)
+   use eos_localInterface, only: eos_helmYe
+   use eos_hybridData, only: ergPerKg_to_kbPerBaryon, kbPerBaryon_to_ergPerKg
 
-   use eos_hybridData, only: eos_hybTransitionDensLo, eos_hybTransitionDensHi
+   !! TODO: port this from BANG
+   ! use Burn_interface, only: Burn_computeEbin
 
    implicit none
 
@@ -79,41 +74,42 @@ subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecB, vecE, eos_hybFlag)
 #include "Eos.h"
 #include "Simulation.h"
 
-   integer, intent(in) :: mode, vecLen
-   real, intent(inout), dimension(EOS_NUM*vecLen) :: eosData
-   integer, intent(in) :: vecB, vecE
-   integer, intent(out) :: eos_hybFlag(vecLen)
+   integer, intent(in) :: mode
+   real, dimension(EOS_NUM), target, intent(inout) :: eosData
+   logical, dimension(EOS_VARS + 1:EOS_NUM), target, intent(in) :: mask
+   real, dimension(NSPECIES), target, intent(in), optional :: massFrac
 
-   integer :: dens
+   real :: ebin
+   logical :: pMassFrac
+
    integer :: k
 
-   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
-   dens = (EOS_DENS - 1)*vecLen
+   ebin = 0.0
 
-   ! Initialize everything to unused flag
-   eos_hybFlag = -1
+   pMassFrac = present(massFrac)
 
-   ! Set the flag for which EoS to use based on density
-   do k = vecB, vecE
+   !! TODO: uncomment after porting Burn_computeEbin from BANG
+   ! if (pMassFrac) then
+   !    call Burn_computeEbin(massFrac, ebin)
+   ! end if
 
-      ! Call nuclear eos above transition density
-      if (eosData(dens + k) > eos_hybTransitionDensHi) then
+   ! Shift internal energy back up by binding energy
+   eosData(EOS_EINT) = eosData(EOS_EINT) + ebin
 
-         eos_hybFlag(k) = EOS_WL
+   ! Nuclear Eos gives entropy in k_B per baryon
+   if (mode .eq. MODE_DENS_ENTR) &
+      eosData(EOS_ENTR) = eosData(EOS_ENTR)*kbPerBaryon_to_ergPerKg
 
-         ! Call both eos if between transition densities
-      else if (eosData(dens + k) <= eos_hybTransitionDensHi .and. &
-               eosData(dens + k) > eos_hybTransitionDensLo) then
+   if (pMassFrac) then
+      call eos_helmYe(mode, 1, eosData, mask=mask, massFrac=massFrac)
+   else
+      call eos_helmYe(mode, 1, eosData, mask=mask)
+   end if
 
-         eos_hybFlag(k) = EOS_HYB
+   ! Take binding energy back off for NSE consistency
+   eosData(EOS_EINT) = eosData(EOS_EINT) - ebin
 
-         ! Call helmholtz if below transition density
-      else ! eosData(dens+k) <= eos_hybTransitionDensLo
+   ! Back to nuclear units
+   eosData(EOS_ENTR) = eosData(EOS_ENTR)*ergPerKg_to_kbPerBaryon
 
-         eos_hybFlag(k) = EOS_HLM
-
-      end if
-
-   end do
-
-end subroutine eos_hybridSetFlag
+end subroutine eos_hybridHelmholtz

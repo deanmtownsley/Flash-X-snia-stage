@@ -1,6 +1,6 @@
-!!****if* source/physics/Eos/EosMain/Hybrid/eos_hybridSetFlag
+!!****if* source/physics/Eos/EosMain/hybrid/Helmholtz_WeakLib/eos_hybridWeakLib
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
 !!
 !! NAME
 !!
-!!  eos_hybridSetFlag
+!!  eos_hybridWeakLib
 !!
 !! SYNOPSIS
 !!
-!!  call eos_hybridSetFlag(integer(IN)  :: mode,
+!!  call eos_hybridWeakLib(integer(IN)  :: mode,
 !!                         integer(IN)  :: vecLen,
 !!                         real(INOUT)  :: eosData(vecLen*EOS_NUM),
 !!               optional, real(IN)     :: massFrac(vecLen*NSPECIES),
-!!               optional, logical(IN)  :: mask(EOS_VARS+1:EOS_NUM),
-!!                         integer(OUT) :: eos_hybFlag(vecLen))
+!!               optional, logical(IN)  :: mask(EOS_VARS+1:EOS_NUM))
 !!
 !! DESCRIPTION
 !!
-!!  This routine implements the hybrid (Helmholtz+WeakLib) equation of state.
+!!  This procedure prepares and calls the WeakLib Eos
 !!
 !! ARGUMENTS
 !!
@@ -60,16 +59,12 @@
 !!             Note that the indexing of mask does not begin at 1, but rather at one past
 !!             the number of variables.
 !!
-!!  eos_hybFlag : flag to select the one or both of the EoS in the hybrid implementation
-!!
-!! NOTES
-!!
-!!  AH: several arguments are not needed, but are passed in almost all EoS routines so I have
-!!      included them here.
-!!
 !!***
+subroutine eos_hybridWeakLib(mode, eosData, mask, massFrac)
 
-subroutine eos_hybridSetFlag(mode, vecLen, eosData, massFrac, mask, vecB, vecE, eos_hybFlag)
+   use eos_localInterface, only: eos_weaklib
+
+   use Eos_wlInterface, only: Eos_wlEnerShift
 
    implicit none
 
@@ -77,14 +72,29 @@ subroutine eos_hybridSetFlag(mode, vecLen, eosData, massFrac, mask, vecB, vecE, 
 #include "Eos.h"
 #include "Simulation.h"
 
-   integer, INTENT(in) :: mode, vecLen
-   real, INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData
-   logical, optional, INTENT(in), target, dimension(EOS_VARS + 1:EOS_NUM) :: mask
-   real, optional, INTENT(in), dimension(NSPECIES*vecLen) :: massFrac
-   integer, optional, INTENT(in) :: vecB, vecE
-   integer, optional, INTENT(out) :: eos_hybFlag(vecLen)
+   integer, intent(in) :: mode
+   real, dimension(EOS_NUM), target, intent(inout) :: eosData
+   logical, dimension(EOS_VARS + 1:EOS_NUM), target, intent(in) :: mask
+   real, dimension(NSPECIES), target, intent(in), optional :: massFrac
 
-   if (present(eos_hybFlag)) eos_hybFlag = 0
+   real :: energyShift
+   logical :: pMassFrac
 
-   return
-end subroutine eos_hybridSetFlag
+   call Eos_wlEnerShift(energyShift)
+
+   pMassFrac = present(massFrac)
+
+   ! WeakLib has an extra energy shift
+   eosData(EOS_EINT) = eosData(EOS_EINT) + energyShift
+
+   ! Determine which case to call - if (constexpr) only this was C++ ...
+   if (pMassFrac) then
+      call eos_weaklib(mode, 1, eosData, mask=mask, massFrac=massFrac)
+   else
+      call eos_weaklib(mode, 1, eosData, mask=mask)
+   end if
+
+   ! Take the shift back out
+   eosData(EOS_EINT) = eosData(EOS_EINT) - energyShift
+
+end subroutine eos_hybridWeakLib
