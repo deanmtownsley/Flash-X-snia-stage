@@ -1,0 +1,33 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!<
+!!NOVARIANTS
+subroutine hy_rk_calcLimits(stage, blkLimits, limits)
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+
+   implicit none
+
+   integer, intent(IN) :: stage
+   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
+   integer, dimension(LOW:HIGH, MDIM), intent(OUT) :: limits
+
+   integer :: dir, ng
+
+   ng = (MAXSTAGE-stage)*NSTENCIL
+   @M hy_setLims(ng)
+
+end subroutine hy_rk_calcLimits

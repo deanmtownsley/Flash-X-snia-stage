@@ -42,6 +42,14 @@ module hy_rk_interface
   end interface
 
   interface
+     subroutine hy_rk_calcLimits(stage, blkLimits, limits)
+       integer, intent(IN) :: stage
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
+       integer, dimension(LOW:HIGH, MDIM), intent(OUT) :: limits
+     end subroutine hy_rk_calcLimits
+  end interface
+
+  interface
      subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
                                    lim, limgc, stage, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
