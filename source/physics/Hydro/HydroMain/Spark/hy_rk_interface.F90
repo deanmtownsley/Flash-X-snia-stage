@@ -27,6 +27,14 @@ module hy_rk_interface
 #include "Spark.h"
 
   interface
+     subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage)
+       real, dimension(:,:,:,:), pointer :: Uin, starState, tmpState
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
+       integer, intent(IN) :: stage
+     end subroutine hy_rk_initSolnScratch
+  end interface
+
+  interface
      subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
                                    lim, limgc, stage, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &

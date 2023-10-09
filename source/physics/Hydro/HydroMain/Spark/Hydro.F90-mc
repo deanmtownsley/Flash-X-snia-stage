@@ -52,7 +52,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX
   @M hy_scratch_use
 
-  use hy_rk_interface, ONLY : hy_rk_getFaceFlux, &
+  use hy_rk_interface, ONLY : hy_rk_initSolnScratch, &
+                              hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
                               hy_rk_updateSoln, &
                               hy_rk_correctFluxes, &
@@ -157,7 +158,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, limits, blkLimitsGC, hy_tiny)
 
         call Timers_start("scratch")
-        @M hy_saveState
+        call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
         call Timers_stop("scratch")
 
         !! This macro (hy_stages_t) has a null implementation for the non-telescoping mode.
@@ -337,7 +338,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            ! Allocate storage of fluxes, flux buffers, & gravity info
            call Timers_start("scratch")
-           @M hy_saveState!!call saveState(Uin,blkLimits,blkLimitsGC)
+           call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
            call Timers_stop("scratch")
 
            do stage=1,last_stage

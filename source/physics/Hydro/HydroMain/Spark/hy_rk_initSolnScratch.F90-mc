@@ -1,0 +1,31 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!<
+!!Reorder(4): Uin, starState, tmpState
+!!NOVARIANTS
+subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage)
+
+#include "Simulation.h"
+#include "constants.h"
+
+   implicit none
+
+   real, dimension(:,:,:,:), pointer :: Uin, starState, tmpState
+   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
+   integer, intent(IN) :: stage
+
+   integer :: i, j, k, v
+
+   @M hy_saveState
+
+end subroutine hy_rk_initSolnScratch
