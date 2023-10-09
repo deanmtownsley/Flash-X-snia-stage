@@ -114,7 +114,7 @@ refine_var_1      = "dens"
 #derefine_cutoff_1 = 0.1
 #refine_cutoff_2   = 0.1
 #derefine_cutoff_2 = 0.1
-sim_forceCenterDerefine   = .TRUE.
+sim_forceCenterDerefine   = .FALSE.
 #sim_centerRefineLevel     = 1
 #sim_derefineRadius     = 0.12
 
