@@ -82,9 +82,6 @@ Module Grid_data
 
   logical, save :: gr_useEnergyDeposition
 
-  !mostly not used, but convienent for debugging with Grid_dump tool
-  integer,save,dimension(UNK_VARS_BEGIN:UNK_VARS_END) :: gr_vars 
- 
   real, save, dimension(MDIM,1) :: gr_delta
   real, save, dimension(LOW:HIGH,MDIM) :: gr_globalDomain
 

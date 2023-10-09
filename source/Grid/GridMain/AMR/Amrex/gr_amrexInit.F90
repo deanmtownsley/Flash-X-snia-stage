@@ -23,6 +23,7 @@
 !!
 !!***
 
+#include "AMReX_Config.H"
 #include "constants.h"
 
 subroutine gr_amrexInit()
@@ -43,7 +44,8 @@ subroutine gr_amrexInit()
   use Grid_data,                   ONLY : gr_geometry, &
                                           gr_domainBC, &
                                           gr_geometryOverride, &
-                                          gr_meshMe
+                                          gr_meshMe, gr_amrexUseBittree
+
   use gr_amrexInterface,           ONLY : gr_initNewLevelCallback, &
                                           gr_makeFineLevelFromCoarseCallback, &
                                           gr_remakeLevelCallback, &
@@ -136,6 +138,25 @@ subroutine gr_amrexInit()
   call amrex_parmparse_build(pp_amr, "amr")
   call RuntimeParameters_get("gr_amrex_verbosity", verbosity)
   call pp_amr%add   ("v", verbosity)
+
+#ifdef AMREX_USE_BITTREE
+  if(gr_meshMe==MASTER_PE) then
+     if (gr_amrexUseBittree) then
+        write(*,*) "Using AMReX in Bittree mode."
+     else
+        write(*,*) "The AMReX library was configured with Bittree, &
+                    &but gr_amrexUseBittree feature is not being utilized. &
+                    &Set gr_amrexUseBittree = .TRUE. to use AMReX in Bittree mode."
+     end if
+  end if
+  call pp_amr%add   ("use_bittree", gr_amrexUseBittree)
+#else
+  if(gr_meshMe==MASTER_PE) then
+     write(*,*) "The AMReX library was not configured with Bittree. &
+                 &The gr_amrexUseBittree feature will not be available to Flash-X. &
+                 &This may result in performance degradation."
+  end if
+#endif
 
   call RuntimeParameters_get("nrefs", nrefs)
   call pp_amr%add   ("regrid_int", nrefs)
