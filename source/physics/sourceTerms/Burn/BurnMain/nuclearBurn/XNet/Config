@@ -24,7 +24,7 @@ def genLines(setupvars):
 
     yield 'LIBRARY LAPACK'
 
-    # yield 'DATAFILES Networks'
+    yield 'DATAFILES Networks'
 
     ##
     yield 'VARIABLE mtsb'
@@ -81,8 +81,6 @@ def genLines(setupvars):
         xnet_data_dir = os.path.join('Networks','Data_SN160')
 
     yield 'PARAMETER xnet_data_dir         STRING          "%s"' % xnet_data_dir
-
-    yield f"DATAFILES {xnet_data_dir}/netsu {xnet_data_dir}/netweak {xnet_data_dir}/netwinv {xnet_data_dir}/sunet"
     
     filename = os.path.join(GVars.sourceDir,'physics','sourceTerms','Burn','BurnMain','nuclearBurn','XNet',xnet_data_dir,'sunet')
     file = open(filename,'r')

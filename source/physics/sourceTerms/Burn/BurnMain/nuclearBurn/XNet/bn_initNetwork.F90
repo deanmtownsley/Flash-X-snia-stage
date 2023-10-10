@@ -84,10 +84,7 @@ subroutine bn_initNetwork
   call RuntimeParameters_get('xnet_writeTimers',xnet_writeTimers)
 
   ! Read, broadcast, and allocate XNet data
-  ! NOTE: using the commented out version writes all files into the source tree
-  ! since the data directories are symbolically linked
-  ! call bn_xnetInit(xnet_data_dir,xnet_data_desc)
-  call bn_xnetInit(".",xnet_data_desc)
+  call bn_xnetInit(xnet_data_dir,xnet_data_desc)
 
   ! Some bn_* routines get nuclear data from Burn_data, so copy from XNet data
   do i = 1, NSPECIES

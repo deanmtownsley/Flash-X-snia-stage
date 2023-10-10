@@ -79,12 +79,8 @@ subroutine Simulation_initSpecies()
   integer :: i, j, isotope
 
   ! Get the species data from XNet data files
-  ! Note: the following rely on symbollically linked data directories
-  ! that cause XNet files to be written into the source tree and not into
-  ! the object directory
-!   call RuntimeParameters_get('xnet_data_dir',data_dir)
-!   open(newunit=lun_winv, file=trim(data_dir)//"/netwinv", status='old')
-  open(newunit=lun_winv, file="netwinv", status='old')
+  call RuntimeParameters_get('xnet_data_dir',data_dir)
+  open(newunit=lun_winv, file=trim(data_dir)//"/netwinv", status='old')
   read(lun_winv,"(i5)") ny
   if ( ny /= NSPECIES ) then
      call Driver_abort("[Simulation_initSpecies] ny /= NSPECIES")
