@@ -38,8 +38,6 @@ module eos_hybridData
 
    implicit none
 
-#include "Simulation.h"
-
    real, save :: eos_hybTransitionDensHi
    real, save :: eos_hybTransitionDensLo
 
@@ -49,5 +47,13 @@ module eos_hybridData
 
    real, parameter :: ergPerKg_to_kbPerBaryon = amu_cgs/kb_erg
    real, parameter :: kbPerBaryon_to_ergPerKg = 1./ergPerKg_to_kbPerBaryon
+
+   ! integer, save  :: eos_hybVecLen_WL, eos_hybVecLen_HLM
+
+   ! real, dimension(:), allocatable, target, save :: eos_hybData_WL, eos_hybData_HLM
+
+   !! TODO: add declare target directives here?  Not sure if this is necessary here or
+   !! if adding target enter/exit data directives after/before allocation/deallocation
+   !! is sufficient
 
 end module eos_hybridData

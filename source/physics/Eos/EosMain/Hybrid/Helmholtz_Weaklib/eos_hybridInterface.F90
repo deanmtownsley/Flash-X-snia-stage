@@ -35,7 +35,7 @@ module eos_hybridInterface
       subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecBegin, vecEnd, eos_hybFlag)
          implicit none
          integer, intent(in) :: mode, vecLen
-         real, intent(inout), dimension(EOS_NUM*vecLen) :: eosData
+         real, intent(in), dimension(EOS_NUM*vecLen) :: eosData
          integer, intent(in) :: vecBegin, vecEnd
          integer, intent(out) :: eos_hybFlag(vecLen)
       end subroutine eos_hybridSetFlag

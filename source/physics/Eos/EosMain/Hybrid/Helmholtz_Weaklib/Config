@@ -5,3 +5,8 @@ REQUIRES physics/Eos/EosMain/WeakLib
 REQUIRES physics/Eos/EosMain/Helmholtz/Ye
 
 PPDEFINE EOS_HELMWL
+
+D eos_hybTransitionDens   Density where the transition to full NSE EOS occurs
+PARAMETER       eos_hybTransitionDensHi         REAL 5.e5
+D eos_hybTransitionLow    Density marking the start of the mixed EOS region
+PARAMETER       eos_hybTransitionDensLo         REAL 1.e5

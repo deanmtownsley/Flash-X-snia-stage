@@ -80,7 +80,7 @@ subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecB, vecE, eos_hybFlag)
 #include "Simulation.h"
 
    integer, intent(in) :: mode, vecLen
-   real, intent(inout), dimension(EOS_NUM*vecLen) :: eosData
+   real, intent(in), dimension(EOS_NUM*vecLen) :: eosData
    integer, intent(in) :: vecB, vecE
    integer, intent(out) :: eos_hybFlag(vecLen)
 
