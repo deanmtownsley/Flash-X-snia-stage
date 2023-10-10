@@ -23,8 +23,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi
    use eos_hybridInterface, ONLY: eos_hybridSetFlag, eos_hybridHelmholtz, eos_hybridWeakLib
 
-   use Timers_interface, only: Timers_start, Timers_stop
-
    implicit none
 
 #include "constants.h"
@@ -77,7 +75,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
    call eos_hybridSetFlag(mode, vecLen, eosData, vecBegin, vecEnd, eos_hybFlag)
 
-   ! Unpack and blend both EoS calls into single eosData
    eosData_k = 0.0
 
    do k = vecBegin, vecEnd
@@ -107,8 +104,10 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          ! Interpolate between limits
          dens_in = eosData_k(EOS_DENS)
 
-         ! facHi = (dens_in - eos_hybTransitionDensLo) &
-         !         /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
+         ! fac = (dens_in - eos_hybTransitionDensLo) &
+         !       /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
+
+         ! facHi = fac**2
          ! facLo = 1.0 - facHi
 
          facHi = (dens_in/eos_hybTransitionDensHi)**4
@@ -118,9 +117,32 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          facLo = facLo*iFac
          facHi = facHi*iFac
 
-         do i = 1, EOS_NUM
-            eosData_k(i) = (facHi*eosData_WL(i) + facLo*eosData_HLM(i))
-         end do
+         ! do i = 1, EOS_NUM
+         !    eosData_k(i) = (facLo*eosData_HLM(i) + facHi*eosData_WL(i))
+         ! end do
+
+         select case (mode)
+         case (MODE_DENS_TEMP)
+            eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
+            eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
+            eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
+            eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
+         case (MODE_DENS_EI)
+            eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
+            eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
+            eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
+            eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
+         case (MODE_DENS_PRES)
+            eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
+            eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
+            eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
+            eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
+         case (MODE_DENS_ENTR)
+            eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
+            eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
+            eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
+            eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
+         end select
 
       else ! eos_hybFlag(k) == EOS_HLM
 

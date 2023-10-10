@@ -36,3 +36,5 @@ eosMode     = "eos_nop"
 
 eos_hybTransitionDensLo = 1e5
 eos_hybTransitionDensHi = 5e5
+
+eos_testTolerance = 1e-4

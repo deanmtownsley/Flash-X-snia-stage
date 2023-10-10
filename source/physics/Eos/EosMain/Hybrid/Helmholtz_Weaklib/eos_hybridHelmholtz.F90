@@ -65,8 +65,7 @@ subroutine eos_hybridHelmholtz(mode, eosData, mask, massFrac)
    use eos_localInterface, only: eos_helmYe
    use eos_hybridData, only: ergPerKg_to_kbPerBaryon, kbPerBaryon_to_ergPerKg
 
-   !! TODO: port this from BANG
-   ! use Burn_interface, only: Burn_computeEbin
+   use Burn_interface, only: Burn_computeBindingEnergy
 
    implicit none
 
@@ -88,10 +87,9 @@ subroutine eos_hybridHelmholtz(mode, eosData, mask, massFrac)
 
    pMassFrac = present(massFrac)
 
-   !! TODO: uncomment after porting Burn_computeEbin from BANG
-   ! if (pMassFrac) then
-   !    call Burn_computeEbin(massFrac, ebin)
-   ! end if
+   if (pMassFrac) then
+      call Burn_computeBindingEnergy(ebin, massFrac)
+   end if
 
    ! Shift internal energy back up by binding energy
    eosData(EOS_EINT) = eosData(EOS_EINT) + ebin

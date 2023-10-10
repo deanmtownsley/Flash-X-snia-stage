@@ -84,6 +84,13 @@ Module Burn_interface
      end subroutine Burn_nseAtPres
   end interface
 
+   interface
+      subroutine Burn_computeBindingEnergy(ebin, massFrac)
+         implicit none
+         real, intent(out) :: ebin
+         real, dimension(NSPECIES), intent(in) :: massFrac
+      end subroutine Burn_computeBindingEnergy  
+   end interface
 
 end Module Burn_interface
 
