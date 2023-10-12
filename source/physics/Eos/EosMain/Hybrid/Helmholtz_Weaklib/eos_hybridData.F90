@@ -35,6 +35,7 @@
 !!***
 
 module eos_hybridData
+#include "Simulation.h"
 
    implicit none
 
@@ -48,12 +49,25 @@ module eos_hybridData
    real, parameter :: ergPerKg_to_kbPerBaryon = amu_cgs/kb_erg
    real, parameter :: kbPerBaryon_to_ergPerKg = 1./ergPerKg_to_kbPerBaryon
 
-   ! integer, save  :: eos_hybVecLen_WL, eos_hybVecLen_HLM
+   ! Need these onces from various Units
+   real, save :: eos_hybEnergyShift
+   real, dimension(NSPECIES), save :: eos_hybBindingEnergy
 
-   ! real, dimension(:), allocatable, target, save :: eos_hybData_WL, eos_hybData_HLM
+   ! Ideally, these should be set from the values in the PhysicalConstants unit,
+   ! but not all of these are currently available.  For now, these will be set
+   ! to the CODATA 2018 values
 
-   !! TODO: add declare target directives here?  Not sure if this is necessary here or
-   !! if adding target enter/exit data directives after/before allocation/deallocation
-   !! is sufficient
+   ! Masses
+   real, parameter :: m_u = 931.49410242 ! MeV /  c^2
+   real, parameter :: m_n = 939.56542052 ! MeV /  c^2
+   real, parameter :: m_p = 938.27208816 ! MeV /  c^2
+   real, parameter :: m_e = 0.51099895   ! MeV /  c^2
 
+   real, parameter :: delta_n = m_n - m_u       ! MeV / c^2
+   real, parameter :: delta_p = m_p + m_e - m_u ! MeV / c^2
+
+   real, parameter :: N_A = 6.02214076e23 ! mol^-1
+
+   real, parameter :: MeV2erg = 1.602176634e-6  ! erg / MeV
+   real, parameter :: erg2MeV = 1.0/MeV2erg     ! MeV / erg
 end module eos_hybridData

@@ -28,10 +28,14 @@
 subroutine eos_hybridInit()
 
    use Eos_data, ONLY: eos_type
-   use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use IO_interface, ONLY: IO_getPrevScalar
    use Driver_interface, ONLY: Driver_abort
+
+   use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi, &
+                             eos_hybEnergyShift, eos_hybBindingEnergy
+   use Eos_wlInterface, only: Eos_wlEnerShift
+   use Multispecies_interface, only: Multispecies_getPropertyVector
 
    implicit none
 
@@ -41,6 +45,10 @@ subroutine eos_hybridInit()
 #include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
+
+#ifdef FLASH_MULTISPECIES
+#include "Multispecies.h"
+#endif
 
    ! set eos type
    eos_type = EOS_HYB
@@ -62,5 +70,9 @@ subroutine eos_hybridInit()
       call RuntimeParameters_get('eos_hybTransitionDensLo', eos_hybTransitionDensLo)
    end if
 
-   return
+#ifdef FLASH_MULTISPECIES
+   if (NSPECIES .gt. 0) call Multispecies_getPropertyVector(EB, eos_hybBindingEnergy)
+#endif
+
+   call Eos_wlEnerShift(eos_hybEnergyShift)
 end subroutine eos_hybridInit

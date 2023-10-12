@@ -42,6 +42,17 @@ module eos_hybridInterface
    end interface
 
    interface
+      subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
+         implicit none
+
+         integer, intent(in) :: vecLen
+         real, dimension(vecLen), intent(out) :: energyShift
+         real, dimension(vecLen*EOS_NUM), target, intent(in) :: eosData
+         real, dimension(vecLen*EOS_NUM), target, intent(in), optional :: massFrac
+      end subroutine eos_hybridEnergyShift
+   end interface
+
+   interface
       subroutine eos_hybridHelmholtz(mode, eosData, mask, massFrac)
          implicit none
          integer, intent(in) :: mode
