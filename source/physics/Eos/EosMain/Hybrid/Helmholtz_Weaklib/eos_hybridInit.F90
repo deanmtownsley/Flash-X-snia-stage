@@ -34,7 +34,7 @@ subroutine eos_hybridInit()
 
    use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi, &
                              eos_hybDeltaE_WL, eos_hybBoverA
-   use Eos_wlInterface, only: Eos_wlEnerShift
+   ! use Eos_wlInterface, only: Eos_wlEnerShift
    use Multispecies_interface, only: Multispecies_getPropertyVector
 
 #include "Simulation.h"
@@ -81,5 +81,6 @@ subroutine eos_hybridInit()
    end if
 #endif
 
-   call Eos_wlEnerShift(eos_hybDeltaE_WL)
+   ! call Eos_wlEnerShift(eos_hybDeltaE_WL)
+   eos_hybDeltaE_WL = 8.9 ! MeV/nucleon
 end subroutine eos_hybridInit

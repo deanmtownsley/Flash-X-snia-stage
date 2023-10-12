@@ -114,19 +114,19 @@ subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
 
    energyShift = eos_hybDeltaE_WL*conv
 
-   ! Redudant yes, but I'd rather not have the conditional check
+   ! Redundant yes, but I'd rather not have the conditional check
    ! in the loop over the vector
    if (present(massFrac) .and. (NSPECIES .gt. 0)) then
       ! Note: massFrac is indexed oppositely of eosData
       massFrac_ptr(1:NSPECIES, 1:vecLen) => massFrac
 
       do k = 1, vecLen
-         energyShift(k) = energyShift(k) + delta*eosData_ptr(k, EOS_YE) &
-                          + sum(massFrac_ptr(:, k)*eos_hybBoverA)*conv
+         energyShift(k) = energyShift(k) - delta*eosData_ptr(k, EOS_YE) &
+                          - sum(massFrac_ptr(:, k)*eos_hybBoverA)*conv
       end do ! k
    else
       do k = 1, vecLen
-         energyShift(k) = energyShift(k) + delta*eosData_ptr(k, EOS_YE)
+         energyShift(k) = energyShift(k) - delta*eosData_ptr(k, EOS_YE)
       end do ! k
    end if
 

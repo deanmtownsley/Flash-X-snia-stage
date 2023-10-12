@@ -4,10 +4,10 @@
 lrefine_max = 1
 lrefine_min = 1
 
-sim_tempMin = 5.e9
+sim_tempMin = 1.e10
 sim_tempMax = 1.e11
 sim_densMin = 1.e5
-sim_densMax = 1.e14
+sim_densMax = 5.e5
 sim_presMin = 1.e23
 sim_presMax = 1.e35
 sim_yeMin   = 0.1

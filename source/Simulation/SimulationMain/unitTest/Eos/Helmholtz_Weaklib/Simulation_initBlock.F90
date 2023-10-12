@@ -52,6 +52,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    use Grid_tile, ONLY: Grid_tile_t
 
+   use Eos_wlInterface, only: Eos_wlOneZone
+
    implicit none
 
 #include "constants.h"
@@ -75,6 +77,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real lpresMax, lpresMin, dlogP
    real yeMax, yeMin, dye
    real :: dens, temp, pres, ye
+
+   real :: xEner, xPres, xEntr, xdedt, xCs2, xXp, xXn, xXa, xXh, xAbar, xVar
 
    real, allocatable, dimension(:) :: xCenter, yCenter, zCenter
    integer, dimension(MDIM) :: pos, globalInd
@@ -171,13 +175,17 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             solnData(TEMP_VAR, i, j, k) = temp
             solnData(CPRS_VAR, i, j, k) = pres
             solnData(YE_MSCALAR, i, j, k) = ye
-            solnData(SUMY_MSCALAR, i, j, k) = 1.0
+
             ! Put some small value in energies, so Eos_wrapped called at grid
             ! init will not have to floor then with smallE
             solnData(ENER_VAR, i, j, k) = sim_smallE*1.02
 #ifdef EINT_VAR
             solnData(EINT_VAR, i, j, k) = sim_smallE*1.02
 #endif
+
+            call Eos_wlOneZone(dens, temp, ye, xEner, xPres, xEntr, xdedt, xCs2, xXp, xXn, xXa, xXh, xAbar, xVar, 0, MODE_DENS_TEMP)
+
+            solnData(SUMY_MSCALAR, i, j, k) = 1.0/xAbar
 
             if (sim_debug) then
 !!$              if (i==1 .AND. j==1 .AND. k==1) &

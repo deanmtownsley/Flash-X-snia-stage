@@ -144,7 +144,8 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
       call eos_hybridEnergyShift(energyShift, vecLen_HLM, eosData_HLM)
    end if
 
-   eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift
+   if (mode .eq. MODE_DENS_EI) &
+      eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift
 
    ! Call each EoS with its own vector
    if (pMassFrac_and_mask) then
@@ -161,17 +162,21 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM)
    end if
 
+   ! Need this every time since Helmholtz can change the input energy
    eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) + energyShift
 
    ! Unpack and blend both EoS calls into single eosData
    do k = vecBegin, vecEnd
 
+      eosData_k = eosData_ptr(k, :)
+
       if (useWLOnly(k)) then
 
          k_WL = kVec_WL(k)
-         do i = 1, EOS_NUM
-            eosData_ptr(k, i) = eosData_WL_ptr(k_WL, i)
-         end do
+         eosData_k = eosData_WL_ptr(k_WL, :)
+         ! do i = 1, EOS_NUM
+         ! eosData_ptr(k, i) = eosData_WL_ptr(k_WL, i)
+         ! end do
 
       else if (useHybOnly(k)) then
 
@@ -192,19 +197,48 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          facLo = facLo*iFac
          facHi = facHi*iFac
 
-         do i = 1, EOS_NUM
-            eosData_ptr(k, i) = (facHi*eosData_WL_ptr(k_WL, i) &
-                                 + facLo*eosData_HLM_ptr(k_HLM, i))
-         end do
+         ! do i = 1, EOS_NUM
+         !    eosData_ptr(k, i) = (facHi*eosData_WL_ptr(k_WL, i) &
+         !                         + facLo*eosData_HLM_ptr(k_HLM, i))
+         ! end do
+
+         eosData_k = (facHi*eosData_WL_ptr(k_WL, :) &
+                      + facLo*eosData_HLM_ptr(k_HLM, :))
+
+         ! select case (mode)
+         ! case (MODE_DENS_TEMP)
+         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
+         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
+         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
+         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
+         ! case (MODE_DENS_EI)
+         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
+         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
+         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
+         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
+         ! case (MODE_DENS_PRES)
+         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
+         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
+         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
+         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
+         ! case (MODE_DENS_ENTR)
+         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
+         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
+         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
+         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
+         ! end select
 
       else ! useHLMOnly(k)
 
          k_HLM = kVec_HLM(k)
-         do i = 1, EOS_NUM
-            eosData_ptr(k, i) = eosData_HLM_ptr(k_HLM, i)
-         end do
+         eosData_k = eosData_HLM_ptr(k_HLM, :)
+         ! do i = 1, EOS_NUM
+         !    eosData_ptr(k, i) = eosData_HLM_ptr(k_HLM, i)
+         ! end do
 
       end if
+
+      eosData_ptr(k, :) = eosData_k
 
    end do
 
