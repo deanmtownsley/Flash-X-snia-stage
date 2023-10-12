@@ -32,6 +32,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                              Grid_correctFluxData_xtra, &
                              Grid_getFluxCorrData_block, &
                              Grid_putFluxData, &
+                             Grid_putFluxData_block, &   ! this only required for nonTelescoping
                              Grid_renormAbundance
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
@@ -45,6 +46,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_telescoping, &
                          hy_maxLev, &
                          hy_weights, hy_coeffArray, &   ! I dont think they are belong to Hydro
+                         hy_addFluxArray, &  ! this only required for nonTelescoping
                          hy_threadWithinBlock, hy_flattening, &
                          hy_gcMask,&
                          hy_lChyp, hy_C_hyp, hy_alphaGLM, &
