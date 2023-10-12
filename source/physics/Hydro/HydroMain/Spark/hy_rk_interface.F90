@@ -22,10 +22,6 @@ module hy_rk_interface
 #include "constants.h"
 #include "Spark.h"
 
-#include "Simulation.h"
-#include "constants.h"
-#include "Spark.h"
-
   interface
      subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage)
        real, dimension(:,:,:,:), pointer :: Uin, starState, tmpState
@@ -91,8 +87,7 @@ module hy_rk_interface
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
      end subroutine hy_rk_getGraveAccel
   end interface
-  
-  
+
   interface
      subroutine hy_rk_correctFluxes(Uin, blkLimits, &
                                     fluxBufX, fluxBufY, fluxBufZ, &
