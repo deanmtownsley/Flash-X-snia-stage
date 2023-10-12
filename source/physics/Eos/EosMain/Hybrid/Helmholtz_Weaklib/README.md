@@ -16,4 +16,14 @@ s.t. $c_\text{LO},c_\text{HI} \le 1$, and $n > 1$.  Increasing the value of $n$ 
 
 ## Energy Offsets
 
-The Helmholtz EOS requires the thermal
+The Helmholtz EOS requires the thermal energy $E_\text{th}$ as input, so the internal energy $E_\text{int}$ must be offset by the rest mass energy and any other shifts associated with the nuclear EOS tables.  For WeakLib, there is a shift of $\Delta E_\text{WL} = 8.9$ MeV/nucleon.  The energy shift due to the rest mass energy is
+
+$$
+   \Delta E_\text{M} = -\left[Y_e(m_n - m_p - m_e)c^2 + \sum_i Y_i B_i\right]
+$$
+
+The thermal energy is then
+
+$$
+   E_\text{th} = E_\text{int} - \Delta E_\text{M} - \Delta E_\text{WL}
+$$

@@ -50,8 +50,8 @@ module eos_hybridData
    real, parameter :: kbPerBaryon_to_ergPerKg = 1./ergPerKg_to_kbPerBaryon
 
    ! Need these onces from various Units
-   real, save :: eos_hybEnergyShift
-   real, dimension(NSPECIES), save :: eos_hybBindingEnergy
+   real, save :: eos_hybDeltaE_WL
+   real, dimension(NSPECIES), save :: eos_hybBoverA
 
    ! Ideally, these should be set from the values in the PhysicalConstants unit,
    ! but not all of these are currently available.  For now, these will be set

@@ -21,13 +21,10 @@
 !!NOVARIANTS
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    use eos_localInterface, only: eos_helmYe, eos_weaklib
-   use Eos_wlInterface, only: Eos_wlEnerShift
 
-   use eos_hybridInterface, only: eos_hybridSetFlag
+   use eos_hybridInterface, only: eos_hybridSetFlag, eos_hybridEnergyShift
    use eos_hybridData, only: eos_hybTransitionDensLo, eos_hybTransitionDensHi, &
                              ergPerKg_to_kbPerBaryon, kbPerBaryon_to_ergPerKg
-
-   use Burn_interface, only: Burn_computeBindingEnergy
 
    implicit none
 
@@ -49,14 +46,13 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    integer :: k_WL, vecLen_WL, kVec_WL(vecLen)
    integer :: k_HLM, vecLen_HLM, kVec_HLM(vecLen)
    real, allocatable, target :: eosData_WL(:), massFrac_WL(:)
-   real, allocatable, target :: eosData_HLM(:), massFrac_HLM(:), ebin(:)
+   real, allocatable, target :: eosData_HLM(:), massFrac_HLM(:), energyShift(:)
    real, dimension(EOS_NUM) :: eosData_k
 
    real, dimension(:, :), pointer :: eosData_ptr, eosData_WL_ptr, eosData_HLM_ptr
    real, dimension(:, :), pointer :: massFrac_ptr, massFrac_WL_ptr, massFrac_HLM_ptr
 
    real :: dens_in, fac, facLo, facHi, iFac
-   real :: energyShift
 
    integer :: i, k
    logical, dimension(vecLen) :: useWL, useHLM, useWLOnly, useHLMOnly, useHybOnly
@@ -64,8 +60,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
    nullify (eosData_ptr, eosData_WL_ptr, eosData_HLM_ptr)
    nullify (massFrac_ptr, massFrac_WL_ptr, massFrac_HLM_ptr)
-
-   call Eos_wlEnerShift(energyShift)
 
    vecBegin = 1
    vecEnd = vecLen
@@ -102,7 +96,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
    allocate (eosData_WL(EOS_NUM*vecLen_WL))
    allocate (eosData_HLM(EOS_NUM*vecLen_HLM))
-   allocate (ebin(vecLen_HLM))
+   allocate (energyShift(vecLen_HLM))
 
    eosData_WL_ptr(1:vecLen_WL, 1:EOS_NUM) => eosData_WL
    eosData_HLM_ptr(1:vecLen_HLM, 1:EOS_NUM) => eosData_HLM
@@ -118,7 +112,6 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
    eosData_WL = 0.0
    eosData_HLM = 0.0
-   ebin = 0.0
 
    kVec_WL = 0
    kVec_HLM = 0
@@ -141,13 +134,17 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
          if (useHLM(k)) then
             k_HLM = kVec_HLM(k)
             massFrac_HLM_ptr(:, k_HLM) = massFrac_ptr(:, k)
-
-            call Burn_computeBindingEnergy(ebin(k_HLM), massFrac_HLM_ptr(:, k_HLM))
          end if
       end do ! k
    end if
 
-   eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift + ebin
+   if (pMassFrac) then
+      call eos_hybridEnergyShift(energyShift, vecLen_HLM, eosData_HLM, massFrac=massFrac_HLM)
+   else
+      call eos_hybridEnergyShift(energyShift, vecLen_HLM, eosData_HLM)
+   end if
+
+   eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift
 
    ! Call each EoS with its own vector
    if (pMassFrac_and_mask) then
@@ -164,7 +161,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM)
    end if
 
-   eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) + energyShift - ebin
+   eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) + energyShift
 
    ! Unpack and blend both EoS calls into single eosData
    do k = vecBegin, vecEnd
@@ -223,7 +220,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    if (allocated(eosData_HLM)) deallocate (eosData_HLM)
    if (allocated(massFrac_WL)) deallocate (massFrac_WL)
    if (allocated(massFrac_HLM)) deallocate (massFrac_HLM)
-   if (allocated(ebin)) deallocate (ebin)
+   if (allocated(energyShift)) deallocate (energyShift)
 end subroutine Eos
 
 ! subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
