@@ -108,7 +108,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
    character(len=:), allocatable :: block_fmt, mode_fmt, set_fmt, err_fmt, &
                                     status_fmt, setup_fmt, init_fmt, result_fmt, &
-                                    comp_fmt
+                                    comp_fmt, tmp_fmt
 
    block_fmt  = "(i6,':  Block: ',i8,'  Type: ',i4)" !&
 
@@ -122,6 +122,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
    status_fmt = "(i6,':  Result for test for ',a9,':  ',a4)"   !&
    err_fmt    = "(i6,':  Maximum error in ',a4,': ',es24.15)"  !&
    comp_fmt   = "(i6,':     ',a4,2x,es24.15,4x,a4,2x,es24.15)" !&
+   tmp_fmt    = "(i6,':  Maximum relative temperature difference: ',es24.15)"  !&
 
    nullify (solnData)
 
@@ -303,8 +304,8 @@ contains
       character(len=4) :: out_1_exp_name, out_2_exp_name
       character(len=4) :: in_1_init_name, in_2_init_name
 
-      integer, dimension(MDIM) :: ierr_1, ierr_2
-      real :: err_1, err_2
+      integer, dimension(MDIM) :: ierr_1, ierr_2, idtmp
+      real :: err_1, err_2, dtmp
 
       success = .true.
 
@@ -405,6 +406,10 @@ contains
                               - solnData(out_2_exp, ib:ie, jb:je, kb:ke)) &
                              /solnData(out_2_exp, ib:ie, jb:je, kb:ke)))
 
+         idtmp = maxloc(abs((solnData(TMPW_VAR, ib:ie, jb:je, kb:ke) &
+                             - solnData(TMPH_VAR, ib:ie, jb:je, kb:ke)) &
+                            /solnData(TMPW_VAR, ib:ie, jb:je, kb:ke)))
+
          err_1 = abs((solnData(out_1, ierr_1(1), ierr_1(2), ierr_1(3)) &
                       - solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3))) &
                      /solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3)))
@@ -412,6 +417,10 @@ contains
          err_2 = abs((solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)) &
                       - solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))) &
                      /solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3)))
+
+         dtmp = abs((solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)) &
+                     - solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3))) &
+                    /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
 
          success = tolerance .gt. err_1
          success = success .and. (tolerance .gt. err_2)
@@ -427,6 +436,12 @@ contains
                in_2_name, solnData(in_2, ierr_2(1), ierr_2(2), ierr_2(3))
             write (*, comp_fmt) eos_meshMe, out_2_name, solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)), &
                out_2_exp_name, solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))
+
+            write (*, tmp_fmt) eos_meshMe, dtmp
+            write (*, comp_fmt) eos_meshMe, in_1_name, solnData(in_1, idtmp(1), idtmp(2), idtmp(3)), &
+               in_2_name, solnData(in_2, idtmp(1), idtmp(2), idtmp(3))
+            write (*, comp_fmt) eos_meshMe, "tmph", solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3)), &
+               "tmpw", solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3))
 
             if (success) then
                write (*, status_fmt) eos_meshMe, name, "PASS"

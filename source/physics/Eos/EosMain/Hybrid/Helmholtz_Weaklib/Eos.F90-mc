@@ -238,6 +238,18 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
       end if
 
+      ! Note: the following are ugly hacks for the sole purpose of storing the
+      ! inverted temperatures from each EOS for comparison in the unit test
+#ifdef TMPH_VAR
+      ! This will force Eos_putData to map EOS_GAMC to TMPH_VAR
+      eosData_k(EOS_GAMC) = eosData_HLM_ptr(k, EOS_TEMP)
+#endif
+
+#ifdef TMPW_VAR
+      ! This will force Eos_putData to map EOS_ENTR to TMPW_VAR
+      eosData_k(EOS_ENTR) = eosData_WL_ptr(k, EOS_TEMP)
+#endif
+
       eosData_ptr(k, :) = eosData_k
 
    end do
