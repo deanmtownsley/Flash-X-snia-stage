@@ -217,7 +217,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! Update EOS based on intermediate solution
            call Timers_start("eos")
            call Eos_wrapped(MODE_DENS_EI, limits, hy_starState)
-           @M hy_DIR_TARGET_update_to([hy_starState])
            call Timers_stop("eos")
            !Finally update the state
            if (stage == last_stage) then !! this is only needed for telescoping version
@@ -389,7 +388,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                ! Update EOS based on intermediate solution
                call Timers_start("eos")
                call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
-               @M hy_DIR_TARGET_update_to([hy_starState])
                call Timers_stop("eos")
 
                if (stage == last_stage) then
