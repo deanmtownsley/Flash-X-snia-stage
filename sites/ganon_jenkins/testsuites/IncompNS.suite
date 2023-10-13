@@ -1,3 +1,5 @@
+# Test suite file for ganon_jenkins
+#
 # File containing details of test specifications for
 # specific simulations that reference keys defined in
 # tests/tests.toml files defined in the simulation
@@ -15,9 +17,22 @@
 # --rbase, -rbase 	Date string YYYY-MM-DD[_version]
 # --tolerance, -tol	Tolerance for SFOCU
 
+
 #------------------------------------------------
 # Tests for - incompFlow
 #------------------------------------------------
+incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
+incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+
+# adhruv: 07/19/2023: commenting this test until facevar compatability
+# 		      is estabilished with AMReX version > 21.05
+#
+# adhruv: 09/08/2023: uncommenting this test to test facevar compatibility
+incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
+
+# adhruv: 10/15/2023: added a paramesh pool boiling for testing performance
+incompFlow/PoolBoiling -t "UnitTest/incompFlow/PoolBoiling/2d/Paramesh" -np 4
+
 # adhruv 09/16/2023 - Added comparison tests to improve coverage of incompressible 
 #                     Navier-Stokes simulations
 #

@@ -10,7 +10,6 @@ amrexFaceInterpolator = "face_div_free"
 gr_bcEnableApplyMixedGds = .FALSE.
 convertToConsvdForMeshCalls = .FALSE.
 convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 wr_integrals_freq = -1
 

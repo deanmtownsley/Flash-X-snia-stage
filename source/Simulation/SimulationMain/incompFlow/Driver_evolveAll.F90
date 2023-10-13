@@ -121,17 +121,17 @@ subroutine Driver_evolveAll()
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
-              iCurvVar, iAlphVar, iTempFrcVar
+              iCurvVar, iAlphVar, iTempFrcVar, iNormVar(MDIM)
    integer :: iteration, level, maxLev
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
 
-   real, pointer,dimension(:,:,:,:) :: fluxBufX,fluxBufY,fluxBufZ
+   real, pointer, dimension(:, :, :, :) :: fluxBufX, fluxBufY, fluxBufZ
    CONTIGUOUS_FSTMT(fluxBufX)
    CONTIGUOUS_FSTMT(fluxBufY)
    CONTIGUOUS_FSTMT(fluxBufZ)
 
-   nullify(fluxBufX, fluxBufY, fluxBufZ)
+   nullify (fluxBufX, fluxBufY, fluxBufZ)
 
    ! Get grid variables for incompressible Naiver-Stokes
    call IncompNS_getGridVar("FACE_VELOCITY", iVelVar)
@@ -159,6 +159,11 @@ subroutine Driver_evolveAll()
    call Multiphase_getGridVar("CENTER_PHASEFUN_SHARP", iSharpPfunVar)
    call Multiphase_getGridVar("CENTER_PHASEFUN_SMEARED", iSmearedPfunVar)
    call Multiphase_getGridVar("CENTER_CURVATURE", iCurvVar)
+   call Multiphase_getGridVar("CENTER_NORMX", iNormVar(IAXIS))
+   call Multiphase_getGridVar("CENTER_NORMY", iNormVar(JAXIS))
+#if NDIM==MDIM
+   call Multiphase_getGridVar("CENTER_NORMZ", iNormVar(KAXIS))
+#endif
 #endif
 
 #ifdef MULTIPHASE_EVAPORATION
@@ -194,7 +199,7 @@ subroutine Driver_evolveAll()
    ! Fill GuardCells
    ! This is done for book-keeping purposes during
    ! restart
-   gcMask = .TRUE.
+   gcMask(:) = .TRUE.
    call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                             maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
 
@@ -245,6 +250,13 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call sim_forceHeater(dr_nstep, dr_dt, dr_simTime)
       !------------------------------------------------------------
+#ifdef MULTIPHASE_EVAPORATION
+      ! Guard cell fill for level-set
+      gcMask(:) = .FALSE.
+      gcMask(iDfunVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask)
+#endif
 #endif
 
 #ifdef MULTIPHASE_MAIN
@@ -265,11 +277,13 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Fill GuardCells for Pressure Jump
-      gcMask = .FALSE.
+      ! Fill GuardCells for Multiphase variables
+      gcMask(:) = .FALSE.
       gcMask(iViscVar) = .TRUE.
       gcMask(iRhoCVar) = .TRUE.
       gcMask(iCurvVar) = .TRUE.
+      gcMask(iNormVar(IAXIS)) = .TRUE.
+      gcMask(iNormVar(JAXIS)) = .TRUE.
 #ifdef MULTIPHASE_EVAPORATION
       gcMask(iAlphVar) = .TRUE.
 #endif
@@ -279,6 +293,7 @@ subroutine Driver_evolveAll()
       gcMask(NUNK_VARS + 1*NFACE_VARS + iRhoFVar) = .TRUE.
 #if NDIM == 3
       gcMask(NUNK_VARS + 2*NFACE_VARS + iRhoFVar) = .TRUE.
+      gcMask(iNormVar(KAXIS)) = .TRUE.
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
@@ -301,9 +316,11 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for Pressure Jump
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
 #ifdef MULTIPHASE_EVAPORATION
       gcMask(iTempFrcVar) = .TRUE.
+      gcMask(iHliqVar) = .TRUE.
+      gcMask(iHGasVar) = .TRUE.
 #endif
       gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
@@ -330,7 +347,7 @@ subroutine Driver_evolveAll()
          call Grid_releaseTileIterator(itor)
 
          ! Fill GuardCells for heat fluxes
-         gcMask = .FALSE.
+         gcMask(:) = .FALSE.
          gcMask(iHliqVar) = .TRUE.
          gcMask(iHGasVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
@@ -352,7 +369,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for mass flux
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(iMfluxVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
@@ -372,7 +389,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for velocity
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(NUNK_VARS + iVelVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
 #if NDIM == 3
@@ -400,7 +417,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for velocity
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(NUNK_VARS + iVelVar) = .TRUE.
       gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
 #if NDIM == 3
@@ -426,12 +443,11 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Fill GuardCells for pressure
-      gcMask = .FALSE.
+      ! Fill GuardCells for Divergence
+      gcMask(:) = .FALSE.
       gcMask(iDivVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask, &
-                               selectBlockType=ACTIVE_BLKS)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
 #if defined(INCOMPNS_PRES_POISSON)
       ! Solve pressure Poisson equation
@@ -454,11 +470,10 @@ subroutine Driver_evolveAll()
 #endif
 
       ! Fill GuardCells for pressure
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(iPresVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask, &
-                               selectBlockType=ACTIVE_BLKS)
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Final step of fractional step velocity
       ! formulation - calculate corrected velocity
@@ -477,6 +492,12 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
+      ! Fill GuardCells for Divergence
+      gcMask(:) = .FALSE.
+      gcMask(iDivVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask)
+
       ! Call indicators method to show information
       !------------------------------------------------------------
       call IncompNS_indicators()
@@ -488,7 +509,7 @@ subroutine Driver_evolveAll()
 
 #ifdef HEATAD_MAIN
       ! Fill GuardCells for temperature
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(iTempVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
@@ -532,7 +553,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for level set function
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
@@ -554,7 +575,7 @@ subroutine Driver_evolveAll()
          call Grid_releaseTileIterator(itor)
 
          ! Fill GuardCells for level set function
-         gcMask = .FALSE.
+         gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
@@ -591,7 +612,7 @@ subroutine Driver_evolveAll()
       if (gridChanged) then
          dr_simGeneration = dr_simGeneration + 1
 
-         gcMask = .FALSE.
+         gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)

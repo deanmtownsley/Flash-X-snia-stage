@@ -82,3 +82,5 @@ PARAMETER amrexFaceInterpolator STRING "FACE_LINEAR"
 
 D amrexUseBittree Parameter for AMReX mode with Bittree
 PARAMETER gr_amrexUseBittree BOOLEAN FALSE
+
+PPDEFINE MAX_GCMASK_CHUNKS 10

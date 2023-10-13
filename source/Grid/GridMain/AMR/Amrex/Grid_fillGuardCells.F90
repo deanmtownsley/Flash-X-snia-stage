@@ -152,7 +152,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer, intent(IN), optional :: selectBlockType
   logical, intent(IN), optional :: unitReadsMeshDataOnly
 
-  logical,dimension(NUNK_VARS) :: gcell_on_cc
+  logical,dimension(NUNK_VARS) :: gcell_on_cc = .FALSE.
+  logical,dimension(MDIM,NFACE_VARS) :: gcell_on_fc = .FALSE.
   integer :: guard, gcEosMode
   integer,dimension(MDIM) :: layers, returnLayers
   real,pointer :: solnData(:,:,:,:)
@@ -169,10 +170,13 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   logical, save :: maskWarningDone = .FALSE.
   logical :: skipThisGcellFill, skipNextGcellFill
   character(len=10) :: tagext
-  integer :: scompCC, ncompCC, lcompCC
+  integer :: scompCC, ncompCC, scompFC, ncompFC
 
   integer :: lev, j
   integer :: finest_level
+
+  integer, dimension(MAX_GCMASK_CHUNKS, 2) :: gcellChunksCC, gcellChunksFC
+  integer :: chunkSizeCC = 0, chunkSizeFC = 0, chunkIndex = 0
 
 #ifdef DEBUG_GRID
   logical:: validDataStructure
@@ -234,9 +238,13 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         if(present(maskSize)) then
 
            !! If both mask and masksize are present, apply the mask
+           gcell_on_cc(:) = .FALSE.
+           gcell_on_fc(:,:) = .FALSE.
            call gr_setMasks_gen(gridDataStruct,maskSize,mask, &
                 gcell_on_cc,                                  &
+                gcell_on_fc,                                  &
                 enableMaskedGCFill=gr_enableMaskedGCFill)
+
            if(present(makeMaskConsistent))then
               if(makeMaskConsistent) then
                  !! if the caller routine is asking for a consistency check
@@ -265,17 +273,11 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !! structure is filled.
 !  if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
 
-  scompCC = UNK_VARS_BEGIN
-  ncompCC = NUNK_VARS
-
   if(present(mask))then
      if(present(maskSize)) then
         if (gr_enableMaskedGCFill) then
-            scompCC = maxloc(merge(1.,0.,gcell_on_cc),dim=1) ! maxloc(gcell_on_cc,dim=1)
-            lcompCC = UNK_VARS_END + 1 - &
-                      maxloc(merge(1.,0.,gcell_on_cc(UNK_VARS_END:UNK_VARS_BEGIN:-1)),dim=1)
-            ncompCC = lcompCC - scompCC + 1
-            gcell_on_cc(scompCC:lcompCC) = .TRUE.
+            call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, chunkSizeCC)
+            call gr_setMaskChunks_internal(gcell_on_fc(IAXIS,:), gcellChunksFC, chunkSizeFC)
         end if
 
         if (present(doLogMask)) then
@@ -330,40 +332,89 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   !!!!! Cell-centered data first
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
-    lev = 0
-    ! AMReX recommended using fillpatch, which is copying *all* data, 
-    ! including the GC.
-    call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
-                                   0.0, unk(lev), &
-                                   amrex_geom(lev), gr_fillPhysicalBC, &
-                                   0.0, scompCC, scompCC, ncompCC)
 
-    finest_level = amrex_get_finest_level()
-    do lev=1, finest_level
-       if (needConversionInner) then
-          call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
-                                      0.0, unk(lev-1), &
-                                      amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev  ), &
-                                      0.0, unk(lev  ), &
-                                      amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                      0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev-1), gr_interpolator, &
-                                      lo_bc_amrex, hi_bc_amrex, &
-                                      gr_preinterpolationWork, &
-                                      gr_postinterpolationWork)
-       else
-          call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
-                                      0.0, unk(lev-1), &
-                                      amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev  ), &
-                                      0.0, unk(lev  ), &
-                                      amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                      0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev-1), gr_interpolator, &
-                                      lo_bc_amrex, hi_bc_amrex)
-       end if
-    end do
+    if (gr_enableMaskedGCFill .and. chunkSizeCC > 0) then
+
+       do chunkIndex = 1, chunkSizeCC
+
+          scompCC = gcellChunksCC(chunkIndex, 1)
+          ncompCC = gcellChunksCC(chunkIndex, 2) - gcellChunksCC(chunkIndex,1) + 1
+
+          lev = 0
+          ! AMReX recommended using fillpatch, which is copying *all* data, 
+          ! including the GC.
+          call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
+                                         0.0, unk(lev), &
+                                         amrex_geom(lev), gr_fillPhysicalBC, &
+                                         0.0, scompCC, scompCC, ncompCC)
+
+          finest_level = amrex_get_finest_level()
+          do lev=1, finest_level
+             if (needConversionInner) then
+                call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
+                                            0.0, unk(lev-1), &
+                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
+                                            1.0, unk(lev  ), &
+                                            0.0, unk(lev  ), &
+                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
+                                            0.0, scompCC, scompCC, ncompCC, &
+                                            amrex_ref_ratio(lev-1), gr_interpolator, &
+                                            lo_bc_amrex, hi_bc_amrex, &
+                                            gr_preinterpolationWork, &
+                                            gr_postinterpolationWork)
+             else
+                call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
+                                            0.0, unk(lev-1), &
+                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
+                                            1.0, unk(lev  ), &
+                                            0.0, unk(lev  ), &
+                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
+                                            0.0, scompCC, scompCC, ncompCC, &
+                                            amrex_ref_ratio(lev-1), gr_interpolator, &
+                                            lo_bc_amrex, hi_bc_amrex)
+             end if      
+          end do
+       end do
+    else 
+
+       scompCC = UNK_VARS_BEGIN
+       ncompCC = NUNK_VARS
+
+       lev = 0
+       ! AMReX recommended using fillpatch, which is copying *all* data, 
+       ! including the GC.
+       call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
+                                      0.0, unk(lev), &
+                                      amrex_geom(lev), gr_fillPhysicalBC, &
+                                      0.0, scompCC, scompCC, ncompCC)
+
+       finest_level = amrex_get_finest_level()
+       do lev=1, finest_level
+          if (needConversionInner) then
+             call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
+                                         0.0, unk(lev-1), &
+                                         amrex_geom(lev-1), gr_fillPhysicalBC, &
+                                         1.0, unk(lev  ), &
+                                         0.0, unk(lev  ), &
+                                         amrex_geom(lev  ), gr_fillPhysicalBC, &
+                                         0.0, scompCC, scompCC, ncompCC, &
+                                         amrex_ref_ratio(lev-1), gr_interpolator, &
+                                         lo_bc_amrex, hi_bc_amrex, &
+                                         gr_preinterpolationWork, &
+                                         gr_postinterpolationWork)
+          else
+              call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
+                                         0.0, unk(lev-1), &
+                                         amrex_geom(lev-1), gr_fillPhysicalBC, &
+                                         1.0, unk(lev  ), &
+                                         0.0, unk(lev  ), &
+                                         amrex_geom(lev  ), gr_fillPhysicalBC, &
+                                         0.0, scompCC, scompCC, ncompCC, &
+                                         amrex_ref_ratio(lev-1), gr_interpolator, &
+                                         lo_bc_amrex, hi_bc_amrex)
+          end if
+       end do
+    end if
 
     !!!!! FINALIZE CELL-CENTERED DATA
     ! Clean data to account for possible unphysical values caused by
@@ -512,36 +563,86 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   ! DEV: TODO Do we need C-to-P conversion here for face vars?
   if (     (gridDataStruct == CENTER_FACES) &
       .OR. (gridDataStruct == FACES)) then
-     lev = 0
 
-     do dir = 1, NDIM
-        call amrex_fillpatch(facevars(dir, lev), &
-                             1.0, facevars(dir, lev), &
-                             0.0, facevars(dir, lev), &
-                             amrex_geom(lev), gr_fillPhysicalBC, &
-                             0.0, 1, 1, NFACE_VARS)
-     end do
+    if (gr_enableMaskedGCFill .and. chunkSizeFC > 0) then
 
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevars(:, lev), &
-                             1.0, facevars(:, lev-1), &
-                             0.0, facevars(:, lev-1), &
-                             amrex_geom(lev-1), &
-                             gr_fillPhysicalBC, gr_fillPhysicalBC, &
+       do chunkIndex = 1, chunkSizeFC
+       
+          scompFC = gcellChunksFC(chunkIndex, 1)
+          ncompFC = gcellChunksFC(chunkIndex, 2) - gcellChunksFC(chunkIndex,1) + 1
+
+          lev = 0
+
+          do dir = 1, NDIM
+             call amrex_fillpatch(facevars(dir, lev), &
+                                  1.0, facevars(dir, lev), &
+                                  0.0, facevars(dir, lev), &
+                                  amrex_geom(lev), gr_fillPhysicalBC, &
+                                  0.0, scompFC, scompFC, ncompFC)
+          end do
+
+          do lev=1, amrex_get_finest_level()
+             call amrex_fillpatch(facevars(:, lev), &
+                                  1.0, facevars(:, lev-1), &
+                                  0.0, facevars(:, lev-1), &
+                                  amrex_geom(lev-1), &
+                                  gr_fillPhysicalBC, gr_fillPhysicalBC, &
 #if NDIM == MDIM
-        &                    gr_fillPhysicalBC, &
+             &                    gr_fillPhysicalBC, &
 #endif
-                             1.0, facevars(:,  lev), &
-                             0.0, facevars(:,  lev), &
-                             amrex_geom(lev  ), &
-                             gr_fillPhysicalBC, gr_fillPhysicalBC, &
+                                  1.0, facevars(:,  lev), &
+                                  0.0, facevars(:,  lev), &
+                                  amrex_geom(lev  ), &
+                                  gr_fillPhysicalBC, gr_fillPhysicalBC, &
 #if NDIM == MDIM
-        &                    gr_fillPhysicalBC, &
+             &                    gr_fillPhysicalBC, &
+#endif 
+                                 0.0, scompFC, scompFC, ncompFC, &
+                                 amrex_ref_ratio(lev-1), gr_interpolatorFace, &
+                                 lo_bc_amrexFace, hi_bc_amrexFace)
+          end do
+       end do
+    else 
+
+       scompFC = 1
+       ncompFC = NFACE_VARS
+
+       lev = 0
+
+       do dir = 1, NDIM
+          call amrex_fillpatch(facevars(dir, lev), &
+                               1.0, facevars(dir, lev), &
+                               0.0, facevars(dir, lev), &
+                               amrex_geom(lev), gr_fillPhysicalBC, &
+                               0.0, scompFC, scompFC, ncompFC)
+       end do
+
+       do lev=1, amrex_get_finest_level()
+          call amrex_fillpatch(facevars(:, lev), &
+                               1.0, facevars(:, lev-1), &
+                               0.0, facevars(:, lev-1), &
+                               amrex_geom(lev-1), &
+                               gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+          &                    gr_fillPhysicalBC, &
 #endif
-                             0.0, 1, 1, NFACE_VARS, &
-                             amrex_ref_ratio(lev-1), gr_interpolatorFace, &
-                             lo_bc_amrexFace, hi_bc_amrexFace)
-     end do
+                               1.0, facevars(:,  lev), &
+                               0.0, facevars(:,  lev), &
+                               amrex_geom(lev  ), &
+                               gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+          &                    gr_fillPhysicalBC, &
+#endif
+                               0.0, scompFC, scompFC, ncompFC, &
+                               amrex_ref_ratio(lev-1), gr_interpolatorFace, &
+                               lo_bc_amrexFace, hi_bc_amrexFace)
+       end do
+    end if
+  end if
+
+  if (     (gridDataStruct == FACEX) &
+      .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
+    call Driver_abort("[Grid_fillGuardCells] Cannot fill guard cells for FACEX, FACEY, FACEZ separately")
   end if
 
 #else
@@ -603,5 +704,45 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   write(*,'(A,I3)') "[Grid_fillGuardcell] From level 1 to level ", &
                     finest_level+1
 #endif
+
+contains
+   subroutine gr_setMaskChunks_internal(mask, chunks, chunkSize)
+      !
+      use Driver_interface, ONLY : Driver_abort
+      implicit none
+      ! Arguments
+      logical, dimension(:), intent(in) :: mask
+      integer, dimension(MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
+      integer, intent(out) :: chunkSize
+      ! Local Variables
+      integer :: prevVarIndex, varIndex
+      logical :: prevVarMask
+
+      prevVarIndex = 0
+      prevVarMask = .FALSE.
+      chunks = 0
+      chunkSize = 0
+
+      do varIndex = 1, size(mask)
+         if (mask(varIndex) .and. (.not. prevVarMask)) then
+
+            chunkSize = chunkSize + 1
+
+            if (chunkSize > MAX_GCMASK_CHUNKS) then
+               call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > MAX_GCMASK_CHUNKS")
+            end if
+
+            chunks(chunkSize, 1) = varIndex
+            chunks(chunkSize, 2) = varIndex
+
+         else if (mask(varIndex) .and. prevVarMask) then
+            chunks(chunkSize, 2) = varIndex
+
+         end if
+
+         prevVarIndex = varIndex
+         prevVarMask = mask(varIndex)
+      end do
+   end subroutine gr_setMaskChunks_internal
 
 end subroutine Grid_fillGuardCells

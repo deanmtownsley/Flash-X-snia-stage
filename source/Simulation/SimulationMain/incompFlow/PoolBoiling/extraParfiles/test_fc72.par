@@ -8,7 +8,6 @@ gr_pmRpConsvFluxDensities = .FALSE.
 gr_bcEnableApplyMixedGds = .FALSE.
 convertToConsvdForMeshCalls = .FALSE.
 convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds   = .0042
