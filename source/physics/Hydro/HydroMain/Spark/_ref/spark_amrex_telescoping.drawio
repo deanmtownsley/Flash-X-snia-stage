@@ -1,0 +1,173 @@
+<mxfile host="Electron" modified="2023-10-14T00:42:07.117Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.0.2 Chrome/114.0.5735.134 Electron/25.6.0 Safari/537.36" etag="Q8GCMCVrhvUpMOgZ5qRF" version="22.0.2" type="device">
+  <diagram name="Page-1" id="yFwBG1SUUOST-3AM7Ou2">
+    <mxGraphModel dx="3308" dy="1012" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5Acj3--pXxMo4RXNK95A-1" value="&lt;font style=&quot;font-size: 19px;&quot;&gt;do lev = hy_maxLev, 1, -1&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#B3B3B3;fontColor=#000000;fontFamily=Courier New;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="850" height="1230" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-2" value="call &lt;b&gt;Grid_fillGuardCells&lt;/b&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Courier New;fillColor=#fa6800;fontColor=#000000;strokeColor=#C73500;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="460" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-3" value="if (lev &amp;lt; hy_maxLev) call &lt;b&gt;Grid_communicateFluxes&lt;/b&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Courier New;fillColor=#fa6800;fontColor=#000000;strokeColor=#C73500;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="70" y="90" width="460" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-4" value="&lt;font style=&quot;font-size: 19px;&quot;&gt;do blocks&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#8A8A8A;fontColor=#000000;fontFamily=Courier New;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="790" height="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeColor=#000000;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-5" target="5Acj3--pXxMo4RXNK95A-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-5" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_shockDetect&lt;/b&gt; (&lt;b&gt;Uin&lt;/b&gt;, blkLimitsGC, hy_tiny)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="170" width="480" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-7" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_initSolnScratch&lt;/b&gt;(Uin, &lt;b&gt;hy_starState&lt;/b&gt;, &lt;b&gt;hy_tmpState&lt;/b&gt;, blkLimitsGC, stage)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="210" width="520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-11" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_permutateLimits&lt;/b&gt; (blkLimits, blkLimitsGC, &lt;b&gt;limg&lt;/b&gt;, &lt;b&gt;limgc&lt;/b&gt;)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="550" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-13" value="&lt;font style=&quot;font-size: 19px;&quot;&gt;do stages&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#E2E8A9;fontColor=#000000;fontFamily=Courier New;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="310" width="730" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-14" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_getGravAccel&lt;/b&gt; (hy_starState, &lt;b&gt;hy_grav&lt;/b&gt;,&lt;br&gt;&amp;nbsp; &amp;nbsp;hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="350" width="545" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-16" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_calcLimits&lt;/b&gt;&amp;nbsp;(stage, blkLimits, &lt;b&gt;limits&lt;/b&gt;)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="410" width="425" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-18" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_getFlatteningLimiter&lt;/b&gt; (hy_flattening, hy_starState,&lt;br&gt;&amp;nbsp; &amp;nbsp;&lt;b&gt;hy_flat3d&lt;/b&gt;, limits)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="450" width="545" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-19" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_getFaceFlux&lt;/b&gt; (hy_starState, hy_flat3d,&lt;br&gt;&amp;nbsp; &amp;nbsp;&lt;b&gt;hy_flx&lt;/b&gt;, &lt;b&gt;hy_fly&lt;/b&gt;, &lt;b&gt;hy_flz&lt;/b&gt;,&lt;br&gt;&amp;nbsp; &amp;nbsp;lim, limgc, stage,&lt;br&gt;&amp;nbsp; &amp;nbsp;hy_hybridRiemann, hy_cvisc, hy_C_hyp,&lt;br&gt;&amp;nbsp; &amp;nbsp;hy_tiny, hy_smalldens, hy_smallpres, hy_smallX,&lt;br&gt;&amp;nbsp; &amp;nbsp;hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)&lt;br&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="510" width="575" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeColor=#000000;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-19" target="5Acj3--pXxMo4RXNK95A-29">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="785" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="800" y="570" />
+              <mxPoint x="800" y="785" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-21" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;hy_rk_updateSoln&lt;/b&gt;&amp;nbsp;(&lt;b&gt;hy_starState&lt;/b&gt;, hy_tmpState,&lt;br&gt;&amp;nbsp; &amp;nbsp;rk_coeffs, hy_grav,&lt;br&gt;&amp;nbsp; &amp;nbsp;hy_flx, hy_fly, hy_flz,&lt;br&gt;&amp;nbsp; &amp;nbsp;lim, limgc, stage,&lt;br&gt;&amp;nbsp; &amp;nbsp;deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry,&lt;br&gt;&amp;nbsp; &amp;nbsp;hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp,dt, dtOld, limits)&lt;br&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="640" width="645" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-24" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;Multispecies_renormAbundance&lt;/b&gt;&amp;nbsp;(..., &lt;b&gt;hy_starState&lt;/b&gt;, ...)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#88DB9E;fontColor=#000000;strokeColor=#3A5431;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="810" width="505" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-27" value="&lt;font face=&quot;Courier New&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;call &lt;b&gt;Eos_wrapped&lt;/b&gt;&amp;nbsp;(MODE_DENS_EI, limits,&amp;nbsp;&lt;b&gt;hy_starState&lt;/b&gt;)&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="135" y="850" width="465" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-29" value="&lt;font color=&quot;#000000&quot; style=&quot;font-size: 14px;&quot; face=&quot;Courier New&quot;&gt;&lt;b&gt;add hy_fl[x,y,z] to hy_fluxBuf[X,Y,Z]&lt;/b&gt;&lt;/font&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#88DB9E;strokeColor=#3A5431;size=0.046511627906976744;" vertex="1" parent="1">
+          <mxGeometry x="135" y="770" width="430" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-30" value="&lt;font color=&quot;#000000&quot; style=&quot;font-size: 14px;&quot; face=&quot;Courier New&quot;&gt;&lt;b&gt;Uin = hy_starState&lt;/b&gt;&lt;/font&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#88DB9E;strokeColor=#3A5431;size=0.046511627906976744;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="920" width="430" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-31" value="&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;if (lev &amp;lt; hy_maxLev) then&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp;call &lt;b&gt;Grid_getFluxCorrData_xtra&amp;nbsp;&lt;/b&gt;(tileDesc,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; hy_fluxBufX,hy_fluxBufY, hy_fluxBufZ,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; blkLimits(LOW,:),&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;b&gt;hy_flx&lt;/b&gt;, &lt;b&gt;hy_fly&lt;/b&gt;, &lt;b&gt;hy_flz&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;span style=&quot;font-size: 14px; color: rgb(0, 0, 0); font-family: &amp;quot;Courier New&amp;quot;; background-color: initial;&quot;&gt;)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px; color: rgb(0, 0, 0); font-family: &amp;quot;Courier New&amp;quot;; background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp;call &lt;b&gt;hy_rk_correctFluxes&amp;nbsp;&lt;/b&gt;(&lt;b&gt;Uin&lt;/b&gt;, blkLimits,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; hy_flx, hy_fly, hy_flz,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; deltas, hy_farea, hy_cvol,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; hy_xCenter, hy_xLeft, hy_xRight, hy_geometry,&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; dt, isFlux=.true.)&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Courier New&quot; color=&quot;#000000&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;endif&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#88DB9E;strokeColor=#3A5431;size=0.041666666666666664;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="960" width="500" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.997;entryY=0.366;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-14" target="5Acj3--pXxMo4RXNK95A-21">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="369.9985057471265" as="sourcePoint" />
+            <mxPoint x="790" y="700" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="810" y="375" />
+              <mxPoint x="810" y="684" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-16" target="5Acj3--pXxMo4RXNK95A-21">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="690" y="385" as="sourcePoint" />
+            <mxPoint x="790" y="710" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="110" y="425" />
+              <mxPoint x="110" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#000000;" edge="1" parent="1" target="5Acj3--pXxMo4RXNK95A-18">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="475" as="sourcePoint" />
+            <mxPoint x="145" y="710" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="475" />
+              <mxPoint x="120" y="475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=0.999;exitY=0.63;exitDx=0;exitDy=0;strokeColor=#000000;exitPerimeter=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-21" target="5Acj3--pXxMo4RXNK95A-24">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="720" y="580" as="sourcePoint" />
+            <mxPoint x="575" y="795" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="810" y="716" />
+              <mxPoint x="810" y="818" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-24" target="5Acj3--pXxMo4RXNK95A-27">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="730" y="780" as="sourcePoint" />
+            <mxPoint x="630" y="889" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="810" y="833" />
+              <mxPoint x="810" y="865" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-58" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=5;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-45" target="5Acj3--pXxMo4RXNK95A-48">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-70" y="510" as="sourcePoint" />
+            <mxPoint x="-130" y="510" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-60" y="525" />
+              <mxPoint x="-60" y="525" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-45" value="" style="strokeWidth=5;html=1;shape=mxgraph.flowchart.annotation_2;align=left;labelPosition=right;pointerEvents=1;strokeColor=#C73500;fillColor=#fa6800;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="-50" y="170" width="150" height="710" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-48" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Taskfunction1_GPU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;(assuming &lt;b&gt;Eos_wrapped&lt;/b&gt; is offloaded)&lt;/font&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fa6800;fontColor=#000000;strokeColor=#C73500;" vertex="1" parent="1">
+          <mxGeometry x="-210" y="560" width="220" height="125" as="geometry">
+            <mxRectangle x="-270" y="462.5" width="210" height="45" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-52" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;Data In: Uin&lt;/font&gt;" style="text;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;spacingTop=0;spacingBottom=2;fontSize=14;" vertex="1" parent="5Acj3--pXxMo4RXNK95A-48">
+          <mxGeometry y="45" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-50" value="Data Out: hy_starState,&lt;br style=&quot;font-size: 14px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; hy_fluxBuf[X, Y, Z]" style="text;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;spacingTop=0;spacingBottom=2;fontSize=14;" vertex="1" parent="5Acj3--pXxMo4RXNK95A-48">
+          <mxGeometry y="85" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-60" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=5;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="5Acj3--pXxMo4RXNK95A-61" target="5Acj3--pXxMo4RXNK95A-62">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-80" y="1068" as="sourcePoint" />
+            <mxPoint x="-220" y="965" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-100" y="1065" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-61" value="" style="strokeWidth=5;html=1;shape=mxgraph.flowchart.annotation_2;align=left;labelPosition=right;pointerEvents=1;strokeColor=#C73500;fillColor=#fa6800;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="-50" y="920" width="150" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-62" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Taskfunction2_CPU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;(assuming &lt;b&gt;Eos_wrapped&lt;/b&gt; is offloaded)&lt;/font&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fa6800;fontColor=#000000;strokeColor=#C73500;" vertex="1" parent="1">
+          <mxGeometry x="-210" y="880" width="220" height="150" as="geometry">
+            <mxRectangle x="-270" y="462.5" width="210" height="45" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-66" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;Data In: Uin,&lt;br&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; hy_fluxBuf[X, Y, Z]&lt;br&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; lev&lt;br&gt;&lt;/font&gt;" style="text;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;spacingTop=0;spacingBottom=2;fontSize=14;" vertex="1" parent="5Acj3--pXxMo4RXNK95A-62">
+          <mxGeometry y="45" width="220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="5Acj3--pXxMo4RXNK95A-67" value="Data Out: Uin" style="text;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;spacingTop=0;spacingBottom=2;fontSize=14;" vertex="1" parent="5Acj3--pXxMo4RXNK95A-62">
+          <mxGeometry y="110" width="220" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
