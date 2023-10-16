@@ -1,15 +1,6 @@
 # 	Runtime parameters for the Deforming Bubble problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
 
 amrexFaceInterpolator = "face_div_free"
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
 
 wr_integrals_freq = -1
 

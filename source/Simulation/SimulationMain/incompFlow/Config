@@ -1,20 +1,42 @@
 # Config file for source/Simulation/SimulationMain/incompFlow
 
-PARAMETER enableMaskedGCFill BOOLEAN TRUE
-
 USESETUPVARS Grid
 
+# Common runtime parameters for optimization of guard-cell 
+# filling operations which can be over-written in parfiles. 
+# Note that runtime parameters are simply ignored if they are 
+# available for a grid implementation so there have not been
+# assigned under an IF-ELSE-ENDIF statement
+PARAMETER enableMaskedGCFill BOOLEAN TRUE
+PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
+PARAMETER convertToConsvdForMeshCalls BOOLEAN FALSE
+PARAMETER convertToConsvdInMeshInterp BOOLEAN FALSE
+PARAMETER gr_bcEnableApplyMixedGds BOOLEAN FALSE
+
+# Interpolation parameters for Paramesh grid implementation
+IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
+   PARAMETER gr_pmRpDivergenceFree INTEGER 1
+   PARAMETER gr_pmRpNfieldDivf INTEGER 2
+   PARAMETER gr_pmRpConsvFluxes BOOLEAN TRUE
+   PARAMETER gr_pmRpConsvFluxDensities BOOLEAN FALSE
+ENDIF
+
+# Require special Incomp sub-unit that handles divergence free 
+# interoplation of face-centered velocity data
 IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
    REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
 ENDIF
 
+# Request grid specific poisson solvers that currently
+# exist for Amrex and Flash-X
 IF Grid in ["","UG","PM4DEV","PM40","PM3","PM2"]
    REQUESTS Grid/GridSolvers/HYPRE
 ELSE
    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
+# Link specific refinement/derefinement routines based on 
+# what Grid unit is being used for the simulation
 LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
-
 LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
