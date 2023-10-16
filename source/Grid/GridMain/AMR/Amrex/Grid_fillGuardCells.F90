@@ -273,8 +273,29 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   if(present(mask))then
      if(present(maskSize)) then
         if (gr_enableMaskedGCFill) then
+            !! Create masking chunks based on the mask for cell-centered
+            !! and face-centered variables. These chunks will be used to
+            !! loop over call to amrex_fillpatch
+            gcellChunksCC(:,:) = 0
+            gcellChunksFC(:,:) = 0
             call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, numChunksCC)
             call gr_setMaskChunks_internal(gcell_on_fc(IAXIS,:), gcellChunksFC, numChunksFC)
+
+            !! If this conditions is true create a single contiguous chunk.
+            !! Implemented for performance testing of masking strategies
+            if (gr_gcFillSingleVarRange) then
+               !! Apply condition to cell-centered mask
+               gcellChunksCC(1,:) = (/minval(gcellChunksCC(1:numChunksCC,1)), maxval(gcellChunksCC(1:numChunksCC,2))/)
+               gcellChunksCC(2:,:) = 0
+               gcell_on_cc(gcellChunksCC(1,1):gcellChunksCC(1,2)) = .TRUE.
+               numChunksCC = 1
+
+               !! Apply condition to face-centered mask
+               gcellChunksFC(1,:) = (/minval(gcellChunksFC(1:numChunksFC,1)), maxval(gcellChunksFC(1:numChunksFC,2))/)
+               gcellChunksFC(2:,:) = 0
+               gcell_on_fc(:, gcellChunksFC(1,1):gcellChunksFC(1,2)) = .TRUE.
+               numChunksFC = 1
+            end if
         end if
 
         if (present(doLogMask)) then
