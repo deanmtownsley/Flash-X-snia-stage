@@ -276,6 +276,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                     deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                     hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
                                     hy_geometry, &
+                                    hy_smallE, hy_smalldens, &
                                     dt, .NOT. hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom

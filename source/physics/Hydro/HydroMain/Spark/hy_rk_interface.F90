@@ -96,6 +96,7 @@ module hy_rk_interface
                                     deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                                     xLeft, xRight, yLeft, yRight, &
                                     geometry, &
+                                    smalle, smalld, &
                                     dt, isFlux)
        real, pointer :: Uin(:,:,:,:)
        real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
@@ -104,7 +105,7 @@ module hy_rk_interface
        real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
        real, dimension(MDIM), intent(IN)  :: deltas
        integer, intent(IN) :: geometry
-       real, intent(IN) :: dt
+       real, intent(IN) :: smalle, smalld, dt
        logical, intent(IN) :: isFlux
      end subroutine hy_rk_correctFluxes
   end interface

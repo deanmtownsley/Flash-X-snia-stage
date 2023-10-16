@@ -43,13 +43,11 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
                                deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                                xLeft, xRight, yLeft, yRight, &
                                geometry, &
+                               smalle, smalld, &
                                dt, isFlux)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock, &
-       hy_smallE, hy_smalldens, hy_geometry, &
-       hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_fareaX,hya_fareaY,hya_fareaZ,hya_cvol,&
-       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_yLeft,hya_yRight,hya_zCenter
+  use Hydro_data, ONLY : hy_threadWithinBlock
+
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -68,7 +66,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN) :: geometry
-  real, intent(IN) :: dt
+  real, intent(IN) :: smalle, smalld, dt
   logical, intent(IN) :: isFlux
 
   integer :: i, j, k
@@ -99,7 +97,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         end if
         fac = facM
         ! Update primitives (Vstar)
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -128,7 +126,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
            @M hy_geom_flux_correct_X
         end if
         fac = facP
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -158,7 +156,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
            @M hy_geom_flux_correct_Y 
         end if
         fac = facM
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -185,7 +183,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
            @M hy_geom_flux_correct_Y 
         end if
         fac = facP
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -214,7 +212,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
            @M hy_geom_flux_correct_Z 
         end if
         fac = facM
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -241,7 +239,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
            @M hy_geom_flux_correct_Z 
         end if
         fac = facP
-        call correctZone(Vstar,dFlux,dt,dx,fac)
+        call correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
         ! Release pointers
         nullify(Vstar)
      enddo !j
@@ -259,10 +257,10 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
 contains
 
   !!Update cell state based on flux deltas
-  subroutine correctZone(Vstar,dFlux,dt,dx,fac)
+  subroutine correctZone(Vstar,dFlux,dt,dx,fac,smalle,smalld)
     implicit none
     real, pointer, intent(INOUT) :: Vstar(:)
-    real, intent(IN) :: dFlux(NFLUXES), dt, dx, fac
+    real, intent(IN) :: dFlux(NFLUXES), dt, dx, fac, smalle, smalld
     real :: Ustar(NFLUXES)
     real :: eint, ekin, emag
 
@@ -292,12 +290,12 @@ contains
     Vstar(MAGP_VAR) = emag
     Ustar(HY_ENER) = Ustar(HY_ENER) - emag
 #endif
-    Vstar(DENS_VAR)          = max(Ustar(HY_MASS),hy_smalldens)
+    Vstar(DENS_VAR)          = max(Ustar(HY_MASS),smalld)
     Vstar(VELX_VAR:VELZ_VAR) = Ustar(HY_XMOM:HY_ZMOM)/Vstar(DENS_VAR)
-    Vstar(ENER_VAR)          = max(hy_smallE,Ustar(HY_ENER)/Vstar(DENS_VAR))
+    Vstar(ENER_VAR)          = max(smalle,Ustar(HY_ENER)/Vstar(DENS_VAR))
 
     ekin = .5*dot_product(Vstar(VELX_VAR:VELZ_VAR),Vstar(VELX_VAR:VELZ_VAR))
-    Vstar(EINT_VAR) = max(hy_smallE,Vstar(ENER_VAR)-ekin)
+    Vstar(EINT_VAR) = max(smalle,Vstar(ENER_VAR)-ekin)
 
     ! Divide partial densities by new mass densities to finalize
     ! update of new mass fractions.
