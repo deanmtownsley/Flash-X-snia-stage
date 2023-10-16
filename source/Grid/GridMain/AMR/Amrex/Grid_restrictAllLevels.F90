@@ -41,7 +41,7 @@ subroutine Grid_restrictAllLevels()
 
     needConversion = gr_convertToConsvdInMeshInterp .OR. gr_convertToConsvdInMeshInterp
 
-    call gr_restrictAllLevels(CENTER, &
+    call gr_restrictAllLevels(CENTER_FACES, &
                               convertPtoC=needConversion, &
                               convertCtoP=needConversion)
 end subroutine Grid_restrictAllLevels

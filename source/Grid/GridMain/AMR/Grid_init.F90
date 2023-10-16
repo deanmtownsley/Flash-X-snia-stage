@@ -426,7 +426,6 @@ subroutine Grid_init()
 
   gr_anyVarToConvert = .FALSE.
   do i = UNK_VARS_BEGIN,UNK_VARS_END
-     gr_vars(i)=i
      call Simulation_getVarnameType(i, gr_vartypes(i))
      if (gr_vartypes(i) .eq. VARTYPE_PER_MASS) gr_anyVarToConvert = .TRUE.
   end do

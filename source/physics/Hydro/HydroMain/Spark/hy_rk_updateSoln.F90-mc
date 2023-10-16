@@ -47,7 +47,9 @@
 
 subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
                              grav, flx, fly, flz, &
-                             deltas, farea, cvol, xCenter, xLeft, xRight, geometry, &
+                             deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
+                             xLeft, xRight, yLeft, yRight, &
+                             geometry, &
                              smalle, smalld, alphaGLM, C_hyp, &
                              dt, dtOld, limits)
 
@@ -62,8 +64,8 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
 
   real, dimension(:,:,:,:), pointer :: starState, tmpState, flx, fly, flz
   real, dimension(:,:,:,:), pointer :: grav
-  real, dimension(:,:,:), pointer :: farea, cvol
-  real, dimension(:), pointer :: xCenter, xLeft, xRight
+  real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
+  real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
   real, dimension(3), intent(IN) :: rk_coeffs
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN) :: geometry
@@ -78,7 +80,7 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
   real :: dx, dy, dz
   real :: ekin, emag
   ! Geometry factors
-  real :: facM, facP
+  real :: facMx, facPx, facMy, facPy, facMz, facPz
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   real :: dhdt
 
@@ -89,6 +91,7 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
   integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
   integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
   real    :: alpha, dx_sph
+  real    :: invr, cotan
 
   logical :: offload = .false.
 
@@ -103,10 +106,10 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
   @M hy_DIR_TARGET_map(to, [limits, rk_coeffs]) &
   @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
   @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
-  @M hy_DIR_private([alpha, dx_sph, facM, facP]) &
+  @M hy_DIR_private([alpha, dx_sph, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan]) &
   @M hy_DIR_shared([limits, starState, tmpState, grav, flx, fly, flz]) &
-  @M hy_DIR_shared([rk_coeffs, farea, cvol, smalld, smalle]) &
-  @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, dx, dy, dz, dt, dtOld])
+  @M hy_DIR_shared([rk_coeffs, fareaX, fareaY, fareaZ, cvol, smalld, smalle]) &
+  @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, yLeft, yRight, dx, dy, dz, dt, dtOld])
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -130,7 +133,9 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
                 Vstar(MAGX_VAR:MAGZ_VAR))
            Ustar(HY_FPSI) = Vstar(PSIB_VAR)
 #endif
-           facM = 1.0; facP = 1.0; Sgeo = 0.0
+           facMx = 1.0; facPx = 1.0; Sgeo = 0.0
+           facMy = 1.0; facPy = 1.0;
+           facMz = 1.0; facPz = 1.0;
            ! Get geometric factors and sources
            ! Get gravitational source terms
            if(geometry /= CARTESIAN) then
@@ -143,11 +148,11 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
 
            ! Now update conserved vector with flux gradients
            Ustar = rk_coeffs(1)*U0 + rk_coeffs(2)*Ustar + rk_coeffs(3)*( &
-                -dt/dx*(facP*flx(:, i+1, j, k) - facM*flx(:, i, j, k)) &
+                -dt/dx*(facPx*flx(:, i+1, j, k) - facMx*flx(:, i, j, k)) &
 #if NDIM > 1
-                -dt/dy*(fly(:, i, j+1, k) - fly(:, i, j, k)) &
+                -dt/dy*(facPy*fly(:, i, j+1, k) - facMy*fly(:, i, j, k)) &
 #if NDIM ==3
-                -dt/dz*(flz(:, i, j, k+1) - flz(:, i, j, k)) &
+                -dt/dz*(facPz*flz(:, i, j, k+1) - facMz*flz(:, i, j, k)) &
 #endif
 #endif
                 +dt*Stot)

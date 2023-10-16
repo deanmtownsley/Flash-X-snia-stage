@@ -41,9 +41,9 @@ module Hydro_data
   real,  allocatable,target :: hya_flat3d(:)
   real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
   real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
-  real, allocatable, dimension(:),target :: hya_farea, hya_cvol
+  real, allocatable, dimension(:),target :: hya_fareaX, hya_cvol
   real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
-  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_zCenter
+  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_yLeft, hya_yRight, hya_zCenter
   !Flux buffers
 
   real :: hy_dt, hy_dtmin

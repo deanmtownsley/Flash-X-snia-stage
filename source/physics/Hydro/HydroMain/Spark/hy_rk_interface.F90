@@ -63,13 +63,15 @@ module hy_rk_interface
   interface
      subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
                                   grav, flx, fly, flz, &
-                                  deltas, farea, cvol, xCenter, xLeft, xRight, geometry, &
+                                  deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
+                                  xLeft, xRight, yLeft, yRight, &
+                                  geometry, &
                                   smalle, smalld, alphaGLM, C_hyp, &
                                   dt, dtOld, limits)
        real, dimension(:,:,:,:), pointer :: starState, tmpState, flx, fly, flz
        real, dimension(:,:,:,:), pointer :: grav
-       real, dimension(:,:,:), pointer :: farea, cvol
-       real, dimension(:), pointer :: xCenter, xLeft, xRight
+       real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
+       real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
        real, dimension(3), intent(IN) :: rk_coeffs
        real, dimension(MDIM), intent(IN)  :: deltas
        integer, intent(IN) :: geometry
@@ -91,14 +93,15 @@ module hy_rk_interface
   interface
      subroutine hy_rk_correctFluxes(Uin, blkLimits, &
                                     fluxBufX, fluxBufY, fluxBufZ, &
-                                    deltas, farea, cvol, &
-                                    xCenter, xLeft, xRight, geometry, &
+                                    deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
+                                    xLeft, xRight, yLeft, yRight, &
+                                    geometry, &
                                     dt, isFlux)
        real, pointer :: Uin(:,:,:,:)
        real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
-       real, dimension(:,:,:), pointer :: farea, cvol
-       real, dimension(:), pointer :: xCenter, xLeft, xRight
+       real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
+       real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
        real, dimension(MDIM), intent(IN)  :: deltas
        integer, intent(IN) :: geometry
        real, intent(IN) :: dt

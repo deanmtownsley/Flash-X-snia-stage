@@ -137,7 +137,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
-           @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                        hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
         endif
 
@@ -199,7 +199,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call Timers_start("updateSoln")
            call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
-                                 deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                 deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                 hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                 hy_geometry, &
                                  hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                  dt, dtOld, limits)
            @M hy_DIR_TARGET_update_from([hy_starState])
@@ -227,7 +229,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
-           @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                             hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
            @M hy_release_geom
         end if
@@ -271,8 +273,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            call hy_rk_correctFluxes(Uin, blkLimits, &
                                     hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-                                    deltas, hy_farea, hy_cvol, &
-                                    hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                    deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                    hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                    hy_geometry, &
                                     dt, .NOT. hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom
@@ -378,7 +381,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                call Timers_start("updateSoln")
                call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                      hy_grav, hy_flx, hy_fly, hy_flz, &
-                                     deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                     deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                     hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                     hy_geometry, &
                                      hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                      dt, dtOld, limits)
                @M hy_DIR_TARGET_update_from([hy_starState])

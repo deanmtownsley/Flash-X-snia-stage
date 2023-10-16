@@ -40,15 +40,16 @@
 
 subroutine hy_rk_correctFluxes(Uin, blkLimits, &
                                fluxBufX, fluxBufY, fluxBufZ, &
-                               deltas, farea, cvol, &
-                               xCenter, xLeft, xRight, geometry, &
+                               deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
+                               xLeft, xRight, yLeft, yRight, &
+                               geometry, &
                                dt, isFlux)
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,&
-       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_fareaX,hya_fareaY,hya_fareaZ,hya_cvol,&
+       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_yLeft,hya_yRight,hya_zCenter
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -63,8 +64,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   real, pointer :: Uin(:,:,:,:)
   real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
-  real, dimension(:,:,:), pointer :: farea, cvol
-  real, dimension(:), pointer :: xCenter, xLeft, xRight
+  real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
+  real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN) :: geometry
   real, intent(IN) :: dt
@@ -94,7 +95,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
-           @M hy_geom_flux_correct
+           @M hy_geom_flux_correct_X
         end if
         fac = facM
         ! Update primitives (Vstar)
@@ -124,7 +125,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
-           @M hy_geom_flux_correct
+           @M hy_geom_flux_correct_X
         end if
         fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -153,8 +154,10 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         dx = deltas(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facM
+        else
+           @M hy_geom_flux_correct_Y 
         end if
+        fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Release pointers
         nullify(Vstar)
@@ -178,10 +181,10 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         dx = deltas(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facP
         else
-           fac = 1.0
+           @M hy_geom_flux_correct_Y 
         end if
+        fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Release pointers
         nullify(Vstar)
@@ -207,8 +210,10 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         dx = deltas(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facM
+        else
+           @M hy_geom_flux_correct_Z 
         end if
+        fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Release pointers
         nullify(Vstar)
@@ -232,10 +237,10 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
         dx = deltas(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facP
         else
-           fac = 1.0
+           @M hy_geom_flux_correct_Z 
         end if
+        fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Release pointers
         nullify(Vstar)
