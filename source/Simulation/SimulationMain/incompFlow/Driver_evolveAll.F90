@@ -199,9 +199,7 @@ subroutine Driver_evolveAll()
    ! Fill GuardCells
    ! This is done for book-keeping purposes during
    ! restart
-   gcMask(:) = .TRUE.
-   call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                            maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+   call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
 
    do dr_nstep = dr_nBegin, dr_nend
 
@@ -390,13 +388,13 @@ subroutine Driver_evolveAll()
 
       ! Fill GuardCells for velocity
       gcMask(:) = .FALSE.
-      gcMask(NUNK_VARS + iVelVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(iVelVar) = .TRUE.
+      gcMask(1*NFACE_VARS + iVelVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(2*NFACE_VARS + iVelVar) = .TRUE.
 #endif
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      call Grid_fillGuardCells(FACES, ALLDIR, &
+                               maskSize=NDIM*NFACE_VARS, mask=gcMask)
 
       ! Start of fractional-step velocity procedure
       ! Calculate predicted velocity and apply
@@ -418,14 +416,14 @@ subroutine Driver_evolveAll()
 
       ! Fill GuardCells for velocity
       gcMask(:) = .FALSE.
-      gcMask(NUNK_VARS + iVelVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(iVelVar) = .TRUE.
+      gcMask(1*NFACE_VARS + iVelVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(2*NFACE_VARS + iVelVar) = .TRUE.
 #endif
       ins_predcorrflg = .true.
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      call Grid_fillGuardCells(FACES, ALLDIR, &
+                               maskSize=NDIM*NFACE_VARS, mask=gcMask)
       ins_predcorrflg = .false.
 
       ! Calculate divergence of predicted velocity

@@ -52,9 +52,9 @@
 !!  gridDataStruct - integer constant that indicates which grid data structure 
 !!                   variable's guardcells to fill.  Valid values are  
 !!                     CENTER             cell-centered data only
-!!                     FACEX              X face-centered data only
-!!                     FACEY              Y face-centered data only
-!!                     FACEZ              Z face-centered data only
+!!                     FACEX              X face-centered data only [Not Supported]
+!!                     FACEY              Y face-centered data only [Not Supported]
+!!                     FACEZ              Z face-centered data only [Not Supported]
 !!                     FACES              All face-centered data only
 !!                     CENTER_FACES       cell-centered and all face-centered
 !!  idir - For AMReX, the only valid value is ALLDIR, which does the fill along
@@ -107,6 +107,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   use Grid_data,                 ONLY : gr_justExchangedGC, &
                                         gr_eosMode, &
                                         gr_enableMaskedGCFill, &
+                                        gr_gcFillSingleVarRange, &
                                         gr_convertToConsvdForMeshCalls, &
                                         gr_convertToConsvdInMeshInterp, &
                                         gr_smallrho, &
@@ -152,8 +153,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer, intent(IN), optional :: selectBlockType
   logical, intent(IN), optional :: unitReadsMeshDataOnly
 
-  logical,dimension(NUNK_VARS) :: gcell_on_cc = .FALSE.
-  logical,dimension(MDIM,NFACE_VARS) :: gcell_on_fc = .FALSE.
+  logical,dimension(NUNK_VARS) :: gcell_on_cc
+  logical,dimension(MDIM,NFACE_VARS) :: gcell_on_fc
   integer :: guard, gcEosMode
   integer,dimension(MDIM) :: layers, returnLayers
   real,pointer :: solnData(:,:,:,:)
@@ -175,17 +176,14 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer :: lev, j
   integer :: finest_level
 
-  integer, dimension(MAX_GCMASK_CHUNKS, 2) :: gcellChunksCC, gcellChunksFC
-  integer :: chunkSizeCC = 0, chunkSizeFC = 0, chunkIndex = 0
+  integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2) :: gcellChunksCC, gcellChunksFC
+  integer :: numChunksCC, numChunksFC, chunkIndex
 
 #ifdef DEBUG_GRID
   logical:: validDataStructure
   
   validDataStructure = (gridDataStruct==CENTER).or.&
                        (gridDataStruct==FACES).or.&
-                       (gridDataStruct==FACEX).or.&
-                       (gridDataStruct==FACEY).or.&
-                       (gridDataStruct==FACEZ).or.&
                        (gridDataStruct==CENTER_FACES)
   if (.not.validDataStructure) then
      call Driver_abort("[Grid_fillGuardcell] invalid data structure")
@@ -196,8 +194,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   ! DEV: TODO Implement this functionality?
   if (       (gridDataStruct /= CENTER) .AND. (gridDataStruct /= CENTER_FACES) &
-       .AND. (gridDataStruct /= FACES)  .AND. (gridDataStruct /= FACEX) &
-       .AND. (gridDataStruct /= FACEY)  .AND. (gridDataStruct /= FACEZ)) then
+       .AND. (gridDataStruct /= FACES)) then
      write(*,*) "Unsupported gridDataStruct ", gridDataStruct 
      call Driver_abort("[Grid_fillGuardCells]: Unsupported gridDataStruct")
   else if (idir /= ALLDIR) then
@@ -276,8 +273,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   if(present(mask))then
      if(present(maskSize)) then
         if (gr_enableMaskedGCFill) then
-            call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, chunkSizeCC)
-            call gr_setMaskChunks_internal(gcell_on_fc(IAXIS,:), gcellChunksFC, chunkSizeFC)
+            call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, numChunksCC)
+            call gr_setMaskChunks_internal(gcell_on_fc(IAXIS,:), gcellChunksFC, numChunksFC)
         end if
 
         if (present(doLogMask)) then
@@ -299,6 +296,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            end if
         end if
      end if
+
+  else
+     numChunksCC = 0
+     numChunksFC = 0
   end if
 
   guard = NGUARD
@@ -333,9 +334,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !!!!! Cell-centered data first
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
 
-    if (gr_enableMaskedGCFill .and. chunkSizeCC > 0) then
+    if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
 
-       do chunkIndex = 1, chunkSizeCC
+       do chunkIndex = 1, numChunksCC
 
           scompCC = gcellChunksCC(chunkIndex, 1)
           ncompCC = gcellChunksCC(chunkIndex, 2) - gcellChunksCC(chunkIndex,1) + 1
@@ -564,9 +565,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   if (     (gridDataStruct == CENTER_FACES) &
       .OR. (gridDataStruct == FACES)) then
 
-    if (gr_enableMaskedGCFill .and. chunkSizeFC > 0) then
+    if (gr_enableMaskedGCFill .and. numChunksFC > 0) then
 
-       do chunkIndex = 1, chunkSizeFC
+       do chunkIndex = 1, numChunksFC
        
           scompFC = gcellChunksFC(chunkIndex, 1)
           ncompFC = gcellChunksFC(chunkIndex, 2) - gcellChunksFC(chunkIndex,1) + 1
@@ -640,14 +641,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
     end if
   end if
 
-  if (     (gridDataStruct == FACEX) &
-      .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
-    call Driver_abort("[Grid_fillGuardCells] Cannot fill guard cells for FACEX, FACEY, FACEZ separately")
-  end if
-
 #else
-  if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
-      .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
+  if (gridDataStruct == FACES) then
     call Driver_abort("[Grid_fillGuardCells] No face data to work with")
   end if
 
@@ -706,14 +701,14 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 #endif
 
 contains
-   subroutine gr_setMaskChunks_internal(mask, chunks, chunkSize)
+   subroutine gr_setMaskChunks_internal(mask, chunks, numChunks)
       !
       use Driver_interface, ONLY : Driver_abort
       implicit none
       ! Arguments
       logical, dimension(:), intent(in) :: mask
-      integer, dimension(MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
-      integer, intent(out) :: chunkSize
+      integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
+      integer, intent(out) :: numChunks
       ! Local Variables
       integer :: prevVarIndex, varIndex
       logical :: prevVarMask
@@ -721,22 +716,22 @@ contains
       prevVarIndex = 0
       prevVarMask = .FALSE.
       chunks = 0
-      chunkSize = 0
+      numChunks = 0
 
       do varIndex = 1, size(mask)
          if (mask(varIndex) .and. (.not. prevVarMask)) then
 
-            chunkSize = chunkSize + 1
+            numChunks = numChunks + 1
 
-            if (chunkSize > MAX_GCMASK_CHUNKS) then
-               call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > MAX_GCMASK_CHUNKS")
+            if (numChunks > GRID_MAX_GCMASK_CHUNKS) then
+               call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > GRID_MAX_GCMASK_CHUNKS")
             end if
 
-            chunks(chunkSize, 1) = varIndex
-            chunks(chunkSize, 2) = varIndex
+            chunks(numChunks, 1) = varIndex
+            chunks(numChunks, 2) = varIndex
 
          else if (mask(varIndex) .and. prevVarMask) then
-            chunks(chunkSize, 2) = varIndex
+            chunks(numChunks, 2) = varIndex
 
          end if
 

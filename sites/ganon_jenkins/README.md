@@ -5,7 +5,7 @@ The current location of the jenkins server that is running tests is: http://gano
 ## Adding new tests
 
 Test configurations are recorded in `testsuites/*.suite` files which divide the tests based on their
-respective coverage. You can add new tests in existing files or create a new one for to increase the
+respective coverage. You can add new tests in existing files or create a new one to increase the
 coverage.
 
 ## Using benchmarks

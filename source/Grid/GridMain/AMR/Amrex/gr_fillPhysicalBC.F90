@@ -201,6 +201,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     ! varCount will also be used to set regionData(STRUCTSIZE)
     varCount = mfab%ncomp()
     allocate(mask(varCount))
+    mask(:) = .FALSE.
     mask(scomp:scomp+ncomp-1) = .TRUE.
 
     call amrex_mfiter_build(mfi, mfab, tiling=.false.)

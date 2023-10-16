@@ -66,6 +66,18 @@ D &                  This is the default behavior.
 D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
 PARAMETER enableMaskedGCFill BOOLEAN FALSE
 
+D gr_gcFillSingleVarRange If this flag is enabled, guard cell filling will always make 
+D &                       (at most) one call (per griddatastruct) to the underlying
+D &                       implementation routines of the Grid implementation, requesting
+D &                       communication and guard cell filling (including boundary condition handling)
+D &                       for ONE contiguous range of variables. This range may include
+D &                       variables that are, es expressed by a GCFill mask, not actually
+D &                       needed by the caller. If the flag is FALSE, invocation of the 
+D &                       underlying implementation routines can be done as several calls, 
+D &                       each of which acts on a contiguous range of variables. Only takes 
+D &                       effect if enableMaskedGCFill is TRUE.
+PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
+
 D amrexInterpolator Name of AMReX interpolator to use for interpolating
 D & cell-centered data.  Please refer to AMReX documentation for more
 D & information.
@@ -83,4 +95,4 @@ PARAMETER amrexFaceInterpolator STRING "FACE_LINEAR"
 D amrexUseBittree Parameter for AMReX mode with Bittree
 PARAMETER gr_amrexUseBittree BOOLEAN FALSE
 
-PPDEFINE MAX_GCMASK_CHUNKS 10
+PPDEFINE GRID_MAX_GCMASK_CHUNKS 10

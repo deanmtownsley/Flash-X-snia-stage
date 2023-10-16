@@ -2,6 +2,12 @@
 
 USESETUPVARS Grid
 
+# Currently these simulations have not been tested with
+# uniform grid so throw a setup error if it is requested
+IF Grid == "UG"
+   SETUPERROR incompFlow simulations are not compitable with uniform grid yet
+ENDIF
+
 # Common runtime parameters for optimization of guard-cell 
 # filling operations which can be over-written in parfiles. 
 # Note that runtime parameters are simply ignored if they are 
