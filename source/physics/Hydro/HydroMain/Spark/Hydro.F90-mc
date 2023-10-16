@@ -32,8 +32,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                              Grid_correctFluxData_xtra, &
                              Grid_getFluxCorrData_block, &
                              Grid_putFluxData, &
-                             Grid_putFluxData_block, &   ! this only required for nonTelescoping
-                             Grid_renormAbundance
+                             Grid_putFluxData_block   ! this only required for nonTelescoping
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -60,6 +59,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                               hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
                               hy_rk_updateSoln, &
+                              hy_rk_renormAbundance, &
                               hy_rk_correctFluxes, &
                               hy_rk_shockDetect, &
                               hy_rk_getFlatteningLimiter
@@ -214,8 +214,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
 #if NSPECIES>0
            !Properly normalize species after the update
-           call Grid_renormAbundance(tileDesc, blkLimitsGC, hy_starState)
-           !!call Driver_abort("Grid_renormAbundance not implemented in SPARK with GPU offloading yet")
+           call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX)
 #endif
 
            ! Update EOS based on intermediate solution
@@ -391,7 +390,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                call Timers_stop("updateSoln")
 
 #if NSCIES>0
-               call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+               call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX)
 #endif
                ! Update EOS based on intermediate solution
                call Timers_start("eos")

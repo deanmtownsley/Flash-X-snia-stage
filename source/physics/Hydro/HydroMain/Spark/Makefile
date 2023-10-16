@@ -7,5 +7,6 @@ Hydro += Hydro_data.o Hydro_init.o Hydro_computeDt.o \
 	hy_rk_updateSoln.o \
 	hy_rk_getGravAccel.o hy_rk_correctFluxes.o \
 	hy_rk_shockDetect.o \
-	hy_rk_getFlatteningLimiter.o
+	hy_rk_getFlatteningLimiter.o \
+	hy_rk_renormAbundance.o
 

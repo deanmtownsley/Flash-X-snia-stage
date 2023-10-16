@@ -81,6 +81,14 @@ module hy_rk_interface
   end interface
 
   interface
+     subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx)
+       integer, intent(IN) :: tileLimits(LOW:HIGH,MDIM)
+       real, pointer :: solnData(:,:,:,:)
+       real, intent(IN) :: smallx
+     end subroutine hy_rk_renormAbundance
+  end interface
+
+  interface
      subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC)
        real, dimension(:,:,:,:), pointer :: starState, grav
        real, dimension(:), pointer :: radCenter, thtCenter
