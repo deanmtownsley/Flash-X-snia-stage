@@ -59,9 +59,11 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx)
 
             ! if the conservation is really messed up, give an error
             error = abs(abundSum - 1.e0)
+#ifndef OMP_OL
             if (error >= 0.10) then
                call Driver_abort('[hy_rk_renormAbundance] Error too high in abundances')
             endif
+#endif
 
             ! compute the inverse of the sum and multiply all of the abundances by
             ! this value to get the abundances summing to 1 once again
