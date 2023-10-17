@@ -1,4 +1,6 @@
+import sys
 import click
+import fprettify
 
 
 @click.command("fxprettify")
@@ -9,23 +11,27 @@ def fxprettify(filelist):
     Flash-X prettify
 
     \b
-    This simple command should be applied after using
-    fprettify on Fortran files. The purpose of this
-    command is to remove leading white space from each
-    line to set emacs style formatting
+    This command applies fprettify with 3 white space
+    indentation on Fortran files and then removes leading
+    white spaces to set emacs style formatting
     """
-    # The logic is simple. Loop over files,
-    # read lines, remove leading white space
-    # if exists, and the rewrite the file
+    # Loop over files from filelist
     for filename in filelist:
 
+        # Apply fprettify with 3 white space indentation
+        fprettify.run([sys.argv[0], "-i", "3", filename])
+
+        # Read lines from the formatted file
         with open(filename, "r") as ffile:
             lines = ffile.readlines()
 
+        # Loop over lines and adjust leading white spaces
+        # to satisfy emacs style formatting
         for index, line in enumerate(lines):
             if (line[0] == " ") and (line.strip()[:2] != "!!"):
                 lines[index] = line[1:]
 
+        # rewrite the file
         with open(filename, "w") as ffile:
             ffile.writelines(lines)
 
