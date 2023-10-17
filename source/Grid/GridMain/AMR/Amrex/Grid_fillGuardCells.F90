@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_fillGuardCells
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 !!                 optional, integer(IN) :: eosMode,
 !!                 optional, logical(IN) :: doEos,
 !!                 optional, integer(IN) :: maskSize,
-!!                 optional, logical(IN) :: mask(maskSize),
+!!                 optional, logical(IN),dimension(:) :: mask(maskSize),
 !!                 optional, logical(IN) :: makeMaskConsistent,
 !!                 optional, logical(IN) :: doLogMask,
 !!                 optional, integer(IN) :: selectBlockType,
@@ -52,11 +52,13 @@
 !!  gridDataStruct - integer constant that indicates which grid data structure
 !!                   variable's guardcells to fill.  Valid values are
 !!                     CENTER             cell-centered data only
+!!                     FACES              All face-centered data only
+!!                     CENTER_FACES       cell-centered and all face-centered
+!!                   The following values are not supported in this implementation
+!!                   for the Amrex Grid:
 !!                     FACEX              X face-centered data only [Not Supported]
 !!                     FACEY              Y face-centered data only [Not Supported]
 !!                     FACEZ              Z face-centered data only [Not Supported]
-!!                     FACES              All face-centered data only
-!!                     CENTER_FACES       cell-centered and all face-centered
 !!  idir - For AMReX, the only valid value is ALLDIR, which does the fill along
 !!         all directions.
 !!  minLayers - number of guardcell layers requested for all directions.
