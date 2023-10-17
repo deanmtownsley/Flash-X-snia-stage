@@ -77,3 +77,8 @@ D & CELL_QUADRATIC
 D & CELL_PIECEWISE_CONSTANT
 PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
 
+D amrexFaceInterpolator Name of AMReX face interpolator to use
+PARAMETER amrexFaceInterpolator STRING "FACE_LINEAR"
+
+D amrexUseBittree Parameter for AMReX mode with Bittree
+PARAMETER gr_amrexUseBittree BOOLEAN FALSE

@@ -90,7 +90,7 @@ extern "C" {
             np = particle_tile.numParticles();
             if (np > 0) {
                 auto& aos = particle_tile.GetArrayOfStructs();
-                dp = aos.data();
+                dp = reinterpret_cast<ParticleReal*>(aos.data());
             } else {
                 dp = nullptr;
             }
@@ -135,7 +135,7 @@ extern "C" {
             np = particle_tile.numParticles();
             if (np > 0) {
                 auto& aos = particle_tile.GetArrayOfStructs();
-                dp = aos.data();
+                dp = reinterpret_cast<ParticleReal*>(aos.data());
             } else {
                 dp = nullptr;
             }

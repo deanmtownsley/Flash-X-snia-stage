@@ -38,8 +38,8 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
        hy_4piGinv, hy_alphaGLM, hy_C_hyp, hy_fluxCorVars, &
-       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,&
-       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_zCenter,hy_eosData, hy_mfrac
+       hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ,hya_fareaX,hya_fareaY,hya_fareaZ,hya_cvol,&
+       hya_xCenter,hya_xLeft,hya_xRight,hya_yCenter,hya_yLeft,hya_yRight,hya_zCenter,hy_eosData, hy_mfrac 
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
 
@@ -62,8 +62,8 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
   
   integer :: i,j,k,n,g
 
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
-  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  real,pointer,dimension(:,:,:) ::hy_fareaX,hy_fareaY,hy_fareaZ,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_yLeft,hy_yRight,hy_zCenter
 
   real, pointer :: p_fluxBufX(:,:,:,:),p_fluxBufY(:,:,:,:),p_fluxBufZ(:,:,:,:)
   real, pointer :: Vstar(:)
@@ -121,7 +121,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
-           @M hy_geom_flux_correct
+           @M hy_geom_flux_correct_X
         end if
         fac = facM
         ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
@@ -156,7 +156,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         if (isFlux) then
            @M hy_geom_flux_dxdv
         else
-           @M hy_geom_flux_correct
+           @M hy_geom_flux_correct_X
         end if
 	fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
@@ -190,8 +190,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         dx = hy_del(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facM
+        else
+           @M hy_geom_flux_correct_Y 
         end if
+        fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -215,10 +217,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         dx = hy_del(JAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facP
         else
-           fac = 1.0
+           @M hy_geom_flux_correct_Y 
         end if
+        fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -247,8 +249,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         dx = hy_del(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facM
+        else
+           @M hy_geom_flux_correct_Z 
         end if
+        fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
@@ -272,10 +276,10 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         dx = hy_del(KAXIS)
         if (isFlux) then
            @M hy_geom_flux_dxdv
-           fac = facP
         else
-           fac = 1.0
+           @M hy_geom_flux_correct_Z 
         end if
+        fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
         ! Update EOS
         !pos = (/i,j,k/)
