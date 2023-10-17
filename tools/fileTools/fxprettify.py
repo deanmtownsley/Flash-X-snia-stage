@@ -28,9 +28,6 @@ def fxprettify(filelist):
     indentation on Fortran files and then removes leading
     white spaces to set emacs style formatting
     """
-    # Store keywords for scope openers
-    scope_keywords = ["program", "function", "subroutine", "module"]
-
     # Loop over files from filelist
     for filename in filelist:
 
@@ -42,43 +39,47 @@ def fxprettify(filelist):
         with Capturing() as fprettify_lines:
             fprettify.run([sys.argv[0], "-i", "3", "-s", filename])
 
-        fprettify_lines = [line + "\n" for line in fprettify_lines]
-
-        # Create empty object for new lines and variables for storing
-        # information related to previous line
+        # Create empty object for new lines and variables
+        # for storing information related to previous line
         new_lines = []
         prev_line = ""
-        prev_line_inscope = False
+        prev_line_indent = True
 
-        # Loop over lines and adjust leading white spaces to satisfy emacs style formatting
+        # Loop over lines and adjust leading white
+        # spaces to satisfy emacs style formatting
         for line in fprettify_lines:
 
-            # Set scope flag to False for the current line
-            curr_line_inscope = False
+            line = line + "\n"
 
-            # Check if previous line is attached to the opening scope
+            # Set line indent to true and then perform
+            # tests to see if indentation is needed
+            line_indent = True
+
+            # If previous line is > 0 preform indentation tests
             if len(prev_line) > 0:
 
-                # Test if line-continuation and scope keywords present in the pervious line
-                if (prev_line[-1] == "&") and (
-                    True in [prev_line[:6] == keyword[:6] for keyword in scope_keywords]
+                # Check if previous line is continued and does
+                # not start with white spaces or double exclamations
+                if (
+                    (prev_line[-1] == "&")
+                    and (prev_line[0] != " ")
+                    and (prev_line.strip()[:2] != "!!")
                 ):
-                    curr_line_inscope = True
+                    line_indent = False
 
-                # Test if previous line is part of the opening scope and is continued
-                elif (prev_line[-1] == "&") and (prev_line_inscope):
-                    curr_line_inscope = True
+                # Check if previous line is continued and does
+                # and is does not have indentation set to False
+                elif (prev_line[-1] == "&") and (not prev_line_indent):
+                    line_indent = False
 
-            if (
-                (line[0] == " ")
-                and (line.strip()[:2] != "!!")
-                and (not curr_line_inscope)
-            ):
+            # Now check if indentation needs to be applied to
+            # the current line based on desired conditions
+            if (line[0] == " ") and (line.strip()[:2] != "!!") and (line_indent):
                 line = line[1:]
 
             new_lines.append(line)
             prev_line = line.strip("\n")
-            prev_line_inscope = curr_line_inscope
+            prev_line_indent = line_indent
 
         # rewrite the file if lines have changed
         if new_lines != original_lines:
