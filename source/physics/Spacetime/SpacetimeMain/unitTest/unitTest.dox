@@ -1,5 +1,5 @@
 /**
-    @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+   @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 
     @par License
     @parblock
@@ -11,13 +11,18 @@
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.
-    @endparblock
-    
-    @defgroup MoL Method of Lines Unit
-    @ingroup numericalTools
-   
-    @brief Method-of-Lines time integrators and utilities
+   @endparblock
 
-    @details
-    For further information, please refer to the @ref source/numericalTools/MoL/README.md "MoL Unit README"
+   @internal
+   @defgroup physics_Spacetime_SpacetimeMain_unitTest SpacetimeMain Unit Test
+   @ingroup physics_Spacetime_SpacetimeMain
+
+   @brief Spacetime unit tests
+
+   @details
+   Unit tests for base functionality in the Spacetime unit, including:
+
+   - Reading/writing to provided ADM variables
+
+   @todo Add to above list as new tests are added
 */
