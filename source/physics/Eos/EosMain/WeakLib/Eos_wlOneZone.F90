@@ -144,7 +144,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DEY_Single_Guess &
         ( xDens, xEner, xYe, D_T, T_T, Y_T, E_T, OS_E, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DEY ERROR:'
@@ -163,7 +163,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DSY_Single_Guess &
         ( xDens, xEntr, xYe, D_T, T_T, Y_T, S_T, OS_S, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DSY ERROR:'
@@ -179,7 +179,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DPY_Single_Guess &
         ( xDens, xPres, xYe, D_T, T_T, Y_T, P_T, OS_P, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DPY ERROR:'
