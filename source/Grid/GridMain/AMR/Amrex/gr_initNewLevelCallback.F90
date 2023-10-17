@@ -70,7 +70,7 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
 
     use gr_physicalMultifabs,      ONLY : unk, &
                                           gr_scratchCtr, &
-                                          facevarx, facevary, facevarz, &
+                                          facevars, &
                                           fluxes, &
                                           flux_registers
     use gr_amrexInterface,         ONLY : gr_clearLevelCallback, &
@@ -129,16 +129,16 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
     ! Face variables
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
-    call amrex_multifab_build(facevarx(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(IAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
-    call amrex_multifab_build(facevary(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(JAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
-    call amrex_multifab_build(facevarz(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(facevars(KAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 

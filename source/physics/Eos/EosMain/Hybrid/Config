@@ -1,0 +1,4 @@
+#  Configuration file for Hybrid Eos
+#  [physics/Eos/EosMain/hybrid/]
+
+DEFAULT Helmholtz_WeakLib

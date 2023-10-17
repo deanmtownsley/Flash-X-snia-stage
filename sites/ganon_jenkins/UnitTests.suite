@@ -53,8 +53,10 @@ incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
 incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
 #
 # adhruv: 07/19/2023: commenting this test until facevar compatability
-# is estabilished with AMReX version > 21.05 
-# incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
+# 		      is estabilished with AMReX version > 21.05
+#
+# adhruv: 09/08/2023: uncommenting this test to test facevar compatibility
+incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
 
 #------------------------------------------------
 # Tests for - unitTest/MoL
@@ -64,3 +66,10 @@ unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/FBE" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3" -np 1
 unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Spacetime
+#------------------------------------------------
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/1D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/2D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/3D" -np 1

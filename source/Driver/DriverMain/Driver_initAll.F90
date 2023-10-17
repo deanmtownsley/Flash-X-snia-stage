@@ -83,6 +83,8 @@ subroutine Driver_initAll()
   use Multiphase_interface, ONLY: Multiphase_init
   use HeatAD_interface, ONLY: HeatAD_init
   use ImBound_interface, ONLY: ImBound_init
+  use Spacetime_interface, ONLY: Spacetime_init
+
   implicit none
 
 #include "constants.h"
@@ -179,7 +181,6 @@ subroutine Driver_initAll()
 
   end if
 
-
   !Hydro_init must go before Driver
   if(dr_globalMe==MASTER_PE) print *, 'Ready to call Hydro_init'
   call Hydro_init()           ! Hydrodynamics, MHD, RHD
@@ -196,6 +197,9 @@ subroutine Driver_initAll()
 
   ! Heat advection diffusion unit 
   call HeatAD_init(dr_restart)
+
+  ! Dynamic spacetime solver unit
+  call Spacetime_init()
   
   call Gravity_init()         ! Gravity
   if(dr_globalMe==MASTER_PE)print*,'Gravity initialized'

@@ -194,9 +194,6 @@ subroutine Grid_init()
 
 
   gr_justExchangedGC = .false.
-!!  do i = UNK_VARS_BEGIN,UNK_VARS_END
-!!     gr_vars(i)=i
-!!  end do
 
 #ifdef FIXEDBLOCKSIZE
   call Driver_abort("Uniform Grid is not supported in fixedblocksize mode")
