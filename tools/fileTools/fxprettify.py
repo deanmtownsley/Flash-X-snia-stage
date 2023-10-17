@@ -23,7 +23,7 @@ def fxprettify(filelist):
             lines = ffile.readlines()
 
         for index, line in enumerate(lines):
-            if line[0] == " ":
+            if (line[0] == " ") and (line.strip()[:2] != "!!"):
                 lines[index] = line[1:]
 
         with open(filename, "w") as ffile:
