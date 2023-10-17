@@ -1,6 +1,19 @@
+from io import StringIO
 import sys
 import click
 import fprettify
+
+
+class Capturing(list):
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._stringio = StringIO()
+        return self
+
+    def __exit__(self, *args):
+        self.extend(self._stringio.getvalue().splitlines())
+        del self._stringio  # free up some memory
+        sys.stdout = self._stdout
 
 
 @click.command("fxprettify")
@@ -21,12 +34,15 @@ def fxprettify(filelist):
     # Loop over files from filelist
     for filename in filelist:
 
-        # Apply fprettify with 3 white space indentation
-        fprettify.run([sys.argv[0], "-i", "3", filename])
-
-        # Read lines from the formatted file
+        # Read lines from the original file
         with open(filename, "r") as ffile:
-            fprettify_lines = ffile.readlines()
+            original_lines = ffile.readlines()
+
+        # Apply fprettify with 3 white space indentation
+        with Capturing() as fprettify_lines:
+            fprettify.run([sys.argv[0], "-i", "3", "-s", filename])
+
+        fprettify_lines = [line + "\n" for line in fprettify_lines]
 
         # Create empty object for new lines and variables for storing
         # information related to previous line
@@ -35,7 +51,7 @@ def fxprettify(filelist):
         prev_line_inscope = False
 
         # Loop over lines and adjust leading white spaces to satisfy emacs style formatting
-        for index, line in enumerate(fprettify_lines):
+        for line in fprettify_lines:
 
             # Set scope flag to False for the current line
             curr_line_inscope = False
@@ -65,8 +81,9 @@ def fxprettify(filelist):
             prev_line_inscope = curr_line_inscope
 
         # rewrite the file if lines have changed
-        with open(filename, "w") as ffile:
-            ffile.writelines(new_lines)
+        if new_lines != original_lines:
+            with open(filename, "w") as ffile:
+                ffile.writelines(new_lines)
 
 
 if __name__ == "__main__":
