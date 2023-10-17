@@ -107,7 +107,6 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
    use Grid_data, ONLY: gr_justExchangedGC, &
                         gr_eosMode, &
                         gr_enableMaskedGCFill, &
-                        gr_gcFillSingleVarRange, &
                         gr_convertToConsvdForMeshCalls, &
                         gr_convertToConsvdInMeshInterp, &
                         gr_smallrho, &
@@ -259,21 +258,20 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
    ! GC data could be managed by other processor.
    ! Wait for work on all data structures across full mesh to finish
    ! before GC filling
-!!$  if (.not. skipThisGcellFill) then
-!!$     call Timers_start("guardcell Barrier")
-!!$     call MPI_BARRIER(gr_meshComm, ierr)
-!!$     call Timers_stop("guardcell Barrier")
-!!$  end if
+   !!$ if (.not. skipThisGcellFill) then
+   !!$     call Timers_start("guardcell Barrier")
+   !!$     call MPI_BARRIER(gr_meshComm, ierr)
+   !!$     call Timers_stop("guardcell Barrier")
+   !!$ end if
 
    call Timers_start("guardcell internal")
-  !! appropriately mask the data structures to ensure that only the correct data
-  !! structure is filled.
-!  if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
+   !! appropriately mask the data structures to ensure that only the correct data
+   !! structure is filled.
+   !! if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
 
    if (present(mask)) then
       if (present(maskSize)) then
          if (gr_enableMaskedGCFill) then
-
             !! Create masking chunks based on the mask for cell-centered
             !! and face-centered variables. These chunks will be used to
             !! loop over call to amrex_fillpatch
@@ -281,27 +279,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
             gcellChunksFC(:, :) = 0
             call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, numChunksCC)
             call gr_setMaskChunks_internal(gcell_on_fc(IAXIS, :), gcellChunksFC, numChunksFC)
-
-            !! If this conditions is true create a single contiguous chunk.
-            !! Implemented for performance testing of masking strategies
-            if (gr_gcFillSingleVarRange) then
-
-               !! Apply condition to cell-centered mask
-               if (numChunksCC > 0) then
-                  gcellChunksCC(1, :) = (/minval(gcellChunksCC(1:numChunksCC, 1)), maxval(gcellChunksCC(1:numChunksCC, 2))/)
-                  gcellChunksCC(2:, :) = 0
-                  gcell_on_cc(gcellChunksCC(1, 1):gcellChunksCC(1, 2)) = .TRUE.
-                  numChunksCC = 1
-               end if
-
-               !! Apply condition to face-centered mask
-               if (numChunksFC > 0) then
-                  gcellChunksFC(1, :) = (/minval(gcellChunksFC(1:numChunksFC, 1)), maxval(gcellChunksFC(1:numChunksFC, 2))/)
-                  gcellChunksFC(2:, :) = 0
-                  gcell_on_fc(:, gcellChunksFC(1, 1):gcellChunksFC(1, 2)) = .TRUE.
-                  numChunksFC = 1
-               end if
-            end if
+            do dir = IAXIS, IAXIS + NDIM - 1
+               gcell_on_fc(dir, :) = gcell_on_fc(IAXIS, :)
+            end do
          end if
 
          if (present(doLogMask)) then
@@ -335,7 +315,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
    ! Figure out nlayers arguments to amr_guardcell based on our arguments
    call gr_setGcFillNLayers(layers, idir, guard, minLayers, returnLayers)
 
-  !!!!! POPULATE ALL BLOCKS AT ALL LEVELS WITH CONSERVATIVE FORM DATA
+   !!!!! POPULATE ALL BLOCKS AT ALL LEVELS WITH CONSERVATIVE FORM DATA
    ! Only convert if requested
    if (gr_bndGCFillNeedsPrimitiveVars) then
       needConversionInner = gr_convertToConsvdInMeshInterp
@@ -355,10 +335,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                 convertCtoP=.FALSE.)
    end if
 
-  !!!!!----- FILL GUARDCELLS ON ALL BLOCKS, ALL LEVELS
+   !!!!!----- FILL GUARDCELLS ON ALL BLOCKS, ALL LEVELS
    call Timers_start("amr_guardcell")
 
-  !!!!! Cell-centered data first
+   !!!!! Cell-centered data first
    if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
 
       if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
@@ -444,7 +424,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
          end do
       end if
 
-    !!!!! FINALIZE CELL-CENTERED DATA
+      !!!!! FINALIZE CELL-CENTERED DATA
       ! Clean data to account for possible unphysical values caused by
       ! interpolation, revert to primitive form if needed, and
       ! run EoS if needed
@@ -586,7 +566,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
    end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
-  !!!!!----- FILL FACEVAR[XYZ] GUARDCELLS
+   !!!!!----- FILL FACEVAR[XYZ] GUARDCELLS
    ! Fill FACEVARX GC if it exists and is so desired
    ! DEV: TODO Do we need C-to-P conversion here for face vars?
    if ((gridDataStruct == CENTER_FACES) &
@@ -685,39 +665,39 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
    !We now test whether we can skip the next guard cell fill.
    skipNextGcellFill = .false.
-!  if(present(unitReadsMeshDataOnly)) then
-!     if (unitReadsMeshDataOnly) then
-!        if (gr_gcellsUpToDate) then
-!           !If *all* guard cells were up to date on entry to
-!           !Grid_fillGuardCells then they will continue to be up to date.
-!           skipNextGcellFill = .true.
-!        else
-!           !Check whether we filled guardcells for all layers, all
-!           !variables and all active blocks.  This ensures all
-!           !guard cells are up to date for the next unit.
-!           if ((gridDataStruct == CENTER_FACES .OR. &
-!                (gridDataStruct == CENTER .AND. (NFACE_VARS < 1))) &
-!                .and. idir == ALLDIR) then
-!              skipNextGcellFill = .true.
-!              if (present(minLayers)) then
-!                 if (minval(layers(1:NDIM)) < guard) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!              if (present(mask)) then
-!                 if (.not.all(mask .eqv. .true.)) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!              if (present(selectBlockType)) then
-!                 if (selectBlockType /= ACTIVE_BLKS) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!           end if
-!        end if
-!     end if
-!  end if
+   !  if(present(unitReadsMeshDataOnly)) then
+   !     if (unitReadsMeshDataOnly) then
+   !        if (gr_gcellsUpToDate) then
+   !           !If *all* guard cells were up to date on entry to
+   !           !Grid_fillGuardCells then they will continue to be up to date.
+   !           skipNextGcellFill = .true.
+   !        else
+   !           !Check whether we filled guardcells for all layers, all
+   !           !variables and all active blocks.  This ensures all
+   !           !guard cells are up to date for the next unit.
+   !           if ((gridDataStruct == CENTER_FACES .OR. &
+   !                (gridDataStruct == CENTER .AND. (NFACE_VARS < 1))) &
+   !                .and. idir == ALLDIR) then
+   !              skipNextGcellFill = .true.
+   !              if (present(minLayers)) then
+   !                 if (minval(layers(1:NDIM)) < guard) then
+   !                    skipNextGcellFill = .false.
+   !                 end if
+   !              end if
+   !              if (present(mask)) then
+   !                 if (.not.all(mask .eqv. .true.)) then
+   !                    skipNextGcellFill = .false.
+   !                 end if
+   !              end if
+   !              if (present(selectBlockType)) then
+   !                 if (selectBlockType /= ACTIVE_BLKS) then
+   !                    skipNextGcellFill = .false.
+   !                 end if
+   !              end if
+   !           end if
+   !        end if
+   !     end if
+   !  end if
    gr_gcellsUpToDate = skipNextGcellFill
 
    call Timers_stop("guardcell internal")
@@ -731,9 +711,10 @@ contains
    subroutine gr_setMaskChunks_internal(mask, chunks, numChunks)
       !
       use Driver_interface, ONLY: Driver_abort
+      use Grid_data, ONLY: gr_gcFillSingleVarRange
       implicit none
       ! Arguments
-      logical, dimension(:), intent(in) :: mask
+      logical, dimension(:), intent(inout) :: mask
       integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
       integer, intent(out) :: numChunks
       ! Local Variables
@@ -765,6 +746,16 @@ contains
          prevVarIndex = varIndex
          prevVarMask = mask(varIndex)
       end do
+
+      !! If this conditions is true create a single contiguous chunk.
+      !! Implemented for performance testing of masking strategies
+      if (gr_gcFillSingleVarRange .and. numChunks > 0) then
+         chunks(1, :) = (/minval(chunks(1:numChunks, 1)), maxval(chunks(1:numChunks, 2))/)
+         chunks(2:, :) = 0
+         mask(chunks(1, 1):chunks(1, 2)) = .TRUE.
+         numChunks = 1
+      end if
+
    end subroutine gr_setMaskChunks_internal
 
 end subroutine Grid_fillGuardCells
