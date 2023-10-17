@@ -55,7 +55,7 @@ def fxprettify(filelist):
             # tests to see if indentation is needed
             line_indent = True
 
-            # If previous line is > 0 preform indentation tests
+            # If previous line is > 0 perform indentation tests
             if len(prev_line) > 0:
 
                 # Check if previous line is continued and does
