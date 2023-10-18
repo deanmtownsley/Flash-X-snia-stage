@@ -15,12 +15,13 @@
 
 subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
    !
+   use iso_c_binding
    use ANN_mod
    use ANN_types_mod
    use ImBound_type, ONLY: ImBound_type_t
    implicit none
    !
-   class(ImBound_type_t), intent(IN)  :: body
+   type(ImBound_type_t), intent(IN)  :: body
    integer, intent(IN) :: annElems
    real, dimension(:), target, intent(IN) :: queryPt ! query point
    integer, dimension(:), target, intent(OUT):: annIdx ! indices of nearest neighbors

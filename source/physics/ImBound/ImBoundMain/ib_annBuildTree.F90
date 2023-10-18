@@ -21,7 +21,7 @@ subroutine ib_annBuildTree(body)
 
    implicit none
 
-   class(ImBound_type_t), intent(INOUT)  :: body
+   type(ImBound_type_t), intent(INOUT)  :: body
 
    ! ANN tree variables
    integer :: panelIndex, rowSize, colSize
