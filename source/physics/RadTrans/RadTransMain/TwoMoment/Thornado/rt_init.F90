@@ -126,10 +126,16 @@ subroutine rt_init()
   Verbose = ( rt_meshMe == MASTER_PE )
 #ifdef FLASH_EOS_WEAKLIB
   call RuntimeParameters_get("eos_file", eos_file)
+
+  ! Shift should already have been applied by Eos_weaklibInit, so no need to do it again
+  !call RuntimeParameters_get ("eos_wl_muShift", rt_muShift)
+  rt_muShift = .FALSE.
+
   call InitThornado( THORNADO_NNODES, NDIM, THORNADO_NE, &
      THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, THORNADO_NSPECIES, &
      EquationOfStateTableName_Option = eos_file, &
      External_EOS = eos_pointer, &
+     UseChemicalPotentialShift_Option = rt_muShift, &
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      TroubledCellIndicator_Option = rt_troubledCellIndicator, &

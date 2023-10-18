@@ -66,6 +66,7 @@ SUBROUTINE eos_weaklibInit()
   eos_type = EOS_WL
 
   CALL RuntimeParameters_get('eos_file', eos_file)
+  CALL RuntimeParameters_get('eos_wl_muShift', eos_wl_muShift)
 
   IF ( eos_meshMe == MASTER_PE ) THEN
  
@@ -148,6 +149,8 @@ SUBROUTINE eos_weaklibInit()
         OS_Ah => EosNewTable % DV % Offsets(iAhtab), &
         OS_Gm => EosNewTable % DV % Offsets(iGmtab) )
 
+  IF ( eos_wl_muShift ) CALL eos_wlApplyMuShift( Mptab, Mntab, OS_Mp, OS_Mn )
+
   Verbose = ( eos_meshMe == MASTER_PE )
   CALL InitializeEOSInversion &
        ( Dtab, Ttab, Ytab, &
@@ -174,4 +177,50 @@ SUBROUTINE eos_weaklibInit()
 
   RETURN
 
-end subroutine eos_weaklibInit
+  CONTAINS
+
+     SUBROUTINE eos_wlApplyMuShift( Mp_T, Mn_T, OS_Mp, OS_Mn )
+        !For SFHo tables from
+        !https://code.ornl.gov/astro/weaklib-tables/-/tree/master/SFHo/LowRes
+        !up until git commit hash a36240ed
+        !the neutron and proton chemical potentials
+        !are tabulated subtracting the neutron-proton-mass difference
+        !in order to use the same conventions as used in Chimera
+        !to account for this, and get detailed balance factors
+        !correct, we add the mass difference back in and then
+        !add the SFHo reference masses for the chemical potential
+        !(mn for Mn, mp for Mp)
+        !For this renomalisation to the original SFHo tables,
+        !we need to recalculate the offsets first
+
+        REAL(dp), INTENT(inout), DIMENSION(:,:,:) :: Mp_T, Mn_T
+        REAL(dp), INTENT(inout) :: OS_Mp, OS_Mn
+
+        REAL(DP), PARAMETER :: neutron_mass = 939.56542052d0
+        REAL(DP), PARAMETER :: proton_mass = 938.2720813d0
+        REAL(DP), PARAMETER :: dmnp = 1.29333922d0
+        REAL(DP) :: min_M, OS_M_new
+
+        ! Apply the shift for proton chemical potential
+        IF ( OS_Mp > 0.0d0 ) THEN
+           min_M = -0.5d0 * OS_Mp
+        ELSE
+           min_M = MINVAL( 10.0d0**Mp_T )
+        ENDIF
+        OS_M_new = -2.0d0 * MIN( 0.0d0, min_M + proton_mass + dmnp )
+        Mp_T     = LOG10( 10.0d0**Mp_T - OS_Mp + proton_mass + dmnp + OS_M_new)
+        OS_Mp    = OS_M_new
+
+        ! Apply the shift for neutron chemical potential
+        IF ( OS_Mn > 0.0d0 ) THEN
+           min_M = -0.5d0 * OS_Mn
+        ELSE
+           min_M = MINVAL( 10.0d0**Mn_T )
+        ENDIF
+        OS_M_new = -2.0d0 * MIN( 0.0d0, min_M + proton_mass + dmnp )
+        Mn_T     = LOG10( 10.0d0**Mn_T - OS_Mn + proton_mass + dmnp + OS_M_new)
+        OS_Mn    = OS_M_new
+
+     END SUBROUTINE eos_wlApplyMuShift
+
+END SUBROUTINE eos_weaklibInit
