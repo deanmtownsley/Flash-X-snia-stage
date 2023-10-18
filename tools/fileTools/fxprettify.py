@@ -63,8 +63,8 @@ def fxprettify(filelist):
                 if (prev_line[-1] == "&") and (prev_line[0] not in [" ", "!"]):
                     line_indent = False
 
-                # Check if previous line is continued and does
-                # and is does not have indentation set to False
+                # Check if previous line is continued and
+                # does not have indentation set to False
                 elif (prev_line[-1] == "&") and (not prev_line_indent):
                     line_indent = False
 
