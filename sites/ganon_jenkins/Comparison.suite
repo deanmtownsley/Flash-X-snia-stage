@@ -16,6 +16,12 @@
 # --tolerance, -tol	Tolerance for SFOCU
 
 #------------------------------------------------
+# Tests for - DustCollapse
+#------------------------------------------------
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/AMReX" -np 2 -cbase 2023-04-12
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 0000-00-00
+
+#------------------------------------------------
 # Tests for - incompFlow
 #------------------------------------------------
 # adhruv 09/16/2023 - Added comparison tests to improve coverage of incompressible 

@@ -32,7 +32,7 @@ RUN python3 setup.py library --dim 3 --prefix /Bittree/install/3D
 RUN cd build && make && make install && cd ..
 
 # Installation of AMReX from source
-RUN git clone https://github.com/AMReX-Codes/amrex.git /Amrex
+RUN git clone https://github.com/kweide/amrex0.git /Amrex
 WORKDIR /Amrex
 RUN git checkout d77d93b060ae4bc7e1e65ac1465ad7fc06a5d4dc
 RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
