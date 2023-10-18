@@ -1,0 +1,4 @@
+# Config file for the static Spacetime unit test
+
+REQUIRES Grid
+REQUIRES physics/Spacetime/SpacetimeMain/unitTest

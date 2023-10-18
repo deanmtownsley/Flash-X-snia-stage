@@ -65,4 +65,4 @@ FACEVAR pgn1                    # Variable to store pressure gradient at n-1
 FACEVAR vfrc                    # Velocity forcing variable for external use
 
 # Fluxes
-FLUX velc
+FLUX momt

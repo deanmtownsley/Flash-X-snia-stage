@@ -62,6 +62,7 @@ module Simulation_data
   logical, save :: sim_bcSetBdryVar
   logical, save ::  sim_oneLevelIntegralsOnly
   integer,save  ::  sim_integralsLevel = 0
+  integer,save  ::  sim_geometry
 
   !! *** Variables pertaining to this Simulation *** !!
 
@@ -78,6 +79,7 @@ module Simulation_data
   real ,save                          ::  sim_profileScaledTime=0.0
   real ,save                          ::  sim_analyticTime
   integer,save                        ::  sim_analyticGen
+  real, save                          ::  sim_k2dDist, sim_k3dDist
 
   integer, save :: sim_meshMe, sim_globalMe
   integer, save ::             sim_globalNumProcs

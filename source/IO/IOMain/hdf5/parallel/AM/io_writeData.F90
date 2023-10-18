@@ -113,7 +113,7 @@ subroutine io_writeData(fileID)
                              Grid_releaseTileIterator
 
 !  use physicaldata, ONLY : unk, facevarx, facevary, facevarz
-   use gr_physicalMultifabs, ONLY: unk, facevarx, facevary, facevarz
+   use gr_physicalMultifabs, ONLY: unk, facevars
    use gr_physicalMultifabs, ONLY: gr_scratchCtr, &
                                    fluxes, &
                                    flux_registers

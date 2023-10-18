@@ -1,0 +1,5 @@
+# Config file for Spacetime unit tests
+DEFAULT static
+
+REQUIRES Driver
+REQUIRES physics/Spacetime

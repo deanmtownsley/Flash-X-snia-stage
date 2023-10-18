@@ -47,11 +47,11 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
    integer :: i, j, k
 
    if (.NOT.(     (gr_geometry == CARTESIAN)                   &
-             .OR. (gr_geometry == SPHERICAL   .AND. NDIM < 3)  &
-             .OR. (gr_geometry == CYLINDRICAL .AND. NDIM == 2) &
+             .OR. (gr_geometry == SPHERICAL)  &
+             .OR. (gr_geometry == CYLINDRICAL) &
              )     ) then
      volumes(:, :, :) = 0.0
-     call Driver_abort("[Grid_getCellVolumes] Not tested yet")
+     call Driver_abort("[Grid_getCellVolumes] This geometry is not implemented yet.")
    end if
 
    call Grid_getDeltas(level, deltas)
@@ -120,9 +120,9 @@ subroutine Grid_getCellVolumes(level, lo, hi, volumes)
 #if   NDIM == 1
                   volumes(i, j, k) = cellvolume * 4.*PI/3.
 #elif NDIM == 2
-                  volumes(i, j, k) = cellvolume * ( cos(thf(j)) - cos(thf(j+1)) ) * 2.*PI/3.
+                  volumes(i, j, k) = cellvolume * ABS( cos(thf(j)) - cos(thf(j+1)) ) * 2.*PI/3.
 #elif NDIM == 3
-                  volumes(i, j, k) = cellvolume * ( cos(thf(j)) - cos(thf(j+1)) ) *   &
+                  volumes(i, j, k) = cellvolume * ABS( cos(thf(j)) - cos(thf(j+1)) ) *   &
                                      dPhi / 3.0
 #endif
                end do

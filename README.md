@@ -23,7 +23,9 @@ should be made known to the Flash-X build system by a site-specific (or, as a fa
 Makefile.h file. See the subdirectories under sites/ .
 
 This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
-should be installed, and the appropriate locations mentioned in Makefile.h .
+should be installed, and the appropriate locations mentioned in Makefile.h . Flash-X is compatible
+with AMReX version 23.10. Simulations that use face-centered variables are not compatible with any 
+other version before this tag.
 
 On the other hand, some applications and tests use INTERNAL libraries. Such libraries are built, as part of the Flash-X setup process, from source code that is located in subdirectories under lib/ . There are two cases for such libraries:
 
@@ -140,10 +142,34 @@ Testing servers:
 
 - Argonne, GCE:
 
-  FlashTest server for running tests on `staged` branch - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged
+  FlashTest server for running tests on `staged` branch
 
-  FlashTestView - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py
+  - GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
+  - Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
+
+  FlashTestView
+
+  - GCC - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_gcc
+  - Intel - https://web.cels.anl.gov/projects/FLASH5/testsuite/home.py?target_dir=/nfs/pub_html/gce/projects/FLASH5/output/staged_intel
 
 - Ganon:
 
-  FlashTest - http://ganon2.device.utk.edu:8080 
+  FlashTest - http://ganon.device.utk.edu:8080 or http://ganon2.device.utk.edu:8080
+
+## Citation
+
+Please use the following for citing Flash-X
+
+```
+@article{Flash-X-SoftwareX,
+title = {Flash-X: A multiphysics simulation software instrument},
+journal = {SoftwareX},
+volume = {19},
+pages = {101168},
+year = {2022},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2022.101168},
+url = {https://www.sciencedirect.com/science/article/pii/S2352711022001030},
+author = {Anshu Dubey and Klaus Weide and Jared O’Neal and Akash Dhruv and Sean Couch and J. Austin Harris and Tom Klosterman and Rajeev Jain and Johann Rudi and Bronson Messer and Michael Pajkos and Jared Carlson and Ran Chu and Mohamed Wahib and Saurabh Chawdhary and Paul M. Ricker and Dongwook Lee and Katie Antypas and Katherine M. Riley and Christopher Daley and Murali Ganapathy and Francis X. Timmes and Dean M. Townsley and Marcos Vanella and John Bachan and Paul M. Rich and Shravan Kumar and Eirik Endeve and W. Raphael Hix and Anthony Mezzacappa and Thomas Papatheodore},
+}
+```

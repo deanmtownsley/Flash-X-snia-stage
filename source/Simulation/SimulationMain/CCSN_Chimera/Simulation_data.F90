@@ -1,6 +1,6 @@
-!!****if* source/Simulation/SimulationMain/CCSN/Simulation_data
+!!****if* source/Simulation/SimulationMain/CCSN_Chimera/Simulation_data
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -40,14 +40,13 @@ module Simulation_data
   character(len=256),save :: chimera_model_file
   character(len=256),save :: progenitor_model_file
   real, save :: sim_max_r, sim_r_inner, sim_rho_inner
-  logical, save :: sim_do_quad
-  integer, save :: sim_nquad
+  real, save :: sim_bdry_dens, sim_bdry_pres, sim_bdry_temp
 
   integer, save :: nvar_stored
   integer, parameter :: n1d_max = 10000 ! Max number of lines a file can have
   integer, save :: n1d_total ! Actual number of lines, calculated after input
   real, save :: sim_smlrho, sim_smallt,sim_smallx
-  real,save :: xzn(n1d_max), volxzn(n1d_max), dvolxzn(n1d_max)
+  real,save :: xzn(n1d_max), volxzn(n1d_max), dvolxzn(n1d_max), xzn_ctr(n1d_max-1)
   real,save :: model_1d(n1d_max,NUNK_VARS)
   real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
   real, save  :: sim_windVel, sim_massLoss, sim_velMult
