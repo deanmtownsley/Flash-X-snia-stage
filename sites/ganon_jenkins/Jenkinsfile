@@ -46,6 +46,7 @@ pipeline {
 	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/*.log'       , allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/test_output' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: 'TestResults/*/*/errors', allowEmptyArchive: true
 	    cleanWs(
 	        cleanWhenNotBuilt: true,

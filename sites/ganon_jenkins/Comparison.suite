@@ -18,7 +18,7 @@
 #------------------------------------------------
 # Tests for - DustCollapse
 #------------------------------------------------
-DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/AMReX" -np 2 -cbase 2023-04-12
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/AMReX" -np 2 -cbase 0000-00-00
 DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 0000-00-00
 
 DustCollapse -t "Comparison/DustCollapse/AMR/2dCyl/AMReX" -np 4 --debug -cbase 0000-00-00
