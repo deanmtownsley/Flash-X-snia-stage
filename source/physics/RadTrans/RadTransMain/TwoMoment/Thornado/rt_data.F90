@@ -60,6 +60,7 @@ module rt_data
   logical, save :: rt_Include_LinCorr
 
   real,    save :: rt_wMatrRHS(5)
+  logical, save :: rt_freezeOpacities
 
   integer, save :: rt_ivar(1:THORNADO_NNODESE, &
                            1-THORNADO_SWE:THORNADO_NE+THORNADO_SWE, &
