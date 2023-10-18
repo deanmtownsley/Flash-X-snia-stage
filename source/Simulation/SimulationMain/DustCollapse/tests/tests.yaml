@@ -19,9 +19,12 @@ Comparison/DustCollapse/AMR/1dSph/sparkNt:
 
 # The following test used to be configured with -debug.
 Comparison/DustCollapse/AMR/2dCyl/AMReX:
-  setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole -debug
+  setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole
   parfiles: test_2dcyl.debug.par
-  restartParfiles: restart_pm_cyl_2d.par
+
+Comparison/DustCollapse/AMR/2dCyl/AMReXFc:
+  setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole +nolwf -noc
+  parfiles: test_2dcyl.par
 
 
 # These tests are usually being run on 4 or 8 procs.
