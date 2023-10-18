@@ -59,7 +59,7 @@ def fxprettify(filelist):
             if len(prev_line) > 0:
 
                 # Check if previous line is continued and does
-                # not start with white spaces or double exclamations
+                # not start with white space or comment symbol
                 if (prev_line[-1] == "&") and (prev_line[0] not in [" ", "!"]):
                     line_indent = False
 
