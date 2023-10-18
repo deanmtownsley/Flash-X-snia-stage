@@ -103,24 +103,26 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   logical :: multFluxx,multFluxy,multFluxz !whether to multiply by area
   logical                  :: allIsFlux
   real,allocatable :: faceAreas(:,:,:)
-  real                    :: wt
+  logical          :: addit
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
   call Driver_abort("Grid_putFluxData_block.F90 requires amrex_flash_fluxregister,&
        & make sure USE_AMREX_FLASHFLUXREGISTER is defined!")
 #else
 
-  wt=0.0
+  addit = .FALSE.
   if (present(add)) then
-     if(add)wt=1.0
+     addit = add
   end if
 
-  if (wt .NE. 0.0) then
-     call Logfile_stampMessage("You probably should not try to use nontelescoping Spark with AMReX.")
+#ifdef DEBUG_GRID
+  if (addit) then
+     call Logfile_stampMessage("Perhaps you should not try to use nontelescoping Spark with AMReX.")
      print*,'Grid_putFluxData_block: LO,ADD,present(isFluxDensity):', lo, add, present(isFluxDensity)
      if (present(isFluxDensity)) print*,'Grid_putFluxData_block: isFluxDensity:', isFluxDensity
-     call Driver_abort("Grid_putFluxData_block: adding is not supported with Amrex Grid!")
+     call Driver_abort("Grid_putFluxData_block: adding not properly tested with Amrex Grid!")
   end if
+#endif
 
   if (present(isFluxDensity)) then
      allIsFlux = ( size(isFluxDensity,1) > 0 .AND. .NOT. ANY(isFluxDensity) )
@@ -161,10 +163,10 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
                            lbound(fluxBufX,2):ubound(fluxBufX,2), &
                            lbound(fluxBufX,3):ubound(fluxBufX,3)))
         call Grid_getCellFaceAreas     (IAXIS,    fineLev,   lbound(fluxBufX),   ubound(fluxBufX), faceAreas)
-        call flux_registers(ilev)%store(fluxBufX, faceAreas, lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0)
+        call flux_registers(ilev)%store(fluxBufX, faceAreas, lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0, addit)
         deallocate(faceAreas)
      else
-        call flux_registers(ilev)%store(fluxBufX,            lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0)
+        call flux_registers(ilev)%store(fluxBufX,            lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0, addit)
      end if
 #if NDIM > 1
      if (multFluxy) then
@@ -173,10 +175,10 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
                            lbound(fluxBufY,3):ubound(fluxBufY,3)))
         call Grid_getCellFaceAreas     (JAXIS,    fineLev,   lbound(fluxBufY),   ubound(fluxBufY), faceAreas)
 
-        call flux_registers(ilev)%store(fluxBufY, faceAreas, lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1)
+        call flux_registers(ilev)%store(fluxBufY, faceAreas, lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1, addit)
         deallocate(faceAreas)
      else
-        call flux_registers(ilev)%store(fluxBufY,            lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1)
+        call flux_registers(ilev)%store(fluxBufY,            lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1, addit)
      end if
 #endif
 #if NDIM == 3
@@ -185,10 +187,10 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
                            lbound(fluxBufZ,2):ubound(fluxBufZ,2), &
                            lbound(fluxBufZ,3):ubound(fluxBufZ,3)))
         call Grid_getCellFaceAreas     (KAXIS,    fineLev,   lbound(fluxBufZ),   ubound(fluxBufZ), faceAreas)
-        call flux_registers(ilev)%store(fluxBufZ, faceAreas, lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2)
+        call flux_registers(ilev)%store(fluxBufZ, faceAreas, lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2, addit)
         deallocate(faceAreas)
      else
-        call flux_registers(ilev)%store(fluxBufZ,            lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2)
+        call flux_registers(ilev)%store(fluxBufZ,            lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2, addit)
      end if
 #endif
   end if
