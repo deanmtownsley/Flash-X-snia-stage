@@ -1,4 +1,5 @@
 # Programmatically generated parfile for flashx
+sim_runTest = .TRUE.
 ins_invReynolds = 0.0033
 ins_gravY = -1.0
 mph_rhoGas = 0.0049

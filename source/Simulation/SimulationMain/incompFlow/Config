@@ -46,3 +46,7 @@ ENDIF
 LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
+
+# A logical runtime parameter to run unitests on a simulation
+# used in driver evolve at the end of evolution loop
+PARAMETER sim_runTest BOOLEAN FALSE

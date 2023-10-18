@@ -74,7 +74,9 @@ subroutine Driver_evolveAll()
 
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt
 
-   use Simulation_data, ONLY: sim_reInitFlow, sim_runTest
+   use Simulation_data, ONLY: sim_reInitFlow
+
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
 
@@ -108,6 +110,7 @@ subroutine Driver_evolveAll()
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
+   logical :: runTest
 
    ! Set interpolation values for guard cell
    call Grid_setInterpValsGcell(.TRUE.)
@@ -431,7 +434,9 @@ subroutine Driver_evolveAll()
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-   if (sim_runTest) then
+   call RuntimeParameters_get('sim_runTest', runTest)
+
+   if (runTest) then
       temp = dr_globalMe
       do i = 1, 4
          prNum(i) = mod(temp, 10)

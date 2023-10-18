@@ -49,6 +49,7 @@ checkpointFileIntervalStep = 5000
 plotFileIntervalTime = 1.
 plotFileIntervalStep = 5
 
+sim_runTest = .TRUE.
 sim_reInitFlow = .true.
 
 # AMR parameters
