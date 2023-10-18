@@ -29,8 +29,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                               Grid_getCellVolumes, &
                               Grid_communicateFluxes, &
                               Grid_fillGuardCells, &
-                              Grid_correctFluxData_xtra, &
                               Grid_getFluxCorrData_block, &
+                              Grid_getFluxCorrData_xtra, &
                               Grid_putFluxData, &
                               Grid_putFluxData_block, &   ! this only required for nonTelescoping
                               Grid_renormAbundance
@@ -129,8 +129,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
          if (hy_geometry /= CARTESIAN) then
             @M hy_fill_geom
-            @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
-                                         hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+            @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+            @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight])
+            @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
+            @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
          endif
 
          xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
@@ -182,21 +184,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
             call Timers_stop("getFaceFlux")
 
-            !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
-            !This incorporates fluxes calculated in the last stage & the 'flux difference'
-            !introduced on fine coarse boundaries.
-            if (stage == last_stage) then
-               if (lev < hy_maxLev) then
-                  call Grid_correctFluxData_xtra(tileDesc,1/hy_weights(stage),&
-                       hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
-                       hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
-                       hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
-                       blkLimits(LOW,:),-1/hy_weights(stage),&
-                       hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
-                  @M hy_DIR_TARGET_update_to([hy_flx, hy_fly, hy_flz])
-               endif
-            endif
-
             wt=0.0
             if(stage > 1)wt=1.0
             @M hy_addFluxes
@@ -208,16 +195,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             call Timers_start("updateSoln")
             call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
                                   hy_grav, hy_flx, hy_fly, hy_flz, &
-                                  deltas, hy_farea, hy_cvol, hy_xCenter, hy_xLeft, hy_xRight, hy_geometry, &
+                                  deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                  hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                  hy_geometry, &
                                   hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                   dt, dtOld, limits)
-            @M hy_DIR_TARGET_update_from([hy_starState])
             call Timers_stop("updateSoln")
 
 #if NSCIES>0
             ! Properly normalize species after the update
-            call Grid_renormAbundance(tileDesc,blkLimitsGC,hy_starState)
+            call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX)
 #endif
+            @M hy_DIR_TARGET_update_from([hy_starState])
             ! Update EOS based on intermediate solution
             call Timers_start("eos")
             call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
@@ -240,9 +229,30 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                   blkLimits(LOW,:))
          end if
 
+         !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
+         !This incorporates fluxes calculated in the last stage & the 'flux difference'
+         !introduced on fine coarse boundaries.
+         if (lev < hy_maxLev) then
+            call Grid_getFluxCorrData_xtra(tileDesc, &
+                                           hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                           blkLimits(LOW,:), &
+                                           hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
+                                           hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
+                                           hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D))
+            call hy_rk_correctFluxes(Uin, blkLimits, &
+                                     hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                     deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                     hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                     hy_geometry, &
+                                     hy_smallE, hy_smalldens, &
+                                     dt, .NOT. hy_telescoping)
+         endif
+
          if (hy_geometry /= CARTESIAN) then
-            @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
-                                             hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+            @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+            @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
+            @M hy_DIR_TARGET_exit_data(release, [hy_yCenter, hy_yLeft, hy_yRight])
+            @M hy_DIR_TARGET_exit_data(release, [hy_zCenter])
             @M hy_release_geom
          end if
 
