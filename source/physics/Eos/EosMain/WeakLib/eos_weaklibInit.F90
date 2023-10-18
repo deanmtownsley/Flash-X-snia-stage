@@ -179,6 +179,8 @@ SUBROUTINE eos_weaklibInit()
 
   CONTAINS
 
+     ! This should probably exist as a subroutine in a separate file so
+     ! that any simulation could easily override it.
      SUBROUTINE eos_wlApplyMuShift( Mp_T, Mn_T, OS_Mp, OS_Mn )
         !For SFHo tables from
         !https://code.ornl.gov/astro/weaklib-tables/-/tree/master/SFHo/LowRes
