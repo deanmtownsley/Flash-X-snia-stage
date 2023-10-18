@@ -1,0 +1,57 @@
+/**
+   @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+
+    @par License
+    @parblock
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   @endparblock
+
+   @internal
+   @defgroup physics_Spacetime_SpacetimeMain SpacetimeMain
+   @ingroup physics_Spacetime
+
+   @brief Provides grid variables for the ADM and stress-energy tensor quantities
+
+   @details
+   The ADM and stress-energy tensor variables provide the means of coupling a static
+   or dynamically evolving spacetime with other physics solvers (hydro, radiation transport,
+   etc.).  In a 3+1 split spacetime, the invariant line element can be written in terms of
+   ADM variables as:
+
+   \f[
+      ds^2 = -\alpha^2 dt^2 + \gamma_{ij}\left(dx^i + \beta^i\right)\left(dx^j + \beta^j\right)
+   \f]
+   
+   This unit provides the following ADM variables describing the 3+1 split spacetime:
+
+   | Variable | Symbol | Type | # Components | Description |
+   | :------- | :----: | :--: | :-----------: | :---------: |
+   | `ALP_VAR` | \f$\alpha\f$ | Scalar | 1 | Lapse function |
+   | `BETAX_VAR`<br>`BETAY_VAR`<br>`BETAZ_VAR` | \f$\beta^i\f$ | Rank-1 Tensor | 3 | Shift Vector |
+   | `GXX_VAR`<br>`GXY_VAR`<br>`GXZ_VAR`<br>`GYY_VAR`<br>`GYZ_VAR`<br>`GZZ_VAR` | \f$\gamma_{ij}\f$ | Rank-2 Symmetric Tensor | 6 | Spatial Metric |
+   | `KXX_VAR`<br>`KXY_VAR`<br>`KXZ_VAR`<br>`KYY_VAR`<br>`KYZ_VAR`<br>`KZZ_VAR` | \f$K_{ij}\f$ | Rank-2 Symmetric Tensor | 6 | Extrinsic Curvature |
+
+   The stress-energy tensor in the Eulerian/computational frame can be written in terms
+   of its projections as
+
+   \f[
+      T^{ab} = E n^a n^b + 2 S^{(a}n^{b)} + S^{ab}
+   \f]
+
+   where \f$E\f$ is the total mass-energy density, \f$S^a\f$ the momentum density, and \f$S^{ab}\f$ is
+   the shear/pressure tensor.  This unit provides the following variables characterizing these projections:
+
+   | Variable | Symbol | Type | # Components | Description |
+   | :------- | :----: | :--: | :-----------: | :---------: |
+   | `TE_VAR` | \f$E = n_a n_b T^{ab}\f$ | Scalar | 1 | Energy Density |
+   | `TSX_VAR`<br>`TSY_VAR`<br>`TSZ_VAR` | \f$S_i = - \gamma_{ia} n_b T^{ab}\f$ | Rank-1 Tensor | 3 | Momentum Density |
+   | `TSXX_VAR`<br>`TSXY_VAR`<br>`TSXZ_VAR`<br>`TSYY_VAR`<br>`TSYZ_VAR`<br>`TSZZ_VAR` | \f$S_{ij} = \gamma_{ia}\gamma_{jb} T^{ab}\f$ | Rank-2 Symmetric Tensor | 6 | Pressure Tensor |
+   
+*/

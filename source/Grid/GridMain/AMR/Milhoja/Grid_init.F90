@@ -469,7 +469,6 @@ subroutine Grid_init()
     ! Setup all remaining local Grid data variables
     !----------------------------------------------------------------------------------
     do i = UNK_VARS_BEGIN, UNK_VARS_END
-!        gr_vars(i)=i
         CALL Simulation_getVarnameType(i, gr_vartypes(i))
     end do
 

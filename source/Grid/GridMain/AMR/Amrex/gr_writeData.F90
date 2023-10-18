@@ -1,4 +1,3 @@
-#include "Simulation.h"
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,6 +10,9 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 
+#include "constants.h"
+#include "Simulation.h"
+
 subroutine gr_writeData(stepno, t_new, argBaseName)
     use amrex_fort_module,     ONLY : wp => amrex_real
     use amrex_amrcore_module,  ONLY : amrex_get_numlevels, &
@@ -20,7 +22,7 @@ subroutine gr_writeData(stepno, t_new, argBaseName)
                                       amrex_string
     use amrex_plotfile_module, ONLY : amrex_write_plotfile
 
-    use gr_physicalMultifabs,  ONLY : unk, facevarx, facevary, facevarz
+    use gr_physicalMultifabs,  ONLY : unk, facevars
     use gr_ptInterface, ONLY:  gr_ptWritePCs
 ! !     use IO_data, ONLY : io_unklabels
 
@@ -89,16 +91,16 @@ subroutine gr_writeData(stepno, t_new, argBaseName)
     end do
 
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "x_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevarx, varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(IAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #if(NDIM>1)
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "y_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevary, varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(JAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #endif
 #if(NDIM>2)
     filename = trim(baseName) // trim(PLOT_FILE_FACEVAR) // "z_"// current_step
-    call amrex_write_plotfile(filename, nlevs, facevarz, varname, amrex_geom, &
+    call amrex_write_plotfile(filename, nlevs, facevars(KAXIS, :), varname, amrex_geom, &
                               t_new, stepno_arr, amrex_ref_ratio)
 #endif
 #endif
