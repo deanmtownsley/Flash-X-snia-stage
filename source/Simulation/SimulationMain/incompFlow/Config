@@ -11,8 +11,8 @@ ENDIF
 # Common runtime parameters for optimization of guard-cell 
 # filling operations which can be over-written in parfiles. 
 # Note that runtime parameters are simply ignored if they are 
-# available for a grid implementation so there have not been
-# assigned under an IF-ELSE-ENDIF statement
+# not available for a grid implementation so there have not
+# been assigned under an IF-ELSE-ENDIF statement
 PARAMETER enableMaskedGCFill BOOLEAN TRUE
 PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
 PARAMETER convertToConsvdForMeshCalls BOOLEAN FALSE

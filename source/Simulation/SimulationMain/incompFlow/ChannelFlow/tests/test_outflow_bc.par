@@ -1,4 +1,5 @@
 # 	Runtime parameters for the Channel Flow problem.
+enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds      = .002
