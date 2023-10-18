@@ -198,6 +198,7 @@ def genLines(setupvars):
     yield 'D rt_Rtol_outer      convergence criteria for collision solver outer-loop'
     yield 'D rt_Rtol_inner      convergence criteria for collision solver inner-loop'
     yield 'D rt_Include_LinCorr flag to include linear rate corrections in collision solver'
+    yield 'D rt_freezeOpacities flag to use opacity kernels interpolated at old time state in collision solver'
 
     yield 'PARAMETER rt_M_outer         INTEGER  3      [1 to ]'
     yield 'PARAMETER rt_M_inner         INTEGER  2      [1 to ]'
@@ -206,6 +207,7 @@ def genLines(setupvars):
     yield 'PARAMETER rt_Rtol_outer      REAL     1.0e-8 [0.0 to ]'
     yield 'PARAMETER rt_Rtol_inner      REAL     1.0e-8 [0.0 to ]'
     yield 'PARAMETER rt_Include_LinCorr BOOLEAN  FALSE'
+    yield 'PARAMETER rt_freezeOpacities BOOLEAN  FALSE'
 
     ##
     yield 'D rt_writeTimers  controls whether to write Thornado internal timers to stdout'

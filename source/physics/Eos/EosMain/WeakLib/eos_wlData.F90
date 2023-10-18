@@ -40,6 +40,8 @@ module eos_wlData
  type(EquationOfStateTableType), target, save :: EosNewTable
  type(EquationOfStateTableType), pointer :: eos_pointer
 
+ logical, save :: eos_wl_muShift
+
  integer, save :: nVariables
 
  logical, save :: eos_postBounce = .FALSE.

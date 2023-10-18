@@ -100,6 +100,8 @@ subroutine rt_init()
   call RuntimeParameters_get ("rt_Rtol_inner", rt_Rtol_inner)
   call RuntimeParameters_get ("rt_Include_LinCorr", rt_Include_LinCorr)
 
+  call RuntimeParameters_get ("rt_freezeOpacities", rt_freezeOpacities)
+
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
 
   rt_offGridFluxR = 0.0
@@ -126,10 +128,16 @@ subroutine rt_init()
   Verbose = ( rt_meshMe == MASTER_PE )
 #ifdef FLASH_EOS_WEAKLIB
   call RuntimeParameters_get("eos_file", eos_file)
+
+  ! Shift should already have been applied by Eos_weaklibInit, so no need to do it again
+  !call RuntimeParameters_get ("eos_wl_muShift", rt_muShift)
+  rt_muShift = .FALSE.
+
   call InitThornado( THORNADO_NNODES, NDIM, THORNADO_NE, &
      THORNADO_SWE, rt_eL, rt_eR, rt_zoomE, rt_bcE, THORNADO_NSPECIES, &
      EquationOfStateTableName_Option = eos_file, &
      External_EOS = eos_pointer, &
+     UseChemicalPotentialShift_Option = rt_muShift, &
      PositivityLimiter_Option = rt_positivityLimiter, &
      UpperBry1_Option = rt_UpperBry1, &
      TroubledCellIndicator_Option = rt_troubledCellIndicator, &
@@ -149,6 +157,7 @@ subroutine rt_init()
      Rtol_inner_Option = rt_Rtol_inner, &
      Include_LinCorr_Option = rt_Include_LinCorr, &
      wMatrRHS_Option = rt_wMatrRHS, &
+     FreezeOpacities_Option = rt_freezeOpacities, &
      Include_NES_Option = rt_use_nes, &
      Include_Pair_Option = rt_use_pair, &
      Include_Brem_Option = rt_use_brem, &

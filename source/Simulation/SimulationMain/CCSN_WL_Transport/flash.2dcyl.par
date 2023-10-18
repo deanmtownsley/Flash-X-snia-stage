@@ -52,12 +52,12 @@ dr_dtMinBelowAction             = 1    # write chkpt then abort
 geometry            = "cylindrical"
 
 xmin                = 0.0
-xmax                = 4.096e8
+xmax                = 2.048e8
 xl_boundary_type    = "reflect"
 xr_boundary_type    = "diode"
 
-ymin                = -4.096e8
-ymax                =  4.096e8
+ymin                = -2.048e8
+ymax                =  2.048e8
 yl_boundary_type    = "diode"
 yr_boundary_type    = "diode"
 
@@ -70,13 +70,13 @@ yr_boundary_type    = "diode"
 ## Grid Refinement
 ## -------------------------------------------------------------
 
-nblockx                     = 4
-nblocky                     = 8
+nblockx                     = 8
+nblocky                     = 16
 nblockz                     = 1
 
 enableMaskedGCFill          = .TRUE.
 
-lrefine_max                 = 8
+lrefine_max                 = 5
 lrefine_min                 = 1
 refine_var_1                = "dens"
 refine_var_2                = "pres"
@@ -88,9 +88,9 @@ refine_cutoff_3             = 0.4
 derefine_cutoff_3           = 0.1
 
 fullAngRefRad               = 6.0e7     # Refine up to lrefine_center inside this radius
-lrefine_center              = 0         # maximum refinement level inside fullAngRefRad (0 = lrefine_max)
+lrefine_center              = 1         # maximum refinement level inside fullAngRefRad (0 = lrefine_max)
 
-gr_lrefineMaxRedDoByLogR    = .TRUE.    # .FALSE. to get NO distance-based refinement limitation
+gr_lrefineMaxRedDoByLogR    = .FALSE.   # .FALSE. to get NO distance-based refinement limitation
 gr_lrefineMaxRedRadiusFact  = 0.27925   # 0.15 to get highest refinement only very close to center
 
 gr_lrefineMaxRedDoByTime    = .FALSE.
@@ -314,10 +314,12 @@ point_mass_rsoft            = 0.e0
 ## EOS NSE
 ## -------------------------------------------------------------
 
-#eos_file                = "wl-EOS-SFHo-15-25-50.h5"
-eos_file                = "wl-EOS-SFHo-25-50-100-Standard.h5"
+eos_file                = "wl-EOS-SFHo-15-25-50.h5"
+#eos_file                = "wl-EOS-SFHo-25-50-100-Standard.h5"
 eosMode                 = "dens_ie"
 eosModeInit             = "dens_temp"
+
+eos_wl_muShift          = .TRUE. # De-chimeraize the weaklib chemical potentials
 
 ## -------------------------------------------------------------
 ## EOS Non-NSE
@@ -385,8 +387,11 @@ rt_doExplicit = .TRUE.
 rt_doImplicit = .TRUE.
 rt_eL         = 0.0 # MeV
 rt_eR         = 300.0 # MeV
-rt_zoomE      = 1.26603816071016e0
+rt_zoomE      = 1.266038160710160e0 # use this for nE = 16
+rt_zoomE      = 1.473936813452146e0 # use this for nE = 10
 rt_bcE        = 10
+
+rt_freezeOpacities = .FALSE.
 
 ### -------------------------------------------------------------
 ### Weaklib
