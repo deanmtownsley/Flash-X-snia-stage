@@ -19,7 +19,7 @@
 #include "Simulation.h"
 
 subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
-                                   guard, face, axis, secondDir, thirdDir)
+                                     guard, face, axis, secondDir, thirdDir)
 
    use Driver_interface, ONLY: Driver_abort
    use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters

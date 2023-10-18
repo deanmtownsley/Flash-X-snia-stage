@@ -10,4 +10,6 @@ Simulation += sim_heaterData.o \
               sim_heaterCheckSitesBlk.o \
               sim_heaterApplyBCToRegion.o \
               sim_heaterTagSites.o \
+              sim_heaterAnnBuildTree.o \
+              sim_heaterAnnSearchTree.o \
               sim_forceHeater.o

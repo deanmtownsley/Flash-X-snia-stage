@@ -20,6 +20,7 @@
 subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2)
 
    use sim_heaterData
+   use sim_heaterInterface, ONLY: sim_heaterAnnSearchTree
 
    implicit none
    real, dimension(:, :, :), intent(in)      :: phi
@@ -27,7 +28,7 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
    real, dimension(:, :), intent(in)        :: boundBox
    integer, intent(in)                    :: ix1, ix2, jy1, jy2
 
-   integer :: i, j, k, isite, htr
+   integer :: i, j, k, isite, htr, annIndex
    real    :: xi, xp, yi, yp
    real    :: phiSW, phiSE, phiNW, phiNE, phiSite
 
@@ -44,18 +45,24 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
       do j = jy1, jy2 - 1
          do i = ix1, ix2 - 1
-            do isite = 1, heater%numSites
-               xi = xcell(i)
-               xp = xcell(i + 1)
-               yi = ycell(j)
-               yp = ycell(j + 1)
 
-               phiSW = phi(i, j, k)
-               phiSE = phi(i + 1, j, k)
-               phiNW = phi(i, j + 1, k)
-               phiNE = phi(i + 1, j + 1, k)
+            xi = xcell(i)
+            xp = xcell(i + 1)
+            yi = ycell(j)
+            yp = ycell(j + 1)
 
-               phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
+            phiSW = phi(i, j, k)
+            phiSE = phi(i + 1, j, k)
+            phiNW = phi(i, j + 1, k)
+            phiNE = phi(i + 1, j + 1, k)
+
+            phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
+
+            sim_heaterAnnIdx(:) = 0
+            call sim_heaterAnnSearchTree(heater, (/(xi + xp)*0.5, (yi + yp)*0.5/), sim_heaterAnnQueries, sim_heaterAnnIdx)
+
+            do annIndex = 1, sim_heaterAnnQueries
+               isite = sim_heaterAnnIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
 
                if (xi .le. heater%xSite(isite) .and. xp .ge. heater%xSite(isite) .and. &
                    yi .le. heater%ySite(isite) .and. yp .ge. heater%ySite(isite)) then

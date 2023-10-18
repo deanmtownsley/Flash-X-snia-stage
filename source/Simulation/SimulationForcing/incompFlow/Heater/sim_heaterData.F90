@@ -27,6 +27,7 @@
 
 module sim_heaterData
 
+   use iso_c_binding
    implicit none
 
    real, save        :: sim_nucSeedRadius
@@ -60,9 +61,14 @@ module sim_heaterData
       real, dimension(:), allocatable :: siteTimeStamp
       logical, dimension(:), allocatable :: siteIsAttachedCurr
       logical, dimension(:), allocatable :: siteIsAttachedPrev
+      type(c_ptr) :: kdTree = c_null_ptr
+      integer :: dims
 
    end type sim_heaterType
 
    type(sim_heaterType), save, dimension(:), pointer :: sim_heaterInfo
+
+   integer, save, dimension(:), allocatable :: sim_heaterAnnIdx
+   integer, save :: sim_heaterAnnQueries
 
 end module sim_heaterData

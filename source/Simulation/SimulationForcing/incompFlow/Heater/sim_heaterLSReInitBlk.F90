@@ -16,10 +16,12 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2)
 
    use sim_heaterData
+   use sim_heaterInterface, ONLY: sim_heaterAnnSearchTree
 
    implicit none
    real, dimension(:, :, :), intent(inout)  :: phi
@@ -29,7 +31,7 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
 
    type(sim_heaterType), pointer  :: heater
-   integer :: i, j, k, htr, isite
+   integer :: i, j, k, htr, isite, annIndex
    real    :: idfun, iseedY, iseedX, iseedZ, iradius
 
    do htr = 1, sim_numHeaters
@@ -43,7 +45,15 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
       do k = kz1, kz2
          do j = jy1, jy2
             do i = ix1, ix2
-               do isite = 1, heater%numSites
+
+               sim_heaterAnnIdx(:) = 0
+#if NDIM < MDIM
+               call sim_heaterAnnSearchTree(heater, (/xcell(i), ycell(i)/), sim_heaterAnnQueries, sim_heaterAnnIdx)
+#else
+               call sim_heaterAnnSearchTree(heater, (/xcell(i), ycell(i), zcell(i)/), sim_heaterAnnQueries, sim_heaterAnnIdx)
+#endif
+               do annIndex = 1, sim_heaterAnnQueries
+                  isite = sim_heaterAnnIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
 
                   if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
                       (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then

@@ -130,4 +130,23 @@ Module sim_heaterInterface
       end subroutine sim_forceHeater
    end interface
 
+   interface
+      subroutine sim_heaterAnnBuildTree(heater)
+         use sim_heaterData, ONLY: sim_heaterType
+         type(sim_heaterType), intent(INOUT)  :: heater
+      end subroutine sim_heaterAnnBuildTree
+   end interface
+
+   interface
+      subroutine sim_heaterAnnSearchTree(heater, queryPt, annElems, annIdx)
+         use sim_heaterData, ONLY: sim_heaterType
+         type(sim_heaterType), intent(IN)  :: heater
+         integer, intent(IN) :: annElems
+         ! query point
+         real, dimension(:), target, intent(IN) :: queryPt
+         ! indices of nearest neighbors
+         integer, dimension(:), target, intent(OUT):: annIdx
+      end subroutine sim_heaterAnnSearchTree
+   end interface
+
 End module sim_heaterInterface

@@ -14,6 +14,10 @@
 !!
 !!
 !!***
+
+#include "constants.h"
+#include "Simulation.h"
+
 subroutine sim_heaterRead(heaterID, heaterFile)
 
    use sim_heaterData, ONLY: sim_nucSeedRadius, sim_heaterType, sim_heaterInfo
@@ -138,6 +142,7 @@ subroutine sim_heaterRead(heaterID, heaterFile)
    heater%siteTimeStamp = 0.
    heater%seedRadius = sim_nucSeedRadius
    heater%seedHeight = heater%seedRadius*cos(heater%rcdAngle*acos(-1.0)/180)
+   heater%dims = NDIM
 
    return
 end subroutine sim_heaterRead

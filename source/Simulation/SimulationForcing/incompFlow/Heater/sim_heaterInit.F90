@@ -22,7 +22,7 @@ subroutine sim_heaterInit()
    use Simulation_data, ONLY: sim_meshMe
    use sim_heaterData
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-   use sim_heaterInterface, ONLY: sim_heaterRead
+   use sim_heaterInterface, ONLY: sim_heaterRead, sim_heaterAnnBuildTree
 
    implicit none
    character(len=30) :: heaterFile
@@ -32,17 +32,21 @@ subroutine sim_heaterInit()
    call RuntimeParameters_get('sim_nucSeedRadius', sim_nucSeedRadius)
    call RuntimeParameters_get('sim_heaterName', sim_heaterName)
    call RuntimeParameters_get('sim_heaterShowInfo', sim_heaterShowInfo)
+   call RuntimeParameters_get("sim_heaterAnnQueries", sim_heaterAnnQueries)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'sim_numHeaters=', sim_numHeaters
       write (*, *) 'sim_nucSeedRadius=', sim_nucSeedRadius
+      write (*, *) 'sim_heaterAnnQueries=', sim_heaterAnnQueries
    end if
 
    allocate (sim_heaterInfo(sim_numHeaters))
+   allocate (sim_heaterAnnIdx(sim_heaterAnnQueries))
 
    do htr = 1, sim_numHeaters
       write (heaterFile, "(A,A,I4.4)") trim(sim_heaterName), '_hdf5_htr_', htr
       call sim_heaterRead(htr, heaterFile)
+      call sim_heaterAnnBuildTree(sim_heaterInfo(htr))
    end do
 
    return
