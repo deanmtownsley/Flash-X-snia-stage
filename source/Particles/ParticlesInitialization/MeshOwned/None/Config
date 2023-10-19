@@ -1,7 +1,0 @@
-# Submodule for not initializing particles
-#  [source/Particles/initialization/None]
-
-# Define a preprocessor symbol so code can check whether this implementation is compiled in.
-PPDEFINE PART_INITMETHOD_NONE
-
-D   __doc__  None does not initialize any particlesLattice
