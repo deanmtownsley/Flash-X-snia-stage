@@ -121,7 +121,7 @@ subroutine Driver_evolveAll()
    ! Fill GuardCells for level set function
    ! This is done for book-keeping purposes during
    ! restart
-   gcMask = .FALSE.
+   gcMask(:) = .FALSE.
    gcMask(iDfunVar) = .TRUE.
    call Grid_fillGuardCells(CENTER, ALLDIR, &
                             maskSize=NUNK_VARS, mask=gcMask)
@@ -296,7 +296,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
       ! Fill GuardCells for level set function
-      gcMask = .FALSE.
+      gcMask(:) = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
@@ -318,7 +318,7 @@ subroutine Driver_evolveAll()
          call Grid_releaseTileIterator(itor)
 
          ! Fill GuardCells for level set function
-         gcMask = .FALSE.
+         gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
@@ -352,7 +352,7 @@ subroutine Driver_evolveAll()
       if (gridChanged) then
          dr_simGeneration = dr_simGeneration + 1
 
-         gcMask = .FALSE.
+         gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
