@@ -76,7 +76,7 @@ D &                       needed by the caller. If the flag is FALSE, invocation
 D &                       underlying implementation routines can be done as several calls, 
 D &                       each of which acts on a contiguous range of variables. Only takes 
 D &                       effect if enableMaskedGCFill is TRUE.
-PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
+PARAMETER gr_gcFillSingleVarRange BOOLEAN TRUE
 
 D amrexInterpolator Name of AMReX interpolator to use for interpolating
 D & cell-centered data.  Please refer to AMReX documentation for more
