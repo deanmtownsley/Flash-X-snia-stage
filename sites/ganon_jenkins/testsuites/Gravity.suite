@@ -1,0 +1,16 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Gravity
+#------------------------------------------------
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dSph/Paramesh" -np 1
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1 -e OMP_NUM_THREADS=2
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/Paramesh" -np 3
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/3d/AMReX" -np 3
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/Paramesh" -np 2
+unitTest/Gravity/PointMass -t "UnitTest/PointMassGravity/2dCyl/AMReX" -np 2

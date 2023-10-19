@@ -1,12 +1,4 @@
 # Programmatically generated parfile for flashx
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 ins_invReynolds = 0.0001
 ins_inflowVelScale = 2.0
 ins_gravY = 0.0

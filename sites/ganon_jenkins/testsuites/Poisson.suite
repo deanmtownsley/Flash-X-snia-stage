@@ -1,0 +1,7 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Poisson
+#------------------------------------------------
+unitTest/Poisson/Amrex -t "UnitTest/Multigrid/AMReX/3d" -np 1
+unitTest/Laplacian/Amrex -t "UnitTest/Laplacian/AMReX/3d" -np 1

@@ -1,14 +1,4 @@
 # 	Runtime parameters for the Pool Boiling problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds   = .003
