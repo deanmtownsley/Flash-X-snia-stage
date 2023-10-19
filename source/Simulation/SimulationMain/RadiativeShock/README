@@ -1,1 +1,0 @@
-python bin/setup.py RadiativeShock -auto -1d -maxblocks=100 -objdir=radiativeshock-photon -debug Bittree=True FlashAvoidOrrery=True -with-unit=source/physics/RadTrans/RadTransMain/MonteCarlo/PhotonRad
