@@ -105,3 +105,6 @@ IF NoLevelwideFluxes
 ELSE
    LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
 ENDIF
+
+LINKIF Eos.h.hybrid physics/Eos/EosMain/Hybrid/Helmholtz_WeakLib
+LINKIF Eos_wrapped.F90.hybrid physics/Eos/EosMain/Hybrid/Helmholtz_WeakLib
