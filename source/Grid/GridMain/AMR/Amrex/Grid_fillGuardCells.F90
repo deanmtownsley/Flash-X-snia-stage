@@ -591,7 +591,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                    0.0, scompFC, scompFC, ncompFC)
            end do
 
-           do lev = 1, amrex_get_finest_level()
+           finest_level = amrex_get_finest_level()
+           do lev = 1, finest_level
               call amrex_fillpatch(facevars(:, lev), &
                                    1.0, facevars(:, lev - 1), &
                                    0.0, facevars(:, lev - 1), &
@@ -627,7 +628,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                 0.0, scompFC, scompFC, ncompFC)
         end do
 
-        do lev = 1, amrex_get_finest_level()
+        finest_level = amrex_get_finest_level()
+        do lev = 1, finest_level
            call amrex_fillpatch(facevars(:, lev), &
                                 1.0, facevars(:, lev - 1), &
                                 0.0, facevars(:, lev - 1), &
