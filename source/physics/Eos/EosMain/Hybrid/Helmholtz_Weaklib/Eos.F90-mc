@@ -159,6 +159,9 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    if (mode .eq. MODE_DENS_EI) &
       eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift
 
+   if (mode .eq. MODE_DENS_ENTR) &
+      eosData_HLM_ptr(:, EOS_ENTR) = eosData_HLM_ptr(:, EOS_ENTR)*kbPerBaryon_to_ergPerKg
+
    ! Call each EoS with its own vector
    if (pMassFrac_and_mask) then
       if (nWL .gt. 0) &
@@ -184,6 +187,8 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
    ! Need this every time since Helmholtz can change the input energy
    eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) + energyShift
+
+   eosData_HLM_ptr(:, EOS_ENTR) = eosData_HLM_ptr(:, EOS_ENTR)*ergPerKg_to_kbPerBaryon
 
    ! Unpack and blend both EoS calls into single eosData
    do k = vecBegin, vecEnd
