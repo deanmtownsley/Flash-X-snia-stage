@@ -36,6 +36,8 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx)
 
    real, parameter :: abundErr = 1.e-4
 
+#if NSPECIES > 0
+
    @M hy_DIR_parallel_loop(3) &
    @M hy_DIR_TARGET_map(to, [tileLimits]) &
    @M hy_DIR_private([n, abundSum, sumInv, error]) &
@@ -79,6 +81,7 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx)
       enddo
    enddo
 
+#endif
    return
 end subroutine hy_rk_renormAbundance
 
