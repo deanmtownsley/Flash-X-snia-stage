@@ -245,7 +245,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
                                      hy_geometry, &
                                      hy_smallE, hy_smalldens, &
-                                     dt, isFlux=.true.)
+                                     dt, isFlux=.false.)
          endif
 
          if (hy_geometry /= CARTESIAN) then
