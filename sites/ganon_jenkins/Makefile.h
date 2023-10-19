@@ -110,7 +110,7 @@ FFLAGS_AMREX = -I${AMREX_PATH}/include
 FFLAGS_BITTREE = -I${BITTREE_PATH}/include
 FFLAGS_ANN = -I${ANN_PATH}/include
 
-F90FLAGS = -ffree-line-length-none # -fallow-argument-mismatch <-- needed for gcc10
+F90FLAGS = # -ffree-line-length-none -fallow-argument-mismatch <-- needed for gcc10
 
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
