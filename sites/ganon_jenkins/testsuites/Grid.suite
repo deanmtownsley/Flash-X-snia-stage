@@ -1,0 +1,13 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Grid
+#------------------------------------------------
+unitTest/Grid/Amrex/TestInit -t "UnitTest/Grid/AMR/AMReX/2d/Init" -np 1
+unitTest/Grid/Amrex/TestRefine -t "UnitTest/Grid/AMR/AMReX/2d/Refine" -np 1
+unitTest/Grid/Amrex/TestFluxCorrection -t "UnitTest/Grid/AMR/AMReX/2d/FluxCorrection" -np 1
+unitTest/Grid/Amrex/TestFluxCorrection2 -t "UnitTest/Grid/AMR/AMReX/2d/FluxCorrection2" -np 1
+unitTest/Grid/Amrex/TestCyl2d -t "UnitTest/Grid/AMR/AMReX/2d/TestCyl" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/Paramesh" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/pm4AltMortonBittree" -np 1
+unitTest/Grid/AnomalousRefine -t "UnitTest/GridAnomalousRefine/2d/AMReX" -np 3
