@@ -121,6 +121,7 @@ Module Grid_data
   logical, save :: gr_doFluxCorrection
 
   logical, save :: gr_enableMaskedGCFill
+  logical, save :: gr_gcFillSingleVarRange
 
   integer, save :: gr_interpolator, gr_interpolatorFace
 

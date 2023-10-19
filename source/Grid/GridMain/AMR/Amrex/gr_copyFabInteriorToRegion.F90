@@ -134,7 +134,7 @@ subroutine gr_copyFabInteriorToRegion(fab, gds, face, axis, interior, &
                         m = k - lo(KAXIS) + 1
                     do  j = lo(JAXIS), hi(JAXIS)
                         n = j - lo(JAXIS) + 1
-                        region(rStrt:rFin, n, m, var) = fab(strt:fin, j, k, var+scomp-1)
+                        region(rStrt:rFin, n, m, var+scomp-1) = fab(strt:fin, j, k, var+scomp-1)
                     end do
                 end do
             end do
@@ -144,7 +144,7 @@ subroutine gr_copyFabInteriorToRegion(fab, gds, face, axis, interior, &
                         m = k - lo(KAXIS) + 1
                     do  i = lo(IAXIS), hi(IAXIS)
                         n = i - lo(IAXIS) + 1
-                        region(rStrt:rFin, n, m, var) = fab(i, strt:fin, k, var+scomp-1)
+                        region(rStrt:rFin, n, m, var+scomp-1) = fab(i, strt:fin, k, var+scomp-1)
                     end do
                 end do
             end do
@@ -154,7 +154,7 @@ subroutine gr_copyFabInteriorToRegion(fab, gds, face, axis, interior, &
                         m = j - lo(JAXIS) + 1
                     do  i = lo(IAXIS), hi(IAXIS)
                         n = i - lo(IAXIS) + 1
-                        region(rStrt:rFin, n, m, var) = fab(i, j, strt:fin, var+scomp-1)
+                        region(rStrt:rFin, n, m, var+scomp-1) = fab(i, j, strt:fin, var+scomp-1)
                     end do
                 end do
             end do
