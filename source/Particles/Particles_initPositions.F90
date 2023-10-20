@@ -26,7 +26,6 @@
 !!      Lattice creates particles which are evenly distributed in space
 !!      WithDensity creates particles distributed according to the global
 !!         distribution of density.
-!!      None does not initialize any particles
 !!      FromFile reads them in from a file
 !!
 !! ARGUMENTS

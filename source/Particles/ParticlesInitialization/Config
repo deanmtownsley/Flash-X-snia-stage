@@ -6,7 +6,6 @@
 #   WithDensity      Distribute the particles randomly, using the gas density as the
 #                    distribution function.
 #   Lattice          Distribute the particles on a uniform lattice.
-#   None             Do not create particles on start (used for Monte Carlo)
 
 REQUIRES Particles/localAPI
 

@@ -25,8 +25,8 @@
 !!    Initialize particle locations. This routine calls pt_initPositions
 !!    which a Particles unit's local routine to initialize the positions
 !!    on leaf blocks. The routine also creates tags for all the particles
-!!    This routine will initialize based on Lattice, with Density, or None
-!!    distribution depending upon which is selected.
+!!    This routine will initialize based on Lattice or with Density 
+!!    distribution depending upon which of the two is selected. 
 !!
 !! ARGUMENTS
 !!

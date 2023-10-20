@@ -173,9 +173,7 @@ subroutine Particles_initPositions (partPosInitialized,updateRefine)
         case(WITH_DENSITY, CELLMASS, REJECTION)
            call pt_initPositionsWithDensity(tileDesc,partPosInitialized)
         case(CUSTOM)
-           call pt_initPositions_pc(i,tileDesc,partPosInitialized)
-        case(NONE)
-           ! do nothing
+           call pt_initPositions(tileDesc,partPosInitialized)
         case default
            call Driver_abort("Particles_initPosition: no valid initialization method")
         end select
