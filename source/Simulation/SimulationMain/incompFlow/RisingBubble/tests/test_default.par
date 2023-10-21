@@ -1,4 +1,5 @@
 # 	Runtime parameters for the Rising Bubble problem.
+enableMaskedGCFill = .FALSE.
 sim_runTest = .TRUE.
 
 # Inverse of Reynolds Number
