@@ -142,7 +142,7 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
 
             ! Deallocate initial site information and print sites located on current process
             deallocate (heater%xSiteInit, heater%ySiteInit, heater%zSiteInit, heater%radiusInit)
-            print *, "Number of sites on process: ", heater%numSitesProc
+            print *, "Number of sites and block on process: ", heater%numSitesProc, blockCount
          end do
       else
          if (sim_meshMe .eq. MASTER_PE) print *, "[sim_heaterMapSitesToProc] Doing nothing, initial == .FALSE."
