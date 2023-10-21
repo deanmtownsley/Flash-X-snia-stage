@@ -1,0 +1,45 @@
+# Test suite file for ganon_jenkins
+#
+# File containing details of test specifications for
+# specific simulations that reference keys defined in
+# tests/tests.toml files defined in the simulation
+# directories
+#
+# Comments can be added using a `#` sign and individual
+# tests spec can be defined with relevant options as shown below
+#
+# List of options
+# --test, -t 		Desired test key/node from tests/tests.toml
+# --nprocs, -np		Number of MPI procs to be used
+# --env, -e		Environment variables, can be supplied multiple times
+# --debug, -debug	Flag to run test in debug
+# --cbase, -cbase 	Date string YYYY-MM-DD[_version]
+# --rbase, -rbase 	Date string YYYY-MM-DD[_version]
+# --tolerance, -tol	Tolerance for SFOCU
+
+
+#------------------------------------------------
+# Tests for - incompFlow
+#------------------------------------------------
+incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
+incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+
+# adhruv: 07/19/2023: commenting this test until facevar compatability
+# 		      is estabilished with AMReX version > 21.05
+#
+# adhruv: 09/08/2023: uncommenting this test to test facevar compatibility
+incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
+
+# adhruv: 10/15/2023: added a paramesh pool boiling for testing performance
+incompFlow/PoolBoiling -t "UnitTest/incompFlow/PoolBoiling/2d/Paramesh" -np 4
+
+# adhruv 09/16/2023 - Added comparison tests to improve coverage of incompressible 
+#                     Navier-Stokes simulations
+#
+# adhruv 09/16/2023 - Also adding coverage for paramesh+hypre configuration.
+#
+incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/AMReX/2d" -np 4 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 0000-00-00
+incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 0000-00-00
+incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/Paramesh/2d" -np 4 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/Paramesh/2d" -np 3 -cbase 0000-00-00

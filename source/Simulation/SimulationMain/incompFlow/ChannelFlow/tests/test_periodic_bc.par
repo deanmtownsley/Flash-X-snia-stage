@@ -1,14 +1,4 @@
 # 	Runtime parameters for the Channel Flow problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds      = .002
@@ -40,8 +30,6 @@ zr_boundary_type = "noslip_ins"
 
 #       Simulation (grid, time, I/O) parameters
 run_comment	= "2D Channel Flow problem"
-log_file	= "INS_Channel_Flow.log"
-basenm		= "INS_Channel_Flow_"
 restart         = .false.
 nend            = 50
 tmax            = 100. 
@@ -58,23 +46,24 @@ plot_var_2      = "velx"
 plot_var_3      = "vely"
 plot_var_4      = "dust"
   
-checkpointFileIntervalTime = 1.
-checkpointFileIntervalStep = 5
-
-plotFileIntervalTime = 1.
-plotFileIntervalStep = 5
+checkpointFileIntervalTime = 0.
+checkpointFileIntervalStep = 0
+plotFileIntervalTime = 0.
+plotFileIntervalStep = 0
 
 # AMR parameters
 nblockx	= 20
 nblocky	= 4
 nblockz = 4
-nfres   = 1000
+nrefs   = 1000
 
 lrefine_min       = 2
 lrefine_max       = 2
 
 #	Flux Conservation for AMR
 flux_correct    = .true.
+
+amrexFaceInterpolator = "face_div_free"
 
 # AMReX Poisson Solver Parameters
 gr_amrexMG_composite_solve = .true.

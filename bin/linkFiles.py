@@ -244,6 +244,7 @@ class LinkFileList:
   def isSetupFile(self,fname):
       for prefix in globals.noClobberExceptionList:
           if fname[:len(prefix)] == prefix: return 1
+      if fname[0:4] == ".nfs": return 1
       return 0 
 
   def cleanObjectDir(self):

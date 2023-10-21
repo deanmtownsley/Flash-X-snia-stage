@@ -1,6 +1,6 @@
 !!****f* source/Grid/Grid_fillGuardCells
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 !!                  optional,logical(IN) :: unitReadsMeshDataOnly)
 !!
 !!
-!! DESCRIPTION 
+!! DESCRIPTION
 !!
 !!  This routine fills the guardcells of the specified data structure of 
 !!  each block present in the mesh. If the adjacent blocks are at the same
@@ -50,29 +50,29 @@
 !!  where the data in those guard cells may be the result of either
 !!  interpolation or cell averaging because a block boundary coincides with or
 !!  touches a fine/coarse boundary.
-!!  
+!!
 !!  For performance reasons, users may choose to use masking in filling the
-!!  guardcells, which is a feature fully supported only with Paramesh4. They can
+!!  guardcells, which is a feature supported only with Paramesh4 and Amrex. They can
 !!  do so by using the optional arguments mask, maskSize, and makeMaskConsistent.
 !!  However, users should exercise extreme caution in using masking. Please see
 !!  the NOTES section for potential side effects. If masking is present, and
 !!  both makeMaskConsistent and doEos are true, the Eos calculation is applied only
 !!  if at least one of the variables selected in the mask is potentially an output
-!!  of the Eos calculation. A local routine gr_makeMaskConsistent handles this
-!!  processing.
+!!  of the Eos calculation. A local routine gr_makeMaskConsistent or
+!!  gr_makeMaskConsistent_gen handles this processing.
 !!
 !!  The argument "gridDataStruct" can take one of several valid values to determine
 !!  a specific grid data structure (or combination of data structures) on which to
 !!  apply the guardcell fill operation. The currently available options are listed
 !!  with the arguments. Most calls in a typical Flash-X application will use CENTER
-!!  as the option, since it most common to use cell-centered grid data and fill
+!!  as the option, since it is most common to use cell-centered grid data and fill
 !!  guardcells for all such variables. When using AMR with Paramesh4, the
-!!  subroutine Grid_markRefineDerefine may use an additional cell-centered data
+!!  subroutine Grid_fillGuardCells can act on an additional cell-centered data
 !!  structure provided by Paramesh (by default with space for only a single
 !!  variable) represented by the option "WORK". More specialized applications
 !!  may want to use other options.
 !!  The user can also choose to fill guard cells either in a single direction,
-!!  or all of them. For the Flash-X solvers supplied as of early 2022,
+!!  or all of them. For the Flash-X solvers supplied as of 2023,
 !!  guard cell are filled in all directions.
 !!
 !!  
@@ -85,7 +85,7 @@
 !!                   which grid data structures the guard cells need to be filled.
 !!
 !!                   Paramesh has 5 data structures for grid variables, the first
-!!                   four include all physical variables defined on the mesh. The 
+!!                   four store the physical variables defined on the mesh. The
 !!                   fifth one includes by default a single variable.
 !!
 !!                   unk                cell centered,
@@ -95,12 +95,12 @@
 !!                   
 !!                   valid values of gridDataStruct are  
 !!                   CENTER             unk only
-!!                   WORK               work 
-!!                   FACEX              facex
-!!                   FACEY              facey
-!!                   FACEZ              facez
-!!                   FACES              facex,facey, and facez
-!!                   CENTER_FACES     unk,facex,facey,facez
+!!                   WORK               work   (only supported with Paramesh4 Grid)
+!!                   FACEX              facex  (only supported with Paramesh4 and UG)
+!!                   FACEY              facey  (only supported with Paramesh4 and UG)
+!!                   FACEZ              facez  (only supported with Paramesh4 and UG)
+!!                   FACES              facex,facey, and facez (up to NDIM)
+!!                   CENTER_FACES       unk and facex,facey,facez (up to NDIM)
 !!
 !!  idir - direction of guardcell fill.  User can specify ALLDIR for all (x,y,z)
 !!         directions, or if, for example, the algorithm only does one directional

@@ -326,3 +326,9 @@ Harder to introduce now because we have multiple particle types)
   
   Selects the explicit RK (ERK), implicit-explicit (IMEX), or multi-
   rate IMEX (MR) MoL integrator implementation
+
+* Name  : InsPresLaplacian
+  Type  : Boolean
+
+  Defaults to False. If True, will use Laplacian solver for pressure
+  - Simulation/SimulationMain/incompFlow/PoolBoiling

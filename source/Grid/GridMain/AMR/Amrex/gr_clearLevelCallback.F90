@@ -23,7 +23,7 @@ subroutine gr_clearLevelCallback(lev) bind(c)
                                           gr_amrexDidRefinement
     use gr_physicalMultifabs,      ONLY : unk, &
                                           gr_scratchCtr, &
-                                          facevarx, facevary, facevarz, &
+                                          facevars, &
                                           fluxes, &
                                           flux_registers
 
@@ -40,13 +40,7 @@ subroutine gr_clearLevelCallback(lev) bind(c)
     ! Multifab arrays use 0-based index set like AMReX
     call amrex_multifab_destroy(unk     (lev))
 #if NFACE_VARS > 0
-    call amrex_multifab_destroy(facevarx(lev))
-#if NDIM >= 2
-    call amrex_multifab_destroy(facevary(lev))
-#endif
-#if NDIM == 3
-    call amrex_multifab_destroy(facevarz(lev))
-#endif
+    call amrex_multifab_destroy(facevars(:,lev))
 #endif
 
     if (allocated(gr_scratchCtr))  call amrex_multifab_destroy(gr_scratchCtr(lev))

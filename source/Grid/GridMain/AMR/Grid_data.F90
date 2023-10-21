@@ -49,7 +49,6 @@ Module Grid_data
   integer, save :: gr_kguard = NGUARD
 
   integer,save,dimension(MDIM)::gr_bndOrder
-  integer,save,dimension(UNK_VARS_BEGIN:UNK_VARS_END) :: gr_vars
   integer,save,dimension(UNK_VARS_BEGIN:UNK_VARS_END) :: gr_vartypes
   logical, save :: gr_anyVarToConvert
   logical, save :: gr_justExchangedGC, gr_allPeriodic, gr_isolatedBoundaries

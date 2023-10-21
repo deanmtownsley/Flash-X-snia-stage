@@ -88,6 +88,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   use RadTrans_interface, ONLY : RadTrans_computeDt
   use Particles_interface, ONLY: Particles_computeDt
   use IncompNS_interface, ONLY: IncompNS_computeDt
+  use Spacetime_interface, ONLY: Spacetime_computeDt
 
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t 
@@ -106,7 +107,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   !! This is arbitrarily fixed. Users that add more units that influence the time
   !! should change this.
 
-  integer, parameter :: nUnits = 15
+  integer, parameter :: nUnits = 16
   real, PARAMETER :: MAX_TSTEP = huge(1.0)
 
   
@@ -149,7 +150,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   integer :: itempLimit = 0
   integer, parameter :: HYDRO=1,BURN=2,GRAV=3,HEAT=4,COOL=5,TEMP=6,&
                         PART=7,DIFF=8,COSMO=9,STIR=10,HEATXCHG=11, &
-                        RADTRANS=12,STS=13,INS=14,SOLID=15
+                        RADTRANS=12,STS=13,INS=14,SOLID=15,SPACETIME=16
 #ifdef INDEXREORDER
   integer,parameter::IX=1,IY=2,IZ=3
 #else
@@ -190,6 +191,7 @@ subroutine Driver_computeDt(nbegin, nstep, &
   data limiterName(STS)  /'dt_STS'/
   data limiterName(INS)  /'dt_INS'/
   data limiterName(SOLID) /'dt_Solid'/
+  data limiterName(SPACETIME) /'dt_Spacetime'/
   data limiterNameOutput /nUnits * ' '/
   data cflNumber  /'CFL'/
 
@@ -335,6 +337,9 @@ subroutine Driver_computeDt(nbegin, nstep, &
 
         call RadTrans_computeDt(tileDesc, solnData, &
              dtLocal(1,RADTRANS), lminloc(:,RADTRANS) )
+
+         call Spacetime_computeDt(tileDesc, solnData, &
+             dtLocal(1,SPACETIME), lminloc(:,SPACETIME) )
         
 #ifndef FIXEDBLOCKSIZE
         deallocate(xCenter)

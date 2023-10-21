@@ -1,0 +1,9 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Eos
+#------------------------------------------------
+unitTest/Eos/Helmholtz -t "UnitTest/Eos/helmholtz/3d/pm4dev" -np 1
+unitTest/Eos/Helmholtz -t "UnitTest/Eos/helmholtz/3d/AMReX" -np 1
+unitTest/Eos/Helmholtz/starkiller -t "UnitTest/Eos/starkiller/3d/pm4dev" -np 1
+unitTest/Eos/WeakLib -t "UnitTest/Eos/weaklib/3d/pm4dev" -np 1

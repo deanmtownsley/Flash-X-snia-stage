@@ -93,16 +93,17 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
     use amrex_fillpatch_module,    ONLY : amrex_fillpatch
 
     use Grid_data,                 ONLY : lo_bc_amrex, hi_bc_amrex, &
+                                          lo_bc_amrexFace, hi_bc_amrexFace, &
                                           gr_amrexDidRefinement, &
                                           gr_doFluxCorrection, &
-                                          gr_interpolator, &
+                                          gr_interpolator, gr_interpolatorFace, &
                                           gr_meshMe
     use gr_amrexInterface,         ONLY : gr_clearLevelCallback, &
                                           gr_preinterpolationWork, &
                                           gr_postinterpolationWork, &
                                           gr_fillPhysicalBC
     use gr_physicalMultifabs,      ONLY : unk, &
-                                          facevarx, facevary, facevarz, &
+                                          facevars, &
                                           gr_scratchCtr, &
                                           fluxes, &
                                           flux_registers
@@ -119,13 +120,7 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
     type(amrex_box)       :: bx
     type(amrex_multifab)  :: tmp_unk
 #if NFACE_VARS > 0
-    type(amrex_multifab)  :: tmp_facevarx
-#if NDIM >= 2
-    type(amrex_multifab)  :: tmp_facevary
-#endif
-#if NDIM == 3
-    type(amrex_multifab)  :: tmp_facevarz
-#endif
+    type(amrex_multifab)  :: tmp_facevars(NDIM)
 #endif
 
     type(amrex_mfiter) :: mfi
@@ -148,16 +143,16 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
     ! Face variables
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
-    call amrex_multifab_build(tmp_facevarx, ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(tmp_facevars(IAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
-    call amrex_multifab_build(tmp_facevary, ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(tmp_facevars(JAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
-    call amrex_multifab_build(tmp_facevarz, ba, dm, NFACE_VARS, NGUARD, nodal)
+    call amrex_multifab_build(tmp_facevars(KAXIS), ba, dm, NFACE_VARS, NGUARD, nodal)
 #endif
 #endif
 
@@ -168,22 +163,23 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
                                      time,       unk(lev), &
                                      amrex_geom(lev), gr_fillPhysicalBC, &
                                      time, UNK_VARS_BEGIN, UNK_VARS_BEGIN, NUNK_VARS)       
+
 #if NFACE_VARS > 0
-       call amrex_fillpatch(tmp_facevarx, time+1.0, facevarx(lev), &
-                                          time,     facevarx(lev), &
-                                          amrex_geom(lev), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS)       
+       call amrex_fillpatch(tmp_facevars(IAXIS), time+1.0, facevars(IAXIS, lev), &
+                                                 time,     facevars(IAXIS, lev), &
+                                                 amrex_geom(lev), gr_fillPhysicalBC, &
+                                                 time, 1, 1, NFACE_VARS)       
 #if NDIM >= 2
-       call amrex_fillpatch(tmp_facevary, time+1.0, facevary(lev), &
-                                          time,     facevary(lev), &
-                                          amrex_geom(lev), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS)       
+       call amrex_fillpatch(tmp_facevars(JAXIS), time+1.0, facevars(JAXIS, lev), &
+                                                 time,     facevars(JAXIS, lev), &
+                                                 amrex_geom(lev), gr_fillPhysicalBC, &
+                                                 time, 1, 1, NFACE_VARS)       
 #endif
 #if NDIM == 3
-       call amrex_fillpatch(tmp_facevarz, time+1.0, facevarz(lev), &
-                                          time,     facevarz(lev), &
-                                          amrex_geom(lev), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS)       
+       call amrex_fillpatch(tmp_facevars(KAXIS), time+1.0, facevars(KAXIS, lev), &
+                                                 time,     facevars(KAXIS, lev), &
+                                                 amrex_geom(lev), gr_fillPhysicalBC, &
+                                                 time, 1, 1, NFACE_VARS)       
 #endif
 #endif
     else
@@ -200,37 +196,25 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
                                      gr_postinterpolationWork)
 
 #if NFACE_VARS > 0
-       call amrex_fillpatch(tmp_facevarx, time+1.0, facevarx(lev-1), &
-                                          time,     facevarx(lev-1), &
-                                          amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                          time+1.0, facevarx(lev  ), &
-                                          time,     facevarx(lev  ), &
-                                          amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS, &
-                                          amrex_ref_ratio(lev-1), gr_interpolator, &
-                                          lo_bc_amrex, hi_bc_amrex)       
-#if NDIM >= 2
-       call amrex_fillpatch(tmp_facevary, time+1.0, facevary(lev-1), &
-                                          time,     facevary(lev-1), &
-                                          amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                          time+1.0, facevary(lev  ), &
-                                          time,     facevary(lev  ), &
-                                          amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS, &
-                                          amrex_ref_ratio(lev-1), gr_interpolator, &
-                                          lo_bc_amrex, hi_bc_amrex)       
+       call amrex_fillpatch(tmp_facevars, &
+                            time+1.0, facevars(:, lev-1), &
+                            time,     facevars(:, lev-1), &
+                            amrex_geom(lev-1), &
+                            gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+       &                    gr_fillPhysicalBC, &
 #endif
-#if NDIM == 3
-       call amrex_fillpatch(tmp_facevarz, time+1.0, facevarz(lev-1), &
-                                          time,     facevarz(lev-1), &
-                                          amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                          time+1.0, facevarz(lev  ), &
-                                          time,     facevarz(lev  ), &
-                                          amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                          time, 1, 1, NFACE_VARS, &
-                                          amrex_ref_ratio(lev-1), gr_interpolator, &
-                                          lo_bc_amrex, hi_bc_amrex)       
+                            time+1.0, facevars(:,  lev), &
+                            time,     facevars(:,  lev), &
+                            amrex_geom(lev  ), &
+                            gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+       &                    gr_fillPhysicalBC, &
 #endif
+                            time, 1, 1, NFACE_VARS, &
+                            amrex_ref_ratio(lev-1), gr_interpolatorFace, &
+                            lo_bc_amrexFace, hi_bc_amrexFace)
+
 #endif
     end if
 
@@ -247,22 +231,22 @@ subroutine gr_remakeLevelCallback(lev, time, pba, pdm) bind(c)
     ! Face-centered data
     nodal(:)     = .FALSE.
     nodal(IAXIS) = .TRUE.
-    call amrex_multifab_build(facevarx(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevarx(lev)%copy(tmp_facevarx, 1, 1, NFACE_VARS, NGUARD)
-    call amrex_multifab_destroy(tmp_facevarx)
+    call amrex_multifab_build(facevars(IAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call facevars(IAXIS, lev)%copy(tmp_facevars(IAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call amrex_multifab_destroy(tmp_facevars(IAXIS))
 #if NDIM >= 2
     nodal(:)     = .FALSE.
     nodal(JAXIS) = .TRUE.
-    call amrex_multifab_build(facevary(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevary(lev)%copy(tmp_facevary, 1, 1, NFACE_VARS, NGUARD)
-    call amrex_multifab_destroy(tmp_facevary)
+    call amrex_multifab_build(facevars(JAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call facevars(JAXIS, lev)%copy(tmp_facevars(JAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call amrex_multifab_destroy(tmp_facevars(JAXIS))
 #endif
 #if NDIM == 3
     nodal(:)     = .FALSE.
     nodal(KAXIS) = .TRUE.
-    call amrex_multifab_build(facevarz(lev), ba, dm, NFACE_VARS, NGUARD, nodal)
-    call facevarz(lev)%copy(tmp_facevarz, 1, 1, NFACE_VARS, NGUARD)
-    call amrex_multifab_destroy(tmp_facevarz)
+    call amrex_multifab_build(facevars(KAXIS, lev), ba, dm, NFACE_VARS, NGUARD, nodal)
+    call facevars(KAXIS, lev)%copy(tmp_facevars(KAXIS), 1, 1, NFACE_VARS, NGUARD)
+    call amrex_multifab_destroy(tmp_facevars(KAXIS))
 #endif
 #endif
 

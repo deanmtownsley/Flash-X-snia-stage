@@ -117,7 +117,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     integer :: finest_level
     integer :: axis, axis2, axis3
 
-    logical :: mask(ncomp)
+    logical, dimension(:), allocatable :: mask
     logical :: applied
 
     integer :: offset
@@ -125,6 +125,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     integer                       :: endPts(LOW:HIGH, 1:MDIM)
     integer                       :: regionType(1:MDIM)
     integer                       :: regionSize(4)
+    integer                       :: varCount
     real(wp), allocatable         :: regionData(:, :, :, :)
     
     real(wp), pointer, contiguous :: solnData(:, :, :, :)
@@ -191,6 +192,17 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
     ! 0-based, global indices, index space of mfab
     domain = geom%domain
     call domain%convert(ntype)
+
+    ! create a mask that will be passed to Grid_bcApplyToRegion
+    ! first assign varCount for total number of variables
+    ! present in the multifab and then allocate mask and
+    ! then populate mask based on scomp and ncomp
+    !
+    ! varCount will also be used to set regionData(STRUCTSIZE)
+    varCount = mfab%ncomp()
+    allocate(mask(varCount))
+    mask(:) = .FALSE.
+    mask(scomp:scomp+ncomp-1) = .TRUE.
 
     call amrex_mfiter_build(mfi, mfab, tiling=.false.)
     do while(mfi%next())
@@ -326,7 +338,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              regionSize(BC_DIR)     = endPts(HIGH, axis)  - endPts(LOW, axis)  + 1
              regionSize(SECOND_DIR) = endPts(HIGH, axis2) - endPts(LOW, axis2) + 1
              regionSize(THIRD_DIR)  = endPts(HIGH, axis3) - endPts(LOW, axis3) + 1
-             regionSize(STRUCTSIZE) = ncomp
+             regionSize(STRUCTSIZE) = varCount
 
              ! 1-based, local indices, index space of mfab
              allocate(regionData(regionSize(BC_DIR), &
@@ -337,10 +349,6 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
              regionData(:, :, :, :) = 0.0
              call gr_copyFabInteriorToRegion(solnData, gds, face, axis, &
                                              goodData, scomp, ncomp, regionData)
-
-             ! As regionData only contains those physical quantities that AMReX
-             ! asks for, no need for masking
-             mask = .TRUE.
 
              ! Let simulation do BC fill if so desired
              applied = .FALSE.
@@ -377,6 +385,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
        nullify(solnData)
     end do
 
+    deallocate(mask)
     call amrex_mfiter_destroy(mfi)
 end subroutine gr_fillPhysicalBC
 

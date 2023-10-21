@@ -1,0 +1,9 @@
+# Config file for ImBound unit test
+
+REQUIRES physics/ImBound/ImBoundMain
+REQUIRES physics/SolidMechanics/SolidMechanicsMain
+
+LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
+LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
+
+DATAFILES *_hdf5_ibd_*
