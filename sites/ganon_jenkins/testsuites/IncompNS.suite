@@ -19,15 +19,6 @@
 
 
 #------------------------------------------------
-# Tests for - DustCollapse
-#------------------------------------------------
-DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/AMReX" -np 2 -cbase 0000-00-00
-DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 0000-00-00
-
-DustCollapse -t "Comparison/DustCollapse/AMR/2dCyl/AMReX" -np 4 --debug -cbase 0000-00-00
-DustCollapse -t "Comparison/DustCollapse/AMR/2dCyl/AMReXFc" -np 4 --debug -cbase 0000-00-00
-
-#------------------------------------------------
 # Tests for - incompFlow
 #------------------------------------------------
 incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
@@ -52,3 +43,4 @@ incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 0000-
 incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 0000-00-00
 incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/Paramesh/2d" -np 4 -cbase 0000-00-00
 incompFlow/RisingBubble -t "Comparison/RisingBubble/Paramesh/2d" -np 3 -cbase 0000-00-00
+
