@@ -318,26 +318,18 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Fill GuardCells for Pressure Jump
-      gcMask(:) = .FALSE.
-#ifdef MULTIPHASE_EVAPORATION
-      gcMask(iTempFrcVar) = .TRUE.
-      gcMask(iHliqVar) = .TRUE.
-      gcMask(iHGasVar) = .TRUE.
-#endif
-      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
-#if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
-#endif
-      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
-
 #ifdef MULTIPHASE_EVAPORATION
       ! Perform extrapolation iterations for
       ! heat flux
       !------------------------------------------------------------
       do iteration = 1, mph_extpIt
+
+         ! Fill GuardCells for heat fluxes
+         gcMask(:) = .FALSE.
+         gcMask(iHliqVar) = .TRUE.
+         gcMask(iHGasVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS, mask=gcMask)
 
          call Grid_getTileIterator(itor, nodetype=LEAF)
          do while (itor%isValid())
@@ -349,12 +341,6 @@ subroutine Driver_evolveAll()
          end do
          call Grid_releaseTileIterator(itor)
 
-         ! Fill GuardCells for heat fluxes
-         gcMask(:) = .FALSE.
-         gcMask(iHliqVar) = .TRUE.
-         gcMask(iHGasVar) = .TRUE.
-         call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
@@ -370,12 +356,6 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
-
-      ! Fill GuardCells for mass flux
-      gcMask(:) = .FALSE.
-      gcMask(iMfluxVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask)
 #endif
 
 #endif
@@ -390,6 +370,27 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_setInterpValsGcell(.true.)
       !------------------------------------------------------------
+
+      ! Fill GuardCells for the predictor step, velocity,
+      ! mass flux and pressure jumps
+      gcMask(:) = .FALSE.
+#ifdef MULTIPHASE_MAIN
+      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
+#endif
+#ifdef MULTIPHASE_EVAPORATION
+      gcMask(iMfluxVar) = .TRUE.
+#endif
+#endif
+      gcMask(NUNK_VARS + iVelVar) = .TRUE.
+      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+#if NDIM == 3
+      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+#endif
+      call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
+                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
 
       ! Start of fractional-step velocity procedure
       ! Calculate predicted velocity and apply
@@ -485,26 +486,18 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Call indicators method to show information
       !------------------------------------------------------------
-      call IncompNS_indicators()
-      !------------------------------------------------------------
- 
-      ! Fill GuardCells for velocity
-      gcMask(:) = .FALSE.
-      gcMask(iVelVar) = .TRUE.
-      gcMask(1*NFACE_VARS + iVelVar) = .TRUE.
-#if NDIM == 3
-      gcMask(2*NFACE_VARS + iVelVar) = .TRUE.
-#endif
-      call Grid_fillGuardCells(FACES, ALLDIR, &
-                               maskSize=NDIM*NFACE_VARS, mask=gcMask)
-
-     !------------------------------------------------------------
       call Grid_setInterpValsGcell(.false.)
       !------------------------------------------------------------
 
 #ifdef HEATAD_MAIN
+
+      ! Fill GuardCells for temperature
+      gcMask(:) = .FALSE.
+      gcMask(iTempVar) = .TRUE.
+      gcMask(iTempFrcVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask)
 
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
@@ -519,17 +512,6 @@ subroutine Driver_evolveAll()
          call itor%next()
       end do
       call Grid_releaseTileIterator(itor)
-      !------------------------------------------------------------
-
-      ! Fill GuardCells for temperature
-      gcMask(:) = .FALSE.
-      gcMask(iTempVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask)
-
-      ! Call indicators
-      !------------------------------------------------------------
-      call HeatAD_indicators()
       !------------------------------------------------------------
 #endif
 
@@ -574,11 +556,6 @@ subroutine Driver_evolveAll()
 
       end do
       !------------------------------------------------------------
-
-      ! Call indicators to show information
-      !------------------------------------------------------------
-      call Multiphase_indicators()
-      !------------------------------------------------------------
 #endif
 
       !------------------------------------------------------------
@@ -589,6 +566,17 @@ subroutine Driver_evolveAll()
       ! Note this will add velocity and vorticity variables to your CENTER data structure.
       ! Average Velocities and Vorticity to cell-centers
       call IncompNS_velomgToCenter()
+
+      ! Call indicators methods to show information
+      !------------------------------------------------------------
+      call IncompNS_indicators()
+#ifdef HEATAD_MAIN
+      call HeatAD_indicators()
+#endif
+#ifdef MULTIPHASE_MAIN
+      call Multiphase_indicators()
+#endif
+      !------------------------------------------------------------
 
       !output a plotfile before the grid changes
       call Timers_start("IO_output")
