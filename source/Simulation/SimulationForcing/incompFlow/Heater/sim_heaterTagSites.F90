@@ -37,30 +37,25 @@ subroutine sim_heaterTagSites(stime)
 
       heater => sim_heaterInfo(htr)
 
-      !! DEVNOTE (10/17/2023): This collective communication call in not needed
-      !!                       with nearest neighbor based nucleation aglorithm
+      !! DEVNOTE (10/20/2023): This all reduce is not relevant anymore since implementation
+      !!                       of sim_heaterMapSitesToProc. Leaving it here for legacy
       !!
       !call Timers_start("consolidate site status")
       !call MPI_Allreduce(MPI_IN_PLACE, heater%siteIsAttachedCurr, &
       !                   heater%numSites, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
       !call Timers_stop("consolidate site status")
 
-      do isite = 1, heater%numSites
+      do isite = 1, heater%numSitesProc
 
          if (heater%siteIsAttachedPrev(isite) .eqv. .true. .and. &
              heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
 
-         !! DEVNOTE (10/17/2023): With the collective communication call disabled
-         !!                       these write statements do not provide accurate
-         !!                       information. Need a better a way to log information
-         !!                       site information from multiple processes
-         !!
-         !if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
-         !   write (*, '(A,I2,A,I3,A,L1,A,2g14.6)') &
-         !   ' Heater:', htr, &
-         !   ' Site:', isite, &
-         !   ' IsAttached:', heater%siteIsAttachedCurr(isite), &
-         !   ' TimeStamp:', heater%siteTimeStamp(isite)
+         if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
+            write (*, '(A,I2,A,I3,A,L1,A,2g14.6)') &
+            ' Heater:', htr, &
+            ' Site:', isite, &
+            ' IsAttached:', heater%siteIsAttachedCurr(isite), &
+            ' TimeStamp:', heater%siteTimeStamp(isite)
 
       end do
 

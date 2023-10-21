@@ -18,7 +18,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_heaterLSReInit(tileDesc, stime)
+subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
 
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
@@ -28,6 +28,7 @@ subroutine sim_heaterLSReInit(tileDesc, stime)
    implicit none
    real, intent(in) :: stime
    type(Grid_tile_t), intent(in) :: tileDesc
+   integer, intent(in) :: blockCount
 
 !----------------------------------------------------------------------------------------
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
@@ -67,7 +68,7 @@ subroutine sim_heaterLSReInit(tileDesc, stime)
                               boundBox, stime, &
                               GRID_ILO_GC, GRID_IHI_GC, &
                               GRID_JLO_GC, GRID_JHI_GC, &
-                              GRID_KLO_GC, GRID_KHI_GC)
+                              GRID_KLO_GC, GRID_KHI_GC, blockCount)
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
 #endif

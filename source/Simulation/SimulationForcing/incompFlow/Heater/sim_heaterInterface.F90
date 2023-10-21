@@ -24,6 +24,7 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
 Module sim_heaterInterface
 
@@ -40,19 +41,21 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterCheckSites(tileDesc)
+      subroutine sim_heaterCheckSites(tileDesc, blockCount)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
+         integer, intent(in) :: blockCount
       end subroutine sim_heaterCheckSites
    end interface
 
    interface
-      subroutine sim_heaterLSReInit(tileDesc, stime)
+      subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: stime
+         integer, intent(in) :: blockCount
       end subroutine sim_heaterLSReInit
    end interface
 
@@ -73,28 +76,29 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, &
+                                       ix1, ix2, jy1, jy2, kz1, kz2, lblock)
          real, dimension(:, :, :), intent(inout) :: phi
          real, dimension(:), intent(in)        :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)      :: boundBox
          real, intent(in)                      :: stime
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
       end subroutine sim_heaterLSReInitBlk
    end interface
 
    interface sim_heaterCheckSitesBlk
-      subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2)
+      subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
          real, dimension(:, :, :), intent(in)  :: phi
          real, dimension(:), intent(in)      :: xcell, ycell
          real, dimension(:, :), intent(in)    :: boundBox
-         integer, intent(in)                 :: ix1, ix2, jy1, jy2
+         integer, intent(in)                 :: ix1, ix2, jy1, jy2, lblock
       end subroutine sim_heaterCheckSitesBlk2d
 
-      subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
          real, dimension(:, :, :), intent(in)  :: phi
          real, dimension(:), intent(in)      :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)    :: boundBox
-         integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2
+         integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
       end subroutine sim_heaterCheckSitesBlk3d
    end interface
 
@@ -131,6 +135,15 @@ Module sim_heaterInterface
    end interface
 
    interface
+      subroutine sim_heaterMapSitesToProc(initial, gridChanged)
+         implicit none
+         logical, intent(in), optional :: initial
+         logical, intent(in), optional :: gridChanged
+      end subroutine sim_heaterMapSitesToProc
+   end interface
+
+#ifdef SIM_HEATER_ANN_SEARCH
+   interface
       subroutine sim_heaterAnnBuildTree(heater)
          use sim_heaterData, ONLY: sim_heaterType
          type(sim_heaterType), intent(INOUT)  :: heater
@@ -148,5 +161,6 @@ Module sim_heaterInterface
          integer, dimension(:), target, intent(OUT):: annIdx
       end subroutine sim_heaterAnnSearchTree
    end interface
+#endif
 
 End module sim_heaterInterface

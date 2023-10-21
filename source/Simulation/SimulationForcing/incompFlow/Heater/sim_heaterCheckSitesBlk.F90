@@ -16,19 +16,19 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
-subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2)
+subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
 
    use sim_heaterData
-   use sim_heaterInterface, ONLY: sim_heaterAnnSearchTree
 
    implicit none
    real, dimension(:, :, :), intent(in)      :: phi
    real, dimension(:), intent(in)          :: xcell, ycell
    real, dimension(:, :), intent(in)        :: boundBox
-   integer, intent(in)                    :: ix1, ix2, jy1, jy2
+   integer, intent(in)                    :: ix1, ix2, jy1, jy2, lblock
 
-   integer :: i, j, k, isite, htr, annIndex
+   integer :: i, j, k, isite, htr, annIndex, isiteblk
    real    :: xi, xp, yi, yp
    real    :: phiSW, phiSE, phiNW, phiNE, phiSite
 
@@ -58,33 +58,25 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
             phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
 
-            sim_heaterAnnIdx(:) = 0
-            call sim_heaterAnnSearchTree(heater, (/(xi + xp)*0.5, (yi + yp)*0.5/), sim_heaterAnnQueries, sim_heaterAnnIdx)
+            do isiteblk = 1, heater%numSitesBlk(lblock)
+               isite = heater%siteMapOnProc(lblock, isiteblk)
 
-            do annIndex = 1, sim_heaterAnnQueries
-               isite = sim_heaterAnnIdx(annIndex) + 1 ! need + 1 to convert c++ index to fortran
-
-               if (xi .le. heater%xSite(isite) .and. xp .ge. heater%xSite(isite) .and. &
-                   yi .le. heater%ySite(isite) .and. yp .ge. heater%ySite(isite)) then
+               if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                   yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite)) then
 
                   if (phiSite .ge. 0.0) then
                      heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
                   else
                      heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
                   end if
-
                end if
-
             end do
          end do
       end do
-
    end do
-
-   return
 end subroutine sim_heaterCheckSitesBlk2d
 
-subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
    use sim_heaterData
 
@@ -92,9 +84,9 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
    real, dimension(:, :, :), intent(in)  :: phi
    real, dimension(:), intent(in)      :: xcell, ycell, zcell
    real, dimension(:, :), intent(in)    :: boundBox
-   integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2
+   integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
 
-   integer :: i, j, k, isite, htr
+   integer :: i, j, k, isite, htr, isiteblk
    real    :: xi, xp, yi, yp, zi, zp
    real    :: phiFSW, phiFSE, phiFNW, phiFNE
    real    :: phiBSW, phiBSE, phiBNW, phiBNE
@@ -113,45 +105,42 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
       do k = kz1, kz2 - 1
          do j = jy1, jy2 - 1
             do i = ix1, ix2 - 1
-               do isite = 1, heater%numSites
 
-                  xi = xcell(i)
-                  xp = xcell(i + 1)
-                  yi = ycell(j)
-                  yp = ycell(j + 1)
-                  zi = zcell(k)
-                  zp = zcell(k + 1)
+               xi = xcell(i)
+               xp = xcell(i + 1)
+               yi = ycell(j)
+               yp = ycell(j + 1)
+               zi = zcell(k)
+               zp = zcell(k + 1)
 
-                  phiFSW = phi(i, j, k)
-                  phiFSE = phi(i + 1, j, k)
-                  phiFNW = phi(i, j + 1, k)
-                  phiFNE = phi(i + 1, j + 1, k)
+               phiFSW = phi(i, j, k)
+               phiFSE = phi(i + 1, j, k)
+               phiFNW = phi(i, j + 1, k)
+               phiFNE = phi(i + 1, j + 1, k)
 
-                  phiBSW = phi(i, j, k + 1)
-                  phiBSE = phi(i + 1, j, k + 1)
-                  phiBNW = phi(i, j + 1, k + 1)
-                  phiBNE = phi(i + 1, j + 1, k + 1)
+               phiBSW = phi(i, j, k + 1)
+               phiBSE = phi(i + 1, j, k + 1)
+               phiBNW = phi(i, j + 1, k + 1)
+               phiBNE = phi(i + 1, j + 1, k + 1)
 
-                  phiSite = (phiFSW + phiFSE + phiFNW + phiFNE + phiBSW + phiBSE + phiBNW + phiBNE)/8.
+               phiSite = (phiFSW + phiFSE + phiFNW + phiFNE + phiBSW + phiBSE + phiBNW + phiBNE)/8.
 
-                  if (xi .le. heater%xSite(isite) .and. xp .ge. heater%xSite(isite) .and. &
-                      yi .le. heater%ySite(isite) .and. yp .ge. heater%ySite(isite) .and. &
-                      zi .le. heater%zSite(isite) .and. zp .ge. heater%zSite(isite)) then
+               do isiteblk = 1, heater%numSitesBlk(lblock)
+                  isite = heater%siteMapOnProc(lblock, isiteblk)
+
+                  if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                      yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite) .and. &
+                      zi .le. heater%zSiteProc(isite) .and. zp .ge. heater%zSiteProc(isite)) then
 
                      if (phiSite .ge. 0.0) then
                         heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
                      else
                         heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
                      end if
-
                   end if
-
                end do
             end do
          end do
       end do
-
    end do
-
-   return
 end subroutine sim_heaterCheckSitesBlk3d

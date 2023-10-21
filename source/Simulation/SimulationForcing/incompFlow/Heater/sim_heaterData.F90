@@ -52,23 +52,25 @@ module sim_heaterData
       real    :: seedHeight
       real    :: velContact
 
-      integer :: numSites
+      integer :: numSitesAll, numSitesProc
+      integer :: numSitesBlk(MAXBLOCKS), siteMapOnProc(MAXBLOCKS, SIM_MAX_NUMSITES)
 
-      real, dimension(:), allocatable :: xSite
-      real, dimension(:), allocatable :: zSite
-      real, dimension(:), allocatable :: ySite
-      real, dimension(:), allocatable :: siteRadii
-      real, dimension(:), allocatable :: siteTimeStamp
-      logical, dimension(:), allocatable :: siteIsAttachedCurr
-      logical, dimension(:), allocatable :: siteIsAttachedPrev
+      real, dimension(:), allocatable :: xSiteInit, ySiteInit, zSiteInit, radiusInit
+      real, dimension(SIM_MAX_NUMSITES) :: xSiteProc, zSiteProc, ySiteProc, siteTimeStamp
+      logical, dimension(SIM_MAX_NUMSITES) :: siteIsAttachedCurr, siteIsAttachedPrev
+
+#ifdef SIM_HEATER_ANN_SEARCH
       type(c_ptr) :: kdTree = c_null_ptr
+#endif
       integer :: dims
 
    end type sim_heaterType
 
    type(sim_heaterType), save, dimension(:), pointer :: sim_heaterInfo
 
+#ifdef SIM_HEATER_ANN_SEARCH
    integer, save, dimension(:), allocatable :: sim_heaterAnnIdx
    integer, save :: sim_heaterAnnQueries
+#endif
 
 end module sim_heaterData

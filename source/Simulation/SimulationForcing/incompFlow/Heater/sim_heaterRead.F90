@@ -101,42 +101,45 @@ subroutine sim_heaterRead(heaterID, heaterFile)
 
    call h5dopen_f(file, 'site/num', dset, h5err) ! dset handle to database required
    if (h5err < 0) call Driver_abort('Unable to read site/num')
-   call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%numSites, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%numSitesAll, dims, h5err)
    call h5dclose_f(dset, h5err)
 
-   allocate (heater%xSite(heater%numSites))
-   allocate (heater%ySite(heater%numSites))
-   allocate (heater%zSite(heater%numSites))
-   allocate (heater%siteRadii(heater%numSites))
-   allocate (heater%siteIsAttachedCurr(heater%numSites))
-   allocate (heater%siteIsAttachedPrev(heater%numSites))
-   allocate (heater%siteTimeStamp(heater%numSites))
+   allocate (heater%xSiteInit(heater%numSitesAll))
+   allocate (heater%ySiteInit(heater%numSitesAll))
+   allocate (heater%zSiteInit(heater%numSitesAll))
+   allocate (heater%radiusInit(heater%numSitesAll))
 
-   dims = (/heater%numSites, 1, 1/)
+   dims = (/heater%numSitesAll, 1, 1/)
 
    call h5dopen_f(file, "site/x", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read site/x')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%xSite, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%xSiteInit, dims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "site/y", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read site/y')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%ySite, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%ySiteInit, dims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "site/z", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read site/z')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%zSite, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%zSiteInit, dims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, "init/radii", dset, h5err)
    if (h5err < 0) call Driver_abort('Unable to read init/radii')
-   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%siteRadii, dims, h5err)
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%radiusInit, dims, h5err)
    call h5dclose_f(dset, h5err)
 
    call h5fclose_f(file, h5err)
    call h5close_f(h5err)
 
+   heater%numSitesProc = 0
+   heater%numSitesBlk = 0
+   heater%siteMapOnProc = 0
+   heater%xSiteProc = 0.
+   heater%ySiteProc = 0.
+   heater%zSiteProc = 0.
    heater%siteIsAttachedCurr = .false.
    heater%siteIsAttachedPrev = .false.
    heater%siteTimeStamp = 0.

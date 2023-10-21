@@ -17,7 +17,4 @@ PARAMETER sim_heaterName     STRING  "incomp_flow"
 D display site info 
 PARAMETER sim_heaterShowInfo BOOLEAN FALSE
 
-D number of queries for approximate nearest neighbor search
-PARAMETER sim_heaterAnnQueries	INTEGER 3
-
-LIBRARY ANN
+PPDEFINE SIM_MAX_NUMSITES 50
