@@ -33,6 +33,7 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
    use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
    use Driver_interface, ONLY: Driver_abort
    use Simulation_data, ONLY: sim_meshMe
+   use Timers_interface, ONLY: Timers_start, Timers_stop
 
    implicit none
    include "Flashx_mpi.h"
@@ -46,6 +47,8 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
    integer :: numSitesProc, htr, isite, blockCount
    real :: boundBox(LOW:HIGH, 1:MDIM)
    integer :: numSitesBlk(MAXBLOCKS)
+
+   call Timers_start("sim_heaterMapSitesToProc")
 
    ! Check if this procedure is being called after a grid change has occured.
    ! Currently this feature is no implemented and will abort the simulation
@@ -148,5 +151,7 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
    else
       call Driver_abort("[sim_heaterMapSitesToProc] Unknown option. Supported options gridChanged and intial")
    end if
+
+   call Timers_stop("sim_heaterMapSitesToProc")
 
 end subroutine sim_heaterMapSitesToProc

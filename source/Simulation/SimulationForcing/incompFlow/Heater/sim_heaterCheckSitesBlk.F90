@@ -21,6 +21,7 @@
 subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
 
    use sim_heaterData
+   use Driver_interface, ONLY: Driver_abort
 
    implicit none
    real, dimension(:, :, :), intent(in)      :: phi
@@ -60,6 +61,8 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
             do isiteblk = 1, heater%numSitesBlk(lblock)
                isite = heater%siteMapOnProc(lblock, isiteblk)
+
+               if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
 
                if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
                    yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite)) then
@@ -127,6 +130,8 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
 
                do isiteblk = 1, heater%numSitesBlk(lblock)
                   isite = heater%siteMapOnProc(lblock, isiteblk)
+
+                  if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
 
                   if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
                       yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite) .and. &

@@ -21,6 +21,7 @@
 subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
    use sim_heaterData
+   use Driver_interface, ONLY: Driver_abort
 
    implicit none
    real, dimension(:, :, :), intent(inout)  :: phi
@@ -49,7 +50,9 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
          do j = jy1, jy2
             do i = ix1, ix2
             do isiteblk = 1, heater%numSitesBlk(lblock)
+
                isite = heater%siteMapOnProc(lblock, isiteblk)
+               if (isite < 1) call Driver_abort("[sim_heaterLSReInitBlk] isite < 1")
 
                if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
                    (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then
