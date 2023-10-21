@@ -59,6 +59,8 @@ ENV ARCHIVEDIR=/archive/ganon_jenkins/0000-00-00
 # Copy benchmarks from cloud archive and unpack them into archive
 RUN curl -s -L https://anl.box.com/shared/static/3ic5yepg7ad2m98g6bf4grjynep4aj88 | \
     tar xvz --strip-components=1 -C $ARCHIVEDIR
+RUN curl -s -L https://anl.box.com/shared/static/4zn3omwxrbmstggjz3ybqzhssuye5brx | \
+    tar xvz --strip-components=1 -C $ARCHIVEDIR
 
 # Change permissions for the archive directory
 RUN chmod -R 777 $ARCHIVEDIR && ls -l $ARCHIVEDIR
