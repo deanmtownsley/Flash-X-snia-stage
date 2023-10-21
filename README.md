@@ -94,7 +94,15 @@ Contributors with write permission should create a feature branch from the main 
 instead of a fork. The remainder of the workflow remains the same.
 
 ## Code Formatting
-Use [fprettify](https://github.com/pseewald/fprettify) to format your source code and enforce consistency with indentation and whitespacing. Works for both `.F90` and `.F90-mc` files
+
+Currently Flash-X source code uses different formatting styles for different code units:
+
+1. **fprettify** (https://github.com/pseewald/fprettify): With 3 white space indentation style.
+2. **fxprettify** (tools/fileTools/fxprettify.py): A wrapper around fprettify that implements emacs style formatting. 
+
+Until strict formatting rules are established, we recommend using a style that produces minimum whitespace 
+differences when editing/adding code to an existing unit. For new units we recommend using **fprettify** with 
+3 white space indentation.
 
 ## Special Syntax Highlighting
 

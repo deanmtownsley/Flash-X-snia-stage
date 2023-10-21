@@ -31,7 +31,7 @@ pipeline {
 	//==================================================//
         stage('All-Tests'){ steps{
 	    sh "flashxtest init -a /archive -z ${env.WORKSPACE} -s ganon_jenkins"
-	    sh "flashxtest setup-suite sites/ganon_jenkins/*.suite"
+	    sh "flashxtest setup-suite sites/ganon_jenkins/testsuites/*.suite"
 	    sh "flashxtest run-suite"
 	}} //stage('All-Tests'){ steps{
 
