@@ -18,6 +18,7 @@ PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
 PARAMETER convertToConsvdForMeshCalls BOOLEAN FALSE
 PARAMETER convertToConsvdInMeshInterp BOOLEAN FALSE
 PARAMETER gr_bcEnableApplyMixedGds BOOLEAN FALSE
+PARAMETER gr_bndGCFillNeedsPrimitiveVars BOOLEAN FALSE
 
 # Interpolation parameters for Paramesh grid implementation
 IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
@@ -50,3 +51,6 @@ LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
 # A logical runtime parameter to run unitests on a simulation
 # used in driver evolve at the end of evolution loop
 PARAMETER sim_runTest BOOLEAN FALSE
+
+# Pre-processor directive to define the simulation group
+PPDEFINE SIMULATION_INCOMPFLOW

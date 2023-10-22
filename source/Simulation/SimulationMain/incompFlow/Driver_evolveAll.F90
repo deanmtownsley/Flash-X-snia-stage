@@ -223,7 +223,9 @@ subroutine Driver_evolveAll()
          write (strBuff(3, 1), "(A)") "dt"
          write (strBuff(3, 2), "(A)") trim(adjustl(NumToStr))
 
-         call Logfile_stamp(strBuff, 3, 2, "step")
+         ! Commenting this Logfile entry since the information
+         ! written is already printed in the console output
+         !call Logfile_stamp(strBuff, 3, 2, "step")
       end if
 
       !------------------------------------------------------------
