@@ -46,7 +46,7 @@ ENV LD_LIBRARY_PATH=/Hypre/install/lib:$LD_LIBRARY_PATH
 ENV DYLD_LIBRARY_PATH=/Hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Install approximate nearest neighbor (ANN) from source
-RUN git clone https://github.com/Box-Tools/ANN-Fortran.git --branch v1.0 /ANN
+RUN git clone https://github.com/Box-Tools/ANN-Fortran.git --branch v1.1 /ANN
 WORKDIR /ANN
 RUN make linux-g++
 ENV LD_LIBRARY_PATH=/ANN/lib:$LD_LIBRARY_PATH
