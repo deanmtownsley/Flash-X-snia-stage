@@ -565,6 +565,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         end do
         call Grid_releaseTileIterator(itor)
      end if
+     call Timers_stop("eos gc")
   end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
@@ -659,13 +660,14 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
 #endif
 
-  call Timers_stop("eos gc")
   call Timers_stop("amr_guardcell")
 
   gr_justExchangedGC = .TRUE.
 
+#ifndef SIMULATION_INCOMPFLOW
   call Logfile_stamp(finest_level + 1, &
                      '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
+#endif
 
   !We now test whether we can skip the next guard cell fill.
   skipNextGcellFill = .false.
