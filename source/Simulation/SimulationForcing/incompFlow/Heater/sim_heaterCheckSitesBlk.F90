@@ -46,23 +46,22 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
       do j = jy1, jy2 - 1
          do i = ix1, ix2 - 1
-
-            xi = xcell(i)
-            xp = xcell(i + 1)
-            yi = ycell(j)
-            yp = ycell(j + 1)
-
-            phiSW = phi(i, j, k)
-            phiSE = phi(i + 1, j, k)
-            phiNW = phi(i, j + 1, k)
-            phiNE = phi(i + 1, j + 1, k)
-
-            phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
-
             do isiteblk = 1, heater%numSitesBlk(lblock)
                isite = heater%siteMapOnProc(lblock, isiteblk)
 
                if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
+
+               xi = xcell(i)
+               xp = xcell(i + 1)
+               yi = ycell(j)
+               yp = ycell(j + 1)
+
+               phiSW = phi(i, j, k)
+               phiSE = phi(i + 1, j, k)
+               phiNW = phi(i, j + 1, k)
+               phiNE = phi(i + 1, j + 1, k)
+
+               phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
 
                if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
                    yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite)) then
@@ -108,30 +107,29 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
       do k = kz1, kz2 - 1
          do j = jy1, jy2 - 1
             do i = ix1, ix2 - 1
-
-               xi = xcell(i)
-               xp = xcell(i + 1)
-               yi = ycell(j)
-               yp = ycell(j + 1)
-               zi = zcell(k)
-               zp = zcell(k + 1)
-
-               phiFSW = phi(i, j, k)
-               phiFSE = phi(i + 1, j, k)
-               phiFNW = phi(i, j + 1, k)
-               phiFNE = phi(i + 1, j + 1, k)
-
-               phiBSW = phi(i, j, k + 1)
-               phiBSE = phi(i + 1, j, k + 1)
-               phiBNW = phi(i, j + 1, k + 1)
-               phiBNE = phi(i + 1, j + 1, k + 1)
-
-               phiSite = (phiFSW + phiFSE + phiFNW + phiFNE + phiBSW + phiBSE + phiBNW + phiBNE)/8.
-
                do isiteblk = 1, heater%numSitesBlk(lblock)
                   isite = heater%siteMapOnProc(lblock, isiteblk)
 
                   if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
+
+                  xi = xcell(i)
+                  xp = xcell(i + 1)
+                  yi = ycell(j)
+                  yp = ycell(j + 1)
+                  zi = zcell(k)
+                  zp = zcell(k + 1)
+
+                  phiFSW = phi(i, j, k)
+                  phiFSE = phi(i + 1, j, k)
+                  phiFNW = phi(i, j + 1, k)
+                  phiFNE = phi(i + 1, j + 1, k)
+
+                  phiBSW = phi(i, j, k + 1)
+                  phiBSE = phi(i + 1, j, k + 1)
+                  phiBNW = phi(i, j + 1, k + 1)
+                  phiBNE = phi(i + 1, j + 1, k + 1)
+
+                  phiSite = (phiFSW + phiFSE + phiFNW + phiFNE + phiBSW + phiBSE + phiBNW + phiBNE)/8.
 
                   if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
                       yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite) .and. &

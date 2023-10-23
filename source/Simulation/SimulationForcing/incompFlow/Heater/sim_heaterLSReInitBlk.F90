@@ -49,21 +49,22 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
       do k = kz1, kz2
          do j = jy1, jy2
             do i = ix1, ix2
-            do isiteblk = 1, heater%numSitesBlk(lblock)
+               do isiteblk = 1, heater%numSitesBlk(lblock)
 
-               isite = heater%siteMapOnProc(lblock, isiteblk)
-               if (isite < 1) call Driver_abort("[sim_heaterLSReInitBlk] isite < 1")
+                  isite = heater%siteMapOnProc(lblock, isiteblk)
+                  if (isite < 1) call Driver_abort("[sim_heaterLSReInitBlk] isite < 1")
 
-               if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
-                   (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then
-                  iradius = heater%seedRadius
-                  iseedX = heater%xSiteProc(isite)
-                  iseedZ = heater%zSiteProc(isite)
-                  iseedY = heater%ySiteProc(isite) + heater%seedHeight
-                  idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
-                  phi(i, j, k) = max(phi(i, j, k), idfun)
-               end if
-            end do
+                  if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
+                      (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then
+                     iradius = heater%seedRadius
+                     iseedX = heater%xSiteProc(isite)
+                     iseedZ = heater%zSiteProc(isite)
+                     iseedY = heater%ySiteProc(isite) + heater%seedHeight
+                     idfun = iradius - sqrt((xcell(i) - iseedX)**2 + (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
+                     phi(i, j, k) = max(phi(i, j, k), idfun)
+                  end if
+
+               end do
             end do
          end do
       end do
