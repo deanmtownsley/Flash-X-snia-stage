@@ -1,4 +1,4 @@
-!!****ih* source/monitors/Profiler/ProfilerMain/pr_interface
+!!****ih* source/monitors/Profiler/ProfilerMain/hpctoolkit/pr_interface
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

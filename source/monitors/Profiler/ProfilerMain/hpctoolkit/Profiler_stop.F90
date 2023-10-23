@@ -32,12 +32,16 @@
 !!***
 
 subroutine Profiler_stopName(name)
-  use Profiler_data, ONLY : prf_evolutionName, prf_evolutionOnly
+  use Profiler_data, ONLY : prf_profilerIsOn, prf_profilerName
   use pr_interface, ONLY : hpctoolkit_sampling_stop
+  use Driver_interface, ONLY: Driver_abort
   implicit none
   character (len=*), intent(in) :: name
-  if (trim(name) == prf_evolutionName .and. prf_evolutionOnly) then
+  if (prf_profilerIsOn .and. trim(prf_profilerName) == name) then
      call hpctoolkit_sampling_stop()
+     prf_profilerIsOn = .FALSE.
+  else
+     call Driver_abort("[Profiler_stop] Cannot match name with a previously started Profiler")
   end if
 end subroutine Profiler_stopName
 
@@ -45,5 +49,5 @@ subroutine Profiler_stopId(id)
   use Driver_interface, ONLY : Driver_abort
   implicit none
   integer, intent(in) :: id
-  call Driver_abort("Not yet implemented")
+  call Driver_abort("[Profiler_stop] Not yet implemented using integer ID as argument")
 end subroutine Profiler_stopId

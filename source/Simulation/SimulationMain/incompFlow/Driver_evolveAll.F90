@@ -100,6 +100,10 @@ subroutine Driver_evolveAll()
    use sim_outletInterface, ONLY: sim_forceOutlet
 #endif
 
+#ifdef PROFILER_HPC_TOOLKIT
+   use Profiler_interface, ONLY: Profiler_start, Profiler_stop
+#endif
+
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
@@ -182,6 +186,10 @@ subroutine Driver_evolveAll()
    call Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
    call Timers_start("evolution")
 
+#if defined(PROFILER_HPC_TOOLKIT) && defined(PROFILE_EVOLUTION)
+   call Profiler_start("evolution")
+#endif
+
    ! Initial Timestep:
    ! backup needed old
    dr_dtOld = dr_dt
@@ -238,6 +246,9 @@ subroutine Driver_evolveAll()
       ! Call methods to reset specific grid variables
       ! at the start of every time-setp
       !------------------------------------------------------------
+#if defined(PROFILER_HPC_TOOLKIT) && !defined(PROFILE_EVOLUTION)
+      call Profiler_start("reinit-gridvars")
+#endif
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
          call itor%currentTile(tileDesc)
@@ -250,6 +261,9 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+#if defined(PROFILER_HPC_TOOLKIT) && !defined(PROFILE_EVOLUTION)
+      call Profiler_stop("reinit-gridvars")
+#endif
 
 #ifdef SIMULATION_FORCE_HEATER
       ! Apply heater specific forcing
@@ -324,6 +338,9 @@ subroutine Driver_evolveAll()
       ! Perform extrapolation iterations for
       ! heat flux
       !------------------------------------------------------------
+#if defined(PROFILER_HPC_TOOLKIT) && !defined(PROFILE_EVOLUTION)
+      call Profiler_start("extrap-fluxes")
+#endif
       do iteration = 1, mph_extpIt
 
          ! Fill GuardCells for heat fluxes
@@ -344,6 +361,9 @@ subroutine Driver_evolveAll()
          call Grid_releaseTileIterator(itor)
 
       end do
+#if  defined(PROFILER_HPC_TOOLKIT) && !defined(PROFILE_EVOLUTION)
+      call Profiler_stop("extrap-fluxes")
+#endif
       !------------------------------------------------------------
 
       ! Set mass flux from extrapolated heat fluxes
@@ -493,7 +513,6 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
 
 #ifdef HEATAD_MAIN
-
       ! Fill GuardCells for temperature
       gcMask(:) = .FALSE.
       gcMask(iTempVar) = .TRUE.
@@ -661,12 +680,17 @@ subroutine Driver_evolveAll()
    end do
    dr_nstep = min(dr_nstep, dr_nend)
 
-  !!******************************************************************************
-  !! End of Evolution Loop
-  !!******************************************************************************
+   !!******************************************************************************
+   !! End of Evolution Loop
+   !!******************************************************************************
+
+#if defined(PROFILER_HPC_TOOLKIT) && defined(PROFILE_EVOLUTION)
+   call Profiler_stop("evolution")
+#endif
 
    call Timers_stop("evolution")
    call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
+
    if (.NOT. endRun) call IO_outputFinal()
    call Timers_getSummary(max(0, dr_nstep - dr_nbegin + 1))
    call Logfile_stamp("FLASH run complete.", "LOGFILE_END")

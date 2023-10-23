@@ -194,3 +194,6 @@ MoL:--with-unit=numericalTools/MoL:--with-unofficial=numericalTools/MoL:useMoL=T
 MoLERK:+MoL:MoL_Integrator="ERK"
 MoLIMEX:+MoL:MoL_Integrator="IMEX"
 MoLMR:+MoL:MoL_Integrator="MR"
+
+# HPC ToolKit shortcuts
+hpctoolkit:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit

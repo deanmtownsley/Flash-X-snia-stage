@@ -1,4 +1,4 @@
-!!****if* source/monitors/Profiler/ProfilerMain/Profiler_data
+!!****if* source/monitors/Profiler/ProfilerMain/Profiler_init
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,20 +12,23 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  Profiler_data
+!!  Profiler_init
 !!
 !! SYNOPSIS
 !!
-!!  use Profiler_data
-!!
-!! DESCRIPTION
-!!
-!!  Holds the data needed by the Profiler unit
+!!  Profiler_init()
+!!                   
+!!  
+!! DESCRIPTION 
+!!  
+!!  Initialize the profiler unit
+!!  
+!! ARGUMENTS 
 !!
 !!***
 
-module Profiler_data
+subroutine Profiler_init()
+  use Profiler_data, ONLY : prf_profilerIsOn
   implicit none
-  character (len=*), parameter :: prf_evolutionName = 'FLASH_evolution'
-  logical, save :: prf_evolutionOnly
-end module Profiler_data
+  prf_profilerIsOn = .FALSE.
+end subroutine Profiler_init
