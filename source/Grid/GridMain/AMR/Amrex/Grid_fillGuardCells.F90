@@ -430,6 +430,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      ! Clean data to account for possible unphysical values caused by
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
+#ifndef SIMULATION_INCOMPFLOW
      call Timers_start("eos gc")
 
      if (present(doEos)) then
@@ -566,6 +567,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         call Grid_releaseTileIterator(itor)
      end if
      call Timers_stop("eos gc")
+#endif
   end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
