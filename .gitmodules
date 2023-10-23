@@ -1,6 +1,5 @@
 [submodule "lib/weaklib/source"]
 	path = lib/weaklib/source
-	branch = frontier_workaround
 	url = https://github.com/starkiller-astro/weaklib.git
 [submodule "lib/thornado/source"]
 	path = lib/thornado/source
