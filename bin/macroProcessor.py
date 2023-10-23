@@ -235,8 +235,8 @@ class macroProcessor:
         lines = []
         for line in fin:
             if line.lstrip().startswith("@M"):
-                while line.rstrip("\n").endswith(cont_char):
-                    line = line.rstrip(cont_char + "\n").rstrip() + next(fin).lstrip()
+                while line.rstrip("\n").endswith(tuple(cont_char)):
+                    line = line.rstrip(''.join(cont_char) + "\n").rstrip() + next(fin).lstrip()
             lines.append(line)
         return lines
 
@@ -245,7 +245,7 @@ class macroProcessor:
         with open(output, "w") as f:
             # lines = open(filename).readlines()
             fin = open(filename)
-            lines = self._continuationLine(fin, "\\")
+            lines = self._continuationLine(fin, ["\\","&&"])
             for line in lines:
                 f.write(self.processLine(line))
 
