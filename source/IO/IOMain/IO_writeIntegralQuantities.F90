@@ -248,7 +248,6 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
 
      if (isFirst .EQ. 1 .AND. (.NOT. io_restart .or. ioStat .NE. 0)) then
 
-#ifndef SIMULATION_INCOMPFLOW
 #ifndef MAGP_VAR
         write (funit, 10)               &
              '#time                     ', &
@@ -278,7 +277,6 @@ subroutine IO_writeIntegralQuantities ( isFirst, simTime)
              (msName(ivar),ivar=MASS_SCALARS_BEGIN,&
               min(MASS_SCALARS_END,&
                   MASS_SCALARS_BEGIN+nGlobalSumUsed-nGlobalSumProp-1))
-#endif
 #endif
 
 10         format (2x,50(a25, :, 1X))
