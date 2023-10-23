@@ -31,6 +31,15 @@ Module Eos_wlInterface
    end interface
 
    interface
+      subroutine Eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
+         implicit none
+         real, intent(in) :: xDens, xTemp, xYe
+         real, intent(out) :: xMu_n, xMu_p
+         real, intent(out), optional :: xMu_e
+      end subroutine Eos_wlPotentials
+   end interface
+
+   interface
       subroutine Eos_wlDetectBounce(postBounce, bounceTime, centralDens, centralEntr)
          implicit none
          logical, intent(OUT) :: postBounce

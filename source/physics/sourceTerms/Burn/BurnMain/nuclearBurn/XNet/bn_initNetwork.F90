@@ -30,7 +30,7 @@
 
 
 subroutine bn_initNetwork
-  use Burn_data, ONLY: aion, bion, zion, aioninv, zionsq, ionam
+  use Burn_data, ONLY: aion, bion, zion, aioninv, zionsq, ionam, bn_nuclearDensMax
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   use bn_xnetData, ONLY : xnet_data_dir, xnet_nzbatchmx, xnet_iweak0, &
@@ -82,6 +82,12 @@ subroutine bn_initNetwork
   EndIf
 
   call RuntimeParameters_get('xnet_writeTimers',xnet_writeTimers)
+
+#ifdef EOS_HELMNSE
+  ! Reset this to upper-bound of hybrid transition region
+  ! This will overwrite the value set during Burn_init
+  call RuntimeParameters_get('eos_hybTransitionDensHi',nuclearDensMax)
+#endif
 
   ! Read, broadcast, and allocate XNet data
   call bn_xnetInit(xnet_data_dir,xnet_data_desc)

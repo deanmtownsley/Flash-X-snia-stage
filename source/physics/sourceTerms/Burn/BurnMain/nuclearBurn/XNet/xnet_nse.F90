@@ -86,7 +86,7 @@ Module xnet_nse
   Real(dp) :: zatst, za_min, za_max
   !$omp threadprivate(iye_za,iye_za_l,iye_za_u,iye_hvy,iye_hvy_l,iye_hvy_u,iye_fe,iye_fe_l,iye_fe_u,zatst)
 
-  Public :: nse_initialize, nse_solve
+  Public :: nse_initialize, nse_finalize, nse_solve, nse_composition
 
 Contains
 
@@ -231,6 +231,18 @@ Contains
 
     Return
   End Subroutine nse_initialize
+
+  subroutine nse_finalize
+    implicit none
+
+    if (allocated(unse)) deallocate(unse)
+    if (allocated(xnse)) deallocate(xnse)
+    if (allocated(ynse)) deallocate(ynse)
+    if (allocated(ggnse)) deallocate(ggnse)
+    if (allocated(hnse)) deallocate(hnse)
+    if (allocated(mm52)) deallocate(mm52)
+    if (allocated(intz)) deallocate(intz)
+  end subroutine nse_finalize
 
   Subroutine nse_inuc
     !-----------------------------------------------------------------------------------------------

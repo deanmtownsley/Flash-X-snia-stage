@@ -59,7 +59,7 @@
 subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
 
   use Burn_dataEOS, ONLY : btemp, bden, bye
-  use Burn_data, ONLY : xmass, bion, sneut, aion, aioninv
+  use Burn_data, ONLY : xmass, bion, sneut, aion, aioninv, bn_nuclearDensMax
 
   use bn_interface, ONLY : bn_azbar, bn_sneutx
 
@@ -71,10 +71,18 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
   use xnet_evolve, ONLY : full_net
   use xnet_timers, ONLY : timer_burner, xnet_wtime
 
+#include "Simulation.h"
+
+#ifdef EOS_HELMNSE
+  use xnet_nse, only: nse_composition, xnse
+
+  ! Should make this generic to any nuclear EOS
+  use Eos_wlInterface, only: Eos_wlPotentials
+#endif
+
   implicit none
 
 #include "constants.h"
-#include "Simulation.h"
 
   ! arguments
   real, intent(in)                                      :: tstep
@@ -89,6 +97,10 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
   !..local varaibles      
   real, parameter ::  conv = avn*epmev
   integer :: i, numzones
+
+#ifdef EOS_HELMNSE
+  real :: mu_n, mu_p
+#endif
 
   timer_burner = timer_burner - xnet_wtime()
 
@@ -149,8 +161,25 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
         !..update the composition
         xOut(:,i) = y(:,i) * aion(:)
      else
-        sdotRate(i) = 0.0e0
-        xOut(:,i) = xIn(:,i)
+#ifdef EOS_HELMNSE
+        if (density(i) .gt. bn_nuclearDensMax) then
+           ! In NSE region (hybrid EOS only)
+           ! Is this safe to set to zero?
+           sdotRate(i) = 0.0e0
+
+           call Eos_wlPotentials(rho(i), t9(i), ye(i), mu_n, mu_p)
+
+           call nse_composition([mu_n, mu_p])
+
+           xOut(:,i) = xnse
+        else
+#endif
+           ! Below burning region
+           sdotRate(i) = 0.0e0
+           xOut(:,i) = xIn(:,i)
+#ifdef EOS_HELMNSE
+        end if
+#endif
      end if
   end do
 
