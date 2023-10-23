@@ -94,9 +94,9 @@
               setupName: Sod
               nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT
               comparisonNumber: 0001
-              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/test_pseudoug_2d/<checkpointBasename><comparisonNumber>
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_sparkMT/<runDir>/<checkpointBasename><comparisonNumber>
               restartNumber: 0002
-              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/test_pseudoug_2d/<checkpointBasename><restartNumber>
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_sparkMT/<runDir>/<checkpointBasename><restartNumber>
             </sparkNtMT>
             <sparkNtPIO>
               setupName: Sod
@@ -199,8 +199,23 @@
               restartNumber: 0002
               sfocuFlags: -e 1.e-13 -p 1.e-12 -P 1.e-13
             </spark>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
           </AMReX>
           <Paramesh>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+            </sparkNt>
             <unsplit>
               setupName: IsentropicVortex
               nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit
