@@ -22,7 +22,7 @@
 !!NOVARIANTS
 
 #ifdef DEBUG_ALL
-#define DEBUG_HYDRO
+#define DEBUG_HYDRO_OFFLOADING
 #endif
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
@@ -549,7 +549,7 @@ contains
 
     onCPU = .TRUE.
 
-#ifdef DEBUG_HYDRO
+#ifdef DEBUG_HYDRO_OFFLOADING
 #ifdef OMP_OL
     !$omp target map(tofrom:onCPU)
     !$  onCPU = omp_is_initial_device()
