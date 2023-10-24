@@ -22,6 +22,7 @@ invocation_regex = (
     + re.escape(macro_keyword)
     + r"\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*)\))?"
 )
+LINE_CONT_CHARS = ["\\\\", "&&"]
 
 
 class macroProcessor:
@@ -231,12 +232,13 @@ class macroProcessor:
         return lineOut
 
     # strip macro lines with line continuation
-    def _continuationLine(self, fin, cont_char):
+    def _continuationLine(self, fin, cont_chars):
         lines = []
+        cont_regex = rf"(?:{'|'.join(cont_chars)})\s*?\n"
         for line in fin:
             if line.lstrip().startswith("@M"):
-                while line.rstrip("\n").endswith(tuple(cont_char)):
-                    line = line.rstrip(''.join(cont_char) + "\n").rstrip() + next(fin).lstrip()
+                while re.search(cont_regex, line):
+                    line = re.sub(cont_regex, "", line) + next(fin).lstrip()
             lines.append(line)
         return lines
 
@@ -245,7 +247,7 @@ class macroProcessor:
         with open(output, "w") as f:
             # lines = open(filename).readlines()
             fin = open(filename)
-            lines = self._continuationLine(fin, ["\\","&&"])
+            lines = self._continuationLine(fin, LINE_CONT_CHARS)
             for line in lines:
                 f.write(self.processLine(line))
 
