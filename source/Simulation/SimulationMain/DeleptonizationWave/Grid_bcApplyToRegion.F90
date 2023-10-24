@@ -342,14 +342,20 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
         else if (bcTypeActual == AXISYMMETRIC) then 
            if (gridDataStruct==CENTER) then
 #ifdef VELX_VAR
-              if ((axis==IAXIS).and.(ivar==VELX_VAR))sign=-1
+              if ((axis==IAXIS).and.(ivar==VELX_VAR)) then
+                 if (NDIM==1) then
+                    sign=-1
+                 else if (NDIM==2) then
+                    if (gr_dirGeom(JAXIS)==XYZ) sign=-1
+                 end if
+              end if
 #endif
 #ifdef VELY_VAR
               if(ivar==VELY_VAR) then
                  if(axis==JAXIS) then
                     sign=-1
                  else ! axis==IAXIS or KAXIS
-                    if (gr_dirGeom(JAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(JAXIS)==PHI_CYL .AND. NDIM==1) sign=-1
                  end if
               end if
 #endif
@@ -358,7 +364,8 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==KAXIS) then
                     sign=-1
                  else ! axis==IAXIS or JAXIS 
-                    if (gr_dirGeom(KAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_CYL .AND. NDIM<3) sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_SPH .AND. NDIM<3) sign=-1
                  end if
               end if
 #endif
@@ -370,7 +377,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==JAXIS) then
                     sign=-1
                  else ! axis==IAXIS or KAXIS
-                    if (gr_dirGeom(JAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(JAXIS)==PHI_CYL .AND. NDIM==1) sign=-1
                  end if
               end if
 #endif
@@ -379,7 +386,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==KAXIS) then
                     sign=-1
                  else ! axis==IAXIS or JAXIS
-                    if (gr_dirGeom(KAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_CYL .AND. NDIM<3) sign=-1
                  end if
               end if
 #endif
