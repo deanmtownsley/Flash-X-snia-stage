@@ -343,6 +343,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !!!!! Cell-centered data first
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
 
+     call Timers_start("gc unk")
      if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
 
         do chunkIndex = 1, numChunksCC
@@ -572,6 +573,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         call Grid_releaseTileIterator(itor)
         call Timers_stop("sanitize")
      end if
+     call Timers_stop("gc unk")
   end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
