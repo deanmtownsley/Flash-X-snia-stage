@@ -29,9 +29,9 @@
 !! @param xDens   Density (g/cc)
 !! @param xTemp   Temperature (K)
 !! @param xYe     Electron fraction
-!! @param xMu_n   Neutron chemical potential
-!! @param xMu_p   Proton chemical potential
-!! @param xMu_e   Electron chemical potential
+!! @param xMu_n   Neutron chemical potential (erg)
+!! @param xMu_p   Proton chemical potential (erg)
+!! @param xMu_e   Electron chemical potential (erg)
 subroutine Eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
    use eos_wlData, only: EosNewTable
 
@@ -44,18 +44,40 @@ subroutine Eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
    real, intent(out), optional :: xMu_e
 
    integer :: iD_T, iT_T, iY_T
-   integer :: iMe_T, iMp_T, iMn_T
+   integer :: iMn_T, iMp_T, iMe_T
 
    real :: OS_Me, OS_Mp, OS_Mn
-
-   integer :: error_flag
 
    iD_T = EosNewTable%TS%Indices%iRho
    iT_T = EosNewTable%TS%Indices%iT
    iY_T = EosNewTable%TS%Indices%iYe
 
-   iMe_T = EosNewTable%DV%Indices%iElectronChemicalPotential
-   iMp_T = EosNewTable%DV%Indices%iProtonChemicalPotential
    iMn_T = EosNewTable%DV%Indices%iNeutronChemicalPotential
+   iMp_T = EosNewTable%DV%Indices%iProtonChemicalPotential
+   iMe_T = EosNewTable%DV%Indices%iElectronChemicalPotential
+
+   OS_Mn = EosNewTable%DV%Offsets(iMn_T)
+   OS_Mp = EosNewTable%DV%Offsets(iMp_T)
+   OS_Me = EosNewTable%DV%Offsets(iMe_T)
+
+   associate (D_T => EosNewTable%TS%States(iD_T)%Values, &
+              T_T => EosNewTable%TS%States(iT_T)%Values, &
+              Y_T => EosNewTable%TS%States(iY_T)%Values, &
+              Me_T => EosNewTable%DV%Variables(iMe_T)%Values, &
+              Mn_T => EosNewTable%DV%Variables(iMn_T)%Values, &
+              Mp_T => EosNewTable%DV%Variables(iMp_T)%Values)
+
+      call LogInterpolateSingleVariable_3D_Custom_Point(xDens, xTemp, xYe, &
+                                                        D_T, T_T, Y_T, &
+                                                        OS_Mn, Mn_T, xMu_n)
+      call LogInterpolateSingleVariable_3D_Custom_Point(xDens, xTemp, xYe, &
+                                                        D_T, T_T, Y_T, &
+                                                        OS_Mp, Mp_T, xMu_p)
+
+      if (present(xMu_e)) &
+         call LogInterpolateSingleVariable_3D_Custom_Point(xDens, xTemp, xYe, &
+                                                           D_T, T_T, Y_T, &
+                                                           OS_Me, Me_T, xMu_e)
+   end associate
 
 end subroutine Eos_wlPotentials

@@ -61,11 +61,12 @@
 
 subroutine Burn (  dt  )
 
-  use bn_interface, ONLY : bn_burner
+  use bn_interface, ONLY : bn_burner, bn_azbar
   use bn_xnetData, ONLY : xnet_myid, xnet_nzbatchmx, xnet_inuc2unk
   use Burn_data, ONLY : bn_nuclearTempMin, bn_nuclearTempMax, bn_nuclearDensMin, &
        &   bn_nuclearDensMax, bn_nuclearNI56Max, bn_useShockBurn, &
-       &   bn_useBurn, bn_gcMaskSD
+       &   bn_useBurn, bn_gcMaskSD, xmass
+  use Burn_dataEOS, only: ytot1, bye
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_wrapped
   use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getCellCoords, &
@@ -390,6 +391,17 @@ subroutine Burn (  dt  )
 #endif
               solnData(ENUC_VAR,i,j,k) = sdot(ii,jj,kk,thisBlock)
 
+              if (burnedZone(ii,jj,kk,thisBlock)) then
+                 xmass = xOut(1:NSPECIES,ii,jj,kk,thisBlock)
+                 call bn_azbar
+
+#ifdef YE_MSCALAR
+                 solnData(YE_MSCALAR,i,j,k) = bye
+#endif
+#ifdef SUMY_MSCALAR
+                 solnData(SUMY_MSCALAR,i,j,k) = ytot1
+#endif
+              end if
            end do
         end do
      end do

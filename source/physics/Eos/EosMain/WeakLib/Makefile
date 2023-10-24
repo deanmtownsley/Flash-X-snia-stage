@@ -7,5 +7,6 @@ Eos += eos_wlData.o \
        Eos_wlInterface.o \
        Eos_wlEnerShift.o \
        Eos_wlOneZone.o \
-       Eos_wlDetectBounce.o
+       Eos_wlDetectBounce.o \
+       Eos_wlPotentials.o
 

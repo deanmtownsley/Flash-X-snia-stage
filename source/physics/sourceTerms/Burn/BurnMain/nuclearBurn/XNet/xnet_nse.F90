@@ -86,7 +86,7 @@ Module xnet_nse
   Real(dp) :: zatst, za_min, za_max
   !$omp threadprivate(iye_za,iye_za_l,iye_za_u,iye_hvy,iye_hvy_l,iye_hvy_u,iye_fe,iye_fe_l,iye_fe_u,zatst)
 
-  Public :: nse_initialize, nse_finalize, nse_solve, nse_composition
+  Public :: nse_initialize, nse_finalize, nse_solve
 
 Contains
 
@@ -321,7 +321,7 @@ Contains
     Return
   End Subroutine nse_inuc
 
-  Subroutine nse_solve(rho,t9,ye)
+  Subroutine nse_solve(rho,t9,ye,uvec_in)
     !-----------------------------------------------------------------------------------------------
     ! This routine calculates the NSE composition by solving for the neutron and proton chemical
     ! potentials which satisfy the Saha equation under the constraints of mass and charge
@@ -333,6 +333,7 @@ Contains
 
     ! Input variables
     Real(dp), Intent(in) :: rho, t9, ye
+    real(dp), intent(in), optional :: uvec_in(2)
 
     ! Local variables
     Real(dp) :: uvec(2), uvec0(2)
@@ -347,10 +348,23 @@ Contains
     rhonse = rho
     t9nse = t9
     yense = ye
+    
     Call nse_pf
 
     ! Identify species in network that are close in Z/A to Ye
     Call nse_inuc
+
+    ! If an initial guess is provided, check for convergence and bail
+    if (present(uvec_in)) then
+      uvec = uvec_in
+      call nse_nr(uvec, check, info)
+
+      ! If the initial guess converged, fill composition and return
+      if (info .gt. 0) then
+        call nse_eval(uvec)
+        return
+      end if
+    endif
 
     ! Start with easy screening to get a good guess
     use_CP98 = .true.

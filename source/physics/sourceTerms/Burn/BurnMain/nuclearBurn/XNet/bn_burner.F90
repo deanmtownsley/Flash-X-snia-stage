@@ -74,7 +74,7 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
 #include "Simulation.h"
 
 #ifdef EOS_HELMNSE
-  use xnet_nse, only: nse_composition, xnse
+  use xnet_nse, only: nse_solve, xnse
 
   ! Should make this generic to any nuclear EOS
   use Eos_wlInterface, only: Eos_wlPotentials
@@ -163,15 +163,16 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
      else
 #ifdef EOS_HELMNSE
         if (density(i) .gt. bn_nuclearDensMax) then
-           ! In NSE region (hybrid EOS only)
-           ! Is this safe to set to zero?
-           sdotRate(i) = 0.0e0
 
            call Eos_wlPotentials(rho(i), t9(i), ye(i), mu_n, mu_p)
 
-           call nse_composition([mu_n, mu_p])
+           ! Table potentials are in MeV, nse_composition called within
+           ! nse_solve expects erg
+           call nse_solve(rho(i), t9(i), ye(i), [mu_n, mu_p]*epmev)
 
            xOut(:,i) = xnse
+
+           sdotRate(i) = sum(bion*(aioninv*xnse - ystart(:,i)))*conv/tstep
         else
 #endif
            ! Below burning region
