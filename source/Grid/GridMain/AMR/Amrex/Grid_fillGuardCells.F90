@@ -432,7 +432,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
 #ifndef SIMULATION_INCOMPFLOW
-    if (present(doEos)) then
+     if (present(doEos)) then
         needEos = (needEos .AND. doEos)
      else
         needEos = .FALSE.
