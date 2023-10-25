@@ -195,5 +195,6 @@ MoLERK:+MoL:MoL_Integrator="ERK"
 MoLIMEX:+MoL:MoL_Integrator="IMEX"
 MoLMR:+MoL:MoL_Integrator="MR"
 
-# HPC ToolKit shortcuts
-hpctoolkit:Profiler=HPC_TOOLKIT:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit
+# Profiler shortcuts
+hpctoolkit:Profiler=Hpctoolkit:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit
+mpihpm:Profiler=Mpihpm:--with-unit=monitors/Profiler/ProfilerMain/mpihpm

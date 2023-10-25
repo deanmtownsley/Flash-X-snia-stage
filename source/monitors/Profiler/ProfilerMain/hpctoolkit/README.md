@@ -20,13 +20,13 @@ This will require that you first install hpctoolkit >= 2023.03.01
 and define,
 
 ```
-LIB_HPC_TOOLKIT = ${HPC_TOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
+LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
 ```
 
 and
 
 ```
-FFLAGS_HPC_TOOLKIT = -g
+FFLAGS_HPCTOOLKIT = -g
 ```
 
 in your site specific Makefile.h
