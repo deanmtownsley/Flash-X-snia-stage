@@ -357,6 +357,22 @@ Contains
     ! If an initial guess is provided, check for convergence and bail
     if (present(uvec_in)) then
       uvec = uvec_in
+      unse = 0.0_dp
+      xnse = 0.0_dp
+      ynse = 0.0_dp
+      hnse = 0.0_dp
+
+      ! These would normally be taken care of in nse_guess, but since we are
+      ! skipping it, we need to calculate it here
+      call nse_composition(uvec)
+      call nse_screen
+
+      ! AH: Do we wwant to iterate a few times to make screening and composition consistent?
+      !     e.g.:
+      !Do i = 1, 3
+      !  Call nse_screen
+      !  Call nse_nr(uvec,check,info)
+      !EndDo
       call nse_nr(uvec, check, info)
 
       ! If the initial guess converged, fill composition and return
