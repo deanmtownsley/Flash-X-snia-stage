@@ -183,7 +183,7 @@ subroutine Driver_evolveAll()
 
    call Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
    call Timers_start("evolution")
-   call Profiler_start("evolution")
+   call Profiler_start("flashx-evolution")
 
    ! Initial Timestep:
    ! backup needed old
@@ -666,7 +666,7 @@ subroutine Driver_evolveAll()
    !!******************************************************************************
    !! End of Evolution Loop
    !!******************************************************************************
-   call Profiler_stop("evolution")
+   call Profiler_stop("flashx-evolution")
    call Timers_stop("evolution")
    call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
 

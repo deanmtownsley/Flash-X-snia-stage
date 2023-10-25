@@ -37,11 +37,13 @@ subroutine Profiler_stopName(name)
   use Driver_interface, ONLY: Driver_abort
   implicit none
   character (len=*), intent(in) :: name
+  character (len=200) :: errorMessage
   if (prf_profilerIsOn .and. trim(prf_profilerName) == name) then
      call hpctoolkit_sampling_stop()
      prf_profilerIsOn = .FALSE.
   else
-     call Driver_abort("[Profiler_stop] Cannot match name with a previously started Profiler")
+     write(errorMessage, *) "[Profiler_stop] Cannot match ",trim(name)," with a previously started Profiler"
+     call Driver_abort(trim(errorMessage))
   end if
 end subroutine Profiler_stopName
 

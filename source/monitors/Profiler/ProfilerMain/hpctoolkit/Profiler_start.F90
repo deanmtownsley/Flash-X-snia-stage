@@ -37,12 +37,15 @@ subroutine Profiler_startName(name)
   use Driver_interface, ONLY: Driver_abort
   implicit none
   character (len=*), intent(in) :: name
+  character (len=200) :: errorMessage
   if (.not. prf_profilerIsOn) then
      prf_profilerName = name
      prf_profilerIsOn = .TRUE.
      call hpctoolkit_sampling_start()
   else
-     call Driver_abort("[Profiler_start] Profiler is already ON. Call Profiler_stop before starting another")
+     write(errorMessage, *) "[Profiler_start] Cannot start Profiler for ",trim(name),&
+                            " because a Profiler is already ON for ", trim(prf_profilerName)
+     call Driver_abort(trim(errorMessage))
   end if
 end subroutine Profiler_startName
 
