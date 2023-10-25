@@ -3,11 +3,14 @@
 This README only covers Flash-X specific API to enable granular
 profiling of source code. To get a deeper understanding of best
 practices on basic usage and enabling sampling feature of HPC
-ToolKit we recommend reading its documentation available at
-(http://hpctoolkit.org/).
+ToolKit we recommend reading its documentation available at:
+
+(http://hpctoolkit.org/)
 
 To see a Flash-X specific Makefile and Example we recommend following
-updates on (https://github.com/Lab-Notebooks/Flow-Boiling-Performance)
+updates at:
+
+https://github.com/Lab-Notebooks/Flow-Boiling-Performance
 
 ### Setup and Compilation
 
@@ -74,11 +77,8 @@ hpcprof <measurements-folder>
 ```
 
 If these are succesfull a database directory will be created parallel to the 
-measurements directory. You can execute,
+measurements directory. To view results, you can execute,
 
 ```
 hpcviewer <database-folder>
 ```
-
-To view results
-
