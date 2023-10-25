@@ -132,7 +132,7 @@ subroutine Driver_evolveAll()
   endRun = .false.
 
   call Logfile_stamp( 'Entering evolution loop' , '[Driver_evolveAll]')
-  call Profiler_start("evolution")
+  call Profiler_start("flashx-evolution")
   call Timers_start("evolution")
 
   call Grid_getMaxRefinement(maxLev,mode=1) !mode=1 means lrefine_max, which does not change during sim.
@@ -332,7 +332,7 @@ subroutine Driver_evolveAll()
 
   print*, 'End of Evolution Loop'  
   call Timers_stop("evolution")
-  call Profiler_stop("evolution")
+  call Profiler_stop("flashx-evolution")
   call Logfile_stamp( 'Exiting evolution loop' , '[Driver_evolveAll]')
   !if a file termination, this may already be done.
   if(.NOT.endRun) call IO_outputFinal()

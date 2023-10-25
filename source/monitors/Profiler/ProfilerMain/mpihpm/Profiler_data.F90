@@ -26,6 +26,6 @@
 
 module Profiler_data
   implicit none
-  character (len=*), parameter :: prf_evolutionName = 'evolution'
+  character (len=*), parameter :: prf_evolutionName = 'flashx-evolution'
   logical, save :: prf_evolutionOnly
 end module Profiler_data
