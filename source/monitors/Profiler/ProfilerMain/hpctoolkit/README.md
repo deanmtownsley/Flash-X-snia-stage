@@ -10,11 +10,10 @@ in this [Lab Notebook](https://github.com/Lab-Notebooks/Flow-Boiling-Performance
 
 ### Setup and Compilation
 
-This profiler is available by using the following setup shortcut 
-**+hpctoolkit**. This will require that you first 
-install **hpctoolkit >= 2023.03.01** and define,
+This profiler is available by using the setup option, **+hpctoolkit**. 
+This will require that you first install **hpctoolkit >= 2023.03.01** and define,
 
-```
+```make
 LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
 FFLAGS_HPCTOOLKIT = -g
 ```
@@ -23,7 +22,7 @@ in your site specific **Makefile.h**
 
 ### Usage
 
-You can profile your FORTRAN source code in the following way,
+You can profile your Fortran source code in the following way,
 
 ```fortran
 call Profiler_start("<profile-name>")
@@ -42,24 +41,23 @@ void hpctoolkit_sampling_stop(void);
 
 Flash-X specific API is designed to not allow multiple instances of
 sampling to run concurrently. Therfore, applications will abort if a
-new profiler is started without terminating the previous one. 
-
-You can profile specific segements of code in the following way,
+new profiler is started without terminating the previous one. You can 
+profile specific segements of code in the following way,
 
 ```fortran
 call Profiler_start("<profile-segment-1>")
 ! .......
-! first segment of code to profile
+! first segment of code
 ! .......
 call Profiler_stop("<profile-segement-1>")
 
-! ......
-! some code segment to ignore
-! ......
+! .......
+! ignored segment of code
+! .......
 
 call Profiler_start("<profile-segment-2>")
 ! ......
-! another segment to profile
+! another segment of code
 ! ......
 call Profiler_stop("<profile-segment-2>")
 ```
@@ -82,7 +80,7 @@ If your application executes as expected and you do not face any permission
 issues related to `pref_event_paranoid` then you should have a measurements
 directory in your run directory. Next you need to execute,
 
-```
+```bash
 hpcstruct <measurements-folder>
 hpcprof <measurements-folder>
 ```
@@ -90,6 +88,6 @@ hpcprof <measurements-folder>
 If these are succesfull a database directory will be created parallel to the 
 measurements directory. To view results, you can execute,
 
-```
+```bash
 hpcviewer <database-folder>
 ```
