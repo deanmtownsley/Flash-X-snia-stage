@@ -73,5 +73,7 @@ module rt_data
                            1:THORNADO_NSPECIES)
 
   real,    save :: rt_D_0, rt_Chi, rt_Sigma
+
+  real, save :: rt_transitionDens
   
 end module rt_data

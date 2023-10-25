@@ -102,6 +102,16 @@ subroutine rt_init()
 
   call RuntimeParameters_get ("rt_freezeOpacities", rt_freezeOpacities)
 
+  ! The transition density represents the point at which the Hybrid EOS
+  ! transitions from Helmholtz to a nuclear EOS.  NSE is assumed above this
+  ! density and RadTrans will be responsible for evolving neutrino-matter
+  ! interactions.  Below this density, the nuclear reaction network in
+  ! Burn will be responsible for evolving the composition.
+  rt_transitionDens = 0.0
+#ifdef EOS_HELMNSE
+  call RuntimeParameters_get("eos_hybTransitionDensHi", rt_transitionDens)
+#endif
+
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
 
   rt_offGridFluxR = 0.0
