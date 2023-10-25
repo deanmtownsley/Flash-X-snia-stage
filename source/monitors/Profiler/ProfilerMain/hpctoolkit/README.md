@@ -27,7 +27,7 @@ You can profile your Fortran source code in the following way,
 ```fortran
 call Profiler_start("<profile-name>")
 ! .......
-! code segment to profile
+! code segment
 ! .......
 call Profiler_stop("<profile-name>")
 ```
