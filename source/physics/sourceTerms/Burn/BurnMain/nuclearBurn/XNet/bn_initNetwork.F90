@@ -86,7 +86,7 @@ subroutine bn_initNetwork
 #ifdef EOS_HELMNSE
   ! Reset this to upper-bound of hybrid transition region
   ! This will overwrite the value set during Burn_init
-  call RuntimeParameters_get('eos_hybTransitionDensHi',nuclearDensMax)
+  call RuntimeParameters_get('eos_hybTransitionDensHi',bn_nuclearDensMax)
 #endif
 
   ! Read, broadcast, and allocate XNet data
