@@ -31,7 +31,7 @@
             setupName: DustCollapse
             nodeName: Comparison/DustCollapse/AMR/1dSph/sparkNt
             parfiles: <pathToSimulations>/DustCollapse/tests/test_1dsph.debug.par
-            shortPathToBenchmark: <siteDir>/2023-04-18_3/Comparison_DustCollapse_AMR_1dSph_spark/<runDir>/<chkMax>
+            shortPathToBenchmark: <siteDir>/2023-10-24/Comparison_DustCollapse_AMR_1dSph_spark/<runDir>/<chkMax>
           </sparkNt>
         </1dSph>
       </AMR>

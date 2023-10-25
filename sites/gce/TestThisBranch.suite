@@ -35,8 +35,8 @@ Sedov -t "Composite/Sedov/AMR/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-12 -rbase 2
 #------------------------------------------------
 # Tests for - DustCollapse
 #------------------------------------------------
-DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-04-18_3
-DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/sparkNt" -np 2 -cbase 2023-04-18_3
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-10-24
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/sparkNt" -np 2
 
 #------------------------------------------------
 # Tests for - IsentropicVortex
@@ -50,10 +50,10 @@ IsentropicVortex -t "Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt" -np 4 -
 #------------------------------------------------
 # YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
 # YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
-# YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
-# YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
-YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
 YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
