@@ -7,7 +7,7 @@ USESETUPVARS Profiler
 # uniform grid so throw a setup error if it is requested.
 # First perform a check using Grid setup variable
 IF Grid == "UG"
-    SETUPERROR incompFlow simulations are not compitable with uniform grid yet
+    SETUPERROR incompFlow simulations are not compatible with uniform grid yet
 ENDIF
 # Add a conflict if above condition fails
 CONFLICTS Grid/GridMain/UG
@@ -15,7 +15,7 @@ CONFLICTS Grid/GridMain/UG
 # Check which profiler is being used and raise error if it is
 # not hpctoolkit. First check using Profiler setup variable
 IF Profiler not in ["","Hpctoolkit"]
-    SETUPERROR incompFlow simulations are only compitable with HPCToolKit profiler
+    SETUPERROR incompFlow simulations are only compatible with HPCToolKit profiler
 ENDIF
 # Add a conflict if above condition fails 
 CONFLICTS monitors/Profiler/ProfilerMain/mpihpm
