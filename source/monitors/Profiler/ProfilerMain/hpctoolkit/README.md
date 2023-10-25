@@ -7,10 +7,10 @@ ToolKit we recommend reading its documentation available at:
 
 (http://hpctoolkit.org/)
 
-To see a Flash-X specific Makefile and Example we recommend following
-updates at:
+To see a Flash-X specific example we recommend running experiments
+in this lab notebook:
 
-https://github.com/Lab-Notebooks/Flow-Boiling-Performance
+https://github.com/Lab-Notebooks/Flow-Boiling-Performance/blob/f1729bbfb5728904558a11277e167bbdb55c5063/simulation/FlowBoiling/Example2D/flashRun.sh#L1-L10
 
 ### Setup and Compilation
 
@@ -63,7 +63,7 @@ When running this application we must tell hpcrun to initially turn
 off sampling (it is on by default): use the -ds (or --delay-sampling)
 option for hpcrun (dynamic) or set the `HPCRUN_DELAY_SAMPLING`
 environment variable (static), along with additional options for trace
-and event monitoring.
+and event monitoring. See the example referenced above.
 
 ### Visualizing Output
 
