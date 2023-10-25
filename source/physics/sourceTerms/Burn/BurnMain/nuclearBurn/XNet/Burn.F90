@@ -382,16 +382,18 @@ subroutine Burn (  dt  )
               enuc = dt*sdot(ii,jj,kk,thisBlock)
               ei = solnData(ENER_VAR,i,j,k) + enuc - ek
 
-#ifdef EINT_VAR
-              solnData(EINT_VAR,i,j,k) = ei
-#endif
-              solnData(ENER_VAR,i,j,k) = ei + ek
-#ifdef EELE_VAR
-              solnData(EELE_VAR,i,j,k) = solnData(EELE_VAR,i,j,k) + enuc
-#endif
               solnData(ENUC_VAR,i,j,k) = sdot(ii,jj,kk,thisBlock)
 
+              ! only update internal energy if the zone actually burned
               if (burnedZone(ii,jj,kk,thisBlock)) then
+#ifdef EINT_VAR
+                 solnData(EINT_VAR,i,j,k) = ei
+#endif
+                 solnData(ENER_VAR,i,j,k) = ei + ek
+#ifdef EELE_VAR
+                 solnData(EELE_VAR,i,j,k) = solnData(EELE_VAR,i,j,k) + enuc
+#endif
+
                  xmass = xOut(1:NSPECIES,ii,jj,kk,thisBlock)
                  call bn_azbar
 
