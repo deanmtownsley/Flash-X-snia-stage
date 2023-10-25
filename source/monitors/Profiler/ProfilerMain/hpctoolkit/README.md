@@ -72,7 +72,11 @@ When running this application we must tell hpcrun to initially turn
 off sampling (it is on by default): use the -ds (or --delay-sampling)
 option for hpcrun (dynamic) or set the `HPCRUN_DELAY_SAMPLING`
 environment variable (static), along with additional options for trace
-and event monitoring. See the [example](https://github.com/Lab-Notebooks/Flow-Boiling-Performance/blob/f1729bbfb5728904558a11277e167bbdb55c5063/) referenced above.
+and event monitoring,
+
+```bash
+mpirun -n <procs> hpcrun -ds -t -e CYCLES -e CACHE-MISSES flashx
+```
 
 ### Visualizing Output
 
