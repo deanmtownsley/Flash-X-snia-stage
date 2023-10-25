@@ -1,7 +1,6 @@
 # Config file for source/Simulation/SimulationMain/incompFlow
 
 USESETUPVARS Grid
-USESETUPVARS ProfileEvolution
 
 # Currently these simulations have not been tested with
 # uniform grid so throw a setup error if it is requested
@@ -56,9 +55,3 @@ PARAMETER sim_runTest BOOLEAN FALSE
 
 # Pre-processor directive to define the simulation group
 PPDEFINE SIMULATION_INCOMPFLOW
-
-# This only works if +hpctoolkit is used in setup options
-# otherwise this directive is useless
-IF ProfileEvolution
-    PPDEFINE PROFILE_EVOLUTION
-ENDIF

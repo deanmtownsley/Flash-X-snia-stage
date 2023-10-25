@@ -196,4 +196,4 @@ MoLIMEX:+MoL:MoL_Integrator="IMEX"
 MoLMR:+MoL:MoL_Integrator="MR"
 
 # HPC ToolKit shortcuts
-hpctoolkit:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit
+hpctoolkit:Profiler=HPC_TOOLKIT:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit
