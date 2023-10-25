@@ -343,6 +343,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !!!!! Cell-centered data first
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
 
+     call Timers_start("gc unk")
      if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
 
         do chunkIndex = 1, numChunksCC
@@ -431,15 +432,14 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
 #ifndef SIMULATION_INCOMPFLOW
-     call Timers_start("eos gc")
-
-     if (present(doEos)) then
+    if (present(doEos)) then
         needEos = (needEos .AND. doEos)
      else
         needEos = .FALSE.
      end if
 
      if (needEos .AND. needConversionGlobal) then
+        call Timers_start("c2p+eos gc")
         call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
         do while (itor%isValid())
            call itor%currentTile(tileDesc)
@@ -476,7 +476,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            call itor%next()
         end do
         call Grid_releaseTileIterator(itor)
+        call Timers_stop("c2p+eos gc")
      else if (needEos .AND. (.NOT. needConversionGlobal)) then
+        call Timers_start("eos gc")
         call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
         do while (itor%isValid())
            call itor%currentTile(tileDesc)
@@ -508,7 +510,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            call itor%next()
         end do
         call Grid_releaseTileIterator(itor)
+        call Timers_stop("eos gc")
      else if (needConversionGlobal) then
+        call Timers_start("c2p")
         call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
         do while (itor%isValid())
            call itor%currentTile(tileDesc)
@@ -540,7 +544,9 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            call itor%next()
         end do
         call Grid_releaseTileIterator(itor)
+        call Timers_stop("c2p")
      else if (.NOT. needConversionInner) then
+        call Timers_start("sanitize")
         call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
         do while (itor%isValid())
            call itor%currentTile(tileDesc)
@@ -565,9 +571,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            call itor%next()
         end do
         call Grid_releaseTileIterator(itor)
+        call Timers_stop("sanitize")
      end if
-     call Timers_stop("eos gc")
 #endif
+     call Timers_stop("gc unk")
   end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
@@ -577,6 +584,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   if ((gridDataStruct == CENTER_FACES) &
       .OR. (gridDataStruct == FACES)) then
 
+     call Timers_start("gc facevars")
      if (gr_enableMaskedGCFill .and. numChunksFC > 0) then
 
         do chunkIndex = 1, numChunksFC
@@ -653,6 +661,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                 lo_bc_amrexFace, hi_bc_amrexFace)
         end do
      end if
+     call Timers_stop("gc facevars")
   end if
 
 #else
