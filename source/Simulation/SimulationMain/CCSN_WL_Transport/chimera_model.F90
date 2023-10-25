@@ -28,7 +28,7 @@ module chimera_model_module
 
 #include "constants.h"
 #include "Simulation.h"
-!#include "Multispecies.h"
+#include "Multispecies.h"
 
   real (dp), parameter :: zero = 0.0_dp
   real (dp), parameter :: one = 1.0_dp
