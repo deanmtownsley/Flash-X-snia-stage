@@ -11,8 +11,8 @@ in this [Lab Notebook](https://github.com/Lab-Notebooks/Flow-Boiling-Performance
 ### Setup and Compilation
 
 This profiler is available by using the following setup shortcut 
-**+hpctoolkit**. This will require that you first install hpctoolkit 
->= 2023.03.01 and define,
+**+hpctoolkit**. This will require that you first 
+install **hpctoolkit >= 2023.03.01** and define,
 
 ```
 LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
