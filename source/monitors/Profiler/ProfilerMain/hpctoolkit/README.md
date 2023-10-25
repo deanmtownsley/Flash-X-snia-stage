@@ -2,60 +2,71 @@
 
 This README only covers Flash-X specific API to enable granular
 profiling of source code. To get a deeper understanding of best
-practices on basic usage and enabling sampling feature of HPC
-ToolKit we recommend reading its documentation available at:
-
-(http://hpctoolkit.org/)
+practices on using sampling feature of HPC ToolKit we recommend 
+reading its [documentation](http://hpctoolkit.org/).
 
 To see a Flash-X specific example we recommend running experiments
-in this lab notebook:
-
-https://github.com/Lab-Notebooks/Flow-Boiling-Performance/blob/f1729bbfb5728904558a11277e167bbdb55c5063/simulation/FlowBoiling/Example2D/flashRun.sh#L1-L10
+in this [Lab Notebook](https://github.com/Lab-Notebooks/Flow-Boiling-Performance/blob/f1729bbfb5728904558a11277e167bbdb55c5063/simulation/FlowBoiling/Example2D/flashRun.sh#L1-L10).
 
 ### Setup and Compilation
 
-This profiler is available by using the following setup shortcut `+hpctoolkit`
-
-This will require that you first install hpctoolkit >= 2023.03.01
-and define,
+This profiler is available by using the following setup shortcut 
+**+hpctoolkit**. This will require that you first install hpctoolkit 
+>= 2023.03.01 and define,
 
 ```
 LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
-```
-
-and
-
-```
 FFLAGS_HPCTOOLKIT = -g
 ```
 
-in your site specific Makefile.h
+in your site specific **Makefile.h**
 
 ### Usage
 
-You can place calls to `Profiler_start(name)` and `Profiler_stop(name)`
-to start and stop sampling in your FORTRAN source code. These subroutines
-interface with HPC ToolKit API calls,
+You can profile your FORTRAN source code in the following way,
 
+```fortran
+call Profiler_start("<profile-name>")
+! .......
+! code segment to profile
+! .......
+call Profiler_stop("<profile-name>")
 ```
+
+These subroutines interface with HPCToolKit API calls,
+
+```cpp
 void hpctoolkit_sampling_start(void);
 void hpctoolkit_sampling_stop(void);
 ```
 
 Flash-X specific API is designed to not allow multiple instances of
 sampling to run concurrently. Therfore, applications will abort if a
-new  `Profiler_start` is called without terminating the previous one
-using `Profiler_stop`.
+new profiler is started without terminating the previous one. 
 
-See example under,
+You can profile specific segements of code in the following way,
 
-```
-Simulation/SimulationMain/incompFlow/Driver_evolveAll
+```fortran
+call Profiler_start("<profile-segment-1>")
+! .......
+! first segment of code to profile
+! .......
+call Profiler_stop("<profile-segement-1>")
+
+! ......
+! some code segment to ignore
+! ......
+
+call Profiler_start("<profile-segment-2>")
+! ......
+! another segment to profile
+! ......
+call Profiler_stop("<profile-segment-2>")
 ```
 
 Please follow best practices to obtain realistic profiling results and
-throughly read the documentation referenced above before using this
-feature.
+throughly read the [documentation](http://hpctoolkit.org/) before using 
+this feature for granular profiling.
 
 ### Running Applications
 
@@ -63,11 +74,11 @@ When running this application we must tell hpcrun to initially turn
 off sampling (it is on by default): use the -ds (or --delay-sampling)
 option for hpcrun (dynamic) or set the `HPCRUN_DELAY_SAMPLING`
 environment variable (static), along with additional options for trace
-and event monitoring. See the example referenced above.
+and event monitoring. See the [example](https://github.com/Lab-Notebooks/Flow-Boiling-Performance/blob/f1729bbfb5728904558a11277e167bbdb55c5063/) referenced above.
 
 ### Visualizing Output
 
-If execution works out as expected and you do not face any permission
+If your application executes as expected and you do not face any permission
 issues related to `pref_event_paranoid` then you should have a measurements
 directory in your run directory. Next you need to execute,
 
