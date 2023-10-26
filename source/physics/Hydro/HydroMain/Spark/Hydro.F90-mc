@@ -20,6 +20,12 @@
 !<
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!NOVARIANTS
+
+#ifdef DEBUG_ALL
+#define DEBUG_HYDRO
+#define DEBUG_HYDRO_OFFLOADING
+#endif
+
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_scratch_use
@@ -268,7 +274,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M iter_end
      end if !Flux correction
     else !flux correct per level
+#ifdef DEBUG_HYDRO
      print *, "Flux correct per level"
+#endif
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
@@ -544,6 +552,7 @@ contains
 
     onCPU = .TRUE.
 
+#ifdef DEBUG_HYDRO_OFFLOADING
 #ifdef OMP_OL
     !$omp target map(tofrom:onCPU)
     !$  onCPU = omp_is_initial_device()
@@ -556,6 +565,7 @@ contains
     else
        print *, "---------------- Running on GPU --------------------------------"
     end if
+#endif
 
   end subroutine check_if_on_GPU
 
