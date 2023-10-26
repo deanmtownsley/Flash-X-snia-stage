@@ -81,7 +81,6 @@ profileGroupName="fill-guardcells"
 ```
 
 This setting will only profile the group ``"fill-guardcells"``. 
-See ``source/Simulation/SimulationMain/incompFlow/Driver_evolveAll`` for an example.
 
 Please follow best practices to obtain realistic profiling results and
 throughly read the [documentation](http://hpctoolkit.org/) before using 
