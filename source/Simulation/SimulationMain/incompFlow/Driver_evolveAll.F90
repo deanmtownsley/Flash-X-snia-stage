@@ -238,6 +238,7 @@ subroutine Driver_evolveAll()
       dr_simGeneration = 0
       !------------------------------------------------------------
 
+      call Profiler_start("reinit-gridvars")
       ! Call methods to reset specific grid variables
       ! at the start of every time-setp
       !------------------------------------------------------------
@@ -253,6 +254,7 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("reinit-gridvars")
 
 #ifdef SIMULATION_FORCE_HEATER
       ! Apply heater specific forcing
@@ -262,12 +264,16 @@ subroutine Driver_evolveAll()
 #endif
 
 #ifdef MULTIPHASE_MAIN
+
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for level set function
       gcMask(:) = .FALSE.
       gcMask(iDfunVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("multiphase-props")
       ! Update fluid and thermal properties
       ! Loop over blocks (tiles)
       !------------------------------------------------------------
@@ -284,7 +290,9 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("multiphase-props")
 
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for Multiphase variables
       gcMask(:) = .FALSE.
       gcMask(iViscVar) = .TRUE.
@@ -305,7 +313,9 @@ subroutine Driver_evolveAll()
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("multiphase-props")
       ! Update pressure and temperature jumps
       ! Loop over blocks (tiles)
       !------------------------------------------------------------
@@ -322,6 +332,7 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("multiphase-props")
 
 #ifdef MULTIPHASE_EVAPORATION
       ! Perform extrapolation iterations for
@@ -329,13 +340,16 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       do iteration = 1, mph_extpIt
 
+         call Profiler_start("fill-guardcells")
          ! Fill GuardCells for heat fluxes
          gcMask(:) = .FALSE.
          gcMask(iHliqVar) = .TRUE.
          gcMask(iHGasVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
+         call Profiler_stop("fill-guardcells")
 
+         call Profiler_start("multiphase-extrap")
          call Grid_getTileIterator(itor, nodetype=LEAF)
          do while (itor%isValid())
             call itor%currentTile(tileDesc)
@@ -345,6 +359,7 @@ subroutine Driver_evolveAll()
             call itor%next()
          end do
          call Grid_releaseTileIterator(itor)
+         call Profiler_stop("multiphase-extrap")
 
       end do
       !------------------------------------------------------------
@@ -376,6 +391,7 @@ subroutine Driver_evolveAll()
       call Grid_setInterpValsGcell(.true.)
       !------------------------------------------------------------
 
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for the predictor step, velocity,
       ! mass flux and pressure jumps
       gcMask(:) = .FALSE.
@@ -396,7 +412,9 @@ subroutine Driver_evolveAll()
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
                                maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("physics-incomp")
       ! Start of fractional-step velocity procedure
       ! Calculate predicted velocity and apply
       ! necessary forcing
@@ -414,7 +432,9 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("physics-incomp")
 
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for velocity
       gcMask(:) = .FALSE.
       gcMask(iVelVar) = .TRUE.
@@ -426,7 +446,9 @@ subroutine Driver_evolveAll()
       call Grid_fillGuardCells(FACES, ALLDIR, &
                                maskSize=NDIM*NFACE_VARS, mask=gcMask)
       ins_predcorrflg = .false.
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("physics-incomp")
       ! Calculate divergence of predicted velocity
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -441,13 +463,17 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("physics-incomp")
 
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for Divergence
       gcMask(:) = .FALSE.
       gcMask(iDivVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("grid-poisson")
 #if defined(INCOMPNS_PRES_POISSON)
       ! Solve pressure Poisson equation
       !------------------------------------------------------------
@@ -467,13 +493,17 @@ subroutine Driver_evolveAll()
 #else
       call Driver_abort("[Driver_evolveAll] Missing pressure solver")
 #endif
+      call Profiler_stop("grid-poisson")
 
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for pressure
       gcMask(:) = .FALSE.
       gcMask(iPresVar) = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("physics-incomp")
       ! Final step of fractional step velocity
       ! formulation - calculate corrected velocity
       ! and updated divergence (this should be machine-zero)
@@ -490,19 +520,24 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("physics-incomp")
 
       !------------------------------------------------------------
       call Grid_setInterpValsGcell(.false.)
       !------------------------------------------------------------
 
 #ifdef HEATAD_MAIN
+      call Profiler_start("fill-guardcells")
       ! Fill GuardCells for temperature
       gcMask(:) = .FALSE.
       gcMask(iTempVar) = .TRUE.
       gcMask(iTempFrcVar) = .TRUE.
+
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
+      call Profiler_stop("fill-guardcells")
 
+      call Profiler_start("physics-heat")
       ! Heat advection diffusion procedure
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -517,9 +552,12 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("physics-heat")
 #endif
 
 #ifdef MULTIPHASE_MAIN
+
+      call Profiler_start("physics-multiphase")
       ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
@@ -535,17 +573,21 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
+      call Profiler_stop("physics-multiphase")
 
       ! Apply redistancing procedure
       !------------------------------------------------------------
       do iteration = 1, mph_lsIt
 
+         call Profiler_start("fill-guardcells")
          ! Fill GuardCells for level set function
          gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
+         call Profiler_stop("fill-guardcells")
 
+         call Profiler_start("physics-multiphase")
          ! Loop over blocks (tiles) and call Multiphase
          ! routines
          call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -557,6 +599,7 @@ subroutine Driver_evolveAll()
             call itor%next()
          end do
          call Grid_releaseTileIterator(itor)
+         call Profiler_stop("physics-multiphase")
 
       end do
       !------------------------------------------------------------

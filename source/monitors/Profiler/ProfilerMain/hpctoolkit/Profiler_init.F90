@@ -17,18 +17,46 @@
 !! SYNOPSIS
 !!
 !!  Profiler_init()
-!!                   
-!!  
-!! DESCRIPTION 
-!!  
+!!
+!!
+!! DESCRIPTION
+!!
 !!  Initialize the profiler unit
-!!  
-!! ARGUMENTS 
+!!
+!! ARGUMENTS
 !!
 !!***
 
+#include "constants.h"
+#include "Simulation.h"
+
 subroutine Profiler_init()
-  use Profiler_data, ONLY : prf_profilerIsOn
-  implicit none
-  prf_profilerIsOn = .FALSE.
+   use Profiler_data, ONLY: prf_profilerIsOn, prf_groupName, prf_evolutionOnly, prf_meshMe
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use Driver_interface, ONLY: Driver_abort, Driver_getMype
+   use Logfile_interface, ONLY: Logfile_stamp
+
+   implicit none
+
+   call Driver_getMype(MESH_COMM, prf_meshMe)
+
+   ! Initialize profiler specific data and read runtime parameters.
+   prf_profilerIsOn = .FALSE.
+   call RuntimeParameters_get("profileEvolutionOnly", prf_evolutionOnly)
+   call RuntimeParameters_get("profileGroupName", prf_groupName)
+
+   ! Perform a sanity check on runtime parameters and abort if
+   ! inconsistencies are found in their definitions
+   if (.not. prf_evolutionOnly .and. trim(prf_groupName) == "flashx-evolution") then
+      call Driver_abort("[Profiler_init] profileGroupName is flashx-evolution but profileEvolutionOnly is .FLASE.")
+   else if (prf_evolutionOnly .and. trim(prf_groupName) /= "flashx-evolution") then
+      call Driver_abort("[Profiler_init] profileEvolutionOnly is .TRUE. but profileGroupName is not flashx-evolution")
+   end if
+
+   call Logfile_stamp(trim(prf_groupName), "[Profiler_init]")
+
+   if (prf_meshMe .eq. MASTER_PE) then
+      print *, "Profiling group name: ", trim(prf_groupName)
+   end if
+
 end subroutine Profiler_init

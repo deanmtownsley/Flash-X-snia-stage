@@ -30,15 +30,35 @@ IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
     PARAMETER gr_pmRpConsvFluxDensities BOOLEAN FALSE
     REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
     REQUESTS Grid/GridSolvers/HYPRE
+    PARAMETER gr_hyprePrintSolveInfo BOOLEAN FALSE
+    PARAMETER gr_hypreRelTol REAL 1e-12
+    PARAMETER gr_hypreFloor REAL 1e-16
 ENDIF
 
-# Add interpolators for amrex divergence free condition along with 
-# dependencies on its amrex-native multigrid poisson solver. Note 
-# that setuptool generates errors when STRING parameters are indentend. 
+# Set some string parameters for paramesh grid implementation
+# without any indentation. This is a hack to make sure setuptool
+# does not raise any errors. Do not change the indentation here
+IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
+PARAMETER gr_hyprePcType STRING "HYPRE_AMG"
+PARAMETER gr_hypreSolverType STRING "HYPRE_BICGSTAB"
+ENDIF
+
+# Set interpolators for amrex divergence free condition. Note that 
+# setuptool generates errors when STRING parameters are indented.
 # Do not change the indentation here
 IF Grid == "Amrex"
-REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 PARAMETER amrexFaceInterpolator STRING "FACE_DIV_FREE"
+ENDIF
+
+# Add dependencies for amrex-native multigrid poisson solver.
+# Set default configuration and tolerances which can be
+# over-written in parfiles. This is done to make production
+# parfiles less verbose and more specific to the simulation
+IF Grid == "Amrex"
+    REQUIRES Grid/GridSolvers/AmrexMultigridSolver
+    PARAMETER gr_amrexMG_composite_solve BOOLEAN TRUE
+    PARAMETER gr_amrexMG_Tol REAL 1e-13
+    PARAMETER gr_amrexMG_max_iter INTEGER 200
 ENDIF
 
 # Common runtime parameters for optimization of guard-cell filling 

@@ -197,4 +197,3 @@ MoLMR:+MoL:MoL_Integrator="MR"
 
 # Profiler shortcuts
 hpctoolkit:Profiler=Hpctoolkit:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit
-mpihpm:Profiler=Mpihpm:--with-unit=monitors/Profiler/ProfilerMain/mpihpm

@@ -18,13 +18,13 @@
 !!
 !!  Profiler_stop( character(IN) :: name, OR
 !!                 integer(IN)   :: id)
-!!                   
-!!  
-!! DESCRIPTION 
-!!  
+!!
+!!
+!! DESCRIPTION
+!!
 !!  Stop profiling the section 'name' or 'id'
-!!  
-!! ARGUMENTS 
+!!
+!! ARGUMENTS
 !!
 !!  name - the name of the section to profile
 !!  id - the integer id of the section to profile
@@ -32,24 +32,26 @@
 !!***
 
 subroutine Profiler_stopName(name)
-  use Profiler_data, ONLY : prf_profilerIsOn, prf_profilerName
-  use pr_interface, ONLY : hpctoolkit_sampling_stop
-  use Driver_interface, ONLY: Driver_abort
-  implicit none
-  character (len=*), intent(in) :: name
-  character (len=200) :: errorMessage
-  if (prf_profilerIsOn .and. trim(prf_profilerName) == name) then
-     call hpctoolkit_sampling_stop()
-     prf_profilerIsOn = .FALSE.
-  else
-     write(errorMessage, *) "[Profiler_stop] Cannot match ",trim(name)," with a previously started Profiler"
-     call Driver_abort(trim(errorMessage))
-  end if
+   use Profiler_data, ONLY: prf_profilerIsOn, prf_groupName
+   use pr_interface, ONLY: hpctoolkit_sampling_stop
+   use Driver_interface, ONLY: Driver_abort
+   implicit none
+   character(len=*), intent(in) :: name
+   character(len=200) :: errorMessage
+   if (trim(prf_groupName) == name) then
+      if (prf_profilerIsOn) then
+         call hpctoolkit_sampling_stop()
+         prf_profilerIsOn = .FALSE.
+      else
+         write (errorMessage, *) "[Profiler_stop] Cannot match ", trim(name), " with a previously started Profiler"
+         call Driver_abort(trim(errorMessage))
+      end if
+   end if
 end subroutine Profiler_stopName
 
 subroutine Profiler_stopId(id)
-  use Driver_interface, ONLY : Driver_abort
-  implicit none
-  integer, intent(in) :: id
-  call Driver_abort("[Profiler_stop] Not yet implemented using integer ID as argument")
+   use Driver_interface, ONLY: Driver_abort
+   implicit none
+   integer, intent(in) :: id
+   call Driver_abort("[Profiler_stop] Not yet implemented using integer ID as argument")
 end subroutine Profiler_stopId

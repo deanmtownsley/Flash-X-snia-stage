@@ -1,3 +1,5 @@
+UNOFFICIAL
+
 USESETUPVARS threadBlockList, threadWithinBlock, threadRayTrace
 
 PARAMETER profileEvolutionOnly BOOLEAN TRUE
@@ -9,3 +11,5 @@ IF threadBlockList or threadWithinBlock or threadRayTrace
 ELSE
   LIBRARY mpi mpihpm
 ENDIF
+
+PPDEFINE PROFILER_MPIHPM

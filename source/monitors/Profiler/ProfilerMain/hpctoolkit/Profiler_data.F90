@@ -25,7 +25,9 @@
 !!***
 
 module Profiler_data
-  implicit none
-  character (len=50), save :: prf_profilerName
-  logical, save :: prf_profilerIsOn
+   implicit none
+   logical, save :: prf_profilerIsOn
+   logical, save :: prf_evolutionOnly
+   character(len=50), save :: prf_groupName
+   integer, save :: prf_meshMe
 end module Profiler_data
