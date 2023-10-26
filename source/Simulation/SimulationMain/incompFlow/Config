@@ -73,6 +73,10 @@ PARAMETER gr_bndGCFillNeedsPrimitiveVars BOOLEAN FALSE
 PARAMETER gr_sanitizeDataMode INTEGER 0
 PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
 
+# Additional runtime parameters and their default values
+PARAMETER geometry STRING "cartesian"
+PARAMETER flux_correct BOOLEAN TRUE
+
 # Link specific refinement/derefinement routines based on 
 # what Grid unit is being used for the simulation
 LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
