@@ -91,7 +91,7 @@ subroutine Driver_evolveAll()
    call MoL_regrid
 
    call Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
-   call Profiler_start("flashx-evolution")
+   call Profiler_start("FLASHX_EVOLUTION")
    call Timers_start("evolution")
 
    ! Not necessarily the ideal location for this, but it needs to be done before the
@@ -233,7 +233,7 @@ subroutine Driver_evolveAll()
   !!******************************************************************************
 
    call Timers_stop("evolution")
-   call Profiler_stop("flashx-evolution")
+   call Profiler_stop("FLASHX_EVOLUTION")
    call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
    call Timers_getSummary(max(0, dr_nstep - dr_nbegin + 1))
    call Logfile_stamp("FLASH run complete.", "LOGFILE_END")

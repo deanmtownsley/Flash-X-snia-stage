@@ -47,10 +47,10 @@ subroutine Profiler_init()
 
    ! Perform a sanity check on runtime parameters and abort if
    ! inconsistencies are found in their definitions
-   if (.not. prf_evolutionOnly .and. trim(prf_groupName) == "flashx-evolution") then
-      call Driver_abort("[Profiler_init] profileGroupName is flashx-evolution but profileEvolutionOnly is .FLASE.")
-   else if (prf_evolutionOnly .and. trim(prf_groupName) /= "flashx-evolution") then
-      call Driver_abort("[Profiler_init] profileEvolutionOnly is .TRUE. but profileGroupName is not flashx-evolution")
+   if (.not. prf_evolutionOnly .and. trim(prf_groupName) == "FLASHX_EVOLUTION") then
+      call Driver_abort("[Profiler_init] profileGroupName is FLASHX_EVOLUTION but profileEvolutionOnly is .FLASE.")
+   else if (prf_evolutionOnly .and. trim(prf_groupName) /= "FLASHX_EVOLUTION") then
+      call Driver_abort("[Profiler_init] profileEvolutionOnly is .TRUE. but profileGroupName is not FLASHX_EVOLUTION")
    end if
 
    call Logfile_stamp(trim(prf_groupName), "[Profiler_init]")

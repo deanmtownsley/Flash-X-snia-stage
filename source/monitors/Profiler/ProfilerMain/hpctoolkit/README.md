@@ -13,7 +13,7 @@ in this [Lab Notebook](https://github.com/Lab-Notebooks/Flow-Boiling-Performance
 This profiler is available by using the setup option, ``+hpctoolkit``. 
 This will require that you first install ``hpctoolkit >= 2023.03.01`` and define,
 
-```make
+```
 LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
 FFLAGS_HPCTOOLKIT = -g
 ```
@@ -24,7 +24,7 @@ in your site specific ``Makefile.h``
 
 You can profile your Fortran source code in the following way,
 
-```fortran
+```
 call Profiler_start("<group>")
 ! .......
 ! code segment
@@ -34,7 +34,7 @@ call Profiler_stop("<group>")
 
 These subroutines interface with HPCToolKit API calls,
 
-```cpp
+```
 void hpctoolkit_sampling_start(void);
 void hpctoolkit_sampling_stop(void);
 ```
@@ -44,8 +44,8 @@ sampling to run concurrently. Therfore, applications will abort if a
 new profiler is started without terminating the previous one. You can 
 profile specific segements of code in the following way,
 
-```FORTRAN
-call Profiler_start("flashx-evolution")
+```
+call Profiler_start("FLASHX_EVOLUTION")
 
 call Profiler_start("fill-guardcells")
 call Grid_fillGuardCells(CENTER, ALLDIR)
@@ -61,7 +61,7 @@ call Profiler_start("fill-guardcells")
 call Grid_fillGuardCells(CENTER, ALLDIR)
 call Profiler_stop("fill-guardcells")
 
-call Profiler_stop("flashx-evolution")
+call Profiler_stop("FLASHX_EVOLUTION")
 ```
 
 You can control which groups to profile in a given run using the following runtime parameters.
@@ -71,7 +71,7 @@ profileEvolutionOnly BOOLEAN
 profileGroupName STRING
 ```
 
-``profileEvoultionOnly=.true.`` will profile the group name ``flashx-evolution`` 
+``profileEvoultionOnly=.true.`` will profile the group name ``FLASHX_EVOLUTION`` 
 which is a reserved keyword for monitoring the full evolution. You can change this 
 behavior in parfile as,
 
@@ -95,7 +95,7 @@ option for hpcrun (dynamic) or set the `HPCRUN_DELAY_SAMPLING`
 environment variable (static), along with additional options for trace
 and event monitoring,
 
-```bash
+```
 mpirun -n <procs> hpcrun -ds -t -e CYCLES -e CACHE-MISSES flashx
 ```
 
@@ -105,7 +105,7 @@ If your application executes as expected and you do not face any permission
 issues related to `pref_event_paranoid` then you should have a measurements
 directory in your run directory. Next you need to execute,
 
-```bash
+```
 hpcstruct <measurements-folder>
 hpcprof <measurements-folder>
 ```
@@ -113,6 +113,6 @@ hpcprof <measurements-folder>
 If these are succesfull a database directory will be created parallel to the 
 measurements directory. To view results, you can execute,
 
-```bash
+```
 hpcviewer <database-folder>
 ```
