@@ -282,6 +282,12 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
+      ! Fill GuardCells for level set function
+      gcMask(:) = .FALSE.
+      gcMask(iDfunVar) = .TRUE.
+      call Grid_fillGuardCells(CENTER, ALLDIR, &
+                               maskSize=NUNK_VARS, mask=gcMask)
+
       ! Multiphase advection procedure
       ! Loop over blocks (tiles) and call Multiphase
       ! routines
@@ -298,15 +304,15 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-      ! Fill GuardCells for level set function
-      gcMask(:) = .FALSE.
-      gcMask(iDfunVar) = .TRUE.
-      call Grid_fillGuardCells(CENTER, ALLDIR, &
-                               maskSize=NUNK_VARS, mask=gcMask)
-
       ! Apply redistancing procedure
       !------------------------------------------------------------
       do iteration = 1, mph_lsIt
+
+         ! Fill GuardCells for level set function
+         gcMask(:) = .FALSE.
+         gcMask(iDfunVar) = .TRUE.
+         call Grid_fillGuardCells(CENTER, ALLDIR, &
+                                  maskSize=NUNK_VARS, mask=gcMask)
 
          ! Loop over blocks (tiles) and call Multiphase
          ! routines
@@ -320,11 +326,6 @@ subroutine Driver_evolveAll()
          end do
          call Grid_releaseTileIterator(itor)
 
-         ! Fill GuardCells for level set function
-         gcMask(:) = .FALSE.
-         gcMask(iDfunVar) = .TRUE.
-         call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS, mask=gcMask)
       end do
       !------------------------------------------------------------
 
