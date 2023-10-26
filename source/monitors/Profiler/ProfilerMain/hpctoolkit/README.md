@@ -10,26 +10,26 @@ in this [Lab Notebook](https://github.com/Lab-Notebooks/Flow-Boiling-Performance
 
 ### Setup and Compilation
 
-This profiler is available by using the setup option, **+hpctoolkit**. 
-This will require that you first install **hpctoolkit >= 2023.03.01** and define,
+This profiler is available by using the setup option, ``+hpctoolkit``. 
+This will require that you first install ``hpctoolkit >= 2023.03.01`` and define,
 
 ```make
 LIB_HPCTOOLKIT = ${HPCTOOLKIT_PATH}/lib/hpctoolkit -lhpctoolkit
 FFLAGS_HPCTOOLKIT = -g
 ```
 
-in your site specific **Makefile.h**
+in your site specific ``Makefile.h``
 
 ### Usage
 
 You can profile your Fortran source code in the following way,
 
 ```fortran
-call Profiler_start("<profile-name>")
+call Profiler_start("<group-name>")
 ! .......
 ! code segment
 ! .......
-call Profiler_stop("<profile-name>")
+call Profiler_stop("<group-name>")
 ```
 
 These subroutines interface with HPCToolKit API calls,
@@ -45,22 +45,47 @@ new profiler is started without terminating the previous one. You can
 profile specific segements of code in the following way,
 
 ```fortran
-call Profiler_start("<profile-segment-1>")
+call Profiler_start("<group-name-1>")
 ! .......
-! first segment of code
+! code segment for group name 1
 ! .......
-call Profiler_stop("<profile-segement-1>")
+call Profiler_stop("<group-name-1>")
 
 ! .......
 ! ignored segment of code
 ! .......
 
-call Profiler_start("<profile-segment-2>")
+call Profiler_start("<group-name-2>")
 ! ......
-! another segment of code
+! code segment for group name 1
 ! ......
-call Profiler_stop("<profile-segment-2>")
+call Profiler_stop("<group-name-2>")
+
+call Profiler_start("<group-name-1>")
+! ......
+! code segment for group name 1
+! ......
+call Profiler_stop("<group-name-1>")
 ```
+
+You can control which groups to profile in a given run using the following runtime parameters.
+
+```
+profileEvolutionOnly BOOLEAN
+profileGroupName STRING
+```
+
+``profileEvoultionOnly=.true.`` will profile the group name ``flashx-evolution`` 
+which is a reserved keyword for monitoring the full evolution. You can change this 
+behavior in parfile as,
+
+```
+profileEvolutionOnly=.false.
+profileGroupName="fill-guardcells"
+```
+
+This setting will only profile the group ``"fill-guardcells"``. 
+See ``source/Simulation/SimulationMain/incompFlow/Driver_evolveAll`` for an example.
 
 Please follow best practices to obtain realistic profiling results and
 throughly read the [documentation](http://hpctoolkit.org/) before using 
