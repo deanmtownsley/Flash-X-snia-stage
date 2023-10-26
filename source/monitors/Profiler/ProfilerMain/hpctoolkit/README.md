@@ -25,11 +25,11 @@ in your site specific ``Makefile.h``
 You can profile your Fortran source code in the following way,
 
 ```fortran
-call Profiler_start("<group-name>")
+call Profiler_start("<group>")
 ! .......
 ! code segment
 ! .......
-call Profiler_stop("<group-name>")
+call Profiler_stop("<group>")
 ```
 
 These subroutines interface with HPCToolKit API calls,
@@ -45,27 +45,23 @@ new profiler is started without terminating the previous one. You can
 profile specific segements of code in the following way,
 
 ```fortran
-call Profiler_start("<group-name-1>")
-! .......
-! code segment for group name 1
-! .......
-call Profiler_stop("<group-name-1>")
+call Profiler_start("flashx-evolution")
 
-! .......
-! ignored segment of code
-! .......
+call Profiler_start("fill-guardcells")
+call Grid_fillGuardCells(CENTER, ALLDIR)
+call Profiler_stop("fill-guardcells")
 
-call Profiler_start("<group-name-2>")
-! ......
-! code segment for group name 1
-! ......
-call Profiler_stop("<group-name-2>")
+call Profiler_start("physics")
+! some calls to physics routines that
+! may want to included in a separate
+! group for granular profiling
+call Profiler_stop("physics")
 
-call Profiler_start("<group-name-1>")
-! ......
-! code segment for group name 1
-! ......
-call Profiler_stop("<group-name-1>")
+call Profiler_start("fill-guardcells")
+call Grid_fillGuardCells(CENTER, ALLDIR)
+call Profiler_stop("fill-guardcells")
+
+call Profiler_stop("flashx-evolution")
 ```
 
 You can control which groups to profile in a given run using the following runtime parameters.
