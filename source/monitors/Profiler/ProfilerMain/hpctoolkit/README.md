@@ -44,7 +44,7 @@ sampling to run concurrently. Therfore, applications will abort if a
 new profiler is started without terminating the previous one. You can 
 profile specific segements of code in the following way,
 
-```fortran
+```FORTRAN
 call Profiler_start("flashx-evolution")
 
 call Profiler_start("fill-guardcells")
