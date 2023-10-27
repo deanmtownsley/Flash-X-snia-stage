@@ -11,7 +11,8 @@ subroutine Multiphase_getGridVar(name, value)
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 
-#include"Simulation.h"
+#include "Simulation.h"
+#include "constants.h"
 
    use Driver_interface, only: Driver_abort
 
@@ -30,6 +31,14 @@ subroutine Multiphase_getGridVar(name, value)
       value = SMHV_VAR
    case ("Center_Curvature", "center_curvature", "CENTER_CURVATURE")
       value = CURV_VAR
+   case ("Center_NormX", "center_normx", "CENTER_NORMX")
+      value = NRMX_VAR
+   case ("Center_NormY", "center_normy", "CENTER_NORMY")
+      value = NRMY_VAR
+#if NDIM==MDIM
+   case ("Center_NormZ", "center_normz", "CENTER_NORMZ")
+      value = NRMZ_VAR
+#endif
 #ifdef MULTIPHASE_EVAPORATION
    case ("Center_Massflux", "center_massflux", "CENTER_MASSFLUX")
       value = MFLX_VAR

@@ -45,6 +45,13 @@ RUN cd src && ./configure --enable-shared --enable-fortran --with-MPI --prefix=/
 ENV LD_LIBRARY_PATH=/Hypre/install/lib:$LD_LIBRARY_PATH
 ENV DYLD_LIBRARY_PATH=/Hypre/install/lib:$DYLD_LIBRARY_PATH
 
+# Install approximate nearest neighbor (ANN) from source
+RUN git clone https://github.com/Box-Tools/ANN-Fortran.git --branch v1.0 /ANN
+WORKDIR /ANN
+RUN make linux-g++
+ENV LD_LIBRARY_PATH=/ANN/lib:$LD_LIBRARY_PATH
+ENV DYLD_LIBRARY_PATH=/ANN/lib:$DYLD_LIBRARY_PATH
+
 # Create an archive directory to store baselins
 RUN mkdir -pv /archive/ganon_jenkins/0000-00-00
 ENV ARCHIVEDIR=/archive/ganon_jenkins/0000-00-00

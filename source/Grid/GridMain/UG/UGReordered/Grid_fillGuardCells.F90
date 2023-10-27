@@ -102,8 +102,7 @@
 !!              as if minLayers=0 had been specified.
 !! 
 !!  eosMode -   the EOS mode being used by the solver that is calling the 
-!!              routine. The valid values are :
-!!              MODE_DEFAULT     the default eos mode being used by the grid unit
+!!              routine. Some of the valid values are :
 !!              MODE_DENS_EI     density and energy input, pressure and temp output
 !!              MODE_DENS_PRES   density/pressure input, temperature/energy output
 !!              MODE_DENS_TEMP   density/temperature input, pressure/energy output
@@ -111,8 +110,9 @@
 !!  doEos    - a logical variable indicating if the calling routine wants the
 !!             gcfill process to also make sure that Eos is applied to achieve
 !!             thermodynamically consistent values of all variables.
-!!             The UG implementation does not act upon this argument.
-!! 
+!!             The UG implementation does not act upon this argument, since
+!!             guard cell filling never involves interpolation or averaging.
+!!
 !!  maskSize - the size of the mask array. 
 !! 
 !!  mask -  It is a one-dimensional logical array 
