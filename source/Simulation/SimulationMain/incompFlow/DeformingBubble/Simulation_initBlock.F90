@@ -52,11 +52,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    implicit none
 
-  !!$ Arguments -----------------------
+   !!$ Arguments -----------------------
    real, dimension(:, :, :, :), pointer :: solnData
    type(Grid_tile_t), intent(in) :: tileDesc
    integer :: tileDescID
-  !!$ ---------------------------------
+   !!$ ---------------------------------
 
    integer :: i, j, k, ibubble
    integer, dimension(MDIM) :: lo, hi
@@ -66,12 +66,17 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
+   integer :: numSamples, sampleBound, iSample
+   real :: velSum, delOffset
    !----------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
    call tileDesc%deltas(del)
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
+
+   numSamples = int(2**(sim_refineMax-tileDesc%level))
+   sampleBound = int(numSamples-numSamples/2)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
@@ -97,14 +102,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             do ibubble = 1, product(sim_numBubbles)
 
                if (ibubble == 1) then
-                  solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
-                                                           (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
-                                                           (zi - sim_bubbleLoc(KAXIS, ibubble))**2)
+                  solnData(DFUN_VAR, i, j, k) = 0.1-sqrt((xi-sim_bubbleLoc(IAXIS, ibubble))**2+ &
+                                                         (yi-sim_bubbleLoc(JAXIS, ibubble))**2+ &
+                                                         (zi-sim_bubbleLoc(KAXIS, ibubble))**2)
                else
                   solnData(DFUN_VAR, i, j, k) = max(solnData(DFUN_VAR, i, j, k), &
-                                                    0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
-                                                               (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
-                                                               (zi - sim_bubbleLoc(KAXIS, ibubble))**2))
+                                                    0.1-sqrt((xi-sim_bubbleLoc(IAXIS, ibubble))**2+ &
+                                                             (yi-sim_bubbleLoc(JAXIS, ibubble))**2+ &
+                                                             (zi-sim_bubbleLoc(KAXIS, ibubble))**2))
 
                end if
 
@@ -115,7 +120,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    end do
    deallocate (xGrid, yGrid, zGrid)
 
-   allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
@@ -132,11 +137,23 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    call tileDesc%getDataPtr(facexData, FACEX)
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS)
-         do i = lo(IAXIS), hi(IAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)+1
             xi = xGrid(i)
             yi = yGrid(j)
 
-            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+            if (tileDesc%level == sim_refineMax) then
+               facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+
+            else
+               velSum = 0
+               do iSample = -sampleBound, sampleBound
+                  if (iSample == 0) cycle
+                  delOffset = (iSample*del(JAXIS))/(2*(numSamples/2+1))
+                  velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
+               end do
+               facexData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
+            end if
+
          end do
       end do
    end do
@@ -144,7 +161,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    deallocate (xGrid, yGrid, zGrid)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
    xGrid = 0.0
@@ -159,12 +176,24 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    call tileDesc%getDataPtr(faceyData, FACEY)
    do k = lo(KAXIS), hi(KAXIS)
-      do j = lo(JAXIS), hi(JAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)+1
          do i = lo(IAXIS), hi(IAXIS)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+            if (tileDesc%level == sim_refineMax) then
+               faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+
+            else
+               velSum = 0
+               do iSample = -sampleBound, sampleBound
+                  if (iSample == 0) cycle
+                  delOffset = (iSample*del(IAXIS))/(2*(numSamples/2+1))
+                  velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
+               end do
+               faceyData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
+            end if
+
          end do
       end do
    end do

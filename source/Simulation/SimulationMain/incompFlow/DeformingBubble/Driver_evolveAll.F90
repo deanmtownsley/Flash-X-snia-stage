@@ -74,7 +74,7 @@ subroutine Driver_evolveAll()
 
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt
 
-   use Simulation_data, ONLY: sim_reInitFlow
+   use Simulation_data, ONLY: sim_reInitFlow, sim_refineMax
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
@@ -95,7 +95,7 @@ subroutine Driver_evolveAll()
    integer, dimension(4) :: prNum
    integer :: temp, i
    real :: mindiv, maxdiv
-   logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
+   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar
    integer :: iteration
@@ -111,6 +111,8 @@ subroutine Driver_evolveAll()
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
    logical :: runTest
+   integer :: numSamples, sampleBound, iSample
+   real :: velSum, delOffset
 
    ! Set interpolation values for guard cell
    call Grid_setInterpValsGcell(.TRUE.)
@@ -122,12 +124,9 @@ subroutine Driver_evolveAll()
    call Multiphase_getGridVar("CENTER_LEVELSET", iDfunVar)
 
    ! Fill GuardCells for level set function
-   ! This is done for book-keeping purposes during
-   ! restart
-   gcMask(:) = .FALSE.
-   gcMask(iDfunVar) = .TRUE.
-   call Grid_fillGuardCells(CENTER, ALLDIR, &
-                            maskSize=NUNK_VARS, mask=gcMask)
+   ! This is done for book-keeping purposes during restart
+   call Grid_fillGuardCells(CENTER, ALLDIR)
+
    endRunPl = .false.
    endRun = .false.
 
@@ -166,7 +165,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- Start Physics Sequence
       !------------------------------------------------------------
-      dr_simTime = dr_simTime + dr_dt
+      dr_simTime = dr_simTime+dr_dt
       dr_simGeneration = 0
       !------------------------------------------------------------
 
@@ -192,7 +191,10 @@ subroutine Driver_evolveAll()
             lo = tileDesc%blkLimitsGC(LOW, :)
             hi = tileDesc%blkLimitsGC(HIGH, :)
 
-            allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
+            numSamples = int(2**(sim_refineMax-tileDesc%level))
+            sampleBound = int(numSamples-numSamples/2)
+
+            allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
             allocate (yGrid(lo(JAXIS):hi(JAXIS)))
 
             xGrid = 0.0
@@ -204,11 +206,23 @@ subroutine Driver_evolveAll()
             call tileDesc%getDataPtr(facexData, FACEX)
             do kk = lo(KAXIS), hi(KAXIS)
                do jj = lo(JAXIS), hi(JAXIS)
-                  do ii = lo(IAXIS), hi(IAXIS) + 1
+                  do ii = lo(IAXIS), hi(IAXIS)+1
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     facexData(iVelVar, ii, jj, kk) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+                     if (tileDesc%level == sim_refineMax) then
+                        facexData(VELC_FACE_VAR, ii, jj, kk) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+
+                     else
+                        velSum = 0
+                        do iSample = -sampleBound, sampleBound
+                           if (iSample == 0) cycle
+                           delOffset = (iSample*del(JAXIS))/(2*(numSamples/2+1))
+                           velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
+                        end do
+                        facexData(VELC_FACE_VAR, ii, jj, kk) = velSum/numSamples
+                     end if
+
                   end do
                end do
             end do
@@ -216,7 +230,7 @@ subroutine Driver_evolveAll()
             deallocate (xGrid, yGrid)
 
             allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-            allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+            allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
 
             xGrid = 0.0
             yGrid = 0.0
@@ -226,12 +240,24 @@ subroutine Driver_evolveAll()
 
             call tileDesc%getDataPtr(faceyData, FACEY)
             do kk = lo(KAXIS), hi(KAXIS)
-               do jj = lo(JAXIS), hi(JAXIS) + 1
+               do jj = lo(JAXIS), hi(JAXIS)+1
                   do ii = lo(IAXIS), hi(IAXIS)
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     faceyData(iVelVar, ii, jj, kk) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+                     if (tileDesc%level == sim_refineMax) then
+                        faceyData(VELC_FACE_VAR, ii, jj, kk) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+
+                     else
+                        velSum = 0
+                        do iSample = -sampleBound, sampleBound
+                           if (iSample == 0) cycle
+                           delOffset = (iSample*del(IAXIS))/(2*(numSamples/2+1))
+                           velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
+                        end do
+                        faceyData(VELC_FACE_VAR, ii, jj, kk) = velSum/numSamples
+                     end if
+
                   end do
                end do
             end do
@@ -347,19 +373,15 @@ subroutine Driver_evolveAll()
       call Timers_start("IO_output")
 
       call IO_output(dr_simTime, &
-                     dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
+                     dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
       call Timers_stop("IO_output")
 
       ! Update grid and notify changes to other units
       call Grid_updateRefinement(dr_nstep, dr_simTime, gridChanged)
 
       if (gridChanged) then
-         dr_simGeneration = dr_simGeneration + 1
-
-         gcMask(:) = .FALSE.
-         gcMask(iDfunVar) = .TRUE.
-         call Grid_fillGuardCells(CENTER, ALLDIR, &
-                                  maskSize=NUNK_VARS, mask=gcMask)
+         dr_simGeneration = dr_simGeneration+1
+         call Grid_fillGuardCells(CENTER, ALLDIR)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then
@@ -382,7 +404,7 @@ subroutine Driver_evolveAll()
       dr_dt = dr_dtNew
 
       call Timers_start("io")
-      call IO_output(dr_simTime, dr_dt, dr_nstep + 1, dr_nbegin, endRun, &
+      call IO_output(dr_simTime, dr_dt, dr_nstep+1, dr_nbegin, endRun, &
                      CHECKPOINT_FILE_ONLY)
       call Timers_stop("io")
       endRun = (endRunPl .OR. endRun)
@@ -426,7 +448,7 @@ subroutine Driver_evolveAll()
    call Timers_stop("evolution")
    call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
    if (.NOT. endRun) call IO_outputFinal()
-   call Timers_getSummary(max(0, dr_nstep - dr_nbegin + 1))
+   call Timers_getSummary(max(0, dr_nstep-dr_nbegin+1))
    call Logfile_stamp("FLASH run complete.", "LOGFILE_END")
    call Logfile_close()
 
@@ -443,8 +465,8 @@ subroutine Driver_evolveAll()
          prNum(i) = mod(temp, 10)
          temp = temp/10
       end do
-      filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
-                 char(48 + prNum(2))//char(48 + prNum(1))
+      filename = "unitTest_"//char(48+prNum(4))//char(48+prNum(3))// &
+                 char(48+prNum(2))//char(48+prNum(1))
       open (fileUnit, file=fileName)
       write (fileUnit, '("P",I0)') dr_globalMe
       if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then

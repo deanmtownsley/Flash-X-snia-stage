@@ -42,7 +42,8 @@ subroutine Simulation_init()
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
                               sim_meshMe, sim_reInitFlow, &
-                              sim_numBubbles, sim_bubbleLoc
+                              sim_numBubbles, sim_bubbleLoc, &
+                              sim_refineMax
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
@@ -59,21 +60,23 @@ subroutine Simulation_init()
    call RuntimeParameters_get('zmax', sim_zMax)
 
    call RuntimeParameters_get('sim_reInitFlow', sim_reInitFlow)
+   call RuntimeParameters_get('lrefine_max', sim_refineMax)
 
    if (sim_meshMe .eq. MASTER_PE) then
       write (*, *) 'sim_reInitFlow =', sim_reInitFlow
+      write (*, *) 'sim_refineMax =', sim_refineMax
    end if
 
    ! Initialize dimensional scales
 #if NDIM < MDIM
-   sim_numBubbles(IAXIS) = int(sim_xMax - sim_xMin)
-   sim_numBubbles(JAXIS) = int(sim_yMax - sim_yMin)
+   sim_numBubbles(IAXIS) = int(sim_xMax-sim_xMin)
+   sim_numBubbles(JAXIS) = int(sim_yMax-sim_yMin)
    sim_numBubbles(KAXIS) = 1
 
 #else
-   sim_numBubbles(IAXIS) = int(sim_xMax - sim_xMin)
-   sim_numBubbles(JAXIS) = int(sim_yMax - sim_yMin)
-   sim_numBubbles(KAXIS) = int(sim_zMax - sim_zMin)
+   sim_numBubbles(IAXIS) = int(sim_xMax-sim_xMin)
+   sim_numBubbles(JAXIS) = int(sim_yMax-sim_yMin)
+   sim_numBubbles(KAXIS) = int(sim_zMax-sim_zMin)
 
 #endif
 
@@ -85,16 +88,16 @@ subroutine Simulation_init()
       do jb = 1, sim_numBubbles(JAXIS)
          do ib = 1, sim_numBubbles(IAXIS)
 
-            ibubble = ibubble + 1
+            ibubble = ibubble+1
 
 #if NDIM < MDIM
-            sim_bubbleLoc(:, ibubble) = (/(ib - 1) + 0.75, &
-                                          (jb - 1) + 0.75, &
+            sim_bubbleLoc(:, ibubble) = (/(ib-1)+0.75, &
+                                          (jb-1)+0.75, &
                                           0./)
 #else
-            sim_bubbleLoc(:, ibubble) = (/(ib - 1) + 0.75, &
-                                          (jb - 1) + 0.75, &
-                                          (kb - 1) + 0.50/)
+            sim_bubbleLoc(:, ibubble) = (/(ib-1)+0.75, &
+                                          (jb-1)+0.75, &
+                                          (kb-1)+0.50/)
 #endif
 
          end do
