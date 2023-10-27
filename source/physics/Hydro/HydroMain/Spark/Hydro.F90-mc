@@ -124,8 +124,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
-           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-           @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      \
+                                       hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
         endif
 
         @M hy_map_tmp_states
@@ -223,8 +223,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
-           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-           @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      \
+                                            hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
            @M hy_release_geom
         end if
         !Store flux buffer in semipermanent flux storage (SPFS)
@@ -372,15 +372,15 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
-                 @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-                 @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+                 @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, \
+                                              hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
               call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
               @M hy_DIR_TARGET_update_from([hy_starState])
               if (hy_geometry /= CARTESIAN) then
-                 @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-                 @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
+                 @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, \
+                                                  hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
                  @M hy_release_geom
               end if
 

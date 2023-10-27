@@ -1,16 +1,10 @@
 [submodule "lib/weaklib/source"]
 	path = lib/weaklib/source
-	branch = frontier_workaround
 	url = https://github.com/starkiller-astro/weaklib.git
 [submodule "lib/thornado/source"]
 	path = lib/thornado/source
-	branch = frontier_workaround
 	url = https://github.com/endeve/thornado.git
 [submodule "source/Grid/GridMain/AMR/Paramesh4/PM4_package"]
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
 	branch = main
 	url = https://github.com/Flash-X/PARAMESH-for-Flash-X.git
-[submodule "lib/amrex/source"]
-	path = lib/amrex/source
-	branch = development
-	url = https://github.com/AMReX-Codes/amrex

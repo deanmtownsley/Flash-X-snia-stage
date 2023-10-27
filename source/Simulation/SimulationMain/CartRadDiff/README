@@ -1,9 +1,0 @@
-# photon version
-python3 bin/setup.py CartRadDiff -auto -3d -maxblocks=200 -debug -objdir=cartraddiff-photon Bittree=True FlashAvoidOrrery=True -with-unit=source/physics/RadTrans/RadTransMain/MonteCarlo/PhotonRad
-
-# neutrino version
-python3 bin/setup.py CartRadDiff -auto -3d -maxblocks=200 -debug -objdir=cartraddiff-neutrino Bittree=True FlashAvoidOrrery=True -with-unit=source/physics/Eos/EosMain/WeakLib -with-unit=source/physics/RadTrans/RadTransMain/MonteCarlo/NeutrinoRad
-
-# plot test data with the following, where the first argument is the filename stem, the second is the
-# index to start on, and the second is the index to stop on. 
-python ../source/Simulation/SimulationMain/CartRadDiff/urad_from_mcps.py cartimc_1M_hdf5_chk_ 1 1
