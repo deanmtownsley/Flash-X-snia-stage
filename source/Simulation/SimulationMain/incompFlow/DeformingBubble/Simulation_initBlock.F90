@@ -142,7 +142,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            if (tileDesc%level == sim_refineMax) then
+            if (tileDesc%level >= sim_refineMax) then
                facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
 
             else
@@ -182,7 +182,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            if (tileDesc%level == sim_refineMax) then
+            if (tileDesc%level >= sim_refineMax) then
                faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
 
             else
