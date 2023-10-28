@@ -76,7 +76,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    hi = tileDesc%blkLimitsGC(HIGH, :)
 
    numSamples = int(2**(sim_refineMax-tileDesc%level))
-   sampleBound = int(numSamples-numSamples/2)
+   ! sampleBound = int(numSamples-numSamples/2)
+   sampleBound = numSamples - 1
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
@@ -146,9 +147,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
             else
                velSum = 0
-               do iSample = -sampleBound, sampleBound
+               do iSample = -sampleBound, sampleBound, 2
                   if (iSample == 0) cycle
-                  delOffset = (iSample*del(JAXIS))/(2*(numSamples/2+1))
+                  delOffset = (iSample*del(JAXIS))/(2*numSamples)
                   velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
                end do
                facexData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
@@ -186,9 +187,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
             else
                velSum = 0
-               do iSample = -sampleBound, sampleBound
+               do iSample = -sampleBound, sampleBound, 2
                   if (iSample == 0) cycle
-                  delOffset = (iSample*del(IAXIS))/(2*(numSamples/2+1))
+                  delOffset = (iSample*del(IAXIS))/(2*numSamples)
                   velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
                end do
                faceyData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
