@@ -148,7 +148,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             else
                velSum = 0
                do iSample = -sampleBound, sampleBound, 2
-                  if (iSample == 0) cycle
                   delOffset = (iSample*del(JAXIS))/(2*numSamples)
                   velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
                end do
@@ -188,7 +187,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             else
                velSum = 0
                do iSample = -sampleBound, sampleBound, 2
-                  if (iSample == 0) cycle
                   delOffset = (iSample*del(IAXIS))/(2*numSamples)
                   velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
                end do
