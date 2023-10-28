@@ -66,18 +66,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
-   integer :: numSamples, sampleBound, iSample
-   real :: velSum, delOffset
    !----------------------------------------------------------------------
    nullify (facexData, faceyData, facezData)
 
    call tileDesc%deltas(del)
    lo = tileDesc%blkLimitsGC(LOW, :)
    hi = tileDesc%blkLimitsGC(HIGH, :)
-
-   numSamples = int(2**(sim_refineMax-tileDesc%level))
-   ! sampleBound = int(numSamples-numSamples/2)
-   sampleBound = numSamples - 1
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
@@ -142,17 +136,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            if (tileDesc%level >= sim_refineMax) then
-               facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
-
-            else
-               velSum = 0
-               do iSample = -sampleBound, sampleBound, 2
-                  delOffset = (iSample*del(JAXIS))/(2*numSamples)
-                  velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
-               end do
-               facexData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
-            end if
+            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*(cos(2*pi*(yi+del(JAXIS)/2))- &
+                                                                   cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
 
          end do
       end do
@@ -181,17 +166,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            if (tileDesc%level >= sim_refineMax) then
-               faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
-
-            else
-               velSum = 0
-               do iSample = -sampleBound, sampleBound, 2
-                  delOffset = (iSample*del(IAXIS))/(2*numSamples)
-                  velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
-               end do
-               faceyData(VELC_FACE_VAR, i, j, k) = velSum/numSamples
-            end if
+            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*(cos(2*pi*(xi+del(IAXIS)/2))- &
+                                                                    cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
 
          end do
       end do

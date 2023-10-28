@@ -111,8 +111,6 @@ subroutine Driver_evolveAll()
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
    logical :: runTest
-   integer :: numSamples, sampleBound, iSample
-   real :: velSum, delOffset
 
    ! Set interpolation values for guard cell
    call Grid_setInterpValsGcell(.TRUE.)
@@ -191,8 +189,7 @@ subroutine Driver_evolveAll()
             lo = tileDesc%blkLimitsGC(LOW, :)
             hi = tileDesc%blkLimitsGC(HIGH, :)
 
-            numSamples = int(2**(sim_refineMax-tileDesc%level))
-            sampleBound = int(numSamples-numSamples/2)
+            call tileDesc%deltas(del)
 
             allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
             allocate (yGrid(lo(JAXIS):hi(JAXIS)))
@@ -210,18 +207,9 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     if (tileDesc%level == sim_refineMax) then
-                        facexData(VELC_FACE_VAR, ii, jj, kk) = ((sin(pi*xi))**2)*sin(2*pi*yi)
-
-                     else
-                        velSum = 0
-                        do iSample = -sampleBound, sampleBound
-                           if (iSample == 0) cycle
-                           delOffset = (iSample*del(JAXIS))/(2*(numSamples/2+1))
-                           velSum = velSum+((sin(pi*xi))**2)*sin(2*pi*(yi+delOffset))
-                        end do
-                        facexData(VELC_FACE_VAR, ii, jj, kk) = velSum/numSamples
-                     end if
+                     facexData(VELC_FACE_VAR, ii, jj, kk) = ((sin(pi*xi))**2)* &
+                                                            (cos(2*pi*(yi+del(JAXIS)/2))- &
+                                                             cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
 
                   end do
                end do
@@ -245,18 +233,9 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     if (tileDesc%level == sim_refineMax) then
-                        faceyData(VELC_FACE_VAR, ii, jj, kk) = -((sin(pi*yi))**2)*sin(2*pi*xi)
-
-                     else
-                        velSum = 0
-                        do iSample = -sampleBound, sampleBound
-                           if (iSample == 0) cycle
-                           delOffset = (iSample*del(IAXIS))/(2*(numSamples/2+1))
-                           velSum = velSum-((sin(pi*yi))**2)*sin(2*pi*(xi+delOffset))
-                        end do
-                        faceyData(VELC_FACE_VAR, ii, jj, kk) = velSum/numSamples
-                     end if
+                     faceyData(VELC_FACE_VAR, ii, jj, kk) = -((sin(pi*yi))**2)* &
+                                                            (cos(2*pi*(xi+del(IAXIS)/2))- &
+                                                             cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
 
                   end do
                end do
