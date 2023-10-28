@@ -207,7 +207,7 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     facexData(VELC_FACE_VAR, ii, jj, kk) = ((sin(pi*xi))**2)* &
+                     facexData(VELC_FACE_VAR, ii, jj, kk) = -((sin(pi*xi))**2)* &
                                                             (cos(2*pi*(yi+del(JAXIS)/2))- &
                                                              cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
 
@@ -233,7 +233,7 @@ subroutine Driver_evolveAll()
                      xi = xGrid(ii)
                      yi = yGrid(jj)
 
-                     faceyData(VELC_FACE_VAR, ii, jj, kk) = -((sin(pi*yi))**2)* &
+                     faceyData(VELC_FACE_VAR, ii, jj, kk) = ((sin(pi*yi))**2)* &
                                                             (cos(2*pi*(xi+del(IAXIS)/2))- &
                                                              cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
 

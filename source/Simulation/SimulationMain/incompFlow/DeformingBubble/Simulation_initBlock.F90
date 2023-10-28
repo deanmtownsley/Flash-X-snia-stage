@@ -136,8 +136,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*(cos(2*pi*(yi+del(JAXIS)/2))- &
-                                                                   cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
+            facexData(VELC_FACE_VAR, i, j, k) = -((sin(pi*xi))**2)*(cos(2*pi*(yi+del(JAXIS)/2))- &
+                                                                    cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
 
          end do
       end do
@@ -166,8 +166,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*(cos(2*pi*(xi+del(IAXIS)/2))- &
-                                                                    cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
+            faceyData(VELC_FACE_VAR, i, j, k) = ((sin(pi*yi))**2)*(cos(2*pi*(xi+del(IAXIS)/2))- &
+                                                                   cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
 
          end do
       end do
