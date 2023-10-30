@@ -62,7 +62,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                               hy_rk_renormAbundance, &
                               hy_rk_correctFluxes, &
                               hy_rk_shockDetect, &
-                              hy_rk_getFlatteningLimiter
+                              hy_rk_getFlatteningLimiter, &
+                              hy_rk_saveFluxBuf
 
 #include "Simulation.h"
 #include "constants.h"
@@ -142,11 +143,16 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
            @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
         endif
+        if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+           @M hy_fill_fareas
+           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
+        end if
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
         @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
@@ -188,7 +194,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                   hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                   hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
                                   hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
-           @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
 
@@ -206,29 +211,42 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                  hy_geometry, &
                                  hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                  dt, dtOld, limits)
-           @M hy_DIR_TARGET_update_from([hy_starState])
            call Timers_stop("updateSoln")
-           if (hy_fluxCorrect) then
-              wt=0.0
-              if(stage > 1)wt=1.0
-              @M hy_addFluxes
-           end if
-
+           call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                  hy_flx, hy_fly, hy_flz, &
+                                  hy_weights, stage, hy_fluxCorrect, &
+                                  blkLimits, &
+                                  hy_fareaX, hy_fareaY, hy_fareaZ)
+           if ((.not. hy_telescoping) .and. hy_fluxCorrect) then
+              @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+              call Grid_putFluxData_block(tileDesc, &
+                                          hy_fluxBufX, &
+                                          hy_fluxBufY, &
+                                          hy_fluxBufZ, &
+                                          blkLimits(LOW,:), &
+                                          add=hy_addFluxArray(stage))
+            end if
 #if NSPECIES>0
            !Properly normalize species after the update
            call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX)
 #endif
 
            ! Update EOS based on intermediate solution
+           @M hy_DIR_TARGET_update_from([hy_starState])
            call Timers_start("eos")
            call Eos_wrapped(MODE_DENS_EI, limits, hy_starState)
            call Timers_stop("eos")
+           @M hy_DIR_TARGET_update_to([hy_starState])
            !Finally update the state
            if (stage == last_stage) then !! this is only needed for telescoping version
               @M hy_updateState
            endif
 
         @M hy_end_stages_t
+        if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
+           @M hy_release_fareas
+        end if
         if (hy_geometry /= CARTESIAN) then
            @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
            @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
@@ -238,6 +256,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         end if
         !Store flux buffer in semipermanent flux storage (SPFS)
         if ((hy_telescoping).and.(hy_fluxCorrect)) then
+           @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            call Grid_putFluxData(tileDesc,&
                                  hy_fluxBufX, &
                                  hy_fluxBufY, &
@@ -247,6 +266,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_stop("Offloaded Section")
         @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
         @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+        @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -311,6 +331,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
                @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
             endif
+            if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+               @M hy_fill_fareas
+               @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
+            end if
 
             xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
             yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
@@ -323,6 +347,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_map_scr_ptrs
             @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+            @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
 
             call Timers_start("Offloaded Section")
@@ -358,7 +383,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                       hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                       hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
                                       hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
-               @M hy_DIR_TARGET_update_from([hy_flx, hy_fly, hy_flz])
                call Timers_stop("getFaceFlux")
 
                !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
@@ -376,9 +400,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                   endif
                endif
 
-               wt=0.0
-               if(stage > 1)wt=1.0
-               @M hy_addFluxes
+               call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                      hy_flx, hy_fly, hy_flz, &
+                                      hy_weights, stage, hy_fluxCorrect, &
+                                      blkLimits, &
+                                      hy_fareaX, hy_fareaY, hy_fareaZ)
 
                ! Now update solution based on conservative fluxes
                ! See select_RK_scheme() for explicit outline of C1, C2, & C3
@@ -392,16 +418,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      hy_geometry, &
                                      hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                      dt, dtOld, limits)
-               @M hy_DIR_TARGET_update_from([hy_starState])
                call Timers_stop("updateSoln")
 
 #if NSCIES>0
                call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX)
 #endif
                ! Update EOS based on intermediate solution
+               @M hy_DIR_TARGET_update_from([hy_starState])
                call Timers_start("eos")
                call Eos_wrapped(MODE_DENS_EI,limits,hy_starState)
                call Timers_stop("eos")
+               @M hy_DIR_TARGET_update_to([hy_starState])
 
                if (stage == last_stage) then
                   ! Finally, store the output and free up the scratch array
@@ -413,6 +440,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             ! Put flux buffer information into SPFS
             call Timers_stop("Offloaded Section")
             if (lev > 1) then
+               @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
                call Grid_putFluxData(tileDesc, &
                                      hy_fluxBufX, &
                                      hy_fluxBufY, &
@@ -420,6 +448,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      blkLimits(LOW,:))
             end if
 
+            if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+               @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
+               @M hy_release_fareas
+            end if
             if (hy_geometry /= CARTESIAN) then
                @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
                @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
@@ -430,6 +462,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
             @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
             @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+            @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
             @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav])
             @M hy_release_tmp_states
             @M hy_release_scr_ptrs

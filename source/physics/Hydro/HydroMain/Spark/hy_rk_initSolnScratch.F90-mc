@@ -18,7 +18,7 @@ subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage)
 #include "Simulation.h"
 #include "constants.h"
 
-  use Hydro_data, ONLY : hy_threadWithinBlock
+   use Hydro_data, ONLY : hy_threadWithinBlock
 
    implicit none
 

@@ -136,4 +136,20 @@ module hy_rk_interface
      end subroutine hy_rk_getFlatteningLimiter
    end interface
 
+   interface
+     subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
+                                  flx, fly, flz, &
+                                  weights, stage, fluxCorrect, &
+                                  blkLimits, &
+                                  fareaX, fareaY, fareaZ)
+        real, dimension(:,:,:,:), pointer :: fluxBufX, fluxBufY, fluxBufZ
+        real, dimension(:,:,:,:), pointer :: flx, fly, flz
+        real, dimension(3), intent(IN) :: weights
+        integer, intent(IN) :: stage
+        logical, intent(IN) :: fluxCorrect
+        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
+        real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ
+     end subroutine hy_rk_saveFluxBuf
+   end interface
+
 end module hy_rk_interface
