@@ -29,8 +29,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                              Grid_getCellVolumes, &
                              Grid_communicateFluxes, &
                              Grid_fillGuardCells, &
-                             Grid_correctFluxData_xtra, &
                              Grid_getFluxCorrData_block, &
+                             Grid_getFluxCorrData_xtra, &
                              Grid_putFluxData, &
                              Grid_putFluxData_block   ! this only required for nonTelescoping
   use Grid_tile, ONLY : Grid_tile_t
@@ -385,21 +385,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                       hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
                call Timers_stop("getFaceFlux")
 
-               !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
-               !This incorporates fluxes calculated in the last stage & the 'flux difference'
-               !introduced on fine coarse boundaries.
-               if (stage == last_stage) then
-                  if (lev < hy_maxLev) then
-                     call Grid_correctFluxData_xtra(tileDesc,1/hy_weights(stage),&
-                          hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
-                          hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
-                          hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D),&
-                          blkLimits(LOW,:),-1/hy_weights(stage),&
-                          hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ)
-                     @M hy_DIR_TARGET_update_to([hy_flx, hy_fly, hy_flz])
-                  endif
-               endif
-
                call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
                                       hy_flx, hy_fly, hy_flz, &
                                       hy_weights, stage, hy_fluxCorrect, &
@@ -436,9 +421,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                endif
 
             end do !stage loop
+            call Timers_stop("Offloaded Section")
 
             ! Put flux buffer information into SPFS
-            call Timers_stop("Offloaded Section")
             if (lev > 1) then
                @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
                call Grid_putFluxData(tileDesc, &
@@ -447,6 +432,25 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      hy_fluxBufZ, &
                                      blkLimits(LOW,:))
             end if
+
+            !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
+            !This incorporates fluxes calculated in the last stage & the 'flux difference'
+            !introduced on fine coarse boundaries.
+            if (lev < hy_maxLev) then
+               call Grid_getFluxCorrData_xtra(tileDesc, &
+                                              hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                              blkLimits(LOW,:), &
+                                              hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
+                                              hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
+                                              hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D))
+               call hy_rk_correctFluxes(Uin, blkLimits, &
+                                        hy_flx, hy_fly, hy_flz, &
+                                        deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                        hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                        hy_geometry, &
+                                        hy_smallE, hy_smalldens, &
+                                        dt, .NOT. hy_telescoping)
+            endif
 
             if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
                @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
