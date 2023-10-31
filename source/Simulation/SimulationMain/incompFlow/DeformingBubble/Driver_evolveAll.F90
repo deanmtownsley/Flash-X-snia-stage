@@ -59,7 +59,8 @@ subroutine Driver_evolveAll()
 
    use Grid_interface, ONLY: Grid_updateRefinement, Grid_setInterpValsGcell, &
                              Grid_fillGuardCells, Grid_getTileIterator, &
-                             Grid_releaseTileIterator, Grid_getCellCoords
+                             Grid_releaseTileIterator, Grid_getCellCoords, &
+                             Grid_restrictAllLevels
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -123,7 +124,7 @@ subroutine Driver_evolveAll()
 
    ! Fill GuardCells for level set function
    ! This is done for book-keeping purposes during restart
-   call Grid_fillGuardCells(CENTER, ALLDIR)
+   call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
 
    endRunPl = .false.
    endRun = .false.
@@ -253,6 +254,7 @@ subroutine Driver_evolveAll()
             call itor%next()
          end do
          call Grid_releaseTileIterator(itor)
+         call Grid_restrictAllLevels()
       end if
       !------------------------------------------------------------
 
@@ -360,7 +362,7 @@ subroutine Driver_evolveAll()
 
       if (gridChanged) then
          dr_simGeneration = dr_simGeneration+1
-         call Grid_fillGuardCells(CENTER, ALLDIR)
+         call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then
