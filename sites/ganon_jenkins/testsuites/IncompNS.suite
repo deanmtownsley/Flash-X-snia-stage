@@ -18,32 +18,32 @@
 # --tolerance, -tol	Tolerance for SFOCU
 
 # simple unitests that ensure that divergence is machine zero
-#incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
-#incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
+incompFlow/RisingBubble -t "UnitTest/RisingBubble/AMReX/2d" -np 2
+incompFlow/LidDrivenCavity -t "UnitTest/LidDrivenCavity/AMReX/2d" -np 4
 
 # adhruv: 07/19/2023: commenting this test until facevar compatability
 # 		      is estabilished with AMReX version > 21.05
 # adhruv: 09/08/2023: uncommenting this test to test facevar compatibility
-#incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
+incompFlow/ChannelFlow -t "UnitTest/incompFlow/ChanneFlow/2d/Periodic" -np 4
 
 # adhruv: 10/15/2023: added a paramesh pool boiling for testing performance
-#incompFlow/PoolBoiling -t "UnitTest/incompFlow/PoolBoiling/2d/Paramesh" -np 4
+incompFlow/PoolBoiling -t "UnitTest/incompFlow/PoolBoiling/2d/Paramesh" -np 4
 
 # adhruv 09/16/2023 - Added comparison tests to improve coverage of incompressible 
 #                     Navier-Stokes simulations
 # adhruv 09/16/2023 - Also adding coverage for paramesh+hypre configuration.
-#incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/AMReX/2d" -np 4 -cbase 0000-00-00
-#incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 0000-00-00
-#incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 0000-00-00
-#incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/Paramesh/2d" -np 4 -cbase 0000-00-00
-#incompFlow/RisingBubble -t "Comparison/RisingBubble/Paramesh/2d" -np 3 -cbase 0000-00-00
+incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/AMReX/2d" -np 4 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReX/2d" -np 3 -cbase 0000-00-00
+incompFlow/PoolBoiling -t "Comparison/incompFlow/PoolBoiling/2d/AMReX" -np 4 -cbase 0000-00-00
+incompFlow/ChannelFlow -t "Comparison/incompFlow/ChanneFlow/Paramesh/2d" -np 4 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/Paramesh/2d" -np 3 -cbase 0000-00-00
 
 # adhruv 10/21/2023 - Added comparison tests for enableMaskedGCFill .TRUE. At present
 #                     There are some deviations in results when this flag is enabled.
 #                     Adding these tests to  ensure coverage until sensitivity of 
 #                     Driver_evolveAll is resolved
-#incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReXGCFill/2d" -np 3 -cbase 0000-00-00
-#incompFlow/RisingBubble -t "Comparison/RisingBubble/ParameshGCFill/2d" -np 3 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/AMReXGCFill/2d" -np 3 -cbase 0000-00-00
+incompFlow/RisingBubble -t "Comparison/RisingBubble/ParameshGCFill/2d" -np 3 -cbase 0000-00-00
 
 # adhruv 10/31/2023 - Added composite tests for asserting that divergence interpolation works
 #                     as expected for amrex and paramesh configuration. These tests will ensure
