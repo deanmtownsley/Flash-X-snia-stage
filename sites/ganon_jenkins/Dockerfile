@@ -64,7 +64,8 @@ RUN curl -s -L https://anl.box.com/shared/static/u5lnmqqyqz2d6ms1ramw3i8xggnjbk6
 RUN curl -s -L https://anl.box.com/shared/static/k2dyw9tc1t5myv8dcxoh9op3hdf61el0 | \
     tar xvz --strip-components=1 -C $ARCHIVEDIR
 
-RUN cp -R $ARCHIVEDIR/ganon_jenkins/0000-00-00/Composite* $ARCHIVEDIR/ganon_jenkins/.
+# For composite tests create a copy of last changed results using the following hack
+RUN cp -R $ARCHIVEDIR/Composite* $ARCHIVEDIR/../.
 
 # Change permissions for the archive directory
 RUN chmod -R 777 $ARCHIVEDIR && ls -l $ARCHIVEDIR
