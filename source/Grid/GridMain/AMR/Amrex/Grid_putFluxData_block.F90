@@ -23,7 +23,7 @@
 !!                              real(in),Contiguous,TARGET :: fluxBufZ(lo(1): ,lo(2): ,lo(3): ,: ),
 !!                              integer(in) :: lo(3),
 !!                              logical(IN), OPTIONAL :: add,
-!!                              logical(IN), OPTIONAL :: isFluxDensity)
+!!                              logical(IN), OPTIONAL :: isFluxDensity(:))
 !!
 !! DESCRIPTION
 !!
@@ -82,6 +82,9 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   use Grid_interface, ONLY : Grid_getCellFaceAreas
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_data,      ONLY : gr_geometry
+  use gr_leafBlockInfo, ONLY: gr_getLeafBlockNo
+  use gr_auxFluxData, ONLY : gr_iloFl, gr_jloFl, gr_kloFl
+  use gr_auxFluxData, ONLY : tflux_x=>gr_tfluxX, tflux_y=>gr_tfluxY, tflux_z=>gr_tfluxZ
   use gr_physicalMultifabs, ONLY : flux_registers
   implicit none
 #include "Simulation.h"
@@ -96,11 +99,23 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   logical, intent(in), OPTIONAL :: add
   logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
 
+  real,pointer, dimension(:,:,:,:) :: fluxx,fluxy,fluxz
   integer :: fineLev            !level of this block, FLASH convention (1-based)
   integer :: ilev               !level of FlasFluxRegister into whose fine side we shall store, AMReX convention
   integer :: igrd               !grid index as used by AMReX
 
+  integer :: blockID            !actually, a leaf ID
+  integer :: sx,ex,sy,ey,sz,ez
   logical :: multFluxx,multFluxy,multFluxz !whether to multiply by area
+#if NDIM == 1
+  real,parameter :: scalA = 1.0    ! 2.0**(NDIM-1)
+#endif
+#if NDIM == 2
+  real,parameter :: scalA = 2.0    ! 2.0**(NDIM-1)
+#endif
+#if NDIM == 3
+  real,parameter :: scalA = 4.0    ! 2.0**(NDIM-1)
+#endif
   logical                  :: allIsFlux
   real,allocatable :: faceAreas(:,:,:)
   real                    :: wt
@@ -116,10 +131,10 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   end if
 
   if (wt .NE. 0.0) then
-     call Logfile_stampMessage("You probably should not try to use nontelescoping Spark with AMReX.")
-     print*,'Grid_putFluxData_block: LO,ADD,present(isFluxDensity):', lo, add, present(isFluxDensity)
-     if (present(isFluxDensity)) print*,'Grid_putFluxData_block: isFluxDensity:', isFluxDensity
-     call Driver_abort("Grid_putFluxData_block: adding is not supported with Amrex Grid!")
+!!$     call Logfile_stampMessage("You possibly should not try to use nontelescoping Spark with AMReX.")
+!!$     print*,'Grid_putFluxData_block: LO,ADD,present(isFluxDensity):', lo, add, present(isFluxDensity)
+!!$     if (present(isFluxDensity)) print*,'Grid_putFluxData_block: isFluxDensity:', isFluxDensity
+!!$     call Driver_abort("Grid_putFluxData_block: adding is not supported with Amrex Grid!")
   end if
 
   if (present(isFluxDensity)) then
@@ -129,6 +144,19 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
   else
      allIsFlux = .FALSE.
   end if
+
+  sx = NGUARD+1
+  sy = NGUARD*K2D+1
+  sz = NGUARD*K3D+1
+#ifdef FIXEDBLOCKSIZE
+  ex = NXB+NGUARD
+  ey = NYB+NGUARD*K2D
+  ez = NZB+NGUARD*K3D
+#else
+  ex = blockDesc % blkLimitsGC(HIGH,IAXIS)-NGUARD
+  ey = blockDesc % blkLimitsGC(HIGH,JAXIS)-NGUARD*K2D
+  ez = blockDesc % blkLimitsGC(HIGH,KAXIS)-NGUARD*K3D
+#endif
 
   if (allIsFlux) then
      multFluxx = .false. ; multFluxy = .false. ; multFluxz = .false.
@@ -140,7 +168,7 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
         multFluxx = (NDIM>1); multFluxy = .TRUE.  ; multFluxz = .TRUE.
      case(POLAR)
         multFluxx = .FALSE. ; multFluxy = .FALSE. ; multFluxz = .TRUE.
-     case(CYLINDRICAL)
+     case default               !CYLINDRICAL
         multFluxx = .FALSE. ; multFluxy = .TRUE.  ; multFluxz = .FALSE.
      end select
   end if
@@ -156,39 +184,64 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
 
      igrd = blockDesc % grid_index
 
+     blockID = gr_getLeafBlockNo(blockDesc)
+     fluxx(gr_iloFl:,gr_jloFl:,gr_kloFl:,1:) => fluxBufX ! fluxBuf[XYZ] use the global index convention (for the level)
+     tflux_x(1,:,:,:NFLUXES,blockID) = &
+          fluxx(sx,sy:ey,sz:ez,:) + wt*tflux_x(1,:,:,:NFLUXES,blockID)
+     tflux_x(2,:,:,:NFLUXES,blockID) = &
+          fluxx(ex+1,sy:ey,sz:ez,:) + wt*tflux_x(2,:,:,:NFLUXES,blockID)
      if (multFluxx) then
         allocate(faceAreas(lbound(fluxBufX,1):ubound(fluxBufX,1), &
                            lbound(fluxBufX,2):ubound(fluxBufX,2), &
                            lbound(fluxBufX,3):ubound(fluxBufX,3)))
         call Grid_getCellFaceAreas     (IAXIS,    fineLev,   lbound(fluxBufX),   ubound(fluxBufX), faceAreas)
-        call flux_registers(ilev)%store(fluxBufX, faceAreas, lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0)
+        call flux_registers(ilev)%store(fluxBufX, faceAreas, lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0, addit=add)
         deallocate(faceAreas)
+     else if (allIsFlux .AND. NDIM > 1) then
+        call flux_registers(ilev)%store(fluxBufX,            lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0, &
+             addit=add,scale=scalA)
      else
-        call flux_registers(ilev)%store(fluxBufX,            lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0)
+        call flux_registers(ilev)%store(fluxBufX,            lbound(fluxBufX)-1, ubound(fluxBufX)-1, igrd, 0, addit=add)
      end if
 #if NDIM > 1
+     fluxy(gr_iloFl:,gr_jloFl:,gr_kloFl:,1:) => fluxBufY ! fluxBuf[XYZ] use the global index convention (for the level)
+     tflux_y(:,1,:,:NFLUXES,blockID)  = fluxy(sx:ex,sy,sz:ez,:)  +wt*&
+             tflux_y(:,1,:,:NFLUXES,blockID)
+     tflux_y(:,2,:,:NFLUXES,blockID)  = fluxy(sx:ex,ey+1,sz:ez,:) +wt*&
+             tflux_y(:,2,:,:NFLUXES,blockID)
      if (multFluxy) then
         allocate(faceAreas(lbound(fluxBufY,1):ubound(fluxBufY,1), &
                            lbound(fluxBufY,2):ubound(fluxBufY,2), &
                            lbound(fluxBufY,3):ubound(fluxBufY,3)))
         call Grid_getCellFaceAreas     (JAXIS,    fineLev,   lbound(fluxBufY),   ubound(fluxBufY), faceAreas)
 
-        call flux_registers(ilev)%store(fluxBufY, faceAreas, lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1)
+        call flux_registers(ilev)%store(fluxBufY, faceAreas, lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1, addit=add)
         deallocate(faceAreas)
+     else if (allIsFlux) then
+        call flux_registers(ilev)%store(fluxBufY,            lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1, &
+             addit=add,scale=scalA)
      else
-        call flux_registers(ilev)%store(fluxBufY,            lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1)
+        call flux_registers(ilev)%store(fluxBufY,            lbound(fluxBufY)-1, ubound(fluxBufY)-1, igrd, 1, addit=add)
      end if
 #endif
 #if NDIM == 3
+     fluxz(gr_iloFl:,gr_jloFl:,gr_kloFl:,1:) => fluxBufZ ! fluxBuf[XYZ] use the global index convention (for the level)
+     tflux_z(:,:,1,:NFLUXES,blockID) = fluxz(sx:ex,sy:ey,sz,:) +wt*&
+             tflux_z(:,:,1,:NFLUXES,blockID)
+     tflux_z(:,:,2,:NFLUXES,blockID) = fluxz(sx:ex,sy:ey,ez+1,:) +wt*&
+             tflux_z(:,:,2,:NFLUXES,blockID)
      if (multFluxz) then
         allocate(faceAreas(lbound(fluxBufZ,1):ubound(fluxBufZ,1), &
                            lbound(fluxBufZ,2):ubound(fluxBufZ,2), &
                            lbound(fluxBufZ,3):ubound(fluxBufZ,3)))
         call Grid_getCellFaceAreas     (KAXIS,    fineLev,   lbound(fluxBufZ),   ubound(fluxBufZ), faceAreas)
-        call flux_registers(ilev)%store(fluxBufZ, faceAreas, lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2)
+        call flux_registers(ilev)%store(fluxBufZ, faceAreas, lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2, addit=add)
         deallocate(faceAreas)
+     else if (allIsFlux) then
+        call flux_registers(ilev)%store(fluxBufZ,            lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2, &
+             addit=add,scale=scalA)
      else
-        call flux_registers(ilev)%store(fluxBufZ,            lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2)
+        call flux_registers(ilev)%store(fluxBufZ,            lbound(fluxBufZ)-1, ubound(fluxBufZ)-1, igrd, 2, addit=add)
      end if
 #endif
   end if
