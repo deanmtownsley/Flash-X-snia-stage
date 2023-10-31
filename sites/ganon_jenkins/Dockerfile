@@ -61,6 +61,8 @@ RUN curl -s -L https://anl.box.com/shared/static/3ic5yepg7ad2m98g6bf4grjynep4aj8
     tar xvz --strip-components=1 -C $ARCHIVEDIR
 RUN curl -s -L https://anl.box.com/shared/static/u5lnmqqyqz2d6ms1ramw3i8xggnjbk6d | \
     tar xvz --strip-components=1 -C $ARCHIVEDIR
+RUN curl -s -L https://anl.box.com/shared/static/k2dyw9tc1t5myv8dcxoh9op3hdf61el0 | \
+    tar xvz --strip-components=1 -C $ARCHIVEDIR
 
 # Change permissions for the archive directory
 RUN chmod -R 777 $ARCHIVEDIR && ls -l $ARCHIVEDIR
