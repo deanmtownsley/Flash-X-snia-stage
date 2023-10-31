@@ -177,7 +177,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer :: lev, j
   integer :: finest_level
 
-  integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2) :: gcellChunksCC, gcellChunksFC
+  integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH) :: gcellChunksCC, gcellChunksFC
   integer :: numChunksCC, numChunksFC, chunkIndex
 
 #ifdef DEBUG_GRID
@@ -348,8 +348,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
         do chunkIndex = 1, numChunksCC
 
-           scompCC = gcellChunksCC(chunkIndex, 1)
-           ncompCC = gcellChunksCC(chunkIndex, 2) - gcellChunksCC(chunkIndex, 1) + 1
+           scompCC = gcellChunksCC(chunkIndex, LOW)
+           ncompCC = gcellChunksCC(chunkIndex, HIGH) - gcellChunksCC(chunkIndex, LOW) + 1
 
            lev = 0
            ! AMReX recommended using fillpatch, which is copying *all* data,
@@ -431,7 +431,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      ! Clean data to account for possible unphysical values caused by
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
-
+#ifndef SIMULATION_INCOMPFLOW
      if (present(doEos)) then
         needEos = (needEos .AND. doEos)
      else
@@ -573,6 +573,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         call Grid_releaseTileIterator(itor)
         call Timers_stop("sanitize")
      end if
+#endif
      call Timers_stop("gc unk")
   end if   ! End CENTER or CENTER_FACES
 
@@ -588,8 +589,8 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
         do chunkIndex = 1, numChunksFC
 
-           scompFC = gcellChunksFC(chunkIndex, 1)
-           ncompFC = gcellChunksFC(chunkIndex, 2) - gcellChunksFC(chunkIndex, 1) + 1
+           scompFC = gcellChunksFC(chunkIndex, LOW)
+           ncompFC = gcellChunksFC(chunkIndex, HIGH) - gcellChunksFC(chunkIndex, LOW) + 1
 
            lev = 0
 
@@ -674,8 +675,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   gr_justExchangedGC = .TRUE.
 
+#ifndef SIMULATION_INCOMPFLOW
   call Logfile_stamp(finest_level + 1, &
                      '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
+#endif
 
   !We now test whether we can skip the next guard cell fill.
   skipNextGcellFill = .false.
@@ -729,7 +732,7 @@ contains
      implicit none
      ! Arguments
      logical, dimension(:), intent(inout) :: mask
-     integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
+     integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH), intent(out) :: chunks
      integer, intent(out) :: numChunks
      ! Local Variables
      integer :: prevVarIndex, varIndex
@@ -749,11 +752,11 @@ contains
               call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > GRID_MAX_GCMASK_CHUNKS")
            end if
 
-           chunks(numChunks, 1) = varIndex
-           chunks(numChunks, 2) = varIndex
+           chunks(numChunks, LOW) = varIndex
+           chunks(numChunks, HIGH) = varIndex
 
         else if (mask(varIndex) .and. prevVarMask) then
-           chunks(numChunks, 2) = varIndex
+           chunks(numChunks, HIGH) = varIndex
 
         end if
 
@@ -764,9 +767,9 @@ contains
      !! If this conditions is true create a single contiguous chunk.
      !! Implemented for performance testing of masking strategies
      if (gr_gcFillSingleVarRange .and. numChunks > 0) then
-        chunks(1, :) = (/minval(chunks(1:numChunks, 1)), maxval(chunks(1:numChunks, 2))/)
+        chunks(1, :) = (/minval(chunks(1:numChunks, LOW)), maxval(chunks(1:numChunks, HIGH))/)
         chunks(2:, :) = 0
-        mask(chunks(1, 1):chunks(1, 2)) = .TRUE.
+        mask(chunks(1, LOW):chunks(1, HIGH)) = .TRUE.
         numChunks = 1
      end if
 

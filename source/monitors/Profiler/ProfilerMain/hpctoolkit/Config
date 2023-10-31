@@ -1,0 +1,9 @@
+# Configuration file for hpctoolkit profiler
+
+PARAMETER profileEvolutionOnly BOOLEAN TRUE
+PARAMETER profileGroupName STRING "FLASHX_EVOLUTION"
+
+# Set external dependency for hpctoolkit library
+LIBRARY hpctoolkit
+
+PPDEFINE PROFILER_HPCTOOLKIT

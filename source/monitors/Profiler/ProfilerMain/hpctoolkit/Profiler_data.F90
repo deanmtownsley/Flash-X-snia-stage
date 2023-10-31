@@ -1,4 +1,4 @@
-!!****if* source/monitors/Profiler/ProfilerMain/Profiler_init
+!!****if* source/monitors/Profiler/ProfilerMain/Profiler_data
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -12,24 +12,22 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  Profiler_init
+!!  Profiler_data
 !!
 !! SYNOPSIS
 !!
-!!  Profiler_init()
-!!                   
-!!  
-!! DESCRIPTION 
-!!  
-!!  Initialize the profiler unit
-!!  
-!! ARGUMENTS 
+!!  use Profiler_data
+!!
+!! DESCRIPTION
+!!
+!!  Holds the data needed by the Profiler unit
 !!
 !!***
 
-subroutine Profiler_init()
-  use Profiler_data, ONLY : prf_evolutionOnly
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  implicit none
-  call RuntimeParameters_get("profileEvolutionOnly", prf_evolutionOnly)
-end subroutine Profiler_init
+module Profiler_data
+   implicit none
+   logical, save :: prf_profilerIsOn
+   logical, save :: prf_evolutionOnly
+   character(len=50), save :: prf_groupName
+   integer, save :: prf_meshMe
+end module Profiler_data

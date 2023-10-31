@@ -37,12 +37,15 @@ subroutine sim_heaterTagSites(stime)
 
       heater => sim_heaterInfo(htr)
 
-      call Timers_start("consolidate site status")
-      call MPI_Allreduce(MPI_IN_PLACE, heater%siteIsAttachedCurr, &
-                         heater%numSites, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
-      call Timers_stop("consolidate site status")
+      !! DEVNOTE (10/20/2023): This all reduce is not relevant anymore since implementation
+      !!                       of sim_heaterMapSitesToProc. Leaving it here for legacy
+      !!
+      !call Timers_start("consolidate site status")
+      !call MPI_Allreduce(MPI_IN_PLACE, heater%siteIsAttachedCurr, &
+      !                   heater%numSites, FLASH_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierr)
+      !call Timers_stop("consolidate site status")
 
-      do isite = 1, heater%numSites
+      do isite = 1, heater%numSitesProc
 
          if (heater%siteIsAttachedPrev(isite) .eqv. .true. .and. &
              heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime

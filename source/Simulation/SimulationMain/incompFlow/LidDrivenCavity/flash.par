@@ -1,4 +1,5 @@
 # 	Runtime parameters for the Lid Driven Cavity problem.
+sim_runTest = .TRUE.
 
 # Inverse of Reynolds Number
 ins_invReynolds      = .01
