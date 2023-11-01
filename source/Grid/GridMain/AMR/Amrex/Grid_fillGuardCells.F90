@@ -276,6 +276,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !! fillpatch fortran interface
   gcellChunksCC(:, :) = 0
   gcellChunksFC(:, :) = 0
+  numChunksCC = 1
+  numChunksFC = 1
+  gcellChunksCC(1, LOW:HIGH) = (/UNK_VARS_BEGIN, UNK_VARS_END/)
+  gcellChunksFC(1, LOW:HIGH) = (/1, NFACE_VARS/)
 
   if (present(mask)) then
      if (present(maskSize)) then
@@ -288,13 +292,6 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            do dir = IAXIS, IAXIS + NDIM - 1
               gcell_on_fc(dir, :) = gcell_on_fc(IAXIS, :)
            end do
-        else
-           !! If masking is false then set chunks for all the grid variables
-           !! amrex fillpatch will be called once.
-           numChunksCC = 1
-           numChunksFC = 1
-           gcellChunksCC(1, LOW:HIGH) = (/UNK_VARS_BEGIN, UNK_VARS_END/)
-           gcellChunksFC(1, LOW:HIGH) = (/1, NFACE_VARS/)
         end if
 
         if (present(doLogMask)) then
@@ -316,14 +313,6 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            end if
         end if
      end if
-
-  else
-     !! If mask is not present then set chunks for all the grid
-     !! variables amrex fillpatch will be called once.
-     numChunksCC = 1
-     numChunksFC = 1
-     gcellChunksCC(1, LOW:HIGH) = (/UNK_VARS_BEGIN, UNK_VARS_END/)
-     gcellChunksFC(1, LOW:HIGH) = (/1, NFACE_VARS/)
   end if
 
   guard = NGUARD
