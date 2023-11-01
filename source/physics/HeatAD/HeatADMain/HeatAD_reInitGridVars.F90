@@ -1,4 +1,5 @@
 !!****if* source/physics/HeatAD/HeatADMain/HeatAD_reInitGridVars
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -28,23 +29,38 @@ subroutine HeatAD_reInitGridVars(tileDesc)
    use Driver_interface, ONLY: Driver_getNStep
    use HeatAD_data
 
-!------------------------------------------------------------------------------------------
+   !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-!------------------------------------------------------------------------------------------
+   integer :: i, j, k
+   !------------------------------------------------------------------------------------------
+
    nullify (solnData)
 
    call Timers_start("HeatAD_reInitGridVars")
 
    call tileDesc%getDataPtr(solnData, CENTER)
 
-   solnData(HTN0_VAR, :, :, :) = 0.
-   solnData(TFRC_VAR, :, :, :) = 0.
+   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
+      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
+         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
 
+            ! DEVNOTE (10/24/2023):
+            ! See accompanying changes in reInitGridVars routines
+            ! in other physics units. Only including initialzation
+            ! that are necessary.
+#ifdef HEATAD_VARDIFFUSION
+            solnData(ALPH_VAR, i, j, k) = 1.
+#endif
+            solnData(HTN0_VAR, i, j, k) = 0.
+            solnData(TFRC_VAR, i, j, k) = 0.
+
+         end do
+      end do
+   end do
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
 

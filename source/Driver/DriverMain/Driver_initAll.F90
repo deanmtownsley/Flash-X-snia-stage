@@ -115,7 +115,6 @@ subroutine Driver_initAll()
   !! uses MPI_WTime(), so Driver_initParallel() must go first, and
   !! uses RuntimeParameters_get(), so RuntimeParameters_init() must go
   !! first.
-  call Profiler_init()
   call Timers_init(dr_initialWCTime)
   call Timers_start("initialization")
 
@@ -132,6 +131,7 @@ subroutine Driver_initAll()
 
   call Logfile_init()
   call Grid_init()
+  call Profiler_init()
 
 !!  call Driver_initMaterialProperties()
   if(dr_globalMe==MASTER_PE)print*,'MaterialProperties initialized'

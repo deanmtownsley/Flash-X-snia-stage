@@ -14,14 +14,21 @@
 !!
 !!
 !!***
+
+#include "Simulation.h"
+
 subroutine sim_heaterFinalize()
 
    use sim_heaterData, ONLY: sim_heaterInfo
+#ifdef SIM_HEATER_ANN_SEARCH
+   use sim_heateData, ONLY: sim_heaterAnnIdx
+#endif
 
    implicit none
 
    deallocate (sim_heaterInfo)
-
-   return
+#ifdef SIM_HEATER_ANN_SEARCH
+   deallocate (sim_heaterAnnIdx)
+#endif
 
 end subroutine sim_heaterFinalize
