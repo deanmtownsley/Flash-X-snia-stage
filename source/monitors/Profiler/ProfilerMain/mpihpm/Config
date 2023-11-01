@@ -1,4 +1,8 @@
+UNOFFICIAL
+
 USESETUPVARS threadBlockList, threadWithinBlock, threadRayTrace
+
+PARAMETER profileEvolutionOnly BOOLEAN TRUE
 
 #libmpihpm.a is for pure MPI codes on BG/Q.
 #libmpihpm_smp.a is for mixed MPI+OpenMP codes on BG/Q.
@@ -7,3 +11,5 @@ IF threadBlockList or threadWithinBlock or threadRayTrace
 ELSE
   LIBRARY mpi mpihpm
 ENDIF
+
+PPDEFINE PROFILER_MPIHPM

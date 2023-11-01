@@ -101,8 +101,12 @@ Currently Flash-X source code uses different formatting styles for different cod
 2. **fxprettify** (tools/fileTools/fxprettify.py): A wrapper around fprettify that implements emacs style formatting. 
 
 Until strict formatting rules are established, we recommend using a style that produces minimum whitespace 
-differences when editing/adding code to an existing unit. For new units we recommend using **fprettify** with 
-3 white space indentation.
+differences when editing/adding code to an existing unit. For new units we recommend using **fprettify** with
+the following setting,
+
+```
+fprettify -i3 -w1 *.F90
+```
 
 ## Special Syntax Highlighting
 

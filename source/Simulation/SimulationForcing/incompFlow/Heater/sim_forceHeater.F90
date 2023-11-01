@@ -50,15 +50,17 @@ subroutine sim_forceHeater(nstep, dt, stime)
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
 
-   integer :: ierr
+   integer :: ierr, blockCount
 
    ! Check Nucleation Sites
    !------------------------------------------------------------
-   call Grid_getTileIterator(itor, nodetype=LEAF)
+   blockCount = 0
+   call Grid_getTileIterator(itor, nodetype=LEAF, tiling=.FALSE.)
    do while (itor%isValid())
+      blockCount = blockCount + 1
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_heaterCheckSites(tileDesc)
+      call sim_heaterCheckSites(tileDesc, blockCount)
       !---------------------------------------------------------
       call itor%next()
    end do
@@ -70,11 +72,13 @@ subroutine sim_forceHeater(nstep, dt, stime)
 
    ! Re-initialize Level-Set Function
    !-------------------------------------------------------------
+   blockCount = 0
    call Grid_getTileIterator(itor, nodetype=LEAF)
    do while (itor%isValid())
+      blockCount = blockCount + 1
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_heaterLSReInit(tileDesc, stime)
+      call sim_heaterLSReInit(tileDesc, stime, blockCount)
       !---------------------------------------------------------
       call itor%next()
    end do

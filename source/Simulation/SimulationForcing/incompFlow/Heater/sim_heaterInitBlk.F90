@@ -36,12 +36,12 @@ subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, 
                heater => sim_heaterInfo(htr)
 
                if (present(phi)) then
-                  do isite = 1, heater%numSites
-                     iheight = heater%siteRadii(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
-                     iradius = heater%siteRadii(isite)
-                     iseedX = heater%xSite(isite)
-                     iseedZ = heater%zSite(isite)
-                     iseedY = heater%ySite(isite) + iheight
+                  do isite = 1, heater%numSitesAll
+                     iheight = heater%radiusInit(isite)*cos(heater%rcdAngle*acos(-1.0)/180)
+                     iradius = heater%radiusInit(isite)
+                     iseedX = heater%xSiteInit(isite)
+                     iseedZ = heater%zSiteInit(isite)
+                     iseedY = heater%ySiteInit(isite) + iheight
                      idfun = iradius - sqrt((xcell(i) - iseedX)**2 + &
                                             (ycell(j) - iseedY)**2 + (zcell(k) - iseedZ)**2)
                      phi(i, j, k) = max(phi(i, j, k), idfun)
