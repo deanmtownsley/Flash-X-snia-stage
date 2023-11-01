@@ -118,7 +118,8 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
 #endif
   logical                  :: allIsFlux
   real,allocatable :: faceAreas(:,:,:)
-  real                    :: wt
+  real             :: wt
+  logical          :: addit
 
 #ifndef USE_AMREX_FLASHFLUXREGISTER
   call Driver_abort("Grid_putFluxData_block.F90 requires amrex_flash_fluxregister,&
@@ -126,16 +127,20 @@ subroutine Grid_putFluxData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, add,
 #else
 
   wt=0.0
+  addit = .FALSE.
   if (present(add)) then
      if(add)wt=1.0
+     addit = add
   end if
 
-  if (wt .NE. 0.0) then
-!!$     call Logfile_stampMessage("You possibly should not try to use nontelescoping Spark with AMReX.")
+#ifdef DEBUG_GRID
+  if (addit) then
+!!$     call Logfile_stampMessage("Perhaps you should not try to use nontelescoping Spark with AMReX.")
 !!$     print*,'Grid_putFluxData_block: LO,ADD,present(isFluxDensity):', lo, add, present(isFluxDensity)
 !!$     if (present(isFluxDensity)) print*,'Grid_putFluxData_block: isFluxDensity:', isFluxDensity
-!!$     call Driver_abort("Grid_putFluxData_block: adding is not supported with Amrex Grid!")
+!!$     call Driver_abort("Grid_putFluxData_block: adding not properly tested with Amrex Grid!")
   end if
+#endif
 
   if (present(isFluxDensity)) then
      allIsFlux = ( size(isFluxDensity,1) > 0 .AND. .NOT. ANY(isFluxDensity) )

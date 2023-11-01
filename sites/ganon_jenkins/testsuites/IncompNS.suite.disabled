@@ -12,7 +12,7 @@
 # --test, -t 		Desired test key/node from tests/tests.toml
 # --nprocs, -np		Number of MPI procs to be used
 # --env, -e		Environment variables, can be supplied multiple times
-# --debug, -debug	Flag to run test in debug
+# --debug		Flag to run test in debug
 # --cbase, -cbase 	Date string YYYY-MM-DD[_version]
 # --rbase, -rbase 	Date string YYYY-MM-DD[_version]
 # --tolerance, -tol	Tolerance for SFOCU
