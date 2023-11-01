@@ -20,14 +20,14 @@ module ib_interface
    interface
       subroutine ib_annBuildTree(body)
          use ImBound_type, ONLY: ImBound_type_t
-         class(ImBound_type_t), intent(INOUT)  :: body
+         type(ImBound_type_t), intent(INOUT)  :: body
       end subroutine ib_annBuildTree
    end interface
 
    interface
       subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
          use ImBound_type, ONLY: ImBound_type_t
-         class(ImBound_type_t), intent(IN)  :: body
+         type(ImBound_type_t), intent(IN)  :: body
          integer, intent(IN) :: annElems
          ! query point
          real, dimension(:), target, intent(IN) :: queryPt

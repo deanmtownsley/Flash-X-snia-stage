@@ -36,21 +36,32 @@ subroutine ImBound_reInitGridVars(tileDesc)
    use Driver_interface, ONLY: Driver_getNStep
    use ImBound_data, ONLY: ib_meshMe
 
-!------------------------------------------------------------------------------------------
+   !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-!------------------------------------------------------------------------------------------
+   integer :: i, j, k
+   !------------------------------------------------------------------------------------------
    nullify (solnData)
 
    call Timers_start("ImBound_reInitGridVars")
 
    call tileDesc%getDataPtr(solnData, CENTER)
 
-   solnData(HLN0_VAR, :, :, :) = 0.
+   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
+      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
+         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
+
+            ! DEVNOTE (10/24/2023):
+            ! Updating intializations for relevant
+            ! physics units. See IncompNS_reInitGridVars
+            ! for explanation
+            solnData(HLN0_VAR, i, j, k) = 0.
+         end do
+      end do
+   end do
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)

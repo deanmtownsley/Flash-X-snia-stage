@@ -31,7 +31,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
     mcListNoVariants = []
     baseList = []
     for f in os.listdir(unitDir):
-        if "-mc" in os.path.splitext(f)[-1]:
+        if os.path.splitext(f)[-1][-3:] == "-mc":
             mcPath = os.path.join(unitDir, f)
             with open(mcPath) as mcFile:
                 lines = mcFile.read()
