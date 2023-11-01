@@ -139,37 +139,44 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
 
 Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +uhd DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_lwf_fc_uhd.par
+  parfiles:        test23_amr_cyl_2d_pm_lwf_fc_uhd.par
+  restartParfiles: test23_amr_cyl_2d_pm_lwf_fc_uhd_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcNone:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +uhd DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_lwf_nofc_uhd.par
+  parfiles:        test23_amr_cyl_2d_pm_lwf_nofc_uhd.par
+  restartParfiles: test23_amr_cyl_2d_pm_lwf_nofc_uhd_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark.par
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_nolwf_nofc_spark.par
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_nofc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_nofc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark.par
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +uhd DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_nolwf_fc_uhd.par
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_uhd.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_uhd_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcNone:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +uhd DoAnalytical=True
-  parfiles: test23_amr_cyl_2d_pm_nolwf_nofc_uhd.par
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_nofc_uhd.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_nofc_uhd_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 ## end 2DCyl AMR
