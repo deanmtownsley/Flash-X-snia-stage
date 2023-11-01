@@ -256,7 +256,6 @@ subroutine Driver_evolveAll()
             call itor%next()
          end do
          call Grid_releaseTileIterator(itor)
-         call Grid_restrictAllLevels()
       end if
       !------------------------------------------------------------
 
