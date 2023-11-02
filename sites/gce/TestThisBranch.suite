@@ -33,13 +33,13 @@ Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt" -np 8 -cbase 2023-01-
 Sedov -t "Composite/Sedov/AMR/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
 
 Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 8
-Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNome" -np 8
+Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 8
 # Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcAllLev" -np 8
 # Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcNone" -np 8
 Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev" -np 8
 Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone" -np 8
 Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 8
-Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcNome" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 8
 Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcAllLev" -np 8
 Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcNone" -np 8
 
