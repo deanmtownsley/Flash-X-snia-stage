@@ -21,5 +21,5 @@
 #------------------------------------------------
 # Tests for - Sedov23
 #------------------------------------------------
-Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 8
-Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 8
+Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
+Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
