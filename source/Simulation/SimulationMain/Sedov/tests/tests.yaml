@@ -70,6 +70,19 @@ Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt:
   parfiles: test_pseudoug_cyl_2d_spark.par
   restartParfiles: test_pseudoug_cyl_2d_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
+  parfiles:        test23_pseudoug_cyl_2d_-_nolwf_fc_spark.par
+  restartParfiles: test23_pseudoug_cyl_2d_-_nolwf_fc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
+  parfiles:        test23_pseudoug_cyl_2d_-_nolwf_nofc_spark.par
+  restartParfiles: test23_pseudoug_cyl_2d_-_nolwf_nofc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 ## end 2DCyl PseudoUG
 
 # 3d PseudoUG
@@ -156,7 +169,7 @@ Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone:
-  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True -noc
   parfiles:        test23_amr_cyl_2d_pm_nolwf_nofc_spark.par
   restartParfiles: test23_amr_cyl_2d_pm_nolwf_nofc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
@@ -165,6 +178,12 @@ Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_spark.par
   restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcNone:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
+  parfiles:        test23_amr_cyl_2d_pm_nolwf_nofc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_nolwf_nofc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcAllLev:
