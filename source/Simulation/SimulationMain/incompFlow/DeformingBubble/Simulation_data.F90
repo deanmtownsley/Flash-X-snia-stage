@@ -39,9 +39,8 @@ module Simulation_data
 
    integer, save :: sim_meshMe
    logical, save :: sim_reInitFlow
-   logical, save :: sim_runTest
 
-   integer, save :: sim_numBubbles(MDIM)
+   integer, save :: sim_numBubbles(MDIM), sim_refineMax
    real, allocatable, dimension(:, :), save :: sim_bubbleLoc
 
 end module Simulation_data

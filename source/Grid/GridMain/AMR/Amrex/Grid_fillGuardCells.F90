@@ -177,7 +177,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer :: lev, j
   integer :: finest_level
 
-  integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2) :: gcellChunksCC, gcellChunksFC
+  integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH) :: gcellChunksCC, gcellChunksFC
   integer :: numChunksCC, numChunksFC, chunkIndex
 
 #ifdef DEBUG_GRID
@@ -271,14 +271,22 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   !! structure is filled.
   !! if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
 
+  !! Initialize mask based chunks for cell-centered and face-centered
+  !! data. These will be updated later and used when calling amrex
+  !! fillpatch fortran interface
+  gcellChunksCC(:, :) = 0
+  gcellChunksFC(:, :) = 0
+  numChunksCC = 1
+  numChunksFC = 1
+  gcellChunksCC(1, LOW:HIGH) = (/UNK_VARS_BEGIN, UNK_VARS_END/)
+  gcellChunksFC(1, LOW:HIGH) = (/1, NFACE_VARS/)
+
   if (present(mask)) then
      if (present(maskSize)) then
         if (gr_enableMaskedGCFill) then
            !! Create masking chunks based on the mask for cell-centered
            !! and face-centered variables. These chunks will be used to
            !! loop over call to amrex_fillpatch
-           gcellChunksCC(:, :) = 0
-           gcellChunksFC(:, :) = 0
            call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, numChunksCC)
            call gr_setMaskChunks_internal(gcell_on_fc(IAXIS, :), gcellChunksFC, numChunksFC)
            do dir = IAXIS, IAXIS + NDIM - 1
@@ -305,10 +313,6 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            end if
         end if
      end if
-
-  else
-     numChunksCC = 0
-     numChunksFC = 0
   end if
 
   guard = NGUARD
@@ -329,12 +333,14 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   if (needConversionInner) then
      call gr_restrictAllLevels(gridDataStruct, convertPtoC=.TRUE., &
-                               convertCtoP=.TRUE.)
+                               convertCtoP=.TRUE., chunksCC=gcellChunksCC(1:numChunksCC, LOW:HIGH), &
+                               chunksFC=gcellChunksFC(1:numChunksFC, LOW:HIGH))
   else
      ! Restrict data from leaves to coarser blocks.  Leave in conservative
      ! form as this is potentially needed for interpolation with fillpatch
      call gr_restrictAllLevels(gridDataStruct, convertPtoC=needConversionGlobal, &
-                               convertCtoP=.FALSE.)
+                               convertCtoP=.FALSE., chunksCC=gcellChunksCC(1:numChunksCC, LOW:HIGH), &
+                               chunksFC=gcellChunksFC(1:numChunksFC, LOW:HIGH))
   end if
 
   !!!!!----- FILL GUARDCELLS ON ALL BLOCKS, ALL LEVELS
@@ -344,52 +350,11 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
 
      call Timers_start("gc unk")
-     if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
 
-        do chunkIndex = 1, numChunksCC
+     do chunkIndex = 1, numChunksCC
 
-           scompCC = gcellChunksCC(chunkIndex, 1)
-           ncompCC = gcellChunksCC(chunkIndex, 2) - gcellChunksCC(chunkIndex, 1) + 1
-
-           lev = 0
-           ! AMReX recommended using fillpatch, which is copying *all* data,
-           ! including the GC.
-           call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
-                                0.0, unk(lev), &
-                                amrex_geom(lev), gr_fillPhysicalBC, &
-                                0.0, scompCC, scompCC, ncompCC)
-
-           finest_level = amrex_get_finest_level()
-           do lev = 1, finest_level
-              if (needConversionInner) then
-                 call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
-                                      0.0, unk(lev - 1), &
-                                      amrex_geom(lev - 1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev), &
-                                      0.0, unk(lev), &
-                                      amrex_geom(lev), gr_fillPhysicalBC, &
-                                      0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev - 1), gr_interpolator, &
-                                      lo_bc_amrex, hi_bc_amrex, &
-                                      gr_preinterpolationWork, &
-                                      gr_postinterpolationWork)
-              else
-                 call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
-                                      0.0, unk(lev - 1), &
-                                      amrex_geom(lev - 1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev), &
-                                      0.0, unk(lev), &
-                                      amrex_geom(lev), gr_fillPhysicalBC, &
-                                      0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev - 1), gr_interpolator, &
-                                      lo_bc_amrex, hi_bc_amrex)
-              end if
-           end do
-        end do
-     else
-
-        scompCC = UNK_VARS_BEGIN
-        ncompCC = NUNK_VARS
+        scompCC = gcellChunksCC(chunkIndex, LOW)
+        ncompCC = gcellChunksCC(chunkIndex, HIGH) - gcellChunksCC(chunkIndex, LOW) + 1
 
         lev = 0
         ! AMReX recommended using fillpatch, which is copying *all* data,
@@ -425,13 +390,12 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                    lo_bc_amrex, hi_bc_amrex)
            end if
         end do
-     end if
-
-     !!!!! FINALIZE CELL-CENTERED DATA
+     end do
+    !!!!! FINALIZE CELL-CENTERED DATA
      ! Clean data to account for possible unphysical values caused by
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
-
+#ifndef SIMULATION_INCOMPFLOW
      if (present(doEos)) then
         needEos = (needEos .AND. doEos)
      else
@@ -573,6 +537,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
         call Grid_releaseTileIterator(itor)
         call Timers_stop("sanitize")
      end if
+#endif
      call Timers_stop("gc unk")
   end if   ! End CENTER or CENTER_FACES
 
@@ -584,49 +549,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
       .OR. (gridDataStruct == FACES)) then
 
      call Timers_start("gc facevars")
-     if (gr_enableMaskedGCFill .and. numChunksFC > 0) then
+     do chunkIndex = 1, numChunksFC
 
-        do chunkIndex = 1, numChunksFC
-
-           scompFC = gcellChunksFC(chunkIndex, 1)
-           ncompFC = gcellChunksFC(chunkIndex, 2) - gcellChunksFC(chunkIndex, 1) + 1
-
-           lev = 0
-
-           do dir = 1, NDIM
-              call amrex_fillpatch(facevars(dir, lev), &
-                                   1.0, facevars(dir, lev), &
-                                   0.0, facevars(dir, lev), &
-                                   amrex_geom(lev), gr_fillPhysicalBC, &
-                                   0.0, scompFC, scompFC, ncompFC)
-           end do
-
-           finest_level = amrex_get_finest_level()
-           do lev = 1, finest_level
-              call amrex_fillpatch(facevars(:, lev), &
-                                   1.0, facevars(:, lev - 1), &
-                                   0.0, facevars(:, lev - 1), &
-                                   amrex_geom(lev - 1), &
-                                   gr_fillPhysicalBC, gr_fillPhysicalBC, &
-#if NDIM == MDIM
-                                   gr_fillPhysicalBC, &
-#endif
-                                   1.0, facevars(:, lev), &
-                                   0.0, facevars(:, lev), &
-                                   amrex_geom(lev), &
-                                   gr_fillPhysicalBC, gr_fillPhysicalBC, &
-#if NDIM == MDIM
-                                   gr_fillPhysicalBC, &
-#endif
-                                   0.0, scompFC, scompFC, ncompFC, &
-                                   amrex_ref_ratio(lev - 1), gr_interpolatorFace, &
-                                   lo_bc_amrexFace, hi_bc_amrexFace)
-           end do
-        end do
-     else
-
-        scompFC = 1
-        ncompFC = NFACE_VARS
+        scompFC = gcellChunksFC(chunkIndex, LOW)
+        ncompFC = gcellChunksFC(chunkIndex, HIGH) - gcellChunksFC(chunkIndex, LOW) + 1
 
         lev = 0
 
@@ -659,7 +585,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                 amrex_ref_ratio(lev - 1), gr_interpolatorFace, &
                                 lo_bc_amrexFace, hi_bc_amrexFace)
         end do
-     end if
+     end do
      call Timers_stop("gc facevars")
   end if
 
@@ -674,8 +600,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   gr_justExchangedGC = .TRUE.
 
+#ifndef SIMULATION_INCOMPFLOW
   call Logfile_stamp(finest_level + 1, &
                      '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
+#endif
 
   !We now test whether we can skip the next guard cell fill.
   skipNextGcellFill = .false.
@@ -729,7 +657,7 @@ contains
      implicit none
      ! Arguments
      logical, dimension(:), intent(inout) :: mask
-     integer, dimension(GRID_MAX_GCMASK_CHUNKS, 2), intent(out) :: chunks
+     integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH), intent(out) :: chunks
      integer, intent(out) :: numChunks
      ! Local Variables
      integer :: prevVarIndex, varIndex
@@ -749,11 +677,11 @@ contains
               call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > GRID_MAX_GCMASK_CHUNKS")
            end if
 
-           chunks(numChunks, 1) = varIndex
-           chunks(numChunks, 2) = varIndex
+           chunks(numChunks, LOW) = varIndex
+           chunks(numChunks, HIGH) = varIndex
 
         else if (mask(varIndex) .and. prevVarMask) then
-           chunks(numChunks, 2) = varIndex
+           chunks(numChunks, HIGH) = varIndex
 
         end if
 
@@ -764,9 +692,9 @@ contains
      !! If this conditions is true create a single contiguous chunk.
      !! Implemented for performance testing of masking strategies
      if (gr_gcFillSingleVarRange .and. numChunks > 0) then
-        chunks(1, :) = (/minval(chunks(1:numChunks, 1)), maxval(chunks(1:numChunks, 2))/)
+        chunks(1, LOW:HIGH) = (/minval(chunks(1:numChunks, LOW)), maxval(chunks(1:numChunks, HIGH))/)
         chunks(2:, :) = 0
-        mask(chunks(1, 1):chunks(1, 2)) = .TRUE.
+        mask(chunks(1, LOW):chunks(1, HIGH)) = .TRUE.
         numChunks = 1
      end if
 

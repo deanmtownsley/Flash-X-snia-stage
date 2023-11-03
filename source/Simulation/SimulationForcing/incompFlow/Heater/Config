@@ -16,3 +16,5 @@ PARAMETER sim_heaterName     STRING  "incomp_flow"
 
 D display site info 
 PARAMETER sim_heaterShowInfo BOOLEAN FALSE
+
+PPDEFINE SIM_MAX_NUMSITES 50
