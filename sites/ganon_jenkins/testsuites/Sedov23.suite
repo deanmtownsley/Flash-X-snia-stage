@@ -21,9 +21,10 @@
 #------------------------------------------------
 # Tests for - Sedov23
 #------------------------------------------------
-Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
-Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
-# Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
-# Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
-Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 4
-Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 4
+# Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
+# Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
+
+# Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 4
+# Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 4
+
+Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 4
