@@ -47,7 +47,7 @@ PARAMETER use_hybridRiemann		 BOOLEAN FALSE
 PARAMETER alpha_glm			REAL 0.9
 PARAMETER killdivb   BOOLEAN TRUE
 PARAMETER unitsystem STRING "none"
-PARAMETER telescoping          BOOLEAN  TRUE
+PARAMETER telescoping BOOLEAN CONSTANT  TRUE
 
 # Fluxes, these have to be prefixed by "F0*" because setup.py alphabetizes
 FLUX F01Dens

@@ -41,7 +41,7 @@ ENDIF
 # Request as many SCRATCHCENTERVAR variabls as there are UNK variables!
 NSCRATCHCENTERVARS NUNK_VARS
 
-PARAMETER telescoping          BOOLEAN  FALSE
+PARAMETER telescoping  BOOLEAN CONSTANT FALSE
 '''
 
     if "HydroGuardcells" in setupvars:
