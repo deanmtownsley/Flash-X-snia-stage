@@ -129,6 +129,9 @@ nblockx                        = 1
 nblocky                        = 2
 #nblockz                        = 1
 
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
+
 gr_useTiling = .FALSE.
 
 #	Related to the Hydro solver

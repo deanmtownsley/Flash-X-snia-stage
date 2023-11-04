@@ -129,12 +129,15 @@ nblockx                        = 1
 nblocky                        = 2
 #nblockz                        = 1
 
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
+
 gr_useTiling = .FALSE.
 
 #	Related to the Hydro solver
 #
 flux_correct = .FALSE.
-# flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis. Must be .true. for AMReX
+# flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis. By default .true. for AMReX
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
