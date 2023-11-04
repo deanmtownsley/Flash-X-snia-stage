@@ -62,6 +62,7 @@ subroutine IncompNS_init(restart)
    call RuntimeParameters_get("ins_dtSpec", ins_dtspec)
    call RuntimeParameters_get("ins_velProlongMethod", ins_prol_method)
    call RuntimeParameters_get("ins_inflowVelScale", ins_inflowVelScale)
+   call RuntimeParameters_get("ins_intSchm", ins_intSchm)
 
    ins_rhoGas = 1.
    ins_muGas = 1.
@@ -82,6 +83,7 @@ subroutine IncompNS_init(restart)
       write (*, *) 'ins_rhoGas=', ins_rhoGas
       write (*, *) 'ins_muGas=', ins_muGas
       write (*, *) 'ins_inflowVelScale=', ins_inflowVelScale
+      write (*, *) 'ins_intSchm=', ins_intSchm
    end if
 
    call RuntimeParameters_get("ins_pressureCorrect", ins_prescorr)

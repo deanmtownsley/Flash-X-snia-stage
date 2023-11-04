@@ -42,7 +42,7 @@ module IncompNS_data
 
   integer, save :: ins_isgs
   integer, save :: ins_cflflg
-  integer, save :: ins_intschm
+  integer, save :: ins_intSchm
   integer, save :: ins_nstep
   integer, save :: ins_meshMe
   integer, save :: ins_meshNumProcs

@@ -37,6 +37,8 @@ PARAMETER ins_pressureCorrect  BOOLEAN  TRUE             # if true does pressure
                                                          # splitting scheme (solve Poisson for DP)
                                                          # else fractional step method (solve Poisson for P).
 
+PARAMETER ins_intSchm INTEGER 2 [1,2]
+
 #---------------------------------------------------------------------------
 # Gravitational acceleration in the xi direction
 PARAMETER ins_gravX          REAL     0.

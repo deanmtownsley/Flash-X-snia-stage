@@ -23,6 +23,7 @@ PARAMETER ht_Nusselt            REAL     1.0
 PARAMETER ht_Twall_high         REAL     1.0
 PARAMETER ht_Twall_low          REAL     0.0
 PARAMETER ht_Tbulk              REAL     0.0
+PARAMETER ht_intSchm		INTEGER 2 [1,2]
 
 #-----------------------------------------------------------------------
 # Variables
