@@ -25,6 +25,7 @@
 #define DEBUG_HYDRO
 #define DEBUG_HYDRO_OFFLOADING
 #endif
+#define DEBUG_GRID_GCMASK
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
@@ -39,6 +40,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use hy_rk_interface, ONLY : hy_rk_getFaceFlux, hy_rk_getGraveAccel, hy_rk_updateSoln, hy_rk_correctFluxes
   use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Logfile_interface, ONLY : Logfile_stampVarMask
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
        Grid_correctFluxData_xtra, Grid_putFluxData, Grid_putFluxData_block, &
@@ -79,6 +81,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_declare_scr_ptr
 
+#ifdef DEBUG_GRID_GCMASK
+  logical,save :: gcMaskLogged =.FALSE.
+#else
+  logical,parameter :: gcMaskLogged =.TRUE.
+#endif
+
   integer :: lev
 
   integer :: max_edge, max_edge_y, max_edge_z,space
@@ -108,8 +116,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
 
-  if(hy_telescoping) &
-       call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+  if(hy_telescoping) then
+     @M hy_globalFillGuardCells
+  end if
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
@@ -117,8 +126,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   stage=1
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      @M hy_stages_nt !! this is the do loop statement for non-telescoping version
-     if(.NOT.hy_telescoping) &
-          call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+     if(.NOT.hy_telescoping) then
+        @M hy_globalFillGuardCells
+     end if
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,hy_del)
 
@@ -428,6 +438,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_DIR_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits])
 
+#ifdef DEBUG_GRID_GCMASK
+  gcMaskLogged = .TRUE.
+#endif
   call Timers_stop("Hydro")
 
 contains
