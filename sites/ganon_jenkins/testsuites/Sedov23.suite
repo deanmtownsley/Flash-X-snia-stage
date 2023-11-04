@@ -27,4 +27,7 @@
 # Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 4
 # Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 4
 
-Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 8
+# Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 8
+
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/sparkNt/fcNone" -np 8
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/spark/fcNone" -np 8

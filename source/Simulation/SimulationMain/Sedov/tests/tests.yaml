@@ -327,6 +327,11 @@ Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/spark/fcNone:
   parfiles:        test23_pseudoug_cart_2d_-_nolwf_nofc_spark.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Comparison/Sedov23/UG/2d/ugNolwf/spark/fcNone:
+  setupOptions: -auto -2d -nxb=192 -nyb=384 +cartesian +ug +nofbs +nolwf +spark DoAnalytical=True
+  parfiles:        test23_-_cart_2d_ug_nolwf_-_spark.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cartesian +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
   parfiles:        test23_pseudoug_cart_2d_-_nolwf_fc_spark.par
@@ -335,6 +340,11 @@ Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev:
 Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cartesian +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
   parfiles:        test23_pseudoug_cart_2d_-_nolwf_nofc_spark.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov23/UG/2d/ugNolwf/sparkNt/fcNone:
+  setupOptions: -auto -2d -nxb=192 -nyb=384 +cartesian +ug +nofbs +nolwf +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
+  parfiles:        test23_-_cart_2d_ug_nolwf_-_spark.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/spark/fcAllLev:
