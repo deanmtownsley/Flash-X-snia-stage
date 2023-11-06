@@ -64,7 +64,7 @@ zr_boundary_type = "periodic"
 
 #	Simulation time, I/O  parameters
 
-cfl		= 0.6
+cfl = 0.4
 #hy_cflFallbackFactor           = 0.9
 
 restart  = .TRUE.
