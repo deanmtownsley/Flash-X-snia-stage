@@ -6,7 +6,7 @@ LIBRARY ANN
 # be removed once fully implemented
 UNOFFICIAL
 
-# Number of queries for approximate nearest neighbor search
+D sim_heaterAnnQueries Number of queries for approximate nearest neighbor search
 PARAMETER sim_heaterAnnQueries	INTEGER 3
 
 # Relevant directives for using the

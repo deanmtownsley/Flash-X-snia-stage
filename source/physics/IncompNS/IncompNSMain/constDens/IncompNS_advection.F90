@@ -24,7 +24,7 @@ subroutine IncompNS_advection(tileDesc)
 
    use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNstep
+   use Driver_interface, ONLY: Driver_getNstep, Driver_abort
    use Stencils_interface, ONLY: Stencils_advectCentral2d, Stencils_advectCentral3d
    use IncompNS_data
 
@@ -51,6 +51,11 @@ subroutine IncompNS_advection(tileDesc)
 #endif
    !
    call Timers_start("IncompNS_advection")
+
+   if (ins_advSchm /= 2) then
+      call Driver_abort("[IncompNS_advection] ins_intSchm should be 2 for constant density configuration")
+   end if
+
    !
    blkLimits = tileDesc%limits
    blkLimitsGC = tileDesc%blkLimitsGC

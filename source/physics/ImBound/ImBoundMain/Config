@@ -4,28 +4,43 @@ REQUIRES numericalTools/Stencils/StencilsLevelset
 
 PPDEFINE IMBOUND_MAIN
 
-#--------------------------------------------------------------------------------
 D useImBound   Should the ImBound unit be used?
 PARAMETER useImBound BOOLEAN TRUE
 
-#---------------------------------------------------------------------------------
-PARAMETER ib_lsIt                    	INTEGER	2        # Level Set redistance iterations...
-PARAMETER ib_numBodies               	INTEGER	1        # Number of bodies
-PARAMETER ib_bodyName                	STRING	"flash" # Name of the string
-PARAMETER ib_enableSelectiveMapping	BOOLEAN	FALSE
+D ib_lsIt Level Set redistance iterations
+PARAMETER ib_lsIt                    	INTEGER	2
+
+D ib_numBodies Number of bodies
+PARAMETER ib_numBodies               	INTEGER	1
+
+D ib_bodyName Prefix of HDF5 ibd file
+PARAMETER ib_bodyName                	STRING	"flash"
+
+D ib_enbaleSelectiveMapping Allow for selective mapping based on block locality
+PARAMETER ib_enableSelectiveMapping	BOOLEAN	FALSED
+
+D ib_bruteForceMapping Allow for brute force mapping. Most expensive
 PARAMETER ib_bruteForceMapping		BOOLEAN	FALSE
+
+D ib_annQueries Number of approximate nearest neighbor queries
 PARAMETER ib_annQueries			INTEGER 3
 
-#---------------------------------------------------------------------------------
-VARIABLE lmda    # Level set distance function for immersed boundary
-VARIABLE hln0    # Variable to store RHS
+D lmda_variable Level set distance function for immersed boundary
+VARIABLE lmda
 
-VARIABLE nmlx TYPE:GENERIC      # level set normal (x - direction)
-VARIABLE nmly TYPE:GENERIC      # level set normal (y - direction)
+D hln0_variable Variable to store RHS for level set advection
+VARIABLE hln0
+
+D nmlx_variable Level set normal in x-direction
+VARIABLE nmlx TYPE:GENERIC
+
+D nmly_variable Level set normal in y-direction
+VARIABLE nmly TYPE:GENERIC
 
 USESETUPVARS nDim
 IF nDim == 3
-VARIABLE nmlz TYPE:GENERIC      # level set normal (z - direction)
+D nmlz_variable Level set normal in z-direction
+VARIABLE nmlz TYPE:GENERIC
 END IF
 
 LIBRARY ANN

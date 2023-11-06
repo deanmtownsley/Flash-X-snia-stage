@@ -73,6 +73,12 @@ subroutine IncompNS_init(restart)
       call RuntimeParameters_get("mph_muGas", ins_muGas)
    end if
 
+#ifdef INCOMPNS_CONSTDENS
+   ins_advSchm = 2
+#else
+   call RuntimeParameters_get("ins_advSchm", ins_advSchm)
+#endif
+
    if (ins_meshMe .eq. MASTER_PE) then
       write (*, *) 'ins_cfl   =', ins_cfl
       write (*, *) 'ins_isgs  =', ins_isgs
@@ -84,6 +90,7 @@ subroutine IncompNS_init(restart)
       write (*, *) 'ins_muGas=', ins_muGas
       write (*, *) 'ins_inflowVelScale=', ins_inflowVelScale
       write (*, *) 'ins_intSchm=', ins_intSchm
+      write (*, *) 'ins_advSchm=', ins_advSchm
    end if
 
    call RuntimeParameters_get("ins_pressureCorrect", ins_prescorr)

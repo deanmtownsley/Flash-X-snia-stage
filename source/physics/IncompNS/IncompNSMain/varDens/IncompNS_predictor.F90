@@ -55,7 +55,7 @@ subroutine IncompNS_predictor(tileDesc, dt)
    call Timers_start("IncompNS_predictor")
 
    if (ins_intSchm /= 1 .and. ins_intSchm /= 2) then
-      call Driver_abort("[IncompNS_predictor] ins_intSchm should be 1 or 2")
+      call Driver_abort("[IncompNS_predictor] ins_intSchm should be 1 or 2 for variable density configuration")
    end if
 
    !
