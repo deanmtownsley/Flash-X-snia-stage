@@ -59,8 +59,10 @@ SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1, ix1, ix2, jy1, jy2, dx, dy, ru
          !-Variable Viscosity Implementation (ru1 is 1/Re)
          txxp = ru1*visc(i, j, kz1)*(dudxp)
          txxm = ru1*visc(i - 1, j, kz1)*(dudxm)
-         tyyp = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + visc(i - 1, j + 1, kz1) + visc(i, j + 1, kz1))*(dudyp)
-         tyym = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + visc(i - 1, j - 1, kz1) + visc(i, j - 1, kz1))*(dudym)
+         tyyp = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + &
+                          visc(i - 1, j + 1, kz1) + visc(i, j + 1, kz1))*(dudyp)
+         tyym = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + &
+                          visc(i - 1, j - 1, kz1) + visc(i, j - 1, kz1))*(dudym)
 
          Mdens = rhox(i, j, kz1) ! Inverse density
 
@@ -86,8 +88,10 @@ SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1, ix1, ix2, jy1, jy2, dx, dy, ru
          dvdym = (vni(i, j, kz1) - vni(i, j - 1, kz1))*dy1
 
          !- Variable Viscosity Implementation (ru1 is 1/Re)
-         txxp = ru1*0.25*(visc(i, j, kz1) + visc(i + 1, j, kz1) + visc(i, j - 1, kz1) + visc(i + 1, j - 1, kz1))*(dvdxp)
-         txxm = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + visc(i, j - 1, kz1) + visc(i - 1, j - 1, kz1))*(dvdxm)
+         txxp = ru1*0.25*(visc(i, j, kz1) + visc(i + 1, j, kz1) + &
+                          visc(i, j - 1, kz1) + visc(i + 1, j - 1, kz1))*(dvdxp)
+         txxm = ru1*0.25*(visc(i, j, kz1) + visc(i - 1, j, kz1) + &
+                          visc(i, j - 1, kz1) + visc(i - 1, j - 1, kz1))*(dvdxm)
          tyyp = ru1*visc(i, j, kz1)*(dvdyp)
          tyym = ru1*visc(i, j - 1, kz1)*(dvdym)
 
