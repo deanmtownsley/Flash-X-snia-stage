@@ -68,12 +68,6 @@ PARAMETER  ins_dpdz  REAL  0.00
 D ins_inflowVelScale Parameter to control inflow velocity relative to reference
 PARAMETER ins_inflowVelScale REAL 1.0  
 
-D ins_lengthScaleMeters Length scale for the simulation in SI units (meter)
-PARAMETER ins_lengthScaleMeters REAL 1.0
-
-D ins_timeScaleSeconds Time scale for the simulation in SI units (seconds)
-PARAMETER ins_timeScaleSeconds REAL 1.0
-
 D pres_variable Pressure variable
 VARIABLE pres
 

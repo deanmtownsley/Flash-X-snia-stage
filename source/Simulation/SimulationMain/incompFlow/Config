@@ -41,9 +41,15 @@ LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
 
-# A logical runtime parameter to run unitests on a simulation.
-# Used in driver evolve at the end of evolution loop
+D sim_runTests Run unitests on a simulation. Used
+D & in driver evolve at the end of evolution loop
 PARAMETER sim_runTest BOOLEAN FALSE
+
+D sim_lengthScaleMeters Length scale for the simulation in SI units (meter)
+PARAMETER sim_lengthScaleMeters REAL 1.0
+
+D sim_timeScaleSeconds Time scale for the simulation in SI units (seconds)
+PARAMETER sim_timeScaleSeconds REAL 1.0
 
 # Pre-processor directive to define the simulation group
 PPDEFINE SIMULATION_INCOMPFLOW
