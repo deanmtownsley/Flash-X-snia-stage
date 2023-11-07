@@ -1,4 +1,6 @@
 # Programmatically generated parfile for flashx
+enableMaskedGCFill = .FALSE.
+sim_runTest = .TRUE.
 ins_invReynolds = 0.0033
 ins_gravY = -1.0
 mph_rhoGas = 0.0049
@@ -43,6 +45,7 @@ plot_var_2 = "velx"
 plot_var_3 = "vely"
 plot_var_4 = "dfun"
 plot_var_5 = "temp"
+plot_var_6 = "dust"
 checkpointFileNumber = 0
 plotFileNumber = 0
 ignoreForcedPlot = .TRUE.

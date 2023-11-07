@@ -16,18 +16,20 @@
 !!***
 
 #include "constants.h"
+#include "Simulation.h"
 
-subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2)
+subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
 
    use sim_heaterData
+   use Driver_interface, ONLY: Driver_abort
 
    implicit none
    real, dimension(:, :, :), intent(in)      :: phi
    real, dimension(:), intent(in)          :: xcell, ycell
    real, dimension(:, :), intent(in)        :: boundBox
-   integer, intent(in)                    :: ix1, ix2, jy1, jy2
+   integer, intent(in)                    :: ix1, ix2, jy1, jy2, lblock
 
-   integer :: i, j, k, isite, htr
+   integer :: i, j, k, isite, htr, annIndex, isiteblk
    real    :: xi, xp, yi, yp
    real    :: phiSW, phiSE, phiNW, phiNE, phiSite
 
@@ -44,7 +46,11 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
       do j = jy1, jy2 - 1
          do i = ix1, ix2 - 1
-            do isite = 1, heater%numSites
+            do isiteblk = 1, heater%numSitesBlk(lblock)
+               isite = heater%siteMapOnProc(lblock, isiteblk)
+
+               if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
+
                xi = xcell(i)
                xp = xcell(i + 1)
                yi = ycell(j)
@@ -57,27 +63,22 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
 
                phiSite = (phiSW + phiSE + phiNW + phiNE)/4.
 
-               if (xi .le. heater%xSite(isite) .and. xp .ge. heater%xSite(isite) .and. &
-                   yi .le. heater%ySite(isite) .and. yp .ge. heater%ySite(isite)) then
+               if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                   yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite)) then
 
                   if (phiSite .ge. 0.0) then
                      heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
                   else
                      heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
                   end if
-
                end if
-
             end do
          end do
       end do
-
    end do
-
-   return
 end subroutine sim_heaterCheckSitesBlk2d
 
-subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
    use sim_heaterData
 
@@ -85,9 +86,9 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
    real, dimension(:, :, :), intent(in)  :: phi
    real, dimension(:), intent(in)      :: xcell, ycell, zcell
    real, dimension(:, :), intent(in)    :: boundBox
-   integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2
+   integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
 
-   integer :: i, j, k, isite, htr
+   integer :: i, j, k, isite, htr, isiteblk
    real    :: xi, xp, yi, yp, zi, zp
    real    :: phiFSW, phiFSE, phiFNW, phiFNE
    real    :: phiBSW, phiBSE, phiBNW, phiBNE
@@ -106,7 +107,10 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
       do k = kz1, kz2 - 1
          do j = jy1, jy2 - 1
             do i = ix1, ix2 - 1
-               do isite = 1, heater%numSites
+               do isiteblk = 1, heater%numSitesBlk(lblock)
+                  isite = heater%siteMapOnProc(lblock, isiteblk)
+
+                  if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
 
                   xi = xcell(i)
                   xp = xcell(i + 1)
@@ -127,24 +131,19 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
 
                   phiSite = (phiFSW + phiFSE + phiFNW + phiFNE + phiBSW + phiBSE + phiBNW + phiBNE)/8.
 
-                  if (xi .le. heater%xSite(isite) .and. xp .ge. heater%xSite(isite) .and. &
-                      yi .le. heater%ySite(isite) .and. yp .ge. heater%ySite(isite) .and. &
-                      zi .le. heater%zSite(isite) .and. zp .ge. heater%zSite(isite)) then
+                  if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                      yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite) .and. &
+                      zi .le. heater%zSiteProc(isite) .and. zp .ge. heater%zSiteProc(isite)) then
 
                      if (phiSite .ge. 0.0) then
                         heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
                      else
                         heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
                      end if
-
                   end if
-
                end do
             end do
          end do
       end do
-
    end do
-
-   return
 end subroutine sim_heaterCheckSitesBlk3d

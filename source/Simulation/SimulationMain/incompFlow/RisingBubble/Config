@@ -5,6 +5,14 @@ REQUIRES physics/IncompNS/IncompNSMain/varDens
 REQUIRES physics/IncompNS/IncompNSExtras
 REQUIRES physics/Multiphase/MultiphaseMain
 
+USESETUPVARS InsPresLaplacian
+
+IF InsPresLaplacian
+    REQUIRES physics/IncompNS/IncompNSMain/varDens/presLaplacian
+ELSE
+    REQUIRES physics/IncompNS/IncompNSMain/varDens/presPoisson
+ENDIF
+
 USESETUPVARS SimForceInOut
 
 IF SimForceInOut

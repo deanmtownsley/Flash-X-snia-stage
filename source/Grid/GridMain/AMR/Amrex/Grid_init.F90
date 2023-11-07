@@ -229,6 +229,7 @@ subroutine Grid_init()
 ! Load into local Grid variables all runtime parameters needed by gr_amrexInit
 !------------------------------------------------------------------------------
   call RuntimeParameters_get("gr_enableTiling", gr_enableTiling)
+  call RuntimeParameters_get("gr_gcFillSingleVarRange", gr_gcFillSingleVarRange)
   call RuntimeParameters_get("gr_useTiling", gr_useTiling)
   if (gr_useTiling .AND. .NOT. gr_enableTiling) then
      if (gr_meshMe == MASTER_PE) then

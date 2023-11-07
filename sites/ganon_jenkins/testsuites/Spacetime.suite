@@ -1,0 +1,8 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Spacetime
+#------------------------------------------------
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/1D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/2D" -np 1
+unitTest/Spacetime/static -t "UnitTest/Spacetime/static/3D" -np 1

@@ -1,6 +1,6 @@
-!!****if* source/Grid/GridMain/paramesh/Grid_fillGuardCells
+!!****if* source/Grid/GridMain/AMR/Paramesh4/Grid_fillGuardCells
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 !!                  optional,integer(IN) :: eosMode,
 !!                  optional,logical(IN) :: doEos,
 !!                  optional,integer(IN) :: maskSize,
-!!                  optional,logical(IN) :: mask(maskSize),
+!!                  optional,logical(IN),dimension(:) :: mask(maskSize),
 !!                  optional,logical(IN) :: makeMaskConsistent,
 !!                  optional,logical(IN) :: doLogMask,
 !!                  optional,integer(IN) :: selectBlockType,
@@ -30,34 +30,37 @@
 !!
 !!
 !!  
-!! DESCRIPTION 
+!! DESCRIPTION
 !!
 !!  This routine fills the guardcells of the specified data structure of 
 !!  each block present in the mesh. If the adjacent blocks are at the same
 !!  level of refinement, then the values are copied from the appropriate
 !!  internal cells of the neighboring block. If the blocks are at different
 !!  levels of refinement, then in addition to copying, there will be 
-!!  restriction or prolongation. 
-!!  
-!!  For performance reason, users may choose to use masking in filling the 
-!!  guardcells, which is a feature fully supported only with Paramesh 4. They can
-!!  do so by using the optional arguments mask, maskSize and makeMaskConsistent. However, 
-!!  users should exercise extreme caution in using masking. Please see the 
-!!  NOTES section for potential side effects. If masking is present, and 
-!!  both makeMaskConsistent, and doEos are true, the Eos calculation is done only
-!!  if one of the variables selected in the mask is affected by Eos calculation.
-!!  A local routine gr_makeMaskConsistent handles this processing.
+!!  restriction or prolongation.
 !!
-!!  The argument "gridDataStruct" can take on one of many valid 
-!!  values to determine a specific grid data structure on which to apply
-!!  the guardcell fill operation. The currently available options are listed with
-!!  the arguments. Most users will use CENTER as the option,
-!!  since applications typically use the cell centered grid data, and they want
-!!  guardcells to be filled for all the variables.
-!!  More specialized applications, such as the unsplit methods, may want to use
-!!  other options. 
+!!  For performance reasons, users may choose to use masking in filling the
+!!  guardcells, which is a feature supported only with Paramesh4 and Amrex. They can
+!!  do so by using the optional arguments mask, maskSize, and makeMaskConsistent.
+!!  However, users should exercise extreme caution in using masking. Please see
+!!  the NOTES section for potential side effects. If masking is present, and
+!!  both makeMaskConsistent and doEos are true, the Eos calculation is applied only
+!!  if at least one of the variables selected in the mask is potentially an output
+!!  of the Eos calculation. A local routine gr_makeMaskConsistent handles this
+!!  processing.
+!!
+!!  The argument "gridDataStruct" can take one of several valid values to determine
+!!  a specific grid data structure (or combination of data structures) on which to
+!!  apply the guardcell fill operation. The currently available options are listed
+!!  with the arguments. Most calls in a typical Flash-X application will use CENTER
+!!  as the option, since it is most common to use cell-centered grid data and fill
+!!  guardcells for all such variables. When using AMR with Paramesh4, the
+!!  subroutine Grid_fillGuardCells can act on an additional cell-centered data
+!!  structure provided by Paramesh (by default with space for only a single
+!!  variable) represented by the option "WORK". More specialized applications
+!!  may want to use other options.
 !!  The user can also choose to fill guard cells either in a single direction,
-!!  or all of them. For most of the Flash solvers supplied with the release,
+!!  or all of them. For the Flash-X solvers supplied as of 2023,
 !!  guard cell are filled in all directions.
 !!
 !!  The optional arguments related to the Eos calls are provided because if
@@ -66,7 +69,7 @@
 !!  or more conveniently, it can instruct the gcfill process to do it. This 
 !!  feature is especially useful when mesh quantities are used to derive,
 !!  for example, tracer particle attributes. If the user opts to enable doEos,
-!!  they will not have to determine whether or here an Eos call is needed, the
+!!  they will not have to determine whether or where an Eos call is needed, the
 !!  code will do it for them. Note that Eos calls via Grid_fillGuardCells will
 !!  only be applied to guard cells, and potentially only to guard cell regions
 !!  where the data in those guard cells may be the result of either
@@ -78,26 +81,26 @@
 !! ARGUMENTS 
 !!  
 !!
-!!  gridDataStruct - integer constant, defined in "constants.h", 
-!!                   indicating which grid data structure 
-!!                   variable's guardcells to fill.
-!!                   Paramesh has 5 data structures for grid variables, the first
-!!                   four include all physical variables defined on the mesh. The 
-!!                   fifth one includes a single variable.
+!!  gridDataStruct - integer constant, defined in "constants.h", indicating for
+!!                   which grid data structures the guard cells need to be filled.
 !!
-!!                   unk                cell centered, 
+!!                   Paramesh has 5 data structures for grid variables, the first
+!!                   four store the physical variables defined on the mesh. The
+!!                   fifth one includes by default a single variable.
+!!
+!!                   unk                cell centered,
 !!                   facex,facey,facez  face centered along i,j,k 
-!!                                      direction respectively
+!!                                      direction, respectively,
 !!                   work               cell centered, single variable.
 !!                   
 !!                   valid values of gridDataStruct are  
 !!                   CENTER             unk only
-!!                   WORK               work 
-!!                   FACEX              facex
-!!                   FACEY              facey
-!!                   FACEZ              facez
+!!                   WORK               work   (only supported with Paramesh4 Grid)
+!!                   FACEX              facex  (only supported with Paramesh4 and UG)
+!!                   FACEY              facey  (only supported with Paramesh4 and UG)
+!!                   FACEZ              facez  (only supported with Paramesh4 and UG)
 !!                   FACES              facex,facey, and facez
-!!                   CENTER_FACES     unk,facex,facey,facez
+!!                   CENTER_FACES       unk and facex,facey,facez
 !!
 !!  idir - direction of guardcell fill.  User can specify ALLDIR for all (x,y,z)
 !!         directions, or if, for example, the algorithm only does one directional
@@ -127,11 +130,15 @@
 !!              remaining unchanged.
 !!
 !!   eosMode -  the EOS mode being used by the solver that is calling the 
-!!              routine. The valid values are :
-!!              MODE_DEFAULT     the default eos mode being used by the grid unit
+!!              routine. Some of the valid values are :
 !!              MODE_DENS_EI     density and energy input, pressure and temp output
 !!              MODE_DENS_PRES   density/pressure input, temperature/energy output
 !!              MODE_DENS_TEMP   density/temperature input, pressure/energy output
+!!              Other values may be supported by specific Eos implementations.
+!!              When this optional argument is not present in a call, the behavior
+!!              is the same as when the default Eos mode that is being used by the
+!!              Grid unit is specified; the latter will usually be determined by
+!!              a runtime parameter such as eosModeInit or eosMode.
 !!
 !!  doEos    - a logical variable indicating if the calling routine wants the
 !!             gcfill process to also make sure that Eos is applied to achieve

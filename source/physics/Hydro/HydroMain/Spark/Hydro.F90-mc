@@ -20,6 +20,12 @@
 !<
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!NOVARIANTS
+
+#ifdef DEBUG_ALL
+#define DEBUG_HYDRO
+#define DEBUG_HYDRO_OFFLOADING
+#endif
+
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_scratch_use
@@ -118,7 +124,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
-           @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                        hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
         endif
 
@@ -217,7 +223,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_end_stages_t
         if (hy_geometry /= CARTESIAN) then
-           @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol,      &&
+           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol,      &&
                                             hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
            @M hy_release_geom
         end if
@@ -268,7 +274,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            @M iter_end
      end if !Flux correction
     else !flux correct per level
+#ifdef DEBUG_HYDRO
      print *, "Flux correct per level"
+#endif
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
@@ -364,14 +372,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
               call Timers_start("updateSoln")
               if (hy_geometry /= CARTESIAN) then
                  @M hy_fill_geom
-                 @M hy_DIR_TARGET_enter_data(to, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                 @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, &&
                                               hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
               endif
 
               call hy_rk_updateSoln(hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_del, dt, dtOld, limits, hy_coeffs)
               @M hy_DIR_TARGET_update_from([hy_starState])
               if (hy_geometry /= CARTESIAN) then
-                 @M hy_DIR_TARGET_exit_data(release, [hy_farea, hy_fareaY, hy_fareaZ, hy_cvol, &&
+                 @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, &&
                                                   hy_xCenter, hy_xLeft, hy_xRight, hy_yCenter, hy_zCenter])
                  @M hy_release_geom
               end if
@@ -544,6 +552,7 @@ contains
 
     onCPU = .TRUE.
 
+#ifdef DEBUG_HYDRO_OFFLOADING
 #ifdef OMP_OL
     !$omp target map(tofrom:onCPU)
     !$  onCPU = omp_is_initial_device()
@@ -556,6 +565,7 @@ contains
     else
        print *, "---------------- Running on GPU --------------------------------"
     end if
+#endif
 
   end subroutine check_if_on_GPU
 

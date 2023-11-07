@@ -52,6 +52,9 @@ else
 LIB_BITTREE = 
 endif
 
+ANN_PATH = /ANN
+LIB_ANN = /ANN/lib/libANN.a
+
 #----------------------------------------------------------------------------
 # Compiler and linker commands
 #
@@ -103,7 +106,11 @@ FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_HDF5 = -I${HDF5_INCLUDE_PATH}
 
-F90FLAGS =  $(FFLAGS_HDF5) -ffree-line-length-none -I${AMREX_PATH}/include # -fallow-argument-mismatch <-- needed for gcc10
+FFLAGS_AMREX = -I${AMREX_PATH}/include
+FFLAGS_BITTREE = -I${BITTREE_PATH}/include
+FFLAGS_ANN = -I${ANN_PATH}/include
+
+F90FLAGS = # -ffree-line-length-none -fallow-argument-mismatch <-- needed for gcc10
 
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
@@ -119,6 +126,10 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 CFLAGS_TEST = -ggdb -O0 -c
 
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
+
+CFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_BITTREE = -I${BITTREE_PATH}/include
+CFLAGS_ANN = -I${ANN_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
 CFLAGS_HDF5 = -I${HDF5_INCLUDE_PATH} #-DH5_USE_16_API

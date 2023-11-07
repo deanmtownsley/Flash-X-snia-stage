@@ -16,5 +16,5 @@
 subroutine ib_annBuildTree(body)
    use ImBound_type, ONLY: ImBound_type_t
    implicit none
-   class(ImBound_type_t), intent(INOUT)  :: body
+   type(ImBound_type_t), intent(INOUT)  :: body
 end subroutine ib_annBuildTree
