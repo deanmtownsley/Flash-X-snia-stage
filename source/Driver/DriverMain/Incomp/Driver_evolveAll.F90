@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/Driver_evolveAll
+!!****if* source/Driver/DriverMain/Incomp/Driver_evolveAll
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -92,12 +92,12 @@ subroutine Driver_evolveAll()
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
 #endif
 
-#ifdef SIMULATION_FORCE_HEATER
-   use sim_heaterInterface, ONLY: sim_forceHeater, sim_heaterMapSitesToProc
+#ifdef HEATER_INCOMP
+   use Heater_interface, ONLY: Heater_applyForcing, Heater_mapSitesToProc
 #endif
 
-#ifdef SIMULATION_FORCE_OUTLET
-   use sim_outletInterface, ONLY: sim_forceOutlet
+#ifdef OUTLET_INCOMP
+   use Outlet_interface, ONLY: Outlet_applyForcing
 #endif
 
    use Profiler_interface, ONLY: Profiler_start, Profiler_stop
@@ -209,8 +209,8 @@ subroutine Driver_evolveAll()
    ! restart
    call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
 
-#ifdef SIMULATION_FORCE_HEATER
-   call sim_heaterMapSitesToProc(initial=.TRUE.)
+#ifdef HEATER_INCOMP
+   call Heater_mapSitesToProc(initial=.TRUE.)
 #endif
 
    do dr_nstep = dr_nBegin, dr_nend
@@ -257,10 +257,10 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-#ifdef SIMULATION_FORCE_HEATER
+#ifdef HEATER_INCOMP
       ! Apply heater specific forcing
       !------------------------------------------------------------
-      call sim_forceHeater(dr_nstep, dr_dt, dr_simTime)
+      call Heater_applyForcing(dr_nstep, dr_dt, dr_simTime)
       !------------------------------------------------------------
 #endif
 
@@ -369,10 +369,10 @@ subroutine Driver_evolveAll()
 
 #endif
 
-#ifdef SIMULATION_FORCE_OUTLET
+#ifdef OUTLET_INCOMP
       ! Apply outlet specific forcing
       !------------------------------------------------------------
-      call sim_forceOutlet(dr_nstep, dr_dt, dr_simTime)
+      call Outlet_applyForcing(dr_nstep, dr_dt, dr_simTime)
       !------------------------------------------------------------
 #endif
 
@@ -607,8 +607,8 @@ subroutine Driver_evolveAll()
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
-#ifdef SIMULATION_FORCE_HEATER
-         call sim_heaterMapSitesToProc(gridChanged=.TRUE.)
+#ifdef HEATER_INCOMP
+         call Heater_mapSitesToProc(gridChanged=.TRUE.)
 #endif
       end if
 
