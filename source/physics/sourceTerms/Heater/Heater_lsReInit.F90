@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterLSReInit
+!!****f* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_LSReInit
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,11 +18,11 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
+subroutine Heater_LSReInit(tileDesc, stime, blockCount)
 
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterInterface, ONLY: sim_heaterLSReInitBlk
+   use Heater_Interface, ONLY: Heater_LSReInitBlk
    use Timers_interface, ONLY: Timers_start, Timers_stop
 
    implicit none
@@ -43,7 +43,7 @@ subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
 !----------------------------------------------------------------------------------------
    nullify (solnData, facexData, faceyData, facezData)
 
-   call Timers_start("sim_heaterLSReInit")
+   call Timers_start("Heater_LSReInit")
 
 #ifdef MULTIPHASE_EVAPORATION
    blkLimits = tileDesc%limits
@@ -63,7 +63,7 @@ subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
    call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
    if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
-   call sim_heaterLSReInitBlk(solnData(DFUN_VAR, :, :, :), &
+   call Heater_LSReInitBlk(solnData(DFUN_VAR, :, :, :), &
                               xCenter, yCenter, zCenter, &
                               boundBox, stime, &
                               GRID_ILO_GC, GRID_IHI_GC, &
@@ -73,6 +73,6 @@ subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
    call tileDesc%releaseDataPtr(solnData, CENTER)
 #endif
 
-   call Timers_stop("sim_heaterLSReInit")
+   call Timers_stop("Heater_LSReInit")
 
-end subroutine sim_heaterLSReInit
+end subroutine Heater_LSReInit

@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterFinalize
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_Finalize
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -17,18 +17,18 @@
 
 #include "Simulation.h"
 
-subroutine sim_heaterFinalize()
+subroutine Heater_Finalize()
 
-   use sim_heaterData, ONLY: sim_heaterInfo
+   use Heater_Data, ONLY: Heater_Info
 #ifdef SIM_HEATER_ANN_SEARCH
-   use sim_heateData, ONLY: sim_heaterAnnIdx
+   use sim_heateData, ONLY: Heater_AnnIdx
 #endif
 
    implicit none
 
-   deallocate (sim_heaterInfo)
+   deallocate (Heater_Info)
 #ifdef SIM_HEATER_ANN_SEARCH
-   deallocate (sim_heaterAnnIdx)
+   deallocate (Heater_AnnIdx)
 #endif
 
-end subroutine sim_heaterFinalize
+end subroutine Heater_Finalize

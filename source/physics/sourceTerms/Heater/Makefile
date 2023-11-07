@@ -1,14 +1,14 @@
-Simulation += sim_heaterData.o \
-              sim_heaterInterface.o \
-              sim_heaterInit.o \
-              sim_heaterFinalize.o \
-              sim_heaterRead.o \
-              sim_heaterLSReInit.o \
-              sim_heaterCheckSites.o \
-              sim_heaterInitBlk.o \
-              sim_heaterLSReInitBlk.o \
-              sim_heaterCheckSitesBlk.o \
-              sim_heaterApplyBCToRegion.o \
-              sim_heaterTagSites.o \
-              sim_heaterMapSitesToProc.o \
-              sim_forceHeater.o
+Heater += Heater_data.o \
+          Heater_interface.o \
+          Heater_init.o \
+          Heater_finalize.o \
+          Heater_read.o \
+          Heater_lsReInit.o \
+          Heater_checkSites.o \
+          Heater_initBlk.o \
+          Heater_lsReInitBlk.o \
+          Heater_checkSitesBlk.o \
+          Heater_applyBCToRegion.o \
+          Heater_tagSites.o \
+          Heater_mapSitesToProc.o \
+          Heater_applyForcing.o

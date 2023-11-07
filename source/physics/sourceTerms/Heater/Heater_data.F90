@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterData
+!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_Data
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -14,28 +14,28 @@
 !!
 !! NAME
 !!
-!!  sim_heaterData
+!!  Heater_Data
 !!
 !! SYNOPSIS
 !!
-!!  use sim_heaterData
+!!  use Heater_Data
 !!
 !!***
 
 #include "constants.h"
 #include "Simulation.h"
 
-module sim_heaterData
+module Heater_Data
 
    use iso_c_binding
    implicit none
 
    real, save        :: sim_nucSeedRadius
    integer, save     :: sim_numHeaters
-   character(len=20), save :: sim_heaterName
-   logical, save :: sim_heaterShowInfo
+   character(len=20), save :: Heater_Name
+   logical, save :: Heater_ShowInfo
 
-   type sim_heaterType
+   type Heater_Type
 
       real    :: xMin
       real    :: xMax
@@ -64,13 +64,13 @@ module sim_heaterData
 #endif
       integer :: dims
 
-   end type sim_heaterType
+   end type Heater_Type
 
-   type(sim_heaterType), save, dimension(:), pointer :: sim_heaterInfo
+   type(Heater_Type), save, dimension(:), pointer :: Heater_Info
 
 #ifdef SIM_HEATER_ANN_SEARCH
-   integer, save, dimension(:), allocatable :: sim_heaterAnnIdx
-   integer, save :: sim_heaterAnnQueries
+   integer, save, dimension(:), allocatable :: Heater_AnnIdx
+   integer, save :: Heater_AnnQueries
 #endif
 
-end module sim_heaterData
+end module Heater_Data

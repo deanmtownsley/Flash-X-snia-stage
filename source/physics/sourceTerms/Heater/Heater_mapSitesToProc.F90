@@ -1,4 +1,4 @@
-!!****f* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterMapSitesToProc
+!!****f* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_MapSitesToProc
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -12,11 +12,11 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  sim_heaterMapSitesToProc
+!!  Heater_MapSitesToProc
 !!
 !!
 !! SYNOPSIS
-!!  sim_heaterMapSitesToProc(logical(IN) :: gridChanged)
+!!  Heater_MapSitesToProc(logical(IN) :: gridChanged)
 !!
 !! ARGUMENTS
 !!  gridChanged - If grid changed
@@ -25,12 +25,12 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterMapSitesToProc(initial, gridChanged)
+subroutine Heater_MapSitesToProc(initial, gridChanged)
 
    use Grid_interface, ONLY: Grid_getTileIterator, Grid_releaseTileIterator
    use Grid_iterator, ONLY: Grid_iterator_t
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
+   use Heater_Data, ONLY: Heater_Type, Heater_Info, sim_numHeaters
    use Driver_interface, ONLY: Driver_abort
    use Simulation_data, ONLY: sim_meshMe
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -42,13 +42,13 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
-   type(sim_heaterType), pointer :: heater
+   type(Heater_Type), pointer :: heater
    real, dimension(:), allocatable :: xSite, ySite, zSite
    integer :: numSitesProc, htr, isite, blockCount
    real :: boundBox(LOW:HIGH, 1:MDIM)
    integer :: numSitesBlk(MAXBLOCKS)
 
-   call Timers_start("sim_heaterMapSitesToProc")
+   call Timers_start("Heater_MapSitesToProc")
 
    ! Check if this procedure is being called after a grid change has occured.
    ! Currently this feature is no implemented and will abort the simulation
@@ -58,9 +58,9 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
    ! out a message indicating that it will not do anything
    if (present(gridChanged)) then
       if (gridChanged) then
-         call Driver_abort("[sim_heaterMapSitesToProc] Not Implemented for gridChanged == .TRUE.")
+         call Driver_abort("[Heater_MapSitesToProc] Not Implemented for gridChanged == .TRUE.")
       else
-         if (sim_meshMe .eq. MASTER_PE) print *, "[sim_heaterMapSitesToProc] Doing nothing, gridChanged == .FALSE."
+         if (sim_meshMe .eq. MASTER_PE) print *, "[Heater_MapSitesToProc] Doing nothing, gridChanged == .FALSE."
       end if
 
       ! Check if this procedure is being called at the begining of the time loop after
@@ -78,7 +78,7 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
 
             ! Get pointer to the current heater
             ! and set the loop variable for numSites
-            heater => sim_heaterInfo(htr)
+            heater => Heater_Info(htr)
             numSitesProc = 0
             numSitesBlk = 0
 
@@ -116,7 +116,7 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
                      numSitesProc = numSitesProc + 1
 
                      if (numSitesProc > SIM_MAX_NUMSITES) then
-                        call Driver_abort("[sim_heaterMapSitesToProc] Increase SIM_MAX_NUMSITES")
+                        call Driver_abort("[Heater_MapSitesToProc] Increase SIM_MAX_NUMSITES")
                      end if
 
                      ! Set local xyz-locations of the site
@@ -147,13 +147,13 @@ subroutine sim_heaterMapSitesToProc(initial, gridChanged)
 #endif
          end do
       else
-         if (sim_meshMe .eq. MASTER_PE) print *, "[sim_heaterMapSitesToProc] Doing nothing, initial == .FALSE."
+         if (sim_meshMe .eq. MASTER_PE) print *, "[Heater_MapSitesToProc] Doing nothing, initial == .FALSE."
       end if
 
    else
-      call Driver_abort("[sim_heaterMapSitesToProc] Unknown option. Supported options gridChanged and intial")
+      call Driver_abort("[Heater_MapSitesToProc] Unknown option. Supported options gridChanged and intial")
    end if
 
-   call Timers_stop("sim_heaterMapSitesToProc")
+   call Timers_stop("Heater_MapSitesToProc")
 
-end subroutine sim_heaterMapSitesToProc
+end subroutine Heater_MapSitesToProc

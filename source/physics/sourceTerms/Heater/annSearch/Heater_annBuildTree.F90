@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterAnnBuildTree
+!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_AnnBuildTree
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -13,15 +13,15 @@
 !!
 !!***
 
-subroutine sim_heaterAnnBuildTree(heater)
+subroutine Heater_AnnBuildTree(heater)
    use iso_c_binding
    use ANN_mod
    use ANN_types_mod
-   use sim_heaterData, ONLY: sim_heaterType
+   use Heater_Data, ONLY: Heater_Type
 
    implicit none
 
-   type(sim_heaterType), intent(INOUT)  :: heater
+   type(Heater_Type), intent(INOUT)  :: heater
 
    ! ANN tree variables
    integer :: siteIndex, rowSize, colSize
@@ -48,4 +48,4 @@ subroutine sim_heaterAnnBuildTree(heater)
 
    deallocate (annDset)
 
-end subroutine sim_heaterAnnBuildTree
+end subroutine Heater_AnnBuildTree

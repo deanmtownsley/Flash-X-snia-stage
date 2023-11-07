@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterApplyBCToRegion
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_ApplyBCToRegion
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,11 +18,11 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                      guard, face, axis, secondDir, thirdDir)
 
    use Driver_interface, ONLY: Driver_abort
-   use sim_heaterData, ONLY: sim_heaterType, sim_heaterInfo, sim_numHeaters
+   use Heater_Data, ONLY: Heater_Type, Heater_Info, sim_numHeaters
    use Grid_interface, ONLY: Grid_getDeltas
 
    implicit none
@@ -41,7 +41,7 @@ subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, co
 !-------------------------------------------------------------------------------------------
    integer :: je, ke
    integer :: i, j, k, htr, offset
-   type(sim_heaterType), pointer :: heater
+   type(Heater_Type), pointer :: heater
    real, dimension(MDIM)  :: del
    real :: dynamicAngle, veli
 
@@ -52,7 +52,7 @@ subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, co
 
    offset = 2*guard + 1
 
-   if (face == HIGH) call Driver_abort('[sim_heaterApplyBCToRegion] not configured for face == HIGH')
+   if (face == HIGH) call Driver_abort('[Heater_ApplyBCToRegion] not configured for face == HIGH')
 
    if (ivar == TEMP_VAR) then
       do k = 1, ke
@@ -60,7 +60,7 @@ subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, co
             do i = 1, guard
                do htr = 1, sim_numHeaters
 
-                  heater => sim_heaterInfo(htr)
+                  heater => Heater_Info(htr)
 
                   if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
                       coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
@@ -83,7 +83,7 @@ subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, co
             do i = 1, guard
                do htr = 1, sim_numHeaters
 
-                  heater => sim_heaterInfo(htr)
+                  heater => Heater_Info(htr)
 
                   if (coordinates(i, j, k, IAXIS) .gt. heater%xMin .and. &
                       coordinates(i, j, k, IAXIS) .lt. heater%xMax .and. &
@@ -117,4 +117,4 @@ subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, co
 
    end if
 
-end subroutine sim_heaterApplyBCToRegion
+end subroutine Heater_applyBCToRegion

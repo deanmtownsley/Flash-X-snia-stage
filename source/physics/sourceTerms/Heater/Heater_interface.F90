@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterInterface
+!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_Interface
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -16,7 +16,7 @@
 !!
 !!
 !! SYNOPSIS
-!!  sim_heaterInterface()
+!!  Heater_Interface()
 !!
 !! DESCRIPTION
 !!  This is an interface specific for heater geometry and specifications
@@ -26,84 +26,84 @@
 #include "constants.h"
 #include "Simulation.h"
 
-Module sim_heaterInterface
+Module Heater_interface
 
    implicit none
 
    interface
-      subroutine sim_heaterInit()
-      end subroutine sim_heaterInit
+      subroutine Heater_Init()
+      end subroutine Heater_Init
    end interface
 
    interface
-      subroutine sim_heaterFinalize()
-      end subroutine sim_heaterFinalize
+      subroutine Heater_Finalize()
+      end subroutine Heater_Finalize
    end interface
 
    interface
-      subroutine sim_heaterCheckSites(tileDesc, blockCount)
+      subroutine Heater_CheckSites(tileDesc, blockCount)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          integer, intent(in) :: blockCount
-      end subroutine sim_heaterCheckSites
+      end subroutine Heater_CheckSites
    end interface
 
    interface
-      subroutine sim_heaterLSReInit(tileDesc, stime, blockCount)
+      subroutine Heater_LSReInit(tileDesc, stime, blockCount)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), intent(in) :: tileDesc
          real, intent(in) :: stime
          integer, intent(in) :: blockCount
-      end subroutine sim_heaterLSReInit
+      end subroutine Heater_LSReInit
    end interface
 
    interface
-      subroutine sim_heaterRead(heaterID, heaterFile)
+      subroutine Heater_Read(heaterID, heaterFile)
          integer, intent(in)          :: heaterID
          character(len=*), intent(in) :: heaterFile
-      end subroutine sim_heaterRead
+      end subroutine Heater_Read
    end interface
 
    interface
-      subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
+      subroutine Heater_InitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
          real, dimension(:, :, :), intent(inout) :: temp
          real, dimension(:, :, :), intent(inout), optional :: phi
          real, dimension(:), intent(in)        :: xcell, ycell, zcell
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
-      end subroutine sim_heaterInitBlk
+      end subroutine Heater_InitBlk
    end interface
 
    interface
-      subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, &
+      subroutine Heater_LSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, &
                                        ix1, ix2, jy1, jy2, kz1, kz2, lblock)
          real, dimension(:, :, :), intent(inout) :: phi
          real, dimension(:), intent(in)        :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)      :: boundBox
          real, intent(in)                      :: stime
          integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
-      end subroutine sim_heaterLSReInitBlk
+      end subroutine Heater_LSReInitBlk
    end interface
 
-   interface sim_heaterCheckSitesBlk
-      subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
+   interface Heater_CheckSitesBlk
+      subroutine Heater_CheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
          real, dimension(:, :, :), intent(in)  :: phi
          real, dimension(:), intent(in)      :: xcell, ycell
          real, dimension(:, :), intent(in)    :: boundBox
          integer, intent(in)                 :: ix1, ix2, jy1, jy2, lblock
-      end subroutine sim_heaterCheckSitesBlk2d
+      end subroutine Heater_CheckSitesBlk2d
 
-      subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
+      subroutine Heater_CheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
          real, dimension(:, :, :), intent(in)  :: phi
          real, dimension(:), intent(in)      :: xcell, ycell, zcell
          real, dimension(:, :), intent(in)    :: boundBox
          integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
-      end subroutine sim_heaterCheckSitesBlk3d
+      end subroutine Heater_CheckSitesBlk3d
    end interface
 
    interface
-      subroutine sim_heaterApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+      subroutine Heater_ApplyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                            guard, face, axis, secondDir, thirdDir)
          integer, intent(IN) :: level, ivar, gridDataStruct
          integer, dimension(REGION_DIM), intent(IN) :: regionSize
@@ -120,7 +120,7 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterTagSites(stime)
+      subroutine Heater_TagSites(stime)
          real, intent(in) :: stime
       end subroutine
    end interface
@@ -135,32 +135,32 @@ Module sim_heaterInterface
    end interface
 
    interface
-      subroutine sim_heaterMapSitesToProc(initial, gridChanged)
+      subroutine Heater_MapSitesToProc(initial, gridChanged)
          implicit none
          logical, intent(in), optional :: initial
          logical, intent(in), optional :: gridChanged
-      end subroutine sim_heaterMapSitesToProc
+      end subroutine Heater_MapSitesToProc
    end interface
 
 #ifdef SIM_HEATER_ANN_SEARCH
    interface
-      subroutine sim_heaterAnnBuildTree(heater)
-         use sim_heaterData, ONLY: sim_heaterType
-         type(sim_heaterType), intent(INOUT)  :: heater
-      end subroutine sim_heaterAnnBuildTree
+      subroutine Heater_AnnBuildTree(heater)
+         use Heater_Data, ONLY: Heater_Type
+         type(Heater_Type), intent(INOUT)  :: heater
+      end subroutine Heater_AnnBuildTree
    end interface
 
    interface
-      subroutine sim_heaterAnnSearchTree(heater, queryPt, annElems, annIdx)
-         use sim_heaterData, ONLY: sim_heaterType
-         type(sim_heaterType), intent(IN)  :: heater
+      subroutine Heater_AnnSearchTree(heater, queryPt, annElems, annIdx)
+         use Heater_Data, ONLY: Heater_Type
+         type(Heater_Type), intent(IN)  :: heater
          integer, intent(IN) :: annElems
          ! query point
          real, dimension(:), target, intent(IN) :: queryPt
          ! indices of nearest neighbors
          integer, dimension(:), target, intent(OUT):: annIdx
-      end subroutine sim_heaterAnnSearchTree
+      end subroutine Heater_AnnSearchTree
    end interface
 #endif
 
-End module sim_heaterInterface
+End module Heater_interface

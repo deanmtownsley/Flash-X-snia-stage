@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterLSReInitBlk
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_LSReInitBlk
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,9 +18,9 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
+subroutine Heater_LSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
-   use sim_heaterData
+   use Heater_Data
    use Driver_interface, ONLY: Driver_abort
 
    implicit none
@@ -29,13 +29,13 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
    real, dimension(:, :), intent(in)      :: boundBox
    real, intent(in)                      :: stime
    integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
-   type(sim_heaterType), pointer  :: heater
+   type(Heater_Type), pointer  :: heater
    integer :: i, j, k, htr, isite, annIndex, isiteblk
    real    :: idfun, iseedY, iseedX, iseedZ, iradius
 
    do htr = 1, sim_numHeaters
 
-      heater => sim_heaterInfo(htr)
+      heater => Heater_Info(htr)
 
 #if NDIM < MDIM
       if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
@@ -52,7 +52,7 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
                do isiteblk = 1, heater%numSitesBlk(lblock)
 
                   isite = heater%siteMapOnProc(lblock, isiteblk)
-                  if (isite < 1) call Driver_abort("[sim_heaterLSReInitBlk] isite < 1")
+                  if (isite < 1) call Driver_abort("[Heater_LSReInitBlk] isite < 1")
 
                   if (((heater%siteTimeStamp(isite) + heater%nucWaitTime) .le. stime) .and. &
                       (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then
@@ -69,4 +69,4 @@ subroutine sim_heaterLSReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1,
          end do
       end do
    end do
-end subroutine sim_heaterLSReInitBlk
+end subroutine Heater_LSReInitBlk

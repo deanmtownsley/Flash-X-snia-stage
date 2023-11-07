@@ -1,2 +1,2 @@
-Simulation += sim_heaterAnnBuildTree.o \
-              sim_heaterAnnSearchTree.o
+Simulation += Heater_annBuildTree.o \
+              Heater_annSearchTree.o

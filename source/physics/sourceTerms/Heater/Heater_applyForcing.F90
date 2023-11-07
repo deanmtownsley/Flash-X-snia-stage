@@ -39,8 +39,8 @@ subroutine sim_forceHeater(nstep, dt, stime)
    use Grid_iterator, ONLY: Grid_iterator_t
    use Grid_tile, ONLY: Grid_tile_t
 
-   use sim_heaterInterface, ONLY: sim_heaterCheckSites, sim_heaterLSReInit, &
-                                  sim_heaterTagSites
+   use Heater_Interface, ONLY: Heater_CheckSites, Heater_LSReInit, &
+                                  Heater_TagSites
    implicit none
    include "Flashx_mpi.h"
    integer, intent(in) :: nstep
@@ -60,7 +60,7 @@ subroutine sim_forceHeater(nstep, dt, stime)
       blockCount = blockCount + 1
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_heaterCheckSites(tileDesc, blockCount)
+      call Heater_CheckSites(tileDesc, blockCount)
       !---------------------------------------------------------
       call itor%next()
    end do
@@ -68,7 +68,7 @@ subroutine sim_forceHeater(nstep, dt, stime)
 
    ! Tag Nucleation Sites for renucleation
    !-------------------------------------------------------------
-   call sim_heaterTagSites(stime)
+   call Heater_TagSites(stime)
 
    ! Re-initialize Level-Set Function
    !-------------------------------------------------------------
@@ -78,7 +78,7 @@ subroutine sim_forceHeater(nstep, dt, stime)
       blockCount = blockCount + 1
       call itor%currentTile(tileDesc)
       !---------------------------------------------------------
-      call sim_heaterLSReInit(tileDesc, stime, blockCount)
+      call Heater_LSReInit(tileDesc, stime, blockCount)
       !---------------------------------------------------------
       call itor%next()
    end do

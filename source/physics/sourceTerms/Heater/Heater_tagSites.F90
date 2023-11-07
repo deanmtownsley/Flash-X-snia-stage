@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterTagSites
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_TagSites
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -17,28 +17,28 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterTagSites(stime)
+subroutine Heater_TagSites(stime)
 
    use Simulation_data, ONLY: sim_meshMe
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use sim_heaterData
+   use Heater_Data
 
    implicit none
    include "Flashx_mpi.h"
    real, intent(in) :: stime
 
    integer :: htr, ierr, isite
-   type(sim_heaterType), pointer :: heater
+   type(Heater_Type), pointer :: heater
 
-   call Timers_start("sim_heaterTagSites")
+   call Timers_start("Heater_TagSites")
 
 #ifdef MULTIPHASE_EVAPORATION
    do htr = 1, sim_numHeaters
 
-      heater => sim_heaterInfo(htr)
+      heater => Heater_Info(htr)
 
       !! DEVNOTE (10/20/2023): This all reduce is not relevant anymore since implementation
-      !!                       of sim_heaterMapSitesToProc. Leaving it here for legacy
+      !!                       of Heater_MapSitesToProc. Leaving it here for legacy
       !!
       !call Timers_start("consolidate site status")
       !call MPI_Allreduce(MPI_IN_PLACE, heater%siteIsAttachedCurr, &
@@ -50,7 +50,7 @@ subroutine sim_heaterTagSites(stime)
          if (heater%siteIsAttachedPrev(isite) .eqv. .true. .and. &
              heater%siteIsAttachedCurr(isite) .eqv. .false.) heater%siteTimeStamp(isite) = stime
 
-         if (sim_meshMe .eq. MASTER_PE .and. sim_heaterShowInfo) &
+         if (sim_meshMe .eq. MASTER_PE .and. Heater_ShowInfo) &
             write (*, '(A,I2,A,I3,A,L1,A,2g14.6)') &
             ' Heater:', htr, &
             ' Site:', isite, &
@@ -65,8 +65,8 @@ subroutine sim_heaterTagSites(stime)
    end do
 #endif
 
-   call Timers_stop("sim_heaterTagSites")
+   call Timers_stop("Heater_TagSites")
 
    return
 
-end subroutine sim_heaterTagSites
+end subroutine Heater_TagSites

@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterAnnSearchTree
+!!****if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_AnnSearchTree
 !! NOTICE
 !!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
@@ -16,14 +16,14 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterAnnSearchTree(heater, queryPt, annElems, annIdx)
+subroutine Heater_AnnSearchTree(heater, queryPt, annElems, annIdx)
 
    use ANN_mod
    use ANN_types_mod
-   use sim_heaterData, ONLY: sim_heaterType
+   use Heater_Data, ONLY: Heater_Type
    implicit none
 
-   type(sim_heaterType), intent(IN)  :: heater
+   type(Heater_Type), intent(IN)  :: heater
    integer, intent(IN) :: annElems
    real, dimension(:), target, intent(IN) :: queryPt ! query point
    integer, dimension(:), target, intent(OUT):: annIdx ! indices of nearest neighbors
@@ -36,4 +36,4 @@ subroutine sim_heaterAnnSearchTree(heater, queryPt, annElems, annIdx)
    call ann_kSearch(c_loc(queryPt), heater%dims, annElems, c_loc(annIdx), c_loc(annDists), eps, heater%kdTree)
    deallocate (annDists)
 
-end subroutine sim_heaterAnnSearchTree
+end subroutine Heater_AnnSearchTree

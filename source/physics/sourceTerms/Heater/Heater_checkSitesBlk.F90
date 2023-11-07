@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterCheckSitesBlk
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_CheckSitesBlk
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,9 +18,9 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
+subroutine Heater_CheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
 
-   use sim_heaterData
+   use Heater_Data
    use Driver_interface, ONLY: Driver_abort
 
    implicit none
@@ -33,13 +33,13 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
    real    :: xi, xp, yi, yp
    real    :: phiSW, phiSE, phiNW, phiNE, phiSite
 
-   type(sim_heaterType), pointer :: heater
+   type(Heater_Type), pointer :: heater
 
    k = 1
 
    do htr = 1, sim_numHeaters
 
-      heater => sim_heaterInfo(htr)
+      heater => Heater_Info(htr)
 
       if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
           boundBox(HIGH, JAXIS) .le. heater%yMin .or. boundBox(LOW, JAXIS) .ge. heater%yMax) cycle
@@ -49,7 +49,7 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
             do isiteblk = 1, heater%numSitesBlk(lblock)
                isite = heater%siteMapOnProc(lblock, isiteblk)
 
-               if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
+               if (isite < 1) call Driver_abort("[Heater_CheckSitesBlk2d] isite < 1")
 
                xi = xcell(i)
                xp = xcell(i + 1)
@@ -76,11 +76,11 @@ subroutine sim_heaterCheckSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1,
          end do
       end do
    end do
-end subroutine sim_heaterCheckSitesBlk2d
+end subroutine Heater_CheckSitesBlk2d
 
-subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
+subroutine Heater_CheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
-   use sim_heaterData
+   use Heater_Data
 
    implicit none
    real, dimension(:, :, :), intent(in)  :: phi
@@ -94,11 +94,11 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
    real    :: phiBSW, phiBSE, phiBNW, phiBNE
    real    :: phiSite
 
-   type(sim_heaterType), pointer :: heater
+   type(Heater_Type), pointer :: heater
 
    do htr = 1, sim_numHeaters
 
-      heater => sim_heaterInfo(htr)
+      heater => Heater_Info(htr)
 
       if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
           boundBox(HIGH, JAXIS) .le. heater%yMin .or. boundBox(LOW, JAXIS) .ge. heater%yMax .or. &
@@ -110,7 +110,7 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
                do isiteblk = 1, heater%numSitesBlk(lblock)
                   isite = heater%siteMapOnProc(lblock, isiteblk)
 
-                  if (isite < 1) call Driver_abort("[sim_heaterCheckSitesBlk2d] isite < 1")
+                  if (isite < 1) call Driver_abort("[Heater_CheckSitesBlk2d] isite < 1")
 
                   xi = xcell(i)
                   xp = xcell(i + 1)
@@ -146,4 +146,4 @@ subroutine sim_heaterCheckSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix
          end do
       end do
    end do
-end subroutine sim_heaterCheckSitesBlk3d
+end subroutine Heater_CheckSitesBlk3d

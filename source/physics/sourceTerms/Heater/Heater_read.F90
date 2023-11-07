@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterRead
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_Read
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -18,9 +18,9 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine sim_heaterRead(heaterID, heaterFile)
+subroutine Heater_Read(heaterID, heaterFile)
 
-   use sim_heaterData, ONLY: sim_nucSeedRadius, sim_heaterType, sim_heaterInfo
+   use Heater_Data, ONLY: sim_nucSeedRadius, Heater_Type, Heater_Info
    use Driver_interface, ONLY: Driver_abort
    use HDF5
 
@@ -33,10 +33,10 @@ subroutine sim_heaterRead(heaterID, heaterFile)
    integer                        :: h5err
    integer(HID_T)                 :: dset
    integer(HSIZE_T), dimension(3) :: dims
-   type(sim_heaterType), pointer  :: heater
+   type(Heater_Type), pointer  :: heater
 
    !--------------------------------------------------------------------------------
-   heater => sim_heaterInfo(heaterID)
+   heater => Heater_Info(heaterID)
 
    call h5open_f(h5err)
    call h5fopen_f(trim(heaterFile), H5F_ACC_RDONLY_F, file, h5err) !H5F_ACC_RDONLY_F
@@ -148,4 +148,4 @@ subroutine sim_heaterRead(heaterID, heaterFile)
    heater%dims = NDIM
 
    return
-end subroutine sim_heaterRead
+end subroutine Heater_Read

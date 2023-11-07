@@ -1,4 +1,4 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/sim_heaterInitBlk
+!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_InitBlk
 !!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
@@ -14,9 +14,9 @@
 !!
 !!
 !!***
-subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
+subroutine Heater_InitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
 
-   use sim_heaterData, ONLY: sim_heaterType, sim_numHeaters, sim_heaterInfo
+   use Heater_Data, ONLY: Heater_Type, sim_numHeaters, Heater_Info
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: temp
@@ -24,7 +24,7 @@ subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, 
    real, dimension(:), intent(in) :: xcell, ycell, zcell
    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
 
-   type(sim_heaterType), pointer  :: heater
+   type(Heater_Type), pointer  :: heater
    integer :: i, j, k, htr, isite
    real    :: idfun, iseedY, iseedX, iseedZ, iradius, iheight
 
@@ -33,7 +33,7 @@ subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, 
          do i = ix1, ix2
             do htr = 1, sim_numHeaters
 
-               heater => sim_heaterInfo(htr)
+               heater => Heater_Info(htr)
 
                if (present(phi)) then
                   do isite = 1, heater%numSitesAll
@@ -61,4 +61,4 @@ subroutine sim_heaterInitBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, 
 
    return
 
-end subroutine sim_heaterInitBlk
+end subroutine Heater_InitBlk
