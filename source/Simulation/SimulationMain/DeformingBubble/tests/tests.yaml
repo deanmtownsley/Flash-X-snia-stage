@@ -6,12 +6,12 @@
 # may want to take a look at Lab-Notebooks/AMReX-Divfree on GitHub
 
 Composite/DeformingBubble/2d/AMReX:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex -maxblocks=150 +parallelIO IOWriteGridFiles=TRUE
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex -maxblocks=150 +parallelIO IOWriteGridFiles=TRUE Incomp=True
   parfiles: test_divfree.par
   restartParfiles: test_divfree_restart.par
 
 Composite/DeformingBubble/2d/Paramesh:
   setupOptions: -auto -2d -nxb=16 -nyb=16 +pm4dev -gridinterpolation=native -maxblocks=150
-                --without-unit=Grid/GridSolvers/HYPRE +parallelIO IOWriteGridFiles=TRUE
+                --without-unit=Grid/GridSolvers/HYPRE +parallelIO IOWriteGridFiles=TRUE Incomp=True
   parfiles: test_divfree.par
   restartParfiles: test_divfree_restart.par

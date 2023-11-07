@@ -6,19 +6,19 @@ UnitTest/RisingBubble/AMReX/2d:
   parfiles: test_default.par
 
 Comparison/RisingBubble/AMReX/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100 Incomp=True
   parfiles: test_default.par
 
 Comparison/RisingBubble/Paramesh/2d:
   setupOptions: -auto -2d -nxb=16 -nyb=16 SimForceInOut=True +pmvdev --index-reorder
-                -gridinterpolation=native -maxblocks=100
+                -gridinterpolation=native -maxblocks=100 Incomp=True
   parfiles: test_default.par
 
 Comparison/RisingBubble/AMReXGCFill/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100 Incomp=True
   parfiles: test_gcfill.par
 
 Comparison/RisingBubble/ParameshGCFill/2d:
   setupOptions: -auto -2d -nxb=16 -nyb=16 SimForceInOut=True +pmvdev --index-reorder
-                -gridinterpolation=native -maxblocks=100
+                -gridinterpolation=native -maxblocks=100 Incomp=True
   parfiles: test_gcfill.par

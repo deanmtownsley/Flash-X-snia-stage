@@ -2,15 +2,15 @@
 # comments can be added with "#"
 
 UnitTest/incompFlow/ChanneFlow/2d/Periodic:
-  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -2d -nxb=16 -nyb=16
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -2d -nxb=16 -nyb=16 Incomp=True
   parfiles: test_periodic_bc.par
 
 Comparison/incompFlow/ChanneFlow/AMReX/2d:
-  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -2d -nxb=16 -nyb=16
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -2d -nxb=16 -nyb=16 Incomp=True
   parfiles: test_periodic_bc.par
 
 Comparison/incompFlow/ChanneFlow/Paramesh/2d:
   setupOptions: -auto -maxblocks=100 +pmvdev --index-reorder -gridinterpolation=native 
-                SimForceInOut=True +parallelIO -2d -nxb=16 -nyb=16
+                SimForceInOut=True +parallelIO -2d -nxb=16 -nyb=16 Incomp=True
   parfiles: test_outflow_bc.par
 
