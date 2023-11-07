@@ -40,6 +40,11 @@ IF not NoLevelwideFluxes
    REQUIRES ./levelFlux
 ENDIF
 
+USESETUPVARS Incomp
+IF Incomp
+   REQUIRES ./Incomp
+ENDIF
+
 # Lines that begin with 'D' as in 'Description' will end up as
 # comment lines in the setup_params file.  setup_params is
 # written by the setup script and holds all the default 
@@ -59,7 +64,11 @@ D & 1: Check (if variable is not masked out) and report (see sanitizeVerbosity).
 D & 2: Check (ignoring variable mask) and report (see sanitizeVerbosity).
 D & 3: Check (if variable is not masked out) and fix (apply floor value).
 D & 4: Check (if variable is not masked out) and abort if cell is found below floor value.
-PARAMETER gr_sanitizeDataMode   INTEGER 1   [0,1,2,3,4]
+IF Incomp
+   PARAMETER gr_sanitizeDataMode   INTEGER 0   [0,1,2,3,4]
+ELSE
+   PARAMETER gr_sanitizeDataMode   INTEGER 1   [0,1,2,3,4]
+ENDIF
 
 D gr_sanitizeVerbosity How to write information about unacceptable
 D & values in the dens, ener, and eint cell-centered variables if gr_sanitizeDataAfterInterp

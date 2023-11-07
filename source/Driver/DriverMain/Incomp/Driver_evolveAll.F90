@@ -689,7 +689,7 @@ subroutine Driver_evolveAll()
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-   call RuntimeParameters_get('sim_runTest', runTest)
+   call RuntimeParameters_get('dr_runTest', runTest)
 
    if (runTest) then
       temp = dr_globalMe
