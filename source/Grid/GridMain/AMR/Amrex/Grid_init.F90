@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_init
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -133,7 +133,8 @@ subroutine Grid_init()
 
   use amrex_base_module,           ONLY : amrex_spacedim
   use amrex_bc_types_module,       ONLY : amrex_bc_int_dir, &
-                                          amrex_bc_ext_dir
+                                          amrex_bc_ext_dir, &
+                                          amrex_bc_ext_dir_cc
 
   use Grid_data
   use Grid_interface,              ONLY : Grid_getDeltas, &
@@ -294,7 +295,7 @@ subroutine Grid_init()
         lo_bc_amrex(i, :) = amrex_bc_int_dir
         lo_bc_amrexFace(i, :, :) = amrex_bc_int_dir
      case default
-        lo_bc_amrex(i, :) = amrex_bc_ext_dir
+        lo_bc_amrex(i, :) = amrex_bc_ext_dir_cc
         lo_bc_amrexFace(i, :, :) = amrex_bc_ext_dir
      end select
 
@@ -303,7 +304,7 @@ subroutine Grid_init()
         hi_bc_amrex(i, :) = amrex_bc_int_dir
         hi_bc_amrexFace(i, :, :) = amrex_bc_int_dir
      case default
-        hi_bc_amrex(i, :) = amrex_bc_ext_dir
+        hi_bc_amrex(i, :) = amrex_bc_ext_dir_cc
         hi_bc_amrexFace(i, :, :) = amrex_bc_ext_dir
      end select
   end do
