@@ -2,16 +2,30 @@
 REQUIRES physics/ImBound/localAPI
 REQUIRES numericalTools/Stencils/StencilsLevelset
 
+PPDEFINE IMBOUND_MAIN
+
 #--------------------------------------------------------------------------------
 D useImBound   Should the ImBound unit be used?
 PARAMETER useImBound BOOLEAN TRUE
 
 #---------------------------------------------------------------------------------
-PARAMETER ib_rhoSolid            REAL     1.0      # Density ratio of solid/liquid
-PARAMETER ib_muSolid             REAL     1.0      # Viscosity ratio of solid/liquid
-PARAMETER ib_thcoSolid           REAL     1.0      # Thermal conducitivity of solid/liquid
-PARAMETER ib_CpSolid             REAL     1.0      # Specific heat of solid/liquid
-PARAMETER ib_lsIt                INTEGER  2        # Level Set redistance iterations...
+PARAMETER ib_lsIt                    	INTEGER	2        # Level Set redistance iterations...
+PARAMETER ib_numBodies               	INTEGER	1        # Number of bodies
+PARAMETER ib_bodyName                	STRING	"flash" # Name of the string
+PARAMETER ib_enableSelectiveMapping	BOOLEAN	FALSE
+PARAMETER ib_bruteForceMapping		BOOLEAN	FALSE
+PARAMETER ib_annQueries			INTEGER 3
 
 #---------------------------------------------------------------------------------
-VARIABLE lmda          # Level set distance function for immersed boundary
+VARIABLE lmda    # Level set distance function for immersed boundary
+VARIABLE hln0    # Variable to store RHS
+
+VARIABLE nmlx TYPE:GENERIC      # level set normal (x - direction)
+VARIABLE nmly TYPE:GENERIC      # level set normal (y - direction)
+
+USESETUPVARS nDim
+IF nDim == 3
+VARIABLE nmlz TYPE:GENERIC      # level set normal (z - direction)
+END IF
+
+LIBRARY ANN

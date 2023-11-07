@@ -29,31 +29,37 @@
 !!  This stores data and limiter functions that are specific to the ImBound module.
 !!
 !!***
- 
- 
+
 module ImBound_data
 
 #include "Simulation.h"
 #include "constants.h"
 
-  logical, save :: ib_useImBound
+   use ImBound_type, ONLY: ImBound_type_t
 
-  real, save :: ib_rhoSolid
-  real, save :: ib_muSolid
-  real, save :: ib_thcoSolid
-  real, save :: ib_CpSolid
+   implicit none
 
-  integer, save :: ib_lsIt
+   logical, save :: ib_useImBound
+   logical, save :: ib_enableSelectiveMapping
+   logical, save :: ib_bruteForceMapping
 
-  integer, save :: ib_meshMe
-  integer, save :: ib_meshNumProcs
-  integer, save :: ib_meshComm
-  integer, save :: ib_nstep
+   integer, save :: ib_lsIt
+   integer, save :: ib_meshMe
+   integer, save :: ib_meshNumProcs
+   integer, save :: ib_meshComm
+   integer, save :: ib_nstep
+   integer, save :: ib_annQueries
+   integer, save, dimension(:), allocatable :: ib_annIdx
 
-  real, dimension(2), save :: ib_alfa
-  real, save :: ib_rhoa
-  real, save :: ib_gama
+   real, dimension(2), save :: ib_alfa
+   real, save :: ib_rhoa
+   real, save :: ib_gama
 
-  integer, save :: ib_iVelFVar
+   integer, save :: ib_iVelFVar
+
+   type(ImBound_type_t), save, dimension(:), allocatable, target :: ib_bodyInfo
+
+   character(len=20), save :: ib_bodyName
+   integer, save :: ib_numBodies
 
 end module ImBound_data

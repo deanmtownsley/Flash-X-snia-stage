@@ -1,6 +1,6 @@
-!!****if* source/Simulation/SimulationMain/CCSN/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/CCSN_Chimera/Simulation_initBlock
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -32,9 +32,7 @@
 !! NOTES
 !!  
 !!  This problem is described in, e.g.,
-!!  Couch, S.M. 2013, ApJ, 765, 29
-!!  Couch, S.M. 2013, ApJ, 775, 35
-!!  Couch, S.M. & O'Connor, E.P. 2013, arXiv:1310.5728
+!!  Sandoval et al. 2021, ApJ, 921 113
 !!
 !!***
 
@@ -118,7 +116,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   dy = delta(JAXIS)
   dz = delta(KAXIS)
 
-! call Grid_getBlkPtr(blockID,solnData,CENTER)
   call Grid_getGeometry(meshGeom)
 
   call Grid_getCellCoords(IAXIS,CENTER,     level, blkLimits(LOW,:), blkLimits(HIGH,:), xCenter)
@@ -298,10 +295,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
               vely_interp = 0.0
               velz_interp = 0.0
               do ivar = 1, NUNK_VARS
-                 if ( ivar == DENS_VAR ) then
-                    call interp1d_linear(volxzn(1:n1d_total), model_1d(1:n1d_total,ivar), radCenterVol, var_interp)
-                 else
+                 if ( ivar == VELX_VAR ) then !velocity variable in prog. file is "outer cell velocity"
                     call interp1d_linear(xzn(1:n1d_total), model_1d(1:n1d_total,ivar), radCenter, var_interp)
+                 else
+                    call interp1d_linear(xzn_ctr(1:n1d_total), model_1d(1:n1d_total,ivar), radCenter, var_interp)
                  end if
                  ! hold on to velocities until later when we can convert them to the proper geometry
                  if ( ivar == VELX_VAR ) then
@@ -359,19 +356,19 @@ subroutine Simulation_initBlock(solnData, tileDesc)
            solnData(SUMY_MSCALAR,i,j,k) = sumY
 #endif
 
-!For 'cutting out' the PNS using rigid body method
+!For 'cutting out' the PNS (faking the PNS data) using rigid body method
 #ifdef BDRY_VAR
-           rigid_axis(IAXIS) = i
-           rigid_axis(JAXIS) = j
-           rigid_axis(KAXIS) = k
            if (radCenter <= sim_r_inner) then
               solnData(BDRY_VAR,i,j,k) = 1.0
-              solnData(DENS_VAR,i,j,k) = sim_smlrho*1.2 !maybe 1.e11 because PNS?
-              solnData(TEMP_VAR,i,j,k) = sim_smallt*1.2 !something else because PNS?
-!!$              solnData(DENS_VAR,i,j,k) = 1.59e+05 !maybe 1.e11 because PNS?
-!!$              solnData(TEMP_VAR,i,j,k) = 1.e+6 !something else because PNS?
+              solnData(DENS_VAR,i,j,k) = sim_bdry_dens
+              solnData(PRES_VAR,i,j,k) = sim_bdry_pres
+              solnData(TEMP_VAR,i,j,k) = sim_bdry_temp
               solnData(VELX_VAR,i,j,k) = 1.e-100
               solnData(VELY_VAR,i,j,k) = 1.e-100
+              solnData(SPECIES_BEGIN:SPECIES_END,i,j,k) = sim_smallx
+              solnData(AR40_SPEC,i,j,k) = 1.e0
+              solnData(YE_MSCALAR,i,j,k) = 0.45e0    !18/40: p=18, n=22, e=18
+              solnData(SUMY_MSCALAR,i,j,k) = solnData(YE_MSCALAR,i,j,k)/18.0e0
            else
               solnData(BDRY_VAR,i,j,k) = -1.0
            end if
@@ -380,8 +377,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
         end do
      end do
   end do
-
-! call Grid_releaseBlkPtr(blockID,solnData,CENTER)
 
   deallocate(xLeft)
   deallocate(xRight)

@@ -1,45 +1,37 @@
-!!****if* source/physics/Hydro/HydroMain/Spark/hy_rk_updateSoln
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  NAME
+!! @file
+!> @ingroup HydroSpark
 !!
-!!  hy_rk_updateSoln
+!! @brief Update solution then save it in primitive form
 !!
-!!  SYNOPSIS
+!! @details
+!! Update solution data based on conservative fluxes
+!! calculated previously in hy_rk_getFaceFlux().
+!! Then convert conservative to primitive variables.
+!! Note that this only updates the part of tile/block within @p limits
 !!
-!!  call hy_rk_updateSoln ( real, pointer :: Uin(:,:,:,:),
-!!                            integer (IN)  :: blkLimits(:,:),
-!!                            integer (IN)  :: blkLimitsGC(:,:),
-!!                            integer (IN)  :: level,
-!!                            real (IN)     :: hy_del(:),
-!!                            real (IN)     :: dt,
-!!                            real (IN)     :: dtOld,)
-!!                            real (IN)     :: hy_coeffs(:))
-!!     
-!!  DESCRIPTION
-!!  Update solution based on conservative fluxes previously calculated.  Then convert
-!!  conservative to primitive variables.
-!!
-!!  ARGUMENTS
-!!    Uin -- pointer to solution data
-!!    blkLimits, blkLimitsGC -- index limits for interior and exterior of the tile
-!!    level  -- the refine level of the block
-!!    hy_del  --- dx, dy, dz
-!!    dt - current time step
-!!    dtOld - old time step
-!!    coeff - coefficients for updating
-!!
-!!***
+!! @param hy_starState  Pointer to input/output solution data
+!! @param hy_tmpState   Pointer to input solution data at n-step
+!! @param blkLimits     Index limits for interior of the tile
+!! @param blkLimitsGC   Index limits for exterior of the tile
+!! @param hy_del        dx, dy, dz
+!! @param dt            Timestep
+!! @param dtOld         Old timestep
+!! @param limits        sets limits of the fluxes.
+!! @param hy_coeffs     RK coefficients in Butcher tableau
+!<
 !!Reorder(4): hy_starState, hy_tmpState, hy_fl[xyz]
 !!NOVARIANTS
 
@@ -48,8 +40,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry,&
        hy_4piGinv, hy_alphaGLM, hy_C_hyp
-  use Hydro_data, ONLY: hya_farea,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
-       hya_xRight,hya_yCenter,hya_zCenter
+  use Hydro_data, ONLY: hya_fareaX,hya_fareaY,hya_fareaZ,hya_cvol,hya_xCenter,hya_xLeft,&
+       hya_xRight,hya_yCenter,hya_yLeft,hya_yRight,hya_zCenter  
   use Hydro_data, ONLY :  hya_grav, hya_flx, hya_fly, hya_flz
   use Driver_interface, ONLY : Driver_abort
 
@@ -66,8 +58,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   real, dimension(3), intent(IN) :: hy_coeffs
   real,dimension(:,:,:,:),pointer :: hy_grav, &
        hy_flx,hy_fly,hy_flz
-  real,pointer,dimension(:,:,:) ::hy_farea,hy_fareaY,hy_fareaZ,hy_cvol
-  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_zCenter
+  real,pointer,dimension(:,:,:) ::hy_fareaX,hy_fareaY,hy_fareaZ,hy_cvol
+  real,pointer,dimension(:) :: hy_xCenter,hy_xLeft,hy_xRight,hy_yCenter,hy_yLeft,hy_yRight,hy_zCenter
 
   integer :: i,j,k,n,g
 
@@ -80,7 +72,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   real :: flx_weight1, flx_weight2
   real :: eint, ekin, emag
   ! Geometry factors
-  real :: facM, facP
+  real :: facMx, facPx, facMy, facPy, facMz, facPz
   real, dimension(NFLUXES) :: Sgeo, Shy_grv, Stot
   integer ::  ind
   real :: dhdt
@@ -92,7 +84,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   integer :: VEL_PHI, MOM_PHI, MOM_PHI_FLUX, MAG_PHI, MAG_PHI_FLUX
   integer :: VEL_ZI, MOM_ZI, MOM_ZI_FLUX, MAG_ZI, MAG_ZI_FLUX
   integer :: VEL_THT, MOM_THT, MOM_THT_FLUX
-  real    :: alpha, dx_sph
+  real    :: alpha
+  real    :: invr, cotan
 
   logical :: offload = .false.
 
@@ -109,26 +102,21 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
   dhdt = minval(hy_del(1:NDIM))/(hy_coeffs(3)*dt)
 
   hy_grav(1:MDIM,@M bounds_3d(blkLimitsGC))=>hya_grav
-  @M hy_OMP_TARGET_enter_data(to, [hy_grav])
+  @M hy_DIR_TARGET_enter_data(to, [hy_grav])
 
   @M hy_map_fl
   if (hy_geometry /= CARTESIAN) then
     @M hy_map_geom
   end if
 
-#ifdef OMP_OL
-  !$omp target teams distribute parallel do simd collapse(3) &
-  !$omp map(to: limits) &
-#else
-  !$omp parallel do simd collapse(3) &
-#endif
-  !$omp default(none) &
-  !$omp private(V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag, &
-  !$omp         MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX, &
-  !$omp         alpha, dx_sph, facM, facP) &
-  !$omp shared(limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz, &
-  !$omp        hy_coeffs, hy_farea, hy_cvol, hy_smalldens, hy_smallE, &
-  !$omp        hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, dx, dy, dz, dt, dtOld)
+  @M hy_DIR_parallel_loop(3) &
+  @M hy_DIR_TARGET_map(to, [limits]) &
+  @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
+  @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
+  @M hy_DIR_private([alpha, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan]) &
+  @M hy_DIR_shared([limits, hy_starState, hy_tmpState, hy_grav, hy_flx, hy_fly, hy_flz]) &
+  @M hy_DIR_shared([hy_coeffs, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_smalldens, hy_smallE]) &
+  @M hy_DIR_shared([hy_geometry, hy_xLeft, hy_xCenter, hy_xRight, hy_yLeft, hy_yRight, dx, dy, dz, dt, dtOld])
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
@@ -155,14 +143,16 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
 #endif
            !!          call update_solution(i,j,k,hy_coeffs,dt, dtOld, dx, dy, dz, dhdt)
            
-           facM = 1.0; facP = 1.0; Sgeo = 0.0
-           
+           facMx = 1.0; facPx = 1.0; Sgeo = 0.0
+           facMy = 1.0; facPy = 1.0;
+           facMz = 1.0; facPz = 1.0;
+
            ! Get geometric factors and sources
            ! Get gravitational source terms
            if(hy_geometry /= CARTESIAN) then
               @M hy_geom_update(Ustar,Vstar)
 !!$           call geoFacs(hy_geometry, hy_xLeft(i), hy_xCenter(i), hy_xRight(i), &
-!!$                   hy_farea(i,j,k), hy_farea(i+1,j,k), hy_cvol(i,j,k), &
+!!$                   hy_fareaX(i,j,k), hy_fareaX(i+1,j,k), hy_cvol(i,j,k), &
 !!$                   facM, facP, Sgeo, Ustar, Vstar, dx)
            end if
            @M hy_gravSources
@@ -172,11 +162,11 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            
            ! Now update conserved vector with flux gradients
            Ustar = hy_coeffs(1)*U0 + hy_coeffs(2)*Ustar +hy_coeffs(3)*( &
-                -dt/dx*(facP*hy_flx(:,i+1,j,k)-facM*hy_flx(:,i,j,k)) &
+                -dt/dx*(facPx*hy_flx(:,i+1,j,k)-facMx*hy_flx(:,i,j,k)) &
 #if NDIM > 1
-                -dt/dy*(hy_fly(:,i  ,j+1,k  )-hy_fly(:,i  ,j  ,k  )) &
+                -dt/dy*(facPy*hy_fly(:,i,j+1,k)-facMy*hy_fly(:,i,j,k)) &
 #if NDIM ==3
-                -dt/dz*(hy_flz(:,i  ,j  ,k+1)-hy_flz(:,i  ,j  ,k  )) &
+                -dt/dz*(facPz*hy_flz(:,i,j,k+1)-facMz*hy_flz(:,i,j,k)) &
 #endif
 #endif
                 +dt*Stot)
@@ -215,7 +205,7 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
      enddo !j
   enddo !k
 
-  @M hy_OMP_TARGET_exit_data(release, [hy_grav])
+  @M hy_DIR_TARGET_exit_data(release, [hy_grav])
   @M hy_nullFl
   nullify(hy_grav)
   if (hy_geometry /= CARTESIAN) then

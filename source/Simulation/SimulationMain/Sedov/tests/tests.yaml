@@ -153,7 +153,7 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 ## end 2DCyl AMR
 
-## 2DSph AMR
+## 2DSph AMR - next two from / for newProduction
 Composite/Sedov/AMR/2dSph/Paramesh/unsplitPLM:
   setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +pm4dev DoAnalytical=True
   parfiles: test_amr_plm_sph_2d.par
@@ -165,6 +165,14 @@ Composite/Sedov/AMR/2dSph/AMReX/unsplitPPM:
   parfiles: test_amr_ppm_sph_2d.par
   restartParfiles: test_amr_ppm_sph_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+# 2DSph AMR - next one from Sudarshan
+Composite/Sedov/AMR/2dSph/Paramesh/spark:
+  setupOptions: -auto -2d +spherical -nxb=12 -nyb=12 +spark +pm4dev DoAnalytical=True
+  parfiles: test_amr_sph_2d_spark.par
+  restartParfiles: test_amr_sph_2d_spark_restart.par 
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 ## end 2DSph AMR
 
 # 3d AMR
@@ -231,12 +239,20 @@ Composite/Sedov/AMR/3dCyl/AMReX/unsplitFOG:
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 ## end 3DCyl AMR
 
-## 3DSph AMR
-Composite/Sedov/AMR/3dSph/Paramesh/spark:
+## 3DSph AMR - next one for / from newProduction
+Composite/SedovNP/AMR/3dSph/Paramesh/spark:
   setupOptions: -auto -3d +spherical -nxb=16 -nyb=8 -nzb=16 +spark +pm4dev
   parfiles: test_amr_spark_sph.par
   restartParfiles: test_amr_spark_sph_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+# 3DSph AMR - next one from Sudarshan
+Composite/Sedov/AMR/3dSph/Paramesh/spark:
+  setupOptions: -auto -3d +spherical -nxb=12 -nyb=12 -nzb=12 +spark +pm4dev DoAnalytical=True
+  parfiles: test_amr_sph_3d_spark.par
+  restartParfiles: test_amr_sph_3d_spark_restart.par 
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 ## end 3DSph AMR
 
 # Particle 2D

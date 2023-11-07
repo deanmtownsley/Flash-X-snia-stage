@@ -19,10 +19,10 @@
 !! SYNOPSIS
 !!
 !!  ImBound_finalize()
-!!  
+!!
 !!
 !! DESCRIPTION
-!! 
+!!
 !!  Finalize unit scope variables which are typically the runtime parameters.
 !!  This must be called once by Driver_finalizeAll.F90 first. Calling multiple
 !!  times will not cause any harm but is unnecessary.
@@ -31,7 +31,12 @@
 
 subroutine ImBound_finalize()
 
-  implicit none
+   use ImBound_data, ONLY: ib_bodyInfo, ib_annIdx
+
+   implicit none
+
+   deallocate (ib_bodyInfo)
+   deallocate (ib_annIdx)
 
 end subroutine ImBound_finalize
 

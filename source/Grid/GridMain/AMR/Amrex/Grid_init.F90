@@ -228,6 +228,7 @@ subroutine Grid_init()
 ! Load into local Grid variables all runtime parameters needed by gr_amrexInit
 !------------------------------------------------------------------------------
   call RuntimeParameters_get("gr_enableTiling", gr_enableTiling)
+  call RuntimeParameters_get("gr_gcFillSingleVarRange", gr_gcFillSingleVarRange)
   call RuntimeParameters_get("gr_useTiling", gr_useTiling)
   if (gr_useTiling .AND. .NOT. gr_enableTiling) then
      if (gr_meshMe == MASTER_PE) then
@@ -266,6 +267,8 @@ subroutine Grid_init()
 !----------------------------------------------------------------------------------
 ! Initialize AMReX
 !----------------------------------------------------------------------------------
+  call RuntimeParameters_get("gr_amrexUseBittree", gr_amrexUseBittree)
+
   call gr_amrexInit()
 
   ! Check whether the dimensionality of the AMReX library matches the FLASH configuration
@@ -282,19 +285,26 @@ subroutine Grid_init()
   ! Save BC information for AMReX callbacks
   lo_bc_amrex(:, :) = amrex_bc_int_dir
   hi_bc_amrex(:, :) = amrex_bc_int_dir
+  lo_bc_amrexFace(:, :, :) = amrex_bc_int_dir
+  hi_bc_amrexFace(:, :, :) = amrex_bc_int_dir
+
   do i = 1, NDIM
      select case(gr_domainBC(LOW, i))
      case(PERIODIC)
         lo_bc_amrex(i, :) = amrex_bc_int_dir
+        lo_bc_amrexFace(i, :, :) = amrex_bc_int_dir
      case default
         lo_bc_amrex(i, :) = amrex_bc_ext_dir
+        lo_bc_amrexFace(i, :, :) = amrex_bc_ext_dir
      end select
 
      select case(gr_domainBC(HIGH, i))
      case(PERIODIC)
         hi_bc_amrex(i, :) = amrex_bc_int_dir
+        hi_bc_amrexFace(i, :, :) = amrex_bc_int_dir
      case default
         hi_bc_amrex(i, :) = amrex_bc_ext_dir
+        hi_bc_amrexFace(i, :, :) = amrex_bc_ext_dir
      end select
   end do
 
@@ -372,6 +382,12 @@ subroutine Grid_init()
   call RuntimeParameters_mapStrToInt(interpolatorString, gr_interpolator)
   if (gr_interpolator == NONEXISTENT) then
     call Driver_abort("[Grid_init] Unknown amrexInterpolator runtime parameter value")
+  end if
+
+  call RuntimeParameters_get("amrexFaceInterpolator", interpolatorString)
+  call RuntimeParameters_mapStrToInt(interpolatorString, gr_interpolatorFace)
+  if (gr_interpolatorFace == NONEXISTENT) then
+    call Driver_abort("[Grid_init] Unknown amrexFaceInterpolator runtime parameter value")
   end if
 
 #ifdef GRID_WITH_MONOTONIC
@@ -545,7 +561,6 @@ subroutine Grid_init()
 !  gr_isolatedBoundaries = (grav_boundary_type=="isolated")
 !
   do i = UNK_VARS_BEGIN,UNK_VARS_END
-!     gr_vars(i)=i
      call Simulation_getVarnameType(i, gr_vartypes(i))
   end do
 

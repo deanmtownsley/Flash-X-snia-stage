@@ -1,0 +1,10 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/MoL
+#------------------------------------------------
+unitTest/MoL/MR -t "UnitTest/MoL/MR/GARK3" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/FBE" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP2" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/SSP3" -np 1
+unitTest/MoL/IMEX -t "UnitTest/MoL/IMEX/ARK" -np 1

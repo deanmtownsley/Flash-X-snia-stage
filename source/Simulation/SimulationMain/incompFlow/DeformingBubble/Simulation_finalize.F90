@@ -35,6 +35,6 @@ subroutine Simulation_finalize()
 
    implicit none
 
-   deallocate(sim_bubbleLoc)
+   deallocate (sim_bubbleLoc)
 
 end subroutine Simulation_finalize

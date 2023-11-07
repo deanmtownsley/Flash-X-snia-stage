@@ -66,7 +66,7 @@ subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact
     use amrex_lo_bctypes_module, ONLY : amrex_lo_periodic, amrex_lo_dirichlet, amrex_lo_neumann
     use amrex_amr_module, ONLY : amrex_geom
     use amrex_fort_module,     ONLY : amrex_real
-    use gr_physicalMultifabs,  ONLY : unk, facevarx, facevary, facevarz
+    use gr_physicalMultifabs,  ONLY : unk, facevars
     !!
     use amrex_multifab_module, ONLY : amrex_multifab, amrex_multifab_destroy, amrex_multifab_build_alias, &
                                       amrex_multifab_build
@@ -109,12 +109,12 @@ subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact
         call amrex_multifab_build(gr_amrexMG_acoef(ilev), gr_amrexMG_ba(ilev), gr_amrexMG_dm(ilev), nc=1, ng=0)
         call gr_amrexMG_acoef(ilev)%setVal(0.0_amrex_real)
 
-        call amrex_multifab_build_alias(gr_amrexMG_bcoef(1,ilev), facevarx(ilev), iCoeff, 1)
+        call amrex_multifab_build_alias(gr_amrexMG_bcoef(1,ilev), facevars(1, ilev), iCoeff, 1)
 #if NDIM >= 2
-        call amrex_multifab_build_alias(gr_amrexMG_bcoef(2,ilev), facevary(ilev), iCoeff, 1)
+        call amrex_multifab_build_alias(gr_amrexMG_bcoef(2,ilev), facevars(2, ilev), iCoeff, 1)
 #endif
 #if NDIM == 3
-        call amrex_multifab_build_alias(gr_amrexMG_bcoef(3,ilev), facevarz(ilev), iCoeff, 1)
+        call amrex_multifab_build_alias(gr_amrexMG_bcoef(3,ilev), facevars(3, ilev), iCoeff, 1)
 #endif
     end do
 
@@ -226,6 +226,13 @@ subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact
      call amrex_multifab_destroy(gr_amrexMG_rhs(ilev))
      call amrex_boxarray_destroy(gr_amrexMG_ba(ilev))
      call amrex_distromap_destroy(gr_amrexMG_dm(ilev))
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(1,ilev))
+#if NDIM >= 2
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(2,ilev))
+#endif
+#if NDIM == 3
+     call amrex_multifab_destroy(gr_amrexMG_bcoef(3,ilev))
+#endif
     end do
      
     call Timers_stop("Grid_solveLaplacian")

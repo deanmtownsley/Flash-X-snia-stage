@@ -222,6 +222,11 @@ class macroProcessor:
             for invocation in invocation_list:
                 expansion = self.expandMacro(invocation, macroStack)
                 lineOut = lineOut.replace(invocation, expansion, 1)
+                # if the macro-processed line has only whitespaces
+                # or it just has one &,
+                # return a blank line
+                if lineOut.strip() == "&" or lineOut.strip() == "":
+                    lineOut = ""
 
         return lineOut
 
@@ -240,7 +245,7 @@ class macroProcessor:
         with open(output, "w") as f:
             # lines = open(filename).readlines()
             fin = open(filename)
-            lines = self._continuationLine(fin, "&")
+            lines = self._continuationLine(fin, "&&")
             for line in lines:
                 f.write(self.processLine(line))
 

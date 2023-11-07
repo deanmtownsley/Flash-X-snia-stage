@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/Grid_fillGuardCells
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -21,14 +21,14 @@
 !!                 optional, integer(IN) :: eosMode,
 !!                 optional, logical(IN) :: doEos,
 !!                 optional, integer(IN) :: maskSize,
-!!                 optional, logical(IN) :: mask(maskSize),
+!!                 optional, logical(IN),dimension(:) :: mask(maskSize),
 !!                 optional, logical(IN) :: makeMaskConsistent,
 !!                 optional, logical(IN) :: doLogMask,
 !!                 optional, integer(IN) :: selectBlockType,
 !!                 optional, logical(IN) :: unitReadsMeshDataOnly)
 !!
-!! DESCRIPTION 
-!!  For all leaf blocks, fill the guardcells of the physical quantities 
+!! DESCRIPTION
+!!  For all leaf blocks, fill the guardcells of the physical quantities
 !!  in accord with the given mask parameters and that are of the indicated grid
 !!  data structure type.
 !!
@@ -36,11 +36,11 @@
 !!    (1) converts all primitive form leaf data to conserved form,
 !!    (2) restricts data from leaf blocks down to all ancestors,
 !!    (3) fills all guardcells at all levels,
-!!    (4) reverts conserved form leaf data to primitive form where 
+!!    (4) reverts conserved form leaf data to primitive form where
 !!        necessary, and
 !!    (5) runs EoS on cell-centered leaf block guardcells if so desired.
 !!
-!!  Note that steps (1) and (4) are skipped if the runtime parameters 
+!!  Note that steps (1) and (4) are skipped if the runtime parameters
 !!  convertToConsvdInMeshInterp and convertToConsvdForMeshCalls indicate that
 !!  conversion is not desired.
 !!
@@ -48,22 +48,24 @@
 !!  conservative linear interpolation algorithm for guardcells at fine/coarse
 !!  boundaries.
 !!
-!! ARGUMENTS 
-!!  gridDataStruct - integer constant that indicates which grid data structure 
-!!                   variable's guardcells to fill.  Valid values are  
+!! ARGUMENTS
+!!  gridDataStruct - integer constant that indicates which grid data structure
+!!                   variable's guardcells to fill.  Valid values are
 !!                     CENTER             cell-centered data only
-!!                     FACEX              X face-centered data only
-!!                     FACEY              Y face-centered data only
-!!                     FACEZ              Z face-centered data only
 !!                     FACES              All face-centered data only
 !!                     CENTER_FACES       cell-centered and all face-centered
+!!                   The following values are not supported in this implementation
+!!                   for the Amrex Grid:
+!!                     FACEX              X face-centered data only [Not Supported]
+!!                     FACEY              Y face-centered data only [Not Supported]
+!!                     FACEZ              Z face-centered data only [Not Supported]
 !!  idir - For AMReX, the only valid value is ALLDIR, which does the fill along
 !!         all directions.
 !!  minLayers - number of guardcell layers requested for all directions.
 !!  eosMode  - The mode in which eos is to be applied.  If not given, then
 !!             EoS will be run in the mode given by the eosMode runtime parameter.
 !!  doEos    - run EoS on leaf block guardcells
-!!  maskSize - the size of the mask array. 
+!!  maskSize - the size of the mask array.
 !!  mask - an array whose indices correspond to variables in the grid data
 !!          structures.  The guardcell data for each variable will be filled if
 !!          the corresponding element in mask is set to .TRUE.  If the runtime
@@ -97,45 +99,46 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
                                unitReadsMeshDataOnly)
 
   use, INTRINSIC :: iso_c_binding
-  use amrex_amrcore_module,      ONLY : amrex_get_finest_level, &
-                                        amrex_geom, &
-                                        amrex_ref_ratio
-  use amrex_fillpatch_module,    ONLY : amrex_fillpatch
-  
-  use Grid_interface,            ONLY : Grid_getTileIterator, &
-                                        Grid_releaseTileIterator
-  use Grid_data,                 ONLY : gr_justExchangedGC, &
-                                        gr_eosMode, &
-                                        gr_enableMaskedGCFill, &
-                                        gr_convertToConsvdForMeshCalls, &
-                                        gr_convertToConsvdInMeshInterp, &
-                                        gr_smallrho, &
-                                        gr_smalle, &
-                                        gr_meshMe, gr_meshComm, &
-                                        gr_gcellsUpToDate, &
-                                        gr_interpolator, &
-                                        lo_bc_amrex, hi_bc_amrex
-  use Eos_interface,             ONLY : Eos_guardCells
-  use Driver_interface,          ONLY : Driver_abort
-  use Timers_interface,          ONLY : Timers_start, Timers_stop
-  use Logfile_interface,         ONLY : Logfile_stampMessage, &
-                                        Logfile_stampVarMask, &
-                                        Logfile_stamp
-  use gr_amrexInterface,         ONLY : gr_preinterpolationWork, &
-                                        gr_postinterpolationWork, &
-                                        gr_fillPhysicalBC, &
-                                        gr_restrictAllLevels, &
-                                        gr_conserveToPrimitive, &
-                                        gr_cleanDensityData, &
-                                        gr_cleanEnergyData
-  use gr_interface,              ONLY : gr_setGcFillNLayers, &
-                                        gr_setMasks_gen, &
-                                        gr_makeMaskConsistent_gen
-  use gr_specificData,           ONLY : gr_bndGCFillNeedsPrimitiveVars
-  use gr_physicalMultifabs,      ONLY : unk, &
-                                        facevarx, facevary, facevarz
-  use Grid_iterator,             ONLY : Grid_iterator_t
-  use Grid_tile,                 ONLY : Grid_tile_t
+  use amrex_amrcore_module, ONLY: amrex_get_finest_level, &
+                                  amrex_geom, &
+                                  amrex_ref_ratio
+  use amrex_fillpatch_module, ONLY: amrex_fillpatch
+
+  use Grid_interface, ONLY: Grid_getTileIterator, &
+                            Grid_releaseTileIterator
+  use Grid_data, ONLY: gr_justExchangedGC, &
+                       gr_eosMode, &
+                       gr_enableMaskedGCFill, &
+                       gr_convertToConsvdForMeshCalls, &
+                       gr_convertToConsvdInMeshInterp, &
+                       gr_smallrho, &
+                       gr_smalle, &
+                       gr_meshMe, gr_meshComm, &
+                       gr_gcellsUpToDate, &
+                       gr_interpolator, gr_interpolatorFace, &
+                       lo_bc_amrex, hi_bc_amrex, &
+                       lo_bc_amrexFace, hi_bc_amrexFace
+  use Eos_interface, ONLY: Eos_guardCells
+  use Driver_interface, ONLY: Driver_abort
+  use Timers_interface, ONLY: Timers_start, Timers_stop
+  use Logfile_interface, ONLY: Logfile_stampMessage, &
+                               Logfile_stampVarMask, &
+                               Logfile_stamp
+  use gr_amrexInterface, ONLY: gr_preinterpolationWork, &
+                               gr_postinterpolationWork, &
+                               gr_fillPhysicalBC, &
+                               gr_restrictAllLevels, &
+                               gr_conserveToPrimitive, &
+                               gr_cleanDensityData, &
+                               gr_cleanEnergyData
+  use gr_interface, ONLY: gr_setGcFillNLayers, &
+                          gr_setMasks_gen, &
+                          gr_makeMaskConsistent_gen
+  use gr_specificData, ONLY: gr_bndGCFillNeedsPrimitiveVars
+  use gr_physicalMultifabs, ONLY: unk, &
+                                  facevars
+  use Grid_iterator, ONLY: Grid_iterator_t
+  use Grid_tile, ONLY: Grid_tile_t
 
 #include "Flashx_mpi_implicitNone.fh"
 
@@ -151,15 +154,16 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   integer, intent(IN), optional :: selectBlockType
   logical, intent(IN), optional :: unitReadsMeshDataOnly
 
-  logical,dimension(NUNK_VARS) :: gcell_on_cc
+  logical, dimension(NUNK_VARS) :: gcell_on_cc
+  logical, dimension(MDIM, NFACE_VARS) :: gcell_on_fc
   integer :: guard, gcEosMode
-  integer,dimension(MDIM) :: layers, returnLayers
-  real,pointer :: solnData(:,:,:,:)
+  integer, dimension(MDIM) :: layers, returnLayers
+  real, pointer :: solnData(:, :, :, :)
 
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t)     :: tileDesc
 
-  integer :: ierr
+  integer :: ierr, dir
 
   logical :: needEos
   logical :: needConversionGlobal
@@ -168,80 +172,83 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   logical, save :: maskWarningDone = .FALSE.
   logical :: skipThisGcellFill, skipNextGcellFill
   character(len=10) :: tagext
-  integer :: scompCC, ncompCC, lcompCC
+  integer :: scompCC, ncompCC, scompFC, ncompFC
 
   integer :: lev, j
   integer :: finest_level
 
+  integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH) :: gcellChunksCC, gcellChunksFC
+  integer :: numChunksCC, numChunksFC, chunkIndex
+
 #ifdef DEBUG_GRID
   logical:: validDataStructure
-  
-  validDataStructure = (gridDataStruct==CENTER).or.&
-                       (gridDataStruct==FACES).or.&
-                       (gridDataStruct==FACEX).or.&
-                       (gridDataStruct==FACEY).or.&
-                       (gridDataStruct==FACEZ).or.&
-                       (gridDataStruct==CENTER_FACES)
-  if (.not.validDataStructure) then
+
+  validDataStructure = (gridDataStruct == CENTER) .or. &
+                       (gridDataStruct == FACES) .or. &
+                       (gridDataStruct == CENTER_FACES)
+  if (.not. validDataStructure) then
      call Driver_abort("[Grid_fillGuardcell] invalid data structure")
   end if
 #endif
 
-  nullify(solnData)
+  nullify (solnData)
 
   ! DEV: TODO Implement this functionality?
-  if (       (gridDataStruct /= CENTER) .AND. (gridDataStruct /= CENTER_FACES) &
-       .AND. (gridDataStruct /= FACES)  .AND. (gridDataStruct /= FACEX) &
-       .AND. (gridDataStruct /= FACEY)  .AND. (gridDataStruct /= FACEZ)) then
-     write(*,*) "Unsupported gridDataStruct ", gridDataStruct 
+  if ((gridDataStruct /= CENTER) .AND. (gridDataStruct /= CENTER_FACES) &
+      .AND. (gridDataStruct /= FACES)) then
+     write (*, *) "Unsupported gridDataStruct ", gridDataStruct
      call Driver_abort("[Grid_fillGuardCells]: Unsupported gridDataStruct")
   else if (idir /= ALLDIR) then
      call Driver_abort("[Grid_fillGuardCells] idir must be ALLDIR with AMReX")
-  !else if (present(selectBlockType)) then
-  !   call Driver_abort("[Grid_fillGuardCells] selectBlockType *not* implemented for AMReX yet") 
+     !else if (present(selectBlockType)) then
+     !   call Driver_abort("[Grid_fillGuardCells] selectBlockType *not* implemented for AMReX yet")
   else if (present(unitReadsMeshDataOnly)) then
-     call Driver_abort("[Grid_fillGuardCells] unitReadsMeshDataOnly *not* implemented for AMReX yet") 
+     call Driver_abort("[Grid_fillGuardCells] unitReadsMeshDataOnly *not* implemented for AMReX yet")
   end if
 
   skipThisGcellFill = .FALSE.   ! for now
 
-  if(present(eosMode)) then
-     gcEosMode=eosMode
+  if (present(eosMode)) then
+     gcEosMode = eosMode
   else
-     gcEosMode=gr_eosMode
+     gcEosMode = gr_eosMode
   end if
 
-  needEos=.true.
+  needEos = .true.
 
   if (.NOT. gr_enableMaskedGCFill) then
 
-     !! If masking is disabled then a warning is issued and all masking related
-     !! processing is skipped
+    !! If masking is disabled then a warning is issued and all masking related
+    !! processing is skipped
 
      if (.NOT. maskWarningDone) then
-        call Logfile_stampMessage( 'INFO: Grid_fillGuardCells is ignoring masking.')
-        if (gr_meshMe==MASTER_PE) print*,    'INFO: Grid_fillGuardCells is ignoring masking.'
+        call Logfile_stampMessage('INFO: Grid_fillGuardCells is ignoring masking.')
+        if (gr_meshMe == MASTER_PE) print *, 'INFO: Grid_fillGuardCells is ignoring masking.'
         maskWarningDone = .TRUE.
      end if
 
   else
-     
-     !! if masking is not explicitly disabled then the presence of a mask allows 
-     !! masking to proceed
 
-     if(present(mask))then
-        if(present(maskSize)) then
+    !! if masking is not explicitly disabled then the presence of a mask allows
+    !! masking to proceed
 
-           !! If both mask and masksize are present, apply the mask
-           call gr_setMasks_gen(gridDataStruct,maskSize,mask, &
-                gcell_on_cc,                                  &
-                enableMaskedGCFill=gr_enableMaskedGCFill)
-           if(present(makeMaskConsistent))then
-              if(makeMaskConsistent) then
-                 !! if the caller routine is asking for a consistency check
-                 !! then mask may be modified, and also determine if eos needs
-                 !! to be applied based upon the mask consistency
-                 call gr_makeMaskConsistent_gen(gridDataStruct,gcEosMode,needEos,gcell_on_cc)
+     if (present(mask)) then
+        if (present(maskSize)) then
+
+          !! If both mask and masksize are present, apply the mask
+           gcell_on_cc(:) = .FALSE.
+           gcell_on_fc(:, :) = .FALSE.
+           call gr_setMasks_gen(gridDataStruct, maskSize, mask, &
+                                gcell_on_cc, &
+                                gcell_on_fc, &
+                                enableMaskedGCFill=gr_enableMaskedGCFill)
+
+           if (present(makeMaskConsistent)) then
+              if (makeMaskConsistent) then
+                !! if the caller routine is asking for a consistency check
+                !! then mask may be modified, and also determine if eos needs
+                !! to be applied based upon the mask consistency
+                 call gr_makeMaskConsistent_gen(gridDataStruct, gcEosMode, needEos, gcell_on_cc)
               end if
            end if
         else  !! if mask is present without the maskSize, abort
@@ -251,30 +258,32 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
   end if
 
   ! GC data could be managed by other processor.
-  ! Wait for work on all data structures across full mesh to finish 
+  ! Wait for work on all data structures across full mesh to finish
   ! before GC filling
-!!$  if (.not. skipThisGcellFill) then
-!!$     call Timers_start("guardcell Barrier")
-!!$     call MPI_BARRIER(gr_meshComm, ierr)
-!!$     call Timers_stop("guardcell Barrier")
-!!$  end if
+  !!$ if (.not. skipThisGcellFill) then
+  !!$     call Timers_start("guardcell Barrier")
+  !!$     call MPI_BARRIER(gr_meshComm, ierr)
+  !!$     call Timers_stop("guardcell Barrier")
+  !!$ end if
 
   call Timers_start("guardcell internal")
   !! appropriately mask the data structures to ensure that only the correct data
   !! structure is filled.
-!  if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
+  !! if((gridDataStruct/=CENTER_FACES).and.(gridDataStruct/=CENTER))gcell_on_cc = .false.
 
-  scompCC = UNK_VARS_BEGIN
-  ncompCC = NUNK_VARS
-
-  if(present(mask))then
-     if(present(maskSize)) then
+  if (present(mask)) then
+     if (present(maskSize)) then
         if (gr_enableMaskedGCFill) then
-            scompCC = maxloc(merge(1.,0.,gcell_on_cc),dim=1) ! maxloc(gcell_on_cc,dim=1)
-            lcompCC = UNK_VARS_END + 1 - &
-                      maxloc(merge(1.,0.,gcell_on_cc(UNK_VARS_END:UNK_VARS_BEGIN:-1)),dim=1)
-            ncompCC = lcompCC - scompCC + 1
-            gcell_on_cc(scompCC:lcompCC) = .TRUE.
+           !! Create masking chunks based on the mask for cell-centered
+           !! and face-centered variables. These chunks will be used to
+           !! loop over call to amrex_fillpatch
+           gcellChunksCC(:, :) = 0
+           gcellChunksFC(:, :) = 0
+           call gr_setMaskChunks_internal(gcell_on_cc, gcellChunksCC, numChunksCC)
+           call gr_setMaskChunks_internal(gcell_on_fc(IAXIS, :), gcellChunksFC, numChunksFC)
+           do dir = IAXIS, IAXIS + NDIM - 1
+              gcell_on_fc(dir, :) = gcell_on_fc(IAXIS, :)
+           end do
         end if
 
         if (present(doLogMask)) then
@@ -296,6 +305,10 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
            end if
         end if
      end if
+
+  else
+     numChunksCC = 0
+     numChunksFC = 0
   end if
 
   guard = NGUARD
@@ -316,12 +329,12 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   if (needConversionInner) then
      call gr_restrictAllLevels(gridDataStruct, convertPtoC=.TRUE., &
-                                               convertCtoP=.TRUE.)
+                               convertCtoP=.TRUE.)
   else
-  ! Restrict data from leaves to coarser blocks.  Leave in conservative
-  ! form as this is potentially needed for interpolation with fillpatch
+     ! Restrict data from leaves to coarser blocks.  Leave in conservative
+     ! form as this is potentially needed for interpolation with fillpatch
      call gr_restrictAllLevels(gridDataStruct, convertPtoC=needConversionGlobal, &
-                                            convertCtoP=.FALSE.)
+                               convertCtoP=.FALSE.)
   end if
 
   !!!!!----- FILL GUARDCELLS ON ALL BLOCKS, ALL LEVELS
@@ -329,309 +342,437 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   !!!!! Cell-centered data first
   if ((gridDataStruct == CENTER) .OR. (gridDataStruct == CENTER_FACES)) then
-    lev = 0
-    ! AMReX recommended using fillpatch, which is copying *all* data, 
-    ! including the GC.
-    call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
-                                   0.0, unk(lev), &
-                                   amrex_geom(lev), gr_fillPhysicalBC, &
-                                   0.0, scompCC, scompCC, ncompCC)
 
-    finest_level = amrex_get_finest_level()
-    do lev=1, finest_level
-       if (needConversionInner) then
-          call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
-                                      0.0, unk(lev-1), &
-                                      amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev  ), &
-                                      0.0, unk(lev  ), &
-                                      amrex_geom(lev  ), gr_fillPhysicalBC, &
+     call Timers_start("gc unk")
+     if (gr_enableMaskedGCFill .and. numChunksCC > 0) then
+
+        do chunkIndex = 1, numChunksCC
+
+           scompCC = gcellChunksCC(chunkIndex, LOW)
+           ncompCC = gcellChunksCC(chunkIndex, HIGH) - gcellChunksCC(chunkIndex, LOW) + 1
+
+           lev = 0
+           ! AMReX recommended using fillpatch, which is copying *all* data,
+           ! including the GC.
+           call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
+                                0.0, unk(lev), &
+                                amrex_geom(lev), gr_fillPhysicalBC, &
+                                0.0, scompCC, scompCC, ncompCC)
+
+           finest_level = amrex_get_finest_level()
+           do lev = 1, finest_level
+              if (needConversionInner) then
+                 call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
+                                      0.0, unk(lev - 1), &
+                                      amrex_geom(lev - 1), gr_fillPhysicalBC, &
+                                      1.0, unk(lev), &
+                                      0.0, unk(lev), &
+                                      amrex_geom(lev), gr_fillPhysicalBC, &
                                       0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev-1), gr_interpolator, &
+                                      amrex_ref_ratio(lev - 1), gr_interpolator, &
                                       lo_bc_amrex, hi_bc_amrex, &
                                       gr_preinterpolationWork, &
                                       gr_postinterpolationWork)
-       else
-          call amrex_fillpatch(unk(lev), 1.0, unk(lev-1), &
-                                      0.0, unk(lev-1), &
-                                      amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                      1.0, unk(lev  ), &
-                                      0.0, unk(lev  ), &
-                                      amrex_geom(lev  ), gr_fillPhysicalBC, &
+              else
+                 call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
+                                      0.0, unk(lev - 1), &
+                                      amrex_geom(lev - 1), gr_fillPhysicalBC, &
+                                      1.0, unk(lev), &
+                                      0.0, unk(lev), &
+                                      amrex_geom(lev), gr_fillPhysicalBC, &
                                       0.0, scompCC, scompCC, ncompCC, &
-                                      amrex_ref_ratio(lev-1), gr_interpolator, &
+                                      amrex_ref_ratio(lev - 1), gr_interpolator, &
                                       lo_bc_amrex, hi_bc_amrex)
-       end if
-    end do
+              end if
+           end do
+        end do
+     else
 
-    !!!!! FINALIZE CELL-CENTERED DATA
-    ! Clean data to account for possible unphysical values caused by
-    ! interpolation, revert to primitive form if needed, and
-    ! run EoS if needed
-    call Timers_start("eos gc")
+        scompCC = UNK_VARS_BEGIN
+        ncompCC = NUNK_VARS
 
-    if (present(doEos)) then
-       needEos = (needEos .AND. doEos)
-    else
-       needEos = .FALSE.
-    end if
+        lev = 0
+        ! AMReX recommended using fillpatch, which is copying *all* data,
+        ! including the GC.
+        call amrex_fillpatch(unk(lev), 1.0, unk(lev), &
+                             0.0, unk(lev), &
+                             amrex_geom(lev), gr_fillPhysicalBC, &
+                             0.0, scompCC, scompCC, ncompCC)
 
-    if (needEos .AND. needConversionGlobal) then
-       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
-       do while (itor%isValid())
-          call itor%currentTile(tileDesc)
-          call tileDesc%getDataPtr(solnData, CENTER)
+        finest_level = amrex_get_finest_level()
+        do lev = 1, finest_level
+           if (needConversionInner) then
+              call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
+                                   0.0, unk(lev - 1), &
+                                   amrex_geom(lev - 1), gr_fillPhysicalBC, &
+                                   1.0, unk(lev), &
+                                   0.0, unk(lev), &
+                                   amrex_geom(lev), gr_fillPhysicalBC, &
+                                   0.0, scompCC, scompCC, ncompCC, &
+                                   amrex_ref_ratio(lev - 1), gr_interpolator, &
+                                   lo_bc_amrex, hi_bc_amrex, &
+                                   gr_preinterpolationWork, &
+                                   gr_postinterpolationWork)
+           else
+              call amrex_fillpatch(unk(lev), 1.0, unk(lev - 1), &
+                                   0.0, unk(lev - 1), &
+                                   amrex_geom(lev - 1), gr_fillPhysicalBC, &
+                                   1.0, unk(lev), &
+                                   0.0, unk(lev), &
+                                   amrex_geom(lev), gr_fillPhysicalBC, &
+                                   0.0, scompCC, scompCC, ncompCC, &
+                                   amrex_ref_ratio(lev - 1), gr_interpolator, &
+                                   lo_bc_amrex, hi_bc_amrex)
+           end if
+        end do
+     end if
 
-          call gr_cleanDensityData(gr_smallrho, &
-                                   tileDesc%grownLimits(LOW,  :), &
+     !!!!! FINALIZE CELL-CENTERED DATA
+     ! Clean data to account for possible unphysical values caused by
+     ! interpolation, revert to primitive form if needed, and
+     ! run EoS if needed
+#ifndef SIMULATION_INCOMPFLOW
+     if (present(doEos)) then
+        needEos = (needEos .AND. doEos)
+     else
+        needEos = .FALSE.
+     end if
+
+     if (needEos .AND. needConversionGlobal) then
+        call Timers_start("c2p+eos gc")
+        call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
+        do while (itor%isValid())
+           call itor%currentTile(tileDesc)
+           call tileDesc%getDataPtr(solnData, CENTER)
+
+           call gr_cleanDensityData(gr_smallrho, &
+                                    tileDesc%grownLimits(LOW, :), &
+                                    tileDesc%grownLimits(HIGH, :), &
+                                    solnData, &
+                                    tileDesc%blkLimitsGC(LOW, :), &
+                                    tileDesc%blkLimitsGC(HIGH, :), &
+                                    NUNK_VARS)
+           call gr_conserveToPrimitive(tileDesc%grownLimits(LOW, :), &
+                                       tileDesc%grownLimits(HIGH, :), &
+                                       solnData, &
+                                       tileDesc%blkLimitsGC(LOW, :), &
+                                       tileDesc%blkLimitsGC(HIGH, :), &
+                                       NUNK_VARS, &
+                                       UNK_VARS_BEGIN, NUNK_VARS)
+           call gr_cleanEnergyData(gr_smalle, &
+                                   tileDesc%grownLimits(LOW, :), &
                                    tileDesc%grownLimits(HIGH, :), &
                                    solnData, &
-                                   tileDesc%blkLimitsGC(LOW,  :), &
+                                   tileDesc%blkLimitsGC(LOW, :), &
                                    tileDesc%blkLimitsGC(HIGH, :), &
                                    NUNK_VARS)
-          call gr_conserveToPrimitive(tileDesc%grownLimits(LOW,  :), &
+
+           ! This call disallows the use of tiling
+           call Eos_guardCells(gcEosMode, solnData, corners=.true., &
+                               layers=returnLayers, &
+                               blockDesc=tileDesc)
+
+           call tileDesc%releaseDataPtr(solnData, CENTER)
+           call itor%next()
+        end do
+        call Grid_releaseTileIterator(itor)
+        call Timers_stop("c2p+eos gc")
+     else if (needEos .AND. (.NOT. needConversionGlobal)) then
+        call Timers_start("eos gc")
+        call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
+        do while (itor%isValid())
+           call itor%currentTile(tileDesc)
+           call tileDesc%getDataPtr(solnData, CENTER)
+
+           if (.NOT. needConversionInner) then
+              call gr_cleanDensityData(gr_smallrho, &
+                                       tileDesc%grownLimits(LOW, :), &
+                                       tileDesc%grownLimits(HIGH, :), &
+                                       solnData, &
+                                       tileDesc%blkLimitsGC(LOW, :), &
+                                       tileDesc%blkLimitsGC(HIGH, :), &
+                                       NUNK_VARS)
+              call gr_cleanEnergyData(gr_smalle, &
+                                      tileDesc%grownLimits(LOW, :), &
                                       tileDesc%grownLimits(HIGH, :), &
                                       solnData, &
-                                      tileDesc%blkLimitsGC(LOW,  :), &
+                                      tileDesc%blkLimitsGC(LOW, :), &
                                       tileDesc%blkLimitsGC(HIGH, :), &
-                                      NUNK_VARS, &
-                                      UNK_VARS_BEGIN, NUNK_VARS)
-          call gr_cleanEnergyData(gr_smalle, &
-                                  tileDesc%grownLimits(LOW,  :), &
-                                  tileDesc%grownLimits(HIGH, :), &
-                                  solnData, &
-                                  tileDesc%blkLimitsGC(LOW,  :), &
-                                  tileDesc%blkLimitsGC(HIGH, :), &
-                                  NUNK_VARS)
+                                      NUNK_VARS)
+           end if
 
-          ! This call disallows the use of tiling
-          call Eos_guardCells(gcEosMode, solnData, corners=.true., &
-                              layers=returnLayers, &
-                              blockDesc=tileDesc)
+           ! This call disallows the use of tiling
+           call Eos_guardCells(gcEosMode, solnData, corners=.true., &
+                               layers=returnLayers, &
+                               blockDesc=tileDesc)
 
-          call tileDesc%releaseDataPtr(solnData, CENTER)
-          call itor%next()
-       end do
-       call Grid_releaseTileIterator(itor)
-    else if (needEos .AND. (.NOT. needConversionGlobal)) then
-       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
-       do while (itor%isValid())
-          call itor%currentTile(tileDesc)
-          call tileDesc%getDataPtr(solnData, CENTER)
+           call tileDesc%releaseDataPtr(solnData, CENTER)
+           call itor%next()
+        end do
+        call Grid_releaseTileIterator(itor)
+        call Timers_stop("eos gc")
+     else if (needConversionGlobal) then
+        call Timers_start("c2p")
+        call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+        do while (itor%isValid())
+           call itor%currentTile(tileDesc)
+           call tileDesc%getDataPtr(solnData, CENTER)
 
-          if (.NOT. needConversionInner) then
-             call gr_cleanDensityData(gr_smallrho, &
-                                   tileDesc%grownLimits(LOW,  :), &
+           call gr_cleanDensityData(gr_smallrho, &
+                                    tileDesc%grownLimits(LOW, :), &
+                                    tileDesc%grownLimits(HIGH, :), &
+                                    solnData, &
+                                    tileDesc%blkLimitsGC(LOW, :), &
+                                    tileDesc%blkLimitsGC(HIGH, :), &
+                                    NUNK_VARS)
+           call gr_conserveToPrimitive(tileDesc%grownLimits(LOW, :), &
+                                       tileDesc%grownLimits(HIGH, :), &
+                                       solnData, &
+                                       tileDesc%blkLimitsGC(LOW, :), &
+                                       tileDesc%blkLimitsGC(HIGH, :), &
+                                       NUNK_VARS, &
+                                       UNK_VARS_BEGIN, NUNK_VARS)
+           call gr_cleanEnergyData(gr_smalle, &
+                                   tileDesc%grownLimits(LOW, :), &
                                    tileDesc%grownLimits(HIGH, :), &
                                    solnData, &
-                                   tileDesc%blkLimitsGC(LOW,  :), &
+                                   tileDesc%blkLimitsGC(LOW, :), &
                                    tileDesc%blkLimitsGC(HIGH, :), &
                                    NUNK_VARS)
-             call gr_cleanEnergyData(gr_smalle, &
-                                  tileDesc%grownLimits(LOW,  :), &
-                                  tileDesc%grownLimits(HIGH, :), &
-                                  solnData, &
-                                  tileDesc%blkLimitsGC(LOW,  :), &
-                                  tileDesc%blkLimitsGC(HIGH, :), &
-                                  NUNK_VARS)
-          end if
 
-          ! This call disallows the use of tiling
-          call Eos_guardCells(gcEosMode, solnData, corners=.true., &
-                              layers=returnLayers, &
-                              blockDesc=tileDesc)
+           call tileDesc%releaseDataPtr(solnData, CENTER)
+           call itor%next()
+        end do
+        call Grid_releaseTileIterator(itor)
+        call Timers_stop("c2p")
+     else if (.NOT. needConversionInner) then
+        call Timers_start("sanitize")
+        call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+        do while (itor%isValid())
+           call itor%currentTile(tileDesc)
+           call tileDesc%getDataPtr(solnData, CENTER)
 
-          call tileDesc%releaseDataPtr(solnData, CENTER)
-          call itor%next()
-       end do
-       call Grid_releaseTileIterator(itor)
-    else if (needConversionGlobal) then
-       call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
-       do while (itor%isValid())
-          call itor%currentTile(tileDesc)
-          call tileDesc%getDataPtr(solnData, CENTER)
-
-          call gr_cleanDensityData(gr_smallrho, &
-                                   tileDesc%grownLimits(LOW,  :), &
+           call gr_cleanDensityData(gr_smallrho, &
+                                    tileDesc%grownLimits(LOW, :), &
+                                    tileDesc%grownLimits(HIGH, :), &
+                                    solnData, &
+                                    tileDesc%blkLimitsGC(LOW, :), &
+                                    tileDesc%blkLimitsGC(HIGH, :), &
+                                    NUNK_VARS)
+           call gr_cleanEnergyData(gr_smalle, &
+                                   tileDesc%grownLimits(LOW, :), &
                                    tileDesc%grownLimits(HIGH, :), &
                                    solnData, &
-                                   tileDesc%blkLimitsGC(LOW,  :), &
+                                   tileDesc%blkLimitsGC(LOW, :), &
                                    tileDesc%blkLimitsGC(HIGH, :), &
                                    NUNK_VARS)
-          call gr_conserveToPrimitive(tileDesc%grownLimits(LOW,  :), &
-                                      tileDesc%grownLimits(HIGH, :), &
-                                      solnData, &
-                                      tileDesc%blkLimitsGC(LOW,  :), &
-                                      tileDesc%blkLimitsGC(HIGH, :), &
-                                      NUNK_VARS, &
-                                      UNK_VARS_BEGIN, NUNK_VARS)
-          call gr_cleanEnergyData(gr_smalle, &
-                                  tileDesc%grownLimits(LOW,  :), &
-                                  tileDesc%grownLimits(HIGH, :), &
-                                  solnData, &
-                                  tileDesc%blkLimitsGC(LOW,  :), &
-                                  tileDesc%blkLimitsGC(HIGH, :), &
-                                  NUNK_VARS)
 
-          call tileDesc%releaseDataPtr(solnData, CENTER)
-          call itor%next()
-       end do
-       call Grid_releaseTileIterator(itor)
-    else if (.NOT. needConversionInner) then
-       call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
-       do while (itor%isValid())
-          call itor%currentTile(tileDesc)
-          call tileDesc%getDataPtr(solnData, CENTER)
-
-          call gr_cleanDensityData(gr_smallrho, &
-                                   tileDesc%grownLimits(LOW,  :), &
-                                   tileDesc%grownLimits(HIGH, :), &
-                                   solnData, &
-                                   tileDesc%blkLimitsGC(LOW,  :), &
-                                   tileDesc%blkLimitsGC(HIGH, :), &
-                                   NUNK_VARS)
-          call gr_cleanEnergyData(gr_smalle, &
-                                  tileDesc%grownLimits(LOW,  :), &
-                                  tileDesc%grownLimits(HIGH, :), &
-                                  solnData, &
-                                  tileDesc%blkLimitsGC(LOW,  :), &
-                                  tileDesc%blkLimitsGC(HIGH, :), &
-                                  NUNK_VARS)
-
-          call tileDesc%releaseDataPtr(solnData, CENTER)
-          call itor%next()
-       end do
-       call Grid_releaseTileIterator(itor)
-    end if
+           call tileDesc%releaseDataPtr(solnData, CENTER)
+           call itor%next()
+        end do
+        call Grid_releaseTileIterator(itor)
+        call Timers_stop("sanitize")
+     end if
+#endif
+     call Timers_stop("gc unk")
   end if   ! End CENTER or CENTER_FACES
 
 #if NFACE_VARS > 0
   !!!!!----- FILL FACEVAR[XYZ] GUARDCELLS
   ! Fill FACEVARX GC if it exists and is so desired
   ! DEV: TODO Do we need C-to-P conversion here for face vars?
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX)) then
-     lev = 0
-     call amrex_fillpatch(facevarx(lev), 1.0, facevarx(lev), &
-                                         0.0, facevarx(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
+  if ((gridDataStruct == CENTER_FACES) &
+      .OR. (gridDataStruct == FACES)) then
 
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevarx(lev), 1.0, facevarx(lev-1), &
-                                            0.0, facevarx(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevarx(lev  ), &
-                                            0.0, facevarx(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
-     end do
-  end if
-#if NDIM >= 2
-  ! Fill FACEVARY GC if it exists and is so desired
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEY)) then
-     lev = 0
-     call amrex_fillpatch(facevary(lev), 1.0, facevary(lev), &
-                                         0.0, facevary(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
+     call Timers_start("gc facevars")
+     if (gr_enableMaskedGCFill .and. numChunksFC > 0) then
 
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevary(lev), 1.0, facevary(lev-1), &
-                                            0.0, facevary(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevary(lev  ), &
-                                            0.0, facevary(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
-     end do
-  end if
+        do chunkIndex = 1, numChunksFC
+
+           scompFC = gcellChunksFC(chunkIndex, LOW)
+           ncompFC = gcellChunksFC(chunkIndex, HIGH) - gcellChunksFC(chunkIndex, LOW) + 1
+
+           lev = 0
+
+           do dir = 1, NDIM
+              call amrex_fillpatch(facevars(dir, lev), &
+                                   1.0, facevars(dir, lev), &
+                                   0.0, facevars(dir, lev), &
+                                   amrex_geom(lev), gr_fillPhysicalBC, &
+                                   0.0, scompFC, scompFC, ncompFC)
+           end do
+
+           finest_level = amrex_get_finest_level()
+           do lev = 1, finest_level
+              call amrex_fillpatch(facevars(:, lev), &
+                                   1.0, facevars(:, lev - 1), &
+                                   0.0, facevars(:, lev - 1), &
+                                   amrex_geom(lev - 1), &
+                                   gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+                                   gr_fillPhysicalBC, &
 #endif
-#if NDIM == 3
-  ! Fill FACEVARZ GC if it exists and is so desired
-  if (     (gridDataStruct == CENTER_FACES) &
-      .OR. (gridDataStruct == FACES) .OR. (gridDataStruct == FACEZ)) then
-     lev = 0
-     call amrex_fillpatch(facevarz(lev), 1.0, facevarz(lev), &
-                                         0.0, facevarz(lev), &
-                                         amrex_geom(lev), gr_fillPhysicalBC, &
-                                         0.0, 1, 1, NFACE_VARS)
-
-     do lev=1, amrex_get_finest_level()
-        call amrex_fillpatch(facevarz(lev), 1.0, facevarz(lev-1), &
-                                            0.0, facevarz(lev-1), &
-                                            amrex_geom(lev-1), gr_fillPhysicalBC, &
-                                            1.0, facevarz(lev  ), &
-                                            0.0, facevarz(lev  ), &
-                                            amrex_geom(lev  ), gr_fillPhysicalBC, &
-                                            0.0, 1, 1, NFACE_VARS, &
-                                            amrex_ref_ratio(lev-1), gr_interpolator, &
-                                            lo_bc_amrex, hi_bc_amrex) 
-     end do
-  end if
+                                   1.0, facevars(:, lev), &
+                                   0.0, facevars(:, lev), &
+                                   amrex_geom(lev), &
+                                   gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+                                   gr_fillPhysicalBC, &
 #endif
+                                   0.0, scompFC, scompFC, ncompFC, &
+                                   amrex_ref_ratio(lev - 1), gr_interpolatorFace, &
+                                   lo_bc_amrexFace, hi_bc_amrexFace)
+           end do
+        end do
+     else
+
+        scompFC = 1
+        ncompFC = NFACE_VARS
+
+        lev = 0
+
+        do dir = 1, NDIM
+           call amrex_fillpatch(facevars(dir, lev), &
+                                1.0, facevars(dir, lev), &
+                                0.0, facevars(dir, lev), &
+                                amrex_geom(lev), gr_fillPhysicalBC, &
+                                0.0, scompFC, scompFC, ncompFC)
+        end do
+
+        finest_level = amrex_get_finest_level()
+        do lev = 1, finest_level
+           call amrex_fillpatch(facevars(:, lev), &
+                                1.0, facevars(:, lev - 1), &
+                                0.0, facevars(:, lev - 1), &
+                                amrex_geom(lev - 1), &
+                                gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+                                gr_fillPhysicalBC, &
+#endif
+                                1.0, facevars(:, lev), &
+                                0.0, facevars(:, lev), &
+                                amrex_geom(lev), &
+                                gr_fillPhysicalBC, gr_fillPhysicalBC, &
+#if NDIM == MDIM
+                                gr_fillPhysicalBC, &
+#endif
+                                0.0, scompFC, scompFC, ncompFC, &
+                                amrex_ref_ratio(lev - 1), gr_interpolatorFace, &
+                                lo_bc_amrexFace, hi_bc_amrexFace)
+        end do
+     end if
+     call Timers_stop("gc facevars")
+  end if
+
 #else
-  if (     (gridDataStruct == FACES) .OR. (gridDataStruct == FACEX) &
-      .OR. (gridDataStruct == FACEY) .OR. (gridDataStruct == FACEZ)) then
-    call Driver_abort("[Grid_fillGuardCells] No face data to work with")
+  if (gridDataStruct == FACES) then
+     call Driver_abort("[Grid_fillGuardCells] No face data to work with")
   end if
+
 #endif
 
-  call Timers_stop("eos gc")
   call Timers_stop("amr_guardcell")
 
   gr_justExchangedGC = .TRUE.
 
-  call Logfile_stamp(finest_level+1, &
-          '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
+#ifndef SIMULATION_INCOMPFLOW
+  call Logfile_stamp(finest_level + 1, &
+                     '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
+#endif
 
   !We now test whether we can skip the next guard cell fill.
   skipNextGcellFill = .false.
-!  if(present(unitReadsMeshDataOnly)) then
-!     if (unitReadsMeshDataOnly) then
-!        if (gr_gcellsUpToDate) then
-!           !If *all* guard cells were up to date on entry to
-!           !Grid_fillGuardCells then they will continue to be up to date.
-!           skipNextGcellFill = .true.
-!        else
-!           !Check whether we filled guardcells for all layers, all
-!           !variables and all active blocks.  This ensures all
-!           !guard cells are up to date for the next unit.
-!           if ((gridDataStruct == CENTER_FACES .OR. &
-!                (gridDataStruct == CENTER .AND. (NFACE_VARS < 1))) &
-!                .and. idir == ALLDIR) then
-!              skipNextGcellFill = .true.
-!              if (present(minLayers)) then
-!                 if (minval(layers(1:NDIM)) < guard) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!              if (present(mask)) then
-!                 if (.not.all(mask .eqv. .true.)) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!              if (present(selectBlockType)) then
-!                 if (selectBlockType /= ACTIVE_BLKS) then
-!                    skipNextGcellFill = .false.
-!                 end if
-!              end if
-!           end if
-!        end if
-!     end if
-!  end if
+  !  if(present(unitReadsMeshDataOnly)) then
+  !     if (unitReadsMeshDataOnly) then
+  !        if (gr_gcellsUpToDate) then
+  !           !If *all* guard cells were up to date on entry to
+  !           !Grid_fillGuardCells then they will continue to be up to date.
+  !           skipNextGcellFill = .true.
+  !        else
+  !           !Check whether we filled guardcells for all layers, all
+  !           !variables and all active blocks.  This ensures all
+  !           !guard cells are up to date for the next unit.
+  !           if ((gridDataStruct == CENTER_FACES .OR. &
+  !                (gridDataStruct == CENTER .AND. (NFACE_VARS < 1))) &
+  !                .and. idir == ALLDIR) then
+  !              skipNextGcellFill = .true.
+  !              if (present(minLayers)) then
+  !                 if (minval(layers(1:NDIM)) < guard) then
+  !                    skipNextGcellFill = .false.
+  !                 end if
+  !              end if
+  !              if (present(mask)) then
+  !                 if (.not.all(mask .eqv. .true.)) then
+  !                    skipNextGcellFill = .false.
+  !                 end if
+  !              end if
+  !              if (present(selectBlockType)) then
+  !                 if (selectBlockType /= ACTIVE_BLKS) then
+  !                    skipNextGcellFill = .false.
+  !                 end if
+  !              end if
+  !           end if
+  !        end if
+  !     end if
+  !  end if
   gr_gcellsUpToDate = skipNextGcellFill
 
   call Timers_stop("guardcell internal")
 
 #ifdef DEBUG_GRID
-  write(*,'(A,I3)') "[Grid_fillGuardcell] From level 1 to level ", &
-                    finest_level+1
+  write (*, '(A,I3)') "[Grid_fillGuardcell] From level 1 to level ", &
+     finest_level + 1
 #endif
+
+contains
+  subroutine gr_setMaskChunks_internal(mask, chunks, numChunks)
+     !
+     use Driver_interface, ONLY: Driver_abort
+     use Grid_data, ONLY: gr_gcFillSingleVarRange
+     implicit none
+     ! Arguments
+     logical, dimension(:), intent(inout) :: mask
+     integer, dimension(GRID_MAX_GCMASK_CHUNKS, LOW:HIGH), intent(out) :: chunks
+     integer, intent(out) :: numChunks
+     ! Local Variables
+     integer :: prevVarIndex, varIndex
+     logical :: prevVarMask
+
+     prevVarIndex = 0
+     prevVarMask = .FALSE.
+     chunks = 0
+     numChunks = 0
+
+     do varIndex = 1, size(mask)
+        if (mask(varIndex) .and. (.not. prevVarMask)) then
+
+           numChunks = numChunks + 1
+
+           if (numChunks > GRID_MAX_GCMASK_CHUNKS) then
+              call Driver_abort("[Grid_fillGuardCells] Amrex masking chunks > GRID_MAX_GCMASK_CHUNKS")
+           end if
+
+           chunks(numChunks, LOW) = varIndex
+           chunks(numChunks, HIGH) = varIndex
+
+        else if (mask(varIndex) .and. prevVarMask) then
+           chunks(numChunks, HIGH) = varIndex
+
+        end if
+
+        prevVarIndex = varIndex
+        prevVarMask = mask(varIndex)
+     end do
+
+     !! If this conditions is true create a single contiguous chunk.
+     !! Implemented for performance testing of masking strategies
+     if (gr_gcFillSingleVarRange .and. numChunks > 0) then
+        chunks(1, :) = (/minval(chunks(1:numChunks, LOW)), maxval(chunks(1:numChunks, HIGH))/)
+        chunks(2:, :) = 0
+        mask(chunks(1, LOW):chunks(1, HIGH)) = .TRUE.
+        numChunks = 1
+     end if
+
+  end subroutine gr_setMaskChunks_internal
 
 end subroutine Grid_fillGuardCells

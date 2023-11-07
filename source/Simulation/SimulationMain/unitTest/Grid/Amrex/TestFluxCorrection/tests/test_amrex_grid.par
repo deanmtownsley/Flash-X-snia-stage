@@ -30,3 +30,5 @@ nrefs       = 1
 
 flux_correct=.TRUE.
 
+#### Bittree
+gr_amrexUseBittree = .TRUE.

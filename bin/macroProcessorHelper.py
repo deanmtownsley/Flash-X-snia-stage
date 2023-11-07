@@ -18,7 +18,7 @@ def formatOutput(outpath):
     if ext in fortran_exts:
         if hasattr(shutil, "which"):
             if shutil.which("fprettify"):
-                subprocess.run("fprettify {}".format(outpath), shell=True, check=True)
+                subprocess.run("fprettify -w1 {}".format(outpath), shell=True, check=True)
 
 
 # unitDir: path to unit directory with mc files
@@ -31,7 +31,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
     mcListNoVariants = []
     baseList = []
     for f in os.listdir(unitDir):
-        if "-mc" in os.path.splitext(f)[-1]:
+        if os.path.splitext(f)[-1][-3:] == "-mc":
             mcPath = os.path.join(unitDir, f)
             with open(mcPath) as mcFile:
                 lines = mcFile.read()

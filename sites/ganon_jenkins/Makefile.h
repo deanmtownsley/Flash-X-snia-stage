@@ -9,7 +9,7 @@ MPI_PATH   = /usr
 HDF4_PATH  =
 HDF5_INCLUDE_PATH  = /usr/include/hdf5/openmpi
 HDF5_LIB_PATH = /usr/lib/x86_64-linux-gnu/hdf5/openmpi
-HYPRE_PATH = /usr/local/hypre
+HYPRE_PATH = /Hypre/install
 LIB_LAPACK = /usr/lib/x86_64-linux-gnu/liblapack.so /usr/lib/x86_64-linux-gnu/libblas.so
 
 ZLIB_PATH  =
@@ -21,16 +21,39 @@ NCMPI_PATH = /usr/local/netcdf
 MPE_PATH   =
 
 ifeq      ($(NDIM), 1)
-AMREX_PATH=/amrex/install/1D
+AMREX_PATH=/Amrex/install/1D
 else ifeq ($(NDIM), 2)
-AMREX_PATH=/amrex/install/2D
+AMREX_PATH=/Amrex/install/2D
 else ifeq ($(NDIM), 3)
-AMREX_PATH=/amrex/install/3D
+AMREX_PATH=/Amrex/install/3D
 else
 AMREX_PATH=
 endif
-LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
 
+ifdef AMREX_PATH
+LIB_AMREX = ${AMREX_PATH}/lib/libamrex.a
+else
+LIB_AMREX = 
+endif
+
+ifeq      ($(NDIM), 1)
+BITTREE_PATH=
+else ifeq ($(NDIM), 2)
+BITTREE_PATH=/Bittree/install/2D
+else ifeq ($(NDIM), 3)
+BITTREE_PATH=/Bittree/install/3D
+else
+BITTREE_PATH=
+endif
+
+ifdef BITTREE_PATH
+LIB_BITTREE = ${BITTREE_PATH}/lib/libbittree.a
+else
+LIB_BITTREE = 
+endif
+
+ANN_PATH = /ANN
+LIB_ANN = /ANN/lib/libANN.a
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -83,7 +106,11 @@ FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_HDF5 = -I${HDF5_INCLUDE_PATH}
 
-F90FLAGS =  $(FFLAGS_HDF5) -ffree-line-length-none -I${AMREX_PATH}/include # -fallow-argument-mismatch <-- needed for gcc10
+FFLAGS_AMREX = -I${AMREX_PATH}/include
+FFLAGS_BITTREE = -I${BITTREE_PATH}/include
+FFLAGS_ANN = -I${ANN_PATH}/include
+
+F90FLAGS = # -ffree-line-length-none -fallow-argument-mismatch <-- needed for gcc10
 
 
 #The macro _FORTIFY_SOURCE adds some lightweight checks for buffer
@@ -99,6 +126,10 @@ CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 CFLAGS_TEST = -ggdb -O0 -c
 
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
+
+CFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_BITTREE = -I${BITTREE_PATH}/include
+CFLAGS_ANN = -I${ANN_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
 CFLAGS_HDF5 = -I${HDF5_INCLUDE_PATH} #-DH5_USE_16_API
