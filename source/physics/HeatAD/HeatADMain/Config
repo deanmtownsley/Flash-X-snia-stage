@@ -31,6 +31,12 @@ PARAMETER ht_Tbulk              REAL     0.0
 D ht_intSchm Temporal integration scheme 1-Euler, 2-Adams Bashforth
 PARAMETER ht_intSchm		INTEGER 2 [1,2]
 
+D ht_lengthScale Length scale for the simulation in SI units (meter)
+PARAMETER ht_lengthScale REAL 1.0
+
+D ht_timeScale Time scale for the simulation in SI units (seconds)
+PARAMETER ht_timeScale REAL 1.0
+
 D temp_variable Temperature variable
 VARIABLE temp TYPE: GENERIC
 
