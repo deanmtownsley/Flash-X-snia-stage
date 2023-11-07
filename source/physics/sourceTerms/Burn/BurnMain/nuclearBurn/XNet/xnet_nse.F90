@@ -45,6 +45,8 @@ Module xnet_nse
   Integer, Parameter :: nritmax = 200 ! Maximum number of Newton-Raphson iterations
   Integer, Parameter :: lsitmax = 30  ! Maximum number of line-search iterations
 
+  Integer, Parameter :: scrnitmax = 30 ! Maximum number of iterations to make composition consistent with screening
+
   Integer, Parameter :: iguess_max = 6 ! Maximum number of different initial guesses to try
 
   ! NSE solution variables
@@ -351,7 +353,8 @@ Contains
 
     ! Local variables
     Real(dp) :: uvec(2), uvec0(2)
-    Integer :: i, ii
+    Real(dp) :: rerr, rerr0, xnse0(ny)
+    Integer :: i, ii, it
     Logical :: check
     Integer :: info, info0, iguess, iguess0, iguess_start
 
@@ -392,7 +395,7 @@ Contains
       Call nse_nr(uvec,check,info)
       If ( info > 0 ) Exit
     EndDo
-    If ( itsout >= 3 ) Write(lun_stdout,'(a5,2i2,8es23.15)') 'CP98:', &
+    If ( itsout >= 3 ) Write(lun_stdout,'(a5,i1,i3,8es23.15)') 'CP98:', &
     & info,iguess,uvec(1),uvec(2),xnse(i_nn),xnse(i_pp),xnse(i_he4),xnse(i_ni56),fvec(1),fvec(2)
 
     ! Save the CP98 result
@@ -406,13 +409,22 @@ Contains
       If ( info0 > 0 ) Then
         iguess = -iguess0
 
-        !! Iterate a few times to make sure screening and composition are consistent
-        !Do i = 1, 3
-          !Call nse_screen
+        ! Iterate a few times to make sure screening and composition are consistent
+        xnse0(:) = xnse(:)
+        rerr = 0.0_dp
+        rerr0 = huge(1.0_dp)
+        Do it = 1, scrnitmax
+          Call nse_screen
           Call nse_nr(uvec,check,info)
-          If ( itsout >= 3 ) Write(lun_stdout,'(a5,2i2,8es23.15)') 'XNET:', &
-          & info,iguess,uvec(1),uvec(2),xnse(i_nn),xnse(i_pp),xnse(i_he4),xnse(i_ni56),fvec(1),fvec(2)
-        !EndDo
+
+          ! Check the relative difference between iterations
+          rerr = l2norm( xnse(:) - xnse0(:) ) / l2norm( xnse(:) )
+          If ( itsout >= 3 ) Write(lun_stdout,'(a5,i1,i3,9es23.15)') 'XNET:', &
+          & info,iguess,uvec(1),uvec(2),xnse(i_nn),xnse(i_pp),xnse(i_he4),xnse(i_ni56),fvec(1),fvec(2),rerr
+          If ( rerr <= 0.01_dp*tolf .or. rerr >= rerr0 ) Exit
+          rerr0 = rerr
+        EndDo
+
       EndIf
 
       ! Try different guesses if both screening approaches fail
@@ -423,10 +435,11 @@ Contains
           ynse(:) = 0.0_dp
           hnse(:) = 0.0_dp
           Call nse_guess(iguess,uvec,uvec_in)
+          Call nse_screen
           Call nse_nr(uvec,check,info)
           If ( info > 0 ) Exit
         EndDo
-        If ( itsout >= 3 ) Write(lun_stdout,'(a5,2i2,8es23.15)') 'XNET:', &
+        If ( itsout >= 3 ) Write(lun_stdout,'(a5,i1,i3,8es23.15)') 'XNET:', &
         & info,iguess,uvec(1),uvec(2),xnse(i_nn),xnse(i_pp),xnse(i_he4),xnse(i_ni56),fvec(1),fvec(2)
       EndIf
     EndIf
@@ -765,9 +778,6 @@ Contains
     xnse(:) = xnse(:) * safe_exp( temp(:) )
     xnse(:) = max( 0.0_dp, min( 1.0_dp, xnse(:) ) )
     ynse(:) = xnse(:) / (mm(:)*avn)
-
-    ! Update screening to be consistent with the new composition
-    Call nse_screen
 
     Return
   End Subroutine nse_composition
