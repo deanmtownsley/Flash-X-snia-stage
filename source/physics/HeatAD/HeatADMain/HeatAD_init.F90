@@ -35,6 +35,7 @@ subroutine HeatAD_init(restart)
    call RuntimeParameters_get('ht_Twall_low', ht_Twall_low)
    call RuntimeParameters_get('ht_Prandtl', ht_Prandtl)
    call RuntimeParameters_get('ht_Tbulk', ht_Tbulk)
+   call RuntimeParameters_get("ht_intSchm", ht_intSchm)
 
    ht_invReynolds = 1.
 
@@ -60,6 +61,7 @@ subroutine HeatAD_init(restart)
       write (*, *) 'ht_invReynolds  =', ht_invReynolds
       write (*, *) 'ht_thcoGas      =', ht_thcoGas
       write (*, *) 'ht_CpGas        =', ht_CpGas
+      write (*, *) 'ht_intSchm      =', ht_intSchm
    end if
 
    call ht_advectionInit()

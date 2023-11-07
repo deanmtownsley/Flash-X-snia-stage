@@ -184,6 +184,8 @@ subroutine Driver_evolveAll()
    call Profiler_start("FLASHX_EVOLUTION")
 
    call Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
+   call Logfile_stamp(dr_simTime, '[Driver_evolveAll] start-time')
+
    call Timers_start("evolution")
 
    ! Initial Timestep:
@@ -671,6 +673,8 @@ subroutine Driver_evolveAll()
    !! End of Evolution Loop
    !!******************************************************************************
    call Timers_stop("evolution")
+
+   call Logfile_stamp(dr_simTime, '[Driver_evolveAll] end-time')
    call Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
 
    call Profiler_stop("FLASHX_EVOLUTION")
