@@ -135,6 +135,21 @@ Composite/Sedov/AMR/2d/Paramesh/unsplit:
   parfiles: test_amr_unsplit_2d.par
   restartParfiles: test_amr_unsplit_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/2d/Paramesh/sparkLim03:
+  setupOptions: -auto +sparkbase2d useLim03=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
+
+Composite/Sedov/AMR/2d/Paramesh/sparkMp5:
+  setupOptions: -auto +sparkbase2d useMP5=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
+
+Composite/Sedov/AMR/2d/Paramesh/sparkTvd2:
+  setupOptions: -auto +sparkbase2d useTVD=True +pm4dev
+  parfiles: test_amr_spark_2d.par
+  restartParfiles: test_amr_spark_2d_restart.par
 ## end 2D AMR
 
 # 2DCyl AMR
@@ -200,7 +215,20 @@ Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcNone:
 
 ## end 2DCyl AMR
 
-# 2DSph AMR
+## 2DSph AMR - next two from / for newProduction
+Composite/Sedov/AMR/2dSph/Paramesh/unsplitPLM:
+  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +pm4dev DoAnalytical=True
+  parfiles: test_amr_plm_sph_2d.par
+  restartParfiles: test_amr_plm_sph_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/2dSph/AMReX/unsplitPPM:
+  setupOptions: -auto -2d +spherical -nxb=8 -nyb=8 +uhd +amrex +nolwf DoAnalytical=True
+  parfiles: test_amr_ppm_sph_2d.par
+  restartParfiles: test_amr_ppm_sph_2d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+# 2DSph AMR - next one from Sudarshan
 Composite/Sedov/AMR/2dSph/Paramesh/spark:
   setupOptions: -auto -2d +spherical -nxb=12 -nyb=12 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_2d_spark.par
@@ -251,9 +279,36 @@ Composite/Sedov/AMR/3d/pm4Nolwf/unsplit:
   parfiles: test_amr_unsplit_3d.par
   restartParfiles: test_amr_unsplit_3d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/3d/Paramesh/spark3:
+  setupOptions: -auto -strictparams -3d -nxb=20 -nyb=20 -nzb=20 +spark3 +pm4dev +threadBL DoAnalytical=True
+  parfiles: test_amr_spark_3d.par
+  restartParfiles: test_amr_spark_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 # end 3d AMR
 
-# 3DSph AMR
+## 3DCyl AMR
+Composite/Sedov/AMR/3dCyl/Paramesh/unsplitWENO:
+  setupOptions: -auto -3d +cylindrical -maxblocks=300 -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev +parallelIO DoAnalytical=True
+  parfiles: test_amr_weno_cyl_3d.par
+  restartParfiles: test_amr_weno_cyl_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov/AMR/3dCyl/AMReX/unsplitFOG:
+  setupOptions: -auto -3d +cylindrical -nxb=8 -nyb=8 -nzb=8 +uhd +amrex DoAnalytical=True
+  parfiles: test_amr_fog_cyl_3d.par
+  restartParfiles: test_amr_fog_cyl_3d_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+## end 3DCyl AMR
+
+## 3DSph AMR - next one for / from newProduction
+Composite/SedovNP/AMR/3dSph/Paramesh/spark:
+  setupOptions: -auto -3d +spherical -nxb=16 -nyb=8 -nzb=16 +spark +pm4dev
+  parfiles: test_amr_spark_sph.par
+  restartParfiles: test_amr_spark_sph_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+# 3DSph AMR - next one from Sudarshan
 Composite/Sedov/AMR/3dSph/Paramesh/spark:
   setupOptions: -auto -3d +spherical -nxb=12 -nyb=12 -nzb=12 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_3d_spark.par

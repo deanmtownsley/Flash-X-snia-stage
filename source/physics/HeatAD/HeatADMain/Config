@@ -3,30 +3,42 @@ DEFAULT constDiffusion
 
 PPDEFINE HEATAD_MAIN
 
-#-----------------------------------------------------------------------
 REQUIRES physics/HeatAD/localAPI
 REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
-#-----------------------------------------------------------------------
 CHILDORDER constDiffusion varDiffusion
 EXCLUSIVE  constDiffusion varDiffusion
 
-#-----------------------------------------------------------------------
 D useHeatAD   Should the HeatAD unit be used?
 PARAMETER useHeatAD BOOLEAN TRUE
 
-#-----------------------------------------------------------------------
-# Runtime parameters
+D ht_Prandtl Prandtl number
 PARAMETER ht_Prandtl            REAL     1.0
+
+D ht_Nusselt Nusselt number
 PARAMETER ht_Nusselt            REAL     1.0
+
+D ht_Twall_high Wall temperature for boundary condition (high)
 PARAMETER ht_Twall_high         REAL     1.0
+
+D ht_Twall_low Wall temperature for boundary condition (low)
 PARAMETER ht_Twall_low          REAL     0.0
+
+D ht_Tbulk Bulk liquid temperature
 PARAMETER ht_Tbulk              REAL     0.0
 
-#-----------------------------------------------------------------------
-# Variables
-VARIABLE temp TYPE: GENERIC # Temperature variable
-VARIABLE htn0 TYPE: GENERIC # RHS variable
-VARIABLE htn1 TYPE: GENERIC # RHS at n-1 
-VARIABLE tfrc TYPE: GENERIC # Forcing variable
+D ht_intSchm Temporal integration scheme 1-Euler, 2-Adams Bashforth
+PARAMETER ht_intSchm		INTEGER 2 [1,2]
+
+D temp_variable Temperature variable
+VARIABLE temp TYPE: GENERIC
+
+D htn0_variable RHS for temperature at timestep n
+VARIABLE htn0 TYPE: GENERIC
+
+D htn1_variable RHS for temperature at timestep n-1
+VARIABLE htn1 TYPE: GENERIC
+
+D tfrc_variable Temperature forcing variable for external use
+VARIABLE tfrc TYPE: GENERIC

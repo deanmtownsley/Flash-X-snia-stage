@@ -24,7 +24,7 @@ subroutine HeatAD_solve(tileDesc, dt)
 
    use HeatAD_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
+   use Driver_interface, ONLY: Driver_getNStep, Driver_abort
    use Grid_tile, ONLY: Grid_tile_t
    use Stencils_interface, ONLY: Stencils_integrateEuler, Stencils_integrateAB2
 
@@ -44,21 +44,37 @@ subroutine HeatAD_solve(tileDesc, dt)
 
    nullify (solnData)
 
+   if (ht_intSchm /= 1 .and. ht_intSchm /= 2) then
+      call Driver_abort("[HeatAD_solve] ht_intSchm should be 1 or 2")
+   end if
+
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%deltas(del)
 
-   call Stencils_integrateAB2(solnData(TEMP_VAR, :, :, :), &
-                              solnData(HTN0_VAR, :, :, :), &
-                              solnData(HTN1_VAR, :, :, :), &
-                              dt, &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI, &
-                              iSource=solnData(TFRC_VAR, :, :, :))
+   if (ht_intSchm == 1) then
+      call Stencils_integrateEuler(solnData(TEMP_VAR, :, :, :), &
+                                   solnData(HTN0_VAR, :, :, :), &
+                                   dt, &
+                                   GRID_ILO, GRID_IHI, &
+                                   GRID_JLO, GRID_JHI, &
+                                   GRID_KLO, GRID_KHI, &
+                                   iSource=solnData(TFRC_VAR, :, :, :))
 
-   solnData(HTN1_VAR, :, :, :) = solnData(HTN0_VAR, :, :, :)
+   else if (ht_intSchm == 2) then
+      call Stencils_integrateAB2(solnData(TEMP_VAR, :, :, :), &
+                                 solnData(HTN0_VAR, :, :, :), &
+                                 solnData(HTN1_VAR, :, :, :), &
+                                 dt, &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI, &
+                                 iSource=solnData(TFRC_VAR, :, :, :))
+
+      solnData(HTN1_VAR, :, :, :) = solnData(HTN0_VAR, :, :, :)
+
+   end if
 
    call tileDesc%releaseDataPtr(solnData, CENTER)
 

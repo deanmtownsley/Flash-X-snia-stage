@@ -116,10 +116,10 @@ D & many files per dump
 D & Not fully implemented, only hdf5 parallel. use at own risk
 PARAMETER outputSplitNum INTEGER 1
 
-D chkGuardCellsOutput if true guardcells are written the checkpoint file.
+D chkGuardCellsOutput If true, guardcells are written to checkpoint files.
 D & Default is false where only interior cells are written.
 D & Currently only implemented with hdf5 parallel paramesh IO implementation 
-D chkGuardCellsInput if true guardcells are read from the checkpoint file.
+D chkGuardCellsInput If true, guardcells are read from the checkpoint file.
 D & Default is false where only interior cells are read.
 D & Currently only implemented with hdf5 parallel paramesh IO implementation 
 PARAMETER chkGuardCellsInput BOOLEAN CONSTANT FALSE
@@ -215,13 +215,13 @@ D & is used.  Default value is true.
 
 PARAMETER useCollectiveHDF5 BOOLEAN true
 
-D plotfileMetadataDP Sets the floating point grid metadata fields to be 
-D & written in double precision if true in plotfiles.  Default value is false
+D plotfileMetadataDP If true, floating point grid metadata fields in plotfiles
+D & are written in double precision.  Default value is false
 
 PARAMETER plotfileMetadataDP BOOLEAN false
 
-D plotfileGridQuantityDP If true, this sets the grid variables (unk, facevars, 
-D & etc.) to be output in double precision in plotfiles.  
+D plotfileGridQuantityDP If true, the grid variables (unk, facevars,
+D & etc.) are output in double precision in plotfiles.
 D & Default value is false.
 
 PARAMETER plotfileGridQuantityDP BOOLEAN false
