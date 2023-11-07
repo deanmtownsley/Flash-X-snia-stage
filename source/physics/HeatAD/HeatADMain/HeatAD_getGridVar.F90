@@ -1,4 +1,5 @@
-subroutine HeatAD_getGridVar(name, value)
+!!***if* source/physics/HeatAD/HeatADMain/HeatAD_getGridVar
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,6 +11,9 @@ subroutine HeatAD_getGridVar(name, value)
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+!!***
+
+subroutine HeatAD_getGridVar(name, value)
 
 #include"Simulation.h"
 
@@ -22,6 +26,10 @@ subroutine HeatAD_getGridVar(name, value)
   select case(name)
      case("Center_Temperature","center_temperature","CENTER_TEMPERATURE")
        value = TEMP_VAR
+#ifdef HEATAD_VARDIFFUSION
+     case("Center_Thermal_Diffusivity","center_thermal_diffusivity","CENTER_THERMAL_DIFFUSIVITY")
+       value = ALPH_VAR
+#endif
      case("Center_Thermal_Forcing","center_thermal_forcing","CENTER_THERMAL_FORCING")
        value = TFRC_VAR
      case default

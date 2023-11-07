@@ -1,7 +1,6 @@
 # Config file for source/Simulation/SimulationMain/incompFlow
 
 USESETUPVARS Grid
-USESETUPVARS Profiler
 
 # Currently these simulations have not been tested with
 # uniform grid so throw a setup error if it is requested.
@@ -12,53 +11,16 @@ ENDIF
 # Add a conflict if above condition fails
 CONFLICTS Grid/GridMain/UG
 
-# Check which profiler is being used and raise error if it is
-# not hpctoolkit. First check using Profiler setup variable
-IF Profiler not in ["","Hpctoolkit"]
-    SETUPERROR incompFlow simulations are only compatible with HPCToolKit profiler
-ENDIF
-# Add a conflict if above condition fails 
-CONFLICTS monitors/Profiler/ProfilerMain/mpihpm
-
-# Interpolation parameters for Paramesh grid implementation and 
-# dependencies on poisson solver and specialized sub-units for
+# Dependencies on poisson solver and specialized sub-units for
 # handling divergence free interpolation of face-centered velocity
 IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
-    #PARAMETER gr_pmRpDivergenceFree INTEGER 1
-    #PARAMETER gr_pmRpNfieldDivf INTEGER 2
-    #PARAMETER gr_pmRpConsvFluxes BOOLEAN TRUE
-    #PARAMETER gr_pmRpConsvFluxDensities BOOLEAN FALSE
     REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
     REQUESTS Grid/GridSolvers/HYPRE
-    PARAMETER gr_hyprePrintSolveInfo BOOLEAN FALSE
-    PARAMETER gr_hypreRelTol REAL 1e-12
-    PARAMETER gr_hypreFloor REAL 1e-16
-ENDIF
-
-# Set some string parameters for paramesh grid implementation
-# without any indentation. This is a hack to make sure setuptool
-# does not raise any errors. Do not change the indentation here
-IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
-PARAMETER gr_hyprePcType STRING "HYPRE_AMG"
-PARAMETER gr_hypreSolverType STRING "HYPRE_BICGSTAB"
-ENDIF
-
-# Set interpolators for amrex divergence free condition. Note that 
-# setuptool generates errors when STRING parameters are indented.
-# Do not change the indentation here
-IF Grid == "Amrex"
-PARAMETER amrexFaceInterpolator STRING "FACE_DIV_FREE"
 ENDIF
 
 # Add dependencies for amrex-native multigrid poisson solver.
-# Set default configuration and tolerances which can be
-# over-written in parfiles. This is done to make production
-# parfiles less verbose and more specific to the simulation
 IF Grid == "Amrex"
     REQUIRES Grid/GridSolvers/AmrexMultigridSolver
-    PARAMETER gr_amrexMG_composite_solve BOOLEAN TRUE
-    PARAMETER gr_amrexMG_Tol REAL 1e-13
-    PARAMETER gr_amrexMG_max_iter INTEGER 200
 ENDIF
 
 # Common runtime parameters for optimization of guard-cell filling 
@@ -79,9 +41,15 @@ LINKIF Grid_updateRefinement.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF Grid_markRefineDerefine.F90 Grid/GridMain/AMR/Paramesh4
 LINKIF gr_markRefineDerefineCallback.F90 Grid/GridMain/AMR/Amrex
 
-# A logical runtime parameter to run unitests on a simulation.
-# Used in driver evolve at the end of evolution loop
+D sim_runTests Run unitests on a simulation. Used
+D & in driver evolve at the end of evolution loop
 PARAMETER sim_runTest BOOLEAN FALSE
+
+D sim_lengthScaleMeters Length scale for the simulation in SI units (meter)
+PARAMETER sim_lengthScaleMeters REAL 1.0
+
+D sim_timeScaleSeconds Time scale for the simulation in SI units (seconds)
+PARAMETER sim_timeScaleSeconds REAL 1.0
 
 # Pre-processor directive to define the simulation group
 PPDEFINE SIMULATION_INCOMPFLOW
