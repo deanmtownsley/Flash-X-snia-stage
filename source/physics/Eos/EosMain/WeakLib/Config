@@ -29,3 +29,8 @@ PARAMETER eos_file  STRING "tables/wl-EOS-SFHo-15-25-50-noBCK.h5"
 #PARAMETER postBounce	   BOOLEAN	FALSE
 #D bounceTime  Time of bounce in seconds
 #PARAMETER bounceTime	   REAL		0.0
+
+D eos_wl_muShift   Flag to shift neutron and chemical potentials by subtracting 
+D               &  neutron-proton-mass difference to make definitions consistent
+D               &  with Chimera
+PARAMETER eos_wl_muShift   BOOLEAN      FALSE

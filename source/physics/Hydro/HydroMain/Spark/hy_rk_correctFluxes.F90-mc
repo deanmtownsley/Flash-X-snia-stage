@@ -105,9 +105,9 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
      @M hy_map_geom
   end if   
   !Change limits to grownTile?
+  !! LOW side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-        !! LOW side
         i = blkLimits(LOW,IAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -127,23 +127,20 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         ! if (dFlux(HY_ENER) /= 0.) print *, 'b', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         !Update primitives (Vstar)
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i
-        range(LOW:HIGH,JAXIS) = j
-        range(LOW:HIGH,KAXIS) = k
-        !call Eos_getData(range,vecLen,tempData,CENTER,hy_eosData,hy_mfrac)
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        !call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        !call Eos_putData(range,vecLen,tempData,CENTER,hy_eosData)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
-!!$        call Eos_wrapped(MODE_DENS_EI,range,Uin)
-        ! if (dFlux(HY_ENER) /= 0.) print *, 'a', Vstar(TEMP_VAR), dt/dx*fac*dFlux(HY_ENER)/(Vstar(ENER_VAR)*Vstar(DENS_VAR)), Vstar(VELX_VAR)
         ! Release pointers
         nullify(Vstar)
+     enddo !j
+  enddo !k
 
-        !! HIGH side
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) =   blkLimits(LOW,IAXIS)
+  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+
+  !! HIGH side
+  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+     do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
         i = blkLimits(HIGH,IAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -158,29 +155,24 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         else
            @M hy_geom_flux_correct_X
         end if
-	fac = facP
+        fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i 
-        range(LOW:HIGH,JAXIS) = j 
-        range(LOW:HIGH,KAXIS) = k
-       
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
-
         ! Release pointers
         nullify(Vstar)
      enddo !j
   enddo !k
 
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) =   blkLimits(HIGH,IAXIS)
+  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+
 #if NDIM>1
   ! Correct JAXIS sides
-
+  !! LOW side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
-        !! LOW side
         j = blkLimits(LOW,JAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -195,20 +187,20 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         end if
         fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i 
-        range(LOW:HIGH,JAXIS) = j 
-        range(LOW:HIGH,KAXIS) = k
-
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
         ! Release pointers
         nullify(Vstar)
+     enddo !j
+  enddo !k
 
-        !! HIGH side
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  range(LOW:HIGH,JAXIS) =   blkLimits(LOW,JAXIS)
+  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
 
+  !! HIGH side
+  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+     do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         j = blkLimits(HIGH,JAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -222,24 +214,21 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         end if
         fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i 
-        range(LOW:HIGH,JAXIS) = j 
-        range(LOW:HIGH,KAXIS) = k
-       
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
         ! Release pointers
         nullify(Vstar)
      enddo !j
   enddo !k
+
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  range(LOW:HIGH,JAXIS) =   blkLimits(HIGH,JAXIS)
+  range(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
 #if NDIM==3
   ! Correct KAXIS sides
+  !! LOW side
   do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
      do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
-        !! LOW side
         k = blkLimits(LOW,KAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -254,20 +243,20 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         end if
         fac = facM
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i
-        range(LOW:HIGH,JAXIS) = j
-        range(LOW:HIGH,KAXIS) = k
-        
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData)
-        
-        !release pointers
+        ! Release pointers
         nullify(Vstar)
+     enddo !j
+  enddo !k
 
-        !! HIGH side
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  range(LOW:HIGH,KAXIS) =   blkLimits(LOW,KAXIS)
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
+
+  !! HIGH side
+  do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
+     do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
         k = blkLimits(HIGH,KAXIS)
         ! Point to old/intermediate states
         Vstar => Uin(:,i,j,k)
@@ -281,19 +270,16 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
         end if
         fac = facP
         call correctZone(Vstar,dFlux,dt,dx,fac)
-        ! Update EOS
-        !pos = (/i,j,k/)
-        range(LOW:HIGH,IAXIS) = i
-        range(LOW:HIGH,JAXIS) = j
-        range(LOW:HIGH,KAXIS) = k
-       
-        call Eos_getData(range,vecLen,Uin,CENTER,hy_eosData,hy_mfrac)
-        call Eos(MODE_DENS_EI,vecLen,hy_eosData,hy_mfrac)
-        call Eos_putData(range,vecLen,Uin,CENTER,hy_eosData) 
         ! Release pointers
         nullify(Vstar)
      enddo !j
   enddo !k
+
+  ! Update EOS
+  range(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
+  range(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
+  range(LOW:HIGH,KAXIS) =   blkLimits(HIGH,KAXIS)
+  call Eos_wrapped(MODE_DENS_EI,range,Uin,gridDataStruct=CENTER)
 #endif
 #endif
 

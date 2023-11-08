@@ -32,7 +32,7 @@
 # then you must make use of a login node installation of HDF5.
 #
 # make SITE=cetuslac1.i2b.alcf.anl.gov NO_MPI=True NO_NCDF=True CCOMP=xlc_r \
-#      CFLAGS_HDF5='-I/veas-fs0/cdaley/software/hdf5-fen/1.8.8/xl/include -DH5_USE_16_API' \
+#      CFLAGS_HDF5='-I/veas-fs0/cdaley/software/hdf5-fen/1.8.8/xl/include -DH5_USE_18_API' \
 #      LIB_HDF5='-L/veas-fs0/cdaley/software/hdf5-fen/1.8.8/xl/lib -lhdf5'
 
 # Include the appropriate Makefile.h.
@@ -65,7 +65,7 @@ endif
 CDEFINES_HDF5=$(CFLAGS_HDF5) -DNO_HDF4
 CDEFINES=$(CDEFINES_HDF5) $(CDEFINES_NCMPI) $(CDEFINES_MPI)
 
-CFLAGS=$(CFLAGS_OPT)
+CFLAGS=$(CFLAGS_OPT) -DH5_USE_18_API
 LIBS=$(LIB_HDF5) $(_LIB_NCMPI) $(_LIB_MPI) -lm
 LFLAGS=$(LFLAGS_OPT)
 
