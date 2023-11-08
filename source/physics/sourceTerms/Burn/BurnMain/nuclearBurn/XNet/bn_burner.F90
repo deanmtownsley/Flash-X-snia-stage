@@ -71,6 +71,8 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
   use xnet_evolve, ONLY : full_net
   use xnet_timers, ONLY : timer_burner, xnet_wtime
 
+  use Timers_interface, only: Timers_start, Timers_stop
+
 #include "Simulation.h"
 
 #ifdef EOS_HELMNSE
@@ -168,7 +170,10 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
 
            ! Table potentials are in MeV, nse_composition called within
            ! nse_solve expects erg
-           call nse_solve(rho(i), t9(i), ye(i), [mu_n, mu_p]*epmev)
+           call Timers_start("nse_solve")
+            call nse_solve(rho(i), t9(i), ye(i), [mu_n, mu_p]*epmev)
+          !  call nse_solve(rho(i), t9(i), ye(i))
+           call Timers_stop("nse_solve")
 
            xOut(:,i) = xnse
 
