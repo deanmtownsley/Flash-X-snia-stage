@@ -1,0 +1,8 @@
+s15s7b2_short_standarded
+	# s15s7b2 of Woosley & Weaver (1995)
+Chimera_S15+100ms*
+        # s15 Chimera data
+Chimera_S25+100ms_*
+        # s25 Chimera data
+VX_G15*
+	# G15 Vertex data

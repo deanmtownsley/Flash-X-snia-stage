@@ -13,10 +13,10 @@ REQUESTS IO/IOMain/hdf5
 LINKIF Grid_markRefineDerefine.F90.pm4 Grid/GridMain/AMR/Paramesh4
 
 # Use more Timers-friendly variant if Hydro, if appropriate
-LINKIF Hydro.F90.levelFlux physics/Hydro/HydroMain/unsplit/levelFlux
+LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
 USESETUPVARS NoLevelwideFluxes
 IF NoLevelwideFluxes
-   LINKIF Hydro.F90 physics/Hydro/HydroMain/unsplit
+   LINKIF Hydro.F90.timersFix physics/Hydro/HydroMain/unsplit
 ENDIF
 
 #

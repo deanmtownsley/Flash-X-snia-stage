@@ -299,4 +299,11 @@ module gr_interface
     end subroutine gr_getRegionDataCoordinates
   end interface
 
+  interface
+     subroutine gr_enforceMaxRefine(lrefineUserMax)
+        implicit none
+        integer, intent(in) :: lrefineUserMax
+     end subroutine gr_enforceMaxRefine
+  end interface
+
 end module gr_interface

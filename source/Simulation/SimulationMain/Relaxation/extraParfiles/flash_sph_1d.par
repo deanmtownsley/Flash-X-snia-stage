@@ -1,0 +1,190 @@
+# [source/Simulation/SimulationMain/Relaxation]
+
+# names of files
+basenm               = "relaxation_"
+log_file             = "relaxation.log"
+restart              = .false.
+checkpointFileNumber = 0
+
+# physical domain
+geometry = "spherical"
+xmin     = 0.0e0
+xmax     = 3.0e7
+
+# boundary conditions
+xl_boundary_type = "reflect"
+xr_boundary_type = "outflow"
+
+# refinement
+nblockx = 20
+
+lrefine_max = 1
+lrefine_min = 1
+
+refine_var_1 = "dens"
+refine_var_2 = "pres"
+
+# go for nend steps or tmax seconds, whichever comes first
+nend = 4000
+tmax = 1.0e-1   # s
+
+# timestep
+dtinit = 1.0E-12 # s
+tstep_change_factor = 1.1e0
+dtmin = 1.E-20
+dtmax = 5.E-7
+dr_dtMinContinue = 5.0e-20
+dr_tstepSlowStartFactor = 1.0e0
+dr_shortenLastStepBeforeTMax = .true.
+cfl = 0.8
+
+# checkpoint/plot files
+checkpointFileIntervalStep = 1000
+checkpointFileIntervalTime = 1.0E-3
+plotFileNumber = 0
+
+ignoreForcedPlot = .false.
+
+plot_var_1 = "dens"
+plot_var_2 = "T001"
+plot_var_3 = "T033"
+
+plot_grid_var_1  = "tg01"
+plot_grid_var_2  = "tg02"
+plot_grid_var_3  = "tg03"
+plot_grid_var_4  = "tg04"
+plot_grid_var_5  = "tg05"
+plot_grid_var_6  = "tg06"
+plot_grid_var_7  = "tg07"
+plot_grid_var_8  = "tg08"
+plot_grid_var_9  = "tg09"
+plot_grid_var_10 = "tg10"
+plot_grid_var_11 = "tg11"
+plot_grid_var_12 = "tg12"
+plot_grid_var_13 = "tg13"
+plot_grid_var_14 = "tg14"
+plot_grid_var_15 = "tg15"
+plot_grid_var_16 = "tg16"
+plot_grid_var_17 = "tg17"
+plot_grid_var_18 = "tg18"
+plot_grid_var_19 = "tg19"
+plot_grid_var_20 = "tg20"
+plot_grid_var_21 = "tg21"
+plot_grid_var_22 = "tg22"
+plot_grid_var_23 = "tg23"
+plot_grid_var_24 = "tg24"
+plot_grid_var_25 = "tg25"
+plot_grid_var_26 = "tg26"
+plot_grid_var_27 = "tg27"
+plot_grid_var_28 = "tg28"
+plot_grid_var_29 = "tg29"
+plot_grid_var_30 = "tg30"
+plot_grid_var_31 = "tg31"
+plot_grid_var_32 = "tg32"
+plot_grid_var_33 = "tg33"
+plot_grid_var_34 = "tg34"
+plot_grid_var_35 = "tg35"
+plot_grid_var_36 = "tg36"
+plot_grid_var_37 = "tg37"
+plot_grid_var_38 = "tg38"
+plot_grid_var_39 = "tg39"
+plot_grid_var_40 = "tg40"
+plot_grid_var_41 = "tg41"
+plot_grid_var_42 = "tg42"
+plot_grid_var_43 = "tg43"
+plot_grid_var_44 = "tg44"
+plot_grid_var_45 = "tg45"
+plot_grid_var_46 = "tg46"
+plot_grid_var_47 = "tg47"
+plot_grid_var_48 = "tg48"
+plot_grid_var_49 = "tg49"
+plot_grid_var_50 = "tg50"
+plot_grid_var_51 = "tg51"
+plot_grid_var_52 = "tg52"
+plot_grid_var_53 = "tg53"
+plot_grid_var_54 = "tg54"
+plot_grid_var_55 = "tg55"
+plot_grid_var_56 = "tg56"
+plot_grid_var_57 = "tg57"
+plot_grid_var_58 = "tg58"
+plot_grid_var_59 = "tg59"
+plot_grid_var_60 = "tg60"
+plot_grid_var_61 = "tg61"
+plot_grid_var_62 = "tg62"
+plot_grid_var_63 = "tg63"
+plot_grid_var_64 = "tg64"
+plot_grid_var_65 = "tg65"
+plot_grid_var_66 = "tg66"
+plot_grid_var_67 = "tg67"
+plot_grid_var_68 = "tg68"
+plot_grid_var_69 = "tg69"
+plot_grid_var_70 = "tg70"
+plot_grid_var_71 = "tg71"
+plot_grid_var_72 = "tg72"
+plot_grid_var_73 = "tg73"
+plot_grid_var_74 = "tg74"
+plot_grid_var_75 = "tg75"
+plot_grid_var_76 = "tg76"
+plot_grid_var_77 = "tg77"
+plot_grid_var_78 = "tg78"
+
+# hydro options
+useHydro = .false.
+use_cma_advection = .false.
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#	I. INTERPOLATION SCHEME:
+order		 = 3         # Interpolation order (first/second/third/fifth order)
+slopeLimiter     = "mc" # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta = 1.        # Slope parameter for the "limited" slope by Toro
+charLimiting	 = .true.    # Characteristic limiting vs. Primitive limiting
+use_flattening	 = .true.    # use flattening (dissipative) (originally for PPM)
+use_steepening	 = .true.    # use contact steepening (originally for PPM)
+
+#	II. RIEMANN SOLVERS:
+RiemannSolver	 = "HLLC"    # Roe, HLL, HLLC, LLF, Marquina
+EOSforRiemann    = .false.   # Call EoS for Riemann solves
+entropy          = .false.   # Entropy fix for the Roe solver
+
+#	III. STRONG SHOCK HANDELING SCHEME:
+shockDetect	 = .false.     # Shock Detect for numerical stability
+## -------------------------------------------------------------##
+
+# Initial Profile
+sim_use_model     = .false.
+sim_model_file    = "Chimera_S25+100ms_h"
+sim_rintSwitch    = 1.0e9 # cm, valid only when sim_rad_option = 0
+sim_rad_option    = 4
+dens_i            = 2.564e13
+temp_i            = 2.295e11
+ye_i              = 2.876e-1
+
+# EOS
+eos_file      = "wl-EOS-SFHo-15-25-50-noBCK.h5"
+eosMode       = "dens_ie"
+eosModeInit   = "dens_temp"
+eintSwitch    = 1.e-4
+
+# Radiation transport
+useRadTrans   = .true.
+rt_doExplicit = .false.
+rt_doImplicit = .true.
+rt_eL         = 1.5 # MeV
+rt_eR         = 100.0 # MeV
+rt_zoomE      = 2.44e0
+rt_use_emab   = .true.
+# weaklib opacity table can be downloaded from
+# https://code.ornl.gov/astro/weaklib-tables
+rt_emab_file  = "wl-Op-SFHo-15-25-50-E40-B85-AbEm.h5"
+rt_use_iso    = .true.
+rt_iso_file   = "wl-Op-SFHo-15-25-50-E40-B85-Iso.h5"
+rt_use_nes    = .true.
+rt_nes_file   = "wl-Op-SFHo-15-25-50-E40-B85-NES.h5"
+rt_use_pair   = .true.
+rt_pair_file  = "wl-Op-SFHo-15-25-50-E40-B85-Pair.h5"
+rt_positivityLimiter = .true.
+rt_UpperBry1  = 1.0e100  # 1.0e0 for CB closure, 1.0e100 for MI closure
+
+# other flags
+useParticles  = .false.

@@ -1,0 +1,211 @@
+# [source/Simulation/SimulationMain/StreamingSineWave]
+
+# names of files
+log_file = "streamingsinewave.log"
+
+# physical domain (sine wave period = ((xmax-xmin)/clight))
+geometry = "cartesian"
+xmin = 0.0
+xmax = 100.0
+ymin = 0.0
+ymax = 100.0
+zmin = 0.0
+zmax = 100.0
+
+# boundary conditions
+xl_boundary_type = "periodic"
+xr_boundary_type = "periodic"
+yl_boundary_type = "periodic"
+yr_boundary_type = "periodic"
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
+
+# refinement
+nblockx = 16
+nblocky = 1
+nblockz = 1
+
+lrefine_max = 2
+lrefine_min = 1
+
+refine_var_1 = "dens"
+refine_var_2 = "pres"
+
+# go for nend steps or tmax seconds, whichever comes first
+nend = 10000
+#tmax = 3.33564095198152e-9 # 1 periods ((xmax-xmin)/clight)
+tmax = 1.667820475990760e-9 # 1/2 period
+
+# timestep
+# 1 dt_thornado at level 2
+dtinit = 3.8606955462749e-12
+dtmin  = 3.8606955462749e-12
+
+dr_dtMinContinue = 5.0e-20
+dr_tstepSlowStartFactor = 1.0e0
+dr_shortenLastStepBeforeTMax = .true.
+cfl = 0.8
+
+# checkpoint/plot files
+restart = .false.
+
+checkpointFileNumber = 0
+plotFileNumber = 0
+
+checkpointFileIntervalStep = 0
+checkpointFileIntervalTime = 0
+
+#plotFileIntervalStep = 200
+#plotFileIntervalTime = 8.3391023799538e-10 # 1/4 period
+
+ignoreForcedPlot = .false.
+
+#eachProcWritesSummary = .true.
+#writeStateSummary = .true.
+#summaryOutputOnly = .true.
+
+plot_var_1 = "dens"
+plot_var_2 = "pres"
+plot_var_3 = "velx"
+plot_var_4 = "T001"
+
+plot_grid_var_1  = "tg01"
+plot_grid_var_2  = "tg02"
+plot_grid_var_3  = "tg03"
+plot_grid_var_4  = "tg04"
+plot_grid_var_5  = "tg05"
+plot_grid_var_6  = "tg06"
+plot_grid_var_7  = "tg07"
+plot_grid_var_8  = "tg08"
+plot_grid_var_9  = "tg09"
+plot_grid_var_10 = "tg10"
+plot_grid_var_11 = "tg11"
+plot_grid_var_12 = "tg12"
+plot_grid_var_13 = "tg13"
+plot_grid_var_14 = "tg14"
+plot_grid_var_15 = "tg15"
+plot_grid_var_16 = "tg16"
+plot_grid_var_17 = "tg17"
+plot_grid_var_18 = "tg18"
+plot_grid_var_19 = "tg19"
+plot_grid_var_20 = "tg20"
+plot_grid_var_21 = "tg21"
+plot_grid_var_22 = "tg22"
+plot_grid_var_23 = "tg23"
+plot_grid_var_24 = "tg24"
+plot_grid_var_25 = "tg25"
+plot_grid_var_26 = "tg26"
+plot_grid_var_27 = "tg27"
+plot_grid_var_28 = "tg28"
+plot_grid_var_29 = "tg29"
+plot_grid_var_30 = "tg30"
+plot_grid_var_31 = "tg31"
+plot_grid_var_32 = "tg32"
+plot_grid_var_33 = "tg33"
+plot_grid_var_34 = "tg34"
+plot_grid_var_35 = "tg35"
+plot_grid_var_36 = "tg36"
+plot_grid_var_37 = "tg37"
+plot_grid_var_38 = "tg38"
+plot_grid_var_39 = "tg39"
+plot_grid_var_40 = "tg40"
+plot_grid_var_41 = "tg41"
+plot_grid_var_42 = "tg42"
+plot_grid_var_43 = "tg43"
+plot_grid_var_44 = "tg44"
+plot_grid_var_45 = "tg45"
+plot_grid_var_46 = "tg46"
+plot_grid_var_47 = "tg47"
+plot_grid_var_48 = "tg48"
+plot_grid_var_49 = "tg49"
+plot_grid_var_50 = "tg50"
+plot_grid_var_51 = "tg51"
+plot_grid_var_52 = "tg52"
+plot_grid_var_53 = "tg53"
+plot_grid_var_54 = "tg54"
+plot_grid_var_55 = "tg55"
+plot_grid_var_56 = "tg56"
+plot_grid_var_57 = "tg57"
+plot_grid_var_58 = "tg58"
+plot_grid_var_59 = "tg59"
+plot_grid_var_60 = "tg60"
+plot_grid_var_61 = "tg61"
+plot_grid_var_62 = "tg62"
+plot_grid_var_63 = "tg63"
+plot_grid_var_64 = "tg64"
+plot_grid_var_65 = "tg65"
+plot_grid_var_66 = "tg66"
+plot_grid_var_67 = "tg67"
+plot_grid_var_68 = "tg68"
+plot_grid_var_69 = "tg69"
+plot_grid_var_70 = "tg70"
+plot_grid_var_71 = "tg71"
+plot_grid_var_72 = "tg72"
+plot_grid_var_73 = "tg73"
+plot_grid_var_74 = "tg74"
+plot_grid_var_75 = "tg75"
+plot_grid_var_76 = "tg76"
+plot_grid_var_77 = "tg77"
+plot_grid_var_78 = "tg78"
+
+# eos options
+eintSwitch = 1.e-4
+eos_coulombMult = 1.0
+
+# hydro options
+useHydro = .true.
+use_cma_advection = .true.
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#	I. INTERPOLATION SCHEME:
+order		 = 3         # Interpolation order (first/second/third/fifth order)
+slopeLimiter     = "vanLeer" # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta = 1.        # Slope parameter for the "limited" slope by Toro
+charLimiting	 = .true.    # Characteristic limiting vs. Primitive limiting
+use_flattening	 = .true.    # use flattening (dissipative) (originally for PPM)
+use_steepening	 = .true.    # use contact steepening (originally for PPM)
+
+#	II. RIEMANN SOLVERS:
+RiemannSolver	 = "HLLC"    # Roe, HLL, HLLC, LLF, Marquina
+EOSforRiemann    = .false.   # Call EoS for Riemann solves
+entropy          = .false.   # Entropy fix for the Roe solver
+
+#	III. STRONG SHOCK HANDELING SCHEME:
+shockDetect	 = .true.      # Shock Detect for numerical stability
+## -------------------------------------------------------------##
+
+# spark options
+flux_correct          = .true.  # Flux correction on/off
+flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis. Must be .true. for AMReX
+use_hybridRiemann     = .true.  # Use the HLL solver inside shocks
+
+# radiation transport
+useRadTrans = .true.
+
+rt_doExplicit = .true.
+rt_doImplicit = .false.
+
+rt_eL    = 0.0
+rt_eR    = 1.0
+rt_zoomE = 1.0
+rt_bcE   = 1
+
+# thornado options
+dens_lo_i = 8.0e5
+dens_hi_i = 1.2e6
+temp_i = 1.0e6
+pres_i = 1.0e20
+
+vel_i = 2.99792458e9 # 0.1c
+#vel_i = 1.49896229e9 # 0.05c
+#vel_i = 2.99792458e8 # 0.01c
+
+# eos options
+eosMode = "dens_ie"
+eosModeInit = "dens_pres"
+
+earlyBlockDistAdjustment = .false.
+
+# other flags
+useParticles = .false.

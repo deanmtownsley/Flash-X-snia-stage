@@ -1,0 +1,442 @@
+# Parameters file for core-collapse SN
+# 3D Cartesian
+# 12 Solar Mass from http://dx.doi.org/10.3847/0004-637X/821/1/38
+# Radiation Transport
+# Spark Solver
+# AMR: min 0.250km max 32km
+
+## -------------------------------------------------------------
+## Simulation Basics
+## -------------------------------------------------------------
+
+log_file		= "ccsn.log"
+basenm			= "ccsn_"
+restart                 = .FALSE.
+checkpointFileNumber    = 0
+plotFileNumber          = 0
+#run_comment            = "1.2*small{rho,T} mono(2) HLL minmod"
+output_directory	= "chk"
+
+## -------------------------------------------------------------
+## IO
+## -------------------------------------------------------------
+
+checkpointFileIntervalStep  = 100
+checkpointFileIntervalTime  = 0 
+#plotFileIntervalStep        = 10
+#plotFileIntervalTime        = 0
+#wall_clock_checkpoint     = 5400.
+wall_clock_time_limit     = 27000.
+memory_stat_freq            = 20
+io_writeMscalarIntegrals    = .TRUE.
+#eachprocwritessummary       = .TRUE.
+
+## -------------------------------------------------------------
+## Time
+## -------------------------------------------------------------
+
+tinitial                        = 0.0
+tmax                            = 0.5
+dr_shortenLastStepBeforeTMax    = .TRUE.
+nend                            = 1000000
+dtinit                          = 1.E-10
+dtmax                           = 1.E5
+dtmin                           = 1.E-20
+dr_dtMinContinue                = 1.0e-12
+dr_dtMinBelowAction             = 1    # write chkpt then abort
+
+## -------------------------------------------------------------
+## Domain
+## -------------------------------------------------------------
+
+geometry            = "cylindrical"
+
+xmin                = 0.0
+xmax                = 2.048e8
+xl_boundary_type    = "reflect"
+xr_boundary_type    = "diode"
+
+ymin                = -2.048e8
+ymax                =  2.048e8
+yl_boundary_type    = "diode"
+yr_boundary_type    = "diode"
+
+#zmin                = -4.096e8
+#zmax                =  4.096e8
+#zl_boundary_type    = "diode"
+#zr_boundary_type    = "diode"
+
+## -------------------------------------------------------------
+## Grid Refinement
+## -------------------------------------------------------------
+
+nblockx                     = 8
+nblocky                     = 16
+nblockz                     = 1
+
+enableMaskedGCFill          = .TRUE.
+
+lrefine_max                 = 5
+lrefine_min                 = 1
+refine_var_1                = "dens"
+refine_var_2                = "pres"
+refine_var_3                = "sumy" 
+refine_cutoff_1             = 0.8
+refine_cutoff_2             = 0.8
+refine_cutoff_3             = 0.4
+
+derefine_cutoff_3           = 0.1
+
+fullAngRefRad               = 6.0e7     # Refine up to lrefine_center inside this radius
+lrefine_center              = 1         # maximum refinement level inside fullAngRefRad (0 = lrefine_max)
+
+gr_lrefineMaxRedDoByLogR    = .FALSE.   # .FALSE. to get NO distance-based refinement limitation
+gr_lrefineMaxRedRadiusFact  = 0.27925   # 0.15 to get highest refinement only very close to center
+
+gr_lrefineMaxRedDoByTime    = .FALSE.
+gr_lrefineMaxRedLogBase     = 10.0
+gr_lrefineMaxRedTRef        = 2.0
+gr_lrefineMaxRedTimeScale   = 0.5
+
+## -------------------------------------------------------------
+## Plot Variables
+## -------------------------------------------------------------
+
+plot_var_1      = "dens"
+plot_var_2      = "pres"
+plot_var_3      = "temp"
+plot_var_4      = "entr"
+plot_var_5      = "velx"
+plot_var_6      = "vely"
+plot_var_7      = "velz"
+plot_var_8      = "gpot"
+plot_var_9      = "eint"
+plot_var_10     = "ener"
+plot_var_11     = "ye"
+plot_var_12     = "t001"
+plot_var_13     = "t002"
+plot_var_14     = "shok"
+
+## -------------------------------------------------------------
+## Energy Integrated Grey Neutrino Quantities
+## -------------------------------------------------------------
+
+#nGR = 13 # number of gray variables
+#for iS in range(1, nSpecies+1):
+#    for iGR in range(1, nGR+1):
+#        iN = (iS-1)*nGR + iGR
+#        yield 'SCRATCHVAR TG%.2d' % (iN)
+#where for each 13 variables per species, they correspond to the descriptions in RadiationFieldsModule in thornado:
+#INTEGER, PUBLIC, PARAMETER :: iGR_N   = 1  ! Eulerian   Number Density
+#INTEGER, PUBLIC, PARAMETER :: iGR_D   = 2  ! Lagrangian Number Density
+#INTEGER, PUBLIC, PARAMETER :: iGR_I1  = 3  ! Lagrangian Number Flux 1
+#INTEGER, PUBLIC, PARAMETER :: iGR_I2  = 4  ! Lagrangian Number Flux 2
+#INTEGER, PUBLIC, PARAMETER :: iGR_I3  = 5  ! Lagrangian Number Flux 3
+#INTEGER, PUBLIC, PARAMETER :: iGR_J   = 6  ! Lagrangian Energy Density
+#INTEGER, PUBLIC, PARAMETER :: iGR_H1  = 7  ! Lagrangian Energy Flux 1
+#INTEGER, PUBLIC, PARAMETER :: iGR_H2  = 8  ! Lagrangian Energy Flux 2
+#INTEGER, PUBLIC, PARAMETER :: iGR_H3  = 9  ! Lagrangian Energy Flux 3
+#INTEGER, PUBLIC, PARAMETER :: iGR_RMS = 10 ! RMS Energy
+#INTEGER, PUBLIC, PARAMETER :: iGR_F   = 11 ! Flux Factor
+#INTEGER, PUBLIC, PARAMETER :: iGR_K   = 12 ! Eddington Factor
+#INTEGER, PUBLIC, PARAMETER :: iGR_Q   = 13 ! Heat Flux Factor
+#INTEGER, PUBLIC, PARAMETER :: nGR     = 13 ! n Gray Radiation Fields
+
+plot_grid_var_1     = "tg01"
+plot_grid_var_2     = "tg02"
+plot_grid_var_3     = "tg03"
+plot_grid_var_4     = "tg04"
+plot_grid_var_5     = "tg05"
+plot_grid_var_6     = "tg06"
+plot_grid_var_7     = "tg07"
+plot_grid_var_8     = "tg08"
+plot_grid_var_9     = "tg09"
+plot_grid_var_10    = "tg10"
+plot_grid_var_11    = "tg11"
+plot_grid_var_12    = "tg12"
+plot_grid_var_13    = "tg13"
+plot_grid_var_14    = "tg14"
+plot_grid_var_15    = "tg15"
+plot_grid_var_16    = "tg16"
+plot_grid_var_17    = "tg17"
+plot_grid_var_18    = "tg18"
+plot_grid_var_19    = "tg19"
+plot_grid_var_20    = "tg20"
+plot_grid_var_21    = "tg21"
+plot_grid_var_22    = "tg22"
+plot_grid_var_23    = "tg23"
+plot_grid_var_24    = "tg24"
+plot_grid_var_25    = "tg25"
+plot_grid_var_26    = "tg26"
+plot_grid_var_27    = "tg27"
+plot_grid_var_28    = "tg28"
+plot_grid_var_29    = "tg29"
+plot_grid_var_30    = "tg30"
+plot_grid_var_31    = "tg31"
+plot_grid_var_32    = "tg32"
+plot_grid_var_33    = "tg33"
+plot_grid_var_34    = "tg34"
+plot_grid_var_35    = "tg35"
+plot_grid_var_36    = "tg36"
+plot_grid_var_37    = "tg37"
+plot_grid_var_38    = "tg38"
+plot_grid_var_39    = "tg39"
+plot_grid_var_40    = "tg40"
+plot_grid_var_41    = "tg41"
+plot_grid_var_42    = "tg42"
+plot_grid_var_43    = "tg43"
+plot_grid_var_44    = "tg44"
+plot_grid_var_45    = "tg45"
+plot_grid_var_46    = "tg46"
+plot_grid_var_47    = "tg47"
+plot_grid_var_48    = "tg48"
+plot_grid_var_49    = "tg49"
+plot_grid_var_50    = "tg50"
+plot_grid_var_51    = "tg51"
+plot_grid_var_52    = "tg52"
+plot_grid_var_53    = "tg53"
+plot_grid_var_54    = "tg54"
+plot_grid_var_55    = "tg55"
+plot_grid_var_56    = "tg56"
+plot_grid_var_57    = "tg57"
+plot_grid_var_58    = "tg58"
+plot_grid_var_59    = "tg59"
+plot_grid_var_60    = "tg60"
+plot_grid_var_61    = "tg61"
+plot_grid_var_62    = "tg62"
+plot_grid_var_58    = "tg58"
+plot_grid_var_59    = "tg59"
+plot_grid_var_60    = "tg60"
+plot_grid_var_61    = "tg61"
+plot_grid_var_62    = "tg62"
+plot_grid_var_63    = "tg63"
+plot_grid_var_64    = "tg64"
+plot_grid_var_65    = "tg65"
+plot_grid_var_66    = "tg66"
+plot_grid_var_67    = "tg67"
+plot_grid_var_68    = "tg68"
+plot_grid_var_69    = "tg69"
+plot_grid_var_70    = "tg70"
+plot_grid_var_71    = "tg71"
+plot_grid_var_72    = "tg72"
+plot_grid_var_73    = "tg73"
+plot_grid_var_74    = "tg74"
+plot_grid_var_75    = "tg75"
+plot_grid_var_76    = "tg76"
+plot_grid_var_77    = "tg77"
+plot_grid_var_78    = "tg78"
+
+## -------------------------------------------------------------
+## Progenitor File
+## -------------------------------------------------------------
+
+chimera_model_file = "SEWBJ16_12M_Sun.h5"
+
+## -------------------------------------------------------------
+## Hydro General
+## -------------------------------------------------------------
+useHydro                        = .TRUE.
+cfl                             = 0.5
+interpol_order                  = 2
+updateHydroFluxes               = .TRUE.
+eintSwitch                      = 0.0       # Always use Etot
+#convertToConsvdForMeshCalls    = .FALSE.
+#converttoconsvdinmeshinterp    = .FALSE.
+
+## -------------------------------------------------------------
+## Hydro (UNSPLIT AND SPARK)
+## -------------------------------------------------------------
+
+useHydro                        = .TRUE.
+
+cvisc                           = 0.1       # Coefficient for artificial viscosity
+use_flattening                  = .TRUE.    # Use flattening (dissipative) (originally for PPM)
+
+## -------------------------------------------------------------
+# Hydro (UNSPLIT ONLY)
+## -------------------------------------------------------------
+
+irenorm                         = 0         # Renormalize the abundances before EOS (Spark always renormalizes)
+use_gravHalfUpdate              = .TRUE.    # Include gravitational accelerations to hydro coupling at n+1/2
+use_steepening                  = .FALSE.   # Steepen contact discontinuities for PPM
+charLimiting                    = .TRUE.    # Characteristic limiting vs. Primitive limiting
+use_cma_advection               = .TRUE.    # Consistent multi-fluid convection
+
+# interpolation scheme
+order                           = 3         # Interpolation order (first/second/third/fifth order)
+slopeLimiter                    = "hybrid"  # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta                = 1.        # Slope parameter for the "limited" slope by Toro
+
+use_avisc                       = .FALSE.   # Use artificial viscosity (originally for PPM)
+use_upwindTVD                   = .FALSE.   # Use upwind biased TVD slope for PPM (need nguard=6)
+
+# riemann solver
+RiemannSolver                   = "hybrid"  # Roe, HLL, HLLC, LLF, Marquina, MarquinaModified, Hybrid
+EOSforRiemann                   = .FALSE.   # Call EoS for Riemann solves
+entropy                         = .FALSE.   # Entropy fix for the Roe solver
+
+# shock detection
+shockDetect                     = .TRUE.    # Shock Detect for numerical stability
+shockLowerCFL                   = .FALSE.   # Lower CFL if shock detected
+
+## -------------------------------------------------------------
+## Hydro (SPARK ONLY)
+## -------------------------------------------------------------
+
+# flux correction
+flux_correct                    = .TRUE.    # Flux correction on/off
+flux_correct_perLevel           = .FALSE.   # Apply flux corrections on a per-level basis. Must be .TRUE. for AMReX
+
+use_hybridRiemann               = .TRUE.    # Use the HLL solver inside shocks
+
+updateHydroFluxes               = .TRUE.
+
+## -------------------------------------------------------------
+## Gravity
+## -------------------------------------------------------------
+
+useGravity                  = .TRUE.
+updateGravity               = .TRUE.
+grav_boundary_type          = "isolated"
+mpole_3daxisymmetry         = .FALSE.
+mpole_dumpMoments           = .FALSE.
+mpole_PrintRadialInfo       = .FALSE.
+mpole_IgnoreInnerZone       = .FALSE.
+mpole_lmax                  = 0 # Just 0 for collapse
+mpole_ZoneRadiusFraction_1  = 1.0
+mpole_ZoneExponent_1        = 0.005
+mpole_ZoneScalar_1          = 0.5
+mpole_ZoneType_1            = "logarithmic"
+point_mass                  = 0.0
+point_mass_rsoft            = 0.e0
+
+## -------------------------------------------------------------
+## EOS NSE
+## -------------------------------------------------------------
+
+eos_file                = "wl-EOS-SFHo-15-25-50.h5"
+#eos_file                = "wl-EOS-SFHo-25-50-100-Standard.h5"
+eosMode                 = "dens_ie"
+eosModeInit             = "dens_temp"
+
+eos_wl_muShift          = .TRUE. # De-chimeraize the weaklib chemical potentials
+
+## -------------------------------------------------------------
+## EOS Non-NSE
+## -------------------------------------------------------------
+
+### -------------------------------------------------------------
+### Helmholtz
+### -------------------------------------------------------------
+
+#eos_forceConstantInput = .TRUE. # Keep inputs constant when inverting EOS
+eos_coulombMult         = 0.0 # Coulomb correction multiplier
+eos_coulombAbort        = .FALSE.
+
+### -------------------------------------------------------------
+### Starkiller
+### -------------------------------------------------------------
+
+eos_useStarkiller       = .TRUE.
+eos_vecLenACC           = 1024
+
+## -------------------------------------------------------------
+## Burning
+## -------------------------------------------------------------
+
+useBurn                 = .FALSE.
+useShockBurn            = .FALSE.
+
+# thresholds to cut off burning
+#nuclearNI56Max         = 1.0
+nuclearTempMin          = 3.1e8
+nuclearTempMax          = 8.5e9
+
+### -------------------------------------------------------------
+### XNet
+### -------------------------------------------------------------
+
+xnet_iweak              = 1         # (-1) Weak rxns only, (0) Weak rxns off, (1) Weak rxns on
+xnet_iscrn              = 1         # Screening
+xnet_iprocess           = 1         # Network data pre-processing?
+xnet_kstmx              = 6000      # Max XNet steps for each zone
+xnet_tolm               = 1.0e-6    # Mass conservation tolerance
+xnet_tolc               = 1.0e-3    # Tolerance for iterative abundance change
+xnet_iheat              = 1         # Self-heating (couple temperature to abundance evolution)
+xnet_tolt9              = 1.0e-4    # Tolerance for iterative temperature change
+xnet_nzbatchmx          = 16        # Number of zones to batch
+xnet_writeTimers        = .FALSE.   # Write XNet timers to stdout at end of run
+
+# Parameters to change for BE/BDF
+xnet_isolv              = 1         # Integration scheme: (1) Backward-Euler, (3) BDF/Gear
+xnet_kitmx              = 5         # Max NR iterations
+xnet_iconvc             = 0         # Convergence condition (error weights for BDF integrator)
+xnet_yacc               = 1.0e-14   # Abundances > yacc used for XNet timestep calculation
+xnet_ymin               = 1.0e-30   # Abundance < ymin is set to 0.0
+
+# Aprox13
+algebra                 = 2         # (1) MA28 (2) GIFT
+odeStepper              = 2         # (1) Bader-Deuflhard (2) Rosenbrock
+
+## -------------------------------------------------------------
+## Radiation Transport
+## -------------------------------------------------------------
+
+useRadTrans   = .TRUE.
+rt_doExplicit = .TRUE.
+rt_doImplicit = .TRUE.
+rt_eL         = 0.0 # MeV
+rt_eR         = 300.0 # MeV
+rt_zoomE      = 1.266038160710160e0 # use this for nE = 16
+rt_zoomE      = 1.473936813452146e0 # use this for nE = 10
+rt_bcE        = 10
+
+rt_freezeOpacities = .FALSE.
+
+### -------------------------------------------------------------
+### Weaklib
+### -------------------------------------------------------------
+
+# weaklib opacity table can be downloaded from
+# https://code.ornl.gov/astro/weaklib-tables
+rt_use_emab             = .TRUE.
+rt_emab_file            = "wl-Op-SFHo-15-25-50-E40-B85-AbEm.h5"
+rt_use_iso              = .TRUE.
+rt_iso_file             = "wl-Op-SFHo-15-25-50-E40-B85-Iso.h5"
+rt_use_nes              = .TRUE.
+rt_nes_file             = "wl-Op-SFHo-15-25-50-E40-B85-NES.h5"
+rt_use_pair             = .TRUE.
+rt_pair_file            = "wl-Op-SFHo-15-25-50-E40-B85-Pair.h5"
+rt_use_brem             = .TRUE.
+rt_brem_file            = "wl-Op-SFHo-15-25-50-E40-HR98-Brem.h5"
+rt_positivityLimiter    = .TRUE.
+rt_energyLimiter        = .TRUE.
+rt_slopeLimiter         = .FALSE.
+rt_UpperBry1            = 1.0e100  # 1.0e0 for CB closure, 1.0e100 for MI closure
+
+## -------------------------------------------------------------
+## Particles
+## -------------------------------------------------------------
+
+useParticles            = .FALSE.
+
+pt_numParticlesWanted   = 1000000
+pt_pRand                = 256
+pt_maxPerProc           = 100000
+pt_numAtOnce            = 1000
+
+particle_attribute_1    = "ptemp"
+particle_attribute_2    = "pdens"
+
+## -------------------------------------------------------------
+## Small Numbers
+## -------------------------------------------------------------
+
+smallt  = 1.0e4
+smlrho  = 1.0e-10
+smallp  = 1.E-20
+smalle  = 1.E1
+smallu  = 1.E-10
+smallx  = 1.E-30
+small   = 1.E-100
+
