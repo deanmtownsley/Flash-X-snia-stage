@@ -173,6 +173,9 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
            xOut(:,i) = xnse
 
            sdotRate(i) = sum(bion*(ynse - ystart(:,i)))*conv/tstep
+
+           if (abs(sum(xnse)-1d0) .gt. 1d-8) &
+             print *, rho(i), t9(i), ye(i), mu_n*epmev, mu_p*epmev, sum(xnse), sum(xIn(:, i))
         else
 #endif
            ! Below burning region
