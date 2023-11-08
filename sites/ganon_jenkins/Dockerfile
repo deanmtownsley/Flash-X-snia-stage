@@ -32,7 +32,7 @@ RUN python3 setup.py library --dim 3 --prefix /Bittree/install/3D
 RUN cd build && make && make install && cd ..
 
 # Installation of AMReX from source
-RUN git clone https://github.com/AMReX-Codes/amrex.git --branch 23.10 /Amrex
+RUN git clone https://github.com/AMReX-Codes/amrex.git --branch 23.11 /Amrex
 WORKDIR /Amrex
 RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
 RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
@@ -46,7 +46,7 @@ ENV LD_LIBRARY_PATH=/Hypre/install/lib:$LD_LIBRARY_PATH
 ENV DYLD_LIBRARY_PATH=/Hypre/install/lib:$DYLD_LIBRARY_PATH
 
 # Install approximate nearest neighbor (ANN) from source
-RUN git clone https://github.com/Box-Tools/ANN-Fortran.git --branch v1.0 /ANN
+RUN git clone https://github.com/Box-Tools/ANN-Fortran.git --branch v1.1 /ANN
 WORKDIR /ANN
 RUN make linux-g++
 ENV LD_LIBRARY_PATH=/ANN/lib:$LD_LIBRARY_PATH
@@ -59,6 +59,13 @@ ENV ARCHIVEDIR=/archive/ganon_jenkins/0000-00-00
 # Copy benchmarks from cloud archive and unpack them into archive
 RUN curl -s -L https://anl.box.com/shared/static/3ic5yepg7ad2m98g6bf4grjynep4aj88 | \
     tar xvz --strip-components=1 -C $ARCHIVEDIR
+RUN curl -s -L https://anl.box.com/shared/static/u5lnmqqyqz2d6ms1ramw3i8xggnjbk6d | \
+    tar xvz --strip-components=1 -C $ARCHIVEDIR
+RUN curl -s -L https://anl.box.com/shared/static/k2dyw9tc1t5myv8dcxoh9op3hdf61el0 | \
+    tar xvz --strip-components=1 -C $ARCHIVEDIR
+
+# For composite tests create a copy of last changed results using the following hack
+RUN cp -R $ARCHIVEDIR/Composite* $ARCHIVEDIR/../.
 
 # Change permissions for the archive directory
 RUN chmod -R 777 $ARCHIVEDIR && ls -l $ARCHIVEDIR

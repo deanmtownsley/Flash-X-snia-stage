@@ -271,11 +271,12 @@ module gr_amrexInterface
   end interface
 
   interface
-    subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP)
+    subroutine gr_restrictAllLevels(gridDataStruct, convertPtoC, convertCtoP, chunksCC, chunksFC)
       implicit none
       integer, intent(IN) :: gridDataStruct
       logical, intent(IN) :: convertPtoC
       logical, intent(IN) :: convertCtoP
+      integer, intent(IN), dimension(:,:), optional :: chunksCC, chunksFC
     end subroutine gr_restrictAllLevels
   end interface
  

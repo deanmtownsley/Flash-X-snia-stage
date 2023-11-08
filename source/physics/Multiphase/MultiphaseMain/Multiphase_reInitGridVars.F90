@@ -36,36 +36,54 @@ subroutine Multiphase_reInitGridVars(tileDesc)
    use Driver_interface, ONLY: Driver_getNStep
    use Multiphase_data, ONLY: mph_meshMe
 
-!------------------------------------------------------------------------------------------
+   !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
    type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-!------------------------------------------------------------------------------------------
+   integer :: i, j, k
+   !------------------------------------------------------------------------------------------
    nullify (solnData)
 
    call Timers_start("Multiphase_reInitGridVars")
 
    call tileDesc%getDataPtr(solnData, CENTER)
-   solnData(DFRC_VAR, :, :, :) = 0.
-   solnData(HDN0_VAR, :, :, :) = 0.
-   solnData(PFUN_VAR, :, :, :) = 0.
-   solnData(SMHV_VAR, :, :, :) = 0.
-   solnData(CURV_VAR, :, :, :) = 0.
 
+   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
+      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
+         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
+
+            ! DEVNOTE (10/24/2023):
+            ! Commenting intialization see
+            ! explanation below
+            !solnData(CURV_VAR, i, j, k) = 0
+
+            solnData(DFRC_VAR, i, j, k) = 0.
+            solnData(HDN0_VAR, i, j, k) = 0.
+
+            ! DEVNOTE (10/24/2023):
+            ! Commenting initializations that are
+            ! unnecessary to improve performance
+            ! during high blocks/process loading
 #ifdef MULTIPHASE_EVAPORATION
-   solnData(HFLQ_VAR, :, :, :) = 0.
-   solnData(HFGS_VAR, :, :, :) = 0.
-   solnData(NRMX_VAR, :, :, :) = 0.
-   solnData(NRMY_VAR, :, :, :) = 0.
+            !solnData(HFLQ_VAR, i, j, k) = 0.
+            !solnData(HFGS_VAR, i, j, k) = 0.
+#endif
+
+            !solnData(NRMX_VAR, i, j, k) = 0.
+            !solnData(NRMY_VAR, i, j, k) = 0.
 
 #if NDIM == MDIM
-   solnData(NRMZ_VAR, :, :, :) = 0.
+            !solnData(NRMZ_VAR, i, j, k) = 0.
 #endif
 
-#endif
+            solnData(PFUN_VAR, i, j, k) = 0.
+            solnData(SMHV_VAR, i, j, k) = 0.
+
+         end do
+      end do
+   end do
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)

@@ -18,7 +18,7 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine sim_heaterCheckSites(tileDesc)
+subroutine sim_heaterCheckSites(tileDesc, blockCount)
 
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
@@ -28,6 +28,7 @@ subroutine sim_heaterCheckSites(tileDesc)
 !----------------------------------------------------------------------------------------
    implicit none
    type(Grid_tile_t), intent(in) :: tileDesc
+   integer, intent(in) :: blockCount
 
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    integer, dimension(2, MDIM)        :: blkLimits, blkLimitsGC
@@ -64,13 +65,13 @@ subroutine sim_heaterCheckSites(tileDesc)
    call sim_heaterCheckSitesBlk2d(solnData(DFUN_VAR, :, :, :), &
                                   xCenter, yCenter, boundBox, &
                                   GRID_ILO_GC, GRID_IHI_GC, &
-                                  GRID_JLO_GC, GRID_JHI_GC)
+                                  GRID_JLO_GC, GRID_JHI_GC, blockCount)
 #else
    call sim_heaterCheckSitesBlk3d(solnData(DFUN_VAR, :, :, :), &
                                   xCenter, yCenter, zCenter, boundBox, &
                                   GRID_ILO_GC, GRID_IHI_GC, &
                                   GRID_JLO_GC, GRID_JHI_GC, &
-                                  GRID_KLO_GC, GRID_KHI_GC)
+                                  GRID_KLO_GC, GRID_KHI_GC, blockCount)
 #endif
 
    ! Release pointers:

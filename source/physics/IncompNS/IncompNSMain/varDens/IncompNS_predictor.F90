@@ -24,7 +24,7 @@ subroutine IncompNS_predictor(tileDesc, dt)
 
    use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
+   use Driver_interface, ONLY: Driver_getNStep, Driver_abort
    use Stencils_interface, ONLY: Stencils_integrateEuler, Stencils_integrateAB2
    use IncompNS_data
 
@@ -53,6 +53,11 @@ subroutine IncompNS_predictor(tileDesc, dt)
 #endif
    !
    call Timers_start("IncompNS_predictor")
+
+   if (ins_intSchm /= 1 .and. ins_intSchm /= 2) then
+      call Driver_abort("[IncompNS_predictor] ins_intSchm should be 1 or 2 for variable density configuration")
+   end if
+
    !
    !------------------------------------------------------------------------------------------------------
    ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:
@@ -65,51 +70,85 @@ subroutine IncompNS_predictor(tileDesc, dt)
    call tileDesc%getDataPtr(solnData, CENTER)
    call tileDesc%getDataPtr(facexData, FACEX)
    call tileDesc%getDataPtr(faceyData, FACEY)
+#if NDIM == 3
+   call tileDesc%getDataPtr(facezData, FACEZ)
+#endif
 
-   call Stencils_integrateAB2(facexData(VELC_FACE_VAR, :, :, :), &
-                              facexData(HVN0_FACE_VAR, :, :, :), &
-                              facexData(HVN1_FACE_VAR, :, :, :), &
-                              dt, &
-                              GRID_ILO, GRID_IHI + 1, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI, &
-                              iSource=-ins_dpdx + ins_gravX &
-                              + facexData(VFRC_FACE_VAR, :, :, :))
+   if (ins_intSchm == 1) then
+      call Stencils_integrateEuler(facexData(VELC_FACE_VAR, :, :, :), &
+                                   facexData(HVN0_FACE_VAR, :, :, :), &
+                                   dt, &
+                                   GRID_ILO, GRID_IHI + 1, &
+                                   GRID_JLO, GRID_JHI, &
+                                   GRID_KLO, GRID_KHI, &
+                                   iSource=-ins_dpdx + ins_gravX &
+                                   + facexData(VFRC_FACE_VAR, :, :, :))
 
-   facexData(HVN1_FACE_VAR, :, :, :) = facexData(HVN0_FACE_VAR, :, :, :)
+      call Stencils_integrateEuler(faceyData(VELC_FACE_VAR, :, :, :), &
+                                   faceyData(HVN0_FACE_VAR, :, :, :), &
+                                   dt, &
+                                   GRID_ILO, GRID_IHI, &
+                                   GRID_JLO, GRID_JHI + 1, &
+                                   GRID_KLO, GRID_KHI, &
+                                   iSource=-ins_dpdy + ins_gravY &
+                                   + faceyData(VFRC_FACE_VAR, :, :, :))
+#if NDIM == 3
+      call Stencils_integrateEuler(facezData(VELC_FACE_VAR, :, :, :), &
+                                   facezData(HVN0_FACE_VAR, :, :, :), &
+                                   dt, &
+                                   GRID_ILO, GRID_IHI, &
+                                   GRID_JLO, GRID_JHI, &
+                                   GRID_KLO, GRID_KHI + 1, &
+                                   iSource=-ins_dpdz + ins_gravZ &
+                                   + facezData(VFRC_FACE_VAR, :, :, :))
+#endif
 
-   call Stencils_integrateAB2(faceyData(VELC_FACE_VAR, :, :, :), &
-                              faceyData(HVN0_FACE_VAR, :, :, :), &
-                              faceyData(HVN1_FACE_VAR, :, :, :), &
-                              dt, &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI + 1, &
-                              GRID_KLO, GRID_KHI, &
-                              iSource=-ins_dpdy + ins_gravY &
-                              + faceyData(VFRC_FACE_VAR, :, :, :))
+   else if (ins_intSchm == 2) then
+      call Stencils_integrateAB2(facexData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(HVN0_FACE_VAR, :, :, :), &
+                                 facexData(HVN1_FACE_VAR, :, :, :), &
+                                 dt, &
+                                 GRID_ILO, GRID_IHI + 1, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI, &
+                                 iSource=-ins_dpdx + ins_gravX &
+                                 + facexData(VFRC_FACE_VAR, :, :, :))
 
-   faceyData(HVN1_FACE_VAR, :, :, :) = faceyData(HVN0_FACE_VAR, :, :, :)
+      facexData(HVN1_FACE_VAR, :, :, :) = facexData(HVN0_FACE_VAR, :, :, :)
+
+      call Stencils_integrateAB2(faceyData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(HVN0_FACE_VAR, :, :, :), &
+                                 faceyData(HVN1_FACE_VAR, :, :, :), &
+                                 dt, &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI + 1, &
+                                 GRID_KLO, GRID_KHI, &
+                                 iSource=-ins_dpdy + ins_gravY &
+                                 + faceyData(VFRC_FACE_VAR, :, :, :))
+
+      faceyData(HVN1_FACE_VAR, :, :, :) = faceyData(HVN0_FACE_VAR, :, :, :)
+
+#if NDIM == 3
+      call Stencils_integrateAB2(facezData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(HVN0_FACE_VAR, :, :, :), &
+                                 facezData(HVN1_FACE_VAR, :, :, :), &
+                                 dt, &
+                                 GRID_ILO, GRID_IHI, &
+                                 GRID_JLO, GRID_JHI, &
+                                 GRID_KLO, GRID_KHI + 1, &
+                                 iSource=-ins_dpdz + ins_gravZ &
+                                 + facezData(VFRC_FACE_VAR, :, :, :))
+
+      facezData(HVN1_FACE_VAR, :, :, :) = facezData(HVN0_FACE_VAR, :, :, :)
+#endif
+
+   end if
 
    ! Release pointers:
    call tileDesc%releaseDataPtr(solnData, CENTER)
    call tileDesc%releaseDataPtr(facexData, FACEX)
    call tileDesc%releaseDataPtr(faceyData, FACEY)
-
-#if NDIM ==3
-   call tileDesc%getDataPtr(facezData, FACEZ)
-
-   call Stencils_integrateAB2(facezData(VELC_FACE_VAR, :, :, :), &
-                              facezData(HVN0_FACE_VAR, :, :, :), &
-                              facezData(HVN1_FACE_VAR, :, :, :), &
-                              dt, &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI + 1, &
-                              iSource=-ins_dpdz + ins_gravZ &
-                              + facezData(VFRC_FACE_VAR, :, :, :))
-
-   facezData(HVN1_FACE_VAR, :, :, :) = facezData(HVN0_FACE_VAR, :, :, :)
-
+#if NDIM == 3
    call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 

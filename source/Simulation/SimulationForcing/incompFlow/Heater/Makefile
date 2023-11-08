@@ -10,4 +10,5 @@ Simulation += sim_heaterData.o \
               sim_heaterCheckSitesBlk.o \
               sim_heaterApplyBCToRegion.o \
               sim_heaterTagSites.o \
+              sim_heaterMapSitesToProc.o \
               sim_forceHeater.o
