@@ -143,7 +143,6 @@ subroutine Hydro_init()
   hy_gcMask(VELX_VAR) = .TRUE.
   hy_gcMask(VELY_VAR) = .TRUE.
   hy_gcMask(VELZ_VAR) = .TRUE.
-  ! Now for the MHD variables, including FACEVARS
   ! Now for the gravity variables
 #ifdef GPOL_VAR
   hy_gcMask(GPOL_VAR) = .TRUE.
@@ -151,9 +150,11 @@ subroutine Hydro_init()
 #ifdef GPOT_VAR
   hy_gcMask(GPOT_VAR) = .TRUE.
 #endif
+  ! Now for shock detection
 #ifdef SHOK_VAR
   hy_gcMask(SHOK_VAR) = .TRUE.
 #endif
+  ! Now for the MHD variables, including FACEVARS: - none currently.
 #ifdef SPARK_GLM
   hy_gcMask(MAGX_VAR:MAGZ_VAR) = .TRUE.
   hy_gcMask(PSIB_VAR) = .TRUE.
