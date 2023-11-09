@@ -486,7 +486,7 @@ contains
     delta= 0.1  !0.1 !2. ! divV
 
 
-    !! Allocate a temporary cell-centered array for sound speed
+    !! Use hy_Vc as a temporary cell-centered array for sound speed
 
 
     !! Compute sound speed
@@ -502,7 +502,7 @@ contains
     @M hy_DIR_parallel_loop_simd(3) &
     @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz]) &
     @M hy_DIR_shared([limits, Uin, hy_Vc, beta, delta])
-    @M loop_3d(limits)
+    @M loop_3d_ext(limits,1,1,1)
     ! initialize switch values
     SW1 = .false.
     SW2 = .false.
