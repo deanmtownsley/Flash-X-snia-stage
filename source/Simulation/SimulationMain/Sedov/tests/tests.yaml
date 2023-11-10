@@ -165,6 +165,36 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   restartParfiles: test_amr_cyl_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_fc1_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcPerLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True -noc
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc2_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_fc2_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcNone:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True -noc
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_nofc_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_nofc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_fc1_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_nofc_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_nofc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +uhd DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_pm_lwf_fc_uhd.par

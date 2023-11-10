@@ -3,7 +3,7 @@
 #       Version for testing Hydro with AMR implementations that
 #       are configured to allow for dynamic Grid refinement.
 #
-#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
+#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
 #
 # Run on 2 or more MPI processes.
 
@@ -35,6 +35,7 @@ gamma           = 1.4
 #		Grid dimensionality and geometry
 
 geometry = "cylindrical"
+geometryOverride = .TRUE.
 
 #		Size of computational volume
 xmin		=  0.
@@ -114,14 +115,13 @@ plot_var_11 = "temp"
 # of AMReX- and Paramesh-generated results
 lrefine_max       = 6
 lrefine_min     = 1
-#lrefine_min_init     = 1
 refine_var_1      = "dens"
 refine_var_2      = "pres"
 refine_cutoff_1   = 0.2
 derefine_cutoff_1 = 0.2
 refine_cutoff_2   = 0.2
 derefine_cutoff_2 = 0.2
-#sim_forceCenterDerefine   = .TRUE.
+#sim_forceCenterDerefine   = .FALSE.
 #sim_centerRefineLevel     = 1
 #sim_derefineRadius     = 0.12
 
@@ -136,8 +136,8 @@ gr_useTiling = .FALSE.
 
 #	Related to the Hydro solver
 #
-flux_correct = .TRUE.
-# flux_correct_perLevel = .false. # Apply flux corrections on a per-level basis. By default .true. for AMReX
+flux_correct = .FALSE.
+# flux_correct_perLevel = .FALSE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
