@@ -144,7 +144,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      hy_flx, hy_fly, hy_flz, &&
                                      hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
-        ng=NGUARD-1
+        !Set needed number of guard cells to update based on first stage
+        !for telescoping update; relevant for shockDetect below
+        ng=hy_limitsArray(1)
         @M hy_setLims(ng)
 
         @M hy_DIR_TARGET_enter_data(to, [Uin])
@@ -155,7 +157,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         ! AH: TODO : OpenMP directives for hy_calcDivB
         @M hy_calcDivB
-        if (hy_telescoping .OR. stage==1) call shockDetect(Uin,limits,blkLimitsGC)
+        if (hy_telescoping .OR. stage==1) then
+           call shockDetect(Uin,limits,blkLimitsGC)
+        end if
 
         call Timers_start("Offloaded Section")
         call Timers_start("scratch")
@@ -186,7 +190,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            call hy_rk_getGraveAccel(hy_starState, hy_del, limits, blkLimitsGC)
 
            !Set needed number of guard cells to update based on
-           !current stage for telescoping upda
+           !current stage for telescoping update
            ng=hy_limitsArray(stage)
            @M hy_setLims(ng)
            @M hy_DIR_TARGET_update_to([limits])
@@ -307,7 +311,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
            zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
 
-           ng=NGUARD-1
+           ng=hy_limitsArray(1)
            @M hy_setLims(ng)
            @M hy_DIR_TARGET_update_to([hy_del, grownLimits, blkLimits, blkLimitsGC, limits])
            ! DivB will technically be lagged by 1 step, but we need ghost zones to
