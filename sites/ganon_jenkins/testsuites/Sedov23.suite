@@ -21,6 +21,10 @@
 #------------------------------------------------
 # Tests for - Sedov23
 #------------------------------------------------
+Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev" -np 4 -cbase 0000-00-00
+Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev" -np 4 -cbase 0000-00-00
+# Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone" -np 4 -cbase 0000-00-00
+
 # Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
 # Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
 

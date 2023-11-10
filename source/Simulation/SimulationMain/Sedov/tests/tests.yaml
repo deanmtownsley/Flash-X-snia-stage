@@ -551,6 +551,21 @@ Comparison/Sedov/AMR/2dCyl/Paramesh/spark:
   parfiles: test_amr_cyl_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Comparison/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
+  parfiles:        test23_amr_cyl_2d_amrex_nolwf_nofc_spark.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Comparison/Sedov/AMR/3d/AMReX/unsplit:
   setupOptions: -auto -3d -debug +uhd +amrex +nolwf +serialio -unit=IO/IOMain/hdf5/serial/AM
   parfiles: test_amr_unsplit_3d.par
