@@ -137,7 +137,7 @@ gr_useTiling = .FALSE.
 #	Related to the Hydro solver
 #
 flux_correct = .TRUE.
-flux_correct_perLevel = .FALSE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
+flux_correct_perLevel = .TRUE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
