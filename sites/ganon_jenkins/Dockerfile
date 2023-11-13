@@ -21,7 +21,7 @@ RUN apt-get install -y curl tar
 
 # Installation of python packages
 RUN pip3 install numpy matplotlib h5py scipy configparser
-RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
+RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.11
 
 # Install bittree from source
 RUN git clone https://github.com/Flash-X/Bittree.git --branch v2.0 /Bittree
