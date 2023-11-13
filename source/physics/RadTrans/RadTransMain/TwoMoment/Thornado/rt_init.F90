@@ -102,6 +102,9 @@ subroutine rt_init()
 
   call RuntimeParameters_get ("rt_freezeOpacities", rt_freezeOpacities)
 
+  call RuntimeParameters_get ("rt_Op_MinD", rt_Op_MinD)
+  call RuntimeParameters_get ("rt_Op_MaxD", rt_Op_MaxD)
+
   ! The transition density represents the point at which the Hybrid EOS
   ! transitions from Helmholtz to a nuclear EOS.  NSE is assumed above this
   ! density and RadTrans will be responsible for evolving neutrino-matter
@@ -110,6 +113,9 @@ subroutine rt_init()
   rt_transitionDens = 0.0
 #ifdef EOS_HELMNSE
   call RuntimeParameters_get("eos_hybTransitionDensHi", rt_transitionDens)
+
+  ! Use the lower of user-supplied cutoff or transition density
+  rt_Op_MinD = MIN( rt_Op_MinD, rt_transitionDens )
 #endif
 
   rt_gcMask(THORNADO_BEGIN:THORNADO_END) = .TRUE.
@@ -159,6 +165,8 @@ subroutine rt_init()
      OpacityTableName_NES_Option = rt_nes_file, &
      OpacityTableName_Pair_Option = rt_pair_file, &
      OpacityTableName_Brem_Option = rt_brem_file, &
+     Op_MinD_Option = rt_Op_MinD, &
+     Op_MaxD_Option = rt_Op_MaxD, &
      M_outer_Option = rt_M_outer, &
      M_inner_Option = rt_M_inner, &
      MaxIter_outer_Option = rt_MaxIter_outer, &
