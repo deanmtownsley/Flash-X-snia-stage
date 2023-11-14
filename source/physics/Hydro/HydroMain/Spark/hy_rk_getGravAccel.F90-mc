@@ -90,13 +90,13 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
            ! d/dx
            delgpot(IAXIS) = hy_starState(GPOT_VAR,i-1,j,k) - hy_starState(GPOT_VAR,i+1,j,k)
            hy_grav(IAXIS,i,j,k) = delinv(IAXIS) * delgpot(IAXIS)
-#if N_DIM >= 2
+#if NDIM >= 2
            ! d/dy
            if (hy_geometry == SPHERICAL) delinv(JAXIS) = delinv(JAXIS) / radCenter(i)
            delgpot(JAXIS) = hy_starState(GPOT_VAR,i,j-1,k) - hy_starState(GPOT_VAR,i,j+1,k)
            hy_grav(JAXIS,i,j,k) = delinv(JAXIS) * delgpot(JAXIS)
 #endif
-#if N_DIM == 3
+#if NDIM == 3
            ! d/dz
            if (hy_geometry == SPHERICAL) then
               delinv(KAXIS) = delinv(KAXIS) / ( radCenter(i) * sin(thtCenter(j)) )
