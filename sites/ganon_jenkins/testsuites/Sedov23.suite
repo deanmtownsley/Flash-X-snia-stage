@@ -1,0 +1,37 @@
+# Test suite file for ganon_jenkins
+#
+# File containing details of test specifications for
+# specific simulations that reference keys defined in
+# tests/tests.yaml files defined in the simulation
+# directories
+#
+# Comments can be added using a `#` sign and individual
+# tests spec can be defined with relevant options as shown below
+#
+# List of options
+# --test, -t 		Desired test key/node from tests/tests.toml
+# --nprocs, -np		Number of MPI procs to be used
+# --env, -e		Environment variables, can be supplied multiple times
+# --debug		Flag to run test in debug
+# --cbase, -cbase 	Date string YYYY-MM-DD[_version]
+# --rbase, -rbase 	Date string YYYY-MM-DD[_version]
+# --tolerance, -tol	Tolerance for SFOCU
+
+
+#------------------------------------------------
+# Tests for - Sedov23
+#------------------------------------------------
+Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev" -np 4 -cbase 0000-00-00
+Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev" -np 4 -cbase 0000-00-00
+# Sedov -t "Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone" -np 4 -cbase 0000-00-00
+
+# Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 4
+# Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 4
+
+# Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 4
+# Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 4
+
+# Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 8
+
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/sparkNt/fcNone" -np 8
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/spark/fcNone" -np 8

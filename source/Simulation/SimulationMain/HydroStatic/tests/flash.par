@@ -23,12 +23,10 @@ plot_var_4                = "velx"
 plot_var_5                = "vely"
 plot_var_6                = "velz"
 
-plotfileMetadataDP             = .false.
-refine_on_particle_count       = .true.
-
 run_comment                    = "Flash-X HydroStatic test run"
 checkpointFileIntervalStep     = 0
 checkpointFileIntervalTime     = 0.0
+plotFileIntervalTime           = 0.0
 useCollectiveHDF5              = .false.
 useParticles                   = .FALSE.
 

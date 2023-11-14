@@ -1,0 +1,119 @@
+# Test suite file for test gce
+# comments start with "#"
+
+#------------------------------------------------
+# Tests for - Sod
+#------------------------------------------------
+Sod -t "Comparison/Sod/UG/2d/spark" -np 4 -cbase 2023-01-18
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkPIO" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Comparison/Sod/UG/2d/sparkNt" -np 4 -cbase 2023-01-18
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sod -t "Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT" -np 4 \
+	-e OMP_NUM_THREADS=2 -cbase 2023-01-18 -rbase 2023-01-19
+
+#------------------------------------------------
+# Tests for - Sedov
+#------------------------------------------------
+Sedov -t "Comparison/Sedov/UG/2d/spark" -np 4 -cbase 2023-01-18
+Sedov -t "Composite/Sedov/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/spark" -np 8 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/AMR/2d/AMReX/spark" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+Sedov -t "Comparison/Sedov/UG/2d/sparkNt" -np 4 -cbase 2023-01-18
+Sedov -t "Composite/Sedov/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/PseudoUG/2d/Paramesh/sparkNt" -np 4 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt" -np 8 -cbase 2023-01-18 -rbase 2023-01-19
+Sedov -t "Composite/Sedov/AMR/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+
+Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/spark/fcAllLev" -np 8
+Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/spark/fcNone" -np 8
+Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 8
+Sedov -t "Comparison/Sedov23a/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 8
+
+Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/spark/fcAllLev" -np 8
+Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/spark/fcNone" -np 8
+Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcAllLev" -np 8
+Sedov -t "Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/sparkNt/fcNone" -np 8
+Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/spark/fcAllLev" -np 8
+Sedov -t "Comparison/Sedov23/PseudoUG/2dCyl/pm4Nolwf/spark/fcNone" -np 8
+Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 8
+
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/sparkNt/fcNone" -np 8
+Sedov -t "Comparison/Sedov23/UG/2d/ugNolwf/spark/fcNone" -np 8
+
+Sedov -t "Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcPerLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcNone" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone" -np 8
+# Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcAllLev" -np 8
+# Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcNone" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcNone" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcAllLev" -np 8
+Sedov -t "Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcNone" -np 8
+
+#------------------------------------------------
+# Tests for - DustCollapse
+#------------------------------------------------
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/spark" -np 2 -cbase 2023-10-24
+DustCollapse -t "Comparison/DustCollapse/AMR/1dSph/sparkNt" -np 2
+
+#------------------------------------------------
+# Tests for - IsentropicVortex
+#------------------------------------------------
+IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark" -np 4 -cbase 2023-04-14_2 -rbase 2023-04-14_2
+IsentropicVortex -t "Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt" -np 4 -cbase 2023-04-14_2 -rbase 2023-04-14_2
+IsentropicVortex -t "Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt" -np 4 -cbase 2023-04-14_2 -rbase 2023-04-14_2
+
+#------------------------------------------------
+# Tests for - YahilLattimerCollapse
+#------------------------------------------------
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/spark" --debug -np 4 -cbase 2023-10-25 -rbase 2023-10-31
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/spark" --debug -np 4 -cbase 2023-04-12 -rbase 2023-04-12
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
+# YahilLattimerCollapse -t "Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt" -np 4 -cbase 2023-04-11_5
+YahilLattimerCollapse -t "Composite/Yahil/AMR/1dSph/Paramesh/sparkNt" --debug -np 4
+YahilLattimerCollapse -t "Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt" --debug -np 4
+
+#------------------------------------------------
+# Tests for - SNIa_DoubleDetonation
+#------------------------------------------------
+SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/spark" -np 8 \
+	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
+SNIa_DoubleDetonation -t "Comparison/SNIaDDT/AMR/2d/sparkNt" -np 8 -as="-test" \
+	-e OMP_NUM_THREADS=1 -cbase 2023-04-11_5
+
+
+#------------------------------------------------
+# Tests for - Poisson solver
+#------------------------------------------------
+# The following 3d and 2dCyl Poisson3 tests also exercise various
+# combinations of MPI parallelism, OpenMP threading (both
+# threadBlockList and threadWithinBlock style), and proper tiling,
+# as used by the Multipole_new Poisson solver.
+# Note that the TBL/AMReX combination is only expected to work for
+# proper OpenMP (CPU-)threading, i.e., for OMP_NUM_THREADS > 1, when an
+# instance of the AMReX library is used that was built with OpenMP support.
+
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/TBL/AMReX" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3d/AMReX" -np 3 -e OMP_NUM_THREADS=3
+
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/TBL/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/2dCyl/Paramesh" -np 3 -e OMP_NUM_THREADS=3
+
+unitTest/Gravity/Poisson3 -t "UnitTest/Gravity/AMR/3dSph/Paramesh" -np 1 -e OMP_NUM_THREADS=2

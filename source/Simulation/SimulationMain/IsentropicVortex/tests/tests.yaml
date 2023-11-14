@@ -54,9 +54,23 @@ Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt:
 #  parfiles: iv.par
 
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/spark:
-#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  parfiles: iv.par
+
+#Comparison/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
 #Comparison/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
 #  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
 #  parfiles: iv.par
+
+Composite/IsentropicVortex/AMR/2d/AMReX/spark:
+  setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+Composite/IsentropicVortex/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+  parfiles: iv.par
+  restartParfiles: iv_restart.par

@@ -277,7 +277,7 @@ subroutine io_readData()
    allocate (fluxes(0:gr_maxRefine - 1, 1:NDIM))
 # endif
    if (gr_doFluxCorrection) then
-      allocate (flux_registers(1:gr_MaxRefine))
+      allocate (flux_registers(1:gr_MaxRefine - 1))
    end if
 #endif
 #endif

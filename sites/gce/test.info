@@ -1,0 +1,355 @@
+<gce>
+  <Comparison>
+    <Sod>
+      <UG>
+        <2d>
+          <sparkNt>
+            setupName: Sod
+            nodeName: Comparison/Sod/UG/2d/sparkNt
+            parfiles: <pathToSimulations>/Sod/tests/test_pseudoug_2d.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/Comparison_Sod_UG_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </UG>
+    </Sod>
+    <Sedov>
+      <UG>
+        <2d>
+          <sparkNt>
+            setupName: Sedov
+            nodeName: Comparison/Sedov/UG/2d/sparkNt
+            parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_2d.par
+            shortPathToBenchmark: <siteDir>/2023-01-18/Comparison_Sedov_UG_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </UG>
+    </Sedov>
+    <DustCollapse>
+      <AMR>
+        <1dSph>
+          <sparkNt>
+            setupName: DustCollapse
+            nodeName: Comparison/DustCollapse/AMR/1dSph/sparkNt
+            parfiles: <pathToSimulations>/DustCollapse/tests/test_1dsph.debug.par
+            shortPathToBenchmark: <siteDir>/2023-10-24/Comparison_DustCollapse_AMR_1dSph_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </1dSph>
+      </AMR>
+    </DustCollapse>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/1dSph/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_1d.par
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_1dSph_Paramesh_spark/<runDir>/<chkMax>
+            </sparkNt>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Comparison/Yahil/AMR/2dCyl/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/YahilLattimerCollapse/tests/yahil_2d_spark.par
+              shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<chkMax>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
+    <SNIaDDT>
+      <AMR>
+        <2d>
+          <sparkNt>
+            setupName: SNIa_DoubleDetonation
+            nodeName: Comparison/SNIaDDT/AMR/2d/sparkNt
+            parfiles: <pathToSimulations>/SNIa_DoubleDetonation/tests/testfaster_amr_unsplit_2d.par
+            shortPathToBenchmark: <siteDir>/2023-04-11_5/Comparison_SNIaDDT_AMR_2d_spark/<runDir>/<chkMax>
+          </sparkNt>
+        </2d>
+      </AMR>
+    </SNIaDDT>
+  </Comparison>
+  <Composite>
+    <Sod>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <sparkMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkMT
+            </sparkMT>
+            <sparkNt>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+            <sparkNtMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtMT
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_sparkMT/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_sparkMT/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtMT>
+            <sparkNtPIO>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/AMReX/sparkNtPIO
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtPIO>
+          </AMReX>
+          <Paramesh>
+            <sparkNtMT>
+              setupName: Sod
+              nodeName: Composite/Sod/PseudoUG/2d/Paramesh/sparkNtMT
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sod_PseudoUG_2d_Paramesh_sparkMT/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sod_PseudoUG_2d_Paramesh_sparkMT/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNtMT>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+    </Sod>
+    <Sedov>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </AMReX>
+          <Paramesh>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2d>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/PseudoUG/2dCyl/Paramesh/sparkNt
+              parfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark.par
+              restartParfiles: <pathToSimulations>/Sedov/tests/test_pseudoug_cyl_2d_spark_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-01-18/Composite_Sedov_PseudoUG_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-01-19/Composite_Sedov_PseudoUG_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </PseudoUG>
+      <AMR>
+        <2d>
+          <AMReX>
+            <sparkNt>
+              setupName: Sedov
+              nodeName: Composite/Sedov/AMR/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-12/Composite_Sedov_AMR_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-12/Composite_Sedov_AMR_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </AMReX>
+        </2d>
+      </AMR>
+    </Sedov>
+    <Sedov23>
+      <PseudoUG>
+        <2dCyl>
+          <pm4Nolwf>
+            <sparkNt>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/PseudoUG/2dCyl/pm4Nolwf/sparkNt/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </sparkNt>
+          </pm4Nolwf>
+        </2dCyl>
+      </PseudoUG>
+      <AMR>
+        <2dCyl>
+          <pm4Nolwf>
+            <spark>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </spark>
+            <sparkNt>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </sparkNt>
+            <uhd>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/pm4Nolwf/uhd/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </uhd>
+          </pm4Nolwf>
+        </2dCyl>
+      </AMR>
+    </Sedov23>
+    <IsentropicVortex>
+      <PseudoUG>
+        <2d>
+          <AMReX>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+            <spark>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+              sfocuFlags: -e 1.e-13 -p 1.e-12 -P 1.e-13
+            </spark>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </AMReX>
+          <Paramesh>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+            </sparkNt>
+            <unsplit>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit
+              parfiles: <pathToSimulations>/IsentropicVortex/tests/iv.par
+              restartParfiles: <pathToSimulations>/IsentropicVortex/tests/iv_restart.par
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              restartNumber: 0002
+            </unsplit>
+          </Paramesh>
+        </2d>
+      </PseudoUG>
+      <AMR>
+        <2d>
+          <Paramesh>
+            <sparkNt>
+              setupName: IsentropicVortex
+              nodeName: Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-14_2/Composite_IsentropicVortex_PseudoUG_2d_AMReX_spark/<runDir>/<checkpointBasename><restartNumber>
+              sfocuFlags: -v -P 0.02
+            </sparkNt>
+          </Paramesh>
+        </2d>
+      </AMR>
+    </IsentropicVortex>
+    <Yahil>
+      <AMR>
+        <1dSph>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/1dSph/Paramesh/sparkNt
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-10-25/Composite_Yahil_AMR_1dSph_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+            </sparkNt>
+          </Paramesh>
+        </1dSph>
+        <2dCyl>
+          <Paramesh>
+            <sparkNt>
+              setupName: YahilLattimerCollapse
+              nodeName: Composite/Yahil/AMR/2dCyl/Paramesh/sparkNt
+              checkpointBasename: flashx_hdf5_chk_
+              comparisonNumber: 0001
+              comparisonBenchmark: <siteDir>/2023-04-11_5/Composite_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><comparisonNumber>
+              restartNumber: 0002
+              restartBenchmark: <siteDir>/2023-04-12/Composite_Yahil_AMR_2dCyl_Paramesh_spark/<runDir>/<checkpointBasename><restartNumber>
+            </sparkNt>
+          </Paramesh>
+        </2dCyl>
+      </AMR>
+    </Yahil>
+  </Composite>
+  <UnitTest>
+    <Eos>
+      <helmholtz>
+        <3d>
+          <pm4dev>
+            setupName: unitTest/Eos/Helmholtz
+            nodeName: UnitTest/Eos/helmholtz/3d/pm4dev
+            setupOptions: -auto +pm4dev -3d +noio
+            numProcs: 1
+            parfiles: <defaultParfile>
+            transfers: object/helm_table.dat object/SpeciesList.txt
+          </pm4dev>
+        </3d>
+      </helmholtz>
+    </Eos>
+  </UnitTest>
+</gce>
