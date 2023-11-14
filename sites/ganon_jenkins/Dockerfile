@@ -21,7 +21,7 @@ RUN apt-get install -y curl tar
 
 # Installation of python packages
 RUN pip3 install numpy matplotlib h5py scipy configparser
-RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.11.1
+RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.11
 RUN chmod 777 /usr/local/lib/python3.8/dist-packages/FlashXTest/backend/FlashTest/ERROR
 
 # Install bittree from source
