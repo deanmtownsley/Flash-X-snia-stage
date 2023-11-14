@@ -29,7 +29,7 @@
 !!NOVARIANTS
 subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
-  use Hydro_data, ONLY : hya_grav, hya_xCenter, hya_yCenter, hy_geometry
+  use Hydro_data, ONLY : hy_threadWithinBlock, hya_grav, hya_xCenter, hya_yCenter, hy_geometry
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
