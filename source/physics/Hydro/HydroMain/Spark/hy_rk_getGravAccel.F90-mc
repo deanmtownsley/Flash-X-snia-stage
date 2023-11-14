@@ -29,8 +29,7 @@
 !!NOVARIANTS
 subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! *** This has not been tested with OMP offloading *** !
-!!  use Gravity_interface, ONLY : Gravity_accelOneRow
-  use Hydro_data, ONLY : hy_threadWithinBlock, hya_grav, hya_xCenter, hya_yCenter, hy_geometry
+  use Hydro_data, ONLY : hya_grav, hya_xCenter, hya_yCenter, hy_geometry
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -43,27 +42,15 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   real,dimension(:,:,:,:),pointer :: hy_grav
   real,dimension(:),pointer :: radCenter, thtCenter
 
+  real, dimension(MDIM) :: delinv, delgpot
   real :: delxinv
-  integer :: dir, i,j,k,d
-  integer :: im, ip, jm, jp, km, kp
+  integer :: i,j,k,d
 
-  logical :: offload = .false.
-
-#ifdef OMP_OL
-  offload = .true.
-#endif
-  
   hy_grav(1:MDIM,&
        blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),&
        blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS),&
        blkLimitsGC(LOW,KAXIS):blkLimitsGC(HIGH,KAXIS))=>hya_grav
   @M hy_DIR_TARGET_enter_data(alloc, [hy_grav])
-
-  if(hy_geometry /= CARTESIAN) then
-     radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
-     thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
-     @M hy_DIR_TARGET_enter_data(to, [radCenter, thtCenter])
-  end if
 
   @M hy_DIR_parallel_loop(4) &
   @M hy_DIR_TARGET_map(to, [blkLimitsGC]) &
@@ -84,31 +71,50 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
   ! sub-stages.
 #ifdef FLASH_GRAVITY_TIMEDEP
 #ifdef GPOT_VAR
+  if(hy_geometry /= CARTESIAN) then
+     radCenter(blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS)) => hya_xCenter 
+     thtCenter(blkLimitsGC(LOW,JAXIS):blkLimitsGC(HIGH,JAXIS)) => hya_yCenter
+     @M hy_DIR_TARGET_enter_data(to, [radCenter, thtCenter])
+  end if
 
   @M hy_DIR_parallel_loop_simd(3) &
   @M hy_DIR_TARGET_map(to, [limits, hy_del]) &
-  @M hy_DIR_private([d, delxinv, im, ip, jm, jp, km, kp]) &
+  @M hy_DIR_private([delinv, delgpot]) &
   @M hy_DIR_shared([limits, hy_grav, hy_del, hy_starState, radCenter, thtCenter, hy_geometry])
   do k=limits(LOW,KAXIS),limits(HIGH,KAXIS)
-    do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
-      do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
-        do d=1,NDIM
-          select case(d)
-          case(IAXIS)
-            im=1; ip=1; jm=0; jp=0; km=0; kp=0
-          case(JAXIS)
-            im=0; ip=0; jm=1; jp=1; km=0; kp=0
-          case(KAXIS)
-            im=0; ip=0; jm=0; jp=0; km=1; kp=1
-          end select
-          delxinv = getDelXinv(d, hy_del, hy_geometry, radCenter(i), thtCenter(j))
-          hy_grav(d,i,j,k) = hy_grav(d,i,j,k) &
-             + delxinv*( hy_starState(GPOT_VAR,i-im,j-jm,k-km) &
-                        - hy_starState(GPOT_VAR,i+ip,j+jp,k+kp) )
+     do j=limits(LOW,JAXIS),limits(HIGH,JAXIS)
+        do i=limits(LOW,IAXIS),limits(HIGH,IAXIS)
+
+           delinv(IAXIS:NDIM) = 0.5 / hy_del(IAXIS:NDIM)
+
+           ! d/dx
+           delgpot(IAXIS) = hy_starState(GPOT_VAR,i-1,j,k) - hy_starState(GPOT_VAR,i+1,j,k)
+           hy_grav(IAXIS,i,j,k) = delinv(IAXIS) * delgpot(IAXIS)
+#if N_DIM >= 2
+           ! d/dy
+           if (hy_geometry == SPHERICAL) delinv(JAXIS) = delinv(JAXIS) / radCenter(i)
+           delgpot(JAXIS) = hy_starState(GPOT_VAR,i,j-1,k) - hy_starState(GPOT_VAR,i,j+1,k)
+           hy_grav(JAXIS,i,j,k) = delinv(JAXIS) * delgpot(JAXIS)
+#endif
+#if N_DIM == 3
+           ! d/dz
+           if (hy_geometry == SPHERICAL) then
+              delinv(KAXIS) = delinv(KAXIS) / ( radCenter(i) * sin(thtCenter(j)) )
+           else if (hy_geometry == CYLINDRICAL) then
+              delinv(KAXIS) = delinv(KAXIS) / radCenter(i)
+           end if
+           delgpot(KAXIS) = hy_starState(GPOT_VAR,i,j,k-1) - hy_starState(GPOT_VAR,i,j,k+1)
+           hy_grav(KAXIS,i,j,k) = delinv(KAXIS) * delgpot(KAXIS)
+#endif
         end do
-      enddo
-    enddo
-  enddo
+     end do
+  end do
+
+  if(hy_geometry /= CARTESIAN) then
+     @M hy_DIR_TARGET_exit_data(release, [radCenter, thtCenter])
+     nullify(radCenter)
+     nullify(thtCenter)
+  end if
 #endif /* GPOT_VAR */
 #else
   call Driver_abort("[hy_rk_getGraveAccel] Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
@@ -117,46 +123,5 @@ subroutine hy_rk_getGraveAccel(hy_starState, hy_del,limits,blkLimitsGC)
 
   @M hy_DIR_TARGET_exit_data(from, [hy_grav])
   nullify(hy_grav)
-  if(hy_geometry /= CARTESIAN) then
-     @M hy_DIR_TARGET_exit_data(release, [radCenter, thtCenter])
-     nullify(radCenter)
-     nullify(thtCenter)
-  end if
-
-
-contains
-
-  pure function getDelXinv(sweepDir, deltas, geometry, radx, thty) result(delxinv)
-
-    implicit none
-
-    integer, intent(IN) :: sweepDir, geometry
-    real, dimension(MDIM), intent(IN) :: deltas
-    real, intent(IN) :: radx, thty
-
-    real :: delxinv
-
-#ifdef OMP_OL
-    !$omp declare target
-#endif
-
-    if (sweepDir == SWEEP_X) then                     ! x-direction
-       delxinv = 1./deltas(IAXIS)
-    elseif (sweepDir == SWEEP_Y) then                 ! y-direction
-       delxinv = 1./deltas(JAXIS)
-       if (geometry == SPHERICAL) delxinv = delxinv / radx
-    else                                              ! z-direction
-       delxinv = 1./deltas(KAXIS)
-       if (geometry == SPHERICAL) then
-          delxinv = delxinv / ( radx * sin(thty) )
-       else if (geometry == CYLINDRICAL) then
-          delxinv = delxinv / radx
-       endif
-    endif
-
-    delxinv = 0.5e0 * delxinv
-    return
-  end function getDelXinv
-
 
 end subroutine hy_rk_getGraveAccel
