@@ -169,6 +169,10 @@ Testing servers:
 
   FlashTest - http://ganon.device.utk.edu:8080 or http://ganon2.device.utk.edu:8080
 
+- Compatibility with AMReX
+
+  Testing with latest AMReX developments happens here - https://jenkins-gce.cels.anl.gov/job/Flash-X-amrex_GCC
+
 ## Citation
 
 Please use the following for citing Flash-X
