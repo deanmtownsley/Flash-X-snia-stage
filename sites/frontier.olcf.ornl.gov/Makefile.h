@@ -246,3 +246,9 @@ RL = ranlib
 ECHO = echo
 AWK = awk
 CAT = cat
+
+ifeq ($(PE_ENV),CRAY)
+local_tree_build.o : local_tree_build.F90
+	$(ECHO-COMPILING)
+	$(FCOMP) $(FFLAGS) $(F90FLAGS) -h ipa1 $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+endif

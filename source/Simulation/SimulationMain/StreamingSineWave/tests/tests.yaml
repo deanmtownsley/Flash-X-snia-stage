@@ -25,6 +25,12 @@ Composite/StreamingSineWave/AMR/3d/Paramesh:
   restartParfiles: test_paramesh_3d_restart.par
   transfers: object/SpeciesList.txt
 
+Composite/StreamingSineWave/AMR/3d/Paramesh/spark:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark +hdf5
+  parfiles: test_amr_3d.par
+  restartParfiles: test_amr_3d_restart.par
+  transfers: object/SpeciesList.txt
+
 Composite/StreamingSineWave/AMR/3d/AMReX:
   setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO +amrex
   parfiles: test_amrex_3d.par
@@ -44,6 +50,11 @@ Comparison/StreamingSineWave/PseudoUG/3d/AMReX:
 Comparison/StreamingSineWave/AMR/3d/Paramesh:
   setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO
   parfiles: test_paramesh_3d.par
+  transfers: object/SpeciesList.txt
+
+Comparison/StreamingSineWave/AMR/3d/Paramesh/spark:
+  setupOptions: -auto -3d +cartesian -nxb=8 -nyb=8 -nzb=8 swE=1 nE=2 nSpecies=1 nNodes=2 nMoments=4 momentClosure=MINERBO thornadoOrder=ORDER_V +pm4dev Bittree=True ImprovedSort=True AltMorton=True +spark +hdf5
+  parfiles: test_amr_3d.par
   transfers: object/SpeciesList.txt
 
 Comparison/StreamingSineWave/AMR/3d/AMReX:

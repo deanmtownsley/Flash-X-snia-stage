@@ -1,0 +1,236 @@
+!!****f* source/physics/RadTrans/RadTransMain/TwoMoment/Thornado/rt_tm_reconstruction
+!!
+!! NAME
+!!
+!!  rt_tm_reconstruction
+!!
+!! SYNOPSIS
+!!
+!!  call rt_tm_reconstruction ( real(IN),pointer :: Uin(:,:,:,:), 
+!!                              integer(IN) :: nX(3),
+!!                              integer(IN) :: lo(MDIM),hi(MDIM),
+!!                              integer(IN) :: loGC(MDIM),hiGC(MDIM),
+!!                              integer(IN) :: u_lo(MDIM),u_hi(MDIM),
+!!                              integer(IN) :: level )
+!!
+!! DESCRIPTION
+!!
+!!  Setup thornado data structures by interpolating fluid variables from Flash
+!!  cell-centered values to values at DG nodes for Thornado.
+!!  Copy radiation varibles to internal Thornado data structures.
+!!
+!! ARGUMENTS
+!! Uin - pointer to cell-centered Flash data
+!! nX - number of cells
+!! lo - lower index limits (excluding guard cells)
+!! hi - upper index limits (excluding guard cells)
+!! loGC - lower index limits (with guard cells)
+!! hiGC - upper index limits (with guard cells)
+!! u_lo - lower index limits for elements (including guard cells)
+!! u_hi - upper index limits for elements (including guard cells)
+!! level - refinement level
+!!
+!!***
+
+!!REORDER(4): Uin
+
+subroutine rt_tm_reconstruction(Uin,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
+
+#include "Simulation.h"
+#include "constants.h"
+
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getDeltas, &
+     Grid_getCellVolumes
+  use RadTrans_data, ONLY : rt_geometry, rt_meshMe
+  use rt_data, ONLY : rt_ivar
+
+  use FluidFieldsModule, ONLY : uCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne
+  use GeometryFieldsModule, ONLY : uGF, iGF_h_1, iGF_h_2, iGF_h_3, iGF_SqrtGm
+  use RadiationFieldsModule, ONLY : uCR
+  use SubcellReconstructionModule, ONLY : ReconstructionMatrix
+  use UnitsModule, ONLY : Gram, Centimeter, Second, AtomicMassUnit
+
+  implicit none
+
+  real, pointer, dimension(:,:,:,:) :: Uin
+  integer, dimension(3), intent(in) :: nX
+  integer, dimension(MDIM), intent(in) :: lo,hi,loGC,hiGC,u_lo,u_hi
+  integer, intent(in) :: level
+
+  integer :: i, j, k, ic, jc, kc, ii, jj, kk, n, ioff, ivar, i_sub, n_sub
+
+  real :: D, S1, S2, S3, E, Nel
+  integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE
+
+  real :: r1, r2, tht1, tht2
+  real :: deltas(1:MDIM)
+
+  real :: volumes(loGC(IAXIS):hiGC(IAXIS), &
+                  loGC(JAXIS):hiGC(JAXIS), &
+                  loGC(KAXIS):hiGC(KAXIS))
+
+  real :: volFac (loGC(IAXIS):hiGC(IAXIS), &
+                  loGC(JAXIS):hiGC(JAXIS), &
+                  loGC(KAXIS):hiGC(KAXIS))
+
+  real :: radCenter(loGC(IAXIS):hiGC(IAXIS))
+  real :: radFaces (loGC(IAXIS):hiGC(IAXIS)+1)
+  real :: thtFaces (loGC(JAXIS):hiGC(JAXIS)+1)
+
+  real, parameter :: conv_dens = Gram / Centimeter**3
+  real, parameter :: conv_mom  = Gram / Centimeter**2 / Second
+  real, parameter :: conv_enr  = Gram / Centimeter / Second**2
+  real, parameter :: conv_ne   = Gram / Centimeter**3 / AtomicMassUnit
+  real, parameter :: conv_J    = Gram/Second**2/Centimeter
+  real, parameter :: conv_H    = Gram/Second**3
+
+  !call Grid_getCellVolumes( level, lo, hi, volumes )
+  !call Grid_getDeltas( level, deltas )
+
+  select case ( rt_geometry )
+  case ( CARTESIAN )
+     volFac = 1.0
+  case ( CYLINDRICAL )
+     call Grid_getCellCoords( IAXIS, CENTER, level, loGC, hiGC, radCenter )
+     do kk = loGC(KAXIS), hiGC(KAXIS)
+        do jj = loGC(JAXIS), hiGC(JAXIS)
+           do ii = loGC(IAXIS), hiGC(IAXIS)
+              volFac(ii,jj,kk) = ABS( radCenter(ii) ) * Centimeter
+           end do
+        end do
+     end do
+  case ( SPHERICAL )
+     call Grid_getDeltas( level, deltas )
+     call Grid_getCellCoords( IAXIS, FACES, level, loGC, hiGC, radFaces )
+#if NDIM >= 2
+     call Grid_getCellCoords( JAXIS, FACES, level, loGC, hiGC, thtFaces )
+#endif
+     do kk = loGC(KAXIS), hiGC(KAXIS)
+        do jj = loGC(JAXIS), hiGC(JAXIS)
+           do ii = loGC(IAXIS), hiGC(IAXIS)
+              r1 = radFaces(ii)
+              r2 = radFaces(ii+1)
+              volFac(ii,jj,kk) = ( r1*r1 + r1*r2 + r2*r2 ) / 3.0 * Centimeter**2
+#if NDIM >= 2
+              tht1 = thtFaces(jj)
+              tht2 = thtFaces(jj+1)
+              volFac(ii,jj,kk) = volFac(ii,jj,kk) * ( cos(tht1) - cos(tht2) ) / deltas(JAXIS)
+#endif
+           end do
+        end do
+     end do
+  case default
+     volFac = 1.0
+  end select
+
+  ! Interpolate fluid vars from Flash arrays into Thornado arrays
+
+  @M dir_enter_data &
+  @M dir_copyin( [Uin, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
+  @M dir_end
+
+  @M dir_loop(4) &
+  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel] ) &
+  @M dir_end
+
+  do kc = u_lo(KAXIS), u_hi(KAXIS)
+     do jc = u_lo(JAXIS), u_hi(JAXIS)
+        do ic = u_lo(IAXIS), u_hi(IAXIS)
+           do iNodeX = 1, THORNADO_FLUID_NDOF
+
+              i = lo(IAXIS) + THORNADO_NNODESX*(ic-1)
+              j = lo(JAXIS) + THORNADO_NNODESX*(jc-1)
+              k = lo(KAXIS) + THORNADO_NNODESX*(kc-1)
+
+              D   = 0.0
+              S1  = 0.0
+              S2  = 0.0
+              S3  = 0.0
+              E   = 0.0
+              Nel = 0.0
+
+              do n = 1, THORNADO_FLUID_NDOF
+                 ii = mod((n-1)                    ,THORNADO_NNODESX) + i
+                 jj = mod((n-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + j
+                 kk = mod((n-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + k
+                 D   = D   + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)
+                 S1  = S1  + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)*Uin(VELX_VAR,  ii,jj,kk)
+                 S2  = S2  + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)*Uin(VELY_VAR,  ii,jj,kk)
+                 S3  = S3  + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)*Uin(VELZ_VAR,  ii,jj,kk)
+                 E   = E   + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)*Uin(ENER_VAR,  ii,jj,kk)
+                 Nel = Nel + ReconstructionMatrix(iNodeX,n,ic,jc,kc)*volFac(ii,jj,kk)*Uin(DENS_VAR,ii,jj,kk)*Uin(YE_MSCALAR,ii,jj,kk)
+              end do
+
+              uCF(iNodeX,ic,jc,kc,iCF_D ) = D   * conv_dens
+              uCF(iNodeX,ic,jc,kc,iCF_S1) = S1  * conv_mom * uGF(iNodeX,ic,jc,kc,iGF_h_1)
+              uCF(iNodeX,ic,jc,kc,iCF_S2) = S2  * conv_mom * uGF(iNodeX,ic,jc,kc,iGF_h_2)
+              uCF(iNodeX,ic,jc,kc,iCF_S3) = S3  * conv_mom * uGF(iNodeX,ic,jc,kc,iGF_h_3)
+              uCF(iNodeX,ic,jc,kc,iCF_E ) = E   * conv_enr
+              uCF(iNodeX,ic,jc,kc,iCF_Ne) = Nel * conv_ne
+
+              !if ( rt_meshMe == MASTER_PE ) then
+              !  write(*,'(a3,3i3,8es15.7)') 'D ',ic,jc,kc,uCF(:,ic,jc,kc,iCF_D) / conv_dens
+              !  write(*,'(a3,3i3,8es15.7)') 'S1',ic,jc,kc,uCF(:,ic,jc,kc,iCF_S1) / conv_mom
+              !  write(*,'(a3,3i3,8es15.7)') 'S2',ic,jc,kc,uCF(:,ic,jc,kc,iCF_S2) / conv_mom
+              !  write(*,'(a3,3i3,8es15.7)') 'S3',ic,jc,kc,uCF(:,ic,jc,kc,iCF_S3) / conv_mom
+              !  write(*,'(a3,3i3,8es15.7)') 'E ',ic,jc,kc,uCF(:,ic,jc,kc,iCF_E) / conv_enr
+              !  write(*,'(a3,3i3,8es15.7)') 'Ne',ic,jc,kc,uCF(:,ic,jc,kc,iCF_Ne) / conv_ne
+              !endif
+
+           end do
+        end do
+     end do
+  end do
+
+
+  ! Copy radiation vars from Flash arrays into Thornado arrays
+
+  @M dir_loop(7) &
+  @M dir_private( [i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX] ) &
+  @M dir_end
+
+  do kc = u_lo(KAXIS), u_hi(KAXIS)
+     do jc = u_lo(JAXIS), u_hi(JAXIS)
+        do ic = u_lo(IAXIS), u_hi(IAXIS)
+           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS
+              do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
+              do iNode = 1, THORNADO_RAD_NDOF
+
+                 i = lo(IAXIS) + THORNADO_NNODESX*(ic-1)
+                 j = lo(JAXIS) + THORNADO_NNODESX*(jc-1)
+                 k = lo(KAXIS) + THORNADO_NNODESX*(kc-1)
+
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 iNodeE = mod((iNode -1)                 ,THORNADO_NNODESE   ) + 1
+                 iNodeX = mod((iNode -1)/THORNADO_NNODESE,THORNADO_FLUID_NDOF) + 1
+
+                 ii     = mod((iNodeX-1)                    ,THORNADO_NNODESX) + i
+                 jj     = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + j
+                 kk     = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + k
+
+                 ivar = rt_ivar(iNodeE,iE,iCR,iS)
+
+                 uCR(iNode,iE,ic,jc,kc,iCR,iS) = Uin(ivar,ii,jj,kk)
+
+                 !if ( rt_meshMe == MASTER_PE .and. iS == 1 .and. iE == 1 ) then
+                 !  write(*,'(a3,4i3,16es15.7)') 'UR',ic,jc,kc,iCR,uCR(:,iE,ic,jc,kc,iCR,iS)
+                 !endif
+
+              end do
+              end do
+           end do ; end do
+        end do
+     end do
+  end do
+
+  @M dir_exit_data &
+  @M dir_copyout( [Uin] ) &
+  @M dir_delete( [lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
+  @M dir_end
+
+  return
+end subroutine rt_tm_reconstruction
