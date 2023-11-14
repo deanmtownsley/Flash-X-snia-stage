@@ -113,6 +113,8 @@ subroutine Driver_evolveAll()
    real :: del(MDIM)
    logical :: runTest
 
+   call RuntimeParameters_get('sim_runTest', runTest)
+
    ! Set interpolation values for guard cell
    call Grid_setInterpValsGcell(.TRUE.)
 
@@ -254,7 +256,6 @@ subroutine Driver_evolveAll()
             call itor%next()
          end do
          call Grid_releaseTileIterator(itor)
-         call Grid_restrictAllLevels()
       end if
       !------------------------------------------------------------
 
@@ -362,7 +363,7 @@ subroutine Driver_evolveAll()
 
       if (gridChanged) then
          dr_simGeneration = dr_simGeneration+1
-         call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
+         if (runTest) call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then
@@ -437,8 +438,6 @@ subroutine Driver_evolveAll()
    !--uniTest procedures------
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
-
-   call RuntimeParameters_get('sim_runTest', runTest)
 
    if (runTest) then
       temp = dr_globalMe

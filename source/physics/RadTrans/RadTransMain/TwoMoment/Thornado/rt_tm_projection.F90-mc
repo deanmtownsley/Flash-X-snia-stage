@@ -1,0 +1,294 @@
+!!****f* source/physics/RadTrans/RadTransMain/TwoMoment/Thornado/rt_tm_projection
+!!
+!! NAME
+!!
+!!  rt_tm_projection
+!!
+!! SYNOPSIS
+!!
+!!  call rt_tm_projection ( real(IN),pointer :: Uin(:,:,:,:), 
+!!                          real(IN),pointer :: Sout(:,:,:,:),
+!!                              integer(IN) :: nX(3),
+!!                              integer(IN) :: lo(MDIM),hi(MDIM),
+!!                              integer(IN) :: loGC(MDIM),hiGC(MDIM),
+!!                              integer(IN) :: u_lo(MDIM),u_hi(MDIM),
+!!                              integer(IN) :: level )
+!!
+!! DESCRIPTION
+!!
+!!  Interpolate fluid variables from DG node values from thornado 
+!!  to cell-centered values for Flash.
+!!  Copy radiation varibles from internal Thornado data structures.
+!!
+!! ARGUMENTS
+!! Uin - pointer to cell-centered Flash data
+!! Sout - pointer to cell-centered Flash scratch data
+!! nX - number of cells
+!! lo - lower index limits (excluding guard cells)
+!! hi - upper index limits (excluding guard cells)
+!! loGC - lower index limits (with guard cells)
+!! hiGC - upper index limits (with guard cells)
+!! u_lo - lower index limits for elements (including guard cells)
+!! u_hi - upper index limits for elements (including guard cells)
+!! level - refinement level
+!!
+!!***
+
+!!REORDER(4): Uin, Sout
+
+subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
+
+#include "Simulation.h"
+#include "constants.h"
+
+  use Grid_interface, ONLY : Grid_getCellCoords, Grid_getDeltas
+  use RadTrans_data, ONLY : rt_geometry
+  use rt_data, ONLY : rt_ivar
+
+  use FluidFieldsModule, ONLY : uCF, iCF_D, iCF_S1, iCF_S2, iCF_S3, iCF_E, iCF_Ne
+  use GeometryFieldsModule, ONLY : uGF, iGF_h_1, iGF_h_2, iGF_h_3, iGF_SqrtGm
+  use RadiationFieldsModule, ONLY : uCR, uGR, iGR_N, iGR_D, iGR_I1, iGR_I2, iGR_I3, &
+     iGR_J, iGR_H1, iGR_H2, iGR_H3, iGR_RMS, iGR_F, iGR_K, iGR_Q, unitsGR, nGR
+  use SubcellReconstructionModule, ONLY : ProjectionMatrix
+  use UnitsModule, ONLY : Gram, Centimeter, Second, AtomicMassUnit, Erg, MeV, &
+     PlanckConstant, SpeedOfLight, UnitsActive
+
+  implicit none
+
+  real, pointer, dimension(:,:,:,:) :: Uin, Sout
+  integer, dimension(3), intent(in) :: nX
+  integer, dimension(MDIM), intent(in) :: lo,hi,loGC,hiGC,u_lo,u_hi
+  integer, intent(in) :: level
+
+  integer :: i, j, k, ic, jc, kc, ii, jj, kk, n, ioff, ivar, i_sub, n_sub
+
+  real :: D, S1, S2, S3, E, Nel, ekin
+  real :: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF
+  integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE, iGR
+
+  real :: r1, r2, tht1, tht2
+  real :: deltas(1:MDIM)
+
+  real :: volFac (loGC(IAXIS):hiGC(IAXIS), &
+                  loGC(JAXIS):hiGC(JAXIS), &
+                  loGC(KAXIS):hiGC(KAXIS))
+
+  real :: radCenter(loGC(IAXIS):hiGC(IAXIS))
+  real :: radFaces (loGC(IAXIS):hiGC(IAXIS)+1)
+  real :: thtFaces (loGC(JAXIS):hiGC(JAXIS)+1)
+
+  real, parameter :: conv_dens = Gram / Centimeter**3
+  real, parameter :: conv_mom  = Gram / Centimeter**2 / Second
+  real, parameter :: conv_enr  = Gram / Centimeter / Second**2
+  real, parameter :: conv_ne   = Gram / Centimeter**3 / AtomicMassUnit
+
+  real, parameter :: hc3       = ( PlanckConstant * SpeedOfLight )**3
+
+  real, parameter :: conv_N    = 1.0 / Centimeter**3
+  real, parameter :: conv_D    = 1.0 / Centimeter**3
+  real, parameter :: conv_I1   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_I2   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_I3   = 1.0 / Centimeter**2 / Second
+  real, parameter :: conv_J    = Erg / Centimeter**3
+  real, parameter :: conv_H1   = Erg / Centimeter**2 / Second
+  real, parameter :: conv_H2   = Erg / Centimeter**2 / Second
+  real, parameter :: conv_H3   = Erg / Centimeter**2 / Second
+  real, parameter :: conv_RMS  = MeV
+
+  select case ( rt_geometry )
+  case ( CARTESIAN )
+     volFac = 1.0
+  case ( CYLINDRICAL )
+     call Grid_getCellCoords( IAXIS, CENTER, level, loGC, hiGC, radCenter )
+     do kk = loGC(KAXIS), hiGC(KAXIS)
+        do jj = loGC(JAXIS), hiGC(JAXIS)
+           do ii = loGC(IAXIS), hiGC(IAXIS)
+              volFac(ii,jj,kk) = ABS( radCenter(ii) ) * Centimeter
+           end do
+        end do
+     end do
+  case ( SPHERICAL )
+     call Grid_getDeltas( level, deltas )
+     call Grid_getCellCoords( IAXIS, FACES, level, loGC, hiGC, radFaces )
+#if NDIM >= 2
+     call Grid_getCellCoords( JAXIS, FACES, level, loGC, hiGC, thtFaces )
+#endif
+     do kk = loGC(KAXIS), hiGC(KAXIS)
+        do jj = loGC(JAXIS), hiGC(JAXIS)
+           do ii = loGC(IAXIS), hiGC(IAXIS)
+              r1 = radFaces(ii)
+              r2 = radFaces(ii+1)
+              volFac(ii,jj,kk) = ( r1*r1 + r1*r2 + r2*r2 ) / 3.0 * Centimeter**2
+#if NDIM >= 2
+              tht1 = thtFaces(jj)
+              tht2 = thtFaces(jj+1)
+              volFac(ii,jj,kk) = volFac(ii,jj,kk) * ( cos(tht1) - cos(tht2) ) / deltas(JAXIS)
+#endif
+           end do
+        end do
+     end do
+  case default
+     volFac = 1.0
+  end select
+
+  ! Interpolate fluid vars from Thornado arrays into Flash arrays
+
+  @M dir_enter_data &
+  @M dir_copyin( [Uin, Sout, lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
+  @M dir_end
+
+  @M dir_loop(4) &
+  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff] ) &
+  @M dir_private( [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
+  @M dir_end
+
+  do kc = 1, nX(3)
+     do jc = 1, nX(2)
+        do ic = 1, nX(1)
+           do iNodeX = 1, THORNADO_FLUID_NDOF
+
+              i = lo(IAXIS) + THORNADO_NNODESX*(ic-1)
+              j = lo(JAXIS) + THORNADO_NNODESX*(jc-1)
+              k = lo(KAXIS) + THORNADO_NNODESX*(kc-1)
+
+              ii = mod((iNodeX-1)                    ,THORNADO_NNODESX) + i
+              jj = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + j
+              kk = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + k
+
+              D   = 0.0
+              S1  = 0.0
+              S2  = 0.0
+              S3  = 0.0
+              E   = 0.0
+              Nel = 0.0
+
+              do n = 1, THORNADO_FLUID_NDOF
+                 D   = D   + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_D )
+                 S1  = S1  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_S1) / uGF(n,ic,jc,kc,iGF_h_1)
+                 S2  = S2  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_S2) / uGF(n,ic,jc,kc,iGF_h_2)
+                 S3  = S3  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_S3) / uGF(n,ic,jc,kc,iGF_h_3)
+                 E   = E   + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_E )
+                 Nel = Nel + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uCF(n,ic,jc,kc,iCF_Ne)
+              end do
+
+              Uin(DENS_VAR,  ii,jj,kk) = D   / volFac(ii,jj,kk) / conv_dens
+              Uin(VELX_VAR,  ii,jj,kk) = S1  / volFac(ii,jj,kk) / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(VELY_VAR,  ii,jj,kk) = S2  / volFac(ii,jj,kk) / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(VELZ_VAR,  ii,jj,kk) = S3  / volFac(ii,jj,kk) / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(ENER_VAR,  ii,jj,kk) = E   / volFac(ii,jj,kk) / conv_enr  / Uin(DENS_VAR,ii,jj,kk)
+              Uin(YE_MSCALAR,ii,jj,kk) = Nel / volFac(ii,jj,kk) / conv_ne   / Uin(DENS_VAR,ii,jj,kk)
+#ifdef EINT_VAR
+              ekin = 0.0
+              do n = VELX_VAR, VELZ_VAR
+                ekin = ekin + 0.5*Uin(n,ii,jj,kk)**2
+              end do
+              Uin(EINT_VAR,ii,jj,kk) = Uin(ENER_VAR,ii,jj,kk) - ekin
+#endif
+
+              ! Interpolate energy-integrated (gray) radiation quantities to cell-centers
+
+              do iS = 1, THORNADO_NSPECIES
+
+                 EuD  = 0.0
+                 LaD  = 0.0
+                 LaI1 = 0.0
+                 LaI2 = 0.0
+                 LaI3 = 0.0
+                 LaJ  = 0.0
+                 LaH1 = 0.0
+                 LaH2 = 0.0
+                 LaH3 = 0.0
+                 rmsE = 0.0
+                 FlxF = 0.0
+                 EddF = 0.0
+                 HetF = 0.0
+
+                 do n = 1, THORNADO_FLUID_NDOF
+                    EuD  = EuD  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_N  ,iS)
+                    LaD  = LaD  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_D  ,iS)
+                    LaI1 = LaI1 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_I1 ,iS) * uGF(n,ic,jc,kc,iGF_h_1)
+                    LaI2 = LaI2 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_I2 ,iS) * uGF(n,ic,jc,kc,iGF_h_2)
+                    LaI3 = LaI3 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_I3 ,iS) * uGF(n,ic,jc,kc,iGF_h_3)
+                    LaJ  = LaJ  + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_J  ,iS)
+                    LaH1 = LaH1 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_H1 ,iS) * uGF(n,ic,jc,kc,iGF_h_1)
+                    LaH2 = LaH2 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_H2 ,iS) * uGF(n,ic,jc,kc,iGF_h_2)
+                    LaH3 = LaH3 + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_H3 ,iS) * uGF(n,ic,jc,kc,iGF_h_3)
+                    rmsE = rmsE + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_RMS,iS)
+                    FlxF = FlxF + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_F  ,iS)
+                    EddF = EddF + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_K  ,iS)
+                    HetF = HetF + ProjectionMatrix(iNodeX,n,ic,jc,kc)*uGR(n,ic,jc,kc,iGR_Q  ,iS)
+                 end do
+
+                 ioff = SCRATCH_GRID_VARS_BEGIN + (iS-1)*nGR
+
+                 Sout(ioff+iGR_N  -1,ii,jj,kk) = EuD  / volFac(ii,jj,kk) / conv_N
+                 Sout(ioff+iGR_D  -1,ii,jj,kk) = LaD  / volFac(ii,jj,kk) / conv_D
+                 Sout(ioff+iGR_I1 -1,ii,jj,kk) = LaI1 / volFac(ii,jj,kk) / conv_I1
+                 Sout(ioff+iGR_I2 -1,ii,jj,kk) = LaI2 / volFac(ii,jj,kk) / conv_I2
+                 Sout(ioff+iGR_I3 -1,ii,jj,kk) = LaI3 / volFac(ii,jj,kk) / conv_I3
+                 Sout(ioff+iGR_J  -1,ii,jj,kk) = LaJ  / volFac(ii,jj,kk) / conv_J
+                 Sout(ioff+iGR_H1 -1,ii,jj,kk) = LaH1 / volFac(ii,jj,kk) / conv_H1
+                 Sout(ioff+iGR_H2 -1,ii,jj,kk) = LaH2 / volFac(ii,jj,kk) / conv_H2
+                 Sout(ioff+iGR_H3 -1,ii,jj,kk) = LaH3 / volFac(ii,jj,kk) / conv_H3
+                 Sout(ioff+iGR_RMS-1,ii,jj,kk) = rmsE / volFac(ii,jj,kk) / conv_RMS
+                 Sout(ioff+iGR_F  -1,ii,jj,kk) = FlxF / volFac(ii,jj,kk)
+                 Sout(ioff+iGR_K  -1,ii,jj,kk) = EddF / volFac(ii,jj,kk)
+                 Sout(ioff+iGR_Q  -1,ii,jj,kk) = HetF / volFac(ii,jj,kk)
+
+                 if ( .not. UnitsActive ) then
+                   Sout((ioff+iGR_N-1):(ioff+iGR_H3-1),ii,jj,kk) = Sout((ioff+iGR_N-1):(ioff+iGR_H3-1),ii,jj,kk) / hc3
+                 end if
+
+              end do
+
+           end do
+        end do
+     end do
+  end do
+
+  ! Copy radiation vars from Thornado arrays into Flash arrays
+
+  @M dir_loop(7) &
+  @M dir_private( [i, j, k, ii, jj, kk, ioff, ivar, iNodeE, iNodeX] ) &
+  @M dir_end
+
+  do kc = 1, nX(3)
+     do jc = 1, nX(2)
+        do ic = 1, nX(1)
+           do iS = 1, THORNADO_NSPECIES ; do iCR = 1, THORNADO_NMOMENTS
+              do iE = 1-THORNADO_SWE, THORNADO_NE+THORNADO_SWE
+              do iNode = 1, THORNADO_RAD_NDOF
+
+                 i = lo(IAXIS) + THORNADO_NNODESX*(ic-1)
+                 j = lo(JAXIS) + THORNADO_NNODESX*(jc-1)
+                 k = lo(KAXIS) + THORNADO_NNODESX*(kc-1)
+
+                 ioff = THORNADO_BEGIN &
+                    + (iS -1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)*THORNADO_NMOMENTS) &
+                    + (iCR-1)*(THORNADO_NNODESE*(THORNADO_NE+2*THORNADO_SWE)) &
+                    + (iE -1 + THORNADO_SWE)*(THORNADO_NNODESE)
+
+                 iNodeE = mod((iNode -1)                 ,THORNADO_NNODESE   ) + 1
+                 iNodeX = mod((iNode -1)/THORNADO_NNODESE,THORNADO_FLUID_NDOF) + 1
+
+                 ii     = mod((iNodeX-1)                    ,THORNADO_NNODESX) + i
+                 jj     = mod((iNodeX-1)/THORNADO_NNODESX   ,THORNADO_NNODESX) + j
+                 kk     = mod((iNodeX-1)/THORNADO_NNODESX**2,THORNADO_NNODESX) + k
+
+                 ivar = ioff + iNodeE - 1
+
+                 Uin(ivar,ii,jj,kk) = uCR(iNode,iE,ic,jc,kc,iCR,iS)
+
+              end do
+           end do ; end do ; end do
+        end do
+     end do
+  end do
+
+  @M dir_exit_data &
+  @M dir_copyout( [Uin, Sout] ) &
+  @M dir_delete( [lo, hi, loGC, hiGC, u_lo, u_hi, nX, volFac] ) &
+  @M dir_end
+
+  return
+end subroutine rt_tm_projection

@@ -32,5 +32,7 @@ module HeatAD_data
      logical, save :: ht_useHeatAD
 
      integer, save :: ht_iVelFVar
+    
+     integer, save :: ht_intSchm
 
 end module HeatAD_data

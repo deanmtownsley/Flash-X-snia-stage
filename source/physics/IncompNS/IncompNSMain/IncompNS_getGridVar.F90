@@ -1,4 +1,3 @@
-subroutine IncompNS_getGridVar(name, value)
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -13,25 +12,38 @@ subroutine IncompNS_getGridVar(name, value)
 
 #include"Simulation.h"
 
-  use Driver_interface, only: Driver_abort
+subroutine IncompNS_getGridVar(name, value)
 
-  implicit none
-  character(len=*), intent(in)  :: name
-  integer, intent(out)          :: value
+   use Driver_interface, only: Driver_abort
 
-  select case(name)
-     case("Face_Velocity","face_velocity","FACE_VELOCITY")
-       value = VELC_FACE_VAR
-     case("Center_Pressure","center_pressure","CENTER_PRESSURE")
-       value = PRES_VAR
-     case("Center_Divergence","center_divergence","CENTER_DIVERGENCE")
-       value = DUST_VAR 
-     case default
-       value = -1
-       print *,"Error in setting grid var: ",name 
-       call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
-  end select  
+   implicit none
 
-  return
+   character(len=*), intent(in)  :: name
+   integer, intent(out)          :: value
+
+   select case (name)
+   case ("Face_Velocity", "face_velocity", "FACE_VELOCITY")
+      value = VELC_FACE_VAR
+   case ("Center_Pressure", "center_pressure", "CENTER_PRESSURE")
+      value = PRES_VAR
+   case ("Center_Divergence", "center_divergence", "CENTER_DIVERGENCE")
+      value = DUST_VAR
+#ifdef INCOMPNS_VARDENS
+   case ("Face_Density", "face_density", "FACE_DENSITY")
+      value = RHOF_FACE_VAR
+   case ("Center_Density", "center_density", "CENTER_DENSITY")
+      value = RHOC_VAR
+   case ("Center_Viscosity", "center_viscosity", "CENTER_VISCOSITY")
+      value = VISC_VAR
+   case ("Face_Pressure_Jump", "face_pressure_jump", "FACE_PRESSURE_JUMP")
+      value = SIGM_FACE_VAR
+#endif
+   case default
+      value = -1
+      print *, "Error in setting grid var: ", name
+      call Driver_abort("IncompNS_getGridVar: Unknown IncompNS Grid Variable")
+   end select
+
+   return
 
 end subroutine IncompNS_getGridVar

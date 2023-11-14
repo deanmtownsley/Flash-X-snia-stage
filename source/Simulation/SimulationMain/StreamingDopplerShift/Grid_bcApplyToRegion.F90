@@ -77,7 +77,7 @@
 !!  other grid information, such as cell coordinates, etc.  Currently
 !!  supported simple boundary conditions include "OUTFLOW", "REFLECTING" and
 !!  "DIODE".
-!!  Additional dummy arguments secondDir, thirdDir, and endPoints
+!!  Additional dummy arguments level, secondDir, thirdDir, and endPoints
 !!  are not needed for these simple kinds of BCs, but can be
 !!  used by alternative implementations for BC types that do need coordinate
 !!  information, etc.
@@ -122,24 +122,10 @@
 !!         However, an implementation of this interface may ignore the mask argument;
 !!         a mask should be understood as a possible opportunity for optimization which
 !!         an implementation may ignore.
-!!         Specifying a mask does not mean that previous values of other variables in
+!!         Specifying a mask does not guarantee that previous values of other variables in
 !!         guard cells will be left undisturbed.
 !!  applied - is set true if this routine has handled the given bcType, otherwise it is 
 !!            set to false.
-!!
-!!  tileDesc - Derived type that encapsulates metadata that uniquely
-!!              characterizes local block to be operated on
-!!
-!!              With Paramesh 4:
-!!              This may be a block actually residing on the local processor,
-!!              or the handle may refer to a block that belong to a remote processor
-!!              but for which cached information is currently available locally.
-!!              The two cases can be distinguished by checking whether 
-!!              (blockHandle .LE. lnblocks): this is true only for blocks that
-!!              reside on the executing processor.
-!!              The block ID is available for passing on to some handlers for 
-!!              boundary conditions that may need it, ignored in the default 
-!!              implementation.
 !!
 !!  secondDir,thirdDir -   Second and third coordinate directions.
 !!                         These are the transverse directions perpendicular to
@@ -214,6 +200,7 @@
 !!    2013       Added support for GRIDBC_ZERO         - Klaus Weide
 !!    2015       Support for GRIDBC_EXTRAPOLATE_NSC    - Klaus Weide
 !!    2021       Added USER_DEFINED boundary condition - Ran Chu
+!!    2023       Apply appropriate sign for thornado variables - Austin Harris
 !!
 !!***
 
@@ -296,6 +283,9 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
   isFace = isFace.or.((gridDataStruct==FACEY).and.(axis==JAXIS))
   isFace = isFace.or.((gridDataStruct==FACEZ).and.(axis==KAXIS))
 
+  
+!!  print*,'in applyBcRegion ',varCount,gridDataStruct,WORK,guard,axis,face
+
   do ivar = 1,varCount
      if(mask(ivar)) then
         call gr_bcMapBcType(bcTypeActual,bcType,ivar,gridDataStruct,axis,face,idest)
@@ -361,14 +351,20 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
         else if (bcTypeActual == AXISYMMETRIC) then 
            if (gridDataStruct==CENTER) then
 #ifdef VELX_VAR
-              if ((axis==IAXIS).and.(ivar==VELX_VAR))sign=-1
+              if ((axis==IAXIS).and.(ivar==VELX_VAR)) then
+                 if (NDIM==1) then
+                    sign=-1
+                 else if (NDIM==2) then
+                    if (gr_dirGeom(JAXIS)==XYZ) sign=-1
+                 end if
+              end if
 #endif
 #ifdef VELY_VAR
               if(ivar==VELY_VAR) then
                  if(axis==JAXIS) then
                     sign=-1
                  else ! axis==IAXIS or KAXIS
-                    if (gr_dirGeom(JAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(JAXIS)==PHI_CYL .AND. NDIM==1) sign=-1
                  end if
               end if
 #endif
@@ -377,7 +373,8 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==KAXIS) then
                     sign=-1
                  else ! axis==IAXIS or JAXIS 
-                    if (gr_dirGeom(KAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_CYL .AND. NDIM<3) sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_SPH .AND. NDIM<3) sign=-1
                  end if
               end if
 #endif
@@ -389,7 +386,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==JAXIS) then
                     sign=-1
                  else ! axis==IAXIS or KAXIS
-                    if (gr_dirGeom(JAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(JAXIS)==PHI_CYL .AND. NDIM==1) sign=-1
                  end if
               end if
 #endif
@@ -398,7 +395,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  if(axis==KAXIS) then
                     sign=-1
                  else ! axis==IAXIS or JAXIS
-                    if (gr_dirGeom(KAXIS)==PHI_CYL)sign=-1
+                    if (gr_dirGeom(KAXIS)==PHI_CYL .AND. NDIM<3) sign=-1
                  end if
               end if
 #endif
@@ -475,10 +472,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
             end if
         end if
 
-!!
-!!  Handle the low boundary
-!! 
-!!
+        
         if(face==LOW) then
            select case (bcTypeActual)
            case(REFLECTING)
@@ -551,6 +545,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
            case(OUTFLOW,HYDROSTATIC_F2_NVOUT,HYDROSTATIC_F2_NVDIODE,HYDROSTATIC_F2_NVREFL, &
                         HYDROSTATIC_NVOUT,HYDROSTATIC_NVDIODE,HYDROSTATIC_NVREFL, &
                         NEUMANN_INS)
+!!              print*,'since face was low',je,ke,ivar
               do i = 1,guard
                  regionData(i,1:je,1:ke,ivar)= regionData(guard+1,1:je,1:ke,ivar)
               end do
@@ -566,13 +561,12 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  end if
               end do
            case default
+!!              print*,'boundary is',bcType
+!!              call Driver_abort("unsupported boundary condition on Lower Face")
            end select
            
-        else  !(face==HIGH)          
-!!
-!!  Handle the hight boundary
-!!
-!!
+        else  !(face==HIGH)
+           
            select case (bcTypeActual)
            case(REFLECTING)
               k = 2*guard+1
@@ -653,6 +647,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                         NEUMANN_INS)
               k=guard
               if(isFace)k=k+1
+!!              print*,'since face was high',k,je,ke,ivar
               do i = 1,guard
                  regionData(k+i,1:je,1:ke,ivar)= regionData(k,1:je,1:ke,ivar)
               end do
@@ -670,6 +665,8 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                  end if
               end do
            case default
+!!              print*,'boundary is',bcType
+!!              call Driver_abort("unsupported boundary condition on Upper Face")
            end select
         end if
      end if
@@ -694,10 +691,10 @@ subroutine ReflectingThornadoFlux(axis, ivar, sign)
   ! T001_VAR is the first number density variable
 
   do iS = 1,THORNADO_NSPECIES
-    B_E = (iS-1) * THORNADO_NMOMENTS * THORNADO_NE * THORNADO_NNODESE &
-          + THORNADO_NE * THORNADO_NNODESE * axis &
+    B_E = (iS-1) * THORNADO_NMOMENTS * (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE &
+          + (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE * axis &
           + T001_VAR
-    E_E = B_E + THORNADO_NE * THORNADO_NNODESE - 1
+    E_E = B_E + (THORNADO_NE+2*THORNADO_SWE) * THORNADO_NNODESE - 1
     if((ivar>=B_E).and.(ivar<=E_E)) sign=-1
   end do
 

@@ -21,7 +21,8 @@ RUN apt-get install -y curl tar
 
 # Installation of python packages
 RUN pip3 install numpy matplotlib h5py scipy configparser
-RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.01
+RUN pip3 install git+https://github.com/Flash-X/Flash-X-Test.git@2023.11
+RUN chmod 777 /usr/local/lib/python3.8/dist-packages/FlashXTest/backend/FlashTest/ERROR
 
 # Install bittree from source
 RUN git clone https://github.com/Flash-X/Bittree.git --branch v2.0 /Bittree
@@ -32,7 +33,7 @@ RUN python3 setup.py library --dim 3 --prefix /Bittree/install/3D
 RUN cd build && make && make install && cd ..
 
 # Installation of AMReX from source
-RUN git clone https://github.com/AMReX-Codes/amrex.git --branch development /Amrex
+RUN git clone https://github.com/AMReX-Codes/amrex.git --branch 23.11 /Amrex
 WORKDIR /Amrex
 RUN ./configure --prefix=install/1D --dim=1 && make -j && make install
 RUN ./configure --prefix=install/2D --dim=2 && make -j && make install
