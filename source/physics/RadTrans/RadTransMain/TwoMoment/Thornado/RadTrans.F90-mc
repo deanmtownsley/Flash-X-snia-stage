@@ -376,7 +376,7 @@ subroutine RadTrans( dt, pass )
 
 #if NSPECIES > 0
   ! Make composition consistent with change in electron fraction from transport
-  call Burn_makeAbundanceYeConsistent
+  !call Burn_makeAbundanceYeConsistent
 #endif
   
   call Timers_start( "eos" )
