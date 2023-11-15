@@ -68,7 +68,7 @@ subroutine Burn_makeAbundanceYeConsistent()
            do i = lo(IAXIS), hi(IAXIS)
 
               ! Check if composition needs to be adjusted
-              if ( Uin(DENS_VAR,i,j,k) > bn_nuclearDensMax ) then
+              if ( Uin(DENS_VAR,i,j,k) <= bn_nuclearDensMax ) then
 
                  ! Get old n and p mass fractions
                  xn = Uin(N_SPEC,i,j,k)
