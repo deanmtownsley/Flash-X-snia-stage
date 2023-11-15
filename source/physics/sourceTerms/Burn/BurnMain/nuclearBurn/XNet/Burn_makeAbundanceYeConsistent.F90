@@ -75,7 +75,7 @@ subroutine Burn_makeAbundanceYeConsistent()
 
                  ! Assume Ye change captured by changing free nucleon mass fractions
                  dye = Uin(DYE_VAR,i,j,k)
-                 xn = MAX( xn - dye, smallx )
+                 xn = MAX( xn - dye, bn_smallx )
                  xp = MAX( xp + dye, 1.0 )
 
                  ! Apply the update
