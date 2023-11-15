@@ -34,6 +34,7 @@ subroutine Burn_makeAbundanceYeConsistent()
   use Burn_data, ONLY : bn_nuclearDensMax, bn_smallx
   use Driver_interface, ONLY : Driver_abort
   use Grid_iterator, ONLY : Grid_iterator_t
+  use Grid_interface, ONLY : Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
