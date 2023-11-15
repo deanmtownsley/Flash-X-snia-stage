@@ -43,6 +43,9 @@ subroutine RadTrans( dt, pass )
 #include "Simulation.h"
 #include "constants.h"
 
+#ifdef NSPECIES > 0
+  use Burn_interface, ONLY : Burn_makeAbundanceYeConsistent
+#endif
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_everywhere
   use FluidFieldsModule, ONLY : uCF
@@ -370,6 +373,11 @@ subroutine RadTrans( dt, pass )
   end do ! iterator loop
   
   call Grid_releaseTileIterator( itor )
+
+#if NSPECIES > 0
+  ! Make composition consistent with change in electron fraction from transport
+  call Burn_makeAbundanceYeConsistent
+#endif
   
   call Timers_start( "eos" )
 

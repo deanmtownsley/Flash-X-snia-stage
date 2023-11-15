@@ -92,6 +92,12 @@ Module Burn_interface
       end subroutine Burn_computeBindingEnergy  
    end interface
 
+  interface Burn_makeAbundanceYeConsistent
+     subroutine Burn_makeAbundanceYeConsistent
+        implicit none
+     end subroutine Burn_makeAbundanceYeConsistent
+  end interface
+
 end Module Burn_interface
 
 
