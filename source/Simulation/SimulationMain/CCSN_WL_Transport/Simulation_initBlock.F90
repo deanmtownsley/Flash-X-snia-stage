@@ -1,4 +1,4 @@
-!!****if* source/Simulation/SimulationMain/CCSN/Simulation_initBlock
+!!****if* source/Simulation/SimulationMain/CCSN_WL_Transport/Simulation_initBlock
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -366,7 +366,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 #if NSPECIES > 0
 
 #if defined (YE_MSCALAR)
-           call renorm_mass_ye(solnData(YE_MSCALAR,i,j,k),solnData(SPECIES_BEGIN:SPECIES_END,i,j,k))
+           call renorm_mass_ye(solnData(YE_MSCALAR,i,j,k),&
+               solnData(SPECIES_BEGIN:SPECIES_END,i,j,k))
 #else
            solnData(SPECIES_BEGIN:SPECIES_END,i,j,k) = &
               & max(sim_smallx,min(1.0,solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)))
