@@ -5,5 +5,6 @@ Burn += Burn.o Burn_computeDt.o Burn_init.o Burn_finalize.o Burn_interface.o \
         Burn_computeAbarZbar.o \
 	Burn_guardCellMaskHook.o \
 	Burn_nseAtDens.o Burn_nseAtPres.o \
-	Burn_computeBindingEnergy.o
+	Burn_computeBindingEnergy.o \
+        Burn_makeAbundanceYeConsistent.o
 
