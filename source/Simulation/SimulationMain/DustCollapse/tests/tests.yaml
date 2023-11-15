@@ -22,6 +22,7 @@ Comparison/DustCollapse/AMR/2dCyl/AMReX:
   setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole
   parfiles: test_2dcyl.debug.par
 
+# NOT PRESENT in regular Production_GCC.suite
 Comparison/DustCollapse/AMR/2dCyl/AMReXFc:
   setupOptions: -auto -2d +cylindrical +amrex +serialIO +uhd +newMpole +nolwf -noc
   parfiles: test_2dcyl.par

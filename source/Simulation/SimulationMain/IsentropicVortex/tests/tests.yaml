@@ -34,6 +34,7 @@ Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark:
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
   setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
   parfiles: iv.par
@@ -44,23 +45,28 @@ Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt:
   setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping -unit=Particles Bittree=True
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+# NOT ENABLED in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 #  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
+# NOT ENABLED in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/spark:
 #  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
+# NOT PRESENT in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
 #  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
+# NOT PRESENT in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
 #  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
 #  parfiles: iv.par
