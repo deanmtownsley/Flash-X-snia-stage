@@ -363,10 +363,6 @@ subroutine RadTrans( dt, pass )
     
     call Timers_stop( "rt_finalize" )
 
-    call Timers_start( "eos" )
-    call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,Uin,CENTER)
-    call Timers_stop( "eos" )
-
     call tileDesc % releaseDataPtr( Uin, CENTER )
     call tileDesc % releaseDataPtr( Sout, SCRATCH )
 
@@ -382,6 +378,19 @@ subroutine RadTrans( dt, pass )
   ! Make composition consistent with change in electron fraction from transport
   !call Burn_makeAbundanceYeConsistent
 #endif
+
+  call Timers_start( "eos" )
+
+  call Grid_getTileIterator( itor, LEAF, tiling=rt_enableTiling )
+  do while( itor % isValid() )
+    call itor%currentTile(tileDesc)
+    call tileDesc % getDataPtr( Uin, CENTER )
+    call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,Uin,CENTER)
+    call itor % next()
+  end do
+  call Grid_releaseTileIterator( itor )
+
+  call Timers_stop( "eos" )
   
 !   call Timers_start( "eos" )
 ! print*,"RadTrans EOS call"
