@@ -47,7 +47,7 @@ subroutine RadTrans( dt, pass )
   use Burn_interface, ONLY : Burn_makeAbundanceYeConsistent
 #endif
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_everywhere
+  use Eos_interface, ONLY : Eos_wrapped!Eos_everywhere
   use FluidFieldsModule, ONLY : uCF
   use GeometryFieldsModuleE, ONLY : uGE
   use GeometryFieldsModule, ONLY : uGF
@@ -363,6 +363,10 @@ subroutine RadTrans( dt, pass )
     
     call Timers_stop( "rt_finalize" )
 
+    call Timers_start( "eos" )
+    call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,Uin,CENTER)
+    call Timers_stop( "eos" )
+
     call tileDesc % releaseDataPtr( Uin, CENTER )
     call tileDesc % releaseDataPtr( Sout, SCRATCH )
 
@@ -379,11 +383,11 @@ subroutine RadTrans( dt, pass )
   !call Burn_makeAbundanceYeConsistent
 #endif
   
-  call Timers_start( "eos" )
-
-  call Eos_everywhere( MODE_DENS_EI )
-
-  call Timers_stop( "eos" )
+!   call Timers_start( "eos" )
+! print*,"RadTrans EOS call"
+!   call Eos_everywhere( MODE_DENS_EI )
+! print*,"Finished RadTrans EOS call"
+!   call Timers_stop( "eos" )
 
   call Timers_stop( "RadTrans" )
 
