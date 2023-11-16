@@ -197,6 +197,37 @@
       </PseudoUG>
       <AMR>
         <2dCyl>
+          <amrexNolwf>
+            <spark>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcPerLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcPerLev
+                restartBenchmark: /dev/null
+              </fcPerLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </spark>
+            <sparkNt>
+              <fcAllLev>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev
+                restartBenchmark: /dev/null
+              </fcAllLev>
+              <fcNone>
+                setupName: Sedov
+                nodeName: Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone
+                restartBenchmark: /dev/null
+              </fcNone>
+            </sparkNt>
+          </amrexNolwf>
           <pm4Nolwf>
             <spark>
               <fcAllLev>
