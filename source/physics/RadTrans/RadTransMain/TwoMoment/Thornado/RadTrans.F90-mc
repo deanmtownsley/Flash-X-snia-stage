@@ -391,12 +391,6 @@ subroutine RadTrans( dt, pass )
   call Grid_releaseTileIterator( itor )
 
   call Timers_stop( "eos" )
-  
-!   call Timers_start( "eos" )
-! print*,"RadTrans EOS call"
-!   call Eos_everywhere( MODE_DENS_EI )
-! print*,"Finished RadTrans EOS call"
-!   call Timers_stop( "eos" )
 
   call Timers_stop( "RadTrans" )
 

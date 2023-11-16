@@ -81,6 +81,8 @@ subroutine eos_hybridInit()
    end if
 #endif
 
-   ! call Eos_wlEnerShift(eos_hybDeltaE_WL)
+   ! Setting this directly here to avoid confusion as to which
+   ! energy shift in WeakLib this refers to that the `eos_wlEnerShift`
+   ! subroutine returns
    eos_hybDeltaE_WL = 8.9 ! MeV/nucleon
 end subroutine eos_hybridInit

@@ -52,24 +52,4 @@ module eos_hybridInterface
       end subroutine eos_hybridEnergyShift
    end interface
 
-   interface
-      subroutine eos_hybridHelmholtz(mode, eosData, mask, massFrac)
-         implicit none
-         integer, intent(in) :: mode
-         real, dimension(EOS_NUM), target, intent(inout) :: eosData
-         logical, dimension(EOS_VARS + 1:EOS_NUM), target, intent(in) :: mask
-         real, dimension(NSPECIES), target, intent(in), optional :: massFrac
-      end subroutine eos_hybridHelmholtz
-   end interface
-
-   interface
-      subroutine eos_hybridWeakLib(mode, eosData, mask, massFrac)
-         implicit none
-         integer, intent(in) :: mode
-         real, dimension(EOS_NUM), target, intent(inout) :: eosData
-         logical, dimension(EOS_VARS + 1:EOS_NUM), target, intent(in) :: mask
-         real, dimension(NSPECIES), target, intent(in), optional :: massFrac
-      end subroutine eos_hybridWeakLib
-   end interface
-
 end module eos_hybridInterface

@@ -55,7 +55,9 @@ module eos_hybridData
 
    ! Ideally, these should be set from the values in the PhysicalConstants unit,
    ! but not all of these are currently available.  For now, these will be set
-   ! to the CODATA 2018 values
+   ! to the CODATA 2018 values, but varying CODATA sets are present throughout
+   ! other portions of the code, so these will need to be reconciled with those
+   ! used in XNet, WeakLib, etc.
 
    ! Masses
    real, parameter :: m_u = 931.49410242 ! MeV /  c^2
