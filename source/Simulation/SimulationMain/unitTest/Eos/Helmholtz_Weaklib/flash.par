@@ -6,8 +6,8 @@ lrefine_min = 1
 
 sim_tempMin = 1.e10
 sim_tempMax = 1.e11
-sim_densMin = 1.e5
-sim_densMax = 5.e5
+sim_densMin = 1e3
+sim_densMax = 1e12
 sim_presMin = 1.e23
 sim_presMax = 1.e35
 sim_yeMin   = 0.1
@@ -34,7 +34,7 @@ nblockz = 1
 eosModeInit = "eos_nop"
 eosMode     = "eos_nop"
 
-eos_hybTransitionDensLo = 1e5
-eos_hybTransitionDensHi = 5e5
+eos_hybTransitionDensLo = 1e6
+eos_hybTransitionDensHi = 1.0001e6
 
 eos_testTolerance = 1e-4
