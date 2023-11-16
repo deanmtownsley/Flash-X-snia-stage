@@ -71,7 +71,8 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-   use Eos_interface, ONLY: Eos_everywhere
+   use Eos_interface, ONLY: Eos_wrapped
+   ! use Eos_interface, ONLY: Eos_everywhere
    use Grid_interface, ONLY: Grid_getTileIterator, &
                              Grid_releaseTileIterator, &
                              Grid_getBlkType
@@ -243,7 +244,24 @@ contains
       ! Arbitrarily looping here to accumulate better stats on total/average times
       call Timers_start(name)
       do n = 1, 1000
-         call Eos_everywhere(mode)
+         ! call Eos_everywhere(mode)
+         call Grid_getTileIterator(itor, LEAF, tiling=.false.)
+         TileLoopEos: do
+            if (.not. itor%isValid()) exit TileLoopEos
+
+            call itor%currentTile(tileDesc)
+
+            blkLimits = tileDesc%limits
+
+            call tileDesc%getDataPtr(solnData, CENTER)
+
+            call Eos_wrapped(mode, blkLimits, solnData)
+
+            call tileDesc%releaseDataPtr(solnData, CENTER)
+
+            call itor%next()
+         end do TileLoopEos
+         call Grid_releaseTileIterator(itor)
       end do !n
       call Timers_stop(name)
 
@@ -373,7 +391,24 @@ contains
       call Grid_releaseTileIterator(itor)
 
       ! call Timers_start(name)
-      call Eos_everywhere(mode)
+      ! call Eos_everywhere(mode)
+      call Grid_getTileIterator(itor, LEAF, tiling=.false.)
+      TileLoopEos: do
+         if (.not. itor%isValid()) exit TileLoopEos
+
+         call itor%currentTile(tileDesc)
+
+         blkLimits = tileDesc%limits
+
+         call tileDesc%getDataPtr(solnData, CENTER)
+
+         call Eos_wrapped(mode, blkLimits, solnData)
+
+         call tileDesc%releaseDataPtr(solnData, CENTER)
+
+         call itor%next()
+      end do TileLoopEos
+      call Grid_releaseTileIterator(itor)
       ! call Timers_stop(name)
 
       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
