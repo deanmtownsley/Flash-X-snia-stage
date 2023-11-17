@@ -61,12 +61,37 @@ module dr_hydroAdvance_bundle_mod
     private
 
     public :: dr_hydroAdvance_TF_tile_cpu
+    public :: instantiate_hydro_advance_wrapper_C
+    public :: delete_hydro_advance_wrapper_C
 #ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
     public :: instantiate_hydro_advance_packet_C
     public :: delete_hydro_advance_packet_C
+#endif
 
+    !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS
+    ! The C-to-Fortran interoperability layer
     interface
+        !> To be used by Driver to create a concrete tile wrapper that the
+        !! runtime can use to blindly clone the same type of wrapper.
+        function instantiate_hydro_advance_wrapper_C(C_dt, C_wrapper) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT, &
+                                          MILHOJA_REAL
+            real(MILHOJA_REAL),  intent(IN), value :: C_dt
+            type(C_PTR),         intent(IN)        :: C_wrapper
+            integer(MILHOJA_INT)                   :: C_ierr
+        end function instantiate_hydro_advance_wrapper_C
+
+        !> To be used by Driver to free tile wrapper resources.
+        function delete_hydro_advance_wrapper_C(C_wrapper) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT
+            type(C_PTR),         intent(IN), value :: C_wrapper
+            integer(MILHOJA_INT)                   :: C_ierr
+        end function delete_hydro_advance_wrapper_C
+
+#ifdef ORCHESTRATION_USE_GPUS
         !> To be used by Driver to create a concrete data packet that the
         !! runtime can use to blindly clone the same type of packet.
         function instantiate_hydro_advance_packet_C(C_dt, C_packet) result(C_ierr) bind(c)
@@ -94,8 +119,8 @@ module dr_hydroAdvance_bundle_mod
             integer(MILHOJA_INT), intent(IN), value :: C_id
             integer(MILHOJA_INT)                    :: C_ierr
         end function release_hydro_advance_extra_queue_C
-    end interface
 #endif
+    end interface
 
 contains
 
@@ -120,12 +145,15 @@ contains
     !! @todo Is it OK for this to be using Flash-X code?  This seems both
     !!       necessary and unavoidable here.  What about dr_dt?
     subroutine dr_hydroAdvance_TF_tile_cpu(C_threadId, C_dataItemPtr) bind(c)
-        use iso_c_binding, ONLY : C_PTR
+        use iso_c_binding, ONLY : C_PTR, &
+                                  C_NULL_PTR
 
         use milhoja_types_mod,                  ONLY : MILHOJA_INT
+        use milhoja_tile_mod,                   ONLY : milhoja_tile_from_wrapper_C
         use Driver_data,                        ONLY : dr_dt
         use Grid_tile,                          ONLY : Grid_tile_t, &
                                                        Grid_tile_fromMilhojaTilePtr
+        use gr_milhojaInterface,                ONLY : gr_checkMilhojaError
         use Eos_interface,                      ONLY : Eos_wrapped
         use Hydro_data,                         ONLY : hy_eosModeAfter
         use Hydro_advanceSolution_variants_mod, ONLY : Hydro_computeSoundSpeed_block_cpu, &
@@ -137,8 +165,10 @@ contains
         integer(MILHOJA_INT), intent(IN), value :: C_threadId
         type(C_PTR),          intent(IN), value :: C_dataItemPtr
 
-        integer           :: F_threadId
-        type(Grid_tile_t) :: F_tile
+        integer(MILHOJA_INT) :: MH_ierr
+        type(C_PTR)          :: C_tilePtr
+        integer              :: F_threadId
+        type(Grid_tile_t)    :: F_tile
 
         real, pointer                    :: U(:, :, :, :)
         real, pointer                    :: flX(:, :, :, :)
@@ -148,14 +178,19 @@ contains
         real,                     target :: empty4(0, 0, 0, 0)
         real                             :: deltas(1:MDIM)
 
+        C_tilePtr = C_NULL_PTR
         NULLIFY(U)
         NULLIFY(flX)
         NULLIFY(flY)
         NULLIFY(flZ)
 
+        !!!!!----- CONVERT TileWrapper pointer to Tile pointer
+        MH_ierr = milhoja_tile_from_wrapper_C(C_dataItemPtr, C_tilePtr)
+        CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
+
         !!!!!----- CONVERT C-ARGUMENTS TO FORTRAN VARIABLES
         F_threadId = INT(C_threadId)
-        CALL Grid_tile_fromMilhojaTilePtr(C_dataItemPtr, F_tile)
+        CALL Grid_tile_fromMilhojaTilePtr(C_tilePtr, F_tile)
 
         !!!!!----- PULL APART DATA ITEM
         ! Map contents of dataItem onto argument list of static Fortran routines

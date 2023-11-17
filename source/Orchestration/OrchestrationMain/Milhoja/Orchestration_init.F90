@@ -43,23 +43,26 @@ subroutine Orchestration_init()
     integer :: nThreadTeams
     integer :: nThreadsPerTeam
     integer :: nStreams
-    real    :: nBytesInMemoryPools
+    real    :: nBytesInCpuMemoryPool
+    real    :: nBytesInGpuMemoryPools
 
     integer(MILHOJA_INT)    :: MH_nThreadTeams
     integer(MILHOJA_INT)    :: MH_nThreadsPerTeam
     integer(MILHOJA_INT)    :: MH_nStreams
-    integer(MILHOJA_SIZE_T) :: MH_nBytesInMemoryPools
+    integer(MILHOJA_SIZE_T) :: MH_nBytesInCpuMemoryPool
+    integer(MILHOJA_SIZE_T) :: MH_nBytesInGpuMemoryPools
     integer(MILHOJA_INT)    :: MH_ierr
 
     !!!!!----- Runtime Parameters
-    CALL RuntimeParameters_get("or_nThreadTeams",        nThreadTeams)
-    CALL RuntimeParameters_get("or_nThreadsPerTeam",     nThreadsPerTeam)
+    CALL RuntimeParameters_get("or_nThreadTeams",           nThreadTeams)
+    CALL RuntimeParameters_get("or_nThreadsPerTeam",        nThreadsPerTeam)
+    CALL RuntimeParameters_get("or_nBytesInCpuMemoryPool",  nBytesInCpuMemoryPool)
 #ifdef ORCHESTRATION_USE_GPUS
-    CALL RuntimeParameters_get("or_nStreams",            nStreams)
-    CALL RuntimeParameters_get("or_nBytesInMemoryPools", nBytesInMemoryPools)
+    CALL RuntimeParameters_get("or_nStreams",               nStreams)
+    CALL RuntimeParameters_get("or_nBytesInGpuMemoryPools", nBytesInGpuMemoryPools)
 #else
     nStreams = 0
-    nBytesInMemoryPools = 0.0
+    nBytesInGpuMemoryPools = 0.0
 #endif
 
     !!!!!----- CAST TO MILHOJA TYPES
@@ -73,13 +76,15 @@ subroutine Orchestration_init()
     ! Therefore, as a work around, this parameter is specified as a real.
     !
     ! Cast it to the type required by the runtime.
-    MH_nBytesInMemoryPools = NINT(nBytesInMemoryPools, kind=MILHOJA_SIZE_T)
+    MH_nBytesInCpuMemoryPool  = NINT(nBytesInCpuMemoryPool,  kind=MILHOJA_SIZE_T)
+    MH_nBytesInGpuMemoryPools = NINT(nBytesInGpuMemoryPools, kind=MILHOJA_SIZE_T)
 
     !!!!!----- Initialize library
-    CALL milhoja_runtime_init(MH_nThreadTeams,        &
-                              MH_nThreadsPerTeam,     &
-                              MH_nStreams,            &
-                              MH_nBytesInMemoryPools, &
+    CALL milhoja_runtime_init(MH_nThreadTeams,           &
+                              MH_nThreadsPerTeam,        &
+                              MH_nStreams,               &
+                              MH_nBytesInCpuMemoryPool,  &
+                              MH_nBytesInGpuMemoryPools, &
                               MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_init", MH_ierr)
 end subroutine Orchestration_init

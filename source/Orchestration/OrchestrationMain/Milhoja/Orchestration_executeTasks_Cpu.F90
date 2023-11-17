@@ -17,7 +17,10 @@
 !! @stubref{Orchestration_executeTasks_Cpu}
 !!
 !! @brief Concrete implementation of Orchestration_executeTasks_Cpu
-subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, nThreads)
+subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
+                                          prototype_Cptr, nThreads)
+    use iso_c_binding, ONLY : C_PTR
+
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction, &
                                     milhoja_runtime_executeTasks_Cpu
@@ -27,6 +30,7 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, nThreads)
     implicit none
 
     procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+    type(C_PTR),                            intent(IN) :: prototype_Cptr
     integer,                                intent(IN) :: nThreads
 
     integer(MILHOJA_INT) :: MH_nThreads
@@ -34,7 +38,8 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, nThreads)
 
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
 
-    CALL milhoja_runtime_executeTasks_Cpu(MH_taskFunction, MH_nThreads, MH_ierr)
+    CALL milhoja_runtime_executeTasks_Cpu(MH_taskFunction, prototype_Cptr, &
+                                          MH_nThreads, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_executeTasks_Cpu", MH_ierr)
 end subroutine Orchestration_executeTasks_Cpu
 

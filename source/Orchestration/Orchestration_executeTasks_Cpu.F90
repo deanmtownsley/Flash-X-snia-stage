@@ -48,13 +48,17 @@
 !!                         thread team.  It is assumed that this function
 !!                         was written to run on CPUs.
 !! @param nThreads         The number of threads to activate in team
-subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, nThreads)
+subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
+                                          prototype_Cptr, nThreads)
+    use iso_c_binding, ONLY : C_PTR
+
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
     use Driver_interface,    ONLY : Driver_abort
 
     implicit none
 
     procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+    type(C_PTR),                            intent(IN) :: prototype_Cptr
     integer,                                intent(IN) :: nThreads
 
     CALL Driver_abort("[Orchestration_executeTasks_Cpu] Runtime not enabled")

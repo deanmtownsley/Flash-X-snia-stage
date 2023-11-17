@@ -102,7 +102,8 @@ refine_var_2    = "pres"
 or_nThreadTeams                     = 2
 or_nThreadsPerTeam                  = 10
 or_nStreams                         = 32
-or_nBytesInMemoryPools              = 1073741824.0
+or_nBytesInCpuMemoryPool            = 1073741824.0
+or_nBytesInGpuMemoryPools           = 1073741824.0
 # CPU-only thread team configuration
 gr_initBlock_nCpuThreads            = 7
 # GPU-only thread team configuration

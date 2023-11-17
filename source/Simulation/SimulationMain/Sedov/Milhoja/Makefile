@@ -1,5 +1,6 @@
 #####----- TO BE WRITTEN ENTIRELY BY CODE GENERATOR
 Simulation += \
+	dr_hydroAdvance_bundle.o \
 	dr_hydroAdvance_bundle_mod.o \
 	Hydro_computeSoundSpeed_block_cpu.o \
 	Hydro_computeFluxes_X_block_cpu.o \

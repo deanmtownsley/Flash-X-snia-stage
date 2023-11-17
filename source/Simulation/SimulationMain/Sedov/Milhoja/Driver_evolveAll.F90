@@ -43,6 +43,12 @@
 !! @todo Remove from repo once offline toolchain is in place.
 !! @todo Compare against C++ version before beginning study.
 subroutine Driver_evolveAll()
+   use iso_c_binding, ONLY : C_PTR, &
+                             C_NULL_PTR
+ 
+   use milhoja_types_mod,   ONLY : MILHOJA_INT, &
+                                   MILHOJA_REAL
+
    use Driver_data, ONLY: dr_nstep, &
                           dr_nbegin, &
                           dr_nend, &
@@ -62,13 +68,16 @@ subroutine Driver_evolveAll()
    use IO_interface, ONLY: IO_output, &
                            IO_outputFinal
    use Grid_interface, ONLY: Grid_fillGuardCells
-   use Orchestration_interface, ONLY: Orchestration_executeTasks_Cpu
+   use Orchestration_interface, ONLY: Orchestration_checkInternalError, &
+                                      Orchestration_executeTasks_Cpu
    use Hydro_data, ONLY: hy_gcMaskSize, &
                          hy_gcMask
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
-   use dr_hydroAdvance_bundle_mod, ONLY: dr_hydroAdvance_TF_tile_cpu
-    !!!!!----- END INSERTION BY CODE GENERATOR
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   use dr_hydroAdvance_bundle_mod, ONLY: dr_hydroAdvance_TF_tile_cpu, &
+                                         instantiate_hydro_advance_wrapper_C, &
+                                         delete_hydro_advance_wrapper_C
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
 
@@ -77,19 +86,24 @@ subroutine Driver_evolveAll()
    logical                          :: shortenedDt
    logical                          :: endRun
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
-   integer :: dr_hydroAdvance_nThreads
-    !!!!!----- END INSERTION BY CODE GENERATOR
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   type(C_PTR)          :: dr_hydroAdvance_wrapper
+   integer              :: dr_hydroAdvance_nThreads
+   real(MILHOJA_REAL)   :: MH_dt
+   integer(MILHOJA_INT) :: MH_ierr
+
+   dr_hydroAdvance_wrapper = C_NULL_PTR 
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    endRun = .FALSE.
 
-    !!!!!----- START INSERTION BY CODE GENERATOR
+   !!!!!----- START INSERTION BY CODE GENERATOR
    ! RPs are used directly by the Driver and therefore, should be handled at
    ! this level rather than at the level of the code generated for use by
    ! the runtime (i.e., dr_hydroAdvance_bundle_mod).
    CALL RuntimeParameters_get("dr_hydroAdvance_nThreads", &
                               dr_hydroAdvance_nThreads)
-    !!!!!----- END INSERTION BY CODE GENERATOR
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    CALL Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
    CALL Timers_start("evolution")
@@ -113,7 +127,7 @@ subroutine Driver_evolveAll()
       end if
       dr_simTime = dr_simTime + dr_dt
 
-        !!!!!----- START INSERTION BY CODE GENERATOR
+      !!!!!----- START INSERTION BY CODE GENERATOR
       ! This is the timestep for now as dictated by the recipe and rendered as
       ! Fortran code by the CODE GENERATOR.
       !
@@ -127,9 +141,17 @@ subroutine Driver_evolveAll()
                                makeMaskConsistent=.TRUE., &
                                selectBlockType=LEAF, &
                                doLogMask=.TRUE.)
+      MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
+      MH_ierr = instantiate_hydro_advance_wrapper_C(MH_dt, &
+                                                    dr_hydroAdvance_wrapper)
+      CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
       CALL Orchestration_executeTasks_Cpu(MH_taskFunction=dr_hydroAdvance_TF_tile_cpu, &
+                                          prototype_Cptr=dr_hydroAdvance_wrapper, &
                                           nThreads=dr_hydroAdvance_nThreads)
-        !!!!!----- END INSERTION BY CODE GENERATOR
+      MH_ierr = delete_hydro_advance_wrapper_C(dr_hydroAdvance_wrapper)
+      CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
+      dr_hydroAdvance_wrapper = C_NULL_PTR 
+      !!!!!----- END INSERTION BY CODE GENERATOR
 
       dr_dtOld = dr_dt
       call Driver_computeDt(dr_nbegin, dr_nstep, &

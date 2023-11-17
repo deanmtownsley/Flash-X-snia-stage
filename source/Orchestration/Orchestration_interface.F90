@@ -45,10 +45,13 @@ module Orchestration_interface
             integer(MILHOJA_INT), intent(IN) :: MH_errorCode
         end subroutine Orchestration_checkInternalError
 
-        subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, nThreads)
+        subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
+                                                  prototype_Cptr, nThreads)
+            use iso_c_binding, ONLY : C_PTR
             use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_executeTasks_Cpu
 

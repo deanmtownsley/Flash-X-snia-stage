@@ -18,10 +18,15 @@ def genLines(setupvars):
         yield 'SETUPERROR Milhoja orchestration must use the Milhoja Grid implementation'
     yield 'REQUIRES Grid/GridMain/AMR/Milhoja'
 
-    yield 'D or_nThreadTeams         N thread teams to create'
-    yield 'D or_nThreadsPerTeam      N threads that each team has available upon creation'
-    yield 'PARAMETER or_nThreadTeams        INTEGER 1   [ 1 ... ]'
-    yield 'PARAMETER or_nThreadsPerTeam     INTEGER 1   [ 1 ... ]'
+    yield 'D or_nBytesInCpuMemoryPool   N bytes in CPU memory pool'
+    yield 'D or_nThreadTeams            N thread teams to create'
+    yield 'D or_nThreadsPerTeam         N threads that each team has available upon creation'
+    # This should be an integer.  However, normal values will likely exceed a
+    # 32-bit integer.  Therefore, set as a real and let the unit implementation
+    # cast to an appropriately-sized integer.
+    yield 'PARAMETER or_nBytesInCpuMemoryPool  REAL    0.0 [ 0.0 ... ]'
+    yield 'PARAMETER or_nThreadTeams           INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreadsPerTeam        INTEGER 1   [ 1 ... ]'
 
     # Users must specify runtime variant
     #   - (grid backend, runtime backend, offloading)
@@ -39,13 +44,13 @@ def genLines(setupvars):
         yield 'LIBRARY CUDA'
         yield 'PPDEFINE ORCHESTRATION_USE_GPUS'
 
-        yield 'D or_nStreams             N streams for coordinating data transfers and kernel launches'
-        yield 'D or_nBytesInMemoryPools  memory in bytes that each memory pool should manage'
+        yield 'D or_nStreams                N streams for coordinating data transfers and kernel launches'
+        yield 'D or_nBytesInGpuMemoryPools  N bytes in GPU-oriented memory pools (e.g., pinned & GPU)'
         yield 'PARAMETER or_nStreams            INTEGER 0   [ 0 ... ]'
         # This should be an integer.  However, normal values will likely exceed a 32-bit
         # integer.  Therefore, set as a real and let the unit implementation cast
         # to an appropriately-sized integer.
-        yield 'PARAMETER or_nBytesInMemoryPools REAL    0.0 [ 0.0 ... ]'
+        yield 'PARAMETER or_nBytesInGpuMemoryPools REAL    0.0 [ 0.0 ... ]'
     else:
         yield f'SETUPERROR Invalid Milhoja runtime backend {runtime_backend}'
 
