@@ -29,14 +29,14 @@ subroutine Simulation_sendOutputData()
    use Simulation_data, only: sim_postBounce, sim_bounceTime
    use IO_interface, only: IO_setScalar
    use Driver_interface, only: Driver_getSimTime
-   use Eos_wlInterface, only: Eos_wlDetectBounce
+   ! use Eos_wlInterface, only: Eos_wlDetectBounce
 
    implicit none
 
    real :: postBounceTime, simTime
 
    if (.not. sim_postBounce) &
-      call Eos_wlDetectBounce(sim_postBounce, bounceTime=sim_bounceTime)
+      call sim_detectBounce(sim_postBounce, bounceTime=sim_bounceTime)
 
    call IO_setScalar("postBounce", sim_postBounce)
 
