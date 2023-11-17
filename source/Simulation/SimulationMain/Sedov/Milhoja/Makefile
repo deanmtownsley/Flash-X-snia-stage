@@ -2,6 +2,7 @@
 Simulation += \
 	dr_hydroAdvance_bundle.o \
 	dr_hydroAdvance_bundle_mod.o \
+	Tile_cpu_tf_hydro.o \
 	Hydro_computeSoundSpeed_block_cpu.o \
 	Hydro_computeFluxes_X_block_cpu.o \
 	Hydro_computeFluxes_Y_block_cpu.o \

@@ -16,8 +16,9 @@
  */
 
 #include <Milhoja.h>
-#include <Milhoja_TileWrapper.h>
 #include <Milhoja_interface_error_codes.h>
+
+#include "Tile_cpu_tf_hydro.h"
 
 extern "C" {
     //----- C DECLARATION OF FORTRAN ROUTINE WITH C-COMPATIBLE INTERFACE
@@ -31,9 +32,7 @@ extern "C" {
         }
 
         try {
-            // TODO: Replace this with a simulation-specific tile wrapper that
-            // takes dt.
-            *wrapper = static_cast<void*>(new milhoja::TileWrapper());
+            *wrapper = static_cast<void*>(new Tile_cpu_tf_hydro{dt});
         } catch (const std::exception& exc) {
             std::cerr << exc.what() << std::endl;
             return MILHOJA_ERROR_UNABLE_TO_CREATE_WRAPPER;
@@ -50,7 +49,27 @@ extern "C" {
             std::cerr << "[delete_hydro_advance_wrapper_c] wrapper is NULL" << std::endl;
             return MILHOJA_ERROR_POINTER_IS_NULL;
         }
-        delete static_cast<milhoja::TileWrapper*>(wrapper);
+        delete static_cast<Tile_cpu_tf_hydro*>(wrapper);
+
+        return MILHOJA_SUCCESS;
+    }
+
+    int get_dt_wrapper_c(void* wrapper, milhoja::Real* dt) {
+        if (!wrapper || !dt) {
+            std::cerr << "[get_dt_wrapper_c] wrapper or dt NULL" << std::endl;
+            return MILHOJA_ERROR_POINTER_IS_NULL;
+        }
+
+        try {
+            Tile_cpu_tf_hydro*   tile = static_cast<Tile_cpu_tf_hydro*>(wrapper);
+            *dt = tile->dt_;
+        } catch (const std::exception& exc) {
+            std::cerr << exc.what() << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
+        } catch (...) {
+            std::cerr << "[get_dt_wrapper_c] Unknown error caught" << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
+        }
 
         return MILHOJA_SUCCESS;
     }

@@ -63,6 +63,7 @@ module dr_hydroAdvance_bundle_mod
     public :: dr_hydroAdvance_TF_tile_cpu
     public :: instantiate_hydro_advance_wrapper_C
     public :: delete_hydro_advance_wrapper_C
+    public :: get_dt_wrapper_C
 #ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
     public :: instantiate_hydro_advance_packet_C
@@ -90,6 +91,15 @@ module dr_hydroAdvance_bundle_mod
             type(C_PTR),         intent(IN), value :: C_wrapper
             integer(MILHOJA_INT)                   :: C_ierr
         end function delete_hydro_advance_wrapper_C
+
+        !> To be used by task function to access dt
+        function get_dt_wrapper_C(C_wrapper, MH_dt) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT, MILHOJA_REAL
+            type(C_PTR),         intent(IN), value :: C_wrapper
+            real(MILHOJA_REAL),  intent(OUT)       :: MH_dt
+            integer(MILHOJA_INT)                   :: C_ierr
+        end function get_dt_wrapper_C
 
 #ifdef ORCHESTRATION_USE_GPUS
         !> To be used by Driver to create a concrete data packet that the
@@ -143,14 +153,14 @@ contains
     !! it uses from one tile to the next.  Could the Hydro unit manage 
     !! scratch blocks that we can use here?
     !! @todo Is it OK for this to be using Flash-X code?  This seems both
-    !!       necessary and unavoidable here.  What about dr_dt?
+    !!       necessary and unavoidable here.
     subroutine dr_hydroAdvance_TF_tile_cpu(C_threadId, C_dataItemPtr) bind(c)
         use iso_c_binding, ONLY : C_PTR, &
                                   C_NULL_PTR
 
-        use milhoja_types_mod,                  ONLY : MILHOJA_INT
+        use milhoja_types_mod,                  ONLY : MILHOJA_INT, &
+                                                       MILHOJA_REAL
         use milhoja_tile_mod,                   ONLY : milhoja_tile_from_wrapper_C
-        use Driver_data,                        ONLY : dr_dt
         use Grid_tile,                          ONLY : Grid_tile_t, &
                                                        Grid_tile_fromMilhojaTilePtr
         use gr_milhojaInterface,                ONLY : gr_checkMilhojaError
@@ -166,9 +176,11 @@ contains
         type(C_PTR),          intent(IN), value :: C_dataItemPtr
 
         integer(MILHOJA_INT) :: MH_ierr
+        real(MILHOJA_REAL)   :: MH_dt
         type(C_PTR)          :: C_tilePtr
         integer              :: F_threadId
         type(Grid_tile_t)    :: F_tile
+        real                 :: F_dt
 
         real, pointer                    :: U(:, :, :, :)
         real, pointer                    :: flX(:, :, :, :)
@@ -185,6 +197,10 @@ contains
         NULLIFY(flZ)
 
         !!!!!----- CONVERT TileWrapper pointer to Tile pointer
+        MH_ierr = get_dt_wrapper_C(C_dataItemPtr, MH_dt)
+        CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
+        F_dt = REAL(MH_dt)
+
         MH_ierr = milhoja_tile_from_wrapper_C(C_dataItemPtr, C_tilePtr)
         CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
 
@@ -216,18 +232,18 @@ contains
             CALL Hydro_computeSoundSpeed_block_cpu(lo, hi, &
                                                    U,    lbound(U), &
                                                    auxC, lbound(auxC))
-            CALL Hydro_computeFluxes_X_block_cpu(dr_dt, lo, hi, deltas, &
+            CALL Hydro_computeFluxes_X_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
                                                  auxC, lbound(auxC), &
                                                  flX,  lbound(flX))
 #if NDIM >= 2
-            CALL Hydro_computeFluxes_Y_block_cpu(dr_dt, lo, hi, deltas, &
+            CALL Hydro_computeFluxes_Y_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
                                                  auxC, lbound(auxC), &
                                                  flY,  lbound(flY))
 #endif
 #if NDIM == 3
-            CALL Hydro_computeFluxes_Z_block_cpu(dr_dt, lo, hi, deltas, &
+            CALL Hydro_computeFluxes_Z_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
                                                  auxC, lbound(auxC), &
                                                  flZ,  lbound(flZ))
