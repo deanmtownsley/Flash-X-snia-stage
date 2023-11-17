@@ -31,14 +31,12 @@
 !!
 !!  postBounce  : flag that indicates if bounce has been detected
 !!  bounceTime  : time at which bounce occurs
-!!  centralDens : maximum density
-!!  centralEntr : minimum density inside sim_shockEntrRad
 !!
 !!***
 
 !!REORDER(4): solnData
 
-subroutine sim_detectBounce(postBounce, bounceTime, centralDens, centralEntr)
+subroutine sim_detectBounce(postBounce, bounceTime)
    !
    !==============================================================================
    !
@@ -61,7 +59,7 @@ subroutine sim_detectBounce(postBounce, bounceTime, centralDens, centralEntr)
 #include "Flashx_mpi_implicitNone.fh"
 
    logical, intent(OUT) :: postBounce
-   real, optional, intent(OUT) :: bounceTime, centralDens, centralEntr
+   real, intent(out) :: bounceTime
 
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t)     :: tileDesc
@@ -88,9 +86,7 @@ subroutine sim_detectBounce(postBounce, bounceTime, centralDens, centralEntr)
 
    if (sim_postBounce) then
       postBounce = .TRUE.
-      if (present(bounceTime)) bounceTime = sim_bounceTime
-      if (present(centralDens)) centralDens = sim_centralDens
-      if (present(centralEntr)) centralEntr = sim_centralEntr
+      bounceTime = sim_bounceTime
       return !bounce already detected
    end if
 
@@ -101,9 +97,7 @@ subroutine sim_detectBounce(postBounce, bounceTime, centralDens, centralEntr)
    if (nstep == sim_nstep) then
       ! We've already checked for bounce
       postBounce = .FALSE.
-      if (present(bounceTime)) bounceTime = 0.0
-      if (present(centralDens)) centralDens = sim_centralDens
-      if (present(centralEntr)) centralEntr = sim_centralEntr
+      bounceTime = 0.0
       return
    end if
 
@@ -183,9 +177,7 @@ subroutine sim_detectBounce(postBounce, bounceTime, centralDens, centralEntr)
 
    ! return the dummy variables
    postBounce = sim_postBounce
-   if (present(bounceTime)) bounceTime = sim_bounceTime
-   if (present(centralDens)) centralDens = sim_centralDens
-   if (present(centralEntr)) centralEntr = sim_centralEntr
+   bounceTime = sim_bounceTime
 
    return
 end subroutine sim_detectBounce

@@ -17,7 +17,7 @@ REQUIRES Simulation/SimulationComposition
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19
 
-REQUIRES physics/Eos/EosMain/WeakLib
+#REQUIRES physics/Eos/EosMain/WeakLib
 
 #REQUESTS physics/Gravity/GravityMain/PointMass
 REQUESTS physics/Gravity/GravityMain/Poisson/Multipole

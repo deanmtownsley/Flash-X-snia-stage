@@ -36,7 +36,7 @@ subroutine Simulation_sendOutputData()
    real :: postBounceTime, simTime
 
    if (.not. sim_postBounce) &
-      call sim_detectBounce(sim_postBounce, bounceTime=sim_bounceTime)
+      call sim_detectBounce(sim_postBounce, sim_bounceTime)
 
    call IO_setScalar("postBounce", sim_postBounce)
 

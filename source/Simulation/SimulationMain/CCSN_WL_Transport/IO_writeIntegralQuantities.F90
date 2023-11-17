@@ -383,7 +383,7 @@ subroutine IO_writeIntegralQuantities(isFirst, simTime)
    sim_maxDens = maxDensGlobal
 
    if (.not. sim_postBounce) &
-      call sim_detectBounce(sim_postBounce, bounceTime=sim_bounceTime)
+      call sim_detectBounce(sim_postBounce, sim_bounceTime)
 
    postBounceTime = 0.0
    if (sim_postBounce) postBounceTime = simTime - sim_bounceTime
