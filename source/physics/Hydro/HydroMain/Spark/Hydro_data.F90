@@ -59,6 +59,7 @@ module Hydro_data
   logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
   integer, dimension(NFLUXES) :: hy_fluxCorVars
   integer :: hy_geometry
+  integer :: hy_eosModeGc
   logical :: hy_threadWithinBlock
   logical, dimension(NUNK_VARS) :: hy_gcMask
   ! Additional scratch storage for RK time stepping
