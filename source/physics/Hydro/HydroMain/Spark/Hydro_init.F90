@@ -39,12 +39,11 @@ subroutine Hydro_init()
 #include "Simulation.h"
 #include "Spark.h"
 
-  character(len=MAX_STRING_LENGTH) :: str_geometry
+  character(len=MAX_STRING_LENGTH) :: str
   integer :: i
   logical :: threadBlockListBuild, threadWithinBlockBuild
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits,blkLimitsGC
 
-  ! Set allocation flag to false. This will allow the scratch array to only be allocated once.
 
   ! Everybody should know these
   call Driver_getMype(MESH_COMM,hy_meshMe)
@@ -95,8 +94,8 @@ subroutine Hydro_init()
   call RuntimeParameters_get("alpha_glm",           hy_alphaGLM)
 
   !! Geometry ------------------------------------------------------------------
-  call RuntimeParameters_get("geometry", str_geometry)
-  call RuntimeParameters_mapStrToInt(str_geometry, hy_geometry)
+  call RuntimeParameters_get("geometry", str)
+  call RuntimeParameters_mapStrToInt(str, hy_geometry)
   if (hy_geometry .NE. CARTESIAN .AND. hy_meshME == MASTER_PE )  then
      print *, "[Hydro_init]: Using non-Cartesian Geometry!"
   endif
@@ -189,6 +188,13 @@ subroutine Hydro_init()
   ! mode=1 means lrefine_max, which does not change during sim.
   call Grid_getMaxRefinement(hy_maxLev, mode=1)
 #endif
+
+  call RuntimeParameters_get("hy_eosModeGc", str)
+  call makeLowercase(str)
+  if (str == "see eosmode") then
+     call RuntimeParameters_get("eosMode", str)
+  end if
+  call RuntimeParameters_mapStrToInt(str, hy_eosModeGc)
 
 #ifdef HY_RK3
   !RK3 quantities

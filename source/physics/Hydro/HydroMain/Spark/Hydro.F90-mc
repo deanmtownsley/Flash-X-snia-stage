@@ -35,6 +35,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_threadWithinBlock
 
   use Hydro_data, ONLY : hy_fluxCorrect, hy_fluxCorrectPerLevel,hy_gcMask,&
+       hy_eosModeGc,&
        hy_lChyp, hy_C_hyp, hy_geometry,hy_del, hy_tiny, hy_hybridRiemann, hy_maxCells
   use Hydro_data, ONLY : klim,lim,limgc,gCells,dir,stage
 
