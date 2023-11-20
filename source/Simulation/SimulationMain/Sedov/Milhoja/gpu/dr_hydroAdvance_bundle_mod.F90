@@ -62,7 +62,17 @@ module dr_hydroAdvance_bundle_mod
 
 #ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
+    public :: dr_hydro_advance_packet_oacc_tf
 #endif
+
+   interface
+      subroutine dr_hydro_advance_packet_oacc_tf(C_tId, C_dataItemPtr) bind(c)
+         use iso_c_binding,     ONLY : C_PTR
+         use milhoja_types_mod, ONLY : MILHOJA_INT
+         integer(MILHOJA_INT), intent(IN), value :: C_tId
+         type(C_PTR),          intent(IN), value :: C_dataItemPtr
+      end subroutine dr_hydro_advance_packet_oacc_tf
+   end interface
 
 contains
 

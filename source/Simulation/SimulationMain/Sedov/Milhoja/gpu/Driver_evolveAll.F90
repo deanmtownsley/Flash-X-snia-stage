@@ -57,20 +57,12 @@ subroutine Driver_evolveAll()
                          hy_gcMask
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   use DataPacket_gpu_tf_hydro_C2F_mod, ONLY: instantiate_hydro_advance_packet_C, &
-                                              delete_hydro_advance_packet_C
+   use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : instantiate_hydro_advance_packet_C, &
+                                               delete_hydro_advance_packet_C
+   use dr_hydroAdvance_bundle_mod,      ONLY : dr_hydro_advance_packet_oacc_tf
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
-
-   interface
-      subroutine dr_hydro_advance_packet_oacc_tf(C_tId, C_dataItemPtr) bind(c)         
-         use iso_c_binding,     ONLY : C_PTR
-         use milhoja_types_mod, ONLY : MILHOJA_INT
-         integer(MILHOJA_INT), intent(IN), value :: C_tId                             
-         type(C_PTR),          intent(IN), value :: C_dataItemPtr                     
-      end subroutine dr_hydro_advance_packet_oacc_tf                                   
-   end interface
 
    character(len=MAX_STRING_LENGTH) :: strBuff(4, 2)
    character(len=15)                :: numToStr
