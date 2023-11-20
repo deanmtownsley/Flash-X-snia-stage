@@ -13,15 +13,7 @@
 !!
 !! @file
 
-#include "constants.h"
-#include "Simulation.h"
-
-! The use of this module implies that the runtime is being used.
-! Therefore, the Driver unit can assume that precision checks were
-! performed by Orchestration_init.  Hence, type casts need not be checked.
-#ifndef FLASHX_ORCHESTRATION_MILHOJA
-#error "Task function bundles imply the use of the Milhoja runtime"
-#endif
+#include "Milhoja.h"
 
 !> @details
 !! A module that encapsulates all work and specification of data items to which the
@@ -60,10 +52,8 @@ module gpu_tf_hydro_mod
     implicit none
     private
 
-#ifdef ORCHESTRATION_USE_GPUS
     public :: gpu_tf_hydro_fortran
     public :: gpu_tf_hydro
-#endif
 
    interface
       subroutine gpu_tf_hydro(C_tId, C_dataItemPtr) bind(c)
@@ -76,7 +66,6 @@ module gpu_tf_hydro_mod
 
 contains
 
-#if defined(ORCHESTRATION_USE_GPUS) && defined(ORCHESTRATION_OPENACC_OFFLOAD)
     !> @brief GPU-based variant of the hydro advance task function
     !!
     !! @details
@@ -160,8 +149,8 @@ contains
         real,                          intent(OUT)   :: faceY_all_d(:, :, :, :, :)
         real,                          intent(OUT)   :: faceZ_all_d(:, :, :, :, :)
 
-        integer :: lo_loc_n(1:MDIM)
-        integer :: hi_loc_n(1:MDIM)
+        integer :: lo_loc_n(1:3)
+        integer :: hi_loc_n(1:3)
         integer :: n
 
         integer(MILHOJA_INT) :: MH_id
@@ -196,7 +185,7 @@ contains
         end do
         !$acc end parallel loop
 
-#if   NDIM == 1
+#if   MILHOJA_NDIM == 1
         !$acc  parallel loop gang default(none)               &
         !$acc&                    private(lo_loc_n, hi_loc_n) &
         !$acc&                    async(dataQ_h)
@@ -214,7 +203,7 @@ contains
         !$acc end parallel loop
 
         ! No need for barrier since only one kernel launched in 1D case
-#elif NDIM == 2
+#elif MILHOJA_NDIM == 2
         !$acc  parallel loop gang default(none)               &
         !$acc&                    private(lo_loc_n, hi_loc_n) &
         !$acc&                    async(dataQ_h)
@@ -243,7 +232,7 @@ contains
 
         ! No need for barrier since all kernels are launched on the same
         ! queue for 2D case.
-#elif NDIM == 3
+#elif MILHOJA_NDIM == 3
         ! Wait for computation of speed of sound first and then launch
         ! the flux computations concurrently.
         !$acc wait(dataQ_h)
@@ -341,7 +330,6 @@ contains
 
         !$acc end data
     end subroutine gpu_tf_hydro_fortran
-#endif
 
 end module gpu_tf_hydro_mod
 
