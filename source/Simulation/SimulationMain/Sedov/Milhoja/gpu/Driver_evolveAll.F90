@@ -59,7 +59,7 @@ subroutine Driver_evolveAll()
    !!!!!----- START INSERTION BY CODE GENERATOR
    use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : instantiate_hydro_advance_packet_C, &
                                                delete_hydro_advance_packet_C
-   use dr_hydroAdvance_bundle_mod,      ONLY : dr_hydro_advance_packet_oacc_tf
+   use dr_hydroAdvance_bundle_mod,      ONLY : gpu_tf_hydro
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
@@ -135,7 +135,7 @@ subroutine Driver_evolveAll()
       MH_ierr = instantiate_hydro_advance_packet_C(MH_dt, &
                                                    gpu_tf_hydro_packet)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-      CALL Orchestration_executeTasks_Gpu(dr_hydro_advance_packet_oacc_tf, &
+      CALL Orchestration_executeTasks_Gpu(gpu_tf_hydro, &
                                           gpu_tf_hydro_nDistributorThreads, &
                                           gpu_tf_hydro_nThreads, &
                                           gpu_tf_hydro_nTilesPerPacket, &

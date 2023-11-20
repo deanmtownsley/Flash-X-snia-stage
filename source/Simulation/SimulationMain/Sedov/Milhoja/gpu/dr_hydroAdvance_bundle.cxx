@@ -98,7 +98,7 @@ extern "C" {
 
     //----- C TASK FUNCTION TO BE CALLED BY RUNTIME
     //------------------changed function name
-    void dr_hydro_advance_packet_oacc_tf (const int threadIndex, void* dataItem_h) {
+    void gpu_tf_hydro(const int threadIndex, void* dataItem_h) {
         DataPacket_gpu_tf_hydro* packet_h = static_cast<DataPacket_gpu_tf_hydro*>(dataItem_h);
         const int queue1_h = packet_h->asynchronousQueue();
         const int _nTiles_h = packet_h->_nTiles_h;
