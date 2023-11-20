@@ -3,6 +3,7 @@
 REQUIRES physics/IncompNS/IncompNSMain
 
 USESETUPVARS Grid
+USESETUPVARS InsPresLaplacian
 
 # Currently these simulations have not been tested with
 # uniform grid so throw a setup error if it is requested.
@@ -18,6 +19,11 @@ CONFLICTS Grid/GridMain/UG
 IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
     REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
     REQUESTS Grid/GridSolvers/HYPRE
+
+    IF InsPresLaplacian
+        SETUPERROR Paramesh with HYPRE only supports Poisson solvers
+    ENDIF
+
 ENDIF
 
 # Add dependencies for amrex-native multigrid poisson solver.
@@ -25,21 +31,9 @@ IF Grid == "Amrex"
     REQUIRES Grid/GridSolvers/AmrexMultigridSolver
 ENDIF
 
-USESETUPVARS InsPresLaplacian
-IF InsPresLaplacian
-   CONFLICTS physics/IncompNS/IncompNSMain/constDens
-   REQUIRES physics/IncompNS/IncompNSMain/varDens/presLaplacian
-ENDIF
-
 D dr_runUnitTest Run unitests on a simulation. Used
 D & in driver evolve at the end of evolution loop
 PARAMETER dr_runUnitTest BOOLEAN FALSE
-
-D dr_lengthScaleMeters Length scale for the simulation in SI units (meter)
-PARAMETER dr_lengthScaleMeters REAL 1.0
-
-D dr_timeScaleSeconds Time scale for the simulation in SI units (seconds)
-PARAMETER dr_timeScaleSeconds REAL 1.0
 
 # Pre-processor directive
 PPDEFINE DRIVER_INCOMP

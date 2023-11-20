@@ -1,0 +1,77 @@
+# 	Runtime parameters for the Deforming Bubble problem.
+
+#       Grid dimensionality and geometry
+geometry	= "cartesian"
+
+#       Size of computational volume
+xmin		=  0.0
+xmax		=  1.0
+ymin		=  0.0
+ymax		=  1.0
+zmin            =  0.0
+zmax            =  1.0
+
+#       Boundary conditions
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
+yl_boundary_type = "noslip_ins"
+yr_boundary_type = "noslip_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
+
+#       Simulation (grid, time, I/O) parameters
+run_comment	= "Deforming Bubble problem"
+log_file	= "INS_Deforming_Bubble.log"
+basenm		= "INS_Deforming_Bubble_"
+restart         = .false.
+nend            = 1000000000
+tmax            = 2. 
+ins_cflFlg      = 0
+ins_cfl         = 1.0
+ins_sigma	= 1.0
+ins_dtSpec      = 1.0d-5
+dtinit          = 1.0d-5
+tstep_change_factor = 1.0
+ins_pressureCorrect= .true.
+
+plot_var_2      = "velx"
+plot_var_3      = "vely"
+plot_var_4      = "dfun"
+
+checkpointFileIntervalTime = 10.
+checkpointFileIntervalStep = 5000
+
+plotFileIntervalTime = 1.
+plotFileIntervalStep = 1000
+
+sim_reInitFlow = .true.
+dr_runUnitTest = .true.
+
+# AMR parameters
+nblockx	= 4
+nblocky	= 4
+nblockz = 4
+nfres   = 1000
+
+lrefine_min        = 1
+lrefine_max        = 5
+
+refine_var_count   = 1
+refine_var_1       = "dfun"
+refine_cutoff_1    =  0.0d0
+derefine_cutoff_1  = -0.01d0
+
+#	Flux Conservation for AMR
+flux_correct    = .true.
+
+# AMReX Poisson Solver Parameters
+gr_amrexMG_composite_solve = ".TRUE."
+gr_amrexMG_Tol = 1e-13
+gr_amrexMG_max_iter = 200
+
+# HYPRE Poisson Solver Parameters
+gr_hyprePrintSolveInfo = ".FALSE."
+gr_hyprePcType = "HYPRE_AMG"
+gr_hypreSolverType = "HYPRE_BICGSTAB"
+gr_hypreRelTol = 1.0e-12
+gr_hypreFloor  = 1.0e-16

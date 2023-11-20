@@ -1,0 +1,17 @@
+# Transparent restart for the following composite tests will fail due to 
+# change in AMR configurations between intial and restart parfiles. To ensure
+# correctness of the test, visually inspect the unittest files generated and
+# check if they show success. Alternatively, one can use paraview to look at 
+# the divergence of velocity and assert that it is zero. For latter, you 
+# may want to take a look at Lab-Notebooks/AMReX-Divfree on GitHub
+
+Composite/DeformingBubble/2d/AMReX:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex -maxblocks=150 +parallelIO +incomp
+  parfiles: test_divfree.par
+  restartParfiles: test_divfree_restart.par
+
+Composite/DeformingBubble/2d/Paramesh:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +pm4dev -gridinterpolation=native -maxblocks=150
+                --without-unit=Grid/GridSolvers/HYPRE +parallelIO +incomp
+  parfiles: test_divfree.par
+  restartParfiles: test_divfree_restart.par

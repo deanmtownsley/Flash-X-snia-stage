@@ -1,19 +1,7 @@
-#   Config file for Simulation/SimulationForcing/incompFlow/Inlet
-#
-REQUIRES physics/IncompNS/IncompNSMain
+#        Config file for the Inlet
+DEFAULT InletMain
 
-# Directives
-PPDEFINE SIMULATION_FORCE_INLET
-
-# Constants
-PPDEFINE INLET 1
-
-D sim_inletSink Inlet Sink
-PARAMETER sim_inletSink       REAL  -1.0
-
-D sim_inletBuffer Inlet region Buffer
-PARAMETER sim_inletBuffer     REAL   1.0
-
-D sim_inletGrowthRate Outfow growth rate, k in logistic function
-D & f = 1/(1 + exp(-k*(x-xo)))
-PARAMETER sim_inletGrowthRate   REAL  4.0
+D useInlet Should the Inlet unit be used?
+# Value is meant to be overridden if an InletMain implementation gets included
+PARAMETER useInlet BOOLEAN CONSTANT FALSE
+#   Config file for inlet API

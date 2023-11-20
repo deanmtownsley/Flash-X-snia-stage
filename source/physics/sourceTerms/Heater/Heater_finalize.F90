@@ -1,7 +1,7 @@
-!!***if* source/Simulation/SimulationForcing/incompFlow/Heater/Heater_Finalize
+!!***if* source/physics/sourceTerms/Heater/Heater_finalize
 !!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -17,18 +17,6 @@
 
 #include "Simulation.h"
 
-subroutine Heater_Finalize()
-
-   use Heater_Data, ONLY: Heater_Info
-#ifdef SIM_HEATER_ANN_SEARCH
-   use sim_heateData, ONLY: Heater_AnnIdx
-#endif
-
-   implicit none
-
-   deallocate (Heater_Info)
-#ifdef SIM_HEATER_ANN_SEARCH
-   deallocate (Heater_AnnIdx)
-#endif
-
-end subroutine Heater_Finalize
+subroutine Heater_finalize()
+    implicit none
+end subroutine Heater_finalize

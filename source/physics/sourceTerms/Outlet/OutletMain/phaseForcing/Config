@@ -1,0 +1,6 @@
+# Config file
+
+REQUIRES physics/Multiphase/MultiphaseMain
+REQUIRES physics/IncompNS/IncompNSMain/varDens
+
+PPDEFINE OUTLET_PHASED

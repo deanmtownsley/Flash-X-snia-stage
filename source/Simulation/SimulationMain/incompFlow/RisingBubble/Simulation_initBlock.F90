@@ -18,8 +18,8 @@
 !!
 !! SYNOPSIS
 !!
-!!  Simulation_initBlock(integer(in) :: blockID) 
-!!                       
+!!  Simulation_initBlock(integer(in) :: blockID)
+!!
 !!
 !!
 !!
@@ -30,13 +30,13 @@
 !!
 !!  Reference:
 !!
-!! 
+!!
 !! ARGUMENTS
 !!
 !!  tile -          the tile to update
-!!  
 !!
-!! 
+!!
+!!
 !!
 !!***
 !!REORDER(4): solnData
@@ -44,53 +44,53 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine Simulation_initBlock(solnData,tileDesc)
+subroutine Simulation_initBlock(solnData, tileDesc)
 
-  use Simulation_data
-  use Grid_interface, ONLY : Grid_getCellCoords
-  use Grid_tile, ONLY : Grid_tile_t
+   use Simulation_data
+   use Grid_interface, ONLY: Grid_getCellCoords
+   use Grid_tile, ONLY: Grid_tile_t
 
-  implicit none
+   implicit none
   !!$ Arguments -----------------------
-  real,dimension(:,:,:,:),pointer :: solnData
-  type(Grid_tile_t), intent(in) :: tileDesc
-  integer :: tileDescID
+   real, dimension(:, :, :, :), pointer :: solnData
+   type(Grid_tile_t), intent(in) :: tileDesc
+   integer :: tileDescID
   !!$ ---------------------------------
- 
-  integer :: i, j, k
-  integer, dimension(MDIM) :: lo, hi
-  real,allocatable, dimension(:) ::xCenter,yCenter,zCenter
-  real :: xi, yi, zi
-  logical :: gcell = .true.
 
-  !----------------------------------------------------------------------
-  lo=tileDesc%limits(LOW,:)
-  hi=tileDesc%limits(HIGH,:)
-  allocate(xCenter(lo(IAXIS):hi(IAXIS)))
-  allocate(yCenter(lo(JAXIS):hi(JAXIS)))
-  allocate(zCenter(lo(KAXIS):hi(KAXIS)))
-  xCenter = 0.0
-  yCenter = 0.0
-  zCenter = 0.0
- 
-  call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-  if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-  if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
+   integer :: i, j, k
+   integer, dimension(MDIM) :: lo, hi
+   real, allocatable, dimension(:) ::xCenter, yCenter, zCenter
+   real :: xi, yi, zi
+   logical :: gcell = .true.
 
-  do       k = lo(KAXIS), hi(KAXIS)
-     do    j = lo(JAXIS), hi(JAXIS)
-        do i = lo(IAXIS), hi(IAXIS)
-          xi=xCenter(i)
-          yi=yCenter(j)
-          zi=zCenter(k)
+   !----------------------------------------------------------------------
+   lo = tileDesc%limits(LOW, :)
+   hi = tileDesc%limits(HIGH, :)
+   allocate (xCenter(lo(IAXIS):hi(IAXIS)))
+   allocate (yCenter(lo(JAXIS):hi(JAXIS)))
+   allocate (zCenter(lo(KAXIS):hi(KAXIS)))
+   xCenter = 0.0
+   yCenter = 0.0
+   zCenter = 0.0
 
-          solnData(DFUN_VAR,i,j,k) = sim_bubbleRadius-sqrt((xi)**2+(yi)**2+(zi)**2)
-        enddo
-     enddo
-  enddo
+   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
+   if (NDIM >= 2) call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
+   if (NDIM == 3) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
 
-  deallocate(xCenter,yCenter,zCenter)
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            xi = xCenter(i)
+            yi = yCenter(j)
+            zi = zCenter(k)
 
-  return
+            solnData(DFUN_VAR, i, j, k) = sim_bubbleRadius-sqrt((xi)**2+(yi)**2+(zi)**2)
+         end do
+      end do
+   end do
+
+   deallocate (xCenter, yCenter, zCenter)
+
+   return
 
 end subroutine Simulation_initBlock

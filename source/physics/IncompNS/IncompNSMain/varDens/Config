@@ -3,6 +3,18 @@ DEFAULT presPoisson
 CHILDORDER presPoisson presLaplacian
 EXCLUSIVE  presPoisson presLaplacian
 
+USESETUPVARS InsPresLaplacian
+USESETUPVARS InsForceInOut
+
+IF InsForceInOut
+    REQUIRES physics/sourceTerms/Inlet/InletMain
+    REQUIRES physics/sourceTerms/Outlet/OutletMain/phaseForcing
+ENDIF
+
+IF InsPresLaplacian
+   REQUIRES physics/IncompNS/IncompNSMain/varDens/presLaplacian
+ENDIF
+
 PPDEFINE INCOMPNS_VARDENS
 
 D ins_advSchm Order of advection operator 2-Central, and 105-WENO5

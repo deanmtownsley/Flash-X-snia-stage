@@ -1,20 +1,11 @@
+#        Config file for the Heater
+DEFAULT HeaterMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useHeater Should the Heater unit be used?
+# Value is meant to be overridden if a HeaterMain implementation gets included
+PARAMETER useHeater BOOLEAN CONSTANT FALSE
 #   Config file for heater API
-#
-
-REQUIRES physics/HeatAD/HeatADMain
-
-PPDEFINE SIMULATION_FORCE_HEATER
-
-D sim_nucSeedRadius for re-nucleation
-PARAMETER sim_nucSeedRadius  REAL     0.1
-
-D sim_numHeaters Total number of heaters
-PARAMETER sim_numHeaters     INTEGER  1
-
-D sim_heaterName Prefix for HDF5 htr file
-PARAMETER sim_heaterName     STRING  "flash"
-
-D sim_heaterShowInfo Should heater info be displayed on console?
-PARAMETER sim_heaterShowInfo BOOLEAN FALSE
-
-PPDEFINE SIM_MAX_NUMSITES 50

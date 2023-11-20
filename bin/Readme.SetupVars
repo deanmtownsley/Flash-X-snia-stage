@@ -325,10 +325,21 @@ Harder to introduce now because we have multiple particle types)
   Defaults to False. Used to apply unit specific customization for
   Incompressible Navier-Stokes Simulations
 
-* Name  : ForceInOut
+* Name  : InsForceInOut
   Type  : Boolean
 
   Defaults to False. If True, will apply inlet/outlet forcing
+
+* Name  : InsLSDamping
+  Type  : Boolean
+
+  Defaults to False. If True, will apply apply level-set damping if
+  InsForceInOut is True
+
+* Name  : InsExtras
+  Type  : Boolean
+
+  Defaults to False. If True, will include physics/IncompNS/IncompNSExtras
 
 * Name  : Profiler
   Type  : String

@@ -1,6 +1,7 @@
 !!****if* source/Simulation/SimulationMain/incompFlow/CounterFlow/Simulation_init
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -39,8 +40,6 @@ subroutine Simulation_init()
    use Simulation_data
    use Driver_interface, ONLY: Driver_getMype, Driver_abort
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-   use sim_inletInterface, ONLY: sim_inletInit
-   use sim_outletInterface, ONLY: sim_outletInit
 
    implicit none
 
@@ -73,8 +72,5 @@ subroutine Simulation_init()
       write (*, *) 'sim_liqFlowRate =', sim_liqFlowRate
       write (*, *) 'sim_gasFlowRate =', sim_gasFlowRate
    end if
-
-   call sim_inletInit()
-   call sim_outletInit()
 
 end subroutine Simulation_init

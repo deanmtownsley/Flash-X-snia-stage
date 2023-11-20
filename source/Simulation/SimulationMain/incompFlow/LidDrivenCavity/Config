@@ -2,9 +2,6 @@
 #       Note: This is a staggered finite difference mesh algorithm.
 
 REQUIRES physics/IncompNS/IncompNSMain/constDens
-REQUIRES physics/IncompNS/IncompNSExtras
-
-USESETUPVARS Grid
 
 ## Number of guardcells at each boundary
 GUARDCELLS 2

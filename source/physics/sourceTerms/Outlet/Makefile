@@ -1,10 +1,6 @@
-Simulation += sim_outletData.o \
-              sim_outletInterface.o \
-              sim_outletInit.o \
-              sim_outletFinalize.o \
-              sim_outletSetForcing.o \
-              sim_outletLSDamping.o \
-              sim_outletVelFrc.o \
-              sim_outletVelFrcPhased.o \
-              sim_outletApplyBCToRegion.o \
-              sim_forceOutlet.o
+Outlet += Outlet_interface.o \
+          Outlet_init.o \
+          Outlet_finalize.o \
+          Outlet_setForcing.o \
+          Outlet_applyBCToRegion.o \
+          Outlet_consolidate.o

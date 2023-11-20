@@ -1,1 +1,7 @@
 REQUIRES Driver/DriverMain/Incomp
+
+D sim_lengthScaleMeters Length scale for the simulation in SI units (meter)
+PARAMETER sim_lengthScaleMeters REAL 1.0
+
+D sim_timeScaleSeconds Time scale for the simulation in SI units (seconds)
+PARAMETER sim_timeScaleSeconds REAL 1.0

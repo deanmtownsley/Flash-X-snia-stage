@@ -2,23 +2,23 @@
 # comments start with "#"
 
 UnitTest/RisingBubble/AMReX/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +noio -maxblocks=100
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +noio -maxblocks=100 +incomp InsForceInOut=False
   parfiles: test_default.par
 
 Comparison/RisingBubble/AMReX/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100 Incomp=True
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +incomp -maxblocks=100
   parfiles: test_default.par
 
 Comparison/RisingBubble/Paramesh/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 SimForceInOut=True +pmvdev --index-reorder
-                -gridinterpolation=native -maxblocks=100 Incomp=True
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +pmvdev --index-reorder
+                -gridinterpolation=native -maxblocks=100 +incomp
   parfiles: test_default.par
 
 Comparison/RisingBubble/AMReXGCFill/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex SimForceInOut=True -maxblocks=100 Incomp=True
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +incomp -maxblocks=100
   parfiles: test_gcfill.par
 
 Comparison/RisingBubble/ParameshGCFill/2d:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 SimForceInOut=True +pmvdev --index-reorder
-                -gridinterpolation=native -maxblocks=100 Incomp=True
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +pmvdev --index-reorder
+                -gridinterpolation=native -maxblocks=100 +incomp
   parfiles: test_gcfill.par

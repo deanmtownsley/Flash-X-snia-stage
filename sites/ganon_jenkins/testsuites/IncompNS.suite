@@ -49,5 +49,5 @@ incompFlow/RisingBubble -t "Comparison/RisingBubble/ParameshGCFill/2d" -np 3 -cb
 #                     as expected for amrex and paramesh configuration. These tests will ensure
 #                     at the grid-interpolation is providing neccessary functionality for 
 #                     incompressible flow simulations
-DeformingBubble -t "Composite/DeformingBubble/2d/AMReX" -np 4 -cbase 0000-00-00 -rbase 0000-00-00
-DeformingBubble -t "Composite/DeformingBubble/2d/Paramesh" -np 4 -cbase 0000-00-00 -rbase 0000-00-00
+incompFlow/DeformingBubble -t "Composite/DeformingBubble/2d/AMReX" -np 4 -cbase 0000-00-00 -rbase 0000-00-00
+incompFlow/DeformingBubble -t "Composite/DeformingBubble/2d/Paramesh" -np 4 -cbase 0000-00-00 -rbase 0000-00-00

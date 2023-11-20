@@ -84,6 +84,10 @@ subroutine Driver_initAll()
   use HeatAD_interface, ONLY: HeatAD_init
   use ImBound_interface, ONLY: ImBound_init
   use Spacetime_interface, ONLY: Spacetime_init
+  use Heater_interface, ONLY: Heater_init
+  use Inlet_interface, ONLY: Inlet_init
+  use Outlet_interface, ONLY: Outlet_init
+  use Stencils_interface, ONLY: Stencils_init
 
   implicit none
 
@@ -144,6 +148,9 @@ subroutine Driver_initAll()
   if(dr_globalMe==MASTER_PE)print*,'Particles initialized'
 #endif
 
+  ! Heater source term
+  call Heater_init()
+
   if(.not. dr_restart) then
 
      call Driver_init()
@@ -186,6 +193,9 @@ subroutine Driver_initAll()
   call Hydro_init()           ! Hydrodynamics, MHD, RHD
   if(dr_globalMe==MASTER_PE)print*,'Hydro initialized'
 
+  ! Stencils unit initialization
+  call Stencils_init()
+
   ! ImBound unit initialization
   call ImBound_init(dr_restart)
 
@@ -197,6 +207,12 @@ subroutine Driver_initAll()
 
   ! Heat advection diffusion unit 
   call HeatAD_init(dr_restart)
+
+  ! Inlet source term
+  call Inlet_init()
+
+  ! Outlet source term
+  call Outlet_init()
 
   ! Dynamic spacetime solver unit
   call Spacetime_init()

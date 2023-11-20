@@ -1,5 +1,4 @@
-Simulation += sim_inletData.o \
-              sim_inletInterface.o \
-              sim_inletInit.o \
-              sim_inletFinalize.o \
-              sim_inletApplyBCToRegion.o
+Inlet += Inlet_interface.o \
+         Inlet_init.o \
+         Inlet_finalize.o \
+         Inlet_applyBCToRegion.o

@@ -1,6 +1,7 @@
 !!****if* source/Driver/DriverMain/Incomp/Driver_evolveAll
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -92,12 +93,13 @@ subroutine Driver_evolveAll()
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
 #endif
 
-#ifdef HEATER_INCOMP
-   use Heater_interface, ONLY: Heater_applyForcing, Heater_mapSitesToProc
+#ifdef HEATER_MAIN
+   use Heater_interface, ONLY: Heater_mapSitesToProc, Heater_checkSites, &
+                               Heater_tagSites, Heater_lsReInit
 #endif
 
-#ifdef OUTLET_INCOMP
-   use Outlet_interface, ONLY: Outlet_applyForcing
+#ifdef OUTLET_MAIN
+   use Outlet_interface, ONLY: Outlet_setForcing, Outlet_consolidate
 #endif
 
    use Profiler_interface, ONLY: Profiler_start, Profiler_stop
@@ -121,15 +123,15 @@ subroutine Driver_evolveAll()
    integer, dimension(4) :: prNum
    integer :: temp, i
    real :: mindiv, maxdiv
-   logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
+   logical :: gcMask(NUNK_VARS+NDIM*NFACE_VARS)
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
               iCurvVar, iAlphVar, iTempFrcVar, iNormVar(MDIM)
-   integer :: iteration, level, maxLev
+   integer :: iteration, level, maxLev, blockCount
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
-   logical :: runTest
+   logical :: runUnitTest
    real, pointer, dimension(:, :, :, :) :: fluxBufX, fluxBufY, fluxBufZ
    CONTIGUOUS_FSTMT(fluxBufX)
    CONTIGUOUS_FSTMT(fluxBufY)
@@ -209,7 +211,7 @@ subroutine Driver_evolveAll()
    ! restart
    call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
 
-#ifdef HEATER_INCOMP
+#ifdef HEATER_MAIN
    call Heater_mapSitesToProc(initial=.TRUE.)
 #endif
 
@@ -237,7 +239,7 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       !- Start Physics Sequence
       !------------------------------------------------------------
-      dr_simTime = dr_simTime + dr_dt
+      dr_simTime = dr_simTime+dr_dt
       dr_simGeneration = 0
       !------------------------------------------------------------
 
@@ -257,11 +259,40 @@ subroutine Driver_evolveAll()
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
 
-#ifdef HEATER_INCOMP
+#ifdef HEATER_MAIN
       ! Apply heater specific forcing
+
+      ! Check Nucleation Sites
       !------------------------------------------------------------
-      call Heater_applyForcing(dr_nstep, dr_dt, dr_simTime)
-      !------------------------------------------------------------
+      blockCount = 0
+      call Grid_getTileIterator(itor, nodetype=LEAF, tiling=.FALSE.)
+      do while (itor%isValid())
+         blockCount = blockCount+1
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Heater_checkSites(tileDesc, blockCount)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
+
+      ! Tag Nucleation Sites for renucleation
+      !-------------------------------------------------------------
+      call Heater_tagSites(dr_simTime)
+
+      ! Re-initialize Level-Set Function
+      !-------------------------------------------------------------
+      blockCount = 0
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         blockCount = blockCount+1
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Heater_lsReInit(tileDesc, dr_simTime, blockCount)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
 #endif
 
 #ifdef MULTIPHASE_MAIN
@@ -301,14 +332,14 @@ subroutine Driver_evolveAll()
 #endif
       gcMask(iSharpPfunVar) = .TRUE.
       gcMask(iSmearedPfunVar) = .TRUE.
-      gcMask(NUNK_VARS + iRhoFVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + iRhoFVar) = .TRUE.
+      gcMask(NUNK_VARS+iRhoFVar) = .TRUE.
+      gcMask(NUNK_VARS+1*NFACE_VARS+iRhoFVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + iRhoFVar) = .TRUE.
+      gcMask(NUNK_VARS+2*NFACE_VARS+iRhoFVar) = .TRUE.
       gcMask(iNormVar(KAXIS)) = .TRUE.
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS+NDIM*NFACE_VARS, mask=gcMask)
 
       ! Update pressure and temperature jumps
       ! Loop over blocks (tiles)
@@ -369,10 +400,22 @@ subroutine Driver_evolveAll()
 
 #endif
 
-#ifdef OUTLET_INCOMP
+#ifdef OUTLET_MAIN
       ! Apply outlet specific forcing
+      !-------------------------------------------------------------
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while (itor%isValid())
+         call itor%currentTile(tileDesc)
+         !---------------------------------------------------------
+         call Outlet_setForcing(tileDesc, dr_dt)
+         !---------------------------------------------------------
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
+
+      ! MPI all reduce operation
       !------------------------------------------------------------
-      call Outlet_applyForcing(dr_nstep, dr_dt, dr_simTime)
+      call Outlet_consolidate()
       !------------------------------------------------------------
 #endif
 
@@ -384,22 +427,22 @@ subroutine Driver_evolveAll()
       ! mass flux and pressure jumps
       gcMask(:) = .FALSE.
 #ifdef MULTIPHASE_MAIN
-      gcMask(NUNK_VARS + mph_iJumpVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS+mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS+1*NFACE_VARS+mph_iJumpVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + mph_iJumpVar) = .TRUE.
+      gcMask(NUNK_VARS+2*NFACE_VARS+mph_iJumpVar) = .TRUE.
 #endif
 #ifdef MULTIPHASE_EVAPORATION
       gcMask(iMfluxVar) = .TRUE.
 #endif
 #endif
-      gcMask(NUNK_VARS + iVelVar) = .TRUE.
-      gcMask(NUNK_VARS + 1*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(NUNK_VARS+iVelVar) = .TRUE.
+      gcMask(NUNK_VARS+1*NFACE_VARS+iVelVar) = .TRUE.
 #if NDIM == 3
-      gcMask(NUNK_VARS + 2*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(NUNK_VARS+2*NFACE_VARS+iVelVar) = .TRUE.
 #endif
       call Grid_fillGuardCells(CENTER_FACES, ALLDIR, &
-                               maskSize=NUNK_VARS + NDIM*NFACE_VARS, mask=gcMask)
+                               maskSize=NUNK_VARS+NDIM*NFACE_VARS, mask=gcMask)
 
       ! Start of fractional-step velocity procedure
       ! Calculate predicted velocity and apply
@@ -422,9 +465,9 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for velocity
       gcMask(:) = .FALSE.
       gcMask(iVelVar) = .TRUE.
-      gcMask(1*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(1*NFACE_VARS+iVelVar) = .TRUE.
 #if NDIM == 3
-      gcMask(2*NFACE_VARS + iVelVar) = .TRUE.
+      gcMask(2*NFACE_VARS+iVelVar) = .TRUE.
 #endif
       ins_predcorrflg = .true.
       call Grid_fillGuardCells(FACES, ALLDIR, &
@@ -577,7 +620,8 @@ subroutine Driver_evolveAll()
       ! Average Velocities and Vorticity to cell-centers
       call IncompNS_velomgToCenter()
 
-      ! Call indicators methods to show information
+      ! Call indicators methods to show information includes 
+      ! MPI all reduce operations
       !------------------------------------------------------------
       call IncompNS_indicators()
 #ifdef HEATAD_MAIN
@@ -592,7 +636,7 @@ subroutine Driver_evolveAll()
       call Timers_start("IO_output")
 
       call IO_output(dr_simTime, &
-                     dr_dt, dr_nstep + 1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
+                     dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
       call Timers_stop("IO_output")
 
       ! Update grid and notify changes to other units
@@ -601,13 +645,13 @@ subroutine Driver_evolveAll()
       ! Perform housekeeping after gridChanges
       ! Fill guard cells for new grid
       if (gridChanged) then
-         dr_simGeneration = dr_simGeneration + 1
+         dr_simGeneration = dr_simGeneration+1
 
          gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
-#ifdef HEATER_INCOMP
+#ifdef HEATER_MAIN
          call Heater_mapSitesToProc(gridChanged=.TRUE.)
 #endif
       end if
@@ -632,7 +676,7 @@ subroutine Driver_evolveAll()
       dr_dt = dr_dtNew
 
       call Timers_start("io")
-      call IO_output(dr_simTime, dr_dt, dr_nstep + 1, dr_nbegin, endRun, &
+      call IO_output(dr_simTime, dr_dt, dr_nstep+1, dr_nbegin, endRun, &
                      CHECKPOINT_FILE_ONLY)
       call Timers_stop("io")
       endRun = (endRunPl .OR. endRun)
@@ -680,7 +724,7 @@ subroutine Driver_evolveAll()
    call Profiler_stop("FLASHX_EVOLUTION")
 
    if (.NOT. endRun) call IO_outputFinal()
-   call Timers_getSummary(max(0, dr_nstep - dr_nbegin + 1))
+   call Timers_getSummary(max(0, dr_nstep-dr_nbegin+1))
    call Logfile_stamp("FLASH run complete.", "LOGFILE_END")
    call Logfile_close()
 
@@ -689,16 +733,16 @@ subroutine Driver_evolveAll()
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-   call RuntimeParameters_get('dr_runTest', runTest)
+   call RuntimeParameters_get('dr_runUnitTest', runUnitTest)
 
-   if (runTest) then
+   if (runUnitTest) then
       temp = dr_globalMe
       do i = 1, 4
          prNum(i) = mod(temp, 10)
          temp = temp/10
       end do
-      filename = "unitTest_"//char(48 + prNum(4))//char(48 + prNum(3))// &
-                 char(48 + prNum(2))//char(48 + prNum(1))
+      filename = "unitTest_"//char(48+prNum(4))//char(48+prNum(3))// &
+                 char(48+prNum(2))//char(48+prNum(1))
       open (fileUnit, file=fileName)
       write (fileUnit, '("P",I0)') dr_globalMe
       if (abs(mindiv) .le. 1e-11 .and. abs(maxdiv) .le. 1e-11) then

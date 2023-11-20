@@ -87,7 +87,11 @@ D enableMaskedGCFill When enableMaskedGCFill is FALSE, Grid_fillGuardCells is fo
 D &                  to always ignore optional mask arguments when present in calls.
 D &                  This is the default behavior.
 D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
-PARAMETER enableMaskedGCFill BOOLEAN FALSE
+IF Incomp
+   PARAMETER enableMaskedGCFill BOOLEAN TRUE
+ELSE
+   PARAMETER enableMaskedGCFill BOOLEAN FALSE
+ENDIF
 
 ## gr_pmrp* Runtime Parameters start here.
 ## The letters pmrp stand for Paramesh Runtime Parameter.

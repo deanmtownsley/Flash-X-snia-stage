@@ -1,0 +1,5 @@
+# Config file for Deforming Bubble
+
+REQUIRES physics/Multiphase/MultiphaseMain
+
+PARAMETER sim_reInitFlow  BOOLEAN FALSE
