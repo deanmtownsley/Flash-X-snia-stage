@@ -24,7 +24,7 @@ C_hydro_op1_flZ_d) bind(c)
 	use openacc, ONLY : acc_handle_kind
 	use milhoja_types_mod, ONLY : MILHOJA_INT
     ! needed to change use statement
-	use dr_hydroAdvance_bundle_mod, ONLY : dr_hydroAdvance_packet_gpu_oacc
+	use gpu_tf_hydro_mod, ONLY : gpu_tf_hydro_fortran
 	implicit none
 
 	type(C_PTR), intent(IN), value :: C_packet_h
@@ -80,7 +80,7 @@ C_hydro_op1_flZ_d) bind(c)
 	CALL C_F_POINTER(C_hydro_op1_flZ_d, F_hydro_op1_flZ_d, shape=[1, 1, 1, 1, F_nTiles_h])
 
     ! need to change name of method call
-	CALL dr_hydroAdvance_packet_gpu_oacc(C_packet_h, &
+	CALL gpu_tf_hydro_fortran(C_packet_h, &
 		F_queue1_h, &
 		F_queue2_h, &
 		F_queue3_h, &

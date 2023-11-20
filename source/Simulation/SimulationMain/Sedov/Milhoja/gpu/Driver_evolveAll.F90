@@ -59,7 +59,7 @@ subroutine Driver_evolveAll()
    !!!!!----- START INSERTION BY CODE GENERATOR
    use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : instantiate_hydro_advance_packet_C, &
                                                delete_hydro_advance_packet_C
-   use dr_hydroAdvance_bundle_mod,      ONLY : gpu_tf_hydro
+   use gpu_tf_hydro_mod,                ONLY : gpu_tf_hydro
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none

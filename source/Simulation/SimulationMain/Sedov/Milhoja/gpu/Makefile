@@ -3,7 +3,7 @@ Simulation += \
 	DataPacket_gpu_tf_hydro.o \
 	DataPacket_gpu_tf_hydro_C2F_mod.o \
 	dr_hydroAdvance_bundle.o \
-	dr_hydroAdvance_bundle_mod.o \
+	gpu_tf_hydro_mod.o \
 	dr_hydro_advance_packet_oacc_C2F.o \
 	dr_cg_hydroAdvance_mod.o
 

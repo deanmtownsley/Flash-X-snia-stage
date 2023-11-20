@@ -56,12 +56,12 @@
 !! @todo Is this a good design?  Main driver is likely to keep CODE GENERATORS
 !!       simple and to have products to generally-useful.  For instance, we
 !!       don't want the generated code to be too tightly-linked to Flash-X.
-module dr_hydroAdvance_bundle_mod
+module gpu_tf_hydro_mod
     implicit none
     private
 
 #ifdef ORCHESTRATION_USE_GPUS
-    public :: dr_hydroAdvance_packet_gpu_oacc
+    public :: gpu_tf_hydro_fortran
     public :: gpu_tf_hydro
 #endif
 
@@ -110,7 +110,7 @@ contains
     !! Fortran/Flash-X.  Rather, these were ported directly from C++ code.
     !! Study the best scenario for each setup.
     !! @todo Fuse updateSolution & EoS?
-    subroutine dr_hydroAdvance_packet_gpu_oacc(C_packet_h,         &
+    subroutine gpu_tf_hydro_fortran(C_packet_h,         &
                                                dataQ_h,            &
                                                queue2_h, queue3_h, &
                                                nTiles_d, dt_d,     &
@@ -299,10 +299,10 @@ contains
         !$acc wait(queue2_h, queue3_h)
         MH_id = INT(2, kind=MILHOJA_INT)
         MH_ierr = release_hydro_advance_extra_queue_C(C_packet_h, MH_id)
-        CALL Orchestration_checkInternalError("dr_hydroAdvance_packet_gpu_oacc", MH_ierr)
+        CALL Orchestration_checkInternalError("gpu_tf_hydro_fortran", MH_ierr)
         MH_id = INT(3, kind=MILHOJA_INT)
         MH_ierr = release_hydro_advance_extra_queue_C(C_packet_h, MH_id)
-        CALL Orchestration_checkInternalError("dr_hydroAdvance_packet_gpu_oacc", MH_ierr)
+        CALL Orchestration_checkInternalError("gpu_tf_hydro_fortran", MH_ierr)
 #endif
 
         !----- UPDATE SOLUTIONS IN PLACE
@@ -340,8 +340,8 @@ contains
         !$acc wait(dataQ_h)
 
         !$acc end data
-    end subroutine dr_hydroAdvance_packet_gpu_oacc
+    end subroutine gpu_tf_hydro_fortran
 #endif
 
-end module dr_hydroAdvance_bundle_mod
+end module gpu_tf_hydro_mod
 
