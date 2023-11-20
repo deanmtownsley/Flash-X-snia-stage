@@ -23,12 +23,12 @@
 
 extern "C" {
     //----- C DECLARATION OF FORTRAN ROUTINE WITH C-COMPATIBLE INTERFACE
-    int instantiate_hydro_advance_wrapper_c(const milhoja::Real dt, void** wrapper) {
+    int new_hydro_advance_wrapper_c(const milhoja::Real dt, void** wrapper) {
         if        ( wrapper == nullptr) {
-            std::cerr << "[instantiate_hydro_advance_wrapper_c] wrapper is NULL" << std::endl;
+            std::cerr << "[new_hydro_advance_wrapper_c] wrapper is NULL" << std::endl;
             return MILHOJA_ERROR_POINTER_IS_NULL;
         } else if (*wrapper != nullptr) {
-            std::cerr << "[instantiate_hydro_advance_wrapper_c] *wrapper not NULL" << std::endl;
+            std::cerr << "[new_hydro_advance_wrapper_c] *wrapper not NULL" << std::endl;
             return MILHOJA_ERROR_POINTER_NOT_NULL;
         }
 
@@ -38,7 +38,7 @@ extern "C" {
             std::cerr << exc.what() << std::endl;
             return MILHOJA_ERROR_UNABLE_TO_CREATE_WRAPPER;
         } catch (...) {
-            std::cerr << "[instantiate_hydro_advance_wrapper_c] Unknown error caught" << std::endl;
+            std::cerr << "[new_hydro_advance_wrapper_c] Unknown error caught" << std::endl;
             return MILHOJA_ERROR_UNABLE_TO_CREATE_WRAPPER;
         }
 

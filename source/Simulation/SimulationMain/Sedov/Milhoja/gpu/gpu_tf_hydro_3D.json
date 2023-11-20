@@ -14,7 +14,7 @@
         "cpp_header": "gpu_tf_hydro_Cpp2C.h",
         "cpp_source": "gpu_tf_hydro_Cpp2C.cpp",
         "c2f_source": "gpu_tf_hydro_C2F.F90",
-        "fortran_source": "gpu_tf_hydro.F90",
+        "fortran_source": "gpu_tf_hydro_mod.F90",
         "argument_list": ["dt",
                           "tile_deltas",
                           "tile_lo",

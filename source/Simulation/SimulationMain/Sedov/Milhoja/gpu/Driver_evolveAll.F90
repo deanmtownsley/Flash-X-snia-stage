@@ -78,14 +78,14 @@ subroutine Driver_evolveAll()
    logical                          :: endRun
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   integer              :: dr_hydroAdvance_nThreads
-   integer              :: dr_hydroAdvance_nDistributorThreads
-   integer              :: dr_hydroAdvance_nTilesPerPacket
-   type(C_PTR)          :: dr_hydroAdvance_packet
+   integer              :: gpu_tf_hydro_nThreads
+   integer              :: gpu_tf_hydro_nDistributorThreads
+   integer              :: gpu_tf_hydro_nTilesPerPacket
+   type(C_PTR)          :: gpu_tf_hydro_packet
    real(MILHOJA_REAL)   :: MH_dt
    integer(MILHOJA_INT) :: MH_ierr
 
-   dr_hydroAdvance_packet = C_NULL_PTR 
+   gpu_tf_hydro_packet = C_NULL_PTR 
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    endRun = .FALSE.
@@ -94,12 +94,12 @@ subroutine Driver_evolveAll()
    ! RPs are used directly by the Driver and therefore should be handled at
    ! this level rather than at the level of the code generated for use by
    ! the runtime.
-   CALL RuntimeParameters_get("dr_hydroAdvance_nThreads", &
-                               dr_hydroAdvance_nThreads)
-   CALL RuntimeParameters_get("dr_hydroAdvance_nDistributorThreads", &
-                               dr_hydroAdvance_nDistributorThreads)
-   CALL RuntimeParameters_get("dr_hydroAdvance_nTilesPerPacket", &
-                               dr_hydroAdvance_nTilesPerPacket)
+   CALL RuntimeParameters_get("gpu_tf_hydro_nThreads", &
+                               gpu_tf_hydro_nThreads)
+   CALL RuntimeParameters_get("gpu_tf_hydro_nDistributorThreads", &
+                               gpu_tf_hydro_nDistributorThreads)
+   CALL RuntimeParameters_get("gpu_tf_hydro_nTilesPerPacket", &
+                               gpu_tf_hydro_nTilesPerPacket)
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    CALL Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
@@ -141,17 +141,17 @@ subroutine Driver_evolveAll()
 
       MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
       MH_ierr = instantiate_hydro_advance_packet_C(MH_dt, &
-                                                   dr_hydroAdvance_packet)
+                                                   gpu_tf_hydro_packet)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
       CALL Orchestration_executeTasks_Gpu(dr_hydro_advance_packet_oacc_tf, &
-                                          dr_hydroAdvance_nDistributorThreads, &
-                                          dr_hydroAdvance_nThreads, &
-                                          dr_hydroAdvance_nTilesPerPacket, &
-                                          dr_hydroAdvance_packet)
+                                          gpu_tf_hydro_nDistributorThreads, &
+                                          gpu_tf_hydro_nThreads, &
+                                          gpu_tf_hydro_nTilesPerPacket, &
+                                          gpu_tf_hydro_packet)
 
-      MH_ierr = delete_hydro_advance_packet_C(dr_hydroAdvance_packet)
+      MH_ierr = delete_hydro_advance_packet_C(gpu_tf_hydro_packet)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-      dr_hydroAdvance_packet = C_NULL_PTR 
+      gpu_tf_hydro_packet = C_NULL_PTR 
       !!!!!----- END INSERTION BY CODE GENERATOR
 
       dr_dtOld = dr_dt

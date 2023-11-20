@@ -119,9 +119,10 @@ gr_initBlock_nCpuThreads            = 7
 # GPU-only thread team configuration
 # NOTE: The following RPs are created by the CODE GENERATOR.  How does they get
 # added into the par file?
-dr_hydroAdvance_nThreads            = 7
-dr_hydroAdvance_nDistributorThreads = 1
-dr_hydroAdvance_nTilesPerPacket     = 80
+cpu_tf_hydro_nThreads               = 7
+gpu_tf_hydro_nThreads               = 7
+gpu_tf_hydro_nDistributorThreads    = 1
+gpu_tf_hydro_nTilesPerPacket        = 80
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##

@@ -1,3 +1,3 @@
 #####----- TO BE WRITTEN ENTIRELY BY CODE GENERATOR
 # Declare runtime parameters needed to configure runtime
-PARAMETER dr_hydroAdvance_nThreads  INTEGER 1 [ 1 ... ]
+PARAMETER cpu_tf_hydro_nThreads  INTEGER 1 [ 1 ... ]

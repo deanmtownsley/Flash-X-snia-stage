@@ -74,11 +74,11 @@ subroutine Driver_evolveAll()
                          hy_gcMask
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   use dr_hydroAdvance_bundle_mod, ONLY: dr_hydroAdvance_TF_tile_cpu, &
-                                         instantiate_hydro_advance_wrapper_C, &
-                                         delete_hydro_advance_wrapper_C, &
-                                         acquire_scratch_wrapper_C, &
-                                         release_scratch_wrapper_C
+   use cpu_tf_hydro_mod,     ONLY : cpu_tf_hydro 
+   use cpu_tf_hydro_C2F_mod, ONLY : new_hydro_advance_wrapper_C, &
+                                    delete_hydro_advance_wrapper_C, &
+                                    acquire_scratch_wrapper_C, &
+                                    release_scratch_wrapper_C
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
@@ -89,12 +89,12 @@ subroutine Driver_evolveAll()
    logical                          :: endRun
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   type(C_PTR)          :: dr_hydroAdvance_wrapper
-   integer              :: dr_hydroAdvance_nThreads
+   type(C_PTR)          :: cpu_tf_hydro_wrapper
+   integer              :: cpu_tf_hydro_nThreads
    real(MILHOJA_REAL)   :: MH_dt
    integer(MILHOJA_INT) :: MH_ierr
 
-   dr_hydroAdvance_wrapper = C_NULL_PTR 
+   cpu_tf_hydro_wrapper = C_NULL_PTR 
 
    ! Acquire persistent milhoja scratch
    MH_ierr = acquire_scratch_wrapper_C()
@@ -107,8 +107,8 @@ subroutine Driver_evolveAll()
    ! RPs are used directly by the Driver and therefore, should be handled at
    ! this level rather than at the level of the code generated for use by
    ! the runtime (i.e., dr_hydroAdvance_bundle_mod).
-   CALL RuntimeParameters_get("dr_hydroAdvance_nThreads", &
-                              dr_hydroAdvance_nThreads)
+   CALL RuntimeParameters_get("cpu_tf_hydro_nThreads", &
+                              cpu_tf_hydro_nThreads)
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    CALL Logfile_stamp('Entering evolution loop', '[Driver_evolveAll]')
@@ -150,15 +150,15 @@ subroutine Driver_evolveAll()
       ! We need to instantiate a new TileWrapper prototype at each step since
       ! dt can change from one step to the next.
       MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
-      MH_ierr = instantiate_hydro_advance_wrapper_C(MH_dt, &
-                                                    dr_hydroAdvance_wrapper)
+      MH_ierr = new_hydro_advance_wrapper_C(MH_dt, &
+                                            cpu_tf_hydro_wrapper)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-      CALL Orchestration_executeTasks_Cpu(MH_taskFunction=dr_hydroAdvance_TF_tile_cpu, &
-                                          prototype_Cptr=dr_hydroAdvance_wrapper, &
-                                          nThreads=dr_hydroAdvance_nThreads)
-      MH_ierr = delete_hydro_advance_wrapper_C(dr_hydroAdvance_wrapper)
+      CALL Orchestration_executeTasks_Cpu(MH_taskFunction=cpu_tf_hydro, &
+                                          prototype_Cptr=cpu_tf_hydro_wrapper, &
+                                          nThreads=cpu_tf_hydro_nThreads)
+      MH_ierr = delete_hydro_advance_wrapper_C(cpu_tf_hydro_wrapper)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-      dr_hydroAdvance_wrapper = C_NULL_PTR 
+      cpu_tf_hydro_wrapper = C_NULL_PTR 
       !!!!!----- END INSERTION BY CODE GENERATOR
 
       dr_dtOld = dr_dt
