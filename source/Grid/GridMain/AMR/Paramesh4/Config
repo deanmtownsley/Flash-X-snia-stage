@@ -34,6 +34,8 @@ IF FlashAvoidOrrery or Bittree
   REQUIRES ./PM4_package
 ENDIF
 
+CHILDORDER PM4_package Thornado
+
 
 USESETUPVARS NoLevelwideFluxes
 IF not NoLevelwideFluxes

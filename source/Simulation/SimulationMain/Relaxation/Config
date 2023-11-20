@@ -1,0 +1,40 @@
+# Configuration file for Relaxation radiation field problem
+
+REQUIRES Driver
+REQUIRES physics/Hydro
+REQUIRES physics/Eos/EosMain/WeakLib
+REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
+REQUESTS IO
+
+DATAFILES ../../../physics/Eos/EosMain/WeakLib/tables/*.h5
+DATAFILES ../../../../../../weaklib-tables/SFHo/LowRes/wl-*.h5
+DATAFILES profiles/*
+
+# These would allow us to use different initial condition
+
+D sim_rad_option    Option of initalizing radiation field
+PARAMETER sim_rad_option     INTEGER  0
+
+D sim_use_model     Flag to read in 1D model instead of analytic profile
+D sim_model_file    Name of input file with 1D model
+D sim_rintSwitch    Radius of swiching radiational initial
+PARAMETER sim_use_model      BOOLEAN  TRUE
+PARAMETER sim_model_file     STRING   "file.dat"
+PARAMETER sim_rintSwitch     REAL     1.0e7
+
+D sim_dens_i        Initial density [g cm^{-3}]
+D sim_temp_i        Initial temperature [K]
+D sim_ye_i          Initial electron fraction
+PARAMETER sim_dens_i         REAL    2.564e13      [0.0 to ]
+PARAMETER sim_temp_i         REAL    2.295e11      [0.0 to ]
+PARAMETER sim_ye_i           REAL    2.876e-1      [0.0 to 1.0]
+
+D sim_velx_i        Initial x-velocity [cm s^{-1}]
+D sim_vely_i        Initial y-velocity [cm s^{-1}]
+D sim_velz_i        Initial z-velocity [cm s^{-1}]
+PARAMETER sim_velx_i         REAL    0.0
+PARAMETER sim_vely_i         REAL    0.0
+PARAMETER sim_velz_i         REAL    0.0
+
+D sim_mu_i          Initial angular asymmetry of neutrino distribution
+PARAMETER sim_mu_i           REAL    0.0           [-1.0 to 1.0]
