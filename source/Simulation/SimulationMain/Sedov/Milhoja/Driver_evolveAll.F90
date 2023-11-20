@@ -76,7 +76,9 @@ subroutine Driver_evolveAll()
    !!!!!----- START INSERTION BY CODE GENERATOR
    use dr_hydroAdvance_bundle_mod, ONLY: dr_hydroAdvance_TF_tile_cpu, &
                                          instantiate_hydro_advance_wrapper_C, &
-                                         delete_hydro_advance_wrapper_C
+                                         delete_hydro_advance_wrapper_C, &
+                                         acquire_scratch_wrapper_C, &
+                                         release_scratch_wrapper_C
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
@@ -93,6 +95,10 @@ subroutine Driver_evolveAll()
    integer(MILHOJA_INT) :: MH_ierr
 
    dr_hydroAdvance_wrapper = C_NULL_PTR 
+
+   ! Acquire persistent milhoja scratch
+   MH_ierr = acquire_scratch_wrapper_C()
+   CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    endRun = .FALSE.
@@ -141,6 +147,8 @@ subroutine Driver_evolveAll()
                                makeMaskConsistent=.TRUE., &
                                selectBlockType=LEAF, &
                                doLogMask=.TRUE.)
+      ! We need to instantiate a new TileWrapper prototype at each step since
+      ! dt can change from one step to the next.
       MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
       MH_ierr = instantiate_hydro_advance_wrapper_C(MH_dt, &
                                                     dr_hydroAdvance_wrapper)
@@ -178,6 +186,12 @@ subroutine Driver_evolveAll()
    CALL Logfile_stamp('Exiting evolution loop', '[Driver_evolveAll]')
 
    call IO_outputFinal()
+
+   !!!!!----- START INSERTION BY CODE GENERATOR
+   ! Release persistent milhoja scratch
+   MH_ierr = release_scratch_wrapper_C()
+   CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
+   !!!!!----- END INSERTION BY CODE GENERATOR
 
    CALL Timers_getSummary(MAX(0, dr_nstep - dr_nbegin + 1))
    CALL Logfile_stamp("FLASH run complete.", "LOGFILE_END")

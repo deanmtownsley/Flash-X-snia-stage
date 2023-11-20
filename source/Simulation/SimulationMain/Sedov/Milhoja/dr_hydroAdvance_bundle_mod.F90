@@ -63,7 +63,8 @@ module dr_hydroAdvance_bundle_mod
     public :: dr_hydroAdvance_TF_tile_cpu
     public :: instantiate_hydro_advance_wrapper_C
     public :: delete_hydro_advance_wrapper_C
-    public :: get_dt_wrapper_C
+    public :: acquire_scratch_wrapper_C
+    public :: release_scratch_wrapper_C
 #ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
     public :: instantiate_hydro_advance_packet_C
@@ -91,6 +92,30 @@ module dr_hydroAdvance_bundle_mod
             type(C_PTR),         intent(IN), value :: C_wrapper
             integer(MILHOJA_INT)                   :: C_ierr
         end function delete_hydro_advance_wrapper_C
+
+        !> To be used by Driver to acquire thread-private scratch before the
+        !! prototype TileWrapper object is used
+        function acquire_scratch_wrapper_C() result(C_ierr) bind(c)
+            use milhoja_types_mod, ONLY : MILHOJA_INT
+            integer(MILHOJA_INT) :: C_ierr
+        end function acquire_scratch_wrapper_C
+
+        !> To be used by Driver to release thread-private scratch after the
+        !! prototype TileWrapper object has been used
+        function release_scratch_wrapper_C() result(C_ierr) bind(c)
+            use milhoja_types_mod, ONLY : MILHOJA_INT
+            integer(MILHOJA_INT) :: C_ierr
+        end function release_scratch_wrapper_C
+
+        !> To be used by task function to access thread-private auxC scratch block
+        function get_scratch_auxC_wrapper_C(C_wrapper, C_threadID, C_auxC) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT, MILHOJA_REAL
+            type(C_PTR),          intent(IN), value :: C_wrapper
+            integer(MILHOJA_INT), intent(IN), value :: C_threadID
+            type(C_PTR),          intent(OUT)       :: C_auxC
+            integer(MILHOJA_INT)                    :: C_ierr
+        end function get_scratch_auxC_wrapper_C
 
         !> To be used by task function to access dt
         function get_dt_wrapper_C(C_wrapper, MH_dt) result(C_ierr) bind(c)
@@ -156,7 +181,8 @@ contains
     !!       necessary and unavoidable here.
     subroutine dr_hydroAdvance_TF_tile_cpu(C_threadId, C_dataItemPtr) bind(c)
         use iso_c_binding, ONLY : C_PTR, &
-                                  C_NULL_PTR
+                                  C_NULL_PTR, &
+                                  C_F_POINTER
 
         use milhoja_types_mod,                  ONLY : MILHOJA_INT, &
                                                        MILHOJA_REAL
@@ -175,22 +201,26 @@ contains
         integer(MILHOJA_INT), intent(IN), value :: C_threadId
         type(C_PTR),          intent(IN), value :: C_dataItemPtr
 
-        integer(MILHOJA_INT) :: MH_ierr
-        real(MILHOJA_REAL)   :: MH_dt
-        type(C_PTR)          :: C_tilePtr
-        integer              :: F_threadId
-        type(Grid_tile_t)    :: F_tile
-        real                 :: F_dt
+        integer(MILHOJA_INT)         :: MH_ierr
+        integer                      :: F_threadId
+        type(C_PTR)                  :: C_tilePtr
+        type(Grid_tile_t)            :: F_tile
+        type(C_PTR)                  :: C_auxC
+        real,                pointer :: F_auxC(:, :, :)
+        integer                      :: lbdd_auxC(1:3)
+        real(MILHOJA_REAL)           :: MH_dt
+        real                         :: F_dt
 
         real, pointer                    :: U(:, :, :, :)
         real, pointer                    :: flX(:, :, :, :)
         real, pointer                    :: flY(:, :, :, :)
         real, pointer                    :: flZ(:, :, :, :)
-        real,         allocatable        :: auxC(:, :, :)
         real,                     target :: empty4(0, 0, 0, 0)
         real                             :: deltas(1:MDIM)
 
         C_tilePtr = C_NULL_PTR
+        C_auxC = C_NULL_PTR
+        NULLIFY(F_auxC)
         NULLIFY(U)
         NULLIFY(flX)
         NULLIFY(flY)
@@ -200,6 +230,13 @@ contains
         MH_ierr = get_dt_wrapper_C(C_dataItemPtr, MH_dt)
         CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
         F_dt = REAL(MH_dt)
+
+        MH_ierr = get_scratch_auxC_wrapper_C(C_dataItemPtr, &
+                                             C_threadId, &
+                                             C_auxC)
+        CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
+        CALL C_F_POINTER(C_auxC, F_auxC, shape=[18, 18, 18])
+        C_auxC = C_NULL_PTR
 
         MH_ierr = milhoja_tile_from_wrapper_C(C_dataItemPtr, C_tilePtr)
         CALL gr_checkMilhojaError("dr_hydroAdvance_bundle_mod", MH_ierr)
@@ -225,30 +262,28 @@ contains
         !!!!!----- ADVANCE SOLUTION IN INTERIOR
         associate(lo => F_tile%limits(LOW,  :), &
                   hi => F_tile%limits(HIGH, :))
-            ALLOCATE(auxC(lo(IAXIS)-K1D:hi(IAXIS)+K1D, &
-                          lo(JAXIS)-K2D:hi(JAXIS)+K2D, &
-                          lo(KAXIS)-K3D:hi(KAXIS)+K3D))
+            lbdd_auxC = [lo(IAXIS) - K1D, lo(JAXIS) - K2D, lo(KAXIS) - K3D]
 
             CALL Hydro_computeSoundSpeed_block_cpu(lo, hi, &
                                                    U,    lbound(U), &
-                                                   auxC, lbound(auxC))
+                                                   F_auxC, lbdd_auxC)
             CALL Hydro_computeFluxes_X_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
-                                                 auxC, lbound(auxC), &
+                                                 F_auxC, lbdd_auxC, &
                                                  flX,  lbound(flX))
 #if NDIM >= 2
             CALL Hydro_computeFluxes_Y_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
-                                                 auxC, lbound(auxC), &
+                                                 F_auxC, lbdd_auxC, &
                                                  flY,  lbound(flY))
 #endif
 #if NDIM == 3
             CALL Hydro_computeFluxes_Z_block_cpu(F_dt, lo, hi, deltas, &
                                                  U,    lbound(U), &
-                                                 auxC, lbound(auxC), &
+                                                 F_auxC, lbdd_auxC, &
                                                  flZ,  lbound(flZ))
 #endif
-            DEALLOCATE(auxC)
+            NULLIFY(F_auxC)
             CALL Hydro_updateSolution_block_cpu(lo, hi, &
                                                 flX, flY, flZ, lbound(flX), &
                                                 U, lbound(U))

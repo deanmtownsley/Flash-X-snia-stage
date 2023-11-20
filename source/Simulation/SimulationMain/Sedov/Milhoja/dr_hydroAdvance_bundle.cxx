@@ -16,6 +16,7 @@
  */
 
 #include <Milhoja.h>
+#include <Milhoja_real.h>
 #include <Milhoja_interface_error_codes.h>
 
 #include "Tile_cpu_tf_hydro.h"
@@ -68,6 +69,46 @@ extern "C" {
             return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
         } catch (...) {
             std::cerr << "[get_dt_wrapper_c] Unknown error caught" << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
+        }
+
+        return MILHOJA_SUCCESS;
+    }
+
+    int acquire_scratch_wrapper_c(void) {
+        Tile_cpu_tf_hydro::acquireScratch();
+
+        return MILHOJA_SUCCESS;
+    }
+
+    int release_scratch_wrapper_c(void) {
+        Tile_cpu_tf_hydro::releaseScratch();
+
+        return MILHOJA_SUCCESS;
+    }
+
+    int get_scratch_auxc_wrapper_c(void* wrapper, const int threadIdx,
+                                   milhoja::Real** auxC) {
+        if (!wrapper || !auxC) {
+            std::cerr << "[get_scratch_auxc_wrapper_c] wrapper or auxC NULL" << std::endl;
+            return MILHOJA_ERROR_POINTER_IS_NULL;
+        } else if (*auxC) {
+            std::cerr << "[get_scratch_auxc_wrapper_c] *auxC not NULL" << std::endl;
+            return MILHOJA_ERROR_POINTER_NOT_NULL;
+        } else if (threadIdx < 0) {
+            std::cerr << "[get_scratch_auxc_wrapper_c] Negative threadIdx" << std::endl;
+            return MILHOJA_ERROR_NEGATIVE_VALUE_FOR_UINT;
+        }
+
+        try {
+            Tile_cpu_tf_hydro*   tile = static_cast<Tile_cpu_tf_hydro*>(wrapper);
+            *auxC =   static_cast<milhoja::Real*>(tile->hydro_op1_auxc_)
+                    + Tile_cpu_tf_hydro::HYDRO_OP1_AUXC_SIZE_ * threadIdx;
+        } catch (const std::exception& exc) {
+            std::cerr << exc.what() << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
+        } catch (...) {
+            std::cerr << "[get_scratch_auxc_wrapper_c] Unknown error caught" << std::endl;
             return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
         }
 

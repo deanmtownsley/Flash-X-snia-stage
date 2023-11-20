@@ -22,9 +22,9 @@ void Tile_cpu_tf_hydro::acquireScratch(void) {
     milhoja::RuntimeBackend::instance().requestCpuMemory(nBytes, &hydro_op1_auxc_);
 
 #ifdef DEBUG_RUNTIME
-    std::string   msg = "[Tile_cpu_tf_hydro::acquireScratch] Acquired"
+    std::string   msg = "[Tile_cpu_tf_hydro::acquireScratch] Acquired "
                     + std::to_string(nThreads)
-                    + " hydro_op1_auxc_ scratch blocks"
+                    + " hydro_op1_auxc_ scratch blocks";
     milhoja::Logger::instance().log(msg);
 #endif
 }
@@ -38,7 +38,7 @@ void Tile_cpu_tf_hydro::releaseScratch(void) {
     hydro_op1_auxc_ = nullptr;
 
 #ifdef DEBUG_RUNTIME
-    std::string   msg = "[Tile_cpu_tf_hydro::releaseScratch] Released hydro_op1_auxc_ scratch"
+    std::string   msg = "[Tile_cpu_tf_hydro::releaseScratch] Released hydro_op1_auxc_ scratch";
     milhoja::Logger::instance().log(msg);
 #endif
 }
