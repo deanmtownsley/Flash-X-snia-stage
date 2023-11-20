@@ -16,7 +16,7 @@ using milhoja::Real;
 extern "C" {
     //----- C DECLARATION OF FORTRAN ROUTINE WITH C-COMPATIBLE INTERFACE
     // -------------changed function name
-    void dr_hydro_advance_packet_oacc_c2f (
+    void gpu_tf_hydro_c2f(
     void* packet_h,
     const int queue1_h,
     const int queue2_h,
@@ -129,7 +129,7 @@ extern "C" {
 
         // needed to change function name
         // Pass data packet info to C-to-Fortran Reinterpretation Layer
-        dr_hydro_advance_packet_oacc_c2f (
+        gpu_tf_hydro_c2f(
         packet_h,
         queue1_h,
         queue2_h,

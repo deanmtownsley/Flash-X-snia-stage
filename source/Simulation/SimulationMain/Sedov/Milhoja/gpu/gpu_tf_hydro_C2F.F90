@@ -4,7 +4,7 @@
 #endif
 
 !need to change subroutine name
-subroutine dr_hydro_advance_packet_oacc_c2f(C_packet_h, &
+subroutine gpu_tf_hydro_c2f(C_packet_h, &
 C_queue1_h, &
 C_queue2_h, &
 C_queue3_h, &
@@ -95,4 +95,4 @@ C_hydro_op1_flZ_d) bind(c)
 		F_hydro_op1_flX_d, &
 		F_hydro_op1_flY_d, &
 		F_hydro_op1_flZ_d)
-end subroutine dr_hydro_advance_packet_oacc_c2f
+end subroutine gpu_tf_hydro_c2f
