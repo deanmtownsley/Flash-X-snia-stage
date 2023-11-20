@@ -1,114 +1,73 @@
-import FlashX_RecipeTools as fr
-import milhoja
+from flashx import (
+    CPU, GPU
+    BlockTypes, BlockLevels,
+    TileStepRecipe
+)
 
-import json
+def get_variable_order(index_space, data_structure_index):
+    """
+    .. todo::
+        * Do we need to specify variable order for all possible Grid data
+          structures?  
+        * Can this be the means for expressing to the setup tool what Grid data
+          structures are needed?  Or at the very least can this be used to
+          generate/override the commands needed to be specified to setup tool to
+          determine what Grid data structures are needed?
+    """
+    variable_order = {}
+    if index_space.lower() == "CENTER":
+        assert data_structure_index == 1
+        variable_order = {
+            "DENS_VAR": 1,
+            "PRES_VAR": 2,
+            "VELX_VAR": 3,
+            "VELY_VAR": 4,
+            "VELZ_VAR": 5,
+            "ENER_VAR": 6,
+            "EINT_VAR": 7,
+            "TEMP_VAR": 8,
+            "GAMC_VAR": 9,
+        }
+    else:
+        raise ValueError(f"Unknow index space {index_space}")
 
+    return variable_order
 
-# TODO:
-# preprocessor vars needed for group specifications
-# need to gather the following information from setup.py
-PP = {
-    "NDIM": 2,
-    "NXB": 16,
-    "NYB": 16,
-    "NZB": 1,
-    "NGUARD": 4,
-    "K1D": 1,
-    "K2D": 1,
-    "K3D": 0,
-    "NFLUXES": 5,
-    "DENS_VAR": 1,
-    "PRES_VAR": 2,
-    "VELX_VAR": 3,
-    "VELY_VAR": 4,
-    "VELZ_VAR": 5,
-    "ENER_VAR": 6,
-    "EINT_VAR": 7,
-    "TEMP_VAR": 8,
-    "GAMC_VAR": 9,
-}
+def generate_simple_unsplit_recipe_2D(verbose=False):
+    """
+    .. todo::
+        * Is it reasonable to assume that each of the Static Fortran Routines
+          has a unique name in the sense that it will appear in one and only one
+          operation spec?  Seems OK for the Hydro, but what about Eos_wrapper?
+    """
+    recipe = TimeStepRecipe(verbose=verbose)
 
+    hydro_begin = recipe.begin_orchestration(BlockTypes.LEAVES, BlockLevels.ALL, use_tiling=False)
+    sound_speed = recipe.add_work("Hydro_computeSoundSpeedHll", invoke_after=hydro_begin, map_to=GPU)
+    comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed, map_to=GPU)
+    comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=comp_flx,    map_to=GPU)
+    update_soln = recipe.add_work("Hydro_updateSolutionHll",    invoke_after=comp_fly,    map_to=GPU)
+    do_eos      = recipe.add_work("Eos_wrapped",                invoke_after=update_soln, map_to=CPU)
+    hydro_end   = recipe.end_orchestration(hydro_begin,         invoke_after=do_eos)
 
-def simpleUnsplit(recipe, root, operation_spec):
-    from _nodes import simpleUnsplit_nodes
+    return recipe
 
-    recipe.add_operation_spec(operation_spec)
+def generate_simple_unsplit_recipe_3D(verbose=False):
+    """
+    .. todo::
+        * Is it reasonable to assume that each of the Static Fortran Routines
+          has a unique name in the sense that it will appear in one and only one
+          operation spec?  Seems OK for the Hydro, but what about Eos_wrapper?
+    """
+    recipe = TimeStepRecipe(verbose=verbose)
 
-    n = simpleUnsplit_nodes()
+    hydro_begin = recipe.begin_orchestration(BlockTypes.LEAVES, BlockLevels.ALL, use_tiling=False)
+    sound_speed = recipe.add_work("Hydro_computeSoundSpeedHll", invoke_after=hydro_begin,     map_to=GPU)
+    comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed,     map_to=GPU)
+    comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=sound_speed,     map_to=GPU)
+    comp_flz    = recipe.add_work("Hydro_computeFluxesHll_Z",   invoke_after=sound_speed,     map_to=GPU)
+    update_soln = recipe.add_work("Hydro_updateSolutionHll",    invoke_after=[flx, fly, flz], map_to=GPU)
+    do_eos      = recipe.add_work("Eos_wrapped",                invoke_after=update_soln,     map_to=CPU)
+    hydro_end   = recipe.end_orchestration(hydro_begin,         invoke_after=do_eos)
 
-    _tileBegin = recipe.add_item(n.tileBegin, invoke_after=root, map_to="cpu")
-
-    _soundSpd = recipe.add_item(n.soundSpd, invoke_after=_tileBegin, map_to="gpu")
-    _flx = recipe.add_item(n.flx, invoke_after=_soundSpd, map_to="gpu")
-    _fly = recipe.add_item(n.fly, invoke_after=_soundSpd, map_to="gpu")
-    _flz = recipe.add_item(n.flz, invoke_after=_soundSpd, map_to="gpu")
-    _updSoln = recipe.add_item(n.updSoln, invoke_after=[_flx, _fly, _flz], map_to="gpu")
-
-    _doEos = recipe.add_item(n.doEos, invoke_after=_updSoln, map_to="cpu")
-
-    _tileEnd = recipe.add_item(n.tileEnd, invoke_after=_doEos, map_to="cpu")
-
-    return _tileEnd
-
-
-def getGridSpec(pp):
-    d = {
-        "dimension": pp["NDIM"],
-        "nxb": pp["NXB"],
-        "nyb": pp["NYB"],
-        "nzb": pp["NZB"],
-        "nguardcells": pp["NGUARD"]
-    }
-    return d
-
-
-def generate_tf_specs():
-    # create empty recipe
-    recipe = fr.Recipe()
-
-    # gather grid spec
-    grid_spec = getGridSpec(PP)
-    with open("__grid.json", "w") as f:
-        json.dump(grid_spec, f, indent=2)
-
-    # preprocess, gather, and dump operation spec
-    # this will write preprocessed file to `__Hydro_op1.json`
-    hydro_spec = fr.opspec.load("Hydro_op1.json", PP)
-
-    # build recipe
-    _endNode = simpleUnsplit(recipe, recipe.root, operation_spec=hydro_spec)
-    _endNode = recipe.add_item(fr.LeafNode(), invoke_after=_endNode)
-
-    # gather argument list of each nodes, required for writing `Hydro.F90`
-    # TODO: perhaps redundant for generating TF specs
-    recipe.traverse(controllerNode=fr.opspec.Ctr_InitNodeFromOpspec(verbose=False))
-
-    # transform into hierarchical graph
-    recipe.traverse(controllerEdge=fr.Ctr_SetupEdge(verbose=False))
-    h = recipe.extractHierarchicalGraph(controllerMarkEdge=fr.Ctr_MarkEdgeAsKeep(verbose=False),
-                                        controllerInitSubgraph=fr.Ctr_InitSubgraph(verbose=False))
-
-    # generate intermediate TF data
-    ctrParseTFGraph = fr.opspec.Ctr_ParseTFGraph()
-    ctrParseTFNode = fr.opspec.Ctr_ParseTFNode(ctrParseTFGraph)
-    ctrParseTFMultiedge = fr.opspec.Ctr_ParseTFMultiEdge(ctrParseTFGraph)
-    h.traverseHierarchy(controllerGraph=ctrParseTFGraph,
-                        controllerNode=ctrParseTFNode,
-                        controllerMultiEdge=ctrParseTFMultiedge)
-    # dump TF data for debugging
-    ctrParseTFGraph.dumpTFData(indent=2)
-
-    # Milhoja
-    tfData = ctrParseTFGraph.getTFData()
-    logger = milhoja.BasicLogger(level=3)
-    tfSpecTpl = "tf_spec_tpl.json"   # TODO: auto generate this
-    for tf in tfData:
-        name = tf["name"]
-        call_graph = tf["subroutine_call_graph"]
-        group_json_all = tf["operation_specs"]
-        grid_json = "__grid.json"
-        tfAssembler = milhoja.TaskFunctionAssembler.from_milhoja_json(
-                    name, call_graph, group_json_all, grid_json, logger
-                 )
-        tfAssembler.to_milhoja_json(f"__tf_spec_{name}.json", tfSpecTpl, overwrite=True)
-
+    return recipe
