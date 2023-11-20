@@ -57,8 +57,8 @@ subroutine Driver_evolveAll()
                          hy_gcMask
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   use dr_hydroAdvance_bundle_mod, ONLY: instantiate_hydro_advance_packet_C, &
-                                         delete_hydro_advance_packet_C
+   use DataPacket_gpu_tf_hydro_C2F_mod, ONLY: instantiate_hydro_advance_packet_C, &
+                                              delete_hydro_advance_packet_C
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none

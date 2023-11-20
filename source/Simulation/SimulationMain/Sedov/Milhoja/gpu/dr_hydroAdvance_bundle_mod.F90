@@ -62,43 +62,7 @@ module dr_hydroAdvance_bundle_mod
 
 #ifdef ORCHESTRATION_USE_GPUS
     public :: dr_hydroAdvance_packet_gpu_oacc
-    public :: instantiate_hydro_advance_packet_C
-    public :: delete_hydro_advance_packet_C
 #endif
-
-    !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS
-    ! The C-to-Fortran interoperability layer
-    interface
-#ifdef ORCHESTRATION_USE_GPUS
-        !> To be used by Driver to create a concrete data packet that the
-        !! runtime can use to blindly clone the same type of packet.
-        function instantiate_hydro_advance_packet_C(C_dt, C_packet) result(C_ierr) bind(c)
-            use iso_c_binding,     ONLY : C_PTR
-            use milhoja_types_mod, ONLY : MILHOJA_INT, &
-                                          MILHOJA_REAL
-            real(MILHOJA_REAL),  intent(IN), value :: C_dt
-            type(C_PTR),         intent(IN)        :: C_packet
-            integer(MILHOJA_INT)                   :: C_ierr
-        end function instantiate_hydro_advance_packet_C
-
-        !> To be used by Driver to free packets resources.
-        function delete_hydro_advance_packet_C(C_packet) result(C_ierr) bind(c)
-            use iso_c_binding,     ONLY : C_PTR
-            use milhoja_types_mod, ONLY : MILHOJA_INT
-            type(C_PTR),         intent(IN), value :: C_packet
-            integer(MILHOJA_INT)                   :: C_ierr
-        end function delete_hydro_advance_packet_C
-
-        !> For internal use only.
-        function release_hydro_advance_extra_queue_C(C_packet, C_id) result(C_ierr) bind(c)
-            use iso_c_binding,     ONLY : C_PTR
-            use milhoja_types_mod, ONLY : MILHOJA_INT
-            type(C_PTR),          intent(IN), value :: C_packet
-            integer(MILHOJA_INT), intent(IN), value :: C_id
-            integer(MILHOJA_INT)                    :: C_ierr
-        end function release_hydro_advance_extra_queue_C
-#endif
-    end interface
 
 contains
 
@@ -151,14 +115,15 @@ contains
         use iso_c_binding, ONLY : C_PTR
         use openacc
 
-        use milhoja_types_mod,       ONLY : MILHOJA_INT
-        use Orchestration_Interface, ONLY : Orchestration_checkInternalError
-        use dr_cg_hydroAdvance_mod,  ONLY : hy_computeSoundSpeedHll_gpu_oacc, &
-                                            hy_computeFluxesHll_X_gpu_oacc,   &
-                                            hy_computeFluxesHll_Y_gpu_oacc,   &
-                                            hy_computeFluxesHll_Z_gpu_oacc,   &
-                                            hy_updateSolutionHll_gpu_oacc,    &
-                                            eos_idealGammaDensIe_gpu_oacc
+        use milhoja_types_mod,               ONLY : MILHOJA_INT
+        use Orchestration_Interface,         ONLY : Orchestration_checkInternalError
+        use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : release_hydro_advance_extra_queue_C 
+        use dr_cg_hydroAdvance_mod,          ONLY : hy_computeSoundSpeedHll_gpu_oacc, &
+                                                    hy_computeFluxesHll_X_gpu_oacc,   &
+                                                    hy_computeFluxesHll_Y_gpu_oacc,   &
+                                                    hy_computeFluxesHll_Z_gpu_oacc,   &
+                                                    hy_updateSolutionHll_gpu_oacc,    &
+                                                    eos_idealGammaDensIe_gpu_oacc
 
         implicit none
 
