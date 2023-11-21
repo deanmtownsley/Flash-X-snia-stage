@@ -120,7 +120,7 @@ if __init__ == "__main__":
 
     # Assume that verbosity have been set by setup tool using values passed in
     # by user to setup command
-    verbosity = 0, 1, ..., or LOG_LEVEL_MAX
+    verbosity = LOG_LEVEL_NONE, LOG_LEVEL_BASIC, ..., or LOG_LEVEL_MAX
     logger = SetupLogger(verbosity)
 
     # Write grid specification to file
