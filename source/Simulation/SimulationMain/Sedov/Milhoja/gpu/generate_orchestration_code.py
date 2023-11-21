@@ -10,11 +10,9 @@ import milhoja
 
 if __name__ == "__main__":
     # ----- HARDCODED VALUES
-    DESTINATION = Path.cwd()
+    DESTINATION = Path(__file__).resolve().parent
     INDENT = 4
-    # Allow overwrite for now since code generation is not yet built into
-    # Flash-X setup system and generated code is in version control system.
-    NO_OVERWRITE = True
+    NO_OVERWRITE = False
 
     # ----- COMMAND LINE ARGUMENTS
     if len(sys.argv) != 3:
@@ -27,7 +25,7 @@ if __name__ == "__main__":
     milhoja_path = Path(sys.argv[2]).resolve()
 
     assert ndim in [2, 3]
-    tf_json = f"gpu_tf_hydro_{ndim}D.json"
+    tf_json = DESTINATION.joinpath(f"gpu_tf_hydro_{ndim}D.json")
     src_json = milhoja_path.joinpath("include", f"sizes_{ndim}D.json")
     dst_json = milhoja_path.joinpath("include", "sizes.json")
     if dst_json.exists():
