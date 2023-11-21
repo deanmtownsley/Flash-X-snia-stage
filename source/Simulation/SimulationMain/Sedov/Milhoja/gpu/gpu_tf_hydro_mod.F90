@@ -16,38 +16,11 @@
 #include "Milhoja.h"
 
 !> @details
-!! A module that encapsulates all work and specification of data items to which the
-!! work should be applied during one invocation of the Orchestration unit.  In
-!! other words, the contents of this module specifies implicitly the tasks to be
-!! executed by the Orchestration unit.
+!! A module that encapsulates the gpu_tf_hydro task function, which should
+!! passed to the Orchestration unit for applying the task function to data
+!! packets.
 !!
-!! This code should be written entirely by the CODE GENERATOR as part of the
-!! full set of bundles needed to execute the timestep recipe.
-!!
-!! For the purposes of this example, we are imagining that the recipe for our
-!! simulation has stipulated that the advancement of the solution due to
-!! hydrodynamics effects be computed using both the CPU and GPU simultaneously.  For
-!! example, these two routines could be mapped onto the CPU/GPU data parallel
-!! thread team configuration.  In addition, we are imagining that the CODE
-!! GENERATOR has been instructed to use OpenAcc directives to offload
-!! computation to the GPU.
-!!
-!! Note that this module does not specify how the contents are mapped onto 
-!! a thread team configuration.
-!!
-!! @todo Add in all metadata related to the file, the code generator, and the
-!!       Simulation that this was created for.  This could include, for example,
-!!         - timestamp of creation
-!!         - git commit and state of repo at time of generation
-!!         - state of files in repo that provide information used to generate
-!!           this file and diffs if altered.  Do such files exist?
-!!         - machine on which run and username
-!!         - name/version of code generator
-!!         - setup call
-!!         - name/version of recipe that these are to be used in
-!! @todo Is this a good design?  Main driver is likely to keep CODE GENERATORS
-!!       simple and to have products to generally-useful.  For instance, we
-!!       don't want the generated code to be too tightly-linked to Flash-X.
+!! This code should be written entirely by a Milhoja CODE GENERATOR.
 module gpu_tf_hydro_mod
     implicit none
     private
@@ -55,7 +28,9 @@ module gpu_tf_hydro_mod
     public :: gpu_tf_hydro_fortran
     public :: gpu_tf_hydro
 
+    !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS FOR TIME ADVANCE UNIT
    interface
+      !> C++ task function that TimeAdvance passes to Orchestration unit
       subroutine gpu_tf_hydro(C_tId, C_dataItemPtr) bind(c)
          use iso_c_binding,     ONLY : C_PTR
          use milhoja_types_mod, ONLY : MILHOJA_INT
@@ -70,13 +45,10 @@ contains
     !!
     !! @details
     !! This routine is *not* a task function that is called directly by a pthread
-    !! executing C++ code.  Rather the task function is C++ code
-    !! (dr_hydro_advance_packet_oacc_tf) that knows how to pick out the contents of
-    !! the given data packet and map it indirectly onto this function's argument
-    !! list via a C-to-Fortran reinterpreation layer
-    !! (dr_hydro_advance_packet_oacc_C2F).  Despite this, this routine is still
-    !! part of the Task Function/Data Packet Fortran/C++ interoperability design
-    !! and should satisy that design's requirements.  This justifies the fact that
+    !! executing C++ code.  Rather the task function is the C++ code behind the
+    !! gpu_tf_hydro interface.  Despite this, this routine is still part of
+    !! the Task Function/Data Packet Fortran/C++ interoperability design and
+    !! should satisy that design's requirements.  This justifies the fact that
     !! the interface exposes iso_c_binding types.
     !!
     !! This code uses OpenACC asynchronous queues so that code is only run once the
@@ -98,19 +70,19 @@ contains
     !! @todo The 2D and 3D kernel launching scheme has not been optimized for
     !! Fortran/Flash-X.  Rather, these were ported directly from C++ code.
     !! Study the best scenario for each setup.
-    !! @todo Fuse updateSolution & EoS?
+    !! @todo How to deal with Milhoja errors in an application-agnostic way?
     subroutine gpu_tf_hydro_fortran(C_packet_h,         &
-                                               dataQ_h,            &
-                                               queue2_h, queue3_h, &
-                                               nTiles_d, dt_d,     &
-                                               deltas_all_d,       &
-                                               lo_all_d, hi_all_d, &
-                                               loGC_all_d,         &
-                                               U_all_d,            &
-                                               auxC_all_d,         &
-                                               faceX_all_d,        &
-                                               faceY_all_d,        &
-                                               faceZ_all_d)
+                                    dataQ_h,            &
+                                    queue2_h, queue3_h, &
+                                    nTiles_d, dt_d,     &
+                                    deltas_all_d,       &
+                                    lo_all_d, hi_all_d, &
+                                    loGC_all_d,         &
+                                    U_all_d,            &
+                                    auxC_all_d,         &
+                                    faceX_all_d,        &
+                                    faceY_all_d,        &
+                                    faceZ_all_d)
         use iso_c_binding, ONLY : C_PTR
         use openacc
 

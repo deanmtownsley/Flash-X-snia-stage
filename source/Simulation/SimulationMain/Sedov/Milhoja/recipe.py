@@ -107,6 +107,9 @@ if __init__ == "__main__":
           information about all generated code that needs compiling.  We assume
           that the Flash-X build system will use that information to compile all
           files needed to build and link the simulation binary.
+        * Somehow the runtime parameters for each specific call to the
+          Orchestration unit (e.g., N threads to use, N blocks/packet) need to
+          get inserted into the Config system.
     """
     # Assume that the following values have been set by setup tool
     FLASHX_DIR = Path("/path/to/local/flashx/clone")
