@@ -35,6 +35,9 @@ public:
     void unpack(void) override;
 
     // TODO: Streams should be stored inside of an array.
+    int extraAsynchronousQueue(const unsigned int id) override;
+    void releaseExtraQueue(const unsigned int id) override;
+    
 
     // DataPacket members are made public so a matching task function can easily access them.
     // Since both files are auto-generated and not maintained by humans, this is fine.
@@ -61,6 +64,9 @@ private:
 
     // TODO: Streams should be stored inside of an array. Doing so would simplify the code
     // generation & source code for the stream functions.
+    milhoja::Stream stream2_;
+    milhoja::Stream stream3_;
+    
 
     static constexpr std::size_t SIZE_DT = sizeof(real);
     static constexpr std::size_t SIZE_NTILES = sizeof(int);
@@ -68,11 +74,11 @@ private:
     static constexpr std::size_t SIZE_TILE_LO = MILHOJA_MDIM * sizeof(int);
     static constexpr std::size_t SIZE_TILE_HI = MILHOJA_MDIM * sizeof(int);
     static constexpr std::size_t SIZE_TILE_LBOUND = MILHOJA_MDIM * sizeof(int);
-    static constexpr std::size_t SIZE_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 1 * MILHOJA_K3D) * (9 + 1 - 0) * sizeof(real);
-    static constexpr std::size_t SIZE_HYDRO_OP1_AUXC = (10) * (10) * (1) * (1) * sizeof(real);
-    static constexpr std::size_t SIZE_HYDRO_OP1_FLX = (11) * (10) * (1) * (5) * sizeof(real);
-    static constexpr std::size_t SIZE_HYDRO_OP1_FLY = (10) * (11) * (1) * (5) * sizeof(real);
-    static constexpr std::size_t SIZE_HYDRO_OP1_FLZ = (1) * (1) * (1) * (1) * sizeof(real);
+    static constexpr std::size_t SIZE_U = (16 + 2 * 1 * MILHOJA_K1D) * (16 + 2 * 1 * MILHOJA_K2D) * (16 + 2 * 1 * MILHOJA_K3D) * (9 + 1 - 0) * sizeof(real);
+    static constexpr std::size_t SIZE_HYDRO_OP1_AUXC = (18) * (18) * (18) * (1) * sizeof(real);
+    static constexpr std::size_t SIZE_HYDRO_OP1_FLX = (19) * (18) * (18) * (5) * sizeof(real);
+    static constexpr std::size_t SIZE_HYDRO_OP1_FLY = (18) * (19) * (18) * (5) * sizeof(real);
+    static constexpr std::size_t SIZE_HYDRO_OP1_FLZ = (18) * (18) * (19) * (5) * sizeof(real);
     
 };
 

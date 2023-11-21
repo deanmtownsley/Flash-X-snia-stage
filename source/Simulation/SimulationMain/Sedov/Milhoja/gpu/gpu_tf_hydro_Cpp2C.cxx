@@ -18,6 +18,8 @@ extern "C" {
     void gpu_tf_hydro_c2f (
     void* packet_h,
     const int queue1_h,
+    const int queue2_h,
+    const int queue3_h,
     const int _nTiles_h,
     const void* _nTiles_d,
     const void* _dt_d,
@@ -70,8 +72,23 @@ extern "C" {
     }
 
     int release_gpu_tf_hydro_extra_queue_c (void* packet, const int id) {
-        std::cerr << "[release_gpu_tf_hydro_extra_queue_c] Packet does not have extra queues." << std::endl;
-        return MILHOJA_ERROR_UNABLE_TO_RELEASE_STREAM;
+        if (packet == nullptr) {
+            std::cerr << "[release_gpu_tf_hydro_extra_queue_c] packet is NULL" << std::endl;
+            return MILHOJA_ERROR_POINTER_IS_NULL;
+        }
+        DataPacket_gpu_tf_hydro*   packet_h = static_cast<DataPacket_gpu_tf_hydro*>(packet);
+    
+        try {
+            packet_h->releaseExtraQueue(id);
+        } catch (const std::exception& exc) {
+            std::cerr << exc.what() << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_RELEASE_STREAM;
+        } catch (...) {
+            std::cerr << "[release_gpu_tf_hydro_extra_queue_c] Unknown error caught" << std::endl;
+            return MILHOJA_ERROR_UNABLE_TO_RELEASE_STREAM;
+        }
+    
+        return MILHOJA_SUCCESS;
     }
 
     //----- C TASK FUNCTION TO BE CALLED BY RUNTIME
@@ -79,6 +96,12 @@ extern "C" {
         DataPacket_gpu_tf_hydro* packet_h = static_cast<DataPacket_gpu_tf_hydro*>(dataItem_h);
         const int queue1_h = packet_h->asynchronousQueue();
         const int _nTiles_h = packet_h->_nTiles_h;
+        const int queue2_h = packet_h->extraAsynchronousQueue(2);
+        if (queue2_h < 0)
+        	throw std::overflow_error("[gpu_tf_hydro_cpp2c] Potential overflow error when accessing async queue id.");
+        const int queue3_h = packet_h->extraAsynchronousQueue(3);
+        if (queue3_h < 0)
+        	throw std::overflow_error("[gpu_tf_hydro_cpp2c] Potential overflow error when accessing async queue id.");
         
 
         void* _nTiles_d = static_cast<void*>( packet_h->_nTiles_d );
@@ -98,6 +121,8 @@ extern "C" {
         gpu_tf_hydro_c2f (
         packet_h,
         queue1_h,
+        queue2_h,
+        queue3_h,
         _nTiles_h,
         _nTiles_d,
         _dt_d,
