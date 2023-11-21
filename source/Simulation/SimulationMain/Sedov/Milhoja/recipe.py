@@ -70,10 +70,14 @@ def load_recipe(dimension, logger):
     hydro_begin     = recipe.begin_orchestration(BlockTypes.LEAVES, BlockLevels.ALL, use_tiling=False)
     sound_speed     = recipe.add_work("Hydro_computeSoundSpeedHll", invoke_after=hydro_begin,     map_to=GPU)
     if dimension == 2:
+        # In early testing on Summit, 2D blocks do *not* provide enough work to
+        # see a benefit from running compute flux routines in parallel.
         comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed,     map_to=GPU)
         comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=comp_flx,        map_to=GPU)
         update_soln = recipe.add_work("Hydro_updateSolutionHll",    invoke_after=comp_fly,        map_to=GPU)
     elif dimension == 3:
+        # In early testing on Summit, 3D blocks *do* provide enough work to see
+        # a benefit from running compute flux routines in parallel.
         comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed,     map_to=GPU)
         comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=sound_speed,     map_to=GPU)
         comp_flz    = recipe.add_work("Hydro_computeFluxesHll_Z",   invoke_after=sound_speed,     map_to=GPU)
