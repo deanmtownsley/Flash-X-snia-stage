@@ -25,18 +25,18 @@ module gpu_tf_hydro_mod
     implicit none
     private
 
-    public :: gpu_tf_hydro_fortran
-    public :: gpu_tf_hydro
+    public :: gpu_tf_hydro_Fortran
+    public :: gpu_tf_hydro_Cpp2C
 
     !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS FOR TIME ADVANCE UNIT
    interface
       !> C++ task function that TimeAdvance passes to Orchestration unit
-      subroutine gpu_tf_hydro(C_tId, C_dataItemPtr) bind(c)
+      subroutine gpu_tf_hydro_Cpp2C(C_tId, C_dataItemPtr) bind(c)
          use iso_c_binding,     ONLY : C_PTR
          use milhoja_types_mod, ONLY : MILHOJA_INT
          integer(MILHOJA_INT), intent(IN), value :: C_tId
          type(C_PTR),          intent(IN), value :: C_dataItemPtr
-      end subroutine gpu_tf_hydro
+      end subroutine gpu_tf_hydro_Cpp2C
    end interface
 
 contains
@@ -71,9 +71,11 @@ contains
     !! Fortran/Flash-X.  Rather, these were ported directly from C++ code.
     !! Study the best scenario for each setup.
     !! @todo How to deal with Milhoja errors in an application-agnostic way?
-    subroutine gpu_tf_hydro_fortran(C_packet_h,         &
+    subroutine gpu_tf_hydro_Fortran(C_packet_h,         &
                                     dataQ_h,            &
+#if MILHOJA_NDIM == 3
                                     queue2_h, queue3_h, &
+#endif
                                     nTiles_d, dt_d,     &
                                     deltas_all_d,       &
                                     lo_all_d, hi_all_d, &
@@ -88,7 +90,7 @@ contains
 
         use milhoja_types_mod,               ONLY : MILHOJA_INT
         use Orchestration_Interface,         ONLY : Orchestration_checkInternalError
-        use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : release_hydro_advance_extra_queue_C 
+        use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : release_gpu_tf_hydro_extra_queue_C 
         use dr_cg_hydroAdvance_mod,          ONLY : hy_computeSoundSpeedHll_gpu_oacc, &
                                                     hy_computeFluxesHll_X_gpu_oacc,   &
                                                     hy_computeFluxesHll_Y_gpu_oacc,   &
@@ -107,8 +109,10 @@ contains
 
         type(C_PTR),                   intent(IN)    :: C_packet_h
         integer(kind=acc_handle_kind), intent(IN)    :: dataQ_h
+#if MILHOJA_NDIM == 3
         integer(kind=acc_handle_kind), intent(IN)    :: queue2_h
         integer(kind=acc_handle_kind), intent(IN)    :: queue3_h
+#endif
         integer,                       intent(IN)    :: nTiles_d
         real,                          intent(IN)    :: dt_d
         real,                          intent(IN)    :: deltas_all_d(:, :)
@@ -259,11 +263,11 @@ contains
 
         !$acc wait(queue2_h, queue3_h)
         MH_id = INT(2, kind=MILHOJA_INT)
-        MH_ierr = release_hydro_advance_extra_queue_C(C_packet_h, MH_id)
-        CALL Orchestration_checkInternalError("gpu_tf_hydro_fortran", MH_ierr)
+        MH_ierr = release_gpu_tf_hydro_extra_queue_C(C_packet_h, MH_id)
+        CALL Orchestration_checkInternalError("gpu_tf_hydro_Fortran", MH_ierr)
         MH_id = INT(3, kind=MILHOJA_INT)
-        MH_ierr = release_hydro_advance_extra_queue_C(C_packet_h, MH_id)
-        CALL Orchestration_checkInternalError("gpu_tf_hydro_fortran", MH_ierr)
+        MH_ierr = release_gpu_tf_hydro_extra_queue_C(C_packet_h, MH_id)
+        CALL Orchestration_checkInternalError("gpu_tf_hydro_Fortran", MH_ierr)
 #endif
 
         !----- UPDATE SOLUTIONS IN PLACE
@@ -301,7 +305,7 @@ contains
         !$acc wait(dataQ_h)
 
         !$acc end data
-    end subroutine gpu_tf_hydro_fortran
+    end subroutine gpu_tf_hydro_Fortran
 
 end module gpu_tf_hydro_mod
 

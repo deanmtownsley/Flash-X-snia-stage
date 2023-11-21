@@ -41,42 +41,6 @@ _hydro_op1_flZ_d{nullptr}
 }
 
 DataPacket_gpu_tf_hydro::~DataPacket_gpu_tf_hydro(void) {
-    //if (stream2_.isValid())
-    //	throw std::logic_error("[DataPacket_gpu_tf_hydro::~DataPacket_gpu_tf_hydro] Stream 2 not released");
-    //if (stream3_.isValid())
-    //	throw std::logic_error("[DataPacket_gpu_tf_hydro::~DataPacket_gpu_tf_hydro] Stream 3 not released");
-    
-}
-
-int DataPacket_gpu_tf_hydro::extraAsynchronousQueue(const unsigned int id) {
-	//if (id > INT_MAX)
-	//	throw std::overflow_error("[DataPacket_gpu_tf_hydro extraAsynchronousQueue] id is too large for int.");
-	//if((id < 2) || (id > 2 + 1))
-	//	throw std::invalid_argument("[DataPacket_gpu_tf_hydro::extraAsynchronousQueue] Invalid id.");
-	//else if (id == 2) {
-	//	if (!stream2_.isValid())
-	//		throw std::logic_error("[DataPacket_gpu_tf_hydro::extraAsynchronousQueue] Stream 2 invalid.");
-	//	return stream2_.accAsyncQueue;
-	//} else if (id == 3) {
-	//	if (!stream3_.isValid())
-	//		throw std::logic_error("[DataPacket_gpu_tf_hydro::extraAsynchronousQueue] Stream 3 invalid.");
-	//	return stream3_.accAsyncQueue;
-	//}
-	return 0;
-}
-
-void DataPacket_gpu_tf_hydro::releaseExtraQueue(const unsigned int id) {
-	//if((id < 2) || (id > 2 + 1))
-	//	throw std::invalid_argument("[DataPacket_gpu_tf_hydro::releaseExtraQueue] Invalid id.");
-	//else if(id == 2) {
-	//	if(!stream2_.isValid())
-	//		throw std::logic_error("[DataPacket_gpu_tf_hydro::releaseExtraQueue] Stream 2 invalid.");
-	//	milhoja::RuntimeBackend::instance().releaseStream(stream2_);
-	//} else if(id == 3) {
-	//	if(!stream3_.isValid())
-	//		throw std::logic_error("[DataPacket_gpu_tf_hydro::releaseExtraQueue] Stream 3 invalid.");
-	//	milhoja::RuntimeBackend::instance().releaseStream(stream3_);
-	//}
 }
 
 
@@ -246,8 +210,8 @@ void DataPacket_gpu_tf_hydro::pack(void) {
         
         
         real* U_d = tileDesc_h->dataPtr();
-        constexpr std::size_t offset_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 0 * MILHOJA_K3D) * static_cast<std::size_t>(0);
-        constexpr std::size_t nBytes_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 0 * MILHOJA_K3D) * ( 9 - 0 + 1 ) * sizeof(real);
+        constexpr std::size_t offset_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 1 * MILHOJA_K3D) * static_cast<std::size_t>(0);
+        constexpr std::size_t nBytes_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 1 * MILHOJA_K3D) * ( 9 - 0 + 1 ) * sizeof(real);
         char_ptr = static_cast<char*>( static_cast<void*>(_U_p) ) + n * SIZE_U;
         std::memcpy(static_cast<void*>(char_ptr), static_cast<void*>(U_d + offset_U), nBytes_U);
         
@@ -258,14 +222,6 @@ void DataPacket_gpu_tf_hydro::pack(void) {
     stream_ = RuntimeBackend::instance().requestStream(true);
     if (!stream_.isValid())
         throw std::runtime_error("[DataPacket_gpu_tf_hydro pack] Unable to acquire stream 1.");
-    //--------------------dont set streams for 2d problem
-    //stream2_ = RuntimeBackend::instance().requestStream(true);
-    //if(!stream2_.isValid())
-    //	throw std::runtime_error("[DataPacket_gpu_tf_hydro::pack] Unable to acquire stream 2.");
-    //stream3_ = RuntimeBackend::instance().requestStream(true);
-    //if(!stream3_.isValid())
-    //	throw std::runtime_error("[DataPacket_gpu_tf_hydro::pack] Unable to acquire stream 3.");
-    
 }
 
 void DataPacket_gpu_tf_hydro::unpack(void) {
@@ -282,10 +238,10 @@ void DataPacket_gpu_tf_hydro::unpack(void) {
         
         real* U_data_p = static_cast<real*>( static_cast<void*>( static_cast<char*>( static_cast<void*>( _U_p ) ) + n * SIZE_U ) );
         
-        constexpr std::size_t offset_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 0 * MILHOJA_K3D) * static_cast<std::size_t>(0);
+        constexpr std::size_t offset_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 1 * MILHOJA_K3D) * static_cast<std::size_t>(0);
         real*        start_h_U = U_data_h + offset_U;
         const real*  start_p_U = U_data_p + offset_U;
-        constexpr std::size_t nBytes_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 0 * MILHOJA_K3D) * ( 8 - 0 + 1 ) * sizeof(real);
+        constexpr std::size_t nBytes_U = (8 + 2 * 1 * MILHOJA_K1D) * (8 + 2 * 1 * MILHOJA_K2D) * (1 + 2 * 1 * MILHOJA_K3D) * ( 8 - 0 + 1 ) * sizeof(real);
         std::memcpy(static_cast<void*>(start_h_U), static_cast<const void*>(start_p_U), nBytes_U);
         
         
