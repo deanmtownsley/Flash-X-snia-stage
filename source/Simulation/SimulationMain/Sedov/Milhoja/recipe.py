@@ -113,6 +113,7 @@ if __init__ == "__main__":
     OBJECT_DIR = FLASHX_DIR.joinpath("object")
     SIMULATION_H = OBJECT_DIR.joinpath("Simulation.h")
     DESTINATION = OBJECT_DIR.joinpath("generated_code")
+    TIME_ADVANCE_F90 = DESTINATION.joinpath("FlashX_Name.F90")
     GRID_JSON = DESTINATION.joinpath("grid.json")
     MILHOJA_PATH = Path("/path/from/site/makefile")
     NO_OVERWRITE = False
@@ -124,7 +125,7 @@ if __init__ == "__main__":
     logger = SetupLogger(verbosity)
 
     # Write grid specification to file
-    with open(OBJECT_DIR.joinpath(GRID_JSON, "w") as fptr:
+    with open(GRID_JSON, "w") as fptr:
         flashx.write_grid_json(fptr, NO_OVERWRITE)
         grid_spec = json.load(GRID_JSON)
     ndim = grid_spec["dimension"]
@@ -185,7 +186,7 @@ if __init__ == "__main__":
 
             # TODO: Run optimization methods over TF specification if users
             # specify that they want optimizations.  NO SUCH OPTIMIZATION
-            # METHODS EXIST NOR WILL THEY BE CREATED SOON.
+            # METHODS EXIST NOR WILL THEY BE CREATED ANYTIME SOON.
 
             # Write task function's code for use with Orchestration unit
             tf_spec = milhoja.TaskFunction.from_milhoja_json(tf_full_json, logger)
@@ -197,7 +198,6 @@ if __init__ == "__main__":
             )
 
     # Generate code for TimeAdvance
-    filename = DESTINATION.joinpath("FlashX_Name.F90")
     flashx.generate_time_advance_code(
-        recipe_IR, filename, NO_OVERWRITE, INDENT, logger
+        recipe_IR, TIME_ADVANCE_F90, NO_OVERWRITE, INDENT, logger
     )
