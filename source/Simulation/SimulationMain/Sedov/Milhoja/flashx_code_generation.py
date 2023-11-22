@@ -1,94 +1,3 @@
-# ----- CONTENTS OF RECIPE FILE WRITTEN BY RECIPE BUILDER
-# I'm assuming for the moment that each recipe file will be a python file that
-#
-# contains the functions
-# * get_variable_order and
-# * load_recipe
-#
-# and that recipe builders will provide these with a Flash-X-defined argument
-# list and in accord with an interface contract.
-
-from pathlib import Path
-
-from flashx import (
-    CPU, GPU
-    BlockTypes, BlockLevels,
-    TileStepRecipe,
-    SetupLogger
-)
-
-def get_variable_order(index_space, data_structure_index):
-    """
-    User-provided in recipe file passed to setup tool.
-
-    .. todo::
-        * What should argument list be for this function?
-        * Is this an OK means to encode this information?  Will it work with
-          setup tool?
-        * Do we need to specify variable order for all possible Grid data
-          structures?  
-        * Can this be the means for expressing to the setup tool what Grid data
-          structures are needed?  Or at the very least can this be used to
-          generate/override the commands needed to be specified to setup tool to
-          determine what Grid data structures are needed?
-    """
-    variable_order = None
-    if index_space.lower() == "center":
-        # Assume only one MultiFab for each index space for now
-        assert data_structure_index == 1
-        # Variable order optimized for smallest data packets.  No clue if this
-        # is good for other tasks (e.g., GC filling).
-        # - Variables for analytic data never go to GPU, so put at end
-        # - GAME is never read from or written to.  Put at end of normal
-        #   variables
-        # - GAMC is read by hydro code, but is never written to.  Put just
-        #   before GAME
-        variable_order = [
-            "DENS", "PRES", "EINT", "ENER", "TEMP",
-            "VELX", "VELY", "VELZ",
-            "GAMC", "GAME",
-            "DENA", "PRSA", "EINA", "ENRA",
-            "VLXA", "VLYA", "VLZA"
-        ]
-    else:
-        raise ValueError(f"Unknow index space {index_space}")
-
-    return variable_order
-
-def load_recipe(dimension, logger):
-    """
-    User-provided in recipe file passed to setup tool.
-
-    .. todo::
-        * What should argument list be for this function?
-        * Is it reasonable to assume that each of the Static Fortran Routines
-          has a unique name in the sense that it will appear in one and only one
-          operation spec?  Seems OK for the Hydro, but what about Eos_wrapped?
-    """
-    recipe = TimeStepRecipe(logger)
-
-    hydro_begin     = recipe.begin_orchestration(BlockTypes.LEAVES, BlockLevels.ALL, use_tiling=False)
-    sound_speed     = recipe.add_work("Hydro_computeSoundSpeedHll", invoke_after=hydro_begin,     map_to=GPU)
-    if dimension == 2:
-        # In early testing on Summit, 2D blocks do *not* provide enough work to
-        # see a benefit from running compute flux routines in parallel.
-        comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed,     map_to=GPU)
-        comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=comp_flx,        map_to=GPU)
-        update_soln = recipe.add_work("Hydro_updateSolutionHll",    invoke_after=comp_fly,        map_to=GPU)
-    elif dimension == 3:
-        # In early testing on Summit, 3D blocks *do* provide enough work to see
-        # a benefit from running compute flux routines in parallel.
-        comp_flx    = recipe.add_work("Hydro_computeFluxesHll_X",   invoke_after=sound_speed,     map_to=GPU)
-        comp_fly    = recipe.add_work("Hydro_computeFluxesHll_Y",   invoke_after=sound_speed,     map_to=GPU)
-        comp_flz    = recipe.add_work("Hydro_computeFluxesHll_Z",   invoke_after=sound_speed,     map_to=GPU)
-        update_soln = recipe.add_work("Hydro_updateSolutionHll",    invoke_after=[flx, fly, flz], map_to=GPU)
-    else:
-        raise ValueError("Invalid dimension for recipe")
-    do_eos          = recipe.add_work("Eos_wrapped",                invoke_after=update_soln,     map_to=CPU)
-    hydro_end       = recipe.end_orchestration(hydro_begin,         invoke_after=do_eos)
-
-    return recipe
-
 # ----- THIS REPRESENTS WORK THAT THE FLASH-X SETUP SYSTEM SHOULD EXECUTE
 # Recipe builders do *not* need to know about this information and, therefore,
 # it should *not* be included in recipe files.
@@ -97,6 +6,8 @@ if __init__ == "__main__":
     .. todo::
         * Should we write all JSON/generated code to object folder or something
           like object/generated_code?
+        * Who is assembling all of the valid group specification files needed
+          for this simulation, when?
         * Keep track of all files that are being generated and where they are
           written to.
         * Use the TaskFunction objects to collect information such as
@@ -116,7 +27,7 @@ if __init__ == "__main__":
     OBJECT_DIR = FLASHX_DIR.joinpath("object")
     SIMULATION_H = OBJECT_DIR.joinpath("Simulation.h")
     DESTINATION = OBJECT_DIR.joinpath("generated_code")
-    TIME_ADVANCE_F90 = DESTINATION.joinpath("FlashX_Name.F90")
+    TIME_ADVANCE_F90 = OBJECT_DIR.joinpath("FlashX_Name.F90")
     GRID_JSON = DESTINATION.joinpath("grid.json")
     MILHOJA_PATH = Path("/path/from/site/makefile")
     NO_OVERWRITE = False
@@ -179,6 +90,12 @@ if __init__ == "__main__":
             # be included in the task function.
             group_specs = []
             for subroutine in subgraph:
+                # This assumes that the group specifications needed for this
+                # simulation can be correctly filled out and located (in the
+                # object folder) and that the name of the subroutine as it
+                # appears in the subgraph can be used by the find code to
+                # identify the one and only one group specification that
+                # specifies the routine.
                 group_specs.append(flashx.find_group_specification(subroutine))
 
             assembler = milhoja.TaskFunctionAssembler.from_milhoja_json(
@@ -201,6 +118,11 @@ if __init__ == "__main__":
             )
 
     # Generate code for TimeAdvance
+    #
+    # This code will need to map the graph structure of each orchestration
+    # invocation onto the graph structure of the corresponding thread team
+    # configuration so that it knows which Orchestration_execute* subroutine to
+    # use for the invocation.
     flashx.generate_time_advance_code(
         recipe_IR, TIME_ADVANCE_F90, NO_OVERWRITE, INDENT, logger
     )
