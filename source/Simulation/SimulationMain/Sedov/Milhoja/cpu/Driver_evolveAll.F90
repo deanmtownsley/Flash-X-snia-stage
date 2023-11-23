@@ -71,14 +71,15 @@ subroutine Driver_evolveAll()
    use Orchestration_interface, ONLY: Orchestration_checkInternalError, &
                                       Orchestration_executeTasks_Cpu
    use Hydro_data, ONLY: hy_gcMaskSize, &
-                         hy_gcMask
+                         hy_gcMask, &
+                         hy_eosModeAfter
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   use cpu_tf_hydro_mod,     ONLY : cpu_tf_hydro 
-   use cpu_tf_hydro_C2F_mod, ONLY : new_hydro_advance_wrapper_C, &
-                                    delete_hydro_advance_wrapper_C, &
-                                    acquire_scratch_wrapper_C, &
-                                    release_scratch_wrapper_C
+   use cpu_tf_hydro_mod,          ONLY : cpu_tf_hydro_Cpp2C
+   use Tile_cpu_tf_hydro_C2F_mod, ONLY : new_hydro_advance_wrapper_C, &
+                                         delete_hydro_advance_wrapper_C, &
+                                         acquire_scratch_wrapper_C, &
+                                         release_scratch_wrapper_C
    !!!!!----- END INSERTION BY CODE GENERATOR
 
    implicit none
@@ -92,6 +93,7 @@ subroutine Driver_evolveAll()
    type(C_PTR)          :: cpu_tf_hydro_wrapper
    integer              :: cpu_tf_hydro_nThreads
    real(MILHOJA_REAL)   :: MH_dt
+   integer(MILHOJA_INT) :: MH_eosMode
    integer(MILHOJA_INT) :: MH_ierr
 
    cpu_tf_hydro_wrapper = C_NULL_PTR 
@@ -150,10 +152,11 @@ subroutine Driver_evolveAll()
       ! We need to instantiate a new TileWrapper prototype at each step since
       ! dt can change from one step to the next.
       MH_dt = REAL(dr_dt, kind=MILHOJA_REAL)
-      MH_ierr = new_hydro_advance_wrapper_C(MH_dt, &
+      MH_eosMode = INT(hy_eosModeAfter, kind=MILHOJA_INT)
+      MH_ierr = new_hydro_advance_wrapper_C(MH_dt, MH_eosMode, &
                                             cpu_tf_hydro_wrapper)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-      CALL Orchestration_executeTasks_Cpu(MH_taskFunction=cpu_tf_hydro, &
+      CALL Orchestration_executeTasks_Cpu(MH_taskFunction=cpu_tf_hydro_Cpp2C, &
                                           prototype_Cptr=cpu_tf_hydro_wrapper, &
                                           nThreads=cpu_tf_hydro_nThreads)
       MH_ierr = delete_hydro_advance_wrapper_C(cpu_tf_hydro_wrapper)

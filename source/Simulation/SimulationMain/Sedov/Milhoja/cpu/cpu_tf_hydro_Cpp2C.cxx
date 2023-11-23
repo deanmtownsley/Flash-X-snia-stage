@@ -17,101 +17,85 @@
 
 #include <Milhoja.h>
 #include <Milhoja_real.h>
+#include <Milhoja_IntVect.h>
+#include <Milhoja_RealVect.h>
+#include <Milhoja_Tile.h>
 #include <Milhoja_interface_error_codes.h>
 
 #include "Tile_cpu_tf_hydro.h"
 
 extern "C" {
     //----- C DECLARATION OF FORTRAN ROUTINE WITH C-COMPATIBLE INTERFACE
-    int new_hydro_advance_wrapper_c(const milhoja::Real dt, void** wrapper) {
-        if        ( wrapper == nullptr) {
-            std::cerr << "[new_hydro_advance_wrapper_c] wrapper is NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_IS_NULL;
-        } else if (*wrapper != nullptr) {
-            std::cerr << "[new_hydro_advance_wrapper_c] *wrapper not NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_NOT_NULL;
-        }
+    void cpu_tf_hydro_c2f (
+        const milhoja::Real external_hydro_op1_dt,
+        const int external_hydro_op1_eosMode,
+        const void* tile_deltas,
+        const void* tile_interior,
+        const void* lbdd_CC_1,
+        const void* CC_1,
+        const void* lbdd_scratch_hydro_op1_auxC,
+        const void* scratch_hydro_op1_auxC,
+        const void* lbdd_scratch_hydro_op1_flX,
+        const void* scratch_hydro_op1_flX,
+        const void* scratch_hydro_op1_flY,
+        const void* scratch_hydro_op1_flZ
+    );
 
-        try {
-            *wrapper = static_cast<void*>(new Tile_cpu_tf_hydro{dt});
-        } catch (const std::exception& exc) {
-            std::cerr << exc.what() << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_CREATE_WRAPPER;
-        } catch (...) {
-            std::cerr << "[new_hydro_advance_wrapper_c] Unknown error caught" << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_CREATE_WRAPPER;
-        }
+    //----- C DECLARATION OF ACTUAL TASK FUNCTION TO PASS TO RUNTIME
+    void  cpu_tf_hydro_cpp2c(const int threadIndex,
+                             milhoja::DataItem* dataItem) {
+        Tile_cpu_tf_hydro*  wrapper = dynamic_cast<Tile_cpu_tf_hydro*>(dataItem);
+        milhoja::Tile*      tileDesc = wrapper->tile_.get();
+    
+        const milhoja::IntVect   tile_lo     = tileDesc->lo();
+        const milhoja::IntVect   tile_hi     = tileDesc->hi();
+        const milhoja::IntVect   tile_lbound = tileDesc->loGC();
+        const milhoja::RealVect  tile_deltas = tileDesc->deltas();
+        milhoja::Real*     CC_1        = tileDesc->dataPtr();
 
-        return MILHOJA_SUCCESS;
-    }
+        milhoja::Real* scratch_hydro_op1_auxC = 
+                 static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_auxc_)
+                + Tile_cpu_tf_hydro::SCRATCH_HYDRO_OP1_AUXC_SIZE_ * threadIndex;
+   
+        milhoja::Real* scratch_hydro_op1_flX = 
+                 static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_flx_)
+                + Tile_cpu_tf_hydro::SCRATCH_HYDRO_OP1_FLX_SIZE_ * threadIndex;
+        milhoja::Real* scratch_hydro_op1_flY = 
+                 static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_fly_)
+                + Tile_cpu_tf_hydro::SCRATCH_HYDRO_OP1_FLY_SIZE_ * threadIndex;
+        milhoja::Real* scratch_hydro_op1_flZ = 
+                 static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_flz_)
+                + Tile_cpu_tf_hydro::SCRATCH_HYDRO_OP1_FLZ_SIZE_ * threadIndex;
 
-    int delete_hydro_advance_wrapper_c(void* wrapper) {
-        if (wrapper == nullptr) {
-            std::cerr << "[delete_hydro_advance_wrapper_c] wrapper is NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_IS_NULL;
-        }
-        delete static_cast<Tile_cpu_tf_hydro*>(wrapper);
+        milhoja::Real  tile_deltas_array[]
+                = {tile_deltas.I(), tile_deltas.J(), tile_deltas.K()};
+        // Create as 1D with ordering setup for mapping on 2D Fortran array
+        int   tile_interior[] = {tile_lo.I(), tile_hi.I(),
+                                 tile_lo.J(), tile_hi.J(),
+                                 tile_lo.K(), tile_hi.K()};
+        int   lbdd_scratch_hydro_op1_auxC[] = {tile_lo.I() - MILHOJA_K1D,
+                                               tile_lo.J() - MILHOJA_K2D,
+                                               tile_lo.K() - MILHOJA_K3D};
+        // No need for variable masking in tile wrappers since the full data
+        // array is in the memory system and available for use.  Always start
+        // with first variable?  If we have to use variable masking (See C2F
+        // layer), then we would need to set CC_1 to the start variable here.
+        int   lbdd_CC_1[]
+               = {tile_lbound.I(), tile_lbound.J(), tile_lbound.K(), 1};
+        int   lbdd_scratch_hydro_op1_flX[]
+               = {tile_lo.I(), tile_lo.J(), tile_lo.K(), 1};
 
-        return MILHOJA_SUCCESS;
-    }
-
-    int get_dt_wrapper_c(void* wrapper, milhoja::Real* dt) {
-        if (!wrapper || !dt) {
-            std::cerr << "[get_dt_wrapper_c] wrapper or dt NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_IS_NULL;
-        }
-
-        try {
-            Tile_cpu_tf_hydro*   tile = static_cast<Tile_cpu_tf_hydro*>(wrapper);
-            *dt = tile->dt_;
-        } catch (const std::exception& exc) {
-            std::cerr << exc.what() << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
-        } catch (...) {
-            std::cerr << "[get_dt_wrapper_c] Unknown error caught" << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
-        }
-
-        return MILHOJA_SUCCESS;
-    }
-
-    int acquire_scratch_wrapper_c(void) {
-        Tile_cpu_tf_hydro::acquireScratch();
-
-        return MILHOJA_SUCCESS;
-    }
-
-    int release_scratch_wrapper_c(void) {
-        Tile_cpu_tf_hydro::releaseScratch();
-
-        return MILHOJA_SUCCESS;
-    }
-
-    int get_scratch_auxc_wrapper_c(void* wrapper, const int threadIdx,
-                                   milhoja::Real** auxC) {
-        if (!wrapper || !auxC) {
-            std::cerr << "[get_scratch_auxc_wrapper_c] wrapper or auxC NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_IS_NULL;
-        } else if (*auxC) {
-            std::cerr << "[get_scratch_auxc_wrapper_c] *auxC not NULL" << std::endl;
-            return MILHOJA_ERROR_POINTER_NOT_NULL;
-        } else if (threadIdx < 0) {
-            std::cerr << "[get_scratch_auxc_wrapper_c] Negative threadIdx" << std::endl;
-            return MILHOJA_ERROR_NEGATIVE_VALUE_FOR_UINT;
-        }
-
-        try {
-            Tile_cpu_tf_hydro*   tile = static_cast<Tile_cpu_tf_hydro*>(wrapper);
-            *auxC =   static_cast<milhoja::Real*>(tile->hydro_op1_auxc_)
-                    + Tile_cpu_tf_hydro::HYDRO_OP1_AUXC_SIZE_ * threadIdx;
-        } catch (const std::exception& exc) {
-            std::cerr << exc.what() << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
-        } catch (...) {
-            std::cerr << "[get_scratch_auxc_wrapper_c] Unknown error caught" << std::endl;
-            return MILHOJA_ERROR_UNABLE_TO_ACCESS_WRAPPER;
-        }
-
-        return MILHOJA_SUCCESS;
+        cpu_tf_hydro_c2f(wrapper->external_hydro_op1_dt_,
+                         wrapper->external_hydro_op1_eosMode_,
+                         static_cast<void*>(tile_deltas_array),
+                         static_cast<void*>(tile_interior),
+                         static_cast<void*>(lbdd_CC_1),
+                         static_cast<void*>(CC_1),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_auxC),
+                         static_cast<void*>(scratch_hydro_op1_auxC),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_flX),
+                         static_cast<void*>(scratch_hydro_op1_flX),
+                         static_cast<void*>(scratch_hydro_op1_flY),
+                         static_cast<void*>(scratch_hydro_op1_flZ));
     }
 }

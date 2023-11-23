@@ -17,7 +17,7 @@
 !! A module that provides Fortran interfaces to all C++ functions written for
 !! working with this particular data item.  This module assumes that all these
 !! functions were written with C-compatible linkage.
-module cpu_tf_hydro_C2F_mod
+module Tile_cpu_tf_hydro_C2F_mod
     implicit none
     private
 
@@ -25,20 +25,21 @@ module cpu_tf_hydro_C2F_mod
     public :: delete_hydro_advance_wrapper_C
     public :: acquire_scratch_wrapper_C
     public :: release_scratch_wrapper_C
-    public :: get_dt_wrapper_C
-    public :: get_scratch_auxC_wrapper_C
 
     !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS FOR TIME ADVANCE UNIT
     interface
         !> To be used by TimeAdvance to create a concrete tile wrapper that the
         !! Orchestation unit can use to blindly clone the same type of wrapper.
-        function new_hydro_advance_wrapper_C(C_dt, C_wrapper) result(C_ierr) bind(c)
+        function new_hydro_advance_wrapper_C(C_external_hydro_op1_dt, &
+                                             C_external_hydro_op1_eosMode, &
+                                             C_wrapper) result(C_ierr) bind(c)
             use iso_c_binding,     ONLY : C_PTR
             use milhoja_types_mod, ONLY : MILHOJA_INT, &
                                           MILHOJA_REAL
-            real(MILHOJA_REAL),  intent(IN), value :: C_dt
-            type(C_PTR),         intent(IN)        :: C_wrapper
-            integer(MILHOJA_INT)                   :: C_ierr
+            real(MILHOJA_REAL),   intent(IN), value :: C_external_hydro_op1_dt
+            integer(MILHOJA_INT), intent(IN), value :: C_external_hydro_op1_eosMode
+            type(C_PTR),          intent(IN)        :: C_wrapper
+            integer(MILHOJA_INT)                    :: C_ierr
         end function new_hydro_advance_wrapper_C
 
         !> To be used by TimeAdvance to free tile wrapper resources.
@@ -64,27 +65,4 @@ module cpu_tf_hydro_C2F_mod
         end function release_scratch_wrapper_C
     end interface
 
-    !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS FOR TASK FUNCTION
-    interface
-        !> To be used by task function to access thread-private auxC scratch block
-        function get_scratch_auxC_wrapper_C(C_wrapper, C_threadID, C_auxC) result(C_ierr) bind(c)
-            use iso_c_binding,     ONLY : C_PTR
-            use milhoja_types_mod, ONLY : MILHOJA_INT, MILHOJA_REAL
-            type(C_PTR),          intent(IN), value :: C_wrapper
-            integer(MILHOJA_INT), intent(IN), value :: C_threadID
-            type(C_PTR),          intent(OUT)       :: C_auxC
-            integer(MILHOJA_INT)                    :: C_ierr
-        end function get_scratch_auxC_wrapper_C
-
-        !> To be used by task function to access dt
-        function get_dt_wrapper_C(C_wrapper, MH_dt) result(C_ierr) bind(c)
-            use iso_c_binding,     ONLY : C_PTR
-            use milhoja_types_mod, ONLY : MILHOJA_INT, MILHOJA_REAL
-            type(C_PTR),         intent(IN), value :: C_wrapper
-            real(MILHOJA_REAL),  intent(OUT)       :: MH_dt
-            integer(MILHOJA_INT)                   :: C_ierr
-        end function get_dt_wrapper_C
-    end interface
-
-end module cpu_tf_hydro_C2F_mod
-
+end module Tile_cpu_tf_hydro_C2F_mod

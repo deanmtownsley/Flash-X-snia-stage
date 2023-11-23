@@ -46,7 +46,7 @@ contains
     !! @details
     !! This routine is *not* a task function that is called directly by a pthread
     !! executing C++ code.  Rather the task function is the C++ code behind the
-    !! gpu_tf_hydro interface.  Despite this, this routine is still part of
+    !! gpu_tf_hydro_Cpp2C interface.  Despite this, this routine is still part of
     !! the Task Function/Data Packet Fortran/C++ interoperability design and
     !! should satisy that design's requirements.  This justifies the fact that
     !! the interface exposes iso_c_binding types.
