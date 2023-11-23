@@ -22,7 +22,7 @@
 !!                              real(OUT),TARGET      :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              real(OUT),TARGET      :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
-!!                              logical(IN), OPTIONAL :: isFluxDensity)
+!!                              logical(IN), OPTIONAL :: isFluxDensity(:))
 !!
 !! DESCRIPTION
 !!
