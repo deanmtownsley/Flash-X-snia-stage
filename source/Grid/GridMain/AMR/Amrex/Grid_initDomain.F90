@@ -69,6 +69,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
   use Grid_data, ONLY : gr_globalNumBlocks, gr_globalDomain, gr_interpolator, &
                       lo_bc_amrex, hi_bc_amrex, gr_eosModeInit, &
                       gr_maxRefine, gr_doFluxCorrection
+  use gr_leafBlockInfo,          ONLY : gr_leafBlockInfoUpdate
 
   use Driver_interface,     ONLY : Driver_abort
   use Grid_iterator,             ONLY : Grid_iterator_t
@@ -131,7 +132,9 @@ subroutine Grid_initDomain(restart,particlesInitialized)
     ! this might be time a part of \FlashOfTheFuture with simulated time passed as T_INIT
     ! that is read from checkpoint file. Useful with user-defined callbacks
     call amrex_init_from_scratch(T_INIT)
-  else ! this is a restart 
+    call gr_leafBlockInfoUpdate()
+  else ! this is a restart
+    call gr_leafBlockInfoUpdate()
     call Simulation_initRestart()
   end if
 

@@ -25,7 +25,7 @@
 !!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrX(:,lo(1): ,lo(2): ,lo(3): ),
 !!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrZ(:,lo(1): ,lo(2): ,lo(3): ),
-!!                                 logical(IN), OPTIONAL :: isFluxDensity)
+!!                                 logical(IN), OPTIONAL :: isFluxDensity(:))
 !!
 !! DESCRIPTION
 !!

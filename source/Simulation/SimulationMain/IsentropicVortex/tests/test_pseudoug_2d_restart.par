@@ -3,7 +3,7 @@
 #               AMR parameters
 
 lrefine_max     = 3
-lrefine_min     = 1
+lrefine_min     = 3
 refine_var_1     = "dens"
 
 #nblockx		= 2
@@ -16,7 +16,7 @@ enableMaskedGCFill			= .TRUE.
 pt_numX	= 10
 pt_numY	= 10
 
-pt_maxPerProc = 900
+pt_maxPerProc = 100
 
 useParticles = .true.
 
@@ -30,14 +30,14 @@ pt_initialZMax = 10.0
 
 #		simulation parameters
 
-restart         = .false.
+restart         = .true.
 checkpointFileIntervalTime = 0.0
 checkpointFileIntervalStep = 0
-checkpointFileNumber = 0	
+checkpointFileNumber = 1	
 plotfileIntervalTime = 0.0
 
 nend            = 1000
-tmax            = 10.
+tmax            = 20.
 
 cfl		= .95
 
@@ -91,7 +91,7 @@ plot_var_1 = "dens"
 
 #	Related to the Hydro solver
 #
-flux_correct = .TRUE.
+flux_correct = .FALSE.
 #flux_correct_perLevel = .FALSE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
 hy_eosModeGc = "dens_ie"
 
@@ -119,12 +119,3 @@ entropy         = .false.     # Entropy fix for the Roe solver
 #	III. STRONG SHOCK HANDELING SCHEME:
 shockDetect	= .false.     # Shock Detect for numerical stability
 ## -------------------------------------------------------------##
-
-## ---------------------------------------------------------------##
-##  SWITCHES SPECIFIC TO THE SUPER-TIME-STEPPING (STS) ALGORITHM  ##
-##  NOTE: For details on using STS runtime parameters, please     ##
-##        refer to user's guide (Driver chapter).                 ##
-useSTS                  = .false.
-nstepTotalSTS           = 5
-nuSTS                   = 0.2
-## ---------------------------------------------------------------##

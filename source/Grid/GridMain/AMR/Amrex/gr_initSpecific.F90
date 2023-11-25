@@ -33,6 +33,7 @@
 subroutine gr_initSpecific()
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Grid_data, ONLY : gr_meshNumProcs
+  use gr_auxFluxData, ONLY: gr_auxFluxInit
   use gr_specificData, ONLY : gr_nToLeft, &
                               gr_bndGCFillNeedsPrimitiveVars
 
@@ -44,5 +45,6 @@ subroutine gr_initSpecific()
 
   call RuntimeParameters_get("gr_bndGCFillNeedsPrimitiveVars", gr_bndGCFillNeedsPrimitiveVars)
 
+  call gr_auxFluxInit()
 end subroutine gr_initSpecific
 
