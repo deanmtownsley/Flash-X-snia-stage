@@ -61,7 +61,7 @@ subroutine IO_writeIntegralQuantities(isFirst, simTime)
    use Grid_tile, ONLY: Grid_tile_t
    use Simulation_data, ONLY: sim_maxDens, sim_postBounce, sim_bounceTime
 
-   use Eos_wlInterface, only: Eos_wlDetectBounce
+   ! use Eos_wlInterface, only: Eos_wlDetectBounce
 
 #if defined(THORNADO)
    use rt_data, ONLY: rt_offGridFluxR
@@ -383,7 +383,7 @@ subroutine IO_writeIntegralQuantities(isFirst, simTime)
    sim_maxDens = maxDensGlobal
 
    if (.not. sim_postBounce) &
-      call Eos_wlDetectBounce(sim_postBounce, bounceTime=sim_bounceTime)
+      call sim_detectBounce(sim_postBounce, sim_bounceTime)
 
    postBounceTime = 0.0
    if (sim_postBounce) postBounceTime = simTime - sim_bounceTime

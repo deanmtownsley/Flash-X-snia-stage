@@ -71,8 +71,8 @@ module Simulation_data
    logical, save :: sim_usePnotT
 
    real, save :: sim_shockRadTot, sim_shockRadNum
-   logical, save :: sim_postBounce
-   real, save :: sim_bounceTime
+   ! logical, save :: sim_postBounce
+   ! real, save :: sim_bounceTime
    real, save :: sim_massAccRate, sim_massAccNum
 
    real, save :: sim_avgShockR, sim_minShockR, sim_maxShockR
@@ -83,5 +83,17 @@ module Simulation_data
 
    real, save :: sim_tinitial
    real, save :: sim_maxDens
+
+   ! Bounce detection
+   logical, save :: sim_postBounce = .false.
+   real, save :: sim_bounceTime = 0.0
+   real, save :: sim_centralDens, sim_centralEntr
+   integer, save :: sim_nstep
+
+   ! The entropy within radius eos_shockEntrRad at which bounce will be flagged:
+   real, parameter :: sim_shockEntr = 3.0
+   real, parameter :: sim_shockEntrRad = 3.0e6
+   ! The minimum central density at which bounce will be flagged:
+   real, parameter :: sim_bounceDens = 2.0e14
 
 end module Simulation_data
