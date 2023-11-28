@@ -34,7 +34,6 @@ restart         = .false.
 checkpointFileIntervalTime = 0.0
 checkpointFileIntervalStep = 0
 checkpointFileNumber = 0	
-plotfileIntervalTime = 0.0
 
 nend            = 1000
 tmax            = 10.
@@ -93,7 +92,7 @@ plot_var_1 = "dens"
 #
 flux_correct = .TRUE.
 #flux_correct_perLevel = .FALSE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
-hy_eosModeGc = "dens_ie"
+hy_eosModeGc = "eos_nop"
 
 use_steepening  = .false.
 cvisc           = 0.

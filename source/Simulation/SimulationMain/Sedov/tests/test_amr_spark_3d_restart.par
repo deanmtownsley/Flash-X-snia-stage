@@ -1,0 +1,111 @@
+#	Runtime parameters for the Sedov explosion problem.
+#
+# Run on 8 or more MPI processes.
+
+#	Parameters for initial model
+#		Ambient pressure and density, explosion energy, initial
+#		radius of perturbation, and location of explosion center
+sim_pAmbient	 = 1.E-5
+sim_rhoAmbient	 = 1.
+sim_expEnergy	 = 1.
+sim_xctr		 = 0.5
+sim_yctr		 = 0.5
+sim_zctr		 = 0.5
+sim_profFileName = "sedovSolutionModLong.dat"
+sim_minRhoInit          = 1.0E-5
+smlRho                  = 1.0E-10
+
+#		Gas ratio of specific heats
+gamma           = 1.4
+
+#	Computational volume parameters
+#		Grid dimensionality and geometry
+geometry = "cartesian"
+
+#		Size of computational volume
+xmin		= 0.
+xmax		= 1.
+ymin		= 0.
+ymax		= 1.
+zmin		= 0.
+zmax		= 1.
+
+# Log integral quantities using all levels and all cells
+sim_oneLevelIntegralsOnly = .FALSE.
+sim_smallestNormRadius = -1.0
+sim_largestNormRadius  =  1.0e20
+
+sim_earliestLSTime     = 0.021
+sim_latestLSTime       = 0.026
+
+
+#		Boundary conditions
+xl_boundary_type      = "outflow"
+xr_boundary_type      = "outflow"
+yl_boundary_type      = "outflow"
+yr_boundary_type      = "outflow"
+zl_boundary_type      = "outflow"
+zr_boundary_type      = "outflow"
+
+#	Simulation (grid, time, I/O) parameters
+cfl		        = 0.3
+restart         = .true.
+
+#	integral quantities & errors write frequency
+wr_integrals_freq              = 1
+
+#	checkpoint file output parameters
+checkpointFileIntervalTime = 0.0
+checkpointFileNumber = 1
+
+#	plotfile output parameters
+plotfileIntervalTime = 0.0
+plotfileIntervalStep = 0
+plotfileNumber       = 0
+
+memory_stat_freq               = 100
+
+#tstep_change_factor = 1.1
+nend            = 1000
+tmax            = 0.0150
+
+run_comment     = "3D Sedov explosion, from tinitial=0.013, cont'd"
+log_file        = "flashx.log"
+eintSwitch      = 1.e-4
+
+plot_var_1 = "dens"
+plot_var_2 = "pres"
+plot_var_3 = "temp"
+
+#  Adaptive Grid refinement parameters
+lrefine_max       = 4
+refine_var_1      = "dens"
+refine_var_2      = "pres"
+refine_cutoff_1   = 0.75
+derefine_cutoff_1 = 0.75
+
+gr_enableTiling = .TRUE.
+gr_useTiling = .TRUE.
+gr_tileSizeX = 20
+gr_tileSizeY = 20
+gr_tileSizeZ = 5
+hy_useTiling = .TRUE.
+
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
+
+## -------------------------------------------------------------##
+##  SWITCHES FOR THE SPARK HYDRO SOLVER                         ##
+#	I. INTERPOLATION SCHEME:
+# Reconstruction order / method is determined at setup time
+#slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+
+#cvisc		= 0.1     # coefficient for artificial viscosity
+use_flattening	= .false. # use flattening (dissipative) (originally for PPM)
+
+#	II. RIEMANN SOLVERS:
+#RiemannSolver	= "HLL"       # Roe, HLL, HLLC, LLF, Marquina
+
+#	III. STRONG SHOCK HANDLING SCHEME:
+use_hybridRiemann = .FALSE.   #Use the HLL solver inside shocks (flagged by SHOK_VAR)
+## -------------------------------------------------------------##

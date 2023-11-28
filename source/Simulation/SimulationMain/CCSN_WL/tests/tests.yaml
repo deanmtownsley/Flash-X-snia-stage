@@ -1,7 +1,16 @@
 # YAML file for test information
 # comments start with "#"
 
+# NOT ENABLED in regular Production_GCC.suite
 Comparison/CCSN/AMR/1dSph/Paramesh/WeakLib:
   setupOptions: -auto -1d +spherical -nxb=16 threadBlockList=False +pm4dev +hdf5 threadWithinBlock=False +newMpole +uhd
   parfiles: <defaultParfile>
   transfers: object/s15s7b2_short object/wl-EOS-SFHo-15-25-50-noBCK.h5
+
+# NOT PRESENT in regular Production_GCC.suite
+Composite/CCSN/AMR/1dSph/Paramesh/WeakLib:
+  setupOptions: -auto -1d +spherical -nxb=16 threadBlockList=False +pm4dev +hdf5 threadWithinBlock=False +newMpole +uhd
+  parfiles: test_amr_unsplit_1d.par
+  restartParfiles: test_amr_unsplit_1d_restart.par
+  transfers: object/s15s7b2_short object/wl-EOS-SFHo-15-25-50-noBCK.h5
+

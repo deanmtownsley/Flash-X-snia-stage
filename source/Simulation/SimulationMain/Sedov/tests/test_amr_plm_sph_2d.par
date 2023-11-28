@@ -1,0 +1,147 @@
+#	Runtime parameters for the Sedov explosion problem.
+#./setup Sedov -auto -2d +spherical +uhd -parfile=test_amr_plm_cyl_2d.par DoAnalytical=True
+#       Version for testing "unsplit" Hydro with piecewise linear reconstruction with an AMR implementation
+#       that is configured to allow for dynamic Grid refinement.
+#./setup Sedov -auto -2d -nxb=16 -nyb=16 +spherical +uhd DoAnalytical=True -parfile=test_amr_plm_cyl_2d.par
+#
+
+#	Parameters for initial model
+#		Ambient pressure and density, explosion energy, initial
+#		radius of perturbation, and location of explosion center
+
+sim_pAmbient	= 1.E-5
+sim_rhoAmbient	= 1.
+sim_expEnergy	= 1.
+tinitial        = 0.01
+sim_rInit               = 0.109375
+#sim_rInit		= 0.013671875 # something to use for tinitial = 0.0
+#sim_rInit		= 0.16368419815302118  # shock radius at tinitial = 0.01
+#sim_rInit		= 0.31159806851954913  # shock radius at tmax     = 0.05
+
+sim_xctr		= 0.0
+#sim_yctr		= 0.5
+#sim_zctr		= 0.5
+
+sim_nsubzones           = 1 # 7 # 10000
+
+sim_profFileName        = "sedovSolutionModLong.dat"
+sim_minRhoInit          = 1.0E-3
+smlRho                  = 1.0E-10
+
+eosModeInit = "dens_ie"
+
+#		Gas ratio of specific heats
+gamma           = 1.4
+
+#	Computational volume parameters
+#		Grid dimensionality and geometry
+
+geometry = "spherical"
+
+#		Size of computational volume
+xmin		= 0.
+xmax		= 0.5
+ymin		= 0.0
+ymax		= 180.0
+
+# Log integral quantities using all levels and all cells
+sim_oneLevelIntegralsOnly = .FALSE.
+sim_smallestNormRadius = -1.0
+sim_largestNormRadius  =  1.0e20
+
+sim_earliestLSTime     = 0.021
+sim_latestLSTime       = 0.026
+
+
+#		Boundary conditions
+#
+xl_boundary_type      = "reflecting"
+xr_boundary_type      = "outflow"
+
+yl_boundary_type = "reflecting"
+yr_boundary_type = "reflecting"
+
+#	Simulation time, I/O  parameters
+
+cfl		= 0.8
+#hy_cflFallbackFactor           = 0.9
+
+flux_correct = .TRUE.
+
+restart  = .false.
+
+#	integral quantities & errors write frequency
+wr_integrals_freq              = 1
+
+#	checkpoint file output parameters
+checkpointFileIntervalTime = 0
+checkpointFileNumber = 0
+
+#	plotfile output parameters
+plotfileIntervalTime = 0
+plotfileIntervalStep = 0
+
+memory_stat_freq               = 1000
+
+#tstep_change_factor = 1.1
+nend            = 800
+tmax            = 0.03
+
+run_comment     = "2D spherical Sedov from tinitial=0.01"
+log_file        = "flashx.log"
+#eintSwitch     = 0.0 # 1.e-4
+#use_auxEintEqn = .FALSE.
+
+plot_var_1 = "dens"
+plot_var_2 = "pres"
+plot_var_3 = "temp"
+
+#  Adaptive Grid refinement parameters
+# Fix derefine_cutoff=refine_cutoff for all refinement
+# variables so that we can do a better direct comparison
+# of AMReX- and Paramesh-generated results
+lrefine_max       = 5
+lrefine_min     = 1
+#lrefine_min_init     = 1
+refine_var_1      = "dens"
+refine_var_2      = "pres"
+refine_cutoff_1   = 0.1
+derefine_cutoff_1 = 0.1
+refine_cutoff_2   = 0.1
+derefine_cutoff_2 = 0.1
+sim_forceCenterDerefine   = .TRUE.
+sim_centerRefineLevel     = 2
+sim_derefineRadius     = 0.1
+
+nblockx                        = 1
+nblocky                        = 2
+#nblockz                        = 1
+
+gr_useTiling = .FALSE.
+
+# Uniform Grid specific parameters 
+ 
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#	I. INTERPOLATION SCHEME:
+order		= 2      # Interpolation order (first/second/third/fifth order)
+sim_bcSetBdryVar = .FALSE.
+slopeLimiter    = "vanLeer" # Slope limiters (minmod,mc,vanLeer,vanLeer1.5?,hybrid,limited)
+LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
+charLimiting	= .FALSE. # Characteristic limiting vs. Primitive limiting
+
+use_avisc	= .FALSE. # Do not use artificial viscosity (originally for PPM)
+#cvisc		= 0.1     # coefficient for artificial viscosity
+use_flattening	= .false. # use flattening (dissipative) (originally for PPM)
+use_steepening	= .false. # use contact steepening (originally for PPM)
+use_upwindTVD	= .false. # use upwind biased TVD slope for PPM (need nguard=6)
+
+hy_fPresInMomFlux = 0.0      # Percentage of pressure gradient for the momentum equation that is handled in momentum fluxes
+
+#       II. RIEMANN SOLVERS:
+RiemannSolver	= "hllc"       # Roe, HLL, HLLC, LLF, Marquina
+
+#	III. STRONG SHOCK HANDLING SCHEME:
+shockDetect	= .false.     # Shock Detect for numerical stability
+shockLowerCFL   = .FALSE.     # Lower the simulation CFL if shocks are detected
+## -------------------------------------------------------------##

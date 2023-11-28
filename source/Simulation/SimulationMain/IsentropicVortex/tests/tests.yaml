@@ -24,39 +24,59 @@
 # second file flashx_hdf5_chk_0002 is used to ensure that restart is transparent
 
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
-  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  setupOptions: -auto -2d +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
   parfiles: iv.par
-  restartParfiles: iv_restart.par
+  restartParfiles: test_amr_2d_restart.par
 
 #this test had debug flag turned on
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/spark:
   setupOptions: -auto +sparkbase2d +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
-  parfiles: iv.par
+  parfiles: iv.debug.par
   restartParfiles: iv_restart.par
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
   setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
 Composite/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
-  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+  setupOptions: -auto -2d +nolwf +uhd -unit=Particles Bittree=True
   parfiles: iv.par
-  restartParfiles: iv_restart.par
+  restartParfiles: test_pseudoug_2d_restart.par
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/IsentropicVortex/AMR/2d/Paramesh/sparkNt:
   setupOptions: -auto +sparkbase2d nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping -unit=Particles Bittree=True
   parfiles: iv.par
   restartParfiles: iv_restart.par
 
+# NOT ENABLED in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/unsplit:
 #  setupOptions: -auto -2d -debug +uhd +amrex +nolwf +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
+# NOT ENABLED in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/AMReX/spark:
-#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
 #  parfiles: iv.par
 
+# NOT PRESENT in regular Production_GCC.suite
+#Comparison/IsentropicVortex/PseudoUG/2d/AMReX/sparkNt:
+#  setupOptions: -auto -2d -nxb=16 -nyb=16 -debug +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+#  parfiles: iv.par
+
+# NOT PRESENT in regular Production_GCC.suite
 #Comparison/IsentropicVortex/PseudoUG/2d/Paramesh/unsplit:
 #  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
 #  parfiles: iv.par
+
+Composite/IsentropicVortex/AMR/2d/AMReX/spark:
+  setupOptions: -auto -2d -nxb=16 -nyb=16  +spark  +amrex +serialIO -unit=IO/IOMain/hdf5/serial/AM -unit=Particles
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
+
+Composite/IsentropicVortex/AMR/2d/Paramesh/unsplit:
+  setupOptions: -auto -2d -debug +nolwf +uhd -unit=Particles Bittree=True
+  parfiles: iv.par
+  restartParfiles: iv_restart.par
