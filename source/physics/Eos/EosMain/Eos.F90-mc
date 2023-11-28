@@ -60,3 +60,69 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   
   return
 end subroutine Eos
+
+
+! Ugly hack to prevent this version of Eos.F90 from compiling if
+! two or more EOS implementations are included.  The check against the
+! hybrid EOS below should never return true as it has its own implementation
+! of Eos.F90
+
+#if defined(EOS_GAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_MULTIGAMMA_INCLUDED)        || \
+      defined(EOS_WEAKLIB_INCLUDED)           || \
+      defined(EOS_HELM_YE_INCLUDED)           || \
+      defined(EOS_HELM_SPECIESBASED_INCLUDED) || \
+      defined(EOS_HELM_STARKILLER_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
+
+#if defined(EOS_MULTIGAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_GAMMA_INCLUDED)             || \
+      defined(EOS_WEAKLIB_INCLUDED)           || \
+      defined(EOS_HELM_YE_INCLUDED)           || \
+      defined(EOS_HELM_SPECIESBASED_INCLUDED) || \
+      defined(EOS_HELM_STARKILLER_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
+
+#if defined(EOS_WEAKLIB_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_GAMMA_INCLUDED)             || \
+      defined(EOS_MULTIGAMMA_INCLUDED)        || \
+      defined(EOS_HELM_YE_INCLUDED)           || \
+      defined(EOS_HELM_SPECIESBASED_INCLUDED) || \
+      defined(EOS_HELM_STARKILLER_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
+
+#if defined(EOS_HELM_YE_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_GAMMA_INCLUDED)             || \
+      defined(EOS_MULTIGAMMA_INCLUDED)        || \
+      defined(EOS_WEAKLIB_INCLUDED)           || \
+      defined(EOS_HELM_SPECIESBASED_INCLUDED) || \
+      defined(EOS_HELM_STARKILLER_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
+
+#if defined(EOS_HELM_SPECIESBASED_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_GAMMA_INCLUDED)             || \
+      defined(EOS_MULTIGAMMA_INCLUDED)        || \
+      defined(EOS_WEAKLIB_INCLUDED)           || \
+      defined(EOS_HELM_YE_INCLUDED)           || \
+      defined(EOS_HELM_STARKILLER_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
+
+#if defined(EOS_HELM_STARKILLER_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
+# if  defined(EOS_GAMMA_INCLUDED)             || \
+      defined(EOS_MULTIGAMMA_INCLUDED)        || \
+      defined(EOS_WEAKLIB_INCLUDED)           || \
+      defined(EOS_HELM_YE_INCLUDED)           || \
+      defined(EOS_HELM_SPECIESBASED_INCLUDED)
+#   error Multiple EOS implementations included without Hybrid
+# endif
+#endif
