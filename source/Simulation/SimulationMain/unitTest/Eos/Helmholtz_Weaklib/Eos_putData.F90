@@ -191,11 +191,9 @@ subroutine Eos_putData(range, vecLen, solnData, gridDataStruct, eosData)
    !   the length of the data being operated upon
    pres_map = eos_mapLookup(EOSMAP_PRES, EOS_OUT, gridDataStruct)
    temp_map = eos_mapLookup(EOSMAP_TEMP, EOS_OUT, gridDataStruct)
-!   gamc_map = eos_mapLookup(EOSMAP_GAMC,EOS_OUT,gridDataStruct)
    game_map = eos_mapLookup(EOSMAP_GAME, EOS_OUT, gridDataStruct)
    eint_map = eos_mapLookup(EOSMAP_EINT, EOS_OUT, gridDataStruct)
    ener_map = eos_mapLookup(EOSMAP_ENER, EOS_OUT, gridDataStruct)
-!   entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,gridDataStruct)
 
    ! Hack for extracting Helmholtz and WeakLib inverted temperatures
    ! in the transition region

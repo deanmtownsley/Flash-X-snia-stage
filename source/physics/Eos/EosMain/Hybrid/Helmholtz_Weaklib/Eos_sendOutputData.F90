@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Hybrid/Eos_sendOutputData
+!!****if* source/physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib/Eos_sendOutputData
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Hybrid/eos_hybridInit
+!!****if* source/physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib/eos_hybridInit
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -72,6 +72,9 @@ subroutine eos_hybridInit()
       call RuntimeParameters_get('eos_hybTransitionDensLo', eos_hybTransitionDensLo)
    end if
 
+   ! Binding energy / mass number for each evolved species
+   ! These will be multiplied against each species mass fraction
+   ! when calculating the energy shift for Helmholtz
 #ifdef FLASH_MULTISPECIES
    if (NSPECIES .gt. 0) then
       call Multispecies_getPropertyVector(A, As)

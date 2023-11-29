@@ -43,16 +43,14 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_everywhere with eosMode =
-!! MODE_DENS_PRES, followed by eosMode= MODE_DENS_EI.  If the
+!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! MODE_DENS_EI, followed by eosMode= MODE_DENS_PRES.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
 !! we can conclude that the Eos is working in MODE_DENS_PRES and
 !! MODE_DENS_EI modes. However, we still can't say anything about the
-!! MODE_DENS_TEMP mode. So we repeat the process by copying CPRS_VAR
-!! into PRES_VAR and calling Eos_everywhere with MODE_DENS_PRES. We
-!! again save the calculated values in the extra storage and make two
-!! more Eos_everywhere calls with the remaining two modes. This time if
+!! MODE_DENS_TEMP mode. So we repeat the process in reverse working back
+!! through modes MODE_DENS_PRES, MODE_DENS_EI, and MODE_DENS_TEMP. This time if
 !! the new and old values of variables compare, we can conclude that
 !! MODE_DENS_TEMP works too, and hence the unit test is successful.
 !!
@@ -72,7 +70,6 @@
 subroutine Eos_unitTest(fileUnit, perfect)
 
    use Eos_interface, ONLY: Eos_wrapped
-   ! use Eos_interface, ONLY: Eos_everywhere
    use Grid_interface, ONLY: Grid_getTileIterator, &
                              Grid_releaseTileIterator, &
                              Grid_getBlkType
@@ -111,6 +108,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
                                     status_fmt, setup_fmt, init_fmt, result_fmt, &
                                     comp_fmt, tmp_fmt
 
+   ! Misc. formats for output
    block_fmt  = "(i6,':  Block: ',i8,'  Type: ',i4)" !&
 
    setup_fmt  = "(i6,':  Setting up test for mode: ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)" !&
@@ -189,6 +187,7 @@ contains
 
       name = mode_names(mode)
 
+      ! Get variable names for output
       call Simulation_mapIntToStr(in_1, in_1_name, MAPBLOCK_UNK)
       call Simulation_mapIntToStr(in_2, in_2_name, MAPBLOCK_UNK)
       call Simulation_mapIntToStr(in_1_init, in_1_init_name, MAPBLOCK_UNK)
@@ -204,6 +203,7 @@ contains
          write (*, *) repeat("=", 88)
       end if
 
+      ! Initialize the input variables for the first mode in this set of tests
       call Grid_getTileIterator(itor, LEAF, tiling=.false.)
       TileLoopInit: do
          if (.not. itor%isValid()) exit TileLoopInit
@@ -241,10 +241,10 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
+      ! Call the EOS on the full grid to obtain the initial "equilibrium" state
       ! Arbitrarily looping here to accumulate better stats on total/average times
       call Timers_start(name)
       do n = 1, 1000
-         ! call Eos_everywhere(mode)
          call Grid_getTileIterator(itor, LEAF, tiling=.false.)
          TileLoopEos: do
             if (.not. itor%isValid()) exit TileLoopEos
@@ -267,6 +267,7 @@ contains
 
       write (*, *) repeat("-", 88)
 
+      ! Store the expected values
       call Grid_getTileIterator(itor, LEAF, tiling=.false.)
       TileLoopResult: do
          if (.not. itor%isValid()) exit TileLoopResult
@@ -329,6 +330,7 @@ contains
 
       name = mode_names(mode)
 
+      ! Variables names for output
       call Simulation_mapIntToStr(in_1, in_1_name, MAPBLOCK_UNK)
       call Simulation_mapIntToStr(in_2, in_2_name, MAPBLOCK_UNK)
       call Simulation_mapIntToStr(out_1, out_1_name, MAPBLOCK_UNK)
@@ -347,8 +349,8 @@ contains
          write (*, *) repeat("=", 88)
       end if
 
+      ! Initialize input variables for this call
       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
-
       TileLoopInit: do
          if (.not. itor%isValid()) exit TileLoopInit
 
@@ -390,8 +392,7 @@ contains
 
       call Grid_releaseTileIterator(itor)
 
-      ! call Timers_start(name)
-      ! call Eos_everywhere(mode)
+      ! Call the EOS
       call Grid_getTileIterator(itor, LEAF, tiling=.false.)
       TileLoopEos: do
          if (.not. itor%isValid()) exit TileLoopEos
@@ -409,10 +410,9 @@ contains
          call itor%next()
       end do TileLoopEos
       call Grid_releaseTileIterator(itor)
-      ! call Timers_stop(name)
 
+      ! Check the results against the expected values
       call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
-
       TileLoopCheck: do
          if (.not. itor%isValid()) exit TileLoopCheck
 
@@ -491,7 +491,6 @@ contains
 
          call itor%next()
       end do TileLoopCheck
-
       call Grid_releaseTileIterator(itor)
 
    end subroutine runTest

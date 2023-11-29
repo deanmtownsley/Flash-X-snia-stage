@@ -1,4 +1,4 @@
-!!****ih* source/physics/Eos/EosMain/Hybrid/eos_hybridData
+!!****ih* source/physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib/eos_hybridData
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

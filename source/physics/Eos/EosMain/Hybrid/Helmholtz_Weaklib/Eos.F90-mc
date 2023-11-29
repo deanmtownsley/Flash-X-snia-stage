@@ -113,16 +113,13 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    eosData_WL = 0.0
    eosData_HLM = 0.0
 
+   ! kVec_WL/HLM map an index in overall eosData vector to the WL/HLM specific vectors
    kVec_WL = 0
    kVec_HLM = 0
    kVec_WL(vecBegin:vecEnd) = unpack([(k, k=1, vecLen_WL)], useWL(vecBegin:vecEnd), 0)
    kVec_HLM(vecBegin:vecEnd) = unpack([(k, k=1, vecLen_HLM)], useHLM(vecBegin:vecEnd), 0)
 
-   ! do i = 1, EOS_NUM
-   !    eosData_WL_ptr(:, i) = pack(eosData_ptr(vecBegin:vecEnd, i), useWL(vecBegin:vecEnd))
-   !    eosData_HLM_ptr(:, i) = pack(eosData_ptr(vecBegin:vecEnd, i), useHLM(vecBegin:vecEnd))
-   ! end do ! i
-
+   ! Pack WL/HLM vectors
    do k = vecBegin, vecEnd
       if (useWL(k)) then
          k_WL = kVec_WL(k)
@@ -135,6 +132,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
       end if
    end do ! k
 
+   ! Pack mass fractions
    if (pMassFrac) then
       ! Note: these are indexed opposite of eosData
       do k = vecBegin, vecEnd
@@ -150,6 +148,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
       end do ! k
    end if
 
+   ! Calculate the shift from internal to thermal energy for Helmholtz
    if (pMassFrac) then
       call eos_hybridEnergyShift(energyShift, vecLen_HLM, eosData_HLM, massFrac=massFrac_HLM)
    else
@@ -159,35 +158,38 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    if (mode .eq. MODE_DENS_EI) &
       eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) - energyShift
 
+   ! Convert entropy for Helmholtz
    if (mode .eq. MODE_DENS_ENTR) &
       eosData_HLM_ptr(:, EOS_ENTR) = eosData_HLM_ptr(:, EOS_ENTR)*kbPerBaryon_to_ergPerKg
 
    ! Call each EoS with its own vector
+   ! WL fails with zero-sized vectors (HLM does not), so explicitly checking this first
    if (pMassFrac_and_mask) then
       if (nWL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL, mask)
-      ! if (nHLM .gt. 0) &
+
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, massFrac_HLM, mask)
    else if (pMassFrac) then
       if (nWL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL)
-      ! if (nHLM .gt. 0) &
+
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, massFrac_HLM)
    else if (pMask) then
       if (nWL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, mask=mask)
-      ! if (nHLM .gt. 0) &
+
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, mask=mask)
    else
       if (nWL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL)
-      ! if (nHLM .gt. 0) &
+
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM)
    end if
 
    ! Need this every time since Helmholtz can change the input energy
    eosData_HLM_ptr(:, EOS_EINT) = eosData_HLM_ptr(:, EOS_EINT) + energyShift
 
+   ! Back to nuclear EOS units
    eosData_HLM_ptr(:, EOS_ENTR) = eosData_HLM_ptr(:, EOS_ENTR)*ergPerKg_to_kbPerBaryon
 
    ! Unpack and blend both EoS calls into single eosData
@@ -199,67 +201,26 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
 
          k_WL = kVec_WL(k)
          eosData_k = eosData_WL_ptr(k_WL, :)
-         ! do i = 1, EOS_NUM
-         ! eosData_ptr(k, i) = eosData_WL_ptr(k_WL, i)
-         ! end do
 
       else if (useHybOnly(k)) then
 
          k_WL = kVec_WL(k)
          k_HLM = kVec_HLM(k)
 
-         ! Interpolate between limits
+         ! Interpolate between limits: HLM (low) and WL (high)
          dens_in = eosData_ptr(k, EOS_DENS)
 
          facHi = (dens_in - eos_hybTransitionDensLo) &
                  /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
          facLo = 1.0 - facHi
 
-         ! facHi = (dens_in/eos_hybTransitionDensHi)**4
-         ! facLo = (eos_hybTransitionDensLo/dens_in)**4
-
-         ! iFac = 1.0/(facLo + facHi)
-         ! facLo = facLo*iFac
-         ! facHi = facHi*iFac
-
-         ! do i = 1, EOS_NUM
-         !    eosData_ptr(k, i) = (facHi*eosData_WL_ptr(k_WL, i) &
-         !                         + facLo*eosData_HLM_ptr(k_HLM, i))
-         ! end do
-
          eosData_k = (facHi*eosData_WL_ptr(k_WL, :) &
                       + facLo*eosData_HLM_ptr(k_HLM, :))
-
-         ! select case (mode)
-         ! case (MODE_DENS_TEMP)
-         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
-         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
-         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
-         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
-         ! case (MODE_DENS_EI)
-         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
-         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
-         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
-         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
-         ! case (MODE_DENS_PRES)
-         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
-         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
-         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
-         !    eosData_k(EOS_ENTR) = facLo*eosData_HLM_ptr(k_HLM, EOS_ENTR) + facHi*eosData_WL_ptr(k_WL, EOS_ENTR)
-         ! case (MODE_DENS_ENTR)
-         !    eosData_k(EOS_PRES) = facLo*eosData_HLM_ptr(k_HLM, EOS_PRES) + facHi*eosData_WL_ptr(k_WL, EOS_PRES)
-         !    eosData_k(EOS_EINT) = facLo*eosData_HLM_ptr(k_HLM, EOS_EINT) + facHi*eosData_WL_ptr(k_WL, EOS_EINT)
-         !    eosData_k(EOS_TEMP) = facLo*eosData_HLM_ptr(k_HLM, EOS_TEMP) + facHi*eosData_WL_ptr(k_WL, EOS_TEMP)
-         !    eosData_k(EOS_GAMC) = facLo*eosData_HLM_ptr(k_HLM, EOS_GAMC) + facHi*eosData_WL_ptr(k_WL, EOS_GAMC)
-         ! end select
 
       else ! useHLMOnly(k)
 
          k_HLM = kVec_HLM(k)
          eosData_k = eosData_HLM_ptr(k_HLM, :)
-         ! do i = 1, EOS_NUM
-         !    eosData_ptr(k, i) = eosData_HLM_ptr(k_HLM, i)
-         ! end do
 
       end if
 
@@ -293,147 +254,3 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    if (allocated(massFrac_HLM)) deallocate (massFrac_HLM)
    if (allocated(energyShift)) deallocate (energyShift)
 end subroutine Eos
-
-! subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
-!    use eos_hybridData, ONLY: eos_hybTransitionDensLo, eos_hybTransitionDensHi
-!    use eos_hybridInterface, ONLY: eos_hybridSetFlag, eos_hybridHelmholtz, eos_hybridWeakLib
-
-!    implicit none
-
-! #include "constants.h"
-! #include "Eos.h"
-! #include "Simulation.h"
-
-!    integer, intent(in) :: mode, vecLen
-!    real, intent(inout), dimension(EOS_NUM*vecLen), target :: eosData
-!    logical, optional, intent(in), target, dimension(EOS_VARS + 1:EOS_NUM) :: mask
-!    real, optional, intent(in), dimension(NSPECIES*vecLen), target :: massFrac
-!    integer, optional, intent(in) :: vecB, vecE
-!    integer, optional, intent(out) :: diagFlag
-
-!    integer :: vecBegin, vecEnd
-!    integer :: eos_hybFlag(vecLen)
-
-!    logical :: pMask, pMassFrac
-!    logical :: mask_local(EOS_VARS + 1:EOS_NUM)
-
-!    real, dimension(EOS_NUM) :: eosData_k, eosData_WL, eosData_HLM
-
-!    real, dimension(:, :), pointer :: eosData_ptr, massFrac_ptr
-
-!    real :: dens_in, fac, facLo, facHi, iFac
-
-!    integer :: i, k
-
-!    nullify (eosData_ptr, massFrac_ptr)
-
-!    vecBegin = 1
-!    vecEnd = vecLen
-!    if (present(vecB)) vecBegin = vecB
-!    if (present(vecE)) vecEnd = vecE
-
-!    if (present(diagFlag)) diagFlag = 0
-
-!    if (mode == MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
-!    if (mode == MODE_EOS_WRAPPERONLY) return ! * Return immediately for MODE_EOS_WRAPPERONLY! *
-
-!    pMassFrac = present(massFrac)
-!    pMask = present(mask)
-
-!    eosData_ptr(1:vecLen, 1:EOS_NUM) => eosData
-
-!    ! massFrac is indexed opposite of eosData
-!    if (pMassFrac) massFrac_ptr(1:NSPECIES, 1:vecLen) => massFrac
-
-!    mask_local = .false.
-!    if (present(mask)) mask_local = mask
-
-!    call eos_hybridSetFlag(mode, vecLen, eosData, vecBegin, vecEnd, eos_hybFlag)
-
-!    eosData_k = 0.0
-
-!    do k = vecBegin, vecEnd
-!       eosData_k = eosData_ptr(k, :)
-
-!       if (eos_hybFlag(k) == EOS_WL) then
-
-!          if (pMassFrac) then
-!             call eos_hybridWeakLib(mode, eosData_k, mask, massFrac=massFrac_ptr(:, k))
-!          else
-!             call eos_hybridWeakLib(mode, eosData_k, mask)
-!          end if
-
-!       else if (eos_hybFlag(k) == EOS_HYB) then
-
-!          eosData_WL = eosData_k
-!          eosData_HLM = eosData_k
-
-!          if (pMassFrac) then
-!             call eos_hybridWeakLib(mode, eosData_WL, mask, massFrac=massFrac_ptr(:, k))
-!             call eos_hybridHelmholtz(mode, eosData_HLM, mask, massFrac=massFrac_ptr(:, k))
-!          else
-!             call eos_hybridWeakLib(mode, eosData_WL, mask)
-!             call eos_hybridHelmholtz(mode, eosData_HLM, mask)
-!          end if
-
-!          ! Interpolate between limits
-!          dens_in = eosData_k(EOS_DENS)
-
-!          ! fac = (dens_in - eos_hybTransitionDensLo) &
-!          !       /(eos_hybTransitionDensHi - eos_hybTransitionDensLo)
-
-!          ! facHi = fac**2
-!          ! facLo = 1.0 - facHi
-
-!          facHi = (dens_in/eos_hybTransitionDensHi)**4
-!          facLo = (eos_hybTransitionDensLo/dens_in)**4
-
-!          iFac = 1.0/(facLo + facHi)
-!          facLo = facLo*iFac
-!          facHi = facHi*iFac
-
-!          ! do i = 1, EOS_NUM
-!          !    eosData_k(i) = (facLo*eosData_HLM(i) + facHi*eosData_WL(i))
-!          ! end do
-
-!          select case (mode)
-!          case (MODE_DENS_TEMP)
-!             eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
-!             eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
-!             eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
-!             eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
-!          case (MODE_DENS_EI)
-!             eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
-!             eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
-!             eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
-!             eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
-!          case (MODE_DENS_PRES)
-!             eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
-!             eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
-!             eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
-!             eosData_k(EOS_ENTR) = facLo*eosData_HLM(EOS_ENTR) + facHi*eosData_WL(EOS_ENTR)
-!          case (MODE_DENS_ENTR)
-!             eosData_k(EOS_PRES) = facLo*eosData_HLM(EOS_PRES) + facHi*eosData_WL(EOS_PRES)
-!             eosData_k(EOS_EINT) = facLo*eosData_HLM(EOS_EINT) + facHi*eosData_WL(EOS_EINT)
-!             eosData_k(EOS_TEMP) = facLo*eosData_HLM(EOS_TEMP) + facHi*eosData_WL(EOS_TEMP)
-!             eosData_k(EOS_GAMC) = facLo*eosData_HLM(EOS_GAMC) + facHi*eosData_WL(EOS_GAMC)
-!          end select
-
-!       else ! eos_hybFlag(k) == EOS_HLM
-
-!          if (pMassFrac) then
-!             call eos_hybridHelmholtz(mode, eosData_k, mask, massFrac=massFrac_ptr(:, k))
-!          else
-!             call eos_hybridHelmholtz(mode, eosData_k, mask)
-!          end if
-
-!       end if
-
-!       eosData_ptr(k, :) = eosData_k
-
-!    end do
-
-!    if (associated(eosData_ptr)) nullify (eosData_ptr)
-
-!    if (associated(massFrac_ptr)) nullify (massFrac_ptr)
-! end subroutine Eos

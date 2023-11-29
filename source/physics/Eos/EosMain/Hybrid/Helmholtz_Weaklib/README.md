@@ -20,7 +20,7 @@ $$
    \Delta E_\text{M} = -\left[Y_e(m_n - m_p - m_e)c^2 + \sum_i Y_i B_i\right]
 $$
 
-The thermal energy is then
+where $Y_i$ and $B_i$ are the abundance and binding energy of the $i$-th evolved/tracked species.  The thermal energy is then
 
 $$
    E_\text{th} = E_\text{int} - \Delta E_\text{M} - \Delta E_\text{WL}

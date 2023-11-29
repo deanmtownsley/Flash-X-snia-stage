@@ -174,7 +174,6 @@ subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone
             ! nse_solve expects erg
             call Timers_start("nse_solve")
             call nse_solve(rho(i), t9(i), ye(i), [mu_n, mu_p]*epmev)
-            !  call nse_solve(rho(i), t9(i), ye(i))
             call Timers_stop("nse_solve")
 
             xOut(:, i) = xnse
