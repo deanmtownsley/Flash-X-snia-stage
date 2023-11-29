@@ -10,7 +10,7 @@ Composite/HydroStatic/AMR/2d/AMReX:
 
 # The following test used to be configured with -test.
 Composite/HydroStatic/AMR/2d/Paramesh:
-  setupOptions: -auto -2d -test --index-reorder +nolwf useFortran2003=True
+  setupOptions: -auto -2d --index-reorder +nolwf useFortran2003=True
   parfiles: flash.par
   restartParfiles: test_amr_2d_restart.par
 

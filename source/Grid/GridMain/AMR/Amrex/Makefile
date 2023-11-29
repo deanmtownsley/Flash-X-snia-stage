@@ -25,5 +25,7 @@ Grid += gr_amrexInterface.o \
         gr_markVarBoundsForCallback.o
 
 Grid += gr_specificData.o gr_initSpecific.o \
-        gr_updateData.o
+        gr_updateData.o \
+        gr_auxFluxData.o gr_leafBlockInfo.o
+
 
