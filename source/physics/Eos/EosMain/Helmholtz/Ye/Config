@@ -5,9 +5,3 @@
 #  The idea of using Ye is that we are no longer carrying around species....
 
 PPDEFINE USE_EOS_YE
-
-# Since we cannot use EXCLUSIVE to limit only one EOS implementation
-# since Hybrid needs multiple ones, the following PPDEFINE will
-# be used in the non-hybrid Eos.F90 to perform a compile time check
-# that only this implementation has been loaded if the Hybrid EOS has not
-PPDEFINE EOS_HELM_YE_INCLUDED

@@ -8,9 +8,3 @@ PARAMETER eos_singleSpeciesA         REAL    1.00  [0.0 to ]
 D eos_singleSpeciesZ  Single-species proton number for the gas  
 D &         (only used Eos/Helmholtz when compiled w/o Multispecies)
 PARAMETER eos_singleSpeciesZ         REAL    1.00  [0.0 to ]
-
-# Since we cannot use EXCLUSIVE to limit only one EOS implementation
-# since Hybrid needs multiple ones, the following PPDEFINE will
-# be used in the non-hybrid Eos.F90 to perform a compile time check
-# that only this implementation has been loaded if the Hybrid EOS has not
-PPDEFINE EOS_HELM_SPECIESBASED_INCLUDED

@@ -11,9 +11,3 @@ PARAMETER eos_useStarkiller     BOOLEAN         TRUE
 
 D eos_vecLenACC         minimum size of vecLen to use OpenACC call
 PARAMETER eos_vecLenACC         INTEGER         1024
-
-# Since we cannot use EXCLUSIVE to limit only one EOS implementation
-# since Hybrid needs multiple ones, the following PPDEFINE will
-# be used in the non-hybrid Eos.F90 to perform a compile time check
-# that only this implementation has been loaded if the Hybrid EOS has not
-PPDEFINE EOS_HELM_STARKILLER_INCLUDED
