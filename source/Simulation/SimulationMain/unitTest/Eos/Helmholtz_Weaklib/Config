@@ -2,7 +2,7 @@
 #  Simulation/SimultationMain/unitTest/Eos/WeakLib
 #  Receives the Simulation_init from SimulationComposition
 
-REQUIRES physics/Eos/EosMain/Hybrid/Helmholtz_WeakLib
+REQUIRES physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib
 REQUIRES physics/Eos/unitTest/Hybrid
 
 # Extra variables
