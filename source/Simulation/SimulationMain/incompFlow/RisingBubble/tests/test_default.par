@@ -1,6 +1,6 @@
 # 	Runtime parameters for the Rising Bubble problem.
 enableMaskedGCFill = .FALSE.
-sim_runTest = .TRUE.
+dr_runUnitTest = .TRUE.
 
 # Inverse of Reynolds Number
 ins_invReynolds     = .01
@@ -17,7 +17,7 @@ mph_iPropSmear = 1.0
 mph_invWeber = 0.01
 
 # outlfow parameter
-sim_outletBuffer = 0.1
+out_buffer = 0.1
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

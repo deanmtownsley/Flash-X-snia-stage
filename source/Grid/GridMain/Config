@@ -128,7 +128,12 @@ D & for implementing boundary conditions with access to the variables of mixed
 D & GDSs (in particlular, cell-centered UNK varsiables and face variables).
 D & This only has an effect if the GridBoundaryConditions subunit is included and
 D & the simulation actually supplies an implementation of Grid_bcApplyToRegionMixedGds.
-PARAMETER gr_bcEnableApplyMixedGds BOOLEAN TRUE
+USESETUPVARS Incomp
+IF Incomp
+   PARAMETER gr_bcEnableApplyMixedGds BOOLEAN FALSE
+ELSE
+   PARAMETER gr_bcEnableApplyMixedGds BOOLEAN TRUE
+ENDIF
 
 D eosMode determines how to operate on thermodynamic quantities.
 D & Possible values are "dens_ie", where density and internal energy

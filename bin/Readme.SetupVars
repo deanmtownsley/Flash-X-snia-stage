@@ -282,14 +282,6 @@ Harder to introduce now because we have multiple particle types)
   The logic of creating xmf files is implemented via the command line
   tool - FlashKit: https://github.com/akashdhruv/FlashKit
 
-* Name  : SimForceInOut
-  Type  : Boolean
-
-  Defaults to False. If True, will apply inlet/outlet forcing for 
-  - Simulation/SimulationMain/incompFlow/RisingBubble
-  - Simulation/SimulationMain/incompFlow/PoolBoiling
-  - Simulation/SimulationMain/incompFlow/ChannelFlow
-
 * Name  : HydroGuardcells
   Type  : Integer
 
@@ -297,12 +289,6 @@ Harder to introduce now because we have multiple particle types)
   nondefault value in some Hydro implementations, under certain
   conditions. Recognized by the Spark Hydro implementation when
   it is used in its nontelescoping variant.
-
-* Name  : SimLSDamping
-  Type  : Boolean
-
-  Defaults to False. If True, will apply level set damping at outlet
-  - Simulation/SimulationMain/incompFlow/PoolBoiling
 
 * Name  : useWeaklib
   Type  : Boolean
@@ -330,8 +316,30 @@ Harder to introduce now because we have multiple particle types)
 * Name  : InsPresLaplacian
   Type  : Boolean
 
-  Defaults to False. If True, will use Laplacian solver for pressure
-  - Simulation/SimulationMain/incompFlow/PoolBoiling
+  Default to False. Used to select Laplacian pressure solver for
+  variable density Incompressible Navier-Stokes Simulations
+
+* Name  : Incomp
+  Type  : Boolean
+
+  Defaults to False. Used to apply unit specific customization for
+  Incompressible Navier-Stokes Simulations
+
+* Name  : InsForceInOut
+  Type  : Boolean
+
+  Defaults to False. If True, will apply inlet/outlet forcing
+
+* Name  : InsLSDamping
+  Type  : Boolean
+
+  Defaults to False. If True, will apply apply level-set damping if
+  InsForceInOut is True
+
+* Name  : InsExtras
+  Type  : Boolean
+
+  Defaults to False. If True, will include physics/IncompNS/IncompNSExtras
 
 * Name  : Profiler
   Type  : String

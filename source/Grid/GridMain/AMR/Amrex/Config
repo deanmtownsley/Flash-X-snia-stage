@@ -29,6 +29,11 @@ IF not NoLevelwideFluxes
    REQUIRES ./levelFlux
 ENDIF
 
+USESETUPVARS Incomp
+IF Incomp
+   REQUIRES ./Incomp
+ENDIF
+
 # The following overrides the default value of flux_correct_perLevel for AMReX.
 D flux_correct_perLevel Flux correction involves a global communication phase,
 D & in which all MPI ranks participate.  This flag determines whether an
@@ -58,13 +63,21 @@ D & 2: Check and report.
 D & 3: Check and fix (apply floor value).
 D & 4: Check and abort if cell is found below floor value.
 D & (A variable mask that may be in effect for guard cell filling is currently ignored.)
-PARAMETER gr_sanitizeDataMode	INTEGER	4	[0,2,3,4]
+IF Incomp
+   PARAMETER gr_sanitizeDataMode        INTEGER 0       [0,2,3,4]
+ELSE
+   PARAMETER gr_sanitizeDataMode	INTEGER	4	[0,2,3,4]
+ENDIF
 
 D enableMaskedGCFill When enableMaskedGCFill is FALSE, Grid_fillGuardCells is forced
 D &                  to always ignore optional mask arguments when present in calls.
 D &                  This is the default behavior.
 D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
-PARAMETER enableMaskedGCFill BOOLEAN FALSE
+IF Incomp
+   PARAMETER enableMaskedGCFill BOOLEAN TRUE
+ELSE
+   PARAMETER enableMaskedGCFill BOOLEAN FALSE
+ENDIF
 
 D gr_gcFillSingleVarRange If this flag is enabled, guard cell filling will always make 
 D &                       (at most) one call (per griddatastruct) to the underlying
@@ -76,7 +89,11 @@ D &                       needed by the caller. If the flag is FALSE, invocation
 D &                       underlying implementation routines can be done as several calls, 
 D &                       each of which acts on a contiguous range of variables. Only takes 
 D &                       effect if enableMaskedGCFill is TRUE.
-PARAMETER gr_gcFillSingleVarRange BOOLEAN TRUE
+IF Incomp
+   PARAMETER gr_gcFillSingleVarRange BOOLEAN FALSE
+ELSE
+   PARAMETER gr_gcFillSingleVarRange BOOLEAN TRUE
+ENDIF
 
 D amrexInterpolator Name of AMReX interpolator to use for interpolating
 D & cell-centered data.  Please refer to AMReX documentation for more

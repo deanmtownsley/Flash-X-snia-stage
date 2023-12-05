@@ -26,13 +26,13 @@ mph_invWeber = 1.0
 ht_Prandtl = 8.0
 
 # Heater parameters
-sim_nucSeedRadius =  0.1 # Re-nucleation seed size
-sim_numHeaters    =  1   # Number of heaters
-sim_heaterName    = "3d_fb"
-sim_heaterShowInfo = .FALSE.
+htr_nucSeedRadius =  0.1 # Re-nucleation seed size
+htr_numHeaters    =  1   # Number of heaters
+htr_heaterName    = "3d_fb"
+htr_showInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 2.0 # Outlet Buffer
+out_buffer = 2.0 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

@@ -2,7 +2,9 @@
 PPDEFINE MULTIPHASE_EVAPORATION
 
 REQUIRES physics/Multiphase/MultiphaseMain
+
 REQUIRES physics/HeatAD/HeatADMain/varDiffusion
+REQUIRES physics/HeatAD/HeatADAdvection
 
 D hflq_variable Liquid heat flux
 VARIABLE hflq TYPE:GENERIC
