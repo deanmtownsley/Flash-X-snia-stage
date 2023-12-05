@@ -2,7 +2,7 @@
 amrexFaceInterpolator = "face_div_free"
 enableMaskedGCFill = .true.
 gr_gcFillSingleVarRange = .false.
-sim_runTest = .true.
+dr_runUnitTest = .true.
 checkpointFileNumber = 1
 derefine_cutoff_1 = -0.01
 dtinit = 1e-05

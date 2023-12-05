@@ -45,7 +45,7 @@ plotFileIntervalTime = 1.
 plotFileIntervalStep = 1000
 
 sim_reInitFlow = .true.
-sim_runTest = .true.
+dr_runUnitTest = .true.
 
 # AMR parameters
 nblockx	= 4

@@ -1,0 +1,7 @@
+#        Config file for the Inlet
+DEFAULT InletMain
+
+D useInlet Should the Inlet unit be used?
+# Value is meant to be overridden if an InletMain implementation gets included
+PARAMETER useInlet BOOLEAN CONSTANT FALSE
+#   Config file for inlet API

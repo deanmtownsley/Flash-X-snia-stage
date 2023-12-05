@@ -1,6 +1,6 @@
 !!****f* source/Simulation/SimulationMain/incompFlow/CounterFlow/Simulation_finalize
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -30,13 +30,5 @@
 !!***
 
 subroutine Simulation_finalize()
-
-   use sim_inletInterface, ONLY: sim_inletFinalize
-   use sim_outletInterface, ONLY: sim_outletFinalize
-
    implicit none
-
-   call sim_inletFinalize()
-   call sim_outletFinalize()
-
 end subroutine Simulation_finalize

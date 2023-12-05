@@ -1,0 +1,25 @@
+#   Config file
+REQUIRES physics/IncompNS/IncompNSMain
+REQUIRES physics/sourceTerms/Outlet/localAPI
+
+# Directives
+PPDEFINE OUTLET_MAIN
+
+# Constants
+PPDEFINE OUTLET 2
+
+D useOutlet Should the Outlet unit be used?
+PARAMETER useOutlet BOOLEAN TRUE
+
+D out_sink Outlet sink strength
+PARAMETER out_sink REAL  -1.0
+
+D out_buffer Outlet region Buffer
+PARAMETER out_buffer REAL   1.0
+
+D out_growthRate Outflow growth rate, k in logistic function f = 1/(1 + exp(-k*(x-xo)))
+PARAMETER out_growthRate  REAL  4.0
+
+D out_velRefScale Non-dimensionalized reference velocity to set minimum scaling for the outlet forcing,
+D & for multiphase flow problem this is usually terminal velocity
+PARAMETER out_velRefScale REAL 1.0

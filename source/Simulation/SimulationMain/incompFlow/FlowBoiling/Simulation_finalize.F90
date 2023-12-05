@@ -30,15 +30,5 @@
 !!***
 
 subroutine Simulation_finalize()
-
-   use sim_heaterInterface, ONLY: sim_heaterFinalize
-   use sim_outletInterface, ONLY: sim_outletFinalize
-   use sim_inletInterface, ONLY: sim_inletFinalize
-
    implicit none
-
-   call sim_heaterFinalize()
-   call sim_inletFinalize()
-   call sim_outletFinalize()
-
 end subroutine Simulation_finalize

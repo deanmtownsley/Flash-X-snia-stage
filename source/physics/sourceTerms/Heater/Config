@@ -1,0 +1,11 @@
+#        Config file for the Heater
+DEFAULT HeaterMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useHeater Should the Heater unit be used?
+# Value is meant to be overridden if a HeaterMain implementation gets included
+PARAMETER useHeater BOOLEAN CONSTANT FALSE
+#   Config file for heater API

@@ -40,9 +40,6 @@ subroutine Simulation_init()
    use Simulation_data
    use Driver_interface, ONLY: Driver_getMype, Driver_abort
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-   use sim_heaterInterface, ONLY: sim_heaterInit
-   use sim_outletInterface, ONLY: sim_outletInit
-   use sim_inletInterface, ONLY: sim_inletInit
 
    implicit none
 
@@ -63,9 +60,5 @@ subroutine Simulation_init()
       write (*, *) 'sim_gravY=', sim_gravY
       write (*, *) 'sim_gravZ=', sim_gravZ
    end if
-
-   call sim_heaterInit()
-   call sim_inletInit()
-   call sim_outletInit()
 
 end subroutine Simulation_init

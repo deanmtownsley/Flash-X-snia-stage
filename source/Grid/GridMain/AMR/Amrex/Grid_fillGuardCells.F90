@@ -395,7 +395,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
      ! Clean data to account for possible unphysical values caused by
      ! interpolation, revert to primitive form if needed, and
      ! run EoS if needed
-#ifndef SIMULATION_INCOMPFLOW
+#ifndef DRIVER_INCOMP
      if (present(doEos)) then
         needEos = (needEos .AND. doEos)
      else
@@ -600,7 +600,7 @@ subroutine Grid_fillGuardCells(gridDataStruct, idir, &
 
   gr_justExchangedGC = .TRUE.
 
-#ifndef SIMULATION_INCOMPFLOW
+#ifndef DRIVER_INCOMP
   call Logfile_stamp(finest_level + 1, &
                      '[Grid_fillGuardCells] GC fill/GC EoS up to level ')
 #endif

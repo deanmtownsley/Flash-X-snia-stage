@@ -7,6 +7,15 @@ REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
+USESETUPVARS InsLSDamping
+USESETUPVARS InsForceInOut
+
+IF InsForceInOut
+    IF InsLSDamping
+        REQUESTS physics/sourceTerms/Outlet/OutletMain/lsDamping
+    ENDIF
+ENDIF
+
 PPDEFINE MULTIPHASE_MAIN
 
 D useMultiphase Should the Multiphase unit be used?

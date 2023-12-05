@@ -1,0 +1,11 @@
+# Config file for approximate nearest neighbor
+# search uses the external ANN library
+LIBRARY ANN
+
+# This sub-unit is unofficial. Should
+# be removed once fully implemented
+UNOFFICIAL
+
+# Relevant directives for using the
+# subroutines defined in this sub-unit
+PPDEFINE HEATER_ANN_SEARCH

@@ -49,7 +49,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Simulation_data
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
-   use sim_heaterInterface, ONLY: sim_heaterInitBlk
+   use Heater_interface, ONLY: Heater_initBlk
 
    implicit none
 
@@ -89,12 +89,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    solnData(DFUN_VAR, :, :, :) = -1e13
    solnData(TEMP_VAR, :, :, :) = 0.
 
-   call sim_heaterInitBlk(xCenter, yCenter, zCenter, &
-                          GRID_ILO_GC, GRID_IHI_GC, &
-                          GRID_JLO_GC, GRID_JHI_GC, &
-                          GRID_KLO_GC, GRID_KHI_GC, &
-                          solnData(TEMP_VAR, :, :, :), &
-                          solnData(DFUN_VAR, :, :, :))
+   call Heater_initBlk(xCenter, yCenter, zCenter, &
+                       GRID_ILO_GC, GRID_IHI_GC, &
+                       GRID_JLO_GC, GRID_JHI_GC, &
+                       GRID_KLO_GC, GRID_KHI_GC, &
+                       solnData(TEMP_VAR, :, :, :), &
+                       solnData(DFUN_VAR, :, :, :))
 
    !faceyData(VELC_FACE_VAR, :, :, :) = 1.0
    call tileDesc%releaseDataPtr(faceyData, FACEX)

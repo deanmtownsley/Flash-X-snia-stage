@@ -37,42 +37,26 @@
 
 subroutine Simulation_init()
 
-  use Driver_interface, ONLY : Driver_getMype
-  use Simulation_data, ONLY : sim_xMin, sim_yMin, &
+   use Driver_interface, ONLY: Driver_getMype
+   use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
                               sim_bubbleRadius, &
                               sim_meshMe
 
-  use RuntimeParameters_interface, ONLY : RuntimeParameters_get
+   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
-#ifdef SIMULATION_FORCE_INLET
-  use sim_inletInterface, ONLY: sim_inletInit
-#endif
+   implicit none
 
-#ifdef SIMULATION_FORCE_OUTLET
-  use sim_outletInterface, ONLY: sim_outletInit
-#endif
+   call Driver_getMype(MESH_COMM, sim_meshMe)
 
-  implicit none
+   call RuntimeParameters_get('xmin', sim_xMin)
+   call RuntimeParameters_get('ymin', sim_yMin)
+   call RuntimeParameters_get('zmin', sim_zMin)
+   call RuntimeParameters_get('xmax', sim_xMax)
+   call RuntimeParameters_get('ymax', sim_yMax)
+   call RuntimeParameters_get('zmax', sim_zMax)
 
-  call Driver_getMype(MESH_COMM, sim_meshMe)
-
-  call RuntimeParameters_get('xmin',    sim_xMin)
-  call RuntimeParameters_get('ymin',    sim_yMin)
-  call RuntimeParameters_get('zmin',    sim_zMin)
-  call RuntimeParameters_get('xmax',    sim_xMax)
-  call RuntimeParameters_get('ymax',    sim_yMax)
-  call RuntimeParameters_get('zmax',    sim_zMax)
-
-  call RuntimeParameters_get('sim_bubbleRadius', sim_bubbleRadius)
-
-#ifdef SIMULATION_FORCE_INLET
-  call sim_inletInit()
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-  call sim_outletInit()
-#endif
+   call RuntimeParameters_get('sim_bubbleRadius', sim_bubbleRadius)
 
 end subroutine Simulation_init
