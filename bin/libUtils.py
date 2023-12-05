@@ -244,13 +244,10 @@ class LibUnion(dict):
         os.system('./build.csh')
      elif os.path.isfile('build.sh'):
         GVars.out.put('running %s/build.sh'%libDir)
-        try:
-            status = subprocess.check_call('./build.sh', shell=False)
-            GVars.out.put("./build.sh returned %s"% status, globals.DEBUG)
-            if status:  # normally unreachable, check_call should have raised an exception
-                raise SetupError("Library build in %s failed! (status %s)"% (libDir,status))
-        except subprocess.CalledProcessError as e:
-            print(e.output)
+        status = subprocess.check_call('./build.sh', shell=False)
+        GVars.out.put("./build.sh returned %s"% status, globals.DEBUG)
+        if status:  # normally unreachable, check_call should have raised an exception
+            raise SetupError("Library build in %s failed! (status %s)"% (libDir,status))
      else:
         raise SetupError(USAGE % locals())
      os.chdir(pwd)
