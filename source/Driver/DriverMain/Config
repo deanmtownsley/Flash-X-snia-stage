@@ -5,13 +5,17 @@ IF SplitDriver
   DEFAULT Split
 ENDIF
 
+USESETUPVARS Incomp
+IF Incomp
+  DEFAULT Incomp
+ENDIF
+
 USESETUPVARS AsyncHDF5
 IF AsyncHDF5
   PPDEFINE FLASH_IO_ASYNC_HDF5
 ENDIF
 
-EXCLUSIVE Split Unsplit INSfracstep 
-CHILDORDER SolidMechanics_rbc INSfracstep 
+EXCLUSIVE Split Unsplit Incomp
 REQUIRES RuntimeParameters
 REQUIRES TimeAdvance
 REQUESTS Grid
@@ -58,7 +62,7 @@ ENDIF
 
 IF threadBlockList or threadWithinBlock
   #REQUIRES Driver/DriverMain/multithreaded
-  CONFLICTS Driver/DriverMain/INSfracstep
+  CONFLICTS Driver/DriverMain/Incomp
 ENDIF
 
 

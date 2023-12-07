@@ -1,6 +1,7 @@
 !!****if* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Driver_evolveAll
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -111,9 +112,9 @@ subroutine Driver_evolveAll()
    real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
-   logical :: runTest
+   logical :: runUnitTest
 
-   call RuntimeParameters_get('sim_runTest', runTest)
+   call RuntimeParameters_get('dr_runUnitTest', runUnitTest)
 
    ! Set interpolation values for guard cell
    call Grid_setInterpValsGcell(.TRUE.)
@@ -363,7 +364,7 @@ subroutine Driver_evolveAll()
 
       if (gridChanged) then
          dr_simGeneration = dr_simGeneration+1
-         if (runTest) call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
+         if (runUnitTest) call Grid_fillGuardCells(CENTER_FACES, ALLDIR)
       end if
 
       if (dr_globalMe .eq. MASTER_PE) then
@@ -439,7 +440,7 @@ subroutine Driver_evolveAll()
    call IncompNS_getScalarProp("Min_Divergence", mindiv)
    call IncompNS_getScalarProp("Max_Divergence", maxdiv)
 
-   if (runTest) then
+   if (runUnitTest) then
       temp = dr_globalMe
       do i = 1, 4
          prNum(i) = mod(temp, 10)

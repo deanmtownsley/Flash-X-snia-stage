@@ -1,0 +1,25 @@
+#   Config file for heater API
+REQUIRES physics/HeatAD/HeatADMain
+REQUIRES physics/sourceTerms/Heater/localAPI
+
+D useHeater Should the Heater unit be used?
+PARAMETER useHeater BOOLEAN TRUE
+
+PPDEFINE HEATER_MAIN
+
+D htr_nucSeedRadius for re-nucleation
+PARAMETER htr_nucSeedRadius  REAL     0.1
+
+D htr_numHeaters Total number of heaters
+PARAMETER htr_numHeaters     INTEGER  1
+
+D htr_heaterName Prefix for HDF5 htr file
+PARAMETER htr_heaterName     STRING  "flash"
+
+D htr_showInfo Should heater info be displayed on console?
+PARAMETER htr_showInfo BOOLEAN FALSE
+
+D htr_annQueries Number of queries for approximate nearest neighbor search
+PARAMETER htr_annQueries INTEGER 3
+
+PPDEFINE HTR_MAX_NUMSITES 50

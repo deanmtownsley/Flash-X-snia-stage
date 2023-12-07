@@ -1,5 +1,5 @@
 # 	Runtime parameters for the Channel Flow problem.
-sim_runTest = .TRUE.
+dr_runUnitTest = .TRUE.
 
 # Inverse of Reynolds Number
 ins_invReynolds      = .002
@@ -19,7 +19,7 @@ zmin            =  0.0
 zmax            =  1.0
 
 # Outlet parameters
-sim_outletBuffer = 0.1
+out_buffer = 0.1
 
 #       Boundary conditions
 xl_boundary_type = "periodic"

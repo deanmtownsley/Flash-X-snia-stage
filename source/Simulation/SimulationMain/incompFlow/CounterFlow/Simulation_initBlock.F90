@@ -101,8 +101,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             !
             !solnData(DFUN_VAR, i, j, k) = min(xi - (sim_xMin + channelDepth), (sim_xMax - channelDepth) - xi)
 
-            solnData(DFUN_VAR, i, j, k) = min(xi - sim_xMin - sim_channelDepth - sim_nozzleAmp*cos(yi*pi/2), &
-                                              sim_xMax - sim_channelDepth - xi + sim_nozzleAmp*cos(yi*pi/2 + pi))
+            solnData(DFUN_VAR, i, j, k) = min(xi-sim_xMin-sim_channelDepth-sim_nozzleAmp*cos(yi*pi/2), &
+                                              sim_xMax-sim_channelDepth-xi+sim_nozzleAmp*cos(yi*pi/2+pi))
 
          end do
       end do
@@ -111,7 +111,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    deallocate (xGrid, yGrid, zGrid)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
    xGrid = 0.0
@@ -127,12 +127,12 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    call tileDesc%getDataPtr(faceyData, FACEY)
 
    do k = lo(KAXIS), hi(KAXIS)
-      do j = lo(JAXIS), hi(JAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)+1
          do i = lo(IAXIS), hi(IAXIS)
 
             yi = yGrid(j)
 
-            if (0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .gt. 0.0) then
+            if (0.5*(solnData(DFUN_VAR, i, j, k)+solnData(DFUN_VAR, i, j-1, k)) .gt. 0.0) then
                faceyData(VELC_FACE_VAR, i, j, k) = sim_gasFlowRate
             else
                faceyData(VELC_FACE_VAR, i, j, k) = sim_liqFlowRate

@@ -3,10 +3,24 @@ DEFAULT constDens
 
 PPDEFINE INCOMPNS_MAIN
 
+CONFLICTS physics/Hydro/HydroMain
+
 REQUIRES physics/IncompNS/localAPI
 REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsDiffusion
 REQUIRES numericalTools/Stencils/StencilsTemporal
+
+USESETUPVARS InsForceInOut
+USESETUPVARS InsExtras
+
+IF InsForceInOut
+    REQUIRES physics/sourceTerms/Inlet/InletMain
+    REQUIRES physics/sourceTerms/Outlet/OutletMain
+ENDIF
+
+IF InsExtras
+    REQUIRES physics/IncompNS/IncompNSExtras
+ENDIF
 
 CHILDORDER constDens varDens
 EXCLUSIVE  constDens varDens

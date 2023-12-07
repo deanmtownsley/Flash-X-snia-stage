@@ -18,7 +18,7 @@ mph_invWeber = 0.004
 geometry	= "cartesian"
 
 # Simulation parameters
-sim_outletBuffer = 0.1
+out_buffer = 0.1
 sim_channelDepth = 1.0
 sim_nozzleFreq = 0.2
 sim_nozzleAmp = 0.8

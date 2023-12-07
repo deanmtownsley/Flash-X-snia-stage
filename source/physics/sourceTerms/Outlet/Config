@@ -1,0 +1,11 @@
+#        Config file for the Outlet
+DEFAULT OutletMain
+
+# localAPI comes earlier while linking source files into the object directory,
+# so it can be overriden easily by non-stub implementations elsewhere
+CHILDORDER localAPI
+
+D useOutlet Should the Outlet unit be used?
+# Value is meant to be overridden if an OutletMain implementation gets included
+PARAMETER useOutlet BOOLEAN CONSTANT FALSE
+#   Config file for outlet API

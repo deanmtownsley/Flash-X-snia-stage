@@ -45,14 +45,6 @@ subroutine Simulation_init()
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
-#ifdef SIMULATION_FORCE_INLET
-   use sim_outletInterface, ONLY: sim_outletInit
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   use sim_inletInterface, ONLY: sim_inletInit
-#endif
-
    implicit none
 
    call Driver_getMype(MESH_COMM, sim_meshMe)
@@ -63,13 +55,5 @@ subroutine Simulation_init()
    call RuntimeParameters_get('ymax', sim_yMax)
    call RuntimeParameters_get('zmin', sim_zMin)
    call RuntimeParameters_get('zmax', sim_zMax)
-
-#ifdef SIMULATION_FORCE_INLET
-   call sim_inletInit()
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   call sim_outletInit()
-#endif
 
 end subroutine Simulation_init

@@ -205,5 +205,8 @@ MoLERK:+MoL:MoL_Integrator="ERK"
 MoLIMEX:+MoL:MoL_Integrator="IMEX"
 MoLMR:+MoL:MoL_Integrator="MR"
 
+# Incomp shortcut
+incomp:Incomp=True:IOWriteGridFiles=True:InsPresLaplacian=False:InsForceInOut=True:InsLSDamping=False:InsExtras=True
+
 # Profiler shortcuts
 hpctoolkit:Profiler=Hpctoolkit:--with-unit=monitors/Profiler/ProfilerMain/hpctoolkit

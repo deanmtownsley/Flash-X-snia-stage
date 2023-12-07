@@ -27,15 +27,15 @@
 
 module Simulation_data
 
-  implicit none
+   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
 
-  real, save :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
-  integer, save :: sim_meshMe
-  real, save :: sim_gravX
-  real, save :: sim_gravY
-  real, save :: sim_gravZ
+   real, save :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
+   integer, save :: sim_meshMe
+   real, save :: sim_gravX
+   real, save :: sim_gravY
+   real, save :: sim_gravZ
 
 end module Simulation_data

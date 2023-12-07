@@ -49,14 +49,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Simulation_data
    use Grid_tile, ONLY: Grid_tile_t
 
-#ifdef SIMULATION_FORCE_INLET
-   use sim_outletInterface, ONLY: sim_outletInit
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   use sim_inletInterface, ONLY: sim_inletInit
-#endif
-
    implicit none
 
    !---Arguments ------------------------------------------------------------------------

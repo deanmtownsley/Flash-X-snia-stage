@@ -1,34 +1,7 @@
 #	Config file for the INS module.
 #       Note: This is a staggered finite difference mesh algorithm.
 
-USESETUPVARS InsPresLaplacian
-
-IF InsPresLaplacian
-    REQUIRES physics/IncompNS/IncompNSMain/varDens/presLaplacian
-ELSE
-    REQUIRES physics/IncompNS/IncompNSMain/varDens/presPoisson
-ENDIF
-
-REQUIRES physics/IncompNS/IncompNSExtras
-
 REQUIRES physics/Multiphase/MultiphaseEvap
-
-REQUIRES physics/HeatAD/HeatADMain/varDiffusion
-REQUIRES physics/HeatAD/HeatADAdvection
-
-REQUIRES Simulation/SimulationForcing/incompFlow/Heater
-
-USESETUPVARS SimForceInOut
-USESETUPVARS SimLSDamping
-
-IF SimForceInOut
-    REQUIRES Simulation/SimulationForcing/incompFlow/Inlet
-    REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/phaseForcing
-
-    IF SimLSDamping
-        REQUIRES Simulation/SimulationForcing/incompFlow/Outlet/lsDamping
-    ENDIF
-ENDIF
-
+REQUIRES physics/sourceTerms/Heater/HeaterMain
 
 DATAFILES *_hdf5_htr_*

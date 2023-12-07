@@ -19,7 +19,7 @@
 !!
 !! DESCRIPTION
 !!  This is where the user should place code for a setup that needs to adjust
-!!  data on a restart, particularly if grid data, grid metadata or particle 
+!!  data on a restart, particularly if grid data, grid metadata or particle
 !!  data needs to be changed on restarting.
 !!
 !! ARGUMENTS
@@ -28,9 +28,9 @@
 
 subroutine Simulation_initRestart()
 
-  !if(sim_chkptSiteNum .le. sim_nucSiteNum) sim_nucTimeStampAll(1:sim_chkptSiteNum) = sim_chkptTimeStampAll
-  !if(sim_chkptSiteNum .gt. sim_nucSiteNum) sim_nucTimeStampAll = sim_chkptTimeStampAll(1:sim_nucSiteNum)
-  !
-  !deallocate(sim_chkptTimeStampAll)
+   !if(sim_chkptSiteNum .le. sim_nucSiteNum) sim_nucTimeStampAll(1:sim_chkptSiteNum) = sim_chkptTimeStampAll
+   !if(sim_chkptSiteNum .gt. sim_nucSiteNum) sim_nucTimeStampAll = sim_chkptTimeStampAll(1:sim_nucSiteNum)
+   !
+   !deallocate(sim_chkptTimeStampAll)
 
 end subroutine Simulation_initRestart

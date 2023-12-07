@@ -152,7 +152,12 @@ D & interpolated in the correct form. It avoids unnecessary
 D & conversions back and force and should replace the old
 D & mechanism enabled by runtime parameter "convertToConsvdForMeshCalls".
 D & However, it is only available with PARAMESH 3 or later.
-PARAMETER convertToConsvdInMeshInterp BOOLEAN TRUE
+USESETUPVARS Incomp
+IF Incomp
+   PARAMETER convertToConsvdInMeshInterp BOOLEAN FALSE
+ELSE
+   PARAMETER convertToConsvdInMeshInterp BOOLEAN TRUE
+ENDIF
 
 D gr_bndGCFillNeedsPrimitiveVars determines whether solution variables
 D & need to be in primitive form at the time when guard cells at domain
@@ -173,7 +178,12 @@ D & The default value is TRUE, in order to err on the safe side, even
 D & though this safer setting is unnecessary for many simulations, and
 D & a setting of FALSE will reproduce previous code behavior (before
 D & September 2021).
-PARAMETER gr_bndGCFillNeedsPrimitiveVars BOOLEAN TRUE
+USESETUPVARS Incomp
+IF Incomp
+   PARAMETER gr_bndGCFillNeedsPrimitiveVars BOOLEAN FALSE
+ELSE
+   PARAMETER gr_bndGCFillNeedsPrimitiveVars BOOLEAN TRUE
+ENDIF
 
 D earlyBlockDistAdjustment If true, let Paramesh redistribute blocks
 D & across processors early, so that the block distribution chosen by
