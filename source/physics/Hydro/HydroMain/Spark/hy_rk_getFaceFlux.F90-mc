@@ -47,11 +47,12 @@
 !<
 !!NOVARIANTS
 !!Reorder(4):starState,fl[xyz]
+!!Reorder(4):scr_rope,scr_flux,scr_uPlus,scr_uMinus
 
 subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
-                              lim, limgc, stage, &
+                              limits, &
                               hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
-                              a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
+                              scr_rope, scr_flux, scr_uPlus, scr_uMinus)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
 
@@ -62,17 +63,14 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
 #include "Spark.h"
 
   real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
+  real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
   real, dimension(:,:,:), pointer :: flat3d
-  integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
-  integer, intent(IN) :: stage
+  integer, dimension(LOW:HIGH, MDIM), intent(IN) :: limits
   logical, intent(IN) :: hybridRiemann
   real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
-  real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
-
-  real, dimension(:,:,:,:), pointer :: p_rope, p_uPlus, p_uMinus, p_flux
-  real, dimension(:,:,:), pointer :: p_flat, p_shck
 
   integer :: i, j, k, s, n, v, dir, ierr
+  integer :: ii, jj, kk, is, js, ks
   real :: avisc, VenerLo, VenerHi
   real :: spcSumInv
   real, dimension(NSPECIES) :: spc
@@ -88,114 +86,146 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
   offload = .true.
 #endif
 
-  @M hy_DIR_TARGET_enter_data(to, [coeff1p1, coeff1p2, coeff1p3, coeff1m1, coeff1m2, coeff1m3, linWp, linWm])
-  @M hy_DIR_TARGET_enter_data(to, [lim, limgc, stage, dir])
+  @M hy_DIR_TARGET_teams
 
+  @M hy_DIR_inner_parallel_loop(3) &
+  @M hy_DIR_private(n) &
+  @M hy_DIR_shared([limits, scr_rope, starState])
+  do k = limits(LOW,KAXIS)-NSTENCIL*K3D, limits(HIGH,KAXIS)+NSTENCIL*K3D
+  do j = limits(LOW,JAXIS)-NSTENCIL*K2D, limits(HIGH,JAXIS)+NSTENCIL*K2D
+  do i = limits(LOW,IAXIS)-NSTENCIL, limits(HIGH,IAXIS)+NSTENCIL
+     scr_rope(HY_DENS,i,j,k) = starState(DENS_VAR,i,j,k)
+     scr_rope(HY_VELX,i,j,k) = starState(VELX_VAR,i,j,k)
+     scr_rope(HY_VELY,i,j,k) = starState(VELY_VAR,i,j,k)
+     scr_rope(HY_VELZ,i,j,k) = starState(VELZ_VAR,i,j,k)
+     scr_rope(HY_PRES,i,j,k) = starState(PRES_VAR,i,j,k)
+     scr_rope(HY_GAMC,i,j,k) = starState(GAMC_VAR,i,j,k)
+     scr_rope(HY_RHOE,i,j,k) = starState(DENS_VAR,i,j,k)*starState(EINT_VAR,i,j,k)
+#ifdef SPARK_GLM
+     scr_rope(HY_MAGX,i,j,k) = starState(MAGX_VAR,i,j,k)
+     scr_rope(HY_MAGY,i,j,k) = starState(MAGY_VAR,i,j,k)
+     scr_rope(HY_MAGZ,i,j,k) = starState(MAGZ_VAR,i,j,k)
+     scr_rope(HY_PSIB,i,j,k) = starState(PSIB_VAR,i,j,k)
+#endif
+#if NSPECIES+NMASS_SCALARS>0
+     do n=SPECIES_BEGIN, MASS_SCALARS_END
+        scr_rope(HY_NUM_VARS+1+n-SPECIES_BEGIN,i,j,k) = starState(n,i,j,k)
+     enddo
+#endif
+  enddo
+  enddo
+  enddo
 
   !  Begin loop over zones
-  @M hy_DIR_HOST_parallel_if_threaded &
-  @M hy_DIR_HOST_getFaceFlux_shared &
-  @M hy_DIR_HOST_getFaceFlux_private
   do dir = 1, NDIM
-     ! call Timers_start("prepare_scratch")
-     @M hy_DIR_TARGET_update_to([dir])
-
-     p_flux(1:NFLUXES,@M hy_bounds(limgc)) => a_flux
-     p_flat(@M hy_bounds(limgc)) => a_flat
-     p_shck(@M hy_bounds(limgc)) => a_shck
-
-     p_rope(1:NRECON,@M hy_bounds(limgc)) => a_rope
-     p_uPlus(1:NRECON,@M hy_bounds(limgc)) => a_uPlus
-     p_uMinus(1:NRECON,@M hy_bounds(limgc)) => a_uMinus
-
-     @M hy_DIR_TARGET_enter_data(alloc, [p_flux, p_flat, p_shck, p_rope, p_uPlus, p_uMinus])
-     ! call Timers_stop("prepare_scratch")
-
-     ! call Timers_start("setRope")
-     @M hy_DIR_HOST_do_collapse(2)
-     @M hy_DIR_TARGET_parallel_loop(3) &
-     @M hy_DIR_TARGET_setRope_private &
-     @M hy_DIR_TARGET_setRope_shared
-     @M hy_permute_loop(limgc, lim)
-        if (dir == IAXIS) then
-           @M hy_setRope(i,j,k)
-        else if (dir == JAXIS) then
-           @M hy_setRope(j,i,k)
-        else if (dir == KAXIS) then
-           @M hy_setRope(j,k,i)
-        endif
-     @M hy_break_loop
-     ! call Timers_stop("setRope")
-
-
+     select case(dir)
+     case(IAXIS)
+        is=1; js=0; ks=0
+     case(JAXIS)
+        is=0; js=1; ks=0
+     case(KAXIS)
+        is=0; js=0; ks=1
+     end select
 
      ! call Timers_start("recon")
-     @M hy_DIR_TARGET_parallel_loop(4) &
-     @M hy_DIR_TARGET_recon_private &
-     @M hy_DIR_TARGET_recon_shared
-     @M hy_inner_loop_ext_i(lim)
+     @M hy_DIR_inner_parallel_loop(3) &
+     @M hy_DIR_recon_private &
+     @M hy_DIR_private([s, stencil]) &
+     @M hy_DIR_recon_shared &
+     @M hy_DIR_shared([limits, scr_rope, scr_uMinus, scr_uPlus, flat3d]) &
+     @M hy_DIR_firstprivate([is, js, ks])
+     do k = limits(LOW,KAXIS)-1*ks, limits(HIGH,KAXIS)+1*ks
+     do j = limits(LOW,JAXIS)-1*js, limits(HIGH,JAXIS)+1*js
+     do i = limits(LOW,IAXIS)-1*is, limits(HIGH,IAXIS)+1*is
         do v=1,NRECON
            @M hy_recon
         enddo
-     @M hy_break_loop
+     enddo
+     enddo
+     enddo
      ! call Timers_stop("recon")
 
      ! call Timers_start("setrem")
-     @M hy_DIR_TARGET_parallel_loop(3) &
-     @M hy_DIR_TARGET_normalize_species_private &
-     @M hy_DIR_TARGET_normalize_species_shared
-     @M hy_inner_loop_ext_i(lim)
+     @M hy_DIR_inner_parallel_loop(3) &
+     @M hy_DIR_normalize_species_private &
+     @M hy_DIR_normalize_species_shared &
+     @M hy_DIR_firstprivate([smalld, smallp, smallx]) &
+     @M hy_DIR_firstprivate([is, js, ks])
+     do k = limits(LOW,KAXIS)-1*ks, limits(HIGH,KAXIS)+1*ks
+     do j = limits(LOW,JAXIS)-1*js, limits(HIGH,JAXIS)+1*js
+     do i = limits(LOW,IAXIS)-1*is, limits(HIGH,IAXIS)+1*is
         ! Limit and renormalize the species.
-        @M hy_normalize_species( p_uPlus )
-        @M hy_normalize_species( p_uMinus )
-     @M hy_break_loop
+        @M hy_normalize_species( scr_uPlus )
+        @M hy_normalize_species( scr_uMinus )
+     enddo
+     enddo
+     enddo
      ! call Timers_stop("setrem")
 
      ! call Timers_start("riemann")
-     @M hy_DIR_TARGET_parallel_loop(3) &
-     @M hy_DIR_TARGET_riemann_private &
-     @M hy_DIR_TARGET_riemann_shared
-     @M hy_inner_loop_plus(lim,1,0,0)
-        VL = p_uPlus(1:HY_NUM_VARS,i-1,j,k)
-        VR = p_uMinus(1:HY_NUM_VARS,i,j,k) 
-        inShock = any(p_shck(i-1:i,j,k) /= 0.0)
+     @M hy_DIR_inner_parallel_loop(3) &
+     @M hy_DIR_riemann_private &
+     @M hy_DIR_riemann_shared &
+     @M hy_DIR_shared([limits, starState, scr_rope, scr_flux, scr_uMinus, scr_uPlus]) &
+     @M hy_DIR_firstprivate([dir, tinyZero, hybridRiemann]) &
+     @M hy_DIR_firstprivate([is, js, ks])
+     do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)+1*ks
+     do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)+1*js
+     do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)+1*is
+        VL = scr_uPlus(1:HY_NUM_VARS,i-is,j-js,k-ks)
+        VR = scr_uMinus(1:HY_NUM_VARS,i,j,k)
+        inShock = .false.
+#ifdef SHOK_VAR
+        inShock = any(starState(SHOK_VAR,i-1*is:i,j-1*js:j,k-1*ks:k) /= 0.0)
+#endif
         @M hy_riemann
-        p_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
-     @M hy_break_loop
+        scr_flux(1:HY_NUM_FLUX,i,j,k) = Fstar(1:HY_NUM_FLUX)
+     enddo
+     enddo
+     enddo
      ! call Timers_stop("riemann")
 
      ! call Timers_start("avisc")
-     @M hy_DIR_TARGET_parallel_loop(3) &
-     @M hy_DIR_TARGET_avisc_private &
-     @M hy_DIR_TARGET_avisc_shared
-     @M hy_inner_loop_plus(lim,1,0,0)
+     @M hy_DIR_inner_parallel_loop(3) &
+     @M hy_DIR_avisc_private &
+     @M hy_DIR_avisc_shared &
+     @M hy_DIR_firstprivate([dir, cvisc]) &
+     @M hy_DIR_firstprivate([is, js, ks])
+     do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)+1*ks
+     do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)+1*js
+     do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)+1*is
         ! Add artificial viscosity for strong-shock capturing
-        avisc = cvisc*max(-(p_rope(HY_VELX+dir-1,i,j,k) - p_rope(HY_VELX+dir-1,i-1,j,k)),0.)
+        avisc = cvisc*max(-(scr_rope(HY_VELX+dir-1,i,j,k) &
+                            - scr_rope(HY_VELX+dir-1,i-1*is,j-1*js,k-1*ks)),0.)
         ! Construct minus and plus TOTAL energy densities
-        VenerLo = p_rope(HY_DENS,i-1,j,k) &
-                  *0.5*(dot_product(p_rope(HY_VELX:HY_VELZ,i-1,j,k),p_rope(HY_VELX:HY_VELZ,i-1,j,k)))&
-                  + p_rope(HY_RHOE,i-1,j,k)
-        VenerHi = p_rope(HY_DENS,i,j,k) &
-                  *0.5*(dot_product(p_rope(HY_VELX:HY_VELZ,i,j,k),p_rope(HY_VELX:HY_VELZ,i,j,k)))&
-                  + p_rope(HY_RHOE,i,j,k)
+        VenerLo = scr_rope(HY_DENS,i-1*is,j-1*js,k-1*ks) &
+                  *0.5*(dot_product(scr_rope(HY_VELX:HY_VELZ,i-1*is,j-1*js,k-1*ks), &
+                                    scr_rope(HY_VELX:HY_VELZ,i-1*is,j-1*js,k-1*ks)))&
+                  + scr_rope(HY_RHOE,i-1*is,j-1*js,k-1*ks)
+        VenerHi = scr_rope(HY_DENS,i,j,k) &
+                  *0.5*(dot_product(scr_rope(HY_VELX:HY_VELZ,i,j,k), &
+                                    scr_rope(HY_VELX:HY_VELZ,i,j,k)))&
+                  + scr_rope(HY_RHOE,i,j,k)
 
-        p_flux(HY_MASS:HY_ENER,i,j,k) = &
-              p_flux(HY_MASS:HY_ENER,i,j,k) &
-                 + avisc*(/ p_rope(HY_DENS,i-1,j,k) - p_rope(HY_DENS,i,j,k), &
-                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELX,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELX,i,j,k), &
-                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELY,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELY,i,j,k), &
-                            p_rope(HY_DENS,i-1,j,k)*p_rope(HY_VELZ,i-1,j,k) - p_rope(HY_DENS,i,j,k)*p_rope(HY_VELZ,i,j,k), &
-                            VenerLo - VenerHi &
-                         /)
+        scr_flux(HY_MASS:HY_ENER,i,j,k) = &
+           scr_flux(HY_MASS:HY_ENER,i,j,k) &
+              + avisc*(/ scr_rope(HY_DENS,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_DENS,i,j,k), &
+                         scr_rope(HY_DENS,i-1*is,j-1*js,k-1*ks)*scr_rope(HY_VELX,i-1*is,j-1*js,k-1*ks) &
+                              - scr_rope(HY_DENS,i,j,k)*scr_rope(HY_VELX,i,j,k), &
+                         scr_rope(HY_DENS,i-1*is,j-1*js,k-1*ks)*scr_rope(HY_VELY,i-1*is,j-1*js,k-1*ks) &
+                              - scr_rope(HY_DENS,i,j,k)*scr_rope(HY_VELY,i,j,k), &
+                         scr_rope(HY_DENS,i-1*is,j-1*js,k-1*ks)*scr_rope(HY_VELZ,i-1*is,j-1*js,k-1*ks) &
+                              - scr_rope(HY_DENS,i,j,k)*scr_rope(HY_VELZ,i,j,k), &
+                          VenerLo - VenerHi &
+                       /)
 
-              
 #ifdef SPARK_GLM
-        p_flux(HY_FMGX:HY_FPSI,i,j,k) = &
-              p_flux(HY_FMGX:HY_FPSI,i,j,k) &
-                 + avisc*(/ p_rope(HY_MAGX,i-1,j,k) - p_rope(HY_MAGX,i,j,k), &
-                            p_rope(HY_MAGY,i-1,j,k) - p_rope(HY_MAGY,i,j,k), &
-                            p_rope(HY_MAGZ,i-1,j,k) - p_rope(HY_MAGZ,i,j,k), &
-                            p_rope(HY_PSIB,i-1,j,k) - p_rope(HY_PSIB,i,j,k) &
+        src_flux(HY_FMGX:HY_FPSI,i,j,k) = &
+              src_flux(HY_FMGX:HY_FPSI,i,j,k) &
+                 + avisc*(/ scr_rope(HY_MAGX,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGX,i,j,k), &
+                            scr_rope(HY_MAGY,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGY,i,j,k), &
+                            scr_rope(HY_MAGZ,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGZ,i,j,k), &
+                            scr_rope(HY_PSIB,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_PSIB,i,j,k) &
                          /)
 #endif
               ! Here, we compute the species and mass scalar
@@ -203,13 +233,17 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
               ! mass scalar interface values
 #if NSPECIES+NMASS_SCALARS>0
               ! AH: TODO: Potentially make loop explicit
-         if (p_flux(HY_MASS ,i,j,k) > 0.) then
-            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = p_uPlus(HY_NUM_VARS+1:NRECON,i-1,j,k)*p_flux(HY_MASS,i,j,k)
+         if (scr_flux(HY_MASS ,i,j,k) > 0.) then
+            src_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
+               src_uPlus(HY_NUM_VARS+1:NRECON,i-1*is,j-1*js,k-1*ks)*src_flux(HY_MASS,i,j,k)
          else
-            p_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = p_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*p_flux(HY_MASS,i,j,k)
+            src_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
+               src_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*src_flux(HY_MASS,i,j,k)
          end if
 #endif
-     @M hy_break_loop
+     enddo
+     enddo
+     enddo
      ! call Timers_stop("avisc")
 
      ! call Timers_start("flux")
@@ -219,45 +253,49 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
      ! ***************
      select case(dir)
      case(IAXIS)
-        @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(flx)
-        @M hy_inner_loop_plus(lim,1,0,0)
+        @M hy_DIR_inner_parallel_loop_simd(3) &
+        @M hy_DIR_saveFlux_shared(flx) &
+        @M hy_DIR_firstprivate([is, js, ks])
+        do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)+1*ks
+        do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)+1*js
+        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)+1*is
            do v = 1, NFLUXES
-              flx(v,i,j,k) = p_flux(v,i,j,k)
+              flx(v,i,j,k) = scr_flux(v,i,j,k)
            end do
-        @M hy_break_loop
+        enddo
+        enddo
+        enddo
      case (JAXIS)
-        @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(fly)
-        @M hy_inner_loop_plus(lim,1,0,0)
+        @M hy_DIR_inner_parallel_loop_simd(3) &
+        @M hy_DIR_saveFlux_shared(fly) &
+        @M hy_DIR_firstprivate([is, js, ks])
+        do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)+1*ks
+        do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)+1*js
+        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)+1*is
            do v = 1, NFLUXES
-              fly(v,j,i,k) = p_flux(v,i,j,k)
+              fly(v,i,j,k) = scr_flux(v,i,j,k)
            end do
-        @M hy_break_loop
+        enddo
+        enddo
+        enddo
      case (KAXIS)
-        @M hy_DIR_TARGET_parallel_loop_simd(3) &
-        @M hy_DIR_TARGET_saveFlux_shared(flz)
-        @M hy_inner_loop_plus(lim,1,0,0)
+        @M hy_DIR_inner_parallel_loop_simd(3) &
+        @M hy_DIR_saveFlux_shared(flz) &
+        @M hy_DIR_firstprivate([is, js, ks])
+        do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)+1*ks
+        do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)+1*js
+        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)+1*is
            do v = 1, NFLUXES
-              flz(v,j,k,i) = p_flux(v,i,j,k)
+              flz(v,i,j,k) = scr_flux(v,i,j,k)
            end do
-        @M hy_break_loop
+        enddo
+        enddo
+        enddo
      end select
      ! call Timers_stop("flux")
-     @M hy_permute_loop_end
-     @M hy_DIR_HOST_end_do
-     !release pointers
-     @M hy_DIR_TARGET_exit_data(release, [p_flux, p_rope, p_uPlus, p_uMinus, p_flat, p_shck])
-     nullify(p_flux)
-     nullify(p_rope)
-     nullify(p_uPlus)
-     nullify(p_uMinus)
-     nullify(p_flat)
-     nullify(p_shck)
   end do ! dir
-  @M hy_DIR_HOST_end_parallel
 
-  @M hy_DIR_TARGET_exit_data(release, [lim, limgc, stage, dir])
+  @M hy_DIR_TARGET_teams_end
 
 end subroutine hy_rk_getFaceFlux
 

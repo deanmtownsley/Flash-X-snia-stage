@@ -19,6 +19,7 @@
 !! @stubref{Hydro}
 !<
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
+!!Reorder(4): hy_rope,hy_flux,hy_uPlus,hy_uMinus
 !!NOVARIANTS
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
@@ -54,7 +55,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   @M hy_scratch_use
 
   use hy_rk_interface, ONLY : hy_rk_initSolnScratch, &
-                              hy_rk_permutateLimits, &
                               hy_rk_calcLimits, &
                               hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
@@ -154,6 +154,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
 
@@ -170,10 +171,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
         call Timers_stop("scratch")
 
-        !! compute all the index limits needed for all stages
-        !! and directions in hy_rk_getFaceFlux.
-        call hy_rk_permutateLimits(blkLimits, blkLimitsGC, lim, limgc)
-
         !! Begin loop over stages for the telescoping mode.
         @M hy_stages_t !! this is the do loop statement for telescoping version
            ! calculate gravitational acceleration based on current value of GPOT_VAR
@@ -189,10 +186,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                  lim, limgc, stage, &
+                                  limits, &
                                   hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                   hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
-                                  hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
+                                  hy_rope, hy_flux, hy_uPlus, hy_uMinus)
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
 
@@ -267,6 +264,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
+        @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
 
@@ -348,6 +346,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
+            @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
             call Timers_start("Offloaded Section")
 
@@ -356,8 +355,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             call Timers_start("scratch")
             call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
             call Timers_stop("scratch")
-
-            call hy_rk_permutateLimits(blkLimits, blkLimitsGC, lim, limgc)
 
             !! Begin loop over stages for the telescoping mode.
             do stage=1, last_stage
@@ -377,10 +374,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
                call Timers_start("getFaceFlux")
                call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                      lim, limgc, stage, &
+                                      limits, &
                                       hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                       hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
-                                      hya_flux, hya_flat, hya_shck, hya_rope, hya_uPlus, hya_uMinus)
+                                      hy_rope, hy_flux, hy_uPlus, hy_uMinus)
                call Timers_stop("getFaceFlux")
 
                call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
@@ -466,6 +463,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
             @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
             @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav])
+            @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
             @M hy_release_tmp_states
             @M hy_release_scr_ptrs
             @M hy_DIR_TARGET_exit_data(release, [Uin])

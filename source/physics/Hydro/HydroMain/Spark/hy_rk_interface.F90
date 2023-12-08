@@ -31,13 +31,6 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_permutateLimits(blkLimits, blkLimitsGC, permLimits, permLimitsGC)
-       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits, blkLimitsGC
-       integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(OUT) :: permLimits, permLimitsGC
-     end subroutine hy_rk_permutateLimits
-  end interface
-
-  interface
      subroutine hy_rk_calcLimits(stage, blkLimits, limits)
        integer, intent(IN) :: stage
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
@@ -47,16 +40,15 @@ module hy_rk_interface
 
   interface
      subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
-                                   lim, limgc, stage, &
+                                   limits, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
-                                   a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus)
+                                   scr_rope, scr_flux, scr_uPlus, scr_uMinus)
        real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
+       real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
        real, dimension(:,:,:), pointer :: flat3d
-       integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE), intent(IN) :: lim, limgc
-       integer, intent(IN) :: stage
+       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: limits
        logical, intent(IN) :: hybridRiemann
        real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
-       real, dimension(:), target, intent(IN) :: a_flux, a_flat, a_shck, a_rope, a_uPlus, a_uMinus
      end subroutine  hy_rk_getFaceFlux
   end interface
 

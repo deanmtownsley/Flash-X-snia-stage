@@ -84,6 +84,13 @@ module Hydro_data
   integer, dimension(3) :: hy_limitsArray
   real, dimension(3,3) :: hy_coeffArray
 
+! real, pointer, dimension(:, :, :, :) :: hy_tmpState, hy_starState, hy_flx, hy_fly, hy_flz, &
+!                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+!                                         hy_rope, hy_flux, hy_uPlus, hy_uMinus
+
+   !$omp declare target to(hya_tmpState, hya_starState, hya_flx, hya_fly, hya_flz)
+   !$omp declare target to(hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ)
+   !$omp declare target to(hya_rope, hya_flux, hya_uPlus, hya_uMinus)
 
 end module Hydro_data
 
