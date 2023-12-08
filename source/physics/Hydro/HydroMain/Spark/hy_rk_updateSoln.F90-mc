@@ -104,12 +104,12 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
 
   @M hy_DIR_parallel_loop(3) &
   @M hy_DIR_TARGET_map(to, [limits, rk_coeffs]) &
-  @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
-  @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
-  @M hy_DIR_private([alpha, dx_sph, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan]) &
   @M hy_DIR_shared([limits, starState, tmpState, grav, flx, fly, flz]) &
   @M hy_DIR_shared([rk_coeffs, fareaX, fareaY, fareaZ, cvol, smalld, smalle]) &
-  @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, yLeft, yRight, dx, dy, dz, dt, dtOld])
+  @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, yLeft, yRight, dx, dy, dz, dt, dtOld]) &
+  @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
+  @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
+  @M hy_DIR_private([alpha, dx_sph, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan])
   do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
      do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
         do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)

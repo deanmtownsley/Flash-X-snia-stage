@@ -59,7 +59,8 @@ subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, ge
 
   @M hy_DIR_parallel_loop(4) &
   @M hy_DIR_TARGET_map(to, [blkLimitsGC]) &
-  @M hy_DIR_shared([blkLimitsGC, grav])
+  @M hy_DIR_shared([blkLimitsGC, grav]) &
+  @M hy_DIR_end
   do k = blkLimitsGC(LOW,KAXIS),blkLimitsGC(HIGH,KAXIS)
     do j = blkLimitsGC(LOW,JAXIS),blkLimitsGC(HIGH,JAXIS)
       do i = blkLimitsGC(LOW,IAXIS),blkLimitsGC(HIGH,IAXIS)
@@ -79,8 +80,8 @@ subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, ge
 
   @M hy_DIR_parallel_loop_simd(3) &
   @M hy_DIR_TARGET_map(to, [deltas]) &
-  @M hy_DIR_private([d, delxinv, im, ip, jm, jp, km, kp]) &
-  @M hy_DIR_shared([blkLimitsGC, grav, deltas, starState, radCenter, thtCenter, geometry])
+  @M hy_DIR_shared([blkLimitsGC, grav, deltas, starState, radCenter, thtCenter, geometry]) &
+  @M hy_DIR_private([d, delxinv, im, ip, jm, jp, km, kp])
   do k=blkLimitsGC(LOW,KAXIS)+K3D, blkLimitsGC(HIGH,KAXIS)-K3D
     do j=blkLimitsGC(LOW,JAXIS)+K2D, blkLimitsGC(HIGH,JAXIS)-K2D
       do i=blkLimitsGC(LOW,IAXIS)+K1D, blkLimitsGC(HIGH,IAXIS)-K1D

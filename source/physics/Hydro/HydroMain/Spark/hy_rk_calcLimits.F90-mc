@@ -28,7 +28,8 @@ subroutine hy_rk_calcLimits(stage, blkLimits, limits)
    integer :: dir, ng
 
    @M hy_DIR_TARGET &
-   @M hy_DIR_TARGET_map(to, [stage, blkLimits, limits])
+   @M hy_DIR_TARGET_map(to, [stage, blkLimits, limits]) &
+   @M hy_DIR_end
    ng = (MAXSTAGE-stage)*NSTENCIL
    @M hy_setLims(ng)
    @M hy_DIR_TARGET_end

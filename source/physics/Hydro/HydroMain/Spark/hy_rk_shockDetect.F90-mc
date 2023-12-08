@@ -61,7 +61,8 @@ subroutine hy_rk_shockDetect(Uin, blkLimitsGC, tinyZero)
 
    !! Compute sound speed
    @M hy_DIR_parallel_loop_simd(3) &
-   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, tinyZero])
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, tinyZero]) &
+   @M hy_DIR_end
    @M loop_3d(blkLimitsGC)
       Uin(SHOK_VAR,i,j,k) = 0.
       Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
@@ -69,8 +70,8 @@ subroutine hy_rk_shockDetect(Uin, blkLimitsGC, tinyZero)
    @M loop_end_3d
 
    @M hy_DIR_parallel_loop_simd(3) &
-   @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz]) &
-   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, beta, delta])
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, beta, delta]) &
+   @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz])
    do k = blkLimitsGC(LOW, KAXIS)+K3D, blkLimitsGC(HIGH, KAXIS)-K3D
    do j = blkLimitsGC(LOW, JAXIS)+K2D, blkLimitsGC(HIGH, JAXIS)-K2D
    do i = blkLimitsGC(LOW, IAXIS)+1, blkLimitsGC(HIGH, IAXIS)-1

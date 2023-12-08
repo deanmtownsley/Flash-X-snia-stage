@@ -112,7 +112,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   offload = .true.
 #endif
 
-  @M hy_DIR_TARGET_enter_data(alloc, [grownLimits, blkLimits, blkLimitsGC, limits])
+  @M hy_DIR_TARGET_enter_data(alloc, [deltas, grownLimits, blkLimits, blkLimitsGC, limits])
 
   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM

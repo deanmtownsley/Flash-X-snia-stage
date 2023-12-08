@@ -45,7 +45,8 @@ subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
 
    @M hy_DIR_parallel_loop_simd(3) &
    @M hy_DIR_TARGET_map(to, [weights]) &
-   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufX, flx, fareaX])
+   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufX, flx, fareaX]) &
+   @M hy_DIR_end
    @M loop_3d_plus(blkLimits,1,0,0)
       do v = 1, NFLUXES
          @M hy_saveFluxBuf(fluxBufX, fareaX, flx)
@@ -55,7 +56,8 @@ subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
 #if NDIM > 1
    @M hy_DIR_parallel_loop_simd(3) &
    @M hy_DIR_TARGET_map(to, [weights]) &
-   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufY, fly, fareaY])
+   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufY, fly, fareaY]) &
+   @M hy_DIR_end
    @M loop_3d_plus(blkLimits,0,1,0)
       do v = 1, NFLUXES
          @M hy_saveFluxBuf(fluxBufY, fareaY, fly)
@@ -66,7 +68,8 @@ subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
 #if NDIM > 2
    @M hy_DIR_parallel_loop_simd(3) &
    @M hy_DIR_TARGET_map(to, [weights]) &
-   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufZ, flz, fareaZ])
+   @M hy_DIR_shared([blkLimits, weights, stage, wt, fluxBufZ, flz, fareaZ]) &
+   @M hy_DIR_end
    @M loop_3d_plus(blkLimits,0,0,1)
       do v = 1, NFLUXES
          @M hy_saveFluxBuf(fluxBufZ, fareaZ, flz)
