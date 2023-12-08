@@ -1,8 +1,3 @@
-#include "Milhoja.h"
-
-#include "constants.h"
-#include "Simulation.h"
-
 !> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
@@ -16,9 +11,25 @@
 !! limitations under the License.
 !! @endlicenseblock
 !!
-!! This is a Milhoja-specific implementation of this routine.  Please refer
-!! to the documentation in this routine's stub for general interface information.
+!! @file
+
+#include "Milhoja.h"
+
+#include "constants.h"
+#include "Simulation.h"
+
+#ifdef GRID_USE_AMREX_BACKEND
+#ifndef MILHOJA_AMREX_GRID_BACKEND
+#error "Milhoja library is not using the AMReX grid backend"
+#endif
+#endif
+
+!> @ingroup GridMilhoja
+!! @stubref{Grid_init}
 !!
+!! @brief Concrete implementation of Grid_init
+!!
+!! @attention
 !! While its interface is fixed, this routine is a work in progress.
 !! Specifically, it will grow as new initialization work is required to add in
 !! new Milhoja Grid unit functionality.  Ideally, this will only be altered when

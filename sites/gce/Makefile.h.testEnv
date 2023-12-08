@@ -72,7 +72,7 @@ FFLAGS_MPI = -DHAVE_MPI_MODULE
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
+FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -fexceptions ${FFLAGS_AMREX}
 
 F90FLAGS =
 
@@ -89,7 +89,7 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_MILHOJA =
+CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
 
 
@@ -135,7 +135,7 @@ LIB_MA28 = -L$(MA28_PATH) -lma28
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # the dependencies.
-LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex -lstdc++
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX} -lstdc++
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):

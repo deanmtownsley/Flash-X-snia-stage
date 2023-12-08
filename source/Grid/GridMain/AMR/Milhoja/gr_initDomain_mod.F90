@@ -39,6 +39,27 @@ module gr_initDomain_mod
     private
 
     public :: gr_initBlock_tile_cpu
+    public :: gr_initBlock_wrapper_cpu
+    public :: gr_instantiate_wrapper_C
+    public :: gr_delete_wrapper_C
+
+    !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS
+    ! The C-to-Fortran interoperability layer
+    interface
+        function gr_instantiate_wrapper_C(C_wrapper) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT
+            type(C_PTR),         intent(IN) :: C_wrapper
+            integer(MILHOJA_INT)            :: C_ierr
+        end function gr_instantiate_wrapper_C
+
+        function gr_delete_wrapper_C(C_wrapper) result(C_ierr) bind(c)
+            use iso_c_binding,     ONLY : C_PTR
+            use milhoja_types_mod, ONLY : MILHOJA_INT
+            type(C_PTR),         intent(IN), value :: C_wrapper
+            integer(MILHOJA_INT)                   :: C_ierr
+        end function gr_delete_wrapper_C
+    end interface
 
 contains
 
@@ -55,14 +76,10 @@ contains
     !! @todo Look at AMReX implementation of gr_initNewLevelCallback and
     !!       implement all actions needed there for setting ICs.
     !!
-    !! @param C_threadID      The unique index of the thread that called this
-    !!                        subroutine if the runtime is in use.  Since this
-    !!                        might be called outside the runtime, this argument
-    !!                        is ignored.
     !! @param C_dataItemPtr   A C pointer to the tile whose data should be
     !!                        set to the initial conditions using
     !!                        Simulation_initBlock
-    subroutine gr_initBlock_tile_cpu(C_threadID, C_dataItemPtr) bind(c)
+    subroutine gr_initBlock_tile_cpu(C_dataItemPtr) bind(c)
         use iso_c_binding,        ONLY : C_PTR
 
         use milhoja_types_mod,    ONLY : MILHOJA_INT
@@ -73,7 +90,6 @@ contains
         use Eos_interface,        ONLY : Eos_wrapped
         use Simulation_interface, ONLY : Simulation_initBlock
 
-        integer(MILHOJA_INT), intent(IN), value :: C_threadID
         type(C_PTR),          intent(IN), value :: C_dataItemPtr
 
         real, contiguous, pointer :: initData(:,:,:,:)
@@ -111,5 +127,27 @@ contains
         end associate
     end subroutine gr_initBlock_tile_cpu
 
-end module gr_initDomain_mod
+    subroutine gr_initBlock_wrapper_cpu(C_threadId, C_dataItemPtr) bind(c)
+        use iso_c_binding,        ONLY : C_PTR, &
+                                         C_NULL_PTR
 
+        use milhoja_types_mod,   ONLY : MILHOJA_INT
+        use milhoja_tile_mod,    ONLY : milhoja_tile_from_wrapper_C
+        use gr_milhojaInterface, ONLY : gr_checkMilhojaError
+
+        integer(MILHOJA_INT), intent(IN), value :: C_threadId
+        type(C_PTR),          intent(IN), value :: C_dataItemPtr
+
+        integer(MILHOJA_INT) :: MH_ierr
+
+        type(C_PTR) :: C_tilePtr
+
+        C_tilePtr = C_NULL_PTR
+
+        MH_ierr = milhoja_tile_from_wrapper_C(C_dataItemPtr, C_tilePtr)
+        CALL gr_checkMilhojaError("gr_initBlock_wrapper_cpu", MH_ierr)
+
+        CALL gr_initBlock_tile_cpu(C_tilePtr)
+    end subroutine gr_initBlock_wrapper_cpu
+
+end module gr_initDomain_mod

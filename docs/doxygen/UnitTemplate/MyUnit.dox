@@ -1,0 +1,43 @@
+/**
+@defgroup MyUnit Flash-X Doxygen Documentation Template
+
+@brief  <Insert a brief, high-level description of unit>
+
+@details
+While the inline documentation in the stubs supplies the contract at the level
+of subroutines and functions, it does not include the part of the contract that
+is higher-level and related to the unit as a whole.  This portion of the unit's
+contract can go here.  As with the stubs, all implementations must make sure
+that their code satisfies this part of the contract as well.  Some examples of
+contract details are
+- How the unit should be used within Flash-X and in conjunction with other units
+- What can differentiate one implementation of the unit from another.
+  Details related to a single implementation should go in that implementation's
+  .dox file.
+- Assumptions made by the unit at the contract level
+- Preconditions for using the unit or a subset of the unit.  To avoid
+  duplicating documentation in stubs, this should not include preconditions for
+  using a single routine.
+
+This seems like a natural place to add in some general, implementation-agnostic
+information for developers/maintainers as well.  This could include, for
+instance, 
+- Documenting high-level design decisions
+- Stating if this unit constrains which version of a library can be used (but
+  don't include the version info, which should appear high-up in the repo's
+  README).
+
+@copyright Copyright 2022 UChicago Argonne, LLC and contributors
+
+\par License
+\parblock
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+\endparblock
+*/
