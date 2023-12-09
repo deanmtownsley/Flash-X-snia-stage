@@ -1,4 +1,4 @@
-##python:genLines
+##python3:genLines
 
 def genLines(setupvars):
     # While the Milhoja Grid unit implementation can be used successfully for

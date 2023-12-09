@@ -1,4 +1,4 @@
-##python:genLines
+##python3:genLines
 
 def genLines(setupvars):
     # This is not yet under official testing and its functionality is presently

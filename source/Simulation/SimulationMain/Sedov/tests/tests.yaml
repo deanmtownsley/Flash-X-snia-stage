@@ -419,7 +419,7 @@ Comparison/Sedov/PseudoUG/2d/Paramesh/unsplit:
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
   setupOptions: -auto -debug -2d -nxb=8 -nyb=8 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH -index-reorder --with-unofficial=Grid/GridMain/AMR/Milhoja
-  parfiles: test_pseudoug_milhoja_2d.par
+  parfiles: test_pseudoug_milhoja_gce_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -538,7 +538,7 @@ Comparison/Sedov/PseudoUG/3d/Paramesh/unsplit:
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/3d/Milhoja/unsplit:
   setupOptions: -auto -debug -3d -nxb=8 -nyb=8 -nzb=8 +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH -index-reorder --with-unofficial=Grid/GridMain/AMR/Milhoja
-  parfiles: test_pseudoug_milhoja_3d.par
+  parfiles: test_pseudoug_milhoja_gce_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Comparison/Sedov/AMR/2d/AMReX/simpleUnsplit:
