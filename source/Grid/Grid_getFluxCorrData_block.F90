@@ -1,6 +1,6 @@
 !!****f* source/Grid/Grid_getFluxCorrData_block
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@
 !!                              real(OUT),TARGET      :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              real(OUT),TARGET      :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                              integer(in)           :: lo(3),
-!!                              logical(IN), OPTIONAL :: isFluxDensity)
+!!                              logical(IN), OPTIONAL :: isFluxDensity(:))
 !!
 !! DESCRIPTION
 !!
-!!   Get  flux corrections from semipermanent flux storage (SPFS).
+!!   Get flux corrections from semipermanent flux storage (SPFS).
 !!
 !!    fluxBuf := "communicated fine fluxes" - "saved coarse fluxes"  AT coarse side of f/c bdry;
 !!            :=  0.0                                                ELSEWHERE.
@@ -35,7 +35,7 @@
 !!   block boundaries can hold nonzero flux correction data on return.
 !!   Other elements of the flux buffers are set to zero if they represent
 !!   faces of any cells that touch a block boundary; data faces of cells
-!!   that are farther away from a block boundary are left undefined.
+!!   that are farther away from a block boundary should be considered undefined.
 !!
 !! ARGUMENTS
 !!
@@ -43,12 +43,12 @@
 !!               Note that this should be a full block, not a tile representing
 !!               a partial block.
 !!
-!!   fluxBufX :  buffer for fluxes in IAXIS-direction
+!!   fluxBufX :  buffer for flux correction (difference) in IAXIS-direction
 !!
-!!   fluxBufY :  buffer for fluxes in JAXIS-direction;
+!!   fluxBufY :  buffer for  flux correction (difference) in JAXIS-direction;
 !!               output should be considered undefined if NDIM < 2.
 !!
-!!   fluxBufZ :  buffer for fluxes in KAXIS-direction;
+!!   fluxBufZ :  buffer for  flux correction (difference) in KAXIS-direction;
 !!               output should be considered undefined if NDIM < 3.
 !!
 !!   lo :        lower bounds for the spatial indices of the flux buffers
@@ -69,9 +69,8 @@
 !!
 !!   SPFS means semi-permanent flux storage. When using a Grid
 !!   implementation based on AMReX, SPFS is implemented by an AMReX
-!!   flux register class, such as FlashFluxRegister.
-!!
-!!   This interface is currently only implemented for Paramesh4 !
+!!   flux register class, such as FlashFluxRegister, possibly in
+!!   combination with some auxiliary storage.
 !!
 !! SEE ALSO
 !!

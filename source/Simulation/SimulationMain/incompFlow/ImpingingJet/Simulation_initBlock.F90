@@ -99,10 +99,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             !Rcell = 0.6*sim_jetRadius + 0.4*sim_jetRadius*(sim_freeSurface - yi)/sim_freeSurface
             Rcell = sim_jetRadius
 
-            jetProfile = sqrt((xi - sim_jetCoords(IAXIS))**2 + (zi - sim_jetCoords(KAXIS))**2) - Rcell
+            jetProfile = sqrt((xi-sim_jetCoords(IAXIS))**2+(zi-sim_jetCoords(KAXIS))**2)-Rcell
 
             !solnData(DFUN_VAR, i, j, k) = min(jetProfile, sim_freeSurface - yi)
-            solnData(DFUN_VAR, i, j, k) = min(jetProfile - 0.1*cos(yi*pi/2), sim_freeSurface - yi)
+            solnData(DFUN_VAR, i, j, k) = min(jetProfile-0.1*cos(yi*pi/2), sim_freeSurface-yi)
 
          end do
       end do
@@ -111,7 +111,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    deallocate (xGrid, yGrid, zGrid)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
    xGrid = 0.0
@@ -127,13 +127,13 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    call tileDesc%getDataPtr(faceyData, FACEY)
 
    do k = lo(KAXIS), hi(KAXIS)
-      do j = lo(JAXIS), hi(JAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)+1
          do i = lo(IAXIS), hi(IAXIS)
 
             yi = yGrid(j)
 
             if (yi .lt. sim_freeSurface .and. &
-                0.5*(solnData(DFUN_VAR, i, j, k) + solnData(DFUN_VAR, i, j - 1, k)) .lt. 0.0) &
+                0.5*(solnData(DFUN_VAR, i, j, k)+solnData(DFUN_VAR, i, j-1, k)) .lt. 0.0) &
                faceyData(VELC_FACE_VAR, i, j, k) = 1.0
 
          end do

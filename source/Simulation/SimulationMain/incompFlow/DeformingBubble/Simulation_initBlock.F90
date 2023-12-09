@@ -1,6 +1,7 @@
 !!****if* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Simulation_initBlock
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -52,11 +53,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    implicit none
 
-  !!$ Arguments -----------------------
+   !!$ Arguments -----------------------
    real, dimension(:, :, :, :), pointer :: solnData
    type(Grid_tile_t), intent(in) :: tileDesc
    integer :: tileDescID
-  !!$ ---------------------------------
+   !!$ ---------------------------------
 
    integer :: i, j, k, ibubble
    integer, dimension(MDIM) :: lo, hi
@@ -97,14 +98,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             do ibubble = 1, product(sim_numBubbles)
 
                if (ibubble == 1) then
-                  solnData(DFUN_VAR, i, j, k) = 0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
-                                                           (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
-                                                           (zi - sim_bubbleLoc(KAXIS, ibubble))**2)
+                  solnData(DFUN_VAR, i, j, k) = 0.1-sqrt((xi-sim_bubbleLoc(IAXIS, ibubble))**2+ &
+                                                         (yi-sim_bubbleLoc(JAXIS, ibubble))**2+ &
+                                                         (zi-sim_bubbleLoc(KAXIS, ibubble))**2)
                else
                   solnData(DFUN_VAR, i, j, k) = max(solnData(DFUN_VAR, i, j, k), &
-                                                    0.1 - sqrt((xi - sim_bubbleLoc(IAXIS, ibubble))**2 + &
-                                                               (yi - sim_bubbleLoc(JAXIS, ibubble))**2 + &
-                                                               (zi - sim_bubbleLoc(KAXIS, ibubble))**2))
+                                                    0.1-sqrt((xi-sim_bubbleLoc(IAXIS, ibubble))**2+ &
+                                                             (yi-sim_bubbleLoc(JAXIS, ibubble))**2+ &
+                                                             (zi-sim_bubbleLoc(KAXIS, ibubble))**2))
 
                end if
 
@@ -115,7 +116,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    end do
    deallocate (xGrid, yGrid, zGrid)
 
-   allocate (xGrid(lo(IAXIS):hi(IAXIS) + 1))
+   allocate (xGrid(lo(IAXIS):hi(IAXIS)+1))
    allocate (yGrid(lo(JAXIS):hi(JAXIS)))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
@@ -132,11 +133,13 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    call tileDesc%getDataPtr(facexData, FACEX)
    do k = lo(KAXIS), hi(KAXIS)
       do j = lo(JAXIS), hi(JAXIS)
-         do i = lo(IAXIS), hi(IAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)+1
             xi = xGrid(i)
             yi = yGrid(j)
 
-            facexData(VELC_FACE_VAR, i, j, k) = ((sin(pi*xi))**2)*sin(2*pi*yi)
+            facexData(VELC_FACE_VAR, i, j, k) = -((sin(pi*xi))**2)*(cos(2*pi*(yi+del(JAXIS)/2))- &
+                                                                    cos(2*pi*(yi-del(JAXIS)/2)))/(2*pi*del(JAXIS))
+
          end do
       end do
    end do
@@ -144,7 +147,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    deallocate (xGrid, yGrid, zGrid)
 
    allocate (xGrid(lo(IAXIS):hi(IAXIS)))
-   allocate (yGrid(lo(JAXIS):hi(JAXIS) + 1))
+   allocate (yGrid(lo(JAXIS):hi(JAXIS)+1))
    allocate (zGrid(lo(KAXIS):hi(KAXIS)))
 
    xGrid = 0.0
@@ -159,12 +162,14 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    call tileDesc%getDataPtr(faceyData, FACEY)
    do k = lo(KAXIS), hi(KAXIS)
-      do j = lo(JAXIS), hi(JAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)+1
          do i = lo(IAXIS), hi(IAXIS)
             xi = xGrid(i)
             yi = yGrid(j)
 
-            faceyData(VELC_FACE_VAR, i, j, k) = -((sin(pi*yi))**2)*sin(2*pi*xi)
+            faceyData(VELC_FACE_VAR, i, j, k) = ((sin(pi*yi))**2)*(cos(2*pi*(xi+del(IAXIS)/2))- &
+                                                                   cos(2*pi*(xi-del(IAXIS)/2)))/(2*pi*del(IAXIS))
+
          end do
       end do
    end do

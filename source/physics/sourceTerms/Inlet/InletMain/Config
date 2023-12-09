@@ -1,0 +1,20 @@
+#   Config file for source/physics/sourceTerms/Inlet
+REQUIRES physics/IncompNS/IncompNSMain
+
+# Directives
+PPDEFINE INLET_MAIN
+
+# Constants
+PPDEFINE INLET 1
+
+D useInlet Should the Inlet unit be used?
+PARAMETER useInlet BOOLEAN TRUE
+
+D in_sink Inlet Sink
+PARAMETER in_sink REAL  -1.0
+
+D in_buffer Inlet region Buffer
+PARAMETER in_buffer REAL   1.0
+
+D in_growthRate Outflow growth rate, k in logistic function f = 1/(1 + exp(-k*(x-xo)))
+PARAMETER in_growthRate REAL  4.0

@@ -23,9 +23,10 @@ should be made known to the Flash-X build system by a site-specific (or, as a fa
 Makefile.h file. See the subdirectories under sites/ .
 
 This applies in particular to the AMReX library. Separate library instances for 1D, 2D, and 3D
-should be installed, and the appropriate locations mentioned in Makefile.h . Flash-X is compatible
-with AMReX version 23.10. Simulations that use face-centered variables are not compatible with any 
-other version before this tag.
+should be installed, and the appropriate locations mentioned in Makefile.h . The Flash-X code in
+this branch is compatible with AMReX version 23.11 (and with earlier unreleased versions of AMReX that
+have f817d776f544410c315cf6007564f88f6b16fc2b and d77d93b060ae4bc7e1e65ac1465ad7fc06a5d4dc in their commit history).
+Simulations that use AMReX may not be compatible with versions of AMReX earlier than that.
 
 On the other hand, some applications and tests use INTERNAL libraries. Such libraries are built, as part of the Flash-X setup process, from source code that is located in subdirectories under lib/ . There are two cases for such libraries:
 
@@ -93,7 +94,19 @@ Contributors with write permission should create a feature branch from the main 
 instead of a fork. The remainder of the workflow remains the same.
 
 ## Code Formatting
-Use [fprettify](https://github.com/pseewald/fprettify) to format your source code and enforce consistency with indentation and whitespacing. Works for both `.F90` and `.F90-mc` files
+
+Currently Flash-X source code uses different formatting styles for different code units:
+
+1. **fprettify** (https://github.com/pseewald/fprettify): With 3 white space indentation style.
+2. **fxprettify** (tools/fileTools/fxprettify.py): A wrapper around fprettify that implements emacs style formatting. 
+
+Until strict formatting rules are established, we recommend using a style that produces minimum whitespace 
+differences when editing/adding code to an existing unit. For new units we recommend using **fprettify** with
+the following setting,
+
+```
+fprettify -i3 -w1 *.F90
+```
 
 ## Special Syntax Highlighting
 
@@ -155,6 +168,10 @@ Testing servers:
 - Ganon:
 
   FlashTest - http://ganon.device.utk.edu:8080 or http://ganon2.device.utk.edu:8080
+
+- Compatibility with AMReX
+
+  Testing with latest AMReX developments happens here - https://jenkins-gce.cels.anl.gov/job/Flash-X-amrex_GCC
 
 ## Citation
 

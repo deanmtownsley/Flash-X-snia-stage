@@ -1,0 +1,20 @@
+# Configuration file for streaming sine wave static radiation field problem
+
+# Unit Dependencies:
+REQUIRES Driver
+REQUIRES Grid/GridMain/AMR
+REQUIRES physics/Hydro
+REQUIRES physics/Eos/EosMain/Gamma
+REQUIRES physics/RadTrans/RadTransMain/TwoMoment/Thornado
+REQUIRES Simulation/SimulationComposition
+REQUESTS IO
+
+D dens_i                Initial density [g cm^{-3}]
+D temp_i                Initial temperature [K]
+D vel_i                 Initial velocity in x-direction [cm s^[-1}]
+D pres_i                Initial Pressure [g cm^{-1} s^[-2}]
+
+PARAMETER       dens_i          REAL    1.0e6   [0.0 to ]
+PARAMETER       temp_i          REAL    1.0e6   [0.0 to ]
+PARAMETER       vel_i           REAL    0.0e0
+PARAMETER       pres_i          REAL    1.0e21  [0.0 to ]

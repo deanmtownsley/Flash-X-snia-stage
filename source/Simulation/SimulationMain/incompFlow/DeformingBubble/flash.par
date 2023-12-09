@@ -1,14 +1,4 @@
 # 	Runtime parameters for the Deforming Bubble problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"
@@ -55,7 +45,7 @@ plotFileIntervalTime = 1.
 plotFileIntervalStep = 1000
 
 sim_reInitFlow = .true.
-sim_runTest = .true.
+dr_runUnitTest = .true.
 
 # AMR parameters
 nblockx	= 4

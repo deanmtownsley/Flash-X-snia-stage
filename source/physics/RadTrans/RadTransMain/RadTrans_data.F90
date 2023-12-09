@@ -30,6 +30,7 @@ module RadTrans_data
   implicit none
   
   integer, save :: rt_meshMe ! Process rank
+  integer, save :: rt_meshNumProcs
   logical, save :: rt_useRadTrans
   logical, save :: rt_enableTiling
 
@@ -38,5 +39,7 @@ module RadTrans_data
 
   character(len=MAX_STRING_LENGTH) :: rt_str_geometry
   integer, save :: rt_geometry
+
+  real, save :: rt_cfl
   
 end module RadTrans_data

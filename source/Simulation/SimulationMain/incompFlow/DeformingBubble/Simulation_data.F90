@@ -1,6 +1,7 @@
 !!****if* source/Simulation/SimulationMain/incompFlow/DeformingBubble/Simulation_data
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -39,9 +40,8 @@ module Simulation_data
 
    integer, save :: sim_meshMe
    logical, save :: sim_reInitFlow
-   logical, save :: sim_runTest
 
-   integer, save :: sim_numBubbles(MDIM)
+   integer, save :: sim_numBubbles(MDIM), sim_refineMax
    real, allocatable, dimension(:, :), save :: sim_bubbleLoc
 
 end module Simulation_data

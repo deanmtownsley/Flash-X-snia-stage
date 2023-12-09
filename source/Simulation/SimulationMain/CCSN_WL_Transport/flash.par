@@ -1,0 +1,240 @@
+# Parameters file for core-collapse SN
+
+# Simulation basics
+basenm			       = "ccsn1d_wl_transport_spark_weno_1km"
+restart			       = .false.
+checkpointFileNumber           = 0
+plotFileNumber                 = 0
+#run_comment                    = "1.2*small{rho,T} mono(2) HLL minmod"
+#output_directory	       = "output"
+
+# IO  
+checkpointFileIntervalStep     = 0
+checkpointFileIntervalTime     = 0.01 
+plotFileIntervalStep           = 0
+plotFileIntervalTime           = 0.0005
+# wall_clock_checkpoint          = 7200.
+memory_stat_freq               = 20
+io_writeMscalarIntegrals       = .TRUE.
+eachprocwritessummary          = .TRUE.
+
+# Time 
+tinitial                       = 0.0
+tmax                           = 0.5
+dr_shortenLastStepBeforeTMax   = .TRUE.
+nend                           = 100000000
+dtinit                         = 1.E-10 #was E-8
+dtmax                          = 1.E5
+dtmin                          = 1.E-20
+dr_dtMinContinue               = 1.0e-12
+dr_dtMinBelowAction            = 1    # write chkpt then abort
+
+# Domain 
+geometry                       = "spherical"
+xmax                           = 7.68e8 
+xmin                           = 0.e0 
+xl_boundary_type               = "reflect" 
+xr_boundary_type               = "outflow"
+
+# Grid/Refinement
+nblockx                        = 15 
+nblocky                        = 1 
+nblockz                        = 1
+
+enableMaskedGCFill             = .TRUE.
+
+gr_lrefineMaxRedDoByLogR       = .true. # .FALSE. to get NO distance-based refinement limitation
+gr_lrefineMaxRedRadiusFact     = 0.025  # 0.15 to get highest refinement only very close to center
+
+gr_lrefineMaxRedDoByTime       = .FALSE.
+gr_lrefineMaxRedLogBase        = 10.0
+gr_lrefineMaxRedTRef           = 2.0
+gr_lrefineMaxRedTimeScale      = 0.5
+
+lrefine_max                    = 6
+lrefine_min                    = 6
+refine_var_1                   = "dens"
+refine_var_2                   = "pres"
+refine_var_3                   = "none" 
+refine_var_4                   = "none"
+refine_cutoff_1		       = 0.8
+refine_cutoff_2		       = 0.8
+refine_cutoff_3		       = 0.8
+refine_cutoff_4		       = 0.8
+
+plot_var_1                     = "dens"
+plot_var_2                     = "pres"
+plot_var_3                     = "temp"
+plot_var_4                     = "entr"
+plot_var_5                     = "velx"
+plot_var_6                     = "gpot"
+plot_var_7                     = "eint"
+plot_var_8                     = "ener"
+plot_var_9                     = "ye"
+plot_var_10                    = "t001"
+plot_var_11                    = "t002"
+plot_var_12                    = "shok"
+
+plot_grid_var_1  = "tg01"
+plot_grid_var_2  = "tg02"
+plot_grid_var_3  = "tg03"
+plot_grid_var_4  = "tg04"
+plot_grid_var_5  = "tg05"
+plot_grid_var_6  = "tg06"
+plot_grid_var_7  = "tg07"
+plot_grid_var_8  = "tg08"
+plot_grid_var_9  = "tg09"
+plot_grid_var_10 = "tg10"
+plot_grid_var_11 = "tg11"
+plot_grid_var_12 = "tg12"
+plot_grid_var_13 = "tg13"
+plot_grid_var_14 = "tg14"
+plot_grid_var_15 = "tg15"
+plot_grid_var_16 = "tg16"
+plot_grid_var_17 = "tg17"
+plot_grid_var_18 = "tg18"
+plot_grid_var_19 = "tg19"
+plot_grid_var_20 = "tg20"
+plot_grid_var_21 = "tg21"
+plot_grid_var_22 = "tg22"
+plot_grid_var_23 = "tg23"
+plot_grid_var_24 = "tg24"
+plot_grid_var_25 = "tg25"
+plot_grid_var_26 = "tg26"
+plot_grid_var_27 = "tg27"
+plot_grid_var_28 = "tg28"
+plot_grid_var_29 = "tg29"
+plot_grid_var_30 = "tg30"
+plot_grid_var_31 = "tg31"
+plot_grid_var_32 = "tg32"
+plot_grid_var_33 = "tg33"
+plot_grid_var_34 = "tg34"
+plot_grid_var_35 = "tg35"
+plot_grid_var_36 = "tg36"
+plot_grid_var_37 = "tg37"
+plot_grid_var_38 = "tg38"
+plot_grid_var_39 = "tg39"
+plot_grid_var_40 = "tg40"
+plot_grid_var_41 = "tg41"
+plot_grid_var_42 = "tg42"
+plot_grid_var_43 = "tg43"
+plot_grid_var_44 = "tg44"
+plot_grid_var_45 = "tg45"
+plot_grid_var_46 = "tg46"
+plot_grid_var_47 = "tg47"
+plot_grid_var_48 = "tg48"
+plot_grid_var_49 = "tg49"
+plot_grid_var_50 = "tg50"
+plot_grid_var_51 = "tg51"
+plot_grid_var_52 = "tg52"
+plot_grid_var_53 = "tg53"
+plot_grid_var_54 = "tg54"
+plot_grid_var_55 = "tg55"
+plot_grid_var_56 = "tg56"
+plot_grid_var_57 = "tg57"
+plot_grid_var_58 = "tg58"
+plot_grid_var_59 = "tg59"
+plot_grid_var_60 = "tg60"
+plot_grid_var_61 = "tg61"
+plot_grid_var_62 = "tg62"
+plot_grid_var_63 = "tg63"
+plot_grid_var_64 = "tg64"
+plot_grid_var_65 = "tg65"
+plot_grid_var_66 = "tg66"
+plot_grid_var_67 = "tg67"
+plot_grid_var_68 = "tg68"
+plot_grid_var_69 = "tg69"
+plot_grid_var_70 = "tg70"
+plot_grid_var_71 = "tg71"
+plot_grid_var_72 = "tg72"
+plot_grid_var_73 = "tg73"
+plot_grid_var_74 = "tg74"
+plot_grid_var_75 = "tg75"
+plot_grid_var_76 = "tg76"
+plot_grid_var_77 = "tg77"
+plot_grid_var_78 = "tg78"
+
+# Simulation
+#progenitor_model_file = "d96InitModel.txt"
+chimera_model_file = "WH07_15M_Sun.h5"
+
+# Hydro
+useHydro                       = .TRUE.
+cfl                            = 0.5
+interpol_order                 = 2
+updateHydroFluxes              = .TRUE.
+eintSwitch		       = 0.0 # Always use Etot
+#convertToConsvdForMeshCalls   = .false.
+#converttoconsvdinmeshinterp   = .false.
+
+##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
+#       I. INTERPOLATION SCHEME:
+use_flattening = .true.
+cvisc          = 0.1
+
+#       II. RIEMANN SOLVERS:
+use_hybridRiemann = .true.
+
+hy_fPresInMomFlux = 0.0       # Part of pressure gradient term in momentum equation to include in momentum fluxes
+
+## -------------------------------------------------------------##
+
+# Gravity
+useGravity                     = .true.
+updateGravity                  = .TRUE.
+grav_boundary_type             = "isolated"
+mpole_3daxisymmetry            = .false.
+mpole_dumpMoments              = .FALSE.
+mpole_PrintRadialInfo	       = .false.
+mpole_IgnoreInnerZone	       = .false.
+mpole_lmax                     = 6
+mpole_ZoneRadiusFraction_1     = 1.0
+mpole_ZoneExponent_1           = 0.005
+mpole_ZoneScalar_1	       = 0.5
+mpole_ZoneType_1	       = "logarithmic"
+point_mass                     = 0.0
+point_mass_rsoft               = 0.e0
+
+#EOS
+eos_file                       = "wl-EOS-SFHo-15-25-50-noBCK.h5"
+eosMode                        = "dens_ie"
+eosModeInit                    = "dens_temp"
+
+# Radiation transport
+useRadTrans   = .true.
+rt_doExplicit = .true.
+rt_doImplicit = .true.
+rt_eL         = 0.0 # MeV
+rt_eR         = 300.0 # MeV
+rt_zoomE      = 1.26603816071016e0
+# weaklib opacity table can be downloaded from
+# https://code.ornl.gov/astro/weaklib-tables
+rt_use_emab   = .true.
+rt_emab_file  = "wl-Op-SFHo-15-25-50-E40-B85-AbEm.h5"
+rt_use_iso    = .true.
+rt_iso_file   = "wl-Op-SFHo-15-25-50-E40-B85-Iso.h5"
+rt_use_nes    = .true.
+rt_nes_file   = "wl-Op-SFHo-15-25-50-E40-B85-NES.h5"
+rt_use_pair   = .true.
+rt_pair_file  = "wl-Op-SFHo-15-25-50-E40-B85-Pair.h5"
+rt_use_brem   = .false.
+rt_brem_file  = "wl-Op-SFHo-15-25-50-E40-HR98-Brem.h5"
+rt_positivityLimiter = .true.
+rt_UpperBry1  = 1.0e100  # 1.0e0 for CB closure, 1.0e100 for MI closure
+
+# Small numbers
+smallt                         = 1.0e4
+smlrho                         = 1.0e-10
+smallp                         = 1.E-20
+smalle                         = 1.E1
+smallu                         = 1.E-10
+smallx                         = 1.E-10
+small                          = 1.E-100
+
+# Burn Unit
+useBurn                        = .false.
+useShockBurn                   = .false.
+nuclearTempMin                 = 1.0e6 #was 1.1e8
+
+use_cma_advection              = .true.
+

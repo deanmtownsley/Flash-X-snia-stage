@@ -47,15 +47,9 @@ subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, ge
   integer, intent(IN) :: geometry
   integer, dimension(LOW:HIGH,MDIM), intent(IN) :: blkLimitsGC
 
+  real, dimension(MDIM) :: delinv, delgpot
   real :: delxinv
-  integer :: dir, i,j,k,d
-  integer :: im, ip, jm, jp, km, kp
-
-  logical :: offload = .false.
-
-#ifdef OMP_OL
-  offload = .true.
-#endif
+  integer :: i,j,k,d
 
   @M hy_DIR_parallel_loop(4) &
   @M hy_DIR_TARGET_map(to, [blkLimitsGC]) &
@@ -85,63 +79,41 @@ subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, ge
   do k=blkLimitsGC(LOW,KAXIS)+K3D, blkLimitsGC(HIGH,KAXIS)-K3D
     do j=blkLimitsGC(LOW,JAXIS)+K2D, blkLimitsGC(HIGH,JAXIS)-K2D
       do i=blkLimitsGC(LOW,IAXIS)+K1D, blkLimitsGC(HIGH,IAXIS)-K1D
-        do d=1,NDIM
-          select case(d)
-          case(IAXIS)
-            im=1; ip=1; jm=0; jp=0; km=0; kp=0
-          case(JAXIS)
-            im=0; ip=0; jm=1; jp=1; km=0; kp=0
-          case(KAXIS)
-            im=0; ip=0; jm=0; jp=0; km=1; kp=1
-          end select
-          delxinv = getDelXinv(d, deltas, geometry, radCenter(i), thtCenter(j))
-          grav(d,i,j,k) = grav(d,i,j,k) &
-             + delxinv*( starState(GPOT_VAR,i-im,j-jm,k-km) &
-                        - starState(GPOT_VAR,i+ip,j+jp,k+kp) )
+
+           delinv(IAXIS:NDIM) = 0.5 / deltas(IAXIS:NDIM)
+
+           ! d/dx
+           delgpot(IAXIS) = starState(GPOT_VAR,i-1,j,k) - starState(GPOT_VAR,i+1,j,k)
+           grav(IAXIS,i,j,k) = delinv(IAXIS) * delgpot(IAXIS)
+#if NDIM >= 2
+           ! d/dy
+           if (geometry == SPHERICAL) delinv(JAXIS) = delinv(JAXIS) / radCenter(i)
+           delgpot(JAXIS) = starState(GPOT_VAR,i,j-1,k) - starState(GPOT_VAR,i,j+1,k)
+           grav(JAXIS,i,j,k) = delinv(JAXIS) * delgpot(JAXIS)
+#endif
+#if NDIM == 3
+           ! d/dz
+           if (geometry == SPHERICAL) then
+              delinv(KAXIS) = delinv(KAXIS) / ( radCenter(i) * sin(thtCenter(j)) )
+           else if (geometry == CYLINDRICAL) then
+              delinv(KAXIS) = delinv(KAXIS) / radCenter(i)
+           end if
+           delgpot(KAXIS) = starState(GPOT_VAR,i,j,k-1) - starState(GPOT_VAR,i,j,k+1)
+           grav(KAXIS,i,j,k) = delinv(KAXIS) * delgpot(KAXIS)
+#endif
         end do
-      enddo
-    enddo
-  enddo
+     end do
+  end do
+
+  if(geometry /= CARTESIAN) then
+     @M hy_DIR_TARGET_exit_data(release, [radCenter, thtCenter])
+     nullify(radCenter)
+     nullify(thtCenter)
+  end if
 #endif /* GPOT_VAR */
 #else
   call Driver_abort("[hy_rk_getGraveAccel] Gravity that is not FLASH_GRAVITY_TIMEDEP is not currently implemented ")
 #endif /* FLASH_GRAVITY_TIMEDEP */
 #endif /* GRAVITY */
-
-
-contains
-
-  pure function getDelXinv(sweepDir, del, geom, radx, thty) result(dxinv)
-
-    implicit none
-
-    integer, intent(IN) :: sweepDir, geom
-    real, dimension(MDIM), intent(IN) :: del
-    real, intent(IN) :: radx, thty
-
-    real :: dxinv
-
-#ifdef OMP_OL
-    !$omp declare target
-#endif
-
-    if (sweepDir == SWEEP_X) then                     ! x-direction
-       dxinv = 1./del(IAXIS)
-    elseif (sweepDir == SWEEP_Y) then                 ! y-direction
-       dxinv = 1./del(JAXIS)
-       if (geom == SPHERICAL) dxinv = dxinv / radx
-    else                                              ! z-direction
-       dxinv = 1./del(KAXIS)
-       if (geom == SPHERICAL) then
-          dxinv = dxinv / ( radx * sin(thty) )
-       else if (geom == CYLINDRICAL) then
-          dxinv = dxinv / radx
-       endif
-    endif
-
-    dxinv = 0.5e0 * dxinv
-    return
-  end function getDelXinv
-
 
 end subroutine hy_rk_getGraveAccel

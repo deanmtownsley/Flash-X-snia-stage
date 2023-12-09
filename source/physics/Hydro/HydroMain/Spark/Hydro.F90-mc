@@ -21,6 +21,13 @@
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!Reorder(4): hy_rope,hy_flux,hy_uPlus,hy_uMinus
 !!NOVARIANTS
+
+#ifdef DEBUG_ALL
+#define DEBUG_HYDRO
+#define DEBUG_HYDRO_OFFLOADING
+#endif
+#define DEBUG_GRID_GCMASK
+
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   use Grid_interface, ONLY : Grid_getTileIterator, &
@@ -37,11 +44,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
   use Timers_interface, ONLY : Timers_start, Timers_stop
+  use Logfile_interface, ONLY : Logfile_stampVarMask
   use Eos_interface, ONLY : Eos_wrapped
   use IO_interface, ONLY : IO_setScalar
 
 
   use Hydro_data, ONLY : hy_useHydro, &
+                         hy_eosModeGc, &
                          hy_fluxCorrect, hy_fluxCorrectPerLevel, &
                          hy_telescoping, &
                          hy_maxLev, &
@@ -51,7 +60,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_gcMask,&
                          hy_lChyp, hy_C_hyp, hy_alphaGLM, &
                          hy_geometry, hy_tiny, hy_hybridRiemann, hy_maxCells, &
-                         hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX
+                         hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX, &
+                         hy_limRad, hy_mp5ZeroTol
   @M hy_scratch_use
 
   use hy_rk_interface, ONLY : hy_rk_initSolnScratch, &
@@ -85,6 +95,11 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   real, dimension(MDIM) :: deltas
 
   @M hy_declare_scr_ptr
+#ifdef DEBUG_GRID_GCMASK
+  logical,save :: gcMaskLogged =.FALSE.
+#else
+  logical,parameter :: gcMaskLogged =.TRUE.
+#endif
 
   real :: wt
   real, dimension(3) :: rk_coeffs
@@ -121,16 +136,18 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
 
-  if(hy_telescoping) &
-       call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+  if(hy_telescoping) then
+     @M hy_globalFillGuardCells
+  end if
   !-------------------------------------------------------------------!
   !***NO Flux correction    or   Flux correction but NOT per level****!
   !-------------------------------------------------------------------!
   stage=1
   if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
      @M hy_stages_nt !! this is the do loop statement for non-telescoping version
-     if(.NOT.hy_telescoping) &
-          call Grid_fillGuardCells(CENTER,ALLDIR,doEos=.false.,maskSize=NUNK_VARS,mask=hy_gcMask)
+     if(.NOT.hy_telescoping) then
+        @M hy_globalFillGuardCells
+     end if
      nullify(Uin)
      @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas)
 
@@ -179,16 +196,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC)
 
            !Set needed number of guard cells to update based on
-           !current stage for telescoping upda
+           !current stage for telescoping update
            call hy_rk_calcLimits(stage, blkLimits, limits)
 
            call hy_rk_getFlatteningLimiter(hy_flattening, hy_starState, hy_flat3d, limits)
 
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                  limits, &
+                                  limits, deltas, &
                                   hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                   hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
+                                  hy_limRad, hy_mp5ZeroTol, &
                                   hy_rope, hy_flux, hy_uPlus, hy_uMinus)
            call Timers_stop("getFaceFlux")
            !------- Add this in -----
@@ -305,7 +323,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M iter_end
      end if !Flux correction
    else !flux correct per level
+#ifdef DEBUG_HYDRO
       print *, "Flux correct per level"
+#endif
       !----------------------------------------!
       !*****Flux correction per level Occurs***!
       !----------------------------------------!
@@ -374,9 +394,10 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
                call Timers_start("getFaceFlux")
                call hy_rk_getFaceFlux(hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                      limits, &
+                                      limits, deltas, &
                                       hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
                                       hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
+                                      hy_limRad, hy_mp5ZeroTol, &
                                       hy_rope, hy_flux, hy_uPlus, hy_uMinus)
                call Timers_stop("getFaceFlux")
 
@@ -479,6 +500,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
   @M hy_DIR_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits])
 
+#ifdef DEBUG_GRID_GCMASK
+  gcMaskLogged = .TRUE.
+#endif
   call Timers_stop("Hydro")
 
 contains
@@ -491,6 +515,7 @@ contains
 
     onCPU = .TRUE.
 
+#ifdef DEBUG_HYDRO_OFFLOADING
 #ifdef OMP_OL
     !$omp target map(tofrom:onCPU)
     !$  onCPU = omp_is_initial_device()
@@ -503,6 +528,7 @@ contains
     else
        print *, "---------------- Running on GPU --------------------------------"
     end if
+#endif
 
   end subroutine check_if_on_GPU
 

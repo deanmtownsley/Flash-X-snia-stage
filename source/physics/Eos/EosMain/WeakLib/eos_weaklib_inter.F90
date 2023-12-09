@@ -94,7 +94,7 @@ CONTAINS
                 xDens(ii), xEner(ii), xYe(ii), xTemp(ii), error_flag(ii)
             END IF
           END DO
-          STOP
+          CALL Driver_abort('ComputeTemperatureWith_DEY ERROR')
         END IF
 
       CASE( 2 ) ! MODE_DENS_ENTR
@@ -119,7 +119,7 @@ CONTAINS
                 xDens(ii), xEntr(ii), xYe(ii), xTemp(ii), error_flag(ii)
             END IF
           END DO
-          STOP
+          CALL Driver_abort('ComputeTemperatureWith_DSY ERROR')
         END IF
 
       CASE( 4 ) ! MODE_DENS_PRES
@@ -144,7 +144,7 @@ CONTAINS
                 xDens(ii), xPres(ii), xYe(ii), xTemp(ii), error_flag(ii)
             END IF
           END DO
-          STOP
+          CALL Driver_abort('ComputeTemperatureWith_DPY ERROR')
         END IF
 
      END SELECT

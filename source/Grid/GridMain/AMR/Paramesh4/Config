@@ -34,10 +34,17 @@ IF FlashAvoidOrrery or Bittree
   REQUIRES ./PM4_package
 ENDIF
 
+CHILDORDER PM4_package Thornado
+
 
 USESETUPVARS NoLevelwideFluxes
 IF not NoLevelwideFluxes
    REQUIRES ./levelFlux
+ENDIF
+
+USESETUPVARS Incomp
+IF Incomp
+   REQUIRES ./Incomp
 ENDIF
 
 # Lines that begin with 'D' as in 'Description' will end up as
@@ -59,7 +66,11 @@ D & 1: Check (if variable is not masked out) and report (see sanitizeVerbosity).
 D & 2: Check (ignoring variable mask) and report (see sanitizeVerbosity).
 D & 3: Check (if variable is not masked out) and fix (apply floor value).
 D & 4: Check (if variable is not masked out) and abort if cell is found below floor value.
-PARAMETER gr_sanitizeDataMode   INTEGER 1   [0,1,2,3,4]
+IF Incomp
+   PARAMETER gr_sanitizeDataMode   INTEGER 0   [0,1,2,3,4]
+ELSE
+   PARAMETER gr_sanitizeDataMode   INTEGER 1   [0,1,2,3,4]
+ENDIF
 
 D gr_sanitizeVerbosity How to write information about unacceptable
 D & values in the dens, ener, and eint cell-centered variables if gr_sanitizeDataAfterInterp
@@ -76,7 +87,11 @@ D enableMaskedGCFill When enableMaskedGCFill is FALSE, Grid_fillGuardCells is fo
 D &                  to always ignore optional mask arguments when present in calls.
 D &                  This is the default behavior.
 D &                  Set enableMaskedGCFill TRUE to enable masked guard cell filling.
-PARAMETER enableMaskedGCFill BOOLEAN FALSE
+IF Incomp
+   PARAMETER enableMaskedGCFill BOOLEAN TRUE
+ELSE
+   PARAMETER enableMaskedGCFill BOOLEAN FALSE
+ENDIF
 
 ## gr_pmrp* Runtime Parameters start here.
 ## The letters pmrp stand for Paramesh Runtime Parameter.

@@ -1,12 +1,17 @@
 # YAML file for PoolBoiling tests
 # comments can be added with "#"
 
+UnitTest/incompFlow/PoolBoiling/2d/Paramesh:
+  setupOptions: -auto -maxblocks=100 +pm4dev -gridinterpolation=native +incomp +parallelIO -2d -nxb=16 -nyb=16
+  parfiles: test_single_bubble.par
+  transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/single_bubble_hdf5_htr_0001
+
 Comparison/incompFlow/PoolBoiling/2d/AMReX:
-  setupOptions: -auto -maxblocks=100 +amrex +parallelIO SimForceInOut=True -2d -nxb=16 -nyb=16
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO +incomp -2d -nxb=16 -nyb=16
   parfiles: test_single_bubble.par
   transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/single_bubble_hdf5_htr_0001
 
 Comparison/incompFlow/PoolBoiling/3d/IO:
-  setupOptions: -auto -maxblocks=20 +amrex +parallelIO SimForceInOut=True -3d -nxb=16 -nyb=16 -nzb=16
+  setupOptions: -auto -maxblocks=20 +amrex +parallelIO +incomp IOWriteGridFiles=False -3d -nxb=16 -nyb=16 -nzb=16
   parfiles: test_io_3d.par
   transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/test_io_3d.py

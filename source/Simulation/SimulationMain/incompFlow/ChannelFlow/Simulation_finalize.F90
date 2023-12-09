@@ -33,22 +33,6 @@
 
 subroutine Simulation_finalize()
 
-#ifdef SIMULATION_FORCE_INLET
-   use sim_outletInterface, ONLY: sim_outletFinalize
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   use sim_inletInterface, ONLY: sim_inletFinalize
-#endif
-
    implicit none
-
-#ifdef SIMULATION_FORCE_INLET
-   call sim_inletFinalize()
-#endif
-
-#ifdef SIMULATION_FORCE_OUTLET
-   call sim_outletFinalize()
-#endif
 
 end subroutine Simulation_finalize

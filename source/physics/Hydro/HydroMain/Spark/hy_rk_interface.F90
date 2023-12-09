@@ -40,15 +40,17 @@ module hy_rk_interface
 
   interface
      subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
-                                   limits, &
+                                   limits, deltas, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
+                                   limRad, mp5ZeroTol, &
                                    scr_rope, scr_flux, scr_uPlus, scr_uMinus)
        real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
        real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
        real, dimension(:,:,:), pointer :: flat3d
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: limits
+       real, dimension(MDIM), intent(IN)  :: deltas
        logical, intent(IN) :: hybridRiemann
-       real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
+       real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero, limRad, mp5ZeroTol
      end subroutine  hy_rk_getFaceFlux
   end interface
 

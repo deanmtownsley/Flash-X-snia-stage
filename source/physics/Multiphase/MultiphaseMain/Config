@@ -7,40 +7,76 @@ REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
+USESETUPVARS InsLSDamping
+USESETUPVARS InsForceInOut
+
+IF InsForceInOut
+    IF InsLSDamping
+        REQUESTS physics/sourceTerms/Outlet/OutletMain/lsDamping
+    ENDIF
+ENDIF
+
 PPDEFINE MULTIPHASE_MAIN
 
-#-------------------------------------------------------------------------------
 D useMultiphase Should the Multiphase unit be used?
 PARAMETER useMultiphase BOOLEAN TRUE
 
-#-------------------------------------------------------------------------------
-PARAMETER mph_rhoGas REAL 1.0      # Density ratio of gas/liquid
-PARAMETER mph_muGas REAL 1.0      # Viscosity ratio of gas/liquid
-PARAMETER mph_invWeber REAL 1.0      # Inverse Weber Number
-PARAMETER mph_Tsat REAL 0.0      # Saturation temperature for phase change
-PARAMETER mph_thcoGas REAL 1.0      # Thermal conducitivity of gas/liquid
-PARAMETER mph_CpGas REAL 1.0      # Specific heat of gas/liquid
-PARAMETER mph_Stefan REAL 1.0      # Stefan number
+D mph_rhoGas Density ration of gas/liquid
+PARAMETER mph_rhoGas REAL 1.0
 
-PARAMETER mph_extpIt INTEGER 5        # Heat flux extrapolation iterations...
-PARAMETER mph_lsIt INTEGER 2        # Level Set redistance iterations...
-# Over-written in Simulation flash.par
-PARAMETER mph_iPropSmear REAL 1.0      # Thickness of the smeared region
-# (x grid_spacing)
+D mph_muGas Viscosity ration of gas/liquid
+PARAMETER mph_muGas REAL 1.0
 
-#-------------------------------------------------------------------------------
-# Variables required by the MPH module
-VARIABLE dfun                   # Level set distance function
-VARIABLE hdn0                   # RHS for level set advection
-VARIABLE dfrc                   # Level set forcing variable
-VARIABLE pfun                   # Sharp phase function
-VARIABLE smhv                   # Smeared phase function
-VARIABLE curv		 	# Curvature variable
+D mph_invWeber Inverse Weber number
+PARAMETER mph_invWeber REAL 1.0
 
-VARIABLE nrmx TYPE:GENERIC      # level set normal (x - direction)
-VARIABLE nrmy TYPE:GENERIC      # level set normal (y - direction)
+D mph_Tsat Saturation temperature for phase change
+PARAMETER mph_Tsat REAL 0.0
+
+D mph_thcoGas Thermal conductivity of gas/liquid
+PARAMETER mph_thcoGas REAL 1.0
+
+D mph_CpGas Specific heat of gas/liquid
+PARAMETER mph_CpGas REAL 1.0
+
+D mph_Stefan Stefan number
+PARAMETER mph_Stefan REAL 1.0
+
+D mph_extpIt Heat flux extrapolation iterations
+PARAMETER mph_extpIt INTEGER 5
+
+D mph_lsIt Level set redistance iterations
+PARAMETER mph_lsIt INTEGER 2
+
+D mph_iPropSmear Thickness of the smeared region. This is a factor of the grid spacing
+PARAMETER mph_iPropSmear REAL 1.0
+
+D dfun_variable Level set distance function
+VARIABLE dfun
+
+D hdn0_variable RHS for level set advection
+VARIABLE hdn0
+
+D dfrc_variable Level set forcing variable
+VARIABLE dfrc
+
+D pfun_variable Phase function (sharp)
+VARIABLE pfun
+
+D smhv_variable Phase function (smeared)
+VARIABLE smhv
+
+D curv_variable Level set curvature
+VARIABLE curv
+
+D nrmx_variable Level set normal in x-dir
+VARIABLE nrmx TYPE:GENERIC
+
+D nrmy_variable Level set normal in y-dir
+VARIABLE nrmy TYPE:GENERIC
 
 USESETUPVARS nDim
 IF nDim == 3
-VARIABLE nrmz TYPE:GENERIC      # level set normal (z - direction)
+D nrmz_variable Level set normal in z-dir
+VARIABLE nrmz TYPE:GENERIC
 END IF

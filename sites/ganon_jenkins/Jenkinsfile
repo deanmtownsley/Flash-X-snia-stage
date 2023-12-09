@@ -31,7 +31,7 @@ pipeline {
 	//==================================================//
         stage('All-Tests'){ steps{
 	    sh "flashxtest init -a /archive -z ${env.WORKSPACE} -s ganon_jenkins"
-	    sh "flashxtest setup-suite sites/ganon_jenkins/*.suite"
+	    sh "flashxtest setup-suite sites/ganon_jenkins/testsuites/*.suite"
 	    sh "flashxtest run-suite"
 	}} //stage('All-Tests'){ steps{
 
@@ -46,6 +46,7 @@ pipeline {
 	    archiveArtifacts artifacts: '**/flash_output', allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/flash_error' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: '**/*.log'       , allowEmptyArchive: true
+	    archiveArtifacts artifacts: '**/test_output' , allowEmptyArchive: true
 	    archiveArtifacts artifacts: 'TestResults/*/*/errors', allowEmptyArchive: true
 	    cleanWs(
 	        cleanWhenNotBuilt: true,

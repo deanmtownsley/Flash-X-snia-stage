@@ -50,8 +50,9 @@
 !!Reorder(4):scr_rope,scr_flux,scr_uPlus,scr_uMinus
 
 subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
-                              limits, &
+                              limits, deltas, &
                               hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
+                              limRad, mp5ZeroTol, &
                               scr_rope, scr_flux, scr_uPlus, scr_uMinus)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
@@ -66,8 +67,9 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
   real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
   real, dimension(:,:,:), pointer :: flat3d
   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: limits
+  real, dimension(MDIM), intent(IN)  :: deltas
   logical, intent(IN) :: hybridRiemann
-  real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero
+  real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero, limRad, mp5ZeroTol
 
   integer :: i, j, k, s, n, v, dir, ierr
   integer :: ii, jj, kk, is, js, ks
@@ -304,6 +306,18 @@ subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
 
   @M hy_DIR_TARGET_teams_end
 
+contains
+
+   real function minmod(a,b)
+     implicit none
+     real :: a,b
+     minmod=.5 * (sign(1.,a) + sign(1.,b))*min(abs(a),abs(b))
+   end function minmod
+
+   real function median(a,b,c)
+     implicit none
+     real :: a,b,c
+     median = a + minmod(b-a,c-a)
+   end function median
+
 end subroutine hy_rk_getFaceFlux
-
-

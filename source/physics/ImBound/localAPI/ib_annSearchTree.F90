@@ -18,7 +18,7 @@ subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
    use ImBound_type, ONLY: ImBound_type_t
    implicit none
    !
-   class(ImBound_type_t), intent(IN)  :: body
+   type(ImBound_type_t), intent(IN)  :: body
    integer, intent(IN) :: annElems
    ! query point
    real, dimension(:), target, intent(IN) :: queryPt

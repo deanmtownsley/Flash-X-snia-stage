@@ -38,16 +38,26 @@ D slopeLimiter		mc, vanLeer, minmod, hybrid, limited
 D EOSforRiemann         Turn on/off calls to Eos for thermo of reconstructed face states (MODE_DENS_PRES)
 D RiemannSolver		Roe, HLL, HLLC, Marquina, MarquinaModified, Hybrid or local Lax-Friedrichs, plus HLLD for MHD
 D use_hybridRiemann	Use the HLL solver inside shocks (flagged by SHOK_VAR)
+D hy_mp5ZeroTol        Floating-point zero-comparison tolerance for MP5 slope limiting.
+D hy_eosModeGc Eos mode that the Hydro unit should apply to guard cells
+D & before computing Riemann input states by reconstruction, etc.
+D & The special value "see eosMode" can be used to indicate the mode
+D & set by the runtime parameter "eosMode".
+D & Other values are as for "eosMode".
+D & The choices "dens_pres" and "dens_temp" are available, but will likely result in
+D & bad approximations for the solution methods in this Hydro implementation.
 
 # Runtime Parameters
 PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
 PARAMETER use_hybridRiemann		 BOOLEAN FALSE
+PARAMETER hy_mp5ZeroTol        REAL    0.0
+PARAMETER hy_eosModeGc STRING "dens_ie" ["see eosMode","eos_nop","dens_ie","dens_pres","dens_temp"]
 
 # GLM-MHD damping factor
 PARAMETER alpha_glm			REAL 0.9
 PARAMETER killdivb   BOOLEAN TRUE
 PARAMETER unitsystem STRING "none"
-PARAMETER telescoping          BOOLEAN  TRUE
+PARAMETER telescoping BOOLEAN CONSTANT  TRUE
 
 # Fluxes, these have to be prefixed by "F0*" because setup.py alphabetizes
 FLUX F01Dens

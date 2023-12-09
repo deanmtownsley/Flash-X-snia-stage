@@ -47,6 +47,11 @@ subroutine Driver_finalizeAll()
   use Stencils_interface, ONLY: Stencils_finalize
   use ImBound_interface, ONLY: ImBound_finalize
   use MoL_interface, ONLY: MoL_finalize
+  use Spacetime_interface, ONLY: Spacetime_finalize
+  use Heater_interface, ONLY: Heater_finalize
+  use Inlet_interface, ONLY: Inlet_finalize
+  use Outlet_interface, ONLY: Outlet_finalize
+
 implicit none
 #include "mpif.h"
 
@@ -69,6 +74,8 @@ implicit none
   
   call Eos_finalize()             ! Equation of State
 
+  call Spacetime_finalize()       ! Spacetime
+
   call Gravity_finalize()         ! Gravity
 
   call IncompNS_finalize()        ! IncompNS
@@ -76,6 +83,12 @@ implicit none
   call Multiphase_finalize()      ! Multiphase
 
   call HeatAD_finalize()          ! Heat Advection Diffusion
+
+  call Heater_finalize()          ! Heater source term
+ 
+  call Inlet_finalize()           ! Inlet source term
+
+  call Outlet_finalize()          ! Outlet source term
 
   call Stencils_finalize()        ! Stencils units
 

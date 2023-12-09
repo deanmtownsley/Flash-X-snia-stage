@@ -1,14 +1,4 @@
 # 	Runtime parameters for the Flow Boiling problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds   = .004
@@ -36,13 +26,13 @@ mph_invWeber = 1.0
 ht_Prandtl = 8.0
 
 # Heater parameters
-sim_nucSeedRadius =  0.1 # Re-nucleation seed size
-sim_numHeaters    =  1   # Number of heaters
-sim_heaterName    = "weak_scaling"
-sim_heaterShowInfo = .FALSE.
+htr_nucSeedRadius =  0.1 # Re-nucleation seed size
+htr_numHeaters    =  1   # Number of heaters
+htr_heaterName    = "weak_scaling"
+htr_showInfo = .FALSE.
 
 # Outlet parameters
-sim_outletBuffer = 0.1 # Outlet Buffer
+out_buffer = 0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

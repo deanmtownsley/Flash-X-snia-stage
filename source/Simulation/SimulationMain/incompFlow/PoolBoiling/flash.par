@@ -1,14 +1,4 @@
 # 	Runtime parameters for the Pool Boiling problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
 
 # Inverse of Reynolds Number
 ins_invReynolds   = .003
@@ -36,12 +26,12 @@ mph_invWeber = 1.0
 ht_Prandtl = 7.0
 
 # Heater parameters
-sim_nucSeedRadius =  0.1 # Re-nucleation seed size
-sim_numHeaters    =  2   # Number of heaters
-sim_heaterName    = "pool_boiling"
+htr_nucSeedRadius =  0.1 # Re-nucleation seed size
+htr_numHeaters    =  2   # Number of heaters
+htr_heaterName    = "pool_boiling"
 
 # Outlet parameters
-sim_outletBuffer =  0.1 # Outlet Buffer
+out_buffer =  0.1 # Outlet Buffer
 
 #       Grid dimensionality and geometry
 geometry	= "cartesian"

@@ -1,14 +1,5 @@
 # 	Runtime parameters for the Channel Flow problem.
-gr_pmRpDivergenceFree = 1
-gr_pmRpNfieldDivf = 2
-gr_pmRpConsvFluxes = .TRUE.
-gr_pmRpConsvFluxDensities = .FALSE.
-
-# Settings for guard cell filling
-gr_bcEnableApplyMixedGds = .FALSE.
-convertToConsvdForMeshCalls = .FALSE.
-convertToConsvdInMeshInterp = .FALSE.
-enableMaskedGCFill = .FALSE.
+dr_runUnitTest = .TRUE.
 
 # Inverse of Reynolds Number
 ins_invReynolds      = .002
@@ -28,7 +19,7 @@ zmin            =  0.0
 zmax            =  1.0
 
 # Outlet parameters
-sim_outletBuffer = 0.1
+out_buffer = 0.1
 
 #       Boundary conditions
 xl_boundary_type = "periodic"

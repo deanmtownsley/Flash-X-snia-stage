@@ -1,0 +1,6 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/IO
+#------------------------------------------------
+unitTest/IO -t "UnitTest/IO/hdf5/3d/pm4dev" -np 4
