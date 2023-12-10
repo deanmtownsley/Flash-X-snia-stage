@@ -102,7 +102,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #endif
 
   real :: wt
-  real, dimension(3) :: rk_coeffs
 
   ! telescoping variables
   integer, dimension(MDIM) :: gCells
@@ -215,10 +214,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! See select_RK_scheme() for explicit outline of C1, C2, & C3
            ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
 
-           !Set proper coefficients for the given stage
-           rk_coeffs = hy_coeffArray(stage,:)
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
+           call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffArray, stage, &
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
                                  deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                  hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
@@ -410,9 +407,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                ! Now update solution based on conservative fluxes
                ! See select_RK_scheme() for explicit outline of C1, C2, & C3
                ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-               rk_coeffs = hy_coeffArray(stage,:)
                call Timers_start("updateSoln")
-               call hy_rk_updateSoln(hy_starState, hy_tmpState, rk_coeffs, &
+               call hy_rk_updateSoln(hy_starState, hy_tmpState, hy_coeffArray, stage, &
                                      hy_grav, hy_flx, hy_fly, hy_flz, &
                                      deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                      hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &

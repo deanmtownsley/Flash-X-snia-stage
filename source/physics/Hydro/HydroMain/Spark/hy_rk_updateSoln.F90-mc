@@ -45,7 +45,7 @@
 !!Reorder(4): starState, tmpState, fl[xyz]
 !!NOVARIANTS
 
-subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
+subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, stage, &
                              grav, flx, fly, flz, &
                              deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                              xLeft, xRight, yLeft, yRight, &
@@ -66,9 +66,9 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
   real, dimension(:,:,:,:), pointer :: grav
   real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
   real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
-  real, dimension(3), intent(IN) :: rk_coeffs
+  real, dimension(3, 3), intent(IN) :: rk_coeffs
   real, dimension(MDIM), intent(IN)  :: deltas
-  integer, intent(IN) :: geometry
+  integer, intent(IN) :: stage, geometry
   integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
   real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
 
@@ -100,12 +100,12 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
 #endif
 
   dx = deltas(IAXIS); dy = deltas(JAXIS); dz = deltas(KAXIS)
-  dhdt = minval(deltas(1:NDIM))/(rk_coeffs(3)*dt)
+  dhdt = minval(deltas(1:NDIM))/(rk_coeffs(stage, 3)*dt)
 
   @M hy_DIR_parallel_loop(3) &
   @M hy_DIR_TARGET_map(to, [limits, rk_coeffs]) &
   @M hy_DIR_shared([limits, starState, tmpState, grav, flx, fly, flz]) &
-  @M hy_DIR_shared([rk_coeffs, fareaX, fareaY, fareaZ, cvol, smalld, smalle]) &
+  @M hy_DIR_shared([stage, rk_coeffs, fareaX, fareaY, fareaZ, cvol, smalld, smalle]) &
   @M hy_DIR_shared([geometry, xLeft, xCenter, xRight, yLeft, yRight, dx, dy, dz, dt, dtOld]) &
   @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
   @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
@@ -147,7 +147,7 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
            Stot = Sgeo + Shy_grv
 
            ! Now update conserved vector with flux gradients
-           Ustar = rk_coeffs(1)*U0 + rk_coeffs(2)*Ustar + rk_coeffs(3)*( &
+           Ustar = rk_coeffs(stage, 1)*U0 + rk_coeffs(stage, 2)*Ustar + rk_coeffs(stage, 3)*( &
                 -dt/dx*(facPx*flx(:, i+1, j, k) - facMx*flx(:, i, j, k)) &
 #if NDIM > 1
                 -dt/dy*(facPy*fly(:, i, j+1, k) - facMy*fly(:, i, j, k)) &
@@ -179,8 +179,8 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, &
 #ifdef GPOT_VAR
            ! Now extrapolate gravity to intermediate time state
            ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up
-           Vstar(GPOT_VAR) = rk_coeffs(1)*V0(GPOT_VAR) + rk_coeffs(2)*Vstar(GPOT_VAR) &
-                + rk_coeffs(3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
+           Vstar(GPOT_VAR) = rk_coeffs(stage, 1)*V0(GPOT_VAR) + rk_coeffs(stage, 2)*Vstar(GPOT_VAR) &
+                + rk_coeffs(stage, 3)*dt*(V0(GPOT_VAR) - V0(GPOL_VAR))/dtOld
 #endif
            ! save the solution in primitive form
            starState(1:NUNK_VARS, i, j, k) = Vstar(1:NUNK_VARS)
