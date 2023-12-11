@@ -90,6 +90,15 @@ Contains
       ! Load input variables for the eos
       eosData(EOS_TEMP) = t9*1.0e9
       eosData(EOS_DENS) = rho
+#ifdef EOS_YE
+      eosData(EOS_YE) = ye
+#endif
+#ifdef EOS_ABAR
+      eosData(EOS_ABAR) = abar
+#endif
+#ifdef EOS_ZBAR
+      eosData(EOS_ZBAR) = zbar
+#endif
       massFrac(inuc2unk) = y*aa
 
       ! Call the eos

@@ -141,9 +141,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, \
-                                     hy_flx, hy_fly, hy_flz, \
-                                     hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
         !Set needed number of guard cells to update based on first stage
         !for telescoping update; relevant for shockDetect below
@@ -251,9 +251,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                  blkLimits(LOW,:))
         end if
         call Timers_stop("Offloaded Section")
-        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
-                                         hy_flx, hy_fly, hy_flz, \
-                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
+        @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+        @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
 
@@ -319,9 +319,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! compute the gradients. I ain't doing more communication for a diagnostic...
            @M hy_map_tmp_states
            @M hy_map_scr_ptrs
-           @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState, \
-                                           hy_flx, hy_fly, hy_flz, \
-                                           hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+           @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
            @M hy_calcDivB
            call shockDetect(Uin,limits,blkLimitsGC)
@@ -428,9 +428,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                     hy_fluxBufZ, &
                                     blkLimits(LOW,:))
            end if
-           @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState, \
-                                            hy_flx, hy_fly, hy_flz, \
-                                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+           @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpStat])
+           @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+           @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
            @M hy_release_scr_ptrs
            @M hy_DIR_TARGET_exit_data(release, [Uin])
            @M iter_end

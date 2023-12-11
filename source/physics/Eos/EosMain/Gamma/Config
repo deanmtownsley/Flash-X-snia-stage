@@ -10,3 +10,9 @@ VARIABLE gamc  EOSMAP:   GAMC  # sound-speed gamma
 VARIABLE game  EOSMAPOUT:GAME  # energy gamma
 
 PPDEFINE FLASH_EOS_GAMMA
+
+# Since we cannot use EXCLUSIVE to limit only one EOS implementation
+# since Hybrid needs multiple ones, the following PPDEFINE will
+# be used in the non-hybrid Eos.F90 to perform a compile time check
+# that only this implementation has been loaded if the Hybrid EOS has not
+PPDEFINE EOS_GAMMA_INCLUDED

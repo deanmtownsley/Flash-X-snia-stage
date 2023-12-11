@@ -1,0 +1,8 @@
+#  Configuration file for Hybrid Eos
+#  [physics/Eos/EosMain/hybrid/]
+
+DEFAULT Helmholtz_Weaklib
+
+# The following define is used as part of a multiple EOS implementation
+# check in EosMain/Eos.F90-mc
+PPDEFINE EOS_HYBRID_INCLUDED
