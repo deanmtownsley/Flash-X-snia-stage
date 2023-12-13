@@ -31,7 +31,7 @@ MA28_PATH = ${FLASHX_MA28_DIR}
 FCOMP   = h5pfc
 CCOMP   = h5pcc
 CPPCOMP = mpicxx -std=c++17
-LINK    = h5pfc -std=c++17
+LINK    = h5pfc
 
 # pre-processor flag
 PP      = -D
@@ -117,8 +117,6 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_OACC  =
-LIB_CUDA  =
 LIB_HDF5  =
 LIB_PAPI  =
 LIB_MATH  =
@@ -136,7 +134,7 @@ LIB_MA28 = -L$(MA28_PATH) -lma28
 # TODO: I believe that Klaus has addressed this.  If so, update to use his
 # new fix.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
-LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja ${LIB_AMREX} -lstdc++
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX} -lstdc++
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
