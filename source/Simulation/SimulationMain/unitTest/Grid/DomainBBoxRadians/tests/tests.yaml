@@ -40,5 +40,5 @@ UnitTest/Grid/AMReX/3dcyl/DomainBBoxRadians:
     parfiles: test_amrex_grid.par
 
 UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians:
-    setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +milhoja -with-unofficial=Grid/GridMain/AMR/Milhoja
+    setupOptions: -auto -strict -3d -nxb=8 -nyb=8 -nzb=16 +noio +mh_grid -with-unofficial=Grid/GridMain/AMR/Milhoja
     parfiles: test_milhoja_grid.par
