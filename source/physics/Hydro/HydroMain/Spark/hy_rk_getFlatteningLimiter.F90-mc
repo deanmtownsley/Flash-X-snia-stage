@@ -50,7 +50,6 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
    integer :: i, j, k
 
    @M hy_DIR_parallel_loop(3) &
-   @M hy_DIR_TARGET_map(to, [limits]) &
    @M hy_DIR_shared([limits, flat3d]) &
    @M hy_DIR_end
    @M loop_3d_ext(limits, 1, 1, 1)
@@ -61,7 +60,6 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
    if (.NOT. is_flattening) return
 
    @M hy_DIR_parallel_loop(3) &
-   @M hy_DIR_TARGET_map(to, [limits]) &
    @M hy_DIR_shared([limits, starState, flat3d]) &
    @M hy_DIR_private([flatTilde, beta, Z])
    @M loop_3d_ext(limits, 1, 1, 1)
