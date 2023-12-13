@@ -62,7 +62,7 @@ checkpointFileIntervalTime = 0
 checkpointFileNumber = 0
 
 #	plotfile output parameters
-plotfileIntervalTime = 0
+plotfileIntervalTime = 0.
 plotfileIntervalStep = 0
 plotfileNumber       = 0
 
@@ -109,6 +109,7 @@ kGridSize = 1
 # since Milhoja is the only option for now.
 or_nThreadTeams        = 2
 or_nThreadsPerTeam     = 7
+or_nBytesInCpuMemoryPool            = 1073741824.0
 gr_initBlock_nCpuThreads = 6
 # NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
 # to the par file?
