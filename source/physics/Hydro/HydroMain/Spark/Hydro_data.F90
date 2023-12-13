@@ -92,6 +92,7 @@ module Hydro_data
 
    !$omp declare target to(hya_tmpState, hya_starState, hya_flx, hya_fly, hya_flz)
    !$omp declare target to(hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ)
+   !$omp declare target to(hya_grav, hya_flat3d, hya_Vc)
    !$omp declare target to(hya_rope, hya_flux, hya_uPlus, hya_uMinus)
 
 end module Hydro_data

@@ -169,7 +169,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
+        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits])
@@ -181,7 +181,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         call Timers_start("Offloaded Section")
 
-        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, blkLimitsGC, hy_tiny)
+        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, hy_tiny)
 
         call Timers_start("scratch")
         call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
@@ -278,7 +278,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
         @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-        @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d])
+        @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d, hy_Vc])
         @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
@@ -362,12 +362,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d])
+            @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
             @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
             call Timers_start("Offloaded Section")
 
-            call hy_rk_shockDetect(Uin, blkLimitsGC, hy_tiny)
+            call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, hy_tiny)
 
             call Timers_start("scratch")
             call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage)
@@ -479,7 +479,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
             @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
             @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-            @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav])
+            @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav, hy_Vc])
             @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
             @M hy_release_tmp_states
             @M hy_release_scr_ptrs
