@@ -289,6 +289,8 @@ Harder to introduce now because we have multiple particle types)
   nondefault value in some Hydro implementations, under certain
   conditions. Recognized by the Spark Hydro implementation when
   it is used in its nontelescoping variant.
+  Experimentally, recognized also by "unsplit" and "simpleUnsplit"
+  Hydro implementations.
 
 * Name  : useWeaklib
   Type  : Boolean
