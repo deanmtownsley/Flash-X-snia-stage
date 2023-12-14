@@ -90,6 +90,8 @@ D & requested refinement level, either explicitly as a positive integer
 D & or as -1 for the largest currently realized level.
 PARAMETER sim_integralsLevel	   INTEGER	-1	[-1, 1 ...]
 
+# These variables should appear in UNK first, in this order:
+EVOLVEDVAR DENS VELX VELY VELZ PRES ENER TEMP EINT GAMC GAME
 
 # VARIABLE declarations for analytical solution from file here,
 # other VARIABLES declared in Hydro etc.

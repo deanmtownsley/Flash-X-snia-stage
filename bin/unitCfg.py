@@ -249,14 +249,12 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseEVOLVEDVAR():
-        return set(), 'EVOLVEDVAR\s+(.*)$'
+        return [], 'EVOLVEDVAR\s+(.*)$'
     
     def parseEVOLVEDVAR(self, mobj):
         # EVOLVEDVAR -> evolved variable(s)
         for var in mobj.group(1).lower().split():
-            if var not in self["VARIABLE"]:
-                raise SetupError(f"EVOLVEDVAR {var} must have corresponding VARIABLE declaration")
-            self['EVOLVEDVAR'].add(var)
+            self['EVOLVEDVAR'].append(var)
 
     @staticmethod
     def initparseNRHS():
@@ -657,7 +655,7 @@ class UnitUnion(dict):
         self['MASS_SCALAR_GROUPS'] = {} # list of names of groups (in arbitrary order)
         self['LINKIF'] = []
         self['VARIABLE'] = {}
-        self['EVOLVEDVAR'] = set()
+        self['EVOLVEDVAR'] = []
         self['NRHS'] = None
         self['PPDEFINES'] = {}
         self['NONREP'] = {}
@@ -692,7 +690,9 @@ class UnitUnion(dict):
             self['PPDEFINES'].update(unit['PPDEFINE'])
             self['DATAFILES'].extend(unit['DATAFILES'])
 
-            self["EVOLVEDVAR"].update(unit["EVOLVEDVAR"])
+            for evar in unit['EVOLVEDVAR']:
+                if evar not in self['EVOLVEDVAR']: # strip out duplicates
+                    self['EVOLVEDVAR'].append(evar)
 
             if unit["NRHS"] != None:
                 if self["NRHS"] == None:
@@ -818,15 +818,29 @@ class UnitUnion(dict):
         self['variable']= list(self['VARIABLE'].keys())
         self['variable'].sort()
 
-        self["evolvedvar"] = sorted(list(self["EVOLVEDVAR"]))
+        if GVars.setupVars.get("Milhoja").upper() != "":
+            # keep the order
+            self["evolvedvar"] = self["EVOLVEDVAR"]
+        else:
+            # alphabetical sort and eliminate duplicates
+            #self["evolvedvar"] = sorted(list(set(self["EVOLVEDVAR"])))
+            # alphabetical sort, duplicates have already been weeded out
+            self["evolvedvar"] = sorted(self["EVOLVEDVAR"])
+
+        for evo in self["evolvedvar"]:
+            if evo not in self['variable']:
+                raise SetupError("ERROR! '%s' occurs in EVOLVEDVAR but is not declared as a VARIABLE" %
+                                 evo)
 
         # Move evolved variables to the front of UNK if MoL is included
         self["nevol"] = 0
         if GVars.setupVars.get("TimeAdvance").upper() == "MOL":
             self["nevol"] = len(self["evolvedvar"])
             self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
+        elif GVars.setupVars.get("Milhoja").upper() != "":
+            self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
 
-        tmpList = [ self['VARIABLE'][var] for var in self['variable'] ] 
+        tmpList = [ self['VARIABLE'][var] for var in self['variable'] ]
         self['var_types'] = [x for (x,y,z) in tmpList] # list of corresponding TYPES
         self['eosmapin_unkvars'] = [y for (x,y,z) in tmpList] # list of Eos_map roles
         self['eosmapout_unkvars'] = [z for (x,y,z) in tmpList] # list of Eos_map roles
