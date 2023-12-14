@@ -29,7 +29,7 @@
 !!Reorder(4): starState
 !!NOVARIANTS
 
-subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
+subroutine hy_rk_getFlatteningLimiter(stage, is_flattening, starState, flat3d, limits)
 
    use Hydro_data, ONLY: hy_threadWithinBlock
 
@@ -37,11 +37,13 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
 
 #include "Simulation.h"
 #include "constants.h"
+#include "Spark.h"
 
+   integer, intent(IN) :: stage
    logical, intent(IN) :: is_flattening
    real, dimension(:,:,:,:), pointer :: starState
    real, dimension(:,:,:), pointer :: flat3d
-   integer, intent(IN), dimension(LOW:HIGH, MDIM) :: limits
+   integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
 
    real, dimension(NDIM) :: flatTilde
    real :: beta, Z
@@ -52,9 +54,13 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
    @M hy_DIR_parallel_loop(3) &
    @M hy_DIR_shared([limits, flat3d]) &
    @M hy_DIR_end
-   @M loop_3d_ext(limits, 1, 1, 1)
+   do k = limits(LOW, KAXIS, stage)-K3D*1, limits(HIGH, KAXIS, stage)+K3D*1
+   do j = limits(LOW, JAXIS, stage)-K2D*1, limits(HIGH, JAXIS, stage)+K2D*1
+   do i = limits(LOW, IAXIS, stage)-1, limits(HIGH, IAXIS, stage)+1
       flat3d(i, j, k) = 1.0
-   @M loop_end_3d
+   end do
+   end do
+   end do
 
    ! if flattening is off, then stop this subroutine
    if (.NOT. is_flattening) return
@@ -62,7 +68,9 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
    @M hy_DIR_parallel_loop(3) &
    @M hy_DIR_shared([limits, starState, flat3d]) &
    @M hy_DIR_private([flatTilde, beta, Z])
-   @M loop_3d_ext(limits, 1, 1, 1)
+   do k = limits(LOW, KAXIS, stage)-K3D*1, limits(HIGH, KAXIS, stage)+K3D*1
+   do j = limits(LOW, JAXIS, stage)-K2D*1, limits(HIGH, JAXIS, stage)+K2D*1
+   do i = limits(LOW, IAXIS, stage)-1, limits(HIGH, IAXIS, stage)+1
       !1e-99 used to be TINY(1.0) but that produced Seg Faults
       beta = abs(starState(PRES_VAR, i+1, j, k) - starState(PRES_VAR, i-1, j, k)) &
              /max(1e-99, abs(starState(PRES_VAR, i+2, j, k) - starState(PRES_VAR, i-2, j, k)))
@@ -103,6 +111,8 @@ subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
 #ifdef FLAT_VAR
       starState(FLAT_VAR, i, j, k) = flat3d(i, j, k)
 #endif
-   @M loop_end_3d
+   end do
+   end do
+   end do
 
 end subroutine hy_rk_getFlatteningLimiter

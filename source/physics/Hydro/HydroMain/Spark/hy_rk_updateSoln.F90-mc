@@ -45,7 +45,7 @@
 !!Reorder(4): starState, tmpState, fl[xyz]
 !!NOVARIANTS
 
-subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, stage, &
+subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
                              grav, flx, fly, flz, &
                              deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                              xLeft, xRight, yLeft, yRight, &
@@ -69,7 +69,7 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, stage, &
   real, dimension(3, 3), intent(IN) :: rk_coeffs
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN) :: stage, geometry
-  integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+  integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
   real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
 
   integer :: i, j, k, n, g
@@ -110,9 +110,9 @@ subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, stage, &
   @M hy_DIR_private([V0, Vstar, U0, Ustar, Shy_grv, Stot, Sgeo, ekin, emag]) &
   @M hy_DIR_private([MOM_PHI, MOM_PHI_FLUX, MOM_THT, MOM_THT_FLUX, MOM_ZI, MOM_ZI_FLUX]) &
   @M hy_DIR_private([alpha, facMx, facPx, facMy, facPy, facMz, facPz, invr, cotan])
-  do k = limits(LOW,KAXIS), limits(HIGH,KAXIS)
-     do j = limits(LOW,JAXIS), limits(HIGH,JAXIS)
-        do i = limits(LOW,IAXIS), limits(HIGH,IAXIS)
+  do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)
+     do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)
+        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)
            V0(1:NUNK_VARS) = tmpState(1:NUNK_VARS, i, j, k)
            Vstar(1:NUNK_VARS) = starState(1:NUNK_VARS, i, j, k)
            U0(HY_MASS)            = V0(DENS_VAR)

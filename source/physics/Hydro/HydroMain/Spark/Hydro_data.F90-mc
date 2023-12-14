@@ -88,8 +88,6 @@ module Hydro_data
   integer, dimension(3) :: hy_limitsArray
   real, dimension(3,3) :: hy_coeffArray
 
-  integer, dimension(LOW:HIGH, MDIM, MAXSTAGE) :: hy_limits
-
 ! real, pointer, dimension(:, :, :, :) :: hy_tmpState, hy_starState, hy_flx, hy_fly, hy_flz, &
 !                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
 !                                         hy_rope, hy_flux, hy_uPlus, hy_uMinus
@@ -100,7 +98,6 @@ module Hydro_data
    @M hy_DIR_TARGET_declare_data([hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp])
    @M hy_DIR_TARGET_declare_data([hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray])
    @M hy_DIR_TARGET_declare_data([hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev, hy_maxCells])
-   @M hy_DIR_TARGET_declare_data([hy_limits])
 
    @M hy_DIR_TARGET_declare_data([hya_tmpState, hya_starState, hya_flx, hya_fly, hya_flz])
    @M hy_DIR_TARGET_declare_data([hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ])

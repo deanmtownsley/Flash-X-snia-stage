@@ -39,15 +39,16 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getFaceFlux (starState, flat3d, flx, fly, flz, &
+     subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
                                    limits, deltas, &
                                    hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
                                    limRad, mp5ZeroTol, &
                                    scr_rope, scr_flux, scr_uPlus, scr_uMinus)
+       integer, intent(IN) :: stage
        real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
        real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
        real, dimension(:,:,:), pointer :: flat3d
-       integer, dimension(LOW:HIGH, MDIM), intent(IN) :: limits
+       integer, dimension(LOW:HIGH, MDIM, MAXSTAGE), intent(IN) :: limits
        real, dimension(MDIM), intent(IN)  :: deltas
        logical, intent(IN) :: hybridRiemann
        real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero, limRad, mp5ZeroTol
@@ -55,7 +56,7 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_updateSoln (starState, tmpState, rk_coeffs, stage, &
+     subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
                                   grav, flx, fly, flz, &
                                   deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                                   xLeft, xRight, yLeft, yRight, &
@@ -69,7 +70,7 @@ module hy_rk_interface
        real, dimension(3, 3), intent(IN) :: rk_coeffs
        real, dimension(MDIM), intent(IN)  :: deltas
        integer, intent(IN) :: stage, geometry
-       integer, intent(IN), dimension(LOW:HIGH,MDIM) :: limits
+       integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
        real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
      end subroutine hy_rk_updateSoln
   end interface
@@ -123,11 +124,12 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getFlatteningLimiter(is_flattening, starState, flat3d, limits)
+     subroutine hy_rk_getFlatteningLimiter(stage, is_flattening, starState, flat3d, limits)
+        integer, intent(IN) :: stage
         logical, intent(IN) :: is_flattening
         real, dimension(:,:,:,:), pointer :: starState
         real, dimension(:,:,:), pointer :: flat3d
-        integer, intent(IN), dimension(LOW:HIGH, MDIM) :: limits
+        integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
      end subroutine hy_rk_getFlatteningLimiter
    end interface
 
