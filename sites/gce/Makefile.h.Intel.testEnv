@@ -31,7 +31,7 @@ MA28_PATH = ${FLASHX_MA28_DIR}
 FCOMP   = h5pfc
 CCOMP   = h5pcc
 CPPCOMP = mpicxx -std=c++17
-LINK    = h5pfc
+LINK    = h5pfc -std=c++17
 
 # pre-processor flag
 PP      = -D
