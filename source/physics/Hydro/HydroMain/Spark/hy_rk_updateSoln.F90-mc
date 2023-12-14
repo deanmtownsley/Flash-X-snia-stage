@@ -129,7 +129,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            Ustar(HY_MASS)         = Vstar(DENS_VAR)
            Ustar(HY_XMOM:HY_ZMOM) = Vstar(DENS_VAR)*Vstar(VELX_VAR:VELZ_VAR)
            Ustar(HY_ENER)         = Vstar(DENS_VAR)*Vstar(ENER_VAR)
-           Ustar(HY_NUM_FLUX+1:NFLUXES) = Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
+           Ustar(HY_NUM_FLUX+1:NFLUXES) = &
+               Vstar(SPECIES_BEGIN:MASS_SCALARS_END)*Vstar(DENS_VAR)
            
 #ifdef SPARK_GLM
            U0(HY_FMGX:HY_FMGZ)    = V0(MAGX_VAR:MAGZ_VAR)
@@ -191,7 +192,8 @@ subroutine hy_rk_updateSoln (hy_starState,hy_tmpState,blkLimits,blklimitsGC,hy_d
            
            ! Divide partial densities by new mass densities to finalize
            ! update of new mass fractions.
-           Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
+           Vstar(SPECIES_BEGIN:MASS_SCALARS_END) = &
+               Ustar(HY_NUM_FLUX+1:NFLUXES)/Vstar(DENS_VAR)
 #ifdef GPOT_VAR
            ! Now extrapolate gravity to intermediate time state
            ! the star state GPOT_VAR will be reset so that GPOL_VAR isn't screwed up

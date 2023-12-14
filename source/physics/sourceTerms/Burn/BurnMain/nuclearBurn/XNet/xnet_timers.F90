@@ -1,15 +1,4 @@
 !***************************************************************************************************
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
-!!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
 ! xnet_timers.f90 10/18/17
 ! This file contains modules and subroutines for internal XNet timers
 !***************************************************************************************************
@@ -33,11 +22,19 @@ Module xnet_timers
   Real(dp) :: timer_solve  = 0.0  ! Solution time
   Real(dp) :: timer_scrn   = 0.0  ! Screening and EOS time
   Real(dp) :: timer_eos    = 0.0  ! Screening and EOS time
+  Real(dp) :: timer_nse    = 0.0  ! NSE timer
+  Real(dp) :: timer_nseinit= 0.0  ! NSE init timer
+  Real(dp) :: timer_nsesolv= 0.0  ! NSE solver timer
+  Real(dp) :: timer_nsenrap= 0.0  ! NSE Newton Raphson timer
+  Real(dp) :: timer_nsels  = 0.0  ! NSE line search timer
+  Real(dp) :: timer_nseeval= 0.0  ! NSE function evaluation timer
+  Real(dp) :: timer_nsescrn= 0.0  ! NSE screening timer
   Real(dp) :: timer_output = 0.0  ! Output time
-  Real(dp) :: start_timer         ! cpu time at the beginning of the timer block
-  Real(dp) :: stop_timer          ! cpu time at the end of the timer block
+  Real(dp) :: start_timer  = 0.0  ! cpu time at the beginning of the timer block
+  Real(dp) :: stop_timer   = 0.0  ! cpu time at the end of the timer block
   !$omp threadprivate(timer_burner,timer_xnet,timer_setup,timer_csect,timer_deriv,timer_jacob,timer_decmp, &
-  !$omp   timer_bksub,timer_nraph,timer_tstep,timer_solve,timer_scrn,timer_eos,timer_output,start_timer,stop_timer)
+  !$omp   timer_bksub,timer_nraph,timer_tstep,timer_solve,timer_scrn,timer_eos,timer_output,start_timer,stop_timer, &
+  !$omp   timer_nse,timer_nseinit,timer_nsesolv,timer_nsenrap,timer_nsels,timer_nseeval,timer_nsescrn)
 
 Contains
 
@@ -46,13 +43,11 @@ Contains
     ! This function returns the wall time in a manner akin to omp_get_wtime().
     !-----------------------------------------------------------------------------------------------
     Use xnet_types, Only: i8
-    !$ use omp_lib
     Implicit None
 
     ! Function variable
     Real(dp) :: xnet_wtime
 
-#ifndef _OPENMP
     ! Local variables
     Integer(i8) :: clock_read
     Integer(i8) :: clock_rate
@@ -60,11 +55,6 @@ Contains
 
     Call system_clock(clock_read,clock_rate,clock_max)
     xnet_wtime = real(clock_read,dp) / real(clock_rate,dp)
-#else
-    !$omp critical(wtime)
-    xnet_wtime = omp_get_wtime()
-    !$omp end critical(wtime)
-#endif
 
     Return
   End Function xnet_wtime
@@ -86,6 +76,13 @@ Contains
     timer_solve = 0.0
     timer_scrn  = 0.0
     timer_eos   = 0.0
+    timer_nse    = 0.0
+    timer_nseinit= 0.0
+    timer_nsesolv= 0.0
+    timer_nsenrap= 0.0
+    timer_nsels  = 0.0
+    timer_nseeval= 0.0
+    timer_nsescrn= 0.0
 
     Return
   End Subroutine reset_timers

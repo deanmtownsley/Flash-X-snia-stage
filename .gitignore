@@ -25,3 +25,19 @@ lib/thornado/Makefile.h
 lib/thornado/build.csh
 tools/sfocu/sfocu
 source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/MesaNet/kernel/external_codes_with_mesa/min_net/run
+lib/**/Makefile.h
+lib/**/build.csh
+lib/**/build.sh
+lib/**/include
+
+# pre-processed reaction network data
+ab_blank
+match_data
+match_read
+matr_shape
+net_diag
+net_desc
+nets3
+nets4
+nuc_data
+sparse_ind

@@ -27,7 +27,7 @@ xnet_evolve.o: xnet_abundances.o xnet_conditions.o xnet_controls.o xnet_data.o x
 xnet_integrate.o: xnet_abundances.o xnet_conditions.o xnet_controls.o xnet_data.o xnet_eos.o xnet_ffn.o xnet_screening.o xnet_timers.o xnet_types.o
 xnet_integrate_bdf.o: xnet_abundances.o xnet_conditions.o xnet_controls.o xnet_data.o xnet_integrate.o xnet_jacobian_dense.o xnet_timers.o xnet_types.o
 xnet_integrate_be.o: xnet_abundances.o xnet_conditions.o xnet_controls.o xnet_data.o xnet_integrate.o xnet_jacobian_dense.o xnet_timers.o xnet_types.o
-xnet_nse.o: xnet_constants.o xnet_controls.o xnet_data.o xnet_eos.o xnet_types.o xnet_util.o
+xnet_nse.o: xnet_constants.o xnet_controls.o xnet_data.o xnet_eos.o xnet_timers.o xnet_types.o xnet_util.o
 xnet_output.o: xnet_abundances.o xnet_conditions.o xnet_controls.o xnet_data.o xnet_flux.o xnet_match.o xnet_timers.o xnet_types.o
 xnet_preprocess.o: xnet_constants.o xnet_data.o xnet_types.o xnet_util.o
 xnet_screening.o: xnet_abundances.o xnet_conditions.o xnet_constants.o xnet_controls.o xnet_data.o xnet_eos.o xnet_types.o

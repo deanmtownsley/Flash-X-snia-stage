@@ -65,8 +65,8 @@ Contains
     Real(dp) :: y(size(x))
 
     ! Local variables
-    Real(dp), Parameter :: exp_max = maxexponent(1.0_dp)*ln_2*0.99_dp
-    Real(dp), Parameter :: exp_min = minexponent(1.0_dp)*ln_2*0.99_dp
+    Real(dp), Parameter :: exp_max = maxexponent(1.0_dp)*ln_2*0.9_dp
+    Real(dp), Parameter :: exp_min = minexponent(1.0_dp)*ln_2*0.9_dp
 
     y(:) = exp( min( exp_max, max( exp_min, x(:) ) ) )
 

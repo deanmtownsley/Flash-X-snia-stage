@@ -62,6 +62,9 @@ subroutine RadTrans_init()
 #ifdef YE_MSCALAR
   rt_gcMask(YE_MSCALAR) = .TRUE.
 #endif
+#ifdef SUMY_MSCALAR
+  rt_gcMask(SUMY_MSCALAR) = .TRUE.
+#endif
 
   call rt_init
 

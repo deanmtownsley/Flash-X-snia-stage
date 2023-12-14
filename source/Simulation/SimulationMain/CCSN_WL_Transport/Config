@@ -17,7 +17,7 @@ REQUIRES Simulation/SimulationComposition
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox13
 #REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/Aprox19
 
-REQUIRES physics/Eos/EosMain/WeakLib
+#REQUIRES physics/Eos/EosMain/WeakLib
 
 #REQUESTS physics/Gravity/GravityMain/PointMass
 REQUESTS physics/Gravity/GravityMain/Poisson/Multipole
@@ -105,3 +105,6 @@ IF NoLevelwideFluxes
 ELSE
    LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
 ENDIF
+
+LINKIF Eos.h.hybrid physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib
+LINKIF Eos_wrapped.F90.hybrid physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib

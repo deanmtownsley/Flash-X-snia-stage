@@ -34,7 +34,7 @@
 
 subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xXa,xXh,xAbar,xVar,varID,mode)
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   use Driver_interface, ONLY : Driver_abort
@@ -144,7 +144,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DEY_Single_Guess &
         ( xDens, xEner, xYe, D_T, T_T, Y_T, E_T, OS_E, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DEY ERROR:'
@@ -163,7 +163,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DSY_Single_Guess &
         ( xDens, xEntr, xYe, D_T, T_T, Y_T, S_T, OS_S, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DSY ERROR:'
@@ -179,7 +179,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
      CALL ComputeTemperatureWith_DPY_Single_Guess &
         ( xDens, xPres, xYe, D_T, T_T, Y_T, P_T, OS_P, xTemp, xTemp_Guess, &
-          Error_Option = error_flag )
+          error_flag )
 
      IF( error_flag /= 0 ) THEN
         WRITE(*,*) 'ComputeTemperatureWith_DPY ERROR:'
@@ -205,7 +205,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
      CALL LogInterpolateDifferentiateSingleVariable_3D_Custom_Point &
         ( xDens, xTemp, xYe, D_T, T_T, Y_T, OS_E , E_T , xEner, xdEdX )
 
-     xdEdT = dEdX(iT_T)
+     xdEdT = xdEdX(iT_T)
 
      CALL LogInterpolateSingleVariable_3D_Custom_Point &
         ( xDens, xTemp, xYe, D_T, T_T, Y_T, OS_S , S_T , xEntr )
@@ -230,7 +230,8 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
      CALL LogInterpolateSingleVariable_3D_Custom_Point &
         ( xDens, xTemp, xYe, D_T, T_T, Y_T, OS_Ah, Ah_T, xAh )
 
-     xAbar = 1.0 / xXp + 1.0 / xXn + 4.0 / xXa + xAh / xXh
+   !   xAbar = 1.0 / xXp + 1.0 / xXn + 4.0 / xXa + xAh / xXh
+     xAbar = 1.0 / (xXp + xXn +  xXa / 4.0 + xXh / xAh)
 
      xVar = 0.0
 
@@ -256,7 +257,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
      ! Does this need conversion of varID to WL indices?
      OS_Var = EosNewTable % DV % Offsets(varID)
 
-     ASSOCIATE( Var_T => EosNewTable % DV % Variables(iVar) % Values )
+     ASSOCIATE( Var_T => EosNewTable % DV % Variables(varID) % Values )
 
      CALL LogInterpolateSingleVariable_3D_Custom_Point &
         ( xDens, xTemp, xYe, D_T, T_T, Y_T, OS_Var, Var_T, xVar )
