@@ -10,7 +10,7 @@ from globals import *
 from utils import *
 from preProcess import preProcess
 
-import re, os.path, types, string, copy
+import re, os.path, types, string, copy, math
 
 ######## FLASH UNIT CODE ############
 
@@ -246,6 +246,31 @@ class FlashUnit(dict,preProcess):
         if variable in self['VARIABLE']:
             raise SetupError('VARIABLE %s already declared'%variable)
         self['VARIABLE'][variable] = (vartype.upper(), eosmapin.upper(), eosmapout.upper())
+
+    @staticmethod
+    def initparseEVOLVEDVAR():
+        return set(), 'EVOLVEDVAR\s+(.*)$'
+    
+    def parseEVOLVEDVAR(self, mobj):
+        # EVOLVEDVAR -> evolved variable(s)
+        for var in mobj.group(1).lower().split():
+            if var not in self["VARIABLE"]:
+                raise SetupError(f"EVOLVEDVAR {var} must have corresponding VARIABLE declaration")
+            self['EVOLVEDVAR'].add(var)
+
+    @staticmethod
+    def initparseNRHS():
+        return None, "NRHS\s+([0-9]+)$"
+    
+    def parseNRHS(self, mobj):
+        # Make sure that only a MoL unit set this
+        if not self.name.startswith("TimeAdvance/TimeAdvanceMain/MoL"):
+            raise SetupError("NRHS can only be declated in a MoL implementation")
+        
+        nrhs = int(mobj.group(1))
+        if self['NRHS'] != None:
+            raise SetupError('NRHS already declared')
+        self['NRHS'] = nrhs
 
     @staticmethod
     def initparseLIBRARY():
@@ -632,6 +657,8 @@ class UnitUnion(dict):
         self['MASS_SCALAR_GROUPS'] = {} # list of names of groups (in arbitrary order)
         self['LINKIF'] = []
         self['VARIABLE'] = {}
+        self['EVOLVEDVAR'] = set()
+        self['NRHS'] = None
         self['PPDEFINES'] = {}
         self['NONREP'] = {}
         self.unitNames = [] # list of names of all the units
@@ -664,6 +691,15 @@ class UnitUnion(dict):
             updateAndMergeVariablePropertyTuples(self['VARIABLE'],unit['VARIABLE'], "VARIABLE")
             self['PPDEFINES'].update(unit['PPDEFINE'])
             self['DATAFILES'].extend(unit['DATAFILES'])
+
+            self["EVOLVEDVAR"].update(unit["EVOLVEDVAR"])
+
+            if unit["NRHS"] != None:
+                if self["NRHS"] == None:
+                    self["NRHS"] = unit["NRHS"]
+                else:
+                    self["NRHS"] += unit["NRHS"]
+
  
             self["NONREP"].update(unit["NONREP"])
             
@@ -781,6 +817,15 @@ class UnitUnion(dict):
         #need this since order in which a dict returns it's keys is not determined.
         self['variable']= list(self['VARIABLE'].keys())
         self['variable'].sort()
+
+        self["evolvedvar"] = sorted(list(self["EVOLVEDVAR"]))
+
+        # Move evolved variables to the front of UNK if MoL is included
+        self["nevol"] = 0
+        if GVars.setupVars.get("TimeAdvance").upper() == "MOL":
+            self["nevol"] = len(self["evolvedvar"])
+            self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
+
         tmpList = [ self['VARIABLE'][var] for var in self['variable'] ] 
         self['var_types'] = [x for (x,y,z) in tmpList] # list of corresponding TYPES
         self['eosmapin_unkvars'] = [y for (x,y,z) in tmpList] # list of Eos_map roles
@@ -906,6 +951,42 @@ class UnitUnion(dict):
 
         self['scratchcentervar'] = list(self['SCRATCHCENTERVAR'].keys())
         self['scratchcentervar'].sort()
+
+        # If MoL is included, add RHS variables to scractch
+        self["nmolrhsvars"] = 0
+        self["nmolinitvars"] = 0
+        self["nmolscratch"] = 0
+        self["nmolscratchvars"] = 0
+        if GVars.setupVars.get("TimeAdvance").upper() == "MOL":
+            self["nmolrhsvars"] = len(self["evolvedvar"])
+            self["nmolinitvars"] = len(self["evolvedvar"])
+
+            rhsvars = [var + "_rhs" for var in self["evolvedvar"]]
+            initvars = [var + "_init" for var in self["evolvedvar"]]
+
+            molscratch = []
+
+            if self["NRHS"] != None:
+                if self["NRHS"] > 0:
+                    self["nmolscratchvars"] = self["NRHS"]*len(self["evolvedvar"])
+                    self["nmolscratch"] = self["NRHS"]
+
+                    rhswidth = int(math.ceil(math.log10(self["nmolscratch"])))
+                    rhsname = "{}_RHS_{:0" + str(rhswidth) + "d}"
+
+                    molscratch = [rhsname.format(v,i) for i in range(self["nmolscratch"]) for v in self["evolvedvar"]]
+
+            for v in rhsvars:
+                self['SCRATCHCENTERVAR'][v] = ("NONEXISTENT","NONEXISTENT")
+
+            for v in initvars:
+                self['SCRATCHCENTERVAR'][v] = ("NONEXISTENT","NONEXISTENT")
+
+            for v in molscratch:
+                self['SCRATCHCENTERVAR'][v] = ("NONEXISTENT","NONEXISTENT")
+
+            self["scratchcentervar"] = rhsvars + initvars + molscratch + self["scratchcentervar"]
+
         tmpList = [ self['SCRATCHCENTERVAR'][var] for var in self['scratchcentervar'] ]
         self['eosmapin_scratchcentervars'] = [ x for (x,y) in tmpList ] # list of Eos_map roles.
         self['eosmapout_scratchcentervars'] = [ y for (x,y) in tmpList ] # list of Eos_map roles.
