@@ -29,20 +29,22 @@
 !!Reorder(4): starState
 !!NOVARIANTS
 
-subroutine hy_rk_getFlatteningLimiter(stage, is_flattening, starState, flat3d, limits)
+subroutine hy_rk_getFlatteningLimiter(stage, is_flattening, starState, flat3d, limits, loGC)
 
    use Hydro_data, ONLY: hy_threadWithinBlock
 
    implicit none
 
+   @M hy_DIR_TARGET_routine(vector)
+
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
 
-   integer, intent(IN) :: stage
+   integer, intent(IN) :: stage, loGC(3)
    logical, intent(IN) :: is_flattening
-   real, dimension(:,:,:,:), pointer :: starState
-   real, dimension(:,:,:), pointer :: flat3d
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(INOUT) :: starState
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: flat3d
    integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
 
    real, dimension(NDIM) :: flatTilde

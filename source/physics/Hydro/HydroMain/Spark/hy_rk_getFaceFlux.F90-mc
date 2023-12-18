@@ -53,20 +53,24 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
                               limits, deltas, &
                               hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
                               limRad, mp5ZeroTol, &
-                              scr_rope, scr_flux, scr_uPlus, scr_uMinus)
+                              scr_rope, scr_flux, scr_uPlus, scr_uMinus, &
+                              loGC)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
 
   implicit none
 
+  @M hy_DIR_TARGET_routine(vector)
+
 #include "Simulation.h"
 #include "constants.h"
 #include "Spark.h"
 
-  integer, intent(IN) :: stage
-  real, dimension(:,:,:,:), pointer :: starState, flx, fly, flz
-  real, dimension(:,:,:,:), pointer :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
-  real, dimension(:,:,:), pointer :: flat3d
+  integer, intent(IN) :: stage, loGC(3)
+  real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: starState
+  real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: flx, fly, flz
+  real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: scr_rope, scr_flux, scr_uPlus, scr_uMinus
+  real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flat3d
   integer, dimension(LOW:HIGH, MDIM, MAXSTAGE), intent(IN) :: limits
   real, dimension(MDIM), intent(IN)  :: deltas
   logical, intent(IN) :: hybridRiemann

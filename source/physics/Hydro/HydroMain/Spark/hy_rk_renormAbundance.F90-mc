@@ -19,16 +19,18 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx)
+subroutine hy_rk_renormAbundance(tileLimits, solnData, smallx, loGC)
 
    use Hydro_data, ONLY : hy_threadWithinBlock
    use Driver_interface, ONLY : Driver_abort
 
+   @M hy_DIR_TARGET_routine(vector)
+
    implicit none
 
+   integer, intent(IN) :: smallx, loGC(3)
    integer, intent(IN) :: tileLimits(LOW:HIGH,MDIM)
-   real, pointer :: solnData(:,:,:,:)
-   real, intent(IN) :: smallx
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: solnData
 
    integer :: i, j, k, n
 

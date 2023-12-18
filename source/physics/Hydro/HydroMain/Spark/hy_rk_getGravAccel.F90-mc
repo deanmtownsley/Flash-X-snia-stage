@@ -30,18 +30,22 @@
 !<
 !!Reorder(4):starState
 !!NOVARIANTS
-subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC)
+subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC, loGC)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
+  @M hy_DIR_TARGET_routine(vector)
+
 #include "Simulation.h"
 #include "constants.h"
 
-  real, dimension(:,:,:,:), pointer :: starState
-  real, dimension(:,:,:,:), pointer :: grav
-  real, dimension(:), pointer :: radCenter, thtCenter
+  integer, intent(IN) :: loGC(3)
+  real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: starState
+  real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: grav
+  real, dimension(loGC(1):), intent(IN) :: radCenter
+  real, dimension(loGC(2):), intent(IN) :: thtCenter
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN) :: geometry
   integer, dimension(LOW:HIGH,MDIM), intent(IN) :: blkLimitsGC

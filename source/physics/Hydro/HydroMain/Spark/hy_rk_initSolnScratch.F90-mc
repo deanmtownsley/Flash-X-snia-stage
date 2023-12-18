@@ -13,16 +13,20 @@
 !<
 !!Reorder(4): Uin, starState, tmpState
 !!NOVARIANTS
-subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage)
+subroutine hy_rk_initSolnScratch(Uin, starState, tmpState, blkLimitsGC, stage, loGC)
 
 #include "Simulation.h"
 #include "constants.h"
 
    use Hydro_data, ONLY : hy_threadWithinBlock
 
+   @M hy_DIR_TARGET_routine(vector)
+
    implicit none
 
-   real, dimension(:,:,:,:), pointer :: Uin, starState, tmpState
+   integer, intent(IN) :: loGC(3)
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: Uin
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: starState, tmpState
    integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
    integer, intent(IN) :: stage
 

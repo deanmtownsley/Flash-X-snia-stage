@@ -44,7 +44,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
                                xLeft, xRight, yLeft, yRight, &
                                geometry, &
                                smalle, smalld, &
-                               dt, isFlux)
+                               dt, isFlux, &
+                               lo, loGC)
 
   use Hydro_data, ONLY : hy_threadWithinBlock
 
@@ -59,13 +60,14 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
 #include "Spark.h"
 #include "Eos.h"
 
-  real, pointer :: Uin(:,:,:,:)
-  real, pointer :: fluxBufX(:,:,:,:), fluxBufY(:,:,:,:), fluxBufZ(:,:,:,:)
+  integer, intent(IN) :: geometry, lo(3), loGC(3)
+  real, pointer :: Uin(:, :, :, :)
+  real, dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
-  real, dimension(:,:,:), pointer :: fareaX, fareaY, fareaZ, cvol
-  real, dimension(:), pointer :: xCenter, xLeft, xRight, yLeft, yRight
+  real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ, cvol
+  real, dimension(loGC(1):), intent(IN) :: xCenter, xLeft, xRight
+  real, dimension(loGC(2):), intent(IN) :: yLeft, yRight
   real, dimension(MDIM), intent(IN)  :: deltas
-  integer, intent(IN) :: geometry
   real, intent(IN) :: smalle, smalld, dt
   logical, intent(IN) :: isFlux
 

@@ -104,6 +104,10 @@ module Hydro_data
    @M hy_DIR_TARGET_declare_data([hya_grav, hya_flat3d, hya_Vc])
    @M hy_DIR_TARGET_declare_data([hya_rope, hya_flux, hya_uPlus, hya_uMinus])
 
+   @M hy_DIR_TARGET_declare_data([hya_fareaX, hya_cvol])
+   @M hy_DIR_TARGET_declare_data([hya_fareaY, hya_fareaZ])
+   @M hy_DIR_TARGET_declare_data([hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_yLeft, hya_yRight, hya_zCenter])
+
 end module Hydro_data
 
 
