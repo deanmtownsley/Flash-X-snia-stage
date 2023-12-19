@@ -71,7 +71,7 @@ subroutine cpu_tf_hydro_C2F(MH_external_hydro_op1_dt, &
     ! No need for variable masking in tile wrappers since the full data array is
     ! in the memory system and available for use.  Always include all variables?
     ! Makes sense, but how to get that number?
-    CALL C_F_POINTER(C_CC_1, F_CC_1, shape=[16 + 2 * 1 * MILHOJA_K1D, 16 + 2 * 1 * MILHOJA_K2D, 16 + 2 * 1 * MILHOJA_K3D, 8 + 1 - 0])
+    CALL C_F_POINTER(C_CC_1, F_CC_1, shape=[16 + 2 * 1 * MILHOJA_K1D, 16 + 2 * 1 * MILHOJA_K2D, 16 + 2 * 1 * MILHOJA_K3D, 9 + 1 - 0])
     CALL C_F_POINTER(C_lbdd_scratch_hydro_op1_auxC, F_lbdd_scratch_hydro_op1_auxC, shape=[3])
     CALL C_F_POINTER(C_scratch_hydro_op1_auxC, F_scratch_hydro_op1_auxC, shape=[18, 18, 18])
     CALL C_F_POINTER(C_lbdd_scratch_hydro_op1_flX, F_lbdd_scratch_hydro_op1_flX, shape=[MILHOJA_MDIM+1])

@@ -32,7 +32,7 @@
             "tile_hi":                {"source":           "tile_hi"},
             "CC_1":                   {"source":           "grid_data",
                                        "structure_index":  ["CENTER", 1],
-                                       "variables_in":     [1, 9],
+                                       "variables_in":     [1, 10],
                                        "variables_out":    [1, 8]},
             "scratch_hydro_op1_flX":  {"source":           "scratch",
                                        "type":             "real",
