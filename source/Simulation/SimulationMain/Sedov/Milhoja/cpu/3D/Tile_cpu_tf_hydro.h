@@ -24,8 +24,6 @@ struct Tile_cpu_tf_hydro : public milhoja::TileWrapper {
     static void acquireScratch(void);
     static void releaseScratch(void);
 
-    // TODO: This is large enough that it will work for 2D and 3D.  This should
-    // be dimension-specific once we have actual on-demand code generation.
     constexpr static std::size_t  SCRATCH_HYDRO_OP1_AUXC_SIZE_ =
                       18
                     * 18

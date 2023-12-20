@@ -214,9 +214,8 @@ def main():
             "Tile_cpu_tf_hydro_C2F_mod.F90"
         ]
         for filename in files_all:
-            base, ext = filename.split(".")
             dst = DESTINATION.joinpath(filename)
-            src = DESTINATION.joinpath(f"{base}_{dimension}D.{ext}")
+            src = DESTINATION.joinpath(f"{dimension}D", filename)
             if dst.exists():
                 if overwrite:
                     warn(f"{filename} overwritten")

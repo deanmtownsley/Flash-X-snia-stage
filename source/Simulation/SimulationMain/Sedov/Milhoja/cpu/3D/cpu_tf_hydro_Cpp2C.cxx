@@ -55,7 +55,7 @@ extern "C" {
         const milhoja::IntVect   tile_hi     = tileDesc->hi();
         const milhoja::IntVect   tile_lbound = tileDesc->loGC();
         const milhoja::RealVect  tile_deltas = tileDesc->deltas();
-        milhoja::Real*     CC_1        = tileDesc->dataPtr();
+        milhoja::Real*           CC_1        = tileDesc->dataPtr();
 
         milhoja::Real* scratch_hydro_op1_auxC = 
                  static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_auxc_)
@@ -73,9 +73,9 @@ extern "C" {
 
         milhoja::Real  tile_deltas_array[]
                 = {tile_deltas.I(), tile_deltas.J(), tile_deltas.K()};
-        // Create as 1D with ordering setup for mapping on 2D Fortran array
         int   tile_lo_array[] = {tile_lo.I(), tile_lo.J(), tile_lo.K()};
         int   tile_hi_array[] = {tile_hi.I(), tile_hi.J(), tile_hi.K()};
+        // Create as 1D with ordering setup for mapping on 2D Fortran array
         int   tile_interior[] = {tile_lo.I(), tile_hi.I(),
                                  tile_lo.J(), tile_hi.J(),
                                  tile_lo.K(), tile_hi.K()};
