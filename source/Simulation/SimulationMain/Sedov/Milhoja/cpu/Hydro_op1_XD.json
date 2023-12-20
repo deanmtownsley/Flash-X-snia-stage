@@ -142,8 +142,9 @@
       "range":     {"source":             "tile_interior"},
       "solnData":  {"source":             "grid_data",
                     "structure_index":    ["CENTER", 1],
-                    "R":                  [1, 2, 3, 4, 6, 8, 9, 10],
-                    "W":                  [5, 7]}
+                    "R":                  [1, 2, 3, 4],
+                    "RW":                 [6, 8],
+                    "W":                  [5, 7, 9, 10]}
     }
   }
 }
