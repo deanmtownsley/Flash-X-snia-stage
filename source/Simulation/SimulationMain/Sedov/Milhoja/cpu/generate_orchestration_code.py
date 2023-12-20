@@ -5,6 +5,7 @@ Run the script with -h to obtain more information regarding the script.
 """
 
 import json
+import shutil
 import argparse
 import traceback
 
@@ -123,7 +124,7 @@ def main():
             "Hydro_computeSoundSpeedHll_block_cpu",
             "Hydro_computeFluxesHll_X_block_cpu",
             "Hydro_computeFluxesHll_Y_block_cpu",
-            "Hydro_computeFluxesHll_Z_block_cpu"
+            "Hydro_computeFluxesHll_Z_block_cpu",
             "Hydro_updateSolutionHll_block_cpu",
             "Eos_wrapped"
         ]
@@ -202,6 +203,27 @@ def main():
         assembler.to_milhoja_json(TF_JSON, PARTIAL_TF_JSON, overwrite)
 
         tf_spec = milhoja.TaskFunction.from_milhoja_json(TF_JSON)
+
+        # Simulation code generation for now
+        files_all = [
+            "cpu_tf_hydro_Cpp2C.cxx",
+            "cpu_tf_hydro_C2F.F90",
+            "Tile_cpu_tf_hydro.h",
+            "Tile_cpu_tf_hydro.cxx",
+            "Tile_cpu_tf_hydro_Cpp2C.cxx",
+            "Tile_cpu_tf_hydro_C2F_mod.F90"
+        ]
+        for filename in files_all:
+            base, ext = filename.split(".")
+            dst = DESTINATION.joinpath(filename)
+            src = DESTINATION.joinpath(f"{base}_{dimension}D.{ext}")
+            if dst.exists():
+                if overwrite:
+                    warn(f"{filename} overwritten")
+                else:
+                    log_and_abort(f"{filename} already exists")
+            log(f"Generating {dst}")
+            shutil.copy(src, dst)
 
 #        milhoja.generate_data_item(
 #            tf_spec, DESTINATION, overwrite, milhoja_path, INDENT, logger
