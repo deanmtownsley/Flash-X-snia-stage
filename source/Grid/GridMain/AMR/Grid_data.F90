@@ -59,6 +59,7 @@ Module Grid_data
   integer, save :: gr_meshAcrossComm, gr_meshAcrossMe, gr_meshAcrossNumProcs
 
   logical, save :: gr_useEnergyDeposition
+  logical, save :: gr_useOrchestration
   real, save, dimension(LOW:HIGH,MDIM) :: gr_boxContainingLeafNodes
 
 

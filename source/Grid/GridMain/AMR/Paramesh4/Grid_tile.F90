@@ -1,6 +1,6 @@
 !!****ih* source/Grid/GridMain/AMR/Paramesh4/Grid_tile
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ module Grid_tile
         procedure, public :: getDataPtr
         procedure, public :: releaseDataPtr
         procedure, public :: enclosingBlock
+        procedure, public :: fillTileCInfo
     end type Grid_tile_t
 
 contains
@@ -307,5 +308,50 @@ contains
         nullify(dataPtr)
     end subroutine releaseDataPtr
 
+    subroutine fillTileCInfo(this, cInfo)
+        use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
+        use Grid_data, ONLY: gr_useOrchestration
+        use Grid_data, ONLY: gr_delta
+        use,intrinsic :: iso_c_binding
+        class(Grid_tile_t), intent(IN)                :: this
+        type(Orchestration_tileCInfo_t),intent(OUT)   :: cInfo
+        real,pointer,contiguous :: fBlkPtr(:,:,:,:)
+
+#ifdef FLASHX_ORCHESTRATION
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
+#ifndef RUNTIME_USES_TILEITER
+        if (gr_useOrchestration) then
+           cInfo % CInts % nCcComp      = NUNK_VARS
+           cInfo % CInts % nFluxComp    = NFLUXES
+           cInfo % CInts % loGC(1:MDIM) = this % blklimitsGC(LOW,:)
+           cInfo % CInts % hiGC(1:MDIM) = this % blkLimitsGC(HIGH,:)
+           cInfo % CInts % lo(1:MDIM)   = this % limits(LOW,:)
+           cInfo % CInts % hi(1:MDIM)   = this % limits(HIGH,:)
+           cInfo % CInts % ndim         = NDIM
+           cInfo % CInts % level        = this % level
+           cInfo % CInts % gridIdxOrBlkId = this % id
+           cInfo % CInts % tileIdx      = 0 !not meaningful / not know to Grid_tile
+           
+           cInfo % CReals % deltas(1:MDIM) = gr_delta(1:MDIM, this%level)
+           
+           cInfo % CPtrs % ccBlkPtr = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(IAXIS) = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(JAXIS) = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(KAXIS) = C_NULL_PTR
+
+           call this % getDataPtr(fBlkPtr, CENTER)
+           if(associated(fBlkPtr)) cInfo % CPtrs % ccBlkPtr = c_loc(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXX)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(IAXIS) = c_loc(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXY)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(JAXIS) = c_loc(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXZ)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(KAXIS) = c_loc(fBlkPtr)
+        end if
+#endif
+#endif
+#endif
+        
+      end subroutine fillTileCInfo
 end module Grid_tile
 

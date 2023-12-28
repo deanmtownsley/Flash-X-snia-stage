@@ -1,1 +1,6 @@
-DEFAULT Orchestration/OrchestrationMain/Milhoja
+DEFAULT OrchestrationMain
+
+D   useOrchestration       Whether the Orchestration unit is being used
+# Value is meant to be overridden if an OrchestrationMain implementation gets included
+PARAMETER useOrchestration    BOOLEAN CONSTANT FALSE
+

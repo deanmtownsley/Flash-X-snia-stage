@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@
 !! why the interface changes based on setup information.
 module Orchestration_interface
 
+    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
     implicit none
 
     interface
@@ -45,6 +46,41 @@ module Orchestration_interface
             integer(MILHOJA_INT), intent(IN) :: MH_errorCode
         end subroutine Orchestration_checkInternalError
 
+#ifndef RUNTIME_USES_TILEITER
+        subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, &
+                                                  prototype_Cptr, nThreads)
+            use iso_c_binding, ONLY : C_PTR
+            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+        end subroutine Orchestration_setupPipelineForCpuTasks
+
+        subroutine Orchestration_teardownPipelineForCpuTasks(MH_taskFunction, &
+                                                  prototype_Cptr, nThreads)
+            use iso_c_binding, ONLY : C_PTR
+            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+        end subroutine Orchestration_teardownPipelineForCpuTasks
+
+        subroutine Orchestration_pushTileToPipeline(MH_taskFunction, &
+                                                    prototype_Cptr, nThreads, &
+                                                    tileCInfo)
+            use iso_c_binding, ONLY : C_PTR
+            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            import
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+            type(Orchestration_tileCInfo_t),        intent(IN) :: tileCInfo
+        end subroutine Orchestration_pushTileToPipeline
+
+#else
         subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                                   prototype_Cptr, nThreads)
             use iso_c_binding, ONLY : C_PTR
@@ -54,6 +90,7 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_executeTasks_Cpu
+#endif
 
 #ifdef ORCHESTRATION_USE_GPUS
         subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
@@ -75,4 +112,11 @@ module Orchestration_interface
     end interface
 
 end module Orchestration_interface
-
+! Local Variables:
+! f90-program-indent: 4
+! f90-do-indent: 4
+! f90-type-indent: 4
+! f90-associate-indent: 9
+! f90-if-indent: 40
+! indent-tabs-mode: nil
+! End:
