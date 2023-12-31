@@ -341,12 +341,14 @@ contains
 
            call this % getDataPtr(fBlkPtr, CENTER)
            if(associated(fBlkPtr)) cInfo % CPtrs % ccBlkPtr = c_loc(fBlkPtr)
+#ifdef USE_LEVELWIDE_FLUXES
            call this % getDataPtr(fBlkPtr, FLUXX)
            if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(IAXIS) = c_loc(fBlkPtr)
            call this % getDataPtr(fBlkPtr, FLUXY)
            if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(JAXIS) = c_loc(fBlkPtr)
            call this % getDataPtr(fBlkPtr, FLUXZ)
            if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(KAXIS) = c_loc(fBlkPtr)
+#endif
         end if
 #endif
 #endif
