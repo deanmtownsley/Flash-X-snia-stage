@@ -84,8 +84,8 @@ plot_var_2 = "pres"
 plot_var_3 = "temp"
 
 #  Adaptive Grid refinement parameters
-nblockx         = 8
-nblocky         = 8
+nblockx         = 8 
+nblocky         = 8 
 nblockz         = 8
 lrefine_min     = 1
 lrefine_max     = 1
@@ -97,13 +97,13 @@ refine_var_2    = "pres"
 #
 # These might depend on which runtime is used, but this is unimportant
 # since Milhoja is the only option for now.
-or_nThreadTeams        = 2
-or_nThreadsPerTeam     = 7
-or_nBytesInCpuMemoryPool            = 1073741824.0
+or_nThreadTeams          = 2
+or_nThreadsPerTeam       = 7
+or_nBytesInCpuMemoryPool = 17179869184.0
 gr_initBlock_nCpuThreads = 6
 # NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
 # to the par file?
-dr_hydroAdvance_nThreads = 6
+cpu_tf_hydro_nThreads    = 6
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##

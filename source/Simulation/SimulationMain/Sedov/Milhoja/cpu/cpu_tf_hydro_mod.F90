@@ -52,15 +52,26 @@ contains
     subroutine cpu_tf_hydro_Fortran(external_hydro_op1_dt, &
                                     external_hydro_op1_eosMode, &
                                     tile_deltas, &
+                                    tile_hi, &
                                     tile_interior, &
-                                    lbdd_CC_1, &
+                                    tile_lo, &
                                     CC_1, &
-                                    lbdd_scratch_hydro_op1_auxC, &
                                     scratch_hydro_op1_auxC, &
-                                    lbdd_scratch_hydro_op1_flX, &
                                     scratch_hydro_op1_flX, &
                                     scratch_hydro_op1_flY, &
-                                    scratch_hydro_op1_flZ)
+                                    scratch_hydro_op1_flZ, &
+                                    lbdd_CC_1, &
+                                    lbdd_scratch_hydro_op1_auxC, &
+#if MILHOJA_NDIM == 1
+                                    lbdd_scratch_hydro_op1_flX)
+#elif MILHOJA_NDIM == 2
+                                    lbdd_scratch_hydro_op1_flX, &
+                                    lbdd_scratch_hydro_op1_flY)
+#elif MILHOJA_NDIM == 3
+                                    lbdd_scratch_hydro_op1_flX, &
+                                    lbdd_scratch_hydro_op1_flY, &
+                                    lbdd_scratch_hydro_op1_flZ)
+#endif
         use Hydro_advanceSolution_variants_mod, ONLY : Hydro_computeSoundSpeed_block_cpu, &
                                                        Hydro_computeFluxes_X_block_cpu, &
                                                        Hydro_computeFluxes_Y_block_cpu, &
@@ -71,12 +82,20 @@ contains
         real,    intent(IN)            :: external_hydro_op1_dt
         integer, intent(IN)            :: external_hydro_op1_eosMode
         real,    intent(IN)            :: tile_deltas(1:MILHOJA_MDIM)
+        integer, intent(IN)            :: tile_hi(1:MILHOJA_MDIM)
         integer, intent(IN)            :: tile_interior(1:2, 1:MILHOJA_MDIM)
+        integer, intent(IN)            :: tile_lo(1:MILHOJA_MDIM)
         integer, intent(IN)            :: lbdd_CC_1(1:4)
         real,    intent(INOUT), target :: CC_1(:, :, :, :)
         integer, intent(IN)            :: lbdd_scratch_hydro_op1_auxC(1:3)
         real,    intent(OUT)           :: scratch_hydro_op1_auxC(:, :, :)
         integer, intent(IN)            :: lbdd_scratch_hydro_op1_flX(1:4)
+#if MILHOJA_NDIM >= 2
+        integer, intent(IN)            :: lbdd_scratch_hydro_op1_flY(1:4)
+#endif
+#if MILHOJA_NDIM == 3
+        integer, intent(IN)            :: lbdd_scratch_hydro_op1_flZ(1:4)
+#endif
         real,    intent(OUT)           :: scratch_hydro_op1_flX(:, :, :, :)
         real,    intent(OUT)           :: scratch_hydro_op1_flY(:, :, :, :)
         real,    intent(OUT)           :: scratch_hydro_op1_flZ(:, :, :, :)
@@ -85,15 +104,13 @@ contains
 
         NULLIFY(CC_1_ptr)
 
-        CALL Hydro_computeSoundSpeed_block_cpu(tile_interior(1, :), &
-                                               tile_interior(2, :), &
+        CALL Hydro_computeSoundSpeed_block_cpu(tile_lo, tile_hi, &
                                                CC_1, &
                                                lbdd_CC_1, &
                                                scratch_hydro_op1_auxC, &
                                                lbdd_scratch_hydro_op1_auxC)
         CALL Hydro_computeFluxes_X_block_cpu(external_hydro_op1_dt, &
-                                             tile_interior(1, :), &
-                                             tile_interior(2, :), &
+                                             tile_lo, tile_hi, &
                                              tile_deltas, &
                                              CC_1, &
                                              lbdd_CC_1, &
@@ -103,30 +120,27 @@ contains
                                              lbdd_scratch_hydro_op1_flX)
 #if MILHOJA_NDIM >= 2
         CALL Hydro_computeFluxes_Y_block_cpu(external_hydro_op1_dt, &
-                                             tile_interior(1, :), &
-                                             tile_interior(2, :), &
+                                             tile_lo, tile_hi, &
                                              tile_deltas, &
                                              CC_1, &
                                              lbdd_CC_1, &
                                              scratch_hydro_op1_auxC, &
                                              lbdd_scratch_hydro_op1_auxC, &
                                              scratch_hydro_op1_flY, &
-                                             lbdd_scratch_hydro_op1_flX)
+                                             lbdd_scratch_hydro_op1_flY)
 #endif
 #if MILHOJA_NDIM == 3
         CALL Hydro_computeFluxes_Z_block_cpu(external_hydro_op1_dt, &
-                                             tile_interior(1, :), &
-                                             tile_interior(2, :), &
+                                             tile_lo, tile_hi, &
                                              tile_deltas, &
                                              CC_1, &
                                              lbdd_CC_1, &
                                              scratch_hydro_op1_auxC, &
                                              lbdd_scratch_hydro_op1_auxC, &
                                              scratch_hydro_op1_flZ, &
-                                             lbdd_scratch_hydro_op1_flX)
+                                             lbdd_scratch_hydro_op1_flZ)
 #endif
-        CALL Hydro_updateSolution_block_cpu(tile_interior(1, :), &
-                                            tile_interior(2, :), &
+        CALL Hydro_updateSolution_block_cpu(tile_lo, tile_hi, &
                                             scratch_hydro_op1_flX, &
                                             scratch_hydro_op1_flY, &
                                             scratch_hydro_op1_flZ, &

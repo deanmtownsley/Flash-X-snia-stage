@@ -30,15 +30,19 @@ extern "C" {
         const milhoja::Real external_hydro_op1_dt,
         const int external_hydro_op1_eosMode,
         const void* tile_deltas,
+        const void* tile_hi,
         const void* tile_interior,
-        const void* lbdd_CC_1,
+        const void* tile_lo,
         const void* CC_1,
-        const void* lbdd_scratch_hydro_op1_auxC,
         const void* scratch_hydro_op1_auxC,
-        const void* lbdd_scratch_hydro_op1_flX,
         const void* scratch_hydro_op1_flX,
         const void* scratch_hydro_op1_flY,
-        const void* scratch_hydro_op1_flZ
+        const void* scratch_hydro_op1_flZ,
+        const void* lbdd_CC_1,
+        const void* lbdd_scratch_hydro_op1_auxC,
+        const void* lbdd_scratch_hydro_op1_flX,
+        const void* lbdd_scratch_hydro_op1_flY,
+        const void* lbdd_scratch_hydro_op1_flZ
     );
 
     //----- C DECLARATION OF ACTUAL TASK FUNCTION TO PASS TO RUNTIME
@@ -51,7 +55,7 @@ extern "C" {
         const milhoja::IntVect   tile_hi     = tileDesc->hi();
         const milhoja::IntVect   tile_lbound = tileDesc->loGC();
         const milhoja::RealVect  tile_deltas = tileDesc->deltas();
-        milhoja::Real*     CC_1        = tileDesc->dataPtr();
+        milhoja::Real*           CC_1        = tileDesc->dataPtr();
 
         milhoja::Real* scratch_hydro_op1_auxC = 
                  static_cast<milhoja::Real*>(Tile_cpu_tf_hydro::scratch_hydro_op1_auxc_)
@@ -69,6 +73,8 @@ extern "C" {
 
         milhoja::Real  tile_deltas_array[]
                 = {tile_deltas.I(), tile_deltas.J(), tile_deltas.K()};
+        int   tile_lo_array[] = {tile_lo.I(), tile_lo.J(), tile_lo.K()};
+        int   tile_hi_array[] = {tile_hi.I(), tile_hi.J(), tile_hi.K()};
         // Create as 1D with ordering setup for mapping on 2D Fortran array
         int   tile_interior[] = {tile_lo.I(), tile_hi.I(),
                                  tile_lo.J(), tile_hi.J(),
@@ -84,18 +90,26 @@ extern "C" {
                = {tile_lbound.I(), tile_lbound.J(), tile_lbound.K(), 1};
         int   lbdd_scratch_hydro_op1_flX[]
                = {tile_lo.I(), tile_lo.J(), tile_lo.K(), 1};
+        int   lbdd_scratch_hydro_op1_flY[]
+               = {tile_lo.I(), tile_lo.J(), tile_lo.K(), 1};
+        int   lbdd_scratch_hydro_op1_flZ[]
+               = {tile_lo.I(), tile_lo.J(), tile_lo.K(), 1};
 
         cpu_tf_hydro_c2f(wrapper->external_hydro_op1_dt_,
                          wrapper->external_hydro_op1_eosMode_,
                          static_cast<void*>(tile_deltas_array),
+                         static_cast<void*>(tile_hi_array),
                          static_cast<void*>(tile_interior),
-                         static_cast<void*>(lbdd_CC_1),
+                         static_cast<void*>(tile_lo_array),
                          static_cast<void*>(CC_1),
-                         static_cast<void*>(lbdd_scratch_hydro_op1_auxC),
                          static_cast<void*>(scratch_hydro_op1_auxC),
-                         static_cast<void*>(lbdd_scratch_hydro_op1_flX),
                          static_cast<void*>(scratch_hydro_op1_flX),
                          static_cast<void*>(scratch_hydro_op1_flY),
-                         static_cast<void*>(scratch_hydro_op1_flZ));
+                         static_cast<void*>(scratch_hydro_op1_flZ),
+                         static_cast<void*>(lbdd_CC_1),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_auxC),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_flX),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_flY),
+                         static_cast<void*>(lbdd_scratch_hydro_op1_flZ));
     }
 }
