@@ -38,7 +38,7 @@ module Tile_cpu_tf_hydro_C2F_mod
                                           MILHOJA_REAL
             real(MILHOJA_REAL),   intent(IN), value :: C_external_hydro_op1_dt
             integer(MILHOJA_INT), intent(IN), value :: C_external_hydro_op1_eosMode
-            type(C_PTR),          intent(IN)        :: C_wrapper
+            type(C_PTR),          intent(INOUT)     :: C_wrapper
             integer(MILHOJA_INT)                    :: C_ierr
         end function new_hydro_advance_wrapper_C
 
