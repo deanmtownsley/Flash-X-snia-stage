@@ -59,13 +59,14 @@ PP      = -D
 OPENMP = -fopenmp
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
-FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
+FFLAGS_DEBUG = -c -ggdb3 -Og -fdefault-real-8 -fdefault-double-8 \
 	-Wall -Wextra -Wno-unused -Waliasing \
 	-Wno-unused-dummy-argument \
 	-Wno-compare-reals -Wno-zerotrip \
 	-Wsurprising -Wconversion -Wunderflow \
 	-ffpe-trap=invalid,zero,overflow -fbounds-check \
 	-fimplicit-none -fstack-protector-all \
+  	-fvar-tracking -fvar-tracking-assignments \
 	-fbacktrace
 FFLAGS_TEST = -ggdb -c -fdefault-real-8 -fdefault-double-8 \
 	-ffree-line-length-none
@@ -75,7 +76,7 @@ FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 FFLAGS_OACC  = -fopenacc
-FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -DNO_NO_NO_FULL_MILHOJAGRID -fexceptions
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
 FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -fexceptions ${FFLAGS_AMREX}
 
 F90FLAGS =
@@ -84,7 +85,7 @@ F90FLAGS =
 #overflows at both compile time and run time (only active at -O1 or higher)
 #http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
 CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
-CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
+CFLAGS_DEBUG = -c -ggdb3 -Og -Wno-div-by-zero -Wundef \
 	-Wconversion -Wstrict-prototypes -Wunreachable-code \
 	-Wall -Wextra -Winit-self -ftree-vrp -Wfloat-equal \
 	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all 
@@ -106,9 +107,9 @@ CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 #  _DEBUG, and _TEST cases.
 #----------------------------------------------------------------------------
 
-LFLAGS_OPT   = -o
-LFLAGS_DEBUG = -g -O0 -o
-LFLAGS_TEST  = -o
+LFLAGS_OPT   = -fno-merge-debug-strings -o
+LFLAGS_DEBUG = -ggdb3 -O0 -fno-merge-debug-strings -o
+LFLAGS_TEST  = -fno-merge-debug-strings -o
 
 #----------------------------------------------------------------------------
 # Library specific linking
