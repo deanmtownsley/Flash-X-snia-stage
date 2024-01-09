@@ -1,4 +1,4 @@
-!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,7 +79,7 @@ subroutine Driver_evolveAll()
 #else
    use Orchestration_interface, ONLY: Orchestration_setupPipelineForCpuTasks, &
                                       Orchestration_pushTileToPipeline, &
-                                      Orchestration_teardownPipelineForCpuTasks
+                                      Orchestration_teardownPipeline
 #endif
    use Hydro_data, ONLY: hy_gcMaskSize, &
                          hy_gcMask, &
@@ -120,7 +120,7 @@ subroutine Driver_evolveAll()
    endRun = .FALSE.
 
    !!!!!----- START INSERTION BY CODE GENERATOR
-   ! RPs are used directly by the Driver and therefore, should be handled at
+   ! RPs are used directly by the Driver and therefore should be handled at
    ! this level rather than at the level of the code generated for use by
    ! the runtime (i.e., dr_hydroAdvance_bundle_mod).
    CALL RuntimeParameters_get("cpu_tf_hydro_nThreads", &
@@ -176,7 +176,6 @@ subroutine Driver_evolveAll()
                                           nThreads=cpu_tf_hydro_nThreads)
 #else
       CALL Orchestration_setupPipelineForCpuTasks(MH_taskFunction=cpu_tf_hydro_Cpp2C, &
-                                          prototype_Cptr=cpu_tf_hydro_wrapper, &
                                           nThreads=cpu_tf_hydro_nThreads)
 
       call Grid_getTileIterator(itor, nodetype=LEAF)
@@ -184,8 +183,7 @@ subroutine Driver_evolveAll()
          call itor%currentTile(tileDesc)
          call tileDesc%fillTileCInfo(cInfo)
          
-         CALL Orchestration_pushTileToPipeline(MH_taskFunction=cpu_tf_hydro_Cpp2C, &
-                                          prototype_Cptr=cpu_tf_hydro_wrapper, &
+         CALL Orchestration_pushTileToPipeline(prototype_Cptr=cpu_tf_hydro_wrapper, &
                                           nThreads=cpu_tf_hydro_nThreads, &
                                           tileCInfo=cInfo)
 
@@ -193,9 +191,7 @@ subroutine Driver_evolveAll()
       end do
       call Grid_releaseTileIterator(itor)
 
-      CALL Orchestration_teardownPipelineForCpuTasks(MH_taskFunction=cpu_tf_hydro_Cpp2C, &
-                                          prototype_Cptr=cpu_tf_hydro_wrapper, &
-                                          nThreads=cpu_tf_hydro_nThreads)
+      CALL Orchestration_teardownPipeline(nThreads=cpu_tf_hydro_nThreads)
 #endif
       MH_ierr = delete_hydro_advance_wrapper_C(cpu_tf_hydro_wrapper)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)

@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,11 +50,23 @@ subroutine Driver_evolveAll()
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use IO_interface, ONLY: IO_output, &
                            IO_outputFinal
-   use Grid_interface, ONLY: Grid_fillGuardCells
-   use Orchestration_interface, ONLY: Orchestration_executeTasks_Gpu, &
-                                      Orchestration_checkInternalError
+   use Grid_interface, ONLY: Grid_fillGuardCells, &
+                             Grid_getTileIterator, &
+                             Grid_releaseTileIterator
+   use Grid_iterator, ONLY : Grid_iterator_t
+   use Grid_tile,     ONLY : Grid_tile_t
+   use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
+   use Orchestration_interface, ONLY: Orchestration_checkInternalError
+#ifdef RUNTIME_USES_TILEITER
+   use Orchestration_interface, ONLY: Orchestration_executeTasks_Gpu
+#else
+   use Orchestration_interface, ONLY: Orchestration_setupPipelineForGpuTasks, &
+                                      Orchestration_pushTileToGpuPipeline, &
+                                      Orchestration_teardownPipeline
+#endif
    use Hydro_data, ONLY: hy_gcMaskSize, &
-                         hy_gcMask
+                         hy_gcMask, &
+                         hy_eosModeAfter
 
    !!!!!----- START INSERTION BY CODE GENERATOR
    use DataPacket_gpu_tf_hydro_C2F_mod, ONLY : instantiate_gpu_tf_hydro_packet_C, &
@@ -68,6 +80,9 @@ subroutine Driver_evolveAll()
    character(len=15)                :: numToStr
    logical                          :: shortenedDt
    logical                          :: endRun
+   type(Grid_iterator_t) :: itor
+   type(Grid_tile_t)     :: tileDesc
+   type(Orchestration_tileCInfo_t) :: cInfo
 
    !!!!!----- START INSERTION BY CODE GENERATOR
    integer              :: gpu_tf_hydro_nThreads
@@ -135,11 +150,34 @@ subroutine Driver_evolveAll()
       MH_ierr = instantiate_gpu_tf_hydro_packet_C(MH_dt, &
                                                   gpu_tf_hydro_packet)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
+#ifdef RUNTIME_USES_TILEITER
       CALL Orchestration_executeTasks_Gpu(gpu_tf_hydro_Cpp2C, &
                                           gpu_tf_hydro_nDistributorThreads, &
                                           gpu_tf_hydro_nThreads, &
                                           gpu_tf_hydro_nTilesPerPacket, &
                                           gpu_tf_hydro_packet)
+#else
+      CALL Orchestration_setupPipelineForGpuTasks(MH_taskFunction=gpu_tf_hydro_Cpp2C, &
+                                          nThreads=gpu_tf_hydro_nThreads, &
+                                          nTilesPerPacket=gpu_tf_hydro_nTilesPerPacket, &
+                                          MH_packet_Cptr=gpu_tf_hydro_packet)
+
+      call Grid_getTileIterator(itor, nodetype=LEAF)
+      do while(itor%isValid())
+         call itor%currentTile(tileDesc)
+         call tileDesc%fillTileCInfo(cInfo)
+         
+         CALL Orchestration_pushTileToGpuPipeline(prototype_Cptr=gpu_tf_hydro_packet, &
+                                          nThreads=gpu_tf_hydro_nThreads, &
+                                          tileCInfo=cInfo)
+
+         call itor%next()
+      end do
+      call Grid_releaseTileIterator(itor)
+
+      CALL Orchestration_teardownPipeline(nThreads=gpu_tf_hydro_nThreads, &
+                                        nTilesPerPacket=gpu_tf_hydro_nTilesPerPacket)
+#endif
 
       MH_ierr = delete_gpu_tf_hydro_packet_C(gpu_tf_hydro_packet)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)

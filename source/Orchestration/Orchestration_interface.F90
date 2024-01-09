@@ -1,4 +1,4 @@
-!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,38 +47,25 @@ module Orchestration_interface
         end subroutine Orchestration_checkInternalError
 
 #ifndef RUNTIME_USES_TILEITER
-        subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, &
-                                                  prototype_Cptr, nThreads)
-            use iso_c_binding, ONLY : C_PTR
+        subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
             use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
-            type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_setupPipelineForCpuTasks
 
-        subroutine Orchestration_teardownPipelineForCpuTasks(MH_taskFunction, &
-                                                  prototype_Cptr, nThreads)
+        subroutine Orchestration_setupPipelineForGpuTasks(MH_taskFunction, &
+                                          nThreads,            &
+                                          nTilesPerPacket,     &
+                                          MH_packet_Cptr)
             use iso_c_binding, ONLY : C_PTR
             use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
-            type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
-        end subroutine Orchestration_teardownPipelineForCpuTasks
-
-        subroutine Orchestration_pushTileToPipeline(MH_taskFunction, &
-                                                    prototype_Cptr, nThreads, &
-                                                    tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
-            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
-            import
-            implicit none
-            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
-            type(C_PTR),                            intent(IN) :: prototype_Cptr
-            integer,                                intent(IN) :: nThreads
-            type(Orchestration_tileCInfo_t),        intent(IN) :: tileCInfo
-        end subroutine Orchestration_pushTileToPipeline
+            integer,                                intent(IN) :: nTilesPerPacket
+            type(C_PTR),                            intent(IN) :: MH_packet_CPtr
+        end subroutine Orchestration_setupPipelineForGpuTasks
 
 #else
         subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
@@ -111,12 +98,49 @@ module Orchestration_interface
 #endif
     end interface
 
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
+# ifndef RUNTIME_USES_TILEITER
+    !Separate pecific interfaces - push to pipeline
+    interface
+        subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
+                                                    tileCInfo)
+            use iso_c_binding, ONLY : C_PTR
+            import
+            implicit none
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+            type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
+        end subroutine Orchestration_pushTileToPipeline
+        subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
+                                                    tileCInfo)
+            use iso_c_binding, ONLY : C_PTR
+            import
+            implicit none
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+            type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
+        end subroutine Orchestration_pushTileToGpuPipeline
+    end interface
+
+    ! Generic interface - tear down pipeline
+    interface Orchestration_teardownPipeline
+        subroutine Orchestration_teardownPipelineForCpuTasks(nThreads)
+            implicit none
+            integer,                                intent(IN) :: nThreads
+        end subroutine Orchestration_teardownPipelineForCpuTasks
+        subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
+            implicit none
+            integer,                                intent(IN) :: nThreads
+            integer,                                intent(IN) :: nTilesPerPacket
+        end subroutine Orchestration_teardownPipelineForGpuTasks
+    end interface Orchestration_teardownPipeline
+# endif
+#endif
+
 end module Orchestration_interface
 ! Local Variables:
 ! f90-program-indent: 4
 ! f90-do-indent: 4
 ! f90-type-indent: 4
-! f90-associate-indent: 9
-! f90-if-indent: 40
 ! indent-tabs-mode: nil
 ! End:

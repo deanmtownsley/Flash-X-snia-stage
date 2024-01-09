@@ -17,8 +17,8 @@
 
 !> @details
 !! A module that encapsulates the gpu_tf_hydro task function, which should
-!! passed to the Orchestration unit for applying the task function to data
-!! packets.
+!! be passed to the Orchestration unit for applying the task function to
+!! data packets.
 !!
 !! This code should be written entirely by a Milhoja CODE GENERATOR.
 module gpu_tf_hydro_mod

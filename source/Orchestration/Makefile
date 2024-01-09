@@ -4,8 +4,11 @@ Orchestration += Orchestration_init.o \
 		         Orchestration_interface.o \
 		         Orchestration_checkInternalError.o \
 		         Orchestration_setupPipelineForCpuTasks.o \
+		         Orchestration_setupPipelineForGpuTasks.o \
 		         Orchestration_pushTileToPipeline.o \
+		         Orchestration_pushTileToGpuPipeline.o \
 		         Orchestration_teardownPipelineForCpuTasks.o \
+		         Orchestration_teardownPipelineForGpuTasks.o \
 		         Orchestration_executeTasks_Cpu.o \
 		         Orchestration_executeTasks_Gpu.o
 

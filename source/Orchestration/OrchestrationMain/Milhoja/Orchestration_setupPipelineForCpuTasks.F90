@@ -17,10 +17,7 @@
 !! @stubref{Orchestration_setupPipelineForCpuTasks}
 !!
 !! @brief Concrete implementation of Orchestration_setupPipelineForCpuTasks
-subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, &
-                                          prototype_Cptr, nThreads)
-    use iso_c_binding, ONLY : C_PTR
-
+subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction, &
                                     milhoja_runtime_setupPipelineForCpuTasks
@@ -30,7 +27,6 @@ subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, &
     implicit none
 
     procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
-    type(C_PTR),                            intent(IN) :: prototype_Cptr
     integer,                                intent(IN) :: nThreads
 
     integer(MILHOJA_INT) :: MH_nThreads
@@ -38,7 +34,7 @@ subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, &
 
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
 
-    CALL milhoja_runtime_setupPipelineForCpuTasks(MH_taskFunction, prototype_Cptr, &
+    CALL milhoja_runtime_setupPipelineForCpuTasks(MH_taskFunction, &
                                           MH_nThreads, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_setupPipelineForCpuTasks", MH_ierr)
 end subroutine Orchestration_setupPipelineForCpuTasks

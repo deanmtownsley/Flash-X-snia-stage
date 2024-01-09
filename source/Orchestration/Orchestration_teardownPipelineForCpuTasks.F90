@@ -16,23 +16,10 @@
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_teardownPipelineForCpuTasks}
 !!
-!! @brief Concrete implementation of Orchestration_teardownPipelineForCpuTasks
+!! @brief Stub implementation of Orchestration_teardownPipelineForCpuTasks
 subroutine Orchestration_teardownPipelineForCpuTasks(nThreads)
-    use milhoja_types_mod,   ONLY : MILHOJA_INT
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_teardownPipelineForCpuTasks
+   implicit none
 
-    use Orchestration_interface, ONLY : Orchestration_checkInternalError
+   integer,                                intent(IN) :: nThreads
 
-    implicit none
-
-    integer,                                intent(IN) :: nThreads
-
-    integer(MILHOJA_INT) :: MH_nThreads
-    integer(MILHOJA_INT) :: MH_ierr
-
-    MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
-
-    CALL milhoja_runtime_teardownPipelineForCpuTasks(MH_nThreads, MH_ierr)
-    CALL Orchestration_checkInternalError("Orchestration_teardownPipelineForCpuTasks", MH_ierr)
 end subroutine Orchestration_teardownPipelineForCpuTasks
-
