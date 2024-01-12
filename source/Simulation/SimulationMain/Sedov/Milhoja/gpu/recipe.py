@@ -10,7 +10,7 @@
 from pathlib import Path
 
 from flashx import (
-    CPU, GPU
+    CPU, GPU,
     BlockTypes, BlockLevels,
     TileStepRecipe,
     SetupLogger
