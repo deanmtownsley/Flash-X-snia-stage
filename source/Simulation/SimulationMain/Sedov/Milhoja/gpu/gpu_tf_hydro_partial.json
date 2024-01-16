@@ -1,0 +1,17 @@
+{
+ "task_function": {
+  "language": "Fortran",
+  "processor": "GPU",
+  "cpp_header": "gpu_tf_hydro_Cpp2C.h",
+  "cpp_source": "gpu_tf_hydro_Cpp2C.cxx",
+  "c2f_source": "gpu_tf_hydro_C2F.F90",
+  "fortran_source": "gpu_tf_hydro_mod.F90"
+ },
+ "data_item": {
+  "type": "DataPacket",
+  "byte_alignment": 16,
+  "header": "DataPacket_gpu_tf_hydro.h",
+  "source": "DataPacket_gpu_tf_hydro.cxx",
+  "module": "DataPacket_gpu_tf_hydro_c2f_mod.F90"
+ }
+}
