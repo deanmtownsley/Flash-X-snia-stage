@@ -433,9 +433,9 @@ contains
         real,    intent(IN)    :: flZ(:, :, :, :)
         real,    intent(INOUT) :: U(:, :, :, :)
 
-    #ifdef EINT_VAR
+#    ifdef EINT_VAR
         real :: norm2_sqr
-    #endif
+#    endif
         real :: densOld
         real :: densNew
         real :: densNew_inv
@@ -448,17 +448,17 @@ contains
                 do i = lo(IAXIS), hi(IAXIS)
                     ! Update density first
                     densOld = U(i, j, k, DENS_VAR)
-    #if NDIM == 1
+#    if NDIM == 1
                     densNew =   densOld                          &
                               + flX(i,   j, k, HY_DENS_FLUX)     &
                               - flX(i+1, j, k, HY_DENS_FLUX)
-    #elif NDIM == 2
+#    elif NDIM == 2
                     densNew =   densOld                          &
                               + flX(i,   j,   k, HY_DENS_FLUX)   &
                               - flX(i+1, j,   k, HY_DENS_FLUX)   &
                               + flY(i,   j,   k, HY_DENS_FLUX)   &
                               - flY(i,   j+1, k, HY_DENS_FLUX)
-    #elif NDIM == 3
+#    elif NDIM == 3
                     densNew =   densOld                          &
                               + flX(i,   j,   k,   HY_DENS_FLUX) &
                               - flX(i+1, j,   k,   HY_DENS_FLUX) &
@@ -466,13 +466,13 @@ contains
                               - flY(i,   j+1, k,   HY_DENS_FLUX) &
                               + flZ(i,   j,   k,   HY_DENS_FLUX) &
                               - flZ(i,   j,   k+1, HY_DENS_FLUX)
-    #endif
+#    endif
                     U(i, j, k, DENS_VAR) = densNew
                     densNew_inv = 1.0 / densNew
     
                     ! velocities and total energy can be updated independently
                     ! using density result
-    #if NDIM == 1
+#    if NDIM == 1
                     U(i, j, k, VELX_VAR) = (    U(i,   j, k, VELX_VAR) * densOld     &
                                             + flX(i,   j, k, HY_XMOM_FLUX)           &
                                             - flX(i+1, j, k, HY_XMOM_FLUX) ) * densNew_inv
@@ -488,7 +488,7 @@ contains
                     U(i, j, k, ENER_VAR) = (    U(i,   j, k, ENER_VAR) * densOld     &
                                             + flX(i,   j, k, HY_ENER_FLUX)           &
                                             - flX(i+1, j, k, HY_ENER_FLUX) ) * densNew_inv
-    #elif NDIM == 2
+#    elif NDIM == 2
                     U(i, j, k, VELX_VAR) = (    U(i,   j,   k, VELX_VAR) * densOld   &
                                             + flX(i,   j,   k, HY_XMOM_FLUX)         &
                                             - flX(i+1, j,   k, HY_XMOM_FLUX)         &
@@ -512,7 +512,7 @@ contains
                                             - flX(i+1, j,   k, HY_ENER_FLUX)         &
                                             + flY(i,   j,   k, HY_ENER_FLUX)         &
                                             - flY(i,   j+1, k, HY_ENER_FLUX) ) * densNew_inv
-    #elif NDIM == 3
+#    elif NDIM == 3
                     U(i, j, k, VELX_VAR) = (    U(i,   j,   k,   VELX_VAR) * densOld &
                                             + flX(i,   j,   k,   HY_XMOM_FLUX)       &
                                             - flX(i+1, j,   k,   HY_XMOM_FLUX)       &
@@ -544,15 +544,15 @@ contains
                                             - flY(i,   j+1, k,   HY_ENER_FLUX)       &
                                             + flZ(i,   j,   k,   HY_ENER_FLUX)       &
                                             - flZ(i,   j,   k+1, HY_ENER_FLUX) ) * densNew_inv
-    #endif
+#    endif
     
-    #ifdef EINT_VAR
+#    ifdef EINT_VAR
                     ! Compute energy correction from new velocities and energy
                     norm2_sqr =   U(i, j, k, VELX_VAR) * U(i, j, k, VELX_VAR) &
                                 + U(i, j, k, VELY_VAR) * U(i, j, k, VELY_VAR) &
                                 + U(i, j, k, VELZ_VAR) * U(i, j, k, VELZ_VAR)
                     U(i, j, k, EINT_VAR) = U(i, j, k, ENER_VAR) - (0.5 * norm2_sqr);
-    #endif
+#    endif
                 end do
             end do
         end do
