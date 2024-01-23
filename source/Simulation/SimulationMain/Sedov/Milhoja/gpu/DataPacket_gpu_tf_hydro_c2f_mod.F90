@@ -14,7 +14,7 @@ module DataPacket_gpu_tf_hydro_c2f_mod
             use iso_c_binding, ONLY: C_PTR
             use milhoja_types_mod, ONLY: MILHOJA_INT, MILHOJA_REAL
             real(MILHOJA_REAL), intent(IN), value :: C_external_hydro_op1_dt
-            type(C_PTR), intent(IN) :: C_packet
+            type(C_PTR), intent(INOUT) :: C_packet
             integer(MILHOJA_INT) :: C_ierr
         end function instantiate_gpu_tf_hydro_packet_c
 
