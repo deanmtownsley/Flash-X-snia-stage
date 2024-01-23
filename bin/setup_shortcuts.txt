@@ -50,6 +50,7 @@ amrex:Grid=Amrex:-unit=Grid/GridMain/AMR/Amrex:-index-reorder
 mh_grid:Grid=Milhoja:-unit=Grid/GridMain/AMR/Milhoja:-with-unofficial=Grid/GridMain/AMR/Milhoja:-index-reorder:Milhoja=AMReX
 mh_orch:-unit=Orchestration/OrchestrationMain/Milhoja:-with-unofficial=Orchestration/OrchestrationMain/Milhoja:-index-reorder
 milhoja:+mh_grid:+mh_orch:Milhoja=AMReX,none,OpenACC
+mh_gpu:+mh_orch:Milhoja=AMReX,none,OpenACC
 
 # pm4dev_clean indicates a version of Paramesh closer to the one
 # that can be downloaded from sourceforge.  pm4dev indicates a 
