@@ -56,6 +56,9 @@ def main():
     objdir = os.path.join(GVars.flashHomeDir,GVars.objectDir)
     if not os.path.isdir(objdir): os.makedirs(objdir)
 
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # here is a problem area for only remaking macro files.
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
     if GVars.unitsFile: # copy over the user specified units file
        sname = os.path.join(GVars.flashHomeDir,GVars.unitsFile)
        tname = os.path.join(objdir,globals.UnitsFilename)
@@ -77,9 +80,38 @@ def main():
     unitList.adjustOpts()
     parseCmd.final() # finalise the options
 
+    # if flag is set, all we need is the list of units in order to find macro files.
+    # then once all necessary macro files have been updated, we exit.
+    # this could be moved into its own function
+    if GVars.macroOnly:
+        # change directory
+        GVars.out.put("Flag -mconly set, only checking -mc files.")
+        os.chdir(GVars.flashHomeDir)
+        os.chdir(GVars.objectDir)
+        for unitname in unitList.getLinkOrder():
+            # If unit has -mc files, run the macroProcessor to generate variants
+            # in the object dir.
+            unitDir = os.path.join(GVars.sourceDir, unitname)
+
+            if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
+                simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
+                binDir = os.path.join(GVars.flashHomeDir,'bin')
+                defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
+                varList = unitList.getRequestedVariants(unitname)
+                if not varList:
+                    varList = ['']
+                baseList = generateVariants(unitDir,
+                                os.path.join(GVars.flashHomeDir,GVars.objectDir),
+                                defList,
+                                varList,
+                                macroOnly=GVars.macroOnly)
+                for baseFile in baseList:
+                    if(os.path.exists(baseFile)):
+                        os.unlink(baseFile)
+        return
+
     # create the object which does stuff relating to linking files
     linkList = LinkFileList(objdir)
-
     # Combine info from all Config files
     configInfo = unitList.getConfigInfo()
     # get Runtime Paramas info
@@ -112,7 +144,6 @@ def main():
        pass
 
     rpInfo.writeCode(configInfo) # write Fortran code for RP support
-
 
     # find files which should not be linked
     linkList.getDontLinkList(unitList.getList(),configInfo['LINKIF'])
@@ -149,6 +180,7 @@ def main():
         # If unit has -mc files, run the macroProcessor to generate variants
         # in the object dir.
         unitDir = os.path.join(GVars.sourceDir, unitname)
+
         if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
           simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
           binDir = os.path.join(GVars.flashHomeDir,'bin')

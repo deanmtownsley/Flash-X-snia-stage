@@ -25,7 +25,7 @@ def formatOutput(outpath):
 # objDir: path to object directory
 # defsList: list of common defs and unit defs
 # varList: list of variant names (unit has variants/varName.ini files)
-def generateVariants(unitDir, objDir, defsList, varList):
+def generateVariants(unitDir, objDir, defsList, varList, macroOnly=False):
     print("Generating variants {} for unit: {}".format(varList, unitDir))
     mcList = []
     mcListNoVariants = []
@@ -60,11 +60,7 @@ def generateVariants(unitDir, objDir, defsList, varList):
             filebase, ext = os.path.splitext(os.path.basename(f))
             outfile = makeVariantName(filebase, var, removeSuffix(ext, "-mc"))
             outpath = os.path.join(objDir, outfile)
-            if os.path.islink(outpath):
-                os.unlink(outpath)
-
-            m.convertFile(f, outpath)
-            formatOutput(outpath)
+            processFile(m, f, outpath, macroOnly)
 
     # convert files with no variants
     m = macroProcessor()
@@ -73,15 +69,23 @@ def generateVariants(unitDir, objDir, defsList, varList):
         filebase, ext = os.path.splitext(os.path.basename(f))
         outfile = makeVariantName(filebase, "", removeSuffix(ext, "-mc"))
         outpath = os.path.join(objDir, outfile)
-        if os.path.islink(outpath):
-            os.unlink(outpath)
-
-        m.convertFile(f, outpath)
-        formatOutput(outpath)
+        processFile(m, f, outpath, macroOnly)
 
     if "null" in [v.lower() for v in varList]:
         baseList = []
     return baseList
+
+
+def processFile(mp, mc, out, macroOnly):
+    if os.path.islink(out):
+        os.unlink(out)
+
+    mcIsNewer = not os.path.isfile(out) or (os.path.isfile(out) and os.path.getmtime(mc) > os.path.getmtime(out))
+    shouldProcess = (not macroOnly) or (macroOnly and mcIsNewer)
+
+    if shouldProcess:
+        mp.convertFile(mc, out)
+        formatOutput(out)
 
 
 # unitDir: path to unit directory with mc files
