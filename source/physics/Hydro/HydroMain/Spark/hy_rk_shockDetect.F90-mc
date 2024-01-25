@@ -18,9 +18,10 @@
 !<
 !!Reorder(4): Uin
 !!NOVARIANTS
-subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, tinyZero, loGC)
+subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, loGC)
 
-   use Hydro_data, ONLY: hy_threadWithinBlock
+   use Hydro_data, ONLY: hy_threadWithinBlock, &
+                         tinyZero => hy_tiny
 
 #include "Simulation.h"
 #include "constants.h"
@@ -34,7 +35,6 @@ subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, tinyZero, loGC)
    real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: Uin
    real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: Vc
    integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
-   real, intent(IN) :: tinyZero
    !! -----------------------------------------------------
 
    integer :: i, j, k, ii, jj, kk

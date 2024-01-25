@@ -13,17 +13,17 @@
 !<
 !!Reorder(4): fl[xyz], fluxBuf[XYZ]
 !!NOVARIANTS
-subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
+subroutine hy_rk_saveFluxBuf(stage, fluxBufX, fluxBufY, fluxBufZ, &
                              flx, fly, flz, &
-                             weights, stage, fluxCorrect, &
-                             blkLimits, &
                              fareaX, fareaY, fareaZ, &
-                             lo, loGC)
+                             blkLimits, lo, loGC)
 
 #include "Simulation.h"
 #include "constants.h"
 
-   use Hydro_data, ONLY : hy_threadWithinBlock
+   use Hydro_data, ONLY : hy_threadWithinBlock, &
+                          weights => hy_weights, &
+                          fluxCorrect => hy_fluxCorrect
 
    @M hy_DIR_TARGET_routine(vector)
 
@@ -33,8 +33,6 @@ subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
 
    real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(IN OUT) :: fluxBufX, fluxBufY, fluxBufZ
    real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flx, fly, flz
-   real, dimension(3), intent(IN) :: weights
-   logical, intent(IN) :: fluxCorrect
    integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
    real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ
 

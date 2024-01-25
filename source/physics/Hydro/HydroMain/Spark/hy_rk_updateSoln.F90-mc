@@ -45,15 +45,20 @@
 !!Reorder(4): starState, tmpState, fl[xyz]
 !!NOVARIANTS
 
-subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
+subroutine hy_rk_updateSoln (stage, starState, tmpState, &
                              grav, flx, fly, flz, &
                              deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                              xLeft, xRight, yLeft, yRight, &
-                             geometry, &
-                             smalle, smalld, alphaGLM, C_hyp, &
                              dt, dtOld, limits, loGC)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock
+  use Hydro_data, ONLY : hy_threadWithinBlock, &
+                         rk_coeffs => hy_coeffArray, &
+                         geometry => hy_geometry, &
+                         smalle => hy_smallE, &
+                         smalld => hy_smalldens, &
+                         alphaGLM => hy_alphaGLM, &
+                         C_hyp => hy_C_hyp
+
   use Driver_interface, ONLY : Driver_abort
 
   @M hy_DIR_TARGET_routine(vector)
@@ -64,7 +69,7 @@ subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
 #include "constants.h"
 #include "Spark.h"
 
-  integer, intent(IN) :: stage, geometry, loGC(3)
+  integer, intent(IN) :: stage, loGC(3)
 
   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: starState
   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: tmpState, flx, fly, flz
@@ -72,10 +77,9 @@ subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ, cvol
   real, dimension(loGC(1):), intent(IN) :: xCenter, xLeft, xRight
   real, dimension(loGC(2):), intent(IN) :: yLeft, yRight
-  real, dimension(3, 3), intent(IN) :: rk_coeffs
   real, dimension(MDIM), intent(IN)  :: deltas
   integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
-  real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
+  real, intent(IN) :: dt, dtOld
 
   integer :: i, j, k, n, g
 

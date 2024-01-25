@@ -30,9 +30,12 @@
 !<
 !!Reorder(4):starState
 !!NOVARIANTS
-subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC, loGC)
+subroutine hy_rk_getGraveAccel(starState, grav, &
+                               radCenter, thtCenter, deltas, &
+                               blkLimitsGC, loGC)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock
+  use Hydro_data, ONLY : hy_threadWithinBlock, &
+                         geometry => hy_geometry
   use Driver_interface, ONLY : Driver_abort
   implicit none
 
@@ -47,7 +50,6 @@ subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, ge
   real, dimension(loGC(1):), intent(IN) :: radCenter
   real, dimension(loGC(2):), intent(IN) :: thtCenter
   real, dimension(MDIM), intent(IN)  :: deltas
-  integer, intent(IN) :: geometry
   integer, dimension(LOW:HIGH,MDIM), intent(IN) :: blkLimitsGC
 
   real, dimension(MDIM) :: delinv, delgpot

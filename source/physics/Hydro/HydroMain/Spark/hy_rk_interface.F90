@@ -48,8 +48,6 @@ module hy_rk_interface
   interface
      subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
                                    limits, deltas, &
-                                   hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
-                                   limRad, mp5ZeroTol, &
                                    scr_rope, scr_flux, scr_uPlus, scr_uMinus, &
                                    loGC)
        implicit none
@@ -60,31 +58,26 @@ module hy_rk_interface
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flat3d
        integer, dimension(LOW:HIGH, MDIM, MAXSTAGE), intent(IN) :: limits
        real, dimension(MDIM), intent(IN)  :: deltas
-       logical, intent(IN) :: hybridRiemann
-       real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero, limRad, mp5ZeroTol
      end subroutine  hy_rk_getFaceFlux
   end interface
 
   interface
-     subroutine hy_rk_updateSoln (stage, starState, tmpState, rk_coeffs, &
+     subroutine hy_rk_updateSoln (stage, starState, tmpState, &
                                   grav, flx, fly, flz, &
                                   deltas, fareaX, fareaY, fareaZ, cvol, xCenter, &
                                   xLeft, xRight, yLeft, yRight, &
-                                  geometry, &
-                                  smalle, smalld, alphaGLM, C_hyp, &
                                   dt, dtOld, limits, loGC)
        implicit none
-       integer, intent(IN) :: stage, geometry, loGC(3)
+       integer, intent(IN) :: stage, loGC(3)
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: starState
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: tmpState, flx, fly, flz
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: grav
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ, cvol
        real, dimension(loGC(1):), intent(IN) :: xCenter, xLeft, xRight
        real, dimension(loGC(2):), intent(IN) :: yLeft, yRight
-       real, dimension(3, 3), intent(IN) :: rk_coeffs
        real, dimension(MDIM), intent(IN)  :: deltas
        integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
-       real, intent(IN) :: smalle, smalld, alphaGLM, C_hyp, dt, dtOld
+       real, intent(IN) :: dt, dtOld
      end subroutine hy_rk_updateSoln
   end interface
 
@@ -98,7 +91,9 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_getGraveAccel(starState, grav, radCenter, thtCenter, deltas, geometry, blkLimitsGC, loGC)
+     subroutine hy_rk_getGraveAccel(starState, grav, &
+                                    radCenter, thtCenter, deltas, &
+                                    blkLimitsGC, loGC)
        implicit none
        integer, intent(IN) :: loGC(3)
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: starState
@@ -106,7 +101,6 @@ module hy_rk_interface
        real, dimension(loGC(1):), intent(IN) :: radCenter
        real, dimension(loGC(2):), intent(IN) :: thtCenter
        real, dimension(MDIM), intent(IN)  :: deltas
-       integer, intent(IN) :: geometry
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimitsGC
      end subroutine hy_rk_getGraveAccel
   end interface
@@ -136,21 +130,19 @@ module hy_rk_interface
 
 
   interface
-     subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, tinyZero, loGC)
+     subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, loGC)
        implicit none
        integer, intent(IN) :: loGC(3)
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: Uin
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: Vc
        integer, intent(IN) :: blkLimitsGC(LOW:HIGH, MDIM)
-       real, intent(IN) :: tinyZero
      end subroutine hy_rk_shockDetect
   end interface
 
   interface
-     subroutine hy_rk_getFlatteningLimiter(stage, is_flattening, starState, flat3d, limits, loGC)
+     subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
        implicit none
        integer, intent(IN) :: stage, loGC(3)
-       logical, intent(IN) :: is_flattening
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(INOUT) :: starState
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: flat3d
        integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
@@ -158,18 +150,14 @@ module hy_rk_interface
    end interface
 
    interface
-     subroutine hy_rk_saveFluxBuf(fluxBufX, fluxBufY, fluxBufZ, &
+     subroutine hy_rk_saveFluxBuf(stage, fluxBufX, fluxBufY, fluxBufZ, &
                                   flx, fly, flz, &
-                                  weights, stage, fluxCorrect, &
-                                  blkLimits, &
                                   fareaX, fareaY, fareaZ, &
-                                  lo, loGC)
+                                  blkLimits, lo, loGC)
        implicit none
        integer, intent(IN) :: stage, lo(3), loGC(3)
        real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(OUT) :: fluxBufX, fluxBufY, fluxBufZ
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flx, fly, flz
-       real, dimension(3), intent(IN) :: weights
-       logical, intent(IN) :: fluxCorrect
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ
      end subroutine hy_rk_saveFluxBuf

@@ -51,12 +51,19 @@
 
 subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
                               limits, deltas, &
-                              hybridRiemann, cvisc, C_hyp, tinyZero, smalld, smallp, smallx, &
-                              limRad, mp5ZeroTol, &
                               scr_rope, scr_flux, scr_uPlus, scr_uMinus, &
                               loGC)
 
-  use Hydro_data, ONLY : hy_threadWithinBlock
+  use Hydro_data, ONLY : hy_threadWithinBlock, &
+                         hybridRiemann => hy_hybridRiemann, &
+                         cvisc => hy_cvisc, &
+                         C_hyp => hy_C_hyp, &
+                         tinyZero => hy_tiny, &
+                         smalld => hy_smalldens, &
+                         smallp => hy_smallpres, &
+                         smallx => hy_smallX, &
+                         limRad => hy_limRad, &
+                         mp5ZeroTol => hy_mp5ZeroTol
 
   implicit none
 
@@ -73,8 +80,6 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flat3d
   integer, dimension(LOW:HIGH, MDIM, MAXSTAGE), intent(IN) :: limits
   real, dimension(MDIM), intent(IN)  :: deltas
-  logical, intent(IN) :: hybridRiemann
-  real, intent(IN) :: cvisc, C_hyp, smalld, smallp, smallx, tinyZero, limRad, mp5ZeroTol
 
   integer :: i, j, k, s, n, v, dir, ierr
   integer :: ii, jj, kk, is, js, ks

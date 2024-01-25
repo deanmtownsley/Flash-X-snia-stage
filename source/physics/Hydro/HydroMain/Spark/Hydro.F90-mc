@@ -190,7 +190,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         call Timers_start("Offloaded Section")
 
-        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, hy_tiny, loGC)
+        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
 
         call Timers_start("scratch")
         call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage, loGC)
@@ -201,16 +201,14 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! calculate gravitational acceleration based on current value of GPOT_VAR
            ! This is stored in module-scope variable hy_grav
            call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-               hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC, loGC)
+                                    hy_xCenter, hy_yCenter, deltas, &
+                                    blkLimitsGC, loGC)
 
-           call hy_rk_getFlatteningLimiter(stage, hy_flattening, hy_starState, hy_flat3d, limits, loGC)
+           call hy_rk_getFlatteningLimiter(stage, hy_starState, hy_flat3d, limits, loGC)
 
            call Timers_start("getFaceFlux")
            call hy_rk_getFaceFlux(stage, hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
                                   limits, deltas, &
-                                  hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
-                                  hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
-                                  hy_limRad, hy_mp5ZeroTol, &
                                   hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
                                   loGC)
            call Timers_stop("getFaceFlux")
@@ -221,20 +219,16 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
 
            call Timers_start("updateSoln")
-           call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, hy_coeffArray, &
+           call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, &
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
                                  deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                  hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                 hy_geometry, &
-                                 hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                  dt, dtOld, limits, loGC)
            call Timers_stop("updateSoln")
-           call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+           call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
                                   hy_flx, hy_fly, hy_flz, &
-                                  hy_weights, stage, hy_fluxCorrect, &
-                                  blkLimits, &
                                   hy_fareaX, hy_fareaY, hy_fareaZ, &
-                                  lo, loGC)
+                                  blkLimits, lo, loGC)
            if ((.not. hy_telescoping) .and. hy_fluxCorrect) then
               @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
               call Grid_putFluxData_block(tileDesc, &
@@ -246,7 +240,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             end if
 #if NSPECIES>0
            !Properly normalize species after the update
-           call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX, loGC)
+           call hy_rk_renormAbundance(blkLimitsGC, hy_starState, loGC)
 #endif
 
            ! Update EOS based on intermediate solution
@@ -385,7 +379,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
             call Timers_start("Offloaded Section")
 
-            call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, hy_tiny, loGC)
+            call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
 
             call Timers_start("scratch")
             call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage, loGC)
@@ -397,44 +391,38 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                ! calculate gravitational acceleration based on current value of GPOT_VAR
                ! This is stored in hy_grav
                call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-                                        hy_xCenter, hy_yCenter, deltas, hy_geometry, blkLimitsGC, loGC)
+                                        hy_xCenter, hy_yCenter, deltas, &
+                                        blkLimitsGC, loGC)
 
-               call hy_rk_getFlatteningLimiter(stage, hy_flattening, hy_starState, hy_flat3d, limits, loGC)
+               call hy_rk_getFlatteningLimiter(stage, hy_starState, hy_flat3d, limits, loGC)
 
                ! Perform reconstruction and flux calculation
                ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
                call Timers_start("getFaceFlux")
                call hy_rk_getFaceFlux(stage, hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
                                       limits, deltas, &
-                                      hy_hybridRiemann, hy_cvisc, hy_C_hyp, &
-                                      hy_tiny, hy_smalldens, hy_smallpres, hy_smallX, &
-                                      hy_limRad, hy_mp5ZeroTol, &
                                       hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
                                       loGC)
                call Timers_stop("getFaceFlux")
 
-               call hy_rk_saveFluxBuf(hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+               call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
                                       hy_flx, hy_fly, hy_flz, &
-                                      hy_weights, stage, hy_fluxCorrect, &
-                                      blkLimits, &
                                       hy_fareaX, hy_fareaY, hy_fareaZ, &
-                                      lo, loGC)
+                                      blkLimits, lo, loGC)
 
                ! Now update solution based on conservative fluxes
                ! See select_RK_scheme() for explicit outline of C1, C2, & C3
                ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
                call Timers_start("updateSoln")
-               call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, hy_coeffArray, &
+               call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, &
                                      hy_grav, hy_flx, hy_fly, hy_flz, &
                                      deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                      hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                     hy_geometry, &
-                                     hy_smallE, hy_smalldens, hy_alphaGLM, hy_C_hyp, &
                                      dt, dtOld, limits, loGC)
                call Timers_stop("updateSoln")
 
 #if NSCIES>0
-               call hy_rk_renormAbundance(blkLimitsGC, hy_starState, hy_smallX, loGC)
+               call hy_rk_renormAbundance(blkLimitsGC, hy_starState, loGC)
 #endif
                ! Update EOS based on intermediate solution
                @M hy_DIR_TARGET_update_from([hy_starState, limits])
