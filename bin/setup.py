@@ -13,6 +13,28 @@ from unitUtils import * # for UnitList class
 from macroProcessorHelper import generateVariants, modifyMakefile
 from unitUtils import getLowestBase
 
+def __runMacroProcesor(unitList, GVars):
+    for unitname in unitList.getLinkOrder():
+        # If unit has -mc files, run the macroProcessor to generate variants
+        # in the object dir.
+        unitDir = os.path.join(GVars.sourceDir, unitname)
+
+        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
+            simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
+            binDir = os.path.join(GVars.flashHomeDir,'bin')
+            defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
+            varList = unitList.getRequestedVariants(unitname)
+            if not varList:
+                varList = ['']
+            baseList = generateVariants(unitDir,
+                            os.path.join(GVars.flashHomeDir,GVars.objectDir),
+                            defList,
+                            varList,
+                            macroOnly=GVars.macroOnly)
+            for baseFile in baseList:
+                if(os.path.exists(baseFile)):
+                    os.unlink(baseFile)
+
 ########################### START SCRIPT ################################
 def main():
     try: sys.setswitchinterval(0.1) # this is not a threaded application...
@@ -88,26 +110,7 @@ def main():
         GVars.out.put("Flag -mconly set, only checking -mc files.")
         os.chdir(GVars.flashHomeDir)
         os.chdir(GVars.objectDir)
-        for unitname in unitList.getLinkOrder():
-            # If unit has -mc files, run the macroProcessor to generate variants
-            # in the object dir.
-            unitDir = os.path.join(GVars.sourceDir, unitname)
-
-            if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
-                simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
-                binDir = os.path.join(GVars.flashHomeDir,'bin')
-                defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
-                varList = unitList.getRequestedVariants(unitname)
-                if not varList:
-                    varList = ['']
-                baseList = generateVariants(unitDir,
-                                os.path.join(GVars.flashHomeDir,GVars.objectDir),
-                                defList,
-                                varList,
-                                macroOnly=GVars.macroOnly)
-                for baseFile in baseList:
-                    if(os.path.exists(baseFile)):
-                        os.unlink(baseFile)
+        __runMacroProcesor(unitList, GVars)
         return
 
     # create the object which does stuff relating to linking files
@@ -176,25 +179,26 @@ def main():
     # now is when we do the real link/copying
     linkList.reallyLink()
 
-    for unitname in unitList.getLinkOrder():
-        # If unit has -mc files, run the macroProcessor to generate variants
-        # in the object dir.
-        unitDir = os.path.join(GVars.sourceDir, unitname)
+    __runMacroProcesor(unitList, GVars)
+    # for unitname in unitList.getLinkOrder():
+    #     # If unit has -mc files, run the macroProcessor to generate variants
+    #     # in the object dir.
+    #     unitDir = os.path.join(GVars.sourceDir, unitname)
 
-        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
-          simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
-          binDir = os.path.join(GVars.flashHomeDir,'bin')
-          defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
-          varList = unitList.getRequestedVariants(unitname)
-          if not varList:
-            varList = ['']
-          baseList = generateVariants(unitDir,
-                           os.path.join(GVars.flashHomeDir,GVars.objectDir),
-                           defList,
-                           varList)
-          for baseFile in baseList:
-            if(os.path.exists(baseFile)):
-              os.unlink(baseFile )
+    #     if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
+    #       simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
+    #       binDir = os.path.join(GVars.flashHomeDir,'bin')
+    #       defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
+    #       varList = unitList.getRequestedVariants(unitname)
+    #       if not varList:
+    #         varList = ['']
+    #       baseList = generateVariants(unitDir,
+    #                        os.path.join(GVars.flashHomeDir,GVars.objectDir),
+    #                        defList,
+    #                        varList)
+    #       for baseFile in baseList:
+    #         if(os.path.exists(baseFile)):
+    #           os.unlink(baseFile )
 
     ############## flash.par and Makefiles **************
 
