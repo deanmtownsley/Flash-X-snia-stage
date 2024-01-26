@@ -28,8 +28,10 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
     use iso_c_binding,       ONLY : C_PTR
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction, &
-                                    milhoja_runtime_executeTasks_Gpu
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+#ifdef RUNTIME_USES_TILEITER
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_Gpu
+#endif
 
     use Orchestration_interface, ONLY : Orchestration_checkInternalError
 
@@ -50,6 +52,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
     MH_nThreads            = INT(nThreads,            kind=MILHOJA_INT)
     MH_nTilesPerPacket     = INT(nTilesPerPacket,     kind=MILHOJA_INT)
 
+#ifdef RUNTIME_USES_TILEITER
     CALL milhoja_runtime_executeTasks_Gpu(MH_taskFunction,        &
                                           MH_nDistributorThreads, &
                                           MH_nThreads,            &
@@ -57,6 +60,9 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                           MH_packet_Cptr,         &
                                           MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_executeTasks_Gpu", MH_ierr)
+#else
+    CALL Driver_abort("Orchestration_executeTasks_Cpu: milhoja_runtime_executeTasks_Cpu disabled")
+#endif
 end subroutine Orchestration_executeTasks_Gpu
 #endif
 
