@@ -78,9 +78,6 @@ def main():
     objdir = os.path.join(GVars.flashHomeDir,GVars.objectDir)
     if not os.path.isdir(objdir): os.makedirs(objdir)
 
-    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # here is a problem area for only remaking macro files.
-    # +++++++++++++++++++++++++++++++++++++++++++++++++++++
     if GVars.unitsFile: # copy over the user specified units file
        sname = os.path.join(GVars.flashHomeDir,GVars.unitsFile)
        tname = os.path.join(objdir,globals.UnitsFilename)
@@ -103,14 +100,14 @@ def main():
     parseCmd.final() # finalise the options
 
     # if flag is set, all we need is the list of units in order to find macro files.
-    # then once all necessary macro files have been updated, we exit.
-    # this could be moved into its own function
+    # then once all necessary macro files have been updated, we exit
     if GVars.macroOnly:
         # change directory
         GVars.out.put("Flag -mconly set, only checking -mc files.")
         os.chdir(GVars.flashHomeDir)
         os.chdir(GVars.objectDir)
         __runMacroProcesor(unitList, GVars)
+        # exit to only run macro processor.
         return
 
     # create the object which does stuff relating to linking files
@@ -180,25 +177,6 @@ def main():
     linkList.reallyLink()
 
     __runMacroProcesor(unitList, GVars)
-    # for unitname in unitList.getLinkOrder():
-    #     # If unit has -mc files, run the macroProcessor to generate variants
-    #     # in the object dir.
-    #     unitDir = os.path.join(GVars.sourceDir, unitname)
-
-    #     if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
-    #       simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
-    #       binDir = os.path.join(GVars.flashHomeDir,'bin')
-    #       defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
-    #       varList = unitList.getRequestedVariants(unitname)
-    #       if not varList:
-    #         varList = ['']
-    #       baseList = generateVariants(unitDir,
-    #                        os.path.join(GVars.flashHomeDir,GVars.objectDir),
-    #                        defList,
-    #                        varList)
-    #       for baseFile in baseList:
-    #         if(os.path.exists(baseFile)):
-    #           os.unlink(baseFile )
 
     ############## flash.par and Makefiles **************
 
