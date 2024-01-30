@@ -60,7 +60,7 @@ def generateVariants(unitDir, objDir, defsList, varList, macroOnly=False):
             filebase, ext = os.path.splitext(os.path.basename(f))
             outfile = makeVariantName(filebase, var, removeSuffix(ext, "-mc"))
             outpath = os.path.join(objDir, outfile)
-            processFile(m, f, outpath, macroOnly)
+            processMcFile(m, f, outpath, macroOnly)
 
     # convert files with no variants
     m = macroProcessor()
@@ -69,18 +69,26 @@ def generateVariants(unitDir, objDir, defsList, varList, macroOnly=False):
         filebase, ext = os.path.splitext(os.path.basename(f))
         outfile = makeVariantName(filebase, "", removeSuffix(ext, "-mc"))
         outpath = os.path.join(objDir, outfile)
-        processFile(m, f, outpath, macroOnly)
+        processMcFile(m, f, outpath, macroOnly)
 
     if "null" in [v.lower() for v in varList]:
         baseList = []
     return baseList
 
 
-def processFile(mp, mc, out, macroOnly):
+# Checks specific conditions for processing a file.
+# mp: Macroprocessor
+# mc: file containing macros to process
+# out: Output file
+# macroOnly: flag for only processing files containing macros. 
+def processMcFile(mp, mc, out, macroOnly):
     if os.path.islink(out):
         os.unlink(out)
 
-    mcIsNewer = not os.path.isfile(out) or (os.path.isfile(out) and os.path.getmtime(mc) > os.path.getmtime(out))
+    # mtime is seconds since the epoch, larger is newer
+    mcIsNewer = not os.path.isfile(out) or \
+        (os.path.isfile(out) and os.path.getmtime(mc) > os.path.getmtime(out))
+    # macro file is newer or the flag is not set.
     shouldProcess = (not macroOnly) or (macroOnly and mcIsNewer)
 
     if shouldProcess:
