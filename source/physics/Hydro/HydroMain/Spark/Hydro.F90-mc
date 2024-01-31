@@ -451,16 +451,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             end do !stage loop
             call Timers_stop("Offloaded Section")
 
-            ! Put flux buffer information into SPFS
-            if (lev > 1) then
-               @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-               call Grid_putFluxData(tileDesc, &
-                                     hy_fluxBufX, &
-                                     hy_fluxBufY, &
-                                     hy_fluxBufZ, &
-                                     blkLimits(LOW,:))
-            end if
-
             !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
             !This incorporates fluxes calculated in the last stage & the 'flux difference'
             !introduced on fine coarse boundaries.
@@ -482,6 +472,17 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                         dt, .NOT. hy_telescoping, &
                                         lo, loGC)
             endif
+
+            ! Put flux buffer information into SPFS
+            if (lev > 1) then
+               @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+               call Grid_putFluxData(tileDesc, &
+                                     hy_fluxBufX, &
+                                     hy_fluxBufY, &
+                                     hy_fluxBufZ, &
+                                     blkLimits(LOW,:))
+            end if
+
 
             if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
                @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
