@@ -437,6 +437,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                endif
 
             end do !stage loop
+            @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
             call Timers_stop("Offloaded Section")
 
             !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
@@ -463,7 +464,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
             ! Put flux buffer information into SPFS
             if (lev > 1) then
-               @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
                call Grid_putFluxData(tileDesc, &
                                      hy_fluxBufX, &
                                      hy_fluxBufY, &
