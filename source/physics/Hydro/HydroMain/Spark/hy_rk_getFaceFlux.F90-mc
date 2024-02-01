@@ -233,8 +233,8 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
                        /)
 
 #ifdef SPARK_GLM
-        src_flux(HY_FMGX:HY_FPSI,i,j,k) = &
-              src_flux(HY_FMGX:HY_FPSI,i,j,k) &
+        scr_flux(HY_FMGX:HY_FPSI,i,j,k) = &
+              scr_flux(HY_FMGX:HY_FPSI,i,j,k) &
                  + avisc*(/ scr_rope(HY_MAGX,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGX,i,j,k), &
                             scr_rope(HY_MAGY,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGY,i,j,k), &
                             scr_rope(HY_MAGZ,i-1*is,j-1*js,k-1*ks) - scr_rope(HY_MAGZ,i,j,k), &
@@ -247,11 +247,11 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
 #if NSPECIES+NMASS_SCALARS>0
               ! AH: TODO: Potentially make loop explicit
          if (scr_flux(HY_MASS ,i,j,k) > 0.) then
-            src_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
-               src_uPlus(HY_NUM_VARS+1:NRECON,i-1*is,j-1*js,k-1*ks)*src_flux(HY_MASS,i,j,k)
+            scr_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
+               scr_uPlus(HY_NUM_VARS+1:NRECON,i-1*is,j-1*js,k-1*ks)*scr_flux(HY_MASS,i,j,k)
          else
-            src_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
-               src_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*src_flux(HY_MASS,i,j,k)
+            scr_flux(HY_NUM_FLUX+1:NFLUXES,i,j,k) = &
+               scr_uMinus(HY_NUM_VARS+1:NRECON,i,j,k)*scr_flux(HY_MASS,i,j,k)
          end if
 #endif
      enddo
