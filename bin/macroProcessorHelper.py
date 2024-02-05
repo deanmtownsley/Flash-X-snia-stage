@@ -85,15 +85,15 @@ def processMcFile(mp, mc, out, macroOnly):
     if os.path.islink(out):
         os.unlink(out)
 
-    # mtime is seconds since the epoch, larger is newer
-    mcIsNewer = not os.path.isfile(out) or \
-        (os.path.isfile(out) and os.path.getmtime(mc) > os.path.getmtime(out))
+    # mcIsNewer = not os.path.isfile(out) #or \
+        #(os.path.isfile(out) and os.path.getmtime(mc) > os.path.getmtime(out))
     # macro file is newer or the flag is not set.
-    shouldProcess = (not macroOnly) or (macroOnly and mcIsNewer)
+    # shouldProcess = (not macroOnly) or (macroOnly and mcIsNewer)
 
-    if shouldProcess:
-        mp.convertFile(mc, out)
-        formatOutput(out)
+    # if shouldProcess:
+    # print(f"Updating {mc} file")
+    mp.convertFile(mc, out)
+    formatOutput(out)
 
 
 # unitDir: path to unit directory with mc files
