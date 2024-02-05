@@ -117,7 +117,7 @@ module hy_rk_interface
        implicit none
        integer, intent(IN) :: geometry, lo(3), loGC(3)
        real, pointer :: Uin(:, :, :, :)
-       real, dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
+       real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(IN) :: fluxBufX, fluxBufY, fluxBufZ
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ, cvol
        real, dimension(loGC(1):), intent(IN) :: xCenter, xLeft, xRight
