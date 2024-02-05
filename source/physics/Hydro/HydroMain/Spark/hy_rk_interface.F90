@@ -156,7 +156,7 @@ module hy_rk_interface
                                   blkLimits, lo, loGC)
        implicit none
        integer, intent(IN) :: stage, lo(3), loGC(3)
-       real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(OUT) :: fluxBufX, fluxBufY, fluxBufZ
+       real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(IN OUT) :: fluxBufX, fluxBufY, fluxBufZ
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: flx, fly, flz
        integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits
        real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: fareaX, fareaY, fareaZ
