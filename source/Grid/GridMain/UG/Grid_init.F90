@@ -73,6 +73,7 @@ subroutine Grid_init()
 
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, Driver_getComm
   use Grid_data
+  use gr_specificData, ONLY : gr_globalOffset
   use gr_tilePolicyData,ONLY : gr_initTilePolicy
   use gr_sbInterface, ONLY : gr_sbInit
 
@@ -87,7 +88,6 @@ subroutine Grid_init()
   character(len=MAX_STRING_LENGTH) :: zl_bcString,zr_bcString
   character(len=MAX_STRING_LENGTH) :: eosModeString, grav_boundary_type
 
-  logical :: useProtonImaging
 
   integer :: i, localnxb, localnyb, localnzb
 
@@ -175,19 +175,7 @@ subroutine Grid_init()
   gr_useParticles=.false.
 #endif
 
-#ifdef FLASH_EDEP
-  call RuntimeParameters_get('useEnergyDeposition', gr_useEnergyDeposition)
-  gr_useParticles = gr_useEnergyDeposition
-#else
-  gr_useEnergyDeposition = .false.
-#endif
 
-#ifdef FLASH_GRID_PARTICLES
-  call RuntimeParameters_get('useProtonImaging',useProtonImaging)
-  if (useProtonImaging) then
-      gr_useParticles=.true.
-  end if
-#endif
 
   gr_globalNumBlocks = gr_meshNumProcs
   gr_globalOffset = gr_meshMe

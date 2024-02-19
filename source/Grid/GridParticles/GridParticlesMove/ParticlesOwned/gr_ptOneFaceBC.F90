@@ -82,11 +82,6 @@ subroutine gr_ptOneFaceBC(particle,propCount, axis, face, blockID, lostParticles
 #include "Simulation.h"
 
   use Driver_interface, ONLY : Driver_abort
-#ifdef FLASH_GRID_PARAMESH
-  use tree, ONLY : lrefine
-#else
-  use Grid_data,ONLY : gr_axisNumProcs
-#endif
 
 
   use Grid_data,ONLY : gr_imin,gr_imax,gr_jmin,gr_jmax,&
