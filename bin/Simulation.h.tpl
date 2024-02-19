@@ -133,6 +133,8 @@
 
   NPROP_VARS = the total number of grid property variables in the simulation
                (ie those ending in _VAR)
+  NEVOL_VARS = total number of evolved variables for TimeAdvance=MoL; these
+               are a subset (and at the start of) the property variables
   NSPECIES = the number of species in the simulation 
              (ie those ending in _SPEC)
   NMASS_SCALARS = the number of mass scalars in a simulation
@@ -150,6 +152,10 @@
 %(variableDefines)s
 #define NPROP_VARS %(nvars)s
 #define PROP_VARS_END (PROP_VARS_BEGIN + NPROP_VARS - CONSTANT_ONE)
+
+#define NEVOL_VARS %(nevol)s
+#define EVOL_VARS_BEGIN (PROP_VARS_BEGIN)
+#define EVOL_VARS_END (EVOL_VARS_BEGIN + NEVOL_VARS - CONSTANT_ONE)
 
 #define SPECIES_BEGIN (PROP_VARS_END + CONSTANT_ONE)
 %(speciesDefines)s
@@ -320,6 +326,19 @@
 #define NSCRATCH_CENTER_VARS %(nscratchcentervars)s
 #define SCRATCH_CENTER_VARS_BEGIN (CONSTANT_ONE)
 #define SCRATCH_CENTER_VARS_END (SCRATCH_CENTER_VARS_BEGIN - CONSTANT_ONE + NSCRATCH_CENTER_VARS)
+
+#define NMOL_RHS_VARS %(nmolrhsvars)s
+#define MOL_RHS_VARS_BEGIN (SCRATCH_CENTER_VARS_BEGIN)
+#define MOL_RHS_VARS_END (MOL_RHS_VARS_BEGIN + NMOL_RHS_VARS - CONSTANT_ONE)
+
+#define NMOL_INIT_VARS %(nmolinitvars)s
+#define MOL_INIT_VARS_BEGIN (MOL_RHS_VARS_END + CONSTANT_ONE)
+#define MOL_INIT_VARS_END (MOL_INIT_VARS_BEGIN + NMOL_INIT_VARS - CONSTANT_ONE)
+
+#define NMOL_SCRATCH %(nmolscratch)s
+#define NMOL_SCRATCH_VARS %(nmolscratchvars)s
+#define MOL_SCRATCH_VARS_BEGIN (MOL_INIT_VARS_END + CONSTANT_ONE)
+#define MOL_SCRATCH_VARS_END (MOL_SCRATCH_VARS_BEGIN + NMOL_SCRATCH_VARS - CONSTANT_ONE)
 
 
 #if 0
