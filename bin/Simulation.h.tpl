@@ -42,6 +42,12 @@
 ## nmass_scalars     -> # of mass scalars
 ## max_plot_vars     -> # of plot_var_N runtime parameters that can be used
 ##
+## nevol             -> # of evolved variables requested w/ EVOLVEDVAR
+## nmolrhsvars       -> # of MoL RHS variables (overlays SCRATCHCENTERVAR space)
+## nmolinitvars      -> # of MoL init variables (in SCRATCHCENTERVAR space)
+## nmolscratch       -> (for MoL)
+## nmolscratchvars   -> # of MoL scratch variables (in SCRATCHCENTERVAR space)
+##
 ## gridGeometry      -> grid geometry as specified at setup time, as one of the
 ##                       following unquoted strings:
 ##                       GRID_GEOM_CARTESIAN
