@@ -16,7 +16,8 @@ else
   AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
 endif
 
-MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+#MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+MILHOJA_PATH=/home/kweide/.local-milhoja-${NDIM}d
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
@@ -72,6 +73,8 @@ FFLAGS_MPI = -DHAVE_MPI_MODULE
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 FFLAGS_AMREX = -I${AMREX_PATH}/include
+FFLAGS_OACC  = -fopenacc
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions
 FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -fexceptions ${FFLAGS_AMREX}
 
 F90FLAGS =
@@ -89,6 +92,8 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_OACC  = -fopenacc
+CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
 CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
 
@@ -121,7 +126,7 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_OACC  =
+LIB_OACC  = -fopenacc
 LIB_HDF5  = 
 LIB_PAPI  =
 LIB_MATH  =
