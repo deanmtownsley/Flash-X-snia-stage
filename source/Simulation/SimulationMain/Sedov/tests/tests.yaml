@@ -418,7 +418,7 @@ Comparison/Sedov/PseudoUG/2d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -536,13 +536,13 @@ Comparison/Sedov/PseudoUG/3d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/3d/Milhoja/unsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu -auto -debug -3d -nxb=8 -nyb=8 -nzb=8 +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/3D -auto -debug -3d -nxb=8 -nyb=8 -nzb=8 +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # OF COURSE NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/3d/Milhoja/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu -auto -maxblocks=2048 HydroGuardcells=1 -3d -nxb=16 -nyb=16 -nzb=16 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/3D -auto -maxblocks=2048 HydroGuardcells=1 -3d -nxb=16 -nyb=16 -nzb=16 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
