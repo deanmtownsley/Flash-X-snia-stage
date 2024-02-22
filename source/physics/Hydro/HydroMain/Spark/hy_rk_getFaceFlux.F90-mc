@@ -98,7 +98,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
   offload = .true.
 #endif
 
-  @M hy_DIR_parallel_loop(3)
+  @M hy_DIR_parallel_loop(3) &
   @M hy_DIR_shared([limits, scr_rope, starState])
   do k = limits(LOW,KAXIS,stage)-NSTENCIL*K3D, limits(HIGH,KAXIS,stage)+NSTENCIL*K3D
   do j = limits(LOW,JAXIS,stage)-NSTENCIL*K2D, limits(HIGH,JAXIS,stage)+NSTENCIL*K2D
