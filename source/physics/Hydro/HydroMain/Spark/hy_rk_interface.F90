@@ -82,9 +82,9 @@ module hy_rk_interface
   end interface
 
   interface
-     subroutine hy_rk_renormAbundance(tileLimits, starState, smallx, loGC)
+     subroutine hy_rk_renormAbundance(tileLimits, starState, loGC)
        implicit none
-       integer, intent(IN) :: smallx, loGC(3)
+       integer, intent(IN) :: loGC(3)
        integer, intent(IN) :: tileLimits(LOW:HIGH,MDIM)
        real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: starState
      end subroutine hy_rk_renormAbundance
