@@ -157,8 +157,8 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
 
      ! call Timers_start("setrem")
      @M hy_DIR_parallel_loop(3) &
-     @M hy_DIR_normalize_species_shared &
-     @M hy_DIR_normalize_species_private &
+     @M hy_DIR_shared([limits, scr_uPlus, scr_uMinus]) &
+     @M hy_DIR_private([s, spc, spcSumInv]) &
      @M hy_DIR_firstprivate([smalld, smallp, smallx]) &
      @M hy_DIR_firstprivate([is, js, ks]) &
      @M hy_DIR_end
@@ -199,8 +199,8 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
 
      ! call Timers_start("avisc")
      @M hy_DIR_parallel_loop(3) &
-     @M hy_DIR_avisc_shared &
-     @M hy_DIR_avisc_private &
+     @M hy_DIR_shared([limits, scr_rope, scr_flux, scr_uPlus, scr_uMinus]) &
+     @M hy_DIR_private([avisc, VenerLo, VenerHi]) &
      @M hy_DIR_firstprivate([dir, cvisc]) &
      @M hy_DIR_firstprivate([is, js, ks]) &
      @M hy_DIR_end
@@ -267,7 +267,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      select case(dir)
      case(IAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
-        @M hy_DIR_saveFlux_shared(flx) &
+        @M hy_DIR_shared([scr_flux, flx]) &
         @M hy_DIR_firstprivate([is, js, ks]) &
         @M hy_DIR_end
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
@@ -281,7 +281,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
         enddo
      case (JAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
-        @M hy_DIR_saveFlux_shared(fly) &
+        @M hy_DIR_shared([scr_flux, fly]) &
         @M hy_DIR_firstprivate([is, js, ks]) &
         @M hy_DIR_end
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
@@ -295,7 +295,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
         enddo
      case (KAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
-        @M hy_DIR_saveFlux_shared(flz) &
+        @M hy_DIR_shared([scr_flux, flz]) &
         @M hy_DIR_firstprivate([is, js, ks]) &
         @M hy_DIR_end
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
