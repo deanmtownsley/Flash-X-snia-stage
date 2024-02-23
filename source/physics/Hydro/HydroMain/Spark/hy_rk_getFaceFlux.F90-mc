@@ -142,8 +142,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      @M hy_DIR_shared([limits, scr_rope, scr_uMinus, scr_uPlus, flat3d]) &
      @M hy_DIR_recon_private &
      @M hy_DIR_private([stencil]) &
-     @M hy_DIR_firstprivate([is, js, ks]) &
-     @M hy_DIR_end
+     @M hy_DIR_firstprivate([is, js, ks])
      do k = limits(LOW,KAXIS,stage)-1*ks, limits(HIGH,KAXIS,stage)+1*ks
      do j = limits(LOW,JAXIS,stage)-1*js, limits(HIGH,JAXIS,stage)+1*js
      do i = limits(LOW,IAXIS,stage)-1*is, limits(HIGH,IAXIS,stage)+1*is
@@ -160,8 +159,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      @M hy_DIR_shared([limits, scr_uPlus, scr_uMinus]) &
      @M hy_DIR_private([s, spc, spcSumInv]) &
      @M hy_DIR_firstprivate([smalld, smallp, smallx]) &
-     @M hy_DIR_firstprivate([is, js, ks]) &
-     @M hy_DIR_end
+     @M hy_DIR_firstprivate([is, js, ks])
      do k = limits(LOW,KAXIS,stage)-1*ks, limits(HIGH,KAXIS,stage)+1*ks
      do j = limits(LOW,JAXIS,stage)-1*js, limits(HIGH,JAXIS,stage)+1*js
      do i = limits(LOW,IAXIS,stage)-1*is, limits(HIGH,IAXIS,stage)+1*is
@@ -179,8 +177,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      @M hy_DIR_shared([limits, starState, scr_rope, scr_flux, scr_uMinus, scr_uPlus]) &
      @M hy_DIR_riemann_private &
      @M hy_DIR_firstprivate([dir, tinyZero, hybridRiemann]) &
-     @M hy_DIR_firstprivate([is, js, ks]) &
-     @M hy_DIR_end
+     @M hy_DIR_firstprivate([is, js, ks])
      do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
      do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
      do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
@@ -202,8 +199,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      @M hy_DIR_shared([limits, scr_rope, scr_flux, scr_uPlus, scr_uMinus]) &
      @M hy_DIR_private([avisc, VenerLo, VenerHi]) &
      @M hy_DIR_firstprivate([dir, cvisc]) &
-     @M hy_DIR_firstprivate([is, js, ks]) &
-     @M hy_DIR_end
+     @M hy_DIR_firstprivate([is, js, ks])
      do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
      do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
      do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
@@ -268,8 +264,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      case(IAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
         @M hy_DIR_shared([scr_flux, flx]) &
-        @M hy_DIR_firstprivate([is, js, ks]) &
-        @M hy_DIR_end
+        @M hy_DIR_firstprivate([is, js, ks])
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
         do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
         do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
@@ -282,8 +277,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      case (JAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
         @M hy_DIR_shared([scr_flux, fly]) &
-        @M hy_DIR_firstprivate([is, js, ks]) &
-        @M hy_DIR_end
+        @M hy_DIR_firstprivate([is, js, ks])
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
         do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
         do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
@@ -296,8 +290,7 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      case (KAXIS)
         @M hy_DIR_parallel_loop_simd(3) &
         @M hy_DIR_shared([scr_flux, flz]) &
-        @M hy_DIR_firstprivate([is, js, ks]) &
-        @M hy_DIR_end
+        @M hy_DIR_firstprivate([is, js, ks])
         do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
         do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
         do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is

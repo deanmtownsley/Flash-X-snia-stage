@@ -61,8 +61,7 @@ subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, loGC)
 
    !! Compute sound speed
    @M hy_DIR_parallel_loop_simd(3) &
-   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, tinyZero]) &
-   @M hy_DIR_end
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, tinyZero])
    @M loop_3d(blkLimitsGC)
       Uin(SHOK_VAR,i,j,k) = 0.
       Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&

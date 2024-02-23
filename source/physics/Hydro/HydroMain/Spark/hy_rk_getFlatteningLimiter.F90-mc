@@ -54,8 +54,7 @@ subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
    integer :: i, j, k
 
    @M hy_DIR_parallel_loop(3) &
-   @M hy_DIR_shared([limits, flat3d]) &
-   @M hy_DIR_end
+   @M hy_DIR_shared([limits, flat3d])
    do k = limits(LOW, KAXIS, stage)-K3D*1, limits(HIGH, KAXIS, stage)+K3D*1
    do j = limits(LOW, JAXIS, stage)-K2D*1, limits(HIGH, JAXIS, stage)+K2D*1
    do i = limits(LOW, IAXIS, stage)-1, limits(HIGH, IAXIS, stage)+1
