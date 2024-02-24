@@ -97,6 +97,7 @@ derived EOS_ETA Electron degeneracy parameter (chemical potential / k_b*T)
 #define EOS_NUC 787
 #define EOS_STAR 989
 #define EOS_WL 128
+#define EOS_HYB 864
 
 #define EOS_USERTYPE1 1001
 #define EOS_USERTYPE2 1002

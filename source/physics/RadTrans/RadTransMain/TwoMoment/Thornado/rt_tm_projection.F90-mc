@@ -62,7 +62,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
 
   integer :: i, j, k, ic, jc, kc, ii, jj, kk, n, ioff, ivar, i_sub, n_sub
 
-  real :: D, S1, S2, S3, E, Nel, ekin
+  real :: D, S1, S2, S3, E, Nel, ye, ekin
   real :: EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF
   integer :: iNode, iNodeX, iNodeE, iCF, iCR, iS, iE, iGR
 
@@ -138,7 +138,7 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
   @M dir_end
 
   @M dir_loop(4) &
-  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ekin, ioff] ) &
+  @M dir_private( [i, j, k, ii, jj, kk, D, S1, S2, S3, E, Nel, ye, ekin, ioff] ) &
   @M dir_private( [EuD, LaD, LaI1, LaI2, LaI3, LaJ, LaH1, LaH2, LaH3, rmsE, FlxF, EddF, HetF] ) &
   @M dir_end
 
@@ -176,7 +176,10 @@ subroutine rt_tm_projection(Uin,Sout,nX,lo,hi,loGC,hiGC,u_lo,u_hi,level)
               Uin(VELY_VAR,  ii,jj,kk) = S2  / volFac(ii,jj,kk) / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
               Uin(VELZ_VAR,  ii,jj,kk) = S3  / volFac(ii,jj,kk) / conv_mom  / Uin(DENS_VAR,ii,jj,kk)
               Uin(ENER_VAR,  ii,jj,kk) = E   / volFac(ii,jj,kk) / conv_enr  / Uin(DENS_VAR,ii,jj,kk)
-              Uin(YE_MSCALAR,ii,jj,kk) = Nel / volFac(ii,jj,kk) / conv_ne   / Uin(DENS_VAR,ii,jj,kk)
+
+              ye = Nel / volFac(ii,jj,kk) / conv_ne   / Uin(DENS_VAR,ii,jj,kk)
+              Uin(DYE_VAR,   ii,jj,kk) = Uin(YE_MSCALAR,ii,jj,kk) - ye
+              Uin(YE_MSCALAR,ii,jj,kk) = ye
 #ifdef EINT_VAR
               ekin = 0.0
               do n = VELX_VAR, VELZ_VAR

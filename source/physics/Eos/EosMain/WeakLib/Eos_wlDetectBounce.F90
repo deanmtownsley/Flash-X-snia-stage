@@ -113,6 +113,10 @@ subroutine Eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   ! Now proceed with check
   call Driver_getSimTime(time)
 
+  localMaxDens = 0.0
+  localMaxEntr = 0.0
+  localMinEntr = 100.0
+
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
@@ -126,10 +130,6 @@ subroutine Eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
      call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, tileLimits(LOW,:), tileLimits(HIGH,:), xCenter)
      call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, tileLimits(LOW,:), tileLimits(HIGH,:), yCenter)
      call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, tileLimits(LOW,:), tileLimits(HIGH,:), zCenter)
-
-     localMaxDens = 0.0
-     localMaxEntr = 0.0
-     localMinEntr = 100.0
 
      do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
         do j = tileLimits(LOW,JAXIS), tileLimits(HIGH,JAXIS)

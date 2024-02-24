@@ -12,11 +12,11 @@
 !!  limitations under the License.
 !!
 !! NAME
-!!  
+!!
 !!  bn_burner
 !!
 !! SYNOPSIS
-!! 
+!!
 !!  bn_burner(
 !!       real(in)  :: tstep,
 !!       real(in)  :: temp,
@@ -25,17 +25,17 @@
 !!       real(out) :: xOut(:),
 !!       real(out) :: sdotRate)
 !!
-!!  
+!!
 !! DESCRIPTION
 !!
-!!  Routine bn_burner drives the nuclear burning network  
-!!     given time step tstep, temperature temp, density density, and 
+!!  Routine bn_burner drives the nuclear burning network
+!!     given time step tstep, temperature temp, density density, and
 !!     composition xIn, this routine returns the burned composition xOut
 !!     and the energy generation rate sdotRate.
 !!
 !! ARGUMENTS
 !!
-!!  tstep:    time step 
+!!  tstep:    time step
 !!  temp:     temperature
 !!  density:  density
 !!  xIn:      composition in
@@ -56,105 +56,144 @@
 !!
 !!***
 
-subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,zone,kstep)
+subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone, kstep)
 
-  use Burn_dataEOS, ONLY : btemp, bden, bye
-  use Burn_data, ONLY : xmass, bion, sneut, aion, aioninv
+   use Burn_dataEOS, ONLY: btemp, bden, bye
+   use Burn_data, ONLY: xmass, bion, sneut, aion, aioninv, bn_nuclearDensMax
 
-  use bn_interface, ONLY : bn_azbar, bn_sneutx
+   use bn_interface, ONLY: bn_azbar, bn_sneutx
 
-  use xnet_abundances, ONLY : y, ystart
-  use xnet_conditions, ONLY : tdel, t, t9, rho, ye, tstart, tstop, tdelstart, &
-    t9start, rhostart, yestart, th, t9h, rhoh, yeh, nh
-  use xnet_constants, ONLY : avn, epmev
-  use xnet_controls, ONLY : szbatch, nzbatch, lzactive, zone_id
-  use xnet_evolve, ONLY : full_net
-  use xnet_timers, ONLY : timer_burner, xnet_wtime
+   use xnet_abundances, ONLY: y, ystart
+   use xnet_conditions, ONLY: tdel, t, t9, rho, ye, tstart, tstop, tdelstart, &
+                              t9start, rhostart, yestart, th, t9h, rhoh, yeh, nh
+   use xnet_constants, ONLY: avn, epmev
+   use xnet_controls, ONLY: szbatch, nzbatch, lzactive, zone_id
+   use xnet_evolve, ONLY: full_net
+   use xnet_timers, ONLY: timer_burner, xnet_wtime
 
-  implicit none
+   use Timers_interface, only: Timers_start, Timers_stop
 
-#include "constants.h"
 #include "Simulation.h"
 
-  ! arguments
-  real, intent(in)                                      :: tstep
-  real, intent(in), dimension(:)                        :: temp, density
-  real, intent(in), dimension(:,:)                      :: xIn
-  real, intent(out), dimension(size(xIn,1),size(xIn,2)) :: xOut
-  real, intent(out), dimension(size(temp))              :: sdotRate
-  logical, intent(in), dimension(:)                     :: burnedZone
-  integer, intent(in), dimension(:,:)                   :: zone
-  integer, intent(out)                                  :: kstep
+#ifdef EOS_HELMNSE
+   use xnet_nse, only: nse_solve, xnse, ynse
 
-  !..local varaibles      
-  real, parameter ::  conv = avn*epmev
-  integer :: i, numzones
+   ! Should make this generic to any nuclear EOS
+   use Eos_wlInterface, only: Eos_wlPotentials
+#endif
 
-  timer_burner = timer_burner - xnet_wtime()
+   implicit none
 
-  ! Active zone mask
-  numzones = size(temp)
-  szbatch = 1
-  nzbatch = numzones
-  lzactive = burnedZone
-  zone_id = zone
+#include "constants.h"
 
-  ! Set the thermo history data for a constant conditions burn
-  do i = 1, numzones
-     xmass = xIn(:,i)
-     call bn_azbar()
-     yestart(i) = bye
-     ystart(:,i) = xIn(:,i) * aioninv(:)
-  end do
-  tstart    = 0.0
-  tstop     = tstep
-  tdelstart = 0.0
-  t9start   = temp*1.0e-9
-  rhostart  = density
-  th(1,:)   = tstart  ; th(2,:)   = tstop
-  t9h(1,:)  = t9start ; t9h(2,:)  = t9start
-  rhoh(1,:) = density ; rhoh(2,:) = density
-  yeh(1,:)  = yestart ; yeh(2,:)  = yestart
-  nh        = 2
+   ! arguments
+   real, intent(in)                                      :: tstep
+   real, intent(in), dimension(:)                        :: temp, density
+   real, intent(in), dimension(:, :)                      :: xIn
+   real, intent(out), dimension(size(xIn, 1), size(xIn, 2)) :: xOut
+   real, intent(out), dimension(size(temp))              :: sdotRate
+   logical, intent(in), dimension(:)                     :: burnedZone
+   integer, intent(in), dimension(:, :)                   :: zone
+   integer, intent(out)                                  :: kstep
 
-  ! Load initial abundances, time and timestep
-  tdel = 0.0
-  t    = tstart
-  y    = ystart
-  t9   = t9start
-  rho  = rhostart
-  ye   = yestart
+   !..local varaibles
+   real, parameter ::  conv = avn*epmev
+   integer :: i, numzones
 
-  ! Evolve abundance from tstart to tstop
-  if (any(burnedZone)) then
-     call full_net(kstep)
-  else
-     kstep = 0
-  end if
+#ifdef EOS_HELMNSE
+   real :: mu_n, mu_p
+#endif
 
-  do i = 1, numzones
-     if (burnedZone(i)) then
+   timer_burner = timer_burner - xnet_wtime()
 
-        !..the average energy generated over the time step
-        sdotRate(i) = sum((y(:,i) - ystart(:,i)) * bion(:)) * conv / tstep
+   ! Active zone mask
+   numzones = size(temp)
+   szbatch = 1
+   nzbatch = numzones
+   lzactive = burnedZone
+   zone_id = zone
 
-        !..take into account neutrino losses
-        btemp = t9(i)
-        bden  = rho(i)
-        xmass = xIn(:,i)
-        call bn_azbar()
-        call bn_sneutx()
-        sdotRate(i) = sdotRate(i) - sneut
+   ! Set the thermo history data for a constant conditions burn
+   do i = 1, numzones
+      xmass = xIn(:, i)
+      call bn_azbar()
+      yestart(i) = bye
+      ystart(:, i) = xIn(:, i)*aioninv(:)
+   end do
+   tstart = 0.0
+   tstop = tstep
+   tdelstart = 0.0
+   t9start = temp*1.0e-9
+   rhostart = density
+   th(1, :) = tstart; th(2, :) = tstop
+   t9h(1, :) = t9start; t9h(2, :) = t9start
+   rhoh(1, :) = density; rhoh(2, :) = density
+   yeh(1, :) = yestart; yeh(2, :) = yestart
+   nh = 2
 
-        !..update the composition
-        xOut(:,i) = y(:,i) * aion(:)
-     else
-        sdotRate(i) = 0.0e0
-        xOut(:,i) = xIn(:,i)
-     end if
-  end do
+   ! Load initial abundances, time and timestep
+   tdel = 0.0
+   t = tstart
+   y = ystart
+   t9 = t9start
+   rho = rhostart
+   ye = yestart
 
-  timer_burner = timer_burner + xnet_wtime()
+   ! Evolve abundance from tstart to tstop
+   if (any(burnedZone)) then
+      call full_net(kstep)
+   else
+      kstep = 0
+   end if
 
-  return
+   do i = 1, numzones
+      if (burnedZone(i)) then
+
+         !..the average energy generated over the time step
+         sdotRate(i) = sum((y(:, i) - ystart(:, i))*bion(:))*conv/tstep
+
+         !..take into account neutrino losses (unless using hybrid EOS)
+#ifndef EOS_HELMNSE
+         btemp = t9(i)
+         bden = rho(i)
+         xmass = xIn(:, i)
+         call bn_azbar()
+         call bn_sneutx()
+         sdotRate(i) = sdotRate(i) - sneut
+#endif
+
+         !..update the composition
+         xOut(:, i) = y(:, i)*aion(:)
+      else
+#ifdef EOS_HELMNSE
+         if (density(i) .gt. bn_nuclearDensMax) then
+
+            call Eos_wlPotentials(rho(i), t9(i)*1.0e9, ye(i), mu_n, mu_p)
+
+            ! Table potentials are in MeV, nse_composition called within
+            ! nse_solve expects erg
+            call Timers_start("nse_solve")
+            call nse_solve(rho(i), t9(i), ye(i), [mu_n, mu_p]*epmev)
+            call Timers_stop("nse_solve")
+
+            xOut(:, i) = xnse
+
+            sdotRate(i) = sum(bion*(ynse - ystart(:, i)))*conv/tstep
+
+            if (abs(sum(xnse) - 1d0) .gt. 1d-8) &
+               print *, rho(i), t9(i), ye(i), mu_n*epmev, mu_p*epmev, sum(xnse), sum(xIn(:, i))
+         else
+#endif
+            ! Below burning region
+            sdotRate(i) = 0.0e0
+            xOut(:, i) = xIn(:, i)
+#ifdef EOS_HELMNSE
+         end if
+#endif
+      end if
+   end do
+
+   timer_burner = timer_burner + xnet_wtime()
+
+   return
 end subroutine bn_burner

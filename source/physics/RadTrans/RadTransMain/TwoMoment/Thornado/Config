@@ -176,6 +176,11 @@ def genLines(setupvars):
     yield 'PARAMETER rt_pair_file   STRING   ""'
     yield 'PARAMETER rt_brem_file   STRING   ""'
 
+    yield 'D rt_Op_MinD    density below which to turn off all neutrino-matter interactions'
+    yield 'D rt_Op_MaxD    density above which to turn off all neutrino-matter interactions'
+    yield 'PARAMETER rt_Op_MinD     REAL     1.0e+7  [0.0 to ]'
+    yield 'PARAMETER rt_Op_MaxD     REAL     1.0e+15 [0.0 to ]'
+
     yield 'D rt_positivityLimiter       flag to use RadTrans positivity limiter'
     yield 'D rt_troubledCellIndicator   flag to use RadTrans troubled cell indicator'
     yield 'D rt_slopeLimiter            flag to use RadTrans slope limiter'
