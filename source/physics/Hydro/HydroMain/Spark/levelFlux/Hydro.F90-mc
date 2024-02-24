@@ -281,7 +281,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
            endif
 
 
-           call hy_rk_correctFluxes(Uin,blkLimits,blklimitsGC,level,hy_del, dt, .NOT.hy_telescoping)
+           call hy_rk_correctFluxes(Uin,blkLimits,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
+                                    blklimitsGC,level,hy_del, dt, .NOT.hy_telescoping)
            if (hy_geometry /= CARTESIAN) then
               @M hy_release_geom
            end if
