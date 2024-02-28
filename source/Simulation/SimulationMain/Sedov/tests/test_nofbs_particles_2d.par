@@ -1,9 +1,12 @@
+# This parfile is for testing tracer particles initialized in lattice mode with
+# non-fixed blocksize UG.
 #	Runtime parameters for the Sedov explosion problem.
 
 #	Parameters for initial model
 
 #		Ambient pressure and density, explosion energy, initial
 #		radius of perturbation, and location of explosion center
+
 
 sim_pAmbient	= 1.E-5
 sim_rhoAmbient	= 1.
@@ -81,44 +84,25 @@ nend            = 10000
 tmax            = 0.05
 
 run_comment     = "Sedov explosion"
-log_file        = "sedov.log"
+log_file        = "flash.log"
 eintSwitch     = 1.e-4
 
 plot_var_1 = "dens"
 plot_var_2 = "pres"
 plot_var_3 = "temp"
 
-#  Adaptvie Grid refinement parameters
-
-lrefine_max     = 6
-refine_var_1 = "dens"
-refine_var_2 = "pres"
-convertToConsvdInMeshInterp = .true.
 
 # Uniform Grid specific parameters 
 # see note below for more explanation
 
 iGridSize = 128 #global number of gridpoints along x, excluding gcells
 jGridSize = 128 #global number of gridpoints along y, excluding gcells
-#kGridSize = 1
-iProcs = 1	#num procs in i direction
-jProcs = 1	#num procs in j direction
+kGridSize = 1
+iProcs = 2	#num procs in i direction
+jProcs = 2	#num procs in j direction
 kProcs = 1
 
 
-# When using UG, iProcs, jProcs and kProcs must be specified.
-# These are the processors along each of the dimensions
-#FIXEDBLOCKSIZE mode ::
-# When using fixed blocksize, iGridSize etc are redundant in
-# runtime parameters. These quantities are calculated as 
-# iGridSize = NXB*iprocs
-# jGridSize = NYB*jprocs
-# kGridSize = NZB*kprocs
-#NONFIXEDBLOCKSIZE mode ::
-# iGridSize etc must be specified. They constitute the global
-# number of grid points in the physical domain without taking 
-# the guard cell into account. The local blocksize is calculated
-# as iGridSize/iprocs  etc.
 
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##

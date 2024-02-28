@@ -618,3 +618,8 @@ Comparison/Sedov/AMR/3d/pm4Bittree/unsplit:
   setupOptions: -auto -3d -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev Bittree=True -gridinterpolation=native
   parfiles: test_amr_unsplit_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov/nofbs/2d/unsplit:
+  setupOptions: -auto -2d +nofbs -with-unit=Particles
+  parfiles: test_nofbs_particles_2d.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
