@@ -619,7 +619,7 @@ Comparison/Sedov/AMR/3d/pm4Bittree/unsplit:
   parfiles: test_amr_unsplit_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
-Comparison/Sedov/nofbs/2d/unsplit:
+Comparison/Sedov/UG/Part/2d/unsplit:
   setupOptions: -auto -2d +nofbs -with-unit=Particles
-  parfiles: test_nofbs_particles_2d.par
+  parfiles: test_ug_particles_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
