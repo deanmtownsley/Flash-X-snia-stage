@@ -16,6 +16,8 @@
 !!
 !! @brief Internal interface for Spark Hydro subroutines
 !<
+!!REORDER(4):fluxBuf[XYZ]
+
 module hy_rk_interface
 
 #include "Simulation.h"
