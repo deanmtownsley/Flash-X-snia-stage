@@ -1,6 +1,6 @@
 !!****if* source/Grid/GridMain/AMR/Amrex/levelFlux/Grid_zeroFluxData
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -70,29 +70,33 @@ subroutine Grid_zeroFluxData()
 
        call tileDesc%getDataPtr(fluxData, FLUXY)
        if (associated(fluxData)) then
-          do        var = 1,         NFLUXES
-             do       k = lo(KAXIS), hi(KAXIS)
-                do    j = lo(JAXIS), hi(JAXIS)+1
-                   do i = lo(IAXIS), hi(IAXIS)
-                      fluxData(i, j, k, var) = 0.0
+          if (size(fluxData) > 0) then
+             do        var = 1,         NFLUXES
+                do       k = lo(KAXIS), hi(KAXIS)
+                   do    j = lo(JAXIS), hi(JAXIS)+1
+                      do i = lo(IAXIS), hi(IAXIS)
+                         fluxData(i, j, k, var) = 0.0
+                      end do
                    end do
                 end do
              end do
-          end do
+          end if
        end if
        call tileDesc%releaseDataPtr(fluxData, FLUXY)
 
        call tileDesc%getDataPtr(fluxData, FLUXZ)
        if (associated(fluxData)) then
-          do        var = 1,         NFLUXES
-             do       k = lo(KAXIS), hi(KAXIS)+1
-                do    j = lo(JAXIS), hi(JAXIS)
-                   do i = lo(IAXIS), hi(IAXIS)
-                      fluxData(i, j, k, var) = 0.0
+          if (size(fluxData) > 0) then
+             do        var = 1,         NFLUXES
+                do       k = lo(KAXIS), hi(KAXIS)+1
+                   do    j = lo(JAXIS), hi(JAXIS)
+                      do i = lo(IAXIS), hi(IAXIS)
+                         fluxData(i, j, k, var) = 0.0
+                      end do
                    end do
                 end do
              end do
-          end do
+          end if
        end if
        call tileDesc%releaseDataPtr(fluxData, FLUXZ)
     end associate
