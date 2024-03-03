@@ -30,7 +30,8 @@
 !! @param dt           Timestep
 !! @param isFlux       A switch to handle fluxes rather than flux densities
 !<
-!!Reorder(4):fluxBuf[XYZ],Uin
+!!REORDER(4):fluxBuf[XYZ],Uin
+!!REORDER(4):p_fluxBuf[XYZ]
 !!NOVARIANTS
 
 subroutine hy_rk_correctFluxes(Uin, blkLimits, &
