@@ -44,6 +44,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Logfile_interface, ONLY : Logfile_stampVarMask
   use Grid_interface, ONLY : Grid_communicateFluxes, &
        Grid_fillGuardCells, Grid_getMaxRefinement, &
+       Grid_zeroFluxData, &
        Grid_correctFluxData_xtra, Grid_putFluxData, Grid_putFluxData_block, &
        Grid_getFluxCorrData_block,Grid_renormAbundance
   use Eos_interface, ONLY : Eos_wrapped
@@ -296,6 +297,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
+     call Grid_zeroFluxData
      do lev=hy_maxLev,1,-1
 
         !Once the finest level is completed, place averaged fine fluxes into
