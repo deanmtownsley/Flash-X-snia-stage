@@ -118,6 +118,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
 
+  if (hy_fluxCorrect) call Grid_zeroFluxData
   if(hy_telescoping) then
      @M hy_globalFillGuardCells
   end if
@@ -297,7 +298,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
      !----------------------------------------!
      !*****Flux correction per level Occurs***!
      !----------------------------------------!
-     call Grid_zeroFluxData
      do lev=hy_maxLev,1,-1
 
         !Once the finest level is completed, place averaged fine fluxes into
