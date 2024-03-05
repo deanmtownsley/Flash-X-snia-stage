@@ -52,6 +52,10 @@
 !!  
 !!***
 !*******************************************************************************
+#include "Simulation.h"
+#include "constants.h"
+#include "GridParticles.h"
+#include "Particles.h"
 
 subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
                                     numParticles,posAttrib,&
@@ -60,16 +64,13 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
 
   use Driver_interface, ONLY : Driver_abort
   use Particles_interface, ONLY : Particles_mapFromMesh
-  use Grid_data, ONLY : gr_delta
   use physicaldata, ONLY : unk
-  use tree, ONLY : bnd_box, lrefine, blkCount => lnblocks
-  
+  use Grid_data, ONLY : gr_delta
+#ifdef FLASH_GRID_PARAMESH
+  use tree, ONLY : bnd_box, lrefine, lnblocks
+#endif
   implicit none
 
-#include "Simulation.h"
-#include "constants.h"
-#include "GridParticles.h"
-#include "Particles.h"
 
 
   integer, INTENT(in) :: part_props, numParticles, numAttrib, part_blkID
@@ -87,8 +88,10 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
   integer, dimension(LOW:HIGH,MDIM) :: blkLimits
   integer :: gDataStruct
   real, dimension(numAttrib) :: partAttribVec
-  integer :: level
+  integer :: level, blkCount
+  
 
+  
   if(present(gridDataStruct)) then
      gDataStruct=gridDataStruct
   else
@@ -114,10 +117,18 @@ subroutine Grid_mapMeshToParticles (particles, part_props,part_blkID,&
            call Driver_abort("BLK_PART_PROP out of bounds")
         end if
 #endif
+#ifdef FLASH_GRID_PARAMESH
         blk = int(particles(part_blkID,i))
-        bndBox(:,:)=bnd_box(:,:,blk)
-        solnVec(1:,1:,1:,1:)=>unk(:,:,:,:,blk)
+        blkCount=lnblocks
         level=lrefine(blk)
+        bndBox(LOW:HIGH,1:MDIM)=bnd_box(LOW:HIGH,1:MDIM,blk)
+#else
+        blkCount=1
+        blk=1
+        level=1
+        call gr_getBndBox(bndBox)
+#endif        
+        solnVec(1:,1:,1:,1:)=>unk(:,:,:,:,blk)
         delta(:)=gr_delta(:,level)
         pos(1:MDIM)=particles(posAttrib(1:MDIM),i)
         call Particles_mapFromMesh (mapType, numAttrib, attrib,&
