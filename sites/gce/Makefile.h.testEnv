@@ -17,7 +17,8 @@ else
 endif
 
 #MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
-MILHOJA_PATH=/home/kweide/.local-milhoja-${NDIM}d
+#MILHOJA_PATH=/home/kweide/.local-milhoja-${NDIM}d
+MILHOJA_PATH=/home/kweide/nfs/gce/projects/FLASH5/kweide/localDbg-milhoja_grid/${NDIM}cpud
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
