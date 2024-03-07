@@ -420,11 +420,13 @@ Comparison/Sedov/PseudoUG/2d/Paramesh/unsplit:
 Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
   setupOptions: -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/orCpu/simpleUnsplit:
   setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_orch +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
 Comparison/Sedov23/PseudoUG/2d/pm4Nolwf/spark/fcAllLev:
