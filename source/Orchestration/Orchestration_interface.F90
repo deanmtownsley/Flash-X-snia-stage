@@ -48,7 +48,7 @@ module Orchestration_interface
             integer(MILHOJA_INT), intent(IN) :: MH_errorCode
         end subroutine Orchestration_checkInternalError
 
-!!# ifndef RUNTIME_USES_TILEITER
+!!# ifndef RUNTIME_MUST_USE_TILEITER
         subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
             use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
@@ -101,7 +101,7 @@ module Orchestration_interface
     end interface
 
 #ifdef FLASHX_ORCHESTRATION_MILHOJA
-# ifndef RUNTIME_USES_TILEITER
+# ifndef RUNTIME_MUST_USE_TILEITER
     !Separate specific interfaces - push to pipeline
     interface
         !The first one here is for a packet-less CPU-only pipeline

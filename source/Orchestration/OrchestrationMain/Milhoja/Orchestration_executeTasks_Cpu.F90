@@ -23,7 +23,7 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_CAN_USE_TILEITER
     use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_Cpu
 #endif
 
@@ -40,7 +40,7 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
 
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
 
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_CAN_USE_TILEITER
     CALL milhoja_runtime_executeTasks_Cpu(MH_taskFunction, prototype_Cptr, &
                                           MH_nThreads, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_executeTasks_Cpu", MH_ierr)

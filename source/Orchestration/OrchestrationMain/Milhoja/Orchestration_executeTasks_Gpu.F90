@@ -15,7 +15,7 @@
 
 #include "Simulation.h"
 
-#ifdef ORCHESTRATION_USE_GPUS
+#ifdef ORCHESTRATION_USE_DATAPACKETS
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_executeTasks_Gpu}
 !!
@@ -29,7 +29,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_CAN_USE_TILEITER
     use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_Gpu
 #endif
 
@@ -52,7 +52,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
     MH_nThreads            = INT(nThreads,            kind=MILHOJA_INT)
     MH_nTilesPerPacket     = INT(nTilesPerPacket,     kind=MILHOJA_INT)
 
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_CAN_USE_TILEITER
     CALL milhoja_runtime_executeTasks_Gpu(MH_taskFunction,        &
                                           MH_nDistributorThreads, &
                                           MH_nThreads,            &
@@ -61,7 +61,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                           MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_executeTasks_Gpu", MH_ierr)
 #else
-    CALL Driver_abort("Orchestration_executeTasks_Cpu: milhoja_runtime_executeTasks_Cpu disabled")
+    CALL Driver_abort("Orchestration_executeTasks_Gpu: milhoja_runtime_executeTasks_Gpu disabled")
 #endif
 end subroutine Orchestration_executeTasks_Gpu
 #endif

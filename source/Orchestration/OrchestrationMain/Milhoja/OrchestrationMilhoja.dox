@@ -16,7 +16,7 @@ correct corresponding external Milhoja library instance.  Note that use of the
 Milhoja Orchestration implementation requires use of the Milhoja Grid
 implementation.
 
-@copyright Copyright 2022 UChicago Argonne, LLC and contributors
+@copyright Copyright 2024 UChicago Argonne, LLC and contributors
 
 \par License
 \parblock
