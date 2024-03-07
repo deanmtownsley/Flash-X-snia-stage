@@ -26,7 +26,8 @@
 !! why the interface changes based on setup information.
 module Orchestration_interface
 
-    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
+    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t, &
+                                               MILHOJA_INT !, & !...
     implicit none
 
     interface
@@ -38,17 +39,18 @@ module Orchestration_interface
             implicit none
         end subroutine Orchestration_finalize
 
-#ifdef FLASHX_ORCHESTRATION_MILHOJA
+!!#ifdef FLASHX_ORCHESTRATION_MILHOJA
         subroutine Orchestration_checkInternalError(routineName, MH_errorCode)
-            use milhoja_types_mod, ONLY : MILHOJA_INT
+            import
+!!$            use Orchestration_interfaceTypeDecl, ONLY : MILHOJA_INT
             implicit none
             character(LEN=*),     intent(IN) :: routineName
             integer(MILHOJA_INT), intent(IN) :: MH_errorCode
         end subroutine Orchestration_checkInternalError
 
-#ifndef RUNTIME_USES_TILEITER
+!!# ifndef RUNTIME_USES_TILEITER
         subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
-            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
             integer,                                intent(IN) :: nThreads
@@ -59,7 +61,7 @@ module Orchestration_interface
                                           nTilesPerPacket,     &
                                           MH_packet_Cptr)
             use iso_c_binding, ONLY : C_PTR
-            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
             integer,                                intent(IN) :: nThreads
@@ -67,26 +69,26 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: MH_packet_CPtr
         end subroutine Orchestration_setupPipelineForGpuTasks
 
-#else
+!!# else
         subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                                   prototype_Cptr, nThreads)
             use iso_c_binding, ONLY : C_PTR
-            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
             type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_executeTasks_Cpu
-#endif
+!!# endif
 
-#ifdef ORCHESTRATION_USE_GPUS
+!!# ifdef ORCHESTRATION_USE_GPUS
         subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                                   nDistributorThreads, &
                                                   nThreads,            &
                                                   nTilesPerPacket,     &
                                                   MH_packet_Cptr)
             use iso_c_binding,       ONLY : C_PTR
-            use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
             integer,                                intent(IN) :: nDistributorThreads
@@ -94,14 +96,15 @@ module Orchestration_interface
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
         end subroutine Orchestration_executeTasks_Gpu
-#endif
-#endif
+!!# endif
+!!#endif
     end interface
 
 #ifdef FLASHX_ORCHESTRATION_MILHOJA
 # ifndef RUNTIME_USES_TILEITER
-    !Separate pecific interfaces - push to pipeline
+    !Separate specific interfaces - push to pipeline
     interface
+        !The first one here is for a packet-less CPU-only pipeline
         subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
             use iso_c_binding, ONLY : C_PTR

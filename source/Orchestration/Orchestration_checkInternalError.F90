@@ -42,7 +42,7 @@
 !!                     This information is included in the error message.
 !! @param MH_errorCode The Milhoja error code to check.
 subroutine Orchestration_checkInternalError(routineName, MH_errorCode)
-    use milhoja_types_mod, ONLY : MILHOJA_INT
+    use Orchestration_interfaceTypeDecl, ONLY : MILHOJA_INT
     use Driver_interface,  ONLY : Driver_abort
 
     implicit none

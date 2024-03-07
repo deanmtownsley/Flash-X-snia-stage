@@ -59,7 +59,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                           MH_packet_Cptr)
     use iso_c_binding,       ONLY : C_PTR
 
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+    use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
     use Driver_interface,    ONLY : Driver_abort
 
     implicit none

@@ -1,6 +1,6 @@
 !! @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+    use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
 
     implicit none
 
