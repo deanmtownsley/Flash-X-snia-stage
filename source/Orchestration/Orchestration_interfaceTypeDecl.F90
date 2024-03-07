@@ -10,7 +10,7 @@ Module Orchestration_interfaceTypeDecl
      !! C_dataItemPtr - C pointer to Grid DataItem to which the task
      !!                 function should be applied
      subroutine milhoja_runtime_taskFunction(C_threadId, C_dataItemPtr) bind(c)
-       !!DEV: Need 'import' here? - KW
+       import
        implicit none
        integer(MILHOJA_INT), intent(IN), value :: C_threadId
        type(C_PTR),          intent(IN), value :: C_dataItemPtr
