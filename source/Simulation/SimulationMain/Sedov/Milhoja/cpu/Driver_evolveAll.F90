@@ -14,6 +14,7 @@
 !! @file
 
 #include "constants.h"
+#include "Milhoja.h"
 
 !> @details
 !! This is a barebones version of a Driver_evolveAll that is needed to stand-up an
@@ -74,7 +75,7 @@ subroutine Driver_evolveAll()
    use Grid_tile,     ONLY : Grid_tile_t
    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
    use Orchestration_interface, ONLY: Orchestration_checkInternalError
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_MUST_USE_TILEITER
    use Orchestration_interface, ONLY: Orchestration_executeTasks_Cpu
 #else
    use Orchestration_interface, ONLY: Orchestration_setupPipelineForCpuTasks, &
@@ -170,7 +171,7 @@ subroutine Driver_evolveAll()
       MH_ierr = new_hydro_advance_wrapper_C(MH_dt, MH_eosMode, &
                                             cpu_tf_hydro_wrapper)
       CALL Orchestration_checkInternalError("Driver_evolveAll", MH_ierr)
-#ifdef RUNTIME_USES_TILEITER
+#ifdef RUNTIME_MUST_USE_TILEITER
       CALL Orchestration_executeTasks_Cpu(MH_taskFunction=cpu_tf_hydro_Cpp2C, &
                                           prototype_Cptr=cpu_tf_hydro_wrapper, &
                                           nThreads=cpu_tf_hydro_nThreads)
@@ -182,7 +183,7 @@ subroutine Driver_evolveAll()
       do while(itor%isValid())
          call itor%currentTile(tileDesc)
          call tileDesc%fillTileCInfo(cInfo)
-         
+
          CALL Orchestration_pushTileToPipeline(prototype_Cptr=cpu_tf_hydro_wrapper, &
                                           nThreads=cpu_tf_hydro_nThreads, &
                                           tileCInfo=cInfo)
