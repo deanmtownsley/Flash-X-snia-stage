@@ -79,7 +79,6 @@ subroutine Grid_moveParticles(dataBuf, propCount, maxCount, localCount, &
      index_list, indexCount, coords_in_blk)
  
   use Grid_data, ONLY : gr_axisMe,gr_axisNumProcs,gr_axisComm,gr_imin,gr_jmin,gr_kmin,gr_domainBC
-  use Grid_interface, ONLY : Grid_getBlkBoundBox
   use gr_ptInterface, ONLY : gr_ptMoveOffProc, gr_ptSetIndices, gr_ptResetIndices
 
   use Grid_data, ONLY : gr_useParticles, gr_meshNumProcs
@@ -111,7 +110,7 @@ subroutine Grid_moveParticles(dataBuf, propCount, maxCount, localCount, &
 
   call gr_ptSetIndices(index_list,indexCount)
 
-  call Grid_getBlkBoundBox(blockID,bndBox)
+  call gr_getBndBox(bndBox)
 
   pBound=1
   if(coords_in_blk)then

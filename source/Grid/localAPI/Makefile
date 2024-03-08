@@ -11,7 +11,7 @@ Grid += gr_ptInterface.o gr_ptInit.o gr_ptMove.o \
 	gr_interface.o gr_interfaceTypeDecl.o gr_pfftInterfaceTypeDecl.o \
 	gr_mgInterface.o gr_mgInit.o gr_mgFinalize.o gr_mgPfftInit.o gr_mgPfftFinalize.o \
         gr_bicgInterface.o gr_bicgInit.o gr_bicgFinalize.o \
-        gr_getRegionDataCoordinates.o
+        gr_getRegionDataCoordinates.o gr_getBndBox.o
 
 Grid += gr_hg_amr_1blk_bcset_work.o gr_pfftPoissonDirect.o
 

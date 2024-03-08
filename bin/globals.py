@@ -253,6 +253,7 @@ class GVarsClass:
     nonexistent = "NONEXISTENT"
     eosStaticList = ['PRES','DENS','EINT','TEMP','GAMC','GAME','ENER','VELX','VELY','VELZ','SUMY','YE','ENTR','PRES1','PRES2','PRES3','EINT1','EINT2','EINT3','TEMP1','TEMP2','TEMP3','E1','E2','E3','SELE','SRAD']
     strEos = ''.join([x.lower()+'|'+x.upper()+'|' for x in eosStaticList])[:-1]
+    macroOnly = False
 
     def init(self,flashHomeDir):
         self.flashHomeDir = flashHomeDir
