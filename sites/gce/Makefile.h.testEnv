@@ -106,9 +106,9 @@ CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 #  _DEBUG, and _TEST cases.
 #----------------------------------------------------------------------------
 
-LFLAGS_OPT   = -o
-LFLAGS_DEBUG = -ggdb -O0 -o
-LFLAGS_TEST  = -o
+LFLAGS_OPT   = -fno-merge-debug-strings -o
+LFLAGS_DEBUG = -ggdb -O0 -fno-merge-debug-strings -o
+LFLAGS_TEST  = -fno-merge-debug-strings -o
 
 #----------------------------------------------------------------------------
 # Library specific linking
