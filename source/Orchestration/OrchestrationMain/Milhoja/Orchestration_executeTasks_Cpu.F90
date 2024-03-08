@@ -17,6 +17,7 @@
 !! @stubref{Orchestration_executeTasks_Cpu}
 !!
 !! @brief Concrete implementation of Orchestration_executeTasks_Cpu
+#include "Milhoja.h"
 subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                           prototype_Cptr, nThreads)
     use iso_c_binding, ONLY : C_PTR
@@ -27,6 +28,7 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
     use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_Cpu
 #endif
 
+    use Driver_interface,        ONLY : Driver_abort
     use Orchestration_interface, ONLY : Orchestration_checkInternalError
 
     implicit none

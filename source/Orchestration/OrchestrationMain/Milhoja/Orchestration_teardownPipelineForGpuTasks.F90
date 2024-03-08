@@ -17,10 +17,14 @@
 !! @stubref{Orchestration_teardownPipelineForGpuTasks}
 !!
 !! @brief Concrete implementation of Orchestration_teardownPipelineForGpuTasks
+#include "Milhoja.h"
 subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
     use milhoja_types_mod,   ONLY : MILHOJA_INT
+#ifndef RUNTIME_MUST_USE_TILEITER
     use milhoja_runtime_mod, ONLY : milhoja_runtime_teardownPipelineForGpuTasks
+#endif
 
+    use Driver_interface,        ONLY : Driver_abort
     use Orchestration_interface, ONLY : Orchestration_checkInternalError
 
     implicit none
@@ -35,7 +39,11 @@ subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
     MH_nTilesPerPacket = INT(nTilesPerPacket, kind=MILHOJA_INT)
 
+#ifndef RUNTIME_MUST_USE_TILEITER
     CALL milhoja_runtime_teardownPipelineForGpuTasks(MH_nThreads, MH_nTilesPerPacket, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_teardownPipelineForGpuTasks", MH_ierr)
+#else
+    CALL Driver_abort("Orchestration_teardownPipelineForGpuTasks: milhoja_runtime_teardownPipelineForGpuTasks disabled")
+#endif
 end subroutine Orchestration_teardownPipelineForGpuTasks
 

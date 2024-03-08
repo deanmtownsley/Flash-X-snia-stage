@@ -17,11 +17,15 @@
 !! @stubref{Orchestration_setupPipelineForCpuTasks}
 !!
 !! @brief Concrete implementation of Orchestration_setupPipelineForCpuTasks
+#include "Milhoja.h"
 subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
     use milhoja_types_mod,   ONLY : MILHOJA_INT
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction, &
-                                    milhoja_runtime_setupPipelineForCpuTasks
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+#ifndef RUNTIME_MUST_USE_TILEITER
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_setupPipelineForCpuTasks
+#endif
 
+    use Driver_interface,        ONLY : Driver_abort
     use Orchestration_interface, ONLY : Orchestration_checkInternalError
 
     implicit none
@@ -34,8 +38,12 @@ subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
 
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
 
+#ifndef RUNTIME_MUST_USE_TILEITER
     CALL milhoja_runtime_setupPipelineForCpuTasks(MH_taskFunction, &
                                           MH_nThreads, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_setupPipelineForCpuTasks", MH_ierr)
+#else
+    CALL Driver_abort("Orchestration_setupPipelineForCpuTasks: milhoja_runtime_setupPipelineForCpuTasks disabled")
+#endif
 end subroutine Orchestration_setupPipelineForCpuTasks
 
