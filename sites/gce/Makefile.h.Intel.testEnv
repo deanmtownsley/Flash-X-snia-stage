@@ -10,7 +10,10 @@
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
 AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
-MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+
+#MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+#Try same path as for GCC:
+MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/localDbg-milhoja_grid/${NDIM}dcpu
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
@@ -87,6 +90,7 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
+CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
 CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
 #----------------------------------------------------------------------------

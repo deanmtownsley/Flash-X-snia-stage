@@ -424,7 +424,7 @@ Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_orch +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d +sHLL Grid=Milhoja +mh_orch Milhoja=AMReX,none,none +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 

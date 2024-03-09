@@ -100,6 +100,7 @@ subroutine Orchestration_init()
 
   contains
     subroutine fake_milhoja_grid_init()
+#if(0)
       ! initially copied from GridMain/AMR/Milhoja/Grid_init.F90
     use milhoja_types_mod,           ONLY : MILHOJA_REAL
 #ifdef FULL_MILHOJAGRID
@@ -352,6 +353,7 @@ subroutine Orchestration_init()
     if (MH_nFluxVars /= NFLUXES) then
         CALL Driver_abort("[Grid_init] Bad nFluxVars config in Milhoja")
     end if
+#endif
   end subroutine fake_milhoja_grid_init
 end subroutine Orchestration_init
 
