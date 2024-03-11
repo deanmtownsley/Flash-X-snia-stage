@@ -257,6 +257,9 @@ contains
                                            facevars
 #ifdef USE_LEVELWIDE_FLUXES
         use gr_physicalMultifabs,   ONLY : fluxes
+#  if NDIM < MDIM
+        use gr_physicalMultifabs,   ONLY : gr_fakeEmpty4
+#  endif
 #endif
 
         class(Grid_tile_t), intent(IN),  target   :: this
@@ -342,10 +345,14 @@ contains
           case(FLUXY)
 #  if NDIM >= 2
              dataPtr(lo(1):, lo(2):, lo(3):, 1:) => fluxes(ilev, JAXIS)%dataptr(igrd)
+#  else
+             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => gr_fakeEmpty4
 #  endif
           case(FLUXZ)
 #  if NDIM == 3
              dataPtr(lo(1):, lo(2):, lo(3):, 1:) => fluxes(ilev, KAXIS)%dataptr(igrd)
+#  else
+             dataPtr(lo(1):, lo(2):, lo(3):, 1:) => gr_fakeEmpty4
 #  endif
 #elif NFLUXES > 0
           case(FLUXX)
