@@ -101,7 +101,7 @@ module Orchestration_interface
     end interface
 
 #ifdef FLASHX_ORCHESTRATION_MILHOJA
-# ifndef RUNTIME_MUST_USE_TILEITER
+!!$# ifndef RUNTIME_MUST_USE_TILEITER
     !Separate specific interfaces - push to pipeline
     interface
         !The first one here is for a packet-less CPU-only pipeline
@@ -137,7 +137,7 @@ module Orchestration_interface
             integer,                                intent(IN) :: nTilesPerPacket
         end subroutine Orchestration_teardownPipelineForGpuTasks
     end interface Orchestration_teardownPipeline
-# endif
+!!$# endif
 #endif
 
 end module Orchestration_interface

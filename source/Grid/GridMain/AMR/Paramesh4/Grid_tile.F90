@@ -319,7 +319,8 @@ contains
 
 #ifdef FLASHX_ORCHESTRATION
 #ifdef FLASHX_ORCHESTRATION_MILHOJA
-#ifndef RUNTIME_USES_TILEITER
+#include "Milhoja.h"
+#ifndef RUNTIME_MUST_USE_TILEITER
         if (gr_useOrchestration) then
            cInfo % CInts % nCcComp      = NUNK_VARS
            cInfo % CInts % nFluxComp    = NFLUXES

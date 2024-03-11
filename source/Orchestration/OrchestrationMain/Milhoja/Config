@@ -18,7 +18,7 @@ def genLines(setupvars):
 #    if setupvars['Grid'].lower() != 'milhoja':
 #        yield 'SETUPERROR Milhoja orchestration must use the Milhoja Grid implementation'
 #    yield 'REQUIRES Grid/GridMain/AMR/Milhoja'
-    yield 'REQUIRES Grid/GridMain/fakeMilhoja'  # BALLABALLA
+#    yield 'REQUIRES Grid/GridMain/fakeMilhoja'  # BALLABALLA
 
     yield 'D or_nBytesInCpuMemoryPool   N bytes in CPU memory pool'
     yield 'D or_nThreadTeams            N thread teams to create'
