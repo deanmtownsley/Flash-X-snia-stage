@@ -33,7 +33,8 @@ subroutine Grid_sendOutputData()
 
   use Grid_data, ONLY : gr_axisNumProcs, gr_str_geometry, &
        gr_domainBC,                                       &
-       gr_globalNumBlocks, gr_gid, gr_globalOffset, gr_meshMe, gr_meshNumProcs
+       gr_globalNumBlocks, gr_gid,  gr_meshMe, gr_meshNumProcs
+  use gr_specificData, ONLY : gr_globalOffset
   use IO_interface, ONLY : IO_setScalar
 
   implicit none

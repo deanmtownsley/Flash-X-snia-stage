@@ -96,7 +96,7 @@ Module Grid_data
   real, save, dimension(MDIM) :: gr_minCellSizes
 
   !below values needed to make data structures for IO output
-  integer,save :: gr_globalOffset !stores beginning blk offset for a proc
+!!  integer,save :: gr_globalOffset !stores beginning blk offset for a proc
   integer,save,target,allocatable, dimension(:,:) :: gr_gid  !holds neigh, child, parent info for checkpoint files
   integer, save :: gr_globalNumBlocks !
   integer, save, allocatable :: gr_nToLeft(:) !array holding local blocks on each proc, used to calc blk offset for IO
