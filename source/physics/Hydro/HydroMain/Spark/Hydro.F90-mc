@@ -174,12 +174,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
-        !Set needed number of guard cells to update based on
-        !each stage for telescoping update
-        do stage = 1, MAXSTAGE
-           ng = (MAXSTAGE-stage)*NSTENCIL
-           @M hy_setLims(ng)
-        end do
+        ! set lower and uppper bounds to update the solutions
+        @M hy_setLimits
 
         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
 
@@ -193,7 +189,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
 
         call Timers_start("scratch")
-        call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage, loGC)
+        call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
+                                   blkLimits, blkLimitsGC, lo, loGC)
         call Timers_stop("scratch")
 
         !! Begin loop over stages for the telescoping mode.
@@ -223,7 +220,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                  hy_grav, hy_flx, hy_fly, hy_flz, &
                                  deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                  hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                 dt, dtOld, limits, loGC)
+                                 dt, dtOld, limits, lo, loGC)
            call Timers_stop("updateSoln")
            call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
                                   hy_flx, hy_fly, hy_flz, &
@@ -359,12 +356,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
             zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
 
-            !Set needed number of guard cells to update based on
-            !each stage for telescoping update
-            do stage = 1, MAXSTAGE
-               ng = (MAXSTAGE-stage)*NSTENCIL
-               @M hy_setLims(ng)
-            end do
+            ! set lower and uppper bounds to update the solutions
+            @M hy_setLimits
 
             @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
             ! DivB will technically be lagged by 1 step, but we need ghost zones to
@@ -382,7 +375,8 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
             call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
 
             call Timers_start("scratch")
-            call hy_rk_initSolnScratch(Uin, hy_starState, hy_tmpState, blkLimitsGC, stage, loGC)
+            call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
+                                       blkLimits, blkLimitsGC, lo, loGC)
             call Timers_stop("scratch")
 
             !! Begin loop over stages for the telescoping mode.
@@ -418,7 +412,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                                      hy_grav, hy_flx, hy_fly, hy_flz, &
                                      deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                      hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                     dt, dtOld, limits, loGC)
+                                     dt, dtOld, limits, lo, loGC)
                call Timers_stop("updateSoln")
 
 #if NSCIES>0
