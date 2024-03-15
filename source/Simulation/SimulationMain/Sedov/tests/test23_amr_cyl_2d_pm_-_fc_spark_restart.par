@@ -4,6 +4,7 @@
 #       are configured to allow for dynamic Grid refinement.
 #
 #./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
+#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +sparklwf DoAnalytical=True
 #
 # Run on 2 or more MPI processes.
 
@@ -128,6 +129,8 @@ derefine_cutoff_2 = 0.2
 nblockx                        = 1
 nblocky                        = 2
 #nblockz                        = 1
+
+# interpol_order = 2      #  the default order of "monotonic" grid interpolation
 
 # guardcell fill optimization
 enableMaskedGCFill			= .TRUE.
