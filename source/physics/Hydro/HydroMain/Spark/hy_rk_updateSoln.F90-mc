@@ -151,9 +151,11 @@ subroutine hy_rk_updateSoln (stage, starState, tmpState, &
            facMz = 1.0; facPz = 1.0;
            ! Get geometric factors and sources
            ! Get gravitational source terms
+#ifdef GRID_CURVILINEAR
            if (geometry /= CARTESIAN) then
               @M hy_geom_update(Ustar, Vstar)
            endif
+#endif
            @M hy_gravSources(Ustar)
 
            ! Sum total source terms
