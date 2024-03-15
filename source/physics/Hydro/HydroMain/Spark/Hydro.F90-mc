@@ -152,7 +152,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         lo(:) = blkLimits(LOW, :)
         loGC(:) = blkLimitsGC(LOW, :)
 
-        @M hy_DIR_TARGET_enter_data(to, [Uin])
+        if (.not. hy_telescoping) then
+           @M hy_DIR_TARGET_enter_data(to, [Uin])
+        end if
 
         if (hy_geometry /= CARTESIAN) then
            @M hy_fill_geom
@@ -168,7 +170,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
         @M hy_map_tmp_states
         @M hy_map_scr_ptrs
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+        @M hy_DIR_TARGET_enter_data(to, [hy_starState, hy_tmpState])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
@@ -191,6 +193,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         call Timers_start("scratch")
         call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
                                    blkLimits, blkLimitsGC, lo, loGC)
+        if (.not. hy_telescoping .and. stage == 1) then
+           @M hy_DIR_TARGET_update_from([hy_tmpState])
+        end if
         call Timers_stop("scratch")
 
         !! Begin loop over stages for the telescoping mode.
@@ -281,7 +286,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         @M hy_release_tmp_states
         @M hy_release_scr_ptrs
 
-        @M hy_DIR_TARGET_exit_data(release, [Uin])
+        if (.not. hy_telescoping) then
+           @M hy_DIR_TARGET_exit_data(release, [Uin])
+        end if
      @M iter_end
      @M hy_end_stages_nt
      if (hy_fluxCorrect) then
