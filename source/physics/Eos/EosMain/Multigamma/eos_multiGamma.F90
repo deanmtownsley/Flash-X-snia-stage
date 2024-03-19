@@ -144,7 +144,7 @@
 subroutine eos_multiGamma(mode, vecLen, eosData,massFrac, mask ,vecBegin,vecEnd, diag)
 
 !==============================================================================
-  use eos_mgammaData, ONLY: eos_gammam1j,  eos_ggprodj, eos_gc
+  use eos_multiGammaData, ONLY: eos_gammam1j,  eos_ggprodj, eos_gc
   use Eos_data, ONLY : eos_gasConstant
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
