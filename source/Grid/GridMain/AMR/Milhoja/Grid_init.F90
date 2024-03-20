@@ -532,6 +532,8 @@ subroutine Grid_init()
     CALL RuntimeParameters_get("eosModeInit", eosModeString)
     CALL RuntimeParameters_mapStrToInt(eosModeString, gr_eosModeInit)
 
+    call RuntimeParameters_get('useOrchestration',gr_useOrchestration)
+
 #ifdef GRID_WITH_MONOTONIC
     CALL Driver_abort("[Grid_init] Monotonic not implemented with Milhoja yet")
     ! Could possibly be less if gr_intpol < 2  - KW
