@@ -33,11 +33,11 @@
 ## nscratchfacexvars  -> # of scratch facex variables
 ## nscratchfaceyvars  -> # of scratch facey variables
 ## nscratchfacezvars  -> # of scratch facez variables
-## nrealprops        -> # of real properties (of particles?)
+## nrealprops        -> # of real particle properties
 ## nparticletypes    -> # of particle types (passive, active, star, etc.)
 ## nflux             ->
 ## nfacevars         -> # of face variables
-## nvars             -> # of Property variables
+## nvars             -> # of property variables
 ## nspecies          -> # of species
 ## nmass_scalars     -> # of mass scalars
 ## max_plot_vars     -> # of plot_var_N runtime parameters that can be used
@@ -139,7 +139,7 @@
 
   NPROP_VARS = the total number of grid property variables in the simulation
                (ie those ending in _VAR)
-  NEVOL_VARS = total number of evolved variables for TimeAdvance=MoL; these
+  NEVOL_VARS = total number of "evolved" variables for TimeAdvance=MoL; these
                are a subset (and at the start of) the property variables
   NSPECIES = the number of species in the simulation 
              (ie those ending in _SPEC)
@@ -238,8 +238,8 @@
 
   NPROP_FLUX = the total number of grid property variables in the 
                  simulation (ie those ending in _FLUX)
-  NSPECIES_FLUX = the number of flux species in the simulation
-  NMASS_SCALARS_FLUX = flux mass scalars
+  NSPECIES_FLUX = the number of species fluxes in the simulation
+  NMASS_SCALARS_FLUX = number of mass scalar fluxes
 
   NFLUXES = NPROP_FLUX + NSPECIES_FLUX + NMASS_SCALARS_FLUX
   ************************************************************************

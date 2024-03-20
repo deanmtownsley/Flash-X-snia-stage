@@ -263,7 +263,7 @@ class FlashUnit(dict,preProcess):
     def parseNRHS(self, mobj):
         # Make sure that only a MoL unit set this
         if not self.name.startswith("TimeAdvance/TimeAdvanceMain/MoL"):
-            raise SetupError("NRHS can only be declated in a MoL implementation")
+            raise SetupError("NRHS can only be declared in a MoL implementation")
         
         nrhs = int(mobj.group(1))
         if self['NRHS'] != None:
@@ -814,31 +814,25 @@ class UnitUnion(dict):
         ppds.sort()
         self['ppdefines'] = ppds
 
-        #need this since order in which a dict returns it's keys is not determined.
+        #need this since order in which a dict returns its keys is not determined.
         self['variable']= list(self['VARIABLE'].keys())
         self['variable'].sort()
 
-        if GVars.setupVars.get("Milhoja").upper() != "":
-            # keep the order
-            self["evolvedvar"] = self["EVOLVEDVAR"]
-        else:
-            # alphabetical sort and eliminate duplicates
-            #self["evolvedvar"] = sorted(list(set(self["EVOLVEDVAR"])))
-            # alphabetical sort, duplicates have already been weeded out
-            self["evolvedvar"] = sorted(self["EVOLVEDVAR"])
+        # Keep the relative order of EVOLVEDVAR variables;
+        # they used to get sorted alphabetically here for MoL.
+        self["evolvedvar"] = self["EVOLVEDVAR"]
 
         for evo in self["evolvedvar"]:
             if evo not in self['variable']:
                 raise SetupError("ERROR! '%s' occurs in EVOLVEDVAR but is not declared as a VARIABLE" %
                                  evo)
 
-        # Move evolved variables to the front of UNK if MoL is included
+        # Count of evolved variables for MoL.
         self["nevol"] = 0
         if GVars.setupVars.get("TimeAdvance").upper() == "MOL":
             self["nevol"] = len(self["evolvedvar"])
-            self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
-        elif GVars.setupVars.get("Milhoja").upper() != "":
-            self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
+        # Move evolved variables to the front of UNK, whether MoL is included or not.
+        self["variable"] = self["evolvedvar"] + [v for v in self["variable"] if v not in self["evolvedvar"]]
 
         tmpList = [ self['VARIABLE'][var] for var in self['variable'] ]
         self['var_types'] = [x for (x,y,z) in tmpList] # list of corresponding TYPES
