@@ -26,7 +26,7 @@ subroutine Orchestration_setupPipelineForGpuTasks(MH_taskFunction, &
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
-#ifndef RUNTIME_MUST_USE_TILEITER
+#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
     use milhoja_runtime_mod, ONLY : milhoja_runtime_setupPipelineForGpuTasks
 #endif
 
@@ -47,7 +47,7 @@ subroutine Orchestration_setupPipelineForGpuTasks(MH_taskFunction, &
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
     MH_nTilesPerPacket     = INT(nTilesPerPacket,     kind=MILHOJA_INT)
 
-#ifndef RUNTIME_MUST_USE_TILEITER
+#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
     CALL milhoja_runtime_setupPipelineForGpuTasks(MH_taskFunction, &
                                           MH_nThreads,            &
                                           MH_nTilesPerPacket,     &

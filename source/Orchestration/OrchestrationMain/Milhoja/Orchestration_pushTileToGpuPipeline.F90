@@ -23,7 +23,7 @@ subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
     use iso_c_binding, ONLY : C_PTR, c_loc
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
-#ifndef RUNTIME_MUST_USE_TILEITER
+#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
     use milhoja_runtime_mod, ONLY : milhoja_runtime_pushTileToGpuPipeline
 #endif
 
@@ -44,7 +44,7 @@ subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
     MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
     MH_tileCInfo_Cp = c_loc(tileCInfo)
 
-#ifndef RUNTIME_MUST_USE_TILEITER
+#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
     CALL milhoja_runtime_pushTileToGpuPipeline(prototype_Cptr, &
                                           MH_nThreads, MH_tileCInfo_Cp, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_pushTileToGpuPipeline", MH_ierr)
