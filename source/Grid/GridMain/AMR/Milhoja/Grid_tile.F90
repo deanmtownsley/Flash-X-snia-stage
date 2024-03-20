@@ -519,6 +519,7 @@ contains
            cInfo % CPtrs % fluxBlkPtrs(JAXIS) = C_NULL_PTR
            cInfo % CPtrs % fluxBlkPtrs(KAXIS) = C_NULL_PTR
 
+           nullify(fBlkPtr)
            call this % getDataPtr(fBlkPtr, CENTER)
            if(associated(fBlkPtr)) cInfo % CPtrs % ccBlkPtr = c_loc(fBlkPtr)
 #ifdef USE_LEVELWIDE_FLUXES
