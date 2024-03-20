@@ -29,13 +29,13 @@ struct Tile_cpu_tf_hydro : public milhoja::TileWrapper {
                     * 10
                     * 1;
     constexpr static std::size_t  SCRATCH_HYDRO_OP1_FLX_SIZE_ =
-                      17
-                    * 16
+                       9
+                    *  8
                     *  1
                     *  5;
     constexpr static std::size_t  SCRATCH_HYDRO_OP1_FLY_SIZE_ =
-                      16
-                    * 17
+                       8
+                    *  9
                     *  1
                     *  5;
     constexpr static std::size_t  SCRATCH_HYDRO_OP1_FLZ_SIZE_ =
