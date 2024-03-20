@@ -167,6 +167,7 @@ sparkbase2d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-2d:+sqr16
 sparkbase3d:--with-unit=physics/Hydro/HydroMain/Spark:+nolwf:-3d:+cube16
 # for future
 spark3:--with-unit=physics/Hydro/HydroMain/Spark/rk3:Spark=True:+nolwf
+sparklwf:--with-unit=physics/Hydro/HydroMain/Spark:NoLevelwideFluxes=False
 
 # Shortcut to use XNet
 xnet:--with-unit=physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet:xnet=True
