@@ -1,6 +1,6 @@
-!!****if* source/Grid/GridMain/Grid_getCellCoords
+!!****f* source/Grid/Grid_getCellCoords_1drange
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Grid_getCellCoords(integer(IN)  :: axis,
+!!  call Grid_getCellCoords_1drange(integer(IN)  :: axis,
 !!                      integer(IN):: edge,
 !!                      integer(IN):: level,
-!!                      integer(IN):: lo(1:MDIM),
-!!                      integer(IN):: hi(1:MDIM),
+!!                      integer(IN):: slo,
+!!                      integer(IN):: shi,
 !!                      real(OUT)  :: coordinates(:))
 !!
 !!
@@ -42,7 +42,7 @@
 !! ARGUMENTS
 !!            
 !!   axis - specifies the integer index coordinates of the cells being retrieved.
-!!          axis can have one of three different values, IAXIS, JAXIS, or KAXIS
+!!          axis can have one of three different values, IAXIS, JAXIS, or KAXIS 
 !!          (defined in constants.h as 1, 2, and 3)
 !!
 !!   edge - integer value with one of four values, 
@@ -56,15 +56,15 @@
 !!   level - refinement level.
 !!           This is 1-based, i.e., the root level is numbered 1.
 !!          
-!!   lo   - Indices of a low point, in the level-wide integer index space.
-!!          Only the component indicated by the axis argument is used.
+!!   slo  - Scalar Index of a low point, in the level-wide integer index space.
+!!          This refers to the coordinate direction indicated by the axis argument.
 !!          The coordinates returned pertain to cells in the range
-!!          lo(axis) ... hi(axis).
+!!          slo ... shi.
 !!
-!!   hi   - Indices of a high point, in the level-wide integer index space.
-!!          Only the component indicated by the axis argument is used.
+!!   shi  - Scalar index of a high point, in the level-wide integer index space.
+!!          This refers to the coordinate direction indicated by the axis argument.
 !!          The coordinates returned pertain to cells in the range
-!!          lo(axis) ... hi(axis).
+!!          slo ... shi.
 !!
 !!   coordinates - The array holding the data returning the coordinate values.
 !!                 The array must be large enough to hold the number of
@@ -72,10 +72,10 @@
 !!                 arguments. That is, the following must be true:
 !!           
 !!          if edge = CENTER/LEFT_EDGE/RIGHT_EDGE then
-!!                size(coordinates)  >=  hi(axis) - lo(axis) + 1 ;
+!!                size(coordinates)  >=  shi - slo + 1 ;
 !!
 !!          If edge=FACES then
-!!                size(coordinates)  >=  hi(axis) - lo(axis) + 2 .
+!!                size(coordinates)  >=  shi - slo + 2 .
 !!
 !!               
 !!  EXAMPLE 
@@ -87,19 +87,19 @@
 !!      
 !!      integer             :: coordSize
 !!      integer,allocatable :: xCoord(:)
-!!      integer             :: level,lo(3),hi(3)
+!!      integer             :: level,slo,shi
 !!      .....
 !!      
 !!      do while(itor%isValid())
 !!          call itor%currentTile(tileDesc)
 !!          level = tileDesc % level
-!!          lo    = tileDesc % limits(LOW ,:)
-!!          hi    = tileDesc % limits(HIGH,:)
+!!          slo   = tileDesc % limits(LOW ,IAXIS)
+!!          shi   = tileDesc % limits(HIGH,IAXIS)
 !!
-!!          coordSize = hi(IAXIS) - lo(IAXIS) + 1
-!!          allocate(xCoord(coordSize)) !sized to be number of coords returned
+!!          coordSize = shi - slo + 1  ! number of coords returned
+!!          allocate(xCoord(slo:shi))  ! xCoord use global per-level indices slo:shi
 !!
-!!          call Grid_getCellCoords(IAXIS, CENTER, level, lo, hi, xCoord)
+!!          call Grid_getCellCoords(IAXIS, CENTER, level, slo, shi, xCoord)
 !!          .....
 !!          deallocate(xCoord)
 !!          call itor%next()
@@ -112,94 +112,42 @@
 !!      
 !!      integer             :: coordSize
 !!      integer,allocatable :: xCoord(:)
-!!      integer             :: level,lo(3),hi(3)
+!!      integer             :: level,slo,shi
 !!      
 !!      do while(itor%isValid())
 !!          call itor%currentTile(tileDesc)
 !!          level = tileDesc % level
-!!          lo    = tileDesc % limits(LOW ,:)
-!!          hi    = tileDesc % limits(HIGH,:)
+!!          slo   = tileDesc % limits(LOW ,IAXIS)
+!!          shi   = tileDesc % limits(HIGH,IAXIS)
 !!
-!!          coordSize = hi(IAXIS) - lo(IAXIS) + 2
-!!          allocate(xCoord(coordSize)) !sized to be number of coords returned
+!!          coordSize = shi - slo + 2   ! number of coords returned
+!!          allocate(xCoord(coordSize)) ! xCoord using local indices 1:coordSize
 !!
-!!          call Grid_getCellCoords(IAXIS, FACES, level, lo, hi, xCoord)
+!!          call Grid_getCellCoords(IAXIS, FACES, level, slo, shi, xCoord)
 !!          .....
 !!          deallocate(xCoord)
 !!          call itor%next()
 !!     end do    
 !!
 !!
-!!  NOTES
+!!***
+
 !!   Variables that start with "gr_" are variables of Grid unit scope
 !!   and are stored in the Fortran module Grid_data. Variables that are not
 !!   starting with gr_ are local variables or arguments passed to the
 !!   routine.
-!!
-!!***
 
-#ifdef DEBUG
-#define DEBUG_GRID
-#endif
-
-#include "constants.h"
-#include "Simulation.h"
-
-subroutine Grid_getCellCoords(axis, edge, level, lo, hi, coordinates)
-  use Grid_interface,   ONLY : Grid_getDeltas
-  use Grid_data,        ONLY : gr_globalDomain
-  use Driver_interface, ONLY : Driver_abort
+subroutine Grid_getCellCoords_1drange(axis, edge, level, slo, shi, coordinates)
 
   implicit none
 
   integer, intent(in)  :: axis
   integer, intent(in)  :: edge
   integer, intent(in)  :: level
-  integer, intent(in)  :: lo(1:MDIM)
-  integer, intent(in)  :: hi(1:MDIM)
+  integer, intent(in)  :: slo
+  integer, intent(in)  :: shi
   real,    intent(out) :: coordinates(:)
 
-  real    :: shift
-  integer :: nElements
-  real    :: deltas(1:MDIM)
-  integer :: i
-
-#ifdef DEBUG_GRID
-  if((axis /= IAXIS) .AND. (axis /= JAXIS) .AND. (axis /= KAXIS)) then
-     call Driver_abort("[Grid_getCellCoords] invalid axis, must be IAXIS, JAXIS or KAXIS ")
-  end if
-#endif
- 
-  ! Calculate number of cells
-  nElements = hi(axis) - lo(axis) + 1
-  if      (edge == FACES)  then
-      shift = 2.0
-      ! Get number of faces
-      nElements = nElements + 1
-  else if (edge == LEFT_EDGE) then
-      shift = 2.0
-  else if (edge == CENTER) then
-      shift = 1.5
-  else if (edge == RIGHT_EDGE) then
-      shift = 1.0
-  else
-      call Driver_abort('[Grid_getCellCoords] Invalid edge')
-  end if
-
-  if (SIZE(coordinates) < nElements) then
-99   format('Grid_getCellCoords ERROR: axis,lo..hi(axis),size(coordinates):', &
-          I3, I8,':',I7, I10)
-     print 99, axis, lo(axis),hi(axis), size(coordinates)
-     call Driver_abort("[Grid_getCellCoords] coordinates is too small")
-  end if
-
-  call Grid_getDeltas(level, deltas)
-
-  associate (x0 => gr_globalDomain(LOW, axis), &
-             dx => deltas(axis))
-      do i = 1, nElements
-          coordinates(i) = x0 + (lo(axis) + i - shift) * dx
-      end do
-  end associate
-end subroutine Grid_getCellCoords
+  coordinates(:) = 0.0
+end subroutine Grid_getCellCoords_1drange
 

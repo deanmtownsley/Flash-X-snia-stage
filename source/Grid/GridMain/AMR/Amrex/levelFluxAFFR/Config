@@ -1,0 +1,9 @@
+USESETUPVARS useAmrexFlashFluxreg, NoLevelwideFluxes
+IF NoLevelwideFluxes
+   # Configuration error: This directory should not be included!
+   SETUPERROR Code in the levelFlux directory cannot be used with +nolwf or with NoLevelwideFluxes=True.
+ENDIF
+IF not useAmrexFlashFluxreg
+   # Configuration error: This directory should not be included!
+   SETUPERROR Code in the levelFluxAFFR directory can only be used with useAmrexFlashFluxreg=True.
+ENDIF
