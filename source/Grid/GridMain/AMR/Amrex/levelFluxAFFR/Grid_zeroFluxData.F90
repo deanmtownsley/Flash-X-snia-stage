@@ -18,7 +18,7 @@
 !!  call Grid_zeroFluxData()
 !!
 !! DESCRIPTION 
-!!  Request that the Grid unit zero all flux data managed by the unit.
+!!  Request that the Grid unit zero all flux data arrays that it manages..
 !!
 !!  This is only implemented, and should only be used, when the following
 !!  two conditions apply:
@@ -68,38 +68,38 @@ subroutine Grid_zeroFluxData()
        end if
        call tileDesc%releaseDataPtr(fluxData, FLUXX)
 
+#if NDIM >= 2
        call tileDesc%getDataPtr(fluxData, FLUXY)
        if (associated(fluxData)) then
-          if (size(fluxData) > 0) then
-             do        var = 1,         NFLUXES
-                do       k = lo(KAXIS), hi(KAXIS)
-                   do    j = lo(JAXIS), hi(JAXIS)+1
-                      do i = lo(IAXIS), hi(IAXIS)
-                         fluxData(i, j, k, var) = 0.0
-                      end do
+          do        var = 1,         NFLUXES
+             do       k = lo(KAXIS), hi(KAXIS)
+                do    j = lo(JAXIS), hi(JAXIS)+1
+                   do i = lo(IAXIS), hi(IAXIS)
+                      fluxData(i, j, k, var) = 0.0
                    end do
                 end do
              end do
-          end if
+          end do
        end if
        call tileDesc%releaseDataPtr(fluxData, FLUXY)
+#endif
 
+#if NDIM == 3
        call tileDesc%getDataPtr(fluxData, FLUXZ)
        if (associated(fluxData)) then
-          if (size(fluxData) > 0) then
-             do        var = 1,         NFLUXES
-                do       k = lo(KAXIS), hi(KAXIS)+1
-                   do    j = lo(JAXIS), hi(JAXIS)
-                      do i = lo(IAXIS), hi(IAXIS)
-                         fluxData(i, j, k, var) = 0.0
-                      end do
+          do        var = 1,         NFLUXES
+             do       k = lo(KAXIS), hi(KAXIS)+1
+                do    j = lo(JAXIS), hi(JAXIS)
+                   do i = lo(IAXIS), hi(IAXIS)
+                      fluxData(i, j, k, var) = 0.0
                    end do
                 end do
              end do
-          end if
+          end do
        end if
        call tileDesc%releaseDataPtr(fluxData, FLUXZ)
-    end associate
+#endif
+     end associate
 
     call itor%next()
   end do
