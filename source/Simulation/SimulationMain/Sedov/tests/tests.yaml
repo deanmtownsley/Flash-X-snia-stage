@@ -418,19 +418,19 @@ Comparison/Sedov/PseudoUG/2d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
-  setupOptions: -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -auto -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # OF COURSE NOT PRESENT in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +mh_grid +mh_orch Milhoja=AMReX,none,none +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +mh_grid +mh_orch Milhoja=AMReX,none,none +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # OF COURSE NOT PRESENT in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Paramesh/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -debug -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +pm4dev -gridinterpolation=native +mh_orch Milhoja=none,none,none +serialio
+  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +pm4dev -gridinterpolation=native +mh_orch Milhoja=none,none,none +serialio
   parfiles: test_pseudoug_milhoja_gce_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
@@ -549,7 +549,7 @@ Comparison/Sedov/PseudoUG/3d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/3d/Milhoja/unsplit:
-  setupOptions: -auto -debug -3d -nxb=8 -nyb=8 -nzb=8 +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
+  setupOptions: -auto -3d -nxb=8 -nyb=8 -nzb=8 +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
   parfiles: test_pseudoug_milhoja_gce_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
