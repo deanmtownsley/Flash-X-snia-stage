@@ -1,9 +1,9 @@
 #	Runtime parameters for the Sedov explosion problem.
-#       Version for testing simpleUnsplit Hydro with AMR implementations that 
+#       Version for testing simpleUnsplit Hydro with AMR implementations that
 #       are configured to restrict the mesh to a uniform grid at the finest
 #       refinement level.
 #
-#       It is intended that these results 
+#       It is intended that these results
 #        - serve as a baseline for true AMR results (see test_amr_2d.par) and
 #        - be used to confirm that different AMR implements yield the same
 #          results in the absence of interpolation.
@@ -40,13 +40,11 @@ zmax		= 1.
 xl_boundary_type = "periodic"
 xr_boundary_type = "periodic"
 
-yl_boundary_type = "periodic"
-yr_boundary_type = "periodic"
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
 
 zl_boundary_type = "periodic"
 zr_boundary_type = "periodic"
-
-flux_correct = .FALSE.
 
 #	Simulation time, I/O  parameters
 cfl		 = 0.45
@@ -54,6 +52,7 @@ restart  = .false.
 
 #	checkpoint file output parameters
 checkpointFileIntervalTime = 0.
+checkpointFileIntervalStep = 0
 checkpointFileNumber = 0
 
 #	plotfile output parameters
@@ -61,18 +60,18 @@ plotfileIntervalTime = 0.
 plotfileIntervalStep = 0
 plotfileNumber       = 0
 
+memory_stat_freq               = 1000
+
 nend            = 10000
 tmax            = 0.05
 
-# use MeshCalls for now so that we can compare AMReX, which does not have
-# MeshInterp implemented, against Paramesh
+# These should not matter, if we do pseudo-UG
 convertToConsvdForMeshCalls = .FALSE.
 convertToConsvdInMeshInterp = .FALSE.
 
-run_comment     = "Sedov explosion"
-log_file        = "sedov.log"
+run_comment     = "Sedov explosion from scratch"
+log_file        = "flashx.log"
 eintSwitch      = 1.e-4
-flux_correct    = .FALSE.
 
 plot_var_1 = "dens"
 plot_var_2 = "pres"
@@ -82,18 +81,29 @@ plot_var_3 = "temp"
 lrefine_min     = 6
 lrefine_max     = 6
 refine_var_1    = "dens"
-refine_var_2    = "pres"
 
-# Uniform Grid specific parameters
-# This setup should run a UG simulation that is identical to the 
-# pseudo-UG setup
-iProcs = 2	#num procs in i direction
-jProcs = 2	#num procs in j direction
-kProcs = 1
-iGridSize = 256
-jGridSize = 256
-kGridSize = 1
- 
+nblockx         = 1
+nblocky         = 1
+
+gr_useTiling = .FALSE.
+
+## -------------------------------------------------------------##
+# Orchestration unit - We run on CPUs
+#
+# These might depend on which runtime is used, but this is unimportant
+# since Milhoja is the only option for now.
+or_nThreadTeams          = 2
+or_nThreadsPerTeam       = 7
+or_nBytesInCpuMemoryPool = 17179869184.0
+gr_initBlock_nCpuThreads = 6
+# NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
+# to the par file?
+cpu_tf_hydro_nThreads    = 6
+
+#	Related to the Hydro solver
+#
+flux_correct    = .FALSE.
+
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #	I. INTERPOLATION SCHEME:
@@ -112,15 +122,6 @@ use_upwindTVD	= .false. # use upwind biased TVD slope for PPM (need nguard=6)
 RiemannSolver	= "HLL"       # Roe, HLL, HLLC, LLF, Marquina
 entropy         = .false.     # Entropy fix for the Roe solver
 
-#	III. STRONG SHOCK HANDELING SCHEME:
+#	III. STRONG SHOCK HANDLING SCHEME:
 shockDetect	= .false.     # Shock Detect for numerical stability
 ## -------------------------------------------------------------##
-
-## ---------------------------------------------------------------##
-##  SWITCHES SPECIFIC TO THE SUPER-TIME-STEPPING (STS) ALGORITHM  ##
-##  NOTE: For details on using STS runtime parameters, please     ##
-##        refer to user's guide (Driver chapter).                 ##
-useSTS                  = .false.
-nstepTotalSTS           = 5
-nuSTS                   = 0.2
-## ---------------------------------------------------------------##
