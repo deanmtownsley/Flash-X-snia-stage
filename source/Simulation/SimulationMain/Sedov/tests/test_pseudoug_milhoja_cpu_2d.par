@@ -90,12 +90,11 @@ gr_useTiling = .FALSE.
 ## -------------------------------------------------------------##
 # Orchestration unit - We run on CPUs
 #
-# These might depend on which runtime is used, but this is unimportant
-# since Milhoja is the only option for now.
+# These might be chosen dependent on which runtime variant is used
+#
 or_nThreadTeams          = 2
 or_nThreadsPerTeam       = 7
 or_nBytesInCpuMemoryPool = 17179869184.0
-gr_initBlock_nCpuThreads = 6
 # NOTE: This RP is created by the CODE GENERATOR.  How does this get added in
 # to the par file?
 cpu_tf_hydro_nThreads    = 6
