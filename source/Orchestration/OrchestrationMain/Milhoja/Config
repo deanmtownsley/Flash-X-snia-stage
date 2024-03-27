@@ -42,11 +42,13 @@ def genLines(setupvars):
 
     if   runtime_backend == 'none':
         pass
-    elif runtime_backend in ['cuda','gengpu','openmp','openacc']:
+    elif runtime_backend in ['cuda','gengpu','hostmem','openmp','openacc']:
         if (runtime_backend == 'cuda'):
             yield 'LIBRARY CUDA'
         if (runtime_backend == 'cuda' or runtime_backend == 'gengpu'):
             yield 'PPDEFINE ORCHESTRATION_USE_GPUS'
+        if (runtime_backend == 'hostmem'):
+            yield 'PPDEFINE ORCHESTRATION_USE_HOSTMEM'
 
         yield 'PPDEFINE ORCHESTRATION_USE_DATAPACKETS'
         yield 'D or_nStreams                N streams for coordinating data transfers and kernel launches'

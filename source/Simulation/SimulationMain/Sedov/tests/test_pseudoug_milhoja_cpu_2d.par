@@ -99,6 +99,11 @@ or_nBytesInCpuMemoryPool = 17179869184.0
 # to the par file?
 cpu_tf_hydro_nThreads    = 6
 
+or_nStreams                    = 1
+or_nBytesInGpuMemoryPools      = 17179869184.0
+gpu_tf_hydro_nThreads          = 1
+gpu_tf_hydro_nTilesPerPacket   = 10
+
 #	Related to the Hydro solver
 #
 flux_correct    = .FALSE.

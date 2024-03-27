@@ -44,6 +44,7 @@ subroutine Orchestration_init()
     use Orchestration_interface,     ONLY : Orchestration_checkInternalError
     use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
+#include "constants.h"
     implicit none
 
     integer :: nThreadTeams
@@ -66,11 +67,11 @@ subroutine Orchestration_init()
     CALL RuntimeParameters_get("or_nThreadTeams",           nThreadTeams)
     CALL RuntimeParameters_get("or_nThreadsPerTeam",        nThreadsPerTeam)
     CALL RuntimeParameters_get("or_nBytesInCpuMemoryPool",  nBytesInCpuMemoryPool)
-#ifdef ORCHESTRATION_USE_GPUS
+#if defined(ORCHESTRATION_USE_GPUS) || defined(ORCHESTRATION_USE_DATAPACKETS)
     CALL RuntimeParameters_get("or_nStreams",               nStreams)
     CALL RuntimeParameters_get("or_nBytesInGpuMemoryPools", nBytesInGpuMemoryPools)
 #else
-    !!DEV: Maybe use some of those RPs when ORCHESTRATION_USE_PACKETS is defined? - KW
+    !!DEV: OK to use those RPs whenever ORCHESTRATION_USE_DATAPACKETS is defined? - KW
     nStreams = 0
     nBytesInGpuMemoryPools = 0.0
 #endif
