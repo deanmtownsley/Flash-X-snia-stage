@@ -18,7 +18,7 @@ ADDL_DEF_ARGS = ["+default"]
 WITHOUT_ARGS = ["auto","1d","2d","3d","portable",
                 "makehide", "curvilinear",
                 "opt","debug","test", "index-reorder", "strictparams",
-                "fbs","help", "noclobber", "nofbs"] # nofbs disables fixedBlockSize
+                "fbs","help", "noclobber", "nofbs", "mconly"] # nofbs disables fixedBlockSize
 # options with arguments
 WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","site","ostype",
              "defines", "objdir","with-unit", "unit", "with-library",
@@ -46,7 +46,7 @@ USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
             -objdir=<relative obj directory> 
             -defines=<defines> -unitsfile=<filename>
             -datafiles=<wildcard> -parfile=<filename>
-            -fbs -nofbs -tau=<makefile>
+            -fbs -nofbs -tau=<makefile> -mconly
 
    (Misc Options)
             -makehide -noclobber -portable -help
@@ -262,6 +262,7 @@ def parseCommandLine():
         elif arg == '--fbs':                GVars.setupVars.set("fixedBlockSize",True)
         elif arg == '--nofbs':              GVars.setupVars.set("fixedBlockSize", False)
         elif arg == '--strictparams':       GVars.strictParams = 1
+        elif arg == "--mconly":             GVars.macroOnly = True
         # DEV 'curvilinear'
         # * originally used to have the same effect as -gridinterpolation=monotonic
         #   does now, in addition to #defining GRID_CURVILINEAR 1 in Simulation.h.
@@ -398,7 +399,6 @@ def parseCommandLine():
                 GVars.particleMethods[particleType] = nameValuePairs
             else:
                 raise SetupError("particlemethods option: must specify a particle type with TYPE=<name of particle type>!")
-
         else:
             if not val: 
                a = arg

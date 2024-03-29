@@ -1,0 +1,22 @@
+#  Configuration file for Eos test for the Hybrid Helmholtz+WeakLib implementation
+#  Simulation/SimultationMain/unitTest/Eos/WeakLib
+#  Receives the Simulation_init from SimulationComposition
+
+REQUIRES physics/Eos/EosMain/Hybrid/Helmholtz_Weaklib
+REQUIRES physics/Eos/unitTest/Hybrid
+
+# Extra variables
+D ye_mscalar      Electron Fraction
+MASS_SCALAR YE    EOSMAPIN: YE
+
+MASS_SCALAR SUMY EOSMAPIN: SUMY
+
+# Note: these are for an ugly hack to allow the unit test to compare
+# the inverted temperatures from each EOS
+VARIABLE TMPH EOSMAPOUT: TEMP1
+VARIABLE TMPW EOSMAPOUT: TEMP2
+
+D sim_yeMin       Initial distribution of electron fraction, minimum.  Even distribution between min/max.
+D sim_yeMax       Initial distribution of electron fraction, maximum.  Even distribution between min/max.
+PARAMETER sim_yeMin  REAL 0.1
+PARAMETER sim_yeMax  REAL 0.5

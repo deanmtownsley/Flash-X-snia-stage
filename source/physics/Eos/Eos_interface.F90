@@ -168,5 +168,11 @@ Module Eos_interface
      end subroutine Eos_logDiagnostics
   end interface
 
+  interface
+     subroutine Eos_sendOutputData()
+       implicit none
+     end subroutine Eos_sendOutputData
+  end interface
+
 end Module Eos_interface
   

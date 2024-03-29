@@ -15,6 +15,11 @@ EXCLUSIVE fog tvd2 lim03 mp5
 ## PPDEFINE FLASH_HYDRO_UNSPLIT
 ##PPDEFINE CHOMBO_COMPATIBLE_HYDRO
 
+USESETUPVARS NoLevelwideFluxes
+IF not NoLevelwideFluxes
+   REQUIRES ./levelFlux
+ENDIF
+
 PARAMETER cvisc         REAL    0.1
 PARAMETER lim_rad       REAL    0.1
 

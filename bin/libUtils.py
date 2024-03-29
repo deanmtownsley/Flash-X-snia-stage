@@ -247,7 +247,7 @@ class LibUnion(dict):
         status = subprocess.check_call('./build.sh', shell=False)
         GVars.out.put("./build.sh returned %s"% status, globals.DEBUG)
         if status:  # normally unreachable, check_call should have raised an exception
-           raise SetupError("Library build in %s failed! (status %s)"% (libDir,status))
+            raise SetupError("Library build in %s failed! (status %s)"% (libDir,status))
      else:
         raise SetupError(USAGE % locals())
      os.chdir(pwd)

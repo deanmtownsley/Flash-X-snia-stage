@@ -53,6 +53,7 @@ subroutine bn_xnetInit(data_dir,data_desc)
   use xnet_preprocess, ONLY : net_preprocess
   use xnet_screening, ONLY : screening_init
   use xnet_util, ONLY : name_ordered
+  use xnet_nse, only: nse_initialize
 
   !$ use omp_lib
 
@@ -125,6 +126,10 @@ subroutine bn_xnetInit(data_dir,data_desc)
 
   ! Initialize EoS for screening or self-heating
   call eos_initialize
+
+  ! Initialize the NSE module (still necessary when using Eos table n/p mu's for
+  ! for calling nse_composition)
+  call nse_initialize
 
   ! Initialize BDF integrator
   call bdf_init

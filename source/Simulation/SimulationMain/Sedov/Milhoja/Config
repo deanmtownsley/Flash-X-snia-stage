@@ -1,3 +1,6 @@
 #####----- TO BE WRITTEN ENTIRELY BY CODE GENERATOR
 # Declare runtime parameters needed to configure runtime
 PARAMETER cpu_tf_hydro_nThreads  INTEGER 1 [ 1 ... ]
+
+# These variables should appear in UNK first, in this order:
+EVOLVEDVAR DENS VELX VELY VELZ PRES ENER TEMP EINT GAMC GAME

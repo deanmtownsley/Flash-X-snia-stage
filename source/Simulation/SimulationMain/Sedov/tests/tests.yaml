@@ -167,11 +167,17 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   restartParfiles: test_amr_cyl_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Composite/Sedov23/AMR/2dCyl/amrexLwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark +sparklwf DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_-_fc1_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 # NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
-  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_fc1_spark_restart.par
+  parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_-_fc1_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -191,8 +197,8 @@ Composite/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcNone:
 # NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
-  restartParfiles: test23_amr_cyl_2d_amrex_nolwf_fc1_spark_restart.par
+  parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
+  restartParfiles: test23_amr_cyl_2d_amrex_-_fc1_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -200,6 +206,12 @@ Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True -noc
   parfiles:        test23_amr_cyl_2d_amrex_nolwf_nofc_spark.par
   restartParfiles: test23_amr_cyl_2d_amrex_nolwf_nofc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Composite/Sedov23/AMR/2dCyl/pm4Lwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
+  parfiles:        test23_amr_cyl_2d_pm_-_fc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_-_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -219,8 +231,8 @@ Composite/Sedov23/AMR/2dCyl/pm4Lwf/uhd/fcNone:
 # NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_spark.par
-  restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark_restart.par
+  parfiles:        test23_amr_cyl_2d_pm_-_fc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_-_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -233,8 +245,8 @@ Composite/Sedov23/AMR/2dCyl/pm4Nolwf/spark/fcNone:
 # NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/pm4Nolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_pm_nolwf_fc_spark.par
-  restartParfiles: test23_amr_cyl_2d_pm_nolwf_fc_spark_restart.par
+  parfiles:        test23_amr_cyl_2d_pm_-_fc_spark.par
+  restartParfiles: test23_amr_cyl_2d_pm_-_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -625,13 +637,13 @@ Comparison/Sedov/AMR/2dCyl/Paramesh/spark:
 # NOT PRESENT in regular Production_GCC.suite
 Comparison/Sedov23/AMR/2dCyl/amrexNolwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
 Comparison/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark nontelescoping=True --with-unofficial=physics/Hydro/HydroMain/Spark/NonTelescoping DoAnalytical=True
-  parfiles:        test23_amr_cyl_2d_amrex_nolwf_fc1_spark.par
+  parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -653,4 +665,9 @@ Comparison/Sedov/AMR/3d/Paramesh/unsplit:
 Comparison/Sedov/AMR/3d/pm4Bittree/unsplit:
   setupOptions: -auto -3d -nxb=8 -nyb=8 -nzb=8 +uhd +pm4dev Bittree=True -gridinterpolation=native
   parfiles: test_amr_unsplit_3d.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
+Comparison/Sedov/UG/Part/2d/unsplit:
+  setupOptions: -auto -2d +nofbs -with-unit=Particles
+  parfiles: test_ug_particles_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat

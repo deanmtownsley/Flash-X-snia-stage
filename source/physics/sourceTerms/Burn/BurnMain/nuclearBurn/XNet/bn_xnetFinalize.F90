@@ -32,6 +32,7 @@ subroutine bn_xnetFinalize()
   use Driver_interface, ONLY : Driver_getComm, Driver_getMype, Driver_getNumProcs
   use bn_xnetData, ONLY : xnet_writeTimers
   use xnet_jacobian, ONLY : jacobian_finalize
+  use xnet_nse, only: nse_finalize
   use xnet_timers, ONLY : timer_burner, timer_xnet, timer_tstep, timer_nraph, timer_deriv, &
      timer_jacob, timer_solve, timer_csect, timer_scrn
 
@@ -163,6 +164,7 @@ subroutine bn_xnetFinalize()
   end if
 
   call jacobian_finalize
+  call nse_finalize
 
   return
 
