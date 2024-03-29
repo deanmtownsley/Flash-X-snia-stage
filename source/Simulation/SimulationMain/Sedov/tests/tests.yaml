@@ -430,26 +430,8 @@ Comparison/Sedov/PseudoUG/2d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit:
-  setupOptions: -auto -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
-  parfiles: test_pseudoug_milhoja_gce_2d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# OF COURSE NOT PRESENT in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/2d/Milhoja/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +mh_grid +mh_orch Milhoja=AMReX,none,OpenACC +serialio -unit=IO/IOMain/hdf5/serial/MH
-  parfiles: test_pseudoug_milhoja_gce_2d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# OF COURSE NOT PRESENT in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/2d/Amrex/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +amrex +mh_orch Milhoja=none,none,OpenACC
-  parfiles: test_pseudoug_milhoja_cpu_2d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# OF COURSE NOT PRESENT in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/2d/Paramesh/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/2D -auto -maxblocks=1000 HydroGuardcells=1 -2d +sHLL +pm4dev -gridinterpolation=native +mh_orch Milhoja=none,none,OpenACC +serialio
-  parfiles: test_pseudoug_milhoja_cpu_2d.par
+  setupOptions: -auto -maxblocks=1000 HydroGuardcells=1 -2d -nxb=8 -nyb=8 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH --index-reorder
+  parfiles: test_pseudoug_milhoja_2d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 # NOT PRESENT in regular Production_GCC.suite
@@ -567,26 +549,8 @@ Comparison/Sedov/PseudoUG/3d/Paramesh/unsplit:
 
 # NOT ENABLED in regular Production_GCC.suite
 Comparison/Sedov/PseudoUG/3d/Milhoja/unsplit:
-  setupOptions: -auto -3d -nxb=8 -nyb=8 -nzb=8 +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
-  parfiles: test_pseudoug_milhoja_gce_3d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# OF COURSE NOT ENABLED in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/3d/Milhoja/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/3D -auto -maxblocks=2048 HydroGuardcells=1 -3d -nxb=16 -nyb=16 -nzb=16 +sHLL +milhoja +serialio -unit=IO/IOMain/hdf5/serial/MH
-  parfiles: test_pseudoug_milhoja_gce_3d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# OF COURSE NOT ENABLED in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/3d/Amrex/orCpu/simpleUnsplit:
-  setupOptions: -unit=Simulation/SimulationMain/Sedov/Milhoja/cpu/3D -auto -maxblocks=2048 HydroGuardcells=1 -3d -nxb=16 -nyb=16 -nzb=16 +sHLL +amrex +mh_orch Milhoja=none,none,OpenACC +serialio
-  parfiles: test_pseudoug_milhoja_gce_3d.par
-  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
-
-# ALSO NOT ENABLED in regular Production_GCC.suite
-Comparison/Sedov/PseudoUG/3d/Milhoja/simpleUnsplit:
-  setupOptions: -auto -maxblocks=2048 HydroGuardcells=1 -3d -nxb=16 -nyb=16 -nzb=16 +sHLL +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH
-  parfiles: test_pseudoug_milhoja_gce_3d.par
+  setupOptions: -auto -debug -3d -nxb=8 -nyb=8 -nzb=8 +mh_grid +serialio -unit=IO/IOMain/hdf5/serial/MH -index-reorder --with-unofficial=Grid/GridMain/AMR/Milhoja
+  parfiles: test_pseudoug_milhoja_3d.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
 Comparison/Sedov/AMR/2d/AMReX/simpleUnsplit:

@@ -9,11 +9,15 @@
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+ifeq ("$(USEOPENMP)","1")
+  AMREX_PATH=${FLASHX_AMREX_OMP${NDIM}D_DIR}
+else
+  AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+endif
 
 #MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
 #Try same path as for GCC:
-MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/localDbg-milhoja_grid/${NDIM}dcpu
+MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/local-milhoja/${NDIM}d
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
@@ -136,8 +140,6 @@ LIB_MA28 = -L$(MA28_PATH) -lma28
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # all dependencies.
-# TODO: I believe that Klaus has addressed this.  If so, update to use his
-# new fix.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
 LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX} -lstdc++
 

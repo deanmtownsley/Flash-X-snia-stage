@@ -1,12 +1,6 @@
 # Test suite file for ganon_jenkins
 
 #------------------------------------------------
-# Tests for - Sedov
-#------------------------------------------------
-Sedov -t "Comparison/Sedov/PseudoUG/2d/Milhoja/simpleUnsplit" -np 4 -cbase 2023-01-18
-Sedov -t "Comparison/Sedov/PseudoUG/3d/Milhoja/unsplit" -np 8 -cbase 2023-01-18
-
-#------------------------------------------------
 # Tests for - unitTest/Grid/Milhoja/TestInit
 #------------------------------------------------
 unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/1D/TestInit" -np 1

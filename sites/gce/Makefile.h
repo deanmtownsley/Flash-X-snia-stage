@@ -17,7 +17,6 @@ else
 endif
 
 #MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
-MILHOJA_PATH=$(HOME)/.local-milhoja-${NDIM}d
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
