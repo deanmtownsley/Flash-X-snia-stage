@@ -41,7 +41,7 @@ subroutine Simulation_init()
    use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
-                              sim_meshMe, sim_bubbleRadius
+                              sim_meshMe
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
