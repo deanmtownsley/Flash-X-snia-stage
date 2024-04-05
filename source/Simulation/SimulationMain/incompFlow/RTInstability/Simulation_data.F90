@@ -33,5 +33,6 @@ module Simulation_data
 
    real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
    integer, save :: sim_meshMe
+   real, save :: sim_initAmplitude, sim_initEta
 
 end module Simulation_data

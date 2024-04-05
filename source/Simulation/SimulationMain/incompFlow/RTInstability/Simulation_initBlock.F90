@@ -84,7 +84,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
             yi = yCenter(j)
             zi = zCenter(k)
 
-            solnData(DFUN_VAR, i, j, k) = -tanh(yi - 2 - 0.1*cos(2*acos(-1.0)*xi))
+            solnData(DFUN_VAR, i, j, k) = tanh(sim_initAmplitude*cos(2*acos(-1.0)*(xi+sim_xMin))/(sqrt(2*sim_initEta)) - yi)
 
          end do
       end do

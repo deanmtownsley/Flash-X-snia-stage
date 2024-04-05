@@ -2,3 +2,6 @@
 #       Note: This is a staggered finite difference mesh algorithm.
 
 REQUIRES physics/Multiphase/MultiphaseMain
+
+PARAMETER sim_initAmplitude REAL 0.05
+PARAMETER sim_initEta REAL 0.01

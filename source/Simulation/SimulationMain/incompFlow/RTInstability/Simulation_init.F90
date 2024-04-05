@@ -41,7 +41,7 @@ subroutine Simulation_init()
    use Simulation_data, ONLY: sim_xMin, sim_yMin, &
                               sim_xMax, sim_yMax, &
                               sim_zMin, sim_zMax, &
-                              sim_meshMe
+                              sim_meshMe, sim_initAmplitude, sim_initEta
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
@@ -55,5 +55,7 @@ subroutine Simulation_init()
    call RuntimeParameters_get('xmax', sim_xMax)
    call RuntimeParameters_get('ymax', sim_yMax)
    call RuntimeParameters_get('zmax', sim_zMax)
+   call RuntimeParameters_get("sim_initAmplitude", sim_initAmplitude)
+   call RuntimeParameters_get("sim_initEta", sim_initEta)
 
 end subroutine Simulation_init
