@@ -1,3 +1,6 @@
 # Use the Milhoja library with the AMReX grid backend
 #
 TYPE EXTERNAL
+
+LIBRARY milhoja
+LIBRARY amrex
