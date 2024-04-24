@@ -69,9 +69,10 @@ module eos_helmData
   real, save :: eos_tlo, eos_thi, eos_tstpi
   real, save :: eos_dlo, eos_dhi, eos_dstpi
   integer, parameter :: eos_t=1,eos_dt=2,eos_dtSqr=3,eos_dtInv=4,eos_dtSqrInv=5
-  real,dimension(EOSIMAX),save :: eos_dd,eos_ddSqr,eos_ddInv,eos_ddSqrInv,eos_d
-  real,dimension(EOSJMAX,5) :: eos_temps
-
+  integer, parameter :: eos_d=1
+  real,dimension(EOSIMAX),save :: eos_dd,eos_ddSqr,eos_ddInv,eos_ddSqrInv
+  real,dimension(EOSJMAX,5),save :: eos_temps
+  real,dimension(EOSIMAX,5),save :: eos_rhos
 !..for the helmholtz free energy tables
 !..for the pressure derivative with density tables
 !..for the chemical potential tables

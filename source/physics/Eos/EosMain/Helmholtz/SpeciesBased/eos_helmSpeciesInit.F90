@@ -223,7 +223,7 @@ subroutine eos_helmSpeciesInit()
   do j=1,EOSJMAX
      eos_temps(j,eos_t) = 10.0e0**(eos_tlo + (j-1)*tstp)
      do i=1,EOSIMAX
-        eos_d(i) = 10.0e0**(eos_dlo + (i-1)*dstp)
+        eos_rhos(i,eos_d) = 10.0e0**(eos_dlo + (i-1)*dstp)
      enddo
   enddo
 
@@ -236,7 +236,7 @@ subroutine eos_helmSpeciesInit()
      eos_temps(j,eos_dtSqrInv) = 1.0e0/eos_temps(j,eos_dtSqr)
   enddo
   do i=1,EOSIMAX-1
-     eos_dd(i)   = eos_d(i+1) - eos_d(i)
+     eos_dd(i)   = eos_rhos(i+1,eos_d) - eos_rhos(i,eos_d)
      eos_ddSqr(i)  = eos_dd(i)*eos_dd(i)
      eos_ddInv(i)  = 1.0e0/eos_dd(i)
      eos_ddSqrInv(i) = 1.0e0/eos_ddSqr(i)
