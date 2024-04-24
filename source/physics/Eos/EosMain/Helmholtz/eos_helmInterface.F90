@@ -29,8 +29,8 @@ module eos_helmInterface
 #include "Eos.h"
 
   interface
-     subroutine eos_helm(eos_jlo,eos_jhi,mask)
-       integer, intent(IN) :: eos_jlo, eos_jhi
+     subroutine eos_helm(k,mask)
+       integer, intent(IN) :: k
        logical,optional, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
      end subroutine eos_helm
   end interface

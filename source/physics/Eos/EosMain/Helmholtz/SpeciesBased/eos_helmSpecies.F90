@@ -264,8 +264,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   if (mode==MODE_DENS_TEMP) then
 
-     call eos_helm(1,vecLen)
-
+     do k=1,vecLen
+        call eos_helm(k)
+     end do
      eosData(pres+1:pres+vecLen)=ptotRow(1:vecLen)
      eosData(eint+1:eint+vecLen)=etotRow(1:vecLen)
      eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
@@ -290,8 +291,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      !  position and the iteration won't converge.
      !  Initial temperature here is what is stored in the grid, even though we 
      !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
-
-     call eos_helm(vecBegin,vecEnd)
+     do k = vecBegin,vecEnd
+        call eos_helm(k)
+     end do
      !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
 
 
@@ -329,8 +331,8 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         do i = 2, eos_maxNewton
            if (error(k)< eos_tol) goto 70
 
-           call eos_helm(k,k)
-
+           call eos_helm(k)
+           
            tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
                 &              / detRow(k)
 
@@ -384,8 +386,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      end do
 
      ! Crank through the entire eos one last time
-
-     call eos_helm(vecBegin,vecEnd)
+     do k = vecBegin,vecEnd
+        call eos_helm(k)
+     end do
 
      ! Fill the FLASH arrays with the results.  
 
@@ -418,8 +421,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      error(:) = 0.0e0
 
      ! Do the first eos call with all the zones in the pipe
-     call eos_helm(vecBegin,vecEnd)
-
+     do k = vecBegin,vecEnd
+        call eos_helm(k)
+     end do
      do k = vecBegin, vecEnd
 
         tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
@@ -455,7 +459,7 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
            if (error(k) .LT. eos_tol) goto 170
 
            ! do eos only over this single item
-           call eos_helm(k,k)
+           call eos_helm(k)
 
            tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
                 &              / dptRow(k)
@@ -509,8 +513,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      enddo
 
      ! Crank through the entire eos one last time
-
-     call eos_helm(vecBegin,vecEnd)
+     do k=vecBegin,vecEnd
+        call eos_helm(k)
+     end do
 
      ! Fill the FLASH arrays with the results.  
      eosData(temp+1:temp+vecLen)=tempRow(1:vecLen)
