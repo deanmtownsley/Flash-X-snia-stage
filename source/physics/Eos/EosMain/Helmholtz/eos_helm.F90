@@ -517,11 +517,11 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 
      !!  the density and temperature basis functions
      si0t =   psi0(xt)
-     si1t =   psi1(xt)*eos_dt(jat)
+     si1t =   psi1(xt)*eos_temps(jat,eos_dt)
      si2t =   psi2(xt)*eos_dtSqr(jat)
 
      si0mt =  psi0(mxt)
-     si1mt = -psi1(mxt)*eos_dt(jat)
+     si1mt = -psi1(mxt)*eos_temps(jat,eos_dt)
      si2mt =  psi2(mxt)*eos_dtSqr(jat)
 
      si0d =   psi0(xd)
@@ -536,11 +536,11 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      !!  the first derivatives of the basis functions
      dsi0t =   dpsi0(xt)*eos_dtInv(jat)
      dsi1t =   dpsi1(xt)
-     dsi2t =   dpsi2(xt)*eos_dt(jat)
+     dsi2t =   dpsi2(xt)*eos_temps(jat,eos_dt)
 
      dsi0mt = -dpsi0(mxt)*eos_dtInv(jat)
      dsi1mt =  dpsi1(mxt)
-     dsi2mt = -dpsi2(mxt)*eos_dt(jat)
+     dsi2mt = -dpsi2(mxt)*eos_temps(jat,eos_dt)
 
      dsi0d =   dpsi0(xd)*eos_ddInv(iat)
      dsi1d =   dpsi1(xd)
@@ -597,10 +597,10 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      !!  electron positron number densities
      !!  get the interpolation weight functions
      si0t   =  xpsi0(xt)
-     si1t   =  xpsi1(xt)*eos_dt(jat)
+     si1t   =  xpsi1(xt)*eos_temps(jat,eos_dt)
 
      si0mt  =  xpsi0(mxt)
-     si1mt  =  -xpsi1(mxt)*eos_dt(jat)
+     si1mt  =  -xpsi1(mxt)*eos_temps(jat,eos_dt)
 
      si0d   =  xpsi0(xd)
      si1d   =  xpsi1(xd)*eos_dd(iat)
