@@ -221,7 +221,7 @@ subroutine eos_helmSpeciesInit()
   dstp      = (eos_dhi - eos_dlo)/float(EOSIMAX-1)
   eos_dstpi = 1.0e0/dstp
   do j=1,EOSJMAX
-     eos_t(j) = 10.0e0**(eos_tlo + (j-1)*tstp)
+     eos_temps(j,eos_t) = 10.0e0**(eos_tlo + (j-1)*tstp)
      do i=1,EOSIMAX
         eos_d(i) = 10.0e0**(eos_dlo + (i-1)*dstp)
      enddo
@@ -230,7 +230,7 @@ subroutine eos_helmSpeciesInit()
 
   !..store the temperature and density differences and their inverses 
   do j=1,EOSJMAX-1
-     eos_dt(j)   = eos_t(j+1) - eos_t(j)
+     eos_dt(j)   = eos_temps(j+1,eos_t) - eos_temps(j,eos_t)
      eos_dtSqr(j)  = eos_dt(j)*eos_dt(j)
      eos_dtInv(j)  = 1.0e0/eos_dt(j)
      eos_dtSqrInv(j) = 1.0e0/eos_dtSqr(j)

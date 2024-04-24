@@ -97,12 +97,13 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
   use eos_helmData, ONLY: eos_f, eos_ft, eos_ftt, eos_fd, eos_fdd, eos_fdt, &
        eos_fddt, eos_fdtt, eos_fddtt, &
        eos_dpdf, eos_dpdft, eos_dpdfd, eos_dpdfdt, &
-       eos_coulombMult, eos_dLo, eos_tLo, eos_t, eos_dt,  eos_dtInv, &
+       eos_coulombMult, eos_dLo, eos_tLo, eos_t, eos_dt, eos_dtInv, &
        eos_d, eos_dd, eos_ddInv, eos_tstpi, eos_dstpi, &
        eos_dtSqr, eos_dtSqrInv, eos_ddSqr, &
        eos_ef, eos_eft, eos_efd, eos_efdt, &
        eos_xf, eos_xft, eos_xfd, eos_xfdt, &
        EOSJMAX, EOSIMAX, eos_coulombAbort
+  use eos_helmData, ONLY: eos_temps
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -508,7 +509,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 
 
      !!  various differences
-     xt  = max( (btemp - eos_t(jat))*eos_dtInv(jat), 0.0e0)
+     xt  = max( (btemp - eos_temps(jat,eos_t))*eos_dtInv(jat), 0.0e0)
      xd  = max( (din - eos_d(iat))*eos_ddInv(iat), 0.0e0)
      mxt = 1.0e0 - xt
      mxd = 1.0e0 - xd
