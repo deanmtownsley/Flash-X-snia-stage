@@ -103,7 +103,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
        eos_ef, eos_eft, eos_efd, eos_efdt, &
        eos_xf, eos_xft, eos_xfd, eos_xfdt, &
        EOSJMAX, EOSIMAX, eos_coulombAbort
-  use eos_helmData, ONLY: eos_temps,eos_rhos
+  use eos_helmData, ONLY: eos_temps,eos_rhos,eos_table
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -295,48 +295,48 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 !!  bicubic hermite for the pressure derivative
 #ifndef EOS_LESSOPERATIONS
   h3dpd(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-       eos_dpdf(i,j)        *w0d*w0t   +   eos_dpdf(i+1,j)    *w0md*w0t  & 
-       +   eos_dpdf(i,j+1)  *w0d*w0mt  +   eos_dpdf(i+1,j+1)  *w0md*w0mt & 
-       +  eos_dpdft(i,j)    *w0d*w1t   +  eos_dpdft(i+1,j)    *w0md*w1t  & 
-       +  eos_dpdft(i,j+1)  *w0d*w1mt  +  eos_dpdft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_dpdfd(i,j)    *w1d*w0t   +  eos_dpdfd(i+1,j)    *w1md*w0t  & 
-       +  eos_dpdfd(i,j+1)  *w1d*w0mt  +  eos_dpdfd(i+1,j+1)  *w1md*w0mt & 
-       + eos_dpdfdt(i,j)    *w1d*w1t   + eos_dpdfdt(i+1,j)    *w1md*w1t  & 
-       + eos_dpdfdt(i,j+1)  *w1d*w1mt  + eos_dpdfdt(i+1,j+1)  *w1md*w1mt
+       eos_table(i,j,eos_dpdf)        *w0d*w0t   +   eos_table(i+1,j,eos_dpdf)    *w0md*w0t  & 
+       +  eos_table(i,j+1, eos_dpdf)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_dpdf)  *w0md*w0mt & 
+       +  eos_table(i,j,eos_dpdft)    *w0d*w1t   +  eos_table(i+1,j,eos_dpdft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_dpdft)  *w0d*w1mt  +  eos_table(i+1,j+1,eos_dpdft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_dpdfd)    *w1d*w0t   +  eos_table(i+1,j,eos_dpdfd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_dpdfd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_dpdfd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_dpdfdt)    *w1d*w1t   +eos_table(i+1,j, eos_dpdfdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_dpdfdt)  *w1d*w1mt  + eos_table(i+1,j+1,eos_dpdfdt)  *w1md*w1mt
 #else
   h3dpd(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-         (eos_dpdf(i,j)     *w0d  +    eos_dpdf(i+1,j)   *w0md        & 
-       +  eos_dpdfd(i,j)    *w1d  +  eos_dpdfd(i+1,j)    *w1md) *w0t  & 
-       + (eos_dpdf(i,j+1)   *w0d  +   eos_dpdf(i+1,j+1)  *w0md        & 
-       +  eos_dpdfd(i,j+1)  *w1d  +  eos_dpdfd(i+1,j+1)  *w1md) *w0mt & 
-       + (eos_dpdft(i,j)    *w0d  +  eos_dpdft(i+1,j)    *w0md        & 
-       +  eos_dpdfdt(i,j)   *w1d  + eos_dpdfdt(i+1,j)    *w1md) *w1t  & 
-       + (eos_dpdft(i,j+1)  *w0d  +  eos_dpdft(i+1,j+1)  *w0md        & 
-       +  eos_dpdfdt(i,j+1) *w1d  + eos_dpdfdt(i+1,j+1)  *w1md) *w1mt
+         (eos_table(i,j,eos_dpdf)     *w0d  +    eos_table(i+1,j,eos_dpdf)   *w0md        & 
+       +  eos_table(i,j,eos_dpdfd)    *w1d  +  eos_table(i+1,j,eos_dpdfd)    *w1md) *w0t  & 
+       + (eos_table(i,j+1,eos_dpdf)   *w0d  +   eos_table(i+1,j+1,eos_dpdf)  *w0md        & 
+       +  eos_table(i,j+1,eos_dpdfd)  *w1d  +  eos_table(i+1,j+1,eos_dpdfd)  *w1md) *w0mt & 
+       + (eos_table(i,j,eos_dpdft)    *w0d  +  eos_table(i+1,j,eos_dpdft)    *w0md        & 
+       +  eos_table(i,j,eos_dpdfdt)   *w1d  + eos_table(i+1,j,eos_dpdfdt)    *w1md) *w1t  & 
+       + (eos_table(i,j+1,eos_dpdft)  *w0d  +  eos_table(i+1,j+1,eos_dpdft)  *w0md        & 
+       +  eos_table(i,j+1,eos_dpdfdt) *w1d  + eos_table(i+1,j+1,eos_dpdfdt)  *w1md) *w1mt
 #endif
 
 
 !!  bicubic hermite polynomial for the chemical potential
 #ifndef EOS_LESSOPERATIONS
   h3e(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-           eos_ef(i,j)    *w0d*w0t   +   eos_ef(i+1,j)    *w0md*w0t  & 
-       +   eos_ef(i,j+1)  *w0d*w0mt  +   eos_ef(i+1,j+1)  *w0md*w0mt & 
-       +  eos_eft(i,j)    *w0d*w1t   +  eos_eft(i+1,j)    *w0md*w1t  & 
-       +  eos_eft(i,j+1)  *w0d*w1mt  +  eos_eft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_efd(i,j)    *w1d*w0t   +  eos_efd(i+1,j)    *w1md*w0t  & 
-       +  eos_efd(i,j+1)  *w1d*w0mt  +  eos_efd(i+1,j+1)  *w1md*w0mt & 
-       + eos_efdt(i,j)    *w1d*w1t   + eos_efdt(i+1,j)    *w1md*w1t  & 
-       + eos_efdt(i,j+1)  *w1d*w1mt  + eos_efdt(i+1,j+1)  *w1md*w1mt
+          eos_table(i,j, eos_ef)    *w0d*w0t   +  eos_table(i+1,j, eos_ef)    *w0md*w0t  & 
+       +   eos_table(i,j+1,eos_ef)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_ef)  *w0md*w0mt & 
+       +  eos_table(i,j,eos_eft)    *w0d*w1t   +  eos_table(i+1,j,eos_eft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_eft)  *w0d*w1mt  +  eos_table(i+1,j+1,eos_eft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_efd)    *w1d*w0t   +  eos_table(i+1,j,eos_efd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_efd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_efd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_efdt)    *w1d*w1t   + eos_table(i+1,j,eos_efdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_efdt)  *w1d*w1mt  + eos_table(i+1,j+1,eos_efdt)  *w1md*w1mt
 #else
   h3e(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-          (eos_ef(i,j)    *w0d   +   eos_ef(i+1,j)    *w0md        & 
-       +   eos_efd(i,j)   *w1d   +  eos_efd(i+1,j)    *w1md) *w0t  & 
-       +  (eos_ef(i,j+1)  *w0d   +   eos_ef(i+1,j+1)  *w0md        & 
-       +   eos_efd(i,j+1) *w1d   +  eos_efd(i+1,j+1)  *w1md) *w0mt & 
-       +  (eos_eft(i,j)   *w0d   +  eos_eft(i+1,j)    *w0md        & 
-       +   eos_efdt(i,j)  *w1d   + eos_efdt(i+1,j)    *w1md) *w1t  & 
-       +  (eos_eft(i,j+1) *w0d   +  eos_eft(i+1,j+1)  *w0md        & 
-       +   eos_efdt(i,j+1)*w1d   + eos_efdt(i+1,j+1)  *w1md) *w1mt
+          (eos_table(i,j,eos_ef)    *w0d   +   eos_table(i+1,j,eos_ef)    *w0md        & 
+       +  eos_table(i,j, eos_efd)   *w1d   +  eos_table(i+1,j,eos_efd)    *w1md) *w0t  & 
+       +  (eos_table(i,j+1,eos_ef)  *w0d   +   eos_table(i+1,j+1,eos_ef)  *w0md        & 
+       +   eos_table(i,j+1,eos_efd) *w1d   + eos_table(i+1,j+1, eos_efd)  *w1md) *w0mt & 
+       +  (eos_table(i,j,eos_eft)   *w0d   +  eos_table(i+1,j,eos_eft)    *w0md        & 
+       +   eos_table(i,j,eos_efdt)  *w1d   + eos_table(i+1,j,eos_efdt)    *w1md) *w1t  & 
+       +  (eos_table(i,j+1,eos_eft) *w0d   +  eos_table(i+1,j+1,eos_eft)  *w0md        & 
+       +   eos_table(i,j+1,eos_efdt)*w1d   + eos_table(i+1,j+1,eos_efdt)  *w1md) *w1mt
 #endif
 
 
@@ -344,24 +344,24 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 !!  bicubic hermite polynomial for electron positron number densities
 #ifndef EOS_LESSOPERATIONS
   h3x(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-           eos_xf(i,j)    *w0d*w0t   +   eos_xf(i+1,j)    *w0md*w0t  & 
-       +   eos_xf(i,j+1)  *w0d*w0mt  +   eos_xf(i+1,j+1)  *w0md*w0mt & 
-       +  eos_xft(i,j)    *w0d*w1t   +  eos_xft(i+1,j)    *w0md*w1t  & 
-       +  eos_xft(i,j+1)  *w0d*w1mt  +  eos_xft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_xfd(i,j)    *w1d*w0t   +  eos_xfd(i+1,j)    *w1md*w0t  & 
-       +  eos_xfd(i,j+1)  *w1d*w0mt  +  eos_xfd(i+1,j+1)  *w1md*w0mt & 
-       + eos_xfdt(i,j)    *w1d*w1t   + eos_xfdt(i+1,j)    *w1md*w1t  & 
-       + eos_xfdt(i,j+1)  *w1d*w1mt  + eos_xfdt(i+1,j+1)  *w1md*w1mt
+          eos_table(i,j, eos_xf)    *w0d*w0t   +  eos_table(i+1,j, eos_xf)    *w0md*w0t  & 
+       +  eos_table(i,j+1, eos_xf)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_xf)  *w0md*w0mt & 
+       + eos_table(i,j, eos_xft)    *w0d*w1t   +  eos_table(i+1,j,eos_xft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_xft)  *w0d*w1mt  + eos_table(i+1,j+1, eos_xft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_xfd)    *w1d*w0t   +  eos_table(i+1,j,eos_xfd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_xfd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_xfd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_xfdt)    *w1d*w1t   + eos_table(i+1,j,eos_xfdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_xfdt)  *w1d*w1mt  + teos_table(i+1,j+1,eos_xfd)  *w1md*w1mt
 #else
   h3x(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-         (eos_xf(i,j)    *w0d   +   eos_xf(i+1,j)    *w0md        & 
-       +  eos_xfd(i,j)   *w1d   +  eos_xfd(i+1,j)    *w1md) *w0t  & 
-       + (eos_xf(i,j+1)  *w0d   +   eos_xf(i+1,j+1)  *w0md        & 
-       +  eos_xfd(i,j+1) *w1d   +  eos_xfd(i+1,j+1)  *w1md) *w0mt & 
-       + (eos_xft(i,j)   *w0d   +  eos_xft(i+1,j)    *w0md        & 
-       +  eos_xfdt(i,j)  *w1d   + eos_xfdt(i+1,j)    *w1md) *w1t  & 
-       + (eos_xft(i,j+1) *w0d   +  eos_xft(i+1,j+1)  *w0md        & 
-       +  eos_xfdt(i,j+1)*w1d   + eos_xfdt(i+1,j+1)  *w1md) *w1mt
+         (eos_table(i,j,eos_xf)    *w0d   +   eos_table(i+1,j,eos_xf)    *w0md        & 
+       +  eos_table(i,j,eos_xfd)   *w1d   + eos_table(i+1,j,eos_xfd)    *w1md) *w0t  & 
+       + (eos_table(i,j+1,eos_xf)  *w0d   +   eos_table(i+1,j+1,eos_xf)  *w0md        & 
+       +  eos_table(i,j+1,eos_xfd) *w1d   +  eos_table(i+1,j+1,eos_xfd)  *w1md) *w0mt & 
+       + (eos_table(i,j,eos_xft)   *w0d   +  eos_table(i+1,j,eos_xft)    *w0md        & 
+       +  eos_table(i,j,eos_xfdt)  *w1d   + eos_table(i+1,j,eos_xfdt)    *w1md) *w1t  & 
+       + (eos_table(i,j+1,eos_xft) *w0d   +  eos_table(i+1,j+1,eos_xft)  *w0md        & 
+       +  eos_table(i,j+1,eos_xfdt)*w1d   + eos_table(i+1,j+1,eos_xfdt)  *w1md) *w1mt
 #endif
 
   !!************ This is the end statement function definitions *************
@@ -470,42 +470,42 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 !     print *, 'jat = ',jat, ' iat= ', iat
 
      !!  access the table locations only once
-     fi(1)  = eos_f(iat,jat)
-     fi(2)  = eos_f(iat+1,jat)
-     fi(3)  = eos_f(iat,jat+1)
-     fi(4)  = eos_f(iat+1,jat+1)
-     fi(5)  = eos_ft(iat,jat)
-     fi(6)  = eos_ft(iat+1,jat)
-     fi(7)  = eos_ft(iat,jat+1)
-     fi(8)  = eos_ft(iat+1,jat+1)
-     fi(9)  = eos_ftt(iat,jat)
-     fi(10) = eos_ftt(iat+1,jat)
-     fi(11) = eos_ftt(iat,jat+1)
-     fi(12) = eos_ftt(iat+1,jat+1)
-     fi(13) = eos_fd(iat,jat)
-     fi(14) = eos_fd(iat+1,jat)
-     fi(15) = eos_fd(iat,jat+1)
-     fi(16) = eos_fd(iat+1,jat+1)
-     fi(17) = eos_fdd(iat,jat)
-     fi(18) = eos_fdd(iat+1,jat)
-     fi(19) = eos_fdd(iat,jat+1)
-     fi(20) = eos_fdd(iat+1,jat+1)
-     fi(21) = eos_fdt(iat,jat)
-     fi(22) = eos_fdt(iat+1,jat)
-     fi(23) = eos_fdt(iat,jat+1)
-     fi(24) = eos_fdt(iat+1,jat+1)
-     fi(25) = eos_fddt(iat,jat)
-     fi(26) = eos_fddt(iat+1,jat)
-     fi(27) = eos_fddt(iat,jat+1)
-     fi(28) = eos_fddt(iat+1,jat+1)
-     fi(29) = eos_fdtt(iat,jat)
-     fi(30) = eos_fdtt(iat+1,jat)
-     fi(31) = eos_fdtt(iat,jat+1)
-     fi(32) = eos_fdtt(iat+1,jat+1)
-     fi(33) = eos_fddtt(iat,jat)
-     fi(34) = eos_fddtt(iat+1,jat)
-     fi(35) = eos_fddtt(iat,jat+1)
-     fi(36) = eos_fddtt(iat+1,jat+1)
+     fi(1)  = eos_table(iat,jat,eos_f)
+     fi(2)  = eos_table(iat+1,jat,eos_f)
+     fi(3)  = eos_table(iat,jat+1,eos_f)
+     fi(4)  = eos_table(iat+1,jat+1,eos_f)
+     fi(5)  = eos_table(iat,jat,eos_ft)
+     fi(6)  = eos_table(iat+1,jat,eos_ft)
+     fi(7)  = eos_table(iat,jat+1,eos_ft)
+     fi(8)  = eos_table(iat+1,jat+1,eos_ft)
+     fi(9)  = eos_table(iat,jat,eos_ftt)
+     fi(10) = eos_table(iat+1,jat,eos_ftt)
+     fi(11) = eos_table(iat,jat+1,eos_ftt)
+     fi(12) = eos_table(iat+1,jat+1,eos_ftt)
+     fi(13) = eos_table(iat,jat,eos_fd)
+     fi(14) = eos_table(iat+1,jat,eos_fd)
+     fi(15) = eos_table(iat,jat+1,eos_fd)
+     fi(16) = eos_table(iat+1,jat+1,eos_fd)
+     fi(17) = eos_table(iat,jat,eos_fdd)
+     fi(18) = eos_table(iat+1,jat,eos_fdd)
+     fi(19) = eos_table(iat,jat+1,eos_fdd)
+     fi(20) = eos_table(iat+1,jat+1,eos_fdd)
+     fi(21) = eos_table(iat,jat,eos_fdt)
+     fi(22) = eos_table(iat+1,jat,eos_fdt)
+     fi(23) = eos_table(iat,jat+1,eos_fdt)
+     fi(24) = eos_table(iat+1,jat+1,eos_fdt)
+     fi(25) = eos_table(iat,jat,eos_fddt)
+     fi(26) = eos_table(iat+1,jat,eos_fddt)
+     fi(27) = eos_table(iat,jat+1,eos_fddt)
+     fi(28) = eos_table(iat+1,jat+1,eos_fddt)
+     fi(29) = eos_table(iat,jat,eos_fdtt)
+     fi(30) = eos_table(iat+1,jat,eos_fdtt)
+     fi(31) = eos_table(iat,jat+1,eos_fdtt)
+     fi(32) = eos_table(iat+1,jat+1,eos_fdtt)
+     fi(33) = eos_table(iat,jat,eos_fddtt)
+     fi(34) = eos_table(iat+1,jat,eos_fddtt)
+     fi(35) = eos_table(iat,jat+1,eos_fddtt)
+     fi(36) = eos_table(iat+1,jat+1,eos_fddtt)
 
 
      !!  various differences

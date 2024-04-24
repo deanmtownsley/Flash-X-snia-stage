@@ -75,14 +75,14 @@ module eos_helmData
 !..for the helmholtz free energy tables
 !..for the pressure derivative with density tables
 !..for the chemical potential tables
-!..for the number density tables
-  real,save,dimension(EOSIMAX,EOSJMAX) :: eos_f,eos_fd, eos_ft,eos_fdd,&
-                                          eos_ftt,eos_fdt,eos_fddt,&
-                                          eos_fdtt, eos_fddtt, & 
-                                          eos_dpdf,eos_dpdfd,eos_dpdft,&
-                                          eos_dpdfdd,eos_dpdftt,eos_dpdfdt,&
-                                          eos_ef,eos_efd,eos_eft,eos_efdd,&
-                                          eos_eftt,eos_efdt, & 
-                                          eos_xf,eos_xfd,eos_xft,eos_xfdd,&
-                                          eos_xftt,eos_xfdt
+  !..for the number density tables
+  integer, parameter :: EOST = 22, EOST_END=27
+  real,save,dimension(EOSIMAX,EOSJMAX,EOST_END) :: eos_table
+  integer, parameter:: eos_f=1,eos_fd=2,eos_ft=3,eos_fdd=4,&
+             eos_ftt=5,eos_fdt=6,eos_fddt=7,eos_fdtt=8,eos_fddtt=9, & 
+             eos_dpdf=10,eos_dpdfd=11,eos_dpdft=12,eos_dpdfdt=13, & 
+             eos_ef=14,eos_efd=15,eos_eft=16,eos_efdt=17, & 
+             eos_xf=18,eos_xfd=19,eos_xft=20,eos_xfdt=21
+  integer, parameter :: eos_dpdfdd=22,eos_dpdftt=23,eos_efdd=24,eos_eftt=25,&
+             eos_xfdd=26,eos_xftt=27
 end module eos_helmData

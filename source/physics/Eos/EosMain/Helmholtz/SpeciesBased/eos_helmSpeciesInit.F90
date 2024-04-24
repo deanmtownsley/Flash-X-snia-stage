@@ -124,33 +124,33 @@ subroutine eos_helmSpeciesInit()
         !..read the helmholtz free energy table
         do j=1,EOSJMAX
            do i=1,EOSIMAX
-              read(unitEos,*) eos_f(i,j),eos_fd(i,j),eos_ft(i,j),&
-                   eos_fdd(i,j),eos_ftt(i,j), & 
-                   eos_fdt(i,j), eos_fddt(i,j),eos_fdtt(i,j),eos_fddtt(i,j)
+              read(unitEos,*) eos_table(i,j,eos_f),eos_table(i,j,eos_fd),eos_table(i,j,eos_ft),&
+                   eos_table(i,j,eos_fdd),eos_table(i,j,eos_ftt), & 
+                   eos_table(i,j,eos_fdt),eos_table(i,j, eos_fddt),eos_table(i,j,eos_fdtt),eos_table(i,j,eos_fddtt)
            enddo
         enddo
 
         !..read the pressure derivative with density table
         do j=1,EOSJMAX
            do i=1,EOSIMAX
-              read(unitEos,*) eos_dpdf(i,j),eos_dpdfd(i,j),&
-                   eos_dpdft(i,j),eos_dpdfdt(i,j)
+              read(unitEos,*) eos_table(i,j,eos_dpdf),eos_table(i,j,eos_dpdfd),&
+                   eos_table(i,j,eos_dpdft),eos_table(i,j,eos_dpdfdt)
            enddo
         enddo
 
         !..read the electron chemical potential table
         do j=1,EOSJMAX
            do i=1,EOSIMAX
-              read(unitEos,*) eos_ef(i,j),eos_efd(i,j),&
-                   eos_eft(i,j),eos_efdt(i,j)
+              read(unitEos,*) eos_table(i,j,eos_ef),eos_table(i,j,eos_efd),&
+                   eos_table(i,j,eos_eft),eos_table(i,j,eos_efdt)
            enddo
         enddo
 
         !..read the number density table
         do j=1,EOSJMAX
            do i=1,EOSIMAX
-              read(unitEos,*) eos_xf(i,j),eos_xfd(i,j),&
-                   eos_xft(i,j),eos_xfdt(i,j)
+              read(unitEos,*) eos_table(i,j,eos_xf),eos_table(i,j,eos_xfd),&
+                   eos_table(i,j,eos_xft),eos_table(i,j,eos_xfdt)
            enddo
         enddo
 
@@ -158,58 +158,48 @@ subroutine eos_helmSpeciesInit()
         close(unitEos)
 
         !..dump binary version of table for later use
-        istat = EOSIMAX*EOSJMAX
-        call eos_writeHfet(istat, & 
-             eos_f,eos_fd,eos_ft,eos_fdd,&
-             eos_ftt,eos_fdt,eos_fddt,eos_fdtt,eos_fddtt, & 
-             eos_dpdf,eos_dpdfd,eos_dpdft,eos_dpdfdt, & 
-             eos_ef,eos_efd,eos_eft,eos_efdt, & 
-             eos_xf,eos_xfd,eos_xft,eos_xfdt)
+        istat = EOSIMAX*EOSJMAX*EOST
+        call eos_writeHfet(istat, eos_table)
 
         !..read binary version of table
      else
-        istat = EOSIMAX*EOSJMAX
-        call eos_readHfet(istat, & 
-             eos_f,eos_fd,eos_ft,eos_fdd,&
-             eos_ftt,eos_fdt,eos_fddt,eos_fdtt,eos_fddtt, & 
-             eos_dpdf,eos_dpdfd,eos_dpdft,eos_dpdfdt, & 
-             eos_ef,eos_efd,eos_eft,eos_efdt, & 
-             eos_xf,eos_xfd,eos_xft,eos_xfdt)
+        istat = EOSIMAX*EOSJMAX*EOST
+        call eos_readHfet(istat,eos_table)
      endif
   endif
 
   !..broadcast to rest of processors
-  istat = EOSIMAX*EOSJMAX
-  call MPI_BCAST(eos_f,      istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+  istat = EOSIMAX*EOSJMAX*EOST
+  call MPI_BCAST(eos_table,      istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
 
-  call MPI_BCAST(eos_fd,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_ft,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_fdd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_ftt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_fdt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_fddt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_fdtt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_fddtt,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_dpdf,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_dpdfd,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_dpdft,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_dpdfdt, istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_ef,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_efd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_eft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_efdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_xf,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-  call MPI_BCAST(eos_xfd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_xft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-  call MPI_BCAST(eos_xfdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_fd,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_ft,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_fdd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_ftt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_fdt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_fddt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_fdtt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_fddtt,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_dpdf,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_dpdfd,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_dpdft,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_dpdfdt, istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_ef,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_efd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_eft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_efdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_xf,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$
+!!$  call MPI_BCAST(eos_xfd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_xft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
+!!$  call MPI_BCAST(eos_xfdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
 
 
   eos_tlo   = 3.0e0

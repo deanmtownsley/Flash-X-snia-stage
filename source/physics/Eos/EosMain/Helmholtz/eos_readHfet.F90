@@ -76,10 +76,7 @@
 !!
 !!***
 
-subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
-     &     fdt, fddt, fdtt, fddtt, dpdf, dpdfd,  &
-     &   dpdft, dpdfdt, ef, efd, eft, efdt,      &
-     &   xf, xfd, xft, xfdt)
+subroutine eos_readHFet(n, f)
    use Driver_interface, ONLY : Driver_abort
    
    implicit none
@@ -87,9 +84,7 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
 #include "Simulation.h"
 
   integer, intent(in) :: n
-  real, intent(out) :: f(n),fd(n),ft(n),fdd(n),ftt(n),fdt(n),fddt(n),fdtt(n),fddtt(n), &
-       &         dpdf(n),dpdfd(n),dpdft(n),dpdfdt(n), &
-       &         ef(n),efd(n),eft(n),efdt(n),xf(n),xfd(n),xft(n),xfdt(n)
+  real, intent(out) :: f(n)
 
   !! Local variables
   !!  fileUnit is a file variable
@@ -109,27 +104,6 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
   if (ioStat .NE. 0)  call Driver_abort("[eos_readHfet]  file open failure!")
 
   read(fileUnit,END=101) f
-  read(fileUnit,END=102) fd
-  read(fileUnit,END=103) ft
-  read(fileUnit,END=104) fdd
-  read(fileUnit,END=105) ftt
-  read(fileUnit,END=106) fdt
-  read(fileUnit,END=107) fddt
-  read(fileUnit,END=108) fdtt
-  read(fileUnit,END=109) fddtt
-  read(fileUnit,END=110) dpdf
-  read(fileUnit,END=111) dpdfd
-  read(fileUnit,END=112) dpdft
-  read(fileUnit,END=113) dpdfdt
-  read(fileUnit,END=114) ef
-  read(fileUnit,END=115) efd
-  read(fileUnit,END=116) eft
-  read(fileUnit,END=117) efdt
-  read(fileUnit,END=118) xf
-  read(fileUnit,END=119) xfd
-  read(fileUnit,END=120) xft
-  read(fileUnit,END=121) xfdt
-
 
   !! close up and return
   close(fileUnit,IOSTAT=ioStat)
@@ -140,48 +114,8 @@ subroutine eos_readHFet(n, f, fd, ft, fdd, ftt,  &
   !! Error messages on insufficient data
 
 101 call Driver_abort("[eos_readHfet]  failed read on f!")
-102 call Driver_abort("[eos_readHfet]  failed read on fd!")
-103 call Driver_abort("[eos_readHfet]  failed read on ft!")
-104 call Driver_abort("[eos_readHfet]  failed read on fdd!")
-105 call Driver_abort("[eos_readHfet]  failed read on ftt!")
-106 call Driver_abort("[eos_readHfet]  failed read on fdt!")
-107 call Driver_abort("[eos_readHfet]  failed read on fddt!")
-108 call Driver_abort("[eos_readHfet]  failed read on fdtt!")
-109 call Driver_abort("[eos_readHfet]  failed read on fddtt!")
-110 call Driver_abort("[eos_readHfet]  failed read on dpdf!")
-111 call Driver_abort("[eos_readHfet]  failed read on dpdfd!")
-112 call Driver_abort("[eos_readHfet]  failed read on dpdft!")
-113 call Driver_abort("[eos_readHfet]  failed read on dpdfdt!")
-114 call Driver_abort("[eos_readHfet]  failed read on ef!")
-115 call Driver_abort("[eos_readHfet]  failed read on efd!")
-116 call Driver_abort("[eos_readHfet]  failed read on eft!")
-117 call Driver_abort("[eos_readHfet]  failed read on efdt!")
-118 call Driver_abort("[eos_readHfet]  failed read on xf!")
-119 call Driver_abort("[eos_readHfet]  failed read on xfd!")
-120 call Driver_abort("[eos_readHfet]  failed read on xft!")
-121 call Driver_abort("[eos_readHfet]  failed read on xfdt!")
-
 
 
 end subroutine eos_readHfet
 
 
-!!#define SWAP(a,b)       temp=(a); (a)=(b); (b)=temp;
-
-
-!!void byte_reverse (float *buf, int *nn){
-!  int n;
-!  char temp, *ptr;!
-
-
-!#ifdef DEBUG
-!  if (*nn<0)
-!    call Driver_abort("[temp] byte_reverse() :: n must be positive")
-!#endif
-  
-!  for (ptr=(char *)buf,n=*nn; n--; ptr+=4)
-!    {
-!      SWAP(ptr[0],ptr[3])
-!      SWAP(ptr[1],ptr[2])
-!     }
-!}
