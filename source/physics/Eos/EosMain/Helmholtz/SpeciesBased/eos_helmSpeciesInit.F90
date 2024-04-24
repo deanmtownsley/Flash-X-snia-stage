@@ -231,9 +231,9 @@ subroutine eos_helmSpeciesInit()
   !..store the temperature and density differences and their inverses 
   do j=1,EOSJMAX-1
      eos_temps(j,eos_dt)   = eos_temps(j+1,eos_t) - eos_temps(j,eos_t)
-     eos_dtSqr(j)  = eos_temps(j,eos_dt)*eos_temps(j,eos_dt)
+     eos_temps(j,eos_dtSqr)  = eos_temps(j,eos_dt)*eos_temps(j,eos_dt)
      eos_dtInv(j)  = 1.0e0/eos_temps(j,eos_dt)
-     eos_dtSqrInv(j) = 1.0e0/eos_dtSqr(j)
+     eos_dtSqrInv(j) = 1.0e0/eos_temps(j,eos_dtSqr)
   enddo
   do i=1,EOSIMAX-1
      eos_dd(i)   = eos_d(i+1) - eos_d(i)

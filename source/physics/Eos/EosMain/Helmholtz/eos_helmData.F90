@@ -68,8 +68,8 @@ module eos_helmData
 
   real, save :: eos_tlo, eos_thi, eos_tstpi
   real, save :: eos_dlo, eos_dhi, eos_dstpi
-  integer, parameter :: eos_t=1,eos_dt=2
-  real,dimension(EOSJMAX),save :: eos_dtSqr,eos_dtInv,eos_dtSqrInv
+  integer, parameter :: eos_t=1,eos_dt=2,eos_dtSqr=3
+  real,dimension(EOSJMAX),save :: eos_dtInv,eos_dtSqrInv
   real,dimension(EOSIMAX),save :: eos_dd,eos_ddSqr,eos_ddInv,eos_ddSqrInv,eos_d
   real,dimension(EOSJMAX,2) :: eos_temps
 

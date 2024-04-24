@@ -518,11 +518,11 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      !!  the density and temperature basis functions
      si0t =   psi0(xt)
      si1t =   psi1(xt)*eos_temps(jat,eos_dt)
-     si2t =   psi2(xt)*eos_dtSqr(jat)
+     si2t =   psi2(xt)*eos_temps(jat,eos_dtSqr)
 
      si0mt =  psi0(mxt)
      si1mt = -psi1(mxt)*eos_temps(jat,eos_dt)
-     si2mt =  psi2(mxt)*eos_dtSqr(jat)
+     si2mt =  psi2(mxt)*eos_temps(jat,eos_dtSqr)
 
      si0d =   psi0(xd)
      si1d =   psi1(xd)*eos_dd(iat)
