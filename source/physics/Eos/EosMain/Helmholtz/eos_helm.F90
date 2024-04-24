@@ -510,7 +510,7 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 
      !!  various differences
      xt  = max( (btemp - eos_temps(jat,eos_t))*eos_temps(jat,eos_dtInv), 0.0e0)
-     xd  = max( (din - eos_rhos(iat,eos_d))*eos_ddInv(iat), 0.0e0)
+     xd  = max( (din - eos_rhos(iat,eos_d))*eos_rhos(iat,eos_ddInv), 0.0e0)
      mxt = 1.0e0 - xt
      mxd = 1.0e0 - xd
 
@@ -525,12 +525,12 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      si2mt =  psi2(mxt)*eos_temps(jat,eos_dtSqr)
 
      si0d =   psi0(xd)
-     si1d =   psi1(xd)*eos_dd(iat)
-     si2d =   psi2(xd)*eos_ddSqr(iat)
+     si1d =   psi1(xd)*eos_rhos(iat,eos_dd)
+     si2d =   psi2(xd)*eos_rhos(iat,eos_ddSqr)
 
      si0md =  psi0(mxd)
-     si1md = -psi1(mxd)*eos_dd(iat)
-     si2md =  psi2(mxd)*eos_ddSqr(iat)
+     si1md = -psi1(mxd)*eos_rhos(iat,eos_dd)
+     si2md =  psi2(mxd)*eos_rhos(iat,eos_ddSqr)
 
 
      !!  the first derivatives of the basis functions
@@ -542,13 +542,13 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      dsi1mt =  dpsi1(mxt)
      dsi2mt = -dpsi2(mxt)*eos_temps(jat,eos_dt)
 
-     dsi0d =   dpsi0(xd)*eos_ddInv(iat)
+     dsi0d =   dpsi0(xd)*eos_rhos(iat,eos_ddInv)
      dsi1d =   dpsi1(xd)
-     dsi2d =   dpsi2(xd)*eos_dd(iat)
+     dsi2d =   dpsi2(xd)*eos_rhos(iat,eos_dd)
 
-     dsi0md = -dpsi0(mxd)*eos_ddInv(iat)
+     dsi0md = -dpsi0(mxd)*eos_rhos(iat,eos_ddInv)
      dsi1md =  dpsi1(mxd)
-     dsi2md = -dpsi2(mxd)*eos_dd(iat)
+     dsi2md = -dpsi2(mxd)*eos_rhos(iat,eos_dd)
 
 
      !!  the second derivatives of the basis functions
@@ -603,10 +603,10 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
      si1mt  =  -xpsi1(mxt)*eos_temps(jat,eos_dt)
 
      si0d   =  xpsi0(xd)
-     si1d   =  xpsi1(xd)*eos_dd(iat)
+     si1d   =  xpsi1(xd)*eos_rhos(iat,eos_dd)
 
      si0md  =  xpsi0(mxd)
-     si1md  =  -xpsi1(mxd)*eos_dd(iat)
+     si1md  =  -xpsi1(mxd)*eos_rhos(iat,eos_dd)
 
      !!  derivatives of weight functions
      dsi0t =   xdpsi0(xt)*eos_temps(jat,eos_dtInv)

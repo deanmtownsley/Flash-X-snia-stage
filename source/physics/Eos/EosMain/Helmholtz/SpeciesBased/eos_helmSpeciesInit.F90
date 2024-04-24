@@ -236,10 +236,10 @@ subroutine eos_helmSpeciesInit()
      eos_temps(j,eos_dtSqrInv) = 1.0e0/eos_temps(j,eos_dtSqr)
   enddo
   do i=1,EOSIMAX-1
-     eos_dd(i)   = eos_rhos(i+1,eos_d) - eos_rhos(i,eos_d)
-     eos_ddSqr(i)  = eos_dd(i)*eos_dd(i)
-     eos_ddInv(i)  = 1.0e0/eos_dd(i)
-     eos_ddSqrInv(i) = 1.0e0/eos_ddSqr(i)
+     eos_rhos(i,eos_dd)   = eos_rhos(i+1,eos_d) - eos_rhos(i,eos_d)
+     eos_rhos(i,eos_ddSqr)  = eos_rhos(i,eos_dd)*eos_rhos(i,eos_dd)
+     eos_rhos(i,eos_ddInv)  = 1.0e0/eos_rhos(i,eos_dd)
+     eos_rhos(i,eos_ddSqrInv) = 1.0e0/eos_rhos(i,eos_ddSqr)
   enddo
   eos_type=EOS_HLM
 
