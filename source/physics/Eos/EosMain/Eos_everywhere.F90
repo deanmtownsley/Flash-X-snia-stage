@@ -27,7 +27,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-subroutine Eos_everywhere(mode,gridDataStruct)
+subroutine Eos_everywhere(mode)
 
   use Driver_interface, ONLY : Driver_abort
   use Grid_interface,ONLY : Grid_getTileIterator, &
@@ -39,7 +39,6 @@ subroutine Eos_everywhere(mode,gridDataStruct)
   implicit none
 
   integer, intent(in) :: mode
-  integer, optional, intent(IN) :: gridDataStruct
 
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   type(Grid_iterator_t) :: itor
@@ -126,11 +125,6 @@ subroutine Eos_everywhere(mode,gridDataStruct)
   ! solnData points to solution data in UNK (or other data structure).
   ! The length of the data being operated upon is determined from the range input array.
 
-  if(present(gridDataStruct))then
-     dataStruct=gridDataStruct
-  else
-     dataStruct=CENTER
-  end if
 
   eosMask = .FALSE.
 
@@ -173,7 +167,7 @@ subroutine Eos_everywhere(mode,gridDataStruct)
      kSize = blkLimits(HIGH,KAXIS)-blkLimits(LOW,KAXIS)+1
      vLen3D = iSize * jSize * kSize
 
-     call Eos_getData(blkLimits,vLen3D,solnData,dataStruct,eosData3D,massFraction3D)
+     call Eos_getData(blkLimits,vLen3D,solnData,eosData3D,massFraction3D)
 
      lo = (kBlock-1)*vLen3D + 1
      hi =  kBlock   *vLen3D
@@ -229,7 +223,7 @@ subroutine Eos_everywhere(mode,gridDataStruct)
      eosData3D(ielef3D+1:ielef3D+vLen3D) = eosData(ielef+lo:ielef+hi)
 #endif
 
-     call Eos_putData(blkLimits,vLen3D,solnData,dataStruct,eosData3D)
+     call Eos_putData(blkLimits,vLen3D,solnData,eosData3D)
 
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()

@@ -102,7 +102,7 @@
 
 #define DEBUG_EOS
 
-subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
+subroutine Eos_putData(range,vecLen,solnData,eosData)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
@@ -115,7 +115,7 @@ subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
 #include "Simulation.h"
 #include "Eos_map.h"
 
-  integer, intent(in) :: vecLen, gridDataStruct
+  integer, intent(in) :: vecLen
   integer,dimension(LOW:HIGH,MDIM), intent(in) :: range
   real,intent(IN) :: eosData(:)
   real, pointer:: solnData(:,:,:,:)
@@ -192,17 +192,14 @@ subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
 
   ! Initializations:   grab the solution data from UNK and determine
   !   the length of the data being operated upon
-  pres_map = eos_mapLookup(EOSMAP_PRES,EOS_OUT,gridDataStruct)
-  temp_map = eos_mapLookup(EOSMAP_TEMP,EOS_OUT,gridDataStruct)
-  gamc_map = eos_mapLookup(EOSMAP_GAMC,EOS_OUT,gridDataStruct)
-  game_map = eos_mapLookup(EOSMAP_GAME,EOS_OUT,gridDataStruct)
-  eint_map = eos_mapLookup(EOSMAP_EINT,EOS_OUT,gridDataStruct)
-  ener_map = eos_mapLookup(EOSMAP_ENER,EOS_OUT,gridDataStruct)
-  entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,gridDataStruct)
+  pres_map = eos_mapLookup(EOSMAP_PRES,EOS_OUT,CENTER)
+  temp_map = eos_mapLookup(EOSMAP_TEMP,EOS_OUT,CENTER)
+  gamc_map = eos_mapLookup(EOSMAP_GAMC,EOS_OUT,CENTER)
+  game_map = eos_mapLookup(EOSMAP_GAME,EOS_OUT,CENTER)
+  eint_map = eos_mapLookup(EOSMAP_EINT,EOS_OUT,CENTER)
+  ener_map = eos_mapLookup(EOSMAP_ENER,EOS_OUT,CENTER)
+  entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,CENTER)
 
-  if(gridDataStruct == SCRATCH) then
-     call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
-  end if
   
   n=0
   do k = kb,ke
@@ -227,7 +224,7 @@ subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
 end subroutine Eos_putData
 
 ! For testing: a variant of Eos_putData where eosData is declard as an array of rank 2.
-subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
+subroutine Eos_putDataR2(range,vecLen,solnData,eosData)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage
@@ -240,7 +237,7 @@ subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
 #include "Simulation.h"
 #include "Eos_map.h"
 
-  integer, intent(in) :: vecLen, gridDataStruct
+  integer, intent(in) :: vecLen
   integer,dimension(LOW:HIGH,MDIM), intent(in) :: range
   real,intent(IN) :: eosData(:,:)
   real, pointer:: solnData(:,:,:,:)
@@ -303,17 +300,13 @@ subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
 
   ! Initializations:   grab the solution data from UNK and determine
   !   the length of the data being operated upon
-  pres_map = eos_mapLookup(EOSMAP_PRES,EOS_OUT,gridDataStruct)
-  temp_map = eos_mapLookup(EOSMAP_TEMP,EOS_OUT,gridDataStruct)
-  gamc_map = eos_mapLookup(EOSMAP_GAMC,EOS_OUT,gridDataStruct)
-  game_map = eos_mapLookup(EOSMAP_GAME,EOS_OUT,gridDataStruct)
-  eint_map = eos_mapLookup(EOSMAP_EINT,EOS_OUT,gridDataStruct)
-  ener_map = eos_mapLookup(EOSMAP_ENER,EOS_OUT,gridDataStruct)
-  entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,gridDataStruct)
-
-  if(gridDataStruct == SCRATCH) then
-     call Driver_abort("Eos_getData : the use of SCRATCH is deprecated")
-  end if
+  pres_map = eos_mapLookup(EOSMAP_PRES,EOS_OUT,CENTER)
+  temp_map = eos_mapLookup(EOSMAP_TEMP,EOS_OUT,CENTER)
+  gamc_map = eos_mapLookup(EOSMAP_GAMC,EOS_OUT,CENTER)
+  game_map = eos_mapLookup(EOSMAP_GAME,EOS_OUT,CENTER)
+  eint_map = eos_mapLookup(EOSMAP_EINT,EOS_OUT,CENTER)
+  ener_map = eos_mapLookup(EOSMAP_ENER,EOS_OUT,CENTER)
+  entr_map = eos_mapLookup(EOSMAP_ENTR,EOS_OUT,CENTER)
 
   n=0
   do k = kb,ke

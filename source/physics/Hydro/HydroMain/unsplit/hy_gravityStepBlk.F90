@@ -152,7 +152,7 @@ Subroutine hy_gravityStepBlk(tileDesc, blkLimitsGC, Uin, blkLimits, Uout, del,ti
      print*,'_l5 bef Eos_wrapped: lbound(Uout):',lbound(Uout)
      print*,'_l5 bef Eos_wrapped: ubound(Uout):',ubound(Uout)
 #endif
-     call Eos_wrapped(hy_eosModeAfter, blkLimits, Uout,CENTER)
+     call Eos_wrapped(hy_eosModeAfter, blkLimits, Uout)
      
      deallocate(gravX)
      deallocate(gravY)

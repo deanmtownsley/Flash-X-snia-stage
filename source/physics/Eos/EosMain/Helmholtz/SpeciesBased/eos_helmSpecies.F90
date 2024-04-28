@@ -291,15 +291,13 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      !  position and the iteration won't converge.
      !  Initial temperature here is what is stored in the grid, even though we 
      !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
-     do k = vecBegin,vecEnd
-        call eos_helm(k)
-     end do
      !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
 
 
      !  Create initial condition
      do k = vecBegin, vecEnd
         !  ewantRow is our desired EI input
+        call eos_helm(k)
 
         tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
              &           / detRow(k)
@@ -421,10 +419,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      error(:) = 0.0e0
 
      ! Do the first eos call with all the zones in the pipe
-     do k = vecBegin,vecEnd
-        call eos_helm(k)
-     end do
+
      do k = vecBegin, vecEnd
+        call eos_helm(k)
 
         tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
              &           / dptRow(k)

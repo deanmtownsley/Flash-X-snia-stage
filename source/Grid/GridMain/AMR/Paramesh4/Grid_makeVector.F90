@@ -206,7 +206,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
 #endif
               subBlkSize = PRODUCT(sublen)
               call transferData(eosRange,subBlkSize,vecLen,dataPtr, ptr,ivec, copyDir, gridDataStruct)
-!              call Eos_getData(eosRange,vecLen,dataPtr,gridDataStruct,newVec(ptr,1,ivec))
+!              call Eos_getData(eosRange,vecLen,dataPtr,newVec(ptr,1,ivec))
               ptr=ptr+subBlkSize
               vecFree = vecFree - subBlkSize
               npos(axis) = npos(axis) + sublen(axis)
@@ -258,7 +258,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
 #endif
               subBlkSize = PRODUCT(sublen)
               call transferData(eosRange,subBlkSize,vecLen,dataPtr, ptr,ivec, copyDir, gridDataStruct)
-!              call Eos_getData(eosRange,vecLen,dataPtr,gridDataStruct,newVec(ptr,1,ivec))
+!              call Eos_getData(eosRange,vecLen,dataPtr,newVec(ptr,1,ivec))
               ptr=ptr+subBlkSize
               vecFree = vecFree - subBlkSize
            else
@@ -273,7 +273,7 @@ subroutine Grid_makeVector(vecLen,numVars,newVec,numVec,vecLastFree,copyDirectio
 #endif
               subBlkSize = oneBlkSize
               call transferData(eosRange,subBlkSize,vecLen,dataPtr, ptr,ivec, copyDir, gridDataStruct)
-!              call Eos_getData(eosRange,vecLen,dataPtr,gridDataStruct,newVec(ptr,1,ivec))
+!              call Eos_getData(eosRange,vecLen,dataPtr,newVec(ptr,1,ivec))
               ptr=ptr+subBlkSize
               vecFree = vecFree - subBlkSize
            end if
@@ -353,9 +353,9 @@ contains
     integer, intent(in),OPTIONAL :: gridDataStruct
 
     if (copyDir==GRID_COPYDIR_TO_VECT) then
-       call Eos_getData(eosRange,vecLen,dataPtr,gridDataStruct,newVec(ptr,1,ivec))
+       call Eos_getData(eosRange,vecLen,dataPtr,newVec(ptr,1,ivec))
     else if (copyDir==GRID_COPYDIR_FROM_VECT) then
-       call Eos_putDataR2(eosRange,subBlkSize,dataPtr,gridDataStruct,newVec(ptr:ptr+subBlkSize-1,:,ivec))
+       call Eos_putDataR2(eosRange,subBlkSize,dataPtr,newVec(ptr:ptr+subBlkSize-1,:,ivec))
     else
        call Driver_abort("Grid_makeVector: Invalid copyDirection!")
     end if

@@ -379,7 +379,7 @@ Subroutine hy_computeFluxes(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOr
         print*,'_unsplit bef Eos_wrapped: lbound(Uout):',lbound(Uout)
         print*,'_unsplit bef Eos_wrapped: ubound(Uout):',ubound(Uout)
 #endif
-        call Eos_wrapped(hy_eosModeAfter, tileDesc%limits, Uout,CENTER)
+        call Eos_wrapped(hy_eosModeAfter, tileDesc%limits, Uout)
      !#endif
 #endif /* ifndef GRAVITY */
 

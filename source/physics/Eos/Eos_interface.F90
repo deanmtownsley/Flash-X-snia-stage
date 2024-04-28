@@ -36,11 +36,10 @@ Module Eos_interface
   end interface
   
   interface Eos_wrapped
-     subroutine Eos_wrapped(mode,range,solnData,gridDataStruct)
+     subroutine Eos_wrapped(mode,range,solnData)
        integer, intent(in) :: mode
        integer, dimension(2,MDIM), intent(in) :: range
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-       integer,optional,intent(IN) :: gridDataStruct
      end subroutine Eos_wrapped
   end interface
 
@@ -110,9 +109,9 @@ Module Eos_interface
   end interface
 
   interface
-     subroutine Eos_getData(range,vecLen,solnData,gridDataStruct,eosData, massFrac,eosMask)
+     subroutine Eos_getData(range,vecLen,solnData,eosData, massFrac,eosMask)
        implicit none
-       integer, intent(in) :: vecLen,gridDataStruct
+       integer, intent(in) :: vecLen
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
        real, dimension(EOS_NUM*vecLen),intent(INOUT) :: eosData
        real, pointer,dimension(:,:,:,:) :: solnData
@@ -147,14 +146,14 @@ Module Eos_interface
   end interface
 
   interface
-     subroutine Eos_putData(range,vecLen,solnData,gridDataStruct,eosData)
-       integer, intent(in) :: vecLen, gridDataStruct
+     subroutine Eos_putData(range,vecLen,solnData,eosData)
+       integer, intent(in) :: vecLen
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
        real, dimension(:),intent(IN) :: eosData
        real, pointer,dimension(:,:,:,:) :: solnData
      end subroutine Eos_putData
-     subroutine Eos_putDataR2(range,vecLen,solnData,gridDataStruct,eosData)
-       integer, intent(in) :: vecLen, gridDataStruct
+     subroutine Eos_putDataR2(range,vecLen,solnData,eosData)
+       integer, intent(in) :: vecLen
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
        real, dimension(:,:),intent(IN) :: eosData
        real, pointer,dimension(:,:,:,:) :: solnData

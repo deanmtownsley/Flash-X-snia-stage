@@ -18,8 +18,7 @@
 !!
 !!  call Eos_wrapped(  integer(IN) :: mode,
 !!                     integer(IN) :: range(HIGH, MDIM),
-!!           pointer,real(:,:,:,:) :: solnData,
-!!            optional,integer(IN) :: gridDataStruct )
+!!           pointer,real(:,:,:,:) :: solnData)
 !!
 !! DESCRIPTION
 !!
@@ -87,7 +86,7 @@
 !!***
 
 
-subroutine Eos_wrapped(mode,range,solnData,gridDataStruct)
+subroutine Eos_wrapped(mode,range,solnData)
   
   implicit none
 
@@ -97,10 +96,9 @@ subroutine Eos_wrapped(mode,range,solnData,gridDataStruct)
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-  integer,optional,intent(IN) :: gridDataStruct
 end subroutine Eos_wrapped
 
-subroutine Eos_arrayWrapped(mode,range,solnData,gridDataStruct)
+subroutine Eos_arrayWrapped(mode,range,solnData)
 
   implicit none
 
@@ -108,6 +106,5 @@ subroutine Eos_arrayWrapped(mode,range,solnData,gridDataStruct)
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-  integer,optional,intent(IN) :: gridDataStruct
   return
 end subroutine Eos_arrayWrapped

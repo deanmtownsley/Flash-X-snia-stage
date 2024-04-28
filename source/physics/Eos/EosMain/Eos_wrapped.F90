@@ -100,7 +100,7 @@
 #include "Simulation.h"
 
 
-subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
+subroutine Eos_wrapped(mode,range,solnData)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
@@ -113,8 +113,6 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-  integer, optional, intent(IN) :: gridDataStruct
-
 
   real, allocatable :: eosData(:),massFraction(:)
 
@@ -164,11 +162,6 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   ! solnData points to solution data in UNK (or other data structure).
   ! The length of the data being operated upon is determined from the range input array.
 
-  if(present(gridDataStruct))then
-     dataStruct=gridDataStruct
-  else
-     dataStruct=CENTER
-  end if
 
   allocate(massFraction(NSPECIES*vecLen))
   allocate(eosData(EOS_NUM*vecLen))
@@ -177,10 +170,10 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
 
   pos(IAXIS)=range(LOW,IAXIS)
 
-  call Eos_getData(range,vecLen,solnData,dataStruct,eosData,massFraction)
+  call Eos_getData(range,vecLen,solnData,eosData,massFraction)
   call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
 
-  call Eos_putData(range,vecLen,solnData,dataStruct,eosData)
+  call Eos_putData(range,vecLen,solnData,eosData)
         
   deallocate(eosData)
   deallocate(massFraction)
