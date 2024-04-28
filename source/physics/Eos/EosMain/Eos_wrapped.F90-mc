@@ -94,6 +94,7 @@
 
 ! solnData depends on the ordering on unk
 !!REORDER(4): solnData
+!!NOVARIANTS
 
 #include "Eos.h"
 #include "constants.h"
@@ -105,7 +106,7 @@ subroutine Eos_wrapped(mode,range,solnData)
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData
-  use Eos_data, ONLY : eos_threadWithinBlock
+  use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle
   implicit none
 
 #include "FortranLangFeatures.fh"
@@ -121,6 +122,11 @@ subroutine Eos_wrapped(mode,range,solnData)
   integer :: ierr, dataStruct
   integer :: i,j,k, vLen1D, vecLen,offset
   integer,dimension(MDIM) :: pos
+
+  integer :: n,m,p,pres,dens,gamc,temp,abar,zbar,eint,ekin,entr
+  integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
+  integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
+  real :: kineticEnergy, internalEnergy
 
 
 !! ---------------------------------------------------------------------------------
@@ -169,8 +175,34 @@ subroutine Eos_wrapped(mode,range,solnData)
   eosMask = .FALSE.
 
   pos(IAXIS)=range(LOW,IAXIS)
+  pres = (EOS_PRES-1)*vecLen
+  dens = (EOS_DENS-1)*vecLen
+  temp = (EOS_TEMP-1)*vecLen
+  gamc = (EOS_GAMC-1)*vecLen
+  eint = (EOS_EINT-1)*vecLen
+  ekin = (EOS_EKIN-1)*vecLen
+  abar = (EOS_ABAR-1)*vecLen
+  zbar = (EOS_ZBAR-1)*vecLen
+  entr = (EOS_ENTR-1)*vecLen
 
-  call Eos_getData(range,vecLen,solnData,eosData,massFraction)
+ @M eos_map  
+
+  
+ m=1
+ @M loop_3d(range)
+           do p = SPECIES_BEGIN,SPECIES_END
+              massFraction(m) = solnData(p,i,j,k)
+              m=m+1
+           end do
+ @M loop_end_3d
+
+  n = 0
+  !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
+  @M loop_3d(range)
+           @M eos_preprocess
+  @M loop_end_3d
+
+!!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
   call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
 
   call Eos_putData(range,vecLen,solnData,eosData)
