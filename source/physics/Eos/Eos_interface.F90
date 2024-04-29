@@ -54,14 +54,6 @@ Module Eos_interface
      end subroutine Eos
   end interface
   
-  interface
-     subroutine Eos_everywhere(mode,gridDataStruct)
-       implicit none
-       integer, intent(in) :: mode
-       integer, optional, intent(IN) :: gridDataStruct
-     end subroutine Eos_everywhere
-  end interface
-
   interface Eos_init
      subroutine Eos_init()
      end subroutine Eos_init
@@ -108,18 +100,6 @@ Module Eos_interface
      end subroutine Eos_getAbarZbarArraySection
   end interface
 
-  interface
-     subroutine Eos_getData(range,vecLen,solnData,eosData, massFrac,eosMask)
-       implicit none
-       integer, intent(in) :: vecLen
-       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-       real, dimension(EOS_NUM*vecLen),intent(INOUT) :: eosData
-       real, pointer,dimension(:,:,:,:) :: solnData
-       real,dimension(:),optional,intent(OUT) :: massFrac
-       logical, optional, INTENT(INOUT),dimension(EOS_VARS+1:) :: eosMask     
-     end subroutine Eos_getData
-  end interface
-
   interface Eos_getTempData
      subroutine Eos_getTempData(axis,pos,vecLen,solnData,gridDataStruct,eosData,mode)
        implicit none
@@ -143,21 +123,6 @@ Module Eos_interface
        real, dimension(EOS_NUM*vecLen),intent(OUT) :: eosData
        real, pointer:: solnData(:,:,:,:)
      end subroutine Eos_getTempDataF
-  end interface
-
-  interface
-     subroutine Eos_putData(range,vecLen,solnData,eosData)
-       integer, intent(in) :: vecLen
-       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-       real, dimension(:),intent(IN) :: eosData
-       real, pointer,dimension(:,:,:,:) :: solnData
-     end subroutine Eos_putData
-     subroutine Eos_putDataR2(range,vecLen,solnData,eosData)
-       integer, intent(in) :: vecLen
-       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-       real, dimension(:,:),intent(IN) :: eosData
-       real, pointer,dimension(:,:,:,:) :: solnData
-     end subroutine Eos_putDataR2
   end interface
 
   interface

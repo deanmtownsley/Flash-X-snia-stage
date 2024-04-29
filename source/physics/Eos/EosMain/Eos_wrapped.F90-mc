@@ -105,7 +105,7 @@ subroutine Eos_wrapped(mode,range,solnData)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
-  use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData
+  use Eos_interface, ONLY : Eos
   use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle
   implicit none
 
@@ -205,7 +205,21 @@ subroutine Eos_wrapped(mode,range,solnData)
 !!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
   call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
 
-  call Eos_putData(range,vecLen,solnData,eosData)
+  !!  call Eos_putData(range,vecLen,solnData,eosData)
+  n=0
+  @M loop_3d(range)
+           n=n+1
+           solnData(pres_map,i,j,k) = eosData(pres+n)
+           solnData(temp_map,i,j,k) = eosData(temp+n)
+           solnData(gamc_map,i,j,k) = eosData(gamc+n)
+           if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(eint+n)
+           if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(eint+n)+eosData(ekin+n) 
+           if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(entr+n)
+           
+           solnData(game_map,i,j,k) = eosData(pres+n)/&
+                (eosData(eint+n) *eosData(dens+n)) +1
+           
+  @M loop_end_3d
         
   deallocate(eosData)
   deallocate(massFraction)
