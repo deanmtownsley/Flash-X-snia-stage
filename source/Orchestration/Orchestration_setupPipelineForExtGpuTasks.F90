@@ -16,7 +16,7 @@
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_setupPipelineForExtGpuTasks}
 !!
-!! @brief Concrete implementation of Orchestration_setupPipelineForExtGpuTasks
+!! @brief Stub implementation of Orchestration_setupPipelineForExtGpuTasks
 #include "Milhoja.h"
 subroutine Orchestration_setupPipelineForExtGpuTasks(MH_taskFunction, &
                                           MH_postTaskFunction,     &
@@ -26,14 +26,7 @@ subroutine Orchestration_setupPipelineForExtGpuTasks(MH_taskFunction, &
                                           MH_postProto_Cptr)
     use iso_c_binding, ONLY : C_PTR
 
-    use milhoja_types_mod,   ONLY : MILHOJA_INT
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
-#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_setupPipelineForExtGpuTasks
-#endif
-
-    use Driver_interface,        ONLY : Driver_abort
-    use Orchestration_interface, ONLY : Orchestration_checkInternalError
+    use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
 
     implicit none
 
@@ -43,25 +36,5 @@ subroutine Orchestration_setupPipelineForExtGpuTasks(MH_taskFunction, &
     integer,                                intent(IN) :: nTilesPerPacket
     type(C_PTR),                            intent(IN) :: MH_packet_CPtr
     type(C_PTR),                            intent(IN) :: MH_postProto_CPtr
-
-    integer(MILHOJA_INT) :: MH_nThreads
-    integer(MILHOJA_INT) :: MH_nTilesPerPacket
-    integer(MILHOJA_INT) :: MH_ierr
-
-    MH_nThreads = INT(nThreads, kind=MILHOJA_INT)
-    MH_nTilesPerPacket     = INT(nTilesPerPacket,     kind=MILHOJA_INT)
-
-#if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
-    CALL milhoja_runtime_setupPipelineForExtGpuTasks(MH_taskFunction, &
-                                          MH_postTaskFunction,        &
-                                          MH_nThreads,            &
-                                          MH_nTilesPerPacket,     &
-                                          MH_packet_Cptr,         &
-                                          MH_postProto_Cptr,      &
-                                          MH_ierr)
-    CALL Orchestration_checkInternalError("Orchestration_setupPipelineForExtGpuTasks", MH_ierr)
-#else
-    CALL Driver_abort("Orchestration_setupPipelineForExtGpuTasks: milhoja_runtime_setupPipelineForExtGpuTasks disabled")
-#endif
 end subroutine Orchestration_setupPipelineForExtGpuTasks
 

@@ -73,7 +73,8 @@ module Orchestration_interface
                                           MH_postTaskFunction,                &
                                           nThreads,            &
                                           nTilesPerPacket,     &
-                                          MH_packet_Cptr)
+                                          MH_packet_Cptr,     &
+                                          MH_postProto_Cptr)
             use iso_c_binding, ONLY : C_PTR
             use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
@@ -82,6 +83,7 @@ module Orchestration_interface
             integer,                                intent(IN) :: nThreads
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_CPtr
+            type(C_PTR),                            intent(IN) :: MH_postProto_CPtr
         end subroutine Orchestration_setupPipelineForExtGpuTasks
 
 !!# else
@@ -115,7 +117,8 @@ module Orchestration_interface
                                                   nDistributorThreads, &
                                                   nThreads,            &
                                                   nTilesPerPacket,     &
-                                                  MH_packet_Cptr)
+                                                  MH_packet_Cptr,     &
+                                                  MH_postProto_Cptr)
             use iso_c_binding,       ONLY : C_PTR
             use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
@@ -124,6 +127,7 @@ module Orchestration_interface
             integer,                                intent(IN) :: nThreads
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
+            type(C_PTR),                            intent(IN) :: MH_postProto_Cptr
         end subroutine Orchestration_executeTasks_extGpu
 !!# endif
 !!#endif
