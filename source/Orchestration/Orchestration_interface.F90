@@ -113,8 +113,8 @@ module Orchestration_interface
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
         end subroutine Orchestration_executeTasks_Gpu
-        subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,     &
-                                                  nDistributorThreads, &
+        subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
+                                                  MH_postTaskFunction, &
                                                   nThreads,            &
                                                   nTilesPerPacket,     &
                                                   MH_packet_Cptr,     &
@@ -123,6 +123,7 @@ module Orchestration_interface
             use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
             implicit none
             procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            procedure(milhoja_runtime_taskFunction)            :: MH_postTaskFunction
             integer,                                intent(IN) :: nDistributorThreads
             integer,                                intent(IN) :: nThreads
             integer,                                intent(IN) :: nTilesPerPacket
