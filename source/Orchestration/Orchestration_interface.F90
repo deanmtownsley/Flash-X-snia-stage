@@ -115,6 +115,7 @@ module Orchestration_interface
         end subroutine Orchestration_executeTasks_Gpu
         subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
                                                   MH_postTaskFunction, &
+                                                  nDistributorThreads, &
                                                   nThreads,            &
                                                   nTilesPerPacket,     &
                                                   MH_packet_Cptr,     &
