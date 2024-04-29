@@ -100,31 +100,6 @@ Module Eos_interface
      end subroutine Eos_getAbarZbarArraySection
   end interface
 
-  interface Eos_getTempData
-     subroutine Eos_getTempData(axis,pos,vecLen,solnData,gridDataStruct,eosData,mode)
-       implicit none
-       integer, intent(in) :: axis, vecLen, gridDataStruct, mode
-       integer, dimension(MDIM), intent(in) :: pos
-       real, dimension(:),intent(OUT) :: eosData
-       real, pointer:: solnData(:,:,:,:)
-     end subroutine Eos_getTempData
-     subroutine Eos_getTempDataFromVec(solnVec,eosData,mode)
-       implicit none
-       integer, intent(in) :: mode
-       real, dimension(:),intent(OUT) :: eosData
-       real, dimension(NUNK_VARS),intent(IN) :: solnVec
-     end subroutine Eos_getTempDataFromVec
-  end interface
-  interface
-     subroutine Eos_getTempDataF(axis,pos,vecLen,solnData,gridDataStruct,eosData,mode)
-       implicit none
-       integer, intent(in) :: axis, vecLen, gridDataStruct, mode
-       integer, dimension(MDIM), intent(in) :: pos
-       real, dimension(EOS_NUM*vecLen),intent(OUT) :: eosData
-       real, pointer:: solnData(:,:,:,:)
-     end subroutine Eos_getTempDataF
-  end interface
-
   interface
      subroutine Eos_logDiagnostics(force)
        implicit none
