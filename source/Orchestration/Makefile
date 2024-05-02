@@ -13,5 +13,6 @@ Orchestration += Orchestration_init.o \
 		         Orchestration_teardownPipelineForGpuTasks.o \
 		         Orchestration_teardownPipelineForExtGpuTasks.o \
 		         Orchestration_executeTasks_Cpu.o \
-		         Orchestration_executeTasks_Gpu.o
+		         Orchestration_executeTasks_Gpu.o \
+		         Orchestration_executeTasks_extGpu.o
 
