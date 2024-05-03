@@ -69,6 +69,21 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: MH_packet_CPtr
         end subroutine Orchestration_setupPipelineForGpuTasks
 
+        subroutine Orchestration_setupPipelineForExtGpuTasks(MH_taskFunction, &
+                                          MH_postTaskFunction,                &
+                                          nThreads,            &
+                                          nTilesPerPacket,     &
+                                          MH_packet_Cptr)
+            use iso_c_binding, ONLY : C_PTR
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            procedure(milhoja_runtime_taskFunction)            :: MH_postTaskFunction
+            integer,                                intent(IN) :: nThreads
+            integer,                                intent(IN) :: nTilesPerPacket
+            type(C_PTR),                            intent(IN) :: MH_packet_CPtr
+        end subroutine Orchestration_setupPipelineForExtGpuTasks
+
 !!# else
         subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                                   prototype_Cptr, nThreads)
@@ -96,6 +111,20 @@ module Orchestration_interface
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
         end subroutine Orchestration_executeTasks_Gpu
+        subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,     &
+                                                  nDistributorThreads, &
+                                                  nThreads,            &
+                                                  nTilesPerPacket,     &
+                                                  MH_packet_Cptr)
+            use iso_c_binding,       ONLY : C_PTR
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
+            integer,                                intent(IN) :: nDistributorThreads
+            integer,                                intent(IN) :: nThreads
+            integer,                                intent(IN) :: nTilesPerPacket
+            type(C_PTR),                            intent(IN) :: MH_packet_Cptr
+        end subroutine Orchestration_executeTasks_extGpu
 !!# endif
 !!#endif
     end interface
@@ -123,20 +152,36 @@ module Orchestration_interface
             integer,                                intent(IN) :: nThreads
             type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
         end subroutine Orchestration_pushTileToGpuPipeline
+        subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
+                                                    tileCInfo)
+            use iso_c_binding, ONLY : C_PTR
+            import
+            implicit none
+            type(C_PTR),                            intent(IN) :: prototype_Cptr
+            integer,                                intent(IN) :: nThreads
+            type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
+        end subroutine Orchestration_pushTileToExtGpuPipeline
     end interface
 
     ! Generic interface - tear down pipeline
     interface Orchestration_teardownPipeline
         subroutine Orchestration_teardownPipelineForCpuTasks(nThreads)
             implicit none
-            integer,                                intent(IN) :: nThreads
+            integer,                              intent(IN) :: nThreads
         end subroutine Orchestration_teardownPipelineForCpuTasks
         subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
             implicit none
-            integer,                                intent(IN) :: nThreads
-            integer,                                intent(IN) :: nTilesPerPacket
+            integer,                              intent(IN) :: nThreads
+            integer,                              intent(IN) :: nTilesPerPacket
         end subroutine Orchestration_teardownPipelineForGpuTasks
     end interface Orchestration_teardownPipeline
+    interface
+        subroutine Orchestration_teardownPipelineForExtGpuTasks(nThreads, nTilesPerPacket)
+            implicit none
+            integer,                              intent(IN) :: nThreads
+            integer,                              intent(IN) :: nTilesPerPacket
+        end subroutine Orchestration_teardownPipelineForExtGpuTasks
+    end interface
 !!$# endif
 #endif
 
