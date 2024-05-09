@@ -63,12 +63,12 @@ subroutine sim_scaleProfile(tcurr)
 !!$        print*,i,sim_rProf  (i),sim_vProf  (i),sim_rhoProf(i),sim_pProf  (i)
 !!$        if (.NOT. written) write(53,*)sim_rProf  (i),sim_vProf  (i),sim_rhoProf(i),sim_pProf  (i)
         end do
+
+        sim_profileIsScaled   = .TRUE.
+        sim_profileScaledTime = tcurr
         !$omp end single
         call Timers_stop("scaleProfile")
      end if
   end if
-
-  sim_profileIsScaled   = .TRUE.
-  sim_profileScaledTime = tcurr
 
 end subroutine sim_scaleProfile
