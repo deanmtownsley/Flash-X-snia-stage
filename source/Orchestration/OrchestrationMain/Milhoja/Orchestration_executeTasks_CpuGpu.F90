@@ -17,22 +17,22 @@
 #include "Milhoja.h"
 
 !> @ingroup OrchestrationMilhoja
-!! @stubref{Orchestration_executeTasks_extGpu}
+!! @stubref{Orchestration_executeTasks_CpuGpu}
 !!
-!! @brief Concrete implementation of Orchestration_executeTasks_extGpu
-subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
-                                          MH_postTaskFunction, &
+!! @brief Concrete implementation of Orchestration_executeTasks_CpuGpu
+subroutine Orchestration_executeTasks_CpuGpu(MH_pktTaskFunction,  &
+                                          MH_tileTaskFunction, &
                                           nDistributorThreads, &
                                           nThreads,            &
                                           nTilesPerPacket,     &
                                           MH_packet_Cptr,     &
-                                          MH_postProto_Cptr)
+                                          MH_tileProto_Cptr)
     use iso_c_binding, ONLY : C_PTR
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
 #ifdef RUNTIME_CAN_USE_TILEITER
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_ExtGpu
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_executeTasks_CpuGpu
 #endif
     use Driver_interface,        ONLY : Driver_abort
 
@@ -40,13 +40,13 @@ subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
 
     implicit none
 
-    procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
-    procedure(milhoja_runtime_taskFunction)            :: MH_postTaskFunction
+    procedure(milhoja_runtime_taskFunction)            :: MH_pktTaskFunction
+    procedure(milhoja_runtime_taskFunction)            :: MH_tileTaskFunction
     integer,                                intent(IN) :: nDistributorThreads
     integer,                                intent(IN) :: nThreads
     integer,                                intent(IN) :: nTilesPerPacket
     type(C_PTR),                            intent(IN) :: MH_packet_CPtr
-    type(C_PTR),                            intent(IN) :: MH_postProto_CPtr
+    type(C_PTR),                            intent(IN) :: MH_tileProto_CPtr
 
     integer(MILHOJA_INT) :: MH_nDistributorThreads
     integer(MILHOJA_INT) :: MH_nThreads
@@ -58,17 +58,17 @@ subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
     MH_nTilesPerPacket     = INT(nTilesPerPacket,     kind=MILHOJA_INT)
 
 #ifdef RUNTIME_CAN_USE_TILEITER
-    CALL milhoja_runtime_executeTasks_ExtGpu(MH_taskFunction,     &
-                                          MH_postTaskFunction,    &
+    CALL milhoja_runtime_executeTasks_CpuGpu(MH_tileTaskFunction, &
+                                          MH_pktTaskFunction,     &
                                           MH_nDistributorThreads, &
                                           MH_nThreads,            &
                                           MH_nTilesPerPacket,     &
                                           MH_packet_Cptr,         &
-                                          MH_postProto_Cptr,      &
+                                          MH_tileProto_Cptr,      &
                                           MH_ierr)
-    CALL Orchestration_checkInternalError("Orchestration_executeTasks_extGpu", MH_ierr)
+    CALL Orchestration_checkInternalError("Orchestration_executeTasks_CpuGpu", MH_ierr)
 #else
-    CALL Driver_abort("Orchestration_executeTasks_extGpu: milhoja_runtime_executeTasks_ExtGpu disabled")
+    CALL Driver_abort("Orchestration_executeTasks_CpuGpu: milhoja_runtime_executeTasks_CpuGpu disabled")
 #endif
-end subroutine Orchestration_executeTasks_extGpu
+end subroutine Orchestration_executeTasks_CpuGpu
 

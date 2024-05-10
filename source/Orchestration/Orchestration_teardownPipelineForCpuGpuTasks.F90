@@ -14,26 +14,14 @@
 !! @file
 
 !> @ingroup OrchestrationMilhoja
-!! @stubref{Orchestration_pushTileToExtGpuPipeline}
+!! @stubref{Orchestration_teardownPipelineForCpuGpuTasks}
 !!
-!! @brief Stub implementation of Orchestration_pushTileToExtGpuPipeline
-
-subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
-                                            tileCInfo)
-    use iso_c_binding, ONLY : C_PTR
-
-    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
-
+!! @brief Stub implementation of Orchestration_teardownPipelineForCpuGpuTasks
+subroutine Orchestration_teardownPipelineForCpuGpuTasks(nThreads, nTilesPerPacket)
     implicit none
 
-    type(C_PTR),                            intent(IN) :: prototype_Cptr
     integer,                                intent(IN) :: nThreads
-    type(Orchestration_tileCInfo_t),intent(IN),target :: tileCInfo
+    integer,                                intent(IN) :: nTilesPerPacket
 
-end subroutine Orchestration_pushTileToExtGpuPipeline
-! Local Variables:
-! f90-program-indent: 4
-! f90-do-indent: 3
-! f90-type-indent: 3
-! indent-tabs-mode: nil
-! End:
+end subroutine Orchestration_teardownPipelineForCpuGpuTasks
+

@@ -113,6 +113,24 @@ module Orchestration_interface
             integer,                                intent(IN) :: nTilesPerPacket
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
         end subroutine Orchestration_executeTasks_Gpu
+        subroutine Orchestration_executeTasks_CpuGpu(MH_pktTaskFunction, &
+                                                  MH_tileTaskFunction, &
+                                                  nDistributorThreads, &
+                                                  nThreads,            &
+                                                  nTilesPerPacket,     &
+                                                  MH_packet_Cptr,     &
+                                                  MH_tileProto_Cptr)
+            use iso_c_binding,       ONLY : C_PTR
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_pktTaskFunction
+            procedure(milhoja_runtime_taskFunction)            :: MH_tileTaskFunction
+            integer,                                intent(IN) :: nDistributorThreads
+            integer,                                intent(IN) :: nThreads
+            integer,                                intent(IN) :: nTilesPerPacket
+            type(C_PTR),                            intent(IN) :: MH_packet_Cptr
+            type(C_PTR),                            intent(IN) :: MH_tileProto_Cptr
+        end subroutine Orchestration_executeTasks_CpuGpu
         subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
                                                   MH_postTaskFunction, &
                                                   nDistributorThreads, &
@@ -158,6 +176,17 @@ module Orchestration_interface
             integer,                                intent(IN) :: nThreads
             type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
         end subroutine Orchestration_pushTileToGpuPipeline
+        subroutine Orchestration_pushTileToCpuGpuPipeline(pktProto_Cptr, tileProto_Cptr, &
+                                                    nThreads, &
+                                                    tileCInfo)
+            use iso_c_binding, ONLY : C_PTR
+            import
+            implicit none
+            type(C_PTR),                            intent(IN) :: pktProto_Cptr
+            type(C_PTR),                            intent(IN) :: tileProto_Cptr
+            integer,                                intent(IN) :: nThreads
+            type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
+        end subroutine Orchestration_pushTileToCpuGpuPipeline
         subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
             use iso_c_binding, ONLY : C_PTR
@@ -181,6 +210,13 @@ module Orchestration_interface
             integer,                              intent(IN) :: nTilesPerPacket
         end subroutine Orchestration_teardownPipelineForGpuTasks
     end interface Orchestration_teardownPipeline
+    interface
+        subroutine Orchestration_teardownPipelineForCpuGpuTasks(nThreads, nTilesPerPacket)
+            implicit none
+            integer,                              intent(IN) :: nThreads
+            integer,                              intent(IN) :: nTilesPerPacket
+        end subroutine Orchestration_teardownPipelineForCpuGpuTasks
+    end interface
     interface
         subroutine Orchestration_teardownPipelineForExtGpuTasks(nThreads, nTilesPerPacket)
             implicit none

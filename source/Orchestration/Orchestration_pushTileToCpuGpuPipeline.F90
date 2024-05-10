@@ -14,11 +14,12 @@
 !! @file
 
 !> @ingroup OrchestrationMilhoja
-!! @stubref{Orchestration_pushTileToExtGpuPipeline}
+!! @stubref{Orchestration_pushTileToCpuGpuPipeline}
 !!
-!! @brief Stub implementation of Orchestration_pushTileToExtGpuPipeline
+!! @brief Stub implementation of Orchestration_pushTileToCpuGpuPipeline
 
-subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
+subroutine Orchestration_pushTileToCpuGpuPipeline(pktProto_Cptr, tileProto_Cptr, &
+                                            nThreads, &
                                             tileCInfo)
     use iso_c_binding, ONLY : C_PTR
 
@@ -26,11 +27,11 @@ subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
 
     implicit none
 
-    type(C_PTR),                            intent(IN) :: prototype_Cptr
+    type(C_PTR),                            intent(IN) :: pktProto_Cptr
+    type(C_PTR),                            intent(IN) :: tileProto_Cptr
     integer,                                intent(IN) :: nThreads
     type(Orchestration_tileCInfo_t),intent(IN),target :: tileCInfo
-
-end subroutine Orchestration_pushTileToExtGpuPipeline
+end subroutine Orchestration_pushTileToCpuGpuPipeline
 ! Local Variables:
 ! f90-program-indent: 4
 ! f90-do-indent: 3
