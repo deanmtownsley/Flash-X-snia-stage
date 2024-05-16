@@ -263,21 +263,16 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
      do k=1,vecLen
         call eos_helm(k)
+        eosData(pres+k)=ptotRow(k)
+        eosData(eint+k)=etotRow(k)
+        eosData(gamc+k)=gamcRow(k)
+        eosData(entr+k)=stotRow(k)
      end do
-     eosData(pres+1:pres+vecLen)=ptotRow(1:vecLen)
-     eosData(eint+1:eint+vecLen)=etotRow(1:vecLen)
-     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
-     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
-
      !==============================================================================
      !      MODE_DENS_EI  internal energy and density given
 
   else if (mode==MODE_DENS_EI) then
 
-     ewantRow(1:vecLen)   = eosData(eint+1:eint+vecLen)   ! store desired internal energy for mode=2 case
-     if (eos_forceConstantInput) then
-        esaveRow = ewantRow
-     end if
      ! Initialize the errors
      error(:) = 0.0e0
 
@@ -293,7 +288,11 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
      !  Create initial condition
      do k = vecBegin, vecEnd
-        !  ewantRow is our desired EI input
+        ewantRow(k)   = eosData(eint+k)   ! store desired internal energy for mode=2 case
+     if (eos_forceConstantInput) then
+        esaveRow(k) = ewantRow(k)
+     end if
+     !  ewantRow is our desired EI input
         call eos_helm(k)
 
         tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
@@ -383,15 +382,15 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      ! Crank through the entire eos one last time
      do k = vecBegin,vecEnd
         call eos_helm(k)
+     !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
+        eosData(temp+k)=tempRow(k)
+        eosData(pres+k)=ptotRow(k)
+        eosData(gamc+k)=gamcRow(k)
+        eosData(entr+k)=stotRow(k)
      end do
 
      ! Fill the FLASH arrays with the results.  
 
-     !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
-     eosData(temp+1:temp+vecLen)=tempRow(1:vecLen)
-     eosData(pres+1:pres+vecLen)=ptotRow(1:vecLen)
-     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
-     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
 
      !  Update the energy to be the true energy, instead of the energy we were trying to meet
      !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
