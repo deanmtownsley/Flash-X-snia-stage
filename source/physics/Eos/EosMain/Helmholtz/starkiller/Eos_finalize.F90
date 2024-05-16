@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller
+!!****if* source/physics/Eos/EosMain/Helmholtz/starkiller
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!

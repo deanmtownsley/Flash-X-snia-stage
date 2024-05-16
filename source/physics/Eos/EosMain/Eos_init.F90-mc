@@ -95,9 +95,7 @@ subroutine Eos_init()
   call eos_fillMapLookup()
 
   @M eos_idealGammaInit
-  @M eos_multiGammaInit
   @M eos_helmSpeciesInit
-  @M eos_helmYeInit
   @M eos_starKillerInit
   @M eos_weaklibInit  
   @M eos_hybridInit

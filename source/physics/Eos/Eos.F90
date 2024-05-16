@@ -1,32 +1,27 @@
-!!****f* source/physics/Eos/Eos
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!! @brief Eos stub
+
+!> @ingroup physics_Eos
 !!
-!!  Eos
+!! @brief Evolve the spacetime variables by the provided timestep
 !!
-!! SYNOPSIS
+!! @details
+!! @anchor Eos_stub
 !!
-!!       call Eos(integer(IN) :: mode,
-!!                integer(IN) :: vecLen,
-!!                real(INOUT) :: eosData(vecLen*EOS_NUM),
-!!      optional, real(IN)    :: massFrac(vecLen*NSPECIES),
-!!      optional, logical(IN),target :: mask(EOS_VARS+1:EOS_NUM),
-!!      optional, integer(IN) :: vecBegin,
-!!      optional, integer(IN) :: vecEnd    )
-!!
-!! DESCRIPTION
-!!
+!! 
 !!  This routine applies the equation of state to thermodynamic 
 !!  quantities at one or more grid cells.  The number of cells is 
 !!  determined by the argument veclen.  The routine expects data packaged
@@ -53,27 +48,25 @@
 !!  argument); .true. means return the quantity, .false. means don't.
 !!
 !!
-!!  ARGUMENTS
-!!
-!!  mode :    Selects the mode of operation of the Eos unit.
+!!  @param mode   Selects the mode of operation of the Eos unit.
 !!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
 !!             MODE_DENS_TEMP as decribed above.
 !!
-!!  vecLen   : number of points (cells) for which the eosData array is sized.
+!!  @param vecLen   : number of points (cells) for which the eosData array is sized.
 !!             If vecBegin and vecEnd are not present, this is also the
 !!             number of points (cells) for which EOS computation is to be done.
 !!
-!!  eosData  : This array is the data structure through which variable values are 
+!!  @param eosData  : This array is the data structure through which variable values are 
 !!             passed in and out of the Eos routine. The arrays is sized as 
 !!             EOS_NUM*vecLen. EOS_NUM, and individual input and output
 !!             Eos variables are defined in Eos.h. The array is organizes such that
 !!             the first 1:vecLen entries represent the first Eos variable, vecLen+1:
 !!             2*vecLen represent the second Eos variable and so on. 
 !!
-!!  massFrac : Contains the mass fractions of the species included in
+!!  @param massFrac : Contains the mass fractions of the species included in
 !!             the simulation. The array is sized as NSPECIES*vecLen.
 !!
-!!  mask     : Mask is a logical array the size of EOS_DERIVS (number
+!!  @param mask     : Mask is a logical array the size of EOS_DERIVS (number
 !!              of partial derivatives that can be computed, defined in
 !!              Eos.h), where each index represents a specific partial derivative
 !!              that can be calculated by the Eos unit. A .true. value in mask 
@@ -87,22 +80,12 @@
 !!             An implementation that does not need derivative quantities should
 !!             set the mask equal to .false.
 !!
-!!  vecBegin : Index of first cell in eosData to handle.
+!!  @param vecBegin : Index of first cell in eosData to handle.
 !!             Can be used to limit operation to a subrange of cells, untested.
 !!             If not present, the default is 1.
-!!  vecEnd   : Index of last cell in eosData to handle.
+!!  @param  : Index of last cell in eosData to handle.
 !!             Can be used to limit operation to a subrange of cells, untested.
 !!             If not present, the default is vecLen.
-!!
-!!
-!!
-!! SEE ALSO
-!! 
-!!  Eos.h    defines the variables used.
-!!  Eos_wrapped  sets up the data structure.
-!!
-!!***
-
 subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
 
 !==============================================================================

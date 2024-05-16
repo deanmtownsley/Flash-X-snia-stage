@@ -51,9 +51,7 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
   
   ! @M eos_versionCall
   @M eos_idealGamma
-  @M eos_multiGamma
   @M eos_helmSpecies
-  @M eos_helmYe
   @M eos_starKiller
   @M eos_weaklib  
   @M eos_hybrid
@@ -70,24 +68,15 @@ end subroutine Eos
 ! if Helmholtz is included but not SpeciesBased, Ye, etc.
 
 #if defined(EOS_GAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
-# if  defined(EOS_MULTIGAMMA_INCLUDED)        || \
-      defined(EOS_WEAKLIB_INCLUDED)           || \
+# if  defined(EOS_WEAKLIB_INCLUDED)           || \
       defined(EOS_HELMHOLTZ_INCLUDED)
 #   error Multiple EOS implementations included with Gamma without Hybrid
 # endif
 #endif
 
-#if defined(EOS_MULTIGAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
-# if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_WEAKLIB_INCLUDED)           || \
-      defined(EOS_HELMHOLTZ_INCLUDED)
-#   error Multiple EOS implementations included with Multigamma without Hybrid
-# endif
-#endif
 
 #if defined(EOS_WEAKLIB_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
 # if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_MULTIGAMMA_INCLUDED)        || \
       defined(EOS_HELMHOLTZ_INCLUDED)
 #   error Multiple EOS implementations included with WeakLib without Hybrid
 # endif
@@ -95,7 +84,6 @@ end subroutine Eos
 
 #if defined(EOS_HELMHOLTZ_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
 # if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_MULTIGAMMA_INCLUDED)        || \
       defined(EOS_WEAKLIB_INCLUDED)
 #   error Multiple EOS implementations included with Helmholtz without Hybrid
 # endif

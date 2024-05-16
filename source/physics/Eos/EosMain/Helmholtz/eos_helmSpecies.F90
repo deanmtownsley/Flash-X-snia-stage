@@ -248,12 +248,9 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      abarRow(k) = eos_singleSpeciesA
      zbarRow(k) = eos_singleSpeciesZ
 #endif
-
+     eosData(abar+k)=abarRow(k)
+     eosData(zbar+k)=zbarRow(k)     
   enddo
-
-
-  eosData(abar+1:abar+vecLen) = abarRow(1:vecLen) 
-  eosData(zbar+1:zbar+vecLen) = zbarRow(1:vecLen)
 
   !==============================================================================
 

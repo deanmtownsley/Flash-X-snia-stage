@@ -2,7 +2,7 @@
 #  Simulation/SimultationMain/unitTest/Eos/Helmholtz/starkiller
 #  Receives the Simulation_init from SimulationComposition
 
-REQUIRES physics/Eos/EosMain/Helmholtz/SpeciesBased/starkiller
+REQUIRES physics/Eos/EosMain/Helmholtz/starkiller
 REQUIRES physics/Eos/unitTest/Helmholtz/starkiller  # Helmholtz version has additional derivative tests
 REQUIRES Simulation/SimulationComposition
 REQUIRES Multispecies
