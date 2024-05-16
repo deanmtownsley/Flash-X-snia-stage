@@ -250,110 +250,103 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 #endif
      eosData(abar+k)=abarRow(k)
      eosData(zbar+k)=zbarRow(k)     
-  enddo
-
-  !==============================================================================
-
-  !      MODE_DENS_TEMP  temperature and density given
-
-  !      Crank the EOS on the pipes filled above, then fill the FLASH arrays
-  !      with the thermodynamic quantities returned by the EOS.
-
-  if (mode==MODE_DENS_TEMP) then
-
-     do k=1,vecLen
+     
+     !==============================================================================
+     
+     !      MODE_DENS_TEMP  temperature and density given
+     
+     !      Crank the EOS on the pipes filled above, then fill the FLASH arrays
+     !      with the thermodynamic quantities returned by the EOS.
+     
+     if (mode==MODE_DENS_TEMP) then
+        
         call eos_helm(k)
         eosData(pres+k)=ptotRow(k)
         eosData(eint+k)=etotRow(k)
         eosData(gamc+k)=gamcRow(k)
         eosData(entr+k)=stotRow(k)
-     end do
      !==============================================================================
-     !      MODE_DENS_EI  internal energy and density given
+        !      MODE_DENS_EI  internal energy and density given
+        
+     else if (mode==MODE_DENS_EI) then
+        
+        ! Initialize the errors
+        error(k) = 0.0e0
 
-  else if (mode==MODE_DENS_EI) then
-
-     ! Initialize the errors
-     error(:) = 0.0e0
-
-     ! Do the first eos call with all the zones in the pipe
-     !  NOTE that eos_helm can ONLY operate in the equivalent of
-     !  MODE_DENS_TEMP, as it returns pressure, energy and derivatives only
-     !  So if you send in a crappy temperature here, you'll get a crappy starting
-     !  position and the iteration won't converge.
-     !  Initial temperature here is what is stored in the grid, even though we 
-     !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
-     !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
-
-
-     !  Create initial condition
-     do k = vecBegin, vecEnd
+        ! Do the first eos call with all the zones in the pipe
+        !  NOTE that eos_helm can ONLY operate in the equivalent of
+        !  MODE_DENS_TEMP, as it returns pressure, energy and derivatives only
+        !  So if you send in a crappy temperature here, you'll get a crappy starting
+        !  position and the iteration won't converge.
+        !  Initial temperature here is what is stored in the grid, even though we 
+        !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
+        !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
+        
+        
+        !  Create initial condition
+        
         ewantRow(k)   = eosData(eint+k)   ! store desired internal energy for mode=2 case
-     if (eos_forceConstantInput) then
-        esaveRow(k) = ewantRow(k)
-     end if
-     !  ewantRow is our desired EI input
+        if (eos_forceConstantInput) then
+           esaveRow(k) = ewantRow(k)
+        end if
+        !  ewantRow is our desired EI input
         call eos_helm(k)
-
+        
         tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
              &           / detRow(k)
-
+        
         ! Don't allow the temperature to change by more than an order of magnitude 
         ! in a single iteration
         if (tnew(k) .GT. 10.e0*tempRow(k)) tnew(k) =  & 
              &           10.e0*tempRow(k)
         if (tnew(k) .LT. 0.1e0*tempRow(k)) tnew(k) =  & 
              &           0.1e0*tempRow(k)
-
+        
         ! Compute the error
         error(k) = abs((tnew(k) - tempRow(k)) / tempRow(k))
-
+        
         ! Store the new temperature
         tempRow(k) = tnew(k)
-
+        
         ! Check if we are freezing, if so set the temperature to smallt, and adjust 
         ! the error so we don't wait for this one
         if (tempRow(k) .LT. eos_smallt) then
            tempRow(k) = eos_smallt
            error(k)    = 0.1*eos_tol
         endif
-
-     enddo
-
-     ! Loop over the zones individually now
-     do k = vecBegin, vecEnd
+        
         do i = 2, eos_maxNewton
            if (error(k)< eos_tol) goto 70
-
+           
            call eos_helm(k)
            
            tnew(k) = tempRow(k) - (etotRow(k) - ewantRow(k))  & 
                 &              / detRow(k)
-
+           
            ! Don't allow the temperature to change by more than an order of magnitude 
            ! in a single iteration
            if (tnew(k) .GT. 10.e0*tempRow(k)) tnew(k) =  & 
                 &              10.e0*tempRow(k)
            if (tnew(k) .LT. 0.1e0*tempRow(k)) tnew(k) =  & 
                 &              0.1e0*tempRow(k)
-
+           
            ! Compute the error
            error(k) = abs((tnew(k) - tempRow(k)) / tempRow(k))
-
+           
            ! Store the new temperature
            tempRow(k) = tnew(k)
-
+           
            ! Check if we are freezing, if so set the temperature to eos_smallt, and adjust 
            ! the error so we don't wait for this one
            if (tempRow(k) .LT. eos_smallt) then
               tempRow(k) = eos_smallt
               error(k)    = .1*eos_tol
            endif
-
+           
         end do  ! end of Newton iterations loop.  Failure drops below, success goes to 70
-
+        
         ! Land here if too many iterations are needed -- failure
-
+        
         print *, ' '
         print *, 'Newton-Raphson failed in subroutine Eos'
         print *, '(e and rho as input):'
@@ -368,47 +361,43 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         print *, ' pres = ', ptotRow(k)
         print *, ' etot = ', etotRow(k)
         print *, ' ewant= ', ewantRow(k)
-
-
+        
+        
         call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
-
-
+        
+        
         ! Land here if the Newton iteration converged
         !  jumps out of the iterations, but then continues to the next vector location
-
+        
 70      continue           
-     end do
-
-     ! Crank through the entire eos one last time
-     do k = vecBegin,vecEnd
+        
+        
+        ! Crank through the entire eos one last time
         call eos_helm(k)
-     !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
+        !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
         eosData(temp+k)=tempRow(k)
         eosData(pres+k)=ptotRow(k)
         eosData(gamc+k)=gamcRow(k)
         eosData(entr+k)=stotRow(k)
-
+        
         !  Update the energy to be the true energy, instead of the energy we were trying to meet
         !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
         if (eos_forceConstantInput)  then
            eosData(eint+k) = esaveRow(k)
-     else
-        eosData(eint+k) = etotRow(k)
-     end if
-     end do
-
-
-     !==============================================================================
-
-     !      MODE_DENS_PRES  pressure and density given
-
-  else if (mode==MODE_DENS_PRES) then
-
-    error(:) = 0.0e0
-
-     ! Do the first eos call with all the zones in the pipe
-
-     do k = vecBegin, vecEnd
+        else
+           eosData(eint+k) = etotRow(k)
+        end if
+        
+        !==============================================================================
+        
+        !      MODE_DENS_PRES  pressure and density given
+        
+     else if (mode==MODE_DENS_PRES) then
+        
+        error(:) = 0.0e0
+        
+        ! Do the first eos call with all the zones in the pipe
+        
         pwantRow(k) = eosData(pres+k)   ! store desired pressure for mode=3 case
         if (eos_forceConstantInput) then
            psaveRow(k) = pwantRow(k)
@@ -439,45 +428,40 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
            error(k)    = 0.1*eos_tol
         endif
         
-     enddo
-     
-     ! Loop over the zones individually now
-     do k = vecBegin, vecEnd
-        
         do i = 2, eos_maxNewton
            
            if (error(k) .LT. eos_tol) goto 170
            
            ! do eos only over this single item
            call eos_helm(k)
-
+           
            tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
                 &              / dptRow(k)
-
+           
            ! Don't allow the temperature to change by more than an order of magnitude 
            ! in a single iteration
            if (tnew(k) .GT. 10.e0*tempRow(k)) tnew(k) =  & 
                 &              10.e0*tempRow(k)
            if (tnew(k) .LT. 0.1e0*tempRow(k)) tnew(k) =  & 
                 &              0.1e0*tempRow(k)
-
+           
            ! Compute the error
            error(k) = abs((tnew(k) - tempRow(k)) / tempRow(k))
-
+           
            ! Store the new temperature
            tempRow(k) = tnew(k)
-
+           
            ! Check if we are freezing, if so set the temperature to eos_smallt, and adjust 
            ! the error so we don't wait for this one
            if (tempRow(k) .LT. eos_smallt) then
               tempRow(k) = eos_smallt
               error(k)    = .1*eos_tol
            endif
-
+           
         enddo
-
+        
         ! Land here if too many iterations are needed
-
+        
         print *, ' '
         print *, 'Newton-Raphson failed in Helmholtz Eos:'
         print *, '(p and rho as input)'
@@ -492,20 +476,18 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         print *, ' etot = ', etotRow(k)
         print *, ' pres = ', ptotRow(k)
         print *, ' pwant= ', pwantRow(k)
-
+        
         call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in Eos')
-
-
+        
+        
         ! Land here if the Newton iteration converged
-
+        
 170     continue
-
-     enddo
-
-     ! Crank through the entire eos one last time
-     do k=vecBegin,vecEnd
+        
+        
+        ! Crank through the entire eos one last time
         call eos_helm(k)
-
+        
         ! Fill the FLASH arrays with the results.  
         eosData(temp+k)=tempRow(k)
         eosData(gamc+k)=gamcRow(k)
@@ -519,19 +501,18 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         else
            eosData(pres+k) = ptotRow(k)
         end if
-     end do
         
         
-     !==============================================================================
-
-     ! Unknown EOS mode selected
-
-  else if (mode .NE. MODE_EOS_NOP) then
-     if (eos_meshMe .EQ. MASTER_PE) print*, '[Eos] Error: unknown input mode', mode
-     call Driver_abort('[Eos] Error: unknown input mode in subroutine Eos')
-  end if
-
-
+        !==============================================================================
+        
+        ! Unknown EOS mode selected
+        
+     else if (mode .NE. MODE_EOS_NOP) then
+        if (eos_meshMe .EQ. MASTER_PE) print*, '[Eos] Error: unknown input mode', mode
+        call Driver_abort('[Eos] Error: unknown input mode in subroutine Eos')
+     end if
+  end do
+     
   ! Get the optional values
   if(present(mask)) then
      ! Entropy derivatives
