@@ -387,18 +387,15 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
         eosData(pres+k)=ptotRow(k)
         eosData(gamc+k)=gamcRow(k)
         eosData(entr+k)=stotRow(k)
-     end do
 
-     ! Fill the FLASH arrays with the results.  
-
-
-     !  Update the energy to be the true energy, instead of the energy we were trying to meet
-     !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
-     if (eos_forceConstantInput)  then
-        eosData(eint+1:eint+vecLen) = esaveRow(1:vecLen)
+        !  Update the energy to be the true energy, instead of the energy we were trying to meet
+        !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
+        if (eos_forceConstantInput)  then
+           eosData(eint+k) = esaveRow(k)
      else
-        eosData(eint+1:eint+vecLen) = etotRow(1:vecLen)
+        eosData(eint+k) = etotRow(k)
      end if
+     end do
 
 
      !==============================================================================
@@ -407,50 +404,50 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   else if (mode==MODE_DENS_PRES) then
 
-     pwantRow(1:vecLen) = eosData(pres+1:pres+vecLen)   ! store desired pressure for mode=3 case
-     if (eos_forceConstantInput) then
-        psaveRow = pwantRow
-     end if
-     ! Initialize the errors
-     error(:) = 0.0e0
+    error(:) = 0.0e0
 
      ! Do the first eos call with all the zones in the pipe
 
      do k = vecBegin, vecEnd
+        pwantRow(k) = eosData(pres+k)   ! store desired pressure for mode=3 case
+        if (eos_forceConstantInput) then
+           psaveRow(k) = pwantRow(k)
+        end if
+        ! Initialize the errors
         call eos_helm(k)
-
+        
         tnew(k) = tempRow(k) - (ptotRow(k) - pwantRow(k))  & 
              &           / dptRow(k)
-
+        
         ! Don't allow the temperature to change by more than an order of magnitude 
         ! in a single iteration
         if (tnew(k) .GT. 10.e0*tempRow(k)) tnew(k) =  & 
              &           10.e0*tempRow(k)
         if (tnew(k) .LT. 0.1e0*tempRow(k)) tnew(k) =  & 
              &           0.1e0*tempRow(k)
-
+        
         ! Compute the error
         error(k) = abs((tnew(k) - tempRow(k)) / tempRow(k))
-
+        
         ! Store the new temperature
         tempRow(k) = tnew(k)
-
+        
         ! Check if we are freezing, if so set the temperature to smallt, and adjust 
         ! the error so we don't wait for this one
         if (tempRow(k) .LT. eos_smallt) then
            tempRow(k) = eos_smallt
            error(k)    = 0.1*eos_tol
         endif
-
+        
      enddo
-
+     
      ! Loop over the zones individually now
      do k = vecBegin, vecEnd
-
+        
         do i = 2, eos_maxNewton
-
+           
            if (error(k) .LT. eos_tol) goto 170
-
+           
            ! do eos only over this single item
            call eos_helm(k)
 
@@ -508,23 +505,23 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      ! Crank through the entire eos one last time
      do k=vecBegin,vecEnd
         call eos_helm(k)
+
+        ! Fill the FLASH arrays with the results.  
+        eosData(temp+k)=tempRow(k)
+        eosData(gamc+k)=gamcRow(k)
+        eosData(eint+k)=etotRow(k)
+        eosData(entr+k)=stotRow(k)
+        
+        ! Update the pressure to be the equilibrium pressure, instead of the pressure we were trying to meet
+        !  ConstantInput LBR and KW believe this is wrong.  See notes at the top of the routine
+        if (eos_forceConstantInput) then
+           eosData(pres+k) = psaveRow(k)
+        else
+           eosData(pres+k) = ptotRow(k)
+        end if
      end do
-
-     ! Fill the FLASH arrays with the results.  
-     eosData(temp+1:temp+vecLen)=tempRow(1:vecLen)
-     eosData(gamc+1:gamc+vecLen)=gamcRow(1:vecLen)
-     eosData(eint+1:eint+vecLen)=etotRow(1:vecLen)
-     eosData(entr+1:entr+vecLen)=stotRow(1:vecLen)
-
-     ! Update the pressure to be the equilibrium pressure, instead of the pressure we were trying to meet
-     !  ConstantInput LBR and KW believe this is wrong.  See notes at the top of the routine
-     if (eos_forceConstantInput) then
-        eosData(pres+1:pres+vecLen) = psaveRow(1:vecLen)
-     else
-        eosData(pres+1:pres+vecLen) = ptotRow(1:vecLen)
-     end if
-
-
+        
+        
      !==============================================================================
 
      ! Unknown EOS mode selected
