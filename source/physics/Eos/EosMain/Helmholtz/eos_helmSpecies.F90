@@ -535,77 +535,37 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
   ! Get the optional values
   if(present(mask)) then
      ! Entropy derivatives
-     if(mask(EOS_DST)) then
-        dst = (EOS_DST-1)*vecLen
-        eosData(dst+1:dst+vecLen) = dstRow(1:vecLen)
-     end if
-     if(mask(EOS_DSD)) then
-        dsd = (EOS_DSD-1)*vecLen
-        eosData(dsd+1:dsd+vecLen) = dsdRow(1:vecLen)
-     end if
-     if(mask(EOS_DPT)) then
-        dpt = (EOS_DPT-1)*vecLen
-        eosData(dpt+1:dpt+vecLen) = dptRow(1:vecLen)
-     end if
-     if(mask(EOS_DPD)) then
-        dpd = (EOS_DPD-1)*vecLen
-        eosData(dpd+1:dpd+vecLen) = dpdRow(1:vecLen)
-     end if
-     if(mask(EOS_DET))then
-        det = (EOS_DET-1)*vecLen
-        eosData(det+1:det+vecLen) = detRow(1:vecLen)
-     end if
-     if(mask(EOS_DED))then 
-        ded = (EOS_DED-1)*vecLen
-        eosData(ded+1:ded+vecLen) = dedRow(1:vecLen)
-     end if
-     if(mask(EOS_DEA))then 
-        dea = (EOS_DEA-1)*vecLen
-        eosData(dea+1:dea+vecLen) = deaRow(1:vecLen)
-     end if
-     if(mask(EOS_DEZ))then 
-        dez = (EOS_DEZ-1)*vecLen
-        eosData(dez+1:dez+vecLen) = dezRow(1:vecLen)
-     end if
-     if(mask(EOS_PEL))then 
-        pel = (EOS_PEL-1)*vecLen
-        eosData(pel+1:pel+vecLen) = pelRow(1:vecLen)
-     end if
-     if(mask(EOS_NE))then 
-        ne = (EOS_NE-1)*vecLen
-        eosData(ne+1:ne+vecLen) = neRow(1:vecLen)
-     end if
-     if(mask(EOS_ETA))then 
-        eta = (EOS_ETA-1)*vecLen
-        eosData(eta+1:eta+vecLen) = etaRow(1:vecLen)
-     end if
-     if(mask(EOS_DETAT))then
-        detat = (EOS_DETAT-1)*vecLen
-        eosData(detat+1:detat+vecLen) = detatRow(1:vecLen)
-     end if
-
-     if(mask(EOS_CV))then
-        if(mask(EOS_DET)) then
-           c_v = (EOS_CV-1)*vecLen
-           eosData(c_v+1:c_v+vecLen) = cvRow(1:vecLen)
-        else
-           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+     do k=vecBegin,vecEnd
+        if(mask(EOS_DST))eosData((EOS_DST-1)*vecLen + k) = dstRow(k)
+        if(mask(EOS_DSD))eosData((EOS_DSD-1)*vecLen+k) = dsdRow(k)
+        if(mask(EOS_DPT))eosData((EOS_DPT-1)*vecLen+k) = dptRow(k)
+        if(mask(EOS_DPD)) eosData((EOS_DPD-1)*vecLen+k) = dpdRow(k)
+        if(mask(EOS_DET))eosData((EOS_DET-1)*vecLen+k) = detRow(k)
+        if(mask(EOS_DED))eosData((EOS_DED-1)*vecLen+k) = dedRow(k)
+        if(mask(EOS_DEA)) eosData((EOS_DEA-1)*vecLen+k) = deaRow(k)
+        if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)*vecLen+k) = dezRow(k)
+        if(mask(EOS_PEL)) eosData((EOS_PEL-1)*vecLen+k) = pelRow(k)
+        if(mask(EOS_NE)) eosData((EOS_NE-1)*vecLen+k) = neRow(k)
+        if(mask(EOS_ETA)) eosData((EOS_ETA-1)*vecLen+k) = etaRow(k)
+        if(mask(EOS_DETAT))eosData((EOS_DETAT-1)*vecLen+k) = detatRow(k)
+        
+        if(mask(EOS_CV))then
+           if(mask(EOS_DET)) then
+              eosData((EOS_CV-1)*vecLen+k) = cvRow(k)
+           else
+              call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+           end if
         end if
-     end if
-
-     if(mask(EOS_CP))then
-        if(mask(EOS_CV).and.mask(EOS_DET)) then
-           c_p = (EOS_CP-1)*vecLen
-           eosData(c_p+1:c_p+vecLen) = cpRow(1:vecLen)
-        else
-           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+        
+        if(mask(EOS_CP))then
+           if(mask(EOS_CV).and.mask(EOS_DET)) then
+              eosData((EOS_CP-1)*vecLen+k) = cpRow(k)
+           else
+              call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+           end if
         end if
-     end if
+     end do
   end if
-
-
-
-
   !! Close up arrays if previously allocated
 #ifndef FIXEDBLOCKSIZE  
   call eos_vecDealloc()
