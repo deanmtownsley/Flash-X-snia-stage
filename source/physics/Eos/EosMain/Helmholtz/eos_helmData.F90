@@ -85,4 +85,26 @@ module eos_helmData
              eos_xf=18,eos_xfd=19,eos_xft=20,eos_xfdt=21
   integer, parameter :: eos_dpdfdd=22,eos_dpdftt=23,eos_efdd=24,eos_eftt=25,&
              eos_xfdd=26,eos_xftt=27
+
+  real,  save ::  tempRow,denRow, abarRow,zbarRow
+
+  !..totals and their derivatives
+  real, save ::  ptotRow,dptRow,             &
+       &                             etotRow,detRow, stotRow            
+  real, save ::  dedRow, dstRow,dsdRow,dpdRow            
+  real,  save ::  deaRow, dezRow  !Calhoun            
+
+
+  !..electron-positron contributions -- most UNUSED and REMOVED
+  real,  save :: pelRow, neRow, etaRow, detatRow
+  !..derivative based quantities
+  real,save ::    gamcRow
+  real,  save ::    cpRow,cvRow 
+
+
+!These variables must be threadprivate!!!
+!$omp threadprivate(tempRow, denRow, etotRow, abarRow, zbarRow, gamcRow, ptotRow, &
+!$omp deaRow, dezRow, detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, &
+!$omp cvRow, cpRow, dstRow, dsdRow, stotRow)
+
 end module eos_helmData

@@ -156,12 +156,10 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
        Multispecies_getSumFrac
   use Logfile_interface, ONLY:  Logfile_stampMessage
 
-  use eos_helmInterface, ONLY : eos_helm
-
   use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
        eos_forceConstantInput
   use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ
-  use eos_vecData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
+  use eos_helmData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
        gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
        detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
   !$ use omp_lib

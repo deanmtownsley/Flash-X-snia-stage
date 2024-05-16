@@ -92,7 +92,7 @@
 #define DEBUG_EOS
 #endif
 
-subroutine eos_helm(ind,mask)
+subroutine eos_helm()
 
   use eos_helmData, ONLY: eos_f, eos_ft, eos_ftt, eos_fd, eos_fdd, eos_fdt, &
        eos_fddt, eos_fdtt, eos_fddtt, &
@@ -107,7 +107,7 @@ subroutine eos_helm(ind,mask)
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
-  use eos_vecData, ONLY: tempRow , denRow, abarRow, zbarRow, &
+  use eos_helmData, ONLY: tempRow , denRow, abarRow, zbarRow, &
        ptotRow, etotRow, stotRow, &
        dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
        deaRow, dezRow, & !Calhoun
@@ -125,11 +125,6 @@ subroutine eos_helm(ind,mask)
 #include "Eos.h"
 
 !! Arguments
-  integer, intent(IN) :: ind
-  logical,optional, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-!! from eos_helmInterface.F90       logical,optional, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-
-!! Local variables
 
   character*90 ::  internalFile
   integer      ::  i,j
@@ -375,23 +370,23 @@ subroutine eos_helm(ind,mask)
 
 ! Initial testing of masks
 !  Note that there should be things added here for entropy eventually
-  bAprox13t = .false.  
-  if (present(mask)) then
-     if (mask(EOS_DEA).or.mask(EOS_DEZ)) &
-          bAprox13t = .true.    ! we will do calculations for Aprox13t network
-  end if
+!!$  bAprox13t = .false.  
+!!$  if (present(mask)) then
+!!$     if (mask(EOS_DEA).or.mask(EOS_DEZ)) &
+!!$          bAprox13t = .true.    ! we will do calculations for Aprox13t network
+!!$  end if
 
 
   !!  normal execution starts here, start of pipeline loop, no input checking
 !!  biquintic hermite polynomial statement function
 !  call Timers_start("eos_helm")
 
-  j=ind
 
-  btemp  = tempRow(j)
-  den    = denRow(j)
-  abar   = abarRow(j)
-  zbar   = zbarRow(j)
+
+  btemp  = tempRow
+  den    = denRow
+  abar   = abarRow
+  zbar   = zbarRow
   ytot1  = 1.0e0/abar
   ye     = ytot1 * zbar
   
@@ -436,12 +431,12 @@ subroutine eos_helm(ind,mask)
   deiondd = (1.5e0 * dpiondd - eion)*deni
   deiondt = 1.5e0 * xni * kerg *deni
   
-  if (bAprox13t) then
-     dxnida  = -xni*ytot1 !Calhoun
-     dpionda = dxnida * kt !Calhoun
-     deionda = 1.5e0 * dpionda*deni  !Calhoun
-     deiondz = 0.0e0 !Calhoun
-  end if
+!!$  if (bAprox13t) then
+!!$     dxnida  = -xni*ytot1 !Calhoun
+!!$     dpionda = dxnida * kt !Calhoun
+!!$     deionda = 1.5e0 * dpionda*deni  !Calhoun
+!!$     deiondz = 0.0e0 !Calhoun
+!!$  end if
   
   !!  sackur-tetrode equation for the ion entropy of 
   !!  a single ideal gas characterized by abar
@@ -655,12 +650,12 @@ subroutine eos_helm(ind,mask)
   deepdt  = btemp * dsepdt
   deepdd  = ye*ye*df_d + btemp*dsepdd
   
-  if (bAprox13t) then
-     dsepda  = ytot1 * (ye * df_dt * din - sele)    !Calhoun
-     dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)  !Calhoun
-     deepda  = -ye * ytot1 * (free +  df_d * din) + btemp * dsepda  !Calhoun
-     deepdz  = ytot1* (free + ye * df_d * den) + btemp * dsepdz !Calhoun
-  end if
+!!$  if (bAprox13t) then
+!!$     dsepda  = ytot1 * (ye * df_dt * din - sele)    !Calhoun
+!!$     dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)  !Calhoun
+!!$     deepda  = -ye * ytot1 * (free +  df_d * din) + btemp * dsepda  !Calhoun
+!!$     deepdz  = ytot1* (free + ye * df_d * den) + btemp * dsepdz !Calhoun
+!!$  end if
   
   
   !!  coulomb section:
@@ -700,12 +695,12 @@ subroutine eos_helm(ind,mask)
   plasgdd   = z3 * lamidd
   plasgdt   = -plasg * ktinv * kerg
   
-  if (bAprox13t) then
-     dsda     = z1 * dxnida !Calhoun
-     lamida   = z2 * dsda / s1  ! Calhoun
-     plasgda  = z3 * lamida          !Calhoun
-     plasgdz  = 2.0d0 * plasg/zbar  !Calhoun
-  end if
+!!$  if (bAprox13t) then
+!!$     dsda     = z1 * dxnida !Calhoun
+!!$     lamida   = z2 * dsda / s1  ! Calhoun
+!!$     plasgda  = z3 * lamida          !Calhoun
+!!$     plasgdz  = 2.0d0 * plasg/zbar  !Calhoun
+!!$  end if
   
   
   !!  yakovlev & shalybkov 1989 equations 82, 85, 86, 87
@@ -723,10 +718,10 @@ subroutine eos_helm(ind,mask)
      dpcouldd = third * (ecoul + den * decouldd)
      dpcouldt = third * den  * decouldt
      
-     if (bAprox13t) then
-        decoulda = y1 * plasgda - ecoul/abar   !Calhoun
-        decouldz = y1 * plasgdz                !Calhoun
-     end if
+!!$     if (bAprox13t) then
+!!$        decoulda = y1 * plasgda - ecoul/abar   !Calhoun
+!!$        decouldz = y1 * plasgdz                !Calhoun
+!!$     end if
      
      y2       = -kavoy*plasg_inv*(0.75e0*b1*x4 + 1.25e0*z4 + d1cc)
      dscouldd = y2 * plasgdd
@@ -751,9 +746,9 @@ subroutine eos_helm(ind,mask)
      
      !! Equations for decoulda and decouldz can be added here....
      
-     if (bAprox13t) then
-        call Driver_abort('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
-     end if
+!!$     if (bAprox13t) then
+!!$        call Driver_abort('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
+!!$     end if
      
      s3       = -kavoy*plasg_inv*(1.5e0*c2*x5 - a2*(b2 - 1.0e0)*y3)
      dscouldd = s3 * plasgdd
@@ -871,47 +866,47 @@ subroutine eos_helm(ind,mask)
   
   
   !!  store the output -- note that many of these are not used by the calling program!
-  ptotRow(j)   = pres   !used by Eos as EOS_PRES = PRES_VAR
-  etotRow(j)   = ener   !used by Eos as EOS_EINT = EINT_VAR
-  stotRow(j)   = entr   !this is entropy, used by Eos as EOS_ENTR (masked)
+  ptotRow   = pres   !used by Eos as EOS_PRES = PRES_VAR
+  etotRow   = ener   !used by Eos as EOS_EINT = EINT_VAR
+  stotRow   = entr   !this is entropy, used by Eos as EOS_ENTR (masked)
   
-  dpdRow(j)    = dpresdd  ! used as EOS_DPD
-  dptRow(j)    = dpresdt  ! used as EOS_DPT ALWAYS used by MODE_DENS_PRES in Eos.F90
+  dpdRow    = dpresdd  ! used as EOS_DPD
+  dptRow    = dpresdt  ! used as EOS_DPT ALWAYS used by MODE_DENS_PRES in Eos.F90
   
-  dedRow(j)    = denerdd  ! used as EOS_DED
-  detRow(j)    = denerdt  ! used as EOS_DET  ALWAYS used by MODE_DENS_EI in Eos.F90
+  dedRow    = denerdd  ! used as EOS_DED
+  detRow    = denerdt  ! used as EOS_DET  ALWAYS used by MODE_DENS_EI in Eos.F90
   
   if (bAprox13t) then
      denerda = deradda + deionda + deepda + decoulda  !Calhoun
      denerdz = deraddz + deiondz + deepdz + decouldz  !Calhoun
-     deaRow(j)    = denerda  !Calhoun EOS_DEA
-     dezRow(j)    = denerdz  !Calhoun EOS_DEZ
+     deaRow    = denerda  !Calhoun EOS_DEA
+     dezRow    = denerdz  !Calhoun EOS_DEZ
   end if
   
   
-  dsdRow(j)    = dentrdd  ! used as EOS_DSD  
-  dstRow(j)    = dentrdt  ! used as EOS_DST  
+  dsdRow    = dentrdd  ! used as EOS_DSD  
+  dstRow    = dentrdt  ! used as EOS_DST  
   
-  !UNUSED     pradRow(j)   = prad
-  !UNUSED     eradRow(j)   = erad
-  !UNUSED     sradRow(j)   = srad
+  !UNUSED     pradRow   = prad
+  !UNUSED     eradRow   = erad
+  !UNUSED     sradRow   = srad
   
-  !UNUSED     pionRow(j)   = pion
-  !UNUSED     eionRow(j)   = eion
-  !UNUSED     sionRow(j)   = sion
+  !UNUSED     pionRow   = pion
+  !UNUSED     eionRow   = eion
+  !UNUSED     sionRow   = sion
   
-  pelRow(j)   = pele     ! used as EOS_PEL
-  !UNUSED     eeleRow(j)   = eele
-  !UNUSED     seleRow(j)   = sele
+  pelRow   = pele     ! used as EOS_PEL
+  !UNUSED     eeleRow   = eele
+  !UNUSED     seleRow   = sele
   
-  neRow(j)    = xnefer   ! used as EOS_NE  
-  etaRow(j)   = etaele   ! used as EOS_ETA
-  detatRow(j) = detadt   ! used as EOS_DETAT
+  neRow    = xnefer   ! used as EOS_NE  
+  etaRow   = etaele   ! used as EOS_ETA
+  detatRow = detadt   ! used as EOS_DETAT
   
-  gamcRow(j)   = gamc    !used as EOS_GAMC = GAMC_VAR
+  gamcRow   = gamc    !used as EOS_GAMC = GAMC_VAR
   
-  cvRow(j)     = cv      ! EOS_CV
-  cpRow(j)     = cp      ! EOS_CP
+  cvRow     = cv      ! EOS_CV
+  cpRow     = cp      ! EOS_CP
   
   !!  end of vectorization loop
 
