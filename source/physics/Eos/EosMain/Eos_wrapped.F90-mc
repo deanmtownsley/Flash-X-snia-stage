@@ -126,7 +126,7 @@ subroutine Eos_wrapped(mode,range,solnData)
   integer :: n,m,p,pres,dens,gamc,temp,abar,zbar,eint,ekin,entr
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
-  real :: kineticEnergy, internalEnergy
+  real :: kineticEnergy, internalEnergy,rpres,rdens,rgamc,rtemp,rabar,rzbar,reint,rekin,rentr
 
 
 !! ---------------------------------------------------------------------------------
@@ -169,20 +169,20 @@ subroutine Eos_wrapped(mode,range,solnData)
   ! The length of the data being operated upon is determined from the range input array.
   vecLen=1
 
-  allocate(massFraction(NSPECIES*vecLen))
-  allocate(eosData(EOS_NUM*vecLen))
+  allocate(massFraction(NSPECIES))
+  allocate(eosData(EOS_NUM))
 
   eosMask = .FALSE.
 
-  pres = (EOS_PRES-1)*vecLen
-  dens = (EOS_DENS-1)*vecLen
-  temp = (EOS_TEMP-1)*vecLen
-  gamc = (EOS_GAMC-1)*vecLen
-  eint = (EOS_EINT-1)*vecLen
-  ekin = (EOS_EKIN-1)*vecLen
-  abar = (EOS_ABAR-1)*vecLen
-  zbar = (EOS_ZBAR-1)*vecLen
-  entr = (EOS_ENTR-1)*vecLen
+  pres = (EOS_PRES-1)
+  dens = (EOS_DENS-1)
+  temp = (EOS_TEMP-1)
+  gamc = (EOS_GAMC-1)
+  eint = (EOS_EINT-1)
+  ekin = (EOS_EKIN-1)
+  abar = (EOS_ABAR-1)
+  zbar = (EOS_ZBAR-1)
+  entr = (EOS_ENTR-1)
 
  @M eos_map  
 
@@ -202,6 +202,16 @@ subroutine Eos_wrapped(mode,range,solnData)
 !!$  @M loop_end_3d
 !!$
 !!$!!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
+             eosData(pres+1) = rpres
+             eosData(dens+1) = rdens
+             eosData(temp+1) = rtemp
+             eosData(gamc+1) = rgamc
+             eosData(eint+1) = reint
+             eosData(ekin+1) = rekin
+             eosData(abar+1) = rabar
+             eosData(zbar+1) = rzbar
+             eosData(entr+1) = rentr
+
            call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
 !!$
 !!$  !!  call Eos_putData(range,vecLen,solnData,eosData)

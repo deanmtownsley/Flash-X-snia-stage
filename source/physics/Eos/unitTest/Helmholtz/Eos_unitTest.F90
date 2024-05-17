@@ -124,7 +124,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
   logical:: test1allB,test2allB,test3allB,test4allB !for all blocks
 
   integer :: vecLen, blockOffset,  pres, dens, temp, e, n, m
-  integer :: isize, jsize, ksize, i,j,k, nStartsAtOne
+  integer :: isize, jsize, ksize, i,j,k,i1,j1,k1, nStartsAtOne
   real, dimension(:), allocatable :: eosData
   real, dimension(:), allocatable :: massFrac
   logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
@@ -479,70 +479,65 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
      !! Get DENS and PRES to fill up input, also massFraction
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
-     do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
-           do i = 1,vecLen
-              massFrac((i-1)*NSPECIES+1:i*NSPECIES) = &
-                   solnData(SPECIES_BEGIN:SPECIES_END,ib+i-1,j,k)
-           end do
-           
-           eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
-           eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
-           eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
-           
-           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
+     vecLen=1
+     do k1 = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
+        do j1 = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
+           do i1 = blkLimits(LOW,IAXIS), blkLimits(HIGH, IAXIS)
+              i=i1-ib+1; j=j1-jb+1; k=k1-kb+1
+              massFrac(1:NSPECIES) = &
+                   solnData(SPECIES_BEGIN:SPECIES_END,i1,j1,k1)
+              eosData(pres+1) =  solnData(PRES_VAR,i1,j1,k1)
+              eosData(dens+1) =  solnData(DENS_VAR,i1,j1,k1)
+              eosData(temp+1) =  solnData(TEMP_VAR,i1,j1,k1)
+              
+              call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
 
-           do e=EOS_VARS+1,EOS_NUM
-              m = (e-1)*vecLen
-              derivedVariables(1:vecLen,j-jb+1,k-kb+1,e) =  eosData(m+1:m+vecLen)
-              if (e==EOS_DEA) then
-                 ! DEV: I (JO) have converted putRowData calls to these explicit
-                 !      loop nests.  However, this code does not seem to have
-                 !      an effect on the success of this test.
-                 do i = blkLimits(LOW, IAXIS), blkLimits(HIGH, IAXIS)
+              do e=EOS_VARS+1,EOS_NUM
+                 m = (e-1)*vecLen
+                 derivedVariables(1:vecLen,j,k,e) =  eosData(m+1:m+vecLen)
+                 if (e==EOS_DEA) then
+                    ! DEV: I (JO) have converted putRowData calls to these explicit
+                    !      loop nests.  However, this code does not seem to have
+                    !      an effect on the success of this test.
                     scratchData(DRV1_SCRATCH_CENTER_VAR, i, j, k) &
-                       = eosData(m+i-blkLimits(LOW, IAXIS)+1)
-                 end do
-              end if
-              if (e==EOS_DPT) then
-                 ! DEV: I (JO) have converted putRowData calls to these explicit
-                 !      loop nests.  However, this code does not seem to have
-                 !      an effect on the success of this test.
-                 do i = blkLimits(LOW, IAXIS), blkLimits(HIGH, IAXIS)
+                         = eosData(m+1)
+                 end if
+                 if (e==EOS_DPT) then
+                    ! DEV: I (JO) have converted putRowData calls to these explicit
+                    !      loop nests.  However, this code does not seem to have
+                    !      an effect on the success of this test.
                     scratchData(DRV2_SCRATCH_CENTER_VAR, i, j, k) &
-                       = eosData(m+i-blkLimits(LOW, IAXIS)+1)
-                 end do
-              end if
-           end do
+                         = eosData(m+1)
+                 end if
+              end do
 
-          !!Stuff a few test derivatives into scratch storage so you can see what they look like
-          !!  Feel free to change the variable inserted
-           do i= 1, vecLen
-              deriv1(i,j-jb+1,k-kb+1) = derivedVariables(i,j-jb+1,k-kb+1,EOS_DEA)
-              deriv2(i,j-jb+1,k-kb+1) = derivedVariables(i,j-jb+1,k-kb+1,EOS_DPT)
+              !!Stuff a few test derivatives into scratch storage so you can see what they look like
+              !!  Feel free to change the variable inserted
+              deriv1(i,j,k) = derivedVariables(i,j,k,EOS_DEA)
+              deriv2(i,j,k) = derivedVariables(i,j,k,EOS_DPT)
            end do
         end do
      end do
-
-     !! Stuff a few test derivatives into scratch storage so you can see what they look like
-     !!  Feel free to change the variable inserted
-     !! This is an alternate way of outputting data.  But since LBR can't see anything, who can
-     !!  tell which is working
+        
+        !! Stuff a few test derivatives into scratch storage so you can see what they look like
+        !!  Feel free to change the variable inserted
+        !! This is an alternate way of outputting data.  But since LBR can't see anything, who can
+        !!  tell which is working
      !!call Grid_putBlkData(blockID,SCRATCH_CTR,DRV1_SCRATCH_CENTER_VAR,INTERIOR,startingPos, &
-     !!           deriv1,dataSize)
-     !!call Grid_putBlkData(blockID,SCRATCH_CTR,DRV2_SCRATCH_CENTER_VAR,INTERIOR,startingPos, &
-     !!           deriv2,dataSize)
-
-     call tileDesc%releaseDataPtr(solnData, CENTER)
-     call tileDesc%releaseDataPtr(scratchData, SCRATCH_CTR)
-
-     deallocate(deriv1)
-     deallocate(deriv2)
-
-     
-     if (All(derivedVariables .eq. 0.0)) then
-       if (eos_meshMe<maxPrintPE) print*,ap,"No derived variables were set!"
-     end if 
+        !!           deriv1,dataSize)
+        !!call Grid_putBlkData(blockID,SCRATCH_CTR,DRV2_SCRATCH_CENTER_VAR,INTERIOR,startingPos, &
+        !!           deriv2,dataSize)
+        
+        call tileDesc%releaseDataPtr(solnData, CENTER)
+        call tileDesc%releaseDataPtr(scratchData, SCRATCH_CTR)
+        
+        deallocate(deriv1)
+        deallocate(deriv2)
+        
+        
+        if (All(derivedVariables .eq. 0.0)) then
+           if (eos_meshMe<maxPrintPE) print*,ap,"No derived variables were set!"
+        end if
      if (ANY(derivedVariables .ne. 0.0)) then
       if (eos_meshMe<maxPrintPE) print*,ap,"Some derived variables were set."
      end if 
