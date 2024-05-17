@@ -167,14 +167,13 @@ subroutine Eos_wrapped(mode,range,solnData)
 
   ! solnData points to solution data in UNK (or other data structure).
   ! The length of the data being operated upon is determined from the range input array.
-
+  vecLen=1
 
   allocate(massFraction(NSPECIES*vecLen))
   allocate(eosData(EOS_NUM*vecLen))
 
   eosMask = .FALSE.
 
-  pos(IAXIS)=range(LOW,IAXIS)
   pres = (EOS_PRES-1)*vecLen
   dens = (EOS_DENS-1)*vecLen
   temp = (EOS_TEMP-1)*vecLen
@@ -188,27 +187,26 @@ subroutine Eos_wrapped(mode,range,solnData)
  @M eos_map  
 
   
- m=1
+ m=0
+ n=1
+
  @M loop_3d(range)
-           do p = SPECIES_BEGIN,SPECIES_END
-              massFraction(m) = solnData(p,i,j,k)
-              m=m+1
-           end do
- @M loop_end_3d
-
-  n = 0
-  !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
-  @M loop_3d(range)
+           massFraction(m+1:m+NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+!!$              m=m+NSPECIES
+!!$ @M loop_end_3d
+!!$
+!!$  n = 0
+!!$  !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
+!!$  @M loop_3d(range)
            @M eos_preprocess
-  @M loop_end_3d
-
-!!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
-  call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
-
-  !!  call Eos_putData(range,vecLen,solnData,eosData)
-  n=0
-  @M loop_3d(range)
-           n=n+1
+!!$  @M loop_end_3d
+!!$
+!!$!!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
+           call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
+!!$
+!!$  !!  call Eos_putData(range,vecLen,solnData,eosData)
+!!$  n=0
+!!$  @M loop_3d(range)
            solnData(pres_map,i,j,k) = eosData(pres+n)
            solnData(temp_map,i,j,k) = eosData(temp+n)
            solnData(gamc_map,i,j,k) = eosData(gamc+n)
