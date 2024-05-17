@@ -18,5 +18,6 @@ Orchestration += Orchestration_init.o \
 		         Orchestration_executeTasks_Cpu.o \
 		         Orchestration_executeTasks_Gpu.o \
 		         Orchestration_executeTasks_CpuGpu.o \
+		         Orchestration_executeTasks_CpuGpuSplit.o \
 		         Orchestration_executeTasks_extGpu.o
 
