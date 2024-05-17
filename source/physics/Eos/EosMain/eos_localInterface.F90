@@ -40,28 +40,15 @@ module eos_localInterface
   end interface
 
     interface
-     subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
+     subroutine eos_idealGamma(mode,  eosData, massFrac,  mask)
        implicit none
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       integer,optional,INTENT(in) :: vecBegin,vecEnd
+       integer, INTENT(in) :: mode
+       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
        logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-       integer, optional, INTENT(out)    :: diagFlag
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_idealGamma
   end interface
  
-  interface
-     subroutine eos_multiGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       integer,optional,INTENT(in) :: vecBegin,vecEnd
-       logical, optional, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-       integer, optional, INTENT(out)    :: diagFlag
-     end subroutine eos_multiGamma
-  end interface
-
 
   interface
      subroutine eos_helmSpecies(mode, eosData, massFrac, mask)
@@ -72,18 +59,6 @@ module eos_localInterface
      end subroutine eos_helmSpecies
   end interface
 
-
-  interface
-     subroutine eos_starKiller(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
-       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
-       integer,INTENT(in),optional :: vecBegin,vecEnd
-       logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
-       integer, optional, INTENT(out)::diagFlag
-     end subroutine eos_starKiller
-  end interface
-  
   
   interface 
      subroutine eos_idealGammaInit()
@@ -91,25 +66,10 @@ module eos_localInterface
   end interface
 
   interface 
-     subroutine eos_multiGammaInit()
-     end subroutine eos_multiGammaInit
-  end interface
-
-  interface 
      subroutine eos_helmSpeciesInit()
      end subroutine eos_helmSpeciesInit
   end interface
 
-  interface 
-     subroutine eos_helmYeInit()
-     end subroutine eos_helmYeInit
-  end interface
-
-  interface 
-     subroutine eos_starKillerInit()
-     end subroutine eos_starKillerInit
-  end interface
-  
 
   interface
      subroutine eos_weaklibInit()

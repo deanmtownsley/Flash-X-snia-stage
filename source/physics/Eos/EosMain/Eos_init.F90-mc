@@ -60,8 +60,8 @@ subroutine Eos_init()
   use Driver_interface, ONLY: Driver_abort
   use Driver_interface, ONLY : Driver_getMype, Driver_getNumProcs, &
        Driver_getComm
-  use eos_localInterface, ONLY : eos_idealGammaInit, eos_multiGammaInit, eos_helmSpeciesInit, &
-       eos_helmYeInit, eos_starKillerInit, eos_weaklibInit, eos_hybridInit
+  use eos_localInterface, ONLY : eos_idealGammaInit,  eos_helmSpeciesInit, &
+       eos_weaklibInit, eos_hybridInit
   use Logfile_interface, ONLY : Logfile_stamp
 
   implicit none
@@ -96,7 +96,6 @@ subroutine Eos_init()
 
   @M eos_idealGammaInit
   @M eos_helmSpeciesInit
-  @M eos_starKillerInit
   @M eos_weaklibInit  
   @M eos_hybridInit
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
@@ -104,7 +103,7 @@ subroutine Eos_init()
 
   if (eos_threadWithinBlock .and. .not. threadWithinBlockBuild) then
      call Logfile_stamp('WARNING! Turning off within block threading '//&
-          'because FLASH is not built appropriately','[Eos_init]')
+          'because Flash-X is not built appropriately','[Eos_init]')
      eos_threadWithinBlock = .false.
   end if
 

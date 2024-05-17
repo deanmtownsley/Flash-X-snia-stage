@@ -143,7 +143,7 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEnd,  diagFlag)
+subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
 
 !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -159,12 +159,10 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
 #include "Simulation.h"
 
   !     Arguments
-  integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-  integer,optional,INTENT(in) :: vecBegin,vecEnd
-  real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+  integer, INTENT(in) :: mode
+  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-  integer, optional, INTENT(out)    :: diagFlag
 
   real ::  ggprod, ggprodinv, gam1inv
   integer :: dens, temp, pres, eint, abar, zbar
@@ -172,42 +170,11 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
   integer :: dpt, dpd, det, ded, c_v, c_p, gamc, pel, ne, eta
   integer :: i, ilo,ihi
 
-  if (present(diagFlag)) diagFlag = 0
-  
   ggprod = eos_gammam1 * eos_gasConstant
 
 !============================================================================
 
-  pres = (EOS_PRES-1)*vecLen
-  dens = (EOS_DENS-1)*vecLen
-  temp = (EOS_TEMP-1)*vecLen
-  eint = (EOS_EINT-1)*vecLen
-  gamc = (EOS_GAMC-1)*vecLen
-  abar = (EOS_ABAR-1)*vecLen
-  zbar = (EOS_ZBAR-1)*vecLen
-  entr = (EOS_ENTR-1)*vecLen
 
-
-  if (present(vecBegin)) then
-     ilo = vecBegin
-  else
-     ilo = 1
-  end if
-  if (present(vecEnd)) then
-     ihi = vecEnd
-  else
-     ihi = vecLen
-  end if
-#ifdef DEBUG_EOS
-  if (ilo < 1 .OR. ilo > vecLen) then
-     print*,'[EosData] ilo is',ilo
-     call Driver_abort("[EosData] invalid ilo")
-  end if
-  if (ihi < 1 .OR. ihi > vecLen) then
-     print*,'[EosData] ihi is',ihi
-     call Driver_abort("[EosData] invalid ihi")
-  end if
-#endif
   
 !!NOTE  But for NSPECIES = 1, abar is NOT just 1.
 !!NOTE The Flash2 routines initialize a fake "fluid"
@@ -216,22 +183,20 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
 !!NOTE returns a default number.   In FLASH3, the decision has been made
 !!NOTE that Eos/Gamma cannot be run with more than one fluid.
 
-  do i = ilo,ihi
-     eosData(gamc+i) = eos_gamma
-     eosData(abar+i) = eos_singleSpeciesA
-     eosData(zbar+i) = eos_singleSpeciesZ    
-  end do
+  eosData(EOS_GAMC) = eos_gamma
+  eosData(EOS_ABAR) = eos_singleSpeciesA
+  eosData(EOS_ZBAR) = eos_singleSpeciesZ    
 
 
   ! density, temperature taken as input
   if (mode == MODE_DENS_TEMP) then
 
-     eosData(pres+ilo:pres+ihi) = eos_gasConstant*eosData(dens+ilo:dens+ihi) * &
-                                 eosData(temp+ilo:temp+ihi) / eosData(abar+ilo:abar+ihi)
-     eosData(eint+ilo:eint+ihi) = ggprod * eosData(temp+ilo:temp+ihi) &
-                                 / eosData(abar+ilo:abar+ihi)
-     eosData(entr+ilo:entr+ihi) = (eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi) +  &
-             &  eosData(eint+ilo:eint+ihi))/eosData(temp+ilo:temp+ihi)
+     eosData(EOS_PRES) = eos_gasConstant*eosData(EOS_DENS) * &
+                                 eosData(EOS_TEMP) / eosData(EOS_ABAR)
+     eosData(EOS_EINT) = ggprod * eosData(EOS_TEMP) &
+                                 / eosData(EOS_ABAR)
+     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
+             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
 
 
   ! density, internal energy taken as input
@@ -239,12 +204,12 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
 
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
-     eosData(pres+ilo:pres+ihi) = eosData(dens+ilo:dens+ihi) * &
-                                    eosData(eint+ilo:eint+ihi) * gam1inv
-     eosData(temp+ilo:temp+ihi) = eosData(eint+ilo:eint+ihi) * ggprodinv * &
-                                    eosData(abar+ilo:abar+ihi)
-     eosData(entr+ilo:entr+ihi) = (eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi) +  &
-             &  eosData(eint+ilo:eint+ihi))/eosData(temp+ilo:temp+ihi)
+     eosData(EOS_PRES) = eosData(EOS_DENS) * &
+                                    eosData(EOS_EINT) * gam1inv
+     eosData(EOS_TEMP) = eosData(EOS_EINT) * ggprodinv * &
+                                    eosData(EOS_ABAR)
+     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
+             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
 
 
   ! density, pressure taken as input
@@ -252,12 +217,12 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
 
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
-     eosData(eint+ilo:eint+ihi) = eosData(pres+ilo:pres+ihi) * eos_gammam1 / &
-                                   eosData(dens+ilo:dens+ihi)
-     eosData(temp+ilo:temp+ihi) = eosData(eint+ilo:eint+ihi) * ggprodinv * &
-                                   eosData(abar+ilo:abar+ihi)
-     eosData(entr+ilo:entr+ihi) = (eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi) +  &
-             &  eosData(eint+ilo:eint+ihi))/eosData(temp+ilo:temp+ihi)
+     eosData(EOS_EINT) = eosData(EOS_PRES) * eos_gammam1 / &
+                                   eosData(EOS_DENS)
+     eosData(EOS_TEMP) = eosData(EOS_EINT) * ggprodinv * &
+                                   eosData(EOS_ABAR)
+     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
+             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
 
   ! unrecognized value for mode
   else 
@@ -266,92 +231,28 @@ subroutine eos_idealGamma(mode, vecLen, eosData, massFrac,  mask, vecBegin,vecEn
 
 
   if(present(mask)) then
-
-     if(mask(EOS_DPT)) then
-        dpt = (EOS_DPT-1)*vecLen
-        eosData(dpt+ilo:dpt+ihi) = eos_gasConstant*eosData(dens+ilo:dens+ihi) / eosData(abar+ilo:abar+ihi)
-     end if
-     if(mask(EOS_DPD)) then
-        dpd = (EOS_DPD-1)*vecLen
-        eosData(dpd+ilo:dpd+ihi) = eos_gasConstant*eosData(temp+ilo:temp+ihi) / eosData(abar+ilo:abar+ihi)
-     end if
-     if(mask(EOS_DET))then
-        det = (EOS_DET-1)*vecLen
-        eosData(det+ilo:det+ihi) = ggprod / eosData(abar+ilo:abar+ihi)
-     end if
-     if(mask(EOS_DED))then 
-        ded = (EOS_DED-1)*vecLen
-        eosData(ded+ilo:ded+ihi) = 0.
-     end if
-
+     eosData(EOS_DPT) = eos_gasConstant*eosData(EOS_DENS) / eosData(EOS_ABAR)
+     eosData(EOS_DPD) = eos_gasConstant*eosData(EOS_TEMP) / eosData(EOS_ABAR)
+     eosData(EOS_DET) = ggprod / eosData(EOS_ABAR)
+     eosData(EOS_DED) = 0.
     ! Entropy derivatives   
-     if (mask(EOS_DST)) then
-        if (mask(EOS_DET) .AND. mask(EOS_DPT)) then
-           det = (EOS_DET-1)*vecLen
-           dpt = (EOS_DPT-1)*vecLen
-           dst = (EOS_DST-1)*vecLen
-           eosData(dst+ilo:dst+ihi) = ( (eosData(dpt+ilo:dpt+ihi)  / eosData(dens+ilo:dens+ihi) + eosData(det+ilo:det+ihi)) -&
-                &                      (eosData(pres+ilo:pres+ihi)/ eosData(dens+ilo:dens+ihi) + eosData(eint+ilo:eint+ihi))/ &
-                &                      eosData(temp+ilo:temp+ihi) ) / eosData(temp+ilo:temp+ihi)
-        else
-           call Driver_abort("[Eos] Cannot calculate EOS_DST without EOS_DET and EOS_DPT")
-        end if
-     end if
-     if (mask(EOS_DSD)) then
-        if (mask(EOS_DED) .AND. mask(EOS_DPD)) then
-           dsd = (EOS_DSD-1)*vecLen
-           ded = (EOS_DED-1)*vecLen
-           dpd = (EOS_DPD-1)*vecLen
-           eosData(dsd+ilo:dsd+ihi) = &
-               ( ((eosData(dpd+ilo:dpd+ihi) - eosData(pres+ilo:pres+ihi)/eosData(dens+ilo:dens+ihi)) / &
-        &          eosData(dens+ilo:dens+ihi)) + eosData(ded+ilo:ded+ihi)) / eosData(temp+ilo:temp+ihi)
-        else
-           call Driver_abort("[Eos] Cannot calculate EOS_DSD without EOS_DED and EOS_DPD")
-        end if
-     end if
+     eosData(EOS_DST) = ( (eosData(EOS_DPT)  / eosData(EOS_DENS) + eosData(EOS_DET)) -&
+          &                      (eosData(EOS_PRES)/ eosData(EOS_DENS) + eosData(EOS_EINT))/ &
+          &                      eosData(EOS_TEMP) ) / eosData(EOS_TEMP)
+     eosData(EOS_DSD) = &
+               ( ((eosData(EOS_DPD) - eosData(EOS_PRES)/eosData(EOS_DENS)) / &
+        &          eosData(EOS_DENS)) + eosData(EOS_DED)) / eosData(EOS_TEMP)
 
 
-     if(mask(EOS_PEL))then 
-        pel = (EOS_PEL-1)*vecLen
-        eosData(pel+ilo:pel+ihi) = 0.
-     end if
-     if(mask(EOS_NE))then 
-        ne = (EOS_NE-1)*vecLen
-        eosData(ne+ilo:ne+ihi) = 0.
-     end if
-     if(mask(EOS_ETA))then 
-        eta = (EOS_ETA-1)*vecLen
-        eosData(eta+ilo:eta+ihi) = 0.
-     end if
+     eosData(EOS_PEL) = 0.
+     eosData(EOS_NE) = 0.
+     eosData(EOS_ETA) = 0.
+     eosData(EOS_CV) = eosData(EOS_DET)
+     eosData(EOS_CP) = eos_gamma*eosData(EOS_CV)
      
-     if(mask(EOS_CV))then
-        if(mask(EOS_DET)) then
-           c_v = (EOS_CV-1)*vecLen
-           eosData(c_v+ilo:c_v+ihi) = eosData(det+ilo:det+ihi)
-        else
-           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
-        end if
-     end if
-     ! ideal gas -- all gammas are equal
-     if(mask(EOS_CP))then
-        if(mask(EOS_CV).and.mask(EOS_DET)) then
-           c_p = (EOS_CP-1)*vecLen
-           eosData(c_p+ilo:c_p+ihi) = eos_gamma*eosData(c_v+ilo:c_v+ihi)
-        else
-           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
-        end if
-     end if
-
 #ifdef EOS_CVELE
-     if(mask(EOS_CVELE))then
-        if(mask(EOS_DET)) then
-           c_v = (EOS_CVELE-1)*vecLen
-           eosData(c_v+ilo:c_v+ihi) = eosData(det+ilo:det+ihi) * &
-                eosData(zbar+ilo:zbar+ihi) / (eosData(zbar+ilo:zbar+ihi) + 1)
-        else
-           call Driver_abort("[Eos] cannot calculate C_{V,ele} without DET.  Set mask appropriately.")
-        end if
-     end if
+     eosData(EOS_CV) = eosData(EOS_DET) * &
+          eosData(EOS_ZBAR) / (eosData(EOS_ZBAR) + 1)
 #endif
   end if
 

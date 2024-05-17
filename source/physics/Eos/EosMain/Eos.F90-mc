@@ -26,8 +26,7 @@ subroutine Eos(mode,  eosData, massFrac, mask)
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
   ! use eos_localInterface, ONLY : @M eos_version
-  use eos_localInterface, ONLY : eos_idealGamma, eos_multiGamma, eos_helmSpecies, &
-       eos_starKiller, eos_weaklib
+  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weaklib
   implicit none
 #include "constants.h"
 #include "Eos.h"
@@ -49,7 +48,6 @@ subroutine Eos(mode,  eosData, massFrac, mask)
   ! @M eos_versionCall
   @M eos_idealGamma
   @M eos_helmSpecies
-  @M eos_starKiller
   @M eos_weaklib  
   @M eos_hybrid
   
