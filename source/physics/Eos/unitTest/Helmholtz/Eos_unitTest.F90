@@ -490,7 +490,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
               eosData(dens+1) =  solnData(DENS_VAR,i1,j1,k1)
               eosData(temp+1) =  solnData(TEMP_VAR,i1,j1,k1)
               
-              call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
+              call Eos(MODE_DENS_PRES,eosData,massFrac,mask)
 
               do e=EOS_VARS+1,EOS_NUM
                  m = (e-1)*vecLen

@@ -20,27 +20,24 @@
 !!***
 !!NOVARIANTS
 
-subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
+subroutine Eos(mode,  eosData, massFrac, mask)
 
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
   ! use eos_localInterface, ONLY : @M eos_version
   use eos_localInterface, ONLY : eos_idealGamma, eos_multiGamma, eos_helmSpecies, &
-       eos_helmYe, eos_starKiller, eos_weaklib
+       eos_starKiller, eos_weaklib
   implicit none
 #include "constants.h"
 #include "Eos.h"
 #include "Simulation.h"
-  integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
+  integer, INTENT(in) :: mode
+  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-  real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-  integer,optional,INTENT(in) :: vecBegin,vecEnd
-  integer, optional, INTENT(out)    :: diagFlag
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   logical :: pMassFrac_and_mask, pMassFrac, pMask
 
-  if (present(diagFlag)) diagFlag = 0
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
   if (mode==MODE_EOS_WRAPPERONLY) return ! * Return immediately for MODE_EOS_WRAPPERONLY! *

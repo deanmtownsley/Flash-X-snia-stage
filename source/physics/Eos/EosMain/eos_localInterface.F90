@@ -64,32 +64,20 @@ module eos_localInterface
 
 
   interface
-     subroutine eos_helmSpecies(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-       integer,INTENT(in),optional :: vecBegin,vecEnd
+     subroutine eos_helmSpecies(mode, eosData, massFrac, mask)
+       integer, INTENT(in) :: mode
+       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
-       integer, optional, INTENT(out)::diagFlag
      end subroutine eos_helmSpecies
   end interface
 
-  interface
-     subroutine eos_helmYe(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-       integer,INTENT(in),optional :: vecBegin,vecEnd
-       logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
-       integer, optional, INTENT(out)::diagFlag
-     end subroutine eos_helmYe
-  end interface
 
   interface
      subroutine eos_starKiller(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
        integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        integer,INTENT(in),optional :: vecBegin,vecEnd
        logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
        integer, optional, INTENT(out)::diagFlag

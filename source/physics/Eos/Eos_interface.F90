@@ -44,13 +44,11 @@ Module Eos_interface
   end interface
 
   interface
-     subroutine Eos(mode, vecLen, eosData,  massFrac, mask, vecBegin,vecEnd,diagFlag)
-       integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-       real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
+     subroutine Eos(mode,  eosData,  massFrac, mask)
+       integer, INTENT(in) :: mode
+       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask     
-       integer,optional,INTENT(in) :: vecBegin,vecEnd
-       integer, optional, INTENT(out)    :: diagFlag
      end subroutine Eos
   end interface
   

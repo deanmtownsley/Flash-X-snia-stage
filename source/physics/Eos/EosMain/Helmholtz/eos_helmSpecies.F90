@@ -149,7 +149,7 @@
 !!*** 
 
 
-subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
+subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -173,16 +173,13 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 #endif
 
   !     Arguments
-  integer, INTENT(in) :: mode, vecLen
-  real, INTENT(inout), dimension(vecLen*EOS_NUM) :: eosData
-  real, optional,INTENT(in), dimension(vecLen*NSPECIES) :: massFrac
-  integer,optional, INTENT(in) :: vecE,vecB
+  integer, INTENT(in) :: mode
+  real, INTENT(inout), dimension(EOS_NUM) :: eosData
+  real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_wrapped
   logical,optional,target, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-  integer, optional, INTENT(out) :: diagFlag
 
   integer :: i, k
-  integer :: vecBegin,vecEnd
   integer :: pres, temp, dens, gamc, eint
   integer :: abar, zbar
   integer :: entr, dst, dsd
@@ -205,10 +202,6 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      call Driver_abort("[Eos] Helmholtz needs mass fractions")
   end if
 
-  if (present(diagFlag)) then
-     diagFlag = 0
-  endif
-
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
   pres = (EOS_PRES-1)
@@ -221,9 +214,6 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
   entr = (EOS_ENTR-1)
 
   !! For allocatable arrays, set them up now.
-#ifndef FIXEDBLOCKSIZE
-!!  call eos_vecAlloc(vecLen)
-#endif
 
   k = 1
 
@@ -349,7 +339,6 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      print *, ' '
      print *, 'too many iterations', eos_maxNewton
      print *, ' '
-     print *, ' k    = ', k,vecBegin,vecEnd
      print *, ' temp = ', tempRow
      print *, ' dens = ', denRow
      print *, ' abar = ', abarRow
@@ -464,7 +453,6 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
      print *, ' '
      print *, 'too many iterations'
      print *, ' '
-     print *, ' k    = ', k,vecBegin,vecEnd
      print *, ' temp = ', tempRow
      print *, ' dens = ', denRow
      print *, ' abar = ', abarRow
@@ -512,36 +500,34 @@ subroutine eos_helmSpecies(mode,vecLen,eosData,massFrac,mask,vecB,vecE,diagFlag)
 
   if(present(mask)) then
      ! Entropy derivatives
-     do k=1,1
-        if(mask(EOS_DST))eosData((EOS_DST-1) + k) = dstRow
-        if(mask(EOS_DSD))eosData((EOS_DSD-1)+k) = dsdRow
-        if(mask(EOS_DPT))eosData((EOS_DPT-1)+k) = dptRow
-        if(mask(EOS_DPD)) eosData((EOS_DPD-1)+k) = dpdRow
-        if(mask(EOS_DET))eosData((EOS_DET-1)+k) = detRow
-        if(mask(EOS_DED))eosData((EOS_DED-1)+k) = dedRow
-        if(mask(EOS_DEA)) eosData((EOS_DEA-1)+k) = deaRow
-        if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)+k) = dezRow
-        if(mask(EOS_PEL)) eosData((EOS_PEL-1)+k) = pelRow
-        if(mask(EOS_NE)) eosData((EOS_NE-1)+k) = neRow
-        if(mask(EOS_ETA)) eosData((EOS_ETA-1)+k) = etaRow
-        if(mask(EOS_DETAT))eosData((EOS_DETAT-1)+k) = detatRow
-        
-        if(mask(EOS_CV))then
-           if(mask(EOS_DET)) then
-              eosData((EOS_CV-1)+k) = cvRow
-           else
-              call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
-           end if
+     if(mask(EOS_DST))eosData((EOS_DST-1) + k) = dstRow
+     if(mask(EOS_DSD))eosData((EOS_DSD-1)+k) = dsdRow
+     if(mask(EOS_DPT))eosData((EOS_DPT-1)+k) = dptRow
+     if(mask(EOS_DPD)) eosData((EOS_DPD-1)+k) = dpdRow
+     if(mask(EOS_DET))eosData((EOS_DET-1)+k) = detRow
+     if(mask(EOS_DED))eosData((EOS_DED-1)+k) = dedRow
+     if(mask(EOS_DEA)) eosData((EOS_DEA-1)+k) = deaRow
+     if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)+k) = dezRow
+     if(mask(EOS_PEL)) eosData((EOS_PEL-1)+k) = pelRow
+     if(mask(EOS_NE)) eosData((EOS_NE-1)+k) = neRow
+     if(mask(EOS_ETA)) eosData((EOS_ETA-1)+k) = etaRow
+     if(mask(EOS_DETAT))eosData((EOS_DETAT-1)+k) = detatRow
+     
+     if(mask(EOS_CV))then
+        if(mask(EOS_DET)) then
+           eosData((EOS_CV-1)+k) = cvRow
+        else
+           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
         end if
-        
-        if(mask(EOS_CP))then
-           if(mask(EOS_CV).and.mask(EOS_DET)) then
-              eosData((EOS_CP-1)+k) = cpRow
-           else
-              call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
-           end if
+     end if
+     
+     if(mask(EOS_CP))then
+        if(mask(EOS_CV).and.mask(EOS_DET)) then
+           eosData((EOS_CP-1)+k) = cpRow
+        else
+           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
         end if
-     end do
+     end if
   end if
 
   return

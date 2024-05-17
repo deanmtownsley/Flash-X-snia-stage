@@ -1271,9 +1271,9 @@ contains
        call Eos_getAbarZbarArraySection(SPECIES_BEGIN,spc,&
             abar=eosData(EOS_ABAR),&
             zbar=eosData(EOS_ZBAR))
-       call Eos(interp_eosMode,1,eosData,spc(1:NSPECIES))
+       call Eos(interp_eosMode,eosData,spc(1:NSPECIES))
     else 
-       call Eos(interp_eosMode,1,eosData)
+       call Eos(interp_eosMode,eosData)
     end if
 
     V(HY_GAMC) = eosData(EOS_GAMC)

@@ -212,7 +212,7 @@ subroutine Eos_wrapped(mode,range,solnData)
              eosData(zbar+1) = rzbar
              eosData(entr+1) = rentr
 
-           call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
+           call Eos(mode,eosData,massFraction,mask=eosMask)
 !!$
 !!$  !!  call Eos_putData(range,vecLen,solnData,eosData)
 !!$  n=0

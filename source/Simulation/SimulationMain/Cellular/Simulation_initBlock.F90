@@ -229,7 +229,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
            eosData(EOS_TEMP) = temp_zone
            eosData(EOS_DENS) = rho_zone
            
-           call Eos(MODE_DENS_TEMP,1,eosData,massFraction)
+           call Eos(MODE_DENS_TEMP,eosData,massFraction)
 
            temp_zone = eosData(EOS_TEMP)
            rho_zone = eosData(EOS_DENS)
