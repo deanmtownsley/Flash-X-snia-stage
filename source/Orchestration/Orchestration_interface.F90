@@ -131,6 +131,26 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
             type(C_PTR),                            intent(IN) :: MH_tileProto_Cptr
         end subroutine Orchestration_executeTasks_CpuGpu
+        subroutine Orchestration_executeTasks_CpuGpuSplit(MH_pktTaskFunction, &
+                                                  MH_tileTaskFunction, &
+                                                  nDistributorThreads, &
+                                                  nThreads,            &
+                                                  nTilesPerPacket,     &
+                                                  nTilesPerCpuTurn,    &
+                                                  MH_packet_Cptr,     &
+                                                  MH_tileProto_Cptr)
+            use iso_c_binding,       ONLY : C_PTR
+            use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
+            implicit none
+            procedure(milhoja_runtime_taskFunction)            :: MH_pktTaskFunction
+            procedure(milhoja_runtime_taskFunction)            :: MH_tileTaskFunction
+            integer,                                intent(IN) :: nDistributorThreads
+            integer,                                intent(IN) :: nThreads
+            integer,                                intent(IN) :: nTilesPerPacket
+            integer,                                intent(IN) :: nTilesPerCpuTurn
+            type(C_PTR),                            intent(IN) :: MH_packet_Cptr
+            type(C_PTR),                            intent(IN) :: MH_tileProto_Cptr
+        end subroutine Orchestration_executeTasks_CpuGpuSplit
         subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,  &
                                                   MH_postTaskFunction, &
                                                   nDistributorThreads, &
