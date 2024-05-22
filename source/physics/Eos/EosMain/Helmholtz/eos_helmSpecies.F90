@@ -180,9 +180,9 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
   logical,optional,target, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
 
   integer :: i, k
-  integer :: pres, temp, dens, gamc, eint
-  integer :: abar, zbar
-  integer :: entr, dst, dsd
+  real :: pres, temp, dens, gamc, eint
+  real :: entr, abar, zbar
+  integer ::  dst, dsd
   integer :: dpt, dpd, det, ded, dea, dez, pel, ne, eta, detat, c_v, c_p
   real    :: abarInv, zbarFrac
 
@@ -204,21 +204,21 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
 
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
-  pres = (EOS_PRES-1)
-  dens = (EOS_DENS-1)
-  temp = (EOS_TEMP-1)
-  eint = (EOS_EINT-1)
-  gamc = (EOS_GAMC-1)
-  abar = (EOS_ABAR-1)
-  zbar = (EOS_ZBAR-1)
-  entr = (EOS_ENTR-1)
+  pres = eosData(EOS_PRES)
+  dens = eosData(EOS_DENS)
+  temp = eosData(EOS_TEMP)
+  eint = eosData(EOS_EINT)
+  gamc = eosData(EOS_GAMC)
+  abar = eosData(EOS_ABAR)
+  zbar = eosData(EOS_ZBAR)
+  entr = eosData(EOS_ENTR)
 
   !! For allocatable arrays, set them up now.
 
   k = 1
 
-  tempRow    = eosData(temp+k)
-  denRow     = eosData(dens+k)
+  tempRow    = temp
+  denRow     = dens
   
   ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_wrapped does not.
   
@@ -234,8 +234,8 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
   abarRow = eos_singleSpeciesA
   zbarRow = eos_singleSpeciesZ
 #endif
-  eosData(abar+k)=abarRow
-  eosData(zbar+k)=zbarRow     
+  abar=abarRow
+  zbar=zbarRow     
   
   !==============================================================================
   
@@ -247,10 +247,10 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
   if (mode==MODE_DENS_TEMP) then
      
      call eos_helm()
-     eosData(pres+k)=ptotRow
-     eosData(eint+k)=etotRow
-     eosData(gamc+k)=gamcRow
-     eosData(entr+k)=stotRow
+     pres=ptotRow
+     eint=etotRow
+     gamc=gamcRow
+     entr=stotRow
      !==============================================================================
      !      MODE_DENS_EI  internal energy and density given
      
@@ -271,7 +271,7 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
      
      !  Create initial condition
      
-     ewantRow   = eosData(eint+k)   ! store desired internal energy for mode=2 case
+     ewantRow   = eint   ! store desired internal energy for mode=2 case
      if (eos_forceConstantInput) then
         esaveRow = ewantRow
      end if
@@ -360,17 +360,17 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
      ! Crank through the entire eos one last time
      call eos_helm()
      !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
-     eosData(temp+k)=tempRow
-     eosData(pres+k)=ptotRow
-     eosData(gamc+k)=gamcRow
-     eosData(entr+k)=stotRow
+     temp=tempRow
+     pres=ptotRow
+     gamc=gamcRow
+     entr=stotRow
      
      !  Update the energy to be the true energy, instead of the energy we were trying to meet
      !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
      if (eos_forceConstantInput)  then
-        eosData(eint+k) = esaveRow
+        eint = esaveRow
      else
-        eosData(eint+k) = etotRow
+        eint = etotRow
      end if
      
      !==============================================================================
@@ -383,7 +383,7 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
      
      ! Do the first eos call with all the zones in the pipe
      
-     pwantRow = eosData(pres+k)   ! store desired pressure for mode=3 case
+     pwantRow = pres   ! store desired pressure for mode=3 case
      if (eos_forceConstantInput) then
         psaveRow = pwantRow
      end if
@@ -473,17 +473,17 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
      call eos_helm()
      
      ! Fill the FLASH arrays with the results.  
-     eosData(temp+k)=tempRow
-     eosData(gamc+k)=gamcRow
-     eosData(eint+k)=etotRow
-     eosData(entr+k)=stotRow
+     temp=tempRow
+     gamc=gamcRow
+     eint=etotRow
+     entr=stotRow
      
      ! Update the pressure to be the equilibrium pressure, instead of the pressure we were trying to meet
      !  ConstantInput LBR and KW believe this is wrong.  See notes at the top of the routine
      if (eos_forceConstantInput) then
-        eosData(pres+k) = psaveRow
+        pres = psaveRow
      else
-        eosData(pres+k) = ptotRow
+        pres = ptotRow
      end if
      
      
@@ -497,39 +497,48 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
   end if
      
   ! Get the optional values
+!!$
+!!$  if(present(mask)) then
+!!$     ! Entropy derivatives
+!!$     if(mask(EOS_DST))eosData((EOS_DST-1) + k) = dstRow
+!!$     if(mask(EOS_DSD))eosData((EOS_DSD-1)+k) = dsdRow
+!!$     if(mask(EOS_DPT))eosData((EOS_DPT-1)+k) = dptRow
+!!$     if(mask(EOS_DPD)) eosData((EOS_DPD-1)+k) = dpdRow
+!!$     if(mask(EOS_DET))eosData((EOS_DET-1)+k) = detRow
+!!$     if(mask(EOS_DED))eosData((EOS_DED-1)+k) = dedRow
+!!$     if(mask(EOS_DEA)) eosData((EOS_DEA-1)+k) = deaRow
+!!$     if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)+k) = dezRow
+!!$     if(mask(EOS_PEL)) eosData((EOS_PEL-1)+k) = pelRow
+!!$     if(mask(EOS_NE)) eosData((EOS_NE-1)+k) = neRow
+!!$     if(mask(EOS_ETA)) eosData((EOS_ETA-1)+k) = etaRow
+!!$     if(mask(EOS_DETAT))eosData((EOS_DETAT-1)+k) = detatRow
+!!$     
+!!$     if(mask(EOS_CV))then
+!!$        if(mask(EOS_DET)) then
+!!$           eosData((EOS_CV-1)+k) = cvRow
+!!$        else
+!!$           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
+!!$        end if
+!!$     end if
+!!$     
+!!$     if(mask(EOS_CP))then
+!!$        if(mask(EOS_CV).and.mask(EOS_DET)) then
+!!$           eosData((EOS_CP-1)+k) = cpRow
+!!$        else
+!!$           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
+!!$        end if
+!!$     end if
+!!$  end if
+  eosData(EOS_PRES)=pres
+  eosData(EOS_DENS) = dens
+  eosData(EOS_TEMP) = temp 
+  eosData(EOS_EINT) = eint
+  eosData(EOS_GAMC) = gamc 
+  eosData(EOS_ABAR) = abar
+  eosData(EOS_ZBAR) = zbar
+  eosData(EOS_ENTR) = entr
 
-  if(present(mask)) then
-     ! Entropy derivatives
-     if(mask(EOS_DST))eosData((EOS_DST-1) + k) = dstRow
-     if(mask(EOS_DSD))eosData((EOS_DSD-1)+k) = dsdRow
-     if(mask(EOS_DPT))eosData((EOS_DPT-1)+k) = dptRow
-     if(mask(EOS_DPD)) eosData((EOS_DPD-1)+k) = dpdRow
-     if(mask(EOS_DET))eosData((EOS_DET-1)+k) = detRow
-     if(mask(EOS_DED))eosData((EOS_DED-1)+k) = dedRow
-     if(mask(EOS_DEA)) eosData((EOS_DEA-1)+k) = deaRow
-     if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)+k) = dezRow
-     if(mask(EOS_PEL)) eosData((EOS_PEL-1)+k) = pelRow
-     if(mask(EOS_NE)) eosData((EOS_NE-1)+k) = neRow
-     if(mask(EOS_ETA)) eosData((EOS_ETA-1)+k) = etaRow
-     if(mask(EOS_DETAT))eosData((EOS_DETAT-1)+k) = detatRow
-     
-     if(mask(EOS_CV))then
-        if(mask(EOS_DET)) then
-           eosData((EOS_CV-1)+k) = cvRow
-        else
-           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
-        end if
-     end if
-     
-     if(mask(EOS_CP))then
-        if(mask(EOS_CV).and.mask(EOS_DET)) then
-           eosData((EOS_CP-1)+k) = cpRow
-        else
-           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
-        end if
-     end if
-  end if
-
+  
   return
 
 end subroutine eos_helmSpecies
