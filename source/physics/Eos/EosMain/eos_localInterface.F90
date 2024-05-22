@@ -41,10 +41,10 @@ module eos_localInterface
   end interface
 
     interface
-     subroutine eos_idealGamma(mode,  eosData, massFrac,  mask)
+     subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, mask)
        implicit none
        integer, INTENT(in) :: mode
-       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
        logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_idealGamma

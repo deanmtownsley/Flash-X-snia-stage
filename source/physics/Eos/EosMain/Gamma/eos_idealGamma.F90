@@ -137,13 +137,13 @@
 !!  Eos_wrapped  sets up the data structure.
 !!
 !!***
-
+!!NOVARIANTS
 
 !#ifdef DEBUG_ALL
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
+subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,  mask)
 
 !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -160,14 +160,13 @@ subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
 
   !     Arguments
   integer, INTENT(in) :: mode
-  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+  real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
 
   real ::  ggprod, ggprodinv, gam1inv
-  integer :: dens, temp, pres, eint, abar, zbar
-  integer :: entr, dst, dsd
-  integer :: dpt, dpd, det, ded, c_v, c_p, gamc, pel, ne, eta
+  integer ::  dst, dsd
+  integer :: dpt, dpd, det, ded, c_v, c_p, pel, ne, eta
   integer :: i, ilo,ihi
 
   ggprod = eos_gammam1 * eos_gasConstant
@@ -183,20 +182,20 @@ subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
 !!NOTE returns a default number.   In FLASH3, the decision has been made
 !!NOTE that Eos/Gamma cannot be run with more than one fluid.
 
-  eosData(EOS_GAMC) = eos_gamma
-  eosData(EOS_ABAR) = eos_singleSpeciesA
-  eosData(EOS_ZBAR) = eos_singleSpeciesZ    
+  gamc = eos_gamma
+  abar = eos_singleSpeciesA
+  zbar = eos_singleSpeciesZ    
 
 
   ! density, temperature taken as input
   if (mode == MODE_DENS_TEMP) then
 
-     eosData(EOS_PRES) = eos_gasConstant*eosData(EOS_DENS) * &
-                                 eosData(EOS_TEMP) / eosData(EOS_ABAR)
-     eosData(EOS_EINT) = ggprod * eosData(EOS_TEMP) &
-                                 / eosData(EOS_ABAR)
-     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
-             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
+     pres = eos_gasConstant*dens * &
+                                 temp / abar
+     eint = ggprod * temp &
+                                 / abar
+     entr = (pres/dens +  &
+             &  eint)/temp
 
 
   ! density, internal energy taken as input
@@ -204,12 +203,12 @@ subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
 
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
-     eosData(EOS_PRES) = eosData(EOS_DENS) * &
-                                    eosData(EOS_EINT) * gam1inv
-     eosData(EOS_TEMP) = eosData(EOS_EINT) * ggprodinv * &
-                                    eosData(EOS_ABAR)
-     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
-             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
+     pres = dens * &
+                                    eint * gam1inv
+     temp = eint * ggprodinv * &
+                                    abar
+     entr = (pres/dens +  &
+             &  eint)/temp
 
 
   ! density, pressure taken as input
@@ -217,12 +216,12 @@ subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
 
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
-     eosData(EOS_EINT) = eosData(EOS_PRES) * eos_gammam1 / &
-                                   eosData(EOS_DENS)
-     eosData(EOS_TEMP) = eosData(EOS_EINT) * ggprodinv * &
-                                   eosData(EOS_ABAR)
-     eosData(EOS_ENTR) = (eosData(EOS_PRES)/eosData(EOS_DENS) +  &
-             &  eosData(EOS_EINT))/eosData(EOS_TEMP)
+     eint = pres * eos_gammam1 / &
+                                   dens
+     temp = eint * ggprodinv * &
+                                   abar
+     entr = (pres/dens +  &
+             &  eint)/temp
 
   ! unrecognized value for mode
   else 
@@ -230,32 +229,32 @@ subroutine eos_idealGamma(mode, eosData, massFrac,  mask)
   endif
 
 
-  if(present(mask)) then
-     eosData(EOS_DPT) = eos_gasConstant*eosData(EOS_DENS) / eosData(EOS_ABAR)
-     eosData(EOS_DPD) = eos_gasConstant*eosData(EOS_TEMP) / eosData(EOS_ABAR)
-     eosData(EOS_DET) = ggprod / eosData(EOS_ABAR)
-     eosData(EOS_DED) = 0.
-    ! Entropy derivatives   
-     eosData(EOS_DST) = ( (eosData(EOS_DPT)  / eosData(EOS_DENS) + eosData(EOS_DET)) -&
-          &                      (eosData(EOS_PRES)/ eosData(EOS_DENS) + eosData(EOS_EINT))/ &
-          &                      eosData(EOS_TEMP) ) / eosData(EOS_TEMP)
-     eosData(EOS_DSD) = &
-               ( ((eosData(EOS_DPD) - eosData(EOS_PRES)/eosData(EOS_DENS)) / &
-        &          eosData(EOS_DENS)) + eosData(EOS_DED)) / eosData(EOS_TEMP)
-
-
-     eosData(EOS_PEL) = 0.
-     eosData(EOS_NE) = 0.
-     eosData(EOS_ETA) = 0.
-     eosData(EOS_CV) = eosData(EOS_DET)
-     eosData(EOS_CP) = eos_gamma*eosData(EOS_CV)
-     
-#ifdef EOS_CVELE
-     eosData(EOS_CV) = eosData(EOS_DET) * &
-          eosData(EOS_ZBAR) / (eosData(EOS_ZBAR) + 1)
-#endif
-  end if
-
+!!$  if(present(mask)) then
+!!$     eosData(EOS_DPT) = eos_gasConstant*dens / abar
+!!$     eosData(EOS_DPD) = eos_gasConstant*temp / abar
+!!$     eosData(EOS_DET) = ggprod / abar
+!!$     eosData(EOS_DED) = 0.
+!!$    ! Entropy derivatives   
+!!$     eosData(EOS_DST) = ( (eosData(EOS_DPT)  / dens + eosData(EOS_DET)) -&
+!!$          &                      (pres/ dens + eint)/ &
+!!$          &                      temp ) / temp
+!!$     eosData(EOS_DSD) = &
+!!$               ( ((eosData(EOS_DPD) - pres/dens) / &
+!!$        &          dens) + eosData(EOS_DED)) / temp
+!!$
+!!$
+!!$     eosData(EOS_PEL) = 0.
+!!$     eosData(EOS_NE) = 0.
+!!$     eosData(EOS_ETA) = 0.
+!!$     eosData(EOS_CV) = eosData(EOS_DET)
+!!$     eosData(EOS_CP) = eos_gamma*eosData(EOS_CV)
+!!$     
+!!$#ifdef EOS_CVELE
+!!$     eosData(EOS_CV) = eosData(EOS_DET) * &
+!!$          zbar / (zbar + 1)
+!!$#endif
+!!$  end if
+!!$
 
   return
 end subroutine eos_idealGamma
