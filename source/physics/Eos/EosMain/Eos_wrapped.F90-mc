@@ -115,9 +115,9 @@ subroutine Eos_wrapped(mode,range,solnData)
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
 
-  real, allocatable :: eosData(:),massFraction(:)
+  real, allocatable :: eosData(:),massFrac(:)
 
-  logical,target,dimension(EOS_VARS+1:EOS_NUM) :: eosMask
+  logical,target,dimension(EOS_VARS+1:EOS_NUM) :: mask
 
   integer :: ierr, dataStruct
   integer :: i,j,k, vLen1D, vecLen,offset
@@ -169,10 +169,10 @@ subroutine Eos_wrapped(mode,range,solnData)
   ! The length of the data being operated upon is determined from the range input array.
   vecLen=1
 
-  allocate(massFraction(NSPECIES))
+  allocate(massFrac(NSPECIES))
   allocate(eosData(EOS_NUM))
 
-  eosMask = .FALSE.
+  mask = .FALSE.
 
   pres = (EOS_PRES-1)
   dens = (EOS_DENS-1)
@@ -191,46 +191,27 @@ subroutine Eos_wrapped(mode,range,solnData)
  n=1
 
  @M loop_3d(range)
-           massFraction(m+1:m+NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
-!!$              m=m+NSPECIES
-!!$ @M loop_end_3d
-!!$
-!!$  n = 0
-!!$  !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
-!!$  @M loop_3d(range)
+           massFrac(m+1:m+NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
            @M eos_preprocess
-!!$  @M loop_end_3d
-!!$
-!!$!!  call Eos_getData(range,vecLAen,solnData,eosData,massFraction)
-             eosData(pres+1) = rpres
-             eosData(dens+1) = rdens
-             eosData(temp+1) = rtemp
-             eosData(gamc+1) = rgamc
-             eosData(eint+1) = reint
-             eosData(ekin+1) = rekin
-             eosData(abar+1) = rabar
-             eosData(zbar+1) = rzbar
-             eosData(entr+1) = rentr
-
-           call Eos(mode,eosData,massFraction,mask=eosMask)
-!!$
-!!$  !!  call Eos_putData(range,vecLen,solnData,eosData)
-!!$  n=0
-!!$  @M loop_3d(range)
-           solnData(pres_map,i,j,k) = eosData(pres+n)
-           solnData(temp_map,i,j,k) = eosData(temp+n)
-           solnData(gamc_map,i,j,k) = eosData(gamc+n)
-           if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(eint+n)
-           if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(eint+n)+eosData(ekin+n) 
-           if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(entr+n)
-           
-           solnData(game_map,i,j,k) = eosData(pres+n)/&
-                (eosData(eint+n) *eosData(dens+n)) +1
-           
+           eosData(pres+1) = rpres
+           eosData(dens+1) = rdens
+           eosData(temp+1) = rtemp
+           eosData(gamc+1) = rgamc
+           eosData(eint+1) = reint
+           eosData(ekin+1) = rekin
+           eosData(abar+1) = rabar
+           eosData(zbar+1) = rzbar
+           eosData(entr+1) = rentr
+             @M eos_idealGamma
+             @M eos_helmSpecies
+             @M eos_weaklib  
+             @M eos_hybrid
+!!           call Eos(mode,eosData,massFrac,mask=mask)
+           @M eos_postprocess
   @M loop_end_3d
         
   deallocate(eosData)
-  deallocate(massFraction)
+  deallocate(massFrac)
 
   return
 end subroutine Eos_wrapped
