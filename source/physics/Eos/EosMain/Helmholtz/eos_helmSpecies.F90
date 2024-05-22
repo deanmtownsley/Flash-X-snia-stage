@@ -147,9 +147,9 @@
 !!
 !!
 !!*** 
+!!NOVARIANTS
 
-
-subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
+subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,mask)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -174,14 +174,12 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
 
   !     Arguments
   integer, INTENT(in) :: mode
-  real, INTENT(inout), dimension(EOS_NUM) :: eosData
+  real, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_wrapped
   logical,optional,target, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
 
   integer :: i, k
-  real :: pres, temp, dens, gamc, eint
-  real :: entr, abar, zbar
   integer ::  dst, dsd
   integer :: dpt, dpd, det, ded, dea, dez, pel, ne, eta, detat, c_v, c_p
   real    :: abarInv, zbarFrac
@@ -204,14 +202,6 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
 
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
-  pres = eosData(EOS_PRES)
-  dens = eosData(EOS_DENS)
-  temp = eosData(EOS_TEMP)
-  eint = eosData(EOS_EINT)
-  gamc = eosData(EOS_GAMC)
-  abar = eosData(EOS_ABAR)
-  zbar = eosData(EOS_ZBAR)
-  entr = eosData(EOS_ENTR)
 
   !! For allocatable arrays, set them up now.
 
@@ -529,14 +519,7 @@ subroutine eos_helmSpecies(mode,eosData,massFrac,mask)
 !!$        end if
 !!$     end if
 !!$  end if
-  eosData(EOS_PRES)=pres
-  eosData(EOS_DENS) = dens
-  eosData(EOS_TEMP) = temp 
-  eosData(EOS_EINT) = eint
-  eosData(EOS_GAMC) = gamc 
-  eosData(EOS_ABAR) = abar
-  eosData(EOS_ZBAR) = zbar
-  eosData(EOS_ENTR) = entr
+
 
   
   return

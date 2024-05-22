@@ -23,6 +23,7 @@
 !! the Eos unit.
 !!
 !!***
+!!NOVARIANTS
 
 module eos_localInterface
   implicit none
@@ -51,9 +52,9 @@ module eos_localInterface
  
 
   interface
-     subroutine eos_helmSpecies(mode, eosData, massFrac, mask)
+     subroutine eos_helmSpecies(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, mask)
        integer, INTENT(in) :: mode
-       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
      end subroutine eos_helmSpecies

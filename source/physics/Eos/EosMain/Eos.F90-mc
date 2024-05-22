@@ -36,6 +36,7 @@ subroutine Eos(mode,  eosData, massFrac, mask)
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   logical :: pMassFrac_and_mask, pMassFrac, pMask
+  real :: @M eos_args
 
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
@@ -44,13 +45,13 @@ subroutine Eos(mode,  eosData, massFrac, mask)
   pMassFrac = present(massFrac)
   pMask = present(mask)
   pMassFrac_and_mask = pMassFrac.and.pMask
-  
+  @M eos_extract
   ! @M eos_versionCall
   @M eos_idealGamma
   @M eos_helmSpecies
   @M eos_weaklib  
   @M eos_hybrid
-  
+  @M eos_putback
   return
 end subroutine Eos
 
