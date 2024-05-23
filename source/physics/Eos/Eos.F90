@@ -52,16 +52,6 @@
 !!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
 !!             MODE_DENS_TEMP as decribed above.
 !!
-!!  @param vecLen   : number of points (cells) for which the eosData array is sized.
-!!             If vecBegin and vecEnd are not present, this is also the
-!!             number of points (cells) for which EOS computation is to be done.
-!!
-!!  @param eosData  : This array is the data structure through which variable values are 
-!!             passed in and out of the Eos routine. The arrays is sized as 
-!!             EOS_NUM*vecLen. EOS_NUM, and individual input and output
-!!             Eos variables are defined in Eos.h. The array is organizes such that
-!!             the first 1:vecLen entries represent the first Eos variable, vecLen+1:
-!!             2*vecLen represent the second Eos variable and so on. 
 !!
 !!  @param massFrac : Contains the mass fractions of the species included in
 !!             the simulation. The array is sized as NSPECIES*vecLen.
@@ -80,27 +70,18 @@
 !!             An implementation that does not need derivative quantities should
 !!             set the mask equal to .false.
 !!
-!!  @param vecBegin : Index of first cell in eosData to handle.
-!!             Can be used to limit operation to a subrange of cells, untested.
-!!             If not present, the default is 1.
-!!  @param  : Index of last cell in eosData to handle.
-!!             Can be used to limit operation to a subrange of cells, untested.
-!!             If not present, the default is vecLen.
-subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
+
+subroutine Eos(mode,eosData, massFrac, mask)
 
 !==============================================================================
 
   implicit none
 #include "Eos.h"
 #include "Simulation.h"
-  integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
+  integer, INTENT(in) :: mode
+  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-  real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-  integer,optional,INTENT(in) :: vecBegin,vecEnd
-  integer, optional, INTENT(out)    :: diagFlag
-
-  if (present(diagFlag)) diagFlag = 8
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
 
   return
 end subroutine Eos

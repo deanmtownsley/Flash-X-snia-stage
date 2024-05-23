@@ -99,7 +99,9 @@
 #include "Eos.h"
 #include "constants.h"
 #include "Simulation.h"
-
+#ifdef DEBUG_ALL
+#define DEBUG
+#endif
 
 subroutine Eos_wrapped(mode,range,solnData)
 
@@ -120,98 +122,40 @@ subroutine Eos_wrapped(mode,range,solnData)
   logical,target,dimension(EOS_VARS+1:EOS_NUM) :: mask
 
   integer :: ierr, dataStruct
-  integer :: i,j,k, vLen1D, vecLen,offset
-  integer,dimension(MDIM) :: pos
+  integer :: i,j,k, m
 
-  integer :: n,m,p
   real :: pres,dens,gamc,temp,abar,zbar,eint,ekin,entr
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
-  real :: kineticEnergy, internalEnergy,rpres,rdens,rgamc,rtemp,rabar,rzbar,reint,rekin,rentr
+  real :: kineticEnergy, internalEnergy
 
 
 !! ---------------------------------------------------------------------------------
   ! Test calling arguments
-#define DEBUG
 #ifdef DEBUG
-  ierr = 1
-  select case (mode)
-  case (MODE_DENS_PRES)
-     ierr = 0
-  case (MODE_DENS_TEMP)
-     ierr = 0
-  case (MODE_DENS_EI)
-     ierr = 0
-  case (MODE_EOS_NOP,MODE_EOS_WRAPPERONLY)
-     ierr = 0
-  case (MODE_DENS_TEMP_ALL,MODE_DENS_TEMP_EQUI)
-     ierr = 0
-  case (MODE_DENS_EI_ALL,MODE_DENS_EI_SCATTER,MODE_DENS_EI_GATHER)
-     ierr = 0
-  case (MODE_DENS_EI_SELE_GATHER)
-     ierr = 0
-  case (MODE_DENS_ENTR)
-     ierr = 0
-  end select
-
-  if(ierr /= 0) then
-     call Driver_abort("[Eos_arrayWrapped] "//&
-          "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENS_EI, or variants thereof, or MODE_EOS_NOP")
-  end if
+  @M eos_debug
 #endif
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
-  vLen1D = range(HIGH,IAXIS)-range(LOW,IAXIS)+1
-  vecLen=vLen1D*(range(HIGH,JAXIS)-range(LOW,JAXIS)+1)*(range(HIGH,KAXIS)-range(LOW,KAXIS)+1)
-  if (vecLen==0) return ! * Return immediately for empty IAXIS range! (for efficiency and avoiding index range errors)
-
-  ! solnData points to solution data in UNK (or other data structure).
-  ! The length of the data being operated upon is determined from the range input array.
-  vecLen=1
 
   allocate(massFrac(NSPECIES))
-  allocate(eosData(EOS_NUM))
 
   mask = .FALSE.
-
-!!$  pres = (EOS_PRES-1)
-!!$  dens = (EOS_DENS-1)
-!!$  temp = (EOS_TEMP-1)
-!!$  gamc = (EOS_GAMC-1)
-!!$  eint = (EOS_EINT-1)
-!!$  ekin = (EOS_EKIN-1)
-!!$  abar = (EOS_ABAR-1)
-!!$  zbar = (EOS_ZBAR-1)
-!!$  entr = (EOS_ENTR-1)
 
  @M eos_map  
 
   
- m=0
- n=1
-
  @M loop_3d(range)
-           massFrac(m+1:m+NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+           massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
            @M eos_preprocess
-!!$           eosData(pres+1) = rpres
-!!$           eosData(dens+1) = rdens
-!!$           eosData(temp+1) = rtemp
-!!$           eosData(gamc+1) = rgamc
-!!$           eosData(eint+1) = reint
-!!$           eosData(ekin+1) = rekin
-!!$           eosData(abar+1) = rabar
-!!$           eosData(zbar+1) = rzbar
-!!$           eosData(entr+1) = rentr
              @M eos_idealGamma
              @M eos_helmSpecies
              @M eos_weaklib  
              @M eos_hybrid
-!!           call Eos(mode,eosData,massFrac,mask=mask)
            @M eos_postprocess
   @M loop_end_3d
         
-  deallocate(eosData)
   deallocate(massFrac)
 
   return
