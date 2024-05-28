@@ -108,7 +108,7 @@ subroutine Eos_wrapped(mode,range,solnData)
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos
-  use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle
+  use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle, eos_mapLookup
   implicit none
 
 #include "FortranLangFeatures.fh"
@@ -121,7 +121,7 @@ subroutine Eos_wrapped(mode,range,solnData)
 
   logical,target,dimension(EOS_VARS+1:EOS_NUM) :: mask
 
-  integer :: ierr, dataStruct
+  integer :: ierr, gridDataStruct
   integer :: i,j,k, m
 
   real :: pres,dens,gamc,temp,abar,zbar,eint,ekin,entr
@@ -135,14 +135,14 @@ subroutine Eos_wrapped(mode,range,solnData)
 #ifdef DEBUG
   @M eos_debug
 #endif
-
+  
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
 
   allocate(massFrac(NSPECIES))
 
   mask = .FALSE.
-
+  gridDataStruct=CENTER
  @M eos_map  
 
   
