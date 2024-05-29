@@ -28,7 +28,7 @@
 !!
 !!
 !!***
-SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc,massFrac,mask)
+SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc,xEntr,xAbar,xZbar,massFrac,mask)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -43,25 +43,23 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc,massFrac,m
   INTEGER, INTENT(in) :: mode, vecLen
   ! EOS_NUM defined in Eos.h
   REAL, INTENT(inout), DIMENSION(vecLen*EOS_NUM) :: eosData
-  REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc
+  REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen*NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_wrapped
   LOGICAL,OPTIONAL, DIMENSION(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
 
   INTEGER :: pres, temp, dens, gamc, eint, game, abar, zbar, entr, &
              elef
-  REAL, DIMENSION(vecLen) :: xYe,xEntr,&
-                             xCs2, xA, xZ,xEner
+  REAL, DIMENSION(vecLen) :: xYe, xCs2, xA, xZ,xEner
   INTEGER :: xMode, err
 
   err = 0
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
   eint = (EOS_EINT-1)*vecLen   
-  gamc = (EOS_GAMC-1)*vecLen   
-  abar = (EOS_ABAR-1)*vecLen   
-  zbar = (EOS_ZBAR-1)*vecLen   
-  entr = (EOS_ENTR-1)*vecLen
+!!$  abar = (EOS_ABAR-1)*vecLen   
+!!$  zbar = (EOS_ZBAR-1)*vecLen   
+!!$  entr = (EOS_ENTR-1)*vecLen
 
   elef = (EOS_YE-1)*vecLen
 
@@ -114,12 +112,8 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc,massFrac,m
 !!$    CALL Driver_abort("[EOS] problem with weaklib EOS")
 !!$  END IF
  
-      eosData(dens+1:dens+vecLen) = xDens
-      eosData(temp+1:temp+vecLen) = xTemp
-      eosData(pres+1:pres+vecLen) = xPres
       eosData(eint+1:eint+vecLen) = xEner
-      eosData(gamc+1:gamc+vecLen) = xGamc
-      eosData(entr+1:entr+vecLen) = xEntr
+!!$      eosData(entr+1:entr+vecLen) = xEntr
       eosData(elef+1:elef+vecLen) = xYe 
 
 !!$  PRINT*, 'eos_weaklib  after interpolation  Z', &

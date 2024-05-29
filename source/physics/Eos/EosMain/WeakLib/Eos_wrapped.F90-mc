@@ -132,7 +132,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
   real :: kineticEnergy, internalEnergy
-  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc
+  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xAbar, xZbar
   
 
 !! ---------------------------------------------------------------------------------
@@ -186,6 +186,9 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   allocate(xTemp(vecLen))
   allocate(xPres(vecLen))
   allocate(xGamc(vecLen))    
+  allocate(xAbar(vecLen))
+  allocate(xZbar(vecLen))
+  allocate(xEntr(vecLen))    
 
   eosMask = .FALSE.
 
@@ -214,9 +217,9 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
              endif
 
              eosData(ieint+n) = internalEnergy
-             eosData(iabar+n) = abar
-             eosData(izbar+n) = zbar
-             eosData(ientr+n) = entr
+             xAbar(n) = abar
+             xZbar(n) = zbar
+             xEntr(n) = entr
              xPres(n) = solnData(pres_map,i,j,k)
              xDens(n) = solnData(dens_map,i,j,k)
              xTemp(n) = solnData(temp_map,i,j,k)
@@ -225,7 +228,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   @M loop_end_3d   
   
 
-  call eos_weakLib(mode,vecLen,eosData,xPres,xTemp,xDens,xGamc, massFrac,eosMask)
+  call eos_weakLib(mode,vecLen,eosData,xPres,xTemp,xDens,xGamc ,xEntr,xAbar,xZbar, massFrac,eosMask)
 
     n=0
     @M loop_3d(range)
@@ -235,10 +238,10 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
              solnData(gamc_map,i,j,k) = xGamc(n)
              if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(ieint+n)
              if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(ieint+n)+eosData(iekin+n) 
-             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(ientr+n)
+             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = xEntr(n)
              
-             solnData(game_map,i,j,k) = eosData(ipres+n)/&
-                  (eosData(ieint+n) *eosData(idens+n)) +1
+             solnData(game_map,i,j,k) = xPres(n)/&
+                  (eosData(ieint+n) *xDens(n)) +1
              
     @M loop_end_3d    
 
