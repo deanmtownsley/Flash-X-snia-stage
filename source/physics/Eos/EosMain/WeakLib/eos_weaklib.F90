@@ -28,7 +28,7 @@
 !!
 !!
 !!***
-SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,mask)
+SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,mask)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -41,27 +41,14 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc, xEner, xE
 
   !     Arguments
   INTEGER, INTENT(in) :: mode, vecLen
-  ! EOS_NUM defined in Eos.h
-  REAL, INTENT(inout), DIMENSION(vecLen*EOS_NUM) :: eosData
   REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar,xEner, xYe
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen*NSPECIES) :: massFrac
-  ! must correspond to dimensions of Eos_wrapped
   LOGICAL,OPTIONAL, DIMENSION(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
 
-  INTEGER :: pres, temp, dens, gamc, eint, game, abar, zbar, entr, &
-             elef
   REAL, DIMENSION(vecLen) :: xCs2, xA, xZ
   INTEGER :: xMode, err
 
   err = 0
-
-  ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
-!!$  eint = (EOS_EINT-1)*vecLen   
-!!$  abar = (EOS_ABAR-1)*vecLen   
-!!$  zbar = (EOS_ZBAR-1)*vecLen   
-!!$  entr = (EOS_ENTR-1)*vecLen
-
-!!$  elef = (EOS_YE-1)*vecLen
 
   SELECT CASE(mode)
     CASE(MODE_DENS_EI)
@@ -77,19 +64,6 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc, xEner, xE
                ('[Eos] Error: unsupported mode for Nuclear Eos')
   END SELECT
 
-  !      Crank the EOS on the pipes filled above, then fill the FLASH arrays
-  !      with the thermodynamic quantities returned by the WeakLib EOS.
-
-
-!!$  xYe   = eosData(elef+1:elef+vecLen)
-!!$  xEner = eosData(eint+1:eint+vecLen)
-!!$  xEntr = eosData(entr+1:entr+vecLen)
-
-!!$  PRINT*, 'eos_weaklib  before interpolation  Z', &
-!!$          MAXVAL(eosData(zbar+1:zbar+vecLen) ), &
-!!$          'A', &
-!!$          MAXVAL(eosData(abar+1:abar+vecLen) ), &
-!!$          'Ye', MAXVAL(xYe)
 
   IF( MAXVAL(xDens) < TINY(1.d0) ) THEN
     PRINT*, ' eos_weaklib.F90 line 90 : xDens = zero '
@@ -106,22 +80,6 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData,xPres, xTemp, xDens, xGamc, xEner, xE
         CALL Driver_abort("[EOS] problem with weaklib EOS")
       ENDIF
 
-!!$  IF( MINVAL(xEner) < TINY(1.d0) ) THEN
-!!$    PRINT*, ' eos_weaklib.F90 line 118 : xEner = zero '
-!!$    PRINT*, ' MAXVAL(xEner) ', MAXVAL(xEner), 'MINVAL(xEner) ',MINVAL(xEner)
-!!$    CALL Driver_abort("[EOS] problem with weaklib EOS")
-!!$  END IF
- 
-!!$      eosData(eint+1:eint+vecLen) = xEner
-!!$      eosData(entr+1:entr+vecLen) = xEntr
-!!      eosData(elef+1:elef+vecLen) = xYe 
-
-!!$  PRINT*, 'eos_weaklib  after interpolation  Z', &
-!!$          MAXVAL(eosData(zbar+1:zbar+vecLen) ), &
-!!$          'A', &
-!!$          MAXVAL(eosData(abar+1:abar+vecLen) ), &
-!!$          'Ye', MAXVAL(xZ/xA)
-  
   RETURN
 
 END SUBROUTINE eos_weaklib

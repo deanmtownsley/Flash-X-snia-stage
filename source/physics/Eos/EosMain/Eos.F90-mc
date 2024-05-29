@@ -20,38 +20,40 @@
 !!***
 !!NOVARIANTS
 
-subroutine Eos(mode,  eosData, massFrac, mask)
+#include "constants.h"
+#include "Eos.h"
+#include "Simulation.h"
+
+
+subroutine Eos(mode, @M eos_args, len, massFrac, mask)
 
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  ! use eos_localInterface, ONLY : @M eos_version
   use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weaklib
+
+
   implicit none
-#include "constants.h"
-#include "Eos.h"
-#include "Simulation.h"
   integer, INTENT(in) :: mode
-  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+  @M eos_declare
   logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+  integer, optional, INTENT(in) :: len
   logical :: pMassFrac_and_mask, pMassFrac, pMask
-  real :: @M eos_args
-
+  integer :: vecLen  
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
   if (mode==MODE_EOS_WRAPPERONLY) return ! * Return immediately for MODE_EOS_WRAPPERONLY! *
+  vecLen=1
+  if(present(len))vecLen=len
 
   pMassFrac = present(massFrac)
   pMask = present(mask)
   pMassFrac_and_mask = pMassFrac.and.pMask
-  @M eos_extract
-  ! @M eos_versionCall
   @M eos_idealGamma
   @M eos_helmSpecies
   @M eos_weaklib  
   @M eos_hybrid
-  @M eos_putback
   return
 end subroutine Eos
 

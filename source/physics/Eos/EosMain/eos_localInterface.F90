@@ -32,9 +32,8 @@ module eos_localInterface
 
 
   interface
-     subroutine eos_weaklib(mode, vecLen, eosData,xPres,xTemp,xDens,xGamc,xEner, xEntr,xAbar,xZbar,xYe, massFrac, mask)
+     subroutine eos_weaklib(mode, vecLen,xPres,xTemp,xDens,xGamc,xEner, xEntr,xAbar,xZbar,xYe, massFrac, mask)
        integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData
        real,INTENT(inout),dimension(vecLen) :: xPres,xDens, xTemp, xGamc,xEntr,xAbar,xZbar,xEner,xYe
        logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
        real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
