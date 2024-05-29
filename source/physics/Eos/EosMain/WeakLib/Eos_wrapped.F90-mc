@@ -190,6 +190,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   allocate(xZbar(vecLen))
   allocate(xEntr(vecLen))
   allocate(xEner(vecLen))      
+  allocate(xYe(vecLen))      
 
   eosMask = .FALSE.
 
@@ -211,7 +212,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
            n=n+1
              @M eos_preprocess
              if (ye_map /= NONEXISTENT) then
-                eosData(ielef+n) = solnData(ye_map,i,j,k)
+                xYe(n) = solnData(ye_map,i,j,k)
              endif
 
              xEner(n) = internalEnergy
@@ -226,7 +227,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   @M loop_end_3d   
   
 
-  call eos_weakLib(mode,vecLen,eosData,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar, massFrac,eosMask)
+  call eos_weakLib(mode,vecLen,eosData,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar,xYe, massFrac,eosMask)
 
     n=0
     @M loop_3d(range)
@@ -250,4 +251,9 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   deallocate(xTemp)
   deallocate(xPres)  
   deallocate(xGamc)  
+  deallocate(xAbar)
+  deallocate(xZbar)
+  deallocate(xEntr)
+  deallocate(xEner)
+
 end subroutine Eos_wrapped
