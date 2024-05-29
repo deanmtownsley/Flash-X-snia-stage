@@ -132,7 +132,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
   real :: kineticEnergy, internalEnergy
-  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr
+  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc
   
 
 !! ---------------------------------------------------------------------------------
@@ -183,13 +183,12 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   allocate(massFrac(NSPECIES*vecLen))
   allocate(eosData(EOS_NUM*vecLen))
   allocate(xDens(vecLen))
-  allocate(xTemp(vecLen))  
+  allocate(xTemp(vecLen))
+  allocate(xPres(vecLen))
+  allocate(xGamc(vecLen))    
+
   eosMask = .FALSE.
 
-  ipres = (EOS_PRES-1)*vecLen
-  idens = (EOS_DENS-1)*vecLen
-  itemp = (EOS_TEMP-1)*vecLen
-  igamc = (EOS_GAMC-1)*vecLen
   ieint = (EOS_EINT-1)*vecLen
   iekin = (EOS_EKIN-1)*vecLen
   iabar = (EOS_ABAR-1)*vecLen
@@ -218,22 +217,22 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
              eosData(iabar+n) = abar
              eosData(izbar+n) = zbar
              eosData(ientr+n) = entr
-             eosData(ipres+n) = solnData(pres_map,i,j,k)
+             xPres(n) = solnData(pres_map,i,j,k)
              xDens(n) = solnData(dens_map,i,j,k)
              xTemp(n) = solnData(temp_map,i,j,k)
-             eosData(igamc+n) = solnData(gamc_map,i,j,k)
+             xGamc(n) = solnData(gamc_map,i,j,k)
              eosData(iekin+n) = ekin
   @M loop_end_3d   
   
 
-  call eos_weakLib(mode,vecLen,eosData,xTemp,xDens,massFrac,eosMask)
+  call eos_weakLib(mode,vecLen,eosData,xPres,xTemp,xDens,xGamc, massFrac,eosMask)
 
     n=0
     @M loop_3d(range)
              n=n+1
-             solnData(pres_map,i,j,k) = eosData(ipres+n)
+             solnData(pres_map,i,j,k) = xPres(n)
              solnData(temp_map,i,j,k) = xTemp(n)
-             solnData(gamc_map,i,j,k) = eosData(igamc+n)
+             solnData(gamc_map,i,j,k) = xGamc(n)
              if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(ieint+n)
              if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(ieint+n)+eosData(iekin+n) 
              if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(ientr+n)
@@ -248,5 +247,6 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   deallocate(massFrac)
   deallocate(xDens)
   deallocate(xTemp)
-  
+  deallocate(xPres)  
+  deallocate(xGamc)  
 end subroutine Eos_wrapped
