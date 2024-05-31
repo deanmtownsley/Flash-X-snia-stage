@@ -28,7 +28,7 @@
 !!
 !!
 !!***
-SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,mask)
+SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -43,7 +43,7 @@ SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAba
   INTEGER, INTENT(in) :: mode, vecLen
   REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar,xEner, xYe
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen*NSPECIES) :: massFrac
-  LOGICAL,OPTIONAL, DIMENSION(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
+  real,OPTIONAL, DIMENSION(EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
   REAL, DIMENSION(vecLen) :: xCs2, xA, xZ
   INTEGER :: xMode, err

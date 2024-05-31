@@ -149,7 +149,7 @@
 !!*** 
 !!NOVARIANTS
 
-subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,mask)
+subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,derivs)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -177,7 +177,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   real, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_wrapped
-  logical,optional,target, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
+  real,optional,dimension(EOS_VARS+1:EOS_NUM),INTENT(out)::derivs
 
   integer :: i, k
   integer ::  dst, dsd
@@ -494,41 +494,25 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   end if
      
   ! Get the optional values
-!!$
-!!$  if(present(mask)) then
-!!$     ! Entropy derivatives
-!!$     if(mask(EOS_DST))eosData((EOS_DST-1) + k) = dstRow
-!!$     if(mask(EOS_DSD))eosData((EOS_DSD-1)+k) = dsdRow
-!!$     if(mask(EOS_DPT))eosData((EOS_DPT-1)+k) = dptRow
-!!$     if(mask(EOS_DPD)) eosData((EOS_DPD-1)+k) = dpdRow
-!!$     if(mask(EOS_DET))eosData((EOS_DET-1)+k) = detRow
-!!$     if(mask(EOS_DED))eosData((EOS_DED-1)+k) = dedRow
-!!$     if(mask(EOS_DEA)) eosData((EOS_DEA-1)+k) = deaRow
-!!$     if(mask(EOS_DEZ)) eosData((EOS_DEZ-1)+k) = dezRow
-!!$     if(mask(EOS_PEL)) eosData((EOS_PEL-1)+k) = pelRow
-!!$     if(mask(EOS_NE)) eosData((EOS_NE-1)+k) = neRow
-!!$     if(mask(EOS_ETA)) eosData((EOS_ETA-1)+k) = etaRow
-!!$     if(mask(EOS_DETAT))eosData((EOS_DETAT-1)+k) = detatRow
-!!$     
-!!$     if(mask(EOS_CV))then
-!!$        if(mask(EOS_DET)) then
-!!$           eosData((EOS_CV-1)+k) = cvRow
-!!$        else
-!!$           call Driver_abort("[Eos] cannot calculate C_V without DET.  Set mask appropriately.")
-!!$        end if
-!!$     end if
-!!$     
-!!$     if(mask(EOS_CP))then
-!!$        if(mask(EOS_CV).and.mask(EOS_DET)) then
-!!$           eosData((EOS_CP-1)+k) = cpRow
-!!$        else
-!!$           call Driver_abort("[Eos] cannot calculate C_P without C_V and DET.  Set mask appropriately.")
-!!$        end if
-!!$     end if
-!!$  end if
 
+  if(present(derivs)) then
+     ! Entropy derivatives
+     derivs(EOS_DST) = dstRow
+     derivs(EOS_DSD) = dsdRow
+     derivs(EOS_DPT) = dptRow
+     derivs(EOS_DPD) = dpdRow
+     derivs(EOS_DET) = detRow
+     derivs(EOS_DED) = dedRow
+     derivs(EOS_DEA) = deaRow
+     derivs(EOS_DEZ) = dezRow
+     derivs(EOS_PEL) = pelRow
+     derivs(EOS_NE) = neRow
+     derivs(EOS_ETA) = etaRow
+     derivs(EOS_DETAT) = detatRow
+     derivs(EOS_CV) = cvRow
+     derivs(EOS_CP) = cpRow
+  end if
 
-  
   return
 
 end subroutine eos_helmSpecies

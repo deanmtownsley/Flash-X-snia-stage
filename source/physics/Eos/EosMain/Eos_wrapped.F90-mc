@@ -119,7 +119,7 @@ subroutine Eos_wrapped(mode,range,solnData)
 
   real, allocatable :: eosData(:),massFrac(:)
 
-  logical,target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+  real,dimension(EOS_VARS+1:EOS_NUM) :: derivs
 
   integer :: ierr, gridDataStruct
   integer :: i,j,k, m
@@ -141,12 +141,11 @@ subroutine Eos_wrapped(mode,range,solnData)
 
   allocate(massFrac(NSPECIES))
 
-  mask = .FALSE.
   gridDataStruct=CENTER
- @M eos_map  
+  @M eos_map  
 
   
- @M loop_3d(range)
+  @M loop_3d(range)
            massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
            @M eos_preprocess
              @M eos_idealGamma

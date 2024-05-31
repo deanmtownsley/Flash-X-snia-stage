@@ -25,7 +25,7 @@
 #include "Simulation.h"
 
 
-subroutine Eos(mode, @M eos_args, len, massFrac, mask)
+subroutine Eos(mode, @M eos_args, len, massFrac, derivs)
 
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
@@ -36,10 +36,10 @@ subroutine Eos(mode, @M eos_args, len, massFrac, mask)
   implicit none
   integer, INTENT(in) :: mode
   @M eos_declare
-  logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+  real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   integer, optional, INTENT(in) :: len
-  logical :: pMassFrac_and_mask, pMassFrac, pMask
+  logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
   integer :: vecLen  
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
@@ -48,8 +48,8 @@ subroutine Eos(mode, @M eos_args, len, massFrac, mask)
   if(present(len))vecLen=len
 
   pMassFrac = present(massFrac)
-  pMask = present(mask)
-  pMassFrac_and_mask = pMassFrac.and.pMask
+  pDerivs = present(derivs)
+  pMassFrac_and_derivs = pMassFrac.and.pDerivs
   @M eos_idealGamma
   @M eos_helmSpecies
   @M eos_weaklib  

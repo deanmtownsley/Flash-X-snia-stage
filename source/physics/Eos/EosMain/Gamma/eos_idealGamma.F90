@@ -143,7 +143,7 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,  mask)
+subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
 
 !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -162,7 +162,7 @@ subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, 
   integer, INTENT(in) :: mode
   real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
-  logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+  real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
 
   real ::  ggprod, ggprodinv, gam1inv
   integer ::  dst, dsd
@@ -229,32 +229,32 @@ subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, 
   endif
 
 
-!!$  if(present(mask)) then
-!!$     eosData(EOS_DPT) = eos_gasConstant*dens / abar
-!!$     eosData(EOS_DPD) = eos_gasConstant*temp / abar
-!!$     eosData(EOS_DET) = ggprod / abar
-!!$     eosData(EOS_DED) = 0.
-!!$    ! Entropy derivatives   
-!!$     eosData(EOS_DST) = ( (eosData(EOS_DPT)  / dens + eosData(EOS_DET)) -&
-!!$          &                      (pres/ dens + eint)/ &
-!!$          &                      temp ) / temp
-!!$     eosData(EOS_DSD) = &
-!!$               ( ((eosData(EOS_DPD) - pres/dens) / &
-!!$        &          dens) + eosData(EOS_DED)) / temp
-!!$
-!!$
-!!$     eosData(EOS_PEL) = 0.
-!!$     eosData(EOS_NE) = 0.
-!!$     eosData(EOS_ETA) = 0.
-!!$     eosData(EOS_CV) = eosData(EOS_DET)
-!!$     eosData(EOS_CP) = eos_gamma*eosData(EOS_CV)
-!!$     
-!!$#ifdef EOS_CVELE
-!!$     eosData(EOS_CV) = eosData(EOS_DET) * &
-!!$          zbar / (zbar + 1)
-!!$#endif
-!!$  end if
-!!$
+  if(present(derivs)) then
+     derivs(EOS_DPT) = eos_gasConstant*dens / abar
+     derivs(EOS_DPD) = eos_gasConstant*temp / abar
+     derivs(EOS_DET) = ggprod / abar
+     derivs(EOS_DED) = 0.
+    ! Entropy derivatives   
+     derivs(EOS_DST) = ( (derivs(EOS_DPT)  / dens + derivs(EOS_DET)) -&
+          &                      (pres/ dens + eint)/ &
+          &                      temp ) / temp
+     derivs(EOS_DSD) = &
+               ( ((derivs(EOS_DPD) - pres/dens) / &
+        &          dens) + derivs(EOS_DED)) / temp
+
+
+     derivs(EOS_PEL) = 0.
+     derivs(EOS_NE) = 0.
+     derivs(EOS_ETA) = 0.
+     derivs(EOS_CV) = derivs(EOS_DET)
+     derivs(EOS_CP) = eos_gamma*derivs(EOS_CV)
+     
+#ifdef EOS_CVELE
+     derivs(EOS_CV) = derivs(EOS_DET) * &
+          zbar / (zbar + 1)
+#endif
+  end if
+
 
   return
 end subroutine eos_idealGamma
@@ -265,11 +265,11 @@ end subroutine eos_idealGamma
 
 !!..no matter what the input mode compute the entropy
 !!..ignore the -chemical_potential*number_density part for now
-!!$  dens_inv = 1.0e0/eosData(dens+ilo:+ihi)
-!!$  temp_inv = 1.0e0/eosData(temp+ilo:+ihi)
-!!$  stot     = (pres*dens_inv + eosData(eint+ilo:+ihi))*temp_inv 
-!!$  dstotdd  = (eosData(EOS_DPD)*dens_inv - pres*dens_inv*dens_inv + eosData(EOS_DED))*temp_inv
-!!$  dstotdt  = (eosData(EOS_DPT)*dens_inv + eosData(EOS_DET))*temp_inv  - (pres*dens_inv + eosData(eint+ilo:+ihi)) * temp_inv*temp_inv 
+!!$  dens_inv = 1.0e0/derivs(dens+ilo:+ihi)
+!!$  temp_inv = 1.0e0/derivs(temp+ilo:+ihi)
+!!$  stot     = (pres*dens_inv + derivs(eint+ilo:+ihi))*temp_inv 
+!!$  dstotdd  = (derivs(EOS_DPD)*dens_inv - pres*dens_inv*dens_inv + derivs(EOS_DED))*temp_inv
+!!$  dstotdt  = (derivs(EOS_DPT)*dens_inv + derivs(EOS_DET))*temp_inv  - (pres*dens_inv + derivs(eint+ilo:+ihi)) * temp_inv*temp_inv 
 !!$  
 
 

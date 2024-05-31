@@ -10,7 +10,7 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-
+!!NOVARIANTS
 
 
 Module Eos_interface
@@ -44,11 +44,11 @@ Module Eos_interface
   end interface
 
   interface
-     subroutine Eos(mode,  eosData,  massFrac, mask)
+     subroutine Eos(mode,  @M eos_args,  massFrac, derivs)
        integer, INTENT(in) :: mode
-       real,INTENT(inout), dimension(EOS_NUM) :: eosData 
+       @M eos_declare
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
-       logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask     
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs     
      end subroutine Eos
   end interface
   

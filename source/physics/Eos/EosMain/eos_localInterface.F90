@@ -32,31 +32,31 @@ module eos_localInterface
 
 
   interface
-     subroutine eos_weaklib(mode, vecLen,xPres,xTemp,xDens,xGamc,xEner, xEntr,xAbar,xZbar,xYe, massFrac, mask)
+     subroutine eos_weaklib(mode, vecLen,xPres,xTemp,xDens,xGamc,xEner, xEntr,xAbar,xZbar,xYe, massFrac, derivs)
        integer, INTENT(in) :: mode, vecLen
        real,INTENT(inout),dimension(vecLen) :: xPres,xDens, xTemp, xGamc,xEntr,xAbar,xZbar,xEner,xYe
-       logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM,vecLen) :: derivs
        real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
      end subroutine eos_weaklib
   end interface
 
     interface
-     subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, mask)
+     subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
        implicit none
        integer, INTENT(in) :: mode
        real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
-       logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_idealGamma
   end interface
  
 
   interface
-     subroutine eos_helmSpecies(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, mask)
+     subroutine eos_helmSpecies(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
        integer, INTENT(in) :: mode
        real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
-       logical, optional,target, INTENT(in),dimension(EOS_VARS+1:EOS_NUM) :: mask
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
      end subroutine eos_helmSpecies
   end interface
 

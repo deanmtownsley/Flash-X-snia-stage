@@ -89,7 +89,8 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-  use Eos_interface, ONLY : Eos_wrapped, Eos
+  use Eos_interface, ONLY : Eos_wrapped
+  use eos_localInterface, ONLY : eos_helmSpecies
   use Grid_interface,ONLY : Grid_getTileIterator, &
                             Grid_releaseTileIterator, &
                             Grid_getBlkType
@@ -123,11 +124,11 @@ subroutine Eos_unitTest(fileUnit, perfect)
   logical:: test1,test2,test3,test4 !for a block
   logical:: test1allB,test2allB,test3allB,test4allB !for all blocks
 
-  integer :: vecLen, blockOffset,  pres, dens, temp,gamc, e, n, m
+  integer :: blockOffset,  e, n, m
+  real:: pres, temp, dens, gamc, eint, entr, abar, zbar
   integer :: isize, jsize, ksize, i,j,k,i1,j1,k1, nStartsAtOne
-  real, dimension(:), allocatable :: eosData
   real, dimension(:), allocatable :: massFrac
-  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
+  real, dimension (EOS_VARS+1:EOS_NUM) :: derivs
   real, allocatable, dimension(:,:,:,:) :: derivedVariables
   real, dimension(:,:,:), allocatable :: deriv1, deriv2
 
@@ -155,7 +156,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
 ! info for checkpoint output
 
 
-  mask = .true.
+!!  mask = .true.
 
   call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
   do while(itor%isValid())
@@ -452,20 +453,12 @@ subroutine Eos_unitTest(fileUnit, perfect)
      jsize = (blkLimits(HIGH,JAXIS) - blkLimits(LOW,JAXIS) + 1)
      ksize = (blkLimits(HIGH,KAXIS) - blkLimits(LOW,KAXIS) + 1)
 
-!!$     call Eos_wrapped(MODE_DENS_PRES,blkLimits,blockID)
-     vecLen=isize
 
      allocate(derivedVariables(isize,jsize,ksize,EOS_NUM))
-     allocate(eosData(EOS_NUM))
      allocate(massFrac(NSPECIES))
 
      ! Initialize them
      derivedVariables = 0.0
-     vecLen=isize
-     pres = (EOS_PRES-1)
-     dens = (EOS_DENS-1)
-     temp = (EOS_TEMP-1)
-     gamc = (EOS_GAMC-1)
 
      call tileDesc%getDataPtr(solnData, CENTER)
      call tileDesc%getDataPtr(scratchData, SCRATCH_CTR)
@@ -480,7 +473,6 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
      !! Get DENS and PRES to fill up input, also massFraction
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
-     gamc = (EOS_GAMC-1)
 
      do k1 = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
         do j1 = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
@@ -488,30 +480,30 @@ subroutine Eos_unitTest(fileUnit, perfect)
               i=i1-ib+1; j=j1-jb+1; k=k1-kb+1
               massFrac(1:NSPECIES) = &
                    solnData(SPECIES_BEGIN:SPECIES_END,i1,j1,k1)
-              eosData(pres+1) =  solnData(PRES_VAR,i1,j1,k1)
-              eosData(dens+1) =  solnData(DENS_VAR,i1,j1,k1)
-              eosData(temp+1) =  solnData(TEMP_VAR,i1,j1,k1)
-              eosData(gamc+1) = solnData(GAMC_VAR,i1,j1,k1)
-!!$
-              call Eos(MODE_DENS_PRES,eosData,massFrac,mask)
+              pres =  solnData(PRES_VAR,i1,j1,k1)
+              dens =  solnData(DENS_VAR,i1,j1,k1)
+              temp =  solnData(TEMP_VAR,i1,j1,k1)
+              gamc =  solnData(GAMC_VAR,i1,j1,k1)
 
+              call eos_helmSpecies(MODE_DENS_PRES, pres, temp, &
+                   dens, gamc, eint, entr,&
+                   abar, zbar,massFrac,derivs)
               
               do e=EOS_VARS+1,EOS_NUM
-                 m = (e-1)*vecLen
-                 derivedVariables(1:vecLen,j,k,e) =  eosData(m+1:m+vecLen)
+                 derivedVariables(i,j,k,e) =  derivs(e)
                  if (e==EOS_DEA) then
                     ! DEV: I (JO) have converted putRowData calls to these explicit
                     !      loop nests.  However, this code does not seem to have
                     !      an effect on the success of this test.
                     scratchData(DRV1_SCRATCH_CENTER_VAR, i, j, k) &
-                         = eosData(m+1)
+                         = derivs(e)
                  end if
                  if (e==EOS_DPT) then
                     ! DEV: I (JO) have converted putRowData calls to these explicit
                     !      loop nests.  However, this code does not seem to have
                     !      an effect on the success of this test.
                     scratchData(DRV2_SCRATCH_CENTER_VAR, i, j, k) &
-                         = eosData(m+1)
+                         = derivs(e)
                  end if
               end do
 
@@ -545,7 +537,6 @@ subroutine Eos_unitTest(fileUnit, perfect)
      if (ANY(derivedVariables .ne. 0.0)) then
       if (eos_meshMe<maxPrintPE) print*,ap,"Some derived variables were set."
      end if 
-     deallocate(eosData)
      deallocate(massFrac)
      deallocate(derivedVariables)
      call itor%next()
