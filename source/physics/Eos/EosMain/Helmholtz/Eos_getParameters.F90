@@ -26,7 +26,7 @@ subroutine Eos_getParameters(eintSwitch,inputsAreUnchanged,inputTempIsGuess,cons
 
   use Eos_data, ONLY : eos_smalle, eos_eintSwitch
   use Eos_data, ONLY : eos_smallEion, eos_smallEele, eos_smallErad
-  use eos_helmData, ONLY : eos_forceConstantInput
+  use eos_helmData, ONLY : eos_forceConstantInput, eos_useMultiSpecies
   use Driver_interface, ONLY : Driver_abort
 
   implicit none
@@ -47,7 +47,7 @@ subroutine Eos_getParameters(eintSwitch,inputsAreUnchanged,inputTempIsGuess,cons
   if (present(inputTempIsGuess)) inputTempIsGuess = .TRUE.
   if (present(constantGammaC)) constantGammaC = .FALSE.
 
-  if (present(inputMassFracNeeded)) inputMassFracNeeded = .TRUE.
+  if (present(inputMassFracNeeded)) inputMassFracNeeded = eos_useMultiSpecies
   if (present(smalle)) smalle = eos_smalle
   if (present(smallE1)) smallE1 = eos_smallEion
   if (present(smallE2)) smallE2 = eos_smallEele

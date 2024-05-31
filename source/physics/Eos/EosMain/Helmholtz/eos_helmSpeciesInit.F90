@@ -83,6 +83,8 @@ subroutine eos_helmSpeciesInit()
   call RuntimeParameters_get('eos_tolerance', eos_tol)
   call RuntimeParameters_get('eos_maxNewton', eos_maxNewton)
   call RuntimeParameters_get('eos_coulombMult', eos_coulombMult)
+  call RuntimeParameters_get('eos_useMultiSpecies',eos_useMultiSpecies)
+  call RuntimeParameters_get("eos_forceConstantInput",eos_forceConstantInput)
 
 #ifdef DEBUG_EOS
   print *, 'in eos_helmSpeciesInit'
@@ -97,13 +99,6 @@ subroutine eos_helmSpeciesInit()
      call Driver_abort("[Eos_init] eintSwitch is nonzero, but EINT_VAR not defined!")
   end if
 #endif
-
-#ifdef USE_EOS_YE
-  write(*,*)"USE_EOS_YE should not be defined with Helmholtz/SpeciesBased EOS.  Use Helmholtz/Ye instead!"
-  call Driver_abort("[Eos_init] Use Helmholtz/Ye with USE_EOS_YE mode")
-#endif
-
-  call RuntimeParameters_get("eos_forceConstantInput",eos_forceConstantInput)
 
   if (eos_meshMe==MASTER_PE) then
      open(unit=unitEos,file='helm_table.bdat',status='old',iostat=istat)
@@ -171,36 +166,6 @@ subroutine eos_helmSpeciesInit()
   !..broadcast to rest of processors
   istat = EOSIMAX*EOSJMAX*EOST
   call MPI_BCAST(eos_table,      istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
-!!$  call MPI_BCAST(eos_fd,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_ft,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_fdd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_ftt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_fdt,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_fddt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_fdtt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_fddtt,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_dpdf,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_dpdfd,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_dpdft,  istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_dpdfdt, istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_ef,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_efd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_eft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_efdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_xf,     istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$
-!!$  call MPI_BCAST(eos_xfd,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_xft,    istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-!!$  call MPI_BCAST(eos_xfdt,   istat, FLASH_REAL, MASTER_PE, MPI_COMM_WORLD, ierr)
-
 
   eos_tlo   = 3.0e0
   eos_thi   = 13.0e0

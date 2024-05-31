@@ -60,7 +60,7 @@ module eos_helmData
   logical, save :: eos_coulombAbort
  
   ! Flag for whether to use starkiller helmholtz or old flash version
-  logical, save :: eos_useStarkiller
+  logical, save :: eos_useMultiSpecies
   integer,parameter :: EOSIMAX=541,EOSJMAX=201
 
   ! Minimum vecLen value to use OpenACC implementation of starkiller

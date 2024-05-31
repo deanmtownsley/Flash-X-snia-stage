@@ -157,7 +157,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   use Logfile_interface, ONLY:  Logfile_stampMessage
 
   use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
-       eos_forceConstantInput
+       eos_forceConstantInput, eos_useMultiSpecies
   use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ
   use eos_helmData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
        gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
@@ -196,10 +196,12 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
 
   !  if you are working with electron abundance mass scalars, then you don't
   !  necessarily have to have mass fractions.
-  if(.not.present(massFrac)) then
-     call Driver_abort("[Eos] Helmholtz needs mass fractions")
+ 
+  if(eos_useMultiSpecies) then 
+     if(.not.present(massFrac)) then
+        call Driver_abort("[Eos] Helmholtz with species needs mass fractions")
+     end if
   end if
-
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
 
@@ -220,9 +222,14 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
   zbarRow = abarRow * zbarFrac
 #else
-  ! No multispecies defined, use default values (same as Gamma formulation)
-  abarRow = eos_singleSpeciesA
-  zbarRow = eos_singleSpeciesZ
+     if(eos_useMultiSpecies) then
+     ! No multispecies defined, use default values (same as Gamma formulation)
+        abarRow = eos_singleSpeciesA
+        zbarRow = eos_singleSpeciesZ
+     else
+        abarRow = abar
+        zbarRow = zbar
+     end if
 #endif
   abar=abarRow
   zbar=zbarRow     
