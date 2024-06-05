@@ -28,7 +28,7 @@
 !!
 !!
 !!***
-SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,derivs)
+SUBROUTINE eos_weaklib_vec(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -42,8 +42,8 @@ SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAba
   !     Arguments
   INTEGER, INTENT(in) :: mode, vecLen
   REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar,xEner, xYe
-  REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen*NSPECIES) :: massFrac
-  real,OPTIONAL, DIMENSION(EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
+  REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen,NSPECIES) :: massFrac
+  real,OPTIONAL, DIMENSION(vecLen, EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
   REAL, DIMENSION(vecLen) :: xCs2, xA, xZ
   INTEGER :: xMode, err
@@ -75,6 +75,83 @@ SUBROUTINE eos_weaklib(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAba
        ( xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,&
          xMode,err )
 
+      IF (err /= 0) THEN
+        PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
+        CALL Driver_abort("[EOS] problem with weaklib EOS")
+      ENDIF
+
+  RETURN
+
+END SUBROUTINE eos_weaklib_vec
+
+
+SUBROUTINE eos_weaklib(mode,pres, temp, dens, gamc, eint, entr, abar, zbar,Ye, massFrac,derivs)
+
+  USE Driver_interface, ONLY : Driver_abort
+  USE eos_weaklib_inter, ONLY: eos_weaklib_short
+
+  IMPLICIT NONE
+
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+
+  !     Arguments
+  INTEGER, INTENT(in) :: mode
+  REAL, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar,ye
+  REAL, OPTIONAL,INTENT(in), DIMENSION(NSPECIES) :: massFrac
+  real,OPTIONAL, DIMENSION( EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
+
+  REAL, DIMENSION(1) :: xCs2, xA, xZ,xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar,xEner, xYe
+  INTEGER :: xMode, err
+
+  err = 0
+
+  SELECT CASE(mode)
+    CASE(MODE_DENS_EI)
+       xMode = 0
+    CASE(MODE_DENS_TEMP)
+       xMode = 1
+    CASE(MODE_DENS_ENTR)
+       xMode = 2
+    CASE(MODE_DENS_PRES)
+       xMode = 4
+    CASE default
+       CALL Driver_abort&
+               ('[Eos] Error: unsupported mode for Nuclear Eos')
+  END SELECT
+  xDens(1)=dens
+  xTemp(1)=temp
+  xPres(1)=pres
+  xGamc(1)=gamc
+  xEntr(1)=entr
+  xAbar(1)=abar
+  xZbar(1)=zbar
+  xEner(1)=eint
+  xYe (1)= ye
+
+
+  IF( MAXVAL(xDens) < TINY(1.d0) ) THEN
+    PRINT*, ' eos_weaklib.F90 line 90 : xDens = zero '
+    PRINT*, ' MAXVAL(xDens) ', MAXVAL(xDens), 'MINVAL(xDens) ',MINVAL(xDens) 
+    CALL Driver_abort("[EOS] problem with weaklib EOS")
+  END IF
+
+  CALL eos_weaklib_short&
+       ( xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,&
+         xMode,err )
+
+  dens=xDens(1)
+  temp=xTemp(1)
+  pres=xPres(1)
+  gamc=xGamc(1)
+  entr=xEntr(1)
+  abar=xAbar(1)
+  zbar=xZbar(1)
+  eint=xEner(1)
+  ye = xYe (1)
+
+  
       IF (err /= 0) THEN
         PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
         CALL Driver_abort("[EOS] problem with weaklib EOS")

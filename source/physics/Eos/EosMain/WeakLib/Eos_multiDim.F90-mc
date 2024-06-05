@@ -119,9 +119,8 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   integer, optional, intent(IN) :: gridDataStruct
 
 
-  real, allocatable :: eosData(:),massFrac(:)
+  real, allocatable :: massFrac(:)
 
-  logical,target,dimension(EOS_VARS+1:EOS_NUM) :: eosMask
 
   integer :: ierr, dataStruct
   integer :: i,j,k, vLen1D, vecLen,offset
@@ -163,8 +162,6 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   allocate(xYe(vecLen))      
   allocate(xekin(vecLen))      
   
-  eosMask = .FALSE.
-
   
   @M eos_map
 
@@ -192,7 +189,7 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   @M loop_end_3d   
   
 
-  call eos_weakLib(mode,vecLen,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar,xYe, massFrac,eosMask)
+  call eos_weakLib_vec(mode,vecLen,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar,xYe, massFrac)
 
     n=0
     @M loop_3d(range)

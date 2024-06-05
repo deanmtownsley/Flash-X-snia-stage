@@ -72,4 +72,4 @@ subroutine Eos_vector(mode, vecLen, @M eos_args, massFrac, derivs)
   real, optional, dimenstion(1:vecLen,EOS_NUM+1:EOS_VARS), INTENT(out) :: derivs
   
   return
-end subroutine Eos
+end subroutine Eos_vector
