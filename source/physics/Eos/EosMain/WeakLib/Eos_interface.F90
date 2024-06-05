@@ -35,13 +35,13 @@ Module Eos_interface
      end subroutine Eos_guardCells
   end interface
   
-  interface Eos_wrapped
-     subroutine Eos_wrapped(mode,range,solnData,gridDataStruct)
+  interface Eos_multiDim
+     subroutine Eos_multiDim(mode,range,solnData,gridDataStruct)
        integer, intent(in) :: mode
        integer, dimension(2,MDIM), intent(in) :: range
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
        integer,optional,intent(IN) :: gridDataStruct
-     end subroutine Eos_wrapped
+     end subroutine Eos_multiDim
   end interface
 
   interface

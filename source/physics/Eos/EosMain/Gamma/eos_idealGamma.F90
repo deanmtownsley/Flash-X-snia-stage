@@ -143,106 +143,132 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+subroutine eos_idealGamma_vec((mode, vecLen,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
 
-!==============================================================================
+  integer, INTENT(in) :: mode, vecLen
+  real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
+  real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
+  integer:: i
+  if(present(massFrac).and.present(derivs)) then
+     do i = 1,vecLen
+        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:), derivs(i,:))
+     end do
+  else if(present(derivs)) then
+     do i = 1,vecLen
+        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+     end do
+  else
+     do i = 1,vecLen
+        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+     end do
+  end if
+end subroutine eos_idealGamma_vec
+   
+
+subroutine eos_idealGamma_point(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+  
+  !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
        eos_singleSpeciesA, eos_singleSpeciesZ
   use eos_idealGammaData, ONLY: eos_gammam1
   use Driver_interface, ONLY : Driver_abort
-
-
+  
+  
   implicit none
-
+  
 #include "constants.h"
 #include "Eos.h"
 #include "Simulation.h"
-
+  
   !     Arguments
   integer, INTENT(in) :: mode
   real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
-
+  
   real ::  ggprod, ggprodinv, gam1inv
   integer ::  dst, dsd
   integer :: dpt, dpd, det, ded, c_v, c_p, pel, ne, eta
   integer :: i, ilo,ihi
-
-  ggprod = eos_gammam1 * eos_gasConstant
-
-!============================================================================
-
-
   
-!!NOTE  But for NSPECIES = 1, abar is NOT just 1.
-!!NOTE The Flash2 routines initialize a fake "fluid"
-!!NOTE with properties A=1, Z=1, and Eb=1.  Therefore flash2 can
-!!NOTE  always call the equivalent of Multispecies_getSumInV and it
-!!NOTE returns a default number.   In FLASH3, the decision has been made
-!!NOTE that Eos/Gamma cannot be run with more than one fluid.
-
+  ggprod = eos_gammam1 * eos_gasConstant
+  
+  !============================================================================
+  
+  
+  
+  !!NOTE  But for NSPECIES = 1, abar is NOT just 1.
+  !!NOTE The Flash2 routines initialize a fake "fluid"
+  !!NOTE with properties A=1, Z=1, and Eb=1.  Therefore flash2 can
+  !!NOTE  always call the equivalent of Multispecies_getSumInV and it
+  !!NOTE returns a default number.   In FLASH3, the decision has been made
+  !!NOTE that Eos/Gamma cannot be run with more than one fluid.
+  
   gamc = eos_gamma
   abar = eos_singleSpeciesA
   zbar = eos_singleSpeciesZ    
-
-
+  
+  
   ! density, temperature taken as input
   if (mode == MODE_DENS_TEMP) then
-
+     
      pres = eos_gasConstant*dens * &
-                                 temp / abar
+          temp / abar
      eint = ggprod * temp &
-                                 / abar
+          / abar
      entr = (pres/dens +  &
-             &  eint)/temp
-
-
-  ! density, internal energy taken as input
+          &  eint)/temp
+     
+     
+     ! density, internal energy taken as input
   elseif (mode == MODE_DENS_EI) then
-
+     
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
      pres = dens * &
-                                    eint * gam1inv
+          eint * gam1inv
      temp = eint * ggprodinv * &
-                                    abar
+          abar
      entr = (pres/dens +  &
-             &  eint)/temp
-
-
-  ! density, pressure taken as input
+          &  eint)/temp
+     
+     
+     ! density, pressure taken as input
   elseif (mode == MODE_DENS_PRES) then
-
+     
      ggprodinv = 1. / ggprod
      gam1inv   = 1. / eos_gammam1
      eint = pres * eos_gammam1 / &
-                                   dens
+          dens
      temp = eint * ggprodinv * &
-                                   abar
+          abar
      entr = (pres/dens +  &
-             &  eint)/temp
-
-  ! unrecognized value for mode
+          &  eint)/temp
+     
+     ! unrecognized value for mode
   else 
      call Driver_abort("[Eos] Unrecognized input mode given to Eos")
   endif
-
-
+  
+  
   if(present(derivs)) then
      derivs(EOS_DPT) = eos_gasConstant*dens / abar
      derivs(EOS_DPD) = eos_gasConstant*temp / abar
      derivs(EOS_DET) = ggprod / abar
      derivs(EOS_DED) = 0.
-    ! Entropy derivatives   
+     ! Entropy derivatives   
      derivs(EOS_DST) = ( (derivs(EOS_DPT)  / dens + derivs(EOS_DET)) -&
           &                      (pres/ dens + eint)/ &
           &                      temp ) / temp
      derivs(EOS_DSD) = &
-               ( ((derivs(EOS_DPD) - pres/dens) / &
-        &          dens) + derivs(EOS_DED)) / temp
-
-
+          ( ((derivs(EOS_DPD) - pres/dens) / &
+          &          dens) + derivs(EOS_DED)) / temp
+     
+     
      derivs(EOS_PEL) = 0.
      derivs(EOS_NE) = 0.
      derivs(EOS_ETA) = 0.
@@ -254,10 +280,10 @@ subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, 
           zbar / (zbar + 1)
 #endif
   end if
-
-
+  
+  
   return
-end subroutine eos_idealGamma
+end subroutine eos_idealGamma_point
 
 !! FOR FUTURE  : This section is not in use in FLASH 3 yet. none
 !! of the current setups use entropy. This will be taken care of 

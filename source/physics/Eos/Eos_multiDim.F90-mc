@@ -1,89 +1,52 @@
-!!****f* source/physics/Eos/Eos_multiDim
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!! NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  Eos_multiDim
-!! 
-!! SYNOPSIS
+!! @file
+!! @brief Eos stub
+
+!> @ingroup physics_Eos
 !!
-!!  call Eos_multiDim(  integer(IN) :: mode,
-!!                     integer(IN) :: range(HIGH, MDIM),
-!!           pointer,real(:,:,:,:) :: solnData)
+!! @brief Evolve the spacetime variables by the provided timestep
 !!
-!! DESCRIPTION
+!! @details
+!! @anchor Eos_stub
 !!
-!! This function is provided for the user's convenience and acts as a simple
-!! wrapper to the Eos interface. The Eos interface uses a single, flexible data
-!! structure "eosData" to pass the thermodynamic quantities in and out of the
-!! funtion (see Eos). The wrapper hides formation and use of eosData
-!! from the users.
+!! This function is provided for the user's convenience and acts as a 
+!! mechanism to apply EOS to multidimension data.
 !!
 !! While Eos does not know anything about blocks, Eos_multiDim takes its
 !! input thermodynamic state variables from a given block's storage area.
 !! It works by taking a selected section of a block described by array
-!! "range" and translating it to eosData before calling the Eos routine.
-!! Upon return from Eos, Eos_wrapper updates certain state variables in
+!! "range" and calls either pointwise or a 1D vector version of EOS
+!! implementation depending upon the specific EOS called.
+!! Upon return from Eos, Eos_multiDim updates certain state variables in
 !! the same section of the block's storage area. Which variables are taken
 !! as input, and which are updated, depends on the "mode" argument.
 !!
 !! If you want to return the derived quantities defined from EOS_VAR+1:EOS_NUM
-!! in Eos.h, then you must use the direct interface Eos().
+!! in Eos.h, then you must use the pointwise or vector implementatios of EOS
 !!
 !!
-!!  ARGUMENTS 
+!!  @param mode   Selects the mode of operation of the Eos unit.
+!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
+!!             MODE_DENS_TEMP as decribed above.
 !!
-!!   
-!!   mode : determines which variables are used as Eos input.
-!!          The valid values are MODE_DENS_EI (where density and internal
-!!          energy are inputs), MODE_DENS_PRES (density and pressure as inputs)
-!!          MODE_DENS_TEMP (density and temperature are inputs).
-!!          These quantities are defined in constants.h, the argument is 
-!!          forwarded unchanged to the Eos function call.
-!!          Note that internal energy is the grid variable EINT_VAR, not ENER_VAR.
+!!  @param  range(LOW:HIGH,MDIM) are the bounds of the array
+!!          pointed to by solnData
 !!
-!! 
-!!   range: an array that holds the lower and upper indices of the section
-!!          of block on which Eos is to be applies. The example shows how
-!!          the array describes the block section.
+!!  @param solnData(:,:,:,:) is pointer to the array where
+!!          all the data is located
 !!
-!!   solnData : pointer to the state data on which EOS is to be applied
-!!
-!!   gridDataStruct : the grid data structure on whose data Eos is to be applied
-!!
-!!
-!!  EXAMPLE 
-!!      if range(LOW,IAXIS)=1,range(HIGH,IAXIS)=iguard,
-!!         range(LOW,JAXIS)=1,range(HIGH,JAXIS)=jguard,
-!!         range(LOW,KAXIS)=1,range(HIGH,KAXIS)=kguard,
-!!      then Eos is applied to the lower left hand corner of the guard
-!!      cells in the block. If, however, the value were
-!!         range(LOW,IAXIS)=iguard+1,range(HIGH,IAXIS)=iguard+nxb,
-!!         range(LOW,JAXIS)=jguard+1,range(HIGH,JAXIS)=jguard+nyb,
-!!         range(LOW,KAXIS)=kguard+1,range(HIGH,KAXIS)=kguard+nzb,
-!!      then Eos is applied to all the interior cells in the block.
-!!
-!!  NOTES
-!!      This interface is defined in Fortran Module 
-!!      Eos_interface. All functions calling this routine should include
-!!      a statement like
-!!      use Eos_interface, ONLY : Eos_multiDim
-!!
-!!  SEE ALSO
-!!
-!!     Eos
-!!     Eos.h
-!!
-!!***
 !!NOVARIANTS
 
 
@@ -99,13 +62,3 @@ subroutine Eos_multiDim(mode,range,solnData)
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
 end subroutine Eos_multiDim
 
-subroutine Eos_arrayWrapped(mode,range,solnData)
-
-  implicit none
-
-#include "FortranLangFeatures.fh"
-  integer, intent(in) :: mode
-  integer, dimension(2,MDIM), intent(in) :: range
-  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-  return
-end subroutine Eos_arrayWrapped

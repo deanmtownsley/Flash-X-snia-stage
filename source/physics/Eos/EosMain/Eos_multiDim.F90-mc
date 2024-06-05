@@ -109,6 +109,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos
   use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle, eos_mapLookup
+  use eos_localInterface, ONLY : @M eos_name
   implicit none
 
 #include "FortranLangFeatures.fh"
@@ -148,10 +149,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   @M loop_3d(range)
            massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
            @M eos_preprocess
-             @M eos_idealGamma
-             @M eos_helmSpecies
-             @M eos_weaklib  
-             @M eos_hybrid
+             call @M eos_name (mode, @M eos_args_massFrac)
            @M eos_postprocess
   @M loop_end_3d
         

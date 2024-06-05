@@ -143,11 +143,47 @@
 !! SEE ALSO
 !! 
 !!  Eos.h    defines the variables used.
-!!  Eos_wrapped  sets up the data structure.
+!!  Eos_multiDim  sets up the data structure.
 !!
 !!
 !!*** 
 !!NOVARIANTS
+
+#include "Eos.h"
+
+subroutine eos_helmSpecies_vec(mode, vecLen,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+  use eos_localInterface, ONLY : eos_helmSpecies
+  
+  integer, INTENT(in) :: mode, vecLen
+  real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
+  real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
+  integer:: i
+  if(present(massFrac).and.present(derivs)) then
+     do i = 1,vecLen
+        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:), derivs(i,:))
+     end do
+  else if(present(derivs)) then
+     do i = 1,vecLen
+        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+     end do
+  else if(present(massFrac)) then
+     do i = 1,vecLen
+        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:))
+     end do
+  else   
+     do i = 1,vecLen
+        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
+             eint(i), entr(i), abar(i), zbar(i))
+     end do
+  end if
+end subroutine eos_helmSpecies_vec
+
+
+
 
 subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,derivs)
 
@@ -176,7 +212,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   integer, INTENT(in) :: mode
   real, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
   real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
-  ! must correspond to dimensions of Eos_wrapped
+  ! must correspond to dimensions of Eos_multiDim
   real,optional,dimension(EOS_VARS+1:EOS_NUM),INTENT(out)::derivs
 
   integer :: i, k
@@ -196,7 +232,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
 
   !  if you are working with electron abundance mass scalars, then you don't
   !  necessarily have to have mass fractions.
- 
+
   if(eos_useMultiSpecies) then 
      if(.not.present(massFrac)) then
         call Driver_abort("[Eos] Helmholtz with species needs mass fractions")
@@ -212,7 +248,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
   tempRow    = temp
   denRow     = dens
   
-  ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_wrapped does not.
+  ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_multiDim does not.
   
 #ifdef FLASH_MULTISPECIES
   !Calculate the inverse in a way that allows for zero mass fractions

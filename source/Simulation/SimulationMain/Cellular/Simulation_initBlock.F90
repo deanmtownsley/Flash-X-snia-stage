@@ -226,7 +226,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
 
            !  Need input of density and temperature
-           
+
            call Eos(MODE_DENS_TEMP,ptot,temp_zone,rho_zone,gamma,eint,entr,abar,zbar,massFrac=massFraction)
 
            ! calculate kinetic energy and total energy

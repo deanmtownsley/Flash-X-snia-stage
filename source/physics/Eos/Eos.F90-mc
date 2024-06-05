@@ -42,37 +42,25 @@
 !!  In addition to pressure, temperature, and internal energy, which are
 !!  always thermodynamically consistent after this call, other quantities
 !!  such as the various thermodynamic partial derivatives can be
-!!  calculated based on the values in the argument, mask.  mask is a
-!!  logical array with one entry per quantity, with the order determined
-!!  by constants defined in Eos.h (the same as those for the eosData
-!!  argument); .true. means return the quantity, .false. means don't.
+!!  calculated based and returned in the optional array derivs.
 !!
 !!
 !!  @param mode   Selects the mode of operation of the Eos unit.
 !!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
 !!             MODE_DENS_TEMP as decribed above.
 !!
+!!  @param @M eos_args: These are all the thermodynamics quantities involved
+!!         in computing EOS. The expansion of this macro is located in EosMain/Eos.ini
 !!
 !!  @param massFrac : Contains the mass fractions of the species included in
-!!             the simulation. The array is sized as NSPECIES*vecLen.
+!!             the simulation. The array is sized as NSPECIES.
 !!
-!!  @param mask     : Mask is a logical array the size of EOS_DERIVS (number
-!!              of partial derivatives that can be computed, defined in
-!!              Eos.h), where each index represents a specific partial derivative
-!!              that can be calculated by the Eos unit. A .true. value in mask 
-!!              results in the corresponding derivative being calculated and 
-!!              returned. It should preferably be dimensioned as
-!!              mask(EOS_VARS+1:EOS_NUM) in the calling routine 
-!!              to exactly match the arguments declaration in Eos Unit.
-!!             Note that the indexing of mask does not begin at 1, but rather at one past
-!!             the number of variables.
+!!  @param derivs : If derivative quantities are desired they are returned in this array
 !!
-!!             An implementation that does not need derivative quantities should
-!!             set the mask equal to .false.
 !!
 !!NOVARIANTS
 
-subroutine Eos(mode,eosData, massFrac, mask)
+subroutine Eos(mode,@M eos_args, massFrac, derivs)
 
 !==============================================================================
 
@@ -80,8 +68,8 @@ subroutine Eos(mode,eosData, massFrac, mask)
 #include "Eos.h"
 #include "Simulation.h"
   integer, INTENT(in) :: mode
-  real,INTENT(inout), dimension(EOS_NUM) :: eosData 
-  logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
+  real,INTENT(inout) :: @M eos_args 
+  rea;, optional, INTENT(out), dimension(EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
 
   return
