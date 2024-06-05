@@ -47,7 +47,7 @@ subroutine RadTrans( dt, pass )
   use Burn_interface, ONLY : Burn_makeAbundanceYeConsistent
 #endif
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_wrapped!Eos_everywhere
+  use Eos_interface, ONLY : Eos_multiDim!Eos_everywhere
   use FluidFieldsModule, ONLY : uCF
   use GeometryFieldsModuleE, ONLY : uGE
   use GeometryFieldsModule, ONLY : uGF
@@ -385,7 +385,7 @@ subroutine RadTrans( dt, pass )
   do while( itor % isValid() )
     call itor%currentTile(tileDesc)
     call tileDesc % getDataPtr( Uin, CENTER )
-    call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,Uin,CENTER)
+    call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,Uin,CENTER)
     call itor % next()
   end do
   call Grid_releaseTileIterator( itor )
