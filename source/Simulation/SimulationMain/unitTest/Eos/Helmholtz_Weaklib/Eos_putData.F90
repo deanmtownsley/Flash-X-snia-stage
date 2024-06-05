@@ -28,7 +28,7 @@
 !! Eos_putData puts data from an eosData array into a Grid data structure, usually
 !! after data in the eosData array have been updated by an Eos call.
 !!
-!! The Eos_wrapped function is provided for the user's convenience and acts as a simple
+!! The Eos_multiDim function is provided for the user's convenience and acts as a simple
 !! wrapper to the Eos interface. The Eos interface uses a single, flexible data
 !! structure "eosData" to pass the thermodynamic quantities in and out of the
 !! function (see Eos). The wrapper hides formation and use of eosData

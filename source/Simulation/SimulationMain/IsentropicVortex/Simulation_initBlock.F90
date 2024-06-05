@@ -80,7 +80,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
        sim_eosData, sim_eosMassFr
 
   use Grid_interface, ONLY :Grid_getCellCoords
-  use Eos_interface, ONLY : Eos_wrapped, Eos
+  use Eos_interface, ONLY : Eos_multiDim, Eos
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none

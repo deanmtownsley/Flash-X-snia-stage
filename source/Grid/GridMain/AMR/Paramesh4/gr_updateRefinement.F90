@@ -87,7 +87,7 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
 #endif
   use paramesh_interfaces, ONLY : amr_refine_derefine, &
                                   amr_prolong
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,     ONLY : Grid_tile_t
   use Driver_interface, ONLY: Driver_notifyGridChange
@@ -256,7 +256,7 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
         call itor%currentTile(tileDesc)
 
         call tileDesc%getDataPtr(solnData, CENTER)
-        call Eos_wrapped(gr_eosMode, tileDesc%limits, solnData)
+        call Eos_multiDim(gr_eosMode, tileDesc%limits, solnData)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
         call itor%next()

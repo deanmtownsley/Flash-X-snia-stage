@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Eos_wrapped
+!!****f* source/physics/Eos/Eos_multiDim
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -10,17 +10,15 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-!!
 !! NAME
 !!
-!!  Eos_Wrapped
+!!  Eos_multiDim
 !! 
 !! SYNOPSIS
 !!
-!!  call Eos_Wrapped(  integer(IN) :: mode,
-!!                          integer(IN) :: range(HIGH, MDIM),
-!!                     real,pointer(IN) :: solnData,
-!!                 optional,integer(IN) :: gridDataStruct )
+!!  call Eos_multiDim(  integer(IN) :: mode,
+!!                     integer(IN) :: range(HIGH, MDIM),
+!!           pointer,real(:,:,:,:) :: solnData)
 !!
 !! DESCRIPTION
 !!
@@ -30,18 +28,16 @@
 !! funtion (see Eos). The wrapper hides formation and use of eosData
 !! from the users.
 !!
-!! While Eos does not know anything about blocks, Eos_arrayWrapped takes its
+!! While Eos does not know anything about blocks, Eos_multiDim takes its
 !! input thermodynamic state variables from a given block's storage area.
-!! It works by taking a selected section of a block
-!! described by array "range" and translating it to eosData
-!! before calling the Eos function.
+!! It works by taking a selected section of a block described by array
+!! "range" and translating it to eosData before calling the Eos routine.
 !! Upon return from Eos, Eos_wrapper updates certain state variables in
 !! the same section of the block's storage area. Which variables are taken
 !! as input, and which are updated, depends on the "mode" argument.
 !!
 !! If you want to return the derived quantities defined from EOS_VAR+1:EOS_NUM
-!! in Eos.h, then you must use the direct interface Eos().  Note that 
-!! entropy EOS_ENTR is considered a derived variable.
+!! in Eos.h, then you must use the direct interface Eos().
 !!
 !!
 !!  ARGUMENTS 
@@ -53,14 +49,14 @@
 !!          MODE_DENS_TEMP (density and temperature are inputs).
 !!          These quantities are defined in constants.h, the argument is 
 !!          forwarded unchanged to the Eos function call.
-!!          Note that internal energy is grid variable EINT_VAR, not ENER_VAR.
+!!          Note that internal energy is the grid variable EINT_VAR, not ENER_VAR.
 !!
 !! 
 !!   range: an array that holds the lower and upper indices of the section
 !!          of block on which Eos is to be applies. The example shows how
 !!          the array describes the block section.
 !!
-!!   solnData: pointer to array section of solution data for a block
+!!   solnData : pointer to the state data on which EOS is to be applied
 !!
 !!   gridDataStruct : the grid data structure on whose data Eos is to be applied
 !!
@@ -70,9 +66,7 @@
 !!         range(LOW,JAXIS)=1,range(HIGH,JAXIS)=jguard,
 !!         range(LOW,KAXIS)=1,range(HIGH,KAXIS)=kguard,
 !!      then Eos is applied to the lower left hand corner of the guard
-!!      cells in the block. 
-!!
-!!      However if the value were
+!!      cells in the block. If, however, the value were
 !!         range(LOW,IAXIS)=iguard+1,range(HIGH,IAXIS)=iguard+nxb,
 !!         range(LOW,JAXIS)=jguard+1,range(HIGH,JAXIS)=jguard+nyb,
 !!         range(LOW,KAXIS)=kguard+1,range(HIGH,KAXIS)=kguard+nzb,
@@ -82,8 +76,7 @@
 !!      This interface is defined in Fortran Module 
 !!      Eos_interface. All functions calling this routine should include
 !!      a statement like
-!!      use Eos_interface, ONLY : Eos_arrayWrapped
-!!
+!!      use Eos_interface, ONLY : Eos_multiDim
 !!
 !!  SEE ALSO
 !!
@@ -91,71 +84,28 @@
 !!     Eos.h
 !!
 !!***
-
-! solnData depends on the ordering on unk
-!!REORDER(4): solnData
 !!NOVARIANTS
 
-#include "Eos.h"
-#include "constants.h"
-#include "Simulation.h"
-#ifdef DEBUG_ALL
-#define DEBUG
-#endif
 
-subroutine Eos_wrapped(mode,range,solnData)
-
-  use Driver_interface, ONLY : Driver_abort
-  use Logfile_interface, ONLY: Logfile_stampMessage 
-  use Eos_interface, ONLY : Eos
-  use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle, eos_mapLookup
+subroutine Eos_multiDim(mode,range,solnData)
+  
   implicit none
 
+# include "constants.h"
 #include "FortranLangFeatures.fh"
 
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+end subroutine Eos_multiDim
 
-  real, allocatable :: eosData(:),massFrac(:)
+subroutine Eos_arrayWrapped(mode,range,solnData)
 
-  real,dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  implicit none
 
-  integer :: ierr, gridDataStruct
-  integer :: i,j,k, m
-
-  real :: pres,dens,gamc,temp,abar,zbar,eint,ekin,entr
-  integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
-  integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
-  real :: kineticEnergy, internalEnergy
-
-
-!! ---------------------------------------------------------------------------------
-  ! Test calling arguments
-#ifdef DEBUG
-  @M eos_debug
-#endif
-  
-  if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
-
-
-  allocate(massFrac(NSPECIES))
-
-  gridDataStruct=CENTER
-  @M eos_map  
-
-  
-  @M loop_3d(range)
-           massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
-           @M eos_preprocess
-             @M eos_idealGamma
-             @M eos_helmSpecies
-             @M eos_weaklib  
-             @M eos_hybrid
-           @M eos_postprocess
-  @M loop_end_3d
-        
-  deallocate(massFrac)
-
+#include "FortranLangFeatures.fh"
+  integer, intent(in) :: mode
+  integer, dimension(2,MDIM), intent(in) :: range
+  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
   return
-end subroutine Eos_wrapped
+end subroutine Eos_arrayWrapped

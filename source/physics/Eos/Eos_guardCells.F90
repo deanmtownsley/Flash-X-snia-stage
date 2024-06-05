@@ -25,7 +25,7 @@
 !!
 !! DESCRIPTION
 !!
-!!  Another layer of wrapping around Eos_wrapped calls, provided
+!!  Another layer of wrapping around Eos_multiDim calls, provided
 !!  as a convenience to make it easy to apply the EOS to guard cells only.
 !!  
 !! ARGUMENTS
@@ -35,7 +35,7 @@
 !!            energy are inputs), MODE_DENS_PRES (density and pressure as inputs)
 !!            MODE_DENS_TEMP (density and temperature are inputs).
 !!            These quantities are defined in constants.h.
-!!            The argument is passed unchanged and unexamined to Eos_wrapped calls.
+!!            The argument is passed unchanged and unexamined to Eos_multiDim calls.
 !!
 !!  U : pointer to data structure for one block worth for state variables
 !!
@@ -48,7 +48,7 @@
 !!            restrictions.
 !!
 !! SEE ALSO
-!!  Eos_wrapped
+!!  Eos_multiDim
 !!
 !!***
 

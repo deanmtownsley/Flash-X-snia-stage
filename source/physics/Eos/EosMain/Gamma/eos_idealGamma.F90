@@ -134,7 +134,7 @@
 !! SEE ALSO
 !! 
 !!  Eos.h    defines the variables used.
-!!  Eos_wrapped  sets up the data structure.
+!!  Eos_multiDim  sets up the data structure.
 !!
 !!***
 !!NOVARIANTS

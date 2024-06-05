@@ -43,7 +43,7 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! the Eos_unitTest function calls Eos_multiDim with eosMode =
 !! MODE_DENS_EI, followed by eosMode= MODE_DENS_PRES.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
@@ -69,7 +69,7 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-   use Eos_interface, ONLY: Eos_wrapped
+   use Eos_interface, ONLY: Eos_multiDim
    use Grid_interface, ONLY: Grid_getTileIterator, &
                              Grid_releaseTileIterator, &
                              Grid_getBlkType
@@ -255,7 +255,7 @@ contains
 
             call tileDesc%getDataPtr(solnData, CENTER)
 
-            call Eos_wrapped(mode, blkLimits, solnData)
+            call Eos_multiDim(mode, blkLimits, solnData)
 
             call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -403,7 +403,7 @@ contains
 
          call tileDesc%getDataPtr(solnData, CENTER)
 
-         call Eos_wrapped(mode, blkLimits, solnData)
+         call Eos_multiDim(mode, blkLimits, solnData)
 
          call tileDesc%releaseDataPtr(solnData, CENTER)
 

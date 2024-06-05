@@ -35,20 +35,21 @@ Module Eos_interface
      end subroutine Eos_guardCells
   end interface
   
-  interface Eos_wrapped
-     subroutine Eos_wrapped(mode,range,solnData)
+  interface Eos_multiDim
+     subroutine Eos_multiDim(mode,range,solnData)
        integer, intent(in) :: mode
        integer, dimension(2,MDIM), intent(in) :: range
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-     end subroutine Eos_wrapped
+     end subroutine Eos_multiDim
   end interface
 
   interface
-     subroutine Eos(mode,  @M eos_args,  massFrac, derivs)
+     subroutine Eos(mode,  @M eos_args, len,  massFrac, derivs)
        integer, INTENT(in) :: mode
        @M eos_declare
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
-       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs     
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+       integer, optional, intent(IN) :: len
      end subroutine Eos
   end interface
   

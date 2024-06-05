@@ -70,7 +70,7 @@ contains
         use Grid_data,            ONLY : gr_eosModeInit
         use Grid_tile,            ONLY : Grid_tile_t, &
                                          Grid_tile_fromMilhojaTilePtr
-        use Eos_interface,        ONLY : Eos_wrapped
+        use Eos_interface,        ONLY : Eos_multiDim
         use Simulation_interface, ONLY : Simulation_initBlock
 
         integer(MILHOJA_INT), intent(IN), value :: C_threadID
@@ -105,7 +105,7 @@ contains
             end do
 
             CALL Simulation_initBlock(initData, tileDesc)
-            CALL Eos_wrapped(gr_eosModeInit, tileDesc%grownLimits, initData)
+            CALL Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits, initData)
 
             CALL tileDesc%releaseDataPtr(initData, CENTER)
         end associate

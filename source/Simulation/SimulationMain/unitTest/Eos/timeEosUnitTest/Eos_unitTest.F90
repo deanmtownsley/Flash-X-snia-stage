@@ -33,7 +33,7 @@
 !!
 !! The Eos_unit test starts by copying the initialized
 !! temperature into the TEMP_VAR location and calling the
-!! Eos_wrapped function with eosMode = MODE_DENS_TEMP, where
+!! Eos_multiDim function with eosMode = MODE_DENS_TEMP, where
 !! density and temperature are given and pressure and energy are
 !! calculated. Now PRES_VAR and EINT_VAR contain values of pressure
 !! and internal energy that are in thermal equilibrium, and the pressure values
@@ -43,16 +43,16 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! the Eos_unitTest function calls Eos_multiDim with eosMode =
 !! MODE_DENS_PRES, followed by eosMode= MODE_DENS_EI.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
 !! we can conclude that the Eos is working in MODE_DENS_PRES and
 !! MODE_DENS_EI modes. However, we still can't say anything about the
 !! MODE_DENS_TEMP mode. So we repeat the process by copying CPRS_VAR
-!! into PRES_VAR and calling Eos_wrapped with MODE_DENS_PRES. We
+!! into PRES_VAR and calling Eos_multiDim with MODE_DENS_PRES. We
 !! again save the calculated values in the extra storage and make two
-!! more Eos_wrapped calls with the remaining two modes. This time if
+!! more Eos_multiDim calls with the remaining two modes. This time if
 !! the new and old values of variables compare, we can conclude that
 !! MODE_DENS_TEMP works too, and hence the unit test is successful.
 !!
@@ -83,7 +83,7 @@
 
 
 subroutine Eos_unitTest(fileUnit, perfect)
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Eos_data, ONLY : eos_meshMe
   use Grid_interface, ONLY : Grid_getLocalNumBlks, &
     Grid_getBlkPtr, Grid_getBlkIndexLimits, Grid_releaseBlkPtr
@@ -130,13 +130,13 @@ subroutine Eos_unitTest(fileUnit, perfect)
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
 
      if (eos_meshMe == 0) then
-        write(6,"(a,i10,a)") " We will now call Eos_wrapped in MODE_DENS_TEMP", &
+        write(6,"(a,i10,a)") " We will now call Eos_multiDim in MODE_DENS_TEMP", &
              num_eos_calls, " times"
      end if
 
      startTime = MPI_WTime()
      do repeat = 1, num_eos_calls
-        call Eos_wrapped(MODE_DENS_TEMP, blkLimits,blockID)
+        call Eos_multiDim(MODE_DENS_TEMP, blkLimits,blockID)
      end do
      endTime = MPI_WTime()
 

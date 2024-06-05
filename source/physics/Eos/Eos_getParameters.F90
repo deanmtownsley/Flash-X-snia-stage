@@ -30,7 +30,7 @@
 !!
 !!  
 !!  @param eintSwitch -          value of the Eos unit's eintSwitch runtime parameter.
-!!  @paraminputsAreUnchanged -  Indicates whether calls to Eos (or Eos_wrapped, etc.) can result
+!!  @paraminputsAreUnchanged -  Indicates whether calls to Eos (or Eos_multiDim, etc.) can result
 !!                         in modification of some state variables that should be, strictly
 !!                         speaking, input only to the EOS in the given mode.
 !!                         If this is true, then calls to Eos with MODE_DENS_PRES can modify

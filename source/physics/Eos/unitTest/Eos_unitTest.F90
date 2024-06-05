@@ -33,7 +33,7 @@
 !!
 !! The Eos_unit test starts by copying the initialized
 !! temperature into the TEMP_VAR location and calling the
-!! Eos_wrapped function with eosMode = MODE_DENS_TEMP, where
+!! Eos_multiDim function with eosMode = MODE_DENS_TEMP, where
 !! density and temperature are given and pressure and energy are
 !! calculated. Now PRES_VAR and EINT_VAR contain values of pressure
 !! and internal energy that are in thermal equilibrium, and the pressure values
@@ -43,16 +43,16 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! the Eos_unitTest function calls Eos_multiDim with eosMode =
 !! MODE_DENS_PRES, followed by eosMode= MODE_DENS_EI.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
 !! we can conclude that the Eos is working in MODE_DENS_PRES and
 !! MODE_DENS_EI modes. However, we still can't say anything about the
 !! MODE_DENS_TEMP mode. So we repeat the process by copying CPRS_VAR
-!! into PRES_VAR and calling Eos_wrapped with MODE_DENS_PRES. We
+!! into PRES_VAR and calling Eos_multiDim with MODE_DENS_PRES. We
 !! again save the calculated values in the extra storage and make two
-!! more Eos_wrapped calls with the remaining two modes. This time if
+!! more Eos_multiDim calls with the remaining two modes. This time if
 !! the new and old values of variables compare, we can conclude that
 !! MODE_DENS_TEMP works too, and hence the unit test is successful.
 !!
@@ -84,7 +84,7 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-  use Eos_interface, ONLY : Eos_wrapped, Eos
+  use Eos_interface, ONLY : Eos_multiDim, Eos
   use Grid_interface,ONLY : Grid_getTileIterator, &
                             Grid_releaseTileIterator, &
                             Grid_getBlkType
@@ -200,7 +200,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      end if
      
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
-     call Eos_wrapped(eos_testTempMode, blkLimits,solnData, CENTER)
+     call Eos_multiDim(eos_testTempMode, blkLimits,solnData, CENTER)
      !! Summarize results of MODE_DENS_TEMP (or similar) call
      if (eos_meshMe<maxPrintPE) then
         print*,ap,'The resulting extreme values are '
@@ -229,7 +229,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !  Zero output variables
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.e-10  ! don't zero TEMP or eos_helm cannot converge in MODE_DENS_EI
      solnData(PRES_VAR,:,:,:)=0 
-     call Eos_wrapped(eos_testEintMode,blkLimits,solnData,CENTER)
+     call Eos_multiDim(eos_testEintMode,blkLimits,solnData,CENTER)
      
      
      if (eos_meshMe<maxPrintPE) then !! Summarize results of MODE_DENS_EI (or similar) call
@@ -271,7 +271,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
           eos_testPresMode,eos_testPresModeStr
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.1e4  ! don't zero TEMP or eos_helm cannot converge in any mode
-     call Eos_wrapped(eos_testPresMode,blkLimits,solnData,CENTER)
+     call Eos_multiDim(eos_testPresMode,blkLimits,solnData,CENTER)
      
      !! Summarize results of MODE_DENS_PRES (or similar) call;
      !! calculate error from MODE_DENS_PRES (or similar) call.
@@ -309,7 +309,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      ! Density and pressure in, energy and temperature out
      !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=0   ! don't zero TEMP or eos_helm cannot converge
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0 
-     call Eos_wrapped(MODE_DENS_PRES, blkLimits,solnData)
+     call Eos_multiDim(MODE_DENS_PRES, blkLimits,solnData)
      if (eos_meshMe<maxPrintPE) then
         print*,ap,'The resulting extreme values from MODE_DENS_PRES are '
         print*,ap,'Resulting Pressure min',minval(solnData(PRES_VAR,ib:ie,jb:je,kb:ke))
@@ -336,7 +336,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !! zero output values to make sure they're being calculated
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0.0
      !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.0e-11   ! don't zero TEMP or eos_helm cannot converge
-     call Eos_wrapped(MODE_DENS_EI,blkLimits,solnData,CENTER)
+     call Eos_multiDim(MODE_DENS_EI,blkLimits,solnData,CENTER)
      presErr1 = maxval(solnData(PRES_VAR,ib:ie,jb:je,kb:ke))
      presErr2 = maxval(solnData(OPRS_VAR,ib:ie,jb:je,kb:ke))
      if (eos_meshMe<maxPrintPE) print *,ap,'maxval PRES_VAR OPRS_VAR',presErr1,presErr2
@@ -361,7 +361,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0 
-     call Eos_wrapped(MODE_DENS_TEMP,blkLimits,solnData,CENTER)
+     call Eos_multiDim(MODE_DENS_TEMP,blkLimits,solnData,CENTER)
      presErr = maxval(abs((solnData(PRES_VAR,ib:ie,jb:je,kb:ke)-&
           solnData(OPRS_VAR,ib:ie,jb:je,kb:ke))/solnData(PRES_VAR,ib:ie,jb:je,kb:ke)))
      eintErr = maxval(abs((solnData(EINT_VAR,ib:ie,jb:je,kb:ke)-&

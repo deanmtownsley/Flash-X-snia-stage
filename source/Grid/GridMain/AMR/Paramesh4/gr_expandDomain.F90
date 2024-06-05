@@ -55,7 +55,7 @@ subroutine gr_expandDomain (particlesInitialized)
   use gr_specificData, ONLY : gr_finestExistingLevel
   use tree, ONLY : lrefine, lrefine_min, lrefine_max, grid_changed
   use paramesh_interfaces, ONLY : amr_refine_derefine, amr_restrict
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
 
 #include "Simulation.h"
 
@@ -174,6 +174,7 @@ subroutine gr_expandDomain (particlesInitialized)
         solnData = 0.0
         !      Now reinitialize the solution on the new grid so that it has
         !      the exact solution.
+        print*,'calling for initialization'
         call Simulation_initBlock(solnData, tileDesc)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -190,7 +191,7 @@ subroutine gr_expandDomain (particlesInitialized)
         call itor%currentTile(tileDesc)
 
         call tileDesc%getDataPtr(solnData, CENTER)
-        call Eos_wrapped(gr_eosModeInit, tileDesc%limits, solnData)
+        call Eos_multiDim(gr_eosModeInit, tileDesc%limits, solnData)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
         call itor%next()
@@ -223,7 +224,7 @@ subroutine gr_expandDomain (particlesInitialized)
      end if
      dr_simGeneration = dr_simGeneration + 1
      if (ntimes .le. lrefine_max+1) then
-        ! Guard cell filling and Eos_wrapped are done in Grid_markRefineDerefine as needed.
+        ! Guard cell filling and Eos_multiDim are done in Grid_markRefineDerefine as needed.
         call Grid_markRefineDerefine()
         grid_changed_anytime = max(grid_changed, grid_changed_anytime)
         grid_changed = 0              ! will be 1 after amr_refine_derefine if the grid actually changed

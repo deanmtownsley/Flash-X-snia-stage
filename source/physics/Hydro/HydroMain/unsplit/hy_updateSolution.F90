@@ -99,7 +99,7 @@
 !!      * calling hy_energyFix (to update internal energies, and
 !!        possibly other fixups);
 !!      * calling hy_unitConvert (for obscure MHD purposes);
-!!      * call Eos_wrapped (with mode=hy_eosModeAfter, to bring
+!!      * call Eos_multiDim (with mode=hy_eosModeAfter, to bring
 !!        solution variables in Uout into a thermodynamically
 !!        consistent state).
 !!
@@ -114,7 +114,7 @@
 
 Subroutine hy_updateSolution(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepOrder)
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface,    ONLY : Eos_wrapped
+  use Eos_interface,    ONLY : Eos_multiDim
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_tile,        ONLY : Grid_tile_t
   use hy_interface,     ONLY : hy_getRiemannState,  &
@@ -355,14 +355,14 @@ Subroutine hy_updateSolution(tileDesc, Uin, Uout, del,timeEndAdv,dt,dtOld,sweepO
      !#ifndef FLASH_EOS_GAMMA
      !! Call to Eos
 #ifdef DEBUG_UHD
-     print*,'_unsplit bef Eos_wrapped: associated(Uin ) is',associated(Uin )
-     print*,'_unsplit bef Eos_wrapped: associated(Uout) is',associated(Uout)
-     print*,'_unsplit bef Eos_wrapped: lbound(Uin ):',lbound(Uin )
-     print*,'_unsplit bef Eos_wrapped: ubound(Uin ):',ubound(Uin )
-     print*,'_unsplit bef Eos_wrapped: lbound(Uout):',lbound(Uout)
-     print*,'_unsplit bef Eos_wrapped: ubound(Uout):',ubound(Uout)
+     print*,'_unsplit bef Eos_multiDim: associated(Uin ) is',associated(Uin )
+     print*,'_unsplit bef Eos_multiDim: associated(Uout) is',associated(Uout)
+     print*,'_unsplit bef Eos_multiDim: lbound(Uin ):',lbound(Uin )
+     print*,'_unsplit bef Eos_multiDim: ubound(Uin ):',ubound(Uin )
+     print*,'_unsplit bef Eos_multiDim: lbound(Uout):',lbound(Uout)
+     print*,'_unsplit bef Eos_multiDim: ubound(Uout):',ubound(Uout)
 #endif
-     call Eos_wrapped(hy_eosModeAfter, tileDesc%limits, Uout)
+     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits, Uout)
      !#endif
 #endif /* ifndef GRAVITY */
      

@@ -33,7 +33,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_coordTransfm
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
 
   use GeometryFieldsModule, ONLY : uGF, iGF_Gm_dd_11, iGF_Gm_dd_22, iGF_Gm_dd_33
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
@@ -404,7 +404,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   deallocate(yCenter)
   deallocate(zCenter)
 
-  call Eos_wrapped(MODE_DENS_TEMP,tileDesc%limits,solnData)
+  call Eos_multiDim(MODE_DENS_TEMP,tileDesc%limits,solnData)
 
   return
 

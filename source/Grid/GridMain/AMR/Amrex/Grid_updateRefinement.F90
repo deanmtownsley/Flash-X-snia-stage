@@ -107,7 +107,7 @@ subroutine Grid_updateRefinement(nstep, time, gridChanged)
   use gr_leafBlockInfo,          ONLY : gr_leafBlockInfoUpdate
   use Grid_iterator,             ONLY : Grid_iterator_t
   use Grid_tile,                 ONLY : Grid_tile_t
-  use Eos_interface,             ONLY : Eos_wrapped
+  use Eos_interface,             ONLY : Eos_multiDim
   use Timers_interface,          ONLY : Timers_start, Timers_stop
   use Particles_interface,       ONLY : Particles_updateRefinement
   use Logfile_interface, ONLY:  Logfile_stampMessage
@@ -270,7 +270,7 @@ include "Flashx_mpi.h"
                                   tileDesc%blkLimitsGC(HIGH, :), &
                                   NUNK_VARS)
 
-          call Eos_wrapped(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
  
           call tileDesc%releaseDataPtr(solnData, CENTER)
           call itor%next()
@@ -299,7 +299,7 @@ include "Flashx_mpi.h"
                                   NUNK_VARS)
           end if
 
-          call Eos_wrapped(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
 
           call tileDesc%releaseDataPtr(solnData, CENTER)
           call itor%next()
@@ -327,7 +327,7 @@ include "Flashx_mpi.h"
           call itor%currentTile(tileDesc)
 
           call tileDesc%getDataPtr(solnData, CENTER)
-          call Eos_wrapped(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
           call tileDesc%releaseDataPtr(solnData, CENTER)
 
           call itor%next()

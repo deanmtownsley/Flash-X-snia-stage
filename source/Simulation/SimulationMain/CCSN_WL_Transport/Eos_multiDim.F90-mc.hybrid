@@ -1,4 +1,4 @@
-!!****if* source/physics/Eos/EosMain/Eos_wrapped
+!!****if* source/physics/Eos/EosMain/Eos_multiDim
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -94,21 +94,18 @@
 
 ! solnData depends on the ordering on unk
 !!REORDER(4): solnData
-!!NOVARIANTS
 
 #include "Eos.h"
-#include "Eos_map.h"
 #include "constants.h"
 #include "Simulation.h"
- 
 
 
-subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
+subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
-  use eos_localInterface, ONLY : eos_weakLib
-  use Eos_data, ONLY : eos_threadWithinBlock,eos_mapLookup, eos_smalle, eos_eintSwitch
+  use Eos_interface, ONLY : Eos, Eos_putData, Eos_getData
+  use Eos_data, ONLY : eos_threadWithinBlock
   implicit none
 
 #include "FortranLangFeatures.fh"
@@ -119,7 +116,7 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   integer, optional, intent(IN) :: gridDataStruct
 
 
-  real, allocatable :: eosData(:),massFrac(:)
+  real, allocatable :: eosData(:),massFraction(:)
 
   logical,target,dimension(EOS_VARS+1:EOS_NUM) :: eosMask
 
@@ -127,15 +124,37 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
   integer :: i,j,k, vLen1D, vecLen,offset
   integer,dimension(MDIM) :: pos
 
-  integer :: n,m
-  real :: pres,dens,gamc,temp,abar,zbar,eint,ekin,entr,elef
-  integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
-  integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
-  real :: kineticEnergy, internalEnergy
-  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xAbar, xZbar,xekin
-  
 
-  @M eos_debug
+!! ---------------------------------------------------------------------------------
+  ! Test calling arguments
+#define DEBUG
+#ifdef DEBUG
+  ierr = 1
+  select case (mode)
+  case (MODE_DENS_PRES)
+     ierr = 0
+  case (MODE_DENS_TEMP)
+     ierr = 0
+  case (MODE_DENS_EI)
+     ierr = 0
+  case (MODE_EOS_NOP,MODE_EOS_WRAPPERONLY)
+     ierr = 0
+  case (MODE_DENS_TEMP_ALL,MODE_DENS_TEMP_EQUI)
+     ierr = 0
+  case (MODE_DENS_EI_ALL,MODE_DENS_EI_SCATTER,MODE_DENS_EI_GATHER)
+     ierr = 0
+  case (MODE_DENS_EI_SELE_GATHER)
+     ierr = 0
+  case (MODE_DENS_ENTR)
+     ierr = 0
+  end select
+
+  if(ierr /= 0) then
+     call Driver_abort("[Eos_arrayWrapped] "//&
+          "invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, MODE_DENS_EI, or variants thereof, or MODE_EOS_NOP")
+  end if
+#endif
+
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
   vLen1D = range(HIGH,IAXIS)-range(LOW,IAXIS)+1
@@ -151,74 +170,20 @@ subroutine Eos_wrapped(mode,range,solnData, gridDataStruct)
      dataStruct=CENTER
   end if
 
-  allocate(massFrac(NSPECIES*vecLen))
-  allocate(xDens(vecLen))
-  allocate(xTemp(vecLen))
-  allocate(xPres(vecLen))
-  allocate(xGamc(vecLen))    
-  allocate(xAbar(vecLen))
-  allocate(xZbar(vecLen))
-  allocate(xEntr(vecLen))
-  allocate(xEner(vecLen))      
-  allocate(xYe(vecLen))      
-  allocate(xekin(vecLen))      
-  
+  allocate(massFraction(NSPECIES*vecLen))
+  allocate(eosData(EOS_NUM*vecLen))
+
   eosMask = .FALSE.
 
-  
-  @M eos_map
+  pos(IAXIS)=range(LOW,IAXIS)
 
-  m=1
-  @M loop_3d(range)
-                do n = SPECIES_BEGIN,SPECIES_END
-                   massFrac(m) = solnData(n,i,j,k)
-                   m=m+1
-                end do
-  @M loop_end_3d
-  n = 0
-  @M loop_3d(range)
-           n=n+1
-             @M eos_preprocess
-             @M e_ye
-             xEner(n) = internalEnergy
-             xAbar(n) = abar
-             xZbar(n) = zbar
-             xEntr(n) = entr
-             xPres(n) = solnData(pres_map,i,j,k)
-             xDens(n) = solnData(dens_map,i,j,k)
-             xTemp(n) = solnData(temp_map,i,j,k)
-             xGamc(n) = solnData(gamc_map,i,j,k)
-             xekin(n) = ekin
-  @M loop_end_3d   
-  
+  call Eos_getData(range,vecLen,solnData,dataStruct,eosData,massFraction)
+  call Eos(mode,vecLen,eosData,massFraction,mask=eosMask)
 
-  call eos_weakLib(mode,vecLen,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar,xYe, massFrac,eosMask)
-
-    n=0
-    @M loop_3d(range)
-             n=n+1
-             solnData(pres_map,i,j,k) = xPres(n)
-             solnData(temp_map,i,j,k) = xTemp(n)
-             solnData(gamc_map,i,j,k) = xGamc(n)
-             if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = xEner(n)
-             if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = xEner(n)+xekin(n) 
-             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = xEntr(n)
-             
-             solnData(game_map,i,j,k) = xPres(n)/&
-                  (xEner(n) *xDens(n)) +1
-             
-    @M loop_end_3d    
-
+  call Eos_putData(range,vecLen,solnData,dataStruct,eosData)
         
-  deallocate(massFrac)
-  deallocate(xDens)
-  deallocate(xTemp)
-  deallocate(xPres)  
-  deallocate(xGamc)  
-  deallocate(xAbar)
-  deallocate(xZbar)
-  deallocate(xEntr)
-  deallocate(xEner)
-  deallocate(xekin)  
+  deallocate(eosData)
+  deallocate(massFraction)
 
-end subroutine Eos_wrapped
+  return
+end subroutine Eos_multiDim
