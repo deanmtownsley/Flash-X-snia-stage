@@ -161,15 +161,19 @@ subroutine eos_helmSpecies_vec(mode, vecLen,@M eos_args, massFrac, derivs)
   integer:: i
   if(present(massFrac).and.present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call ,massFrac(i,:), derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call ,&
+             massFrac(i,:), derivs(i,:))
      end do
   else if(present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call, derivs=derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call, &
+             derivs=derivs(i,:))
      end do
   else if(present(massFrac)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call, massFrac(i,:))
+        call eos_helmSpecies(mode, &
+             @M eos_args_point_call, &
+             massFrac(i,:))
      end do
   else   
      do i = 1,vecLen

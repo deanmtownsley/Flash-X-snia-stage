@@ -67,14 +67,14 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,@M eos_args, massFrac,derivs)
   END SELECT
 
 
-  IF( MAXVAL(xDens) < TINY(1.d0) ) THEN
-    PRINT*, ' eos_weaklib.F90 line 90 : xDens = zero '
-    PRINT*, ' MAXVAL(xDens) ', MAXVAL(xDens), 'MINVAL(xDens) ',MINVAL(xDens) 
+  IF( MAXVAL(dens) < TINY(1.d0) ) THEN
+    PRINT*, ' eos_weaklib.F90 line 90 : dens = zero '
+    PRINT*, ' MAXVAL(dens) ', MAXVAL(dens), 'MINVAL(dens) ',MINVAL(dens) 
     CALL Driver_abort("[EOS] problem with weaklib EOS")
   END IF
 
   CALL eos_weaklib_short&
-       ( dens,temp,ye,ener,pres,entr,gamc,xMode,err )
+       ( dens,temp,ye,eint,pres,entr,gamc,xMode,err )
 
       IF (err /= 0) THEN
         PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
