@@ -28,7 +28,9 @@
 !!
 !!
 !!***
-SUBROUTINE eos_weaklib_vec(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,xAbar,xZbar,xYe, massFrac,derivs)
+!!NOVARIANTS
+
+SUBROUTINE eos_weaklib_vec(mode,vecLen,@M eos_args, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -41,7 +43,7 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,
 
   !     Arguments
   INTEGER, INTENT(in) :: mode, vecLen
-  REAL, INTENT(inout), DIMENSION(vecLen) :: xDens,xTemp,xPres, xGamc,xEntr,xAbar,xZbar,xEner, xYe
+  REAL, INTENT(inout), DIMENSION(vecLen) :: @M eos_args
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen,NSPECIES) :: massFrac
   real,OPTIONAL, DIMENSION(vecLen, EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
@@ -72,8 +74,7 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,
   END IF
 
   CALL eos_weaklib_short&
-       ( xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,&
-         xMode,err )
+       ( dens,temp,ye,ener,pres,entr,gamc,xMode,err )
 
       IF (err /= 0) THEN
         PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
@@ -85,7 +86,7 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,xPres, xTemp, xDens, xGamc, xEner, xEntr,
 END SUBROUTINE eos_weaklib_vec
 
 
-SUBROUTINE eos_weaklib(mode,pres, temp, dens, gamc, eint, entr, abar, zbar,Ye, massFrac,derivs)
+SUBROUTINE eos_weaklib(mode,@M eos_args, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -98,7 +99,7 @@ SUBROUTINE eos_weaklib(mode,pres, temp, dens, gamc, eint, entr, abar, zbar,Ye, m
 
   !     Arguments
   INTEGER, INTENT(in) :: mode
-  REAL, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar,ye
+  REAL, INTENT(inout) :: @M eos_args
   REAL, OPTIONAL,INTENT(in), DIMENSION(NSPECIES) :: massFrac
   real,OPTIONAL, DIMENSION( EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
@@ -138,8 +139,7 @@ SUBROUTINE eos_weaklib(mode,pres, temp, dens, gamc, eint, entr, abar, zbar,Ye, m
   END IF
 
   CALL eos_weaklib_short&
-       ( xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,&
-         xMode,err )
+       ( xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xMode,err )
 
   dens=xDens(1)
   temp=xTemp(1)

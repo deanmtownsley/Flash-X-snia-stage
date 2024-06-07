@@ -32,38 +32,38 @@ module eos_localInterface
 
 
   interface
-     subroutine eos_weaklib_vec(mode, vecLen, pres, temp, dens, gamc, eint, entr, abar, zbar ,  massFrac, derivs)
+     subroutine eos_weaklib_vec(mode, vecLen, @M eos_args ,  massFrac, derivs)
        integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout),dimension(vecLen) :: @M eos_args 
        real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
        real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
      end subroutine eos_weaklib_vec
   end interface
 
   interface
-     subroutine eos_weaklib(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
+     subroutine eos_weaklib(mode, @M eos_args , massFrac, derivs)
        integer, INTENT(in) :: mode
-       real,INTENT(inout) ::  pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout) ::  @M eos_args 
        real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_weaklib
   end interface
   
     interface 
-     subroutine eos_idealGamma_vec(mode, vecLen, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
+     subroutine eos_idealGamma_vec(mode, vecLen, @M eos_args , massFrac, derivs)
        implicit none
        integer, INTENT(in) :: mode,vecLen
-       real,INTENT(inout), dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout), dimension(vecLen) :: @M eos_args 
        real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
        real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
      end subroutine eos_idealGamma_vec
   end interface
 
   interface
-     subroutine eos_idealGamma(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
+     subroutine eos_idealGamma(mode, @M eos_args , massFrac, derivs)
        implicit none
        integer, INTENT(in) :: mode
-       real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout) :: @M eos_args 
        real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_idealGamma
@@ -71,18 +71,18 @@ module eos_localInterface
  
 
   interface 
-     subroutine eos_helmSpecies_vec(mode, vecLen, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
+     subroutine eos_helmSpecies_vec(mode, vecLen, @M eos_args , massFrac, derivs)
        integer, INTENT(in) :: mode, vecLen
-       real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout),dimension(vecLen) :: @M eos_args 
        real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
        real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
      end subroutine eos_helmSpecies_vec
   end interface
 
   interface
-     subroutine eos_helmSpecies(mode, pres, temp, dens, gamc, eint, entr, abar, zbar , massFrac, derivs)
+     subroutine eos_helmSpecies(mode, @M eos_args , massFrac, derivs)
        integer, INTENT(in) :: mode
-       real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar 
+       real,INTENT(inout) :: @M eos_args 
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
      end subroutine eos_helmSpecies

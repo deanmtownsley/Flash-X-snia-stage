@@ -151,33 +151,29 @@
 
 #include "Eos.h"
 
-subroutine eos_helmSpecies_vec(mode, vecLen,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+subroutine eos_helmSpecies_vec(mode, vecLen,@M eos_args, massFrac, derivs)
   use eos_localInterface, ONLY : eos_helmSpecies
   
   integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real,INTENT(inout),dimension(vecLen) :: @M eos_args
   real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   integer:: i
   if(present(massFrac).and.present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:), derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call ,massFrac(i,:), derivs(i,:))
      end do
   else if(present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call, derivs=derivs(i,:))
      end do
   else if(present(massFrac)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call, massFrac(i,:))
      end do
   else   
      do i = 1,vecLen
-        call eos_helmSpecies(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i))
+        call eos_helmSpecies(mode, @M eos_args_point_call)
      end do
   end if
 end subroutine eos_helmSpecies_vec
@@ -185,7 +181,7 @@ end subroutine eos_helmSpecies_vec
 
 
 
-subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac,derivs)
+subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
 
   use Driver_interface, ONLY : Driver_abort
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
@@ -210,7 +206,7 @@ subroutine eos_helmSpecies(mode,pres, temp, dens, gamc, eint, entr, abar, zbar, 
 
   !     Arguments
   integer, INTENT(in) :: mode
-  real, INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real, INTENT(inout) :: @M eos_args
   real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
   ! must correspond to dimensions of Eos_multiDim
   real,optional,dimension(EOS_VARS+1:EOS_NUM),INTENT(out)::derivs

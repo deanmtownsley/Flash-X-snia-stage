@@ -143,33 +143,30 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma_vec((mode, vecLen,pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+subroutine eos_idealGamma_vec(mode, vecLen,@M eos_args massFrac, derivs)
 
   integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout),dimension(vecLen) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real,INTENT(inout),dimension(vecLen) :: @M eos_args
   real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   integer:: i
   if(present(massFrac).and.present(derivs)) then
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), massFrac(i,:), derivs(i,:))
+        call eos_idealGamma_point(mode, @M eos_args_point_call, massFrac(i,:), derivs(i,:))
      end do
   else if(present(derivs)) then
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+        call eos_idealGamma_point(mode, @M eos_args_point_call, derivs=derivs(i,:))
      end do
   else
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, pres(i), temp(i), dens(i), gamc(i),&
-             eint(i), entr(i), abar(i), zbar(i), derivs=derivs(i,:))
+        call eos_idealGamma_point(mode, @M eos_args_point_call)
      end do
   end if
 end subroutine eos_idealGamma_vec
    
 
-subroutine eos_idealGamma_point(mode, pres, temp, dens, gamc, eint, entr, abar, zbar, massFrac, derivs)
+subroutine eos_idealGamma_point(mode, @M eos_args, massFrac, derivs)
   
   !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -186,7 +183,7 @@ subroutine eos_idealGamma_point(mode, pres, temp, dens, gamc, eint, entr, abar, 
   
   !     Arguments
   integer, INTENT(in) :: mode
-  real,INTENT(inout) :: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real,INTENT(inout) :: @M eos_args
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
   

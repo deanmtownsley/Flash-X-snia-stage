@@ -84,8 +84,10 @@
 !!      tolerance for relative errors in Eos results
 !!
 !!***
-
 !!REORDER(4): solnData, scratchData
+!!NOVARIANTS
+
+
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
@@ -125,7 +127,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
   logical:: test1allB,test2allB,test3allB,test4allB !for all blocks
 
   integer :: blockOffset,  e, n, m
-  real:: pres, temp, dens, gamc, eint, entr, abar, zbar
+  real:: @M eos_args
   integer :: isize, jsize, ksize, i,j,k,i1,j1,k1, nStartsAtOne
   real, dimension(:), allocatable :: massFrac
   real, dimension (EOS_VARS+1:EOS_NUM) :: derivs
@@ -145,7 +147,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
  
   if (eos_meshNumProcs==1) then
      a = ''
-     ap => a
+     Ap => a
   else
 20   format(I6,':')
      write(a,20) eos_meshMe
@@ -485,9 +487,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
               temp =  solnData(TEMP_VAR,i1,j1,k1)
               gamc =  solnData(GAMC_VAR,i1,j1,k1)
 
-              call eos_helmSpecies(MODE_DENS_PRES, pres, temp, &
-                   dens, gamc, eint, entr,&
-                   abar, zbar,massFrac,derivs)
+              call eos_helmSpecies(MODE_DENS_PRES, @M eos_args, massFrac,derivs)
               
               do e=EOS_VARS+1,EOS_NUM
                  derivedVariables(i,j,k,e) =  derivs(e)

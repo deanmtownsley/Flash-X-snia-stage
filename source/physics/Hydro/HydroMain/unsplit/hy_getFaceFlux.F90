@@ -1257,7 +1257,7 @@ contains
     real, intent(IN) :: t_start
     real, OPTIONAL, dimension(:), intent(IN) :: spc !dimension(HY_NSPEC)
 
-    real :: pres, temp, dens, gamc, eint, entr, abar, zbar
+    real :: pres, temp, dens, gamc, eint, entr, abar, zbar, ye
     integer :: interp_eosMode = MODE_DENS_PRES
 
     dens = V(HY_DENS) 
@@ -1269,9 +1269,9 @@ contains
 
     if (present(spc)) then
        call Eos_getAbarZbarArraySection(SPECIES_BEGIN,spc,abar,zbar)
-       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar,massFrac=spc)
+       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar, ye, massFrac=spc)
     else 
-       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar)
+       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar, ye)
     end if
 
     V(HY_GAMC) = gamc
