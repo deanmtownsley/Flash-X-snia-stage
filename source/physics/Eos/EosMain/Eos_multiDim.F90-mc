@@ -124,7 +124,6 @@ subroutine Eos_multiDim(mode,range,solnData)
 
   integer :: ierr, gridDataStruct
   integer :: i,j,k, m
-
   real :: ekin, @M eos_args
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map

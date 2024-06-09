@@ -53,9 +53,9 @@ Module Eos_interface
   end interface
   
   interface	
-     subroutine Eos_vector(mode, vecLen, @M eos_args,  massFrac, derivs)
+     subroutine Eos_vector(mode, vecLen, eosData,  massFrac, derivs)
        integer, INTENT(in) :: mode,vecLen
-       real, intent(INOUT),dimension(vecLen) :: @M eos_args
+       real, intent(INOUT),dimension(vecLen,EOS_VARS) :: eosData
        real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
        real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
      end subroutine Eos_Vector

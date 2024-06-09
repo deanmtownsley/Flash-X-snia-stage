@@ -151,29 +151,25 @@
 
 #include "Eos.h"
 
-subroutine eos_helmSpecies_vec(mode, vecLen,@M eos_args, massFrac, derivs)
+subroutine eos_helmSpecies_vec(mode, vecLen, eosData, massFrac, derivs)
   use eos_localInterface, ONLY : eos_helmSpecies
   
   integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout),dimension(vecLen) :: @M eos_args
+  real,INTENT(inout),dimension(vecLen, EOS_VARS) :: eosData
   real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   integer:: i
   if(present(massFrac).and.present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call ,&
-             massFrac(i,:), derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call,massFrac(i,:), derivs(i,:))
      end do
   else if(present(derivs)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call, &
-             derivs=derivs(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call, derivs=derivs(i,:))
      end do
   else if(present(massFrac)) then
      do i = 1,vecLen
-        call eos_helmSpecies(mode, &
-             @M eos_args_point_call, &
-             massFrac(i,:))
+        call eos_helmSpecies(mode, @M eos_args_point_call, massFrac(i,:))
      end do
   else   
      do i = 1,vecLen
@@ -181,8 +177,6 @@ subroutine eos_helmSpecies_vec(mode, vecLen,@M eos_args, massFrac, derivs)
      end do
   end if
 end subroutine eos_helmSpecies_vec
-
-
 
 
 subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)

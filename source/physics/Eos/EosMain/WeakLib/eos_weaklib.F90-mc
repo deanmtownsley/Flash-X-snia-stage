@@ -30,7 +30,7 @@
 !!***
 !!NOVARIANTS
 
-SUBROUTINE eos_weaklib_vec(mode,vecLen,@M eos_args, massFrac,derivs)
+SUBROUTINE eos_weaklib_vec(mode,vecLen,eosData, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -43,7 +43,7 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,@M eos_args, massFrac,derivs)
 
   !     Arguments
   INTEGER, INTENT(in) :: mode, vecLen
-  REAL, INTENT(inout), DIMENSION(vecLen) :: @M eos_args
+  REAL, INTENT(inout), DIMENSION(vecLen,EOS_VARS) :: 
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen,NSPECIES) :: massFrac
   real,OPTIONAL, DIMENSION(vecLen, EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
@@ -74,7 +74,8 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,@M eos_args, massFrac,derivs)
   END IF
 
   CALL eos_weaklib_short&
-       ( dens,temp,ye,eint,pres,entr,gamc,xMode,err )
+       ( eosData(:,EOS_DENS),eosData(:,EOS_TEMP),eosData(:,EOS_YE),eosData(:,EOS_EINT),&
+       eosData(:,EOS_PRES),eosData(:,EOS_ENTR),eosData(:,EOS_GAMC),xMode,err )
 
       IF (err /= 0) THEN
         PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"

@@ -143,30 +143,36 @@
 #define DEBUG_EOS
 !#endif
 
-subroutine eos_idealGamma_vec(mode, vecLen,@M eos_args massFrac, derivs)
+#include "constants.h"
+#include "Eos.h"
+#include "Simulation.h"
+  
 
+subroutine eos_idealGamma_vec(mode, vecLen,eosData, massFrac, derivs)
+  use eos_localInterface, only : eos_idealGamma
+  
   integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout),dimension(vecLen) :: @M eos_args
+  real,INTENT(inout),dimension(vecLen, EOS_VARS) :: eosData
   real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
   real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   integer:: i
   if(present(massFrac).and.present(derivs)) then
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, @M eos_args_point_call, massFrac(i,:), derivs(i,:))
+        call eos_idealGamma(mode, @M eos_args_point_call, massFrac(i,:), derivs(i,:))
      end do
   else if(present(derivs)) then
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, @M eos_args_point_call, derivs=derivs(i,:))
+        call eos_idealGamma(mode, @M eos_args_point_call, derivs=derivs(i,:))
      end do
   else
      do i = 1,vecLen
-        call eos_idealGamma_point(mode, @M eos_args_point_call)
+        call eos_idealGamma(mode, @M eos_args_point_call)
      end do
   end if
 end subroutine eos_idealGamma_vec
    
 
-subroutine eos_idealGamma_point(mode, @M eos_args, massFrac, derivs)
+subroutine eos_idealGamma(mode, @M eos_args, massFrac, derivs)
   
   !==============================================================================
   use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
@@ -176,10 +182,6 @@ subroutine eos_idealGamma_point(mode, @M eos_args, massFrac, derivs)
   
   
   implicit none
-  
-#include "constants.h"
-#include "Eos.h"
-#include "Simulation.h"
   
   !     Arguments
   integer, INTENT(in) :: mode
@@ -280,7 +282,7 @@ subroutine eos_idealGamma_point(mode, @M eos_args, massFrac, derivs)
   
   
   return
-end subroutine eos_idealGamma_point
+end subroutine eos_idealGamma
 
 !! FOR FUTURE  : This section is not in use in FLASH 3 yet. none
 !! of the current setups use entropy. This will be taken care of 
