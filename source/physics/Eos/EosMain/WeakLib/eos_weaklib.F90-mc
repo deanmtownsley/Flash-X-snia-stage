@@ -30,6 +30,11 @@
 !!***
 !!NOVARIANTS
 
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+
+
 SUBROUTINE eos_weaklib_vec(mode,vecLen,eosData, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
@@ -37,13 +42,9 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,eosData, massFrac,derivs)
 
   IMPLICIT NONE
 
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
-
   !     Arguments
   INTEGER, INTENT(in) :: mode, vecLen
-  REAL, INTENT(inout), DIMENSION(vecLen,EOS_VARS) :: 
+  REAL, INTENT(inout), DIMENSION(vecLen,EOS_VARS) :: eosData
   REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen,NSPECIES) :: massFrac
   real,OPTIONAL, DIMENSION(vecLen, EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
 
@@ -67,9 +68,9 @@ SUBROUTINE eos_weaklib_vec(mode,vecLen,eosData, massFrac,derivs)
   END SELECT
 
 
-  IF( MAXVAL(dens) < TINY(1.d0) ) THEN
+  IF( MAXVAL(eosData(:,EOS_DENS)) < TINY(1.d0) ) THEN
     PRINT*, ' eos_weaklib.F90 line 90 : dens = zero '
-    PRINT*, ' MAXVAL(dens) ', MAXVAL(dens), 'MINVAL(dens) ',MINVAL(dens) 
+    PRINT*, ' MAXVAL(eosData(:,EOS_DENS)) ', MAXVAL(eosData(:,EOS_DENS)), 'MINVAL(eosData(:,EOS_DENS)) ',MINVAL(eosData(:,EOS_DENS)) 
     CALL Driver_abort("[EOS] problem with weaklib EOS")
   END IF
 
@@ -93,10 +94,6 @@ SUBROUTINE eos_weaklib(mode,@M eos_args, massFrac,derivs)
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
 
   IMPLICIT NONE
-
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
 
   !     Arguments
   INTEGER, INTENT(in) :: mode

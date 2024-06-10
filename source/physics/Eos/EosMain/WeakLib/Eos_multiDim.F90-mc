@@ -131,8 +131,9 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
   real :: kineticEnergy, internalEnergy
-  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xAbar, xZbar,xekin
-  
+!!$  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xAbar, xZbar,xekin
+
+  real, allocatable, dimension(:,:) :: eosData
 
   @M eos_debug
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
@@ -151,16 +152,17 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   end if
 
   allocate(massFrac(NSPECIES*vecLen))
-  allocate(xDens(vecLen))
-  allocate(xTemp(vecLen))
-  allocate(xPres(vecLen))
-  allocate(xGamc(vecLen))    
-  allocate(xAbar(vecLen))
-  allocate(xZbar(vecLen))
-  allocate(xEntr(vecLen))
-  allocate(xEner(vecLen))      
-  allocate(xYe(vecLen))      
-  allocate(xekin(vecLen))      
+  allocate(eosData(vecLen, EOS_VARS))
+!!$  allocate(xDens(vecLen))
+!!$  allocate(xTemp(vecLen))
+!!$  allocate(xPres(vecLen))
+!!$  allocate(xGamc(vecLen))    
+!!$  allocate(xAbar(vecLen))
+!!$  allocate(xZbar(vecLen))
+!!$  allocate(xEntr(vecLen))
+!!$  allocate(xEner(vecLen))      
+!!$  allocate(xYe(vecLen))      
+!!$  allocate(xekin(vecLen))      
   
   
   @M eos_map
@@ -177,45 +179,58 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
            n=n+1
              @M eos_preprocess
              @M e_ye
-             xEner(n) = internalEnergy
-             xAbar(n) = abar
-             xZbar(n) = zbar
-             xEntr(n) = entr
-             xPres(n) = solnData(pres_map,i,j,k)
-             xDens(n) = solnData(dens_map,i,j,k)
-             xTemp(n) = solnData(temp_map,i,j,k)
-             xGamc(n) = solnData(gamc_map,i,j,k)
-             xekin(n) = ekin
+!!$             xEner(n) = internalEnergy
+!!$             xAbar(n) = abar
+!!$             xZbar(n) = zbar
+!!$             xEntr(n) = entr
+!!$             xPres(n) = solnData(pres_map,i,j,k)
+!!$             xDens(n) = solnData(dens_map,i,j,k)
+!!$             xTemp(n) = solnData(temp_map,i,j,k)
+!!$             xGamc(n) = solnData(gamc_map,i,j,k)
+!!$             xekin(n) = ekin
+
+             eosData(n, EOS_EINT) = internalEnergy
+             eosData(n, EOS_ABAR) = abar
+             eosData(n, EOS_ZBAR) = zbar
+             eosData(n, EOS_ENTR) = entr
+             eosData(n, EOS_PRES) = solnData(pres_map,i,j,k)
+             eosData(n, EOS_DENS) = solnData(dens_map,i,j,k)
+             eosData(n, EOS_TEMP) = solnData(temp_map,i,j,k)
+             eosData(n, EOS_GAMC) = solnData(gamc_map,i,j,k)
+             eosData(n, EOS_EKIN) = ekin
+             
+
   @M loop_end_3d   
   
 
-  call eos_weakLib_vec(mode,vecLen,xPres,xTemp,xDens,xGamc,xEner,xEntr,xAbar,xZbar,xYe, massFrac)
+  call eos_weakLib_vec(mode,vecLen,eosData, massFrac)
 
     n=0
     @M loop_3d(range)
              n=n+1
-             solnData(pres_map,i,j,k) = xPres(n)
-             solnData(temp_map,i,j,k) = xTemp(n)
-             solnData(gamc_map,i,j,k) = xGamc(n)
-             if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = xEner(n)
-             if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = xEner(n)+xekin(n) 
-             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = xEntr(n)
+             solnData(pres_map,i,j,k) = eosData(n, EOS_PRES)
+             solnData(temp_map,i,j,k) = eosData(n, EOS_TEMP)
+             solnData(gamc_map,i,j,k) = eosData(n, EOS_GAMC)
+             if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(n, EOS_EINT)
+             if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(n, EOS_EINT)+eosData(n, EOS_EKIN) 
+             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(n, EOS_ENTR)
              
-             solnData(game_map,i,j,k) = xPres(n)/&
-                  (xEner(n) *xDens(n)) +1
+             solnData(game_map,i,j,k) = eosData(n,EOS_PRES)/&
+                  (eosData(n, EOS_EINT) *eosData(n,EOS_DENS)) +1
              
     @M loop_end_3d    
 
         
   deallocate(massFrac)
-  deallocate(xDens)
-  deallocate(xTemp)
-  deallocate(xPres)  
-  deallocate(xGamc)  
-  deallocate(xAbar)
-  deallocate(xZbar)
-  deallocate(xEntr)
-  deallocate(xEner)
-  deallocate(xekin)  
+  deallocate(eosData)
+!!$  deallocate(xDens)
+!!$  deallocate(xTemp)
+!!$  deallocate(xPres)  
+!!$  deallocate(xGamc)  
+!!$  deallocate(xAbar)
+!!$  deallocate(xZbar)
+!!$  deallocate(xEntr)
+!!$  deallocate(xEner)
+!!$  deallocate(xekin)  
 
 end subroutine Eos_multiDim
