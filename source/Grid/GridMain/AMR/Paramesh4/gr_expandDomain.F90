@@ -174,7 +174,6 @@ subroutine gr_expandDomain (particlesInitialized)
         solnData = 0.0
         !      Now reinitialize the solution on the new grid so that it has
         !      the exact solution.
-        print*,'calling for initialization'
         call Simulation_initBlock(solnData, tileDesc)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
