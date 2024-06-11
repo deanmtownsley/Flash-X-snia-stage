@@ -32,11 +32,10 @@ module eos_hybridInterface
 #include "constants.h"
 
    interface
-      subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecBegin, vecEnd, eos_hybFlag)
+      subroutine eos_hybridSetFlag(mode, vecLen, eosData,  eos_hybFlag)
          implicit none
          integer, intent(in) :: mode, vecLen
-         real, intent(in), dimension(EOS_NUM*vecLen) :: eosData
-         integer, intent(in) :: vecBegin, vecEnd
+         real, intent(in), dimension( vecLen, EOS_VARS) :: eosData
          integer, intent(out) :: eos_hybFlag(vecLen)
       end subroutine eos_hybridSetFlag
    end interface
@@ -47,8 +46,8 @@ module eos_hybridInterface
 
          integer, intent(in) :: vecLen
          real, dimension(vecLen), intent(out) :: energyShift
-         real, dimension(vecLen*EOS_NUM), target, intent(in) :: eosData
-         real, dimension(vecLen*EOS_NUM), target, intent(in), optional :: massFrac
+         real, dimension(vecLen,EOS_VARS), intent(in) :: eosData
+         real, dimension(NSPECIES,vecLen), intent(in), optional :: massFrac
       end subroutine eos_hybridEnergyShift
    end interface
 

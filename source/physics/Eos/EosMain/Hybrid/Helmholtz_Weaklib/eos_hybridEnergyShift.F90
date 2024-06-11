@@ -39,16 +39,14 @@ subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
 
    integer, intent(in) :: vecLen
    real, dimension(vecLen), intent(out) :: energyShift
-   real, dimension(vecLen*EOS_NUM), target, intent(in) :: eosData
-   real, dimension(NSPECIES*vecLen), target, intent(in), optional :: massFrac
+   real, dimension(vecLen,EOS_NUM), intent(in) :: eosData
+   real, dimension(NSPECIES,vecLen), intent(in), optional :: massFrac
 
-   real, dimension(:, :), pointer :: eosData_ptr, massFrac_ptr
    integer :: i, k
 
    real, parameter :: conv = MeV2erg*N_A
    real, parameter :: delta = (m_n - m_p - m_e)*conv
 
-   eosData_ptr(1:vecLen, 1:EOS_NUM) => eosData
 
    energyShift = eos_hybDeltaE_WL*conv
 
@@ -56,15 +54,14 @@ subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
    ! in the loop over the vector
    if (present(massFrac) .and. (NSPECIES .gt. 0)) then
       ! Note: massFrac is indexed oppositely of eosData
-      massFrac_ptr(1:NSPECIES, 1:vecLen) => massFrac
 
       do k = 1, vecLen
-         energyShift(k) = energyShift(k) - delta*eosData_ptr(k, EOS_YE) &
-                          - sum(massFrac_ptr(:, k)*eos_hybBoverA)*conv
+         energyShift(k) = energyShift(k) - delta*eosData(k, EOS_YE) &
+                          - sum(massFrac(:, k)*eos_hybBoverA)*conv
       end do ! k
    else
       do k = 1, vecLen
-         energyShift(k) = energyShift(k) - delta*eosData_ptr(k, EOS_YE)
+         energyShift(k) = energyShift(k) - delta*eosData(k, EOS_YE)
       end do ! k
    end if
 
