@@ -109,7 +109,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos
   use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle, eos_mapLookup
-  use eos_localInterface, ONLY : @M eos_name
+  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies
   implicit none
 
 #include "FortranLangFeatures.fh"
@@ -128,6 +128,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
   integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
   real :: kineticEnergy, internalEnergy
+  logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
 
 
 !! ---------------------------------------------------------------------------------
@@ -144,11 +145,14 @@ subroutine Eos_multiDim(mode,range,solnData)
   gridDataStruct=CENTER
   @M eos_map  
 
-  
+  pMassFrac=NSPECIES > 1
+  pDerivs=.false.
+  pMassFrac_and_derivs=.false.
   @M loop_3d(range)
-           massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+           if(pMassFrac) massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
            @M eos_preprocess
-             call @M eos_name (mode, @M eos_args_massFrac)
+           @M eos_idealGamma
+           @M eos_helmSpecies
            @M eos_postprocess
   @M loop_end_3d
         
