@@ -1,0 +1,151 @@
+#	Runtime parameters for the Sedov explosion problem.
+#
+#       Version for testing Hydro with AMR implementations that
+#       are configured to allow for dynamic Grid refinement.
+#
+#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +nolwf +spark DoAnalytical=True
+#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +sparklwf DoAnalytical=True
+#
+# Run on 2 or more MPI processes.
+
+#	Parameters for initial model
+#		Ambient pressure and density, explosion energy, initial
+#		radius of perturbation, and location of explosion center
+
+sim_pAmbient	= 1.E-5
+sim_rhoAmbient	= 1.
+sim_expEnergy	= 1.
+tinitial        = 0.01
+
+sim_xctr		= 0.0
+sim_yctr		= 0.0
+
+sim_nsubzones           = 7
+
+sim_profFileName        = "sedovSolutionModLong.dat"
+sim_minRhoInit          = 1.0E-5
+smlRho                  = 1.0E-10
+
+#eosModeInit = "eos_nop"
+eosModeInit = "dens_ie"
+
+#		Gas ratio of specific heats
+gamma           = 1.4
+
+#	Computational volume parameters
+#		Grid dimensionality and geometry
+
+geometry = "cylindrical"
+geometryOverride = .TRUE.
+
+#		Size of computational volume
+xmin		=  0.
+xmax		=  0.75
+ymin		= -0.75
+ymax		=  0.75
+
+# Log integral quantities using all levels and all cells
+sim_oneLevelIntegralsOnly = .FALSE.
+sim_smallestNormRadius = -1.0
+sim_largestNormRadius  =  1.0e20
+
+sim_earliestLSTime     = 0.021
+sim_latestLSTime       = 0.026
+
+
+#		Boundary conditions
+#
+xl_boundary_type      = "axisymmetric"
+xr_boundary_type      = "outflow"
+
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"
+
+#	Simulation time, I/O  parameters
+
+cfl = 0.4
+#hy_cflFallbackFactor           = 0.9
+
+restart  = .false.
+
+#	integral quantities & errors write frequency
+wr_integrals_freq              = 1
+
+#	checkpoint file output parameters
+checkpointFileIntervalTime = 0.0
+checkpointFileIntervalStep = 0
+checkpointFileNumber = 0
+
+#	plotfile output parameters
+plotfileIntervalTime = 0
+plotfileIntervalStep = 0
+plotfileNumber       = 0
+
+memory_stat_freq               = 1000
+
+#tstep_change_factor = 1.1
+nend            = 10000
+tmax            = 0.03
+
+dtinit = 1.0e-7
+dr_dtMinContinue = 1.0e-8
+#dr_shortenLastStepBeforeTMax   = .TRUE.
+
+run_comment     = "2D Sedov explosion from tinitial=0.01"
+# log_file        = "sedov.log"
+eintSwitch     = 0.0 # 1.e-4
+
+plot_var_1 = "dens"
+plot_var_2 = "dena"
+plot_var_3 = "pres"
+plot_var_4 = "prsa"
+plot_var_5 = "velx"
+plot_var_6 = "vlxa"
+plot_var_7 = "eint"
+plot_var_8 = "eina"
+plot_var_9 = "ener"
+plot_var_10 = "enra"
+plot_var_11 = "temp"
+
+#  Adaptive Grid refinement parameters
+# Fix derefine_cutoff=refine_cutoff for all refinement
+# variables so that we can do a better direct comparison
+# of AMReX- and Paramesh-generated results
+lrefine_max       = 6
+lrefine_min     = 1
+refine_var_1      = "dens"
+refine_var_2      = "pres"
+refine_cutoff_1   = 0.2
+derefine_cutoff_1 = 0.2
+refine_cutoff_2   = 0.2
+derefine_cutoff_2 = 0.2
+#sim_forceCenterDerefine   = .FALSE.
+#sim_centerRefineLevel     = 1
+#sim_derefineRadius     = 0.12
+
+nblockx                        = 1
+nblocky                        = 2
+#nblockz                        = 1
+
+amrexInterpolator              = CELL_CONSERVATIVE_PROTECTED
+
+# guardcell fill optimization
+enableMaskedGCFill			= .TRUE.
+
+gr_useTiling = .FALSE.
+
+#	Related to the Hydro solver
+#
+flux_correct = .TRUE.
+flux_correct_perLevel = .FALSE. # Apply flux corrections on a per-level basis. By default .true. for AMReX
+
+## -------------------------------------------------------------##
+##  SWITCHES SPECIFIC TO THE SPARK HYDRO SOLVER
+#cvisc		= 0.1     # coefficient for artificial viscosity
+# use_flattening	= .TRUE. # use flattening (dissipative) (originally for PPM)
+use_hybridRiemann     = .true.  # Use the HLL solver inside shocks
+
+ 

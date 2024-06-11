@@ -87,7 +87,11 @@ subroutine Grid_unitTest(fileUnit, perfect)
         
         call assertTrue( associated(fluxDataX), "flux X Ptr should be set")
         call assertTrue( associated(fluxDataY), "flux Y Ptr should be set")
-        call assertFalse(associated(fluxDataZ), "flux Z Ptr should be NULL")
+        if (associated(fluxDataZ)) then
+           call assertEqual(SIZE(fluxDataZ), 0, "flux Z Data size should be zero")
+        else
+           call assertFalse(associated(fluxDataZ), "flux Z Ptr should be NULL")
+        end if
 
         call assertEqual(SIZE(fluxDataX, 1), 9, "Incorrect width of X block")
         call assertEqual(SIZE(fluxDataX, 2), 8, "Incorrect height of X block")

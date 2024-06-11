@@ -33,14 +33,20 @@
 ## nscratchfacexvars  -> # of scratch facex variables
 ## nscratchfaceyvars  -> # of scratch facey variables
 ## nscratchfacezvars  -> # of scratch facez variables
-## nrealprops        -> # of real properties (of particles?)
+## nrealprops        -> # of real particle properties
 ## nparticletypes    -> # of particle types (passive, active, star, etc.)
 ## nflux             ->
 ## nfacevars         -> # of face variables
-## nvars             -> # of Property variables
+## nvars             -> # of property variables
 ## nspecies          -> # of species
 ## nmass_scalars     -> # of mass scalars
 ## max_plot_vars     -> # of plot_var_N runtime parameters that can be used
+##
+## nevol             -> # of evolved variables requested w/ EVOLVEDVAR
+## nmolrhsvars       -> # of MoL RHS variables (overlays SCRATCHCENTERVAR space)
+## nmolinitvars      -> # of MoL init variables (in SCRATCHCENTERVAR space)
+## nmolscratch       -> (for MoL)
+## nmolscratchvars   -> # of MoL scratch variables (in SCRATCHCENTERVAR space)
 ##
 ## gridGeometry      -> grid geometry as specified at setup time, as one of the
 ##                       following unquoted strings:
@@ -133,6 +139,8 @@
 
   NPROP_VARS = the total number of grid property variables in the simulation
                (ie those ending in _VAR)
+  NEVOL_VARS = total number of "evolved" variables for TimeAdvance=MoL; these
+               are a subset (and at the start of) the property variables
   NSPECIES = the number of species in the simulation 
              (ie those ending in _SPEC)
   NMASS_SCALARS = the number of mass scalars in a simulation
@@ -150,6 +158,10 @@
 %(variableDefines)s
 #define NPROP_VARS %(nvars)s
 #define PROP_VARS_END (PROP_VARS_BEGIN + NPROP_VARS - CONSTANT_ONE)
+
+#define NEVOL_VARS %(nevol)s
+#define EVOL_VARS_BEGIN (PROP_VARS_BEGIN)
+#define EVOL_VARS_END (EVOL_VARS_BEGIN + NEVOL_VARS - CONSTANT_ONE)
 
 #define SPECIES_BEGIN (PROP_VARS_END + CONSTANT_ONE)
 %(speciesDefines)s
@@ -226,8 +238,8 @@
 
   NPROP_FLUX = the total number of grid property variables in the 
                  simulation (ie those ending in _FLUX)
-  NSPECIES_FLUX = the number of flux species in the simulation
-  NMASS_SCALARS_FLUX = flux mass scalars
+  NSPECIES_FLUX = the number of species fluxes in the simulation
+  NMASS_SCALARS_FLUX = number of mass scalar fluxes
 
   NFLUXES = NPROP_FLUX + NSPECIES_FLUX + NMASS_SCALARS_FLUX
   ************************************************************************
@@ -320,6 +332,19 @@
 #define NSCRATCH_CENTER_VARS %(nscratchcentervars)s
 #define SCRATCH_CENTER_VARS_BEGIN (CONSTANT_ONE)
 #define SCRATCH_CENTER_VARS_END (SCRATCH_CENTER_VARS_BEGIN - CONSTANT_ONE + NSCRATCH_CENTER_VARS)
+
+#define NMOL_RHS_VARS %(nmolrhsvars)s
+#define MOL_RHS_VARS_BEGIN (SCRATCH_CENTER_VARS_BEGIN)
+#define MOL_RHS_VARS_END (MOL_RHS_VARS_BEGIN + NMOL_RHS_VARS - CONSTANT_ONE)
+
+#define NMOL_INIT_VARS %(nmolinitvars)s
+#define MOL_INIT_VARS_BEGIN (MOL_RHS_VARS_END + CONSTANT_ONE)
+#define MOL_INIT_VARS_END (MOL_INIT_VARS_BEGIN + NMOL_INIT_VARS - CONSTANT_ONE)
+
+#define NMOL_SCRATCH %(nmolscratch)s
+#define NMOL_SCRATCH_VARS %(nmolscratchvars)s
+#define MOL_SCRATCH_VARS_BEGIN (MOL_INIT_VARS_END + CONSTANT_ONE)
+#define MOL_SCRATCH_VARS_END (MOL_SCRATCH_VARS_BEGIN + NMOL_SCRATCH_VARS - CONSTANT_ONE)
 
 
 #if 0
