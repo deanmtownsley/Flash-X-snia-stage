@@ -23,8 +23,3 @@ The linear momentum for directions above NDIM should always be exactly zero.
 
 __TODO__: Add in expected level of conservation for each conserved quantity?
 
-#### Status
-
-__TODO__: Add in permalink to tests.toml to see if that effectively embeds the
-toml contents in this README when viewed through GitHub.
-

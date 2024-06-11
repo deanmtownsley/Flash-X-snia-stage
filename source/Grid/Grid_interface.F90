@@ -239,6 +239,15 @@ Module Grid_interface
         integer, intent(in)  :: hi(1:MDIM)
         real,    intent(out) :: coordinates(:)
      end subroutine Grid_getCellCoords
+     subroutine Grid_getCellCoords_1drange(axis, edge, level, slo, shi, coordinates)
+        implicit none
+        integer, intent(in)  :: axis
+        integer, intent(in)  :: edge
+        integer, intent(in)  :: level
+        integer, intent(in)  :: slo
+        integer, intent(in)  :: shi
+        real,    intent(out) :: coordinates(:)
+     end subroutine Grid_getCellCoords_1drange
   end interface
 
   interface Grid_getCellFaceAreas

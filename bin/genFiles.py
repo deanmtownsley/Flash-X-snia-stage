@@ -112,6 +112,12 @@ def generateFlashDefines(configInfo):
     tpl['nparticletypes'] = configInfo['nparticletypes']    
     tpl["particletypeDefines"]  = makeDefines(configInfo['particletype'], "PART_TYPE", 0)
 
+    tpl["nevol"] = configInfo["nevol"]
+    tpl["nmolrhsvars"] = configInfo["nmolrhsvars"]
+    tpl["nmolinitvars"] = configInfo["nmolinitvars"]
+    tpl["nmolscratch"] = configInfo["nmolscratch"]
+    tpl["nmolscratchvars"] = configInfo["nmolscratchvars"]
+
 #  The use of mfrac_specDefine is a leftover from times when we used to enforce that there
 #  was always one mass fraction variable in UNK (giving it the name MFRAC_SPEC if no
 #  mass fractions were defined in any Config file), like this:
