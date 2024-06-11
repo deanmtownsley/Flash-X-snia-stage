@@ -178,7 +178,9 @@ subroutine Eos_multiDim(mode,range,solnData, gridDataStruct)
   @M loop_3d(range)
            n=n+1
              @M eos_preprocess
-             @M e_ye
+             if (ye_map /= NONEXISTENT) then
+                eosData(n,EOS_YE) = solnData(ye_map,i,j,k)
+             endif
 !!$             xEner(n) = internalEnergy
 !!$             xAbar(n) = abar
 !!$             xZbar(n) = zbar

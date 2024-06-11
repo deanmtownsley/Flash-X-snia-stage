@@ -30,7 +30,7 @@ subroutine Eos(mode, @M eos_args, massFrac, derivs)
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  use eos_localInterface, ONLY : @M eos_name
+  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weakLib
 
 
   implicit none
@@ -46,15 +46,9 @@ subroutine Eos(mode, @M eos_args, massFrac, derivs)
   pDerivs = present(derivs)
   pMassFrac_and_derivs = pMassFrac.and.pDerivs
 
-  if(pMassFrac_and_derivs) then
-     call @M eos_name (mode, @M eos_args_massFrac_derivs)
-  elseif (pMassFrac) then
-     call @M eos_name  (mode, @M eos_args_massFrac)
-  elseif (pDerivs) then
-     call @M eos_name (mode, @M eos_args_derivs)
-  else
-     call @M eos_name (mode, @M eos_args)
-  end if
+  @M eos_idealGamma
+  @M eos_helmSpecies
+  @M eos_weakLib
 
   return
 end subroutine Eos
