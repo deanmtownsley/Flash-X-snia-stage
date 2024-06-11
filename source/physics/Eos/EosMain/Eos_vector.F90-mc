@@ -30,7 +30,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  use eos_localInterface, ONLY : @M eos_name_vec
+  use eos_localInterface, ONLY : eos_helmSpecies_vec, eos_idealGamma_vec, eos_weakLib_vec
 
 
   implicit none
@@ -38,24 +38,17 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
   real, dimension(vecLen,EOS_VARS) :: eosData 
   real, optional, INTENT(out),dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),dimension(1:vecLen,NSPECIES)    :: massFrac
-  logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
+  logical :: pMassFrac_and_pDerivs, pMassFrac, pDerivs
   
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
   pMassFrac = present(massFrac)
   pDerivs = present(derivs)
-  pMassFrac_and_derivs = pMassFrac.and.pDerivs
+  pMassFrac_and_pDerivs = pMassFrac.and.pDerivs
 
-  if(pMassFrac_and_derivs) then
-     call @M eos_name_vec @M eos_vec_massFrac_derivs
-  elseif (pMassFrac) then
-     call @M eos_name_vec @M eos_vec_massFrac
-  elseif (pDerivs) then
-     call @M eos_name_vec @M eos_vec_derivs
-  else
-     call @M eos_name_vec @M eos_vec
-  end if
-
+  @M eos_idealGamma_vec
+  @M eos_helmSpecies_vec
+  @M eos_weakLib_vec
   
   return
 end subroutine Eos_Vector
