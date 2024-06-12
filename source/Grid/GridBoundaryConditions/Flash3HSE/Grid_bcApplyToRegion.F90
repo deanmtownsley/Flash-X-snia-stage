@@ -236,6 +236,7 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
   integer,intent(IN),dimension(LOW:HIGH,MDIM) :: endPoints
   integer,intent(IN),OPTIONAL:: idest
 
+  real :: pres, temp, dens, gamc, eint, entr, abar, zbar, ye
   integer :: i,j, k,ivar,je,ke,n,varCount,bcTypeActual
   logical :: isFace
   integer :: sign
@@ -244,7 +245,6 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
   real    :: smallP
   real, allocatable, dimension(:) :: sumyRow, yeRow
   real    :: del(MDIM), deltaBcDir
-  real, dimension(EOS_NUM) :: eosData
   real, dimension(NSPECIES) :: massFrac
 
   select case (bcType)
@@ -755,22 +755,22 @@ subroutine Grid_bcApplyToRegion(bcType,gridDataStruct, level, &
                    massFrac)
 
               ! now get all the eos stuff and fill it in
-              eosData(EOS_DENS) = regionData(i,j,k,DENS_VAR)
-              eosData(EOS_TEMP) = regionData(i,j,k,TEMP_VAR)
+              dens = regionData(i,j,k,DENS_VAR)
+              temp = regionData(i,j,k,TEMP_VAR)
 #ifdef SUMY_MSCALAR
-              eosData(EOS_ABAR) = 1.0/regionData(i,j,k,SUMY_MSCALAR)
+              abar = 1.0/regionData(i,j,k,SUMY_MSCALAR)
 #ifdef YE_MSCALAR
-              eosData(EOS_ZBAR) = regionData(i,j,k,YE_MSCALAR)*eosData(EOS_ABAR)
+              zbar = regionData(i,j,k,YE_MSCALAR)*abar
 #endif
 #endif
-              call Eos(MODE_DENS_TEMP, 1, eosData, massFrac)
-              regionData(i,j,k,PRES_VAR) = eosData(EOS_PRES)
-              regionData(i,j,k,EINT_VAR) = eosData(EOS_EINT)
-              regionData(i,j,k,GAME_VAR) = eosData(EOS_PRES)/(eosData(EOS_EINT)*eosData(EOS_DENS)) +1.0
-              regionData(i,j,k,GAMC_VAR) = eosData(EOS_GAMC)
+              call Eos(MODE_DENS_TEMP, pres, temp, dens, gamc, eint, entr, abar, zbar, ye, massFrac)
+              regionData(i,j,k,PRES_VAR) = pres
+              regionData(i,j,k,EINT_VAR) = eint
+              regionData(i,j,k,GAME_VAR) = pres/(eint*dens) +1.0
+              regionData(i,j,k,GAMC_VAR) = gamc
 
               ! Dongwook put in the previously missing factor 1/2 for kinetic energy in October 2009.
-              regionData(i,j,k,ENER_VAR) = eosData(EOS_EINT) + 0.5*(regionData(i,j,k,VELX_VAR)**2 &
+              regionData(i,j,k,ENER_VAR) = eint + 0.5*(regionData(i,j,k,VELX_VAR)**2 &
                    + regionData(i,j,k,VELY_VAR)**2 + regionData(i,j,k,VELZ_VAR)**2)
 
            enddo
