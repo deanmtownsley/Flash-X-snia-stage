@@ -69,7 +69,7 @@ subroutine Eos(mode,@M eos_args, massFrac, derivs)
 #include "Simulation.h"
   integer, INTENT(in) :: mode
   real,INTENT(inout) :: @M eos_args 
-  rea;, optional, INTENT(out), dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  real, optional, INTENT(out), dimension(EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
 
   return

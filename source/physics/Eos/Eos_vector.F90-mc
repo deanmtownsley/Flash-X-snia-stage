@@ -66,10 +66,10 @@ subroutine Eos_vector(mode, vecLen,eosData, massFrac, derivs)
   implicit none
 #include "Eos.h"
 #include "Simulation.h"
-  integer, INTENT(in) :: mode
+  integer, INTENT(in) :: mode, vecLen
   real,INTENT(inout), dimension(vecLen, EOS_VARS) :: eosData
   real, optional, INTENT(in),dimension(1:vecLen,1:NSPECIES)    :: massFrac
-  real, optional, dimenstion(1:vecLen,EOS_NUM+1:EOS_VARS), INTENT(out) :: derivs
+  real, optional, INTENT(out), dimension(1:vecLen, EOS_VARS+1:EOS_NUM) :: derivs
   
   return
 end subroutine Eos_vector
