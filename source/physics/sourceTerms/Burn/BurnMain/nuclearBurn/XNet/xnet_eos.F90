@@ -27,10 +27,8 @@ Module xnet_eos
 #include "Simulation.h"
 #include "constants.h"
 
-  Real(dp) :: eosData(EOS_NUM)
   Real(dp) :: massFrac(SPECIES_BEGIN:SPECIES_END)
-  Logical :: eosMask(EOS_VARS+1:EOS_NUM)
-  !$omp threadprivate(eosData,massFrac)
+  !$omp threadprivate(derivs,massFrac)
 
   Integer :: inuc2unk(NSPECIES) ! Index in UNK for each XNet species
 
@@ -46,15 +44,7 @@ Contains
     Character(5) :: tmp_name
     Character(4) :: unk_name
     Integer :: inuc, iunk
-    eosMask = .false.
-    if ( iheat > 0 ) then
-      eosMask(EOS_CV) = .true.
-      eosMask(EOS_DET) = .true.
-    end if
-    if ( iscrn > 0 ) eosMask(EOS_ETA) = .true.
-#ifdef EOS_DETAT
-    if ( iheat > 0 .and. iscrn > 0 ) eosMask(EOS_DETAT) = .true.
-#endif
+    
     Do inuc = 1, NSPECIES
       tmp_name = adjustl(nname(inuc))
       unk_name = tmp_name(1:4)
@@ -74,6 +64,7 @@ Contains
 
     ! Input variables
     Real(dp), Intent(in) :: t9, rho, y(:)
+    real,dimension(EOS_VARS+1:EOS_NUM) :: derivs
 
     ! Ouput variables
     Real(dp), Intent(out) :: ye, cv, etae, detaedt9
@@ -81,34 +72,26 @@ Contains
     ! Local variables
     Real(dp) :: ytot, abar, zbar, z2bar, zibar
     Integer :: ierr
-
+    real :: dens, pres, temp, gamc, eint, entr, rye
     ! Calculate Ye
     Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
 
     If ( iscrn > 0 .or. iheat > 0 ) Then
 
       ! Load input variables for the eos
-      eosData(EOS_TEMP) = t9*1.0e9
-      eosData(EOS_DENS) = rho
-#ifdef EOS_YE
-      eosData(EOS_YE) = ye
-#endif
-#ifdef EOS_ABAR
-      eosData(EOS_ABAR) = abar
-#endif
-#ifdef EOS_ZBAR
-      eosData(EOS_ZBAR) = zbar
-#endif
+      temp = t9*1.0e9
+      dens=rho
+      rye = ye
       massFrac(inuc2unk) = y*aa
 
       ! Call the eos
-      call Eos(MODE_DENS_TEMP,1,eosData,massFrac=massFrac,mask=eosMask,diagFlag=ierr)
+      call Eos(MODE_DENS_TEMP,pres, temp, dens, gamc, eint, entr, abar, zbar, rye, massFrac,derivs)
 
       ! Convert units from ergs/g to MeV/nucleon and K to GK
-      etae = eosData(EOS_ETA)
-      cv = eosData(EOS_CV)*1.0e9/epmev/avn
+      etae = derivs(EOS_ETA)
+      cv = derivs(EOS_CV)*1.0e9/epmev/avn
 #ifdef EOS_DETAT
-      detaedt9 = eosData(EOS_DETAT)*1.0e9
+      detaedt9 = derivs(EOS_DETAT)*1.0e9
 #else
       detaedt9 = 0.0
 #endif

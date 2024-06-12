@@ -415,11 +415,7 @@ subroutine Burn (  dt  )
      ! we've altered the EI, let's equilabrate
      if (any(burnedZone(:,:,:,thisBlock))) then
 
-#ifdef FLASH_UHD_3T
-        call Eos_multiDim(MODE_DENS_EI_GATHER,tileDesc%limits,solnData,CENTER) ! modified for 3T
-#else
-        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData,CENTER)
-#endif
+        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
 
      end if
 
