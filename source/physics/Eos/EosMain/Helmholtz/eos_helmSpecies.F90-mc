@@ -150,6 +150,13 @@
 !!NOVARIANTS
 
 #include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+#ifdef FLASH_MULTISPECIES
+#include "Multispecies.h"
+#endif
+
 
 subroutine eos_helmSpecies_vec(mode, vecLen, eosData, massFrac, derivs)
   use eos_localInterface, ONLY : eos_helmSpecies
@@ -194,13 +201,6 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
        detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
   !$ use omp_lib
   implicit none
-
-#include "constants.h"
-#include "Simulation.h"
-#include "Eos.h"
-#ifdef FLASH_MULTISPECIES
-#include "Multispecies.h"
-#endif
 
   !     Arguments
   integer, INTENT(in) :: mode
