@@ -31,9 +31,12 @@
 !! @param isFlux       A switch to handle fluxes rather than flux densities
 !<
 !!Reorder(4):p_fluxBuf[XYZ],Uin
+@M hy_levelFLux_reorder
 !!NOVARIANTS
 
-subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlux)
+subroutine hy_rk_correctFluxes(Uin,blkLimits, @M hy_levelFlux_args &
+                               blklimitsGC,level,hy_del, dt, isFlux)
+
 
   use Hydro_data, ONLY : hy_threadWithinBlock, &
        hy_smallE, hy_smalldens, hy_geometry, &
@@ -53,6 +56,7 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
 
   real, pointer :: Uin(:,:,:,:)
   integer, dimension(LOW:HIGH,MDIM),intent(IN) :: blkLimits, blkLimitsGC
+  @M hy_levelFlux_declare
   integer,intent(IN) :: level
   real,dimension(MDIM) :: hy_del
   real, intent(IN) :: dt
@@ -94,11 +98,11 @@ subroutine hy_rk_correctFluxes(Uin,blkLimits,BlklimitsGC,level,hy_del, dt, isFlu
   !These pointers allow us to use hy_fluxBuf[XYZ] (whose limits
   !are hard coded in FBS mode) within the varying loop limits below
 
-  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => hya_fluxBufX
+  p_fluxBufX(1:NFLUXES,lo(IAXIS):hi(IAXIS)+1,lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) => @M hy_fluxnameX
 #if NDIM>1  
-  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => hya_fluxBufY
+  p_fluxBufY(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS)+1,lo(KAXIS):hi(KAXIS)) => @M hy_fluxnameY
 #if NDIM==3
-  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => hya_fluxBufZ
+  p_fluxBufZ(1:NFLUXES,lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)+1) => @M hy_fluxnameZ
 #endif
 #endif
   if(hy_geometry /= CARTESIAN) then
