@@ -17,7 +17,6 @@
 !! @stubref{Orchestration_setupPipelineForExtGpuTasks}
 !!
 !! @brief Stub implementation of Orchestration_setupPipelineForExtGpuTasks
-#include "Milhoja.h"
 subroutine Orchestration_setupPipelineForExtGpuTasks(MH_taskFunction, &
                                           MH_postTaskFunction,     &
                                           nThreads,            &

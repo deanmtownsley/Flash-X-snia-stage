@@ -27,7 +27,7 @@ subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,     &
                                           MH_packet_Cptr,     &
                                           MH_postProto_Cptr)
     use iso_c_binding, ONLY : C_PTR
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
+    use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
     implicit none
 
     procedure(milhoja_runtime_taskFunction)            :: MH_taskFunction
