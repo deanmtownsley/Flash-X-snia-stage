@@ -29,7 +29,8 @@ subroutine Orchestration_setupPipelineForCpuGpuTasks(MH_pktTaskFunction, &
     use milhoja_types_mod,   ONLY : MILHOJA_INT
     use milhoja_runtime_mod, ONLY : milhoja_runtime_taskFunction
 #if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_setupPipelineForCpuGpuTasks
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_setupPipelineForCpuGpuTasks, &
+                                    milhoja_runtime_setupPipelineForCpuGpuSplitTasks
 #endif
 
     use Driver_interface,        ONLY : Driver_abort
