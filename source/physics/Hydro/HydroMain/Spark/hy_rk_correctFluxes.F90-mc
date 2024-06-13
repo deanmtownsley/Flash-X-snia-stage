@@ -23,17 +23,21 @@
 !! the fluxes NOT on fine/coarse interfaces must be zerod out.
 !!
 !! @param Uin             Pointer to solution data
-!! @param blkLimits       Index limits for interior of the tile
-!! @param fluxBuf[X,Y,Z]  Pointer to Flux buffers in [X,Y,Z] direction
+!! @param blkLimits       Index limits for interior of the tile/block
+!! @param fluxBuf[X,Y,Z]  Flux buffers in [X,Y,Z] direction
 !! @param deltas          dx, dy, dz
-!! @param farea           Pointer to face areas for non-cartesian grid
-!! @param cvol            Pointer to cell volumes for non-cartesian grid
-!! @param xCenter         Pointer to cell center coordinates of IAXIS for non-cartesian grid
-!! @param xLeft           Pointer to cell's left coordinates of IAXIS for non-cartesian grid
-!! @param xRight          Pointer to cell's right coordinates of IAXIS for non-cartesian grid
+!! @param farea[X,Y,Z]    Face areas in [X,Y,Z] direction for non-cartesian grid
+!! @param cvol            Cell volumes for non-cartesian grid
+!! @param xCenter         Cell center coordinates of IAXIS for non-cartesian grid
+!! @param [x,y]Left       Cell's left coordinates of [I,J]AXIS for non-cartesian grid
+!! @param [x,y]Right      Cell's right coordinates of [I,J]IAXIS for non-cartesian grid
 !! @param geometry        Geometry switch
+!! @param smalle          Energy cutoff value
+!! @param smalld          Density cutoff value
 !! @param dt              Timestep
 !! @param isFlux          A switch to handle fluxes rather than flux densities
+!! @param lo              Lower indices excluding guard cells
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4):fluxBuf[XYZ],Uin
 !!NOVARIANTS

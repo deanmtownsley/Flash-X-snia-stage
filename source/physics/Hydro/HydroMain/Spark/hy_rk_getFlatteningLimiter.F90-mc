@@ -21,10 +21,11 @@
 !! Initialize the limiter to one if @p flattening is false.
 !! See https://doi.org/10.1006/jcph.2002.7158 for details
 !!
-!! @param is_flattening    On/Off switch
-!! @param starState     Pointer to input solution data
-!! @param flat3d        Pointer to output flattening limiter
-!! @param limits        A part of index limits for the given block/tile
+!! @param stage           Current RK stage
+!! @param is_flattening   On/Off switch
+!! @param starState       Input solution data
+!! @param flat3d          Output flattening limiter
+!! @param limits          A part of index limits for the given tile/block
 !<
 !!Reorder(4): starState
 !!NOVARIANTS

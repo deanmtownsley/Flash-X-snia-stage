@@ -10,6 +10,31 @@
 !!   See the License for the specific language governing permissions and
 !!   limitations under the License.
 !! @endlicenseblock
+!!
+!! @file
+!> @ingroup HydroSpark
+!!
+!! @brief Save solution data in scratch spaces
+!!
+!! @details
+!! Copy solution data (Unk) in scratch spaces for RK sub-stage updates.
+!! The actual implementation is hidden behind the @p hy_saveState macro
+!! to deal with both telescoping and non-telescoping cases.
+!!
+!! @note
+!! The lower indices and size of @p tmpState differ in telescoping
+!! and non-telescoping cases. @p tmpState needs to have guard cell data
+!! in telescoping case, but not in non-telescoping case.
+!! See @p hy_tmpState_dimension macro.
+!!
+!! @param stage           Current RK stage
+!! @param Uin             Input solution data
+!! @param starState       Output solution data. Only used for telescoping case
+!! @param tmpState        Output solution data.
+!! @param blkLimits       Index limits for interior of the tile/block
+!! @param blkLimitsGC     Index limits for exterior of the tile/block
+!! @param lo              Lower indices excluding guard cells
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4): Uin, starState, tmpState
 !!NOVARIANTS

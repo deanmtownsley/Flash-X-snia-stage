@@ -13,6 +13,22 @@
 !!
 !! @file
 !> @ingroup HydroSpark
+!!
+!! @brief Renormalize species in solution data
+!!
+!! @details
+!! For ensuring non-negative and values for each species and
+!! summation of all species to be one.
+!!
+!! @note
+!! There exist the same implementation to this subroutine called @p Grid_renormAbundance.
+!! The purpose of this file is to make this subroutine available for GPUs
+!! by adding compiler directives.
+!!
+!! @param limits          Index limits for the solution array
+!! @param solnData        Input and output solution data
+!! @param loGC            Lower indices including guard cells
+!<
 !!REORDER(4): solnData
 !!NOVARIANTS
 

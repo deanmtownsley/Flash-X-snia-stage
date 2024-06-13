@@ -22,28 +22,19 @@
 !! corresponding macros.
 !!
 !! @note
-!! Initially stores grid data in @p p_rope by permuting indices <tt> i,j,k </tt>,
-!! depending on the direction of the flux.
-!! Thus, the <tt>i</tt>-index is always the direction where this subroutine
-!! solves interfacial fluxes. See @p hy_setRope macro.
-!! The index limits are determined by the input paramters @p lim and @p limgc,
-!! and they also should be permutated indeces. See @p hy_calc_lim macro.
+!! The index limits are determined by the input paramters @p limits and @p stage
 !!
-!! @param starState      Pointer to input solution data
-!! @param flat3d         Flattening limiter
-!! @param flx,fly,flz    Output fluxes
-!! @param lim            Permutated index limits for interior of the part of tile
-!! @param limgc          Permutated index limits for outerior of the part of tile
-!! @param stage          Current RK stage
-!! @param hybridRiemann  On/Off switch for hybrid Riemann solver
-!! @param cvisc          Artificial viscosity constant
-!! @param C_hyp        Global maximum hyperbolic speed; Only used for GLM
-!! @param tinyZero       A tiny number to check unphysical negativity
-!! @param smalld         Density cutoff value
-!! @param smallp         Pressure cutoff value
-!! @param smallx         Abundance cutoff value
-!! @param a_[*]          Scratch spaces for internal calculations
-!!
+!! @param stage           Current RK stage
+!! @param starState       Input solution data
+!! @param flat3d          Flattening limiter
+!! @param fl[x,y,z]       Output fluxes in [X,Y,Z] direction
+!! @param limits          Index limits for each RK stages for updating solution
+!! @param deltas          dx, dy, dz
+!! @param scr_rope        Scratch space for saving input solution data
+!! @param scr_flux        Scratch space for saving output flux data
+!! @param scr_uPlus       Scratch space for saving Riemann state at plus (+) side
+!! @param scr_uMinus      Scratch space for saving Riemann state at minus (-) side
+!! @param loGC            Lower indices including guard cells
 !<
 !!NOVARIANTS
 !!Reorder(4):starState,fl[xyz]

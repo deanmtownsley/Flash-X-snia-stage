@@ -10,6 +10,24 @@
 !!   See the License for the specific language governing permissions and
 !!   limitations under the License.
 !! @endlicenseblock
+!!
+!! @file
+!> @ingroup HydroSpark
+!!
+!! @brief Save flux buffers for correcting solutions at coarse/fine boundaries
+!!
+!! @details
+!! Cumulate fluxes in each RK sub-stage to flux buffers with proper weights.
+!! The output flux buffers will be used in @ref hy_rk_correctFluxes later for
+!! correcting solutions at coarse/fine boundaries.
+!!
+!! @param stage           Current RK stage
+!! @param fluxBuf[X,Y,Z]  Input and output flux buffers in [X,Y,Z] direction
+!! @param fl[x,y,z]       Input fluxes in [X,Y,Z] direction at @p stage
+!! @param farea[X,Y,Z]    Face areas in [X,Y,Z] direction for non-cartesian grid
+!! @param blkLimits       Index limits for interior of the tile/block
+!! @param lo              Lower indices excluding guard cells
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4): fl[xyz], fluxBuf[XYZ]
 !!NOVARIANTS

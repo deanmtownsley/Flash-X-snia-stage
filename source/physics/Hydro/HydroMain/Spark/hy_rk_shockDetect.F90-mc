@@ -14,7 +14,15 @@
 !! @file
 !> @ingroup HydroSpark
 !!
-!! @brief Detect shock
+!! @brief Shock detection
+!!
+!! @details
+!! Check if a cell contains a shock front, and flag @p SHOK_VAR to 1.0
+!!
+!! @param Uin             Input solution data
+!! @param Vc              Scratch space for saving acoustic sound speed
+!! @param blkLimitsGC     Index limits for exterior of the tile/block
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4): Uin
 !!NOVARIANTS

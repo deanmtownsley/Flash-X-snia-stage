@@ -20,13 +20,13 @@
 !! Get gravitational acceleration for the part of block/tile @p blkLimitsGC +/- 1
 !! where blkLimitsGC define full block
 !!
-!! @param starState     Pointer to input solution data
-!! @param grav          Pointer to output gravity acceleration
-!! @param radCenter     Pointer to radius centers coords for non-cartesian grid
-!! @param thtCenter     Pointer to theta centers coords for non-cartesian grid
-!! @param deltas        dx, dy, dz
-!! @param geometry      Geometry switch
-!! @param blkLimitsGC   Index limits for exterior of the tile
+!! @param starState       Input solution data
+!! @param grav            Output gravity acceleration
+!! @param radCenter       Cell center coordinates of IAXIS. Radial coord for non-cartesian case
+!! @param thtCenter       Cell center coordinates of JAXIS. Angular coord for non-cartesian case
+!! @param deltas          dx, dy, dz
+!! @param blkLimitsGC     Index limits for exterior of the tile/block
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4):starState
 !!NOVARIANTS

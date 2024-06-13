@@ -22,25 +22,22 @@
 !! Then convert conservative to primitive variables.
 !! Note that this only updates the part of tile/block within @p limits
 !!
-!! @param starState    Pointer to input/output solution data
-!! @param tmpState     Pointer to input solution data at n-step
-!! @param rk_coeffs    RK coefficients in Butcher tableau
-!! @param grav         Pointer to gravity acceleration
-!! @param flx,fly,flz  Pointer to fluxes
-!! @param deltas       dx, dy, dz
-!! @param farea        Pointer to face areas for non-cartesian grid
-!! @param cvol         Pointer to cell volumes for non-cartesian grid
-!! @param xCenter      Pointer to cell center coordinates of IAXIS for non-cartesian grid
-!! @param xLeft        Pointer to cell's left coordinates of IAXIS for non-cartesian grid
-!! @param xRight       Pointer to cell's right coordinates of IAXIS for non-cartesian grid
-!! @param geometry     Geometry switch
-!! @param smalle       Energy cutoff value
-!! @param smalld       Density cutoff value
-!! @param alphaGLM     Alpha value for GLM; Only used for GLM
-!! @param C_hyp        Global maximum hyperbolic speed; Only used for GLM
-!! @param dt           Timestep
-!! @param dtOld        Old timestep
-!! @param limits       Index limits for updating solution.
+!! @param stage           Current RK stage
+!! @param starState       Input and output solution data
+!! @param tmpState        Input solution data at n-step
+!! @param grav            Gravity acceleration
+!! @param fl[x,y,z]       Fluxes in [X,Y,Z] direction
+!! @param deltas          dx, dy, dz
+!! @param farea[X,Y,Z]    Face areas in [X,Y,Z] direction for non-cartesian grid
+!! @param cvol            Cell volumes for non-cartesian grid
+!! @param xCenter         Cell center coordinates of IAXIS for non-cartesian grid
+!! @param [x,y]Left       Cell's left coordinates of [I,J]AXIS for non-cartesian grid
+!! @param [x,y]Right      Cell's right coordinates of [I,J]IAXIS for non-cartesian grid
+!! @param dt              Timestep
+!! @param dtOld           Old timestep
+!! @param limits          Index limits for each RK stages for updating solution
+!! @param lo              Lower indices excluding guard cells
+!! @param loGC            Lower indices including guard cells
 !<
 !!Reorder(4): starState, tmpState, fl[xyz]
 !!NOVARIANTS
