@@ -17,12 +17,12 @@
 !! @stubref{Orchestration_setupPipelineForCpuGpuTasks}
 !!
 !! @brief Stub implementation of Orchestration_setupPipelineForCpuGpuTasks
-#include "Milhoja.h"
 subroutine Orchestration_setupPipelineForCpuGpuTasks(MH_pktTaskFunction, &
                                           MH_tileTaskFunction,     &
                                           nThreads,            &
                                           nTilesPerPacket,     &
-                                          MH_pktProto_Cptr)
+                                          MH_pktProto_Cptr,    &
+                                          nTilesPerCpuTurn)
     use iso_c_binding, ONLY : C_PTR
 
     use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
@@ -34,5 +34,6 @@ subroutine Orchestration_setupPipelineForCpuGpuTasks(MH_pktTaskFunction, &
     integer,                                intent(IN) :: nThreads
     integer,                                intent(IN) :: nTilesPerPacket
     type(C_PTR),                            intent(IN) :: MH_pktProto_CPtr
+    integer,OPTIONAL,                       intent(IN) :: nTilesPerCpuTurn
 end subroutine Orchestration_setupPipelineForCpuGpuTasks
 

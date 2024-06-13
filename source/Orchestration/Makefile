@@ -10,10 +10,12 @@ Orchestration += Orchestration_init.o \
 		         Orchestration_pushTileToPipeline.o \
 		         Orchestration_pushTileToGpuPipeline.o \
 		         Orchestration_pushTileToCpuGpuPipeline.o \
+		         Orchestration_pushTileToCpuGpuSplitPipeline.o \
 		         Orchestration_pushTileToExtGpuPipeline.o \
 		         Orchestration_teardownPipelineForCpuTasks.o \
 		         Orchestration_teardownPipelineForGpuTasks.o \
 		         Orchestration_teardownPipelineForCpuGpuTasks.o \
+		         Orchestration_teardownPipelineForCpuGpuSplitTasks.o \
 		         Orchestration_teardownPipelineForExtGpuTasks.o \
 		         Orchestration_executeTasks_Cpu.o \
 		         Orchestration_executeTasks_Gpu.o \
