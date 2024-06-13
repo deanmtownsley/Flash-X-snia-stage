@@ -12,14 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Eos stub
+!! @brief Eos_vector stub
 
 !> @ingroup physics_Eos
 !!
-!! @brief Evolve the spacetime variables by the provided timestep
+!! @brief compute eos on a vector of data points
 !!
 !! @details
-!! @anchor Eos_stub
+!! @anchor Eos_vector_stub
 !!
 !! 
 !!  This routine applies the equation of state to thermodynamic 
@@ -52,9 +52,15 @@
 !!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
 !!             MODE_DENS_TEMP as decribed above.
 !!
+!!  @param vecLen  the length of the vector on which Eos is to be applied
 !!
-!!  @param massFrac : Contains the mass fractions of the species included in
+!!  @param eosData a two dimensional array where the first dimension is
+!!           the length of the vector and the second one for the physical
+!!           quantities. EOS_VARS are defined in Eos.h
+!!
+!!  @param massFrac  Contains the mass fractions of the species included in
 !!             the simulation. The array is sized as NSPECIES*vecLen.
+!!  @param derivs  If derivative quantities are desired they are returned in this array
 !!
 !!
 !!NOVARIANTS

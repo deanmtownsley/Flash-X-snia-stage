@@ -1,123 +1,31 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_helmSpecies
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!! eos_helmSpecies
-!!
-!! SYNOPSIS
-!!
-!!  call eos_helmSpecies(integer(IN) :: mode,
-!!                     integer(IN) :: vecLen,
-!!                     real(INOUT) :: eosData(vecLen*EOS_NUM),
-!!           optional, real(IN)    :: massFrac(vecLen*NSPECIES),
-!!           optional, logical(IN) :: mask(EOS_VARS+1:EOS_NUM)    )
-!!
-!! DESCRIPTION
-!!
-!!   Driver for the Helmholtz and Nadyozhin equations of state.
-!!   See the NOTES section for important information about this implementation.
-!!
-!!  This routine applies the equation of state to thermodynamic 
-!!  quantities at one or more grid cells.  The number of cells is 
-!!  determined by the argument veclen.  Data is packaged for this 
-!!  routine in the 1d array, eosData.  The data in eosData is organized: 
-!!  1:vecLen points contain the first variable, vecLen+1:2*vecLen points 
-!!  contain the second variable, and so on. The number and order of
-!!  variables in the array is determined by the constants defined in Eos.h.
-!!  
-!!  The routine takes different quantities as givens depending on the
-!!  value of the mode variable: if mode=MODE_DENS_TEMP, density and
-!!  temperature are taken as given, and pressure and energy are generated
-!!  as output; if mode=MODE_DENS_EI, density and internal energy are taken as
-!!  givens, and pressure and temperature are generated as output.  If
-!!  mode=MODE_DENS_PRES, density and pressure are taken as givens, and
-!!  energy and temperature are generated as output.
-!!  
-!!  In addition to pressure, temperature, and internal energy, which are
-!!  always thermodynamically consistent after this call, other quantities
-!!  such as the various thermodynamic partial derivatives can be
-!!  calculated based on the values in the argument, mask.  mask is a
-!!  logical array with one entry per quantity, with the order determined
-!!  by constants defined in Eos.h (the same as those for the eosData
-!!  argument); .true. means return the quantity, .false. means don't.
-!!
-!!  ARGUMENTS
 !! 
-!!  mode :    Selects the mode of operation of the Eos unit.
-!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
-!!             MODE_DENS_TEMP as decribed above.
-!!
-!!  vecLen   : number of points for each input variable
-!!
-!!  eosData  : This array is the data structure through which variable values are 
-!!             passed in and out of the Eos routine. The arrays is sized as 
-!!             EOS_NUM*vecLen. EOS_NUM, and individual input and output
-!!             Eos variables are defined in Eos.h. The array is organizes such that
-!!             the first 1:vecLen entries represent the first Eos variable, vecLen+1:
-!!             2*vecLen represent the second Eos variable and so on. 
-!!
-!!  massFrac : Contains the mass fractions of the species included in
-!!             the simulation. The array is sized as NSPECIES*vecLen.
-!!             Although this is declared as an optional dummy argument, an
-!!             actual argument MUST be provided when calling THIS implementation
-!!             of Eos.
-!!
-!!  mask     : Mask is a logical array the size of EOS_DERIVS (number
-!!              of partial derivatives that can be computed, defined in
-!!              Eos.h), where each index represents a specific partial derivative
-!!              that can be calculated by the Eos unit. A .true. value in mask 
-!!              results in the corresponding derivative being calculated and 
-!!              returned. It should preferably be dimensioned as
-!!              mask(EOS_VARS+1:EOS_NUM) in the calling routine 
-!!              to exactly match the arguments declaration in Eos Unit.
-!!             Note that the indexing of mask does not begin at 1, but rather at one past
-!!             the number of variables.
-!!
-!!             The Helmholtz EOS kernel calculation ignores the mask setting and calculates
-!!             all derivatives, whether needed or not.  This routine does not return
-!!             derivatives if the mask is requested, but the calculation is not speeded up
-!!             by setting the mask.
-!!
-!!
-!! PARAMETERS
-!!
-!!  eos_tol    Controls the accuracy of the Newton Rhapson iterations for MODE_DENS_EI and 
-!!             MODE_DENS_PRES.
-!!
-!! NOTES
+!!  This version is the for the Helmholtz and Nadyozhin equations of state.
 !!
 !!  NSPECIES is defined in Simulation.h.
-!!
-!!  EOS_VARS and EOS_NUM  are defined in Eos.h.
-!!  Calling funtions should included Eos.h, in order to get the definitions of
-!!  Eos-specific constants to be able to populate the eosData and mask arrays.
-!!  
-!!  MODE_DENS_TEMP, MODE_DENS_EI, and MODE_DENS_PRES are defined in constants.h.
 !!
 !!  This routine is private to the Eos unit and should be called directly only
 !!  from routines that are part of the Eos unit.
 !!  All routines calling this routine directly must include a 
 !!     use eos_localInterface
-!!  statement, preferable with "ONLY" attribute, e.g.,
-!!     use eos_localInterface, ONLY:  Eos
 !!
 !!  Code outside of the Eos unit should call this Helmholtz implementation only
 !!  indirectly, for example, by invoking the public Eos routine.
-!!  Code calling the Eos routine routine must include a 
-!!     use Eos_interface 
-!!  statement, preferable with "ONLY" attribute, e.g.,
-!!     use Eos_interface, ONLY:  Eos
 !!
 !!  The Helmholtz equation of state calculations are iterative for any mode other
 !!  than MODE_DENS_TEMP.  Therefore, the intial estimates for temperature and density
@@ -129,8 +37,6 @@
 !!  table (helm_table.bdat) is created for speed of access.  This binary file should NOT be
 !!  carried across machine architectures or even compilers.
 !!
-!!  When USE_EOS_YE is defined, this routine is replaced by the one in 
-!!  physics/Eos/EosMain/Helmholtz/Ye
 !!
 !!  When operating in MODE_DENS_EI, the INPUT energy is updated.  This change of an input parameter
 !!     can be overridden by setting the runtime parameter eos_forceConstantInput to true.
@@ -140,13 +46,8 @@
 !!
 !!  The accuracy can be adjusted with the parameter eos_tol.
 !!
-!! SEE ALSO
-!! 
-!!  Eos.h    defines the variables used.
-!!  Eos_multiDim  sets up the data structure.
 !!
 !!
-!!*** 
 !!NOVARIANTS
 
 #include "Eos.h"
@@ -156,35 +57,6 @@
 #ifdef FLASH_MULTISPECIES
 #include "Multispecies.h"
 #endif
-
-
-subroutine eos_helmSpecies_vec(mode, vecLen, eosData, massFrac, derivs)
-  use eos_localInterface, ONLY : eos_helmSpecies
-  
-  integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout),dimension(vecLen, EOS_VARS) :: eosData
-  real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
-  real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
-  integer:: i
-  if(present(massFrac).and.present(derivs)) then
-     do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call,massFrac(i,:), derivs(i,:))
-     end do
-  else if(present(derivs)) then
-     do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call, derivs=derivs(i,:))
-     end do
-  else if(present(massFrac)) then
-     do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call, massFrac(i,:))
-     end do
-  else   
-     do i = 1,vecLen
-        call eos_helmSpecies(mode, @M eos_args_point_call)
-     end do
-  end if
-end subroutine eos_helmSpecies_vec
-
 
 subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
 

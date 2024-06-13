@@ -16,7 +16,7 @@
 
 !> @ingroup physics_Eos
 !!
-!! @brief Evolve the spacetime variables by the provided timestep
+!! @brief compute eos on a set of cells in a multidimensional array
 !!
 !! @details
 !! @anchor Eos_stub

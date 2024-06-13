@@ -1,23 +1,25 @@
-!!****if* source/physics/Eos/EosMain/Eos
-!! NOTICE
-!!  Copyright 2023 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  Eos
+!! @brief Main implementation of the API call for a single cell computation
+!! of the equation of state
+!! 
+!! @subref{Eos}
 !!
-!!  For more details see the documentation of the NULL implementation
 !!
-!!***
 !!NOVARIANTS
 
 #include "constants.h"
@@ -40,15 +42,33 @@ subroutine Eos(mode, @M eos_args, massFrac, derivs)
   real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
   logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
 
+  !! in there just in case weaklib is included ignored for other versions
+  real, dimension(1,EOS_VARS) :: eosData 
+  integer :: i=1, vecLen = 1
+  
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
   pMassFrac = present(massFrac)
   pDerivs = present(derivs)
   pMassFrac_and_derivs = pMassFrac.and.pDerivs
 
-  @M eos_idealGamma
-  @M eos_helmSpecies
-  @M eos_weakLib
+  if(pMassFrac_and_derivs) then
+     @M eos_idealGamma_massFrac_derivs
+     @M eos_helmSpecies_massFrac_derivs
+     @M eos_weakLib_point_massFrac_derivs
+  else if (pMassFrac) then
+     @M eos_idealGamma_massFrac
+     @M eos_helmSpecies_massFrac
+     @M eos_weakLib_point_massFrac
+  else if (pDerivs) then
+     @M eos_idealGamma_derivs
+     @M eos_helmSpecies_derivs
+     @M eos_weakLib_point_derivs
+  else
+     @M eos_idealGamma
+     @M eos_helmSpecies
+     @M eos_weakLib_point
+  end if
 
   return
 end subroutine Eos
