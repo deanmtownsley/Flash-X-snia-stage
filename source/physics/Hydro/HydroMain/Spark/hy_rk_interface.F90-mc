@@ -12,10 +12,12 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Internal interface for Spark Hydro subroutines
 !<
+
 !!NOVARIANTS
 !!Reorder(4):Uin,starState,tmpState,fl[xyz]
 !!Reorder(4):scr_rope,scr_flux,scr_uPlus,scr_uMinus

@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Get gravitational acceleration
@@ -28,6 +29,7 @@
 !! @param blkLimitsGC     Index limits for exterior of the tile/block
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!Reorder(4):starState
 !!NOVARIANTS
 subroutine hy_rk_getGraveAccel(starState, grav, &

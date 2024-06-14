@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Save flux buffers for correcting solutions at coarse/fine boundaries
@@ -29,8 +30,10 @@
 !! @param lo              Lower indices excluding guard cells
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!Reorder(4): fl[xyz], fluxBuf[XYZ]
 !!NOVARIANTS
+
 subroutine hy_rk_saveFluxBuf(stage, fluxBufX, fluxBufY, fluxBufZ, &
                              flx, fly, flz, &
                              fareaX, fareaY, fareaZ, &

@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Renormalize species in solution data
@@ -29,6 +30,7 @@
 !! @param solnData        Input and output solution data
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!REORDER(4): solnData
 !!NOVARIANTS
 

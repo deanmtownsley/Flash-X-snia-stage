@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Computes interfacial fluxes through reconstruction and solving Riemann
@@ -36,6 +37,7 @@
 !! @param scr_uMinus      Scratch space for saving Riemann state at minus (-) side
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!NOVARIANTS
 !!Reorder(4):starState,fl[xyz]
 !!Reorder(4):scr_rope,scr_flux,scr_uPlus,scr_uMinus

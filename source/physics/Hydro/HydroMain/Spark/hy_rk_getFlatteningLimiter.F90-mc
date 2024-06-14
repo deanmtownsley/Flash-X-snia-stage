@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Computes flattening limiter
@@ -27,6 +28,7 @@
 !! @param flat3d          Output flattening limiter
 !! @param limits          A part of index limits for the given tile/block
 !<
+
 !!Reorder(4): starState
 !!NOVARIANTS
 

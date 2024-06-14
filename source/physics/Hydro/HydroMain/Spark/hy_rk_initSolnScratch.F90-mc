@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Save solution data in scratch spaces
@@ -36,6 +37,7 @@
 !! @param lo              Lower indices excluding guard cells
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!Reorder(4): Uin, starState, tmpState
 !!NOVARIANTS
 subroutine hy_rk_initSolnScratch(stage, Uin, starState, tmpState, &

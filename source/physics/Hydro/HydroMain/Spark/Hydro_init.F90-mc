@@ -12,12 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Initialize unit scope variables for Hydro
 !!
 !! @stubref{Hydro_init}
 !<
+
 !!NOVARIANTS
 subroutine Hydro_init()
 

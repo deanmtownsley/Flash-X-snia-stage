@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Shock detection
@@ -24,6 +25,7 @@
 !! @param blkLimitsGC     Index limits for exterior of the tile/block
 !! @param loGC            Lower indices including guard cells
 !<
+
 !!Reorder(4): Uin
 !!NOVARIANTS
 subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, loGC)

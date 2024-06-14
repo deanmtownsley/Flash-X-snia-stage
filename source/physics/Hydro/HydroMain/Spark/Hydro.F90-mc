@@ -12,12 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Main implementations of Spark Hydro solver
 !!
 !! @stubref{Hydro}
 !<
+
 !!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ],hy_starState,hy_tmpState,Uin
 !!Reorder(4): hy_rope,hy_flux,hy_uPlus,hy_uMinus
 !!NOVARIANTS
