@@ -57,7 +57,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_fluxCorrect, hy_fluxCorrectPerLevel, &
                          hy_telescoping, &
                          hy_maxLev, &
-                         hy_weights, hy_coeffArray, &   ! I dont think they are belong to Hydro
+                         hy_weights, hy_coeffArray, &
                          hy_addFluxArray, &  ! this only required for nonTelescoping
                          hy_threadWithinBlock, hy_flattening, &
                          hy_gcMask,&
