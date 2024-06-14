@@ -447,6 +447,7 @@ subroutine io_readData()
                     status, ierr)
    end if
 
+#if(NFACE_VARS > 0)
    if (io_globalMe == MASTER_PE) then
       k = 0
       ! get unknowns from checkpoint file
@@ -573,6 +574,7 @@ subroutine io_readData()
                     status, ierr)
    end if
 #endif
+#endif
 
 ! Loop over levels to set actual unk
    do i = min_lev, max_lev_used
@@ -595,6 +597,7 @@ subroutine io_readData()
             end do
             call tileDesc%releaseDataPtr(dp, CENTER)
 
+#if(NFACE_VARS > 0)
             call tileDesc%getDataPtr(facexData, FACEX)
 #if NDIM >= 2
             call tileDesc%getDataPtr(faceyData, FACEY)
@@ -622,6 +625,7 @@ subroutine io_readData()
 #endif
 #if NDIM == 3
             call tileDesc%releaseDataPtr(facezData, FACEZ)
+#endif
 #endif
 
          end associate
