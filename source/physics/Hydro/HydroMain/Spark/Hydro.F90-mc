@@ -39,6 +39,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                              Grid_getCellVolumes, &
                              Grid_communicateFluxes, &
                              Grid_fillGuardCells, &
+                             Grid_zeroFluxData, &     ! this only required for levelwidefluxes
                              Grid_getFluxCorrData_block, &
                              Grid_getFluxCorrData_xtra, &
                              Grid_putFluxData, &
@@ -137,7 +138,12 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
 
-  if(hy_telescoping) then
+  ! zero-ing level-wide flux data in case of level-wide fluxes
+  ! are used for flux correction with AMReX grid.
+  ! otherwise, it calls a stub so has no effect.
+  if (hy_fluxCorrect) call Grid_zeroFluxData()
+
+  if (hy_telescoping) then
      @M hy_globalFillGuardCells
   end if
   !-------------------------------------------------------------------!
