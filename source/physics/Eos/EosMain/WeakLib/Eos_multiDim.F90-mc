@@ -36,7 +36,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use eos_localInterface, ONLY : eos_weakLib
   use Eos_data, ONLY : eos_threadWithinBlock,eos_mapLookup, eos_smalle, eos_eintSwitch
-
+  use Eos_interface, ONLY : Eos_fillEosData, Eos_getFromEosData, Eos_vector
 
 #include "FortranLangFeatures.fh"
 
@@ -45,14 +45,12 @@ subroutine Eos_multiDim(mode,range,solnData)
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
 
   integer :: ierr
-  integer :: i,j,k, vLen1D, vecLen,offset
+  integer :: i,j,k, vLen1D, vecLen
   integer,dimension(MDIM) :: pos
 
   integer :: n,m
-  real :: @M eos_args
-!!$  REAL, DIMENSION(:),allocatable :: xDens,xTemp,xYe,xEner,xPres,xEntr,xGamc,xAbar, xZbar,xekin
-  @M eos_map_declare
-  real, allocatable, dimension(:,:) :: eosData, massFrac
+
+real, allocatable, dimension(:,:) :: eosData, massFrac
 
   @M eos_debug
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
@@ -65,48 +63,24 @@ subroutine Eos_multiDim(mode,range,solnData)
   ! The length of the data being operated upon is determined from the range input array.
 
 
-  allocate(massFrac(NSPECIES,vecLen))
   allocate(eosData(vecLen, EOS_VARS))
   
-  @M eos_map
+  call Eos_fillEosData(range,solnData,1,vecLen,eosData)           
 
-  n = 0
-  @M loop_3d(range)
-             n=n+1
-             massFrac(1:NSPECIES,n) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
-             @M eos_preprocess
-             if (ye_map /= NONEXISTENT) then
-                eosData(n,EOS_YE) = solnData(ye_map,i,j,k)
-             endif
-
-             eosData(n, EOS_EINT) = internalEnergy
-             eosData(n, EOS_ABAR) = abar
-             eosData(n, EOS_ZBAR) = zbar
-             eosData(n, EOS_ENTR) = entr
-             eosData(n, EOS_PRES) = solnData(pres_map,i,j,k)
-             eosData(n, EOS_DENS) = solnData(dens_map,i,j,k)
-             eosData(n, EOS_TEMP) = solnData(temp_map,i,j,k)
-             eosData(n, EOS_GAMC) = solnData(gamc_map,i,j,k)
-             eosData(n, EOS_EKIN) = ekin
-   @M loop_end_3d   
-   call eos_weakLib(mode,vecLen,eosData, massFrac)
-   n=0
-   @M loop_3d(range)
-             n=n+1
-             solnData(pres_map,i,j,k) = eosData(n, EOS_PRES)
-             solnData(temp_map,i,j,k) = eosData(n, EOS_TEMP)
-             solnData(gamc_map,i,j,k) = eosData(n, EOS_GAMC)
-             if(eint_map /= NONEXISTENT)solnData(eint_map,i,j,k) = eosData(n, EOS_EINT)
-             if(ener_map /= NONEXISTENT)solnData(ener_map,i,j,k) = eosData(n, EOS_EINT)+eosData(n, EOS_EKIN) 
-             if(entr_map /= NONEXISTENT)solnData(entr_map,i,j,k) = eosData(n, EOS_ENTR)
-             
-             solnData(game_map,i,j,k) = eosData(n,EOS_PRES)/&
-                  (eosData(n, EOS_EINT) *eosData(n,EOS_DENS)) +1
-             
-  @M loop_end_3d    
-
-        
-  deallocate(massFrac)
+  if(NSPECIES > 1) then
+     n = 0
+     allocate(massFrac(NSPECIES,vecLen))
+     @M loop_3d(range)
+                n=n+1
+                massFrac(1:NSPECIES,n) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+     @M loop_end_3d
+     call eos_weakLib(mode,vecLen,eosData, massFrac)
+     deallocate(massFrac)
+  else
+     call eos_weakLib(mode,vecLen,eosData)
+  end if
+  call Eos_getFromEosData(1,vecLen,eosData,range,solnData)
+  
   deallocate(eosData)
 
 end subroutine Eos_multiDim
