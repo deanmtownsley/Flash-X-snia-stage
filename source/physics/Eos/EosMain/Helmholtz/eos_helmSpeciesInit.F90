@@ -55,6 +55,11 @@
 #define DEBUG_EOS
 #endif
 
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Eos.h"
+
 subroutine eos_helmSpeciesInit()
 
   use Eos_data, ONLY : eos_type, eos_meshMe, &
@@ -62,15 +67,14 @@ subroutine eos_helmSpeciesInit()
   use eos_helmData 
   use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  implicit none
+
+#include "Flashx_mpi_implicitNone.fh"
+
+
 
   ! vector_eos.fh computes the vector length from nxb, nyb, nzb, so 
   ! this information must be provided
 
-#include "Simulation.h"
-#include "constants.h"
-#include "Eos.h"
-  include 'Flashx_mpi.h'
   integer:: unitEos =2
   integer :: i, j
   real :: tstp, dstp

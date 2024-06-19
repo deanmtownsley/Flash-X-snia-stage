@@ -59,7 +59,6 @@ module eos_helmData
   ! abort if pressures become negative
   logical, save :: eos_coulombAbort
  
-  ! Flag for whether to use starkiller helmholtz or old flash version
   logical, save :: eos_useMultiSpecies
   integer,parameter :: EOSIMAX=541,EOSJMAX=201
 
