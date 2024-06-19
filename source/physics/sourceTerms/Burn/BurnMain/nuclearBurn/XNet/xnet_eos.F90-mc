@@ -15,6 +15,7 @@
 ! This file contains routines which calculate EoS quantites needed to calculate screening
 ! corrections for reaction rates.
 !***************************************************************************************************
+!!NOVARIANTS
 
 Module xnet_eos
   Use Driver_interface, Only: Driver_abort
@@ -55,7 +56,7 @@ Contains
     Return
   End Subroutine eos_initialize
 
-  Subroutine xnet_eos_interface(t9,rho,y,ye,cv,etae,detaedt9)
+  Subroutine xnet_eos_interface(t9,rho,y,sye,cv,etae,detaedt9)
     Use nuclear_data, Only: aa
     Use xnet_constants, Only: avn, epmev
     Use xnet_controls, Only: idiag, iheat, iscrn, lun_diag, lun_stdout
@@ -67,25 +68,25 @@ Contains
     real,dimension(EOS_VARS+1:EOS_NUM) :: derivs
 
     ! Ouput variables
-    Real(dp), Intent(out) :: ye, cv, etae, detaedt9
+    Real(dp), Intent(out) :: sye, cv, etae, detaedt9
 
     ! Local variables
-    Real(dp) :: ytot, abar, zbar, z2bar, zibar
+    Real(dp) :: ytot, z2bar, zibar
     Integer :: ierr
-    real :: dens, pres, temp, gamc, eint, entr, rye
+    real :: @M eos_args
     ! Calculate Ye
-    Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
+    Call y_moment(y,sye,ytot,abar,zbar,z2bar,zibar)
 
     If ( iscrn > 0 .or. iheat > 0 ) Then
 
       ! Load input variables for the eos
       temp = t9*1.0e9
       dens=rho
-      rye = ye
+      ye = sye
       massFrac(inuc2unk) = y*aa
 
       ! Call the eos
-      call Eos(MODE_DENS_TEMP,pres, temp, dens, gamc, eint, entr, abar, zbar, rye, massFrac,derivs)
+      call Eos(MODE_DENS_TEMP,@M eos_args, massFrac,derivs)
 
       ! Convert units from ergs/g to MeV/nucleon and K to GK
       etae = derivs(EOS_ETA)
@@ -96,7 +97,7 @@ Contains
       detaedt9 = 0.0
 #endif
       if ( ierr > 0 ) then
-        Write(lun_stdout,"(a,6es23.15)") 'EOS',t9,rho,ye,cv,etae,detaedt9
+        Write(lun_stdout,"(a,6es23.15)") 'EOS',t9,rho,sye,cv,etae,detaedt9
         call Driver_abort('[xnet_eos] Error: too many Newton-Raphson iterations in Eos')
       endif
     Else
@@ -104,7 +105,7 @@ Contains
       detaedt9 = 0.0
       cv = 0.0
     EndIf
-    If ( idiag >= 3 ) Write(lun_diag,"(a,6es23.15)") 'EOS',t9,rho,ye,cv,etae,detaedt9
+    If ( idiag >= 3 ) Write(lun_diag,"(a,6es23.15)") 'EOS',t9,rho,sye,cv,etae,detaedt9
 
     Return
   End Subroutine xnet_eos_interface
@@ -127,11 +128,11 @@ Contains
     Real(dp), Intent(out) :: ztilde, zinter, lambda0, gammae, dztildedt9
 
     ! Local variables
-    Real(dp) :: ye, ytot, bkt, abar, zbar, z2bar, zibar
+    Real(dp) :: sye, ytot, bkt, abar, zbar, z2bar, zibar
     Real(dp) :: sratio, ae, dsratiodeta
 
     ! Calculate Ye and other needed moments of the abundance distribution
-    Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
+    Call y_moment(y,sye,ytot,abar,zbar,z2bar,zibar)
 
     ! Calculate ratio f'/f for electrons (Salpeter, Eq. 24)
     Call salpeter_ratio(etae,sratio,dsratiodeta)
@@ -145,11 +146,11 @@ Contains
     ! Calculate plasma quantities
     bkt = bok*t9
     lambda0 = sqrt(4.0*pi*rho*avn*ytot) * (e2/bkt)**1.5 ! DGC, Eq. 3
-    ae = (3.0 / (4.0*pi*avn*rho*ye))**third ! electron-sphere radius
+    ae = (3.0 / (4.0*pi*avn*rho*sye))**third ! electron-sphere radius
     gammae = e2 / (ae*bkt) ! electron Coulomb coupling parameter
     zinter = zibar / (ztilde**thbim2 * zbar**twm2bi)
     If ( idiag >= 3 ) Write(lun_diag,"(a14,9es23.15)") 'EOS Screen', &
-      & t9,rho,ye,z2bar,zbar,sratio,ztilde,ztilde*lambda0,gammae
+      & t9,rho,sye,z2bar,zbar,sratio,ztilde,ztilde*lambda0,gammae
 
     Return
   End Subroutine eos_screen
@@ -194,7 +195,7 @@ Contains
     Return
   End Subroutine salpeter_ratio
 
-  Subroutine y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
+  Subroutine y_moment(y,sye,ytot,abar,zbar,z2bar,zibar)
     !-----------------------------------------------------------------------------------------------
     ! This routine calculates moments of the abundance distribution for the EOS.
     !-----------------------------------------------------------------------------------------------
@@ -207,7 +208,7 @@ Contains
     Real(dp), Intent(in) :: y(:)
 
     ! Output variables
-    Real(dp), Intent(out) :: ye, ytot, abar, zbar, z2bar, zibar
+    Real(dp), Intent(out) :: sye, ytot, abar, zbar, z2bar, zibar
 
     ! Local variables
     Real(dp) :: atot, ztot
@@ -220,8 +221,8 @@ Contains
     zbar  = ztot / ytot
     z2bar = sum(y(:) * zz2(:)) / ytot
     zibar = sum(y(:) * zzi(:)) / ytot
-    ye = ztot / atot
-    If ( idiag >= 3 ) Write(lun_diag,"(a4,6es23.15)") 'YMom',ytot,abar,zbar,z2bar,zibar,ye
+    sye = ztot / atot
+    If ( idiag >= 3 ) Write(lun_diag,"(a4,6es23.15)") 'YMom',ytot,abar,zbar,z2bar,zibar,sye
 
     Return
   End Subroutine y_moment
