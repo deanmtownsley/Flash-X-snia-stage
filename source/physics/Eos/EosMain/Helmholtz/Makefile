@@ -6,6 +6,5 @@ Eos += eos_helmConstData.o  eos_helmData.o\
        eos_helm.o  eos_helmSpecies.o eos_helmSpeciesInit.o
 
 
-Eos.o :  Eos_data.o 
 
 
