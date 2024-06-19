@@ -147,7 +147,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
  
   if (eos_meshNumProcs==1) then
      a = ''
-     Ap => a
+     ap => a
   else
 20   format(I6,':')
      write(a,20) eos_meshMe
