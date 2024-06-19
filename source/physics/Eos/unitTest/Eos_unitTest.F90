@@ -106,9 +106,9 @@ subroutine Eos_unitTest(fileUnit, perfect)
                           test4allB => eos_test4allB
   implicit none
 
-# include "Eos.h"
-# include "constants.h"
-# include "Simulation.h"
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
 
   integer, intent(in) :: fileUnit
   logical, intent(out) :: perfect

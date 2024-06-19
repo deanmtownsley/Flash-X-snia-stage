@@ -54,7 +54,7 @@ subroutine Eos_multiDim(mode,range,solnData)
   
   implicit none
 
-# include "constants.h"
+#include "constants.h"
 #include "FortranLangFeatures.fh"
 
   integer, intent(in) :: mode

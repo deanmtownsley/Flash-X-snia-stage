@@ -17,9 +17,9 @@ Module Eos_interface
 
   implicit none
 
-# include "Eos.h"
-# include "Simulation.h"
-# include "constants.h"
+#include "Eos.h"
+#include "Simulation.h"
+#include "constants.h"
 #include "FortranLangFeatures.fh"
   
   interface
