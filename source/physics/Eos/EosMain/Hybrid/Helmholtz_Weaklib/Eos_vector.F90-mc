@@ -150,17 +150,17 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
       if (nWL .gt. 0) &
            call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL)
       do i = 1,vecLen_HLM
-         @M eos_unpack(eosDataHLM)
+         @M eos_unpack(eosDataHLM,i)
          call eos_helmSpecies(mode, @M eos_args, massFrac_HLM)
-         @M eos_pack(eosDataHLM)
+         @M eos_pack(eosDataHLM,i)
       end do
    else
       if (nWL .gt. 0) &
            call eos_weaklib(mode, vecLen_WL, eosData_WL)
       do i = 1,vecLen_HLM
-         @M eos_unpack(eosDataHLM)
+         @M eos_unpack(eosDataHLM,i)
          call eos_helmSpecies(mode, @M eos_args, massFrac_HLM)
-         @M eos_pack(eosDataHLM)
+         @M eos_pack(eosDataHLM,i)
       end do
    end if
 

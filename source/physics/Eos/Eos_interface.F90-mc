@@ -35,14 +35,35 @@ Module Eos_interface
      end subroutine Eos_guardCells
   end interface
   
-  interface Eos_multiDim
+  interface
      subroutine Eos_multiDim(mode,range,solnData)
        integer, intent(in) :: mode
        integer, dimension(2,MDIM), intent(in) :: range
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-     end subroutine Eos_multiDim
+     end subroutine 
   end interface
 
+  interface 
+     subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
+       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+       integer, intent(in) :: vecB
+       integer, intent(inout) :: vecE
+       real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+       real, dimension(vecB:vecE,EOS_VARS), intent(out) :: eosData
+     end subroutine Eos_fillEosData
+  end interface
+
+  interface 
+     subroutine Eos_getFromEosData( vecB, vecE, eosData, range, solnData)
+       integer, intent(in) :: vecB
+       integer, intent(inout) :: vecE
+       real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+       real, dimension(vecB:vecE,EOS_VARS), intent(out) :: eosData
+     end subroutine Eos_getFromEosData
+  end interface
+
+  
   interface
      subroutine Eos(mode,  @M eos_args, massFrac, derivs)
        integer, INTENT(in) :: mode

@@ -16,7 +16,7 @@
 
 !> @ingroup physics_Eos
 !!
-!! @brief Evolve the spacetime variables by the provided timestep
+!! @brief Compute equation of state in the provided mode
 !!
 !! @details
 !! @anchor Eos_stub

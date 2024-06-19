@@ -56,31 +56,31 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
 #ifndef EOS_WEAKLIB_INCLUDED
   if(pMassFrac_and_derivs) then
      do i = 1,vecLen
-        @M eos_unpack(eosData)
+        @M eos_unpack(eosData,i)
         @M eos_idealGamma_massFrac_derivs
         @M eos_helmSpecies_massFrac_derivs
-        @M eos_pack(eosData)
+        @M eos_pack(eosData,i)
      end do
   else if (pMassFrac) then
      do i = 1,vecLen
-        @M eos_unpack(eosData)
+        @M eos_unpack(eosData,i)
         @M eos_idealGamma_massFrac
         @M eos_helmSpecies_massFrac
-        @M eos_pack(eosData)
+        @M eos_pack(eosData,i)
      end do
   else if (pDerivs) then
      do i = 1,vecLen
-        @M eos_unpack(eosData)
+        @M eos_unpack(eosData,i)
         @M eos_idealGamma_derivs
         @M eos_helmSpecies_derivs
-        @M eos_pack(eosData)
+        @M eos_pack(eosData,i)
      end do
   else
      do i = 1,vecLen
-        @M eos_unpack(eosData)
+        @M eos_unpack(eosData,i)
         @M eos_idealGamma
         @M eos_helmSpecies
-        @M eos_pack(eosData)
+        @M eos_pack(eosData,i)
      end do
   end if
 #endif
