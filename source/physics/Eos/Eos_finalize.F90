@@ -22,7 +22,7 @@
 !! @anchor Eos_finalize_stub
 !!
 !! This procedure must be called once and only once during shutdown, and
-!! must be matched by a call to @ref spacetime_init during startup.  Any
+!! must be matched by a call to @ref Eos_init during startup.  Any
 !! memory allocated by this unit will be freed.
 subroutine Eos_finalize()
 
