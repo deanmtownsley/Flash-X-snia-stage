@@ -38,14 +38,11 @@
 !!NOVARIANTS
 
 #include "Eos.h"
-#include "Eos_map.h"
 #include "constants.h"
 #include "Simulation.h"
   
 subroutine Eos_getFromEosData( vecB, vecE, eosData,range, solnData)
 
-  use Eos_data, ONLY: eos_mapLookup
-  use Driver_interface, ONLY : Driver_abort
   implicit none
 
   integer, intent(in) :: vecB
