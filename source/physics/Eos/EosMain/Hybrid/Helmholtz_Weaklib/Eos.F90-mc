@@ -165,22 +165,22 @@ subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecB, vecE, diagFlag)
    ! Call each EoS with its own vector
    ! WL fails with zero-sized vectors (HLM does not), so explicitly checking this first
    if (pMassFrac_and_mask) then
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL, mask)
 
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, massFrac_HLM, mask)
    else if (pMassFrac) then
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL)
 
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, massFrac_HLM)
    else if (pMask) then
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, mask=mask)
 
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM, mask=mask)
    else
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL)
 
       call eos_helmYe(mode, vecLen_HLM, eosData_HLM)
