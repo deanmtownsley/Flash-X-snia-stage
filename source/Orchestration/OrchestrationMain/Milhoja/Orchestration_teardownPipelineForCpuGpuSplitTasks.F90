@@ -17,7 +17,7 @@
 !! @stubref{Orchestration_teardownPipelineForCpuGpuSplitTasks}
 !!
 !! @brief Concrete implementation of Orchestration_teardownPipelineForCpuGpuSplitTasks
-!#include "Milhoja.h"
+#include "Milhoja.h"
 subroutine Orchestration_teardownPipelineForCpuGpuSplitTasks(nThreads, nTilesPerPacket)
     use milhoja_types_mod,   ONLY : MILHOJA_INT
 #if ! defined(RUNTIME_MUST_USE_TILEITER) && defined(RUNTIME_SUPPORT_DATAPACKETS)
