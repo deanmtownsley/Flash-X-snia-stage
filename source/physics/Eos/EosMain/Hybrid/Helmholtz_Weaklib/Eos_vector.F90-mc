@@ -54,7 +54,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
    integer :: i, k, vecBegin, vecEnd
    logical, dimension(vecLen) :: useWL, useHLM, useWLOnly, useHLMOnly, useHybOnly
    integer :: nWL, nHLM, nHyb
-   real :: @M eos_args
+   real :: @M eos_args, ekin
 
    if (mode == MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
    if (mode == MODE_EOS_WRAPPERONLY) return ! * Return immediately for MODE_EOS_WRAPPERONLY! *
