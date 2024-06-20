@@ -147,7 +147,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
    ! WL fails with zero-sized vectors (HLM does not), so explicitly checking this first
    eos_useMultiSpecies=.false.
    if (pMassFrac) then
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
            call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL)
       do i = 1,vecLen_HLM
          @M eos_unpack(eosDataHLM,i)
@@ -155,7 +155,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
          @M eos_pack(eosDataHLM,i)
       end do
    else
-      if (nWL .gt. 0) &
+      if (vecLen_WL .gt. 0) &
            call eos_weaklib(mode, vecLen_WL, eosData_WL)
       do i = 1,vecLen_HLM
          @M eos_unpack(eosDataHLM,i)
