@@ -39,7 +39,7 @@ subroutine Eos_getFromEosData( vecB, vecE, eosData,range, solnData)
   integer, intent(in) :: vecB
   integer,intent(inout) :: vecE
   integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-  real, dimension(vecB:vecE,EOS_VARS),intent(out) :: eosData
+  real, dimension(vecB:vecE,EOS_VARS),intent(in) :: eosData
   real,pointer,dimension(:,:,:,:), intent(in) :: solnData
 
   integer :: i,j,k,n

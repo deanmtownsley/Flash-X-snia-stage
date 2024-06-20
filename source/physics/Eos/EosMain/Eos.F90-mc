@@ -45,7 +45,7 @@ subroutine Eos(mode, @M eos_args, massFrac, derivs)
   !! in there just in case weaklib is included ignored for other versions
   real, dimension(1,EOS_VARS) :: eosData 
   integer :: i=1, vecLen = 1
-  
+  real :: ekin  
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
   pMassFrac = present(massFrac)

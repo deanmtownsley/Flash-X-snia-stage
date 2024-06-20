@@ -59,7 +59,7 @@ Module Eos_interface
        integer, intent(inout) :: vecE
        real, POINTER_INTENT_IN :: solnData(:,:,:,:)
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-       real, dimension(vecB:vecE,EOS_VARS), intent(out) :: eosData
+       real, dimension(vecB:vecE,EOS_VARS), intent(in) :: eosData
      end subroutine Eos_getFromEosData
   end interface
 
