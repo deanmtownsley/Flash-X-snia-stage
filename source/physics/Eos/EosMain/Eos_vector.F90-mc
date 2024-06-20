@@ -40,7 +40,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
   real, optional, INTENT(out),target,dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),target, dimension(1:vecLen,NSPECIES)    :: massFrac
   integer :: i
-  real :: @M eos_args
+  real :: @M eos_args, ekin
   @M eos_map_declare
 
   logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
