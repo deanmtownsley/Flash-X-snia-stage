@@ -39,8 +39,8 @@ subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
 
    integer, intent(in) :: vecLen
    real, dimension(vecLen), intent(out) :: energyShift
-   real, dimension(vecLen,EOS_NUM), intent(in) :: eosData
-   real, dimension(NSPECIES,vecLen), intent(in), optional :: massFrac
+   real, dimension(vecLen,EOS_NUM),  intent(in) :: eosData
+   real, dimension(NSPECIES,vecLen),  intent(in), optional :: massFrac
 
    integer :: i, k
 
@@ -54,7 +54,6 @@ subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
    ! in the loop over the vector
    if (present(massFrac) .and. (NSPECIES .gt. 0)) then
       ! Note: massFrac is indexed oppositely of eosData
-
       do k = 1, vecLen
          energyShift(k) = energyShift(k) - delta*eosData(k, EOS_YE) &
                           - sum(massFrac(:, k)*eos_hybBoverA)*conv

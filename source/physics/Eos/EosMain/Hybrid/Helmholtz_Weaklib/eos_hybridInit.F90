@@ -27,7 +27,7 @@
 
 subroutine eos_hybridInit()
 
-   use Eos_data, ONLY: eos_type
+   use Eos_data, ONLY: eos_type, eos_doYe
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use IO_interface, ONLY: IO_getPrevScalar
    use Driver_interface, ONLY: Driver_abort
@@ -54,7 +54,7 @@ subroutine eos_hybridInit()
 
    ! set eos type
    eos_type = EOS_HYB
-
+   eos_doYe = .true.
    !get the runtime parameters for the transition point
    call RuntimeParameters_get('restart', restart)
    if (restart) then

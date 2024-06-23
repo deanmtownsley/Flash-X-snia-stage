@@ -67,7 +67,7 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
 
   use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
        eos_forceConstantInput, eos_useMultiSpecies
-  use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ
+  use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ,eos_doYe
   use eos_helmData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
        gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
        detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
@@ -113,29 +113,27 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
 
   tempRow    = temp
   denRow     = dens
-  
   ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_multiDim does not.
-  
+  if(eos_doYe) then
+     abarRow    = abar
+     zbarRow    = zbar
+  else
 #ifdef FLASH_MULTISPECIES
-  !Calculate the inverse in a way that allows for zero mass fractions
-  call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
-  abarRow = 1.e0 / abarInv
-  
-  call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
-  zbarRow = abarRow * zbarFrac
+     !Calculate the inverse in a way that allows for zero mass fractions
+     call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
+     abarRow = 1.e0 / abarInv
+     
+     call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
+     zbarRow = abarRow * zbarFrac
 #else
-     if(eos_useMultiSpecies) then
      ! No multispecies defined, use default values (same as Gamma formulation)
-        abarRow = eos_singleSpeciesA
-        zbarRow = eos_singleSpeciesZ
-     else
-        abarRow = abar
-        zbarRow = zbar
-     end if
+     abarRow = eos_singleSpeciesA
+     zbarRow = eos_singleSpeciesZ
+     
 #endif
-  abar=abarRow
-  zbar=zbarRow     
-  
+     abar=abarRow
+     zbar=zbarRow     
+  end if
   !==============================================================================
   
   !      MODE_DENS_TEMP  temperature and density given
@@ -418,5 +416,8 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   return
 
 end subroutine eos_helmSpecies
+
+
+
 
 

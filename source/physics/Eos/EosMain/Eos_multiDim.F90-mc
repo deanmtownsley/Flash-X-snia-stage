@@ -14,7 +14,7 @@
 !! @file
 !> @ingroup physics_Eos
 !!
-!! @brief Main implementation of the API call for a computing
+!! @brief general implementation of the API call for a computing
 !!     equation of state on cells in a multidimensional array
 !! 
 !! @subref{Eos_multiDim}
@@ -28,18 +28,12 @@
 #include "Eos.h"
 #include "constants.h"
 #include "Simulation.h"
-#ifdef DEBUG_ALL
-#define DEBUG
-#endif
-
+ 
 subroutine Eos_multiDim(mode,range,solnData)
 
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY: Logfile_stampMessage 
-  use Eos_interface, ONLY : Eos
-  use Eos_data, ONLY : eos_threadWithinBlock,eos_eintSwitch, eos_smalle, eos_mapLookup
-  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies
-  implicit none
+  use Eos_interface, ONLY : Eos_fillEosData, Eos_getFromEosData, Eos_vector
 
 #include "FortranLangFeatures.fh"
 
@@ -47,44 +41,39 @@ subroutine Eos_multiDim(mode,range,solnData)
   integer, dimension(2,MDIM), intent(in) :: range
   real, POINTER_INTENT_IN :: solnData(:,:,:,:)
 
-  real,dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  integer :: ierr
+  integer :: i,j,k, vecLen
 
-  integer :: ierr, gridDataStruct
-  integer :: i,j,k, m
-  real :: ekin, @M eos_args
-  integer :: pres_map,dens_map,gamc_map,game_map,temp_map,entr_map
-  integer :: eint_map,ener_map, velx_map, vely_map, velz_map, sumy_map, ye_map
-  real :: kineticEnergy, internalEnergy
-  real, dimension(NSPECIES) :: massFrac
+  integer :: n,m
+  real :: @M eos_args
 
-!! ---------------------------------------------------------------------------------
-  ! Test calling arguments
-#ifdef DEBUG
+  real, allocatable, dimension(:,:) :: eosData, massFrac
+
   @M eos_debug
-#endif
-  
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
-  gridDataStruct=CENTER
-  @M eos_map  
+  vecLen = (range(HIGH,IAXIS)-range(LOW,IAXIS)+1)*&
+           (range(HIGH,JAXIS)-range(LOW,JAXIS)+1)*&
+           (range(HIGH,KAXIS)-range(LOW,KAXIS)+1)
 
-  if(NSPECIES > 1) then
-     @M loop_3d(range)
-           massFrac(1:NSPECIES) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
-           @M eos_preprocess
-           @M eos_idealGamma_massFrac
-           @M eos_helmSpecies_massFrac
-           @M eos_postprocess
-     @M loop_end_3d
-  else
-     @M loop_3d(range)
-           @M eos_preprocess
-           @M eos_idealGamma
-           @M eos_helmSpecies
-           @M eos_postprocess
-     @M loop_end_3d
-  end if
+  if (vecLen==0) return ! * Return immediately for empty IAXIS range! (for efficiency and avoiding index range errors)
 
+  ! solnData points to solution data in UNK (or other data structure).
+  ! The length of the data being operated upon is determined from the range input array.
 
-  return
+  allocate(massFrac(NSPECIES,vecLen))
+  allocate(eosData(vecLen, EOS_VARS))
+  
+  call Eos_fillEosData(range, solnData,1, vecLen, eosData)
+  n = 0
+  @M loop_3d(range)
+             n=n+1
+             massFrac(1:NSPECIES,n) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+  @M loop_end_3d   
+  call Eos_vector(mode,vecLen,eosData, massFrac)
+  call Eos_getFromEosData( 1, vecLen, eosData, range, solnData)
+  
+  deallocate(massFrac)
+  deallocate(eosData)
+  
 end subroutine Eos_multiDim

@@ -98,4 +98,5 @@ module Eos_data
 
   integer, save, dimension(1:EOSMAP_NUM_ROLES, 1:2, 1:5) :: eos_mapLookup
   logical, save :: eos_threadWithinBlock = .false.
+  logical, save :: eos_doYe = .false.
 end module Eos_data

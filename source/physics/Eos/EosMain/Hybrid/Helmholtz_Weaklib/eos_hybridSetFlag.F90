@@ -69,7 +69,7 @@
 !!
 !!***
 
-subroutine eos_hybridSetFlag(mode, vecLen, eosData, eos_hybFlag)
+subroutine eos_hybridSetFlag(mode, vecLen, eosData, vecB, vecE, eos_hybFlag)
 
    use eos_hybridData, only: eos_hybTransitionDensLo, eos_hybTransitionDensHi
 
@@ -81,10 +81,10 @@ subroutine eos_hybridSetFlag(mode, vecLen, eosData, eos_hybFlag)
 
    integer, intent(in) :: mode, vecLen
    real, intent(in), dimension(vecLen,EOS_VARS) :: eosData
+   integer, intent(in) :: vecB, vecE
    integer, intent(out) :: eos_hybFlag(vecLen)
 
-   integer :: vecB, vecE
-
+   integer :: dens
    integer :: k
 
    ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
