@@ -1,25 +1,26 @@
-!!****f* source/physics/Eos/Eos_unitTest
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!! NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  Eos_unitTest
-!! 
-!! SYNOPSIS
+!! @file
+!! @brief Eos_unitTest stub
+
+!> @ingroup physics_Eos
 !!
-!!  call Eos_unitTest(integer(IN) :: fileUnit,
-!!                    logical(OUT) :: perfect
+!! @brief unit test driver for the Eos unit
 !!
-!! DESCRIPTION
+!! @details
+!! @anchor Eos_unitTest_stub
+!!
 !!
 !! This function is the unit test for the Eos unit. It is invoked in
 !! the setup unitTest/Eos. The Config file for the Eos unit test setup
@@ -61,19 +62,14 @@
 !! tested in any way.  The unitTest simply makes sure that they can be calculated
 !! without NaNs or the like.
 !!
-!!  ARGUMENTS 
+!!   
 !!   
 !! 
-!!   fileUnit : unit number for file opened by the unitTest/Eos setup
+!!   @param fileUnit : unit number for file opened by the unitTest/Eos setup
 !!              in which to write results of the test
 !!
-!!   perfect : indicates test ran without error is true.
+!!   @param perfect : indicates test ran without error is true.
 !!
-!!  PARAMETERS
-!!
-!!  eintSwitch  a rarely used switch which ensures that internal energy calculations 
-!!        maintain sufficient precision. Important only if energyTotal is dominated 
-!!        by energyKinetic.
 !!
 !!***
 

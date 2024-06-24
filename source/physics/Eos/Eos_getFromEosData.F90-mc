@@ -19,7 +19,7 @@
 !! @brief a utility for filling up the data structure known to Eos_vector
 !!
 !! @details
-!! @anchor Eos_stub
+!! @anchor Eos_getFromEosData_stub
 !!
 !! 
 !! This is a helper routine that extracts data from eosData array on which Eos_vector

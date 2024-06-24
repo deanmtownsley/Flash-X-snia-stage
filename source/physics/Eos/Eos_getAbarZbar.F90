@@ -12,14 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Eos_getParameters stub
+!! @brief Eos_getAbarZbar stub
 
 !> @ingroup physics_Eos
 !!
 !! @brief return information of interest to other units
 !!
 !! @details
-!! @anchor Eos_getParameters_stub
+!! @anchor Eos_getAbarZbar_stub
 !!
 !! This routine returns values of Abar, Zbar, SumY, and/or Ye for one cell.
 !! All functions calling this routine should include

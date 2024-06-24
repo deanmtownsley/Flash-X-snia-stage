@@ -19,7 +19,7 @@
 !! @brief a utility for filling up the data structure known to Eos_vector
 !!
 !! @details
-!! @anchor Eos_stub
+!! @anchor Eos_fillEosData_stub
 !!
 !! 
 !! This is a helper routine that can be used to fill up the two dimensional data
