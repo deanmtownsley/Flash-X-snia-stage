@@ -12,14 +12,11 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Eos_wlPotentials stub
-
-!> @ingroup physics_Eos_EosMain_WeakLib
+!> @ingroup physics_eos_EosMain_WeakLib
 !!
 !! @brief Obtain the energy shift assumed by WeakLib
 !!
 !! @details
-!! @anchor Eos_wlPotentials_stub
 !!
 !! This procedure can be used to obtain the neutron and proton chemical
 !! potentials, and optionally the electron and electron neutrino chemical
@@ -32,7 +29,8 @@
 !! @param xMu_n   Neutron chemical potential (erg)
 !! @param xMu_p   Proton chemical potential (erg)
 !! @param xMu_e   Electron chemical potential (erg)
-subroutine Eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
+
+subroutine eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
    use eos_wlData, only: EosNewTable
 
    use wlInterpolationModule, only: LogInterpolateSingleVariable_3D_Custom_Point
@@ -80,4 +78,4 @@ subroutine Eos_wlPotentials(xDens, xTemp, xYe, xMu_n, xMu_p, xMu_e)
                                                            OS_Me, Me_T, xMu_e)
    end associate
 
-end subroutine Eos_wlPotentials
+end subroutine eos_wlPotentials

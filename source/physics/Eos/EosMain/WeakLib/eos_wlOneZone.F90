@@ -1,38 +1,29 @@
-!!****if* source/physics/Eos/EosMain/WeakLib/Eos_getData
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! @brief Routine to access arbitrary EOS data from WeakLib for one zone only
 !!
 !! AUTHOR & DATE 
 !!   S.M. Couch
 !!   J.A. Harris
 !!   April 2022
 !!
-!! NAME
-!!
-!!  Eos_wlOneZone
-!!
-!! DESCRIPTION
-!!
-!!  Routine to access arbitrary EOS data from WeakLib for one zone only
-!!
-!! ARGUMENTS
-!!
-!! All of them. All the arguments.
-!!
-!! NOTES
-!!
-!!***
 
-subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xXa,xXh,xAbar,xVar,varID,mode)
+
+subroutine eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xXa,xXh,xAbar,xVar,varID,mode)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -151,7 +142,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
         WRITE(*,'(5A15,A10)') 'xDens','xEner','xYe','xTemp','Guess','Error'
         WRITE(*,'(5ES15.4,I10)') xDens, xEner, xYe, xTemp, xTemp_Guess, error_flag
         CALL DescribeEOSInversionError( error_flag )
-        CALL Driver_abort('[Eos_wlOneZone] EOS Inversion Error')
+        CALL Driver_abort('[eos_wlOneZone] EOS Inversion Error')
      END IF
 
   CASE( MODE_DENS_TEMP )
@@ -170,7 +161,7 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
         WRITE(*,'(5A15,A10)') 'xDens','xEntr','xYe','xTemp','Guess','Error'
         WRITE(*,'(5ES15.4,I10)') xDens, xEntr, xYe, xTemp, xTemp_Guess, error_flag
         CALL DescribeEOSInversionError( error_flag )
-        CALL Driver_abort('[Eos_wlOneZone] EOS Inversion Error')
+        CALL Driver_abort('[eos_wlOneZone] EOS Inversion Error')
      END IF
 
   CASE( MODE_DENS_PRES )
@@ -186,12 +177,12 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
         WRITE(*,'(5A15,A10)') 'xDens','xPres','xYe','xTemp','Guess','Error'
         WRITE(*,'(5ES15.4,I10)') xDens, xPres, xYe, xTemp, xTemp_Guess, error_flag
         CALL DescribeEOSInversionError( error_flag )
-        CALL Driver_abort('[Eos_wlOneZone] EOS Inversion Error')
+        CALL Driver_abort('[eos_wlOneZone] EOS Inversion Error')
      END IF
 
   CASE DEFAULT
 
-     CALL Driver_abort('[Eos_wlOneZone] Error: unsupported mode for Nuclear Eos')
+     CALL Driver_abort('[eos_wlOneZone] Error: unsupported mode for Nuclear Eos')
 
   END SELECT
 
@@ -266,11 +257,11 @@ subroutine Eos_wlOneZone(xDens,xTemp,xYe,xEner,xPres,xEntr,xdEdT,xCs2,xXp,xXn,xX
 
   ELSE
 
-     CALL Driver_abort('[Eos_wlOneZone] Error: Invalid varID')
+     CALL Driver_abort('[eos_wlOneZone] Error: Invalid varID')
 
   END IF
 
   END ASSOCIATE
 
   return
-end subroutine Eos_wlOneZone
+end subroutine eos_wlOneZone

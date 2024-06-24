@@ -12,14 +12,14 @@
 !! @endlicenseblock
 !!
 !! @file
-!! @brief Eos_wlEnerShift stub
+!! @brief eos_wlEnerShift stub
 
-!> @ingroup physics_Eos_EosMain_WeakLib
+!> @ingroup physics_eos_EosMain_WeakLib
 !!
 !! @brief Obtain the energy shift assumed by WeakLib
 !!
 !! @details
-!! @anchor Eos_wlEnerShift_stub
+!! @anchor eos_wlEnerShift_stub
 !!
 !! This procedure can be used to obtain the energy shift that is assumed by WeakLib
 !! It may be necessary to remove this shift when coupling to another Eos implementation,
@@ -27,7 +27,8 @@
 !! must be removed prior to passing the Eos data to Helmholtz
 !!
 !! @param energyShift   The energy shift to use
-subroutine Eos_wlEnerShift(energyShift)
+!!
+subroutine eos_wlEnerShift(energyShift)
    implicit none
 
    real, intent(out) :: energyShift
@@ -35,4 +36,4 @@ subroutine Eos_wlEnerShift(energyShift)
    energyShift = 0.0
 
    return
-end subroutine Eos_wlEnerShift
+end subroutine eos_wlEnerShift

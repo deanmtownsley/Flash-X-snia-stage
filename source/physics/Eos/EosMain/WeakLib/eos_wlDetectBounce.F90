@@ -1,44 +1,32 @@
-!!****if* source/physics/Eos/EosMain/WeakLib/Eos_wlDetectBounce
-!! NOTICE
-!!  Copyright 2023 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
-!!  
-!!  Eos_wlDetectBounce 
+!! @file
+!> @ingroup physics_Eos
 !!
+!! @brief  This routine determines if collapse has proceeded to the point of 
+!!         core bounce, as determined by the maximum density
 !!
-!! SYNOPSIS
-!! 
-!!  call Eos_wlDetectBounce( logical(OUT) :: postBounce,
-!!                     optional,real(OUT) :: bounceTime,
-!!                     optional,real(OUT) :: centralDens,
-!!                     optional,real(OUT) :: centralEntr )
-!!  
-!! DESCRIPTION
-!!  This routine determines if collapse has proceeded to the point of 
-!!  core bounce, as determined by the maximum density
+!!  @param postBounce  : flag that indicates if bounce has been detected
+!!  @param bounceTime  : time at which bounce occurs
+!!  @param centralDens : maximum density
+!!  @param centralEntr : minimum density inside eos_shockEntrRad
 !!
-!! ARGUMENTS
-!!
-!!  postBounce  : flag that indicates if bounce has been detected
-!!  bounceTime  : time at which bounce occurs
-!!  centralDens : maximum density
-!!  centralEntr : minimum density inside eos_shockEntrRad
-!!
-!!***
+
 
 !!REORDER(4): solnData
 
-subroutine Eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
+subroutine eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   !
   !==============================================================================
   !
@@ -53,7 +41,7 @@ subroutine Eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   use Grid_tile, ONLY : Grid_tile_t
   use IO_interface, ONLY : IO_setScalar
   use Logfile_interface, ONLY : Logfile_stampMessage
-  use Eos_data, ONLY : eos_meshComm, eos_meshMe
+  use eos_data, ONLY : eos_meshComm, eos_meshMe
   use eos_wlData, ONLY : eos_postBounce, eos_bounceTime, &
        eos_centralDens, eos_centralEntr, eos_nstep, &
        eos_bounceDens, eos_shockEntr, eos_shockEntrRad
@@ -188,4 +176,4 @@ subroutine Eos_wlDetectBounce(postBounce,bounceTime,centralDens,centralEntr)
   if (present(centralEntr)) centralEntr = eos_centralEntr
 
   return
-end subroutine Eos_wlDetectBounce
+end subroutine eos_wlDetectBounce
