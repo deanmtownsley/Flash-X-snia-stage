@@ -27,6 +27,7 @@
 !!
 !! @param ebin       Total binding energy in erg
 !! @param massFrac   Mass fractions evolved by the simulation
+
 subroutine eos_hybridEnergyShift(energyShift, vecLen, eosData, massFrac)
    use eos_hybridData, only: eos_hybDeltaE_WL, eos_hybBoverA, &
                              m_e, m_n, m_p, MeV2erg, N_A
