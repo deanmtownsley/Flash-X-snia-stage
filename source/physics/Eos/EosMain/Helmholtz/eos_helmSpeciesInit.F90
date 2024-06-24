@@ -1,55 +1,25 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/SpeciesBased/eos_helmSpeciesInit
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_helmSpeciesInit
-!!
-!! SYNOPSIS
-!!
-!!  call eos_helmSpeciesInit()
-!!
-!! DESCRIPTION
-!!
-!!  Initialize the Helmholtz EOS.  The table data is read in on processor 0
-!!  and broadcast to all other processors at the start of FLASH execution.
+!! @brief  Initialize the Helmholtz EOS.  The table data is read in on processor 0
+!!  and broadcast to all other processors during initialization.
 !!  This routine first checks for a binary copy of the table (helm_table.bdat), 
 !!  and then for the ASCII version (helm_table.dat).  If the binary table 
 !!  file was not found, it is created by this routine for subsequent use.
 !!
-!! ARGUMENTS
-!!
-!!  none
-!!
-!! PARAMETERS
-!!
-!!   eos_coulombMult[Real, default 1.0] -- Coulomb correction multiplier. Set
-!!               to zero to ignore the Coloumb correction.
-!!   eos_tolerance[Real, 1.0e-8] -- Convergence tolerance for the Newton-Rhapson
-!!               iterations
-!!   eos_maxNewton[Integer, 50] -- Maximum number of Newton-Raphson iterations
-!!   eos_forceConstantInput     -- This switch forces the Eos implementation
-!!                                 to never modify EINT or PRES in MODE_DENS_EI
-!!                                 and MODE_DENS_PRES. If this is .false. (the
-!!                                 default), calls to Eos may slightly modify
-!!                                 these input variables in order to preserve
-!!                                 thermodynamic equilibrium.
-!!
-!!  NOTES
-!!
-!!  Helmholtz law Eos defines two mesh-based parameters GAMC_VAR and GAME_VAR in Simulation.h
-!!
-!!***
 
 #ifdef DEBUG_ALL
 #define DEBUG_EOS

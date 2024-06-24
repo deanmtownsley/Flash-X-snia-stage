@@ -21,7 +21,7 @@
 !! @subref{Eos_finalize}
 !!
 !!
-!!***
+
 
 
 subroutine Eos_finalize()

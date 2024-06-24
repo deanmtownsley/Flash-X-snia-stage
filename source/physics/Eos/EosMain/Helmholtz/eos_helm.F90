@@ -1,40 +1,25 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/eos_helm
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_helm
-!!
-!!
-!! SYNOPSIS
-!!
-!!  call eos_helm(integer(IN) :: eos_jlo,
-!!                integer(IN) :: eos_jhi,
-!!      optional, logical(IN) :: mask(EOS_VARS+1:EOS_NUM) )
-!!
-!!
-!! DESCRIPTION
-!!
+!! @brief implementation of the Eos where 
 !!  given a temperature temp [K], density den [g/cm**3], and a composition 
 !!  characterized by abar and zbar, this routine returns some of the other 
 !!  thermodynamic quantities. of prime interest is the pressure [erg/cm**3], 
 !!  specific thermal energy [erg/gr], and their derivatives with respect
 !!  to temperature and density.
-!!
-!!  NOTE that this routine does not have any Flash3 eosMode other than 
-!!    MODE_DENS_TEMP.  So the initial temperature and density input to Eos() 
-!!    for the Helmholtz unit must be a good guess, or the algorithms will never
-!!    converge.
 !!  
 !!  for opacity purposes, the number density of electron-positrons,
 !!  the chemical potential of the electrons, and the pressure due
@@ -48,46 +33,7 @@
 !!  
 !!  references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 !!
-!! ARGUMENTS
-!!
-!!  eos_jlo  -- low index of calculation range
-!!  eos_jhi  -- high index of calculation range
-!!  mask     --  Mask is a logical array the size of EOS_DERIVS (number
-!!              of partial derivatives that can be computed, defined in
-!!              Eos.h), where each index represents a specific partial derivative
-!!              that can be calculated by the Eos unit. A .true. value in mask 
-!!              results in the corresponding derivative being calculated and 
-!!              returned. It should preferably be dimensioned as
-!!              mask(EOS_VARS+1:EOS_NUM) in the calling routine 
-!!              to exactly match the arguments declaration in Eos Unit.
-!!             Note that the indexing of mask does not begin at 1, but rather at one past
-!!             the number of basic variables.
-!!
-!!             The Helmholtz EOS kernel calculation ignores the mask setting and calculates
-!!             all derivatives, whether needed or not.  This routine does not return
-!!             derivatives if the mask is requested, but the calculation is not speeded up
-!!             by setting the mask.
-!!
-!!
-!! PARAMETERS
-!!
-!! NOTES
-!!
-!!  equation of state communication through eos_vecData
-!!
-!!  btemp    = temperature
-!!  den      = density
-!!  abar     = average number of nucleons per nuclei
-!!  zbar     = average number of protons per nuclei
-!!  z2bar    = square of zbar
-!!  ytot1    = total number of moles per gram
-!!  ye       = electron mole number
-!!
-!!  Since this subroutine has an optional argument, an explicit interface is needed.
-!!  Calling program units should therefore have a line like
-!!    use eos_helmInterface, ONLY : eos_helm
-!!  no matter whether they call eos_helm with or without the optional mask argument.
-!!***
+
 #ifdef DEBUG_ALL
 #define DEBUG_EOS
 #endif

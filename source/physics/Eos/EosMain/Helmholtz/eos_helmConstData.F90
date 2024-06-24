@@ -1,43 +1,28 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/eos_helmConstData
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_helmConstData
+!! @brief  mathematical and physical constants (in cgs,except e0 which is in ev)
+!!         the 1986 codta recommended valeus of the physical constants
+!!         by coehn & taylor 
 !!
-!!
-!! SYNOPSIS
-!!
-!!  use eos_helmConstData
-!!
-!!
-!! DESCRIPTION
-!!
-!! mathematical and physical constants (in cgs,except e0 which is in ev)
-!!
-!! the 1986 codta recommended valeus of the physical constants
-!! by coehn & taylor 
-!!
-!! ARGUMENTS
-!!
-!! PARAMETERS
-!!
-!!
-!!  NOTES
-!!    See Timmes and Swesty, 2000, AJSS, "The Accuracy, Consistency, and Speed of an Electron-Positron
+!! 
+!!    See Timmes and Swesty, 2000, AJSS, "The Accuracy,
+!!    Consistency, and Speed of an Electron-Positron
 !!    Equation of State Based on Table Interpolation of the Helmholtz Free Energy"
 !!
-!!***
 
 
 Module eos_helmConstData

@@ -1,80 +1,25 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/eos_readHfet
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_readHfet
+!! @brief  Read binary data file containing coefficients for tabular helmholtz
 !!
-!! SYNOPSIS
+!! @param  n -- number of variables in the arrays
+!! @param  f --  Helmholtz free energy
 !!
-!!  eos_readHfet(integer(IN) :: n, 
-!!            real(OUT) :: f(n), 
-!!            real(OUT) :: fd(n), 
-!!            real(OUT) :: ft(n), 
-!!            real(OUT) :: fdd(n), 
-!!            real(OUT) :: ftt(n),
-!!            real(OUT) :: fdt(n), 
-!!            real(OUT) :: fddt(n), 
-!!            real(OUT) :: fdtt(n), 
-!!            real(OUT) :: fddtt(n), 
-!!            real(OUT) :: dpdf(n), 
-!!            real(OUT) :: dpdfd(n),
-!!            real(OUT) :: dpdft(n), 
-!!            real(OUT) :: dpdfdt(n), 
-!!            real(OUT) :: ef(n), 
-!!            real(OUT) :: efd(n), 
-!!            real(OUT) :: eft(n), 
-!!            real(OUT) :: efdt(n), 
-!!            real(OUT) :: xf(n), 
-!!            real(OUT) :: xfd(n), 
-!!            real(OUT) :: xft(n), 
-!!            real(OUT) :: xfdt(n)  )
-!!
-!! DESCRIPTION
-!!
-!!  Read binary data file containing coefficients for tabular helmholtz
-!!
-!! ARGUMENTS
-!!
-!!     n -- number of variables in the arrays
-!!     f --  Helmholtz free energy
-!!     fd --  derivative of f wrt density
-!!     ft --  derivative of f wrt temperature
-!!     fdd --  second derivative of f wrt density
-!!     ftt --  second derivative of f wrt temperature
-!!     fdt --  second derivative of f wrt density and temperature
-!!     fddt --  third derivative of f wrt density^2 and temperature
-!!     fdtt --  third derivative of f wrt density and temperature^2 e.g. dF/(dd)(dt^2)
-!!     fddtt --  fourth derivative of f wrt density^2 and temperature^2
-!!     dpdf --  pressure derivative 
-!!     dpdfd -- 
-!!     dpdft --  
-!!     dpdfdt --  
-!!     ef --  electron chemical potential
-!!     efd --  
-!!     eft --  
-!!     efdt --  
-!!     xf --  number density
-!!     xfd --  
-!!     xft --  
-!!     xfdt --
-!!
-!!  NOTE
-!! 
-!!    See Timmes and Swesty, 2000, AJSS, "The Accuracy, Consistency, and Speed of an Electron-Positron
-!!    Equation of State Based on Table Interpolation of the Helmholtz Free Energy"
-!!
-!!***
+
 
 subroutine eos_readHFet(n, f)
    use Driver_interface, ONLY : Driver_abort

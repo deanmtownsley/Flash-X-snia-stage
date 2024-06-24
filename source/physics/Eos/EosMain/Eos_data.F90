@@ -14,11 +14,10 @@
 !! @file
 !> @ingroup physics_Eos
 !!
-!! @brief This is the data module that contains data that is commong to all the
+!! @brief This is the data module that contains data that is common to all the
 !!      implementations of Eos 
 !! 
 !!
-!!***
 
 
 module Eos_data
