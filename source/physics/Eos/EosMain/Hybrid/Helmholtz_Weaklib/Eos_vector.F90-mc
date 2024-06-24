@@ -19,6 +19,7 @@
 !!
 !!***
 !!NOVARIANTS
+#include "Simulation.h"
 subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    use eos_localInterface, only: eos_helmSpecies, eos_weaklib
 
@@ -26,11 +27,14 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    use eos_hybridData, only: eos_hybTransitionDensLo, eos_hybTransitionDensHi, &
                              ergPerKg_to_kbPerBaryon, kbPerBaryon_to_ergPerKg
    use Eos_data, ONLY : eos_doYe
+#if defined(TMPH_VAR) || defined(TMPW_VAR)
+   use Eos_data, ONLY : eos_smallT
+#endif
+
    implicit none
 
 #include "constants.h"
 #include "Eos.h"
-#include "Simulation.h"
 
    integer, intent(in) :: mode, vecLen
    real, intent(inout), dimension(vecLen,EOS_VARS), target :: eosData
@@ -147,7 +151,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    if (pMassFrac_and_derivs) then
       if (vecLen_WL .gt. 0) &
            call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL, derivs)
-      do i = 1,vecLen
+      do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
          call eos_helmSpecies(mode, @M eos_args, massFrac_HLM, derivs)
          @M eos_pack(eosData_HLM,i)
@@ -156,7 +160,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
       if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL)
 
-      do i = 1,vecLen
+      do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
          call eos_helmSpecies(mode, @M eos_args, massFrac_HLM)
          @M eos_pack(eosData_HLM,i)
@@ -165,7 +169,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
       if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL, derivs=derivs)
 
-      do i = 1,vecLen
+      do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
          call eos_helmSpecies(mode, @M eos_args, derivs=derivs)
          @M eos_pack(eosData_HLM,i)
@@ -175,7 +179,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
       if (vecLen_WL .gt. 0) &
          call eos_weaklib(mode, vecLen_WL, eosData_WL)
 
-      do i = 1,vecLen
+      do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
          call eos_helmSpecies(mode, @M eos_args)
          @M eos_pack(eosData_HLM,i)
@@ -224,12 +228,20 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
       ! inverted temperatures from each EOS for comparison in the unit test
 #ifdef TMPH_VAR
       ! This will force Eos_putData to map EOS_GAMC to TMPH_VAR
-      eosData_k(EOS_GAMC) = eosData_HLM(k, EOS_TEMP)
+      if (useHLM(k)) then
+         eosData_k(EOS_GAMC) = eosData_HLM(k_HLM, EOS_TEMP)
+      else
+         eosData_k(EOS_GAMC) = eos_smallT
+      end if
 #endif
 
 #ifdef TMPW_VAR
       ! This will force Eos_putData to map EOS_ENTR to TMPW_VAR
-      eosData_k(EOS_ENTR) = eosData_WL(k, EOS_TEMP)
+      if (useWL(k)) then
+         eosData_k(EOS_ENTR) = eosData_WL(k_WL, EOS_TEMP)
+      else
+         eosData_k(EOS_ENTR) = eos_smallT
+      end if
 #endif
 
       eosData(k, :) = eosData_k
