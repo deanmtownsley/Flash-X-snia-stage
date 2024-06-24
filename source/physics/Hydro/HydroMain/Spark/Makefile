@@ -1,5 +1,5 @@
 #	Makefile for unit Hydro/HydroMain/Spark
-Hydro += Hydro_data.o Hydro_init.o Hydro_computeDt.o \
+Hydro += Hydro_data.o \
 	hy_rk_getFaceFlux.o hy_rk_interface.o \
 	hy_rk_initSolnScratch.o \
 	hy_rk_updateSoln.o \
