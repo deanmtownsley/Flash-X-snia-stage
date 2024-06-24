@@ -1,28 +1,23 @@
-!!****ih* source/physics/Eos/localAPI/eos_localInterface
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
-!!     eos_localInterface
+!! @file
+!! @brief eos_localInterface
+
+!> @ingroup physics_Eos
 !!
-!! SYNOPSIS
-!!     use eos_localInterface
+!! This file defines the internal interfaces for the Eos unit
 !!
-!! DESCRIPTION
-!!
-!! This is an interface module for internal use of
-!! the Eos unit.
-!!
-!!***
 !!NOVARIANTS
 
 module eos_localInterface
