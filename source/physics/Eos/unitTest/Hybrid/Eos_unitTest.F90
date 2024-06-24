@@ -458,7 +458,7 @@ contains
 #if defined(TMPH_VAR) && defined(TMPW_VAR)
          dtmp = abs((solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)) &
                      - solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3))) &
-                     /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
+                    /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
 #endif
 
          success = tolerance .gt. err_1
