@@ -441,9 +441,11 @@ contains
                               - solnData(out_2_exp, ib:ie, jb:je, kb:ke)) &
                              /solnData(out_2_exp, ib:ie, jb:je, kb:ke)))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
          idtmp = maxloc(abs((solnData(TMPW_VAR, ib:ie, jb:je, kb:ke) &
                              - solnData(TMPH_VAR, ib:ie, jb:je, kb:ke)) &
                             /solnData(TMPW_VAR, ib:ie, jb:je, kb:ke)))
+#endif
 
          err_1 = abs((solnData(out_1, ierr_1(1), ierr_1(2), ierr_1(3)) &
                       - solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3))) &
@@ -453,9 +455,11 @@ contains
                       - solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))) &
                      /solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3)))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
          dtmp = abs((solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)) &
                      - solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3))) &
-                    /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
+                     /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
+#endif
 
          success = tolerance .gt. err_1
          success = success .and. (tolerance .gt. err_2)
@@ -472,11 +476,13 @@ contains
             write (*, comp_fmt) eos_meshMe, out_2_name, solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)), &
                out_2_exp_name, solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
             write (*, tmp_fmt) eos_meshMe, dtmp
             write (*, comp_fmt) eos_meshMe, in_1_name, solnData(in_1, idtmp(1), idtmp(2), idtmp(3)), &
                in_2_name, solnData(in_2, idtmp(1), idtmp(2), idtmp(3))
             write (*, comp_fmt) eos_meshMe, "tmph", solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3)), &
                "tmpw", solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3))
+#endif
 
             if (success) then
                write (*, status_fmt) eos_meshMe, name, "PASS"
