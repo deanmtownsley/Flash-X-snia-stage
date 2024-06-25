@@ -15,7 +15,6 @@
 
 #include "Simulation.h"
 
-#ifdef FLASHX_ORCHESTRATION_MILHOJA
 !> @ingroup Orchestration
 !! @anchor Orchestration_checkInternalError_stub
 !!
@@ -33,10 +32,11 @@
 !! Flash-X Fortran code can perform error checking on internal calls.
 !!
 !! @note
-!! This subroutine is only available in the Orchestration unit's public interface
-!! if the Milhoja Orchestration implementation is in use.  Therefore, it
-!! effectively has no stub implementation.  Refer to the Orchestration unit's 
-!! documentation for more information.
+!! This subroutine is available in the Orchestration unit's public interface,
+!! whether the Milhoja Orchestration implementation is included or not. However,
+!! the stub implementation will always abort when the Milhoja Orchestration
+!! implementation is included, since in that case the Milhoja implementation
+!! should override the stub.
 !!
 !! @param routineName  The name of the Flash-X routine that called this routine.
 !!                     This information is included in the error message.
@@ -50,9 +50,10 @@ subroutine Orchestration_checkInternalError(routineName, MH_errorCode)
     character(LEN=*),     intent(IN) :: routineName
     integer(MILHOJA_INT), intent(IN) :: MH_errorCode
 
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
     ! A lack of error checking should not be a quiet no-op.  Prefer abort to
     ! warning in the name of defensive programming.
     CALL Driver_abort("[Orchestration_checkInternalError] No error checking")
-end subroutine Orchestration_checkInternalError
 #endif
+end subroutine Orchestration_checkInternalError
 

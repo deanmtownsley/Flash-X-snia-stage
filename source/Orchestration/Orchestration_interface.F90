@@ -27,7 +27,8 @@
 module Orchestration_interface
 
     use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t, &
-                                               MILHOJA_INT !, & !...
+                                               MILHOJA_INT
+    use iso_c_binding, ONLY : C_PTR
     implicit none
 
     interface
@@ -39,17 +40,14 @@ module Orchestration_interface
             implicit none
         end subroutine Orchestration_finalize
 
-!!#ifdef FLASHX_ORCHESTRATION_MILHOJA
         subroutine Orchestration_checkInternalError(routineName, MH_errorCode)
             import
-!!$            use Orchestration_interfaceTypeDecl, ONLY : MILHOJA_INT
             implicit none
             character(LEN=*),     intent(IN) :: routineName
             integer(MILHOJA_INT), intent(IN) :: MH_errorCode
         end subroutine Orchestration_checkInternalError
     end interface
 
-!!# ifndef RUNTIME_MUST_USE_TILEITER
     interface
         subroutine Orchestration_setupPipelineForCpuTasks(MH_taskFunction, nThreads)
             use Orchestration_interfaceTypeDecl, ONLY : milhoja_runtime_taskFunction
@@ -109,7 +107,6 @@ module Orchestration_interface
         end subroutine Orchestration_setupPipelineForExtGpuTasks
     end interface
 
-!!# else
     interface
         subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                                   prototype_Cptr, nThreads)
@@ -120,9 +117,8 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
         end subroutine Orchestration_executeTasks_Cpu
-!!# endif
 
-!!# ifdef ORCHESTRATION_USE_GPUS
+
         subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
                                                   nDistributorThreads, &
                                                   nThreads,            &
@@ -193,18 +189,14 @@ module Orchestration_interface
             type(C_PTR),                            intent(IN) :: MH_packet_Cptr
             type(C_PTR),                            intent(IN) :: MH_postProto_Cptr
         end subroutine Orchestration_executeTasks_extGpu
-!!# endif
-!!#endif
     end interface
 
-#ifdef FLASHX_ORCHESTRATION_MILHOJA
-!!$# ifndef RUNTIME_MUST_USE_TILEITER
+
     !Separate specific interfaces - push to pipeline
     interface
         !The first one here is for a packet-less CPU-only pipeline
         subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
             import
             implicit none
             type(C_PTR),                            intent(IN) :: prototype_Cptr
@@ -213,7 +205,6 @@ module Orchestration_interface
         end subroutine Orchestration_pushTileToPipeline
         subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
             import
             implicit none
             type(C_PTR),                            intent(IN) :: prototype_Cptr
@@ -223,7 +214,6 @@ module Orchestration_interface
         subroutine Orchestration_pushTileToCpuGpuPipeline(pktProto_Cptr, tileProto_Cptr, &
                                                     nThreads, &
                                                     tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
             import
             implicit none
             type(C_PTR),                            intent(IN) :: pktProto_Cptr
@@ -234,7 +224,6 @@ module Orchestration_interface
         subroutine Orchestration_pushTileToCpuGpuSplitPipeline(pktProto_Cptr, tileProto_Cptr, &
                                                     nThreads, &
                                                     tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
             import
             implicit none
             type(C_PTR),                            intent(IN) :: pktProto_Cptr
@@ -244,7 +233,6 @@ module Orchestration_interface
         end subroutine Orchestration_pushTileToCpuGpuSplitPipeline
         subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
-            use iso_c_binding, ONLY : C_PTR
             import
             implicit none
             type(C_PTR),                            intent(IN) :: prototype_Cptr
@@ -286,8 +274,6 @@ module Orchestration_interface
             integer,                              intent(IN) :: nTilesPerPacket
         end subroutine Orchestration_teardownPipelineForExtGpuTasks
     end interface
-!!$# endif
-#endif
 
 end module Orchestration_interface
 ! Local Variables:
