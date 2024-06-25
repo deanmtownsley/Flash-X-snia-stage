@@ -22,8 +22,7 @@
 !! @details
 !! A standard Flash-X Fortran module that encapsulates the interface declarations
 !! of all routine's in the Orchestration unit that are part of this unit's public
-!! interface.  Refer to the doxygen documentation for this unit for a discussion of
-!! why the interface changes based on setup information.
+!! interface.
 module Orchestration_interface
 
     use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t, &
