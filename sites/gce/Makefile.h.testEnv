@@ -17,6 +17,7 @@ else
 endif
 
 #MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+#MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/localDbg-milhoja_grid/${NDIM}dcpu
 MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/local-milhoja/${NDIM}d
 
 #----------------------------------------------------------------------------
@@ -59,7 +60,7 @@ PP      = -D
 OPENMP = -fopenmp
 
 FFLAGS_OPT = -c -O2 -fdefault-real-8 -fdefault-double-8 -Wuninitialized
-FFLAGS_DEBUG = -c -ggdb -Og -fdefault-real-8 -fdefault-double-8 \
+FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
 	-Wall -Wextra -Wno-unused -Waliasing \
 	-Wno-unused-dummy-argument \
 	-Wsurprising -Wconversion -Wunderflow \
@@ -83,7 +84,7 @@ F90FLAGS =
 #overflows at both compile time and run time (only active at -O1 or higher)
 #http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
 CFLAGS_OPT = -c -O2 -Wuninitialized -D_FORTIFY_SOURCE=2
-CFLAGS_DEBUG = -c -ggdb -Og -Wno-div-by-zero -Wundef \
+CFLAGS_DEBUG = -ggdb -c -O0 -Wno-div-by-zero -Wundef \
 	-Wconversion -Wstrict-prototypes -Wunreachable-code \
 	-Wall -Wextra -Winit-self -ftree-vrp -Wfloat-equal \
 	-Wunsafe-loop-optimizations -Wpadded -fstack-protector-all 
@@ -92,7 +93,7 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API -I$(HDF5_PATH)/include
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_OACC  = -fopenacc -DSUPPRESS_ACC_ROUTINE_FOR_METH_IN_APP
+CFLAGS_OACC  = -fopenacc
 CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
 CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
@@ -105,9 +106,9 @@ CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 #  _DEBUG, and _TEST cases.
 #----------------------------------------------------------------------------
 
-LFLAGS_OPT   = -fno-merge-debug-strings -o
-LFLAGS_DEBUG = -ggdb -O0 -fno-merge-debug-strings -o
-LFLAGS_TEST  = -fno-merge-debug-strings -o
+LFLAGS_OPT   = -o
+LFLAGS_DEBUG = -g -O0 -o
+LFLAGS_TEST  = -o
 
 #----------------------------------------------------------------------------
 # Library specific linking
