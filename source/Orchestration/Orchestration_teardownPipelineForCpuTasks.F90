@@ -17,6 +17,22 @@
 !! @stubref{Orchestration_teardownPipelineForCpuTasks}
 !!
 !! @brief Stub implementation of Orchestration_teardownPipelineForCpuTasks
+!!
+!! @details
+!! Tear down the thread team bundle of the orchestration runtime that was
+!! set up with Orchestration_setupPipelineForCpuTasks.
+!! If necessary, queues of the bundle will be flushed and drained, and
+!! pending tasks completed, before the call returns; thus significant time
+!! can appear to be spent in this subroutine.
+!!
+!! @note
+!! An actual, non-stub implementation of this interface is only available if
+!! Flash-X is configured and linked appropriately.
+!! See Orchestration_setupPipelineForCpuTasks for more information.
+!!
+!! @param nThreads              Number of threads in team to activate.
+!!                              Used for checking that the configuration of
+!!                              the orchestration runtime matches expectations.
 subroutine Orchestration_teardownPipelineForCpuTasks(nThreads)
    implicit none
 

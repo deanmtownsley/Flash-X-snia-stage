@@ -17,6 +17,26 @@
 !! @stubref{Orchestration_teardownPipelineForGpuTasks}
 !!
 !! @brief Stub implementation of Orchestration_teardownPipelineForGpuTasks
+!!
+!! @details
+!! Tear down the thread team bundle of the orchestration runtime that was
+!! set up with Orchestration_setupPipelineForGpuTasks.
+!! If necessary, queues of the bundle will be flushed and drained, and
+!! pending tasks completed, before the call returns; thus significant time
+!! can appear to be spent in this subroutine.
+!!
+!! @note
+!! An actual, non-stub implementation of this interface is only available if
+!! Flash-X is configured and linked appropriately.
+!! See Orchestration_setupPipelineForGpuTasks for more information.
+!!
+!! @param nThreads              Number of threads in team to activate.
+!!                              Used for checking that the configuration of
+!!                              the orchestration runtime matches expectations.
+!! @param nTilesPerPacket       The maximum number of tiles allowed in each
+!!                              packet.
+!!                              Used for checking that the configuration of
+!!                              the orchestration runtime matches expectations.
 subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
    implicit none
 
