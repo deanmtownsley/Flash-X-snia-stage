@@ -47,6 +47,8 @@
 !! @param MH_taskFunction  The task function to be executed by the single
 !!                         thread team.  It is assumed that this function
 !!                         was written to run on CPUs.
+!! @param prototype_Cptr   Pointer to a prototype tile wrapper object to be
+!!                         used to create new wrapped tiles.
 !! @param nThreads         The number of threads to activate in team
 subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
                                           prototype_Cptr, nThreads)

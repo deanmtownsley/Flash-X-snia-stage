@@ -19,6 +19,10 @@
 !! @stubref{Orchestration_executeTasks_extGpu}
 !!
 !! @brief Stub implementation of Orchestration_executeTasks_extGpu
+!!
+!! @param nThreads              The number of threads to activate in the teams
+!!                              that apply the task functions.
+
 subroutine Orchestration_executeTasks_extGpu(MH_taskFunction,     &
                                           MH_postTaskFunction,     &
                                           nDistributorThreads, &

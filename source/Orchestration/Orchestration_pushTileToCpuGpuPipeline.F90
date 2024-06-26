@@ -17,6 +17,28 @@
 !! @stubref{Orchestration_pushTileToCpuGpuPipeline}
 !!
 !! @brief Stub implementation of Orchestration_pushTileToCpuGpuPipeline
+!!
+!! @param pktProto_Cptr         Pointer to a prototype datapacket, from which
+!!                              the orchestration runtime will generate new
+!!                              datapackets.
+!!                              Prototype datapackets are created by calling
+!!                              a function like, for example,
+!!                              instantiate_gpu_tf_hydro_packet_C in the case
+!!                              of orchestrating work for a Hydro operation.
+!! @param tileProto_Cptr        Pointer to a tile wrapper object, from which
+!!                              the orchestration runtime will generate new
+!!                              tile wrapper objects.
+!!                              Prototype tile wrappers are created by calling
+!!                              a function like, for example,
+!!                              instantiate_cpu_tf_hydro_wrapper_c in the case
+!!                              of orchestrating work for a Hydro operation.
+!! @param nThreads              The number of threads to activate in the teams
+!!                              that apply the task functions.
+!! tileCInfo                    An object of C-compatible derived type holding
+!!                              information that identifies and describes the
+!!                              tile on which work is to be done; including
+!!                              pointers to the Grid unit's raw (real) data
+!!                              associated with the tile.
 
 subroutine Orchestration_pushTileToCpuGpuPipeline(pktProto_Cptr, tileProto_Cptr, &
                                             nThreads, &
