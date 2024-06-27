@@ -24,8 +24,9 @@
 !! Upon successful completion of th setup, the orchestration runtime will
 !! be ready to accept data items (tiles) pushed to it for execution
 !! with Orchestration_pushTileToPipeline calls.
-!! To end the cycle, a call to Orchestration_setupPipelineForGpuTasks
-!! has to be matched with an Orchestration_teardownPipeline call.
+!! To end the cycle, a call to Orchestration_setupPipelineForCpuTasks
+!! has to be matched with an Orchestration_teardownPipelineForCpuTasks call
+!! or a call of the generic Orchestration_teardownPipeline interface.
 !!
 !! @note
 !! An actual, non-stub implementation of this interface is only available if

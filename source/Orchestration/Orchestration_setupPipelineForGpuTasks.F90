@@ -21,11 +21,12 @@
 !! @details
 !! Set up the orchestration runtime so that it is ready to execute the given
 !! task function with the GPU-only thread team configuration.
-!! Upon successful completion of th setup, the orchestration runtime will
+!! Upon successful completion of the setup, the orchestration runtime will
 !! be ready to accept data items (tiles) pushed to it for execution
 !! with Orchestration_pushTileToGpuPipeline calls.
 !! To end the cycle, a call to Orchestration_setupPipelineForGpuTasks
-!! has to be matched with an Orchestration_teardownPipeline call.
+!! has to be matched with an Orchestration_teardownPipelineForGpuTasks call
+!! or a call of the generic Orchestration_teardownPipeline interface.
 !!
 !! @note
 !! An actual, non-stub implementation of this interface is only available if

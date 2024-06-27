@@ -37,6 +37,10 @@
 !!                              packet.
 !!                              Used for checking that the configuration of
 !!                              the orchestration runtime matches expectations.
+!!                              Note that the presense of this non-optional
+!!                              argument distinguishes the specific interface
+!!                              Orchestration_teardownPipelineForGpuTasks from
+!!                              Orchestration_teardownPipelineForCpuTasks.
 subroutine Orchestration_teardownPipelineForGpuTasks(nThreads, nTilesPerPacket)
    implicit none
 
