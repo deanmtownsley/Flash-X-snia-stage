@@ -27,7 +27,7 @@
 !! occurring in an iterator loop over tiles) has to be bracketed by calls for
 !! setting up and for tearing down the desired thread team configuration with
 !! the desired task functions, such that the sequence of Orchestration calls is
-!! - `call Orchestration_setupPipelineForCpuGpuTasks`
+z!! - `call Orchestration_setupPipelineForCpuGpuTasks` (with `nTilesPerCpuTurn`)
 !! - `call Orchestration_pushTileToCpuGpuSplitPipeline` [...]
 !! - `call Orchestration_teardownPipelineForCpuGpuSplitTasks`
 !!
@@ -47,6 +47,11 @@
 !!                              of orchestrating work for a Hydro operation.
 !! @param nThreads              The number of threads to activate in the teams
 !!                              that apply the task functions.
+!!                              Used here only for checking that the current
+!!                              configuration of the orchestration runtime,
+!!                              established by the previous call of
+!!                              Orchestration_setupPipelineForCpuGpuTasks,
+!!                              matches expectations.
 !! tileCInfo                    An object of C-compatible derived type holding
 !!                              information that identifies and describes the
 !!                              tile on which work is to be done; including

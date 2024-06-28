@@ -20,7 +20,7 @@
 
 !! @details
 !! Push a tile to the orchestration runtime for processing by the task
-!! functions that were passed when the runtime system was set up with a
+!! function that was passed when the runtime system was set up with a
 !! preceding Orchestration_setupPipelineForGpuTasks call.
 !! This variant of the push interface is for the GPU-only thread team configuration.
 !! A sequence of Orchestration_pushTileToGpuPipeline calls (usually
@@ -40,6 +40,11 @@
 !!                              of orchestrating work for a Hydro operation.
 !! @param nThreads              The number of threads to activate in the team
 !!                              that applies the task function.
+!!                              Used here only for checking that the current
+!!                              configuration of the orchestration runtime,
+!!                              established by the previous call of
+!!                              Orchestration_setupPipelineForGpuTasks,
+!!                              matches expectations.
 !! tileCInfo                    An object of C-compatible derived type holding
 !!                              information that identifies and describes the
 !!                              tile on which work is to be done; including
@@ -48,7 +53,6 @@
 subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
                                             tileCInfo)
    use iso_c_binding, ONLY : C_PTR
-
    use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
 
    implicit none

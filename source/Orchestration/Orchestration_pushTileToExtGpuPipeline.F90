@@ -40,6 +40,11 @@
 !!                              of orchestrating work for a Hydro operation.
 !! @param nThreads              The number of threads to activate in the teams
 !!                              that apply the task functions.
+!!                              Used here only for checking that the current
+!!                              configuration of the orchestration runtime,
+!!                              established by the previous call of
+!!                              Orchestration_setupPipelineForExtGpuTasks,
+!!                              matches expectations.
 !! tileCInfo                    An object of C-compatible derived type holding
 !!                              information that identifies and describes the
 !!                              tile on which work is to be done; including
@@ -48,7 +53,6 @@
 subroutine Orchestration_pushTileToExtGpuPipeline(prototype_Cptr, nThreads, &
                                             tileCInfo)
     use iso_c_binding, ONLY : C_PTR
-
     use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
 
     implicit none

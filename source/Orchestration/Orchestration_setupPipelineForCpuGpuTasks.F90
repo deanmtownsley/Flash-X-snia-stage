@@ -32,10 +32,10 @@
 !! @note
 !! An actual, non-stub implementation of this interface is only available if
 !! (1) Flash-X is linked with a Milhoja library that was configured to support
-!! datapackets and (2) Flash-X was configured with a "Milhoja" setup variable
-!! that requests such an implementation, such as Milhoja="...,CUDA,..." or
-!! Milhoja="...,HOSTMEM,...". The condition (2) is also known as "specifying a
-!! GPU-compatible runtime backend".
+!! datapackets and wrapped tiles and (2) Flash-X was configured with a
+!! "Milhoja" setup variable that requests such an implementation, such as
+!! Milhoja="...,CUDA,..." or Milhoja="...,HOSTMEM,...". The condition (2) is
+!! also known as "specifying a GPU-compatible runtime backend".
 !!
 !! @note
 !! The MH_pktTaskFunction and MH_tileTaskFunction should generally refer to
