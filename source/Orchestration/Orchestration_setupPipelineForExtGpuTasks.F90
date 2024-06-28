@@ -18,13 +18,22 @@
 !!
 !! @brief Stub implementation of Orchestration_setupPipelineForExtGpuTasks
 !!
+!! @details
+!! Set up the orchestration runtime so that it is ready to execute the given
+!! task function with the Extended-GPU thread team configuration.
+!! Upon successful completion of the setup, the orchestration runtime will
+!! be ready to accept data items (tiles) pushed to it for execution
+!! with Orchestration_pushTileToExtGpuPipeline calls.
+!! To end the cycle, a call to Orchestration_setupPipelineForExtGpuTasks
+!! has to be matched with an Orchestration_teardownPipelineForExtGpuTasks call.
+!!
 !! @note
 !! An actual, non-stub implementation of this interface is only available if
 !! (1) Flash-X is linked with a Milhoja library that was configured to support
-!! datapackets and wrapped tiles and (2) Flash-X was configured with a "Milhoja" setup variable
-!! that requests such an implementation, such as Milhoja="...,CUDA,..." or
-!! Milhoja="...,HOSTMEM,...". The latter is also known as "specifying a
-!! GPU-compatible runtime backend".
+!! datapackets and wrapped tiles and (2) Flash-X was configured with a
+!!"Milhoja" setup variable that requests such an implementation, such as
+!! Milhoja="...,CUDA,..." or Milhoja="...,HOSTMEM,...". The condition (2) is
+!! also known as "specifying a GPU-compatible runtime backend".
 !!
 !! @param MH_taskFunction       The task function to be executed by the "GPU"
 !!                              thread team.  It is assumed that this functionn
@@ -40,7 +49,7 @@
 !!                              Hydro operation.
 !! @param MH_postTaskFunction   The task function to be executed by the "Post-GPU"
 !!                              thread team.  It is assumed that this function
-!!                              was written to execute on GPUs.
+!!                              was written to execute on CPUs.
 !!                              Task functions generally are wrappers around
 !!                              invocations of one or several user-provided
 !!                              routines (such as "static Fortran routines"),

@@ -18,6 +18,19 @@
 !!
 !! @brief Stub implementation of Orchestration_pushTileToExtGpuPipeline
 !!
+!! @details
+!! Push a tile to the orchestration runtime for processing by the task
+!! functions that were passed when the runtime system was set up with a
+!! preceding Orchestration_setupPipelineForExtGpuTasks call.
+!! This variant of the push interface is for the Extended GPU thread team configuration.
+!! A sequence of Orchestration_pushTileToExtGpuPipeline calls (usually
+!! occurring in an iterator loop over tiles) has to be bracketed by calls for
+!! setting up and for tearing down the desired thread team configuration with
+!! the desired task functions, such that the sequence of Orchestration calls is
+!! - `call Orchestration_setupPipelineForExtGpuTasks`
+!! - `call Orchestration_pushTileToExtGpuPipeline` [...]
+!! - `call Orchestration_teardownPipelineForExtGpuTasks`
+!!
 !! @param prototype_Cptr        Pointer to a prototype datapacket, from which
 !!                              the orchestration runtime will generate new
 !!                              datapackets.
