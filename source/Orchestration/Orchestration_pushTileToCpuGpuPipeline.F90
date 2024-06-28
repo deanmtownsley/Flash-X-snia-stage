@@ -23,7 +23,7 @@
 !! functions that were passed when the runtime system was set up with a
 !! preceding Orchestration_setupPipelineForCpuGpuTasks call.
 !! This variant of the push interface is for the CPU/GPU thread team configuration.
-!! A sequence of Orchestration_pushTileToCpuGpuSplitPipeline calls (usually
+!! A sequence of Orchestration_pushTileToCpuGpuPipeline calls (usually
 !! occurring in an iterator loop over tiles) has to be bracketed by calls for
 !! setting up and for tearing down the desired thread team configuration with
 !! the desired task functions, such that the sequence of Orchestration calls is
