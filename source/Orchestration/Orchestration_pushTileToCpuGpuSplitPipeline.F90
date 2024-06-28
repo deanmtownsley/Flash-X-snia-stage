@@ -27,7 +27,7 @@
 !! occurring in an iterator loop over tiles) has to be bracketed by calls for
 !! setting up and for tearing down the desired thread team configuration with
 !! the desired task functions, such that the sequence of Orchestration calls is
-z!! - `call Orchestration_setupPipelineForCpuGpuTasks` (with `nTilesPerCpuTurn`)
+!! - `call Orchestration_setupPipelineForCpuGpuTasks` (with `nTilesPerCpuTurn`)
 !! - `call Orchestration_pushTileToCpuGpuSplitPipeline` [...]
 !! - `call Orchestration_teardownPipelineForCpuGpuSplitTasks`
 !!
