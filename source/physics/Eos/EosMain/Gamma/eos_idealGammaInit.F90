@@ -57,8 +57,6 @@ subroutine eos_idealGammaInit()
 #endif
 
 
-  call eos_fillMapLookup()
-
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
   call RuntimeParameters_get("threadEosWithinBlock", eos_threadWithinBlock)
 
