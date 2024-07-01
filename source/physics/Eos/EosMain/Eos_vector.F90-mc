@@ -26,7 +26,7 @@
 #include "Eos.h"
 #include "Simulation.h"
 
-subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
+subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
 
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
@@ -38,7 +38,9 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
   integer, INTENT(in) :: mode, vecLen
   real, dimension(vecLen,EOS_VARS) :: eosData 
   real, optional, INTENT(out),target,dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
-  real, optional, INTENT(in),target, dimension(1:vecLen,NSPECIES)    :: massFrac
+  real, optional, INTENT(in),target, dimension(NSPECIES,vecLen)    :: massFrac1
+
+  real,pointer,dimension(:) :: massFrac
   integer :: i
   real :: @M eos_args, ekin
   @M eos_map_declare
@@ -47,7 +49,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
 
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
 
-  pMassFrac = present(massFrac)
+  pMassFrac = present(massFrac1)
   pDerivs = present(derivs)
   pMassFrac_and_derivs = pMassFrac.and.pDerivs
 
@@ -56,6 +58,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
 #ifndef EOS_WEAKLIB_INCLUDED
   if(pMassFrac_and_derivs) then
      do i = 1,vecLen
+        massFrac(1:NSPECIES) => massFrac1(1:NSPECIES,i)
         @M eos_unpack(eosData,i)
         @M eos_idealGamma_massFrac_derivs
         @M eos_helmSpecies_massFrac_derivs
@@ -63,6 +66,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
      end do
   else if (pMassFrac) then
      do i = 1,vecLen
+        massFrac(1:NSPECIES) => massFrac1(1:NSPECIES,i)
         @M eos_unpack(eosData,i)
         @M eos_idealGamma_massFrac
         @M eos_helmSpecies_massFrac
@@ -86,8 +90,10 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
 #endif
 #ifdef EOS_WEAKLIB_INCLUDED
   if(pMassFrac_and_derivs) then
+     massFrac(:) => massFrac
      @M eos_weakLib_massFrac_derivs        
   else if (pMassFrac) then
+     massFrac(:) => massFrac
      @M eos_weakLib_massFrac
   else if (pDerivs) then
      @M eos_weakLib_derivs        
@@ -95,7 +101,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac, derivs)
      @M eos_weakLib        
   end if
 #endif   
-  
+
   return
 end subroutine Eos_Vector
 

@@ -15,7 +15,7 @@ endif
 #----------------------------------------------------------------------------
 # Set the HDF/HDF5 library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
-HDF5_PATH = /opt/homebrew/Cellar/hdf5-mpi/1.14.2
+HDF5_PATH = /opt/homebrew/Cellar/hdf5-mpi/1.14.3
 #LIB_HDF5 = ${HDF5_PATH}/lib
 MA28_PATH = /Users/adubey/ma28
 
