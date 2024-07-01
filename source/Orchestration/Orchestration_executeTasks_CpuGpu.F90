@@ -13,12 +13,17 @@
 !!
 !! @file
 
-#include "Simulation.h"
-
 !> @ingroup OrchestrationMilhoja
 !! @stubref{Orchestration_executeTasks_CpuGpu}
 !!
 !! @brief Stub implementation of Orchestration_executeTasks_CpuGpu
+!!
+!! @details
+!! Use the runtime to execute the given task functions using the CPU/GPU thread
+!! team configuration.  Upon termination, the task functions will have been applied
+!! by CPU and "GPU" teams to all leaf blocks using the given number of threads.
+!! The order in which the task functions are applied to blocks should not be relied
+!! upon.
 !!
 !! @note
 !! The MH_pktTaskFunction and MH_tileTaskFunction should generally refer to
@@ -32,6 +37,19 @@
 !! each tile.
 !! The validity of any user algorithm should not depend on the order in which
 !! the two task functions get applied to a tile.
+!!
+!! @note
+!! An actual, non-stub implementation of this interface is only available if (1)
+!! Flash-X is linked with a Milhoja library that was configured to support datapackets
+!! and wrapped tiles, (2) the linked Milhoja library was also configured to
+!! support execute-style orchestration calls, and (3) Flash-X was configured
+!! with a "Milhoja" setup variable that requests such an implementation, such as
+!! Milhoja="...,CUDA,..." or Milhoja="...,HOSTMEM,..." - this condition is also
+!! known as "specifying a GPU-compatible runtime backend".
+!! The only existing implementation additionally requires that Flash-X uses the
+!! "Milhoja" Grid implementation and that the Milhoja library fully provides the
+!! necessary grid backend; currently known variants of the Milhoja library do
+!! this by using the AMReX library as their grid backend.
 !!
 !! @param MH_pktTaskFunction    The task function to be executed by the "GPU"
 !!                              thread team.  It is assumed that this function

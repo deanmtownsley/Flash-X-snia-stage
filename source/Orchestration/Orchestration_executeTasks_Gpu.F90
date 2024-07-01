@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
 
 #include "Simulation.h"
 
-#if defined(FLASHX_ORCHESTRATION_MILHOJA) && defined(ORCHESTRATION_USE_GPUS)
 !> @ingroup Orchestration
 !! @anchor Orchestration_executeTasks_Gpu_stub
 !!
@@ -30,11 +29,17 @@
 !! be considered as arbitrary.
 !!
 !! @note
-!! This subroutine is only available in the Orchestration unit's public interface
-!! if the Milhoja Orchestration implementation is in use and a GPU-compatible
-!! runtime backend has been specified.  Therefore, it effectively has no stub
-!! implementation.  Refer to the Orchestration unit's documentation for more
-!! information.
+!! An actual, non-stub implementation of this interface is only available if (1)
+!! Flash-X is linked with a Milhoja library that was configured to support
+!! datapackets, (2) the linked Milhoja library was also configured to support
+!! execute-style orchestration calls, and (3) Flash-X was configured with a
+!! "Milhoja" setup variable that requests such an implementation, such as
+!! Milhoja="...,CUDA,..." or Milhoja="...,HOSTMEM,..." - this condition is also
+!! known as "specifying a GPU-compatible runtime backend".
+!! The only existing implementation additionally requires that Flash-X uses the
+!! "Milhoja" Grid implementation and that the Milhoja library fully provides the
+!! necessary grid backend; currently known variants of the Milhoja library do
+!! this by using the AMReX library as their grid backend.
 !!
 !! @todo This interface is presently restricted to leaf blocks only because the
 !! runtime implementation is limited in this way.  Once the runtime functions with
@@ -70,7 +75,7 @@ subroutine Orchestration_executeTasks_Gpu(MH_taskFunction,     &
     integer,                                intent(IN) :: nTilesPerPacket
     type(C_PTR),                            intent(IN) :: MH_packet_Cptr
 
+#if defined(FLASHX_ORCHESTRATION_MILHOJA) && defined(ORCHESTRATION_USE_GPUS)
     CALL Driver_abort("[Orchestration_executeTasks_Gpu] Runtime not enabled or GPUs not available")
-end subroutine Orchestration_executeTasks_Gpu
 #endif
-
+end subroutine Orchestration_executeTasks_Gpu

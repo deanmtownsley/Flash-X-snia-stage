@@ -1,4 +1,4 @@
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
 
 #include "Simulation.h"
 
-#ifdef FLASHX_ORCHESTRATION_MILHOJA
 !> @ingroup Orchestration
 !! @anchor Orchestration_executeTasks_Cpu_stub
 !!
@@ -29,10 +28,14 @@
 !! should therefore be considered as arbitrary.
 !!
 !! @note
-!! This subroutine is only available in the Orchestration unit's public interface
-!! if the Milhoja Orchestration implementation is in use.  Therefore, it
-!! effectively has no stub implementation.  Refer to the Orchestration unit's 
-!! documentation for more information.
+!! An actual, non-stub implementation of this interface is only available if (1)
+!! Flash-X is linked with a Milhoja library that was configured to support
+!! wrapped tiles and (2) the linked Milhoja library was also configured to support
+!! execute-style orchestration calls.
+!! The only existing implementation additionally requires that Flash-X uses the
+!! "Milhoja" Grid implementation and that the Milhoja library fully provides the
+!! necessary grid backend; currently known variants of the Milhoja library do
+!! this by using the AMReX library as their grid backend.
 !!
 !! @todo Presently, the names of executeTasks routines map onto the associated
 !! thread team configuration.  We need a practical and scalable scheme to
@@ -63,7 +66,7 @@ subroutine Orchestration_executeTasks_Cpu(MH_taskFunction, &
     type(C_PTR),                            intent(IN) :: prototype_Cptr
     integer,                                intent(IN) :: nThreads
 
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
     CALL Driver_abort("[Orchestration_executeTasks_Cpu] Runtime not enabled")
-end subroutine Orchestration_executeTasks_Cpu
 #endif
-
+end subroutine Orchestration_executeTasks_Cpu
