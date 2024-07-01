@@ -21,7 +21,6 @@
 !!
 !!
 !!NOVARIANTS
-#include "Simulation.h"
 subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    use eos_localInterface, only: eos_helmSpecies, eos_weaklib
 
@@ -29,14 +28,11 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    use eos_hybridData, only: eos_hybTransitionDensLo, eos_hybTransitionDensHi, &
                              ergPerKg_to_kbPerBaryon, kbPerBaryon_to_ergPerKg
    use Eos_data, ONLY : eos_doYe
-#if defined(TMPH_VAR) || defined(TMPW_VAR)
-   use Eos_data, ONLY : eos_smallT
-#endif
-
    implicit none
 
 #include "constants.h"
 #include "Eos.h"
+#include "Simulation.h"
 
    integer, intent(in) :: mode, vecLen
    real, intent(inout), dimension(vecLen,EOS_VARS), target :: eosData
@@ -229,20 +225,22 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
       ! Note: the following are ugly hacks for the sole purpose of storing the
       ! inverted temperatures from each EOS for comparison in the unit test
 #ifdef TMPH_VAR
-      ! This will force Eos_putData to map EOS_GAMC to TMPH_VAR
+      ! This assumes that EOS_GAMC is mapped to TMPH_VAR,
+      ! perhaps by a specialized macro eos_postprocess.
       if (useHLM(k)) then
          eosData_k(EOS_GAMC) = eosData_HLM(k_HLM, EOS_TEMP)
       else
-         eosData_k(EOS_GAMC) = eos_smallT
+         eosData_k(EOS_GAMC) = eosData_k(EOS_TEMP)
       end if
 #endif
 
 #ifdef TMPW_VAR
-      ! This will force Eos_putData to map EOS_ENTR to TMPW_VAR
+      ! This assumes that EOS_ENTR is mapped to TMPW_VAR,
+      ! perhaps by a specialized macro eos_postprocess.
       if (useWL(k)) then
          eosData_k(EOS_ENTR) = eosData_WL(k_WL, EOS_TEMP)
       else
-         eosData_k(EOS_ENTR) = eos_smallT
+         eosData_k(EOS_ENTR) = eosData_k(EOS_TEMP)
       end if
 #endif
 
