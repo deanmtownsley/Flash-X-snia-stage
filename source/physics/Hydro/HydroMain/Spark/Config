@@ -94,6 +94,11 @@ IF omp_offload
   REQUIRES physics/Hydro/HydroMain/Spark/omp_offload
 ENDIF
 
+USESETUPVARS oacc
+IF oacc
+  REQUIRES physics/Hydro/HydroMain/Spark/oacc
+ENDIF
+
 
 IF useTVD or useLim03 or useFog
 	PPDEFINE NSTENCIL 2

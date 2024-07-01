@@ -1,0 +1,66 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!! @brief Save solution data in scratch spaces
+!!
+!! @details
+!! Copy solution data (Unk) in scratch spaces for RK sub-stage updates.
+!! The actual implementation is hidden behind the @p hy_saveState macro
+!! to deal with both telescoping and non-telescoping cases.
+!!
+!! @note
+!! The lower indices and size of @p tmpState differ in telescoping
+!! and non-telescoping cases. @p tmpState needs to have guard cell data
+!! in telescoping case, but not in non-telescoping case.
+!! See @p hy_tmpState_dimension macro.
+!!
+!! @param stage           Current RK stage
+!! @param Uin             Input solution data
+!! @param starState       Output solution data. Only used for telescoping case
+!! @param tmpState        Output solution data.
+!! @param blkLimits       Index limits for interior of the tile/block
+!! @param blkLimitsGC     Index limits for exterior of the tile/block
+!! @param lo              Lower indices excluding guard cells
+!! @param loGC            Lower indices including guard cells
+!<
+
+!!Reorder(4): Uin, starState, tmpState
+!!NOVARIANTS
+subroutine hy_rk_initSolnScratch(stage, Uin, starState, tmpState, &
+                                 blkLimits, blkLimitsGC, lo, loGC)
+
+#include "Simulation.h"
+#include "constants.h"
+
+   use Hydro_data, ONLY : hy_threadWithinBlock
+
+   @M hy_DIR_TARGET_routine(vector)
+
+   implicit none
+
+   integer, intent(IN) :: stage, lo(3), loGC(3)
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: Uin
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: starState
+   ! lower bounds for tmpState are different between telescoping and non-telescoping
+   real, @M hy_tmpState_dimension, intent(OUT) :: tmpState
+   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits, blkLimitsGC
+
+   integer :: i, j, k, v
+
+   @M hy_saveState
+
+end subroutine hy_rk_initSolnScratch
