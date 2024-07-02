@@ -1,0 +1,136 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!! @brief Shock detection
+!!
+!! @details
+!! Check if a cell contains a shock front, and flag @p SHOK_VAR to 1.0
+!!
+!! @param Uin             Input solution data
+!! @param Vc              Scratch space for saving acoustic sound speed
+!! @param blkLimitsGC     Index limits for exterior of the tile/block
+!! @param loGC            Lower indices including guard cells
+!<
+
+!!Reorder(4): Uin
+!!NOVARIANTS
+subroutine hy_rk_shockDetect(Uin, Vc, blkLimitsGC, loGC)
+
+   use Hydro_data, ONLY: hy_threadWithinBlock, &
+                         tinyZero => hy_tiny
+
+#include "Simulation.h"
+#include "constants.h"
+
+   @M hy_DIR_TARGET_routine(vector)
+
+   implicit none
+
+   !! ---- Argument List ----------------------------------
+   integer, intent(IN) :: loGC(3)
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: Uin
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: Vc
+   integer, intent(IN) :: blkLimitsGC(LOW:HIGH,MDIM)
+   !! -----------------------------------------------------
+
+   integer :: i, j, k, ii, jj, kk
+   logical :: SW1, SW2
+
+   real :: divv,gradPx,gradPy,gradPz
+   real :: minP,minC,beta,delta
+
+   !necessary for argument for %getDataPtr()
+#ifndef SHOK_VAR
+   return
+#endif
+
+   ! Two parameters that can be adjusted to detect shocks
+   ! with different strengths:
+   ! (a) The lower the values the weaker shocks detected
+   !     (lower the values to detect more shock regions)
+   ! (b) The larger the values the stronger shocks detected
+   !     (increase the values to detect less shock regions)
+   beta = 0.5 !0.5 !10. ! gradP
+   delta= 0.1  !0.1 !2. ! divV
+
+   Vc = 0.0
+
+   !! Compute sound speed
+   @M hy_DIR_parallel_loop_simd(3) &
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, tinyZero])
+   @M loop_3d(blkLimitsGC)
+      Uin(SHOK_VAR,i,j,k) = 0.
+      Vc(i,j,k) = sqrt(Uin(GAMC_VAR,i,j,k)*Uin(PRES_VAR,i,j,k)&
+         /max(Uin(DENS_VAR,i,j,k),tinyZero))
+   @M loop_end_3d
+
+   @M hy_DIR_parallel_loop_simd(3) &
+   @M hy_DIR_shared([blkLimitsGC, Uin, Vc, beta, delta]) &
+   @M hy_DIR_private([SW1, SW2, minP, minC, divv, gradPx, gradPy, gradPz])
+   do k = blkLimitsGC(LOW, KAXIS)+K3D, blkLimitsGC(HIGH, KAXIS)-K3D
+   do j = blkLimitsGC(LOW, JAXIS)+K2D, blkLimitsGC(HIGH, JAXIS)-K2D
+   do i = blkLimitsGC(LOW, IAXIS)+1, blkLimitsGC(HIGH, IAXIS)-1
+      ! initialize switch values
+      SW1 = .false.
+      SW2 = .false.
+      minP = HUGE(0.0)
+      minC = HUGE(0.0)
+      do ii = i-1, i+1
+         do jj = j-1*K2D, j+1*K2D
+            do kk = k-1*K3D, k+1*K3D
+               minP = min( minP, Uin(PRES_VAR,ii,jj,kk) )
+               minC = min( minC, Vc(ii,jj,kk) )
+            end do
+         end do
+      end do
+
+      !! We do not need to include non-Cartesian geom factors here.
+      !! Undivided divV
+      divv =        Uin(VELX_VAR,i+1,j,  k  ) - Uin(VELX_VAR,i-1,j,  k  )
+#if NDIM > 1
+      divv = divv + Uin(VELY_VAR,i,  j+1,k  ) - Uin(VELY_VAR,i,  j-1,k  )
+#if NDIM == 3
+      divv = divv + Uin(VELZ_VAR,i,  j,  k+1) - Uin(VELZ_VAR,i,  j,  k-1)
+#endif
+#endif
+      divv = 0.5*divv
+      !! Undivided grad pres
+      gradPx = 0.5*(Uin(PRES_VAR,i+1,j,  k  ) - Uin(PRES_VAR,i-1,j,  k  ))
+      gradPy = 0.
+      gradPz = 0.
+#if NDIM > 1
+      gradPy = 0.5*(Uin(PRES_VAR,i,  j+1,k  ) - Uin(PRES_VAR,i,  j-1,k  ))
+#if NDIM == 3
+      gradPz = 0.5*(Uin(PRES_VAR,i,  j,  k+1) - Uin(PRES_VAR,i,  j,  k-1))
+#endif
+#endif
+      if ( abs(gradPx)+abs(gradPy)+abs(gradPz) .ge. beta*minP ) then
+         SW1 = .true.
+      endif
+      if (-delta*minC .ge. divv) then
+         SW2 = .true.
+      endif
+      if (SW1 .and. SW2) then
+         ! Set SHOCK_VAR to 1.0 if a shock is detected.
+         ! One use is for a local hybrid method in the Hydro unit which
+         ! applies (a diffusive) HLL solver when SHOK_VAR = 1.
+         Uin(SHOK_VAR,i,j,k) = 1.
+      endif !endif (SW1 .and. SW2) then
+   @M loop_end_3d
+
+
+end subroutine hy_rk_shockDetect
