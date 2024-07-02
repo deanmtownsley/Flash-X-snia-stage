@@ -90,11 +90,9 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
 #endif
 #ifdef EOS_WEAKLIB_INCLUDED
   if(pMassFrac_and_derivs) then
-     massFrac(:) => massFrac
-     @M eos_weakLib_massFrac_derivs        
+     @M eos_weakLib_massFrac_derivs(massFrac1)
   else if (pMassFrac) then
-     massFrac(:) => massFrac
-     @M eos_weakLib_massFrac
+     @M eos_weakLib_massFrac(massFrac1)
   else if (pDerivs) then
      @M eos_weakLib_derivs        
   else
