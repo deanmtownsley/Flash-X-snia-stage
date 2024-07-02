@@ -47,10 +47,36 @@ ug:+grid:Grid=UG:
 pm40:+grid:Grid=PM40:
 pm3:+pm40
 amrex:Grid=Amrex:-unit=Grid/GridMain/AMR/Amrex:-index-reorder
+
+# Using the Milhoja library only for the Grid implementation:
 mh_grid:Grid=Milhoja:-unit=Grid/GridMain/AMR/Milhoja:-with-unofficial=Grid/GridMain/AMR/Milhoja:-index-reorder:Milhoja=AMReX
+# Using the Milhoja library only for the Orchestration implementation: (also needs Milhoja=...)
 mh_orch:-unit=Orchestration/OrchestrationMain/Milhoja:-with-unofficial=Orchestration/OrchestrationMain/Milhoja:-index-reorder
-milhoja:+mh_grid:+mh_orch:Milhoja=AMReX,none,OpenACC
+
+### For execute-style ORCHA ### (needs libmilhoja or libmilhoja_grid)
+# Using the Milhoja library for Grid and Orchestration implementations, CPU tt config only:
+mh_exec_cpu:+mh_grid:+mh_orch:-defines=RUNTIME_MUST_USE_TILEITER:Milhoja=AMReX,none,none
+# Using the Milhoja library for Grid and Orchestration implementations, GPU tt configs via CUDA:
+mh_exec:+mh_grid:+mh_orch:-defines=RUNTIME_MUST_USE_TILEITER:Milhoja=AMReX,CUDA,OpenACC
+# Using the Milhoja library for Grid and Orchestration implementations, fake "GPU" tt configs on CPU:
+mh_exec_fakecuda:+mh_grid:+mh_orch:-defines=RUNTIME_MUST_USE_TILEITER:Milhoja=AMReX,HOSTMEM,OpenACC
+
+### For pushTile-style ORCHA ### (needs libmilhoja or libmilhoja_nogrid)
+# Using the Milhoja library for the Orchestration implementation, CPU tt config only:
+mh_push_cpu:+mh_orch:Milhoja=none,none,OpenACC
+# Using the Milhoja library for the Orchestration implementation, GPU tt config via CUDA:
+mh_push:+mh_orch:Milhoja=none,CUDA,OpenACC
+# Using the Milhoja library for the Orchestration implementation, fake "GPU" tt configs on CPU:
+mh_push_fakecuda:+mh_orch:Milhoja=none,HOSTMEM,OpenACC
+
+### For any-style ORCHA ### (When needed, use +mh_grid *before* one of these shortcuts)
+mh_cpu:+mh_orch:Milhoja=AMReX,none,OpenACC
 mh_gpu:+mh_orch:Milhoja=AMReX,CUDA,OpenACC
+mh_fakecuda:+mh_orch:Milhoja=AMReX,HOSTMEM,OpenACC
+
+### Default Milhoja Shortcut ### (compatibility / maybe override for site)
+milhoja:+mh_grid:+mh_gpu
+
 
 # pm4dev_clean indicates a version of Paramesh closer to the one
 # that can be downloaded from sourceforge.  pm4dev indicates a 

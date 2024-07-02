@@ -9,8 +9,10 @@ def genLines(setupvars):
     yield 'PPDEFINE FLASHX_ORCHESTRATION_MILHOJA'
     yield 'LIBRARY milhoja'  # Milhoja for Orchestration
 
-    # No need for 'LIBRARY milhoja_*' since the Milhoja Grid implementation should
-    # already declare that
+    # No need for 'LIBRARY milhoja_*' here since the Milhoja Grid implementation should
+    # already declare that if it needs it
+
+    # We like the Grid setup variable to exist, but currently do not really need it here
 
     yield 'D or_nBytesInCpuMemoryPool   N bytes in CPU memory pool'
     yield 'D or_nThreadTeams            N thread teams to create'
@@ -35,6 +37,7 @@ def genLines(setupvars):
     if   runtime_backend == 'none':
         pass
     elif runtime_backend in ['cuda','gengpu','hostmem','openmp','openacc']:
+        # To be fleshed out: gengpu, openmp, openacc as runtime backends
         if (runtime_backend == 'cuda'):
             yield 'LIBRARY CUDA'
         if (runtime_backend == 'cuda' or runtime_backend == 'gengpu'):
