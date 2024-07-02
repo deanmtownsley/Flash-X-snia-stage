@@ -24,7 +24,7 @@ subroutine Orchestration_pushTileToCpuPipeline(prototype_Cptr, nThreads, &
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
 #ifndef RUNTIME_MUST_USE_TILEITER
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_pushTileToCpuPipeline
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_pushTileToPipeline
 #endif
 
     use Driver_interface,        ONLY : Driver_abort
@@ -45,11 +45,11 @@ subroutine Orchestration_pushTileToCpuPipeline(prototype_Cptr, nThreads, &
     MH_tileCInfo_Cp = c_loc(tileCInfo)
 
 #ifndef RUNTIME_MUST_USE_TILEITER
-    CALL milhoja_runtime_pushTileToCpuPipeline(prototype_Cptr, &
+    CALL milhoja_runtime_pushTileToPipeline(prototype_Cptr, &
                                           MH_nThreads, MH_tileCInfo_Cp, MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_pushTileToCpuPipeline", MH_ierr)
 #else
-    CALL Driver_abort("Orchestration_pushTileToCpuPipeline: milhoja_runtime_pushTileToCpuPipeline disabled")
+    CALL Driver_abort("Orchestration_pushTileToCpuPipeline: milhoja_runtime_pushTileToPipeline disabled")
 #endif
 end subroutine Orchestration_pushTileToCpuPipeline
 ! Local Variables:
