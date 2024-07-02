@@ -1,3 +1,5 @@
+# Use the Milhoja library -- FOR NOW - using some infrastructure from AMReX
+# (but not necessarily a full "AMReX grid backend")
 TYPE EXTERNAL
 
 # The following is commented out. Configurations that need the part of the

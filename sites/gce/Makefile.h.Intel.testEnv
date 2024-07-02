@@ -141,7 +141,7 @@ LIB_MA28 = -L$(MA28_PATH) -lma28
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # all dependencies.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
-LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX} -lstdc++
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX}
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):
