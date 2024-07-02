@@ -14,17 +14,17 @@
 !! @file
 
 !> @ingroup OrchestrationMilhoja
-!! @stubref{Orchestration_pushTileToPipeline}
+!! @stubref{Orchestration_pushTileToCpuPipeline}
 !!
-!! @brief Concrete implementation of Orchestration_pushTileToPipeline
+!! @brief Concrete implementation of Orchestration_pushTileToCpuPipeline
 #include "Milhoja.h"
-subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
+subroutine Orchestration_pushTileToCpuPipeline(prototype_Cptr, nThreads, &
                                             tileCInfo)
     use iso_c_binding, ONLY : C_PTR, c_loc
 
     use milhoja_types_mod,   ONLY : MILHOJA_INT
 #ifndef RUNTIME_MUST_USE_TILEITER
-    use milhoja_runtime_mod, ONLY : milhoja_runtime_pushTileToPipeline
+    use milhoja_runtime_mod, ONLY : milhoja_runtime_pushTileToCpuPipeline
 #endif
 
     use Driver_interface,        ONLY : Driver_abort
@@ -45,13 +45,13 @@ subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
     MH_tileCInfo_Cp = c_loc(tileCInfo)
 
 #ifndef RUNTIME_MUST_USE_TILEITER
-    CALL milhoja_runtime_pushTileToPipeline(prototype_Cptr, &
+    CALL milhoja_runtime_pushTileToCpuPipeline(prototype_Cptr, &
                                           MH_nThreads, MH_tileCInfo_Cp, MH_ierr)
-    CALL Orchestration_checkInternalError("Orchestration_pushTileToPipeline", MH_ierr)
+    CALL Orchestration_checkInternalError("Orchestration_pushTileToCpuPipeline", MH_ierr)
 #else
-    CALL Driver_abort("Orchestration_pushTileToPipeline: milhoja_runtime_pushTileToPipeline disabled")
+    CALL Driver_abort("Orchestration_pushTileToCpuPipeline: milhoja_runtime_pushTileToCpuPipeline disabled")
 #endif
-end subroutine Orchestration_pushTileToPipeline
+end subroutine Orchestration_pushTileToCpuPipeline
 ! Local Variables:
 ! f90-program-indent: 4
 ! f90-do-indent: 3

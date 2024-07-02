@@ -14,21 +14,21 @@
 !! @file
 
 !> @ingroup OrchestrationMilhoja
-!! @stubref{Orchestration_pushTileToPipeline}
+!! @stubref{Orchestration_pushTileToCpuPipeline}
 !!
-!! @brief Stub implementation of Orchestration_pushTileToPipeline
+!! @brief Stub implementation of Orchestration_pushTileToCpuPipeline
 
 !! @details
 !! Push a tile to the orchestration runtime for processing by the task
 !! function that was passed when the runtime system was set up with a
 !! preceding Orchestration_setupPipelineForCpuTasks call.
 !! This variant of the push interface is for the CPU-only thread team configuration.
-!! A sequence of Orchestration_pushTileToPipeline calls (usually
+!! A sequence of Orchestration_pushTileToCpuPipeline calls (usually
 !! occurring in an iterator loop over tiles) has to be bracketed by calls for
 !! setting up and for tearing down the desired thread team configuration with
 !! the desired task functions, such that the sequence of Orchestration calls is
 !! - `call Orchestration_setupPipelineForCpuTasks`
-!! - `call Orchestration_pushTileToPipeline` [...]
+!! - `call Orchestration_pushTileToCpuPipeline` [...]
 !! - `call Orchestration_teardownPipelineForCpuTasks`
 !!
 !! @param prototype_Cptr        Pointer to a prototype tile wrapper object,
@@ -50,7 +50,7 @@
 !!                              tile on which work is to be done; including
 !!                              pointers to the Grid unit's raw (real) data
 !!                              associated with the tile.
-subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
+subroutine Orchestration_pushTileToCpuPipeline(prototype_Cptr, nThreads, &
                                             tileCInfo)
     use iso_c_binding, ONLY : C_PTR
     use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
@@ -61,7 +61,7 @@ subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
     integer,                                intent(IN) :: nThreads
     type(Orchestration_tileCInfo_t),intent(IN),target :: tileCInfo
 
-end subroutine Orchestration_pushTileToPipeline
+end subroutine Orchestration_pushTileToCpuPipeline
 ! Local Variables:
 ! f90-program-indent: 4
 ! f90-do-indent: 3

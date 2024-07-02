@@ -194,14 +194,14 @@ module Orchestration_interface
     !Separate specific interfaces - push to pipeline
     interface
         !The first one here is for a packet-less CPU-only pipeline
-        subroutine Orchestration_pushTileToPipeline(prototype_Cptr, nThreads, &
+        subroutine Orchestration_pushTileToCpuPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
             import
             implicit none
             type(C_PTR),                            intent(IN) :: prototype_Cptr
             integer,                                intent(IN) :: nThreads
             type(Orchestration_tileCInfo_t),target, intent(IN) :: tileCInfo
-        end subroutine Orchestration_pushTileToPipeline
+        end subroutine Orchestration_pushTileToCpuPipeline
         subroutine Orchestration_pushTileToGpuPipeline(prototype_Cptr, nThreads, &
                                                     tileCInfo)
             import

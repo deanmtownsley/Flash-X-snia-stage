@@ -23,7 +23,7 @@
 !! task function with the CPU-only thread team configuration.
 !! Upon successful completion of th setup, the orchestration runtime will
 !! be ready to accept data items (tiles) pushed to it for execution
-!! with Orchestration_pushTileToPipeline calls.
+!! with Orchestration_pushTileToCpuPipeline calls.
 !! To end the cycle, a call to Orchestration_setupPipelineForCpuTasks
 !! has to be matched with an Orchestration_teardownPipelineForCpuTasks call
 !! or a call of the generic Orchestration_teardownPipeline interface.

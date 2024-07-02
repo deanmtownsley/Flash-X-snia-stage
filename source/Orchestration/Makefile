@@ -7,7 +7,7 @@ Orchestration += Orchestration_init.o \
 		         Orchestration_setupPipelineForGpuTasks.o \
 		         Orchestration_setupPipelineForCpuGpuTasks.o \
 		         Orchestration_setupPipelineForExtGpuTasks.o \
-		         Orchestration_pushTileToPipeline.o \
+		         Orchestration_pushTileToCpuPipeline.o \
 		         Orchestration_pushTileToGpuPipeline.o \
 		         Orchestration_pushTileToCpuGpuPipeline.o \
 		         Orchestration_pushTileToCpuGpuSplitPipeline.o \
