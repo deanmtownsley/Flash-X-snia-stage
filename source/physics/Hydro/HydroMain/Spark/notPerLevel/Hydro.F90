@@ -62,7 +62,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
   use Grid_interface, ONLY : Grid_conserveFluxes, &
       Grid_fillGuardCells, Grid_getTileIterator, &
       Grid_releaseTileIterator 
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use IO_interface, ONLY : IO_setScalar
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
@@ -204,7 +204,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
         blkLimitsGC(:,:) = blockDesc%blkLimitsGC
         !Mike this will require some work...
         call hy_rk_correctFluxes(blockDesc,dt)
-        ! call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
+        ! call Eos_multiDim(MODE_DENS_EI,blkLimits,blockID)
         call itor%next()
      end do
      call Timers_stop("flux correct")

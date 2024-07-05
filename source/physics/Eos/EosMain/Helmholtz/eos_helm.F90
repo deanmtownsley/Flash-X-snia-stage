@@ -1,40 +1,25 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/eos_helm
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_helm
-!!
-!!
-!! SYNOPSIS
-!!
-!!  call eos_helm(integer(IN) :: eos_jlo,
-!!                integer(IN) :: eos_jhi,
-!!      optional, logical(IN) :: mask(EOS_VARS+1:EOS_NUM) )
-!!
-!!
-!! DESCRIPTION
-!!
+!! @brief implementation of the Eos where 
 !!  given a temperature temp [K], density den [g/cm**3], and a composition 
 !!  characterized by abar and zbar, this routine returns some of the other 
 !!  thermodynamic quantities. of prime interest is the pressure [erg/cm**3], 
 !!  specific thermal energy [erg/gr], and their derivatives with respect
 !!  to temperature and density.
-!!
-!!  NOTE that this routine does not have any Flash3 eosMode other than 
-!!    MODE_DENS_TEMP.  So the initial temperature and density input to Eos() 
-!!    for the Helmholtz unit must be a good guess, or the algorithms will never
-!!    converge.
 !!  
 !!  for opacity purposes, the number density of electron-positrons,
 !!  the chemical potential of the electrons, and the pressure due
@@ -48,65 +33,27 @@
 !!  
 !!  references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 !!
-!! ARGUMENTS
-!!
-!!  eos_jlo  -- low index of calculation range
-!!  eos_jhi  -- high index of calculation range
-!!  mask     --  Mask is a logical array the size of EOS_DERIVS (number
-!!              of partial derivatives that can be computed, defined in
-!!              Eos.h), where each index represents a specific partial derivative
-!!              that can be calculated by the Eos unit. A .true. value in mask 
-!!              results in the corresponding derivative being calculated and 
-!!              returned. It should preferably be dimensioned as
-!!              mask(EOS_VARS+1:EOS_NUM) in the calling routine 
-!!              to exactly match the arguments declaration in Eos Unit.
-!!             Note that the indexing of mask does not begin at 1, but rather at one past
-!!             the number of basic variables.
-!!
-!!             The Helmholtz EOS kernel calculation ignores the mask setting and calculates
-!!             all derivatives, whether needed or not.  This routine does not return
-!!             derivatives if the mask is requested, but the calculation is not speeded up
-!!             by setting the mask.
-!!
-!!
-!! PARAMETERS
-!!
-!! NOTES
-!!
-!!  equation of state communication through eos_vecData
-!!
-!!  btemp    = temperature
-!!  den      = density
-!!  abar     = average number of nucleons per nuclei
-!!  zbar     = average number of protons per nuclei
-!!  z2bar    = square of zbar
-!!  ytot1    = total number of moles per gram
-!!  ye       = electron mole number
-!!
-!!  Since this subroutine has an optional argument, an explicit interface is needed.
-!!  Calling program units should therefore have a line like
-!!    use eos_helmInterface, ONLY : eos_helm
-!!  no matter whether they call eos_helm with or without the optional mask argument.
-!!***
+
 #ifdef DEBUG_ALL
 #define DEBUG_EOS
 #endif
 
-subroutine eos_helm(eos_jlo,eos_jhi,mask)
+subroutine eos_helm()
 
   use eos_helmData, ONLY: eos_f, eos_ft, eos_ftt, eos_fd, eos_fdd, eos_fdt, &
        eos_fddt, eos_fdtt, eos_fddtt, &
        eos_dpdf, eos_dpdft, eos_dpdfd, eos_dpdfdt, &
-       eos_coulombMult, eos_dLo, eos_tLo, eos_t, eos_dt,  eos_dtInv, &
+       eos_coulombMult, eos_dLo, eos_tLo, eos_t, eos_dt, eos_dtInv, &
        eos_d, eos_dd, eos_ddInv, eos_tstpi, eos_dstpi, &
        eos_dtSqr, eos_dtSqrInv, eos_ddSqr, &
        eos_ef, eos_eft, eos_efd, eos_efdt, &
        eos_xf, eos_xft, eos_xfd, eos_xfdt, &
        EOSJMAX, EOSIMAX, eos_coulombAbort
+  use eos_helmData, ONLY: eos_temps,eos_rhos,eos_table
   use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use Timers_interface, ONLY: Timers_start, Timers_stop
-  use eos_vecData, ONLY: tempRow , denRow, abarRow, zbarRow, &
+  use eos_helmData, ONLY: tempRow , denRow, abarRow, zbarRow, &
        ptotRow, etotRow, stotRow, &
        dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
        deaRow, dezRow, & !Calhoun
@@ -124,11 +71,6 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 #include "Eos.h"
 
 !! Arguments
-  integer, intent(IN) :: eos_jlo, eos_jhi
-  logical,optional, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-!! from eos_helmInterface.F90       logical,optional, dimension(EOS_VARS+1:EOS_NUM),INTENT(in)::mask
-
-!! Local variables
 
   character*90 ::  internalFile
   integer      ::  i,j
@@ -294,48 +236,48 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 !!  bicubic hermite for the pressure derivative
 #ifndef EOS_LESSOPERATIONS
   h3dpd(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-       eos_dpdf(i,j)        *w0d*w0t   +   eos_dpdf(i+1,j)    *w0md*w0t  & 
-       +   eos_dpdf(i,j+1)  *w0d*w0mt  +   eos_dpdf(i+1,j+1)  *w0md*w0mt & 
-       +  eos_dpdft(i,j)    *w0d*w1t   +  eos_dpdft(i+1,j)    *w0md*w1t  & 
-       +  eos_dpdft(i,j+1)  *w0d*w1mt  +  eos_dpdft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_dpdfd(i,j)    *w1d*w0t   +  eos_dpdfd(i+1,j)    *w1md*w0t  & 
-       +  eos_dpdfd(i,j+1)  *w1d*w0mt  +  eos_dpdfd(i+1,j+1)  *w1md*w0mt & 
-       + eos_dpdfdt(i,j)    *w1d*w1t   + eos_dpdfdt(i+1,j)    *w1md*w1t  & 
-       + eos_dpdfdt(i,j+1)  *w1d*w1mt  + eos_dpdfdt(i+1,j+1)  *w1md*w1mt
+       eos_table(i,j,eos_dpdf)        *w0d*w0t   +   eos_table(i+1,j,eos_dpdf)    *w0md*w0t  & 
+       +  eos_table(i,j+1, eos_dpdf)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_dpdf)  *w0md*w0mt & 
+       +  eos_table(i,j,eos_dpdft)    *w0d*w1t   +  eos_table(i+1,j,eos_dpdft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_dpdft)  *w0d*w1mt  +  eos_table(i+1,j+1,eos_dpdft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_dpdfd)    *w1d*w0t   +  eos_table(i+1,j,eos_dpdfd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_dpdfd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_dpdfd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_dpdfdt)    *w1d*w1t   +eos_table(i+1,j, eos_dpdfdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_dpdfdt)  *w1d*w1mt  + eos_table(i+1,j+1,eos_dpdfdt)  *w1md*w1mt
 #else
   h3dpd(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-         (eos_dpdf(i,j)     *w0d  +    eos_dpdf(i+1,j)   *w0md        & 
-       +  eos_dpdfd(i,j)    *w1d  +  eos_dpdfd(i+1,j)    *w1md) *w0t  & 
-       + (eos_dpdf(i,j+1)   *w0d  +   eos_dpdf(i+1,j+1)  *w0md        & 
-       +  eos_dpdfd(i,j+1)  *w1d  +  eos_dpdfd(i+1,j+1)  *w1md) *w0mt & 
-       + (eos_dpdft(i,j)    *w0d  +  eos_dpdft(i+1,j)    *w0md        & 
-       +  eos_dpdfdt(i,j)   *w1d  + eos_dpdfdt(i+1,j)    *w1md) *w1t  & 
-       + (eos_dpdft(i,j+1)  *w0d  +  eos_dpdft(i+1,j+1)  *w0md        & 
-       +  eos_dpdfdt(i,j+1) *w1d  + eos_dpdfdt(i+1,j+1)  *w1md) *w1mt
+         (eos_table(i,j,eos_dpdf)     *w0d  +    eos_table(i+1,j,eos_dpdf)   *w0md        & 
+       +  eos_table(i,j,eos_dpdfd)    *w1d  +  eos_table(i+1,j,eos_dpdfd)    *w1md) *w0t  & 
+       + (eos_table(i,j+1,eos_dpdf)   *w0d  +   eos_table(i+1,j+1,eos_dpdf)  *w0md        & 
+       +  eos_table(i,j+1,eos_dpdfd)  *w1d  +  eos_table(i+1,j+1,eos_dpdfd)  *w1md) *w0mt & 
+       + (eos_table(i,j,eos_dpdft)    *w0d  +  eos_table(i+1,j,eos_dpdft)    *w0md        & 
+       +  eos_table(i,j,eos_dpdfdt)   *w1d  + eos_table(i+1,j,eos_dpdfdt)    *w1md) *w1t  & 
+       + (eos_table(i,j+1,eos_dpdft)  *w0d  +  eos_table(i+1,j+1,eos_dpdft)  *w0md        & 
+       +  eos_table(i,j+1,eos_dpdfdt) *w1d  + eos_table(i+1,j+1,eos_dpdfdt)  *w1md) *w1mt
 #endif
 
 
 !!  bicubic hermite polynomial for the chemical potential
 #ifndef EOS_LESSOPERATIONS
   h3e(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-           eos_ef(i,j)    *w0d*w0t   +   eos_ef(i+1,j)    *w0md*w0t  & 
-       +   eos_ef(i,j+1)  *w0d*w0mt  +   eos_ef(i+1,j+1)  *w0md*w0mt & 
-       +  eos_eft(i,j)    *w0d*w1t   +  eos_eft(i+1,j)    *w0md*w1t  & 
-       +  eos_eft(i,j+1)  *w0d*w1mt  +  eos_eft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_efd(i,j)    *w1d*w0t   +  eos_efd(i+1,j)    *w1md*w0t  & 
-       +  eos_efd(i,j+1)  *w1d*w0mt  +  eos_efd(i+1,j+1)  *w1md*w0mt & 
-       + eos_efdt(i,j)    *w1d*w1t   + eos_efdt(i+1,j)    *w1md*w1t  & 
-       + eos_efdt(i,j+1)  *w1d*w1mt  + eos_efdt(i+1,j+1)  *w1md*w1mt
+          eos_table(i,j, eos_ef)    *w0d*w0t   +  eos_table(i+1,j, eos_ef)    *w0md*w0t  & 
+       +   eos_table(i,j+1,eos_ef)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_ef)  *w0md*w0mt & 
+       +  eos_table(i,j,eos_eft)    *w0d*w1t   +  eos_table(i+1,j,eos_eft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_eft)  *w0d*w1mt  +  eos_table(i+1,j+1,eos_eft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_efd)    *w1d*w0t   +  eos_table(i+1,j,eos_efd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_efd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_efd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_efdt)    *w1d*w1t   + eos_table(i+1,j,eos_efdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_efdt)  *w1d*w1mt  + eos_table(i+1,j+1,eos_efdt)  *w1md*w1mt
 #else
   h3e(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-          (eos_ef(i,j)    *w0d   +   eos_ef(i+1,j)    *w0md        & 
-       +   eos_efd(i,j)   *w1d   +  eos_efd(i+1,j)    *w1md) *w0t  & 
-       +  (eos_ef(i,j+1)  *w0d   +   eos_ef(i+1,j+1)  *w0md        & 
-       +   eos_efd(i,j+1) *w1d   +  eos_efd(i+1,j+1)  *w1md) *w0mt & 
-       +  (eos_eft(i,j)   *w0d   +  eos_eft(i+1,j)    *w0md        & 
-       +   eos_efdt(i,j)  *w1d   + eos_efdt(i+1,j)    *w1md) *w1t  & 
-       +  (eos_eft(i,j+1) *w0d   +  eos_eft(i+1,j+1)  *w0md        & 
-       +   eos_efdt(i,j+1)*w1d   + eos_efdt(i+1,j+1)  *w1md) *w1mt
+          (eos_table(i,j,eos_ef)    *w0d   +   eos_table(i+1,j,eos_ef)    *w0md        & 
+       +  eos_table(i,j, eos_efd)   *w1d   +  eos_table(i+1,j,eos_efd)    *w1md) *w0t  & 
+       +  (eos_table(i,j+1,eos_ef)  *w0d   +   eos_table(i+1,j+1,eos_ef)  *w0md        & 
+       +   eos_table(i,j+1,eos_efd) *w1d   + eos_table(i+1,j+1, eos_efd)  *w1md) *w0mt & 
+       +  (eos_table(i,j,eos_eft)   *w0d   +  eos_table(i+1,j,eos_eft)    *w0md        & 
+       +   eos_table(i,j,eos_efdt)  *w1d   + eos_table(i+1,j,eos_efdt)    *w1md) *w1t  & 
+       +  (eos_table(i,j+1,eos_eft) *w0d   +  eos_table(i+1,j+1,eos_eft)  *w0md        & 
+       +   eos_table(i,j+1,eos_efdt)*w1d   + eos_table(i+1,j+1,eos_efdt)  *w1md) *w1mt
 #endif
 
 
@@ -343,24 +285,24 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 !!  bicubic hermite polynomial for electron positron number densities
 #ifndef EOS_LESSOPERATIONS
   h3x(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-           eos_xf(i,j)    *w0d*w0t   +   eos_xf(i+1,j)    *w0md*w0t  & 
-       +   eos_xf(i,j+1)  *w0d*w0mt  +   eos_xf(i+1,j+1)  *w0md*w0mt & 
-       +  eos_xft(i,j)    *w0d*w1t   +  eos_xft(i+1,j)    *w0md*w1t  & 
-       +  eos_xft(i,j+1)  *w0d*w1mt  +  eos_xft(i+1,j+1)  *w0md*w1mt & 
-       +  eos_xfd(i,j)    *w1d*w0t   +  eos_xfd(i+1,j)    *w1md*w0t  & 
-       +  eos_xfd(i,j+1)  *w1d*w0mt  +  eos_xfd(i+1,j+1)  *w1md*w0mt & 
-       + eos_xfdt(i,j)    *w1d*w1t   + eos_xfdt(i+1,j)    *w1md*w1t  & 
-       + eos_xfdt(i,j+1)  *w1d*w1mt  + eos_xfdt(i+1,j+1)  *w1md*w1mt
+          eos_table(i,j, eos_xf)    *w0d*w0t   +  eos_table(i+1,j, eos_xf)    *w0md*w0t  & 
+       +  eos_table(i,j+1, eos_xf)  *w0d*w0mt  +   eos_table(i+1,j+1,eos_xf)  *w0md*w0mt & 
+       + eos_table(i,j, eos_xft)    *w0d*w1t   +  eos_table(i+1,j,eos_xft)    *w0md*w1t  & 
+       +  eos_table(i,j+1,eos_xft)  *w0d*w1mt  + eos_table(i+1,j+1, eos_xft)  *w0md*w1mt & 
+       +  eos_table(i,j,eos_xfd)    *w1d*w0t   +  eos_table(i+1,j,eos_xfd)    *w1md*w0t  & 
+       +  eos_table(i,j+1,eos_xfd)  *w1d*w0mt  +  eos_table(i+1,j+1,eos_xfd)  *w1md*w0mt & 
+       + eos_table(i,j,eos_xfdt)    *w1d*w1t   + eos_table(i+1,j,eos_xfdt)    *w1md*w1t  & 
+       + eos_table(i,j+1,eos_xfdt)  *w1d*w1mt  + teos_table(i+1,j+1,eos_xfd)  *w1md*w1mt
 #else
   h3x(i,j,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) =  & 
-         (eos_xf(i,j)    *w0d   +   eos_xf(i+1,j)    *w0md        & 
-       +  eos_xfd(i,j)   *w1d   +  eos_xfd(i+1,j)    *w1md) *w0t  & 
-       + (eos_xf(i,j+1)  *w0d   +   eos_xf(i+1,j+1)  *w0md        & 
-       +  eos_xfd(i,j+1) *w1d   +  eos_xfd(i+1,j+1)  *w1md) *w0mt & 
-       + (eos_xft(i,j)   *w0d   +  eos_xft(i+1,j)    *w0md        & 
-       +  eos_xfdt(i,j)  *w1d   + eos_xfdt(i+1,j)    *w1md) *w1t  & 
-       + (eos_xft(i,j+1) *w0d   +  eos_xft(i+1,j+1)  *w0md        & 
-       +  eos_xfdt(i,j+1)*w1d   + eos_xfdt(i+1,j+1)  *w1md) *w1mt
+         (eos_table(i,j,eos_xf)    *w0d   +   eos_table(i+1,j,eos_xf)    *w0md        & 
+       +  eos_table(i,j,eos_xfd)   *w1d   + eos_table(i+1,j,eos_xfd)    *w1md) *w0t  & 
+       + (eos_table(i,j+1,eos_xf)  *w0d   +   eos_table(i+1,j+1,eos_xf)  *w0md        & 
+       +  eos_table(i,j+1,eos_xfd) *w1d   +  eos_table(i+1,j+1,eos_xfd)  *w1md) *w0mt & 
+       + (eos_table(i,j,eos_xft)   *w0d   +  eos_table(i+1,j,eos_xft)    *w0md        & 
+       +  eos_table(i,j,eos_xfdt)  *w1d   + eos_table(i+1,j,eos_xfdt)    *w1md) *w1t  & 
+       + (eos_table(i,j+1,eos_xft) *w0d   +  eos_table(i+1,j+1,eos_xft)  *w0md        & 
+       +  eos_table(i,j+1,eos_xfdt)*w1d   + eos_table(i+1,j+1,eos_xfdt)  *w1md) *w1mt
 #endif
 
   !!************ This is the end statement function definitions *************
@@ -374,546 +316,545 @@ subroutine eos_helm(eos_jlo,eos_jhi,mask)
 
 ! Initial testing of masks
 !  Note that there should be things added here for entropy eventually
-  bAprox13t = .false.  
-  if (present(mask)) then
-     if (mask(EOS_DEA).or.mask(EOS_DEZ)) &
-          bAprox13t = .true.    ! we will do calculations for Aprox13t network
-  end if
+!!$  bAprox13t = .false.  
+!!$  if (present(mask)) then
+!!$     if (mask(EOS_DEA).or.mask(EOS_DEZ)) &
+!!$          bAprox13t = .true.    ! we will do calculations for Aprox13t network
+!!$  end if
 
 
   !!  normal execution starts here, start of pipeline loop, no input checking
 !!  biquintic hermite polynomial statement function
 !  call Timers_start("eos_helm")
 
-  do j=eos_jlo,eos_jhi
-
-     btemp  = tempRow(j)
-     den    = denRow(j)
-     abar   = abarRow(j)
-     zbar   = zbarRow(j)
-     ytot1  = 1.0e0/abar
-     ye     = ytot1 * zbar
 
 
-     !!  frequent combinations
-     deni    = 1.0e0/den
-     tempi   = 1.0e0/btemp 
-     kt      = kerg * btemp
-     ktinv   = 1.0e0/kt
-     kavoy   = kergavo * ytot1
-
-
-     !!  radiation section:
-     prad    = asoli3 * btemp * btemp * btemp * btemp
-     dpraddt = 4.0e0 * prad * tempi
-     dpraddd = 0.0e0
-
-     x1      = prad * deni 
-     erad    = 3.0e0 * x1
-     deraddd = -erad*deni
-     deraddt = 4.0e0 * erad * tempi
-     ! Calhoun next two lines
-     deradda = 0.0e0
-     deraddz = 0.0e0
-
-     srad    = (x1 + erad)*tempi
-     dsraddd = (dpraddd*deni - x1*deni + deraddd)*tempi
-     dsraddt = (dpraddt*deni + deraddt - srad)*tempi
-
-
-     !!  ion section:
-     dxnidd  = avo * ytot1
-     xni     = dxnidd * den
-
-     pion    = xni * kt
-     dpiondd = avo * ytot1 * kt
-     dpiondt = xni * kerg
+  btemp  = tempRow
+  den    = denRow
+  abar   = abarRow
+  zbar   = zbarRow
+  ytot1  = 1.0e0/abar
+  ye     = ytot1 * zbar
+  
+  
+  !!  frequent combinations
+  deni    = 1.0e0/den
+  tempi   = 1.0e0/btemp 
+  kt      = kerg * btemp
+  ktinv   = 1.0e0/kt
+  kavoy   = kergavo * ytot1
+  
+  
+  !!  radiation section:
+  prad    = asoli3 * btemp * btemp * btemp * btemp
+  dpraddt = 4.0e0 * prad * tempi
+  dpraddd = 0.0e0
+  
+  x1      = prad * deni 
+  erad    = 3.0e0 * x1
+  deraddd = -erad*deni
+  deraddt = 4.0e0 * erad * tempi
+  ! Calhoun next two lines
+  deradda = 0.0e0
+  deraddz = 0.0e0
+  
+  srad    = (x1 + erad)*tempi
+  dsraddd = (dpraddd*deni - x1*deni + deraddd)*tempi
+  dsraddt = (dpraddt*deni + deraddt - srad)*tempi
+  
+  
+  !!  ion section:
+  dxnidd  = avo * ytot1
+  xni     = dxnidd * den
+  
+  pion    = xni * kt
+  dpiondd = avo * ytot1 * kt
+  dpiondt = xni * kerg
+  
+  
+  
+  eion    = 1.5e0 * pion * deni
+  deiondd = (1.5e0 * dpiondd - eion)*deni
+  deiondt = 1.5e0 * xni * kerg *deni
+  
+!!$  if (bAprox13t) then
+!!$     dxnida  = -xni*ytot1 !Calhoun
+!!$     dpionda = dxnida * kt !Calhoun
+!!$     deionda = 1.5e0 * dpionda*deni  !Calhoun
+!!$     deiondz = 0.0e0 !Calhoun
+!!$  end if
+  
+  !!  sackur-tetrode equation for the ion entropy of 
+  !!  a single ideal gas characterized by abar
+  x2      = abar*abar*sqrt(abar) * deni*avoinv
+  y0      = sioncon * btemp
+  z0      = x2 * y0 * sqrt(y0)
+  sion    = (pion*deni + eion)*tempi + kavoy*log(z0)
+  dsiondd = (dpiondd*deni - pion*deni*deni + deiondd)*tempi    &
+       - kavoy * deni
+  dsiondt = (dpiondt*deni + deiondt)*tempi   &
+       - (pion*deni + eion) * tempi*tempi  &
+       + 1.5e0 * kavoy * tempi
+  
+  
+  
+  
+  !!  electron-positron section:
+  !!  enter the table with ye*den, no checks of the input
+  din = ye*den
+  
+  !!  hash locate this temperature and density
+  jat = int((log10(btemp) - eos_tlo)*eos_tstpi) + 1
+  jat = max(1,min(jat,EOSJMAX-1))
+  iat = int((log10(din) - eos_dlo)*eos_dstpi) + 1
+  iat = max(1,min(iat,EOSIMAX-1))
+  !     print *, 'jat = ',jat, ' iat= ', iat
+  
+  !!  access the table locations only once
+  fi(1)  = eos_table(iat,jat,eos_f)
+  fi(2)  = eos_table(iat+1,jat,eos_f)
+  fi(3)  = eos_table(iat,jat+1,eos_f)
+  fi(4)  = eos_table(iat+1,jat+1,eos_f)
+  fi(5)  = eos_table(iat,jat,eos_ft)
+  fi(6)  = eos_table(iat+1,jat,eos_ft)
+  fi(7)  = eos_table(iat,jat+1,eos_ft)
+  fi(8)  = eos_table(iat+1,jat+1,eos_ft)
+  fi(9)  = eos_table(iat,jat,eos_ftt)
+  fi(10) = eos_table(iat+1,jat,eos_ftt)
+  fi(11) = eos_table(iat,jat+1,eos_ftt)
+  fi(12) = eos_table(iat+1,jat+1,eos_ftt)
+  fi(13) = eos_table(iat,jat,eos_fd)
+  fi(14) = eos_table(iat+1,jat,eos_fd)
+  fi(15) = eos_table(iat,jat+1,eos_fd)
+  fi(16) = eos_table(iat+1,jat+1,eos_fd)
+  fi(17) = eos_table(iat,jat,eos_fdd)
+  fi(18) = eos_table(iat+1,jat,eos_fdd)
+  fi(19) = eos_table(iat,jat+1,eos_fdd)
+  fi(20) = eos_table(iat+1,jat+1,eos_fdd)
+  fi(21) = eos_table(iat,jat,eos_fdt)
+  fi(22) = eos_table(iat+1,jat,eos_fdt)
+  fi(23) = eos_table(iat,jat+1,eos_fdt)
+  fi(24) = eos_table(iat+1,jat+1,eos_fdt)
+  fi(25) = eos_table(iat,jat,eos_fddt)
+  fi(26) = eos_table(iat+1,jat,eos_fddt)
+  fi(27) = eos_table(iat,jat+1,eos_fddt)
+  fi(28) = eos_table(iat+1,jat+1,eos_fddt)
+  fi(29) = eos_table(iat,jat,eos_fdtt)
+  fi(30) = eos_table(iat+1,jat,eos_fdtt)
+  fi(31) = eos_table(iat,jat+1,eos_fdtt)
+  fi(32) = eos_table(iat+1,jat+1,eos_fdtt)
+  fi(33) = eos_table(iat,jat,eos_fddtt)
+  fi(34) = eos_table(iat+1,jat,eos_fddtt)
+  fi(35) = eos_table(iat,jat+1,eos_fddtt)
+  fi(36) = eos_table(iat+1,jat+1,eos_fddtt)
+  
+  
+  !!  various differences
+  xt  = max( (btemp - eos_temps(jat,eos_t))*eos_temps(jat,eos_dtInv), 0.0e0)
+  xd  = max( (din - eos_rhos(iat,eos_d))*eos_rhos(iat,eos_ddInv), 0.0e0)
+  mxt = 1.0e0 - xt
+  mxd = 1.0e0 - xd
+  
+  
+  !!  the density and temperature basis functions
+  si0t =   psi0(xt)
+  si1t =   psi1(xt)*eos_temps(jat,eos_dt)
+  si2t =   psi2(xt)*eos_temps(jat,eos_dtSqr)
+  
+  si0mt =  psi0(mxt)
+  si1mt = -psi1(mxt)*eos_temps(jat,eos_dt)
+  si2mt =  psi2(mxt)*eos_temps(jat,eos_dtSqr)
+  
+  si0d =   psi0(xd)
+  si1d =   psi1(xd)*eos_rhos(iat,eos_dd)
+  si2d =   psi2(xd)*eos_rhos(iat,eos_ddSqr)
+  
+  si0md =  psi0(mxd)
+  si1md = -psi1(mxd)*eos_rhos(iat,eos_dd)
+  si2md =  psi2(mxd)*eos_rhos(iat,eos_ddSqr)
+  
+  
+  !!  the first derivatives of the basis functions
+  dsi0t =   dpsi0(xt)*eos_temps(jat,eos_dtInv)
+  dsi1t =   dpsi1(xt)
+  dsi2t =   dpsi2(xt)*eos_temps(jat,eos_dt)
+  
+  dsi0mt = -dpsi0(mxt)*eos_temps(jat,eos_dtInv)
+  dsi1mt =  dpsi1(mxt)
+  dsi2mt = -dpsi2(mxt)*eos_temps(jat,eos_dt)
+  
+  dsi0d =   dpsi0(xd)*eos_rhos(iat,eos_ddInv)
+  dsi1d =   dpsi1(xd)
+  dsi2d =   dpsi2(xd)*eos_rhos(iat,eos_dd)
+  
+  dsi0md = -dpsi0(mxd)*eos_rhos(iat,eos_ddInv)
+  dsi1md =  dpsi1(mxd)
+  dsi2md = -dpsi2(mxd)*eos_rhos(iat,eos_dd)
+  
+  
+  !!  the second derivatives of the basis functions
+  ddsi0t =   ddpsi0(xt)*eos_temps(jat,eos_dtSqrInv)
+  ddsi1t =   ddpsi1(xt)*eos_temps(jat,eos_dtInv)
+  ddsi2t =   ddpsi2(xt)
+  
+  ddsi0mt =  ddpsi0(mxt)*eos_temps(jat,eos_dtSqrInv)
+  ddsi1mt = -ddpsi1(mxt)*eos_temps(jat,eos_dtInv)
+  ddsi2mt =  ddpsi2(mxt)
+  
+  
+  !!  the free energy
+  free  = h5( & 
+       si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, & 
+       si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+  
+  
+  !!  derivative with respect to density
+  df_d  = h5( & 
+       si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, & 
+       dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+  
+  
+  !!  derivative with respect to temperature
+  df_t = h5( & 
+       dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, & 
+       si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+  
+  
+  !!  second derivative with respect to temperature
+  df_tt = h5( & 
+       ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, & 
+       si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+  
+  
+  !!  second derivative with respect to temperature and density
+  df_dt = h5( & 
+       dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, & 
+       dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+  
+  
+  
+  
+  !!  now get the pressure derivative with density, chemical potential, and 
+  !!  electron positron number densities
+  !!  get the interpolation weight functions
+  si0t   =  xpsi0(xt)
+  si1t   =  xpsi1(xt)*eos_temps(jat,eos_dt)
+  
+  si0mt  =  xpsi0(mxt)
+  si1mt  =  -xpsi1(mxt)*eos_temps(jat,eos_dt)
+  
+  si0d   =  xpsi0(xd)
+  si1d   =  xpsi1(xd)*eos_rhos(iat,eos_dd)
+  
+  si0md  =  xpsi0(mxd)
+  si1md  =  -xpsi1(mxd)*eos_rhos(iat,eos_dd)
+  
+  !!  derivatives of weight functions
+  dsi0t =   xdpsi0(xt)*eos_temps(jat,eos_dtInv)
+  dsi1t =   xdpsi1(xt)
+  
+  dsi0mt = -xdpsi0(mxt)*eos_temps(jat,eos_dtInv)
+  dsi1mt =  xdpsi1(mxt)
+  
+  
+  !!  pressure derivative with density
+  dpepdd  = h3dpd(iat,jat, & 
+       si0t,   si1t,   si0mt,   si1mt, & 
+       si0d,   si1d,   si0md,   si1md)
+  dpepdd  = max(ye * dpepdd,0.0e0)
+  
+  
+  
+  !!  electron chemical potential etaele
+  etaele  = h3e(iat,jat, & 
+       si0t,   si1t,   si0mt,   si1mt, & 
+       si0d,   si1d,   si0md,   si1md)
+  
+  !! derivative with respect to temperature
+  detadt  = h3e(iat,jat, &
+       dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
+       si0d,   si1d,   si0md,   si1md)
+  
+  
+  !!  electron + positron number densities
+  xnefer   = h3x(iat,jat, & 
+       si0t,   si1t,   si0mt,   si1mt, & 
+       si0d,   si1d,   si0md,   si1md)
+  
+  
+  !!  the desired electron-positron thermodynamic quantities
+  x3      = din * din
+  pele    = x3 * df_d
+  dpepdt  = x3 * df_dt
+  
+  sele    = -df_t * ye
+  dsepdt  = -df_tt * ye
+  dsepdd  = -df_dt * ye * ye
+  
+  
+  eele    = ye * free + btemp * sele
+  deepdt  = btemp * dsepdt
+  deepdd  = ye*ye*df_d + btemp*dsepdd
+  
+!!$  if (bAprox13t) then
+!!$     dsepda  = ytot1 * (ye * df_dt * din - sele)    !Calhoun
+!!$     dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)  !Calhoun
+!!$     deepda  = -ye * ytot1 * (free +  df_d * din) + btemp * dsepda  !Calhoun
+!!$     deepdz  = ytot1* (free + ye * df_d * den) + btemp * dsepdz !Calhoun
+!!$  end if
+  
+  
+  !!  coulomb section:
+  !!  initialize
+  pcoul    = 0.0e0
+  dpcouldd = 0.0e0
+  dpcouldt = 0.0e0
+  ecoul    = 0.0e0
+  decouldd = 0.0e0
+  decouldt = 0.0e0
+  decoulda = 0.0e0  !Calhoun
+  decouldz = 0.0e0  !Calhoun
+  scoul    = 0.0e0
+  dscouldd = 0.0e0
+  dscouldt = 0.0e0
+  
+  !! Set the coulomb multiplier to a local value -- we might change it only within this call
+  local_coulombMult = eos_coulombMult
+  
+  
+  
+  !!  uniform background corrections & only the needed parts for speed
+  !!  plasg is the plasma coupling parameter
+  !!  split up calculations below -- they all used to depend upon a redefined z
+  z1        = forth * pi
+  s1        = z1 * xni
+  dsdd      = z1 * dxnidd
+  lami      = 1.0e0/s1**third
+  inv_lami  = 1.0e0/lami
+  z2        = -third * lami/s1
+  lamidd    = z2 * dsdd
+  
+  
+  plasg     = zbar*zbar*esqu*ktinv*inv_lami
+  plasg_inv = 1.0e0/plasg  
+  z3        = -plasg * inv_lami
+  plasgdd   = z3 * lamidd
+  plasgdt   = -plasg * ktinv * kerg
+  
+!!$  if (bAprox13t) then
+!!$     dsda     = z1 * dxnida !Calhoun
+!!$     lamida   = z2 * dsda / s1  ! Calhoun
+!!$     plasgda  = z3 * lamida          !Calhoun
+!!$     plasgdz  = 2.0d0 * plasg/zbar  !Calhoun
+!!$  end if
+  
+  
+  !!  yakovlev & shalybkov 1989 equations 82, 85, 86, 87
+  if (plasg .ge. 1.0) then
+     x4       = plasg**(0.25e0)
+     z4       = c1/x4
+     ecoul    = dxnidd * kt * (a1*plasg + b1*x4 + z4 + d1cc)
+     pcoul    = third * den * ecoul
+     scoul    = -kavoy*(3.0e0*b1*x4 - 5.0e0*z4 &
+          + d1cc*(log(plasg) - 1.0e0) - e1cc)
      
-   
-
-     eion    = 1.5e0 * pion * deni
-     deiondd = (1.5e0 * dpiondd - eion)*deni
-     deiondt = 1.5e0 * xni * kerg *deni
-
-     if (bAprox13t) then
-        dxnida  = -xni*ytot1 !Calhoun
-        dpionda = dxnida * kt !Calhoun
-        deionda = 1.5e0 * dpionda*deni  !Calhoun
-        deiondz = 0.0e0 !Calhoun
-     end if
-
-     !!  sackur-tetrode equation for the ion entropy of 
-     !!  a single ideal gas characterized by abar
-     x2      = abar*abar*sqrt(abar) * deni*avoinv
-     y0      = sioncon * btemp
-     z0      = x2 * y0 * sqrt(y0)
-     sion    = (pion*deni + eion)*tempi + kavoy*log(z0)
-     dsiondd = (dpiondd*deni - pion*deni*deni + deiondd)*tempi    &
-          - kavoy * deni
-     dsiondt = (dpiondt*deni + deiondt)*tempi   &
-          - (pion*deni + eion) * tempi*tempi  &
-          + 1.5e0 * kavoy * tempi
-
-
-
-
-     !!  electron-positron section:
-     !!  enter the table with ye*den, no checks of the input
-     din = ye*den
-
-     !!  hash locate this temperature and density
-     jat = int((log10(btemp) - eos_tlo)*eos_tstpi) + 1
-     jat = max(1,min(jat,EOSJMAX-1))
-     iat = int((log10(din) - eos_dlo)*eos_dstpi) + 1
-     iat = max(1,min(iat,EOSIMAX-1))
-!     print *, 'jat = ',jat, ' iat= ', iat
-
-     !!  access the table locations only once
-     fi(1)  = eos_f(iat,jat)
-     fi(2)  = eos_f(iat+1,jat)
-     fi(3)  = eos_f(iat,jat+1)
-     fi(4)  = eos_f(iat+1,jat+1)
-     fi(5)  = eos_ft(iat,jat)
-     fi(6)  = eos_ft(iat+1,jat)
-     fi(7)  = eos_ft(iat,jat+1)
-     fi(8)  = eos_ft(iat+1,jat+1)
-     fi(9)  = eos_ftt(iat,jat)
-     fi(10) = eos_ftt(iat+1,jat)
-     fi(11) = eos_ftt(iat,jat+1)
-     fi(12) = eos_ftt(iat+1,jat+1)
-     fi(13) = eos_fd(iat,jat)
-     fi(14) = eos_fd(iat+1,jat)
-     fi(15) = eos_fd(iat,jat+1)
-     fi(16) = eos_fd(iat+1,jat+1)
-     fi(17) = eos_fdd(iat,jat)
-     fi(18) = eos_fdd(iat+1,jat)
-     fi(19) = eos_fdd(iat,jat+1)
-     fi(20) = eos_fdd(iat+1,jat+1)
-     fi(21) = eos_fdt(iat,jat)
-     fi(22) = eos_fdt(iat+1,jat)
-     fi(23) = eos_fdt(iat,jat+1)
-     fi(24) = eos_fdt(iat+1,jat+1)
-     fi(25) = eos_fddt(iat,jat)
-     fi(26) = eos_fddt(iat+1,jat)
-     fi(27) = eos_fddt(iat,jat+1)
-     fi(28) = eos_fddt(iat+1,jat+1)
-     fi(29) = eos_fdtt(iat,jat)
-     fi(30) = eos_fdtt(iat+1,jat)
-     fi(31) = eos_fdtt(iat,jat+1)
-     fi(32) = eos_fdtt(iat+1,jat+1)
-     fi(33) = eos_fddtt(iat,jat)
-     fi(34) = eos_fddtt(iat+1,jat)
-     fi(35) = eos_fddtt(iat,jat+1)
-     fi(36) = eos_fddtt(iat+1,jat+1)
-
-
-     !!  various differences
-     xt  = max( (btemp - eos_t(jat))*eos_dtInv(jat), 0.0e0)
-     xd  = max( (din - eos_d(iat))*eos_ddInv(iat), 0.0e0)
-     mxt = 1.0e0 - xt
-     mxd = 1.0e0 - xd
-
-
-     !!  the density and temperature basis functions
-     si0t =   psi0(xt)
-     si1t =   psi1(xt)*eos_dt(jat)
-     si2t =   psi2(xt)*eos_dtSqr(jat)
-
-     si0mt =  psi0(mxt)
-     si1mt = -psi1(mxt)*eos_dt(jat)
-     si2mt =  psi2(mxt)*eos_dtSqr(jat)
-
-     si0d =   psi0(xd)
-     si1d =   psi1(xd)*eos_dd(iat)
-     si2d =   psi2(xd)*eos_ddSqr(iat)
-
-     si0md =  psi0(mxd)
-     si1md = -psi1(mxd)*eos_dd(iat)
-     si2md =  psi2(mxd)*eos_ddSqr(iat)
-
-
-     !!  the first derivatives of the basis functions
-     dsi0t =   dpsi0(xt)*eos_dtInv(jat)
-     dsi1t =   dpsi1(xt)
-     dsi2t =   dpsi2(xt)*eos_dt(jat)
-
-     dsi0mt = -dpsi0(mxt)*eos_dtInv(jat)
-     dsi1mt =  dpsi1(mxt)
-     dsi2mt = -dpsi2(mxt)*eos_dt(jat)
-
-     dsi0d =   dpsi0(xd)*eos_ddInv(iat)
-     dsi1d =   dpsi1(xd)
-     dsi2d =   dpsi2(xd)*eos_dd(iat)
-
-     dsi0md = -dpsi0(mxd)*eos_ddInv(iat)
-     dsi1md =  dpsi1(mxd)
-     dsi2md = -dpsi2(mxd)*eos_dd(iat)
-
-
-     !!  the second derivatives of the basis functions
-     ddsi0t =   ddpsi0(xt)*eos_dtSqrInv(jat)
-     ddsi1t =   ddpsi1(xt)*eos_dtInv(jat)
-     ddsi2t =   ddpsi2(xt)
-
-     ddsi0mt =  ddpsi0(mxt)*eos_dtSqrInv(jat)
-     ddsi1mt = -ddpsi1(mxt)*eos_dtInv(jat)
-     ddsi2mt =  ddpsi2(mxt)
-
-
-     !!  the free energy
-     free  = h5( & 
-          si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, & 
-          si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-
-     !!  derivative with respect to density
-     df_d  = h5( & 
-          si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, & 
-          dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
-
-
-     !!  derivative with respect to temperature
-     df_t = h5( & 
-          dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, & 
-          si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-
-     !!  second derivative with respect to temperature
-     df_tt = h5( & 
-          ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, & 
-          si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-
-     !!  second derivative with respect to temperature and density
-     df_dt = h5( & 
-          dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, & 
-          dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
-
-
-
-
-     !!  now get the pressure derivative with density, chemical potential, and 
-     !!  electron positron number densities
-     !!  get the interpolation weight functions
-     si0t   =  xpsi0(xt)
-     si1t   =  xpsi1(xt)*eos_dt(jat)
-
-     si0mt  =  xpsi0(mxt)
-     si1mt  =  -xpsi1(mxt)*eos_dt(jat)
-
-     si0d   =  xpsi0(xd)
-     si1d   =  xpsi1(xd)*eos_dd(iat)
-
-     si0md  =  xpsi0(mxd)
-     si1md  =  -xpsi1(mxd)*eos_dd(iat)
-
-     !!  derivatives of weight functions
-     dsi0t =   xdpsi0(xt)*eos_dtInv(jat)
-     dsi1t =   xdpsi1(xt)
-
-     dsi0mt = -xdpsi0(mxt)*eos_dtInv(jat)
-     dsi1mt =  xdpsi1(mxt)
-
-
-     !!  pressure derivative with density
-     dpepdd  = h3dpd(iat,jat, & 
-          si0t,   si1t,   si0mt,   si1mt, & 
-          si0d,   si1d,   si0md,   si1md)
-     dpepdd  = max(ye * dpepdd,0.0e0)
-
-
-
-     !!  electron chemical potential etaele
-     etaele  = h3e(iat,jat, & 
-                    si0t,   si1t,   si0mt,   si1mt, & 
-                    si0d,   si1d,   si0md,   si1md)
-
-     !! derivative with respect to temperature
-     detadt  = h3e(iat,jat, &
-                    dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                    si0d,   si1d,   si0md,   si1md)
-
-
-     !!  electron + positron number densities
-     xnefer   = h3x(iat,jat, & 
-                  si0t,   si1t,   si0mt,   si1mt, & 
-                  si0d,   si1d,   si0md,   si1md)
-
-
-     !!  the desired electron-positron thermodynamic quantities
-     x3      = din * din
-     pele    = x3 * df_d
-     dpepdt  = x3 * df_dt
-
-     sele    = -df_t * ye
-     dsepdt  = -df_tt * ye
-     dsepdd  = -df_dt * ye * ye
-
- 
-     eele    = ye * free + btemp * sele
-     deepdt  = btemp * dsepdt
-     deepdd  = ye*ye*df_d + btemp*dsepdd
-
-     if (bAprox13t) then
-        dsepda  = ytot1 * (ye * df_dt * din - sele)    !Calhoun
-        dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)  !Calhoun
-        deepda  = -ye * ytot1 * (free +  df_d * din) + btemp * dsepda  !Calhoun
-        deepdz  = ytot1* (free + ye * df_d * den) + btemp * dsepdz !Calhoun
-     end if
-
-
-     !!  coulomb section:
-     !!  initialize
-     pcoul    = 0.0e0
-     dpcouldd = 0.0e0
-     dpcouldt = 0.0e0
-     ecoul    = 0.0e0
-     decouldd = 0.0e0
-     decouldt = 0.0e0
-     decoulda = 0.0e0  !Calhoun
-     decouldz = 0.0e0  !Calhoun
-     scoul    = 0.0e0
-     dscouldd = 0.0e0
-     dscouldt = 0.0e0
-
-     !! Set the coulomb multiplier to a local value -- we might change it only within this call
-     local_coulombMult = eos_coulombMult
-
-
-
-     !!  uniform background corrections & only the needed parts for speed
-     !!  plasg is the plasma coupling parameter
-     !!  split up calculations below -- they all used to depend upon a redefined z
-     z1        = forth * pi
-     s1        = z1 * xni
-     dsdd      = z1 * dxnidd
-     lami      = 1.0e0/s1**third
-     inv_lami  = 1.0e0/lami
-     z2        = -third * lami/s1
-     lamidd    = z2 * dsdd
-
-
-     plasg     = zbar*zbar*esqu*ktinv*inv_lami
-     plasg_inv = 1.0e0/plasg  
-     z3        = -plasg * inv_lami
-     plasgdd   = z3 * lamidd
-     plasgdt   = -plasg * ktinv * kerg
-
-     if (bAprox13t) then
-        dsda     = z1 * dxnida !Calhoun
-        lamida   = z2 * dsda / s1  ! Calhoun
-        plasgda  = z3 * lamida          !Calhoun
-        plasgdz  = 2.0d0 * plasg/zbar  !Calhoun
-     end if
-
-
-     !!  yakovlev & shalybkov 1989 equations 82, 85, 86, 87
-     if (plasg .ge. 1.0) then
-        x4       = plasg**(0.25e0)
-        z4       = c1/x4
-        ecoul    = dxnidd * kt * (a1*plasg + b1*x4 + z4 + d1cc)
-        pcoul    = third * den * ecoul
-        scoul    = -kavoy*(3.0e0*b1*x4 - 5.0e0*z4 &
-             + d1cc*(log(plasg) - 1.0e0) - e1cc)
-
-        y1       = dxnidd * kt * (a1 + 0.25e0*plasg_inv*(b1*x4 - z4))
-        decouldd = y1 * plasgdd 
-        decouldt = y1 * plasgdt + ecoul * tempi
-        dpcouldd = third * (ecoul + den * decouldd)
-        dpcouldt = third * den  * decouldt
-
-        if (bAprox13t) then
-           decoulda = y1 * plasgda - ecoul/abar   !Calhoun
-           decouldz = y1 * plasgdz                !Calhoun
+     y1       = dxnidd * kt * (a1 + 0.25e0*plasg_inv*(b1*x4 - z4))
+     decouldd = y1 * plasgdd 
+     decouldt = y1 * plasgdt + ecoul * tempi
+     dpcouldd = third * (ecoul + den * decouldd)
+     dpcouldt = third * den  * decouldt
+     
+!!$     if (bAprox13t) then
+!!$        decoulda = y1 * plasgda - ecoul/abar   !Calhoun
+!!$        decouldz = y1 * plasgdz                !Calhoun
+!!$     end if
+     
+     y2       = -kavoy*plasg_inv*(0.75e0*b1*x4 + 1.25e0*z4 + d1cc)
+     dscouldd = y2 * plasgdd
+     dscouldt = y2 * plasgdt
+     
+     
+     
+     !!  yakovlev & shalybkov 1989 equations 102, 103, 104
+  else if (plasg .lt. 1.0) then
+     x5       = plasg * sqrt(plasg)
+     y3       = plasg**b2
+     z5       = c2 * x5 - third * a2 * y3
+     pcoul    = -pion * z5
+     ecoul    = 3.0e0 * pcoul * deni
+     scoul    = -kavoy*(c2*x5 - a2*(b2 - 1.0e0)/b2*y3)
+     
+     s2       = (1.5e0*c2*x5 - third*a2*b2*y3)*plasg_inv
+     dpcouldd = -dpiondd*z5 - pion*s2*plasgdd
+     dpcouldt = -dpiondt*z5 - pion*s2*plasgdt
+     decouldd = 3.0e0*dpcouldd*deni - ecoul*deni
+     decouldt = 3.0e0*dpcouldt*deni
+     
+     !! Equations for decoulda and decouldz can be added here....
+     
+!!$     if (bAprox13t) then
+!!$        call Driver_abort('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
+!!$     end if
+     
+     s3       = -kavoy*plasg_inv*(1.5e0*c2*x5 - a2*(b2 - 1.0e0)*y3)
+     dscouldd = s3 * plasgdd
+     dscouldt = s3 * plasgdt
+  end if
+  
+  s4 = prad + pion + pele
+  x6 = s4 + pcoul*eos_coulombMult
+  
+  ! assume that NaN always compares as false in an inequality
+  if ( .not. (x6 > 0.e0) ) then
+     
+     call Logfile_stampMessage('[eos_helm] Negative total pressure.')
+     print *,'[eos_helm] Negative total pressure.'
+     ! print some info to help operator figure out what is wrong
+     ! this goes to stdout as well because DMT is unsure of the stampMessage infrastructure
+     write(internalFile,*)' values: dens,temp: ',den,btemp
+     call Logfile_stampMessage(internalFile)
+     print *, internalFile
+     write(internalFile,*)' values: abar,zbar: ',abar,zbar
+     call Logfile_stampMessage(internalFile)
+     print *, internalFile
+     write(internalFile,*)' coulomb coupling parameter Gamma: ',plasg
+     call Logfile_stampMessage(internalFile)
+     print *, internalFile
+     
+     if ( .not. (abar > 0.e0) ) then
+        write(internalFile,*) '  However, abar is negative, abar=',abar
+        call Logfile_stampMessage(internalFile)
+        print *, internalFile
+        call Logfile_stampMessage('  It is possible that the mesh is of low quality.')
+        print *, '      It is possible that the mesh is of low quality.'
+        ! always abort if abar is negative as that is physically invalid
+        call Driver_abort('[eos_helm] ERROR: abar is negative.')
+     endif
+     
+     if ( s4 > 0.e0 ) then
+        write(internalFile,'(a,3es12.3)')  &
+             &           ' nonpositive P caused by coulomb correction: Pnocoul,Pwithcoul: ',s4,x6
+        call Logfile_stampMessage(internalFile)
+        print *, internalFile
+        
+        if ( eos_coulombMult > 0.e0 ) then
+           call Logfile_stampMessage(&
+                '  set runtime parameter eos_coulombMult to zero if plasma Coulomb corrections not important')
+           print *, '  set runtime parameter eos_coulombMult to zero if plasma Coulomb corrections not important'
         end if
-
-        y2       = -kavoy*plasg_inv*(0.75e0*b1*x4 + 1.25e0*z4 + d1cc)
-        dscouldd = y2 * plasgdd
-        dscouldt = y2 * plasgdt
-
-
-
-        !!  yakovlev & shalybkov 1989 equations 102, 103, 104
-     else if (plasg .lt. 1.0) then
-        x5       = plasg * sqrt(plasg)
-        y3       = plasg**b2
-        z5       = c2 * x5 - third * a2 * y3
-        pcoul    = -pion * z5
-        ecoul    = 3.0e0 * pcoul * deni
-        scoul    = -kavoy*(c2*x5 - a2*(b2 - 1.0e0)/b2*y3)
-
-        s2       = (1.5e0*c2*x5 - third*a2*b2*y3)*plasg_inv
-        dpcouldd = -dpiondd*z5 - pion*s2*plasgdd
-        dpcouldt = -dpiondt*z5 - pion*s2*plasgdt
-        decouldd = 3.0e0*dpcouldd*deni - ecoul*deni
-        decouldt = 3.0e0*dpcouldt*deni
-
-        !! Equations for decoulda and decouldz can be added here....
-
-        if (bAprox13t) then
-           call Driver_abort('[eos_helm] TRAGEDY decoulda and decouldz not defined!')
-        end if
-
-        s3       = -kavoy*plasg_inv*(1.5e0*c2*x5 - a2*(b2 - 1.0e0)*y3)
-        dscouldd = s3 * plasgdd
-        dscouldt = s3 * plasgdt
-     end if
-
-     s4 = prad + pion + pele
-     x6 = s4 + pcoul*eos_coulombMult
-
-     ! assume that NaN always compares as false in an inequality
-     if ( .not. (x6 > 0.e0) ) then
-
-        call Logfile_stampMessage('[eos_helm] Negative total pressure.')
-        print *,'[eos_helm] Negative total pressure.'
-        ! print some info to help operator figure out what is wrong
-        ! this goes to stdout as well because DMT is unsure of the stampMessage infrastructure
-        write(internalFile,*)' values: dens,temp: ',den,btemp
-        call Logfile_stampMessage(internalFile)
-        print *, internalFile
-        write(internalFile,*)' values: abar,zbar: ',abar,zbar
-        call Logfile_stampMessage(internalFile)
-        print *, internalFile
-        write(internalFile,*)' coulomb coupling parameter Gamma: ',plasg
-        call Logfile_stampMessage(internalFile)
-        print *, internalFile
-
-        if ( .not. (abar > 0.e0) ) then
-           write(internalFile,*) '  However, abar is negative, abar=',abar
-           call Logfile_stampMessage(internalFile)
-           print *, internalFile
-           call Logfile_stampMessage('  It is possible that the mesh is of low quality.')
-           print *, '      It is possible that the mesh is of low quality.'
-           ! always abort if abar is negative as that is physically invalid
-           call Driver_abort('[eos_helm] ERROR: abar is negative.')
-        endif
-
-        if ( s4 > 0.e0 ) then
-           write(internalFile,'(a,3es12.3)')  &
-     &           ' nonpositive P caused by coulomb correction: Pnocoul,Pwithcoul: ',s4,x6
-           call Logfile_stampMessage(internalFile)
-           print *, internalFile
-
-           if ( eos_coulombMult > 0.e0 ) then
-              call Logfile_stampMessage(&
-                       '  set runtime parameter eos_coulombMult to zero if plasma Coulomb corrections not important')
-              print *, '  set runtime parameter eos_coulombMult to zero if plasma Coulomb corrections not important'
-           end if
-           if ( eos_coulombAbort) then
-              call Driver_abort('[eos_helm] ERROR: coulomb correction causing negative total pressure.')
-           else
-              call Logfile_stampMessage('Setting coulombMult to zero for this call, eos_coulombAbort=false.')
-              print *, '  Setting coulombMult to zero for this call, eos_coulombAbort=false'
-              local_coulombMult = 0.e0
-           end if
+        if ( eos_coulombAbort) then
+           call Driver_abort('[eos_helm] ERROR: coulomb correction causing negative total pressure.')
         else
-           write(internalFile,'(1p,4(a,e12.5))') &
-                ' Prad  ',prad,   &
-                ' Pion ',pion,    &
-                ' Pele  ',pele,                  &
-                ' Pcoul ',pcoul*eos_coulombMult
-           call Logfile_stampMessage(internalFile)
-           print *, internalFile
-           write(internalFile,'(1p,2(a,e12.5))') &
-                ' Ptot   ',x6,                     &
-                ' df_d   ',df_d
-           call Logfile_stampMessage(internalFile)
-           print *, internalFile
-
-           call Driver_abort('[eos_helm] ERROR: negative total pressure.')
+           call Logfile_stampMessage('Setting coulombMult to zero for this call, eos_coulombAbort=false.')
+           print *, '  Setting coulombMult to zero for this call, eos_coulombAbort=false'
+           local_coulombMult = 0.e0
         end if
-
+     else
+        write(internalFile,'(1p,4(a,e12.5))') &
+             ' Prad  ',prad,   &
+             ' Pion ',pion,    &
+             ' Pele  ',pele,                  &
+             ' Pcoul ',pcoul*eos_coulombMult
+        call Logfile_stampMessage(internalFile)
+        print *, internalFile
+        write(internalFile,'(1p,2(a,e12.5))') &
+             ' Ptot   ',x6,                     &
+             ' df_d   ',df_d
+        call Logfile_stampMessage(internalFile)
+        print *, internalFile
+        
+        call Driver_abort('[eos_helm] ERROR: negative total pressure.')
      end if
-
-     pcoul    = pcoul * local_coulombMult
-     dpcouldd = dpcouldd * local_coulombMult
-     dpcouldt = dpcouldt * local_coulombMult
-
-     ecoul    = ecoul * local_coulombMult
-     decouldd = decouldd * local_coulombMult
-     decouldt = decouldt * local_coulombMult
-
-     scoul    = scoul * local_coulombMult
-     dscouldd = dscouldd * local_coulombMult 
-     dscouldt = dscouldt * local_coulombMult
-
-     !!  sum all the components
-     pres    = prad    + pion    + pele   + pcoul
-     ener    = erad    + eion    + eele   + ecoul
-     entr    = srad    + sion    + sele   + scoul
-
+     
+  end if
+  
+  pcoul    = pcoul * local_coulombMult
+  dpcouldd = dpcouldd * local_coulombMult
+  dpcouldt = dpcouldt * local_coulombMult
+  
+  ecoul    = ecoul * local_coulombMult
+  decouldd = decouldd * local_coulombMult
+  decouldt = decouldt * local_coulombMult
+  
+  scoul    = scoul * local_coulombMult
+  dscouldd = dscouldd * local_coulombMult 
+  dscouldt = dscouldt * local_coulombMult
+  
+  !!  sum all the components
+  pres    = prad    + pion    + pele   + pcoul
+  ener    = erad    + eion    + eele   + ecoul
+  entr    = srad    + sion    + sele   + scoul
+  
 #ifdef DEBUG_EOS
-999  format(1x,1P,'Eos(',G12.3,',',G12.3,') ',A1,':','I:',G12.3,1x,'E:',G12.3,1x,'R:',G12.3,1x,'c:',G12.3)
-     print 999,btemp,den,'E', eion,eele,erad,ecoul
-     print 999,btemp,den,'P', pion,pele,prad,pcoul
+999 format(1x,1P,'Eos(',G12.3,',',G12.3,') ',A1,':','I:',G12.3,1x,'E:',G12.3,1x,'R:',G12.3,1x,'c:',G12.3)
+  print 999,btemp,den,'E', eion,eele,erad,ecoul
+  print 999,btemp,den,'P', pion,pele,prad,pcoul
 #endif
-
-     dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
-     dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
-
-     denerdd = deraddd + deiondd + deepdd + decouldd
-     denerdt = deraddt + deiondt + deepdt + decouldt
-
-     dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
-     dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
-
-     !!  form gamma_1
-     presi = 1.0e0/pres
-     chit  = btemp*presi * dpresdt
-     chid  = dpresdd * den*presi
-     x7     = pres * deni * chit/(btemp * denerdt)
-     gamc  = chit*x7 + chid
-     cv    = denerdt
-     cp    = cv*gamc/chid
-
-
-
-     !!  store the output -- note that many of these are not used by the calling program!
-     ptotRow(j)   = pres   !used by Eos as EOS_PRES = PRES_VAR
-     etotRow(j)   = ener   !used by Eos as EOS_EINT = EINT_VAR
-     stotRow(j)   = entr   !this is entropy, used by Eos as EOS_ENTR (masked)
-
-     dpdRow(j)    = dpresdd  ! used as EOS_DPD
-     dptRow(j)    = dpresdt  ! used as EOS_DPT ALWAYS used by MODE_DENS_PRES in Eos.F90
-
-     dedRow(j)    = denerdd  ! used as EOS_DED
-     detRow(j)    = denerdt  ! used as EOS_DET  ALWAYS used by MODE_DENS_EI in Eos.F90
-
-     if (bAprox13t) then
-        denerda = deradda + deionda + deepda + decoulda  !Calhoun
-        denerdz = deraddz + deiondz + deepdz + decouldz  !Calhoun
-        deaRow(j)    = denerda  !Calhoun EOS_DEA
-        dezRow(j)    = denerdz  !Calhoun EOS_DEZ
-     end if
-
-
-     dsdRow(j)    = dentrdd  ! used as EOS_DSD  
-     dstRow(j)    = dentrdt  ! used as EOS_DST  
-
-     !UNUSED     pradRow(j)   = prad
-     !UNUSED     eradRow(j)   = erad
-     !UNUSED     sradRow(j)   = srad
-
-     !UNUSED     pionRow(j)   = pion
-     !UNUSED     eionRow(j)   = eion
-     !UNUSED     sionRow(j)   = sion
- 
-     pelRow(j)   = pele     ! used as EOS_PEL
-     !UNUSED     eeleRow(j)   = eele
-     !UNUSED     seleRow(j)   = sele
-
-     neRow(j)    = xnefer   ! used as EOS_NE  
-     etaRow(j)   = etaele   ! used as EOS_ETA
-     detatRow(j) = detadt   ! used as EOS_DETAT
-
-     gamcRow(j)   = gamc    !used as EOS_GAMC = GAMC_VAR
-
-     cvRow(j)     = cv      ! EOS_CV
-     cpRow(j)     = cp      ! EOS_CP
-
-     !!  end of vectorization loop
-  enddo
+  
+  dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
+  dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
+  
+  denerdd = deraddd + deiondd + deepdd + decouldd
+  denerdt = deraddt + deiondt + deepdt + decouldt
+  
+  dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
+  dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
+  
+  !!  form gamma_1
+  presi = 1.0e0/pres
+  chit  = btemp*presi * dpresdt
+  chid  = dpresdd * den*presi
+  x7     = pres * deni * chit/(btemp * denerdt)
+  gamc  = chit*x7 + chid
+  cv    = denerdt
+  cp    = cv*gamc/chid
+  
+  
+  
+  !!  store the output -- note that many of these are not used by the calling program!
+  ptotRow   = pres   !used by Eos as EOS_PRES = PRES_VAR
+  etotRow   = ener   !used by Eos as EOS_EINT = EINT_VAR
+  stotRow   = entr   !this is entropy, used by Eos as EOS_ENTR (masked)
+  
+  dpdRow    = dpresdd  ! used as EOS_DPD
+  dptRow    = dpresdt  ! used as EOS_DPT ALWAYS used by MODE_DENS_PRES in Eos.F90
+  
+  dedRow    = denerdd  ! used as EOS_DED
+  detRow    = denerdt  ! used as EOS_DET  ALWAYS used by MODE_DENS_EI in Eos.F90
+  
+  if (bAprox13t) then
+     denerda = deradda + deionda + deepda + decoulda  !Calhoun
+     denerdz = deraddz + deiondz + deepdz + decouldz  !Calhoun
+     deaRow    = denerda  !Calhoun EOS_DEA
+     dezRow    = denerdz  !Calhoun EOS_DEZ
+  end if
+  
+  
+  dsdRow    = dentrdd  ! used as EOS_DSD  
+  dstRow    = dentrdt  ! used as EOS_DST  
+  
+  !UNUSED     pradRow   = prad
+  !UNUSED     eradRow   = erad
+  !UNUSED     sradRow   = srad
+  
+  !UNUSED     pionRow   = pion
+  !UNUSED     eionRow   = eion
+  !UNUSED     sionRow   = sion
+  
+  pelRow   = pele     ! used as EOS_PEL
+  !UNUSED     eeleRow   = eele
+  !UNUSED     seleRow   = sele
+  
+  neRow    = xnefer   ! used as EOS_NE  
+  etaRow   = etaele   ! used as EOS_ETA
+  detatRow = detadt   ! used as EOS_DETAT
+  
+  gamcRow   = gamc    !used as EOS_GAMC = GAMC_VAR
+  
+  cvRow     = cv      ! EOS_CV
+  cpRow     = cp      ! EOS_CP
+  
+  !!  end of vectorization loop
 
 !   call Timers_stop("eos_helm")
 

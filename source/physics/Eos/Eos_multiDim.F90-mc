@@ -1,0 +1,64 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief Eos stub
+
+!> @ingroup physics_Eos
+!!
+!! @brief compute eos on a set of cells in a multidimensional array
+!!
+!! @details
+!! @anchor Eos_stub
+!!
+!! This function is provided for the user's convenience and acts as a 
+!! mechanism to apply EOS to multidimension data.
+!!
+!! While Eos does not know anything about blocks, Eos_multiDim takes its
+!! input thermodynamic state variables from a given block's storage area.
+!! It works by taking a selected section of a block described by array
+!! "range" and calls either pointwise or a 1D vector version of EOS
+!! implementation depending upon the specific EOS called.
+!! Upon return from Eos, Eos_multiDim updates certain state variables in
+!! the same section of the block's storage area. Which variables are taken
+!! as input, and which are updated, depends on the "mode" argument.
+!!
+!! If you want to return the derived quantities defined from EOS_VAR+1:EOS_NUM
+!! in Eos.h, then you must use the pointwise or vector implementatios of EOS
+!!
+!!
+!!  @param mode   Selects the mode of operation of the Eos unit.
+!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
+!!             MODE_DENS_TEMP as decribed above.
+!!
+!!  @param  range(LOW:HIGH,MDIM) are the bounds of the array
+!!          pointed to by solnData
+!!
+!!  @param solnData(:,:,:,:) is pointer to the array where
+!!          all the data is located
+!!
+!!NOVARIANTS
+
+
+subroutine Eos_multiDim(mode,range,solnData)
+  
+  implicit none
+
+#include "constants.h"
+#include "FortranLangFeatures.fh"
+
+  integer, intent(in) :: mode
+  integer, dimension(2,MDIM), intent(in) :: range
+  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+end subroutine Eos_multiDim
+

@@ -49,7 +49,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getCellCoords
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Multispecies_interface, ONLY : Multispecies_getSumFrac,  Multispecies_getSumInv
 
   use Simulation_data
@@ -498,7 +498,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   deallocate(zRight)
   deallocate(zCenter)
 
-  call Eos_wrapped(MODE_DENS_TEMP,tileDesc%limits,solnData)
+  call Eos_multiDim(MODE_DENS_TEMP,tileDesc%limits,solnData)
 
   return
 end subroutine Simulation_initBlock

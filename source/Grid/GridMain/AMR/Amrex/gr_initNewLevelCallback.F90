@@ -87,7 +87,7 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
                                           gr_interpolator, &
                                           lo_bc_amrex, hi_bc_amrex, &
                                           gr_meshMe
-    use Eos_interface,             ONLY : Eos_wrapped
+    use Eos_interface,             ONLY : Eos_multiDim
     use Logfile_interface,         ONLY : Logfile_stamp
     use Timers_interface,          ONLY : Timers_start, Timers_stop
     use Particles_interface, ONLY :  Particles_createDataStructs
@@ -291,7 +291,7 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
        call itor%currentTile(tileDesc)
 
        call tileDesc%getDataPtr(initData, CENTER)
-       call Eos_wrapped(gr_eosModeInit, tileDesc%grownLimits, initData)
+       call Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits, initData)
        call tileDesc%releaseDataPtr(initData, CENTER)
 
        call itor%next()

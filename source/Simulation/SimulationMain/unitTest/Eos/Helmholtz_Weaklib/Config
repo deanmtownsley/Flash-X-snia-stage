@@ -11,10 +11,13 @@ MASS_SCALAR YE    EOSMAPIN: YE
 
 MASS_SCALAR SUMY EOSMAPIN: SUMY
 
-# Note: these are for an ugly hack to allow the unit test to compare
-# the inverted temperatures from each EOS
-VARIABLE TMPH EOSMAPOUT: TEMP1
-VARIABLE TMPW EOSMAPOUT: TEMP2
+USESETUPVARS CompareInvertedTemps
+IF CompareInvertedTemps
+   # Note: these are for an ugly hack to allow the unit test to compare
+   # the inverted temperatures from each EOS
+   VARIABLE TMPH EOSMAPOUT: TEMP1
+   VARIABLE TMPW EOSMAPOUT: TEMP2
+ENDIF
 
 D sim_yeMin       Initial distribution of electron fraction, minimum.  Even distribution between min/max.
 D sim_yeMax       Initial distribution of electron fraction, maximum.  Even distribution between min/max.

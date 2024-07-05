@@ -55,8 +55,9 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
 
   use Hydro_data, ONLY : hy_threadWithinBlock
 
+
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_wrapped,Eos_getData,Eos_putData,Eos
+  use Eos_interface, ONLY : Eos_multiDim,Eos
 
 
   implicit none
@@ -75,6 +76,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   real, dimension(loGC(2):), intent(IN) :: yLeft, yRight
   real, dimension(MDIM), intent(IN)  :: deltas
   real, intent(IN) :: smalle, smalld, dt
+
   logical, intent(IN) :: isFlux
 
   integer :: i, j, k
@@ -88,6 +90,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   integer, dimension(LOW:HIGH,MDIM) :: idxRange
 
   ! LOW side
+
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
      do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
         i = blkLimits(LOW,IAXIS)
@@ -115,7 +118,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) =   blkLimits(LOW,IAXIS)
   idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
   idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
 
   ! HIGH side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
@@ -144,7 +147,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) =   blkLimits(HIGH,IAXIS)
   idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
   idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
+
 
 #if NDIM>1
   ! Correct JAXIS sides
@@ -174,7 +178,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
   idxRange(LOW:HIGH,JAXIS) =   blkLimits(LOW,JAXIS)
   idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
+
 
   ! HIGH side
   do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
@@ -201,7 +206,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
   idxRange(LOW:HIGH,JAXIS) =   blkLimits(HIGH,JAXIS)
   idxRange(LOW:HIGH,KAXIS) = [ blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS) ]
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
+
 #if NDIM==3
   ! Correct KAXIS sides
   ! LOW side
@@ -230,7 +236,7 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
   idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
   idxRange(LOW:HIGH,KAXIS) =   blkLimits(LOW,KAXIS)
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
 
   ! HIGH side
   do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
@@ -257,7 +263,8 @@ subroutine hy_rk_correctFluxes(Uin, blkLimits, &
   idxRange(LOW:HIGH,IAXIS) = [ blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS) ]
   idxRange(LOW:HIGH,JAXIS) = [ blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS) ]
   idxRange(LOW:HIGH,KAXIS) =   blkLimits(HIGH,KAXIS)
-  call Eos_wrapped(MODE_DENS_EI,idxRange,Uin,gridDataStruct=CENTER)
+  call Eos_multiDim(MODE_DENS_EI,idxRange,Uin)
+
 #endif
 #endif
 

@@ -1,63 +1,75 @@
- !!****if* source/physics/Eos/EosMain/Eos
-!! NOTICE
-!!  Copyright 2023 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  Eos
+!! @brief Main implementation of the API call for a single cell computation
+!! of the equation of state
+!! 
+!! @subref{Eos}
 !!
-!!  For more details see the documentation of the NULL implementation
 !!
-!!***
 !!NOVARIANTS
 
-subroutine Eos(mode, vecLen, eosData, massFrac, mask, vecBegin,vecEnd, diagFlag)
+#include "constants.h"
+#include "Eos.h"
+#include "Simulation.h"
+
+
+subroutine Eos(mode, @M eos_args, massFrac, derivs)
 
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  ! use eos_localInterface, ONLY : @M eos_version
-  use eos_localInterface, ONLY : eos_idealGamma, eos_multiGamma, eos_helmSpecies, &
-       eos_helmYe, eos_starKiller, eos_weaklib
+  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weakLib
+
+
   implicit none
-#include "constants.h"
-#include "Eos.h"
-#include "Simulation.h"
-  integer, INTENT(in) :: mode, vecLen
-  real,INTENT(inout), dimension(EOS_NUM*vecLen) :: eosData 
-  logical, optional, INTENT(in),target,dimension(EOS_VARS+1:EOS_NUM) :: mask
-  real, optional, INTENT(in),dimension(NSPECIES*vecLen)    :: massFrac
-  integer,optional,INTENT(in) :: vecBegin,vecEnd
-  integer, optional, INTENT(out)    :: diagFlag
-  logical :: pMassFrac_and_mask, pMassFrac, pMask
+  integer, INTENT(in) :: mode
+  real, INTENT(INOUT) :: @M eos_args
+  real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+  logical :: pMassFrac_and_derivs, pMassFrac, pDerivs
 
-  if (present(diagFlag)) diagFlag = 0
-
+  !! in there just in case weaklib is included ignored for other versions
+  real, dimension(1,EOS_VARS) :: eosData 
+  integer :: i=1, vecLen = 1
+  real :: ekin  
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
-  if (mode==MODE_EOS_WRAPPERONLY) return ! * Return immediately for MODE_EOS_WRAPPERONLY! *
 
   pMassFrac = present(massFrac)
-  pMask = present(mask)
-  pMassFrac_and_mask = pMassFrac.and.pMask
-  
-  ! @M eos_versionCall
-  @M eos_idealGamma
-  @M eos_multiGamma
-  @M eos_helmSpecies
-  @M eos_helmYe
-  @M eos_starKiller
-  @M eos_weaklib  
-  @M eos_hybrid
-  
+  pDerivs = present(derivs)
+  pMassFrac_and_derivs = pMassFrac.and.pDerivs
+
+  if(pMassFrac_and_derivs) then
+     @M eos_idealGamma_massFrac_derivs
+     @M eos_helmSpecies_massFrac_derivs
+     @M eos_weakLib_point_massFrac_derivs
+  else if (pMassFrac) then
+     @M eos_idealGamma_massFrac
+     @M eos_helmSpecies_massFrac
+     @M eos_weakLib_point_massFrac
+  else if (pDerivs) then
+     @M eos_idealGamma_derivs
+     @M eos_helmSpecies_derivs
+     @M eos_weakLib_point_derivs
+  else
+     @M eos_idealGamma
+     @M eos_helmSpecies
+     @M eos_weakLib_point
+  end if
+
   return
 end subroutine Eos
 
@@ -70,24 +82,15 @@ end subroutine Eos
 ! if Helmholtz is included but not SpeciesBased, Ye, etc.
 
 #if defined(EOS_GAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
-# if  defined(EOS_MULTIGAMMA_INCLUDED)        || \
-      defined(EOS_WEAKLIB_INCLUDED)           || \
+# if  defined(EOS_WEAKLIB_INCLUDED)           || \
       defined(EOS_HELMHOLTZ_INCLUDED)
 #   error Multiple EOS implementations included with Gamma without Hybrid
 # endif
 #endif
 
-#if defined(EOS_MULTIGAMMA_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
-# if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_WEAKLIB_INCLUDED)           || \
-      defined(EOS_HELMHOLTZ_INCLUDED)
-#   error Multiple EOS implementations included with Multigamma without Hybrid
-# endif
-#endif
 
 #if defined(EOS_WEAKLIB_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
 # if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_MULTIGAMMA_INCLUDED)        || \
       defined(EOS_HELMHOLTZ_INCLUDED)
 #   error Multiple EOS implementations included with WeakLib without Hybrid
 # endif
@@ -95,7 +98,6 @@ end subroutine Eos
 
 #if defined(EOS_HELMHOLTZ_INCLUDED) && !defined(EOS_HYBRID_INCLUDED)
 # if  defined(EOS_GAMMA_INCLUDED)             || \
-      defined(EOS_MULTIGAMMA_INCLUDED)        || \
       defined(EOS_WEAKLIB_INCLUDED)
 #   error Multiple EOS implementations included with Helmholtz without Hybrid
 # endif

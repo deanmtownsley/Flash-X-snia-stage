@@ -1,33 +1,21 @@
-!!****if* source/physics/Eos/EosMain/Helmholtz/eos_helmData
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!> @ingroup physics_Eos
 !!
-!!  eos_helmData
+!! @brief  General parameters (non-array) for EOS Helmholtz
 !!
-!! 
-!! SYNOPSIS
-!!
-!!  use eos_helmData
-!!
-!! DESCRIPTION
-!!
-!!  General parameters (non-array) for EOS Helmholtz
-!!
-!! ARGUMENTS
-!!
-!!
-!!*** 
 
 module eos_helmData
 
@@ -59,8 +47,7 @@ module eos_helmData
   ! abort if pressures become negative
   logical, save :: eos_coulombAbort
  
-  ! Flag for whether to use starkiller helmholtz or old flash version
-  logical, save :: eos_useStarkiller
+  logical, save :: eos_useMultiSpecies
   integer,parameter :: EOSIMAX=541,EOSJMAX=201
 
   ! Minimum vecLen value to use OpenACC implementation of starkiller
@@ -68,20 +55,43 @@ module eos_helmData
 
   real, save :: eos_tlo, eos_thi, eos_tstpi
   real, save :: eos_dlo, eos_dhi, eos_dstpi
-  real,dimension(EOSJMAX),save :: eos_dt,eos_dtSqr,eos_dtInv,eos_dtSqrInv,eos_t
-  real,dimension(EOSIMAX),save :: eos_dd,eos_ddSqr,eos_ddInv,eos_ddSqrInv,eos_d
-
+  integer, parameter :: eos_t=1,eos_dt=2,eos_dtSqr=3,eos_dtInv=4,eos_dtSqrInv=5
+  integer, parameter :: eos_d=1, eos_dd=2,eos_ddSqr=3,eos_ddInv=4,eos_ddSqrInv=5
+  real,dimension(EOSJMAX,5),save :: eos_temps
+  real,dimension(EOSIMAX,5),save :: eos_rhos
 !..for the helmholtz free energy tables
 !..for the pressure derivative with density tables
 !..for the chemical potential tables
-!..for the number density tables
-  real,save,dimension(EOSIMAX,EOSJMAX) :: eos_f,eos_fd, eos_ft,eos_fdd,&
-                                          eos_ftt,eos_fdt,eos_fddt,&
-                                          eos_fdtt, eos_fddtt, & 
-                                          eos_dpdf,eos_dpdfd,eos_dpdft,&
-                                          eos_dpdfdd,eos_dpdftt,eos_dpdfdt,&
-                                          eos_ef,eos_efd,eos_eft,eos_efdd,&
-                                          eos_eftt,eos_efdt, & 
-                                          eos_xf,eos_xfd,eos_xft,eos_xfdd,&
-                                          eos_xftt,eos_xfdt
+  !..for the number density tables
+  integer, parameter :: EOST = 22, EOST_END=27
+  real,save,dimension(EOSIMAX,EOSJMAX,EOST_END) :: eos_table
+  integer, parameter:: eos_f=1,eos_fd=2,eos_ft=3,eos_fdd=4,&
+             eos_ftt=5,eos_fdt=6,eos_fddt=7,eos_fdtt=8,eos_fddtt=9, & 
+             eos_dpdf=10,eos_dpdfd=11,eos_dpdft=12,eos_dpdfdt=13, & 
+             eos_ef=14,eos_efd=15,eos_eft=16,eos_efdt=17, & 
+             eos_xf=18,eos_xfd=19,eos_xft=20,eos_xfdt=21
+  integer, parameter :: eos_dpdfdd=22,eos_dpdftt=23,eos_efdd=24,eos_eftt=25,&
+             eos_xfdd=26,eos_xftt=27
+
+  real,  save ::  tempRow,denRow, abarRow,zbarRow
+
+  !..totals and their derivatives
+  real, save ::  ptotRow,dptRow,             &
+       &                             etotRow,detRow, stotRow            
+  real, save ::  dedRow, dstRow,dsdRow,dpdRow            
+  real,  save ::  deaRow, dezRow  !Calhoun            
+
+
+  !..electron-positron contributions -- most UNUSED and REMOVED
+  real,  save :: pelRow, neRow, etaRow, detatRow
+  !..derivative based quantities
+  real,save ::    gamcRow
+  real,  save ::    cpRow,cvRow 
+
+
+!These variables must be threadprivate!!!
+!$omp threadprivate(tempRow, denRow, etotRow, abarRow, zbarRow, gamcRow, ptotRow, &
+!$omp deaRow, dezRow, detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, &
+!$omp cvRow, cpRow, dstRow, dsdRow, stotRow)
+
 end module eos_helmData

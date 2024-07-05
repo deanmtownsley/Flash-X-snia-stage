@@ -123,7 +123,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
   ! variables needed for the eos call
   real :: temp_zone, rho_zone, vel_zone
-  real :: ptot, eint, etot, abar, zbar, gamma
+  real :: ptot, eint, etot, abar, zbar,ye, gamma, entr
   real, dimension(EOS_NUM)  :: eosData
 
   integer :: lo(1:MDIM)
@@ -226,16 +226,9 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
 
            !  Need input of density and temperature
-           eosData(EOS_TEMP) = temp_zone
-           eosData(EOS_DENS) = rho_zone
-           
-           call Eos(MODE_DENS_TEMP,1,eosData,massFraction)
 
-           temp_zone = eosData(EOS_TEMP)
-           rho_zone = eosData(EOS_DENS)
-           ptot = eosData(EOS_PRES)
-           eint = eosData(EOS_EINT)
-           gamma = eosData(EOS_GAMC)
+           call Eos(MODE_DENS_TEMP,ptot,temp_zone,rho_zone,gamma,eint,entr,abar,zbar,ye,massFrac=massFraction)
+
            ! calculate kinetic energy and total energy
            !! this was NOT done in flash2
            etot = eint + 0.5*vel_zone**2

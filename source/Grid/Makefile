@@ -61,7 +61,6 @@ Grid += Grid_init.o \
 	Grid_receiveInputData.o \
 	Grid_getNeighProcList.o \
 	Grid_getBlkNeighLevels.o \
-	Grid_makeVector.o \
 	Grid_zeroFluxData.o \
 	Grid_addFineToFluxRegister.o \
 	Grid_addFineToFluxRegister_block.o \

@@ -173,7 +173,6 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   real    :: densp1, tempp1, sumyp1, yep1, presp1
   real    :: localg
 
-  real, dimension(EOS_NUM) :: eosData
   real    :: error
   integer :: iter, fromn
   integer :: max_iter = 20
@@ -181,8 +180,8 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   real    :: hse_tol = 1e-6
   real    :: f, dfdd, newdensp1, dp_hse
 
-  logical :: mask(EOS_VARS+1:EOS_NUM)
-
+  real, dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  real :: rpres, rtemp, rdens, rgamc, reint, rentr, rabar, rzbar, rye
   real    :: dtdp_ad0
 
 !==========================================================
@@ -208,19 +207,21 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   yep1   = ye(n)
   ! set pres0 from properties in reference zone
   ! also set up the adiabatic derivative from this zone if we need it
-  eosData(EOS_DENS) = dens(fromn)
-  eosData(EOS_TEMP) = temp(fromn)
-  eosData(EOS_ABAR) = 1.0/sumy(fromn)
-  eosData(EOS_ZBAR) = ye(fromn)*eosData(EOS_ABAR)
-  mask(:) = .false.
+  rdens = dens(fromn)
+  rtemp = temp(fromn)
+  rabar = 1.0/sumy(fromn)
+  rzbar = ye(fromn)*rabar
+!!$  mask(:) = .false.
+!!$  if (mode == HSE_CONSTENTR) then
+!!$     mask(EOS_DPT) = .true.
+!!$     mask(EOS_DET) = .true.
+!!$  endif
+!!$
+  call Eos(MODE_DENS_TEMP, rpres, rtemp, rdens, rgamc, reint, &
+       rentr, rabar, rzbar, rye,massFrac,derivs)
+  pres0 = rpres
   if (mode == HSE_CONSTENTR) then
-     mask(EOS_DPT) = .true.
-     mask(EOS_DET) = .true.
-  endif
-  call Eos(MODE_DENS_TEMP, 1, eosData,massFrac,mask=mask)
-  pres0 = eosData(EOS_PRES)
-  if (mode == HSE_CONSTENTR) then
-     dtdp_ad0 = eosData(EOS_TEMP)/pres0 * eosData(EOS_DPT)/dens0/eosData(EOS_DET)/eosData(EOS_GAMC)
+     dtdp_ad0 = rtemp/pres0 * derivs(EOS_DPT)/dens0/derivs(EOS_DET)/rgamc
   endif
 
   ! we are solving eq (42) in Zingale etal 2002 for densp1 = rho_{+1}
@@ -228,15 +229,15 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
   !  were P_{+1} = P(rho_{+1}, T)
 
   ! initial things that are constant during iteration
-  eosData(EOS_ABAR) = 1.0/sumyp1
-  eosData(EOS_ZBAR) = yep1*eosData(EOS_ABAR)
+  rabar = 1.0/sumyp1
+  rzbar = yep1*rabar
   ! initialize things that change
   ! densp1 was initialized above from input
   error = 2*hse_tol
   iter = 0
 
-  mask(:) = .false.
-  mask(EOS_DPD) = .true.
+!!$  mask(:) = .false.
+!!$  mask(EOS_DPD) = .true.
   do while (error > hse_tol .and. iter < max_iter)
      if (order == 1) then
         dp_hse = localg*delta*0.5*(densp1+dens0)
@@ -246,16 +247,17 @@ subroutine gr_hseStep(dens, temp, ye, sumy, n, inputg, delta, direction, order, 
      if (mode==HSE_CONSTENTR) then
         tempp1 = temp0 + dtdp_ad0 * dp_hse
      endif
-     eosData(EOS_DENS) = densp1
-     eosData(EOS_TEMP) = tempp1
-     call Eos(MODE_DENS_TEMP, 1, eosData,massFrac,mask=mask)
-     presp1 = eosData(EOS_PRES)
+     rdens = densp1
+     rtemp = tempp1
+     call Eos(MODE_DENS_TEMP, rpres, rtemp, rdens, rgamc, reint, &
+          rentr, rabar, rzbar, rye,massFrac,derivs)
+     presp1 = rpres
      if (order == 1) then
         f = presp1 - pres0 - dp_hse
-        dfdd = eosData(EOS_DPD) - localg*delta*0.5
+        dfdd = derivs(EOS_DPD) - localg*delta*0.5
      else if (order == 2) then
         f = presp1 - pres0 - dp_hse
-        dfdd = eosData(EOS_DPD) - localg*delta/12.0*5
+        dfdd = derivs(EOS_DPD) - localg*delta/12.0*5
      endif
      newdensp1 = densp1 - f/dfdd
      if (newdensp1 < 0.1*densp1) newdensp1 = 0.1*densp1
