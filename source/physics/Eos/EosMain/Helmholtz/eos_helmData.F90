@@ -86,8 +86,9 @@ module eos_helmData
   real,  save :: pelRow, neRow, etaRow, detatRow
   !..derivative based quantities
   real,save ::    gamcRow
-  real,  save ::    cpRow,cvRow 
-
+  real,  save ::    cpRow,cvRow
+  
+  logical, save :: eos_baprox13 = .false. 
 
 !These variables must be threadprivate!!!
 !$omp threadprivate(tempRow, denRow, etotRow, abarRow, zbarRow, gamcRow, ptotRow, &

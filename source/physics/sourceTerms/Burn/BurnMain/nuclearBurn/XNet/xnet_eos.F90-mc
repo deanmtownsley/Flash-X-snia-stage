@@ -72,7 +72,7 @@ Contains
 
     ! Local variables
     Real(dp) :: ytot, z2bar, zibar
-    Integer :: ierr
+    Integer :: ierr=0
     real :: @M eos_args
     ! Calculate Ye
     Call y_moment(y,sye,ytot,abar,zbar,z2bar,zibar)

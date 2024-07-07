@@ -47,6 +47,7 @@ subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
   
   !! get the map of eos indices to state variable indices
   @M eos_map
+  @M eos_args_init
   n = vecB-1
   !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
   @M loop_3d(range)
