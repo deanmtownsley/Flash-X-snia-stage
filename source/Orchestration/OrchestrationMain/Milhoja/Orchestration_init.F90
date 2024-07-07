@@ -37,6 +37,7 @@
 !! @todo Should this confirm matching types between Milhoja and Flash-X?
 !! @todo Error check that nBytesInMemoryPools cast doesn't overflow
 subroutine Orchestration_init()
+    use Orchestration_data
     use milhoja_types_mod,           ONLY : MILHOJA_INT, &
                                             MILHOJA_SIZE_T
     use milhoja_runtime_mod,         ONLY : milhoja_runtime_init
@@ -72,6 +73,17 @@ subroutine Orchestration_init()
     nStreams = 0
     nBytesInGpuMemoryPools = 0.0
 #endif
+    CALL RuntimeParameters_get("or_nThreads_1",             or_nThreads_1)
+    CALL RuntimeParameters_get("or_nThreads_2",             or_nThreads_2)
+    CALL RuntimeParameters_get("or_nThreads_3",             or_nThreads_3)
+    CALL RuntimeParameters_get("or_nThreads_4",             or_nThreads_4)
+    CALL RuntimeParameters_get("or_nThreads_5",             or_nThreads_5)
+
+    CALL RuntimeParameters_get("or_nTilesPerPacket_1",      or_nTilesPerPacket_1)
+    CALL RuntimeParameters_get("or_nTilesPerPacket_2",      or_nTilesPerPacket_2)
+    CALL RuntimeParameters_get("or_nTilesPerPacket_3",      or_nTilesPerPacket_3)
+    CALL RuntimeParameters_get("or_nTilesPerPacket_4",      or_nTilesPerPacket_4)
+    CALL RuntimeParameters_get("or_nTilesPerPacket_5",      or_nTilesPerPacket_5)
 
     !!!!!----- CAST TO MILHOJA TYPES
     MH_nThreadTeams    = INT(nThreadTeams,    kind=MILHOJA_INT)
