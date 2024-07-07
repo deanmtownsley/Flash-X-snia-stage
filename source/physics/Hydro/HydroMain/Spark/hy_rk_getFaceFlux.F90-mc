@@ -255,12 +255,11 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
      ! ***************
      select case(dir)
      case(IAXIS)
-!!$        @M hy_DIR_parallel_loop_simd(3) &
-!!$        @M hy_DIR_shared([scr_flux, flx]) &
-!!$        @M hy_DIR_firstprivate([is, js, ks])
-        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
-        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
-        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
+        @M hy_DIR_parallel_loop_simd(3) &
+        @M hy_DIR_shared([scr_flux, flx])
+        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)
+        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)
+        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1
            do v = 1, NFLUXES
               flx(v,i,j,k) = scr_flux(v,i,j,k)
            end do
@@ -268,12 +267,11 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
         enddo
         enddo
      case (JAXIS)
-!!$        @M hy_DIR_parallel_loop_simd(3) &
-!!$        @M hy_DIR_shared([scr_flux, fly]) &
-!!$        @M hy_DIR_firstprivate([is, js, ks])
-        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
-        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
-        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
+        @M hy_DIR_parallel_loop_simd(3) &
+        @M hy_DIR_shared([scr_flux, fly])
+        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)
+        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1
+        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)
            do v = 1, NFLUXES
               fly(v,i,j,k) = scr_flux(v,i,j,k)
            end do
@@ -281,12 +279,11 @@ subroutine hy_rk_getFaceFlux (stage, starState, flat3d, flx, fly, flz, &
         enddo
         enddo
      case (KAXIS)
-!!$        @M hy_DIR_parallel_loop_simd(3) &
-!!$        @M hy_DIR_shared([scr_flux, flz]) &
-!!$        @M hy_DIR_firstprivate([is, js, ks])
-        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1*ks
-        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)+1*js
-        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)+1*is
+        @M hy_DIR_parallel_loop_simd(3) &
+        @M hy_DIR_shared([scr_flux, flz])
+        do k = limits(LOW,KAXIS,stage), limits(HIGH,KAXIS,stage)+1
+        do j = limits(LOW,JAXIS,stage), limits(HIGH,JAXIS,stage)
+        do i = limits(LOW,IAXIS,stage), limits(HIGH,IAXIS,stage)
            do v = 1, NFLUXES
               flz(v,i,j,k) = scr_flux(v,i,j,k)
            end do
