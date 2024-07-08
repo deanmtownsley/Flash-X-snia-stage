@@ -1,0 +1,20 @@
+# Test suite file for ganon_jenkins
+
+#------------------------------------------------
+# Tests for - unitTest/Grid/Milhoja/TestInit
+#------------------------------------------------
+unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/1D/TestInit" -np 1
+unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/2D/TestInit" -np 1
+unitTest/Grid/Milhoja/TestInit -t "UnitTest/Grid/AMR/Milhoja/3D/TestInit" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Grid/Milhoja/TestFluxes
+#------------------------------------------------
+unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/1D/TestFluxes" -np 1
+unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/2D/TestFluxes" -np 1
+unitTest/Grid/Milhoja/TestFluxes -t "UnitTest/Grid/AMR/Milhoja/3D/TestFluxes" -np 1
+
+#------------------------------------------------
+# Tests for - unitTest/Grid/DomainBBoxRadians
+#------------------------------------------------
+unitTest/Grid/DomainBBoxRadians -t "UnitTest/Grid/Milhoja/3dcyl/DomainBBoxRadians"

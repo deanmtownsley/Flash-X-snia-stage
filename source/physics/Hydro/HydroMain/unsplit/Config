@@ -1,8 +1,17 @@
+##python3:genLines
+
 # source/physics/Hydro/HydroMain/unsplit
 
 # Config file for the Unsplit Hydro & MHD solvers
 # Note: It requires an "Unsplit" Driver implementation, which is
 #       different from the FLASH traditional default "Split" scheme.
+
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    yield '''
 
 REQUIRES Driver/DriverMain/Unsplit
 REQUIRES physics/Eos
@@ -165,7 +174,7 @@ D & that is done to fluxes of other conserved variables?
 PARAMETER hy_fullSpecMsFluxHandling BOOLEAN TRUE        # Full flux handling for species and mass scalars?
 
 IF not ThreeT
-PARAMETER addThermalFlux       BOOLEAN  TRUE            # Add/don't add thermal fluxes to hydro fluxes
+PARAMETER addThermalFlux       BOOLEAN  TRUE            # Add/do not add thermal fluxes to hydro fluxes
 ELSE
 PARAMETER addThermalFlux       BOOLEAN  CONSTANT FALSE  # Unsplit hydro/MHD thermal conduction does not work in 
 ENDIF                                                   # 3T mode.
@@ -232,15 +241,25 @@ ENDIF
 #SCRATCHCENTERVAR dummySCtr7
 #SCRATCHCENTERVAR dummySCtr8
 #ENDIF
+'''
+
+    if "HydroGuardcells" in setupvars:
+        ngcLow  = max(2,setupvars["HydroGuardcells"])
+        ngcHigh = max(6,setupvars["HydroGuardcells"])
+    else:
+        ngcLow  = 4
+        ngcHigh = 6
+    yield f'''
 
 # Number of guard cells at each boundary
 USESETUPVARS SupportPpmUpwind
 IF SupportPpmUpwind
-   GUARDCELLS 6 # the Unsplit Hydro/MHD solver requires 6 guard cells to support PPM Upwind!
+   GUARDCELLS {ngcHigh} # the Unsplit Hydro/MHD solver requires 6 guard cells to support PPM Upwind!
 ELSE
-   GUARDCELLS 4 # the Unsplit Hydro/MHD solver requires 4 guard cell layers!
+   GUARDCELLS {ngcLow} # the Unsplit Hydro/MHD solver requires 4 guard cell layers!
 ENDIF
 
 # GP interpolation - UNSUPPORTED
 PARAMETER radiusGP               REAL  2.
 PARAMETER sigmaGP                REAL  3.
+'''
