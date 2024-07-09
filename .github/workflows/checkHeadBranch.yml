@@ -1,4 +1,4 @@
-# Name of the github-docker workflow
+# Name of the github-docker workflow to ensure that pull requests from main only come from staged
 name: Check-Head
 
 # Perform container on pull request
