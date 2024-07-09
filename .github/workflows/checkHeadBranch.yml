@@ -16,10 +16,10 @@ jobs:
     - name: Check if head branch is staged
       if:  ${{ github.event.pull_request.head.ref == 'staged' }}
       run: |
-           echo "Staged has ${{ steps.check-new-commits.outputs.new-commits-number }} new commit(s) ✅!"
+           echo "Head branch is staged."
            exit 0
     - name: Check if head branch is not staged
       if: ${{ github.event.pull_request.head.ref != 'staged' }}
       run: |
-           echo "Staged does not have new commits 🛑!"
+           echo "Head branch is not staged."
            exit 1
