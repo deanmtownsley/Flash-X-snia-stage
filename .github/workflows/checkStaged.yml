@@ -1,0 +1,31 @@
+# Name of the github-docker workflow
+name: Check-Staged
+
+# Perform container on pull request
+on:
+  pull_request:
+    branches: 
+      - main
+
+# Container jobs
+jobs:
+  Check-Staged:
+    name: "Check-Staged"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check for new commits today
+      id: check-new-commits
+      uses: adriangl/check-new-commits-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: staged
+    - name: Print something if new commits are found
+      if: ${{ steps.check-new-commits.outputs.has-new-commits == 'true' }}
+      run: |
+           echo "Staged has ${{ steps.check-new-commits.outputs.new-commits-number }} new commit(s) ✅!"
+           exit 0
+    - name: Print another thing if new commits couldn't be found
+      if: ${{ steps.check-new-commits.outputs.has-new-commits != 'true' }}
+      run: |
+           echo "Staged does not have new commits 🛑!"
+           exit 1
