@@ -22,6 +22,8 @@ jobs:
     - name: Print something if new commits are found
       if: ${{ steps.check-new-commits.outputs.has-new-commits == 'true' }}
       run: echo "Staged has ${{ steps.check-new-commits.outputs.new-commits-number }} new commit(s) ✅!"
+      run: exit 0
     - name: Print another thing if new commits couldn't be found
       if: ${{ steps.check-new-commits.outputs.has-new-commits != 'true' }}
       run: echo "Staged does not have new commits 🛑!"
+      run: exit 1
