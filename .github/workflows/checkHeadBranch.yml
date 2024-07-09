@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check if head branch is staged
-      if:  ${{ github.event.pull_request.head.ref == "staged" }}
+      if:  ${{ github.event.pull_request.head.ref == 'staged' }}
       run: |
            echo "Staged has ${{ steps.check-new-commits.outputs.new-commits-number }} new commit(s) ✅!"
            exit 0
     - name: Check if head branch is not staged
-      if: ${{ github.event.pull_request.head.ref != "staged" }}
+      if: ${{ github.event.pull_request.head.ref != 'staged' }}
       run: |
            echo "Staged does not have new commits 🛑!"
            exit 1
