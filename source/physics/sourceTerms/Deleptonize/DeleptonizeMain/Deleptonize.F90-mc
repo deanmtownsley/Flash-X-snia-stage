@@ -40,7 +40,7 @@ subroutine Deleptonize(dotiling, dt, time)
                                 delep_rhoTwo, delep_yTwo, delep_useEntr, delep_useRadTrans, &
                                 delep_threadWithinBlock, delep_fromFile
     use delep_interface, ONLY: delep_detectBounce
-    use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar
+    use Eos_interface, ONLY: Eos_multiDim, Eos_getAbarZbar
     ! use Eos_nucInterface, ONLY: Eos_nucDetectBounce, Eos_nucOneZone
     use Timers_interface, ONLY: Timers_start, Timers_stop
     @M iter_use
@@ -171,7 +171,7 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp end do
 
     !$omp single
-    if (flag) call Eos_wrapped(eosMode, blkLimits, Uin)
+    if (flag) call Eos_multiDim(eosMode, blkLimits, Uin)
     !$omp end single
     @M iter_end
     !$omp end parallel

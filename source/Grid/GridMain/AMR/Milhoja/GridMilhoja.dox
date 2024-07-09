@@ -2,6 +2,20 @@
 @internal
 @defgroup GridMilhoja Milhoja Grid Implementation
 
+@brief
+The Milhoja implementation of the Grid unit.
+
+@details
+Users must specify at setup time the variable\n\n
+Milhoja=<grid backend>,[<runtime backend>,<computation offloading model>]\n\n
+If the Orchestration unit is to be used in the simulation, then the last two
+arguments must be included; otherwise, they are optional and any given arguments
+are ignored.  Presently, the only valid grid backend is AMReX.  Please refer to
+the Milhoja Orchestration implementation's documentation for information on
+runtime backends and offloading models.  Users must setup their build system
+such that Flash-X simulations are built and linked against the correct
+corresponding external Milhoja library instance.
+
 @copyright Copyright 2022 UChicago Argonne, LLC and contributors
 
 \par License

@@ -1,7 +1,7 @@
 #include "constants.h"
 #include "Simulation.h"
 
-!> @copyright Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !! @licenseblock
 !! Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +74,7 @@ module Grid_tile
         procedure, public :: faceBCs
         procedure, public :: getDataPtr
         procedure, public :: releaseDataPtr
+        procedure, public :: fillTileCInfo
     end type Grid_tile_t
 
     !!!!!----- INTERFACES TO C-LINKAGE C++ FUNCTIONS
@@ -470,5 +471,73 @@ contains
         NULLIFY(dataPtr)
     end subroutine releaseDataPtr
 
+    subroutine fillTileCInfo(this, cInfo)
+        use Orchestration_interfaceTypeDecl, ONLY: Orchestration_tileCInfo_t
+        use Grid_data, ONLY: gr_useOrchestration
+        use gr_milhojaInterface, ONLY : gr_checkMilhojaError
+        use milhoja_types_mod,   ONLY : MILHOJA_INT, &
+                                        MILHOJA_REAL
+        use milhoja_grid_mod, ONLY : milhoja_grid_getDeltas
+        use,intrinsic :: iso_c_binding
+        class(Grid_tile_t), intent(IN)                :: this
+        type(Orchestration_tileCInfo_t),intent(OUT)   :: cInfo
+
+        integer(MILHOJA_INT) :: MH_level
+        real(MILHOJA_REAL)   :: MH_deltas(1:MDIM)
+        integer(MILHOJA_INT) :: MH_ierr
+        integer :: i
+        real,pointer,contiguous :: fBlkPtr(:,:,:,:)
+
+#ifdef FLASHX_ORCHESTRATION
+#ifdef FLASHX_ORCHESTRATION_MILHOJA
+#include "Milhoja.h"
+#ifndef RUNTIME_MUST_USE_TILEITER
+        if (gr_useOrchestration) then
+           cInfo % CInts % nCcComp      = NUNK_VARS
+           cInfo % CInts % nFluxComp    = NFLUXES
+           cInfo % CInts % loGC(1:MDIM) = this % blklimitsGC(LOW,:)
+           cInfo % CInts % hiGC(1:MDIM) = this % blkLimitsGC(HIGH,:)
+           cInfo % CInts % lo(1:MDIM)   = this % limits(LOW,:)
+           cInfo % CInts % hi(1:MDIM)   = this % limits(HIGH,:)
+           cInfo % CInts % ndim         = NDIM
+           cInfo % CInts % level        = this % level
+           cInfo % CInts % gridIdxOrBlkId = this % grid_index
+           cInfo % CInts % tileIdx      = this % tile_index ! may not be meaningful
+
+           MH_level = INT(this%level, kind=MILHOJA_INT)
+           CALL milhoja_grid_getDeltas(MH_level, MH_deltas, MH_ierr)
+           CALL gr_checkMilhojaError("Grid_tile_t%fillTileCInfo", MH_ierr)
+           associate(dx => cInfo % CReals % deltas)
+               dx(:) = 0.0
+               do i = 1, NDIM
+                  dx(i) = REAL(MH_deltas(i))
+               end do
+           end associate
+
+           cInfo % CPtrs % ccBlkPtr = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(IAXIS) = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(JAXIS) = C_NULL_PTR
+           cInfo % CPtrs % fluxBlkPtrs(KAXIS) = C_NULL_PTR
+
+           nullify(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, CENTER)
+           if(associated(fBlkPtr)) cInfo % CPtrs % ccBlkPtr = c_loc(fBlkPtr)
+#ifdef USE_LEVELWIDE_FLUXES
+           nullify(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXX)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(IAXIS) = c_loc(fBlkPtr)
+           nullify(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXY)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(JAXIS) = c_loc(fBlkPtr)
+           nullify(fBlkPtr)
+           call this % getDataPtr(fBlkPtr, FLUXZ)
+           if(associated(fBlkPtr)) cInfo % CPtrs % fluxBlkPtrs(KAXIS) = c_loc(fBlkPtr)
+#endif
+        end if
+#endif
+#endif
+#endif
+
+    end subroutine fillTileCInfo
 end module Grid_tile
 

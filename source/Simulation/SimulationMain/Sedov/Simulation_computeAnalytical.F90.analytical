@@ -120,7 +120,7 @@ subroutine Simulation_computeAnalytical(solnData, tileDesc, tcurr)
 
   if (sim_useProfileFromFile) then
   ! Prepare the solution that has been read in for use in interpolation
-     if (sim_tinitial > 0.0) call sim_scaleProfile(tcurr) ! DEV: Is tcurr right time?
+     if (sim_tinitial > 0.0 .OR. tcurr .NE. 0.0) call sim_scaleProfile(tcurr) ! DEV: Is tcurr right time?
   else
   !
   !  Construct the radial samples needed for the initialization.

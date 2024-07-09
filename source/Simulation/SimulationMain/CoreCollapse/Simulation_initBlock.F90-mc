@@ -28,7 +28,7 @@ subroutine Simulation_initBlock(Uin,tileDesc)
     use Simulation_data
     use Driver_interface, ONLY: Driver_abort
     use Grid_interface, ONLY: Grid_getGeometry, Grid_renormAbundance
-    use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar, Eos
+    use Eos_interface, ONLY: Eos_multiDim, Eos_getAbarZbar, Eos
     use Multispecies_interface, ONLY: Multispecies_getSumFrac, Multispecies_getSumInv, Multispecies_getSum 
     use Timers_interface, ONLY: Timers_start, Timers_stop
     use Grid_interface, ONLY : Grid_getCellCoords, &
@@ -221,7 +221,7 @@ subroutine Simulation_initBlock(Uin,tileDesc)
     @M loop_end_3d            
 #endif
     ! now make the thermodynamics of this zone consistent !! Don't need this here; done after init_block
-!   call Eos_wrapped(MODE_DENS_PRES,limits,blockID)
+!   call Eos_multiDim(MODE_DENS_PRES,limits,blockID)
 
     deallocate (xLeft)
     deallocate (xRight)

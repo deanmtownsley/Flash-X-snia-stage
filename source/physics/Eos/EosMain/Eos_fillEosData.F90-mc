@@ -1,0 +1,65 @@
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief main implementation for filling in 2D eosData array from solnData 4D array 
+!!
+!! @subref{Eos_fillEosData}
+!!***
+!!NOVARIANTS
+#include "Eos.h"
+#include "Eos_map.h"
+#include "constants.h"
+#include "Simulation.h"
+  
+
+! solnData depends on the ordering on unk
+!!REORDER(4): solnData
+
+
+subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
+
+  use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_mapLookup
+  use Driver_interface, ONLY : Driver_abort
+  implicit none
+
+  integer, intent(in) :: vecB
+  integer,intent(inout) :: vecE
+  integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+  real,pointer,dimension(:,:,:,:), intent(in) :: solnData
+  real, dimension(vecB:vecE,EOS_VARS),intent(out) :: eosData
+
+  integer :: i,j,k,n
+  real :: @M eos_args, ekin
+  @M eos_map_declare
+  !! ---------------------------------------------------------------------------------
+  ! Test calling arguments
+  
+  !! get the map of eos indices to state variable indices
+  @M eos_map
+  @M eos_args_init
+  n = vecB-1
+  !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
+  @M loop_3d(range)
+  !! account for kinetic energy
+            n=n+1
+            @M eos_preprocess
+            !! consolidate the data at the point into eosData
+            @M eos_pack(eosData,n)
+  @M loop_end_3d
+  vecE=n
+  return
+end subroutine Eos_fillEosData
+
+
+

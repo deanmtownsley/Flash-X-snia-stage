@@ -1,0 +1,57 @@
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief Eos_fillEosData stub
+
+!> @ingroup physics_Eos
+!!
+!! @brief a utility for filling up the data structure known to Eos_vector
+!!
+!! @details
+!! @anchor Eos_getFromEosData_stub
+!!
+!! 
+!! This is a helper routine that extracts data from eosData array on which Eos_vector
+!!  operates and puts the computed values into the  multidimension array of data 
+!!  provided to the interface
+!!
+!!  @param vecB, vecE the starting point and ending point of the first dimenstion of eosData
+!!
+!!  @param eosData the 2D array with data arranged as needed by Eos_vector
+!!
+!!  @param range  bounds of the multiD array
+!!
+!!  @param solnData pointer to the multidimensional array of data
+!!
+!!
+!!NOVARIANTS
+
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+  
+subroutine Eos_getFromEosData( vecB, vecE, eosData,range, solnData)
+
+  implicit none
+
+  integer, intent(in) :: vecB
+  integer,intent(inout) :: vecE
+  integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+  real, dimension(vecB:vecE,EOS_VARS),intent(in) :: eosData
+  real,pointer,dimension(:,:,:,:), intent(in) :: solnData
+  return
+end subroutine Eos_getFromEosData
+
+
+

@@ -1,8 +1,17 @@
+##python3:genLines
+
 # source/physics/Hydro/HydroMain/simpleUnsplit
 
 # Config file for simple unsplit Hydro solvers
 # Note: It requires an unsplit driver which is different from 
 #       the FLASH default split scheme.
+
+import globals
+from globals import *
+
+def genLines(setupvars):
+
+    yield '''
 
 REQUESTS Driver/DriverMain/Unsplit
 REQUIRES physics/Eos
@@ -120,7 +129,7 @@ PARAMETER entropyFixMethod     STRING  "HARTENHYMAN"  	# Entropy fix method for 
 PARAMETER shockDetect          BOOLEAN  FALSE   	# Turn on/off a shock detecting switch
 PARAMETER EOSforRiemann        BOOLEAN  FALSE   	# Turn on/off EOS calls for the Riemann states
 
-PARAMETER addThermalFlux       BOOLEAN  CONSTANT FALSE  # Add/don't add thermal fluxes to hydro fluxes - NOTIMPLEMENTED
+PARAMETER addThermalFlux       BOOLEAN  CONSTANT FALSE  # Add/do not add thermal fluxes to hydro fluxes - NOTIMPLEMENTED
 
 # (4) Gravity updates
 PARAMETER use_gravHalfUpdate   BOOLEAN  FALSE   	# Include gravitational accelerations to hydro coupling at n+1/2
@@ -154,14 +163,23 @@ SCRATCHFACEZVAR dummy3
 SCRATCHFACEZVAR dummy4
 SCRATCHFACEZVAR dummy5
 ENDIF
+'''
 
+    if "HydroGuardcells" in setupvars:
+        ngcLow  = max(1,setupvars["HydroGuardcells"])
+        ngcHigh = max(6,setupvars["HydroGuardcells"])
+    else:
+        ngcLow  = 4
+        ngcHigh = 6
+    yield f'''
 
 # Number of guard cells at each boundary
 USESETUPVARS SupportWeno, SupportPpmUpwind
 IF SupportWeno
-   GUARDCELLS 6 # the Unsplit Hydro/MHD solver requires 6 guard cells to support WENO!
+   GUARDCELLS {ngcHigh} # the Unsplit Hydro/MHD solver requires 6 guard cells to support WENO!
 ELSEIF SupportPpmUpwind
-   GUARDCELLS 6 # the Unsplit Hydro/MHD solver requires 6 guard cells to support PPM Upwind!
+   GUARDCELLS {ngcHigh} # the Unsplit Hydro/MHD solver requires 6 guard cells to support PPM Upwind!
 ELSE
-   GUARDCELLS 4 # the Unsplit Hydro/MHD solver requires 4 guard cell layers!
+   GUARDCELLS {ngcLow} # the Unsplit Hydro/MHD solver requires 4 guard cell layers!
 ENDIF
+'''

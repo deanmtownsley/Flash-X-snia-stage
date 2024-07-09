@@ -1,25 +1,26 @@
-!!****f* source/physics/Eos/Eos_unitTest
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
-!! NAME
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!!  Eos_unitTest
-!! 
-!! SYNOPSIS
+!! @file
+!! @brief Eos_unitTest stub
+
+!> @ingroup physics_Eos
 !!
-!!  call Eos_unitTest(integer(IN) :: fileUnit,
-!!                    logical(OUT) :: perfect
+!! @brief unit test driver for the Eos unit
 !!
-!! DESCRIPTION
+!! @details
+!! @anchor Eos_unitTest_stub
+!!
 !!
 !! This function is the unit test for the Eos unit. It is invoked in
 !! the setup unitTest/Eos. The Config file for the Eos unit test setup
@@ -33,7 +34,7 @@
 !!
 !! The Eos_unit test starts by copying the initialized
 !! temperature into the TEMP_VAR location and calling the
-!! Eos_wrapped function with eosMode = MODE_DENS_TEMP, where
+!! Eos_multiDim function with eosMode = MODE_DENS_TEMP, where
 !! density and temperature are given and pressure and energy are
 !! calculated. Now PRES_VAR and EINT_VAR contain values of pressure
 !! and internal energy that are in thermal equilibrium, and the pressure values
@@ -43,16 +44,16 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! the Eos_unitTest function calls Eos_multiDim with eosMode =
 !! MODE_DENS_PRES, followed by eosMode= MODE_DENS_EI.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
 !! we can conclude that the Eos is working in MODE_DENS_PRES and
 !! MODE_DENS_EI modes. However, we still can't say anything about the
 !! MODE_DENS_TEMP mode. So we repeat the process by copying CPRS_VAR
-!! into PRES_VAR and calling Eos_wrapped with MODE_DENS_PRES. We
+!! into PRES_VAR and calling Eos_multiDim with MODE_DENS_PRES. We
 !! again save the calculated values in the extra storage and make two
-!! more Eos_wrapped calls with the remaining two modes. This time if
+!! more Eos_multiDim calls with the remaining two modes. This time if
 !! the new and old values of variables compare, we can conclude that
 !! MODE_DENS_TEMP works too, and hence the unit test is successful.
 !!
@@ -61,19 +62,14 @@
 !! tested in any way.  The unitTest simply makes sure that they can be calculated
 !! without NaNs or the like.
 !!
-!!  ARGUMENTS 
+!!   
 !!   
 !! 
-!!   fileUnit : unit number for file opened by the unitTest/Eos setup
+!!   @param fileUnit : unit number for file opened by the unitTest/Eos setup
 !!              in which to write results of the test
 !!
-!!   perfect : indicates test ran without error is true.
+!!   @param perfect : indicates test ran without error is true.
 !!
-!!  PARAMETERS
-!!
-!!  eintSwitch  a rarely used switch which ensures that internal energy calculations 
-!!        maintain sufficient precision. Important only if energyTotal is dominated 
-!!        by energyKinetic.
 !!
 !!***
 

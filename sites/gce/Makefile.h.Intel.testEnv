@@ -9,8 +9,15 @@
 #----------------------------------------------------------------------------
 # Set the AMReX library path -- manual installation for multiple variants
 #----------------------------------------------------------------------------
-AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
-MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+ifeq ("$(USEOPENMP)","1")
+  AMREX_PATH=${FLASHX_AMREX_OMP${NDIM}D_DIR}
+else
+  AMREX_PATH=${FLASHX_AMREX${NDIM}D_DIR}
+endif
+
+#MILHOJA_PATH=${FLASHX_MILHOJA${NDIM}D_DIR}
+#Try same path as for GCC:
+MILHOJA_PATH=/nfs/gce/projects/FLASH5/kweide/local-milhoja/${NDIM}d
 
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths
@@ -31,7 +38,7 @@ MA28_PATH = ${FLASHX_MA28_DIR}
 FCOMP   = h5pfc
 CCOMP   = h5pcc
 CPPCOMP = mpicxx -std=c++17
-LINK    = h5pfc -std=c++17
+LINK    = h5pfc
 
 # pre-processor flag
 PP      = -D
@@ -69,6 +76,7 @@ FFLAGS_AMREX = -I${AMREX_PATH}/include
 # don't need to know this.  The setup tool could add in a WARNING so that they
 # are made aware.  Similarly, it would need to add -Mrecursive for NVHPC.
 FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -fexceptions -auto
+FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -fexceptions -auto ${FFLAGS_AMREX}
 
 F90FLAGS = -DHAVE_MPI_MODULE -DH5_USE_18_API
 
@@ -86,7 +94,8 @@ CFLAGS_TEST = -c
 CFLAGS_HDF5 = -DH5_USE_18_API
 CFLAGS_NCMPI = -I$(LIB_NCMPI)/include
 CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_MILHOJA =
+CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
+CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
 
 #----------------------------------------------------------------------------
 # Linker flags
@@ -116,6 +125,7 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
+LIB_OACC  =
 LIB_HDF5  =
 LIB_PAPI  =
 LIB_MATH  =
@@ -130,9 +140,8 @@ LIB_MA28 = -L$(MA28_PATH) -lma28
 # setup tool presently lists AMReX before Milhoja.  Since Milhoja depends on
 # AMReX, we have to manually list AMReX afterward so that the linker finds
 # all dependencies.
-# TODO: I believe that Klaus has addressed this.  If so, update to use his
-# new fix.
 LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread -lamrex
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX}
 
 # Uncomment the following line to use electic fence memory debugger.
 # Need the following environmental variable (see env.sh):

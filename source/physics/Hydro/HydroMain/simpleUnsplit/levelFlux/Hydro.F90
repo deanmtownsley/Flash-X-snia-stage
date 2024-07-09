@@ -40,7 +40,7 @@ subroutine Hydro(simTime, dt, dtOld)
   use Logfile_interface, ONLY : Logfile_stampVarMask
   use Timers_interface,  ONLY : Timers_start, &
                                 Timers_stop
-  use Eos_interface,     ONLY : Eos_wrapped
+  use Eos_interface,     ONLY : Eos_multiDim
   use Hydro_interface,   ONLY : Hydro_prepareBuffers, &
                                 Hydro_freeBuffers
   use Hydro_data,        ONLY : hy_useHydro, &
@@ -157,7 +157,7 @@ subroutine Hydro(simTime, dt, dtOld)
                                   flX, flY, flZ, lbound(flX), &
                                   deltas, dt)
 
-     call Eos_wrapped(hy_eosModeAfter, tileDesc%limits, Uout)
+     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits, Uout)
 
      call tileDesc%releaseDataPtr(Uin, CENTER)
      call tileDesc%releaseDataPtr(flX, FLUXX)

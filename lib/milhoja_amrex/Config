@@ -1,0 +1,18 @@
+# Use the Milhoja library with the AMReX grid backend
+#
+# Originally there was only a milhoja external library.  However the setup tool
+# added LIB_AMREX before LIB_MILHOJA in the link command.  Since Milhoja depends
+# on AMReX, linking failed.  I manually add ${LIB_AMREX} to the end of
+# LIB_MILHOJA in my Makefile for linking to be successful (i.e., LIB_AMREX
+# occurs twice in the link command).
+#
+# Since Milhoja could eventually have many grid backends and we might want to
+# use all of these on a single platform, this hack would not work.  Therefore,
+# a temporary workaround is to have a milhoja_* library for each grid backend.
+#
+# TODO: Update the setup tool so that link order relationships can be expressed
+# in Config files.
+TYPE EXTERNAL
+
+LIBRARY milhoja
+LIBRARY amrex

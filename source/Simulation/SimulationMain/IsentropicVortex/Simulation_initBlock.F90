@@ -80,7 +80,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
        sim_eosData, sim_eosMassFr
 
   use Grid_interface, ONLY :Grid_getCellCoords
-  use Eos_interface, ONLY : Eos_wrapped, Eos
+  use Eos_interface, ONLY : Eos_multiDim, Eos
   use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
@@ -98,7 +98,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   real :: rho_sum, rhou_sum, rhov_sum, rhow_sum, rhoe_sum
   real :: rhou, rhov, rhow, rhoe
   real :: rho_loc, u_loc, v_loc, w_loc, t_loc, p_loc, e_loc, gamma_loc
-
+  real :: entr, abar, zbar, ye, temp
   integer :: i, j, k, n
   integer :: ii, jj
   real :: entropy, dst, dsd
@@ -110,6 +110,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   real,allocatable,dimension(:)::yCenter,yLeft,yRight
   real,allocatable,dimension(:)::zCenter,zLeft,zRight
   real::rho, p, t, e, u, v, w, etot, game, gamc
+
 #if NSPECIES > 0
   real,allocatable,dimension(:)::xn
 #endif
@@ -240,16 +241,16 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                  w_loc = 0.0
                  t_loc = t_star*rbari
                  rho_loc = sim_constAmbient*t_loc**gm1i
-                 sim_eosData(EOS_DENS)=rho_loc
-                 sim_eosData(EOS_TEMP)= t_loc
+!!$                 dens=rho_loc
+!!$                 temp= t_loc
                  !       Get e_loc from rho_loc and t_loc.
 
-                 call Eos(MODE_DENS_TEMP,vecLen,sim_eosData,sim_eosMassFr)
+                 call Eos(MODE_DENS_TEMP,p_loc, t_loc, rho_loc, gamc, e_loc, entr, abar, zbar, ye,sim_eosMassFr)
 
-
-                 e_loc=sim_eosData(EOS_EINT)
-                 p_loc=sim_eosData(EOS_PRES)
-
+!!$
+!!$                 e_loc=eint
+!!$                 p_loc=pres
+!!$
                  rho_sum  = rho_sum  + rho_loc
                  rhou_sum = rhou_sum + rho_loc*u_loc
                  rhov_sum = rhov_sum + rho_loc*v_loc
@@ -271,10 +272,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
            w    = rhow/rho
            etot = rhoe/rho
            e    = etot - 0.5*(u**2 + v**2 + w**2)
-           sim_eosData(EOS_DENS)=rho
-           sim_eosData(EOS_EINT)=e
-           call Eos(MODE_DENS_EI,vecLen,sim_eosData,sim_eosMassFr)
-           p=sim_eosData(EOS_PRES)
+           call Eos(MODE_DENS_EI,p, temp, rho, gamc, e, entr, abar, zbar, ye,sim_eosMassFr)
            game=p/(rho*e) +1.0
            solnData(DENS_VAR,i,j,k)=rho
            solnData(VELX_VAR,i,j,k)=u
