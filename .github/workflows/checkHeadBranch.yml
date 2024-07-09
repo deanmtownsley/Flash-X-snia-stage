@@ -1,0 +1,25 @@
+# Name of the github-docker workflow
+name: Check-Head
+
+# Perform container on pull request
+on:
+  pull_request:
+    branches: 
+      - main
+
+# Container jobs
+jobs:
+  Check-Head:
+    name: "Check-Head"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check if head branch is staged
+      if:  ${{ github.event.pull_request.head.ref == 'staged' }}
+      run: |
+           echo "Head branch is staged."
+           exit 0
+    - name: Check if head branch is not staged
+      if: ${{ github.event.pull_request.head.ref != 'staged' }}
+      run: |
+           echo "Head branch is not staged."
+           exit 1
