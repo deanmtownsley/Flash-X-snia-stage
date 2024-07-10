@@ -91,7 +91,7 @@
 subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
   use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos
@@ -139,13 +139,13 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
   end select
 
   if(ierr /= 0) then
-     call Driver_abortFlash("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
+     call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
   end if
 
 ! Sanity check
   if (present(gridDataStruct)) then
      if (gridDataStruct .NE. CENTER) then
-        call Driver_abortFlash("Eos_wrapped: Support for gridDataStruct other than CENTER not implemented in this version!")
+        call Driver_abort("Eos_wrapped: Support for gridDataStruct other than CENTER not implemented in this version!")
      end if
   end if
 #endif
@@ -268,7 +268,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
               write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
            endif
            call Logfile_stampMessage('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
-           call Driver_abortFlash('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+           call Driver_abort('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
         end if
 
         solnData(GAME_VAR,range(LOW,IAXIS):range(HIGH,IAXIS),j,k) = &

@@ -132,7 +132,7 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   ! need a guess temperature
   eosData_b(EOS_TEMP) = eosData_u(EOS_TEMP)
   if ( (.not.present(mfrac_b)) .and. (eosData_b(EOS_ABAR) == 0.0 ) ) then
-     call Driver_abortFlash("Must set Abar of burned material in Interfaces_rhjump with no mfrac")
+     call Driver_abort("Must set Abar of burned material in Interfaces_rhjump with no mfrac")
   endif
 
   ! derivatives needed for newton iteration

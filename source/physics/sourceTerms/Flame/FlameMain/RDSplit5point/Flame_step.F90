@@ -57,7 +57,7 @@ subroutine Flame_step( num_blocks, blockList, dt  )
   use fl_fsInterface, only : fl_flameSpeed
   use fl_effInterface, only: fl_effects
   use fl_interface, only : fl_laplacian
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   use Timers_interface, only : Timers_start, Timers_stop
   use Logfile_interface, only : Logfile_stamp, Logfile_stampVarMask
        
@@ -106,13 +106,13 @@ subroutine Flame_step( num_blocks, blockList, dt  )
      sizeK=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
 
      allocate(flam(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flam in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flam in Flame_step")
      allocate(flamdot(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flamdot in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flamdot in Flame_step")
      allocate(flamespeed(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flamespeed in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flamespeed in Flame_step")
      allocate(lapl(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate lapl in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate lapl in Flame_step")
 
      ! extract flam variable, should make cache work better
      ! need two layers in GCs becausee of RD splitting
