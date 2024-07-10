@@ -6,14 +6,16 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Simulation_initBlock(integer(in) :: blockid)
+!!  call Simulation_initBlock(real,pointer :: solnData(:,:,:,:),
+!!                            Grid_tile_t(IN)  :: tileDesc  )
 !!
 !! DESCRIPTION
 !!
 !!
 !! ARGUMENTS
 !!
-!!   blockid : ID of block in current processor
+!!   solnData  - pointer to solution data
+!!   tileDesc -  describes the tile or block to initialize
 !!
 !! AUTOGENROBODOC
 !!
@@ -27,29 +29,34 @@
 !!
 ! Dean Townsley 2008
 
-subroutine Simulation_initBlock(blockID)
+subroutine Simulation_initBlock(solnData,tileDesc)
   
   use Simulation_data
-  use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
-    Grid_getBlkBoundBox, Grid_getDeltas, Grid_putPointData, &
-    Grid_getCellCoords
+  use Grid_interface, ONLY : Grid_getCellCoords, &
+                             Grid_getCellVolumes, &
+                             Grid_subcellGeometry, &
+                             Grid_getDeltas
+  use Grid_tile, ONLY : Grid_tile_t
   use Flame_interface, ONLY : Flame_getProfile, Flame_rhJump
   use fl_effData, ONLY: fl_effDeltae
 
   implicit none
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
 
   
-  integer, intent(in) :: blockID
+  real, pointer :: solnData(:,:,:,:)
+  type(Grid_tile_t), intent(in) :: tileDesc
 
   integer :: i, j, k
 
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
   integer, dimension(MDIM) :: cell
-  integer :: isizeGC, jsizeGC, ksizeGC
   real, allocatable, dimension(:) :: iCoords, jCoords, kCoords
+  integer,dimension(LOW:HIGH,MDIM) :: tileLimits
+  integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
+
+
 
   real, dimension(EOS_NUM) :: eosData
   real :: flam, velx
@@ -58,25 +65,34 @@ subroutine Simulation_initBlock(blockID)
 
 !==============================================================================
 
-  ! get essential info about this block - index limits and cell coordinates
-  call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
+  ! get the coordinate information for the current block
+  tileLimits = tileDesc%limits
+  grownTileLimits = tileDesc%grownLimits
+  call tileDesc%deltas(deltas)  ! alternatively: call Grid_getDeltas(tileDesc%level, deltas)
 
-  isizeGC = blkLimitsGC(HIGH,IAXIS)
-  allocate(iCoords(isizeGC))
-  jsizeGC = blkLimitsGC(HIGH,JAXIS)
-  allocate(jCoords(jsizeGC))
-  ksizeGC = blkLimitsGC(HIGH,KAXIS)
-  allocate(kCoords(ksizeGC))
-  call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,iCoords,isizeGC)
-  call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,jCoords,jsizeGC)
-  call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,kCoords,ksizeGC)
+  allocate(iCoords(grownTileLimits(LOW, IAXIS):grownTileLimits(HIGH, IAXIS)))
+  allocate(jCoords(grownTileLimits(LOW, JAXIS):grownTileLimits(HIGH, JAXIS)))
+  allocate(kCoords(grownTileLimits(LOW, KAXIS):grownTileLimits(HIGH, KAXIS)))
+
+  call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          iCoords)
+  call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          jCoords)
+  call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          kCoords)
 
   !-----------------------------------------------
   ! loop over all zones and init
   !-----------------------------------------------
-  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-     do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-        do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+  do k = grownTileLimits(LOW,KAXIS), grownTileLimits(HIGH,KAXIS)
+     do j = grownTileLimits(LOW, JAXIS), grownTileLimits(HIGH, JAXIS)
+        do i = grownTileLimits(LOW,IAXIS), grownTileLimits(HIGH, IAXIS)
 
            if (.not. sim_ignite) then
               ! no burned material, only unburned
@@ -146,23 +162,23 @@ subroutine Simulation_initBlock(blockID)
            cell(IAXIS) = i
            cell(JAXIS) = j
            cell(KAXIS) = k
-           call Grid_putPointData(blockId, CENTER, DENS_VAR, EXTERIOR, cell, eosData(EOS_DENS))
-           call Grid_putPointData(blockId, CENTER, TEMP_VAR, EXTERIOR, cell, eosData(EOS_TEMP))
+           
+           solnData(DENS_VAR,i,j,k)= eosData(EOS_DENS)
+           solnData(TEMP_VAR,i,j,k)= eosData(EOS_TEMP)
+           solnData(FLAM_MSCALAR,i,j,k)= flam
 
-           call Grid_putPointData(blockId, CENTER, FLAM_MSCALAR, EXTERIOR, cell, flam)
-
-           call Grid_putPointData(blockId, CENTER, VELX_VAR, EXTERIOR, cell, velx)
-           call Grid_putPointData(blockId, CENTER, VELY_VAR, EXTERIOR, cell, 0.0)
-           call Grid_putPointData(blockId, CENTER, VELZ_VAR, EXTERIOR, cell, 0.0)
+           solnData(VELX_VAR,i,j,k) = velx
+           solnData(VELY_VAR,i,j,k) = 0.0
+           solnData(VELZ_VAR,i,j,k) = 0.0
 
            !  usually I would just call the EOS, but we happen to have all this data
            !  so we'll just put it in.
-           call Grid_putPointData(blockId, CENTER, ENER_VAR, EXTERIOR, cell, eosData(EOS_EINT)+0.5*velx**2)
-           call Grid_putPointData(blockId, CENTER, EINT_VAR, EXTERIOR, cell, eosData(EOS_EINT))
-           call Grid_putPointData(blockId, CENTER, PRES_VAR, EXTERIOR, cell, eosData(EOS_PRES))
-           call Grid_putPointData(blockId, CENTER, GAMC_VAR, EXTERIOR, cell, eosData(EOS_GAMC))
-           call Grid_putPointData(blockId, CENTER, GAME_VAR, EXTERIOR, cell, &
-                                       eosData(EOS_PRES)/(eosData(EOS_DENS)*eosData(EOS_EINT))+1.0)
+           solnData(ENER_VAR,i,j,k) = eosData(EOS_EINT)+0.5*velx**2
+           solnData(EINT_VAR,i,j,k) = eosData(EOS_EINT)
+           solnData(PRES_VAR,i,j,k) = eosData(EOS_PRES)
+           solnData(GAMC_VAR,i,j,k) = eosData(EOS_GAMC)
+           solnData(GAME_VAR,i,j,k) = eosData(EOS_PRES)/(eosData(EOS_DENS)*eosData(EOS_EINT))+1.0
+
         enddo
      enddo
   enddo
