@@ -1,7 +1,5 @@
-# Name of the github-docker workflow to ensure that pull requests from main only come from staged
-name: Check-Head
+name: checks
 
-# Perform container on pull request
 on:
   pull_request:
     branches: 
@@ -9,17 +7,17 @@ on:
 
 # Container jobs
 jobs:
-  Check-Head:
-    name: "Check-Head"
+  pull-request-from-staged:
+    name: "pull-request-from-staged"
     runs-on: ubuntu-latest
     steps:
     - name: Check if head branch is staged
       if:  ${{ github.event.pull_request.head.ref == 'staged' }}
       run: |
-           echo "Head branch is staged."
+           echo "Pull request is from staged."
            exit 0
     - name: Check if head branch is not staged
       if: ${{ github.event.pull_request.head.ref != 'staged' }}
       run: |
-           echo "Head branch is not staged."
+           echo "Pull request is not from staged."
            exit 1
