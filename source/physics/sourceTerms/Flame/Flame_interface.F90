@@ -22,7 +22,7 @@
 
 Module Flame_interface
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   implicit none
