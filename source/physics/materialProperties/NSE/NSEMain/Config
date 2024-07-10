@@ -1,0 +1,5 @@
+PARAMETER  nse_densTableName  STRING "nse_dens_emq_table.txt"
+PARAMETER  nse_presTableName  STRING "nse_pres_hmq_table.txt"
+
+DATAFILES nse_pres_hmq_table.txt
+DATAFILES nse_dens_emq_table.txt
