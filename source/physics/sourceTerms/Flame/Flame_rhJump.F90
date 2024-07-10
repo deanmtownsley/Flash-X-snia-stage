@@ -44,7 +44,7 @@
 ! Dean Townsley 2007,2008
 !
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
 
