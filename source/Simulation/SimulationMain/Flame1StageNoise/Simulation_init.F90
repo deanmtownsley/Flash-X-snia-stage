@@ -27,7 +27,7 @@ subroutine Simulation_init()
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   real :: laminarWidth
