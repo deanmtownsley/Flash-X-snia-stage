@@ -91,7 +91,7 @@
 !!  use Grid_interface ! ....
 !!
 !!  #include "constants.h"   ! for MODE_DENS_TEMP
-!!  #include "Flash.h"       ! for DENS_VAR,TEMP_VAR, etc.
+!!  #include "Simulation.h"       ! for DENS_VAR,TEMP_VAR, etc.
 !!  #include "Eos.h"         ! for EOS_NUM, EOS_TEMP, etc.
 !!
 !!  real  :: temp_zone, rho_zone, ptot, eint, entr, gamma
@@ -147,7 +147,7 @@
 !!  use Eos_interface, ONLY:  Eos
 !!  use Grid_interface ! ....
 !!  #include "constants.h"   ! for MODE_DENS_TEMP, LOW,HIGH,IAXIS,JAXIS,KAXIS
-!!  #include "Flash.h"       ! for DENS_VAR, TEMP_VAR, etc.
+!!  #include "Simulation.h"       ! for DENS_VAR, TEMP_VAR, etc.
 !!  #include "Eos.h"         ! for EOS_NUM, EOS_DENS, EOS_TEMP, etc.
 !!  integer veclen, isize, jsize, ksize, i,j,k, e
 !!  real, dimension(:), allocatable :: eosData
@@ -200,7 +200,7 @@
 !!
 !! NOTES
 !!
-!!  NSPECIES is defined in Flash.h.
+!!  NSPECIES is defined in Simulation.h.
 !!
 !!  EOS_VARS and EOS_NUM  are defined in Eos.h.
 !!  Calling funtions should included Eos.h, in order to get the definitions of
@@ -270,7 +270,7 @@ subroutine eos_helmholtz(mode,vecLen,eosData,massFrac,mask)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   !     Arguments

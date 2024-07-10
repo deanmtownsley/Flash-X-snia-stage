@@ -36,7 +36,7 @@
 !!
 !!  NOTES
 !!
-!!  Helmholtz law Eos defines two mesh-based parameters GAMC_VAR and GAME_VAR in Flash.h
+!!  Helmholtz law Eos defines two mesh-based parameters GAMC_VAR and GAME_VAR in Simulation.h
 !!
 !!***
 
@@ -56,7 +56,7 @@ subroutine eos_initHelmholtz()
   ! vector_eos.fh computes the vector length from nxb, nyb, nzb, so 
   ! this information must be provided
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
   include 'Flash_mpi.h'

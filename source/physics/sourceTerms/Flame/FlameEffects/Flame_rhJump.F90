@@ -54,7 +54,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 #ifdef DEBUG_ALL
 #define DEBUG_FLAME

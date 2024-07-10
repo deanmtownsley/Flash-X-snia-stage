@@ -70,7 +70,7 @@ subroutine Eos_getParameters(eintSwitch,inputsAreUnchanged,inputTempIsGuess,cons
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 
   real,OPTIONAL,intent(OUT) :: eintSwitch
   logical,OPTIONAL,intent(OUT) :: inputsAreUnchanged

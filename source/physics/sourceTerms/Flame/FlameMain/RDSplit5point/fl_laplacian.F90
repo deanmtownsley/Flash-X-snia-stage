@@ -36,7 +36,7 @@
 !!***
 
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 subroutine fl_laplacian(lapl, flam, h, bid)
 

@@ -101,7 +101,7 @@ subroutine Eos_wrapped(mode,range,blockID,gridDataStruct)
 
 #include "Eos.h"
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
