@@ -28,10 +28,8 @@ Module Flame_interface
   implicit none
 
   interface Flame_step
-     subroutine Flame_step( num_blocks, blockList, dt  )    
+     subroutine Flame_step( dt )    
        
-       integer, INTENT(in)                        :: num_blocks
-       integer, INTENT(in), DIMENSION(num_blocks) :: blockList
        real,    INTENT(in)                        :: dt
        !  Pricipal public function.
        !  Evolve flame forward for all blocks in blockList by one step

@@ -37,6 +37,7 @@ subroutine TimeAdvance(dt, dtold, time)
    use Gravity_interface, ONLY: Gravity_potential
    use RadTrans_interface, ONLY: RadTrans
    use Particles_interface, ONLY: Particles_advance, Particles_dump
+   use Flame_interface, ONLY: Flame_step
    use Burn_interface, ONLY: Burn
    use Deleptonize_interface, ONLY: Deleptonize
    use Timers_interface, ONLY: Timers_start, Timers_stop
@@ -59,6 +60,7 @@ subroutine TimeAdvance(dt, dtold, time)
 
    ! 4. Add source terms:
    call Timers_start("sourceTerms")
+   call Flame_step(dt)
    call Burn(dt)
    call Deleptonize(.false., dt, time)
 
