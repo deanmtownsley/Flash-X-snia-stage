@@ -1,0 +1,37 @@
+
+I tried building mesa with the IntelCompilers setup, but the intel compiler appears too old
+ -- mesa tries to use some floating point types or defines that don't work.
+in building mtx file klu_src/klu_refactor.c (and probably others) many errors like:
+----------------------------------
+../klu_src/klu.h(143): error: identifier "__float128" is undefined
+      __float128 *Rs ;
+      ^
+----------------------------------
+
+
+
+
+Tried building with mesaflash using the IntelCompilers2016 setup
+
+had to build hdf5 myself (no fortran bindings, which mesa needs)
+
+the required mesa modules built fine
+
+Flash compiled fine, but in final linking I get:
+
+ld: MPIR_Thread: TLS definition in /share/apps/intel/2016//impi/4.1.3.048/intel64/lib/libmpi_mt.so section .tbss mismatches non-TLS definition in /share/apps/intel/2016//impi/4.1.3.048/intel64/lib/libmpi.so section .bss
+/share/apps/intel/2016//impi/4.1.3.048/intel64/lib/libmpi_mt.so: could not read symbols: Bad value
+make: *** [flash4] Error 1
+
+
+This looks like an interal error in the mpi setup....
+appears to be related to threading
+
+
+a normal flash build with IntelCompilers2016 works without threading but not with
+threading (tried +threadbl)
+
+
+Try building with mesa SDK from 2016/1/29 gcc 5.3.1 (that was current at mesa release 9793)
+That seems to work, though this is what Broxton had problems with before on
+long runs

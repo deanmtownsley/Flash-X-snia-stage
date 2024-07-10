@@ -1,0 +1,125 @@
+
+NOTE: this is not currently working see notes.txt
+
+Notes on building with mesa reaction networks
+for U of Alabama cluster (uahpc)
+2018/3/21 Dean Townsley
+tested with MESA version 9793
+
+Follow the procedure below to build flash to use the MESA nuclear
+reaction networks
+Basically building mesa and flash with the intel compilers (instead of the
+mesasdk)
+
+
+Go ahead and set up the build environment as noted in the Makefile.h_mesa
+  use Python2.7
+#  use IntelCompilers
+  use IntelCompilers2016
+
+(the IntelCompilers (i.e. not 2016) which is version 12 doesn't work with
+mesa)
+
+This sets up the build environment with intel MPI.
+Note gcc is still the default compiler despite the name.
+We need to build crlibm with gcc
+
+In the MESA directory do the following:
+
+  cd crlibm
+  tar xzvf crlibm-1.0beta4.tar.gz
+  mv crlibm-1.0beta4 crlibm
+  cd crlibm
+  ./configure
+  make
+  mkdir ../../include
+  cp crlibm.h ../../include/
+  mkdir ../../lib
+  cp libcrlibm*.a ../../lib/
+  cd ../..
+
+
+Set the MESA_DIR to where you are building mesa
+
+  export MESA_DIR=your_mesa_dir
+
+Now prep the mesa directory:
+- replace utils/makefile_header with the non-sdk version in that directory
+  cd utils
+  cp makefile_header_non_mesasdk makefile_header
+- edit to set CC to icc instead of gcc
+- change -qopenmp to -openmp (older intel fortran didn't use the q)
+- change the HDF5 stuff to:
+   LOAD_HDF5 = -L${MESA_DIR}/utils/hdf5/lib -lhdf5_fortran -lhdf5 -lz
+   INCLUDE_HDF5 = -I${MESA_DIR}/utils/hdf5/include
+
+
+The cluster HDF5 was built with gnu compilers, it doesn't have compatible
+fortran bindings (.mod files).  The following is similar to the instructions
+in "step 5" in the makefile_header (just above the HDF5_ variable set above)
+to build a mesa-local hdf5:
+
+  cd $MESA_DIR/utils
+  mkdir hdf5
+  wget https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-1.8.20.tar.bz2
+  tar xjvf hdf5-1.8.20.tar.bz2 
+  cd hdf5-1.8.20
+  export CC=icc
+  export FC=ifort
+  export CFLAGS="-std=gnu99 $CFLAGS"
+  ./configure --prefix=$MESA_DIR/utils/hdf5 --enable-fortran
+  make
+  make install
+  cd ..
+
+Now (and in any run scripts):
+  export LD_LIBRARY_PATH=$MESA_DIR/utils/hdf5/lib:$LD_LIBRARY_PATH
+
+
+  cd ..
+
+
+Now, since we won't be using the MESA SDK, we need to build ndiff and makedepf90:
+In the MESA directory:
+
+  export CC=icc
+  cd utils
+  mkdir bin
+  export PATH=$MESA_DIR/utils/bin:$PATH
+
+  tar xzf ndiff-2.00.tar.gz
+  cd ndiff-2.00
+  ./configure
+  make all
+  cp ndiff ../bin/
+  cd ..
+
+  tar xzvf makedepf90-2.8.8.tar.gz
+  cd makedepf90-2.8.8
+  ./configure
+  make
+  cp makedepf90 ../bin/
+  cd ..
+
+  cd ..
+
+
+Now copy the install_for_mesaflash file from here (in flash sites directory)
+to the MESA directory and run it.  This builds only the pieces of MESA that
+are needed, you can compare to MESA's "install" script.  The required
+modules are eos, rates, chem, net, as well as the numeric ones
+const, utils, crlibm, mtx, num, interp_1d, interp_2d
+
+  ./install_for_mesaflash
+
+
+Currently the default makefile includes the stuff for mesaflash, but if that
+changes, you should check that we use the mesaflash enabled Makefile.h.
+
+Be sure to use +threadwb in the setup line to enable threading.
+
+Be sure to run a "primer" run with only 1 mpi process to create clean rate caches.
+
+See example queuescript.
+
+
