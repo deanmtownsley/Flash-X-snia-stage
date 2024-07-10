@@ -85,6 +85,7 @@ CFLAGS_TEST = -ggdb -O0 -c
 
 # if we are using HDF5, we need to specify the path to the include files
 CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_18_API
+#needed to change from 16 to 18
 CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 
 #----------------------------------------------------------------------------
