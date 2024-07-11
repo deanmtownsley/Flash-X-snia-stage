@@ -77,7 +77,7 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   real, optional, dimension(NSPECIES), intent(in) :: mfrac_u
   real, optional, dimension(NSPECIES), intent(in) :: mfrac_b
 
-  real, dimension(1,EOS_NUM) :: eosData_buff
+  real, dimension(1,EOS_VARS) :: eosData_buff
   real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_u
   real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_b
   real                    :: dfd, dft, dgd, dgt, f, g
@@ -88,13 +88,13 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   integer                 :: niters
 1 format(5(2X, E10.4))
 
-  eosData_buff(1,:)=eosData_u(:)
+  eosData_buff(1,:)=eosData_u(1:EOS_VARS)
   if (present(mfrac_u)) then
      call Eos_vector(mode,1,eosData_buff,mfrac_u,derivs_u)
   else
      call Eos_vector(mode,1,eosData_buff,derivs=derivs_u)
   endif
-  eosData_u(:)=eosData_buff(1,:)
+  eosData_u(1:EOS_VARS)=eosData_buff(1,:)
 
 
 #ifdef DEBUG_FLAME
@@ -117,13 +117,13 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
      call Driver_abort("Must set Abar of burned material in Interfaces_rhjump with no mfrac")
   endif
 
-  eosData_buff(1,:)=eosData_b(:)
+  eosData_buff(1,:)=eosData_b(1:EOS_VARS)
   if (present(mfrac_b)) then
      call Eos_vector(MODE_DENS_EI,1,eosData_buff,mfrac_b,derivs_b)
   else
      call Eos_vector(MODE_DENS_EI,1,eosData_buff,derivs=derivs_b)
   endif
-  eosData_b(:)=eosData_buff(1,:)
+  eosData_b(1:EOS_VARS)=eosData_buff(1,:)
 
 
   ! some renames for readability
@@ -182,13 +182,13 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
      eosData_b(EOS_TEMP)=temp_b
 
 !     write (6,*) 'in loop call', dens_b, temp_b, mfrac_b
-     eosData_buff(1,:)=eosData_b(:)
+     eosData_buff(1,:)=eosData_b(1:EOS_VARS)
      if (present(mfrac_b)) then
         call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,mfrac_b,derivs_b)
      else
         call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,derivs=derivs_b)
      endif
-     eosData_b(:)=eosData_buff(1,:)     
+     eosData_b(1:EOS_VARS)=eosData_buff(1,:)     
 
      ! rename
      pres_b=eosData_b(EOS_PRES)
