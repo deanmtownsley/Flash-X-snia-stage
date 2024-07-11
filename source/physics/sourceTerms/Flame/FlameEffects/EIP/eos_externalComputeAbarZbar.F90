@@ -1,4 +1,4 @@
-#include "Flash.h"
+#include "Simulation.h"
 subroutine eos_externalComputeAbarZbar( solnScalars, abarData, zbarData)
 
   use fl_effData, only : fl_eff_ye_u, fl_eff_ye_b, fl_eff_sumy_u, fl_eff_sumy_b

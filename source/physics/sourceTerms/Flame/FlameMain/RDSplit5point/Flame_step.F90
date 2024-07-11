@@ -57,7 +57,7 @@ subroutine Flame_step( dt )
   use fl_fsInterface, only : fl_flameSpeed
   use fl_effInterface, only: fl_effects
   use fl_interface, only : fl_laplacian
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   use Timers_interface, only : Timers_start, Timers_stop
   use Logfile_interface, only : Logfile_stamp, Logfile_stampVarMask
        

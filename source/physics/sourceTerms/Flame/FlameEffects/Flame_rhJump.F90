@@ -54,7 +54,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 #ifdef DEBUG_ALL
 #define DEBUG_FLAME
@@ -63,7 +63,7 @@
 subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
 
   use fl_effData, ONLY : fl_effsmlrho
-  use Eos_interface, ONLY : Eos
+  use Eos_interface, ONLY : Eos_vector
   
   implicit none
 
@@ -77,42 +77,24 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   real, optional, dimension(NSPECIES), intent(in) :: mfrac_u
   real, optional, dimension(NSPECIES), intent(in) :: mfrac_b
 
+  real, dimension(1,EOS_VARS) :: eosData_buff
+  real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_u
+  real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_b
   real                    :: dfd, dft, dgd, dgt, f, g
   real                    :: sq_s_dens, d_inv_dens, determinant_inv
   real                    :: dens_b_old, temp_b_old
   real                    :: dens_u, temp_u, ener_u, pres_u, dens_b, temp_b, ener_b, pres_b
   real                    ::  error
   integer                 :: niters
-  logical, dimension(EOS_VARS+1:EOS_NUM) :: mask 
 1 format(5(2X, E10.4))
 
-  ! first calculate the rest of the thermodynamic state of the
-  ! unburned material according to the "mode"
-  ! we only need dens, pres and eint
-  mask = .false.
-#ifdef EOS_EINTION
-  mask(EOS_EINTION) = .TRUE.
-#endif
-#ifdef EOS_EINTELE
-  mask(EOS_EINTELE) = .TRUE.
-#endif
-#ifdef EOS_EINTRAD
-  mask(EOS_EINTRAD) = .TRUE.
-#endif
-#ifdef EOS_PRESION
-  mask(EOS_PRESION) = .TRUE.
-#endif
-#ifdef EOS_PRESELE
-  mask(EOS_PRESELE) = .TRUE.
-#endif
-#ifdef EOS_PRESRAD
-  mask(EOS_PRESRAD) = .TRUE.
-#endif
+  eosData_buff(1,:)=eosData_u(1:EOS_VARS)
   if (present(mfrac_u)) then
-     call Eos(mode,1,eosData_u,mfrac_u,mask)
+     call Eos_vector(mode,1,eosData_buff,mfrac_u,derivs_u)
   else
-     call Eos(mode,1,eosData_u,mask=mask)
+     call Eos_vector(mode,1,eosData_buff,derivs=derivs_u)
   endif
+  eosData_u(1:EOS_VARS)=eosData_buff(1,:)
 
 
 #ifdef DEBUG_FLAME
@@ -132,20 +114,16 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   ! need a guess temperature
   eosData_b(EOS_TEMP) = eosData_u(EOS_TEMP)
   if ( (.not.present(mfrac_b)) .and. (eosData_b(EOS_ABAR) == 0.0 ) ) then
-     call Driver_abortFlash("Must set Abar of burned material in Interfaces_rhjump with no mfrac")
+     call Driver_abort("Must set Abar of burned material in Interfaces_rhjump with no mfrac")
   endif
 
-  ! derivatives needed for newton iteration
-  mask(EOS_DPT)=.true.
-  mask(EOS_DPD)=.true.
-  mask(EOS_DET)=.true.
-  mask(EOS_DED)=.true.
-
+  eosData_buff(1,:)=eosData_b(1:EOS_VARS)
   if (present(mfrac_b)) then
-     call Eos(MODE_DENS_EI,1,eosData_b,mfrac_b,mask)
+     call Eos_vector(MODE_DENS_EI,1,eosData_buff,mfrac_b,derivs_b)
   else
-     call Eos(MODE_DENS_EI,1,eosData_b,mask=mask)
+     call Eos_vector(MODE_DENS_EI,1,eosData_buff,derivs=derivs_b)
   endif
+  eosData_b(1:EOS_VARS)=eosData_buff(1,:)
 
 
   ! some renames for readability
@@ -174,10 +152,10 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
      f = pres_b - pres_u + sq_s_dens * d_inv_dens 
      g = ener_b - ener_u - q + 0.5*(pres_b + pres_u) * d_inv_dens
 
-     dfd = eosData_b(EOS_DPD) - sq_s_dens/dens_b**2
-     dft = eosData_b(EOS_DPT)
-     dgd = eosData_b(EOS_DED) + 0.5*d_inv_dens*eosData_b(EOS_DPD) - 0.5*(pres_b + pres_u) / dens_b**2
-     dgt = eosData_b(EOS_DET) + 0.5*d_inv_dens*eosData_b(EOS_DPT)
+     dfd = derivs_b(1,EOS_DPD) - sq_s_dens/dens_b**2
+     dft = derivs_b(1,EOS_DPT)
+     dgd = derivs_b(1,EOS_DED) + 0.5*d_inv_dens*derivs_b(1,EOS_DPD) - 0.5*(pres_b + pres_u) / dens_b**2
+     dgt = derivs_b(1,EOS_DET) + 0.5*d_inv_dens*derivs_b(1,EOS_DPT)
 
      determinant_inv = 1./(dfd*dgt - dft*dgd)
 
@@ -204,11 +182,13 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
      eosData_b(EOS_TEMP)=temp_b
 
 !     write (6,*) 'in loop call', dens_b, temp_b, mfrac_b
+     eosData_buff(1,:)=eosData_b(1:EOS_VARS)
      if (present(mfrac_b)) then
-        call Eos(MODE_DENS_TEMP,1,eosData_b,mfrac_b,mask)
+        call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,mfrac_b,derivs_b)
      else
-        call Eos(MODE_DENS_TEMP,1,eosData_b,mask=mask)
+        call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,derivs=derivs_b)
      endif
+     eosData_b(1:EOS_VARS)=eosData_buff(1,:)     
 
      ! rename
      pres_b=eosData_b(EOS_PRES)

@@ -1,5 +1,5 @@
 module Simulation_data
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
   real, save :: sim_rhoAmbient, sim_tAmbient
   logical, save :: sim_ignite, sim_pseudo1d

@@ -23,7 +23,7 @@
 !!***
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Flame_init()
 

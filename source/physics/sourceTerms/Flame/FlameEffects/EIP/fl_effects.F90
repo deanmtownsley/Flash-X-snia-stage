@@ -39,7 +39,7 @@ subroutine fl_effects( solnData, flamdot, dt, blockID)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "FortranLangFeatures.fh"
 #include "Eos.h"
     
