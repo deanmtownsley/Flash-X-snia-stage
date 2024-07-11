@@ -68,7 +68,6 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   ! get the coordinate information for the current block
   tileLimits = tileDesc%limits
   grownTileLimits = tileDesc%grownLimits
-  call tileDesc%deltas(deltas)  ! alternatively: call Grid_getDeltas(tileDesc%level, deltas)
 
   allocate(iCoords(grownTileLimits(LOW, IAXIS):grownTileLimits(HIGH, IAXIS)))
   allocate(jCoords(grownTileLimits(LOW, JAXIS):grownTileLimits(HIGH, JAXIS)))
