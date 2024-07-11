@@ -50,10 +50,9 @@ subroutine Flame_step( dt )
 
   use Flame_data
 
-  use Grid_interator, ONLY : Grid_iterator_t
+  use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,      ONLY : Grid_tile_t
-  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells, Grid_getBlkPtr, Grid_releaseBlkPtr, &
-                             Grid_getBlkIndexLimits, Grid_fillGuardCells
+  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells
   use fl_fsInterface, only : fl_flameSpeed
   use fl_effInterface, only: fl_effects
   use fl_interface, only : fl_laplacian
@@ -62,13 +61,11 @@ subroutine Flame_step( dt )
   use Logfile_interface, only : Logfile_stamp, Logfile_stampVarMask
        
   implicit none
-  integer, INTENT(in)                        :: num_blocks
-  integer, INTENT(in), DIMENSION(num_blocks) :: blockList
   real,    INTENT(in)                        :: dt
 
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t)     :: tileDesc
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC, fspeedLimits
+  integer, dimension(2,MDIM) :: fspeedLimits
   integer :: istat
   integer :: n, bid
 
@@ -166,8 +163,7 @@ subroutine Flame_step( dt )
 
      deallocate(flamdot)
 
-     call Grid_releaseBlkPtr(bid, solnData)
-     call tileDesc%releaseDataBtr( solnData, CENTER)
+     call tileDesc%releaseDataPtr(solnData, CENTER)
 
   enddo
 

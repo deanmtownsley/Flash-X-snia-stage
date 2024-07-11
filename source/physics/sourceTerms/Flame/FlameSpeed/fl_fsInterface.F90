@@ -17,11 +17,13 @@ module fl_fsInterface
   end interface
 
   interface fl_flameSpeed
-     subroutine fl_flameSpeed( solnData, flamespeed, blockID, nlayers)
+     subroutine fl_flameSpeed( solnData, flamespeed, tileDesc, nlayers)
+        use Grid_tile,      ONLY : Grid_tile_t
         implicit none
         real, dimension(:,:,:,:),POINTER_INTENT_IN :: solnData
         real, dimension(:,:,:),intent(out) :: flamespeed
-        integer, intent(in) :: blockID, nlayers
+        type(Grid_tile_t), intent(in)     :: tileDesc
+        integer, intent(in) :: nlayers
      end subroutine
   end interface
 

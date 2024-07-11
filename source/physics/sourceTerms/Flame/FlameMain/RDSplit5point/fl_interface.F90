@@ -9,10 +9,12 @@ Module fl_interface
 #include "constants.h"
 #include "Simulation.h"
 
+
   implicit none
 
   interface fl_laplacian
      subroutine fl_laplacian(lapl, flam, h, tileDesc)
+        use Grid_tile, ONLY : Grid_tile_t
         implicit none
         real, dimension(:,:,:), intent(out) :: lapl
         real, dimension(:,:,:), intent(in) :: flam
