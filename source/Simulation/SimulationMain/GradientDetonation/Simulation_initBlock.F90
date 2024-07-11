@@ -78,7 +78,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   use Multispecies_interface, ONLY : Multispecies_getSumInv, &
     Multispecies_getSumFrac
   use Grid_interface, ONLY : Grid_getCellCoords
-  use Eos_interface, ONLY : Eos
+  use Eos_interface, ONLY : Eos_vector
   use Grid_tile, ONLY : Grid_tile_t
   implicit none
 
