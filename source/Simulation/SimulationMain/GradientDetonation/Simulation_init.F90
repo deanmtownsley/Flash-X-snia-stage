@@ -63,7 +63,7 @@
 !!
 !!***
 
-subroutine Simulation_init(myPE)
+subroutine Simulation_init()
 
   use Simulation_data, ONLY: sim_smallRho, sim_smallx, sim_radiusPerturb, sim_usePseudo1d, &
      sim_xhe4, sim_xc12, sim_xn14, sim_xo16, &
@@ -76,6 +76,7 @@ subroutine Simulation_init(myPE)
   use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_stamp
+  use IO_data, ONLY : io_globalMe
 
   implicit none
 
@@ -85,7 +86,7 @@ subroutine Simulation_init(myPE)
 #include "Eos.h"
 
 
-  integer,INTENT(in) ::  myPE
+  !integer,INTENT(in) ::  myPE
 
 ! -----------------------------------------------------------------------------------
 
@@ -136,7 +137,7 @@ subroutine Simulation_init(myPE)
      call RuntimeParameters_get('zmax', sim_zmax)
 
 !! Driver_abort stamps to logfile
-     if (MyPE == MASTER_PE) then
+     if (io_globalMe == MASTER_PE) then
         !  dump the parameters
         if (sim_rhoAmbient .LT. 1.e4*sim_smallRho) then
            print *, 'Warning: ambient density is close to ', & 
@@ -162,7 +163,7 @@ subroutine Simulation_init(myPE)
            call Driver_abort('ERROR Simulation_init: zCenterPerturb must fall between zmin and zmax')
         endif
 
-        call Logfile_stamp(MyPE, "initializing for cellular detonation", &
+        call Logfile_stamp(io_globalMe, "initializing for cellular detonation", &
              "[Simulation_init]")
         print *, 'flash: ', NDIM,  & 
              &           ' dimensional cellular detonation initialization'

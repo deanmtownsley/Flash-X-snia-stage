@@ -95,21 +95,22 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   
   integer,dimension(LOW:HIGH,MDIM) :: tileLimits
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
-  real :: deltas(1:MDIM)
+  !real :: deltas(1:MDIM)
 
   real :: abar, zbar                 ! something to do with sum of mass fractions
   real :: xx, yy, zz, dist
   logical, parameter :: useGuardCell = .TRUE.
 
-  integer, dimension(2,MDIM), save               :: blockRange,blockExtent
+  !integer, dimension(2,MDIM), save               :: blockRange,blockExtent
 
   real, dimension(SPECIES_BEGIN:SPECIES_END) ::  massFraction
+  real, dimension(1,NSPECIES) :: massFraction_buffer
 
   real,allocatable,dimension(:) :: xCoordsCell,yCoordsCell,zCoordsCell
-  integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
-  integer :: sizeX,sizeY,sizeZ
+  !integer,dimension(2,MDIM) :: blkLimits,blkLimitsGC
+  !integer :: sizeX,sizeY,sizeZ
 
-  !real, dimension(MDIM) :: deltas
+  real, dimension(MDIM) :: deltas
 
 
 
@@ -128,6 +129,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   real :: temp_zone, rho_zone, vel_zone
   real :: ptot, eint, etot, gamma
   real, dimension(EOS_NUM)  :: eosData
+  real, dimension(1,EOS_VARS) :: eosData_buffer
+
 
   real :: left, right, tleft, tright
 
@@ -156,11 +159,14 @@ subroutine Simulation_initBlock(solnData,tileDesc)
    !call Grid_getCellCoords(KAXIS, blockId, CENTER, useGuardCell, zCoordsCell, sizeZ)
    call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, & 
                   grownTileLimits(LOW,:), grownTileLimits(HIGH,  :), zCoordsCell)
+
 !  if (NDIM >= 2)  &
    call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
                   grownTileLimits(LOW,:), grownTileLimits(HIGH,  :), yCoordsCell)
+
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                   grownTileLimits(LOW,:), grownTileLimits(HIGH,  :), xCoordsCell)
+
    !call Grid_getCellCoords(JAXIS, blockId, CENTER, useGuardCell, yCoordsCell, sizeY)
    !call Grid_getCellCoords(IAXIS, blockId, CENTER, useGuardCell, xCoordsCell, sizeX)
 
@@ -195,7 +201,6 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   call sim_ranmar(iseedUse, rvec, rvecSize)
 
   icount = 0
-
 
   ! now fill the master arrays
 
@@ -254,7 +259,9 @@ subroutine Simulation_initBlock(solnData,tileDesc)
               if ( sim_ign_keep_pres ) then
                  eosData(EOS_TEMP) = sim_tempAmbient
                  eosData(EOS_DENS) = sim_rhoAmbient
+                 
                  call sim_find_ign_state_keeping_pres(temp_zone, eosData,massFraction)
+                 
                  temp_zone = eosData(EOS_TEMP)
                  rho_zone = eosData(EOS_DENS)
               endif
@@ -267,6 +274,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
               if ( sim_ign_keep_pres ) then
                  eosData(EOS_TEMP) = sim_tempAmbient
                  eosData(EOS_DENS) = sim_rhoAmbient
+
                  call sim_find_ign_state_keeping_pres(temp_zone,eosData,massFraction)
                  temp_zone = eosData(EOS_TEMP)
                  rho_zone = eosData(EOS_DENS)
@@ -290,7 +298,11 @@ subroutine Simulation_initBlock(solnData,tileDesc)
            eosData(EOS_TEMP) = temp_zone
            eosData(EOS_DENS) = rho_zone
 
-           call Eos_vector(MODE_DENS_TEMP,1,eosData,massFraction)
+           eosData_buffer(1,:) = eosData(1:EOS_VARS)
+           massFraction_buffer(1,:) = massFraction(SPECIES_BEGIN: SPECIES_END)
+           call Eos_vector(MODE_DENS_TEMP,1,eosData_buffer,massFraction_buffer)
+           massFraction(SPECIES_BEGIN: SPECIES_END) = massFraction_buffer(1,:)
+           eosData(1:EOS_VARS) = eosData_buffer(1,:)
 
            temp_zone = eosData(EOS_TEMP)
            rho_zone = eosData(EOS_DENS)
