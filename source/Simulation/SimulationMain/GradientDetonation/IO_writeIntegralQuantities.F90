@@ -37,9 +37,10 @@
 
 !!REORDER(4):solnData
 
-subroutine IO_writeIntegralQuantities (myPE, isFirst, simTime)
+subroutine IO_writeIntegralQuantities (isFirst, simTime)
 
-  use IO_data, ONLY : io_restart, io_statsFileName
+  use IO_data, ONLY : io_restart, io_statsFileName, &
+                        io_globalMe
   use Grid_interface, ONLY : Grid_getSingleCellVol, &
      Grid_getTileIterator, Grid_releaseTileIterator
   use Simulation_data, ONLY : sim_tempAmbient
@@ -52,7 +53,7 @@ subroutine IO_writeIntegralQuantities (myPE, isFirst, simTime)
 #include "constants.h"
 #include "Simulation.h"
   
-  integer, intent(in) :: myPE
+  !integer, intent(in) :: myPE
   real, intent(in) :: simTime
 
   integer, intent(in) :: isFirst
@@ -64,9 +65,9 @@ subroutine IO_writeIntegralQuantities (myPE, isFirst, simTime)
   
   character (len=MAX_STRING_LENGTH), save :: fname 
   
-  integer :: blockList(MAXBLOCKS)
+  !integer :: blockList(MAXBLOCKS)
 
-  integer :: blkLimits(HIGH, MDIM), blkLimitsGC(HIGH, MDIM)
+  !integer :: blkLimits(HIGH, MDIM), blkLimitsGC(HIGH, MDIM)
 
   integer, parameter ::  nGlobalSum = 7          ! Number of globally-summed quantities
   real :: gsum(nGlobalSum) !Global summed quantities
@@ -211,7 +212,7 @@ subroutine IO_writeIntegralQuantities (myPE, isFirst, simTime)
        &                MASTER_PE, MPI_COMM_WORLD, error)
   
 
-  if (MyPE == MASTER_PE) then
+  if (io_globalMe == MASTER_PE) then
      
      ! create the file from scratch if it is a not a restart simulation, 
      ! otherwise append to the end of the file
