@@ -9,7 +9,7 @@
 !!  call fl_laplacian(real, dimension(:,:,:)(out) :: lapl,
 !!                    real, dimension(:,:,:)(in) :: flam,
 !!                    integer(in) :: h,
-!!                    integer(in) :: bid)
+!!                    type(Grid_tile_t) :: tileDesc)
 !!
 !! DESCRIPTION
 !!
@@ -38,19 +38,20 @@
 
 #include "Simulation.h"
 #include "constants.h"
-subroutine fl_laplacian(lapl, flam, h, bid)
+subroutine fl_laplacian(lapl, flam, h, tileDesc)
 
+  use Grid_tile, only: Grid_tile_t
   use Grid_interface, only : Grid_getGeometry, Grid_getBlkIndexLimits, &
                              Grid_getDeltas, Grid_getCellCoords
   use Driver_interface, only : Driver_abort
   implicit none
   real, dimension(:,:,:), intent(out) :: lapl
   real, dimension(:,:,:), intent(in) :: flam
-  integer, intent(in) :: bid, h
+  integer, intent(in) :: h
+  type(Grid_tile_t) :: tileDesc
 
   integer :: geom
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
-  real, dimension(MDIM) :: deltas
+  real, dimension(MDIM) :: celldeltas, deltas
 
   real :: inv_12_dx2, inv_12_dy2, inv_12_dz2
   real :: inv_12_dr2, inv_12_dr, inv_12_dtheta, inv_12_dtheta2, inv_12_dphi2
@@ -64,11 +65,10 @@ subroutine fl_laplacian(lapl, flam, h, bid)
   if (h2 > NGUARD) call Driver_abort("Step size in fl_laplacian is too large for the number of guard cells")
 
   call Grid_getGeometry(geom)
-  call Grid_getBlkIndexLimits(bid, blkLimits, blkLimitsGC)
-  call Grid_getDeltas(bid, deltas)
-  deltas(IAXIS) = h * deltas(IAXIS)
-  if (NDIM >= 2) deltas(JAXIS) = h * deltas(JAXIS)
-  if (NDIM == 3) deltas(KAXIS) = h * deltas(KAXIS)
+  tileDesc%deltas(celldeltas)
+  deltas(IAXIS) = h * celldeltas(IAXIS)
+  if (NDIM >= 2) deltas(JAXIS) = h * celldeltas(JAXIS)
+  if (NDIM == 3) deltas(KAXIS) = h * celldeltas(KAXIS)
 
   select case (geom)
   case (CARTESIAN)
@@ -79,9 +79,9 @@ subroutine fl_laplacian(lapl, flam, h, bid)
      if (NDIM >= 2) inv_12_dy2 = 1.0/12.0/deltas(JAXIS)**2
      if (NDIM == 3) inv_12_dz2 = 1.0/12.0/deltas(KAXIS)**2
 
-     do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-           do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+     do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
            
               lapl(i,j,k) = ( -flam(i-h2,j,k) + 16*flam(i-h,j,k) -30*flam(i,j,k) &
                                              + 16*flam(i+h,j,k) - flam(i+h2,j,k) ) * inv_12_dx2
@@ -105,25 +105,24 @@ subroutine fl_laplacian(lapl, flam, h, bid)
      inv_12_dr  = 1.0/12.0/deltas(IAXIS)
      inv_12_dr2 = inv_12_dr/deltas(IAXIS)
 
-     allocate(inv_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
+     allocate( inv_r( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS) ), STAT=istat )
      if (istat/=0) call Driver_abort("Unable to allocate inv_r in fl_laplacian")
-     call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r, blkLimitsGC(HIGH,IAXIS))
-     inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
-              1.0/inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))
+     do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
+        inv_r(i) = 1.0/celldeltas(IAXIS)/(i-0.5)
+     enddo
 
      if (NDIM >= 2) inv_12_dz2 = 1.0/12.0/deltas(JAXIS)**2
      if (NDIM == 3) then
         inv_12_dtheta2 = 1.0/12.0/deltas(KAXIS)**2
-        allocate(inv_r2(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
+        allocate( inv_r2( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS) ), STAT=istat )
         if (istat/=0) call Driver_abort("Unable to allocate inv_r2 in fl_laplacian")
-        inv_r2(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
-                  inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))**2
+        inv_r2(:) = inv_r(:)**2
      endif
 
 
-     do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-           do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+     do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
 
               d2 = ( -flam(i-h2,j,k) + 16*flam(i-h,j,k) -30*flam(i,j,k) &
                                     + 16*flam(i+h,j,k) - flam(i+h2,j,k) ) * inv_12_dr2
@@ -154,38 +153,40 @@ subroutine fl_laplacian(lapl, flam, h, bid)
      inv_12_dr  = 1.0/12.0/deltas(IAXIS)
      inv_12_dr2 = inv_12_dr/deltas(IAXIS)
 
-     allocate(inv_r2(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
+     allocate( inv_r2( tileDesc%limits(LOW:IAXIS) : tileDesc%limits(HIGH,IAXIS) ), STAT=istat )
      if (istat/=0) call Driver_abort("Unable to allocate inv_r2 in fl_laplacian")
-     allocate(two_over_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
+     allocate( two_over_r( tileDesc%limits(LOW:IAXIS) : tileDesc%limits(HIGH,IAXIS) ), STAT=istat )
      if (istat/=0) call Driver_abort("Unable to allocate two_over_r in fl_laplacian")
      call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r2, blkLimitsGC(HIGH,IAXIS))
-     two_over_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
-                   2.0/inv_r2(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))
-     inv_r2(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
-                   1.0/inv_r2(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))**2
+     do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
+        inv_r2(i) = 1.0/celldeltas(IAXIS)/(i-0.5)
+        two_over_r(i) = 2.0*inv_r2(i)
+        inv_r2(i) = inv_r2(i)**2
+     enddo
 
      if (NDIM >= 2) then
         inv_12_dtheta = 1.0/12.0/deltas(JAXIS)
         inv_12_dtheta2 = inv_12_dtheta/deltas(JAXIS)
-        allocate(ctan(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
+        allocate( ctan( tileDesc%limits(LOW:JAXIS) : tileDesc%limits(HIGH,JAXIS) ), STAT=istat )
         if (istat/=0) call Driver_abort("Unable to allocate ctan in fl_laplacian")
-        call Grid_getCellCoords(IAXIS, bid, CENTER, .true., ctan, blkLimitsGC(HIGH,IAXIS))
-        ctan(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)) = &
-                1.0/tan(ctan(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)))
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           ctan(j) = 1.0/tan( celldeltas(JAXIS)*(j-0.5))
+        enddo
      endif 
 
      if (NDIM == 3) then
         inv_12_dphi2 = 1.0/12.0/deltas(KAXIS)**2
-        allocate(inv_sin2(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
+        allocate( inv_sin2( tileDesc%limits(LOW:JAXIS) : tileDesc%limits(HIGH,JAXIS) ), STAT=istat )
         if (istat/=0) call Driver_abort("Unable to allocate inv_sin2 in fl_laplacian")
-        inv_sin2(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)) = &
-                    1.0+ctan(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS))**2
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           inv_sin2(j) = 1.0+ctan(j)**2
+        enddo
      endif
 
 
-     do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-           do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+     do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
                 d2 = ( -flam(i-h2,j,k) + 16*flam(i-h,j,k) -30*flam(i,j,k) &
                                       + 16*flam(i+h,j,k) - flam(i+h2,j,k) ) * inv_12_dr2
                 d1 = ( flam(i-h2,j,k)-8*flam(i-h,j,k)+8*flam(i+h,j,k) -flam(i+h2,j,k) )*inv_12_dr
