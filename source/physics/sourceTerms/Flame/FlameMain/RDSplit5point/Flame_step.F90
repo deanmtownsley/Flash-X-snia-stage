@@ -6,9 +6,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Flame_step(integer(in) :: num_blocks,
-!!                  integer(in) :: blocklist(num_blocks),
-!!                  real(in)    :: dt)
+!!  call Flame_step( real(in)    :: dt)
 !!
 !! DESCRIPTION
 !!
@@ -46,13 +44,15 @@
 
 #define DEBUG_GRID_GCMASK
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
-subroutine Flame_step( num_blocks, blockList, dt  )    
+subroutine Flame_step( dt )    
 
   use Flame_data
 
-  use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getBlkPtr, Grid_releaseBlkPtr, &
+  use Grid_interator, ONLY : Grid_iterator_t
+  use Grid_tile,      ONLY : Grid_tile_t
+  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells, Grid_getBlkPtr, Grid_releaseBlkPtr, &
                              Grid_getBlkIndexLimits, Grid_fillGuardCells
   use fl_fsInterface, only : fl_flameSpeed
   use fl_effInterface, only: fl_effects
@@ -66,6 +66,8 @@ subroutine Flame_step( num_blocks, blockList, dt  )
   integer, INTENT(in), DIMENSION(num_blocks) :: blockList
   real,    INTENT(in)                        :: dt
 
+  type(Grid_iterator_t) :: itor
+  type(Grid_tile_t)     :: tileDesc
   integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC, fspeedLimits
   integer :: istat
   integer :: n, bid
@@ -94,41 +96,40 @@ subroutine Flame_step( num_blocks, blockList, dt  )
     makeMaskConsistent=.false., doLogMask=fl_gcDoLogMask)
   fl_gcDoLogMask=.false.
 
-  do n = 1,num_blocks
-     bid = blockList(n)
+  call Grid_getTileIterator( itor, nodetype=LEAF )
 
-     call Grid_getBlkPtr(bid,solnData)
+  do while( itor%isValid() )
+     call itor%currentTile(tileDesc)
 
-     call Grid_getBlkIndexLimits(bid, blkLimits, blkLimitsGC)
+     call tileDesc%getDataPtr( solnData, CENTER)
 
-     sizeI=blkLimitsGC(HIGH,IAXIS)-blkLimitsGC(LOW,IAXIS)+1
-     sizeJ=blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
-     sizeK=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
+     sizeI=tileDesc%limits(HIGH,IAXIS)-tileDesc%limits(LOW,IAXIS)+1
+     sizeJ=tileDesc%limits(HIGH,JAXIS)-tileDesc%limits(LOW,JAXIS)+1
+     sizeK=tileDesc%limits(HIGH,KAXIS)-tileDesc%limits(LOW,KAXIS)+1
 
      allocate(flam(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flam in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flam in Flame_step")
      allocate(flamdot(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flamdot in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flamdot in Flame_step")
      allocate(flamespeed(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate flamespeed in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate flamespeed in Flame_step")
      allocate(lapl(sizeI,sizeJ,sizeK), STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate lapl in Flame_step")
+     if (istat /= 0) call Driver_abort("Cannot allocate lapl in Flame_step")
 
-     ! extract flam variable, should make cache work better
+     ! extract flam variable
      ! need two layers in GCs becausee of RD splitting
-     flam( blkLimits(LOW,IAXIS)-2 : blkLimits(HIGH,IAXIS)+2 , &
-           blkLimits(LOW,JAXIS)-2*K2D : blkLimits(HIGH,JAXIS)+2*K2D , &
-           blkLimits(LOW,KAXIS)-2*K3D : blkLimits(HIGH,KAXIS)+2*K3D) &
-         = solnData(FLAM_MSCALAR, blkLimits(LOW,IAXIS)-2 : blkLimits(HIGH,IAXIS)+2 , &
-                 blkLimits(LOW,JAXIS)-2*K2D : blkLimits(HIGH,JAXIS)+2*K2D , &
-                 blkLimits(LOW,KAXIS)-2*K3D : blkLimits(HIGH,KAXIS)+2*K3D)
+     flam( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2 , &
+           tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D , &
+           tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D) &
+         = solnData(FLAM_MSCALAR, tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2 , &
+                 tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D , &
+                 tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D)
 
+     call fl_flameSpeed(solnData, flamespeed, tileDesc, 2)
 
-     call fl_flameSpeed(solnData, flamespeed, bid, 2)
-
-     do k = blkLimits(LOW,KAXIS)-2*K3D, blkLimits(HIGH,KAXIS)+2*K3D
-        do j = blkLimits(LOW,JAXIS)-2*K2D, blkLimits(HIGH,JAXIS)+2*K2D
-           do i = blkLimits(LOW,IAXIS)-2, blkLimits(HIGH,IAXIS)+2
+     do k = tileDesc%limits(LOW,KAXIS)-2*K3D, tileDesc%limits(HIGH,KAXIS)+2*K3D
+        do j = tileDesc%limits(LOW,JAXIS)-2*K2D, tileDesc%limits(HIGH,JAXIS)+2*K2D
+           do i = tileDesc%limits(LOW,IAXIS)-2, tileDesc%limits(HIGH,IAXIS)+2
               f = flam(i,j,k)
               flam(i,j,k) = f + dt*fl_R_over_s*flamespeed(i,j,k)*(f-fl_epsilon_0)*(1.0+fl_epsilon_1-f)
            enddo
@@ -137,11 +138,11 @@ subroutine Flame_step( num_blocks, blockList, dt  )
 
      ! 1 specifies the step size should be 1 grid cell
      ! cannot be any larger because flam is filled with only 2 guard cell layers
-     call fl_laplacian(lapl, flam, 1, bid)
+     call fl_laplacian(lapl, flam, 1, tileDesc)
 
-     do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-           do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+     do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
               flam(i,j,k) = max(0.0, min(1.0, flam(i,j,k) + dt*fl_kappa_over_s*flamespeed(i,j,k)*lapl(i,j,k) ) )
               flamdot(i,j,k) = (flam(i,j,k) - solnData(FLAM_MSCALAR,i,j,k))*inv_dt
               solnData(FLAM_MSCALAR, i,j,k) = flam(i,j,k)
@@ -153,11 +154,12 @@ subroutine Flame_step( num_blocks, blockList, dt  )
      deallocate(flamespeed)
      deallocate(flam)
 
-     call fl_effects( solnData, flamdot, dt, bid)
+     call fl_effects( solnData, flamdot, dt, tileDesc)
 
      deallocate(flamdot)
 
      call Grid_releaseBlkPtr(bid, solnData)
+     call tileDesc%releaseDataBtr( solnData, CENTER)
 
   enddo
 

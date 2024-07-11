@@ -7,16 +7,17 @@
 
 Module fl_interface
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   implicit none
 
   interface fl_laplacian
-     subroutine fl_laplacian(lapl, flam, h, bid)
+     subroutine fl_laplacian(lapl, flam, h, tileDesc)
         implicit none
         real, dimension(:,:,:), intent(out) :: lapl
         real, dimension(:,:,:), intent(in) :: flam
-        integer, intent(in) :: bid, h
+        integer, intent(in) :: h
+        type(Grid_tile_t), intent(in) :: tileDesc
         !  Calculate the laplacian of the flame progress variable.
         !  The block id (bid) is passed in so that we can retrieve
         !  coordinate info. The laplacian is only computed for the
