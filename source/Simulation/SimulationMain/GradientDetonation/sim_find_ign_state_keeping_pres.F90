@@ -20,22 +20,32 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
    real, intent(in) :: ign_temp
    real, intent(inout), dimension(EOS_NUM) :: thermstate
+   real, dimension(1,EOS_VARS +1:EOS_NUM) :: derivs
+   real, dimension(1,EOS_VARS) :: thermstate_buffer
    real, intent(in), dimension(SPECIES_BEGIN:SPECIES_END) :: abund
+   real, dimension(1,NSPECIES) :: abund_buffer
 
-   logical :: mask(EOS_VARS+1:EOS_NUM)
+   !logical :: mask(EOS_VARS+1:EOS_NUM)
    real :: guess_dens, dp_drho_T, target_pres, new_guess_dens
    integer :: iter
    integer, parameter :: max_iter = 100
    real :: tol, err
 
    tol = eos_tol
-   mask(:) = .false.
-   mask(EOS_DPD) = .true.
+   !mask(:) = .false.
+   !mask(EOS_DPD) = .true.
 
    iter = 0
-       
+   abund_buffer(1,:) = abund(SPECIES_BEGIN:SPECIES_END)
+   write(0,*) "Before first Eos call"
+
    ! get pressure to match from info in thermstate
-   call Eos_vector( MODE_DENS_TEMP, 1, thermstate, abund)
+   thermstate_buffer(1,:) = thermstate(1:EOS_VARS)
+   call Eos_vector( MODE_DENS_TEMP, 1, thermstate_buffer, abund_buffer)
+   !abund(SPECIES_BEGIN:SPECIES_END) = abund_buffer(1,:)
+   thermstate(1:EOS_VARS) = thermstate_buffer(1,:)
+
+   write(0,*) "After first Eos call"
    target_pres = thermstate(EOS_PRES)
 
    thermstate(EOS_TEMP) = ign_temp
@@ -47,8 +57,13 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
       ! evaluate
       thermstate(EOS_DENS) = guess_dens
-      call Eos_vector(MODE_DENS_TEMP, 1, thermstate, massFrac=abund)!, mask=mask)
-      dp_drho_T = thermstate( EOS_DPD )
+      thermstate_buffer(1,:) = thermstate(1:EOS_VARS)
+      !abund_buffer(1:NSPECIES) = abund(SPECIES_BEGIN: SPECIES_END)
+
+      call Eos_vector(MODE_DENS_TEMP, 1, thermstate_buffer, massFrac=abund_buffer, derivs=derivs)!, mask=mask)
+      thermstate(1:EOS_VARS) = thermstate_buffer(1,:)
+
+      dp_drho_T = derivs(1,EOS_DPD)
 
       ! newton-raphson improved guess
       new_guess_dens = guess_dens + (target_pres-thermstate(EOS_PRES))/dp_drho_T

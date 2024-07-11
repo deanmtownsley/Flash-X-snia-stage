@@ -41,8 +41,9 @@ subroutine IO_writeIntegralQuantities (isFirst, simTime)
 
   use IO_data, ONLY : io_restart, io_statsFileName, &
                         io_globalMe
-  use Grid_interface, ONLY : Grid_getSingleCellVol, &
-     Grid_getTileIterator, Grid_releaseTileIterator
+  use Grid_interface, ONLY : Grid_getCellVolumes, &
+     Grid_getTileIterator, Grid_releaseTileIterator, &
+     Grid_getCellCoords
   use Simulation_data, ONLY : sim_tempAmbient
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
@@ -74,7 +75,8 @@ subroutine IO_writeIntegralQuantities (isFirst, simTime)
   real :: lsum(nGlobalSum) !Global summed quantities
 
   integer :: i, j, k
-  real :: dvol             !, del(MDIM)
+  real, DIMENSION(1,1,1) :: dvol_buff             !, del(MDIM)
+  real :: dvol
   real, DIMENSION(:,:,:,:), POINTER :: solnData
 
   integer :: point(MDIM)
@@ -107,8 +109,12 @@ subroutine IO_writeIntegralQuantities (isFirst, simTime)
      grownTileLimits = tileDesc%grownLimits
      allocate(xCoord(grownTileLimits(LOW, IAXIS):grownTileLimits(HIGH, IAXIS)))
      !call Grid_getCellCoords(IAXIS, blockList(lb), CENTER, .true., xCoord, iSize)
+
+     
+     
      call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                grownTileLimits(LOW,  :), grownTileLimits(HIGH,  :), xCoord)
+     
      ! get a pointer to the current block of data
      !call Grid_getBlkPtr(blockList(lb), solnData)
      call tileDesc%getDataPtr(solnData, CENTER)
@@ -123,7 +129,9 @@ subroutine IO_writeIntegralQuantities (isFirst, simTime)
               point(KAXIS) = k
 
 !! Get the cell volume for a single cell
-              call Grid_getSingleCellVol(point, tileDesc%level, dvol)
+              !call Grid_getSingleCellVol(point, tileDesc%level, dvol)
+              call Grid_getCellVolumes(tileDesc%level, point, point, dvol_buff) 
+              dvol = dvol_buff(1,1,1)
      
               ! mass   
 #ifdef DENS_VAR
