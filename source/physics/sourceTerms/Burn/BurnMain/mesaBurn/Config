@@ -1,0 +1,6 @@
+
+REQUIRES Simulation/SimulationComposition
+
+DEFAULT constDensTemp
+
+VARIABLE enuc

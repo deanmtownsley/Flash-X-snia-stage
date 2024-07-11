@@ -1,0 +1,75 @@
+! this is a basic alpha chain (just alpha captures, no side channels) plus triple alpha
+! and some C and O burning processes
+      add_isos(
+         he4
+         c12
+         o16
+         ne20
+         mg24
+         si28
+         s32
+         ar36
+         ca40
+         ti44
+         cr48
+         fe52
+         ni56
+         )
+         
+      add_reactions( 
+         ! helium burning
+         
+         r_he4_he4_he4_to_c12
+         r_c12_to_he4_he4_he4
+
+	 ! C and O burning
+
+         r1212,                ! c12 + c12 -> ne20 + he4, includes na23+p channel
+
+         r1216_to_mg24,        ! c12 + o16 -> mg24 + he4          
+         r1216_to_si28,        ! c12 + o16 -> si28         
+        
+         r1616a,               ! o16(o16,a)si28         
+         r1616g               ! o16(o16,g)s32         
+
+         ! alpha chain
+
+         r_c12_ag_o16
+         r_o16_ga_c12
+
+         r_o16_ag_ne20
+         r_ne20_ga_o16
+
+         r_ne20_ag_mg24
+         r_mg24_ga_ne20
+
+         r_mg24_ag_si28
+         r_si28_ga_mg24
+         
+         r_si28_ag_s32
+         r_s32_ga_si28
+         
+         r_s32_ag_ar36                 
+         r_ar36_ga_s32
+         
+         r_ar36_ag_ca40
+         r_ca40_ga_ar36
+            
+         r_ca40_ag_ti44
+         r_ti44_ga_ca40
+      
+         r_ti44_ag_cr48
+         r_cr48_ga_ti44
+         
+         r_cr48_ag_fe52
+         r_fe52_ga_cr48
+
+         r_fe52_ag_ni56
+         r_ni56_ga_fe52
+
+
+         )     
+  
+
+     
+     
