@@ -5,9 +5,8 @@ REQUIRES Driver
 REQUIRES physics/Hydro
 REQUIRES physics/sourceTerms/Flame/FlameEffects/EIP
 
-#Need to override the default parameters so we can call the EOS without any mass fractions
+#Need to override the default parameter so we can call the EOS without any mass fractions
 PARAMETER eos_useMultiSpecies BOOLEAN FALSE
-PARAMETER eos_doYe BOOLEAN TRUE
 
 D rho_ambient Density of unburned material
 D t_ambient   Temperature of unburned material
