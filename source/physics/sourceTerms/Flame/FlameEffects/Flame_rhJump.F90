@@ -78,6 +78,7 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
   real, optional, dimension(NSPECIES), intent(in) :: mfrac_b
 
   real, dimension(1,EOS_VARS) :: eosData_buff
+  real, dimension(1,NSPECIES) :: mfrac_buff
   real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_u
   real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs_b
   real                    :: dfd, dft, dgd, dgt, f, g
@@ -90,7 +91,8 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
 
   eosData_buff(1,:)=eosData_u(1:EOS_VARS)
   if (present(mfrac_u)) then
-     call Eos_vector(mode,1,eosData_buff,mfrac_u,derivs_u)
+     mfrac_buff(1,:)=mfrac_u(:)
+     call Eos_vector(mode,1,eosData_buff,mfrac_buff,derivs_u)
   else
      call Eos_vector(mode,1,eosData_buff,derivs=derivs_u)
   endif
@@ -119,7 +121,8 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
 
   eosData_buff(1,:)=eosData_b(1:EOS_VARS)
   if (present(mfrac_b)) then
-     call Eos_vector(MODE_DENS_EI,1,eosData_buff,mfrac_b,derivs_b)
+     mfrac_buff(1,:)=mfrac_b(:)
+     call Eos_vector(MODE_DENS_EI,1,eosData_buff,mfrac_buff,derivs_b)
   else
      call Eos_vector(MODE_DENS_EI,1,eosData_buff,derivs=derivs_b)
   endif
@@ -184,7 +187,8 @@ subroutine Flame_rhJump(eosData_u, eosData_b, q, s, mode, mfrac_u, mfrac_b)
 !     write (6,*) 'in loop call', dens_b, temp_b, mfrac_b
      eosData_buff(1,:)=eosData_b(1:EOS_VARS)
      if (present(mfrac_b)) then
-        call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,mfrac_b,derivs_b)
+        mfrac_buff(1,:)=mfrac_b(:)
+        call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,mfrac_buff,derivs_b)
      else
         call Eos_vector(MODE_DENS_TEMP,1,eosData_buff,derivs=derivs_b)
      endif
