@@ -129,7 +129,6 @@ LIB_MATH  =
 LIB_MPI   =
 LIB_NCMPI = -L ${NCMPI_PATH}/lib -lpnetcdf
 LIB_MPE   =
-
 LIB_MA28  = ../../ma28/object/libma28.a
 
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE
