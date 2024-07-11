@@ -60,7 +60,11 @@ subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, 
                      iradius = heater%seedRadius
                      iseedX = heater%xSiteProc(isite)
                      iseedZ = heater%zSiteProc(isite)
-                     iseedY = heater%ySiteProc(isite)+heater%seedHeight
+                     if( heater%ySiteProc(isite) .le. 2.5)then
+                        iseedY = heater%ySiteProc(isite)+heater%seedHeight
+                     else
+                        iseedY = heater%ySiteProc(isite)-heater%seedHeight                             
+                     end if
                      idfun = iradius-sqrt((xcell(i)-iseedX)**2+(ycell(j)-iseedY)**2+(zcell(k)-iseedZ)**2)
                      phi(i, j, k) = max(phi(i, j, k), idfun)
                   end if

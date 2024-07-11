@@ -42,7 +42,11 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                      iradius = heater%radiusInit(isite)
                      iseedX = heater%xSiteInit(isite)
                      iseedZ = heater%zSiteInit(isite)
-                     iseedY = heater%ySiteInit(isite)+iheight
+                     if( heater%ySiteInit(isite) .le. 2.5) then
+                        iseedY = heater%ySiteInit(isite)+iheight
+                     else
+                        iseedY = heater%ySiteInit(isite)-iheight
+                     end if
                      idfun = iradius-sqrt((xcell(i)-iseedX)**2+(ycell(j)-iseedY)**2+(zcell(k)-iseedZ)**2)
                      phi(i, j, k) = max(phi(i, j, k), idfun)
                   end do
@@ -53,6 +57,12 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                    ycell(j) .le. 0.2 .and. &
                    zcell(k) .ge. heater%zMin .and. &
                    zcell(k) .le. heater%zMax) temp(i, j, k) = (0.2-ycell(j))/0.2
+
+               if (xcell(i) .ge. heater%xMin .and. &
+                   xcell(i) .le. heater%xMax .and. &
+                   ycell(j) .ge. 4.8 .and. &
+                   zcell(k) .ge. heater%zMin .and. &
+                   zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-4.8)/0.2
 
             end do
          end do

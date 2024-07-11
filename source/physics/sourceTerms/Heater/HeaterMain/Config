@@ -22,4 +22,4 @@ PARAMETER htr_showInfo BOOLEAN FALSE
 D htr_annQueries Number of queries for approximate nearest neighbor search
 PARAMETER htr_annQueries INTEGER 3
 
-PPDEFINE HTR_MAX_NUMSITES 50
+PPDEFINE HTR_MAX_NUMSITES 150
