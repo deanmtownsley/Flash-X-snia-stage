@@ -89,9 +89,9 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   !-----------------------------------------------
   ! loop over all zones and init
   !-----------------------------------------------
-  do k = grownTileLimits(LOW,KAXIS), grownTileLimits(HIGH,KAXIS)
-     do j = grownTileLimits(LOW, JAXIS), grownTileLimits(HIGH, JAXIS)
-        do i = grownTileLimits(LOW,IAXIS), grownTileLimits(HIGH, IAXIS)
+  do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
+     do j = tileLimits(LOW, JAXIS), tileLimits(HIGH, JAXIS)
+        do i = tileLimits(LOW,IAXIS), tileLimits(HIGH, IAXIS)
 
            if (.not. sim_ignite) then
               ! no burned material, only unburned
@@ -182,6 +182,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
      enddo
   enddo
   
+  call tileDesc%releaseDataPtr(solnData, CENTER)
   deallocate(iCoords)
   deallocate(jCoords)
   deallocate(kCoords)
