@@ -5,14 +5,14 @@ subroutine Burn_init()
   use Burn_data, ONLY: bn_useBurn, bn_useShockBurn, bn_meshMe, bn_enucDtFactor, bn_map_fi_to_mi, &
                        bn_mesa_net_def_filename, bn_limiter_max_dlnT
   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
-  use Driver_interface, ONLY: Driver_getMype
+  use Driver_interface, ONLY: Driver_getMype, Driver_abort
   use Multispecies_interface, ONLY: Multispecies_getProperty
   use mesa_flash_nucreact, ONLY: init_mesa_internals, fill_nuclide_index_map
 
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Multispecies.h"
 
   integer :: i, ierr
@@ -35,7 +35,7 @@ subroutine Burn_init()
     call Multispecies_getProperty( SPECIES_BEGIN+i-1, A, alist(i) )
   end do
   call fill_nuclide_index_map( NSPECIES, zlist, alist, bn_map_fi_to_mi, ierr)
-  if (ierr == 1) call Driver_abortFlash("Unable to create map from flash species to MESA nuclides")
+  if (ierr == 1) call Driver_abort("Unable to create map from flash species to MESA nuclides")
 
   return
 

@@ -35,14 +35,17 @@
 !!
 !!***
 
-subroutine Burn ( blockCount, blockList, dt  )    
+subroutine Burn (dt)    
   use omp_lib
   use Burn_data, ONLY: bn_useBurn, bn_useShockBurn, bn_map_fi_to_mi, bn_limiter_max_dlnT
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY  : Grid_fillGuardCells, &
        Grid_getBlkIndexLimits, Grid_getCellCoords, Grid_getBlkPtr, &
-       Grid_releaseBlkPtr, Grid_getSingleCellVol, Grid_getMinCellSize
-  use Eos_interface, ONLY   : Eos_wrapped, Eos
+       Grid_releaseBlkPtr, Grid_getSingleCellVol, Grid_getMinCellSize, &
+       Grid_getTileIterator, Grid_releaseTileIterator
+  use Grid_iterator, ONLY : Grid_iterator_t
+  use Grid_tile_t, ONLY : Grid_tile_t
+  use Eos_interface, ONLY   : Eos_multiDim, Eos
   use Hydro_interface, ONLY : Hydro_detectShock
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Multispecies_interface, ONLY: Multispecies_getSumFrac
@@ -52,34 +55,38 @@ subroutine Burn ( blockCount, blockList, dt  )
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 #include "Multispecies.h"
 
   !args
-  integer, INTENT(in)                        :: blockCount
-  integer, INTENT(in), DIMENSION(blockCount)  :: blockList
+  !integer, INTENT(in)                        :: blockCount
+  !integer, INTENT(in), DIMENSION(blockCount)  :: blockList
   real,    INTENT(in)                        :: dt
 
   logical :: gcMask(NUNK_VARS)
-  integer :: blockiteri, blockID, i,j,k, fi
+  !integer :: blockiteri, blockID
+  integer :: i,j,k, fi
 
   real, pointer, dimension(:,:,:,:)                    :: solnData
 
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+  !integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
 
   real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
   integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
   real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
 
   real, dimension(NSPECIES):: fabund, mabund
+  real, dimension(1:NSPECIES) :: fabund_buff
   real :: qbar_ini, qbar_fin, Ye_ini, Ye_fin, de
   real :: cgsMeVperGram = 9.6485e17
   real :: pe_n_mdiff = 938.2723+0.5110-939.5656
   real :: temp,rho, t_sc, dx_min, dt_nuc, de_limit
   real :: eosData(EOS_NUM)
+  real, dimension(1:EOS_VARS) :: eosData_buff
   logical :: eosMask(EOS_VARS+1:EOS_NUM)
-
+  type(Grid_iterator_t) :: itor
+  type(Grid_tile_t) :: tileDesc
   
 
 
@@ -91,9 +98,9 @@ subroutine Burn ( blockCount, blockList, dt  )
   call Timers_start("burn")
 
   ! initialize some things that are unchanged in various loops
-  eosMask(:) = .false.
-  eosMask(EOS_CV) = .true.
-  eosMask(EOS_DET) = .true.
+  !eosMask(:) = .false.
+  !eosMask(EOS_CV) = .true.
+  !eosMask(EOS_DET) = .true.
   call Grid_getMinCellSize(dx_min)
   ! ---------------------------------------------------
   ! 1. bring guardcells up to date
@@ -123,31 +130,44 @@ subroutine Burn ( blockCount, blockList, dt  )
   ! -------------------------------------------------------
   ! 2.  iterate over blocks, apply burning evolution and update quantities
   ! -------------------------------------------------------
-  do blockiteri = 1, blockCount
-
-     blockID = blockList(blockiteri)
+  call Grid_getTileIterator(itor, nodetype=LEAF)
+  !do blockiteri = 1, blockCount
+  do while(itor%isValid())
+     call itor%currentTile(tileDesc)
+     !blockID = blockList(blockiteri)
+     call tileDesc%getDataPtr(solnData, CENTER)
      
      ! -------------------------------
      ! 2.1 initialize quantities for this block
      !     including shock and proximity, which require unchanged neighbor cells
      ! -------------------------------
-     call Grid_getBlkPtr(blockID,solnData)
-     call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
+     !call Grid_getBlkPtr(blockID,solnData)
+     !call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
 
      ! shock detect if burning is turned off in shocks
      if (.NOT. bn_useShockBurn) then
         ! get coordinate positions, used for shock detection
-        xSizeCoord = blkLimitsGC(HIGH,IAXIS)
-        ySizeCoord = blkLimitsGC(HIGH,JAXIS)
-        zSizeCoord = blkLimitsGC(HIGH,KAXIS)
-        allocate(xCoord(xSizeCoord))
-        allocate(yCoord(ySizeCoord))
-        allocate(zCoord(zSizeCoord))
-        call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,xCoord,xSizeCoord)
-        call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
-        call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
+        !xSizeCoord = blkLimitsGC(HIGH,IAXIS)
+        !ySizeCoord = blkLimitsGC(HIGH,JAXIS)
+        !zSizeCoord = blkLimitsGC(HIGH,KAXIS)
+        grownTileLimits = tileDesc%grownLimits
+        allocate(xCoord(grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS)))
+        allocate(yCoord(grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS)))
+        allocate(zCoord(grownTileLimits(LOW,XAXIS):grownTileLimits(HIGH,KAXIS)))
+        call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          xCoord)
+        call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          yCoord)
+        call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          zCoord)
 
-        call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
+        call Hydro_detectShock(solnData, shock, tileDesc%limits, grownTileLimits, (/0,0,0/), &
              xCoord,yCoord,zCoord)
 
         deallocate(xCoord)
@@ -158,12 +178,12 @@ subroutine Burn ( blockCount, blockList, dt  )
      endif
 
 #ifdef SHK_VAR
-     solnData(SHK_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                      blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                      blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-                shock(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                      blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                      blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+     solnData(SHK_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                      tileDesc%limits(LOW,KAXIS):,tileDesc%limits(HIGH,KAXIS)) = &
+                shock(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                      tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
 #endif
 
      ! --------------------------------
@@ -173,17 +193,17 @@ subroutine Burn ( blockCount, blockList, dt  )
      !$omp parallel do private(i,j,k,temp,rho,fi,fabund,mabund,de,&
      !$omp qbar_ini,Ye_ini,qbar_fin,Ye_fin, t_sc, de_limit, eosData, dt_nuc)
 #endif
-     do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+     do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
 #if NDIM==2
      !$omp parallel do private(i,j,temp,rho,fi,fabund,mabund,de,&
      !$omp qbar_ini,Ye_ini,qbar_fin,Ye_fin, t_sc, de_limit, eosData, dt_nuc)
 #endif
-        do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
+        do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
 #if NDIM==1
      !$omp parallel do private(i,temp,rho,fi,fabund,mabund,de &
      !$omp ,qbar_ini,Ye_ini,qbar_fin,Ye_fin, t_sc, de_limit, eosData, dt_nuc)
 #endif
-           do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
               ! skip this cell if shock burning is turned off (normally) and it is in a shock
               if ( (.not. bn_useShockBurn) .and. ( shock(i,j,k) == 1.0 ) ) then
                  solnData(ENUC_VAR,i,j,k) = 0.0
@@ -196,7 +216,11 @@ subroutine Burn ( blockCount, blockList, dt  )
               ! need c_V to compute de_limit
               eosData(EOS_TEMP) = temp
               eosData(EOS_DENS) = rho
-              call Eos(MODE_DENS_TEMP, 1, eosData, fabund, eosMask)
+              fabund_buff(1,:) = fabund(SPECIES_BEGIN: SPECIES_END) !Check this
+              eosData_buff(1,:) = eosData(1:EOS_VARS) 
+              call Eos_vector(MODE_DENS_TEMP, 1, eosData_buff, fabund_buff, eosMask)
+              eosData(1:EOS_VARS) = eosData_buff(1.:)
+              fabund(SPECIES_BEGIN: SPECIES_END) = fabund_buff(1,:) !Check this
 
               t_sc = dx_min/sqrt(solnData(GAMC_VAR,i,j,k)*solnData(PRES_VAR,i,j,k)/rho)
               de_limit = bn_limiter_max_dlnT*temp*eosData(EOS_CV)/t_sc * dt
@@ -247,13 +271,15 @@ subroutine Burn ( blockCount, blockList, dt  )
      ! 2.3 Finish up:
      !     Update interior EOS quantities for this block and release stuff
      ! --------------------------------
-     call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
+     call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
 
-     call Grid_releaseBlkPtr(blockID,solnData)
+     !call Grid_releaseBlkPtr(blockID,solnData)
+     call tileDesc%releaseDataPtr(solnData, CENTER)
+     call itor%next()
 
   ! end of iteration over blockslist passed in
   end do
-
+  call Grid_releaseTileIterator(itor)
   call Timers_stop("burn")
 
   return
