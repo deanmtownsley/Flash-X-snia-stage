@@ -142,21 +142,14 @@ subroutine Simulation_initBlock(solnData,tileDesc)
   tileLimits = tileDesc%limits
   grownTileLimits = tileDesc%grownLimits
     
-  call tileDesc%deltas(deltas)
-
   ! Get the indices of the blocks
-  !call Grid_getBlkIndexLimits(blockId,blkLimits,blkLimitsGC)
-  !sizeX = blkLimitsGC(HIGH,IAXIS) - blkLimitsGC(LOW,IAXIS) + 1
   allocate(xCoordsCell(grownTileLimits(LOW, IAXIS):grownTileLimits(HIGH, IAXIS)))
-  !sizeY = blkLimitsGC(HIGH,JAXIS) - blkLimitsGC(LOW,JAXIS) + 1
   allocate(yCoordsCell(grownTileLimits(LOW, JAXIS):grownTileLimits(HIGH, JAXIS)))
-  !sizeZ = blkLimitsGC(HIGH,KAXIS) - blkLimitsGC(LOW,KAXIS) + 1
   allocate(zCoordsCell(grownTileLimits(LOW, KAXIS):grownTileLimits(HIGH, KAXIS)))
 
-  !call Grid_getDeltas(blockId,deltas)
+  call tileDesc%deltas(deltas)
 
 !  if (NDIM == 3)  &
-   !call Grid_getCellCoords(KAXIS, blockId, CENTER, useGuardCell, zCoordsCell, sizeZ)
    call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, & 
                   grownTileLimits(LOW,:), grownTileLimits(HIGH,  :), zCoordsCell)
 
@@ -166,15 +159,6 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
    call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                   grownTileLimits(LOW,:), grownTileLimits(HIGH,  :), xCoordsCell)
-
-   !call Grid_getCellCoords(JAXIS, blockId, CENTER, useGuardCell, yCoordsCell, sizeY)
-   !call Grid_getCellCoords(IAXIS, blockId, CENTER, useGuardCell, xCoordsCell, sizeX)
-
-  !! NOTE the incorrect syntax below --  this causes a crash for KAXIS when NDIM < 3, 
-  !!    works OK if you substitute 1 at the MAXCELLS location
-!  call Grid_getCellCoords(KAXIS, blockID,CENTER,useGuardCell,zCoordsCell,1)
-!  call Grid_getCellCoords(JAXIS, blockID,CENTER,useGuardCell,yCoordsCell,MAXCELLS)
-!  call Grid_getCellCoords(IAXIS, blockID,CENTER,useGuardCell,xCoordsCell,MAXCELLS)
 
   ! the initial composition
   massFraction(:)    = sim_smallx 
@@ -316,33 +300,19 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
            ! store the values
            ! fill the flash arrays
-
-           !call Grid_putPointData(blockId,CENTER,TEMP_VAR,EXTERIOR,iPosition,temp_zone)
-           solnData(DENS_VAR, i, j, k) = rho_zone
            solnData(TEMP_VAR, i, j, k) = temp_zone
-           solnData(PRES_VAR, i, j, k) = ptot
-
+           solnData(DENS_VAR, i, j, k) = rho_zone
            solnData(PRES_VAR, i, j, k) = ptot
            solnData(EINT_VAR, i, j, k) = eint
-           solnData(PRES_VAR, i, j, k) = etot
-           solnData(PRES_VAR, i, j, k) = gamma
-           solnData(PRES_VAR, i, j, k) = (ptot/(etot*sim_rhoAmbient) + 1.0)
-           solnData(PRES_VAR, i, j, k) = vel_zone
-           solnData(PRES_VAR, i, j, k) = 0.0e0
-           solnData(PRES_VAR, i, j, k) = 0.0e0
-           !call Grid_putPointData(blockId,CENTER,DENS_VAR,EXTERIOR,iPosition,rho_zone)
-           !call Grid_putPointData(blockId,CENTER,PRES_VAR,EXTERIOR,iPosition,ptot)
-           !call Grid_putPointData(blockId,CENTER,EINT_VAR,EXTERIOR,iPosition,eint)
-           !call Grid_putPointData(blockId,CENTER,ENER_VAR,EXTERIOR,iPosition,etot)
-           !call Grid_putPointData(blockId,CENTER,GAMC_VAR,EXTERIOR,iPosition,gamma)
-           !call Grid_putPointData(blockId,CENTER,GAME_VAR,EXTERIOR,iPosition,(ptot/(etot*sim_rhoAmbient) + 1.0))
-           !call Grid_putPointData(blockId,CENTER,VELX_VAR,EXTERIOR,iPosition,vel_zone)
+           solnData(ENER_VAR, i, j, k) = etot
+           solnData(GAMC_VAR, i, j, k) = gamma
+           solnData(GAME_VAR, i, j, k) = (ptot/(etot*sim_rhoAmbient) + 1.0)
+           solnData(VELX_VAR, i, j, k) = vel_zone
            !! No need to do dimensional check here, as the VELZ and VELY are always defined in the config file
-           !call Grid_putPointData(blockId,CENTER,VELY_VAR,EXTERIOR,iPosition,0.0e0)
-           !call Grid_putPointData(blockId,CENTER,VELZ_VAR,EXTERIOR,iPosition,0.0e0)
+           solnData(VELY_VAR, i, j, k) = 0.0e0
+           solnData(VELZ_VAR, i, j, k) = 0.0e0
 
            do n = SPECIES_BEGIN,SPECIES_END
-              !call Grid_putPointData(blockID,CENTER,n,EXTERIOR,iPosition,massFraction(n))
               solnData(n,i,j,k) = massFraction(n)
            enddo
 
