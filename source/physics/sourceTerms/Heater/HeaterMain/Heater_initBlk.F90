@@ -60,15 +60,15 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                if(abs(0.5*(heater%yMin + heater%yMax) - sim_yMin) .lt. abs(0.5*(heater%yMin + heater%yMax) - sim_yMax) ) then
                         if (xcell(i) .ge. heater%xMin .and. &
                         xcell(i) .le. heater%xMax .and. &
-                        ycell(j) .le. (sim_yMin+0.2) .and. &
+                        ycell(j) .le. (sim_yMin+heater%tbl_thickness) .and. &
                         zcell(k) .ge. heater%zMin .and. &
-                        zcell(k) .le. heater%zMax) temp(i, j, k) = (sim_yMin + 0.2-ycell(j))/0.2
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (sim_yMin + heater%tbl_thickness-ycell(j))/heater%tbl_thickness
                else 
                         if (xcell(i) .ge. heater%xMin .and. &
                         xcell(i) .le. heater%xMax .and. &
-                        ycell(j) .ge. (sim_yMax-0.2) .and. &
+                        ycell(j) .ge. (sim_yMax-heater%tbl_thickness) .and. &
                         zcell(k) .ge. heater%zMin .and. &
-                        zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-(sim_yMax - 0.2))/0.2
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-(sim_yMax - heater%tbl_thickness))/heater%tbl_thickness
                end if 
             end do
          end do
