@@ -131,6 +131,15 @@ subroutine htr_read(heaterID, heaterFile)
    call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%non_uniform_temp_flag, dims, h5err)
    call h5dclose_f(dset, h5err)
 
+   call h5dopen_f(file, "heater/heat_flux_flag", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/heat_flux_flag')
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%heat_flux_flag, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/nd_heat_flux", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/nd_heat_flux')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%nd_heat_flux, dims, h5err)
+   call h5dclose_f(dset, h5err)
 
    call h5dopen_f(file, 'site/num', dset, h5err) ! dset handle to database required
    if (h5err < 0) call Driver_abort('Unable to read site/num')

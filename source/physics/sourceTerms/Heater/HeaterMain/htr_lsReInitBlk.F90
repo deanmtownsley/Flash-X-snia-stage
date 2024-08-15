@@ -20,7 +20,7 @@
 
 subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
-   use Simulation_data     
+   use Simulation_data, ONLY: sim_yMin, sim_yMax     
    use Heater_data
    use Heater_type, ONLY: Heater_type_t
    use Driver_interface, ONLY: Driver_abort

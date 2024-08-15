@@ -16,7 +16,7 @@
 !!***
 subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
 
-   use Simulation_data     
+   use Simulation_data, ONLY: sim_yMin, sim_yMax     
    use Heater_type, ONLY: Heater_type_t
    use Heater_data, ONLY: htr_numHeaters, htr_heaterInfo
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get

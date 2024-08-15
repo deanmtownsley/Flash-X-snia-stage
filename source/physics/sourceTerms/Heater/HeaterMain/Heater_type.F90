@@ -53,6 +53,8 @@ module Heater_type
       real    :: C0
       real    :: tbl_thickness
       integer :: non_uniform_temp_flag
+      integer :: heat_flux_flag
+      real    :: nd_heat_flux
 
       integer :: numSitesAll, numSitesProc
       integer :: numSitesBlk(MAXBLOCKS), siteMapOnProc(MAXBLOCKS, HTR_MAX_NUMSITES)
