@@ -40,7 +40,7 @@ subroutine Deleptonize(dotiling, dt, time)
                                 delep_rhoTwo, delep_yTwo, delep_useEntr, delep_useRadTrans, &
                                 delep_threadWithinBlock, delep_fromFile
     use delep_interface, ONLY: delep_detectBounce
-    use Eos_interface, ONLY: Eos_wrapped, Eos_getAbarZbar
+    use Eos_interface, ONLY: Eos_multiDim, Eos_getAbarZbar
     ! use Eos_nucInterface, ONLY: Eos_nucDetectBounce, Eos_nucOneZone
     use Timers_interface, ONLY: Timers_start, Timers_stop
     @M iter_use
@@ -55,7 +55,7 @@ subroutine Deleptonize(dotiling, dt, time)
     real, intent(IN) :: dt, time
     logical, intent(IN) :: dotiling
 
-    @M iter_declare(blkLimits, blkLimitsGC, grownLimits)
+    @M iter_declare(blkLimits, blkLimitsGC, grownLimits,Uin)
     integer :: i, j, k, n
     integer :: err
     real :: xDens, xTemp, xEner, xEntr, xYe, outYe
@@ -67,7 +67,7 @@ subroutine Deleptonize(dotiling, dt, time)
     real :: tauNu
     integer :: eosMode
     Logical :: threadBlockList
-!!$    integer, dimension(blockCount) :: doEOS
+
     real, parameter :: dydt_max = 20.
     logical :: flag
 
@@ -118,7 +118,7 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp xdedt,xdpderho)
 
     nullify (Uin)
-    @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC)
+    @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC,grownLimits,Uin)
 
     !$omp do schedule(static) reduction(+:flag)
     @M loop_3d(blkLimits)
@@ -171,9 +171,9 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp end do
 
     !$omp single
-    if (flag) call Eos_wrapped(eosMode, blkLimits, Uin)
+    if (flag) call Eos_multiDim(eosMode, blkLimits, Uin)
     !$omp end single
-    @M iter_end
+    @M iter_end(Uin)
     !$omp end parallel
 
     call Timers_stop("delep")

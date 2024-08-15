@@ -5,7 +5,7 @@ each file depends on. Having done that, it appends those dependencies to Makefil
 
 import re, os, os.path, string, sys, io
 
-incpatt = """^\s*[#]\s*include\s+["']?([A-Za-z._0-9]+)['"]?\s+.*"""
+incpatt = r"""^\s*[#]\s*include\s+["']?([A-Za-z._0-9]+)['"]?\s+.*"""
 
 # searches for file "name" in a specified list of directories 
 # and returns the absolute name

@@ -1,29 +1,26 @@
-!!****f* source/physics/Eos/Eos_sendOutputData
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!! @brief Eos_sendOutputData stub
+
+!> @ingroup physics_Eos
 !!
-!!  Eos_sendOutputData
+!! @brief sends the scalar variables owned by the Eos unit
+!!           to the IO unit, to be written to a checkpoint file
 !!
-!!
-!! SYNOPSIS
-!!
-!!  call Eos_sendOutputData()
-!!
-!! DESCRIPTION
-!!
-!!  This routine sends the scalar variables owned by the Eos unit
-!!  to the IO unit, to be written to a checkpoint file
+!! @details
+!! @anchor Eos_sendOutputData_stub
 !!
 !!***
 

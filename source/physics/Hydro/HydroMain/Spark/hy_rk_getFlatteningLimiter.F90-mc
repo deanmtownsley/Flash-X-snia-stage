@@ -1,0 +1,122 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!! @brief Computes flattening limiter
+!!
+!! @details
+!! Get flattening limiter for the part of block/tile @p limits.
+!! Initialize the limiter to one if @p flattening is false.
+!! See https://doi.org/10.1006/jcph.2002.7158 for details
+!!
+!! @param stage           Current RK stage
+!! @param is_flattening   On/Off switch
+!! @param starState       Input solution data
+!! @param flat3d          Output flattening limiter
+!! @param limits          A part of index limits for the given tile/block
+!<
+
+!!Reorder(4): starState
+!!NOVARIANTS
+
+subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
+
+   use Hydro_data, ONLY: hy_threadWithinBlock, &
+                         is_flattening => hy_flattening
+
+   implicit none
+
+   @M hy_DIR_TARGET_routine(vector)
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+
+   integer, intent(IN) :: stage, loGC(3)
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(INOUT) :: starState
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: flat3d
+   integer, intent(IN), dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
+
+   real, dimension(NDIM) :: flatTilde
+   real :: beta, Z
+   real, parameter :: betaMin = 0.75, betaMax = 0.85
+   real, parameter :: Zmin = 0.25, Zmax = 0.75
+   integer :: i, j, k
+
+   @M hy_DIR_parallel_loop(3) &
+   @M hy_DIR_shared([limits, flat3d])
+   do k = limits(LOW, KAXIS, stage)-K3D*1, limits(HIGH, KAXIS, stage)+K3D*1
+   do j = limits(LOW, JAXIS, stage)-K2D*1, limits(HIGH, JAXIS, stage)+K2D*1
+   do i = limits(LOW, IAXIS, stage)-1, limits(HIGH, IAXIS, stage)+1
+      flat3d(i, j, k) = 1.0
+   end do
+   end do
+   end do
+
+   ! if flattening is off, then stop this subroutine
+   if (.NOT. is_flattening) return
+
+   @M hy_DIR_parallel_loop(3) &
+   @M hy_DIR_shared([limits, starState, flat3d]) &
+   @M hy_DIR_private([flatTilde, beta, Z])
+   do k = limits(LOW, KAXIS, stage)-K3D*1, limits(HIGH, KAXIS, stage)+K3D*1
+   do j = limits(LOW, JAXIS, stage)-K2D*1, limits(HIGH, JAXIS, stage)+K2D*1
+   do i = limits(LOW, IAXIS, stage)-1, limits(HIGH, IAXIS, stage)+1
+      !1e-99 used to be TINY(1.0) but that produced Seg Faults
+      beta = abs(starState(PRES_VAR, i+1, j, k) - starState(PRES_VAR, i-1, j, k)) &
+             /max(1e-99, abs(starState(PRES_VAR, i+2, j, k) - starState(PRES_VAR, i-2, j, k)))
+      Z = abs(starState(PRES_VAR, i+1, j, k) - starState(PRES_VAR, i-1, j, k)) &
+          /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
+      flatTilde(IAXIS) = max(0., min(1., (betaMax - beta)/(betaMax - betaMin)))
+      if (starState(VELX_VAR, i+1, j, k) < starState(VELX_VAR, i, j, k)) then
+         flatTilde(IAXIS) = max(flatTilde(IAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
+      else
+         flatTilde(IAXIS) = 1.0
+      end if
+#if NDIM>1
+      beta = abs(starState(PRES_VAR, i, j+1, k) - starState(PRES_VAR, i, j-1, k)) &
+             /max(1.e-99, abs(starState(PRES_VAR, i, j+2, k) - starState(PRES_VAR, i, j-2, k)))
+      Z = abs(starState(PRES_VAR, i, j+1, k) - starState(PRES_VAR, i, j-1, k)) &
+          /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
+      flatTilde(JAXIS) = max(0., min(1., (betaMax-beta)/(betaMax-betaMin)))
+      if (starState(VELY_VAR, i, j+1, k) < starState(VELY_VAR, i, j, k)) then
+         flatTilde(JAXIS) = max(flatTilde(JAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
+      else
+         flatTilde(JAXIS) = 1.0
+      end if
+#if NDIM==3
+      beta = abs(starState(PRES_VAR, i, j, k+1) - starState(PRES_VAR, i, j, k-1)) &
+             /max(1.e-99, abs(starState(PRES_VAR, i, j, k+2) - starState(PRES_VAR, i, j, k-2)))
+      Z = abs(starState(PRES_VAR, i, j, k+1) - starState(PRES_VAR, i, j, k-1)) &
+          /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
+      flatTilde(KAXIS) = max(0., min(1., (betaMax-beta)/(betaMax-betaMin)))
+      if (starState(VELZ_VAR, i, j, k+1) < starState(VELZ_VAR, i, j, k)) then
+         flatTilde(KAXIS) = max(flatTilde(KAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
+      else
+         flatTilde(KAXIS) = 1.0
+      end if
+#endif
+#endif
+      ! save the solution
+      flat3d(i, j, k) = minval(flatTilde(1:NDIM))
+#ifdef FLAT_VAR
+      starState(FLAT_VAR, i, j, k) = flat3d(i, j, k)
+#endif
+   end do
+   end do
+   end do
+
+end subroutine hy_rk_getFlatteningLimiter

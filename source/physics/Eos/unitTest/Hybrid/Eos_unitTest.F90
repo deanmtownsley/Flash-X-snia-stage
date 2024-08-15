@@ -43,7 +43,7 @@
 !! At this point in time three quantities; temperature,
 !! pressure and energy are saved in the extra storage requested by
 !! the unitTest/Eos setup, say OTMP_VAR, OPRS_VAR and OENT_VAR. Now
-!! the Eos_unitTest function calls Eos_wrapped with eosMode =
+!! the Eos_unitTest function calls Eos_multiDim with eosMode =
 !! MODE_DENS_EI, followed by eosMode= MODE_DENS_PRES.  If the
 !! newly calculated values of temperature, pressure and energy are
 !! the same as those saved in OTMP_VAR, OPRS_VAR and OENT_VAR, then
@@ -69,7 +69,7 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-   use Eos_interface, ONLY: Eos_wrapped
+   use Eos_interface, ONLY: Eos_multiDim
    use Grid_interface, ONLY: Grid_getTileIterator, &
                              Grid_releaseTileIterator, &
                              Grid_getBlkType
@@ -83,9 +83,9 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
    implicit none
 
-# include "Eos.h"
-# include "constants.h"
-# include "Simulation.h"
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
 
    integer, intent(in) :: fileUnit
    logical, intent(out) :: perfect
@@ -255,7 +255,7 @@ contains
 
             call tileDesc%getDataPtr(solnData, CENTER)
 
-            call Eos_wrapped(mode, blkLimits, solnData)
+            call Eos_multiDim(mode, blkLimits, solnData)
 
             call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -403,7 +403,7 @@ contains
 
          call tileDesc%getDataPtr(solnData, CENTER)
 
-         call Eos_wrapped(mode, blkLimits, solnData)
+         call Eos_multiDim(mode, blkLimits, solnData)
 
          call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -441,9 +441,11 @@ contains
                               - solnData(out_2_exp, ib:ie, jb:je, kb:ke)) &
                              /solnData(out_2_exp, ib:ie, jb:je, kb:ke)))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
          idtmp = maxloc(abs((solnData(TMPW_VAR, ib:ie, jb:je, kb:ke) &
                              - solnData(TMPH_VAR, ib:ie, jb:je, kb:ke)) &
                             /solnData(TMPW_VAR, ib:ie, jb:je, kb:ke)))
+#endif
 
          err_1 = abs((solnData(out_1, ierr_1(1), ierr_1(2), ierr_1(3)) &
                       - solnData(out_1_exp, ierr_1(1), ierr_1(2), ierr_1(3))) &
@@ -453,9 +455,11 @@ contains
                       - solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))) &
                      /solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3)))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
          dtmp = abs((solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)) &
                      - solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3))) &
                     /solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3)))
+#endif
 
          success = tolerance .gt. err_1
          success = success .and. (tolerance .gt. err_2)
@@ -472,11 +476,13 @@ contains
             write (*, comp_fmt) eos_meshMe, out_2_name, solnData(out_2, ierr_2(1), ierr_2(2), ierr_2(3)), &
                out_2_exp_name, solnData(out_2_exp, ierr_2(1), ierr_2(2), ierr_2(3))
 
+#if defined(TMPH_VAR) && defined(TMPW_VAR)
             write (*, tmp_fmt) eos_meshMe, dtmp
             write (*, comp_fmt) eos_meshMe, in_1_name, solnData(in_1, idtmp(1), idtmp(2), idtmp(3)), &
                in_2_name, solnData(in_2, idtmp(1), idtmp(2), idtmp(3))
             write (*, comp_fmt) eos_meshMe, "tmph", solnData(TMPH_VAR, idtmp(1), idtmp(2), idtmp(3)), &
                "tmpw", solnData(TMPW_VAR, idtmp(1), idtmp(2), idtmp(3))
+#endif
 
             if (success) then
                write (*, status_fmt) eos_meshMe, name, "PASS"

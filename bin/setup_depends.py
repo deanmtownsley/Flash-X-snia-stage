@@ -6,15 +6,15 @@ each file depends on. Having done that, it generates a makefile listing those de
 import re, os, os.path, string, sys, io
 
 
-usemodpatt = "^\s*use\s+([A-Za-z_0-9]+)[,]?.*"
-intrinsicModnamepatt = "^(iso_c_binding)$"
-incpatt = """^\s*[#]\s*include\s+["']?([A-Za-z._0-9]+)['"]?\s+.*"""
-defmodpatt = "^\s*module\s+([A-Za-z][A-Za-z_0-9]*)\s*$"
-reordpatt = "^\s*!!\s*REORDER[(]([2345])[)]:.*$"
-GenmodFilenamepatt = "^.+__genmod$"
+usemodpatt = r"^\s*use\s+([A-Za-z_0-9]+)[,]?.*"
+intrinsicModnamepatt = r"^(iso_c_binding)$"
+incpatt = r"""^\s*[#]\s*include\s+["']?([A-Za-z._0-9]+)['"]?\s+.*"""
+defmodpatt = r"^\s*module\s+([A-Za-z][A-Za-z_0-9]*)\s*$"
+reordpatt = r"^\s*!!\s*REORDER[(]([2345])[)]:.*$"
+GenmodFilenamepatt = r"^.+__genmod$"
 #PMdirpatt only works if the source file is a soft-link.
 #PMdirpatt = "(PM4_package)|(flash_avoid_orrery)"
-PMfilepatt = "^(mpi_|amr_)\w+.F90"
+PMfilepatt = r"^(mpi_|amr_)\w+.F90"
 
 #Code to generate the misc file list (we search all directories included
 #by the FLASH Config files):
@@ -61,7 +61,7 @@ def findMODmatch(name):
     if name.lower() in MODlist:
         MODcache[name] = MODlist[name.lower()] 
     if name in MODcache: return MODcache[name]
-    obj = re.compile(name+"\.[fF](90)?$",re.I)
+    obj = re.compile(name+r"\.[fF](90)?$",re.I)
     for x in filelist:
         m = obj.match(x)
         if m:

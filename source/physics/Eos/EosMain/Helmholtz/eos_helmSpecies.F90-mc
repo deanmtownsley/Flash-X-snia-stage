@@ -1,0 +1,423 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! 
+!!  This version is the for the Helmholtz and Nadyozhin equations of state.
+!!
+!!  NSPECIES is defined in Simulation.h.
+!!
+!!  This routine is private to the Eos unit and should be called directly only
+!!  from routines that are part of the Eos unit.
+!!  All routines calling this routine directly must include a 
+!!     use eos_localInterface
+!!
+!!  Code outside of the Eos unit should call this Helmholtz implementation only
+!!  indirectly, for example, by invoking the public Eos routine.
+!!
+!!  The Helmholtz equation of state calculations are iterative for any mode other
+!!  than MODE_DENS_TEMP.  Therefore, the intial estimates for temperature and density
+!!  must be pretty good upon entering Eos with any other MODE_....or the calculations will
+!!  not converge.
+!!
+!!  This algorithm uses a data table helm_table.dat which contains the coefficients for
+!!  one of the interpolating algorithms.  Upon first entry to the Eos, a binary version of this
+!!  table (helm_table.bdat) is created for speed of access.  This binary file should NOT be
+!!  carried across machine architectures or even compilers.
+!!
+!!
+!!  When operating in MODE_DENS_EI, the INPUT energy is updated.  This change of an input parameter
+!!     can be overridden by setting the runtime parameter eos_forceConstantInput to true.
+!!     Noted below, see comments prefaced with ConstantInput.
+!!  Similarly, when operating in MODE_DENS_PRES, the INPUT pressure is updated.  Physicists need
+!!     to be aware of this.  Similarly can be overridden with the runtime parameter/
+!!
+!!  The accuracy can be adjusted with the parameter eos_tol.
+!!
+!!
+!!
+!!NOVARIANTS
+
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+#ifdef FLASH_MULTISPECIES
+#include "Multispecies.h"
+#endif
+
+subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
+
+  use Driver_interface, ONLY : Driver_abort
+  use Multispecies_interface, ONLY : Multispecies_getSumInv, &
+       Multispecies_getSumFrac
+  use Logfile_interface, ONLY:  Logfile_stampMessage
+
+  use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
+       eos_forceConstantInput, eos_useMultiSpecies
+  use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ,eos_doYe
+  use eos_helmData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
+       gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
+       detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
+  !$ use omp_lib
+  implicit none
+
+  !     Arguments
+  integer, INTENT(in) :: mode
+  real, INTENT(inout) :: @M eos_args
+  real, optional,INTENT(in), dimension(NSPECIES) :: massFrac
+  ! must correspond to dimensions of Eos_multiDim
+  real,optional,dimension(EOS_VARS+1:EOS_NUM),INTENT(out)::derivs
+
+  integer :: i, k
+  integer ::  dst, dsd
+  integer :: dpt, dpd, det, ded, dea, dez, pel, ne, eta, detat, c_v, c_p
+  real    :: abarInv, zbarFrac
+
+  ! declare some local storage for the results of the Newton iteration
+  real ::  ewantRow, tnew, error,pwantRow
+  !  local storage for forcedConstantInput -- could be allocatable, but might be so slow
+  !  that it's not worth the small storage save.
+  real::  psaveRow, esaveRow
+
+  !      Fill the pipe with the initial temperature, density, and composition.
+  !      The composition is parametrized by abar and zbar, which are computed
+  !      from the mass fractions xn().
+
+  !  if you are working with electron abundance mass scalars, then you don't
+  !  necessarily have to have mass fractions.
+
+  if(eos_useMultiSpecies) then 
+     if(.not.present(massFrac)) then
+        call Driver_abort("[Eos] Helmholtz with species needs mass fractions")
+     end if
+  end if
+
+  ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
+
+  !! For allocatable arrays, set them up now.
+
+  k = 1
+
+  tempRow    = temp
+  denRow     = dens
+  ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_multiDim does not.
+  if(eos_doYe) then
+     abarRow    = abar
+     zbarRow    = zbar
+  else
+#ifdef FLASH_MULTISPECIES
+     !Calculate the inverse in a way that allows for zero mass fractions
+     call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
+     abarRow = 1.e0 / abarInv
+     
+     call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
+     zbarRow = abarRow * zbarFrac
+#else
+     ! No multispecies defined, use default values (same as Gamma formulation)
+     abarRow = eos_singleSpeciesA
+     zbarRow = eos_singleSpeciesZ
+     
+#endif
+     abar=abarRow
+     zbar=zbarRow     
+  end if
+  !==============================================================================
+  
+  !      MODE_DENS_TEMP  temperature and density given
+  
+  !      Crank the EOS on the pipes filled above, then fill the FLASH arrays
+  !      with the thermodynamic quantities returned by the EOS.
+  
+  if (mode==MODE_DENS_TEMP) then
+     
+     call eos_helm()
+     pres=ptotRow
+     eint=etotRow
+     gamc=gamcRow
+     entr=stotRow
+     !==============================================================================
+     !      MODE_DENS_EI  internal energy and density given
+     
+  else if (mode==MODE_DENS_EI) then
+     
+     ! Initialize the errors
+     error = 0.0e0
+     
+     ! Do the first eos call with all the zones in the pipe
+     !  NOTE that eos_helm can ONLY operate in the equivalent of
+     !  MODE_DENS_TEMP, as it returns pressure, energy and derivatives only
+     !  So if you send in a crappy temperature here, you'll get a crappy starting
+     !  position and the iteration won't converge.
+     !  Initial temperature here is what is stored in the grid, even though we 
+     !    SUSPECT this is not in equilibrium (or we wouldn't be calling Eos if it was fine)
+     !  Now eos_helm has returned ptotRow, etotRow, detRow, and gamcRow
+     
+     
+     !  Create initial condition
+     
+     ewantRow   = eint   ! store desired internal energy for mode=2 case
+     if (eos_forceConstantInput) then
+        esaveRow = ewantRow
+     end if
+     !  ewantRow is our desired EI input
+     call eos_helm()
+     
+     tnew = tempRow - (etotRow - ewantRow)  & 
+          &           / detRow
+     
+     ! Don't allow the temperature to change by more than an order of magnitude 
+     ! in a single iteration
+     if (tnew .GT. 10.e0*tempRow) tnew =  & 
+          &           10.e0*tempRow
+     if (tnew .LT. 0.1e0*tempRow) tnew =  & 
+          &           0.1e0*tempRow
+     
+     ! Compute the error
+     error = abs((tnew - tempRow) / tempRow)
+     
+     ! Store the new temperature
+     tempRow = tnew
+     
+     ! Check if we are freezing, if so set the temperature to smallt, and adjust 
+     ! the error so we don't wait for this one
+     if (tempRow .LT. eos_smallt) then
+        tempRow = eos_smallt
+        error    = 0.1*eos_tol
+     endif
+     
+     do i = 2, eos_maxNewton
+        if (error< eos_tol) goto 70
+        
+        call eos_helm()
+        
+        tnew = tempRow - (etotRow - ewantRow)  & 
+             &              / detRow
+        
+        ! Don't allow the temperature to change by more than an order of magnitude 
+        ! in a single iteration
+        if (tnew .GT. 10.e0*tempRow) tnew =  & 
+             &              10.e0*tempRow
+        if (tnew .LT. 0.1e0*tempRow) tnew =  & 
+             &              0.1e0*tempRow
+        
+        ! Compute the error
+        error = abs((tnew - tempRow) / tempRow)
+        
+        ! Store the new temperature
+        tempRow = tnew
+        
+        ! Check if we are freezing, if so set the temperature to eos_smallt, and adjust 
+        ! the error so we don't wait for this one
+        if (tempRow .LT. eos_smallt) then
+           tempRow = eos_smallt
+           error    = .1*eos_tol
+        endif
+        
+     end do  ! end of Newton iterations loop.  Failure drops below, success goes to 70
+     
+     ! Land here if too many iterations are needed -- failure
+     
+     print *, ' '
+     print *, 'Newton-Raphson failed in subroutine Eos'
+     print *, '(e and rho as input):'
+     print *, ' '
+     print *, 'too many iterations', eos_maxNewton
+     print *, ' '
+     print *, ' temp = ', tempRow
+     print *, ' dens = ', denRow
+     print *, ' abar = ', abarRow
+     print *, ' zbar = ', zbarRow
+     print *, ' pres = ', ptotRow
+     print *, ' etot = ', etotRow
+     print *, ' ewant= ', ewantRow
+     
+        
+     call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
+     
+     
+     ! Land here if the Newton iteration converged
+     !  jumps out of the iterations, but then continues to the next vector location
+     
+70   continue           
+     
+     
+     ! Crank through the entire eos one last time
+     call eos_helm()
+     !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
+     temp=tempRow
+     pres=ptotRow
+     gamc=gamcRow
+     entr=stotRow
+     
+     !  Update the energy to be the true energy, instead of the energy we were trying to meet
+     !  ConstantInput LBR and KW believe this is WRONG -- the input arrays should not be changed
+     if (eos_forceConstantInput)  then
+        eint = esaveRow
+     else
+        eint = etotRow
+     end if
+     
+     !==============================================================================
+     
+     !      MODE_DENS_PRES  pressure and density given
+     
+  else if (mode==MODE_DENS_PRES) then
+     
+     error = 0.0e0
+     
+     ! Do the first eos call with all the zones in the pipe
+     
+     pwantRow = pres   ! store desired pressure for mode=3 case
+     if (eos_forceConstantInput) then
+        psaveRow = pwantRow
+     end if
+     ! Initialize the errors
+     call eos_helm()
+     
+     tnew = tempRow - (ptotRow - pwantRow)  & 
+          &           / dptRow
+     
+     ! Don't allow the temperature to change by more than an order of magnitude 
+     ! in a single iteration
+     if (tnew .GT. 10.e0*tempRow) tnew =  & 
+          &           10.e0*tempRow
+     if (tnew .LT. 0.1e0*tempRow) tnew =  & 
+          &           0.1e0*tempRow
+     
+     ! Compute the error
+     error = abs((tnew - tempRow) / tempRow)
+     
+     ! Store the new temperature
+     tempRow = tnew
+     
+     ! Check if we are freezing, if so set the temperature to smallt, and adjust 
+     ! the error so we don't wait for this one
+     if (tempRow .LT. eos_smallt) then
+        tempRow = eos_smallt
+        error    = 0.1*eos_tol
+     endif
+     
+     do i = 2, eos_maxNewton
+        
+        if (error .LT. eos_tol) goto 170
+        
+        ! do eos only over this single item
+        call eos_helm()
+        
+        tnew = tempRow - (ptotRow - pwantRow)  & 
+             &              / dptRow
+        
+        ! Don't allow the temperature to change by more than an order of magnitude 
+        ! in a single iteration
+        if (tnew .GT. 10.e0*tempRow) tnew =  & 
+             &              10.e0*tempRow
+        if (tnew .LT. 0.1e0*tempRow) tnew =  & 
+             &              0.1e0*tempRow
+        
+        ! Compute the error
+        error = abs((tnew - tempRow) / tempRow)
+        
+        ! Store the new temperature
+        tempRow = tnew
+        
+        ! Check if we are freezing, if so set the temperature to eos_smallt, and adjust 
+        ! the error so we don't wait for this one
+        if (tempRow .LT. eos_smallt) then
+           tempRow = eos_smallt
+           error    = .1*eos_tol
+        endif
+        
+     enddo
+        
+     ! Land here if too many iterations are needed
+     
+     print *, ' '
+     print *, 'Newton-Raphson failed in Helmholtz Eos:'
+     print *, '(p and rho as input)'
+     print *, ' '
+     print *, 'too many iterations'
+     print *, ' '
+     print *, ' temp = ', tempRow
+     print *, ' dens = ', denRow
+     print *, ' abar = ', abarRow
+     print *, ' zbar = ', zbarRow
+     print *, ' etot = ', etotRow
+     print *, ' pres = ', ptotRow
+     print *, ' pwant= ', pwantRow
+     
+     call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in Eos')
+     
+     
+     ! Land here if the Newton iteration converged
+     
+170  continue
+     
+     
+     ! Crank through the entire eos one last time
+     call eos_helm()
+     
+     ! Fill the FLASH arrays with the results.  
+     temp=tempRow
+     gamc=gamcRow
+     eint=etotRow
+     entr=stotRow
+     
+     ! Update the pressure to be the equilibrium pressure, instead of the pressure we were trying to meet
+     !  ConstantInput LBR and KW believe this is wrong.  See notes at the top of the routine
+     if (eos_forceConstantInput) then
+        pres = psaveRow
+     else
+        pres = ptotRow
+     end if
+     
+     
+     !==============================================================================
+     
+     ! Unknown EOS mode selected
+     
+  else if (mode .NE. MODE_EOS_NOP) then
+     if (eos_meshMe .EQ. MASTER_PE) print*, '[Eos] Error: unknown input mode', mode
+     call Driver_abort('[Eos] Error: unknown input mode in subroutine Eos')
+  end if
+     
+  ! Get the optional values
+
+  if(present(derivs)) then
+     ! Entropy derivatives
+     derivs(EOS_DST) = dstRow
+     derivs(EOS_DSD) = dsdRow
+     derivs(EOS_DPT) = dptRow
+     derivs(EOS_DPD) = dpdRow
+     derivs(EOS_DET) = detRow
+     derivs(EOS_DED) = dedRow
+     derivs(EOS_DEA) = deaRow
+     derivs(EOS_DEZ) = dezRow
+     derivs(EOS_PEL) = pelRow
+     derivs(EOS_NE) = neRow
+     derivs(EOS_ETA) = etaRow
+     derivs(EOS_DETAT) = detatRow
+     derivs(EOS_CV) = cvRow
+     derivs(EOS_CP) = cpRow
+  end if
+
+  return
+
+end subroutine eos_helmSpecies
+
+
+
+
+

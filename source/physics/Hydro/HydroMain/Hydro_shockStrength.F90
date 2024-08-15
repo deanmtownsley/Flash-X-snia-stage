@@ -52,10 +52,10 @@ subroutine Hydro_shockStrength(solnData, shock, lo,hi,loHalo,hiHalo,&
   real,intent(IN),dimension(loHalo(KAXIS):hiHalo(KAXIS)) :: thirdCoord
   real, intent(IN) :: threshold
   integer, intent(IN) :: mode
-  
-  real, dimension(MDIM,loHalo(IAXIS):hiHalo(IAXIS),&
-                  loHalo(JAXIS):hiHalo(JAXIS),&
-                  loHalo(KAXIS):hiHalo(KAXIS)) :: div_v
+
+  real, dimension(MDIM,lo(IAXIS):hi(IAXIS),&
+                  lo(JAXIS):hi(JAXIS),&
+                  lo(KAXIS):hi(KAXIS)) :: div_v
 
   real,parameter :: biggReal = 1.0e20 ! pretty big, for a shock strength
 

@@ -37,22 +37,25 @@ Module mph_evapInterface
    end interface
 
    interface
-      subroutine mph_tempGfm2d(phi, nx, ny, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, dx, dy, ix1, ix2, jy1, jy2)
+      subroutine mph_tempGfm2d(phi, nx, ny, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, dx, dy, ix1, ix2, jy1, jy2, tol)
          implicit none
          real, dimension(:, :, :), intent(inout) :: Tfrc, Tnl, Tng
          real, dimension(:, :, :), intent(in) :: phi, T, nx, ny, Tcoeff
          real, intent(in) :: Tsat, dx, dy
          integer, intent(in) :: ix1, ix2, jy1, jy2
+         real, intent(in) :: tol
       end subroutine mph_tempGfm2d
    end interface
 
    interface
-      subroutine mph_tempGfm3d(phi, nx, ny, nz, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_tempGfm3d(phi, nx, ny, nz, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, &
+                               dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, tol)
          implicit none
          real, dimension(:, :, :), intent(inout) :: Tfrc, Tnl, Tng
          real, dimension(:, :, :), intent(in) :: phi, T, nx, ny, nz, Tcoeff
          real, intent(in) :: Tsat, dx, dy, dz
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+         real, intent(in) :: tol
       end subroutine mph_tempGfm3d
    end interface
 
@@ -129,22 +132,25 @@ Module mph_evapInterface
    end interface
 
    interface
-      subroutine mph_setEvapJumps2d(phi, pf, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2)
+      subroutine mph_setEvapJumps2d(phi, pf, sigx, sigy, mflux, rhoGas, dx, dy, ix1, ix2, jy1, jy2, tol)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2
          real, intent(in) :: dx, dy, rhoGas
          real, dimension(:, :, :), intent(in) :: phi, mflux, pf
          real, dimension(:, :, :), intent(inout) :: sigx, sigy
+         real, intent(in) :: tol
       end subroutine mph_setEvapJumps2d
    end interface
 
    interface
-      subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, &
+                                    dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, tol)
          implicit none
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
          real, intent(in) :: dx, dy, dz, rhoGas
          real, dimension(:, :, :), intent(in) :: phi, mflux, pf
          real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
+         real, intent(in) :: tol
       end subroutine mph_setEvapJumps3d
    end interface
 

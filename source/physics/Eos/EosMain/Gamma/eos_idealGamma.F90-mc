@@ -1,0 +1,176 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! @brief Ideal gas gamma law EOS 
+!! 
+!! @subref{Eos}
+!!
+!!
+!! PARAMETERS
+!!
+!!     gamma        :  Ratio of specific heats for the simulated gas
+!!     eos_singleSpeciesA       :  Mass of nucleus for the simulated gas
+!!     eos_singleSpeciesZ       :  Proton number for the simulated gas
+!!
+!!
+!! NOTES
+!!
+!!
+!!  User code should not call this implementation routine directly, but
+!!  should call Eos and make sure that the desired Gamma implementation
+!!  is included in the simulation configuration.
+!!
+!!  For Gamma routines, the entropy and entropy derivatives 
+!!  calculations have not been confirmed to be correct.  Use with caution.
+!!NOVARIANTS
+
+!#ifdef DEBUG_ALL
+#define DEBUG_EOS
+!#endif
+
+#include "constants.h"
+#include "Eos.h"
+#include "Simulation.h"
+  
+
+subroutine eos_idealGamma(mode, @M eos_args, massFrac, derivs)
+  
+  !==============================================================================
+  use Eos_data, ONLY : eos_gasConstant, eos_gamma, &
+       eos_singleSpeciesA, eos_singleSpeciesZ
+  use eos_idealGammaData, ONLY: eos_gammam1
+  use Driver_interface, ONLY : Driver_abort
+  
+  
+  implicit none
+  
+  !     Arguments
+  integer, INTENT(in) :: mode
+  real,INTENT(inout) :: @M eos_args
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+  real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  
+  real ::  ggprod, ggprodinv, gam1inv
+  integer ::  dst, dsd
+  integer :: dpt, dpd, det, ded, c_v, c_p, pel, ne, eta
+  integer :: i, ilo,ihi
+  
+  ggprod = eos_gammam1 * eos_gasConstant
+  
+  !============================================================================
+  
+  
+  
+  !!NOTE  But for NSPECIES = 1, abar is NOT just 1.
+  !!NOTE The Flash2 routines initialize a fake "fluid"
+  !!NOTE with properties A=1, Z=1, and Eb=1.  Therefore flash2 can
+  !!NOTE  always call the equivalent of Multispecies_getSumInV and it
+  !!NOTE returns a default number.   In FLASH3, the decision has been made
+  !!NOTE that Eos/Gamma cannot be run with more than one fluid.
+  
+  gamc = eos_gamma
+  abar = eos_singleSpeciesA
+  zbar = eos_singleSpeciesZ    
+  
+  
+  ! density, temperature taken as input
+  if (mode == MODE_DENS_TEMP) then
+     
+     pres = eos_gasConstant*dens * &
+          temp / abar
+     eint = ggprod * temp &
+          / abar
+     entr = (pres/dens +  &
+          &  eint)/temp
+     
+     
+     ! density, internal energy taken as input
+  elseif (mode == MODE_DENS_EI) then
+     
+     ggprodinv = 1. / ggprod
+     gam1inv   = 1. / eos_gammam1
+     pres = dens * &
+          eint * gam1inv
+     temp = eint * ggprodinv * &
+          abar
+     entr = (pres/dens +  &
+          &  eint)/temp
+     
+     
+     ! density, pressure taken as input
+  elseif (mode == MODE_DENS_PRES) then
+     
+     ggprodinv = 1. / ggprod
+     gam1inv   = 1. / eos_gammam1
+     eint = pres * eos_gammam1 / &
+          dens
+     temp = eint * ggprodinv * &
+          abar
+     entr = (pres/dens +  &
+          &  eint)/temp
+     
+     ! unrecognized value for mode
+  else 
+     call Driver_abort("[Eos] Unrecognized input mode given to Eos")
+  endif
+  
+  
+  if(present(derivs)) then
+     derivs(EOS_DPT) = eos_gasConstant*dens / abar
+     derivs(EOS_DPD) = eos_gasConstant*temp / abar
+     derivs(EOS_DET) = ggprod / abar
+     derivs(EOS_DED) = 0.
+     ! Entropy derivatives   
+     derivs(EOS_DST) = ( (derivs(EOS_DPT)  / dens + derivs(EOS_DET)) -&
+          &                      (pres/ dens + eint)/ &
+          &                      temp ) / temp
+     derivs(EOS_DSD) = &
+          ( ((derivs(EOS_DPD) - pres/dens) / &
+          &          dens) + derivs(EOS_DED)) / temp
+     
+     
+     derivs(EOS_PEL) = 0.
+     derivs(EOS_NE) = 0.
+     derivs(EOS_ETA) = 0.
+     derivs(EOS_CV) = derivs(EOS_DET)
+     derivs(EOS_CP) = eos_gamma*derivs(EOS_CV)
+     
+#ifdef EOS_CVELE
+     derivs(EOS_CV) = derivs(EOS_DET) * &
+          zbar / (zbar + 1)
+#endif
+  end if
+  
+  
+  return
+end subroutine eos_idealGamma
+
+!! FOR FUTURE  : This section is not in use in FLASH 3 yet. none
+!! of the current setups use entropy. This will be taken care of 
+!! in future releases
+
+!!..no matter what the input mode compute the entropy
+!!..ignore the -chemical_potential*number_density part for now
+!!$  dens_inv = 1.0e0/derivs(dens+ilo:+ihi)
+!!$  temp_inv = 1.0e0/derivs(temp+ilo:+ihi)
+!!$  stot     = (pres*dens_inv + derivs(eint+ilo:+ihi))*temp_inv 
+!!$  dstotdd  = (derivs(EOS_DPD)*dens_inv - pres*dens_inv*dens_inv + derivs(EOS_DED))*temp_inv
+!!$  dstotdt  = (derivs(EOS_DPT)*dens_inv + derivs(EOS_DET))*temp_inv  - (pres*dens_inv + derivs(eint+ilo:+ihi)) * temp_inv*temp_inv 
+!!$  
+
+
+
+

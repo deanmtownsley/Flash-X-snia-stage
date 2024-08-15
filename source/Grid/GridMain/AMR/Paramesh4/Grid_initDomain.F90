@@ -165,7 +165,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
 !!     call gr_checkGridConsistency()
 #endif
 
-      ! We used to call Eos_wrapped here, both before and after the
+      ! We used to call Eos_multiDim here, both before and after the
       ! guardcell filling.  Not any more, since those calls may
       ! (depending on the Eos implementation) introduce small
       ! data differences.

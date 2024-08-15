@@ -1,0 +1,80 @@
+##python3:genLines
+
+def genLines(setupvars):
+    # This is not yet under official testing and its functionality is presently
+    # limited to pseudo-UG.  Also, the interfaces will go through serious
+    # changes.
+    yield 'UNOFFICIAL'
+
+    yield 'PPDEFINE FLASHX_ORCHESTRATION_MILHOJA'
+    yield 'LIBRARY milhoja'  # Milhoja for Orchestration
+
+    # No need for 'LIBRARY milhoja_*' here since the Milhoja Grid implementation should
+    # already declare that if it needs it
+
+    # We like the Grid setup variable to exist, but currently do not really need it here
+
+    yield 'D or_nBytesInCpuMemoryPool   N bytes in CPU memory pool'
+    yield 'D or_nThreadTeams            N thread teams to create'
+    yield 'D or_nThreadsPerTeam         N threads that each team has available upon creation'
+    # This should be an integer.  However, normal values will likely exceed a
+    # 32-bit integer.  Therefore, set as a real and let the unit implementation
+    # cast to an appropriately-sized integer.
+    yield 'PARAMETER or_nBytesInCpuMemoryPool  REAL    0.0 [ 0.0 ... ]'
+    yield 'PARAMETER or_nThreadTeams           INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreadsPerTeam        INTEGER 1   [ 1 ... ]'
+
+    yield 'D or_nThreads_[#]            N threads for #th Orchestration'
+    yield 'PARAMETER or_nThreads_1      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreads_2      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreads_3      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreads_4      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nThreads_5      INTEGER 1   [ 1 ... ]'
+
+    yield 'D or_nTilesPerPacket_[#]            N tile per DataPacket for #th Orchestration'
+    yield 'PARAMETER or_nTilesPerPacket_1      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerPacket_2      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerPacket_3      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerPacket_4      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerPacket_5      INTEGER 1   [ 1 ... ]'
+
+    # Users must specify runtime variant
+    #   - (grid backend, runtime backend, offloading)
+    #   - assume that the Milhoja Grid implementation gets "grid backend" independently
+    if 'Milhoja' not in setupvars:
+        yield 'SETUPERROR Milhoja setup variable not set'
+    milhoja = [e.lower() for e in setupvars['Milhoja'].split(',')]
+    if len(milhoja) != 3:
+        yield 'SETUPERROR Invalid N Milhoja specification values'
+    _, runtime_backend, offload = milhoja
+
+    if   runtime_backend == 'none':
+        pass
+    elif runtime_backend in ['cuda','gengpu','hostmem','openmp','openacc']:
+        # To be fleshed out: gengpu, openmp, openacc as runtime backends
+        if (runtime_backend == 'cuda'):
+            yield 'LIBRARY CUDA'
+        if (runtime_backend == 'cuda' or runtime_backend == 'gengpu'):
+            yield 'PPDEFINE ORCHESTRATION_USE_GPUS'
+        if (runtime_backend == 'hostmem'):
+            yield 'PPDEFINE ORCHESTRATION_USE_HOSTMEM'
+
+        yield 'PPDEFINE ORCHESTRATION_USE_DATAPACKETS'
+        yield 'D or_nStreams                N streams for coordinating data transfers and kernel launches'
+        yield 'D or_nBytesInGpuMemoryPools  N bytes in GPU-oriented memory pools (e.g., pinned & GPU)'
+        yield 'PARAMETER or_nStreams            INTEGER 0   [ 0 ... ]'
+        # This should be an integer.  However, normal values will likely exceed a 32-bit
+        # integer.  Therefore, set as a real and let the unit implementation cast
+        # to an appropriately-sized integer.
+        yield 'PARAMETER or_nBytesInGpuMemoryPools REAL    0.0 [ 0.0 ... ]'
+    else:
+        yield f'SETUPERROR Invalid Milhoja runtime backend {runtime_backend}'
+
+    if   offload == 'none':
+        pass
+    elif offload == 'openacc':
+        yield 'LIBRARY OACC'
+        yield 'PPDEFINE ORCHESTRATION_OPENACC_OFFLOAD'
+    else:
+        yield f'SETUPERROR Invalid Milhoja computation offloading {offload}'
+

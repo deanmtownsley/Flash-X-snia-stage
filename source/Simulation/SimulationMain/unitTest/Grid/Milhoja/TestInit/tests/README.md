@@ -24,16 +24,16 @@ This test has been verified to function correctly on GCE/compute-12 with the Int
 ```
 # The following test used to be configured with -debug.
 UnitTest/Grid/AMR/Milhoja/1D/TestInit:
-  setupOptions: -auto  -1d -nxb=8 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  setupOptions: -auto  -1d -nxb=8 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja
   parfiles: test_milhoja_grid.par
 
 # The following test used to be configured with -debug.
 UnitTest/Grid/AMR/Milhoja/2D/TestInit:
-  setupOptions: -auto  -2d -nxb=8 -nyb=4 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  setupOptions: -auto  -2d -nxb=8 -nyb=4 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja
   parfiles: test_milhoja_grid.par
 
 # The following test used to be configured with -debug.
 UnitTest/Grid/AMR/Milhoja/3D/TestInit:
-  setupOptions: -auto  -3d -nxb=8 -nyb=4 -nzb=2 +noio --with-unofficial=Grid/GridMain/AMR/Milhoja
+  setupOptions: -auto  -3d -nxb=8 -nyb=4 -nzb=2 +noio Milhoja=AMReX --with-unofficial=Grid/GridMain/AMR/Milhoja
   parfiles: test_milhoja_grid.par
 ```

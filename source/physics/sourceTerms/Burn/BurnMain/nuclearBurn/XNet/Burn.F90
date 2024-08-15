@@ -68,7 +68,7 @@ subroutine Burn (  dt  )
        &   bn_useBurn, bn_gcMaskSD, xmass
   use Burn_dataEOS, only: ytot1, bye
   use Driver_interface, ONLY : Driver_abort
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getCellCoords, &
        Grid_getTileIterator, Grid_releaseTileIterator
   use Logfile_interface, ONLY : Logfile_stampVarMask
@@ -415,11 +415,7 @@ subroutine Burn (  dt  )
      ! we've altered the EI, let's equilabrate
      if (any(burnedZone(:,:,:,thisBlock))) then
 
-#ifdef FLASH_UHD_3T
-        call Eos_wrapped(MODE_DENS_EI_GATHER,tileDesc%limits,solnData,CENTER) ! modified for 3T
-#else
-        call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,solnData,CENTER)
-#endif
+        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
 
      end if
 

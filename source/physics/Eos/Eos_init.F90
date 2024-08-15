@@ -1,47 +1,31 @@
-!!****f* source/physics/Eos/Eos_init
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! NAME
+!! @file
+!! @brief Eos_init stub
+
+!> @ingroup physics_Eos
 !!
-!!  Eos_init
+!! @brief Initialize the Eos unit
 !!
-!! 
-!! SYNOPSIS
+!! @details
+!! @anchor Eos_init_stub
 !!
-!!  call Eos_init()
-!!
-!! DESCRIPTION
-!!
-!!  This routine initializes various scalars needed
+!! This procedure must be called once and only once during startup. Tasks
+!! performed by this procedure will include initializationi of various scalars needed
 !!  by the EOS unit from the runtime parameters and physical
-!!  constants facilities
-!!
-!! ARGUMENTS
-!!
-!!  none
-!!
-!! PARAMETERS
-!!  
-!!   Particular implementations (Gamma,Helmholz,etc) of the unit
-!!   define their own runtime parameters.
-!!
-!!   To see the default parameter values and all the runtime parameters
-!!   specific to your simulation check the "setup_params" file in your
-!!   object directory. You might overwrite these values with the 
-!!   flash.par values for your specific run.  
-!!
-!!
-!!***
+!!  constants f A call to this procedure must be matched by
+!! a call to @ref Eos_finalize
 
 
 subroutine Eos_init()

@@ -1,0 +1,86 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! @brief  Main driver routine for the weaklib EOS.
+!!  It is called by Eos.F90. 
+!!  Call eos_weaklib_short() to do the interpolation.
+!!
+!! AUTHOR & DATE 
+!!   R. Chu, Dept. Phys. & Astronomy
+!!   U. Tennesee, Knoxville
+!!   10/17/2018
+!!
+
+!!NOVARIANTS
+
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
+
+
+SUBROUTINE eos_weaklib(mode,vecLen,eosData, massFrac,derivs)
+
+  USE Driver_interface, ONLY : Driver_abort
+  USE eos_weaklib_inter, ONLY: eos_weaklib_short
+
+  IMPLICIT NONE
+
+  !     Arguments
+  INTEGER, INTENT(in) :: mode, vecLen
+  REAL, INTENT(inout), DIMENSION(vecLen,EOS_VARS) :: eosData
+  REAL, OPTIONAL,INTENT(in), DIMENSION(vecLen,NSPECIES) :: massFrac
+  real,OPTIONAL, DIMENSION(vecLen, EOS_VARS+1:EOS_NUM),INTENT(in)::derivs
+
+  REAL, DIMENSION(vecLen) :: xCs2, xA, xZ
+  INTEGER :: xMode, err
+
+  err = 0
+
+  SELECT CASE(mode)
+    CASE(MODE_DENS_EI)
+       xMode = 0
+    CASE(MODE_DENS_TEMP)
+       xMode = 1
+    CASE(MODE_DENS_ENTR)
+       xMode = 2
+    CASE(MODE_DENS_PRES)
+       xMode = 4
+    CASE default
+       CALL Driver_abort&
+               ('[Eos] Error: unsupported mode for Nuclear Eos')
+  END SELECT
+
+
+  IF( MAXVAL(eosData(:,EOS_DENS)) < TINY(1.d0) ) THEN
+    PRINT*, ' eos_weaklib.F90 line 90 : dens = zero '
+    PRINT*, ' MAXVAL(eosData(:,EOS_DENS)) ', MAXVAL(eosData(:,EOS_DENS)), 'MINVAL(eosData(:,EOS_DENS)) ',MINVAL(eosData(:,EOS_DENS)) 
+    CALL Driver_abort("[EOS] problem with weaklib EOS")
+  END IF
+
+  CALL eos_weaklib_short&
+       ( eosData(:,EOS_DENS),eosData(:,EOS_TEMP),eosData(:,EOS_YE),eosData(:,EOS_EINT),&
+       eosData(:,EOS_PRES),eosData(:,EOS_ENTR),eosData(:,EOS_GAMC),xMode,err )
+
+      IF (err /= 0) THEN
+        PRINT*,"ERROR: Printing from eos_weaklib.f90 line 119, inside routine eos_weaklib"
+        CALL Driver_abort("[EOS] problem with weaklib EOS")
+      ENDIF
+
+  RETURN
+
+END SUBROUTINE eos_weaklib
+
+

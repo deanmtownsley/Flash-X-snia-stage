@@ -1,0 +1,88 @@
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief eos_localInterface
+
+!> @ingroup physics_Eos
+!!
+!! This file defines the internal interfaces for the Eos unit
+!!
+!!NOVARIANTS
+
+module eos_localInterface
+  implicit none
+#include "Eos.h"
+#include "Simulation.h"
+
+
+  interface
+     subroutine eos_weaklib(mode, vecLen, eosData,  massFrac, derivs)
+       integer, INTENT(in) :: mode, vecLen
+       real,INTENT(inout),dimension(vecLen,EOS_VARS) :: eosData 
+       real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
+       real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
+     end subroutine eos_weaklib
+  end interface
+
+
+  interface
+     subroutine eos_idealGamma(mode, @M eos_args , massFrac, derivs)
+       implicit none
+       integer, INTENT(in) :: mode
+       real,INTENT(inout) :: @M eos_args 
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+     end subroutine eos_idealGamma
+  end interface
+ 
+  interface
+     subroutine eos_helmSpecies(mode, @M eos_args , massFrac, derivs)
+       integer, INTENT(in) :: mode
+       real,INTENT(inout) :: @M eos_args 
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+     end subroutine eos_helmSpecies
+  end interface
+
+  
+  interface 
+     subroutine eos_idealGammaInit()
+     end subroutine eos_idealGammaInit
+  end interface
+
+  interface 
+     subroutine eos_helmSpeciesInit()
+     end subroutine eos_helmSpeciesInit
+  end interface
+
+
+  interface
+     subroutine eos_weaklibInit()
+     end subroutine eos_weaklibInit
+  end interface
+
+  interface
+     subroutine eos_hybridInit()
+     end subroutine eos_hybridInit
+  end interface
+
+  interface 
+     subroutine eos_externalComputeAbarZbar(solnScalars, abarData, zbarData)
+       implicit none
+       real, dimension(:,:), intent(in) :: solnScalars
+       real, dimension(:), intent(out)  :: abarData, zbarData
+     end subroutine eos_externalComputeAbarZbar
+  end interface
+
+end module eos_localInterface

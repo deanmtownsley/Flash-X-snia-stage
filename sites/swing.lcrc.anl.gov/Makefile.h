@@ -13,6 +13,9 @@ HDF5_PATH  = ${FLASHX_HDF5_DIR}
 HYPRE_PATH = ${FLASHX_HYPRE_DIR}
 CUDA_PATH  = ${CUDA_HOME}
 
+MILHOJA_VERSION = 4a2671f0
+MILHOJA_PATH = ${FLASHX_MILHOJA_DIR}/${MILHOJA_VERSION}/${NDIM}d
+
 
 #----------------------------------------------------------------------------
 # Compiler and linker commands
@@ -26,9 +29,9 @@ CUDA_PATH  = ${CUDA_HOME}
 
 FCOMP   = mpifort
 CCOMP   = mpicc
-CPPCOMP = mpicxx -std=c++14
+CPPCOMP = mpicxx -std=c++17
 CUCOMP  = nvcc
-LINK    = mpifort
+LINK    = mpifort -lmpi_cxx
 
 # pre-processor flag
 MDEFS =
@@ -47,13 +50,17 @@ PP    = -D
 #----------------------------------------------------------------------------
 
 OPENMP = -mp
-OMP_CUDA = -Minfo=accel,mp -gpu=cc80
+OMP_CUDA = -Minfo=accel,mp -gpu=cc80,cuda11.6,ptxinfo
 
 FFLAGS_AMREX = -I${AMREX_PATH}/include
 FFLAGS_HDF5  = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
 FFLAGS_CUDA  = -I${CUDA_PATH}/include
 FFLAGS_OMP_OL= -mp=gpu ${OMP_CUDA}
+FFLAGS_OACC = -acc=gpu ${OMP_CUDA}
+FFLAGS_MILHOJA = -I${MILHOJA_PATH}/include -Mrecursive
+FFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include -Mrecursive ${FFLAGS_AMREX}
+
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -73,6 +80,10 @@ CFLAGS_HDF5  = -I$(HDF5_PATH)/include ${PP}H5_USE_18_API
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
 CFLAGS_CUDA  = -I${CUDA_PATH}/include
 CFLAGS_OMP_OL= -mp=gpu ${OMP_CUDA}
+CFLAGS_OACC = -acc=gpu ${OMP_CUDA}
+CFLAGS_MILHOJA = -I${MILHOJA_PATH}/include
+CFLAGS_MILHOJA_AMREX = -I${MILHOJA_PATH}/include ${CFLAGS_AMREX}
+
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -107,8 +118,12 @@ LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lstdc++
 LIB_HDF5  = -L${HDF5_PATH}/lib -rpath=${HDF5_PATH}/lib -lhdf5 ${PP}H5_USE_18_API
 LIB_MATH  = ${LIB_ESSL}
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
-LIB_CUDA  = -cudalib=cusparse,cusolver,cublas
+LIB_CUDA  = -lcudart -cudalib=cusparse,cusolver,cublas
 LIB_OMP_OL= -mp=gpu ${OMP_CUDA}
+LIB_OACC = -acc=gpu ${OMP_CUDA}
+LIB_MILHOJA = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread
+LIB_MILHOJA_AMREX = -L${MILHOJA_PATH}/lib -lmilhoja -lpthread ${LIB_AMREX}
+
 
 LIB_OPT   = -pgc++libs
 LIB_DEBUG = -pgc++libs

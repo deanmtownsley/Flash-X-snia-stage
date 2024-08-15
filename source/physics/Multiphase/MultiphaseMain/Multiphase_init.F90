@@ -31,7 +31,7 @@ subroutine Multiphase_init(restart)
    use Multiphase_data
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
    use Driver_interface, ONLY: Driver_getMype, Driver_getNumProcs, &
-                               Driver_getComm
+                               Driver_getComm, Driver_abort
    use mph_interface, ONLY: mph_init
    use mph_evapInterface, ONLY: mph_evapInit
    use IncompNS_interface, ONLY: IncompNS_getGridVar, IncompNS_getScalarProp
@@ -67,11 +67,21 @@ subroutine Multiphase_init(restart)
    call RuntimeParameters_get("mph_extpIt", mph_extpIt)
    call RuntimeParameters_get("mph_iPropSmear", mph_iPropSmear)
    call RuntimeParameters_get("ins_invReynolds", mph_invReynolds)
+   call RuntimeParameters_get("mph_presTol", mph_presTol)
+   call RuntimeParameters_get("mph_tempTol", mph_tempTol)
 
    mph_Prandtl = 1.
 
    call RuntimeParameters_get("useHeatAD", useHeatAD)
    if (useHeatAD) call RuntimeParameters_get("ht_Prandtl", mph_Prandtl)
+
+   if (mph_presTol .lt. 0 .and. mph_presTol .gt. 0.1) then
+       call Driver_abort("mph_presTol should be > 0 and < 0.1")
+   end if
+
+   if (mph_tempTol .lt. 0 .and. mph_tempTol .gt. 0.1) then
+       call Driver_abort("mph_tempTol should be > 0 and < 0.1")
+   end if
 
    if (mph_meshMe .eq. MASTER_PE) then
       write (*, *) 'mph_rhoGas=', mph_rhoGas
@@ -86,6 +96,8 @@ subroutine Multiphase_init(restart)
       write (*, *) 'mph_extpIt=', mph_extpIt
       write (*, *) 'mph_invReynolds=', mph_invReynolds
       write (*, *) 'mph_Prandtl=', mph_Prandtl
+      write (*, *) 'mph_presTol=', mph_presTol
+      write (*, *) 'mph_tempTol=', mph_tempTol
    end if
 
    call IncompNS_getGridVar('Face_Velocity', mph_iVelFVar)

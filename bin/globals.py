@@ -89,9 +89,19 @@ gridPrefix = "Grid/GridMain"
 gridChoices = ["UG","AMR","Samrai","Chombo"]
 simulationPrefix = "Simulation/SimulationMain"
 
+# unit keywords for load unit specific modules and enforcing
+# tomlfile design. New units should be registered here.
+UNIT_KEYWORDS = ["Eos","Hydro","Inlet","Outlet","Simulation","Grid",
+                 "Driver","IncompNS","HeatAD","Multiphase","Hydro",
+                 "SolidMechanics","ImBound","Gravity","RadTrans",
+                 "Spacetime","TimeAdvance","IO","Particles",
+                 "PhysicalConstants","Logfile","Timers","Profiler",
+                 "Burn","Deleptonize","Orchestration","Heater"]
+
 ######## Class for SetupError Exception
 class SetupError(Exception):
-    pass
+    def __init__(self, message):
+        super().__init__(message+"\nERROR")
 
 ####### Pretty printing class
 class IndentedOutput:
@@ -254,6 +264,9 @@ class GVarsClass:
     eosStaticList = ['PRES','DENS','EINT','TEMP','GAMC','GAME','ENER','VELX','VELY','VELZ','SUMY','YE','ENTR','PRES1','PRES2','PRES3','EINT1','EINT2','EINT3','TEMP1','TEMP2','TEMP3','E1','E2','E3','SELE','SRAD']
     strEos = ''.join([x.lower()+'|'+x.upper()+'|' for x in eosStaticList])[:-1]
     macroOnly = False
+    tomlfile = None
+    tomlDict = {}
+    withUnitMods = False
 
     def init(self,flashHomeDir):
         self.flashHomeDir = flashHomeDir

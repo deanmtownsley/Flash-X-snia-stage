@@ -57,6 +57,7 @@ Module Hydro_data
   integer, save :: hy_geometry, hy_limiter, hy_irenorm
   integer, save :: hy_unsplitEosMode = MODE_DENS_EI
   integer, save :: hy_EosModeAfter = MODE_DENS_EI
+  integer, save :: hy_eosModeGc = MODE_DENS_EI
   integer, save :: hy_RiemannSolver,hy_RiemannSolverLoc, hy_entropyFixMethod
   integer, parameter :: hy_numXN = NSPECIES+NMASS_SCALARS
 

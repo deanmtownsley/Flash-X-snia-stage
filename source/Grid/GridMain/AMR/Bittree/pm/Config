@@ -1,0 +1,11 @@
+LIBRARY STDCXX
+PPDEFINE BITTREE
+
+REQUIRES ./c_source
+
+
+D gr_btDistributedSort If both gr_btSortByWork and gr_btCustomWork are True,
+D & controls behavior of the sorting algorithm. True = Uses less local
+D & storage but increases communication. False (default) = Uses less
+D & communication but high memory consumption.
+PARAMETER gr_btDistributedSort BOOLEAN False

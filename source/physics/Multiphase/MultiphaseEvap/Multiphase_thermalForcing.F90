@@ -58,7 +58,7 @@ subroutine Multiphase_thermalForcing(tileDesc)
                       mph_Tsat, &
                       del(DIR_X), del(DIR_Y), &
                       GRID_ILO_GC, GRID_IHI_GC, &
-                      GRID_JLO_GC, GRID_JHI_GC)
+                      GRID_JLO_GC, GRID_JHI_GC, tol=mph_tempTol)
 
 #else
 
@@ -75,7 +75,7 @@ subroutine Multiphase_thermalForcing(tileDesc)
                       del(DIR_X), del(DIR_Y), del(DIR_Z), &
                       GRID_ILO_GC, GRID_IHI_GC, &
                       GRID_JLO_GC, GRID_JHI_GC, &
-                      GRID_KLO_GC, GRID_KHI_GC)
+                      GRID_KLO_GC, GRID_KHI_GC, tol=mph_tempTol)
 
 #endif
 

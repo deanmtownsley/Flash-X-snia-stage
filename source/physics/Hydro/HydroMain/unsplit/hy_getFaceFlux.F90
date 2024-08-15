@@ -1257,29 +1257,27 @@ contains
     real, intent(IN) :: t_start
     real, OPTIONAL, dimension(:), intent(IN) :: spc !dimension(HY_NSPEC)
 
-    real, dimension(EOS_NUM) :: eosData
+    real :: pres, temp, dens, gamc, eint, entr, abar, zbar, ye
     integer :: interp_eosMode = MODE_DENS_PRES
 
-    eosData(EOS_DENS) = V(HY_DENS) 
-    eosData(EOS_PRES) = V(HY_PRES)
-    eosData(EOS_EINT) = V(HY_EINT)
-    eosData(EOS_GAMC) = V(HY_GAMC)
+    dens = V(HY_DENS) 
+    pres = V(HY_PRES)
+    eint = V(HY_EINT)
+    gamc = V(HY_GAMC)
     ! initial guess using the previous time step temp
-    eosData(EOS_TEMP) = t_start
+    temp = t_start
 
     if (present(spc)) then
-       call Eos_getAbarZbarArraySection(SPECIES_BEGIN,spc,&
-            abar=eosData(EOS_ABAR),&
-            zbar=eosData(EOS_ZBAR))
-       call Eos(interp_eosMode,1,eosData,spc(1:NSPECIES))
+       call Eos_getAbarZbarArraySection(SPECIES_BEGIN,spc,abar,zbar)
+       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar, ye, massFrac=spc)
     else 
-       call Eos(interp_eosMode,1,eosData)
+       call Eos(interp_eosMode,pres, temp, dens, gamc, eint, entr, abar, zbar, ye)
     end if
 
-    V(HY_GAMC) = eosData(EOS_GAMC)
-    V(HY_EINT) = eosData(EOS_EINT)
-    V(HY_GAME) = 1.+eosData(EOS_PRES)/(eosData(EOS_DENS)*eosData(EOS_EINT)) ! game
-    V(HY_PRES) = eosData(EOS_PRES)
+    V(HY_GAMC) = gamc
+    V(HY_EINT) = eint
+    V(HY_GAME) = 1.+pres/(dens*eint) ! game
+    V(HY_PRES) = pres
 
   end subroutine faceStatesEOS
 

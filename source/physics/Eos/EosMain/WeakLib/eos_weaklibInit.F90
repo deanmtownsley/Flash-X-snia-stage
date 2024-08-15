@@ -1,37 +1,28 @@
-!!****if* source/physics/Eos/EosMain/WeakLib/eos_weaklibInit
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
 !!
-!!  Licensed under the Apache License, Version 2.0 (the "License");
-!!  you may not use this file except in compliance with the License.
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
 !!
-!!  Unless required by applicable law or agreed to in writing, software
-!!  distributed under the License is distributed on an "AS IS" BASIS,
-!!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-!!  See the License for the specific language governing permissions and
-!!  limitations under the License.
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
 !!
-!! AUTHOR & DATE 
-!!   R. Chu, Dept. Phys. & Astronomy
-!!   U. Tennesee, Knoxville
-!!   10/17/2018
+!! @file
+!> @ingroup physics_Eos
 !!
-!! DESCRIPTION
+!! @brief Initialization for the WeakLib EOS appropriate for 
+!!        core-collapse supernova simulations. Read-in WeakLib Eos 
+!!        table fully from a hdf5 file into EosOldTable and compress it 
+!!        into a new Eos table EosNewTable for FLASH.
 !!
-!!  Initialization for the WeakLib EOS appropriate for 
-!!  core-collapse supernova simulations. Read-in WeakLib Eos 
-!!  table fully from a hdf5 file into EosOldTable and compress it 
-!!  into a new Eos table EosNewTable for FLASH.
-!!
-!! ARGUMENTS
-!!
-!! NOTES
-!!
-!!***
 
 SUBROUTINE eos_weaklibInit()
 
-  USE Eos_data, ONLY:                     &
+  USE eos_data, ONLY:                     &
       eos_type,                           &
       eos_meshMe,                         &
       eos_meshComm

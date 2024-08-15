@@ -43,7 +43,7 @@ class LinkFileList:
     # extensions of files are never deleted (unless the source is deleted)
     self.derExt = [".o",".mod"]
     # precedence for extensions in each group
-    groups = [['.f90', '.F90', '.f', '.c', '.F', '.C', '.cxx', '.cu'], '.py', '.fh', ['.h','.hxx']]
+    groups = [['.f90', '.F90', '.f', '.c', '.F', '.C', '.cxx', '.cu'], '.py', '.fh', '.finc', ['.h','.hxx']]
     #put extensions that aren't grouped into a one-item list (save typing)
     self.groupdict = {} # dictionary mapping an extension to list of related extensions
     self.exts = []

@@ -293,21 +293,21 @@ Module Stencils_interface
   end interface
 
   interface
-    subroutine Stencils_lsCurvature2d(crv, phi, dx, dy, ix1, ix2, jy1, jy2)
+    subroutine Stencils_lsCurvature2d(crv, phi, nrmx, nrmy, dx, dy, ix1, ix2, jy1, jy2)
     implicit none
     integer, intent(in) :: ix1, ix2, jy1, jy2
     real, intent(in) :: dx, dy
-    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(in) :: phi, nrmx, nrmy
     real, dimension(:, :, :), intent(inout) :: crv
   end subroutine Stencils_lsCurvature2d
  end interface
 
   interface
-    subroutine Stencils_lsCurvature3d(crv, phi, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+    subroutine Stencils_lsCurvature3d(crv, phi, nrmx, nrmy, nrmz, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
     implicit none
     integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
     real, intent(in) :: dx, dy, dz
-    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(in) :: phi, nrmx, nrmy, nrmz
     real, dimension(:, :, :), intent(inout) :: crv
   end subroutine Stencils_lsCurvature3d
  end interface

@@ -45,7 +45,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
        Grid_getCellCoords, Grid_getDeltas, &
        Grid_getGeometry
-  use Eos_interface, ONLY : Eos_wrapped, Eos_getAbarZbar, Eos
+  use Eos_interface, ONLY : Eos_multiDim, Eos_getAbarZbar, Eos
   use Multispecies_interface, ONLY : Multispecies_getSumFrac,  Multispecies_getSumInv
 
   use Simulation_data

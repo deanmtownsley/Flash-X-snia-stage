@@ -59,7 +59,7 @@ subroutine Grid_initDomain(restart,particlesInitialized)
                               gr_postinterpolationWork
   use amrex_fillpatch_module,    ONLY : amrex_fillpatch
 
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Grid_data,            ONLY : gr_doFluxCorrection
   use gr_physicalMultifabs, ONLY : unk, &
                                    gr_scratchCtr, &

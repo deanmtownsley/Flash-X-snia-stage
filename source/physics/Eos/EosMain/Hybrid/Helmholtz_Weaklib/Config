@@ -2,7 +2,7 @@
 #  [physics/Eos/EosMain/hybrid/Helmholtz_WeakLib]
 
 REQUIRES physics/Eos/EosMain/WeakLib
-REQUIRES physics/Eos/EosMain/Helmholtz/Ye
+REQUIRES physics/Eos/EosMain/Helmholtz
 
 PPDEFINE EOS_HELMWL
 

@@ -44,7 +44,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   use Driver_interface, ONLY : Driver_abort
   use Grid_tile, ONLY : Grid_tile_t
   use Grid_interface, ONLY : Grid_getCellCoords, Grid_coordTransfm
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
 
   use RadiationFieldsModule, ONLY : iCR_N, iCR_G1, iCR_G2, iCR_G3
   use KindModule, ONLY : DP, Zero, One, Three, TwoPi

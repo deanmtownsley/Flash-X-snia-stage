@@ -47,7 +47,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
   real,intent(IN) :: dt,time
   logical,intent(IN) :: dotiling
   
-  @M iter_declare(blkLimits,blkLimitsGC,grownLimits)
+  @M iter_declare(blkLimits,blkLimitsGC,grownLimits,Uin)
   integer,dimension(MDIM)  :: dimSize
   real,allocatable, dimension(:) :: xCenter, yCenter, zCenter
 
@@ -99,7 +99,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
 
   !$omp do schedule(static) 
   nullify(Uin)
-  @M iter_all_begin(LEAF,dotiling,blkLimits,blkLimitsGC)
+  @M iter_all_begin(LEAF,dotiling,blkLimits,blkLimitsGC,grownLimits,Uin)
 
      imin = blkLimits(LOW,IAXIS)
      imax = blkLimits(HIGH,IAXIS)
@@ -165,7 +165,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
      deallocate(velEsc)
      deallocate(sndSpd)
      deallocate(factor)
-  @M iter_end   
+  @M iter_end(Uin)   
   !$omp enddo
   !$omp end parallel
 

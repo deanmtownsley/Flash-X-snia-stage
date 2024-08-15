@@ -103,6 +103,8 @@ subroutine Multiphase_setFluidProps(tileDesc)
 
    call Stencils_lsCurvature2d(solnData(CURV_VAR, :, :, :), &
                                solnData(RHOC_VAR, :, :, :), &
+                               solnData(NRMX_VAR, :, :, :), &
+                               solnData(NRMY_VAR, :, :, :), &
                                del(DIR_X), del(DIR_Y), &
                                GRID_ILO_GC, GRID_IHI_GC, &
                                GRID_JLO_GC, GRID_JHI_GC)
@@ -129,6 +131,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
 
    call Stencils_lsCurvature3d(solnData(CURV_VAR, :, :, :), &
                                solnData(RHOC_VAR, :, :, :), &
+                               solnData(NRMX_VAR, :, :, :), &
+                               solnData(NRMY_VAR, :, :, :), &
+                               solnData(NRMZ_VAR, :, :, :), &
                                del(DIR_X), del(DIR_Y), del(DIR_Z), &
                                GRID_ILO_GC, GRID_IHI_GC, &
                                GRID_JLO_GC, GRID_JHI_GC, &

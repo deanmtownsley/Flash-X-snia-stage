@@ -112,7 +112,12 @@ PARAMETER amrexInterpolator STRING "CELL_CONSERVATIVE_LINEAR"
 D amrexFaceInterpolator Name of AMReX face interpolator to use
 PARAMETER amrexFaceInterpolator STRING "FACE_LINEAR"
 
+USESETUPVARS Bittree
 D amrexUseBittree Parameter for AMReX mode with Bittree
-PARAMETER gr_amrexUseBittree BOOLEAN FALSE
+IF Bittree
+  PARAMETER gr_amrexUseBittree BOOLEAN TRUE
+ELSE
+  PARAMETER gr_amrexUseBittree BOOLEAN FALSE
+ENDIF
 
 PPDEFINE GRID_MAX_GCMASK_CHUNKS 10

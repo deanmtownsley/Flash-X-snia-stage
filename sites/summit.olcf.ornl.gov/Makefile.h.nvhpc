@@ -1,4 +1,5 @@
-# FLASH makefile definitions for Summit (NVHPC compiler)
+# Flash-X makefile definitions for Summit (NVHPC compiler)
+#   - No use of Milhoja for Grid or Orchestration implementations
 ifdef OLCF_NVHPC_ROOT
     PE_ENV=nvhpc
 else
@@ -87,15 +88,16 @@ PP    = -D
 
 OPENMP = -mp
 
-FFLAGS_AMREX = -I${AMREX_PATH}/include
-FFLAGS_HDF5  = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
-FFLAGS_NCMPI = -I${NCMPI_PATH}/include
-FFLAGS_HYPRE = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
-FFLAGS_CUDA  = -I${CUDA_PATH}/include
-FFLAGS_MAGMA = -I${MAGMA_PATH}/include
-FFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
-FFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_AMREX   = -I${AMREX_PATH}/include
+FFLAGS_HDF5    = -I${HDF5_PATH}/include ${MDEFS}${PP}H5_USE_18_API
+FFLAGS_NCMPI   = -I${NCMPI_PATH}/include
+FFLAGS_HYPRE   = -I${HYPRE_PATH}/include ${FFLAGS_LAPACK}
+FFLAGS_CUDA    = -I${CUDA_PATH}/include
+FFLAGS_MAGMA   = -I${MAGMA_PATH}/include
+FFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
+FFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 FFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
+FFLAGS_MILHOJA_AMREX = 
 
 OPT_FLAGS    = -g -O2 -Mpreprocess
 TEST_FLAGS   = -g -O1 -Mpreprocess
@@ -110,15 +112,16 @@ f90FLAGS     = ${F90FLAGS}
 F77FLAGS     = -r8 -i4 -Mfixed
 f77FLAGS     = ${F77FLAGS}
 
-CFLAGS_AMREX = -I${AMREX_PATH}/include
-CFLAGS_HDF5  = -I$(HDF5_PATH)/include ${PP}H5_USE_18_API
-CFLAGS_NCMPI = -I$(NCMPI_PATH)/include
-CFLAGS_HYPRE = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
-CFLAGS_CUDA  = -I${CUDA_PATH}/include
-CFLAGS_MAGMA = -I${MAGMA_PATH}/include
-CFLAGS_OACC  = -acc -gpu=cc70,ptxinfo -Minfo=accel
-CFLAGS_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_AMREX   = -I${AMREX_PATH}/include
+CFLAGS_HDF5    = -I$(HDF5_PATH)/include ${PP}H5_USE_18_API
+CFLAGS_NCMPI   = -I$(NCMPI_PATH)/include
+CFLAGS_HYPRE   = -I${HYPRE_PATH}/include ${CFLAGS_LAPACK}
+CFLAGS_CUDA    = -I${CUDA_PATH}/include
+CFLAGS_MAGMA   = -I${MAGMA_PATH}/include
+CFLAGS_OACC    = -acc -gpu=cc70,ptxinfo -Minfo=accel
+CFLAGS_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo -Minfo=accel
 CFLAGS_UNIFYFS = -I${UNIFYFS_ROOT}
+CFLAGS_MILHOJA_AMREX =
 
 CFLAGS_OPT   = -c ${OPT_FLAGS}
 CFLAGS_TEST  = -c ${TEST_FLAGS}
@@ -148,17 +151,18 @@ LFLAGS_DEBUG = ${DEBUG_FLAGS} -o
 
 LIB_MPI =
 
-LIB_STDCXX = -lstdc++
-LIB_AMREX = -L${AMREX_PATH}/lib -lamrex -lstdc++
-LIB_HDF5  = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
-LIB_NCMPI = -L${NCMPI_PATH}/lib -lpnetcdf
-LIB_MATH  = ${LIB_ESSL}
-LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
-LIB_CUDA  = -cudalib=cusparse,cusolver,cublas
-LIB_MAGMA = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
-LIB_OACC  = -acc -gpu=cc70,ptxinfo -acclibs
-LIB_OMP_OL= ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
+LIB_STDCXX  = -lstdc++
+LIB_AMREX   = -L${AMREX_PATH}/lib -lamrex -lstdc++
+LIB_HDF5    = -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5
+LIB_NCMPI   = -L${NCMPI_PATH}/lib -lpnetcdf
+LIB_MATH    = ${LIB_ESSL}
+LIB_HYPRE   = -L${HYPRE_PATH}/lib -lHYPRE ${LIB_LAPACK}
+LIB_CUDA    = -cudalib=cusparse,cusolver,cublas
+LIB_MAGMA   = -L$(MAGMA_PATH)/lib -lmagma -Wl,-rpath,$(MAGMA_PATH)/lib
+LIB_OACC    = -acc -gpu=cc70,ptxinfo -acclibs
+LIB_OMP_OL  = ${OPENMP} -mp=gpu -gpu=cc70,ptxinfo
 LIB_UNIFYFS = -L${UNIFYFS_ROOT} -lunifyfs_mpi_gotcha
+LIB_MILHOJA_AMREX =
 
 LIB_OPT   = -pgc++libs
 LIB_DEBUG = -pgc++libs

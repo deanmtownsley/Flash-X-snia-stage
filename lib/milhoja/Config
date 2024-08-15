@@ -1,1 +1,24 @@
+# Use the Milhoja library -- FOR NOW - using some infrastructure from AMReX
+# (but not necessarily a full "AMReX grid backend")
 TYPE EXTERNAL
+
+# The following is commented out. Configurations that need the part of the
+# Milhoja library that implements a Grid implementation for Flash-X should
+# simply request
+#   LIBRARY milhoja_amrex
+# instead of
+#   LIBRARY milhoja
+#
+###LIBRARY amrex
+
+# ... This would be a good idea, but it currently does not work even when
+# it should, since the Milhoja library still depends on the AMReX
+# library even in situations whne it should not - i.e., when the Grid
+# implementation of Milhoja is not needed at all as far as Flash-X is
+# concerned. This may come down to a few depndencies that are not
+# essential and could be easily removed, like dependence on
+# AMReX_IntVect.H, AMReX_RealVect.H, maybe AMReX_Box.H in the non-Grid
+# part of Milhoja.
+# So anyway, for now reinstated:
+
+LIBRARY amrex

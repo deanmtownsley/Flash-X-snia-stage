@@ -59,6 +59,7 @@ subroutine Simulation_init()
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   real :: entropy, dst, dsd
+  real :: pres, temp, dens, gamc, eint, entr, abar, zbar, ye
   call Driver_getMype(MESH_COMM,sim_meshMe)
 
 
@@ -105,11 +106,11 @@ subroutine Simulation_init()
 
 !   Get t_ambient from rho_ambient and p_ambient.
   sim_eosMassFr=1.0
-  sim_eosData(EOS_DENS)=rhoAmbient
-  sim_eosData(EOS_PRES)=pAmbient
-  call Eos(MODE_DENS_PRES,vecLen,sim_eosData,sim_eosMassFr)
-  tAmbient=sim_eosData(EOS_TEMP)
-  eAmbient=sim_eosData(EOS_EINT)
+  dens=rhoAmbient
+  pres=pAmbient
+  call Eos(MODE_DENS_PRES,pres, temp, dens, gamc, eint, entr, abar, zbar, ye,sim_eosMassFr)
+  tAmbient=temp
+  eAmbient=eint
   
   
   !   Problem is actually specified in terms of a normalized temperature,

@@ -18,13 +18,13 @@ ADDL_DEF_ARGS = ["+default"]
 WITHOUT_ARGS = ["auto","1d","2d","3d","portable",
                 "makehide", "curvilinear",
                 "opt","debug","test", "index-reorder", "strictparams",
-                "fbs","help", "noclobber", "nofbs", "mconly"] # nofbs disables fixedBlockSize
+                "fbs","help", "noclobber", "nofbs", "mconly", "with-unitmods"] # nofbs disables fixedBlockSize
 # options with arguments
 WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","site","ostype",
              "defines", "objdir","with-unit", "unit", "with-library",
              "without-unit","with-unofficial","without-library","kill-unit","unitsfile",
              "makefile", "library", "datafiles", "parfile", "tau",
-             "gridinterpolation", "geometry", "particlemethods"]
+             "gridinterpolation", "geometry", "particlemethods", "tomlfile"]
 
 
 USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
@@ -46,7 +46,8 @@ USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
             -objdir=<relative obj directory> 
             -defines=<defines> -unitsfile=<filename>
             -datafiles=<wildcard> -parfile=<filename>
-            -fbs -nofbs -tau=<makefile> -mconly
+            -tomlfile=<filename>
+            -fbs -nofbs -tau=<makefile> -mconly -with-unitmods
 
    (Misc Options)
             -makehide -noclobber -portable -help
@@ -263,6 +264,7 @@ def parseCommandLine():
         elif arg == '--nofbs':              GVars.setupVars.set("fixedBlockSize", False)
         elif arg == '--strictparams':       GVars.strictParams = 1
         elif arg == "--mconly":             GVars.macroOnly = True
+        elif arg == "--with-unitmods":      GVars.withUnitMods = True
         # DEV 'curvilinear'
         # * originally used to have the same effect as -gridinterpolation=monotonic
         #   does now, in addition to #defining GRID_CURVILINEAR 1 in Simulation.h.
@@ -326,6 +328,13 @@ def parseCommandLine():
              val = val.lower()
              if val in GVars.withLibraries: del GVars.withLibraries[val]
              GVars.withoutLibraries[val] = 1
+        elif arg == "--tomlfile":
+             if os.path.exists(os.path.join(GVars.simulationsDir,GVars.simulationName,val)):
+                 GVars.tomlfile = os.path.join(GVars.simulationsDir,GVars.simulationName,val)
+             elif os.path.exists(val):
+                 GVars.tomlfile = val
+             else:
+                 raise SetupError("Cannot locate tomlfile for input")
         elif arg == '--verbose': # set verbosity level
              if not val: continue # no argument dont change level
              if val.upper() in vrblevels: 

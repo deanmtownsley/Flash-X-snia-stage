@@ -48,7 +48,7 @@
 !!
 !! SEE ALSO
 !!
-!!  Eos_wrapped
+!!  Eos_multiDim
 !!***
 
 subroutine Simulation_initBlock(solnData, tileDesc)

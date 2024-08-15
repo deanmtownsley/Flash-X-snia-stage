@@ -267,6 +267,8 @@ subroutine Grid_init()
 !!$!  end if
 !!$#endif
 
+  call RuntimeParameters_get('useOrchestration',gr_useOrchestration)
+
   !Check if there are gravitational isolated boundary conditions
   !in order to determine which solvers to intialize.
   call RuntimeParameters_get("grav_boundary_type", grav_boundary_type)

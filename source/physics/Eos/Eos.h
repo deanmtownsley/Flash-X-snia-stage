@@ -17,69 +17,72 @@ EOS_ENER was the variable (mostly) used internally, and EOS_EINT was basically
 NOTE2 -- the equivalent Flash2 variable is given in [brackets] after the 
   description below
 
-quantity EOS_VARS 9
-quantity EOS_DERIVS 13
-quantity EOS_NUM 22
+quantity EOS_VARS 10
+quantity EOS_DERIVS 14
+quantity EOS_NUM 24
 
 NOTE3a -- kinetic energy EKIN is not actually used by any Eos implementation,
 but a place for it reserved among the "basic" variables so that an Eos-wrapping
 function can conveniently store the kinetic energy derived from grid
 datastructure variables across Eos() calls.
 
-basic EOS_PRES  Pressure [p]
-basic EOS_DENS  Density  [rho]
-basic EOS_TEMP  Temperature [temp]
-basic EOS_GAMC  Adiabatic index, the Gamma1 of Chandrasekhar [gamc]
-basic EOS_EINT  Total internal energy (equivalent to EINT_VAR) [ei]
-basic EOS_ABAR  Average mass of the nuclei
-basic EOS_ZBAR  Average proton number
-basic EOS_ENTR  Entropy 
-basic EOS_EKIN  used to hold kinetic energy for internal Eos use
-derived EOS_DPT Derivative of pressure wrt temperature
-derived EOS_DPD Derivative of pressure wrt density
-derived EOS_DET Derivative of internal energy wrt temperature
-derived EOS_DEA Derivative of internal energy wrt atomic mass
-derived EOS_DEZ Derivative of internal energy wrt atomic number/charge
-derived EOS_DED Derivative of internal energy wrt density
-derived EOS_DST Derivative of entropy wrt temperature  
-derived EOS_DSD Derivative of entropy wrt density      
-derived EOS_CV  Specific heat at constant volume
-derived EOS_CP  Specific heat at constant pressure
-derived EOS_PEL Electron pressure
-derived EOS_NE  Electron number density
-derived EOS_ETA Electron degeneracy parameter (chemical potential / k_b*T)
+basic    EOS_PRES   Pressure [p]
+basic    EOS_DENS   Density  [rho]
+basic    EOS_TEMP   Temperature [temp]
+basic    EOS_GAMC   Adiabatic index, the Gamma1 of Chandrasekhar [gamc]
+basic    EOS_EINT   Total internal energy (equivalent to EINT_VAR) [ei]
+basic    EOS_ABAR   Average mass of the nuclei
+basic    EOS_ZBAR   Average proton number
+basic    EOS_ENTR   Entropy 
+basic    EOS_EKIN   used to hold kinetic energy for internal Eos use
+basic    EOS_YE     Electron fraction
+derived  EOS_DPT    Derivative of pressure wrt temperature
+derived  EOS_DPD    Derivative of pressure wrt density
+derived  EOS_DET    Derivative of internal energy wrt temperature
+derived  EOS_DED    Derivative of internal energy wrt density
+derived  EOS_DEA    Derivative of internal energy wrt atomic mass
+derived  EOS_DEZ    Derivative of internal energy wrt atomic number/charge
+derived  EOS_DST    Derivative of entropy wrt temperature  
+derived  EOS_DSD    Derivative of entropy wrt density      
+derived  EOS_CV     Specific heat at constant volume
+derived  EOS_CP     Specific heat at constant pressure
+derived  EOS_PEL    Electron pressure
+derived  EOS_NE     Electron number density
+derived  EOS_ETA    Electron degeneracy parameter (chemical potential / k_b*T)
+derived  EOS_DETAT  Derivative of electron degeneracy parameter with respect to temperature
 
 #endif
 
-#define EOS_BEGIN 1
-#define EOS_VARS 9
-#define EOS_DERIVS 13
-#define EOS_NUM 22
-#define EOS_PRES 1
-#define EOS_DENS 2
-#define EOS_EINT 3
-#define EOS_TEMP 4
-#define EOS_GAMC 5
-#define EOS_ABAR 6
-#define EOS_ZBAR 7
-#define EOS_ENTR 8
-#define EOS_EKIN 9
+#define EOS_BEGIN   1
+#define EOS_VARS   10
+#define EOS_DERIVS 14
+#define EOS_NUM    24
 
+#define EOS_PRES  1
+#define EOS_DENS  2
+#define EOS_EINT  3
+#define EOS_TEMP  4
+#define EOS_GAMC  5
+#define EOS_ABAR  6
+#define EOS_ZBAR  7
+#define EOS_ENTR  8
+#define EOS_EKIN  9
+#define EOS_YE   10
 
-#define EOS_DPT 10
-#define EOS_DPD 11
-#define EOS_DET 12
-#define EOS_DED 13
-#define EOS_DEA 14
-#define EOS_DEZ 15
-#define EOS_DST 16
-#define EOS_DSD 17
-#define EOS_CV  18
-#define EOS_CP  19
-#define EOS_PEL 20
-#define EOS_NE  21
-#define EOS_ETA 22
-
+#define EOS_DPT   11
+#define EOS_DPD   12
+#define EOS_DET   13
+#define EOS_DED   14
+#define EOS_DEA   15
+#define EOS_DEZ   16
+#define EOS_DST   17
+#define EOS_DSD   18
+#define EOS_CV    19
+#define EOS_CP    20
+#define EOS_PEL   21
+#define EOS_NE    22
+#define EOS_ETA   23
+#define EOS_DETAT 24
 
 #define N_EOS_TEMP 1
 
@@ -89,15 +92,15 @@ derived EOS_ETA Electron degeneracy parameter (chemical potential / k_b*T)
  The "USER" types can be used for user-defined specialized implementations.
 #endif
 
-#define EOS_GAM 321
-#define EOS_HLM 452
+#define EOS_GAM  321
+#define EOS_HLM  452
 #define EOS_MGAM 645
 #define EOS_MTMP 325
-#define EOS_TAB 624
-#define EOS_NUC 787
+#define EOS_TAB  624
+#define EOS_NUC  787
 #define EOS_STAR 989
-#define EOS_WL 128
-#define EOS_HYB 864
+#define EOS_WL   128
+#define EOS_HYB  864
 
 #define EOS_USERTYPE1 1001
 #define EOS_USERTYPE2 1002

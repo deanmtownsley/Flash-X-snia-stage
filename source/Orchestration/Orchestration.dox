@@ -1,0 +1,54 @@
+/** @defgroup Orchestration Orchestration Unit
+
+The performance portability runtime unit for orchestrating data movements and
+computation.
+
+As presently implemented, this unit is different from most Flash-X units as it
+can likely have only one implementation.  Even if we were to find an alternate
+performance portability solution, it's unlikely that its interface and the
+Milhoja runtime interface would overlap enough to allow for a common Flash-X
+interface.  One consequence of this is that Milhoja types are exposed directly
+through the public interface, which violates encapsulation and modularity.
+
+Related to this, the public interface can differ based on whether the runtime is
+to be used and, if so, which runtime backend is used.  See, for example, the
+preprocessor macros FLASHX_ORCHESTRATION, FLASHX_ORCHESTRATION_MILHOJA, and
+ORCHESTRATION_USE_GPUS in Simulation.h.  Since the interface is linked
+to Milhoja and we do not want to insist that Flash-X users always build/link
+Milhoja, this setup-time construction of the public interface is necessary.
+
+As a consequence, a stub needs to effectively disappear if their subroutine or
+function is not included in the interface.  This is accomplished by having the
+stub be an empty file in such cases.  While this is also different from standard
+Flash-X design, it provides an extra level of defensive programming that should
+be helpful since the Orchestration unit will usually be called by
+automatically-generated code.  For example, at the very least linking will fail
+if any code incorrectly tries to call a subroutine that should not be available.
+It is also reasonable as the traditional use of stubs is not needed when code is
+generated automatically.  It is likely that the only subroutines that will
+always be in the public interface are Orchestration_init and
+Orchestration_finalize, which must be stubs in the typical sense.
+
+@copyright Copyright 2022 UChicago Argonne, LLC and contributors
+
+\par License
+\parblock
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+\endparblock
+
+@todo Is this the right place for this documentation?  Should some of this go in
+the user manual?  It seems largely related to developers rather than users.
+Indeed, it captures and communicates the reasoning behind some design decisions,
+which developers, but not users, should understand.
+@todo Determine if it is worthwhile to recover encapsulation/modularity by
+adding in a layer of Flash-X Orchestration types that are mapped onto Milhoja
+implementation types.  Having a fully-functioning runtime in Flash-X should have
+higher-priority than this design issue.
+*/

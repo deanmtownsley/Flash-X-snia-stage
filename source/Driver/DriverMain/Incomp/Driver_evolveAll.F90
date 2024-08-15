@@ -89,6 +89,8 @@ subroutine Driver_evolveAll()
    use IncompNS_data, ONLY: ins_predcorrflg, ins_pressureBC_types, ins_pressureBC_values, &
                             ins_poisfact
 
+   use Simulation_interface, ONLY: Simulation_adjustEvolution
+
 #ifdef MULTIPHASE_MAIN
    use Multiphase_data, ONLY: mph_lsIt, mph_extpIt, mph_iJumpVar
 #endif
@@ -257,6 +259,10 @@ subroutine Driver_evolveAll()
          call itor%next()
       end do
       call Grid_releaseTileIterator(itor)
+      !------------------------------------------------------------
+
+      ! Adjust evolution
+      call Simulation_adjustEvolution(dr_nstep, dr_dt, dr_simTime)
       !------------------------------------------------------------
 
 #ifdef HEATER_MAIN
@@ -620,7 +626,7 @@ subroutine Driver_evolveAll()
       ! Average Velocities and Vorticity to cell-centers
       call IncompNS_velomgToCenter()
 
-      ! Call indicators methods to show information includes 
+      ! Call indicators methods to show information includes
       ! MPI all reduce operations
       !------------------------------------------------------------
       call IncompNS_indicators()

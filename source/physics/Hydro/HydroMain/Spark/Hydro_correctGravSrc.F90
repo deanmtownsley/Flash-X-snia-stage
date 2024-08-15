@@ -12,6 +12,7 @@
 !! @endlicenseblock
 !!
 !! @file
+
 !> @ingroup HydroSpark
 !!
 !! @brief Corrects gravitational source terms with n+1 potential
@@ -19,6 +20,7 @@
 !!
 !! @todo Is this file needed? There is no interface for this subroutine.
 !<
+
 !!Reorder(4):solnData
 
 subroutine Hydro_correctGravSrc(dt)

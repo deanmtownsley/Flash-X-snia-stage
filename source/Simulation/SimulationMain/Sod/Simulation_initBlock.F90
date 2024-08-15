@@ -69,7 +69,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
        sim_gammaIon, sim_gammaEle
 #endif
      
-  use Eos_interface, ONLY : Eos, Eos_wrapped
+  use Eos_interface, ONLY : Eos, Eos_multiDim
   use Grid_interface, ONLY : Grid_getCellCoords
   use Grid_tile, ONLY : Grid_tile_t
 

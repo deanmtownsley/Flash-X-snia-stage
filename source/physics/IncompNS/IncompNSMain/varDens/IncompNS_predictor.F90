@@ -81,7 +81,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                    GRID_ILO, GRID_IHI + 1, &
                                    GRID_JLO, GRID_JHI, &
                                    GRID_KLO, GRID_KHI, &
-                                   iSource=-ins_dpdx + ins_gravX &
+                                   iSource=-facexData(RHOF_FACE_VAR, :, :, :)*ins_dpdx &
+                                   + ins_gravX &
                                    + facexData(VFRC_FACE_VAR, :, :, :))
 
       call Stencils_integrateEuler(faceyData(VELC_FACE_VAR, :, :, :), &
@@ -90,7 +91,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                    GRID_ILO, GRID_IHI, &
                                    GRID_JLO, GRID_JHI + 1, &
                                    GRID_KLO, GRID_KHI, &
-                                   iSource=-ins_dpdy + ins_gravY &
+                                   iSource=-faceyData(RHOF_FACE_VAR, :, :, :)*ins_dpdy &
+                                   + ins_gravY &
                                    + faceyData(VFRC_FACE_VAR, :, :, :))
 #if NDIM == 3
       call Stencils_integrateEuler(facezData(VELC_FACE_VAR, :, :, :), &
@@ -99,7 +101,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                    GRID_ILO, GRID_IHI, &
                                    GRID_JLO, GRID_JHI, &
                                    GRID_KLO, GRID_KHI + 1, &
-                                   iSource=-ins_dpdz + ins_gravZ &
+                                   iSource=-facezData(RHOF_FACE_VAR, :, :, :)*ins_dpdz &
+                                   + ins_gravZ &
                                    + facezData(VFRC_FACE_VAR, :, :, :))
 #endif
 
@@ -111,7 +114,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                  GRID_ILO, GRID_IHI + 1, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI, &
-                                 iSource=-ins_dpdx + ins_gravX &
+                                 iSource=-facexData(RHOF_FACE_VAR, :, :, :)*ins_dpdx &
+                                 + ins_gravX &
                                  + facexData(VFRC_FACE_VAR, :, :, :))
 
       facexData(HVN1_FACE_VAR, :, :, :) = facexData(HVN0_FACE_VAR, :, :, :)
@@ -123,7 +127,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI + 1, &
                                  GRID_KLO, GRID_KHI, &
-                                 iSource=-ins_dpdy + ins_gravY &
+                                 iSource=-faceyData(RHOF_FACE_VAR, :, :, :)*ins_dpdy &
+                                 + ins_gravY &
                                  + faceyData(VFRC_FACE_VAR, :, :, :))
 
       faceyData(HVN1_FACE_VAR, :, :, :) = faceyData(HVN0_FACE_VAR, :, :, :)
@@ -136,7 +141,8 @@ subroutine IncompNS_predictor(tileDesc, dt)
                                  GRID_ILO, GRID_IHI, &
                                  GRID_JLO, GRID_JHI, &
                                  GRID_KLO, GRID_KHI + 1, &
-                                 iSource=-ins_dpdz + ins_gravZ &
+                                 iSource=-facezData(RHOF_FACE_VAR, :, :, :)*ins_dpdz &
+                                 + ins_gravZ &
                                  + facezData(VFRC_FACE_VAR, :, :, :))
 
       facezData(HVN1_FACE_VAR, :, :, :) = facezData(HVN0_FACE_VAR, :, :, :)

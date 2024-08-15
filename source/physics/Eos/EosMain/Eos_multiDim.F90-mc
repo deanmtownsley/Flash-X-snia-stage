@@ -1,0 +1,79 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! @brief general implementation of the API call for a computing
+!!     equation of state on cells in a multidimensional array
+!! 
+!! @subref{Eos_multiDim}
+!!
+!!
+
+! solnData depends on the ordering on unk
+!!REORDER(4): solnData
+!!NOVARIANTS
+
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+ 
+subroutine Eos_multiDim(mode,range,solnData)
+
+  use Driver_interface, ONLY : Driver_abort
+  use Logfile_interface, ONLY: Logfile_stampMessage 
+  use Eos_interface, ONLY : Eos_fillEosData, Eos_getFromEosData, Eos_vector
+
+#include "FortranLangFeatures.fh"
+
+  integer, intent(in) :: mode
+  integer, dimension(2,MDIM), intent(in) :: range
+  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+
+  integer :: ierr
+  integer :: i,j,k, vecLen
+
+  integer :: n,m
+  real :: @M eos_args
+
+  real, allocatable, dimension(:,:) :: eosData, massFrac
+
+  @M eos_debug
+  if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
+
+  vecLen = (range(HIGH,IAXIS)-range(LOW,IAXIS)+1)*&
+           (range(HIGH,JAXIS)-range(LOW,JAXIS)+1)*&
+           (range(HIGH,KAXIS)-range(LOW,KAXIS)+1)
+
+  if (vecLen==0) return ! * Return immediately for empty IAXIS range! (for efficiency and avoiding index range errors)
+
+  ! solnData points to solution data in UNK (or other data structure).
+  ! The length of the data being operated upon is determined from the range input array.
+
+  allocate(massFrac(NSPECIES,vecLen))
+  allocate(eosData(vecLen, EOS_VARS))
+  
+  call Eos_fillEosData(range, solnData,1, vecLen, eosData)
+  n = 0
+  @M loop_3d(range)
+             n=n+1
+             massFrac(1:NSPECIES,n) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
+  @M loop_end_3d   
+  call Eos_vector(mode,vecLen,eosData, massFrac)
+  call Eos_getFromEosData( 1, vecLen, eosData, range, solnData)
+  
+  deallocate(massFrac)
+  deallocate(eosData)
+  
+end subroutine Eos_multiDim

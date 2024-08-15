@@ -1,9 +1,21 @@
-# FLASH makefile definitions for ix86-64 Linux (gfortran compiler)
+# FLASH makefile definitions for x86-64 macOS
+#----------------------------------------------------------------------------
+# Set the AMReX library path -- manual installation for multiple variants
+#----------------------------------------------------------------------------
+ifeq      ($(NDIM), 1)
+AMREX_PATH=/Users/adubey/FlashStuff/amrex_install/1D
+else ifeq ($(NDIM), 2)
+AMREX_PATH=/Users/adubey/FlashStuff/amrex_install/2D
+else ifeq ($(NDIM), 3)
+AMREX_PATH=/Users/adubey/FlashStuff/amrex_install/3D
+else
+AMREX_PATH=
+endif
 
 #----------------------------------------------------------------------------
 # Set the HDF/HDF5 library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
-HDF5_PATH = /opt/homebrew/Cellar/hdf5-mpi/1.14.2
+HDF5_PATH = /opt/homebrew/Cellar/hdf5-mpi/1.14.3
 #LIB_HDF5 = ${HDF5_PATH}/lib
 MA28_PATH = /Users/adubey/ma28
 

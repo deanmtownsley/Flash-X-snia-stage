@@ -1,0 +1,60 @@
+!> @copyright Copyright 2024 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief Eos_fillEosData stub
+
+!> @ingroup physics_Eos
+!!
+!! @brief a utility for filling up the data structure known to Eos_vector
+!!
+!! @details
+!! @anchor Eos_fillEosData_stub
+!!
+!! 
+!! This is a helper routine that can be used to fill up the two dimensional data
+!!  structure eosData that is needed by the interface Eos_vector. Eos_vector does not
+!!  know the grid and the velocities, therefore cannot account for kinetic energy
+!!  this routine takes in the pointer to a multidimension array of daat as input and fills up eosData accounting
+!!  for all forms of energy.
+!!
+!!  @param range  bounds of the multiD array
+!!
+!!  @param solnData pointer to the multidimensional array of data
+!!
+!!  @param vecB, vecE the starting point and ending point of the first dimenstion of eosData
+!!
+!!  @param eosData the 2D array with data arranged as needed by Eos_vector
+!!
+!!
+!!NOVARIANTS
+
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+  
+subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
+
+  implicit none
+
+  integer, intent(in) :: vecB
+  integer,intent(inout) :: vecE
+  integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+  real,pointer,dimension(:,:,:,:), intent(in) :: solnData
+  real, dimension(vecB:vecE,EOS_VARS),intent(out) :: eosData
+
+  return
+end subroutine Eos_fillEosData
+
+
+

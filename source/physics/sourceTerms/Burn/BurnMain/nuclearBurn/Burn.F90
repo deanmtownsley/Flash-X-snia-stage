@@ -68,7 +68,7 @@ subroutine Burn (  dt  )
   use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getCellCoords, &
        Grid_getMaxRefinement, &
        Grid_getTileIterator, Grid_releaseTileIterator
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
   use Logfile_interface, ONLY : Logfile_stampVarMask
   use Hydro_interface, ONLY : Hydro_shockStrength
 
@@ -244,11 +244,8 @@ subroutine Burn (  dt  )
      ! we've altered the EI, let's equilabrate
      if (burnedZone) then
 
-#ifdef FLASH_UHD_3T
-        call Eos_wrapped(MODE_DENS_EI_GATHER,tileDesc%limits,solnData,CENTER) ! modified for 3T
-#else
-        call Eos_wrapped(MODE_DENS_EI,tileDesc%limits,solnData,CENTER)
-#endif
+        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
+
 
      end if
 

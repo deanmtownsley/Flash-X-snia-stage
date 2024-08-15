@@ -1,0 +1,114 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!! @brief Data module for Hydro
+!!
+!! @stubref{Hydro_data}
+!<
+
+!!NOVARIANTS
+module Hydro_data
+
+#include "constants.h"
+#include "Simulation.h"
+#include "Spark.h"
+
+  implicit none
+  save
+
+  real, target, allocatable :: hya_flux(:)
+  real, target, allocatable :: hya_flat(:)
+  real, target, allocatable :: hya_shck(:)
+
+  real, target, allocatable :: hya_rope(:)
+  real, target, allocatable :: hya_uPlus(:)
+  real, target, allocatable :: hya_uMinus(:)
+  real, allocatable, target :: hya_tmpState(:)
+  real, allocatable, target :: hya_starState(:)
+  real, allocatable, target :: hya_Vc(:)
+  real, allocatable, target :: hya_grav(:)  
+  real,  allocatable,target :: hya_flat3d(:)
+  real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
+  real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
+  real, allocatable, dimension(:),target :: hya_fareaX, hya_cvol
+  real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
+  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_yLeft, hya_yRight, hya_zCenter
+  !Flux buffers
+
+  real :: hy_dt, hy_dtmin
+  logical :: hy_shockDetectOn
+  logical :: hy_useTiling 
+  real :: hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu
+
+
+  logical :: hy_fluxCorrect, hy_fluxCorrectPerLevel
+  integer, dimension(NFLUXES) :: hy_fluxCorVars
+  integer :: hy_geometry
+  integer :: hy_eosModeGc
+  logical :: hy_threadWithinBlock
+  logical, dimension(NUNK_VARS) :: hy_gcMask
+  ! Additional scratch storage for RK time stepping
+
+  ! Limiter info
+  real :: hy_limRad
+  real :: hy_cvisc
+
+  real :: hy_tiny=1.e-32
+  real :: hy_gravConst, hy_4piGinv
+  real :: hy_mp5ZeroTol
+
+  logical :: hy_hybridRiemann, hy_flattening
+
+  real :: hy_C_hyp, hy_alphaGLM, hy_lChyp
+  real :: hy_bref
+
+
+  real :: hy_cfl
+  logical :: hy_hydroComputeDtFirstCall
+  logical :: hy_updateHydroFluxes
+  integer :: hy_gcMaskSize
+  logical :: hy_restart
+  logical :: hy_useHydro, hy_telescoping
+  integer :: hy_meshMe, hy_globalComm, hy_meshComm, hy_meshNumProcs,hy_maxLev,hy_maxCells
+  logical, dimension(MAXSTAGE) :: hy_addFluxArray
+  real, dimension(3) :: hy_coeffs, hy_weights
+  integer, dimension(3) :: hy_limitsArray
+  real, dimension(3,3) :: hy_coeffArray
+
+! real, pointer, dimension(:, :, :, :) :: hy_tmpState, hy_starState, hy_flx, hy_fly, hy_flz, &
+!                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+!                                         hy_rope, hy_flux, hy_uPlus, hy_uMinus
+
+   @M hy_DIR_TARGET_declare_data([hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref])
+   @M hy_DIR_TARGET_declare_data([hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu])
+   @M hy_DIR_TARGET_declare_data([hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry])
+   @M hy_DIR_TARGET_declare_data([hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp])
+   @M hy_DIR_TARGET_declare_data([hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray])
+   @M hy_DIR_TARGET_declare_data([hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev, hy_maxCells])
+
+   @M hy_DIR_TARGET_declare_data([hya_tmpState, hya_starState, hya_flx, hya_fly, hya_flz])
+   @M hy_DIR_TARGET_declare_data([hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ])
+   @M hy_DIR_TARGET_declare_data([hya_grav, hya_flat3d, hya_Vc])
+   @M hy_DIR_TARGET_declare_data([hya_rope, hya_flux, hya_uPlus, hya_uMinus])
+
+   @M hy_DIR_TARGET_declare_data([hya_fareaX, hya_cvol])
+   @M hy_DIR_TARGET_declare_data([hya_fareaY, hya_fareaZ])
+   @M hy_DIR_TARGET_declare_data([hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_yLeft, hya_yRight, hya_zCenter])
+
+end module Hydro_data
+
+

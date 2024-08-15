@@ -168,7 +168,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseCHILDORDER():
-        return [], 'CHILDORDER\s+(.*)$'
+        return [], r'CHILDORDER\s+(.*)$'
 
     def parseCHILDORDER(self, mobj):
         # CHILDORDER = order in which some of the children must be processed
@@ -177,7 +177,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseDATAFILES():
-        return [], 'DATAFILES\s+(.*)$'
+        return [], r'DATAFILES\s+(.*)$'
 
     def parseDATAFILES(self, mobj):
         # DATAFILES -> list of wildcard patterns (with absolute path)
@@ -185,7 +185,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseVARIANTS():
-        return [], 'VARIANTS\s+(.*)$'
+        return [], r'VARIANTS\s+(.*)$'
 
     def parseVARIANTS(self, mobj):
         # VARIANTS -> list of wildcard patterns
@@ -193,7 +193,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseD():
-        return {}, 'D\s*(&|\S+)\s*(.*)$'
+        return {}, r'D\s*(&|\S+)\s*(.*)$'
 
     def parseD(self, mobj):
         key, comment = mobj.groups()
@@ -207,8 +207,8 @@ class FlashUnit(dict,preProcess):
             
     @staticmethod
     def initparseFACEVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'FACEVAR\s+(?P<varname>\w+)' + strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'FACEVAR\s+(?P<varname>\w+)' + strEosRE
 
     def parseFACEVAR(self,mobj):
         facevar = mobj.group("varname")
@@ -222,11 +222,11 @@ class FlashUnit(dict,preProcess):
     def initparseVARIABLE():
         #Order is important.  Only Type then Eos is valid.
 #        strTypeRE = '(\s+TYPE:\s*(?P<type>GENERIC|PER_VOLUME|PER_MASS))?'
-        strTypeRE = 'TYPE:\s*(?P<type>GENERIC|PER_VOLUME|PER_MASS)'
-        strEosmapRE  = 'EOSMAP(INOUT)?:\s*(?P<eosmap>' + GVars.strEos + ')|EOSMAPIN:\s*(?P<eosmapin>' + GVars.strEos + ')|EOSMAPOUT:\s*(?P<eosmapout>' + GVars.strEos + ')'
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
+        strTypeRE = r'TYPE:\s*(?P<type>GENERIC|PER_VOLUME|PER_MASS)'
+        strEosmapRE  = r'EOSMAP(INOUT)?:\s*(?P<eosmap>' + GVars.strEos + r')|EOSMAPIN:\s*(?P<eosmapin>' + GVars.strEos + r')|EOSMAPOUT:\s*(?P<eosmapout>' + GVars.strEos + r')'
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
 #        return {},'VARIABLE\s+(?P<varname>\w+)' + strTypeRE + strEosRE
-        return {},'VARIABLE\s+(?P<varname>\w+)(\s+)?(?:(' + strTypeRE + '|' + strEosmapRE + r')\s*)*\s*$'
+        return {},r'VARIABLE\s+(?P<varname>\w+)(\s+)?(?:(' + strTypeRE + r'|' + strEosmapRE + r')\s*)*\s*$'
 #        return {}, r'MASS_SCALAR\s+(?P<msname>\w+)(\s+)?(?:(NORENORM|RENORM:(?P<gpname>\S*)|' + strEosmapRE
 
     def parseVARIABLE(self, mobj):
@@ -249,7 +249,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseEVOLVEDVAR():
-        return [], 'EVOLVEDVAR\s+(.*)$'
+        return [], r'EVOLVEDVAR\s+(.*)$'
     
     def parseEVOLVEDVAR(self, mobj):
         # EVOLVEDVAR -> evolved variable(s)
@@ -258,7 +258,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseNRHS():
-        return None, "NRHS\s+([0-9]+)$"
+        return None, r"NRHS\s+([0-9]+)$"
     
     def parseNRHS(self, mobj):
         # Make sure that only a MoL unit set this
@@ -272,7 +272,7 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseLIBRARY():
-        return {}, 'LIBRARY\s+(\S+)\s*(.*)$'
+        return {}, r'LIBRARY\s+(\S+)\s*(.*)$'
 
     def parseLIBRARY(self, mobj):
         libname = mobj.group(1).lower()
@@ -298,8 +298,8 @@ class FlashUnit(dict,preProcess):
                 
     @staticmethod
     def initparseSCRATCHVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'SCRATCHVAR\s+(?P<varname>\w+)' +  strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'SCRATCHVAR\s+(?P<varname>\w+)' +  strEosRE
 
     def parseSCRATCHVAR(self, mobj):
         variable = mobj.group("varname")
@@ -309,8 +309,8 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseSCRATCHCENTERVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'SCRATCHCENTERVAR\s+(?P<varname>\w+)' +  strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'SCRATCHCENTERVAR\s+(?P<varname>\w+)' +  strEosRE
 
     def parseSCRATCHCENTERVAR(self, mobj):
         variable = mobj.group("varname")
@@ -330,8 +330,8 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseSCRATCHFACEXVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'SCRATCHFACEXVAR\s+(?P<varname>\w+)' +  strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'SCRATCHFACEXVAR\s+(?P<varname>\w+)' +  strEosRE
 
     def parseSCRATCHFACEXVAR(self, mobj):
         variable = mobj.group("varname")
@@ -341,8 +341,8 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseSCRATCHFACEYVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'SCRATCHFACEYVAR\s+(?P<varname>\w+)' +  strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'SCRATCHFACEYVAR\s+(?P<varname>\w+)' +  strEosRE
 
     def parseSCRATCHFACEYVAR(self, mobj):
         variable = mobj.group("varname")
@@ -352,8 +352,8 @@ class FlashUnit(dict,preProcess):
 
     @staticmethod
     def initparseSCRATCHFACEZVAR():
-        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        return {},'SCRATCHFACEZVAR\s+(?P<varname>\w+)' +  strEosRE
+        strEosRE  = r'(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + r')\s*$)?'
+        return {},r'SCRATCHFACEZVAR\s+(?P<varname>\w+)' +  strEosRE
 
     def parseSCRATCHFACEZVAR(self, mobj):
         variable = mobj.group("varname")
@@ -383,8 +383,8 @@ class FlashUnit(dict,preProcess):
     @staticmethod
     def initparseMASS_SCALAR():
 #        strEosRE  = '(\s+EOSMAP:\s*(?P<eosmap>' + GVars.strEos + ')\s*$)?'
-        strEosmapRE  = 'EOSMAP(INOUT)?:\s*(?P<eosmap>' + GVars.strEos + ')|EOSMAPIN:\s*(?P<eosmapin>' + GVars.strEos + ')|EOSMAPOUT:\s*(?P<eosmapout>' + GVars.strEos + ')'
-        return {}, r'MASS_SCALAR\s+(?P<msname>\w+)(\s+)?(?:(NORENORM|RENORM:(?P<gpname>\S*)|' + strEosmapRE + ')\s*)*\s*$'
+        strEosmapRE  = r'EOSMAP(INOUT)?:\s*(?P<eosmap>' + GVars.strEos + r')|EOSMAPIN:\s*(?P<eosmapin>' + GVars.strEos + r')|EOSMAPOUT:\s*(?P<eosmapout>' + GVars.strEos + r')'
+        return {}, r'MASS_SCALAR\s+(?P<msname>\w+)(\s+)?(?:(NORENORM|RENORM:(?P<gpname>\S*)|' + strEosmapRE + r')\s*)*\s*$'
 
     def parseMASS_SCALAR(self, mobj):
         msname = mobj.group("msname")
@@ -473,7 +473,7 @@ class FlashUnit(dict,preProcess):
         # Make a list of all units that followed the "REQUIRES" as delimited by "OR"
         # If only one unit was given, (i.e. there were no "OR"s), re.split() will
         # return a list of one.
-        units = re.split("\s+OR\s+", mobj.group("orList"))
+        units = re.split(r"\s+OR\s+", mobj.group("orList"))
         # change any relative paths to absolute paths; remove any empties
         units = [normpath(unit) for unit in units if len(unit) > 0]
         # Note that self['REQUIRES'] is a list of lists
@@ -598,7 +598,7 @@ class FlashUnit(dict,preProcess):
     @staticmethod
     def initparsePPDEFINE():
         # name one pre-processor symbol and optionally value to define
-        return {},'PPDEFINE\s+(?P<sym>\w+)(?:\s+(?P<val>\w+))?$'
+        return {},r'PPDEFINE\s+(?P<sym>\w+)(?:\s+(?P<val>\w+))?$'
 
     def parsePPDEFINE(self,mobj):
         self['PPDEFINE'][mobj.group("sym")] = mobj.group("val")
@@ -606,7 +606,7 @@ class FlashUnit(dict,preProcess):
     @staticmethod
     def initparseNONREP():
         # non mesh replicated variable array 
-        return {},'NONREP\s+(?P<type>MASS_SCALAR|VARIABLE)\s+(?P<name>\w+)\s+(?P<nloc>[0-9]+)\s+(?P<pglob>\w+)(\s+(?P<namef>\S+))?$'
+        return {},r'NONREP\s+(?P<type>MASS_SCALAR|VARIABLE)\s+(?P<name>\w+)\s+(?P<nloc>[0-9]+)\s+(?P<pglob>\w+)(\s+(?P<namef>\S+))?$'
     def parseNONREP(self,mobj):
         tp = mobj.group("type")
         name = mobj.group("name")

@@ -7,15 +7,6 @@ REQUIRES numericalTools/Stencils/StencilsAdvection
 REQUIRES numericalTools/Stencils/StencilsLevelset
 REQUIRES numericalTools/Stencils/StencilsTemporal
 
-USESETUPVARS InsLSDamping
-USESETUPVARS InsForceInOut
-
-IF InsForceInOut
-    IF InsLSDamping
-        REQUESTS physics/sourceTerms/Outlet/OutletMain/lsDamping
-    ENDIF
-ENDIF
-
 PPDEFINE MULTIPHASE_MAIN
 
 D useMultiphase Should the Multiphase unit be used?
@@ -80,3 +71,9 @@ IF nDim == 3
 D nrmz_variable Level set normal in z-dir
 VARIABLE nrmz TYPE:GENERIC
 END IF
+
+D mph_presTol Tolerance for pressure jumps
+PARAMETER mph_presTol REAL 0.0
+
+D mph_tempTol Tolerance for temperature jumps
+PARAMETER mph_tempTol REAL 1d-2

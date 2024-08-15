@@ -65,6 +65,6 @@ module Multiphase_data
 
    real, save :: mph_Stefan, mph_invReynolds, mph_Prandtl
 
-   real, save :: mph_iPropSmear
+   real, save :: mph_iPropSmear, mph_presTol, mph_tempTol
 
 end module Multiphase_data

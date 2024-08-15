@@ -62,7 +62,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             del(DIR_X), del(DIR_Y), &
                             mph_invWeber, mph_rhoGas, &
                             GRID_ILO, GRID_IHI, &
-                            GRID_JLO, GRID_JHI)
+                            GRID_JLO, GRID_JHI, tol=mph_presTol)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps2d(solnData(DFUN_VAR, :, :, :), &
@@ -72,7 +72,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                            solnData(MFLX_VAR, :, :, :), mph_rhoGas, &
                            del(DIR_X), del(DIR_Y), &
                            GRID_ILO, GRID_IHI, &
-                           GRID_JLO, GRID_JHI)
+                           GRID_JLO, GRID_JHI, tol=mph_presTol)
 #endif
 
 #else
@@ -87,7 +87,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                             mph_invWeber, mph_rhoGas, &
                             GRID_ILO, GRID_IHI, &
                             GRID_JLO, GRID_JHI, &
-                            GRID_KLO, GRID_KHI)
+                            GRID_KLO, GRID_KHI, tol=mph_presTol)
 
 #ifdef MULTIPHASE_EVAPORATION
    call mph_setEvapJumps3d(solnData(DFUN_VAR, :, :, :), &
@@ -99,7 +99,7 @@ subroutine Multiphase_setPressureJumps(tileDesc)
                            del(DIR_X), del(DIR_Y), del(DIR_Z), &
                            GRID_ILO, GRID_IHI, &
                            GRID_JLO, GRID_JHI, &
-                           GRID_KLO, GRID_KHI)
+                           GRID_KLO, GRID_KHI, tol=mph_presTol)
 #endif
 
 #endif

@@ -48,6 +48,7 @@ module Grid_data
     integer, save :: gr_meshAcrossMe
     integer, save :: gr_meshAcrossNumProcs
 
+    logical, save :: gr_useOrchestration
     integer, save :: gr_envOmpNumThreads
 
     real,    save :: gr_smallx

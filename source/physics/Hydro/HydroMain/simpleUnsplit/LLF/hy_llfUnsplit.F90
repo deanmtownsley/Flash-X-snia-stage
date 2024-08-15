@@ -111,7 +111,7 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
 
   use Driver_interface, ONLY : Driver_abort
 
-  use Eos_interface, ONLY : Eos_wrapped
+  use Eos_interface, ONLY : Eos_multiDim
 
   use Logfile_interface, ONLY : Logfile_stampVarMask
 
@@ -507,7 +507,7 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
         end if
 
         !! Call to Eos - note this is a variant where we pass a buffer not a blockID.
-        call Eos_wrapped(hy_eosModeAfter, tileLimits, Uout)
+        call Eos_multiDim(hy_eosModeAfter, tileLimits, Uout)
 
         call Grid_releaseTileVarPtrs(tileID,gridDataStruct=CENTER, &
              inPtr=Uin, &

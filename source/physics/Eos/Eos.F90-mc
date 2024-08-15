@@ -1,0 +1,76 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+!! @brief Eos stub
+
+!> @ingroup physics_Eos
+!!
+!! @brief Compute equation of state in the provided mode
+!!
+!! @details
+!! @anchor Eos_stub
+!!
+!! 
+!!  This routine applies the equation of state to thermodynamic 
+!!  quantities at one or more grid cells.  The number of cells is 
+!!  determined by the argument veclen.  The routine expects data packaged
+!!  for it in the 1d array, eosData.  The data in eosData is organized as:
+!!  1:vecLen points contain the first variable, vecLen+1:2*vecLen points 
+!!  contain the second variable, and so on. The number and order of
+!!  variables in the array is determined by the constants defined in Eos.h.
+!!  
+!!  The routine takes different quantities as givens depending on the
+!!  value of the mode variable: if mode=MODE_DENS_TEMP, density and
+!!  temperature are taken as given, and pressure and internal energy are generated
+!!  as output; if mode=MODE_DENS_EI, density and internal energy are taken as
+!!  givens, and pressure and temperature are generated as output.  If
+!!  mode=MODE_DENS_PRES, density and pressure are taken as givens, and
+!!  internal energy and temperature are generated as output. Note that
+!!  internal energy is EINT_VAR, not ENER_VAR.
+!!  
+!!  In addition to pressure, temperature, and internal energy, which are
+!!  always thermodynamically consistent after this call, other quantities
+!!  such as the various thermodynamic partial derivatives can be
+!!  calculated based and returned in the optional array derivs.
+!!
+!!
+!!  @param mode   Selects the mode of operation of the Eos unit.
+!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
+!!             MODE_DENS_TEMP as decribed above.
+!!
+!!  @param @M eos_args: These are all the thermodynamics quantities involved
+!!         in computing EOS. The expansion of this macro is located in EosMain/Eos.ini
+!!
+!!  @param massFrac : Contains the mass fractions of the species included in
+!!             the simulation. The array is sized as NSPECIES.
+!!
+!!  @param derivs : If derivative quantities are desired they are returned in this array
+!!
+!!
+!!NOVARIANTS
+
+subroutine Eos(mode,@M eos_args, massFrac, derivs)
+
+!==============================================================================
+
+  implicit none
+#include "Eos.h"
+#include "Simulation.h"
+  integer, INTENT(in) :: mode
+  real,INTENT(inout) :: @M eos_args 
+  real, optional, INTENT(out), dimension(EOS_VARS+1:EOS_NUM) :: derivs
+  real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+
+  return
+end subroutine Eos
