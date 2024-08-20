@@ -86,7 +86,7 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                                           wall_dist_fun  = 0.5*(regionData(guard, j, k, DFUN_VAR)+&
                                                                  regionData(guard+1, j, k, DFUN_VAR))
                                           
-                                          if(wall_dist_fun .lt. 0) th_con = 1.0
+                                          if(wall_dist_fun .le. 0) th_con = 1.0
 
                                           regionData(offset - i, j, k, ivar) = &
                                                                   ((heater%nd_heat_flux)*del(axis))*(offset - 2*i)/(th_con) +&
@@ -201,7 +201,7 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                                           !write(*,*) regionData(guard+1,j,k,DFUN_VAR)
                                           !write(*,*) wall_dist_fun         
 
-                                          if(wall_dist_fun .lt. 0) th_con = 1.0
+                                          if(wall_dist_fun .le. 0) th_con = 1.0
 
                                           !write(*,*) heater%nd_heat_flux
                                           !write(*,*) del(axis)
