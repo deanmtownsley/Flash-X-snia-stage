@@ -37,7 +37,6 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
    iter = 0
    abund_buffer(1,:) = abund(SPECIES_BEGIN:SPECIES_END)
-   write(0,*) "Before first Eos call"
 
    ! get pressure to match from info in thermstate
    thermstate_buffer(1,:) = thermstate(1:EOS_VARS)
@@ -45,7 +44,6 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
    !abund(SPECIES_BEGIN:SPECIES_END) = abund_buffer(1,:)
    thermstate(1:EOS_VARS) = thermstate_buffer(1,:)
 
-   write(0,*) "After first Eos call"
    target_pres = thermstate(EOS_PRES)
 
    thermstate(EOS_TEMP) = ign_temp

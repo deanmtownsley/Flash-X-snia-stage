@@ -188,19 +188,19 @@ subroutine Simulation_initBlock(solnData,tileDesc)
 
   ! now fill the master arrays
 
-  do k = grownTileLimits(LOW,KAXIS), grownTileLimits(HIGH,KAXIS)
+  do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
      if (NDIM == 3) then
         iPosition(3) = k
         zz = zCoordsCell(k)
      endif
 
-     do j = grownTileLimits(LOW,JAXIS), grownTileLimits(HIGH,JAXIS)
+     do j = tileLimits(LOW,JAXIS), tileLimits(HIGH,JAXIS)
         if (NDIM >= 2) then
            iPosition(2) = j
            yy = yCoordsCell(j)
         endif
 
-        do i = grownTileLimits(LOW,IAXIS), grownTileLimits(HIGH,IAXIS)
+        do i = tileLimits(LOW,IAXIS), tileLimits(HIGH,IAXIS)
            iPosition(1) = i
            xx = xCoordsCell(i)
            icount = icount + 1
@@ -285,7 +285,6 @@ subroutine Simulation_initBlock(solnData,tileDesc)
            eosData_buffer(1,:) = eosData(1:EOS_VARS)
            massFraction_buffer(1,:) = massFraction(SPECIES_BEGIN: SPECIES_END)
            call Eos_vector(MODE_DENS_TEMP,1,eosData_buffer,massFraction_buffer)
-           massFraction(SPECIES_BEGIN: SPECIES_END) = massFraction_buffer(1,:)
            eosData(1:EOS_VARS) = eosData_buffer(1,:)
 
            temp_zone = eosData(EOS_TEMP)
