@@ -9,4 +9,4 @@
 # submit with :
 #   sbatch queuescript.sh
 
-srun ./flash4
+srun ./flashx
