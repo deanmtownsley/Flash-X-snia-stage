@@ -2,10 +2,11 @@
 # On Alabama's uahpc cluster
 # modified for mesaflash
 # tested with the following:
-#   use Python2.7shared        (probably not necessary for runtime environment)
-#   use IntelCompilers         (note that it actually uses GNU, intel are under mpiicc and mpiifort)
-# initialize mesasdk, used version from 2016/1/29, which was current for mesa r9793
-# also to mesa apply patch in source/sourceTerms/Burn/BurnMain/mesaBurn/supplemental/mesa_mods_9793.diff
+#   module load python/python3/3.11.7       (probably not necessary for runtime environment)
+#   module load compilers/intel/unknown     (note that it actually uses GNU, intel are under mpiicc and mpiifort)
+# initialize mesasdk, used version 23.7.3
+# used mesa version 23.05.01
+# **todo check** also to mesa apply patch in source/sourceTerms/Burn/BurnMain/mesaBurn/supplemental/mesa_mods_9793.diff
 # also set MESA_DIR
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- these need to be updated for your system
@@ -57,7 +58,7 @@ PP      = -D
 OPENMP = -fopenmp
 
 FFLAGS_OPT = -ggdb -c -O2 -fdefault-real-8 -fdefault-double-8 \
--Wuninitialized -I${MESA_DIR}/include -I${MESASDK_ROOT}/include
+-Wuninitialized -fallow-argument-mismatch -I${MESA_DIR}/include -I${MESASDK_ROOT}/include
 
 
 #I explictly add -O0 because I found that compiling source files without
@@ -94,7 +95,7 @@ CFLAGS_TEST = -ggdb -O0 -c
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
-CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_16_API
+CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_18_API
 CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 
 #----------------------------------------------------------------------------
@@ -124,7 +125,7 @@ LIB_OPT   =
 LIB_DEBUG =
 LIB_TEST  =
 
-LIB_MESA = -L$(MESA_DIR)/lib -leos -lrates -lchem -lnet -linterp_2d -linterp_1d -lnum -lf2crlibm -lcrlibm -lmtx -lconst -lutils -lmesaklu `mesasdk_lapack_link` `mesasdk_blas_link`
+LIB_MESA = -L$(MESA_DIR)/lib -leos -lrates -lauto_diff -lhdf5io -lchem -lnet -linterp_2d -linterp_1d -lnum -lmath -lcrlibm -lmtx -lconst -lutils `mesasdk_lapack_link` `mesasdk_blas_link` `mesasdk_crmath_link`
 
 LIB_HDF4  =
 LIB_HDF5  = ${LIB_MESA} -L${HDF5_PATH}/lib -lhdf5_fortran -lhdf5 -lz

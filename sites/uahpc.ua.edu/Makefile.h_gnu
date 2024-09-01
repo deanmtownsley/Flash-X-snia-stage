@@ -1,9 +1,9 @@
 # FLASH makefile definitions for x86-64 Linux (GNU compilers, Intel MPI)
 # On Alabama's uahpc cluster
 # tested with the following:
-#   use Python2.7shared        (probably not necessary for runtime environment)
-#   use IntelCompilers         (note that it actually uses GNU, intel are under mpiicc and mpiifort)
-#   use hdf5                   (probably not necessary for build environment)
+#   module load python/python3/3.11.7        (probably not necessary for runtime environment)
+#   module load compilers/intel/unknown         (note that it actually uses GNU, intel are under mpiicc and mpiifort)
+#   module load hdf5/1.8.9                   (probably not necessary for build environment)
 #----------------------------------------------------------------------------
 # Set the HDF5/MPI library paths -- these need to be updated for your system
 #----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ CFLAGS_TEST = -ggdb -O0 -c
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
-CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_16_API
+CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_18_API
 CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 
 #----------------------------------------------------------------------------
@@ -129,6 +129,7 @@ LIB_MATH  =
 LIB_MPI   =
 LIB_NCMPI = -L ${NCMPI_PATH}/lib -lpnetcdf
 LIB_MPE   =
+LIB_MA28  = ../../ma28/object/libma28.a
 
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE
 
