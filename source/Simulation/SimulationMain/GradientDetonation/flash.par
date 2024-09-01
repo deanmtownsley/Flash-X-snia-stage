@@ -43,7 +43,7 @@ plot_var_2 = "si28"
 
 
 # dump checkpoint files every checkpointFileIntervalTime seconds
-checkpointFileIntervalTime   = 1e-3
+checkpointFileIntervalTime   = 1e-2
 #checkpointFileIntervalStep   = 1
 
 # dump plot files every plotFileIntervalTime seconds
@@ -52,7 +52,7 @@ plotFileIntervalTime    = 1.0e8
 
 # go for nend steps or tmax seconds, whichever comes first
 nend     = 9999999
-tmax     = 0.48
+tmax     = 0.04
 
 
 
