@@ -40,11 +40,11 @@ subroutine Burn (dt)
   use Burn_data, ONLY: bn_useBurn, bn_useShockBurn, bn_map_fi_to_mi, bn_limiter_max_dlnT
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Grid_interface, ONLY  : Grid_fillGuardCells, &
-       Grid_getBlkIndexLimits, Grid_getCellCoords, Grid_getBlkPtr, &
-       Grid_releaseBlkPtr, Grid_getSingleCellVol, Grid_getMinCellSize, &
+       Grid_getBlkIndexLimits, Grid_getCellCoords, &
+       Grid_getSingleCellVol, Grid_getMinCellSize, &
        Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_iterator, ONLY : Grid_iterator_t
-  use Grid_tile_t, ONLY : Grid_tile_t
+  use Grid_tile, ONLY : Grid_tile_t
   use Eos_interface, ONLY   : Eos_multiDim, Eos
   use Hydro_interface, ONLY : Hydro_detectShock
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -73,17 +73,18 @@ subroutine Burn (dt)
   !integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
 
   real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
-  integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
+  integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
   real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
 
   real, dimension(NSPECIES):: fabund, mabund
-  real, dimension(1:NSPECIES) :: fabund_buff
+  real, dimension(1,NSPECIES) :: fabund_buff
   real :: qbar_ini, qbar_fin, Ye_ini, Ye_fin, de
   real :: cgsMeVperGram = 9.6485e17
   real :: pe_n_mdiff = 938.2723+0.5110-939.5656
   real :: temp,rho, t_sc, dx_min, dt_nuc, de_limit
   real :: eosData(EOS_NUM)
-  real, dimension(1:EOS_VARS) :: eosData_buff
+  real, dimension(1,EOS_VARS) :: eosData_buff
+  real, dimension(1,EOS_VARS+1,EOS_NUM) :: derivs
   logical :: eosMask(EOS_VARS+1:EOS_NUM)
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t) :: tileDesc
@@ -147,13 +148,10 @@ subroutine Burn (dt)
      ! shock detect if burning is turned off in shocks
      if (.NOT. bn_useShockBurn) then
         ! get coordinate positions, used for shock detection
-        !xSizeCoord = blkLimitsGC(HIGH,IAXIS)
-        !ySizeCoord = blkLimitsGC(HIGH,JAXIS)
-        !zSizeCoord = blkLimitsGC(HIGH,KAXIS)
         grownTileLimits = tileDesc%grownLimits
         allocate(xCoord(grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS)))
         allocate(yCoord(grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS)))
-        allocate(zCoord(grownTileLimits(LOW,XAXIS):grownTileLimits(HIGH,KAXIS)))
+        allocate(zCoord(grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS)))
         call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                           grownTileLimits(LOW,  :), &
                           grownTileLimits(HIGH, :), &
@@ -216,11 +214,11 @@ subroutine Burn (dt)
               ! need c_V to compute de_limit
               eosData(EOS_TEMP) = temp
               eosData(EOS_DENS) = rho
-              fabund_buff(1,:) = fabund(SPECIES_BEGIN: SPECIES_END) !Check this
+              fabund_buff(1,:) = fabund(:)
               eosData_buff(1,:) = eosData(1:EOS_VARS) 
-              call Eos_vector(MODE_DENS_TEMP, 1, eosData_buff, fabund_buff, eosMask)
+              call Eos_vector(MODE_DENS_TEMP, 1, eosData_buff, fabund_buff, derivs=derivs)
               eosData(1:EOS_VARS) = eosData_buff(1.:)
-              fabund(SPECIES_BEGIN: SPECIES_END) = fabund_buff(1,:) !Check this
+              eosData(EOS_VARS+1:EOS_NUM) = derivs(:)
 
               t_sc = dx_min/sqrt(solnData(GAMC_VAR,i,j,k)*solnData(PRES_VAR,i,j,k)/rho)
               de_limit = bn_limiter_max_dlnT*temp*eosData(EOS_CV)/t_sc * dt

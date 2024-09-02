@@ -3,7 +3,7 @@
 module Burn_data
 
   implicit none
-#include "Flash.h"
+#include "Simulation.h"
 
   logical, save :: bn_useBurn
   logical, save :: bn_useShockBurn
