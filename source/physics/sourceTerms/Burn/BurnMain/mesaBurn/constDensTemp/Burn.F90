@@ -45,8 +45,8 @@ subroutine Burn (dt)
        Grid_getTileIterator, Grid_releaseTileIterator
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
-  use Eos_interface, ONLY   : Eos_multiDim, Eos
-  use Hydro_interface, ONLY : Hydro_detectShock
+  use Eos_interface, ONLY   : Eos_multiDim, Eos_vector
+  use Hydro_interface, ONLY : Hydro_shockStrength
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use Multispecies_interface, ONLY: Multispecies_getSumFrac
 
@@ -74,7 +74,9 @@ subroutine Burn (dt)
 
   real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
-  real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
+  integer, parameter :: shock_mode = 1
+  real, parameter :: shock_thresh = 0.33
+  real, allocatable, dimension(:,:,:) :: shock
 
   real, dimension(NSPECIES):: fabund, mabund
   real, dimension(1,NSPECIES) :: fabund_buff
@@ -84,7 +86,7 @@ subroutine Burn (dt)
   real :: temp,rho, t_sc, dx_min, dt_nuc, de_limit
   real :: eosData(EOS_NUM)
   real, dimension(1,EOS_VARS) :: eosData_buff
-  real, dimension(1,EOS_VARS+1,EOS_NUM) :: derivs
+  real, dimension(1,EOS_VARS+1:EOS_NUM) :: derivs
   logical :: eosMask(EOS_VARS+1:EOS_NUM)
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t) :: tileDesc
@@ -165,8 +167,9 @@ subroutine Burn (dt)
                           grownTileLimits(HIGH, :), &
                           zCoord)
 
-        call Hydro_detectShock(solnData, shock, tileDesc%limits, grownTileLimits, (/0,0,0/), &
-             xCoord,yCoord,zCoord)
+        call Hydro_shockStrength(solnData, shock, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
+                                                  grownTileLimits(LOW,:), grownTileLimits(HIGH,:), &
+                                                  xCoord,yCoord,zCoord, shock_thresh, shock_mode)
 
         deallocate(xCoord)
         deallocate(yCoord)
@@ -203,7 +206,7 @@ subroutine Burn (dt)
 #endif
            do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
               ! skip this cell if shock burning is turned off (normally) and it is in a shock
-              if ( (.not. bn_useShockBurn) .and. ( shock(i,j,k) == 1.0 ) ) then
+              if ( (.not. bn_useShockBurn) .and. ( shock(i,j,k) > 0.0 ) ) then
                  solnData(ENUC_VAR,i,j,k) = 0.0
                  cycle
               endif
@@ -217,8 +220,8 @@ subroutine Burn (dt)
               fabund_buff(1,:) = fabund(:)
               eosData_buff(1,:) = eosData(1:EOS_VARS) 
               call Eos_vector(MODE_DENS_TEMP, 1, eosData_buff, fabund_buff, derivs=derivs)
-              eosData(1:EOS_VARS) = eosData_buff(1.:)
-              eosData(EOS_VARS+1:EOS_NUM) = derivs(:)
+              eosData(1:EOS_VARS) = eosData_buff(1,:)
+              eosData(EOS_VARS+1:EOS_NUM) = derivs(1,:)
 
               t_sc = dx_min/sqrt(solnData(GAMC_VAR,i,j,k)*solnData(PRES_VAR,i,j,k)/rho)
               de_limit = bn_limiter_max_dlnT*temp*eosData(EOS_CV)/t_sc * dt
