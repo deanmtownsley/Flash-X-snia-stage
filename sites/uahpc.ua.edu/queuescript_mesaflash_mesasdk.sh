@@ -13,10 +13,10 @@
 #   sbatch queuescript.sh
 
 export OMP_NUM_THREADS=4
-export MESASDK_ROOT=/dmt/townsley/code/mesa/mesasdk
+export MESASDK_ROOT=/dmt/common/mesa/mesasdk-23.7.3
 source ${MESASDK_ROOT}/bin/mesasdk_init.sh
 
-export MESA_DIR=/dmt/townsley/code/mesa/mesa_9793
+export MESA_DIR=/dmt/common/mesa/mesa-r23.05.1
 
 
-srun ./flash4
+srun ./flashx

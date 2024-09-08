@@ -147,10 +147,13 @@ subroutine Burn (dt)
      !call Grid_getBlkPtr(blockID,solnData)
      !call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
 
+     grownTileLimits = tileDesc%grownLimits
      ! shock detect if burning is turned off in shocks
+     allocate( shock( grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS), &
+                      grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS), &
+                      grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS) ) )
      if (.NOT. bn_useShockBurn) then
         ! get coordinate positions, used for shock detection
-        grownTileLimits = tileDesc%grownLimits
         allocate(xCoord(grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS)))
         allocate(yCoord(grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS)))
         allocate(zCoord(grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS)))
@@ -274,6 +277,7 @@ subroutine Burn (dt)
      ! --------------------------------
      call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
 
+     deallocate(shock)
      !call Grid_releaseBlkPtr(blockID,solnData)
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
