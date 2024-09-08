@@ -1,6 +1,8 @@
 
-REQUIRES Simulation/SimulationComposition
+REQUIRES Simulation/SimulationComposition/Burn/mesaBurn
 
 DEFAULT constDensTemp
 
 VARIABLE enuc
+
+DATAFILES SpeciesList.txt

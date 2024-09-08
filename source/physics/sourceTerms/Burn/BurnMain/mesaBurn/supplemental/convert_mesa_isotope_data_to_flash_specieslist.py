@@ -3,8 +3,8 @@
 import sys
 
 if ( len(sys.argv) < 2 ) :
-	print "Usage:"
-	print sys.argv[0]+ " .../mesa/chem/data/isotopes.data > .../flash/Simulation/SimulationComposition/Burn/SpeciesList.txt"
+	print("Usage:")
+	print(sys.argv[0]+ " .../mesa/chem/data/isotopes.data > .../flash/Simulation/SimulationComposition/Burn/SpeciesList.txt")
 	sys.exit(1)
 
 
@@ -40,4 +40,4 @@ for line in mfile :
 	else :
 		unknown = 0
 
-	print nuclidename +'\t'+ ( "%i\t%i\t%i\t%7.3f\t%i\t%3.1f" % (Z, (Z+N), N, binding_energy, spin_factor, unknown ) )
+	print(nuclidename +'\t'+ ( "%i\t%i\t%i\t%7.3f\t%i\t%3.1f" % (Z, (Z+N), N, binding_energy, spin_factor, unknown ) ))
