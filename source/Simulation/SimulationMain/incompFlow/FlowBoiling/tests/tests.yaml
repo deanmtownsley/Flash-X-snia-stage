@@ -3,3 +3,4 @@
 
 Comparison/incompFlow/FlowBoiling/2d/AMReX:
   setupOptions: -auto -maxblocks=500 -2d -nxb=16 -nyb=16 +amrex +parallelIO +incomp -tomlfile=tests/test_2d_am.toml
+  parfiles: <defaultParfile>
