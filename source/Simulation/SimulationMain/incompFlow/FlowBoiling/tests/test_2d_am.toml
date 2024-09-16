@@ -110,19 +110,14 @@
 
 [Driver]
   restart = false
-  nend = 1200000
+  nend = 100
   tmax = 100
   dtinit = 1e-5
   dtmax = 0.4e-3
   tstep_change_factor = 1.01
-  wall_clock_time_limit = -1
 
 [IO]
-  basenm = "INS_Flow_Boiling_"
-  checkpointFileIntervalTime = 20.0
-  plotFileIntervalTime = 10.0
   checkpointFileNumber = 0
-  rolling_checkpoint = 150
   plotFileNumber = 0
   plot_var_1 = "pres"
   plot_var_2 = "velx"
