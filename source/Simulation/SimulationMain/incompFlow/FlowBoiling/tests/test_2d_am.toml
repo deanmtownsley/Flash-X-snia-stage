@@ -66,10 +66,10 @@
   yl_boundary_type = "noslip_ins"
   yr_boundary_type = "noslip_ins"
   gr_amrexMG_composite_solve = true
-  gr_amrexMG_Tol = 1.0e-13
+  gr_amrexMG_Tol = 1.0e-12
   gr_amrexMG_max_iter = 200
-  nblockx = 480
-  nblocky = 20
+  nblockx = 120
+  nblocky = 5
   nrefs = 10000000
   lrefine_min = 1
   lrefine_max = 1
