@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, string, re, time, shutil, types, glob, socket, math, toml
+import os, sys, string, re, time, shutil, types, glob, socket, math, importlib
 
 import parseCmd, lazyFile, createParfile, unitMods
 import globals
@@ -304,12 +304,21 @@ def main():
 
     # generate parfile and input file from toml file instead
     if GVars.tomlfile:
+       try:
+           toml = importlib.import_module("toml")
+       except:
+           raise SetupError("Cannot import toml library in your python environment. Cannot use tomlfile option")
+
        if GVars.parfile:
            GVars.out.put("Appending parfile with contents from tomlfile")
        else:
            GVars.out.put("Generating parfile with contents from tomlfile")
 
-       GVars.tomlDict = toml.load(GVars.tomlfile)
+       try:
+           GVars.tomlDict = toml.load(GVars.tomlfile)
+       except toml.decoder.TomlDecodeError as e:
+           raise SetupError(f"Error when parsing tomlfile: line {e.lineno} at column {e.colno}.")
+
        createParfile.main(GVars)
 
     # Call unit modules to run preprocessing scripts

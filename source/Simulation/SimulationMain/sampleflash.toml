@@ -1,0 +1,67 @@
+# Toml implementation of sampleFlash.par runtime parameter file. Each parameter is associated
+# with its respective unit. Check the online documentation for runtime parameter descriptions
+# or look at the setup_params file in the object directory for descriptions of parameters 
+# specific to your simulation
+
+[Eos]
+gamma = 1.4 # Gas ratio of specific heats
+eintSwitch = 1e-4 # Common eos parameters
+
+[Grid]
+geometry = "cartesian"
+eosMode = "dens_ie"
+convertToConsvdInMeshInterp = true
+xmin = 0.0
+xmax = 1.0
+ymin = 0.0
+ymax = 1.0
+xl_boundary_type = "outflow"
+xr_boundary_type = "outflow"
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
+lrefine_max     = 6
+lrefine_min 	= 1
+refine_var_1    = "dens"
+
+[Driver]
+restart = false
+nend = 1000
+tmax = 0.2
+wall_clock_time_limit = 604800.0
+iProcs = 1 #number or procs in the i direction
+jProcs = 1
+kProcs = 1
+
+[IO]
+checkpointFileIntervalTime = 0.2
+checkpointFileIntervalStep = 0
+checkpointFileNumber = 0
+plotfileIntervalTime = 0.0
+plotfileIntervalStep = 0
+plotfileNumber = 0
+plot_var_1 = "dens"
+plot_var_2 = "pres"
+plot_var_3 = "temp"
+
+[Logfile]
+run_comment = "Your Simulation"
+log_file = "yourSimulation.log"
+
+[Simulation]
+basenm          = "sod_"
+
+[Hydro]
+cfl		= 0.8
+order		= 3 # Interpolation order (1st/2nd/3rd/5th order, 3 means PPM)
+slopeLimiter    = "mc" # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta= 1.0 # Slope parameter for the "limited" slope by Toro
+charLimiting	= true # Characteristic limiting vs. Primitive limiting
+use_avisc	= true # use artificial viscosity (originally for PPM)
+cvisc		= 0.1 # coefficient for artificial viscosity
+use_flattening	= true # use flattening (dissipative) (originally for PPM)
+use_steepening	= true # use contact steepening (originally for PPM)
+use_upwindTVD	= false # use upwind biased TVD slope for PPM (need nguard=6)
+RiemannSolver	= "Roe" # Roe, HLL, HLLC, HLLD, LLF, Marquina
+entropy         = false # Entropy fix for the Roe solver
+shockDetect	= false # Shock Detect for numerical stability
+shocklowerCfl	= false # Apply a lower CFL factor in shocks for stability

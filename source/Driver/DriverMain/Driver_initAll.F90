@@ -155,6 +155,9 @@ subroutine Driver_initAll()
   ! Heater source term
   call Heater_init()
 
+  ! ImBound unit initialization
+  call ImBound_init(dr_restart)
+
   if(.not. dr_restart) then
 
      call Driver_init()
@@ -199,9 +202,6 @@ subroutine Driver_initAll()
 
   ! Stencils unit initialization
   call Stencils_init()
-
-  ! ImBound unit initialization
-  call ImBound_init(dr_restart)
 
   ! Multiphase unit must go before INS
   call Multiphase_init(dr_restart)

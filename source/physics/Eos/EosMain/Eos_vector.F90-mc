@@ -37,8 +37,8 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
   implicit none
   integer, INTENT(in) :: mode, vecLen
   real, dimension(vecLen,EOS_VARS) :: eosData 
-  real, optional, INTENT(out),target,dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
   real, optional, INTENT(in),target, dimension(NSPECIES,vecLen)    :: massFrac1
+  real, optional, INTENT(out), dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
 
   real,pointer,dimension(:) :: massFrac
   integer :: i

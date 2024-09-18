@@ -35,7 +35,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
 #include "Simulation.h"
 
    integer, intent(in) :: mode, vecLen
-   real, intent(inout), dimension(vecLen,EOS_VARS), target :: eosData
+   real, intent(inout), dimension(vecLen,EOS_VARS) :: eosData
    real, optional, intent(in), dimension(NSPECIES,vecLen), target :: massFrac
    real, optional, intent(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
    integer :: vecBegin, vecEnd

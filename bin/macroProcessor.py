@@ -15,24 +15,38 @@ macro_keyword = "M"
 macro_regex = (
     r"\s*@\s*"
     + re.escape(macro_keyword)
-    + r"\s*\w*(?:\s*\(\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*\))?"
+    + r"\s*(\w+)(?:\s*\(\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*\))?"
 )
-invocation_regex = (
+macro_regex_simple = (
+    r"\s*@\s*"
+    + re.escape(macro_keyword)
+    + r"\s*(\w+)"
+)
+macroPat = re.compile(macro_regex)
+macroPat_simple = re.compile(macro_regex_simple)
+invocation_regex_fl = (
     r"(?P<indent>\s*)@\s*"
     + re.escape(macro_keyword)
-    + r"\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*)\))?"
+    + r"\s*(?P<key>\w*)(?:\s*\((?P<arglist>\s*[\w\[\]+-.]*\s*(?:,\s*[\w\[\]+-.]*\s*)*)\))?" # KW: Omit the final '?' ?
+)
+invocation_regex_simple = (
+    r"(?P<indent>\s*)@\s*"
+    + re.escape(macro_keyword)
+    + r"\s*(?P<key>\w*)"
 )
 LINE_CONT_CHARS = ["\\\\", "&&"]
 
 
 class macroProcessor:
-    def __init__(self):
+    def __init__(self, dbg=False):
         self.mdict = {}
         self.argdict = {}
+        self.fldict = {}
         self.typedict = {}
         self.indentdict = {}
         self.sourcedict = {}
         self.keylist = []
+        self.debug = dbg
         # self.loadDefsList(standardMacroDefLibrary)
 
     ######### LOADING DEFS ###########
@@ -75,6 +89,12 @@ class macroProcessor:
                     ]
                 except:
                     self.argdict[section] = []
+
+                try:
+                    args = parser.get(section, "args")
+                    self.fldict[section] = True
+                except:
+                    self.fldict[section] = False
 
                 try:
                     self.typedict[section] = parser.get(section, "type")
@@ -155,12 +175,17 @@ class macroProcessor:
 
         return newArgList
 
-    def expandMacro(self, invocation, macroStack):
+    def expandMacro(self, invocation, functionLike, macroStack):
         expansion = invocation
         keymatch = False
 
         # use regex to get parts of invocation
-        invocation_parts = re.match(invocation_regex, invocation)
+        if not functionLike:    # simple macro, no parentheses expected
+            if self.debug: print('expandMacro: non-fl invocation is "%s"' % invocation)
+            invocation_parts = re.match(invocation_regex_simple, invocation)
+        else:
+            if self.debug: print('expandMacro: function-like invocation is "%s"' % invocation)
+            invocation_parts = re.match(invocation_regex_fl, invocation)
         macroName = invocation_parts.group("key")
         indent = invocation_parts.group("indent")
 
@@ -186,13 +211,13 @@ class macroProcessor:
                 break
 
         # if expansion has a recursive macro, process lines again
-        recursion = len(re.findall(macro_regex, expansion)) > 0
-        if recursion and keymatch:
-            macroStack.append(macroName)
-            expansionLines = expansion.split("\n")
-            for i, line in enumerate(expansionLines):
-                expansionLines[i] = self.processLine(line, macroStack)
-            expansion = "\n".join(expansionLines)
+        if keymatch:
+            if macroPat_simple.search(expansion):
+                macroStack.append(macroName)
+                expansionLines = expansion.split("\n")
+                for i, line in enumerate(expansionLines):
+                    expansionLines[i] = self.processLine(line, macroStack)
+                expansion = "\n".join(expansionLines)
 
         return expansion
 
@@ -207,27 +232,52 @@ class macroProcessor:
 
         # scan line for comments and strip them
         lineStripped = lineIn
+        endpos = len(lineIn)
         inString = False
         for i, ch in enumerate(lineIn):
             if ch == string_char:
                 inString = not inString
             if ch == comment_char and not inString:
                 lineStripped = lineIn[0:i]
+                endpos = i
                 break
 
-        if len(lineStripped.split()) >= 1:
-            # find matches for macro invocation regex
-            invocation_list = re.findall(macro_regex, lineStripped)
+        replaced = False
+        processed = ""
+        pos = 0
+        if len(lineStripped.split(maxsplit=0)) == 1:
+            while pos < endpos:
+                # find next match for macro invocation regex
+                invocationMatch = macroPat_simple.search(lineIn, pos, endpos)
+                if not invocationMatch:
+                    break       # no (more) macro invocations in valid remainder of line
 
-            # expand each invocation and replace
-            for invocation in invocation_list:
-                expansion = self.expandMacro(invocation, macroStack)
-                lineOut = lineOut.replace(invocation, expansion, 1)
-                # if the macro-processed line has only whitespaces
-                # or it just has one &,
-                # return a blank line
-                if lineOut.strip() == "&" or lineOut.strip() == "":
-                    lineOut = ""
+                invocation, macroName = invocationMatch.group(0, 1)
+
+                functionLike = (macroName not in self.fldict) or self.fldict[macroName]
+                if (functionLike):
+                    invocationMatch = macroPat.search(lineIn, pos, endpos)
+
+                # get the expansion of the match - may be a literal copy
+                # if definition not found
+
+                if invocationMatch:
+                    foundpos = invocationMatch.start()
+                    foundend = invocationMatch.end()
+                    expansion = self.expandMacro(lineOut[foundpos:foundend],
+                                                 functionLike, macroStack)
+
+                    processed += lineIn[pos:foundpos] + expansion
+                    replaced = True
+                    pos = foundend
+
+        if replaced:
+            lineOut = processed + lineIn[pos:]
+            # if the macro-processed line has only whitespaces
+            # or it just has one &,
+            # return a blank line
+            if lineOut.strip() == "&" or lineOut.strip() == "":
+                lineOut = ""
 
         return lineOut
 
@@ -306,13 +356,16 @@ def main():
     )
     parser.add_argument("--output", "-o", type=str, help="output filename")
     parser.add_argument(
-        "--macroDefs", "-m", type=str, help="file with list of extra macro definitions"
+        "--macroDefs", "-m",
+        type=str, action="append",
+        help="file with list of extra macro definitions"
     )
+    parser.add_argument("--debug", action="store_true", help="Enable some debugging output")
     args = parser.parse_args()
 
-    m = macroProcessor()
+    m = macroProcessor(args.debug)
     if args.macroDefs is not None:
-        m.loadDefs(args.macroDefs)
+        m.loadDefsList(args.macroDefs)
 
     # if args.filename is None:
     #     processFilesInCurrentDir()
@@ -322,14 +375,14 @@ def main():
             defs_in_dir = [
                 f for f in os.listdir(".") if (os.path.isfile(f) and (".ini" in f))
             ]
-            m.loadDefs(defs_in_dir)
-        # Convert just the given file
-        if args.output is None:
-            if args.filename.count(".F90-mc") >= 1:
-                args.output = args.filename.replace(".F90-mc", ".F90")
-            else:
-                args.output = args.filename + ".out"
-        m.convertFile(args.filename, args.output)
+            m.loadDefsList(defs_in_dir)
+    # Convert just the given file
+    if args.output is None:
+        if args.filename.count(".F90-mc") >= 1:
+            args.output = args.filename.replace(".F90-mc", ".F90")
+        else:
+            args.output = args.filename + ".out"
+    m.convertFile(args.filename, args.output)
 
 
 if __name__ == "__main__":

@@ -146,6 +146,9 @@ ifdef MODUPPERCASE
 else
 \t-$(if $(wildcard $*.mod),if [ -w $*.mod -a -s $(shell echo $*|tr A-Z a-z).mod -a \( $(shell echo $*|tr A-Z a-z).mod -nt $*.mod \) ] ;then ln -f -v $(shell echo $*|tr A-Z a-z).mod $*.mod;else test -f $@ -a -s $@ -a -w $@&&touch $@||:;fi)
 endif
+%%.i90 : %%.F90
+\t$(ECHO-PROCESSING)
+\t$(FCOMP) $(patsubst -c,-E,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .i90,$(basename $@))
 %%.o : %%.c
 \t$(ECHO-COMPILING) 
 \t$(CCOMP) $(CFLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))

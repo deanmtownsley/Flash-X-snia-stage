@@ -90,6 +90,12 @@ subroutine ib_readBody(body, bodyFile)
    call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%normal(2), dsetDims, h5err)
    call h5dclose_f(dset, h5err)
 
+   body%boundBox(:, 1) = (/minval(body%elems(:)%center(1)), &
+                           maxval(body%elems(:)%center(1))/)
+
+   body%boundBox(:, 2) = (/minval(body%elems(:)%center(2)), &
+                           maxval(body%elems(:)%center(2))/)
+
    if (body%dims == 3) then
       ! Add read statement for 3d body
 
@@ -127,6 +133,9 @@ subroutine ib_readBody(body, bodyFile)
       if (h5err < 0) call Driver_abort('Unable to read elems/zC')
       call h5dread_f(dset, H5T_NATIVE_DOUBLE, body%elems(:)%pC(3), dsetDims, h5err)
       call h5dclose_f(dset, h5err)
+
+      body%boundBox(:, 3) = (/minval(body%elems(:)%center(3)), &
+                              maxval(body%elems(:)%center(3))/)
 
    end if
 
