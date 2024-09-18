@@ -1,3 +1,0 @@
-# Temporary test suite for developing pool and flow boiling capabilities
-# should be merged with IncompNS.suite before merge with staged and main
-incompFlow/FlowBoiling -t "Comparison/incompFlow/FlowBoiling/2d/AMReX" -np 4
