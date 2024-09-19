@@ -47,14 +47,14 @@ module Heater_type
       real    :: seedHeight
       real    :: velContact
 
-      real    :: C3
-      real    :: C2
-      real    :: C1
-      real    :: C0
-      real    :: tbl_thickness
-      integer :: non_uniform_temp_flag
-      integer :: heat_flux_flag
-      real    :: nd_heat_flux
+      real    :: C3 = 0.
+      real    :: C2 = 0.
+      real    :: C1 = 0.
+      real    :: C0 = 0.
+      real    :: tbl_thickness = 0.2
+      integer :: non_uniform_temp_flag = 0
+      integer :: heat_flux_flag = 0
+      real    :: nd_heat_flux = 0.
 
       integer :: numSitesAll, numSitesProc
       integer :: numSitesBlk(MAXBLOCKS), siteMapOnProc(MAXBLOCKS, HTR_MAX_NUMSITES)

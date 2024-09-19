@@ -7,6 +7,11 @@ PARAMETER useHeater BOOLEAN TRUE
 
 PPDEFINE HEATER_MAIN
 
+USESETUPVARS HeaterFluxBC
+IF HeaterFluxBC
+    PPDEFINE HEATER_MAIN_FLUXBC
+ENDIF
+
 D htr_nucSeedRadius for re-nucleation
 PARAMETER htr_nucSeedRadius  REAL     0.1
 

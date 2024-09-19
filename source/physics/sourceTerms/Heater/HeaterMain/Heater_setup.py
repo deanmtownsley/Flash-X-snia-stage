@@ -94,14 +94,16 @@ def __createHeater(GVars):
             hfile.create_dataset("site/y", data=ysite, shape=(info["numSites"]), dtype="float32")
             hfile.create_dataset("site/z", data=zsite, shape=(info["numSites"]), dtype="float32")
             hfile.create_dataset("init/radii", data=radii, shape=(info["numSites"]), dtype="float32")
-            hfile.create_dataset("heater/C3",data=info["C3"],shape=(1),dtype="float32")
-            hfile.create_dataset("heater/C2",data=info["C2"],shape=(1),dtype="float32")
-            hfile.create_dataset("heater/C1",data=info["C1"],shape=(1),dtype="float32")
-            hfile.create_dataset("heater/C0",data=info["C0"],shape=(1),dtype="float32")
-            hfile.create_dataset("heater/tbl_thickness",data=info["tbl_thickness"],shape=(1),dtype="float32")
-            hfile.create_dataset("heater/non_uniform_temp_flag",data=info["non_uniform_temp_flag"],shape=(1),dtype="int32")
-            hfile.create_dataset("heater/heat_flux_flag",data=info["heat_flux_flag"],shape=(1),dtype="int32")
-            hfile.create_dataset("heater/nd_heat_flux",data=info["nd_heat_flux"],shape=(1),dtype="float32")
+
+            if GVars.setupVars.get("HeaterFluxBC"):
+                hfile.create_dataset("heater/C3",data=info["C3"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/C2",data=info["C2"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/C1",data=info["C1"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/C0",data=info["C0"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/tbl_thickness",data=info["tbl_thickness"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/non_uniform_temp_flag",data=info["non_uniform_temp_flag"],shape=(1),dtype="int32")
+                hfile.create_dataset("heater/heat_flux_flag",data=info["heat_flux_flag"],shape=(1),dtype="int32")
+                hfile.create_dataset("heater/nd_heat_flux",data=info["nd_heat_flux"],shape=(1),dtype="float32")
 
             hfile.close()
 
