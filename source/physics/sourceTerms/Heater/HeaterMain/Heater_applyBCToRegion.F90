@@ -79,7 +79,7 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                               coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
                              if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .gt. &
-                                     abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
 
                                      if(heater%heat_flux_flag .eq. 1)then
 
@@ -157,13 +157,13 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                              end if
 
                              if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin).gt. &
-                                     abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
                              
-                                     !regionData(offset - i, j, k, ivar) = regionData(i, j, k, ivar)- &
-                                     !                    del(axis)*cos(dynamicAngle*acos(-1.0)/180)
-                                   
                                      regionData(offset - i, j, k, ivar) = regionData(i, j, k, ivar)- &
-                                                         del(axis)*(offset - 2*i)*cos(dynamicAngle*acos(-1.0)/180)                                                 
+                                                         del(axis)*cos(dynamicAngle*acos(-1.0)/180)
+                                   
+                                     !regionData(offset - i, j, k, ivar) = regionData(i, j, k, ivar)- &
+                                     !                    del(axis)*(offset - 2*i)*cos(dynamicAngle*acos(-1.0)/180)                                                 
                                                  
                              end if
 
@@ -192,7 +192,7 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                               coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
                              if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .lt. & 
-                                     abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
 
                                      if(heater%heat_flux_flag .eq. 1)then
 
@@ -279,12 +279,12 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                              end if
 
                              if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .lt. &
-                                     abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
 
-                                  !   regionData(i, j, k, ivar) = regionData(offset-i, j, k, ivar)- &
-                                  !                         del(axis)*cos(dynamicAngle*acos(-1.0)/180)
                                      regionData(i, j, k, ivar) = regionData(offset-i, j, k, ivar)- &
-                                                           del(axis)*(offset-2*i)*cos(dynamicAngle*acos(-1.0)/180)                                                   
+                                                           del(axis)*cos(dynamicAngle*acos(-1.0)/180)
+                                  !   regionData(i, j, k, ivar) = regionData(offset-i, j, k, ivar)- &
+                                  !                         del(axis)*(offset-2*i)*cos(dynamicAngle*acos(-1.0)/180)                                                   
     
                              end if
                           end if
