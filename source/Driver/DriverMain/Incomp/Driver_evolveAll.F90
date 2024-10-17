@@ -108,6 +108,8 @@ subroutine Driver_evolveAll()
 
    use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
+   use Grid_data, ONLY: gr_gcFillSingleVarRange
+
    implicit none
 
    ! for logfile output
@@ -129,7 +131,7 @@ subroutine Driver_evolveAll()
    integer :: iVelVar, iPresVar, iDfunVar, iMfluxVar, &
               iHliqVar, iHgasVar, iTempVar, iDivVar, iRhoFVar, &
               iViscVar, iRhoCVar, iSharpPfunVar, iSmearedPfunVar, &
-              iCurvVar, iAlphVar, iTempFrcVar, iNormVar(MDIM)
+              iCurvVar, iAlphVar, iTempFrcVar, iNormVar(MDIM), iVelCenter(MDIM)
    integer :: iteration, level, maxLev, blockCount
    type(Grid_iterator_t) :: itor
    type(Grid_tile_t) :: tileDesc
@@ -150,6 +152,14 @@ subroutine Driver_evolveAll()
    call IncompNS_getGridVar("FACE_DENSITY", iRhoFVar)
    call IncompNS_getGridVar("CENTER_VISCOSITY", iViscVar)
    call IncompNS_getGridVar("CENTER_DENSITY", iRhoCVar)
+#endif
+
+#ifdef INCOMPNS_EXTRAS
+   call IncompNS_getGridVar("CENTER_VELX", iVelCenter(IAXIS))
+   call IncompNS_getGridVar("CENTER_VELY", iVelCenter(JAXIS))
+#if NDIM==MDIM
+   call IncompNS_getGridVar("CENTER_VELZ", iVelCenter(KAXIS))
+#endif
 #endif
 
 #ifdef HEATAD_MAIN
@@ -306,8 +316,16 @@ subroutine Driver_evolveAll()
       ! Fill GuardCells for level set function
       gcMask(:) = .FALSE.
       gcMask(iDfunVar) = .TRUE.
+      gcMask(iVelCenter(IAXIS)) = .TRUE.
+      gcMask(iNormVar(IAXIS)) = .TRUE.
+#if NDIM==MDIM
+      gcMask(iVelCenter(KAXIS)) = .TRUE.
+      gcMask(iNormVar(KAXIS)) = .TRUE.
+#endif
+      gr_gcFillSingleVarRange = .TRUE.
       call Grid_fillGuardCells(CENTER, ALLDIR, &
                                maskSize=NUNK_VARS, mask=gcMask)
+      gr_gcFillSingleVarRange = .FALSE.
 
       ! Update fluid and thermal properties
       ! Loop over blocks (tiles)
@@ -598,8 +616,16 @@ subroutine Driver_evolveAll()
          ! Fill GuardCells for level set function
          gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
+         gcMask(iVelCenter(IAXIS)) = .TRUE.
+         gcMask(iNormVar(IAXIS)) = .TRUE.
+#if NDIM==MDIM
+         gcMask(iVelCenter(KAXIS)) = .TRUE.
+         gcMask(iNormVar(KAXIS)) = .TRUE.
+#endif
+         gr_gcFillSingleVarRange = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
+         gr_gcFillSingleVarRange = .FALSE.
 
          ! Loop over blocks (tiles) and call Multiphase
          ! routines
@@ -655,8 +681,16 @@ subroutine Driver_evolveAll()
 
          gcMask(:) = .FALSE.
          gcMask(iDfunVar) = .TRUE.
+         gcMask(iVelCenter(IAXIS)) = .TRUE.
+         gcMask(iNormVar(IAXIS)) = .TRUE.
+#if NDIM==MDIM
+         gcMask(iVelCenter(KAXIS)) = .TRUE.
+         gcMask(iNormVar(KAXIS)) = .TRUE.
+#endif
+         gr_gcFillSingleVarRange = .TRUE.
          call Grid_fillGuardCells(CENTER, ALLDIR, &
                                   maskSize=NUNK_VARS, mask=gcMask)
+         gr_gcFillSingleVarRange = .FALSE.
 #ifdef HEATER_MAIN
          call Heater_mapSitesToProc(gridChanged=.TRUE.)
 #endif
