@@ -28,25 +28,15 @@ subroutine IncompNS_getGridVar(name, value)
       value = PRES_VAR
    case ("Center_Divergence", "center_divergence", "CENTER_DIVERGENCE")
       value = DUST_VAR
-   case ("Face_Vel_Forcing", "face_vel_forcing", "FACE_VEL_FORCING")
-      value = VFRC_FACE_VAR
 #ifdef INCOMPNS_VARDENS
-   case ("Face_Pressure_Jump", "face_pressure_jump", "FACE_PRESSURE_JUMP")
-      value = SIGM_FACE_VAR
    case ("Face_Density", "face_density", "FACE_DENSITY")
       value = RHOF_FACE_VAR
    case ("Center_Density", "center_density", "CENTER_DENSITY")
       value = RHOC_VAR
    case ("Center_Viscosity", "center_viscosity", "CENTER_VISCOSITY")
       value = VISC_VAR
-#endif
-#ifdef INCOMPNS_EXTRAS
-   case ("Center_Velx", "center_velx", "CENTER_VELX")
-      value = VELX_VAR
-   case ("Center_Vely", "center_vely", "CENTER_VELY")
-      value = VELY_VAR
-   case ("Center_Velz", "center_velz", "CENTER_VELZ")
-      value = VELZ_VAR
+   case ("Face_Pressure_Jump", "face_pressure_jump", "FACE_PRESSURE_JUMP")
+      value = SIGM_FACE_VAR
 #endif
    case default
       value = -1
