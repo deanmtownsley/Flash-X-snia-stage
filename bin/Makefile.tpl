@@ -138,14 +138,15 @@ endif
 %%.o : %%.f90
 \t$(ECHO-COMPILING) 
 \t$(FCOMP) $(FFLAGS) $(f90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
-%%.o %%.mod : %%.F90
-\t$(ECHO-COMPILING) 
-\t$(FCOMP) $(FFLAGS) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+%%.mod : %%.o
 ifdef MODUPPERCASE
 \t-$(if $(wildcard $*.mod),if [ -w $*.mod -a -s $(shell echo $*|tr a-z A-Z).mod -a \( $(shell echo $*|tr a-z A-Z).mod -nt $*.mod \) ] ;then ln -f $(shell echo $*|tr a-z A-Z).mod $*.mod;fi)
 else
 \t-$(if $(wildcard $*.mod),if [ -w $*.mod -a -s $(shell echo $*|tr A-Z a-z).mod -a \( $(shell echo $*|tr A-Z a-z).mod -nt $*.mod \) ] ;then ln -f -v $(shell echo $*|tr A-Z a-z).mod $*.mod;else test -f $@ -a -s $@ -a -w $@&&touch $@||:;fi)
 endif
+%%.o : %%.F90
+\t$(ECHO-COMPILING)
+\t$(FCOMP) $(FFLAGS) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
 %%.i90 : %%.F90
 \t$(ECHO-PROCESSING)
 \t$(FCOMP) $(patsubst -c,-E,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .i90,$(basename $@))
