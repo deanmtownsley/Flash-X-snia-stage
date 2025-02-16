@@ -1,16 +1,17 @@
-# FLASH makefile definitions for x86-64 Linux (GNU compilers, Intel MPI)
-# On Alabama's uahpc cluster
-# tested with the following:
-#   module load python/python3/3.11.7        (probably not necessary for runtime environment)
-#   module load compilers/intel/unknown         (note that it actually uses GNU, intel are under mpiicc and mpiifort)
-#   module load hdf5/1.8.9                   (probably not necessary for build environment)
+# FLASH makefile definitions for x86-64 Linux (GNU compilers, openmpi)
+# On University of Alabama's uahpc cluster
+# updated Feb 2025
+# tested with the following, required at both compile and run time:
+#   module load openmpi/mlnx/gcc/64/4.1.5rc2
+#   module load hdf5/1.12.1
 #----------------------------------------------------------------------------
-# Set the HDF5/MPI library paths -- these need to be updated for your system
+# Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
 
 MPI_PATH   =
 HDF4_PATH  =
-HDF5_PATH  = /share/apps/hdf5
+# hdf5 include and library paths are pulled directly from environment below
+#HDF5_PATH  =
 HYPRE_PATH =
 
 ZLIB_PATH  =
@@ -90,7 +91,7 @@ CFLAGS_TEST = -ggdb -O0 -c
 CFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
 # if we are using HDF5, we need to specify the path to the include files
-CFLAGS_HDF5 = -I${HDF5_PATH}/include -DH5_USE_18_API
+CFLAGS_HDF5 = -I${HDF5INCLUDE} -DH5_USE_18_API
 CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 
 #----------------------------------------------------------------------------
@@ -121,7 +122,7 @@ LIB_DEBUG =
 LIB_TEST  =
 
 LIB_HDF4  =
-LIB_HDF5  = -L ${HDF5_PATH}/lib -lhdf5 -lz
+LIB_HDF5  = -L ${HDF5DIR} -lhdf5 -lz
 
 LIB_PAPI  =
 LIB_MATH  =
