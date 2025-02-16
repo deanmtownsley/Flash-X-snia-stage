@@ -1,15 +1,15 @@
-# FLASH makefile definitions for x86-64 Linux (GNU compilers, Intel MPI)
-# On Alabama's uahpc cluster
-# modified for mesaflash
-# tested with the following:
-#   module load python/python3/3.11.7       (probably not necessary for runtime environment)
-#   module load compilers/intel/unknown     (note that it actually uses GNU, intel are under mpiicc and mpiifort)
+# FLASH makefile definitions for x86-64 Linux (GNU compilers, openmpi)
+# On University of Alabama's uahpc cluster
+# updated Feb 2025
+# this version is for mesaflash
+# tested with the following, required at both compile and run time:
+#   module load openmpi/mlnx/gcc/64/4.1.5rc2
 # initialize mesasdk, used version 23.7.3
 # used mesa version 23.05.01
-# **todo check** also to mesa apply patch in source/sourceTerms/Burn/BurnMain/mesaBurn/supplemental/mesa_mods_9793.diff
+# **todo update** also to mesa apply patch in source/sourceTerms/Burn/BurnMain/mesaBurn/supplemental/mesa_mods_9793.diff
 # also set MESA_DIR
 #----------------------------------------------------------------------------
-# Set the HDF5/MPI library paths -- these need to be updated for your system
+# Set the HDF5/MPI library paths
 #----------------------------------------------------------------------------
 
 MPI_PATH   =
@@ -134,7 +134,7 @@ LIB_PAPI  =
 LIB_MATH  =
 
 LIB_MPI   =
-LIB_NCMPI = -L${NCMPI_PATH}/lib -lpnetcdf
+LIB_NCMPI = -L ${NCMPI_PATH}/lib -lpnetcdf
 LIB_MPE   =
 
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE
