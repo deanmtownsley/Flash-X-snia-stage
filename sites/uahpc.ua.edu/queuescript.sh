@@ -9,4 +9,7 @@
 # submit with :
 #   sbatch queuescript.sh
 
-srun ./flashx
+module load openmpi/mlnx/gcc/64/4.1.5rc2
+module load hdf5/1.12.1
+
+mpirun ./flashx
