@@ -65,10 +65,8 @@ ifeq ($(filter $(major_version), 1 2 3), $(major_version))
   MAKEVERSION_BEFORE_4_3 = yes
 else ifneq (4, $(major_version))
   MAKEVERSION_BEFORE_4_3 =
-  /:=&:
 else ifeq ($(filter $(minor_version), 1 2), $(minor_version))
   MAKEVERSION_BEFORE_4_3 = yes
-  /:=:
 else
   MAKEVERSION_BEFORE_4_3 =
 endif
