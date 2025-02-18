@@ -4,7 +4,6 @@
 each file depends on. Having done that, it generates a makefile listing those dependencies"""
 
 import re, os, os.path, string, sys, io
-from packaging.version import Version, parse
 
 usemodpatt = r"^\s*use\s+([A-Za-z_0-9]+)[,]?.*"
 intrinsicModnamepatt = r"^(iso_c_binding)$"
@@ -241,31 +240,16 @@ def main():
    ofd.write("\n\n### Dependencies of modules\n")
    ofd.write(r"""
 # We want $(/) to expand to ":" or "&:", depending on GNU Make version.
+# Note that MAKEVERSION_BEFORE_4_3 is meant to be defined to either
+# a non-empty string (for True) or an empty string (for False) in the
+# main Makefile, based on the version of GNU Make of course.
 
-version_list  := $(subst ., ,$(MAKE_VERSION))
-major_version := $(word 1, $(value version_list))
-minor_version := $(word 2, $(value version_list))
-
-ifeq ($(filter $(major_version), 1 2 3), $(major_version))
-  /:=:
-else ifneq (4, $(major_version))
-  /:=&:
-else ifeq ($(filter $(minor_version), 1 2), $(minor_version))
+ifneq (,$(MAKEVERSION_BEFORE_4_3))
   /:=:
 else
   /:=&:
 endif
 """)
-   try:
-       makeVersion = Version(os.environ["MAKE_VERSION"])
-       firstNewMakeVersion = Version("4.3")
-       ofd.write(f"# setup_depends.py found MAKE_VERSION to be {makeVersion}, therefore:\n")
-       if makeVersion >= firstNewMakeVersion:
-           ofd.write("/:=&:\n")
-       else:
-           ofd.write("/:=:\n")
-   except:
-       pass
    flash_modules = []
    for (m,obj) in list(MODlist.items()):
        if m not in MODlistDone:
