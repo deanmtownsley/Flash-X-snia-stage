@@ -1,0 +1,14 @@
+diff -ur ../../../common/mesa/mesa-r23.05.1/net/private/net_burn.f90 mesa-r23.05.1-mesaburn/net/private/net_burn.f90
+--- ../../../common/mesa/mesa-r23.05.1/net/private/net_burn.f90	2023-05-26 16:48:34.000000000 -0500
++++ mesa-r23.05.1-mesaburn/net/private/net_burn.f90	2024-10-01 22:33:30.111680000 -0500
+@@ -251,8 +251,8 @@
+             species, g% chem_id, starting_x, xh, xhe, z, &
+             abar, zbar, z2bar, z53bar, ye, mass_correction, sumx)
+ 
+-         stptry = max(start * 1.0d-10,1.0d-16)
+-         stpmin = stptry * 1.0d-12
++         !stptry = max(start * 1.0d-10,1.0d-16)
++         !stpmin = stptry * 1.0d-12
+ 
+          if (dbg) write(*,*) 'call netint'
+          call netint( &
