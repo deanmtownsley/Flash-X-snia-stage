@@ -72,7 +72,8 @@ subroutine Orchestration_setupPipelineForExtCpuGpuSplitTasks(MH_tileTaskFunction
                                                              MH_ierr)
     CALL Orchestration_checkInternalError("Orchestration_setupPipelineForExtCpuGpuSplitTasks", MH_ierr)
 #else
-    CALL Driver_abort("Orchestration_setupPipelineForExtCpuGpuSplitTasks: milhoja_runtime_setupPipelineForExtCpuGpuSplitTasks disabled")
+    CALL Driver_abort("Orchestration_setupPipelineForExtCpuGpuSplitTasks:&
+         & milhoja_runtime_setupPipelineForExtCpuGpuSplitTasks disabled")
 #endif
 end subroutine Orchestration_setupPipelineForExtCpuGpuSplitTasks
 
