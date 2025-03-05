@@ -38,14 +38,19 @@
 !!
 !!
 !!  @param mode   Selects the mode of operation of the Eos unit.
-!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
-!!             MODE_DENS_TEMP as decribed above.
+!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES,
+!!             MODE_DENS_TEMP, and perhaps others.
 !!
-!!  @param  range(LOW:HIGH,MDIM) are the bounds of the array
-!!          pointed to by solnData
+!!  @param  range(LOW:HIGH,MDIM) are the spatial bounds of the region of the
+!!          array solnData on which the Eos is to act, usually as indexes in
+!!          the global index convention and definitely using the same convention
+!!          as the "lo" argument.
 !!
-!!  @param solnData(:,:,:,:) is pointer to the array where
-!!          all the data is located
+!!  @param  lo(1:MDIM) are the spatial lower bounds of the array passed as
+!!          solnData, usually the indexes in the global index convention
+!!
+!!  @param solnData(:,:,:,:) is the array where all the
+!!          solution data of a current block is located
 !!
 !!REORDER(4): solnData
 !!NOVARIANTS
