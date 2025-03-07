@@ -225,8 +225,10 @@ def main():
                       MODlistudeps[m] = "%(umodpart)s %(incpart)s" % locals()
                       MODlistFortFile[m] = filename
                       MODlistAllHere[m] = modsDefinedHere
-                      if ext == ".F" or ext == ".f":
-                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(FDEFINES) $<\n"
+                      if ext == ".F":
+                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(F77FLAGS) $(FDEFINES) $<\n"
+                      elif ext == ".f":
+                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(f77FLAGS) $(FDEFINES) $<\n"
                       elif ext == ".F90":
                           MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(F90FLAGS) $(FDEFINES) $<\n"
                       elif ext == ".f90":
