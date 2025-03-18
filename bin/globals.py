@@ -96,7 +96,7 @@ UNIT_KEYWORDS = ["Eos","Hydro","Inlet","Outlet","Simulation","Grid",
                  "SolidMechanics","ImBound","Gravity","RadTrans",
                  "Spacetime","TimeAdvance","IO","Particles",
                  "PhysicalConstants","Logfile","Timers","Profiler",
-                 "Burn","Deleptonize","Orchestration","Heater"]
+                 "Burn","Deleptonize","Orchestration","Heater","Stir"]
 
 ######## Class for SetupError Exception
 class SetupError(Exception):
