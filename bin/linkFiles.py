@@ -115,7 +115,7 @@ class LinkFileList:
         if outfile.endswith(".F90"):
           for u in memo.keys():
             if outfile+"-mc" in memo[u]:
-              GVars.out.put(f"doLINKIFOverrides: {file} shadows {outfile+'-mc'} in {u}.",globals.WARN)
+              GVars.out.put(f"doLINKIFOverrides: {sourcePathShow(file)} shadows {outfile+'-mc'} in {u}.",globals.WARN)
               memo[u].remove(outfile+"-mc")
         self.addLink(os.path.join(GVars.sourceDir, file), outfile)
 
@@ -202,7 +202,7 @@ class LinkFileList:
         if outfile.endswith(".F90"):
           for u in memo.keys():
             if outfile+"-mc" in memo[u]:
-              GVars.out.put(f"LinkFileList: {file} shadows {outfile+'-mc'} in {u}.", globals.WARN)
+              GVars.out.put(f"LinkFileList: {sourcePathShow(file)} shadows {outfile+'-mc'} in {u}.", globals.WARN)
               memo[u].remove(outfile+"-mc")
         self.addLink(file, outfile)
 
