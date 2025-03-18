@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import os
 import re
+from globals import GVars
 
 fortran_exts = [".F90", ".f90", ".F", ".f"]
 
