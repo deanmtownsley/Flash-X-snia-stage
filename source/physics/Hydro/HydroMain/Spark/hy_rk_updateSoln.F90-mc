@@ -113,7 +113,6 @@ subroutine hy_rk_updateSoln (stage, starState, tmpState, &
   dhdt = minval(deltas(1:NDIM))/(rk_coeffs(stage, 3)*dt)
 
   @M hy_DIR_parallel_loop(3) &
-  @M hy_DIR_TARGET_map(to, [limits, rk_coeffs]) &
   @M hy_DIR_shared([limits, starState, tmpState, grav, flx, fly, flz]) &
   @M hy_DIR_shared([stage, rk_coeffs, smalld, smalle]) &
   @M hy_DIR_shared([geometry, dx, dy, dz, dt, dtOld]) &
