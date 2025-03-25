@@ -40,7 +40,7 @@
 subroutine hy_rk_renormAbundance(tileLimits, solnData, loGC)
 
    use Hydro_data, ONLY : hy_threadWithinBlock, &
-                          smallx => hy_smallX
+                          hy_smallX
    use Driver_interface, ONLY : Driver_abort
 
    @M hy_DIR_TARGET_routine(vector)
@@ -60,9 +60,8 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, loGC)
 #if NSPECIES > 0
 
    @M hy_DIR_parallel_loop(3) &
-   @M hy_DIR_TARGET_map(to, [tileLimits]) &
    @M hy_DIR_private([n, abundSum, sumInv, error]) &
-   @M hy_DIR_shared([tileLimits, smallx, solnData])
+   @M hy_DIR_shared([tileLimits, hy_smallX, solnData])
    do k = tileLimits(LOW, KAXIS), tileLimits(HIGH, KAXIS)
       do j = tileLimits(LOW, JAXIS), tileLimits(HIGH, JAXIS)
          do i = tileLimits(LOW, IAXIS), tileLimits(HIGH, IAXIS)
@@ -70,12 +69,12 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, loGC)
 
             ! loop over all of the abundances in
             !the current zone and retrict them to
-            ! fall between smallx and 1.  Then
+            ! fall between hy_smallX and 1.  Then
             !compute the sum of the abundances
 
             do n = SPECIES_BEGIN,SPECIES_END
                solnData(n,i,j,k) = &
-                  max(smallx, &
+                  max(hy_smallX, &
                   min(1.e0,solnData(n,i,j,k)))
                abundSum = abundSum + solnData(n,i,j,k)
             enddo
@@ -94,7 +93,7 @@ subroutine hy_rk_renormAbundance(tileLimits, solnData, loGC)
 
             do n = SPECIES_BEGIN, SPECIES_END
                solnData(n,i,j,k) =  &
-                  max(smallx, min(1.e0,suminv*&
+                  max(hy_smallX, min(1.e0,suminv*&
                   solnData(n,i,j,k)))
             enddo
 
