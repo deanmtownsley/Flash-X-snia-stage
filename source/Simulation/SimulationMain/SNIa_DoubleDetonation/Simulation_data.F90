@@ -30,6 +30,7 @@ module Simulation_data
   !shell parameters
   logical, save :: sim_useShell
   real, save :: sim_radShellMin, sim_radShellMax, sim_thtShellMin, sim_thtShellMax
+  real, save :: sim_phiShellMin, sim_phiShellMax
   real, save :: sim_xhe4Shell, sim_xc12Shell, sim_xni56Shell
   real, save :: sim_densShellMult, sim_tempShellMult
   real, save :: sim_densShell, sim_tempShell
@@ -38,7 +39,7 @@ module Simulation_data
   real, save :: sim_densFluff, sim_tempFluff, sim_xhe4Fluff, sim_xc12Fluff, sim_xo16Fluff, sim_xni56Fluff
 
   ! ignition parameters
-  logical, save :: sim_ignite
+  logical, save :: sim_ignite, sim_plume
   real, save :: sim_ignX, sim_ignY, sim_ignZ
   real, save :: sim_ignRInner, sim_ignROuter
   real, save :: sim_ignTInner, sim_ignTOuter

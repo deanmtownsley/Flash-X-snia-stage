@@ -1,0 +1,6 @@
+# We want to use the Fortran intrinsic module named iso_c_binding here
+# in the FLASH I/O unit.  We currently do not define
+# USE_IO_C_INTERFACE more generally in other Config files or as a
+# default, although we could and probably should.
+
+PPDEFINE USE_IO_C_INTERFACE

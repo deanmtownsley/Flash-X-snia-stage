@@ -93,7 +93,7 @@ subroutine Grid_initDomain( restart,particlesInitialized)
 
         solnData(:,:,:,:) = 0.0
         call Simulation_initBlock(solnData, tileDesc)
-        call Eos_multiDim(gr_eosModeInit, tileDesc%limits, solnData)
+        call Eos_multiDim(gr_eosModeInit, tileDesc%limits, tileDesc%blkLimitsGC(LOW,:), solnData)
 
         call tileDesc%releaseDataPtr(solnData, CENTER)
         call itor%next()

@@ -121,7 +121,7 @@ subroutine Deleptonize(dotiling, dt, time)
     @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC,grownLimits,Uin)
 
     !$omp do schedule(static) reduction(+:flag)
-    @M loop_3d(blkLimits)
+    @M loop_3d(blkLimits,i,j,k)
 
     xDens = Uin(DENS_VAR, i, j, k)
     xTemp = Uin(TEMP_VAR, i, j, k)
@@ -171,7 +171,7 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp end do
 
     !$omp single
-    if (flag) call Eos_multiDim(eosMode, blkLimits, Uin)
+    if (flag) call Eos_multiDim(eosMode, blkLimits, blkLimitsGC(LOW,:) Uin)
     !$omp end single
     @M iter_end(Uin)
     !$omp end parallel

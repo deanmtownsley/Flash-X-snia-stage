@@ -53,10 +53,10 @@ subroutine bn_initNetwork
      isotp(i)   = 0
   enddo
 
-  !..zero the steps taken
-  xoktot  = 0.0e0
-  xbadtot = 0.0e0
-  xkbrn   = 0.0e0
+  ! !..zero the steps taken
+  ! xoktot  = 0.0e0
+  ! xbadtot = 0.0e0
+  ! xkbrn   = 0.0e0
 
 
   !..set the id numbers of the elements

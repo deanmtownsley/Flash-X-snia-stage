@@ -66,6 +66,7 @@ subroutine Driver_initAll()
   use Gravity_interface, ONLY : Gravity_init, &
     Gravity_potential
   use Timers_interface, ONLY : Timers_init, Timers_start, Timers_stop
+  use TimeAdvance_interface, ONLY : TimeAdvance_init
 
   use Grid_interface, ONLY : Grid_init, Grid_initDomain
   use Orchestration_interface, ONLY : Orchestration_init
@@ -151,6 +152,8 @@ subroutine Driver_initAll()
 #ifdef DEBUG_DRIVER
   if(dr_globalMe==MASTER_PE)print*,'Particles initialized'
 #endif
+
+  call TimeAdvance_init()
 
   ! Heater source term
   call Heater_init()

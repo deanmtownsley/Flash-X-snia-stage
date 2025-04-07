@@ -32,27 +32,26 @@
 
 subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
-  use Grid_interface, ONLY : Grid_getTileIterator, &
+   use Grid_interface, ONLY: Grid_getTileIterator, &
                              Grid_releaseTileIterator, &
-                             Grid_getCellCoords, &
-                             Grid_getCellFaceAreas, &
-                             Grid_getCellVolumes, &
                              Grid_communicateFluxes, &
                              Grid_fillGuardCells, &
-                             Grid_zeroFluxData, &     ! this only required for levelwidefluxes
+                             Grid_zeroFluxData, &        ! this only required for levelwidefluxes
                              Grid_getFluxCorrData_block, &
                              Grid_getFluxCorrData_xtra, &
                              Grid_putFluxData, &
-                             Grid_putFluxData_block   ! this only required for nonTelescoping
-  use Grid_tile, ONLY : Grid_tile_t
-  use Grid_iterator, ONLY : Grid_iterator_t
-  use Timers_interface, ONLY : Timers_start, Timers_stop
-  use Logfile_interface, ONLY : Logfile_stampVarMask
-  use Eos_interface, ONLY : Eos_multiDim
-  use IO_interface, ONLY : IO_setScalar
+                             Grid_putFluxData_block, &   ! this only required for nonTelescoping
+                             Grid_getCellVolumes, &
+                             Grid_getCellFaceAreas, &
+                             Grid_getCellCoords
+   use Grid_tile, ONLY: Grid_tile_t
+   use Grid_iterator, ONLY: Grid_iterator_t
+   use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Logfile_interface, ONLY: Logfile_stampVarMask
+   use IO_interface, ONLY: IO_setScalar
+   use Hydro_interface, ONLY: Hydro_prepBlock, Hydro_advance
 
-
-  use Hydro_data, ONLY : hy_useHydro, &
+   use Hydro_data, ONLY: hy_useHydro, &
                          hy_eosModeGc, &
                          hy_fluxCorrect, hy_fluxCorrectPerLevel, &
                          hy_telescoping, &
@@ -60,14 +59,13 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                          hy_weights, hy_coeffArray, &
                          hy_addFluxArray, &  ! this only required for nonTelescoping
                          hy_threadWithinBlock, hy_flattening, &
-                         hy_gcMask,&
+                         hy_gcMask, &
                          hy_lChyp, hy_C_hyp, hy_alphaGLM, &
                          hy_geometry, hy_tiny, hy_hybridRiemann, hy_maxCells, &
                          hy_cvisc, hy_smallE, hy_smalldens, hy_smallpres, hy_smallX, &
-                         hy_limRad, hy_mp5ZeroTol
-  @M hy_scratch_use
-
-  use hy_rk_interface, ONLY : hy_rk_initSolnScratch, &
+                         hy_limRad, hy_mp5ZeroTol, hy_globalLBnd, hy_globalComm
+   use Hydro_data, ONLY: @M hy_scratch_arrays_list
+   use hy_rk_interface, ONLY: hy_rk_initSolnScratch, &
                               hy_rk_getFaceFlux, &
                               hy_rk_getGraveAccel, &
                               hy_rk_updateSoln, &
@@ -79,257 +77,223 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 
 #include "Simulation.h"
 #include "constants.h"
-#include "Eos.h"
 #include "Spark.h"
 
 #include "Flashx_mpi_implicitNone.fh"
 
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
-  real, intent(IN) :: timeEndAdv, dt, dtOld
-  integer, intent(IN) :: sweepOrder
-  @M iter_declare(blkLimits,blkLimitsGC, grownLimits, Uin)
-  integer :: level
-  integer, dimension(MDIM) :: lo, loGC
-  real, dimension(MDIM) :: deltas
+   real, intent(IN) :: timeEndAdv, dt, dtOld
+   integer, intent(IN) :: sweepOrder
+   @M iter_declare(blkLimits, blkLimitsGC, grownLimits, Uin)
+   integer :: level
+   integer, dimension(MDIM) :: lo, loGC, hi, hiGC
+   real, dimension(MDIM) :: deltas
 
-  @M hy_declare_scr_ptr
+   @M hy_scratch_ptr_declare
+
 #ifdef DEBUG_GRID_GCMASK
-  logical,save :: gcMaskLogged =.FALSE.
+   logical, save :: gcMaskLogged = .FALSE.
 #else
-  logical,parameter :: gcMaskLogged =.TRUE.
+   logical, parameter :: gcMaskLogged = .TRUE.
 #endif
 
-  real :: wt
+   real :: wt
 
-  ! telescoping variables
-  integer, dimension(MDIM) :: gCells
-  integer, dimension(LOW:HIGH, MDIM, NDIM, MAXSTAGE) :: lim, limgc
-  integer, dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
+   ! telescoping variables
+   @M hy_bounds_declare
 
-  integer :: i, j, k, v, lev, dir, stage, ng
-  integer :: xLo, xHi, yLo, yHi, zLo, zHi
+   integer :: i, j, k, v, lev, dir, stage, ng
+   integer :: xLo, xHi, yLo, yHi, zLo, zHi
 
-  integer, parameter :: last_stage = MAXSTAGE
-  logical :: offload = .false.
+   integer, parameter :: last_stage = MAXSTAGE
+   logical :: offload = .false.
+   real :: divB
+   integer :: error
 
-  if (.NOT. hy_useHydro) return
+   if (.NOT. hy_useHydro) return
 
-  ! Check for some incompatible configuration options; perhaps move to Hydro_init
-  @M hy_check_config
+   ! Check for some incompatible configuration options; perhaps move to Hydro_init
+   @M hy_check_config
 
-  call Timers_start("Hydro")
+   call Timers_start("Hydro")
 
-  call check_if_on_GPU()
+   call check_if_on_GPU()
 #ifdef OMP_OL
-  offload = .true.
+   offload = .true.
 #endif
 
-  @M hy_DIR_TARGET_enter_data(alloc, [deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
+   @M hy_DIR_TARGET_enter_data(alloc, [deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
 
-  ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
+   ! Find the global maximum hyperbolic speed. hy_lChyp from Hydro_computeDt
 #ifdef SPARK_GLM
-  call MPI_AllReduce (hy_lChyp, hy_C_hyp, 1, &
-       FLASH_REAL, MPI_MAX, hy_globalComm, error)
-  call IO_setScalar("C_hyp", hy_lChyp)
+   call MPI_AllReduce(hy_lChyp, hy_C_hyp, 1, &
+                      FLASH_REAL, MPI_MAX, hy_globalComm, error)
+   call IO_setScalar("C_hyp", hy_lChyp)
 #endif
 
-  ! zero-ing level-wide flux data in case of level-wide fluxes
-  ! are used for flux correction with AMReX grid.
-  ! otherwise, it calls a stub so has no effect.
-  if (hy_fluxCorrect) call Grid_zeroFluxData()
+   ! zero-ing level-wide flux data in case of level-wide fluxes
+   ! are used for flux correction with AMReX grid.
+   ! otherwise, it calls a stub so has no effect.
+   if (hy_fluxCorrect) call Grid_zeroFluxData()
 
-  if (hy_telescoping) then
-     @M hy_globalFillGuardCells
-  end if
-  !-------------------------------------------------------------------!
-  !***NO Flux correction    or   Flux correction but NOT per level****!
-  !-------------------------------------------------------------------!
-  stage=1
-  if ((.NOT.hy_fluxCorrect).OR.((hy_fluxCorrect).AND.(.NOT.hy_fluxCorrectPerLevel))) then
-     @M hy_stages_nt !! this is the do loop statement for non-telescoping version
-     if(.NOT.hy_telescoping) then
-        @M hy_globalFillGuardCells
-     end if
-     nullify(Uin)
-     @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas,Uin)
-        lo(:) = blkLimits(LOW, :)
-        loGC(:) = blkLimitsGC(LOW, :)
+   if (hy_telescoping) then
+      @M hy_globalFillGuardCells
+   end if
+   !-------------------------------------------------------------------!
+   !***NO Flux correction    or   Flux correction but NOT per level****!
+   !-------------------------------------------------------------------!
+   stage = 1
+   if ((.NOT. hy_fluxCorrect) .OR. ((hy_fluxCorrect) .AND. (.NOT. hy_fluxCorrectPerLevel))) then
+      @M hy_stages_nt !! this is the do loop statement for non-telescoping version
+      if (.NOT. hy_telescoping) then
+         @M hy_globalFillGuardCells
+      end if
+      nullify (Uin)
+      @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC, deltas, Uin)
+      lo(:) = blkLimits(LOW, :)
+      loGC(:) = blkLimitsGC(LOW, :)
+      hi(:) = blkLimits(HIGH, :)
+      hiGC(:) = blkLimitsGC(HIGH, :)
+      @M hy_map_scr_ptrs
+      if (hy_geometry /= CARTESIAN) then
+         @M hy_map_fareas
+         @M hy_map_geom
+      elseif (.not. hy_telescoping) then
+         @M hy_map_fareas
+      end if
 
-        if (.not. hy_telescoping) then
-           @M hy_DIR_TARGET_enter_data(to, [Uin])
-        end if
+      if (.not. hy_telescoping) then
+         @M hy_DIR_TARGET_enter_data(to, [Uin])
+      end if
 
-        if (hy_geometry /= CARTESIAN) then
-           @M hy_fill_geom
-           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-           @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight])
-           @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
-           @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
-        endif
-        if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
-           @M hy_fill_fareas
-           @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
-        end if
+      if (hy_geometry /= CARTESIAN) then
+         @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+         @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight])
+         @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
+         @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
+      elseif (.not. hy_telescoping) then
+         @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
+      end if
 
-        @M hy_map_tmp_states
-        @M hy_map_scr_ptrs
-        @M hy_DIR_TARGET_enter_data(to, [hy_starState, hy_tmpState])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
-        @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
+      @M hy_DIR_TARGET_enter_data(to, [hy_starState, hy_tmpState])
+      @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+      @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+      @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
+      @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
-        ! set lower and uppper bounds to update the solutions
-        @M hy_setLimits
+      ! set lower and uppper bounds to update the solutions
+      @M hy_setLimits
 
-        @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
+      @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
 
-        ! DivB will technically be lagged by 1 step, but we need ghost zones to
-        ! compute the gradients. I ain't doing more communication for a diagnostic...
+      call Timers_start("computations")
+      call Hydro_prepBlock(Uin, blkLimits, blkLimitsGC, deltas, &
+                           hy_Vc, hy_starState, hy_tmpState, &
+                           hy_xCenter, hy_yCenter, hy_zCenter, &
+                           hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                           hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, &
+                           stage, lo, loGC)
 
-        @M hy_calcDivB
+      if (.not. hy_telescoping .and. stage == 1) then
+         @M hy_DIR_TARGET_update_from([hy_tmpState])
+      end if
 
-        call Timers_start("Offloaded Section")
+      call Hydro_advance(stage, Uin, dt, dtOld, &
+                         hy_starState, hy_tmpState, &
+                         hy_flx, hy_fly, hy_flz, &
+                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                         hy_grav, hy_flat3d, &
+                         hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
+                         deltas, &
+                         blkLimits, blkLimitsGC, &
+                         lo, loGC, &
+                         hy_xCenter, hy_yCenter, hy_zCenter, &
+                         hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                         hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol)
 
-        if (hy_telescoping .OR. stage==1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
+      call Timers_stop("computations")
 
-        call Timers_start("scratch")
-        call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
-                                   blkLimits, blkLimitsGC, lo, loGC)
-        if (.not. hy_telescoping .and. stage == 1) then
-           @M hy_DIR_TARGET_update_from([hy_tmpState])
-        end if
-        call Timers_stop("scratch")
+      @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
-        !! Begin loop over stages for the telescoping mode.
-        @M hy_stages_t !! this is the do loop statement for telescoping version
-           ! calculate gravitational acceleration based on current value of GPOT_VAR
-           ! This is stored in module-scope variable hy_grav
-           call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-                                    hy_xCenter, hy_yCenter, deltas, &
-                                    blkLimitsGC, loGC)
+      if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+         @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
+         @M hy_release_fareas
+      end if
+      if (hy_geometry /= CARTESIAN) then
+         @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+         @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
+         @M hy_DIR_TARGET_exit_data(release, [hy_yCenter, hy_yLeft, hy_yRight])
+         @M hy_DIR_TARGET_exit_data(release, [hy_zCenter])
+         @M hy_release_geom
+      end if
+      !Store flux buffer in semipermanent flux storage (SPFS)
+      if ((hy_telescoping) .and. (hy_fluxCorrect)) then
+         @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+         call Grid_putFluxData(tileDesc, &
+                               hy_fluxBufX, &
+                               hy_fluxBufY, &
+                               hy_fluxBufZ, &
+                               blkLimits(LOW, :))
+      end if
+      @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
+      @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+      @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+      @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d, hy_Vc])
+      @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
+      @M hy_release_scr_ptrs
 
-           call hy_rk_getFlatteningLimiter(stage, hy_starState, hy_flat3d, limits, loGC)
+      if (.not. hy_telescoping) then
+         @M hy_DIR_TARGET_exit_data(release, [Uin])
+      end if
+      @M iter_end(Uin)
+      @M hy_end_stages_nt
+      if (hy_fluxCorrect) then
+         !Communicate the fine fluxes
+         call Grid_communicateFluxes(ALLDIR, UNSPEC_LEVEL)
 
-           call Timers_start("getFaceFlux")
-           call hy_rk_getFaceFlux(stage, hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                  limits, deltas, &
-                                  hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
-                                  loGC)
-           call Timers_stop("getFaceFlux")
-           !------- Add this in -----
+         !        call Timers_start("flux correct")
+         !        ! Loop over blocks and correct block-edge solution
 
-           ! Now update solution based on conservative fluxes
-           ! See select_RK_scheme() for explicit outline of C1, C2, & C3
-           ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+         nullify (Uin)
+         @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC, deltas, Uin)
+         lo(:) = blkLimits(LOW, :)
+         loGC(:) = blkLimitsGC(LOW, :)
+         hi(:) = blkLimits(HIGH, :)
+         hiGC(:) = blkLimitsGC(HIGH, :)
+         !           !Get 'Flux deltas' on coarse side of fine coarse boundaries;
+         !           !all other values are 0.
+         @M hy_map_flux_buffs
+         call Grid_getFluxCorrData_block(tileDesc, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                         blkLimits(LOW, :), isFluxDensity=(/hy_telescoping/))
 
-           call Timers_start("updateSoln")
-           call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, &
-                                 hy_grav, hy_flx, hy_fly, hy_flz, &
-                                 deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
-                                 hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                 dt, dtOld, limits, lo, loGC)
-           call Timers_stop("updateSoln")
-           call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-                                  hy_flx, hy_fly, hy_flz, &
-                                  hy_fareaX, hy_fareaY, hy_fareaZ, &
-                                  blkLimits, lo, loGC)
-           if ((.not. hy_telescoping) .and. hy_fluxCorrect) then
-              @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-              call Grid_putFluxData_block(tileDesc, &
-                                          hy_fluxBufX, &
-                                          hy_fluxBufY, &
-                                          hy_fluxBufZ, &
-                                          blkLimits(LOW,:), &
-                                          add=hy_addFluxArray(stage))
-            end if
-#if NSPECIES>0
-           !Properly normalize species after the update
-           call hy_rk_renormAbundance(blkLimitsGC, hy_starState, loGC)
-#endif
+         if (hy_geometry /= CARTESIAN) then
+            @M hy_map_fareas
+            @M hy_map_geom
+            call Grid_getCellVolumes(level, loGC, hiGC, hy_cvol)
+            call Grid_getCellFaceAreas(IAXIS, level, loGC, hiGC, hy_fareaX)
+            call Grid_getCellFaceAreas(JAXIS, level, loGC, hiGC, hy_fareaY)
+            call Grid_getCellFaceAreas(KAXIS, level, loGC, hiGC, hy_fareaZ)
+            call Grid_getCellCoords(IAXIS, CENTER, level, loGC, hiGC, hy_xCenter)
+            call Grid_getCellCoords(IAXIS, LEFT_EDGE, level, loGC, hiGC, hy_xLeft)
+            call Grid_getCellCoords(IAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_xRight)
+            call Grid_getCellCoords(JAXIS, LEFT_EDGE, level, loGC, hiGC, hy_yLeft)
+            call Grid_getCellCoords(JAXIS, RIGHT_EDGE, level, loGC, hiGC, hy_yRight)
+         end if
 
-           ! Update EOS based on intermediate solution
-           @M hy_DIR_TARGET_update_from([hy_starState, limits])
-           call Timers_start("eos")
-           call Eos_multiDim(MODE_DENS_EI, limits(:, :, stage), hy_starState)
-           call Timers_stop("eos")
-           @M hy_DIR_TARGET_update_to([hy_starState])
-           !Finally update the state
-           if (stage == last_stage) then !! this is only needed for telescoping version
-              @M hy_updateState
-           endif
-
-        @M hy_end_stages_t
-        if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
-           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
-           @M hy_release_fareas
-        end if
-        if (hy_geometry /= CARTESIAN) then
-           @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-           @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
-           @M hy_DIR_TARGET_exit_data(release, [hy_yCenter, hy_yLeft, hy_yRight])
-           @M hy_DIR_TARGET_exit_data(release, [hy_zCenter])
-           @M hy_release_geom
-        end if
-        !Store flux buffer in semipermanent flux storage (SPFS)
-        if ((hy_telescoping).and.(hy_fluxCorrect)) then
-           @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-           call Grid_putFluxData(tileDesc,&
-                                 hy_fluxBufX, &
-                                 hy_fluxBufY, &
-                                 hy_fluxBufZ, &
-                                 blkLimits(LOW,:))
-        end if
-        call Timers_stop("Offloaded Section")
-        @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
-        @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
-        @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-        @M hy_DIR_TARGET_exit_data(release, [hy_grav, hy_flat3d, hy_Vc])
-        @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
-        @M hy_release_tmp_states
-        @M hy_release_scr_ptrs
-
-        if (.not. hy_telescoping) then
-           @M hy_DIR_TARGET_exit_data(release, [Uin])
-        end if
-     @M iter_end(Uin)
-     @M hy_end_stages_nt
-     if (hy_fluxCorrect) then
-        !Communicate the fine fluxes
-        call Grid_communicateFluxes(ALLDIR,UNSPEC_LEVEL)
-
-        !        call Timers_start("flux correct")
-        !        ! Loop over blocks and correct block-edge solution
-
-        nullify(Uin)
-        @M iter_all_begin(LEAF,.false.,blkLimits,blkLimitsGC,deltas,Uin)
-           lo(:) = blkLimits(LOW, :)
-           loGC(:) = blkLimitsGC(LOW, :)
-           !           !Get 'Flux deltas' on coarse side of fine coarse boundaries;
-           !           !all other values are 0.
-           @M hy_mapFluxBuf
-           call Grid_getFluxCorrData_block(tileDesc,hy_fluxBufX,hy_fluxBufY,hy_fluxBufZ,&
-                blkLimits(LOW,:),isFluxDensity=(/hy_telescoping/))
-
-           if (hy_geometry /= CARTESIAN) then
-              @M hy_fill_geom
-           endif
-
-           call hy_rk_correctFluxes(Uin, blkLimits, &
-                                    hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-                                    deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
-                                    hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                    hy_geometry, &
-                                    hy_smallE, hy_smalldens, &
-                                    dt, .NOT. hy_telescoping, &
-                                    lo, loGC)
-           if (hy_geometry /= CARTESIAN) then
-              @M hy_release_geom
-           end if
-           @M hy_nullFluxBuf
-        @M iter_end(Uin)
-     end if !Flux correction
+         call hy_rk_correctFluxes(Uin, blkLimits, &
+                                  hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                  deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                                  hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                                  hy_geometry, &
+                                  hy_smallE, hy_smalldens, &
+                                  dt,.NOT. hy_telescoping, &
+                                  lo, loGC)
+         if (hy_geometry /= CARTESIAN) then
+            @M hy_release_geom
+         end if
+         @M iter_end(Uin)
+      end if !Flux correction
    else !flux correct per level
 #ifdef DEBUG_HYDRO
       print *, "Flux correct per level"
@@ -337,208 +301,169 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
       !----------------------------------------!
       !*****Flux correction per level Occurs***!
       !----------------------------------------!
-      do lev=hy_maxLev,1,-1
+      do lev = hy_maxLev, 1, -1
 
          !Once the finest level is completed, place averaged fine fluxes into
          !current coarse semipermanent flux storage (SPFS)
-         if (lev < hy_maxLev) call Grid_communicateFluxes(ALLDIR,lev)
+         if (lev < hy_maxLev) call Grid_communicateFluxes(ALLDIR, lev)
 
          ! Loop over blocks and compute Hydro update block-by-block
          !~ For now tiling is disabled until we can confirm block registers are the same as tile registers
-         nullify(Uin)
-         @M iter_level_begin(LEAF,.FALSE.,lev,blkLimits,blkLimitsGC,deltas,Uin)
-            lo(:) = blkLimits(LOW, :)
-            loGC(:) = blkLimitsGC(LOW, :)
-            @M hy_DIR_TARGET_enter_data(to, [Uin])
+         nullify (Uin)
+         @M iter_level_begin(LEAF, .FALSE., lev, blkLimits, blkLimitsGC, deltas, Uin)
+         lo(:) = blkLimits(LOW, :)
+         loGC(:) = blkLimitsGC(LOW, :)
+         hi(:) = blkLimits(HIGH, :)
+         hiGC(:) = blkLimitsGC(HIGH, :)
+         @M hy_DIR_TARGET_enter_data(to, [Uin])
 
-            if (hy_geometry /= CARTESIAN) then
-               @M hy_fill_geom
-               @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-               @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight])
-               @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
-               @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
-            endif
-            if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
-               @M hy_fill_fareas
-               @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
-            end if
+         if (hy_geometry /= CARTESIAN) then
+            @M hy_map_geom
+            @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+            @M hy_DIR_TARGET_enter_data(to, [hy_xCenter, hy_xLeft, hy_xRight])
+            @M hy_DIR_TARGET_enter_data(to, [hy_yCenter, hy_yLeft, hy_yRight])
+            @M hy_DIR_TARGET_enter_data(to, [hy_zCenter])
+         end if
+         if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+            @M hy_map_fareas
+            @M hy_DIR_TARGET_enter_data(to, [hy_fareaX, hy_fareaY, hy_fareaZ])
+         end if
 
-            xLo = blkLimits(LOW,IAXIS); xHi = blkLimits(HIGH,IAXIS)
-            yLo = blkLimits(LOW,JAXIS); yHi = blkLimits(HIGH,JAXIS)
-            zLo = blkLimits(LOW,KAXIS); zHi = blkLimits(HIGH,KAXIS)
+         xLo = blkLimits(LOW, IAXIS); xHi = blkLimits(HIGH, IAXIS)
+         yLo = blkLimits(LOW, JAXIS); yHi = blkLimits(HIGH, JAXIS)
+         zLo = blkLimits(LOW, KAXIS); zHi = blkLimits(HIGH, KAXIS)
 
-            ! set lower and uppper bounds to update the solutions
-            @M hy_setLimits
+         ! set lower and uppper bounds to update the solutions
+         @M hy_setLimits
 
-            @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
-            ! DivB will technically be lagged by 1 step, but we need ghost zones to
-            ! compute the gradients. I ain't doing more communication for a diagnostic...
-            @M hy_map_tmp_states
-            @M hy_map_scr_ptrs
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
-            @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
+         @M hy_DIR_TARGET_update_to([deltas, grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
+         @M hy_map_scr_ptrs
+         @M hy_DIR_TARGET_enter_data(alloc, [hy_starState, hy_tmpState])
+         @M hy_DIR_TARGET_enter_data(alloc, [hy_flx, hy_fly, hy_flz])
+         @M hy_DIR_TARGET_enter_data(alloc, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+         @M hy_DIR_TARGET_enter_data(alloc, [hy_grav, hy_flat3d, hy_Vc])
+         @M hy_DIR_TARGET_enter_data(alloc, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
 
-            call Timers_start("Offloaded Section")
+         call Timers_start("computations")
+         call Hydro_prepBlock(Uin, blkLimits, blkLimitsGC, deltas, &
+                              hy_Vc, hy_starState, hy_tmpState, &
+                              hy_xCenter, hy_yCenter, hy_zCenter, &
+                              hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                              hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, &
+                              stage, lo, loGC)
 
-            call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
+         if (.not. hy_telescoping .and. stage == 1) then
+            @M hy_DIR_TARGET_update_from([hy_tmpState])
+         end if
 
-            call Timers_start("scratch")
-            call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
-                                       blkLimits, blkLimitsGC, lo, loGC)
-            call Timers_stop("scratch")
+         call Hydro_advance(stage, Uin, dt, dtOld, &
+                            hy_starState, hy_tmpState, &
+                            hy_flx, hy_fly, hy_flz, &
+                            hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                            hy_grav, hy_flat3d, &
+                            hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
+                            deltas, &
+                            blkLimits, blkLimitsGC, &
+                            lo, loGC, &
+                            hy_xCenter, hy_yCenter, hy_zCenter, &
+                            hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                            hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol)
 
-            !! Begin loop over stages for the telescoping mode.
-            do stage=1, last_stage
+         call Timers_stop("computations")
 
-               ! calculate gravitational acceleration based on current value of GPOT_VAR
-               ! This is stored in hy_grav
-               call hy_rk_getGraveAccel(hy_starState, hy_grav, &
-                                        hy_xCenter, hy_yCenter, deltas, &
-                                        blkLimitsGC, loGC)
+         @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
 
-               call hy_rk_getFlatteningLimiter(stage, hy_starState, hy_flat3d, limits, loGC)
-
-               ! Perform reconstruction and flux calculation
-               ! In Stage 1, compute low-side fluxes and update for NSTENCIL guardcells
-               call Timers_start("getFaceFlux")
-               call hy_rk_getFaceFlux(stage, hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
-                                      limits, deltas, &
-                                      hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
-                                      loGC)
-               call Timers_stop("getFaceFlux")
-
-               call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-                                      hy_flx, hy_fly, hy_flz, &
-                                      hy_fareaX, hy_fareaY, hy_fareaZ, &
-                                      blkLimits, lo, loGC)
-
-               ! Now update solution based on conservative fluxes
-               ! See select_RK_scheme() for explicit outline of C1, C2, & C3
-               ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
-               call Timers_start("updateSoln")
-               call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, &
-                                     hy_grav, hy_flx, hy_fly, hy_flz, &
+         !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
+         !This incorporates fluxes calculated in the last stage & the 'flux difference'
+         !introduced on fine coarse boundaries.
+         if (lev < hy_maxLev) then
+            call Grid_getFluxCorrData_xtra(tileDesc, &
+                                           hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                                           blkLimits(LOW, :), &
+                                           hy_flx(:, xLo:xHi + 1, yLo:yHi, zLo:zHi), &
+                                           hy_fly(:, xLo:xHi, yLo:yHi + K2D, zLo:zHi), &
+                                           hy_flz(:, xLo:xHi, yLo:yHi, zLo:zHi + K3D))
+            call hy_rk_correctFluxes(Uin, blkLimits, &
+                                     hy_flx(:, xLo:xHi + 1, yLo:yHi, zLo:zHi), &
+                                     hy_fly(:, xLo:xHi, yLo:yHi + K2D, zLo:zHi), &
+                                     hy_flz(:, xLo:xHi, yLo:yHi, zLo:zHi + K3D), &
                                      deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
                                      hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                     dt, dtOld, limits, lo, loGC)
-               call Timers_stop("updateSoln")
+                                     hy_geometry, &
+                                     hy_smallE, hy_smalldens, &
+                                     dt,.NOT. hy_telescoping, &
+                                     lo, loGC)
+         end if
 
-#if NSCIES>0
-               call hy_rk_renormAbundance(blkLimitsGC, hy_starState, loGC)
-#endif
-               ! Update EOS based on intermediate solution
-               @M hy_DIR_TARGET_update_from([hy_starState, limits])
-               call Timers_start("eos")
-               call Eos_multiDim(MODE_DENS_EI, limits(:, :, stage), hy_starState)
-               call Timers_stop("eos")
-               @M hy_DIR_TARGET_update_to([hy_starState])
+         ! Put flux buffer information into SPFS
+         if (lev > 1) then
+            call Grid_putFluxData(tileDesc, &
+                                  hy_fluxBufX, &
+                                  hy_fluxBufY, &
+                                  hy_fluxBufZ, &
+                                  blkLimits(LOW, :))
+         end if
 
-               if (stage == last_stage) then
-                  ! Finally, store the output and free up the scratch array
-                  @M hy_updateState
-               endif
+         if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+            @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
+            @M hy_release_fareas
+         end if
+         if (hy_geometry /= CARTESIAN) then
+            @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
+            @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
+            @M hy_DIR_TARGET_exit_data(release, [hy_yCenter, hy_yLeft, hy_yRight])
+            @M hy_DIR_TARGET_exit_data(release, [hy_zCenter])
+            @M hy_release_geom
+         end if
 
-            end do !stage loop
-            @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-            call Timers_stop("Offloaded Section")
-
-            !In the last stage, modify fluxes on the coarse side of fine coarse boundaries.
-            !This incorporates fluxes calculated in the last stage & the 'flux difference'
-            !introduced on fine coarse boundaries.
-            if (lev < hy_maxLev) then
-               call Grid_getFluxCorrData_xtra(tileDesc, &
-                                              hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-                                              blkLimits(LOW,:), &
-                                              hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ),&
-                                              hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ),&
-                                              hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D))
-               call hy_rk_correctFluxes(Uin, blkLimits, &
-                                        hy_flx(:,xLo:xHi+1,yLo:yHi    ,zLo:zHi    ), &
-                                        hy_fly(:,xLo:xHi  ,yLo:yHi+K2D,zLo:zHi    ), &
-                                        hy_flz(:,xLo:xHi  ,yLo:yHi    ,zLo:zHi+K3D), &
-                                        deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
-                                        hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
-                                        hy_geometry, &
-                                        hy_smallE, hy_smalldens, &
-                                        dt, .NOT. hy_telescoping, &
-                                        lo, loGC)
-            endif
-
-            ! Put flux buffer information into SPFS
-            if (lev > 1) then
-               call Grid_putFluxData(tileDesc, &
-                                     hy_fluxBufX, &
-                                     hy_fluxBufY, &
-                                     hy_fluxBufZ, &
-                                     blkLimits(LOW,:))
-            end if
-
-
-            if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
-               @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ])
-               @M hy_release_fareas
-            end if
-            if (hy_geometry /= CARTESIAN) then
-               @M hy_DIR_TARGET_exit_data(release, [hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol])
-               @M hy_DIR_TARGET_exit_data(release, [hy_xCenter, hy_xLeft, hy_xRight])
-               @M hy_DIR_TARGET_exit_data(release, [hy_yCenter, hy_yLeft, hy_yRight])
-               @M hy_DIR_TARGET_exit_data(release, [hy_zCenter])
-               @M hy_release_geom
-            end if
-
-            @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
-            @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
-            @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-            @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav, hy_Vc])
-            @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
-            @M hy_release_tmp_states
-            @M hy_release_scr_ptrs
-            @M hy_DIR_TARGET_exit_data(release, [Uin])
+         @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
+         @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])
+         @M hy_DIR_TARGET_exit_data(release, [hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
+         @M hy_DIR_TARGET_exit_data(release, [hy_flat3d, hy_grav, hy_Vc])
+         @M hy_DIR_TARGET_exit_data(release, [hy_rope, hy_flux, hy_uPlus, hy_uMinus])
+         @M hy_release_scr_ptrs
+         @M hy_DIR_TARGET_exit_data(release, [Uin])
          @M iter_end(Uin)
 
-      enddo !loop over levels
+      end do !loop over levels
 
-
-    endif !Flux correct per Level
+   end if !Flux correct per Level
 
 ! Reset local maximum hyperbolic speed. This will be updated in Hydro_computeDt.
-  hy_lChyp = TINY(1.0)
+   hy_lChyp = TINY(1.0)
 
-  @M hy_DIR_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
+   @M hy_DIR_TARGET_exit_data(release, [grownLimits, blkLimits, blkLimitsGC, limits, lo, loGC])
 
 #ifdef DEBUG_GRID_GCMASK
-  gcMaskLogged = .TRUE.
+   gcMaskLogged = .TRUE.
 #endif
-  call Timers_stop("Hydro")
+   call Timers_stop("Hydro")
 
 contains
 
-  subroutine check_if_on_GPU()
-!$  use omp_lib, ONLY : omp_is_initial_device
-    use Driver_interface, ONLY : Driver_abort
-    implicit none
-    logical :: onCPU
+   subroutine check_if_on_GPU()
+!$    use omp_lib, ONLY: omp_is_initial_device
+      use Driver_interface, ONLY: Driver_abort
+      implicit none
+      logical :: onCPU
 
-    onCPU = .TRUE.
+      onCPU = .TRUE.
 
 #ifdef DEBUG_HYDRO_OFFLOADING
 #ifdef OMP_OL
-    !$omp target map(tofrom:onCPU)
-    !$  onCPU = omp_is_initial_device()
-    !$omp end target
+      !$omp target map(tofrom:onCPU)
+!$    onCPU = omp_is_initial_device()
+      !$omp end target
 #endif
 
-    if (onCPU) then
-       print *, "---------------- Running on CPU --------------------------------"
-       ! call Driver_abort("Unable to run on GPU")
-    else
-       print *, "---------------- Running on GPU --------------------------------"
-    end if
+      if (onCPU) then
+         print *, "---------------- Running on CPU --------------------------------"
+         ! call Driver_abort("Unable to run on GPU")
+      else
+         print *, "---------------- Running on GPU --------------------------------"
+      end if
 #endif
 
-  end subroutine check_if_on_GPU
+   end subroutine check_if_on_GPU
 
 end subroutine Hydro

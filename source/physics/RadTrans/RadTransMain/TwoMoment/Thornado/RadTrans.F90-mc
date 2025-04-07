@@ -45,7 +45,7 @@ subroutine RadTrans( dt, pass )
 #include "Simulation.h"
 #include "constants.h"
 
-#ifdef NSPECIES > 0
+#if NSPECIES > 0
   use Burn_interface, ONLY : Burn_makeAbundanceYeConsistent
 #endif
   use Driver_interface, ONLY : Driver_abort
@@ -387,7 +387,7 @@ subroutine RadTrans( dt, pass )
   do while( itor % isValid() )
     call itor%currentTile(tileDesc)
     call tileDesc % getDataPtr( Uin, CENTER )
-    call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,Uin)
+    call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,tileDesc%blkLimitsGC(LOW,:),Uin,CENTER)
     call itor % next()
   end do
   call Grid_releaseTileIterator( itor )

@@ -35,7 +35,7 @@
 !!
 !!  For Gamma routines, the entropy and entropy derivatives 
 !!  calculations have not been confirmed to be correct.  Use with caution.
-!!NOVARIANTS
+!!
 
 !#ifdef DEBUG_ALL
 #define DEBUG_EOS
@@ -46,6 +46,9 @@
 #include "Simulation.h"
   
 
+!!VARIANTS(GPU): eos_idealGamma, &
+!!               Driver_abort
+
 subroutine eos_idealGamma(mode, @M eos_args, massFrac, derivs)
   
   !==============================================================================
@@ -53,8 +56,11 @@ subroutine eos_idealGamma(mode, @M eos_args, massFrac, derivs)
        eos_singleSpeciesA, eos_singleSpeciesZ
   use eos_idealGammaData, ONLY: eos_gammam1
   use Driver_interface, ONLY : Driver_abort
-  
-  
+
+  @M eos_gam_DIR_routine( )
+
+  @M eos_gam_DIR_routine_none(Driver_abort)
+
   implicit none
   
   !     Arguments

@@ -51,3 +51,12 @@ DATAFILES helm_table.dat
 # be used in the non-hybrid Eos.F90 to perform a compile time check
 # that only this implementation has been loaded if the Hybrid EOS has not
 PPDEFINE EOS_HELMHOLTZ_INCLUDED
+
+VARIANTS Null
+
+USESETUPVARS Milhoja
+IF Milhoja
+  REQUIRES physics/Eos/EosMain/Helmholtz/GPU_interface
+  VARIANTS GPU
+ENDIF
+

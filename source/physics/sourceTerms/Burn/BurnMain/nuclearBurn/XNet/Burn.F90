@@ -65,8 +65,7 @@ subroutine Burn (  dt  )
   use bn_xnetData, ONLY : xnet_myid, xnet_nzbatchmx, xnet_inuc2unk
   use Burn_data, ONLY : bn_nuclearTempMin, bn_nuclearTempMax, bn_nuclearDensMin, &
        &   bn_nuclearDensMax, bn_nuclearNI56Max, bn_useShockBurn, &
-       &   bn_useBurn, bn_gcMaskSD, xmass
-  use Burn_dataEOS, only: ytot1, bye
+       &   bn_useBurn, bn_gcMaskSD
   use Driver_interface, ONLY : Driver_abort
   use Eos_interface, ONLY : Eos_multiDim
   use Grid_interface, ONLY : Grid_fillGuardCells, Grid_getCellCoords, &
@@ -103,7 +102,8 @@ subroutine Burn (  dt  )
   logical :: okBurnTemp, okBurnDens, okBurnShock, okBurnNickel
   logical, parameter :: getGuardCells = .true.
 
-  real,    allocatable :: shock(:,:,:)
+  real, dimension(NSPECIES) :: xmass, ymass
+
   real,    allocatable, target :: xIn(:,:,:,:,:), xOut(:,:,:,:,:)
   real,    allocatable, target :: sdot(:,:,:,:), tmp(:,:,:,:), rho(:,:,:,:)
   logical, allocatable, target :: burnedZone(:,:,:,:)
@@ -118,10 +118,13 @@ subroutine Burn (  dt  )
   integer, dimension(:), allocatable :: sumBurn_TS_batch
   integer, dimension(:), allocatable :: batch_lo, batch_hi
   integer, dimension(:), allocatable :: sumBurn_TS
+  real,    dimension(:), allocatable :: work_burn_batch
+  real,    dimension(:), allocatable :: work_burn
 
   integer, parameter :: shock_mode = 1
   real, parameter :: shock_thresh = 0.33
   real :: ei, ek, enuc
+  real :: abar, zbar, z2bar, ytot1, bye
   integer :: i, j, k, m, n, ii, jj, kk, mm, nn
 #ifdef DEBUG_GRID_GCMASK
   logical,save :: gcMaskLogged =.FALSE.
@@ -134,6 +137,10 @@ subroutine Burn (  dt  )
 
   ! ----------------------- check if burning is requested in runtime parameters -------
   if (.not. bn_useBurn) return
+
+#ifndef SHOK_VAR
+  call Driver_abort("[Burn.F90] SHOK_VAR is not defined")
+#endif
 
   !---------------------------------------------------------------------------------
   nullify(solnData)
@@ -172,6 +179,7 @@ subroutine Burn (  dt  )
   allocate(batch_lo(blockCount))
   allocate(batch_hi(blockCount))
   allocate(sumBurn_TS(blockCount))
+  allocate(work_burn(blockCount))
 
   burnedZone = .FALSE.
 
@@ -207,10 +215,6 @@ subroutine Burn (  dt  )
      jSize = hi(JAXIS)-lo(JAXIS)+1
      kSize = hi(KAXIS)-lo(KAXIS)+1
 
-     allocate(shock(loHalo(IAXIS):hiHalo(IAXIS),&
-                    loHalo(JAXIS):hiHalo(JAXIS),&
-                    loHalo(KAXIS):hiHalo(KAXIS)))
-
      ! identify the range of batches in each block (use floor/ceil in case of overlap)
      batch_lo(thisBlock) = nzones / xnet_nzbatchmx + 1
      nzones = nzones + iSize * jSize * kSize
@@ -230,10 +234,10 @@ subroutine Burn (  dt  )
 
      ! Shock detector
      if (.NOT. bn_useShockBurn) then
-        call Hydro_shockStrength(solnData, shock, lo, hi, loHalo, hiHalo, &
-           xCoord,yCoord,zCoord,shock_thresh,shock_mode)
+        call Hydro_shockStrength(solnData, lo, hi, loHalo, hiHalo, &
+             xCoord,yCoord,zCoord,shock_thresh,shock_mode)
      else
-        shock(:,:,:) = 0.0
+        solnData(SHOK_VAR, :, :, :) = 0.0
      endif
 
      solnData(NMPI_VAR,:,:,:) = xnet_myid
@@ -268,7 +272,7 @@ subroutine Burn (  dt  )
 
               okBurnTemp = (tmp(ii,jj,kk,thisBlock) >= bn_nuclearTempMin .AND. tmp(ii,jj,kk,thisBlock) <= bn_nuclearTempMax)
               okBurnDens = (rho(ii,jj,kk,thisBlock) >= bn_nuclearDensMin .AND. rho(ii,jj,kk,thisBlock) <= bn_nuclearDensMax)
-              okBurnShock = (shock(i,j,k) <= 0.0 .OR. (shock(i,j,k) > 0.0 .AND. bn_useShockBurn))
+              okBurnShock = (solnData(SHOK_VAR,i,j,k) <= 0.0 .OR. (solnData(SHOK_VAR,i,j,k) > 0.0 .AND. bn_useShockBurn))
 
               if (okBurnTemp .AND. okBurnDens .AND. okBurnShock) then
 
@@ -294,7 +298,6 @@ subroutine Burn (  dt  )
      deallocate(xCoord)
      deallocate(yCoord)
      deallocate(zCoord)
-     deallocate(shock)
 
      call itor%next()
 
@@ -318,6 +321,7 @@ subroutine Burn (  dt  )
   zone_batch(1:4,1:xnet_nzbatchmx,1:batchCount) => zone(:,:,:,:,:)
 
   allocate(sumBurn_TS_batch(batchCount))
+  allocate(work_burn_batch(batchCount))
 
   !$omp parallel do &
   !$omp schedule(runtime) &
@@ -325,7 +329,9 @@ subroutine Burn (  dt  )
   do m = 1, batchCount
      ! Do the actual burn
      call bn_burner(dt, tmp_batch(:,m), rho_batch(:,m), xIn_batch(:,:,m), &
-          xOut_batch(:,:,m), sdot_batch(:,m), burnedZone_batch(:,m), zone_batch(:,:,m), sumBurn_TS_batch(m))
+          xOut_batch(:,:,m), sdot_batch(:,m), burnedZone_batch(:,m), zone_batch(:,:,m), &
+          sumBurn_TS_batch(m))
+     work_burn_batch(m) = sumBurn_TS_batch(m)
   end do
   !$omp end parallel do
 
@@ -334,9 +340,12 @@ subroutine Burn (  dt  )
   do thisBlock = 1, blockCount
      sumBurn_TS(thisBlock) = sum( sumBurn_TS_batch(batch_lo(thisBlock):batch_hi(thisBlock)) ) &
                            / ( batch_hi(thisBlock) - batch_lo(thisBlock) + 1 )
+     !work_burn(thisBlock) = sum( work_burn_batch(batch_lo(thisBlock):batch_hi(thisBlock)) )
+     work_burn(thisBlock) = real(sumBurn_TS(thisBlock))
   end do
 
   deallocate(sumBurn_TS_batch)
+  deallocate(work_burn_batch)
 
   call Timers_stop("burn_middle")
 
@@ -395,7 +404,7 @@ subroutine Burn (  dt  )
 #endif
 
                  xmass = xOut(1:NSPECIES,ii,jj,kk,thisBlock)
-                 call bn_azbar
+                 call bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
 
 #ifdef YE_MSCALAR
                  solnData(YE_MSCALAR,i,j,k) = bye
@@ -409,13 +418,13 @@ subroutine Burn (  dt  )
      end do
      !$omp end parallel do
 
-     call Grid_setWork(tileDesc,real(sumBurn_TS(thisBlock)))
+     call Grid_setWork(tileDesc,work_burn(thisBlock))
      solnData(MTSB_VAR,:,:,:) = sumBurn_TS(thisBlock)
 
      ! we've altered the EI, let's equilabrate
      if (any(burnedZone(:,:,:,thisBlock))) then
 
-        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
+        call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,tileDesc%blkLimitsGC(LOW,:),solnData)
 
      end if
 
@@ -439,6 +448,7 @@ subroutine Burn (  dt  )
   deallocate(batch_lo)
   deallocate(batch_hi)
   deallocate(sumBurn_TS)
+  deallocate(work_burn)
 
   call Timers_stop("burn")
 

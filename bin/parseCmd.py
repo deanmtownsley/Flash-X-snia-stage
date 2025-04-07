@@ -20,7 +20,7 @@ WITHOUT_ARGS = ["auto","1d","2d","3d","portable",
                 "opt","debug","test", "index-reorder", "strictparams",
                 "fbs","help", "noclobber", "nofbs", "mconly", "with-unitmods"] # nofbs disables fixedBlockSize
 # options with arguments
-WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","site","ostype",
+WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","cols","site","ostype",
              "defines", "objdir","with-unit", "unit", "with-library",
              "without-unit","with-unofficial","without-library","kill-unit","unitsfile",
              "makefile", "library", "datafiles", "parfile", "tau",
@@ -39,7 +39,7 @@ USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
             -without-unit=<unit> -without-library=<libname>
 
    (Setup and Make Options)
-            -verbose=[DEBUG|INFO|WARN|IMPINFO|ERROR] 
+            -verbose=[DEBUG|INFO|WARN|IMPINFO|ERROR]
             [-site=<site> | -ostype=<ostype>] 
             -makefile=<extension>
             [-opt| -debug | -test ] 
@@ -50,7 +50,7 @@ USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
             -fbs -nofbs -tau=<makefile> -mconly -with-unitmods
 
    (Misc Options)
-            -makehide -noclobber -portable -help
+            -makehide -noclobber -portable -cols=<#> -help
 
    * For GNU compatibility, options may be prefixed by -- instead of - as well
    * -unit and -library are considered equivalent to 
@@ -342,6 +342,13 @@ def parseCommandLine():
              else:
                 GVars.out.put("Unrecognized verbosity level [%s]" % val,globals.ERROR)
                 usage()
+        elif arg == '--cols': # set width for pretty wrapped output
+             if not val: continue # no argument, do not change width
+             if int(val) > 0:
+                GVars.wrapcol = int(val)
+             else:
+                GVars.out.put("Invalid cols [%s]" % val,globals.ERROR)
+                usage()
         elif arg == '--gridinterpolation':  # set grid interpolation
              if not val: continue  # no argument; don't change interpolation
              if val.upper() in allGridInterpolations:
@@ -441,6 +448,10 @@ def checkOpts():
 # finalize all the options made
 # this is called after unitList.adjustOpts()
 def finalizeOpts():
+    if GVars.wrapcol is not None:
+      if GVars.wrapcol > 0:
+        GVars.out.setWrapCol(GVars.wrapcol)
+
     if GVars.nzb == None: 	 
       if GVars.dimension > 2: 	 
         GVars.nzb = 8 	 

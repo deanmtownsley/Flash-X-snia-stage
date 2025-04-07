@@ -47,66 +47,50 @@
 !!   a1:        real      number in the entrance channel
 !!   a2:        real      number in the exit channel
 !!   jscreen:   integer   counter of which reaction is being calculated 
-!!   init:      integer   flag to compute the more expensive functions just once
+!!   init:      logical   flag to compute the more expensive functions just once
 !!   scorr:     real       screening correction
 !!   scorrdt:   real       screening correction derivative
 !!
 !! NOTES
-!!   input through Burn_dataEOS:
-!!   temp = temperature
-!!   bden = density
-!!
 !!   Used by network/bn_networkScreen
 !!
 !!***
 
 
-subroutine bn_screen4(zbarr,abarr,z2barr,z1,a1,z2,a2, & 
-     &                   jscreen,init,scorr,scorrdt)
+subroutine bn_screen4(state, zbarr, abarr, z2barr, z1, a1, z2, a2, &
+                      jscreen, init, &
+                      btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                      scorr)
 
-  
-  use Burn_dataEOS, ONLY:  btemp, bden
-  use Burn_data, ONLY:  nrat, zs13, zs13inv, zhat, zhat2, lzav, aznut
+
+  use bn_interface, ONLY: screen4_state_t
 
   implicit none
 
-!  include 'network_common.fh'
+  ! Arguments
+  type(screen4_state_t), intent(INOUT) :: state
+  integer, intent(IN) :: jscreen
+  logical, intent(IN) :: init
+  real, intent(IN) :: abarr, zbarr, z2barr, z1, a1, z2, a2
+  real, intent(IN) :: btemp, bden
+  real, intent(OUT) :: scorr
 
+  real, intent(INOUT) :: zs13(:), zs13inv(:), zhat(:), zhat2(:), lzav(:), aznut(:)   ! size of nrat
 
-!!  arguments
-  integer, intent(IN)   :: jscreen, init
-  real, intent(IN)      :: abarr, zbarr, z2barr, z1, a1, z2, a2
-  real, intent(OUT)     :: scorr
-  real, intent(OUT), optional    :: scorrdt
-
-!!  local variables
-  ! NOTE all of these are saved because LBR isn't sure when init=1 called
-  real, save            :: qlam0z,gamp,taufac,gamef, & 
-       &                 tau12,alph12,h12w,h12,xlgfac,cc, & 
-       &                 xx,gamp14,alp123, & 
-       &                 xni,aa,bb,dd,btempi, & 
-       &                 btemp_old,den_old,zbarr_old,abarr_old
 
 
 !!   parameter fact is the cube root of 2 
   real, parameter  ::     x13   = 1.0e0/3.0e0,   & 
-       &                  x14   = 1.0e0/4.0e0,  & 
-       &                  theta = 1.0e0,   & 
-       &                  x53   = 5.0e0/3.0e0,  & 
-       &                  x532  = 5.0e0/32.0e0, & 
-       &                  x512  = 5.0e0/12.0e0, & 
-       &                  fact  = 1.25992104989487e0
+                          x14   = 1.0e0/4.0e0,  & 
+                          theta = 1.0e0,   & 
+                          x53   = 5.0e0/3.0e0,  & 
+                          x532  = 5.0e0/32.0e0, & 
+                          x512  = 5.0e0/12.0e0, & 
+                          fact  = 1.25992104989487e0
 
 
-  data    btemp_old/-1.0e0/, den_old/-1.0e0/, & 
-       &        zbarr_old/-1.0e0/, abarr_old/-1.0e0/ 
-
-!! assign a value to this (unused) rate just to have the compiler stop complaining
-!!  You can only assign it if the calling program brought it in!
-  if (present(scorrdt))  scorrdt = 0.0  ! only used in Aprox13t
-
-!!   compute and store the more expensive screening factors
-  if (init .eq. 1) then
+  ! Compute and store the more expensive screening factors
+  if (init) then
      zs13(jscreen)    = (z1 + z2)**x13
      zs13inv(jscreen) = 1.0e0/zs13(jscreen)
      zhat(jscreen)    = (z1 + z2)**x53  - z1**x53 - z2**x53
@@ -115,8 +99,33 @@ subroutine bn_screen4(zbarr,abarr,z2barr,z1,a1,z2,a2, &
      aznut(jscreen)   = (z1**2 * z2**2 * a1*a2 / (a1 + a2))**x13
   endif
 
+  associate( &
+     qlam0z => state%qlam0z, &
+     gamp => state%gamp, &
+     taufac => state%taufac, &
+     gamef => state%gamef, &
+     tau12 => state%tau12, &
+     alph12 => state%alph12, &
+     h12w => state%h12w, &
+     h12 => state%h12, &
+     xlgfac => state%xlgfac, &
+     cc => state%cc, &
+     xx => state%xx, &
+     gamp14 => state%gamp14, &
+     alp123 => state%alp123, &
+     xni => state%xni, &
+     aa => state%aa, &
+     bb => state%bb, &
+     dd => state%dd, &
+     btempi => state%btempi, &
+     btemp_old => state%btemp_old, &
+     den_old => state%den_old, &
+     zbarr_old => state%zbarr_old, &
+     abarr_old => state%abarr_old &
+  )
 
-!!   calculate average plasma, if need be
+
+  ! Calculate average plasma, if need be
   if (btemp_old  .ne. btemp .or. & 
        &    den_old    .ne. bden   .or.   &
        &    zbarr_old  .ne. zbarr  .or.   & 
@@ -185,6 +194,8 @@ subroutine bn_screen4(zbarr,abarr,z2barr,z1,a1,z2,a2, &
 !!   machine limit the output
   h12   = max(min(h12,300.0e0),0.0e0) 
   scorr = exp(h12) 
+
+  end associate
 
   return 
 end subroutine bn_screen4

@@ -36,5 +36,6 @@ module eos_testData
   real, save    :: eos_testTolerance
 
   logical, save :: eos_test1allB,eos_test2allB,eos_test3allB,eos_test4allB !for all blocks
+  logical, save :: eos_test5allB !more for all blocks
 
 end module eos_testData

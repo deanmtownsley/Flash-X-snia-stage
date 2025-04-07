@@ -144,3 +144,16 @@ IF nontelescoping
 	REQUIRES physics/Hydro/HydroMain/Spark/NonTelescoping
 ENDIF
 
+VARIANTS Null
+
+USESETUPVARS Milhoja
+IF Milhoja
+  REQUIRES physics/Hydro/HydroMain/Spark/milhoja
+  VARIANTS GPU
+ENDIF
+
+USESETUPVARS threadWithinBlock
+IF threadWithinBlock
+  REQUIRES physics/Hydro/HydroMain/Spark/omp
+ENDIF
+

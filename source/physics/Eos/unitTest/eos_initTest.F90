@@ -55,7 +55,8 @@ subroutine eos_initTest()
   use eos_testData, ONLY: eos_test1allB, &
                           eos_test2allB, &
                           eos_test3allB, &
-                          eos_test4allB
+                          eos_test4allB, &
+                          eos_test5allB
 
   implicit none
 
@@ -72,5 +73,6 @@ subroutine eos_initTest()
   eos_test2allB = .TRUE.
   eos_test3allB = .TRUE.
   eos_test4allB = .TRUE.
+  eos_test5allB = .TRUE.
 
 end subroutine eos_initTest

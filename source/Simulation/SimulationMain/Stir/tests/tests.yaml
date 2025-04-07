@@ -1,0 +1,16 @@
+# YAML file for test information
+# comments start with "#"
+
+# tests run on 8 cores
+
+# Default stir test
+Comparison/Stir/Default:
+  setupOptions: -auto -3d -nxb 16 -nyb 16 -nzb 16
+  parfiles: test_stir.par
+  transfers: object/TurbGen.par
+
+# Spark stir test
+Comparison/Stir/Spark:
+  setupOptions: -auto -3d -nxb 16 -nyb 16 -nzb 16 +spark
+  parfiles: test_stir.par
+  transfers: object/TurbGen.par

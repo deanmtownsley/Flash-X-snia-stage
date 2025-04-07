@@ -2,6 +2,9 @@
 import os
 import re
 import argparse
+from collections import defaultdict
+import globals
+from globals import GVars
 
 try:
     from configparser import ConfigParser  # Python 3
@@ -65,15 +68,18 @@ class macroProcessor:
                 else:
                     previousPath = self.sourcedict[section]
                     if not (
-                        previousPath.startswith(dirName)
-                        or dirName.startswith(previousPath)
+                        previousPath == dirName
+                        or previousPath.startswith(dirName+"/")
+                        or dirName.startswith(previousPath+"/")
                     ):
                         if not (
                             "source/Simulation" in dirName or "/bin" in previousPath
                         ):
                             raise SyntaxError(
-                                "{} defined in parellel directories, can't inherit properly".format(
-                                    section
+                                "{} defined in directories {} and {}, can't inherit properly".format(
+                                    section,
+                                    previousPath,
+                                    dirName
                                 )
                             )
                     self.sourcedict[
@@ -333,6 +339,149 @@ class macroProcessor:
                 f.write(self.processLine(line))
         # post processing
         self._removeTrailingAmpersand(output)
+
+
+
+class variantLineProcessor:
+    """
+    A class to modify Fortran source code by appending variant suffixes to specified names.
+    Typically, specified names are names of subroutines, either defined or called in the source.
+
+    Attributes:
+        input_file (str): Path to the input Fortran source file.
+        output_file (str): Path to the output Fortran source file.
+        requested_var (str): Requested variant
+        variants (Dict[str, List[str]]): Dictionary mapping each variant to its list of names.
+        variant_lines_indices (Set[int]): Set of line indices that are part of variant declarations.
+    """
+
+    def __init__(self, input_file: str, output_file: str, requested_var: str):
+        """
+        Initializes the variantLineProcessor with input and output file paths.
+
+        Args:
+            input_file (str): Path to the input Fortran source file.
+            output_file (str): Path to the output Fortran source file.
+        """
+        self.input_file = input_file
+        self.output_file = output_file
+        self.requested_var = requested_var
+        self.variants = {}
+        self.variant_lines_indices = set()
+        self.lines = []
+
+    def read_file(self) -> None:
+        """
+        Reads the input Fortran source file and stores its lines.
+        """
+        try:
+            with open(self.input_file, 'r') as f:
+                self.lines = f.readlines()
+        except FileNotFoundError:
+            msg = f"Error: The file {self.input_file} was not found."
+            raise SyntaxError(msg)
+        except Exception as e:
+            msg = f"An error occurred while reading {self.input_file}: {e}"
+            raise SyntaxError(msg)
+
+    def extract_variants(self) -> None:
+        """
+        Extracts variant information from the Fortran source lines and populates the variants dictionary.
+        """
+        variants = defaultdict(list)
+        i = 0
+        while i < len(self.lines):
+            line = self.lines[i]
+            variant_match = re.match(r'^\s*!!VARIANTS\s*\(\s*([^)]+)\s*\):\s*(.*)', line, re.IGNORECASE)
+            if variant_match:
+                # Split the captured variants by comma and strip whitespace
+                variant_list = [v.strip() for v in variant_match.group(1).split(',')]
+                subs_line = variant_match.group(2).strip()
+                subs = []
+                self.variant_lines_indices.add(i)
+                # Check for line continuation
+                while subs_line.endswith('&'):
+                    subs_line = subs_line[:-1].strip()
+                    subs.extend([s.strip() for s in subs_line.split(',') if s.strip()])
+                    i += 1
+                    if i < len(self.lines):
+                        next_line = self.lines[i].strip()
+                        # Remove leading '!!' and any whitespace
+                        next_line = re.sub(r'^!!\s*', '', next_line)
+                        subs_line = next_line
+                        self.variant_lines_indices.add(i)
+                    else:
+                        break
+                # Last line without '&'
+                subs.extend([s.strip() for s in subs_line.split(',') if s.strip()])
+                # Map each variant to the list of names (typically, subroutine names)
+                for variant in variant_list:
+                    variants[variant].extend(subs)
+            i += 1
+        self.variants = dict(variants)
+
+    def replace_subs(self) -> None:
+        """
+        Replaces occurrences of specified names (think subroutines) with their modified versions based on variants.
+        Modifications are done in-place on the self.lines list.
+        """
+        if not self.requested_var:
+            # No variants to process. Skipping replacement.
+            return
+
+        if self.requested_var not in self.variants:
+            msg = f"The requested variant, {self.requested_var}, is not listed on a !!VARIANTS line in {self.input_file}."
+            GVars.out.put(msg, globals.IMPINFO)
+            return
+        else:
+            msg = f"The requested variant, {self.requested_var}, IS listed on a !!VARIANTS line in {self.input_file}."
+            GVars.out.put(msg, globals.INFO)
+
+        requested_var = self.requested_var
+
+        # Create a mapping from original sub to modified sub based on variants
+        sub_map = {}
+        for sub in self.variants[requested_var]:
+            sub_map[sub] = f"{sub}_{requested_var}"
+
+        # Compile regex patterns for each subroutine
+        # Use word boundaries to avoid partial matches
+        patterns = {sub: re.compile(r'\b' + re.escape(sub) + r'\b') for sub in sub_map}
+
+        for idx, line in enumerate(self.lines):
+            if idx in self.variant_lines_indices:
+                # Do not modify variant declaration lines
+                continue
+            if line.strip().startswith("#"):
+                # Skip preprocessor directives
+                continue
+            modified_line = line
+            for sub, pattern in patterns.items():
+                if pattern.search(modified_line):
+                    # Replace and maintain case
+                    modified_line = pattern.sub(sub_map[sub], modified_line)
+            self.lines[idx] = modified_line
+
+
+    def write_file(self) -> None:
+        """
+        Writes the modified lines to the output Fortran source file.
+        """
+        try:
+            with open(self.output_file, 'w') as f:
+                f.writelines(self.lines)
+        except Exception as e:
+            msg = f"An error occurred while writing to {self.output_file}: {e}"
+            raise SyntaxError(msg)
+
+    def process(self) -> None:
+        """
+        Executes the full processing sequence: reading, extracting, replacing, and writing.
+        """
+        self.read_file()
+        self.extract_variants()
+        self.replace_subs()
+        self.write_file()
 
 
 ###########################################################

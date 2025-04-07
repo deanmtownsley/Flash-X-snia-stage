@@ -85,6 +85,12 @@ subroutine Orchestration_init()
     CALL RuntimeParameters_get("or_nTilesPerPacket_4",      or_nTilesPerPacket_4)
     CALL RuntimeParameters_get("or_nTilesPerPacket_5",      or_nTilesPerPacket_5)
 
+    CALL RuntimeParameters_get("or_nTilesPerCpuTurn_1",      or_nTilesPerCpuTurn_1)
+    CALL RuntimeParameters_get("or_nTilesPerCpuTurn_2",      or_nTilesPerCpuTurn_2)
+    CALL RuntimeParameters_get("or_nTilesPerCpuTurn_3",      or_nTilesPerCpuTurn_3)
+    CALL RuntimeParameters_get("or_nTilesPerCpuTurn_4",      or_nTilesPerCpuTurn_4)
+    CALL RuntimeParameters_get("or_nTilesPerCpuTurn_5",      or_nTilesPerCpuTurn_5)
+
     !!!!!----- CAST TO MILHOJA TYPES
     MH_nThreadTeams    = INT(nThreadTeams,    kind=MILHOJA_INT)
     MH_nThreadsPerTeam = INT(nThreadsPerTeam, kind=MILHOJA_INT)

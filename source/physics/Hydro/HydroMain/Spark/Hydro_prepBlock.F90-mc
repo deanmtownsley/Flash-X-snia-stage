@@ -1,0 +1,155 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!<
+
+!!VARIANTS(GPU): Hydro_prepBlock, &
+!!               hy_rk_shockDetect, &
+!!               hy_rk_initSolnScratch
+!!Reorder(4): Uin,hy_starState,hy_tmpState
+subroutine Hydro_prepBlock(Uin, blkLimits, blkLimitsGC, deltas, &
+                           hy_Vc, hy_starState, hy_tmpState, &
+                           hy_xCenter, hy_yCenter, hy_zCenter, &
+                           hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                           hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, &
+                           stage, lo, loGC)
+
+#include "Simulation.h"
+#include "constants.h"
+
+   use hy_rk_interface, ONLY: hy_rk_shockDetect, &
+                              hy_rk_initSolnScratch
+   use Hydro_data, ONLY: hy_telescoping, &
+                         hy_geometry, &
+                         hy_globalLBnd, &
+                         hy_threadWithinBlock
+
+   @M hy_DIR_TARGET_routine(vector)
+
+   @M hy_DIR_TARGET_routine_vector(hy_rk_shockDetect)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_initSolnScratch)
+
+   implicit none
+
+   integer, intent(IN) :: stage, lo(3), loGC(3)
+   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits, blkLimitsGC
+   real, dimension(MDIM), intent(IN) :: deltas
+   real, dimension(loGC(1):), intent(IN OUT) :: hy_xCenter
+   real, dimension(loGC(2):), intent(IN OUT) :: hy_yCenter
+   real, dimension(loGC(3):), intent(IN OUT) :: hy_zCenter
+   real, dimension(loGC(1):), intent(IN OUT) :: hy_xLeft, hy_xRight
+   real, dimension(loGC(2):), intent(IN OUT) :: hy_yLeft, hy_yRight
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: Uin
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: hy_starState, hy_tmpState
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: hy_Vc
+
+   real :: divB
+
+   integer :: i, j, k
+
+   ! DivB will technically be lagged by 1 step, but we need ghost zones to
+   ! compute the gradients. I ain't doing more communication for a diagnostic...
+   @M hy_calcDivB
+   if (hy_telescoping .OR. stage == 1) call hy_rk_shockDetect(Uin, hy_Vc, blkLimitsGC, loGC)
+   call hy_rk_initSolnScratch(stage, Uin, hy_starState, hy_tmpState, &
+                              blkLimits, blkLimitsGC, lo, loGC)
+
+
+   ! calculating cell-specific information, if needed
+   if (hy_geometry /= CARTESIAN) then
+
+      @M hy_DIR_parallel_loop(1)
+      do i = blkLimitsGC(LOW, IAXIS), blkLimitsGC(HIGH, IAXIS)
+         @M Grid_getCenterCoords(hy_globalLBnd, IAXIS, deltas, i, hy_xCenter)
+         @M Grid_getLeftEdgeCoords(hy_globalLBnd, IAXIS, deltas, i, hy_xLeft)
+         @M Grid_getRightEdgeCoords(hy_globalLBnd, IAXIS, deltas, i, hy_xRight)
+      end do
+#if NDIM > 1
+      @M hy_DIR_parallel_loop(1)
+      do j = blkLimitsGC(LOW, JAXIS), blkLimitsGC(HIGH, JAXIS)
+         @M Grid_getCenterCoords(hy_globalLBnd, JAXIS, deltas, j, hy_yCenter)
+         @M Grid_getLeftEdgeCoords(hy_globalLBnd, JAXIS, deltas, j, hy_yLeft)
+         @M Grid_getRightEdgeCoords(hy_globalLBnd, JAXIS, deltas, j, hy_yRight)
+      end do
+#endif
+#if NDIM > 2
+      @M hy_DIR_parallel_loop(1)
+      do k = blkLimitsGC(LOW, KAXIS), blkLimitsGC(HIGH, KAXIS)
+         @M Grid_getCenterCoords(hy_globalLBnd, KAXIS, deltas, k, hy_zCenter)
+      end do
+#endif
+
+      select case (hy_geometry)
+      case (CYLINDRICAL)
+         @M hy_DIR_parallel_loop(3)
+         do k = blkLimitsGC(LOW, KAXIS), blkLimitsGC(HIGH, KAXIS)
+         do j = blkLimitsGC(LOW, JAXIS), blkLimitsGC(HIGH, JAXIS)
+         do i = blkLimitsGC(LOW, IAXIS), blkLimitsGC(HIGH, IAXIS)
+            @M Grid_getCellVolumes_Cylindrical(hy_globalLBnd, deltas, hy_cvol, i, j, k)
+            @M Grid_getFaceAreas_IAXIS_Cylindrical(hy_globalLBnd, deltas, hy_fareaX, i, j, k)
+#if NDIM > 1
+            @M Grid_getFaceAreas_IAXIS_Cylindrical(hy_globalLBnd, deltas, hy_fareaY, i, j, k)
+#endif
+#if NDIM > 2
+            @M Grid_getFaceAreas_IAXIS_Cylindrical(hy_globalLBnd, deltas, hy_fareaZ, i, j, k)
+#endif
+         end do
+         end do
+         end do
+      case (SPHERICAL)
+         @M hy_DIR_parallel_loop(3)
+         do k = blkLimitsGC(LOW, KAXIS), blkLimitsGC(HIGH, KAXIS)
+         do j = blkLimitsGC(LOW, JAXIS), blkLimitsGC(HIGH, JAXIS)
+         do i = blkLimitsGC(LOW, IAXIS), blkLimitsGC(HIGH, IAXIS)
+            @M Grid_getCellVolumes_Spherical(hy_globalLBnd, deltas, hy_cvol, i, j, k)
+            @M Grid_getFaceAreas_IAXIS_Spherical(hy_globalLBnd, deltas, hy_fareaX, i, j, k)
+#if NDIM > 1
+            @M Grid_getFaceAreas_JAXIS_Spherical(hy_globalLBnd, deltas, hy_fareaY, i, j, k)
+#endif
+#if NDIM > 2
+            @M Grid_getFaceAreas_KAXIS_Spherical(hy_globalLBnd, deltas, hy_fareaZ, i, j, k)
+#endif
+         end do
+         end do
+         end do
+      end select
+
+   end if    ! if hy_geometry
+
+
+   ! cell face areas for Cartesian coord are needed for
+   ! non-telescoping case, for flux corrections
+   if ((.not. hy_telescoping) .and. hy_geometry == CARTESIAN) then
+      @M hy_DIR_parallel_loop(3)
+      do k = blkLimitsGC(LOW, KAXIS), blkLimitsGC(HIGH, KAXIS)
+      do j = blkLimitsGC(LOW, JAXIS), blkLimitsGC(HIGH, JAXIS)
+      do i = blkLimitsGC(LOW, IAXIS), blkLimitsGC(HIGH, IAXIS)
+         @M Grid_getFaceAreas_IAXIS_Cartesian(hy_globalLBnd, deltas, hy_fareaX, i, j, k)
+#if NDIM > 1
+         @M Grid_getFaceAreas_JAXIS_Cartesian(hy_globalLBnd, deltas, hy_fareaY, i, j, k)
+#endif
+#if NDIM > 2
+         @M Grid_getFaceAreas_KAXIS_Cartesian(hy_globalLBnd, deltas, hy_fareaZ, i, j, k)
+#endif
+      end do
+      end do
+      end do
+   end if
+
+end subroutine Hydro_prepBlock
+

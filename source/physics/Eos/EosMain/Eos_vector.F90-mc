@@ -19,7 +19,12 @@
 !! @subref{Eos_vector}
 !!
 !!
-!!NOVARIANTS
+!!
+
+!!VARIANTS(GPU): Eos_vector, &
+!!               eos_idealGamma, &
+!!               eos_helmSpecies, &
+!!               Driver_abort
 
 
 #include "constants.h"
@@ -31,8 +36,13 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
 !==============================================================================
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
-  use eos_localInterface, ONLY : eos_helmSpecies, eos_idealGamma, eos_weakLib
+  use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weakLib
 
+  @M eos_DIR_routine(vector)
+
+  @M eos_DIR_routine_none(Driver_abort)
+  @M eos_DIR_routine_none(eos_idealGamma)
+  @M eos_DIR_routine_none(eos_helmSpecies)
 
   implicit none
   integer, INTENT(in) :: mode, vecLen
@@ -40,7 +50,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
   real, optional, INTENT(in),target, dimension(NSPECIES,vecLen)    :: massFrac1
   real, optional, INTENT(out), dimension(1:vecLen,EOS_VARS+1:EOS_NUM) :: derivs
 
-  real,pointer,dimension(:) :: massFrac
+  real, dimension(NSPECIES) :: massFrac
   integer :: i
   real :: @M eos_args, ekin
   @M eos_map_declare
@@ -57,29 +67,37 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
 
 #ifndef EOS_WEAKLIB_INCLUDED
   if(pMassFrac_and_derivs) then
+     @M eos_DIR_parallel_loop(1) &
+     @M eos_DIR_private([massFrac, pres, temp, dens, gamc, eint, entr, abar, zbar, ye, ekin])
      do i = 1,vecLen
-        massFrac(1:NSPECIES) => massFrac1(1:NSPECIES,i)
+        massFrac(1:NSPECIES) = massFrac1(1:NSPECIES,i)
         @M eos_unpack(eosData,i)
-        @M eos_idealGamma_massFrac_derivs
-        @M eos_helmSpecies_massFrac_derivs
+        @M eos_idealGamma_point_massFrac_derivs(i)
+        @M eos_helmSpecies_point_massFrac_derivs(i)
         @M eos_pack(eosData,i)
      end do
   else if (pMassFrac) then
+     @M eos_DIR_parallel_loop(1) &
+     @M eos_DIR_private([massFrac, pres, temp, dens, gamc, eint, entr, abar, zbar, ye, ekin])
      do i = 1,vecLen
-        massFrac(1:NSPECIES) => massFrac1(1:NSPECIES,i)
+        massFrac(1:NSPECIES) = massFrac1(1:NSPECIES,i)
         @M eos_unpack(eosData,i)
         @M eos_idealGamma_massFrac
         @M eos_helmSpecies_massFrac
         @M eos_pack(eosData,i)
      end do
   else if (pDerivs) then
+     @M eos_DIR_parallel_loop(1) &
+     @M eos_DIR_private([pres, temp, dens, gamc, eint, entr, abar, zbar, ye, ekin])
      do i = 1,vecLen
         @M eos_unpack(eosData,i)
-        @M eos_idealGamma_derivs
-        @M eos_helmSpecies_derivs
+        @M eos_idealGamma_point_derivs(i)
+        @M eos_helmSpecies_point_derivs(i)
         @M eos_pack(eosData,i)
      end do
   else
+     @M eos_DIR_parallel_loop(1) &
+     @M eos_DIR_private([pres, temp, dens, gamc, eint, entr, abar, zbar, ye, ekin])
      do i = 1,vecLen
         @M eos_unpack(eosData,i)
         @M eos_idealGamma
@@ -101,6 +119,6 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac1, derivs)
 #endif   
 
   return
-end subroutine Eos_Vector
+end subroutine Eos_vector
 
 

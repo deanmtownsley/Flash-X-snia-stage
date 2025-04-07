@@ -1,0 +1,8 @@
+Ex1L.F90 and Ex1R.F90 are meant to be viewed side by side:
+* Ex1L.F90 - new (Flash-X) code fragments
+* Ex1R.F90 - old (FLASH) code fragments
+
+Loading both files in emacs and then using `ediff-buffers'
+(and optionally using the `~' key) is one way of doing it.
+
+Klaus Weide

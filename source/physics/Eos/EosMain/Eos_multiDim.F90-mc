@@ -23,31 +23,44 @@
 
 ! solnData depends on the ordering on unk
 !!REORDER(4): solnData
-!!NOVARIANTS
+!!VARIANTS(GPU): Eos_multiDim, &
+!!               Eos_fillEosData, &
+!!               Eos_getFromEosData, &
+!!               Eos_vector, &
+!!               Driver_abort
+!!
 
 #include "Eos.h"
 #include "constants.h"
 #include "Simulation.h"
- 
-subroutine Eos_multiDim(mode,range,solnData)
+
+subroutine Eos_multiDim(mode,range,lo,solnData @M eos_scratchArgs)
 
   use Driver_interface, ONLY : Driver_abort
-  use Logfile_interface, ONLY: Logfile_stampMessage 
   use Eos_interface, ONLY : Eos_fillEosData, Eos_getFromEosData, Eos_vector
 
-#include "FortranLangFeatures.fh"
+  implicit none
+
+  @M eos_DIR_routine(vector)
+
+  @M eos_DIR_routine_none(Driver_abort)
+  @M eos_DIR_routine_vector(Eos_fillEosData)
+  @M eos_DIR_routine_vector(Eos_vector)
+  @M eos_DIR_routine_vector(Eos_getFromEosData)
 
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
-  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+  integer, intent(in) :: lo(MDIM)
+  real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
+  @M eos_scratch_args_declare
 
   integer :: ierr
   integer :: i,j,k, vecLen
+  integer :: ilo, ihi, jlo, jhi, klo, khi, base_n
 
   integer :: n,m
   real :: @M eos_args
-
-  real, allocatable, dimension(:,:) :: eosData, massFrac
+  @M eos_scratch_declare
 
   @M eos_debug
   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
@@ -61,19 +74,29 @@ subroutine Eos_multiDim(mode,range,solnData)
   ! solnData points to solution data in UNK (or other data structure).
   ! The length of the data being operated upon is determined from the range input array.
 
-  allocate(massFrac(NSPECIES,vecLen))
-  allocate(eosData(vecLen, EOS_VARS))
+  @M eos_scratch_alloc
   
-  call Eos_fillEosData(range, solnData,1, vecLen, eosData)
-  n = 0
-  @M loop_3d(range)
-             n=n+1
+  call Eos_fillEosData(range, lo, solnData,1, vecLen, eosData)
+  base_n = 0
+  !! for readability
+  ilo = range(LOW,  IAXIS)
+  ihi = range(HIGH, IAXIS)
+  jlo = range(LOW,  JAXIS)
+  jhi = range(HIGH, JAXIS)
+  klo = range(LOW,  KAXIS)
+  khi = range(HIGH, KAXIS)
+  @M eos_DIR_parallel_loop(3) &
+  @M eos_DIR_private([i, j, k, n])
+  @M loop_3d(range,i,j,k)
+             n = base_n + &
+                 ((k - klo) * (jhi - jlo + 1) * (ihi - ilo + 1)) + &
+                 ((j - jlo) * (ihi - ilo + 1)) + &
+                 (i - ilo) + 1
              massFrac(1:NSPECIES,n) = solnData(SPECIES_BEGIN:SPECIES_END,i,j,k)
   @M loop_end_3d   
   call Eos_vector(mode,vecLen,eosData, massFrac)
-  call Eos_getFromEosData( 1, vecLen, eosData, range, solnData)
+  call Eos_getFromEosData(1, vecLen, eosData, range, lo, solnData)
   
-  deallocate(massFrac)
-  deallocate(eosData)
+  @M eos_scratch_dealloc
   
 end subroutine Eos_multiDim

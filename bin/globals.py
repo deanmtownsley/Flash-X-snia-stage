@@ -96,7 +96,7 @@ UNIT_KEYWORDS = ["Eos","Hydro","Inlet","Outlet","Simulation","Grid",
                  "SolidMechanics","ImBound","Gravity","RadTrans",
                  "Spacetime","TimeAdvance","IO","Particles",
                  "PhysicalConstants","Logfile","Timers","Profiler",
-                 "Burn","Deleptonize","Orchestration","Heater"]
+                 "Burn","Deleptonize","Orchestration","Heater","Stir"]
 
 ######## Class for SetupError Exception
 class SetupError(Exception):
@@ -115,6 +115,9 @@ class IndentedOutput:
 
     def setDebugLevel(self,level):
         self.debuglevel = level
+
+    def setWrapCol(self,wrap):
+        self.WRAP = wrap
 
     # Return a list of strings so that each string has length
     # <= wrap and consist of full words only. If one word is too
@@ -220,6 +223,7 @@ class GVarsClass:
     """Stores Global variables (visible to most of the code). Also includes parsed version of
     command line options"""
     out          = IndentedOutput()  # pretty printer
+    wrapcol      = None
     setupVars    = SetupVarsClass() # handles setup variables
     indexReorder = False  # reorder indices in unk or not
 

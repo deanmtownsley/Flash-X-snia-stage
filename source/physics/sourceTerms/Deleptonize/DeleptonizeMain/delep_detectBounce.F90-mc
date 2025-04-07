@@ -135,10 +135,10 @@ subroutine delep_detectBounce (dotiling, dt,time)
            call Grid_getCellCoords(JAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),yCenter)
         end if
         
-        allocate(xCenter(@M bounds_i(grownLimits)))
+        allocate(xCenter(@M bounds_1d(I,grownLimits)))
         call Grid_getCellCoords(IAXIS,CENTER,level,grownLimits(LOW,:),grownLimits(HIGH,:),xCenter)
 
-        @M loop_3d(blkLimits)
+        @M loop_3d(blkLimits,i,j,k)
                  
                  radius = xCenter(i)**2
 #if NDIM > 1

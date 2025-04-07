@@ -121,7 +121,7 @@ contains
             end do
 
             CALL Simulation_initBlock(initData, tileDesc)
-            CALL Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits, initData)
+            CALL Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits,tileDesc%blkLimitsGC(LOW,:), initData)
 
             CALL tileDesc%releaseDataPtr(initData, CENTER)
         end associate

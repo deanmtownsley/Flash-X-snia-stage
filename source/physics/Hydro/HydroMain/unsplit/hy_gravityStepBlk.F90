@@ -152,7 +152,7 @@ Subroutine hy_gravityStepBlk(tileDesc, blkLimitsGC, Uin, blkLimits, Uout, del,ti
      print*,'_l5 bef Eos_multiDim: lbound(Uout):',lbound(Uout)
      print*,'_l5 bef Eos_multiDim: ubound(Uout):',ubound(Uout)
 #endif
-     call Eos_multiDim(hy_eosModeAfter, blkLimits, Uout)
+     call Eos_multiDim(hy_eosModeAfter, blkLimits,blkLimitsGC(LOW,:), Uout)
      
      deallocate(gravX)
      deallocate(gravY)

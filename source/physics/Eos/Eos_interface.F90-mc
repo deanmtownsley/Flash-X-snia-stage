@@ -18,6 +18,7 @@
 !!
 !! This file defines the API of the Eos unit
 !!
+!!REORDER(4): solnData
 !!NOVARIANTS
 
 
@@ -44,42 +45,56 @@ Module Eos_interface
   end interface
   
   interface
-     subroutine Eos_multiDim(mode,range,solnData)
+     subroutine Eos_multiDim(mode,range,lo,solnData)
+       implicit none
        integer, intent(in) :: mode
-       integer, dimension(2,MDIM), intent(in) :: range
-       real, POINTER_INTENT_IN :: solnData(:,:,:,:)
-     end subroutine 
+       integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
+       integer, intent(in) :: lo(MDIM)
+       real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
+     end subroutine Eos_multiDim
   end interface
 
+  @M Eos_multiDim_GPU_interface
+
   interface 
-     subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
+     subroutine Eos_fillEosData(range,lo, solnData, vecB, vecE, eosData)
+       implicit none
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
        integer, intent(in) :: vecB
        integer, intent(inout) :: vecE
-       real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+       integer, intent(in) :: lo(MDIM)
+       real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
        real, dimension(vecB:vecE,EOS_VARS), intent(out) :: eosData
      end subroutine Eos_fillEosData
   end interface
 
+  @M Eos_fillEosData_GPU_interface
+
   interface 
-     subroutine Eos_getFromEosData( vecB, vecE, eosData, range, solnData)
+     subroutine Eos_getFromEosData( vecB, vecE, eosData, range, lo, solnData)
+       implicit none
        integer, intent(in) :: vecB
-       integer, intent(inout) :: vecE
-       real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+       integer,intent(inout) :: vecE
        integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-       real, dimension(vecB:vecE,EOS_VARS), intent(in) :: eosData
+       real, dimension(vecB:vecE,EOS_VARS),intent(in) :: eosData
+       integer, dimension(MDIM) :: lo
+       real,dimension(1:,lo(1):,lo(2):,lo(3):), intent(inout) :: solnData
      end subroutine Eos_getFromEosData
   end interface
 
-  
+  @M Eos_getFromEosData_GPU_interface
+
   interface
      subroutine Eos(mode,  @M eos_args, massFrac, derivs)
+       implicit none
        integer, INTENT(in) :: mode
        real, INTENT(INOUT) :: @M eos_args
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
        real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
      end subroutine Eos
   end interface
+
+   @M Eos_GPU_interface
   
   interface	
      subroutine Eos_vector(mode, vecLen, eosData,  massFrac, derivs)
@@ -91,7 +106,8 @@ Module Eos_interface
      end subroutine Eos_Vector
   end interface
 
-  
+  @M Eos_vector_GPU_interface
+
   interface Eos_init
      subroutine Eos_init()
      end subroutine Eos_init
@@ -105,6 +121,7 @@ Module Eos_interface
   interface
      subroutine Eos_getParameters(eintSwitch,inputsAreUnchanged,inputTempIsGuess,constantGammaC,&
           inputMassFracNeeded,smalle,smallE1,smallE2,smallE3)
+       implicit none
        real,OPTIONAL,intent(OUT) :: eintSwitch
        logical,OPTIONAL,intent(OUT) :: inputsAreUnchanged
        logical,OPTIONAL,intent(OUT) :: inputTempIsGuess

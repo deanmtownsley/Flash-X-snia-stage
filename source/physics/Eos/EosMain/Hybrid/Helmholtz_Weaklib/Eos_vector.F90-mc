@@ -20,7 +20,7 @@
 !! @subref{Eos_vector}
 !!
 !!
-!!NOVARIANTS
+!!
 subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
    use eos_localInterface, only: eos_helmSpecies, eos_weaklib
 
@@ -151,7 +151,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
            call eos_weaklib(mode, vecLen_WL, eosData_WL, massFrac_WL, derivs)
       do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
-         call eos_helmSpecies(mode, @M eos_args, massFrac_HLM, derivs)
+         call eos_helmSpecies(mode, @M eos_args, massFrac_HLM, derivs(i,:))
          @M eos_pack(eosData_HLM,i)
       end do
    else if (pMassFrac) then
@@ -169,7 +169,7 @@ subroutine Eos_vector(mode, vecLen, eosData, massFrac,derivs)
 
       do i = 1,vecLen_HLM
          @M eos_unpack(eosData_HLM,i)
-         call eos_helmSpecies(mode, @M eos_args, derivs=derivs)
+         call eos_helmSpecies(mode, @M eos_args, derivs=derivs(i,:))
          @M eos_pack(eosData_HLM,i)
       end do
 

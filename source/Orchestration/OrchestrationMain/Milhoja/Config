@@ -38,6 +38,13 @@ def genLines(setupvars):
     yield 'PARAMETER or_nTilesPerPacket_4      INTEGER 1   [ 1 ... ]'
     yield 'PARAMETER or_nTilesPerPacket_5      INTEGER 1   [ 1 ... ]'
 
+    yield 'D or_nTilesPerCpuTurn_[#]            N tile per CpuTurn for #th Orchestration'
+    yield 'PARAMETER or_nTilesPerCpuTurn_1      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerCpuTurn_2      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerCpuTurn_3      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerCpuTurn_4      INTEGER 1   [ 1 ... ]'
+    yield 'PARAMETER or_nTilesPerCpuTurn_5      INTEGER 1   [ 1 ... ]'
+
     # Users must specify runtime variant
     #   - (grid backend, runtime backend, offloading)
     #   - assume that the Milhoja Grid implementation gets "grid backend" independently

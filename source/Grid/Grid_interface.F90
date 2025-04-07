@@ -692,7 +692,29 @@ Module Grid_interface
        real, intent(inout)    :: poisfact
      end subroutine Grid_solvePoisson
   end interface
- 
+
+  interface 
+     subroutine Grid_beginPoisson (iSoln, iSrc, bcTypes, &
+          bcValues, poisfact)
+       implicit none
+       integer, intent(in)    :: iSoln, iSrc
+       integer, intent(in)    :: bcTypes(6)
+       real, intent(in)       :: bcValues(2,6)
+       real, intent(inout)    :: poisfact
+     end subroutine Grid_beginPoisson
+  end interface
+
+  interface 
+     subroutine Grid_finalizePoisson (iSoln, iSrc, bcTypes, &
+          bcValues, poisfact)
+       implicit none
+       integer, intent(in)    :: iSoln, iSrc
+       integer, intent(in)    :: bcTypes(6)
+       real, intent(in)       :: bcValues(2,6)
+       real, intent(inout)    :: poisfact
+     end subroutine Grid_finalizePoisson
+  end interface
+  
   interface 
      subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, &
           bcValues, poisfact)
