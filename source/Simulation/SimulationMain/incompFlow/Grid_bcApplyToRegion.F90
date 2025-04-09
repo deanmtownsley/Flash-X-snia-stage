@@ -263,7 +263,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                      end do
 #endif
                   else
-                     k = 2*guard+1   
+                     k = 2*guard+1
                      do i = 1, guard
                         regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
                      end do
@@ -274,13 +274,13 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                   if (ivar == VELC_FACE_VAR) then
                      if (isFace) then
                         k = 2*guard+2
-                        do i = 1, guard 
+                        do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
                         end do
 
                      else
                         k = 2*guard+1
-                        do i = 1, guard 
+                        do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
                         end do
                      end if
@@ -321,7 +321,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
             case (NOSLIP_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then 
+                  if (ivar == PRES_VAR) then
                      k = 2*guard+1
                      do i = 1, guard
                         regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
@@ -391,8 +391,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
             case (SLIP_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then   
-                     k = 2*guard+1           
+                  if (ivar == PRES_VAR) then
+                     k = 2*guard+1
                      do i = 1, guard
                         regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
                      end do
@@ -412,7 +412,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
-                  if (ivar == VELC_FACE_VAR) then 
+                  if (ivar == VELC_FACE_VAR) then
                      if (isFace) then
                         regionData(guard+1, 1:je, 1:ke, ivar) = 0.
                         k = 2*guard+2
@@ -531,7 +531,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
             case (INFLOW_INS) ! face == LOW
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then   
+                  if (ivar == PRES_VAR) then
                      k = 2*guard+1
                      do i = 1, guard
                         regionData(i, 1:je, 1:ke, ivar) = regionData(k-i, 1:je, 1:ke, ivar)
@@ -561,7 +561,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                         end do
 
                      else
-                        k = 2*guard+1   
+                        k = 2*guard+1
                         do i = 1, guard
                            regionData(i, 1:je, 1:ke, ivar) = -regionData(k-i, 1:je, 1:ke, ivar)
                         end do
@@ -695,7 +695,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then 
+                  if (ivar == PRES_VAR) then
                      k = 2*guard+1
                      do i = 1, guard
                         regionData(k-i, 1:je, 1:ke, ivar) = -regionData(i, 1:je, 1:ke, ivar)
@@ -717,7 +717,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
                   if (ivar == VELC_FACE_VAR) then
-                     if (isFace) then            
+                     if (isFace) then
                         k = 2*guard+2
                         do i = 1, guard
                            regionData(k-i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
@@ -768,7 +768,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                if (gridDataStruct == CENTER) then
 
                   if (ivar == PRES_VAR) then
-                     k = 2*guard+1 
+                     k = 2*guard+1
                      do i = 1, guard
                         regionData(k-i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                      end do
@@ -837,7 +837,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
             case (SLIP_INS) ! face == HIGH
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then 
+                  if (ivar == PRES_VAR) then
                      k = 2*guard+1
                      do i = 1, guard
                         regionData(k-i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
@@ -858,8 +858,8 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
 
                else ! if gridDataStruct == FACEX, FACEY, or FACEZ
 
-                  if (ivar == VELC_FACE_VAR) then 
-                     if (isFace) then 
+                  if (ivar == VELC_FACE_VAR) then
+                     if (isFace) then
                         regionData(guard+1, 1:je, 1:ke, ivar) = 0.
                         k = 2*guard+2
                         do i = 1, guard
@@ -977,7 +977,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
             case (INFLOW_INS) ! face == HIGH
                if (gridDataStruct == CENTER) then
 
-                  if (ivar == PRES_VAR) then  
+                  if (ivar == PRES_VAR) then
                      k = 2*guard+1
                      do i = 1, guard
                         regionData(k-i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
