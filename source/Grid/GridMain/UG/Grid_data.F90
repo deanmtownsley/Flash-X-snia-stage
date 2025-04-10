@@ -26,8 +26,6 @@
 !!
 !!***
 
-!!REORDER(5):scratch, scratch_ctr, scratch_facevar[xyz]
-
 
 Module Grid_data
   implicit none
