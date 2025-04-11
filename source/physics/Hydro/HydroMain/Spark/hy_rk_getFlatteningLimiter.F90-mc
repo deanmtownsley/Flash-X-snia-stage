@@ -81,7 +81,7 @@ subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
       Z = abs(starState(PRES_VAR, i+1, j, k) - starState(PRES_VAR, i-1, j, k)) &
           /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
       flatTilde(IAXIS) = max(0., min(1., (betaMax - beta)/(betaMax - betaMin)))
-      if (starState(VELX_VAR, i+1, j, k) < starState(VELX_VAR, i, j, k)) then
+      if (starState(VELX_VAR, i+1, j, k) < starState(VELX_VAR, i-1, j, k)) then
          flatTilde(IAXIS) = max(flatTilde(IAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
       else
          flatTilde(IAXIS) = 1.0
@@ -92,7 +92,7 @@ subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
       Z = abs(starState(PRES_VAR, i, j+1, k) - starState(PRES_VAR, i, j-1, k)) &
           /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
       flatTilde(JAXIS) = max(0., min(1., (betaMax-beta)/(betaMax-betaMin)))
-      if (starState(VELY_VAR, i, j+1, k) < starState(VELY_VAR, i, j, k)) then
+      if (starState(VELY_VAR, i, j+1, k) < starState(VELY_VAR, i, j-1, k)) then
          flatTilde(JAXIS) = max(flatTilde(JAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
       else
          flatTilde(JAXIS) = 1.0
@@ -103,7 +103,7 @@ subroutine hy_rk_getFlatteningLimiter(stage, starState, flat3d, limits, loGC)
       Z = abs(starState(PRES_VAR, i, j, k+1) - starState(PRES_VAR, i, j, k-1)) &
           /(starState(GAMC_VAR, i, j, k)*starState(PRES_VAR, i, j, k))
       flatTilde(KAXIS) = max(0., min(1., (betaMax-beta)/(betaMax-betaMin)))
-      if (starState(VELZ_VAR, i, j, k+1) < starState(VELZ_VAR, i, j, k)) then
+      if (starState(VELZ_VAR, i, j, k+1) < starState(VELZ_VAR, i, j, k-1)) then
          flatTilde(KAXIS) = max(flatTilde(KAXIS), min(1., (Zmax-Z)/(Zmax-Zmin)))
       else
          flatTilde(KAXIS) = 1.0
