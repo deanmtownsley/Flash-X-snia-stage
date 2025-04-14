@@ -25,6 +25,7 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
    use Heater_data, ONLY: htr_heaterInfo, htr_numHeaters, htr_yMin, htr_yMax
    use Heater_type, ONLY: Heater_type_t
    use Grid_interface, ONLY: Grid_getDeltas
+   use RuntimeParameters_interface , ONLY: RuntimeParameters_get
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
