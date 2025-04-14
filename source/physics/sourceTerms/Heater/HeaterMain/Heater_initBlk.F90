@@ -16,10 +16,8 @@
 !!***
 subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
 
-   use Simulation_data, ONLY: sim_yMin, sim_yMax     
    use Heater_type, ONLY: Heater_type_t
-   use Heater_data, ONLY: htr_numHeaters, htr_heaterInfo
-   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
+   use Heater_data, ONLY: htr_numHeaters, htr_heaterInfo, htr_yMin, htr_yMax
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: temp
@@ -30,9 +28,6 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
    type(Heater_type_t), pointer  :: heater
    integer :: i, j, k, htr, isite
    real    :: idfun, iseedY, iseedX, iseedZ, iradius, iheight
-
-   call RuntimeParameters_get('ymin', sim_yMin)
-   call RuntimeParameters_get('ymax', sim_yMax)
 
    do k = kz1, kz2
       do j = jy1, jy2
@@ -47,7 +42,7 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                      iradius = heater%radiusInit(isite)
                      iseedX = heater%xSiteInit(isite)
                      iseedZ = heater%zSiteInit(isite)
-                     if( abs(heater%ySiteInit(isite) - sim_yMin) .lt. abs(heater%ySiteInit(isite) - sim_yMax)) then
+                     if( abs(heater%ySiteInit(isite) - htr_yMin) .lt. abs(heater%ySiteInit(isite) - htr_yMax)) then
                         iseedY = heater%ySiteInit(isite)+iheight
                      else
                         iseedY = heater%ySiteInit(isite)-iheight
@@ -57,18 +52,18 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                   end do
                end if
 
-               if(abs(0.5*(heater%yMin + heater%yMax) - sim_yMin) .lt. abs(0.5*(heater%yMin + heater%yMax) - sim_yMax) ) then
+               if(abs(0.5*(heater%yMin + heater%yMax) - htr_yMin) .lt. abs(0.5*(heater%yMin + heater%yMax) - htr_yMax) ) then
                         if (xcell(i) .ge. heater%xMin .and. &
                         xcell(i) .le. heater%xMax .and. &
-                        ycell(j) .le. (sim_yMin+heater%tbl_thickness) .and. &
+                        ycell(j) .le. (htr_yMin+heater%tbl_thickness) .and. &
                         zcell(k) .ge. heater%zMin .and. &
-                        zcell(k) .le. heater%zMax) temp(i, j, k) = (sim_yMin + heater%tbl_thickness-ycell(j))/heater%tbl_thickness
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (htr_yMin + heater%tbl_thickness-ycell(j))/heater%tbl_thickness
                else 
                         if (xcell(i) .ge. heater%xMin .and. &
                         xcell(i) .le. heater%xMax .and. &
-                        ycell(j) .ge. (sim_yMax-heater%tbl_thickness) .and. &
+                        ycell(j) .ge. (htr_yMax-heater%tbl_thickness) .and. &
                         zcell(k) .ge. heater%zMin .and. &
-                        zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-(sim_yMax - heater%tbl_thickness))/heater%tbl_thickness
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-(htr_yMax - heater%tbl_thickness))/heater%tbl_thickness
                end if 
             end do
          end do

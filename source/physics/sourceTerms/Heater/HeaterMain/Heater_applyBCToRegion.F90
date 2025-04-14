@@ -21,13 +21,10 @@
 subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
                                   guard, face, axis, secondDir, thirdDir)
 
-   use Simulation_data, ONLY: sim_yMin, sim_yMax
-   use Multiphase_data, ONLY: mph_thcoGas   
    use Driver_interface, ONLY: Driver_abort
-   use Heater_data, ONLY: htr_heaterInfo, htr_numHeaters
+   use Heater_data, ONLY: htr_heaterInfo, htr_numHeaters, htr_yMin, htr_yMax
    use Heater_type, ONLY: Heater_type_t
    use Grid_interface, ONLY: Grid_getDeltas
-   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
    integer, intent(IN) :: level, ivar, gridDataStruct
@@ -49,13 +46,13 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
    real, dimension(MDIM)  :: del
    real :: dynamicAngle, veli
    real :: wall_dist_fun, th_con
+   real :: thcoGas
+
    call Grid_getDeltas(level, del)
 
-   call RuntimeParameters_get('ymin', sim_yMin)
-   call RuntimeParameters_get('ymax', sim_yMax)
-   call RuntimeParameters_get("mph_thcoGas", mph_thcoGas)
+   call RuntimeParameters_get("mph_thcoGas", thcoGas)
 
-   th_con = mph_thcoGas
+   th_con = thcoGas
 
    je = regionSize(SECOND_DIR)
    ke = regionSize(THIRD_DIR)
@@ -78,8 +75,8 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                               coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
                               coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
-                             if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .gt. &
-                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                             if(abs(0.5*(heater%yMax + heater%yMin) - htr_yMin) .gt. &
+                                abs(0.5*(heater%yMax + heater%yMin) - htr_yMax))then
 
                                      if(heater%heat_flux_flag .eq. 1)then
 
@@ -156,8 +153,8 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                                 end if
                              end if
 
-                             if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin).gt. &
-                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                             if(abs(0.5*(heater%yMax + heater%yMin) - htr_yMin).gt. &
+                                abs(0.5*(heater%yMax + heater%yMin) - htr_yMax))then
                              
                                      regionData(offset - i, j, k, ivar) = regionData(i, j, k, ivar)- &
                                                          del(axis)*cos(dynamicAngle*acos(-1.0)/180)
@@ -191,8 +188,8 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                               coordinates(i, j, k, KAXIS) .gt. heater%zMin .and. &
                               coordinates(i, j, k, KAXIS) .lt. heater%zMax) then
 
-                             if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .lt. & 
-                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                             if(abs(0.5*(heater%yMax + heater%yMin) - htr_yMin) .lt. & 
+                                abs(0.5*(heater%yMax + heater%yMin) - htr_yMax))then
 
                                      if(heater%heat_flux_flag .eq. 1)then
 
@@ -278,8 +275,8 @@ subroutine Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coord
                                 end if
                              end if
 
-                             if(abs(0.5*(heater%yMax + heater%yMin) - sim_yMin) .lt. &
-                                abs(0.5*(heater%yMax + heater%yMin) - sim_yMax))then
+                             if(abs(0.5*(heater%yMax + heater%yMin) - htr_yMin) .lt. &
+                                abs(0.5*(heater%yMax + heater%yMin) - htr_yMax))then
 
                                      regionData(i, j, k, ivar) = regionData(offset-i, j, k, ivar)- &
                                                            del(axis)*cos(dynamicAngle*acos(-1.0)/180)

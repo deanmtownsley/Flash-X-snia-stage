@@ -20,11 +20,9 @@
 
 subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
 
-   use Simulation_data, ONLY: sim_yMin, sim_yMax     
    use Heater_data
    use Heater_type, ONLY: Heater_type_t
    use Driver_interface, ONLY: Driver_abort
-   use RuntimeParameters_interface, ONLY: RuntimeParameters_get
 
    implicit none
    real, dimension(:, :, :), intent(inout)  :: phi
@@ -35,9 +33,6 @@ subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, 
    type(Heater_type_t), pointer  :: heater
    integer :: i, j, k, htr, isite, annIndex, isiteblk
    real    :: idfun, iseedY, iseedX, iseedZ, iradius
-
-   call RuntimeParameters_get('ymin', sim_yMin)
-   call RuntimeParameters_get('ymax', sim_yMax)
 
    do htr = 1, htr_numHeaters
 
@@ -65,7 +60,7 @@ subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, ix1, ix2, 
                      iradius = heater%seedRadius
                      iseedX = heater%xSiteProc(isite)
                      iseedZ = heater%zSiteProc(isite)
-                     if(  abs(heater%ySiteProc(isite) - sim_yMin) .lt. abs(heater%ySiteProc(isite) - sim_yMax))then
+                     if(  abs(heater%ySiteProc(isite) - htr_yMin) .lt. abs(heater%ySiteProc(isite) - htr_yMax))then
                         iseedY = heater%ySiteProc(isite)+heater%seedHeight
                      else
                         iseedY = heater%ySiteProc(isite)-heater%seedHeight                             
