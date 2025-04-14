@@ -1,0 +1,7 @@
+# YAML file for FlowBoiling tests
+# comments can be added with "#"
+
+Comparison/incompFlow/FlowBoiling/2d/AMReX:
+  setupOptions: -auto -maxblocks=200 -2d -nxb=16 -nyb=16 +amrex +parallelIO +incomp -tomlfile=tests/test_2d_am.toml HeaterFluxBC=True --with-unitmods
+  parfiles: <defaultParfile>
+  transfers: object/flow_boiling_hdf5_htr_0001 object/flow_boiling_hdf5_htr_0002
