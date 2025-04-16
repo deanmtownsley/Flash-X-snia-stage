@@ -50,6 +50,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Grid_interface, ONLY: Grid_getCellCoords
    use Grid_tile, ONLY: Grid_tile_t
 
+#ifdef IMBOUND_MAIN
+   use ImBound_interface, ONLY: ImBound_initBlk
+#endif
+
    implicit none
 
    !---Arguments ------------------------------------------------------------------------
@@ -141,6 +145,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
    deallocate (xGrid, yGrid, zGrid)
 
-   return
+#ifdef IMBOUND_MAIN
+   call ImBound_initBlk(tileDesc)
+#endif
 
 end subroutine Simulation_initBlock

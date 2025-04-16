@@ -49,6 +49,10 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    use Simulation_data
    use Grid_tile, ONLY: Grid_tile_t
 
+#ifdef IMBOUND_MAIN
+   use ImBound_interface, ONLY: ImBound_initBlk
+#endif
+
    implicit none
 
    !---Arguments ------------------------------------------------------------------------
@@ -62,11 +66,11 @@ subroutine Simulation_initBlock(solnData, tileDesc)
    nullify (facexData, faceyData, facezData)
 
    call tileDesc%getDataPtr(facexData, FACEX)
-
    facexData(VELC_FACE_VAR, :, :, :) = 1.0
-
    call tileDesc%releaseDataPtr(facexData, FACEX)
 
-   return
+#ifdef IMBOUND_MAIN
+   call ImBound_initBlk(tileDesc)
+#endif
 
 end subroutine Simulation_initBlock
