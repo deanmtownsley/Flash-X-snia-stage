@@ -44,6 +44,7 @@ subroutine gr_amrexMultigridInit()
     allocate(gr_amrexMG_dm(0:gr_amrexMG_maxLevel))
     allocate(gr_amrexMG_acoef(0:gr_amrexMG_maxLevel))
     allocate(gr_amrexMG_bcoef(amrex_spacedim,0:gr_amrexMG_maxLevel))
+    allocate(gr_amrexMG_gradient(amrex_spacedim,0:gr_amrexMG_maxLevel))
 
     gr_amrexMG_ascalar = 1.d-3
     gr_amrexMG_bscalar = -1.d0
