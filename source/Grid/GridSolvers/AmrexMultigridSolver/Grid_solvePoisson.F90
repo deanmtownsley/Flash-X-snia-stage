@@ -40,6 +40,7 @@
 !!
 !!  bcValues - the values to boundary conditions, currently not used (treated as 0)
 !!  poisfact      - scaling factor to be used in calculation, currently not used (treated as 1)
+!!  iGrad         - variable to store gradient of iSoln on face-centered data
 !!
 !!
 !! SIDE EFFECTS
@@ -52,7 +53,7 @@
 !!
 !!***
 
-subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
+subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact, iGrad)
     use Timers_interface, ONLY : Timers_start, Timers_stop
     use Driver_interface, ONLY : Driver_abort
     use Grid_interface,   ONLY : GRID_PDE_BND_PERIODIC,  &
@@ -63,7 +64,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
     use amrex_lo_bctypes_module, ONLY : amrex_lo_periodic, amrex_lo_dirichlet, amrex_lo_neumann
     use amrex_amr_module, ONLY : amrex_geom
     use amrex_fort_module,     ONLY : amrex_real
-    use gr_physicalMultifabs,  ONLY : unk
+    use gr_physicalMultifabs,  ONLY : unk, facevars
     !!
     use amrex_multifab_module, ONLY : amrex_multifab, amrex_multifab_destroy, amrex_multifab_build_alias
     use amrex_boxarray_module, ONLY : amrex_boxarray, amrex_boxarray_destroy
@@ -73,6 +74,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
 
     implicit none  
     integer, intent(in)    :: iSoln, iSrc
+    integer, intent(in), optional :: iGrad
     integer, intent(in)    :: bcTypes(6)
     real, intent(in)       :: bcValues(2,6)
     real, intent(inout)    :: poisfact
@@ -102,6 +104,18 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
 
     gr_amrexMG_ba=gr_amrexMG_rhs%ba
     gr_amrexMG_dm=gr_amrexMG_rhs%dm
+
+   if (present(iGrad)) then
+     do ilev = 0, gr_amrexMG_maxLevel
+       call amrex_multifab_build_alias(gr_amrexMG_gradient(1,ilev), facevars(1, ilev), iGrad, 1)
+#if NDIM >= 2
+       call amrex_multifab_build_alias(gr_amrexMG_gradient(2,ilev), facevars(2, ilev), iGrad, 1)
+#endif
+#if NDIM == 3
+       call amrex_multifab_build_alias(gr_amrexMG_gradient(3,ilev), facevars(3, ilev), iGrad, 1)
+#endif
+      end do
+    end if
 
     !---------------------------------------------------------------------------------
     !-------2. SETUP MULTIGRID AND SOLVE-------------- -------------------------------
@@ -142,6 +156,8 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
 
        if(gr_globalMe .eq. MASTER_PE) print*, "Calling multigrid solve, maxlev", gr_amrexMG_maxLevel
        err = gr_amrexMG_multigrid % solve(gr_amrexMG_solution, gr_amrexMG_rhs, gr_amrexMG_Tol, 0.0_amrex_real)
+       if (present(iGrad)) call gr_amrexMG_multigrid % get_grad_solution(gr_amrexMG_gradient)
+
        if(gr_globalMe .eq. MASTER_PE) print*, err
        call amrex_multigrid_destroy(gr_amrexMG_multigrid)
        call amrex_poisson_destroy(gr_amrexMG_poisson)
@@ -185,6 +201,11 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
          call gr_amrexMG_multigrid % set_max_fmg_iter(gr_amrexMG_max_fmg_iter)
 
          err = gr_amrexMG_multigrid % solve([gr_amrexMG_solution(ilev)], [gr_amrexMG_rhs(ilev)],gr_amrexMG_Tol, 0.0_amrex_real)
+
+         if (present(iGrad)) then
+            call Driver_abort("[AmrexMultigridSolver/Grid_solvePoisson] iGrad not implemented for level-by-level")
+         end if
+
          if(gr_globalMe .eq. MASTER_PE) print*, err
          call amrex_poisson_destroy(gr_amrexMG_poisson)
          call amrex_multigrid_destroy(gr_amrexMG_multigrid)
@@ -199,6 +220,16 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
      call amrex_multifab_destroy(gr_amrexMG_rhs(ilev))
      call amrex_boxarray_destroy(gr_amrexMG_ba(ilev))
      call amrex_distromap_destroy(gr_amrexMG_dm(ilev))
+
+     if (present(iGrad)) then
+       call amrex_multifab_destroy(gr_amrexMG_gradient(1,ilev))
+#if NDIM >= 2
+       call amrex_multifab_destroy(gr_amrexMG_gradient(2,ilev))
+#endif
+#if NDIM == 3
+       call amrex_multifab_destroy(gr_amrexMG_gradient(3,ilev))
+#endif
+     end if
     end do
      
     call Timers_stop("Grid_solvePoisson")
