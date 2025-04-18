@@ -69,6 +69,9 @@ subroutine Multiphase_init(restart)
    call RuntimeParameters_get("ins_invReynolds", mph_invReynolds)
    call RuntimeParameters_get("mph_presTol", mph_presTol)
    call RuntimeParameters_get("mph_tempTol", mph_tempTol)
+   call RuntimeParameters_get("mph_scalarGradX", mph_scalarGradX)
+   call RuntimeParameters_get("mph_scalarGradY", mph_scalarGradY)
+   call RuntimeParameters_get("mph_scalarGradZ", mph_scalarGradZ)
 
    mph_Prandtl = 1.
 
@@ -98,6 +101,9 @@ subroutine Multiphase_init(restart)
       write (*, *) 'mph_Prandtl=', mph_Prandtl
       write (*, *) 'mph_presTol=', mph_presTol
       write (*, *) 'mph_tempTol=', mph_tempTol
+      write (*, *) 'mph_scalarGradX=', mph_scalarGradX
+      write (*, *) 'mph_scalarGradY=', mph_scalarGradY
+      write (*, *) 'mph_scalarGradZ=', mph_scalarGradZ
    end if
 
    call IncompNS_getGridVar('Face_Velocity', mph_iVelFVar)
