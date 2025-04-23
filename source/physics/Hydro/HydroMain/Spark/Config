@@ -103,7 +103,7 @@ ENDIF
 IF useTVD or useLim03 or useFog
 	PPDEFINE NSTENCIL 2
 ELSE
-	PPDEFINE NSTENCIL 3
+	PPDEFINE NSTENCIL 4
 ENDIF
 
 # Number of guard cells at each boundary
@@ -112,7 +112,7 @@ IF not nontelescoping and (useTVD or useLim03 or useFog)
 ENDIF
 
 IF not nontelescoping and not (useTVD or useLim03 or useFog)
-  GUARDCELLS 6
+  GUARDCELLS 8
 ENDIF
 
 # Check for GLM-MHD
