@@ -13,32 +13,35 @@
 !!
 !!
 !!***
-subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+#include "constants.h"
+subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,lo, hi,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
-    real, intent(in) :: dt
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+    real,  intent(in) :: dt
+    integer,dimension(MDIM),  intent(in) :: lo, hi
     real, intent(in) :: iSource
 
-    phi(ix1:ix2,jy1:jy2,kz1:kz2) = phi(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                   1.5*dt*rhsNew(ix1:ix2,jy1:jy2,kz1:kz2) - &
-                                   0.5*dt*rhsOld(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                        dt*iSource
+    phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) = &
+         phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+         1.5*dt*rhsNew(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) - &
+         0.5*dt*rhsOld(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+         dt*iSource
     return
 end subroutine Stencils_integrateAB2Scalar
 
-subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,lo, hi,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
     real, intent(in) :: dt
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+    integer, dimension(MDIM), intent(in) :: lo, hi
     real, dimension(:,:,:), intent(in) :: iSource
 
-    phi(ix1:ix2,jy1:jy2,kz1:kz2) = phi(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                   1.5*dt*rhsNew(ix1:ix2,jy1:jy2,kz1:kz2) - &
-                                   0.5*dt*rhsOld(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                        dt*iSource(ix1:ix2,jy1:jy2,kz1:kz2)
+    phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) = &
+         phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+         1.5*dt*rhsNew(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) - &
+         0.5*dt*rhsOld(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+         dt*iSource(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS))
     return
 end subroutine Stencils_integrateAB2Array
