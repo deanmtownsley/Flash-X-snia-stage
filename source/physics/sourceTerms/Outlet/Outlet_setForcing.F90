@@ -17,9 +17,12 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Outlet_setForcing(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   real, intent(in) :: dt
-   type(Grid_tile_t), intent(in) :: tileDesc
+subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
+     xC, yC,zC, del, lo, hi, dt)
+  
+  real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+  real, dimension(:),intent(IN) :: xC,yC,zC
+  integer, dimension(MDIM),intent(IN)   :: lo, hi
+  real,dimension(MDIM),intent(IN)    :: del
+  real, intent(in) :: dt
 end subroutine Outlet_setForcing

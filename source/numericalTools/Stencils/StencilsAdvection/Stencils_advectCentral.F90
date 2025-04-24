@@ -13,16 +13,19 @@
 !!
 !!
 !!**
-subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,&
-                                     center,facex,facey,facez)
+#include "constants.h"
+#include "Simulation.h"
+
+subroutine Stencils_advectCentral(rhs,phi,u,v,w,delta,lo,hi,face)
   implicit none
 
   !----Imported variables
   real, dimension(:,:,:), intent(inout):: rhs
   real, dimension(:,:,:), intent(in) :: phi,u,v,w
-  real, intent(in) :: dx,dy,dz
-  integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-  integer, intent(in) :: center,facex,facey,facez
+  real, intent(in),dimension(MDIM) :: delta
+  integer,dimension(MDIM), intent(in) :: lo,hi
+  integer, dimension(MDIM+1) :: face
+  integer :: center,facex,facey,facez
 
   integer:: i, j, k
   real:: dx1, dy1, dz1
@@ -30,14 +33,14 @@ subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,k
   real:: phi_uplus, phi_umins, phi_vplus, phi_vmins, phi_wplus, phi_wmins
 
   ! grid spacings
-  dx1 = 1.0/dx
-  dy1 = 1.0/dy
-  dz1 = 1.0/dz
+  dx1 = 1.0/delta(IAXIS)
+  dy1 = 0.0; if(NDIM > 1)dy1 = 1.0/delta(JAXIS)
+  dz1 = 0.0; if(NDIM > 2) dz1 = 1.0/delta(KAXIS)
+  center = face(1); facex = face(2); facey = face(3); facez = face(4)
 
-  do k = kz1,kz2
-     do j = jy1,jy2
-        do i = ix1,ix2
-
+  do k=lo(KAXIS),hi(KAXIS)
+   do j=lo(JAXIS),hi(JAXIS)
+     do i=lo(IAXIS),hi(IAXIS)
            umins = center*u(i,j,k) + &
                    facex*0.5*(u(i,j,k) + u(i-1,j,k)) + &
                    facey*0.5*(u(i,j,k) + u(i,j-1,k)) + &
@@ -58,24 +61,27 @@ subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,k
                    facey*0.5*(v(i,j+1,k) + v(i,j,k)) + &
                    facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
 
-           wmins = center*w(i,j,k) + &
-                   facex*0.5*(w(i,j,k) + w(i-1,j,k)) + &
-                   facey*0.5*(w(i,j,k) + w(i,j-1,k)) + &
-                   facez*0.5*(w(i,j,k) + w(i,j,k-1))
-
-           wplus = center*w(i,j,k+1) + &
-                   facex*0.5*(w(i,j,k+1) + w(i-1,j,k+1)) + &
-                   facey*0.5*(w(i,j,k+1) + w(i,j-1,k+1)) + &
-                   facez*0.5*(w(i,j,k+1) + w(i,j,k))
-
            phi_uplus  = (phi(i+1,j  ,k  ) + phi(i  ,j  ,k  ))*0.5
            phi_umins  = (phi(i  ,j  ,k  ) + phi(i-1,j  ,k  ))*0.5
 
            phi_vplus  = (phi(i  ,j+1,k  ) + phi(i  ,j  ,k  ))*0.5
            phi_vmins  = (phi(i  ,j  ,k  ) + phi(i  ,j-1,k  ))*0.5
 
+           wmins = 0; wplus= 0; phi_wplus = 0; phi_wmins=0;
+#if(NDIM>2)           
+           wmins = center*w(i,j,k) + &
+                facex*0.5*(w(i,j,k) + w(i-1,j,k)) + &
+                facey*0.5*(w(i,j,k) + w(i,j-1,k)) + &
+                facez*0.5*(w(i,j,k) + w(i,j,k-1))
+           
+           wplus = center*w(i,j,k+1) + &
+                facex*0.5*(w(i,j,k+1) + w(i-1,j,k+1)) + &
+                facey*0.5*(w(i,j,k+1) + w(i,j-1,k+1)) + &
+                facez*0.5*(w(i,j,k+1) + w(i,j,k))
+
            phi_wplus  = (phi(i  ,j  ,k+1) + phi(i  ,j  ,k  ))*0.5
            phi_wmins  = (phi(i  ,j  ,k  ) + phi(i  ,j  ,k-1))*0.5
+#endif
 
            ! calculate RHS for u-momentum
            rhs(i,j,k)  = rhs(i,j,k)                               &                              
@@ -86,4 +92,4 @@ subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,k
      enddo
   enddo
   return
-end subroutine Stencils_advectCentral3d
+end subroutine Stencils_advectCentral

@@ -14,15 +14,19 @@
 !!
 !!
 !!******
+#include "constants.h"
+#include "Simulation.h"
+
 subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, normx, normy, normz, mflux, &
-                                ru1, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+                                ru1, dt, del, lo, hi)
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: uni, vni, wni
    real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
    real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, normz, mflux
-   real                                  :: ru1, dt, dx, dy, dz
-   integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+   real                                  :: ru1, dt
+   real, dimension(MDIM),intent(in) :: del
+   integer, dimension(MDIM), intent(in) :: lo,hi
 
    real :: aicc, aixr, aixl, aiyr, aiyl, aizr, aizl
    real :: dsdxp, dsdxm, dsdyp, dsdym, dsdzp, dsdzm
@@ -30,14 +34,15 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, nor
    real :: dx1, dy1, dz1, Mdens
    integer :: i, j, k
 
-   dz1 = 1./dz
-   dx1 = 1./dx
-   dy1 = 1./dy
+   
+   dz1 = 1./del(KAXIS)
+   dx1 = 1./del(IAXIS)
+   dy1 = 1./del(JAXIS)
 
    !------U-COMPONENT--------
-   do k = kz1, kz2
-      do j = jy1, jy2
-         do i = ix1, ix2 + 1
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS) + 1
 
             aicc = 0.5*(rhoc(i, j, k) + rhoc(i - 1, j, k))* &
                    0.5*(mflux(i, j, k) + mflux(i - 1, j, k))* &
@@ -94,9 +99,9 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, nor
    end do
 
    !++++++++++  V-COMPONENT  ++++++++++
-   do k = kz1, kz2
-      do j = jy1, jy2 + 1
-         do i = ix1, ix2
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)
 
             aicc = 0.5*(rhoc(i, j, k) + rhoc(i, j - 1, k))* &
                    0.5*(mflux(i, j, k) + mflux(i, j - 1, k))* &
@@ -153,9 +158,9 @@ subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, nor
    end do
 
    !++++++++++  W-COMPONENT  ++++++++++
-   do k = kz1, kz2 + 1
-      do j = jy1, jy2
-         do i = ix1, ix2
+   do k = lo(KAXIS), hi(KAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
 
             aicc = 0.5*(rhoc(i, j, k) + rhoc(i, j, k - 1))* &
                    0.5*(mflux(i, j, k) + mflux(i, j, k - 1))* &

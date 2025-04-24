@@ -36,6 +36,7 @@
 !!
 !!***
 !!REORDER(4): face[xyz]Data
+!!NOVARIANTS
 
 #include "constants.h"
 #include "Simulation.h"
@@ -69,8 +70,8 @@ subroutine Driver_evolveAll()
 
    use IO_interface, ONLY: IO_output, IO_outputFinal
 
-   use IncompNS_interface, ONLY: IncompNS_indicators, IncompNS_getGridVar, IncompNS_getScalarProp
-
+   use IncompNS_interface, ONLY: IncompNS_indicators, IncompNS_getGridVar, IncompNS_getScalarProp,&
+                                 IncompNS_divergence
    use Multiphase_interface, ONLY: Multiphase_advection, Multiphase_redistance, Multiphase_solve, &
                                    Multiphase_reInitGridVars, Multiphase_indicators, Multiphase_getGridVar
 
@@ -106,10 +107,11 @@ subroutine Driver_evolveAll()
 
    integer :: ii, jj, kk
    integer, dimension(MDIM) :: lo, hi
+   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
    real, allocatable, dimension(:) ::xGrid, yGrid, zGrid
    real :: xi, yi, zi
    logical :: gcell = .true.
-   real, pointer, dimension(:, :, :, :) :: facexData, faceyData, facezData
+   real, pointer, dimension(:, :, :, :) :: solnData,facexData, faceyData, facezData
    real, parameter :: pi = acos(-1.0)
    real :: del(MDIM)
    logical :: runUnitTest
@@ -263,11 +265,14 @@ subroutine Driver_evolveAll()
       ! Compute divergences for velocities
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call IncompNS_divergence(tileDesc)
+         call IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -282,11 +287,11 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
          !---------------------------------------------------------
-         call Multiphase_reInitGridVars(tileDesc)
-         !---------------------------------------------------------
-         call itor%next()
+         call Multiphase_reInitGridVars(solnData )
+
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -303,12 +308,15 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call Multiphase_advection(tileDesc)
-         call Multiphase_solve(tileDesc, dr_dt)
+         call Multiphase_advection(solnData, facexData, faceyData, facezData,del, lo, hi)
+         call Multiphase_solve(solnData,lo, hi, dr_dt)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -327,11 +335,12 @@ subroutine Driver_evolveAll()
          ! routines
          call Grid_getTileIterator(itor, nodetype=LEAF)
          do while (itor%isValid())
-            call itor%currentTile(tileDesc)
+            @M dr_iter_getBaseVals
+            @M dr_mapLimits
             !------------------------------------------------------
-            call Multiphase_redistance(tileDesc, iteration)
+            call Multiphase_redistance(solnData,del,lo,hi, iteration)
             !------------------------------------------------------
-            call itor%next()
+            @M dr_iter_releaseBase
          end do
          call Grid_releaseTileIterator(itor)
 

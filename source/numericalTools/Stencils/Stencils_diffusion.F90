@@ -13,20 +13,20 @@
 !!
 !!
 !!***
-subroutine Stencils_diffusion3dConst(rhs, phi, dx, dy, dz, Coeff, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine Stencils_diffusionConst(rhs, phi, del, Coeff, lo, hi)
   implicit none
   real, dimension(:,:,:), intent(inout) :: rhs
   real, dimension(:,:,:), intent(in)  :: phi
-  real, intent(in) :: dx, dy, dz
+  real, dimension(3), intent(in) :: del
   real, intent(in) :: Coeff
-  integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-end subroutine Stencils_diffusion3dConst
+  integer,dimension(3), intent(in) :: lo, hi
+end subroutine Stencils_diffusionConst
 
-subroutine Stencils_diffusion3dVar(rhs, phi, dx, dy, dz, Coeff, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine Stencils_diffusionVar(rhs, phi, del, Coeff, lo, hi)
   implicit none
   real, dimension(:,:,:), intent(inout) :: rhs
   real, dimension(:,:,:), intent(in)  :: phi
-  real, intent(in) :: dx, dy, dz
+  real, dimension(3), intent(in) :: del
   real, dimension(:,:,:), intent(in) :: Coeff
-  integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-end subroutine Stencils_diffusion3dVar
+  integer, dimension(3), intent(in) :: lo, hi
+end subroutine Stencils_diffusionVar

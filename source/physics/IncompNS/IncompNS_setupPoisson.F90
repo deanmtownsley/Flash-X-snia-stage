@@ -14,10 +14,11 @@
 !!
 !!
 !!***
-subroutine IncompNS_setupPoisson(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+#include "constants.h"
+subroutine IncompNS_setupPoisson(solnData, facexData, faceyData, facezData, del,lo, hi, dt)
+   !---Argument List-------
    real, INTENT(IN) :: dt
-   return
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM) :: lo, hi
 end subroutine IncompNS_setupPoisson

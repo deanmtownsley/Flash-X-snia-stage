@@ -13,16 +13,18 @@
 !!
 !!
 !!**
-subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,&
-                                  center,facex,facey,facez)     
+#include "constants.h"
+#include "Simulation.h"
+subroutine Stencils_advectWeno(rhs,phi,u,v,w,delta,lo,hi,face)     
   implicit none
 
   !----Imported variables
   real, dimension(:,:,:), intent(inout):: rhs
   real, dimension(:,:,:), intent(in) :: phi,u,v,w
-  real, intent(in) :: dx,dy,dz
-  integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-  integer, intent(in) :: center,facex,facey,facez
+  real, dimension(MDIM), intent(in) :: delta
+  integer,dimension(MDIM), intent(in) :: lo,hi
+  integer, dimension(MDIM+1) :: face
+  integer :: center,facex,facey,facez
         
   !------Local variables
   real ::  err,eps,d0,d1,d2,eyl,eyr,ur,ul,vr,vl,& 
@@ -32,15 +34,15 @@ subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,
            a1r,a2r,a3r,a1l,a2l,a3l, &
            fT1r,fT2r,fT3r,fT1l,fT2l,fT3l, &
            frx,flx,fry,fly,frz,flz
-  real ::  wr,wl
+  real ::  wr,wl, zterm
 
   integer :: i,j,k
  
   eps = 1e-15
-
-  do k=kz1,kz2
-   do j=jy1,jy2
-     do i=ix1,ix2
+  center = face(1); facex = face(2); facey = face(3); facez = face(4)
+  do k=lo(KAXIS),hi(KAXIS)
+   do j=lo(JAXIS),hi(JAXIS)
+     do i=lo(IAXIS),hi(IAXIS)
 
      ul = center*u(i,j,k) + &
           facex*0.5*(u(i,j,k) + u(i-1,j,k)) + &
@@ -61,16 +63,6 @@ subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,
           facex*0.5*(v(i,j+1,k) + v(i-1,j+1,k)) + &
           facey*0.5*(v(i,j+1,k) + v(i,j,k)) + &
           facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
-
-     wl = center*w(i,j,k) + &
-          facex*0.5*(w(i,j,k) + w(i-1,j,k)) + &
-          facey*0.5*(w(i,j,k) + w(i,j-1,k)) + &
-          facez*0.5*(w(i,j,k) + w(i,j,k-1))
-
-     wr = center*w(i,j,k+1) + &
-          facex*0.5*(w(i,j,k+1) + w(i-1,j,k+1)) + &
-          facey*0.5*(w(i,j,k+1) + w(i,j-1,k+1)) + &
-          facez*0.5*(w(i,j,k+1) + w(i,j,k))
 
      !______________________Advection Terms_______________________!
 
@@ -317,6 +309,17 @@ subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,
      !---------------------------------------------------------
 
      !----------------- WENO3 Z-Direction ------------!
+#if(NDIM>2)
+     wl = center*w(i,j,k) + &
+          facex*0.5*(w(i,j,k) + w(i-1,j,k)) + &
+          facey*0.5*(w(i,j,k) + w(i,j-1,k)) + &
+          facez*0.5*(w(i,j,k) + w(i,j,k-1))
+
+     wr = center*w(i,j,k+1) + &
+          facex*0.5*(w(i,j,k+1) + w(i-1,j,k+1)) + &
+          facey*0.5*(w(i,j,k+1) + w(i,j-1,k+1)) + &
+          facez*0.5*(w(i,j,k+1) + w(i,j,k))
+
      if (wr .gt. 0) then     ! u = (+) Downwind
 
         s1r = phi(i,j,k-2)
@@ -435,16 +438,20 @@ subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,
      !---------------------------------------------------------
      frz = a1r*fT1r + a2r*fT2r + a3r*fT3r
      flz = a1l*fT1l + a2l*fT2l + a3l*fT3l
+     zterm=(frz*wr - flz*wl)/delta(KAXIS)
      !---------------------------------------------------------
      !---------------------------------------------------------
-!_______________________________RHS TERM______________________________________!
-
-     rhs(i,j,k) = rhs(i,j,k) - (frx*ur  - flx*ul)/dx  - (fry*vr  - fly*vl)/dy - (frz*wr - flz*wl)/dz !&
-                             !+ phi(i,j,k)*(ur-ul)/dx  + phi(i,j,k)*(vr-vl)/dy + phi(i,j,k)*(wr-wl)/dz
+     !_______________________________RHS TERM______________________________________!
+#else
+     zterm=0
+#endif
+     rhs(i,j,k) = rhs(i,j,k) - (frx*ur  - flx*ul)/delta(IAXIS)  &
+          - (fry*vr  - fly*vl)/delta(JAXIS) - zterm !&
+                             !+ phi(i,j,k)*(ur-ul)/delta(IAXIS)  + phi(i,j,k)*(vr-vl)/delta(JAXIS) + phi(i,j,k)*(wr-wl)/dz
 
     end do
    end do
   end do 
 
   return
-end subroutine Stencils_advectWeno3d
+end subroutine Stencils_advectWeno
