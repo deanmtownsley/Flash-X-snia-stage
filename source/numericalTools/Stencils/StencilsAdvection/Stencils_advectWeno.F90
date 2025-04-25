@@ -46,23 +46,26 @@ subroutine Stencils_advectWeno(rhs,phi,u,v,w,delta,lo,hi,face)
 
      ul = center*u(i,j,k) + &
           facex*0.5*(u(i,j,k) + u(i-1,j,k)) + &
-          facey*0.5*(u(i,j,k) + u(i,j-1,k)) + &
-          facez*0.5*(u(i,j,k) + u(i,j,k-1))
+          facey*0.5*(u(i,j,k) + u(i,j-1,k))
 
      ur = center*u(i+1,j,k) + &
           facex*0.5*(u(i+1,j,k)+u(i,j,k)) + &
-          facey*0.5*(u(i+1,j,k)+u(i+1,j-1,k)) + &
-          facez*0.5*(u(i+1,j,k)+u(i+1,j,k-1))
+          facey*0.5*(u(i+1,j,k)+u(i+1,j-1,k))
 
      vl = center*v(i,j,k) + &
           facex*0.5*(v(i,j,k) + v(i-1,j,k)) + &
-          facey*0.5*(v(i,j,k) + v(i,j-1,k)) + &
-          facez*0.5*(v(i,j,k) + v(i,j,k-1))
+          facey*0.5*(v(i,j,k) + v(i,j-1,k))
 
      vr = center*v(i,j+1,k) + &
           facex*0.5*(v(i,j+1,k) + v(i-1,j+1,k)) + &
-          facey*0.5*(v(i,j+1,k) + v(i,j,k)) + &
-          facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
+          facey*0.5*(v(i,j+1,k) + v(i,j,k))
+
+#if(NDIM>2)
+     ul = ul + facez*0.5*(u(i,j,k) + u(i,j,k-1))
+     ur = ur + facez*0.5*(u(i+1,j,k)+u(i+1,j,k-1))
+     vl = vl + facez*0.5*(v(i,j,k) + v(i,j,k-1))
+     vr = vr + facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
+#endif
 
      !______________________Advection Terms_______________________!
 

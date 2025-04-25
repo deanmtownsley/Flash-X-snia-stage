@@ -26,7 +26,7 @@ subroutine Heater_lsReInit(solnData,xcell,ycell,zcell,boundBox,logc, higc, stime
   use Driver_interface, ONLY: Driver_abort
   
   implicit none
-  real, pointer, dimension(:, :, :, :)  :: solnData
+  real, dimension(:, :, :, :)  :: solnData
   real, dimension(:), intent(in)        :: xcell, ycell, zcell
   real, dimension(LOW:HIGH, MDIM), intent(in)     :: boundBox
   integer, dimension(MDIM),intent(in)   :: logc, higc

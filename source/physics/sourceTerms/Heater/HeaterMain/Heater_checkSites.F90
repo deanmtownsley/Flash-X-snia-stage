@@ -28,7 +28,7 @@ subroutine Heater_checkSites(solnData,del,xcell,ycell,zcell,bndBox,logc,higc, lb
   
   implicit none
   
-  real, pointer, dimension(:, :, :, :) :: solnData
+  real, dimension(:, :, :, :) :: solnData
   real, dimension(MDIM),intent(IN) :: del
   real, dimension(:), intent(in)          :: xcell, ycell, zcell
   real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
@@ -54,9 +54,7 @@ subroutine Heater_checkSites(solnData,del,xcell,ycell,zcell,bndBox,logc,higc, lb
   ix1=logc(IAXIS); ix2=higc(IAXIS)
   jy1=logc(JAXIS); jy2=higc(JAXIS)
   kz1=logc(KAXIS); kz2=higc(KAXIS)    
-  
-  
-  
+   
   do htr = 1, htr_numHeaters
      
      heater => htr_heaterInfo(htr)
