@@ -22,7 +22,7 @@ subroutine Heater_checkSites(solnData,del,lo,hi, lblock)
 !----------------------------------------------------------------------------------------
    implicit none
    integer, intent(in) :: lblock
-   real, pointer, dimension(:, :, :, :) :: solnData
+   real, dimension(:, :, :, :) :: solnData
    integer, dimension(MDIM),intent(IN)          :: lo, hi
    real,intent(IN)    :: del(MDIM)
 end subroutine Heater_checkSites

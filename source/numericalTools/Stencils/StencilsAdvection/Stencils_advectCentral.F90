@@ -43,23 +43,25 @@ subroutine Stencils_advectCentral(rhs,phi,u,v,w,delta,lo,hi,face)
      do i=lo(IAXIS),hi(IAXIS)
            umins = center*u(i,j,k) + &
                    facex*0.5*(u(i,j,k) + u(i-1,j,k)) + &
-                   facey*0.5*(u(i,j,k) + u(i,j-1,k)) + &
-                   facez*0.5*(u(i,j,k) + u(i,j,k-1))
+                   facey*0.5*(u(i,j,k) + u(i,j-1,k))
 
            uplus = center*u(i+1,j,k) + &
                    facex*0.5*(u(i+1,j,k)+u(i,j,k)) + &
-                   facey*0.5*(u(i+1,j,k)+u(i+1,j-1,k)) + &
-                   facez*0.5*(u(i+1,j,k)+u(i+1,j,k-1))
+                   facey*0.5*(u(i+1,j,k)+u(i+1,j-1,k))
 
            vmins = center*v(i,j,k) + &
                    facex*0.5*(v(i,j,k) + v(i-1,j,k)) + &
-                   facey*0.5*(v(i,j,k) + v(i,j-1,k)) + &
-                   facez*0.5*(v(i,j,k) + v(i,j,k-1))
+                   facey*0.5*(v(i,j,k) + v(i,j-1,k))
 
            vplus = center*v(i,j+1,k) + &
                    facex*0.5*(v(i,j+1,k) + v(i-1,j+1,k)) + &
-                   facey*0.5*(v(i,j+1,k) + v(i,j,k)) + &
-                   facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
+                   facey*0.5*(v(i,j+1,k) + v(i,j,k))
+#if(NDIM>2)
+           umins = umins + facez*0.5*(u(i,j,k) + u(i,j,k-1))
+           uplus = uplus + facez*0.5*(u(i+1,j,k)+u(i+1,j,k-1))
+           vmins = vmins + facez*0.5*(v(i,j,k) + v(i,j,k-1))
+           vplus = vplus + facez*0.5*(v(i,j+1,k) + v(i,j+1,k-1))
+#endif
 
            phi_uplus  = (phi(i+1,j  ,k  ) + phi(i  ,j  ,k  ))*0.5
            phi_umins  = (phi(i  ,j  ,k  ) + phi(i-1,j  ,k  ))*0.5

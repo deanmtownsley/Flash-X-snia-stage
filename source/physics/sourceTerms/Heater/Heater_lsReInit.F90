@@ -18,7 +18,7 @@
 #include "constants.h"
 
 subroutine Heater_lsReInit(solnData, del, lo, hi, stime, lblock)
-  real, dimension(:, :, :, :), pointer  :: solnData
+  real, dimension(:, :, :, :)           :: solnData
   real, intent(in)                      :: stime
   real ,dimension(MDIM), intent(in)     :: del
   integer, dimension(MDIM),intent(in)   :: lo, hi

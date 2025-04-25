@@ -45,7 +45,7 @@ module Heater_interface
 
         !----------------------------------------------------------------------------------------
         integer, intent(in) :: lblock
-        real, pointer, dimension(:, :, :, :) :: solnData
+        real, dimension(:, :, :, :) :: solnData
         real, dimension(:), intent(in)          :: xcell, ycell, zcell
         real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
         integer, dimension(MDIM),intent(IN)          :: logc, higc
@@ -55,7 +55,7 @@ module Heater_interface
 
    interface
       subroutine Heater_lsReInit(solnData,xcell,ycell,zcell,bndBox,logc, higc, stime, lblock)
-        real, dimension(:, :, :, :), pointer  :: solnData
+        real, dimension(:, :, :, :)  :: solnData
         real, intent(in)                      :: stime
         real, dimension(:), intent(in)          :: xcell, ycell, zcell
         real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
