@@ -20,14 +20,15 @@
   velContact = 0.2
   nucWaitTime = 0.4
   numSites = 0
-  non_uniform_temp_flag = 0
+  varTempFlg = 0
   C3 = 0.0 
   C2 = 0.0
   C1 = 0.004
   C0 = 0.9
-  tbl_thickness = 0.04
-  heat_flux_flag = 1
-  nd_heat_flux = 100
+  tblThickness = 0.04
+  heatFluxFlg = 1
+  heatFlux = 100
+
 [Heater.0002]
   dim = 1
   xmin = -5.0
@@ -42,14 +43,14 @@
   velContact = 0.2
   nucWaitTime = 0.4
   numSites = 0
-  non_uniform_temp_flag = 0
+  varTempFlg = 0
   C3 = 0.0
   C2 = 0.0
   C1 = 0.001
   C0 = 0.975
-  tbl_thickness = 0.04
-  heat_flux_flag = 1
-  nd_heat_flux = 100
+  tblThickness = 0.04
+  heatFluxFlg = 1
+  heatFlux = 100
 
 [Logfile]
   run_comment = "Flow Boiling problem"

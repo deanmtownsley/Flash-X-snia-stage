@@ -83,7 +83,8 @@ Module ins_interface
    end interface
 
    interface ins_corrector
-      subroutine ins_corrector_constdens(uni, vni, wni, pxn1, pyn1, pzn1, p, ix1, ix2, jy1, jy2, kz1, kz2, &
+      subroutine ins_corrector_constdens(uni, vni, wni, pxn1, pyn1, pzn1, p, &
+                                         ix1, ix2, jy1, jy2, kz1, kz2, &
                                          dt, dx, dy, dz)
          implicit none
          INTEGER, INTENT(IN) :: ix1, ix2, jy1, jy2, kz1, kz2
@@ -133,12 +134,12 @@ Module ins_interface
    end interface
 
    interface
-      subroutine ins_indicators(u, v, w, pres, divv, ix1, ix2, jy1, jy2, kz1, kz2, vecminaux, vecmaxaux)
+      subroutine ins_indicators(u, v, w, pres, divv, omgm, ix1, ix2, jy1, jy2, kz1, kz2, vecminaux, vecmaxaux)
          implicit none
          real, dimension(:, :, :), intent(in) :: u, v, w
-         real, dimension(:, :, :), intent(in) :: pres, divv
+         real, dimension(:, :, :), intent(in) :: pres, divv, omgm
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-         real, dimension(5), intent(inout) :: vecminaux, vecmaxaux
+         real, dimension(6), intent(inout) :: vecminaux, vecmaxaux
       end subroutine ins_indicators
    end interface
 

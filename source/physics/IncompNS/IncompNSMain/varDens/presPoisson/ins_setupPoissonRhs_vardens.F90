@@ -15,12 +15,6 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine ins_setupPoissonRhs_constdens(divu, dt)
-   implicit none
-   real, dimension(:, :, :), intent(inout) :: divu
-   real, intent(in) :: dt
-end subroutine ins_setupPoissonRhs_constdens
-
 subroutine ins_setupPoissonRhs_vardens(divu, &
                                        sigx, sigy, sigz, &
                                        pxn1, pyn1, pzn1, &
@@ -85,4 +79,3 @@ subroutine ins_setupPoissonRhs_vardens(divu, &
    end do
 
 end subroutine ins_setupPoissonRhs_vardens
-

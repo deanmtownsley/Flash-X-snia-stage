@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNS_divergence
+!!
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -11,14 +11,9 @@
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
 !!
-!!
-!!
-!!
-!!***
-#include "constants.h"
-subroutine IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+!!**
+subroutine ins_setupPoissonRhs_constdens(divu, dt)
    implicit none
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-   integer, dimension(MDIM) :: lo, hi
-   real,dimension(MDIM),intent(IN) :: del
-end subroutine IncompNS_divergence
+   real, dimension(:, :, :), intent(inout) :: divu
+   real, intent(in) :: dt
+end subroutine ins_setupPoissonRhs_constdens

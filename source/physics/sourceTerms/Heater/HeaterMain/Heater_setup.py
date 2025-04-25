@@ -69,14 +69,14 @@ def __createHeater(GVars):
 
                 xsite[:] = info["xmin"] + sample[:,0]*(info["xmax"]-info["xmin"])
                 ysite[:] = 0.5*(info["ymax"] + info["ymin"])
-                radii[:] = 0.2
+                radii[:] = GVars.tomlDict["Heater"]["htr_nucSeedRadius"]
 
-                if info["dim"] == 1:
+                if GVars.dimension == 2:
                     zsite[:] = 0.0
-                elif info["dim"] == 2:
+                elif GVars.dimension == 3:
                     zsite[:] = info["zmin"] + sample[:,1]*(info["zmax"]-info["zmin"])
                 else:
-                    raise ValueError(f"[Heater_setup] Error in HEATER.{key}.dim in tomlfile")
+                    raise ValueError(f"[Heater_setup] Unknown dimension {GVars.dimension}")
 
             hfile.create_dataset("heater/xMin", data=info["xmin"], shape=(1), dtype="float32")
             hfile.create_dataset("heater/xMax", data=info["xmax"], shape=(1), dtype="float32")
@@ -100,14 +100,15 @@ def __createHeater(GVars):
                 hfile.create_dataset("heater/C2",data=info["C2"],shape=(1),dtype="float32")
                 hfile.create_dataset("heater/C1",data=info["C1"],shape=(1),dtype="float32")
                 hfile.create_dataset("heater/C0",data=info["C0"],shape=(1),dtype="float32")
-                hfile.create_dataset("heater/tbl_thickness",data=info["tbl_thickness"],shape=(1),dtype="float32")
-                hfile.create_dataset("heater/non_uniform_temp_flag",data=info["non_uniform_temp_flag"],shape=(1),dtype="int32")
-                hfile.create_dataset("heater/heat_flux_flag",data=info["heat_flux_flag"],shape=(1),dtype="int32")
-                hfile.create_dataset("heater/nd_heat_flux",data=info["nd_heat_flux"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/tblThickness",data=info["tblThickness"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/varTempFlg",data=info["varTempFlg"],shape=(1),dtype="int32")
+                hfile.create_dataset("heater/heatFluxFlg",data=info["heatFluxFlg"],shape=(1),dtype="int32")
+                hfile.create_dataset("heater/heatFlux",data=info["heatFlux"],shape=(1),dtype="float32")
+                hfile.create_dataset("heater/nucTemp", data=info["nucTemp"], shape=(1), dtype="float32")
 
             hfile.close()
 
-            GVars.out.put(f'[Heater_setup] Wrote Heater information to file '
+            GVars.out.put(f'[Heater_setup] Wrote {GVars.dimension-1}D Heater information to file '
                         + f'{filename.replace(GVars.flashHomeDir+os.sep+GVars.objectDir+os.sep,"")}')
 
     if numHeaters != GVars.tomlDict["Heater"]["htr_numHeaters"]:

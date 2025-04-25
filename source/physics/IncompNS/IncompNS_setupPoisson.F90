@@ -16,7 +16,6 @@
 !!***
 #include "constants.h"
 subroutine IncompNS_setupPoisson(solnData, facexData, faceyData, facezData, del,lo, hi, dt)
-   !---Argument List-------
    real, INTENT(IN) :: dt
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    real,dimension(MDIM),intent(IN) :: del
