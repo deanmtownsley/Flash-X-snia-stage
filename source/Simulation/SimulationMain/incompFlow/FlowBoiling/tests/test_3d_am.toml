@@ -28,6 +28,7 @@
   tblThickness = 0.04
   heatFluxFlg = 1
   heatFlux = 100
+  nucTemp = 0.0
 
 [Heater.0002]
   dim = 1
@@ -51,6 +52,7 @@
   tblThickness = 0.04
   heatFluxFlg = 1
   heatFlux = 100
+  nucTemp = 0.0
 
 [Logfile]
   run_comment = "Flow Boiling problem"
