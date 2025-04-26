@@ -14,8 +14,12 @@
 !!
 !!
 !!***
-subroutine HeatAD_advection(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine HeatAD_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
+!--------------------------------------------------------------------------------------------
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM+1) :: face
+   integer, dimension(MDIM),intent(IN) :: lo, hi
 end subroutine HeatAD_advection

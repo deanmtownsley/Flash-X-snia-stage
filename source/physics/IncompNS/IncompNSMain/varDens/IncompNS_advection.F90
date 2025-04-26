@@ -20,36 +20,27 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_advection(tileDesc)
+subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
 
-   use Grid_tile, ONLY: Grid_tile_t
+!!$   use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNstep, Driver_abort
-   use Stencils_interface, ONLY: Stencils_advectWeno2d, Stencils_advectWeno3d, &
-                                 Stencils_advectCentral2d, Stencils_advectCentral3d
+   use Driver_interface, ONLY: Driver_abort
+   use Stencils_interface, ONLY: Stencils_advectWeno, Stencils_advectCentral
    use IncompNS_data
 
 !------------------------------------------------------------------------------------------
    implicit none
    include "Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
+!!$   type(Grid_tile_t), intent(in) :: tileDesc
 
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
-#if NDIM < MDIM
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
-   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
-#else
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-#endif
-   real del(MDIM)
-   integer :: NStep
-
+   real, dimension(MDIM), intent(in) :: del
+   integer,dimension(MDIM), intent(in) :: lo,hi
 !------------------------------------------------------------------------------------------
-#if NDIM < MDIM
-   nullify (solnData, facexData, faceyData)
-#else
-   nullify (solnData, facexData, faceyData, facezData)
-#endif
+   integer,dimension(MDIM) :: hi1
+   integer, dimension(MDIM+1) :: face
+   integer, parameter :: center=1, facex=2, facey=3, facez=4
+
    !
    call Timers_start("IncompNS_advection")
 
@@ -57,141 +48,70 @@ subroutine IncompNS_advection(tileDesc)
       call Driver_abort("[IncompNS_advection] ins_intSchm should be 2 or 105 for variable density configuration")
    end if
    !
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-
-   call tileDesc%deltas(del)
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
-#if NDIM == 3
-   call tileDesc%getDataPtr(facezData, FACEZ)
-#endif
-
+   hi1(:) = hi(:)
    if (ins_advSchm == 2) then
-#if NDIM == 3
       ! compute RHS of momentum equation
-      call Stencils_advectCentral3d(facexData(HVN0_FACE_VAR, :, :, :), &
+      hi1(IAXIS)=hi1(IAXIS)+1
+      face=0
+      face(facex)=1
+      call Stencils_advectCentral(facexData(HVN0_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
                                     faceyData(VELC_FACE_VAR, :, :, :), &
                                     facezData(VELC_FACE_VAR, :, :, :), &
-                                    del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                    GRID_ILO, GRID_IHI + 1, &
-                                    GRID_JLO, GRID_JHI, &
-                                    GRID_KLO, GRID_KHI, &
-                                    center=0, facex=1, facey=0, facez=0)
+                                    del, lo,hi1,face)
 
-      call Stencils_advectCentral3d(faceyData(HVN0_FACE_VAR, :, :, :), &
+      hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
+      face(facex)=0; face(facey)=1
+      call Stencils_advectCentral(faceyData(HVN0_FACE_VAR, :, :, :), &
                                     faceyData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
                                     faceyData(VELC_FACE_VAR, :, :, :), &
                                     facezData(VELC_FACE_VAR, :, :, :), &
-                                    del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI + 1, &
-                                    GRID_KLO, GRID_KHI, &
-                                    center=0, facex=0, facey=1, facez=0)
+                                    del,lo,hi1,face)
 
-      call Stencils_advectCentral3d(facezData(HVN0_FACE_VAR, :, :, :), &
+#if NDIM == 3      
+      hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
+      face(facey)=0; face(facez)=1
+      call Stencils_advectCentral(facezData(HVN0_FACE_VAR, :, :, :), &
                                     facezData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
                                     faceyData(VELC_FACE_VAR, :, :, :), &
                                     facezData(VELC_FACE_VAR, :, :, :), &
-                                    del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI, &
-                                    GRID_KLO, GRID_KHI + 1, &
-                                    center=0, facex=0, facey=0, facez=1)
-#elif NDIM ==2
-      ! compute RHS of momentum equation
-      call Stencils_advectCentral2d(facexData(HVN0_FACE_VAR, :, :, :), &
-                                    facexData(VELC_FACE_VAR, :, :, :), &
-                                    facexData(VELC_FACE_VAR, :, :, :), &
-                                    faceyData(VELC_FACE_VAR, :, :, :), &
-                                    del(DIR_X), &
-                                    del(DIR_Y), &
-                                    GRID_ILO, GRID_IHI + 1, &
-                                    GRID_JLO, GRID_JHI, &
-                                    center=0, facex=1, facey=0)
-
-      call Stencils_advectCentral2d(faceyData(HVN0_FACE_VAR, :, :, :), &
-                                    faceyData(VELC_FACE_VAR, :, :, :), &
-                                    facexData(VELC_FACE_VAR, :, :, :), &
-                                    faceyData(VELC_FACE_VAR, :, :, :), &
-                                    del(DIR_X), &
-                                    del(DIR_Y), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI + 1, &
-                                    center=0, facex=0, facey=1)
+                                    del, lo, hi1,face)
 #endif
 
    else if (ins_advSchm == 105) then
+      ! compute RHS of momentum equation
+      face=0; face(facex)=1
+      hi1(IAXIS)=hi1(IAXIS)+1      
+      call Stencils_advectWeno(facexData(HVN0_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 del,lo, hi1,face)
+
+      face=0; face(facey)=1
+      hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
+      call Stencils_advectWeno(faceyData(HVN0_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facexData(VELC_FACE_VAR, :, :, :), &
+                                 faceyData(VELC_FACE_VAR, :, :, :), &
+                                 facezData(VELC_FACE_VAR, :, :, :), &
+                                 del, lo, hi1, face)
+
 #if NDIM == 3
-      ! compute RHS of momentum equation
-      call Stencils_advectWeno3d(facexData(HVN0_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 facezData(VELC_FACE_VAR, :, :, :), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                 GRID_ILO, GRID_IHI + 1, &
-                                 GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI, &
-                                 center=0, facex=1, facey=0, facez=0)
-
-      call Stencils_advectWeno3d(faceyData(HVN0_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 facezData(VELC_FACE_VAR, :, :, :), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI + 1, &
-                                 GRID_KLO, GRID_KHI, &
-                                 center=0, facex=0, facey=1, facez=0)
-
-      call Stencils_advectWeno3d(facezData(HVN0_FACE_VAR, :, :, :), &
+      face=0; face(facez)=1
+      hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
+      call Stencils_advectWeno(facezData(HVN0_FACE_VAR, :, :, :), &
                                  facezData(VELC_FACE_VAR, :, :, :), &
                                  facexData(VELC_FACE_VAR, :, :, :), &
                                  faceyData(VELC_FACE_VAR, :, :, :), &
                                  facezData(VELC_FACE_VAR, :, :, :), &
-                                 del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI + 1, &
-                                 center=0, facex=0, facey=0, facez=1)
-#elif NDIM ==2
-      ! compute RHS of momentum equation
-      call Stencils_advectWeno2d(facexData(HVN0_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 del(DIR_X), &
-                                 del(DIR_Y), &
-                                 GRID_ILO, GRID_IHI + 1, &
-                                 GRID_JLO, GRID_JHI, &
-                                 center=0, facex=1, facey=0)
-
-      call Stencils_advectWeno2d(faceyData(HVN0_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 facexData(VELC_FACE_VAR, :, :, :), &
-                                 faceyData(VELC_FACE_VAR, :, :, :), &
-                                 del(DIR_X), &
-                                 del(DIR_Y), &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI + 1, &
-                                 center=0, facex=0, facey=1)
+                                 del, lo, hi1, face)
 #endif
    end if
-
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-   call tileDesc%releaseDataPtr(facexData, FACEX)
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
-#if NDIM ==3
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
-#endif
 
    call Timers_stop("IncompNS_advection")
 

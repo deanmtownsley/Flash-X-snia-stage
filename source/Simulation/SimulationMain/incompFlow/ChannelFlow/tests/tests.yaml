@@ -14,3 +14,6 @@ Comparison/incompFlow/ChanneFlow/Paramesh/2d:
                 +parallelIO -2d -nxb=16 -nyb=16 +incomp
   parfiles: test_outflow_bc.par
 
+Comparison/incompFlow/ChanneFlow/AMReX/3d:
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO -3d -nxb=16 -nyb=16 -nzb=16 +incomp
+  parfiles: test_outflow_bc_3d.par

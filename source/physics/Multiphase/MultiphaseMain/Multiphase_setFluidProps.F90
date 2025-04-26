@@ -20,7 +20,8 @@
 #include "constants.h"
 #include "Multiphase.h"
 
-subroutine Multiphase_setFluidProps(tileDesc)
+subroutine Multiphase_setFluidProps(solnData, facexData, faceyData, facezData, del,&
+              logc, higc)
 
    use Multiphase_data
    use Stencils_interface, ONLY: Stencils_lsCenterProps, &
@@ -31,53 +32,37 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                  Stencils_lsNormals2d, &
                                  Stencils_lsNormals3d
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Grid_tile, ONLY: Grid_tile_t
 
-!---------------------------------------------------------------------------------------------------------
+!---------------------------------------------------------------------------------------------
    implicit none
-   include "Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
-
-   integer, dimension(2, MDIM) :: stnLimits = 1, stnLimitsGC = 1
-   logical :: gcMask(NUNK_VARS + NDIM*NFACE_VARS)
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM),intent(IN) :: logc, higc
+   
    integer :: ierr, i, j, k
-   real del(MDIM)
    real minCellDiag
-
-!----------------------------------------------------------------------------------------------------------
-   nullify (solnData, facexData, faceyData, facezData)
+!-------------------------------------------------------------------------------------------------
+   
 
    call Timers_start("Multiphase_setFluidProps")
 
-   stnLimitsGC(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1 - NGUARD
-   stnLimitsGC(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1 + NGUARD
-
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
-#if NDIM == MDIM
-   call tileDesc%getDataPtr(facezData, FACEZ)
-#endif
-   call tileDesc%deltas(del)
 
    minCellDiag = SQRT(del(DIR_X)**2.+del(DIR_Y)**2.+del(DIR_Z)**2.)
 
    call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
                                solnData(SMHV_VAR, :, :, :), &
                                1., &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS), &
+                               logc( IAXIS), higc( IAXIS), &
+                               logc( JAXIS), higc( JAXIS), &
+                               logc( KAXIS), higc( KAXIS), &
                                iSmear=mph_iPropSmear*minCellDiag)
 
    call Stencils_lsCenterProps(solnData(DFUN_VAR, :, :, :), &
                                solnData(PFUN_VAR, :, :, :), &
                                1., &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))
+                               logc( IAXIS), higc( IAXIS), &
+                               logc( JAXIS), higc( JAXIS), &
+                               logc( KAXIS), higc( KAXIS))
 
    solnData(mph_iMuCVar, :, :, :) = solnData(SMHV_VAR, :, :, :)*mph_muGas + &
                                     (1 - solnData(SMHV_VAR, :, :, :))*solnData(mph_iMucVar, :, :, :)
@@ -90,24 +75,24 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                facexData(mph_iRhoFVar, :, :, :), &
                                faceyData(mph_iRhoFVar, :, :, :), &
                                1./mph_rhoGas, &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS))!, &
+                               logc( IAXIS), higc( IAXIS), &
+                               logc( JAXIS), higc( JAXIS))!, &
                                !iSmear=mph_iPropSmear*minCellDiag)
 
    call Stencils_lsNormals2d(solnData(RHOC_VAR, :, :, :), &
                              solnData(NRMX_VAR, :, :, :), &
                              solnData(NRMY_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC)
+                             logc(IAXIS), higc(IAXIS), &
+                             logc(JAXIS), higc(JAXIS))
 
    call Stencils_lsCurvature2d(solnData(CURV_VAR, :, :, :), &
                                solnData(RHOC_VAR, :, :, :), &
                                solnData(NRMX_VAR, :, :, :), &
                                solnData(NRMY_VAR, :, :, :), &
                                del(DIR_X), del(DIR_Y), &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC)
+                               logc(IAXIS), higc(IAXIS), &
+                               logc(JAXIS), higc(JAXIS))
 
 #else
    call Stencils_lsFaceProps3d(solnData(DFUN_VAR, :, :, :), &
@@ -115,9 +100,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                faceyData(mph_iRhoFVar, :, :, :), &
                                facezData(mph_iRhoFVar, :, :, :), &
                                1./mph_rhoGas, &
-                               stnLimitsGC(LOW, IAXIS), stnLimitsGC(HIGH, IAXIS), &
-                               stnLimitsGC(LOW, JAXIS), stnLimitsGC(HIGH, JAXIS), &
-                               stnLimitsGC(LOW, KAXIS), stnLimitsGC(HIGH, KAXIS))!, &
+                               logc( IAXIS), higc( IAXIS), &
+                               logc( JAXIS), higc( JAXIS), &
+                               logc( KAXIS), higc( KAXIS))!, &
                                !iSmear=mph_iPropSmear*minCellDiag)
 
    call Stencils_lsNormals3d(solnData(RHOC_VAR, :, :, :), &
@@ -125,9 +110,9 @@ subroutine Multiphase_setFluidProps(tileDesc)
                              solnData(NRMY_VAR, :, :, :), &
                              solnData(NRMZ_VAR, :, :, :), &
                              del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                             GRID_ILO_GC, GRID_IHI_GC, &
-                             GRID_JLO_GC, GRID_JHI_GC, &
-                             GRID_KLO_GC, GRID_KHI_GC)
+                             logc(IAXIS), higc(IAXIS), &
+                             logc(JAXIS), higc(JAXIS), &
+                             logc(KAXIS), higc(KAXIS))
 
    call Stencils_lsCurvature3d(solnData(CURV_VAR, :, :, :), &
                                solnData(RHOC_VAR, :, :, :), &
@@ -135,18 +120,11 @@ subroutine Multiphase_setFluidProps(tileDesc)
                                solnData(NRMY_VAR, :, :, :), &
                                solnData(NRMZ_VAR, :, :, :), &
                                del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                               GRID_ILO_GC, GRID_IHI_GC, &
-                               GRID_JLO_GC, GRID_JHI_GC, &
-                               GRID_KLO_GC, GRID_KHI_GC)
+                               logc(IAXIS), higc(IAXIS), &
+                               logc(JAXIS), higc(JAXIS), &
+                               logc(KAXIS), higc(KAXIS))
 #endif
 
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-   call tileDesc%releaseDataPtr(facexData, FACEX)
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
-#if NDIM == MDIM
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
-#endif
    call Timers_stop("Multiphase_setFluidProps")
 
    return

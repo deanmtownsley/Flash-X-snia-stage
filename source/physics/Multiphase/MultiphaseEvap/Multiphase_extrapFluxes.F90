@@ -20,31 +20,24 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_extrapFluxes(tileDesc, iteration)
+subroutine Multiphase_extrapFluxes(solnData,del,lo,hi, iteration)
 
    use Multiphase_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Grid_tile, ONLY: Grid_tile_t
    use Stencils_interface, ONLY: Stencils_cnt_advectUpwind2d, Stencils_cnt_advectUpwind3d
    use mph_evapInterface, ONLY: mph_phasedFluxes
 
 !------------------------------------------------------------------------------------------------
    implicit none
-   include "Flashx_mpi.h"
-   integer, intent(in) :: iteration
-   type(Grid_tile_t), intent(in) :: tileDesc
-
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-   real del(MDIM)
+   real, dimension(MDIM), intent(IN) :: del
+   integer, dimension(MDIM), intent(IN) :: lo,hi
+   integer, intent(in) :: iteration
+
 !------------------------------------------------------------------------------------------------
-   nullify (solnData)
 
    call Timers_start("Multiphase_extrapFluxes")
 
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%deltas(del)
 
 #if NDIM < MDIM
 
@@ -55,16 +48,16 @@ subroutine Multiphase_extrapFluxes(tileDesc, iteration)
                                     solnData(NRMX_VAR, :, :, :), &
                                     solnData(NRMY_VAR, :, :, :), &
                                     del(IAXIS), del(JAXIS), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI)
+                                    lo(IAXIS), hi(IAXIS), &
+                                    lo(JAXIS), hi(JAXIS))
 
    call mph_phasedFluxes(solnData(HFLQ_VAR, :, :, :), &
                          solnData(MFLX_VAR, :, :, :), &
                          solnData(DFUN_VAR, :, :, :), &
                          0.5*del(IAXIS), &
-                         GRID_ILO, GRID_IHI, &
-                         GRID_JLO, GRID_JHI, &
-                         GRID_KLO, GRID_KHI)
+                         lo(IAXIS), hi(IAXIS), &
+                         lo(JAXIS), hi(JAXIS), &
+                         lo(KAXIS), hi(KAXIS))
 
    solnData(MFLX_VAR, :, :, :) = 0.0
 
@@ -73,16 +66,16 @@ subroutine Multiphase_extrapFluxes(tileDesc, iteration)
                                     -solnData(NRMX_VAR, :, :, :), &
                                     -solnData(NRMY_VAR, :, :, :), &
                                     del(IAXIS), del(JAXIS), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI)
+                                    lo(IAXIS), hi(IAXIS), &
+                                    lo(JAXIS), hi(JAXIS))
 
    call mph_phasedFluxes(solnData(HFGS_VAR, :, :, :), &
                          solnData(MFLX_VAR, :, :, :), &
                          -solnData(DFUN_VAR, :, :, :), &
                          0.5*del(IAXIS), &
-                         GRID_ILO, GRID_IHI, &
-                         GRID_JLO, GRID_JHI, &
-                         GRID_KLO, GRID_KHI)
+                         lo(IAXIS), hi(IAXIS), &
+                         lo(JAXIS), hi(JAXIS), &
+                         lo(KAXIS), hi(KAXIS))
 
 #else
 
@@ -94,17 +87,17 @@ subroutine Multiphase_extrapFluxes(tileDesc, iteration)
                                     solnData(NRMY_VAR, :, :, :), &
                                     solnData(NRMZ_VAR, :, :, :), &
                                     del(IAXIS), del(JAXIS), del(KAXIS), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI, &
-                                    GRID_KLO, GRID_KHI)
+                                    lo(IAXIS), hi(IAXIS), &
+                                    lo(JAXIS), hi(JAXIS), &
+                                    lo(KAXIS), hi(KAXIS))
 
    call mph_phasedFluxes(solnData(HFLQ_VAR, :, :, :), &
                          solnData(MFLX_VAR, :, :, :), &
                          solnData(DFUN_VAR, :, :, :), &
                          0.5*del(IAXIS), &
-                         GRID_ILO, GRID_IHI, &
-                         GRID_JLO, GRID_JHI, &
-                         GRID_KLO, GRID_KHI)
+                         lo(IAXIS), hi(IAXIS), &
+                         lo(JAXIS), hi(JAXIS), &
+                         lo(KAXIS), hi(KAXIS))
 
    solnData(MFLX_VAR, :, :, :) = 0.0
 
@@ -114,22 +107,21 @@ subroutine Multiphase_extrapFluxes(tileDesc, iteration)
                                     -solnData(NRMY_VAR, :, :, :), &
                                     -solnData(NRMZ_VAR, :, :, :), &
                                     del(IAXIS), del(JAXIS), del(KAXIS), &
-                                    GRID_ILO, GRID_IHI, &
-                                    GRID_JLO, GRID_JHI, &
-                                    GRID_KLO, GRID_KHI)
+                                    lo(IAXIS), hi(IAXIS), &
+                                    lo(JAXIS), hi(JAXIS), &
+                                    lo(KAXIS), hi(KAXIS))
 
    call mph_phasedFluxes(solnData(HFGS_VAR, :, :, :), &
                          solnData(MFLX_VAR, :, :, :), &
                          -solnData(DFUN_VAR, :, :, :), &
                          0.5*del(IAXIS), &
-                         GRID_ILO, GRID_IHI, &
-                         GRID_JLO, GRID_JHI, &
-                         GRID_KLO, GRID_KHI)
+                         lo(IAXIS), hi(IAXIS), &
+                         lo(JAXIS), hi(JAXIS), &
+                         lo(KAXIS), hi(KAXIS))
 
 #endif
 
    ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
 
    call Timers_stop("Multiphase_extrapFluxes")
 
