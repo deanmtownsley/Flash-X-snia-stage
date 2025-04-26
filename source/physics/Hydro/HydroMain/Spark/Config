@@ -53,7 +53,7 @@ D & The choices "dens_pres" and "dens_temp" are available, but will likely resul
 D & bad approximations for the solution methods in this Hydro implementation.
 
 # Runtime Parameters
-PARAMETER use_flattening       BOOLEAN  TRUE   	   # Turn on/off flattening
+PARAMETER use_flattening       BOOLEAN  TRUE    # Turn on/off flattening
 PARAMETER use_hybridRiemann		 BOOLEAN FALSE
 PARAMETER hy_mp5ZeroTol        REAL    0.0
 PARAMETER hy_eosModeGc STRING "dens_ie" ["see eosMode","eos_nop","dens_ie","dens_pres","dens_temp"]
@@ -103,7 +103,7 @@ ENDIF
 IF useTVD or useLim03 or useFog
 	PPDEFINE NSTENCIL 2
 ELSE
-	PPDEFINE NSTENCIL 3
+	PPDEFINE NSTENCIL 4
 ENDIF
 
 # Number of guard cells at each boundary
@@ -112,7 +112,7 @@ IF not nontelescoping and (useTVD or useLim03 or useFog)
 ENDIF
 
 IF not nontelescoping and not (useTVD or useLim03 or useFog)
-  GUARDCELLS 6
+  GUARDCELLS 8
 ENDIF
 
 # Check for GLM-MHD
