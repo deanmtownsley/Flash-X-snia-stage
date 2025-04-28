@@ -282,7 +282,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
   if (allocated(particlest)) then
         ! do nothing
    else ! allocate to zero, avoid collective hdf5 calls error 
-      allocate(particlest(0,0))
+      allocate(particlest(NPART_PROPS,0))
   endif
 
 
@@ -405,7 +405,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
                    (/0,0,0/), &
                    (/subsetSize(1),1,OUTPUT_PROP_LENGTH/), &
                    dims+1, &
-                   c_loc(subsetLabels(1)), (/io_splitNumBlks/), err)
+                   c_loc(subsetLabels(1)), (/subsetSize(1),1,OUTPUT_PROP_LENGTH/), err)
               if (err /= 0) then
                  call Driver_abort("Error writing particle labels")
               end if
@@ -436,7 +436,7 @@ call Grid_sortParticles(particles,NPART_PROPS,l_numParticles, particleTypes,&
                    (/subsetParticleOffset,0/), &
                    (/subsetSize(2),subsetSize(1)/), &
                    dims, &
-                   c_loc(particlest(1,1)), (/io_splitNumBlks/), err)
+                   c_loc(particlest(1,1)), (/subsetSize(2),subsetSize(1)/), err)
               if (err /= 0) then
                  call Driver_abort("Error writing particle data")
               end if

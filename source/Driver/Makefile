@@ -1,5 +1,7 @@
 Driver += main.o \
 	Driver_abort.o \
+	Driver_abort_GPU.o \
+	Driver_checkGPUErrorCode.o \
 	Driver_abortC.o \
 	Driver_finalizeAll.o \
 	Driver_getSimTime.o \

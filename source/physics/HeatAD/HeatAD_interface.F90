@@ -9,6 +9,7 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+#include "constants.h"
 
 module HeatAD_interface
 
@@ -28,27 +29,28 @@ module HeatAD_interface
    end interface
 
    interface
-      subroutine HeatAD_solve(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         real, INTENT(IN) :: dt
+      subroutine HeatAD_solve(solndata, del, lo, hi, dt)
+        real, pointer, dimension(:, :, :, :) :: solnData
+        real, INTENT(IN) :: dt
+        real,dimension(MDIM),intent(IN) ::  del
+        integer, dimension(MDIM), intent(IN) :: lo, hi
       end subroutine HeatAD_solve
    end interface
 
    interface
-      subroutine HeatAD_advection(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine HeatAD_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real,dimension(MDIM),intent(IN) :: del
+        integer, dimension(MDIM+1) :: face
+        integer, dimension(MDIM),intent(IN) :: lo, hi
       end subroutine HeatAD_advection
    end interface
 
    interface
-      subroutine HeatAD_diffusion(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine HeatAD_diffusion(solnData, del, lo, hi)
+        real, pointer, dimension(:, :, :, :) :: solnData
+        real,dimension(MDIM),intent(IN) ::  del
+        integer, dimension(MDIM),intent(IN) :: lo, hi
       end subroutine HeatAD_diffusion
    end interface
 
@@ -59,10 +61,9 @@ module HeatAD_interface
    end interface
 
    interface
-      subroutine HeatAD_reInitGridVars(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine HeatAD_reInitGridVars(solnData)
+        implicit none
+        real, dimension(:,:,:,:), pointer :: solnData
       end subroutine HeatAD_reInitGridVars
    end interface
 

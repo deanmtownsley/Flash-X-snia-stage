@@ -1,0 +1,83 @@
+# TOML configuration file
+
+[IncompNS]
+ins_invReynolds = 0.0042
+ins_cflFlg = 0
+ins_cfl = 0.05
+ins_sigma = 0.05
+ins_dtSpec = 0.0001
+ins_pressureCorrect = false
+ins_intSchm = 2
+ins_advSchm = 2
+ins_gravY = -1.0
+
+[Multiphase]
+mph_rhoGas = 0.0083
+mph_muGas = 1.0
+mph_iPropSmear = 1.5
+mph_thcoGas = 0.25
+mph_CpGas = 0.83
+mph_Tsat = 0.15
+mph_Stefan = 0.5298
+mph_invWeber = 1.0
+mph_presTol = 0.0
+
+[HeatAD]
+ht_Prandtl = 8.4
+
+[Outlet]
+out_buffer = 1.0
+
+[Heater]
+htr_showInfo = false
+htr_heaterName = "pool_boiling_3d"
+htr_nucSeedRadius = 0.1
+htr_numHeaters = 1
+
+[Heater.0001]
+  dim = 2
+  xmin = -1.0
+  xmax = 1.0
+  ymin = 0.0
+  ymax = 1e-13
+  zmin = -1.0
+  zmax = 1.0
+  wallTemp = 1.0
+  advAngle = 45.0
+  rcdAngle = 45.0
+  velContact = 0.2
+  nucWaitTime = 0.4
+  numSites = 1
+
+[Grid]
+geometry = "cartesian"
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
+yl_boundary_type = "noslip_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
+nblockx = 8
+nblocky = 8
+nblockz = 8
+nrefs = -1
+lrefine_min = 1
+lrefine_max = 1
+flux_correct = true
+gr_amrexMG_composite_solve = true
+gr_amrexMG_Tol = 1e-13
+gr_amrexMG_max_iter = 200
+xmin = -2.0
+xmax = 2.0
+ymin = 0.0
+ymax = 2.0
+zmin = -2.0
+zmax = 2.0
+
+[Driver]
+dtinit = 0.0001
+dtmax = 0.0001
+tstep_change_factor = 1.0
+nend = 10
+tmax = 1
+restart = false

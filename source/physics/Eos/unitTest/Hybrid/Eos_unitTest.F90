@@ -252,10 +252,11 @@ contains
             call itor%currentTile(tileDesc)
 
             blkLimits = tileDesc%limits
+            blkLimitsGC = tileDesc%blkLimitsGC
 
             call tileDesc%getDataPtr(solnData, CENTER)
 
-            call Eos_multiDim(mode, blkLimits, solnData)
+            call Eos_multiDim(mode, blkLimits,blkLimitsGC(LOW,:), solnData)
 
             call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -400,10 +401,11 @@ contains
          call itor%currentTile(tileDesc)
 
          blkLimits = tileDesc%limits
+         blkLimitsGC = tileDesc%blkLimitsGC
 
          call tileDesc%getDataPtr(solnData, CENTER)
 
-         call Eos_multiDim(mode, blkLimits, solnData)
+         call Eos_multiDim(mode, blkLimits,blkLimitsGC(LOW,:), solnData)
 
          call tileDesc%releaseDataPtr(solnData, CENTER)
 

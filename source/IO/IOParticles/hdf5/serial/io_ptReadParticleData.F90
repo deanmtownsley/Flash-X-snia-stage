@@ -226,13 +226,6 @@ subroutine io_ptReadParticleData()
       deallocate(filePropNames)
       deallocate(fileToCurrentMap)
            
-!DEV: Hold onto this for time being if reads need to be sped up --PR         
-!!$           call io_h5read_particles(io_chkptFileID, &
-!!$                particlest, &
-!!$                reLocalNumParticles, &
-!!$                NPART_PROPS, &
-!!$                particleOffset);           
-           
            !reset particles BLK_PART_PROP because it could have changed on restart
            startIndex = 1
            do lb=1, localNumBlockst              
@@ -255,13 +248,6 @@ subroutine io_ptReadParticleData()
 !!$             gr_globalNumBlocks, &
 !!$             blkOffset)
 !!$
-!!$        !read particles into temp particles datastruct
-!!$        call io_h5read_particles(io_chkptFileID, &
-!!$             particlest, &
-!!$             localNumParticlest, &
-!!$             NPART_PROPS, &
-!!$             particleOffset)
-
            !increment the particle Offset
            particleOffset = particleOffset + relocalNumParticles
            blkOffset = blkOffset + localNumBlockst

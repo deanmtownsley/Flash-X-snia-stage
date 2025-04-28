@@ -6,7 +6,13 @@ Composite/SNIaShellDet/AMR/2d/Paramesh:
   setupOptions: -auto -2d  +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13 +nolwf
   parfiles: test_shellDet_2d_composite.par
   restartParfiles: test_shellDet_2d_restart.par
-  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+  transfers: object/Profiles object/helm_table.dat object/SpeciesList.txt
+
+Composite/SNIaShellDet/AMR/2d/pmSpark:
+  setupOptions: -auto -2d  +cylindrical -nxb=16 -nyb=16 +newMpole +a13 +spark
+  parfiles: test_shellDet_2d_composite.par test_shellDet_2d_asyncMpole_composite.par
+  restartParfiles: test_shellDet_2d_restart.par test_shellDet_2d_restart.par
+  transfers: object/Profiles object/helm_table.dat object/SpeciesList.txt
 
 # The following test used to be configured with -test.
 Composite/SNIaDDT/AMR/2d/Paramesh:
@@ -65,7 +71,7 @@ Comparison/SNIaDDT/AMR/2d/sparkNt:
 #Comparison/SNIaShellDet/AMR/2d/Paramesh:
 #  setupOptions: -auto -2d -debug +cylindrical --index-reorder -nxb=16 -nyb=16 +newMpole +a13
 #  parfiles: test_shellDet_2d.par
-#  transfers: object/Networks object/Profiles object/helm_table.dat object/SpeciesList.txt
+#  transfers: object/Profiles object/helm_table.dat object/SpeciesList.txt
 
 # for new production suite
 # NOT PRESENT in regular Production_GCC.suite

@@ -14,9 +14,13 @@
 !!
 !!
 !!***
-subroutine Multiphase_solve(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine Multiphase_solve(solnData,lo, hi, dt)
+
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   !----------Arugments List---------------
+   real, dimension(:,:,:,:), pointer :: solnData
    real, INTENT(IN) :: dt
+   integer, dimension(MDIM), intent(IN) :: lo, hi
+!-----------------------------------------------------------------------------------------
 end subroutine Multiphase_solve

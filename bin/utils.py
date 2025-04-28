@@ -1,7 +1,8 @@
 
 # Bunch of small functions doing useful stuff
 
-__all__ = [ "updateAndMergeVariablePropertyTuples", "getRelPath", "dirGlob", "stripComments", "determineMachine", 
+__all__ = [ "updateAndMergeVariablePropertyTuples", "getRelPath", "sourcePathShow",
+            "dirGlob", "stripComments", "determineMachine",
             "is_upper",  "strictlyCaseSensitiveFilenames", "cmp"
           ] 
 
@@ -124,6 +125,12 @@ def getRelPath(filename,basedir):
     else: prefix = c*(".."+sep)
     return os.path.join(prefix+tgt,os.path.basename(filename))
 
+def sourcePathShow(dirname):
+    """
+    Show a path, presumably for a file or directory under the source directory,
+    with uninteresting parts stripped from the beginning,
+    """
+    return os.path.relpath(dirname, GVars.sourceDir)
 
 # Takes a pattern (absolute or relative to current directory)
 # and returns a list of directories matching pattern. The match is 

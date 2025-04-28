@@ -1,0 +1,6 @@
+# YAML file for test information
+# comments start with "#"
+
+UnitTest/Eos/gamma/3d/pm4dev:
+  setupOptions: -auto -strict -3d +noio
+  parfiles: <defaultParfile>

@@ -158,7 +158,7 @@ subroutine Hydro(simTime, dt, dtOld)
                                   flX, flY, flZ, lbound(flX), &
                                   deltas, dt)
 
-     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits, Uout)
+     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits,tileDesc%blkLimitsGC(LOW,:), Uout)
 
      call tileDesc%releaseDataPtr(Uin, CENTER)
      call tileDesc%releaseDataPtr(flX, FLUXX)

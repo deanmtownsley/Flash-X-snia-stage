@@ -109,5 +109,12 @@ module Driver_data
   character(len=50), save :: dr_driftSrcFile = ''
   integer, save :: dr_driftSrcLine = 0
   integer, save :: dr_driftInst = 1
+
+  ! GPU-specific
+  integer, save :: dr_gpuErrorCode = 0
+  integer, save :: dr_gpuErrorMsgStart = 1
+  character(len=512), save :: dr_gpuErrorMsg = ''
+
+  !$acc declare copyin(dr_gpuErrorCode, dr_gpuErrorMsgStart, dr_gpuErrorMsg)
 end module Driver_data
 

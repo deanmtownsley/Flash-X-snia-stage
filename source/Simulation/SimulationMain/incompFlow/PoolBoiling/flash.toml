@@ -1,0 +1,108 @@
+# Top level configuration file for Pool Boiling problem
+[Heater]
+  htr_heaterName = "pool_boiling"
+  htr_numHeaters = 1
+  htr_nucSeedRadius = 0.15
+
+[Heater.0001]
+  dim = 1
+  xmin = -2.0
+  xmax = 2.0
+  ymin = 0.0
+  ymax = 1e-13
+  zmin = -2.0
+  zmax = 2.0
+  wallTemp = 1.0
+  advAngle = 45.0
+  rcdAngle = 45.0
+  velContact = 0.2
+  nucWaitTime = 0.4
+  numSites = 1
+  nucSeedRadius = 0.15
+
+[Logfile]
+  run_comment = "Pool Boiling problem"
+  log_file = "INS_Pool_Boiling.log"
+
+[IO]
+  basenm = "INS_Pool_Boiling_"
+  checkpointFileIntervalTime = 5.0
+  checkpointFileIntervalStep = 0
+  plotFileIntervalTime = 0.5
+  plotFileIntervalStep = 0
+  plot_var_1 = "pres"
+  plot_var_2 = "velx"
+  plot_var_3 = "vely"
+  plot_var_4 = "dfun"
+  plot_var_5 = "rhoc"
+  plot_var_6 = "temp"
+  plot_var_7 = "curv"
+  plot_var_8 = "mflx"
+  plot_var_9 = "nrmx"
+  plot_var_10 = "nrmy"
+  ignoreForcedPlot = true
+  checkpointFileNumber = 0
+  plotFileNumber = 0
+  rolling_checkpoint = 2
+
+[Grid]
+  geometry = "cartesian"
+  xmin = 0.0
+  xmax = 2.0
+  ymin = 0.0
+  ymax = 6.0
+  zmin = 0.0
+  zmax = 2.0
+  xl_boundary_type = "slip_ins"
+  xr_boundary_type = "noslip_ins"
+  yl_boundary_type = "noslip_ins"
+  yr_boundary_type = "outflow_ins"
+  zl_boundary_type = "slip_ins"
+  zr_boundary_type = "noslip_ins"
+  gr_amrexMG_composite_solve = true
+  gr_amrexMG_Tol = 1e-13
+  gr_amrexMG_max_iter = 200
+  nblockx = 6
+  nblocky = 18
+  nrefs = 10000000
+  lrefine_min = 1
+  lrefine_max = 1
+
+[Driver]
+  restart = false
+  wall_clock_time_limit = 7000
+  dtinit = 1.0e-4
+  dtmax = 1.0e-4
+  tstep_change_factor = 1.0
+  nend = 10000000
+  tmax = 300
+
+[IncompNS]
+  ins_cflFlg = 0
+  ins_cfl = 0.05
+  ins_sigma = 0.05
+  ins_pressureCorrect = false
+  ins_intSchm = 2
+  ins_advSchm = 105
+  ins_invReynolds = 0.0033
+  ins_gravY = -1.0
+  ins_dtSpec = 1.0e-4
+
+[Multiphase]
+  mph_lsIt = 2
+  mph_rhoGas = 0.0049
+  mph_muGas = 0.02
+  mph_iPropSmear = 1.5
+  mph_invWeber = 1.0
+  mph_Stefan = 0.16
+  mph_thcoGas = 0.143
+  mph_CpGas = 0.735
+  mph_presTol = 0.01
+  mph_tempTol = 0.01
+
+[Outlet]
+  out_buffer = 1.0
+
+[HeatAD]
+  ht_intSchm = 2
+  ht_Prandtl = 7.0

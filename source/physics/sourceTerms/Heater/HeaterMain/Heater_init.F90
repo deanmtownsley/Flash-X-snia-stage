@@ -39,6 +39,15 @@ subroutine Heater_init()
    call RuntimeParameters_get("htr_annQueries", htr_annQueries)
 #endif
 
+   call RuntimeParameters_get('xmin', htr_xMin)
+   call RuntimeParameters_get('xmax', htr_xMax)
+
+   call RuntimeParameters_get('ymin', htr_yMin)
+   call RuntimeParameters_get('ymax', htr_yMax)
+
+   call RuntimeParameters_get('zmin', htr_zMin)
+   call RuntimeParameters_get('zmax', htr_zMax)
+
    if (htr_meshMe .eq. MASTER_PE) then
       write (*, *) 'htr_numHeaters=', htr_numHeaters
       write (*, *) 'htr_nucSeedRadius=', htr_nucSeedRadius

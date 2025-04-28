@@ -67,6 +67,7 @@ subroutine Simulation_init()
   call RuntimeParameters_get('xni56_fluff', sim_xni56Fluff)
 
   call RuntimeParameters_get('ignite', sim_ignite)
+  call RuntimeParameters_get('plume_match', sim_plume)
   call RuntimeParameters_get('x_match', sim_ignX)
   call RuntimeParameters_get('y_match', sim_ignY)
   call RuntimeParameters_get('z_match', sim_ignZ)
@@ -85,6 +86,10 @@ subroutine Simulation_init()
   sim_thtShellMin = sim_thtShellMin * PI / 180.0
   call RuntimeParameters_get('thtShellMax', sim_thtShellMax)
   sim_thtShellMax = sim_thtShellMax * PI / 180.0
+  call RuntimeParameters_get('phiShellMin', sim_phiShellMin)
+  sim_phiShellMin = sim_phiShellMin * PI / 180.0
+  call RuntimeParameters_get('phiShellMax', sim_phiShellMax)
+  sim_phiShellMax = sim_phiShellMax * PI / 180.0
   call RuntimeParameters_get('densShellMult', sim_densShellMult)
   call RuntimeParameters_get('tempShellMult', sim_tempShellMult)
   call RuntimeParameters_get('densShell', sim_densShell)
