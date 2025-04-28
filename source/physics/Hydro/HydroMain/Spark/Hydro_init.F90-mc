@@ -72,7 +72,7 @@ subroutine Hydro_init()
   endif
 
 #ifdef FLASH_GRID_PARAMESH
-  if ((NGUARD > 4) .and. (NXB < 2*NGUARD)) then
+  if ((NGUARD > 8) .and. (NXB < NGUARD)) then
      call Driver_abort&
           ("[Hydro_init]: Hydro requires larger NXB, etc. for the given number of guardcells.")
   endif
