@@ -64,17 +64,20 @@ def __createHeater(GVars):
                 radii[:] = 0.2
 
             else:
-                halton = qmc.Halton(d=2, seed=1)
+                halton = qmc.Halton(d=2, seed=int(key))
                 sample = halton.random(info["numSites"])
 
-                xsite[:] = info["xmin"] + sample[:,0]*(info["xmax"]-info["xmin"])
+                seedbuf = 2*GVars.tomlDict["Heater"]["htr_nucSeedRadius"]
+
+                xsite[:] = info["xmin"] + seedbuf + sample[:,0]*(info["xmax"]-info["xmin"]-2*seedbuf)
                 ysite[:] = 0.5*(info["ymax"] + info["ymin"])
+
                 radii[:] = GVars.tomlDict["Heater"]["htr_nucSeedRadius"]
 
                 if GVars.dimension == 2:
                     zsite[:] = 0.0
                 elif GVars.dimension == 3:
-                    zsite[:] = info["zmin"] + sample[:,1]*(info["zmax"]-info["zmin"])
+                    zsite[:] = info["zmin"] + seedbuf + sample[:,1]*(info["zmax"]-info["zmin"]-2*seedbuf)
                 else:
                     raise ValueError(f"[Heater_setup] Unknown dimension {GVars.dimension}")
 
