@@ -3,8 +3,8 @@
 #       Version for testing Hydro with AMR implementations that
 #       are configured to allow for dynamic Grid refinement.
 #
-#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
-#./setup Sedov -makefile=gnu -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +sparklwf DoAnalytical=True
+#./setup Sedov -auto -2d -nxb=16 -nyb=16 +cylindrical +pm4dev +nolwf +spark DoAnalytical=True
+#./setup Sedov -auto -2d -nxb=16 -nyb=16 +cylindrical +pm4dev +sparklwf DoAnalytical=True
 #
 # Run on 2 or more MPI processes.
 
