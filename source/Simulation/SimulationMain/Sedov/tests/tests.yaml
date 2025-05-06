@@ -167,6 +167,12 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   restartParfiles: test_amr_cyl_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Composite/Sedov25/AMR/2dCyl/pm4Lwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
+  parfiles:        test25_amr_cyl_2d_pm_-_fc_spark.par
+  restartParfiles: test25_amr_cyl_2d_pm_-_fc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Composite/Sedov23/AMR/2dCyl/amrexLwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark +sparklwf DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
@@ -208,8 +214,9 @@ Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone:
   restartParfiles: test23_amr_cyl_2d_amrex_nolwf_nofc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/pm4Lwf/spark/fcAllLev:
-  setupOptions: -auto -2d -nxb=16 -nyb=16 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
+  setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_pm_-_fc_spark.par
   restartParfiles: test23_amr_cyl_2d_pm_-_fc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
