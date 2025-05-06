@@ -65,6 +65,7 @@ authors:
   - family-names: Papatheodore
     given-names: Thomas
 date-released: 2022-01-31
+version: "main"
 doi: 10.1016/j.softx.2022.101168
 url: https://www.sciencedirect.com/science/article/pii/S2352711022001030
 type: article
