@@ -1,7 +1,9 @@
 cff-version: 1.2.0
 message: "If you use Flash-X in your work, please cite the following paper."
-title: "Flash-X: A multiphysics simulation software instrument"
-authors:
+
+preferred-citation:
+  title: "Flash-X: A multiphysics simulation software instrument"
+  authors:
   - family-names: Dubey
     given-names: Anshu
   - family-names: Weide
@@ -64,12 +66,10 @@ authors:
     given-names: Anthony
   - family-names: Papatheodore
     given-names: Thomas
-date-released: 2022-01-31
-version: "main"
-doi: 10.1016/j.softx.2022.101168
-url: https://www.sciencedirect.com/science/article/pii/S2352711022001030
-type: article
-journal: SoftwareX
-volume: 19
-pages: 101168
-issn: 2352-7110
+  doi: 10.1016/j.softx.2022.101168
+  url: https://www.sciencedirect.com/science/article/pii/S2352711022001030
+  type: article
+  journal: "SoftwareX"
+  volume: 19
+  pages: 101168
+  issn: 2352-7110
