@@ -31,22 +31,16 @@
 #include "IncompNS.h"
 #include "Simulation.h"
 
-subroutine IncompNS_reInitGridVars(tileDesc)
+subroutine IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData)
 
-   use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
    use IncompNS_data
 
    !------------------------------------------------------------------------------------------
    implicit none
-   include "Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
 
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-   integer :: i, j, k
    !------------------------------------------------------------------------------------------
-   nullify (solnData, facexData, faceyData, facezData)
 
    call Timers_start("IncompNS_reInitGridVars")
 
@@ -65,69 +59,44 @@ subroutine IncompNS_reInitGridVars(tileDesc)
    !
    ! Start with cell-centered data. Only need for variable density configuration
 #ifdef INCOMPNS_VARDENS
-   call tileDesc%getDataPtr(solnData, CENTER)
-   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
-      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
-         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
-            solnData(PRES_VAR, i, j, k) = 0.
-            solnData(RHOC_VAR, i, j, k) = 1.
-            solnData(VISC_VAR, i, j, k) = 1.
-         end do
-      end do
-   end do
-   call tileDesc%releaseDataPtr(solnData, CENTER)
+
+   solnData(PRES_VAR, :,:,:) = 0.
+   solnData(RHOC_VAR, :,:,:) = 1.
+   solnData(VISC_VAR, :,:,:) = 1.
+
 #endif
 
    ! face-centered data in x direction, loop over an extra cell in the
    ! corresponding dimension. Also add directive for variable density configuration
-   call tileDesc%getDataPtr(facexData, FACEX)
-   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
-      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
-         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS) + 1
-            facexData(HVN0_FACE_VAR, i, j, k) = 0.
+
+   facexData(HVN0_FACE_VAR, :,:,:) = 0.
 #ifdef INCOMPNS_VARDENS
-            facexData(RHOF_FACE_VAR, i, j, k) = 1.
-            facexData(SIGM_FACE_VAR, i, j, k) = 0.
+   facexData(RHOF_FACE_VAR, :,:,:) = 1.
+   facexData(SIGM_FACE_VAR, :,:,:) = 0.
 #endif
-            facexData(VFRC_FACE_VAR, i, j, k) = 0.
-         end do
-      end do
-   end do
-   call tileDesc%releaseDataPtr(facexData, FACEX)
+   facexData(VFRC_FACE_VAR, :,:,:) = 0.
+
 
    ! face-centered data in y direction, loop over extra cell for index j
-   call tileDesc%getDataPtr(faceyData, FACEY)
-   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS)
-      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS) + 1
-         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
-            faceyData(HVN0_FACE_VAR, i, j, k) = 0.
+
+   faceyData(HVN0_FACE_VAR, :,:,:) = 0.
 #ifdef INCOMPNS_VARDENS
-            faceyData(RHOF_FACE_VAR, i, j, k) = 1.
-            faceyData(SIGM_FACE_VAR, i, j, k) = 0.
+   faceyData(RHOF_FACE_VAR, :,:,:) = 1.
+   faceyData(SIGM_FACE_VAR, :,:,:) = 0.
 #endif
-            faceyData(VFRC_FACE_VAR, i, j, k) = 0.
-         end do
-      end do
-   end do
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
+   faceyData(VFRC_FACE_VAR, :,:,:) = 0.
 
    ! face-centered data in z direction, peform only when NDIM == MDIM
    ! and loop over extra cell for index k
 #if NDIM == MDIM
-   call tileDesc%getDataPtr(facezData, FACEZ)
-   do k = tileDesc%blkLimitsGC(LOW, KAXIS), tileDesc%blkLimitsGC(HIGH, KAXIS) + 1
-      do j = tileDesc%blkLimitsGC(LOW, JAXIS), tileDesc%blkLimitsGC(HIGH, JAXIS)
-         do i = tileDesc%blkLimitsGC(LOW, IAXIS), tileDesc%blkLimitsGC(HIGH, IAXIS)
-            facezData(HVN0_FACE_VAR, i, j, k) = 0.
+
+   facezData(HVN0_FACE_VAR, :,:,:) = 0.
 #ifdef INCOMPNS_VARDENS
-            facezData(RHOF_FACE_VAR, i, j, k) = 1.
-            facezData(SIGM_FACE_VAR, i, j, k) = 0.
+   facezData(RHOF_FACE_VAR, :,:,:) = 1.
+   facezData(SIGM_FACE_VAR, :,:,:) = 0.
 #endif
-            facezData(VFRC_FACE_VAR, i, j, k) = 0.
-         end do
-      end do
-   end do
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
+   facezData(VFRC_FACE_VAR, :,:,:) = 0.
+
 #endif
 
    call Timers_stop("IncompNS_reInitGridVars")

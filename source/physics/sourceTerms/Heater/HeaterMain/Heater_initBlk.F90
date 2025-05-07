@@ -17,7 +17,7 @@
 subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, temp, phi)
 
    use Heater_type, ONLY: Heater_type_t
-   use Heater_data, ONLY: htr_numHeaters, htr_heaterInfo
+   use Heater_data, ONLY: htr_numHeaters, htr_heaterInfo, htr_yMin, htr_yMax
 
    implicit none
    real, dimension(:, :, :), intent(inout) :: temp
@@ -42,18 +42,29 @@ subroutine Heater_initBlk(xcell, ycell, zcell, ix1, ix2, jy1, jy2, kz1, kz2, tem
                      iradius = heater%radiusInit(isite)
                      iseedX = heater%xSiteInit(isite)
                      iseedZ = heater%zSiteInit(isite)
-                     iseedY = heater%ySiteInit(isite)+iheight
+                     if( abs(heater%ySiteInit(isite) - htr_yMin) .lt. abs(heater%ySiteInit(isite) - htr_yMax)) then
+                        iseedY = heater%ySiteInit(isite)+iheight
+                     else
+                        iseedY = heater%ySiteInit(isite)-iheight
+                     end if
                      idfun = iradius-sqrt((xcell(i)-iseedX)**2+(ycell(j)-iseedY)**2+(zcell(k)-iseedZ)**2)
                      phi(i, j, k) = max(phi(i, j, k), idfun)
                   end do
                end if
 
-               if (xcell(i) .ge. heater%xMin .and. &
-                   xcell(i) .le. heater%xMax .and. &
-                   ycell(j) .le. 0.2 .and. &
-                   zcell(k) .ge. heater%zMin .and. &
-                   zcell(k) .le. heater%zMax) temp(i, j, k) = (0.2-ycell(j))/0.2
-
+               if(abs(0.5*(heater%yMin + heater%yMax) - htr_yMin) .lt. abs(0.5*(heater%yMin + heater%yMax) - htr_yMax) ) then
+                        if (xcell(i) .ge. heater%xMin .and. &
+                        xcell(i) .le. heater%xMax .and. &
+                        ycell(j) .le. (htr_yMin+heater%tbl_thickness) .and. &
+                        zcell(k) .ge. heater%zMin .and. &
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (htr_yMin + heater%tbl_thickness-ycell(j))/heater%tbl_thickness
+               else 
+                        if (xcell(i) .ge. heater%xMin .and. &
+                        xcell(i) .le. heater%xMax .and. &
+                        ycell(j) .ge. (htr_yMax-heater%tbl_thickness) .and. &
+                        zcell(k) .ge. heater%zMin .and. &
+                        zcell(k) .le. heater%zMax) temp(i, j, k) = (ycell(j)-(htr_yMax - heater%tbl_thickness))/heater%tbl_thickness
+               end if 
             end do
          end do
       end do

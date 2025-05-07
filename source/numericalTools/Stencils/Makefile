@@ -2,15 +2,12 @@ Stencils += Stencils_interface.o \
             Stencils_init.o \
             Stencils_finalize.o
 
-Stencils += Stencils_advectWeno2d.o \
-            Stencils_advectWeno3d.o \
-            Stencils_advectCentral2d.o \
-            Stencils_advectCentral3d.o \
+Stencils += Stencils_advectWeno.o \
+            Stencils_advectCentral.o \
             Stencils_cnt_advectUpwind2d.o \
             Stencils_cnt_advectUpwind3d.o
 
-Stencils += Stencils_diffusion2d.o \
-            Stencils_diffusion3d.o
+Stencils += Stencils_diffusion.o 
 
 Stencils += Stencils_lsRedistance2d.o \
             Stencils_lsRedistance3d.o \

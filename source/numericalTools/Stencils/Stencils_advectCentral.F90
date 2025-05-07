@@ -13,12 +13,14 @@
 !!
 !!
 !!**
-subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,&
-                                     center,facex,facey,facez)
+
+#include "constants.h"
+
+subroutine Stencils_advectCentral(rhs,phi,u,v,w,delta,lo,hi,face)
   implicit none
   real, dimension(:,:,:), intent(inout):: rhs
   real, dimension(:,:,:), intent(in) :: phi,u,v,w
-  real, intent(in) :: dx,dy,dz
-  integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-  integer, intent(in) :: center,facex,facey,facez
-end subroutine Stencils_advectCentral3d
+  real, dimension(MDIM), intent(in) :: delta
+  integer, dimension(MDIM), intent(in) :: lo,hi
+  integer, dimension(MDIM+1), intent(in) :: face
+end subroutine Stencils_advectCentral

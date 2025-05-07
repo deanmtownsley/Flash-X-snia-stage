@@ -14,8 +14,10 @@
 !!
 !!
 !!***
-subroutine Multiphase_thermalForcing(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+#include "constants.h"
+subroutine Multiphase_thermalForcing(solnData, del, logc, higc)
+
+   integer, dimension(MDIM),intent(IN) :: logc, higc 
+   real, pointer, dimension(:, :, :, :) :: solnData
+   real,dimension(MDIM), intent(IN) :: del
 end subroutine Multiphase_thermalForcing
