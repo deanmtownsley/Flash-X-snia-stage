@@ -100,6 +100,48 @@ subroutine htr_read(heaterID, heaterFile)
    call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%nucWaitTime, dims, h5err)
    call h5dclose_f(dset, h5err)
 
+#ifdef HEATER_MAIN_FLUXBC
+   call h5dopen_f(file, "heater/C3", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/C3')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%C3, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/C2", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/C2')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%C2, dims, h5err)
+   call h5dclose_f(dset, h5err)
+   
+   call h5dopen_f(file, "heater/C1", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/C1')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%C1, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/C0", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/C0')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%C0, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/tbl_thickness", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/tbl_thickness')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%tbl_thickness, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/non_uniform_temp_flag", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/non_uniform_temp_flag')
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%non_uniform_temp_flag, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/heat_flux_flag", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/heat_flux_flag')
+   call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%heat_flux_flag, dims, h5err)
+   call h5dclose_f(dset, h5err)
+
+   call h5dopen_f(file, "heater/nd_heat_flux", dset, h5err)
+   if (h5err < 0) call Driver_abort('Unable to read heater/nd_heat_flux')
+   call h5dread_f(dset, H5T_NATIVE_DOUBLE, heater%nd_heat_flux, dims, h5err)
+   call h5dclose_f(dset, h5err)
+#endif
+
    call h5dopen_f(file, 'site/num', dset, h5err) ! dset handle to database required
    if (h5err < 0) call Driver_abort('Unable to read site/num')
    call h5dread_f(dset, H5T_NATIVE_INTEGER, heater%numSitesAll, dims, h5err)

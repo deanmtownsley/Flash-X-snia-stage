@@ -22,6 +22,7 @@
 !!  module that defines its private interfaces.
 !!
 !!***
+#include "constants.h"
 Module mph_evapInterface
 
    interface
@@ -70,44 +71,47 @@ Module mph_evapInterface
    end interface
 
    interface mph_evapVelocity
-      subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, ix1, ix2, jy1, jy2)
+      subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, lo,hi)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni
          real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2
+         integer, dimension(MDIM), intent(in)                   :: lo,hi
       end subroutine mph_evapVelocity2d
 
-      subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
+      subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, lo,hi)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni, wni
          real, dimension(:, :, :), intent(in)    :: rhoc
          real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         integer, dimension(MDIM), intent(in)                   :: lo, hi
       end subroutine mph_evapVelocity3d
    end interface
 
    interface
       subroutine mph_evapVelForcing2d(uni, vni, rhox, rhoy, rhoc, visc, normx, normy, mflux, &
-                                      ru1, dt, dx, dy, ix1, ix2, jy1, jy2)
+                                      ru1, dt, del, lo, hi)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni
          real, dimension(:, :, :), intent(in)    :: rhox, rhoy
          real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, mflux
-         real                                  :: ru1, dt, dx, dy
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2
+         real                                  :: ru1, dt
+         real, dimension(MDIM),intent(in) :: del
+         integer, dimension(MDIM), intent(in) :: lo,hi
       end subroutine mph_evapVelForcing2d
    end interface
 
    interface
       subroutine mph_evapVelForcing3d(uni, vni, wni, rhox, rhoy, rhoz, rhoc, visc, normx, normy, normz, mflux, &
-                                      ru1, dt, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+                                      ru1, dt, del, lo, hi)
          implicit none
          real, dimension(:, :, :), intent(inout) :: uni, vni, wni
          real, dimension(:, :, :), intent(in)    :: rhox, rhoy, rhoz
          real, dimension(:, :, :), intent(in)    :: rhoc, visc, normx, normy, normz, mflux
-         real                                  :: ru1, dt, dx, dy, dz
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+         real                                  :: ru1, dt
+         real, dimension(MDIM),intent(in) :: del
+         integer, dimension(MDIM), intent(in) :: lo,hi
+
       end subroutine mph_evapVelForcing3d
    end interface
 

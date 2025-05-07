@@ -9,8 +9,6 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-subroutine Multiphase_setThermalProps(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+subroutine Multiphase_setThermalProps(solnData)
+  real,dimension(:,:,:,:), pointer :: solnData
 end subroutine Multiphase_setThermalProps

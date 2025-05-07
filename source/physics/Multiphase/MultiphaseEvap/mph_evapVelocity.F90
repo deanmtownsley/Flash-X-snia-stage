@@ -14,56 +14,77 @@
 !!
 !!
 !!******
-subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, ix1, ix2, jy1, jy2)
+#include "Simulation.h"
+#include "constants.h"
 
-   !--Arugment List------------------------------
-   implicit none
-   real, dimension(:, :, :), intent(inout) :: uni, vni
-   real, dimension(:, :, :), intent(in)    :: rhoc
-   real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
-   integer, intent(in)                   :: ix1, ix2, jy1, jy2
-
-   integer, parameter :: kz1 = 1
-
-   !------U-COMPONENT--------
-   uni(ix1:ix2 + 1, jy1:jy2, kz1) = uni(ix1:ix2 + 1, jy1:jy2, kz1) + &
-                                    (mflux(ix1 - 1:ix2, jy1:jy2, kz1) + mflux(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0* &
-                                    (normx(ix1 - 1:ix2, jy1:jy2, kz1) + normx(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0* &
-                                    (rhoc(ix1 - 1:ix2, jy1:jy2, kz1) + rhoc(ix1:ix2 + 1, jy1:jy2, kz1))/2.0d0
-
-   !------V-COMPONENT--------
-   vni(ix1:ix2, jy1:jy2 + 1, kz1) = vni(ix1:ix2, jy1:jy2 + 1, kz1) + &
-                                    (mflux(ix1:ix2, jy1 - 1:jy2, kz1) + mflux(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0* &
-                                    (normy(ix1:ix2, jy1 - 1:jy2, kz1) + normy(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0* &
-                                    (rhoc(ix1:ix2, jy1 - 1:jy2, kz1) + rhoc(ix1:ix2, jy1:jy2 + 1, kz1))/2.0d0
-
+subroutine mph_evapVelocity2d(uni, vni, rhoc, normx, normy, mflux, lo, hi)
+  
+  !--Arugment List------------------------------
+  implicit none
+  real, dimension(:, :, :), intent(inout) :: uni, vni
+  real, dimension(:, :, :), intent(in)    :: rhoc
+  real, dimension(:, :, :), intent(in)    :: mflux, normx, normy
+  integer, dimension(MDIM), intent(in)    :: lo, hi
+  
+  integer, parameter :: kz1 = 1
+  
+  uni(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) = &
+       uni(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       (mflux(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       mflux(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0* &
+       (normx(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       normx(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0* &
+       (rhoc(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       rhoc(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0
+  
+  !------V-COMPONENT--------
+  vni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)) = &
+       vni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)) + &
+       (mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0* &
+       (normy(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       normy(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0* &
+       (rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+       rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0
 end subroutine mph_evapVelocity2d
 
-subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, ix1, ix2, jy1, jy2, kz1, kz2)
+subroutine mph_evapVelocity3d(uni, vni, wni, rhoc, normx, normy, normz, mflux, lo, hi)
 
    !--Arugment List------------------------------
    implicit none
    real, dimension(:, :, :), intent(inout) :: uni, vni, wni
    real, dimension(:, :, :), intent(in)    :: rhoc
    real, dimension(:, :, :), intent(in)    :: mflux, normx, normy, normz
-   integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2
+   integer, dimension(MDIM), intent(in)                   :: lo, hi
 
    !------U-COMPONENT--------
-   uni(ix1:ix2 + 1, jy1:jy2, kz1:kz2) = uni(ix1:ix2 + 1, jy1:jy2, kz1:kz2) + &
-                                        (mflux(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + mflux(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0* &
-                                        (normx(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + normx(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0* &
-                                        (rhoc(ix1 - 1:ix2, jy1:jy2, kz1:kz2) + rhoc(ix1:ix2 + 1, jy1:jy2, kz1:kz2))/2.0d0
+   uni(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) = &
+        uni(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        (mflux(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        mflux(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0* &
+        (normx(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        normx(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0* &
+        (rhoc(lo(IAXIS) - 1:hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        rhoc(lo(IAXIS):hi(IAXIS) + 1, lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS)))/2.0d0
 
    !------V-COMPONENT--------
-   vni(ix1:ix2, jy1:jy2 + 1, kz1:kz2) = vni(ix1:ix2, jy1:jy2 + 1, kz1:kz2) + &
-                                        (mflux(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + mflux(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0* &
-                                        (normy(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + normy(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0* &
-                                        (rhoc(ix1:ix2, jy1 - 1:jy2, kz1:kz2) + rhoc(ix1:ix2, jy1:jy2 + 1, kz1:kz2))/2.0d0
+   vni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)) = &
+        vni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)) + &
+        (mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0* &
+        (normy(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        normy(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0* &
+        (rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS) - 1:hi(JAXIS), lo(KAXIS):hi(KAXIS)) + &
+        rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS) + 1, lo(KAXIS):hi(KAXIS)))/2.0d0
 
    !------W-COMPONENT--------
-   wni(ix1:ix2, jy1:jy2, kz1:kz2 + 1) = wni(ix1:ix2, jy1:jy2, kz1:kz2 + 1) + &
-                                        (mflux(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + mflux(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0* &
-                                        (normz(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + normz(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0* &
-                                        (rhoc(ix1:ix2, jy1:jy2, kz1 - 1:kz2) + rhoc(ix1:ix2, jy1:jy2, kz1:kz2 + 1))/2.0d0
+   wni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS) + 1) = &
+        wni(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS) + 1) + &
+        (mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS) - 1:hi(KAXIS)) + &
+        mflux(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS) + 1))/2.0d0* &
+        (normz(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS) - 1:hi(KAXIS)) + &
+        normz(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS) + 1))/2.0d0* &
+        (rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS) - 1:hi(KAXIS)) + &
+        rhoc(lo(IAXIS):hi(IAXIS), lo(JAXIS):hi(JAXIS), lo(KAXIS):hi(KAXIS) + 1))/2.0d0
 
-end subroutine mph_evapVelocity3d
+ end subroutine mph_evapVelocity3d

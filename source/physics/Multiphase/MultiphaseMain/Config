@@ -42,6 +42,15 @@ PARAMETER mph_lsIt INTEGER 2
 D mph_iPropSmear Thickness of the smeared region. This is a factor of the grid spacing
 PARAMETER mph_iPropSmear REAL 1.0
 
+D mph_scalarGradX Gradient of scalar in x direction
+PARAMETER mph_scalarGradX REAL 0.0
+
+D mph_scalarGradY Gradient of scalar in y direction
+PARAMETER mph_scalarGradY REAL 0.0
+
+D mph_scalarGradZ Gradient of scalar in z direction
+PARAMETER mph_scalarGradZ REAL 0.0
+
 D dfun_variable Level set distance function
 VARIABLE dfun
 

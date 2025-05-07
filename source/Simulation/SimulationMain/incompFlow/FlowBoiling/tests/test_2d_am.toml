@@ -1,0 +1,127 @@
+# Input file to set runtime parameters
+
+
+[Heater]
+  htr_heaterName = "flow_boiling"
+  htr_numHeaters = 2
+  htr_nucSeedRadius = 0.01
+
+[Heater.0001]
+  dim = 1
+  xmin = -30.0
+  xmax = 30.0
+  ymin = 0.0
+  ymax = 1e-13
+  zmin = -2.5
+  zmax = 2.5
+  wallTemp = 1.0
+  advAngle = 90.0
+  rcdAngle = 45.0
+  velContact = 0.2
+  nucWaitTime = 0.4
+  numSites = 0
+  non_uniform_temp_flag = 0
+  C3 = 0.0 
+  C2 = 0.0
+  C1 = 0.004
+  C0 = 0.9
+  tbl_thickness = 0.04
+  heat_flux_flag = 1
+  nd_heat_flux = 100
+[Heater.0002]
+  dim = 1
+  xmin = -30.0
+  xmax = 30.0
+  ymin = 24999888888888e-13
+  ymax = 2.5
+  zmin = -2.5
+  zmax = 2.5
+  wallTemp = 1.0
+  advAngle = 90.0
+  rcdAngle = 45.0
+  velContact = 0.2
+  nucWaitTime = 0.4
+  numSites = 0
+  non_uniform_temp_flag = 0
+  C3 = 0.0
+  C2 = 0.0
+  C1 = 0.001
+  C0 = 0.975
+  tbl_thickness = 0.04
+  heat_flux_flag = 1
+  nd_heat_flux = 100
+
+[Logfile]
+  run_comment = "Flow Boiling problem"
+  log_file = "INS_Flow_Boiling.log"
+
+[Grid]
+  geometry = "cartesian"
+  xmin = -30.0
+  xmax =  30.0
+  ymin = 0.0
+  ymax = 2.5
+  xl_boundary_type = "inflow_ins"
+  xr_boundary_type = "outflow_ins"
+  yl_boundary_type = "noslip_ins"
+  yr_boundary_type = "noslip_ins"
+  gr_amrexMG_composite_solve = true
+  gr_amrexMG_Tol = 5.0e-12
+  gr_amrexMG_max_iter = 200
+  nblockx = 120
+  nblocky = 5
+  nrefs = 10000000
+  lrefine_min = 1
+  lrefine_max = 1
+  flux_correct = true
+  enableMaskedGCFill = true
+
+[IncompNS]
+  ins_invReynolds = 0.0042
+  ins_inflowVelScale = 1.0
+  ins_gravY = -1.0
+  ins_cflFlg = 1
+  ins_cfl = 0.2
+  ins_sigma = 0.05
+  ins_dtSpec = 1e-5
+  ins_pressureCorrect = false
+  ins_intSchm = 2
+  ins_advSchm = 2
+
+[Outlet]
+  out_buffer = 1.0
+
+[Simulation]
+  sim_lengthScaleMeters = 0.001
+  sim_timeScaleSeconds = 0.01
+
+[Multiphase]
+  mph_rhoGas = 0.0083
+  mph_muGas = 1.0
+  mph_iPropSmear = 1.5
+  mph_invWeber = 1.0
+  mph_thcoGas = 0.25
+  mph_CpGas = 0.83
+  mph_Stefan = 0.5298
+  mph_Tsat = 0.15
+
+[HeatAD]
+  ht_Prandtl = 1.0
+
+[Driver]
+  restart = false
+  nend = 100
+  tmax = 100
+  dtinit = 1e-5
+  dtmax = 0.4e-3
+  tstep_change_factor = 1.01
+
+[IO]
+  checkpointFileNumber = 0
+  plotFileNumber = 0
+  plot_var_1 = "pres"
+  plot_var_2 = "velx"
+  plot_var_3 = "vely"
+  plot_var_4 = "dfun"
+  plot_var_5 = "temp"
+  ignoreForcedPlot = true

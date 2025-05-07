@@ -17,9 +17,12 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Heater_checkSites(tileDesc, blockCount)
-   use Grid_tile, ONLY: Grid_tile_t
+subroutine Heater_checkSites(solnData,del,lo,hi, lblock)
+
+!----------------------------------------------------------------------------------------
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
-   integer, intent(in) :: blockCount
+   integer, intent(in) :: lblock
+   real, dimension(:, :, :, :) :: solnData
+   integer, dimension(MDIM),intent(IN)          :: lo, hi
+   real,intent(IN)    :: del(MDIM)
 end subroutine Heater_checkSites

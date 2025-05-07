@@ -67,4 +67,6 @@ module Multiphase_data
 
    real, save :: mph_iPropSmear, mph_presTol, mph_tempTol
 
+   real, save :: mph_scalarGradX, mph_scalarGradY, mph_scalarGradZ
+
 end module Multiphase_data

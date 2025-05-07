@@ -36,6 +36,7 @@
 !!
 !!***
 !!REORDER(4): fluxBuf[XYZ]
+!!NOVARIANTS
 
 #include "constants.h"
 #include "Simulation.h"
@@ -63,7 +64,7 @@ subroutine Driver_evolveAll()
                              Grid_fillGuardCells, Grid_getTileIterator, &
                              Grid_releaseTileIterator, Grid_solvePoisson, Grid_solveLaplacian, &
                              Grid_correctFluxData, Grid_putFluxData, Grid_communicateFluxes, &
-                             Grid_getMaxRefinement
+                             Grid_getMaxRefinement,Grid_getCellCoords
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -75,7 +76,7 @@ subroutine Driver_evolveAll()
                                  IncompNS_setupPoisson, IncompNS_corrector, &
                                  IncompNS_indicators, IncompNS_reInitGridVars, &
                                  IncompNS_advection, IncompNS_diffusion, IncompNS_getScalarProp, &
-                                 IncompNS_getGridVar, IncompNS_fluxSet, IncompNS_fluxUpdate
+                                 IncompNS_getGridVar
 
    use Multiphase_interface, ONLY: Multiphase_setFluidProps, Multiphase_setPressureJumps, &
                                    Multiphase_advection, Multiphase_redistance, Multiphase_solve, &
@@ -138,7 +139,12 @@ subroutine Driver_evolveAll()
    CONTIGUOUS_FSTMT(fluxBufX)
    CONTIGUOUS_FSTMT(fluxBufY)
    CONTIGUOUS_FSTMT(fluxBufZ)
-
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real, dimension(MDIM) :: del
+   integer, dimension(MDIM) :: lo, hi, logc, higc
+   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+   real, dimension(LOW:HIGH,MDIM) :: bndBox
+   real, allocatable, dimension(:) :: xC, yC, zC
    nullify (fluxBufX, fluxBufY, fluxBufZ)
 
    ! Get grid variables for incompressible Naiver-Stokes
@@ -250,13 +256,16 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
          !---------------------------------------------------------
-         call Multiphase_reInitGridVars(tileDesc)
-         call IncompNS_reInitGridVars(tileDesc)
-         call HeatAD_reInitGridVars(tileDesc)
+         call Multiphase_reInitGridVars(solnData )
+
+         @M dr_getFacePnt
+         call IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData )
+         @M dr_releaseFacePnt
+         call HeatAD_reInitGridVars(solnData )
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -274,11 +283,14 @@ subroutine Driver_evolveAll()
       call Grid_getTileIterator(itor, nodetype=LEAF, tiling=.FALSE.)
       do while (itor%isValid())
          blockCount = blockCount+1
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         call tileDesc%boundBox(bndBox)
+         @M dr_getCoords
          !---------------------------------------------------------
-         call Heater_checkSites(tileDesc, blockCount)
+         call Heater_checkSites(solnData,del,xC,yC,zC,bndBox,logc,higc, blockCount)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseCoords
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
 
@@ -292,11 +304,14 @@ subroutine Driver_evolveAll()
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
          blockCount = blockCount+1
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         call tileDesc%boundBox(bndBox)
+         @M dr_getCoords
          !---------------------------------------------------------
-         call Heater_lsReInit(tileDesc, dr_simTime, blockCount)
+         call Heater_lsReInit(solnData,xC,yC,zC,bndBox,logc, higc, dr_simTime, blockCount)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseCoords
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
 #endif
@@ -314,14 +329,18 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimitsGC
          !---------------------------------------------------------
-         call Multiphase_setFluidProps(tileDesc)
+         call Multiphase_setFluidProps(solnData, facexData, faceyData, facezData, del,&
+              logc, higc)
 #ifdef MULTIPHASE_EVAPORATION
-         call Multiphase_setThermalProps(tileDesc)
+         call Multiphase_setThermalProps(solnData)
 #endif
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -352,14 +371,18 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
+         @M dr_mapLimitsGC
          !---------------------------------------------------------
-         call Multiphase_setPressureJumps(tileDesc)
+         call Multiphase_setPressureJumps(solnData, facexData, faceyData, facezData, del, lo, hi)
 #ifdef MULTIPHASE_EVAPORATION
-         call Multiphase_thermalForcing(tileDesc)
+         call Multiphase_thermalForcing(solnData, del, logc, higc)
 #endif
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -379,29 +402,21 @@ subroutine Driver_evolveAll()
 
          call Grid_getTileIterator(itor, nodetype=LEAF)
          do while (itor%isValid())
-            call itor%currentTile(tileDesc)
+            @M dr_iter_getBaseVals
+            @M dr_mapLimits
             !------------------------------------------------------
-            call Multiphase_extrapFluxes(tileDesc, iteration)
+            call Multiphase_extrapFluxes(solnData,del,lo,hi, iteration)
             !------------------------------------------------------
-            call itor%next()
+            !------------------------------------------------------------
+            
+            ! Set mass flux from extrapolated heat fluxes after last iteration
+            !------------------------------------------------------------
+            if(iteration==mph_extpIt)call Multiphase_setMassFlux(solnData,del)
+            @M dr_iter_releaseBase
          end do
          call Grid_releaseTileIterator(itor)
 
       end do
-      !------------------------------------------------------------
-
-      ! Set mass flux from extrapolated heat fluxes
-      !------------------------------------------------------------
-      call Grid_getTileIterator(itor, nodetype=LEAF)
-      do while (itor%isValid())
-         call itor%currentTile(tileDesc)
-         !---------------------------------------------------------
-         call Multiphase_setMassFlux(tileDesc)
-         !---------------------------------------------------------
-         call itor%next()
-      end do
-      call Grid_releaseTileIterator(itor)
-      !------------------------------------------------------------
 #endif
 
 #endif
@@ -411,11 +426,18 @@ subroutine Driver_evolveAll()
       !-------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         call tileDesc%boundBox(bndBox)
+         @M dr_getCoords
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call Outlet_setForcing(tileDesc, dr_dt)
+         call Outlet_setForcing(solnData, facexData, faceyData, facezData,&
+                            xC, yC,zC, del, lo, hi, dr_dt)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_releaseCoords
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
 
@@ -456,14 +478,16 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call IncompNS_advection(tileDesc)
-         call IncompNS_diffusion(tileDesc)
-         call IncompNS_predictor(tileDesc, dr_dt)
-         call Multiphase_velForcing(tileDesc, dr_dt)
-         !---------------------------------------------------------
-         call itor%next()
+         call IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call IncompNS_diffusion(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call IncompNS_predictor(solnData, facexData, faceyData, facezData, del, lo, hi, dr_dt)
+         call Multiphase_velForcing(solnData, facexData, faceyData, facezData, del, lo, hi, dr_dt)
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -481,16 +505,20 @@ subroutine Driver_evolveAll()
       ins_predcorrflg = .false.
 
       ! Calculate divergence of predicted velocity
+      print*,'go into setup'
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call IncompNS_divergence(tileDesc)
-         call Multiphase_divergence(tileDesc)
-         call IncompNS_setupPoisson(tileDesc, dr_dt)
+         call IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call Multiphase_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call IncompNS_setupPoisson(solnData, facexData, faceyData, facezData, del, lo, hi, dr_dt)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -533,13 +561,16 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call IncompNS_corrector(tileDesc, dr_dt)
-         call IncompNS_divergence(tileDesc)
-         call Multiphase_divergence(tileDesc)
+         call IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi,dr_dt)
+         call IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call Multiphase_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -561,13 +592,16 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call HeatAD_diffusion(tileDesc)
-         call HeatAD_advection(tileDesc)
-         call HeatAD_solve(tileDesc, dr_dt)
+         call HeatAD_diffusion(solndata, del, lo, hi)
+         call HeatAD_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call HeatAD_solve(solndata, del, lo, hi, dr_dt)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -581,12 +615,15 @@ subroutine Driver_evolveAll()
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
-         call itor%currentTile(tileDesc)
+         @M dr_iter_getBaseVals
+         @M dr_getFacePnt
+         @M dr_mapLimits
          !---------------------------------------------------------
-         call Multiphase_advection(tileDesc)
-         call Multiphase_solve(tileDesc, dr_dt)
+         call Multiphase_advection(solnData, facexData, faceyData, facezData,del, lo, hi)
+         call Multiphase_solve(solnData,lo, hi, dr_dt)
          !---------------------------------------------------------
-         call itor%next()
+         @M dr_releaseFacePnt
+         @M dr_iter_releaseBase
       end do
       call Grid_releaseTileIterator(itor)
       !------------------------------------------------------------
@@ -605,11 +642,12 @@ subroutine Driver_evolveAll()
          ! routines
          call Grid_getTileIterator(itor, nodetype=LEAF)
          do while (itor%isValid())
-            call itor%currentTile(tileDesc)
+            @M dr_iter_getBaseVals
+            @M dr_mapLimits
             !------------------------------------------------------
-            call Multiphase_redistance(tileDesc, iteration)
+            call Multiphase_redistance(solnData,del,lo,hi, iteration)
             !------------------------------------------------------
-            call itor%next()
+            @M dr_iter_releaseBase
          end do
          call Grid_releaseTileIterator(itor)
 

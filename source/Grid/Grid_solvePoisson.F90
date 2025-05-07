@@ -22,6 +22,7 @@
 !!                         integer(IN) :: bcTypes(6),
 !!                         real(IN)    :: bcValues(2,6),
 !!                         real(INOUT) :: poisfact)
+!!                         integer(IN), optional :: iGrad
 !!
 !! DESCRIPTION
 !!
@@ -42,6 +43,7 @@
 !!               GRID_PDE_BND_ISOLATED (0)
 !!  bcValues - the values to boundary conditions, currently not used (treated as 0)
 !!  poisfact      - scaling factor to be used in calculation
+!!  iGrad         - variable to store gradient of iSoln on face-centered data
 !!
 !! NOTES
 !!
@@ -103,7 +105,7 @@
 !!   
 !!***
 
-subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
+subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact, iGrad)
 
 
   implicit none
@@ -112,7 +114,7 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
   integer, intent(in)    :: bcTypes(6)
   real, intent(in)       :: bcValues(2,6)
   real, intent(inout)    :: poisfact !DEV: NOT intent(IN) because some implementation actually changes it? - KW
-  
+  integer, intent(in), optional :: iGrad
   
   return
 end subroutine Grid_solvePoisson

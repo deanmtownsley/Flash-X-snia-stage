@@ -21,7 +21,8 @@
 !!                     integer(in)    :: iSrc, 
 !!                     integer(6)(in) :: bcTypes,
 !!                     real(2,6)(in)  :: bcValues,
-!!                     real(inout)    :: poisFact)
+!!                     real(inout)    :: poisFact,
+!!                     integer(in), optional :: iGrad)
 !!
 !! DESCRIPTION
 !!
@@ -38,6 +39,7 @@
 !!                   only used in verifying that they are isolated
 !!  bcValues       : the values to boundary conditions, currently not used
 !!  poisFact       : factor to be used in calculation
+!!  iGrad          : variable to store gradient of iSoln on face-centered data
 !!
 !!***
 
@@ -45,7 +47,7 @@ subroutine Grid_solvePoisson (iSoln,                   &
                               iSrc,                    &
                               bcTypes,                 &
                               bcValues,                &
-                              poisFact)
+                              poisFact, iGrad)
 
   use Grid_interface,    ONLY : GRID_PDE_BND_ISOLATED
 
@@ -78,6 +80,7 @@ subroutine Grid_solvePoisson (iSoln,                   &
   integer, intent(in)    :: bcTypes (6)
   real,    intent(in)    :: bcValues (2,6)
   real,    intent(inout) :: poisFact
+  integer, intent(in), optional :: iGrad
 !  
 !
 !    ...Check the grid boundaries. Abort, if not isolated
@@ -85,6 +88,10 @@ subroutine Grid_solvePoisson (iSoln,                   &
 !
   if (any (bcTypes (1:2*NDIM) /= GRID_PDE_BND_ISOLATED) ) then
       call Driver_abort ("FATAL: Multipole Poisson solver requires isolated boundaries")
+  end if
+
+  if (present(iGrad)) then
+      call Driver_abort("[Multipole_new/Grid_solvePoisson] Configuration with iGrad not implemented")
   end if
 !  
 !

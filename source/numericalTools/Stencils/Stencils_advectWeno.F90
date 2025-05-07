@@ -1,7 +1,3 @@
-!!
-!! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
-!!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
 !!
@@ -13,11 +9,13 @@
 !!
 !!
 !!**
-subroutine Stencils_advectCentral2d(rhs,phi,u,v,dx,dy,ix1,ix2,jy1,jy2,center,facex,facey)
+#include "constants.h"
+
+subroutine Stencils_advectWeno(rhs,phi,u,v,w,delta,lo,hi,face)
   implicit none
   real, dimension(:,:,:), intent(inout):: rhs
-  real, dimension(:,:,:), intent(in) :: phi,u,v
-  real, intent(in) :: dx,dy
-  integer, intent(in) :: ix1,ix2,jy1,jy2
-  integer, intent(in) :: center,facex,facey
-end subroutine Stencils_advectCentral2d
+  real, dimension(:,:,:), intent(in) :: phi,u,v,w
+  real, dimension(MDIM), intent(in) :: delta
+  integer,dimension(MDIM), intent(in) :: lo,hi
+  integer,dimension(MDIM+1), intent(in) :: face
+end subroutine Stencils_advectWeno
