@@ -16,11 +16,17 @@
 !!
 !! SYNOPSIS
 !!
-!!  Grid_putLocalNumBlks(integer(IN) :: numBlocks)
+!!  call Grid_putLocalNumBlks(integer(IN) :: numBlocks)
 !!  
 !! DESCRIPTION 
-!!  Put the number of local blocks on a processor 
-!!  Only used in restart capabilities with Paramesh. UG uses stub
+!!  Save the number of local blocks on a processor.
+!!
+!!  This call is only used as part of Grid initialization when
+!!  restarting from a checkpoint. The call is expected to issue from
+!!  code in the IO unit that deals with reading checkpoint data.
+!!
+!!  Only the Paramesh4 implementation of the Grid unit requires an
+!!  implementation; other Grid implementations use the stub.
 !!
 !! ARGUMENTS
 !!  numBlocks : The number of blocks currently in use on myProcessor,
