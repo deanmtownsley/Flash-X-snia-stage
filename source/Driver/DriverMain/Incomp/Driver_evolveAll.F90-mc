@@ -64,7 +64,7 @@ subroutine Driver_evolveAll()
                              Grid_fillGuardCells, Grid_getTileIterator, &
                              Grid_releaseTileIterator, Grid_solvePoisson, Grid_solveLaplacian, &
                              Grid_correctFluxData, Grid_putFluxData, Grid_communicateFluxes, &
-                             Grid_getMaxRefinement,Grid_getCellCoords
+                             Grid_getMaxRefinement, Grid_getCellCoords
 
    use Grid_iterator, ONLY: Grid_iterator_t
 
@@ -142,8 +142,8 @@ subroutine Driver_evolveAll()
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
    real, dimension(MDIM) :: del
    integer, dimension(MDIM) :: lo, hi, logc, higc
-   integer, dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
-   real, dimension(LOW:HIGH,MDIM) :: bndBox
+   integer, dimension(LOW:HIGH, MDIM) :: blkLimits, blkLimitsGC
+   real, dimension(LOW:HIGH, MDIM) :: bndBox
    real, allocatable, dimension(:) :: xC, yC, zC
    nullify (fluxBufX, fluxBufY, fluxBufZ)
 
@@ -258,12 +258,12 @@ subroutine Driver_evolveAll()
       do while (itor%isValid())
          @M dr_iter_getBaseVals
          !---------------------------------------------------------
-         call Multiphase_reInitGridVars(solnData )
+         call Multiphase_reInitGridVars(solnData)
 
          @M dr_getFacePnt
-         call IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData )
+         call IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData)
          @M dr_releaseFacePnt
-         call HeatAD_reInitGridVars(solnData )
+         call HeatAD_reInitGridVars(solnData)
          !---------------------------------------------------------
          @M dr_iter_releaseBase
       end do
@@ -287,7 +287,7 @@ subroutine Driver_evolveAll()
          call tileDesc%boundBox(bndBox)
          @M dr_getCoords
          !---------------------------------------------------------
-         call Heater_checkSites(solnData,del,xC,yC,zC,bndBox,logc,higc, blockCount)
+         call Heater_checkSites(solnData, del, xC, yC, zC, bndBox, logc, higc, blockCount)
          !---------------------------------------------------------
          @M dr_releaseCoords
          @M dr_iter_releaseBase
@@ -308,7 +308,7 @@ subroutine Driver_evolveAll()
          call tileDesc%boundBox(bndBox)
          @M dr_getCoords
          !---------------------------------------------------------
-         call Heater_lsReInit(solnData,xC,yC,zC,bndBox,logc, higc, dr_simTime, blockCount)
+         call Heater_lsReInit(solnData, xC, yC, zC, bndBox, logc, higc, dr_simTime, blockCount)
          !---------------------------------------------------------
          @M dr_releaseCoords
          @M dr_iter_releaseBase
@@ -333,8 +333,8 @@ subroutine Driver_evolveAll()
          @M dr_getFacePnt
          @M dr_mapLimitsGC
          !---------------------------------------------------------
-         call Multiphase_setFluidProps(solnData, facexData, faceyData, facezData, del,&
-              logc, higc)
+         call Multiphase_setFluidProps(solnData, facexData, faceyData, facezData, del, &
+                                       logc, higc)
 #ifdef MULTIPHASE_EVAPORATION
          call Multiphase_setThermalProps(solnData)
 #endif
@@ -405,13 +405,13 @@ subroutine Driver_evolveAll()
             @M dr_iter_getBaseVals
             @M dr_mapLimits
             !------------------------------------------------------
-            call Multiphase_extrapFluxes(solnData,del,lo,hi, iteration)
+            call Multiphase_extrapFluxes(solnData, del, lo, hi, iteration)
             !------------------------------------------------------
             !------------------------------------------------------------
-            
+
             ! Set mass flux from extrapolated heat fluxes after last iteration
             !------------------------------------------------------------
-            if(iteration==mph_extpIt)call Multiphase_setMassFlux(solnData,del)
+            if (iteration == mph_extpIt) call Multiphase_setMassFlux(solnData, del)
             @M dr_iter_releaseBase
          end do
          call Grid_releaseTileIterator(itor)
@@ -432,8 +432,8 @@ subroutine Driver_evolveAll()
          @M dr_getCoords
          @M dr_mapLimits
          !---------------------------------------------------------
-         call Outlet_setForcing(solnData, facexData, faceyData, facezData,&
-                            xC, yC,zC, del, lo, hi, dr_dt)
+         call Outlet_setForcing(solnData, facexData, faceyData, facezData, &
+                                xC, yC, zC, bndBox, del, lo, hi, dr_dt)
          !---------------------------------------------------------
          @M dr_releaseFacePnt
          @M dr_releaseCoords
@@ -505,7 +505,6 @@ subroutine Driver_evolveAll()
       ins_predcorrflg = .false.
 
       ! Calculate divergence of predicted velocity
-      print*,'go into setup'
       !------------------------------------------------------------
       call Grid_getTileIterator(itor, nodetype=LEAF)
       do while (itor%isValid())
@@ -565,7 +564,7 @@ subroutine Driver_evolveAll()
          @M dr_getFacePnt
          @M dr_mapLimits
          !---------------------------------------------------------
-         call IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi,dr_dt)
+         call IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi, dr_dt)
          call IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
          call Multiphase_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
          !---------------------------------------------------------
@@ -619,8 +618,8 @@ subroutine Driver_evolveAll()
          @M dr_getFacePnt
          @M dr_mapLimits
          !---------------------------------------------------------
-         call Multiphase_advection(solnData, facexData, faceyData, facezData,del, lo, hi)
-         call Multiphase_solve(solnData,lo, hi, dr_dt)
+         call Multiphase_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
+         call Multiphase_solve(solnData, lo, hi, dr_dt)
          !---------------------------------------------------------
          @M dr_releaseFacePnt
          @M dr_iter_releaseBase
@@ -645,7 +644,7 @@ subroutine Driver_evolveAll()
             @M dr_iter_getBaseVals
             @M dr_mapLimits
             !------------------------------------------------------
-            call Multiphase_redistance(solnData,del,lo,hi, iteration)
+            call Multiphase_redistance(solnData, del, lo, hi, iteration)
             !------------------------------------------------------
             @M dr_iter_releaseBase
          end do

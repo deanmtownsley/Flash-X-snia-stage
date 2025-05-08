@@ -51,16 +51,17 @@ module Heater_type
       real    :: C2 = 0.
       real    :: C1 = 0.
       real    :: C0 = 0.
-      real    :: tbl_thickness = 0.2
-      integer :: non_uniform_temp_flag = 0
-      integer :: heat_flux_flag = 0
-      real    :: nd_heat_flux = 0.
+      real    :: tblThickness = 0.2
+      logical :: varTempFlg = .FALSE.
+      logical :: heatFluxFlg = .FALSE.
+      real    :: heatFlux = 0.
+      real    :: nucTemp
 
       integer :: numSitesAll, numSitesProc
       integer :: numSitesBlk(MAXBLOCKS), siteMapOnProc(MAXBLOCKS, HTR_MAX_NUMSITES)
 
       real, dimension(:), allocatable :: xSiteInit, ySiteInit, zSiteInit, radiusInit
-      real, dimension(HTR_MAX_NUMSITES) :: xSiteProc, zSiteProc, ySiteProc, siteTimeStamp
+      real, dimension(HTR_MAX_NUMSITES) :: xSiteProc, zSiteProc, ySiteProc, siteTimeStamp, siteTemp
       logical, dimension(HTR_MAX_NUMSITES) :: siteIsAttachedCurr, siteIsAttachedPrev
 
 #ifdef HEATER_ANN_SEARCH

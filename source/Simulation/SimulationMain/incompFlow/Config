@@ -5,3 +5,6 @@ PARAMETER sim_lengthScaleMeters REAL 1.0
 
 D sim_timeScaleSeconds Time scale for the simulation in SI units (seconds)
 PARAMETER sim_timeScaleSeconds REAL 1.0
+
+D sim_tempScaleExpr Expression to define the temperature scale (T_DELTA*T + T_BULK)
+PARAMETER sim_tempScaleExpr STRING "T_DELTA*T + T_BULK"

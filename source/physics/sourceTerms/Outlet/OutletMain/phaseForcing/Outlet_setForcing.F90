@@ -19,7 +19,7 @@
 #include "constants.h"
 
 subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
-     xC, yC,zC, del, lo, hi, dt)
+                             xC, yC,zC, boundBox, del, lo, hi, dt)
   
   use Outlet_data, ONLY: out_sink, out_flag, &
        out_buffer, out_growthRate, &
@@ -43,6 +43,7 @@ subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
   integer, dimension(MDIM),intent(IN)   :: lo, hi
   real,dimension(MDIM),intent(IN)    :: del
   real, intent(in) :: dt
+  real, dimension(LOW:HIGH, 1:MDIM),intent(IN)    :: boundBox
   
   integer :: ierr
 
@@ -52,16 +53,16 @@ subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
 
 
 #if NDIM < MDIM
-!!$   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
-!!$                      solnData(DFUN_VAR, :, :, :), &
-!!$                      xC, yC, zC, boundBox, &
-!!$                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-!!$                      lo(IAXIS), hi(IAXIS), &
-!!$                      lo(JAXIS), hi(JAXIS), &
-!!$                      lo(KAXIS), hi(KAXIS), &
-!!$                      out_flag, out_sink, out_buffer, &
-!!$                      out_growthRate, &
-!!$                      out_xMin, out_xMax, out_yMin, out_yMax, 0., 0.)
+   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
+                      solnData(DFUN_VAR, :, :, :), &
+                      xC, yC, zC, boundBox, &
+                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                      lo(IAXIS), hi(IAXIS), &
+                      lo(JAXIS), hi(JAXIS), &
+                      lo(KAXIS), hi(KAXIS), &
+                      out_flag, out_sink, out_buffer, &
+                      out_growthRate, &
+                     out_xMin, out_xMax, out_yMin, out_yMax, 0., 0.)
 
    call out_velFrcPhased(facexData(VELC_FACE_VAR, :, :, :), &
                          facexData(VFRC_FACE_VAR, :, :, :), &
@@ -93,16 +94,16 @@ subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
 
 #else
 
-!!$   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
-!!$                      solnData(DFUN_VAR, :, :, :), &
-!!$                      xC, yC, zC, boundBox, &
-!!$                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-!!$                      lo(IAXIS), hi(IAXIS), &
-!!$                      lo(JAXIS), hi(JAXIS), &
-!!$                      lo(KAXIS), hi(KAXIS), &
-!!$                      out_flag, out_sink, out_buffer, &
-!!$                      out_growthRate, &
-!!$                      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax)
+   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
+                      solnData(DFUN_VAR, :, :, :), &
+                      xC, yC, zC, boundBox, &
+                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                      lo(IAXIS), hi(IAXIS), &
+                      lo(JAXIS), hi(JAXIS), &
+                      lo(KAXIS), hi(KAXIS), &
+                      out_flag, out_sink, out_buffer, &
+                      out_growthRate, &
+                      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax)
 
    call out_velFrcPhased(facexData(VELC_FACE_VAR, :, :, :), &
                          facexData(VFRC_FACE_VAR, :, :, :), &
