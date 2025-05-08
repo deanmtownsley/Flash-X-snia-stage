@@ -180,6 +180,9 @@ endif
 %%.o : %%.cxx
 \t$(ECHO-COMPILING) 
 \t$(CPPCOMP) $(CFLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))
+%%.ixx : %%.cxx
+\t$(ECHO-PROCESSING)
+\t$(CPPCOMP) $(patsubst -c,-E,$(CFLAGS)) $(CDEFINES) $< -o $(addsuffix .ixx,$(basename $@))
 %%.o : %%.cu
 \t$(ECHO-COMPILING)
 \t$(CUCOMP) $(CU_FLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))
