@@ -37,6 +37,12 @@ Module Multiphase_interface
    end interface
 
    interface
+      !! solnData :: source=grid_data, structure_index=[center, 1], RW = [DFUN_VAR], R = [NRMX_VAR, NRMY_VAR]
+      !! facexData :: source=grid_data, structure_index=[facex, 1], RW = [VELC_FACE_VAR]
+      !! del :: source=tile_deltas
+      !! blkLimits :: source=tile_interior
+      !! blkLimitsGC :: source=tile_arrayBounds
+      !!subroutine Multiphase_advection(solnData, facexData, del, blkLimits, blkLimitsGC)
       subroutine Multiphase_advection(solnData, facexData, faceyData, facezData,del, lo, hi)
         implicit none
         real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData

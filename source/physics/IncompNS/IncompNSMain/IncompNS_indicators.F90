@@ -36,7 +36,7 @@ subroutine IncompNS_indicators()
    implicit none
    include "Flashx_mpi.h"
    integer, dimension(2, MDIM) :: stnLimits = 1
-   real :: vecminaux(5), vecmaxaux(5), vecmin(5), vecmax(5)
+   real :: vecminaux(6), vecmaxaux(6), vecmin(6), vecmax(6)
 #if NDIM < MDIM
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
    real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
@@ -75,6 +75,7 @@ subroutine IncompNS_indicators()
                           facezData(VELC_FACE_VAR, :, :, :), &
                           solnData(PRES_VAR, :, :, :), &
                           solnData(DUST_VAR, :, :, :), &
+                          solnData(OMGM_VAR, :, :, :), &
                           stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
                           stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
                           stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS), &
@@ -91,10 +92,10 @@ subroutine IncompNS_indicators()
    end do
    call Grid_releaseTileIterator(itor)
 
-   call MPI_Allreduce(vecmaxaux, vecmax, 5, FLASH_REAL, &
+   call MPI_Allreduce(vecmaxaux, vecmax, 6, FLASH_REAL, &
                       MPI_MAX, ins_meshComm, ierr)
 
-   call MPI_Allreduce(vecminaux, vecmin, 5, FLASH_REAL, &
+   call MPI_Allreduce(vecminaux, vecmin, 6, FLASH_REAL, &
                       MPI_MIN, ins_meshComm, ierr)
 
    if (ins_meshMe .eq. MASTER_PE) then
@@ -112,5 +113,15 @@ subroutine IncompNS_indicators()
    ins_mindiv = vecmin(1)
    ins_maxdiv = vecmax(1)
 
-   return
+   !! Rescale vorticity
+   !call Grid_getTileIterator(itor, nodetype=LEAF)
+   !do while (itor%isValid())
+   !   call itor%currentTile(tileDesc)
+   !   call tileDesc%getDataPtr(solnData, CENTER)
+   !   solnData(OMGM_VAR, :, :, :) = solnData(OMGM_VAR, :, :, :)/max(abs(vecmin(6)),abs(vecmax(6)))
+   !   call tileDesc%releaseDataPtr(solnData, CENTER)
+   !   call itor%next() 
+   !end do
+   !call Grid_releaseTileIterator(itor)
+
 end subroutine IncompNS_indicators

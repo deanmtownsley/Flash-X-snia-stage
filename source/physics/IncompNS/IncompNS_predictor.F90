@@ -13,10 +13,11 @@
 !!
 !!
 !!***
-subroutine IncompNS_predictor(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
+#include"constants.h"
+subroutine IncompNS_predictor(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
    implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real, dimension(MDIM), intent(in) :: del
+   integer, dimension(MDIM), intent(in) :: lo, hi
    real, INTENT(IN) :: dt
-   return
 end subroutine IncompNS_predictor

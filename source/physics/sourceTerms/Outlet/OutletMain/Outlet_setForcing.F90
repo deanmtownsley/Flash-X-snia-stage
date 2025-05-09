@@ -18,8 +18,8 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
-                            xC, yC,zC, del, lo, hi, dt)
+subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData, &
+                             xC, yC, zC, boundBox, del, lo, hi, dt)
 
    use Outlet_data, ONLY: out_QOut, out_sink, out_flag, &
                           out_buffer, out_growthRate, out_QAux, out_velRefScale, &
@@ -39,10 +39,10 @@ subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
 
 !----------------------------------------------------------------------------------------
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-   real, dimension(:),intent(IN) :: xC,yC,zC
-   integer, dimension(MDIM),intent(IN)   :: lo, hi
-   real,dimension(MDIM),intent(IN)    :: del
-!!$   real, dimension(LOW:HIGH, 1:MDIM),intent(IN)    :: boundBox
+   real, dimension(:), intent(IN) :: xC, yC, zC
+   integer, dimension(MDIM), intent(IN)   :: lo, hi
+   real, dimension(MDIM), intent(IN)    :: del
+   real, dimension(LOW:HIGH, 1:MDIM),intent(IN)    :: boundBox
    integer :: ierr
 
 !----------------------------------------------------------------------------------------
@@ -51,91 +51,90 @@ subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
 
 #if NDIM < MDIM
 
-!!$#ifdef MULTIPHASE_MAIN
-!!$   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
-!!$                         solnData(DFUN_VAR, :, :, :), &
-!!$                         xC, yC, zC, boundBox, &
-!!$                         dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-!!$                         lo(IAXIS), hi(IAXIS), &
-!!$                         lo(JAXIS), hi(JAXIS), &
-!!$                         lo(KAXIS), hi(KAXIS), &
-!!$                         out_flag, out_sink, out_buffer, &
-!!$                         out_growthRate, &
-!!$                         out_xMin, out_xMax, out_yMin, out_yMax, 0., 0.)
-!!$#endif
-
-   call out_velFrc(facexData(VELC_FACE_VAR, :, :, :), &
-                      facexData(VFRC_FACE_VAR, :, :, :), &
-                      xC-del(IAXIS)/2, yC, zC, &
-                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                      lo(IAXIS), hi(IAXIS)+1, &
-                      lo(JAXIS), hi(JAXIS), &
-                      lo(KAXIS), hi(KAXIS), &
-                      out_xMin, out_xMax, out_yMin, out_yMax, 0., 0., &
-                      out_flag, out_buffer, out_growthRate, &
-                      IAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
-
-   call out_velFrc(faceyData(VELC_FACE_VAR, :, :, :), &
-                      faceyData(VFRC_FACE_VAR, :, :, :), &
-                      xC, yC-del(JAXIS)/2, zC, &
+#ifdef MULTIPHASE_MAIN
+   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
+                      solnData(DFUN_VAR, :, :, :), &
+                      xC, yC, zC, boundBox, &
                       dt, del(IAXIS), del(JAXIS), del(KAXIS), &
                       lo(IAXIS), hi(IAXIS), &
-                      lo(JAXIS), hi(JAXIS)+1, &
+                      lo(JAXIS), hi(JAXIS), &
                       lo(KAXIS), hi(KAXIS), &
-                      out_xMin, out_xMax, out_yMin, out_yMax, 0., 0., &
-                      out_flag, out_buffer, out_growthRate, &
-                      JAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
+                      out_flag, out_sink, out_buffer, &
+                      out_growthRate, &
+                      out_xMin, out_xMax, out_yMin, out_yMax, 0., 0.)
+#endif
+
+   call out_velFrc(facexData(VELC_FACE_VAR, :, :, :), &
+                   facexData(VFRC_FACE_VAR, :, :, :), &
+                   xC-del(IAXIS)/2, yC, zC, &
+                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                   lo(IAXIS), hi(IAXIS)+1, &
+                   lo(JAXIS), hi(JAXIS), &
+                   lo(KAXIS), hi(KAXIS), &
+                   out_xMin, out_xMax, out_yMin, out_yMax, 0., 0., &
+                   out_flag, out_buffer, out_growthRate, &
+                   IAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
+
+   call out_velFrc(faceyData(VELC_FACE_VAR, :, :, :), &
+                   faceyData(VFRC_FACE_VAR, :, :, :), &
+                   xC, yC-del(JAXIS)/2, zC, &
+                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                   lo(IAXIS), hi(IAXIS), &
+                   lo(JAXIS), hi(JAXIS)+1, &
+                   lo(KAXIS), hi(KAXIS), &
+                   out_xMin, out_xMax, out_yMin, out_yMax, 0., 0., &
+                   out_flag, out_buffer, out_growthRate, &
+                   JAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
 
 #else
 
-!!$#ifdef MULTIPHASE_MAIN
-!!$   call out_lsDamping(solnData(DFRC_VAR, :, :, :), &
-!!$                         solnData(DFUN_VAR, :, :, :), &
-!!$                         xC, yC, zC, boundBox, &
-!!$                         dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-!!$                         lo(IAXIS), hi(IAXIS), &
-!!$                         lo(JAXIS), hi(JAXIS), &
-!!$                         lo(KAXIS), hi(KAXIS), &
-!!$                         out_flag, out_sink, out_buffer, &
-!!$                         out_growthRate, &
-!!$                         out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax)
-!!$#endif
-
-   call out_velFrc(facexData(VELC_FACE_VAR, :, :, :), &
-                      facexData(VFRC_FACE_VAR, :, :, :), &
-                      xC-del(IAXIS)/2, yC, zC, &
-                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                      lo(IAXIS), hi(IAXIS)+1, &
-                      lo(JAXIS), hi(JAXIS), &
-                      lo(KAXIS), hi(KAXIS), &
-                      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
-                      out_flag, out_buffer, out_growthRate, &
-                      IAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
-
-   call out_velFrc(faceyData(VELC_FACE_VAR, :, :, :), &
-                      faceyData(VFRC_FACE_VAR, :, :, :), &
-                      xC, yC-del(JAXIS)/2, zC, &
-                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                      lo(IAXIS), hi(IAXIS), &
-                      lo(JAXIS), hi(JAXIS)+1, &
-                      lo(KAXIS), hi(KAXIS), &
-                      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
-                      out_flag, out_buffer, out_growthRate, &
-                      JAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
-
-   call out_velFrc(facezData(VELC_FACE_VAR, :, :, :), &
-                      facezData(VFRC_FACE_VAR, :, :, :), &
-                      xC, yC, zC-del(KAXIS)/2, &
-                      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
-                      lo(IAXIS), hi(IAXIS), &
-                      lo(JAXIS), hi(JAXIS), &
-                      lo(KAXIS), hi(KAXIS)+1, &
-                      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
-                      out_flag, out_buffer, out_growthRate, &
-                      KAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
-
+#ifdef MULTIPHASE_MAIN
+   call out_lsDamping(solnData(DFRC_VAR, :, :, :),
+   solnData(DFUN_VAR, :, :, :), &
+      xC, yC, zC, boundBox, &
+      dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+      lo(IAXIS), hi(IAXIS), &
+      lo(JAXIS), hi(JAXIS), &
+      lo(KAXIS), hi(KAXIS), &
+      out_flag, out_sink, out_buffer, &
+      out_growthRate, &
+      out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax)
 #endif
 
+   call out_velFrc(facexData(VELC_FACE_VAR, :, :, :), &
+                   facexData(VFRC_FACE_VAR, :, :, :), &
+                   xC-del(IAXIS)/2, yC, zC, &
+                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                   lo(IAXIS), hi(IAXIS)+1, &
+                   lo(JAXIS), hi(JAXIS), &
+                   lo(KAXIS), hi(KAXIS), &
+                   out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
+                   out_flag, out_buffer, out_growthRate, &
+                   IAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
+
+   call out_velFrc(faceyData(VELC_FACE_VAR, :, :, :), &
+                   faceyData(VFRC_FACE_VAR, :, :, :), &
+                   xC, yC-del(JAXIS)/2, zC, &
+                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                   lo(IAXIS), hi(IAXIS), &
+                   lo(JAXIS), hi(JAXIS)+1, &
+                   lo(KAXIS), hi(KAXIS), &
+                   out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
+                   out_flag, out_buffer, out_growthRate, &
+                   JAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
+
+   call out_velFrc(facezData(VELC_FACE_VAR, :, :, :), &
+                   facezData(VFRC_FACE_VAR, :, :, :), &
+                   xC, yC, zC-del(KAXIS)/2, &
+                   dt, del(IAXIS), del(JAXIS), del(KAXIS), &
+                   lo(IAXIS), hi(IAXIS), &
+                   lo(JAXIS), hi(JAXIS), &
+                   lo(KAXIS), hi(KAXIS)+1, &
+                   out_xMin, out_xMax, out_yMin, out_yMax, out_zMin, out_zMax, &
+                   out_flag, out_buffer, out_growthRate, &
+                   KAXIS, out_volAux, out_QAux, out_QOut, out_velRefScale)
+
+#endif
 
    call Timers_stop("Outlet_setForcing")
 

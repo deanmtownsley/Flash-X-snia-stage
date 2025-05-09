@@ -1,4 +1,4 @@
-!!****if* source/physics/IncompNS/IncompNSMain/varDens/IncompNS_advection
+!!****if* source/physics/IncompNS/IncompNSMain/IncompNS_advection
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -52,8 +52,7 @@ subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo
    if (ins_advSchm == 2) then
       ! compute RHS of momentum equation
       hi1(IAXIS)=hi1(IAXIS)+1
-      face=0
-      face(facex)=1
+      face=0; face(facex)=1
       call Stencils_advectCentral(facexData(HVN0_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
@@ -62,7 +61,7 @@ subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo
                                     del, lo,hi1,face)
 
       hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
-      face(facex)=0; face(facey)=1
+      face=0; face(facey)=1
       call Stencils_advectCentral(faceyData(HVN0_FACE_VAR, :, :, :), &
                                     faceyData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
@@ -72,7 +71,7 @@ subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo
 
 #if NDIM == 3      
       hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
-      face(facey)=0; face(facez)=1
+      face=0; face(facez)=1
       call Stencils_advectCentral(facezData(HVN0_FACE_VAR, :, :, :), &
                                     facezData(VELC_FACE_VAR, :, :, :), &
                                     facexData(VELC_FACE_VAR, :, :, :), &
