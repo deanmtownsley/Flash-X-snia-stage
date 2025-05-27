@@ -48,7 +48,7 @@ module eos_helmData
   logical, save :: eos_coulombAbort
  
   logical, save :: eos_useMultiSpecies
-  integer,parameter :: EOSIMAX=541,EOSJMAX=201
+  integer,parameter :: EOSIMAX=271,EOSJMAX=101 !edited from 541,201 by JM
 
   ! Minimum vecLen value to use OpenACC implementation of starkiller
   integer, save :: eos_vecLenACC
