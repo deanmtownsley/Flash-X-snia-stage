@@ -1,0 +1,17 @@
+
+PARAMETER bn_mesa_net_def_filename STRING "alpha_chain_plus_3he_co.net"
+DATAFILES alpha_chain_plus_3he_co.net
+
+SPECIES he4
+SPECIES c12
+SPECIES o16
+SPECIES ne20
+SPECIES mg24
+SPECIES si28
+SPECIES s32
+SPECIES ar36
+SPECIES ca40
+SPECIES ti44
+SPECIES cr48
+SPECIES fe52   
+SPECIES ni56

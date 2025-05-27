@@ -1,0 +1,32 @@
+diff --git a/net/private/net_burn.f90 b/net/private/net_burn.f90
+index 3989055..c55002a 100644
+--- a/net/private/net_burn.f90
++++ b/net/private/net_burn.f90
+@@ -291,8 +291,8 @@
+             species, g% chem_id, starting_x, xh, xhe, z, &
+             abar, zbar, z2bar, ye, mass_correction, sumx)
+ 
+-         stptry = max(start * 1.0d-10,1.0d-16)
+-         stpmin = stptry * 1.0d-12
++         !stptry = max(start * 1.0d-10,1.0d-16)
++         !stpmin = stptry * 1.0d-12
+ 
+          if (dbg) write(*,*) 'call netint'
+          call netint( &
+@@ -301,7 +301,7 @@
+             burner_derivs,burner_jakob,burner_finish_substep,ierr)
+          if (dbg) write(*,*) 'done netint'
+          if (ierr /= 0) then
+-            write(*,*) 'netint ierr'
++            if(dbg) write(*,*) 'netint ierr'
+             !stop
+             return
+          end if
+@@ -504,6 +504,7 @@
+                actual_Qs, actual_neuQs, from_weaklib, .false., ierr)
+ 
+             reuse_rate_raw = .true. ! after 1st call can reuse since T and Rho constant
++            have_set_rate_screened = .true.
+             
+             if (size(f,dim=1) > 0) then
+             	do j = 1, species

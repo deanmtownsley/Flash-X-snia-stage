@@ -1,0 +1,5 @@
+
+DEFAULT AlphaChain
+
+D bn_limiter_max_dlnT   limit reactions so dT/T increase is no more than this during sound crossing time of fully refined cell
+PARAMETER   bn_limiter_max_dlnT  REAL  1.e30
