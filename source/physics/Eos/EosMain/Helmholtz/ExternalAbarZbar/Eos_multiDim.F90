@@ -90,12 +90,10 @@
 !!REORDER(4): solnData
 
 
-!JM subroutine Eos_multiDim(mode,range,blockID,gridDataStruct)
 subroutine Eos_multiDim(mode,range,solnData)
 
    use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe
    use Driver_interface, ONLY : Driver_abort
-   !JMJN use Grid_interface, ONLY : Grid_getBlkPtr, Grid_releaseBlkPtr
    use Logfile_interface, ONLY: Logfile_stampMessage 
    !JM use Eos_interface, ONLY : Eos
    use Eos_interface, ONLY : Eos_vector
@@ -110,7 +108,6 @@ subroutine Eos_multiDim(mode,range,solnData)
    integer, intent(in) :: mode
    integer, dimension(2,MDIM), intent(in) :: range
   !JMJN integer,intent(in) :: blockID
-  !JM integer, optional, intent(IN) :: gridDataStruct
  
    real, pointer:: solnData(:,:,:,:)
  
@@ -149,25 +146,12 @@ subroutine Eos_multiDim(mode,range,solnData)
    if(ierr /= 0) then
       call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
    end if
- 
- ! Sanity check
- !JM   if (present(gridDataStruct)) then
- !JM      if (gridDataStruct .NE. CENTER) then
- !JM         call Driver_abort("Eos_wrapped: Support for gridDataStruct other than CENTER not implemented in this version!")
- !JM      end if
- !JM   end if
  #endif
  
    if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
  
    ! Initializations:   grab the solution data from UNK and determine
    !   the length of the data being operated upon
- 
- !JM   if(present(gridDataStruct))then
- !JM      dataStruct=gridDataStruct
- !JM   else
- !JM      dataStruct=CENTER
- !JM   end if
 
    !JM vecLen = range(HIGH,IAXIS)-range(LOW,IAXIS)+1 (I don't know why this would only be 1D)
  
