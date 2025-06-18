@@ -168,8 +168,7 @@ subroutine Eos_multiDim(mode,range,solnData)
  !JM   else
  !JM      dataStruct=CENTER
  !JM   end if
- 
-   !JM call Grid_getBlkPtr(blockID,solnData,dataStruct)
+
    !JM vecLen = range(HIGH,IAXIS)-range(LOW,IAXIS)+1 (I don't know why this would only be 1D)
  
     !JM I think VecLen is the number of rows in eosData
@@ -442,8 +441,6 @@ subroutine Eos_multiDim(mode,range,solnData)
  
  !JM      end do
  !JM   end do
- 
- !JM call Grid_releaseBlkPtr(blockID,solnData,dataStruct)
  
  !JM #ifndef FIXEDBLOCKSIZE
    deallocate(energyKinetic)
