@@ -74,7 +74,6 @@ subroutine Flame_step( dt )
 
   real :: f, inv_dt
   integer :: i,j,k
-  integer :: sizeI, sizeJ, sizeK
 
   if( .not. fl_useFlame ) return
 
@@ -100,24 +99,24 @@ subroutine Flame_step( dt )
 
      call tileDesc%getDataPtr( solnData, CENTER)
 
-     allocate( flam( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS), &
-                     tileDesc%limits(LOW,JAXIS) : tileDesc%limits(HIGH,JAXIS), &
-                     tileDesc%limits(LOW,KAXIS) : tileDesc%limits(HIGH,KAXIS)), &
+     allocate( flam( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2, &
+                     tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
+                     tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D), &
                STAT=istat )
      if (istat /= 0) call Driver_abort("Cannot allocate flam in Flame_step")
-     allocate( flamdot( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS), &
-                        tileDesc%limits(LOW,JAXIS) : tileDesc%limits(HIGH,JAXIS), &
-                        tileDesc%limits(LOW,KAXIS) : tileDesc%limits(HIGH,KAXIS)), &
+     allocate( flamdot( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2, &
+                        tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
+                        tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D), &
                STAT=istat )
      if (istat /= 0) call Driver_abort("Cannot allocate flamdot in Flame_step")
-     allocate( flamespeed( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS), &
-                           tileDesc%limits(LOW,JAXIS) : tileDesc%limits(HIGH,JAXIS), &
-                           tileDesc%limits(LOW,KAXIS) : tileDesc%limits(HIGH,KAXIS)), &
+     allocate( flamespeed( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2, &
+                           tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
+                           tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D), &
                STAT=istat )
      if (istat /= 0) call Driver_abort("Cannot allocate flamespeed in Flame_step")
-     allocate( lapl( tileDesc%limits(LOW,IAXIS) : tileDesc%limits(HIGH,IAXIS), &
-                     tileDesc%limits(LOW,JAXIS) : tileDesc%limits(HIGH,JAXIS), &
-                     tileDesc%limits(LOW,KAXIS) : tileDesc%limits(HIGH,KAXIS)), &
+     allocate( lapl( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2, &
+                     tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
+                     tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D), &
                STAT=istat )
      if (istat /= 0) call Driver_abort("Cannot allocate lapl in Flame_step")
 
