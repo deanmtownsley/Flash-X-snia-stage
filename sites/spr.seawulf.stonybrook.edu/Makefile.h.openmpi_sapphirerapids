@@ -57,10 +57,11 @@ FFLAGS_OPT = -c -Ofast -march=sapphirerapids -mtune=sapphirerapids -fdefault-rea
 #"<value optimized out>" for certain function arguments.
 
 FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
--pedantic -Wall -Waliasing \
+-Wall -Waliasing \
 -Wsurprising -Wconversion -Wunderflow \
 -ffpe-trap=invalid,zero,overflow -fbounds-check \
--fimplicit-none -fstack-protector-all
+-fimplicit-none -fstack-protector-all \
+-fallow-argument-mismatch
 
 FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
 
