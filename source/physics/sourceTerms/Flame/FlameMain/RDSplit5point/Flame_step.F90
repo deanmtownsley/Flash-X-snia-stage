@@ -28,6 +28,7 @@
 ! see Flame_interface.F90 at top level for function description
 !
 ! Dean Townsley 2008
+! Josh Martin 2025
 !
 
 ! Implementation details
@@ -75,6 +76,8 @@ subroutine Flame_step( dt )
   real :: f, inv_dt
   integer :: i,j,k
 
+  !JM integer :: flamdot_low, flamdot_high
+
   if( .not. fl_useFlame ) return
 
   call Timers_start("flame")
@@ -87,14 +90,17 @@ subroutine Flame_step( dt )
      call Logfile_stampVarMask(fl_gcMask, fl_gcDoEos, '[Flame_step]', 'gcMask')
 #endif
   end if
+  !JM print *, "Calling Grid_fillGuardCells"
   call Grid_fillGuardCells(CENTER, ALLDIR, eosMode=MODE_DENS_EI, &
     doEos=fl_gcDoEos, maskSize=fl_gcMaskSize, mask=fl_gcMask, &
     makeMaskConsistent=.false., doLogMask=fl_gcDoLogMask)
   fl_gcDoLogMask=.false.
 
+  !JM print *, "Calling Grid_getTileIterator"
   call Grid_getTileIterator( itor, nodetype=LEAF )
 
   do while( itor%isValid() )
+      !JM print *, "Entering do while loop"
      call itor%currentTile(tileDesc)
 
      call tileDesc%getDataPtr( solnData, CENTER)
@@ -103,6 +109,9 @@ subroutine Flame_step( dt )
                      tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
                      tileDesc%limits(LOW,KAXIS)-2*K3D : tileDesc%limits(HIGH,KAXIS)+2*K3D), &
                STAT=istat )
+
+      !JM print *, 'LOWGC,HIGHGC IAXIS:', tileDesc%limits(LOW,IAXIS)-2, tileDesc%limits(HIGH,IAXIS)+2 !JM
+
      if (istat /= 0) call Driver_abort("Cannot allocate flam in Flame_step")
      allocate( flamdot( tileDesc%limits(LOW,IAXIS)-2 : tileDesc%limits(HIGH,IAXIS)+2, &
                         tileDesc%limits(LOW,JAXIS)-2*K2D : tileDesc%limits(HIGH,JAXIS)+2*K2D, &
@@ -140,8 +149,16 @@ subroutine Flame_step( dt )
         enddo
      enddo
 
+      !JM print *, 'flam bounds before calling fl_laplacian:'
+      !JM print *, 'LBOUND(flam):', LBOUND(flam) !JM
+      !JM print *, 'UBOUND(flam):', UBOUND(flam) !JM
+
      ! 1 specifies the step size should be 1 grid cell
      ! cannot be any larger because flam is filled with only 2 guard cell layers
+     !JM print *, "About to call fl_laplacian"
+     !JM print *, "lapl bounds:", lbound(lapl), ubound(lapl)
+     !JM print *, "flam bounds:", lbound(flam), ubound(flam) 
+     !JM print *, "tileDesc limits:", tileDesc%limits
      call fl_laplacian(lapl, flam, 1, tileDesc)
 
      do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
@@ -158,14 +175,24 @@ subroutine Flame_step( dt )
      deallocate(flamespeed)
      deallocate(flam)
 
-     call fl_effects( solnData, flamdot, dt, tileDesc)
+     !JM print *, 'flam bounds before calling fl_effects:'
+     !JM print *, 'LBOUND(flamdot):', LBOUND(flamdot) !JM
+     !JM print *, 'UBOUND(flamdot):', UBOUND(flamdot) !JM
 
+
+     !JM print *, "Calling fl_effects"
+     call fl_effects( solnData, flamdot, dt, tileDesc) !JM added flamdot_low and flamdot_high
+
+     !JM print *, "Deallocating flamdot"
      deallocate(flamdot)
 
+     !JM print *, "Calling releaseDataPtr"
      call tileDesc%releaseDataPtr(solnData, CENTER)
 
-  enddo
+     call itor%next() !JM
 
+  enddo
+  !JM print *, "Calling Timers_stop"
   call Timers_stop("flame")
 
   return

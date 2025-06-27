@@ -45,10 +45,12 @@ subroutine fl_laplacian(lapl, flam, h, tileDesc)
                              Grid_getDeltas, Grid_getCellCoords
   use Driver_interface, only : Driver_abort
   implicit none
-  real, dimension(:,:,:), intent(out) :: lapl
-  real, dimension(:,:,:), intent(in) :: flam
+  !JM real, dimension(:,:,:), intent(out), allocatable :: lapl
+  real, dimension(:,:,:), intent(inout), allocatable :: lapl
+  real, dimension(:,:,:), intent(in), allocatable :: flam
   integer, intent(in) :: h
-  type(Grid_tile_t) :: tileDesc
+  !JM type(Grid_tile_t) :: tileDesc
+  type(Grid_tile_t), intent(in) :: tileDesc
 
   integer :: geom
   real, dimension(MDIM) :: celldeltas, deltas
@@ -85,9 +87,8 @@ subroutine fl_laplacian(lapl, flam, h, tileDesc)
 
      do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
         do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
-           do i = tileDesc%limits(LOW,IAXIS)+2, tileDesc%limits(HIGH,IAXIS)+2
-
-               !JM print *, "In fl_laplacian, i-h2 = ", i-h2
+           do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
+            !JM Still need to get this to work for all 3D
            
               lapl(i,j,k) = ( -flam(i-h2,j,k) + 16*flam(i-h,j,k) -30*flam(i,j,k) &
                                              + 16*flam(i+h,j,k) - flam(i+h2,j,k) ) * inv_12_dx2

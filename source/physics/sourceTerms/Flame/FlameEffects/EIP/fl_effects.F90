@@ -45,7 +45,7 @@ subroutine fl_effects( solnData, flamdot, dt, tileDesc)
 #include "Eos.h"
     
   real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
-  real,dimension(:,:,:), intent(in)     :: flamdot
+  real,dimension(:,:,:), intent(in), allocatable     :: flamdot
   real,intent(in)                       :: dt
   type(Grid_tile_t), intent(in)         :: tileDesc
 
@@ -54,6 +54,10 @@ subroutine fl_effects( solnData, flamdot, dt, tileDesc)
   integer,dimension(LOW:HIGH,MDIM) :: tileLimits
 
   tileLimits=tileDesc%limits
+
+  !JM print *, 'flam bounds inside fl_effects:'
+  !JM print *, 'LBOUND(flamdot):', LBOUND(flamdot) !JM
+  !JM print *, 'UBOUND(flamdot):', UBOUND(flamdot) !JM
 
   ! update interior cells
   do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
