@@ -56,6 +56,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
     real, allocatable, dimension(:) :: iCoords, jCoords, kCoords
     integer,dimension(LOW:HIGH,MDIM) :: tileLimits
     integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
+
+    real, dimension(MDIM) :: deltas
   
   
   
@@ -74,6 +76,8 @@ subroutine Simulation_initBlock(solnData,tileDesc)
     allocate(iCoords(grownTileLimits(LOW, IAXIS):grownTileLimits(HIGH, IAXIS)))
     allocate(jCoords(grownTileLimits(LOW, JAXIS):grownTileLimits(HIGH, JAXIS)))
     allocate(kCoords(grownTileLimits(LOW, KAXIS):grownTileLimits(HIGH, KAXIS)))
+
+    call tileDesc%deltas(deltas)
   
     call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
                             grownTileLimits(LOW,  :), &
@@ -101,7 +105,7 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                 ! no burned material, only unburned
                 eosData(:) = sim_eosData_u(:)
                 flam = 0.0
-                ye = state(EOS_ZBAR)/state(EOS_ABAR)
+                ye = eosData(EOS_ZBAR)/eosData(EOS_ABAR)
                 dyi_qn = 0.0
                 dqbar_qn = 0.0
                 velx=0.0
@@ -126,34 +130,46 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                 endif
   
                 ! determine local state in this zone
-                if ( fsurf_distance > 1.5*sim_laminarWidth ) then
-                   ! unburned material
-                   eosData(:) = sim_eosData_u(:)
-                   flam = 0.0
-                else if ( fsurf_distance < -1.5*sim_laminarWidth ) then
-                   ! fully burned
-                   eosData(:) = sim_eosData_b(:)
-                   flam = 1.0
-                else
-                   ! partially burned
+              ! assume deltas are equal (cells are cuboid) and don't worry
+              ! too much about the corners
+              if ( (fsurf_distance-0.5*deltas(IAXIS)) > 1.5*sim_laminarWidth ) then
+                ! whole cell unburned material
+                eosData(:) = sim_eosData_u(:)
+                flam = 0.0
+                ye = eosData(EOS_ZBAR)/eosData(EOS_ABAR)
+                dyi_qn = 0.0
+                dqbar_qn = 0.0
+             else if ( (fsurf_distance+0.5*deltas(IAXIS)) < -1.5*sim_laminarWidth ) then
+                ! fully burned to NSE
+                eosData(:) = sim_eosData_nse(:)
+                flam = 1.0
+                dyi_qn   = 1.0/eosData(EOS_ABAR)
+                ye       = dyi_qn*eosData(EOS_ZBAR)
+                dqbar_qn = sim_qbar_nse
+             else
+                ! partially burned
+                ! at least one cell will fall here (necessary to get initial refinement right)
                    call Flame_getProfile(fsurf_distance, flam)
   
                    ! calculate propertise for partially burned material
                    ! note, in fact ye_f and ye_a should be equal
-                   yi = 1.0/sim_eosData_u(EOS_ABAR)*(1.0-flam) + (1.0/sim_eosData_b(EOS_ABAR))*flam
-                   ye = sim_eosData_u(EOS_ZBAR)/sim_eosData_u(EOS_ABAR)*(1.0-flam) + (sim_eosData_b(EOS_ZBAR)/sim_eosData_b(EOS_ABAR))*flam
+                   yi = yi_f*(1.0-flam) + (1.0/sim_eosData_nse(EOS_ABAR))*flam
+                   ye = ye_f*(1.0-flam) + (sim_eosData_nse(EOS_ZBAR)/sim_eosData_nse(EOS_ABAR))*flam
                    eosData(:) = sim_eosData_u(:)
                    eosData(EOS_ABAR) = 1.0/yi
-                   eosData(EOS_ZBAR) = ye*eosData(EOS_ABAR)
+                   eosData(EOS_ZBAR) = ye/yi
                    ! put this in pressure equilibrium with unburned material
-                   call Flame_rhJump(sim_eosData_u, eosData, flam*fl_effDeltae, 0.0, MODE_DENS_TEMP)
+                   call Flame_rhJump(sim_eosData_u, eosData, flam*sim_deltae_nse, 0.0, MODE_DENS_TEMP)
+
+                   dyi_qn   = flam * 1.0/sim_eosData_nse(EOS_ABAR)
+                   dqbar_qn = flam * sim_qbar_nse
   
                 endif
   
                 ! init velocity field, nonzero only makes sense with a planar flame front
                 if (sim_pseudo1d) then
                    velx = sim_flamespeed*sim_eosData_u(EOS_DENS)* &
-                              (1.e0/sim_eosData_b(EOS_DENS) - 1.e0/eosData(EOS_DENS))
+                              (1.e0/sim_eosData_nse(EOS_DENS) - 1.e0/eosData(EOS_DENS))
                 else
                    velx = 0.0
                 endif
@@ -171,6 +187,17 @@ subroutine Simulation_initBlock(solnData,tileDesc)
              solnData(DENS_VAR,i,j,k)= eosData(EOS_DENS)
              solnData(TEMP_VAR,i,j,k)= eosData(EOS_TEMP)
              solnData(FLAM_MSCALAR,i,j,k)= flam
+
+             solnData(CI_MSCALAR,i,j,k) = sim_cFrac
+             solnData(NEI_MSCALAR,i,j,k) = sim_neFrac
+
+             solnData(PHFA_MSCALAR,i,j,k) = flam
+             solnData(PHAQ_MSCALAR,i,j,k) = flam
+             solnData(PHQN_MSCALAR,i,j,k) = flam
+
+             solnData(YE_MSCALAR,i,j,k) = ye
+             solnData(DYQN_MSCALAR,i,j,k) = dyi_qn
+             solnData(DQQN_MSCALAR,i,j,k) = dqbar_qn
   
              solnData(VELX_VAR,i,j,k) = velx
              solnData(VELY_VAR,i,j,k) = 0.0
