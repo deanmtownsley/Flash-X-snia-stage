@@ -6,7 +6,7 @@
 module bn_paraInterface
 
 #include "constants.h"
-#include "Flash.h" 
+#include "Simulation.h" 
 
   interface bn_paraBurn
      subroutine bn_paraBurn(dens, temp, eint, pres, &
