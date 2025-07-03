@@ -1,0 +1,5 @@
+REQUESTS physics/materialProperties/Conductivity/ConductivityMain/Constant
+
+PARAMETER cond_constantParallel REAL 0.0
+PARAMETER cond_constantPerpendicular REAL 0.0
+PARAMETER cond_constantCross REAL 0.0
