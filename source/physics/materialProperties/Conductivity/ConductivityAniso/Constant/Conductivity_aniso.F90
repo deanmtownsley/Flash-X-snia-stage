@@ -55,7 +55,7 @@ subroutine Conductivity_aniso(xtemp,xden,massfrac,isochoricCond,diff_coeff,compo
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real, intent(IN) :: xtemp, xden
   real, intent(OUT) ::  diff_coeff(3), isochoricCond(3)

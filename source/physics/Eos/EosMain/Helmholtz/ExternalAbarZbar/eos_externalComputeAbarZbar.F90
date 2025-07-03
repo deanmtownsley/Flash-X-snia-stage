@@ -37,7 +37,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 subroutine eos_externalComputeAbarZbar(solnScalars, abarData, zbarData)
 
   use Flame_interface, ONLY: Flame_computeAbarZbar

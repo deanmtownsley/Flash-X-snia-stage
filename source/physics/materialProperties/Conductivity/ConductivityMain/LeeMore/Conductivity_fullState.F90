@@ -27,7 +27,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"  
 #include "Eos.h"
 #include "Multispecies.h"

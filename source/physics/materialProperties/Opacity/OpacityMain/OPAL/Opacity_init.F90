@@ -44,7 +44,7 @@ subroutine Opacity_init ()
 # include "constants.h"
 # include "Opacity.h"
 ! # include "OpacityOPAL.h"
-# include "Flash.h"
+# include "Simulation.h"
   
   character(len=MAX_STRING_LENGTH) :: massFracVarStr
 

@@ -39,7 +39,7 @@
 subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
   
   use fl_fsData, ONLY :fl_fsUseConstFlameSpeed, fl_fsQuench,&
        fl_fsConstFlameSpeed, fl_fsConstFlameWidth, fl_fsUseTFI, &

@@ -55,7 +55,7 @@ real function cond_getCv(xden, xtemp, component, massFrac, solnVec)
   use Eos_interface, ONLY: Eos, Eos_getAbarZbar, Eos_getTempData
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
 

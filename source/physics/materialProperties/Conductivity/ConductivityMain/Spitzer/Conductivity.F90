@@ -47,7 +47,7 @@ subroutine Conductivity(xtemp,xden,massfrac,cond,diff_coeff, component)
   use cond_interface,ONLY: cond_getCv
   implicit none
   
-#include "Flash.h"
+#include "Simulation.h"
   
   real, intent(IN) :: xtemp, xden
   real, intent(OUT) ::  diff_coeff, cond

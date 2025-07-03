@@ -10,7 +10,7 @@
 !!  public interfaces.
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 module Conductivity_interface
   interface

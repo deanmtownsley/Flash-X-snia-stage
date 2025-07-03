@@ -53,7 +53,7 @@ subroutine Opacity (soln, ngrp, opacityAbsorption, opacityEmission, opacityTrans
                                 op_computeIonNumberDensities
   implicit none
   
-#include "Flash.h"  
+#include "Simulation.h"  
 #include "constants.h"
 #include "Opacity.h"
   

@@ -23,7 +23,7 @@
 
 subroutine MagneticResistivity(temp,dens,xn,magResist)
 
-#include "Flash.h"
+#include "Simulation.h"
 
   implicit none
 

@@ -30,17 +30,19 @@
 !!***
 
 
-subroutine fl_flameSpeed( solnData, flamespeed, blockID, nlayers)
+subroutine fl_flameSpeed( solnData, flamespeed, tileDesc, nlayers)
 
 #include "Simulation.h"
 #include "constants.h"
 #include "FortranLangFeatures.fh"
 
   use fl_fsData, only : fl_fsConstFlameSpeed, fl_fsConstFlameWidth
+  use Grid_tile,      ONLY : Grid_tile_t
   implicit none
   real, dimension(:,:,:,:),POINTER_INTENT_IN :: solnData
   real, dimension(:,:,:),intent(out) :: flamespeed
-  integer, intent(in) :: blockID, nlayers
+  type(Grid_tile_t), intent(in)     :: tileDesc
+  integer, intent(in) :: nlayers
 
   flamespeed(:,:,:) = fl_fsConstFlameSpeed
 #ifdef FSPD_VAR

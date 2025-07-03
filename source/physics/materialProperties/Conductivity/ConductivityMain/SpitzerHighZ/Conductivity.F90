@@ -32,7 +32,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Conductivity(xtemp,xden,massfrac,cond,diff_coeff, component)
   use Conductivity_data, ONLY: cond_useConductivity, &

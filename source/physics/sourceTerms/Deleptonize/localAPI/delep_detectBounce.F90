@@ -30,7 +30,7 @@ subroutine delep_detectBounce (blockCount,blockList,dt,time)
 !
 !==============================================================================
 !
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   use Deleptonize_data, ONLY : delep_postBounce, delep_meshComm, delep_meshMe

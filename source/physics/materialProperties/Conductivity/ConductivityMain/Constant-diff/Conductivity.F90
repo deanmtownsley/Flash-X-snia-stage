@@ -41,7 +41,7 @@ subroutine Conductivity(xtemp,xden,massfrac,isochoricCond,diff_coeff,component)
   implicit none
   
 #include "constants.h"  
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
   
   real, intent(IN) :: xtemp, xden

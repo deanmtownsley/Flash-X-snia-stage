@@ -80,7 +80,7 @@ subroutine op_readOpalTable (tableName,   &
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Opacity.h"
 

@@ -45,7 +45,7 @@
 !!   Conductivity_anisoFullState
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Conductivity_aniso(xtemp,xden,massfrac,isochoricCond,diff_coeff, component)
   use cond_commonData, ONLY: cond_useConductivity, &

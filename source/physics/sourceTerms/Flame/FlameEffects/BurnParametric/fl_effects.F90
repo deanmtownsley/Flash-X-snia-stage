@@ -35,7 +35,7 @@
 
 
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "FortranLangFeatures.fh"
 subroutine fl_effects( solnData, flamdot, dt, blockID)

@@ -32,7 +32,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Conductivity_fullState(solnVec,isochoricCond,diffCoeff,component)
   use Conductivity_interface, ONLY: Conductivity

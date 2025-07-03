@@ -30,7 +30,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Opacity(soln, ngrp, opacityAbsorption, opacityEmission, opacityTransport)
   use Opacity_data, ONLY: op_useOpacity, &

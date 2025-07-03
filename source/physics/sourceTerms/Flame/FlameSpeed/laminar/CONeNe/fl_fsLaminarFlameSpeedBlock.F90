@@ -8,7 +8,7 @@ subroutine fl_fsLaminarFlameSpeedBlock(solnData, s, dens, calcLimits, ds)
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real,dimension(:,:,:,:),pointer :: solnData
   real,dimension(:,:,:),intent(OUT) :: s, ds

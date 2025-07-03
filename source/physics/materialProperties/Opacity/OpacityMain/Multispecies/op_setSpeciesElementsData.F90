@@ -41,7 +41,7 @@ subroutine op_setSpeciesElementsData ()
 
   implicit none
 
-# include "Flash.h"
+# include "Simulation.h"
 # include "Multispecies.h"
 
   integer :: element
@@ -152,7 +152,7 @@ subroutine op_setSpeciesElementsData ()
 !
 !    ...Get the individual species <-> elements data.
 !
-!       The species are characterized by an index integer in Flash.h that was calculated from
+!       The species are characterized by an index integer in Simulation.h that was calculated from
 !       the SPECIES_BEGIN index value. This might change in the future!
 !
 !       Meaning of intermediately allocated arrays at this stage:

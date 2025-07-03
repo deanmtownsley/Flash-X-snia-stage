@@ -118,7 +118,7 @@ subroutine op_readIonmix4Tables (tableName,   &
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Opacity.h"
 

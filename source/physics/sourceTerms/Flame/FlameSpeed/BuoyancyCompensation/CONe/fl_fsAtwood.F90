@@ -44,7 +44,7 @@ subroutine fl_fsAtwood(solnData, atwood, dens_u, calcLimits)
                               fl_fsAtwoodTabA
   use Driver_interface, ONLY : Driver_abortFlash
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
   implicit none
 
   real, dimension(:,:,:,:), pointer :: solnData

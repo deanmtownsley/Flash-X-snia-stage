@@ -26,7 +26,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"  
 
 subroutine MagneticResistivity(temp,dens,xn,magResist)

@@ -16,7 +16,7 @@ module MagneticResistivity_interface
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 
   interface
      subroutine MagneticResistivity_init()

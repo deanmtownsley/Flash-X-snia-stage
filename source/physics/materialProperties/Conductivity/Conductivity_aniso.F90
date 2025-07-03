@@ -38,7 +38,7 @@
 subroutine Conductivity_aniso(xtemp,xden,massfrac,isochoricCond,diff_coeff,component)
 !! true stub
 
-#include "Flash.h"
+#include "Simulation.h"
   
   implicit none
 

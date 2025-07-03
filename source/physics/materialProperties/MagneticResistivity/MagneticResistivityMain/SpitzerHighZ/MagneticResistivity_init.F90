@@ -36,7 +36,7 @@ subroutine MagneticResistivity_init
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   call RuntimeParameters_get("useMagneticResistivity", mag_useMagneticResistivity)

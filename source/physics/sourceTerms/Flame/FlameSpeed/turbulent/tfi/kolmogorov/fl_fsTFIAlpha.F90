@@ -36,7 +36,7 @@
 
 subroutine fl_fsTFIAlpha(alpha, up, de, dl0)
 
-#include "Flash.h"
+#include "Simulation.h"
 
   use fl_fsTFIData, ONLY : fl_fsTFIBeta, fl_fsTFIViscosity
 

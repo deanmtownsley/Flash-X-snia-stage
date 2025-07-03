@@ -31,7 +31,7 @@
 subroutine Viscosity(xtemp,xden,massfrac,viscDynamic,viscKinematic)
 !! True Stub
   implicit none
-#include "Flash.h"
+#include "Simulation.h"
 
   real,INTENT(in)    :: xtemp
   real,INTENT(in)    :: xden

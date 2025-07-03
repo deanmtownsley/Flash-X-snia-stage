@@ -29,7 +29,7 @@ module MassDiffusivity_interface
 
      subroutine MassDiffusivity(xtemp,xden,massfrac,diffusivity)
        implicit none
-#include "Flash.h"  
+#include "Simulation.h"  
        real,INTENT(in)    :: xtemp
        real,INTENT(in)    :: xden
        real,INTENT(in)    :: massfrac(NSPECIES)

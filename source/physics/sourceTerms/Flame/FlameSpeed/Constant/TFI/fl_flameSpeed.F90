@@ -32,7 +32,7 @@
 
 subroutine fl_flameSpeed( solnData, flamespeed, blockID, nlayers)
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "FortranLangFeatures.fh"
 

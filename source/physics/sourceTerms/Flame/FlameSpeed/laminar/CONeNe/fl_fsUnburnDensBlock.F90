@@ -8,7 +8,7 @@ subroutine fl_fsUnburnDensBlock(solnData, dens, calcLimits)
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real,dimension(:,:,:,:),pointer :: solnData
   real,dimension(:,:,:),intent(OUT) :: dens

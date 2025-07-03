@@ -31,7 +31,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Conductivity(xtemp,xden,massfrac,cond,diff_coeff, component)
   use cond_commonData, ONLY: cond_useConductivity, &

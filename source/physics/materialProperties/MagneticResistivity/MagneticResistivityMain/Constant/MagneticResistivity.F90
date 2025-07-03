@@ -37,7 +37,7 @@ subroutine MagneticResistivity(temp,dens,xn,magResist)
   use MagneticResistivity_data, ONLY : mResistivity, mUnit, c
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   implicit none
 

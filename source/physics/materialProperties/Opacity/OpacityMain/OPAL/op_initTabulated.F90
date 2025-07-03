@@ -49,7 +49,7 @@ subroutine op_initTabulated ()
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "Opacity.h"
 #include "OpacityOPAL.h"
 #include "constants.h"

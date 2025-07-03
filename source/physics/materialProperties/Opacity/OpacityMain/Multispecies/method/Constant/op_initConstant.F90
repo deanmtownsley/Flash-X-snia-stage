@@ -41,7 +41,7 @@ subroutine op_initConstant ()
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "Opacity.h"
 #include "constants.h"
 

@@ -42,7 +42,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine Conductivity_anisoFullState(solnVec,isochoricCond,diffCoeff,component)
   use cond_interface,  ONLY: cond_getCv

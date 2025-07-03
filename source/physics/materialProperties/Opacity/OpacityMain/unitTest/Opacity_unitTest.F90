@@ -46,7 +46,7 @@ subroutine Opacity_unitTest (fileUnit, perfect)
   implicit none
 
 # include "constants.h"
-# include "Flash.h"
+# include "Simulation.h"
 
   integer, intent (in)    :: fileUnit
   logical, intent (inout) :: perfect

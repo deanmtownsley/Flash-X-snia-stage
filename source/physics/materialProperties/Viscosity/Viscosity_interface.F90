@@ -13,7 +13,7 @@
 !! public interfaces.
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 module Viscosity_interface
   interface

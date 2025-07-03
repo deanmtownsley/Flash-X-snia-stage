@@ -41,7 +41,7 @@ subroutine op_initConstcm2g ()
 
   implicit none
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "Opacity.h"
 #include "constants.h"
 

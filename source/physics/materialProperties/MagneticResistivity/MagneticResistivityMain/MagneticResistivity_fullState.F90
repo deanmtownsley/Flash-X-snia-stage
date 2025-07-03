@@ -16,7 +16,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 
 subroutine MagneticResistivity_fullState(solnVec,resPar, resPerp)
   

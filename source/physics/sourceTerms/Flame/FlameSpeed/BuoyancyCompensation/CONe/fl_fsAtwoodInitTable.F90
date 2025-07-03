@@ -52,7 +52,7 @@ subroutine fl_fsAtwoodInitTable()
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   integer :: istat, i, j

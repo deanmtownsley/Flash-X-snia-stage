@@ -36,7 +36,7 @@ subroutine op_computeMultispeciesOpacities (opacityAbsorption, &
 
   implicit none
   
-#include "Flash.h"  
+#include "Simulation.h"  
 #include "Opacity.h"
 
   real, intent (out) :: opacityAbsorption
