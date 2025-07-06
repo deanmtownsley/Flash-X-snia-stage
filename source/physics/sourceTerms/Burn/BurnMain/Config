@@ -21,4 +21,6 @@ PARAMETER	useShockBurn	BOOLEAN	FALSE
 # The original name of parameter useShockBurn was ishkbn.
 D useShockBurn   Is burning allowed within shocks?
 
+VARIABLE ENUC
+
 

@@ -12,7 +12,7 @@
 !!
 !! DESCRIPTION
 !!
-!! Josh Martin 2025 - !DQ How should I change this stuff?
+!! Josh Martin 2025
 !!
 !! This function is provided for the user's convenience and acts as a simple
 !! wrapper to the Eos interface. The Eos interface uses a single, flexible data
@@ -151,12 +151,10 @@ subroutine Eos_multiDim(mode,range,solnData)
 
  allocate(energyInternal(vecLen))
  allocate(energyKinetic(vecLen))
- allocate(eosData(vecLen, EOS_NUM)) !DQ What is the difference between EOS_NUM and EOS_VARS?
- allocate(iFlag(vecLen))  
+ allocate(eosData(vecLen, EOS_VARS))
+ allocate(iFlag(vecLen))
  
- !JM My version of energyKinetic (per gram) and energyInternal (per gram)
- 
- !JM Creating an index to iterate through the for loops. index is actually local cell number.
+ ! Creating an index to iterate through the for loops. index is actually local cell number.
  index = 1
  
  do k = range(LOW,KAXIS), range(HIGH,KAXIS)
@@ -169,7 +167,6 @@ subroutine Eos_multiDim(mode,range,solnData)
           &                              solnData(VELY_VAR,i,j,k)**2 + &
           &                              solnData(VELZ_VAR,i,j,k)**2)
  #ifdef EINT_VAR
-             !DQ Question on overwriting instead of if/else
              if (solnData(ENER_VAR,i,j,k) > &
                 (1.+ eos_eintSwitch)*energyKinetic(index)) then
                 energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
@@ -179,23 +176,19 @@ subroutine Eos_multiDim(mode,range,solnData)
              ! Bringing Eint up to an Efloor if necessary
              energyInternal(index) = max(energyInternal(index), eos_smalle)
  #else
-             !JM So now if we don't have the EINT_VAR stored, we just
-             !JM simply do the E_T - E_kin and then check that E_int is
-             !JM above the energy floor of our choosing.
+             ! So now if we don't have the EINT_VAR stored, we just
+             ! simply do the E_T - E_kin and then check that E_int is
+             ! above the energy floor of our choosing.
              energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
              energyInternal(index) = max(energyInternal(index), eos_smalle)
  #endif
  
-          !JM Now grabbing all the grid data and populating eosData
+          ! Now grabbing all the grid data and populating eosData
           eosData(index, EOS_PRES) = solnData(PRES_VAR,i,j,k)
           eosData(index, EOS_DENS) = solnData(DENS_VAR,i,j,k)
           eosData(index, EOS_TEMP) = solnData(TEMP_VAR,i,j,k)
           eosData(index, EOS_GAMC) = solnData(GAMC_VAR,i,j,k)
           eosData(index, EOS_EINT) = energyInternal(index)
- 
-          if (index > vecLen) then !DEBUG
-             call Driver_abort("Index exceeds vecLen in Eos_multiDim!") !DEBUG
-          end if !DEBUG !DQ should I leave this here?
           
           index = index + 1
  
@@ -224,7 +217,7 @@ subroutine Eos_multiDim(mode,range,solnData)
  ! to the grid (which is solnData).
  
  index = 1
- iFlag = 0 !DQ is this like iFlag = np.zeros(vecLen)?
+ iFlag = 0
  
  do k = range(LOW,KAXIS), range(HIGH,KAXIS)
     do j = range(LOW,JAXIS), range(HIGH,JAXIS)
@@ -243,14 +236,9 @@ subroutine Eos_multiDim(mode,range,solnData)
  #endif
  
           ! check for zero values before calculating gamma
-          !JM I changed this where statement to an if/then statement
           if ( (eosData(index, EOS_EINT) .eq. 0.) .or. (eosData(index, EOS_DENS) .eq. 0.)) then
              iFlag(index) = 1
           end if
-          
-          if (index > vecLen) then !DEBUG !DQ
-             call Driver_abort("Index exceeds vecLen in Eos_multiDim!") !DEBUG
-          end if !DEBUG
  
           index = index + 1
           
@@ -278,13 +266,9 @@ subroutine Eos_multiDim(mode,range,solnData)
     do j = range(LOW,JAXIS), range(HIGH,JAXIS)
        do i = range(LOW,IAXIS), range(HIGH,IAXIS)
  
-          !JM calculating gamma_e !DQ What is gamma_e?
+          !JM calculating gamma_e
           solnData(GAME_VAR,i,j,k) = eosData(index, EOS_PRES)/&
           (eosData(index, EOS_EINT) *eosData(index, EOS_DENS)) + 1.0
- 
-          if (index > vecLen) then !DEBUG !DQ
-             call Driver_abort("Index exceeds vecLen in Eos_multiDim!") !DEBUG
-          end if !DEBUG
  
           index = index + 1
  
