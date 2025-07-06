@@ -8,7 +8,7 @@ subroutine bn_paraBurn(dens, temp, eint, pres, &
                        ignite_detonation, phi_fa_det)
   
   use NSE_interface, ONLY:  NSE_finalAtDens, NSE_finalAtPres  
-  use Eos_interface, ONLY: Eos
+  use Eos_interface, ONLY: Eos_vector
   use Eos_data, ONLY: eos_smallt
   use bn_paraInterface, ONLY: bn_paraFuelAshProperties
 
@@ -67,8 +67,7 @@ subroutine bn_paraBurn(dens, temp, eint, pres, &
   ! for estimating reaction temperatures
   real :: qbar_unburned, yi_unburned, qbar_burned, yi_burned, x_bnf, qbar_noflame
   real :: yi_noflame, ye_noflame, eint_noflame
-  real,dimension(EOS_NUM) :: eosData
-  logical, dimension(EOS_VARS+1,EOS_NUM) :: eosmask
+  real,dimension(1, EOS_NUM) :: eosData_2D
 
   !-------------------------------------------------------------------------------------
 
@@ -220,19 +219,18 @@ subroutine bn_paraBurn(dens, temp, eint, pres, &
            write (6,*) ' neg sumy', phi_fa, flame, dqbar_qn
         endif
         ! find a floor energy for local material
-        eosData(EOS_DENS) = dens
-        eosData(EOS_TEMP) = eos_smallt
-        eosData(EOS_ABAR) = 1.e0/yi_noflame
-        eosData(EOS_ZBAR) = ye_noflame*eosData(EOS_ABAR)
-        eosmask = .false.  ! only need eint
-        call Eos(MODE_DENS_TEMP,1,eosData,mask=eosmask)
-        if ( eint_noflame < eosData(EOS_EINT) ) then
+        eosData_2D(1, EOS_DENS) = dens
+        eosData_2D(1, EOS_TEMP) = eos_smallt
+        eosData_2D(1, EOS_ABAR) = 1.e0/yi_noflame
+        eosData_2D(1, EOS_ZBAR) = ye_noflame*eosData_2D(1, EOS_ABAR)
+        call Eos_vector(MODE_DENS_TEMP,1,eosData_2D)
+        if ( eint_noflame < eosData_2D(1, EOS_EINT) ) then
            t9 = eos_smallt/1.e9
         else
-           eosData(EOS_EINT) = eint_noflame
-           eosData(EOS_TEMP) = temp ! guess value
-           call Eos(MODE_DENS_EI,1,eosData,mask=eosmask)
-           t9 = eosData(EOS_TEMP)/1.e9
+           eosData_2D(1, EOS_EINT) = eint_noflame
+           eosData_2D(1, EOS_TEMP) = temp ! guess value
+           call Eos_vector(MODE_DENS_EI,1,eosData_2D)
+           t9 = eosData_2D(1, EOS_TEMP)/1.e9
         endif
      endif
 
