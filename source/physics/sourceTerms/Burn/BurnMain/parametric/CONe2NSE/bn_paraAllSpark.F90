@@ -16,6 +16,8 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
                         pbIgnX, pbIgnY, pbIgnZ, &
                         bn_meshMe, bn_meshComm, bn_meshNumProcs
 
+  use Driver_interface, ONLY : Driver_abort
+
   implicit none
 
  include 'mpif.h'
@@ -36,14 +38,14 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
   real, allocatable, dimension(:) :: radius
 
   allocate(bcast_order(0:bn_meshNumProcs-1),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate bcast_order")
+  if (istat/=0) call Driver_abort("Unable to allocate bcast_order")
 
   ! gather all ignition_conditions first
   call MPI_AllGather( det_num, 1, MPI_INTEGER,     &
                       bcast_order, 1, MPI_INTEGER, &
                       bn_meshComm, istat )
   if (istat/=0) &
-     call Driver_abortFlash("Error occured while calling MPI_AllGather")
+     call Driver_abort("Error occured while calling MPI_AllGather")
 
   det_num = SUM(bcast_order)
 
@@ -51,9 +53,9 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
   if (det_num .eq. 0) return
 
   allocate(recv_buf(det_num*NDIM),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate recv_buf")
+  if (istat/=0) call Driver_abort("Unable to allocate recv_buf")
   allocate(displ(0:bn_meshNumProcs-1),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate displ")
+  if (istat/=0) call Driver_abort("Unable to allocate displ")
 
 
   displ(0) = 0
@@ -73,27 +75,27 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
                        bn_meshComm,       &
                        istat )
   if (istat/=0)  &
-     call Driver_abortFlash("Error occured while calling MPI_AllGatherV")
+     call Driver_abort("Error occured while calling MPI_AllGatherV")
 
   if ( allocated(ignition_coords) ) deallocate(ignition_coords)
   deallocate(bcast_order)
   deallocate(displ)
 
   allocate(radius(det_num),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate radius")
+  if (istat/=0) call Driver_abort("Unable to allocate radius")
 
   ! otherwise we need to allocate space for the detonation coordinates
   allocate(det_xCoord(det_num),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate det_xCoord")
+  if (istat/=0) call Driver_abort("Unable to allocate det_xCoord")
 
 #if NDIM >= 2
   allocate(det_yCoord(det_num),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate det_yCoord")
+  if (istat/=0) call Driver_abort("Unable to allocate det_yCoord")
 #endif
 
 #if NDIM > 2
   allocate(det_zCoord(det_num),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate det_zCoord")
+  if (istat/=0) call Driver_abort("Unable to allocate det_zCoord")
 #endif
 
   do i = 1, det_num 
@@ -115,7 +117,7 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
   deallocate(recv_buf)
 
   allocate(detMask(det_num),stat=istat)
-  if (istat/=0) call Driver_abortFlash("Unable to allocate detMask")
+  if (istat/=0) call Driver_abort("Unable to allocate detMask")
 
   detMask(:) = .false.
   ! now determine if any detonation points overlap
