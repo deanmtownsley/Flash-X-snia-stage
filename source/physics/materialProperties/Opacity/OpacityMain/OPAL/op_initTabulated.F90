@@ -17,7 +17,7 @@
 !!***
 subroutine op_initTabulated ()
 
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
 
   use Opacity_data,                ONLY : op_opalNumHydrogenAbundances,              &
                                           op_nEnergyGroups,             &
@@ -84,7 +84,7 @@ subroutine op_initTabulated ()
 !
 !
   if (op_opalNumHydrogenAbundances < 1) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: No species present!')
+      call Driver_abort ('[op_initTabulated] ERROR: No species present!')
   end if
 
   call RuntimeParameters_get ("opacity_useLogTables",   op_useLogTables)
@@ -97,25 +97,25 @@ subroutine op_initTabulated ()
   allocate (op_tableKind (1:op_opalNumHydrogenAbundances), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableKind allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tableKind allocation failed')
   end if
 
   allocate (op_tableNameLowT (1:op_opalNumHydrogenAbundances), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableNameLowT allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tableNameLowT allocation failed')
   end if
   allocate (op_tableNameHighT (1:op_opalNumHydrogenAbundances), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableNameHighT allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tableNameHighT allocation failed')
   end if
 
 
   allocate (op_opalTableAbundMax (1:op_opalNumHydrogenAbundances), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_opalNumHydrogenAbundances allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_opalNumHydrogenAbundances allocation failed')
   end if
 
 

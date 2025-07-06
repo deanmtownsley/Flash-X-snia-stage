@@ -26,7 +26,7 @@ subroutine op_setEnergyGroupBoundaries ()
                                    op_erg2eV
 
   use RadTrans_interface,   ONLY : RadTrans_mgdGetBound
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
 
   implicit none
 
@@ -47,7 +47,7 @@ subroutine op_setEnergyGroupBoundaries ()
      EeV = Eerg * op_erg2eV
 
      if (EeV < zero) then
-         call Driver_abortFlash ('[op_setEnergyGroupBoundaries] ERROR: Energy boundary < 0')
+         call Driver_abort ('[op_setEnergyGroupBoundaries] ERROR: Energy boundary < 0')
      end if
 
      op_energyGroupBoundaries (bound) = EeV

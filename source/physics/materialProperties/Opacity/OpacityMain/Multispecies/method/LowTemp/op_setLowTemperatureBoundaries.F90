@@ -32,7 +32,7 @@ subroutine op_setLowTemperatureBoundaries ()
                                    op_speciesMinTempPETable, &
                                    op_speciesMinTempROTable
 
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
 
   implicit none
 
@@ -51,7 +51,7 @@ subroutine op_setLowTemperatureBoundaries ()
 !
 !
   if (.not.op_initializedTabulated) then
-       call Driver_abortFlash ('[op_setLowTemperatureBoundaries] PROGRAMMING ERROR: Tabulated not initialized')
+       call Driver_abort ('[op_setLowTemperatureBoundaries] PROGRAMMING ERROR: Tabulated not initialized')
   end if
 !
 !

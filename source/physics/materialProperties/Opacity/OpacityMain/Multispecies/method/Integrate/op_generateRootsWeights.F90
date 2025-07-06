@@ -50,7 +50,7 @@
 !!***
 subroutine op_generateRootsWeights (n, nV, MomZero, V, Diag, Offd, Roots, Weights)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use op_numericsData,  ONLY : zero,one,two
 
   implicit none
@@ -93,7 +93,7 @@ subroutine op_generateRootsWeights (n, nV, MomZero, V, Diag, Offd, Roots, Weight
     case default
 
       if (nV < n) then
-          call Driver_abortFlash ('[op_generateRootsWeights] ERROR: Eigenvector V too small')
+          call Driver_abort ('[op_generateRootsWeights] ERROR: Eigenvector V too small')
       end if
 
       V (1)    = one
@@ -117,7 +117,7 @@ subroutine op_generateRootsWeights (n, nV, MomZero, V, Diag, Offd, Roots, Weight
          if (m /= j) then
 
              if (iter == maxIter) then
-                 call Driver_abortFlash ('[op_generateRootsWeights] ERROR: Too many iterations in QL method')
+                 call Driver_abort ('[op_generateRootsWeights] ERROR: Too many iterations in QL method')
              end if
 
              iter = iter + 1

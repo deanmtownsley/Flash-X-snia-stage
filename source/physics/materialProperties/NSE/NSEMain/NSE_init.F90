@@ -13,7 +13,7 @@ subroutine NSE_init()
        & p_dYe, p_Ye_grid, p_nYe, p_ltemp_tab, p_lqbar_tab, p_ledot_tab, &
        & p_lmYedot_tab, p_lAbar_tab
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Logfile_interface, ONLY : Logfile_stampMessage
   use RuntimeParameters_interface, only : RuntimeParameters_get
   
@@ -38,7 +38,7 @@ subroutine NSE_init()
   !-------------------------------------------------
 
   open (unit=21,file=prestablename,status='OLD',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash("Unable to open nse pressure table")
+  if (istat /= 0) call Driver_abort("Unable to open nse pressure table")
 
   read(21,*) p_nYe
   read(21,*) nlpres
@@ -47,23 +47,23 @@ subroutine NSE_init()
   
   ! space for coordinate grid
   allocate(p_Ye_grid(p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_Ye_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_Ye_grid in NSE_init")
   allocate(lpres_grid(nlpres),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate lpres_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate lpres_grid in NSE_init")
   allocate(hmq_grid(nhmq),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate hmq_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate hmq_grid in NSE_init")
   
   ! space for tables
   allocate(p_ltemp_tab(nhmq,nlpres,p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_qbartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_qbartab in NSE_init")
   allocate(p_lqbar_tab(nhmq,nlpres,p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_qbartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_qbartab in NSE_init")
   allocate(p_ledot_tab(nhmq,nlpres,p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_edottab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_edottab in NSE_init")
   allocate(p_lmYedot_tab(nhmq,nlpres,p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_Yedottab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_Yedottab in NSE_init")
   allocate(p_lAbar_tab(nhmq,nlpres,p_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate p_Abartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate p_Abartab in NSE_init")
   
   !! read the table, taking logs will be done separately
   do k = 1, p_nYe
@@ -114,7 +114,7 @@ subroutine NSE_init()
   ! read table for density-based final state lookup
   !----------------------------------------------------------
   open (unit=21,file=denstablename,status='OLD',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash("Unable to open nse density table")
+  if (istat /= 0) call Driver_abort("Unable to open nse density table")
   
   read(21,*) d_nYe
   read(21,*) nldens
@@ -123,23 +123,23 @@ subroutine NSE_init()
   
   ! space for coordinate grid
   allocate(d_Ye_grid(d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_Ye_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_Ye_grid in NSE_init")
   allocate(ldens_grid(nldens),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate ldens_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate ldens_grid in NSE_init")
   allocate(emq_grid(nemq),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate emq_grid in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate emq_grid in NSE_init")
   
   ! space for tables
   allocate(d_ltemp_tab(nemq,nldens,d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_qbartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_qbartab in NSE_init")
   allocate(d_lqbar_tab(nemq,nldens,d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_qbartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_qbartab in NSE_init")
   allocate(d_ledot_tab(nemq,nldens,d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_edottab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_edottab in NSE_init")
   allocate(d_lmYedot_tab(nemq,nldens,d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_Yedottab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_Yedottab in NSE_init")
   allocate(d_lAbar_tab(nemq,nldens,d_nYe),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate d_Abartab in NSE_init")
+  if (istat /= 0) call Driver_abort("Cannot allocate d_Abartab in NSE_init")
   
   !! read the table data
   do k = 1, d_nYe

@@ -65,7 +65,7 @@ subroutine Conductivity_fullState(solnVec,isochoricCond,diffCoeff,component)
   diffCoeffLoc = 0.0
 
 #ifndef FLASH_3T
-  call Driver_abortFlash("[Conductivity_fullState] SpitzerHighZ conductivity only works in 3T")
+  call Driver_abort("[Conductivity_fullState] SpitzerHighZ conductivity only works in 3T")
 #endif
 
 #if defined(DENS_VAR) && defined(TEMP_VAR)
@@ -88,7 +88,7 @@ subroutine Conductivity_fullState(solnVec,isochoricCond,diffCoeff,component)
 #endif
   case(3)
 #ifdef TRAD_VAR
-     call Driver_abortFlash("[Conductivity_fullState] Spitzer conductivity does not work with radiation")
+     call Driver_abort("[Conductivity_fullState] Spitzer conductivity does not work with radiation")
 #endif
   end select
 

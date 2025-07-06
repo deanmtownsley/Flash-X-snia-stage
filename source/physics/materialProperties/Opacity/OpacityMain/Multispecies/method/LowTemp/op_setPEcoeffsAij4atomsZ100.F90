@@ -29,7 +29,7 @@
 subroutine op_setPEcoeffsAij4atomsZ100 ()
 
   use op_lowTempData,   ONLY : op_Aij4
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -43,7 +43,7 @@ subroutine op_setPEcoeffsAij4atomsZ100 ()
   arrayExists = allocated (op_Aij4)
 
   if (.not.arrayExists) then
-       call Driver_abortFlash ('[op_setPEcoeffsAij4atomsZ100] ERROR: array op_Aij4 not allocated')
+       call Driver_abort ('[op_setPEcoeffsAij4atomsZ100] ERROR: array op_Aij4 not allocated')
   end if
 
   goodShape =       (size (op_Aij4,1) == 4)   &
@@ -51,7 +51,7 @@ subroutine op_setPEcoeffsAij4atomsZ100 ()
               .and. (size (op_Aij4,3) == 100)
 
   if (.not.goodShape) then
-       call Driver_abortFlash ('[op_setPEcoeffsAij4atomsZ100] ERROR: array op_Aij4 has bad shape')
+       call Driver_abort ('[op_setPEcoeffsAij4atomsZ100] ERROR: array op_Aij4 has bad shape')
   end if
 !
 !

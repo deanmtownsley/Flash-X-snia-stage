@@ -21,7 +21,7 @@
 !!***
 subroutine op_writeSpeciesPATable (fileUnit,species)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups,             &
                                 op_energyGroupBoundaries
@@ -53,7 +53,7 @@ subroutine op_writeSpeciesPATable (fileUnit,species)
   indexPA = op_species2PATableIndex (species)
 
   if (indexPA == 0) then
-      call Driver_abortFlash ('[op_writeSpeciesPATable] ERROR: no index to PA tables')
+      call Driver_abort ('[op_writeSpeciesPATable] ERROR: no index to PA tables')
   end if
 !
 !

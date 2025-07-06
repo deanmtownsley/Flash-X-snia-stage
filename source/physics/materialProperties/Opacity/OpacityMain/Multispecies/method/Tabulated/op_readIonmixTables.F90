@@ -86,7 +86,7 @@ subroutine op_readIonmixTables (tableName,   &
                                 indexPE,     &
                                 indexRO      )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups,             &
                                 op_energyGroupBoundaries
@@ -161,7 +161,7 @@ subroutine op_readIonmixTables (tableName,   &
   inquire (file = tableName , exist = fileExists)
 
   if (.not.fileExists) then
-       call Driver_abortFlash ('[op_readIonmixTables] ERROR: no IONMIX file found')
+       call Driver_abort ('[op_readIonmixTables] ERROR: no IONMIX file found')
   end if
 
   fileUnit = ut_getFreeFileUnit ()
@@ -184,19 +184,19 @@ subroutine op_readIonmixTables (tableName,   &
                                  nEnergyGroups
 
   if (nstepsTemperature <= 0) then
-      call Driver_abortFlash ('[op_readIonmixTables] ERROR: no IONMIX temperature grid found')
+      call Driver_abort ('[op_readIonmixTables] ERROR: no IONMIX temperature grid found')
   end if
 
   if (nstepsDensity <= 0) then
-      call Driver_abortFlash ('[op_readIonmixTables] ERROR: no IONMIX density grid found')
+      call Driver_abort ('[op_readIonmixTables] ERROR: no IONMIX density grid found')
   end if
 
   if (nEnergyGroups <= 0) then
-      call Driver_abortFlash ('[op_readIonmixTables] ERROR: no IONMIX energy group grid found')
+      call Driver_abort ('[op_readIonmixTables] ERROR: no IONMIX energy group grid found')
   end if
 
   if (nEnergyGroups /= op_nEnergyGroups) then
-      call Driver_abortFlash ('[op_readIonmixTables] ERROR: bad size of IONMIX energy group grid')
+      call Driver_abort ('[op_readIonmixTables] ERROR: bad size of IONMIX energy group grid')
   end if
 !
 !
@@ -232,7 +232,7 @@ subroutine op_readIonmixTables (tableName,   &
           op_energyGroupBoundaries(g)
 
      if (energyDifference > op_tableEnergyTolerance) then
-         call Driver_abortFlash ('[op_readIonmixTables] ERROR: IONMIX / Opacity energy group mismatch')
+         call Driver_abort ('[op_readIonmixTables] ERROR: IONMIX / Opacity energy group mismatch')
      end if
   end do
 !

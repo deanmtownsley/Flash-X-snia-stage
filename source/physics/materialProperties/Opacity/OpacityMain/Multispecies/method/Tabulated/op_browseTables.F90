@@ -51,7 +51,7 @@ subroutine op_browseTables (tableKind,                        &
                                          nstepsTemperaturePE, &
                                          nstepsTemperatureRO  )
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use op_interface,       ONLY : op_browseIonmixTables
 
   implicit none
@@ -87,7 +87,7 @@ subroutine op_browseTables (tableKind,                        &
                                                nstepsTemperatureRO  )
 
   else
-      call Driver_abortFlash ('[op_browseTables] ERROR: Opacity table kind not recognized')
+      call Driver_abort ('[op_browseTables] ERROR: Opacity table kind not recognized')
   end if
 !
 !

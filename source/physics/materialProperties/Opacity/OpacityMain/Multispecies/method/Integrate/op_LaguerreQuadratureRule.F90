@@ -49,7 +49,7 @@
 !!***
 subroutine op_LaguerreQuadratureRule (nRoots,beta,T,Roots,Weights)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_interface,     ONLY : op_LaguerreMoments,       &
                                op_LaguerreZeroMoment,    &
@@ -110,11 +110,11 @@ subroutine op_LaguerreQuadratureRule (nRoots,beta,T,Roots,Weights)
 !
 !
   if (nRoots > op_maxRoots) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: # of roots too large')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: # of roots too large')
   end if
 
   if (nRoots > 40) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: # of roots limited to =< 40')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: # of roots limited to =< 40')
   end if
 !
 !
@@ -122,23 +122,23 @@ subroutine op_LaguerreQuadratureRule (nRoots,beta,T,Roots,Weights)
 !
 !
   if (nRoots < 1) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: invalid # of roots')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: invalid # of roots')
   end if
 
   if (beta < 0) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: Beta is < 0')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: Beta is < 0')
   end if
 
   if (T <= zero) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: Integration limit T =< 0')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: Integration limit T =< 0')
   end if
 
   if (size (Roots) < nRoots) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: Roots array size too small')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: Roots array size too small')
   end if
 
   if (size (Weights) < nRoots) then
-      call Driver_abortFlash ('[op_LaguerreQuadratureRule] ERROR: Weights array size too small')
+      call Driver_abort ('[op_LaguerreQuadratureRule] ERROR: Weights array size too small')
   end if
 !
 !

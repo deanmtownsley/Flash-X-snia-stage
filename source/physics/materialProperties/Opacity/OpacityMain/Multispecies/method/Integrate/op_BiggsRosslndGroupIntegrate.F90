@@ -119,7 +119,7 @@ subroutine op_BiggsRosslndGroupIntegrate (nSec,                                &
                                                        BiggsRosslndIntegral,   &
                                                        RosslndIntegral         )
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_numericsData,  ONLY : zero,half,one,four,ten,        &
                                op_eBaseLowestExponent,        &

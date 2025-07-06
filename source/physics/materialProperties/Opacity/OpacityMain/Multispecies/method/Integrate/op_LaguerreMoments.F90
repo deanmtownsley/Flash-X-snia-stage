@@ -127,7 +127,7 @@
 !!***
 subroutine op_LaguerreMoments (n, nLagT, alpha, beta, T, LagT, MomZero, Mom)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use op_interface,     ONLY : op_LaguerrePolynomials, &
                                op_LaguerreZeroMoment
   use op_numericsData,  ONLY : zero,one
@@ -157,11 +157,11 @@ subroutine op_LaguerreMoments (n, nLagT, alpha, beta, T, LagT, MomZero, Mom)
 !
 !
   if (beta < zero) then
-      call Driver_abortFlash ('[op_LaguerreMoments] ERROR: Beta is < 0')
+      call Driver_abort ('[op_LaguerreMoments] ERROR: Beta is < 0')
   end if
 
   if (T <= zero) then
-      call Driver_abortFlash ('[op_LaguerreMoments] ERROR: Integration limit T =< 0')
+      call Driver_abort ('[op_LaguerreMoments] ERROR: Integration limit T =< 0')
   end if
 !
 !

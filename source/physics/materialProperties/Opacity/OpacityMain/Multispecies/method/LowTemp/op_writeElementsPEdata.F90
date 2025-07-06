@@ -26,7 +26,7 @@ subroutine op_writeElementsPEdata ()
                                op_elementJmax,          &
                                op_elementPEenergyRange
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 

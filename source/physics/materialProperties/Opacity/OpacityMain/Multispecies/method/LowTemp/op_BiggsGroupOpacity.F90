@@ -30,7 +30,7 @@
 subroutine op_BiggsGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eupper,Opacity)
 
   use Opacity_data,        ONLY : op_energyDifferenceTolerance
-  use Driver_interface,    ONLY : Driver_abortFlash
+  use Driver_interface,    ONLY : Driver_abort
 
   use op_lowTempData,      ONLY : op_maxElements,          &
                                   op_maxJmax,              &
@@ -83,7 +83,7 @@ subroutine op_BiggsGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
 !
 !
   if (Eupper <= Elower) then
-      call Driver_abortFlash ('[op_BiggsGroupOpacity] ERROR: Bad energy group boundaries')
+      call Driver_abort ('[op_BiggsGroupOpacity] ERROR: Bad energy group boundaries')
   end if
 !
 !
@@ -95,7 +95,7 @@ subroutine op_BiggsGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
   EupperkeV = Eupper * op_eV2keV
 
   if (EupperkeV - ElowerkeV < op_energyDifferenceTolerance) then
-      call Driver_abortFlash ('[op_BiggsGroupOpacity] ERROR: Integration limits equal')
+      call Driver_abort ('[op_BiggsGroupOpacity] ERROR: Integration limits equal')
   end if
 !
 !
@@ -233,7 +233,7 @@ subroutine op_BiggsGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
   end if
 
   if (Jupper < Jlower) then
-      call Driver_abortFlash ('[op_BiggsGroupOpacity] ERROR: Biggs limits out of order')
+      call Driver_abort ('[op_BiggsGroupOpacity] ERROR: Biggs limits out of order')
   end if
 !
 !
@@ -349,7 +349,7 @@ subroutine op_BiggsGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
 !      write (*,*) '                  Opacity = ',Opacity
 
   else
-      call Driver_abortFlash ('[op_BiggsGroupOpacity] ERROR: Unidentified opacity kind')
+      call Driver_abort ('[op_BiggsGroupOpacity] ERROR: Unidentified opacity kind')
   end if
 !
 !

@@ -18,7 +18,7 @@
 !!***
 subroutine op_initIntegrate ()
 
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   use op_integrateData,            ONLY : op_initializedIntegrate, &
@@ -65,25 +65,25 @@ subroutine op_initIntegrate ()
       allocate (op_JmatrixDiagonals (1:op_maxRoots), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_JmatrixDiagonals allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_JmatrixDiagonals allocation failed')
       end if
 
       allocate (op_JmatrixOffdiagonals (1:op_maxRoots), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_JmatrixOffdiagonals allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_JmatrixOffdiagonals allocation failed')
       end if
 
       allocate (op_OrthoPolynomialA (1:op_maxRoots), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_OrthoPolynomialA allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_OrthoPolynomialA allocation failed')
       end if
 
       allocate (op_OrthoPolynomialB (1:op_maxRoots), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_OrthoPolynomialB allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_OrthoPolynomialB allocation failed')
       end if
 !
 !
@@ -96,19 +96,19 @@ subroutine op_initIntegrate ()
       allocate (op_AuxPolynomialA (1:maxMoments), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_AuxPolynomialA allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_AuxPolynomialA allocation failed')
       end if
 
       allocate (op_AuxPolynomialB (1:maxMoments), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_AuxPolynomialB allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_AuxPolynomialB allocation failed')
       end if
 
       allocate (op_Moments (1:maxMoments), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_Moments allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_Moments allocation failed')
       end if
 !
 !
@@ -123,19 +123,19 @@ subroutine op_initIntegrate ()
       allocate (op_work1 (1:op_maxWork), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_work1 allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_work1 allocation failed')
       end if
 
       allocate (op_work2 (1:op_maxWork), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_work2 allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_work2 allocation failed')
       end if
 
       allocate (op_work3 (1:op_maxWork), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_work3 allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_work3 allocation failed')
       end if
 
   end if
@@ -153,13 +153,13 @@ subroutine op_initIntegrate ()
       allocate (op_RombergIntegral (0:op_maxRombergSteps), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_RombergIntegral alocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_RombergIntegral alocation failed')
       end if
 
       allocate (op_RombergRow (0:op_maxRombergSteps,OLD:NEW), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initIntegrate] ERROR: op_RombergRow allocation failed')
+          call Driver_abort ('[op_initIntegrate] ERROR: op_RombergRow allocation failed')
       end if
 
   end if

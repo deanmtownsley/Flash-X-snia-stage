@@ -55,7 +55,7 @@ subroutine op_writeQuadratureData (nRoots, nMoments,                  &
                                           op_Moments,            &
                                           op_OrthoPolynomialA,   &
                                           op_OrthoPolynomialB
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
   use op_numericsData,             ONLY : one
 
   implicit none

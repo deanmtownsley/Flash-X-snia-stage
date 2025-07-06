@@ -18,7 +18,7 @@
 subroutine op_setAtomNames ()
 
   use Opacity_data,      ONLY : op_atomName
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -31,7 +31,7 @@ subroutine op_setAtomNames ()
   goodShape = size (op_atomName) == 100
 
   if (.not.goodShape) then
-       call Driver_abortFlash ('[op_setAtomNames] ERROR: array op_atomName has bad shape')
+       call Driver_abort ('[op_setAtomNames] ERROR: array op_atomName has bad shape')
   end if
 !
 !

@@ -51,7 +51,7 @@ subroutine op_browseIonmixTables (tableName,                        &
                                                nstepsTemperaturePE, &
                                                nstepsTemperatureRO  )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use Opacity_data,  ONLY : op_globalMe
 
   implicit none
@@ -83,7 +83,7 @@ subroutine op_browseIonmixTables (tableName,                        &
   if (.not.fileExists) then
      if (op_globalMe==MASTER_PE) &
           print*,'[op_browseIonmixTables] ERROR: IONMIX file not found: ',tableName 
-       call Driver_abortFlash ('[op_browseIonmixTables] ERROR: no IONMIX file found')
+       call Driver_abort ('[op_browseIonmixTables] ERROR: no IONMIX file found')
   end if
 
   fileUnit = ut_getFreeFileUnit ()
@@ -97,11 +97,11 @@ subroutine op_browseIonmixTables (tableName,                        &
   read (fileUnit,'(2I10)') nstepsTemperature , nstepsDensity
 
   if (nstepsTemperature <= 0) then
-      call Driver_abortFlash ('[op_browseIonmixTables] ERROR: no IONMIX temperature grid found')
+      call Driver_abort ('[op_browseIonmixTables] ERROR: no IONMIX temperature grid found')
   end if
 
   if (nstepsDensity <= 0) then
-      call Driver_abortFlash ('[op_browseIonmixTables] ERROR: no IONMIX density grid found')
+      call Driver_abort ('[op_browseIonmixTables] ERROR: no IONMIX density grid found')
   end if
 !
 !

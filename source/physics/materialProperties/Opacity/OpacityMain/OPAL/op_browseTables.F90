@@ -51,7 +51,7 @@ subroutine op_browseTables (tableNameLowT,                     &
                                          nstepsTemperatureHighT, &
                                          nstepsTemperatureRO  )
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use op_interface,       ONLY : op_browseOpalTable
 
   implicit none

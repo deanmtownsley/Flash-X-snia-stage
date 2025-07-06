@@ -24,7 +24,7 @@
 !!***
 subroutine op_initLowTemp ()
 
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
   use Opacity_data,                ONLY : op_totalSpecies,              &
@@ -88,7 +88,7 @@ subroutine op_initLowTemp ()
   allocate (op_Jmax (1:op_maxElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_Jmax () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_Jmax () allocate failed')
   end if
 
   call op_setPEarrayJmax   ()
@@ -98,13 +98,13 @@ subroutine op_initLowTemp ()
   allocate (op_Aij4 (1:4,1:op_maxJmax,1:op_maxElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_Aij4 () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_Aij4 () allocate failed')
   end if
 
   allocate (op_PEenergyRange (LOW:HIGH,1:op_maxJmax,1:op_maxElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_PEenergyRange () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_PEenergyRange () allocate failed')
   end if
 !
 !
@@ -132,25 +132,25 @@ subroutine op_initLowTemp ()
 !
 !
   if ((op_totalElements < 1) .or. (op_totalElements > op_maxElements)) then
-       call Driver_abortFlash ('[op_initLowTemp] ERROR: # of atomic elements < 1 or > op_maxElements')
+       call Driver_abort ('[op_initLowTemp] ERROR: # of atomic elements < 1 or > op_maxElements')
   end if
 
   allocate (op_elementAij4 (1:4,1:op_maxJmax,1:op_totalElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_elementAij4 () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_elementAij4 () allocate failed')
   end if
 
   allocate (op_elementJmax (1:op_totalElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_elementJmax () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_elementJmax () allocate failed')
   end if
 
   allocate (op_elementPEenergyRange (LOW:HIGH,1:op_maxJmax,1:op_totalElements), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_elementPEenergyRange () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_elementPEenergyRange () allocate failed')
   end if
 !
 !
@@ -162,7 +162,7 @@ subroutine op_initLowTemp ()
      Z = op_element2AtomicNumber (n)
 
      if (Z < 1 .or. Z > op_maxElements) then
-         call Driver_abortFlash ('[op_initLowTemp] ERROR: Atomic number Z < 1 or > op_maxElements')
+         call Driver_abort ('[op_initLowTemp] ERROR: Atomic number Z < 1 or > op_maxElements')
      end if
 
      op_elementJmax                                (n) = op_Jmax                                (Z)
@@ -197,31 +197,31 @@ subroutine op_initLowTemp ()
   allocate (op_A1group (1:op_maxJmax+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_A1group () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_A1group () allocate failed')
   end if
 
   allocate (op_A2group (1:op_maxJmax+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_A2group () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_A2group () allocate failed')
   end if
 
   allocate (op_A3group (1:op_maxJmax+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_A3group () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_A3group () allocate failed')
   end if
 
   allocate (op_A4group (1:op_maxJmax+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_A4group () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_A4group () allocate failed')
   end if
 
   allocate (op_intLimits (1:op_maxJmax+1+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_intLimits () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_intLimits () allocate failed')
   end if
 !
 !
@@ -231,19 +231,19 @@ subroutine op_initLowTemp ()
   allocate (op_tableLowTemp (1:op_maxNstepsLowTemp), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_tableLowTemp () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_tableLowTemp () allocate failed')
   end if
 
   allocate (op_PlanckLowTempTables (1:op_maxNstepsLowTemp,1:op_totalSpecies,1:op_nEnergyGroups), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_PlanckLowTempTables () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_PlanckLowTempTables () allocate failed')
   end if
 
   allocate (op_RosselandLowTempTables (1:op_maxNstepsLowTemp,1:op_totalSpecies,1:op_nEnergyGroups), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initLowTemp] ERROR: op_RosselandLowTempTables () allocate failed')
+      call Driver_abort ('[op_initLowTemp] ERROR: op_RosselandLowTempTables () allocate failed')
   end if
 !
 !

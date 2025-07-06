@@ -101,7 +101,7 @@ subroutine op_KleinRosslndGroupIntegrate (KNintegralFactor,              &
                                                   KleinRosslndIntegral,  &
                                                   RosslndIntegral        )
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_numericsData,  ONLY : zero,half,one,two,three,four,ten,  &
                                op_eBaseLowestExponent,            &

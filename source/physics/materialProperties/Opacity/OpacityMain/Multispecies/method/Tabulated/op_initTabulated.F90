@@ -17,7 +17,7 @@
 !!***
 subroutine op_initTabulated ()
 
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
 
   use Opacity_data,                ONLY : op_totalSpecies,              &
                                           op_nEnergyGroups,             &
@@ -112,7 +112,7 @@ subroutine op_initTabulated ()
 !
 !
   if (op_totalSpecies < 1) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: No species present!')
+      call Driver_abort ('[op_initTabulated] ERROR: No species present!')
   end if
 
   call RuntimeParameters_get ("opacity_useLogTables",   op_useLogTables)
@@ -125,7 +125,7 @@ subroutine op_initTabulated ()
   allocate (op_tabulatedEnergyBoundaries (1:op_nEnergyGroups+1), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tabulatedEnergyBoundaries allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tabulatedEnergyBoundaries allocation failed')
   end if
 !
 !
@@ -135,67 +135,67 @@ subroutine op_initTabulated ()
   allocate (op_tableKind (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableKind allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tableKind allocation failed')
   end if
 
   allocate (op_tableName (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableName allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_tableName allocation failed')
   end if
 
   allocate (op_species2PATableIndex (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_species2PATableIndex allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_species2PATableIndex allocation failed')
   end if
 
   allocate (op_species2PETableIndex (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_species2PETableIndex allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_species2PETableIndex allocation failed')
   end if
 
   allocate (op_species2ROTableIndex (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_species2ROTableIndex allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_species2ROTableIndex allocation failed')
   end if
 
   allocate (op_speciesMaxTempPATable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMaxTempPATable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMaxTempPATable allocation failed')
   end if
 
   allocate (op_speciesMaxTempPETable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMaxTempPETable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMaxTempPETable allocation failed')
   end if
 
   allocate (op_speciesMaxTempROTable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMaxTempROTable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMaxTempROTable allocation failed')
   end if
 
   allocate (op_speciesMinTempPATable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMinTempPATable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMinTempPATable allocation failed')
   end if
 
   allocate (op_speciesMinTempPETable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMinTempPETable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMinTempPETable allocation failed')
   end if
 
   allocate (op_speciesMinTempROTable (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initTabulated] ERROR: op_speciesMinTempROTable allocation failed')
+      call Driver_abort ('[op_initTabulated] ERROR: op_speciesMinTempROTable allocation failed')
   end if
 !
 !
@@ -326,35 +326,35 @@ subroutine op_initTabulated ()
   if (op_maxTablesPA > 0) then
 
       if (op_maxNstepsDensityPA == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no PA table density grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no PA table density grid')
       end if
 
       if (op_maxNstepsTemperaturePA == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no PA table temperature grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no PA table temperature grid')
       end if
 
       allocate (op_nstepsDensityPA (1:op_maxTablesPA), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsDensityPA allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsDensityPA allocation failed')
       end if
 
       allocate (op_nstepsTemperaturePA (1:op_maxTablesPA), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsTemperaturePA allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsTemperaturePA allocation failed')
       end if
  
       allocate (op_tableDensityPA (1:op_maxNstepsDensityPA,1:op_maxTablesPA), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableDensityPA allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableDensityPA allocation failed')
       end if
 
       allocate (op_tableTemperaturePA (1:op_maxNstepsTemperaturePA,1:op_maxTablesPA), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableTemperaturePA allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableTemperaturePA allocation failed')
       end if
 
       allocate (op_PlanckAbsorptionTables (1:op_maxNstepsTemperaturePA, &
@@ -362,7 +362,7 @@ subroutine op_initTabulated ()
                                            1:op_nEnergyGroups,          &
                                            1:op_maxTablesPA             ), stat = status)
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_PlanckAbsorptionTables allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_PlanckAbsorptionTables allocation failed')
       end if
 
   end if
@@ -374,35 +374,35 @@ subroutine op_initTabulated ()
   if (op_maxTablesPE > 0) then
 
       if (op_maxNstepsDensityPE == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no PE table density grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no PE table density grid')
       end if
 
       if (op_maxNstepsTemperaturePE == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no PE table temperature grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no PE table temperature grid')
       end if
 
       allocate (op_nstepsDensityPE (1:op_maxTablesPE), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsDensityPE allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsDensityPE allocation failed')
       end if
 
       allocate (op_nstepsTemperaturePE (1:op_maxTablesPE), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsTemperaturePE allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsTemperaturePE allocation failed')
       end if
 
       allocate (op_tableDensityPE (1:op_maxNstepsDensityPE,1:op_maxTablesPE), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableDensityPE allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableDensityPE allocation failed')
       end if
 
       allocate (op_tableTemperaturePE (1:op_maxNstepsTemperaturePE,1:op_maxTablesPE), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableTemperaturePE allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableTemperaturePE allocation failed')
       end if
 
       allocate (op_PlanckEmissionTables (1:op_maxNstepsTemperaturePE, &
@@ -410,7 +410,7 @@ subroutine op_initTabulated ()
                                          1:op_nEnergyGroups,          &
                                          1:op_maxTablesPE             ), stat = status)
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_PlanckEmissionTables allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_PlanckEmissionTables allocation failed')
       end if
   end if
 !
@@ -421,35 +421,35 @@ subroutine op_initTabulated ()
   if (op_maxTablesRO > 0) then
 
       if (op_maxNstepsDensityRO == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no RO table density grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no RO table density grid')
       end if
 
       if (op_maxNstepsTemperatureRO == 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: no RO table temperature grid')
+          call Driver_abort ('[op_initTabulated] ERROR: no RO table temperature grid')
       end if
 
       allocate (op_nstepsDensityRO (1:op_maxTablesRO), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsDensityRO allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsDensityRO allocation failed')
       end if
 
       allocate (op_nstepsTemperatureRO (1:op_maxTablesRO), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_nstepsTemperatureRO allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_nstepsTemperatureRO allocation failed')
       end if
 
       allocate (op_tableDensityRO (1:op_maxNstepsDensityRO,1:op_maxTablesRO), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableDensityRO allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableDensityRO allocation failed')
       end if
 
       allocate (op_tableTemperatureRO (1:op_maxNstepsTemperatureRO,1:op_maxTablesRO), stat = status)
 
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_tableTemperatureRO allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_tableTemperatureRO allocation failed')
       end if
 
       allocate (op_RosselandTables (1:op_maxNstepsTemperatureRO, &
@@ -457,7 +457,7 @@ subroutine op_initTabulated ()
                                     1:op_nEnergyGroups,          &
                                     1:op_maxTablesRO             ), stat = status)
       if (status > 0) then
-          call Driver_abortFlash ('[op_initTabulated] ERROR: op_RosselandTables allocation failed')
+          call Driver_abort ('[op_initTabulated] ERROR: op_RosselandTables allocation failed')
       end if
   end if
 !

@@ -151,7 +151,7 @@
 !!***
 subroutine op_shJacobi3TermMoments (n, maxM, p, beta, T, X, Y, Sinv, MomZero, Mom)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
   use op_interface,      ONLY : op_LaguerreZeroMoment
   use op_numericsData,   ONLY : zero,one,two
 
@@ -182,15 +182,15 @@ subroutine op_shJacobi3TermMoments (n, maxM, p, beta, T, X, Y, Sinv, MomZero, Mo
 !
 !
   if (beta < zero) then
-      call Driver_abortFlash ('[op_shJacobi3TermMoments] ERROR: Beta is < 0')
+      call Driver_abort ('[op_shJacobi3TermMoments] ERROR: Beta is < 0')
   end if
 
   if (T <= zero) then
-      call Driver_abortFlash ('[op_shJacobi3TermMoments] ERROR: Integration limit T =< 0')
+      call Driver_abort ('[op_shJacobi3TermMoments] ERROR: Integration limit T =< 0')
   end if
 
   if (maxM <= n + n) then
-      call Driver_abortFlash ('[op_shJacobi3TermMoments] ERROR: maxM < 2n')
+      call Driver_abort ('[op_shJacobi3TermMoments] ERROR: maxM < 2n')
   end if
 !
 !

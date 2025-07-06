@@ -17,7 +17,7 @@
 !!***
 subroutine op_initConstcm2g ()
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
 
   use Opacity_data,       ONLY : op_totalSpecies,         &
                                  op_absorptionKind,       &
@@ -60,7 +60,7 @@ subroutine op_initConstcm2g ()
 !
 !
   if (op_totalSpecies < 1) then
-      call Driver_abortFlash ('[op_initConstcm2g] ERROR: No species present!')
+      call Driver_abort ('[op_initConstcm2g] ERROR: No species present!')
   end if
 !
 !
@@ -70,19 +70,19 @@ subroutine op_initConstcm2g ()
   allocate (op_absorptionConstcm2g (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstcm2g] ERROR: op_absorptionConstcm2g allocation failed')
+      call Driver_abort ('[op_initConstcm2g] ERROR: op_absorptionConstcm2g allocation failed')
   end if
 
   allocate (op_emissionConstcm2g   (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstcm2g] ERROR: op_emissionConstcm2g allocation failed')
+      call Driver_abort ('[op_initConstcm2g] ERROR: op_emissionConstcm2g allocation failed')
   end if
 
   allocate (op_transportConstcm2g  (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstcm2g] ERROR: op_transportConstcm2g allocation failed')
+      call Driver_abort ('[op_initConstcm2g] ERROR: op_transportConstcm2g allocation failed')
   end if
 !
 !
@@ -118,7 +118,7 @@ subroutine op_initConstcm2g ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "AbsorbConstant"
          call RuntimeParameters_get(rtpar, op_absorptionConstcm2g(species))
          if(op_absorptionConstcm2g(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstcm2g] Error: constant absorption opacity not set")
+              call Driver_abort("[op_initConstcm2g] Error: constant absorption opacity not set")
      end if
 
      if (emissionKind == OP_CONSTCM2G) then
@@ -126,7 +126,7 @@ subroutine op_initConstcm2g ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "EmissConstant"
          call RuntimeParameters_get(rtpar, op_emissionConstcm2g(species))
          if(op_emissionConstcm2g(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstcm2g] Error: constant emission opacity not set")
+              call Driver_abort("[op_initConstcm2g] Error: constant emission opacity not set")
      end if
 
      if (transportKind == OP_CONSTCM2G) then
@@ -134,7 +134,7 @@ subroutine op_initConstcm2g ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "TransConstant"
          call RuntimeParameters_get(rtpar, op_transportConstcm2g(species))
          if(op_transportConstcm2g(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstcm2g] Error: constant transport opacity not set")
+              call Driver_abort("[op_initConstcm2g] Error: constant transport opacity not set")
      end if
 
   end do

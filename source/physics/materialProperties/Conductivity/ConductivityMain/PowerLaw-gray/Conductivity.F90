@@ -111,7 +111,7 @@ subroutine Conductivity(xtemp,xden,massfrac,cond,diff_coeff, component)
 
       if (cond_meshMe == MASTER_PE) &
            print*,'Conductivity: requested invalid component',component
-      call Driver_abortFlash("Conductivity: requested invalid component")
+      call Driver_abort("Conductivity: requested invalid component")
 
  endif
 

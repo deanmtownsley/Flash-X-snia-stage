@@ -27,7 +27,7 @@
 !!***
 subroutine Opacity (soln, ngrp, opacityAbsorption, opacityEmission, opacityTransport)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_useOpacity,               &
                                 op_absorptionKind,           &
@@ -89,7 +89,7 @@ subroutine Opacity (soln, ngrp, opacityAbsorption, opacityEmission, opacityTrans
 !
 !
   if ( (ngrp < 1) .or. (ngrp > op_nEnergyGroups) ) then
-      call Driver_abortFlash ('[Opacity] ERROR: no corresponding energy group')
+      call Driver_abort ('[Opacity] ERROR: no corresponding energy group')
   end if
 !
 !

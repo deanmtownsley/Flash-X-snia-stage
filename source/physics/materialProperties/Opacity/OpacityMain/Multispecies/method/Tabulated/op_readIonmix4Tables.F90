@@ -86,7 +86,7 @@ subroutine op_readIonmix4Tables (tableName,   &
                                  indexPE,     &
                                  indexRO      )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups,             &
                                 op_energyGroupBoundaries
@@ -160,7 +160,7 @@ subroutine op_readIonmix4Tables (tableName,   &
   inquire (file = tableName , exist = fileExists)
 
   if (.not.fileExists) then
-       call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: no IONMIX4 file found')
+       call Driver_abort ('[op_readIonmix4Tables] ERROR: no IONMIX4 file found')
   end if
 
   fileUnit = ut_getFreeFileUnit ()
@@ -184,20 +184,20 @@ subroutine op_readIonmix4Tables (tableName,   &
   read (fileUnit,'(4e12.6)') (densities(d),d=1,nstepsDensity)
 
   if (nstepsTemperature <= 0) then
-      call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: no IONMIX4 temperature grid found')
+      call Driver_abort ('[op_readIonmix4Tables] ERROR: no IONMIX4 temperature grid found')
   end if
 
   if (nstepsDensity <= 0) then
-      call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: no IONMIX4 density grid found')
+      call Driver_abort ('[op_readIonmix4Tables] ERROR: no IONMIX4 density grid found')
   end if
 
   if (nEnergyGroups <= 0) then
-      call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: no IONMIX4 energy group grid found')
+      call Driver_abort ('[op_readIonmix4Tables] ERROR: no IONMIX4 energy group grid found')
   end if
 
   if (nEnergyGroups /= op_nEnergyGroups) then
      print *, nEnergyGroups, op_nEnergyGroups
-      call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: bad size of IONMIX4 energy group grid')
+      call Driver_abort ('[op_readIonmix4Tables] ERROR: bad size of IONMIX4 energy group grid')
   end if
 !
 !
@@ -265,7 +265,7 @@ subroutine op_readIonmix4Tables (tableName,   &
          call Logfile_stampMessage('[op_readIonmix4Tables] ')
          call Logfile_stampMessage('[op_readIonmix4Tables] ')
 
-         call Driver_abortFlash ('[op_readIonmix4Tables] ERROR: Energy group mismatch (SEE LOG FILE)')
+         call Driver_abort ('[op_readIonmix4Tables] ERROR: Energy group mismatch (SEE LOG FILE)')
      end if
   end do
 !

@@ -36,7 +36,7 @@ subroutine op_getSpeciesLowTempOpacities (species,            &
                                           speciesTemperature, &
                                           speciesEnergyGroup  )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_totalSpecies,    &
                                 op_nEnergyGroups,   &
@@ -67,11 +67,11 @@ subroutine op_getSpeciesLowTempOpacities (species,            &
 !
 !
   if (species < 1 .or. species > op_totalSpecies) then
-      call Driver_abortFlash ('[op_getSpeciesLowTempOpacity] ERROR: bad species index')
+      call Driver_abort ('[op_getSpeciesLowTempOpacity] ERROR: bad species index')
   end if
 
   if (speciesEnergyGroup < 1 .or. speciesEnergyGroup > op_nEnergyGroups) then
-      call Driver_abortFlash ('[op_getSpeciesLowTempOpacity] ERROR: bad species energy group index')
+      call Driver_abort ('[op_getSpeciesLowTempOpacity] ERROR: bad species energy group index')
   end if
 !
 !
@@ -91,7 +91,7 @@ subroutine op_getSpeciesLowTempOpacities (species,            &
 !
   if (     (speciesTemperature < op_minLowTempTemperature) &
       .or. (speciesTemperature > op_maxLowTempTemperature) ) then
-       call Driver_abortFlash ('[op_getSpeciesLowTempOpacity] ERROR: bad species temperature')
+       call Driver_abort ('[op_getSpeciesLowTempOpacity] ERROR: bad species temperature')
   end if
 
   do t = 2,op_maxNstepsLowTemp

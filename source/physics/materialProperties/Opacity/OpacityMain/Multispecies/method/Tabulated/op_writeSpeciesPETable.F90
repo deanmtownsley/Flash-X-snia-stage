@@ -21,7 +21,7 @@
 !!***
 subroutine op_writeSpeciesPETable (fileUnit,species)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups,             &
                                 op_energyGroupBoundaries
@@ -53,7 +53,7 @@ subroutine op_writeSpeciesPETable (fileUnit,species)
   indexPE = op_species2PETableIndex (species)
 
   if (indexPE == 0) then
-      call Driver_abortFlash ('[op_writeSpeciesPETable] ERROR: no index to PE tables')
+      call Driver_abort ('[op_writeSpeciesPETable] ERROR: no index to PE tables')
   end if
 !
 !

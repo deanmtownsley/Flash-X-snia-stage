@@ -28,7 +28,7 @@
 subroutine op_setPEarrayJmax ()
 
   use op_lowTempData,   ONLY : op_Jmax
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -42,13 +42,13 @@ subroutine op_setPEarrayJmax ()
   arrayExists = allocated (op_Jmax)
 
   if (.not.arrayExists) then
-       call Driver_abortFlash ('[op_setPEarrayJmax] ERROR: array op_Jmax not allocated')
+       call Driver_abort ('[op_setPEarrayJmax] ERROR: array op_Jmax not allocated')
   end if
 
   goodShape = size (op_Jmax) == 100
 
   if (.not.goodShape) then
-       call Driver_abortFlash ('[op_setPEarrayJmax] ERROR: array op_Jmax has bad shape')
+       call Driver_abort ('[op_setPEarrayJmax] ERROR: array op_Jmax has bad shape')
   end if
 !
 !

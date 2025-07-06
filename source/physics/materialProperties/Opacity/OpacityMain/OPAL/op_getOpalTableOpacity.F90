@@ -33,7 +33,7 @@ subroutine op_getOpalTableOpacity (mfH, tempRange,            &
                                         speciesEnergyGroup, &
                                         opacityRO           )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use op_opalData,  ONLY : op_useLogTables,           &
                                 opT_varTableGroupPT,       &
@@ -85,7 +85,7 @@ subroutine op_getOpalTableOpacity (mfH, tempRange,            &
 #endif
   else
      print*,'op_getOpalTableOpacity: mfH,temprange are', mfH,tempRange
-     call Driver_abortFlash ('[op_getOpalTableOpacity] ERROR: thisTypeTable not associated; tg NULL?')
+     call Driver_abort ('[op_getOpalTableOpacity] ERROR: thisTypeTable not associated; tg NULL?')
   end if
 
   if (associated(thisTypeTable%table)) then
@@ -94,7 +94,7 @@ subroutine op_getOpalTableOpacity (mfH, tempRange,            &
 #endif
   else
      print*,'op_getOpalTableOpacity: mfH,temprange are', mfH,tempRange
-     call Driver_abortFlash ('[op_getOpalTableOpacity] ERROR: thisTypeTable%table not associated; tg%table NULL?')
+     call Driver_abort ('[op_getOpalTableOpacity] ERROR: thisTypeTable%table not associated; tg%table NULL?')
   end if
 
   if (associated(thisTypeTable%table%table)) then
@@ -103,7 +103,7 @@ subroutine op_getOpalTableOpacity (mfH, tempRange,            &
 #endif
   else
      print*,'op_getOpalTableOpacity: mfH,temprange are', mfH,tempRange
-     call Driver_abortFlash ('[op_getOpalTableOpacity] ERROR: table%table not associated; tg%table%table NULL?')
+     call Driver_abort ('[op_getOpalTableOpacity] ERROR: table%table not associated; tg%table%table NULL?')
   end if
 
   thisTypeDensity => thisTypeTable%td%Densities

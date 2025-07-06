@@ -34,7 +34,7 @@
 !!***
 subroutine Opacity_unitTest (fileUnit, perfect)
 
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
   use Opacity_interface,    ONLY : Opacity
   use Grid_interface,       ONLY : Grid_getListOfBlocks,    &
                                    Grid_getBlkPtr,          &

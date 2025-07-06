@@ -86,7 +86,7 @@
 !!***
 subroutine op_LaguerreZeroMoment (beta, R, S, MomZero)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_numericsData,  ONLY : zero,one
 
@@ -117,11 +117,11 @@ subroutine op_LaguerreZeroMoment (beta, R, S, MomZero)
 !
 !
   if (beta < zero) then
-      call Driver_abortFlash ('[op_LaguerreZeroMoment] ERROR: Beta is < 0')
+      call Driver_abort ('[op_LaguerreZeroMoment] ERROR: Beta is < 0')
   end if
 
   if (R <= zero) then
-      call Driver_abortFlash ('[op_LaguerreZeroMoment] ERROR: Integration limit R =< 0')
+      call Driver_abort ('[op_LaguerreZeroMoment] ERROR: Integration limit R =< 0')
   end if
 !
 !
@@ -134,11 +134,11 @@ subroutine op_LaguerreZeroMoment (beta, R, S, MomZero)
   wholeNumberDifference = beta - real (intbeta)
 
   if (wholeNumberDifference > isNotZeroLimit) then
-      call Driver_abortFlash ('[op_LaguerreZeroMoment] ERROR: beta not whole number')
+      call Driver_abort ('[op_LaguerreZeroMoment] ERROR: beta not whole number')
   end if
 
   if (intbeta < 0) then
-      call Driver_abortFlash ('[op_LaguerreZeroMoment] ERROR: beta < 0')
+      call Driver_abort ('[op_LaguerreZeroMoment] ERROR: beta < 0')
   end if
 !
 !

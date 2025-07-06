@@ -75,7 +75,7 @@
 !!***
 subroutine op_LaguerrePolynomials (n, nLag, alpha, X, Lag)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_numericsData,  ONLY : one,three
 
@@ -102,7 +102,7 @@ subroutine op_LaguerrePolynomials (n, nLag, alpha, X, Lag)
 !
 !
   if (nLag < n) then
-      call Driver_abortFlash ('[op_LaguerrePolynomials] ERROR: Cannot store Laguerre polynomials')
+      call Driver_abort ('[op_LaguerrePolynomials] ERROR: Cannot store Laguerre polynomials')
   end if
 !
 !

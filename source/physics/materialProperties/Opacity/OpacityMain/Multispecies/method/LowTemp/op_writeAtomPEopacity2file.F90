@@ -31,7 +31,7 @@ subroutine op_writeAtomPEopacity2file (Z, Elower, Eupper, nPoints)
                                op_Jmax,           &
                                op_PEenergyRange
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -59,7 +59,7 @@ subroutine op_writeAtomPEopacity2file (Z, Elower, Eupper, nPoints)
   if (     (.not.allocated (op_Aij4))          &
       .or. (.not.allocated (op_Jmax))          &
       .or. (.not.allocated (op_PEenergyRange)) ) then
-       call Driver_abortFlash ('[op_writeAtomPEopacity2file] ERROR: No data available')
+       call Driver_abort ('[op_writeAtomPEopacity2file] ERROR: No data available')
   end if
 !
 !

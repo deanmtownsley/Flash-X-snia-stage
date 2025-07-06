@@ -37,7 +37,7 @@ subroutine op_setSpeciesElementsData ()
   use op_numericsData,             ONLY : zero
 
   use Multispecies_interface,      ONLY : Multispecies_getProperty
-  use Driver_interface,            ONLY : Driver_abortFlash
+  use Driver_interface,            ONLY : Driver_abort
 
   implicit none
 
@@ -72,7 +72,7 @@ subroutine op_setSpeciesElementsData ()
   if (NSPECIES > 0) then
       op_totalSpecies = NSPECIES
   else
-      call Driver_abortFlash ('[Opacity_init] ERROR: no species found (NSPECIES =< 0)')
+      call Driver_abort ('[Opacity_init] ERROR: no species found (NSPECIES =< 0)')
   end if
 !
 !
@@ -101,7 +101,7 @@ subroutine op_setSpeciesElementsData ()
      call Multispecies_getProperty (SPECIES_BEGIN - 1 + species , MS_NUMELEMS , nElements)
 
      if (op_maxAtomicNumber < nElements) then
-         call Driver_abortFlash ('[Opacity_init] ERROR: Too many atomic elements / species')
+         call Driver_abort ('[Opacity_init] ERROR: Too many atomic elements / species')
      end if
 
      Zvalues = zero
@@ -110,7 +110,7 @@ subroutine op_setSpeciesElementsData ()
      do element = 1,nElements
         Zval = nint (Zvalues (element))
         if (Zval < 1 .or. Zval > op_maxAtomicNumber) then
-            call Driver_abortFlash ('[Opacity_init] ERROR: Bad atomic number Z value')
+            call Driver_abort ('[Opacity_init] ERROR: Bad atomic number Z value')
         end if
         nAtomsUsed (Zval) = nAtomsUsed (Zval) + 1
      end do

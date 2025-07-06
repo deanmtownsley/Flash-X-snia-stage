@@ -83,7 +83,7 @@ subroutine Conductivity_fullState(solnVec,isochoricCond,diffCoeff,component)
   case(1)
 #ifdef TION_VAR
      tempToUse = TION_VAR
-     call Driver_abortFlash("[Conductivity_fullState] LeeMore conductivity computes only electron conduction, not ion conduction")
+     call Driver_abort("[Conductivity_fullState] LeeMore conductivity computes only electron conduction, not ion conduction")
 #endif
   case(2)
 #ifdef TELE_VAR
@@ -91,7 +91,7 @@ subroutine Conductivity_fullState(solnVec,isochoricCond,diffCoeff,component)
 #endif
   case(3)
 #ifdef TRAD_VAR
-     call Driver_abortFlash("[Conductivity_fullState] LeeMore conductivity does not work with radiation")
+     call Driver_abort("[Conductivity_fullState] LeeMore conductivity does not work with radiation")
 #endif
   end select
 

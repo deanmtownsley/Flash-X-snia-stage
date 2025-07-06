@@ -21,7 +21,7 @@
 !!***
 subroutine op_writeSpeciesROTable (fileUnit,species)
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups,             &
                                 op_energyGroupBoundaries
@@ -53,7 +53,7 @@ subroutine op_writeSpeciesROTable (fileUnit,species)
   indexRO = op_species2ROTableIndex (species)
 
   if (indexRO == 0) then
-      call Driver_abortFlash ('[op_writeSpeciesROTable] ERROR: no index to RO tables')
+      call Driver_abort ('[op_writeSpeciesROTable] ERROR: no index to RO tables')
   end if
 !
 !

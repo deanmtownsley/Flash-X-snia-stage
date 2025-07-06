@@ -41,7 +41,7 @@ subroutine op_calculateLowTempOpacities ()
                                op_keV2erg,   &
                                op_erg2keV
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   use op_interface,     ONLY : op_BiggsGroupOpacity, &
                                op_KleinGroupOpacity

@@ -33,7 +33,7 @@ subroutine op_getSpeciesROTableOpacity (species,            &
                                         speciesEnergyGroup, &
                                         opacityRO           )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use op_tabulatedData,  ONLY : op_useLogTables,           &
                                 op_nstepsDensityRO,        &
@@ -77,7 +77,7 @@ subroutine op_getSpeciesROTableOpacity (species,            &
   indexRO = op_species2ROTableIndex (species)
 
   if (indexRO == 0) then
-      call Driver_abortFlash ('[op_getSpeciesROTableOpacity] ERROR: no handle to RO tables')
+      call Driver_abort ('[op_getSpeciesROTableOpacity] ERROR: no handle to RO tables')
   end if
 !
 !

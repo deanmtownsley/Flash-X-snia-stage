@@ -33,7 +33,7 @@ subroutine op_getSpeciesPETableOpacity (species,            &
                                         speciesEnergyGroup, &
                                         opacityPE           )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use op_tabulatedData,  ONLY : op_useLogTables,           &
                                 op_nstepsDensityPE,        &
@@ -77,7 +77,7 @@ subroutine op_getSpeciesPETableOpacity (species,            &
   indexPE = op_species2PETableIndex (species)
 
   if (indexPE == 0) then
-      call Driver_abortFlash ('[op_getSpeciesPETableOpacity] ERROR: no handle to PE tables')
+      call Driver_abort ('[op_getSpeciesPETableOpacity] ERROR: no handle to PE tables')
   end if
 !
 !

@@ -67,7 +67,7 @@ subroutine op_readOpalTable (tableName,   &
                                       td, &
                                       tb  )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use Opacity_data,      ONLY : op_nEnergyGroups
   use Opacity_data,  ONLY : op_globalMe
@@ -115,7 +115,7 @@ subroutine op_readOpalTable (tableName,   &
   inquire (file = tableName , exist = fileExists)
 
   if (.not.fileExists) then
-       call Driver_abortFlash ('[op_readOpalTable] ERROR: no OPAL file found')
+       call Driver_abort ('[op_readOpalTable] ERROR: no OPAL file found')
   end if
 
   fileUnit = ut_getFreeFileUnit ()
@@ -154,11 +154,11 @@ subroutine op_readOpalTable (tableName,   &
   if (op_globalMe == MASTER_PE) print*,'R',line1
 
   if (nstepsTemperature <= 0) then
-      call Driver_abortFlash ('[op_readOpalTable] ERROR: no OPAL temperature grid found')
+      call Driver_abort ('[op_readOpalTable] ERROR: no OPAL temperature grid found')
   end if
 
   if (nstepsDensity <= 0) then
-      call Driver_abortFlash ('[op_readOpalTable] ERROR: no OPAL density grid found')
+      call Driver_abort ('[op_readOpalTable] ERROR: no OPAL density grid found')
   end if
 
   allocate(logRs(nstepsDensity))

@@ -37,7 +37,7 @@
 !!***
 subroutine op_OrthoPolyCoefficients (n,m,nRow,Mom,A,B,Row1,Row2,OrthoA,OrthoB)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -65,11 +65,11 @@ subroutine op_OrthoPolyCoefficients (n,m,nRow,Mom,A,B,Row1,Row2,OrthoA,OrthoB)
 !
 !
   if (m /= (n + n - 1)) then
-      call Driver_abortFlash ('[op_OrthoPolyCoefficients] ERROR: # of moments / coefficients mismatch')
+      call Driver_abort ('[op_OrthoPolyCoefficients] ERROR: # of moments / coefficients mismatch')
   end if
 
   if (m > nRow) then
-      call Driver_abortFlash ('[op_OrthoPolyCoefficients] ERROR: Row vector size too small')
+      call Driver_abort ('[op_OrthoPolyCoefficients] ERROR: Row vector size too small')
   end if
 !
 !

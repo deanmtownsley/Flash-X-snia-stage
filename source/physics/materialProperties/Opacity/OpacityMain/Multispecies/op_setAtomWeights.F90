@@ -18,7 +18,7 @@
 subroutine op_setAtomWeights ()
 
   use Opacity_data,      ONLY : op_atomWeight
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   implicit none
 
@@ -31,7 +31,7 @@ subroutine op_setAtomWeights ()
   goodShape = size (op_atomWeight) == 100
 
   if (.not.goodShape) then
-       call Driver_abortFlash ('[op_setAtomWeights] ERROR: array op_atomWeight has bad shape')
+       call Driver_abort ('[op_setAtomWeights] ERROR: array op_atomWeight has bad shape')
   end if
 !
 !

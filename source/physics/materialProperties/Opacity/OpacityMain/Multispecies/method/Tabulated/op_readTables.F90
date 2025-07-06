@@ -43,7 +43,7 @@ subroutine op_readTables (tableKind,   &
                           indexPE,     &
                           indexRO      )
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use op_interface,       ONLY : op_readIonmixTables,  &
                                  op_readIonmix4Tables
 
@@ -83,7 +83,7 @@ subroutine op_readTables (tableKind,   &
                                  indexRO      )
 
    else
-      call Driver_abortFlash ('[op_readTables] ERROR: Opacity table kind not recognized')
+      call Driver_abort ('[op_readTables] ERROR: Opacity table kind not recognized')
   end if
 !
 !

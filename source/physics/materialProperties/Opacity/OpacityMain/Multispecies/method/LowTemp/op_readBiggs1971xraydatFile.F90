@@ -19,7 +19,7 @@
 !!***
 subroutine op_readBiggs1971xraydatFile ()
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -48,7 +48,7 @@ subroutine op_readBiggs1971xraydatFile ()
   inquire (file = "Biggs1971xraydat.txt" , exist = fileExists)
 
   if (.not.fileExists) then
-       call Driver_abortFlash ('[op_readBiggs1971xraydatFile] ERROR: Biggs1971xraydat.txt file not found')
+       call Driver_abort ('[op_readBiggs1971xraydatFile] ERROR: Biggs1971xraydat.txt file not found')
   end if
 
   fileUnit = ut_getFreeFileUnit ()

@@ -29,7 +29,7 @@
 subroutine op_setPEenergyRangeAtomsZ73 ()
 
   use op_lowTempData,   ONLY : op_PEenergyRange
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -45,7 +45,7 @@ subroutine op_setPEenergyRangeAtomsZ73 ()
   arrayExists = allocated (op_PEenergyRange)
 
   if (.not.arrayExists) then
-       call Driver_abortFlash ('[op_setPEenergyRangeAtomsZ73] ERROR: array op_PEenergyRange not allocated')
+       call Driver_abort ('[op_setPEenergyRangeAtomsZ73] ERROR: array op_PEenergyRange not allocated')
   end if
 
   goodShape =       (size (op_PEenergyRange,1) == HIGH-LOW+1)   &
@@ -53,7 +53,7 @@ subroutine op_setPEenergyRangeAtomsZ73 ()
               .and. (size (op_PEenergyRange,3) == 100)
 
   if (.not.goodShape) then
-       call Driver_abortFlash ('[op_setPEenergyRangeAtomsZ73] ERROR: array op_PEenergyRange has bad shape')
+       call Driver_abort ('[op_setPEenergyRangeAtomsZ73] ERROR: array op_PEenergyRange has bad shape')
   end if
 !
 !

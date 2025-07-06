@@ -33,7 +33,7 @@ subroutine op_getSpeciesPATableOpacity (species,            &
                                         speciesEnergyGroup, &
                                         opacityPA           )
 
-  use Driver_interface,  ONLY : Driver_abortFlash
+  use Driver_interface,  ONLY : Driver_abort
 
   use op_tabulatedData,  ONLY : op_useLogTables,           &
                                 op_nstepsDensityPA,        &
@@ -77,7 +77,7 @@ subroutine op_getSpeciesPATableOpacity (species,            &
   indexPA = op_species2PATableIndex (species)
 
   if (indexPA == 0) then
-      call Driver_abortFlash ('[op_getSpeciesPATableOpacity] ERROR: no handle to PA tables')
+      call Driver_abort ('[op_getSpeciesPATableOpacity] ERROR: no handle to PA tables')
   end if
 !
 !

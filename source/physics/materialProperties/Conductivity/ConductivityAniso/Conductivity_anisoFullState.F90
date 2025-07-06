@@ -38,7 +38,7 @@ subroutine Conductivity_anisoFullState(solnVec,isochoricCond,diffCoeff,component
   use cond_commonData, ONLY: cond_navo, cond_c
   use Eos_interface, ONLY: Eos_getAbarZbar
   use cond_interface,ONLY: cond_getCv
-  use Driver_interface,ONLY: Driver_abortFlash
+  use Driver_interface,ONLY: Driver_abort
 
   implicit none
 
@@ -68,11 +68,11 @@ subroutine Conductivity_anisoFullState(solnVec,isochoricCond,diffCoeff,component
   diffCoeffLoc(:) = 0.0
 
 #ifndef FLASH_3T
-  call Driver_abortFlash("[Conductivity_anisoFullState] Anisotropic conductivity only works in 3T")
+  call Driver_abort("[Conductivity_anisoFullState] Anisotropic conductivity only works in 3T")
 #endif
 
 #ifndef MAGP_VAR
-     call Driver_abortFlash("[Conductivity_anisoFullState] Anisotropic conductivity only works in MHD")
+     call Driver_abort("[Conductivity_anisoFullState] Anisotropic conductivity only works in MHD")
 #endif
 
 #if defined(DENS_VAR) && defined(TEMP_VAR)
@@ -95,7 +95,7 @@ subroutine Conductivity_anisoFullState(solnVec,isochoricCond,diffCoeff,component
 #endif
   case(3)
 #ifdef TRAD_VAR
-     call Driver_abortFlash("[Conductivity_anisoFullState] Anisotropic conductivity does not work with radiation")
+     call Driver_abort("[Conductivity_anisoFullState] Anisotropic conductivity does not work with radiation")
 #endif
   end select
 

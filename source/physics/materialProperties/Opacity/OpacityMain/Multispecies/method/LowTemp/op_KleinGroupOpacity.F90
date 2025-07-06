@@ -50,7 +50,7 @@ subroutine op_KleinGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
                                   op_KleinNishinaPrefactor, &
                                   op_electronRestMassEnergy
 
-  use Driver_interface,    ONLY : Driver_abortFlash
+  use Driver_interface,    ONLY : Driver_abort
 
   use op_interface,        ONLY : op_KleinPlanckGroupIntegrate,  &
                                   op_KleinRosslndGroupIntegrate
@@ -81,7 +81,7 @@ subroutine op_KleinGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
 !
 !
   if (Eupper <= Elower) then
-      call Driver_abortFlash ('[op_KleinGroupOpacity] ERROR: Bad energy group boundaries')
+      call Driver_abort ('[op_KleinGroupOpacity] ERROR: Bad energy group boundaries')
   end if
 !
 !
@@ -150,7 +150,7 @@ subroutine op_KleinGroupOpacity (opacityKind,indexElement,Temperature,Elower,Eup
 !      write (*,*) '                  Opacity = ',Opacity
 
   else
-      call Driver_abortFlash ('[op_KleinGroupOpacity] ERROR: Unidentified opacity kind')
+      call Driver_abort ('[op_KleinGroupOpacity] ERROR: Unidentified opacity kind')
   end if
 !
 !

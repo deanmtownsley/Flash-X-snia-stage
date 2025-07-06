@@ -33,7 +33,7 @@ subroutine Opacity_init ()
 
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
 
-  use Driver_interface,            ONLY : Driver_abortFlash, &
+  use Driver_interface,            ONLY : Driver_abort, &
                                           Driver_getMype
 
   use op_interface,                ONLY : op_initNumerics,                &
@@ -73,7 +73,7 @@ subroutine Opacity_init ()
   call RuntimeParameters_get("rt_useMGD", op_useMGD)
 
   !!if(.not. op_useMGD) then
-  !!   call Driver_abortFlash("[Opacity_init] useOpacity is .true. but rt_useMGD is .false.")
+  !!   call Driver_abort("[Opacity_init] useOpacity is .true. but rt_useMGD is .false.")
   !!end if
 
   call Timers_start("Opacity_init")
@@ -106,7 +106,7 @@ subroutine Opacity_init ()
   call RuntimeParameters_get("rt_mgdNumGroups", op_nEnergyGroups)
 
   if (op_nEnergyGroups < 1) then
-      call Driver_abortFlash ('[Opacity_init] ERROR: no energy groups found')
+      call Driver_abort ('[Opacity_init] ERROR: no energy groups found')
   end if
 !
 !
@@ -175,7 +175,7 @@ subroutine Opacity_init ()
         end do
      end if
 
-     call Driver_abortFlash("[opacity_init] bad opacity kind")
+     call Driver_abort("[opacity_init] bad opacity kind")
   end if
 
 !

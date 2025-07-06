@@ -17,7 +17,7 @@
 !!***
 subroutine op_initConstant ()
 
-  use Driver_interface,     ONLY : Driver_abortFlash
+  use Driver_interface,     ONLY : Driver_abort
 
   use Opacity_data,         ONLY : op_totalSpecies,         &
                                    op_absorptionKind,       &
@@ -60,7 +60,7 @@ subroutine op_initConstant ()
 !
 !
   if (op_totalSpecies < 1) then
-      call Driver_abortFlash ('[op_initConstant] ERROR: No species present!')
+      call Driver_abort ('[op_initConstant] ERROR: No species present!')
   end if
 !
 !
@@ -70,19 +70,19 @@ subroutine op_initConstant ()
   allocate (op_absorptionConstant (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstant] ERROR: op_absorptionConstant allocation failed')
+      call Driver_abort ('[op_initConstant] ERROR: op_absorptionConstant allocation failed')
   end if
 
   allocate (op_emissionConstant   (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstant] ERROR: op_emissionConstant allocation failed')
+      call Driver_abort ('[op_initConstant] ERROR: op_emissionConstant allocation failed')
   end if
 
   allocate (op_transportConstant  (1:op_totalSpecies), stat = status)
 
   if (status > 0) then
-      call Driver_abortFlash ('[op_initConstant] ERROR: op_transportConstant allocation failed')
+      call Driver_abort ('[op_initConstant] ERROR: op_transportConstant allocation failed')
   end if
 !
 !
@@ -118,7 +118,7 @@ subroutine op_initConstant ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "AbsorbConstant"
          call RuntimeParameters_get(rtpar, op_absorptionConstant(species))
          if(op_absorptionConstant(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstant] Error: constant absorption opacity not set")
+              call Driver_abort("[op_initConstant] Error: constant absorption opacity not set")
      end if
 
      if (emissionKind == OP_CONSTANT) then
@@ -126,7 +126,7 @@ subroutine op_initConstant ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "EmissConstant"
          call RuntimeParameters_get(rtpar, op_emissionConstant(species))
          if(op_emissionConstant(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstant] Error: constant emission opacity not set")
+              call Driver_abort("[op_initConstant] Error: constant emission opacity not set")
      end if
 
      if (transportKind == OP_CONSTANT) then
@@ -134,7 +134,7 @@ subroutine op_initConstant ()
          write(rtpar,'(3a)') "op_", trim(spec_str), "TransConstant"
          call RuntimeParameters_get(rtpar, op_transportConstant(species))
          if(op_transportConstant(species) < 0.0) &
-              call Driver_abortFlash("[op_initConstant] Error: constant transport opacity not set")
+              call Driver_abort("[op_initConstant] Error: constant transport opacity not set")
      end if
 
   end do

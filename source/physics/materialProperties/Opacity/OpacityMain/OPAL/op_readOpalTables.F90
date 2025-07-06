@@ -36,7 +36,7 @@ subroutine op_readOpalTables (tableNameLowT,   &
                               td, &
                               tbLowT,tbHighT  )
 
-  use Driver_interface,   ONLY : Driver_abortFlash
+  use Driver_interface,   ONLY : Driver_abort
   use op_opalInterface,   ONLY : op_readOpalTable
   use op_opalData,        ONLY : OP_OPAL_LOWT,         &
                                  OP_OPAL_HIGHT,        &
