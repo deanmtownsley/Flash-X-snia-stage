@@ -42,9 +42,9 @@ subroutine Simulation_initBlock(solnData,tileDesc)
     use bn_paraInterface, only : bn_paraFuelAshProperties
   
     implicit none
-  #include "Simulation.h"
-  #include "constants.h"
-  #include "Eos.h"
+#include "Simulation.h"
+#include "constants.h"
+#include "Eos.h"
   
     
     real, pointer :: solnData(:,:,:,:)

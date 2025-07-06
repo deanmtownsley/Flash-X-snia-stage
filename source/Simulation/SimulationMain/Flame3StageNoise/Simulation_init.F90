@@ -43,9 +43,9 @@ subroutine Simulation_init()
   
     implicit none
   
-  #include "constants.h"
-  #include "Simulation.h"
-  #include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
+#include "Eos.h"
   
     real :: laminarWidth
     real :: ye_f, ye_a, yi_f, yi_a, qbar_f, qbar_a
