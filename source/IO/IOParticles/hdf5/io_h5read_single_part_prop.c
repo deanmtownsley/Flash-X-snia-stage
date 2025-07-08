@@ -108,7 +108,7 @@ void FTOC(io_h5read_single_part_prop)(hid_t* file_identifier,
 #endif
   
   if (status < 0){
-    H5Eprint(stdout, H5P_DEFAULT);
+    H5Eprint((stdout);
     printf("[io_h5read_single_part_prop] Error: Unable to read particles from dataset\n");
     Driver_abortC("[io_h5read_single_part_prop] Error: Unable to read particles from dataset\n");
   }
