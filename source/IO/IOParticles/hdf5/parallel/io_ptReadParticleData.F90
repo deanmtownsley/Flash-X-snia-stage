@@ -85,8 +85,7 @@ subroutine io_ptReadParticleData()
 #define c_loc(x) x
 #endif
 
-  implicit none
-  include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 
 
   integer :: ierr, i, particleOffset

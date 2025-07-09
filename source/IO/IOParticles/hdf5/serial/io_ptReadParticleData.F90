@@ -57,11 +57,10 @@ subroutine io_ptReadParticleData()
   use Particles_data, ONLY : particles, pt_maxPerProc, pt_posInitialized
   use IO_interface, ONLY : IO_getScalar
 
-  implicit none
-
 #include "constants.h"
 #include "Simulation.h"
-#include "Flashx_mpi.h"
+
+#include "Flashx_mpi_implicitNone.fh"
 
 
   integer :: localNumParticles, ierr, i, particleOffset
