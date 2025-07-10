@@ -6,9 +6,14 @@
 
 subroutine Burn ( blockCount, blockList, dt )
   
-  use Grid_interface, ONLY  : Grid_fillGuardCells, &
-       Grid_getBlkIndexLimits, Grid_getCellCoords, Grid_getBlkPtr, &
-       Grid_releaseBlkPtr, Grid_getSingleCellVol
+  !JM use Grid_interface, ONLY  : Grid_fillGuardCells, &
+  !JM      Grid_getBlkIndexLimits, Grid_getCellCoords, Grid_getBlkPtr, &
+  !JM      Grid_releaseBlkPtr, Grid_getSingleCellVol
+
+  use Grid_iterator, ONLY : Grid_iterator_t !JM
+  use Grid_tile,      ONLY : Grid_tile_t !JM 
+  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells !JM
+
   use Eos_interface, ONLY   : Eos_wrapped
   use Hydro_interface, ONLY : Hydro_detectShock
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -31,15 +36,19 @@ subroutine Burn ( blockCount, blockList, dt )
 #include "Simulation.h"
 #include "Eos.h"
 
-  integer, INTENT(in)                        :: blockCount
-  integer, INTENT(in), DIMENSION(blockCount) :: blockList
+  !JM integer, INTENT(in)                        :: blockCount
+  !JM integer, INTENT(in), DIMENSION(blockCount) :: blockList
   real,    INTENT(in)                        :: dt
 
+  type(Grid_iterator_t) :: itor !JM
+  type(Grid_tile_t)     :: tileDesc !JM
+
   integer                    :: i, j, k, iref, l, n
-  integer                    :: blockID, istat
+  !JM integer                    :: blockID, istat
+  integer                    :: istat
   real                       :: eint, flame, flamedot, qdot, edotnu, time, dx
 
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+  !JM integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
 
   real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
   integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
@@ -120,42 +129,51 @@ subroutine Burn ( blockCount, blockList, dt )
      ! 2.  iterate over blocks and check for ignition conditions 
      ! -------------------------------------------------------
      ! determine the maximum number of ignition points to allow
-
+     
      ! initialize
      ignition_num = 0
      allocate(ignition_coords(NDIM*pbIgnNumMax),stat=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate ignition_coords")
+     if (istat/=0) call Driver_abort("Unable to allocate ignition_coords")
   
      ! store the number of ignition points in index zero
-     do n = 1, blockCount
+     !JM do n = 1, blockCount
+     call Grid_getTileIterator( itor, nodetype=LEAF )
+
+     do while( itor%isValid() )
+
+        call itor%currentTile(tileDesc)
 
         spark_block = .false.
         spark_block_radius = 0.e0
-        blockID = blockList(n)  
+        !JM blockID = blockList(n)  
 
         ! -------------------------------
         ! 2.1 initialize quantities for this block
         ! -------------------------------
-        call Grid_getBlkPtr(blockID,solnData)
+        !JM call Grid_getBlkPtr(blockID,solnData)
+        call tileDesc%getDataPtr(solnData, CENTER) !JM I think the above is all we actually need here.
      
         ! get coordinate positions
-        call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
-        xSizeCoord = blkLimitsGC(HIGH,IAXIS)
-        ySizeCoord = blkLimitsGC(HIGH,JAXIS)
-        zSizeCoord = blkLimitsGC(HIGH,KAXIS)
-        allocate(xCoord(xSizeCoord))
-        allocate(yCoord(ySizeCoord))
-        allocate(zCoord(zSizeCoord))
-        call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,xCoord,xSizeCoord)
-        call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
-        call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
+        !JM call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
+        !JM xSizeCoord = blkLimitsGC(HIGH,IAXIS)
+        !JM ySizeCoord = blkLimitsGC(HIGH,JAXIS)
+        !JM zSizeCoord = blkLimitsGC(HIGH,KAXIS)
+        !JM allocate(xCoord(xSizeCoord))
+        !JM allocate(yCoord(ySizeCoord))
+        !JM allocate(zCoord(zSizeCoord))
+        !JM call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,xCoord,xSizeCoord)
+        !JM call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
+        !JM call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
 
         ! --------------------------------
         ! 2.2 loop over all interior zones and check for ignition conditions 
         ! --------------------------------
-        do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-           do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-              do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+        !JM do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+           !JM do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
+              !JM do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+        do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+           do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+              do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
               
                  ! --------------------------------
                  ! 2.2.1 check for ignition conditions
@@ -223,7 +241,7 @@ subroutine Burn ( blockCount, blockList, dt )
                        ! need to create more space
                        else !! ( ignition_num < pbIgnNumMax )
 
-                         call Driver_abortFlash("Not enough space to store all ignition points")
+                         call Driver_abort("Not enough space to store all ignition points")
 
                        endif !! ( ignition_num < pbIgnNumMax )
 
@@ -239,10 +257,15 @@ subroutine Burn ( blockCount, blockList, dt )
         ! 2.3 Finish up:
         !     Release stuff
         ! --------------------------------
-        call Grid_releaseBlkPtr(blockID,solnData)
-        deallocate(xCoord)
-        deallocate(yCoord)
-        deallocate(zCoord)
+        !JM call Grid_releaseBlkPtr(blockID,solnData)
+        !JM deallocate(xCoord)
+        !JM deallocate(yCoord)
+        !JM deallocate(zCoord)
+
+        call tileDesc%releaseDataPtr(solnData, CENTER)
+
+        call itor%next()
+
      enddo
 
      ! -------------------------------------------------------
@@ -255,11 +278,11 @@ subroutine Burn ( blockCount, blockList, dt )
 
      ! allocate space for det coords
 !     allocate(det_xCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_xCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_xCoord")
 !     allocate(det_yCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_yCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_yCoord")
 !     allocate(det_zCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_zCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_zCoord")
 
      ! communicate detonation points and consolidate
      ! this means only det points which are not near each other and
@@ -281,7 +304,7 @@ subroutine Burn ( blockCount, blockList, dt )
 
         allocate(ignition_conditions(det_num),stat=istat)
         if (istat/=0)  &
-           call Driver_abortFlash("Unable to allocate ignition_conditions")
+           call Driver_abort("Unable to allocate ignition_conditions")
         ignition_conditions(:) = .true.
  
         det_search:  do l = 1, det_num
@@ -388,7 +411,7 @@ subroutine Burn ( blockCount, blockList, dt )
 #endif
                     open (burn_lun, file=bn_detIgnFileName, &
                           position='append', iostat=istat)
-                    if (istat/=0) call Driver_abortFlash("Unable to open detonation ignition points file")
+                    if (istat/=0) call Driver_abort("Unable to open detonation ignition points file")
 
                     write (burn_lun,*) time, detX, detY, detZ
 
@@ -412,7 +435,7 @@ subroutine Burn ( blockCount, blockList, dt )
               endif
            enddo
         else
-           call Driver_abortFlash("Not enough space to save detonation points")
+           call Driver_abort("Not enough space to save detonation points")
         endif
 
      endif
