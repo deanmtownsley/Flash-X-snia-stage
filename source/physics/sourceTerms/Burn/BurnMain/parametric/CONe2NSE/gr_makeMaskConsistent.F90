@@ -24,7 +24,7 @@
 !!  configuration symbols in order to determine the correct logic, 
 !!  including names and existence of grid variables,
 !!      number of mass fractions, the Eos mode of the caller,
-!!      whether ""EOS lite" is used,
+!!      whether EOS_YE mode (formerly known as "EOS lite") is used,
 !!      convertToConsvdForMeshCalls or convertToConsvdInMeshInterp,
 !!      and gridinterpolation
 !!
@@ -66,7 +66,7 @@
 subroutine gr_makeMaskConsistent(gridDataStruct,eosMode,needEos)
 
   use Eos_interface, ONLY : Eos_getParameters
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_data, ONLY : gr_vartypes, gr_convertToConsvdForMeshCalls,gr_convertToConsvdInMeshInterp
 
 
@@ -74,7 +74,7 @@ subroutine gr_makeMaskConsistent(gridDataStruct,eosMode,needEos)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   integer,intent(IN) :: gridDataStruct
   integer,intent(IN) :: eosMode
@@ -148,7 +148,7 @@ subroutine gr_makeMaskConsistent(gridDataStruct,eosMode,needEos)
 
 #ifdef USE_EOS_YE
 #ifndef YE_MSCALAR
-  call Driver_abortFlash("Grid_updateRefinement compiled in USE_EOS_YE mode, but no YE_MSCALAR is defined")
+  call Driver_abort("gr_makeMaskConsistent compiled in USE_EOS_YE mode, but no YE_MSCALAR is defined")
 #endif
 
 #endif
