@@ -186,7 +186,11 @@ def getHostName(sitesDir):
     namesToTry = [temp[0]]
     namesToTry.append(socket.gethostname())
     namesToTry.extend(temp[1]) # list of addl names for the current host
-    namesToTry.append(os.getenv("LMOD_SYSTEM_NAME"))
+
+    if "LMOD_SYSTEM_NAME" in os.environ:
+        lmod_name = os.getenv("LMOD_SYSTEM_NAME").strip()
+        if lmod_name:
+            namesToTry.append(lmod_name)
 
     # Read the alias file into memory
     aliasLines = []
