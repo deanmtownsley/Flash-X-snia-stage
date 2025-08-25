@@ -94,9 +94,7 @@ subroutine io_writeData(fileID)
 
    use gr_physicalMultifabs, ONLY: facevars !to be replaced...
 
-   implicit none
-
-#include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 
    integer(io_fileID_t), INTENT(in) :: fileID
 
