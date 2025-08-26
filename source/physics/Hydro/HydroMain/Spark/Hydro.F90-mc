@@ -83,7 +83,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
    real, intent(IN) :: timeEndAdv, dt, dtOld
-   integer, intent(IN) :: sweepOrder
+   integer, optional, intent(IN) :: sweepOrder
    @M iter_declare(blkLimits, blkLimitsGC, grownLimits, Uin)
    integer :: level
    integer, dimension(MDIM) :: lo, loGC, hi, hiGC

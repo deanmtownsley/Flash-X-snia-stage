@@ -35,7 +35,7 @@
 #include "constants.h"
 #include "UHD.h"
 
-subroutine Hydro(simTime, dt, dtOld, sweeporder)
+subroutine Hydro(simTime, dt, dtOld, sweepOrder)
 
   use Grid_interface,      ONLY : Grid_fillGuardCells, &
                                   Grid_getMaxRefinement, &
@@ -79,7 +79,7 @@ subroutine Hydro(simTime, dt, dtOld, sweeporder)
   implicit none
 
   real, intent(IN) ::  simTime, dt, dtOld
-  integer, optional, intent(IN):: sweeporder
+  integer, optional, intent(IN):: sweepOrder
 
   integer, save :: sweepDummy = SWEEP_ALL
 
