@@ -183,7 +183,7 @@ subroutine Burn ( blockCount, blockList, dt )
 #else
                  flame   = solnData(FLAM_MSCALAR,i,j,k)
 #endif
-                 call bn_paraSpark( xCoord(i), yCoord(j), zCoord(k), &
+                 call bn_paraSpark( i, j, k, &
                                     solnData(DENS_VAR,i,j,k),        &
                                     solnData(PRES_VAR,i,j,k),        &
                                     solnData(PHFA_MSCALAR,i,j,k),    &
@@ -275,7 +275,7 @@ subroutine Burn ( blockCount, blockList, dt )
      if (ignition_num .eq. 0) then
         deallocate(ignition_coords)
      endif
-
+!DQ
      ! allocate space for det coords
 !     allocate(det_xCoord(pbIgnNumMax),stat=istat)
 !     if (istat/=0) call Driver_abort("Unable to allocate det_xCoord")
@@ -311,44 +311,55 @@ subroutine Burn ( blockCount, blockList, dt )
            ! ---------------------------
            ! 4.1 iterate over all blocks
            ! ---------------------------
-           do n = 1, blockCount
+           !JM do n = 1, blockCount
+            call Grid_getTileIterator( itor, nodetype=LEAF )
+
+            do while( itor%isValid() )
+         
+               call itor%currentTile(tileDesc)
+               
+               call tileDesc%getDataPtr(solnData, CENTER) !JM I think the above is all we actually need here.
+            
+               do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
+                  do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
+                     do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
     
-              blockID = blockList(n)
+              !JM blockID = blockList(n)
 
               ! -------------------------------
               ! 4.1.1 initialize quantities for this block
               ! -------------------------------
-              call Grid_getBlkPtr(blockID,solnData)
+              !JM call Grid_getBlkPtr(blockID,solnData)
      
               ! get coordinate positions, used for shock detection and
               ! non-flame burning proximity detection
-              call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
-              xSizeCoord = blkLimitsGC(HIGH,IAXIS)
-              ySizeCoord = blkLimitsGC(HIGH,JAXIS)
-              zSizeCoord = blkLimitsGC(HIGH,KAXIS)
-              allocate(xCoord(xSizeCoord))
-              allocate(yCoord(ySizeCoord))
-              allocate(zCoord(zSizeCoord))
-              call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,xCoord,xSizeCoord)
-              call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
-              call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
+              !JM call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
+              !JM xSizeCoord = blkLimitsGC(HIGH,IAXIS)
+              !JM ySizeCoord = blkLimitsGC(HIGH,JAXIS)
+              !JM zSizeCoord = blkLimitsGC(HIGH,KAXIS)
+              !JM allocate(xCoord(xSizeCoord))
+              !JM allocate(yCoord(ySizeCoord))
+              !JM allocate(zCoord(zSizeCoord))
+              !JM call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,xCoord,xSizeCoord)
+              !JM call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
+              !JM call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
 
               ! --------------------------------
               ! 4.1.2 loop over all interior zones
               ! --------------------------------
-              do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-                 do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-                    do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+              !JM do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
+                 !JM do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
+                    !JM do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
 
                        ! --------------------------------
                        ! 4.1.2.1 check if we are near a detonation point
                        ! --------------------------------
-                       dist = ( det_xCoord(l) - xCoord(i) )**2
+                       dist = ( det_xCoord(l) - i )**2 !DQ
 #if NDIM >= 2
-                       dist = dist + ( det_yCoord(l) - yCoord(j) )**2
+                       dist = dist + ( det_yCoord(l) - j )**2
 #endif
 #if NDIM > 2
-                       dist = dist + ( det_zCoord(l) - zCoord(k) )**2
+                       dist = dist + ( det_zCoord(l) - k )**2
 #endif
                        dist = sqrt( dist )
 
@@ -380,10 +391,10 @@ subroutine Burn ( blockCount, blockList, dt )
               ! 4.1.3 Finish up:
               !     Release stuff
               ! --------------------------------
-              call Grid_releaseBlkPtr(blockID,solnData)
-              deallocate(xCoord)
-              deallocate(yCoord)
-              deallocate(zCoord)
+              !JM call Grid_releaseBlkPtr(blockID,solnData)
+              !JM deallocate(xCoord)
+              !JM deallocate(yCoord)
+              !JM deallocate(zCoord)
            enddo
 
         enddo det_search
