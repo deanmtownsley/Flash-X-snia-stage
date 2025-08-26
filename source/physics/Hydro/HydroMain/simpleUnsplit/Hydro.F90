@@ -35,7 +35,7 @@
 #include "UHD.h"
 #include "constants.h"
 
-subroutine Hydro(simTime, dt, dtOld)
+subroutine Hydro(simTime, dt, dtOld, sweepOrder)
   use Grid_interface,    ONLY : Grid_fillGuardCells, &
                                 Grid_getTileIterator, &
                                 Grid_releaseTileIterator, &
@@ -62,7 +62,8 @@ subroutine Hydro(simTime, dt, dtOld)
   implicit none
 
   real, intent(IN) ::  simTime, dt, dtOld
-  
+  integer, optional, intent(IN) :: sweepOrder
+
   real, pointer :: Uout(:,:,:,:)
   real, pointer :: Uin(:,:,:,:)
   real, pointer :: flX(:,:,:,:)
