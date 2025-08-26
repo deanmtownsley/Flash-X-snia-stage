@@ -468,7 +468,7 @@ Module Grid_interface
        type(Grid_tile_t), intent(in) :: blockDesc
        integer,intent(in) :: lo(3)
        real,CONTIGUOUS_INTENT(in) ,dimension(: ,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxBufX, fluxBufY, fluxBufZ
-       real,CONTIGUOUS_INTENT(OUT),dimension(: ,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxCorrX,fluxCorrY,fluxCorrZ
+       real,INTENT(OUT),dimension(: ,lo(1): ,lo(2): ,lo(3): ),TARGET :: fluxCorrX,fluxCorrY,fluxCorrZ
        logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
      end subroutine Grid_getFluxCorrData_xtra
      subroutine Grid_getFluxCorrData_block(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, isFluxDensity)

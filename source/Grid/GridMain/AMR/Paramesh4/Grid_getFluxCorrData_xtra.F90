@@ -22,9 +22,9 @@
 !!                                 real(IN), TARGET,CONTIGUOUS :: fluxBufY(:,lo(1): ,lo(2): ,lo(3): ),
 !!                                 real(IN), TARGET,CONTIGUOUS :: fluxBufZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                                 integer(in)           :: lo(3),
-!!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrX(:,lo(1): ,lo(2): ,lo(3): ),
-!!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrY(:,lo(1): ,lo(2): ,lo(3): ),
-!!                                 real(OUT),TARGET,CONTIGUOUS :: fluxCorrZ(:,lo(1): ,lo(2): ,lo(3): ),
+!!                                 real(OUT),TARGET            :: fluxCorrX(:,lo(1): ,lo(2): ,lo(3): ),
+!!                                 real(OUT),TARGET            :: fluxCorrY(:,lo(1): ,lo(2): ,lo(3): ),
+!!                                 real(OUT),TARGET            :: fluxCorrZ(:,lo(1): ,lo(2): ,lo(3): ),
 !!                                 logical(IN), OPTIONAL :: isFluxDensity(:))
 !!
 !! DESCRIPTION
@@ -124,9 +124,9 @@ subroutine Grid_getFluxCorrData_xtra(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, f
   CONTIGUOUS_FSTMT(fluxBufX)
   CONTIGUOUS_FSTMT(fluxBufY)
   CONTIGUOUS_FSTMT(fluxBufZ)
-  CONTIGUOUS_FSTMT(fluxCorrX)
-  CONTIGUOUS_FSTMT(fluxCorrY)
-  CONTIGUOUS_FSTMT(fluxCorrZ)
+!!$  CONTIGUOUS_FSTMT(fluxCorrX)
+!!$  CONTIGUOUS_FSTMT(fluxCorrY)
+!!$  CONTIGUOUS_FSTMT(fluxCorrZ)
   logical, intent(IN), OPTIONAL :: isFluxDensity(:) !maybe eliminate
 
   real,pointer, dimension(:,:,:,:) :: fluxx,fluxy,fluxz
@@ -134,9 +134,9 @@ subroutine Grid_getFluxCorrData_xtra(blockDesc,fluxBufX,fluxBufY,fluxBufZ, lo, f
   CONTIGUOUS_FSTMT(fluxx)
   CONTIGUOUS_FSTMT(fluxy)
   CONTIGUOUS_FSTMT(fluxz)
-  CONTIGUOUS_FSTMT(corrx)
-  CONTIGUOUS_FSTMT(corry)
-  CONTIGUOUS_FSTMT(corrz)
+!!$  CONTIGUOUS_FSTMT(corrx)
+!!$  CONTIGUOUS_FSTMT(corry)
+!!$  CONTIGUOUS_FSTMT(corrz)
 
   integer :: blockID
   integer :: level              ! coarse level, for a block in which fluxes get corrected
