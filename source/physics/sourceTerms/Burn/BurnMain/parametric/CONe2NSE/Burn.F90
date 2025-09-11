@@ -56,7 +56,6 @@ subroutine Burn ( blockCount, blockList, dt )
 
   real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
   integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
-  integer                                 :: x, y, z !JM
 
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits !JM
   integer, parameter :: shock_mode = 1 !JM
@@ -193,10 +192,6 @@ subroutine Burn ( blockCount, blockList, dt )
                           tileDesc%limits(HIGH, :), &
                           zCoord)
 
-         x = 0
-         y = 0
-         z = 0
-
         ! --------------------------------
         ! 2.2 loop over all interior zones and check for ignition conditions 
         ! --------------------------------
@@ -215,7 +210,7 @@ subroutine Burn ( blockCount, blockList, dt )
 #else
                  flame   = solnData(FLAM_MSCALAR,i,j,k)
 #endif
-                 call bn_paraSpark( xCoord(x), yCoord(y), zCoord(z), &
+                 call bn_paraSpark( xCoord(i), yCoord(j), zCoord(k), &
                                     solnData(DENS_VAR,i,j,k),        &
                                     solnData(PRES_VAR,i,j,k),        &
                                     solnData(PHFA_MSCALAR,i,j,k),    &
@@ -280,14 +275,9 @@ subroutine Burn ( blockCount, blockList, dt )
                     endif !! (spark_block)
 
                  endif !! (ignition_test)
-                 x = x + 1
+               
               enddo
-              x = 0
-              y = y + 1
            enddo
-           x = 0
-           y = 0
-           z = z + 1
         enddo
 
         ! --------------------------------
@@ -373,10 +363,6 @@ subroutine Burn ( blockCount, blockList, dt )
                                  tileDesc%limits(LOW,  :), &
                                  tileDesc%limits(HIGH, :), &
                                  zCoord)
-
-               x = 0
-               y = 0
-               z = 0
             
                do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
                   do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
@@ -412,12 +398,12 @@ subroutine Burn ( blockCount, blockList, dt )
                        ! --------------------------------
                        ! 4.1.2.1 check if we are near a detonation point
                        ! --------------------------------
-                       dist = ( det_xCoord(l) - xCoord(x) )**2 !DQ
+                       dist = ( det_xCoord(l) - xCoord(i) )**2 !DQ
 #if NDIM >= 2
-                       dist = dist + ( det_yCoord(l) - yCoord(y) )**2
+                       dist = dist + ( det_yCoord(l) - yCoord(j) )**2
 #endif
 #if NDIM > 2
-                       dist = dist + ( det_zCoord(l) - zCoord(z) )**2
+                       dist = dist + ( det_zCoord(l) - zCoord(k) )**2
 #endif
                        dist = sqrt( dist )
 
@@ -441,14 +427,8 @@ subroutine Burn ( blockCount, blockList, dt )
                           endif
                        endif
 
-                       x = x + 1
                      enddo
-                     x = 0
-                     y = y + 1
                   enddo
-                  x = 0
-                  y = 0
-                  z = z + 1
                enddo
      
               ! --------------------------------
@@ -670,10 +650,6 @@ subroutine Burn ( blockCount, blockList, dt )
                         tileDesc%limits(HIGH, :), &
                         zCoord)
 
-      x = 0
-      y = 0
-      z = 0
-
       do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
          do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
             do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
@@ -767,14 +743,8 @@ subroutine Burn ( blockCount, blockList, dt )
               dvol = dvol_buff(1,1,1)
               bn_neutLossThisProcStep = bn_neutLossThisProcStep + solnData(DENS_VAR,i,j,k)*dvol*edotnu*dt
 
-              x = x + 1
             enddo
-            x = 0
-            y = y + 1
          enddo
-         x = 0
-         y = 0
-         z = z + 1
       enddo
      
      
