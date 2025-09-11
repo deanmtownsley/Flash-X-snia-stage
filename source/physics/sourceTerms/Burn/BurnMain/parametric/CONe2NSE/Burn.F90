@@ -608,7 +608,7 @@ subroutine Burn ( blockCount, blockList, dt )
                       !JM blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
       solnData(SHK_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
-                     tileDesc%limits(LOW,KAXIS):,tileDesc%limits(HIGH,KAXIS)) = &
+                     tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)) = &
                      shock(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
                      tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
