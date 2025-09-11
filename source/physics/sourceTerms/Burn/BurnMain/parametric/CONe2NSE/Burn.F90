@@ -54,8 +54,14 @@ subroutine Burn ( blockCount, blockList, dt )
 
   !JM integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
 
-  !JM real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
-  !JM integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
+  real, allocatable, dimension(:)         :: xCoord, yCoord, zCoord
+  integer                                 :: xSizeCoord, ySizeCoord, zSizeCoord
+  integer                                 :: x, y, z !JM
+
+  integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits !JM
+  integer, parameter :: shock_mode = 1 !JM
+  real, parameter :: shock_thresh = 0.33 !JM
+
   real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
   real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
   real, pointer, dimension(:,:,:,:)                    :: solnData
@@ -170,6 +176,27 @@ subroutine Burn ( blockCount, blockList, dt )
         !JM call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
         !JM call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
 
+        allocate(xCoord(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS)))
+        allocate(yCoord(tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS)))
+        allocate(zCoord(tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)))
+
+        call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                          tileDesc%limits(LOW,  :), &
+                          tileDesc%limits(HIGH, :), &
+                          xCoord)
+        call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                          tileDesc%limits(LOW,  :), &
+                          tileDesc%limits(HIGH, :), &
+                          yCoord)
+        call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                          tileDesc%limits(LOW,  :), &
+                          tileDesc%limits(HIGH, :), &
+                          zCoord)
+
+         x = 0
+         y = 0
+         z = 0
+
         ! --------------------------------
         ! 2.2 loop over all interior zones and check for ignition conditions 
         ! --------------------------------
@@ -188,7 +215,7 @@ subroutine Burn ( blockCount, blockList, dt )
 #else
                  flame   = solnData(FLAM_MSCALAR,i,j,k)
 #endif
-                 call bn_paraSpark( i, j, k, &
+                 call bn_paraSpark( xCoord(x), yCoord(y), zCoord(z), &
                                     solnData(DENS_VAR,i,j,k),        &
                                     solnData(PRES_VAR,i,j,k),        &
                                     solnData(PHFA_MSCALAR,i,j,k),    &
@@ -253,9 +280,14 @@ subroutine Burn ( blockCount, blockList, dt )
                     endif !! (spark_block)
 
                  endif !! (ignition_test)
-
+                 x = x + 1
               enddo
+              x = 0
+              y = y + 1
            enddo
+           x = 0
+           y = 0
+           z = z + 1
         enddo
 
         ! --------------------------------
@@ -263,9 +295,9 @@ subroutine Burn ( blockCount, blockList, dt )
         !     Release stuff
         ! --------------------------------
         !JM call Grid_releaseBlkPtr(blockID,solnData)
-        !JM deallocate(xCoord)
-        !JM deallocate(yCoord)
-        !JM deallocate(zCoord)
+        deallocate(xCoord)
+        deallocate(yCoord)
+        deallocate(zCoord)
 
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -323,7 +355,28 @@ subroutine Burn ( blockCount, blockList, dt )
          
                call itor%currentTile(tileDesc)
                
-               call tileDesc%getDataPtr(solnData, CENTER) !JM I think the above is all we actually need here.
+               call tileDesc%getDataPtr(solnData, CENTER)
+
+               allocate(xCoord(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS)))
+               allocate(yCoord(tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS)))
+               allocate(zCoord(tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)))
+
+               call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                                 tileDesc%limits(LOW,  :), &
+                                 tileDesc%limits(HIGH, :), &
+                                 xCoord)
+               call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                                 tileDesc%limits(LOW,  :), &
+                                 tileDesc%limits(HIGH, :), &
+                                 yCoord)
+               call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                                 tileDesc%limits(LOW,  :), &
+                                 tileDesc%limits(HIGH, :), &
+                                 zCoord)
+
+               x = 0
+               y = 0
+               z = 0
             
                do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
                   do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
@@ -359,12 +412,12 @@ subroutine Burn ( blockCount, blockList, dt )
                        ! --------------------------------
                        ! 4.1.2.1 check if we are near a detonation point
                        ! --------------------------------
-                       dist = ( det_xCoord(l) - i )**2 !DQ
+                       dist = ( det_xCoord(l) - xCoord(x) )**2 !DQ
 #if NDIM >= 2
-                       dist = dist + ( det_yCoord(l) - j )**2
+                       dist = dist + ( det_yCoord(l) - yCoord(y) )**2
 #endif
 #if NDIM > 2
-                       dist = dist + ( det_zCoord(l) - k )**2
+                       dist = dist + ( det_zCoord(l) - zCoord(z) )**2
 #endif
                        dist = sqrt( dist )
 
@@ -388,18 +441,24 @@ subroutine Burn ( blockCount, blockList, dt )
                           endif
                        endif
 
-                    enddo
-                 enddo
-              enddo
+                       x = x + 1
+                     enddo
+                     x = 0
+                     y = y + 1
+                  enddo
+                  x = 0
+                  y = 0
+                  z = z + 1
+               enddo
      
               ! --------------------------------
               ! 4.1.3 Finish up:
               !     Release stuff
               ! --------------------------------
               !JM call Grid_releaseBlkPtr(blockID,solnData)
-              !JM deallocate(xCoord)
-              !JM deallocate(yCoord)
-              !JM deallocate(zCoord)
+               deallocate(xCoord)
+               deallocate(yCoord)
+               deallocate(zCoord)
             
             call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -472,11 +531,11 @@ subroutine Burn ( blockCount, blockList, dt )
 
    call Grid_getTileIterator( itor, nodetype=LEAF )
 
-      do while( itor%isValid() )
+   do while( itor%isValid() )
          
-         call itor%currentTile(tileDesc)
+      call itor%currentTile(tileDesc)
                
-         call tileDesc%getDataPtr(solnData, CENTER) !JM I think the above is all we actually need here.
+      call tileDesc%getDataPtr(solnData, CENTER)
 
      ! -------------------------------
      ! 5.1 initialize quantities for this block
@@ -497,19 +556,48 @@ subroutine Burn ( blockCount, blockList, dt )
      !JM call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,yCoord,ySizeCoord)
      !JM call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,zCoord,zSizeCoord)
 
+      grownTileLimits = tileDesc%grownLimits
+
+      ! shock detect if burning is turned off in shocks
+      allocate( shock( grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS), &
+      grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS), &
+      grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS) ) )
+
       call tileDesc%deltas(celldeltas)
       dx = celldeltas(IAXIS) ! also assume square grid
       !JM dx = xCoord(2)-xCoord(1) ! also assume square grid
      
-     ! shock detect if burning is turned off in shocks
      if (bn_thermalReact .and. (.NOT. bn_useShockBurn)) then
         !JM call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
              !JM xCoord,yCoord,zCoord)
-         call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
-             i,j,k) !DQ
-     else
-        shock(:,:,:) = 0
-     endif
+         ! get coordinate positions, used for shock detection
+        allocate(xCoord(grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS)))
+        allocate(yCoord(grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS)))
+        allocate(zCoord(grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS)))
+        call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          xCoord)
+        call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          yCoord)
+        call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                          grownTileLimits(LOW,  :), &
+                          grownTileLimits(HIGH, :), &
+                          zCoord)
+
+        call Hydro_shockStrength(solnData, shock, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
+                                                  grownTileLimits(LOW,:), grownTileLimits(HIGH,:), &
+                                                  xCoord,yCoord,zCoord, shock_thresh, shock_mode)
+
+        deallocate(xCoord)
+        deallocate(yCoord)
+        deallocate(zCoord)
+
+      else
+         shock(:,:,:) = 0
+      endif
 
 #ifdef SHK_VAR
      !JM solnData(SHK_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
@@ -518,12 +606,12 @@ subroutine Burn ( blockCount, blockList, dt )
                 !JM shock(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
                       !JM blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
                       !JM blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-         solnData(SHK_VAR,range(LOW,IAXIS):range(HIGH,IAXIS), &
-                          range(LOW,JAXIS):range(HIGH,JAXIS), &
-                          range(LOW,KAXIS):range(HIGH,KAXIS)) = &
-                    shock(range(LOW,IAXIS):range(HIGH,IAXIS), &
-                          range(LOW,JAXIS):range(HIGH,JAXIS), &
-                          range(LOW,KAXIS):range(HIGH,KAXIS))
+      solnData(SHK_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                     tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                     tileDesc%limits(LOW,KAXIS):,tileDesc%limits(HIGH,KAXIS)) = &
+                     shock(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                     tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                     tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
 #endif
      
      !  Check for proximity of a reacting region for each cell
@@ -564,6 +652,28 @@ subroutine Burn ( blockCount, blockList, dt )
      !JM do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
         !JM do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
            !JM do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+
+      allocate(xCoord(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS)))
+      allocate(yCoord(tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS)))
+      allocate(zCoord(tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)))
+
+      call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, &
+                        tileDesc%limits(LOW,  :), &
+                        tileDesc%limits(HIGH, :), &
+                        xCoord)
+      call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, &
+                        tileDesc%limits(LOW,  :), &
+                        tileDesc%limits(HIGH, :), &
+                        yCoord)
+      call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, &
+                        tileDesc%limits(LOW,  :), &
+                        tileDesc%limits(HIGH, :), &
+                        zCoord)
+
+      x = 0
+      y = 0
+      z = 0
+
       do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
          do j = tileDesc%limits(LOW,JAXIS), tileDesc%limits(HIGH,JAXIS)
             do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
@@ -657,9 +767,15 @@ subroutine Burn ( blockCount, blockList, dt )
               dvol = dvol_buff(1,1,1)
               bn_neutLossThisProcStep = bn_neutLossThisProcStep + solnData(DENS_VAR,i,j,k)*dvol*edotnu*dt
 
-           enddo
-        enddo
-     enddo
+              x = x + 1
+            enddo
+            x = 0
+            y = y + 1
+         enddo
+         x = 0
+         y = 0
+         z = z + 1
+      enddo
      
      
      ! --------------------------------
@@ -670,9 +786,9 @@ subroutine Burn ( blockCount, blockList, dt )
      call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
 
      !JM call Grid_releaseBlkPtr(blockID,solnData)
-     !JM deallocate(xCoord)
-     !JM deallocate(yCoord)
-     !JM deallocate(zCoord)
+      deallocate(xCoord)
+      deallocate(yCoord)
+      deallocate(zCoord)
 
       call tileDesc%releaseDataPtr(solnData, CENTER)
 
