@@ -16,7 +16,7 @@ subroutine Burn ( blockCount, blockList, dt )
                              Grid_getBlkIndexLimits, &
                              Grid_getDeltas, Grid_getCellCoords !JM
 
-  use Eos_interface, ONLY   : Eos_wrapped
+  use Eos_interface, ONLY   : Eos_multiDim
   use Hydro_interface, ONLY : Hydro_detectShock
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use bn_paraInterface, ONLY : bn_paraBurn, bn_paraSpark, bn_paraAllSpark, &
@@ -38,8 +38,8 @@ subroutine Burn ( blockCount, blockList, dt )
 #include "Simulation.h"
 #include "Eos.h"
 
-  !JM integer, INTENT(in)                        :: blockCount
-  !JM integer, INTENT(in), DIMENSION(blockCount) :: blockList
+  integer, INTENT(in)                        :: blockCount
+  integer, INTENT(in), DIMENSION(blockCount) :: blockList
   real,    INTENT(in)                        :: dt
 
   type(Grid_iterator_t) :: itor !JM
@@ -61,7 +61,8 @@ subroutine Burn ( blockCount, blockList, dt )
   integer, parameter :: shock_mode = 1 !JM
   real, parameter :: shock_thresh = 0.33 !JM
 
-  real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
+  !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
+  real, allocatable :: shock(:,:,:)
   real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
   real, pointer, dimension(:,:,:,:)                    :: solnData
 
