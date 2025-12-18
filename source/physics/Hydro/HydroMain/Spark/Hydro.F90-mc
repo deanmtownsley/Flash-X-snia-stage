@@ -40,7 +40,6 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
                              Grid_getFluxCorrData_block, &
                              Grid_getFluxCorrData_xtra, &
                              Grid_putFluxData, &
-                             Grid_putFluxData_block, &   ! this only required for nonTelescoping
                              Grid_getCellVolumes, &
                              Grid_getCellFaceAreas, &
                              Grid_getCellCoords
@@ -84,7 +83,7 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
 #define NRECON HY_NUM_VARS+NSPECIES+NMASS_SCALARS
 
    real, intent(IN) :: timeEndAdv, dt, dtOld
-   integer, intent(IN) :: sweepOrder
+   integer, optional, intent(IN) :: sweepOrder
    @M iter_declare(blkLimits, blkLimitsGC, grownLimits, Uin)
    integer :: level
    integer, dimension(MDIM) :: lo, loGC, hi, hiGC
@@ -228,13 +227,9 @@ subroutine Hydro(timeEndAdv, dt, dtOld, sweepOrder)
          @M hy_release_geom
       end if
       !Store flux buffer in semipermanent flux storage (SPFS)
-      if ((hy_telescoping) .and. (hy_fluxCorrect)) then
+      if (hy_fluxCorrect) then
          @M hy_DIR_TARGET_update_from([hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ])
-         call Grid_putFluxData(tileDesc, &
-                               hy_fluxBufX, &
-                               hy_fluxBufY, &
-                               hy_fluxBufZ, &
-                               blkLimits(LOW, :))
+         @M hy_putFluxBuf
       end if
       @M hy_DIR_TARGET_exit_data(release, [hy_starState, hy_tmpState])
       @M hy_DIR_TARGET_exit_data(release, [hy_flx, hy_fly, hy_flz])

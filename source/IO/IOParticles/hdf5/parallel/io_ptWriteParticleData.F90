@@ -112,8 +112,7 @@ subroutine io_ptWriteParticleData( fileID, globalNumParticles, &
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,        ONLY : Grid_tile_t
 
-  implicit none
-  include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer(io_fileID_t), intent(in) ::  fileID
   integer, intent(in) :: globalNumParticles, localNumParticles, particleOffset
