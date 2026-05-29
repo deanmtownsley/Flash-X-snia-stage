@@ -1,0 +1,188 @@
+#####################################################################
+#
+#  This parameter file is for a computation of sub-Chandraskhar
+#   pure detonation SNIa.
+#
+#   This problem should be set up with
+#   ./setup SNIa_ddt -1d -auto -nxb=16 +spherical +splithydro +newmpole -with-unit=Particles/ParticlesMain
+#   leaving off the particles -with-unit will exclude Lagrangian
+#   tracer particles.
+#
+#   Dean M. Townsley 2017
+#
+#####################################################################
+
+
+#####
+# I/O
+#####
+
+# names of files
+basenm			= "sniadet_"
+
+restart			= .false.
+
+checkpointFileNumber    = 0
+plotFileNumber		= 0
+particleFileNumber	= 0
+
+checkpointFileIntervalTime			= 0.1
+plotFileIntervalTime			= 0.1
+
+particleFileIntervalTime	= 0.001
+
+# go for nend steps or tmax seconds, whichever comes first
+# 4 seconds takes us well into ejecta phase
+nend			= 999999
+tmax			= 50.0
+
+corners			= .false.
+
+# variables for plotting
+plot_var_1		= "dens"
+plot_var_2		= "temp"
+plot_var_3		= "pres"
+plot_var_4		= "enuc"
+plot_var_5		= "c12"
+plot_var_6		= "o16"
+plot_var_7		= "si28"
+plot_var_8		= "ni56"
+
+
+particle_attribute_1 	= "dens"
+particle_attribute_2 	= "temp"
+particle_attribute_3 	= "pres"
+
+
+##################
+# ignition parameters
+##################
+
+# ignition specific
+# size of spherical region set as burned material
+# at time zero
+ignite			= .true.
+ign_keep_pres		= .false.
+ign_hemispherical	= .false.
+ign_x			= 0.0
+ign_r			= 200e5
+
+ign_temp_center = 3.0e9
+ign_temp_edge   = 3.0e7
+
+
+
+
+#########
+# initial model
+#########
+
+initialWDFile = "wd_profile_rhoc_332e5_M_100.dat"
+
+# density, temperature and composition of the fluff
+# linear ramp in logTemp and logDens to outer, then uniform
+fluff_boundary_radius	= 5e10
+# inner edge must be high enough P (=aT^4/3) to keep star from puffing
+dens_fluff_inner	= 1.e-3
+temp_fluff_inner	= 3.e7
+dens_fluff_outer	= 1.e-9
+temp_fluff_outer	= 1.e6
+
+#########
+# refinement
+#########
+
+# use custom refinement criteria
+refine_var_1            = "dens"
+refine_cutoff_1         = 0.1
+derefine_cutoff_1       = 0.0375
+
+refine_var_2            = "temp"
+refine_var_3            = "c12"
+refine_var_4            = "si28"
+
+refFluffThresh = 0.99
+refFluffMargin = 0.2
+refFluffLevel  = 1
+
+refNogenEnucThresh = 1e18
+refNogenMargin     = 0.5
+refNogenLevel      = 14
+
+# ejecta phase
+
+refBurnedKeyProduct    = "ne20"
+refBurnedProductThresh = 1e-4
+
+refEjectaPhaseStartTime = 0.5
+refEjectaPhaseMaxRes    = 512
+
+#################
+# mesh definition
+#################
+
+# physical domain
+geometry		= "spherical"
+
+xmin			=  0.e0
+xmax			=  4194304.e5
+
+nblockx			= 1
+
+# max and min levels of refinement
+# with nxb=16, level 1km resolution is level 19
+lrefine_min		= 4
+lrefine_max		= 17
+
+# boundary conditions for the whole star
+xl_boundary_type	= "reflect"
+xr_boundary_type	= "diode"
+
+grav_boundary_type	= "isolated"
+mpole_Lmax		= 6
+mpole_ZoneType_1		= "logarithmic"
+mpole_ZoneRadiusFraction_1	= 1.0
+mpole_ZoneScalar_1		= 1.0
+# the asymptotic (large radius) zone size is about the ZoneExponent * radius
+# so with an exponent of 5e-4 the zone size at 1e9 cm is about 5e5 cm
+# the WD surface is usually between 2e8 and 8e8 cm radius
+# seems good enough given the low Lmax
+mpole_ZoneExponent_1		= 5e-4
+
+
+# particles
+pt_numParticlesWanted	= 100000
+pt_maxPerProc 		= 100000
+
+##########
+# timestep
+##########
+
+# CFL limit
+cfl			= 0.80e0
+
+# initial and minimum
+dtinit			= 1e-9
+dtmin			= 1.e-20
+tstep_change_factor     = 1.2e0
+
+#############
+# miscellaneous
+#############
+
+# floor values
+
+# set values small enough to run into ejecta
+smlrho			= 1e-11
+small			= 1.e-100
+smalle			= 1.e-100
+smallt			= 1e4
+smallu			= 1.e-10
+smallp			= 1.e5
+smallx			= 1.e-100
+
+# misc
+
+eintSwitch		= 0.e0
+hybrid_riemann	  	= .true.
+

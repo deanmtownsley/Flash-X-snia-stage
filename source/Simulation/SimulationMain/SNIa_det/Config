@@ -1,0 +1,109 @@
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro
+REQUIRES physics/Gravity/GravityMain/Poisson
+REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
+REQUIRES physics/Eos/EosMain/Helmholtz
+
+USESETUPVARS withParticles
+
+IF withParticles
+   PARTICLETYPE passive INITMETHOD with_density MAPMETHOD weighted
+   REQUIRES Particles/ParticlesMain
+   REQUIRES Particles/ParticlesInitialization/WithDensity/CellMassBins
+   REQUIRES Particles/ParticlesMapping/meshWeighting/CIC
+   REQUESTS IO/IOMain/
+   REQUESTS IO/IOParticles
+ENDIF
+
+#
+# progenitor
+#
+
+PARAMETER     initialWDFile        STRING   "wd_profile_rhoc_332e5_M_100.dat"
+
+#
+# ambient medium outside star
+#
+# dens_fluff = density of the fluff
+# temp_fluff = temperature of the fluff
+
+D fluff_boundary_radius  fluff is ramped linearly in logDens and logTemp
+D & between the surface of the progenitor star and this boundary radius.
+D & Outside the boundary radius, fluff dens and temp are uniform
+D dens_fluff_inner  fluff density just outside edge of star
+D temp_fluff_inner  fluff temperature just outside edge of star
+D dens_fluff_outer  fluff density in uniform outer region
+D temp_fluff_outer  fluff temperature in uniform outer region
+PARAMETER     fluff_boundary_radius    REAL     5e10
+PARAMETER     dens_fluff_inner         REAL     1.0e-3
+PARAMETER     temp_fluff_inner         REAL     3.0e7
+PARAMETER     dens_fluff_outer         REAL     1.0e-9
+PARAMETER     temp_fluff_outer         REAL     1.0e6
+
+#
+# ignition
+#
+
+PARAMETER     ignite             BOOLEAN  FALSE
+PARAMETER     ign_x           REAL     0.e0
+PARAMETER     ign_y           REAL     0.e0
+PARAMETER     ign_z           REAL     0.e0
+PARAMETER     ign_r           REAL     0.e0
+PARAMETER     ign_temp_center REAL     1.e9
+PARAMETER     ign_temp_edge   REAL     1.e8
+PARAMETER     ign_keep_pres   BOOLEAN  FALSE
+PARAMETER     ign_hemispherical  BOOLEAN  FALSE
+
+PARAMETER     ign_file      BOOLEAN  FALSE
+PARAMETER     ign_file_name STRING   "ignition_points.dat"
+
+
+#
+# custom refinement criteria
+#
+
+D refFluffThresh refinement threshold for derefinement in Fluff
+D & above flff = this value, a maximum refinement level of refFluffLevel is enforced
+D refFluffMargin     Padding margin for thresholding (in fractional units)
+D refFluffLevel      Maximum refinement level of fluff
+
+PARAMETER     refFluffThresh       REAL      0.99
+PARAMETER     refFluffMargin       REAL      0.2
+PARAMETER     refFluffLevel        INTEGER   1
+
+PARAMETER     refNogenEnucThresh   REAL      1.e16
+PARAMETER     refNogenMargin       REAL      0.5
+PARAMETER     refNogenLevel        INTEGER   2
+
+# settings for finding maximum radius of burned material
+
+PARAMETER     refBurnedKeyProduct      STRING "ne20"
+PARAMETER     refBurnedProductThresh   REAL   1.e-4
+
+# settings for coarsening grid during ejecta phase
+
+D refEjectaPhaseStartTime  simulation time after which a cell size minimum is
+D & enforced based on the extent of the burned material on the grid (i.e. the
+D & current physical size of the ejecta)
+D refEjectaPhaseMinRes  maximum number of cells from origin out to edge
+D & of burned material.  Burned material determined by key product specified
+PARAMETER     refEjectaPhaseStartTime  REAL    1.0
+PARAMETER     refEjectaPhaseMaxRes     INTEGER 256
+
+
+PARTICLEPROP	dens		REAL
+PARTICLEMAP	TO dens		FROM VARIABLE dens
+PARTICLEPROP	temp		REAL
+PARTICLEMAP	TO temp		FROM VARIABLE temp
+PARTICLEPROP	pres		REAL
+PARTICLEMAP	TO pres		FROM VARIABLE pres
+
+DATAFILES wd_profile_rhoc_332e5_M_100.dat
+
+# fluff marker
+MASS_SCALAR flff
+
+
+# override some unit defaults
+PARAMETER useBurn BOOLEAN true
