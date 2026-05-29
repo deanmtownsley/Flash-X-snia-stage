@@ -1,11 +1,11 @@
-! Dean M. Townley 2009
+! Dean M. Townley 2009, .. , 2026
 !
-! This is the static module data for the Simulation Unit for the SNIa_ddt setup
+! This is the static module data for the Simulation Unit for the SNIa_det setup
 ! Note that some of these are allocatable, and are allocated by Simulation_init()
 
 module Simulation_data
-#include "Flash.h"
-#include "Eos.h"
+
+  implicit none
 
   real,allocatable,dimension(:),save :: sim_wd_dens_tab, sim_wd_temp_tab, sim_wd_he4_tab, &
                                         sim_wd_c12_tab, sim_wd_o16_tab, sim_wd_ne20_tab

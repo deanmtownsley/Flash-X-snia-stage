@@ -1,32 +1,48 @@
 !!
-!! Dean M. Townsley 2012
+!! Dean M. Townsley 2012, .. , 2026
 !!
-!! Simulation grid initialization routine for WDSurfHeDetFullStar setup.
+!! Simulation grid initialization routine for SNIa_det (started from WDSurfHeDetFullStar)
 !! See source/Simulation/Simulation_initBlock.F90 for API and notes.
 !!
 !!
 
-subroutine Simulation_initBlock(blockID)
+subroutine Simulation_initBlock(solnData, tileDesc)
   
-  use Simulation_data
+  use Simulation_data, ONLY: sim_fluffBoundaryRadius, sim_densFluffInner, sim_tempFluffInner, &
+     sim_densFluffOuter, sim_tempFluffOuter, &
+     sim_refFluffThresh, sim_refFluffMargin, sim_refFluffLevel, &
+     sim_refNogenEnucThresh, sim_refNogenMargin, sim_refNogenLevel, &
+     sim_refBurnedProductThresh, &
+     sim_refEjectaPhaseStartTime, sim_refEjectaPhaseMaxRes, &
+     sim_ign_numpnts, &
+     sim_ignite, sim_ign_keep_pres, sim_ign_hemispherical, sim_ign_file, &
+     sim_ign_x, sim_ign_y, sim_ign_z, sim_ign_r, sim_ign_temp_center, sim_ign_temp_edge, &
+     sim_wd_npnts, sim_wd_dens_tab, sim_wd_temp_tab, sim_wd_he4_tab, sim_wd_c12_tab, &
+     sim_wd_o16_tab, sim_wd_ne20_tab, &
+     sim_wd_dr_inv
   use sim_local_interface, ONLY : sim_interpolate1dWd, &
                          sim_find_ign_state_keeping_pres
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
-    Grid_getBlkBoundBox, Grid_getDeltas, Grid_putPointData, &
+    Grid_getBlkBoundBox, Grid_getDeltas, &
     Grid_getCellCoords
   use Eos_interface, ONLY : Eos
+  use Grid_tile, ONLY : Grid_tile_t
 
   implicit none
-#include "Flash.h"
+
 #include "constants.h"
+#include "Simulation.h"
 #include "Eos.h"
+#include "Multispecies.h"
 
   
-  integer, intent(in) :: blockID
+  real,              pointer    :: solnData(:,:,:,:)
+  type(Grid_tile_t), intent(in) :: tileDesc
 
   integer :: i, j, k
 
-  integer, dimension(2,MDIM) :: blkLimits, blkLimitsGC
+  integer,dimension(LOW:HIGH,MDIM) :: tileLimits
+  integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
   integer, dimension(MDIM) :: cell
   integer :: isizeGC, jsizeGC, ksizeGC
   real, allocatable, dimension(:) :: iCoords, jCoords, kCoords
@@ -43,26 +59,27 @@ subroutine Simulation_initBlock(blockID)
 !==============================================================================
 
   ! get essential info about this block - index limits and cell coordinates
-  call Grid_getBlkIndexLimits(blockID,blkLimits,blkLimitsGC)
+  tileLimits = tileDesc%limits
+  grownTileLimits = tileDesc%grownLimits
 
-  isizeGC = blkLimitsGC(HIGH,IAXIS)
-  allocate(iCoords(isizeGC))
-  jsizeGC = blkLimitsGC(HIGH,JAXIS)
-  allocate(jCoords(jsizeGC))
-  ksizeGC = blkLimitsGC(HIGH,KAXIS)
-  allocate(kCoords(ksizeGC))
-  call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,iCoords,isizeGC)
-  call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,jCoords,jsizeGC)
-  call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,kCoords,ksizeGC)
+  allocate( iCoords( grownTileLimits(LOW,IAXIS), grownTileLimits(HIGH,IAXIS) ) )
+  allocate( jCoords( grownTileLimits(LOW,JAXIS), grownTileLimits(HIGH,JAXIS) ) )
+  allocate( kCoords( grownTileLimits(LOW,KAXIS), grownTileLimits(HIGH,KAXIS) ) )
+  call Grid_getCellCoords( IAXIS, CENTER, tileDesc%level, &
+                           grownTileLimits(LOW,:), grownTileLimits(HIGH,:), iCoords)
+  call Grid_getCellCoords( JAXIS, CENTER, tileDesc%level, &
+                           grownTileLimits(LOW,:), grownTileLimits(HIGH,:), jCoords)
+  call Grid_getCellCoords( KAXIS, CENTER, tileDesc%level, &
+                           grownTileLimits(LOW,:), grownTileLimits(HIGH,:), kCoords)
 
-  call Grid_getDeltas(blockID, deltas)
+  call tileDesc%deltas(deltas)
 
   !-----------------------------------------------
   ! loop over all zones and init
   !-----------------------------------------------
-  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-     do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-        do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+  do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
+     do j = tileLimits(LOW,JAXIS), tileLimits(HIGH,JAXIS)
+        do i = tileLimits(LOW,IAXIS), tileLimits(HIGH,IAXIS)
 
            !-----------------------------------------------
            !  determine state of material at this radius if unburned

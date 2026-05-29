@@ -1,24 +1,31 @@
 !!
-!! Dean M. Townsley 2009
+!! Dean M. Townsley 2009, .. , 2026
 !!
-!! Initialization of Simulation Unit for WDHeDetFullStar
+!! Initialization of Simulation Unit for SNIa_det
 !! See source/Simulation/Simulation_init.F90 for API spec and notes.
 !! 
 
 subroutine Simulation_init()
 
-  use Simulation_data
+  use Simulation_data, ONLY: sim_fluffBoundaryRadius, sim_densFluffInner, sim_tempFluffInner, &
+     sim_densFluffOuter, sim_tempFluffOuter, &
+     sim_refFluffThresh, sim_refFluffMargin, sim_refFluffLevel, &
+     sim_refNogenEnucThresh, sim_refNogenMargin, sim_refNogenLevel, &
+     sim_refBurnedProductThresh, &
+     sim_refEjectaPhaseStartTime, sim_refEjectaPhaseMaxRes, &
+     sim_ign_numpnts, &
+     sim_ignite, sim_ign_keep_pres, sim_ign_hemispherical, sim_ign_file, &
+     sim_ign_x, sim_ign_y, sim_ign_z, sim_ign_r, sim_ign_temp_center, sim_ign_temp_edge, &
+     sim_wd_npnts, sim_wd_dens_tab, sim_wd_temp_tab, sim_wd_he4_tab, sim_wd_c12_tab, &
+     sim_wd_o16_tab, sim_wd_ne20_tab, &
+     sim_wd_dr_inv
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, only : Logfile_stampMessage
   use Driver_data, only : dr_restart
   use Grid_interface, only : Grid_getGeometry
-  use Logfile_interface, only : Logfile_stampMessage
+  use Driver_interface, only : Driver_abort
 
   implicit none
-
-#include "constants.h"
-#include "Flash.h"
-#include "Eos.h"
 
   character(len=256) :: initialWDFileName
   character(len=4096) :: ignitionFileName
@@ -71,22 +78,22 @@ subroutine Simulation_init()
      call Logfile_stampMessage('[Simulation_init] Reading ignition points from file')
      call RuntimeParameters_get('ign_file_name', ignitionFileName)
      open(unit=ignfileunit,file=ignitionFileName,status='OLD',iostat=istat)
-     if (istat /= 0) call Driver_abortFlash('Unable to open ignition points file')
+     if (istat /= 0) call Driver_abort('Unable to open ignition points file')
      ! one-line header ignored
      read(ignfileunit,*)
      read(ignfileunit,*) sim_ign_numpnts
      allocate(sim_ign_x(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_y(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_z(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_r(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_temp_center(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_temp_edge(sim_ign_numpnts),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      do i = 1, sim_ign_numpnts
         read(ignfileunit,*) sim_ign_x(i), sim_ign_y(i), sim_ign_z(i), sim_ign_r(i), &
                                                sim_ign_temp_center(i), sim_ign_temp_edge(i)
@@ -96,17 +103,17 @@ subroutine Simulation_init()
      ! just a single ignition point, read from parameter file
      sim_ign_numpnts = 1
      allocate(sim_ign_x(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_y(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_z(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_r(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_temp_center(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      allocate(sim_ign_temp_edge(1),STAT=istat)
-       if (istat /= 0) call Driver_abortFlash("Cannot allocate space for ignition points")
+       if (istat /= 0) call Driver_abort("Cannot allocate space for ignition points")
      call RuntimeParameters_get('ign_x', sim_ign_x(1))
      call RuntimeParameters_get('ign_y', sim_ign_y(1))
      call RuntimeParameters_get('ign_z', sim_ign_z(1))
@@ -123,24 +130,24 @@ subroutine Simulation_init()
 
     call Logfile_stampMessage('[Simulation_init] Reading initial 1-d WD profile')
     open(unit=2,file=initialWDFileName,status='OLD',iostat=istat)
-    if (istat /= 0) call Driver_abortFlash('Unable to open initial WD profile')
+    if (istat /= 0) call Driver_abort('Unable to open initial WD profile')
 
     ! eat header
     read(2,*)
     read(2,*) sim_wd_npnts
 
     allocate(sim_wd_dens_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     allocate(sim_wd_temp_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     allocate(sim_wd_he4_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     allocate(sim_wd_c12_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     allocate(sim_wd_o16_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     allocate(sim_wd_ne20_tab(sim_wd_npnts),STAT=istat)
-      if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+      if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
     lastradius = 0.0
     do i = 1, sim_wd_npnts
        lastradius = radius
