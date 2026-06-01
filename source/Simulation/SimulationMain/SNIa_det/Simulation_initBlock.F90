@@ -22,9 +22,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
      sim_wd_dr_inv
   use sim_local_interface, ONLY : sim_interpolate1dWd, &
                          sim_find_ign_state_keeping_pres
-  use Grid_interface, ONLY : Grid_getBlkIndexLimits, &
-    Grid_getBlkBoundBox, Grid_getDeltas, &
-    Grid_getCellCoords
+  use Grid_interface, ONLY : Grid_getCellCoords
   use Eos_interface, ONLY : Eos
   use Grid_tile, ONLY : Grid_tile_t
 
@@ -43,8 +41,6 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
   integer,dimension(LOW:HIGH,MDIM) :: tileLimits
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
-  integer, dimension(MDIM) :: cell
-  integer :: isizeGC, jsizeGC, ksizeGC
   real, allocatable, dimension(:) :: iCoords, jCoords, kCoords
   real, dimension(MDIM) :: deltas
 
@@ -62,9 +58,9 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   tileLimits = tileDesc%limits
   grownTileLimits = tileDesc%grownLimits
 
-  allocate( iCoords( grownTileLimits(LOW,IAXIS), grownTileLimits(HIGH,IAXIS) ) )
-  allocate( jCoords( grownTileLimits(LOW,JAXIS), grownTileLimits(HIGH,JAXIS) ) )
-  allocate( kCoords( grownTileLimits(LOW,KAXIS), grownTileLimits(HIGH,KAXIS) ) )
+  allocate( iCoords( grownTileLimits(LOW,IAXIS) : grownTileLimits(HIGH,IAXIS) ) )
+  allocate( jCoords( grownTileLimits(LOW,JAXIS) : grownTileLimits(HIGH,JAXIS) ) )
+  allocate( kCoords( grownTileLimits(LOW,KAXIS) : grownTileLimits(HIGH,KAXIS) ) )
   call Grid_getCellCoords( IAXIS, CENTER, tileDesc%level, &
                            grownTileLimits(LOW,:), grownTileLimits(HIGH,:), iCoords)
   call Grid_getCellCoords( JAXIS, CENTER, tileDesc%level, &
@@ -149,40 +145,40 @@ subroutine Simulation_initBlock(solnData, tileDesc)
 
            endif ! sim_ignite
 
-           call Eos(MODE_DENS_TEMP, 1, zone_state, zone_abund)
+           call Eos(MODE_DENS_TEMP, zone_state(EOS_PRES), zone_state(EOS_TEMP), &
+                    zone_state(EOS_DENS), zone_state(EOS_GAMC), zone_state(EOS_EINT), &
+                    zone_state(EOS_ENTR), zone_state(EOS_ABAR), zone_state(EOS_ZBAR), &
+                    zone_state(EOS_YE), massFrac=zone_abund )
            
 
            !-----------------------------------------------
            !  Now store all this info on the grid
            !-----------------------------------------------
-           cell(IAXIS) = i
-           cell(JAXIS) = j
-           cell(KAXIS) = k
-           call Grid_putPointData(blockId, CENTER, DENS_VAR, EXTERIOR, cell, zone_state(EOS_DENS))
-           call Grid_putPointData(blockId, CENTER, TEMP_VAR, EXTERIOR, cell, zone_state(EOS_TEMP))
+           solnData( DENS_VAR, i, j, k) = zone_state(EOS_DENS)
+           solnData( TEMP_VAR, i, j, k) = zone_state(EOS_TEMP)
 
-           call Grid_putPointData(blockId, CENTER, HE4_SPEC, EXTERIOR, cell, zone_abund(HE4_SPEC))
-           call Grid_putPointData(blockId, CENTER, C12_SPEC, EXTERIOR, cell, zone_abund(C12_SPEC))
-           call Grid_putPointData(blockId, CENTER, O16_SPEC, EXTERIOR, cell, zone_abund(O16_SPEC))
-           call Grid_putPointData(blockId, CENTER, NE20_SPEC, EXTERIOR, cell, zone_abund(NE20_SPEC))
+           solnData( HE4_SPEC, i, j, k) = zone_abund(HE4_SPEC)
+           solnData( C12_SPEC, i, j, k) = zone_abund(C12_SPEC)
+           solnData( O16_SPEC, i, j, k) = zone_abund(O16_SPEC)
+           solnData( NE20_SPEC, i, j, k) = zone_abund(NE20_SPEC)
 
-           call Grid_putPointData(blockId, CENTER, ENUC_VAR, EXTERIOR, cell, enuc)
+           solnData( ENUC_VAR, i, j, k) = enuc
 
-           call Grid_putPointData(blockId, CENTER, VELX_VAR, EXTERIOR, cell, 0.0)
-           call Grid_putPointData(blockId, CENTER, VELY_VAR, EXTERIOR, cell, 0.0)
-           call Grid_putPointData(blockId, CENTER, VELZ_VAR, EXTERIOR, cell, 0.0)
+           solnData( VELX_VAR, i, j, k) = 0.0
+           solnData( VELY_VAR, i, j, k) = 0.0
+           solnData( VELZ_VAR, i, j, k) = 0.0
 
-           call Grid_putPointData(blockId, CENTER, ENER_VAR, EXTERIOR, cell, zone_state(EOS_EINT))
-           call Grid_putPointData(blockId, CENTER, EINT_VAR, EXTERIOR, cell, zone_state(EOS_EINT))
-           call Grid_putPointData(blockId, CENTER, PRES_VAR, EXTERIOR, cell, zone_state(EOS_PRES))
-           call Grid_putPointData(blockId, CENTER, GAMC_VAR, EXTERIOR, cell, zone_state(EOS_GAMC))
-           call Grid_putPointData(blockId, CENTER, GAME_VAR, EXTERIOR, cell, &
-                                       zone_state(EOS_PRES)/(zone_state(EOS_DENS)*zone_state(EOS_EINT))+1.0)
+           solnData( ENER_VAR, i, j, k) = zone_state(EOS_EINT)
+           solnData( EINT_VAR, i, j, k) = zone_state(EOS_EINT)
+           solnData( PRES_VAR, i, j, k) = zone_state(EOS_PRES)
+           solnData( GAMC_VAR, i, j, k) = zone_state(EOS_GAMC)
+           solnData( GAME_VAR, i, j, k) = &
+                              zone_state(EOS_PRES)/(zone_state(EOS_DENS)*zone_state(EOS_EINT))+1.0
 
            if (zone_fluff) then
-              call Grid_putPointData(blockId, CENTER, FLFF_MSCALAR, EXTERIOR, cell, 1.0)
+              solnData( FLFF_MSCALAR, i, j, k) = 1.0
            else
-              call Grid_putPointData(blockId, CENTER, FLFF_MSCALAR, EXTERIOR, cell, 0.0)
+              solnData( FLFF_MSCALAR, i, j, k) = 0.0
            endif
         enddo
      enddo

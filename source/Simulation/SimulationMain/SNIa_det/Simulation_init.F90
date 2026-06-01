@@ -11,7 +11,7 @@ subroutine Simulation_init()
      sim_densFluffOuter, sim_tempFluffOuter, &
      sim_refFluffThresh, sim_refFluffMargin, sim_refFluffLevel, &
      sim_refNogenEnucThresh, sim_refNogenMargin, sim_refNogenLevel, &
-     sim_refBurnedProductThresh, &
+     sim_refBurnedKeyProductIndex, sim_refBurnedProductThresh, &
      sim_refEjectaPhaseStartTime, sim_refEjectaPhaseMaxRes, &
      sim_ign_numpnts, &
      sim_ignite, sim_ign_keep_pres, sim_ign_hemispherical, sim_ign_file, &
@@ -26,6 +26,8 @@ subroutine Simulation_init()
   use Driver_interface, only : Driver_abort
 
   implicit none
+
+#include "constants.h"
 
   character(len=256) :: initialWDFileName
   character(len=4096) :: ignitionFileName
