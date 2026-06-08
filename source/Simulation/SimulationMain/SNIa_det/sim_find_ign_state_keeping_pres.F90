@@ -11,10 +11,10 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
    use Eos_interface, ONLY : Eos
    use eos_helmData, ONLY : eos_tol
-   use Driver_interface, ONLY : Driver_abortFlash
+   use Driver_interface, ONLY : Driver_abort
 
    implicit none
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
 
@@ -22,20 +22,20 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
    real, intent(inout), dimension(EOS_NUM) :: thermstate
    real, intent(in), dimension(SPECIES_BEGIN:SPECIES_END) :: abund
 
-   logical :: mask(EOS_VARS+1:EOS_NUM)
    real :: guess_dens, dp_drho_T, target_pres, new_guess_dens
    integer :: iter
    integer, parameter :: max_iter = 100
    real :: tol, err
 
    tol = eos_tol
-   mask(:) = .false.
-   mask(EOS_DPD) = .true.
 
    iter = 0
        
    ! get pressure to match from info in thermstate
-   call Eos( MODE_DENS_TEMP, 1, thermstate, abund)
+   call Eos(MODE_DENS_TEMP, thermstate(EOS_PRES), thermstate(EOS_TEMP), &
+            thermstate(EOS_DENS), thermstate(EOS_GAMC), thermstate(EOS_EINT), &
+            thermstate(EOS_ENTR), thermstate(EOS_ABAR), thermstate(EOS_ZBAR), &
+            thermstate(EOS_YE), massFrac=abund )
    target_pres = thermstate(EOS_PRES)
 
    thermstate(EOS_TEMP) = ign_temp
@@ -47,7 +47,10 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
       ! evaluate
       thermstate(EOS_DENS) = guess_dens
-      call Eos(MODE_DENS_TEMP, 1, thermstate, massFrac=abund, mask=mask)
+      call Eos(MODE_DENS_TEMP, thermstate(EOS_PRES), thermstate(EOS_TEMP), &
+               thermstate(EOS_DENS), thermstate(EOS_GAMC), thermstate(EOS_EINT), &
+               thermstate(EOS_ENTR), thermstate(EOS_ABAR), thermstate(EOS_ZBAR), &
+               thermstate(EOS_YE), massFrac=abund )
       dp_drho_T = thermstate( EOS_DPD )
 
       ! newton-raphson improved guess
@@ -60,7 +63,7 @@ subroutine sim_find_ign_state_keeping_pres(ign_temp, thermstate, abund)
 
    if ( .not. (err <= tol) ) then
       ! NaN error will also fail test
-      call Driver_abortFlash("Failed to converge in sim_find_ignition_state_keeping_pressure")
+      call Driver_abort("Failed to converge in sim_find_ignition_state_keeping_pressure")
    endif
 
    thermstate(EOS_DENS) = guess_dens
