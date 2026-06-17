@@ -36,17 +36,18 @@ subroutine Grid_markRefineDerefine()
 
   use Grid_data, ONLY : gr_refine_cutoff, gr_derefine_cutoff,&
                         gr_refine_filter,&
-                        gr_numRefineVars,gr_refine_var
+                        gr_numRefineVars,gr_refine_var, &
+                        gr_meshComm, gr_meshMe
   use tree, ONLY : newchild, refine, derefine, stay, lrefine, &
                    lrefine_max, lrefine_min, &
                    nodetype, parent, child, nchild, lnblocks
   use Grid_interface, ONLY : Grid_fillGuardCells, &
-       Grid_getCellCoords, Grid_getDeltas, Grid_getTileIterator, Grid_releaseTileIterator
+       Grid_getCellCoords, Grid_getTileIterator, Grid_releaseTileIterator
   use Simulation_data, ONLY : sim_refFluffThresh, sim_refFluffMargin, &
        sim_refFluffLevel, sim_refNogenEnucThresh, sim_refNogenMargin, &
        sim_refNogenLevel, sim_refBurnedKeyProductIndex, sim_refBurnedProductThresh, &
        sim_refEjectaPhaseStartTime, sim_refEjectaPhaseMaxRes
-  use Driver_interface, ONLY: Driver_getMype, Driver_getComm, Driver_getSimTime
+  use Driver_interface, ONLY: Driver_getSimTime
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile, ONLY : Grid_tile_t
 
@@ -64,7 +65,7 @@ subroutine Grid_markRefineDerefine()
   type(Grid_iterator_t) :: itor
   type(Grid_tile_t) :: tile
   integer ,dimension(MAXBLOCKS) :: blkList
-  integer ::  i, j, k, mesh_mype, meshcomm
+  integer ::  i, j, k
 
   real, dimension(:,:,:,:), pointer :: solnData
 
@@ -85,8 +86,6 @@ subroutine Grid_markRefineDerefine()
   integer, dimension(MAXBLOCKS) :: recvreq, sendreq
   integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS) :: recvstat, sendstat
 
-  call Driver_getMype( MESH_COMM, mesh_mype )
-  call Driver_getComm( MESH_COMM, meshcomm )
   call Driver_getSimTime( simTime )
 
  !----------------------------------------------------
@@ -147,7 +146,7 @@ subroutine Grid_markRefineDerefine()
   end do
   call Grid_releaseTileIterator( itor )
 
-  call MPI_Allreduce( maxrsqburned, global_maxrsqburned, 1, FLASH_REAL, MPI_MAX, meshcomm, ierr)
+  call MPI_Allreduce( maxrsqburned, global_maxrsqburned, 1, FLASH_REAL, MPI_MAX, gr_meshComm, ierr)
 
   maxRadiusBurned = sqrt(global_maxrsqburned)
 
@@ -159,9 +158,15 @@ subroutine Grid_markRefineDerefine()
   derefine(:) = .FALSE.
   stay(:)     = .FALSE.
 
-   ! default is to derefine unless a criteria requires resolution
+  ! default is to derefine unless a criteria requires resolution
   ! note only mark active blocks, otherwise nothing works
-  derefine(:) = .true.
+  call Grid_getTileIterator( itor, ACTIVE_BLKS, tiling=.false. )
+  do while (itor%isValid())
+     call itor%currentTile( tile )
+     derefine(tile%id) = .true.
+     call itor%next()
+  enddo
+  call Grid_releaseTileIterator( itor )
   do l = 1,gr_numRefineVars
      iref = gr_refine_var(l)
      ref_cut = gr_refine_cutoff(l)
@@ -266,7 +271,7 @@ subroutine Grid_markRefineDerefine()
      if (simTime > sim_refEjectaPhaseStartTime) then
 
         ejecta_min_cellsize = maxRadiusBurned / sim_refEjectaPhaseMaxRes
-        call Grid_getDeltas( tile%id, deltas )
+        call tile%deltas( deltas )
         cellsize = deltas(1)
 
         ! if cell size for this block is less than min, force derefinement
@@ -286,6 +291,7 @@ subroutine Grid_markRefineDerefine()
 
   call Grid_releaseTileIterator( itor )
 
+
   !---------------------------------------------------------------
   ! 3. Do parent-child consistency
   !
@@ -293,17 +299,17 @@ subroutine Grid_markRefineDerefine()
   ! marked refine and if so unmark derefine
   !---------------------------------------------------------------
   ! just using raw paramesh tree structures here
-  refine_parent(:) = .false.
+  refine_parent(1:lnblocks) = .false.
   ! open (async) message recieve if parent is off-procssor
   ! otherwise fill directly
   !    message id is child block number on local processor
   nrecv = 0
   do i = 1, lnblocks
-     if (parent(1,i) > 0) then
-        if (parent(2,i)/=mesh_mype) then
+     if (parent(1,i) > -1) then
+        if (parent(2,i)/=gr_meshMe) then
            nrecv = nrecv+1
            call MPI_IRecv(refine_parent(i), 1, MPI_LOGICAL, parent(2,i), &
-                                    i, meshcomm, recvreq(nrecv), ierr)
+                                    i, gr_meshComm, recvreq(nrecv), ierr)
         else
            refine_parent(i) = refine(parent(1,i))
         endif
@@ -313,11 +319,11 @@ subroutine Grid_markRefineDerefine()
   nsend = 0
   do i = 1, lnblocks
      do j = 1,nchild
-        if (child(1,j,i) > 0) then
-           if (child(2,j,i) /= mesh_mype) then
+        if (child(1,j,i) > -1) then
+           if (child(2,j,i) /= gr_meshMe) then
               nsend = nsend + 1
               call MPI_ISend(refine(i), 1, MPI_LOGICAL, child(2,j,i), &
-                                  child(1,j,i), meshcomm, sendreq(nsend), ierr)
+                                  child(1,j,i), gr_meshComm, sendreq(nsend), ierr)
            endif
         endif
      enddo
