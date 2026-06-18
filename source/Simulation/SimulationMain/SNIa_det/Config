@@ -2,7 +2,7 @@ REQUIRES Driver
 REQUIRES Grid
 REQUIRES physics/Hydro
 REQUIRES physics/Gravity/GravityMain/Poisson
-REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
+REQUIRES physics/sourceTerms/Burn/BurnMain
 REQUIRES physics/Eos/EosMain/Helmholtz
 
 USESETUPVARS withParticles

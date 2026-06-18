@@ -1,5 +1,5 @@
 !!
-!! Dean M. Townsley 2009
+!! Dean M. Townsley 2009-2026
 !!
 !! Replacement of default refinement marking from
 !!  source/Grid/Grid_markRefineDerefine.F90
@@ -43,6 +43,7 @@ subroutine Grid_markRefineDerefine()
                    nodetype, parent, child, nchild, lnblocks
   use Grid_interface, ONLY : Grid_fillGuardCells, &
        Grid_getCellCoords, Grid_getTileIterator, Grid_releaseTileIterator
+  use gr_interface,   ONLY : gr_markRefineDerefine
   use Simulation_data, ONLY : sim_refFluffThresh, sim_refFluffMargin, &
        sim_refFluffLevel, sim_refNogenEnucThresh, sim_refNogenMargin, &
        sim_refNogenLevel, sim_refBurnedKeyProductIndex, sim_refBurnedProductThresh, &
@@ -83,8 +84,10 @@ subroutine Grid_markRefineDerefine()
   ! for reconciling parents and children
   logical, dimension(MAXBLOCKS) :: refine_parent
   integer :: nsend, nrecv, ierr
-  integer, dimension(MAXBLOCKS) :: recvreq, sendreq
-  integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS) :: recvstat, sendstat
+  integer, dimension(MAXBLOCKS) :: recvreq
+  integer, dimension(MAXBLOCKS*nchild) :: sendreq
+  integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS) :: recvstat
+  integer, dimension(MPI_STATUS_SIZE,MAXBLOCKS*nchild) :: sendstat
 
   call Driver_getSimTime( simTime )
 
@@ -172,6 +175,7 @@ subroutine Grid_markRefineDerefine()
      ref_cut = gr_refine_cutoff(l)
      deref_cut = gr_derefine_cutoff(l)
      ref_filter = gr_refine_filter(l)
+     err(:)      = 0.0
      call gr_estimateError(err, iref, ref_filter)
      call gr_markRefineDerefine(err, ref_cut, deref_cut)
   end do
