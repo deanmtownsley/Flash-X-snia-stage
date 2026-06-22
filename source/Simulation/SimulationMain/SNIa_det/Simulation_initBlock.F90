@@ -157,10 +157,8 @@ subroutine Simulation_initBlock(solnData, tileDesc)
            solnData( DENS_VAR, i, j, k) = zone_state(EOS_DENS)
            solnData( TEMP_VAR, i, j, k) = zone_state(EOS_TEMP)
 
-           solnData( HE4_SPEC, i, j, k) = zone_abund(HE4_SPEC)
-           solnData( C12_SPEC, i, j, k) = zone_abund(C12_SPEC)
-           solnData( O16_SPEC, i, j, k) = zone_abund(O16_SPEC)
-           solnData( NE20_SPEC, i, j, k) = zone_abund(NE20_SPEC)
+           solnData( SPECIES_BEGIN:SPECIES_END, i, j, k) = &
+                                 zone_abund(SPECIES_BEGIN:SPECIES_END)
 
            solnData( ENUC_VAR, i, j, k) = enuc
 
