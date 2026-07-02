@@ -141,7 +141,7 @@ subroutine Driver_initAll()
   ! Must initialize Grid first
   call Orchestration_init()
 
-!!  call Driver_initMaterialProperties()
+  call Driver_initMaterialProperties()
   if(dr_globalMe==MASTER_PE)print*,'MaterialProperties initialized'
 
   call RuntimeParameters_get('dtInit',dr_dtInit)
