@@ -10,6 +10,7 @@ Driver += main.o \
 	Driver_finalizeSourceTerms.o \
 	Driver_init.o \
 	Driver_initAll.o \
+	Driver_initMaterialProperties.o \
 	Driver_initNumericalTools.o \
 	Driver_initParallel.o \
 	Driver_sendOutputData.o \
