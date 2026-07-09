@@ -37,6 +37,7 @@ subroutine Driver_initSourceTerms(restart)
     use Flame_interface, ONLY : Flame_init
     use RadTrans_interface, ONLY: RadTrans_init
     use Deleptonize_interface, ONLY: Deleptonize_init
+    use Turb_interface, ONLY: Turb_init
 
     implicit none
 
@@ -46,5 +47,6 @@ subroutine Driver_initSourceTerms(restart)
     call Flame_init()
     call RadTrans_init()
     call Deleptonize_init()
+    call Turb_init()
 
 end subroutine Driver_initSourceTerms
