@@ -7,7 +7,7 @@
 
 Module Turb_interface
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   implicit none
 
