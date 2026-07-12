@@ -115,39 +115,27 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   tempRow    = temp
   denRow     = dens
 
-   if(.not.present(massFrac)) then
-      abarRow    = abar
-      zbarRow    = zbar
-   else
-      !Calculate the inverse in a way that allows for zero mass fractions
-      call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
-      abarRow = 1.e0 / abarInv
-
-      call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
-      zbarRow = abarRow * zbarFrac
-   end if
-
   ! Note in Eos.F90, we assume the user knows what they are doing.  Eos_multiDim does not.
-!  if(eos_doYe)
-!     abarRow    = abar
-!     zbarRow    = zbar
-!  else
-!#ifdef FLASH_MULTISPECIES
-!     !Calculate the inverse in a way that allows for zero mass fractions
-!     call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
-!     abarRow = 1.e0 / abarInv
-!     
-!     call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
-!     zbarRow = abarRow * zbarFrac
-!#else
-!     ! No multispecies defined, use default values (same as Gamma formulation)
-!     abarRow = eos_singleSpeciesA
-!     zbarRow = eos_singleSpeciesZ
-!     
-!#endif
-!     abar=abarRow
-!     zbar=zbarRow     
-!  end if
+  if(eos_doYe)
+     abarRow    = abar
+     zbarRow    = zbar
+  else
+#ifdef FLASH_MULTISPECIES
+     !Calculate the inverse in a way that allows for zero mass fractions
+     call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
+     abarRow = 1.e0 / abarInv
+     
+     call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
+     zbarRow = abarRow * zbarFrac
+#else
+     ! No multispecies defined, use default values (same as Gamma formulation)
+     abarRow = eos_singleSpeciesA
+     zbarRow = eos_singleSpeciesZ
+     
+#endif
+     abar=abarRow
+     zbar=zbarRow     
+  end if
   !==============================================================================
   
   !      MODE_DENS_TEMP  temperature and density given

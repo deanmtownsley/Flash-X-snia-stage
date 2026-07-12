@@ -1,7 +1,7 @@
 ##python3:genLines
 
 def genLines(setupvars):
-    yield "PPDEFINE FLASH_MULTISPECIES"
+    #yield "PPDEFINE FLASH_MULTISPECIES"
 
     maxelems = 6
     if "ms_maxelems" in setupvars:
