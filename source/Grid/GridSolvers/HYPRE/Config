@@ -107,5 +107,10 @@ D & isotropic diffusion problems are solved with HYPRE (available for both hydro
 D & ANISOTRTOPIC DIFFUSION IS NOT YET PROPERLY IMPLEMENTED, AND NOT IMPLEMENTED AT ALL FOR AMR.
 PARAMETER gr_hypreAnisoDiffusion BOOLEAN         FALSE
 
+USESETUPVARS InsPresLaplacian
+
+IF InsPresLaplacian
+    SETUPERROR HYPRE only supports Poisson solvers
+ENDIF
 
 LIBRARY hypre

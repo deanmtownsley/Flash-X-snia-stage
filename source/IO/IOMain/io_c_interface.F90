@@ -107,7 +107,7 @@ module io_c_interface
             memCount, diskStart, diskCount
        integer(c_int), intent(IN) :: pDims
        type(c_ptr), value :: pData
-       integer(c_int), intent(IN) :: numFileBlks
+       integer(c_int), dimension(pDims), intent(IN) :: numFileBlks
        integer(c_int), intent(OUT) :: pErr
      end subroutine io_xfer_cont_slab
   end interface

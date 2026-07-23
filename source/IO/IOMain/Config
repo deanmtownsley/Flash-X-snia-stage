@@ -309,3 +309,13 @@ D & FLASH will only write a checkpoint, plot, or particle file if the user
 D & creates a .dump_plotfile, .dump_checkpoint, .dump_restart, or
 D & .dump_particle_file file.  A .kill file will still kill FLASH.
 PARAMETER summaryOutputOnly BOOLEAN false
+
+
+# We want to use the Fortran intrinsic module named iso_c_binding
+# in the implementations of the FLASH I/O unit.
+# If USE_IO_C_INTERFACE is not defined, the implementations will
+# try to fall back to an older method for calling C code from
+# Fortran code, but these days that will likely result in
+# compilation errors.
+
+PPDEFINE USE_IO_C_INTERFACE

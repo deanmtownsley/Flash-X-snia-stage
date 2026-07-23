@@ -32,7 +32,7 @@ plotFileIntervalTime			= 0.0
 #writeStatSummary			= .true.
 
 #gr_sanitizeDataMode			= 0
-#gr_sanitizeVervosity			= 0
+#gr_sanitizeVerbosity			= 0
 
 # variables for plotting
 plot_var_1				= "pres"

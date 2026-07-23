@@ -29,16 +29,23 @@
 !!
 !!***
 
-subroutine bn_networkTable()
+subroutine bn_networkTable(btemp, bden, abar, zbar, z2bar, ytot1, bye, &
+                           nrat, nrattab, &
+                           rattab, ttab, dtab, ratraw)
 
 #include "Simulation.h"
 
-   
-  use Burn_dataEOS, ONLY: btemp, bden
-  use Burn_data
+
   use bn_dataAprox19
 
   implicit none
+
+  integer, intent(IN) :: nrat, nrattab
+  real, intent(IN) :: btemp, bden, abar, zbar, z2bar, ytot1, bye
+  real, intent(OUT), dimension(nrattab) :: ttab
+  real, intent(OUT), dimension(nrat, nrattab) :: rattab
+  real, intent(OUT), dimension(nrat) :: dtab
+  real, intent(OUT), dimension(nrat) :: ratraw
 
   !..uses tables instead of analytical expressions to evaluate the 
   !..raw reaction rates. a cubic polynomial is hardwired for speed.
@@ -49,6 +56,7 @@ subroutine bn_networkTable()
        &                 x,x1,x2,x3,x4,a,b,c,d,e,f,g,h,p,q,  &
        &                 alfa,beta,gama,delt
   data             ifirst/0/
+  real :: btemp_tmp, bden_tmp
 
 
   !..make the table
@@ -62,27 +70,24 @@ subroutine bn_networkTable()
      if (imax .gt. nrattab) stop 'imax too small in bn_networkTable'
      tlo  = 6.0e0
      thi  = 10.0e0
-     tstp = (thi - tlo)/float(imax-1)
+     tstp = (thi - tlo)/real(imax-1)
 
      !..save the input
      btemp_sav = btemp
      den_sav   = bden
 
      !..form the table
-     bden = 1.0e0
+     bden_tmp = 1.0e0
      do i=1,imax
-        btemp = tlo + float(i-1)*tstp
-        btemp = 10.0e0**(btemp)
+        btemp_tmp = tlo + real(i-1)*tstp
+        btemp_tmp = 10.0e0**(btemp_tmp)
         call bn_networkRates
-        ttab(i) = btemp
+        ttab(i) = btemp_tmp
         do j=1,nrat
            rattab(j,i) = ratraw(j)
         enddo
      enddo
 
-     !..restore the input
-     bden  = den_sav
-     btemp = btemp_sav
   end if
 
 

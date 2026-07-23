@@ -41,21 +41,26 @@ module Heater_interface
    end interface
 
    interface
-      subroutine Heater_checkSites(tileDesc, blockCount)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), intent(in) :: tileDesc
-         integer, intent(in) :: blockCount
+      subroutine Heater_checkSites(solnData,del,xcell,ycell,zcell,bndBox,logc,higc, lblock)
+
+        !----------------------------------------------------------------------------------------
+        integer, intent(in) :: lblock
+        real, dimension(:, :, :, :) :: solnData
+        real, dimension(:), intent(in)          :: xcell, ycell, zcell
+        real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
+        integer, dimension(MDIM),intent(IN)          :: logc, higc
+        real,intent(IN)    :: del(MDIM)
       end subroutine Heater_checkSites
    end interface
 
    interface
-      subroutine Heater_lsReInit(tileDesc, stime, blockCount)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), intent(in) :: tileDesc
-         real, intent(in) :: stime
-         integer, intent(in) :: blockCount
+      subroutine Heater_lsReInit(solnData,xcell,ycell,zcell,bndBox,logc, higc, stime, lblock)
+        real, dimension(:, :, :, :)  :: solnData
+        real, intent(in)                      :: stime
+        real, dimension(:), intent(in)          :: xcell, ycell, zcell
+        real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
+        integer, dimension(MDIM),intent(in)   :: logc, higc
+        integer, intent(in) :: lblock
       end subroutine Heater_lsReInit
    end interface
 

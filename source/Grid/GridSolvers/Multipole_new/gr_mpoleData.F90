@@ -145,6 +145,7 @@ module gr_mpoleData
   integer, save :: gr_mpoleMinRadialZone
   integer, save :: gr_mpoleOuterZoneQshift
   integer, save :: gr_mpoleTotalNrCosineMoments
+  integer, save :: gr_mpoleRequest  
 
   real,    save :: gr_mpoleDr
   real,    save :: gr_mpoleDrInv
@@ -232,9 +233,10 @@ module gr_mpoleData
   real,              allocatable, save :: gr_mpoleZoneMaxRadiusFraction    (:)
   real,              allocatable, save :: gr_mpoleZoneRmax                 (:)
   real,              allocatable, save :: gr_mpoleInnerZoneDrRadii         (:)
+  real,              allocatable, save :: gr_mpoleMomRI                    (:,:,:)
   real,              allocatable, save :: gr_mpoleMomentR                  (:,:)
   real,              allocatable, save :: gr_mpoleMomentI                  (:,:)
-  real,              allocatable, save :: gr_mpoleScratch                  (:,:)
+  real,              allocatable, save :: gr_mpoleScratch                  (:,:,:)
 
   type (cellData1D), allocatable, save :: gr_mpoleQdataCells1D             (:,:)
   type (cellData2D), allocatable, save :: gr_mpoleQdataCells2D             (:,:)

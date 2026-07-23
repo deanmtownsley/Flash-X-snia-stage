@@ -66,6 +66,7 @@ subroutine Driver_initAll()
   use Gravity_interface, ONLY : Gravity_init, &
     Gravity_potential
   use Timers_interface, ONLY : Timers_init, Timers_start, Timers_stop
+  use TimeAdvance_interface, ONLY : TimeAdvance_init
 
   use Grid_interface, ONLY : Grid_init, Grid_initDomain
   use Orchestration_interface, ONLY : Orchestration_init
@@ -152,8 +153,13 @@ subroutine Driver_initAll()
   if(dr_globalMe==MASTER_PE)print*,'Particles initialized'
 #endif
 
+  call TimeAdvance_init()
+
   ! Heater source term
   call Heater_init()
+
+  ! ImBound unit initialization
+  call ImBound_init(dr_restart)
 
   if(.not. dr_restart) then
 
@@ -199,9 +205,6 @@ subroutine Driver_initAll()
 
   ! Stencils unit initialization
   call Stencils_init()
-
-  ! ImBound unit initialization
-  call ImBound_init(dr_restart)
 
   ! Multiphase unit must go before INS
   call Multiphase_init(dr_restart)

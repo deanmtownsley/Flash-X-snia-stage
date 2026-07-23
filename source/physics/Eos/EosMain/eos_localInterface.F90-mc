@@ -18,6 +18,8 @@
 !!
 !! This file defines the internal interfaces for the Eos unit
 !!
+!!
+
 !!NOVARIANTS
 
 module eos_localInterface
@@ -35,6 +37,15 @@ module eos_localInterface
      end subroutine eos_weaklib
   end interface
 
+  interface
+     subroutine eos_weaklib_GPU(mode, vecLen, eosData,  massFrac, derivs)
+       integer, INTENT(in) :: mode, vecLen
+       real,INTENT(inout),dimension(vecLen,EOS_VARS) :: eosData 
+       real, optional, INTENT(out),dimension(vecLen,EOS_VARS+1:EOS_NUM) :: derivs
+       real, optional, INTENT(in),dimension(vecLen,NSPECIES)    :: massFrac
+     end subroutine eos_weaklib_GPU
+  end interface
+  
 
   interface
      subroutine eos_idealGamma(mode, @M eos_args , massFrac, derivs)
@@ -45,7 +56,17 @@ module eos_localInterface
        real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
      end subroutine eos_idealGamma
   end interface
- 
+
+  interface
+     subroutine eos_idealGamma_GPU(mode, @M eos_args , massFrac, derivs)
+       implicit none
+       integer, INTENT(in) :: mode
+       real,INTENT(inout) :: @M eos_args 
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+     end subroutine eos_idealGamma_GPU
+  end interface
+
   interface
      subroutine eos_helmSpecies(mode, @M eos_args , massFrac, derivs)
        integer, INTENT(in) :: mode
@@ -55,6 +76,41 @@ module eos_localInterface
      end subroutine eos_helmSpecies
   end interface
 
+  interface
+     subroutine eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                         dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                         deaRow, dezRow, &
+                         pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
+       real, intent(IN) :: tempRow, denRow, abarRow, zbarRow
+       real, intent(IN OUT) :: ptotRow, gamcRow, etotRow, stotRow, &
+                               dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                               deaRow, dezRow, & !Calhoun
+                               pelRow, neRow, etaRow, detatRow, cvRow, cpRow
+     end subroutine eos_helm
+  end interface
+
+  interface
+     subroutine eos_helm_GPU(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                             dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                             deaRow, dezRow, &
+                             pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
+       real, intent(IN) :: tempRow, denRow, abarRow, zbarRow
+       real, intent(IN OUT) :: ptotRow, gamcRow, etotRow, stotRow, &
+                               dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                               deaRow, dezRow, & !Calhoun
+                               pelRow, neRow, etaRow, detatRow, cvRow, cpRow
+     end subroutine eos_helm_GPU
+  end interface
+
+  interface
+     subroutine eos_helmSpecies_GPU(mode, @M eos_args , massFrac, derivs)
+       integer, INTENT(in) :: mode
+       real,INTENT(inout) :: @M eos_args 
+       real, optional, INTENT(in),dimension(NSPECIES)    :: massFrac
+       real, optional, INTENT(out),dimension(EOS_VARS+1:EOS_NUM) :: derivs
+     end subroutine eos_helmSpecies_GPU
+  end interface
+  
   
   interface 
      subroutine eos_idealGammaInit()

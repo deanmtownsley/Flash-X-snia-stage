@@ -30,23 +30,7 @@ module Hydro_data
   implicit none
   save
 
-  real, target, allocatable :: hya_flux(:)
-  real, target, allocatable :: hya_flat(:)
-  real, target, allocatable :: hya_shck(:)
-
-  real, target, allocatable :: hya_rope(:)
-  real, target, allocatable :: hya_uPlus(:)
-  real, target, allocatable :: hya_uMinus(:)
-  real, allocatable, target :: hya_tmpState(:)
-  real, allocatable, target :: hya_starState(:)
-  real, allocatable, target :: hya_Vc(:)
-  real, allocatable, target :: hya_grav(:)  
-  real,  allocatable,target :: hya_flat3d(:)
-  real, allocatable, target :: hya_flx(:), hya_fly(:), hya_flz(:)
-  real, allocatable, dimension(:), target :: hya_fluxBufX, hya_fluxBufY, hya_fluxBufZ
-  real, allocatable, dimension(:),target :: hya_fareaX, hya_cvol
-  real, allocatable, dimension(:),target :: hya_fareaY, hya_fareaZ
-  real, allocatable, dimension(:),target :: hya_xCenter, hya_xLeft, hya_xRight, hya_yCenter, hya_yLeft, hya_yRight, hya_zCenter
+  real,allocatable,dimension(:),target :: @M hy_scratch_arrays_list
   !Flux buffers
 
   real :: hy_dt, hy_dtmin
@@ -67,7 +51,7 @@ module Hydro_data
   real :: hy_limRad
   real :: hy_cvisc
 
-  real :: hy_tiny=1.e-32
+  real :: hy_tiny
   real :: hy_gravConst, hy_4piGinv
   real :: hy_mp5ZeroTol
 
@@ -88,16 +72,13 @@ module Hydro_data
   real, dimension(3) :: hy_coeffs, hy_weights
   integer, dimension(3) :: hy_limitsArray
   real, dimension(3,3) :: hy_coeffArray
-
-! real, pointer, dimension(:, :, :, :) :: hy_tmpState, hy_starState, hy_flx, hy_fly, hy_flz, &
-!                                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
-!                                         hy_rope, hy_flux, hy_uPlus, hy_uMinus
+  real, dimension(MDIM) :: hy_globalLBnd
 
    @M hy_DIR_TARGET_declare_data([hy_cvisc, hy_limRad, hy_tiny, hy_gravConst, hy_4piGinv, hy_bref])
-   @M hy_DIR_TARGET_declare_data([hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu])
+   @M hy_DIR_TARGET_declare_data([hy_smalldens, hy_smallE, hy_smallpres, hy_smallX, hy_smallu, hy_mp5ZeroTol])
    @M hy_DIR_TARGET_declare_data([hy_fluxCorrect, hy_fluxCorrectPerLevel, hy_fluxCorVars, hy_geometry])
    @M hy_DIR_TARGET_declare_data([hy_hybridRiemann, hy_flattening, hy_alphaGLM, hy_lChyp])
-   @M hy_DIR_TARGET_declare_data([hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray])
+   @M hy_DIR_TARGET_declare_data([hy_coeffs, hy_weights, hy_limitsArray, hy_coeffArray, hy_globalLBnd])
    @M hy_DIR_TARGET_declare_data([hy_cfl, hy_telescoping, hy_addFluxArray, hy_maxLev, hy_maxCells])
 
    @M hy_DIR_TARGET_declare_data([hya_tmpState, hya_starState, hya_flx, hya_fly, hya_flz])

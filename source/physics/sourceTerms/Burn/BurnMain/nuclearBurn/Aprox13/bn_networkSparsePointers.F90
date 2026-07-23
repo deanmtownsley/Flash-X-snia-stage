@@ -43,7 +43,8 @@
 
 subroutine bn_networkSparsePointers(iloc,jloc,nzo,np)
 
-  use Burn_data
+  use Burn_data, ONLY: ihe4, ic12, io16, ine20, img24, isi28, &
+                       is32, iar36, ica40, iti44, icr48, ife52, ini56
   ! for communication with networkSparseJakob
   use bn_dataNetworkSize, ONLY : neloc, eloc, nterms
 
@@ -51,22 +52,13 @@ subroutine bn_networkSparsePointers(iloc,jloc,nzo,np)
 
   implicit none
 
-  !    save
-
-  !!  declare
-  integer, intent(INOUT) ::   iloc(*),jloc(*)
+  ! Arguments
+  integer, intent(INOUT) ::   iloc(:), jloc(:)
   integer, intent(IN)    ::   np
   integer, intent(OUT)   ::   nzo
 
   !!  local variables
   integer                ::    i
-
-
-  !!  communicate with networkSparseJakob, now in bn_dataAprox13
-!!  integer          neloc
-!!  parameter        (neloc=65)
-!!  integer          eloc(neloc),nterms
-!!  common /elca13/  eloc,nterms
 
 
   !!  initialize
@@ -168,13 +160,6 @@ subroutine bn_networkSparsePointers(iloc,jloc,nzo,np)
   call bn_mcord(ini56,ife52,iloc,jloc,nzo,np,eloc,nterms,neloc)
   call bn_mcord(ini56,ini56,iloc,jloc,nzo,np,eloc,nterms,neloc)
 
-
-  !!  
-  !!  write a diagnostic
-  !      write(6,*) ' '
-  !      write(6,*) nzo,' matrix elements'
-  !      write(6,*) nterms,' jacobian contributions'
-  !      write(6,*) ' '
 
   return
 

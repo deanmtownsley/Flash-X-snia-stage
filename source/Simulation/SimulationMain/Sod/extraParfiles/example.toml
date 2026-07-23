@@ -1,0 +1,73 @@
+[Simulation]
+sim_rhoLeft = 1.0
+sim_rhoRight = 0.125
+sim_pLeft = 1.0
+sim_pRight = 0.1
+sim_uLeft = 0.0
+sim_uRight = 0.0
+sim_xangle = 45.0
+sim_yangle = 45.0
+sim_posn = 1.0
+basenm = "sod_"
+
+[Eos]
+gamma = 1.4
+eintSwitch = 1.0e-4
+
+[Grid]
+geometry = "cartesian"
+xmin = 0.0
+xmax = 1.0
+ymin = 0.0
+ymax = 1.0
+xl_boundary_type = "outflow"
+xr_boundary_type = "outflow"
+yl_boundary_type = "outflow"
+yr_boundary_type = "outflow"
+lrefine_max = 6
+refine_var_1 = "dens"
+
+[Driver]
+restart = false
+nend = 1000
+tmax = 0.2
+iProcs = 1
+jProcs = 1
+kProcs = 1
+useSTS = false
+nstepTotalSTS = 5
+nuSTS = 0.2
+
+[Logfile]
+run_comment = "Sod problem, diagonal direction"
+log_file = "sod.log"
+
+
+[IO]
+checkpointFileIntervalTime = 0.2
+checkpointFileIntervalStep = 0
+checkpointFileNumber = 0
+plotFileIntervalTime = 0.0
+plotFileIntervalStep = 0
+plotFileNumber = 0
+plot_var_1 = "dens"
+plot_var_2 = "pres"
+plot_var_3 = "temp"
+
+
+[Hydro]
+cfl = 0.8
+order = 2  # Interpolation order (first/second/third/fifth order)
+slopeLimiter = "mc"  # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+LimitedSlopeBeta = 1.0  # Slope parameter for the "limited" slope by Toro
+charLimiting = true  # Characteristic limiting vs. Primitive limiting
+use_avisc = false  # use artificial viscosity (originally for PPM)
+use_flattening = false  # use flattening (dissipative) (originally for PPM)
+use_steepening = false  # use contact steepening (originally for PPM)
+use_upwindTVD = false  # use upwind biased TVD slope for PPM (need nguard=6)
+
+# 	II. RIEMANN SOLVERS:
+RiemannSolver = "Roe"  # Roe, HLL, HLLC, LLF, Marquina
+entropy = false  # Entropy fix for the Roe solver
+hy_fPresInMomFlux = 1.0  # Part of pressure gradient term in momentum equation to include in momentum fluxes
+shockDetect = false  # Shock Detect for numerical stability

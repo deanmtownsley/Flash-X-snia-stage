@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import os, sys, string, re, time, shutil, types, glob, socket, math
+import os, sys, string, re, time, shutil, types, glob, socket, math, importlib
 
-import parseCmd, lazyFile
+import parseCmd, lazyFile, createParfile, unitMods
 import globals
 from globals import *   # GVars and SetupError
 from utils import *     # Assorted little cute functions
@@ -13,24 +13,44 @@ from unitUtils import * # for UnitList class
 from macroProcessorHelper import generateVariants, modifyMakefile
 from unitUtils import getLowestBase
 
-def __runMacroProcesor(unitList, GVars):
-    for unitname in unitList.getLinkOrder():
-        # If unit has -mc files, run the macroProcessor to generate variants
-        # in the object dir.
+memo = {}
+
+def __memoMcFiles(orderedUnitlist, GVars, memo):
+    for unitname in orderedUnitlist:
+        # If units have -mc files, remember them so the macroProcessor can later
+        # generate variants in the object dir.
+        __memoMcFile(unitname, GVars, memo)
+
+def __memoMcFile(unitname, GVars, memo):
+        # If a unit has -mc files, remember them so the macroProcessor can later
+        # generate variants in the object dir.
         unitDir = os.path.join(GVars.sourceDir, unitname)
 
-        if any([ f.endswith("-mc") for f in os.listdir(unitDir)] ):
+        mcFilesHere = [ f for f in os.listdir(unitDir) if f.endswith("-mc") ]
+        if mcFilesHere:
+            GVars.out.put(f"+ unitname {unitname}, mcFilesHere = {mcFilesHere}.",globals.INFO)
+            memo[unitname] = mcFilesHere
+
+def __runMacroProcessor(unitList, orderedUnitlist, GVars, memo):
+    for unitname in orderedUnitlist:
+        # If unit has -mc files, run the macroProcessor to generate variants
+        # in the object dir.
+
+        # if a list of mc files exists for this source directory and is not empty:
+        if unitname in memo and memo[unitname]:
             simDir = os.path.join(GVars.simulationsDir, GVars.simulationName)
             binDir = os.path.join(GVars.flashHomeDir,'bin')
             defList = unitList.collectDefs(GVars.sourceDir, unitname,binDir, simDir)
             varList = unitList.getRequestedVariants(unitname)
             if not varList:
                 varList = ['']
+            unitDir = os.path.join(GVars.sourceDir, unitname)
             baseList = generateVariants(unitDir,
                             os.path.join(GVars.flashHomeDir,GVars.objectDir),
                             defList,
                             varList,
-                            macroOnly=GVars.macroOnly)
+                            macroOnly=GVars.macroOnly,
+                            mcFiles=memo[unitname])
             for baseFile in baseList:
                 if(os.path.exists(baseFile)):
                     os.unlink(baseFile)
@@ -99,14 +119,20 @@ def main():
     unitList.adjustOpts()
     parseCmd.final() # finalise the options
 
-    # if flag is set, all we need is the list of units in order to find macro files.
-    # then once all necessary macro files have been updated, we exit
+    # getLinkOrder does the fancy sorting of unitnames
+    orderedUnitlist = unitList.getLinkOrder()
+
+    # If flag is set, all we need is the list of units in order to find macro files.
+    # Then once all necessary macro files have been updated, we exit.
+    # NOTE that the shadowing of .F90-mc files by .F90 files of higher priority
+    # is not applied in this case!
     if GVars.macroOnly:
         # change directory
         GVars.out.put("Flag -mconly set, only checking -mc files.")
         os.chdir(GVars.flashHomeDir)
         os.chdir(GVars.objectDir)
-        __runMacroProcesor(unitList, GVars)
+        __memoMcFiles(orderedUnitlist, GVars, memo)
+        __runMacroProcessor(unitList, orderedUnitlist, GVars, memo)
         # exit to only run macro processor.
         return
 
@@ -148,11 +174,20 @@ def main():
     # find files which should not be linked
     linkList.getDontLinkList(unitList.getList(),configInfo['LINKIF'])
 
-    # getLinkOrder does the fancy sorting of unitnames
-    for unitname in unitList.getLinkOrder():
-        linkList.linkFiles(os.path.join(GVars.sourceDir, unitname))
+    # The following depends on the fancy sorting of unitnames, which effectively
+    # implements the priority between competing files in different directories:
+    # the ordering is such that the last of several file locations wins, thus
+    # has highest priority.
+    # For the shadowing of (say) .F90-mc files by .F90 files of higher priority,
+    # but only those, to work properly, the following operations, memorizing
+    # names and locations of -mc files and adding to the linkList (with possible
+    # side effect of forgetting some -mc files again if they are shadowed),
+    # have to be done in ONE loop.
+    for unitname in orderedUnitlist:
+        __memoMcFile(unitname, GVars, memo)
+        linkList.linkFiles(os.path.join(GVars.sourceDir, unitname), memo)
 
-    linkList.linkFiles(os.path.join(GVars.flashHomeDir, 'sites'))
+    linkList.linkFiles(os.path.join(GVars.flashHomeDir, 'sites'), memo)
 
     # Link in the right version of the make file
     # attempt to find Makefile in FLASH root directory, otherwise link make file from sites
@@ -167,16 +202,16 @@ def main():
         print("Using Makefile.h: " + tmp_makefilePathSites)
 
     # functions in the simulations dir override earlier instances
-    linkList.linkFiles(GVars.simulationsDir)
+    linkList.linkFiles(GVars.simulationsDir, memo)
 
     # functions from LINKIF statements override everything else,
     # assuming their conditions apply.
-    linkList.doLINKIFOverrides(unitList.getList(), configInfo['LINKIF'])
+    linkList.doLINKIFOverrides(unitList.getList(), configInfo['LINKIF'], memo)
 
     # now is when we do the real link/copying
     linkList.reallyLink()
 
-    __runMacroProcesor(unitList, GVars)
+    __runMacroProcessor(unitList, orderedUnitlist, GVars, memo)
 
     ############## flash.par and Makefiles **************
 
@@ -194,7 +229,7 @@ def main():
     unitList.createMakefiles()
     #FIXME merge with createMakefiles
 
-    for unitname in unitList.getLinkOrder():
+    for unitname in orderedUnitlist:
         # If unit has variants, modify the Makefile of the base unit
         unitDir = os.path.join(GVars.sourceDir, unitname)
         lowestBase = getLowestBase(unitname)
@@ -301,6 +336,30 @@ def main():
     # if no flash.par copy default.par over
     if not os.path.isfile('flash.par'):
        shutil.copy(globals.RPDefaultParFilename, 'flash.par')
+
+    # generate parfile and input file from toml file instead
+    if GVars.tomlfile:
+       try:
+           toml = importlib.import_module("toml")
+       except:
+           raise SetupError("Cannot import toml library in your python environment. Cannot use tomlfile option")
+
+       if GVars.parfile:
+           GVars.out.put("Appending parfile with contents from tomlfile")
+       else:
+           GVars.out.put("Generating parfile with contents from tomlfile")
+
+       try:
+           GVars.tomlDict = toml.load(GVars.tomlfile)
+       except toml.decoder.TomlDecodeError as e:
+           raise SetupError(f"Error when parsing tomlfile: line {e.lineno} at column {e.colno}.")
+
+       createParfile.main(GVars)
+
+    # Call unit modules to run preprocessing scripts
+    if GVars.withUnitMods:
+        GVars.out.put("Executing setup modules for individual units")
+        unitMods.main(GVars,unitList)
 
     # create the successfile
     ofd = open(globals.SuccessFilename,"w")

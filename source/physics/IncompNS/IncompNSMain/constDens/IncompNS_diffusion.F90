@@ -20,96 +20,45 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_diffusion(tileDesc)
+subroutine IncompNS_diffusion(solnData, facexData, faceyData, facezData, del, lo, hi)
 
-   use Grid_tile, ONLY: Grid_tile_t
-   use ins_interface, ONLY: ins_diffusion3d_vardens, ins_diffusion2d_vardens
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Stencils_interface, ONLY: Stencils_diffusion2d, Stencils_diffusion3d
+   use Stencils_interface, ONLY: Stencils_diffusion
    use IncompNS_data
 
 !------------------------------------------------------------------------------------------
    implicit none
-   include "Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
-
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
-#if NDIM < MDIM
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
-   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
-#else
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-#endif
-   real del(MDIM)
-   integer :: NStep
-
+   real, dimension(MDIM), intent(in) :: del
+   integer,dimension(MDIM), intent(in) :: lo,hi
 !------------------------------------------------------------------------------------------
-#if NDIM < MDIM
-   nullify (solnData, facexData, faceyData)
-#else
-   nullify (solnData, facexData, faceyData, facezData)
-#endif
+   integer,dimension(MDIM) :: hi1   
    !
    call Timers_start("IncompNS_diffusion")
    !
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-   call tileDesc%deltas(del)
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
+   hi1(:)=hi(:)
+   ! compute RHS of momentum equation
+   hi1(IAXIS)=hi1(IAXIS)+1   
+   call Stencils_diffusion(facexData(HVN0_FACE_VAR, :, :, :), &
+                             facexData(VELC_FACE_VAR, :, :, :), &
+                             del,&
+                             ins_invReynolds, &
+                             lo, hi1)
 
+   hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
+   call Stencils_diffusion(faceyData(HVN0_FACE_VAR, :, :, :), &
+                             faceyData(VELC_FACE_VAR, :, :, :), &
+                             del,&
+                             ins_invReynolds, &
+                             lo, hi1)
 #if NDIM == 3
-   call tileDesc%getDataPtr(facezData, FACEZ)
-   ! compute RHS of momentum equation
-   call Stencils_diffusion3d(facexData(HVN0_FACE_VAR, :, :, :), &
-                             facexData(VELC_FACE_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                             ins_invReynolds, &
-                             GRID_ILO, GRID_IHI + 1, &
-                             GRID_JLO, GRID_JHI, &
-                             GRID_KLO, GRID_KHI)
-
-   call Stencils_diffusion3d(faceyData(HVN0_FACE_VAR, :, :, :), &
-                             faceyData(VELC_FACE_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                             ins_invReynolds, &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI + 1, &
-                             GRID_KLO, GRID_KHI)
-
-   call Stencils_diffusion3d(facezData(HVN0_FACE_VAR, :, :, :), &
+   hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
+   call Stencils_diffusion(facezData(HVN0_FACE_VAR, :, :, :), &
                              facezData(VELC_FACE_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             del,&
                              ins_invReynolds, &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI, &
-                             GRID_KLO, GRID_KHI + 1)
+                             lo, hi1)
 
-#elif NDIM ==2
-   ! compute RHS of momentum equation
-   call Stencils_diffusion2d(facexData(HVN0_FACE_VAR, :, :, :), &
-                             facexData(VELC_FACE_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             ins_invReynolds, &
-                             GRID_ILO, GRID_IHI + 1, &
-                             GRID_JLO, GRID_JHI)
-
-   call Stencils_diffusion2d(faceyData(HVN0_FACE_VAR, :, :, :), &
-                             faceyData(VELC_FACE_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             ins_invReynolds, &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI + 1)
-#endif
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-   call tileDesc%releaseDataPtr(facexData, FACEX)
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
-
-#if NDIM ==3
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
 #endif
 
    call Timers_stop("IncompNS_diffusion")

@@ -5,7 +5,6 @@ each file depends on. Having done that, it generates a makefile listing those de
 
 import re, os, os.path, string, sys, io
 
-
 usemodpatt = r"^\s*use\s+([A-Za-z_0-9]+)[,]?.*"
 intrinsicModnamepatt = r"^(iso_c_binding)$"
 incpatt = r"""^\s*[#]\s*include\s+["']?([A-Za-z._0-9]+)['"]?\s+.*"""
@@ -226,8 +225,10 @@ def main():
                       MODlistudeps[m] = "%(umodpart)s %(incpart)s" % locals()
                       MODlistFortFile[m] = filename
                       MODlistAllHere[m] = modsDefinedHere
-                      if ext == ".F" or ext == ".f":
-                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(FDEFINES) $<\n"
+                      if ext == ".F":
+                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(F77FLAGS) $(FDEFINES) $<\n"
+                      elif ext == ".f":
+                          MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(f77FLAGS) $(FDEFINES) $<\n"
                       elif ext == ".F90":
                           MODlistCmd[m] = "\t$(ECHO-COMPILING)\n\t$(FCOMP) $(FFLAGS) $(F90FLAGS) $(FDEFINES) $<\n"
                       elif ext == ".f90":
@@ -239,6 +240,18 @@ def main():
               
 
    ofd.write("\n\n### Dependencies of modules\n")
+   ofd.write(r"""
+# We want $(/) to expand to ":" or "&:", depending on GNU Make version.
+# Note that MAKEVERSION_BEFORE_4_3 is meant to be defined to either
+# a non-empty string (for True) or an empty string (for False) in the
+# main Makefile, based on the version of GNU Make of course.
+
+ifneq (,$(MAKEVERSION_BEFORE_4_3))
+  /:=:
+else
+  /:=&:
+endif
+""")
    flash_modules = []
    for (m,obj) in list(MODlist.items()):
        if m not in MODlistDone:
@@ -250,6 +263,7 @@ def main():
                    if x.lower() == basename.lower():
                        allDifferent = 0
                ofd.write("\nifdef MODUPPERCASE\n")
+               ofd.write("  ifneq (,$(MAKEVERSION_BEFORE_4_3))\n")
                xtraModName = ""
                for x in MODlistAllHere[m]:
                    if (x.upper() != basename): #### and x.upper() == basename.upper()):
@@ -266,7 +280,14 @@ def main():
                                                 MODlistObj[m],
                                                 MODlistFortFile[m],
                                                 MODlistudeps[m]) )
+               ofd.write("  else\n")
+               ofd.write("%s %s $(/) %s %s\n" % (" ".join([x.upper()+".mod" for x in MODlistAllHere[m]]),
+                                                MODlistObj[m],
+                                                MODlistFortFile[m],
+                                                MODlistudeps[m]) )
+               ofd.write("  endif\n")
                ofd.write("else\n")
+               ofd.write("  ifneq (,$(MAKEVERSION_BEFORE_4_3))\n")
                xtraModName = ""
                for x in MODlistAllHere[m]:
                    if (x.lower() != basename): #### and x.lower() == basename.lower()):
@@ -283,9 +304,17 @@ def main():
                                                 MODlistObj[m],
                                                 MODlistFortFile[m],
                                                 MODlistldeps[m]) )
+               ofd.write("  else\n")
+               ofd.write("%s %s $(/) %s %s\n" % (" ".join([x.lower()+".mod" for x in MODlistAllHere[m]]),
+                                                MODlistObj[m],
+                                                MODlistFortFile[m],
+                                                MODlistldeps[m]) )
+               ofd.write("  endif\n")
                ofd.write("endif\n")
-##               if MODlistCmd.has_key(m):
-##                   ofd.write(MODlistCmd[m])
+               if m in MODlistCmd:
+                   ofd.write("ifeq (,$(MAKEVERSION_BEFORE_4_3))\n")
+                   ofd.write(MODlistCmd[m])
+                   ofd.write("endif\n")
                for mdh in MODlistAllHere[m]:
                    MODlistDone[mdh] = 1
            else:

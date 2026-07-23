@@ -54,6 +54,22 @@ EXE = flashx
 
 default: $(EXE)
 
+# We determine whether the running version of GNU Make supports
+# the '&:' separator:
+
+version_list  := $(subst ., ,$(MAKE_VERSION))
+major_version := $(word 1, $(value version_list))
+minor_version := $(word 2, $(value version_list))
+
+ifeq ($(filter $(major_version), 1 2 3), $(major_version))
+  MAKEVERSION_BEFORE_4_3 = yes
+else ifneq (4, $(major_version))
+  MAKEVERSION_BEFORE_4_3 =
+else ifeq ($(filter $(minor_version), 1 2), $(minor_version))
+  MAKEVERSION_BEFORE_4_3 = yes
+else
+  MAKEVERSION_BEFORE_4_3 =
+endif
 
 #\tMachine-dependent include file
 
@@ -128,7 +144,7 @@ endif
 .SUFFIXES:
 
 .SUFFIXES: .f .F .f90 .F90 .c .C .cxx .o .cu
-  
+
 %%.o : %%.f
 \t$(ECHO-COMPILING) 
 \t$(FCOMP) $(FFLAGS) $(f77FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
@@ -138,14 +154,23 @@ endif
 %%.o : %%.f90
 \t$(ECHO-COMPILING) 
 \t$(FCOMP) $(FFLAGS) $(f90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+ifneq (,$(MAKEVERSION_BEFORE_4_3))
 %%.o %%.mod : %%.F90
+else
+%%.o : %%.F90
+endif
 \t$(ECHO-COMPILING) 
 \t$(FCOMP) $(FFLAGS) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .o,$(basename $@))
+ifneq (,$(MAKEVERSION_BEFORE_4_3))
 ifdef MODUPPERCASE
 \t-$(if $(wildcard $*.mod),if [ -w $*.mod -a -s $(shell echo $*|tr a-z A-Z).mod -a \( $(shell echo $*|tr a-z A-Z).mod -nt $*.mod \) ] ;then ln -f $(shell echo $*|tr a-z A-Z).mod $*.mod;fi)
 else
 \t-$(if $(wildcard $*.mod),if [ -w $*.mod -a -s $(shell echo $*|tr A-Z a-z).mod -a \( $(shell echo $*|tr A-Z a-z).mod -nt $*.mod \) ] ;then ln -f -v $(shell echo $*|tr A-Z a-z).mod $*.mod;else test -f $@ -a -s $@ -a -w $@&&touch $@||:;fi)
 endif
+endif
+%%.i90 : %%.F90
+\t$(ECHO-PROCESSING)
+\t$(FCOMP) $(patsubst -c,-E,$(FFLAGS)) $(F90FLAGS) $(FDEFINES) $< -o $(addsuffix .i90,$(basename $@))
 %%.o : %%.c
 \t$(ECHO-COMPILING) 
 \t$(CCOMP) $(CFLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))
@@ -155,6 +180,9 @@ endif
 %%.o : %%.cxx
 \t$(ECHO-COMPILING) 
 \t$(CPPCOMP) $(CFLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))
+%%.ixx : %%.cxx
+\t$(ECHO-PROCESSING)
+\t$(CPPCOMP) $(patsubst -c,-E,$(CFLAGS)) $(CDEFINES) $< -o $(addsuffix .ixx,$(basename $@))
 %%.o : %%.cu
 \t$(ECHO-COMPILING)
 \t$(CUCOMP) $(CU_FLAGS) $(CDEFINES) $< -o $(addsuffix .o,$(basename $@))

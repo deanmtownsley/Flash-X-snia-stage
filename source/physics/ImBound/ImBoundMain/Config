@@ -17,7 +17,7 @@ D ib_bodyName Prefix of HDF5 ibd file
 PARAMETER ib_bodyName                	STRING	"flash"
 
 D ib_enbaleSelectiveMapping Allow for selective mapping based on block locality
-PARAMETER ib_enableSelectiveMapping	BOOLEAN	FALSED
+PARAMETER ib_enableSelectiveMapping	BOOLEAN	FALSE
 
 D ib_bruteForceMapping Allow for brute force mapping. Most expensive
 PARAMETER ib_bruteForceMapping		BOOLEAN	FALSE
@@ -42,5 +42,8 @@ IF nDim == 3
 D nmlz_variable Level set normal in z-direction
 VARIABLE nmlz TYPE:GENERIC
 END IF
+
+D lcrv_variable Variable to store curvature for lmda level set
+VARIABLE lcrv
 
 LIBRARY ANN

@@ -81,8 +81,10 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   real    :: sclInv, lgnInv, expInv
   real    :: z
   real    :: bndBox (LOW:HIGH,1:MDIM)
+  real,dimension(MDIM) :: deltas
+  integer :: level
 
-   @M iter_declare(tileLimits   ,tileLimitsGC, grownLimits)
+   @M iter_declare(tileLimits,tileLimitsGC, grownLimits, Uin)
 
 !
 !
@@ -95,7 +97,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   gr_mpoleQused (:) = 0 
   nullify(Uin)
 
-   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas)
+   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas,Uin)
      call tileDesc%boundBox(bndBox)
      imin       = tileLimits (LOW, IAXIS)
      jmin       = tileLimits (LOW, JAXIS)
@@ -151,7 +153,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
       end do
       z = z + DeltaJ
      end do
-   @M iter_end
+   @M iter_end(Uin)
 !
 !
 !     ...Create the arrays that will contain the radial info.
@@ -172,7 +174,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
   gr_mpoleQused (:) = 0 
 
   nQ = 0
-   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas)
+   @M iter_all_begin(LEAF,.FALSE.,tileLimits,tileLimitsGC,deltas,Uin)
      
      call tileDesc%boundBox(bndBox)
 
@@ -250,7 +252,7 @@ subroutine gr_mpoleMom2Dcylindrical (idensvar)
       end do
       z = z + DeltaJ
      end do
-  @M iter_end
+  @M iter_end(Uin)
 !$omp end single
 !
 !

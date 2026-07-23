@@ -1,0 +1,21 @@
+geometry = "spherical"
+
+xmin     =  0.0
+xmax     =  2.0
+ymin     =  0.0
+ymax     =  180.0
+zmin     =  0.0
+zmax     =  360.0
+
+lrefine_min  = 1
+lrefine_max  = 3
+refine_var_1 = "dens"
+
+xl_boundary_type = "reflecting"
+xr_boundary_type = "outflow"
+
+yl_boundary_type = "reflecting"
+yr_boundary_type = "reflecting"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"

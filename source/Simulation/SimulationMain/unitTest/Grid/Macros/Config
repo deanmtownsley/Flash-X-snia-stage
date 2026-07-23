@@ -1,0 +1,10 @@
+IF Grid=='UG'
+   REQUIRES  Grid/GridMain/UG
+ELSE
+   REQUIRES  Grid/GridMain/AMR
+ENDIF
+REQUIRES  Grid/GridMain/unitTest/Macros
+REQUIRES  flashUtilities/testing
+
+VARIABLE dens TYPE: PER_VOLUME       # density
+

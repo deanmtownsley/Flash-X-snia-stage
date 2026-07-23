@@ -37,28 +37,36 @@ Module Multiphase_interface
    end interface
 
    interface
-      subroutine Multiphase_advection(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      !! solnData :: source=grid_data, structure_index=[center, 1], RW = [DFUN_VAR], R = [NRMX_VAR, NRMY_VAR]
+      !! facexData :: source=grid_data, structure_index=[facex, 1], RW = [VELC_FACE_VAR]
+      !! del :: source=tile_deltas
+      !! blkLimits :: source=tile_interior
+      !! blkLimitsGC :: source=tile_arrayBounds
+      !!subroutine Multiphase_advection(solnData, facexData, del, blkLimits, blkLimitsGC)
+      subroutine Multiphase_advection(solnData, facexData, faceyData, facezData,del, lo, hi)
+        implicit none
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real,dimension(MDIM), intent(IN) :: del
+        integer, dimension(MDIM),intent(IN) :: lo, hi
       end subroutine Multiphase_advection
    end interface
 
    interface
-      subroutine Multiphase_solve(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         real, INTENT(IN) :: dt
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_solve(solnData, lo, hi, dt)
+        
+        real, dimension(:,:,:,:), pointer :: solnData
+        real, INTENT(IN) :: dt
+        integer, dimension(MDIM), intent(IN) :: lo, hi
+        !-----------------------------------------------------------------------------------------
       end subroutine Multiphase_solve
    end interface
 
    interface
-      subroutine Multiphase_redistance(tileDesc, iteration)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         integer, INTENT(IN) :: iteration
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_redistance(solnData,del,lo,hi, iteration)
+        real, pointer, dimension(:, :, :, :) :: solnData
+        integer, intent(in) :: iteration
+        integer,dimension(MDIM), intent(IN) :: lo, hi
+        real,dimension(MDIM),intent(IN) :: del
       end subroutine Multiphase_redistance
    end interface
 
@@ -75,26 +83,26 @@ Module Multiphase_interface
    end interface
 
    interface
-      subroutine Multiphase_setFluidProps(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_setFluidProps(solnData, facexData, faceyData, facezData, del,&
+            logc, higc)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real,dimension(MDIM), intent(in) :: del
+        integer, intent(IN), dimension(MDIM) :: logc, higc
       end subroutine Multiphase_setFluidProps
    end interface
 
    interface
-      subroutine Multiphase_setThermalProps(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_setThermalProps(solnData)
+        real,dimension(:,:,:,:), pointer :: solnData
       end subroutine Multiphase_setThermalProps
    end interface
 
    interface
-      subroutine Multiphase_setPressureJumps(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_setPressureJumps(solnData, facexData, faceyData, facezData, del, lo, hi)
+        implicit none
+        integer, dimension(MDIM),intent(IN) :: lo, hi
+        real,dimension(MDIM) ::  del
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
       end subroutine Multiphase_setPressureJumps
    end interface
 
@@ -107,55 +115,53 @@ Module Multiphase_interface
    end interface
 
    interface
-      subroutine Multiphase_thermalForcing(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_thermalForcing(solnData, del, logc, higc)
+        integer, dimension(MDIM),intent(IN) :: logc, higc 
+        real, pointer, dimension(:, :, :, :) :: solnData
+        real,dimension(MDIM), intent(IN) :: del
       end subroutine Multiphase_thermalForcing
    end interface
 
    interface
-      subroutine Multiphase_divergence(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real,dimension(MDIM), intent(IN) :: del
+        integer, dimension(MDIM),intent(IN) :: lo, hi
       end subroutine Multiphase_divergence
    end interface
 
    interface
-      subroutine Multiphase_extrapFluxes(tileDesc, iteration)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         integer, INTENT(IN) :: iteration
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_extrapFluxes(solnData,del,lo,hi, iteration)
+        real, pointer, dimension(:, :, :, :) :: solnData
+        real, dimension(MDIM), intent(IN) :: del
+        integer, dimension(MDIM), intent(IN) :: lo,hi
+        integer, intent(in) :: iteration
       end subroutine Multiphase_extrapFluxes
    end interface
 
    interface
-      subroutine Multiphase_setMassFlux(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_setMassFlux(solnData, del)
+        real, pointer, dimension(:, :, :, :) :: solnData
+        real, dimension(MDIM) :: del
       end subroutine Multiphase_setMassFlux
    end interface
 
    interface
-      subroutine Multiphase_velForcing(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         real, intent(in) :: dt
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_velForcing(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
+        implicit none
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real, dimension(MDIM), intent(in) :: del
+        integer,dimension(MDIM), intent(in) :: lo,hi
+        real, INTENT(IN) :: dt
       end subroutine Multiphase_velForcing
    end interface
 
    interface
-      subroutine Multiphase_reInitGridVars(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine Multiphase_reInitGridVars(solnData)
+        real, pointer, dimension(:, :, :, :) :: solnData
       end subroutine Multiphase_reInitGridVars
    end interface
-
+   
    interface
       subroutine Multiphase_getGridVar(name, value)
          implicit none

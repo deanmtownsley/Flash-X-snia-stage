@@ -21,7 +21,10 @@ def main():
 
     import sys
     sys.path.append(flashx_bin.as_posix())
-    from macroProcessor import macroProcessor, macro_regex, invocation_regex
+    from macroProcessor import (
+        macroProcessor,
+        macro_regex_simple,
+    )
 
     m = macroProcessor()
 
@@ -45,12 +48,11 @@ def main():
                         break
 
                 # get macro invocation lines
-                invocation_list = re.findall(macro_regex, line_stripped)
+                invocation_list = re.findall(macro_regex_simple, line_stripped)
 
                 # find macro keys used in mc file
                 for invocation in invocation_list:
-                    invocation_parts = re.match(invocation_regex, invocation)
-                    used_macros.add(invocation_parts.group("key"))
+                    used_macros.add(invocation)
 
 
     unused = all_macros - used_macros

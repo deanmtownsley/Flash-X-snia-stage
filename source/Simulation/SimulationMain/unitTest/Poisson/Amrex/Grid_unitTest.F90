@@ -53,9 +53,7 @@ subroutine Grid_unitTest(fileUnit,perfect)
 #include "Simulation.h"
 #include "constants.h"
 
-
-  implicit none
-#include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent(in)           :: fileUnit ! Output to file
   logical, intent(inout)        :: perfect  ! Flag to indicate errors

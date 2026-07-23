@@ -134,9 +134,15 @@ RL = ranlib
 ECHO = echo
 
 
+#----------------------------------------------------------------------------
+# Fixups can go here.
+#----------------------------------------------------------------------------
 ifeq ($(FLASHBINARY),true)
 
 FFLAGS_WO_WARNALL = $(patsubst -warn all,,$(FFLAGS))
+
+# Take these as examples. The set of source files that are handled specially
+# below is inherited from FLASH and out of date! 
 
 #Turn off compiler error messages for paramesh files that use wrapper
 #functions such as MPI_int_SSEND.

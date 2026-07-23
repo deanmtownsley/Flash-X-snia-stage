@@ -49,8 +49,7 @@
 !!  Within the network setup process
 !!
 !!  In this nuclearBurn directory, there are additional routines
-!!  routine bn_azbar computes composition variables from the mass fractions; they are
-!!              stored in Burn_dataEOS
+!!  routine bn_azbar computes composition variables from the mass fractions
 !!  routine bn_sneutx computes neutrino losses
 !!
 !!
@@ -58,8 +57,7 @@
 
 subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone, kstep)
 
-   use Burn_dataEOS, ONLY: btemp, bden, bye
-   use Burn_data, ONLY: xmass, bion, sneut, aion, aioninv, bn_nuclearDensMax
+   use Burn_data, ONLY: bion, aion, aioninv, bn_nuclearDensMax
 
    use bn_interface, ONLY: bn_azbar, bn_sneutx
 
@@ -97,6 +95,8 @@ subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone
    integer, intent(out)                                  :: kstep
 
    !..local varaibles
+   real, dimension(NSPECIES) :: xmass, ymass
+   real :: abar, zbar, z2bar, ytot1, btemp, bden, bye, sneut
    real, parameter ::  conv = avn*epmev
    integer :: i, numzones
 
@@ -116,7 +116,7 @@ subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone
    ! Set the thermo history data for a constant conditions burn
    do i = 1, numzones
       xmass = xIn(:, i)
-      call bn_azbar()
+      call bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
       yestart(i) = bye
       ystart(:, i) = xIn(:, i)*aioninv(:)
    end do
@@ -157,8 +157,9 @@ subroutine bn_burner(tstep, temp, density, xIn, xOut, sdotRate, burnedZone, zone
          btemp = t9(i)
          bden = rho(i)
          xmass = xIn(:, i)
-         call bn_azbar()
-         call bn_sneutx()
+         call bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
+         call bn_sneutx(btemp, bden, abar, zbar, &
+                        sneut)
          sdotRate(i) = sdotRate(i) - sneut
 #endif
 
